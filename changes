@@ -1,3 +1,28 @@
+Dec 14th, 2002
+v0.79  -- Change to PK code [binary and source].  I made it so you have to pass the buffer size to the *_decrypt_key and
+          *_verify_hash functions.  This prevents malformed packets from performing buffer overflows.  I've also trimmed
+          the packet header size [by 4 bytes].
+       -- Made the test program halt on the first error it occurs.  Also made it trap more errors than before.
+       -- Wrote the first chapter of my new book [DRAFT!], not in this package but check my website!
+       -- Included a perl script "config.pl" that will make "makefile.out" according to the users needs.  
+       -- Added shell script to look for latest release
+       -- Merge DH and ECC key defines from mycrypt_cfg.h into the makefiles
+       -- updated the makefile to use BSD friendly archiving invokations
+       -- Changed the DH and ECC code to use base64 static key settings [e.g. the primes].  Dropped the code size by 3KB
+          and is ever-so-slightly faster than before.
+       -- added "mp_shrink" function to shrink the size of bignums.  Specially useful for PK code :-)
+       -- Added new exptmod function that calculates a^b mod c with fewer multiplies then before [~20% for crypto
+          sized numbers].  Also added a "low mem" variant that doesn't use more than 20KB [upto 4096 bit nums] of
+          heap todo the calculation.  Both are #define'able controlled
+       -- Added XREALLOC macro to provide realloc() functionality.
+       -- Added fix where in rsa_import() if you imported a public key or a non-optimized key it would free the mp_int's
+          not being used.
+       -- Fixed potential bug in the ECC code.  Only would occur on platforms where char is not eight bits [which isn't
+          often!]
+       -- Fixed up the ECC point multiplication, its about 15% faster now
+       -- While I was at it [since the lib isn't binary backwards compatible anyways] I've fixed the PK export routines
+          so they export as "unsigned" types saving 1 byte per bignum outputted.  Not a lot but heck why not.
+          
 Nov 28th, 2002
 v0.78  -- Made the default ARGCHK macro a function call instead which reduced the code size from 264KB to 239KB.
        -- Fixed a bug in the XTEA keysize function which called ARGCHK incorrectly.

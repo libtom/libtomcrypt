@@ -1635,7 +1635,158 @@ mp_err mp_sqrmod(mp_int *a, mp_int *m, mp_int *c)
 
 /* }}} */
 
+/* shrinks the memory required to store a mp_int if possible */
+mp_err mp_shrink(mp_int *a)
+{
+   if (a->used != a->alloc) {
+      if ((a->dp = XREALLOC(a->dp, a->used * sizeof(mp_digit))) == NULL) {
+         return MP_MEM;
+      } else {
+         a->alloc = a->used;
+         return MP_OKAY;
+      }
+   } else {
+      return MP_OKAY;
+   }
+}      
+
 /* {{{ mp_exptmod(a, b, m, c) */
+
+#ifdef MPI_FASTEXPT
+
+/* computes y == g^x mod p */
+mp_err mp_exptmod(mp_int *G, mp_int *X, mp_int *P, mp_int *Y)
+{
+   mp_int *M, tx, mu, res;
+   int QQQ, QQ, Q, x, *vals, err;
+
+   /* determine the value of Q */
+   x = (USED(X) - 1) * DIGIT_BIT;
+   Q = DIGIT(X, USED(X)-1);
+   while (Q) { 
+      ++x;
+      Q >>= 1;
+   }
+        if (x <= 8)    { Q = 2; }
+   else if (x <= 64)   { Q = 3; }
+   else if (x <= 256)  { Q = 4; }
+   else if (x <= 950)  { Q = 5; }
+   else if (x <= 2755) { Q = 6; }
+   else                { Q = 7; }
+   
+#ifdef MPI_FASTEXPT_LOWMEM
+   if (Q > 5) {
+      Q = 5;
+   }
+#endif
+
+   /* alloc room for table */
+   vals = XCALLOC(sizeof(int), USED(X)*((DIGIT_BIT/Q)+((DIGIT_BIT%Q)?1:0)));
+   if (vals == NULL) { err = MP_MEM; goto _ERR; }
+
+   M    = XCALLOC(sizeof(mp_int), 1<<Q);
+   if (M == NULL)    { err = MP_MEM; goto _VALS; }
+
+   /* init M table */
+   for (x = 0; x < (1<<Q); x++) {
+       if (mp_init(&M[x]) != MP_OKAY) {
+          for (Q = 0; Q < x; Q++) {
+              mp_clear(&M[x]);
+          }
+          err = MP_MEM;
+          goto __M;
+       }
+   }
+
+  /* init the barett reduction */
+  /* mu = b^2k / m */
+  if ((err = mp_init(&mu)) != MP_OKAY) {
+     goto _M;
+  }
+
+  if ((err = mp_init(&res)) != MP_OKAY) {
+     goto _MU;
+  }
+
+  mp_set(&mu, 1); 
+  s_mp_lshd(&mu, 2 * USED(P));
+  if((err = mp_div(&mu, P, &mu, NULL)) != MP_OKAY){
+    goto _RES;
+  }
+
+   /* now init the M array with powers of the base */
+   mp_set(&M[0], 1);
+   if ((err = mp_mod(G, P, &M[1])) != MP_OKAY) { goto _RES; }
+   
+   /* shrink first two */
+   for (x = 0; x < 2; x++) {
+      if ((err = mp_shrink(&M[x])) != MP_OKAY) { goto _RES; }
+   }
+   
+   for (x = 2; x < (1<<Q); x++) {
+       if (USED(&M[x]) == 1 && DIGIT(&M[x], 0) == 0) {
+          if ((err = mp_mul(&M[x-1], &M[1], &M[x])) != MP_OKAY)      { goto _RES; }
+          if ((err = s_mp_reduce(&M[x], P, &mu)) != MP_OKAY)         { goto _RES; }
+          if ((err = mp_shrink(&M[x])) != MP_OKAY)                   { goto _RES; }
+          
+          QQQ = x;
+          QQ  = x * 2;
+          while (QQ < (1<<Q)) {
+              if ((err = mp_sqr(&M[QQQ], &M[QQ])) != MP_OKAY)        { goto _RES; }
+              if ((err = s_mp_reduce(&M[QQ], P, &mu)) != MP_OKAY)    { goto _RES; }
+              if ((err = mp_shrink(&M[QQ])) != MP_OKAY)              { goto _RES; }
+              QQQ = QQ;
+              QQ  *= 2;
+          }
+       }
+   }
+   
+   /* now grab the bits */
+   if ((err = mp_init_copy(&tx, X)) != MP_OKAY) {
+      goto _RES;
+   }
+
+   x = 0;
+   while (mp_cmp_d(&tx, 0)) {
+       vals[x++] = DIGIT(&tx, 0) & ((1<<Q)-1);
+       s_mp_div_2d(&tx, Q);
+   }
+
+   /* now set output equal to the first digit exponent */
+   if ((err = mp_copy(&M[vals[--x]], &res)) != MP_OKAY)        { goto _TX; }
+
+   while (--x >= 0) {
+      for (QQ = 0; QQ < Q; QQ++) {
+          if ((err = s_mp_sqr(&res)) != MP_OKAY)               { goto _TX; }
+          if ((err = s_mp_reduce(&res, P, &mu)) != MP_OKAY)    { goto _TX; }
+      }
+      if (vals[x] != 0) {
+         if ((err = s_mp_mul(&res, &M[vals[x]])) != MP_OKAY)   { goto _TX; }
+         if ((err = s_mp_reduce(&res, P, &mu)) != MP_OKAY)     { goto _TX; }
+      }
+   }
+   s_mp_exch(&res, Y);
+
+   /* free ram */
+_TX:
+   mp_clear(&tx);
+_RES:
+   mp_clear(&res);
+_MU:
+   mp_clear(&mu);
+_M:
+   for (x = 0; x < (1<<Q); x++) {
+       mp_clear(&M[x]);
+   }
+__M:
+   XFREE(M);
+_VALS:
+   XFREE(vals);
+_ERR:
+   return err;
+}
+
+#else 
 
 /*
   mp_exptmod(a, b, m, c)
@@ -1730,6 +1881,8 @@ mp_err mp_exptmod(mp_int *a, mp_int *b, mp_int *m, mp_int *c)
   return res;
 
 } /* end mp_exptmod() */
+
+#endif
 
 /* }}} */
 
@@ -2888,7 +3041,9 @@ void     s_mp_rshd(mp_int *mp, mp_size p)
   for(ix = p; ix < USED(mp); ix++)
     dp[ix - p] = dp[ix];
 
+
   /* Fill the top digits with zeroes */
+  
   ix -= p;
   while(ix < USED(mp))
     dp[ix++] = 0;
@@ -2966,10 +3121,14 @@ void     s_mp_mod_2d(mp_int *mp, mp_digit d)
   dp[ndig] &= dmask;
 
   /* Flush all digits above the one with 2^d in it */
+
+/*
   for(ix = ndig + 1; ix < USED(mp); ix++)
     dp[ix] = 0;
 
   s_mp_clamp(mp);
+*/
+  USED(mp) = ndig;
 
 } /* end s_mp_mod_2d() */
 
@@ -3431,6 +3590,56 @@ mp_err   s_mp_mul(mp_int *a, mp_int *b)
 
 } /* end s_mp_mul() */
 
+/* Compute a = |a| * |b| max of digs digits */
+mp_err   s_mp_mul_dig(mp_int *a, mp_int *b, int digs)
+{
+  mp_word   w, k = 0;
+  mp_int    tmp;
+  mp_err    res;
+  mp_size   ix, jx, ua = USED(a), ub = USED(b);
+  mp_digit *pa, *pb, *pt, *pbt;
+
+  if((res = mp_init_size(&tmp, digs+1)) != MP_OKAY)
+    return res;
+
+  /* This has the effect of left-padding with zeroes... */
+  USED(&tmp) = digs+1;
+
+  /* We're going to need the base value each iteration */
+  pbt = DIGITS(&tmp);
+
+  /* Outer loop:  Digits of b */
+
+  pb = DIGITS(b);
+  for(ix = 0; ix < ub; ++ix, ++pb) {
+    if(*pb == 0) 
+      continue;
+
+    /* Inner product:  Digits of a */
+    pa = DIGITS(a);
+    for(jx = 0; jx < ua; ++jx, ++pa) {
+      if ((int)(ix+jx) > digs) { break; }
+      pt = pbt + ix + jx;
+      w = *pb * *pa + k + *pt;
+      *pt = ACCUM(w);
+      k = CARRYOUT(w);
+    }
+    if ((int)(ix + jx) < digs) {
+       pbt[ix + jx] = k;
+    }
+    k = 0;
+  }
+
+  USED(&tmp) = digs;
+  s_mp_clamp(&tmp);
+  s_mp_exch(&tmp, a);
+
+  mp_clear(&tmp);
+
+  return MP_OKAY;
+
+} /* end s_mp_mul() */
+
 /* }}} */
 
 /* {{{ s_mp_kmul(a, b, out, len) */
@@ -3763,8 +3972,8 @@ mp_err   s_mp_reduce(mp_int *x, mp_int *m, mp_int *mu)
   s_mp_mod_2d(x, (mp_digit)(DIGIT_BIT * (um + 1)));
 
   /* q = q * m mod b^(k+1), quick (no division) */
-  s_mp_mul(&q, m);
-  s_mp_mod_2d(&q, (mp_digit)(DIGIT_BIT * (um + 1)));
+  s_mp_mul_dig(&q, m, um + 1);
+//  s_mp_mod_2d(&q, (mp_digit)(DIGIT_BIT * (um + 1)));
 
   /* x = x - q */
   if((res = mp_sub(x, &q, x)) != MP_OKAY)

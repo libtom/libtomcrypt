@@ -44,7 +44,7 @@
 \def\gap{\vspace{0.5ex}}
 \makeindex
 \begin{document}
-\title{A Tiny Crypto Library, \\ LibTomCrypt \\ Version 0.78}
+\title{A Tiny Crypto Library, \\ LibTomCrypt \\ Version 0.79}
 \author{Tom St Denis \\
 Algonquin College \\
 \\
@@ -192,6 +192,7 @@ I would like to give thanks to the following people (in no particular order) for
    \item Wayne Scott
    \item Andrew Tyler
    \item Sky Schulz
+   \item Christopher Imes
 \end{enumerate}
 
 \chapter{The Application Programming Interface (API)}
@@ -1367,15 +1368,18 @@ int rsa_encrypt_key(const unsigned char *inkey, unsigned long inlen,
                           unsigned char *outkey, unsigned long *outlen,
                           prng_state *prng, int wprng, rsa_key *key);
 
-int rsa_decrypt_key(const unsigned char *in, unsigned char *outkey, 
-                          unsigned long *keylen, rsa_key *key);
+int rsa_decrypt_key(const unsigned char *in, unsigned long inlen, 
+                          unsigned char *outkey, unsigned long *keylen, 
+                          rsa_key *key);
 \end{verbatim}
 
 The ``rsa\_encrypt\_key()'' function accepts a symmetric key (limited to 32 bytes) as input in ``inkey''.  ``inlen''
 is the size of the input key in bytes.  The function will then ``rsa\_pad()'' the key and encrypt it using the RSA
-algorithm.  It will store the result in ``outkey'' along with the length in ``outlen''.  The ``rsa\_decrypt\_key()'' function
-performs the opposite.  The ``in'' variable is where the RSA packet goes and it will store the original symmetric key in
-the ``outkey'' variable along with its length in ``keylen''.
+algorithm.  It will store the result in ``outkey'' along with the length in ``outlen''.  
+
+The ``rsa\_decrypt\_key()'' function performs the opposite.  The ``in'' variable is where the RSA packet of length 
+``inlen'' goes and it will store the original symmetric key in the ``outkey'' variable along with its length in 
+``keylen''.
 
 Similarly to sign or verify a hash of a message the following two messages are provided.  The idea is to hash your 
 message then use these functions to RSA sign the hash.  
@@ -1384,8 +1388,8 @@ int rsa_sign_hash(const unsigned char *in,  unsigned long inlen,
                         unsigned char *out, unsigned long *outlen, 
                         rsa_key *key);
 
-int rsa_verify_hash(const unsigned char *sig, const unsigned char *hash,
-                          int *stat, rsa_key *key);
+int rsa_verify_hash(const unsigned char *sig, unsigned long siglen,
+                    const unsigned char *hash, int *stat, rsa_key *key);
 \end{verbatim}
 For ``rsa\_sign\_hash'' the input is intended to be the hash of a message the user wants to sign.  The output is the 
 RSA signed packet which ``rsa\_verify\_hash'' can verify.  For the verification function ``sig'' is the RSA signature
@@ -1633,12 +1637,13 @@ int dh_encrypt_key(const unsigned char *inkey, unsigned long keylen,
                          prng_state *prng, int wprng, int hash, 
                          dh_key *key);
 
-int dh_decrypt_key(const unsigned char *in, unsigned char *outkey, 
-                         unsigned long *keylen, dh_key *key);
+int dh_decrypt_key(const unsigned char *in, unsigned long inlen,
+                         unsigned char *outkey, unsigned long *keylen, 
+                         dh_key *key);
 \end{verbatim}
 Where ``inkey'' is an input symmetric key of no more than 32 bytes.  Essentially these routines created a random public key
-and find the hash of the shared secret.  The message digest is than XOR'ed against the symmetric key.  All of the required
-data is placed in ``out'' by ``dh\_encrypt\_key()''.   The hash must produce a message digest at least as large
+and find the hash of the shared secret.  The message digest is than XOR'ed against the symmetric key.  All of the 
+required data is placed in ``out'' by ``dh\_encrypt\_key()''.   The hash must produce a message digest at least as large
 as the symmetric key you are trying to share.
 
 Similar to the RSA system you can sign and verify a hash of a message.
@@ -1647,9 +1652,9 @@ int dh_sign_hash(const unsigned char *in,  unsigned long inlen,
                        unsigned char *out, unsigned long *outlen,
                        prng_state *prng, int wprng, dh_key *key);
 
-int dh_verify_hash(const unsigned char *sig, const unsigned char *hash, 
-                         unsigned long inlen, int *stat, 
-                         dh_key *key);
+int dh_verify_hash(const unsigned char *sig, unsigned long siglen,
+                         const unsigned char *hash, unsigned long hashlen, 
+                         int *stat, dh_key *key);
 \end{verbatim}
 
 The ``dh\_sign\_hash'' function signs the message hash in ``in'' of length ``inlen'' and forms a DH packet in ``out''.  
@@ -1742,8 +1747,9 @@ int ecc_encrypt_key(const unsigned char *inkey, unsigned long keylen,
                           prng_state *prng, int wprng, int hash, 
                           ecc_key *key);
 
-int ecc_decrypt_key(const unsigned char *in, unsigned char *outkey, 
-                          unsigned long *keylen, ecc_key *key);
+int ecc_decrypt_key(const unsigned char *in, unsigned long inlen,
+                          unsigned char *outkey, unsigned long *keylen, 
+                          ecc_key *key);
 \end{verbatim}
 
 Where ``inkey'' is an input symmetric key of no more than 32 bytes.  Essentially these routines created a random public key
@@ -1757,9 +1763,9 @@ int ecc_sign_hash(const unsigned char *in,  unsigned long inlen,
                         unsigned char *out, unsigned long *outlen,
                         prng_state *prng, int wprng, ecc_key *key);
 
-int ecc_verify_hash(const unsigned char *sig, const unsigned char *hash, 
-                          unsigned long inlen, int *stat, 
-                          ecc_key *key);
+int ecc_verify_hash(const unsigned char *sig, unsigned long siglen,
+                    const unsigned char *hash, unsigned long hashlen, 
+                          int *stat, ecc_key *key);
 \end{verbatim}
 
 The ``ecc\_sign\_hash'' function signs the message hash in ``in'' of length ``inlen'' and forms a ECC packet in ``out''.  

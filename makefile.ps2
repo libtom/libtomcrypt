@@ -32,6 +32,7 @@ ARFLAGS=rs
 #here you can set the malloc/calloc/free functions you want
 XMALLOC=malloc
 XCALLOC=calloc
+XREALLOC=realloc
 XFREE=free
 
 #you can redefine the clock
@@ -40,7 +41,8 @@ XCLOCKS_PER_SEC=576000
 
 #Compilation flags. Note the += does not write over the user's CFLAGS!
 CFLAGS += -c -I./ -Wall -Wsign-compare -W -Wno-unused -Werror  \
-   -DXMALLOC=$(XMALLOC) -DXCALLOC=$(XCALLOC) -DXFREE=$(XFREE) -DXCLOCK=$(XCLOCK) \
+   -DXMALLOC=$(XMALLOC) -DXCALLOC=$(XCALLOC) -DXFREE=$(XFREE) \
+   -DXREALLOC=$(XREALLOC) -DXCLOCK=$(XCLOCK) \
    -DXCLOCKS_PER_SEC=$(XCLOCKS_PER_SEC)
 
 #optimize for SPEED (comment out SIZE line as well)
@@ -103,14 +105,6 @@ CFLAGS += -DNOEKEON
 # This speeds up the cipher somewhat.
 # CFLAGS += -DTWOFISH_TABLES 
 
-#Small code variant of the SAFER+ cipher, uses same RAM but less code space
-#With this defined the cipher is slower.  On my x86 with GCC 3.2 it required 50KB less space
-CFLAGS += -DSAFERP_SMALL
-
-#Small Rijndael [saves 13KB on an x86]
-#With this defined the cipher is slower (by 50Mbit/sec on an Athon XP)
-CFLAGS += -DRIJNDAEL_SMALL
-
 #Use fast PK routines.  Basically this limits the size of the private key in the
 #DH system to 256 bits.  The group order remains unchanged so the best
 #attacks are still GNFS (for DH upto 2560-bits)
@@ -148,13 +142,47 @@ CFLAGS += -DRC4
 CFLAGS += -DMRSA
 CFLAGS += -DMDH
 CFLAGS += -DMECC
+#CFLAGS += -DDSA
 CFLAGS += -DKR
+
+# Control which built in DH or ECC key paramaters
+# are to be allowed
+CFLAGS += -DDH768
+CFLAGS += -DDH1024
+CFLAGS += -DDH1280
+CFLAGS += -DDH1536
+CFLAGS += -DDH1792
+CFLAGS += -DDH2048
+CFLAGS += -DDH2560
+CFLAGS += -DDH3072
+CFLAGS += -DDH4096
+
+CFLAGS += -DECC160
+CFLAGS += -DECC192
+CFLAGS += -DECC224
+CFLAGS += -DECC256
+CFLAGS += -DECC384
+CFLAGS += -DECC521
+
+CFLAGS += -DDSA1024
+CFLAGS += -DDSA2048
+CFLAGS += -DDSA4096
 
 # include GF math routines?  (not currently used by anything internally)
 #CFLAGS += -DGF
 
 # include large integer math routines? (required by the PK code)
 CFLAGS += -DMPI
+
+# use the fast exptmod operation (used in dsa/rsa/dh and is_prime)
+# This uses slightly more heap than the old code [only during the function call]
+# this is also fairly faster than the previous code
+CFLAGS += -DMPI_FASTEXPT
+
+# use a "low" mem variant of the fast exptmod.  It is still always 
+# faster then the old exptmod but its savings drops off after 
+# 1024-bits 
+CFLAGS += -DMPI_FASTEXPT_LOWMEM
 
 # include HMAC support
 CFLAGS += -DHMAC
@@ -175,7 +203,7 @@ LIBPATH=/usr/lib
 INCPATH=/usr/include
 
 #List of objects to compile.
-OBJECTS=keyring.o gf.o mem.o sprng.o ecc.o base64.o dh.o rsa.o \
+OBJECTS=keyring.o gf.o mem.o sprng.o dsa.o ecc.o base64.o dh.o rsa.o \
 bits.o yarrow.o cfb.o ofb.o ecb.o ctr.o cbc.o hash.o tiger.o sha1.o \
 md5.o md4.o md2.o sha256.o sha512.o xtea.o aes.o serpent.o des.o \
 safer_tab.o safer.o safer+.o rc4.o rc2.o rc6.o rc5.o cast5.o noekeon.o blowfish.o crypt.o \

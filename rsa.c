@@ -73,7 +73,19 @@ int rsa_make_key(prng_state *prng, int wprng, int size, long e, rsa_key *key)
 
    if (mp_copy(&p, &key->p) != MP_OKAY)                    { goto error2; }
    if (mp_copy(&q, &key->q) != MP_OKAY)                    { goto error2; }
+   
  
+   /* shrink ram required  */
+   if (mp_shrink(&key->e) != MP_OKAY)                      { goto error2; }
+   if (mp_shrink(&key->d) != MP_OKAY)                      { goto error2; }
+   if (mp_shrink(&key->N) != MP_OKAY)                      { goto error2; }
+   if (mp_shrink(&key->dQ) != MP_OKAY)                     { goto error2; }
+   if (mp_shrink(&key->dP) != MP_OKAY)                     { goto error2; }
+   if (mp_shrink(&key->qP) != MP_OKAY)                     { goto error2; }
+   if (mp_shrink(&key->pQ) != MP_OKAY)                     { goto error2; }
+   if (mp_shrink(&key->p) != MP_OKAY)                      { goto error2; }
+   if (mp_shrink(&key->q) != MP_OKAY)                      { goto error2; }
+   
    res = CRYPT_OK;
    key->type = PK_PRIVATE_OPTIMIZED;
    goto done;
@@ -293,10 +305,10 @@ int rsa_depad(const unsigned char *in,  unsigned long inlen,
 
 #define OUTPUT_BIGNUM(num, buf2, y, z)         \
 {                                              \
-      z = mp_raw_size(num);                    \
+      z = mp_unsigned_bin_size(num);           \
       STORE32L(z, buf2+y);                     \
       y += 4;                                  \
-      mp_toraw(num, buf2+y);                   \
+      mp_to_unsigned_bin(num, buf2+y);         \
       y += z;                                  \
 }
 
@@ -318,11 +330,16 @@ int rsa_depad(const unsigned char *in,  unsigned long inlen,
      }                                                           \
                                                                  \
      /* load it */                                               \
-     if (mp_read_raw(num, (unsigned char *)in+y, x) != MP_OKAY) {\
+     if (mp_read_unsigned_bin(num, (unsigned char *)in+y, x) != MP_OKAY) {\
         errno = CRYPT_MEM;                                       \
         goto error2;                                             \
      }                                                           \
      y += x;                                                     \
+                                                                 \
+     if (mp_shrink(num) != MP_OKAY) {                            \
+        errno = CRYPT_MEM;                                       \
+        goto error2;                                             \
+     }                                                           \
 }
 
 int rsa_export(unsigned char *out, unsigned long *outlen, int type, rsa_key *key)
@@ -371,7 +388,7 @@ int rsa_export(unsigned char *out, unsigned long *outlen, int type, rsa_key *key
    }
 
    /* store packet header */
-   packet_store_header(buf2, PACKET_SECT_RSA, PACKET_SUB_KEY, y);
+   packet_store_header(buf2, PACKET_SECT_RSA, PACKET_SUB_KEY);
 
    /* copy to the user buffer */
    memcpy(out, buf2, y);
@@ -430,6 +447,14 @@ int rsa_import(const unsigned char *in, unsigned long inlen, rsa_key *key)
       INPUT_BIGNUM(&key->qP, in, x, y);
       INPUT_BIGNUM(&key->p, in, x, y);
       INPUT_BIGNUM(&key->q, in, x, y);
+   }
+   
+   /* free up ram not required */
+   if (key->type != PK_PRIVATE_OPTIMIZED) {
+      mp_clear_multi(&key->dQ, &key->dP, &key->pQ, &key->qP, &key->p, &key->q, NULL);
+   }
+   if (key->type != PK_PRIVATE && key->type != PK_PRIVATE_OPTIMIZED) {
+      mp_clear(&key->d);
    }
 
    return CRYPT_OK;

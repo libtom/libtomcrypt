@@ -70,6 +70,7 @@ static const unsigned long crc_table[256] = {
 
 static unsigned long crc32 (unsigned long crc, const unsigned char *buf, unsigned long len)
 {
+  //_ARGCHK(buf != NULL  && len == 0);
   crc = crc ^ 0xffffffffL;
   while (len >= 8) {
       DO8 (buf);
@@ -587,25 +588,26 @@ int kr_encrypt_key(pk_key *pk, unsigned long ID,
    STORE32L(kr->ID,buf+4);
 
    /* now encrypt it */
-   len = sizeof(buf)-8;
+   len = sizeof(buf)-12;
    switch (kr->system) {
         case RSA_KEY:
-            if ((errno = rsa_encrypt_key(in, inlen, buf+8, &len, prng, wprng, &(kr->key.rsa))) != CRYPT_OK) {
+            if ((errno = rsa_encrypt_key(in, inlen, buf+12, &len, prng, wprng, &(kr->key.rsa))) != CRYPT_OK) {
                return errno;
             }
             break;
         case DH_KEY:
-            if ((errno = dh_encrypt_key(in, inlen, buf+8, &len, prng, wprng, hash, &(kr->key.dh))) != CRYPT_OK) {
+            if ((errno = dh_encrypt_key(in, inlen, buf+12, &len, prng, wprng, hash, &(kr->key.dh))) != CRYPT_OK) {
                return errno;
             }
             break;
         case ECC_KEY:
-            if ((errno = ecc_encrypt_key(in, inlen, buf+8, &len, prng, wprng, hash, &(kr->key.ecc))) != CRYPT_OK) {
+            if ((errno = ecc_encrypt_key(in, inlen, buf+12, &len, prng, wprng, hash, &(kr->key.ecc))) != CRYPT_OK) {
                return errno;
             }
             break;
     }
-    len += 8;
+    STORE32L(len,buf+8);
+    len += 12;
 
     if (len > *outlen) {
        #ifdef CLEAN_STACK
@@ -626,7 +628,7 @@ int kr_decrypt_key(pk_key *pk, const unsigned char *in,
                    unsigned char *out, unsigned long *outlen)
 {
    unsigned char buf[8192];
-   unsigned long len, ID;
+   unsigned long pklen, len, ID;
    pk_key *kr;
    int errno;
 
@@ -653,20 +655,21 @@ int kr_decrypt_key(pk_key *pk, const unsigned char *in,
    }
 
    /* now try and decrypt it */
+   LOAD32L(pklen,in+8);
    len = sizeof(buf);
    switch (kr->system) {
        case RSA_KEY:
-           if ((errno = rsa_decrypt_key(in+8, buf, &len, &(kr->key.rsa))) != CRYPT_OK) {
+           if ((errno = rsa_decrypt_key(in+12, pklen, buf, &len, &(kr->key.rsa))) != CRYPT_OK) {
               return errno;
            }
            break;
        case DH_KEY:
-           if ((errno = dh_decrypt_key(in+8, buf, &len, &(kr->key.dh))) != CRYPT_OK) {
+           if ((errno = dh_decrypt_key(in+12, pklen, buf, &len, &(kr->key.dh))) != CRYPT_OK) {
               return errno;
            }
            break;
        case ECC_KEY:
-           if ((errno = ecc_decrypt_key(in+8, buf, &len, &(kr->key.ecc))) != CRYPT_OK) {
+           if ((errno = ecc_decrypt_key(in+12, pklen, buf, &len, &(kr->key.ecc))) != CRYPT_OK) {
               return errno;
            }
            break;
@@ -720,26 +723,27 @@ int kr_sign_hash(pk_key *pk, unsigned long ID,
    STORE32L(kr->ID,buf+4);
 
    /* now sign it */
-   len = sizeof(buf)-12;
+   len = sizeof(buf)-16;
    switch (kr->system) {
         case RSA_KEY:
-            if ((errno = rsa_sign_hash(in, inlen, buf+12, &len, &(kr->key.rsa))) != CRYPT_OK) {
+            if ((errno = rsa_sign_hash(in, inlen, buf+16, &len, &(kr->key.rsa))) != CRYPT_OK) {
                return errno;
             }
             break;
         case DH_KEY:
-            if ((errno = dh_sign_hash(in, inlen, buf+12, &len, prng, wprng, &(kr->key.dh))) != CRYPT_OK) {
+            if ((errno = dh_sign_hash(in, inlen, buf+16, &len, prng, wprng, &(kr->key.dh))) != CRYPT_OK) {
                return errno;
             }
             break;
         case ECC_KEY:
-            if ((errno = ecc_sign_hash(in, inlen, buf+12, &len, prng, wprng, &(kr->key.ecc))) != CRYPT_OK) {
+            if ((errno = ecc_sign_hash(in, inlen, buf+16, &len, prng, wprng, &(kr->key.ecc))) != CRYPT_OK) {
                return errno;
             }
             break;
     }
     STORE32L(inlen,buf+8);
-    len += 12;
+    STORE32L(len,buf+12);
+    len += 16;
 
     if (len > *outlen) {
        #ifdef CLEAN_STACK
@@ -759,7 +763,7 @@ int kr_sign_hash(pk_key *pk, unsigned long ID,
 int kr_verify_hash(pk_key *pk, const unsigned char *in, const unsigned char *hash, 
                    unsigned long hashlen, int *stat)
 {
-   unsigned long inlen, ID;
+   unsigned long inlen, pklen, ID;
    pk_key *kr;
    int errno;
 
@@ -785,23 +789,24 @@ int kr_verify_hash(pk_key *pk, const unsigned char *in, const unsigned char *has
 
    /* now try and verify it */
    LOAD32L(inlen,in+8);         /* this is the length of the original inlen */
+   LOAD32L(pklen,in+12);        /* size of the PK packet */
    if (inlen != hashlen) {      /* size doesn't match means the signature is invalid */
       return CRYPT_OK;
    }
 
    switch (kr->system) {
        case RSA_KEY:
-           if ((errno = rsa_verify_hash(in+12, hash, stat, &(kr->key.rsa))) != CRYPT_OK) {
+           if ((errno = rsa_verify_hash(in+16, pklen, hash, stat, &(kr->key.rsa))) != CRYPT_OK) {
               return errno;
            }
            break;
        case DH_KEY:
-           if ((errno = dh_verify_hash(in+12, hash, inlen, stat, &(kr->key.dh))) != CRYPT_OK) {
+           if ((errno = dh_verify_hash(in+16, pklen, hash, inlen, stat, &(kr->key.dh))) != CRYPT_OK) {
               return errno;
            }
            break;
        case ECC_KEY:
-           if ((errno = ecc_verify_hash(in+12, hash, inlen, stat, &(kr->key.ecc))) != CRYPT_OK) {
+           if ((errno = ecc_verify_hash(in+16, pklen, hash, inlen, stat, &(kr->key.ecc))) != CRYPT_OK) {
               return errno;
            }
            break;

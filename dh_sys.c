@@ -80,7 +80,7 @@ int dh_encrypt_key(const unsigned char *inkey, unsigned long keylen,
     }
 
     /* store header */
-    packet_store_header(out, PACKET_SECT_DH, PACKET_SUB_ENC_KEY, y);
+    packet_store_header(out, PACKET_SECT_DH, PACKET_SUB_ENC_KEY);
 
 #ifdef CLEAN_STACK
     /* clean up */
@@ -93,8 +93,9 @@ int dh_encrypt_key(const unsigned char *inkey, unsigned long keylen,
     return CRYPT_OK;
 }
 
-int dh_decrypt_key(const unsigned char *in, unsigned char *outkey, 
-                         unsigned long *keylen, dh_key *key)
+int dh_decrypt_key(const unsigned char *in, unsigned long inlen,
+                         unsigned char *outkey, unsigned long *keylen, 
+                         dh_key *key)
 {
    unsigned char shared_secret[1536], skey[MAXBLOCKSIZE];
    unsigned long x, y, z, res, hashsize, keysize;
@@ -109,6 +110,13 @@ int dh_decrypt_key(const unsigned char *in, unsigned char *outkey,
    /* right key type? */
    if (key->type != PK_PRIVATE) {
       return CRYPT_PK_NOT_PRIVATE;
+   }
+
+   /* check if initial header should fit */
+   if (inlen < PACKET_SIZE+1+4+4) {
+      return CRYPT_INVALID_PACKET;
+   } else {
+      inlen -= PACKET_SIZE+1+4+4;
    }
 
    /* is header correct? */
@@ -128,6 +136,14 @@ int dh_decrypt_key(const unsigned char *in, unsigned char *outkey,
 
    /* get public key */
    LOAD32L(x, in+y);
+   
+   /* now check if the imported key will fit */
+   if (inlen < x) {
+      return CRYPT_INVALID_PACKET;
+   } else {
+      inlen -= x;
+   }
+   
    y += 4;
    if ((errno = dh_import(in+y, x, &pubkey)) != CRYPT_OK) {
       return errno;
@@ -149,6 +165,14 @@ int dh_decrypt_key(const unsigned char *in, unsigned char *outkey,
 
    /* load in the encrypted key */
    LOAD32L(keysize, in+y);
+   
+   /* will the outkey fit as part of the input */
+   if (inlen < keysize) {
+      return CRYPT_INVALID_PACKET;
+   } else {
+      inlen -= keysize;
+   }
+   
    if (keysize > *keylen) {
        res = CRYPT_BUFFER_OVERFLOW;
        goto done;
@@ -223,8 +247,8 @@ int dh_sign_hash(const unsigned char *in,  unsigned long inlen,
    if (mp_read_raw(&k, buf, sets[key->idx].size) != MP_OKAY)                { goto error; }
 
    /* load g, p and p1 */
-   if (mp_read_radix(&g, sets[key->idx].base, 10) != MP_OKAY)               { goto error; }
-   if (mp_read_radix(&p, sets[key->idx].prime, 10) != MP_OKAY)              { goto error; }
+   if (mp_read_radix(&g, sets[key->idx].base, 64) != MP_OKAY)               { goto error; }
+   if (mp_read_radix(&p, sets[key->idx].prime, 64) != MP_OKAY)              { goto error; }
    if (mp_sub_d(&p, 1, &p1) != MP_OKAY)                                     { goto error; }
    if (mp_div_2(&p1, &p1) != MP_OKAY)                                       { goto error; } /* p1 = (p-1)/2 */
 
@@ -256,7 +280,7 @@ int dh_sign_hash(const unsigned char *in,  unsigned long inlen,
    }
 
    /* store header */
-   packet_store_header(buf, PACKET_SECT_DH, PACKET_SUB_SIGNED, y);
+   packet_store_header(buf, PACKET_SECT_DH, PACKET_SUB_SIGNED);
 
    /* store it */
    memcpy(out, buf, y);
@@ -275,9 +299,9 @@ done:
    return res;
 }
 
-int dh_verify_hash(const unsigned char *sig, const unsigned char *hash, 
-                         unsigned long inlen, int *stat, 
-                         dh_key *key)
+int dh_verify_hash(const unsigned char *sig, unsigned long siglen,
+                   const unsigned char *hash, unsigned long hashlen, 
+                         int *stat, dh_key *key)
 {
    mp_int a, b, p, g, m, tmp;
    unsigned char md[MAXBLOCKSIZE];
@@ -292,17 +316,24 @@ int dh_verify_hash(const unsigned char *sig, const unsigned char *hash,
    /* default to invalid */
    *stat = 0;
 
+   /* check initial input length */
+   if (siglen < PACKET_SIZE+4+4) {
+      return CRYPT_INVALID_PACKET;
+   } else {
+      siglen -= PACKET_SIZE + 4 + 4;
+   }
+
    /* header ok? */
    if ((errno = packet_valid_header((unsigned char *)sig, PACKET_SECT_DH, PACKET_SUB_SIGNED)) != CRYPT_OK) {
       return errno;
    }
-
+   
    /* get hash out of packet */
    y = PACKET_SIZE;
 
    /* hash the message */
    md[0] = 0;
-   memcpy(md+1, hash, MIN(sizeof(md) - 1, inlen));
+   memcpy(md+1, hash, MIN(sizeof(md) - 1, hashlen));
 
    /* init all bignums */
    if (mp_init_multi(&a, &p, &b, &g, &m, &tmp, NULL) != MP_OKAY) { 
@@ -311,21 +342,32 @@ int dh_verify_hash(const unsigned char *sig, const unsigned char *hash,
 
    /* load a and b */
    LOAD32L(x, sig+y);
+   if (siglen < x) {
+      return CRYPT_INVALID_PACKET;
+   } else {
+      siglen -= x;
+   }
+   
    y += 4;
    if (mp_read_raw(&a, (unsigned char *)sig+y, x) != MP_OKAY)            { goto error; }
    y += x;
 
    LOAD32L(x, sig+y);
+   if (siglen < x) {
+      return CRYPT_INVALID_PACKET;
+   } else {
+      siglen -= x;
+   }
    y += 4;
    if (mp_read_raw(&b, (unsigned char *)sig+y, x) != MP_OKAY)            { goto error; }
    y += x;
 
    /* load p and g */
-   if (mp_read_radix(&p, sets[key->idx].prime, 10) != MP_OKAY)           { goto error; }
-   if (mp_read_radix(&g, sets[key->idx].base, 10) != MP_OKAY)            { goto error; }
+   if (mp_read_radix(&p, sets[key->idx].prime, 64) != MP_OKAY)           { goto error; }
+   if (mp_read_radix(&g, sets[key->idx].base, 64) != MP_OKAY)            { goto error; }
 
    /* load m */
-   if (mp_read_raw(&m, md, 1+MIN(sizeof(md)-1, inlen)) != MP_OKAY)       { goto error; }
+   if (mp_read_raw(&m, md, 1+MIN(sizeof(md)-1, hashlen)) != MP_OKAY)     { goto error; }
 
    /* find g^m mod p */
    if (mp_exptmod(&g, &m, &p, &m) != MP_OKAY)                            { goto error; } /* m = g^m mod p */

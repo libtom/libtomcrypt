@@ -9,62 +9,77 @@
 # a build. This is easy to remedy though, for those that have problems.
 
 # The version
-VERSION=0.78
+VERSION=0.79
 
-#Compiler and Linker Names
+#ch1-01-1
+# Compiler and Linker Names
 CC=gcc
 LD=ld
 
-#Archiver [makes .a files]
+# Archiver [makes .a files]
 AR=ar
-ARFLAGS=rs
+ARFLAGS=r
+#ch1-01-1
 
-#here you can set the malloc/calloc/free functions you want
+#ch1-01-2
+# here you can set the malloc/calloc/free functions you want
 XMALLOC=malloc
 XCALLOC=calloc
+XREALLOC=realloc
 XFREE=free
 
-#you can redefine the clock
+# you can redefine the clock
 XCLOCK=clock
 XCLOCKS_PER_SEC=CLOCKS_PER_SEC
+#ch1-01-2
 
-#Compilation flags. Note the += does not write over the user's CFLAGS!
+#ch1-01-3
+# Compilation flags. Note the += does not write over the user's CFLAGS!
 CFLAGS += -c -I./ -Wall -Wsign-compare -W -Wno-unused -Werror  \
-   -DXMALLOC=$(XMALLOC) -DXCALLOC=$(XCALLOC) -DXFREE=$(XFREE) -DXCLOCK=$(XCLOCK) \
+   -DXMALLOC=$(XMALLOC) -DXCALLOC=$(XCALLOC) -DXFREE=$(XFREE) \
+   -DXREALLOC=$(XREALLOC) -DXCLOCK=$(XCLOCK) \
    -DXCLOCKS_PER_SEC=$(XCLOCKS_PER_SEC)
 
-#optimize for SPEED (comment out SIZE/DEBUG line as well)
+# optimize for SPEED
 #CFLAGS += -O3 -funroll-loops
 
-#optimize for SIZE (comment out SPEED/DEBUG line as well)
+# optimize for SIZE 
 CFLAGS += -Os 
 
-#Use small code variants of functions when possible?  (Slows it down!)
-CFLAGS += -DSMALL_CODE
-
-#compile for DEBUGGING 
+# compile for DEBUGGING 
 #CFLAGS += -g3
+#ch1-01-3
 
 #These flags control how the library gets built.
 
-#no file support, when defined the library will not have any functions that can read/write files 
-#(comment out to have file support)
+#ch1-01-4
+# Use small code variants of functions when possible?  
+CFLAGS += -DSMALL_CODE
+
+# no file support, when defined the library will not 
+# have any functions that can read/write files 
+# (comment out to have file support)
 #CFLAGS += -DNO_FILE
 
-#Support the UNIX /dev/random or /dev/urandom
+# Support the UNIX /dev/random or /dev/urandom
 CFLAGS += -DDEVRANDOM
 
-# Use /dev/urandom first on devices where /dev/random is too slow */
+# Use /dev/urandom first on devices where 
+# /dev/random is too slow 
 #CFLAGS += -DTRY_URANDOM_FIRST
 
-# Clean the stack after sensitive functions.  Not always required... 
-# With this defined most of the ciphers and hashes will clean their stack area
-# after usage with a (sometimes) huge penalty in speed.  Normally this is not
-# required if you simply lock your stack and wipe it when your program is done.
+# Clean the stack after sensitive functions.  Not 
+# always required... With this defined most of 
+# the ciphers and hashes will clean their stack area
+# after usage with a (sometimes) huge penalty in speed.
+# Normally this is not required if you simply lock your 
+# stack and wipe it when your program is done.
 #
 #CFLAGS += -DCLEAN_STACK
+#ch1-01-4
 
-# What algorithms to include? comment out and rebuild to remove em
+#ch1-01-5
+# What algorithms to include? comment out and rebuild to remove them
 CFLAGS += -DBLOWFISH
 CFLAGS += -DRC2
 CFLAGS += -DRC5
@@ -78,6 +93,7 @@ CFLAGS += -DTWOFISH
 CFLAGS += -DDES
 CFLAGS += -DCAST5
 CFLAGS += -DNOEKEON
+#ch1-01-5
 
 #You can also customize the Twofish code.  All four combinations 
 #of the flags are possible but only three of them make sense.
@@ -90,17 +106,23 @@ CFLAGS += -DNOEKEON
 #_TABLES defined: Very fast, not faster than if both were undefined.  Code is ~1KB bigger
 #                 faster keysetup though...
 
-# Small Ram Variant of Twofish.  For this you must have TWOFISH defined.  This
-# variant requires about 4kb less memory but is considerably slower.  It is ideal
-# when high throughput is less important than conserving memory. By default it is
-# not defined which means the larger ram (about 4.2Kb used) variant is built.
+#ch1-01-6
+# Small Ram Variant of Twofish.  For this you must have TWOFISH 
+# defined.  This variant requires about 4kb less memory but 
+# is considerably slower.  It is ideal when high throughput is 
+# less important than conserving memory. By default it is not 
+# defined which means the larger ram (about 4.2Kb used) variant 
+# is built.
 #CFLAGS += -DTWOFISH_SMALL
 
-# Tell Twofish to use precomputed tables.  If you want to use the small table
-# variant of Twofish you may want to turn this on.  Essentially it tells Twofish to use
-# precomputed S-boxes (Q0 and Q1) as well as precomputed GF multiplications [in the MDS].
-# This speeds up the cipher somewhat.
+# Tell Twofish to use precomputed tables.  If you want to use 
+# the small table variant of Twofish you may want to turn 
+# this on.  Essentially it tells Twofish to use precomputed 
+# S-boxes (Q0 and Q1) as well as precomputed GF 
+# multiplications [in the MDS].  This speeds up the cipher 
+# somewhat.
 #CFLAGS += -DTWOFISH_TABLES 
+#ch1-01-6
 
 #Use fast PK routines.  Basically this limits the size of the private key in the
 #DH system to 256 bits.  The group order remains unchanged so the best
@@ -110,13 +132,16 @@ CFLAGS += -DNOEKEON
 #security so its by default not turned on.  USE AT YOUR RISK!
 #CFLAGS += -DFAST_PK
 
+#ch1-01-7
 # Chaining modes
 CFLAGS += -DCFB
 CFLAGS += -DOFB
 CFLAGS += -DECB
 CFLAGS += -DCBC
 CFLAGS += -DCTR
+#ch1-01-7
 
+#ch1-01-8
 #One-way hashes
 CFLAGS += -DSHA512
 CFLAGS += -DSHA384
@@ -126,29 +151,73 @@ CFLAGS += -DSHA1
 CFLAGS += -DMD5
 CFLAGS += -DMD4
 CFLAGS += -DMD2
+#ch1-01-8
 
-# base64 
-CFLAGS += -DBASE64
-
+#ch1-01-9
 # prngs 
 CFLAGS += -DYARROW
 CFLAGS += -DSPRNG
 CFLAGS += -DRC4
+#ch1-01-9
 
+#ch1-01-10
 # PK code 
 CFLAGS += -DMRSA
 CFLAGS += -DMDH
 CFLAGS += -DMECC
+#CFLAGS += -DMDSA
 CFLAGS += -DKR
+#ch1-01-10
 
-# include GF math routines?  (not currently used by anything internally)
+#ch1-01-12
+# Control which built in DH or ECC key paramaters
+# are to be allowed
+CFLAGS += -DDH768
+CFLAGS += -DDH1024
+CFLAGS += -DDH1280
+CFLAGS += -DDH1536
+CFLAGS += -DDH1792
+CFLAGS += -DDH2048
+CFLAGS += -DDH2560
+CFLAGS += -DDH3072
+CFLAGS += -DDH4096
+
+CFLAGS += -DECC160
+CFLAGS += -DECC192
+CFLAGS += -DECC224
+CFLAGS += -DECC256
+CFLAGS += -DECC384
+CFLAGS += -DECC521
+
+CFLAGS += -DDSA1024
+CFLAGS += -DDSA2048
+CFLAGS += -DDSA4096
+#ch1-01-12
+
+#ch1-01-11
+# base64 
+CFLAGS += -DBASE64
+
+# include GF math routines?
+# (not currently used by anything internally)
 #CFLAGS += -DGF
 
 # include large integer math routines? (required by the PK code)
 CFLAGS += -DMPI
 
+# use the fast exptmod operation (used in dsa/rsa/dh and is_prime)
+# This uses slightly more heap than the old code [only during the function call]
+# this is also fairly faster than the previous code
+CFLAGS += -DMPI_FASTEXPT
+
+# use a "low" mem variant of the fast exptmod.  It is still always 
+# faster then the old exptmod but its savings drops off after 
+# 1024 to 2048-bits 
+#CFLAGS += -DMPI_FASTEXPT_LOWMEM
+
 # include HMAC support
 CFLAGS += -DHMAC
+#ch1-01-11
 
 #Output filenames for various targets.
 LIBNAME=libtomcrypt.a
@@ -163,7 +232,7 @@ LIBPATH=/usr/lib
 INCPATH=/usr/include
 
 #List of objects to compile.
-OBJECTS=keyring.o gf.o mem.o sprng.o ecc.o base64.o dh.o rsa.o \
+OBJECTS=keyring.o gf.o mem.o sprng.o dsa.o ecc.o base64.o dh.o rsa.o \
 bits.o yarrow.o cfb.o ofb.o ecb.o ctr.o cbc.o hash.o tiger.o sha1.o \
 md5.o md4.o md2.o sha256.o sha512.o xtea.o aes.o serpent.o des.o \
 safer_tab.o safer.o safer+.o rc4.o rc2.o rc6.o rc5.o cast5.o noekeon.o blowfish.o crypt.o \
@@ -199,6 +268,7 @@ sha512.o: sha512.c sha384.c
 #This rule makes the libtomcrypt library.
 library: $(OBJECTS) 
 	$(AR) $(ARFLAGS) $(LIBNAME) $(OBJECTS)
+	ranlib $(LIBNAME)
 
 #This rule makes the test program included with libtomcrypt
 test: library $(TESTOBJECTS)
@@ -219,9 +289,11 @@ small: library $(SMALLOBJECTS)
 #This rule installs the library and the header files. This must be run
 #as root in order to have a high enough permission to write to the correct
 #directories and to set the owner and group to root.
-install: library
+install: library docs
 	install -g root -o root $(LIBNAME) $(LIBPATH)
 	install -g root -o root $(HEADERS) $(INCPATH)
+	mkdir -p /usr/doc/libtomcrypt/pdf
+	cp crypt.pdf /usr/doc/libtomcrypt/pdf/
 
 #This rule cleans the source tree of all compiled code, not including the pdf
 #documentation.
@@ -241,7 +313,7 @@ docs: crypt.tex
 	makeindex crypt > /dev/null
 	pdflatex crypt > /dev/null
 	rm -f $(LEFTOVERS)
-
+       
 #zipup the project (take that!)
 zipup: clean docs
 	chdir .. ; rm -rf crypt* libtomcrypt-$(VERSION) ; mkdir libtomcrypt-$(VERSION) ; \

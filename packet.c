@@ -2,7 +2,7 @@
 
 #ifdef PACKET
 
-void packet_store_header(unsigned char *dst, int section, int subsection, unsigned long length)
+void packet_store_header(unsigned char *dst, int section, int subsection)
 {
    _ARGCHK(dst != NULL);
 
@@ -14,8 +14,6 @@ void packet_store_header(unsigned char *dst, int section, int subsection, unsign
    dst[2] = section & 255;
    dst[3] = subsection & 255;
 
-   /* store length */
-   STORE32L(length, &dst[4]);
 }
 
 int packet_valid_header(unsigned char *src, int section, int subsection)

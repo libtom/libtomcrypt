@@ -63,23 +63,23 @@ void store_tests(void)
  STORE32L(L, &buf[0]);
  L = 0;
  LOAD32L(L, &buf[0]);
- if (L != 0x12345678UL) printf("LOAD/STORE32 Little don't work\n");
+ if (L != 0x12345678UL)  { printf("LOAD/STORE32 Little don't work\n"); exit(-1); }
  LL = CONST64(0x01020304050607);
  STORE64L(LL, &buf[0]);
  LL = 0;
  LOAD64L(LL, &buf[0])
- if (LL != CONST64(0x01020304050607)) printf("LOAD/STORE64 Little don't work\n");
+ if (LL != CONST64(0x01020304050607)) { printf("LOAD/STORE64 Little don't work\n"); exit(-1); }
 
  L = 0x12345678UL;
  STORE32H(L, &buf[0]);
  L = 0;
  LOAD32H(L, &buf[0]);
- if (L != 0x12345678UL) printf("LOAD/STORE32 High don't work\n");
+ if (L != 0x12345678UL) { printf("LOAD/STORE32 High don't work\n"); exit(-1); }
  LL = CONST64(0x01020304050607);
  STORE64H(LL, &buf[0]);
  LL = 0;
  LOAD64H(LL, &buf[0])
- if (LL != CONST64(0x01020304050607)) printf("LOAD/STORE64 High don't work\n");
+ if (LL != CONST64(0x01020304050607)) { printf("LOAD/STORE64 High don't work\n"); exit(-1); }
 }
 
 void cipher_tests(void) {
@@ -103,10 +103,12 @@ void ecb_tests(void)
  for (x = 0; cipher_descriptor[x].name != NULL; x++) {
      printf(" %12s: ",
            cipher_descriptor[x].name);
-     if ((errno = cipher_descriptor[x].test()) != CRYPT_OK)
+     if ((errno = cipher_descriptor[x].test()) != CRYPT_OK) {
         printf(" **failed** Reason: %s\n", error_to_string(errno));
-     else 
+        exit(-1);
+     } else {
         printf("passed\n");
+     }
  }
 }
 
@@ -124,11 +126,15 @@ void cbc_tests(void)
  for (x = 0; x < 32; x++) blk[x] = IV[x] = x;
 
  /* now lets start a cbc session */
- if ((errno = cbc_start(find_cipher("blowfish"), IV, key, 16, 0, &cbc)) != CRYPT_OK) { printf("Error: %s\n", error_to_string(errno)); return; }
+ if ((errno = cbc_start(find_cipher("blowfish"), IV, key, 16, 0, &cbc)) != CRYPT_OK) { 
+    printf("CBC Setup: %s\n", error_to_string(errno)); exit(-1); }
 
  /* now lets encode 32 bytes */
- for (x = 0; x < 4; x++)
-    cbc_encrypt(blk+8*x, ct+8*x, &cbc);
+ for (x = 0; x < 4; x++) {
+    if ((errno = cbc_encrypt(blk+8*x, ct+8*x, &cbc)) != CRYPT_OK) {
+       printf("CBC encrypt: %s\n", error_to_string(errno)); exit(-1);
+    }
+ }
 
  zeromem(blk, sizeof(blk));
 
@@ -137,11 +143,16 @@ void cbc_tests(void)
  for (x = 0; x < 32; x++) IV[x] = x;
 
  /* now lets start a cbc session */
- if ((errno = cbc_start(find_cipher("blowfish"), IV, key, 16, 0, &cbc)) != CRYPT_OK) { printf("Error: %s\n", error_to_string(errno)); return; }
+ if ((errno = cbc_start(find_cipher("blowfish"), IV, key, 16, 0, &cbc)) != CRYPT_OK) { 
+     printf("CBC Setup: %s\n", error_to_string(errno)); exit(-1); }
 
  /* now lets decode 32 bytes */
- for (x = 0; x < 4; x++)
-    cbc_decrypt(ct+8*x, blk+8*x, &cbc);
+ for (x = 0; x < 4; x++) {
+    if ((errno = cbc_decrypt(ct+8*x, blk+8*x, &cbc)) != CRYPT_OK) {
+       printf("CBC decrypt: %s\n", error_to_string(errno)); exit(-1);
+    }
+ }
+    
 
  /* print output */
  for (x = y = 0; x < 32; x++) if (blk[x] != x) y = 1;
@@ -157,6 +168,7 @@ void cbc_tests(void)
     printf("CBC failed logical testing.\n");
     for (x = 0; x < 16; x++) printf("%02x ", ct[x]);
     printf("\n");
+    exit(-1);
  } else {
     printf("CBC passed logical testing.\n");
  }
@@ -178,11 +190,15 @@ void ofb_tests(void)
  for (x = 0; x < 32; x++) blk[x] = IV[x] = x;
 
  /* now lets start a ofb session */
- if ((errno = ofb_start(find_cipher("blowfish"), IV, key, 16, 0, &ofb)) != CRYPT_OK) { printf("Error: %s\n", error_to_string(errno)); return; }
+ if ((errno = ofb_start(find_cipher("cast5"), IV, key, 16, 0, &ofb)) != CRYPT_OK) { 
+ 	printf("OFB Setup: %s\n", error_to_string(errno)); exit(-1); }
 
  /* now lets encode 32 bytes */
- for (x = 0; x < 4; x++)
-    ofb_encrypt(blk+8*x, ct+8*x, 8, &ofb);
+ for (x = 0; x < 4; x++) {
+    if ((errno = ofb_encrypt(blk+8*x, ct+8*x, 8, &ofb)) != CRYPT_OK) {
+       printf("OFB encrypt: %s\n", error_to_string(errno)); exit(-1);
+    }
+ }
 
  zeromem(blk, sizeof(blk));
 
@@ -191,15 +207,20 @@ void ofb_tests(void)
  for (x = 0; x < 32; x++) IV[x] = x;
 
  /* now lets start a ofb session */
- if ((errno = ofb_start(find_cipher("blowfish"), IV, key, 16, 0, &ofb)) != CRYPT_OK) { printf("Error: %s\n", error_to_string(errno)); return; }
+ if ((errno = ofb_start(find_cipher("cast5"), IV, key, 16, 0, &ofb)) != CRYPT_OK) { 
+ 	printf("OFB setup: %s\n", error_to_string(errno)); exit(-1); }
 
  /* now lets decode 32 bytes */
- for (x = 0; x < 4; x++)
-    ofb_decrypt(ct+8*x, blk+8*x, 8, &ofb);
+ for (x = 0; x < 4; x++) {
+    if ((errno = ofb_decrypt(ct+8*x, blk+8*x, 8, &ofb)) != CRYPT_OK) {
+       printf("OFB decrypt: %s\n", error_to_string(errno)); exit(-1);
+    }
+ }
 
  /* print output */
  for (x = y = 0; x < 32; x++) if (blk[x] != x) y = 1;
  printf("  %s\n", y?"failed":"passed");
+ if (y) exit(-1);
 }
 #else
 void ofb_tests(void) { printf("OFB not compiled in\n"); }
@@ -218,11 +239,15 @@ void cfb_tests(void)
  for (x = 0; x < 32; x++) blk[x] = IV[x] = x;
 
  /* now lets start a cfb session */
- if ((errno = cfb_start(find_cipher("blowfish"), IV, key, 16, 0, &cfb)) != CRYPT_OK) { printf("Error: %s\n", error_to_string(errno)); return; }
+ if ((errno = cfb_start(find_cipher("blowfish"), IV, key, 16, 0, &cfb)) != CRYPT_OK) { 
+ 	printf("CFB setup: %s\n", error_to_string(errno)); exit(-1); }
 
  /* now lets encode 32 bytes */
- for (x = 0; x < 4; x++)
-    cfb_encrypt(blk+8*x, ct+8*x, 8, &cfb);
+ for (x = 0; x < 4; x++) {
+    if ((errno = cfb_encrypt(blk+8*x, ct+8*x, 8, &cfb)) != CRYPT_OK) {
+       printf("CFB encrypt: %s\n", error_to_string(errno)); exit(-1);
+    }
+ }
 
  zeromem(blk, sizeof(blk));
 
@@ -231,15 +256,20 @@ void cfb_tests(void)
  for (x = 0; x < 32; x++) IV[x] = x;
 
  /* now lets start a cfb session */
- if ((errno = cfb_start(find_cipher("blowfish"), IV, key, 16, 0, &cfb)) != CRYPT_OK) { printf("Error: %s\n", error_to_string(errno)); return; }
+ if ((errno = cfb_start(find_cipher("blowfish"), IV, key, 16, 0, &cfb)) != CRYPT_OK) { 
+ 	printf("CFB Setup: %s\n", error_to_string(errno)); exit(-1); }
 
  /* now lets decode 32 bytes */
- for (x = 0; x < 4; x++)
-    cfb_decrypt(ct+8*x, blk+8*x, 8, &cfb);
+ for (x = 0; x < 4; x++) {
+    if ((errno = cfb_decrypt(ct+8*x, blk+8*x, 8, &cfb)) != CRYPT_OK) {
+       printf("CFB decrypt: %s\n", error_to_string(errno)); exit(-1);
+    }
+ }
 
  /* print output */
  for (x = y = 0; x < 32; x++) if (blk[x] != x) y = 1;
  printf("  %s\n", y?"failed":"passed");
+ if (y) exit(-1);
 }
 #else
 void cfb_tests(void) { printf("CFB not compiled in\n"); }
@@ -259,11 +289,15 @@ void ctr_tests(void)
  for (x = 0; x < 32; x++) blk[x] = count[x] = x;
 
  /* now lets start a ctr session */
- if ((errno = ctr_start(find_cipher("aes"), count, key, 16, 0, &ctr)) != CRYPT_OK) { printf("Error: %s\n", error_to_string(errno)); return; }
+ if ((errno = ctr_start(find_cipher("xtea"), count, key, 16, 0, &ctr)) != CRYPT_OK) { 
+ 	printf("CTR Setup: %s\n", error_to_string(errno)); exit(-1); }
 
  /* now lets encode 32 bytes */
- for (x = 0; x < 4; x++)
-    ctr_encrypt(blk+8*x, ct+8*x, 8, &ctr);
+ for (x = 0; x < 4; x++) {
+    if ((errno = ctr_encrypt(blk+8*x, ct+8*x, 8, &ctr)) != CRYPT_OK) {
+       printf("CTR encrypt: %s\n", error_to_string(errno)); exit(-1);
+    }
+ }
 
  zeromem(blk, sizeof(blk));
 
@@ -272,15 +306,20 @@ void ctr_tests(void)
  for (x = 0; x < 32; x++) count[x] = x;
 
  /* now lets start a cbc session */
- if ((errno = ctr_start(find_cipher("aes"), count, key, 16, 0, &ctr)) != CRYPT_OK) { printf("Error: %s\n", error_to_string(errno)); return; }
+ if ((errno = ctr_start(find_cipher("xtea"), count, key, 16, 0, &ctr)) != CRYPT_OK) { 
+ 	printf("CTR Setup: %s\n", error_to_string(errno)); exit(-1); }
 
  /* now lets decode 32 bytes */
- for (x = 0; x < 4; x++)
-    ctr_decrypt(ct+8*x, blk+8*x, 8, &ctr);
+ for (x = 0; x < 4; x++) {
+    if ((errno = ctr_decrypt(ct+8*x, blk+8*x, 8, &ctr)) != CRYPT_OK) {
+       printf("CTR decrypt: %s\n", error_to_string(errno)); exit(-1);
+    }
+ }
 
  /* print output */
  for (x = y = 0; x < 32; x++) if (blk[x] != x) y = 1;
  printf("  %s\n", y?"failed":"passed");
+ if (y) exit(-1);
 
  /* lets actually check the bytes */
  memset(count, 0, 8); count[0] = 0xFF;        /* IV  = FF 00 00 00 00 00 00 00 */
@@ -325,17 +364,18 @@ void pad_test(void)
 
  /* pad the message so that random filler is placed before and after it */
  y = 100;
- if ((errno = rsa_pad(in, 16, out, &y, find_prng("yarrow"), &prng)) != CRYPT_OK) { printf("Error: %s\n", error_to_string(errno)); return; }
+ if ((errno = rsa_pad(in, 16, out, &y, find_prng("yarrow"), &prng)) != CRYPT_OK) { 
+     printf("Error: %s\n", error_to_string(errno)); exit(-1); }
 
  /* depad the message to get the original content */
  memset(in, 0, sizeof(in));
  x = 100;
- if ((errno = rsa_depad(out, y, in, &x)) != CRYPT_OK) { printf("Error: %s\n", error_to_string(errno)); return; }
+ if ((errno = rsa_depad(out, y, in, &x)) != CRYPT_OK) { printf("Error: %s\n", error_to_string(errno)); exit(-1); }
 
  /* check outcome */
  printf("rsa_pad: ");
- if (x != 16) { printf("Failed.  Wrong size.\n"); return; }
- for (x = 0; x < 16; x++) if (in[x] != x) { printf("Failed.  Expected %02lx and got %02x.\n", x, in[x]); return; }
+ if (x != 16) { printf("Failed.  Wrong size.\n"); exit(-1); }
+ for (x = 0; x < 16; x++) if (in[x] != x) { printf("Failed.  Expected %02lx and got %02x.\n", x, in[x]); exit(-1); }
  printf("passed.\n");
 }
 
@@ -349,100 +389,40 @@ void rsa_test(void)
 
  /* ---- SINGLE ENCRYPT ---- */
  /* encrypt a short 8 byte string */
- if ((errno = rsa_make_key(&prng, find_prng("yarrow"), 1024/8, 65537, &key)) != CRYPT_OK) { printf("Error: %s\n", error_to_string(errno)); return; }
+ if ((errno = rsa_make_key(&prng, find_prng("yarrow"), 1024/8, 65537, &key)) != CRYPT_OK) { 
+ 	printf("Error: %s\n", error_to_string(errno)); exit(-1); }
  for (x = 0; x < 8; x++) in[x] = (unsigned char)(x+1);
  y = sizeof(in);
- if ((errno = rsa_exptmod(in, 8, out, &y, PK_PUBLIC, &key)) != CRYPT_OK) { printf("Error: %s\n", error_to_string(errno)); return; }
+ if ((errno = rsa_exptmod(in, 8, out, &y, PK_PUBLIC, &key)) != CRYPT_OK) { 
+ 	printf("Error: %s\n", error_to_string(errno)); exit(-1); }
 
  /* decrypt it */
  zeromem(in, sizeof(in));
  x = sizeof(out);
- if ((errno = rsa_exptmod(out, y, in, &x, PK_PRIVATE, &key)) != CRYPT_OK) { printf("Error: %s\n", error_to_string(errno)); return; }
+ if ((errno = rsa_exptmod(out, y, in, &x, PK_PRIVATE, &key)) != CRYPT_OK) { 
+ 	printf("Error: %s\n", error_to_string(errno)); exit(-1); }
 
  /* compare */
  printf("RSA    : ");
- for (x = 0; x < 8; x++) if (in[x] != (x+1)) { printf("Failed.  x==%02lx, in[%ld]==%02x\n", x, x, in[x]); }
+ for (x = 0; x < 8; x++) if (in[x] != (x+1)) { printf("Failed.  x==%02lx, in[%ld]==%02x\n", x, x, in[x]); exit(-1); }
  printf("passed.\n");
-
-#ifdef PK_PACKET 
- /* ---- BLOCK ENCRYPT ---- */
- /* now lets test rsa_encrypt() */
- for (x = 0; x < 8; x++) in[x] = (unsigned char)x;
- x = sizeof(out);
- if ((errno = rsa_encrypt(in, 8, out, &x, &prng, find_prng("yarrow"), find_cipher("aes"), &key)) != CRYPT_OK) {
-    printf("Error: %s\n", error_to_string(errno));
-    return;
- }
-
- /* test rsa_decrypt() */
- zeromem(in, sizeof(in));
- y = sizeof(in);
- if ((errno = rsa_decrypt(out, x, in, &y, &key)) != CRYPT_OK) {
-    printf("Error: %s\n", error_to_string(errno));
-    return;
- }
- printf("rsa_encrypt()/rsa_decrypt(): ");
- for (y = 0; y < 8; y++) if (in[y] != y) { printf("failed.\n"); return; }
- printf("Passed.\n");
-
- /* ---- SIGNATURES ---- */
- x = sizeof(in);
- if ((errno = rsa_sign("hello", 5, in, &x, find_hash("md5"), &key)) != CRYPT_OK) {
-    printf("Error: %s\n", error_to_string(errno));
-    return;
- }
- if ((errno = rsa_verify(in, "hello", 5, &stat, &key)) != CRYPT_OK) {
-    printf("Error: %s\n", error_to_string(errno));
-    return;
- }
- printf("RSA Signatures: %s, ", (stat==1)?"pass":"fail");
- if ((errno = rsa_verify(in, "abcde", 5, &stat, &key)) != CRYPT_OK) {
-    printf("Error: %s\n", error_to_string(errno));
-    return;
- }
- printf("%s\n", (stat==0)?"pass":"fail");
-
- /* ---- EXPORT/IMPORT ---- */
- x = sizeof(out);
- if ((errno = rsa_export(out, &x, PK_PRIVATE_OPTIMIZED, &key)) != CRYPT_OK) {
-    printf("Error: %s\n", error_to_string(errno));
-    return;
- }
- printf("RSA Export takes %lu bytes\n", x);
- rsa_free(&key);
- if ((errno = rsa_import(out, &key, x)) != CRYPT_OK) {
-    printf("Error: %s\n", error_to_string(errno));
-    return;
- }
- printf("RSA Import: ");
- if ((errno = rsa_verify(in, "hello", 5, &stat, &key)) != CRYPT_OK) { 
-    printf("Error: %s\n", error_to_string(errno));
-    return;
- }
- printf("%s, ", (stat==1)?"pass":"fail");
- if ((errno = rsa_verify(in, "abcde", 5, &stat, &key)) != CRYPT_OK) { 
-    printf("Error: %s\n", error_to_string(errno));
-    return;
- }
- printf("%s\n", (stat==0)?"pass":"fail");
-#endif 
 
  /* test the rsa_encrypt_key functions */
  for (x = 0; x < 16; x++) in[x] = x;
  y = sizeof(out);
  if ((errno = rsa_encrypt_key(in, 16, out, &y, &prng, find_prng("yarrow"), &key)) != CRYPT_OK) {
     printf("Error: %s\n", error_to_string(errno));
-    return;
+    exit(-1);
  }
  zeromem(in, sizeof(in));
  x = sizeof(in);
- if ((errno = rsa_decrypt_key(out, in, &x, &key)) != CRYPT_OK) {
+ if ((errno = rsa_decrypt_key(out, y, in, &x, &key)) != CRYPT_OK) {
     printf("Error: %s\n", error_to_string(errno));
-    return;
+    exit(-1);
  }
  printf("RSA en/de crypt key routines: ");
- if (x != 16) { printf("Failed (length)\n"); return; }
- for (x = 0; x < 16; x++) if (in[x] != x) { printf("Failed (contents)\n"); return; }
+ if (x != 16) { printf("Failed (length)\n"); exit(-1); }
+ for (x = 0; x < 16; x++) if (in[x] != x) { printf("Failed (contents)\n"); exit(-1); }
  printf("Passed\n");
 
  /* test sign_hash functions */
@@ -450,24 +430,25 @@ void rsa_test(void)
  x = sizeof(in);
  if ((errno = rsa_sign_hash(in, 16, out, &x, &key)) != CRYPT_OK) {
     printf("Error: %s\n", error_to_string(errno));
-    return;
+    exit(-1);
  }
  printf("RSA signed hash: %lu bytes\n", x);
- if ((errno = rsa_verify_hash(out, in, &stat, &key)) != CRYPT_OK) {
+ if ((errno = rsa_verify_hash(out, x, in, &stat, &key)) != CRYPT_OK) {
     printf("Error: %s\n", error_to_string(errno));
-    return;
+    exit(-1);
  }
  printf("Verify hash: %s, ", stat?"passed":"failed");
  in[0] ^= 1;
- if ((errno = rsa_verify_hash(out, in, &stat, &key)) != CRYPT_OK) {
+ if ((errno = rsa_verify_hash(out, x, in, &stat, &key)) != CRYPT_OK) {
     printf("Error: %s\n", error_to_string(errno));
-    return;
+    exit(-1);
  }
  printf("%s\n", (!stat)?"passed":"failed");
+ if (stat) exit(-1);
  rsa_free(&key);
 
  /* make a RSA key */
-#ifdef SONY_PS2
+#ifdef SONY_PS2_NOPE
    limit = 1024;
 #else
    limit = 2048;
@@ -475,21 +456,21 @@ void rsa_test(void)
 
  for (z = 1024; z <= limit; z += 512) {
     t = XCLOCK();
-    if ((errno = rsa_make_key(&prng, find_prng("yarrow"), z/8, 65537, &key)) != CRYPT_OK) { printf("Error: %s\n", error_to_string(errno)); return; }
+    if ((errno = rsa_make_key(&prng, find_prng("yarrow"), z/8, 65537, &key)) != CRYPT_OK) { printf("Error: %s\n", error_to_string(errno)); exit(-1); }
     t = XCLOCK() - t;
     printf("Took %.0f ms to make a %ld-bit RSA key.\n", 1000.0 * ((double)t / (double)XCLOCKS_PER_SEC), z);
 
     /* time encryption */
     y = sizeof(in);
     t = XCLOCK();
-    if ((errno = rsa_exptmod(in, 8, out, &y, PK_PUBLIC, &key)) != CRYPT_OK) { printf("Error: %s\n", error_to_string(errno)); return; }
+    if ((errno = rsa_exptmod(in, 8, out, &y, PK_PUBLIC, &key)) != CRYPT_OK) { printf("Error: %s\n", error_to_string(errno)); exit(-1); }
     t = XCLOCK() - t;
     printf("Took %.0f ms to encrypt with a %ld-bit RSA key.\n", 1000.0 * ((double)t / (double)XCLOCKS_PER_SEC), z);
 
     /* time decryption */
     x = sizeof(out);
     t = XCLOCK();
-    if ((errno = rsa_exptmod(out, y, in, &x, PK_PRIVATE, &key)) != CRYPT_OK) { printf("Error: %s\n", error_to_string(errno)); return; }
+    if ((errno = rsa_exptmod(out, y, in, &x, PK_PRIVATE, &key)) != CRYPT_OK) { printf("Error: %s\n", error_to_string(errno)); exit(-1); }
     t = XCLOCK() - t;
     printf("Took %.0f ms to decrypt with a %ld-bit RSA key.\n", 1000.0 * ((double)t / (double)XCLOCKS_PER_SEC), z);
     rsa_free(&key);
@@ -516,19 +497,19 @@ void base64_test(void)
    x = 100;
    if (base64_encode(buf[0], 16, buf[1], &x) != CRYPT_OK) {
       printf("  error: %s\n", error_to_string(errno));
-      return;
+      exit(-1);
    }
    printf("  encoded 16 bytes to %ld bytes...[%s]\n", x, buf[1]);
    memset(buf[0], 0, 100);
    y = 100;
    if (base64_decode(buf[1], x, buf[0], &y) != CRYPT_OK) {
       printf("  error: %s\n", error_to_string(errno));
-      return;
+      exit(-1);
    }
    printf("  decoded %ld bytes to %ld bytes\n", x, y);
    for (x = 0; x < 16; x++) if (buf[0][x] != x) { 
       printf(" **failed**\n"); 
-      return; 
+      exit(-1); 
    }
    printf("  passed\n");
 }
@@ -642,50 +623,50 @@ void dh_tests(void)
    /* make up two keys */
    if ((errno = dh_make_key(&prng, find_prng("yarrow"), 96, &usera)) != CRYPT_OK) {
       printf("Error: %s\n", error_to_string(errno));
-      return;
+      exit(-1);
    }
    if ((errno = dh_make_key(&prng, find_prng("yarrow"), 96, &userb)) != CRYPT_OK) {
       printf("Error: %s\n", error_to_string(errno));
-      return;
+      exit(-1);
    }
 
    /* make the shared secret */
    x = 4096;
    if ((errno = dh_shared_secret(&usera, &userb, buf[0], &x)) != CRYPT_OK) {
       printf("Error: %s\n", error_to_string(errno));
-      return;
+      exit(-1);
    }
 
    y = 4096;
    if ((errno = dh_shared_secret(&userb, &usera, buf[1], &y)) != CRYPT_OK) {
       printf("Error: %s\n", error_to_string(errno));
-      return;
+      exit(-1);
    }
-   if (y != x) { printf("DH Shared keys are not same size.\n"); return; }
-   if (memcmp(buf[0], buf[1], x)) { printf("DH Shared keys not same contents.\n"); return; }
+   if (y != x) { printf("DH Shared keys are not same size.\n"); exit(-1); }
+   if (memcmp(buf[0], buf[1], x)) { printf("DH Shared keys not same contents.\n"); exit(-1); }
 
    /* now export userb */
    y = 4096;
    if ((errno = dh_export(buf[1], &y, PK_PUBLIC, &userb)) != CRYPT_OK) {
       printf("Error: %s\n", error_to_string(errno));
-      return;
+      exit(-1);
    }
    dh_free(&userb);
 
    /* import and make the shared secret again */
    if ((errno = dh_import(buf[1], y, &userb)) != CRYPT_OK) {
       printf("Error: %s\n", error_to_string(errno));
-      return;
+      exit(-1);
    }
    z = 4096;
    if ((errno = dh_shared_secret(&usera, &userb, buf[2], &z)) != CRYPT_OK) {
       printf("Error: %s\n", error_to_string(errno));
-      return;
+      exit(-1);
    }
 
    printf("DH routines: ");
-   if (z != x) { printf("failed.  Size don't match?\n"); return; }
-   if (memcmp(buf[0], buf[2], x)) { printf("Failed.  Content didn't match.\n"); return; }
+   if (z != x) { printf("failed.  Size don't match?\n"); exit(-1); }
+   if (memcmp(buf[0], buf[2], x)) { printf("Failed.  Content didn't match.\n"); exit(-1); }
    printf("Passed\n");
    dh_free(&usera);
    dh_free(&userb);
@@ -703,7 +684,7 @@ void dh_tests(void)
    printf("Make dh-1024 key took %f msec\n", 1000.0 * ((double)t1 / (double)XCLOCKS_PER_SEC));
    dh_free(&usera);
 
-#ifndef SONY_PS2
+#ifndef SONY_PS2_NOPE
    t1 = XCLOCK();
    dh_make_key(&prng, find_prng("yarrow"), 160, &usera);
    t1 = XCLOCK() - t1;
@@ -735,71 +716,23 @@ void dh_tests(void)
    dh_free(&usera);
 #endif   
    
-#ifdef PK_PACKET
-/* try dh packet stuff */
-   for (x = 0; x < 16; x++) buf[0][x] = (unsigned char)x;
-   dh_make_key(&prng, find_prng("yarrow"), 24, &usera);
-
-   x = 4096;
-   if (dh_encrypt(buf[0], 16, buf[1], &x, &prng, find_prng("yarrow"), find_cipher("aes"),
-                   find_hash("sha1"), &usera) != CRYPT_OK) {
-      printf("dh_encrypt says %s\n", error_to_string(errno));
-      return;
-   }
-   printf("dh encrypted 16 bytes into %ld bytes!\n", x);
-
-   y = 4096;
-   if ((errno = dh_decrypt(buf[1], x, buf[2], &y, &usera)) != CRYPT_OK) {
-      printf("dh_decrypt says %s\n", error_to_string(errno));
-      return;
-   }
-
-   printf("dh packet: ");
-   if (16 != y) { printf("Failed: Sizes different! 16 vs %ld\n", y); return; }
-   if (memcmp(buf[0], buf[2], 16)) { printf("Failed; Content mismatch.\n"); return; }
-   printf("Passed!\n");
-   dh_free(&usera);
-
-/* try dh signatures */
-   dh_make_key(&prng, find_prng("yarrow"), 96, &usera);
-   x = 4096;
-   if ((errno = dh_sign("hello", 5, buf[0], &x, find_hash("sha1"), &prng, find_prng("yarrow"), &usera)) != CRYPT_OK) {
-      printf("Error: %s\n", error_to_string(errno));
-      return;
-   }
-
-   printf("dh-768 Signature took %ld bytes\n", x);
-
-   if ((errno = dh_verify(buf[0], "hello", 5, &stat, &usera)) != CRYPT_OK) {
-      printf("Error: %s\n", error_to_string(errno));
-      return;
-   }
-   if ((errno = dh_verify(buf[0], "hellp", 5, &stat2, &usera)) != CRYPT_OK) {
-      printf("Error: %s\n", error_to_string(errno));
-      return;
-   }
-
-   printf("dh Signatures: %s (%d,%d)\n", ((stat==1)&&(stat2==0))?"passed":"failed", stat,stat2);
-   dh_free(&usera);
-#endif  
-
 /* test encrypt_key */
  dh_make_key(&prng, find_prng("yarrow"), 96, &usera);
  for (x = 0; x < 16; x++) buf[0][x] = x;
  y = sizeof(buf[1]);
  if ((errno = dh_encrypt_key(buf[0], 16, buf[1], &y, &prng, find_prng("yarrow"), find_hash("md5"), &usera)) != CRYPT_OK) {
     printf("Error: %s\n", error_to_string(errno));
-    return;
+    exit(-1);
  }
  zeromem(buf[0], sizeof(buf[0]));
  x = sizeof(buf[0]);
- if ((errno = dh_decrypt_key(buf[1], buf[0], &x, &usera)) != CRYPT_OK) {
+ if ((errno = dh_decrypt_key(buf[1], y, buf[0], &x, &usera)) != CRYPT_OK) {
     printf("Error: %s\n", error_to_string(errno));
-    return;
+    exit(-1);
  }
  printf("DH en/de crypt key routines: ");
- if (x != 16) { printf("Failed (length)\n"); return; }
- for (x = 0; x < 16; x++) if (buf[0][x] != x) { printf("Failed (contents)\n"); return; }
+ if (x != 16) { printf("Failed (length)\n"); exit(-1); }
+ for (x = 0; x < 16; x++) if (buf[0][x] != x) { printf("Failed (contents)\n"); exit(-1); }
  printf("Passed (size %lu)\n", y);
 
 /* test sign_hash */
@@ -807,16 +740,16 @@ void dh_tests(void)
    x = sizeof(buf[1]);
    if ((errno = dh_sign_hash(buf[0], 16, buf[1], &x, &prng, find_prng("yarrow"), &usera)) != CRYPT_OK) {
     printf("Error: %s\n", error_to_string(errno));
-    return;
+    exit(-1);
    }
-   if (dh_verify_hash(buf[1], buf[0], 16, &stat, &usera)) {
+   if (dh_verify_hash(buf[1], x, buf[0], 16, &stat, &usera)) {
     printf("Error: %s\n", error_to_string(errno));
-    return;
+    exit(-1);
    }
    buf[0][0] ^= 1;
-   if (dh_verify_hash(buf[1], buf[0], 16, &stat2, &usera)) {
+   if (dh_verify_hash(buf[1], x, buf[0], 16, &stat2, &usera)) {
     printf("Error: %s\n", error_to_string(errno));
-    return;
+    exit(-1);
    }
    printf("dh_sign/verify_hash: %s (%d,%d)\n", ((stat==1)&&(stat2==0))?"passed":"failed", stat,stat2);
  dh_free(&usera);
@@ -868,7 +801,7 @@ void ecc_tests(void)
    ecc_key usera, userb;
    clock_t t1;
 
-   if ((errno = ecc_test()) != CRYPT_OK) printf("ecc Error: %s\n", error_to_string(errno));
+   if ((errno = ecc_test()) != CRYPT_OK) { printf("ecc Error: %s\n", error_to_string(errno)); exit(-1); }
 
    ecc_sizes(&low, &high);
    printf("ecc Keys from %d to %d supported.\n", low*8, high*8);
@@ -876,35 +809,35 @@ void ecc_tests(void)
    /* make up two keys */
    if ((errno = ecc_make_key(&prng, find_prng("yarrow"), 24, &usera)) != CRYPT_OK) {
       printf("Error: %s\n", error_to_string(errno));
-      return;
+      exit(-1);
    }
    if ((errno = ecc_make_key(&prng, find_prng("yarrow"), 24, &userb)) != CRYPT_OK) {
       printf("Error: %s\n", error_to_string(errno));
-      return;
+      exit(-1);
    }
 
    /* make the shared secret */
    x = 4096;
    if ((errno = ecc_shared_secret(&usera, &userb, buf[0], &x)) != CRYPT_OK) {
       printf("Error: %s\n", error_to_string(errno));
-      return;
+      exit(-1);
    }
 
    y = 4096;
    if ((errno = ecc_shared_secret(&userb, &usera, buf[1], &y)) != CRYPT_OK) {
       printf("Error: %s\n", error_to_string(errno));
-      return;
+      exit(-1);
    }
 
-   if (y != x) { printf("ecc Shared keys are not same size.\n"); return; }
+   if (y != x) { printf("ecc Shared keys are not same size.\n"); exit(-1); }
 
-   if (memcmp(buf[0], buf[1], x)) { printf("ecc Shared keys not same contents.\n"); return; }
+   if (memcmp(buf[0], buf[1], x)) { printf("ecc Shared keys not same contents.\n"); exit(-1); }
 
    /* now export userb */
    y = 4096;
    if ((errno = ecc_export(buf[1], &y, PK_PUBLIC, &userb)) != CRYPT_OK) {
       printf("Error: %s\n", error_to_string(errno));
-      return;
+      exit(-1);
    }
    ecc_free(&userb);
    printf("ECC-192 export took %ld bytes\n", y);
@@ -912,108 +845,60 @@ void ecc_tests(void)
    /* import and make the shared secret again */
    if ((errno = ecc_import(buf[1], y, &userb)) != CRYPT_OK) {
       printf("Error: %s\n", error_to_string(errno));
-      return;
+      exit(-1);
    }
 
    z = 4096;
    if ((errno = ecc_shared_secret(&usera, &userb, buf[2], &z)) != CRYPT_OK) {
       printf("Error: %s\n", error_to_string(errno));
-      return;
+      exit(-1);
    }
 
    printf("ecc routines: ");
-   if (z != x) { printf("failed.  Size don't match?\n"); return; }
-   if (memcmp(buf[0], buf[2], x)) { printf("Failed.  Content didn't match.\n"); return; }
+   if (z != x) { printf("failed.  Size don't match?\n"); exit(-1); }
+   if (memcmp(buf[0], buf[2], x)) { printf("Failed.  Content didn't match.\n"); exit(-1); }
    printf("Passed\n");
    ecc_free(&usera);
    ecc_free(&userb);
 
 /* time stuff */
    t1 = XCLOCK();
-   ecc_make_key(&prng, find_prng("yarrow"), 20, &usera);
+   if ((errno = ecc_make_key(&prng, find_prng("yarrow"), 20, &usera)) != CRYPT_OK) { printf("Error: %s\n", error_to_string(errno)); exit(-1); }
    t1 = XCLOCK() - t1;
    printf("Make ECC-160 key took %f msec\n", 1000.0 * ((double)t1 / (double)XCLOCKS_PER_SEC));
    ecc_free(&usera);
 
    t1 = XCLOCK();
-   ecc_make_key(&prng, find_prng("yarrow"), 24, &usera);
+   if ((errno = ecc_make_key(&prng, find_prng("yarrow"), 24, &usera)) != CRYPT_OK) { printf("Error: %s\n", error_to_string(errno)); exit(-1); }
    t1 = XCLOCK() - t1;
    printf("Make ECC-192 key took %f msec\n", 1000.0 * ((double)t1 / (double)XCLOCKS_PER_SEC));
    ecc_free(&usera);
 
    t1 = XCLOCK();
-   ecc_make_key(&prng, find_prng("yarrow"), 28, &usera);
+   if ((errno = ecc_make_key(&prng, find_prng("yarrow"), 28, &usera)) != CRYPT_OK) { printf("Error: %s\n", error_to_string(errno)); exit(-1); }
    t1 = XCLOCK() - t1;
    printf("Make ECC-224 key took %f msec\n", 1000.0 * ((double)t1 / (double)XCLOCKS_PER_SEC));
    ecc_free(&usera);
    
 #ifndef SONY_PS2
    t1 = XCLOCK();
-   ecc_make_key(&prng, find_prng("yarrow"), 32, &usera);
+   if ((errno = ecc_make_key(&prng, find_prng("yarrow"), 32, &usera)) != CRYPT_OK) { printf("Error: %s\n", error_to_string(errno)); exit(-1); }
    t1 = XCLOCK() - t1;
    printf("Make ECC-256 key took %f msec\n", 1000.0 * ((double)t1 / (double)XCLOCKS_PER_SEC));
    ecc_free(&usera);
 
    t1 = XCLOCK();
-   ecc_make_key(&prng, find_prng("yarrow"), 48, &usera);
+   if ((errno = ecc_make_key(&prng, find_prng("yarrow"), 48, &usera)) != CRYPT_OK) { printf("Error: %s\n", error_to_string(errno)); exit(-1); }
    t1 = XCLOCK() - t1;
    printf("Make ECC-384 key took %f msec\n", 1000.0 * ((double)t1 / (double)XCLOCKS_PER_SEC));
    ecc_free(&usera);
 
    t1 = XCLOCK();
-   ecc_make_key(&prng, find_prng("yarrow"), 65, &usera);
+   if ((errno = ecc_make_key(&prng, find_prng("yarrow"), 65, &usera)) != CRYPT_OK) { printf("Error: %s\n", error_to_string(errno)); exit(-1); }
    t1 = XCLOCK() - t1;
    printf("Make ECC-521 key took %f msec\n", 1000.0 * ((double)t1 / (double)XCLOCKS_PER_SEC));
    ecc_free(&usera);
 #endif   
-
-#ifdef PK_PACKET
-/* try ECC packet stuff */
-   for (x = 0; x < 16; x++) buf[0][x] = (unsigned char)x;
-   ecc_make_key(&prng, find_prng("yarrow"), 20, &usera);
-
-   x = 4096;
-   if (ecc_encrypt(buf[0], 16, buf[1], &x, &prng, find_prng("yarrow"), find_cipher("aes"),
-                   find_hash("tiger"), &usera) != CRYPT_OK) {
-      printf("ecc_encrypt says %s\n", error_to_string(errno));
-      return;
-   }
-   printf("Ecc encrypted 16 bytes into %ld bytes!\n", x);
-
-   y = 4096;
-   if ((errno = ecc_decrypt(buf[1], x, buf[2], &y, &usera)) != CRYPT_OK) {
-      printf("ecc_decrypt says %s\n", error_to_string(errno));
-      return;
-   }
-
-   printf("ECC packet: ");
-   if (16 != y) { printf("Failed: Sizes different! 16 vs %ld\n", y); return; }
-   if (memcmp(buf[0], buf[2], 16)) { printf("Failed; Content mismatch.\n"); return; }
-   printf("Passed!\n");
-   ecc_free(&usera);
-
-/* try ECC signatures */
-   ecc_make_key(&prng, find_prng("yarrow"), 20, &usera);
-   x = 4096;
-   if ((errno = ecc_sign("hello", 5, buf[0], &x, find_hash("sha1"), &prng, find_prng("yarrow"), &usera)) != CRYPT_OK) {
-      printf("Error: %s\n", error_to_string(errno));
-      return;
-   }
-
-   printf("ECC-160 Signature took %ld bytes\n", x);
-
-   if ((errno = ecc_verify(buf[0], "hello", 5, &stat, &usera)) != CRYPT_OK) {
-      printf("Error: %s\n", error_to_string(errno));
-      return;
-   }
-   if ((errno = ecc_verify(buf[0], "hellp", 5, &stat2, &usera)) != CRYPT_OK) {
-      printf("Error: %s\n", error_to_string(errno));
-      return;
-   }
-
-   printf("ECC Signatures: %s (%d,%d)\n", ((stat==1)&&(stat2==0))?"passed":"failed", stat,stat2);
-   ecc_free(&usera);
-#endif
 
 /* test encrypt_key */
  ecc_make_key(&prng, find_prng("yarrow"), 32, &usera);
@@ -1021,33 +906,33 @@ void ecc_tests(void)
  y = sizeof(buf[1]);
  if ((errno = ecc_encrypt_key(buf[0], 16, buf[1], &y, &prng, find_prng("yarrow"), find_hash("md5"), &usera)) != CRYPT_OK) {
     printf("Error: %s\n", error_to_string(errno));
-    return;
+    exit(-1);
  }
  zeromem(buf[0], sizeof(buf[0]));
  x = sizeof(buf[0]);
- if ((errno = ecc_decrypt_key(buf[1],buf[0], &x, &usera)) != CRYPT_OK) {
+ if ((errno = ecc_decrypt_key(buf[1], y, buf[0], &x, &usera)) != CRYPT_OK) {
     printf("Error: %s\n", error_to_string(errno));
-    return;
+    exit(-1);
  }
  printf("ECC en/de crypt key routines: ");
- if (x != 16) { printf("Failed (length)\n"); return; }
- for (x = 0; x < 16; x++) if (buf[0][x] != x) { printf("Failed (contents)\n"); return; }
+ if (x != 16) { printf("Failed (length)\n"); exit(-1); }
+ for (x = 0; x < 16; x++) if (buf[0][x] != x) { printf("Failed (contents)\n"); exit(-1); }
  printf("Passed (size: %lu)\n", y);
 /* test sign_hash */
    for (x = 0; x < 16; x++) buf[0][x] = x;
    x = sizeof(buf[1]);
    if ((errno = ecc_sign_hash(buf[0], 16, buf[1], &x, &prng, find_prng("yarrow"), &usera)) != CRYPT_OK) {
     printf("Error: %s\n", error_to_string(errno));
-    return;
+    exit(-1);
    }
-   if (ecc_verify_hash(buf[1], buf[0], 16, &stat, &usera)) {
+   if (ecc_verify_hash(buf[1], x, buf[0], 16, &stat, &usera)) {
     printf("Error: %s\n", error_to_string(errno));
-    return;
+    exit(-1);
    }
    buf[0][0] ^= 1;
-   if (ecc_verify_hash(buf[1], buf[0], 16, &stat2, &usera)) {
+   if (ecc_verify_hash(buf[1], x, buf[0], 16, &stat2, &usera)) {
     printf("Error: %s\n", error_to_string(errno));
-    return;
+    exit(-1);
    }
    printf("ecc_sign/verify_hash: %s (%d,%d)\n", ((stat==1)&&(stat2==0))?"passed":"failed", stat,stat2);
  ecc_free(&usera);
@@ -1185,15 +1070,16 @@ void register_all_algs(void)
 
    register_cipher(&null_desc);
 
+#ifdef SHA1
+   register_hash(&sha1_desc);
+#endif
 #ifdef SHA256
    register_hash(&sha256_desc);
 #endif
 #ifdef TIGER
    register_hash(&tiger_desc);
 #endif
-#ifdef SHA1
-   register_hash(&sha1_desc);
-#endif
+
 #ifdef MD5
    register_hash(&md5_desc);
 #endif
@@ -1383,18 +1269,18 @@ void kr_test(void)
 
        len = sizeof(buf2);
        if ((errno = kr_sign_hash(kr, _kr->ID, buf, 32, buf2, &len, &prng, find_prng("yarrow"))) != CRYPT_OK) {
-          printf("kr_sign_hash failed, %i, %lu\n", i, len);
+          printf("kr_sign_hash failed, %i, %s\n", i, error_to_string(errno));
           exit(-1);
        }
        printf("kr_sign_hash: ");
        if ((errno = kr_verify_hash(kr, buf2, buf, 32, &stat)) != CRYPT_OK) {
-          printf("kr_sign_hash failed, %i, %lu\n", i, len);
+          printf("kr_sign_hash failed, %i, %s\n", i, error_to_string(errno));
           exit(-1);
        }
        printf("%s, ", stat?"passed":"failed");
        buf[15] ^= 1;
        if ((errno = kr_verify_hash(kr, buf2, buf, 32, &stat)) != CRYPT_OK) {
-          printf("kr_sign_hash failed, %i, %lu\n", i, len);
+          printf("kr_sign_hash failed, %i, %s\n", i, error_to_string(errno));
           exit(-1);
        }
        printf("%s\n", (!stat)?"passed":"failed");
@@ -1542,7 +1428,7 @@ int main(void)
  if ((errno = yarrow_ready(&prng)) != CRYPT_OK) {
     printf("yarrow_ready: %s\n", error_to_string(errno));
  }
-
+ 
  printf(crypt_build_settings);
  test_errs();
 

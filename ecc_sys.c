@@ -84,7 +84,7 @@ int ecc_encrypt_key(const unsigned char *inkey, unsigned long keylen,
     }
 
     /* store header */
-    packet_store_header(out, PACKET_SECT_ECC, PACKET_SUB_ENC_KEY, y);
+    packet_store_header(out, PACKET_SECT_ECC, PACKET_SUB_ENC_KEY);
 
 #ifdef CLEAN_STACK
     /* clean up */
@@ -96,8 +96,9 @@ int ecc_encrypt_key(const unsigned char *inkey, unsigned long keylen,
     return CRYPT_OK;
 }
 
-int ecc_decrypt_key(const unsigned char *in, unsigned char *outkey, 
-                          unsigned long *keylen, ecc_key *key)
+int ecc_decrypt_key(const unsigned char *in, unsigned long inlen,
+                          unsigned char *outkey, unsigned long *keylen, 
+                          ecc_key *key)
 {
    unsigned char shared_secret[256], skey[MAXBLOCKSIZE];
    unsigned long x, y, z, res, hashsize, keysize;
@@ -112,6 +113,13 @@ int ecc_decrypt_key(const unsigned char *in, unsigned char *outkey,
    /* right key type? */
    if (key->type != PK_PRIVATE) {
       return CRYPT_PK_NOT_PRIVATE;
+   }
+   
+   /* correct length ? */
+   if (inlen < PACKET_SIZE+1+4+4) {
+      return CRYPT_INVALID_PACKET;
+   } else {
+      inlen -= PACKET_SIZE+1+4+4;
    }
 
    /* is header correct? */
@@ -131,6 +139,11 @@ int ecc_decrypt_key(const unsigned char *in, unsigned char *outkey,
 
    /* get public key */
    LOAD32L(x, in+y);
+   if (inlen < x) {
+      return CRYPT_INVALID_PACKET;
+   } else {
+      inlen -= x;
+   }
    y += 4;
    if ((errno = ecc_import(in+y, x, &pubkey)) != CRYPT_OK) {
       return errno;
@@ -151,6 +164,11 @@ int ecc_decrypt_key(const unsigned char *in, unsigned char *outkey,
    }
 
    LOAD32L(keysize, in+y);
+   if (inlen < keysize) {
+      return CRYPT_INVALID_PACKET;
+   } else {
+      inlen -= keysize;
+   }
    y += 4;
 
    if (*keylen < keysize) {
@@ -223,7 +241,7 @@ int ecc_sign_hash(const unsigned char *in,  unsigned long inlen,
       ecc_free(&pubkey);
       return CRYPT_MEM;
    }
-   if (mp_read_radix(&p, (unsigned char *)sets[key->idx].order, 10) != MP_OKAY)            { goto error; }
+   if (mp_read_radix(&p, (unsigned char *)sets[key->idx].order, 64) != MP_OKAY)            { goto error; }
    if (mp_read_raw(&b, md, 1+MIN(sizeof(md)-1,inlen)) != MP_OKAY)                          { goto error; }
 
    /* find b = (m - x)/k */
@@ -266,7 +284,7 @@ int ecc_sign_hash(const unsigned char *in,  unsigned long inlen,
    }
 
    /* store header */
-   packet_store_header(out, PACKET_SECT_ECC, PACKET_SUB_SIGNED, y);
+   packet_store_header(out, PACKET_SECT_ECC, PACKET_SUB_SIGNED);
 
    /* clear memory */
    *outlen = y;
@@ -286,9 +304,9 @@ done1:
 }
 
 /* verify that mG = (bA + Y) */
-int ecc_verify_hash(const unsigned char *sig, const unsigned char *hash, 
-                     unsigned long inlen, int *stat, 
-                     ecc_key *key)
+int ecc_verify_hash(const unsigned char *sig, unsigned long siglen,
+                    const unsigned char *hash, unsigned long inlen, 
+                    int *stat, ecc_key *key)
 {
    ecc_point *mG;
    ecc_key   pubkey;
@@ -305,6 +323,12 @@ int ecc_verify_hash(const unsigned char *sig, const unsigned char *hash,
    /* default to invalid signature */
    *stat = 0;
 
+   if (siglen < PACKET_SIZE+4+4) {
+      return CRYPT_INVALID_PACKET;
+   } else {
+      siglen -= PACKET_SIZE+4+4;
+   }
+
    /* is the message format correct? */
    if ((errno = packet_valid_header((unsigned char *)sig, PACKET_SECT_ECC, PACKET_SUB_SIGNED)) != CRYPT_OK) {
       return errno;
@@ -315,6 +339,11 @@ int ecc_verify_hash(const unsigned char *sig, const unsigned char *hash,
 
    /* get size of public key */
    LOAD32L(x, sig+y);
+   if (siglen < x) {
+      return CRYPT_INVALID_PACKET;
+   } else {
+      siglen -= x;
+   }
    y += 4;
 
    /* load the public key */
@@ -325,6 +354,11 @@ int ecc_verify_hash(const unsigned char *sig, const unsigned char *hash,
 
    /* load size of 'b' */
    LOAD32L(x, sig+y);
+   if (siglen < x) {
+      return CRYPT_INVALID_PACKET;
+   } else {
+      siglen -= x;
+   }
    y += 4;
 
    /* init values */
@@ -350,7 +384,7 @@ int ecc_verify_hash(const unsigned char *sig, const unsigned char *hash,
    if (mp_read_raw(&m, md, 1+MIN(sizeof(md)-1,inlen)) != MP_OKAY)                  { goto error; }
    
    /* load prime */
-   if (mp_read_radix(&p, (unsigned char *)sets[key->idx].prime, 10) != MP_OKAY)    { goto error; }
+   if (mp_read_radix(&p, (unsigned char *)sets[key->idx].prime, 64) != MP_OKAY)    { goto error; }
 
    /* get bA */
    if (ecc_mulmod(&b, &pubkey.pubkey, &pubkey.pubkey, &p, key->idx) != CRYPT_OK)   { goto error; }
@@ -359,8 +393,8 @@ int ecc_verify_hash(const unsigned char *sig, const unsigned char *hash,
    if (add_point(&pubkey.pubkey, &key->pubkey, &pubkey.pubkey, &p) != CRYPT_OK)    { goto error; }
 
    /* get mG */
-   if (mp_read_radix(&mG->x, (unsigned char *)sets[key->idx].Gx, 16) != MP_OKAY)   { goto error; }
-   if (mp_read_radix(&mG->y, (unsigned char *)sets[key->idx].Gy, 16) != MP_OKAY)   { goto error; }
+   if (mp_read_radix(&mG->x, (unsigned char *)sets[key->idx].Gx, 64) != MP_OKAY)   { goto error; }
+   if (mp_read_radix(&mG->y, (unsigned char *)sets[key->idx].Gy, 64) != MP_OKAY)   { goto error; }
    if (ecc_mulmod(&m, mG, mG, &p, key->idx) != CRYPT_OK)                           { goto error; }
 
    /* compare mG to bA + Y */

@@ -38,7 +38,7 @@ static const char *err_2_str[] =
 
 const char *error_to_string(int errno)
 {
-   if (errno < 0 || errno > (int)(sizeof(err_2_str)/sizeof(err_2_str[0]))) {
+   if (errno < 0 || errno >= (int)(sizeof(err_2_str)/sizeof(err_2_str[0]))) {
       return "Invalid error code.";
    } else {
       return err_2_str[errno];

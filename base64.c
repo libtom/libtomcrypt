@@ -91,7 +91,7 @@ int base64_decode(const unsigned char *in,  unsigned long len,
        if (c == 254) { c = 0; g--; }
        t = (t<<6)|c;
        if (++y == 4) {
-	  if (z + g > *outlen) goto error;
+	   if (z + g > *outlen) { return CRYPT_BUFFER_OVERFLOW; }
           out[z++] = (unsigned char)((t>>16)&255);
           if (g > 1) out[z++] = (unsigned char)((t>>8)&255);
           if (g > 2) out[z++] = (unsigned char)(t&255);
@@ -103,8 +103,6 @@ int base64_decode(const unsigned char *in,  unsigned long len,
    }
    *outlen = z;
    return CRYPT_OK;
-error:
-   return CRYPT_BUFFER_OVERFLOW;
 }
 
 #endif

@@ -8,13 +8,14 @@ AR=lib
 #here you can set the malloc/calloc/free functions you want
 XMALLOC=malloc
 XCALLOC=calloc
+XREALLOC=realloc
 XFREE=free
 
 #you can redefine the clock
 XCLOCK=clock
 XCLOCKS_PER_SEC=CLOCKS_PER_SEC
 
-CFLAGS = /c /Ogisy1 /Gs /I. /W3 /DWIN32 /DXMALLOC=$(XMALLOC) /DXCALLOC=$(XCALLOC) /DXFREE=$(XFREE) /DXCLOCK=$(XCLOCK) /DXCLOCKS_PER_SEC=$(XCLOCKS_PER_SEC)
+CFLAGS = /c /Ogisy1 /Gs /I. /W3 /DWIN32 /DXREALLOC=$(XREALLOC) /DXMALLOC=$(XMALLOC) /DXCALLOC=$(XCALLOC) /DXFREE=$(XFREE) /DXCLOCK=$(XCLOCK) /DXCLOCKS_PER_SEC=$(XCLOCKS_PER_SEC)
 
 #Small code (smaller variants of some block ciphers)
 CFLAGS += /DSMALL_CODE
@@ -113,13 +114,48 @@ CFLAGS += /DRC4
 CFLAGS += /DMRSA
 CFLAGS += /DMDH
 CFLAGS += /DMECC
+#CFLAGS += /DDSA
 CFLAGS += /DKR
+
+# Control which built in DH or ECC key paramaters
+# are to be allowed
+CFLAGS += /DDH768
+CFLAGS += /DDH1024
+CFLAGS += /DDH1280
+CFLAGS += /DDH1536
+CFLAGS += /DDH1792
+CFLAGS += /DDH2048
+CFLAGS += /DDH2560
+CFLAGS += /DDH3072
+CFLAGS += /DDH4096
+
+CFLAGS += /DECC160
+CFLAGS += /DECC192
+CFLAGS += /DECC224
+CFLAGS += /DECC256
+CFLAGS += /DECC384
+CFLAGS += /DECC521
+
+CFLAGS += /DDSA1024
+CFLAGS += /DDSA2048
+CFLAGS += /DDSA4096
 
 # include GF math routines?  (not currently used by anything internally)
 #CFLAGS += /DGF
 
 # include large integer math routines? (required by the PK code)
 CFLAGS += /DMPI
+
+# use the fast exptmod operation (used in dsa/rsa/dh and is_prime)
+# This uses slightly more heap than the old code [only during the function call]
+# this is also fairly faster than the previous code
+CFLAGS += /DMPI_FASTEXPT
+
+# use a "low" mem variant of the fast exptmod.  It is still always 
+# faster then the old exptmod but its savings drops off after 
+# 1024-bits 
+#CFLAGS += /DMPI_FASTEXPT_LOWMEM
+
 
 # include HMAC support
 CFLAGS += /DHMAC
@@ -216,6 +252,8 @@ cast5.obj: cast5.c
 	$(CC) $(CFLAGS) cast5.c
 noekeon.obj: noekeon.c
 	$(CC) $(CFLAGS) noekeon.c
+dsa.obj: dsa.c
+	$(CC) $(CFLAGS) dsa.c
 
 demos/test.obj: demos/test.c
 	$(CC) $(CFLAGS) demos/test.c
@@ -223,11 +261,11 @@ demos/test.obj: demos/test.c
 demos/hashsum.obj: demos/hashsum.c
 	$(CC) $(CFLAGS) demos/hashsum.c
 
-tomcrypt.lib: keyring.obj gf.obj mem.obj sprng.obj ecc.obj  base64.obj dh.obj rsa.obj bits.obj hmac.obj  \
+tomcrypt.lib: keyring.obj gf.obj mem.obj sprng.obj dsa.obj ecc.obj  base64.obj dh.obj rsa.obj bits.obj hmac.obj  \
 yarrow.obj cfb.obj ofb.obj ecb.obj ctr.obj cbc.obj hash.obj tiger.obj sha1.obj md2.obj md5.obj md4.obj sha256.obj sha512.obj xtea.obj \
 aes.obj serpent.obj safer_tab.obj safer.obj safer+.obj cast5.obj noekeon.obj rc2.obj rc6.obj rc5.obj des.obj blowfish.obj crypt.obj ampi.obj \
 strings.obj mpi.obj prime.obj twofish.obj packet.obj
-	$(AR) /out:tomcrypt.lib keyring.obj gf.obj mem.obj sprng.obj ecc.obj  base64.obj dh.obj rsa.obj hmac.obj \
+	$(AR) /out:tomcrypt.lib keyring.obj gf.obj mem.obj sprng.obj dsa.obj ecc.obj  base64.obj dh.obj rsa.obj hmac.obj \
 bits.obj yarrow.obj cfb.obj ofb.obj ecb.obj ctr.obj cbc.obj hash.obj tiger.obj sha1.obj md2.obj md5.obj md4.obj sha256.obj \
 strings.obj sha512.obj xtea.obj aes.obj serpent.obj safer_tab.obj safer.obj safer+.obj cast5.obj noekeon.obj rc2.obj rc6.obj rc5.obj des.obj \
 blowfish.obj crypt.obj ampi.obj mpi.obj prime.obj twofish.obj packet.obj

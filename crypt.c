@@ -1,7 +1,9 @@
 #include "mycrypt.h"
 #include <signal.h>
 
-struct _cipher_descriptor cipher_descriptor[32] = {
+#define TAB_SIZE    32
+
+struct _cipher_descriptor cipher_descriptor[TAB_SIZE] = {
 { NULL, 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL, NULL },
 { NULL, 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL, NULL },
 { NULL, 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL, NULL },
@@ -35,7 +37,7 @@ struct _cipher_descriptor cipher_descriptor[32] = {
 { NULL, 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL, NULL },
 { NULL, 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL, NULL } };
 
-struct _hash_descriptor hash_descriptor[32] = {
+struct _hash_descriptor hash_descriptor[TAB_SIZE] = {
 { NULL, 0, 0, 0, NULL, NULL, NULL, NULL },
 { NULL, 0, 0, 0, NULL, NULL, NULL, NULL },
 { NULL, 0, 0, 0, NULL, NULL, NULL, NULL },
@@ -69,7 +71,7 @@ struct _hash_descriptor hash_descriptor[32] = {
 { NULL, 0, 0, 0, NULL, NULL, NULL, NULL },
 { NULL, 0, 0, 0, NULL, NULL, NULL, NULL } };
 
-struct _prng_descriptor prng_descriptor[32] = {
+struct _prng_descriptor prng_descriptor[TAB_SIZE] = {
 { NULL, NULL, NULL, NULL, NULL },
 { NULL, NULL, NULL, NULL, NULL },
 { NULL, NULL, NULL, NULL, NULL },
@@ -103,26 +105,27 @@ struct _prng_descriptor prng_descriptor[32] = {
 { NULL, NULL, NULL, NULL, NULL },
 { NULL, NULL, NULL, NULL, NULL } };
 
-#if (ARGTYPE == 0) && defined(SMALL_CODE)
-
+/* ch1-01-1 */
+#if (ARGTYPE == 0)
 void crypt_argchk(char *v, char *s, int d)
 {
 #ifdef SONY_PS2
-   printf("_ARGCHK '%s' failure on line %d of file %s\n", v, d, s);
+ printf("_ARGCHK '%s' failure on line %d of file %s\n", 
+         v, d, s);
 #else 
-   fprintf(stderr, "_ARGCHK '%s' failure on line %d of file %s\n", v, d, s);
+ fprintf(stderr, "_ARGCHK '%s' failure on line %d of file %s\n", 
+         v, d, s);
 #endif
-   raise(SIGABRT);
+ raise(SIGABRT);
 }
-
 #endif
-   
+/* ch1-01-1 */
 
 int find_cipher(const char *name)
 {
    int x;
    _ARGCHK(name != NULL);
-   for (x = 0; x < 32; x++) {
+   for (x = 0; x < TAB_SIZE; x++) {
        if (cipher_descriptor[x].name != NULL && !strcmp(cipher_descriptor[x].name, name)) {
           return x;
        }
@@ -134,7 +137,7 @@ int find_hash(const char *name)
 {
    int x;
    _ARGCHK(name != NULL);
-   for (x = 0; x < 32; x++) {
+   for (x = 0; x < TAB_SIZE; x++) {
        if (hash_descriptor[x].name != NULL && !strcmp(hash_descriptor[x].name, name)) {
           return x;
        }
@@ -146,7 +149,7 @@ int find_prng(const char *name)
 {
    int x;
    _ARGCHK(name != NULL);
-   for (x = 0; x < 32; x++) {
+   for (x = 0; x < TAB_SIZE; x++) {
        if ((prng_descriptor[x].name != NULL) && !strcmp(prng_descriptor[x].name, name)) {
           return x;
        }
@@ -157,7 +160,7 @@ int find_prng(const char *name)
 int find_cipher_id(unsigned char ID)
 {
    int x;
-   for (x = 0; x < 32; x++) {
+   for (x = 0; x < TAB_SIZE; x++) {
        if (cipher_descriptor[x].ID == ID) {
           return (cipher_descriptor[x].name == NULL) ? -1 : x;
        }
@@ -168,7 +171,7 @@ int find_cipher_id(unsigned char ID)
 int find_hash_id(unsigned char ID)
 {
    int x;
-   for (x = 0; x < 32; x++) {
+   for (x = 0; x < TAB_SIZE; x++) {
        if (hash_descriptor[x].ID == ID) {
           return (hash_descriptor[x].name == NULL) ? -1 : x;
        }
@@ -186,7 +189,7 @@ int find_cipher_any(const char *name, int blocklen, int keylen)
    x = find_cipher(name);
    if (x != -1) return x;
 
-   for (x = 0; cipher_descriptor[x].name != NULL; x++) {
+   for (x = 0; cipher_descriptor[x].name != NULL && x < TAB_SIZE; x++) {
        if (blocklen <= (int)cipher_descriptor[x].block_length && keylen <= (int)cipher_descriptor[x].max_key_length) {
           return x;
        }
@@ -201,14 +204,14 @@ int register_cipher(const struct _cipher_descriptor *cipher)
    _ARGCHK(cipher != NULL);
 
    /* is it already registered? */
-   for (x = 0; x < 32; x++) {
+   for (x = 0; x < TAB_SIZE; x++) {
        if (cipher_descriptor[x].name != NULL && cipher_descriptor[x].ID == cipher->ID) {
           return x;
        }
    }
 
    /* find a blank spot */
-   for (x = 0; x < 32; x++) {
+   for (x = 0; x < TAB_SIZE; x++) {
        if (cipher_descriptor[x].name == NULL) {
           memcpy(&cipher_descriptor[x], cipher, sizeof(struct _cipher_descriptor));
           return x;
@@ -226,7 +229,7 @@ int unregister_cipher(const struct _cipher_descriptor *cipher)
    _ARGCHK(cipher != NULL);
 
    /* is it already registered? */
-   for (x = 0; x < 32; x++) {
+   for (x = 0; x < TAB_SIZE; x++) {
        if (!memcmp(&cipher_descriptor[x], cipher, sizeof(struct _cipher_descriptor))) {
           cipher_descriptor[x].name = NULL;
           cipher_descriptor[x].ID   = 255;
@@ -243,14 +246,14 @@ int register_hash(const struct _hash_descriptor *hash)
    _ARGCHK(hash != NULL);
 
    /* is it already registered? */
-   for (x = 0; x < 32; x++) {
+   for (x = 0; x < TAB_SIZE; x++) {
        if (!memcmp(&hash_descriptor[x], hash, sizeof(struct _hash_descriptor))) {
           return x;
        }
    }
 
    /* find a blank spot */
-   for (x = 0; x < 32; x++) {
+   for (x = 0; x < TAB_SIZE; x++) {
        if (hash_descriptor[x].name == NULL) {
           memcpy(&hash_descriptor[x], hash, sizeof(struct _hash_descriptor));
           return x;
@@ -268,7 +271,7 @@ int unregister_hash(const struct _hash_descriptor *hash)
    _ARGCHK(hash != NULL);
 
    /* is it already registered? */
-   for (x = 0; x < 32; x++) {
+   for (x = 0; x < TAB_SIZE; x++) {
        if (!memcmp(&hash_descriptor[x], hash, sizeof(struct _hash_descriptor))) {
           hash_descriptor[x].name = NULL;
           return CRYPT_OK;
@@ -284,14 +287,14 @@ int register_prng(const struct _prng_descriptor *prng)
    _ARGCHK(prng != NULL);
 
    /* is it already registered? */
-   for (x = 0; x < 32; x++) {
+   for (x = 0; x < TAB_SIZE; x++) {
        if (!memcmp(&prng_descriptor[x], prng, sizeof(struct _prng_descriptor))) {
           return x;
        }
    }
 
    /* find a blank spot */
-   for (x = 0; x < 32; x++) {
+   for (x = 0; x < TAB_SIZE; x++) {
        if (prng_descriptor[x].name == NULL) {
           memcpy(&prng_descriptor[x], prng, sizeof(struct _prng_descriptor));
           return x;
@@ -309,7 +312,7 @@ int unregister_prng(const struct _prng_descriptor *prng)
    _ARGCHK(prng != NULL);
 
    /* is it already registered? */
-   for (x = 0; x < 32; x++) {
+   for (x = 0; x < TAB_SIZE; x++) {
        if (!memcmp(&prng_descriptor[x], prng, sizeof(struct _prng_descriptor))) {
           prng_descriptor[x].name = NULL;
           return CRYPT_OK;
@@ -320,7 +323,7 @@ int unregister_prng(const struct _prng_descriptor *prng)
 
 int cipher_is_valid(int idx)
 {
-   if (idx < 0 || idx > 32 || cipher_descriptor[idx].name == NULL) {
+   if (idx < 0 || idx >= TAB_SIZE || cipher_descriptor[idx].name == NULL) {
       return CRYPT_INVALID_CIPHER;
    }
    return CRYPT_OK;
@@ -328,7 +331,7 @@ int cipher_is_valid(int idx)
 
 int hash_is_valid(int idx)
 {
-   if (idx < 0 || idx > 32 || hash_descriptor[idx].name == NULL) {
+   if (idx < 0 || idx >= TAB_SIZE || hash_descriptor[idx].name == NULL) {
       return CRYPT_INVALID_HASH;
    }
    return CRYPT_OK;
@@ -336,7 +339,7 @@ int hash_is_valid(int idx)
 
 int prng_is_valid(int idx)
 {
-   if (idx < 0 || idx > 32 || prng_descriptor[idx].name == NULL) {
+   if (idx < 0 || idx >= TAB_SIZE || prng_descriptor[idx].name == NULL) {
       return CRYPT_INVALID_PRNG;
    }
    return CRYPT_OK;

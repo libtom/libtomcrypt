@@ -18,15 +18,15 @@ static const struct {
    20,
    "ECC-160",
    /* prime */
-   "1461501637330902918203684832716283019655932542983",
+   "G00000000000000000000000007",
    /* B */
-   "1C9E7C2E5891CBE097BD46",
+   "1oUV2vOaSlWbxr6",
    /* order */
-   "1461501637330902918203686297565868358251373258181",
+   "G0000000000004sCQUtDxaqDUN5",
    /* Gx */
-   "2DCF462904B478D868A7FF3F2BF1FCD9",
+   "jpqOf1BHus6Yd/pyhyVpP",
    /* Gy */
-   "DFFAF2EE3848FA75FB967CEC7B9A399E085ACED8",
+   "D/wykuuIFfr+vPyx7kQEPu8MixO",
 },
 #endif
 #ifdef ECC192
@@ -34,19 +34,19 @@ static const struct {
     24,
    "ECC-192",
    /* prime */
-   "6277101735386680763835789423207666416083908700390324961279",
+   "/////////////////////l//////////",
 
    /* B */
-   "64210519e59c80e70fa7e9ab72243049feb8deecc146b9b1",
+   "P2456UMSWESFf+chSYGmIVwutkp1Hhcn",
 
    /* order */
-   "6277101735386680763835789423176059013767194773182842284081",
+   "////////////////cTxuDXHhoR6qqYWn",
 
    /* Gx */
-   "188da80eb03090f67cbf20eb43a18800f4ff0afd82ff1012",
+   "68se3h0maFPylo3hGw680FJ/2ls2/n0I",
 
    /* Gy */
-   "07192b95ffc8da78631011ed6b24cdd573f977a11e794811"
+   "1nahbV/8sdXZ417jQoJDrNFvTw4UUKWH"
 },
 #endif
 #ifdef ECC224
@@ -55,19 +55,19 @@ static const struct {
    "ECC-224",
 
    /* prime */
-   "26959946667150639794667015087019630673637144422540572481103610249951",
+   "400000000000000000000000000000000000BV",
 
    /* B */
-   "2051BA041508CED34B3",
+   "21HkWGL2CxJIp",
 
    /* order */
-   "26959946667150639794667015087019637467111563745054605861463538557247",
+   "4000000000000000000Kxnixk9t8MLzMiV264/",
 
    /* Gx */
-   "2DCF462904B478D868A7FF3F2BF1FCD9",
+   "jpqOf1BHus6Yd/pyhyVpP",
  
    /* Gy */
-   "CF337F320BC44A15C3EDB8C4258BB958E57A0CAFA73EB46E9C4BA9AE",
+   "3FCtyo2yHA5SFjkCGbYxbOvNeChwS+j6wSIwck",
 },
 #endif
 #ifdef ECC256
@@ -75,19 +75,19 @@ static const struct {
    32,
    "ECC-256",
    /* Prime */
-   "115792089210356248762697446949407573530086143415290314195533631308867097853951",
+   "F////y000010000000000000000////////////////",
 
    /* B */
-   "5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b",
+   "5h6DTYgEfFdi+kzLNQOXhnb7GQmp5EmzZlEF3udqc1B",
 
    /* Order */
-   "115792089210356248762697446949407573529996955224135760342422259061068512044369",
+   "F////y00000//////////+yvlgjfnUUXFEvoiByOoLH",
 
    /* Gx */
-   "6b17d1f2e12c4247f8bce6e563a440f277037d812deb33a0f4a13945d898c296",
+   "6iNqVBXB497+BpcvMEaGF9t0ts1BUipeFIXEKNOcCAM",
 
    /* Gy */
-   "4fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33576b315ececbb6406837bf51f5"
+   "4/ZGkB+6d+RZkVhIdmFdXOhpZDNQp5UpiksG6Wtlr7r"
 }, 
 #endif
 #ifdef ECC384
@@ -95,22 +95,23 @@ static const struct {
    48,
    "ECC-384",
    /* prime */
-   "394020061963944792122790401001436138050797392704654466679482934042457217714968"
-   "70329047266088258938001861606973112319",
-
+   "//////////////////////////////////////////x/////00000000003/"
+   "////",
+   
    /* B */
-   "b3312fa7e23ee7e4988e056be3f82d19181d9c6efe8141120314088f5013875ac656398d8a2ed1"
-   "9d2a85c8edd3ec2aef",
-
+   "ip4lf+8+v+IOZWLhu/Wj6HWTd6x+WK4I0nG8Zr0JXrh6LZcDYYxHdIg5oEtJ"
+   "x2hl",
+   
    /* Order */
-   "394020061963944792122790401001436138050797392704654466679469052796276593991132"
-   "63569398956308152294913554433653942643",
+   "////////////////////////////////nsDDWVGtBTzO6WsoIB2dUkpi6MhC"
+   "nIbp",
 
    /* Gx and Gy */
-   "aa87ca22be8b05378eb1c71ef320ad746e1d3b628ba79b9859f741e082542a385502f25dbf5529"
-   "6c3a545e3872760ab7",
-   "3617de4a96262c6f5d9e98bf9292dc29f8f41dbd289a147ce9da3113b5f0b8c00a60b1ce1d7e81"
-   "9d7a431d7c90ea0e5f"
+   "geVA8hwB1JUEiSSUyo2jT6uTEsABfvkOMVT1u89KAZXL0l9TlrKfR3fKNZXo"
+   "TWgt",
+   
+   "DXVUIfOcB6zTdfY/afBSAVZq7RqecXHywTen4xNmkC0AOB7E7Nw1dNf37NoG"
+   "wWvV"
 },
 #endif
 #ifdef ECC521
@@ -118,22 +119,23 @@ static const struct {
    65,
    "ECC-521",
    /* prime */ 
-   "686479766013060971498190079908139321726943530014330540939446345918554318339765"
-   "6052122559640661454554977296311391480858037121987999716643812574028291115057151",
+   "V///////////////////////////////////////////////////////////"
+   "///////////////////////////",
  
    /* B */
-   "051953eb9618e1c9a1f929a21a0b68540eea2da725b99b315f3b8b489918ef109e156193951ec7"
-   "e937b1652c0bd3bb1bf073573df883d2c34f1ef451fd46b503f00",
+   "56LFhbXZXoQ7vAQ8Q2sXK3kejfoMvcp5VEuj8cHZl49uLOPEL7iVfDx5bB0l"
+   "JknlmSrSz+8FImqyUz57zHhK3y0",
  
    /* Order */ 
-   "686479766013060971498190079908139321726943530014330540939446345918554318339765"
-   "5394245057746333217197532963996371363321113864768612440380340372808892707005449",
+   "V//////////////////////////////////////////+b66XuE/BvPhVym1I"
+   "FS9fT0xjScuYPn7hhjljnwHE6G9",
 
    /* Gx and Gy */
-   "c6858e06b70404e9cd9e3ecb662395b4429c648139053fb521f828af606b4d3dbaa14b5e77efe7"
-   "5928fe1dc127a2ffa8de3348b3c1856a429bf97e7e31c2e5bd66",
-   "11839296a789a3bc0045c8a5fb42c7d1bd998f54449579b446817afbd17273e662c97ee72995ef"
-   "42640c550b9013fad0761353c7086a272c24088be94769fd16650",
+   "CQ5ZWQt10JfpPu+osOZbRH2d6I1EGK/jI7uAAzWQqqzkg5BNdVlvrae/Xt19"
+   "wB/gDupIBF1XMf2c/b+VZ72vRrc",
+   
+   "HWvAMfucZl015oANxGiVHlPcFL4ILURH6WNhxqN9pvcB9VkSfbUz2P0nL2v0"
+   "J+j1s4rF726edB2G8Y+b7QVqMPG",
 },
 #endif
 {
@@ -251,7 +253,7 @@ static int dbl_point(ecc_point *P, ecc_point *R, mp_int *modulus)
    /* s = (3Xp^2 + a) / (2Yp) */
    if (mp_mul_2(&P->y, &tmp) != MP_OKAY)                   { goto error; } /* tmp = 2*y */
    if (mp_invmod(&tmp, modulus, &tmp) != MP_OKAY)          { goto error; } /* tmp = 1/tmp mod modulus */
-   if (mp_sqr(&P->x,  &s) != MP_OKAY)                      { goto error; } /* s = x^2  */
+   if (mp_sqr(&P->x, &s) != MP_OKAY)                       { goto error; } /* s = x^2  */
    if (mp_mul_d(&s,(mp_digit)3, &s) != MP_OKAY)            { goto error; } /* s = 3*(x^2) */
    if (mp_sub_d(&s,(mp_digit)3, &s) != MP_OKAY)            { goto error; } /* s = 3*(x^2) - 3 */
    if (mp_mulmod(&s, &tmp, modulus, &s) != MP_OKAY)        { goto error; } /* s = tmp * s mod modulus */
@@ -329,59 +331,103 @@ done:
 /* perform R = kG where k == integer and G == ecc_point */
 static int ecc_mulmod(mp_int *k, ecc_point *G, ecc_point *R, mp_int *modulus, int idx)
 {
-   ecc_point *tG;
-   int i, j, z, first, res;
+   ecc_point *tG, *M[14];
+   int i, j, m, z, first, res;
    mp_digit d;
    unsigned char bits[768];
    
+   /* init M tab */
+   for (i = 0; i < 14; i++) {
+       M[i] = new_point();
+       if (M[i] == NULL) {
+          for (j = 0; j < i; j++) {
+              del_point(M[j]);
+          }
+          return CRYPT_MEM;
+       }
+   }
+   
    /* get bits of k */
+   first = m = 0;
    for (z = i = 0; z < (int)USED(k); z++) {
        d = DIGIT(k, z);
-       
-#define DO1 bits[i++] = d&1; d >>= 1;
-#define DO2 DO1 DO1
-#define DO4 DO2 DO2
-
-       DO4; DO4; DO4; DO4
-
-#undef DO4
-#undef DO2
-#undef DO1
+       for (j = 0; j < (int)MP_DIGIT_BIT; j++) {
+           first |= (d&1)<<(m++);
+           if (m == 4) {
+              bits[i++] = first;
+              first = m = 0;
+           }
+           d >>= 1;
+       }
+   }
+   
+   /* residue of multiplicand [if any] */
+   if (m) {
+      bits[i++] = first;
    }
 
    /* make a copy of G incase R==G */
    tG = new_point();
-   if (tG == NULL) { 
-      return CRYPT_MEM;
-   }
+   if (tG == NULL)                                          { goto error; }
 
+   /* skip leading digits which are zero */   
+   --i; while (i && bits[i] == 0) { --i; }
+   
+   if (i == 0) {
+      res = CRYPT_INVALID_ARG;
+      goto done;
+   }
+   
+   /* now calc the M tab, note that there are only 14 spots, the normal M[0] is a no-op, and M[1] is the input
+      point (saves ram)
+   */
+   
+   /* M[0] now is 2*G */
+   if (dbl_point(G, M[0], modulus) != CRYPT_OK)             { goto error; }
+   for (j = 1; j < 14; j++) {
+       if (add_point(M[j-1], G, M[j], modulus) != CRYPT_OK) { goto error; }
+   }
+  
    /* tG = G */
-   if (mp_copy(&G->x, &tG->x) != MP_OKAY)     { goto error; }
-   if (mp_copy(&G->y, &tG->y) != MP_OKAY)     { goto error; }
+   if (mp_copy(&G->x, &tG->x) != MP_OKAY)                   { goto error; }
+   if (mp_copy(&G->y, &tG->y) != MP_OKAY)                   { goto error; }
 
-   /* set result to G, R = G */
-   if (mp_copy(&G->x, &R->x) != MP_OKAY)      { goto error; }
-   if (mp_copy(&G->y, &R->y) != MP_OKAY)      { goto error; }
-   first = 0;
-
-   /* now do dbl+add through all the bits */
-   for (j = i-1; j >= 0; j--) {
-       if (first) {
-           if (dbl_point(R, R, modulus) != CRYPT_OK)       { goto error; }
+   /* set result M[bits[i]] */
+   if (bits[i] == 1) {
+     if (mp_copy(&G->x, &R->x) != MP_OKAY)                  { goto error; }
+     if (mp_copy(&G->y, &R->y) != MP_OKAY)                  { goto error; }
+   } else if (bits[i]>=2) {
+     if (mp_copy(&M[bits[i]-2]->x, &R->x) != MP_OKAY)       { goto error; }
+     if (mp_copy(&M[bits[i]-2]->y, &R->y) != MP_OKAY)       { goto error; }
+   }
+   
+   while (--i >= 0) {
+       /* double */
+       for (j = 0; j < 4; j++) {
+          if (dbl_point(R, R, modulus) != CRYPT_OK)               { goto error; }
        }
-       if (bits[j] == 1) {
-          if (first) {
-             if (add_point(R, tG, R, modulus) != CRYPT_OK) { goto error; }
-          }
-          first = 1;
+       
+       /* now based on the value of bits[i] we do ops */
+       if (bits[i] == 0) {
+          /* nop */
+       } else if (bits[i] == 1) {
+          /* add base point */
+          if (add_point(R, tG, R, modulus) != CRYPT_OK)           { goto error; }
+       } else {
+          /* other case */
+          if (add_point(R, M[bits[i]-2], R, modulus) != CRYPT_OK) { goto error; }
        }
    }
+   
    res = CRYPT_OK; 
    goto done;
 error:
    res = CRYPT_MEM;
 done:
    del_point(tG);
+   for (i = 0; i < 14; i++) {
+       del_point(M[i]);
+   }
 #ifdef CLEAN_STACK
    zeromem(bits, sizeof(bits)); 
 #endif
@@ -412,8 +458,11 @@ int ecc_test(void)
    }
 
    for (i = 0; sets[i].size; i++) {
-       if (mp_read_radix(&modulus, (unsigned char *)sets[i].prime, 10) != MP_OKAY)   { goto error; }
-       if (mp_read_radix(&order, (unsigned char *)sets[i].order, 10) != MP_OKAY)     { goto error; }
+       #if 0
+          printf("Testing %d\n", sets[i].size);
+       #endif
+       if (mp_read_radix(&modulus, (unsigned char *)sets[i].prime, 64) != MP_OKAY)   { goto error; }
+       if (mp_read_radix(&order, (unsigned char *)sets[i].order, 64) != MP_OKAY)     { goto error; }
 
        /* is prime actually prime? */
        if (is_prime(&modulus, &primality) != CRYPT_OK)           { goto error; }
@@ -429,8 +478,8 @@ int ecc_test(void)
           goto done1;
        }
 
-       if (mp_read_radix(&G->x, (unsigned char *)sets[i].Gx, 16) != MP_OKAY) { goto error; }
-       if (mp_read_radix(&G->y, (unsigned char *)sets[i].Gy, 16) != MP_OKAY) { goto error; }
+       if (mp_read_radix(&G->x, (unsigned char *)sets[i].Gx, 64) != MP_OKAY) { goto error; }
+       if (mp_read_radix(&G->y, (unsigned char *)sets[i].Gy, 64) != MP_OKAY) { goto error; }
 
        /* then we should have G == (order + 1)G */
        if (mp_add_d(&order, 1, &order) != MP_OKAY)                  { goto error; }
@@ -509,14 +558,19 @@ int ecc_make_key(prng_state *prng, int wprng, int keysize, ecc_key *key)
    }
 
    /* read in the specs for this key */
-   if (mp_read_radix(&prime, (unsigned char *)sets[x].prime, 10) != MP_OKAY)  { goto error; }
-   if (mp_read_radix(&base->x, (unsigned char *)sets[x].Gx, 16) != MP_OKAY)   { goto error; }
-   if (mp_read_radix(&base->y, (unsigned char *)sets[x].Gy, 16) != MP_OKAY)   { goto error; }
+   if (mp_read_radix(&prime, (unsigned char *)sets[key->idx].prime, 64) != MP_OKAY)  { goto error; }
+   if (mp_read_radix(&base->x, (unsigned char *)sets[key->idx].Gx, 64) != MP_OKAY)   { goto error; }
+   if (mp_read_radix(&base->y, (unsigned char *)sets[key->idx].Gy, 64) != MP_OKAY)   { goto error; }
    if (mp_read_raw(&key->k, (unsigned char *)buf, keysize+1) != MP_OKAY)      { goto error; }
 
    /* make the public key */
    if (ecc_mulmod(&key->k, base, &key->pubkey, &prime, x) != CRYPT_OK) { goto error; }
    key->type = PK_PRIVATE;
+   
+   /* shrink key */
+   if (mp_shrink(&key->k) != MP_OKAY)          { goto error; }
+   if (mp_shrink(&key->pubkey.x) != MP_OKAY)   { goto error; }
+   if (mp_shrink(&key->pubkey.y) != MP_OKAY)   { goto error; }
 
    /* free up ram */
    res = CRYPT_OK;
@@ -551,12 +605,12 @@ static int compress_y_point(ecc_point *pt, int idx, int *result)
    }
 
    /* get x^3 - 3x + b */
-   if (mp_read_radix(&p, (unsigned char *)sets[idx].B, 16) != MP_OKAY) { goto error; } /* p = B */
+   if (mp_read_radix(&p, (unsigned char *)sets[idx].B, 64) != MP_OKAY) { goto error; } /* p = B */
    if (mp_expt_d(&pt->x, 3, &tmp) != MP_OKAY)              { goto error; } /* tmp = pX^3  */
    if (mp_mul_d(&pt->x, 3, &tmp2) != MP_OKAY)              { goto error; } /* tmp2 = 3*pX^3 */
    if (mp_sub(&tmp, &tmp2, &tmp) != MP_OKAY)               { goto error; } /* tmp = tmp - tmp2 */
    if (mp_add(&tmp, &p, &tmp) != MP_OKAY)                  { goto error; } /* tmp = tmp + p */
-   if (mp_read_radix(&p, (unsigned char *)sets[idx].prime, 10) != MP_OKAY)  { goto error; } /* p = prime */
+   if (mp_read_radix(&p, (unsigned char *)sets[idx].prime, 64) != MP_OKAY)  { goto error; } /* p = prime */
    if (mp_mod(&tmp, &p, &tmp) != MP_OKAY)                  { goto error; } /* tmp = tmp mod p */
 
    /* now find square root */
@@ -593,12 +647,12 @@ static int expand_y_point(ecc_point *pt, int idx, int result)
    }
 
    /* get x^3 - 3x + b */
-   if (mp_read_radix(&p, (unsigned char *)sets[idx].B, 16) != MP_OKAY) { goto error; } /* p = B */
+   if (mp_read_radix(&p, (unsigned char *)sets[idx].B, 64) != MP_OKAY) { goto error; } /* p = B */
    if (mp_expt_d(&pt->x, 3, &tmp) != MP_OKAY)              { goto error; } /* tmp = pX^3 */
    if (mp_mul_d(&pt->x, 3, &tmp2) != MP_OKAY)              { goto error; } /* tmp2 = 3*pX^3 */
    if (mp_sub(&tmp, &tmp2, &tmp) != MP_OKAY)               { goto error; } /* tmp = tmp - tmp2 */
    if (mp_add(&tmp, &p, &tmp) != MP_OKAY)                  { goto error; } /* tmp = tmp + p */
-   if (mp_read_radix(&p, (unsigned char *)sets[idx].prime, 10) != MP_OKAY)  { goto error; } /* p = prime */
+   if (mp_read_radix(&p, (unsigned char *)sets[idx].prime, 64) != MP_OKAY)  { goto error; } /* p = prime */
    if (mp_mod(&tmp, &p, &tmp) != MP_OKAY)                  { goto error; } /* tmp = tmp mod p */
 
    /* now find square root */
@@ -625,10 +679,10 @@ done:
 
 #define OUTPUT_BIGNUM(num, buf2, y, z)         \
 {                                              \
-      z = mp_raw_size(num);                    \
+      z = mp_unsigned_bin_size(num);           \
       STORE32L(z, buf2+y);                     \
       y += 4;                                  \
-      mp_toraw(num, buf2+y);                   \
+      mp_to_unsigned_bin(num, buf2+y);         \
       y += z;                                  \
 }
 
@@ -650,11 +704,15 @@ done:
      }                                                           \
                                                                  \
      /* load it */                                               \
-     if (mp_read_raw(num, (unsigned char *)in+y, x) != MP_OKAY) {\
+     if (mp_read_unsigned_bin(num, (unsigned char *)in+y, x) != MP_OKAY) {\
         errno = CRYPT_MEM;                                       \
         goto error;                                              \
      }                                                           \
      y += x;                                                     \
+     if (mp_shrink(num) != MP_OKAY) {                            \
+        errno = CRYPT_MEM;                                       \
+        goto error;                                              \
+     }                                                           \
 }
 
 int ecc_export(unsigned char *out, unsigned long *outlen, int type, ecc_key *key)
@@ -696,7 +754,7 @@ int ecc_export(unsigned char *out, unsigned long *outlen, int type, ecc_key *key
    }
 
    /* store header */
-   packet_store_header(buf2, PACKET_SECT_ECC, PACKET_SUB_KEY, y);
+   packet_store_header(buf2, PACKET_SECT_ECC, PACKET_SUB_KEY);
 
    memcpy(out, buf2, y);
    *outlen = y;
@@ -765,10 +823,15 @@ int ecc_import(const unsigned char *in, unsigned long inlen, ecc_key *key)
       /* load private key */
       INPUT_BIGNUM(&key->k, in, x, y);
    }
+   
+   /* eliminate private key if public */
+   if (key->type == PK_PUBLIC) {
+      mp_clear(&key->k);
+   }      
+   
    return CRYPT_OK;
 error:
    mp_clear_multi(&key->pubkey.x, &key->pubkey.y, &key->k, NULL);
-done:
    return errno;
 }
 
@@ -805,7 +868,7 @@ int ecc_shared_secret(ecc_key *private_key, ecc_key *public_key,
       return CRYPT_MEM;
    }
 
-   if (mp_read_radix(&prime, (unsigned char *)sets[private_key->idx].prime, 10) != MP_OKAY) { goto error; }
+   if (mp_read_radix(&prime, (unsigned char *)sets[private_key->idx].prime, 64) != MP_OKAY) { goto error; }
    if ((errno = ecc_mulmod(&private_key->k, &public_key->pubkey, result, &prime, private_key->idx)) != CRYPT_OK) { res = errno; goto done1; }
 
    x = mp_raw_size(&result->x);

@@ -13,46 +13,48 @@ extern "C" {
 #endif
 
 /* version */
-#define CRYPT   0x0078
-#define SCRYPT  "0.78"
+#define CRYPT   0x0079
+#define SCRYPT  "0.79"
 
 /* max size of either a cipher/hash block or symmetric key [largest of the two] */
 #define MAXBLOCKSIZE           128
 
+/* ch1-01-1 */
 /* error codes [will be expanded in future releases] */
 enum {
-   CRYPT_OK=0,
-   CRYPT_ERROR,
+   CRYPT_OK=0,             /* Result OK */
+   CRYPT_ERROR,            /* Generic Error */
 
-   CRYPT_INVALID_KEYSIZE,
-   CRYPT_INVALID_ROUNDS,
-   CRYPT_FAIL_TESTVECTOR,
+   CRYPT_INVALID_KEYSIZE,  /* Invalid key size given */
+   CRYPT_INVALID_ROUNDS,   /* Invalid number of rounds */
+   CRYPT_FAIL_TESTVECTOR,  /* Algorithm failed test vectors */
 
-   CRYPT_BUFFER_OVERFLOW,
-   CRYPT_INVALID_PACKET,
+   CRYPT_BUFFER_OVERFLOW,  /* Not enough space for output */
+   CRYPT_INVALID_PACKET,   /* Invalid input packet given */
 
-   CRYPT_INVALID_PRNGSIZE,
-   CRYPT_ERROR_READPRNG,
+   CRYPT_INVALID_PRNGSIZE, /* Invalid number of bits for a PRNG */
+   CRYPT_ERROR_READPRNG,   /* Could not read enough from PRNG */
 
-   CRYPT_INVALID_CIPHER,
-   CRYPT_INVALID_HASH,
-   CRYPT_INVALID_PRNG,
+   CRYPT_INVALID_CIPHER,   /* Invalid cipher specified */
+   CRYPT_INVALID_HASH,     /* Invalid hash specified */
+   CRYPT_INVALID_PRNG,     /* Invalid PRNG specified */
 
-   CRYPT_MEM,
+   CRYPT_MEM,              /* Out of memory */
 
-   CRYPT_PK_TYPE_MISMATCH,
-   CRYPT_PK_NOT_PRIVATE,
+   CRYPT_PK_TYPE_MISMATCH, /* Not equivalent types of PK keys */
+   CRYPT_PK_NOT_PRIVATE,   /* Requires a private PK key */
 
-   CRYPT_INVALID_ARG,
+   CRYPT_INVALID_ARG,      /* Generic invalid argument */
 
-   CRYPT_PK_INVALID_TYPE,
-   CRYPT_PK_INVALID_SYSTEM,
-   CRYPT_PK_DUP,
-   CRYPT_PK_NOT_FOUND,
-   CRYPT_PK_INVALID_SIZE,
+   CRYPT_PK_INVALID_TYPE,  /* Invalid type of PK key */
+   CRYPT_PK_INVALID_SYSTEM,/* Invalid PK system specified */
+   CRYPT_PK_DUP,           /* Duplicate key already in key ring */
+   CRYPT_PK_NOT_FOUND,     /* Key not found in keyring */
+   CRYPT_PK_INVALID_SIZE,  /* Invalid size input for PK parameters */
 
-   CRYPT_INVALID_PRIME_SIZE
+   CRYPT_INVALID_PRIME_SIZE/* Invalid size of prime requested */
 };
+/* ch1-01-1 */
 
 #include <mycrypt_cfg.h>
 #include <mycrypt_macros.h>
@@ -63,9 +65,7 @@ enum {
 #include <mycrypt_gf.h>
 #include <mycrypt_misc.h>
 #include <mycrypt_kr.h>
-
 #include <mycrypt_argchk.h>
-
 
 #ifdef __cplusplus
    }

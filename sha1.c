@@ -25,7 +25,7 @@ static void _sha1_compress(hash_state *md)
 static void sha1_compress(hash_state *md)
 #endif
 {
-    unsigned long a,b,c,d,e,W[80],i,j;
+    unsigned long a,b,c,d,e,W[80],i,j,j2,j3;
 
     _ARGCHK(md != NULL);
 
@@ -46,6 +46,7 @@ static void sha1_compress(hash_state *md)
         j = W[i-3] ^ W[i-8] ^ W[i-14] ^ W[i-16]; 
         W[i] = ROL(j, 1);
     }
+
 
     /* compress */
     /* round one */

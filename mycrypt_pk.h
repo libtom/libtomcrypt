@@ -17,7 +17,7 @@ extern void mp_clear_multi(mp_int* mp, ...);
 /* ---- PACKET ---- */
 #ifdef PACKET
 
-extern void packet_store_header(unsigned char *dst, int section, int subsection, unsigned long length);
+extern void packet_store_header(unsigned char *dst, int section, int subsection);
 extern int packet_valid_header(unsigned char *src, int section, int subsection);
 
 #endif
@@ -56,15 +56,16 @@ extern int rsa_encrypt_key(const unsigned char *inkey, unsigned long inlen,
                                  unsigned char *outkey, unsigned long *outlen,
                                  prng_state *prng, int wprng, rsa_key *key);
 
-extern int rsa_decrypt_key(const unsigned char *in, unsigned char *outkey, 
-                                 unsigned long *keylen, rsa_key *key);
+extern int rsa_decrypt_key(const unsigned char *in, unsigned long inlen,
+                                 unsigned char *outkey, unsigned long *keylen, 
+                                 rsa_key *key);
 
 extern int rsa_sign_hash(const unsigned char *in,  unsigned long inlen, 
                                unsigned char *out, unsigned long *outlen, 
                                rsa_key *key);
 
-extern int rsa_verify_hash(const unsigned char *sig, const unsigned char *hash,
-                                 int *stat, rsa_key *key);
+extern int rsa_verify_hash(const unsigned char *sig, unsigned long siglen,
+                           const unsigned char *hash, int *stat, rsa_key *key);
 
 extern int rsa_export(unsigned char *out, unsigned long *outlen, int type, rsa_key *key);
 extern int rsa_import(const unsigned char *in, unsigned long inlen, rsa_key *key);
@@ -96,16 +97,17 @@ extern int dh_encrypt_key(const unsigned char *inkey, unsigned long keylen,
                                 prng_state *prng, int wprng, int hash, 
                                 dh_key *key);
 
-extern int dh_decrypt_key(const unsigned char *in,  unsigned char *outkey, 
-                                unsigned long *keylen, dh_key *key);
+extern int dh_decrypt_key(const unsigned char *in,  unsigned long inlen, 
+                                unsigned char *outkey, unsigned long *keylen, 
+                                dh_key *key);
 
 extern int dh_sign_hash(const unsigned char *in,  unsigned long inlen,
                               unsigned char *out, unsigned long *outlen,
                               prng_state *prng, int wprng, dh_key *key);
 
-extern int dh_verify_hash(const unsigned char *sig, const unsigned char *hash, 
-                                unsigned long inlen, int *stat, 
-                                dh_key *key);
+extern int dh_verify_hash(const unsigned char *sig, unsigned long siglen,
+                          const unsigned char *hash, unsigned long hashlen, 
+                                int *stat, dh_key *key);
 
 
 #endif
@@ -140,15 +142,35 @@ extern int ecc_encrypt_key(const unsigned char *inkey, unsigned long keylen,
                                  prng_state *prng, int wprng, int hash, 
                                  ecc_key *key);
 
-extern int ecc_decrypt_key(const unsigned char *in, unsigned char *outkey, 
-                                 unsigned long *keylen, ecc_key *key);
+extern int ecc_decrypt_key(const unsigned char *in, unsigned long inlen,
+                                 unsigned char *outkey, unsigned long *keylen, 
+                                 ecc_key *key);
 
 extern int ecc_sign_hash(const unsigned char *in,  unsigned long inlen,
                                unsigned char *out, unsigned long *outlen,
                                prng_state *prng, int wprng, ecc_key *key);
 
-extern int ecc_verify_hash(const unsigned char *sig, const unsigned char *hash, 
-                                 unsigned long inlen, int *stat, 
-                                 ecc_key *key);
+extern int ecc_verify_hash(const unsigned char *sig,  unsigned long siglen,
+                           const unsigned char *hash, unsigned long hashlen, 
+                                 int *stat, ecc_key *key);
+#endif
+
+#ifdef MDSA
+
+typedef struct {
+    int type, idx;
+    mp_int x, y;
+} dsa_key;
+
+extern int dsa_test(void);
+
+extern int dsa_make_key(prng_state *prng, int wprng, int keysize, dsa_key *key);
+extern void dsa_free(dsa_key *key);
+
+extern int dsa_export(unsigned char *out, unsigned long *outlen, int type, dsa_key *key);
+extern int dsa_import(const unsigned char *in, unsigned long inlen, dsa_key *key);
+
+
+
 #endif
 

@@ -98,6 +98,8 @@ void   mp_clear_array(mp_int mp[], int count);
 void   mp_zero(mp_int *mp);
 void   mp_set(mp_int *mp, mp_digit d);
 mp_err mp_set_int(mp_int *mp, long z);
+mp_err mp_shrink(mp_int *a);
+
 
 /*------------------------------------------------------------------------*/
 /* Single digit arithmetic                                                */
@@ -149,6 +151,9 @@ mp_err mp_sqrmod(mp_int *a, mp_int *m, mp_int *c);
 #define mp_sqrmod(a, m, c) mp_mulmod(a, a, m, c)
 #endif
 mp_err mp_exptmod(mp_int *a, mp_int *b, mp_int *m, mp_int *c);
+mp_err s_mp_reduce(mp_int *x, mp_int *m, mp_int *mu);
+mp_err   s_mp_lshd(mp_int *mp, mp_size p);
+mp_err   s_mp_mul_dig(mp_int *a, mp_int *b, int digs);
 mp_err mp_exptmod_d(mp_int *a, mp_digit d, mp_int *m, mp_int *c);
 #endif /* MP_MODARITH */
 

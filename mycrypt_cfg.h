@@ -9,18 +9,21 @@
 
 /* you can change how memory allocation works ... */
 extern void *XMALLOC(size_t n);
+extern void *REALLOC(void *p, size_t n);
 extern void *XCALLOC(size_t n, size_t s);
 extern void XFREE(void *p);
 
 /* change the clock function too */
 extern clock_t XCLOCK(void);
 
+/* ch1-01-1 */
 /* type of argument checking, 0=default, 1=fatal and 2=none */
 #define ARGTYPE  0
+/* ch1-01-1 */
 
 /* Controls endianess and size of registers.  Leave uncommented to get platform neutral [slower] code */
 /* detect x86-32 machines somewhat */
-#if (defined(_MSC_VER) && defined(WIN32))  || (defined(__GNUC__) && (defined(__DJGPP__) || defined(__CYGWIN__) || defined(__MINGW32__)))
+#if (defined(_MSC_VER) && defined(WIN32)) || (defined(__GNUC__) && (defined(__DJGPP__) || defined(__CYGWIN__) || defined(__MINGW32__)))
    #define ENDIAN_LITTLE
    #define ENDIAN_32BITWORD
 #endif
@@ -53,7 +56,7 @@ extern clock_t XCLOCK(void);
 
 #ifdef YARROW
    #ifndef CTR
-      #error YARROW Requires CTR mode
+      #error YARROW requires CTR chaining mode to be defined!
    #endif
 #endif
 
@@ -62,12 +65,13 @@ extern clock_t XCLOCK(void);
     #define PACKET
 
     /* size of a packet header in bytes */
-    #define PACKET_SIZE            8
+    #define PACKET_SIZE            4
 
     /* Section tags */
     #define PACKET_SECT_RSA        0
     #define PACKET_SECT_DH         1
     #define PACKET_SECT_ECC        2
+    #define PACKET_SECT_DSA        4
 
     /* Subsection Tags for the first three sections */
     #define PACKET_SUB_KEY         0
@@ -75,33 +79,6 @@ extern clock_t XCLOCK(void);
     #define PACKET_SUB_SIGNED      2
     #define PACKET_SUB_ENC_KEY     3
 #endif
-
-/* Diffie-Hellman key settings you can omit ones you don't want to save space */
-#ifdef MDH
-
-#define DH768
-#define DH1024
-#define DH1280
-#define DH1536
-#define DH1792
-#define DH2048
-#define DH2560
-#define DH3072
-#define DH4096
-
-#endif /* MDH */
-
-/* ECC Key settings */
-#ifdef MECC 
-
-#define ECC160
-#define ECC192
-#define ECC224
-#define ECC256
-#define ECC384
-#define ECC521
-
-#endif /* MECC */
 
 #ifdef MPI
    #include "mpi.h"
@@ -114,6 +91,9 @@ extern clock_t XCLOCK(void);
    #endif
    #ifdef MDH
       #error DH requires the big int library 
+   #endif
+   #ifdef MDSA
+      #error DSA requires the big int library 
    #endif
 #endif /* MPI */
 

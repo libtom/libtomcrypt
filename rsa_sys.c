@@ -49,7 +49,7 @@ int rsa_encrypt_key(const unsigned char *inkey, unsigned long inlen,
    }
 
    /* store header */
-   packet_store_header(outkey, PACKET_SECT_RSA, PACKET_SUB_ENC_KEY, y);
+   packet_store_header(outkey, PACKET_SECT_RSA, PACKET_SUB_ENC_KEY);
 
 #ifdef CLEAN_STACK
    /* clean up */
@@ -60,8 +60,9 @@ int rsa_encrypt_key(const unsigned char *inkey, unsigned long inlen,
    return CRYPT_OK;
 }
 
-int rsa_decrypt_key(const unsigned char *in, unsigned char *outkey, 
-                    unsigned long *keylen, rsa_key *key)
+int rsa_decrypt_key(const unsigned char *in, unsigned long inlen,
+                          unsigned char *outkey, unsigned long *keylen, 
+                          rsa_key *key)
 {
    unsigned char sym_key[MAXBLOCKSIZE], rsa_in[4096], rsa_out[4096];
    unsigned long x, y, z, i, rsa_size;
@@ -77,6 +78,12 @@ int rsa_decrypt_key(const unsigned char *in, unsigned char *outkey,
       return CRYPT_PK_NOT_PRIVATE;
    }
 
+   if (inlen < PACKET_SIZE+4) {
+      return CRYPT_INVALID_PACKET;
+   } else {
+      inlen -= PACKET_SIZE+4;
+   }
+
    /* check the header */
    if ((errno = packet_valid_header((unsigned char *)in, PACKET_SECT_RSA, PACKET_SUB_ENC_KEY)) != CRYPT_OK) {
       return errno;
@@ -84,7 +91,12 @@ int rsa_decrypt_key(const unsigned char *in, unsigned char *outkey,
 
    /* grab length of the rsa key */
    y = PACKET_SIZE;
-   LOAD32L(rsa_size, (in+y))
+   LOAD32L(rsa_size, (in+y));
+   if (inlen < rsa_size) {
+      return CRYPT_INVALID_PACKET;
+   } else {
+      inlen -= rsa_size;
+   }
    y += 4;
 
    /* read it in */
@@ -94,8 +106,9 @@ int rsa_decrypt_key(const unsigned char *in, unsigned char *outkey,
 
    /* decrypt it */
    x = sizeof(rsa_out);
-   if ((errno = rsa_exptmod(rsa_in, rsa_size, rsa_out, &x, PK_PRIVATE, key)) != CRYPT_OK) 
+   if ((errno = rsa_exptmod(rsa_in, rsa_size, rsa_out, &x, PK_PRIVATE, key)) != CRYPT_OK) {
       return errno;
+   }
 
    /* depad it */
    z = sizeof(sym_key);
@@ -170,7 +183,7 @@ int rsa_sign_hash(const unsigned char *in,  unsigned long inlen,
    }
 
    /* store header */
-   packet_store_header(out, PACKET_SECT_RSA, PACKET_SUB_SIGNED, y);
+   packet_store_header(out, PACKET_SECT_RSA, PACKET_SUB_SIGNED);
 
 #ifdef CLEAN_STACK
    /* clean up */
@@ -181,8 +194,8 @@ int rsa_sign_hash(const unsigned char *in,  unsigned long inlen,
    return CRYPT_OK;
 }
 
-int rsa_verify_hash(const unsigned char *sig, const unsigned char *md,
-                          int *stat, rsa_key *key)
+int rsa_verify_hash(const unsigned char *sig, unsigned long siglen,
+                    const unsigned char *md, int *stat, rsa_key *key)
 {
    unsigned long rsa_size, x, y, z;
    unsigned char rsa_in[4096], rsa_out[4096];
@@ -195,6 +208,12 @@ int rsa_verify_hash(const unsigned char *sig, const unsigned char *md,
 
    /* always be incorrect by default */
    *stat = 0;
+   
+   if (siglen < PACKET_SIZE+4) {
+      return CRYPT_INVALID_PACKET;
+   } else {
+      siglen -= PACKET_SIZE+4;
+   }
 
    /* verify header */
    if ((errno = packet_valid_header((unsigned char *)sig, PACKET_SECT_RSA, PACKET_SUB_SIGNED)) != CRYPT_OK) {
@@ -204,6 +223,11 @@ int rsa_verify_hash(const unsigned char *sig, const unsigned char *md,
    /* get the len */
    y = PACKET_SIZE;
    LOAD32L(rsa_size, (sig+y));
+   if (siglen < rsa_size) {
+      return CRYPT_INVALID_PACKET;
+   } else {
+      siglen -= rsa_size;
+   }
    y += 4;
 
    /* load the signature */
