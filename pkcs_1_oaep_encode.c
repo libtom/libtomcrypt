@@ -58,7 +58,6 @@ int pkcs_1_oaep_encode(const unsigned char *msg,    unsigned long msglen,
       return CRYPT_MEM;
    }
 
-
    /* test message size */
    if (msglen > (modulus_len - 2*hLen - 2)) {
       err = CRYPT_PK_INVALID_SIZE;
@@ -66,7 +65,7 @@ int pkcs_1_oaep_encode(const unsigned char *msg,    unsigned long msglen,
    }
 
    /* get lhash */
-// DB == lhash || PS || 0x01 || M, PS == k - mlen - 2hlen - 2 zeroes
+   /* DB == lhash || PS || 0x01 || M, PS == k - mlen - 2hlen - 2 zeroes */
    x = modulus_len;
    if (lparam != NULL) {
       if ((err = hash_memory(hash_idx, lparam, lparamlen, DB, &x)) != CRYPT_OK) {

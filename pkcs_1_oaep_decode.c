@@ -140,7 +140,7 @@ int pkcs_1_oaep_decode(const unsigned char *msg,    unsigned long msglen,
    }
 
    /* rest is the message (and skip 0x01) */
-   if (msglen - ++x > *outlen) {
+   if ((modulus_len - hLen - 1) - ++x > *outlen) {
       err = CRYPT_BUFFER_OVERFLOW;
       goto __ERR;
    }

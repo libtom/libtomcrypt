@@ -1395,7 +1395,7 @@ static void _desfunc(ulong32 *block, const ulong32 *keys)
 #endif
 {
     ulong32 work, right, leftt;
-    int round;
+    int cur_round;
 
     leftt = block[0];
     right = block[1];
@@ -1439,7 +1439,7 @@ static void _desfunc(ulong32 *block, const ulong32 *keys)
    }
 #endif
 
-    for (round = 0; round < 8; round++) {
+    for (cur_round = 0; cur_round < 8; cur_round++) {
         work  = ROR(right, 4) ^ *keys++;
         leftt ^= SP7[work        & 0x3fL]
               ^ SP5[(work >>  8) & 0x3fL]
@@ -1534,7 +1534,7 @@ int des3_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_k
     _ARGCHK(key != NULL);
     _ARGCHK(skey != NULL);
 
-    if( num_rounds != 0 && num_rounds != 16) {
+    if(num_rounds != 0 && num_rounds != 16) {
         return CRYPT_INVALID_ROUNDS;
     }
 

@@ -149,7 +149,7 @@ extern  struct _hash_descriptor {
 #define sha384_process sha512_process
  int sha384_done(hash_state * md, unsigned char *hash);
  int  sha384_test(void);
- const struct _hash_descriptor sha384_desc;
+ extern const struct _hash_descriptor sha384_desc;
 #endif
 
 #ifdef SHA256

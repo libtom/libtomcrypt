@@ -4,7 +4,7 @@
 # Modified by Clay Culver
 
 # The version
-VERSION=0.97
+VERSION=0.97a
 
 # Compiler and Linker Names
 #CC=gcc

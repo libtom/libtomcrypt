@@ -27,7 +27,7 @@
 #define MAX(x,y) ((x)>(y)?(x):(y))
 
 #ifdef __cplusplus
- "C" {
+extern "C" {
 
 /* C++ compilers don't like assigning void * to mp_digit * */
 #define  OPT_CAST(x)  (x *)

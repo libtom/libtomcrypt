@@ -1,3 +1,18 @@
+June 23rd, 2004
+v0.97a ++ Fixed several potentially crippling bugs... [read on]
+       -- Fixed bug in OAEP decoder that would incorrectly report 
+          buffer overflows. [Zhi Chen]
+       -- Fixed headers which had various C++ missing [extern "C"]'s
+       -- Added "extern" to sha384_desc descriptor which I removed by mistake
+       -- Fixed bugs in ENDIAN_BIG macros using the wrong byte order [Matt Johnston]
+       -- Updated tiger.c and des.c to not shadow "round" which is intrinsic on
+          some C compilers.
+       -- Updated demos/test/rsa_test.c to test the RSA functionality better
+       ++ This update has been tested with GCC [v3.3.3], ICC [v8] and MSVC [v6+SP6] 
+          all on a x86 P4  [GCC/ICC tested in Gentoo Linux, MSVC in WinXP]
+       ++ Outcome: The bug Zhi Chen pointed out has been fixed.  So have the bugs
+          that Matt Johnston found.  
+
 June 19th, 2004
 v0.97  -- Removed spurious unused files [arrg!]
        -- Patched buffer overflow in tim_exptmod()

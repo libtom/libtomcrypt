@@ -558,7 +558,7 @@ static const ulong64 table[4*256] = {
 #endif   
 
 /* one round of the hash function */
-INLINE static void round(ulong64 *a, ulong64 *b, ulong64 *c, ulong64 x, int mul)
+INLINE static void tiger_round(ulong64 *a, ulong64 *b, ulong64 *c, ulong64 x, int mul)
 {
     ulong64 tmp;
     tmp = (*c ^= x); 
@@ -574,14 +574,14 @@ INLINE static void round(ulong64 *a, ulong64 *b, ulong64 *c, ulong64 x, int mul)
 /* one complete pass */
 static void pass(ulong64 *a, ulong64 *b, ulong64 *c, ulong64 *x, int mul)
 {
-   round(a,b,c,x[0],mul); 
-   round(b,c,a,x[1],mul); 
-   round(c,a,b,x[2],mul); 
-   round(a,b,c,x[3],mul); 
-   round(b,c,a,x[4],mul); 
-   round(c,a,b,x[5],mul); 
-   round(a,b,c,x[6],mul); 
-   round(b,c,a,x[7],mul);          
+   tiger_round(a,b,c,x[0],mul); 
+   tiger_round(b,c,a,x[1],mul); 
+   tiger_round(c,a,b,x[2],mul); 
+   tiger_round(a,b,c,x[3],mul); 
+   tiger_round(b,c,a,x[4],mul); 
+   tiger_round(c,a,b,x[5],mul); 
+   tiger_round(a,b,c,x[6],mul); 
+   tiger_round(b,c,a,x[7],mul);          
 }   
 
 /* The key mixing schedule */

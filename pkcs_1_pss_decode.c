@@ -111,6 +111,7 @@ int pkcs_1_pss_decode(const unsigned char *msghash, unsigned long msghashlen,
        }
    }
 
+   /* check for the 0x01 */
    if (DB[x++] != 0x01) {
       err = CRYPT_OK;
       goto __ERR;

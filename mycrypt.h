@@ -12,12 +12,12 @@
 #include <mycrypt_custom.h>
 
 #ifdef __cplusplus
- "C" {
+extern "C" {
 #endif
 
 /* version */
 #define CRYPT   0x0097
-#define SCRYPT  "0.97"
+#define SCRYPT  "0.97a"
 
 /* max size of either a cipher/hash block or symmetric key [largest of the two] */
 #define MAXBLOCKSIZE  64
