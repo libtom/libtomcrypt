@@ -65,6 +65,29 @@ CONST64(0xcccc17cc2edb85e2), CONST64(0x424215422a578468), CONST64(0x98985a98b4c2
 CONST64(0x2828a0285d885075), CONST64(0x5c5c6d5cda31b886), CONST64(0xf8f8c7f8933fed6b), CONST64(0x8686228644a411c2)
 };
 
+#ifdef SMALL_CODE
+
+#define SB0(x) sbox0[x]
+#define SB1(x) ROR64(sbox0[x], 8)
+#define SB2(x) ROR64(sbox0[x], 16)
+#define SB3(x) ROR64(sbox0[x], 24)
+#define SB4(x) ROR64(sbox0[x], 32)
+#define SB5(x) ROR64(sbox0[x], 40)
+#define SB6(x) ROR64(sbox0[x], 48)
+#define SB7(x) ROR64(sbox0[x], 56)
+
+#else
+
+#define SB0(x) sbox0[x]
+#define SB1(x) sbox1[x]
+#define SB2(x) sbox2[x]
+#define SB3(x) sbox3[x]
+#define SB4(x) sbox4[x]
+#define SB5(x) sbox5[x]
+#define SB6(x) sbox6[x]
+#define SB7(x) sbox7[x]
+
+
 static const ulong64 sbox1[] = {
 CONST64(0xd818186018c07830), CONST64(0x2623238c2305af46), CONST64(0xb8c6c63fc67ef991), CONST64(0xfbe8e887e8136fcd), 
 CONST64(0xcb878726874ca113), CONST64(0x11b8b8dab8a9626d), CONST64(0x0901010401080502), CONST64(0x0d4f4f214f426e9e), 
@@ -533,6 +556,8 @@ CONST64(0x70dd70a7ade0d770), CONST64(0xb6e2b6d954716fb6), CONST64(0xd067d0ceb7bd
 CONST64(0xcc17cc2edb85e2cc), CONST64(0x4215422a57846842), CONST64(0x985a98b4c22d2c98), CONST64(0xa4aaa4490e55eda4), 
 CONST64(0x28a0285d88507528), CONST64(0x5c6d5cda31b8865c), CONST64(0xf8c7f8933fed6bf8), CONST64(0x86228644a411c286)
 };
+
+#endif
 
 static const ulong64 cont[] = {
 CONST64(0x1823c6e887b8014f),

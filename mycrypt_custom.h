@@ -57,6 +57,7 @@
 #define SPRNG
 #define RC4
 #define DEVRANDOM
+#define TRY_URANDOM_FIRST
 #define MRSA
 #define MDSA
 #define MDH
@@ -77,6 +78,9 @@
 #define ECC384
 #define ECC521
 #define MPI
+
+#define PKCS_1
+#define PKCS_5
 
 
 #include <mycrypt.h>

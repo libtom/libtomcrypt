@@ -4,7 +4,7 @@
  * algorithms in a highly modular and flexible manner.
  *
  * The library is free for all purposes without any express
- * gurantee it works.
+ * guarantee it works.
  *
  * Tom St Denis, tomstdenis@iahu.ca, http://libtomcrypt.org
  */
@@ -1747,7 +1747,7 @@ int des_test(void)
       for (y = 0; y < 1000; y++) des_ecb_encrypt(tmp, tmp, &des);
       for (y = 0; y < 1000; y++) des_ecb_decrypt(tmp, tmp, &des);
       for (y = 0; y < 8; y++) if (tmp[y] != 0) return CRYPT_FAIL_TESTVECTOR;
-    }
+}
 
     return CRYPT_OK;
   #endif

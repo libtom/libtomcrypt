@@ -16,7 +16,7 @@
 }
 
 
-#define INPUT_BIGNUM(num, in, x, y)                              \
+#define INPUT_BIGNUM(num, in, x, y, inlen)                       \
 {                                                                \
      /* load value */                                            \
      if ((y + 4) > inlen) {                                      \
@@ -44,11 +44,8 @@
      }                                                           \
 }
 
-
 extern int is_prime(mp_int *, int *);
 extern int rand_prime(mp_int *N, long len, prng_state *prng, int wprng);
-extern mp_err mp_init_multi(mp_int* mp, ...);
-extern void mp_clear_multi(mp_int* mp, ...);
 
 #else
    #ifdef MRSA
@@ -83,6 +80,14 @@ extern int packet_valid_header(unsigned char *src, int section, int subsection);
 
 /* ---- RSA ---- */
 #ifdef MRSA
+
+/* Min and Max RSA key sizes (in bits) */
+#define MIN_RSA_SIZE 1024
+#define MAX_RSA_SIZE 4096
+
+/* Stack required for temps (plus padding) */
+#define RSA_STACK    (8 + (MAX_RSA_SIZE/8))
+
 typedef struct Rsa_key {
     int type;
     mp_int e, d, N, qP, pQ, dP, dQ, p, q;

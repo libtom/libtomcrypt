@@ -4,7 +4,7 @@
  * algorithms in a highly modular and flexible manner.
  *
  * The library is free for all purposes without any express
- * gurantee it works.
+ * guarantee it works.
  *
  * Tom St Denis, tomstdenis@iahu.ca, http://libtomcrypt.org
  */
@@ -372,6 +372,9 @@ int rmd160_done(hash_state * md, unsigned char *hash)
 
 int rmd160_test(void)
 {
+#ifndef LTC_TEST
+   return CRYPT_NOP;
+#else
    static const struct {
         char *msg;
         unsigned char md[20];
@@ -417,6 +420,7 @@ int rmd160_test(void)
        }
    }
    return CRYPT_OK;
+#endif
 }
 
 #endif

@@ -47,7 +47,7 @@
 \def\gap{\vspace{0.5ex}}
 \makeindex
 \begin{document}
-\title{A Tiny Crypto Library, \\ LibTomCrypt \\ Version 0.94}
+\title{A Tiny Crypto Library, \\ LibTomCrypt \\ Version 0.95}
 \author{Tom St Denis \\
 \\
 tomstdenis@iahu.ca \\
@@ -108,7 +108,7 @@ number theory and cryptography.
 
 \subsection{What the library IS NOT for?}
 
-The library is not designed to be in anyway an implementation of the SSL, PKCS, P1363 or OpenPGP standards.  The library 
+The library is not designed to be in anyway an implementation of the SSL or OpenPGP standards.  The library 
 is not designed to be compliant with any known form of API or programming hierarchy.  It is not a port of any other 
 library and it is not platform specific (like the MS CSP).  So if you're looking to drop in some buzzword 
 compliant crypto library this is not for you.  The library has been written from scratch to provide basic functions as 
@@ -505,21 +505,21 @@ As of this release the current cipher\_descriptors elements are
 \begin{center}
 \begin{tabular}{|c|c|c|c|c|c|}
      \hline Name & Descriptor Name & Block Size & Key Range & Rounds \\
-     \hline Blowfish & blowfish\_desc & 8 & 8 ... 56 & 16 \\
+     \hline Blowfish & blowfish\_desc & 8 & 8 $\ldots$ 56 & 16 \\
      \hline X-Tea & xtea\_desc & 8 & 16 & 32 \\
-     \hline RC2 & rc2\_desc & 8 & 8 .. 128 & 16 \\
-     \hline RC5-32/12/b & rc5\_desc & 8 & 8 ... 128 & 12 ... 24 \\
-     \hline RC6-32/20/b & rc6\_desc & 16 & 8 ... 128 & 20 \\
+     \hline RC2 & rc2\_desc & 8 & 8 $\ldots$ 128 & 16 \\
+     \hline RC5-32/12/b & rc5\_desc & 8 & 8 $\ldots$ 128 & 12 $\ldots$ 24 \\
+     \hline RC6-32/20/b & rc6\_desc & 16 & 8 $\ldots$ 128 & 20 \\
      \hline SAFER+ & saferp\_desc &16 & 16, 24, 32 & 8, 12, 16 \\
-     \hline Safer K64   & safer\_k64\_desc & 8 & 8 & 6 .. 13 \\
-     \hline Safer SK64  & safer\_sk64\_desc & 8 & 8 & 6 .. 13 \\
-     \hline Safer K128  & safer\_k128\_desc & 8 & 16 & 6 .. 13 \\
-     \hline Safer SK128 & safer\_sk128\_desc & 8 & 16 & 6 .. 13 \\
+     \hline Safer K64   & safer\_k64\_desc & 8 & 8 & 6 $\ldots$ 13 \\
+     \hline Safer SK64  & safer\_sk64\_desc & 8 & 8 & 6 $\ldots$ 13 \\
+     \hline Safer K128  & safer\_k128\_desc & 8 & 16 & 6 $\ldots$ 13 \\
+     \hline Safer SK128 & safer\_sk128\_desc & 8 & 16 & 6 $\ldots$ 13 \\
      \hline AES & aes\_desc & 16 & 16, 24, 32 & 10, 12, 14 \\
      \hline Twofish & twofish\_desc & 16 & 16, 24, 32 & 16 \\
      \hline DES & des\_desc & 8 & 7 & 16 \\
      \hline 3DES (EDE mode) & des3\_desc & 8 & 21 & 16 \\
-     \hline CAST5 (CAST-128) & cast5\_desc & 8 & 5 .. 16 & 12, 16 \\
+     \hline CAST5 (CAST-128) & cast5\_desc & 8 & 5 $\ldots$ 16 & 12, 16 \\
      \hline Noekeon & noekeon\_desc & 16 & 16 & 16 \\
      \hline Skipjack & skipjack\_desc & 8 & 10 & 32 \\
      \hline
@@ -627,8 +627,7 @@ int main(void)
 }
 \end{verbatim}
 \end{small}
-This snippet is a small program that registers only Rijndael only.  Note you must register ciphers before
-using the PK code since all of the PK code (RSA, DH and ECC) rely heavily on the descriptor tables.
+This snippet is a small program that registers only Rijndael only.  
 
 \section{Symmetric Modes of Operations}
 \subsection{Background}
@@ -890,7 +889,7 @@ int ocb_decrypt(ocb_state *ocb, const unsigned char *ct, unsigned char *pt);
 This will encrypt (or decrypt for the latter) a fixed length of data from ``pt'' to ``ct'' (vice versa for the latter).  
 They assume that ``pt'' and ``ct'' are the same size as the block cipher's block size.  Note that you cannot call 
 both functions given a single ``ocb'' state.  For bi-directional communication you will have to initialize two ``ocb''
-states (with difference nonces).  Also ``pt'' and ``ct'' may point to the same location in memory.
+states (with different nonces).  Also ``pt'' and ``ct'' may point to the same location in memory.
 
 When you are finished encrypting the message you call the following function to compute the tag.
 
@@ -1716,7 +1715,174 @@ int main(void)
 \end{verbatim}
 \end{small}
 
+\chapter{RSA Public Key Cryptography}
+\textbf{Note: } \textit{This chapter on PKCS \#1 RSA will replace the older chapter on RSA (The current chapter nine) in subsequent 
+releases of the library.  Users are encouraged to stop using the LibTomCrypt style padding functions.}
+
+\section{PKCS \#1 Encryption}
+
+PKCS \#1 RSA Encryption amounts to OAEP padding of the input message followed by the modular exponentiation.  As far as this portion of
+the library is concerned we are only dealing with th OAEP padding of the message.
+
+\subsection{OAEP Encoding}
+
+\begin{alltt}
+int pkcs_1_oaep_encode(const unsigned char *msg,    unsigned long msglen,
+                       const unsigned char *lparam, unsigned long lparamlen,
+                             unsigned long modulus_bitlen, int hash_idx,
+                             int           prng_idx,    prng_state *prng,
+                             unsigned char *out,    unsigned long *outlen);
+\end{alltt}
+
+This accepts ``msg'' as input of length ``msglen'' which will be OAEP padded.  The ``lparam'' variable is an additional system specific
+tag that can be applied to the encoding.  This is useful to identify which system encoded the message.  If no variance is desired then
+``lparam'' can be set to \textbf{NULL}.  
+
+OAEP encoding requires the length of the modulus in bits in order to calculate the size of the output.  This is passed as the parameter
+``modulus\_bitlen''.  ``hash\_idx'' is the index into the hash descriptor table of the hash desired.  PKCS \#1 allows any hash to be 
+used but both the encoder and decoder must use the same hash in order for this to succeed.  The size of hash output affects the maximum
+ sized input message.  ``prng\_idx'' and ``prng'' are the random number generator arguments required to randomize the padding process.  
+The padded message is stored in ``out'' along with the length in ``outlen''.
+
+If $h$ is the length of the hash and $m$ the length of the modulus (both in octets) then the maximum payload for ``msg'' is 
+$m - 2h - 2$.  For example, with a $1024$--bit RSA key and SHA--1 as the hash the maximum payload is $86$ bytes.  
+
+Note that when the message is padded it still has not been RSA encrypted.  You must pass the output of this function to 
+rsa\_exptmod() to encrypt it. 
+
+\subsection{OAEP Decoding}
+
+\begin{alltt}
+int pkcs_1_oaep_decode(const unsigned char *msg,    unsigned long msglen,
+                       const unsigned char *lparam, unsigned long lparamlen,
+                             unsigned long modulus_bitlen, int hash_idx,
+                             unsigned char *out,    unsigned long *outlen);
+\end{alltt}
+
+This function decodes an OAEP encoded message and outputs the original message that was passed to the OAEP encoder.  ``msg'' is the 
+output of pkcs\_1\_oaep\_encode() of length ``msglen''.  ``lparam'' is the same system variable passed to the OAEP encoder.  If it does not
+match what was used during encoding this function will not decode the packet.  ``modulus\_bitlen'' is the size of the RSA modulus in bits
+and must match what was used during encoding.  Similarly the ``hash\_idx'' index into the hash descriptor table must match what was used
+during encoding.
+
+If the function succeeds it decodes the OAEP encoded message into ``out'' of length ``outlen''.  
+
+\section{PKCS \#1 Digital Signatures}
+
+\subsection{PSS Encoding}
+PSS encoding is the second half of the PKCS \#1 standard which is padding to be applied to messages that are signed.  
+
+\begin{alltt}
+int pkcs_1_pss_encode(const unsigned char *msghash, unsigned long msghashlen,
+                            unsigned long saltlen,  int           hash_idx,
+                            int           prng_idx, prng_state   *prng,
+                            unsigned long modulus_bitlen,
+                            unsigned char *out,     unsigned long *outlen);
+\end{alltt}
+
+This function assumes the message to be PSS encoded has previously been hashed.  The input hash ``msghash'' is of length 
+``msghashlen''.  PSS allows a variable length random salt (it can be zero length) to be introduced in the signature process.  
+``hash\_idx'' is the index into the hash descriptor table of the hash to use.  ``prng\_idx'' and ``prng'' are the random
+number generator information required for the salt.
+
+Similar to OAEP encoding ``modulus\_bitlen'' is the size of the RSA modulus.  It limits the size of the salt.  If $m$ is the length
+of the modulus $h$ the length of the hash output (in octets) then there can be $m - h - 2$ bytes of salt.  
+
+This function does not actually sign the data it merely pads the hash of a message so that it can be processed by rsa\_exptmod().
+
+\subsection{PSS Decoding}
+
+To decode a PSS encoded signature block you have to use the following.
+
+\begin{alltt}
+int pkcs_1_pss_decode(const unsigned char *msghash, unsigned long msghashlen,
+                      const unsigned char *sig,     unsigned long siglen,
+                            unsigned long saltlen,  int           hash_idx,
+                            unsigned long modulus_bitlen, int    *res);
+\end{alltt}
+This will decode the PSS encoded message in ``sig'' of length ``siglen'' and compare it to values in ``msghash'' of length
+``msghashlen''.  If the block is a valid PSS block and the decoded hash equals the hash supplied ``res'' is set to non--zero.  Otherwise, 
+it is set to zero.  The rest of the parameters are as in the PSS encode call.
+
+It's important to use the same ``saltlen'' and hash for both encoding and decoding as otherwise the procedure will not work.
+
+\chapter{Password Based Cryptography}
+\section{PKCS \#5}
+In order to securely handle user passwords for the purposes of creating session keys and chaining IVs the PKCS \#5 was drafted.   PKCS \#5
+is made up of two algorithms, Algorithm One and Algorithm Two.  Algorithm One is the older fairly limited algorithm which has been implemented
+for completeness.  Algorithm Two is a bit more modern and more flexible to work with.
+
+\section{Algorithm One}
+Algorithm One accepts as input a password, an 8--byte salt and an iteration counter.  The iteration counter is meant to act as delay for
+people trying to brute force guess the password.  The higher the iteration counter the longer the delay.  This algorithm also requires a hash 
+algorithm and produces an output no longer than the output of the hash.  
+
+\begin{alltt}
+int pkcs_5_alg1(const unsigned char *password, unsigned long password_len, 
+                const unsigned char *salt, 
+                int iteration_count,  int hash_idx,
+                unsigned char *out,   unsigned long *outlen)
+\end{alltt}
+Where ``password'' is the users password.  Since the algorithm allows binary passwords you must also specify the length in ``password\_len''.  
+The ``salt'' is a fixed size 8--byte array which should be random for each user and session.  The ``iteration\_count'' is the delay desired
+on the password.  The ``hash\_idx'' is the index of the hash you wish to use in the descriptor table.  
+
+The output of length upto ``outlen'' is stored in ``out''.  If ``outlen'' is initially larger than the size of the hash functions output
+it is set to the number of bytes stored.  If it is smaller than not all of the hash output is stored in ``out''.
+
+\section{Algorithm Two}
+
+Algorithm Two is the recommended algorithm for this task.  It allows variable length salts and can produce outputs larger than the 
+hash functions output.  As such it can easily be used to derive session keys for ciphers and MACs as well initial vectors as required
+from a single password and invokation of this algorithm.
+
+\begin{alltt}
+int pkcs_5_alg2(const unsigned char *password, unsigned long password_len, 
+                const unsigned char *salt,     unsigned long salt_len,
+                int iteration_count,           int hash_idx,
+                unsigned char *out,            unsigned long *outlen)
+\end{alltt}
+Where ``password'' is the users password.  Since the algorithm allows binary passwords you must also specify the length in ``password\_len''.  
+The ``salt'' is an array of size ``salt\_len''.  It should be random for each user and session.  The ``iteration\_count'' is the delay desired
+on the password.  The ``hash\_idx'' is the index of the hash you wish to use in the descriptor table.   The output of length upto 
+``outlen'' is stored in ``out''.
+
+\begin{alltt}
+/* demo to show how to make session state material from a password */
+#include <mycrypt.h>
+int main(void)
+\{
+    unsigned char password[100], salt[100],
+                  cipher_key[16], cipher_iv[16],
+                  mac_key[16], outbuf[48];
+    int           err, hash_idx;
+    unsigned long outlen, password_len, salt_len;
+
+    /* register hash and get it's idx .... */
+
+    /* get users password and make up a salt ... */
+
+    /* create the material (100 iterations in algorithm) */
+    outlen = sizeof(outbuf);
+    if ((err = pkcs_5_alg2(password, password_len, salt, salt_len, 
+                           100, hash_idx, outbuf, &outlen)) != CRYPT_OK) \{
+       /* error handle */
+    \}
+
+    /* now extract it */
+    memcpy(cipher_key, outbuf, 16);
+    memcpy(cipher_iv,  outbuf+16, 16);
+    memcpy(mac_key,    outbuf+32, 16);
+
+    /* use material (recall to store the salt in the output) */
+\}
+\end{alltt}
+
 \chapter{RSA Routines}
+
+\textbf{Note: } \textit{This chapter has been marked for removal.  In particular any function that uses the LibTomCrypt style 
+RSA padding (e.g. rsa\_pad() rsa\_signpad())  will be removed in the v0.96 release cycle.  The functions like rsa\_make\_key() and
+rsa\_exptmod() will stay but may be slightly modified. }
 
 \section{Background}
 

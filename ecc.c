@@ -4,7 +4,7 @@
  * algorithms in a highly modular and flexible manner.
  *
  * The library is free for all purposes without any express
- * gurantee it works.
+ * guarantee it works.
  *
  * Tom St Denis, tomstdenis@iahu.ca, http://libtomcrypt.org
  */
@@ -216,8 +216,11 @@ void ecc_find_base(void)
 
    mp_clear_multi(&tx, &ty, &x, &y, &p, &pp, &r, &B, &tmp1, &tmp2, NULL);
 }
-
+ 
 #endif
+
+
+
 
 static int is_valid_idx(int n)
 {
@@ -575,7 +578,7 @@ done:
 void ecc_sizes(int *low, int *high)
 {
  int i;
- _ARGCHK(low != NULL);
+ _ARGCHK(low  != NULL);
  _ARGCHK(high != NULL);
 
  *low = INT_MAX;
@@ -837,7 +840,7 @@ int ecc_import(const unsigned char *in, unsigned long inlen, ecc_key *key)
    }
 
    /* load x coordinate */
-   INPUT_BIGNUM(&key->pubkey.x, in, x, y);
+   INPUT_BIGNUM(&key->pubkey.x, in, x, y, inlen);
 
    /* load y */
    x = (unsigned long)in[y++];
@@ -847,7 +850,7 @@ int ecc_import(const unsigned char *in, unsigned long inlen, ecc_key *key)
 
    if (key->type == PK_PRIVATE) {
       /* load private key */
-      INPUT_BIGNUM(&key->k, in, x, y);
+      INPUT_BIGNUM(&key->k, in, x, y, inlen);
    }
 
    /* eliminate private key if public */

@@ -1,3 +1,22 @@
+May 12th, 2004
+v0.95  -- Optimized AES and WHIRLPOOL for SMALL_CODE by taking advantage of the fact
+          the transforms are circulant.  AES dropped 5KB and WHIRLPOOL dropped 13KB
+          using the default build options on the x86.
+       -- Updated eax so the eax_done() would clear the state [like hmac,pmac,ocb] when
+          CLEAN_STACK has been defined.
+       -- added LTC_TEST support to rmd160
+       -- updates to mycrypt_pk.h
+       -- updated rand_prime() to faciliate making RSA composites 
+       -- DSA/RSA now makes composites of the exact size desired.
+       -- Refactored quite a bit of the code, fewer functions per C file
+       -- cleaned up the makefiles to organize the objects logically
+       -- added ICC makefile along with "profiled" targets for both GNU and ICC compilers
+       -- Marked functions for removal before v1.00 see PLAN for more information
+       -- GCC 3.4.0 tested and seems to work
+       -- Added PKCS #5 support
+       -- Fixed typo in comment header of .C files  ;-)
+       -- Added PKCS #1 OAEP and PSS support.  
+       
 Feb 20th, 2004
 v0.94  -- removed unused variables from ocb.c and fixed it to match known test vectors.
        -- Added PMAC support, minor changes to OMAC/EAX code [I think....]

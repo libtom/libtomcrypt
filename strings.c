@@ -4,7 +4,7 @@
  * algorithms in a highly modular and flexible manner.
  *
  * The library is free for all purposes without any express
- * gurantee it works.
+ * guarantee it works.
  *
  * Tom St Denis, tomstdenis@iahu.ca, http://libtomcrypt.org
  */
@@ -50,6 +50,7 @@ static const char *err_2_str[] =
 
 };
 
+#ifdef MPI
 static const struct {
     int mpi_code, ltc_code;
 } mpi_to_ltc_codes[] = {
@@ -57,6 +58,7 @@ static const struct {
    { MP_MEM  ,  CRYPT_MEM},
    { MP_VAL  ,  CRYPT_INVALID_ARG},
 };
+#endif
 
 const char *error_to_string(int err)
 {
@@ -67,6 +69,7 @@ const char *error_to_string(int err)
    }   
 }
 
+#ifdef MPI
 /* convert a MPI error to a LTC error (Possibly the most powerful function ever!  Oh wait... no) */
 int mpi_to_ltc_error(int err)
 {
@@ -79,5 +82,5 @@ int mpi_to_ltc_error(int err)
    }
    return CRYPT_ERROR;
 }
-
+#endif
 

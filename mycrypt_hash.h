@@ -341,6 +341,10 @@ extern int pmac_file(int cipher, const unsigned char *key, unsigned long keylen,
 
 extern int pmac_test(void);
 
+/* internal functions */
+extern int pmac_ntz(unsigned long x);
+extern void pmac_shift_xor(pmac_state *pmac);
+
 #endif /* PMAC */
 
 #ifdef EAX_MODE
@@ -431,6 +435,12 @@ extern int ocb_decrypt_verify_memory(int cipher,
           int           *res);
 
 extern int ocb_test(void);
+
+/* internal functions */
+extern void ocb_shift_xor(ocb_state *ocb, unsigned char *Z);
+extern int ocb_ntz(unsigned long x);
+extern int __ocb_done(ocb_state *ocb, const unsigned char *pt, unsigned long ptlen,
+                     unsigned char *ct, unsigned char *tag, unsigned long *taglen, int mode);
 
 #endif /* OCB_MODE */
 

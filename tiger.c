@@ -4,7 +4,7 @@
  * algorithms in a highly modular and flexible manner.
  *
  * The library is free for all purposes without any express
- * gurantee it works.
+ * guarantee it works.
  *
  * Tom St Denis, tomstdenis@iahu.ca, http://libtomcrypt.org
  */
@@ -578,7 +578,8 @@ static void pass(ulong64 *a, ulong64 *b, ulong64 *c, ulong64 *x, int mul)
 }   
 
 /* The key mixing schedule */
-static void key_schedule(ulong64 *x) {
+static void key_schedule(ulong64 *x) 
+{
     x[0] -= x[7] ^ CONST64(0xA5A5A5A5A5A5A5A5); 
     x[1] ^= x[0];                               
     x[2] += x[1];                               
@@ -605,8 +606,6 @@ static void tiger_compress(hash_state *md, unsigned char *buf)
 {
     ulong64 a, b, c, x[8];
     unsigned long i;
-
-    _ARGCHK(md != NULL);
 
     /* load words */
     for (i = 0; i < 8; i++) {
@@ -650,7 +649,7 @@ HASH_PROCESS(tiger_process, tiger_compress, tiger, 64)
 
 int tiger_done(hash_state * md, unsigned char *hash)
 {
-    _ARGCHK(md != NULL);
+    _ARGCHK(md   != NULL);
     _ARGCHK(hash != NULL);
 
     if (md->tiger.curlen >= sizeof(md->tiger.buf)) {

@@ -4,7 +4,7 @@
  * algorithms in a highly modular and flexible manner.
  *
  * The library is free for all purposes without any express
- * gurantee it works.
+ * guarantee it works.
  *
  * Tom St Denis, tomstdenis@iahu.ca, http://libtomcrypt.org
  */
@@ -35,14 +35,14 @@ const struct _hash_descriptor whirlpool_desc =
 
 /* shortcut macro to perform three functions at once */
 #define theta_pi_gamma(a, i)               \
-    sbox0[GB(a, i-0, 7)] ^                 \
-    sbox1[GB(a, i-1, 6)] ^                 \
-    sbox2[GB(a, i-2, 5)] ^                 \
-    sbox3[GB(a, i-3, 4)] ^                 \
-    sbox4[GB(a, i-4, 3)] ^                 \
-    sbox5[GB(a, i-5, 2)] ^                 \
-    sbox6[GB(a, i-6, 1)] ^                 \
-    sbox7[GB(a, i-7, 0)]
+    SB0(GB(a, i-0, 7)) ^                 \
+    SB1(GB(a, i-1, 6)) ^                 \
+    SB2(GB(a, i-2, 5)) ^                 \
+    SB3(GB(a, i-3, 4)) ^                 \
+    SB4(GB(a, i-4, 3)) ^                 \
+    SB5(GB(a, i-5, 2)) ^                 \
+    SB6(GB(a, i-6, 1)) ^                 \
+    SB7(GB(a, i-7, 0))
 
 #ifdef CLEAN_STACK
 static void _whirlpool_compress(hash_state *md, unsigned char *buf)
@@ -119,7 +119,7 @@ int whirlpool_done(hash_state * md, unsigned char *hash)
 {
     int i;
 
-    _ARGCHK(md != NULL);
+    _ARGCHK(md   != NULL);
     _ARGCHK(hash != NULL);
 
     if (md->whirlpool.curlen >= sizeof(md->whirlpool.buf)) {

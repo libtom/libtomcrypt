@@ -4,7 +4,7 @@
  * algorithms in a highly modular and flexible manner.
  *
  * The library is free for all purposes without any express
- * gurantee it works.
+ * guarantee it works.
  *
  * Tom St Denis, tomstdenis@iahu.ca, http://libtomcrypt.org
  */
@@ -70,8 +70,6 @@ static void md4_compress(hash_state *md, unsigned char *buf)
 {
     ulong32 x[16], a, b, c, d;
     int i;
-
-    _ARGCHK(md != NULL);
 
     /* copy state */
     a = md->md4.state[0];

@@ -4,7 +4,7 @@
  * algorithms in a highly modular and flexible manner.
  *
  * The library is free for all purposes without any express
- * gurantee it works.
+ * guarantee it works.
  *
  * Tom St Denis, tomstdenis@iahu.ca, http://libtomcrypt.org
  */
@@ -252,6 +252,23 @@ int rc6_test(void)
 
       /* compare */
       if (memcmp(tmp[0], tests[x].ct, 16) || memcmp(tmp[1], tests[x].pt, 16)) {
+#if 0
+         printf("\n\nFailed test %d\n", x);
+         if (memcmp(tmp[0], tests[x].ct, 16)) {
+            printf("Ciphertext:  ");
+            for (y = 0; y < 16; y++) printf("%02x ", tmp[0][y]);
+            printf("\nExpected  :  ");
+            for (y = 0; y < 16; y++) printf("%02x ", tests[x].ct[y]);
+            printf("\n");
+         }
+         if (memcmp(tmp[1], tests[x].pt, 16)) {
+            printf("Plaintext:  ");
+            for (y = 0; y < 16; y++) printf("%02x ", tmp[0][y]);
+            printf("\nExpected :  ");
+            for (y = 0; y < 16; y++) printf("%02x ", tests[x].pt[y]);
+            printf("\n");
+         }
+#endif
          return CRYPT_FAIL_TESTVECTOR;
       }
 

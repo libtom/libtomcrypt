@@ -4,7 +4,7 @@
  * algorithms in a highly modular and flexible manner.
  *
  * The library is free for all purposes without any express
- * gurantee it works.
+ * guarantee it works.
  *
  * Tom St Denis, tomstdenis@iahu.ca, http://libtomcrypt.org
  */
@@ -69,7 +69,7 @@ int rc2_setup(const unsigned char *key, int keylen, int rounds, symmetric_key *s
    unsigned T8, TM;
    int i, bits;
 
-   _ARGCHK(key != NULL);
+   _ARGCHK(key  != NULL);
    _ARGCHK(skey != NULL);
 
    if (keylen < 8 || keylen > 128) {

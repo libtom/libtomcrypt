@@ -4,7 +4,7 @@
  * algorithms in a highly modular and flexible manner.
  *
  * The library is free for all purposes without any express
- * gurantee it works.
+ * guarantee it works.
  *
  * Tom St Denis, tomstdenis@iahu.ca, http://libtomcrypt.org
  */
@@ -38,8 +38,6 @@ static void sha1_compress(hash_state *md, unsigned char *buf)
 #endif
 {
     ulong32 a,b,c,d,e,W[80],i;
-
-    _ARGCHK(md != NULL);
 
     /* copy the state into 512-bits into W[0..15] */
     for (i = 0; i < 16; i++) {

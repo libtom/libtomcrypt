@@ -631,8 +631,7 @@ fast_s_mp_mul_high_digs (mp_int * a, mp_int * b, mp_int * c, int digs)
  * Based on Algorithm 14.16 on pp.597 of HAC.
  *
  */
-int
-fast_s_mp_sqr (mp_int * a, mp_int * b)
+int fast_s_mp_sqr (mp_int * a, mp_int * b)
 {
   int     olduse, newused, res, ix, pa;
   mp_word W2[MP_WARRAY], W[MP_WARRAY];
@@ -1345,11 +1344,15 @@ int mp_cmp_mag (mp_int * a, mp_int * b)
  */
 #include <tommath.h>
 
+static const int lnz[16] = { 
+   4, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0
+};
+
 /* Counts the number of lsbs which are zero before the first zero bit */
 int mp_cnt_lsb(mp_int *a)
 {
    int x;
-   mp_digit q;
+   mp_digit q, qq;
 
    /* easy out */
    if (mp_iszero(a) == 1) {
@@ -1362,11 +1365,13 @@ int mp_cnt_lsb(mp_int *a)
    x *= DIGIT_BIT;
 
    /* now scan this digit until a 1 is found */
-   while ((q & 1) == 0) {
-      q >>= 1;
-      x  += 1;
+   if ((q & 1) == 0) {
+      do {
+         qq  = q & 15;
+         x  += lnz[qq];
+         q >>= 4;
+      } while (qq == 0);
    }
-
    return x;
 }
 
@@ -2828,7 +2833,7 @@ int mp_fwrite(mp_int *a, int radix, FILE *stream)
       return err;
    }
 
-   buf = XMALLOC (len);
+   buf = OPT_CAST(char) XMALLOC (len);
    if (buf == NULL) {
       return MP_MEM;
    }
@@ -2963,6 +2968,49 @@ __U:mp_clear (&v);
 
 /* End: bn_mp_gcd.c */
 
+/* Start: bn_mp_get_int.c */
+/* LibTomMath, multiple-precision integer library -- Tom St Denis
+ *
+ * LibTomMath is a library that provides multiple-precision
+ * integer arithmetic as well as number theoretic functionality.
+ *
+ * The library was designed directly after the MPI library by
+ * Michael Fromberger but has been written from scratch with
+ * additional optimizations in place.
+ *
+ * The library is free for all purposes without any express
+ * guarantee it works.
+ *
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
+ */
+#include <tommath.h>
+
+/* get the lower 32-bits of an mp_int */
+unsigned long mp_get_int(mp_int * a) 
+{
+  int i;
+  unsigned long res;
+
+  if (a->used == 0) {
+     return 0;
+  }
+
+  /* get number of digits of the lsb we have to read */
+  i = MIN(a->used,(int)((sizeof(unsigned long)*CHAR_BIT+DIGIT_BIT-1)/DIGIT_BIT))-1;
+
+  /* get most significant digit of result */
+  res = DIGIT(a,i);
+   
+  while (--i >= 0) {
+    res = (res << DIGIT_BIT) | DIGIT(a,i);
+  }
+
+  /* force result to 32-bits always so it is consistent on non 32-bit platforms */
+  return res & 0xFFFFFFFFUL;
+}
+
+/* End: bn_mp_get_int.c */
+
 /* Start: bn_mp_grow.c */
 /* LibTomMath, multiple-precision integer library -- Tom St Denis
  *
@@ -2997,7 +3045,7 @@ int mp_grow (mp_int * a, int size)
      * in case the operation failed we don't want
      * to overwrite the dp member of a.
      */
-    tmp = OPT_CAST XREALLOC (a->dp, sizeof (mp_digit) * size);
+    tmp = OPT_CAST(mp_digit) XREALLOC (a->dp, sizeof (mp_digit) * size);
     if (tmp == NULL) {
       /* reallocation failed but "a" is still valid [can be freed] */
       return MP_MEM;
@@ -3039,7 +3087,7 @@ int mp_grow (mp_int * a, int size)
 int mp_init (mp_int * a)
 {
   /* allocate memory required and clear it */
-  a->dp = OPT_CAST XCALLOC (sizeof (mp_digit), MP_PREC);
+  a->dp = OPT_CAST(mp_digit) XCALLOC (sizeof (mp_digit), MP_PREC);
   if (a->dp == NULL) {
     return MP_MEM;
   }
@@ -3142,6 +3190,65 @@ int mp_init_multi(mp_int *mp, ...)
 
 /* End: bn_mp_init_multi.c */
 
+/* Start: bn_mp_init_set.c */
+/* LibTomMath, multiple-precision integer library -- Tom St Denis
+ *
+ * LibTomMath is a library that provides multiple-precision
+ * integer arithmetic as well as number theoretic functionality.
+ *
+ * The library was designed directly after the MPI library by
+ * Michael Fromberger but has been written from scratch with
+ * additional optimizations in place.
+ *
+ * The library is free for all purposes without any express
+ * guarantee it works.
+ *
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
+ */
+#include <tommath.h>
+
+/* initialize and set a digit */
+int mp_init_set (mp_int * a, mp_digit b)
+{
+  int err;
+  if ((err = mp_init(a)) != MP_OKAY) {
+     return err;
+  }
+  mp_set(a, b);
+  return err;
+}
+
+/* End: bn_mp_init_set.c */
+
+/* Start: bn_mp_init_set_int.c */
+/* LibTomMath, multiple-precision integer library -- Tom St Denis
+ *
+ * LibTomMath is a library that provides multiple-precision
+ * integer arithmetic as well as number theoretic functionality.
+ *
+ * The library was designed directly after the MPI library by
+ * Michael Fromberger but has been written from scratch with
+ * additional optimizations in place.
+ *
+ * The library is free for all purposes without any express
+ * guarantee it works.
+ *
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
+ */
+#include <tommath.h>
+
+/* initialize and set a digit */
+int mp_init_set_int (mp_int * a, unsigned long b)
+{
+  int err;
+  if ((err = mp_init(a)) != MP_OKAY) {
+     return err;
+  }
+  return mp_set_int(a, b);
+}
+
+/* End: bn_mp_init_set_int.c */
+
 /* Start: bn_mp_init_size.c */
 /* LibTomMath, multiple-precision integer library -- Tom St Denis
  *
@@ -3166,7 +3273,7 @@ int mp_init_size (mp_int * a, int size)
   size += (MP_PREC * 2) - (size % MP_PREC);	
   
   /* alloc mem */
-  a->dp = OPT_CAST XCALLOC (sizeof (mp_digit), size);
+  a->dp = OPT_CAST(mp_digit) XCALLOC (sizeof (mp_digit), size);
   if (a->dp == NULL) {
     return MP_MEM;
   }
@@ -3357,6 +3464,113 @@ __ERR:mp_clear_multi (&x, &y, &u, &v, &A, &B, &C, &D, NULL);
 
 /* End: bn_mp_invmod.c */
 
+/* Start: bn_mp_is_square.c */
+/* LibTomMath, multiple-precision integer library -- Tom St Denis
+ *
+ * LibTomMath is a library that provides multiple-precision
+ * integer arithmetic as well as number theoretic functionality.
+ *
+ * The library was designed directly after the MPI library by
+ * Michael Fromberger but has been written from scratch with
+ * additional optimizations in place.
+ *
+ * The library is free for all purposes without any express
+ * guarantee it works.
+ *
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
+ */
+#include <tommath.h>
+
+/* Check if remainders are possible squares - fast exclude non-squares */
+static const char rem_128[128] = {
+ 0, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1,
+ 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1,
+ 1, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1,
+ 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1,
+ 0, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1,
+ 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1,
+ 1, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1,
+ 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1
+};
+
+static const char rem_105[105] = {
+ 0, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1,
+ 0, 0, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1,
+ 0, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1,
+ 1, 0, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1,
+ 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1,
+ 1, 1, 1, 1, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1,
+ 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1
+};
+
+/* Store non-zero to ret if arg is square, and zero if not */
+int mp_is_square(mp_int *arg,int *ret) 
+{
+  int           res;
+  mp_digit      c;
+  mp_int        t;
+  unsigned long r;
+
+  /* Default to Non-square :) */
+  *ret = MP_NO; 
+
+  if (arg->sign == MP_NEG) {
+    return MP_VAL;
+  }
+
+  /* digits used?  (TSD) */
+  if (arg->used == 0) {
+     return MP_OKAY;
+  }
+
+  /* First check mod 128 (suppose that DIGIT_BIT is at least 7) */
+  if (rem_128[127 & DIGIT(arg,0)] == 1) {
+     return MP_OKAY;
+  }
+
+  /* Next check mod 105 (3*5*7) */
+  if ((res = mp_mod_d(arg,105,&c)) != MP_OKAY) {
+     return res;
+  }
+  if (rem_105[c] == 1) {
+     return MP_OKAY;
+  }
+
+  /* product of primes less than 2^31 */
+  if ((res = mp_init_set_int(&t,11L*13L*17L*19L*23L*29L*31L)) != MP_OKAY) {
+     return res;
+  }
+  if ((res = mp_mod(arg,&t,&t)) != MP_OKAY) {
+     goto ERR;
+  }
+  r = mp_get_int(&t);
+  /* Check for other prime modules, note it's not an ERROR but we must
+   * free "t" so the easiest way is to goto ERR.  We know that res
+   * is already equal to MP_OKAY from the mp_mod call 
+   */ 
+  if ( (1L<<(r%11)) & 0x5C4L )             goto ERR;
+  if ( (1L<<(r%13)) & 0x9E4L )             goto ERR;
+  if ( (1L<<(r%17)) & 0x5CE8L )            goto ERR;
+  if ( (1L<<(r%19)) & 0x4F50CL )           goto ERR;
+  if ( (1L<<(r%23)) & 0x7ACCA0L )          goto ERR;
+  if ( (1L<<(r%29)) & 0xC2EDD0CL )         goto ERR;
+  if ( (1L<<(r%31)) & 0x6DE2B848L )        goto ERR;
+
+  /* Final check - is sqr(sqrt(arg)) == arg ? */
+  if ((res = mp_sqrt(arg,&t)) != MP_OKAY) {
+     goto ERR;
+  }
+  if ((res = mp_sqr(&t,&t)) != MP_OKAY) {
+     goto ERR;
+  }
+
+  *ret = (mp_cmp_mag(&t,arg) == MP_EQ) ? MP_YES : MP_NO;
+ERR:mp_clear(&t);
+  return res;
+}
+
+/* End: bn_mp_is_square.c */
+
 /* Start: bn_mp_jacobi.c */
 /* LibTomMath, multiple-precision integer library -- Tom St Denis
  *
@@ -3506,8 +3720,7 @@ __A1:mp_clear (&a1);
  * Generally though the overhead of this method doesn't pay off 
  * until a certain size (N ~ 80) is reached.
  */
-int
-mp_karatsuba_mul (mp_int * a, mp_int * b, mp_int * c)
+int mp_karatsuba_mul (mp_int * a, mp_int * b, mp_int * c)
 {
   mp_int  x0, x1, y0, y1, t1, x0y0, x1y1;
   int     B, err;
@@ -3519,7 +3732,7 @@ mp_karatsuba_mul (mp_int * a, mp_int * b, mp_int * c)
   B = MIN (a->used, b->used);
 
   /* now divide in two */
-  B = B / 2;
+  B = B >> 1;
 
   /* init copy all the temps */
   if (mp_init_size (&x0, B) != MP_OKAY)
@@ -3653,8 +3866,7 @@ ERR:
  * is essentially the same algorithm but merely 
  * tuned to perform recursive squarings.
  */
-int
-mp_karatsuba_sqr (mp_int * a, mp_int * b)
+int mp_karatsuba_sqr (mp_int * a, mp_int * b)
 {
   mp_int  x0, x1, t1, t2, x0x0, x1x1;
   int     B, err;
@@ -3665,7 +3877,7 @@ mp_karatsuba_sqr (mp_int * a, mp_int * b)
   B = a->used;
 
   /* now divide in two */
-  B = B / 2;
+  B = B >> 1;
 
   /* init copy all the temps */
   if (mp_init_size (&x0, B) != MP_OKAY)
@@ -3896,7 +4108,6 @@ mp_mod (mp_int * a, mp_int * b, mp_int * c)
   mp_int  t;
   int     res;
 
-
   if ((res = mp_init (&t)) != MP_OKAY) {
     return res;
   }
@@ -3906,7 +4117,7 @@ mp_mod (mp_int * a, mp_int * b, mp_int * c)
     return res;
   }
 
-  if (t.sign == MP_NEG) {
+  if (t.sign != b->sign) {
     res = mp_add (b, &t, c);
   } else {
     res = MP_OKAY;
@@ -4661,7 +4872,7 @@ int mp_n_root (mp_int * a, mp_digit b, mp_int * c)
 
     if (mp_cmp (&t2, a) == MP_GT) {
       if ((res = mp_sub_d (&t1, 1, &t1)) != MP_OKAY) {
-    goto __T3;
+         goto __T3;
       }
     } else {
       break;
@@ -4711,7 +4922,7 @@ int mp_neg (mp_int * a, mp_int * b)
   if ((res = mp_copy (a, b)) != MP_OKAY) {
     return res;
   }
-  if (mp_iszero(b) != 1) {
+  if (mp_iszero(b) != MP_YES) {
      b->sign = (a->sign == MP_ZPOS) ? MP_NEG : MP_ZPOS;
   }
   return MP_OKAY;
@@ -5225,7 +5436,7 @@ __ERR:
 
 /* End: bn_mp_prime_next_prime.c */
 
-/* Start: bn_mp_prime_random.c */
+/* Start: bn_mp_prime_random_ex.c */
 /* LibTomMath, multiple-precision integer library -- Tom St Denis
  *
  * LibTomMath is a library that provides multiple-precision
@@ -5242,56 +5453,100 @@ __ERR:
  */
 #include <tommath.h>
 
-/* makes a truly random prime of a given size (bytes),
- * call with bbs = 1 if you want it to be congruent to 3 mod 4 
+/* makes a truly random prime of a given size (bits),
+ *
+ * Flags are as follows:
+ * 
+ *   LTM_PRIME_BBS      - make prime congruent to 3 mod 4
+ *   LTM_PRIME_SAFE     - make sure (p-1)/2 is prime as well (implies LTM_PRIME_BBS)
+ *   LTM_PRIME_2MSB_OFF - make the 2nd highest bit zero
+ *   LTM_PRIME_2MSB_ON  - make the 2nd highest bit one
  *
  * You have to supply a callback which fills in a buffer with random bytes.  "dat" is a parameter you can
  * have passed to the callback (e.g. a state or something).  This function doesn't use "dat" itself
  * so it can be NULL
  *
- * The prime generated will be larger than 2^(8*size).
  */
 
-/* this sole function may hold the key to enslaving all mankind! */
-int mp_prime_random(mp_int *a, int t, int size, int bbs, ltm_prime_callback cb, void *dat)
+/* This is possibly the mother of all prime generation functions, muahahahahaha! */
+int mp_prime_random_ex(mp_int *a, int t, int size, int flags, ltm_prime_callback cb, void *dat)
 {
-   unsigned char *tmp;
-   int res, err;
+   unsigned char *tmp, maskAND, maskOR_msb, maskOR_lsb;
+   int res, err, bsize, maskOR_msb_offset;
 
    /* sanity check the input */
-   if (size <= 0) {
+   if (size <= 1 || t <= 0) {
       return MP_VAL;
    }
 
-   /* we need a buffer of size+1 bytes */
-   tmp = XMALLOC(size+1);
+   /* LTM_PRIME_SAFE implies LTM_PRIME_BBS */
+   if (flags & LTM_PRIME_SAFE) {
+      flags |= LTM_PRIME_BBS;
+   }
+
+   /* calc the byte size */
+   bsize = (size>>3)+(size&7?1:0);
+
+   /* we need a buffer of bsize bytes */
+   tmp = OPT_CAST(unsigned char) XMALLOC(bsize);
    if (tmp == NULL) {
       return MP_MEM;
    }
 
-   /* fix MSB */
-   tmp[0] = 1;
+   /* calc the maskAND value for the MSbyte*/
+   maskAND = 0xFF >> (8 - (size & 7));
+
+   /* calc the maskOR_msb */
+   maskOR_msb        = 0;
+   maskOR_msb_offset = (size - 2) >> 3;
+   if (flags & LTM_PRIME_2MSB_ON) {
+      maskOR_msb     |= 1 << ((size - 2) & 7);
+   } else if (flags & LTM_PRIME_2MSB_OFF) {
+      maskAND        &= ~(1 << ((size - 2) & 7));
+   }
+
+   /* get the maskOR_lsb */
+   maskOR_lsb         = 0;
+   if (flags & LTM_PRIME_BBS) {
+      maskOR_lsb     |= 3;
+   }
 
    do {
       /* read the bytes */
-      if (cb(tmp+1, size, dat) != size) {
+      if (cb(tmp, bsize, dat) != bsize) {
          err = MP_VAL;
          goto error;
       }
  
-      /* fix the LSB */
-      tmp[size] |= (bbs ? 3 : 1);
+      /* work over the MSbyte */
+      tmp[0]    &= maskAND;
+      tmp[0]    |= 1 << ((size - 1) & 7);
+
+      /* mix in the maskORs */
+      tmp[maskOR_msb_offset]   |= maskOR_msb;
+      tmp[bsize-1]             |= maskOR_lsb;
 
       /* read it in */
-      if ((err = mp_read_unsigned_bin(a, tmp, size+1)) != MP_OKAY) {
-         goto error;
-      }
+      if ((err = mp_read_unsigned_bin(a, tmp, bsize)) != MP_OKAY)     { goto error; }
 
       /* is it prime? */
-      if ((err = mp_prime_is_prime(a, t, &res)) != MP_OKAY) {
-         goto error;
+      if ((err = mp_prime_is_prime(a, t, &res)) != MP_OKAY)           { goto error; }
+
+      if (flags & LTM_PRIME_SAFE) {
+         /* see if (a-1)/2 is prime */
+         if ((err = mp_sub_d(a, 1, a)) != MP_OKAY)                    { goto error; }
+         if ((err = mp_div_2(a, a)) != MP_OKAY)                       { goto error; }
+ 
+         /* is it prime? */
+         if ((err = mp_prime_is_prime(a, t, &res)) != MP_OKAY)        { goto error; }
       }
    } while (res == MP_NO);
+
+   if (flags & LTM_PRIME_SAFE) {
+      /* restore a to the original value */
+      if ((err = mp_mul_2(a, a)) != MP_OKAY)                          { goto error; }
+      if ((err = mp_add_d(a, 1, a)) != MP_OKAY)                       { goto error; }
+   }
 
    err = MP_OKAY;
 error:
@@ -5301,7 +5556,7 @@ error:
 
 
 
-/* End: bn_mp_prime_random.c */
+/* End: bn_mp_prime_random_ex.c */
 
 /* Start: bn_mp_radix_size.c */
 /* LibTomMath, multiple-precision integer library -- Tom St Denis
@@ -5726,9 +5981,9 @@ CLEANUP:
  */
 #include <tommath.h>
 
-/* reduces a modulo n where n is of the form 2**p - k */
+/* reduces a modulo n where n is of the form 2**p - d */
 int
-mp_reduce_2k(mp_int *a, mp_int *n, mp_digit k)
+mp_reduce_2k(mp_int *a, mp_int *n, mp_digit d)
 {
    mp_int q;
    int    p, res;
@@ -5744,9 +5999,9 @@ top:
       goto ERR;
    }
    
-   if (k != 1) {
-      /* q = q * k */
-      if ((res = mp_mul_d(&q, k, &q)) != MP_OKAY) { 
+   if (d != 1) {
+      /* q = q * d */
+      if ((res = mp_mul_d(&q, d, &q)) != MP_OKAY) { 
          goto ERR;
       }
    }
@@ -6062,7 +6317,7 @@ int mp_shrink (mp_int * a)
 {
   mp_digit *tmp;
   if (a->alloc != a->used && a->used > 0) {
-    if ((tmp = OPT_CAST XREALLOC (a->dp, sizeof (mp_digit) * a->used)) == NULL) {
+    if ((tmp = OPT_CAST(mp_digit) XREALLOC (a->dp, sizeof (mp_digit) * a->used)) == NULL) {
       return MP_MEM;
     }
     a->dp    = tmp;
@@ -6181,6 +6436,85 @@ mp_sqrmod (mp_int * a, mp_int * b, mp_int * c)
 }
 
 /* End: bn_mp_sqrmod.c */
+
+/* Start: bn_mp_sqrt.c */
+/* LibTomMath, multiple-precision integer library -- Tom St Denis
+ *
+ * LibTomMath is a library that provides multiple-precision
+ * integer arithmetic as well as number theoretic functionality.
+ *
+ * The library was designed directly after the MPI library by
+ * Michael Fromberger but has been written from scratch with
+ * additional optimizations in place.
+ *
+ * The library is free for all purposes without any express
+ * guarantee it works.
+ *
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
+ */
+#include <tommath.h>
+
+/* this function is less generic than mp_n_root, simpler and faster */
+int mp_sqrt(mp_int *arg, mp_int *ret) 
+{
+  int res;
+  mp_int t1,t2;
+
+  /* must be positive */
+  if (arg->sign == MP_NEG) {
+    return MP_VAL;
+  }
+
+  /* easy out */
+  if (mp_iszero(arg) == MP_YES) {
+    mp_zero(ret);
+    return MP_OKAY;
+  }
+
+  if ((res = mp_init_copy(&t1, arg)) != MP_OKAY) {
+    return res;
+  }
+
+  if ((res = mp_init(&t2)) != MP_OKAY) {
+    goto E2;
+  }
+
+  /* First approx. (not very bad for large arg) */
+  mp_rshd (&t1,t1.used/2);
+
+  /* t1 > 0  */ 
+  if ((res = mp_div(arg,&t1,&t2,NULL)) != MP_OKAY) {
+    goto E1;
+  }
+  if ((res = mp_add(&t1,&t2,&t1)) != MP_OKAY) {
+    goto E1;
+  }
+  if ((res = mp_div_2(&t1,&t1)) != MP_OKAY) {
+    goto E1;
+  }
+  /* And now t1 > sqrt(arg) */
+  do { 
+    if ((res = mp_div(arg,&t1,&t2,NULL)) != MP_OKAY) {
+      goto E1;
+    }
+    if ((res = mp_add(&t1,&t2,&t1)) != MP_OKAY) {
+      goto E1;
+    }
+    if ((res = mp_div_2(&t1,&t1)) != MP_OKAY) {
+      goto E1;
+    }
+    /* t1 >= sqrt(arg) >= t2 at this point */
+  } while (mp_cmp_mag(&t1,&t2) == MP_GT);
+
+  mp_exch(&t1,ret);
+
+E1: mp_clear(&t2);
+E2: mp_clear(&t1);
+  return res;
+}
+
+
+/* End: bn_mp_sqrt.c */
 
 /* Start: bn_mp_sub.c */
 /* LibTomMath, multiple-precision integer library -- Tom St Denis
@@ -6463,8 +6797,7 @@ mp_to_unsigned_bin (mp_int * a, unsigned char *b)
 #include <tommath.h>
 
 /* multiplication using the Toom-Cook 3-way algorithm */
-int 
-mp_toom_mul(mp_int *a, mp_int *b, mp_int *c)
+int mp_toom_mul(mp_int *a, mp_int *b, mp_int *c)
 {
     mp_int w0, w1, w2, w3, w4, tmp1, tmp2, a0, a1, a2, b0, b1, b2;
     int res, B;
@@ -7018,6 +7351,93 @@ int mp_toradix (mp_int * a, char *str, int radix)
 
 
 /* End: bn_mp_toradix.c */
+
+/* Start: bn_mp_toradix_n.c */
+/* LibTomMath, multiple-precision integer library -- Tom St Denis
+ *
+ * LibTomMath is a library that provides multiple-precision
+ * integer arithmetic as well as number theoretic functionality.
+ *
+ * The library was designed directly after the MPI library by
+ * Michael Fromberger but has been written from scratch with
+ * additional optimizations in place.
+ *
+ * The library is free for all purposes without any express
+ * guarantee it works.
+ *
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
+ */
+#include <tommath.h>
+
+/* stores a bignum as a ASCII string in a given radix (2..64) 
+ *
+ * Stores upto maxlen-1 chars and always a NULL byte 
+ */
+int mp_toradix_n(mp_int * a, char *str, int radix, int maxlen)
+{
+  int     res, digs;
+  mp_int  t;
+  mp_digit d;
+  char   *_s = str;
+
+  /* check range of the maxlen, radix */
+  if (maxlen < 3 || radix < 2 || radix > 64) {
+    return MP_VAL;
+  }
+
+  /* quick out if its zero */
+  if (mp_iszero(a) == 1) {
+     *str++ = '0';
+     *str = '\0';
+     return MP_OKAY;
+  }
+
+  if ((res = mp_init_copy (&t, a)) != MP_OKAY) {
+    return res;
+  }
+
+  /* if it is negative output a - */
+  if (t.sign == MP_NEG) {
+    /* we have to reverse our digits later... but not the - sign!! */
+    ++_s;
+
+    /* store the flag and mark the number as positive */
+    *str++ = '-';
+    t.sign = MP_ZPOS;
+ 
+    /* subtract a char */
+    --maxlen;
+  }
+
+  digs = 0;
+  while (mp_iszero (&t) == 0) {
+    if ((res = mp_div_d (&t, (mp_digit) radix, &t, &d)) != MP_OKAY) {
+      mp_clear (&t);
+      return res;
+    }
+    *str++ = mp_s_rmap[d];
+    ++digs;
+
+    if (--maxlen == 1) {
+       /* no more room */
+       break;
+    }
+  }
+
+  /* reverse the digits of the string.  In this case _s points
+   * to the first digit [exluding the sign] of the number]
+   */
+  bn_reverse ((unsigned char *)_s, digs);
+
+  /* append a NULL so the string is properly terminated */
+  *str = '\0';
+
+  mp_clear (&t);
+  return MP_OKAY;
+}
+
+
+/* End: bn_mp_toradix_n.c */
 
 /* Start: bn_mp_unsigned_bin_size.c */
 /* LibTomMath, multiple-precision integer library -- Tom St Denis
@@ -7982,8 +8402,8 @@ s_mp_sub (mp_int * a, mp_int * b, mp_int * c)
 */
 
 /* configured for a AMD XP Thoroughbred core with etc/tune.c */
-int     KARATSUBA_MUL_CUTOFF = 109,      /* Min. number of digits before Karatsuba multiplication is used. */
-        KARATSUBA_SQR_CUTOFF = 127,      /* Min. number of digits before Karatsuba squaring is used. */
+int     KARATSUBA_MUL_CUTOFF = 70,      /* Min. number of digits before Karatsuba multiplication is used. */
+        KARATSUBA_SQR_CUTOFF = 108,      /* Min. number of digits before Karatsuba squaring is used. */
         
         TOOM_MUL_CUTOFF      = 350,      /* no optimal values of these are known yet so set em high */
         TOOM_SQR_CUTOFF      = 400; 

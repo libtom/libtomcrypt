@@ -4,7 +4,7 @@
  * algorithms in a highly modular and flexible manner.
  *
  * The library is free for all purposes without any express
- * gurantee it works.
+ * guarantee it works.
  *
  * Tom St Denis, tomstdenis@iahu.ca, http://libtomcrypt.org
  */
@@ -77,7 +77,7 @@ static void rmd128_compress(hash_state *md, unsigned char *buf)
 {
    ulong32 aa,bb,cc,dd,aaa,bbb,ccc,ddd,X[16];
    int i;
-
+   
    /* load words X */
    for (i = 0; i < 16; i++){
       LOAD32L(X[i], buf + (4 * i));
@@ -313,6 +313,9 @@ int rmd128_done(hash_state * md, unsigned char *hash)
 
 int rmd128_test(void)
 {
+#ifndef LTC_TEST
+   return CRYPT_NOP;
+#else
    static const struct {
         char *msg;
         unsigned char md[16];
@@ -358,6 +361,7 @@ int rmd128_test(void)
        }
    }
    return CRYPT_OK;
+#endif
 }
 
 #endif

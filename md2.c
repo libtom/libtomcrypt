@@ -4,7 +4,7 @@
  * algorithms in a highly modular and flexible manner.
  *
  * The library is free for all purposes without any express
- * gurantee it works.
+ * guarantee it works.
  *
  * Tom St Denis, tomstdenis@iahu.ca, http://libtomcrypt.org
  */
@@ -65,7 +65,7 @@ static void md2_compress(hash_state *md)
 {
    int j, k;
    unsigned char t;
-
+   
    /* copy block */
    for (j = 0; j < 16; j++) {
        md->md2.X[16+j] = md->md2.buf[j];

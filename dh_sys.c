@@ -4,7 +4,7 @@
  * algorithms in a highly modular and flexible manner.
  *
  * The library is free for all purposes without any express
- * gurantee it works.
+ * guarantee it works.
  *
  * Tom St Denis, tomstdenis@iahu.ca, http://libtomcrypt.org
  */
@@ -48,7 +48,7 @@ int dh_encrypt_key(const unsigned char *inkey, unsigned long keylen,
     }
 
     /* now check if the out buffer is big enough */
-    if (*len < (9 + PACKET_SIZE + pubkeysize + keylen)) {
+    if (*len < (1 + 4 + 4 + PACKET_SIZE + pubkeysize + keylen)) {
        dh_free(&pubkey);
        return CRYPT_BUFFER_OVERFLOW;
     }
@@ -326,6 +326,8 @@ done:
    return err;
 }
 
+
+/* verify the signature in sig of the given hash */
 int dh_verify_hash(const unsigned char *sig, unsigned long siglen,
                    const unsigned char *hash, unsigned long hashlen, 
                          int *stat, dh_key *key)
@@ -345,9 +347,7 @@ int dh_verify_hash(const unsigned char *sig, unsigned long siglen,
    /* check initial input length */
    if (siglen < PACKET_SIZE+4+4) {
       return CRYPT_INVALID_PACKET;
-   } else {
-      siglen -= PACKET_SIZE + 4 + 4;
-   }
+   } 
 
    /* header ok? */
    if ((err = packet_valid_header((unsigned char *)sig, PACKET_SECT_DH, PACKET_SUB_SIGNED)) != CRYPT_OK) {
@@ -363,41 +363,23 @@ int dh_verify_hash(const unsigned char *sig, unsigned long siglen,
    }
 
    /* load a and b */
-   LOAD32L(x, sig+y);
-   if (siglen < x) {
-      return CRYPT_INVALID_PACKET;
-   } else {
-      siglen -= x;
-   }
-   
-   y += 4;
-   if ((err = mp_read_unsigned_bin(&a, (unsigned char *)sig+y, x)) != MP_OKAY)      { goto error; }
-   y += x;
-
-   LOAD32L(x, sig+y);
-   if (siglen < x) {
-      return CRYPT_INVALID_PACKET;
-   } else {
-      siglen -= x;
-   }
-   y += 4;
-   if ((err = mp_read_unsigned_bin(&b, (unsigned char *)sig+y, x)) != MP_OKAY)      { goto error; }
-   y += x;
+   INPUT_BIGNUM(&a, sig, x, y, siglen);
+   INPUT_BIGNUM(&b, sig, x, y, siglen);
 
    /* load p and g */
-   if ((err = mp_read_radix(&p, sets[key->idx].prime, 64)) != MP_OKAY)              { goto error; }
-   if ((err = mp_read_radix(&g, sets[key->idx].base, 64)) != MP_OKAY)               { goto error; }
+   if ((err = mp_read_radix(&p, sets[key->idx].prime, 64)) != MP_OKAY)              { goto error1; }
+   if ((err = mp_read_radix(&g, sets[key->idx].base, 64)) != MP_OKAY)               { goto error1; }
 
    /* load m */
-   if ((err = mp_read_unsigned_bin(&m, (unsigned char *)hash, hashlen)) != MP_OKAY) { goto error; }
+   if ((err = mp_read_unsigned_bin(&m, (unsigned char *)hash, hashlen)) != MP_OKAY) { goto error1; }
 
    /* find g^m mod p */
-   if ((err = mp_exptmod(&g, &m, &p, &m)) != MP_OKAY)                { goto error; } /* m = g^m mod p */
+   if ((err = mp_exptmod(&g, &m, &p, &m)) != MP_OKAY)                { goto error1; } /* m = g^m mod p */
 
    /* find y^a * a^b */
-   if ((err = mp_exptmod(&key->y, &a, &p, &tmp)) != MP_OKAY)         { goto error; } /* tmp = y^a mod p */
-   if ((err = mp_exptmod(&a, &b, &p, &a)) != MP_OKAY)                { goto error; } /* a = a^b mod p */
-   if ((err = mp_mulmod(&a, &tmp, &p, &a)) != MP_OKAY)               { goto error; } /* a = y^a * a^b mod p */
+   if ((err = mp_exptmod(&key->y, &a, &p, &tmp)) != MP_OKAY)         { goto error1; } /* tmp = y^a mod p */
+   if ((err = mp_exptmod(&a, &b, &p, &a)) != MP_OKAY)                { goto error1; } /* a = a^b mod p */
+   if ((err = mp_mulmod(&a, &tmp, &p, &a)) != MP_OKAY)               { goto error1; } /* a = y^a * a^b mod p */
 
    /* y^a * a^b == g^m ??? */
    if (mp_cmp(&a, &m) == 0) {
@@ -407,8 +389,9 @@ int dh_verify_hash(const unsigned char *sig, unsigned long siglen,
    /* clean up */
    err = CRYPT_OK;
    goto done;
-error:
+error1:
    err = mpi_to_ltc_error(err);
+error:
 done:
    mp_clear_multi(&tmp, &m, &g, &p, &b, &a, NULL);
    return err;

@@ -4,7 +4,7 @@
  * algorithms in a highly modular and flexible manner.
  *
  * The library is free for all purposes without any express
- * gurantee it works.
+ * guarantee it works.
  *
  * Tom St Denis, tomstdenis@iahu.ca, http://libtomcrypt.org
  */
@@ -46,9 +46,8 @@ int rc5_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_ke
     ulong32 L[64], *S, A, B, i, j, v, s, t, l;
 
     _ARGCHK(skey != NULL);
-    _ARGCHK(key != NULL);
+    _ARGCHK(key  != NULL);
     
-
     /* test parameters */
     if (num_rounds == 0) { 
        num_rounds = rc5_desc.default_rounds;

@@ -16,13 +16,15 @@ extern "C" {
 #endif
 
 /* version */
-#define CRYPT   0x0094
-#define SCRYPT  "0.94"
+#define CRYPT   0x0095
+#define SCRYPT  "0.95"
 
 /* max size of either a cipher/hash block or symmetric key [largest of the two] */
 #define MAXBLOCKSIZE           128
 
-/* ch1-01-1 */
+/* descriptor table size */
+#define TAB_SIZE    32
+
 /* error codes [will be expanded in future releases] */
 enum {
    CRYPT_OK=0,             /* Result OK */
@@ -59,7 +61,6 @@ enum {
 
    CRYPT_INVALID_PRIME_SIZE/* Invalid size of prime requested */
 };
-/* ch1-01-1 */
 
 #include <mycrypt_cfg.h>
 #include <mycrypt_macros.h>
@@ -71,6 +72,7 @@ enum {
 #include <mycrypt_misc.h>
 #include <mycrypt_kr.h>
 #include <mycrypt_argchk.h>
+#include <mycrypt_pkcs.h>
 
 #ifdef __cplusplus
    }

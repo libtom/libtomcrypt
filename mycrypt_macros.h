@@ -125,7 +125,7 @@ typedef unsigned long ulong32;
 
 #ifdef ENDIAN_BIG
 #define STORE32L(x, y)                                                                     \
-     { (y)[0] = (unsigned char)(((x)>>24)&255); (y)[1] = (unsigned char)(((x)>>16)&255);   \
+     { (y)[z0] = (unsigned char)(((x)>>24)&255); (y)[1] = (unsigned char)(((x)>>16)&255);   \
        (y)[2] = (unsigned char)(((x)>>8)&255); (y)[3] = (unsigned char)((x)&255); }
 
 #define LOAD32L(x, y)                            \
@@ -194,7 +194,7 @@ typedef unsigned long ulong32;
 #define ROR(x,n) _lrotr(x,n)
 #define ROL(x,n) _lrotl(x,n)
 
-#elif defined(__GNUC__) && defined(__i386__)
+#elif defined(__GNUC__) && defined(__i386__) && !defined(INTEL_CC)
 
 static inline unsigned long ROL(unsigned long word, int i)
 {

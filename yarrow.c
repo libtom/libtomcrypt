@@ -4,7 +4,7 @@
  * algorithms in a highly modular and flexible manner.
  *
  * The library is free for all purposes without any express
- * gurantee it works.
+ * guarantee it works.
  *
  * Tom St Denis, tomstdenis@iahu.ca, http://libtomcrypt.org
  */
@@ -96,7 +96,7 @@ int yarrow_add_entropy(const unsigned char *buf, unsigned long len, prng_state *
    hash_state md;
    int err;
 
-   _ARGCHK(buf != NULL);
+   _ARGCHK(buf  != NULL);
    _ARGCHK(prng != NULL);
 
    if ((err = hash_is_valid(prng->yarrow.hash)) != CRYPT_OK) {
@@ -150,7 +150,7 @@ int yarrow_ready(prng_state *prng)
 
 unsigned long yarrow_read(unsigned char *buf, unsigned long len, prng_state *prng)
 {
-   _ARGCHK(buf != NULL);
+   _ARGCHK(buf  != NULL);
    _ARGCHK(prng != NULL);
 
    /* put buf in predictable state first */

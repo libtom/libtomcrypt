@@ -4,7 +4,7 @@
  * algorithms in a highly modular and flexible manner.
  *
  * The library is free for all purposes without any express
- * gurantee it works.
+ * guarantee it works.
  *
  * Tom St Denis, tomstdenis@iahu.ca, http://libtomcrypt.org
  */
@@ -294,9 +294,9 @@ int dh_export(unsigned char *out, unsigned long *outlen, int type, dh_key *key)
    unsigned long y, z;
    int err;
 
-   _ARGCHK(out != NULL);
+   _ARGCHK(out    != NULL);
    _ARGCHK(outlen != NULL);
-   _ARGCHK(key != NULL);
+   _ARGCHK(key    != NULL);
 
    /* can we store the static header?  */
    if (*outlen < (PACKET_SIZE + 2)) {
@@ -335,7 +335,7 @@ int dh_import(const unsigned char *in, unsigned long inlen, dh_key *key)
    unsigned long x, y, s;
    int err;
 
-   _ARGCHK(in != NULL);
+   _ARGCHK(in  != NULL);
    _ARGCHK(key != NULL);
 
    /* make sure valid length */
@@ -382,10 +382,10 @@ int dh_import(const unsigned char *in, unsigned long inlen, dh_key *key)
    }
 
    /* load public value g^x mod p*/
-   INPUT_BIGNUM(&key->y, in, x, y);
+   INPUT_BIGNUM(&key->y, in, x, y, inlen);
 
    if (key->type == PK_PRIVATE) {
-      INPUT_BIGNUM(&key->x, in, x, y);
+      INPUT_BIGNUM(&key->x, in, x, y, inlen);
    }
 
    /* eliminate private key if public */

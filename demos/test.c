@@ -613,47 +613,50 @@ rsa_test (void)
     for (z = 1024; z <= limit; z += 512) {
       t = XCLOCK ();
       for (tt = 0; tt < 3; tt++) {
-    if ((errnum =
-         rsa_make_key (&prng, find_prng ("yarrow"), z / 8, 65537,
-               &key)) != CRYPT_OK) {
-      printf ("Error: %s\n", error_to_string (errnum));
-      exit (-1);
-    }
-    if (tt < 2)
-      rsa_free (&key);
+         if ((errnum = rsa_make_key (&prng, find_prng ("yarrow"), z / 8, 65537, &key)) != CRYPT_OK) {
+            printf ("Error: %s\n", error_to_string (errnum));
+            exit (-1);
+         }
+
+         /* check modulus size */
+         if (mp_unsigned_bin_size(&key.N) != (int)(z/8)) { 
+            printf("\nRSA key supposed to be %lu bits but was %d bits\n", z, mp_count_bits(&key.N));
+            exit(EXIT_FAILURE);
+         }
+
+         if (tt < 2) {
+            rsa_free (&key);
+         }
       }
       t = XCLOCK () - t;
-      printf ("Took %.0f ms to make a %ld-bit RSA key.\n",
-          1000.0 * (((double) t / 3.0) / (double) XCLOCKS_PER_SEC), z);
+      printf ("Took %.0f ms to make a %ld-bit RSA key.\n", 1000.0 * (((double) t / 3.0) / (double) XCLOCKS_PER_SEC), z);
 
       /* time encryption */
       t = XCLOCK ();
 
       for (tt = 0; tt < 20; tt++) {
-    y = sizeof (in);
-    if ((errnum =
-         rsa_exptmod (in, 8, out, &y, PK_PUBLIC, &key)) != CRYPT_OK) {
-      printf ("Error: %s\n", error_to_string (errnum));
-      exit (-1);
-    }
+         y = sizeof (in);
+         if ((errnum = rsa_exptmod (in, 8, out, &y, PK_PUBLIC, &key)) != CRYPT_OK) {
+            printf ("Error: %s\n", error_to_string (errnum));
+            exit (-1);
+         }
       }
       t = XCLOCK () - t;
       printf ("Took %.0f ms to encrypt with a %ld-bit RSA key.\n",
-          1000.0 * (((double) t / 20.0) / (double) XCLOCKS_PER_SEC), z);
+              1000.0 * (((double) t / 20.0) / (double) XCLOCKS_PER_SEC), z);
 
       /* time decryption */
       t = XCLOCK ();
       for (tt = 0; tt < 20; tt++) {
-    x = sizeof (out);
-    if ((errnum =
-         rsa_exptmod (out, y, in, &x, PK_PRIVATE, &key)) != CRYPT_OK) {
-      printf ("Error: %s\n", error_to_string (errnum));
-      exit (-1);
-    }
+          x = sizeof (out);
+          if ((errnum = rsa_exptmod (out, y, in, &x, PK_PRIVATE, &key)) != CRYPT_OK) {
+             printf ("Error: %s\n", error_to_string (errnum));
+             exit (-1);
+          }
       }
       t = XCLOCK () - t;
       printf ("Took %.0f ms to decrypt with a %ld-bit RSA key.\n",
-          1000.0 * (((double) t / 20.0) / (double) XCLOCKS_PER_SEC), z);
+      1000.0 * (((double) t / 20.0) / (double) XCLOCKS_PER_SEC), z);
       rsa_free (&key);
     }
   }
@@ -970,12 +973,12 @@ dh_tests (void)
     printf ("Error: %s\n", error_to_string (errnum));
     exit (-1);
   }
-  if (dh_verify_hash (buf[1], x, buf[0], 16, &stat, &usera)) {
+  if ((errnum = dh_verify_hash (buf[1], x, buf[0], 16, &stat, &usera)) != CRYPT_OK) {
     printf ("Error: %s\n", error_to_string (errnum));
     exit (-1);
   }
   buf[0][0] ^= 1;
-  if (dh_verify_hash (buf[1], x, buf[0], 16, &stat2, &usera)) {
+  if ((errnum = dh_verify_hash (buf[1], x, buf[0], 16, &stat2, &usera)) != CRYPT_OK) {
     printf ("Error: %s\n", error_to_string (errnum));
     exit (-1);
   }
@@ -1272,7 +1275,7 @@ test_prime (void)
 
   /* make a 1024 bit prime */
   mp_init (&a);
-  rand_prime (&a, 128, &prng, find_prng ("yarrow"));
+  rand_prime (&a, 128*8, &prng, find_prng ("yarrow"));
 
   /* dump it */
   mp_todecimal (&a, buf);
@@ -1809,8 +1812,87 @@ void dsa_tests(void)
    dsa_free(&key);
 }
 
+#ifdef PKCS_1
+void pkcs1_test(void)
+{
+   unsigned char buf[3][128];
+   int err, res1, res2, res3, prng_idx, hash_idx;
+   unsigned long x, y, l1, l2, l3, i1, i2;
 
+   /* get hash/prng  */
+   hash_idx = find_hash("sha1");
+   prng_idx = find_prng("yarrow");
 
+   /* do many tests */
+   for (x = 0; x < 10000; x++) {
+      zeromem(buf, sizeof(buf));
+
+      /* make a dummy message (of random length) */
+      l3 = (rand() & 31) + 8;
+      for (y = 0; y < l3; y++) buf[0][y] = rand() & 255;
+
+      /* encode it */
+      l1 = sizeof(buf[1]);
+      if ((err = pkcs_1_oaep_encode(buf[0], l3, NULL, 0, 1024, hash_idx, prng_idx, &prng, buf[1], &l1)) != CRYPT_OK) {
+         printf("OAEP encode: %s\n", error_to_string(err));
+         exit(-1);
+      }
+
+      /* decode it */
+      l2 = sizeof(buf[2]);
+      if ((err = pkcs_1_oaep_decode(buf[1], l1, NULL, 0, 1024, hash_idx, buf[2], &l2)) != CRYPT_OK) {
+         printf("OAEP decode: %s\n", error_to_string(err));
+         exit(-1);
+      }
+
+      if (l2 != l3 || memcmp(buf[2], buf[0], l3) != 0) {
+         printf("Outsize == %lu, should have been %lu, msg contents follow.\n", l2, l3);
+         printf("ORIGINAL:\n");
+         for (x = 0; x < l3; x++) {
+             printf("%02x ", buf[0][x]);
+         }
+         printf("\nRESULT:\n");
+         for (x = 0; x < l2; x++) {
+             printf("%02x ", buf[2][x]);
+         }
+         printf("\n\n");
+         exit(-1);
+      }
+
+      /* test PSS */
+      l1 = sizeof(buf[1]);
+      if ((err = pkcs_1_pss_encode(buf[0], l3, l3>>2, hash_idx, prng_idx, &prng, 1024, buf[1], &l1)) != CRYPT_OK) {
+         printf("PSS encode: %s\n", error_to_string(err));
+         exit(-1); 
+      }
+      
+      if ((err = pkcs_1_pss_decode(buf[0], l3, buf[1], l1, l3>>2, hash_idx, 1024, &res1)) != CRYPT_OK) {
+         printf("PSS decode1: %s\n", error_to_string(err));
+         exit(-1); 
+      }
+      
+      buf[0][i1 = abs(rand()) % l3] ^= 1;
+      if ((err = pkcs_1_pss_decode(buf[0], l3, buf[1], l1, l3>>2, hash_idx, 1024, &res2)) != CRYPT_OK) {
+         printf("PSS decode2: %s\n", error_to_string(err));
+         exit(-1); 
+      }
+
+      buf[0][i1] ^= 1;
+      buf[1][i2 = abs(rand()) % l1] ^= 1;
+      if ((err = pkcs_1_pss_decode(buf[0], l3, buf[1], l1, l3>>2, hash_idx, 1024, &res3)) != CRYPT_OK) {
+         printf("PSS decode3: %s\n", error_to_string(err));
+         exit(-1); 
+      }
+
+      if (!(res1 == 1 && res2 == 0 && res3 == 0)) {
+         printf("PSS failed: %d, %d, %d, %lu\n", res1, res2, res3, l3);
+         exit(-1);
+      }
+   }
+   printf("PKCS #1: Passed\n");
+}
+
+#endif /* PKCS_1 */
 
 int
 main (void)
@@ -1818,6 +1900,7 @@ main (void)
 #ifdef SONY_PS2
   TIMER_Init ();
 #endif
+  srand(time(NULL));
 
   register_all_algs ();
    
@@ -1833,7 +1916,6 @@ main (void)
 
   printf (crypt_build_settings);
   test_errs ();
-
 
 #ifdef HMAC
   printf ("HMAC: %s\n", hmac_test () == CRYPT_OK ? "passed" : "failed");
@@ -1864,6 +1946,10 @@ main (void)
   cipher_tests ();
   hash_tests ();
 
+#ifdef PKCS_1
+  pkcs1_test();
+#endif
+
   ecb_tests ();
   cbc_tests ();
   ctr_tests ();
@@ -1881,7 +1967,6 @@ main (void)
   pad_test ();
   ecc_tests ();
   dh_tests ();
-
 
   gf_tests ();
   base64_test ();
