@@ -276,7 +276,7 @@ typedef struct Hmac_state {
      hash_state     md;
      int            hash;
      hash_state     hashstate;
-     unsigned char  key[MAXBLOCKSIZE];
+     unsigned char  *key;
 } hmac_state;
 
  int hmac_init(hmac_state *hmac, int hash, const unsigned char *key, unsigned long keylen);

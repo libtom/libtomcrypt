@@ -52,7 +52,7 @@ int pkcs_5_alg2(const unsigned char *password, unsigned long password_len,
    stored = 0;
    while (left != 0) {
        /* process block number blkno */
-       zeromem(buf, MAXBLOCKSIZE*2);
+       zeromem(buf[0], MAXBLOCKSIZE*2);
        
        /* store current block number and increment for next pass */
        STORE32H(blkno, buf[1]);
@@ -75,7 +75,7 @@ int pkcs_5_alg2(const unsigned char *password, unsigned long password_len,
 
        /* now compute repeated and XOR it in buf[1] */
        XMEMCPY(buf[1], buf[0], x);
-       for (itts = 2; itts < iteration_count; ++itts) {
+       for (itts = 1; itts < iteration_count; ++itts) {
            if ((err = hmac_memory(hash_idx, password, password_len, buf[0], x, buf[0], &x)) != CRYPT_OK) {
               goto __ERR;
            }

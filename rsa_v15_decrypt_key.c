@@ -1,4 +1,4 @@
-/* LibTomCrypt, modular cryptographic library -- Tom St Denis
+	/* LibTomCrypt, modular cryptographic library -- Tom St Denis
  *
  * LibTomCrypt is a library that provides various cryptographic
  * algorithms in a highly modular and flexible manner.
@@ -13,28 +13,22 @@
 
 #ifdef MRSA
 
-/* decrypt then OAEP depad  */
-int rsa_decrypt_key(const unsigned char *in,     unsigned long inlen,
-                          unsigned char *outkey, unsigned long *keylen, 
-                    const unsigned char *lparam, unsigned long lparamlen,
-                          prng_state    *prng,   int           prng_idx,
-                          int            hash_idx, int *res,
-                          rsa_key       *key)
+/* decrypt then PKCS #1 v1.5 depad  */
+int rsa_v15_decrypt_key(const unsigned char *in,     unsigned long  inlen,
+                              unsigned char *outkey, unsigned long keylen, 
+                              prng_state    *prng,   int            prng_idx,
+                              int           *res,    rsa_key       *key)
 {
   unsigned long modulus_bitlen, modulus_bytelen, x;
   int           err;
   unsigned char *tmp;
   
   _ARGCHK(outkey != NULL);
-  _ARGCHK(keylen != NULL);
   _ARGCHK(key    != NULL);
   _ARGCHK(res    != NULL);
 
-  /* valid hash/prng ? */
+  /* valid prng ? */
   if ((err = prng_is_valid(prng_idx)) != CRYPT_OK) {
-     return err;
-  }
-  if ((err = hash_is_valid(hash_idx)) != CRYPT_OK) {
      return err;
   }
   
@@ -60,15 +54,10 @@ int rsa_decrypt_key(const unsigned char *in,     unsigned long inlen,
      return err;
   }
 
-  /* now OAEP decode the packet */
-  err = pkcs_1_oaep_decode(tmp, x, lparam, lparamlen, modulus_bitlen, hash_idx,
-                           outkey, keylen, res);
+  /* PKCS #1 v1.5 depad */
+  err = pkcs_1_v15_es_decode(tmp, x, modulus_bitlen, outkey, keylen, res);
   XFREE(tmp);
   return err;
 }
 
-#endif /* MRSA */
-
-
-
-
+#endif

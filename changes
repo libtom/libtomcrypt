@@ -1,3 +1,26 @@
+July 23rd, 2004
+v0.97b -- Added PKCS #1 v1.5 RSA encrypt/sign helpers (like rsa_sign_hash, etc...)
+       -- Added missing prng check to rsa_decrypt_key() [not critical as I don't use 
+          descriptors directly in that function]
+       -- Merged in LTM-SSE, define LTMSSE before you build and you will get SSE2 optimized math ;-)
+          (roughly 3x faster on a P4 Northwood).  By default it will compile as ISO C portable
+          code (when LTMSSE is undefined).
+       -- Fixed bug in ltc_tommath.h where I had the kara/toom cutoffs not marked as ``extern''
+          Thanks to "Stefan Arentz" <stefan at organicnetwork.net>
+       -- Steven Dake <scd@broked.org> and Richard Amacker <ramacker@yahoo.com> submitted patches to 
+          fix pkcs_5_2().  It now matches the output of another crypto library.  Whoops... hehehe
+       -- Updated PRNG api.  Added Fortuna PRNG to the list of supported PRNGs
+       -- Fixed up the descriptor tables since globals are automatically zero'ed on startup.
+       -- Changed RC4 to store it's output.  If you want to encrypt with RC4
+          you'll have to do the XOR yourself.
+       -- Fixed buffer overflows/overruns in the HMAC code.  
+
+       ++ API change for the PRNGs there now is a done() function per PRNG.  You
+          should call it when you are done with a prng state.  So far it's
+          not absolutely required (won't cause problems) but is a good idea to
+          start.  
+
+
 June 23rd, 2004
 v0.97a ++ Fixed several potentially crippling bugs... [read on]
        -- Fixed bug in OAEP decoder that would incorrectly report 

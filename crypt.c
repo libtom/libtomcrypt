@@ -230,9 +230,6 @@ const char *crypt_build_settings =
 #if defined(NO_FILE)
     " NO_FILE "
 #endif
-#if defined(LTC_TEST)
-    " LTC_TEST "
-#endif
     "\n"
     "\n\n\n"
     ;

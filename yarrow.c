@@ -19,7 +19,10 @@ const struct _prng_descriptor yarrow_desc =
     &yarrow_start,
     &yarrow_add_entropy,
     &yarrow_ready,
-    &yarrow_read
+    &yarrow_read,
+    &yarrow_done,
+    &yarrow_export,
+    &yarrow_import
 };
 
 int yarrow_start(prng_state *prng)
@@ -178,6 +181,51 @@ unsigned long yarrow_read(unsigned char *buf, unsigned long len, prng_state *prn
       return 0;
    }
    return len;
+}
+
+void yarrow_done(prng_state *prng)
+{
+   _ARGCHK(prng != NULL);
+   /* call cipher done when we invent one ;-) */
+}
+
+int yarrow_export(unsigned char *out, unsigned long *outlen, prng_state *prng)
+{
+   _ARGCHK(out    != NULL);
+   _ARGCHK(outlen != NULL);
+   _ARGCHK(prng   != NULL);
+
+   /* we'll write 64 bytes for s&g's */
+   if (*outlen < 64) {
+      return CRYPT_BUFFER_OVERFLOW;
+   }
+
+   if (yarrow_read(out, 64, prng) != 64) {
+      return CRYPT_ERROR_READPRNG;
+   }
+   *outlen = 64;
+
+   return CRYPT_OK;
+}
+ 
+int yarrow_import(const unsigned char *in, unsigned long inlen, prng_state *prng)
+{
+   int err;
+
+   _ARGCHK(in   != NULL);
+   _ARGCHK(prng != NULL);
+
+   if (inlen != 64) {
+      return CRYPT_INVALID_ARG;
+   }
+
+   if ((err = yarrow_start(prng)) != CRYPT_OK) {
+      return err;
+   }
+   if ((err = yarrow_add_entropy(in, 64, &prng)) != CRYPT_OK) {
+      return err;
+   }
+   return yarrow_ready(&prng);
 }
 
 #endif

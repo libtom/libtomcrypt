@@ -21,6 +21,35 @@ int rsa_test(void)
    /* make a random key */
    DO(rsa_make_key(&test_yarrow, prng_idx, 1024/8, 65537, &key));
    
+   /* test PKCS #1 v1.5 */
+   for (rsa_msgsize = 1; rsa_msgsize <= 117; rsa_msgsize++) {
+      /* make a random key/msg */
+      yarrow_read(in, rsa_msgsize, &test_yarrow);
+
+      len  = sizeof(out);
+      len2 = rsa_msgsize;
+
+      /* encrypt */
+      DO(rsa_v15_encrypt_key(in, rsa_msgsize, out, &len, &test_yarrow, prng_idx, &key));
+      DO(rsa_v15_decrypt_key(out, len, tmp, rsa_msgsize, &test_yarrow, prng_idx, &stat, &key));
+      if (stat != 1 || memcmp(tmp, in, rsa_msgsize)) {
+         printf("PKCS #1 v1.5 encrypt/decrypt failure (rsa_msgsize: %lu, stat: %d)\n", rsa_msgsize, stat);
+	 return 1;
+      }
+   }
+   
+   /* signature */
+   len = sizeof(out);
+   DO(rsa_v15_sign_hash(in, 20, out, &len, &test_yarrow, prng_idx, hash_idx, &key));
+   in[1] ^= 1;
+   DO(rsa_v15_verify_hash(out, len, in, 20, &test_yarrow, prng_idx, hash_idx, &stat, &key));
+   in[1] ^= 1;
+   DO(rsa_v15_verify_hash(out, len, in, 20, &test_yarrow, prng_idx, hash_idx, &stat2, &key));
+   if (!(stat == 0 && stat2 == 1)) {
+      printf("PKCS #1 v1.5 sign/verify failure (stat %d, stat2 %d)\n", stat, stat2);
+      return 1;
+   }
+   
    /* encrypt the key (without lparam) */
    for (rsa_msgsize = 1; rsa_msgsize <= 86; rsa_msgsize++) {
       /* make a random key/msg */
@@ -47,7 +76,7 @@ int rsa_test(void)
          return 1;
       }
       if (len2 != rsa_msgsize || memcmp(tmp, in, rsa_msgsize)) {
-         int x;
+         unsigned long x;
          printf("\nrsa_decrypt_key mismatch, len %lu (second decrypt)\n", len2);
          printf("Original contents: \n"); 
          for (x = 0; x < rsa_msgsize; ) {

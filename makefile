@@ -4,7 +4,7 @@
 # Modified by Clay Culver
 
 # The version
-VERSION=0.97a
+VERSION=0.97b
 
 # Compiler and Linker Names
 #CC=gcc
@@ -63,7 +63,7 @@ crypt_find_cipher_id.o     crypt_find_prng.o        crypt_prng_is_valid.o      \
 crypt_unregister_cipher.o  crypt_cipher_is_valid.o  crypt_find_hash.o          \
 crypt_hash_descriptor.o    crypt_register_cipher.o  crypt_unregister_hash.o    \
 \
-sprng.o yarrow.o rc4.o rng_get_bytes.o  rng_make_prng.o \
+fortuna.o sprng.o yarrow.o rc4.o rng_get_bytes.o  rng_make_prng.o \
 \
 rand_prime.o is_prime.o \
 \
@@ -71,6 +71,7 @@ ecc.o  dh.o \
 \
 rsa_decrypt_key.o  rsa_encrypt_key.o  rsa_exptmod.o  rsa_free.o  rsa_make_key.o  \
 rsa_sign_hash.o  rsa_verify_hash.o rsa_export.o rsa_import.o tim_exptmod.o \
+rsa_v15_encrypt_key.o rsa_v15_decrypt_key.o rsa_v15_sign_hash.o rsa_v15_verify_hash.o \
 \
 dsa_export.o  dsa_free.o  dsa_import.o  dsa_make_key.o  dsa_sign_hash.o  \
 dsa_verify_hash.o  dsa_verify_key.o \

@@ -5,10 +5,6 @@
 #ifndef MYCRYPT_CUSTOM_H_
 #define MYCRYPT_CUSTOM_H_
 
-#ifdef CRYPT
-	#error mycrypt_custom.h should be included before mycrypt.h
-#endif
-
 /* macros for various libc functions you can change for embedded targets */
 #define XMALLOC  malloc
 #define XREALLOC realloc
@@ -28,7 +24,7 @@
 #define LTC_TEST
 
 /* clean the stack of functions which put private information on stack */
-//#define CLEAN_STACK
+// #define CLEAN_STACK
 
 /* disable all file related functions */
 //#define NO_FILE
@@ -43,8 +39,8 @@
 #define XTEA
 #define TWOFISH
 #define TWOFISH_TABLES
-//#define TWOFISH_ALL_TABLES
-//#define TWOFISH_SMALL
+// #define TWOFISH_ALL_TABLES
+// #define TWOFISH_SMALL
 #define DES
 #define CAST5
 #define NOEKEON
@@ -92,6 +88,13 @@
 #define YARROW_AES 0
 #define SPRNG
 #define RC4
+
+/* Fortuna */
+#define FORTUNA
+/* reseed every N calls to the read function */
+#define FORTUNA_WD    1024
+
+
 #define DEVRANDOM
 #define TRY_URANDOM_FIRST
 
@@ -133,11 +136,12 @@
 /* Include the MPI functionality?  (required by the PK algorithms) */
 #define MPI
 
+/* Use SSE2 optimizations in LTM?  Requires GCC or ICC and a P4 or K8 processor */
+// #define LTMSSE
+
 /* PKCS #1 and #5 stuff */
 #define PKCS_1
 #define PKCS_5
-
-#include <mycrypt.h>
 
 #endif
 

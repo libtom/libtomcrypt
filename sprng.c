@@ -23,7 +23,11 @@ const struct _prng_descriptor sprng_desc =
     &sprng_start,
     &sprng_add_entropy,
     &sprng_ready,
-    &sprng_read
+    &sprng_read,
+    &sprng_done,
+    &sprng_export,
+    &sprng_import
+
 };
 
 int sprng_start(prng_state *prng)
@@ -45,6 +49,24 @@ unsigned long sprng_read(unsigned char *buf, unsigned long len, prng_state *prng
 {
    _ARGCHK(buf != NULL);
    return rng_get_bytes(buf, len, NULL);
+}
+
+void sprng_done(prng_state *prng)
+{
+   _ARGCHK(prng != NULL);
+}
+
+int sprng_export(unsigned char *out, unsigned long *outlen, prng_state *prng)
+{
+   _ARGCHK(outlen != NULL);
+
+   *outlen = 0;
+   return CRYPT_OK;
+}
+ 
+int sprng_import(const unsigned char *in, unsigned long inlen, prng_state *prng)
+{
+   return CRYPT_OK;
 }
 
 #endif

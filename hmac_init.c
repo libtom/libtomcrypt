@@ -61,9 +61,16 @@ int hmac_init(hmac_state *hmac, int hash, const unsigned char *key, unsigned lon
        return CRYPT_MEM;
     }
 
+    /* allocate memory for key */
+    hmac->key = XMALLOC(HMAC_BLOCKSIZE);
+    if (hmac->key == NULL) {
+       XFREE(buf);
+       return CRYPT_MEM;
+    }
+
     // (1) make sure we have a large enough key
     if(keylen > HMAC_BLOCKSIZE) {
-        z = (unsigned long)sizeof(hmac->key);
+        z = (unsigned long)HMAC_BLOCKSIZE;
         if ((err = hash_memory(hash, key, keylen, hmac->key, &z)) != CRYPT_OK) {
            goto __ERR;
         }

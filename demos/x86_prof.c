@@ -45,9 +45,6 @@ void tally_results(int type)
    }
 }
 
-
-
-
 /* RDTSC from Scott Duplichan */
 static ulong64 rdtsc (void)
    {
@@ -195,6 +192,9 @@ void reg_algs(void)
 #endif
 
 register_prng(&yarrow_desc);
+register_prng(&fortuna_desc);
+register_prng(&rc4_desc);
+
 rng_make_prng(128, find_prng("yarrow"), &prng, NULL);
 }
 
@@ -342,6 +342,101 @@ int time_hash(void)
    return 0;
 }
 
+void time_mult(void)
+{
+   ulong64 t1, t2;
+   unsigned long x, y;
+   mp_int  a, b, c;
+
+   printf("Timing Multiplying:\n");
+   mp_init_multi(&a,&b,&c,NULL);
+   for (x = 128/DIGIT_BIT; x <= 1024/DIGIT_BIT; x += 128/DIGIT_BIT) {
+       mp_rand(&a, x);
+       mp_rand(&b, x);
+
+#define DO1 mp_mul(&a, &b, &c);
+#define DO2 DO1; DO1;
+
+       t2 = -1;
+       for (y = 0; y < TIMES; y++) {
+           t_start();
+           t1 = t_read();
+           DO2;
+           t1 = (t_read() - t1)>>1;
+           if (t1 < t2) t2 = t1;
+       }
+       printf("%3d digits: %9llu cycles\n", x, t2);
+   }
+   mp_clear_multi(&a,&b,&c,NULL);
+
+#undef DO1
+#undef DO2
+}      
+
+void time_sqr(void)
+{
+   ulong64 t1, t2;
+   unsigned long x, y;
+   mp_int  a, b;
+
+   printf("Timing Squaring:\n");
+   mp_init_multi(&a,&b,NULL);
+   for (x = 128/DIGIT_BIT; x <= 1024/DIGIT_BIT; x += 128/DIGIT_BIT) {
+       mp_rand(&a, x);
+
+#define DO1 mp_sqr(&a, &b);
+#define DO2 DO1; DO1;
+
+       t2 = -1;
+       for (y = 0; y < TIMES; y++) {
+           t_start();
+           t1 = t_read();
+           DO2;
+           t1 = (t_read() - t1)>>1;
+           if (t1 < t2) t2 = t1;
+       }
+       printf("%3d digits: %9llu cycles\n", x, t2);
+   }
+   mp_clear_multi(&a,&b,NULL);
+
+#undef DO1
+#undef DO2
+}    
+   
+void time_prng(void)
+{
+   ulong64 t1, t2;
+   unsigned char buf[4096];
+   prng_state prng;
+   unsigned long x, y;
+
+   printf("Timing PRNGs:\n");
+   for (x = 0; prng_descriptor[x].name != NULL; x++) {
+      prng_descriptor[x].start(&prng);
+      zeromem(buf, 256);
+      prng_descriptor[x].add_entropy(buf, 256, &prng);
+      prng_descriptor[x].ready(&prng);
+      t2 = -1;
+
+#define DO1 prng_descriptor[x].read(buf, 4096, &prng);
+#define DO2 DO1 DO1
+
+      for (y = 0; y < 10000; y++) {
+         t_start();
+         t1 = t_read();
+         DO2;
+         t1 = (t_read() - t1)>>1;
+         if (t1 < t2) t2 = t1;
+      }
+      printf("%20s: %llu\n", prng_descriptor[x].name, t2>>12);
+   }
+#undef DO2
+#undef DO1
+
+}
+      
+
+
 int main(void)
 {
   reg_algs();
@@ -349,6 +444,9 @@ int main(void)
   printf("Timings for ciphers and hashes.  Times are listed as cycles per byte processed.\n\n");
 
 //  init_timer();
+  time_mult();
+  time_sqr();
+  time_prng();
   time_cipher();
   time_keysched();
   time_hash();

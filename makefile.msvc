@@ -18,7 +18,7 @@ crypt_find_cipher_id.obj     crypt_find_prng.obj        crypt_prng_is_valid.obj 
 crypt_unregister_cipher.obj  crypt_cipher_is_valid.obj  crypt_find_hash.obj          \
 crypt_hash_descriptor.obj    crypt_register_cipher.obj  crypt_unregister_hash.obj    \
 \
-sprng.obj yarrow.obj rc4.obj rng_get_bytes.obj  rng_make_prng.obj \
+sprng.obj fortuna.obj yarrow.obj rc4.obj rng_get_bytes.obj  rng_make_prng.obj \
 \
 rand_prime.obj is_prime.obj \
 \
@@ -26,6 +26,7 @@ ecc.obj  dh.obj \
 \
 rsa_decrypt_key.obj  rsa_encrypt_key.obj  rsa_exptmod.obj  rsa_free.obj  rsa_make_key.obj  \
 rsa_sign_hash.obj  rsa_verify_hash.obj rsa_export.obj rsa_import.obj tim_exptmod.obj \
+rsa_v15_encrypt_key.obj rsa_v15_decrypt_key.obj rsa_v15_sign_hash.obj rsa_v15_verify_hash.obj \
 \
 dsa_export.obj  dsa_free.obj  dsa_import.obj  dsa_make_key.obj  dsa_sign_hash.obj  \
 dsa_verify_hash.obj  dsa_verify_key.obj \

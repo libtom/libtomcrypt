@@ -18,7 +18,10 @@ const struct _prng_descriptor rc4_desc =
     &rc4_start,
     &rc4_add_entropy,
     &rc4_ready,
-    &rc4_read
+    &rc4_read,
+    &rc4_done,
+    &rc4_export,
+    &rc4_import
 };
 
 int rc4_start(prng_state *prng)
@@ -96,12 +99,31 @@ unsigned long rc4_read(unsigned char *buf, unsigned long len, prng_state *prng)
       y = (y + s[x]) & 255;
       tmp = s[x]; s[x] = s[y]; s[y] = tmp;
       tmp = (s[x] + s[y]) & 255;
-      *buf++ ^= s[tmp];
+      *buf++ = s[tmp];
    }
    prng->rc4.x = x;
    prng->rc4.y = y;
    return n;
 }
+
+void rc4_done(prng_state *prng)
+{
+   _ARGCHK(prng != NULL);
+}
+
+int rc4_export(unsigned char *out, unsigned long *outlen, prng_state *prng)
+{
+   _ARGCHK(outlen != NULL);
+
+   *outlen = 0;
+   return CRYPT_OK;
+}
+ 
+int rc4_import(const unsigned char *in, unsigned long inlen, prng_state *prng)
+{
+   return CRYPT_OK;
+}
+
 
 #endif
 

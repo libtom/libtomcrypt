@@ -258,6 +258,15 @@ fast_mp_montgomery_reduce (mp_int * x, mp_int * n, mp_digit rho)
   /* now we proceed to zero successive digits
    * from the least significant upwards
    */
+#ifdef LTMSSE
+  // compute globals we'd like to have in MMX registers
+  asm ("movl $268435455,%%eax   \n\t"       //mm2 == MP_MASK
+       "movd %%eax,%%mm2        \n\t"
+       "movd %0,%%mm3           \n\t"       //mm3 = rho
+       "movq (%1),%%mm0         \n\t"       // W[ix] for ix=0
+       ::"r"(rho),"r"(W):"%eax");
+#endif
+
   for (ix = 0; ix < n->used; ix++) {
     /* mu = ai * m' mod b
      *
@@ -265,9 +274,13 @@ fast_mp_montgomery_reduce (mp_int * x, mp_int * n, mp_digit rho)
      * by casting the value down to a mp_digit.  Note this requires
      * that W[ix-1] have  the carry cleared (see after the inner loop)
      */
+#ifndef LTMSSE
     register mp_digit mu;
     mu = (mp_digit) (((W[ix] & MP_MASK) * rho) & MP_MASK);
-
+#else
+    asm("pmuludq        %mm3,%mm0   \n\t"    // multiply against rho 
+        "pand           %mm2,%mm0   \n\t");  // mu == mm0
+#endif
     /* a = a + mu * m * b**i
      *
      * This is computed in place and on the fly.  The multiplication
@@ -295,13 +308,33 @@ fast_mp_montgomery_reduce (mp_int * x, mp_int * n, mp_digit rho)
 
       /* inner loop */
       for (iy = 0; iy < n->used; iy++) {
+#ifndef LTMSSE
           *_W++ += ((mp_word)mu) * ((mp_word)*tmpn++);
+#else
+// SSE version
+      asm ("movd     (%0), %%mm1 \n\t"   // load right side
+           "pmuludq  %%mm0,%%mm1 \n\t"   // multiply into left side
+           "paddq    (%1),%%mm1  \n\t"   // add 64-bit result out 
+           "movq     %%mm1,(%1)"         // store result
+           :: "r"(tmpn), "r"(_W));
+      // update pointers 
+      ++tmpn; 
+      ++_W;
+#endif
       }
     }
 
     /* now fix carry for next digit, W[ix+1] */
+#ifndef LTMSSE
     W[ix + 1] += W[ix] >> ((mp_word) DIGIT_BIT);
-  }
+#else
+    asm("movq  (%0),%%mm0           \n\t"        // W[ix]
+        "psrlq $28,%%mm0            \n\t"        // W[ix]>>28
+        "paddq 8(%0),%%mm0          \n\t"        // W[ix+1] + W[ix]>>28
+        "movq  %%mm0,8(%0)              "        // store
+        ::"r"(&W[ix]));
+#endif  
+}
 
   /* now we have to propagate the carries and
    * shift the words downward [all those least
@@ -319,34 +352,35 @@ fast_mp_montgomery_reduce (mp_int * x, mp_int * n, mp_digit rho)
     /* alias for next word, where the carry goes */
     _W = W + ++ix;
 
-    for (; ix <= n->used * 2 + 1; ix++) {
-      *_W++ += *_W1++ >> ((mp_word) DIGIT_BIT);
-    }
-
-    /* copy out, A = A/b**n
-     *
-     * The result is A/b**n but instead of converting from an
-     * array of mp_word to mp_digit than calling mp_rshd
-     * we just copy them in the right order
-     */
-
     /* alias for destination word */
     tmpx = x->dp;
 
-    /* alias for shifted double precision result */
-    _W = W + n->used;
-
-    for (ix = 0; ix < n->used + 1; ix++) {
-      *tmpx++ = (mp_digit)(*_W++ & ((mp_word) MP_MASK));
+    for (; ix <= n->used * 2 + 1; ix++) {
+#ifndef LTMSSE
+      *tmpx++ = (mp_digit)(*_W1 & ((mp_word) MP_MASK));
+      *_W++  += *_W1++ >> ((mp_word) DIGIT_BIT);
+#else
+    asm("movq   %%mm0,%%mm1        \n\t" // copy of W[ix]
+        "psrlq  $28,%%mm0          \n\t" // >>28
+        "pand   %%mm2,%%mm1        \n\t" // & with MP_MASK
+        "paddq  (%0),%%mm0         \n\t" // += _W
+        "movd   %%mm1,(%1)         \n\t" // store it
+        ::"r"(_W),"r"(tmpx));
+    ++_W; ++tmpx;
+#endif
     }
 
     /* zero oldused digits, if the input a was larger than
      * m->used+1 we'll have to clear the digits
      */
-    for (; ix < olduse; ix++) {
+    for (ix = n->used + 1; ix < olduse; ix++) {
       *tmpx++ = 0;
     }
   }
+
+#ifdef LTMSSE
+  asm("emms");
+#endif
 
   /* set the max used and clamp */
   x->used = n->used + 1;
@@ -408,7 +442,7 @@ fast_s_mp_mul_digs (mp_int * a, mp_int * b, mp_int * c, int digs)
   }
 
   /* clear temp buf (the columns) */
-  XMEMSET (W, 0, sizeof (mp_word) * digs);
+  memset (W, 0, sizeof (mp_word) * digs);
 
   /* calculate the columns */
   pa = a->used;
@@ -423,13 +457,21 @@ fast_s_mp_mul_digs (mp_int * a, mp_int * b, mp_int * c, int digs)
      * the loop without scheduling problems
      */
     {
-      register mp_digit tmpx, *tmpy;
+#ifndef LTMSSE
+      register mp_digit tmpx;
+#endif
+
+      register mp_digit *tmpy;
       register mp_word *_W;
       register int iy, pb;
 
       /* alias for the the word on the left e.g. A[ix] * A[iy] */
+#ifndef LTMSSE
       tmpx = a->dp[ix];
-
+#else
+// SSE: now we load the left side in mm0 
+      asm (" movd %0, %%mm0 " :: "r"(a->dp[ix]));
+#endif
       /* alias for the right side */
       tmpy = b->dp;
 
@@ -445,7 +487,19 @@ fast_s_mp_mul_digs (mp_int * a, mp_int * b, mp_int * c, int digs)
       pb = MIN (b->used, digs - ix);
 
       for (iy = 0; iy < pb; iy++) {
+#ifndef LTMSSE
         *_W++ += ((mp_word)tmpx) * ((mp_word)*tmpy++);
+#else
+// SSE version
+      asm ("movd     (%0), %%mm1 \n\t"   // load right side
+           "pmuludq  %%mm0,%%mm1 \n\t"   // multiply into left side
+           "paddq    (%1), %%mm1 \n\t"   // add 64-bit result out 
+           "movq     %%mm1,(%1)"         // store result
+           :: "r"(tmpy), "r"(_W));
+      // update pointers 
+      ++tmpy; 
+      ++_W;
+#endif
       }
     }
 
@@ -474,21 +528,56 @@ fast_s_mp_mul_digs (mp_int * a, mp_int * b, mp_int * c, int digs)
      * last digit to copy
      */
     tmpc = c->dp;
+
+#ifdef LTMSSE
+    // mm2 has W[ix-1] 
+    asm("movq (%0),%%mm2"::"r"(W));
+#endif
+
     for (ix = 1; ix < digs; ix++) {
+#ifndef LTMSSE
       /* forward the carry from the previous temp */
       W[ix] += (W[ix - 1] >> ((mp_word) DIGIT_BIT));
 
       /* now extract the previous digit [below the carry] */
       *tmpc++ = (mp_digit) (W[ix - 1] & ((mp_word) MP_MASK));
+
+#else
+      asm(
+          "movq (%0),%%mm1         \n\t"      // W[ix]
+          "movd  %%mm2,%%eax       \n\t"      // get 32-bit version of it W[ix-1]
+          "psrlq $28,%%mm2         \n\t"      // W[ix-1] >> DIGIT_BIT ... must be 28
+          "andl  $268435455,%%eax  \n\t"      // & with MP_MASK against W[ix-1]
+          "paddq %%mm1,%%mm2       \n\t"      // add them
+          "movl  %%eax,(%1)        \n\t"      // store it
+          :: "r"(&W[ix]), "r"(tmpc) : "%eax");
+      ++tmpc;
+#endif
+
     }
+
+#ifndef LTMSSE
     /* fetch the last digit */
     *tmpc++ = (mp_digit) (W[digs - 1] & ((mp_word) MP_MASK));
+#else
+    // get last since we don't store into W[ix] anymore ;-)
+    asm("movd %%mm2,%%eax         \n\t"
+        "andl  $268435455,%%eax   \n\t"      // & with MP_MASK against W[ix-1]
+        "movl  %%eax,(%0)"                   // store it
+        ::"r"(tmpc):"%eax");
+    ++tmpc;
+#endif
 
     /* clear unused digits [that existed in the old copy of c] */
     for (; ix < olduse; ix++) {
       *tmpc++ = 0;
     }
   }
+
+#ifdef LTMSSE
+  asm("emms");
+#endif
+
   mp_clamp (c);
   return MP_OKAY;
 }
@@ -538,10 +627,14 @@ fast_s_mp_mul_high_digs (mp_int * a, mp_int * b, mp_int * c, int digs)
   /* like the other comba method we compute the columns first */
   pa = a->used;
   pb = b->used;
-  XMEMSET (W + digs, 0, (pa + pb + 1 - digs) * sizeof (mp_word));
+  memset (W + digs, 0, (pa + pb + 1 - digs) * sizeof (mp_word));
   for (ix = 0; ix < pa; ix++) {
     {
-      register mp_digit tmpx, *tmpy;
+#ifndef LTMSSE
+      register mp_digit tmpx;
+#endif
+
+      register mp_digit *tmpy;
       register int iy;
       register mp_word *_W;
 
@@ -549,7 +642,12 @@ fast_s_mp_mul_high_digs (mp_int * a, mp_int * b, mp_int * c, int digs)
       iy = digs - ix;
 
       /* copy of word on the left of A[ix] * B[iy] */
+#ifndef LTMSSE
       tmpx = a->dp[ix];
+#else
+//SSE we load tmpx into mm0
+      asm (" movd %0, %%mm0 " :: "r"(a->dp[ix]));
+#endif
 
       /* alias for right side */
       tmpy = b->dp + iy;
@@ -569,8 +667,21 @@ fast_s_mp_mul_high_digs (mp_int * a, mp_int * b, mp_int * c, int digs)
 
       /* compute column products for digits above the minimum */
       for (; iy < pb; iy++) {
+#ifndef LTMSSE
          *_W++ += ((mp_word) tmpx) * ((mp_word)*tmpy++);
+#else
+// SSE version
+      asm ("movd     (%0), %%mm1 \n\t"   // load right side
+           "pmuludq  %%mm0,%%mm1 \n\t"   // multiply into left side
+           "paddq    (%1),%%mm1 \n\t"    // add 64-bit result out 
+           "movq     %%mm1,(%1)"         // store result
+           :: "r"(tmpy), "r"(_W));
+      // update pointers 
+      ++tmpy; 
+      ++_W;
+#endif
       }
+
     }
   }
 
@@ -582,15 +693,46 @@ fast_s_mp_mul_high_digs (mp_int * a, mp_int * b, mp_int * c, int digs)
    *
    * See comments in bn_fast_s_mp_mul_digs.c
    */
+#ifdef LTMSSE
+    // mm2 has W[ix-1] 
+    asm("movq (%0),%%mm2"::"r"(W + digs));
+#endif
+
   for (ix = digs + 1; ix < newused; ix++) {
+      /* forward the carry from the previous temp */
+#ifndef LTMSSE
     W[ix] += (W[ix - 1] >> ((mp_word) DIGIT_BIT));
     c->dp[ix - 1] = (mp_digit) (W[ix - 1] & ((mp_word) MP_MASK));
+#else
+      asm(
+          "movd  %%mm2,%%eax      \n\t"      // get 32-bit version of it W[ix-1]
+          "psrlq $28,%%mm2        \n\t"      // W[ix-1] >> DIGIT_BIT ... must be 28
+          "andl  $268435455,%%eax \n\t"      // & with MP_MASK against W[ix-1]
+          "paddq (%0),%%mm2       \n\t"      // add them
+          "movl  %%eax,(%1)       \n\t"      // store it
+          :: "r"(&W[ix]), "r"(&c->dp[ix-1]) : "%eax");
+#endif
+
   }
+
+#ifndef LTMSSE
   c->dp[newused - 1] = (mp_digit) (W[newused - 1] & ((mp_word) MP_MASK));
+#else
+    // get last since we don't store into W[ix] anymore ;-)
+    asm("movd %%mm2,%%eax\n\t"
+        "andl  $268435455,%%eax   \n\t"      // & with MP_MASK against W[ix-1]
+        "movl  %%eax,(%0)"                   // store it
+        ::"r"(&(c->dp[newused-1])):"%eax");
+#endif
 
   for (; ix < oldused; ix++) {
     c->dp[ix] = 0;
   }
+
+#ifdef LTMSSE
+  asm("emms");
+#endif
+
   mp_clamp (c);
   return MP_OKAY;
 }
@@ -638,7 +780,7 @@ int fast_s_mp_sqr (mp_int * a, mp_int * b)
 
   /* calculate size of product and allocate as required */
   pa = a->used;
-  newused = pa + pa + 1;
+  newused = pa + pa;
   if (b->alloc < newused) {
     if ((res = mp_grow (b, newused)) != MP_OKAY) {
       return res;
@@ -654,12 +796,15 @@ int fast_s_mp_sqr (mp_int * a, mp_int * b)
    * the inner product can be doubled using n doublings instead of
    * n**2
    */
-  XMEMSET (W,  0, newused * sizeof (mp_word));
-  XMEMSET (W2, 0, newused * sizeof (mp_word));
+  memset (W,  0, newused * sizeof (mp_word));
+#ifndef LTMSSE
+  memset (W2, 0, newused * sizeof (mp_word));
+#endif
 
   /* This computes the inner product.  To simplify the inner N**2 loop
    * the multiplication by two is done afterwards in the N loop.
    */
+
   for (ix = 0; ix < pa; ix++) {
     /* compute the outer product
      *
@@ -668,15 +813,31 @@ int fast_s_mp_sqr (mp_int * a, mp_int * b)
      * there is no need todo a double precision addition
      * into the W2[] array.
      */
+#ifndef LTMSSE
     W2[ix + ix] = ((mp_word)a->dp[ix]) * ((mp_word)a->dp[ix]);
+#else
+    asm("movd    %0,%%xmm0        \n\t" // load a->dp[ix]
+        "movdq2q %%xmm0,%%mm0     \n\t" // get 64-bit version
+        "pmuludq %%xmm0,%%xmm0    \n\t" // square it 
+        "movdqu  %%xmm0,(%1)      \n\t" // store it (8-byte result, 8-byte zero)
+        ::"r"(a->dp[ix]), "r"(&(W2[ix+ix])));
+#endif
 
     {
-      register mp_digit tmpx, *tmpy;
+#ifndef LTMSSE
+      register mp_digit tmpx;
+#endif
+      register mp_digit *tmpy;
       register mp_word *_W;
       register int iy;
 
       /* copy of left side */
+#ifndef LTMSSE
       tmpx = a->dp[ix];
+#else
+//SSE we load tmpx into mm0 [note: loaded above]
+//      asm (" movd %0, %%mm0 " :: "r"(a->dp[ix]));
+#endif
 
       /* alias for right side */
       tmpy = a->dp + (ix + 1);
@@ -686,7 +847,19 @@ int fast_s_mp_sqr (mp_int * a, mp_int * b)
 
       /* inner products */
       for (iy = ix + 1; iy < pa; iy++) {
+#ifndef LTMSSE
           *_W++ += ((mp_word)tmpx) * ((mp_word)*tmpy++);
+#else
+// SSE version
+      asm ("movd     (%0), %%mm1 \n\t"   // load right side
+           "pmuludq  %%mm0,%%mm1 \n\t"   // multiply into left side
+           "paddq    (%1),%%mm1 \n\t"    // add 64-bit result out 
+           "movq     %%mm1,(%1)"         // store result
+           :: "r"(tmpy), "r"(_W));
+      // update pointers 
+      ++tmpy; 
+      ++_W;
+#endif
       }
     }
   }
@@ -707,10 +880,19 @@ int fast_s_mp_sqr (mp_int * a, mp_int * b)
     /* double first value, since the inner products are
      * half of what they should be
      */
-    W[0] += W[0] + W2[0];
-
     tmpb = b->dp;
+#ifndef LTMSSE
+    W[0] += W[0] + W2[0];
+#else
+    // mm2 has W[ix-1]
+    asm("movq    (%0),%%mm2         \n\t"       // load W[0]
+        "paddq  %%mm2,%%mm2         \n\t"       // W[0] + W[0]
+        "paddq   (%1),%%mm2         \n\t"       // W[0] + W[0] + W2[0]
+        ::"r"(W),"r"(W2));
+#endif
+
     for (ix = 1; ix < newused; ix++) {
+#ifndef LTMSSE
       /* double/add next digit */
       W[ix] += W[ix] + W2[ix];
 
@@ -721,18 +903,44 @@ int fast_s_mp_sqr (mp_int * a, mp_int * b)
        * needed
        */
       *tmpb++ = (mp_digit) (W[ix - 1] & ((mp_word) MP_MASK));
+#else
+      asm( "movq (%0),%%mm0          \n\t"      // load W[ix]
+           "movd %%mm2,%%eax         \n\t"      // 32-bit version of W[ix-1]
+           "paddq %%mm0,%%mm0        \n\t"      // W[ix] + W[ix]
+           "psrlq $28,%%mm2          \n\t"      // W[ix-1] >> DIGIT_BIT ... must be 28
+           "paddq (%1),%%mm0         \n\t"      // W[ix] + W[ix] + W2[ix]
+           "andl  $268435455,%%eax   \n\t"      // & with MP_MASK against W[ix-1]
+           "paddq %%mm0,%%mm2        \n\t"      // W[ix] + W[ix] + W2[ix] + W[ix-1]>>DIGIT_BIT
+           "movl  %%eax,(%2)             "      // store it
+         :: "r"(&W[ix]), "r"(&W2[ix]), "r"(tmpb):"%eax");
+      ++tmpb;
+#endif
     }
+
+#ifndef LTMSSE
     /* set the last value.  Note even if the carry is zero
      * this is required since the next step will not zero
      * it if b originally had a value at b->dp[2*a.used]
      */
     *tmpb++ = (mp_digit) (W[(newused) - 1] & ((mp_word) MP_MASK));
+#else
+    // get last since we don't store into W[ix] anymore ;-)
+    asm("movd  %%mm2,%%eax        \n\t"
+        "andl  $268435455,%%eax   \n\t"      // & with MP_MASK against W[ix-1]
+        "movl  %%eax,(%0)             "      // store it
+        ::"r"(tmpb):"%eax");
+    ++tmpb;
+#endif
 
     /* clear high digits of b if there were any originally */
     for (; ix < olduse; ix++) {
       *tmpb++ = 0;
     }
   }
+
+#ifdef LTMSSE
+  asm("emms");
+#endif
 
   mp_clamp (b);
   return MP_OKAY;
@@ -1142,10 +1350,14 @@ mp_clamp (mp_int * a)
 void
 mp_clear (mp_int * a)
 {
+  int i;
+
   /* only do anything if a hasn't been freed previously */
   if (a->dp != NULL) {
     /* first zero the digits */
-    XMEMSET (a->dp, 0, sizeof (mp_digit) * a->used);
+    for (i = 0; i < a->used; i++) {
+        a->dp[i] = 0;
+    }
 
     /* free ram */
     XFREE(a->dp);
@@ -3083,13 +3295,20 @@ int mp_grow (mp_int * a, int size)
  */
 #include <ltc_tommath.h>
 
-/* init a new bigint */
+/* init a new mp_int */
 int mp_init (mp_int * a)
 {
+  int i;
+
   /* allocate memory required and clear it */
-  a->dp = OPT_CAST(mp_digit) XCALLOC (sizeof (mp_digit), MP_PREC);
+  a->dp = OPT_CAST(mp_digit) XMALLOC (sizeof (mp_digit) * MP_PREC);
   if (a->dp == NULL) {
     return MP_MEM;
+  }
+
+  /* set the digits to zero */
+  for (i = 0; i < MP_PREC; i++) {
+      a->dp[i] = 0;
   }
 
   /* set the used to zero, allocated digits to the default precision
@@ -7538,7 +7757,7 @@ mp_zero (mp_int * a)
 {
   a->sign = MP_ZPOS;
   a->used = 0;
-  XMEMSET (a->dp, 0, sizeof (mp_digit) * a->alloc);
+  memset (a->dp, 0, sizeof (mp_digit) * a->alloc);
 }
 
 /* End: bn_mp_zero.c */
@@ -8396,6 +8615,7 @@ s_mp_sub (mp_int * a, mp_int * b, mp_int * c)
 
  CPU                    /Compiler     /MUL CUTOFF/SQR CUTOFF
 -------------------------------------------------------------
+ Intel P4 Northwood     /GCC v3.3.3   /       121/       128/SSE patches ;-)
  Intel P4 Northwood     /GCC v3.3.3   /        59/        81/profiled build
  Intel P4 Northwood     /GCC v3.3.3   /        59/        80/profiled_single build
  Intel P4 Northwood     /ICC v8.0     /        57/        70/profiled build
@@ -8404,8 +8624,8 @@ s_mp_sub (mp_int * a, mp_int * b, mp_int * c)
  
 */
 
-int     KARATSUBA_MUL_CUTOFF = 57,      /* Min. number of digits before Karatsuba multiplication is used. */
-        KARATSUBA_SQR_CUTOFF = 70,      /* Min. number of digits before Karatsuba squaring is used. */
+int     KARATSUBA_MUL_CUTOFF = 121,      /* Min. number of digits before Karatsuba multiplication is used. */
+        KARATSUBA_SQR_CUTOFF = 128,      /* Min. number of digits before Karatsuba squaring is used. */
         
         TOOM_MUL_CUTOFF      = 350,      /* no optimal values of these are known yet so set em high */
         TOOM_SQR_CUTOFF      = 400; 

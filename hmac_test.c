@@ -285,7 +285,7 @@ Key First"
         outlen = sizeof(digest);
         if((err = hmac_memory(hash, cases[i].key, cases[i].keylen, cases[i].data, cases[i].datalen, digest, &outlen)) != CRYPT_OK) {
 #if 0
-            printf("HMAC-%s test #%d\n", cases[i].algo, cases[i].num);
+            printf("HMAC-%s test #%d, %s\n", cases[i].algo, cases[i].num, error_to_string(err));
 #endif
             return err;
         }

@@ -113,6 +113,7 @@ typedef struct Rsa_key {
 
  void rsa_free(rsa_key *key);
 
+/* These use PKCS #1 v2.0 padding */
 int rsa_encrypt_key(const unsigned char *inkey,  unsigned long inlen,
                           unsigned char *outkey, unsigned long *outlen,
                     const unsigned char *lparam, unsigned long lparamlen,
@@ -137,6 +138,30 @@ int rsa_verify_hash(const unsigned char *sig,      unsigned long siglen,
                           int            hash_idx, unsigned long saltlen,
                           int           *stat,     rsa_key      *key);
 
+/* these use PKCS #1 v1.5 padding */
+int rsa_v15_encrypt_key(const unsigned char *inkey,    unsigned long  inlen,
+                              unsigned char *outkey,   unsigned long *outlen,
+                              prng_state    *prng,     int            prng_idx, 
+                              rsa_key       *key);
+			      
+int rsa_v15_decrypt_key(const unsigned char *in,     unsigned long  inlen,
+                              unsigned char *outkey, unsigned long keylen, 
+                              prng_state    *prng,   int            prng_idx,
+                              int           *res,    rsa_key       *key);
+
+int rsa_v15_sign_hash(const unsigned char *msghash,  unsigned long  msghashlen, 
+                            unsigned char *sig,      unsigned long *siglen, 
+                            prng_state    *prng,     int            prng_idx,
+                            int            hash_idx, rsa_key       *key);
+
+int rsa_v15_verify_hash(const unsigned char *sig,      unsigned long siglen,
+                        const unsigned char *msghash,  unsigned long msghashlen,
+                              prng_state    *prng,     int           prng_idx,
+                              int            hash_idx, int          *stat,     
+                              rsa_key       *key);
+
+
+/* PKCS #1 import/export */
 int rsa_export(unsigned char *out, unsigned long *outlen, int type, rsa_key *key);
 int rsa_import(const unsigned char *in, unsigned long inlen, rsa_key *key);
                         

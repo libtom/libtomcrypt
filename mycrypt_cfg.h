@@ -8,10 +8,10 @@
 #define MYCRYPT_CFG_H
 
 /* you can change how memory allocation works ... */
- void *XMALLOC(size_t n);
- void *REALLOC(void *p, size_t n);
- void *XCALLOC(size_t n, size_t s);
- void XFREE(void *p);
+void *XMALLOC(size_t n);
+void *REALLOC(void *p, size_t n);
+void *XCALLOC(size_t n, size_t s);
+void XFREE(void *p);
 
 /* change the clock function too */
  clock_t XCLOCK(void);

@@ -94,6 +94,7 @@ int hmac_done(hmac_state *hmac, unsigned char *hashOut, unsigned long *outlen)
 
     err = CRYPT_OK;
 __ERR:
+    XFREE(hmac->key);
 #ifdef CLEAN_STACK
     zeromem(isha, hashsize);
     zeromem(buf,  hashsize);

@@ -1,3 +1,4 @@
+
 /* LibTomMath, multiple-precision integer library -- Tom St Denis
  *
  * LibTomMath is a library that provides multiple-precision
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <limits.h>
+#include <mycrypt_custom.h>
 
 #undef MIN
 #define MIN(x,y) ((x)<(y)?(x):(y))
@@ -147,7 +149,7 @@ extern "C" {
 typedef int           mp_err;
 
 /* you'll have to tune these... */
- int KARATSUBA_MUL_CUTOFF,
+extern int KARATSUBA_MUL_CUTOFF,
            KARATSUBA_SQR_CUTOFF,
            TOOM_MUL_CUTOFF,
            TOOM_SQR_CUTOFF;
@@ -551,6 +553,7 @@ int s_mp_exptmod (mp_int * G, mp_int * X, mp_int * P, mp_int * Y);
 void bn_reverse(unsigned char *s, int len);
 
  const char *mp_s_rmap;
+
 
 #ifdef __cplusplus
    }
