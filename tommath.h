@@ -1,9 +1,9 @@
 /* LibTomMath, multiple-precision integer library -- Tom St Denis
  *
- * LibTomMath is library that provides for multiple-precision
+ * LibTomMath is a library that provides multiple-precision
  * integer arithmetic as well as number theoretic functionality.
  *
- * The library is designed directly after the MPI library by
+ * The library was designed directly after the MPI library by
  * Michael Fromberger but has been written from scratch with
  * additional optimizations in place.
  *
@@ -82,8 +82,10 @@ extern "C" {
    typedef ulong64            mp_word;
 
 #ifdef MP_31BIT   
+   /* this is an extension that uses 31-bit digits */
    #define DIGIT_BIT          31
 #else
+   /* default case is 28-bit digits, defines MP_28BIT as a handy macro to test */
    #define DIGIT_BIT          28
    #define MP_28BIT
 #endif   
@@ -93,7 +95,6 @@ extern "C" {
 #ifndef DIGIT_BIT
    #define DIGIT_BIT     ((int)((CHAR_BIT * sizeof(mp_digit) - 1)))  /* bits per digit */
 #endif
-
 
 #define MP_DIGIT_BIT     DIGIT_BIT
 #define MP_MASK          ((((mp_digit)1)<<((mp_digit)DIGIT_BIT))-((mp_digit)1))
@@ -121,7 +122,7 @@ extern int KARATSUBA_MUL_CUTOFF,
            TOOM_SQR_CUTOFF;
 
 /* various build options */
-#define MP_PREC                 64     /* default digits of precision (must be power of two) */
+#define MP_PREC                 64     /* default digits of precision */
 
 /* define this to use lower memory usage routines (exptmods mostly) */
 /* #define MP_LOW_MEM */
@@ -135,11 +136,13 @@ typedef struct  {
 } mp_int;
 
 #define USED(m)    ((m)->used)
-#define DIGIT(m,k) ((m)->dp[k])
+#define DIGIT(m,k) ((m)->dp[(k)])
 #define SIGN(m)    ((m)->sign)
 
-/* ---> init and deinit bignum functions <--- */
+/* error code to char* string */
+char *mp_error_to_string(int code);
 
+/* ---> init and deinit bignum functions <--- */
 /* init a bignum */
 int mp_init(mp_int *a);
 
@@ -165,7 +168,6 @@ int mp_grow(mp_int *a, int size);
 int mp_init_size(mp_int *a, int size);
 
 /* ---> Basic Manipulations <--- */
-
 #define mp_iszero(a) (((a)->used == 0) ? 1 : 0)
 #define mp_iseven(a) (((a)->used > 0 && (((a)->dp[0] & 1) == 0)) ? 1 : 0)
 #define mp_isodd(a)  (((a)->used > 0 && (((a)->dp[0] & 1) == 1)) ? 1 : 0)
@@ -462,5 +464,5 @@ extern const char *mp_s_rmap;
    }
 #endif
 
-#endif
+#endif /* ?BN_H_ */
 

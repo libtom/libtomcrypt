@@ -21,7 +21,7 @@
 );
 
 @opts = (
-   "SMALL_CODE,Use small code where possible (slower code),n",
+   "SMALL_CODE,Use small code where possible (slower code),y",
    "NO_FILE,Avoid file I/O calls,n",
    "CLEAN_STACK,Clean the stack within functions,n",
    "LTC_TEST,Include Test Vector Routines,y",
@@ -55,6 +55,8 @@
    "MD5,Include MD5 one-way hash,y",
    "MD4,Include MD4 one-way hash,y",
    "MD2,Include MD2 one-way hash,y",
+   "RIPEMD128,Include RIPEMD-128 one-way hash,y",
+   "RIPEMD160,Include RIPEMD-160 one-way hash,y",
    "HMAC,Include Hash based Message Authentication Support,y",
 
    "BASE64,Include Base64 encoding support,y",
@@ -68,7 +70,7 @@
    "MRSA,Include RSA public key support,y",
    "MDH,Include Diffie-Hellman (over Z/pZ) public key support,y",
    "MECC,Include Eliptic Curve public key crypto support,y",
-   "KR,Include Keyring support (groups all three PK systems),y",
+   "KR,Include Keyring support (groups all three PK systems),n",
    
    "DH768,768-bit DH key support,y",
    "DH1024,1024-bit DH key support,y",

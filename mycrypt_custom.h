@@ -6,7 +6,7 @@
 #define MYCRYPT_CUSTOM_H_
 
 #ifdef CRYPT
-    #error mycrypt_custom.h should be included before mycrypt.h
+	#error mycrypt_custom.h should be included before mycrypt.h
 #endif
 
 #define XMALLOC malloc
@@ -15,8 +15,8 @@
 #define XFREE free
 #define XCLOCK clock
 #define XCLOCKS_PER_SEC CLOCKS_PER_SEC
-#define LTC_TEST
 #define SMALL_CODE
+#define LTC_TEST
 #define BLOWFISH
 #define RC2
 #define RC5
@@ -24,9 +24,9 @@
 #define SAFERP
 #define SAFER
 #define RIJNDAEL
-#define SERPENT
 #define XTEA
 #define TWOFISH
+#define TWOFISH_TABLES
 #define DES
 #define CAST5
 #define NOEKEON
@@ -43,6 +43,8 @@
 #define MD5
 #define MD4
 #define MD2
+#define RIPEMD128
+#define RIPEMD160
 #define HMAC
 #define BASE64
 #define YARROW
@@ -52,7 +54,6 @@
 #define MRSA
 #define MDH
 #define MECC
-#define KR
 #define DH768
 #define DH1024
 #define DH1280

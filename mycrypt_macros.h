@@ -194,6 +194,24 @@ typedef unsigned long ulong32;
 #define ROR(x,n) _lrotr(x,n)
 #define ROL(x,n) _lrotl(x,n)
 
+#elif defined(__GNUC__) && defined(__i386__)
+
+static inline unsigned long ROL(unsigned long word, int i)
+{
+	__asm__("roll %%cl,%0"
+		:"=r" (word)
+		:"0" (word),"c" (i));
+	return word;
+}
+
+static inline unsigned long ROR(unsigned long word, int i)
+{
+	__asm__("rorl %%cl,%0"
+		:"=r" (word)
+		:"0" (word),"c" (i));
+	return word;
+}
+
 #else
 
 /* rotates the hard way */

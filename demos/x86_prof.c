@@ -132,6 +132,9 @@ void reg_algs(void)
 #ifdef SHA512
   register_hash (&sha512_desc);
 #endif
+#ifdef RIPEMD128
+  register_hash (&rmd128_desc);
+#endif
 
 }
 

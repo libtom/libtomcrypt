@@ -590,7 +590,7 @@ int ecc_make_key(prng_state *prng, int wprng, int keysize, ecc_key *key)
    int x, res, err;
    ecc_point *base;
    mp_int prime;
-   unsigned char buf[4096];
+   unsigned char buf[128];
 
    _ARGCHK(key != NULL);
 

@@ -9,7 +9,7 @@
 # a build. This is easy to remedy though, for those that have problems.
 
 # The version
-VERSION=0.89
+VERSION=0.90
 
 #ch1-01-1
 # Compiler and Linker Names
@@ -49,7 +49,6 @@ SMALL=small
 PROF=x86_prof
 TV=tv_gen
 
-
 #LIBPATH-The directory for libtomcrypt to be installed to.
 #INCPATH-The directory to install the header files for libtomcrypt.
 #DATAPATH-The directory to install the pdf docs.
@@ -67,7 +66,7 @@ OBJECTS=keyring.o gf.o mem.o sprng.o ecc.o base64.o dh.o rsa.o \
 bits.o yarrow.o cfb.o ofb.o ecb.o ctr.o cbc.o hash.o tiger.o sha1.o \
 md5.o md4.o md2.o sha256.o sha512.o xtea.o aes.o des.o \
 safer_tab.o safer.o safer+.o rc4.o rc2.o rc6.o rc5.o cast5.o noekeon.o blowfish.o crypt.o \
-prime.o twofish.o packet.o hmac.o strings.o $(MPIOBJECT)
+prime.o twofish.o packet.o hmac.o strings.o rmd128.o rmd160.o $(MPIOBJECT)
 
 TESTOBJECTS=demos/test.o
 HASHOBJECTS=demos/hashsum.o
@@ -98,9 +97,10 @@ aes.o: aes.c aes_tab.c
 sha512.o: sha512.c sha384.c
 
 #This rule makes the libtomcrypt library.
-library: $(OBJECTS)
-	$(AR) $(ARFLAGS) $(LIBNAME) $(OBJECTS)
-	ranlib $(LIBNAME)
+library: $(LIBNAME)
+
+$(LIBNAME): $(OBJECTS)
+	$(AR) $(ARFLAGS) $@ $(OBJECTS) 
 
 #This rule makes the test program included with libtomcrypt
 test: library $(TESTOBJECTS)

@@ -443,6 +443,9 @@ const char *crypt_build_settings =
 #if defined(MD2)
    "   MD2\n"
 #endif
+#if defined(RIPEMD128)
+   "   RIPEMD128\n"
+#endif
 
     "\nBlock Chaining Modes:\n"
 #if defined(CFB)
