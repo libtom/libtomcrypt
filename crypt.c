@@ -519,9 +519,9 @@ const char *crypt_build_settings =
 #if defined(TRY_UNRANDOM_FIRST)
     " TRY_UNRANDOM_FIRST "
 #endif
-#if defined(SMALL_PRIME_TAB)
-    " SMALL_PRIME_TAB "
-#endif
+#if defined(LTC_TEST)
+    " LTC_TEST "
+#endif    
     "\n"
 
     "\n\n\n"

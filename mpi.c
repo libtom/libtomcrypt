@@ -217,7 +217,7 @@ fast_mp_montgomery_reduce (mp_int * x, mp_int * n, mp_digit rho)
      * that W[ix-1] have  the carry cleared (see after the inner loop)
      */
     register mp_digit mu;
-    mu = MULT(W[ix] & MP_MASK, rho) & MP_MASK;
+    mu = ((W[ix] & MP_MASK) * rho) & MP_MASK;
 
     /* a = a + mu * m * b**i
      *
@@ -246,14 +246,13 @@ fast_mp_montgomery_reduce (mp_int * x, mp_int * n, mp_digit rho)
 
       /* inner loop */
       for (iy = 0; iy < n->used; iy++) {
-          *_W++ += MULT(mu, *tmpn++);
+          *_W++ += ((mp_word)mu) * ((mp_word)*tmpn++);
       }
     }
 
     /* now fix carry for next digit, W[ix+1] */
     W[ix + 1] += W[ix] >> ((mp_word) DIGIT_BIT);
   }
-
 
   {
     register mp_digit *tmpx;
@@ -384,7 +383,7 @@ fast_s_mp_mul_digs (mp_int * a, mp_int * b, mp_int * c, int digs)
       pb = MIN (b->used, digs - ix);
 
       for (iy = 0; iy < pb; iy++) {
-        *_W++ += MULT(tmpx, *tmpy++);
+        *_W++ += ((mp_word)tmpx) * ((mp_word)*tmpy++);
       }
     }
 
@@ -407,20 +406,27 @@ fast_s_mp_mul_digs (mp_int * a, mp_int * b, mp_int * c, int digs)
      * from N*(N+N*c)==N**2 + c*N**2 to N**2 + N*c where c is the 
      * cost of the shifting.  On very small numbers this is slower 
      * but on most cryptographic size numbers it is faster.
+     *
+     * In this particular implementation we feed the carries from
+     * behind which means when the loop terminates we still have one
+     * last digit to copy
      */
     tmpc = c->dp;
     for (ix = 1; ix < digs; ix++) {
+      /* forward the carry from the previous temp */
       W[ix] += (W[ix - 1] >> ((mp_word) DIGIT_BIT));
+
+      /* now extract the previous digit [below the carry] */
       *tmpc++ = (mp_digit) (W[ix - 1] & ((mp_word) MP_MASK));
     }
+    /* fetch the last digit */
     *tmpc++ = (mp_digit) (W[digs - 1] & ((mp_word) MP_MASK));
 
-    /* clear unused */
+    /* clear unused digits [that existed in the old copy of c] */
     for (; ix < olduse; ix++) {
       *tmpc++ = 0;
     }
   }
-
   mp_clamp (c);
   return MP_OKAY;
 }
@@ -501,7 +507,7 @@ fast_s_mp_mul_high_digs (mp_int * a, mp_int * b, mp_int * c, int digs)
 
       /* compute column products for digits above the minimum */
       for (; iy < pb; iy++) {
-         *_W++ += MULT(tmpx, *tmpy++);
+         *_W++ += ((mp_word) tmpx) * ((mp_word)*tmpy++);
       }
     }
   }
@@ -510,12 +516,15 @@ fast_s_mp_mul_high_digs (mp_int * a, mp_int * b, mp_int * c, int digs)
   oldused = c->used;
   c->used = newused;
 
-  /* now convert the array W downto what we need */
+  /* now convert the array W downto what we need
+   *
+   * See comments in bn_fast_s_mp_mul_digs.c
+   */
   for (ix = digs + 1; ix < newused; ix++) {
     W[ix] += (W[ix - 1] >> ((mp_word) DIGIT_BIT));
     c->dp[ix - 1] = (mp_digit) (W[ix - 1] & ((mp_word) MP_MASK));
   }
-  c->dp[(pa + pb + 1) - 1] = (mp_digit) (W[(pa + pb + 1) - 1] & ((mp_word) MP_MASK));
+  c->dp[newused - 1] = (mp_digit) (W[newused - 1] & ((mp_word) MP_MASK));
 
   for (; ix < oldused; ix++) {
     c->dp[ix] = 0;
@@ -597,7 +606,7 @@ fast_s_mp_sqr (mp_int * a, mp_int * b)
      * for a particular column only once which means that
      * there is no need todo a double precision addition
      */
-    W2[ix + ix] = MULT(a->dp[ix], a->dp[ix]);
+    W2[ix + ix] = ((mp_word)a->dp[ix]) * ((mp_word)a->dp[ix]);
 
     {
       register mp_digit tmpx, *tmpy;
@@ -615,7 +624,7 @@ fast_s_mp_sqr (mp_int * a, mp_int * b)
 
       /* inner products */
       for (iy = ix + 1; iy < pa; iy++) {
-          *_W++ += MULT(tmpx, *tmpy++);
+          *_W++ += ((mp_word)tmpx) * ((mp_word)*tmpy++);
       }
     }
   }
@@ -805,18 +814,87 @@ mp_add (mp_int * a, mp_int * b, mp_int * c)
 int
 mp_add_d (mp_int * a, mp_digit b, mp_int * c)
 {
-  mp_int  t;
-  int     res;
+  int     res, ix, oldused;
+  mp_digit *tmpa, *tmpc, mu;
 
-  if ((res = mp_init_size(&t, 1)) != MP_OKAY) {
-    return res;
+  /* grow c as required */
+  if (c->alloc < a->used + 1) {
+     if ((res = mp_grow(c, a->used + 1)) != MP_OKAY) {
+        return res;
+     }
   }
-  mp_set (&t, b);
-  res = mp_add (a, &t, c);
 
-  mp_clear (&t);
-  return res;
+  /* if a is negative and |a| >= b, call c = |a| - b */
+  if (a->sign == MP_NEG && (a->used > 1 || a->dp[0] >= b)) {
+     /* temporarily fix sign of a */
+     a->sign = MP_ZPOS;
+
+     /* c = |a| - b */
+     res = mp_sub_d(a, b, c);
+
+     /* fix sign  */
+     a->sign = c->sign = MP_NEG;
+
+     return res;
+  }
+
+
+  /* old number of used digits in c */
+  oldused = c->used;
+
+  /* sign always positive */
+  c->sign = MP_ZPOS;
+
+  /* source alias */
+  tmpa    = a->dp;
+
+  /* destination alias */
+  tmpc    = c->dp;
+
+  /* if a is positive */
+  if (a->sign == MP_ZPOS) {
+     /* setup size */
+     c->used = a->used + 1;
+
+     /* add digit, after this we're propagating
+      * the carry.
+      */
+     *tmpc   = *tmpa++ + b;
+     mu      = *tmpc >> DIGIT_BIT;
+     *tmpc++ &= MP_MASK;
+
+     /* now handle rest of the digits */
+     for (ix = 1; ix < a->used; ix++) {
+        *tmpc   = *tmpa++ + mu;
+        mu      = *tmpc >> DIGIT_BIT;
+        *tmpc++ &= MP_MASK;
+     }
+     /* set final carry */
+     ix++;
+     *tmpc++  = mu;
+
+  } else {
+     /* a was negative and |a| < b */
+     c->used  = 1;
+
+     /* the result is a single digit */
+     *tmpc++  =  b - a->dp[0];
+
+     /* setup count so the clearing of oldused
+      * can fall through correctly
+      */
+     ix       = 1;
+  }
+
+  /* now zero to oldused */
+  while (ix++ < oldused) {
+     *tmpc++ = 0;
+  }
+  mp_clamp(c);
+
+  return MP_OKAY;
 }
+
 
 /* End: bn_mp_add_d.c */
 
@@ -958,7 +1036,7 @@ mp_clamp (mp_int * a)
  * integer arithmetic as well as number theoretic functionality.
  *
  * The library is designed directly after the MPI library by
- * Michael Fromberger but has been written from scratch with 
+ * Michael Fromberger but has been written from scratch with
  * additional optimizations in place.
  *
  * The library is free for all purposes without any express
@@ -973,15 +1051,14 @@ void
 mp_clear (mp_int * a)
 {
   if (a->dp != NULL) {
-
     /* first zero the digits */
     memset (a->dp, 0, sizeof (mp_digit) * a->used);
 
     /* free ram */
-    free (a->dp);
+    XFREE (a->dp);
 
     /* reset members to make debugging easier */
-    a->dp = NULL;
+    a->dp    = NULL;
     a->alloc = a->used = 0;
   }
 }
@@ -1725,6 +1802,19 @@ mp_div_3 (mp_int * a, mp_int *c, mp_digit * d)
  */
 #include <tommath.h>
 
+static int s_is_power_of_two(mp_digit b, int *p)
+{
+   int x;
+
+   for (x = 1; x < DIGIT_BIT; x++) {
+      if (b == (((mp_digit)1)<<x)) {
+         *p = x;
+         return 1;
+      }
+   }
+   return 0;
+}
+
 /* single digit division (based on routine from MPI) */
 int
 mp_div_d (mp_int * a, mp_digit b, mp_int * c, mp_digit * d)
@@ -1733,15 +1823,40 @@ mp_div_d (mp_int * a, mp_digit b, mp_int * c, mp_digit * d)
   mp_word w;
   mp_digit t;
   int     res, ix;
-  
+
+  /* cannot divide by zero */
   if (b == 0) {
      return MP_VAL;
   }
-  
+
+  /* quick outs */
+  if (b == 1 || mp_iszero(a) == 1) {
+     if (d != NULL) {
+        *d = 0;
+     }
+     if (c != NULL) {
+        return mp_copy(a, c);
+     }
+     return MP_OKAY;
+  }
+
+  /* power of two ? */
+  if (s_is_power_of_two(b, &ix) == 1) {
+     if (d != NULL) {
+        *d = a->dp[0] & ((1<<ix) - 1);
+     }
+     if (c != NULL) {
+        return mp_div_2d(a, ix, c, NULL);
+     }
+     return MP_OKAY;
+  }
+
+  /* three? */
   if (b == 3) {
      return mp_div_3(a, c, d);
   }
-  
+
+  /* no easy answer [c'est la vie].  Just division */
   if ((res = mp_init_size(&q, a->used)) != MP_OKAY) {
      return res;
   }
@@ -1877,7 +1992,7 @@ top:
   
   /* compute (x mod B**m) + mp * [x/B**m] inline and inplace */
   for (i = 0; i < m; i++) {
-      r         = MULT(*tmpx2++, k) + *tmpx1 + mu;
+      r         = ((mp_word)*tmpx2++) * ((mp_word)k) + *tmpx1 + mu;
       *tmpx1++  = (mp_digit)(r & MP_MASK);
       mu        = (mp_digit)(r >> ((mp_word)DIGIT_BIT));
   }
@@ -2476,24 +2591,24 @@ int mp_fwrite(mp_int *a, int radix, FILE *stream)
       return MP_VAL;
    }
    
-   buf = malloc(len);
+   buf = XMALLOC(len);
    if (buf == NULL) {
       return MP_MEM;
    }
    
    if ((err = mp_toradix(a, buf, radix)) != MP_OKAY) {
-      free(buf);
+      XFREE(buf);
       return err;
    }
    
    for (x = 0; x < len; x++) {
        if (fputc(buf[x], stream) == EOF) {
-          free(buf);
+          XFREE(buf);
           return MP_VAL;
        }
    }
    
-   free(buf);
+   XFREE(buf);
    return MP_OKAY;
 }
 
@@ -2532,7 +2647,7 @@ mp_gcd (mp_int * a, mp_int * b, mp_int * c)
     return mp_copy (a, c);
   }
   if (mp_iszero (a) == 1 && mp_iszero (b) == 1) {
-    mp_set (c, 1);
+    mp_zero(c);
     return MP_OKAY;
   }
 
@@ -2631,7 +2746,7 @@ mp_grow (mp_int * a, int size)
     /* ensure there are always at least MP_PREC digits extra on top */
     size += (MP_PREC * 2) - (size & (MP_PREC - 1));     
 
-    a->dp = OPT_CAST realloc (a->dp, sizeof (mp_digit) * size);
+    a->dp = OPT_CAST XREALLOC (a->dp, sizeof (mp_digit) * size);
     if (a->dp == NULL) {
       return MP_MEM;
     }
@@ -3666,7 +3781,7 @@ mp_montgomery_reduce (mp_int * x, mp_int * n, mp_digit rho)
 
   for (ix = 0; ix < n->used; ix++) {
     /* mu = ai * m' mod b */
-    mu = MULT(x->dp[ix], rho) & MP_MASK;
+    mu = ((mp_word)x->dp[ix]) * ((mp_word)rho) & MP_MASK;
 
     /* a = a + mu * m * b**i */
     {
@@ -3683,7 +3798,7 @@ mp_montgomery_reduce (mp_int * x, mp_int * n, mp_digit rho)
       
       /* Multiply and add in place */
       for (iy = 0; iy < n->used; iy++) {
-        r       = MULT(mu, *tmpn++) +
+        r       = ((mp_word)mu) * ((mp_word)*tmpn++) +
                   ((mp_word) u) + ((mp_word) * tmpx);
         u       = (mp_digit)(r >> ((mp_word) DIGIT_BIT));
         *tmpx++ = (mp_digit)(r & ((mp_word) MP_MASK));
@@ -4039,7 +4154,7 @@ mp_mul_d (mp_int * a, mp_digit b, mp_int * c)
     u = 0;
     for (ix = 0; ix < pa; ix++) {
       /* compute product and carry sum for this term */
-      r = ((mp_word) u) + MULT(*tmpa++, b);
+      r = ((mp_word) u) + ((mp_word)*tmpa++) * ((mp_word)b);
 
       /* mask off higher bits to get a single digit */
       *tmpc++ = (mp_digit) (r & ((mp_word) MP_MASK));
@@ -4415,6 +4530,11 @@ mp_prime_fermat (mp_int * a, mp_int * b, int *result)
   /* default to fail */
   *result = 0;
 
+  /* ensure b > 1 */
+  if (mp_cmp_d(b, 1) != MP_GT) {
+     return MP_VAL;
+  }
+
   /* init t */
   if ((err = mp_init (&t)) != MP_OKAY) {
     return err;
@@ -4506,7 +4626,7 @@ mp_prime_is_divisible (mp_int * a, int *result)
 /* performs a variable number of rounds of Miller-Rabin
  *
  * Probability of error after t rounds is no more than
- * (1/4)^t when 1 <= t <= 256
+ * (1/4)^t when 1 <= t <= PRIME_SIZE
  *
  * Sets result to 1 if probably prime, 0 otherwise
  */
@@ -4520,7 +4640,7 @@ mp_prime_is_prime (mp_int * a, int t, int *result)
   *result = 0;
 
   /* valid value of t? */
-  if (t < 1 || t > PRIME_SIZE) {
+  if (t <= 0 || t > PRIME_SIZE) {
     return MP_VAL;
   }
 
@@ -4536,6 +4656,8 @@ mp_prime_is_prime (mp_int * a, int t, int *result)
   if ((err = mp_prime_is_divisible (a, &res)) != MP_OKAY) {
     return err;
   }
+
+  /* return if it was trivially divisible */
   if (res == 1) {
     return MP_OKAY;
   }
@@ -4599,6 +4721,11 @@ mp_prime_miller_rabin (mp_int * a, mp_int * b, int *result)
   /* default */
   *result = 0;
 
+  /* ensure b > 1 */
+  if (mp_cmp_d(b, 1) != MP_GT) {
+     return MP_VAL;
+  }     
+
   /* get n1 = a - 1 */
   if ((err = mp_init_copy (&n1, a)) != MP_OKAY) {
     return err;
@@ -4611,8 +4738,13 @@ mp_prime_miller_rabin (mp_int * a, mp_int * b, int *result)
   if ((err = mp_init_copy (&r, &n1)) != MP_OKAY) {
     goto __N1;
   }
- 
+
+  /* count the number of least significant bits
+   * which are zero
+   */
   s = mp_cnt_lsb(&r);
+
+  /* now divide n - 1 by 2**s */
   if ((err = mp_div_2d (&r, s, &r, NULL)) != MP_OKAY) {
     goto __R;
   }
@@ -4677,40 +4809,152 @@ __N1:mp_clear (&n1);
 
 /* finds the next prime after the number "a" using "t" trials
  * of Miller-Rabin.
+ *
+ * bbs_style = 1 means the prime must be congruent to 3 mod 4
  */
-int mp_prime_next_prime(mp_int *a, int t)
+int mp_prime_next_prime(mp_int *a, int t, int bbs_style)
 {
-   int err, res;
+   int      err, res, x, y;
+   mp_digit res_tab[PRIME_SIZE], step, kstep;
+   mp_int   b;
 
-   if (mp_iseven(a) == 1) {
-      /* force odd */
-      if ((err = mp_add_d(a, 1, a)) != MP_OKAY) {
-         return err;
+   /* ensure t is valid */
+   if (t <= 0 || t > PRIME_SIZE) {
+      return MP_VAL;
+   }
+
+   /* force positive */
+   if (a->sign == MP_NEG) {
+      a->sign = MP_ZPOS;
+   }
+
+   /* simple algo if a is less than the largest prime in the table */
+   if (mp_cmp_d(a, __prime_tab[PRIME_SIZE-1]) == MP_LT) {
+      /* find which prime it is bigger than */
+      for (x = PRIME_SIZE - 2; x >= 0; x--) {
+          if (mp_cmp_d(a, __prime_tab[x]) != MP_LT) {
+             if (bbs_style == 1) {
+                /* ok we found a prime smaller or
+                 * equal [so the next is larger]
+                 *
+                 * however, the prime must be
+                 * congruent to 3 mod 4
+                 */
+                if ((__prime_tab[x + 1] & 3) != 3) {
+                   /* scan upwards for a prime congruent to 3 mod 4 */
+                   for (y = x + 1; y < PRIME_SIZE; y++) {
+                       if ((__prime_tab[y] & 3) == 3) {
+                          mp_set(a, __prime_tab[y]);
+                          return MP_OKAY;
+                       }
+                   }
+                }
+             } else {
+                mp_set(a, __prime_tab[x + 1]);
+                return MP_OKAY;
+             }
+          }
+      }
+      /* at this point a maybe 1 */
+      if (mp_cmp_d(a, 1) == MP_EQ) {
+         mp_set(a, 2);
+         return MP_OKAY;
+      }
+      /* fall through to the sieve */
+   }
+
+   /* generate a prime congruent to 3 mod 4 or 1/3 mod 4? */
+   if (bbs_style == 1) {
+      kstep   = 4;
+   } else {
+      kstep   = 2;
+   }
+
+   /* at this point we will use a combination of a sieve and Miller-Rabin */
+
+   if (bbs_style == 1) {
+      /* if a mod 4 != 3 subtract the correct value to make it so */
+      if ((a->dp[0] & 3) != 3) {
+         if ((err = mp_sub_d(a, (a->dp[0] & 3) + 1, a)) != MP_OKAY) { return err; };
       }
    } else {
-      /* force to next odd number */
-      if ((err = mp_add_d(a, 2, a)) != MP_OKAY) {
+      if (mp_iseven(a) == 1) {
+         /* force odd */
+         if ((err = mp_sub_d(a, 1, a)) != MP_OKAY) {
+            return err;
+         }
+      }
+   }
+
+   /* generate the restable */
+   for (x = 1; x < PRIME_SIZE; x++) {
+      if ((err = mp_mod_d(a, __prime_tab[x], res_tab + x)) != MP_OKAY) {
          return err;
       }
    }
 
+   /* init temp used for Miller-Rabin Testing */
+   if ((err = mp_init(&b)) != MP_OKAY) {
+      return err;
+   }
+
    for (;;) {
+      /* skip to the next non-trivially divisible candidate */
+      step = 0;
+      do {
+         /* y == 1 if any residue was zero [e.g. cannot be prime] */
+         y     =  0;
+
+         /* increase step to next candidate */
+         step += kstep;
+
+         /* compute the new residue without using division */
+         for (x = 1; x < PRIME_SIZE; x++) {
+             /* add the step to each residue */
+             res_tab[x] += kstep;
+
+             /* subtract the modulus [instead of using division] */
+             if (res_tab[x] >= __prime_tab[x]) {
+                res_tab[x]  -= __prime_tab[x];
+             }
+
+             /* set flag if zero */
+             if (res_tab[x] == 0) {
+                y = 1;
+             }
+         }
+      } while (y == 1 && step < ((((mp_digit)1)<<DIGIT_BIT) - kstep));
+
+      /* add the step */
+      if ((err = mp_add_d(a, step, a)) != MP_OKAY) {
+         goto __ERR;
+      }
+
+      /* if step == MAX then skip test */
+      if (step >= ((((mp_digit)1)<<DIGIT_BIT) - kstep)) {
+         continue;
+      }
+
       /* is this prime? */
-      if ((err = mp_prime_is_prime(a, t, &res)) != MP_OKAY) {
-         return err;
+      for (x = 0; x < t; x++) {
+          mp_set(&b, __prime_tab[t]);
+          if ((err = mp_prime_miller_rabin(a, &b, &res)) != MP_OKAY) {
+             goto __ERR;
+          }
+          if (res == 0) {
+             break;
+          }
       }
 
       if (res == 1) {
          break;
       }
-
-      /* add two, next candidate */
-      if ((err = mp_add_d(a, 2, a)) != MP_OKAY) {
-         return err;
-      }
    }
 
-   return MP_OKAY;
+   err = MP_OKAY;
+__ERR:
+   mp_clear(&b);
+   return err;
 }
 
 
@@ -4990,14 +5234,14 @@ mp_read_unsigned_bin (mp_int * a, unsigned char *b, int c)
       return res;
     }
 
-    if (DIGIT_BIT != 7) {
+#ifndef MP_8BIT
       a->dp[0] |= *b++;
       a->used += 1;
-    } else {
+#else
       a->dp[0] = (*b & MP_MASK);
       a->dp[1] |= ((*b++ >> 7U) & 1);
       a->used += 2;
-    }
+#endif
   }
   mp_clamp (a);
   return MP_OKAY;
@@ -5441,7 +5685,7 @@ int
 mp_shrink (mp_int * a)
 {
   if (a->alloc != a->used) {
-    if ((a->dp = OPT_CAST realloc (a->dp, sizeof (mp_digit) * a->used)) == NULL) {
+    if ((a->dp = OPT_CAST XREALLOC (a->dp, sizeof (mp_digit) * a->used)) == NULL) {
       return MP_MEM;
     }
     a->alloc = a->used;
@@ -5638,19 +5882,64 @@ mp_sub (mp_int * a, mp_int * b, mp_int * c)
 int
 mp_sub_d (mp_int * a, mp_digit b, mp_int * c)
 {
-  mp_int  t;
-  int     res;
+  mp_digit *tmpa, *tmpc, mu;
+  int       res, ix, oldused;
 
-
-  if ((res = mp_init (&t)) != MP_OKAY) {
-    return res;
+  /* grow c as required */
+  if (c->alloc < a->used + 1) {
+     if ((res = mp_grow(c, a->used + 1)) != MP_OKAY) {
+        return res;
+     }
   }
-  mp_set (&t, b);
-  res = mp_sub (a, &t, c);
 
-  mp_clear (&t);
-  return res;
+  /* if a is negative just do an unsigned
+   * addition [with fudged signs]
+   */
+  if (a->sign == MP_NEG) {
+     a->sign = MP_ZPOS;
+     res     = mp_add_d(a, b, c);
+     a->sign = c->sign = MP_NEG;
+     return res;
+  }
+
+  /* setup regs */
+  oldused = c->used;
+  tmpa    = a->dp;
+  tmpc    = c->dp;
+
+  /* if a <= b simply fix the single digit */
+  if ((a->used == 1 && a->dp[0] <= b) || a->used == 0) {
+     *tmpc++ = b - *tmpa;
+     ix      = 1;
+
+     /* negative/1digit */
+     c->sign = MP_NEG;
+     c->used = 1;
+  } else {
+     /* positive/size */
+     c->sign = MP_ZPOS;
+     c->used = a->used;
+
+     /* subtract first digit */
+     *tmpc    = *tmpa++ - b;
+     mu       = *tmpc >> (sizeof(mp_digit) * CHAR_BIT - 1);
+     *tmpc++ &= MP_MASK;
+
+     /* handle rest of the digits */
+     for (ix = 1; ix < a->used; ix++) {
+        *tmpc    = *tmpa++ - mu;
+        mu       = *tmpc >> (sizeof(mp_digit) * CHAR_BIT - 1);
+        *tmpc++ &= MP_MASK;
+     }
+  }
+
+  for (; ix < oldused; ix++) {
+     *tmpc++ = 0;
+  }
+  mp_clamp(c);
+  return MP_OKAY;
 }
+
 
 /* End: bn_mp_sub_d.c */
 
@@ -5756,11 +6045,11 @@ mp_to_unsigned_bin (mp_int * a, unsigned char *b)
 
   x = 0;
   while (mp_iszero (&t) == 0) {
-    if (DIGIT_BIT != 7) {
+#ifndef MP_8BIT
       b[x++] = (unsigned char) (t.dp[0] & 255);
-    } else {
+#else
       b[x++] = (unsigned char) (t.dp[0] | ((t.dp[1] & 0x01) << 7));
-    }
+#endif
     if ((res = mp_div_2d (&t, 8, &t, NULL)) != MP_OKAY) {
       mp_clear (&t);
       return res;
@@ -6452,216 +6741,6 @@ mp_zero (mp_int * a)
 
 /* End: bn_mp_zero.c */
 
-/* Start: bn_mult.c */
-/* LibTomMath, multiple-precision integer library -- Tom St Denis
- *
- * LibTomMath is library that provides for multiple-precision
- * integer arithmetic as well as number theoretic functionality.
- *
- * The library is designed directly after the MPI library by
- * Michael Fromberger but has been written from scratch with
- * additional optimizations in place.
- *
- * The library is free for all purposes without any express
- * guarantee it works.
- *
- * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
- */
- #include <tommath.h>
-
-/* this file provides a nxn=>2n multiplier based on the
- * fact that xy = ((x-y)^2 - (x+y)^2)/4
- * so by having a square table for 0..2^(n+1)
- * we can compute (x+y)^2 via table lookup, etc..
- */
-
-#ifdef SLOW_MULT
-
-/* table of x^2 for -510..510 */
-#if defined(MP_8BIT) || defined(MP_16BIT)
-static const unsigned long sqr[] = {
-65025, 64770, 64516, 64262, 64009, 63756, 63504, 63252, 63001, 62750, 62500, 62250,
-62001, 61752, 61504, 61256, 61009, 60762, 60516, 60270, 60025, 59780, 59536, 59292,
-59049, 58806, 58564, 58322, 58081, 57840, 57600, 57360, 57121, 56882, 56644, 56406,
-56169, 55932, 55696, 55460, 55225, 54990, 54756, 54522, 54289, 54056, 53824, 53592,
-53361, 53130, 52900, 52670, 52441, 52212, 51984, 51756, 51529, 51302, 51076, 50850,
-50625, 50400, 50176, 49952, 49729, 49506, 49284, 49062, 48841, 48620, 48400, 48180,
-47961, 47742, 47524, 47306, 47089, 46872, 46656, 46440, 46225, 46010, 45796, 45582,
-45369, 45156, 44944, 44732, 44521, 44310, 44100, 43890, 43681, 43472, 43264, 43056,
-42849, 42642, 42436, 42230, 42025, 41820, 41616, 41412, 41209, 41006, 40804, 40602,
-40401, 40200, 40000, 39800, 39601, 39402, 39204, 39006, 38809, 38612, 38416, 38220,
-38025, 37830, 37636, 37442, 37249, 37056, 36864, 36672, 36481, 36290, 36100, 35910,
-35721, 35532, 35344, 35156, 34969, 34782, 34596, 34410, 34225, 34040, 33856, 33672,
-33489, 33306, 33124, 32942, 32761, 32580, 32400, 32220, 32041, 31862, 31684, 31506,
-31329, 31152, 30976, 30800, 30625, 30450, 30276, 30102, 29929, 29756, 29584, 29412,
-29241, 29070, 28900, 28730, 28561, 28392, 28224, 28056, 27889, 27722, 27556, 27390,
-27225, 27060, 26896, 26732, 26569, 26406, 26244, 26082, 25921, 25760, 25600, 25440,
-25281, 25122, 24964, 24806, 24649, 24492, 24336, 24180, 24025, 23870, 23716, 23562,
-23409, 23256, 23104, 22952, 22801, 22650, 22500, 22350, 22201, 22052, 21904, 21756,
-21609, 21462, 21316, 21170, 21025, 20880, 20736, 20592, 20449, 20306, 20164, 20022,
-19881, 19740, 19600, 19460, 19321, 19182, 19044, 18906, 18769, 18632, 18496, 18360,
-18225, 18090, 17956, 17822, 17689, 17556, 17424, 17292, 17161, 17030, 16900, 16770,
-16641, 16512, 16384, 16256, 16129, 16002, 15876, 15750, 15625, 15500, 15376, 15252,
-15129, 15006, 14884, 14762, 14641, 14520, 14400, 14280, 14161, 14042, 13924, 13806,
-13689, 13572, 13456, 13340, 13225, 13110, 12996, 12882, 12769, 12656, 12544, 12432,
-12321, 12210, 12100, 11990, 11881, 11772, 11664, 11556, 11449, 11342, 11236, 11130,
-11025, 10920, 10816, 10712, 10609, 10506, 10404, 10302, 10201, 10100, 10000,  9900,
- 9801,  9702,  9604,  9506,  9409,  9312,  9216,  9120,  9025,  8930,  8836,  8742,
- 8649,  8556,  8464,  8372,  8281,  8190,  8100,  8010,  7921,  7832,  7744,  7656,
- 7569,  7482,  7396,  7310,  7225,  7140,  7056,  6972,  6889,  6806,  6724,  6642,
- 6561,  6480,  6400,  6320,  6241,  6162,  6084,  6006,  5929,  5852,  5776,  5700,
- 5625,  5550,  5476,  5402,  5329,  5256,  5184,  5112,  5041,  4970,  4900,  4830,
- 4761,  4692,  4624,  4556,  4489,  4422,  4356,  4290,  4225,  4160,  4096,  4032,
- 3969,  3906,  3844,  3782,  3721,  3660,  3600,  3540,  3481,  3422,  3364,  3306,
- 3249,  3192,  3136,  3080,  3025,  2970,  2916,  2862,  2809,  2756,  2704,  2652,
- 2601,  2550,  2500,  2450,  2401,  2352,  2304,  2256,  2209,  2162,  2116,  2070,
- 2025,  1980,  1936,  1892,  1849,  1806,  1764,  1722,  1681,  1640,  1600,  1560,
- 1521,  1482,  1444,  1406,  1369,  1332,  1296,  1260,  1225,  1190,  1156,  1122,
- 1089,  1056,  1024,   992,   961,   930,   900,   870,   841,   812,   784,   756,
-  729,   702,   676,   650,   625,   600,   576,   552,   529,   506,   484,   462,
-  441,   420,   400,   380,   361,   342,   324,   306,   289,   272,   256,   240,
-  225,   210,   196,   182,   169,   156,   144,   132,   121,   110,   100,    90,
-   81,    72,    64,    56,    49,    42,    36,    30,    25,    20,    16,    12,
-    9,     6,     4,     2,     1,     0,     0,     0,     1,     2,     4,     6,
-    9,    12,    16,    20,    25,    30,    36,    42,    49,    56,    64,    72,
-   81,    90,   100,   110,   121,   132,   144,   156,   169,   182,   196,   210,
-  225,   240,   256,   272,   289,   306,   324,   342,   361,   380,   400,   420,
-  441,   462,   484,   506,   529,   552,   576,   600,   625,   650,   676,   702,
-  729,   756,   784,   812,   841,   870,   900,   930,   961,   992,  1024,  1056,
- 1089,  1122,  1156,  1190,  1225,  1260,  1296,  1332,  1369,  1406,  1444,  1482,
- 1521,  1560,  1600,  1640,  1681,  1722,  1764,  1806,  1849,  1892,  1936,  1980,
- 2025,  2070,  2116,  2162,  2209,  2256,  2304,  2352,  2401,  2450,  2500,  2550,
- 2601,  2652,  2704,  2756,  2809,  2862,  2916,  2970,  3025,  3080,  3136,  3192,
- 3249,  3306,  3364,  3422,  3481,  3540,  3600,  3660,  3721,  3782,  3844,  3906,
- 3969,  4032,  4096,  4160,  4225,  4290,  4356,  4422,  4489,  4556,  4624,  4692,
- 4761,  4830,  4900,  4970,  5041,  5112,  5184,  5256,  5329,  5402,  5476,  5550,
- 5625,  5700,  5776,  5852,  5929,  6006,  6084,  6162,  6241,  6320,  6400,  6480,
- 6561,  6642,  6724,  6806,  6889,  6972,  7056,  7140,  7225,  7310,  7396,  7482,
- 7569,  7656,  7744,  7832,  7921,  8010,  8100,  8190,  8281,  8372,  8464,  8556,
- 8649,  8742,  8836,  8930,  9025,  9120,  9216,  9312,  9409,  9506,  9604,  9702,
- 9801,  9900, 10000, 10100, 10201, 10302, 10404, 10506, 10609, 10712, 10816, 10920,
-11025, 11130, 11236, 11342, 11449, 11556, 11664, 11772, 11881, 11990, 12100, 12210,
-12321, 12432, 12544, 12656, 12769, 12882, 12996, 13110, 13225, 13340, 13456, 13572,
-13689, 13806, 13924, 14042, 14161, 14280, 14400, 14520, 14641, 14762, 14884, 15006,
-15129, 15252, 15376, 15500, 15625, 15750, 15876, 16002, 16129, 16256, 16384, 16512,
-16641, 16770, 16900, 17030, 17161, 17292, 17424, 17556, 17689, 17822, 17956, 18090,
-18225, 18360, 18496, 18632, 18769, 18906, 19044, 19182, 19321, 19460, 19600, 19740,
-19881, 20022, 20164, 20306, 20449, 20592, 20736, 20880, 21025, 21170, 21316, 21462,
-21609, 21756, 21904, 22052, 22201, 22350, 22500, 22650, 22801, 22952, 23104, 23256,
-23409, 23562, 23716, 23870, 24025, 24180, 24336, 24492, 24649, 24806, 24964, 25122,
-25281, 25440, 25600, 25760, 25921, 26082, 26244, 26406, 26569, 26732, 26896, 27060,
-27225, 27390, 27556, 27722, 27889, 28056, 28224, 28392, 28561, 28730, 28900, 29070,
-29241, 29412, 29584, 29756, 29929, 30102, 30276, 30450, 30625, 30800, 30976, 31152,
-31329, 31506, 31684, 31862, 32041, 32220, 32400, 32580, 32761, 32942, 33124, 33306,
-33489, 33672, 33856, 34040, 34225, 34410, 34596, 34782, 34969, 35156, 35344, 35532,
-35721, 35910, 36100, 36290, 36481, 36672, 36864, 37056, 37249, 37442, 37636, 37830,
-38025, 38220, 38416, 38612, 38809, 39006, 39204, 39402, 39601, 39800, 40000, 40200,
-40401, 40602, 40804, 41006, 41209, 41412, 41616, 41820, 42025, 42230, 42436, 42642,
-42849, 43056, 43264, 43472, 43681, 43890, 44100, 44310, 44521, 44732, 44944, 45156,
-45369, 45582, 45796, 46010, 46225, 46440, 46656, 46872, 47089, 47306, 47524, 47742,
-47961, 48180, 48400, 48620, 48841, 49062, 49284, 49506, 49729, 49952, 50176, 50400,
-50625, 50850, 51076, 51302, 51529, 51756, 51984, 52212, 52441, 52670, 52900, 53130,
-53361, 53592, 53824, 54056, 54289, 54522, 54756, 54990, 55225, 55460, 55696, 55932,
-56169, 56406, 56644, 56882, 57121, 57360, 57600, 57840, 58081, 58322, 58564, 58806,
-59049, 59292, 59536, 59780, 60025, 60270, 60516, 60762, 61009, 61256, 61504, 61752,
-62001, 62250, 62500, 62750, 63001, 63252, 63504, 63756, 64009, 64262, 64516, 64770,
-65025};
-#endif
-
-#if defined(MP_8BIT)
-/*
-   4 add/sub
-   2 table lookups
-   -
-   6 operations
-
-   versus
-
-    8 shifts
-    8 ands
-    8 jump/zero
-    8 adds
-   --
-   32 operations
-*/
-mp_word s_mp_mult(mp_digit a, mp_digit b)
-{
-   int A, B;
-   /* since mp_digit < 9-bits a+b may truncate... */
-   A = a; B = b;
-   A += 510;
-   return (mp_word)(sqr[A+B] - sqr[A-B]);
-}
-#elif defined(MP_16BIT)
-/*
-   17 add/sub
-    4 shifts
-    8 table lookups
-    2 ands
-   --
-   31 operations
-
-   A double/multiply would require
-
-   16 shifts
-   16 ands
-   16 jump/zero
-   16 adds
-   --
-   64 operations
- */
-mp_word s_mp_mult(mp_digit a, mp_digit b)
-{
-  mp_digit a1, a2, b1, b2;
-  a1 = a&255;       a2 = a>>8;
-  b1 = (b&255)+510; b2 = (b>>8)+510;
-  return (mp_word)(
-          (sqr[b1+a1] - sqr[b1-a1]) +
-          ((sqr[b1+a2] + sqr[b2+a1] - (sqr[b1-a2] + sqr[b2-a1]))<<8) +
-          ((sqr[b2+a2] - sqr[b2-a2])<<16));
-}
-#elif defined(MP_28BIT)
-/* use a 2-ary sliding window
-
-   29 shifts
-   14 additions
-   13 ands
-   18 table lookups
-   --
-   74 operations
-
-   versus 4*28 == 112 via the other method
-*/
-mp_word s_mp_mult(mp_digit a, mp_digit b)
-{
-   mp_digit wnd[4];
-   mp_word  res;
-
-   /* make window */
-   wnd[0] = 0;
-   wnd[1] = a;
-   wnd[2] = a<<1;
-   wnd[3] = (a<<1) + a;
-
-   /* go over the 28 bits of b */
-#define RND(i)   res = (res << 2) + ((mp_word)wnd[(b>>(2*i))&3]);
-   res = wnd[b>>26];
-   RND(12); RND(11); RND(10); RND( 9);
-   RND( 8); RND( 7); RND( 6); RND( 5);
-   RND( 4); RND( 3); RND( 2); RND( 1); RND(0);
-   return res;
-}
-#else
-mp_word s_mp_mult(mp_digit a, mp_digit b)
-{
-   return ((mp_word)a)*((mp_word)b);
-}
-#endif
-
-#endif /* SLOW_MULT */
-
-/* End: bn_mult.c */
-
 /* Start: bn_prime_tab.c */
 /* LibTomMath, multiple-precision integer library -- Tom St Denis
  *
@@ -7164,7 +7243,7 @@ s_mp_mul_digs (mp_int * a, mp_int * b, mp_int * c, int digs)
     for (iy = 0; iy < pb; iy++) {
       /* compute the column as a mp_word */
       r = ((mp_word) *tmpt) + 
-          MULT(tmpx, *tmpy++) +
+          ((mp_word)tmpx) * ((mp_word)*tmpy++) +
           ((mp_word) u);
 
       /* the new column is the lower part of the result */
@@ -7246,7 +7325,7 @@ s_mp_mul_high_digs (mp_int * a, mp_int * b, mp_int * c, int digs)
 
     for (iy = digs - ix; iy < pb; iy++) {
       /* calculate the double precision result */
-      r = ((mp_word) * tmpt) + MULT(tmpx, *tmpy++) + ((mp_word) u);
+      r = ((mp_word) * tmpt) + ((mp_word)tmpx) * ((mp_word)*tmpy++) + ((mp_word) u);
 
       /* get the lower part */
       *tmpt++ = (mp_digit) (r & ((mp_word) MP_MASK));
@@ -7299,8 +7378,8 @@ s_mp_sqr (mp_int * a, mp_int * b)
   for (ix = 0; ix < pa; ix++) {
     /* first calculate the digit at 2*ix */
     /* calculate double precision result */
-    r = ((mp_word) t.dp[2*ix]) + 
-        MULT(a->dp[ix], a->dp[ix]);
+    r = ((mp_word) t.dp[2*ix]) +
+        ((mp_word)a->dp[ix])*((mp_word)a->dp[ix]);
 
     /* store lower part in result */
     t.dp[2*ix] = (mp_digit) (r & ((mp_word) MP_MASK));
@@ -7316,12 +7395,12 @@ s_mp_sqr (mp_int * a, mp_int * b)
     
     for (iy = ix + 1; iy < pa; iy++) {
       /* first calculate the product */
-      r = MULT(tmpx, a->dp[iy]);
+      r = ((mp_word)tmpx) * ((mp_word)a->dp[iy]);
 
       /* now calculate the double precision result, note we use
        * addition instead of *2 since it's easier to optimize
        */
-      r = ((mp_word) * tmpt) + r + r + ((mp_word) u);
+      r = ((mp_word) *tmpt) + r + r + ((mp_word) u);
 
       /* store lower part */
       *tmpt++ = (mp_digit) (r & ((mp_word) MP_MASK));

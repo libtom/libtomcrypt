@@ -1,8 +1,6 @@
 #MSVC Makefile [tested with MSVC 6.00 with SP5]
 #
 #Tom St Denis
-
-# note optimizations are turned off because it causes a bug in aes.c that cannot be rectified [right away]
 CFLAGS = /I. /Ox /DWIN32 /W3
 
 default: library

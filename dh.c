@@ -14,7 +14,7 @@ static const struct {
    "2",
    "1tH+dRFGpEYyVLe4ydZcYyGDpeAxnChz0yk+pNCtkEXwUsOORyguBtx8spUD"
    "FAjEDS8PutUBTEu2q4USqu19dUbCLj9D2jY7y3871RnSccurMBsMm35ILcyQ"
-    "rpN0MQKc/"
+   "rpN0MQKc/"
 },
 #endif
 #ifdef DH1024
@@ -465,7 +465,7 @@ int dh_shared_secret(dh_key *private_key, dh_key *public_key,
    }
 
    if (mp_read_radix(&p, (char *)sets[private_key->idx].prime, 64) != MP_OKAY)     { goto error; }
-   if (mp_exptmod(&public_key->y, &private_key->x, &p, &tmp) != MP_OKAY)                    { goto error; }
+   if (mp_exptmod(&public_key->y, &private_key->x, &p, &tmp) != MP_OKAY)           { goto error; }
 
    /* enough space for output? */
    x = (unsigned long)mp_unsigned_bin_size(&tmp);
@@ -473,7 +473,7 @@ int dh_shared_secret(dh_key *private_key, dh_key *public_key,
       res = CRYPT_BUFFER_OVERFLOW;
       goto done;
    }
-   if (mp_to_unsigned_bin(&tmp, out) != MP_OKAY)                                            { goto error; }
+   if (mp_to_unsigned_bin(&tmp, out) != MP_OKAY)                                   { goto error; }
    *outlen = x;
    res = CRYPT_OK;
    goto done;

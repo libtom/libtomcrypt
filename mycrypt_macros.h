@@ -12,8 +12,6 @@
  */
 typedef unsigned long ulong32;
 
-extern char *crypt_error;
-
 /* ---- HELPER MACROS ---- */
 #ifdef ENDIAN_NEUTRAL
 
@@ -190,13 +188,15 @@ extern char *crypt_error;
 
 #ifdef _MSC_VER
 
-#  include <stdlib.h>
-#  pragma intrinsic(_lrotr,_lrotl)
-#  define ROR(x,n) _lrotr(x,n)
-#  define ROL(x,n) _lrotl(x,n)
+/* instrinsic rotate */
+#include <stdlib.h>
+#pragma intrinsic(_lrotr,_lrotl)
+#define ROR(x,n) _lrotr(x,n)
+#define ROL(x,n) _lrotl(x,n)
 
 #else
 
+/* rotates the hard way */
 #define ROL(x, y) ( (((unsigned long)(x)<<(unsigned long)((y)&31)) | (((unsigned long)(x)&0xFFFFFFFFUL)>>(unsigned long)(32-((y)&31)))) & 0xFFFFFFFFUL)
 #define ROR(x, y) ( ((((unsigned long)(x)&0xFFFFFFFFUL)>>(unsigned long)((y)&31)) | ((unsigned long)(x)<<(unsigned long)(32-((y)&31)))) & 0xFFFFFFFFUL)
 
@@ -216,7 +216,7 @@ extern char *crypt_error;
 #define MIN(x, y) ( ((x)<(y))?(x):(y) )
 
 /* extract a byte portably */
-#if (CHAR_BIT == 8) 
+#ifdef _MSC_VER
    #define byte(x, n) ((unsigned char)((x) >> (8 * (n))))
 #else
    #define byte(x, n) (((x) >> (8 * (n))) & 255)

@@ -9,7 +9,7 @@
 # a build. This is easy to remedy though, for those that have problems.
 
 # The version
-VERSION=0.88
+VERSION=0.89
 
 #ch1-01-1
 # Compiler and Linker Names

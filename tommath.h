@@ -91,7 +91,7 @@ extern "C" {
 
 /* otherwise the bits per digit is calculated automatically from the size of a mp_digit */
 #ifndef DIGIT_BIT
-   #define DIGIT_BIT     ((CHAR_BIT * sizeof(mp_digit) - 1))  /* bits per digit */
+   #define DIGIT_BIT     ((int)((CHAR_BIT * sizeof(mp_digit) - 1)))  /* bits per digit */
 #endif
 
 
@@ -125,16 +125,6 @@ extern int KARATSUBA_MUL_CUTOFF,
 
 /* define this to use lower memory usage routines (exptmods mostly) */
 /* #define MP_LOW_MEM */
-
-/* have no cpu based mult?  */
-/* #define SLOW_MULT */
-
-#ifdef SLOW_MULT
-   #define MULT(x, y) s_mp_mult((x), (y))
-   mp_word s_mp_mult(mp_digit, mp_digit);
-#else
-   #define MULT(x, y) (((mp_word)(x)) * ((mp_word)(y)))
-#endif
 
 /* size of comba arrays, should be at least 2 * 2**(BITS_PER_WORD - BITS_PER_DIGIT*2) */
 #define MP_WARRAY               (1 << (sizeof(mp_word) * CHAR_BIT - 2 * DIGIT_BIT + 1))
@@ -411,9 +401,10 @@ int mp_prime_is_prime(mp_int *a, int t, int *result);
 
 /* finds the next prime after the number "a" using "t" trials
  * of Miller-Rabin.
+ *
+ * bbs_style = 1 means the prime must be congruent to 3 mod 4
  */
-int mp_prime_next_prime(mp_int *a, int t);
-
+int mp_prime_next_prime(mp_int *a, int t, int bbs_style);
 
 /* ---> radix conversion <--- */
 int mp_count_bits(mp_int *a);

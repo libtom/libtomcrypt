@@ -1,3 +1,11 @@
+July 15th, 2003
+v0.89  -- Fix a bug in bits.c which would prevent it from building with msvc
+       -- Merged in LibTomMath v0.24 [and I used the alloc/free macros this time!]
+       -- Removed the LTC version of next_prime() and replaced it with a call to the
+          mp_prime_next_prime() from LibTomMath
+       -- reverted bits.c to the 0.86 copy since the new one doesn't build in MSVC
+          or cygwin.
+
 Jul 10th, 2003
 v0.88  -- Sped up CAST5 key schedule for MSVC
        -- added "ulong32" which allows people on 64-bit platforms to force the 32-bit tables in

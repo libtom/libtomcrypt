@@ -46,7 +46,6 @@ static void sha1_compress(hash_state *md)
         W[i] = ROL(W[i-3] ^ W[i-8] ^ W[i-14] ^ W[i-16], 1); 
     }
 
-
     /* compress */
     /* round one */
     #define FF0(a,b,c,d,e,i) e = (ROL(a, 5) + F0(b,c,d) + e + W[i] + 0x5a827999UL); b = ROL(b, 30);
