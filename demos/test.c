@@ -1139,7 +1139,7 @@ ecc_tests (void)
   }
 
 /* test encrypt_key */
-  ecc_make_key (&prng, find_prng ("yarrow"), 28, &usera);
+  ecc_make_key (&prng, find_prng ("yarrow"), 20, &usera);
   for (x = 0; x < 32; x++)
     buf[0][x] = x;
   y = sizeof (buf[1]);
@@ -1176,6 +1176,7 @@ ecc_tests (void)
     printf ("Error: %s\n", error_to_string (errnum));
     exit (-1);
   }
+  printf("Signature size: %lu\n", x);
   if (ecc_verify_hash (buf[1], x, buf[0], 16, &stat, &usera)) {
     printf ("Error: %s\n", error_to_string (errnum));
     exit (-1);
@@ -1377,12 +1378,12 @@ register_all_algs (void)
 void
 kr_display (pk_key * kr)
 {
-  static const char *system[] = { "NON-KEY", "RSA", "DH", "ECC" };
+  static const char *sys[] = { "NON-KEY", "RSA", "DH", "ECC" };
   static const char *type[] = { "PRIVATE", "PUBLIC", "PRIVATE_OPTIMIZED" };
 
   while (kr->system != NON_KEY) {
     printf ("CRC [%08lx], System [%10s], Type [%20s], %s, %s, %s\n", kr->ID,
-	    system[kr->system], type[kr->key_type], kr->name, kr->email,
+	    sys[kr->system], type[kr->key_type], kr->name, kr->email,
 	    kr->description);
     kr = kr->next;
   }

@@ -9,7 +9,7 @@
 # a build. This is easy to remedy though, for those that have problems.
 
 # The version
-VERSION=0.82
+VERSION=0.83
 
 #ch1-01-1
 # Compiler and Linker Names
@@ -23,7 +23,7 @@ ARFLAGS=r
 
 #ch1-01-3
 # Compilation flags. Note the += does not write over the user's CFLAGS!
-CFLAGS += -c -I./ -Wall -Wsign-compare -W -Wno-unused -Werror
+CFLAGS += -c -I./ -Wall -Wsign-compare -W -Wno-unused -Wshadow -Werror
 
 # optimize for SPEED
 #CFLAGS += -O3 -funroll-loops
