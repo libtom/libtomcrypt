@@ -13,7 +13,7 @@ Td3[x] = Si[x].[09, 0d, 0b, 0e];
 Td4[x] = Si[x].[01, 01, 01, 01];
 */
 
-static const unsigned long Te0[256] = {
+static const ulong32 Te0[256] = {
     0xc66363a5UL, 0xf87c7c84UL, 0xee777799UL, 0xf67b7b8dUL,
     0xfff2f20dUL, 0xd66b6bbdUL, 0xde6f6fb1UL, 0x91c5c554UL,
     0x60303050UL, 0x02010103UL, 0xce6767a9UL, 0x562b2b7dUL,
@@ -79,7 +79,7 @@ static const unsigned long Te0[256] = {
     0x824141c3UL, 0x299999b0UL, 0x5a2d2d77UL, 0x1e0f0f11UL,
     0x7bb0b0cbUL, 0xa85454fcUL, 0x6dbbbbd6UL, 0x2c16163aUL,
 };
-static const unsigned long Te1[256] = {
+static const ulong32 Te1[256] = {
     0xa5c66363UL, 0x84f87c7cUL, 0x99ee7777UL, 0x8df67b7bUL,
     0x0dfff2f2UL, 0xbdd66b6bUL, 0xb1de6f6fUL, 0x5491c5c5UL,
     0x50603030UL, 0x03020101UL, 0xa9ce6767UL, 0x7d562b2bUL,
@@ -145,7 +145,7 @@ static const unsigned long Te1[256] = {
     0xc3824141UL, 0xb0299999UL, 0x775a2d2dUL, 0x111e0f0fUL,
     0xcb7bb0b0UL, 0xfca85454UL, 0xd66dbbbbUL, 0x3a2c1616UL,
 };
-static const unsigned long Te2[256] = {
+static const ulong32 Te2[256] = {
     0x63a5c663UL, 0x7c84f87cUL, 0x7799ee77UL, 0x7b8df67bUL,
     0xf20dfff2UL, 0x6bbdd66bUL, 0x6fb1de6fUL, 0xc55491c5UL,
     0x30506030UL, 0x01030201UL, 0x67a9ce67UL, 0x2b7d562bUL,
@@ -211,7 +211,7 @@ static const unsigned long Te2[256] = {
     0x41c38241UL, 0x99b02999UL, 0x2d775a2dUL, 0x0f111e0fUL,
     0xb0cb7bb0UL, 0x54fca854UL, 0xbbd66dbbUL, 0x163a2c16UL,
 };
-static const unsigned long Te3[256] = {
+static const ulong32 Te3[256] = {
 
     0x6363a5c6UL, 0x7c7c84f8UL, 0x777799eeUL, 0x7b7b8df6UL,
     0xf2f20dffUL, 0x6b6bbdd6UL, 0x6f6fb1deUL, 0xc5c55491UL,
@@ -278,7 +278,7 @@ static const unsigned long Te3[256] = {
     0x4141c382UL, 0x9999b029UL, 0x2d2d775aUL, 0x0f0f111eUL,
     0xb0b0cb7bUL, 0x5454fca8UL, 0xbbbbd66dUL, 0x16163a2cUL,
 };
-static const unsigned long Te4[256] = {
+static const ulong32 Te4[256] = {
     0x63636363UL, 0x7c7c7c7cUL, 0x77777777UL, 0x7b7b7b7bUL,
     0xf2f2f2f2UL, 0x6b6b6b6bUL, 0x6f6f6f6fUL, 0xc5c5c5c5UL,
     0x30303030UL, 0x01010101UL, 0x67676767UL, 0x2b2b2b2bUL,
@@ -354,7 +354,7 @@ static const unsigned long Te4[256] = {
 
 #else
 
-static const unsigned long Te4_0[] = {
+static const ulong32 Te4_0[] = {
 0x00000063UL, 0x0000007cUL, 0x00000077UL, 0x0000007bUL, 0x000000f2UL, 0x0000006bUL, 0x0000006fUL, 0x000000c5UL, 
 0x00000030UL, 0x00000001UL, 0x00000067UL, 0x0000002bUL, 0x000000feUL, 0x000000d7UL, 0x000000abUL, 0x00000076UL, 
 0x000000caUL, 0x00000082UL, 0x000000c9UL, 0x0000007dUL, 0x000000faUL, 0x00000059UL, 0x00000047UL, 0x000000f0UL, 
@@ -389,7 +389,7 @@ static const unsigned long Te4_0[] = {
 0x00000041UL, 0x00000099UL, 0x0000002dUL, 0x0000000fUL, 0x000000b0UL, 0x00000054UL, 0x000000bbUL, 0x00000016UL
 };
 
-static const unsigned long Te4_1[] = {
+static const ulong32 Te4_1[] = {
 0x00006300UL, 0x00007c00UL, 0x00007700UL, 0x00007b00UL, 0x0000f200UL, 0x00006b00UL, 0x00006f00UL, 0x0000c500UL, 
 0x00003000UL, 0x00000100UL, 0x00006700UL, 0x00002b00UL, 0x0000fe00UL, 0x0000d700UL, 0x0000ab00UL, 0x00007600UL, 
 0x0000ca00UL, 0x00008200UL, 0x0000c900UL, 0x00007d00UL, 0x0000fa00UL, 0x00005900UL, 0x00004700UL, 0x0000f000UL, 
@@ -424,7 +424,7 @@ static const unsigned long Te4_1[] = {
 0x00004100UL, 0x00009900UL, 0x00002d00UL, 0x00000f00UL, 0x0000b000UL, 0x00005400UL, 0x0000bb00UL, 0x00001600UL
 };
 
-static const unsigned long Te4_2[] = {
+static const ulong32 Te4_2[] = {
 0x00630000UL, 0x007c0000UL, 0x00770000UL, 0x007b0000UL, 0x00f20000UL, 0x006b0000UL, 0x006f0000UL, 0x00c50000UL, 
 0x00300000UL, 0x00010000UL, 0x00670000UL, 0x002b0000UL, 0x00fe0000UL, 0x00d70000UL, 0x00ab0000UL, 0x00760000UL, 
 0x00ca0000UL, 0x00820000UL, 0x00c90000UL, 0x007d0000UL, 0x00fa0000UL, 0x00590000UL, 0x00470000UL, 0x00f00000UL, 
@@ -459,7 +459,7 @@ static const unsigned long Te4_2[] = {
 0x00410000UL, 0x00990000UL, 0x002d0000UL, 0x000f0000UL, 0x00b00000UL, 0x00540000UL, 0x00bb0000UL, 0x00160000UL
 };
 
-static const unsigned long Te4_3[] = {
+static const ulong32 Te4_3[] = {
 0x63000000UL, 0x7c000000UL, 0x77000000UL, 0x7b000000UL, 0xf2000000UL, 0x6b000000UL, 0x6f000000UL, 0xc5000000UL, 
 0x30000000UL, 0x01000000UL, 0x67000000UL, 0x2b000000UL, 0xfe000000UL, 0xd7000000UL, 0xab000000UL, 0x76000000UL, 
 0xca000000UL, 0x82000000UL, 0xc9000000UL, 0x7d000000UL, 0xfa000000UL, 0x59000000UL, 0x47000000UL, 0xf0000000UL, 
@@ -496,7 +496,7 @@ static const unsigned long Te4_3[] = {
 
 #endif
 
-static const unsigned long Td0[256] = {
+static const ulong32 Td0[256] = {
     0x51f4a750UL, 0x7e416553UL, 0x1a17a4c3UL, 0x3a275e96UL,
     0x3bab6bcbUL, 0x1f9d45f1UL, 0xacfa58abUL, 0x4be30393UL,
     0x2030fa55UL, 0xad766df6UL, 0x88cc7691UL, 0xf5024c25UL,
@@ -562,7 +562,7 @@ static const unsigned long Td0[256] = {
     0x39a80171UL, 0x080cb3deUL, 0xd8b4e49cUL, 0x6456c190UL,
     0x7bcb8461UL, 0xd532b670UL, 0x486c5c74UL, 0xd0b85742UL,
 };
-static const unsigned long Td1[256] = {
+static const ulong32 Td1[256] = {
     0x5051f4a7UL, 0x537e4165UL, 0xc31a17a4UL, 0x963a275eUL,
     0xcb3bab6bUL, 0xf11f9d45UL, 0xabacfa58UL, 0x934be303UL,
     0x552030faUL, 0xf6ad766dUL, 0x9188cc76UL, 0x25f5024cUL,
@@ -628,7 +628,7 @@ static const unsigned long Td1[256] = {
     0x7139a801UL, 0xde080cb3UL, 0x9cd8b4e4UL, 0x906456c1UL,
     0x617bcb84UL, 0x70d532b6UL, 0x74486c5cUL, 0x42d0b857UL,
 };
-static const unsigned long Td2[256] = {
+static const ulong32 Td2[256] = {
     0xa75051f4UL, 0x65537e41UL, 0xa4c31a17UL, 0x5e963a27UL,
     0x6bcb3babUL, 0x45f11f9dUL, 0x58abacfaUL, 0x03934be3UL,
     0xfa552030UL, 0x6df6ad76UL, 0x769188ccUL, 0x4c25f502UL,
@@ -695,7 +695,7 @@ static const unsigned long Td2[256] = {
     0x017139a8UL, 0xb3de080cUL, 0xe49cd8b4UL, 0xc1906456UL,
     0x84617bcbUL, 0xb670d532UL, 0x5c74486cUL, 0x5742d0b8UL,
 };
-static const unsigned long Td3[256] = {
+static const ulong32 Td3[256] = {
     0xf4a75051UL, 0x4165537eUL, 0x17a4c31aUL, 0x275e963aUL,
     0xab6bcb3bUL, 0x9d45f11fUL, 0xfa58abacUL, 0xe303934bUL,
     0x30fa5520UL, 0x766df6adUL, 0xcc769188UL, 0x024c25f5UL,
@@ -761,7 +761,7 @@ static const unsigned long Td3[256] = {
     0xa8017139UL, 0x0cb3de08UL, 0xb4e49cd8UL, 0x56c19064UL,
     0xcb84617bUL, 0x32b670d5UL, 0x6c5c7448UL, 0xb85742d0UL,
 };
-static const unsigned long Td4[256] = {
+static const ulong32 Td4[256] = {
     0x52525252UL, 0x09090909UL, 0x6a6a6a6aUL, 0xd5d5d5d5UL,
     0x30303030UL, 0x36363636UL, 0xa5a5a5a5UL, 0x38383838UL,
     0xbfbfbfbfUL, 0x40404040UL, 0xa3a3a3a3UL, 0x9e9e9e9eUL,
@@ -827,14 +827,14 @@ static const unsigned long Td4[256] = {
     0xe1e1e1e1UL, 0x69696969UL, 0x14141414UL, 0x63636363UL,
     0x55555555UL, 0x21212121UL, 0x0c0c0c0cUL, 0x7d7d7d7dUL,
 };
-static const unsigned long rcon[] = {
+static const ulong32 rcon[] = {
     0x01000000UL, 0x02000000UL, 0x04000000UL, 0x08000000UL,
     0x10000000UL, 0x20000000UL, 0x40000000UL, 0x80000000UL,
     0x1B000000UL, 0x36000000UL, /* for 128-bit blocks, Rijndael never uses more than 10 rcon values */
 };
 
 #ifndef SMALL_CODE
-static const unsigned long Tks0[] = {
+static const ulong32 Tks0[] = {
 0x00000000UL, 0x0e090d0bUL, 0x1c121a16UL, 0x121b171dUL, 0x3824342cUL, 0x362d3927UL, 0x24362e3aUL, 0x2a3f2331UL, 
 0x70486858UL, 0x7e416553UL, 0x6c5a724eUL, 0x62537f45UL, 0x486c5c74UL, 0x4665517fUL, 0x547e4662UL, 0x5a774b69UL, 
 0xe090d0b0UL, 0xee99ddbbUL, 0xfc82caa6UL, 0xf28bc7adUL, 0xd8b4e49cUL, 0xd6bde997UL, 0xc4a6fe8aUL, 0xcaaff381UL, 
@@ -869,7 +869,7 @@ static const unsigned long Tks0[] = {
 0xa779b492UL, 0xa970b999UL, 0xbb6bae84UL, 0xb562a38fUL, 0x9f5d80beUL, 0x91548db5UL, 0x834f9aa8UL, 0x8d4697a3UL
 };
 
-static const unsigned long Tks1[] = {
+static const ulong32 Tks1[] = {
 0x00000000UL, 0x0b0e090dUL, 0x161c121aUL, 0x1d121b17UL, 0x2c382434UL, 0x27362d39UL, 0x3a24362eUL, 0x312a3f23UL, 
 0x58704868UL, 0x537e4165UL, 0x4e6c5a72UL, 0x4562537fUL, 0x74486c5cUL, 0x7f466551UL, 0x62547e46UL, 0x695a774bUL, 
 0xb0e090d0UL, 0xbbee99ddUL, 0xa6fc82caUL, 0xadf28bc7UL, 0x9cd8b4e4UL, 0x97d6bde9UL, 0x8ac4a6feUL, 0x81caaff3UL, 
@@ -904,7 +904,7 @@ static const unsigned long Tks1[] = {
 0x92a779b4UL, 0x99a970b9UL, 0x84bb6baeUL, 0x8fb562a3UL, 0xbe9f5d80UL, 0xb591548dUL, 0xa8834f9aUL, 0xa38d4697UL
 };
 
-static const unsigned long Tks2[] = {
+static const ulong32 Tks2[] = {
 0x00000000UL, 0x0d0b0e09UL, 0x1a161c12UL, 0x171d121bUL, 0x342c3824UL, 0x3927362dUL, 0x2e3a2436UL, 0x23312a3fUL, 
 0x68587048UL, 0x65537e41UL, 0x724e6c5aUL, 0x7f456253UL, 0x5c74486cUL, 0x517f4665UL, 0x4662547eUL, 0x4b695a77UL, 
 0xd0b0e090UL, 0xddbbee99UL, 0xcaa6fc82UL, 0xc7adf28bUL, 0xe49cd8b4UL, 0xe997d6bdUL, 0xfe8ac4a6UL, 0xf381caafUL, 
@@ -939,7 +939,7 @@ static const unsigned long Tks2[] = {
 0xb492a779UL, 0xb999a970UL, 0xae84bb6bUL, 0xa38fb562UL, 0x80be9f5dUL, 0x8db59154UL, 0x9aa8834fUL, 0x97a38d46UL
 };
 
-static const unsigned long Tks3[] = {
+static const ulong32 Tks3[] = {
 0x00000000UL, 0x090d0b0eUL, 0x121a161cUL, 0x1b171d12UL, 0x24342c38UL, 0x2d392736UL, 0x362e3a24UL, 0x3f23312aUL, 
 0x48685870UL, 0x4165537eUL, 0x5a724e6cUL, 0x537f4562UL, 0x6c5c7448UL, 0x65517f46UL, 0x7e466254UL, 0x774b695aUL, 
 0x90d0b0e0UL, 0x99ddbbeeUL, 0x82caa6fcUL, 0x8bc7adf2UL, 0xb4e49cd8UL, 0xbde997d6UL, 0xa6fe8ac4UL, 0xaff381caUL, 

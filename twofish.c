@@ -101,7 +101,7 @@ static const unsigned char SBOX[2][256] = {
  0x86, 0x56, 0x55, 0x09, 0xbe, 0x91}
 };
 
-static const unsigned long mds_tab[4][256] = {
+static const ulong32 mds_tab[4][256] = {
 {
 0x00000000UL, 0xefef5b01UL, 0xb7b7b602UL, 0x5858ed03UL, 0x07070504UL, 0xe8e85e05UL, 0xb0b0b306UL, 0x5f5fe807UL, 
 0x0e0e0a08UL, 0xe1e15109UL, 0xb9b9bc0aUL, 0x5656e70bUL, 0x09090f0cUL, 0xe6e6540dUL, 0xbebeb90eUL, 0x5151e20fUL, 
@@ -239,7 +239,7 @@ static const unsigned long mds_tab[4][256] = {
 0xc6baf8c6UL, 0x9d55f99dUL, 0x700dfa70UL, 0x2be2fb2bUL, 0xc3bdfcc3UL, 0x9852fd98UL, 0x750afe75UL, 0x2ee5ff2eUL
 }};
 
-#define sbox(i, x) ((unsigned long)SBOX[i][(x)&255])
+#define sbox(i, x) ((ulong32)SBOX[i][(x)&255])
 
 #else
 
@@ -261,9 +261,9 @@ static const unsigned char qbox[2][4][16] = {
 
 /* computes S_i[x] */
 #ifdef CLEAN_STACK
-static unsigned long _sbox(int i, unsigned long x)
+static ulong32 _sbox(int i, ulong32 x)
 #else
-static unsigned long sbox(int i, unsigned long x)
+static ulong32 sbox(int i, ulong32 x)
 #endif
 {
    unsigned char a0,b0,a1,b1,a2,b2,a3,b3,a4,b4,y;
@@ -296,13 +296,13 @@ static unsigned long sbox(int i, unsigned long x)
    y = (b4 << 4) + a4;
 
    /* return result */
-   return (unsigned long)y;
+   return (ulong32)y;
 }
 
 #ifdef CLEAN_STACK
-static unsigned long sbox(int i, unsigned long x)
+static ulong32 sbox(int i, ulong32 x)
 {
-   unsigned long y;
+   ulong32 y;
    y = _sbox(i, x);
    burn_stack(sizeof(unsigned char) * 11);
    return y;
@@ -312,22 +312,22 @@ static unsigned long sbox(int i, unsigned long x)
 #endif /* TWOFISH_TABLES */
 
 /* computes ab mod p */
-static unsigned long gf_mult(unsigned long a, unsigned long b, unsigned long p)
+static ulong32 gf_mult(ulong32 a, ulong32 b, ulong32 p)
 {
-   unsigned long result = 0, B[2], P[2];
+   ulong32 result = 0, B[2], P[2];
    
    P[1] = p;
    B[1] = b;
    P[0] = B[0] = 0;  
    
    /* unrolled branchless GF multiplier */
-   result ^= B[a&1]; a >>= 1;  B[1] <<= 1; B[1] ^= P[B[1]>>8];
-   result ^= B[a&1]; a >>= 1;  B[1] <<= 1; B[1] ^= P[B[1]>>8];
-   result ^= B[a&1]; a >>= 1;  B[1] <<= 1; B[1] ^= P[B[1]>>8];
-   result ^= B[a&1]; a >>= 1;  B[1] <<= 1; B[1] ^= P[B[1]>>8];
-   result ^= B[a&1]; a >>= 1;  B[1] <<= 1; B[1] ^= P[B[1]>>8];
-   result ^= B[a&1]; a >>= 1;  B[1] <<= 1; B[1] ^= P[B[1]>>8];
-   result ^= B[a&1]; a >>= 1;  B[1] <<= 1; B[1] ^= P[B[1]>>8];
+   result ^= B[a&1]; a >>= 1;  B[1] = P[B[1]>>7] ^ (B[1] << 1); 
+   result ^= B[a&1]; a >>= 1;  B[1] = P[B[1]>>7] ^ (B[1] << 1); 
+   result ^= B[a&1]; a >>= 1;  B[1] = P[B[1]>>7] ^ (B[1] << 1); 
+   result ^= B[a&1]; a >>= 1;  B[1] = P[B[1]>>7] ^ (B[1] << 1); 
+   result ^= B[a&1]; a >>= 1;  B[1] = P[B[1]>>7] ^ (B[1] << 1); 
+   result ^= B[a&1]; a >>= 1;  B[1] = P[B[1]>>7] ^ (B[1] << 1); 
+   result ^= B[a&1]; a >>= 1;  B[1] = P[B[1]>>7] ^ (B[1] << 1); 
    result ^= B[a&1]; 
 
    return result;
@@ -335,9 +335,9 @@ static unsigned long gf_mult(unsigned long a, unsigned long b, unsigned long p)
 
 /* computes [y0 y1 y2 y3] = MDS . [x0] */
 #ifndef TWOFISH_TABLES
-static unsigned long mds_column_mult(unsigned char in, int col)
+static ulong32 mds_column_mult(unsigned char in, int col)
 {
-   unsigned long x01, x5B, xEF;
+   ulong32 x01, x5B, xEF;
 
    x01 = in;
    x5B = gf_mult(in, 0x5B, MDS_POLY);
@@ -379,7 +379,7 @@ static unsigned long mds_column_mult(unsigned char in, int col)
 static void mds_mult(const unsigned char *in, unsigned char *out)
 {
   int x;
-  unsigned long tmp;
+  ulong32 tmp;
   for (tmp = x = 0; x < 4; x++) {
       tmp ^= mds_column_mult(in[x], x);
   }
@@ -407,20 +407,20 @@ static void h_func(const unsigned char *in, unsigned char *out, unsigned char *M
 
   switch (k) {
      case 4:
-            y[0] = (unsigned char)(sbox(1, (unsigned long)y[0]) ^ M[4 * (6 + offset) + 0]);
-            y[1] = (unsigned char)(sbox(0, (unsigned long)y[1]) ^ M[4 * (6 + offset) + 1]);
-            y[2] = (unsigned char)(sbox(0, (unsigned long)y[2]) ^ M[4 * (6 + offset) + 2]);
-            y[3] = (unsigned char)(sbox(1, (unsigned long)y[3]) ^ M[4 * (6 + offset) + 3]);
+            y[0] = (unsigned char)(sbox(1, (ulong32)y[0]) ^ M[4 * (6 + offset) + 0]);
+            y[1] = (unsigned char)(sbox(0, (ulong32)y[1]) ^ M[4 * (6 + offset) + 1]);
+            y[2] = (unsigned char)(sbox(0, (ulong32)y[2]) ^ M[4 * (6 + offset) + 2]);
+            y[3] = (unsigned char)(sbox(1, (ulong32)y[3]) ^ M[4 * (6 + offset) + 3]);
      case 3:
-            y[0] = (unsigned char)(sbox(1, (unsigned long)y[0]) ^ M[4 * (4 + offset) + 0]);
-            y[1] = (unsigned char)(sbox(1, (unsigned long)y[1]) ^ M[4 * (4 + offset) + 1]);
-            y[2] = (unsigned char)(sbox(0, (unsigned long)y[2]) ^ M[4 * (4 + offset) + 2]);
-            y[3] = (unsigned char)(sbox(0, (unsigned long)y[3]) ^ M[4 * (4 + offset) + 3]);
+            y[0] = (unsigned char)(sbox(1, (ulong32)y[0]) ^ M[4 * (4 + offset) + 0]);
+            y[1] = (unsigned char)(sbox(1, (ulong32)y[1]) ^ M[4 * (4 + offset) + 1]);
+            y[2] = (unsigned char)(sbox(0, (ulong32)y[2]) ^ M[4 * (4 + offset) + 2]);
+            y[3] = (unsigned char)(sbox(0, (ulong32)y[3]) ^ M[4 * (4 + offset) + 3]);
      case 2:
-            y[0] = (unsigned char)(sbox(1, sbox(0, sbox(0, (unsigned long)y[0]) ^ M[4 * (2 + offset) + 0]) ^ M[4 * (0 + offset) + 0]));
-            y[1] = (unsigned char)(sbox(0, sbox(0, sbox(1, (unsigned long)y[1]) ^ M[4 * (2 + offset) + 1]) ^ M[4 * (0 + offset) + 1]));
-            y[2] = (unsigned char)(sbox(1, sbox(1, sbox(0, (unsigned long)y[2]) ^ M[4 * (2 + offset) + 2]) ^ M[4 * (0 + offset) + 2]));
-            y[3] = (unsigned char)(sbox(0, sbox(1, sbox(1, (unsigned long)y[3]) ^ M[4 * (2 + offset) + 3]) ^ M[4 * (0 + offset) + 3]));
+            y[0] = (unsigned char)(sbox(1, sbox(0, sbox(0, (ulong32)y[0]) ^ M[4 * (2 + offset) + 0]) ^ M[4 * (0 + offset) + 0]));
+            y[1] = (unsigned char)(sbox(0, sbox(0, sbox(1, (ulong32)y[1]) ^ M[4 * (2 + offset) + 1]) ^ M[4 * (0 + offset) + 1]));
+            y[2] = (unsigned char)(sbox(1, sbox(1, sbox(0, (ulong32)y[2]) ^ M[4 * (2 + offset) + 2]) ^ M[4 * (0 + offset) + 2]));
+            y[3] = (unsigned char)(sbox(0, sbox(1, sbox(1, (ulong32)y[3]) ^ M[4 * (2 + offset) + 3]) ^ M[4 * (0 + offset) + 3]));
   }
   mds_mult(y, out);
 }
@@ -442,13 +442,13 @@ static void h_func(const unsigned char *in, unsigned char *out, unsigned char *M
 #else
 
 #ifdef CLEAN_STACK
-static unsigned long _g_func(unsigned long x, symmetric_key *key)
+static ulong32 _g_func(ulong32 x, symmetric_key *key)
 #else
-static unsigned long g_func(unsigned long x, symmetric_key *key)
+static ulong32 g_func(ulong32 x, symmetric_key *key)
 #endif
 {
    unsigned char g, i, y, z;
-   unsigned long res;
+   ulong32 res;
 
    res = 0;
    for (y = 0; y < 4; y++) {
@@ -475,11 +475,11 @@ static unsigned long g_func(unsigned long x, symmetric_key *key)
 #define g1_func(x, key) g_func(ROL(x, 8), key)
 
 #ifdef CLEAN_STACK
-static unsigned long g_func(unsigned long x, symmetric_key *key)
+static ulong32 g_func(ulong32 x, symmetric_key *key)
 {
-    unsigned long y;
+    ulong32 y;
     y = _g_func(x, key);
-    burn_stack(sizeof(unsigned char) * 4 + sizeof(unsigned long));
+    burn_stack(sizeof(unsigned char) * 4 + sizeof(ulong32));
     return y;
 }
 #endif /* CLEAN_STACK */
@@ -493,13 +493,13 @@ int twofish_setup(const unsigned char *key, int keylen, int num_rounds, symmetri
 #endif
 {
 #ifndef TWOFISH_SMALL
-   unsigned long g;
+   ulong32 g;
    int z, i;
    unsigned char S[4*4];
 #endif
    int k, x, y, start;
    unsigned char tmp[4], tmp2[4], M[8*4];
-   unsigned long A, B;
+   ulong32 A, B;
 
    _ARGCHK(key != NULL);
    _ARGCHK(skey != NULL);
@@ -591,7 +591,7 @@ int twofish_setup(const unsigned char *key, int keylen, int num_rounds, symmetri
 {
    int x;
    x = _twofish_setup(key, keylen, num_rounds, skey);
-   burn_stack(sizeof(int) * 7 + sizeof(unsigned char) * 56 + sizeof(unsigned long) * 2);
+   burn_stack(sizeof(int) * 7 + sizeof(unsigned char) * 56 + sizeof(ulong32) * 2);
    return x;
 }
 #endif
@@ -602,10 +602,10 @@ static void _twofish_ecb_encrypt(const unsigned char *pt, unsigned char *ct, sym
 void twofish_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *key)
 #endif
 {
-    unsigned long a,b,c,d,ta,tb,tc,td,t1,t2, *k;
+    ulong32 a,b,c,d,ta,tb,tc,td,t1,t2, *k;
     int r;
 #if !defined(TWOFISH_SMALL) && !defined(__GNUC__)
-    unsigned long *S1, *S2, *S3, *S4;
+    ulong32 *S1, *S2, *S3, *S4;
 #endif    
 
     _ARGCHK(pt != NULL);
@@ -656,7 +656,7 @@ void twofish_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_k
 void twofish_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *key)
 {
    _twofish_ecb_encrypt(pt, ct, key);
-   burn_stack(sizeof(unsigned long) * 10 + sizeof(int));
+   burn_stack(sizeof(ulong32) * 10 + sizeof(int));
 }
 #endif
 
@@ -666,10 +666,10 @@ static void _twofish_ecb_decrypt(const unsigned char *ct, unsigned char *pt, sym
 void twofish_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *key)
 #endif
 {
-    unsigned long a,b,c,d,ta,tb,tc,td,t1,t2, *k;
+    ulong32 a,b,c,d,ta,tb,tc,td,t1,t2, *k;
     int r;
 #if !defined(TWOFISH_SMALL) && !defined(__GNUC__)
-    unsigned long *S1, *S2, *S3, *S4;
+    ulong32 *S1, *S2, *S3, *S4;
 #endif    
 
     _ARGCHK(pt != NULL);
@@ -723,7 +723,7 @@ void twofish_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_k
 void twofish_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *key)
 {
    _twofish_ecb_decrypt(ct, pt, key);
-   burn_stack(sizeof(unsigned long) * 10 + sizeof(int));
+   burn_stack(sizeof(ulong32) * 10 + sizeof(int));
 }
 #endif
 

@@ -155,8 +155,8 @@ int dh_test(void)
 #if 0
         printf("dh_test():testing size %d-bits\n", sets[x].size * 8);
 #endif
-        if (mp_read_radix(&g,(unsigned char *)sets[x].base, 64) != MP_OKAY)   { goto error; }
-        if (mp_read_radix(&p,(unsigned char *)sets[x].prime, 64) != MP_OKAY)  { goto error; }
+        if (mp_read_radix(&g,(char *)sets[x].base, 64) != MP_OKAY)   { goto error; }
+        if (mp_read_radix(&p,(char *)sets[x].prime, 64) != MP_OKAY)  { goto error; }
 
         /* ensure p is prime */
         if ((res = is_prime(&p, &primality)) != CRYPT_OK)             { goto done; }
@@ -464,7 +464,7 @@ int dh_shared_secret(dh_key *private_key, dh_key *public_key,
       return CRYPT_MEM;
    }
 
-   if (mp_read_radix(&p, (unsigned char *)sets[private_key->idx].prime, 64) != MP_OKAY)     { goto error; }
+   if (mp_read_radix(&p, (char *)sets[private_key->idx].prime, 64) != MP_OKAY)     { goto error; }
    if (mp_exptmod(&public_key->y, &private_key->x, &p, &tmp) != MP_OKAY)                    { goto error; }
 
    /* enough space for output? */

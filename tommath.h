@@ -85,6 +85,7 @@ extern "C" {
    #define DIGIT_BIT          31
 #else
    #define DIGIT_BIT          28
+   #define MP_28BIT
 #endif   
 #endif
 
@@ -120,10 +121,20 @@ extern int KARATSUBA_MUL_CUTOFF,
            TOOM_SQR_CUTOFF;
 
 /* various build options */
-#define MP_PREC                 64      /* default digits of precision (must be power of two) */
+#define MP_PREC                 64     /* default digits of precision (must be power of two) */
 
 /* define this to use lower memory usage routines (exptmods mostly) */
 /* #define MP_LOW_MEM */
+
+/* have no cpu based mult?  */
+/* #define SLOW_MULT */
+
+#ifdef SLOW_MULT
+   #define MULT(x, y) s_mp_mult((x), (y))
+   mp_word s_mp_mult(mp_digit, mp_digit);
+#else
+   #define MULT(x, y) (((mp_word)(x)) * ((mp_word)(y)))
+#endif
 
 /* size of comba arrays, should be at least 2 * 2**(BITS_PER_WORD - BITS_PER_DIGIT*2) */
 #define MP_WARRAY               (1 << (sizeof(mp_word) * CHAR_BIT - 2 * DIGIT_BIT + 1))
@@ -166,7 +177,7 @@ int mp_init_size(mp_int *a, int size);
 /* ---> Basic Manipulations <--- */
 
 #define mp_iszero(a) (((a)->used == 0) ? 1 : 0)
-#define mp_iseven(a) (((a)->used == 0 || (((a)->dp[0] & 1) == 0)) ? 1 : 0)
+#define mp_iseven(a) (((a)->used > 0 && (((a)->dp[0] & 1) == 0)) ? 1 : 0)
 #define mp_isodd(a)  (((a)->used > 0 && (((a)->dp[0] & 1) == 1)) ? 1 : 0)
 
 /* set to zero */
@@ -212,6 +223,9 @@ int mp_mod_2d(mp_int *a, int b, mp_int *c);
 
 /* computes a = 2**b */
 int mp_2expt(mp_int *a, int b);
+
+/* Counts the number of lsbs which are zero before the first zero bit */
+int mp_cnt_lsb(mp_int *a);
 
 /* makes a pseudo-random int of a given size */
 int mp_rand(mp_int *a, int digits);
@@ -450,6 +464,8 @@ int fast_mp_montgomery_reduce(mp_int *a, mp_int *m, mp_digit mp);
 int mp_exptmod_fast(mp_int *G, mp_int *X, mp_int *P, mp_int *Y, int mode);
 int s_mp_exptmod (mp_int * G, mp_int * X, mp_int * P, mp_int * Y);
 void bn_reverse(unsigned char *s, int len);
+
+extern const char *mp_s_rmap;
 
 #ifdef __cplusplus
    }

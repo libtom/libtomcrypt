@@ -1,7 +1,7 @@
 #include <mycrypt.h>
 
 #define KTIMES  25
-#define TIMES   10000
+#define TIMES   100000
 
 /* RDTSC from Scott Duplichan */
 static ulong64 rdtsc (void)
@@ -142,8 +142,7 @@ int time_keysched(void)
   symmetric_key skey;
   int kl;
   int    (*func) (const unsigned char *, int , int , symmetric_key *);
-  unsigned char key[256][MAXBLOCKSIZE];
-
+  unsigned char key[MAXBLOCKSIZE];
 
   printf ("\n\nKey Schedule Time Trials for the Symmetric Ciphers:\n(Times are cycles per key)\n");
   for (x = 0; cipher_descriptor[x].name != NULL; x++) {
@@ -153,21 +152,14 @@ int time_keysched(void)
     kl   = cipher_descriptor[x].min_key_length;
     c1 = (ulong64)-1;
     for (y1 = 0; y1 < KTIMES; y1++) {
-       for (i = 0; i < 256; i++) {
-          rng_get_bytes(key[i], kl, NULL);    
-       }
-    
+       rng_get_bytes(key, kl, NULL);
        t_start();
-       for (i = 0; i < 256; i++) {
-          DO1(key[i]);
-       }
-       t1 = t_read() >> 8;
-       if (t1 < c1) { if (y1 > 0) --y1; }
+       DO1(key);
+       t1 = t_read();
        c1 = (t1 > c1) ? c1 : t1;
     }
     t1 = c1 - skew;
-    printf
-      ("%-20s: Schedule at %6lu\n", cipher_descriptor[x].name, (unsigned long)t1);
+    printf("%-20s: Schedule at %6lu\n", cipher_descriptor[x].name, (unsigned long)t1);
 
 #undef DO1
    }
@@ -282,8 +274,8 @@ int main(void)
   printf("Timings for ciphers and hashes.  Times are listed as cycles per byte processed.\n\n");
   
 //  init_timer();
-  time_keysched();
   time_cipher();
+  time_keysched();
   time_hash();
   
   return EXIT_SUCCESS;

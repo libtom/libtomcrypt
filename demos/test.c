@@ -1261,7 +1261,7 @@ gf_tests (void)
 void
 test_prime (void)
 {
-  unsigned char buf[1024];
+  char buf[1024];
   mp_int  a;
   int     x;
 

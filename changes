@@ -1,3 +1,13 @@
+Jul 10th, 2003
+v0.88  -- Sped up CAST5 key schedule for MSVC
+       -- added "ulong32" which allows people on 64-bit platforms to force the 32-bit tables in
+          ciphers like blowfish and AES to be 32-bits.  E.g. when unsigned long is 64-bits.
+       -- Optimized the SAFER-SK64, SAFER-SK128, SAFER+, RC5 and RC6 key schedule [big time!]
+       -- Optimized SHA-1 and SHA-256 quite a bit too.
+       -- Fixed up the makefile to use -fomit-frame-pointer more liberally
+       -- Added tv_gen program which makes test vectors for ciphers/hashes
+       -- Merged in LibTomMath v0.22
+       
 Jun 19th, 2003
 v0.87  -- Many MSVC optimizations to the code base
        -- Improved the AES and Twofish key schedule [faster, more constant time]

@@ -1,4 +1,4 @@
-/* AES implementation by Tom St Denis 
+/* AES implementation by Tom St Denis
  *
  * Derived from the Public Domain source code by
  
@@ -48,7 +48,7 @@ const struct _cipher_descriptor aes_desc =
 int rijndael_setup(const unsigned char *key, int keylen, int rounds, symmetric_key *skey)
 {
     int i = 0, j;
-    unsigned long temp, *rk, *rrk;
+    ulong32 temp, *rk, *rrk;
     
     _ARGCHK(key != NULL);
     _ARGCHK(skey != NULL);
@@ -235,7 +235,7 @@ int rijndael_setup(const unsigned char *key, int keylen, int rounds, symmetric_k
 
 void rijndael_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey) 
 {
-    unsigned long s0, s1, s2, s3, t0, t1, t2, t3, *rk;
+    ulong32 s0, s1, s2, s3, t0, t1, t2, t3, *rk;
     int Nr, r;
    
     _ARGCHK(pt != NULL);
@@ -261,13 +261,6 @@ void rijndael_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_
     for (;;) {
 
 /* Both of these blocks are equivalent except the top is more friendlier for x86 processors */
-#if defined(__GNUC__)
-        t0 = rk[4]; t1 = rk[5]; t2 = rk[6]; t3 = rk[7];
-        t1 ^= Te3[byte(s0, 0)]; t2 ^= Te2[byte(s0, 1)]; t3 ^= Te1[byte(s0, 2)]; t0 ^= Te0[byte(s0, 3)];
-        t2 ^= Te3[byte(s1, 0)]; t3 ^= Te2[byte(s1, 1)]; t0 ^= Te1[byte(s1, 2)]; t1 ^= Te0[byte(s1, 3)];
-        t3 ^= Te3[byte(s2, 0)]; t0 ^= Te2[byte(s2, 1)]; t1 ^= Te1[byte(s2, 2)]; t2 ^= Te0[byte(s2, 3)];
-        t0 ^= Te3[byte(s3, 0)]; t1 ^= Te2[byte(s3, 1)]; t2 ^= Te1[byte(s3, 2)]; t3 ^= Te0[byte(s3, 3)];
-#else
         t0 =
             Te0[byte(s0, 3)] ^
             Te1[byte(s1, 2)] ^
@@ -292,21 +285,12 @@ void rijndael_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_
             Te2[byte(s1, 1)] ^
             Te3[byte(s2, 0)] ^
             rk[7];
-#endif
-       
+
         rk += 8;
         if (--r == 0) {
             break;
         }
-        
-/* this second half optimization actually makes it slower on the Athlon, use with caution. */
-#if 0
-        s1 = rk[1]; s2 = rk[2]; s3 = rk[3]; s0 = rk[0]; 
-        s1 ^= Te3[byte(t0, 0)]; s2 ^= Te2[byte(t0, 1)]; s3 ^= Te1[byte(t0, 2)]; s0 ^= Te0[byte(t0, 3)];
-        s2 ^= Te3[byte(t1, 0)]; s3 ^= Te2[byte(t1, 1)]; s0 ^= Te1[byte(t1, 2)]; s1 ^= Te0[byte(t1, 3)];
-        s3 ^= Te3[byte(t2, 0)]; s0 ^= Te2[byte(t2, 1)]; s1 ^= Te1[byte(t2, 2)]; s2 ^= Te0[byte(t2, 3)];
-        s0 ^= Te3[byte(t3, 0)]; s1 ^= Te2[byte(t3, 1)]; s2 ^= Te1[byte(t3, 2)]; s3 ^= Te0[byte(t3, 3)];
-#else
+
         s0 =
             Te0[byte(t0, 3)] ^
             Te1[byte(t1, 2)] ^
@@ -331,7 +315,6 @@ void rijndael_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_
             Te2[byte(t1, 1)] ^
             Te3[byte(t2, 0)] ^
             rk[3];
-#endif            
     }
     /*
      * apply last round and
@@ -368,7 +351,7 @@ void rijndael_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_
 }
 
 void rijndael_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey) {
-    unsigned long s0, s1, s2, s3, t0, t1, t2, t3, *rk;
+    ulong32 s0, s1, s2, s3, t0, t1, t2, t3, *rk;
     int Nr, r;
 
     _ARGCHK(pt != NULL);

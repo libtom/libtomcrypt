@@ -15,7 +15,7 @@ const struct _cipher_descriptor noekeon_desc =
     &noekeon_keysize
 };
 
-static const unsigned long RC[] = {
+static const ulong32 RC[] = {
    0x00000080UL, 0x0000001bUL, 0x00000036UL, 0x0000006cUL,
    0x000000d8UL, 0x000000abUL, 0x0000004dUL, 0x0000009aUL,
    0x0000002fUL, 0x0000005eUL, 0x000000bcUL, 0x00000063UL,
@@ -54,7 +54,7 @@ static const unsigned long RC[] = {
     
 int noekeon_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_key *skey)
 {
-   unsigned long temp;
+   ulong32 temp;
    
    _ARGCHK(key != NULL);
    _ARGCHK(skey != NULL);
@@ -88,7 +88,7 @@ static void _noekeon_ecb_encrypt(const unsigned char *pt, unsigned char *ct, sym
 void noekeon_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *key)
 #endif
 {
-   unsigned long a,b,c,d,temp;
+   ulong32 a,b,c,d,temp;
    int r;
 
    _ARGCHK(key != NULL);
@@ -105,11 +105,9 @@ void noekeon_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_k
        GAMMA(a,b,c,d); \
        PI2(a,b,c,d);
 
-   for (r = 0; r < 16; r += 4) {
+   for (r = 0; r < 16; r += 2) {
        ROUND(0);
        ROUND(1);
-       ROUND(2);
-       ROUND(3);
    }
 
 #undef ROUND
@@ -125,7 +123,7 @@ void noekeon_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_k
 void noekeon_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *key)
 {
    _noekeon_ecb_encrypt(pt, ct, key);
-   burn_stack(sizeof(unsigned long) * 5 + sizeof(int));
+   burn_stack(sizeof(ulong32) * 5 + sizeof(int));
 }
 #endif
 
@@ -135,7 +133,7 @@ static void _noekeon_ecb_decrypt(const unsigned char *ct, unsigned char *pt, sym
 void noekeon_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *key)
 #endif
 {
-   unsigned long a,b,c,d, temp;
+   ulong32 a,b,c,d, temp;
    int r;
 
    _ARGCHK(key != NULL);
@@ -170,7 +168,7 @@ void noekeon_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_k
 void noekeon_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *key)
 {
    _noekeon_ecb_decrypt(ct, pt, key);
-   burn_stack(sizeof(unsigned long) * 5 + sizeof(int));
+   burn_stack(sizeof(ulong32) * 5 + sizeof(int));
 }
 #endif
 

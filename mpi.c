@@ -14,6 +14,7 @@
  * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
  */
 #include "mycrypt.h"
+#include <tommath.h>
 
 /* computes the modular inverse via binary extended euclidean algorithm, 
  * that is c = 1/a mod b 
@@ -67,8 +68,8 @@ top:
     if ((res = mp_div_2 (&u, &u)) != MP_OKAY) {
       goto __ERR;
     }
-    /* 4.2 if A or B is odd then */
-    if (mp_iseven (&B) == 0) {
+    /* 4.2 if B is odd then */
+    if (mp_isodd (&B) == 1) {
       if ((res = mp_sub (&B, &x, &B)) != MP_OKAY) {
         goto __ERR;
       }
@@ -85,8 +86,8 @@ top:
     if ((res = mp_div_2 (&v, &v)) != MP_OKAY) {
       goto __ERR;
     }
-    /* 5.2 if C,D are even then */
-    if (mp_iseven (&D) == 0) {
+    /* 5.2 if D is odd then */
+    if (mp_isodd (&D) == 1) {
       /* D = (D-x)/2 */
       if ((res = mp_sub (&D, &x, &D)) != MP_OKAY) {
         goto __ERR;
@@ -216,7 +217,7 @@ fast_mp_montgomery_reduce (mp_int * x, mp_int * n, mp_digit rho)
      * that W[ix-1] have  the carry cleared (see after the inner loop)
      */
     register mp_digit mu;
-    mu = (((mp_digit) (W[ix] & MP_MASK)) * rho) & MP_MASK;
+    mu = MULT(W[ix] & MP_MASK, rho) & MP_MASK;
 
     /* a = a + mu * m * b**i
      *
@@ -245,7 +246,7 @@ fast_mp_montgomery_reduce (mp_int * x, mp_int * n, mp_digit rho)
 
       /* inner loop */
       for (iy = 0; iy < n->used; iy++) {
-          *_W++ += ((mp_word) mu) * ((mp_word) * tmpn++);
+          *_W++ += MULT(mu, *tmpn++);
       }
     }
 
@@ -383,7 +384,7 @@ fast_s_mp_mul_digs (mp_int * a, mp_int * b, mp_int * c, int digs)
       pb = MIN (b->used, digs - ix);
 
       for (iy = 0; iy < pb; iy++) {
-        *_W++ += ((mp_word) tmpx) * ((mp_word) * tmpy++);
+        *_W++ += MULT(tmpx, *tmpy++);
       }
     }
 
@@ -500,7 +501,7 @@ fast_s_mp_mul_high_digs (mp_int * a, mp_int * b, mp_int * c, int digs)
 
       /* compute column products for digits above the minimum */
       for (; iy < pb; iy++) {
-    *_W++ += ((mp_word) tmpx) * ((mp_word) * tmpy++);
+         *_W++ += MULT(tmpx, *tmpy++);
       }
     }
   }
@@ -596,7 +597,7 @@ fast_s_mp_sqr (mp_int * a, mp_int * b)
      * for a particular column only once which means that
      * there is no need todo a double precision addition
      */
-    W2[ix + ix] = ((mp_word) a->dp[ix]) * ((mp_word) a->dp[ix]);
+    W2[ix + ix] = MULT(a->dp[ix], a->dp[ix]);
 
     {
       register mp_digit tmpx, *tmpy;
@@ -614,7 +615,7 @@ fast_s_mp_sqr (mp_int * a, mp_int * b)
 
       /* inner products */
       for (iy = ix + 1; iy < pa; iy++) {
-          *_W++ += ((mp_word) tmpx) * ((mp_word) * tmpy++);
+          *_W++ += MULT(tmpx, *tmpy++);
       }
     }
   }
@@ -1116,6 +1117,50 @@ mp_cmp_mag (mp_int * a, mp_int * b)
 
 /* End: bn_mp_cmp_mag.c */
 
+/* Start: bn_mp_cnt_lsb.c */
+/* LibTomMath, multiple-precision integer library -- Tom St Denis
+ *
+ * LibTomMath is library that provides for multiple-precision
+ * integer arithmetic as well as number theoretic functionality.
+ *
+ * The library is designed directly after the MPI library by
+ * Michael Fromberger but has been written from scratch with
+ * additional optimizations in place.
+ *
+ * The library is free for all purposes without any express
+ * guarantee it works.
+ *
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
+ */
+#include <tommath.h>
+
+/* Counts the number of lsbs which are zero before the first zero bit */
+int mp_cnt_lsb(mp_int *a)
+{
+   int x;
+   mp_digit q;
+
+   if (mp_iszero(a) == 1) {
+      return 0;
+   }
+
+   /* scan lower digits until non-zero */
+   for (x = 0; x < a->used && a->dp[x] == 0; x++);
+   q = a->dp[x];
+   x *= DIGIT_BIT;
+
+   /* now scan this digit until a 1 is found */
+   while ((q & 1) == 0) {
+      q >>= 1;
+      x  += 1;
+   }
+
+   return x;
+}
+
+
+/* End: bn_mp_cnt_lsb.c */
+
 /* Start: bn_mp_copy.c */
 /* LibTomMath, multiple-precision integer library -- Tom St Denis
  *
@@ -1234,21 +1279,24 @@ mp_count_bits (mp_int * a)
  */
 #include <tommath.h>
 
-/* integer signed division. c*b + d == a [e.g. a/b, c=quotient, d=remainder]
+/* integer signed division. 
+ * c*b + d == a [e.g. a/b, c=quotient, d=remainder]
  * HAC pp.598 Algorithm 14.20
  *
- * Note that the description in HAC is horribly incomplete.  For example,
- * it doesn't consider the case where digits are removed from 'x' in the inner
- * loop.  It also doesn't consider the case that y has fewer than three digits, etc..
+ * Note that the description in HAC is horribly 
+ * incomplete.  For example, it doesn't consider 
+ * the case where digits are removed from 'x' in 
+ * the inner loop.  It also doesn't consider the 
+ * case that y has fewer than three digits, etc..
  *
- * The overall algorithm is as described as 14.20 from HAC but fixed to treat these cases.
+ * The overall algorithm is as described as 
+ * 14.20 from HAC but fixed to treat these cases.
 */
 int
 mp_div (mp_int * a, mp_int * b, mp_int * c, mp_int * d)
 {
   mp_int  q, x, y, t1, t2;
   int     res, n, t, i, norm, neg;
-
 
   /* is divisor zero ? */
   if (mp_iszero (b) == 1) {
@@ -1293,7 +1341,7 @@ mp_div (mp_int * a, mp_int * b, mp_int * c, mp_int * d)
   neg = (a->sign == b->sign) ? MP_ZPOS : MP_NEG;
   x.sign = y.sign = MP_ZPOS;
 
-  /* normalize both x and y, ensure that y >= b/2, [b == 2^DIGIT_BIT] */
+  /* normalize both x and y, ensure that y >= b/2, [b == 2**DIGIT_BIT] */
   norm = mp_count_bits(&y) % DIGIT_BIT;
   if (norm < (int)(DIGIT_BIT-1)) {
      norm = (DIGIT_BIT-1) - norm;
@@ -1311,8 +1359,8 @@ mp_div (mp_int * a, mp_int * b, mp_int * c, mp_int * d)
   n = x.used - 1;
   t = y.used - 1;
 
-  /* step 2. while (x >= y*b^n-t) do { q[n-t] += 1; x -= y*b^{n-t} } */
-  if ((res = mp_lshd (&y, n - t)) != MP_OKAY) { /* y = y*b^{n-t} */
+  /* while (x >= y*b**n-t) do { q[n-t] += 1; x -= y*b**{n-t} } */
+  if ((res = mp_lshd (&y, n - t)) != MP_OKAY) { /* y = y*b**{n-t} */
     goto __Y;
   }
 
@@ -1331,7 +1379,8 @@ mp_div (mp_int * a, mp_int * b, mp_int * c, mp_int * d)
     if (i > x.used)
       continue;
 
-    /* step 3.1 if xi == yt then set q{i-t-1} to b-1, otherwise set q{i-t-1} to (xi*b + x{i-1})/yt */
+    /* step 3.1 if xi == yt then set q{i-t-1} to b-1, 
+     * otherwise set q{i-t-1} to (xi*b + x{i-1})/yt */
     if (x.dp[i] == y.dp[t]) {
       q.dp[i - t - 1] = ((((mp_digit)1) << DIGIT_BIT) - 1);
     } else {
@@ -1344,7 +1393,11 @@ mp_div (mp_int * a, mp_int * b, mp_int * c, mp_int * d)
       q.dp[i - t - 1] = (mp_digit) (tmp & (mp_word) (MP_MASK));
     }
 
-    /* step 3.2 while (q{i-t-1} * (yt * b + y{t-1})) > xi * b^2 + xi-1 * b + xi-2 do q{i-t-1} -= 1; */
+    /* while (q{i-t-1} * (yt * b + y{t-1})) > 
+             xi * b**2 + xi-1 * b + xi-2 
+     
+       do q{i-t-1} -= 1; 
+    */
     q.dp[i - t - 1] = (q.dp[i - t - 1] + 1) & MP_MASK;
     do {
       q.dp[i - t - 1] = (q.dp[i - t - 1] - 1) & MP_MASK;
@@ -1365,7 +1418,7 @@ mp_div (mp_int * a, mp_int * b, mp_int * c, mp_int * d)
       t2.used = 3;
     } while (mp_cmp_mag(&t1, &t2) == MP_GT);
 
-    /* step 3.3 x = x - q{i-t-1} * y * b^{i-t-1} */
+    /* step 3.3 x = x - q{i-t-1} * y * b**{i-t-1} */
     if ((res = mp_mul_d (&y, q.dp[i - t - 1], &t1)) != MP_OKAY) {
       goto __Y;
     }
@@ -1378,7 +1431,7 @@ mp_div (mp_int * a, mp_int * b, mp_int * c, mp_int * d)
       goto __Y;
     }
 
-    /* step 3.4 if x < 0 then { x = x + y*b^{i-t-1}; q{i-t-1} -= 1; } */
+    /* if x < 0 then { x = x + y*b**{i-t-1}; q{i-t-1} -= 1; } */
     if (x.sign == MP_NEG) {
       if ((res = mp_copy (&y, &t1)) != MP_OKAY) {
         goto __Y;
@@ -1394,7 +1447,10 @@ mp_div (mp_int * a, mp_int * b, mp_int * c, mp_int * d)
     }
   }
 
-  /* now q is the quotient and x is the remainder [which we have to normalize] */
+  /* now q is the quotient and x is the remainder 
+   * [which we have to normalize] 
+   */
+  
   /* get sign before writing to c */
   x.sign = a->sign;
 
@@ -1549,10 +1605,13 @@ mp_div_2d (mp_int * a, int b, mp_int * c, mp_int * d)
   /* shift any bit count < DIGIT_BIT */
   D = (mp_digit) (b % DIGIT_BIT);
   if (D != 0) {
-    register mp_digit *tmpc, mask;
+    register mp_digit *tmpc, mask, shift;
 
     /* mask */
     mask = (((mp_digit)1) << D) - 1;
+
+    /* shift for lsb */
+    shift = DIGIT_BIT - D;
 
     /* alias */
     tmpc = c->dp + (c->used - 1);
@@ -1564,7 +1623,7 @@ mp_div_2d (mp_int * a, int b, mp_int * c, mp_int * d)
       rr = *tmpc & mask;
 
       /* shift the current word and mix in the carry bits from the previous word */
-      *tmpc = (*tmpc >> D) | (r << (DIGIT_BIT - D));
+      *tmpc = (*tmpc >> D) | (r << shift);
       --tmpc;
 
       /* set the carry to the carry bits of the current word found above */
@@ -1671,7 +1730,8 @@ int
 mp_div_d (mp_int * a, mp_digit b, mp_int * c, mp_digit * d)
 {
   mp_int  q;
-  mp_word w, t;
+  mp_word w;
+  mp_digit t;
   int     res, ix;
   
   if (b == 0) {
@@ -1693,7 +1753,7 @@ mp_div_d (mp_int * a, mp_digit b, mp_int * c, mp_digit * d)
      w = (w << ((mp_word)DIGIT_BIT)) | ((mp_word)a->dp[ix]);
      
      if (w >= b) {
-        t = w / b;
+        t = (mp_digit)(w / b);
         w = w % b;
       } else {
         t = 0;
@@ -1817,7 +1877,7 @@ top:
   
   /* compute (x mod B**m) + mp * [x/B**m] inline and inplace */
   for (i = 0; i < m; i++) {
-      r         = ((mp_word)*tmpx2++) * ((mp_word)k) + *tmpx1 + mu;
+      r         = MULT(*tmpx2++, k) + *tmpx1 + mu;
       *tmpx1++  = (mp_digit)(r & MP_MASK);
       mu        = (mp_digit)(r >> ((mp_word)DIGIT_BIT));
   }
@@ -2066,10 +2126,17 @@ mp_exptmod (mp_int * G, mp_int * X, mp_int * P, mp_int * Y)
  *
  * Uses Montgomery or Diminished Radix reduction [whichever appropriate]
  */
+
+#ifdef MP_LOW_MEM
+   #define TAB_SIZE 32
+#else
+   #define TAB_SIZE 256
+#endif
+
 int
 mp_exptmod_fast (mp_int * G, mp_int * X, mp_int * P, mp_int * Y, int redmode)
 {
-  mp_int  M[256], res;
+  mp_int  M[TAB_SIZE], res;
   mp_digit buf, mp;
   int     err, bitbuf, bitcpy, bitcnt, mode, digidx, x, y, winsize;
   
@@ -2103,13 +2170,19 @@ mp_exptmod_fast (mp_int * G, mp_int * X, mp_int * P, mp_int * Y, int redmode)
   }
 #endif
 
+  /* init M array */
+  /* init first cell */
+  if ((err = mp_init(&M[1])) != MP_OKAY) {
+     return err; 
+  }
 
-  /* init G array */
-  for (x = 0; x < (1 << winsize); x++) {
-    if ((err = mp_init (&M[x])) != MP_OKAY) {
-      for (y = 0; y < x; y++) {
+  /* now init the second half of the array */
+  for (x = 1<<(winsize-1); x < (1 << winsize); x++) {
+    if ((err = mp_init(&M[x])) != MP_OKAY) {
+      for (y = 1<<(winsize-1); y < x; y++) {
         mp_clear (&M[y]);
       }
+      mp_clear(&M[1]);
       return err;
     }
   }
@@ -2302,13 +2375,130 @@ mp_exptmod_fast (mp_int * G, mp_int * X, mp_int * P, mp_int * Y, int redmode)
   err = MP_OKAY;
 __RES:mp_clear (&res);
 __M:
-  for (x = 0; x < (1 << winsize); x++) {
+  mp_clear(&M[1]);
+  for (x = 1<<(winsize-1); x < (1 << winsize); x++) {
     mp_clear (&M[x]);
   }
   return err;
 }
 
 /* End: bn_mp_exptmod_fast.c */
+
+/* Start: bn_mp_fread.c */
+/* LibTomMath, multiple-precision integer library -- Tom St Denis
+ *
+ * LibTomMath is library that provides for multiple-precision
+ * integer arithmetic as well as number theoretic functionality.
+ *
+ * The library is designed directly after the MPI library by
+ * Michael Fromberger but has been written from scratch with
+ * additional optimizations in place.
+ *
+ * The library is free for all purposes without any express
+ * guarantee it works.
+ *
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
+ */
+#include <tommath.h>
+
+/* read a bigint from a file stream in ASCII */
+int mp_fread(mp_int *a, int radix, FILE *stream)
+{
+   int err, ch, neg, y;
+   
+   /* clear a */
+   mp_zero(a);
+   
+   /* if first digit is - then set negative */
+   ch = fgetc(stream);
+   if (ch == '-') {
+      neg = MP_NEG;
+      ch = fgetc(stream);
+   } else {
+      neg = MP_ZPOS;
+   }
+   
+   for (;;) {
+      /* find y in the radix map */
+      for (y = 0; y < radix; y++) {
+          if (mp_s_rmap[y] == ch) {
+             break;
+          }
+      }
+      if (y == radix) {
+         break;
+      }
+      
+      /* shift up and add */
+      if ((err = mp_mul_d(a, radix, a)) != MP_OKAY) {
+         return err;
+      }
+      if ((err = mp_add_d(a, y, a)) != MP_OKAY) {
+         return err;
+      }
+      
+      ch = fgetc(stream);
+   }
+   if (mp_cmp_d(a, 0) != MP_EQ) {
+      a->sign = neg;
+   }
+   
+   return MP_OKAY;
+}
+
+
+/* End: bn_mp_fread.c */
+
+/* Start: bn_mp_fwrite.c */
+/* LibTomMath, multiple-precision integer library -- Tom St Denis
+ *
+ * LibTomMath is library that provides for multiple-precision
+ * integer arithmetic as well as number theoretic functionality.
+ *
+ * The library is designed directly after the MPI library by
+ * Michael Fromberger but has been written from scratch with
+ * additional optimizations in place.
+ *
+ * The library is free for all purposes without any express
+ * guarantee it works.
+ *
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
+ */
+#include <tommath.h>
+
+int mp_fwrite(mp_int *a, int radix, FILE *stream)
+{
+   char *buf;
+   int err, len, x;
+   
+   len = mp_radix_size(a, radix);
+   if (len == 0) {
+      return MP_VAL;
+   }
+   
+   buf = malloc(len);
+   if (buf == NULL) {
+      return MP_MEM;
+   }
+   
+   if ((err = mp_toradix(a, buf, radix)) != MP_OKAY) {
+      free(buf);
+      return err;
+   }
+   
+   for (x = 0; x < len; x++) {
+       if (fputc(buf[x], stream) == EOF) {
+          free(buf);
+          return MP_VAL;
+       }
+   }
+   
+   free(buf);
+   return MP_OKAY;
+}
+
+
+/* End: bn_mp_fwrite.c */
 
 /* Start: bn_mp_gcd.c */
 /* LibTomMath, multiple-precision integer library -- Tom St Denis
@@ -2327,13 +2517,12 @@ __M:
  */
 #include <tommath.h>
 
-/* Greatest Common Divisor using the binary method [Algorithm B, page 338, vol2 of TAOCP]
- */
+/* Greatest Common Divisor using the binary method */
 int
 mp_gcd (mp_int * a, mp_int * b, mp_int * c)
 {
-  mp_int  u, v, t;
-  int     k, res, neg;
+  mp_int  u, v;
+  int     k, u_lsb, v_lsb, res;
 
   /* either zero than gcd is the largest */
   if (mp_iszero (a) == 1 && mp_iszero (b) == 0) {
@@ -2347,9 +2536,6 @@ mp_gcd (mp_int * a, mp_int * b, mp_int * c)
     return MP_OKAY;
   }
 
-  /* if both are negative they share (-1) as a common divisor */
-  neg = (a->sign == b->sign) ? a->sign : MP_ZPOS;
-
   if ((res = mp_init_copy (&u, a)) != MP_OKAY) {
     return res;
   }
@@ -2361,71 +2547,55 @@ mp_gcd (mp_int * a, mp_int * b, mp_int * c)
   /* must be positive for the remainder of the algorithm */
   u.sign = v.sign = MP_ZPOS;
 
-  if ((res = mp_init (&t)) != MP_OKAY) {
+  /* B1.  Find the common power of two for u and v */
+  u_lsb = mp_cnt_lsb(&u);
+  v_lsb = mp_cnt_lsb(&v);
+  k     = MIN(u_lsb, v_lsb);
+
+  if ((res = mp_div_2d(&u, k, &u, NULL)) != MP_OKAY) {
+     goto __V;
+  }
+
+  if ((res = mp_div_2d(&v, k, &v, NULL)) != MP_OKAY) {
+     goto __V;
+  }
+
+  /* divide any remaining factors of two out */
+  if (u_lsb != k) {
+     if ((res = mp_div_2d(&u, u_lsb - k, &u, NULL)) != MP_OKAY) {
+        goto __V;
+     }
+  }
+
+  if (v_lsb != k) {
+     if ((res = mp_div_2d(&v, v_lsb - k, &v, NULL)) != MP_OKAY) {
+        goto __V;
+     }
+  }
+  
+  while (mp_iszero(&v) == 0) {
+     /* make sure v is the largest */
+     if (mp_cmp_mag(&u, &v) == MP_GT) {
+        mp_exch(&u, &v);
+     }
+     
+     /* subtract smallest from largest */
+     if ((res = s_mp_sub(&v, &u, &v)) != MP_OKAY) {
+        goto __V;
+     }
+     
+     /* Divide out all factors of two */
+     if ((res = mp_div_2d(&v, mp_cnt_lsb(&v), &v, NULL)) != MP_OKAY) {
+        goto __V;
+     } 
+  } 
+  
+  /* multiply by 2**k which we divided out at the beginning */ 
+  if ((res = mp_mul_2d (&u, k, c)) != MP_OKAY) {
     goto __V;
   }
-
-  /* B1.  Find power of two */
-  k = 0;
-  while (mp_iseven(&u) == 1 && mp_iseven(&v) == 1) {
-    ++k;
-    if ((res = mp_div_2 (&u, &u)) != MP_OKAY) {
-      goto __T;
-    }
-    if ((res = mp_div_2 (&v, &v)) != MP_OKAY) {
-      goto __T;
-    }
-  }
-
-  /* B2.  Initialize */
-  if (mp_isodd(&u) == 1) {
-    /* t = -v */
-    if ((res = mp_copy (&v, &t)) != MP_OKAY) {
-      goto __T;
-    }
-    t.sign = MP_NEG;
-  } else {
-    /* t = u */
-    if ((res = mp_copy (&u, &t)) != MP_OKAY) {
-      goto __T;
-    }
-  }
-
-  do {
-    /* B3 (and B4).  Halve t, if even */
-    while (t.used != 0 && mp_iseven(&t) == 1) {
-      if ((res = mp_div_2 (&t, &t)) != MP_OKAY) {
-        goto __T;
-      }
-    }
-
-    /* B5.  if t>0 then u=t otherwise v=-t */
-    if (t.used != 0 && t.sign != MP_NEG) {
-      if ((res = mp_copy (&t, &u)) != MP_OKAY) {
-        goto __T;
-      }
-    } else {
-      if ((res = mp_copy (&t, &v)) != MP_OKAY) {
-        goto __T;
-      }
-      v.sign = (v.sign == MP_ZPOS) ? MP_NEG : MP_ZPOS;
-    }
-
-    /* B6.  t = u - v, if t != 0 loop otherwise terminate */
-    if ((res = mp_sub (&u, &v, &t)) != MP_OKAY) {
-      goto __T;
-    }
-  } while (mp_iszero(&t) == 0);
-
-  /* multiply by 2^k which we divided out at the beginning */ 
-  if ((res = mp_mul_2d (&u, k, &u)) != MP_OKAY) {
-    goto __T;
-  }
-
-  mp_exch (&u, c);
-  c->sign = neg;
+  c->sign = MP_ZPOS;
   res = MP_OKAY;
-__T:mp_clear (&t);
 __V:mp_clear (&u);
 __U:mp_clear (&v);
   return res;
@@ -2570,7 +2740,7 @@ mp_init_size (mp_int * a, int size)
 {
 
   /* pad size so there are always extra digits */
-  size += (MP_PREC * 2) - (size & (MP_PREC - 1));   
+  size += (MP_PREC * 2) - (size & (MP_PREC - 1));	
   
   /* alloc mem */
   a->dp = OPT_CAST calloc (sizeof (mp_digit), size);
@@ -2603,6 +2773,7 @@ mp_init_size (mp_int * a, int size)
  */
 #include <tommath.h>
 
+/* hac 14.61, pp608 */
 int
 mp_invmod (mp_int * a, mp_int * b, mp_int * c)
 {
@@ -2610,17 +2781,18 @@ mp_invmod (mp_int * a, mp_int * b, mp_int * c)
   int     res;
 
   /* b cannot be negative */
-  if (b->sign == MP_NEG) {
+  if (b->sign == MP_NEG || mp_iszero(b) == 1) {
     return MP_VAL;
   }
 
   /* if the modulus is odd we can use a faster routine instead */
-  if (mp_iseven (b) == 0) {
+  if (mp_isodd (b) == 1) {
     return fast_mp_invmod (a, b, c);
   }
   
   /* init temps */
-  if ((res = mp_init_multi(&x, &y, &u, &v, &A, &B, &C, &D, NULL)) != MP_OKAY) {
+  if ((res = mp_init_multi(&x, &y, &u, &v, 
+                           &A, &B, &C, &D, NULL)) != MP_OKAY) {
      return res;
   }
 
@@ -2629,10 +2801,6 @@ mp_invmod (mp_int * a, mp_int * b, mp_int * c)
     goto __ERR;
   }
   if ((res = mp_copy (b, &y)) != MP_OKAY) {
-    goto __ERR;
-  }
-
-  if ((res = mp_abs (&x, &x)) != MP_OKAY) {
     goto __ERR;
   }
 
@@ -2652,7 +2820,6 @@ mp_invmod (mp_int * a, mp_int * b, mp_int * c)
   mp_set (&A, 1);
   mp_set (&D, 1);
 
-
 top:
   /* 4.  while u is even do */
   while (mp_iseven (&u) == 1) {
@@ -2661,13 +2828,13 @@ top:
       goto __ERR;
     }
     /* 4.2 if A or B is odd then */
-    if (mp_iseven (&A) == 0 || mp_iseven (&B) == 0) {
+    if (mp_isodd (&A) == 1 || mp_isodd (&B) == 1) {
       /* A = (A+y)/2, B = (B-x)/2 */
       if ((res = mp_add (&A, &y, &A)) != MP_OKAY) {
-    goto __ERR;
+         goto __ERR;
       }
       if ((res = mp_sub (&B, &x, &B)) != MP_OKAY) {
-    goto __ERR;
+         goto __ERR;
       }
     }
     /* A = A/2, B = B/2 */
@@ -2679,21 +2846,20 @@ top:
     }
   }
 
-
   /* 5.  while v is even do */
   while (mp_iseven (&v) == 1) {
     /* 5.1 v = v/2 */
     if ((res = mp_div_2 (&v, &v)) != MP_OKAY) {
       goto __ERR;
     }
-    /* 5.2 if C,D are even then */
-    if (mp_iseven (&C) == 0 || mp_iseven (&D) == 0) {
+    /* 5.2 if C or D is odd then */
+    if (mp_isodd (&C) == 1 || mp_isodd (&D) == 1) {
       /* C = (C+y)/2, D = (D-x)/2 */
       if ((res = mp_add (&C, &y, &C)) != MP_OKAY) {
-    goto __ERR;
+         goto __ERR;
       }
       if ((res = mp_sub (&D, &x, &D)) != MP_OKAY) {
-    goto __ERR;
+         goto __ERR;
       }
     }
     /* C = C/2, D = D/2 */
@@ -2746,10 +2912,23 @@ top:
     goto __ERR;
   }
 
-  /* a is now the inverse */
+  /* if its too low */
+  while (mp_cmp_d(&C, 0) == MP_LT) {
+      if ((res = mp_add(&C, b, &C)) != MP_OKAY) {
+         goto __ERR;
+      }
+  }
+  
+  /* too big */
+  while (mp_cmp_mag(&C, b) != MP_LT) {
+      if ((res = mp_sub(&C, b, &C)) != MP_OKAY) {
+         goto __ERR;
+      }
+  }
+  
+  /* C is now the inverse */
   mp_exch (&C, c);
   res = MP_OKAY;
-
 __ERR:mp_clear_multi (&x, &y, &u, &v, &A, &B, &C, &D, NULL);
   return res;
 }
@@ -2777,10 +2956,10 @@ __ERR:mp_clear_multi (&x, &y, &u, &v, &A, &B, &C, &D, NULL);
  * HAC pp. 73 Algorithm 2.149
  */
 int
-mp_jacobi (mp_int * a, mp_int * n, int *c)
+mp_jacobi (mp_int * a, mp_int * p, int *c)
 {
-  mp_int  a1, n1, e;
-  int     s, r, res;
+  mp_int  a1, p1;
+  int     k, s, r, res;
   mp_digit residue;
 
   /* step 1.  if a == 0, return 0 */
@@ -2796,39 +2975,30 @@ mp_jacobi (mp_int * a, mp_int * n, int *c)
   }
 
   /* default */
-  s = 0;
+  k = s = 0;
 
-  /* step 3.  write a = a1 * 2^e  */
+  /* step 3.  write a = a1 * 2**k  */
   if ((res = mp_init_copy (&a1, a)) != MP_OKAY) {
     return res;
   }
 
-  if ((res = mp_init (&n1)) != MP_OKAY) {
+  if ((res = mp_init (&p1)) != MP_OKAY) {
     goto __A1;
   }
 
-  if ((res = mp_init (&e)) != MP_OKAY) {
-    goto __N1;
-  }
-
   while (mp_iseven (&a1) == 1) {
-    if ((res = mp_add_d (&e, 1, &e)) != MP_OKAY) {
-      goto __E;
-    }
-
+    k = k + 1;
     if ((res = mp_div_2 (&a1, &a1)) != MP_OKAY) {
-      goto __E;
+      goto __P1;
     }
   }
 
   /* step 4.  if e is even set s=1 */
-  if (mp_iseven (&e) == 1) {
+  if ((k & 1) == 0) {
     s = 1;
   } else {
-    /* else set s=1 if n = 1/7 (mod 8) or s=-1 if n = 3/5 (mod 8) */
-    if ((res = mp_mod_d (n, 8, &residue)) != MP_OKAY) {
-      goto __E;
-    }
+    /* else set s=1 if p = 1/7 (mod 8) or s=-1 if p = 3/5 (mod 8) */
+    residue = p->dp[0] & 7;
 
     if (residue == 1 || residue == 7) {
       s = 1;
@@ -2837,17 +3007,9 @@ mp_jacobi (mp_int * a, mp_int * n, int *c)
     }
   }
 
-  /* step 5.  if n == 3 (mod 4) *and* a1 == 3 (mod 4) then s = -s */
-  if ((res = mp_mod_d (n, 4, &residue)) != MP_OKAY) {
-    goto __E;
-  }
-  if (residue == 3) {
-    if ((res = mp_mod_d (&a1, 4, &residue)) != MP_OKAY) {
-      goto __E;
-    }
-    if (residue == 3) {
-      s = -s;
-    }
+  /* step 5.  if p == 3 (mod 4) *and* a1 == 3 (mod 4) then s = -s */
+  if ( ((p->dp[0] & 3) == 3) && ((a1.dp[0] & 3) == 3)) {
+    s = -s;
   }
 
   /* if a1 == 1 we're done */
@@ -2855,19 +3017,18 @@ mp_jacobi (mp_int * a, mp_int * n, int *c)
     *c = s;
   } else {
     /* n1 = n mod a1 */
-    if ((res = mp_mod (n, &a1, &n1)) != MP_OKAY) {
-      goto __E;
+    if ((res = mp_mod (p, &a1, &p1)) != MP_OKAY) {
+      goto __P1;
     }
-    if ((res = mp_jacobi (&n1, &a1, &r)) != MP_OKAY) {
-      goto __E;
+    if ((res = mp_jacobi (&p1, &a1, &r)) != MP_OKAY) {
+      goto __P1;
     }
     *c = s * r;
   }
 
   /* done */
   res = MP_OKAY;
-__E:mp_clear (&e);
-__N1:mp_clear (&n1);
+__P1:mp_clear (&p1);
 __A1:mp_clear (&a1);
   return res;
 }
@@ -3505,7 +3666,7 @@ mp_montgomery_reduce (mp_int * x, mp_int * n, mp_digit rho)
 
   for (ix = 0; ix < n->used; ix++) {
     /* mu = ai * m' mod b */
-    mu = (x->dp[ix] * rho) & MP_MASK;
+    mu = MULT(x->dp[ix], rho) & MP_MASK;
 
     /* a = a + mu * m * b**i */
     {
@@ -3522,7 +3683,7 @@ mp_montgomery_reduce (mp_int * x, mp_int * n, mp_digit rho)
       
       /* Multiply and add in place */
       for (iy = 0; iy < n->used; iy++) {
-        r       = ((mp_word) mu) * ((mp_word) * tmpn++) + 
+        r       = MULT(mu, *tmpn++) +
                   ((mp_word) u) + ((mp_word) * tmpx);
         u       = (mp_digit)(r >> ((mp_word) DIGIT_BIT));
         *tmpx++ = (mp_digit)(r & ((mp_word) MP_MASK));
@@ -3758,12 +3919,6 @@ mp_mul_2 (mp_int * a, mp_int * b)
  */
 #include <tommath.h>
 
-/* NOTE:  This routine requires updating.  For instance the c->used = c->alloc bit
-   is wrong.  We should just shift c->used digits then set the carry as c->dp[c->used] = carry
- 
-   To be fixed for LTM 0.18
- */
-
 /* shift left by a certain bit count */
 int
 mp_mul_2d (mp_int * a, int b, mp_int * c)
@@ -3778,8 +3933,8 @@ mp_mul_2d (mp_int * a, int b, mp_int * c)
      }
   }
 
-  if (c->alloc < (int)(c->used + b/DIGIT_BIT + 2)) {
-     if ((res = mp_grow (c, c->used + b / DIGIT_BIT + 2)) != MP_OKAY) {
+  if (c->alloc < (int)(c->used + b/DIGIT_BIT + 1)) {
+     if ((res = mp_grow (c, c->used + b / DIGIT_BIT + 1)) != MP_OKAY) {
        return res;
      }
   }
@@ -3790,16 +3945,18 @@ mp_mul_2d (mp_int * a, int b, mp_int * c)
       return res;
     }
   }
-  c->used = c->alloc;
 
   /* shift any bit count < DIGIT_BIT */
   d = (mp_digit) (b % DIGIT_BIT);
   if (d != 0) {
-    register mp_digit *tmpc, mask, r, rr;
+    register mp_digit *tmpc, shift, mask, r, rr;
     register int x;
 
     /* bitmask for carries */
     mask = (((mp_digit)1) << d) - 1;
+
+    /* shift for msbs */
+    shift = DIGIT_BIT - d;
 
     /* alias */
     tmpc = c->dp;
@@ -3808,7 +3965,7 @@ mp_mul_2d (mp_int * a, int b, mp_int * c)
     r    = 0;
     for (x = 0; x < c->used; x++) {
       /* get the higher bits of the current word */
-      rr = (*tmpc >> (DIGIT_BIT - d)) & mask;
+      rr = (*tmpc >> shift) & mask;
 
       /* shift the current word and OR in the carry */
       *tmpc = ((*tmpc << d) | r) & MP_MASK;
@@ -3816,6 +3973,11 @@ mp_mul_2d (mp_int * a, int b, mp_int * c)
 
       /* set the carry to the carry bits of the current word */
       r = rr;
+    }
+    
+    /* set final carry */
+    if (r != 0) {
+       c->dp[c->used++] = r;
     }
   }
   mp_clamp (c);
@@ -3860,6 +4022,7 @@ mp_mul_d (mp_int * a, mp_digit b, mp_int * c)
 
   /* set the new temporary used count */
   c->used = pa + 1;
+  c->sign = a->sign;
 
   {
     register mp_digit u, *tmpa, *tmpc;
@@ -3876,7 +4039,7 @@ mp_mul_d (mp_int * a, mp_digit b, mp_int * c)
     u = 0;
     for (ix = 0; ix < pa; ix++) {
       /* compute product and carry sum for this term */
-      r = ((mp_word) u) + ((mp_word) * tmpa++) * ((mp_word) b);
+      r = ((mp_word) u) + MULT(*tmpa++, b);
 
       /* mask off higher bits to get a single digit */
       *tmpc++ = (mp_digit) (r & ((mp_word) MP_MASK));
@@ -4026,11 +4189,13 @@ void mp_clear_multi(mp_int *mp, ...)
 
 /* find the n'th root of an integer 
  *
- * Result found such that (c)^b <= a and (c+1)^b > a 
+ * Result found such that (c)**b <= a and (c+1)**b > a 
  *
- * This algorithm uses Newton's approximation x[i+1] = x[i] - f(x[i])/f'(x[i]) 
- * which will find the root in log(N) time where each step involves a fair bit.  This
- * is not meant to find huge roots [square and cube at most].
+ * This algorithm uses Newton's approximation 
+ * x[i+1] = x[i] - f(x[i])/f'(x[i]) 
+ * which will find the root in log(N) time where 
+ * each step involves a fair bit.  This is not meant to 
+ * find huge roots [square and cube, etc].
  */
 int
 mp_n_root (mp_int * a, mp_digit b, mp_int * c)
@@ -4068,33 +4233,39 @@ mp_n_root (mp_int * a, mp_digit b, mp_int * c)
       goto __T3;
     }
 
-    /* t2 = t1 - ((t1^b - a) / (b * t1^(b-1))) */
-    if ((res = mp_expt_d (&t1, b - 1, &t3)) != MP_OKAY) {   /* t3 = t1^(b-1) */
+    /* t2 = t1 - ((t1**b - a) / (b * t1**(b-1))) */
+    
+    /* t3 = t1**(b-1) */
+    if ((res = mp_expt_d (&t1, b - 1, &t3)) != MP_OKAY) {   
       goto __T3;
     }
 
     /* numerator */
-    if ((res = mp_mul (&t3, &t1, &t2)) != MP_OKAY) {    /* t2 = t1^b */
+    /* t2 = t1**b */
+    if ((res = mp_mul (&t3, &t1, &t2)) != MP_OKAY) {    
       goto __T3;
     }
 
-    if ((res = mp_sub (&t2, a, &t2)) != MP_OKAY) {  /* t2 = t1^b - a */
+    /* t2 = t1**b - a */
+    if ((res = mp_sub (&t2, a, &t2)) != MP_OKAY) {  
       goto __T3;
     }
 
-    if ((res = mp_mul_d (&t3, b, &t3)) != MP_OKAY) {    /* t3 = t1^(b-1) * b  */
+    /* denominator */
+    /* t3 = t1**(b-1) * b  */
+    if ((res = mp_mul_d (&t3, b, &t3)) != MP_OKAY) {    
       goto __T3;
     }
 
-    if ((res = mp_div (&t2, &t3, &t3, NULL)) != MP_OKAY) {  /* t3 = (t1^b - a)/(b * t1^(b-1)) */
+    /* t3 = (t1**b - a)/(b * t1**(b-1)) */
+    if ((res = mp_div (&t2, &t3, &t3, NULL)) != MP_OKAY) {  
       goto __T3;
     }
 
     if ((res = mp_sub (&t1, &t3, &t2)) != MP_OKAY) {
       goto __T3;
     }
-  }
-  while (mp_cmp (&t1, &t2) != MP_EQ);
+  }  while (mp_cmp (&t1, &t2) != MP_EQ);
 
   /* result can be off by a few so check */
   for (;;) {
@@ -4229,9 +4400,9 @@ mp_or (mp_int * a, mp_int * b, mp_int * c)
 
 /* performs one Fermat test.
  * 
- * If "a" were prime then b^a == b (mod a) since the order of
+ * If "a" were prime then b**a == b (mod a) since the order of
  * the multiplicative sub-group would be phi(a) = a-1.  That means
- * it would be the same as b^(a mod (a-1)) == b^1 == b (mod a).
+ * it would be the same as b**(a mod (a-1)) == b**1 == b (mod a).
  *
  * Sets result to 1 if the congruence holds, or zero otherwise.
  */
@@ -4249,7 +4420,7 @@ mp_prime_fermat (mp_int * a, mp_int * b, int *result)
     return err;
   }
 
-  /* compute t = b^a mod a */
+  /* compute t = b**a mod a */
   if ((err = mp_exptmod (b, a, a, &t)) != MP_OKAY) {
     goto __T;
   }
@@ -4283,7 +4454,8 @@ __T:mp_clear (&t);
  */
 #include <tommath.h>
 
-/* determines if an integers is divisible by one of the first 256 primes or not
+/* determines if an integers is divisible by one 
+ * of the first PRIME_SIZE primes or not
  *
  * sets result to 0 if not, 1 if yes
  */
@@ -4297,12 +4469,6 @@ mp_prime_is_divisible (mp_int * a, int *result)
   *result = 0;
 
   for (ix = 0; ix < PRIME_SIZE; ix++) {
-    /* is it equal to the prime? */
-    if (mp_cmp_d (a, __prime_tab[ix]) == MP_EQ) {
-      *result = 1;
-      return MP_OKAY;
-    }
-
     /* what is a mod __prime_tab[ix] */
     if ((err = mp_mod_d (a, __prime_tab[ix], &res)) != MP_OKAY) {
       return err;
@@ -4441,19 +4607,17 @@ mp_prime_miller_rabin (mp_int * a, mp_int * b, int *result)
     goto __N1;
   }
 
-  /* set 2^s * r = n1 */
+  /* set 2**s * r = n1 */
   if ((err = mp_init_copy (&r, &n1)) != MP_OKAY) {
     goto __N1;
   }
-  s = 0;
-  while (mp_iseven (&r) == 1) {
-    ++s;
-    if ((err = mp_div_2 (&r, &r)) != MP_OKAY) {
-      goto __R;
-    }
+ 
+  s = mp_cnt_lsb(&r);
+  if ((err = mp_div_2d (&r, s, &r, NULL)) != MP_OKAY) {
+    goto __R;
   }
 
-  /* compute y = b^r mod a */
+  /* compute y = b**r mod a */
   if ((err = mp_init (&y)) != MP_OKAY) {
     goto __R;
   }
@@ -4467,12 +4631,12 @@ mp_prime_miller_rabin (mp_int * a, mp_int * b, int *result)
     /* while j <= s-1 and y != n1 */
     while ((j <= (s - 1)) && mp_cmp (&y, &n1) != MP_EQ) {
       if ((err = mp_sqrmod (&y, a, &y)) != MP_OKAY) {
-    goto __Y;
+         goto __Y;
       }
 
       /* if y == 1 then composite */
       if (mp_cmp_d (&y, 1) == MP_EQ) {
-    goto __Y;
+         goto __Y;
       }
 
       ++j;
@@ -4552,6 +4716,86 @@ int mp_prime_next_prime(mp_int *a, int t)
 
 /* End: bn_mp_prime_next_prime.c */
 
+/* Start: bn_mp_radix_size.c */
+/* LibTomMath, multiple-precision integer library -- Tom St Denis
+ *
+ * LibTomMath is library that provides for multiple-precision
+ * integer arithmetic as well as number theoretic functionality.
+ *
+ * The library is designed directly after the MPI library by
+ * Michael Fromberger but has been written from scratch with
+ * additional optimizations in place.
+ *
+ * The library is free for all purposes without any express
+ * guarantee it works.
+ *
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
+ */
+#include <tommath.h>
+
+/* returns size of ASCII reprensentation */
+int
+mp_radix_size (mp_int * a, int radix)
+{
+  int     res, digs;
+  mp_int  t;
+  mp_digit d;
+
+  /* special case for binary */
+  if (radix == 2) {
+    return mp_count_bits (a) + (a->sign == MP_NEG ? 1 : 0) + 1;
+  }
+
+  if (radix < 2 || radix > 64) {
+    return 0;
+  }
+
+  if ((res = mp_init_copy (&t, a)) != MP_OKAY) {
+    return 0;
+  }
+
+  digs = 0;
+  if (t.sign == MP_NEG) {
+    ++digs;
+    t.sign = MP_ZPOS;
+  }
+
+  while (mp_iszero (&t) == 0) {
+    if ((res = mp_div_d (&t, (mp_digit) radix, &t, &d)) != MP_OKAY) {
+      mp_clear (&t);
+      return 0;
+    }
+    ++digs;
+  }
+  mp_clear (&t);
+  return digs + 1;
+}
+
+
+/* End: bn_mp_radix_size.c */
+
+/* Start: bn_mp_radix_smap.c */
+/* LibTomMath, multiple-precision integer library -- Tom St Denis
+ *
+ * LibTomMath is library that provides for multiple-precision
+ * integer arithmetic as well as number theoretic functionality.
+ *
+ * The library is designed directly after the MPI library by
+ * Michael Fromberger but has been written from scratch with
+ * additional optimizations in place.
+ *
+ * The library is free for all purposes without any express
+ * guarantee it works.
+ *
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
+ */
+#include <tommath.h>
+
+/* chars used in radix conversions */
+const char *mp_s_rmap = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz+/";
+
+/* End: bn_mp_radix_smap.c */
+
 /* Start: bn_mp_rand.c */
 /* LibTomMath, multiple-precision integer library -- Tom St Denis
  *
@@ -4604,6 +4848,87 @@ mp_rand (mp_int * a, int digits)
 }
 
 /* End: bn_mp_rand.c */
+
+/* Start: bn_mp_read_radix.c */
+/* LibTomMath, multiple-precision integer library -- Tom St Denis
+ *
+ * LibTomMath is library that provides for multiple-precision
+ * integer arithmetic as well as number theoretic functionality.
+ *
+ * The library is designed directly after the MPI library by
+ * Michael Fromberger but has been written from scratch with
+ * additional optimizations in place.
+ *
+ * The library is free for all purposes without any express
+ * guarantee it works.
+ *
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
+ */
+#include <tommath.h>
+
+/* read a string [ASCII] in a given radix */
+int
+mp_read_radix (mp_int * a, char *str, int radix)
+{
+  int     y, res, neg;
+  char    ch;
+
+  /* make sure the radix is ok */
+  if (radix < 2 || radix > 64) {
+    return MP_VAL;
+  }
+
+  /* if the leading digit is a 
+   * minus set the sign to negative. 
+   */
+  if (*str == '-') {
+    ++str;
+    neg = MP_NEG;
+  } else {
+    neg = MP_ZPOS;
+  }
+
+  /* set the integer to the default of zero */
+  mp_zero (a);
+  
+  /* process each digit of the string */
+  while (*str) {
+    /* if the radix < 36 the conversion is case insensitive
+     * this allows numbers like 1AB and 1ab to represent the same  value
+     * [e.g. in hex]
+     */
+    ch = (char) ((radix < 36) ? toupper (*str) : *str);
+    for (y = 0; y < 64; y++) {
+      if (ch == mp_s_rmap[y]) {
+         break;
+      }
+    }
+
+    /* if the char was found in the map 
+     * and is less than the given radix add it
+     * to the number, otherwise exit the loop. 
+     */
+    if (y < radix) {
+      if ((res = mp_mul_d (a, (mp_digit) radix, a)) != MP_OKAY) {
+         return res;
+      }
+      if ((res = mp_add_d (a, (mp_digit) y, a)) != MP_OKAY) {
+         return res;
+      }
+    } else {
+      break;
+    }
+    ++str;
+  }
+  
+  /* set the sign only if a != 0 */
+  if (mp_iszero(a) != 1) {
+     a->sign = neg;
+  }
+  return MP_OKAY;
+}
+
+/* End: bn_mp_read_radix.c */
 
 /* Start: bn_mp_read_signed_bin.c */
 /* LibTomMath, multiple-precision integer library -- Tom St Denis
@@ -5949,6 +6274,80 @@ ERR:
 
 /* End: bn_mp_toom_sqr.c */
 
+/* Start: bn_mp_toradix.c */
+/* LibTomMath, multiple-precision integer library -- Tom St Denis
+ *
+ * LibTomMath is library that provides for multiple-precision
+ * integer arithmetic as well as number theoretic functionality.
+ *
+ * The library is designed directly after the MPI library by
+ * Michael Fromberger but has been written from scratch with
+ * additional optimizations in place.
+ *
+ * The library is free for all purposes without any express
+ * guarantee it works.
+ *
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
+ */
+#include <tommath.h>
+
+/* stores a bignum as a ASCII string in a given radix (2..64) */
+int
+mp_toradix (mp_int * a, char *str, int radix)
+{
+  int     res, digs;
+  mp_int  t;
+  mp_digit d;
+  char   *_s = str;
+
+  if (radix < 2 || radix > 64) {
+    return MP_VAL;
+  }
+  
+  /* quick out if its zero */
+  if (mp_iszero(a) == 1) {
+     *str++ = '0';
+     *str = '\0';
+     return MP_OKAY;
+  }
+  
+  if ((res = mp_init_copy (&t, a)) != MP_OKAY) {
+    return res;
+  }
+
+  /* if it is negative output a - */
+  if (t.sign == MP_NEG) {
+    ++_s;
+    *str++ = '-';
+    t.sign = MP_ZPOS;
+  }
+
+  digs = 0;
+  while (mp_iszero (&t) == 0) {
+    if ((res = mp_div_d (&t, (mp_digit) radix, &t, &d)) != MP_OKAY) {
+      mp_clear (&t);
+      return res;
+    }
+    *str++ = mp_s_rmap[d];
+    ++digs;
+  }
+
+  /* reverse the digits of the string.  In this case _s points
+   * to the first digit [exluding the sign] of the number]
+   */
+  bn_reverse ((unsigned char *)_s, digs);
+  
+  /* append a NULL so the string is properly terminated */
+  *str++ = '\0';
+  
+  
+  mp_clear (&t);
+  return MP_OKAY;
+}
+
+
+/* End: bn_mp_toradix.c */
+
 /* Start: bn_mp_unsigned_bin_size.c */
 /* LibTomMath, multiple-precision integer library -- Tom St Denis
  *
@@ -6053,6 +6452,216 @@ mp_zero (mp_int * a)
 
 /* End: bn_mp_zero.c */
 
+/* Start: bn_mult.c */
+/* LibTomMath, multiple-precision integer library -- Tom St Denis
+ *
+ * LibTomMath is library that provides for multiple-precision
+ * integer arithmetic as well as number theoretic functionality.
+ *
+ * The library is designed directly after the MPI library by
+ * Michael Fromberger but has been written from scratch with
+ * additional optimizations in place.
+ *
+ * The library is free for all purposes without any express
+ * guarantee it works.
+ *
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
+ */
+ #include <tommath.h>
+
+/* this file provides a nxn=>2n multiplier based on the
+ * fact that xy = ((x-y)^2 - (x+y)^2)/4
+ * so by having a square table for 0..2^(n+1)
+ * we can compute (x+y)^2 via table lookup, etc..
+ */
+
+#ifdef SLOW_MULT
+
+/* table of x^2 for -510..510 */
+#if defined(MP_8BIT) || defined(MP_16BIT)
+static const unsigned long sqr[] = {
+65025, 64770, 64516, 64262, 64009, 63756, 63504, 63252, 63001, 62750, 62500, 62250,
+62001, 61752, 61504, 61256, 61009, 60762, 60516, 60270, 60025, 59780, 59536, 59292,
+59049, 58806, 58564, 58322, 58081, 57840, 57600, 57360, 57121, 56882, 56644, 56406,
+56169, 55932, 55696, 55460, 55225, 54990, 54756, 54522, 54289, 54056, 53824, 53592,
+53361, 53130, 52900, 52670, 52441, 52212, 51984, 51756, 51529, 51302, 51076, 50850,
+50625, 50400, 50176, 49952, 49729, 49506, 49284, 49062, 48841, 48620, 48400, 48180,
+47961, 47742, 47524, 47306, 47089, 46872, 46656, 46440, 46225, 46010, 45796, 45582,
+45369, 45156, 44944, 44732, 44521, 44310, 44100, 43890, 43681, 43472, 43264, 43056,
+42849, 42642, 42436, 42230, 42025, 41820, 41616, 41412, 41209, 41006, 40804, 40602,
+40401, 40200, 40000, 39800, 39601, 39402, 39204, 39006, 38809, 38612, 38416, 38220,
+38025, 37830, 37636, 37442, 37249, 37056, 36864, 36672, 36481, 36290, 36100, 35910,
+35721, 35532, 35344, 35156, 34969, 34782, 34596, 34410, 34225, 34040, 33856, 33672,
+33489, 33306, 33124, 32942, 32761, 32580, 32400, 32220, 32041, 31862, 31684, 31506,
+31329, 31152, 30976, 30800, 30625, 30450, 30276, 30102, 29929, 29756, 29584, 29412,
+29241, 29070, 28900, 28730, 28561, 28392, 28224, 28056, 27889, 27722, 27556, 27390,
+27225, 27060, 26896, 26732, 26569, 26406, 26244, 26082, 25921, 25760, 25600, 25440,
+25281, 25122, 24964, 24806, 24649, 24492, 24336, 24180, 24025, 23870, 23716, 23562,
+23409, 23256, 23104, 22952, 22801, 22650, 22500, 22350, 22201, 22052, 21904, 21756,
+21609, 21462, 21316, 21170, 21025, 20880, 20736, 20592, 20449, 20306, 20164, 20022,
+19881, 19740, 19600, 19460, 19321, 19182, 19044, 18906, 18769, 18632, 18496, 18360,
+18225, 18090, 17956, 17822, 17689, 17556, 17424, 17292, 17161, 17030, 16900, 16770,
+16641, 16512, 16384, 16256, 16129, 16002, 15876, 15750, 15625, 15500, 15376, 15252,
+15129, 15006, 14884, 14762, 14641, 14520, 14400, 14280, 14161, 14042, 13924, 13806,
+13689, 13572, 13456, 13340, 13225, 13110, 12996, 12882, 12769, 12656, 12544, 12432,
+12321, 12210, 12100, 11990, 11881, 11772, 11664, 11556, 11449, 11342, 11236, 11130,
+11025, 10920, 10816, 10712, 10609, 10506, 10404, 10302, 10201, 10100, 10000,  9900,
+ 9801,  9702,  9604,  9506,  9409,  9312,  9216,  9120,  9025,  8930,  8836,  8742,
+ 8649,  8556,  8464,  8372,  8281,  8190,  8100,  8010,  7921,  7832,  7744,  7656,
+ 7569,  7482,  7396,  7310,  7225,  7140,  7056,  6972,  6889,  6806,  6724,  6642,
+ 6561,  6480,  6400,  6320,  6241,  6162,  6084,  6006,  5929,  5852,  5776,  5700,
+ 5625,  5550,  5476,  5402,  5329,  5256,  5184,  5112,  5041,  4970,  4900,  4830,
+ 4761,  4692,  4624,  4556,  4489,  4422,  4356,  4290,  4225,  4160,  4096,  4032,
+ 3969,  3906,  3844,  3782,  3721,  3660,  3600,  3540,  3481,  3422,  3364,  3306,
+ 3249,  3192,  3136,  3080,  3025,  2970,  2916,  2862,  2809,  2756,  2704,  2652,
+ 2601,  2550,  2500,  2450,  2401,  2352,  2304,  2256,  2209,  2162,  2116,  2070,
+ 2025,  1980,  1936,  1892,  1849,  1806,  1764,  1722,  1681,  1640,  1600,  1560,
+ 1521,  1482,  1444,  1406,  1369,  1332,  1296,  1260,  1225,  1190,  1156,  1122,
+ 1089,  1056,  1024,   992,   961,   930,   900,   870,   841,   812,   784,   756,
+  729,   702,   676,   650,   625,   600,   576,   552,   529,   506,   484,   462,
+  441,   420,   400,   380,   361,   342,   324,   306,   289,   272,   256,   240,
+  225,   210,   196,   182,   169,   156,   144,   132,   121,   110,   100,    90,
+   81,    72,    64,    56,    49,    42,    36,    30,    25,    20,    16,    12,
+    9,     6,     4,     2,     1,     0,     0,     0,     1,     2,     4,     6,
+    9,    12,    16,    20,    25,    30,    36,    42,    49,    56,    64,    72,
+   81,    90,   100,   110,   121,   132,   144,   156,   169,   182,   196,   210,
+  225,   240,   256,   272,   289,   306,   324,   342,   361,   380,   400,   420,
+  441,   462,   484,   506,   529,   552,   576,   600,   625,   650,   676,   702,
+  729,   756,   784,   812,   841,   870,   900,   930,   961,   992,  1024,  1056,
+ 1089,  1122,  1156,  1190,  1225,  1260,  1296,  1332,  1369,  1406,  1444,  1482,
+ 1521,  1560,  1600,  1640,  1681,  1722,  1764,  1806,  1849,  1892,  1936,  1980,
+ 2025,  2070,  2116,  2162,  2209,  2256,  2304,  2352,  2401,  2450,  2500,  2550,
+ 2601,  2652,  2704,  2756,  2809,  2862,  2916,  2970,  3025,  3080,  3136,  3192,
+ 3249,  3306,  3364,  3422,  3481,  3540,  3600,  3660,  3721,  3782,  3844,  3906,
+ 3969,  4032,  4096,  4160,  4225,  4290,  4356,  4422,  4489,  4556,  4624,  4692,
+ 4761,  4830,  4900,  4970,  5041,  5112,  5184,  5256,  5329,  5402,  5476,  5550,
+ 5625,  5700,  5776,  5852,  5929,  6006,  6084,  6162,  6241,  6320,  6400,  6480,
+ 6561,  6642,  6724,  6806,  6889,  6972,  7056,  7140,  7225,  7310,  7396,  7482,
+ 7569,  7656,  7744,  7832,  7921,  8010,  8100,  8190,  8281,  8372,  8464,  8556,
+ 8649,  8742,  8836,  8930,  9025,  9120,  9216,  9312,  9409,  9506,  9604,  9702,
+ 9801,  9900, 10000, 10100, 10201, 10302, 10404, 10506, 10609, 10712, 10816, 10920,
+11025, 11130, 11236, 11342, 11449, 11556, 11664, 11772, 11881, 11990, 12100, 12210,
+12321, 12432, 12544, 12656, 12769, 12882, 12996, 13110, 13225, 13340, 13456, 13572,
+13689, 13806, 13924, 14042, 14161, 14280, 14400, 14520, 14641, 14762, 14884, 15006,
+15129, 15252, 15376, 15500, 15625, 15750, 15876, 16002, 16129, 16256, 16384, 16512,
+16641, 16770, 16900, 17030, 17161, 17292, 17424, 17556, 17689, 17822, 17956, 18090,
+18225, 18360, 18496, 18632, 18769, 18906, 19044, 19182, 19321, 19460, 19600, 19740,
+19881, 20022, 20164, 20306, 20449, 20592, 20736, 20880, 21025, 21170, 21316, 21462,
+21609, 21756, 21904, 22052, 22201, 22350, 22500, 22650, 22801, 22952, 23104, 23256,
+23409, 23562, 23716, 23870, 24025, 24180, 24336, 24492, 24649, 24806, 24964, 25122,
+25281, 25440, 25600, 25760, 25921, 26082, 26244, 26406, 26569, 26732, 26896, 27060,
+27225, 27390, 27556, 27722, 27889, 28056, 28224, 28392, 28561, 28730, 28900, 29070,
+29241, 29412, 29584, 29756, 29929, 30102, 30276, 30450, 30625, 30800, 30976, 31152,
+31329, 31506, 31684, 31862, 32041, 32220, 32400, 32580, 32761, 32942, 33124, 33306,
+33489, 33672, 33856, 34040, 34225, 34410, 34596, 34782, 34969, 35156, 35344, 35532,
+35721, 35910, 36100, 36290, 36481, 36672, 36864, 37056, 37249, 37442, 37636, 37830,
+38025, 38220, 38416, 38612, 38809, 39006, 39204, 39402, 39601, 39800, 40000, 40200,
+40401, 40602, 40804, 41006, 41209, 41412, 41616, 41820, 42025, 42230, 42436, 42642,
+42849, 43056, 43264, 43472, 43681, 43890, 44100, 44310, 44521, 44732, 44944, 45156,
+45369, 45582, 45796, 46010, 46225, 46440, 46656, 46872, 47089, 47306, 47524, 47742,
+47961, 48180, 48400, 48620, 48841, 49062, 49284, 49506, 49729, 49952, 50176, 50400,
+50625, 50850, 51076, 51302, 51529, 51756, 51984, 52212, 52441, 52670, 52900, 53130,
+53361, 53592, 53824, 54056, 54289, 54522, 54756, 54990, 55225, 55460, 55696, 55932,
+56169, 56406, 56644, 56882, 57121, 57360, 57600, 57840, 58081, 58322, 58564, 58806,
+59049, 59292, 59536, 59780, 60025, 60270, 60516, 60762, 61009, 61256, 61504, 61752,
+62001, 62250, 62500, 62750, 63001, 63252, 63504, 63756, 64009, 64262, 64516, 64770,
+65025};
+#endif
+
+#if defined(MP_8BIT)
+/*
+   4 add/sub
+   2 table lookups
+   -
+   6 operations
+
+   versus
+
+    8 shifts
+    8 ands
+    8 jump/zero
+    8 adds
+   --
+   32 operations
+*/
+mp_word s_mp_mult(mp_digit a, mp_digit b)
+{
+   int A, B;
+   /* since mp_digit < 9-bits a+b may truncate... */
+   A = a; B = b;
+   A += 510;
+   return (mp_word)(sqr[A+B] - sqr[A-B]);
+}
+#elif defined(MP_16BIT)
+/*
+   17 add/sub
+    4 shifts
+    8 table lookups
+    2 ands
+   --
+   31 operations
+
+   A double/multiply would require
+
+   16 shifts
+   16 ands
+   16 jump/zero
+   16 adds
+   --
+   64 operations
+ */
+mp_word s_mp_mult(mp_digit a, mp_digit b)
+{
+  mp_digit a1, a2, b1, b2;
+  a1 = a&255;       a2 = a>>8;
+  b1 = (b&255)+510; b2 = (b>>8)+510;
+  return (mp_word)(
+          (sqr[b1+a1] - sqr[b1-a1]) +
+          ((sqr[b1+a2] + sqr[b2+a1] - (sqr[b1-a2] + sqr[b2-a1]))<<8) +
+          ((sqr[b2+a2] - sqr[b2-a2])<<16));
+}
+#elif defined(MP_28BIT)
+/* use a 2-ary sliding window
+
+   29 shifts
+   14 additions
+   13 ands
+   18 table lookups
+   --
+   74 operations
+
+   versus 4*28 == 112 via the other method
+*/
+mp_word s_mp_mult(mp_digit a, mp_digit b)
+{
+   mp_digit wnd[4];
+   mp_word  res;
+
+   /* make window */
+   wnd[0] = 0;
+   wnd[1] = a;
+   wnd[2] = a<<1;
+   wnd[3] = (a<<1) + a;
+
+   /* go over the 28 bits of b */
+#define RND(i)   res = (res << 2) + ((mp_word)wnd[(b>>(2*i))&3]);
+   res = wnd[b>>26];
+   RND(12); RND(11); RND(10); RND( 9);
+   RND( 8); RND( 7); RND( 6); RND( 5);
+   RND( 4); RND( 3); RND( 2); RND( 1); RND(0);
+   return res;
+}
+#else
+mp_word s_mp_mult(mp_digit a, mp_digit b)
+{
+   return ((mp_word)a)*((mp_word)b);
+}
+#endif
+
+#endif /* SLOW_MULT */
+
+/* End: bn_mult.c */
+
 /* Start: bn_prime_tab.c */
 /* LibTomMath, multiple-precision integer library -- Tom St Denis
  *
@@ -6111,232 +6720,6 @@ const mp_digit __prime_tab[] = {
 };
 
 /* End: bn_prime_tab.c */
-
-/* Start: bn_radix.c */
-/* LibTomMath, multiple-precision integer library -- Tom St Denis
- *
- * LibTomMath is library that provides for multiple-precision
- * integer arithmetic as well as number theoretic functionality.
- *
- * The library is designed directly after the MPI library by
- * Michael Fromberger but has been written from scratch with
- * additional optimizations in place.
- *
- * The library is free for all purposes without any express
- * guarantee it works.
- *
- * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
- */
-#include <tommath.h>
-
-/* chars used in radix conversions */
-static const char *s_rmap = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz+/";
-
-/* read a string [ASCII] in a given radix */
-int
-mp_read_radix (mp_int * a, char *str, int radix)
-{
-  int     y, res, neg;
-  char    ch;
-
-  if (radix < 2 || radix > 64) {
-    return MP_VAL;
-  }
-
-  if (*str == '-') {
-    ++str;
-    neg = MP_NEG;
-  } else {
-    neg = MP_ZPOS;
-  }
-
-  mp_zero (a);
-  while (*str) {
-    ch = (char) ((radix < 36) ? toupper (*str) : *str);
-    for (y = 0; y < 64; y++) {
-      if (ch == s_rmap[y]) {
-    break;
-      }
-    }
-
-    if (y < radix) {
-      if ((res = mp_mul_d (a, (mp_digit) radix, a)) != MP_OKAY) {
-    return res;
-      }
-      if ((res = mp_add_d (a, (mp_digit) y, a)) != MP_OKAY) {
-    return res;
-      }
-    } else {
-      break;
-    }
-    ++str;
-  }
-  a->sign = neg;
-  return MP_OKAY;
-}
-
-/* stores a bignum as a ASCII string in a given radix (2..64) */
-int
-mp_toradix (mp_int * a, char *str, int radix)
-{
-  int     res, digs;
-  mp_int  t;
-  mp_digit d;
-  char   *_s = str;
-
-  if (radix < 2 || radix > 64) {
-    return MP_VAL;
-  }
-  
-  /* quick out if its zero */
-  if (mp_iszero(a) == 1) {
-     *str++ = '0';
-     *str = '\0';
-     return MP_OKAY;
-  }
-  
-
-  if ((res = mp_init_copy (&t, a)) != MP_OKAY) {
-    return res;
-  }
-
-  if (t.sign == MP_NEG) {
-    ++_s;
-    *str++ = '-';
-    t.sign = MP_ZPOS;
-  }
-
-  digs = 0;
-  while (mp_iszero (&t) == 0) {
-    if ((res = mp_div_d (&t, (mp_digit) radix, &t, &d)) != MP_OKAY) {
-      mp_clear (&t);
-      return res;
-    }
-    *str++ = s_rmap[d];
-    ++digs;
-  }
-  bn_reverse ((unsigned char *)_s, digs);
-  *str++ = '\0';
-  mp_clear (&t);
-  return MP_OKAY;
-}
-
-/* returns size of ASCII reprensentation */
-int
-mp_radix_size (mp_int * a, int radix)
-{
-  int     res, digs;
-  mp_int  t;
-  mp_digit d;
-
-  /* special case for binary */
-  if (radix == 2) {
-    return mp_count_bits (a) + (a->sign == MP_NEG ? 1 : 0) + 1;
-  }
-
-  if (radix < 2 || radix > 64) {
-    return 0;
-  }
-
-  if ((res = mp_init_copy (&t, a)) != MP_OKAY) {
-    return 0;
-  }
-
-  digs = 0;
-  if (t.sign == MP_NEG) {
-    ++digs;
-    t.sign = MP_ZPOS;
-  }
-
-  while (mp_iszero (&t) == 0) {
-    if ((res = mp_div_d (&t, (mp_digit) radix, &t, &d)) != MP_OKAY) {
-      mp_clear (&t);
-      return 0;
-    }
-    ++digs;
-  }
-  mp_clear (&t);
-  return digs + 1;
-}
-
-/* read a bigint from a file stream in ASCII */
-int mp_fread(mp_int *a, int radix, FILE *stream)
-{
-   int err, ch, neg, y;
-   
-   /* clear a */
-   mp_zero(a);
-   
-   /* if first digit is - then set negative */
-   ch = fgetc(stream);
-   if (ch == '-') {
-      neg = MP_NEG;
-      ch = fgetc(stream);
-   } else {
-      neg = MP_ZPOS;
-   }
-   
-   for (;;) {
-      /* find y in the radix map */
-      for (y = 0; y < radix; y++) {
-          if (s_rmap[y] == ch) {
-             break;
-          }
-      }
-      if (y == radix) {
-         break;
-      }
-      
-      /* shift up and add */
-      if ((err = mp_mul_d(a, radix, a)) != MP_OKAY) {
-         return err;
-      }
-      if ((err = mp_add_d(a, y, a)) != MP_OKAY) {
-         return err;
-      }
-      
-      ch = fgetc(stream);
-   }
-   if (mp_cmp_d(a, 0) != MP_EQ) {
-      a->sign = neg;
-   }
-   
-   return MP_OKAY;
-}
-
-int mp_fwrite(mp_int *a, int radix, FILE *stream)
-{
-   char *buf;
-   int err, len, x;
-   
-   len = mp_radix_size(a, radix);
-   if (len == 0) {
-      return MP_VAL;
-   }
-   
-   buf = malloc(len);
-   if (buf == NULL) {
-      return MP_MEM;
-   }
-   
-   if ((err = mp_toradix(a, buf, radix)) != MP_OKAY) {
-      free(buf);
-      return err;
-   }
-   
-   for (x = 0; x < len; x++) {
-       if (fputc(buf[x], stream) == EOF) {
-          free(buf);
-          return MP_VAL;
-       }
-   }
-   
-   free(buf);
-   return MP_OKAY;
-}
-
-
-/* End: bn_radix.c */
 
 /* Start: bn_reverse.c */
 /* LibTomMath, multiple-precision integer library -- Tom St Denis
@@ -6499,10 +6882,16 @@ s_mp_add (mp_int * a, mp_int * b, mp_int * c)
  */
 #include <tommath.h>
 
+#ifdef MP_LOW_MEM
+   #define TAB_SIZE 32
+#else
+   #define TAB_SIZE 256
+#endif
+
 int
 s_mp_exptmod (mp_int * G, mp_int * X, mp_int * P, mp_int * Y)
 {
-  mp_int  M[256], res, mu;
+  mp_int  M[TAB_SIZE], res, mu;
   mp_digit buf;
   int     err, bitbuf, bitcpy, bitcnt, mode, digidx, x, y, winsize;
 
@@ -6531,11 +6920,18 @@ s_mp_exptmod (mp_int * G, mp_int * X, mp_int * P, mp_int * Y)
 #endif
 
   /* init M array */
-  for (x = 0; x < (1 << winsize); x++) {
-    if ((err = mp_init_size (&M[x], 1)) != MP_OKAY) {
-      for (y = 0; y < x; y++) {
+  /* init first cell */
+  if ((err = mp_init(&M[1])) != MP_OKAY) {
+     return err; 
+  }
+
+  /* now init the second half of the array */
+  for (x = 1<<(winsize-1); x < (1 << winsize); x++) {
+    if ((err = mp_init(&M[x])) != MP_OKAY) {
+      for (y = 1<<(winsize-1); y < x; y++) {
         mp_clear (&M[y]);
       }
+      mp_clear(&M[1]);
       return err;
     }
   }
@@ -6694,7 +7090,8 @@ s_mp_exptmod (mp_int * G, mp_int * X, mp_int * P, mp_int * Y)
 __RES:mp_clear (&res);
 __MU:mp_clear (&mu);
 __M:
-  for (x = 0; x < (1 << winsize); x++) {
+  mp_clear(&M[1]);
+  for (x = 1<<(winsize-1); x < (1 << winsize); x++) {
     mp_clear (&M[x]);
   }
   return err;
@@ -6767,7 +7164,7 @@ s_mp_mul_digs (mp_int * a, mp_int * b, mp_int * c, int digs)
     for (iy = 0; iy < pb; iy++) {
       /* compute the column as a mp_word */
       r = ((mp_word) *tmpt) + 
-          ((mp_word) tmpx) * ((mp_word) * tmpy++) + 
+          MULT(tmpx, *tmpy++) +
           ((mp_word) u);
 
       /* the new column is the lower part of the result */
@@ -6849,7 +7246,7 @@ s_mp_mul_high_digs (mp_int * a, mp_int * b, mp_int * c, int digs)
 
     for (iy = digs - ix; iy < pb; iy++) {
       /* calculate the double precision result */
-      r = ((mp_word) * tmpt) + ((mp_word) tmpx) * ((mp_word) * tmpy++) + ((mp_word) u);
+      r = ((mp_word) * tmpt) + MULT(tmpx, *tmpy++) + ((mp_word) u);
 
       /* get the lower part */
       *tmpt++ = (mp_digit) (r & ((mp_word) MP_MASK));
@@ -6903,7 +7300,7 @@ s_mp_sqr (mp_int * a, mp_int * b)
     /* first calculate the digit at 2*ix */
     /* calculate double precision result */
     r = ((mp_word) t.dp[2*ix]) + 
-        ((mp_word) a->dp[ix]) * ((mp_word) a->dp[ix]);
+        MULT(a->dp[ix], a->dp[ix]);
 
     /* store lower part in result */
     t.dp[2*ix] = (mp_digit) (r & ((mp_word) MP_MASK));
@@ -6919,7 +7316,7 @@ s_mp_sqr (mp_int * a, mp_int * b)
     
     for (iy = ix + 1; iy < pa; iy++) {
       /* first calculate the product */
-      r = ((mp_word) tmpx) * ((mp_word) a->dp[iy]);
+      r = MULT(tmpx, a->dp[iy]);
 
       /* now calculate the double precision result, note we use
        * addition instead of *2 since it's easier to optimize

@@ -15,9 +15,8 @@
 #define XFREE free
 #define XCLOCK clock
 #define XCLOCKS_PER_SEC CLOCKS_PER_SEC
-#define TWOFISH_TABLES
-//#define SMALL_CODE
 #define LTC_TEST
+#define SMALL_CODE
 #define BLOWFISH
 #define RC2
 #define RC5
@@ -25,6 +24,7 @@
 #define SAFERP
 #define SAFER
 #define RIJNDAEL
+#define SERPENT
 #define XTEA
 #define TWOFISH
 #define DES

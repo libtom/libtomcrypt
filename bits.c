@@ -1,4 +1,6 @@
 /* portable way to get secure random bits to feed a PRNG */
+#include <fcntl.h>
+#include <unistd.h>
 #include "mycrypt.h"
 
 #ifdef DEVRANDOM
@@ -9,26 +11,20 @@ static unsigned long rng_nix(unsigned char *buf, unsigned long len,
 #ifdef NO_FILE
     return 0;
 #else
-    FILE *f;
+    int src;
     unsigned long x;
 #ifdef TRY_URANDOM_FIRST
-    f = fopen("/dev/urandom", "rb");
-    if (f == NULL)
+    src = open("/dev/urandom", O_RDONLY);
+    if (src == -1)
 #endif /* TRY_URANDOM_FIRST */
-       f = fopen("/dev/random", "rb");
+       src = open("/dev/random", O_RDONLY);
 
-    if (f == NULL) {
+    if (src == -1) {
        return 0;
     }
     
-    /* disable buffering */
-    if (setvbuf(f, NULL, _IONBF, 0) != 0) {
-       fclose(f);
-       return 0;
-    }   
- 
-    x = (unsigned long)fread(buf, 1, (size_t)len, f);
-    fclose(f);
+    x = (unsigned long)read(src, buf, (size_t)len);
+    close(src);
     return x;
 #endif /* NO_FILE */
 }

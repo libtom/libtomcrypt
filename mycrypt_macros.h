@@ -7,6 +7,11 @@
    typedef unsigned long long ulong64;
 #endif
 
+/* this is the "32-bit at least" data type 
+ * Re-define it to suit your platform but it must be at least 32-bits 
+ */
+typedef unsigned long ulong32;
+
 extern char *crypt_error;
 
 /* ---- HELPER MACROS ---- */
