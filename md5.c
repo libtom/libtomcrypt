@@ -208,6 +208,9 @@ void md5_done(hash_state * md, unsigned char *hash)
 
 int  md5_test(void)
 {
+ #ifndef LTC_TEST
+    return CRYPT_NOP;
+ #else    
   static const struct {
       char *msg;
       unsigned char hash[16];
@@ -249,6 +252,7 @@ int  md5_test(void)
       }
   }
   return CRYPT_OK;
+ #endif
 }
 
 #endif

@@ -407,6 +407,9 @@ void saferp_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_ke
 
 int saferp_test(void)
 {
+ #ifndef LTC_TEST
+    return CRYPT_NOP;
+ #else    
    static const struct {
        int keylen;
        unsigned char key[32], pt[16], ct[16];
@@ -459,6 +462,7 @@ int saferp_test(void)
    }
 
    return CRYPT_OK;
+ #endif
 }
 
 int saferp_keysize(int *desired_keysize)

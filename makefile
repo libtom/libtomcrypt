@@ -9,7 +9,7 @@
 # a build. This is easy to remedy though, for those that have problems.
 
 # The version
-VERSION=0.83
+VERSION=0.84
 
 #ch1-01-1
 # Compiler and Linker Names
@@ -31,7 +31,7 @@ CFLAGS += -c -I./ -Wall -Wsign-compare -W -Wno-unused -Wshadow -Werror
 # optimize for SIZE
 CFLAGS += -Os
 
-# compile for DEBUGGING
+# compile for DEBUGING
 #CFLAGS += -g3
 #ch1-01-3
 
@@ -57,7 +57,7 @@ OBJECTS=keyring.o gf.o mem.o sprng.o ecc.o base64.o dh.o rsa.o \
 bits.o yarrow.o cfb.o ofb.o ecb.o ctr.o cbc.o hash.o tiger.o sha1.o \
 md5.o md4.o md2.o sha256.o sha512.o xtea.o aes.o serpent.o des.o \
 safer_tab.o safer.o safer+.o rc4.o rc2.o rc6.o rc5.o cast5.o noekeon.o blowfish.o crypt.o \
-ampi.o mpi.o prime.o twofish.o packet.o hmac.o strings.o
+mpi.o prime.o twofish.o packet.o hmac.o strings.o
 
 TESTOBJECTS=demos/test.o
 HASHOBJECTS=demos/hashsum.o
@@ -71,7 +71,7 @@ LEFTOVERS=*.dvi *.log *.aux *.toc *.idx *.ilg *.ind
 COMPRESSED=crypt.tar.bz2 crypt.zip crypt.tar.gz
 
 #Header files used by libtomcrypt.
-HEADERS=mpi.h mycrypt_cfg.h mycrypt_gf.h mycrypt_kr.h \
+HEADERS=tommath.h mycrypt_cfg.h mycrypt_gf.h mycrypt_kr.h \
 mycrypt_misc.h  mycrypt_prng.h mycrypt_cipher.h  mycrypt_hash.h \
 mycrypt_macros.h  mycrypt_pk.h mycrypt.h mycrypt_argchk.h mycrypt_custom.h
 
@@ -129,8 +129,7 @@ clean:
 #nice pre-compiled crypt.pdf that comes with libtomcrypt! We only need to
 #delete it if we are rebuilding it.
 docs: crypt.tex
-	rm -f crypt.pdf
-	rm -f $(LEFTOVERS)
+	rm -f crypt.pdf $(LEFTOVERS)
 	latex crypt > /dev/null
 	makeindex crypt > /dev/null
 	pdflatex crypt > /dev/null

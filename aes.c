@@ -327,6 +327,9 @@ void rijndael_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_
 
 int rijndael_test(void)
 {
+ #ifndef LTC_TEST
+    return CRYPT_NOP;
+ #else    
  int errno;
  static const struct {
      int keylen;
@@ -377,6 +380,7 @@ int rijndael_test(void)
     }
  }       
  return CRYPT_OK;
+ #endif
 }
 
 int rijndael_keysize(int *desired_keysize)
