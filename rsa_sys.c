@@ -16,14 +16,14 @@ int rsa_encrypt_key(const unsigned char *inkey, unsigned long inlen,
                     unsigned char *outkey, unsigned long *outlen,
                     prng_state *prng, int wprng, rsa_key *key)
 {
-   unsigned char rsa_in[4096], rsa_out[4096];
+   unsigned char rsa_in[RSA_STACK], rsa_out[RSA_STACK];
    unsigned long x, y, rsa_size;
    int err;
 
-   _ARGCHK(inkey != NULL);
+   _ARGCHK(inkey  != NULL);
    _ARGCHK(outkey != NULL);
    _ARGCHK(outlen != NULL);
-   _ARGCHK(key != NULL);
+   _ARGCHK(key    != NULL);
    
    /* only allow keys from 64 to 256 bits */
    if (inlen < 8 || inlen > 32) {
@@ -52,6 +52,9 @@ int rsa_encrypt_key(const unsigned char *inkey, unsigned long inlen,
       return CRYPT_BUFFER_OVERFLOW;
    }
 
+   /* store header */
+   packet_store_header(outkey, PACKET_SECT_RSA, PACKET_SUB_ENC_KEY);
+
    /* now lets make the header */
    y = PACKET_SIZE;
    
@@ -64,15 +67,13 @@ int rsa_encrypt_key(const unsigned char *inkey, unsigned long inlen,
        outkey[y] = rsa_out[x];
    }
 
-   /* store header */
-   packet_store_header(outkey, PACKET_SECT_RSA, PACKET_SUB_ENC_KEY);
-
+   *outlen = y;
 #ifdef CLEAN_STACK
    /* clean up */
    zeromem(rsa_in, sizeof(rsa_in));
    zeromem(rsa_out, sizeof(rsa_out));
 #endif
-   *outlen = y;
+
    return CRYPT_OK;
 }
 
@@ -80,14 +81,14 @@ int rsa_decrypt_key(const unsigned char *in, unsigned long inlen,
                           unsigned char *outkey, unsigned long *keylen, 
                           rsa_key *key)
 {
-   unsigned char sym_key[MAXBLOCKSIZE], rsa_out[4096];
+   unsigned char sym_key[MAXBLOCKSIZE], rsa_out[RSA_STACK];
    unsigned long x, y, z, i, rsa_size;
    int err;
 
-   _ARGCHK(in != NULL);
+   _ARGCHK(in     != NULL);
    _ARGCHK(outkey != NULL);
    _ARGCHK(keylen != NULL);
-   _ARGCHK(key != NULL);
+   _ARGCHK(key    != NULL);
 
    /* right key type? */
    if (key->type != PK_PRIVATE && key->type != PK_PRIVATE_OPTIMIZED) {
@@ -151,16 +152,16 @@ int rsa_sign_hash(const unsigned char *in,  unsigned long inlen,
                         rsa_key *key)
 {
    unsigned long rsa_size, x, y;
-   unsigned char rsa_in[4096], rsa_out[4096];
+   unsigned char rsa_in[RSA_STACK], rsa_out[RSA_STACK];
    int err;
 
-   _ARGCHK(in != NULL);
-   _ARGCHK(out != NULL);
+   _ARGCHK(in     != NULL);
+   _ARGCHK(out    != NULL);
    _ARGCHK(outlen != NULL);
-   _ARGCHK(key != NULL);
+   _ARGCHK(key    != NULL);
    
    /* reject nonsense sizes */
-   if (inlen > MAXBLOCKSIZE || inlen < 16) {
+   if (inlen > (512/3) || inlen < 16) {
       return CRYPT_INVALID_ARG;
    }
 
@@ -214,13 +215,13 @@ int rsa_verify_hash(const unsigned char *sig, unsigned long siglen,
                     const unsigned char *md, int *stat, rsa_key *key)
 {
    unsigned long rsa_size, x, y, z;
-   unsigned char rsa_in[4096], rsa_out[4096];
+   unsigned char rsa_in[RSA_STACK], rsa_out[RSA_STACK];
    int err;
 
-   _ARGCHK(sig != NULL);
-   _ARGCHK(md != NULL);
+   _ARGCHK(sig  != NULL);
+   _ARGCHK(md   != NULL);
    _ARGCHK(stat != NULL);
-   _ARGCHK(key != NULL);
+   _ARGCHK(key  != NULL);
 
    /* always be incorrect by default */
    *stat = 0;

@@ -18,7 +18,6 @@ int dsa_make_key(prng_state *prng, int wprng, int group_size, int modulus_size, 
    int err, res;
    unsigned char buf[512];
 
-   _ARGCHK(prng != NULL);
    _ARGCHK(key  != NULL);
 
    /* check prng */
@@ -132,11 +131,10 @@ int dsa_sign_hash(const unsigned char *in,  unsigned long inlen,
    unsigned long len;
 
 
-   _ARGCHK(in != NULL);
-   _ARGCHK(out != NULL);
-   _ARGCHK(prng != NULL);
+   _ARGCHK(in     != NULL);
+   _ARGCHK(out    != NULL);
    _ARGCHK(outlen != NULL);
-   _ARGCHK(key != NULL);
+   _ARGCHK(key    != NULL);
 
    if ((err = prng_is_valid(wprng)) != CRYPT_OK) {
       return err;
@@ -204,7 +202,7 @@ retry:
    /* store length of r */
    len = mp_unsigned_bin_size(&r);
    out[y++] = (len>>8)&255;
-   out[y++] = (len & 255);
+   out[y++] = len&255;
    
    /* store r */
    if ((err = mp_to_unsigned_bin(&r, out+y)) != MP_OKAY)                              { goto error; }
@@ -213,7 +211,7 @@ retry:
    /* store length of s */
    len = mp_unsigned_bin_size(&s);
    out[y++] = (len>>8)&255;
-   out[y++] = (len & 255);
+   out[y++] = len&255;
    
    /* store s */
    if ((err = mp_to_unsigned_bin(&s, out+y)) != MP_OKAY)                              { goto error; }
@@ -241,10 +239,10 @@ int dsa_verify_hash(const unsigned char *sig, unsigned long siglen,
    unsigned long x, y;
    int err;
 
-   _ARGCHK(sig != NULL);
+   _ARGCHK(sig  != NULL);
    _ARGCHK(hash != NULL);
    _ARGCHK(stat != NULL);
-   _ARGCHK(key != NULL);
+   _ARGCHK(key  != NULL);
 
    /* default to invalid signature */
    *stat = 0;
@@ -320,21 +318,21 @@ int dsa_export(unsigned char *out, unsigned long *outlen, int type, dsa_key *key
    unsigned long y, z;
    int err;
 
-   _ARGCHK(out != NULL);
+   _ARGCHK(out    != NULL);
    _ARGCHK(outlen != NULL);
-   _ARGCHK(key != NULL);
+   _ARGCHK(key    != NULL);
 
+   /* can we store the static header?  */
+   if (*outlen < (PACKET_SIZE + 1 + 2)) {
+      return CRYPT_BUFFER_OVERFLOW;
+   }
+   
    if (type == PK_PRIVATE && key->type != PK_PRIVATE) {
       return CRYPT_PK_TYPE_MISMATCH;
    }
 
    if (type != PK_PUBLIC && type != PK_PRIVATE) {
       return CRYPT_INVALID_ARG;
-   }
-
-   /* can we store the static header?  */
-   if (*outlen < (PACKET_SIZE + 1 + 2)) {
-      return CRYPT_BUFFER_OVERFLOW;
    }
 
    /* store header */
@@ -366,7 +364,7 @@ int dsa_import(const unsigned char *in, unsigned long inlen, dsa_key *key)
    unsigned long x, y;
    int err;
 
-   _ARGCHK(in != NULL);
+   _ARGCHK(in  != NULL);
    _ARGCHK(key != NULL);
 
    /* check length */
@@ -410,7 +408,7 @@ int dsa_verify_key(dsa_key *key, int *stat)
    mp_int tmp, tmp2;
    int res, err;
 
-   _ARGCHK(key != NULL);
+   _ARGCHK(key  != NULL);
    _ARGCHK(stat != NULL);
 
    *stat = 0;

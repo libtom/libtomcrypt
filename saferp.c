@@ -206,7 +206,7 @@ int saferp_setup(const unsigned char *key, int keylen, int num_rounds, symmetric
    unsigned char t[33];
    static const int rounds[3] = { 8, 12, 16 };
 
-   _ARGCHK(key != NULL);
+   _ARGCHK(key  != NULL);
    _ARGCHK(skey != NULL);
 
    /* check arguments */
@@ -316,8 +316,8 @@ void saferp_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_ke
    unsigned char b[16];
    int x;
 
-   _ARGCHK(pt != NULL);
-   _ARGCHK(ct != NULL);
+   _ARGCHK(pt   != NULL);
+   _ARGCHK(ct   != NULL);
    _ARGCHK(skey != NULL);
 
    /* do eight rounds */
@@ -372,8 +372,8 @@ void saferp_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_ke
    unsigned char b[16];
    int x;
 
-   _ARGCHK(pt != NULL);
-   _ARGCHK(ct != NULL);
+   _ARGCHK(pt   != NULL);
+   _ARGCHK(ct   != NULL);
    _ARGCHK(skey != NULL);
 
    /* do eight rounds */

@@ -70,7 +70,18 @@ struct rmd160_state {
 };
 #endif
 
+#ifdef WHIRLPOOL
+struct whirlpool_state {
+    ulong64 length, state[8];
+    unsigned char buf[64];
+    ulong32 curlen;
+};
+#endif
+
 typedef union Hash_state {
+#ifdef WHIRLPOOL
+    struct whirlpool_state whirlpool;
+#endif
 #ifdef SHA512
     struct sha512_state sha512;
 #endif
@@ -110,6 +121,15 @@ extern struct _hash_descriptor {
     int (*done)(hash_state *, unsigned char *);
     int  (*test)(void);
 } hash_descriptor[];
+
+
+#ifdef WHIRLPOOL
+extern void whirlpool_init(hash_state * md);
+extern int whirlpool_process(hash_state * md, const unsigned char *buf, unsigned long len);
+extern int whirlpool_done(hash_state * md, unsigned char *hash);
+extern int  whirlpool_test(void);
+extern const struct _hash_descriptor whirlpool_desc;
+#endif
 
 #ifdef SHA512
 extern void sha512_init(hash_state * md);
@@ -290,7 +310,38 @@ extern int omac_memory(int cipher, const unsigned char *key, unsigned long keyle
 extern int omac_file(int cipher, const unsigned char *key, unsigned long keylen,
               const char *filename, unsigned char *out, unsigned long *outlen);
 extern int omac_test(void);
-#endif
+#endif /* OMAC */
+
+#ifdef PMAC
+
+typedef struct {
+   unsigned char     Ls[32][MAXBLOCKSIZE],    /* L shifted by i bits to the left */
+                     Li[MAXBLOCKSIZE],        /* value of Li [current value, we calc from previous recall] */
+                     Lr[MAXBLOCKSIZE],        /* L * x^-1 */
+                     block[MAXBLOCKSIZE],     /* currently accumulated block */
+                     checksum[MAXBLOCKSIZE];  /* current checksum */
+
+   symmetric_key     key;                     /* scheduled key for cipher */
+   unsigned long     block_index;             /* index # for current block */
+   int               cipher_idx,              /* cipher idx */
+                     block_len,               /* length of block */
+                     buflen;                  /* number of bytes in the buffer */
+} pmac_state;
+
+extern int pmac_init(pmac_state *pmac, int cipher, const unsigned char *key, unsigned long keylen);
+extern int pmac_process(pmac_state *state, const unsigned char *buf, unsigned long len);
+extern int pmac_done(pmac_state *state, unsigned char *out, unsigned long *outlen);
+
+extern int pmac_memory(int cipher, const unsigned char *key, unsigned long keylen,
+                const unsigned char *msg, unsigned long msglen,
+                unsigned char *out, unsigned long *outlen);
+
+extern int pmac_file(int cipher, const unsigned char *key, unsigned long keylen,
+              const char *filename, unsigned char *out, unsigned long *outlen);
+
+extern int pmac_test(void);
+
+#endif /* PMAC */
 
 #ifdef EAX_MODE
 
@@ -345,8 +396,7 @@ typedef struct {
    symmetric_key     key;                     /* scheduled key for cipher */
    unsigned long     block_index;             /* index # for current block */
    int               cipher,                  /* cipher idx */
-                     block_len,               /* length of block */
-                     poly;                    /* which set of polys to use */
+                     block_len;               /* length of block */
 } ocb_state;
 
 extern int ocb_init(ocb_state *ocb, int cipher, 
@@ -383,3 +433,5 @@ extern int ocb_decrypt_verify_memory(int cipher,
 extern int ocb_test(void);
 
 #endif /* OCB_MODE */
+
+

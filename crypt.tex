@@ -47,9 +47,8 @@
 \def\gap{\vspace{0.5ex}}
 \makeindex
 \begin{document}
-\title{A Tiny Crypto Library, \\ LibTomCrypt \\ Version 0.93}
+\title{A Tiny Crypto Library, \\ LibTomCrypt \\ Version 0.94}
 \author{Tom St Denis \\
-Algonquin College \\
 \\
 tomstdenis@iahu.ca \\
 http://libtomcrypt.org \\ \\
@@ -915,7 +914,8 @@ To terminate a decrypt stream and compared the tag you call the following.
 int ocb_done_decrypt(ocb_state *ocb, 
                      const unsigned char *ct,  unsigned long ctlen,
                            unsigned char *pt, 
-                     const unsigned char *tag, unsigned long taglen, int *res);
+                     const unsigned char *tag, unsigned long taglen, 
+                           int *res);
 \end{verbatim}
 
 Similarly to the previous function you can pass trailing message bytes into this function.  This will compute the 
@@ -1145,6 +1145,7 @@ The following hashes are provided as of this release:
 \begin{center}
 \begin{tabular}{|c|c|c|}
       \hline Name & Descriptor Name & Size of Message Digest (bytes) \\
+      \hline WHIRLPOOL & whirlpool\_desc & 64 \\
       \hline SHA-512 & sha512\_desc & 64 \\
       \hline SHA-384 & sha384\_desc & 48 \\
       \hline SHA-256 & sha256\_desc & 32 \\
@@ -1175,7 +1176,8 @@ These hashes are provided for completeness and they still can be used for the pu
 The other hashes such as the SHA-1, SHA-2 (that includes SHA-512, SHA-384 and SHA-256) and TIGER-192 are still considered secure
 for all purposes you would normally use a hash for.
 
-\section{Hash based Message Authenication Codes}
+\chapter{Message Authentication Codes}
+\section{HMAC Protocol}
 Thanks to Dobes Vandermeer the library now includes support for hash based message authenication codes or HMAC for short.  An HMAC
 of a message is a keyed authenication code that only the owner of a private symmetric key will be able to verify.  The purpose is
 to allow an owner of a private symmetric key to produce an HMAC on a message then later verify if it is correct.  Any impostor or
@@ -1304,7 +1306,20 @@ int omac_process(omac_state *state,
                  const unsigned char *buf, unsigned long len);
 \end{verbatim}
 This will send ``len'' bytes from ``buf'' through the active OMAC state ``state''.  Returns \textbf{CRYPT\_OK} if the 
-function succeeds.  When you are done with the message you can call
+function succeeds.  The function is not sensitive to the granularity of the data.  For example,
+
+\begin{verbatim}
+omac_process(&mystate, "hello",  5);
+omac_process(&mystate, " world", 6);
+\end{verbatim}
+
+Would produce the same result as,
+
+\begin{verbatim}
+omac_process(&mystate, "hello world",  11);
+\end{verbatim}
+
+When you are done processing the message you can call the following to compute the message tag.
 
 \begin{verbatim}
 int omac_done(omac_state *state, 
@@ -1353,7 +1368,7 @@ OMAC system is given below.
 #include <mycrypt.h>
 int main(void)
 {
-   int idx, errno;
+   int idx, err;
    omac_state omac;
    unsigned char key[16], dst[MAXBLOCKSIZE];
    unsigned long dstlen;
@@ -1370,21 +1385,21 @@ int main(void)
    /* we would make up our symmetric key in "key[]" here */
 
    /* start the OMAC */
-   if ((errno = omac_init(&omac, idx, key, 16)) != CRYPT_OK) {
-      printf("Error setting up omac: %s\n", error_to_string(errno));
+   if ((err = omac_init(&omac, idx, key, 16)) != CRYPT_OK) {
+      printf("Error setting up omac: %s\n", error_to_string(err));
       return -1;
    }
 
    /* process a few octets */
-   if((errno = omac_process(&omac, "hello", 5) != CRYPT_OK) {
-      printf("Error processing omac: %s\n", error_to_string(errno));
+   if((err = omac_process(&omac, "hello", 5) != CRYPT_OK) {
+      printf("Error processing omac: %s\n", error_to_string(err));
       return -1;
    }
 
    /* get result (presumably to use it somehow...) */
    dstlen = sizeof(dst);
-   if ((errno = omac_done(&omac, dst, &dstlen)) != CRYPT_OK) {
-      printf("Error finishing omac: %s\n", error_to_string(errno));
+   if ((err = omac_done(&omac, dst, &dstlen)) != CRYPT_OK) {
+      printf("Error finishing omac: %s\n", error_to_string(err));
       return -1;
    }
    printf("The omac is %lu bytes long\n", dstlen);
@@ -1394,6 +1409,81 @@ int main(void)
 }
 \end{verbatim}
 \end{small}
+
+\section{PMAC Support}
+The PMAC\footnote{J.Black, P.Rogaway, ``A Block--Cipher Mode of Operation for Parallelizable Message Authentication''} 
+protocol is another MAC algorithm that relies solely on a symmetric-key block cipher.  It uses essentially the same
+API as the provided OMAC code.  
+
+A PMAC state is initialized with the following.
+
+\begin{verbatim}
+int pmac_init(pmac_state *pmac, int cipher, 
+              const unsigned char *key, unsigned long keylen);
+\end{verbatim}
+Which initializes the ``pmac'' state with the given ``cipher'' and ``key'' of length ``keylen'' bytes.  The chosen cipher
+must have a 64 or 128 bit block size (e.x. AES).
+
+To MAC data simply send it through the process function.
+
+\begin{verbatim}
+int pmac_process(pmac_state *state, 
+                 const unsigned char *buf, unsigned long len);
+\end{verbatim}
+This will process ``len'' bytes of ``buf'' in the given ``state''.  The function is not sensitive to the granularity of the
+data.  For example,
+
+\begin{verbatim}
+pmac_process(&mystate, "hello",  5);
+pmac_process(&mystate, " world", 6);
+\end{verbatim}
+
+Would produce the same result as,
+
+\begin{verbatim}
+pmac_process(&mystate, "hello world",  11);
+\end{verbatim}
+
+When a complete message has been processed the following function can be called to compute the message tag.
+
+\begin{verbatim}
+int pmac_done(pmac_state *state, 
+              unsigned char *out, unsigned long *outlen);
+\end{verbatim}
+This will store upto ``outlen'' bytes of the tag for the given ``state'' into ``out''.  Note that if ``outlen'' is larger
+than the size of the tag it is set to the amount of bytes stored in ``out''.
+
+Similar to the PMAC code the file and memory functions are also provided.  To PMAC a buffer of memory in one shot use the 
+following function.
+
+\begin{verbatim}
+int pmac_memory(int cipher, 
+                const unsigned char *key, unsigned long keylen,
+                const unsigned char *msg, unsigned long msglen,
+                unsigned char *out, unsigned long *outlen);
+\end{verbatim}
+This will compute the PMAC of ``msglen'' bytes of ``msg'' using the key ``key'' of length ``keylen'' bytes and the cipher
+specified by the ``cipher'''th entry in the cipher\_descriptor table.  It will store the MAC in ``out'' with the same
+rules as omac\_done.
+
+To PMAC a file use
+\begin{verbatim}
+int pmac_file(int cipher, 
+              const unsigned char *key, unsigned long keylen,
+              const char *filename, 
+              unsigned char *out, unsigned long *outlen);
+\end{verbatim}
+
+Which will PMAC the entire contents of the file specified by ``filename'' using the key ``key'' of length ``keylen'' bytes
+and the cipher specified by the ``cipher'''th entry in the cipher\_descriptor table.  It will store the MAC in ``out'' with 
+the same rules as omac\_done.
+
+To test if the PMAC code is working there is the following function:
+\begin{verbatim}
+int pmac_test(void);
+\end{verbatim}
+Which returns {\bf CRYPT\_OK} if the code passes otherwise it returns an error code.
+
 
 \chapter{Pseudo-Random Number Generators}
 \section{Core Functions}
@@ -1445,19 +1535,19 @@ int main(void)
 {
    prng_state prng;
    unsigned char buf[10];
-   int errno;
+   int err;
    
    /* start it */
-   if ((errno = yarrow_start(&prng)) != CRYPT_OK) {
-      printf("Start error: %s\n", error_to_string(errno));
+   if ((err = yarrow_start(&prng)) != CRYPT_OK) {
+      printf("Start error: %s\n", error_to_string(err));
    }
    /* add entropy */
-   if ((errno = yarrow_add_entropy("hello world", 11, &prng)) != CRYPT_OK) {
-      printf("Add_entropy error: %s\n", error_to_string(errno));
+   if ((err = yarrow_add_entropy("hello world", 11, &prng)) != CRYPT_OK) {
+      printf("Add_entropy error: %s\n", error_to_string(err));
    }
    /* ready and read */
-   if ((errno = yarrow_ready(&prng)) != CRYPT_OK) {
-      printf("Ready error: %s\n", error_to_string(errno));
+   if ((err = yarrow_ready(&prng)) != CRYPT_OK) {
+      printf("Ready error: %s\n", error_to_string(err));
    }
    printf("Read %lu bytes from yarrow\n", yarrow_read(buf, 10, &prng));
    return 0;
@@ -1504,22 +1594,22 @@ int main(void)
 {
    prng_state prng;
    unsigned char buf[32];
-   int errno;
+   int err;
 
-   if ((errno = rc4_start(&prng)) != CRYPT_OK) {
-      printf("RC4 init error: %s\n", error_to_string(errno));
+   if ((err = rc4_start(&prng)) != CRYPT_OK) {
+      printf("RC4 init error: %s\n", error_to_string(err));
       exit(-1);
    }
 
    /* use ``key'' as the key */
-   if ((errno = rc4_add_entropy("key", 3, &prng)) != CRYPT_OK) {
-      printf("RC4 add entropy error: %s\n", error_to_string(errno));
+   if ((err = rc4_add_entropy("key", 3, &prng)) != CRYPT_OK) {
+      printf("RC4 add entropy error: %s\n", error_to_string(err));
       exit(-1);
    }
 
    /* setup RC4 for use */
-   if ((errno = rc4_ready(&prng)) != CRYPT_OK) {
-      printf("RC4 ready error: %s\n", error_to_string(errno));
+   if ((err = rc4_ready(&prng)) != CRYPT_OK) {
+      printf("RC4 ready error: %s\n", error_to_string(err));
       exit(-1);
    }
 
@@ -1572,7 +1662,7 @@ int main(void)
 {
    ecc_key mykey;
    prng_state prng;
-   int errno;
+   int err;
 
    /* register yarrow */
    if (register_prng(&yarrow_desc) == -1) {
@@ -1581,14 +1671,14 @@ int main(void)
    }
 
    /* setup the PRNG */
-   if ((errno = rng_make_prng(128, find_prng("yarrow"), &prng, NULL)) != CRYPT_OK) {
-      printf("Error setting up PRNG, %s\n", error_to_string(errno));
+   if ((err = rng_make_prng(128, find_prng("yarrow"), &prng, NULL)) != CRYPT_OK) {
+      printf("Error setting up PRNG, %s\n", error_to_string(err));
       return -1;
    }
 
    /* make a 192-bit ECC key */
-   if ((errno = ecc_make_key(&prng, find_prng("yarrow"), 24, &mykey)) != CRYPT_OK) {
-      printf("Error making key: %s\n", error_to_string(errno));
+   if ((err = ecc_make_key(&prng, find_prng("yarrow"), 24, &mykey)) != CRYPT_OK) {
+      printf("Error making key: %s\n", error_to_string(err));
       return -1;
    }
    return 0;
@@ -1608,7 +1698,7 @@ the previous example using this PRNG.
 int main(void)
 {
    ecc_key mykey;
-   int errno;
+   int err;
 
    /* register SPRNG */
    if (register_prng(&sprng_desc) == -1) {
@@ -1617,8 +1707,8 @@ int main(void)
    }
 
    /* make a 192-bit ECC key */
-   if ((errno = ecc_make_key(NULL, find_prng("sprng"), 24, &mykey)) != CRYPT_OK) {
-      printf("Error making key: %s\n", error_to_string(errno));
+   if ((err = ecc_make_key(NULL, find_prng("sprng"), 24, &mykey)) != CRYPT_OK) {
+      printf("Error making key: %s\n", error_to_string(err));
       return -1;
    }
    return 0;
@@ -1873,18 +1963,18 @@ int establish_secure_socket(int sock, int mode, unsigned char *key,
 {
    unsigned char buf[4096], buf2[4096];
    unsigned long x, len;
-   int res, errno, inlen;
+   int res, err, inlen;
    dh_key mykey, theirkey;
 
    /* make up our private key */
-   if ((errno = dh_make_key(prng, wprng, 128, &mykey)) != CRYPT_OK)  {
-      return errno;
+   if ((err = dh_make_key(prng, wprng, 128, &mykey)) != CRYPT_OK)  {
+      return err;
    }
 
    /* export our key as public */ 
    x = sizeof(buf);
-   if ((errno = dh_export(buf, &x, PK_PUBLIC, &mykey)) != CRYPT_OK) {
-      res = errno;
+   if ((err = dh_export(buf, &x, PK_PUBLIC, &mykey)) != CRYPT_OK) {
+      res = err;
       goto done2;
    }
 
@@ -1913,22 +2003,22 @@ int establish_secure_socket(int sock, int mode, unsigned char *key,
       }
    }
 
-   if ((errno = dh_import(buf2, inlen, &theirkey)) != CRYPT_OK) { 
-      res = errno;
+   if ((err = dh_import(buf2, inlen, &theirkey)) != CRYPT_OK) { 
+      res = err;
       goto done2;
    }
 
    /* make shared secret */
    x = sizeof(buf);
-   if ((errno = dh_shared_secret(&mykey, &theirkey, buf, &x)) != CRYPT_OK) {
-      res = errno;
+   if ((err = dh_shared_secret(&mykey, &theirkey, buf, &x)) != CRYPT_OK) {
+      res = err;
       goto done;
    }
  
    /* hash it */
    len = 16;        /* default is MD5 so "key" must be at least 16 bytes long */
-   if ((errno = hash_memory(find_hash("md5"), buf, x, key, &len)) != CRYPT_OK) {
-      res = errno;
+   if ((err = hash_memory(find_hash("md5"), buf, x, key, &len)) != CRYPT_OK) {
+      res = err;
       goto done;
    }
 
@@ -2382,26 +2472,26 @@ int main(void)
    pk_key *kr;
    unsigned char buf[4096], buf2[4096];
    unsigned long len;
-   int errno;
+   int err;
 
    /* make a new list */
-   if ((errno = kr_init(&kr)) != CRYPT_OK) {
-      printf("kr_init: %s\n", error_to_string(errno));
+   if ((err = kr_init(&kr)) != CRYPT_OK) {
+      printf("kr_init: %s\n", error_to_string(err));
       exit(-1);
    }
 
    /* add a key to it */
    register_prng(&sprng_desc);
-   if ((errno = kr_make_key(kr, NULL, find_prng("sprng"), RSA_KEY, 128, 
+   if ((err = kr_make_key(kr, NULL, find_prng("sprng"), RSA_KEY, 128, 
                 "TomBot", "tomstdenis@yahoo.com", "test key")) == CRYPT_OK) {
-      printf("kr_make_key: %s\n", error_to_string(errno));
+      printf("kr_make_key: %s\n", error_to_string(err));
       exit(-1);
    }
 
    /* export the first key */
    len = sizeof(buf);
-   if ((errno = kr_export(kr, kr->ID, PK_PRIVATE, buf, &len)) != CRYPT_OK) {
-      printf("kr_export: %s\n", error_to_string(errno));
+   if ((err = kr_export(kr, kr->ID, PK_PRIVATE, buf, &len)) != CRYPT_OK) {
+      printf("kr_export: %s\n", error_to_string(err));
       exit(-1);
    }
 

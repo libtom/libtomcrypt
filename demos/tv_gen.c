@@ -79,6 +79,9 @@ void reg_algs(void)
 #ifdef RIPEMD160
   register_hash (&rmd160_desc);
 #endif
+#ifdef WHIRLPOOL
+  register_hash (&whirlpool_desc);
+#endif
 }
 
 void hash_gen(void)
@@ -269,6 +272,61 @@ void omac_gen(void)
    fclose(out);
 }
 
+void pmac_gen(void)
+{
+   unsigned char key[MAXBLOCKSIZE], output[MAXBLOCKSIZE], input[MAXBLOCKSIZE*2+2];
+   int err, x, y, z, kl;
+   FILE *out;
+   unsigned long len;
+  
+   out = fopen("pmac_tv.txt", "w");
+
+   fprintf(out, 
+"PMAC Tests.  In these tests messages of N bytes long (00,01,02,...,NN-1) are OMAC'ed.  The initial key is\n"
+"of the same format (length specified per cipher).  The OMAC key in step N+1 is the OMAC output of\n"
+"step N (repeated as required to fill the array).\n\n");
+
+   for (x = 0; cipher_descriptor[x].name != NULL; x++) {
+      kl = cipher_descriptor[x].block_length;
+
+      /* skip ciphers which do not have 64 or 128 bit block sizes */
+      if (kl != 8 && kl != 16) continue;
+
+      if (cipher_descriptor[x].keysize(&kl) != CRYPT_OK) {
+         kl = cipher_descriptor[x].max_key_length;
+      }
+      fprintf(out, "PMAC-%s (%d byte key)\n", cipher_descriptor[x].name, kl);
+      
+      /* initial key/block */
+      for (y = 0; y < kl; y++) {
+          key[y] = (y & 255);
+      }
+      
+      for (y = 0; y <= (int)(cipher_descriptor[x].block_length*2); y++) {
+         for (z = 0; z < y; z++) {
+            input[z] = (unsigned char)(z & 255);
+         }
+         len = sizeof(output);
+         if ((err = pmac_memory(x, key, kl, input, y, output, &len)) != CRYPT_OK) {
+            printf("Error omacing: %s\n", error_to_string(err));
+            exit(EXIT_FAILURE);
+         }
+         fprintf(out, "%3d: ", y);
+         for (z = 0; z <(int)len; z++) {
+            fprintf(out, "%02X", output[z]);
+         }
+         fprintf(out, "\n");
+
+         /* forward the key */
+         for (z = 0; z < kl; z++) {
+             key[z] = output[z % len];
+         }
+      }
+      fprintf(out, "\n");
+   }
+   fclose(out);
+}
+
 void eax_gen(void)
 {
    int err, kl, x, y1, z;
@@ -392,6 +450,25 @@ void ocb_gen(void)
    fclose(out);
 }
 
+void base64_gen(void)
+{
+   FILE *out;
+   unsigned char dst[256], src[32];
+   unsigned long x, y, len;
+   
+   out = fopen("base64_tv.txt", "w");
+   fprintf(out, "Base64 vectors.  These are the base64 encodings of the strings 00,01,02...NN-1\n\n");
+   for (x = 0; x <= 32; x++) {
+       for (y = 0; y < x; y++) {
+           src[y] = y;
+       }
+       len = sizeof(dst);
+       base64_encode(src, x, dst, &len);
+       fprintf(out, "%2lu: %s\n", x, dst);
+   }
+   fclose(out);
+}
+
 int main(void)
 {
    reg_algs();
@@ -399,8 +476,10 @@ int main(void)
    printf("Generating cipher vectors..."); fflush(stdout); cipher_gen(); printf("done\n");
    printf("Generating HMAC   vectors..."); fflush(stdout); hmac_gen(); printf("done\n");
    printf("Generating OMAC   vectors..."); fflush(stdout); omac_gen(); printf("done\n");
+   printf("Generating PMAC   vectors..."); fflush(stdout); pmac_gen(); printf("done\n");
    printf("Generating EAX    vectors..."); fflush(stdout); eax_gen(); printf("done\n");
    printf("Generating OCB    vectors..."); fflush(stdout); ocb_gen(); printf("done\n");
+   printf("Generating BASE64 vectors..."); fflush(stdout); base64_gen(); printf("done\n");
    return 0;
 }
 

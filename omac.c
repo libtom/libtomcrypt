@@ -165,6 +165,11 @@ int omac_memory(int cipher, const unsigned char *key, unsigned long keylen,
    int err;
    omac_state omac;
 
+   _ARGCHK(key != NULL);
+   _ARGCHK(msg != NULL);
+   _ARGCHK(out != NULL);
+   _ARGCHK(outlen != NULL);
+
    if ((err = omac_init(&omac, cipher, key, keylen)) != CRYPT_OK) {
       return err;
    }
@@ -174,6 +179,11 @@ int omac_memory(int cipher, const unsigned char *key, unsigned long keylen,
    if ((err = omac_done(&omac, out, outlen)) != CRYPT_OK) {
       return err;
    }
+
+#ifdef CLEAN_STACK
+   zeromem(&omac, sizeof(omac));
+#endif
+
    return CRYPT_OK;
 }
 
@@ -187,6 +197,13 @@ int omac_file(int cipher, const unsigned char *key, unsigned long keylen,
    omac_state omac;
    FILE *in;
    unsigned char buf[512];
+
+
+   _ARGCHK(key      != NULL);
+   _ARGCHK(filename != NULL);
+   _ARGCHK(out      != NULL);
+   _ARGCHK(outlen   != NULL);
+
 
    in = fopen(filename, "rb");
    if (in == NULL) {
@@ -210,6 +227,11 @@ int omac_file(int cipher, const unsigned char *key, unsigned long keylen,
    if ((err = omac_done(&omac, out, outlen)) != CRYPT_OK) {
       return err;
    }
+
+#ifdef CLEAN_STACK
+   zeromem(buf, sizeof(buf));
+#endif
+
    return CRYPT_OK;
 #endif
 }
@@ -221,7 +243,7 @@ int omac_test(void)
 #else
     static const struct { 
         int keylen, msglen;
-        unsigned char key[32], msg[64], tag[16];
+        unsigned char key[16], msg[64], tag[16];
     } tests[] = {
     { 16, 0,
       { 0x2b, 0x7e, 0x15, 0x16, 0x28, 0xae, 0xd2, 0xa6, 

@@ -31,56 +31,58 @@
 \BOOKMARK [1][-]{section.4.1}{Core Functions}{chapter.4}
 \BOOKMARK [1][-]{section.4.2}{Hash Descriptors}{chapter.4}
 \BOOKMARK [2][-]{subsection.4.2.1}{Notice}{section.4.2}
-\BOOKMARK [1][-]{section.4.3}{Hash based Message Authenication Codes}{chapter.4}
-\BOOKMARK [1][-]{section.4.4}{OMAC Support}{chapter.4}
-\BOOKMARK [0][-]{chapter.5}{Pseudo-Random Number Generators}{}
-\BOOKMARK [1][-]{section.5.1}{Core Functions}{chapter.5}
-\BOOKMARK [2][-]{subsection.5.1.1}{Remarks}{section.5.1}
-\BOOKMARK [2][-]{subsection.5.1.2}{Example}{section.5.1}
-\BOOKMARK [1][-]{section.5.2}{PRNG Descriptors}{chapter.5}
-\BOOKMARK [1][-]{section.5.3}{The Secure RNG}{chapter.5}
-\BOOKMARK [2][-]{subsection.5.3.1}{The Secure PRNG Interface}{section.5.3}
-\BOOKMARK [0][-]{chapter.6}{RSA Routines}{}
-\BOOKMARK [1][-]{section.6.1}{Background}{chapter.6}
-\BOOKMARK [1][-]{section.6.2}{Core Functions}{chapter.6}
-\BOOKMARK [1][-]{section.6.3}{Packet Routines}{chapter.6}
-\BOOKMARK [1][-]{section.6.4}{Remarks}{chapter.6}
-\BOOKMARK [0][-]{chapter.7}{Diffie-Hellman Key Exchange}{}
+\BOOKMARK [0][-]{chapter.5}{Message Authentication Codes}{}
+\BOOKMARK [1][-]{section.5.1}{HMAC Protocol}{chapter.5}
+\BOOKMARK [1][-]{section.5.2}{OMAC Support}{chapter.5}
+\BOOKMARK [1][-]{section.5.3}{PMAC Support}{chapter.5}
+\BOOKMARK [0][-]{chapter.6}{Pseudo-Random Number Generators}{}
+\BOOKMARK [1][-]{section.6.1}{Core Functions}{chapter.6}
+\BOOKMARK [2][-]{subsection.6.1.1}{Remarks}{section.6.1}
+\BOOKMARK [2][-]{subsection.6.1.2}{Example}{section.6.1}
+\BOOKMARK [1][-]{section.6.2}{PRNG Descriptors}{chapter.6}
+\BOOKMARK [1][-]{section.6.3}{The Secure RNG}{chapter.6}
+\BOOKMARK [2][-]{subsection.6.3.1}{The Secure PRNG Interface}{section.6.3}
+\BOOKMARK [0][-]{chapter.7}{RSA Routines}{}
 \BOOKMARK [1][-]{section.7.1}{Background}{chapter.7}
 \BOOKMARK [1][-]{section.7.2}{Core Functions}{chapter.7}
-\BOOKMARK [2][-]{subsection.7.2.1}{Remarks on Usage}{section.7.2}
-\BOOKMARK [2][-]{subsection.7.2.2}{Remarks on The Snippet}{section.7.2}
-\BOOKMARK [1][-]{section.7.3}{Other Diffie-Hellman Functions}{chapter.7}
-\BOOKMARK [1][-]{section.7.4}{DH Packet}{chapter.7}
-\BOOKMARK [0][-]{chapter.8}{Elliptic Curve Cryptography}{}
+\BOOKMARK [1][-]{section.7.3}{Packet Routines}{chapter.7}
+\BOOKMARK [1][-]{section.7.4}{Remarks}{chapter.7}
+\BOOKMARK [0][-]{chapter.8}{Diffie-Hellman Key Exchange}{}
 \BOOKMARK [1][-]{section.8.1}{Background}{chapter.8}
 \BOOKMARK [1][-]{section.8.2}{Core Functions}{chapter.8}
-\BOOKMARK [1][-]{section.8.3}{ECC Packet}{chapter.8}
-\BOOKMARK [1][-]{section.8.4}{ECC Keysizes}{chapter.8}
-\BOOKMARK [0][-]{chapter.9}{Digital Signature Algorithm}{}
-\BOOKMARK [1][-]{section.9.1}{Introduction}{chapter.9}
-\BOOKMARK [1][-]{section.9.2}{Key Generation}{chapter.9}
-\BOOKMARK [1][-]{section.9.3}{Key Verification}{chapter.9}
-\BOOKMARK [1][-]{section.9.4}{Signatures}{chapter.9}
-\BOOKMARK [1][-]{section.9.5}{Import and Export}{chapter.9}
-\BOOKMARK [0][-]{chapter.10}{Public Keyrings}{}
+\BOOKMARK [2][-]{subsection.8.2.1}{Remarks on Usage}{section.8.2}
+\BOOKMARK [2][-]{subsection.8.2.2}{Remarks on The Snippet}{section.8.2}
+\BOOKMARK [1][-]{section.8.3}{Other Diffie-Hellman Functions}{chapter.8}
+\BOOKMARK [1][-]{section.8.4}{DH Packet}{chapter.8}
+\BOOKMARK [0][-]{chapter.9}{Elliptic Curve Cryptography}{}
+\BOOKMARK [1][-]{section.9.1}{Background}{chapter.9}
+\BOOKMARK [1][-]{section.9.2}{Core Functions}{chapter.9}
+\BOOKMARK [1][-]{section.9.3}{ECC Packet}{chapter.9}
+\BOOKMARK [1][-]{section.9.4}{ECC Keysizes}{chapter.9}
+\BOOKMARK [0][-]{chapter.10}{Digital Signature Algorithm}{}
 \BOOKMARK [1][-]{section.10.1}{Introduction}{chapter.10}
-\BOOKMARK [1][-]{section.10.2}{The Keyring API}{chapter.10}
-\BOOKMARK [0][-]{chapter.11}{GF\(2w\) Math Routines}{}
-\BOOKMARK [0][-]{chapter.12}{Miscellaneous}{}
-\BOOKMARK [1][-]{section.12.1}{Base64 Encoding and Decoding}{chapter.12}
-\BOOKMARK [1][-]{section.12.2}{The Multiple Precision Integer Library \(MPI\)}{chapter.12}
-\BOOKMARK [2][-]{subsection.12.2.1}{Binary Forms of ``mp\137int'' Variables}{section.12.2}
-\BOOKMARK [2][-]{subsection.12.2.2}{Primality Testing}{section.12.2}
-\BOOKMARK [0][-]{chapter.13}{Programming Guidelines}{}
-\BOOKMARK [1][-]{section.13.1}{Secure Pseudo Random Number Generators}{chapter.13}
-\BOOKMARK [1][-]{section.13.2}{Preventing Trivial Errors}{chapter.13}
-\BOOKMARK [1][-]{section.13.3}{Registering Your Algorithms}{chapter.13}
-\BOOKMARK [1][-]{section.13.4}{Key Sizes}{chapter.13}
-\BOOKMARK [2][-]{subsection.13.4.1}{Symmetric Ciphers}{section.13.4}
-\BOOKMARK [2][-]{subsection.13.4.2}{Assymetric Ciphers}{section.13.4}
-\BOOKMARK [1][-]{section.13.5}{Thread Safety}{chapter.13}
-\BOOKMARK [0][-]{chapter.14}{Configuring the Library}{}
-\BOOKMARK [1][-]{section.14.1}{Introduction}{chapter.14}
-\BOOKMARK [1][-]{section.14.2}{mycrypt\137cfg.h}{chapter.14}
-\BOOKMARK [1][-]{section.14.3}{The Configure Script}{chapter.14}
+\BOOKMARK [1][-]{section.10.2}{Key Generation}{chapter.10}
+\BOOKMARK [1][-]{section.10.3}{Key Verification}{chapter.10}
+\BOOKMARK [1][-]{section.10.4}{Signatures}{chapter.10}
+\BOOKMARK [1][-]{section.10.5}{Import and Export}{chapter.10}
+\BOOKMARK [0][-]{chapter.11}{Public Keyrings}{}
+\BOOKMARK [1][-]{section.11.1}{Introduction}{chapter.11}
+\BOOKMARK [1][-]{section.11.2}{The Keyring API}{chapter.11}
+\BOOKMARK [0][-]{chapter.12}{GF\(2w\) Math Routines}{}
+\BOOKMARK [0][-]{chapter.13}{Miscellaneous}{}
+\BOOKMARK [1][-]{section.13.1}{Base64 Encoding and Decoding}{chapter.13}
+\BOOKMARK [1][-]{section.13.2}{The Multiple Precision Integer Library \(MPI\)}{chapter.13}
+\BOOKMARK [2][-]{subsection.13.2.1}{Binary Forms of ``mp\137int'' Variables}{section.13.2}
+\BOOKMARK [2][-]{subsection.13.2.2}{Primality Testing}{section.13.2}
+\BOOKMARK [0][-]{chapter.14}{Programming Guidelines}{}
+\BOOKMARK [1][-]{section.14.1}{Secure Pseudo Random Number Generators}{chapter.14}
+\BOOKMARK [1][-]{section.14.2}{Preventing Trivial Errors}{chapter.14}
+\BOOKMARK [1][-]{section.14.3}{Registering Your Algorithms}{chapter.14}
+\BOOKMARK [1][-]{section.14.4}{Key Sizes}{chapter.14}
+\BOOKMARK [2][-]{subsection.14.4.1}{Symmetric Ciphers}{section.14.4}
+\BOOKMARK [2][-]{subsection.14.4.2}{Assymetric Ciphers}{section.14.4}
+\BOOKMARK [1][-]{section.14.5}{Thread Safety}{chapter.14}
+\BOOKMARK [0][-]{chapter.15}{Configuring the Library}{}
+\BOOKMARK [1][-]{section.15.1}{Introduction}{chapter.15}
+\BOOKMARK [1][-]{section.15.2}{mycrypt\137cfg.h}{chapter.15}
+\BOOKMARK [1][-]{section.15.3}{The Configure Script}{chapter.15}

@@ -150,9 +150,10 @@ int hmac_memory(int hash, const unsigned char *key, unsigned long keylen,
     hmac_state hmac;
     int err;
 
-    _ARGCHK(key != NULL);
-    _ARGCHK(data != NULL);
-    _ARGCHK(dst != NULL);
+    _ARGCHK(key    != NULL);
+    _ARGCHK(data   != NULL);
+    _ARGCHK(dst    != NULL); 
+    _ARGCHK(dstlen != NULL);
     
     if((err = hash_is_valid(hash)) != CRYPT_OK) {
         return err;
@@ -173,9 +174,9 @@ int hmac_memory(int hash, const unsigned char *key, unsigned long keylen,
 }
 
 /* hmac_file added by Tom St Denis */
-int hmac_file(int hash, const char *fname, const unsigned char *key,
-                unsigned long keylen, 
-                unsigned char *dst, unsigned long *dstlen)
+int hmac_file(int hash, const char *fname, 
+              const unsigned char *key, unsigned long keylen, 
+                    unsigned char *dst, unsigned long *dstlen)
 {
 #ifdef NO_FILE
     return CRYPT_NOP;
@@ -186,9 +187,10 @@ int hmac_file(int hash, const char *fname, const unsigned char *key,
    size_t x;
    int err;
 
-   _ARGCHK(fname != NULL);
-   _ARGCHK(key != NULL);
-   _ARGCHK(dst != NULL);
+   _ARGCHK(fname  != NULL);
+   _ARGCHK(key    != NULL);
+   _ARGCHK(dst    != NULL);
+   _ARGCHK(dstlen != NULL);
    
    if((err = hash_is_valid(hash)) != CRYPT_OK) {
        return err;

@@ -19,9 +19,9 @@ int dh_encrypt_key(const unsigned char *inkey, unsigned long keylen,
     int err;
 
     _ARGCHK(inkey != NULL);
-    _ARGCHK(out != NULL);
-    _ARGCHK(len != NULL);
-    _ARGCHK(key != NULL);
+    _ARGCHK(out   != NULL);
+    _ARGCHK(len   != NULL);
+    _ARGCHK(key   != NULL);
 
     /* check that wprng/hash are not invalid */
     if ((err = prng_is_valid(wprng)) != CRYPT_OK) {
@@ -68,6 +68,9 @@ int dh_encrypt_key(const unsigned char *inkey, unsigned long keylen,
        return err;
     }
 
+    /* store header */
+    packet_store_header(out, PACKET_SECT_DH, PACKET_SUB_ENC_KEY);
+
     /* output header */
     y = PACKET_SIZE;
 
@@ -88,9 +91,7 @@ int dh_encrypt_key(const unsigned char *inkey, unsigned long keylen,
     for (x = 0; x < keylen; x++, y++) {
       out[y] = skey[x] ^ inkey[x];
     }
-
-    /* store header */
-    packet_store_header(out, PACKET_SECT_DH, PACKET_SUB_ENC_KEY);
+    *len = y;
 
 #ifdef CLEAN_STACK
     /* clean up */
@@ -99,7 +100,6 @@ int dh_encrypt_key(const unsigned char *inkey, unsigned long keylen,
     zeromem(skey, sizeof(skey));
 #endif
 
-    *len = y;
     return CRYPT_OK;
 }
 
@@ -109,13 +109,13 @@ int dh_decrypt_key(const unsigned char *in, unsigned long inlen,
 {
    unsigned char shared_secret[768], skey[MAXBLOCKSIZE];
    unsigned long x, y, z,hashsize, keysize;
-   int res, hash, err;
+   int  hash, err;
    dh_key pubkey;
 
-   _ARGCHK(in != NULL);
+   _ARGCHK(in     != NULL);
    _ARGCHK(outkey != NULL);
    _ARGCHK(keylen != NULL);
-   _ARGCHK(key != NULL);
+   _ARGCHK(key    != NULL);
 
    /* right key type? */
    if (key->type != PK_PRIVATE) {
@@ -184,7 +184,7 @@ int dh_decrypt_key(const unsigned char *in, unsigned long inlen,
    }
    
    if (keysize > *keylen) {
-       res = CRYPT_BUFFER_OVERFLOW;
+       err = CRYPT_BUFFER_OVERFLOW;
        goto done;
    }
    y += 4;
@@ -195,13 +195,13 @@ int dh_decrypt_key(const unsigned char *in, unsigned long inlen,
       outkey[x] = skey[x] ^ in[y];
    }
 
-   res = CRYPT_OK;
+   err = CRYPT_OK;
 done:
 #ifdef CLEAN_STACK
    zeromem(shared_secret, sizeof(shared_secret));
    zeromem(skey, sizeof(skey));
 #endif
-   return res;
+   return err;
 }
 
 /* perform an ElGamal Signature of a hash 
@@ -227,14 +227,14 @@ int dh_sign_hash(const unsigned char *in,  unsigned long inlen,
                        prng_state *prng, int wprng, dh_key *key)
 {
    mp_int a, b, k, m, g, p, p1, tmp;
-   unsigned char buf[1536];
+   unsigned char buf[520];
    unsigned long x, y;
-   int res, err;
+   int err;
 
-   _ARGCHK(in != NULL);
-   _ARGCHK(out != NULL);
+   _ARGCHK(in     != NULL);
+   _ARGCHK(out    != NULL);
    _ARGCHK(outlen != NULL);
-   _ARGCHK(key != NULL);
+   _ARGCHK(key    != NULL);
 
    /* check parameters */
    if (key->type != PK_PRIVATE) {
@@ -286,44 +286,44 @@ int dh_sign_hash(const unsigned char *in,  unsigned long inlen,
    if ((err = mp_mulmod(&a, &key->x, &p1, &tmp)) != MP_OKAY)                        { goto error; } /* tmp = xa */
    if ((err = mp_submod(&m, &tmp, &p1, &tmp)) != MP_OKAY)                           { goto error; } /* tmp = M - xa */
    if ((err = mp_mulmod(&k, &tmp, &p1, &b)) != MP_OKAY)                             { goto error; } /* b = (M - xa)/k */
-
+   
+   /* check for overflow */
+   if ((unsigned long)(PACKET_SIZE + 4 + 4 + mp_unsigned_bin_size(&a) + mp_unsigned_bin_size(&b)) > *outlen) {
+      err = CRYPT_BUFFER_OVERFLOW;
+      goto done;
+   }
+   
    /* store header  */
    y = PACKET_SIZE;
 
    /* now store them both (a,b) */
    x = (unsigned long)mp_unsigned_bin_size(&a);
-   STORE32L(x, buf+y);  y += 4;
-   if ((err = mp_to_unsigned_bin(&a, buf+y)) != MP_OKAY)                            { goto error; }
+   STORE32L(x, out+y);  y += 4;
+   if ((err = mp_to_unsigned_bin(&a, out+y)) != MP_OKAY)                            { goto error; }
    y += x;
 
    x = (unsigned long)mp_unsigned_bin_size(&b);
-   STORE32L(x, buf+y);  y += 4;
-   if ((err = mp_to_unsigned_bin(&b, buf+y)) != MP_OKAY)                            { goto error; }
+   STORE32L(x, out+y);  y += 4;
+   if ((err = mp_to_unsigned_bin(&b, out+y)) != MP_OKAY)                            { goto error; }
    y += x;
 
    /* check if size too big */
    if (*outlen < y) {
-      res = CRYPT_BUFFER_OVERFLOW;
+      err = CRYPT_BUFFER_OVERFLOW;
       goto done;
    }
 
    /* store header */
-   packet_store_header(buf, PACKET_SECT_DH, PACKET_SUB_SIGNED);
-
-   /* store it */
-   memcpy(out, buf, (size_t)y);
+   packet_store_header(out, PACKET_SECT_DH, PACKET_SUB_SIGNED);
    *outlen = y;
-#ifdef CLEAN_STACK
-   zeromem(buf, sizeof(buf));
-#endif
 
-   res = CRYPT_OK;
+   err = CRYPT_OK;
    goto done;
 error:
-   res = mpi_to_ltc_error(err);
+   err = mpi_to_ltc_error(err);
 done:
    mp_clear_multi(&tmp, &p1, &g, &p, &m, &k, &b, &a, NULL);
-   return res;
+   return err;
 }
 
 int dh_verify_hash(const unsigned char *sig, unsigned long siglen,
@@ -332,12 +332,12 @@ int dh_verify_hash(const unsigned char *sig, unsigned long siglen,
 {
    mp_int a, b, p, g, m, tmp;
    unsigned long x, y;
-   int res, err;
+   int err;
 
-   _ARGCHK(sig != NULL);
+   _ARGCHK(sig  != NULL);
    _ARGCHK(hash != NULL);
    _ARGCHK(stat != NULL);
-   _ARGCHK(key != NULL);
+   _ARGCHK(key  != NULL);
 
    /* default to invalid */
    *stat = 0;
@@ -371,7 +371,7 @@ int dh_verify_hash(const unsigned char *sig, unsigned long siglen,
    }
    
    y += 4;
-   if ((err = mp_read_unsigned_bin(&a, (unsigned char *)sig+y, x)) != MP_OKAY)    { goto error; }
+   if ((err = mp_read_unsigned_bin(&a, (unsigned char *)sig+y, x)) != MP_OKAY)      { goto error; }
    y += x;
 
    LOAD32L(x, sig+y);
@@ -381,23 +381,23 @@ int dh_verify_hash(const unsigned char *sig, unsigned long siglen,
       siglen -= x;
    }
    y += 4;
-   if ((err = mp_read_unsigned_bin(&b, (unsigned char *)sig+y, x)) != MP_OKAY)   { goto error; }
+   if ((err = mp_read_unsigned_bin(&b, (unsigned char *)sig+y, x)) != MP_OKAY)      { goto error; }
    y += x;
 
    /* load p and g */
-   if ((err = mp_read_radix(&p, sets[key->idx].prime, 64)) != MP_OKAY)           { goto error; }
-   if ((err = mp_read_radix(&g, sets[key->idx].base, 64)) != MP_OKAY)            { goto error; }
+   if ((err = mp_read_radix(&p, sets[key->idx].prime, 64)) != MP_OKAY)              { goto error; }
+   if ((err = mp_read_radix(&g, sets[key->idx].base, 64)) != MP_OKAY)               { goto error; }
 
    /* load m */
    if ((err = mp_read_unsigned_bin(&m, (unsigned char *)hash, hashlen)) != MP_OKAY) { goto error; }
 
    /* find g^m mod p */
-   if ((err = mp_exptmod(&g, &m, &p, &m)) != MP_OKAY)                            { goto error; } /* m = g^m mod p */
+   if ((err = mp_exptmod(&g, &m, &p, &m)) != MP_OKAY)                { goto error; } /* m = g^m mod p */
 
    /* find y^a * a^b */
-   if ((err = mp_exptmod(&key->y, &a, &p, &tmp)) != MP_OKAY)                     { goto error; } /* tmp = y^a mod p */
-   if ((err = mp_exptmod(&a, &b, &p, &a)) != MP_OKAY)                            { goto error; } /* a = a^b mod p */
-   if ((err = mp_mulmod(&a, &tmp, &p, &a)) != MP_OKAY)                           { goto error; } /* a = y^a * a^b mod p */
+   if ((err = mp_exptmod(&key->y, &a, &p, &tmp)) != MP_OKAY)         { goto error; } /* tmp = y^a mod p */
+   if ((err = mp_exptmod(&a, &b, &p, &a)) != MP_OKAY)                { goto error; } /* a = a^b mod p */
+   if ((err = mp_mulmod(&a, &tmp, &p, &a)) != MP_OKAY)               { goto error; } /* a = y^a * a^b mod p */
 
    /* y^a * a^b == g^m ??? */
    if (mp_cmp(&a, &m) == 0) {
@@ -405,12 +405,12 @@ int dh_verify_hash(const unsigned char *sig, unsigned long siglen,
    }
 
    /* clean up */
-   res = CRYPT_OK;
+   err = CRYPT_OK;
    goto done;
 error:
-   res = mpi_to_ltc_error(err);
+   err = mpi_to_ltc_error(err);
 done:
    mp_clear_multi(&tmp, &m, &g, &p, &b, &a, NULL);
-   return res;
+   return err;
 }
 

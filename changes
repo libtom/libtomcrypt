@@ -1,3 +1,26 @@
+Feb 20th, 2004
+v0.94  -- removed unused variables from ocb.c and fixed it to match known test vectors.
+       -- Added PMAC support, minor changes to OMAC/EAX code [I think....]
+       -- Teamed up with Brian Gladman.  His code verifies against my vectors and my code
+          verifies against his test vectors.  Hazaa for co-operation!
+       -- Various small changes (added missing ARGCHKs and cleaned up indentation)
+       -- Optimization to base64, removed unused variable "c"
+       -- Added base64 gen to demos/tv_gen.c
+       -- Fix to demos/x86_prof.c to correctly identify the i386 architecture... weird...
+       -- Fixed up all of the PK code by adding missing error checking, removed "res" variables,
+          shrunk some stack variables, removed non-required stack variables and added proper
+          error conversion from MPI to LTC codes.  I also spotted a few "off by one" error
+          checking which could have been used to force the code to read past the end of
+          the buffer (in theory, haven't checked if it would work) by a few bytes.
+       -- Added checks to OUTPUT_BIGNUM so the *_export() functions cannot overflow the output and I 
+          also modded it so it stores in the output provided to the function (that is not on
+          the local stack) which saves memory and time.
+       -- Made SAFER default to disabled for now (plans are to cleanhouse write an implementation later)
+       -- Added the 512-bit one-way hash WHIRLPOOL which clocks in at 138 cycles per byte on my
+          Athlon XP [for comparison, SHA-512 clocks in at 77 cycles per byte].  This code uses the 
+          teams new sbox design (not the original NESSIE one).
+      
+
 Jan 25th, 2004
 v0.93  -- [note: deleted v0.93 changes by accident... recreating from memory...]
        -- Fix to RC2 to not deference pointer before ARGCHK

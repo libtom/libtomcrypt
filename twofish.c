@@ -340,7 +340,7 @@ int twofish_setup(const unsigned char *key, int keylen, int num_rounds, symmetri
    unsigned char tmp[4], tmp2[4], M[8*4];
    ulong32 A, B;
 
-   _ARGCHK(key != NULL);
+   _ARGCHK(key  != NULL);
    _ARGCHK(skey != NULL);
 
    /* invalid arguments? */
@@ -459,8 +459,8 @@ void twofish_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_k
     ulong32 *S1, *S2, *S3, *S4;
 #endif    
 
-    _ARGCHK(pt != NULL);
-    _ARGCHK(ct != NULL);
+    _ARGCHK(pt  != NULL);
+    _ARGCHK(ct  != NULL);
     _ARGCHK(key != NULL);
     
 #if !defined(TWOFISH_SMALL) && !defined(__GNUC__)

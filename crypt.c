@@ -566,6 +566,9 @@ const char *crypt_build_settings =
 #if defined(OMAC)
     " OMAC "
 #endif
+#if defined(PMAC)
+    " PMAC "
+#endif
 #if defined(EAX_MODE)
     " EAX_MODE "
 #endif
