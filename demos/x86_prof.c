@@ -1,4 +1,4 @@
-#include <mycrypt.h>
+#include <tomcrypt.h>
 
 #define KTIMES  25
 #define TIMES   100000
@@ -35,7 +35,7 @@ void tally_results(int type)
    } else if (type == 1) {
       for (x = 0; x < no_results; x++) {
         printf
-          ("%-20s: Encrypt at %5lu, Decrypt at %5lu\n", cipher_descriptor[results[x].id].name, results[x].spd1, results[x].spd2);
+          ("%-20s[%2d]: Encrypt at %5lu, Decrypt at %5lu\n", cipher_descriptor[results[x].id].name, cipher_descriptor[results[x].id].ID, results[x].spd1, results[x].spd2);
       }
    } else {
       for (x = 0; x < no_results; x++) {
@@ -153,6 +153,12 @@ void reg_algs(void)
 #endif
 #ifdef SKIPJACK
   register_cipher (&skipjack_desc);
+#endif
+#ifdef KHAZAD
+  register_cipher (&khazad_desc);
+#endif
+#ifdef ANUBIS
+  register_cipher (&anubis_desc);
 #endif
 
 #ifdef TIGER
@@ -382,7 +388,7 @@ void time_mult(void)
 
    printf("Timing Multiplying:\n");
    mp_init_multi(&a,&b,&c,NULL);
-   for (x = 128/DIGIT_BIT; x <= 1024/DIGIT_BIT; x += 128/DIGIT_BIT) {
+   for (x = 128/DIGIT_BIT; x <= 1536/DIGIT_BIT; x += 128/DIGIT_BIT) {
        mp_rand(&a, x);
        mp_rand(&b, x);
 
@@ -397,7 +403,7 @@ void time_mult(void)
            t1 = (t_read() - t1)>>1;
            if (t1 < t2) t2 = t1;
        }
-       printf("%3lu digits: %9llu cycles\n", x, t2);
+       printf("%4lu bits: %9llu cycles\n", x*DIGIT_BIT, t2);
    }
    mp_clear_multi(&a,&b,&c,NULL);
 
@@ -413,7 +419,7 @@ void time_sqr(void)
 
    printf("Timing Squaring:\n");
    mp_init_multi(&a,&b,NULL);
-   for (x = 128/DIGIT_BIT; x <= 1024/DIGIT_BIT; x += 128/DIGIT_BIT) {
+   for (x = 128/DIGIT_BIT; x <= 1536/DIGIT_BIT; x += 128/DIGIT_BIT) {
        mp_rand(&a, x);
 
 #define DO1 mp_sqr(&a, &b);
@@ -427,7 +433,7 @@ void time_sqr(void)
            t1 = (t_read() - t1)>>1;
            if (t1 < t2) t2 = t1;
        }
-       printf("%3lu digits: %9llu cycles\n", x, t2);
+       printf("%4lu bits: %9llu cycles\n", x*DIGIT_BIT, t2);
    }
    mp_clear_multi(&a,&b,NULL);
 
@@ -537,8 +543,7 @@ void time_rsa(void)
            t_start();
            t1 = t_read();
            zzz = sizeof(buf[0]);
-           if ((err = rsa_decrypt_key(buf[1], z, buf[0], &zzz, "testprog", 8, &prng,
-                                      find_prng("yarrow"), find_hash("sha1"), 
+           if ((err = rsa_decrypt_key(buf[1], z, buf[0], &zzz, "testprog", 8,  find_hash("sha1"), 
                                       &zz, &key)) != CRYPT_OK) {
               fprintf(stderr, "\n\nrsa_decrypt_key says %s, wait...no it should say %s...damn you!\n", error_to_string(err), error_to_string(CRYPT_OK));
               exit(EXIT_FAILURE);

@@ -1,5 +1,5 @@
 # make test harness, it is good.
-CFLAGS += -Wall -W -Os -I../../ -I./
+CFLAGS += -Wall -W -Os -I../../src/headers/ -I./
 
 # if you're not debugging
 CFLAGS += -fomit-frame-pointer

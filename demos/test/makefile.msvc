@@ -1,5 +1,5 @@
 # make test harness, it is good.
-CFLAGS = $(CFLAGS) /W3 /Ox -I../../ -I./
+CFLAGS = $(CFLAGS) /W3 /Ox /I../../src/headers/ /I./
 
 default: test.exe
 

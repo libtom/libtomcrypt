@@ -1,5 +1,15 @@
 #include "test.h"
 
+#ifndef LTC_DER
+
+int der_tests(void)
+{
+   printf("NOP");
+   return 0;
+}
+
+#else
+
 int der_tests(void)
 {
    unsigned long x, y, z, zz;
@@ -80,3 +90,5 @@ int der_tests(void)
    mp_clear_multi(&a, &b, &c, &d, &e, &f, &g, NULL);
    return 0;
 }
+
+#endif

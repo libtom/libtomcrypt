@@ -78,6 +78,13 @@ void register_algs(void)
 #ifdef SKIPJACK
   register_cipher (&skipjack_desc);
 #endif
+#ifdef KHAZAD
+  register_cipher (&khazad_desc);
+#endif
+#ifdef ANUBIS
+  register_cipher (&anubis_desc);
+#endif
+
 #ifdef TIGER
   register_hash (&tiger_desc);
 #endif
@@ -228,30 +235,32 @@ int main(void)
    DO(yarrow_add_entropy(buf, 16, &test_yarrow));
    DO(yarrow_ready(&test_yarrow));
 
-   // output sizes 
+   // output sizes (this will crash MSVC... go figure.)
+#ifndef _MSC_VER 
    printf("Sizes of objects (in bytes)\n");
-   printf("\tsymmetric_key\t=\t%5lu\n", sizeof(symmetric_key));
-   printf("\thash_state\t=\t%5lu\n", sizeof(hash_state));
-   printf("\thmac_state\t=\t%5lu\n", sizeof(hmac_state));
-   printf("\tomac_state\t=\t%5lu\n", sizeof(omac_state));
-   printf("\tpmac_state\t=\t%5lu\n", sizeof(pmac_state));
-   printf("\tocb_state\t=\t%5lu\n", sizeof(ocb_state));
-   printf("\teax_state\t=\t%5lu\n", sizeof(eax_state));
-   printf("\tmp_int\t\t=\t%5lu\n", sizeof(mp_int));
+   printf("\tsymmetric_key\t=\t%5Zu\n", sizeof(symmetric_key));
+   printf("\thash_state\t=\t%5Zu\n", sizeof(hash_state));
+   printf("\thmac_state\t=\t%5Zu\n", sizeof(hmac_state));
+   printf("\tomac_state\t=\t%5Zu\n", sizeof(omac_state));
+   printf("\tpmac_state\t=\t%5Zu\n", sizeof(pmac_state));
+   printf("\tocb_state\t=\t%5Zu\n", sizeof(ocb_state));
+   printf("\teax_state\t=\t%5Zu\n", sizeof(eax_state));
+   printf("\tmp_int\t\t=\t%5Zu\n", sizeof(mp_int));
 #ifdef MRSA
-   printf("\trsa_key\t\t=\t%5lu\n", sizeof(rsa_key));
+   printf("\trsa_key\t\t=\t%5Zu\n", sizeof(rsa_key));
 #endif
 #ifdef MDSA
-   printf("\tdsa_key\t\t=\t%5lu\n", sizeof(dsa_key));
+   printf("\tdsa_key\t\t=\t%5Zu\n", sizeof(dsa_key));
 #endif
 #ifdef MDH
-   printf("\tdh_key\t\t=\t%5lu\n", sizeof(dh_key));
+   printf("\tdh_key\t\t=\t%5Zu\n", sizeof(dh_key));
 #endif
 #ifdef MECC
-   printf("\tecc_key\t\t=\t%5lu\n", sizeof(ecc_key));
+   printf("\tecc_key\t\t=\t%5Zu\n", sizeof(ecc_key));
+#endif
+   printf("\n\n");
 #endif
 
-   printf("\n\n");
    // do tests
    for (current_test = 0; tests[current_test].name != NULL; current_test++) {
        printf("[%-20s]: ", tests[current_test].name); fflush(stdout);

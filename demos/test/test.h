@@ -1,7 +1,8 @@
+
 #ifndef __TEST_H_
 #define __TEST_H_
 
-#include "mycrypt.h"
+#include "tomcrypt.h"
 
 /* enable stack testing */
 // #define STACK_TEST

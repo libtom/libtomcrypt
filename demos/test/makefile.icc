@@ -1,5 +1,5 @@
 # make test harness, it is good.
-CFLAGS += -O3 -xN -ip -I../../ -I./
+CFLAGS += -O3 -xN -ip -I../../src/headers/ -I./
 CC=icc
 
 default: test

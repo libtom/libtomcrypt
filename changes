@@ -1,3 +1,61 @@
+December 31st, 2004
+v1.00  
+       -- Added "r,s == 0" check to dsa_verify_hash()
+       -- Added "multi block" helpers for hash, hmac, pmac and omac routines so you can process multiple non-adjacent
+          blocks of data with one call (added demos/multi.c to make sure they work)
+          -- Note these are not documented but they do have doxygen comments inside them
+          -- Also I don't use them in other functions (like pkcs_5_2()) because I didn't have the time.  Job for the new LTC maintainer ;-)
+       -- Added tweaked Anubis test vectors and made it default (undefined ANUBIS_TWEAK to get original Anubis)
+       -- Merged in fix for mp_prime_random_ex() to deal with MSB and LSB "bugs"
+       -- Removed tim_exptmod() completely, updated several RSA functions (notably v15 and the decrypt/verify) so they 
+          don't require a prng now
+       -- This release brought to you by the fine tunes of Macy Gray.  We miss you.
+
+December 23rd, 2004
+v1.00rc1
+       -- Renamed "mycrypt_*" to "tomcrypt_*" to be more specific and professional
+          Now just include "tomcrypt.h" instead of "mycrypt.h" to get LTC ;-)
+       -- Cleaned up makefiles to ensure all headers are correctly installed
+       -- Added "rotate by constant" macros for portable, x86-32 and x86-64
+          You can disable this new code with LTC_NO_ROLC which is useful for older GCCs
+       -- Cleaned up detection of x86-64 so it works for ROL/ROR macros
+       -- Fixed rsa_import() so that it would detect multi-prime RSA keys and error appropriately
+       -- Sorted the source files by category and updated the makefiles appropriately
+       -- Added LTC_DER define so you can trim out DER code if not required
+       -- Fixed up RSA's decrypt functions changing "res" to "stat" to be more in sync
+          with the signature variables nomenclature. (no code change just renamed the arguments)
+       -- Removed all labels starting with __ and replaced with LBL_ to avoid namespace conflicts (Randy Howard)
+       -- Merged in LTM fix to mp_prime_random_ex() which zap'ed the most significant byte if the bit size
+          requested was a multiple of eight.
+       -- Made RSA_TIMING off by default as it's not terribly useful [and likely to be deprecated]
+       -- Renamed SMALL_CODE, CLEAN_STACK and NO_FILE to have a LTC_ prefix to avoid namespace collisions
+          with other programs.  e.g. SMALL_CODE => LTC_SMALL_CODE
+       -- Zed Shaw pointed out that on certain systems installing libs as "root" isn't possible as the super-user
+          is not root.  Now the makefiles allow this to be changed easily.
+       -- Renamed "struct _*_descriptor" to "struct ltc_*_descriptor" to avoid using a leading _
+          Also renamed _ARGCHK to LTC_ARGCHK
+       -- Zed Shaw pointed out that I still defined the prng structs in tomcrypt_prng.h even if they 
+          weren't defined.  This made undef'ing FORTUNA break the build.
+       -- Added LTC_NO_ASM to disable inline asm macros [ROL/ROR/etc]
+       -- Changed RSA decrypt functions to change the output length variable name from "keylen" to "outlen" to make 
+          it more consistent.
+       -- Added the 64-bit Khazad block cipher [NESSIE]
+       -- Added the 128-bit Anubis block cipher [with key support for 128...320 bit keys] [NESSIE]
+       -- Changes to several MAC functions to rename input arguments to more sensible names
+       -- Removed FAST_PK support from dh_sys.c
+       -- Declared deskey() from des.c as static instead of a global
+       -- Added pretty much all practical GCC warning tests to the GCC [related] makefiles.  These additional
+          warnings can easily be disabled for those with older copies of GCC [or even non GNU cc's]
+       -- Added doxygen @ tags to the code...  phew that was a hell of a lot of [repetitive] work
+       -- Also added pre-configured Doxygen script.
+       -- Cleaned up quite a few functions [ciphers, pk, etc] to make the parameters naming style consistent
+          E.g. ciphers keys are called "skey" consistently now.  The input to PK encryption is called "in", etc.
+          These changes require no code changes on the behalf of developers fortunately
+       -- Started a SAFER+ optimizer [does encrypt only] which shaves a good 30 or so cycles/byte on my AMD64
+          at an expense of huge code.  It's in notes/etc/saferp_optimizer.c
+       -- DSA sign/verify now uses DER encoded output/inputs and no LTC style headers.  
+       -- Matt Johnston found a missing semi-colon in mp_exptmod().  Fix has been merged in.  
+
 October 29th, 2004
 v0.99  -- Merged in the latest version of LTM which includes all of the recent bug fixes
        -- Deprecated LTMSSE and removed it (to be replaced with TFM later on)

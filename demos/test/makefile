@@ -1,5 +1,5 @@
 # make test harness, it is good.
-CFLAGS += -Wall -W -Os -I../../ -I./
+CFLAGS += -Wall -W -Os -I../../src/headers/ -I./
 
 # add -g3 for ccmalloc debugging 
 #CFLAGS += -g3
@@ -19,7 +19,7 @@ pkcs_1_test.o store_test.o rsa_test.o ecc_test.o dsa_test.o dh_tests.o der_tests
 #CCMALLOC = -lccmalloc -ldl
 
 test: $(OBJECTS)
-	$(CC) $(OBJECTS) /usr/lib/libtomcrypt.a  $(CCMALLOC) -o test
+	$(CC) $(CFLAGS) $(OBJECTS) /usr/lib/libtomcrypt.a  $(CCMALLOC) -o test
 	
 clean:
 	rm -rf test *.o *.obj *.exe *~	.libs
