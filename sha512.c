@@ -59,7 +59,7 @@ CONST64(0x5fcb6fab3ad6faec), CONST64(0x6c44198c4a475817)
 };
 
 /* Various logical functions */
-#define Ch(x,y,z)       ((x & y) ^ (~x & z))
+#define Ch(x,y,z)       ((x & y) | (~x & z))
 #define Maj(x,y,z)      ((x & y) ^ (x & z) ^ (y & z))
 #define S(x, n)         ROR64((x),(n))
 #define R(x, n)         (((x)&CONST64(0xFFFFFFFFFFFFFFFF))>>((ulong64)n))
@@ -232,34 +232,21 @@ int  sha512_test(void)
        0xc7, 0xd3, 0x29, 0xee, 0xb6, 0xdd, 0x26, 0x54,
        0x5e, 0x96, 0xe5, 0x5b, 0x87, 0x4b, 0xe9, 0x09 }
     },
-    { NULL, { 0 }}
   };
 
-  int failed, i;
+  int i;
   unsigned char tmp[64];
   hash_state md;
 
-  for (failed = i = 0; tests[i].msg != NULL; i++) {
+  for (i = 0; i < (int)(sizeof(tests) / sizeof(tests[0])); i++) {
       sha512_init(&md);
       sha512_process(&md, tests[i].msg, strlen(tests[i].msg));
       sha512_done(&md, tmp);
       if (memcmp(tmp, tests[i].hash, 64)) {
-#if 0
-         int j;
-         printf("\nSHA-512 Test %d failed\nGot (as a result): ", i);
-         for (j = 0; j < 64; j++) {
-             printf("%02x ", tmp[j]);
-         }
-         printf("\n");
-#endif
-         failed = 1;
+         return CRYPT_FAIL_TESTVECTOR;
       }
   }
-  if (failed == 1) {
-     return CRYPT_FAIL_TESTVECTOR;
-  } else {
-     return CRYPT_OK;
-  }
+  return CRYPT_OK;
 }
 
 #ifdef SHA384

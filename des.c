@@ -630,7 +630,7 @@ int des_test(void)
             http://www.ecs.soton.ac.uk/~prw99r/ez438/vectors.txt
         ***/
     };
-    int i, failed=0;
+    int i;
     unsigned char out[8];
     symmetric_key des;
 
@@ -646,27 +646,8 @@ int des_test(void)
         }
 
         if (memcmp(cases[i].out, out, sizeof out) != 0) {
-#if 0
-            int j;
-            printf("DES test #%d failed!\n", cases[i].num);
-
-            printf(  "got:    "); 
-            for (j=0; j < (int)sizeof out; j++) {
-                printf("%02x ", out[j] & 0xff);
-            }
-            printf("\nwanted: ");
-            for(j=0; j < (int)sizeof out; j++) {
-                printf("%02x ", cases[i].out[j] & 0xff);
-            }
-            printf("\n");
-#endif
-
-            failed++;
+           return CRYPT_FAIL_TESTVECTOR;
         }
-    }
-
-    if(failed > 0) {
-        return CRYPT_FAIL_TESTVECTOR;
     }
 
     return CRYPT_OK;

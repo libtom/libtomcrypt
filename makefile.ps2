@@ -51,7 +51,7 @@ CFLAGS += -DNO_FILE
 #CFLAGS += -O3 -fomit-frame-pointer -funroll-loops
 
 #optimize for SIZE (comment out SPEED line as well)
-CFLAGS += -O2
+CFLAGS += -Os
 
 #These flags control how the library gets built.
 

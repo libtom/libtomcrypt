@@ -249,39 +249,19 @@ int md4_test(void)
           {0xe3, 0x3b, 0x4d, 0xdc, 0x9c, 0x38, 0xf2, 0x19, 
            0x9c, 0x3e, 0x7b, 0x16, 0x4f, 0xcc, 0x05, 0x36} },
     };
-    int i, failed;
+    int i;
     hash_state md;
     unsigned char digest[16];
 
-    failed = 0;
     for(i = 0; i < (int)(sizeof(cases) / sizeof(cases[0])); i++) {
         md4_init(&md);
         md4_process(&md, cases[i].input, cases[i].inputlen);
         md4_done(&md, digest);
-        if(memcmp(digest, cases[i].digest, 16) != 0) {
-#if 0
-            int j;
-            printf("\nMD4 test #%d failed\n", cases[i].num);
-            printf(  "Result:  0x"); 
-            for(j=0; j < 16; j++) {
-               printf("%2x", digest[j]);
-            }
-            printf("\nCorrect: 0x");
-            for(j=0; j < 16; j++) {
-               printf("%2x", cases[i].digest[j]);
-            }
-            printf("\n");
-#endif 
-            failed++;
-        } else {
-/*            printf("MD4 test #%d succeeded.\n", cases[i].num); */
+        if (memcmp(digest, cases[i].digest, 16) != 0) {
+           return CRYPT_FAIL_TESTVECTOR;
         }
-    }
 
-    if (failed) {
-        return CRYPT_FAIL_TESTVECTOR;
     }
-
     return CRYPT_OK;
 }
 

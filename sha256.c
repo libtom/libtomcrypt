@@ -32,7 +32,7 @@ static const unsigned long K[64] = {
 };
 
 /* Various logical functions */
-#define Ch(x,y,z)       ((x & y) ^ (~x & z))
+#define Ch(x,y,z)       ((x & y) | (~x & z))
 #define Maj(x,y,z)      ((x & y) ^ (x & z) ^ (y & z))
 #define S(x, n)	        ROR((x),(n))
 #define R(x, n)	        (((x)&0xFFFFFFFFUL)>>(n))
@@ -194,34 +194,21 @@ int  sha256_test(void)
         0xa3, 0x3c, 0xe4, 0x59, 0x64, 0xff, 0x21, 0x67, 
         0xf6, 0xec, 0xed, 0xd4, 0x19, 0xdb, 0x06, 0xc1 }
     },
-    { NULL, { 0 } }
   };
 
-  int failed, i;
+  int i;
   unsigned char tmp[32];
   hash_state md;
 
-  for (failed = i = 0; tests[i].msg != NULL; i++) {
+  for (i = 0; i < (int)(sizeof(tests) / sizeof(tests[0])); i++) {
       sha256_init(&md);
       sha256_process(&md, tests[i].msg, strlen(tests[i].msg));
       sha256_done(&md, tmp);
       if (memcmp(tmp, tests[i].hash, 32)) {
-#if 0
-         int j;
-         printf("\nSHA-256 Test %d failed\nGot (as a result): ", i);
-         for (j = 0; j < 32; j++) {
-             printf("%02x ", tmp[j]);
-         }
-         printf("\n");
-#endif
-         failed = 1;
+         return CRYPT_FAIL_TESTVECTOR;
       }
   }
-  if (failed == 1) {
-     return CRYPT_FAIL_TESTVECTOR;
-  } else {
-     return CRYPT_OK;
-  }
+  return CRYPT_OK;
 }
 
 #endif

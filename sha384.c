@@ -71,34 +71,21 @@ int  sha384_test(void)
         0xfc, 0xc7, 0xc7, 0x1a, 0x55, 0x7e, 0x2d, 0xb9,
         0x66, 0xc3, 0xe9, 0xfa, 0x91, 0x74, 0x60, 0x39 }
     },
-    { NULL, { 0 }}
   };
 
-  int failed, i;
+  int i;
   unsigned char tmp[48];
   hash_state md;
 
-  for (failed = i = 0; tests[i].msg != NULL; i++) {
+  for (i = 0; i < (int)(sizeof(tests) / sizeof(tests[0])); i++) {
       sha384_init(&md);
       sha384_process(&md, tests[i].msg, strlen(tests[i].msg));
       sha384_done(&md, tmp);
       if (memcmp(tmp, tests[i].hash, 48)) {
-#if 0
-         int j;
-         printf("\nSHA-384 Test %d failed\nGot (as a result): ", i);
-         for (j = 0; j < 48; j++) {
-             printf("%02x ", tmp[j]);
-         }
-         printf("\n");
-#endif
-         failed = 1;
+         return CRYPT_FAIL_TESTVECTOR;
       }
   }
-  if (failed == 1) {
-     return CRYPT_FAIL_TESTVECTOR;
-  } else {
-     return CRYPT_OK;
-  }
+  return CRYPT_OK;
 }
 
 

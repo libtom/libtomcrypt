@@ -9,7 +9,7 @@
 # a build. This is easy to remedy though, for those that have problems.
 
 # The version
-VERSION=0.75
+VERSION=0.76
 
 #Compiler and Linker Names
 CC=gcc
@@ -34,10 +34,10 @@ CFLAGS += -c -I./ -Wall -Wsign-compare -W -Wno-unused -Werror  \
    -DXCLOCKS_PER_SEC=$(XCLOCKS_PER_SEC)
 
 #optimize for SPEED (comment out SIZE/DEBUG line as well)
-#CFLAGS += -O3 -fomit-frame-pointer -funroll-loops
+#CFLAGS += -O3 -funroll-loops
 
 #optimize for SIZE (comment out SPEED/DEBUG line as well)
-CFLAGS += -O2
+CFLAGS += -Os 
 
 #compile for DEBUGGING 
 #CFLAGS += -g3

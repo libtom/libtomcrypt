@@ -180,19 +180,6 @@ int md2_test(void)
        md2_process(&md, tests[i].msg, strlen(tests[i].msg));
        md2_done(&md, buf);
        if (memcmp(buf, tests[i].md, 16)) {
-#if 0
-          int j;
-          printf("\n\nFailed test %d\n\n", i);
-          for (j = 0; j < 16; j++) {
-              printf("%02x ", buf[j]);
-          }
-          printf("\n");
-          printf("Should have been\n");
-          for (j = 0; j < 16; j++) {
-              printf("%02x ", tests[i].md[j]);
-          }
-          printf("\n");
-#endif
           return CRYPT_FAIL_TESTVECTOR;
        }
    }

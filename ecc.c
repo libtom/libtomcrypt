@@ -251,8 +251,8 @@ static int dbl_point(ecc_point *P, ecc_point *R, mp_int *modulus)
    if (mp_mul_2(&P->y, &tmp) != MP_OKAY)                   { goto error; } /* tmp = 2*y */
    if (mp_invmod(&tmp, modulus, &tmp) != MP_OKAY)          { goto error; } /* tmp = 1/tmp mod modulus */
    if (mp_sqr(&P->x,  &s) != MP_OKAY)                      { goto error; } /* s = x^2  */
-   if (mp_mul_d(&s, 3, &s) != MP_OKAY)                     { goto error; } /* s = 3*(x^2) */
-   if (mp_sub_d(&s, 3, &s) != MP_OKAY)                     { goto error; } /* s = 3*(x^2) - 3 */
+   if (mp_mul_d(&s,(mp_digit)3, &s) != MP_OKAY)            { goto error; } /* s = 3*(x^2) */
+   if (mp_sub_d(&s,(mp_digit)3, &s) != MP_OKAY)            { goto error; } /* s = 3*(x^2) - 3 */
    if (mp_mulmod(&s, &tmp, modulus, &s) != MP_OKAY)        { goto error; } /* s = tmp * s mod modulus */
 
    /* Xr = s^2 - 2Xp */
@@ -565,10 +565,11 @@ static int compress_y_point(ecc_point *pt, int idx, int *result)
    if (mp_exptmod(&tmp, &tmp2, &p, &tmp) != MP_OKAY)       { goto error; } /* tmp  = (x^3 - 3x + b)^((p+1)/4) mod p */
 
    /* if tmp equals the y point give a 0, otherwise 1 */
-   if (mp_cmp(&tmp, &pt->y) == 0)
+   if (mp_cmp(&tmp, &pt->y) == 0) { 
       *result = 0;
-   else
+   } else {
       *result = 1;
+   }
    
    res = CRYPT_OK;
    goto done;

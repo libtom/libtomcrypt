@@ -258,11 +258,10 @@ int rc2_test(void)
      { 0x22, 0x69, 0x55, 0x2a, 0xb0, 0xf8, 0x5c, 0xa6 }
    }
   };
-    int x, failed, errno;
+    int x, errno;
     symmetric_key skey;
     unsigned char buf[2][8];
 
-    failed = 0;
     for (x = 0; x < (int)(sizeof(tests) / sizeof(tests[0])); x++) {
         zeromem(buf, sizeof(buf));
         if ((errno = rc2_setup(tests[x].key, tests[x].keylen, 0, &skey)) != CRYPT_OK) {
@@ -272,36 +271,11 @@ int rc2_test(void)
         rc2_ecb_encrypt(tests[x].pt, buf[0], &skey);
         rc2_ecb_decrypt(buf[0], buf[1], &skey);
         
-        if (memcmp(buf[0], tests[x].ct, 8)) {
-#if 0
-           int y;
-           printf("\nTest %d failed to encrypt\n", x);
-           for (y = 0; y < 8; y++) {
-               printf("%02x ", buf[0][y]);
-           }
-           printf("\n");
-#endif 
-           failed = 1;
-        }
-
-        if (memcmp(buf[1], tests[x].pt, 8)) {
-#if 0
-           int y;
-           printf("\nTest %d failed to decrypt\n", x);
-           for (y = 0; y < 8; y++) {
-               printf("%02x ", buf[1][y]);
-           }
-           printf("\n");
-#endif
-           failed = 1;
+        if (memcmp(buf[0], tests[x].ct, 8) || memcmp(buf[1], tests[x].pt, 8)) {
+           return CRYPT_FAIL_TESTVECTOR;
         }
     }
-    
-    if (failed == 1) {
-        return CRYPT_FAIL_TESTVECTOR;
-    } else {
-        return CRYPT_OK;
-    }
+    return CRYPT_OK;
 }
 
 int rc2_keysize(int *keysize)

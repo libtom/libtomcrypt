@@ -1,3 +1,13 @@
+Nov 25th, 2002
+v0.76  -- Updated makefiles a bit more, use "-Os" instead of "-O2" to optimize for size.  Got the lib
+          downto 265KB using GCC 3.2 on my x86 box.
+       -- Updated the SAFER+, Twofish and Rijndael test vector routine to use the table driven design.
+       -- Updated all other test vector routines to return as soon as an error is found
+       -- fixed a bug in the test program where errors in the hash test routines would not be reported
+          correctly.  I found this by temporarily changing one of the bytes of the test vectors.  All the
+          hashes check out [the demos/test.c would still have reported an error, just the wrong one].
+          
+
 Nov 24th, 2002
 v0.75  -- Fixed a flaw in hash_filehandle, it should ARGCHK that the filehandle is not NULL
        -- Fixed a bug where in hash_file if the call to hash_filehandle failed the open file would 

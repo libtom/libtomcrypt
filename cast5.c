@@ -583,23 +583,8 @@ int cast5_test(void)
           return errno;
        }
        cast5_ecb_encrypt(tests[i].pt, buf, &key);
-       if (memcmp(buf, tests[i].ct, 8)) {
-#if 0
-          int j;
-          printf("\n\n\nFailed encrypt test: %d\n", i);
-          for (j = 0; j < 8; j++) printf("%02x ", buf[j]);
-          printf("\n");
-#endif
-          return CRYPT_FAIL_TESTVECTOR;
-       }
        cast5_ecb_decrypt(buf, buf2, &key);
-       if (memcmp(buf2, tests[i].pt, 8)) {
-#if 0
-          int j;
-          printf("\n\n\nFailed decrypt test: %d\n", i);
-          for (j = 0; j < 8; j++) printf("%02x ", buf2[j]);
-          printf("\n");
-#endif
+       if (memcmp(buf, tests[i].ct, 8) || memcmp(buf2, tests[i].pt, 8)) {
           return CRYPT_FAIL_TESTVECTOR;
        }
    

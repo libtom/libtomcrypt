@@ -196,35 +196,22 @@ int  sha1_test(void)
       { 0x84, 0x98, 0x3E, 0x44, 0x1C, 0x3B, 0xD2, 0x6E,
         0xBA, 0xAE, 0x4A, 0xA1, 0xF9, 0x51, 0x29, 0xE5,
         0xE5, 0x46, 0x70, 0xF1 }
-    }, 
-    { NULL, { 0 }}
+    }
   };
 
-  int failed, i;
+  int i;
   unsigned char tmp[20];
   hash_state md;
 
-  for (failed = i = 0; tests[i].msg != NULL; i++) {
+  for (i = 0; i < (int)(sizeof(tests) / sizeof(tests[0]));  i++) {
       sha1_init(&md);
       sha1_process(&md, tests[i].msg, strlen(tests[i].msg));
       sha1_done(&md, tmp);
       if (memcmp(tmp, tests[i].hash, 20)) {
-#if 0
-         int j;
-         printf("\nSHA-1 Test %d failed\nGot (as a result): ", i);
-         for (j = 0; j < 20; j++) {
-             printf("%02x ", tmp[j]);
-         }
-         printf("\n");
-#endif
-         failed = 1;
+         return CRYPT_FAIL_TESTVECTOR;
       }
   }
-  if (failed == 1) {
-     return CRYPT_FAIL_TESTVECTOR;
-  } else {
-     return CRYPT_OK;
-  }
+  return CRYPT_OK;
 }
 
 #endif

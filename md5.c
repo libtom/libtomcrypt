@@ -236,31 +236,19 @@ int  md5_test(void)
     { NULL, { 0 } }
   };
 
-  int failed, i;
+  int i;
   unsigned char tmp[16];
   hash_state md;
 
-  for (failed = i = 0; tests[i].msg != NULL; i++) {
+  for (i = 0; tests[i].msg != NULL; i++) {
       md5_init(&md);
       md5_process(&md, tests[i].msg, strlen(tests[i].msg));
       md5_done(&md, tmp);
       if (memcmp(tmp, tests[i].hash, 16)) {
-#if 0
-         int j;
-         printf("MD5 Test %d (len == %d) failed\nGot (as a result): ", i, strlen(tests[i].msg));
-         for (j = 0; j < 16; j++) { 
-             printf("%02x ", tmp[j]);
-         }
-         printf("\n");
-#endif
-         failed = 1;
+         return CRYPT_FAIL_TESTVECTOR;
       }
   }
-  if (failed == 1) {
-     return CRYPT_FAIL_TESTVECTOR;
-  } else {
-     return CRYPT_OK;
-  }
+  return CRYPT_OK;
 }
 
 #endif

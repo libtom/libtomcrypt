@@ -307,7 +307,7 @@ void hash_tests(void)
  printf("Hash tests\n");
  for (x = 0; hash_descriptor[x].name != NULL; x++) {
      printf(" %10s (%2d) ", hash_descriptor[x].name, hash_descriptor[x].ID);
-     if (hash_descriptor[x].test() != CRYPT_OK)
+     if ((errno = hash_descriptor[x].test()) != CRYPT_OK)
         printf("**failed** Reason: %s\n", error_to_string(errno));
      else 
         printf("passed\n");

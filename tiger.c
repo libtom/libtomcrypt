@@ -718,34 +718,21 @@ int  tiger_test(void)
        0x58, 0x48, 0xa7, 0xe0, 0xae, 0x6a, 0xac, 0x76,
        0xe4, 0xff, 0x59, 0x0a, 0xe7, 0x15, 0xfd, 0x25 }
     },
-    { NULL, { 0 }}
   };
 
-  int failed, i;
+  int i;
   unsigned char tmp[24];
   hash_state md;
 
-  for (failed = i = 0; tests[i].msg != NULL; i++) {
+  for (i = 0; i < (int)(sizeof(tests) / sizeof(tests[0])); i++) {
       tiger_init(&md);
       tiger_process(&md, tests[i].msg, strlen(tests[i].msg));
       tiger_done(&md, tmp);
       if (memcmp(tmp, tests[i].hash, 24)) {
-#if 0
-         int j;
-         printf("\nTIGER-192 Test %d failed\nGot (as a result): ", i);
-         for (j = 0; j < 24; j++) {
-             printf("%02x ", tmp[j]);
-         }
-         printf("\n");
-#endif
-         failed = 1;
+          return CRYPT_FAIL_TESTVECTOR;
       }
   }
-  if (failed == 1) {
-     return CRYPT_FAIL_TESTVECTOR;
-  } else {
-     return CRYPT_OK;
-  }
+  return CRYPT_OK;
 }
 
 #endif
