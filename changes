@@ -1,3 +1,23 @@
+June 19th, 2004
+v0.97  -- Removed spurious unused files [arrg!]
+       -- Patched buffer overflow in tim_exptmod()
+       -- Fixed buffer overrun bug in pkcs_1_v15_es_decode()
+       -- Reduced stack usage in PKCS #1 v2.0 padding functions (by several KBs)
+       -- Removed useless extern's that were an artifact from the project start... ;-)
+       -- Replaced memcpy/memset with XMEMCPY and XMEMSET for greater flexibility
+       -- fixed bugs in hmac_done()/hmac_init()/[various others()] where I didn't trap errors 
+       -- Reduced stack usage in OMAC/PMAC/HMAC/EAX/OCB/PKCS#5 by mallocing any significant sized
+          arrays (e.g. > 100 bytes or so).  Only in non-critical functions (e.g. eax_init())
+       -- "Zhi Chen" <zhi@massiveincorporated.com> pointed out that rsa_decrypt_key() requires
+          an incorrect output size (too large).  Fixed.
+       -- Added a "pretty" target to the GCC makefile.  Requires PERL.  It is NEAT!
+       -- Minor updates to ch1 of the manual.
+       -- Cleaned up the indentation and added comments to rsa_make_key(), rsa_exptmod() and 
+          rsa_verify_hash()
+       -- Updated makefile.icc so the "install" target would work ;-)
+       -- Removed demos/test.c [deprecated from demos/test/test.c]
+       -- Changed MAXBLOCKSIZE from 128 to 64 to reflect the true size...
+
 May 30th, 2004
 v0.96  -- Removed GF and Keyring code
        -- Extended OAEP decoder to distinguish better [and use a more uniform API]

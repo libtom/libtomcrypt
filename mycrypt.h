@@ -12,18 +12,18 @@
 #include <mycrypt_custom.h>
 
 #ifdef __cplusplus
-extern "C" {
+ "C" {
 #endif
 
 /* version */
-#define CRYPT   0x0096
-#define SCRYPT  "0.96"
+#define CRYPT   0x0097
+#define SCRYPT  "0.97"
 
 /* max size of either a cipher/hash block or symmetric key [largest of the two] */
-#define MAXBLOCKSIZE           128
+#define MAXBLOCKSIZE  64
 
 /* descriptor table size */
-#define TAB_SIZE    32
+#define TAB_SIZE      32
 
 /* error codes [will be expanded in future releases] */
 enum {

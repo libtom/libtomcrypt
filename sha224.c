@@ -50,7 +50,7 @@ int sha224_done(hash_state * md, unsigned char *hash)
     int err;
 
     err = sha256_done(md, buf);
-    memcpy(hash, buf, 28);
+    XMEMCPY(hash, buf, 28);
 #ifdef CLEAN_STACK
     zeromem(buf, sizeof(buf));
 #endif 

@@ -36,14 +36,16 @@ int hash_filehandle(int hash, FILE *in, unsigned char *dst, unsigned long *outle
     hash_descriptor[hash].init(&md);
     do {
         x = fread(buf, 1, sizeof(buf), in);
-        hash_descriptor[hash].process(&md, buf, x);
+        if ((err = hash_descriptor[hash].process(&md, buf, x)) != CRYPT_OK) {
+           return err;
+        }
     } while (x == sizeof(buf));
-    hash_descriptor[hash].done(&md, dst);
+    err = hash_descriptor[hash].done(&md, dst);
 
 #ifdef CLEAN_STACK
     zeromem(buf, sizeof(buf));
 #endif
-    return CRYPT_OK;
+    return err;
 #endif
 }
 

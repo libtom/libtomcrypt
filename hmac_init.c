@@ -35,38 +35,44 @@
 
 int hmac_init(hmac_state *hmac, int hash, const unsigned char *key, unsigned long keylen)
 {
-    unsigned char buf[MAXBLOCKSIZE];
+    unsigned char *buf;
     unsigned long hashsize;
     unsigned long i, z;
     int err;
 
     _ARGCHK(hmac != NULL);
-    _ARGCHK(key != NULL);
+    _ARGCHK(key  != NULL);
 
+    /* valid hash? */
     if ((err = hash_is_valid(hash)) != CRYPT_OK) {
         return err;
     }
+    hmac->hash = hash;
+    hashsize   = hash_descriptor[hash].hashsize;
 
     /* valid key length? */
     if (keylen == 0) {
         return CRYPT_INVALID_KEYSIZE;
     }
 
-    hmac->hash = hash;
+    /* allocate ram for buf */
+    buf = XMALLOC(HMAC_BLOCKSIZE);
+    if (buf == NULL) {
+       return CRYPT_MEM;
+    }
 
     // (1) make sure we have a large enough key
-    hashsize = hash_descriptor[hash].hashsize;
     if(keylen > HMAC_BLOCKSIZE) {
         z = (unsigned long)sizeof(hmac->key);
         if ((err = hash_memory(hash, key, keylen, hmac->key, &z)) != CRYPT_OK) {
-           return err;
+           goto __ERR;
         }
         if(hashsize < HMAC_BLOCKSIZE) {
             zeromem((hmac->key) + hashsize, (size_t)(HMAC_BLOCKSIZE - hashsize));
         }
         keylen = hashsize;
     } else {
-        memcpy(hmac->key, key, (size_t)keylen);
+        XMEMCPY(hmac->key, key, (size_t)keylen);
         if(keylen < HMAC_BLOCKSIZE) {
             zeromem((hmac->key) + keylen, (size_t)(HMAC_BLOCKSIZE - keylen));
         }
@@ -79,9 +85,14 @@ int hmac_init(hmac_state *hmac, int hash, const unsigned char *key, unsigned lon
 
     // Pre-pend that to the hash data
     hash_descriptor[hash].init(&hmac->md);
-    hash_descriptor[hash].process(&hmac->md, buf, HMAC_BLOCKSIZE);
-
-    return CRYPT_OK;
+    err = hash_descriptor[hash].process(&hmac->md, buf, HMAC_BLOCKSIZE);
+__ERR:
+#ifdef CLEAN_STACK
+   zeromem(buf, HMAC_BLOCKSIZE);
+#endif
+ 
+   XFREE(buf);
+   return err;    
 }
 
 #endif

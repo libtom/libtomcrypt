@@ -150,7 +150,7 @@ LEFTOVERS=*.dvi *.log *.aux *.toc *.idx *.ilg *.ind
 COMPRESSED=crypt.tar.bz2 crypt.zip crypt.tar.gz
 
 #Header files used by libtomcrypt.
-HEADERS=tommath.h mycrypt_cfg.h mycrypt_gf.h mycrypt_kr.h \
+HEADERS=ltc_tommath.h mycrypt_cfg.h \
 mycrypt_misc.h  mycrypt_prng.h mycrypt_cipher.h  mycrypt_hash.h \
 mycrypt_macros.h  mycrypt_pk.h mycrypt.h mycrypt_argchk.h mycrypt_custom.h
 

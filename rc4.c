@@ -56,7 +56,7 @@ int rc4_ready(prng_state *prng)
     _ARGCHK(prng != NULL);
 
     /* extract the key */
-    memcpy(key, prng->rc4.buf, 256);
+    XMEMCPY(key, prng->rc4.buf, 256);
     keylen = prng->rc4.x;
 
     /* make RC4 perm and shuffle */

@@ -48,7 +48,7 @@ int rsa_verify_hash(const unsigned char *sig,      unsigned long siglen,
   }
   
   /* allocate temp buffer for decoded sig */
-  tmpbuf = XCALLOC(1, modulus_bytelen + 1);
+  tmpbuf = XMALLOC(siglen);
   if (tmpbuf == NULL) {
      return CRYPT_MEM;
   }

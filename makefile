@@ -2,14 +2,9 @@
 #
 # Tom St Denis
 # Modified by Clay Culver
-#
-# NOTE: This should later be replaced by autoconf/automake scripts, but for
-# the time being this is actually pretty clean. The only ugly part is
-# handling CFLAGS so that the x86 specific optimizations don't break
-# a build. This is easy to remedy though, for those that have problems.
 
 # The version
-VERSION=0.96
+VERSION=0.97
 
 # Compiler and Linker Names
 #CC=gcc
@@ -26,15 +21,14 @@ CFLAGS += -c -I./ -Wall -Wsign-compare -W -Wshadow
 # optimize for SPEED
 #CFLAGS += -O3 -funroll-loops
 
-#add -fomit-frame-pointer.  GCC v3.2 is buggy for certain platforms!
+#add -fomit-frame-pointer.  hinders debugging!
 CFLAGS += -fomit-frame-pointer
 
 # optimize for SIZE
 CFLAGS += -Os
 
-# compile for DEBUGING
+# compile for DEBUGING (required for ccmalloc checking!!!)
 #CFLAGS += -g3
-#ch1-01-3
 
 #These flags control how the library gets built.
 
@@ -147,8 +141,11 @@ default:library
 #ciphers come in two flavours... enc+dec and enc 
 aes_enc.o: aes.c aes_tab.c
 	$(CC) $(CFLAGS) -DENCRYPT_ONLY -c aes.c -o aes_enc.o
-		
+
 #These are the rules to make certain object files.
+aes.o: aes.c aes_tab.c
+twofish.o: twofish.c twofish_tab.c
+whirl.o: whirl.c whirltab.c
 ecc.o: ecc.c ecc_sys.c
 dh.o: dh.c dh_sys.c
 sha512.o: sha512.c sha384.c
@@ -195,7 +192,7 @@ clean:
 	rm -f $(OBJECTS) $(TESTOBJECTS) $(HASHOBJECTS) $(CRYPTOBJECTS) $(SMALLOBJECTS) $(LEFTOVERS) $(LIBNAME)
 	rm -f $(TEST) $(HASH) $(COMPRESSED) $(PROFS) $(PROF) $(TVS) $(TV)
 	rm -f *.a *.dll *stackdump *.lib *.exe *.obj demos/*.obj demos/*.o *.bat *.txt *.il *.da demos/*.il demos/*.da *.dyn *.dpi \
-         *.gcda *.gcno demos/*.gcno demos/*.gcda *~ doc/*
+	*.gcda *.gcno demos/*.gcno demos/*.gcda *~ doc/*
 	cd demos/test ; make clean   
 
 #This builds the crypt.pdf file. Note that the rm -f *.pdf has been removed
@@ -206,8 +203,8 @@ docs: crypt.tex
 	rm -f doc/crypt.pdf $(LEFTOVERS)
 	echo "hello" > crypt.ind
 	latex crypt > /dev/null
-	makeindex crypt > /dev/null
 	latex crypt > /dev/null
+	makeindex crypt.idx > /dev/null
 	latex crypt > /dev/null
 	dvipdf crypt
 	mv -ivf crypt.pdf doc/crypt.pdf
@@ -217,8 +214,12 @@ docdvi: crypt.tex
 	echo hello > crypt.ind
 	latex crypt > /dev/null
 	latex crypt > /dev/null
-	makeindex crypt
+	makeindex.idx crypt
 	latex crypt > /dev/null
+
+#pretty build
+pretty:
+	perl pretty.build
 
 #beta
 beta: clean
@@ -231,5 +232,4 @@ zipup: clean docs
 	cd .. ; rm -rf crypt* libtomcrypt-$(VERSION) ; mkdir libtomcrypt-$(VERSION) ; \
 	cp -R ./libtomcrypt/* ./libtomcrypt-$(VERSION)/ ; tar -c libtomcrypt-$(VERSION)/* > crypt-$(VERSION).tar ; \
 	bzip2 -9vv crypt-$(VERSION).tar ; zip -9 -r crypt-$(VERSION).zip libtomcrypt-$(VERSION)/* ; \
-	gpg -b -a crypt-$(VERSION).tar.bz2 ; \
-   gpg -b -a crypt-$(VERSION).zip
+	gpg -b -a crypt-$(VERSION).tar.bz2 ; gpg -b -a crypt-$(VERSION).zip

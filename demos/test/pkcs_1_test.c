@@ -17,7 +17,7 @@ int pkcs_1_test(void)
    }   
 
    /* do many tests */
-   for (x = 0; x < 10000; x++) {
+   for (x = 0; x < 100; x++) {
       zeromem(buf, sizeof(buf));
 
       /* make a dummy message (of random length) */

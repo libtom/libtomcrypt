@@ -1377,7 +1377,7 @@ static void cookey(const ulong32 *raw1, ulong32 *keyout)
         *cook++ |= (*raw1 & 0x0000003fL);
     }
 
-    memcpy(keyout, dough, sizeof dough);
+    XMEMCPY(keyout, dough, sizeof dough);
 }
 
 #ifdef CLEAN_STACK

@@ -9,8 +9,9 @@ test_entry test_list[26] = {
 {"cipher_hash_test",       "b",        "a",          cipher_hash_test     },
 {"modes_test",             "c",        "b",          modes_test           },
 {"mac_test",               "d",        "c",          mac_test             },
+
 {"pkcs_1_test",            "e",        "b",          pkcs_1_test          },
-{"rsa_test",               "f",        "e",          rsa_test             },
+{"rsa_test",               "f",        "",          rsa_test             },
 {"ecc_test",               "g",        "a",          ecc_tests            },
 {"dsa_test",               "h",        "a",          dsa_test             },
 {"dh_test",                "i",        "a",          dh_tests             },
@@ -153,12 +154,53 @@ void sort(void)
       }
    } while (y == 1);
 }
-   
+
+#define STACKBLOCK       8
+#define STACK_EST_USAGE  32768
+
+unsigned char stack_mask[STACKBLOCK];
+unsigned long stack_cur=0;
+
+void stack_masker(void)
+{
+#ifdef STACK_TEST
+   volatile unsigned char M[STACK_EST_USAGE];
+   stack_cur   = 0;
+   for (stack_cur = 0; stack_cur < STACK_EST_USAGE/STACKBLOCK; stack_cur++) {
+       memcpy(M+(stack_cur*STACKBLOCK), stack_mask, STACKBLOCK);
+   }
+#endif
+}
+
+void stack_check(void)
+{
+#ifdef STACK_TEST
+   unsigned char M[STACK_EST_USAGE];
+   stack_cur   = 0;
+#ifdef STACK_DOWN
+   while (memcmp(M+(STACK_EST_USAGE-STACKBLOCK-stack_cur), stack_mask, STACKBLOCK) && 
+#else
+   while (memcmp(M+stack_cur, stack_mask, STACKBLOCK) &&
+#endif
+          stack_cur < (STACK_EST_USAGE - STACKBLOCK)) {
+      ++stack_cur;
+   }
+#endif
+}
+
 int main(void)
 {
+   int x;
+
+   /* setup stack checker */
+   srand(time(NULL));
+   for (x = 0; x < STACKBLOCK; x++) {
+       stack_mask[x] = rand() & 255;
+   }
+   stack_masker();
+
    printf("Built with\n%s\n", crypt_build_settings);
 
-   srand(time(NULL));
    sort();
    register_algs();
       
@@ -167,6 +209,22 @@ int main(void)
    DO(yarrow_add_entropy("test", 4, &test_yarrow));
    DO(yarrow_ready(&test_yarrow));
 
+   // output sizes 
+   printf("Sizes of objects (in bytes)\n");
+   printf("\tsymmetric_key\t=\t%5d\n", sizeof(symmetric_key));
+   printf("\thash_state\t=\t%5d\n", sizeof(hash_state));
+   printf("\thmac_state\t=\t%5d\n", sizeof(hmac_state));
+   printf("\tomac_state\t=\t%5d\n", sizeof(omac_state));
+   printf("\tpmac_state\t=\t%5d\n", sizeof(pmac_state));
+   printf("\tocb_state\t=\t%5d\n", sizeof(ocb_state));
+   printf("\teax_state\t=\t%5d\n", sizeof(eax_state));
+   printf("\tmp_int\t\t=\t%5d\n", sizeof(mp_int));
+   printf("\trsa_key\t\t=\t%5d\n", sizeof(rsa_key));
+   printf("\tdsa_key\t\t=\t%5d\n", sizeof(dsa_key));
+   printf("\tdh_key\t\t=\t%5d\n", sizeof(dh_key));
+   printf("\tecc_key\t\t=\t%5d\n", sizeof(ecc_key));
+
+   printf("\n\n");
    // do tests
    for (current_test = 0; tests[current_test].name != NULL; current_test++) {
        printf("[%-20s]: ", tests[current_test].name); fflush(stdout);

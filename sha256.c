@@ -104,7 +104,7 @@ static void sha256_compress(hash_state * md, unsigned char *buf)
          RND(S[0],S[1],S[2],S[3],S[4],S[5],S[6],S[7],i);
          t = S[7]; S[7] = S[6]; S[6] = S[5]; S[5] = S[4]; 
          S[4] = S[3]; S[3] = S[2]; S[2] = S[1]; S[1] = S[0]; S[0] = t;
-	  }  
+     }  
 #else 
 #define RND(a,b,c,d,e,f,g,h,i,ki)                    \
      t0 = h + Sigma1(e) + Ch(e, f, g) + ki + W[i];   \

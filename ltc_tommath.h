@@ -27,7 +27,7 @@
 #define MAX(x,y) ((x)>(y)?(x):(y))
 
 #ifdef __cplusplus
-extern "C" {
+ "C" {
 
 /* C++ compilers don't like assigning void * to mp_digit * */
 #define  OPT_CAST(x)  (x *)
@@ -99,12 +99,16 @@ extern "C" {
        #define XFREE    free
        #define XREALLOC realloc
        #define XCALLOC  calloc
+       #define XMEMSET  memset
+       #define XMEMCPY  memcpy
    #else
       /* prototypes for our heap functions */
-      extern void *XMALLOC(size_t n);
-      extern void *REALLOC(void *p, size_t n);
-      extern void *XCALLOC(size_t n, size_t s);
-      extern void XFREE(void *p);
+       void *XMALLOC(size_t n);
+       void *REALLOC(void *p, size_t n);
+       void *XCALLOC(size_t n, size_t s);
+       void XFREE(void *p);
+      void *XMEMCPY(void *dest, const void *src, size_t n);
+      int   XMEMCMP(const void *s1, const void *s2, size_t n);
    #endif
 #endif
 
@@ -143,7 +147,7 @@ extern "C" {
 typedef int           mp_err;
 
 /* you'll have to tune these... */
-extern int KARATSUBA_MUL_CUTOFF,
+ int KARATSUBA_MUL_CUTOFF,
            KARATSUBA_SQR_CUTOFF,
            TOOM_MUL_CUTOFF,
            TOOM_SQR_CUTOFF;
@@ -546,7 +550,7 @@ int mp_exptmod_fast(mp_int *G, mp_int *X, mp_int *P, mp_int *Y, int mode);
 int s_mp_exptmod (mp_int * G, mp_int * X, mp_int * P, mp_int * Y);
 void bn_reverse(unsigned char *s, int len);
 
-extern const char *mp_s_rmap;
+ const char *mp_s_rmap;
 
 #ifdef __cplusplus
    }

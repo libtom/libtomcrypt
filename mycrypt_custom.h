@@ -9,12 +9,16 @@
 	#error mycrypt_custom.h should be included before mycrypt.h
 #endif
 
-/* macros for various libc functions */
-#define XMALLOC malloc
+/* macros for various libc functions you can change for embedded targets */
+#define XMALLOC  malloc
 #define XREALLOC realloc
-#define XCALLOC calloc
-#define XFREE free
-#define XCLOCK clock
+#define XCALLOC  calloc
+#define XFREE    free
+
+#define XMEMSET  memset
+#define XMEMCPY  memcpy
+
+#define XCLOCK   clock
 #define XCLOCKS_PER_SEC CLOCKS_PER_SEC
 
 /* Use small code where possible */
@@ -45,6 +49,10 @@
 #define CAST5
 #define NOEKEON
 #define SKIPJACK
+/* SAFER code isn't public domain.  It appears to be free to use 
+ * but has been disabled by default to avoid any such problems 
+ */
+//#define SAFER
 
 /* modes of operation */
 #define CFB
@@ -89,10 +97,19 @@
 
 /* Public Key Neatoness */
 #define MRSA
-#define RSA_TIMING                   // enable RSA side channel timing prevention 
+/* enable RSA side channel timing prevention */
+#define RSA_TIMING
+
+/* Digital Signature Algorithm */
 #define MDSA
+/* Max diff between group and modulus size in bytes */
+#define MDSA_DELTA     512
+/* Max DSA group size in bytes (default allows 4k-bit groups) */
+#define MDSA_MAX_GROUP 512
+
+/* Diffie-Hellman */
 #define MDH
-#define MECC
+/* Supported Key Sizes */
 #define DH768
 #define DH1024
 #define DH1280
@@ -102,15 +119,21 @@
 #define DH2560
 #define DH3072
 #define DH4096
+
+/* ECC */
+#define MECC
+/* Supported Key Sizes */
 #define ECC160
 #define ECC192
 #define ECC224
 #define ECC256
 #define ECC384
 #define ECC521
+
+/* Include the MPI functionality?  (required by the PK algorithms) */
 #define MPI
 
-/* PKCS #1 and 5 stuff */
+/* PKCS #1 and #5 stuff */
 #define PKCS_1
 #define PKCS_5
 

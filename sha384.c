@@ -58,7 +58,7 @@ int sha384_done(hash_state * md, unsigned char *hash)
     }
 
    sha512_done(md, buf);
-   memcpy(hash, buf, 48);
+   XMEMCPY(hash, buf, 48);
 #ifdef CLEAN_STACK
    zeromem(buf, sizeof(buf));
 #endif

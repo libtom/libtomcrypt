@@ -408,7 +408,7 @@ fast_s_mp_mul_digs (mp_int * a, mp_int * b, mp_int * c, int digs)
   }
 
   /* clear temp buf (the columns) */
-  memset (W, 0, sizeof (mp_word) * digs);
+  XMEMSET (W, 0, sizeof (mp_word) * digs);
 
   /* calculate the columns */
   pa = a->used;
@@ -538,7 +538,7 @@ fast_s_mp_mul_high_digs (mp_int * a, mp_int * b, mp_int * c, int digs)
   /* like the other comba method we compute the columns first */
   pa = a->used;
   pb = b->used;
-  memset (W + digs, 0, (pa + pb + 1 - digs) * sizeof (mp_word));
+  XMEMSET (W + digs, 0, (pa + pb + 1 - digs) * sizeof (mp_word));
   for (ix = 0; ix < pa; ix++) {
     {
       register mp_digit tmpx, *tmpy;
@@ -654,8 +654,8 @@ int fast_s_mp_sqr (mp_int * a, mp_int * b)
    * the inner product can be doubled using n doublings instead of
    * n**2
    */
-  memset (W,  0, newused * sizeof (mp_word));
-  memset (W2, 0, newused * sizeof (mp_word));
+  XMEMSET (W,  0, newused * sizeof (mp_word));
+  XMEMSET (W2, 0, newused * sizeof (mp_word));
 
   /* This computes the inner product.  To simplify the inner N**2 loop
    * the multiplication by two is done afterwards in the N loop.
@@ -1145,7 +1145,7 @@ mp_clear (mp_int * a)
   /* only do anything if a hasn't been freed previously */
   if (a->dp != NULL) {
     /* first zero the digits */
-    memset (a->dp, 0, sizeof (mp_digit) * a->used);
+    XMEMSET (a->dp, 0, sizeof (mp_digit) * a->used);
 
     /* free ram */
     XFREE(a->dp);
@@ -7538,7 +7538,7 @@ mp_zero (mp_int * a)
 {
   a->sign = MP_ZPOS;
   a->used = 0;
-  memset (a->dp, 0, sizeof (mp_digit) * a->alloc);
+  XMEMSET (a->dp, 0, sizeof (mp_digit) * a->alloc);
 }
 
 /* End: bn_mp_zero.c */

@@ -28,10 +28,12 @@ int rsa_exptmod(const unsigned char *in,   unsigned long inlen,
    _ARGCHK(outlen != NULL);
    _ARGCHK(key    != NULL);
    
+   /* valid prng? */
    if ((err = prng_is_valid(prng_idx)) != CRYPT_OK) {
       return err;
    }
 
+   /* is the key of the right type for the operation? */
    if (which == PK_PRIVATE && (key->type != PK_PRIVATE && key->type != PK_PRIVATE_OPTIMIZED)) {
       return CRYPT_PK_NOT_PRIVATE;
    }

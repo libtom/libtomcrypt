@@ -10,8 +10,8 @@ int dh_tests (void)
   DO(dh_test());
 
   /* make up two keys */
-  DO(dh_make_key (&test_yarrow, find_prng ("yarrow"), 96, &usera));
-  DO(dh_make_key (&test_yarrow, find_prng ("yarrow"), 96, &userb));
+  DO(dh_make_key (&test_yarrow, find_prng ("yarrow"), 512, &usera));
+  DO(dh_make_key (&test_yarrow, find_prng ("yarrow"), 512, &userb));
 
   /* make the shared secret */
   x = 4096;
@@ -50,7 +50,7 @@ int dh_tests (void)
   dh_free (&userb);
 
 /* test encrypt_key */
-  dh_make_key (&test_yarrow, find_prng ("yarrow"), 128, &usera);
+  dh_make_key (&test_yarrow, find_prng ("yarrow"), 512, &usera);
   for (x = 0; x < 16; x++) {
     buf[0][x] = x;
   }

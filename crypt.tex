@@ -1,4 +1,4 @@
-\documentclass[b5paper]{book}
+\documentclass[a4paper]{book}
 \usepackage{hyperref}
 \usepackage{makeidx}
 \usepackage{amssymb}
@@ -47,20 +47,15 @@
 \def\gap{\vspace{0.5ex}}
 \makeindex
 \begin{document}
-\title{A Tiny Crypto Library, \\ LibTomCrypt \\ Version 0.96}
+\title{LibTomCrypt \\ Version 0.97}
 \author{Tom St Denis \\
 \\
 tomstdenis@iahu.ca \\
-http://libtomcrypt.org \\ \\
-Phone: 1-613-836-3160\\
-111 Banning Rd \\
-Kanata, Ontario \\
-K2L 1C3 \\
-Canada
+http://libtomcrypt.org
 }
 \maketitle
 This text and source code library are both hereby placed in the public domain.  This book has been 
-formatted for B5 [176x250] paper using the \LaTeX{} {\em book} macro package.
+formatted for A4 paper using the \LaTeX{} {\em book} macro package.
 
 \vspace{10cm}
 
@@ -70,7 +65,15 @@ formatted for B5 [176x250] paper using the \LaTeX{} {\em book} macro package.
 
 Tom St Denis,
 
-Ontario, Canada
+Phone: 1-613-836-3160
+
+111 Banning Rd 
+
+Kanata, Ontario 
+
+K2L 1C3 
+
+Canada
 \end{flushright}
 \newpage
 \tableofcontents
@@ -182,7 +185,7 @@ under a public domain license:
 library.
 
 ``rc2.c'' is based on publicly available code that is not attributed to a person from the given source.  ``safer.c''
-was written by Richard De Moliner (demoliner@isi.ee.ethz.ch) and is public domain.
+was written by Richard De Moliner (demoliner@isi.ee.ethz.ch) and seems to be free for use.
 
 The project is hereby released as public domain.
 
@@ -190,7 +193,7 @@ The project is hereby released as public domain.
 
 The author (Tom St Denis) is not a patent lawyer so this section is not to be treated as legal advice.  To the best
 of the authors knowledge the only patent related issues within the library are the RC5 and RC6 symmetric block ciphers.  
-They can be removed from a build by simply commenting out the two appropriate lines in the makefile script.  The rest
+They can be removed from a build by simply commenting out the two appropriate lines in ``mycrypt\_custom.h''.  The rest
 of the ciphers and hashes are patent free or under patents that have since expired.
 
 The RC2 and RC4 symmetric ciphers are not under patents but are under trademark regulations.  This means you can use 
@@ -212,11 +215,11 @@ under where VC98 is installed).
 
 In the recent versions the build steps have changed.  The build options are now stored in ``mycrypt\_custom.h'' and
 no longer in the makefile.  If you change a build option in that file you must re-build the library from clean to
-ensure the build is intact.  The perl script ``config.pl'' will help setup the custom header and a custom makefile
-if you want one (the provided ``makefile'' will work with custom configs).
+ensure the build is intact.  
 
 \section{Thanks}
-I would like to give thanks to the following people (in no particular order) for helping me develop this project:
+I would like to give thanks to the following people (in no particular order) for helping me develop this project from
+early on:
 \begin{enumerate}
    \item Richard van de Laarschot
    \item Richard Heathfield
@@ -232,6 +235,10 @@ I would like to give thanks to the following people (in no particular order) for
    \item Sky Schulz
    \item Christopher Imes
 \end{enumerate}
+
+There have been quite a few other people as well.  Please check the change log to see who else has contributed from
+time to time.
+
 
 \chapter{The Application Programming Interface (API)}
 \section{Introduction}
@@ -581,9 +588,9 @@ Twofish round function.
 \begin{tabular}{|l|l|l|}
 \hline TWOFISH\_SMALL & TWOFISH\_TABLES & Speed and Memory (per key) \\
 \hline undefined & undefined & Very fast, 4.2KB of ram. \\
-\hline undefined & defined & As above, faster keysetup, larger code (1KB more). \\
+\hline undefined & defined & Faster keysetup, larger code. \\
 \hline defined & undefined & Very slow, 0.2KB of ram. \\
-\hline defined & defined & Somewhat faster, 0.2KB of ram, larger code. \\
+\hline defined & defined & Faster, 0.2KB of ram, larger code. \\
 \hline
 \end{tabular}
 \end{center}
@@ -615,7 +622,8 @@ int main(void)
    }
 
    /* generic call to function (assuming the key in key[] was already setup) */
-   if ((err = cipher_descriptor[find_cipher("blowfish")].setup(key, 8, 0, &skey)) != CRYPT_OK) {
+   if ((err = cipher_descriptor[find_cipher("blowfish")].setup(key, 8, 0, &skey)) != 
+       CRYPT_OK) {
       printf("Error setting up Blowfish: %s\n", error_to_string(err));
       return -1;
    }
@@ -820,12 +828,13 @@ int main(void)
    /* somehow fill out key and IV */
 
    /* start up CTR mode */
-   if ((err = ctr_start(find_cipher("twofish"), /* index of desired cipher */
-                                            IV, /* the initial vector */
-                                           key, /* the secret key */
-                                            16, /* length of secret key (16 bytes, 128 bits) */
-                                             0, /* 0 == default # of rounds */
-                                         &ctr)  /* where to store initialized CTR state */
+   if ((err = ctr_start(
+        find_cipher("twofish"), /* index of desired cipher */
+                            IV, /* the initial vector */
+                           key, /* the secret key */
+                            16, /* length of secret key (16 bytes, 128 bits) */
+                             0, /* 0 == default # of rounds */
+                         &ctr)  /* where to store initialized CTR state */
       ) != CRYPT_OK) {
       printf("ctr_start error: %s\n", error_to_string(err));
       return -1;
