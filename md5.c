@@ -14,7 +14,7 @@ const struct _hash_descriptor md5_desc =
     &md5_test
 };
 
-#define F(x,y,z)  ((x&y)|((~x)&z))
+#define F(x,y,z)  (z ^ (x & (y ^ z)))
 #define G(x,y,z)  ((x&z)|(y&(~z)))
 #define H(x,y,z)  (x^y^z)
 #define I(x,y,z)  (y^(x|(~z)))

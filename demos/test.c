@@ -506,7 +506,6 @@ pad_test (void)
     }
   printf ("passed.\n");
 }
-
 void
 rsa_test (void)
 {
@@ -658,9 +657,6 @@ rsa_test (void)
       rsa_free (&key);
     }
   }
-
-
-
 }
 #else
 void
@@ -1296,6 +1292,9 @@ test_prime (void)
 void
 register_all_algs (void)
 {
+#ifdef RIJNDAEL
+  register_cipher (&aes_desc);
+#endif
 #ifdef BLOWFISH
   register_cipher (&blowfish_desc);
 #endif
@@ -1310,12 +1309,6 @@ register_all_algs (void)
 #endif
 #ifdef SAFERP
   register_cipher (&saferp_desc);
-#endif
-#ifdef SERPENT
-  register_cipher (&serpent_desc);
-#endif
-#ifdef RIJNDAEL
-  register_cipher (&aes_desc);
 #endif
 #ifdef TWOFISH
   register_cipher (&twofish_desc);
@@ -1375,6 +1368,7 @@ register_all_algs (void)
 #endif
 }
 
+#ifdef KR
 void
 kr_display (pk_key * kr)
 {
@@ -1664,8 +1658,8 @@ kr_test (void)
   }
 
   kr_clear (&kr);
-
 }
+#endif
 
 void
 test_errs (void)
@@ -1715,7 +1709,7 @@ main (void)
 #endif
 
   register_all_algs ();
-
+  
   if ((errnum = yarrow_start (&prng)) != CRYPT_OK) {
     printf ("yarrow_start: %s\n", error_to_string (errnum));
   }
@@ -1746,7 +1740,9 @@ main (void)
   rng_tests ();
   //test_prime();
 
+#ifdef KR
   kr_test ();
+#endif  
   rsa_test ();
   pad_test ();
   ecc_tests ();

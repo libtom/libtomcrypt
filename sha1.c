@@ -14,7 +14,7 @@ const struct _hash_descriptor sha1_desc =
     &sha1_test
 };
 
-#define F0(x,y,z)  ( (x&y) | ((~x)&z) )
+#define F0(x,y,z)  (z ^ (x & (y ^ z)))
 #define F1(x,y,z)  (x ^ y ^ z)
 #define F2(x,y,z)  ((x & y) | (z & (x | y)))
 #define F3(x,y,z)  (x ^ y ^ z)

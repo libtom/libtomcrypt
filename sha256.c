@@ -32,7 +32,7 @@ static const unsigned long K[64] = {
 };
 
 /* Various logical functions */
-#define Ch(x,y,z)       ((x & y) | (~x & z))
+#define Ch(x,y,z)       (z ^ (x & (y ^ z)))
 #define Maj(x,y,z)      (((x | y) & z) | (x & y)) 
 #define S(x, n)         ROR((x),(n))
 #define R(x, n)         (((x)&0xFFFFFFFFUL)>>(n))

@@ -2060,9 +2060,9 @@ mp_exptmod (mp_int * G, mp_int * X, mp_int * P, mp_int * Y)
   if (dr == 0) {
      dr = mp_reduce_is_2k(P) << 1;
   }
-  
-  /* if the modulus is odd use the fast method */
-  if ((mp_isodd (P) == 1 || dr !=  0) && P->used > 4) {
+    
+  /* if the modulus is odd or dr != 0 use the fast method */
+  if (mp_isodd (P) == 1 || dr !=  0) {
     return mp_exptmod_fast (G, X, P, Y, dr);
   } else {
     return s_mp_exptmod (G, X, P, Y);
@@ -2156,6 +2156,7 @@ mp_exptmod_fast (mp_int * G, mp_int * X, mp_int * P, mp_int * Y, int redmode)
      if (((P->used * 2 + 1) < MP_WARRAY) &&
           P->used < (1 << ((CHAR_BIT * sizeof (mp_word)) - (2 * DIGIT_BIT)))) {
         redux = fast_mp_montgomery_reduce;
+
      } else {
         /* use slower baselien method */
         redux = mp_montgomery_reduce;
@@ -2965,6 +2966,7 @@ mp_karatsuba_mul (mp_int * a, mp_int * b, mp_int * c)
   mp_int  x0, x1, y0, y1, t1, x0y0, x1y1;
   int     B, err;
 
+  /* default the return code to an error */
   err = MP_MEM;
 
   /* min # of digits */
@@ -3065,6 +3067,7 @@ mp_karatsuba_mul (mp_int * a, mp_int * b, mp_int * c)
   if (mp_add (&t1, &x1y1, c) != MP_OKAY)
     goto X1Y1;          /* t1 = x0y0 + t1 + x1y1 */
 
+  /* Algorithm succeeded set the return code to MP_OKAY */
   err = MP_OKAY;
 
 X1Y1:mp_clear (&x1y1);
@@ -3574,14 +3577,15 @@ mp_montgomery_reduce (mp_int * x, mp_int * n, mp_digit rho)
       }
       /* propagate carries */
       while (u) {
-        *tmpx += u;
-        u = *tmpx >> DIGIT_BIT;
+        *tmpx   += u;
+        u        = *tmpx >> DIGIT_BIT;
         *tmpx++ &= MP_MASK;
       }
     }
   }
 
   /* x = x/b**n.used */
+  mp_clamp(x);
   mp_rshd (x, n->used);
 
   /* if A >= m then A = A - m */
@@ -4970,7 +4974,8 @@ mp_reduce_is_2k(mp_int *a)
    } else if (a->used > 1) {
       iy = mp_count_bits(a);
       for (ix = DIGIT_BIT; ix < iy; ix++) {
-          if ((a->dp[ix/DIGIT_BIT] & ((mp_digit)1 << (mp_digit)(ix % DIGIT_BIT))) == 0) {
+          if ((a->dp[ix/DIGIT_BIT] & 
+              ((mp_digit)1 << (mp_digit)(ix % DIGIT_BIT))) == 0) {
              return 0;
           }
       }
@@ -5544,7 +5549,7 @@ mp_to_unsigned_bin (mp_int * a, unsigned char *b)
  */
 #include <tommath.h>
 
-/* multiplication using Toom-Cook 3-way algorithm */
+/* multiplication using the Toom-Cook 3-way algorithm */
 int 
 mp_toom_mul(mp_int *a, mp_int *b, mp_int *c)
 {
@@ -5552,14 +5557,16 @@ mp_toom_mul(mp_int *a, mp_int *b, mp_int *c)
     int res, B;
         
     /* init temps */
-    if ((res = mp_init_multi(&w0, &w1, &w2, &w3, &w4, &a0, &a1, &a2, &b0, &b1, &b2, &tmp1, &tmp2, NULL)) != MP_OKAY) {
+    if ((res = mp_init_multi(&w0, &w1, &w2, &w3, &w4, 
+                             &a0, &a1, &a2, &b0, &b1, 
+                             &b2, &tmp1, &tmp2, NULL)) != MP_OKAY) {
        return res;
     }
     
     /* B */
     B = MIN(a->used, b->used) / 3;
     
-    /* a = a2 * B^2 + a1 * B + a0 */
+    /* a = a2 * B**2 + a1 * B + a0 */
     if ((res = mp_mod_2d(a, DIGIT_BIT * B, &a0)) != MP_OKAY) {
        goto ERR;
     }
@@ -5575,7 +5582,7 @@ mp_toom_mul(mp_int *a, mp_int *b, mp_int *c)
     }
     mp_rshd(&a2, B*2);
     
-    /* b = b2 * B^2 + b1 * B + b0 */
+    /* b = b2 * B**2 + b1 * B + b0 */
     if ((res = mp_mod_2d(b, DIGIT_BIT * B, &b0)) != MP_OKAY) {
        goto ERR;
     }
@@ -5689,7 +5696,8 @@ mp_toom_mul(mp_int *a, mp_int *b, mp_int *c)
        16 8  4  2  1
        1  0  0  0  0
        
-       using 12 subtractions, 4 shifts, 2 small divisions and 1 small multiplication 
+       using 12 subtractions, 4 shifts, 
+              2 small divisions and 1 small multiplication 
      */
      
      /* r1 - r4 */
@@ -5792,7 +5800,9 @@ mp_toom_mul(mp_int *a, mp_int *b, mp_int *c)
      }     
      
 ERR:
-     mp_clear_multi(&w0, &w1, &w2, &w3, &w4, &a0, &a1, &a2, &b0, &b1, &b2, &tmp1, &tmp2, NULL);
+     mp_clear_multi(&w0, &w1, &w2, &w3, &w4, 
+                    &a0, &a1, &a2, &b0, &b1, 
+                    &b2, &tmp1, &tmp2, NULL);
      return res;
 }     
      
@@ -6267,6 +6277,14 @@ mp_toradix (mp_int * a, char *str, int radix)
   if (radix < 2 || radix > 64) {
     return MP_VAL;
   }
+  
+  /* quick out if its zero */
+  if (mp_iszero(a) == 1) {
+     *str++ = '0';
+     *str = '\0';
+     return MP_OKAY;
+  }
+  
 
   if ((res = mp_init_copy (&t, a)) != MP_OKAY) {
     return res;
@@ -6625,21 +6643,26 @@ s_mp_exptmod (mp_int * G, mp_int * X, mp_int * P, mp_int * Y)
 
   /* create M table
    *
-   * The M table contains powers of the input base, e.g. M[x] = G**x mod P
+   * The M table contains powers of the base, 
+   * e.g. M[x] = G**x mod P
    *
-   * The first half of the table is not computed though accept for M[0] and M[1]
+   * The first half of the table is not 
+   * computed though accept for M[0] and M[1]
    */
   if ((err = mp_mod (G, P, &M[1])) != MP_OKAY) {
     goto __MU;
   }
 
-  /* compute the value at M[1<<(winsize-1)] by squaring M[1] (winsize-1) times */
+  /* compute the value at M[1<<(winsize-1)] by squaring 
+   * M[1] (winsize-1) times 
+   */
   if ((err = mp_copy (&M[1], &M[1 << (winsize - 1)])) != MP_OKAY) {
     goto __MU;
   }
 
   for (x = 0; x < (winsize - 1); x++) {
-    if ((err = mp_sqr (&M[1 << (winsize - 1)], &M[1 << (winsize - 1)])) != MP_OKAY) {
+    if ((err = mp_sqr (&M[1 << (winsize - 1)], 
+                       &M[1 << (winsize - 1)])) != MP_OKAY) {
       goto __MU;
     }
     if ((err = mp_reduce (&M[1 << (winsize - 1)], P, &mu)) != MP_OKAY) {
@@ -6967,19 +6990,19 @@ s_mp_sqr (mp_int * a, mp_int * b)
   mp_digit u, tmpx, *tmpt;
 
   pa = a->used;
-  if ((res = mp_init_size (&t, pa + pa + 1)) != MP_OKAY) {
+  if ((res = mp_init_size (&t, 2*pa + 1)) != MP_OKAY) {
     return res;
   }
-  t.used = pa + pa + 1;
+  t.used = 2*pa + 1;
 
   for (ix = 0; ix < pa; ix++) {
     /* first calculate the digit at 2*ix */
     /* calculate double precision result */
-    r = ((mp_word) t.dp[ix + ix]) + 
+    r = ((mp_word) t.dp[2*ix]) + 
         ((mp_word) a->dp[ix]) * ((mp_word) a->dp[ix]);
 
     /* store lower part in result */
-    t.dp[ix + ix] = (mp_digit) (r & ((mp_word) MP_MASK));
+    t.dp[2*ix] = (mp_digit) (r & ((mp_word) MP_MASK));
 
     /* get the carry */
     u = (r >> ((mp_word) DIGIT_BIT));
@@ -6988,14 +7011,14 @@ s_mp_sqr (mp_int * a, mp_int * b)
     tmpx = a->dp[ix];
 
     /* alias for where to store the results */
-    tmpt = t.dp + (ix + ix + 1);
+    tmpt = t.dp + (2*ix + 1);
     
     for (iy = ix + 1; iy < pa; iy++) {
       /* first calculate the product */
       r = ((mp_word) tmpx) * ((mp_word) a->dp[iy]);
 
       /* now calculate the double precision result, note we use
-       * addition instead of *2 since its easier to optimize
+       * addition instead of *2 since it's easier to optimize
        */
       r = ((mp_word) * tmpt) + r + r + ((mp_word) u);
 

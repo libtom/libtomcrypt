@@ -1,3 +1,8 @@
+Jun 11th, 2003
+v0.85  -- Swapped in a new AES routine
+       -- Removed Serpent
+       -- Added TDCAL policy document
+       
 Jun 1st, 2003
 v0.84  -- Removed a 4KB buffer from rsa_decrypt_key that wasn't being used no more
        -- Fixed another potential buffer problem.  Not an overflow but could cause the 

@@ -1,15 +1,13 @@
 /* This header is meant to be included before mycrypt.h in projects where
- * you don't want to throw all the defines in a makefile.
+ * you don't want to throw all the defines in a makefile. 
  */
 
 #ifndef MYCRYPT_CUSTOM_H_
 #define MYCRYPT_CUSTOM_H_
 
 #ifdef CRYPT
-        #error mycrypt_custom.h should be included before mycrypt.h
+	#error mycrypt_custom.h should be included before mycrypt.h
 #endif
-
-#define LTC_TEST
 
 #define XMALLOC malloc
 #define XREALLOC realloc
@@ -18,11 +16,11 @@
 #define XCLOCK clock
 #define XCLOCKS_PER_SEC CLOCKS_PER_SEC
 #define SMALL_CODE
+#define LTC_TEST
 #define BLOWFISH
 #define RC2
 #define RC5
 #define RC6
-#define SERPENT
 #define SAFERP
 #define SAFER
 #define RIJNDAEL

@@ -397,9 +397,9 @@ static unsigned long g_func(unsigned long x, symmetric_key *key)
     burn_stack(sizeof(unsigned char) * 4 + sizeof(unsigned long));
     return y;
 }
-#endif
+#endif /* CLEAN_STACK */
 
-#endif
+#endif /* TWOFISH_SMALL */
 
 #ifdef CLEAN_STACK
 static int _twofish_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_key *skey)

@@ -45,7 +45,7 @@ loop:
            dist += step; x = -1;
         }
     }
-
+    
     /* recalc the total distance from where we started */
     total_dist += dist;
     

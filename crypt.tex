@@ -1,4 +1,5 @@
 \documentclass{book}
+\usepackage{hyperref}
 \usepackage{makeidx}
 \usepackage{amssymb}
 \usepackage{color}
@@ -41,14 +42,12 @@
 \def\C{{\mathbb C}}
 \def\Q{{\mathbb Q}}
 
-\newcommand{\url}[1]{\mbox{$<${#1}$>$}}
-\newcommand{\emailaddr}[1]{\mbox{$<${#1}$>$}}
 \def\twiddle{\raisebox{0.3ex}{\mbox{\tiny $\sim$}}}
 
 \def\gap{\vspace{0.5ex}}
 \makeindex
 \begin{document}
-\title{A Tiny Crypto Library, \\ LibTomCrypt \\ Version 0.84}
+\title{A Tiny Crypto Library, \\ LibTomCrypt \\ Version 0.85}
 \author{Tom St Denis \\
 Algonquin College \\
 \\
@@ -162,14 +161,11 @@ All of the source code except for the following files have been written by the a
 under the TDCAL license:
 
 \begin{enumerate}
-   \item aes.c
    \item rc2.c
-   \item serpent.c
    \item safer.c
 \end{enumerate}
 
-``aes.c'' and ``serpent.c'' were written by Brian Gladman (gladman@seven77.demon.co.uk).  They are copyrighted works
-but were both granted unrestricted usage in any project (commercial or otherwise).  ``mpi.c'' was originally written 
+`mpi.c'' was originally written 
 by Michael Fromberger (sting@linguist.dartmouth.edu) but has since been replaced with my LibTomMath library.  
 ``rc2.c'' is based on publicly available code that is not attributed to a person from the given source.  ``safer.c'' 
 was written by Richard De Moliner (demoliner@isi.ee.ethz.ch) and is public domain.
@@ -512,7 +508,6 @@ As of this release the current cipher\_descriptors elements are
      \hline Safer SK64  & safer\_sk64\_desc & 8 & 8 & 6 .. 13 \\
      \hline Safer K128  & safer\_k128\_desc & 8 & 16 & 6 .. 13 \\
      \hline Safer SK128 & safer\_sk128\_desc & 8 & 16 & 6 .. 13 \\
-     \hline Serpent & serpent\_desc & 16 & 16 .. 32 & 32 \\
      \hline AES & aes\_desc & 16 & 16, 24, 32 & 10, 12, 14 \\
      \hline Twofish & twofish\_desc & 16 & 16, 24, 32 & 16 \\
      \hline DES & des\_desc & 8 & 7 & 16 \\
