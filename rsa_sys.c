@@ -7,7 +7,7 @@ int rsa_encrypt_key(const unsigned char *inkey, unsigned long inlen,
 {
    unsigned char rsa_in[4096], rsa_out[4096];
    unsigned long x, y, rsa_size;
-   int errno;
+   int err;
 
    _ARGCHK(inkey != NULL);
    _ARGCHK(outkey != NULL);
@@ -15,19 +15,19 @@ int rsa_encrypt_key(const unsigned char *inkey, unsigned long inlen,
    _ARGCHK(key != NULL);
 
    /* are the parameters valid? */
-   if ((errno = prng_is_valid(wprng)) != CRYPT_OK) {
-      return errno; 
+   if ((err = prng_is_valid(wprng)) != CRYPT_OK) {
+      return err; 
    }
 
    /* rsa_pad the symmetric key */
-   y = sizeof(rsa_in); 
-   if ((errno = rsa_pad(inkey, inlen, rsa_in, &y, wprng, prng)) != CRYPT_OK) {
+   y = (unsigned long)sizeof(rsa_in); 
+   if ((err = rsa_pad(inkey, inlen, rsa_in, &y, wprng, prng)) != CRYPT_OK) {
       return CRYPT_ERROR;
    }
    
    /* rsa encrypt it */
-   rsa_size = sizeof(rsa_out);
-   if ((errno = rsa_exptmod(rsa_in, y, rsa_out, &rsa_size, PK_PUBLIC, key)) != CRYPT_OK) {
+   rsa_size = (unsigned long)sizeof(rsa_out);
+   if ((err = rsa_exptmod(rsa_in, y, rsa_out, &rsa_size, PK_PUBLIC, key)) != CRYPT_OK) {
       return CRYPT_ERROR;
    }
 
@@ -66,7 +66,7 @@ int rsa_decrypt_key(const unsigned char *in, unsigned long inlen,
 {
    unsigned char sym_key[MAXBLOCKSIZE], rsa_in[4096], rsa_out[4096];
    unsigned long x, y, z, i, rsa_size;
-   int errno;
+   int err;
 
    _ARGCHK(in != NULL);
    _ARGCHK(outkey != NULL);
@@ -85,8 +85,8 @@ int rsa_decrypt_key(const unsigned char *in, unsigned long inlen,
    }
 
    /* check the header */
-   if ((errno = packet_valid_header((unsigned char *)in, PACKET_SECT_RSA, PACKET_SUB_ENC_KEY)) != CRYPT_OK) {
-      return errno;
+   if ((err = packet_valid_header((unsigned char *)in, PACKET_SECT_RSA, PACKET_SUB_ENC_KEY)) != CRYPT_OK) {
+      return err;
    }
 
    /* grab length of the rsa key */
@@ -105,15 +105,15 @@ int rsa_decrypt_key(const unsigned char *in, unsigned long inlen,
    }
 
    /* decrypt it */
-   x = sizeof(rsa_out);
-   if ((errno = rsa_exptmod(rsa_in, rsa_size, rsa_out, &x, PK_PRIVATE, key)) != CRYPT_OK) {
-      return errno;
+   x = (unsigned long)sizeof(rsa_out);
+   if ((err = rsa_exptmod(rsa_in, rsa_size, rsa_out, &x, PK_PRIVATE, key)) != CRYPT_OK) {
+      return err;
    }
 
    /* depad it */
-   z = sizeof(sym_key);
-   if ((errno = rsa_depad(rsa_out, x, sym_key, &z)) != CRYPT_OK) {
-      return errno;
+   z = (unsigned long)sizeof(sym_key);
+   if ((err = rsa_depad(rsa_out, x, sym_key, &z)) != CRYPT_OK) {
+      return err;
    }
 
    /* check size */
@@ -141,7 +141,7 @@ int rsa_sign_hash(const unsigned char *in,  unsigned long inlen,
 {
    unsigned long rsa_size, x, y;
    unsigned char rsa_in[4096], rsa_out[4096];
-   int errno;
+   int err;
 
    _ARGCHK(in != NULL);
    _ARGCHK(out != NULL);
@@ -154,15 +154,15 @@ int rsa_sign_hash(const unsigned char *in,  unsigned long inlen,
    }
 
    /* pad it */
-   x = sizeof(rsa_out);
-   if ((errno = rsa_signpad(in, inlen, rsa_out, &x)) != CRYPT_OK) {
-      return errno;
+   x = (unsigned long)sizeof(rsa_out);
+   if ((err = rsa_signpad(in, inlen, rsa_out, &x)) != CRYPT_OK) {
+      return err;
    }
 
    /* sign it */
-   rsa_size = sizeof(rsa_in);
-   if ((errno = rsa_exptmod(rsa_out, x, rsa_in, &rsa_size, PK_PRIVATE, key)) != CRYPT_OK) {
-      return errno;
+   rsa_size = (unsigned long)sizeof(rsa_in);
+   if ((err = rsa_exptmod(rsa_out, x, rsa_in, &rsa_size, PK_PRIVATE, key)) != CRYPT_OK) {
+      return err;
    }
 
    /* check size */
@@ -199,7 +199,7 @@ int rsa_verify_hash(const unsigned char *sig, unsigned long siglen,
 {
    unsigned long rsa_size, x, y, z;
    unsigned char rsa_in[4096], rsa_out[4096];
-   int errno;
+   int err;
 
    _ARGCHK(sig != NULL);
    _ARGCHK(md != NULL);
@@ -216,8 +216,8 @@ int rsa_verify_hash(const unsigned char *sig, unsigned long siglen,
    }
 
    /* verify header */
-   if ((errno = packet_valid_header((unsigned char *)sig, PACKET_SECT_RSA, PACKET_SUB_SIGNED)) != CRYPT_OK) {
-      return errno;
+   if ((err = packet_valid_header((unsigned char *)sig, PACKET_SECT_RSA, PACKET_SUB_SIGNED)) != CRYPT_OK) {
+      return err;
    }
 
    /* get the len */
@@ -236,19 +236,19 @@ int rsa_verify_hash(const unsigned char *sig, unsigned long siglen,
    }
 
    /* exptmod it */
-   x = sizeof(rsa_in);
-   if ((errno = rsa_exptmod(rsa_in, rsa_size, rsa_out, &x, PK_PUBLIC, key)) != CRYPT_OK) {
-      return errno;
+   x = (unsigned long)sizeof(rsa_in);
+   if ((err = rsa_exptmod(rsa_in, rsa_size, rsa_out, &x, PK_PUBLIC, key)) != CRYPT_OK) {
+      return err;
    }
 
    /* depad it */
-   z = sizeof(rsa_in);
-   if ((errno = rsa_signdepad(rsa_out, x, rsa_in, &z)) != CRYPT_OK) {
-      return errno;
+   z = (unsigned long)sizeof(rsa_in);
+   if ((err = rsa_signdepad(rsa_out, x, rsa_in, &z)) != CRYPT_OK) {
+      return err;
    }
 
    /* check? */
-   if (!memcmp(rsa_in, md, z)) {
+   if (memcmp(rsa_in, md, (size_t)z) == 0) {
       *stat = 1;
    }
 

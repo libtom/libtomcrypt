@@ -8,13 +8,18 @@
 #include <ctype.h>
 #include <limits.h>
 
+/* if there is a custom definition header file use it */
+#ifdef HAVE_CUSTOM
+    #include "mycrypt_custom.h"
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /* version */
-#define CRYPT   0x0079
-#define SCRYPT  "0.79"
+#define CRYPT   0x0080
+#define SCRYPT  "0.80"
 
 /* max size of either a cipher/hash block or symmetric key [largest of the two] */
 #define MAXBLOCKSIZE           128

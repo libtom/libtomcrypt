@@ -10,7 +10,7 @@ static unsigned long rng_nix(unsigned char *buf, unsigned long len,
     return 0;
 #else
     FILE *f;
-    int x;
+    unsigned long x;
 #ifdef TRY_URANDOM_FIRST
     f = fopen("/dev/urandom", "rb");
     if (f == NULL)
@@ -21,8 +21,8 @@ static unsigned long rng_nix(unsigned char *buf, unsigned long len,
        return 0;
     }
  
-    x = fread(buf, 1, len, f);
-    fclose(f);
+    x = (unsigned long)fread(buf, 1, (size_t)len, f);
+    (void)fclose(f);
     return x;
 #endif /* NO_FILE */
 }
@@ -133,20 +133,20 @@ static unsigned long rng_win32(unsigned char *buf, unsigned long len,
 unsigned long rng_get_bytes(unsigned char *buf, unsigned long len, 
                             void (*callback)(void))
 {
-   int x;
+   unsigned long x;
 
    _ARGCHK(buf != NULL);
 
 #ifdef SONY_PS2
-   x = rng_ps2(buf, len, callback);   if (x) { return x; }
+   x = rng_ps2(buf, len, callback);   if (x != 0) { return x; }
 #elif defined(DEVRANDOM)
-   x = rng_nix(buf, len, callback);   if (x) { return x; }
+   x = rng_nix(buf, len, callback);   if (x != 0) { return x; }
 #endif
 #ifdef WIN32
-   x = rng_win32(buf, len, callback); if (x) { return x; }
+   x = rng_win32(buf, len, callback); if (x != 0) { return x; }
 #endif
 #ifdef ANSI_RNG
-   x = rng_ansic(buf, len, callback); if (x) { return x; }
+   x = rng_ansic(buf, len, callback); if (x != 0) { return x; }
 #endif
    return 0;
 }
@@ -155,34 +155,34 @@ int rng_make_prng(int bits, int wprng, prng_state *prng,
                   void (*callback)(void))
 {
    unsigned char buf[256];
-   int errno;
+   int err;
    
    _ARGCHK(prng != NULL);
 
    /* check parameter */
-   if ((errno = prng_is_valid(wprng)) != CRYPT_OK) {
-      return errno;
+   if ((err = prng_is_valid(wprng)) != CRYPT_OK) {
+      return err;
    }
 
    if (bits < 64 || bits > 1024) {
       return CRYPT_INVALID_PRNGSIZE;
    }
 
-   if ((errno = prng_descriptor[wprng].start(prng)) != CRYPT_OK) {
-      return errno;
+   if ((err = prng_descriptor[wprng].start(prng)) != CRYPT_OK) {
+      return err;
    }
 
-   bits = ((bits/8)+(bits&7?1:0)) * 2;
-   if (rng_get_bytes(buf, bits, callback) != (unsigned long)bits) {
+   bits = ((bits/8)+((bits&7)==0x80?1:0)) * 2;
+   if (rng_get_bytes(buf, (unsigned long)bits, callback) != (unsigned long)bits) {
       return CRYPT_ERROR_READPRNG;
    }
 
-   if ((errno = prng_descriptor[wprng].add_entropy(buf, bits, prng)) != CRYPT_OK) {
-      return errno;
+   if ((err = prng_descriptor[wprng].add_entropy(buf, (unsigned long)bits, prng)) != CRYPT_OK) {
+      return err;
    }
 
-   if ((errno = prng_descriptor[wprng].ready(prng)) != CRYPT_OK) {
-      return errno;
+   if ((err = prng_descriptor[wprng].ready(prng)) != CRYPT_OK) {
+      return err;
    }
 
    #ifdef CLEAN_STACK

@@ -6,7 +6,7 @@ int ecc_encrypt_key(const unsigned char *inkey, unsigned long keylen,
     unsigned char pub_expt[256], ecc_shared[256], skey[MAXBLOCKSIZE];
     ecc_key pubkey;
     unsigned long x, y, z, hashsize, pubkeysize;
-    int errno;
+    int err;
 
     _ARGCHK(inkey != NULL);
     _ARGCHK(out != NULL);
@@ -14,12 +14,12 @@ int ecc_encrypt_key(const unsigned char *inkey, unsigned long keylen,
     _ARGCHK(key != NULL);
 
     /* check that wprng/cipher/hash are not invalid */
-    if ((errno = prng_is_valid(wprng)) != CRYPT_OK) {
-       return errno;
+    if ((err = prng_is_valid(wprng)) != CRYPT_OK) {
+       return err;
     }
 
-    if ((errno = hash_is_valid(hash)) != CRYPT_OK) {
-       return errno;
+    if ((err = hash_is_valid(hash)) != CRYPT_OK) {
+       return err;
     }
 
     if (keylen > hash_descriptor[hash].hashsize) {
@@ -27,14 +27,14 @@ int ecc_encrypt_key(const unsigned char *inkey, unsigned long keylen,
     }
 
     /* make a random key and export the public copy */
-    if ((errno = ecc_make_key(prng, wprng, ecc_get_size(key), &pubkey)) != CRYPT_OK) {
-       return errno;
+    if ((err = ecc_make_key(prng, wprng, ecc_get_size(key), &pubkey)) != CRYPT_OK) {
+       return err;
     }
 
-    pubkeysize = sizeof(pub_expt);
-    if ((errno = ecc_export(pub_expt, &pubkeysize, PK_PUBLIC, &pubkey)) != CRYPT_OK) {
+    pubkeysize = (unsigned long)sizeof(pub_expt);
+    if ((err = ecc_export(pub_expt, &pubkeysize, PK_PUBLIC, &pubkey)) != CRYPT_OK) {
        ecc_free(&pubkey);
-       return errno;
+       return err;
     }
     
     /* now check if the out buffer is big enough */
@@ -45,15 +45,15 @@ int ecc_encrypt_key(const unsigned char *inkey, unsigned long keylen,
 
     /* make random key */
     hashsize  = hash_descriptor[hash].hashsize;
-    x = sizeof(ecc_shared);
-    if ((errno = ecc_shared_secret(&pubkey, key, ecc_shared, &x)) != CRYPT_OK) {
+    x = (unsigned long)sizeof(ecc_shared);
+    if ((err = ecc_shared_secret(&pubkey, key, ecc_shared, &x)) != CRYPT_OK) {
        ecc_free(&pubkey);
-       return errno;
+       return err;
     }
     ecc_free(&pubkey);
-    z = sizeof(skey);
-    if ((errno = hash_memory(hash, ecc_shared, x, skey, &z)) != CRYPT_OK) {
-       return errno;
+    z = (unsigned long)sizeof(skey);
+    if ((err = hash_memory(hash, ecc_shared, x, skey, &z)) != CRYPT_OK) {
+       return err;
     }
 
     /* Encrypt the key */
@@ -101,8 +101,8 @@ int ecc_decrypt_key(const unsigned char *in, unsigned long inlen,
                           ecc_key *key)
 {
    unsigned char shared_secret[256], skey[MAXBLOCKSIZE];
-   unsigned long x, y, z, res, hashsize, keysize;
-   int hash, errno;
+   unsigned long x, y, z, hashsize, keysize;
+   int hash, res, err;
    ecc_key pubkey;
 
    _ARGCHK(in != NULL);
@@ -123,8 +123,8 @@ int ecc_decrypt_key(const unsigned char *in, unsigned long inlen,
    }
 
    /* is header correct? */
-   if ((errno = packet_valid_header((unsigned char *)in, PACKET_SECT_ECC, PACKET_SUB_ENC_KEY)) != CRYPT_OK) {
-      return errno;
+   if ((err = packet_valid_header((unsigned char *)in, PACKET_SECT_ECC, PACKET_SUB_ENC_KEY)) != CRYPT_OK) {
+      return err;
    }
 
    /* now lets get the hash name */
@@ -145,22 +145,22 @@ int ecc_decrypt_key(const unsigned char *in, unsigned long inlen,
       inlen -= x;
    }
    y += 4;
-   if ((errno = ecc_import(in+y, x, &pubkey)) != CRYPT_OK) {
-      return errno;
+   if ((err = ecc_import(in+y, x, &pubkey)) != CRYPT_OK) {
+      return err;
    }
    y += x;
 
    /* make shared key */
-   x = sizeof(shared_secret);
-   if ((errno = ecc_shared_secret(key, &pubkey, shared_secret, &x)) != CRYPT_OK) {
+   x = (unsigned long)sizeof(shared_secret);
+   if ((err = ecc_shared_secret(key, &pubkey, shared_secret, &x)) != CRYPT_OK) {
       ecc_free(&pubkey);
-      return errno;
+      return err;
    }
    ecc_free(&pubkey);
 
-   z = sizeof(skey);
-   if ((errno = hash_memory(hash, shared_secret, x, skey, &z)) != CRYPT_OK) {
-      return errno;
+   z = (unsigned long)sizeof(skey);
+   if ((err = hash_memory(hash, shared_secret, x, skey, &z)) != CRYPT_OK) {
+      return err;
    }
 
    LOAD32L(keysize, in+y);
@@ -198,9 +198,9 @@ int ecc_sign_hash(const unsigned char *in,  unsigned long inlen,
 {
    ecc_key pubkey;
    mp_int b, p;
-   unsigned char epubkey[256], er[256], md[MAXBLOCKSIZE];
+   unsigned char epubkey[256], er[256];
    unsigned long x, y, pubkeysize, rsize;
-   int res, errno;
+   int res, err;
 
    _ARGCHK(in != NULL);
    _ARGCHK(out != NULL);
@@ -213,36 +213,33 @@ int ecc_sign_hash(const unsigned char *in,  unsigned long inlen,
    }
    
    /* is the IDX valid ?  */
-   if (!is_valid_idx(key->idx)) {
+   if (is_valid_idx(key->idx) != 1) {
       return CRYPT_PK_INVALID_TYPE;
    }
    
-   if ((errno = prng_is_valid(wprng)) != CRYPT_OK) {
-      return errno;
+   if ((err = prng_is_valid(wprng)) != CRYPT_OK) {
+      return err;
    }
 
    /* make up a key and export the public copy */
-   if ((errno = ecc_make_key(prng, wprng, ecc_get_size(key), &pubkey)) != CRYPT_OK) {
-      return errno;
+   if ((err = ecc_make_key(prng, wprng, ecc_get_size(key), &pubkey)) != CRYPT_OK) {
+      return err;
    }
 
-   pubkeysize = sizeof(epubkey);
-   if ((errno = ecc_export(epubkey, &pubkeysize, PK_PUBLIC, &pubkey)) != CRYPT_OK) {
+   pubkeysize = (unsigned long)sizeof(epubkey);
+   if ((err = ecc_export(epubkey, &pubkeysize, PK_PUBLIC, &pubkey)) != CRYPT_OK) {
       ecc_free(&pubkey);
-      return errno;
+      return err;
    }
 
    /* get the hash and load it as a bignum into 'b' */
-   md[0] = 0;
-   memcpy(md+1, in, MIN(sizeof(md)-1,inlen));
-
    /* init the bignums */
    if (mp_init_multi(&b, &p, NULL) != MP_OKAY) { 
       ecc_free(&pubkey);
       return CRYPT_MEM;
    }
-   if (mp_read_radix(&p, (unsigned char *)sets[key->idx].order, 64) != MP_OKAY)            { goto error; }
-   if (mp_read_raw(&b, md, 1+MIN(sizeof(md)-1,inlen)) != MP_OKAY)                          { goto error; }
+   if (mp_read_radix(&p, (unsigned char *)sets[key->idx].order, 64) != MP_OKAY)     { goto error; }
+   if (mp_read_unsigned_bin(&b, (unsigned char *)in, (int)inlen) != MP_OKAY)        { goto error; }
 
    /* find b = (m - x)/k */
    if (mp_invmod(&pubkey.k, &p, &pubkey.k) != MP_OKAY)                    { goto error; } /* k = 1/k */
@@ -250,11 +247,11 @@ int ecc_sign_hash(const unsigned char *in,  unsigned long inlen,
    if (mp_mulmod(&b, &pubkey.k, &p, &b) != MP_OKAY)                       { goto error; } /* b = (m - x)/k */
 
    /* export it */
-   rsize = mp_raw_size(&b);
-   if (rsize > sizeof(er)) { 
+   rsize = (unsigned long)mp_unsigned_bin_size(&b);
+   if (rsize > (unsigned long)sizeof(er)) { 
       goto error; 
    }
-   mp_toraw(&b, er);
+   (void)mp_to_unsigned_bin(&b, er);
 
    /* now lets check the outlen before we write */
    if (*outlen < (12 + rsize + pubkeysize)) {
@@ -298,7 +295,6 @@ done1:
 #ifdef CLEAN_STACK
    zeromem(er, sizeof(er));
    zeromem(epubkey, sizeof(epubkey));
-   zeromem(md, sizeof(md));
 #endif
    return res;   
 }
@@ -312,8 +308,7 @@ int ecc_verify_hash(const unsigned char *sig, unsigned long siglen,
    ecc_key   pubkey;
    mp_int b, p, m;
    unsigned long x, y;
-   int res, errno;
-   unsigned char md[MAXBLOCKSIZE];
+   int res, err;
 
    _ARGCHK(sig != NULL);
    _ARGCHK(hash != NULL);
@@ -330,8 +325,8 @@ int ecc_verify_hash(const unsigned char *sig, unsigned long siglen,
    }
 
    /* is the message format correct? */
-   if ((errno = packet_valid_header((unsigned char *)sig, PACKET_SECT_ECC, PACKET_SUB_SIGNED)) != CRYPT_OK) {
-      return errno;
+   if ((err = packet_valid_header((unsigned char *)sig, PACKET_SECT_ECC, PACKET_SUB_SIGNED)) != CRYPT_OK) {
+      return err;
    }     
 
    /* get hash name */
@@ -347,8 +342,8 @@ int ecc_verify_hash(const unsigned char *sig, unsigned long siglen,
    y += 4;
 
    /* load the public key */
-   if ((errno = ecc_import((unsigned char*)sig+y, x, &pubkey)) != CRYPT_OK) {
-      return errno;
+   if ((err = ecc_import((unsigned char*)sig+y, x, &pubkey)) != CRYPT_OK) {
+      return err;
    }
    y += x;
 
@@ -375,19 +370,17 @@ int ecc_verify_hash(const unsigned char *sig, unsigned long siglen,
    } 
 
    /* load b */
-   if (mp_read_raw(&b, (unsigned char *)sig+y, x) != MP_OKAY)                      { goto error; }
+   if (mp_read_unsigned_bin(&b, (unsigned char *)sig+y, (int)x) != MP_OKAY)        { goto error; }
    y += x;
 
    /* get m in binary a bignum */
-   md[0] = 0;
-   memcpy(md+1,hash,MIN(sizeof(md)-1,inlen));
-   if (mp_read_raw(&m, md, 1+MIN(sizeof(md)-1,inlen)) != MP_OKAY)                  { goto error; }
+   if (mp_read_unsigned_bin(&m, (unsigned char *)hash, (int)inlen) != MP_OKAY)     { goto error; }
    
    /* load prime */
    if (mp_read_radix(&p, (unsigned char *)sets[key->idx].prime, 64) != MP_OKAY)    { goto error; }
 
    /* get bA */
-   if (ecc_mulmod(&b, &pubkey.pubkey, &pubkey.pubkey, &p, key->idx) != CRYPT_OK)   { goto error; }
+   if (ecc_mulmod(&b, &pubkey.pubkey, &pubkey.pubkey, &p) != CRYPT_OK)             { goto error; }
    
    /* get bA + Y */
    if (add_point(&pubkey.pubkey, &key->pubkey, &pubkey.pubkey, &p) != CRYPT_OK)    { goto error; }
@@ -395,10 +388,10 @@ int ecc_verify_hash(const unsigned char *sig, unsigned long siglen,
    /* get mG */
    if (mp_read_radix(&mG->x, (unsigned char *)sets[key->idx].Gx, 64) != MP_OKAY)   { goto error; }
    if (mp_read_radix(&mG->y, (unsigned char *)sets[key->idx].Gy, 64) != MP_OKAY)   { goto error; }
-   if (ecc_mulmod(&m, mG, mG, &p, key->idx) != CRYPT_OK)                           { goto error; }
+   if (ecc_mulmod(&m, mG, mG, &p) != CRYPT_OK)                                     { goto error; }
 
    /* compare mG to bA + Y */
-   if (!mp_cmp(&mG->x, &pubkey.pubkey.x) && !mp_cmp(&mG->y, &pubkey.pubkey.y)) {
+   if (mp_cmp(&mG->x, &pubkey.pubkey.x) == MP_EQ && mp_cmp(&mG->y, &pubkey.pubkey.y) == MP_EQ) {
       *stat = 1;
    }
 
@@ -411,9 +404,6 @@ done:
    del_point(mG);
    ecc_free(&pubkey);
    mp_clear_multi(&p, &m, &b, NULL);
-#ifdef CLEAN_STACK
-   zeromem(md, sizeof(md));
-#endif
    return CRYPT_OK;
 }
 

@@ -147,9 +147,9 @@ void md5_process(hash_state * md, const unsigned char *buf, unsigned long len)
     unsigned long n;
     _ARGCHK(md != NULL);
     _ARGCHK(buf != NULL);
-    while (len) {
+    while (len > 0) {
         n = MIN(len, (64 - md->md5.curlen));
-        memcpy(md->md5.buf + md->md5.curlen, buf, n);
+        memcpy(md->md5.buf + md->md5.curlen, buf, (size_t)n);
         md->md5.curlen += n;
         buf            += n;
         len            -= n;
@@ -174,7 +174,7 @@ void md5_done(hash_state * md, unsigned char *hash)
     md->md5.length += md->md5.curlen * 8;
 
     /* append the '1' bit */
-    md->md5.buf[md->md5.curlen++] = 0x80;
+    md->md5.buf[md->md5.curlen++] = (unsigned char)0x80;
 
     /* if the length is currently above 56 bytes we append zeros
      * then compress.  Then we can fall back to padding zeros and length
@@ -182,7 +182,7 @@ void md5_done(hash_state * md, unsigned char *hash)
      */
     if (md->md5.curlen > 56) {
         while (md->md5.curlen < 64) {
-            md->md5.buf[md->md5.curlen++] = 0;
+            md->md5.buf[md->md5.curlen++] = (unsigned char)0;
         }
         md5_compress(md);
         md->md5.curlen = 0;
@@ -190,7 +190,7 @@ void md5_done(hash_state * md, unsigned char *hash)
 
     /* pad upto 56 bytes of zeroes */
     while (md->md5.curlen < 56) {
-        md->md5.buf[md->md5.curlen++] = 0;
+        md->md5.buf[md->md5.curlen++] = (unsigned char)0;
     }
 
     /* store length */
@@ -209,7 +209,7 @@ void md5_done(hash_state * md, unsigned char *hash)
 int  md5_test(void)
 {
   static const struct {
-      unsigned char *msg;
+      char *msg;
       unsigned char hash[16];
   } tests[] = {
     { "",
@@ -242,9 +242,9 @@ int  md5_test(void)
 
   for (i = 0; tests[i].msg != NULL; i++) {
       md5_init(&md);
-      md5_process(&md, tests[i].msg, strlen(tests[i].msg));
+      md5_process(&md, (unsigned char *)tests[i].msg, (unsigned long)strlen(tests[i].msg));
       md5_done(&md, tmp);
-      if (memcmp(tmp, tests[i].hash, 16)) {
+      if (memcmp(tmp, tests[i].hash, 16) != 0) {
          return CRYPT_FAIL_TESTVECTOR;
       }
   }

@@ -66,7 +66,7 @@ int rc2_setup(const unsigned char *key, int keylen, int rounds, symmetric_key *s
       return CRYPT_INVALID_KEYSIZE;
    }
 
-   if (rounds && rounds != 16) {
+   if (rounds != 0 && rounds != 16) {
       return CRYPT_INVALID_ROUNDS;
    }
 
@@ -77,24 +77,24 @@ int rc2_setup(const unsigned char *key, int keylen, int rounds, symmetric_key *s
     /* Phase 1: Expand input key to 128 bytes */
     if (keylen < 128) {
         for (i = keylen; i < 128; i++) {
-            tmp[i] = permute[(tmp[i - 1] + tmp[i - keylen]) & 255];
+            tmp[i] = permute[(int)((tmp[i - 1] + tmp[i - keylen]) & 255)];
         }
     }
     
     /* Phase 2 - reduce effective key size to "bits" */
     bits = keylen*8;
-    T8   = (bits+7)>>3;
-    TM   = (255 >> (7 & -bits));
-    tmp[128 - T8] = permute[tmp[128 - T8] & TM];
+    T8   = (unsigned)(bits+7)>>3;
+    TM   = (255 >> (unsigned)(7 & -bits));
+    tmp[128 - T8] = permute[(int)(tmp[128 - T8] & TM)];
     for (i = 127 - T8; i >= 0; i--) {
-        tmp[i] = permute[tmp[i + 1] ^ tmp[i + T8]];
+        tmp[i] = permute[(int)(tmp[i + 1] ^ tmp[i + T8])];
     }
 
     /* Phase 3 - copy to xkey in little-endian order */
     i = 63;
     do {
         xkey[i] =  (unsigned)tmp[2*i] + ((unsigned)tmp[2*i+1] << 8);
-    } while (i--);
+    } while (i-- > 0);
 
 #ifdef CLEAN_STACK
     zeromem(tmp, sizeof(tmp));
@@ -258,20 +258,20 @@ int rc2_test(void)
      { 0x22, 0x69, 0x55, 0x2a, 0xb0, 0xf8, 0x5c, 0xa6 }
    }
   };
-    int x, errno;
+    int x, err;
     symmetric_key skey;
     unsigned char buf[2][8];
 
     for (x = 0; x < (int)(sizeof(tests) / sizeof(tests[0])); x++) {
         zeromem(buf, sizeof(buf));
-        if ((errno = rc2_setup(tests[x].key, tests[x].keylen, 0, &skey)) != CRYPT_OK) {
-           return errno;
+        if ((err = rc2_setup(tests[x].key, tests[x].keylen, 0, &skey)) != CRYPT_OK) {
+           return err;
         }
         
         rc2_ecb_encrypt(tests[x].pt, buf[0], &skey);
         rc2_ecb_decrypt(buf[0], buf[1], &skey);
         
-        if (memcmp(buf[0], tests[x].ct, 8) || memcmp(buf[1], tests[x].pt, 8)) {
+        if (memcmp(buf[0], tests[x].ct, 8) != 0 || memcmp(buf[1], tests[x].pt, 8) != 0) {
            return CRYPT_FAIL_TESTVECTOR;
         }
     }

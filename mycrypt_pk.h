@@ -154,23 +154,3 @@ extern int ecc_verify_hash(const unsigned char *sig,  unsigned long siglen,
                            const unsigned char *hash, unsigned long hashlen, 
                                  int *stat, ecc_key *key);
 #endif
-
-#ifdef MDSA
-
-typedef struct {
-    int type, idx;
-    mp_int x, y;
-} dsa_key;
-
-extern int dsa_test(void);
-
-extern int dsa_make_key(prng_state *prng, int wprng, int keysize, dsa_key *key);
-extern void dsa_free(dsa_key *key);
-
-extern int dsa_export(unsigned char *out, unsigned long *outlen, int type, dsa_key *key);
-extern int dsa_import(const unsigned char *in, unsigned long inlen, dsa_key *key);
-
-
-
-#endif
-

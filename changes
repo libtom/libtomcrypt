@@ -1,3 +1,29 @@
+Dec 16th, 2002
+v0.80  -- Found a change I made to the MPI that is questionable.  Not quite a bug but definately not desired.  Had todo
+          with the digit shifting.  In v0.79 I simply truncated without zeroing.  It didn't cause problems during my
+          testing but I fixed it up none the less.
+       -- Optimized s_mp_mul_dig() from MPI to do a minimal number of passes.
+       -- Fixed in rsa_exptmod() where I was getting the size of the result.  Basically it accomplishes the same thing
+          but the fixed code is more readable.
+       -- Fixed slight bug in dh_sign_hash() where the random "k" value was 1 byte shorter than it should have been.  I've
+          also made the #define FAST_PK speed up signatures as well.  Essentially FAST_PK tells the DH sub-system to 
+          limit any private exponent to 256-bits.   Note that when FAST_PK is defined does not make the library
+          binary or source incompatible with a copy of the library with it undefined.
+       -- Removed the DSA code.  If you want fast diffie-hellman just define FAST_PK :-)
+       -- Updated dh_sign_hash()/dh_verify_hash() to export "unsigned" bignums.  Saves two bytes but is not binary
+          compatible with the previous release... sorry!  I've performed the same fix to the ecc code as well.
+       -- Fixed up the PK code to remove all use of mp_toraw() and mp_read_raw() [get all the changes out of the way now]
+       -- Fixed a bug in the DH code where it missed trapping a few errors if they occurred.
+       -- Fixed a slight "its-not-a-bug-but-could-be-done-better" bug in the next_prime() function.  Essentially it was
+          testing to ensure that in the loop that searches for the next candidate that the step never grows beyond
+          65000.  Should have been testing for MP_DIGIT_MAX
+       -- Spruced up the config.pl script.  It now makes a header file "mycrypt_custom.h" which can be included *before*
+          you include mycrypt.h.  This allows you to add libtomcrypt to a project without completely changing your make
+          system around.  Note that you should use the makefile it writes to at least build the library initially.
+       -- Used splint to check alot of the code out.  Tons of minor fixes and explicit casts added.
+       -- Also made all the internal functions of MPI are now static to avoid poluting the namespace
+       -- **Notice**:  There are no planned future releases for at least a month from the this release date.
+       
 Dec 14th, 2002
 v0.79  -- Change to PK code [binary and source].  I made it so you have to pass the buffer size to the *_decrypt_key and
           *_verify_hash functions.  This prevents malformed packets from performing buffer overflows.  I've also trimmed

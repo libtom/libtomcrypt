@@ -304,7 +304,7 @@ int blowfish_setup(const unsigned char *key, int keylen, int num_rounds,
    for (x = y = 0; x < 18; x++) {
        A = 0;
        for (z = 0; z < 4; z++) {
-           A = (A << 8) | (unsigned long) key[y++ % keylen];
+           A = (A << 8) | ((unsigned long)key[y++ % keylen]);
        }
        skey->blowfish.K[x] = ORIG_P[x] ^ A;
    }
@@ -317,7 +317,10 @@ int blowfish_setup(const unsigned char *key, int keylen, int num_rounds,
    }
 
    /* encrypt K array */
-   zeromem(B, 8);
+   for (x = 0; x < 8; x++) {
+       B[x] = 0;
+   }
+   
    for (x = 0; x < 18; x += 2) {
        /* encrypt it */
        blowfish_ecb_encrypt(B, B, skey);
@@ -433,7 +436,7 @@ void blowfish_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_
 
 int blowfish_test(void)
 {
-   int errno;
+   int err;
    symmetric_key key;
    static const struct {
           unsigned char key[8], pt[8], ct[8];
@@ -459,8 +462,8 @@ int blowfish_test(void)
 
    for (x = 0; x < (int)(sizeof(tests) / sizeof(tests[0])); x++) {
       /* setup key */
-      if ((errno = blowfish_setup(tests[x].key, 8, 16, &key)) != CRYPT_OK) {
-         return errno;
+      if ((err = blowfish_setup(tests[x].key, 8, 16, &key)) != CRYPT_OK) {
+         return err;
       }
 
       /* encrypt and decrypt */
@@ -468,7 +471,7 @@ int blowfish_test(void)
       blowfish_ecb_decrypt(buf[0], buf[1], &key);
 
       /* compare */
-      if (memcmp(buf[0], tests[x].ct, 8) || memcmp(buf[1], tests[x].pt, 8)) {
+      if ((memcmp(buf[0], tests[x].ct, 8) != 0) || (memcmp(buf[1], tests[x].pt, 8) != 0)) {
          return CRYPT_FAIL_TESTVECTOR;
       }
    }

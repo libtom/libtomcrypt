@@ -195,13 +195,13 @@ int rc6_test(void)
    }
    };
    unsigned char buf[2][16];
-   int x, errno;
+   int x, err;
    symmetric_key key;
 
    for (x  = 0; x < (int)(sizeof(tests) / sizeof(tests[0])); x++) {
       /* setup key */
-      if ((errno = rc6_setup(tests[x].key, tests[x].keylen, 0, &key)) != CRYPT_OK) {
-         return errno;
+      if ((err = rc6_setup(tests[x].key, tests[x].keylen, 0, &key)) != CRYPT_OK) {
+         return err;
       }
 
       /* encrypt and decrypt */

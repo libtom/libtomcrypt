@@ -118,9 +118,9 @@ void sha256_process(hash_state * md, const unsigned char *buf, unsigned long len
     _ARGCHK(md != NULL);
     _ARGCHK(buf != NULL);
 
-    while (len) {
+    while (len > 0) {
         n = MIN(len, (64 - md->sha256.curlen));
-        memcpy(md->sha256.buf + md->sha256.curlen, buf, n);
+        memcpy(md->sha256.buf + md->sha256.curlen, buf, (size_t)n);
         md->sha256.curlen += n;
         buf            += n;
         len            -= n;
@@ -145,7 +145,7 @@ void sha256_done(hash_state * md, unsigned char *hash)
     md->sha256.length += md->sha256.curlen * 8;
 
     /* append the '1' bit */
-    md->sha256.buf[md->sha256.curlen++] = 0x80;
+    md->sha256.buf[md->sha256.curlen++] = (unsigned char)0x80;
 
     /* if the length is currently above 56 bytes we append zeros
      * then compress.  Then we can fall back to padding zeros and length
@@ -153,7 +153,7 @@ void sha256_done(hash_state * md, unsigned char *hash)
      */
     if (md->sha256.curlen > 56) {
         while (md->sha256.curlen < 64) {
-            md->sha256.buf[md->sha256.curlen++] = 0;
+            md->sha256.buf[md->sha256.curlen++] = (unsigned char)0;
         }
         sha256_compress(md);
         md->sha256.curlen = 0;
@@ -161,7 +161,7 @@ void sha256_done(hash_state * md, unsigned char *hash)
 
     /* pad upto 56 bytes of zeroes */
     while (md->sha256.curlen < 56) {
-        md->sha256.buf[md->sha256.curlen++] = 0;
+        md->sha256.buf[md->sha256.curlen++] = (unsigned char)0;
     }
 
     /* store length */
@@ -180,7 +180,7 @@ void sha256_done(hash_state * md, unsigned char *hash)
 int  sha256_test(void)
 {
   static const struct {
-      unsigned char *msg;
+       char *msg;
       unsigned char hash[32];
   } tests[] = {
     { "abc",
@@ -203,9 +203,9 @@ int  sha256_test(void)
 
   for (i = 0; i < (int)(sizeof(tests) / sizeof(tests[0])); i++) {
       sha256_init(&md);
-      sha256_process(&md, tests[i].msg, strlen(tests[i].msg));
+      sha256_process(&md, (unsigned char*)tests[i].msg, (unsigned long)strlen(tests[i].msg));
       sha256_done(&md, tmp);
-      if (memcmp(tmp, tests[i].hash, 32)) {
+      if (memcmp(tmp, tests[i].hash, 32) != 0) {
          return CRYPT_FAIL_TESTVECTOR;
       }
   }

@@ -145,9 +145,9 @@ void sha512_process(hash_state * md, const unsigned char *buf, unsigned long len
     unsigned long n;
     _ARGCHK(md != NULL);
     _ARGCHK(buf != NULL);
-    while (len) {
+    while (len > 0) {
         n = MIN(len, (128 - md->sha512.curlen));
-        memcpy(md->sha512.buf + md->sha512.curlen, buf, n);
+        memcpy(md->sha512.buf + md->sha512.curlen, buf, (size_t)n);
         md->sha512.curlen += n;
         buf               += n;
         len               -= n;
@@ -172,7 +172,7 @@ void sha512_done(hash_state * md, unsigned char *hash)
     md->sha512.length += md->sha512.curlen * CONST64(8);
 
     /* append the '1' bit */
-    md->sha512.buf[md->sha512.curlen++] = 0x80;
+    md->sha512.buf[md->sha512.curlen++] = (unsigned char)0x80;
 
     /* if the length is currently above 112 bytes we append zeros
      * then compress.  Then we can fall back to padding zeros and length
@@ -180,7 +180,7 @@ void sha512_done(hash_state * md, unsigned char *hash)
      */
     if (md->sha512.curlen > 112) {
         while (md->sha512.curlen < 128) {
-            md->sha512.buf[md->sha512.curlen++] = 0;
+            md->sha512.buf[md->sha512.curlen++] = (unsigned char)0;
         }
         sha512_compress(md);
         md->sha512.curlen = 0;
@@ -191,7 +191,7 @@ void sha512_done(hash_state * md, unsigned char *hash)
      * > 2^64 bits of data... :-)
      */
     while (md->sha512.curlen < 120) {
-        md->sha512.buf[md->sha512.curlen++] = 0;
+        md->sha512.buf[md->sha512.curlen++] = (unsigned char)0;
     }
 
     /* store length */
@@ -210,7 +210,7 @@ void sha512_done(hash_state * md, unsigned char *hash)
 int  sha512_test(void)
 {
   static const struct {
-      unsigned char *msg;
+      char *msg;
       unsigned char hash[64];
   } tests[] = {
     { "abc",
@@ -241,9 +241,9 @@ int  sha512_test(void)
 
   for (i = 0; i < (int)(sizeof(tests) / sizeof(tests[0])); i++) {
       sha512_init(&md);
-      sha512_process(&md, tests[i].msg, strlen(tests[i].msg));
+      sha512_process(&md, (unsigned char *)tests[i].msg, (unsigned long)strlen(tests[i].msg));
       sha512_done(&md, tmp);
-      if (memcmp(tmp, tests[i].hash, 64)) {
+      if (memcmp(tmp, tests[i].hash, 64) != 0) {
          return CRYPT_FAIL_TESTVECTOR;
       }
   }

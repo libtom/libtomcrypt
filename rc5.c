@@ -42,19 +42,19 @@ int rc5_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_ke
     /* copy the key into the L array */
     for (A = i = j = 0; i < (unsigned long)keylen; ) { 
         A = (A << 8) | ((unsigned long)(key[i++] & 255));
-        if (!(i & 3)) {
+        if ((i & 3) == 0) {
            L[j++] = BSWAP(A);
            A = 0;
         }
     }
 
-    if (keylen & 3) { 
-       A <<= (8 * (4 - (keylen&3))); 
+    if ((keylen & 3) != 0) { 
+       A <<= (unsigned long)((8 * (4 - (keylen&3)))); 
        L[j++] = BSWAP(A);
     }
 
     /* setup the S array */
-    t = 2 * (num_rounds + 1);
+    t = (unsigned long)(2 * (num_rounds + 1));
     S[0] = 0xB7E15163UL;
     for (i = 1; i < t; i++) S[i] = S[i - 1] + 0x9E3779B9UL;
 
@@ -175,13 +175,13 @@ int rc5_test(void)
    }
    };
    unsigned char buf[2][8];
-   int x, errno;
+   int x, err;
    symmetric_key key;
 
    for (x = 0; x < (int)(sizeof(tests) / sizeof(tests[0])); x++) {
       /* setup key */
-      if ((errno = rc5_setup(tests[x].key, 16, 12, &key)) != CRYPT_OK) {
-         return errno;
+      if ((err = rc5_setup(tests[x].key, 16, 12, &key)) != CRYPT_OK) {
+         return err;
       }
 
       /* encrypt and decrypt */
@@ -189,7 +189,7 @@ int rc5_test(void)
       rc5_ecb_decrypt(buf[0], buf[1], &key);
 
       /* compare */
-      if (memcmp(buf[0], tests[x].ct, 8) || memcmp(buf[1], tests[x].pt, 8)) {
+      if (memcmp(buf[0], tests[x].ct, 8) != 0 || memcmp(buf[1], tests[x].pt, 8) != 0) {
          return CRYPT_FAIL_TESTVECTOR;
       }
    }

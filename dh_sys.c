@@ -3,10 +3,10 @@ int dh_encrypt_key(const unsigned char *inkey, unsigned long keylen,
                          prng_state *prng, int wprng, int hash,
                          dh_key *key)
 {
-    unsigned char pub_expt[1536], dh_shared[1536], skey[MAXBLOCKSIZE];
+    unsigned char pub_expt[768], dh_shared[768], skey[MAXBLOCKSIZE];
     dh_key pubkey;
     unsigned long x, y, z, hashsize, pubkeysize;
-    int errno;
+    int err;
 
     _ARGCHK(inkey != NULL);
     _ARGCHK(out != NULL);
@@ -14,12 +14,12 @@ int dh_encrypt_key(const unsigned char *inkey, unsigned long keylen,
     _ARGCHK(key != NULL);
 
     /* check that wprng/hash are not invalid */
-    if ((errno = prng_is_valid(wprng)) != CRYPT_OK) {
-       return errno;
+    if ((err = prng_is_valid(wprng)) != CRYPT_OK) {
+       return err;
     }
 
-    if ((errno = hash_is_valid(hash)) != CRYPT_OK) {
-       return errno;
+    if ((err = hash_is_valid(hash)) != CRYPT_OK) {
+       return err;
     }
 
     if (keylen > hash_descriptor[hash].hashsize)  {
@@ -27,14 +27,14 @@ int dh_encrypt_key(const unsigned char *inkey, unsigned long keylen,
     }
 
     /* make a random key and export the public copy */
-    if ((errno = dh_make_key(prng, wprng, dh_get_size(key), &pubkey)) != CRYPT_OK) {
-       return errno;
+    if ((err = dh_make_key(prng, wprng, dh_get_size(key), &pubkey)) != CRYPT_OK) {
+       return err;
     }
 
     pubkeysize = sizeof(pub_expt);
-    if ((errno = dh_export(pub_expt, &pubkeysize, PK_PUBLIC, &pubkey)) != CRYPT_OK) {
+    if ((err = dh_export(pub_expt, &pubkeysize, PK_PUBLIC, &pubkey)) != CRYPT_OK) {
        dh_free(&pubkey);
-       return errno;
+       return err;
     }
 
     /* now check if the out buffer is big enough */
@@ -46,16 +46,16 @@ int dh_encrypt_key(const unsigned char *inkey, unsigned long keylen,
     /* make random key */
     hashsize  = hash_descriptor[hash].hashsize;
 
-    x = sizeof(dh_shared);
-    if ((errno = dh_shared_secret(&pubkey, key, dh_shared, &x)) != CRYPT_OK) {
+    x = (unsigned long)sizeof(dh_shared);
+    if ((err = dh_shared_secret(&pubkey, key, dh_shared, &x)) != CRYPT_OK) {
        dh_free(&pubkey);
-       return errno;
+       return err;
     }
     dh_free(&pubkey);
 
     z = sizeof(skey);
-    if ((errno = hash_memory(hash, dh_shared, x, skey, &z)) != CRYPT_OK) {
-       return errno;
+    if ((err = hash_memory(hash, dh_shared, x, skey, &z)) != CRYPT_OK) {
+       return err;
     }
 
     /* output header */
@@ -97,9 +97,9 @@ int dh_decrypt_key(const unsigned char *in, unsigned long inlen,
                          unsigned char *outkey, unsigned long *keylen, 
                          dh_key *key)
 {
-   unsigned char shared_secret[1536], skey[MAXBLOCKSIZE];
-   unsigned long x, y, z, res, hashsize, keysize;
-   int hash, errno;
+   unsigned char shared_secret[768], skey[MAXBLOCKSIZE];
+   unsigned long x, y, z,hashsize, keysize;
+   int res, hash, err;
    dh_key pubkey;
 
    _ARGCHK(in != NULL);
@@ -120,8 +120,8 @@ int dh_decrypt_key(const unsigned char *in, unsigned long inlen,
    }
 
    /* is header correct? */
-   if ((errno = packet_valid_header((unsigned char *)in, PACKET_SECT_DH, PACKET_SUB_ENC_KEY)) != CRYPT_OK)  {
-      return errno;
+   if ((err = packet_valid_header((unsigned char *)in, PACKET_SECT_DH, PACKET_SUB_ENC_KEY)) != CRYPT_OK)  {
+      return err;
    }
 
    /* now lets get the hash name */
@@ -145,22 +145,22 @@ int dh_decrypt_key(const unsigned char *in, unsigned long inlen,
    }
    
    y += 4;
-   if ((errno = dh_import(in+y, x, &pubkey)) != CRYPT_OK) {
-      return errno;
+   if ((err = dh_import(in+y, x, &pubkey)) != CRYPT_OK) {
+      return err;
    }
    y += x;
 
    /* make shared key */
-   x = sizeof(shared_secret);
-   if ((errno = dh_shared_secret(key, &pubkey, shared_secret, &x)) != CRYPT_OK) {
+   x = (unsigned long)sizeof(shared_secret);
+   if ((err = dh_shared_secret(key, &pubkey, shared_secret, &x)) != CRYPT_OK) {
       dh_free(&pubkey);
-      return errno;
+      return err;
    }
    dh_free(&pubkey);
 
    z = sizeof(skey);
-   if ((errno = hash_memory(hash, shared_secret, x, skey, &z)) != CRYPT_OK) {
-      return errno;
+   if ((err = hash_memory(hash, shared_secret, x, skey, &z)) != CRYPT_OK) {
+      return err;
    }
 
    /* load in the encrypted key */
@@ -200,9 +200,9 @@ int dh_sign_hash(const unsigned char *in,  unsigned long inlen,
                        prng_state *prng, int wprng, dh_key *key)
 {
    mp_int a, b, k, m, g, p, p1, tmp;
-   unsigned char buf[1536], md[MAXBLOCKSIZE];
+   unsigned char buf[1536];
    unsigned long x, y;
-   int res, errno;
+   int res, err;
 
    _ARGCHK(in != NULL);
    _ARGCHK(out != NULL);
@@ -214,26 +214,21 @@ int dh_sign_hash(const unsigned char *in,  unsigned long inlen,
       return CRYPT_PK_NOT_PRIVATE;
    }
 
-   if ((errno = prng_is_valid(wprng)) != CRYPT_OK) {
-      return errno;
+   if ((err = prng_is_valid(wprng)) != CRYPT_OK) {
+      return err;
    }
 
    /* is the IDX valid ?  */
-   if (!is_valid_idx(key->idx)) {
+   if (is_valid_idx(key->idx) != 1) {
       return CRYPT_PK_INVALID_TYPE;
    }
-
-   /* hash the message */
-   md[0] = 0;
-   memcpy(md+1, in, MIN(sizeof(md) - 1, inlen));
 
    /* make up a random value k,
     * since the order of the group is prime
     * we need not check if gcd(k, r) is 1 
     */
-   buf[0] = 0;
-   if (prng_descriptor[wprng].read(buf+1, sets[key->idx].size-1, prng) != 
-       (unsigned long)(sets[key->idx].size-1)) {
+   if (prng_descriptor[wprng].read(buf, sets[key->idx].size, prng) != 
+       (unsigned long)(sets[key->idx].size)) {
       return CRYPT_ERROR_READPRNG;
    }
 
@@ -243,8 +238,12 @@ int dh_sign_hash(const unsigned char *in,  unsigned long inlen,
    }
 
    /* load k and m */
-   if (mp_read_raw(&m, md,  1+MIN(sizeof(md) - 1, inlen)) != MP_OKAY)       { goto error; }
-   if (mp_read_raw(&k, buf, sets[key->idx].size) != MP_OKAY)                { goto error; }
+   if (mp_read_unsigned_bin(&m, (unsigned char *)in, inlen) != MP_OKAY)        { goto error; }
+#ifdef FAST_PK   
+   if (mp_read_unsigned_bin(&k, buf, MIN(32,sets[key->idx].size)) != MP_OKAY)  { goto error; }
+#else   
+   if (mp_read_unsigned_bin(&k, buf, sets[key->idx].size) != MP_OKAY)          { goto error; }
+#endif  
 
    /* load g, p and p1 */
    if (mp_read_radix(&g, sets[key->idx].base, 64) != MP_OKAY)               { goto error; }
@@ -265,13 +264,13 @@ int dh_sign_hash(const unsigned char *in,  unsigned long inlen,
    y = PACKET_SIZE;
 
    /* now store them both (a,b) */
-   x = mp_raw_size(&a);
+   x = (unsigned long)mp_unsigned_bin_size(&a);
    STORE32L(x, buf+y);  y += 4;
-   mp_toraw(&a, buf+y); y += x;
+   mp_to_unsigned_bin(&a, buf+y); y += x;
 
-   x = mp_raw_size(&b);
+   x = (unsigned long)mp_unsigned_bin_size(&b);
    STORE32L(x, buf+y);  y += 4;
-   mp_toraw(&b, buf+y); y += x;
+   mp_to_unsigned_bin(&b, buf+y); y += x;
 
    /* check if size too big */
    if (*outlen < y) {
@@ -283,10 +282,9 @@ int dh_sign_hash(const unsigned char *in,  unsigned long inlen,
    packet_store_header(buf, PACKET_SECT_DH, PACKET_SUB_SIGNED);
 
    /* store it */
-   memcpy(out, buf, y);
+   memcpy(out, buf, (size_t)y);
    *outlen = y;
 #ifdef CLEAN_STACK
-   zeromem(md, sizeof(md));
    zeromem(buf, sizeof(buf));
 #endif
 
@@ -304,9 +302,8 @@ int dh_verify_hash(const unsigned char *sig, unsigned long siglen,
                          int *stat, dh_key *key)
 {
    mp_int a, b, p, g, m, tmp;
-   unsigned char md[MAXBLOCKSIZE];
    unsigned long x, y;
-   int res, errno;
+   int res, err;
 
    _ARGCHK(sig != NULL);
    _ARGCHK(hash != NULL);
@@ -324,16 +321,12 @@ int dh_verify_hash(const unsigned char *sig, unsigned long siglen,
    }
 
    /* header ok? */
-   if ((errno = packet_valid_header((unsigned char *)sig, PACKET_SECT_DH, PACKET_SUB_SIGNED)) != CRYPT_OK) {
-      return errno;
+   if ((err = packet_valid_header((unsigned char *)sig, PACKET_SECT_DH, PACKET_SUB_SIGNED)) != CRYPT_OK) {
+      return err;
    }
    
    /* get hash out of packet */
    y = PACKET_SIZE;
-
-   /* hash the message */
-   md[0] = 0;
-   memcpy(md+1, hash, MIN(sizeof(md) - 1, hashlen));
 
    /* init all bignums */
    if (mp_init_multi(&a, &p, &b, &g, &m, &tmp, NULL) != MP_OKAY) { 
@@ -349,7 +342,7 @@ int dh_verify_hash(const unsigned char *sig, unsigned long siglen,
    }
    
    y += 4;
-   if (mp_read_raw(&a, (unsigned char *)sig+y, x) != MP_OKAY)            { goto error; }
+   if (mp_read_unsigned_bin(&a, (unsigned char *)sig+y, x) != MP_OKAY)    { goto error; }
    y += x;
 
    LOAD32L(x, sig+y);
@@ -359,7 +352,7 @@ int dh_verify_hash(const unsigned char *sig, unsigned long siglen,
       siglen -= x;
    }
    y += 4;
-   if (mp_read_raw(&b, (unsigned char *)sig+y, x) != MP_OKAY)            { goto error; }
+   if (mp_read_unsigned_bin(&b, (unsigned char *)sig+y, x) != MP_OKAY)   { goto error; }
    y += x;
 
    /* load p and g */
@@ -367,7 +360,7 @@ int dh_verify_hash(const unsigned char *sig, unsigned long siglen,
    if (mp_read_radix(&g, sets[key->idx].base, 64) != MP_OKAY)            { goto error; }
 
    /* load m */
-   if (mp_read_raw(&m, md, 1+MIN(sizeof(md)-1, hashlen)) != MP_OKAY)     { goto error; }
+   if (mp_read_unsigned_bin(&m, (unsigned char *)hash, hashlen) != MP_OKAY) { goto error; }
 
    /* find g^m mod p */
    if (mp_exptmod(&g, &m, &p, &m) != MP_OKAY)                            { goto error; } /* m = g^m mod p */
@@ -389,9 +382,6 @@ error:
    res = CRYPT_MEM;
 done:
    mp_clear_multi(&tmp, &m, &g, &p, &b, &a, NULL);
-#ifdef CLEAN_STACK
-   zeromem(md, sizeof(md));
-#endif
    return res;
 }
 

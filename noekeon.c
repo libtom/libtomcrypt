@@ -16,11 +16,11 @@ const struct _cipher_descriptor noekeon_desc =
 };
 
 static const unsigned long RC[] = {
-   0x00000080, 0x0000001b, 0x00000036, 0x0000006c,
-   0x000000d8, 0x000000ab, 0x0000004d, 0x0000009a,
-   0x0000002f, 0x0000005e, 0x000000bc, 0x00000063,
-   0x000000c6, 0x00000097, 0x00000035, 0x0000006a,
-   0x000000d4 
+   0x00000080UL, 0x0000001bUL, 0x00000036UL, 0x0000006cUL,
+   0x000000d8UL, 0x000000abUL, 0x0000004dUL, 0x0000009aUL,
+   0x0000002fUL, 0x0000005eUL, 0x000000bcUL, 0x00000063UL,
+   0x000000c6UL, 0x00000097UL, 0x00000035UL, 0x0000006aUL,
+   0x000000d4UL 
 };
 
 static const unsigned long zero[] = { 0, 0, 0, 0 };
@@ -178,17 +178,17 @@ int noekeon_test(void)
              { 0x57, 0x9a, 0x6c, 0xe8, 0x91, 0x16, 0x52, 0x53,
                0x32, 0x00, 0xca, 0x0a, 0x17, 0x5d, 0x28, 0x0e };
    unsigned char tmp[2][16];
-   int x, errno;
+   int err;
    symmetric_key skey;
    
-   if ((errno = noekeon_setup(key, 16, 0, &skey)) != CRYPT_OK) {
-      return errno;
+   if ((err = noekeon_setup(key, 16, 0, &skey)) != CRYPT_OK) {
+      return err;
    }
    
    noekeon_ecb_encrypt(pt, tmp[0], &skey);
    noekeon_ecb_decrypt(tmp[0], tmp[1], &skey);
    
-   if (memcmp(tmp[0], ct, 16) || memcmp(tmp[1], pt, 16)) {
+   if (memcmp(tmp[0], ct, 16) != 0 || memcmp(tmp[1], pt, 16) != 0) {
       return CRYPT_FAIL_TESTVECTOR;
    }
    

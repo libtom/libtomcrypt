@@ -6,7 +6,7 @@
 
     Arbitrary precision integer arithmetic library
 
-    $ID$
+    $Id: mpi.c,v 1.22 2001/09/14 15:11:20 sting Exp sting $
  */
 
 #include <stdlib.h>
@@ -79,7 +79,7 @@ const float s_logv_2[] = {
 #endif
 
 /* Default precision for newly created mp_int's      */
-static unsigned int s_mp_defprec = MP_DEFPREC;
+static unsigned static int s_mp_defprec = MP_DEFPREC;
 
 /* {{{ Digit arithmetic macros */
 
@@ -147,10 +147,10 @@ static const char *s_dmap_2 =
    and yet they are primarily housekeeping.
  */
 #if MP_MACRO == 0
- static void s_mp_setz(mp_digit *dp, mp_size count); /* zero digits           */
- static void s_mp_copy(mp_digit *sp, mp_digit *dp, mp_size count); /* copy    */
- static void    *s_mp_alloc(size_t nb, size_t ni);       /* general allocator     */
- static void s_mp_free(void *ptr);                   /* general free function */
+ void     s_mp_setz(mp_digit *dp, mp_size count); /* zero digits           */
+ void     s_mp_copy(mp_digit *sp, mp_digit *dp, mp_size count); /* copy    */
+ void    *s_mp_alloc(size_t nb, size_t ni);       /* general allocator     */
+ void     s_mp_free(void *ptr);                   /* general free function */
 #else
 
  /* Even if these are defined as macros, we need to respect the settings
@@ -177,16 +177,16 @@ static const char *s_dmap_2 =
 static mp_err s_mp_grow(mp_int *mp, mp_size min);   /* increase allocated size */
 static mp_err s_mp_pad(mp_int *mp, mp_size min);    /* left pad with zeroes    */
 
-static void s_mp_clamp(mp_int *mp);               /* clip leading zeroes     */
+void     s_mp_clamp(mp_int *mp);               /* clip leading zeroes     */
 
-static void s_mp_exch(mp_int *a, mp_int *b);      /* swap a and b in place   */
+void     s_mp_exch(mp_int *a, mp_int *b);      /* swap a and b in place   */
 
 static mp_err s_mp_lshd(mp_int *mp, mp_size p);     /* left-shift by p digits  */
-static void s_mp_rshd(mp_int *mp, mp_size p);     /* right-shift by p digits */
-static void s_mp_div_2d(mp_int *mp, mp_digit d);  /* divide by 2^d in place  */
-static void s_mp_mod_2d(mp_int *mp, mp_digit d);  /* modulo 2^d in place     */
+void     s_mp_rshd(mp_int *mp, mp_size p);     /* right-shift by p digits */
+void     s_mp_div_2d(mp_int *mp, mp_digit d);  /* divide by 2^d in place  */
+void     s_mp_mod_2d(mp_int *mp, mp_digit d);  /* modulo 2^d in place     */
 static mp_err s_mp_mul_2d(mp_int *mp, mp_digit d);  /* multiply by 2^d in place*/
-static void s_mp_div_2(mp_int *mp);               /* divide by 2 in place    */
+void     s_mp_div_2(mp_int *mp);               /* divide by 2 in place    */
 static mp_err s_mp_mul_2(mp_int *mp);               /* multiply by 2 in place  */
 mp_digit s_mp_norm(mp_int *a, mp_int *b);      /* normalize for division  */
 static mp_err s_mp_add_d(mp_int *mp, mp_digit d);   /* unsigned digit addition */
@@ -200,7 +200,7 @@ static mp_err s_mp_add(mp_int *a, mp_int *b);       /* magnitude addition      *
 static mp_err s_mp_sub(mp_int *a, mp_int *b);       /* magnitude subtract      */
 static mp_err s_mp_mul(mp_int *a, mp_int *b);       /* magnitude multiply      */
 #if 0
-static void s_mp_kmul(mp_digit *a, mp_digit *b, mp_digit *out, mp_size len);
+void     s_mp_kmul(mp_digit *a, mp_digit *b, mp_digit *out, mp_size len);
                                                /* multiply buffers in place */
 #endif
 #if MP_SQUARE
@@ -2874,7 +2874,7 @@ static mp_err s_mp_pad(mp_int *mp, mp_size min)
 
 #if MP_MACRO == 0
 /* Set 'count' digits pointed to by dp to be zeroes                       */
-static void s_mp_setz(mp_digit *dp, mp_size count)
+void s_mp_setz(mp_digit *dp, mp_size count)
 {
 #if MP_MEMSET == 0
   int  ix;
@@ -2894,7 +2894,7 @@ static void s_mp_setz(mp_digit *dp, mp_size count)
 
 #if MP_MACRO == 0
 /* Copy 'count' digits from sp to dp                                      */
-static void s_mp_copy(mp_digit *sp, mp_digit *dp, mp_size count)
+void s_mp_copy(mp_digit *sp, mp_digit *dp, mp_size count)
 {
 #if MP_MEMCPY == 0
   int  ix;
@@ -2914,7 +2914,7 @@ static void s_mp_copy(mp_digit *sp, mp_digit *dp, mp_size count)
 
 #if MP_MACRO == 0
 /* Allocate ni records of nb bytes each, and return a pointer to that     */
-static void    *s_mp_alloc(size_t nb, size_t ni)
+void    *s_mp_alloc(size_t nb, size_t ni)
 {
   return XCALLOC(nb, ni);
 
@@ -2927,7 +2927,7 @@ static void    *s_mp_alloc(size_t nb, size_t ni)
 
 #if MP_MACRO == 0
 /* Free the memory pointed to by ptr                                      */
-static void s_mp_free(void *ptr)
+void     s_mp_free(void *ptr)
 {
   if(ptr)
     XFREE(ptr);
@@ -2940,7 +2940,7 @@ static void s_mp_free(void *ptr)
 /* {{{ s_mp_clamp(mp) */
 
 /* Remove leading zeroes from the given value                             */
-static void s_mp_clamp(mp_int *mp)
+void     s_mp_clamp(mp_int *mp)
 {
   mp_size   du = USED(mp);
   mp_digit *zp = DIGITS(mp) + du - 1;
@@ -2958,7 +2958,7 @@ static void s_mp_clamp(mp_int *mp)
 /* {{{ s_mp_exch(a, b) */
 
 /* Exchange the data for a and b; (b, a) = (a, b)                         */
-static void s_mp_exch(mp_int *a, mp_int *b)
+void     s_mp_exch(mp_int *a, mp_int *b)
 {
   mp_int   tmp;
 
@@ -3020,7 +3020,7 @@ static mp_err s_mp_lshd(mp_int *mp, mp_size p)
    end are lost.  Cannot fail.
  */
 
-static void s_mp_rshd(mp_int *mp, mp_size p)
+void     s_mp_rshd(mp_int *mp, mp_size p)
 {
   mp_size  ix;
   mp_digit *dp;
@@ -3058,7 +3058,7 @@ static void s_mp_rshd(mp_int *mp, mp_size p)
 /* {{{ s_mp_div_2(mp) */
 
 /* Divide by two -- take advantage of radix properties to do it fast      */
-static void s_mp_div_2(mp_int *mp)
+void     s_mp_div_2(mp_int *mp)
 {
   s_mp_div_2d(mp, 1);
 
@@ -3107,7 +3107,7 @@ static mp_err s_mp_mul_2(mp_int *mp)
   amounts to a bitwise AND of the value, and does not require the full
   division code
  */
-static void s_mp_mod_2d(mp_int *mp, mp_digit d)
+void     s_mp_mod_2d(mp_int *mp, mp_digit d)
 {
   unsigned int  ndig = (d / DIGIT_BIT), nbit = (d % DIGIT_BIT);
   unsigned int  ix;
@@ -3189,7 +3189,7 @@ static mp_err s_mp_mul_2d(mp_int *mp, mp_digit d)
   amounts to a bitwise shift of the value, and does not require the
   full division code (used in Barrett reduction, see below)
  */
-static void s_mp_div_2d(mp_int *mp, mp_digit d)
+void     s_mp_div_2d(mp_int *mp, mp_digit d)
 {
   int       ix;
   mp_digit  save, next, mask, *dp = DIGITS(mp);
@@ -3643,7 +3643,7 @@ static mp_err s_mp_mul_dig(mp_int *a, mp_int *b, int digs)
 /* {{{ s_mp_kmul(a, b, out, len) */
 
 #if 0
-static void s_mp_kmul(mp_digit *a, mp_digit *b, mp_digit *out, mp_size len)
+void   s_mp_kmul(mp_digit *a, mp_digit *b, mp_digit *out, mp_size len)
 {
   mp_word   w, k = 0;
   mp_size   ix, jx;

@@ -9,7 +9,7 @@
 # a build. This is easy to remedy though, for those that have problems.
 
 # The version
-VERSION=0.79
+VERSION=0.80
 
 #ch1-01-1
 # Compiler and Linker Names
@@ -165,7 +165,6 @@ CFLAGS += -DRC4
 CFLAGS += -DMRSA
 CFLAGS += -DMDH
 CFLAGS += -DMECC
-#CFLAGS += -DMDSA
 CFLAGS += -DKR
 #ch1-01-10
 
@@ -189,9 +188,6 @@ CFLAGS += -DECC256
 CFLAGS += -DECC384
 CFLAGS += -DECC521
 
-CFLAGS += -DDSA1024
-CFLAGS += -DDSA2048
-CFLAGS += -DDSA4096
 #ch1-01-12
 
 #ch1-01-11
@@ -232,7 +228,7 @@ LIBPATH=/usr/lib
 INCPATH=/usr/include
 
 #List of objects to compile.
-OBJECTS=keyring.o gf.o mem.o sprng.o dsa.o ecc.o base64.o dh.o rsa.o \
+OBJECTS=keyring.o gf.o mem.o sprng.o ecc.o base64.o dh.o rsa.o \
 bits.o yarrow.o cfb.o ofb.o ecb.o ctr.o cbc.o hash.o tiger.o sha1.o \
 md5.o md4.o md2.o sha256.o sha512.o xtea.o aes.o serpent.o des.o \
 safer_tab.o safer.o safer+.o rc4.o rc2.o rc6.o rc5.o cast5.o noekeon.o blowfish.o crypt.o \
@@ -300,7 +296,7 @@ install: library docs
 clean:
 	rm -f $(OBJECTS) $(TESTOBJECTS) $(HASHOBJECTS) $(CRYPTOBJECTS) $(SMALLOBJECTS) $(LEFTOVERS) $(LIBNAME)
 	rm -f $(TEST) $(HASH) $(COMPRESSED)
-	rm -f *stackdump *.lib *.exe *.obj demos/*.obj zlib/*.obj *.bat
+	rm -f *stackdump *.lib *.exe *.obj demos/*.obj *.bat makefile.out mycrypt_custom.h
 
 #This builds the crypt.pdf file. Note that the rm -f *.pdf has been removed
 #from the clean command! This is because most people would like to keep the

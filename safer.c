@@ -98,32 +98,35 @@ static void Safer_Expand_Userkey(const unsigned char *userkey_1,
     if (SAFER_MAX_NOF_ROUNDS < nof_rounds)
         nof_rounds = SAFER_MAX_NOF_ROUNDS;
     *key++ = (unsigned char)nof_rounds;
-    ka[SAFER_BLOCK_LEN] = 0;
-    kb[SAFER_BLOCK_LEN] = 0;
-    for (j = 0; j < SAFER_BLOCK_LEN; j++)
-    {
-        ka[SAFER_BLOCK_LEN] ^= ka[j] = ROL8(userkey_1[j], 5);
-        kb[SAFER_BLOCK_LEN] ^= kb[j] = *key++ = userkey_2[j];
+    ka[SAFER_BLOCK_LEN] = (unsigned char)0;
+    kb[SAFER_BLOCK_LEN] = (unsigned char)0;
+    for (j = 0; j < SAFER_BLOCK_LEN; j++) {
+        ka[j] = ROL8(userkey_1[j], 5);
+        ka[SAFER_BLOCK_LEN] ^= ka[j];
+        kb[j] = *key++ = userkey_2[j];
+        kb[SAFER_BLOCK_LEN] ^= kb[j];
     }
-    for (i = 1; i <= nof_rounds; i++)
-    {
-        for (j = 0; j < SAFER_BLOCK_LEN + 1; j++)
-        {
+    for (i = 1; i <= nof_rounds; i++) {
+        for (j = 0; j < SAFER_BLOCK_LEN + 1; j++) {
             ka[j] = ROL8(ka[j], 6);
             kb[j] = ROL8(kb[j], 6);
         }
-        for (j = 0; j < SAFER_BLOCK_LEN; j++)
-            if (strengthened)
+        for (j = 0; j < SAFER_BLOCK_LEN; j++) {
+            if (strengthened) {
                 *key++ = (ka[(j + 2 * i - 1) % (SAFER_BLOCK_LEN + 1)]
-                                + safer_ebox[safer_ebox[18 * i + j + 1]]) & 0xFF;
-            else
-                *key++ = (ka[j] + safer_ebox[safer_ebox[18 * i + j + 1]]) & 0xFF;
-        for (j = 0; j < SAFER_BLOCK_LEN; j++)
-            if (strengthened)
+                                + safer_ebox[(int)safer_ebox[(int)((18 * i + j + 1)&0xFF)]]) & 0xFF;
+            } else {
+                *key++ = (ka[j] + safer_ebox[(int)safer_ebox[(int)((18 * i + j + 1)&0xFF)]]) & 0xFF;
+            }
+        }
+        for (j = 0; j < SAFER_BLOCK_LEN; j++) {
+            if (strengthened) {
                 *key++ = (kb[(j + 2 * i) % (SAFER_BLOCK_LEN + 1)]
-                                + safer_ebox[safer_ebox[18 * i + j + 10]]) & 0xFF;
-            else
-                *key++ = (kb[j] + safer_ebox[safer_ebox[18 * i + j + 10]]) & 0xFF;
+                                + safer_ebox[(int)safer_ebox[(int)((18 * i + j + 10)&0xFF)]]) & 0xFF;
+            } else {
+                *key++ = (kb[j] + safer_ebox[(int)safer_ebox[(int)((18 * i + j + 10)&0xFF)]]) & 0xFF;
+            }
+        }
     }
     
 #ifdef CLEAN_STACK
@@ -149,7 +152,7 @@ int safer_k64_setup(const unsigned char *key, int keylen, int numrounds, symmetr
    _ARGCHK(key != NULL);
    _ARGCHK(skey != NULL);
 
-   if (numrounds && (numrounds < 6 || numrounds > SAFER_MAX_NOF_ROUNDS)) {
+   if (numrounds != 0 && (numrounds < 6 || numrounds > SAFER_MAX_NOF_ROUNDS)) {
       return CRYPT_INVALID_ROUNDS;
    }
 
@@ -157,7 +160,7 @@ int safer_k64_setup(const unsigned char *key, int keylen, int numrounds, symmetr
       return CRYPT_INVALID_KEYSIZE;
    }
 
-   Safer_Expand_Userkey(key, key, numrounds?numrounds:SAFER_K64_DEFAULT_NOF_ROUNDS, 0, skey->safer.key);
+   Safer_Expand_Userkey(key, key, (unsigned int)(numrounds != 0 ?numrounds:SAFER_K64_DEFAULT_NOF_ROUNDS), 0, skey->safer.key);
    return CRYPT_OK;
 }
    
@@ -166,7 +169,7 @@ int safer_sk64_setup(const unsigned char *key, int keylen, int numrounds, symmet
    _ARGCHK(key != NULL);
    _ARGCHK(skey != NULL);
 
-   if (numrounds && (numrounds < 6 || numrounds > SAFER_MAX_NOF_ROUNDS)) {
+   if (numrounds != 0 && (numrounds < 6 || numrounds > SAFER_MAX_NOF_ROUNDS)) {
       return CRYPT_INVALID_ROUNDS;
    }
 
@@ -174,7 +177,7 @@ int safer_sk64_setup(const unsigned char *key, int keylen, int numrounds, symmet
       return CRYPT_INVALID_KEYSIZE;
    }
 
-   Safer_Expand_Userkey(key, key, numrounds?numrounds:SAFER_SK64_DEFAULT_NOF_ROUNDS, 1, skey->safer.key);
+   Safer_Expand_Userkey(key, key, (unsigned int)(numrounds != 0 ?numrounds:SAFER_SK64_DEFAULT_NOF_ROUNDS), 1, skey->safer.key);
    return CRYPT_OK;
 }
 
@@ -183,7 +186,7 @@ int safer_k128_setup(const unsigned char *key, int keylen, int numrounds, symmet
    _ARGCHK(key != NULL);
    _ARGCHK(skey != NULL);
 
-   if (numrounds && (numrounds < 6 || numrounds > SAFER_MAX_NOF_ROUNDS)) {
+   if (numrounds != 0 && (numrounds < 6 || numrounds > SAFER_MAX_NOF_ROUNDS)) {
       return CRYPT_INVALID_ROUNDS;
    }
 
@@ -191,7 +194,7 @@ int safer_k128_setup(const unsigned char *key, int keylen, int numrounds, symmet
       return CRYPT_INVALID_KEYSIZE;
    }
 
-   Safer_Expand_Userkey(key, key+8, numrounds?numrounds:SAFER_K128_DEFAULT_NOF_ROUNDS, 0, skey->safer.key);
+   Safer_Expand_Userkey(key, key+8, (unsigned int)(numrounds != 0 ?numrounds:SAFER_K128_DEFAULT_NOF_ROUNDS), 0, skey->safer.key);
    return CRYPT_OK;
 }
 
@@ -200,7 +203,7 @@ int safer_sk128_setup(const unsigned char *key, int keylen, int numrounds, symme
    _ARGCHK(key != NULL);
    _ARGCHK(skey != NULL);
 
-   if (numrounds && (numrounds < 6 || numrounds > SAFER_MAX_NOF_ROUNDS)) {
+   if (numrounds != 0 && (numrounds < 6 || numrounds > SAFER_MAX_NOF_ROUNDS)) {
       return CRYPT_INVALID_ROUNDS;
    }
 
@@ -208,7 +211,7 @@ int safer_sk128_setup(const unsigned char *key, int keylen, int numrounds, symme
       return CRYPT_INVALID_KEYSIZE;
    }
 
-   Safer_Expand_Userkey(key, key+8, numrounds?numrounds:SAFER_SK128_DEFAULT_NOF_ROUNDS, 1, skey->safer.key);
+   Safer_Expand_Userkey(key, key+8, (unsigned int)(numrounds != 0?numrounds:SAFER_SK128_DEFAULT_NOF_ROUNDS), 1, skey->safer.key);
    return CRYPT_OK;
 }
 
@@ -233,7 +236,7 @@ void safer_ecb_encrypt(const unsigned char *block_in,
     a = block_in[0]; b = block_in[1]; c = block_in[2]; d = block_in[3];
     e = block_in[4]; f = block_in[5]; g = block_in[6]; h = block_in[7];
     if (SAFER_MAX_NOF_ROUNDS < (round = *key)) round = SAFER_MAX_NOF_ROUNDS;
-    while(round--)
+    while(round-- > 0)
     {
         a ^= *++key; b += *++key; c += *++key; d ^= *++key;
         e ^= *++key; f += *++key; g += *++key; h ^= *++key;
@@ -347,16 +350,16 @@ int safer_k64_test(void)
 
    symmetric_key skey;
    unsigned char buf[2][8];
-   int errno;
+   int err;
 
    /* test K64 */
-   if ((errno = safer_k64_setup(k64_key, 8, 6, &skey)) != CRYPT_OK) {
-      return errno;
+   if ((err = safer_k64_setup(k64_key, 8, 6, &skey)) != CRYPT_OK) {
+      return err;
    }
    safer_ecb_encrypt(k64_pt, buf[0], &skey);
    safer_ecb_decrypt(buf[0], buf[1], &skey);
 
-   if (memcmp(buf[0], k64_ct, 8) || memcmp(buf[1], k64_pt, 8)) {
+   if (memcmp(buf[0], k64_ct, 8) != 0 || memcmp(buf[1], k64_pt, 8) != 0) {
       return CRYPT_FAIL_TESTVECTOR;
    }
 
@@ -372,17 +375,17 @@ int safer_sk64_test(void)
 
    symmetric_key skey;
    unsigned char buf[2][8];
-   int errno;
+   int err;
 
    /* test SK64 */
-   if ((errno = safer_sk64_setup(sk64_key, 8, 6, &skey)) != CRYPT_OK) {
-      return errno;
+   if ((err = safer_sk64_setup(sk64_key, 8, 6, &skey)) != CRYPT_OK) {
+      return err;
    }
 
    safer_ecb_encrypt(sk64_pt, buf[0], &skey);
    safer_ecb_decrypt(buf[0], buf[1], &skey);
 
-   if (memcmp(buf[0], sk64_ct, 8) || memcmp(buf[1], sk64_pt, 8)) {
+   if (memcmp(buf[0], sk64_ct, 8) != 0 || memcmp(buf[1], sk64_pt, 8) != 0) {
       return CRYPT_FAIL_TESTVECTOR;
    }
 
@@ -398,16 +401,16 @@ int safer_sk128_test(void)
 
    symmetric_key skey;
    unsigned char buf[2][8];
-   int errno;
+   int err;
 
    /* test SK128 */
-   if ((errno = safer_sk128_setup(sk128_key, 16, 0, &skey)) != CRYPT_OK) {
-      return errno;
+   if ((err = safer_sk128_setup(sk128_key, 16, 0, &skey)) != CRYPT_OK) {
+      return err;
    }
    safer_ecb_encrypt(sk128_pt, buf[0], &skey);
    safer_ecb_decrypt(buf[0], buf[1], &skey);
 
-   if (memcmp(buf[0], sk128_ct, 8) || memcmp(buf[1], sk128_pt, 8)) {
+   if (memcmp(buf[0], sk128_ct, 8) != 0 || memcmp(buf[1], sk128_pt, 8) != 0) {
       return CRYPT_FAIL_TESTVECTOR;
    }
 

@@ -13,6 +13,7 @@
    "CFLAGS,Include Paths,-I./",
    "CFLAGS,Other compiler options,",
    "CFLAGS,XMALLOC,-DXMALLOC=malloc",
+   "CFLAGS,XREALLOC,-DXREALLOC=realloc",
    "CFLAGS,XCALLOC,-DXCALLOC=calloc",
    "CFLAGS,XFREE,-DXFREE=free",
    "CFLAGS,XCLOCK,-DXCLOCK=clock",
@@ -67,7 +68,6 @@
    "MRSA,Include RSA public key support,y",
    "MDH,Include Diffie-Hellman (over Z/pZ) public key support,y",
    "MECC,Include Eliptic Curve public key crypto support,y",
-   "MDSA,Include Digital Signature Algoritm (DSA) support\n(not required for signatures in the other three),y",
    "KR,Include Keyring support (groups all three PK systems),y",
    
    "DH768,768-bit DH key support,y",
@@ -87,17 +87,11 @@
    "ECC384,384-bit ECC key support,y",
    "ECC521,521-bit ECC key support,y",
    
-   "DSA1024,1024-bit (160-bit) DSA key support,y",
-   "DSA2048,2048-bit (256-bit) DSA key support,y",
-   "DSA4096,4096-bit (512-bit) DSA key support,y",
-
    "GF,Include GF(2^w) math support (not used internally),n",
    
    "MPI,Include MPI big integer math support (required by the public key code),y",
    "MPI_FASTEXPT,Use the faster exponentiation code (uses some heap but is faster),y",
-   "MPI_FASTEXPT_LOWMEM,Use the low ram variant of the fast code\nRequires the fast code to enabled,n",
-   
-   
+   "MPI_FASTEXPT_LOWMEM,Use the low ram variant of the fast code\nRequires the fast code to enabled,n", 
 );
 
 # scan for switches and make variables
@@ -116,6 +110,27 @@ for (@opts) {
    $r = <>;  @vars{'CFLAGS'} = @vars{'CFLAGS'} . "-D" . $m[0] . " " if (($r eq "y\n") || ($r eq "\n" && @m[2] eq "y"));
 }   
 
+# write header 
+
+open(OUT,">mycrypt_custom.h");
+print OUT "/* This header is meant to be included before mycrypt.h in projects where\n";
+print OUT " * you don't want to throw all the defines in a makefile. \n";
+print OUT " */\n\n#ifndef MYCRYPT_CUSTOM_H_\n#define MYCRYPT_CUSTOM_H_\n\n#ifdef CRYPT\n\t#error mycrypt_custom.h should be included before mycrypt.h\n#endif\n\n";
+
+@m = split(" ", @vars{'CFLAGS'});
+for (@m) {
+    if ($_ =~ /^-D/) {
+       $_ =~ s/-D//;
+       $_ =~ s/=/" "/ge;
+       print OUT "#define $_\n";
+    }
+}
+
+print OUT "\n\n#include <mycrypt.h>\n\n#endif\n\n";
+close OUT;
+       
+print "\n\nmycrypt_custom.h generated.\n";
+
 open(OUT,">makefile.out");
 print OUT "#makefile generated with config.pl\n#\n#Tom St Denis (tomstdenis\@yahoo.com, http://tom.iahu.ca) \n\n";
 
@@ -129,15 +144,19 @@ for (@settings) {
 
 # output objects
 print OUT "\ndefault: library\n\n";
-print OUT "OBJECTS = keyring.o gf.o mem.o sprng.o dsa.o ecc.o base64.o dh.o rsa.o bits.o yarrow.o cfb.o ofb.o ecb.o ctr.o cbc.o hash.o tiger.o sha1.o md5.o md4.o md2.o sha256.o sha512.o xtea.o aes.o serpent.o des.o safer_tab.o safer.o safer+.o rc4.o rc2.o rc6.o rc5.o cast5.o noekeon.o blowfish.o crypt.o ampi.o mpi.o prime.o twofish.o packet.o hmac.o strings.o\n\n";
+print OUT "OBJECTS = keyring.o gf.o mem.o sprng.o ecc.o base64.o dh.o rsa.o bits.o yarrow.o cfb.o ofb.o ecb.o ctr.o cbc.o hash.o tiger.o sha1.o md5.o md4.o md2.o sha256.o sha512.o xtea.o aes.o serpent.o des.o safer_tab.o safer.o safer+.o rc4.o rc2.o rc6.o rc5.o cast5.o noekeon.o blowfish.o crypt.o ampi.o mpi.o prime.o twofish.o packet.o hmac.o strings.o\n\n";
 
 # some depends
 print OUT "rsa.o: rsa_sys.c\ndh.o: dh_sys.c\necc.o: ecc_sys.c\n\n";
 
 # targets 
-print OUT "library: \$(OBJECTS)\n\t \$(AR) rs libtomcrypt.a \$(OBJECTS)\n\n";
+print OUT "library: \$(OBJECTS)\n\t \$(AR) r libtomcrypt.a \$(OBJECTS)\n\t ranlib libtomcrypt.a\n\n";
 print OUT "clean:\n\trm -f \$(OBJECTS) libtomcrypt.a \n\n";
 
 close OUT;
 
-print "\n\nmakefile.out was written.\n";
+print "makefile.out generated.\n";
+
+print "\nNow use makefile.out to build the library, e.g. `make -f makefile.out'\n";
+print "In your project just include mycrypt_custom.h (you don't have to include mycrypt.h \n";
+print "but if you do make sure mycrypt_custom.h appears first) your settings should be intact.\n";

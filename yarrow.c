@@ -13,7 +13,7 @@ const struct _prng_descriptor yarrow_desc =
 
 int yarrow_start(prng_state *prng)
 {
-   int errno;
+   int err;
    
    _ARGCHK(prng != NULL);
 
@@ -45,8 +45,8 @@ int yarrow_start(prng_state *prng)
 #elif
    #error YARROW needs at least one CIPHER
 #endif
-   if ((errno = cipher_is_valid(prng->yarrow.cipher)) != CRYPT_OK) {
-      return errno;
+   if ((err = cipher_is_valid(prng->yarrow.cipher)) != CRYPT_OK) {
+      return err;
    }
 
 #ifdef SHA256
@@ -68,8 +68,8 @@ int yarrow_start(prng_state *prng)
 #else
    #error YARROW needs at least one HASH
 #endif
-   if ((errno = hash_is_valid(prng->yarrow.hash)) != CRYPT_OK) {
-      return errno;
+   if ((err = hash_is_valid(prng->yarrow.hash)) != CRYPT_OK) {
+      return err;
    }
 
    /* zero the memory used */
@@ -81,13 +81,13 @@ int yarrow_start(prng_state *prng)
 int yarrow_add_entropy(const unsigned char *buf, unsigned long len, prng_state *prng)
 {
    hash_state md;
-   int errno;
+   int err;
 
    _ARGCHK(buf != NULL);
    _ARGCHK(prng != NULL);
 
-   if ((errno = hash_is_valid(prng->yarrow.hash)) != CRYPT_OK) {
-      return errno;
+   if ((err = hash_is_valid(prng->yarrow.hash)) != CRYPT_OK) {
+      return err;
    }
 
    /* start the hash */
@@ -107,26 +107,26 @@ int yarrow_add_entropy(const unsigned char *buf, unsigned long len, prng_state *
 
 int yarrow_ready(prng_state *prng)
 {
-   int ks, errno;
+   int ks, err;
 
    _ARGCHK(prng != NULL);
 
-   if ((errno = hash_is_valid(prng->yarrow.hash)) != CRYPT_OK) {
-      return errno;
+   if ((err = hash_is_valid(prng->yarrow.hash)) != CRYPT_OK) {
+      return err;
    }
    
-   if ((errno = cipher_is_valid(prng->yarrow.cipher)) != CRYPT_OK) {
-      return errno;
+   if ((err = cipher_is_valid(prng->yarrow.cipher)) != CRYPT_OK) {
+      return err;
    }
 
    /* setup CTR mode using the "pool" as the key */
-   ks = hash_descriptor[prng->yarrow.hash].hashsize;
-   if ((errno = cipher_descriptor[prng->yarrow.cipher].keysize(&ks)) != CRYPT_OK) {
-      return errno;
+   ks = (int)hash_descriptor[prng->yarrow.hash].hashsize;
+   if ((err = cipher_descriptor[prng->yarrow.cipher].keysize(&ks)) != CRYPT_OK) {
+      return err;
    }
 
-   if ((errno = ctr_start(prng->yarrow.cipher, prng->yarrow.pool, prng->yarrow.pool, ks, 0, &prng->yarrow.ctr)) != CRYPT_OK) {
-      return errno;
+   if ((err = ctr_start(prng->yarrow.cipher, prng->yarrow.pool, prng->yarrow.pool, ks, 0, &prng->yarrow.ctr)) != CRYPT_OK) {
+      return err;
    }
    return CRYPT_OK;
 }

@@ -430,9 +430,9 @@ int serpent_setup(const unsigned char *key, int keylen, int num_rounds, symmetri
     }
 
     if (x < 32) {
-       buf[x++] = 0x01;
+       buf[x++] = (unsigned char)0x01;
        while (x < 32) {
-           buf[x++] = 0;
+           buf[x++] = (unsigned char)0;
        }
     }
 
@@ -661,13 +661,13 @@ int serpent_test(void)
    };
 
    unsigned char buf[2][16];
-   int x, errno;
+   int x, err;
    symmetric_key key;
 
    for (x = 0; x < (int)(sizeof(tests) / sizeof(tests[0])); x++) {
       /* setup key */
-      if ((errno = serpent_setup(tests[x].key, tests[x].keylen, 0, &key))!= CRYPT_OK) {
-         return errno;
+      if ((err = serpent_setup(tests[x].key, tests[x].keylen, 0, &key))!= CRYPT_OK) {
+         return err;
       }
 
       /* encrypt and decrypt */
@@ -675,7 +675,7 @@ int serpent_test(void)
       serpent_ecb_decrypt(buf[0], buf[1], &key);
 
       /* compare */
-      if (memcmp(buf[0], tests[x].ct, 16) || memcmp(buf[1], tests[x].pt, 16)) {
+      if (memcmp(buf[0], tests[x].ct, 16) != 0 || memcmp(buf[1], tests[x].pt, 16) != 0) {
          return CRYPT_FAIL_TESTVECTOR;
       }
    }

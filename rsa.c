@@ -5,7 +5,7 @@
 int rsa_make_key(prng_state *prng, int wprng, int size, long e, rsa_key *key)
 {
    mp_int p, q, tmp1, tmp2, tmp3;
-   int res, errno;   
+   int res, err;   
 
    _ARGCHK(key != NULL);
 
@@ -13,12 +13,12 @@ int rsa_make_key(prng_state *prng, int wprng, int size, long e, rsa_key *key)
       return CRYPT_INVALID_KEYSIZE;
    }
 
-   if ((e < 3) || (!(e & 1))) {
+   if ((e < 3) || ((e & 1) == 0)) {
       return CRYPT_INVALID_ARG;
    }
  
-   if ((errno = prng_is_valid(wprng)) != CRYPT_OK) {
-      return errno;
+   if ((err = prng_is_valid(wprng)) != CRYPT_OK) {
+      return err;
    }
 
    if (mp_init_multi(&p, &q, &tmp1, &tmp2, &tmp3, NULL) != MP_OKAY) {
@@ -53,9 +53,9 @@ int rsa_make_key(prng_state *prng, int wprng, int size, long e, rsa_key *key)
       goto error;
    }
 
-   mp_set_int(&key->e, e);                                          /* key->e =  e */
-   if (mp_invmod(&key->e, &tmp1, &key->d) != MP_OKAY) goto error2;  /* key->d = 1/e mod lcm(p-1,q-1) */
-   if (mp_mul(&p, &q, &key->N) != MP_OKAY) goto error2;             /* key->N = pq */
+   if (mp_set_int(&key->e, e) != MP_OKAY)                  { goto error2; } /* key->e =  e */
+   if (mp_invmod(&key->e, &tmp1, &key->d) != MP_OKAY)      { goto error2; } /* key->d = 1/e mod lcm(p-1,q-1) */
+   if (mp_mul(&p, &q, &key->N) != MP_OKAY)                 { goto error2; } /* key->N = pq */
 
 /* optimize for CRT now */
    /* find d mod q-1 and d mod p-1 */
@@ -125,7 +125,7 @@ int rsa_exptmod(const unsigned char *in,  unsigned long inlen,
 
    /* init and copy into tmp */
    if (mp_init_multi(&tmp, &tmpa, &tmpb, NULL) != MP_OKAY)                { goto error; }
-   if (mp_read_unsigned_bin(&tmp, (unsigned char *)in, inlen) != MP_OKAY) { goto error; }
+   if (mp_read_unsigned_bin(&tmp, (unsigned char *)in, (int)inlen) != MP_OKAY) { goto error; }
    
    /* sanity check on the input */
    if (mp_cmp(&key->N, &tmp) == MP_LT) {
@@ -151,7 +151,7 @@ int rsa_exptmod(const unsigned char *in,  unsigned long inlen,
    }
 
    /* read it back */
-   x = mp_raw_size(&tmp)-1;
+   x = (unsigned long)mp_unsigned_bin_size(&tmp);
    if (x > *outlen) {
       res = CRYPT_BUFFER_OVERFLOW;
       goto done;
@@ -159,7 +159,7 @@ int rsa_exptmod(const unsigned char *in,  unsigned long inlen,
    *outlen = x;
 
    /* convert it */
-   mp_to_unsigned_bin(&tmp, out);
+   (void)mp_to_unsigned_bin(&tmp, out);
 
    /* clean up and return */
    res = CRYPT_OK;
@@ -190,11 +190,11 @@ int rsa_signpad(const unsigned char *in,  unsigned long inlen,
    }
    
    for (y = x = 0; x < inlen; x++)
-       out[y++] = 0xFF;
+       out[y++] = (unsigned char)0xFF;
    for (x = 0; x < inlen; x++)
        out[y++] = in[x];
    for (x = 0; x < inlen; x++)
-       out[y++] = 0xFF;
+       out[y++] = (unsigned char)0xFF;
    *outlen = 3 * inlen;
    return CRYPT_OK;
 }
@@ -205,7 +205,7 @@ int rsa_pad(const unsigned char *in,  unsigned long inlen,
 {
    unsigned char buf[1536];
    unsigned long x;
-   int errno;
+   int err;
 
    _ARGCHK(in != NULL);
    _ARGCHK(out != NULL);
@@ -217,8 +217,8 @@ int rsa_pad(const unsigned char *in,  unsigned long inlen,
    }
 
    /* get random padding required */
-   if ((errno = prng_is_valid(wprng)) != CRYPT_OK) {
-      return errno; 
+   if ((err = prng_is_valid(wprng)) != CRYPT_OK) {
+      return err; 
    }
 
    /* check inlen */
@@ -249,8 +249,7 @@ int rsa_pad(const unsigned char *in,  unsigned long inlen,
    }
 
    /* last and first bytes are 0xFF */
-   out[0] = 0xFF;
-   out[inlen+inlen+inlen-1] = 0xFF;
+   out[0] = out[inlen+inlen+inlen-1] = (unsigned char)0xFF;
 
    /* clear up and return */
 #ifdef CLEAN_STACK
@@ -275,7 +274,7 @@ int rsa_signdepad(const unsigned char *in,  unsigned long inlen,
 
    /* check padding bytes */
    for (x = 0; x < inlen/3; x++) {
-       if (in[x] != 0xFF || in[x+(inlen/3)+(inlen/3)] != 0xFF) {
+       if (in[x] != (unsigned char)0xFF || in[x+(inlen/3)+(inlen/3)] != (unsigned char)0xFF) {
           return CRYPT_INVALID_PACKET;
        }
    }
@@ -305,10 +304,10 @@ int rsa_depad(const unsigned char *in,  unsigned long inlen,
 
 #define OUTPUT_BIGNUM(num, buf2, y, z)         \
 {                                              \
-      z = mp_unsigned_bin_size(num);           \
+      z = (unsigned long)mp_unsigned_bin_size(num);  \
       STORE32L(z, buf2+y);                     \
       y += 4;                                  \
-      mp_to_unsigned_bin(num, buf2+y);         \
+      (void)mp_to_unsigned_bin(num, buf2+y);   \
       y += z;                                  \
 }
 
@@ -317,7 +316,7 @@ int rsa_depad(const unsigned char *in,  unsigned long inlen,
 {                                                                \
      /* load value */                                            \
      if (y + 4 > inlen) {                                        \
-         errno = CRYPT_INVALID_PACKET;                           \
+         err = CRYPT_INVALID_PACKET;                           \
          goto error2;                                            \
      }                                                           \
      LOAD32L(x, in+y);                                           \
@@ -325,19 +324,19 @@ int rsa_depad(const unsigned char *in,  unsigned long inlen,
                                                                  \
      /* sanity check... */                                       \
      if (y+x > inlen) {                                          \
-        errno = CRYPT_INVALID_PACKET;                            \
+        err = CRYPT_INVALID_PACKET;                            \
         goto error2;                                             \
      }                                                           \
                                                                  \
      /* load it */                                               \
-     if (mp_read_unsigned_bin(num, (unsigned char *)in+y, x) != MP_OKAY) {\
-        errno = CRYPT_MEM;                                       \
+     if (mp_read_unsigned_bin(num, (unsigned char *)in+y, (int)x) != MP_OKAY) {\
+        err = CRYPT_MEM;                                       \
         goto error2;                                             \
      }                                                           \
      y += x;                                                     \
                                                                  \
      if (mp_shrink(num) != MP_OKAY) {                            \
-        errno = CRYPT_MEM;                                       \
+        err = CRYPT_MEM;                                       \
         goto error2;                                             \
      }                                                           \
 }
@@ -391,7 +390,7 @@ int rsa_export(unsigned char *out, unsigned long *outlen, int type, rsa_key *key
    packet_store_header(buf2, PACKET_SECT_RSA, PACKET_SUB_KEY);
 
    /* copy to the user buffer */
-   memcpy(out, buf2, y);
+   memcpy(out, buf2, (size_t)y);
    *outlen = y;
 
    /* clear stack and return */
@@ -404,14 +403,14 @@ int rsa_export(unsigned char *out, unsigned long *outlen, int type, rsa_key *key
 int rsa_import(const unsigned char *in, unsigned long inlen, rsa_key *key)
 {
    unsigned long x, y;
-   int errno;
+   int err;
 
    _ARGCHK(in != NULL);
    _ARGCHK(key != NULL);
 
    /* test packet header */
-   if ((errno = packet_valid_header((unsigned char *)in, PACKET_SECT_RSA, PACKET_SUB_KEY)) != CRYPT_OK) { 
-      return errno;
+   if ((err = packet_valid_header((unsigned char *)in, PACKET_SECT_RSA, PACKET_SUB_KEY)) != CRYPT_OK) { 
+      return err;
    }
    
    if (inlen < 1+PACKET_SIZE) {
@@ -426,7 +425,7 @@ int rsa_import(const unsigned char *in, unsigned long inlen, rsa_key *key)
 
    /* get key type */
    y = PACKET_SIZE;
-   key->type = in[y++];
+   key->type = (int)in[y++];
 
    /* load the modulus  */
    INPUT_BIGNUM(&key->N, in, x, y);
@@ -461,7 +460,7 @@ int rsa_import(const unsigned char *in, unsigned long inlen, rsa_key *key)
 error2:
    mp_clear_multi(&key->d, &key->e, &key->N, &key->dQ, &key->dP, 
                   &key->pQ, &key->qP, &key->p, &key->q, NULL);
-   return errno;
+   return err;
 }
 
 #include "rsa_sys.c"

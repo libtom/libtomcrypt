@@ -8,7 +8,7 @@ extern int base64_decode(const unsigned char *in,  unsigned long len,
 #endif
 
 /* ---- MEM routines ---- */
-extern void zeromem(void *dst, unsigned long len);
+extern void zeromem(void *dst, size_t len);
 extern void burn_stack(unsigned long len);
 
 /* ch1-01-1*/

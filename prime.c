@@ -91,7 +91,7 @@ int is_prime(mp_int *N, int *result)
 
     /* find s such that N-1 = (2^s)r */
     s = 0;
-    while (mp_iseven(&r)) {
+    while (mp_iseven(&r) != 0) {
         ++s;
         if (mp_div_2(&r, &r) != MP_OKAY) {
            goto error;
@@ -166,7 +166,7 @@ static int next_prime(mp_int *N, mp_digit step)
 loop:
     /* while one of the residues is zero keep looping */
     dist = step;
-    for (x = 0; (dist < 65000) && (x < (long)UPPER_LIMIT); x++) {
+    for (x = 0; (dist < (MP_DIGIT_MAX-step-1)) && (x < (long)UPPER_LIMIT); x++) {
         j = (long)residues[x] + (long)dist + total_dist;
         if (j % (long)prime_tab[x] == 0) {
            dist += step; x = -1;
@@ -233,7 +233,7 @@ done:
 int rand_prime(mp_int *N, long len, prng_state *prng, int wprng)
 {
    unsigned char buf[260];
-   int errno, step, ormask;
+   int err, step, ormask;
 
    _ARGCHK(N != NULL);
 
@@ -253,25 +253,25 @@ int rand_prime(mp_int *N, long len, prng_state *prng, int wprng)
    }
    
    /* valid PRNG? */
-   if ((errno = prng_is_valid(wprng)) != CRYPT_OK) {
-      return errno; 
+   if ((err = prng_is_valid(wprng)) != CRYPT_OK) {
+      return err; 
    }
 
    /* read the prng */
-   if (prng_descriptor[wprng].read(buf+2, len, prng) != (unsigned long)len) { 
+   if (prng_descriptor[wprng].read(buf+2, (unsigned long)len, prng) != (unsigned long)len) { 
       return CRYPT_ERROR_READPRNG; 
    }
 
    /* set sign byte to zero */
-   buf[0] = 0;
+   buf[0] = (unsigned char)0;
 
    /* Set the top byte to 0x01 which makes the number a len*8 bit number */
-   buf[1] = 0x01;
+   buf[1] = (unsigned char)0x01;
 
    /* set the LSB to the desired settings 
     * (1 for any prime, 3 for primes congruent to 3 mod 4) 
     */
-   buf[len+1] |= ormask;
+   buf[len+1] |= (unsigned char)ormask;
 
    /* read the number in */
    if (mp_read_raw(N, buf, 2+len) != MP_OKAY) { 
@@ -279,8 +279,8 @@ int rand_prime(mp_int *N, long len, prng_state *prng, int wprng)
    }
 
    /* add the step size to it while N is not prime */
-   if ((errno = next_prime(N, step)) != CRYPT_OK) {
-      return errno;
+   if ((err = next_prime(N, step)) != CRYPT_OK) {
+      return err;
    }
 
 #ifdef CLEAN_STACK   
@@ -291,6 +291,4 @@ int rand_prime(mp_int *N, long len, prng_state *prng, int wprng)
 }
       
 #endif
-
-
 

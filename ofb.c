@@ -5,14 +5,14 @@
 int ofb_start(int cipher, const unsigned char *IV, const unsigned char *key, 
               int keylen, int num_rounds, symmetric_OFB *ofb)
 {
-   int x, errno;
+   int x, err;
 
    _ARGCHK(IV != NULL);
    _ARGCHK(key != NULL);
    _ARGCHK(ofb != NULL);
 
-   if ((errno = cipher_is_valid(cipher)) != CRYPT_OK) {
-      return errno;
+   if ((err = cipher_is_valid(cipher)) != CRYPT_OK) {
+      return err;
    }
 
    /* copy details */
@@ -29,14 +29,14 @@ int ofb_start(int cipher, const unsigned char *IV, const unsigned char *key,
 
 int ofb_encrypt(const unsigned char *pt, unsigned char *ct, unsigned long len, symmetric_OFB *ofb)
 {
-   int errno;
+   int err;
    _ARGCHK(pt != NULL);
    _ARGCHK(ct != NULL);
    _ARGCHK(ofb != NULL);
-   if ((errno = cipher_is_valid(ofb->cipher)) != CRYPT_OK) {
-       return errno;
+   if ((err = cipher_is_valid(ofb->cipher)) != CRYPT_OK) {
+       return err;
    }
-   while (len--) {
+   while (len-- > 0) {
        if (ofb->padlen == ofb->blocklen) {
           cipher_descriptor[ofb->cipher].ecb_encrypt(ofb->IV, ofb->IV, &ofb->key);
           ofb->padlen = 0;

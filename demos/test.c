@@ -87,7 +87,7 @@ void cipher_tests(void) {
 
    printf("Ciphers compiled in\n");
  for (x = 0; cipher_descriptor[x].name != NULL; x++) {
-     printf(" %12s (%2d) Key Size: %4ld to %4ld, Block Size: %3ld, Default # of rounds: %2ld\n", cipher_descriptor[x].name,
+     printf(" %12s (%2d) Key Size: %4d to %4d, Block Size: %3d, Default # of rounds: %2d\n", cipher_descriptor[x].name,
             cipher_descriptor[x].ID,
             cipher_descriptor[x].min_key_length*8,cipher_descriptor[x].max_key_length*8,
             cipher_descriptor[x].block_length*8, cipher_descriptor[x].default_rounds);
@@ -751,7 +751,7 @@ void dh_tests(void)
     printf("Error: %s\n", error_to_string(errno));
     exit(-1);
    }
-   printf("dh_sign/verify_hash: %s (%d,%d)\n", ((stat==1)&&(stat2==0))?"passed":"failed", stat,stat2);
+   printf("dh_sign/verify_hash: %s (%d,%d), %lu\n", ((stat==1)&&(stat2==0))?"passed":"failed", stat,stat2, x);
  dh_free(&usera);
 }
 #else
@@ -1070,16 +1070,15 @@ void register_all_algs(void)
 
    register_cipher(&null_desc);
 
-#ifdef SHA1
-   register_hash(&sha1_desc);
-#endif
 #ifdef SHA256
    register_hash(&sha256_desc);
 #endif
 #ifdef TIGER
    register_hash(&tiger_desc);
 #endif
-
+#ifdef SHA1
+   register_hash(&sha1_desc);
+#endif
 #ifdef MD5
    register_hash(&md5_desc);
 #endif
@@ -1431,7 +1430,6 @@ int main(void)
  
  printf(crypt_build_settings);
  test_errs();
-
 
 #ifdef HMAC
   printf("HMAC: %s\n", hmac_test() == CRYPT_OK ? "passed" : "failed");

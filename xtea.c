@@ -116,15 +116,15 @@ int xtea_test(void)
       { 0x75, 0xd7, 0xc5, 0xbf, 0xcf, 0x58, 0xc9, 0x3f };
    unsigned char tmp[2][8];
    symmetric_key skey;
-   int errno;
+   int err;
 
-   if ((errno = xtea_setup(key, 16, 0, &skey)) != CRYPT_OK)  {
-      return errno;
+   if ((err = xtea_setup(key, 16, 0, &skey)) != CRYPT_OK)  {
+      return err;
    }
    xtea_ecb_encrypt(pt, tmp[0], &skey);
    xtea_ecb_decrypt(tmp[0], tmp[1], &skey);
 
-   if (memcmp(tmp[0], ct, 8) || memcmp(tmp[1], pt, 8)) { 
+   if (memcmp(tmp[0], ct, 8) != 0 || memcmp(tmp[1], pt, 8) != 0) { 
       return CRYPT_FAIL_TESTVECTOR;
    }
 

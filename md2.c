@@ -47,7 +47,7 @@ static void md2_update_chksum(hash_state *md)
 /* caution, the RFC says its "C[j] = S[M[i*16+j] xor L]" but the reference source code [and test vectors] say 
    otherwise.
 */
-       L = (md->md2.chksum[j] ^= PI_SUBST[md->md2.buf[j] ^ L]);
+       L = (md->md2.chksum[j] ^= PI_SUBST[(int)(md->md2.buf[j] ^ L)]);
    }
 }
 
@@ -62,14 +62,14 @@ static void md2_compress(hash_state *md)
        md->md2.X[32+j] = md->md2.X[j] ^ md->md2.X[16+j];
    }
 
-   t = 0;
+   t = (unsigned char)0;
 
    /* do 18 rounds */
    for (j = 0; j < 18; j++) {
        for (k = 0; k < 48; k++) {
-           t = (md->md2.X[k] ^= PI_SUBST[t]);
+           t = (md->md2.X[k] ^= PI_SUBST[(int)t]);
        }
-       t = (t + j) & 255;
+       t = (t + (unsigned char)j) & 255;
    }
 }
 
@@ -89,9 +89,9 @@ void md2_process(hash_state *md, const unsigned char *buf, unsigned long len)
     unsigned long n;
     _ARGCHK(md != NULL);
     _ARGCHK(buf != NULL);
-    while (len) {
+    while (len > 0) {
         n = MIN(len, (16 - md->md2.curlen));
-        memcpy(md->md2.buf + md->md2.curlen, buf, n);
+        memcpy(md->md2.buf + md->md2.curlen, buf, (size_t)n);
         md->md2.curlen += n;
         buf            += n;
         len            -= n;
@@ -107,7 +107,7 @@ void md2_process(hash_state *md, const unsigned char *buf, unsigned long len)
 
 void md2_done(hash_state * md, unsigned char *hash)
 {
-    int i, k;
+    unsigned long i, k;
 
     _ARGCHK(md != NULL);
     _ARGCHK(hash != NULL);
@@ -115,7 +115,7 @@ void md2_done(hash_state * md, unsigned char *hash)
     /* pad the message */
     k = 16 - md->md2.curlen;
     for (i = md->md2.curlen; i < 16; i++) {
-        md->md2.buf[i] = k;
+        md->md2.buf[i] = (unsigned char)k;
     }
 
     /* hash and update */
@@ -137,7 +137,7 @@ void md2_done(hash_state * md, unsigned char *hash)
 int md2_test(void)
 {
    static const struct {
-        unsigned char *msg;
+        char *msg;
         unsigned char md[16];
    } tests[] = {
       { "",
@@ -177,9 +177,9 @@ int md2_test(void)
 
    for (i = 0; i < (int)(sizeof(tests) / sizeof(tests[0])); i++) {
        md2_init(&md);
-       md2_process(&md, tests[i].msg, strlen(tests[i].msg));
+       md2_process(&md, (unsigned char*)tests[i].msg, (unsigned long)strlen(tests[i].msg));
        md2_done(&md, buf);
-       if (memcmp(buf, tests[i].md, 16)) {
+       if (memcmp(buf, tests[i].md, 16) != 0) {
           return CRYPT_FAIL_TESTVECTOR;
        }
    }

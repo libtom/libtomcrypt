@@ -116,7 +116,7 @@ void crypt_argchk(char *v, char *s, int d)
  fprintf(stderr, "_ARGCHK '%s' failure on line %d of file %s\n", 
          v, d, s);
 #endif
- raise(SIGABRT);
+ (void)raise(SIGABRT);
 }
 #endif
 /* ch1-01-1 */
@@ -138,7 +138,7 @@ int find_hash(const char *name)
    int x;
    _ARGCHK(name != NULL);
    for (x = 0; x < TAB_SIZE; x++) {
-       if (hash_descriptor[x].name != NULL && !strcmp(hash_descriptor[x].name, name)) {
+       if (hash_descriptor[x].name != NULL && strcmp(hash_descriptor[x].name, name) == 0) {
           return x;
        }
    }
@@ -150,7 +150,7 @@ int find_prng(const char *name)
    int x;
    _ARGCHK(name != NULL);
    for (x = 0; x < TAB_SIZE; x++) {
-       if ((prng_descriptor[x].name != NULL) && !strcmp(prng_descriptor[x].name, name)) {
+       if ((prng_descriptor[x].name != NULL) && strcmp(prng_descriptor[x].name, name) == 0) {
           return x;
        }
    }
@@ -230,7 +230,7 @@ int unregister_cipher(const struct _cipher_descriptor *cipher)
 
    /* is it already registered? */
    for (x = 0; x < TAB_SIZE; x++) {
-       if (!memcmp(&cipher_descriptor[x], cipher, sizeof(struct _cipher_descriptor))) {
+       if (memcmp(&cipher_descriptor[x], cipher, sizeof(struct _cipher_descriptor)) == 0) {
           cipher_descriptor[x].name = NULL;
           cipher_descriptor[x].ID   = 255;
           return CRYPT_OK;
@@ -247,7 +247,7 @@ int register_hash(const struct _hash_descriptor *hash)
 
    /* is it already registered? */
    for (x = 0; x < TAB_SIZE; x++) {
-       if (!memcmp(&hash_descriptor[x], hash, sizeof(struct _hash_descriptor))) {
+       if (memcmp(&hash_descriptor[x], hash, sizeof(struct _hash_descriptor)) == 0) {
           return x;
        }
    }
@@ -272,7 +272,7 @@ int unregister_hash(const struct _hash_descriptor *hash)
 
    /* is it already registered? */
    for (x = 0; x < TAB_SIZE; x++) {
-       if (!memcmp(&hash_descriptor[x], hash, sizeof(struct _hash_descriptor))) {
+       if (memcmp(&hash_descriptor[x], hash, sizeof(struct _hash_descriptor)) == 0) {
           hash_descriptor[x].name = NULL;
           return CRYPT_OK;
        }
@@ -288,7 +288,7 @@ int register_prng(const struct _prng_descriptor *prng)
 
    /* is it already registered? */
    for (x = 0; x < TAB_SIZE; x++) {
-       if (!memcmp(&prng_descriptor[x], prng, sizeof(struct _prng_descriptor))) {
+       if (memcmp(&prng_descriptor[x], prng, sizeof(struct _prng_descriptor)) == 0) {
           return x;
        }
    }
@@ -313,7 +313,7 @@ int unregister_prng(const struct _prng_descriptor *prng)
 
    /* is it already registered? */
    for (x = 0; x < TAB_SIZE; x++) {
-       if (!memcmp(&prng_descriptor[x], prng, sizeof(struct _prng_descriptor))) {
+       if (memcmp(&prng_descriptor[x], prng, sizeof(struct _prng_descriptor)) != 0) {
           prng_descriptor[x].name = NULL;
           return CRYPT_OK;
        }
@@ -417,6 +417,9 @@ const char *crypt_build_settings =
 #if defined(CAST5)
    "   CAST5\n"
 #endif
+#if defined(NOEKEON)
+   "   Noekeon\n"
+#endif
 
     "\nHashes built-in:\n"
 #if defined(SHA512)
@@ -481,6 +484,9 @@ const char *crypt_build_settings =
 #endif
 #if defined(MECC)
     "   ECC\n"
+#endif
+#if defined(KR)
+    "   KR\n"
 #endif
 
     "\nCompiler:\n"

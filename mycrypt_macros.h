@@ -183,8 +183,8 @@ extern char *crypt_error;
 #define BSWAP(x)  ( ((x>>24)&0x000000FFUL) | ((x<<24)&0xFF000000UL)  | \
                     ((x>>8)&0x0000FF00UL)  | ((x<<8)&0x00FF0000UL) )
 
-#define ROL(x, y) ( (((x)<<((y)&31)) | (((x)&0xFFFFFFFFUL)>>(32-((y)&31)))) & 0xFFFFFFFFUL)
-#define ROR(x, y) ( ((((x)&0xFFFFFFFFUL)>>((y)&31)) | ((x)<<(32-((y)&31)))) & 0xFFFFFFFFUL)
+#define ROL(x, y) ( (((unsigned long)(x)<<(unsigned long)((y)&31)) | (((unsigned long)(x)&0xFFFFFFFFUL)>>(unsigned long)(32-((y)&31)))) & 0xFFFFFFFFUL)
+#define ROR(x, y) ( ((((unsigned long)(x)&0xFFFFFFFFUL)>>(unsigned long)((y)&31)) | ((unsigned long)(x)<<(unsigned long)(32-((y)&31)))) & 0xFFFFFFFFUL)
 
 #define ROL64(x, y) \
     ( (((x)<<((ulong64)(y)&63)) | \

@@ -212,7 +212,7 @@ static int is_valid_idx(int n)
 {
    int x;
 
-   for (x = 0; sets[x].size; x++);
+   for (x = 0; sets[x].size != 0; x++);
    if ((n < 0) || (n >= x)) {
       return 0;
    }
@@ -289,10 +289,13 @@ static int add_point(ecc_point *P, ecc_point *Q, ecc_point *R, mp_int *modulus)
    }
 
    /* is P==Q or P==-Q? */
-   mp_neg(&Q->y, &tmp);
-   mp_mod(&tmp, modulus, &tmp);
-   if (!mp_cmp(&P->x, &Q->x))
-      if (!mp_cmp(&P->y, &Q->y) || !mp_cmp(&P->y, &tmp)) {
+   if (mp_neg(&Q->y, &tmp) != MP_OKAY || mp_mod(&tmp, modulus, &tmp) != MP_OKAY) {
+      mp_clear(&tmp);
+      return CRYPT_MEM;
+   }
+   
+   if (mp_cmp(&P->x, &Q->x) == MP_EQ)
+      if (mp_cmp(&P->y, &Q->y) == MP_EQ || mp_cmp(&P->y, &tmp) == MP_EQ) {
          mp_clear(&tmp);
          return dbl_point(P, R, modulus);
       }
@@ -329,12 +332,12 @@ done:
 }
 
 /* perform R = kG where k == integer and G == ecc_point */
-static int ecc_mulmod(mp_int *k, ecc_point *G, ecc_point *R, mp_int *modulus, int idx)
+static int ecc_mulmod(mp_int *k, ecc_point *G, ecc_point *R, mp_int *modulus)
 {
    ecc_point *tG, *M[14];
-   int i, j, m, z, first, res;
+   int i, j, z, res;
    mp_digit d;
-   unsigned char bits[768];
+   unsigned char bits[150], m, first;
    
    /* init M tab */
    for (i = 0; i < 14; i++) {
@@ -348,14 +351,14 @@ static int ecc_mulmod(mp_int *k, ecc_point *G, ecc_point *R, mp_int *modulus, in
    }
    
    /* get bits of k */
-   first = m = 0;
+   first = m = (unsigned char)0;
    for (z = i = 0; z < (int)USED(k); z++) {
        d = DIGIT(k, z);
        for (j = 0; j < (int)MP_DIGIT_BIT; j++) {
-           first |= (d&1)<<(m++);
-           if (m == 4) {
+           first |= (d&1)<<(unsigned)(m++);
+           if (m == (unsigned char)4) {
               bits[i++] = first;
-              first = m = 0;
+              first = m = (unsigned char)0;
            }
            d >>= 1;
        }
@@ -371,7 +374,7 @@ static int ecc_mulmod(mp_int *k, ecc_point *G, ecc_point *R, mp_int *modulus, in
    if (tG == NULL)                                          { goto error; }
 
    /* skip leading digits which are zero */   
-   --i; while (i && bits[i] == 0) { --i; }
+   --i; while (i != 0 && bits[i] == (unsigned char)0) { --i; }
    
    if (i == 0) {
       res = CRYPT_INVALID_ARG;
@@ -393,12 +396,12 @@ static int ecc_mulmod(mp_int *k, ecc_point *G, ecc_point *R, mp_int *modulus, in
    if (mp_copy(&G->y, &tG->y) != MP_OKAY)                   { goto error; }
 
    /* set result M[bits[i]] */
-   if (bits[i] == 1) {
+   if (bits[i] == (unsigned char)1) {
      if (mp_copy(&G->x, &R->x) != MP_OKAY)                  { goto error; }
      if (mp_copy(&G->y, &R->y) != MP_OKAY)                  { goto error; }
-   } else if (bits[i]>=2) {
-     if (mp_copy(&M[bits[i]-2]->x, &R->x) != MP_OKAY)       { goto error; }
-     if (mp_copy(&M[bits[i]-2]->y, &R->y) != MP_OKAY)       { goto error; }
+   } else if (bits[i] >= (unsigned char)2) {
+     if (mp_copy(&M[(int)bits[i]-2]->x, &R->x) != MP_OKAY)       { goto error; }
+     if (mp_copy(&M[(int)bits[i]-2]->y, &R->y) != MP_OKAY)       { goto error; }
    }
    
    while (--i >= 0) {
@@ -408,14 +411,14 @@ static int ecc_mulmod(mp_int *k, ecc_point *G, ecc_point *R, mp_int *modulus, in
        }
        
        /* now based on the value of bits[i] we do ops */
-       if (bits[i] == 0) {
+       if (bits[i] == (unsigned char)0) {
           /* nop */
-       } else if (bits[i] == 1) {
+       } else if (bits[i] == (unsigned char)1) {
           /* add base point */
           if (add_point(R, tG, R, modulus) != CRYPT_OK)           { goto error; }
        } else {
           /* other case */
-          if (add_point(R, M[bits[i]-2], R, modulus) != CRYPT_OK) { goto error; }
+          if (add_point(R, M[(int)bits[i] - 2], R, modulus) != CRYPT_OK) { goto error; }
        }
    }
    
@@ -483,8 +486,8 @@ int ecc_test(void)
 
        /* then we should have G == (order + 1)G */
        if (mp_add_d(&order, 1, &order) != MP_OKAY)                  { goto error; }
-       if (ecc_mulmod(&order, G, GG, &modulus, i) != CRYPT_OK)      { goto error; }
-       if (mp_cmp(&G->x, &GG->x) || mp_cmp(&G->y, &GG->y)) {
+       if (ecc_mulmod(&order, G, GG, &modulus) != CRYPT_OK)         { goto error; }
+       if (mp_cmp(&G->x, &GG->x) != 0 || mp_cmp(&G->y, &GG->y) != 0) {
           res = CRYPT_FAIL_TESTVECTOR;
           goto done1;
        }
@@ -508,7 +511,7 @@ void ecc_sizes(int *low, int *high)
 
  *low = INT_MAX;
  *high = 0;
- for (i = 0; sets[i].size; i++) {
+ for (i = 0; sets[i].size != 0; i++) {
      if (sets[i].size < *low)  { 
         *low  = sets[i].size; 
      }
@@ -520,7 +523,7 @@ void ecc_sizes(int *low, int *high)
 
 int ecc_make_key(prng_state *prng, int wprng, int keysize, ecc_key *key)
 {
-   int x, res, errno;
+   int x, res, err;
    ecc_point *base;
    mp_int prime;
    unsigned char buf[4096];
@@ -528,12 +531,12 @@ int ecc_make_key(prng_state *prng, int wprng, int keysize, ecc_key *key)
    _ARGCHK(key != NULL);
 
    /* good prng? */
-   if ((errno = prng_is_valid(wprng)) != CRYPT_OK) {
-      return errno;
+   if ((err = prng_is_valid(wprng)) != CRYPT_OK) {
+      return err;
    }
 
    /* find key size */
-   for (x = 0; (keysize > sets[x].size) && (sets[x].size); x++);
+   for (x = 0; (keysize > sets[x].size) && (sets[x].size != 0); x++);
    keysize = sets[x].size;
 
    if (sets[x].size == 0) { 
@@ -542,8 +545,7 @@ int ecc_make_key(prng_state *prng, int wprng, int keysize, ecc_key *key)
    key->idx = x;
 
    /* make up random string */
-   buf[0] = 0;
-   if (prng_descriptor[wprng].read(buf+1, keysize, prng) != (unsigned long)keysize) {
+   if (prng_descriptor[wprng].read(buf, (unsigned long)keysize, prng) != (unsigned long)keysize) {
       return CRYPT_ERROR_READPRNG;
    }
 
@@ -561,10 +563,10 @@ int ecc_make_key(prng_state *prng, int wprng, int keysize, ecc_key *key)
    if (mp_read_radix(&prime, (unsigned char *)sets[key->idx].prime, 64) != MP_OKAY)  { goto error; }
    if (mp_read_radix(&base->x, (unsigned char *)sets[key->idx].Gx, 64) != MP_OKAY)   { goto error; }
    if (mp_read_radix(&base->y, (unsigned char *)sets[key->idx].Gy, 64) != MP_OKAY)   { goto error; }
-   if (mp_read_raw(&key->k, (unsigned char *)buf, keysize+1) != MP_OKAY)      { goto error; }
+   if (mp_read_unsigned_bin(&key->k, (unsigned char *)buf, keysize) != MP_OKAY)      { goto error; }
 
    /* make the public key */
-   if (ecc_mulmod(&key->k, base, &key->pubkey, &prime, x) != CRYPT_OK) { goto error; }
+   if (ecc_mulmod(&key->k, base, &key->pubkey, &prime) != CRYPT_OK) { goto error; }
    key->type = PK_PRIVATE;
    
    /* shrink key */
@@ -679,10 +681,10 @@ done:
 
 #define OUTPUT_BIGNUM(num, buf2, y, z)         \
 {                                              \
-      z = mp_unsigned_bin_size(num);           \
+      z = (unsigned long)mp_unsigned_bin_size(num);  \
       STORE32L(z, buf2+y);                     \
       y += 4;                                  \
-      mp_to_unsigned_bin(num, buf2+y);         \
+      (void)mp_to_unsigned_bin(num, buf2+y);   \
       y += z;                                  \
 }
 
@@ -691,7 +693,7 @@ done:
 {                                                                \
      /* load value */                                            \
      if (y+4 > inlen) {                                          \
-        errno = CRYPT_INVALID_PACKET;                            \
+        err = CRYPT_INVALID_PACKET;                              \
         goto error;                                              \
      }                                                           \
      LOAD32L(x, in+y);                                           \
@@ -699,18 +701,18 @@ done:
                                                                  \
      /* sanity check... */                                       \
      if (y+x > inlen) {                                          \
-        errno = CRYPT_INVALID_PACKET;                            \
+        err = CRYPT_INVALID_PACKET;                              \
         goto error;                                              \
      }                                                           \
                                                                  \
      /* load it */                                               \
-     if (mp_read_unsigned_bin(num, (unsigned char *)in+y, x) != MP_OKAY) {\
-        errno = CRYPT_MEM;                                       \
+     if (mp_read_unsigned_bin(num, (unsigned char *)in+y, (int)x) != MP_OKAY) {\
+        err = CRYPT_MEM;                                       \
         goto error;                                              \
      }                                                           \
      y += x;                                                     \
      if (mp_shrink(num) != MP_OKAY) {                            \
-        errno = CRYPT_MEM;                                       \
+        err = CRYPT_MEM;                                       \
         goto error;                                              \
      }                                                           \
 }
@@ -718,7 +720,7 @@ done:
 int ecc_export(unsigned char *out, unsigned long *outlen, int type, ecc_key *key)
 {
    unsigned long y, z;
-   int res, errno;
+   int res, err;
    unsigned char buf2[512];
 
    _ARGCHK(out != NULL);
@@ -732,17 +734,17 @@ int ecc_export(unsigned char *out, unsigned long *outlen, int type, ecc_key *key
 
    /* output type and magic byte */
    y = PACKET_SIZE;
-   buf2[y++] = type;
-   buf2[y++] = sets[key->idx].size;
+   buf2[y++] = (unsigned char)type;
+   buf2[y++] = (unsigned char)sets[key->idx].size;
 
    /* output x coordinate */
    OUTPUT_BIGNUM(&(key->pubkey.x), buf2, y, z);
 
    /* compress y and output it  */
-   if ((errno = compress_y_point(&key->pubkey, key->idx, &res)) != CRYPT_OK) {
-      return errno;
+   if ((err = compress_y_point(&key->pubkey, key->idx, &res)) != CRYPT_OK) {
+      return err;
    }
-   buf2[y++] = res;
+   buf2[y++] = (unsigned char)res;
 
    if (type == PK_PRIVATE) {
       OUTPUT_BIGNUM(&key->k, buf2, y, z);
@@ -756,7 +758,7 @@ int ecc_export(unsigned char *out, unsigned long *outlen, int type, ecc_key *key
    /* store header */
    packet_store_header(buf2, PACKET_SECT_ECC, PACKET_SUB_KEY);
 
-   memcpy(out, buf2, y);
+   memcpy(out, buf2, (size_t)y);
    *outlen = y;
 
    #ifdef CLEAN_STACK
@@ -768,14 +770,14 @@ int ecc_export(unsigned char *out, unsigned long *outlen, int type, ecc_key *key
 int ecc_import(const unsigned char *in, unsigned long inlen, ecc_key *key)
 {
    unsigned long x, y, s;
-   int errno;
+   int err;
 
    _ARGCHK(in != NULL);
    _ARGCHK(key != NULL);
 
    /* check type */
-   if ((errno = packet_valid_header((unsigned char *)in, PACKET_SECT_ECC, PACKET_SUB_KEY)) != CRYPT_OK) { 
-      return errno;
+   if ((err = packet_valid_header((unsigned char *)in, PACKET_SECT_ECC, PACKET_SUB_KEY)) != CRYPT_OK) { 
+      return err;
    }
    
    if (2+PACKET_SIZE > inlen) {
@@ -788,25 +790,25 @@ int ecc_import(const unsigned char *in, unsigned long inlen, ecc_key *key)
    }
 
    y = PACKET_SIZE;
-   key->type = in[y++];
-   s = in[y++];
+   key->type = (int)in[y++];
+   s = (unsigned long)in[y++];
    
-   for (x = 0; (s > (unsigned long)sets[x].size) && (sets[x].size); x++);
+   for (x = 0; (s > (unsigned long)sets[x].size) && (sets[x].size != 0); x++);
    if (sets[x].size == 0) { 
-      errno = CRYPT_INVALID_KEYSIZE;
+      err = CRYPT_INVALID_KEYSIZE;
       goto error;
    }
-   key->idx = x;
+   key->idx = (int)x;
 
    /* type check both values */
    if ((key->type != PK_PUBLIC) && (key->type != PK_PRIVATE))  {
-      errno = CRYPT_INVALID_PACKET;
+      err = CRYPT_INVALID_PACKET;
       goto error;
    }
 
    /* is the key idx valid? */
-   if (!is_valid_idx(key->idx)) {
-      errno = CRYPT_INVALID_PACKET;
+   if (is_valid_idx(key->idx) != 1) {
+      err = CRYPT_INVALID_PACKET;
       goto error;
    }
 
@@ -814,8 +816,8 @@ int ecc_import(const unsigned char *in, unsigned long inlen, ecc_key *key)
    INPUT_BIGNUM(&key->pubkey.x, in, x, y);
   
    /* load y */
-   x = in[y++];
-   if ((errno = expand_y_point(&key->pubkey, key->idx, x)) != CRYPT_OK) { 
+   x = (unsigned long)in[y++];
+   if ((err = expand_y_point(&key->pubkey, key->idx, (int)x)) != CRYPT_OK) { 
        goto error; 
    }
 
@@ -832,7 +834,7 @@ int ecc_import(const unsigned char *in, unsigned long inlen, ecc_key *key)
    return CRYPT_OK;
 error:
    mp_clear_multi(&key->pubkey.x, &key->pubkey.y, &key->k, NULL);
-   return errno;
+   return err;
 }
 
 int ecc_shared_secret(ecc_key *private_key, ecc_key *public_key, 
@@ -841,7 +843,7 @@ int ecc_shared_secret(ecc_key *private_key, ecc_key *public_key,
    unsigned long x, y;
    ecc_point *result;
    mp_int prime;
-   int res, errno;
+   int res, err;
 
    _ARGCHK(private_key != NULL);
    _ARGCHK(public_key != NULL);
@@ -869,18 +871,18 @@ int ecc_shared_secret(ecc_key *private_key, ecc_key *public_key,
    }
 
    if (mp_read_radix(&prime, (unsigned char *)sets[private_key->idx].prime, 64) != MP_OKAY) { goto error; }
-   if ((errno = ecc_mulmod(&private_key->k, &public_key->pubkey, result, &prime, private_key->idx)) != CRYPT_OK) { res = errno; goto done1; }
+   if ((err = ecc_mulmod(&private_key->k, &public_key->pubkey, result, &prime)) != CRYPT_OK) { res = err; goto done1; }
 
-   x = mp_raw_size(&result->x);
-   y = mp_raw_size(&result->y);
+   x = (unsigned long)mp_unsigned_bin_size(&result->x);
+   y = (unsigned long)mp_unsigned_bin_size(&result->y);
 
    if (*outlen < (x+y)) {
       res = CRYPT_BUFFER_OVERFLOW;
       goto done1;
    }
    *outlen = x+y;
-   mp_toraw(&result->x, out);
-   mp_toraw(&result->y, out+x);
+   (void)mp_to_unsigned_bin(&result->x, out);
+   (void)mp_to_unsigned_bin(&result->y, out+x);
 
    res = CRYPT_OK;
    goto done1;

@@ -52,7 +52,7 @@ void sha384_done(hash_state * md, unsigned char *hash)
 int  sha384_test(void)
 {
   static const struct {
-      unsigned char *msg;
+      char *msg;
       unsigned char hash[48];
   } tests[] = {
     { "abc",
@@ -79,9 +79,9 @@ int  sha384_test(void)
 
   for (i = 0; i < (int)(sizeof(tests) / sizeof(tests[0])); i++) {
       sha384_init(&md);
-      sha384_process(&md, tests[i].msg, strlen(tests[i].msg));
+      sha384_process(&md, (unsigned char*)tests[i].msg, (unsigned long)strlen(tests[i].msg));
       sha384_done(&md, tmp);
-      if (memcmp(tmp, tests[i].hash, 48)) {
+      if (memcmp(tmp, tests[i].hash, 48) != 0) {
          return CRYPT_FAIL_TESTVECTOR;
       }
   }

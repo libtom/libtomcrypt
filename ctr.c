@@ -5,20 +5,20 @@
 int ctr_start(int cipher, const unsigned char *count, const unsigned char *key, int keylen, 
               int num_rounds, symmetric_CTR *ctr)
 {
-   int x, errno;
+   int x, err;
 
    _ARGCHK(count != NULL);
    _ARGCHK(key != NULL);
    _ARGCHK(ctr != NULL);
 
    /* bad param? */
-   if ((errno = cipher_is_valid(cipher)) != CRYPT_OK) {
-      return errno;
+   if ((err = cipher_is_valid(cipher)) != CRYPT_OK) {
+      return err;
    }
 
    /* setup cipher */
-   if ((errno = cipher_descriptor[cipher].setup(key, keylen, num_rounds, &ctr->key)) != CRYPT_OK) {
-      return errno;
+   if ((err = cipher_descriptor[cipher].setup(key, keylen, num_rounds, &ctr->key)) != CRYPT_OK) {
+      return err;
    }
 
    /* copy ctr */
@@ -34,23 +34,23 @@ int ctr_start(int cipher, const unsigned char *count, const unsigned char *key, 
 
 int ctr_encrypt(const unsigned char *pt, unsigned char *ct, unsigned long len, symmetric_CTR *ctr)
 {
-   int x, errno;
+   int x, err;
 
    _ARGCHK(pt != NULL);
    _ARGCHK(ct != NULL);
    _ARGCHK(ctr != NULL);
 
-   if ((errno = cipher_is_valid(ctr->cipher)) != CRYPT_OK) {
-       return errno;
+   if ((err = cipher_is_valid(ctr->cipher)) != CRYPT_OK) {
+       return err;
    }
 
-   while (len--) {
+   while (len-- > 0) {
       /* is the pad empty? */
       if (ctr->padlen == ctr->blocklen) {
          /* increment counter */
          for (x = 0; x < ctr->blocklen; x++) {
-            ctr->ctr[x] = (ctr->ctr[x] + 1) & 255;
-            if (ctr->ctr[x] != 0) {
+            ctr->ctr[x] = (ctr->ctr[x] + (unsigned char)1) & (unsigned char)255;
+            if (ctr->ctr[x] != (unsigned char)0) {
                break;
             }
          }

@@ -181,14 +181,14 @@ static const unsigned char qbox[2][4][16] = {
 #ifdef CLEAN_STACK
 static unsigned long _sbox(int i, unsigned long x)
 #else
-unsigned long sbox(int i, unsigned long x)
+static unsigned long sbox(int i, unsigned long x)
 #endif
 {
    unsigned char a0,b0,a1,b1,a2,b2,a3,b3,a4,b4,y;
 
    /* a0,b0 = [x/16], x mod 16 */
-   a0 = (x>>4)&15;
-   b0 = (x)&15;
+   a0 = (unsigned char)((x>>4)&15);
+   b0 = (unsigned char)((x)&15);
 
    /* a1 = a0 ^ b0 */
    a1 = a0 ^ b0;
@@ -197,8 +197,8 @@ unsigned long sbox(int i, unsigned long x)
    b1 = (a0 ^ ((b0<<3)|(b0>>1)) ^ (a0<<3)) & 15;
 
    /* a2,b2 = t0[a1], t1[b1] */
-   a2 = qbox[i][0][a1];
-   b2 = qbox[i][1][b1];
+   a2 = qbox[i][0][(int)a1];
+   b2 = qbox[i][1][(int)b1];
 
    /* a3 = a2 ^ b2 */
    a3 = a2 ^ b2;
@@ -207,8 +207,8 @@ unsigned long sbox(int i, unsigned long x)
    b3 = (a2 ^ ((b2<<3)|(b2>>1)) ^ (a2<<3)) & 15;
 
    /* a4,b4 = t2[a3], t3[b3] */
-   a4 = qbox[i][2][a3];
-   b4 = qbox[i][3][b3];
+   a4 = qbox[i][2][(int)a3];
+   b4 = qbox[i][3][(int)b3];
 
    /* y = 16b4 + a4 */
    y = (b4 << 4) + a4;
@@ -233,12 +233,12 @@ static unsigned long sbox(int i, unsigned long x)
 static unsigned long gf_mult(unsigned long a, unsigned long b, unsigned long p)
 {
    unsigned long result = 0;
-   while (a) {
-      if (a&1)
+   while (a > 0) {
+      if ((a & 1) == 1)
          result ^= b;
       a >>= 1;
       b <<= 1;
-      if (b & 0x100)
+      if ((b & 0x100) == 0x100)
          b ^= p;
    }
    return result & 255;
@@ -252,7 +252,7 @@ static void mds_mult(const unsigned char *in, unsigned char *out)
   unsigned char tmp[4];
 
   for (x = 0; x < 4; x++) {
-      tmp[x] = 0;
+      tmp[x] = (unsigned char)0;
       for (y = 0; y < 4; y++)
           tmp[x] ^= gf_mult(in[y], MDS[x][y], MDS_POLY);
   }
@@ -334,20 +334,20 @@ static void h_func(const unsigned char *in, unsigned char *out, unsigned char *M
 
   switch (k) {
      case 4:
-            y[0] = sbox(1, y[0]) ^ M[4 * (6 + offset) + 0];
-            y[1] = sbox(0, y[1]) ^ M[4 * (6 + offset) + 1];
-            y[2] = sbox(0, y[2]) ^ M[4 * (6 + offset) + 2];
-            y[3] = sbox(1, y[3]) ^ M[4 * (6 + offset) + 3];
+            y[0] = (unsigned char)(sbox(1, (unsigned long)y[0]) ^ M[4 * (6 + offset) + 0]);
+            y[1] = (unsigned char)(sbox(0, (unsigned long)y[1]) ^ M[4 * (6 + offset) + 1]);
+            y[2] = (unsigned char)(sbox(0, (unsigned long)y[2]) ^ M[4 * (6 + offset) + 2]);
+            y[3] = (unsigned char)(sbox(1, (unsigned long)y[3]) ^ M[4 * (6 + offset) + 3]);
      case 3:
-            y[0] = sbox(1, y[0]) ^ M[4 * (4 + offset) + 0];
-            y[1] = sbox(1, y[1]) ^ M[4 * (4 + offset) + 1];
-            y[2] = sbox(0, y[2]) ^ M[4 * (4 + offset) + 2];
-            y[3] = sbox(0, y[3]) ^ M[4 * (4 + offset) + 3];
+            y[0] = (unsigned char)(sbox(1, (unsigned long)y[0]) ^ M[4 * (4 + offset) + 0]);
+            y[1] = (unsigned char)(sbox(1, (unsigned long)y[1]) ^ M[4 * (4 + offset) + 1]);
+            y[2] = (unsigned char)(sbox(0, (unsigned long)y[2]) ^ M[4 * (4 + offset) + 2]);
+            y[3] = (unsigned char)(sbox(0, (unsigned long)y[3]) ^ M[4 * (4 + offset) + 3]);
      case 2:
-            y[0] = sbox(1, sbox(0, sbox(0, y[0]) ^ M[4 * (2 + offset) + 0]) ^ M[4 * (0 + offset) + 0]);
-            y[1] = sbox(0, sbox(0, sbox(1, y[1]) ^ M[4 * (2 + offset) + 1]) ^ M[4 * (0 + offset) + 1]);
-            y[2] = sbox(1, sbox(1, sbox(0, y[2]) ^ M[4 * (2 + offset) + 2]) ^ M[4 * (0 + offset) + 2]);
-            y[3] = sbox(0, sbox(1, sbox(1, y[3]) ^ M[4 * (2 + offset) + 3]) ^ M[4 * (0 + offset) + 3]);
+            y[0] = (unsigned char)(sbox(1, sbox(0, sbox(0, (unsigned long)y[0]) ^ M[4 * (2 + offset) + 0]) ^ M[4 * (0 + offset) + 0]));
+            y[1] = (unsigned char)(sbox(0, sbox(0, sbox(1, (unsigned long)y[1]) ^ M[4 * (2 + offset) + 1]) ^ M[4 * (0 + offset) + 1]));
+            y[2] = (unsigned char)(sbox(1, sbox(1, sbox(0, (unsigned long)y[2]) ^ M[4 * (2 + offset) + 2]) ^ M[4 * (0 + offset) + 2]));
+            y[3] = (unsigned char)(sbox(0, sbox(1, sbox(1, (unsigned long)y[3]) ^ M[4 * (2 + offset) + 3]) ^ M[4 * (0 + offset) + 3]));
   }
   mds_mult(y, out);
 }
@@ -408,7 +408,8 @@ int twofish_setup(const unsigned char *key, int keylen, int num_rounds, symmetri
 #endif
 {
 #ifndef TWOFISH_SMALL
-   int g, z, i;
+   unsigned long g;
+   int z, i;
    unsigned char S[4*4];
 #endif
    int k, x, y, start;
@@ -453,7 +454,7 @@ int twofish_setup(const unsigned char *key, int keylen, int num_rounds, symmetri
 
        /* B = ROL(h(p * (2x + 1), Mo), 8) */
        for (y = 0; y < 4; y++)
-           tmp[y] = x+x+1;
+           tmp[y] = (unsigned char)(x+x+1);
        h_func(tmp, tmp2, M, k, 1);
        LOAD32L(B, tmp2);
        B = ROL(B, 8);
@@ -479,7 +480,7 @@ int twofish_setup(const unsigned char *key, int keylen, int num_rounds, symmetri
            z = start;
 
            /* do unkeyed substitution */
-           g = sbox(qord[y][z++], x);
+           g = sbox((int)qord[y][z++], x);
 
            /* first subkey */
            i = 0;
@@ -487,11 +488,11 @@ int twofish_setup(const unsigned char *key, int keylen, int num_rounds, symmetri
            /* do key mixing+sbox until z==5 */
            while (z != 5) {
                g = g ^ S[4*i++ + y];
-               g = sbox(qord[y][z++], g);
+               g = sbox((int)qord[y][z++], g);
            }
            
            /* multiply g by a column of the MDS */
-           skey->twofish.S[y][x] = mds_column_mult(g, y);
+           skey->twofish.S[y][x] = mds_column_mult((unsigned char)g, y);
        }
    }
 #else
@@ -661,15 +662,15 @@ int twofish_test(void)
 
  symmetric_key key;
  unsigned char tmp[2][16];
- int errno, i;
+ int err, i;
  
  for (i = 0; i < (int)(sizeof(tests)/sizeof(tests[0])); i++) {
-    if ((errno = twofish_setup(tests[i].key, tests[i].keylen, 0, &key)) != CRYPT_OK) {
-       return errno;
+    if ((err = twofish_setup(tests[i].key, tests[i].keylen, 0, &key)) != CRYPT_OK) {
+       return err;
     }
     twofish_ecb_encrypt(tests[i].pt, tmp[0], &key);
     twofish_ecb_decrypt(tmp[0], tmp[1], &key);
-    if (memcmp(tmp[0], tests[i].ct, 16) || memcmp(tmp[1], tests[i].pt, 16)) {
+    if (memcmp(tmp[0], tests[i].ct, 16) != 0 || memcmp(tmp[1], tests[i].pt, 16) != 0) {
        return CRYPT_FAIL_TESTVECTOR;
     }
  }    

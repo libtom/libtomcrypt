@@ -181,7 +181,7 @@ typedef struct Symmetric_CTR {
 extern  struct _cipher_descriptor {
    char *name;
    unsigned char ID;
-   unsigned long  min_key_length, max_key_length, block_length, default_rounds;
+   int  min_key_length, max_key_length, block_length, default_rounds;
    int  (*setup)(const unsigned char *key, int keylength, int num_rounds, symmetric_key *skey);
    void (*ecb_encrypt)(const unsigned char *pt, unsigned char *ct, symmetric_key *key);
    void (*ecb_decrypt)(const unsigned char *ct, unsigned char *pt, symmetric_key *key);

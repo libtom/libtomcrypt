@@ -3,14 +3,14 @@
 int hash_memory(int hash, const unsigned char *data, unsigned long len, unsigned char *dst, unsigned long *outlen)
 {
     hash_state md;
-    int errno;
+    int err;
 
     _ARGCHK(data != NULL);
     _ARGCHK(dst != NULL);
     _ARGCHK(outlen != NULL);
 
-    if ((errno = hash_is_valid(hash)) != CRYPT_OK) {
-        return errno;
+    if ((err = hash_is_valid(hash)) != CRYPT_OK) {
+        return err;
     }
 
     if (*outlen < hash_descriptor[hash].hashsize) {
@@ -31,14 +31,15 @@ int hash_filehandle(int hash, FILE *in, unsigned char *dst, unsigned long *outle
 #else
     hash_state md;
     unsigned char buf[512];
-    int x, errno;
+    size_t x;
+    int err;
 
     _ARGCHK(dst != NULL);
     _ARGCHK(outlen != NULL);
     _ARGCHK(in != NULL);
 
-    if ((errno = hash_is_valid(hash)) != CRYPT_OK) {
-        return errno;
+    if ((err = hash_is_valid(hash)) != CRYPT_OK) {
+        return err;
     }
 
     if (*outlen < hash_descriptor[hash].hashsize) {
@@ -67,13 +68,13 @@ int hash_file(int hash, const char *fname, unsigned char *dst, unsigned long *ou
     return CRYPT_ERROR;
 #else
     FILE *in;
-    int errno;
+    int err;
     _ARGCHK(fname != NULL);
     _ARGCHK(dst != NULL);
     _ARGCHK(outlen != NULL);
 
-    if ((errno = hash_is_valid(hash)) != CRYPT_OK) {
-        return errno;
+    if ((err = hash_is_valid(hash)) != CRYPT_OK) {
+        return err;
     }
 
     in = fopen(fname, "rb");
@@ -81,11 +82,11 @@ int hash_file(int hash, const char *fname, unsigned char *dst, unsigned long *ou
        return CRYPT_INVALID_ARG;
     }
 
-    if ((errno = hash_filehandle(hash, in, dst, outlen)) != CRYPT_OK) {
-       fclose(in);
-       return errno;
+    if ((err = hash_filehandle(hash, in, dst, outlen)) != CRYPT_OK) {
+       (void)fclose(in);
+       return err;
     }
-    fclose(in);
+    (void)fclose(in);
 
     return CRYPT_OK;
 #endif

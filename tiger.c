@@ -629,9 +629,9 @@ void tiger_process(hash_state * md, const unsigned char *buf, unsigned long len)
     unsigned long n;
     _ARGCHK(md != NULL);
     _ARGCHK(buf != NULL);
-    while (len) {
+    while (len > 0) {
         n = MIN(len, (64 - md->tiger.curlen));
-        memcpy(md->tiger.buf + md->tiger.curlen, buf, n);
+        memcpy(md->tiger.buf + md->tiger.curlen, buf, (size_t)n);
         md->tiger.curlen += n;
         buf            += n;
         len            -= n;
@@ -654,14 +654,14 @@ void tiger_done(hash_state * md, unsigned char *hash)
     md->tiger.length += md->tiger.curlen * 8;
 
     /* append the '1' bit */
-    md->tiger.buf[md->tiger.curlen++] = 0x01;
+    md->tiger.buf[md->tiger.curlen++] = (unsigned char)0x01;
 
     /* if the length is currently above 56 bytes we append zeros
      * then compress.  Then we can fall back to padding zeros and length
      * encoding like normal. */
     if (md->tiger.curlen > 56) {
         while (md->tiger.curlen < 64) {
-            md->tiger.buf[md->tiger.curlen++] = 0;
+            md->tiger.buf[md->tiger.curlen++] = (unsigned char)0;
         }
         tiger_compress(md);
         md->tiger.curlen = 0;
@@ -669,7 +669,7 @@ void tiger_done(hash_state * md, unsigned char *hash)
 
     /* pad upto 56 bytes of zeroes */
     while (md->tiger.curlen < 56) {
-        md->tiger.buf[md->tiger.curlen++] = 0; 
+        md->tiger.buf[md->tiger.curlen++] = (unsigned char)0; 
     }
 
     /* store length */
@@ -688,7 +688,7 @@ void tiger_done(hash_state * md, unsigned char *hash)
 int  tiger_test(void)
 {
   static const struct {
-      unsigned char *msg;
+      char *msg;
       unsigned char hash[24];
   } tests[] = {
     { "",
@@ -724,9 +724,9 @@ int  tiger_test(void)
 
   for (i = 0; i < (int)(sizeof(tests) / sizeof(tests[0])); i++) {
       tiger_init(&md);
-      tiger_process(&md, tests[i].msg, strlen(tests[i].msg));
+      tiger_process(&md, (unsigned char *)tests[i].msg, (unsigned long)strlen(tests[i].msg));
       tiger_done(&md, tmp);
-      if (memcmp(tmp, tests[i].hash, 24)) {
+      if (memcmp(tmp, tests[i].hash, 24) != 0) {
           return CRYPT_FAIL_TESTVECTOR;
       }
   }

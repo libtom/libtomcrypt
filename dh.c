@@ -151,12 +151,12 @@ int dh_test(void)
 
     if (mp_init_multi(&p, &g, &tmp, NULL) != MP_OKAY)                 { goto error; }
 
-    for (x = 0; sets[x].size; x++) {
+    for (x = 0; sets[x].size != 0; x++) {
 #if 0
         printf("dh_test():testing size %d-bits\n", sets[x].size * 8);
 #endif
-        if (mp_read_radix(&g, sets[x].base, 64) != MP_OKAY)           { goto error; }
-        if (mp_read_radix(&p, sets[x].prime, 64) != MP_OKAY)          { goto error; }
+        if (mp_read_radix(&g,(unsigned char *)sets[x].base, 64) != MP_OKAY)   { goto error; }
+        if (mp_read_radix(&p,(unsigned char *)sets[x].prime, 64) != MP_OKAY)  { goto error; }
 
         /* ensure p is prime */
         if ((res = is_prime(&p, &primality)) != CRYPT_OK)             { goto done; }
@@ -198,7 +198,7 @@ void dh_sizes(int *low, int *high)
    _ARGCHK(high != NULL);
    *low  = INT_MAX;
    *high = 0;
-   for (x = 0; sets[x].size; x++) {
+   for (x = 0; sets[x].size != 0; x++) {
        if (*low > sets[x].size)  *low  = sets[x].size;
        if (*high < sets[x].size) *high = sets[x].size;
    }
@@ -207,7 +207,7 @@ void dh_sizes(int *low, int *high)
 int dh_get_size(dh_key *key)
 {
     _ARGCHK(key != NULL);
-    if (is_valid_idx(key->idx)) 
+    if (is_valid_idx(key->idx) == 1) 
         return sets[key->idx].size;
     else
         return INT_MAX; /* large value that would cause dh_make_key() to fail */
@@ -215,20 +215,20 @@ int dh_get_size(dh_key *key)
   
 int dh_make_key(prng_state *prng, int wprng, int keysize, dh_key *key)
 {
-   unsigned char buf[768];
+   unsigned char buf[512];
    unsigned long x;
    mp_int p, g;
-   int res, errno;
+   int res, err;
 
    _ARGCHK(key  != NULL);
 
    /* good prng? */
-   if ((errno = prng_is_valid(wprng)) != CRYPT_OK) {
-      return errno;
+   if ((err = prng_is_valid(wprng)) != CRYPT_OK) {
+      return err;
    }
 
    /* find key size */
-   for (x = 0; (keysize > sets[x].size) && (sets[x].size); x++);
+   for (x = 0; (keysize > sets[x].size) && (sets[x].size != 0); x++);
 #ifdef FAST_PK
    keysize = MIN(sets[x].size, 32);
 #else  
@@ -241,8 +241,7 @@ int dh_make_key(prng_state *prng, int wprng, int keysize, dh_key *key)
    key->idx = x;
 
    /* make up random string */
-   buf[0] = 0;
-   if (prng_descriptor[wprng].read(buf+1, keysize, prng) != (unsigned long)keysize) {
+   if (prng_descriptor[wprng].read(buf, keysize, prng) != (unsigned long)keysize) {
       return CRYPT_ERROR_READPRNG;
    }
 
@@ -254,7 +253,7 @@ int dh_make_key(prng_state *prng, int wprng, int keysize, dh_key *key)
    if (mp_read_radix(&p, sets[key->idx].prime, 64) != MP_OKAY)     { goto error; }
 
    /* load the x value */
-   mp_read_raw(&key->x, buf, keysize+1);
+   if (mp_read_unsigned_bin(&key->x, buf, keysize) != MP_OKAY)     { goto error; }
    if (mp_exptmod(&g, &key->x, &p, &key->y) != MP_OKAY)            { goto error; }
    key->type = PK_PRIVATE;
    
@@ -281,10 +280,10 @@ void dh_free(dh_key *key)
 
 #define OUTPUT_BIGNUM(num, buf2, y, z)         \
 {                                              \
-      z = mp_unsigned_bin_size(num);           \
+      z = (unsigned long)mp_unsigned_bin_size(num);           \
       STORE32L(z, buf2+y);                     \
       y += 4;                                  \
-      mp_to_unsigned_bin(num, buf2+y);         \
+      (void)mp_to_unsigned_bin(num, buf2+y);   \
       y += z;                                  \
 }
 
@@ -293,7 +292,7 @@ void dh_free(dh_key *key)
 {                                                                \
      /* load value */                                            \
      if (y + 4 > inlen) {                                        \
-        errno = CRYPT_INVALID_PACKET;                            \
+        err = CRYPT_INVALID_PACKET;                            \
         goto error;                                              \
      }                                                           \
      LOAD32L(x, in+y);                                           \
@@ -301,18 +300,18 @@ void dh_free(dh_key *key)
                                                                  \
      /* sanity check... */                                       \
      if (x+y > inlen) {                                          \
-        errno = CRYPT_INVALID_PACKET;                            \
+        err = CRYPT_INVALID_PACKET;                            \
         goto error;                                              \
      }                                                           \
                                                                  \
      /* load it */                                               \
-     if (mp_read_unsigned_bin(num, (unsigned char *)in+y, x) != MP_OKAY) {\
-        errno =  CRYPT_MEM;                                      \
+     if (mp_read_unsigned_bin(num, (unsigned char *)in+y, (int)x) != MP_OKAY) {\
+        err =  CRYPT_MEM;                                      \
         goto error;                                              \
      }                                                           \
      y += x;                                                     \
      if (mp_shrink(num) != MP_OKAY) {                            \
-        errno = CRYPT_MEM;                                       \
+        err = CRYPT_MEM;                                       \
         goto error;                                              \
      }                                                           \
 }
@@ -336,7 +335,7 @@ int dh_export(unsigned char *out, unsigned long *outlen, int type, dh_key *key)
 
    /* header */
    buf2[y++] = type;
-   buf2[y++] = sets[key->idx].size / 8;
+   buf2[y++] = (unsigned char)(sets[key->idx].size / 8);
 
    /* export y */
    OUTPUT_BIGNUM(&key->y, buf2, y, z);
@@ -359,7 +358,7 @@ int dh_export(unsigned char *out, unsigned long *outlen, int type, dh_key *key)
 
    /* output it */
    *outlen = y;
-   memcpy(out, buf2, y);
+   memcpy(out, buf2, (size_t)y);
 
    /* clear mem */
 #ifdef CLEAN_STACK   
@@ -371,14 +370,14 @@ int dh_export(unsigned char *out, unsigned long *outlen, int type, dh_key *key)
 int dh_import(const unsigned char *in, unsigned long inlen, dh_key *key)
 {
    unsigned long x, y, s;
-   int errno;
+   int err;
 
    _ARGCHK(in != NULL);
    _ARGCHK(key != NULL);
 
    /* check type byte */
-   if ((errno = packet_valid_header((unsigned char *)in, PACKET_SECT_DH, PACKET_SUB_KEY)) != CRYPT_OK) {
-      return errno;
+   if ((err = packet_valid_header((unsigned char *)in, PACKET_SECT_DH, PACKET_SUB_KEY)) != CRYPT_OK) {
+      return err;
    }
    
    if (2+PACKET_SIZE > inlen) {
@@ -391,25 +390,25 @@ int dh_import(const unsigned char *in, unsigned long inlen, dh_key *key)
    }
 
    y = PACKET_SIZE;
-   key->type = in[y++];
-   s  = (long)in[y++] * 8;
+   key->type = (int)in[y++];
+   s  = (unsigned long)in[y++] * 8;
    
-   for (x = 0; (s > (unsigned long)sets[x].size) && (sets[x].size); x++);
+   for (x = 0; (s > (unsigned long)sets[x].size) && (sets[x].size != 0); x++);
    if (sets[x].size == 0) {
-      errno = CRYPT_INVALID_KEYSIZE;
+      err = CRYPT_INVALID_KEYSIZE;
       goto error;
    }
-   key->idx = x;
+   key->idx = (int)x;
 
    /* type check both values */
    if ((key->type != PK_PUBLIC) && (key->type != PK_PRIVATE))  {
-      errno = CRYPT_PK_TYPE_MISMATCH;
+      err = CRYPT_PK_TYPE_MISMATCH;
       goto error;
    }
 
    /* is the key idx valid? */
-   if (!is_valid_idx(key->idx)) {
-      errno = CRYPT_PK_TYPE_MISMATCH;
+   if (is_valid_idx(key->idx) != 1) {
+      err = CRYPT_PK_TYPE_MISMATCH;
       goto error;
    }
 
@@ -428,7 +427,7 @@ int dh_import(const unsigned char *in, unsigned long inlen, dh_key *key)
    return CRYPT_OK;
 error:
    mp_clear_multi(&key->y, &key->x, NULL);
-   return errno;
+   return err;
 }
 
 int dh_shared_secret(dh_key *private_key, dh_key *public_key, 
@@ -458,16 +457,16 @@ int dh_shared_secret(dh_key *private_key, dh_key *public_key,
       return CRYPT_MEM;
    }
 
-   if (mp_read_radix(&p, sets[private_key->idx].prime, 64) != MP_OKAY)     { goto error; }
-   if (mp_exptmod(&public_key->y, &private_key->x, &p, &tmp) != MP_OKAY)   { goto error; }
+   if (mp_read_radix(&p, (unsigned char *)sets[private_key->idx].prime, 64) != MP_OKAY)     { goto error; }
+   if (mp_exptmod(&public_key->y, &private_key->x, &p, &tmp) != MP_OKAY)                    { goto error; }
 
    /* enough space for output? */
-   x = mp_raw_size(&tmp);
+   x = (unsigned long)mp_unsigned_bin_size(&tmp);
    if (*outlen < x) {
       res = CRYPT_BUFFER_OVERFLOW;
       goto done;
    }
-   mp_toraw(&tmp, out);
+   (void)mp_to_unsigned_bin(&tmp, out);
    *outlen = x;
    res = CRYPT_OK;
    goto done;
