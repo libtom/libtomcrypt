@@ -12,6 +12,8 @@
  *
  * Tom St Denis, tomstdenis@iahu.ca, http://libtommath.iahu.ca
  */
+#include "mycrypt.h"
+
 #ifndef BN_H_
 #define BN_H_
 

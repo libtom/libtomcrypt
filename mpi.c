@@ -13,13 +13,16 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtommath.iahu.ca
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
  */
 #include <tommath.h>
 
-int     KARATSUBA_MUL_CUTOFF = 80,	/* Min. number of digits before Karatsuba multiplication is used. */
-        KARATSUBA_SQR_CUTOFF = 80,	/* Min. number of digits before Karatsuba squaring is used. */
-        MONTGOMERY_EXPT_CUTOFF = 74;	/* max. number of digits that montgomery reductions will help for */
+/* configured for a Duron Morgan core with etc/tune.c */
+int     KARATSUBA_MUL_CUTOFF = 73,	/* Min. number of digits before Karatsuba multiplication is used. */
+        KARATSUBA_SQR_CUTOFF = 121,	/* Min. number of digits before Karatsuba squaring is used. */
+        MONTGOMERY_EXPT_CUTOFF = 128;	/* max. number of digits that montgomery reductions will help for */
+
+/* note the MONT cuttoff should be tuned better.  Seems it slowed down a 1024-bit exptmod when set to 74 */
 
 /* End: bncore.c */
 
@@ -36,7 +39,7 @@ int     KARATSUBA_MUL_CUTOFF = 80,	/* Min. number of digits before Karatsuba mul
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtommath.iahu.ca
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
  */
 #include <tommath.h>
 
@@ -216,7 +219,7 @@ __ERR:
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtommath.iahu.ca
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
  */
 #include <tommath.h>
 
@@ -306,14 +309,18 @@ fast_mp_montgomery_reduce (mp_int * a, mp_int * m, mp_digit mp)
     W[ix + 1] += W[ix] >> ((mp_word) DIGIT_BIT);
   }
 
-  /* nox fix rest of carries */
-  for (++ix; ix <= m->used * 2 + 1; ix++) {
-    W[ix] += (W[ix - 1] >> ((mp_word) DIGIT_BIT));
-  }
 
   {
     register mp_digit *tmpa;
-    register mp_word *_W;
+    register mp_word *_W, *_W1;
+
+    /* nox fix rest of carries */
+    _W1 = W + ix;
+    _W = W + ++ix;
+
+    for (; ix <= m->used * 2 + 1; ix++) {
+      *_W++ += *_W1++ >> ((mp_word) DIGIT_BIT);
+    }
 
     /* copy out, A = A/b^n
      *
@@ -361,7 +368,7 @@ fast_mp_montgomery_reduce (mp_int * a, mp_int * m, mp_digit mp)
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtommath.iahu.ca
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
  */
 #include <tommath.h>
 
@@ -486,7 +493,7 @@ fast_s_mp_mul_digs (mp_int * a, mp_int * b, mp_int * c, int digs)
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtommath.iahu.ca
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
  */
 #include <tommath.h>
 
@@ -553,8 +560,7 @@ fast_s_mp_mul_high_digs (mp_int * a, mp_int * b, mp_int * c, int digs)
     W[ix] += (W[ix - 1] >> ((mp_word) DIGIT_BIT));
     c->dp[ix - 1] = (mp_digit) (W[ix - 1] & ((mp_word) MP_MASK));
   }
-  c->dp[(pa + pb + 1) - 1] =
-    (mp_digit) (W[(pa + pb + 1) - 1] & ((mp_word) MP_MASK));
+  c->dp[(pa + pb + 1) - 1] = (mp_digit) (W[(pa + pb + 1) - 1] & ((mp_word) MP_MASK));
 
   for (; ix < oldused; ix++) {
     c->dp[ix] = 0;
@@ -578,7 +584,7 @@ fast_s_mp_mul_high_digs (mp_int * a, mp_int * b, mp_int * c, int digs)
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtommath.iahu.ca
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
  */
 #include <tommath.h>
 
@@ -694,11 +700,7 @@ fast_s_mp_sqr (mp_int * a, mp_int * b)
     for (; ix < olduse; ix++) {
       *tmpb++ = 0;
     }
-
   }
-
-  /* fix the sign (since we no longer make a fresh temp) */
-  b->sign = MP_ZPOS;
 
   mp_clamp (b);
   return MP_OKAY;
@@ -719,7 +721,7 @@ fast_s_mp_sqr (mp_int * a, mp_int * b)
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtommath.iahu.ca
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
  */
 #include <tommath.h>
 
@@ -758,7 +760,7 @@ mp_2expt (mp_int * a, int b)
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtommath.iahu.ca
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
  */
 #include <tommath.h>
 
@@ -792,7 +794,7 @@ mp_abs (mp_int * a, mp_int * b)
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtommath.iahu.ca
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
  */
 #include <tommath.h>
 
@@ -852,7 +854,7 @@ mp_add (mp_int * a, mp_int * b, mp_int * c)
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtommath.iahu.ca
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
  */
 #include <tommath.h>
 
@@ -891,7 +893,7 @@ mp_addmod (mp_int * a, mp_int * b, mp_int * c, mp_int * d)
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtommath.iahu.ca
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
  */
 #include <tommath.h>
 
@@ -927,7 +929,7 @@ mp_add_d (mp_int * a, mp_digit b, mp_int * c)
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtommath.iahu.ca
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
  */
 #include <tommath.h>
 
@@ -982,7 +984,7 @@ mp_and (mp_int * a, mp_int * b, mp_int * c)
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtommath.iahu.ca
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
  */
 #include <tommath.h>
 
@@ -1018,7 +1020,7 @@ mp_clamp (mp_int * a)
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtommath.iahu.ca
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
  */
 #include <tommath.h>
 
@@ -1032,7 +1034,7 @@ mp_clear (mp_int * a)
     memset (a->dp, 0, sizeof (mp_digit) * a->used);
 
     /* free ram */
-    free (a->dp);
+    XFREE(a->dp);
 
     /* reset members to make debugging easier */
     a->dp = NULL;
@@ -1055,7 +1057,7 @@ mp_clear (mp_int * a)
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtommath.iahu.ca
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
  */
 #include <tommath.h>
 
@@ -1087,7 +1089,7 @@ mp_cmp (mp_int * a, mp_int * b)
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtommath.iahu.ca
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
  */
 #include <tommath.h>
 
@@ -1128,7 +1130,7 @@ mp_cmp_d (mp_int * a, mp_digit b)
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtommath.iahu.ca
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
  */
 #include <tommath.h>
 
@@ -1171,7 +1173,7 @@ mp_cmp_mag (mp_int * a, mp_int * b)
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtommath.iahu.ca
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
  */
 #include <tommath.h>
 
@@ -1229,7 +1231,7 @@ mp_copy (mp_int * a, mp_int * b)
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtommath.iahu.ca
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
  */
 #include <tommath.h>
 
@@ -1268,7 +1270,7 @@ mp_count_bits (mp_int * a)
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtommath.iahu.ca
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
  */
 #include <tommath.h>
 
@@ -1333,8 +1335,7 @@ mp_div (mp_int * a, mp_int * b, mp_int * c, mp_int * d)
 
   /* normalize both x and y, ensure that y >= b/2, [b == 2^DIGIT_BIT] */
   norm = 0;
-  while ((y.dp[y.used - 1] & (((mp_digit) 1) << (DIGIT_BIT - 1))) ==
-	 ((mp_digit) 0)) {
+  while ((y.dp[y.used - 1] & (((mp_digit) 1) << (DIGIT_BIT - 1))) == ((mp_digit) 0)) {
     ++norm;
     if ((res = mp_mul_2 (&x, &x)) != MP_OKAY) {
       goto __Y;
@@ -1471,7 +1472,7 @@ __Q:mp_clear (&q);
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtommath.iahu.ca
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
  */
 #include <tommath.h>
 
@@ -1507,6 +1508,7 @@ mp_div_2 (mp_int * a, mp_int * b)
       *tmpb++ = 0;
     }
   }
+  b->sign = a->sign;
   mp_clamp (b);
   return MP_OKAY;
 }
@@ -1526,7 +1528,7 @@ mp_div_2 (mp_int * a, mp_int * b)
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtommath.iahu.ca
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
  */
 #include <tommath.h>
 
@@ -1567,7 +1569,9 @@ mp_div_2d (mp_int * a, int b, mp_int * c, mp_int * d)
   }
 
   /* shift by as many digits in the bit count */
-  mp_rshd (c, b / DIGIT_BIT);
+  if (b >= DIGIT_BIT) {
+     mp_rshd (c, b / DIGIT_BIT);
+  }     
 
   /* shift any bit count < DIGIT_BIT */
   D = (mp_digit) (b % DIGIT_BIT);
@@ -1608,7 +1612,7 @@ mp_div_2d (mp_int * a, int b, mp_int * c, mp_int * d)
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtommath.iahu.ca
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
  */
 #include <tommath.h>
 
@@ -1656,7 +1660,7 @@ mp_div_d (mp_int * a, mp_digit b, mp_int * c, mp_digit * d)
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtommath.iahu.ca
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
  */
 #include <tommath.h>
 
@@ -1685,23 +1689,34 @@ mp_exch (mp_int * a, mp_int * b)
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtommath.iahu.ca
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
  */
 #include <tommath.h>
 
+static int f_mp_exptmod (mp_int * G, mp_int * X, mp_int * P, mp_int * Y);
+
+/* this is a shell function that calls either the normal or Montgomery
+ * exptmod functions.  Originally the call to the montgomery code was 
+ * embedded in the normal function but that wasted alot of stack space
+ * for nothing (since 99% of the time the Montgomery code would be called)
+ */
 int
 mp_exptmod (mp_int * G, mp_int * X, mp_int * P, mp_int * Y)
+{
+  /* if the modulus is odd use the fast method */
+  if (mp_isodd (P) == 1 && P->used > 4 && P->used < MONTGOMERY_EXPT_CUTOFF) {
+    return mp_exptmod_fast (G, X, P, Y);
+  } else {
+    return f_mp_exptmod (G, X, P, Y);
+  }
+}
+
+static int
+f_mp_exptmod (mp_int * G, mp_int * X, mp_int * P, mp_int * Y)
 {
   mp_int  M[256], res, mu;
   mp_digit buf;
   int     err, bitbuf, bitcpy, bitcnt, mode, digidx, x, y, winsize;
-
-
-  /* if the modulus is odd use the fast method */
-  if (mp_isodd (P) == 1 && P->used > 4 && P->used < MONTGOMERY_EXPT_CUTOFF) {
-    err = mp_exptmod_fast (G, X, P, Y);
-    return err;
-  }
 
   /* find window size */
   x = mp_count_bits (X);
@@ -1755,9 +1770,7 @@ mp_exptmod (mp_int * G, mp_int * X, mp_int * P, mp_int * Y)
   }
 
   for (x = 0; x < (winsize - 1); x++) {
-    if ((err =
-	 mp_sqr (&M[1 << (winsize - 1)],
-		 &M[1 << (winsize - 1)])) != MP_OKAY) {
+    if ((err = mp_sqr (&M[1 << (winsize - 1)], &M[1 << (winsize - 1)])) != MP_OKAY) {
       goto __MU;
     }
     if ((err = mp_reduce (&M[1 << (winsize - 1)], P, &mu)) != MP_OKAY) {
@@ -1902,7 +1915,7 @@ __M:
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtommath.iahu.ca
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
  */
 #include <tommath.h>
 
@@ -1958,39 +1971,32 @@ mp_exptmod_fast (mp_int * G, mp_int * X, mp_int * P, mp_int * Y)
     goto __RES;
   }
 
-  /* now we need R mod m */
-  if ((err = mp_montgomery_calc_normalization (&res, P)) != MP_OKAY) {
-    goto __RES;
-  }
-
   /* create M table
    *
    * The M table contains powers of the input base, e.g. M[x] = G^x mod P
    *
    * The first half of the table is not computed though accept for M[0] and M[1]
    */
-  if ((err = mp_mod (G, P, &M[1])) != MP_OKAY) {
+
+  /* now we need R mod m */
+  if ((err = mp_montgomery_calc_normalization (&res, P)) != MP_OKAY) {
     goto __RES;
   }
 
   /* now set M[1] to G * R mod m */
-  if ((err = mp_mulmod (&M[1], &res, P, &M[1])) != MP_OKAY) {
+  if ((err = mp_mulmod (G, &res, P, &M[1])) != MP_OKAY) {
     goto __RES;
   }
-
   /* compute the value at M[1<<(winsize-1)] by squaring M[1] (winsize-1) times */
   if ((err = mp_copy (&M[1], &M[1 << (winsize - 1)])) != MP_OKAY) {
     goto __RES;
   }
 
   for (x = 0; x < (winsize - 1); x++) {
-    if ((err =
-	 mp_sqr (&M[1 << (winsize - 1)],
-		 &M[1 << (winsize - 1)])) != MP_OKAY) {
+    if ((err = mp_sqr (&M[1 << (winsize - 1)], &M[1 << (winsize - 1)])) != MP_OKAY) {
       goto __RES;
     }
-    if ((err =
-	 mp_montgomery_reduce (&M[1 << (winsize - 1)], P, mp)) != MP_OKAY) {
+    if ((err = mp_montgomery_reduce (&M[1 << (winsize - 1)], P, mp)) != MP_OKAY) {
       goto __RES;
     }
   }
@@ -2130,7 +2136,7 @@ __M:
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtommath.iahu.ca
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
  */
 #include <tommath.h>
 
@@ -2183,7 +2189,7 @@ mp_expt_d (mp_int * a, mp_digit b, mp_int * c)
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtommath.iahu.ca
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
  */
 #include <tommath.h>
 
@@ -2230,10 +2236,10 @@ mp_gcd (mp_int * a, mp_int * b, mp_int * c)
   k = 0;
   while ((u.dp[0] & 1) == 0 && (v.dp[0] & 1) == 0) {
     ++k;
-    if ((res = mp_div_2d (&u, 1, &u, NULL)) != MP_OKAY) {
+    if ((res = mp_div_2 (&u, &u)) != MP_OKAY) {
       goto __T;
     }
-    if ((res = mp_div_2d (&v, 1, &v, NULL)) != MP_OKAY) {
+    if ((res = mp_div_2 (&v, &v)) != MP_OKAY) {
       goto __T;
     }
   }
@@ -2253,7 +2259,7 @@ mp_gcd (mp_int * a, mp_int * b, mp_int * c)
   do {
     /* B3 (and B4).  Halve t, if even */
     while (t.used != 0 && (t.dp[0] & 1) == 0) {
-      if ((res = mp_div_2d (&t, 1, &t, NULL)) != MP_OKAY) {
+      if ((res = mp_div_2 (&t, &t)) != MP_OKAY) {
 	goto __T;
       }
     }
@@ -2305,7 +2311,7 @@ __U:mp_clear (&v);
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtommath.iahu.ca
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
  */
 #include <tommath.h>
 
@@ -2319,7 +2325,7 @@ mp_grow (mp_int * a, int size)
   if (a->alloc < size) {
     size += (MP_PREC * 2) - (size & (MP_PREC - 1));	/* ensure there are always at least MP_PREC digits extra on top */
 
-    a->dp = realloc (a->dp, sizeof (mp_digit) * size);
+    a->dp = XREALLOC (a->dp, sizeof (mp_digit) * size);
     if (a->dp == NULL) {
       return MP_MEM;
     }
@@ -2348,7 +2354,7 @@ mp_grow (mp_int * a, int size)
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtommath.iahu.ca
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
  */
 #include <tommath.h>
 
@@ -2358,7 +2364,7 @@ mp_init (mp_int * a)
 {
 
   /* allocate ram required and clear it */
-  a->dp = calloc (sizeof (mp_digit), MP_PREC);
+  a->dp = XCALLOC (sizeof (mp_digit), MP_PREC);
   if (a->dp == NULL) {
     return MP_MEM;
   }
@@ -2387,7 +2393,7 @@ mp_init (mp_int * a)
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtommath.iahu.ca
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
  */
 #include <tommath.h>
 
@@ -2400,8 +2406,7 @@ mp_init_copy (mp_int * a, mp_int * b)
   if ((res = mp_init (a)) != MP_OKAY) {
     return res;
   }
-  res = mp_copy (b, a);
-  return res;
+  return mp_copy (b, a);
 }
 
 /* End: bn_mp_init_copy.c */
@@ -2419,7 +2424,7 @@ mp_init_copy (mp_int * a, mp_int * b)
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtommath.iahu.ca
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
  */
 #include <tommath.h>
 
@@ -2430,7 +2435,7 @@ mp_init_size (mp_int * a, int size)
 
   /* pad up so there are at least 16 zero digits */
   size += (MP_PREC * 2) - (size & (MP_PREC - 1));	/* ensure there are always at least 16 digits extra on top */
-  a->dp = calloc (sizeof (mp_digit), size);
+  a->dp = XCALLOC (sizeof (mp_digit), size);
   if (a->dp == NULL) {
     return MP_MEM;
   }
@@ -2456,7 +2461,7 @@ mp_init_size (mp_int * a, int size)
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtommath.iahu.ca
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
  */
 #include <tommath.h>
 
@@ -2661,7 +2666,7 @@ __ERR:
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtommath.iahu.ca
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
  */
 #include <tommath.h>
 
@@ -2779,7 +2784,7 @@ __A1:mp_clear (&a1);
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtommath.iahu.ca
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
  */
 #include <tommath.h>
 
@@ -2806,8 +2811,7 @@ int
 mp_karatsuba_mul (mp_int * a, mp_int * b, mp_int * c)
 {
   mp_int  x0, x1, y0, y1, t1, t2, x0y0, x1y1;
-  int     B, err, x;
-
+  int     B, err;
 
   err = MP_MEM;
 
@@ -2828,13 +2832,13 @@ mp_karatsuba_mul (mp_int * a, mp_int * b, mp_int * c)
     goto Y0;
 
   /* init temps */
-  if (mp_init (&t1) != MP_OKAY)
+  if (mp_init_size (&t1, B * 2) != MP_OKAY)
     goto Y1;
-  if (mp_init (&t2) != MP_OKAY)
+  if (mp_init_size (&t2, B * 2) != MP_OKAY)
     goto T1;
-  if (mp_init (&x0y0) != MP_OKAY)
+  if (mp_init_size (&x0y0, B * 2) != MP_OKAY)
     goto T2;
-  if (mp_init (&x1y1) != MP_OKAY)
+  if (mp_init_size (&x1y1, B * 2) != MP_OKAY)
     goto X0Y0;
 
   /* now shift the digits */
@@ -2845,18 +2849,32 @@ mp_karatsuba_mul (mp_int * a, mp_int * b, mp_int * c)
   x1.used = a->used - B;
   y1.used = b->used - B;
 
-  /* we copy the digits directly instead of using higher level functions
-   * since we also need to shift the digits
-   */
-  for (x = 0; x < B; x++) {
-    x0.dp[x] = a->dp[x];
-    y0.dp[x] = b->dp[x];
-  }
-  for (x = B; x < a->used; x++) {
-    x1.dp[x - B] = a->dp[x];
-  }
-  for (x = B; x < b->used; x++) {
-    y1.dp[x - B] = b->dp[x];
+  {
+    register int x;
+    register mp_digit *tmpa, *tmpb, *tmpx, *tmpy;
+
+    /* we copy the digits directly instead of using higher level functions
+     * since we also need to shift the digits
+     */
+    tmpa = a->dp;
+    tmpb = b->dp;
+
+    tmpx = x0.dp;
+    tmpy = y0.dp;
+    for (x = 0; x < B; x++) {
+      *tmpx++ = *tmpa++;
+      *tmpy++ = *tmpb++;
+    }
+
+    tmpx = x1.dp;
+    for (x = B; x < a->used; x++) {
+      *tmpx++ = *tmpa++;
+    }
+
+    tmpy = y1.dp;
+    for (x = B; x < b->used; x++) {
+      *tmpy++ = *tmpb++;
+    }
   }
 
   /* only need to clamp the lower words since by definition the upper words x1/y1 must
@@ -2925,7 +2943,7 @@ ERR:
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtommath.iahu.ca
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
  */
 #include <tommath.h>
 
@@ -2938,8 +2956,7 @@ int
 mp_karatsuba_sqr (mp_int * a, mp_int * b)
 {
   mp_int  x0, x1, t1, t2, x0x0, x1x1;
-  int     B, err, x;
-
+  int     B, err;
 
   err = MP_MEM;
 
@@ -2956,22 +2973,31 @@ mp_karatsuba_sqr (mp_int * a, mp_int * b)
     goto X0;
 
   /* init temps */
-  if (mp_init (&t1) != MP_OKAY)
+  if (mp_init_size (&t1, a->used * 2) != MP_OKAY)
     goto X1;
-  if (mp_init (&t2) != MP_OKAY)
+  if (mp_init_size (&t2, a->used * 2) != MP_OKAY)
     goto T1;
-  if (mp_init (&x0x0) != MP_OKAY)
+  if (mp_init_size (&x0x0, B * 2) != MP_OKAY)
     goto T2;
-  if (mp_init (&x1x1) != MP_OKAY)
+  if (mp_init_size (&x1x1, (a->used - B) * 2) != MP_OKAY)
     goto X0X0;
 
-  /* now shift the digits */
-  for (x = 0; x < B; x++) {
-    x0.dp[x] = a->dp[x];
-  }
+  {
+    register int x;
+    register mp_digit *dst, *src;
 
-  for (x = B; x < a->used; x++) {
-    x1.dp[x - B] = a->dp[x];
+    src = a->dp;
+
+    /* now shift the digits */
+    dst = x0.dp;
+    for (x = 0; x < B; x++) {
+      *dst++ = *src++;
+    }
+
+    dst = x1.dp;
+    for (x = B; x < a->used; x++) {
+      *dst++ = *src++;
+    }
   }
 
   x0.used = B;
@@ -2992,7 +3018,7 @@ mp_karatsuba_sqr (mp_int * a, mp_int * b)
     goto X1X1;			/* t1 = (x1 - x0) * (y1 - y0) */
 
   /* add x0y0 */
-  if (mp_add (&x0x0, &x1x1, &t2) != MP_OKAY)
+  if (s_mp_add (&x0x0, &x1x1, &t2) != MP_OKAY)
     goto X1X1;			/* t2 = x0y0 + x1y1 */
   if (mp_sub (&t2, &t1, &t1) != MP_OKAY)
     goto X1X1;			/* t1 = x0y0 + x1y1 - (x1-x0)*(y1-y0) */
@@ -3035,7 +3061,7 @@ ERR:
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtommath.iahu.ca
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
  */
 #include <tommath.h>
 
@@ -3081,7 +3107,7 @@ mp_lcm (mp_int * a, mp_int * b, mp_int * c)
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtommath.iahu.ca
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
  */
 #include <tommath.h>
 
@@ -3102,17 +3128,32 @@ mp_lshd (mp_int * a, int b)
     return res;
   }
 
-  /* increment the used by the shift amount than copy upwards */
-  a->used += b;
-  for (x = a->used - 1; x >= b; x--) {
-    a->dp[x] = a->dp[x - b];
-  }
+  {
+    register mp_digit *tmpa, *tmpaa;
 
-  /* zero the lower digits */
-  for (x = 0; x < b; x++) {
-    a->dp[x] = 0;
+    /* increment the used by the shift amount than copy upwards */
+    a->used += b;
+    
+    /* top */
+    tmpa = a->dp + a->used - 1;
+    
+    /* base */
+    tmpaa = a->dp + a->used - 1 - b;
+
+    /* much like mp_rshd this is implemented using a sliding window
+     * except the window goes the otherway around.  Copying from
+     * the bottom to the top.  see bn_mp_rshd.c for more info.
+     */
+    for (x = a->used - 1; x >= b; x--) {
+      *tmpa-- = *tmpaa--;
+    }
+
+    /* zero the lower digits */
+    tmpa = a->dp;
+    for (x = 0; x < b; x++) {
+      *tmpa++ = 0;
+    }
   }
-  mp_clamp (a);
   return MP_OKAY;
 }
 
@@ -3131,7 +3172,7 @@ mp_lshd (mp_int * a, int b)
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtommath.iahu.ca
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
  */
 #include <tommath.h>
 
@@ -3178,7 +3219,7 @@ mp_mod (mp_int * a, mp_int * b, mp_int * c)
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtommath.iahu.ca
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
  */
 #include <tommath.h>
 
@@ -3212,8 +3253,7 @@ mp_mod_2d (mp_int * a, int b, mp_int * c)
   }
   /* clear the digit that is not completely outside/inside the modulus */
   c->dp[b / DIGIT_BIT] &=
-    (mp_digit) ((((mp_digit) 1) << (((mp_digit) b) % DIGIT_BIT)) -
-		((mp_digit) 1));
+    (mp_digit) ((((mp_digit) 1) << (((mp_digit) b) % DIGIT_BIT)) - ((mp_digit) 1));
   mp_clamp (c);
   return MP_OKAY;
 }
@@ -3233,7 +3273,7 @@ mp_mod_2d (mp_int * a, int b, mp_int * c)
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtommath.iahu.ca
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
  */
 #include <tommath.h>
 
@@ -3284,7 +3324,7 @@ mp_mod_d (mp_int * a, mp_digit b, mp_digit * c)
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtommath.iahu.ca
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
  */
 #include <tommath.h>
 
@@ -3341,7 +3381,7 @@ mp_montgomery_calc_normalization (mp_int * a, mp_int * b)
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtommath.iahu.ca
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
  */
 #include <tommath.h>
 
@@ -3381,9 +3421,7 @@ mp_montgomery_reduce (mp_int * a, mp_int * m, mp_digit mp)
 
       mu = 0;
       for (iy = 0; iy < m->used; iy++) {
-	r =
-	  ((mp_word) ui) * ((mp_word) * tmpx++) + ((mp_word) mu) +
-	  ((mp_word) * tmpy);
+	r = ((mp_word) ui) * ((mp_word) * tmpx++) + ((mp_word) mu) + ((mp_word) * tmpy);
 	mu = (r >> ((mp_word) DIGIT_BIT));
 	*tmpy++ = (r & ((mp_word) MP_MASK));
       }
@@ -3422,7 +3460,7 @@ mp_montgomery_reduce (mp_int * a, mp_int * m, mp_digit mp)
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtommath.iahu.ca
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
  */
 #include <tommath.h>
 
@@ -3430,38 +3468,31 @@ mp_montgomery_reduce (mp_int * a, mp_int * m, mp_digit mp)
 int
 mp_montgomery_setup (mp_int * a, mp_digit * mp)
 {
-  mp_int  t, tt;
-  int     res;
+  unsigned long x, b;
 
-  if ((res = mp_init (&t)) != MP_OKAY) {
-    return res;
+/* fast inversion mod 2^32 
+ *
+ * Based on the fact that 
+ *
+ * XA = 1 (mod 2^n)  =>  (X(2-XA)) A = 1 (mod 2^2n)
+ *                   =>  2*X*A - X*X*A*A = 1
+ *                   =>  2*(1) - (1)     = 1
+ */
+  b = a->dp[0];
+
+  if ((b & 1) == 0) {
+    return MP_VAL;
   }
 
-  if ((res = mp_init (&tt)) != MP_OKAY) {
-    goto __T;
-  }
-
-  /* tt = b */
-  tt.dp[0] = 0;
-  tt.dp[1] = 1;
-  tt.used = 2;
-
-  /* t = m mod b */
-  t.dp[0] = a->dp[0];
-  t.used = 1;
-
-  /* t = 1/m mod b */
-  if ((res = mp_invmod (&t, &tt, &t)) != MP_OKAY) {
-    goto __TT;
-  }
+  x = (((b + 2) & 4) << 1) + b;	/* here x*a==1 mod 2^4 */
+  x *= 2 - b * x;		/* here x*a==1 mod 2^8 */
+  x *= 2 - b * x;		/* here x*a==1 mod 2^16; each step doubles the nb of bits */
+  x *= 2 - b * x;		/* here x*a==1 mod 2^32 */
 
   /* t = -1/m mod b */
-  *mp = ((mp_digit) 1 << ((mp_digit) DIGIT_BIT)) - t.dp[0];
+  *mp = ((mp_digit) 1 << ((mp_digit) DIGIT_BIT)) - (x & MP_MASK);
 
-  res = MP_OKAY;
-__TT:mp_clear (&tt);
-__T:mp_clear (&t);
-  return res;
+  return MP_OKAY;
 }
 
 /* End: bn_mp_montgomery_setup.c */
@@ -3479,7 +3510,7 @@ __T:mp_clear (&t);
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtommath.iahu.ca
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
  */
 #include <tommath.h>
 
@@ -3492,7 +3523,21 @@ mp_mul (mp_int * a, mp_int * b, mp_int * c)
   if (MIN (a->used, b->used) > KARATSUBA_MUL_CUTOFF) {
     res = mp_karatsuba_mul (a, b, c);
   } else {
-    res = s_mp_mul (a, b, c);
+
+    /* can we use the fast multiplier? 
+     *
+     * The fast multiplier can be used if the output will have less than 
+     * 512 digits and the number of digits won't affect carry propagation
+     */
+    int     digs = a->used + b->used + 1;
+
+    if ((digs < 512)
+	&& digs < (1 << ((CHAR_BIT * sizeof (mp_word)) - (2 * DIGIT_BIT)))) {
+      res = fast_s_mp_mul_digs (a, b, c, digs);
+    } else {
+      res = s_mp_mul (a, b, c);
+    }
+
   }
   c->sign = neg;
   return res;
@@ -3513,7 +3558,7 @@ mp_mul (mp_int * a, mp_int * b, mp_int * c)
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtommath.iahu.ca
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
  */
 #include <tommath.h>
 
@@ -3553,7 +3598,7 @@ mp_mulmod (mp_int * a, mp_int * b, mp_int * c, mp_int * d)
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtommath.iahu.ca
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
  */
 #include <tommath.h>
 
@@ -3593,6 +3638,11 @@ mp_mul_2 (mp_int * a, mp_int * b)
 	if ((res = mp_grow (b, b->used + 1)) != MP_OKAY) {
 	  return res;
 	}
+
+	/* after the grow *tmpb is no longer valid so we have to reset it! 
+	 * (this bug took me about 17 minutes to find...!)
+	 */
+	tmpb = b->dp + b->used;
       }
       /* add a MSB of 1 */
       *tmpb = 1;
@@ -3604,6 +3654,7 @@ mp_mul_2 (mp_int * a, mp_int * b)
       *tmpb++ = 0;
     }
   }
+  b->sign = a->sign;
   return MP_OKAY;
 }
 
@@ -3622,7 +3673,7 @@ mp_mul_2 (mp_int * a, mp_int * b)
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtommath.iahu.ca
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
  */
 #include <tommath.h>
 
@@ -3644,9 +3695,11 @@ mp_mul_2d (mp_int * a, int b, mp_int * c)
   }
 
   /* shift by as many digits in the bit count */
-  if ((res = mp_lshd (c, b / DIGIT_BIT)) != MP_OKAY) {
-    return res;
-  }
+  if (b >= DIGIT_BIT) {
+     if ((res = mp_lshd (c, b / DIGIT_BIT)) != MP_OKAY) {
+       return res;
+     }
+  }     
   c->used = c->alloc;
 
   /* shift any bit count < DIGIT_BIT */
@@ -3683,7 +3736,7 @@ mp_mul_2d (mp_int * a, int b, mp_int * c)
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtommath.iahu.ca
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
  */
 #include <tommath.h>
 
@@ -3744,7 +3797,7 @@ mp_mul_d (mp_int * a, mp_digit b, mp_int * c)
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtommath.iahu.ca
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
  */
 #include <tommath.h>
 
@@ -3775,7 +3828,7 @@ mp_neg (mp_int * a, mp_int * b)
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtommath.iahu.ca
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
  */
 #include <tommath.h>
 
@@ -3898,7 +3951,7 @@ __T1:mp_clear (&t1);
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtommath.iahu.ca
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
  */
 #include <tommath.h>
 
@@ -3947,7 +4000,7 @@ mp_or (mp_int * a, mp_int * b, mp_int * c)
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtommath.iahu.ca
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
  */
 #include <tommath.h>
 
@@ -4000,7 +4053,7 @@ mp_rand (mp_int * a, int digits)
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtommath.iahu.ca
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
  */
 #include <tommath.h>
 
@@ -4032,7 +4085,7 @@ mp_read_signed_bin (mp_int * a, unsigned char *b, int c)
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtommath.iahu.ca
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
  */
 #include <tommath.h>
 
@@ -4075,7 +4128,7 @@ mp_read_unsigned_bin (mp_int * a, unsigned char *b, int c)
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtommath.iahu.ca
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
  */
 #include <tommath.h>
 
@@ -4174,7 +4227,7 @@ CLEANUP:
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtommath.iahu.ca
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
  */
 #include <tommath.h>
 
@@ -4183,7 +4236,6 @@ void
 mp_rshd (mp_int * a, int b)
 {
   int     x;
-
 
   /* if b <= 0 then ignore it */
   if (b <= 0) {
@@ -4196,14 +4248,34 @@ mp_rshd (mp_int * a, int b)
     return;
   }
 
-  /* shift the digits down */
-  for (x = 0; x < (a->used - b); x++) {
-    a->dp[x] = a->dp[x + b];
-  }
+  {
+    register mp_digit *tmpa, *tmpaa;
 
-  /* zero the top digits */
-  for (; x < a->used; x++) {
-    a->dp[x] = 0;
+    /* shift the digits down */
+
+    /* base */
+    tmpa = a->dp;
+    
+    /* offset into digits */
+    tmpaa = a->dp + b;
+    
+    /* this is implemented as a sliding window where the window is b-digits long
+     * and digits from the top of the window are copied to the bottom
+     *
+     * e.g.
+     
+     b-2 | b-1 | b0 | b1 | b2 | ... | bb |   ---->
+                 /\                   |      ---->
+                  \-------------------/      ---->
+    */         
+    for (x = 0; x < (a->used - b); x++) {
+      *tmpa++ = *tmpaa++;
+    }
+
+    /* zero the top digits */
+    for (; x < a->used; x++) {
+      *tmpa++ = 0;
+    }
   }
   mp_clamp (a);
 }
@@ -4223,7 +4295,7 @@ mp_rshd (mp_int * a, int b)
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtommath.iahu.ca
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
  */
 #include <tommath.h>
 
@@ -4251,7 +4323,7 @@ mp_set (mp_int * a, mp_digit b)
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtommath.iahu.ca
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
  */
 #include <tommath.h>
 
@@ -4300,7 +4372,7 @@ mp_set_int (mp_int * a, unsigned long b)
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtommath.iahu.ca
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
  */
 #include <tommath.h>
 
@@ -4309,7 +4381,7 @@ int
 mp_shrink (mp_int * a)
 {
   if (a->alloc != a->used) {
-    if ((a->dp = realloc (a->dp, sizeof (mp_digit) * a->used)) == NULL) {
+    if ((a->dp = XREALLOC (a->dp, sizeof (mp_digit) * a->used)) == NULL) {
       return MP_MEM;
     }
     a->alloc = a->used;
@@ -4332,7 +4404,7 @@ mp_shrink (mp_int * a)
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtommath.iahu.ca
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
  */
 #include <tommath.h>
 
@@ -4358,7 +4430,7 @@ mp_signed_bin_size (mp_int * a)
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtommath.iahu.ca
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
  */
 #include <tommath.h>
 
@@ -4370,7 +4442,14 @@ mp_sqr (mp_int * a, mp_int * b)
   if (a->used > KARATSUBA_SQR_CUTOFF) {
     res = mp_karatsuba_sqr (a, b);
   } else {
-    res = s_mp_sqr (a, b);
+
+    /* can we use the fast multiplier? */
+    if (((a->used * 2 + 1) < 512)
+	&& a->used < (1 << ((CHAR_BIT * sizeof (mp_word)) - (2 * DIGIT_BIT) - 1))) {
+      res = fast_s_mp_sqr (a, b);
+    } else {
+      res = s_mp_sqr (a, b);
+    }
   }
   b->sign = MP_ZPOS;
   return res;
@@ -4391,7 +4470,7 @@ mp_sqr (mp_int * a, mp_int * b)
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtommath.iahu.ca
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
  */
 #include <tommath.h>
 
@@ -4431,7 +4510,7 @@ mp_sqrmod (mp_int * a, mp_int * b, mp_int * c)
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtommath.iahu.ca
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
  */
 #include <tommath.h>
 
@@ -4493,7 +4572,7 @@ mp_sub (mp_int * a, mp_int * b, mp_int * c)
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtommath.iahu.ca
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
  */
 #include <tommath.h>
 
@@ -4533,7 +4612,7 @@ mp_submod (mp_int * a, mp_int * b, mp_int * c, mp_int * d)
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtommath.iahu.ca
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
  */
 #include <tommath.h>
 
@@ -4570,7 +4649,7 @@ mp_sub_d (mp_int * a, mp_digit b, mp_int * c)
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtommath.iahu.ca
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
  */
 #include <tommath.h>
 
@@ -4602,7 +4681,7 @@ mp_to_signed_bin (mp_int * a, unsigned char *b)
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtommath.iahu.ca
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
  */
 #include <tommath.h>
 
@@ -4649,7 +4728,7 @@ mp_to_unsigned_bin (mp_int * a, unsigned char *b)
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtommath.iahu.ca
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
  */
 #include <tommath.h>
 
@@ -4676,7 +4755,7 @@ mp_unsigned_bin_size (mp_int * a)
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtommath.iahu.ca
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
  */
 #include <tommath.h>
 
@@ -4725,7 +4804,7 @@ mp_xor (mp_int * a, mp_int * b, mp_int * c)
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtommath.iahu.ca
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
  */
 #include <tommath.h>
 
@@ -4753,13 +4832,12 @@ mp_zero (mp_int * a)
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtommath.iahu.ca
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
  */
 #include <tommath.h>
 
 /* chars used in radix conversions */
-static const char *s_rmap =
-  "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz+/";
+static const char *s_rmap = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz+/";
 
 
 /* read a string [ASCII] in a given radix */
@@ -4896,7 +4974,7 @@ mp_radix_size (mp_int * a, int radix)
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtommath.iahu.ca
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
  */
 #include <tommath.h>
 
@@ -4933,7 +5011,7 @@ bn_reverse (unsigned char *s, int len)
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtommath.iahu.ca
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
  */
 #include <tommath.h>
 
@@ -4978,8 +5056,14 @@ s_mp_add (mp_int * a, mp_int * b, mp_int * c)
     register int i;
 
     /* alias for digit pointers */
+    
+    /* first input */
     tmpa = a->dp;
+    
+    /* second input */
     tmpb = b->dp;
+    
+    /* destination */
     tmpc = c->dp;
 
     u = 0;
@@ -5036,7 +5120,7 @@ s_mp_add (mp_int * a, mp_int * b, mp_int * c)
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtommath.iahu.ca
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
  */
 #include <tommath.h>
 
@@ -5052,17 +5136,6 @@ s_mp_mul_digs (mp_int * a, mp_int * b, mp_int * c, int digs)
   mp_digit u;
   mp_word r;
   mp_digit tmpx, *tmpt, *tmpy;
-
-
-  /* can we use the fast multiplier? 
-   *
-   * The fast multiplier can be used if the output will have less than 
-   * 512 digits and the number of digits won't affect carry propagation
-   */
-  if ((digs < 512)
-      && digs < (1 << ((CHAR_BIT * sizeof (mp_word)) - (2 * DIGIT_BIT)))) {
-    return fast_s_mp_mul_digs (a, b, c, digs);
-  }
 
   if ((res = mp_init_size (&t, digs)) != MP_OKAY) {
     return res;
@@ -5086,9 +5159,7 @@ s_mp_mul_digs (mp_int * a, mp_int * b, mp_int * c, int digs)
     /* compute the columns of the output and propagate the carry */
     for (iy = 0; iy < pb; iy++) {
       /* compute the column as a mp_word */
-      r =
-	((mp_word) * tmpt) + ((mp_word) tmpx) * ((mp_word) * tmpy++) +
-	((mp_word) u);
+      r = ((mp_word) * tmpt) + ((mp_word) tmpx) * ((mp_word) * tmpy++) + ((mp_word) u);
 
       /* the new column is the lower part of the result */
       *tmpt++ = (mp_digit) (r & ((mp_word) MP_MASK));
@@ -5122,7 +5193,7 @@ s_mp_mul_digs (mp_int * a, mp_int * b, mp_int * c, int digs)
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtommath.iahu.ca
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
  */
 #include <tommath.h>
 
@@ -5141,9 +5212,7 @@ s_mp_mul_high_digs (mp_int * a, mp_int * b, mp_int * c, int digs)
 
   /* can we use the fast multiplier? */
   if (((a->used + b->used + 1) < 512)
-      && MAX (a->used,
-	      b->used) <
-      (1 << ((CHAR_BIT * sizeof (mp_word)) - (2 * DIGIT_BIT)))) {
+      && MAX (a->used, b->used) < (1 << ((CHAR_BIT * sizeof (mp_word)) - (2 * DIGIT_BIT)))) {
     return fast_s_mp_mul_high_digs (a, b, c, digs);
   }
 
@@ -5169,9 +5238,7 @@ s_mp_mul_high_digs (mp_int * a, mp_int * b, mp_int * c, int digs)
 
     for (iy = digs - ix; iy < pb; iy++) {
       /* calculate the double precision result */
-      r =
-	((mp_word) * tmpt) + ((mp_word) tmpx) * ((mp_word) * tmpy++) +
-	((mp_word) u);
+      r = ((mp_word) * tmpt) + ((mp_word) tmpx) * ((mp_word) * tmpy++) + ((mp_word) u);
 
       /* get the lower part */
       *tmpt++ = (mp_digit) (r & ((mp_word) MP_MASK));
@@ -5202,7 +5269,7 @@ s_mp_mul_high_digs (mp_int * a, mp_int * b, mp_int * c, int digs)
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtommath.iahu.ca
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
  */
 #include <tommath.h>
 
@@ -5215,13 +5282,6 @@ s_mp_sqr (mp_int * a, mp_int * b)
   mp_word r, u;
   mp_digit tmpx, *tmpt;
 
-  /* can we use the fast multiplier? */
-  if (((a->used * 2 + 1) < 512)
-      && a->used <
-      (1 << ((CHAR_BIT * sizeof (mp_word)) - (2 * DIGIT_BIT) - 1))) {
-    return fast_s_mp_sqr (a, b);
-  }
-
   pa = a->used;
   if ((res = mp_init_size (&t, pa + pa + 1)) != MP_OKAY) {
     return res;
@@ -5231,9 +5291,7 @@ s_mp_sqr (mp_int * a, mp_int * b)
   for (ix = 0; ix < pa; ix++) {
     /* first calculate the digit at 2*ix */
     /* calculate double precision result */
-    r =
-      ((mp_word) t.dp[ix + ix]) +
-      ((mp_word) a->dp[ix]) * ((mp_word) a->dp[ix]);
+    r = ((mp_word) t.dp[ix + ix]) + ((mp_word) a->dp[ix]) * ((mp_word) a->dp[ix]);
 
     /* store lower part in result */
     t.dp[ix + ix] = (mp_digit) (r & ((mp_word) MP_MASK));
@@ -5294,7 +5352,7 @@ s_mp_sqr (mp_int * a, mp_int * b)
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtommath.iahu.ca
+ * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
  */
 #include <tommath.h>
 

@@ -5,7 +5,7 @@
 CC = gcc 
 AR = ar 
 LD = ld 
-CFLAGS += -Os -Wall -Wsign-compare -W -Wno-unused -Werror -I./  
+CFLAGS += -O3 -Wall -Wsign-compare -W -Wno-unused -Werror -I./  
 
 default: library
 
