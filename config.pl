@@ -21,7 +21,7 @@
 );
 
 @opts = (
-   "SMALL_CODE,Use small code where possible (slower code),y",
+   "SMALL_CODE,Use small code where possible (slower code),n",
    "NO_FILE,Avoid file I/O calls,n",
    "CLEAN_STACK,Clean the stack within functions,n",
    "LTC_TEST,Include Test Vector Routines,y",
@@ -36,7 +36,7 @@
    "XTEA,Include XTEA block cipher,y",
    "TWOFISH,Include Twofish block cipher,y",
    "TWOFISH_SMALL,Include Use a low ram variant of Twofish,n",
-   "TWOFISH_TABLES,Include Use precomputed tables to speed up the low-ram variant,n",
+   "TWOFISH_TABLES,Include Use precomputed tables to speed up the low-ram variant,y",
    "DES,Include DES and 3DES block ciphers,y",
    "CAST5,Include CAST5 (aka CAST-128) block cipher,y",
    "NOEKEON,Include Noekeon block cipher,y",

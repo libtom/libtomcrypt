@@ -458,28 +458,34 @@ int cast5_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_
    return CRYPT_OK;
 }
 
-static unsigned long FI(unsigned long R, unsigned long Km, unsigned long Kr)
+#ifdef _MSC_VER
+   #define INLINE __inline
+#else
+   #define INLINE 
+#endif   
+   
+INLINE static unsigned long FI(unsigned long R, unsigned long Km, unsigned long Kr)
 {
    unsigned long I;
    I = (Km + R);
    I = ROL(I, Kr);
-   return ((S1[(I>>24)&255] ^ S2[(I>>16)&255]) - S3[(I>>8)&255]) + S4[I&255];
+   return ((S1[byte(I, 3)] ^ S2[byte(I,2)]) - S3[byte(I,1)]) + S4[byte(I,0)];
 }
    
-static unsigned long FII(unsigned long R, unsigned long Km, unsigned long Kr)
+INLINE static unsigned long FII(unsigned long R, unsigned long Km, unsigned long Kr)
 {
    unsigned long I;
    I = (Km ^ R);
    I = ROL(I, Kr);
-   return ((S1[(I>>24)&255] - S2[(I>>16)&255]) + S3[(I>>8)&255]) ^ S4[I&255];
+   return ((S1[byte(I, 3)] - S2[byte(I,2)]) + S3[byte(I,1)]) ^ S4[byte(I,0)];
 }
 
-static unsigned long FIII(unsigned long R, unsigned long Km, unsigned long Kr)
+INLINE static unsigned long FIII(unsigned long R, unsigned long Km, unsigned long Kr)
 {
    unsigned long I;
    I = (Km - R);
    I = ROL(I, Kr);
-   return ((S1[(I>>24)&255] + S2[(I>>16)&255]) ^ S3[(I>>8)&255]) - S4[I&255];
+   return ((S1[byte(I, 3)] + S2[byte(I,2)]) ^ S3[byte(I,1)]) - S4[byte(I,0)];
 }
 
 void cast5_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *key)

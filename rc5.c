@@ -92,7 +92,7 @@ static void _rc5_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetr
 void rc5_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *key)
 #endif
 {
-   unsigned long A, B;
+   unsigned long A, B, *K;
    int r;
    _ARGCHK(key != NULL);
    _ARGCHK(pt != NULL);
@@ -102,9 +102,22 @@ void rc5_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *
    LOAD32L(B, &pt[4]);
    A += key->rc5.K[0];
    B += key->rc5.K[1];
-   for (r = 0; r < key->rc5.rounds; r++) {
-       A = ROL(A ^ B, B) + key->rc5.K[r+r+2];
-       B = ROL(B ^ A, A) + key->rc5.K[r+r+3];
+   K  = key->rc5.K + 2;
+   
+   if ((key->rc5.rounds & 1) == 0) {
+      for (r = 0; r < key->rc5.rounds; r += 2) {
+          A = ROL(A ^ B, B) + K[0];
+          B = ROL(B ^ A, A) + K[1];
+          A = ROL(A ^ B, B) + K[2];
+          B = ROL(B ^ A, A) + K[3];
+          K += 4;
+      }
+   } else {
+      for (r = 0; r < key->rc5.rounds; r++) {
+          A = ROL(A ^ B, B) + K[0];
+          B = ROL(B ^ A, A) + K[1];
+          K += 2;
+      }
    }
    STORE32L(A, &ct[0]);
    STORE32L(B, &ct[4]);
@@ -124,7 +137,7 @@ static void _rc5_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetr
 void rc5_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *key)
 #endif
 {
-   unsigned long A, B;
+   unsigned long A, B, *K;
    int r;
    _ARGCHK(key != NULL);
    _ARGCHK(pt != NULL);
@@ -132,9 +145,23 @@ void rc5_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *
 
    LOAD32L(A, &ct[0]);
    LOAD32L(B, &ct[4]);
-   for (r = key->rc5.rounds - 1; r >= 0; r--) {
-       B = ROR(B - key->rc5.K[r+r+3], A) ^ A;
-       A = ROR(A - key->rc5.K[r+r+2], B) ^ B;
+   K = key->rc5.K + (key->rc5.rounds << 1);
+   
+   if ((key->rc5.rounds & 1) == 0) {
+       K -= 2;
+       for (r = key->rc5.rounds - 1; r >= 0; r -= 2) {
+          B = ROR(B - K[3], A) ^ A;
+          A = ROR(A - K[2], B) ^ B;
+          B = ROR(B - K[1], A) ^ A;
+          A = ROR(A - K[0], B) ^ B;
+          K -= 4;
+        }
+   } else {
+      for (r = key->rc5.rounds - 1; r >= 0; r--) {
+          B = ROR(B - K[1], A) ^ A;
+          A = ROR(A - K[0], B) ^ B;
+          K -= 2;
+      }
    }
    A -= key->rc5.K[0];
    B -= key->rc5.K[1];

@@ -24,5 +24,4 @@ test: library test.obj
 	cl test.obj tomcrypt.lib advapi32.lib	
 	
 x86_prof: demos/x86_prof.c library
-	nasm -f win32 demos/timer.asm
-	cl $(CFLAGS) demos/x86_prof.c demos/timer.obj tomcrypt.lib advapi32.lib 
+	cl $(CFLAGS) demos/x86_prof.c tomcrypt.lib advapi32.lib 

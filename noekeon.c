@@ -23,7 +23,12 @@ static const unsigned long RC[] = {
    0x000000d4UL 
 };
 
-static const unsigned long zero[] = { 0, 0, 0, 0 };
+
+#define kTHETA(a, b, c, d)                               \
+    temp = a^c; temp = temp ^ ROL(temp, 8) ^ ROR(temp, 8); \
+    b ^= temp; d ^= temp;                                  \
+    temp = b^d; temp = temp ^ ROL(temp, 8) ^ ROR(temp, 8); \
+    a ^= temp; c ^= temp;
 
 #define THETA(k, a, b, c, d)                               \
     temp = a^c; temp = temp ^ ROL(temp, 8) ^ ROR(temp, 8); \
@@ -72,7 +77,7 @@ int noekeon_setup(const unsigned char *key, int keylen, int num_rounds, symmetri
    LOAD32L(skey->noekeon.dK[2],&key[8]);
    LOAD32L(skey->noekeon.dK[3],&key[12]);
 
-   THETA(zero, skey->noekeon.dK[0], skey->noekeon.dK[1], skey->noekeon.dK[2], skey->noekeon.dK[3]);
+   kTHETA(skey->noekeon.dK[0], skey->noekeon.dK[1], skey->noekeon.dK[2], skey->noekeon.dK[3]);
 
    return CRYPT_OK;
 }
@@ -100,9 +105,11 @@ void noekeon_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_k
        GAMMA(a,b,c,d); \
        PI2(a,b,c,d);
 
-   for (r = 0; r < 16; r += 2) {
+   for (r = 0; r < 16; r += 4) {
        ROUND(0);
        ROUND(1);
+       ROUND(2);
+       ROUND(3);
    }
 
 #undef ROUND

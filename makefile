@@ -9,7 +9,7 @@
 # a build. This is easy to remedy though, for those that have problems.
 
 # The version
-VERSION=0.86
+VERSION=0.87
 
 #ch1-01-1
 # Compiler and Linker Names
@@ -91,7 +91,7 @@ dh.o: dh.c dh_sys.c
 aes.o: aes.c aes_tab.c
 sha512.o: sha512.c sha384.c
 
-#These are objects that are known to build with -fomit-frame-pointer successfully
+#These are objects that are known to build with -fomit-frame-pointer successfully [RISK!]
 aes.o: aes.c
 	$(CC) $(CFLAGS) $(EXT_CFLAGS) -c aes.c
 
@@ -150,13 +150,7 @@ small: library $(SMALLOBJECTS)
 	$(CC) $(SMALLOBJECTS) $(LIBNAME) -o $(SMALL) $(WARN)
 	
 x86_prof: library $(PROFS)
-	nasm -f coff demos/timer.asm
-	$(CC) demos/x86_prof.o demos/timer.o $(LIBNAME) -o $(PROF)
-
-#for linux
-x86_profl: library $(PROFS)
-	nasm -f elf -DUSE_ELF demos/timer.asm
-	$(CC) demos/x86_prof.o demos/timer.o $(LIBNAME) -o $(PROF)
+	$(CC) demos/x86_prof.o $(LIBNAME) -o $(PROF)
 
 #This rule installs the library and the header files. This must be run
 #as root in order to have a high enough permission to write to the correct

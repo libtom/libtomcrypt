@@ -347,7 +347,14 @@ int blowfish_setup(const unsigned char *key, int keylen, int num_rounds,
    return CRYPT_OK;
 }
 
-#define F(x) ((((key->blowfish.S[0][((x)>>24)&255] + key->blowfish.S[1][((x)>>16)&255]) ^ key->blowfish.S[2][((x)>>8)&255]) + key->blowfish.S[3][((x)>>0)&255]))
+#if defined(__GNUC__)
+   #define S1 key->blowfish.S[0]
+   #define S2 key->blowfish.S[1]
+   #define S3 key->blowfish.S[2]
+   #define S4 key->blowfish.S[3]
+#endif   
+
+#define F(x) ((S1[byte(x,3)] + S2[byte(x,2)]) ^ S3[byte(x,1)]) + S4[byte(x,0)]
 
 #ifdef CLEAN_STACK
 static void _blowfish_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *key)
@@ -357,10 +364,20 @@ void blowfish_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_
 {
    unsigned long L, R;
    int r;
+#if !defined(TWOFISH_SMALL) && !defined(__GNUC__)
+    unsigned long *S1, *S2, *S3, *S4;
+#endif    
 
-   _ARGCHK(pt != NULL);
-   _ARGCHK(ct != NULL);
-   _ARGCHK(key != NULL);
+    _ARGCHK(pt != NULL);
+    _ARGCHK(ct != NULL);
+    _ARGCHK(key != NULL);
+    
+#if !defined(TWOFISH_SMALL) && !defined(__GNUC__)
+    S1 = key->blowfish.S[0];
+    S2 = key->blowfish.S[1];
+    S3 = key->blowfish.S[2];
+    S4 = key->blowfish.S[3];
+#endif    
 
    /* load it */
    LOAD32H(L, &pt[0]);
@@ -399,10 +416,20 @@ void blowfish_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_
 {
    unsigned long L, R;
    int r;
-   
-   _ARGCHK(pt != NULL);
-   _ARGCHK(ct != NULL);
-   _ARGCHK(key != NULL);
+#if !defined(TWOFISH_SMALL) && !defined(__GNUC__)
+    unsigned long *S1, *S2, *S3, *S4;
+#endif    
+
+    _ARGCHK(pt != NULL);
+    _ARGCHK(ct != NULL);
+    _ARGCHK(key != NULL);
+    
+#if !defined(TWOFISH_SMALL) && !defined(__GNUC__)
+    S1 = key->blowfish.S[0];
+    S2 = key->blowfish.S[1];
+    S3 = key->blowfish.S[2];
+    S4 = key->blowfish.S[3];
+#endif  
 
    /* load it */
    LOAD32H(R, &ct[0]);

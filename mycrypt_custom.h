@@ -15,7 +15,8 @@
 #define XFREE free
 #define XCLOCK clock
 #define XCLOCKS_PER_SEC CLOCKS_PER_SEC
-#define SMALL_CODE
+#define TWOFISH_TABLES
+//#define SMALL_CODE
 #define LTC_TEST
 #define BLOWFISH
 #define RC2

@@ -89,22 +89,33 @@ static void _rc6_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetr
 void rc6_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *key)
 #endif
 {
-   unsigned long a,b,c,d,t,u;
+   unsigned long a,b,c,d,t,u, *K;
    int r;
    
    _ARGCHK(key != NULL);
    _ARGCHK(pt != NULL);
    _ARGCHK(ct != NULL);
    LOAD32L(a,&pt[0]);LOAD32L(b,&pt[4]);LOAD32L(c,&pt[8]);LOAD32L(d,&pt[12]);
+
    b += key->rc6.K[0];
    d += key->rc6.K[1];
-   for (r = 0; r < 20; r++) {
-       t = (b * (b + b + 1)); t = ROL(t, 5);
-       u = (d * (d + d + 1)); u = ROL(u, 5);
-       a = ROL(a^t,u) + key->rc6.K[r+r+2];
-       c = ROL(c^u,t) + key->rc6.K[r+r+3];
-       t = a; a = b; b = c; c = d; d = t;
+
+#define RND(a,b,c,d) \
+       t = (b * (b + b + 1)); t = ROL(t, 5); \
+       u = (d * (d + d + 1)); u = ROL(u, 5); \
+       a = ROL(a^t,u) + K[0];                \
+       c = ROL(c^u,t) + K[1]; K += 2;   
+    
+   K = key->rc6.K + 2;
+   for (r = 0; r < 20; r += 4) {
+       RND(a,b,c,d);
+       RND(b,c,d,a);
+       RND(c,d,a,b);
+       RND(d,a,b,c);
    }
+   
+#undef RND
+
    a += key->rc6.K[42];
    c += key->rc6.K[43];
    STORE32L(a,&ct[0]);STORE32L(b,&ct[4]);STORE32L(c,&ct[8]);STORE32L(d,&ct[12]);
@@ -124,7 +135,7 @@ static void _rc6_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetr
 void rc6_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *key)
 #endif
 {
-   unsigned long a,b,c,d,t,u;
+   unsigned long a,b,c,d,t,u, *K;
    int r;
 
    _ARGCHK(key != NULL);
@@ -134,13 +145,24 @@ void rc6_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *
    LOAD32L(a,&ct[0]);LOAD32L(b,&ct[4]);LOAD32L(c,&ct[8]);LOAD32L(d,&ct[12]);
    a -= key->rc6.K[42];
    c -= key->rc6.K[43];
-   for (r = 19; r >= 0; r--) {
-       t = d; d = c; c = b; b = a; a = t;
-       t = (b * (b + b + 1)); t = ROL(t, 5);
-       u = (d * (d + d + 1)); u = ROL(u, 5);
-       c = ROR(c - key->rc6.K[r+r+3], t) ^ u;
-       a = ROR(a - key->rc6.K[r+r+2], u) ^ t;
+   
+#define RND(a,b,c,d) \
+       t = (b * (b + b + 1)); t = ROL(t, 5); \
+       u = (d * (d + d + 1)); u = ROL(u, 5); \
+       c = ROR(c - K[1], t) ^ u; \
+       a = ROR(a - K[0], u) ^ t; K -= 2;
+   
+   K = key->rc6.K + 40;
+   
+   for (r = 0; r < 20; r += 4) {
+       RND(d,a,b,c);
+       RND(c,d,a,b);
+       RND(b,c,d,a);
+       RND(a,b,c,d);
    }
+   
+#undef RND
+
    b -= key->rc6.K[0];
    d -= key->rc6.K[1];
    STORE32L(a,&pt[0]);STORE32L(b,&pt[4]);STORE32L(c,&pt[8]);STORE32L(d,&pt[12]);

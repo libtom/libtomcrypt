@@ -183,8 +183,19 @@ extern char *crypt_error;
 #define BSWAP(x)  ( ((x>>24)&0x000000FFUL) | ((x<<24)&0xFF000000UL)  | \
                     ((x>>8)&0x0000FF00UL)  | ((x<<8)&0x00FF0000UL) )
 
+#ifdef _MSC_VER
+
+#  include <stdlib.h>
+#  pragma intrinsic(_lrotr,_lrotl)
+#  define ROR(x,n) _lrotr(x,n)
+#  define ROL(x,n) _lrotl(x,n)
+
+#else
+
 #define ROL(x, y) ( (((unsigned long)(x)<<(unsigned long)((y)&31)) | (((unsigned long)(x)&0xFFFFFFFFUL)>>(unsigned long)(32-((y)&31)))) & 0xFFFFFFFFUL)
 #define ROR(x, y) ( ((((unsigned long)(x)&0xFFFFFFFFUL)>>(unsigned long)((y)&31)) | ((unsigned long)(x)<<(unsigned long)(32-((y)&31)))) & 0xFFFFFFFFUL)
+
+#endif
 
 #define ROL64(x, y) \
     ( (((x)<<((ulong64)(y)&63)) | \
@@ -198,3 +209,10 @@ extern char *crypt_error;
 #undef MIN
 #define MAX(x, y) ( ((x)>(y))?(x):(y) )
 #define MIN(x, y) ( ((x)<(y))?(x):(y) )
+
+/* extract a byte portably */
+#if (CHAR_BIT == 8) 
+   #define byte(x, n) ((unsigned char)((x) >> (8 * (n))))
+#else
+   #define byte(x, n) (((x) >> (8 * (n))) & 255)
+#endif   

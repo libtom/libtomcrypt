@@ -1,3 +1,8 @@
+Jun 19th, 2003
+v0.87  -- Many MSVC optimizations to the code base
+       -- Improved the AES and Twofish key schedule [faster, more constant time]
+       -- Tons of optimizations here and there.  
+       
 Jun 15th, 2003
 v0.86  -- Fixed up AES to workaround MSVC optimizer bug
        -- Merged in fresh LTM base [based on v0.20] so there are no warnings with MSVC
