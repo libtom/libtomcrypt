@@ -1,3 +1,12 @@
+Sept 25th, 2003
+v0.91  -- HMAC fix of 0.90 was incorrect for keys larger than the block size of the hash.
+       -- Added error CRYPT_FILE_NOTFOUND for the file [hmac/hash] routines.
+       -- Added RIPEMD hashes to the hashsum demo.
+       -- Added hashsum demo to MSVC makefile.
+       -- Added RMD160 to the x86_prof demo [oops]
+       -- Merged in LibTomMath-0.27 with a patch to mp_shrink() that will be in LibTomMath-0.28
+          Fixes another potential memory leak.
+
 Sept 7th, 2003
 v0.90  -- new ROL/ROR for x86 GCC
        -- Jochen Katz submitted a patch to the makefile to prevent "make" from making the .a library

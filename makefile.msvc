@@ -26,3 +26,6 @@ x86_prof: demos/x86_prof.c library
 
 tv_gen: demos/tv_gen.c library
 	cl $(CFLAGS) demos/tv_gen.c tomcrypt.lib advapi32.lib 
+
+hashsum: demos/hashsum.c library
+	cl $(CFLAGS) demos/hashsum.c tomcrypt.lib advapi32.lib

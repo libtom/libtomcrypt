@@ -50,20 +50,20 @@ void init_timer(void)
 {
    ulong64 c1, c2, t1, t2, t3;
    unsigned long y1;
-   
+
    c1 = c2 = (ulong64)-1;
    for (y1 = 0; y1 < TIMES*100; y1++) {
       t_start();
       t1 = t_read();
       t3 = t_read();
       t2 = t_read() - t1;
-      
+
       c1 = (c1 > t1) ? t1 : c1;
       c2 = (c2 > t2) ? t2 : c2;
    }
    skew = c2 - c1;
    printf("Clock Skew: %lu\n", (unsigned long)skew);
-}  
+}
 
 void reg_algs(void)
 {
@@ -135,6 +135,9 @@ void reg_algs(void)
 #ifdef RIPEMD128
   register_hash (&rmd128_desc);
 #endif
+#ifdef RIPEMD160
+  register_hash (&rmd160_desc);
+#endif
 
 }
 
@@ -166,7 +169,7 @@ int time_keysched(void)
 
 #undef DO1
    }
-   
+
    return 0;
 }
 
@@ -196,13 +199,13 @@ int time_cipher(void)
         DO2;
         t2 = t_read();
         t2 -= t1;
-        
+
         c1 = (t1 > c1 ? c1 : t1);
         c2 = (t2 > c2 ? c2 : t2);
     }
     a1 = c2 - c1 - skew;
-        
-        
+
+
     func = cipher_descriptor[x].ecb_decrypt;
     c1 = c2 = (ulong64)-1;
     for (y1 = 0; y1 < TIMES; y1++) {
@@ -212,19 +215,19 @@ int time_cipher(void)
         DO2;
         t2 = t_read();
         t2 -= t1;
-        
+
         c1 = (t1 > c1 ? c1 : t1);
         c2 = (t2 > c2 ? c2 : t2);
     }
     a2 = c2 - c1 - skew;
-    
+
     printf
       ("%-20s: Encrypt at %7.3f, Decrypt at %7.3f\n", cipher_descriptor[x].name, a1/(double)cipher_descriptor[x].block_length, a2/(double)cipher_descriptor[x].block_length);
 
 #undef DO2
 #undef DO1
    }
-   
+
    return 0;
 }
 
@@ -236,7 +239,7 @@ int time_hash(void)
   void    (*func)(hash_state *, const unsigned char *, unsigned long);
   unsigned char pt[MAXBLOCKSIZE];
 
- 
+
   printf ("\n\nHASH Time Trials for:\n");
   for (x = 0; hash_descriptor[x].name != NULL; x++) {
     hash_descriptor[x].init(&md);
@@ -246,7 +249,7 @@ int time_hash(void)
 
     func = hash_descriptor[x].process;
     len  = hash_descriptor[x].blocksize;
-    
+
     c1 = c2 = (ulong64)-1;
     for (y1 = 0; y1 < TIMES; y1++) {
        t_start();
@@ -257,16 +260,16 @@ int time_hash(void)
        c1 = (t1 > c1) ? c1 : t1;
        c2 = (t2 > c2) ? c2 : t2;
     }
-    t1 = c2 - c1 - skew;   
+    t1 = c2 - c1 - skew;
     t1 = ((t1 * CONST64(1000))) / ((ulong64)hash_descriptor[x].blocksize);
-    
+
     printf
       ("%-20s: Process at %9.3f\n", hash_descriptor[x].name, t1 / 1000.0);
 
 #undef DO2
 #undef DO1
    }
-   
+
    return 0;
 }
 
@@ -275,12 +278,12 @@ int main(void)
   reg_algs();
 
   printf("Timings for ciphers and hashes.  Times are listed as cycles per byte processed.\n\n");
-  
+
 //  init_timer();
   time_cipher();
   time_keysched();
   time_hash();
-  
+
   return EXIT_SUCCESS;
-}  
+}
 

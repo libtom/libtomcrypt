@@ -27,6 +27,7 @@ static const char *err_2_str[] =
    "A private PK key is required.",
 
    "Invalid argument provided.",
+   "File Not Found",
 
    "Invalid PK type.",
    "Invalid PK system.",
@@ -34,7 +35,8 @@ static const char *err_2_str[] =
    "Key not found in keyring.",
    "Invalid sized parameter.",
 
-   "Invalid size for prime."
+   "Invalid size for prime.",
+
 };
 
 const char *error_to_string(int err)

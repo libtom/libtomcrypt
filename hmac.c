@@ -38,7 +38,7 @@ int hmac_init(hmac_state *hmac, int hash, const unsigned char *key, unsigned lon
     }
 
     /* valid key length? */
-    if (keylen == 0 || keylen > MAXBLOCKSIZE) {
+    if (keylen == 0) {
         return CRYPT_INVALID_KEYSIZE;
     }
 
@@ -54,6 +54,7 @@ int hmac_init(hmac_state *hmac, int hash, const unsigned char *key, unsigned lon
         if(hashsize < HMAC_BLOCKSIZE) {
             zeromem((hmac->key) + hashsize, (size_t)(HMAC_BLOCKSIZE - hashsize));
         }
+        keylen = hashsize;
     } else {
         memcpy(hmac->key, key, (size_t)keylen);
         if(keylen < HMAC_BLOCKSIZE) {
@@ -62,12 +63,8 @@ int hmac_init(hmac_state *hmac, int hash, const unsigned char *key, unsigned lon
     }
 
     // Create the initial vector for step (3)
-    for(i=0; i < keylen;   i++) {
+    for(i=0; i < HMAC_BLOCKSIZE;   i++) {
        buf[i] = hmac->key[i] ^ 0x36;
-    }
-
-    for(   ; i < HMAC_BLOCKSIZE; i++) { 
-       buf[i] = 0x36;
     }
 
     // Pre-pend that to the hash data
@@ -126,6 +123,8 @@ int hmac_done(hmac_state *hmac, unsigned char *hashOut, unsigned long *outlen)
     hash_descriptor[hash].done(&hmac->md, hashOut);
 
 #ifdef CLEAN_STACK
+    zeromem(isha, sizeof(buf));
+    zeromem(buf,  sizeof(isha));
     zeromem(hmac->key, sizeof(hmac->key));
 #endif
     return CRYPT_OK;
@@ -188,7 +187,7 @@ int hmac_file(int hash, const char *fname, const unsigned char *key,
 
    in = fopen(fname, "rb");
    if (in == NULL) {
-      return CRYPT_INVALID_ARG;
+      return CRYPT_FILE_NOTFOUND;
    }
 
    /* process the file contents */

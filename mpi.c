@@ -14,7 +14,7 @@
  * Tom St Denis, tomstdenis@iahu.ca, http://math.libtomcrypt.org
  */
 #include "mycrypt.h"
-#include <tommath.h>
+#include "tommath.h"
 
 static const struct {
      int code;
@@ -61,10 +61,10 @@ char *mp_error_to_string(int code)
  */
 #include <tommath.h>
 
-/* computes the modular inverse via binary extended euclidean algorithm, 
- * that is c = 1/a mod b 
+/* computes the modular inverse via binary extended euclidean algorithm,
+ * that is c = 1/a mod b
  *
- * Based on mp_invmod except this is optimized for the case where b is 
+ * Based on mp_invmod except this is optimized for the case where b is
  * odd as per HAC Note 14.64 on pp. 610
  */
 int
@@ -211,11 +211,11 @@ __ERR:mp_clear_multi (&x, &y, &u, &v, &B, &D, NULL);
  */
 #include <tommath.h>
 
-/* computes xR**-1 == x (mod N) via Montgomery Reduction 
- * 
- * This is an optimized implementation of mp_montgomery_reduce 
+/* computes xR**-1 == x (mod N) via Montgomery Reduction
+ *
+ * This is an optimized implementation of mp_montgomery_reduce
  * which uses the comba method to quickly calculate the columns of the
- * reduction.  
+ * reduction.
  *
  * Based on Algorithm 14.32 on pp.601 of HAC.
 */
@@ -266,7 +266,7 @@ fast_mp_montgomery_reduce (mp_int * x, mp_int * n, mp_digit rho)
     /* mu = ai * m' mod b
      *
      * We avoid a double precision multiplication (which isn't required)
-     * by casting the value down to a mp_digit.  Note this requires 
+     * by casting the value down to a mp_digit.  Note this requires
      * that W[ix-1] have  the carry cleared (see after the inner loop)
      */
     register mp_digit mu;
@@ -278,12 +278,12 @@ fast_mp_montgomery_reduce (mp_int * x, mp_int * n, mp_digit rho)
      * by b**i is handled by offseting which columns the results
      * are added to.
      *
-     * Note the comba method normally doesn't handle carries in the 
-     * inner loop In this case we fix the carry from the previous 
-     * column since the Montgomery reduction requires digits of the 
+     * Note the comba method normally doesn't handle carries in the
+     * inner loop In this case we fix the carry from the previous
+     * column since the Montgomery reduction requires digits of the
      * result (so far) [see above] to work.  This is
-     * handled by fixing up one carry after the inner loop.  The 
-     * carry fixups are done in order so after these loops the 
+     * handled by fixing up one carry after the inner loop.  The
+     * carry fixups are done in order so after these loops the
      * first m->used words of W[] have the carries fixed
      */
     {
@@ -329,8 +329,8 @@ fast_mp_montgomery_reduce (mp_int * x, mp_int * n, mp_digit rho)
 
     /* copy out, A = A/b**n
      *
-     * The result is A/b**n but instead of converting from an 
-     * array of mp_word to mp_digit than calling mp_rshd 
+     * The result is A/b**n but instead of converting from an
+     * array of mp_word to mp_digit than calling mp_rshd
      * we just copy them in the right order
      */
 
@@ -384,15 +384,15 @@ fast_mp_montgomery_reduce (mp_int * x, mp_int * n, mp_digit rho)
 
 /* Fast (comba) multiplier
  *
- * This is the fast column-array [comba] multiplier.  It is 
- * designed to compute the columns of the product first 
- * then handle the carries afterwards.  This has the effect 
+ * This is the fast column-array [comba] multiplier.  It is
+ * designed to compute the columns of the product first
+ * then handle the carries afterwards.  This has the effect
  * of making the nested loops that compute the columns very
  * simple and schedulable on super-scalar processors.
  *
- * This has been modified to produce a variable number of 
- * digits of output so if say only a half-product is required 
- * you don't have to compute the upper half (a feature 
+ * This has been modified to produce a variable number of
+ * digits of output so if say only a half-product is required
+ * you don't have to compute the upper half (a feature
  * required for fast Barrett reduction).
  *
  * Based on Algorithm 14.12 on pp.595 of HAC.
@@ -417,8 +417,8 @@ fast_s_mp_mul_digs (mp_int * a, mp_int * b, mp_int * c, int digs)
   /* calculate the columns */
   pa = a->used;
   for (ix = 0; ix < pa; ix++) {
-    /* this multiplier has been modified to allow you to 
-     * control how many digits of output are produced.  
+    /* this multiplier has been modified to allow you to
+     * control how many digits of output are produced.
      * So at most we want to make upto "digs" digits of output.
      *
      * this adds products to distinct columns (at ix+iy) of W
@@ -466,11 +466,11 @@ fast_s_mp_mul_digs (mp_int * a, mp_int * b, mp_int * c, int digs)
      * correct result we must take the extra bits from each column and
      * carry them down
      *
-     * Note that while this adds extra code to the multiplier it 
-     * saves time since the carry propagation is removed from the 
-     * above nested loop.This has the effect of reducing the work 
-     * from N*(N+N*c)==N**2 + c*N**2 to N**2 + N*c where c is the 
-     * cost of the shifting.  On very small numbers this is slower 
+     * Note that while this adds extra code to the multiplier it
+     * saves time since the carry propagation is removed from the
+     * above nested loop.This has the effect of reducing the work
+     * from N*(N+N*c)==N**2 + c*N**2 to N**2 + N*c where c is the
+     * cost of the shifting.  On very small numbers this is slower
      * but on most cryptographic size numbers it is faster.
      *
      * In this particular implementation we feed the carries from
@@ -557,12 +557,12 @@ fast_s_mp_mul_high_digs (mp_int * a, mp_int * b, mp_int * c, int digs)
 
       /* alias for right side */
       tmpy = b->dp + iy;
-     
-      /* alias for the columns of output.  Offset to be equal to or above the 
-       * smallest digit place requested 
+
+      /* alias for the columns of output.  Offset to be equal to or above the
+       * smallest digit place requested
        */
-      _W = W + digs;     
-      
+      _W = W + digs;
+
       /* skip cases below zero where ix > digs */
       if (iy < 0) {
          iy    = abs(iy);
@@ -620,16 +620,16 @@ fast_s_mp_mul_high_digs (mp_int * a, mp_int * b, mp_int * c, int digs)
 
 /* fast squaring
  *
- * This is the comba method where the columns of the product 
- * are computed first then the carries are computed.  This 
- * has the effect of making a very simple inner loop that 
+ * This is the comba method where the columns of the product
+ * are computed first then the carries are computed.  This
+ * has the effect of making a very simple inner loop that
  * is executed the most
  *
  * W2 represents the outer products and W the inner.
  *
- * A further optimizations is made because the inner 
- * products are of the form "A * B * 2".  The *2 part does 
- * not need to be computed until the end which is good 
+ * A further optimizations is made because the inner
+ * products are of the form "A * B * 2".  The *2 part does
+ * not need to be computed until the end which is good
  * because 64-bit shifts are slow!
  *
  * Based on Algorithm 14.16 on pp.597 of HAC.
@@ -709,8 +709,8 @@ fast_s_mp_sqr (mp_int * a, mp_int * b)
   {
     register mp_digit *tmpb;
 
-    /* double first value, since the inner products are 
-     * half of what they should be 
+    /* double first value, since the inner products are
+     * half of what they should be
      */
     W[0] += W[0] + W2[0];
 
@@ -762,7 +762,7 @@ fast_s_mp_sqr (mp_int * a, mp_int * b)
  */
 #include <tommath.h>
 
-/* computes a = 2**b 
+/* computes a = 2**b
  *
  * Simple algorithm which zeroes the int, grows it then just sets one bit
  * as required.
@@ -808,7 +808,7 @@ mp_2expt (mp_int * a, int b)
  */
 #include <tommath.h>
 
-/* b = |a| 
+/* b = |a|
  *
  * Simple function copies the input and fixes the sign to positive
  */
@@ -943,9 +943,6 @@ mp_add_d (mp_int * a, mp_digit b, mp_int * c)
 
   /* if a is positive */
   if (a->sign == MP_ZPOS) {
-     /* setup size */
-     c->used = a->used + 1;
-
      /* add digit, after this we're propagating
       * the carry.
       */
@@ -962,6 +959,9 @@ mp_add_d (mp_int * a, mp_digit b, mp_int * c)
      /* set final carry */
      ix++;
      *tmpc++  = mu;
+
+     /* setup size */
+     c->used = a->used + 1;
   } else {
      /* a was negative and |a| < b */
      c->used  = 1;
@@ -1102,7 +1102,7 @@ mp_and (mp_int * a, mp_int * b, mp_int * c)
  */
 #include <tommath.h>
 
-/* trim unused digits 
+/* trim unused digits
  *
  * This is used to ensure that leading zero digits are
  * trimed and the leading "used" digit will be non-zero
@@ -1183,7 +1183,7 @@ mp_clear (mp_int * a)
 #include <tommath.h>
 #include <stdarg.h>
 
-void mp_clear_multi(mp_int *mp, ...) 
+void mp_clear_multi(mp_int *mp, ...)
 {
     mp_int* next_mp = mp;
     va_list args;
@@ -1226,7 +1226,7 @@ mp_cmp (mp_int * a, mp_int * b)
         return MP_GT;
      }
   }
-  
+
   /* compare digits */
   if (a->sign == MP_NEG) {
      /* if negative compare opposite direction */
@@ -1309,7 +1309,7 @@ mp_cmp_mag (mp_int * a, mp_int * b)
   if (a->used > b->used) {
     return MP_GT;
   }
-  
+
   if (a->used < b->used) {
     return MP_LT;
   }
@@ -1477,7 +1477,7 @@ mp_count_bits (mp_int * a)
 
   /* get number of digits and add that */
   r = (a->used - 1) * DIGIT_BIT;
-  
+
   /* take the last digit and count the bits in it */
   q = a->dp[a->used - 1];
   while (q > ((mp_digit) 0)) {
@@ -1506,17 +1506,17 @@ mp_count_bits (mp_int * a)
  */
 #include <tommath.h>
 
-/* integer signed division. 
+/* integer signed division.
  * c*b + d == a [e.g. a/b, c=quotient, d=remainder]
  * HAC pp.598 Algorithm 14.20
  *
- * Note that the description in HAC is horribly 
- * incomplete.  For example, it doesn't consider 
- * the case where digits are removed from 'x' in 
- * the inner loop.  It also doesn't consider the 
+ * Note that the description in HAC is horribly
+ * incomplete.  For example, it doesn't consider
+ * the case where digits are removed from 'x' in
+ * the inner loop.  It also doesn't consider the
  * case that y has fewer than three digits, etc..
  *
- * The overall algorithm is as described as 
+ * The overall algorithm is as described as
  * 14.20 from HAC but fixed to treat these cases.
 */
 int
@@ -1607,7 +1607,7 @@ mp_div (mp_int * a, mp_int * b, mp_int * c, mp_int * d)
       continue;
     }
 
-    /* step 3.1 if xi == yt then set q{i-t-1} to b-1, 
+    /* step 3.1 if xi == yt then set q{i-t-1} to b-1,
      * otherwise set q{i-t-1} to (xi*b + x{i-1})/yt */
     if (x.dp[i] == y.dp[t]) {
       q.dp[i - t - 1] = ((((mp_digit)1) << DIGIT_BIT) - 1);
@@ -1621,10 +1621,10 @@ mp_div (mp_int * a, mp_int * b, mp_int * c, mp_int * d)
       q.dp[i - t - 1] = (mp_digit) (tmp & (mp_word) (MP_MASK));
     }
 
-    /* while (q{i-t-1} * (yt * b + y{t-1})) > 
-             xi * b**2 + xi-1 * b + xi-2 
-     
-       do q{i-t-1} -= 1; 
+    /* while (q{i-t-1} * (yt * b + y{t-1})) >
+             xi * b**2 + xi-1 * b + xi-2
+
+       do q{i-t-1} -= 1;
     */
     q.dp[i - t - 1] = (q.dp[i - t - 1] + 1) & MP_MASK;
     do {
@@ -1675,10 +1675,10 @@ mp_div (mp_int * a, mp_int * b, mp_int * c, mp_int * d)
     }
   }
 
-  /* now q is the quotient and x is the remainder 
-   * [which we have to normalize] 
+  /* now q is the quotient and x is the remainder
+   * [which we have to normalize]
    */
-  
+
   /* get sign before writing to c */
   x.sign = a->sign;
 
@@ -1893,14 +1893,14 @@ mp_div_3 (mp_int * a, mp_int *c, mp_digit * d)
   mp_word  w, t;
   mp_digit b;
   int      res, ix;
-  
+
   /* b = 2**DIGIT_BIT / 3 */
   b = (((mp_word)1) << ((mp_word)DIGIT_BIT)) / ((mp_word)3);
 
   if ((res = mp_init_size(&q, a->used)) != MP_OKAY) {
      return res;
   }
-  
+
   q.used = a->used;
   q.sign = a->sign;
   w = 0;
@@ -1938,7 +1938,7 @@ mp_div_3 (mp_int * a, mp_int *c, mp_digit * d)
      mp_exch(&q, c);
   }
   mp_clear(&q);
-  
+
   return res;
 }
 
@@ -2020,13 +2020,13 @@ mp_div_d (mp_int * a, mp_digit b, mp_int * c, mp_digit * d)
   if ((res = mp_init_size(&q, a->used)) != MP_OKAY) {
      return res;
   }
-  
+
   q.used = a->used;
   q.sign = a->sign;
   w = 0;
   for (ix = a->used - 1; ix >= 0; ix--) {
      w = (w << ((mp_word)DIGIT_BIT)) | ((mp_word)a->dp[ix]);
-     
+
      if (w >= b) {
         t = (mp_digit)(w / b);
         w = w % b;
@@ -2035,17 +2035,17 @@ mp_div_d (mp_int * a, mp_digit b, mp_int * c, mp_digit * d)
       }
       q.dp[ix] = (mp_digit)t;
   }
-  
+
   if (d != NULL) {
      *d = (mp_digit)w;
   }
-  
+
   if (c != NULL) {
      mp_clamp(&q);
      mp_exch(&q, c);
   }
   mp_clear(&q);
-  
+
   return res;
 }
 
@@ -2122,7 +2122,7 @@ int mp_dr_is_modulus(mp_int *a)
  *
  * Has been modified to use algorithm 7.10 from the LTM book instead
  *
- * Input x must be in the range 0 <= x <= (n-1)^2
+ * Input x must be in the range 0 <= x <= (n-1)**2
  */
 int
 mp_dr_reduce (mp_int * x, mp_int * n, mp_digit k)
@@ -2130,10 +2130,10 @@ mp_dr_reduce (mp_int * x, mp_int * n, mp_digit k)
   int      err, i, m;
   mp_word  r;
   mp_digit mu, *tmpx1, *tmpx2;
-  
+
   /* m = digits in modulus */
   m = n->used;
-  
+
   /* ensure that "x" has at least 2m digits */
   if (x->alloc < m + m) {
     if ((err = mp_grow (x, m + m)) != MP_OKAY) {
@@ -2141,20 +2141,20 @@ mp_dr_reduce (mp_int * x, mp_int * n, mp_digit k)
     }
   }
 
-/* top of loop, this is where the code resumes if 
+/* top of loop, this is where the code resumes if
  * another reduction pass is required.
  */
 top:
   /* aliases for digits */
   /* alias for lower half of x */
   tmpx1 = x->dp;
-  
+
   /* alias for upper half of x, or x/B**m */
   tmpx2 = x->dp + m;
-  
+
   /* set carry to zero */
   mu = 0;
-  
+
   /* compute (x mod B**m) + k * [x/B**m] inline and inplace */
   for (i = 0; i < m; i++) {
       r         = ((mp_word)*tmpx2++) * ((mp_word)k) + *tmpx1 + mu;
@@ -2173,7 +2173,7 @@ top:
   /* clamp, sub and return */
   mp_clamp (x);
 
-  /* if x >= n then subtract and reduce again 
+  /* if x >= n then subtract and reduce again
    * Each successive "recursion" makes the input smaller and smaller.
    */
   if (mp_cmp_mag (x, n) != MP_LT) {
@@ -2208,7 +2208,7 @@ void mp_dr_setup(mp_int *a, mp_digit *d)
    /* the casts are required if DIGIT_BIT is one less than
     * the number of bits in a mp_digit [e.g. DIGIT_BIT==31]
     */
-   *d = (mp_digit)((((mp_word)1) << ((mp_word)DIGIT_BIT)) - 
+   *d = (mp_digit)((((mp_word)1) << ((mp_word)DIGIT_BIT)) -
         ((mp_word)a->dp[0]));
 }
 
@@ -2232,8 +2232,8 @@ void mp_dr_setup(mp_int *a, mp_digit *d)
  */
 #include <tommath.h>
 
-/* swap the elements of two integers, for cases where you can't simply swap the 
- * mp_int pointers around 
+/* swap the elements of two integers, for cases where you can't simply swap the
+ * mp_int pointers around
  */
 void
 mp_exch (mp_int * a, mp_int * b)
@@ -2373,7 +2373,7 @@ mp_exptmod (mp_int * G, mp_int * X, mp_int * P, mp_int * Y)
   if (dr == 0) {
      dr = mp_reduce_is_2k(P) << 1;
   }
-    
+
   /* if the modulus is odd or dr != 0 use the fast method */
   if (mp_isodd (P) == 1 || dr !=  0) {
     return mp_exptmod_fast (G, X, P, Y, dr);
@@ -2403,7 +2403,7 @@ mp_exptmod (mp_int * G, mp_int * X, mp_int * P, mp_int * Y)
  */
 #include <tommath.h>
 
-/* computes Y == G^X mod P, HAC pp.616, Algorithm 14.85
+/* computes Y == G**X mod P, HAC pp.616, Algorithm 14.85
  *
  * Uses a left-to-right k-ary sliding window to compute the modular exponentiation.
  * The value of k changes based on the size of the exponent.
@@ -2423,10 +2423,10 @@ mp_exptmod_fast (mp_int * G, mp_int * X, mp_int * P, mp_int * Y, int redmode)
   mp_int  M[TAB_SIZE], res;
   mp_digit buf, mp;
   int     err, bitbuf, bitcpy, bitcnt, mode, digidx, x, y, winsize;
-  
+
   /* use a pointer to the reduction algorithm.  This allows us to use
    * one of many reduction algorithms without modding the guts of
-   * the code with if statements everywhere.  
+   * the code with if statements everywhere.
    */
   int     (*redux)(mp_int*,mp_int*,mp_digit);
 
@@ -2457,7 +2457,7 @@ mp_exptmod_fast (mp_int * G, mp_int * X, mp_int * P, mp_int * Y, int redmode)
   /* init M array */
   /* init first cell */
   if ((err = mp_init(&M[1])) != MP_OKAY) {
-     return err; 
+     return err;
   }
 
   /* now init the second half of the array */
@@ -2477,7 +2477,7 @@ mp_exptmod_fast (mp_int * G, mp_int * X, mp_int * P, mp_int * Y, int redmode)
      if ((err = mp_montgomery_setup (P, &mp)) != MP_OKAY) {
         goto __M;
      }
-     
+
      /* automatically pick the comba one if available (saves quite a few calls/ifs) */
      if (((P->used * 2 + 1) < MP_WARRAY) &&
           P->used < (1 << ((CHAR_BIT * sizeof (mp_word)) - (2 * DIGIT_BIT)))) {
@@ -2698,10 +2698,10 @@ __M:
 int mp_fread(mp_int *a, int radix, FILE *stream)
 {
    int err, ch, neg, y;
-   
+
    /* clear a */
    mp_zero(a);
-   
+
    /* if first digit is - then set negative */
    ch = fgetc(stream);
    if (ch == '-') {
@@ -2710,7 +2710,7 @@ int mp_fread(mp_int *a, int radix, FILE *stream)
    } else {
       neg = MP_ZPOS;
    }
-   
+
    for (;;) {
       /* find y in the radix map */
       for (y = 0; y < radix; y++) {
@@ -2721,7 +2721,7 @@ int mp_fread(mp_int *a, int radix, FILE *stream)
       if (y == radix) {
          break;
       }
-      
+
       /* shift up and add */
       if ((err = mp_mul_d(a, radix, a)) != MP_OKAY) {
          return err;
@@ -2729,13 +2729,13 @@ int mp_fread(mp_int *a, int radix, FILE *stream)
       if ((err = mp_add_d(a, y, a)) != MP_OKAY) {
          return err;
       }
-      
+
       ch = fgetc(stream);
    }
    if (mp_cmp_d(a, 0) != MP_EQ) {
       a->sign = neg;
    }
-   
+
    return MP_OKAY;
 }
 
@@ -2763,7 +2763,7 @@ int mp_fwrite(mp_int *a, int radix, FILE *stream)
 {
    char *buf;
    int err, len, x;
-   
+
    len = mp_radix_size(a, radix);
    if (len == 0) {
       return MP_VAL;
@@ -2773,19 +2773,19 @@ int mp_fwrite(mp_int *a, int radix, FILE *stream)
    if (buf == NULL) {
       return MP_MEM;
    }
-   
+
    if ((err = mp_toradix(a, buf, radix)) != MP_OKAY) {
       free(buf);
       return err;
    }
-   
+
    for (x = 0; x < len; x++) {
        if (fputc(buf[x], stream) == EOF) {
           free(buf);
           return MP_VAL;
        }
    }
-   
+
    free(buf);
    return MP_OKAY;
 }
@@ -2880,17 +2880,17 @@ mp_gcd (mp_int * a, mp_int * b, mp_int * c)
         /* swap u and v to make sure v is >= u */
         mp_exch(&u, &v);
      }
-     
+
      /* subtract smallest from largest */
      if ((res = s_mp_sub(&v, &u, &v)) != MP_OKAY) {
         goto __V;
      }
-     
+
      /* Divide out all factors of two */
      if ((res = mp_div_2d(&v, mp_cnt_lsb(&v), &v, NULL)) != MP_OKAY) {
         goto __V;
-     } 
-  } 
+     }
+  }
 
   /* multiply by 2**k which we divided out at the beginning */
   if ((res = mp_mul_2d (&u, k, c)) != MP_OKAY) {
@@ -2927,16 +2927,28 @@ int
 mp_grow (mp_int * a, int size)
 {
   int     i;
+  mp_digit *tmp;
+
 
   /* if the alloc size is smaller alloc more ram */
   if (a->alloc < size) {
     /* ensure there are always at least MP_PREC digits extra on top */
-    size += (MP_PREC * 2) - (size % MP_PREC);     
+    size += (MP_PREC * 2) - (size % MP_PREC);
 
-    a->dp = OPT_CAST XREALLOC (a->dp, sizeof (mp_digit) * size);
-    if (a->dp == NULL) {
+    /* reallocate the array a->dp
+     *
+     * We store the return in a temporary variable
+     * in case the operation failed we don't want
+     * to overwrite the dp member of a.
+     */
+    tmp = OPT_CAST XREALLOC (a->dp, sizeof (mp_digit) * size);
+    if (tmp == NULL) {
+      /* reallocation failed but "a" is still valid [can be freed] */
       return MP_MEM;
     }
+
+    /* reallocation succeeded so set a->dp */
+    a->dp = tmp;
 
     /* zero excess digits */
     i        = a->alloc;
@@ -3037,7 +3049,7 @@ mp_init_copy (mp_int * a, mp_int * b)
 #include <tommath.h>
 #include <stdarg.h>
 
-int mp_init_multi(mp_int *mp, ...) 
+int mp_init_multi(mp_int *mp, ...)
 {
     mp_err res = MP_OKAY;      /* Assume ok until proven otherwise */
     int n = 0;                 /* Number of ok inits */
@@ -3051,11 +3063,11 @@ int mp_init_multi(mp_int *mp, ...)
                succeeded in init-ing, then return error.
             */
             va_list clean_args;
-            
+
             /* end the current list */
             va_end(args);
-            
-            /* now start cleaning up */            
+
+            /* now start cleaning up */
             cur_arg = mp;
             va_start(clean_args, mp);
             while (n--) {
@@ -3098,8 +3110,8 @@ int
 mp_init_size (mp_int * a, int size)
 {
   /* pad size so there are always extra digits */
-  size += (MP_PREC * 2) - (size % MP_PREC);	
-  
+  size += (MP_PREC * 2) - (size % MP_PREC);
+
   /* alloc mem */
   a->dp = OPT_CAST calloc (sizeof (mp_digit), size);
   if (a->dp == NULL) {
@@ -3147,9 +3159,9 @@ mp_invmod (mp_int * a, mp_int * b, mp_int * c)
   if (mp_isodd (b) == 1) {
     return fast_mp_invmod (a, b, c);
   }
-  
+
   /* init temps */
-  if ((res = mp_init_multi(&x, &y, &u, &v, 
+  if ((res = mp_init_multi(&x, &y, &u, &v,
                            &A, &B, &C, &D, NULL)) != MP_OKAY) {
      return res;
   }
@@ -3276,14 +3288,14 @@ top:
          goto __ERR;
       }
   }
-  
+
   /* too big */
   while (mp_cmp_mag(&C, b) != MP_LT) {
       if ((res = mp_sub(&C, b, &C)) != MP_OKAY) {
          goto __ERR;
       }
   }
-  
+
   /* C is now the inverse */
   mp_exch (&C, c);
   res = MP_OKAY;
@@ -3414,33 +3426,33 @@ __A1:mp_clear (&a1);
  */
 #include <tommath.h>
 
-/* c = |a| * |b| using Karatsuba Multiplication using 
+/* c = |a| * |b| using Karatsuba Multiplication using
  * three half size multiplications
  *
- * Let B represent the radix [e.g. 2**DIGIT_BIT] and 
- * let n represent half of the number of digits in 
+ * Let B represent the radix [e.g. 2**DIGIT_BIT] and
+ * let n represent half of the number of digits in
  * the min(a,b)
  *
  * a = a1 * B**n + a0
  * b = b1 * B**n + b0
  *
- * Then, a * b => 
+ * Then, a * b =>
    a1b1 * B**2n + ((a1 - a0)(b1 - b0) + a0b0 + a1b1) * B + a0b0
  *
- * Note that a1b1 and a0b0 are used twice and only need to be 
- * computed once.  So in total three half size (half # of 
- * digit) multiplications are performed, a0b0, a1b1 and 
+ * Note that a1b1 and a0b0 are used twice and only need to be
+ * computed once.  So in total three half size (half # of
+ * digit) multiplications are performed, a0b0, a1b1 and
  * (a1-b1)(a0-b0)
  *
  * Note that a multiplication of half the digits requires
- * 1/4th the number of single precision multiplications so in 
- * total after one call 25% of the single precision multiplications 
- * are saved.  Note also that the call to mp_mul can end up back 
- * in this function if the a0, a1, b0, or b1 are above the threshold.  
- * This is known as divide-and-conquer and leads to the famous 
- * O(N**lg(3)) or O(N**1.584) work which is asymptopically lower than 
- * the standard O(N**2) that the baseline/comba methods use.  
- * Generally though the overhead of this method doesn't pay off 
+ * 1/4th the number of single precision multiplications so in
+ * total after one call 25% of the single precision multiplications
+ * are saved.  Note also that the call to mp_mul can end up back
+ * in this function if the a0, a1, b0, or b1 are above the threshold.
+ * This is known as divide-and-conquer and leads to the famous
+ * O(N**lg(3)) or O(N**1.584) work which is asymptopically lower than
+ * the standard O(N**2) that the baseline/comba methods use.
+ * Generally though the overhead of this method doesn't pay off
  * until a certain size (N ~ 80) is reached.
  */
 int
@@ -3512,7 +3524,7 @@ mp_karatsuba_mul (mp_int * a, mp_int * b, mp_int * c)
     }
   }
 
-  /* only need to clamp the lower words since by definition the 
+  /* only need to clamp the lower words since by definition the
    * upper words x1/y1 must have a known number of digits
    */
   mp_clamp (&x0);
@@ -3520,7 +3532,7 @@ mp_karatsuba_mul (mp_int * a, mp_int * b, mp_int * c)
 
   /* now calc the products x0y0 and x1y1 */
   /* after this x0 is no longer required, free temp [x0==t2]! */
-  if (mp_mul (&x0, &y0, &x0y0) != MP_OKAY)  
+  if (mp_mul (&x0, &y0, &x0y0) != MP_OKAY)
     goto X1Y1;          /* x0y0 = x0*y0 */
   if (mp_mul (&x1, &y1, &x1y1) != MP_OKAY)
     goto X1Y1;          /* x1y1 = x1*y1 */
@@ -3583,11 +3595,11 @@ ERR:
  */
 #include <tommath.h>
 
-/* Karatsuba squaring, computes b = a*a using three 
+/* Karatsuba squaring, computes b = a*a using three
  * half size squarings
  *
- * See comments of mp_karatsuba_mul for details.  It 
- * is essentially the same algorithm but merely 
+ * See comments of mp_karatsuba_mul for details.  It
+ * is essentially the same algorithm but merely
  * tuned to perform recursive squarings.
  */
 int
@@ -3875,7 +3887,7 @@ mp_mod (mp_int * a, mp_int * b, mp_int * c)
  */
 #include <tommath.h>
 
-/* calc a value mod 2^b */
+/* calc a value mod 2**b */
 int
 mp_mod_2d (mp_int * a, int b, mp_int * c)
 {
@@ -4024,8 +4036,8 @@ mp_montgomery_reduce (mp_int * x, mp_int * n, mp_digit rho)
    * are fixed up in the inner loop.
    */
   digs = n->used * 2 + 1;
-  if ((digs < MP_WARRAY) && 
-      n->used < 
+  if ((digs < MP_WARRAY) &&
+      n->used <
       (1 << ((CHAR_BIT * sizeof (mp_word)) - (2 * DIGIT_BIT)))) {
     return fast_mp_montgomery_reduce (x, n, rho);
   }
@@ -4063,7 +4075,7 @@ mp_montgomery_reduce (mp_int * x, mp_int * n, mp_digit rho)
 
       /* set the carry to zero */
       u = 0;
-      
+
       /* Multiply and add in place */
       for (iy = 0; iy < n->used; iy++) {
         /* compute product and sum */
@@ -4199,14 +4211,14 @@ mp_mul (mp_int * a, mp_int * b, mp_int * c)
   } else {
     /* can we use the fast multiplier?
      *
-     * The fast multiplier can be used if the output will 
-     * have less than MP_WARRAY digits and the number of 
+     * The fast multiplier can be used if the output will
+     * have less than MP_WARRAY digits and the number of
      * digits won't affect carry propagation
      */
     int     digs = a->used + b->used + 1;
 
     if ((digs < MP_WARRAY) &&
-        MIN(a->used, b->used) <= 
+        MIN(a->used, b->used) <=
         (1 << ((CHAR_BIT * sizeof (mp_word)) - (2 * DIGIT_BIT)))) {
       res = fast_s_mp_mul_digs (a, b, c, digs);
     } else {
@@ -4258,24 +4270,24 @@ mp_mul_2 (mp_int * a, mp_int * b)
 
     /* alias for source */
     tmpa = a->dp;
-    
+
     /* alias for dest */
     tmpb = b->dp;
 
     /* carry */
     r = 0;
     for (x = 0; x < a->used; x++) {
-    
-      /* get what will be the *next* carry bit from the 
-       * MSB of the current digit 
+
+      /* get what will be the *next* carry bit from the
+       * MSB of the current digit
        */
       rr = *tmpa >> ((mp_digit)(DIGIT_BIT - 1));
-      
+
       /* now shift up this digit, add in the carry [from the previous] */
       *tmpb++ = ((*tmpa++ << ((mp_digit)1)) | r) & MP_MASK;
-      
-      /* copy the carry that would be from the source 
-       * digit into the next iteration 
+
+      /* copy the carry that would be from the source
+       * digit into the next iteration
        */
       r = rr;
     }
@@ -4287,8 +4299,8 @@ mp_mul_2 (mp_int * a, mp_int * b)
       ++(b->used);
     }
 
-    /* now zero any excess digits on the destination 
-     * that we didn't write to 
+    /* now zero any excess digits on the destination
+     * that we didn't write to
      */
     tmpb = b->dp + b->used;
     for (x = b->used; x < oldused; x++) {
@@ -4373,7 +4385,7 @@ mp_mul_2d (mp_int * a, int b, mp_int * c)
       /* set the carry to the carry bits of the current word */
       r = rr;
     }
-    
+
     /* set final carry */
     if (r != 0) {
        c->dp[(c->used)++] = r;
@@ -4406,12 +4418,13 @@ mp_mul_2d (mp_int * a, int b, mp_int * c)
 int
 mp_mul_d (mp_int * a, mp_digit b, mp_int * c)
 {
-  int     res, pa, olduse;
+  mp_digit u, *tmpa, *tmpc;
+  mp_word  r;
+  int      ix, res, olduse;
 
   /* make sure c is big enough to hold a*b */
-  pa = a->used;
-  if (c->alloc < pa + 1) {
-    if ((res = mp_grow (c, pa + 1)) != MP_OKAY) {
+  if (c->alloc < a->used + 1) {
+    if ((res = mp_grow (c, a->used + 1)) != MP_OKAY) {
       return res;
     }
   }
@@ -4419,43 +4432,42 @@ mp_mul_d (mp_int * a, mp_digit b, mp_int * c)
   /* get the original destinations used count */
   olduse = c->used;
 
-  /* set the new temporary used count */
-  c->used = pa + 1;
+  /* set the sign */
   c->sign = a->sign;
 
-  {
-    register mp_digit u, *tmpa, *tmpc;
-    register mp_word r;
-    register int ix;
+  /* alias for a->dp [source] */
+  tmpa = a->dp;
 
-    /* alias for a->dp [source] */
-    tmpa = a->dp;
+  /* alias for c->dp [dest] */
+  tmpc = c->dp;
 
-    /* alias for c->dp [dest] */
-    tmpc = c->dp;
+  /* zero carry */
+  u = 0;
 
-    /* zero carry */
-    u = 0;
-    for (ix = 0; ix < pa; ix++) {
-      /* compute product and carry sum for this term */
-      r = ((mp_word) u) + ((mp_word)*tmpa++) * ((mp_word)b);
+  /* compute columns */
+  for (ix = 0; ix < a->used; ix++) {
+    /* compute product and carry sum for this term */
+    r       = ((mp_word) u) + ((mp_word)*tmpa++) * ((mp_word)b);
 
-      /* mask off higher bits to get a single digit */
-      *tmpc++ = (mp_digit) (r & ((mp_word) MP_MASK));
+    /* mask off higher bits to get a single digit */
+    *tmpc++ = (mp_digit) (r & ((mp_word) MP_MASK));
 
-      /* send carry into next iteration */
-      u = (mp_digit) (r >> ((mp_word) DIGIT_BIT));
-    }
-    /* store final carry [if any] */
-    *tmpc++ = u;
-
-    /* now zero digits above the top */
-    for (; pa < olduse; pa++) {
-       *tmpc++ = 0;
-    }
+    /* send carry into next iteration */
+    u       = (mp_digit) (r >> ((mp_word) DIGIT_BIT));
   }
 
-  mp_clamp (c);
+  /* store final carry [if any] */
+  *tmpc++ = u;
+
+  /* now zero digits above the top */
+  while (ix++ < olduse) {
+     *tmpc++ = 0;
+  }
+
+  /* set used count */
+  c->used = a->used + 1;
+  mp_clamp(c);
+
   return MP_OKAY;
 }
 
@@ -4518,14 +4530,14 @@ mp_mulmod (mp_int * a, mp_int * b, mp_int * c, mp_int * d)
  */
 #include <tommath.h>
 
-/* find the n'th root of an integer 
+/* find the n'th root of an integer
  *
- * Result found such that (c)**b <= a and (c+1)**b > a 
+ * Result found such that (c)**b <= a and (c+1)**b > a
  *
- * This algorithm uses Newton's approximation 
- * x[i+1] = x[i] - f(x[i])/f'(x[i]) 
- * which will find the root in log(N) time where 
- * each step involves a fair bit.  This is not meant to 
+ * This algorithm uses Newton's approximation
+ * x[i+1] = x[i] - f(x[i])/f'(x[i])
+ * which will find the root in log(N) time where
+ * each step involves a fair bit.  This is not meant to
  * find huge roots [square and cube, etc].
  */
 int
@@ -4565,31 +4577,31 @@ mp_n_root (mp_int * a, mp_digit b, mp_int * c)
     }
 
     /* t2 = t1 - ((t1**b - a) / (b * t1**(b-1))) */
-    
+
     /* t3 = t1**(b-1) */
-    if ((res = mp_expt_d (&t1, b - 1, &t3)) != MP_OKAY) {   
+    if ((res = mp_expt_d (&t1, b - 1, &t3)) != MP_OKAY) {
       goto __T3;
     }
 
     /* numerator */
     /* t2 = t1**b */
-    if ((res = mp_mul (&t3, &t1, &t2)) != MP_OKAY) {    
+    if ((res = mp_mul (&t3, &t1, &t2)) != MP_OKAY) {
       goto __T3;
     }
 
     /* t2 = t1**b - a */
-    if ((res = mp_sub (&t2, a, &t2)) != MP_OKAY) {  
+    if ((res = mp_sub (&t2, a, &t2)) != MP_OKAY) {
       goto __T3;
     }
 
     /* denominator */
     /* t3 = t1**(b-1) * b  */
-    if ((res = mp_mul_d (&t3, b, &t3)) != MP_OKAY) {    
+    if ((res = mp_mul_d (&t3, b, &t3)) != MP_OKAY) {
       goto __T3;
     }
 
     /* t3 = (t1**b - a)/(b * t1**(b-1)) */
-    if ((res = mp_div (&t2, &t3, &t3, NULL)) != MP_OKAY) {  
+    if ((res = mp_div (&t2, &t3, &t3, NULL)) != MP_OKAY) {
       goto __T3;
     }
 
@@ -4732,7 +4744,7 @@ mp_or (mp_int * a, mp_int * b, mp_int * c)
 #include <tommath.h>
 
 /* performs one Fermat test.
- * 
+ *
  * If "a" were prime then b**a == b (mod a) since the order of
  * the multiplicative sub-group would be phi(a) = a-1.  That means
  * it would be the same as b**(a mod (a-1)) == b**1 == b (mod a).
@@ -4792,7 +4804,7 @@ __T:mp_clear (&t);
  */
 #include <tommath.h>
 
-/* determines if an integers is divisible by one 
+/* determines if an integers is divisible by one
  * of the first PRIME_SIZE primes or not
  *
  * sets result to 0 if not, 1 if yes
@@ -4923,11 +4935,11 @@ __B:mp_clear (&b);
  */
 #include <tommath.h>
 
-/* Miller-Rabin test of "a" to the base of "b" as described in 
+/* Miller-Rabin test of "a" to the base of "b" as described in
  * HAC pp. 139 Algorithm 4.24
  *
  * Sets result to 0 if definitely composite or 1 if probably prime.
- * Randomly the chance of error is no more than 1/4 and often 
+ * Randomly the chance of error is no more than 1/4 and often
  * very much lower.
  */
 int
@@ -4942,7 +4954,7 @@ mp_prime_miller_rabin (mp_int * a, mp_int * b, int *result)
   /* ensure b > 1 */
   if (mp_cmp_d(b, 1) != MP_GT) {
      return MP_VAL;
-  }     
+  }
 
   /* get n1 = a - 1 */
   if ((err = mp_init_copy (&n1, a)) != MP_OKAY) {
@@ -5338,8 +5350,8 @@ mp_read_radix (mp_int * a, char *str, int radix)
     return MP_VAL;
   }
 
-  /* if the leading digit is a 
-   * minus set the sign to negative. 
+  /* if the leading digit is a
+   * minus set the sign to negative.
    */
   if (*str == '-') {
     ++str;
@@ -5350,7 +5362,7 @@ mp_read_radix (mp_int * a, char *str, int radix)
 
   /* set the integer to the default of zero */
   mp_zero (a);
-  
+
   /* process each digit of the string */
   while (*str) {
     /* if the radix < 36 the conversion is case insensitive
@@ -5364,9 +5376,9 @@ mp_read_radix (mp_int * a, char *str, int radix)
       }
     }
 
-    /* if the char was found in the map 
+    /* if the char was found in the map
      * and is less than the given radix add it
-     * to the number, otherwise exit the loop. 
+     * to the number, otherwise exit the loop.
      */
     if (y < radix) {
       if ((res = mp_mul_d (a, (mp_digit) radix, a)) != MP_OKAY) {
@@ -5380,7 +5392,7 @@ mp_read_radix (mp_int * a, char *str, int radix)
     }
     ++str;
   }
-  
+
   /* set the sign only if a != 0 */
   if (mp_iszero(a) != 1) {
      a->sign = neg;
@@ -5501,7 +5513,7 @@ mp_read_unsigned_bin (mp_int * a, unsigned char *b, int c)
  */
 #include <tommath.h>
 
-/* reduces x mod m, assumes 0 < x < m**2, mu is 
+/* reduces x mod m, assumes 0 < x < m**2, mu is
  * precomputed via mp_reduce_setup.
  * From HAC pp.604 Algorithm 14.42
  */
@@ -5517,7 +5529,7 @@ mp_reduce (mp_int * x, mp_int * m, mp_int * mu)
   }
 
   /* q1 = x / b**(k-1)  */
-  mp_rshd (&q, um - 1);         
+  mp_rshd (&q, um - 1);
 
   /* according to HAC this optimization is ok */
   if (((unsigned long) um) > (((mp_digit)1) << (DIGIT_BIT - 1))) {
@@ -5531,7 +5543,7 @@ mp_reduce (mp_int * x, mp_int * m, mp_int * mu)
   }
 
   /* q3 = q2 / b**(k+1) */
-  mp_rshd (&q, um + 1);         
+  mp_rshd (&q, um + 1);
 
   /* x = x mod b**(k+1), quick (no division) */
   if ((res = mp_mod_2d (x, DIGIT_BIT * (um + 1), x)) != MP_OKAY) {
@@ -5563,7 +5575,7 @@ mp_reduce (mp_int * x, mp_int * m, mp_int * mu)
       goto CLEANUP;
     }
   }
-  
+
 CLEANUP:
   mp_clear (&q);
 
@@ -5595,35 +5607,35 @@ mp_reduce_2k(mp_int *a, mp_int *n, mp_digit k)
 {
    mp_int q;
    int    p, res;
-   
+
    if ((res = mp_init(&q)) != MP_OKAY) {
       return res;
    }
-   
-   p = mp_count_bits(n);    
+
+   p = mp_count_bits(n);
 top:
    /* q = a/2**p, a = a mod 2**p */
    if ((res = mp_div_2d(a, p, &q, a)) != MP_OKAY) {
       goto ERR;
    }
-   
+
    if (k != 1) {
       /* q = q * k */
-      if ((res = mp_mul_d(&q, k, &q)) != MP_OKAY) { 
+      if ((res = mp_mul_d(&q, k, &q)) != MP_OKAY) {
          goto ERR;
       }
    }
-   
+
    /* a = a + q */
    if ((res = s_mp_add(a, &q, a)) != MP_OKAY) {
       goto ERR;
    }
-   
+
    if (mp_cmp_mag(a, n) != MP_LT) {
       s_mp_sub(a, n, a);
       goto top;
    }
-   
+
 ERR:
    mp_clear(&q);
    return res;
@@ -5650,27 +5662,27 @@ ERR:
 #include <tommath.h>
 
 /* determines the setup value */
-int 
+int
 mp_reduce_2k_setup(mp_int *a, mp_digit *d)
 {
    int res, p;
    mp_int tmp;
-   
+
    if ((res = mp_init(&tmp)) != MP_OKAY) {
       return res;
    }
-   
+
    p = mp_count_bits(a);
    if ((res = mp_2expt(&tmp, p)) != MP_OKAY) {
       mp_clear(&tmp);
       return res;
    }
-   
+
    if ((res = s_mp_sub(&tmp, a, &tmp)) != MP_OKAY) {
       mp_clear(&tmp);
       return res;
    }
-   
+
    *d = tmp.dp[0];
    mp_clear(&tmp);
    return MP_OKAY;
@@ -5696,11 +5708,11 @@ mp_reduce_2k_setup(mp_int *a, mp_digit *d)
 #include <tommath.h>
 
 /* determines if mp_reduce_2k can be used */
-int 
+int
 mp_reduce_is_2k(mp_int *a)
 {
    int ix, iy;
-   
+
    if (a->used == 0) {
       return 0;
    } else if (a->used == 1) {
@@ -5708,7 +5720,7 @@ mp_reduce_is_2k(mp_int *a)
    } else if (a->used > 1) {
       iy = mp_count_bits(a);
       for (ix = DIGIT_BIT; ix < iy; ix++) {
-          if ((a->dp[ix/DIGIT_BIT] & 
+          if ((a->dp[ix/DIGIT_BIT] &
               ((mp_digit)1 << (mp_digit)(ix % DIGIT_BIT))) == 0) {
              return 0;
           }
@@ -5744,7 +5756,7 @@ int
 mp_reduce_setup (mp_int * a, mp_int * b)
 {
   int     res;
-  
+
   if ((res = mp_2expt (a, b->used * 2 * DIGIT_BIT)) != MP_OKAY) {
     return res;
   }
@@ -5798,8 +5810,8 @@ mp_rshd (mp_int * a, int b)
     /* top [offset into digits] */
     top = a->dp + b;
 
-    /* this is implemented as a sliding window where 
-     * the window is b-digits long and digits from 
+    /* this is implemented as a sliding window where
+     * the window is b-digits long and digits from
      * the top of the window are copied to the bottom
      *
      * e.g.
@@ -5817,7 +5829,7 @@ mp_rshd (mp_int * a, int b)
       *bottom++ = 0;
     }
   }
-  
+
   /* remove excess digits */
   a->used -= b;
 }
@@ -5876,7 +5888,7 @@ mp_set_int (mp_int * a, unsigned int b)
   int     x, res;
 
   mp_zero (a);
-  
+
   /* set four bits at a time */
   for (x = 0; x < 8; x++) {
     /* shift the number up four bits */
@@ -5920,10 +5932,12 @@ mp_set_int (mp_int * a, unsigned int b)
 int
 mp_shrink (mp_int * a)
 {
+  mp_digit *tmp;
   if (a->alloc != a->used) {
-    if ((a->dp = OPT_CAST XREALLOC (a->dp, sizeof (mp_digit) * a->used)) == NULL) {
+    if ((tmp = OPT_CAST XREALLOC (a->dp, sizeof (mp_digit) * a->used)) == NULL) {
       return MP_MEM;
     }
+    a->dp    = tmp;
     a->alloc = a->used;
   }
   return MP_OKAY;
@@ -5987,8 +6001,8 @@ mp_sqr (mp_int * a, mp_int * b)
     res = mp_karatsuba_sqr (a, b);
   } else {
     /* can we use the fast comba multiplier? */
-    if ((a->used * 2 + 1) < MP_WARRAY && 
-         a->used < 
+    if ((a->used * 2 + 1) < MP_WARRAY &&
+         a->used <
          (1 << (sizeof(mp_word) * CHAR_BIT - 2*DIGIT_BIT - 1))) {
       res = fast_s_mp_sqr (a, b);
     } else {
@@ -6173,7 +6187,8 @@ mp_sub_d (mp_int * a, mp_digit b, mp_int * c)
      }
   }
 
-  for (; ix < oldused; ix++) {
+  /* zero excess digits */
+  while (ix++ < oldused) {
      *tmpc++ = 0;
   }
   mp_clamp(c);
@@ -6320,22 +6335,22 @@ mp_to_unsigned_bin (mp_int * a, unsigned char *b)
 #include <tommath.h>
 
 /* multiplication using the Toom-Cook 3-way algorithm */
-int 
+int
 mp_toom_mul(mp_int *a, mp_int *b, mp_int *c)
 {
     mp_int w0, w1, w2, w3, w4, tmp1, tmp2, a0, a1, a2, b0, b1, b2;
     int res, B;
-        
+
     /* init temps */
-    if ((res = mp_init_multi(&w0, &w1, &w2, &w3, &w4, 
-                             &a0, &a1, &a2, &b0, &b1, 
+    if ((res = mp_init_multi(&w0, &w1, &w2, &w3, &w4,
+                             &a0, &a1, &a2, &b0, &b1,
                              &b2, &tmp1, &tmp2, NULL)) != MP_OKAY) {
        return res;
     }
-    
+
     /* B */
     B = MIN(a->used, b->used) / 3;
-    
+
     /* a = a2 * B**2 + a1 * B + a0 */
     if ((res = mp_mod_2d(a, DIGIT_BIT * B, &a0)) != MP_OKAY) {
        goto ERR;
@@ -6351,7 +6366,7 @@ mp_toom_mul(mp_int *a, mp_int *b, mp_int *c)
        goto ERR;
     }
     mp_rshd(&a2, B*2);
-    
+
     /* b = b2 * B**2 + b1 * B + b0 */
     if ((res = mp_mod_2d(b, DIGIT_BIT * B, &b0)) != MP_OKAY) {
        goto ERR;
@@ -6367,17 +6382,17 @@ mp_toom_mul(mp_int *a, mp_int *b, mp_int *c)
        goto ERR;
     }
     mp_rshd(&b2, B*2);
-    
+
     /* w0 = a0*b0 */
     if ((res = mp_mul(&a0, &b0, &w0)) != MP_OKAY) {
        goto ERR;
     }
-    
+
     /* w4 = a2 * b2 */
     if ((res = mp_mul(&a2, &b2, &w4)) != MP_OKAY) {
        goto ERR;
     }
-    
+
     /* w1 = (a2 + 2(a1 + 2a0))(b2 + 2(b1 + 2b0)) */
     if ((res = mp_mul_2(&a0, &tmp1)) != MP_OKAY) {
        goto ERR;
@@ -6391,7 +6406,7 @@ mp_toom_mul(mp_int *a, mp_int *b, mp_int *c)
     if ((res = mp_add(&tmp1, &a2, &tmp1)) != MP_OKAY) {
        goto ERR;
     }
-    
+
     if ((res = mp_mul_2(&b0, &tmp2)) != MP_OKAY) {
        goto ERR;
     }
@@ -6404,11 +6419,11 @@ mp_toom_mul(mp_int *a, mp_int *b, mp_int *c)
     if ((res = mp_add(&tmp2, &b2, &tmp2)) != MP_OKAY) {
        goto ERR;
     }
-    
+
     if ((res = mp_mul(&tmp1, &tmp2, &w1)) != MP_OKAY) {
        goto ERR;
     }
-    
+
     /* w3 = (a0 + 2(a1 + 2a2))(b0 + 2(b1 + 2b2)) */
     if ((res = mp_mul_2(&a2, &tmp1)) != MP_OKAY) {
        goto ERR;
@@ -6422,7 +6437,7 @@ mp_toom_mul(mp_int *a, mp_int *b, mp_int *c)
     if ((res = mp_add(&tmp1, &a0, &tmp1)) != MP_OKAY) {
        goto ERR;
     }
-    
+
     if ((res = mp_mul_2(&b2, &tmp2)) != MP_OKAY) {
        goto ERR;
     }
@@ -6435,11 +6450,11 @@ mp_toom_mul(mp_int *a, mp_int *b, mp_int *c)
     if ((res = mp_add(&tmp2, &b0, &tmp2)) != MP_OKAY) {
        goto ERR;
     }
-    
+
     if ((res = mp_mul(&tmp1, &tmp2, &w3)) != MP_OKAY) {
        goto ERR;
     }
-    
+
 
     /* w2 = (a2 + a1 + a0)(b2 + b1 + b0) */
     if ((res = mp_add(&a2, &a1, &tmp1)) != MP_OKAY) {
@@ -6457,19 +6472,19 @@ mp_toom_mul(mp_int *a, mp_int *b, mp_int *c)
     if ((res = mp_mul(&tmp1, &tmp2, &w2)) != MP_OKAY) {
        goto ERR;
     }
-    
-    /* now solve the matrix 
-    
+
+    /* now solve the matrix
+
        0  0  0  0  1
        1  2  4  8  16
        1  1  1  1  1
        16 8  4  2  1
        1  0  0  0  0
-       
-       using 12 subtractions, 4 shifts, 
-              2 small divisions and 1 small multiplication 
+
+       using 12 subtractions, 4 shifts,
+              2 small divisions and 1 small multiplication
      */
-     
+
      /* r1 - r4 */
      if ((res = mp_sub(&w1, &w4, &w1)) != MP_OKAY) {
         goto ERR;
@@ -6541,7 +6556,7 @@ mp_toom_mul(mp_int *a, mp_int *b, mp_int *c)
      if ((res = mp_div_3(&w3, &w3, NULL)) != MP_OKAY) {
         goto ERR;
      }
-     
+
      /* at this point shift W[n] by B*n */
      if ((res = mp_lshd(&w1, 1*B)) != MP_OKAY) {
         goto ERR;
@@ -6554,8 +6569,8 @@ mp_toom_mul(mp_int *a, mp_int *b, mp_int *c)
      }
      if ((res = mp_lshd(&w4, 4*B)) != MP_OKAY) {
         goto ERR;
-     }     
-     
+     }
+
      if ((res = mp_add(&w0, &w1, c)) != MP_OKAY) {
         goto ERR;
      }
@@ -6567,15 +6582,15 @@ mp_toom_mul(mp_int *a, mp_int *b, mp_int *c)
      }
      if ((res = mp_add(&tmp1, c, c)) != MP_OKAY) {
         goto ERR;
-     }     
-     
+     }
+
 ERR:
-     mp_clear_multi(&w0, &w1, &w2, &w3, &w4, 
-                    &a0, &a1, &a2, &b0, &b1, 
+     mp_clear_multi(&w0, &w1, &w2, &w3, &w4,
+                    &a0, &a1, &a2, &b0, &b1,
                     &b2, &tmp1, &tmp2, NULL);
      return res;
-}     
-     
+}
+
 
 /* End: bn_mp_toom_mul.c */
 
@@ -6597,12 +6612,12 @@ ERR:
 #include <tommath.h>
 
 /* squaring using Toom-Cook 3-way algorithm */
-int 
+int
 mp_toom_sqr(mp_int *a, mp_int *b)
 {
     mp_int w0, w1, w2, w3, w4, tmp1, a0, a1, a2;
     int res, B;
-        
+
     /* init temps */
     if ((res = mp_init_multi(&w0, &w1, &w2, &w3, &w4, &a0, &a1, &a2, &tmp1, NULL)) != MP_OKAY) {
        return res;
@@ -6610,8 +6625,8 @@ mp_toom_sqr(mp_int *a, mp_int *b)
 
     /* B */
     B = a->used / 3;
-    
-    /* a = a2 * B^2 + a1 * B + a0 */
+
+    /* a = a2 * B**2 + a1 * B + a0 */
     if ((res = mp_mod_2d(a, DIGIT_BIT * B, &a0)) != MP_OKAY) {
        goto ERR;
     }
@@ -6626,17 +6641,17 @@ mp_toom_sqr(mp_int *a, mp_int *b)
        goto ERR;
     }
     mp_rshd(&a2, B*2);
-        
+
     /* w0 = a0*a0 */
     if ((res = mp_sqr(&a0, &w0)) != MP_OKAY) {
        goto ERR;
     }
-    
+
     /* w4 = a2 * a2 */
     if ((res = mp_sqr(&a2, &w4)) != MP_OKAY) {
        goto ERR;
     }
-    
+
     /* w1 = (a2 + 2(a1 + 2a0))**2 */
     if ((res = mp_mul_2(&a0, &tmp1)) != MP_OKAY) {
        goto ERR;
@@ -6650,11 +6665,11 @@ mp_toom_sqr(mp_int *a, mp_int *b)
     if ((res = mp_add(&tmp1, &a2, &tmp1)) != MP_OKAY) {
        goto ERR;
     }
-    
+
     if ((res = mp_sqr(&tmp1, &w1)) != MP_OKAY) {
        goto ERR;
     }
-    
+
     /* w3 = (a0 + 2(a1 + 2a2))**2 */
     if ((res = mp_mul_2(&a2, &tmp1)) != MP_OKAY) {
        goto ERR;
@@ -6668,11 +6683,11 @@ mp_toom_sqr(mp_int *a, mp_int *b)
     if ((res = mp_add(&tmp1, &a0, &tmp1)) != MP_OKAY) {
        goto ERR;
     }
-    
+
     if ((res = mp_sqr(&tmp1, &w3)) != MP_OKAY) {
        goto ERR;
     }
-    
+
 
     /* w2 = (a2 + a1 + a0)**2 */
     if ((res = mp_add(&a2, &a1, &tmp1)) != MP_OKAY) {
@@ -6684,18 +6699,18 @@ mp_toom_sqr(mp_int *a, mp_int *b)
     if ((res = mp_sqr(&tmp1, &w2)) != MP_OKAY) {
        goto ERR;
     }
-    
-    /* now solve the matrix 
-    
+
+    /* now solve the matrix
+
        0  0  0  0  1
        1  2  4  8  16
        1  1  1  1  1
        16 8  4  2  1
        1  0  0  0  0
-       
+
        using 12 subtractions, 4 shifts, 2 small divisions and 1 small multiplication.
      */
-     
+
      /* r1 - r4 */
      if ((res = mp_sub(&w1, &w4, &w1)) != MP_OKAY) {
         goto ERR;
@@ -6767,7 +6782,7 @@ mp_toom_sqr(mp_int *a, mp_int *b)
      if ((res = mp_div_3(&w3, &w3, NULL)) != MP_OKAY) {
         goto ERR;
      }
-     
+
      /* at this point shift W[n] by B*n */
      if ((res = mp_lshd(&w1, 1*B)) != MP_OKAY) {
         goto ERR;
@@ -6780,8 +6795,8 @@ mp_toom_sqr(mp_int *a, mp_int *b)
      }
      if ((res = mp_lshd(&w4, 4*B)) != MP_OKAY) {
         goto ERR;
-     }     
-     
+     }
+
      if ((res = mp_add(&w0, &w1, b)) != MP_OKAY) {
         goto ERR;
      }
@@ -6793,13 +6808,13 @@ mp_toom_sqr(mp_int *a, mp_int *b)
      }
      if ((res = mp_add(&tmp1, b, b)) != MP_OKAY) {
         goto ERR;
-     }     
-     
+     }
+
 ERR:
      mp_clear_multi(&w0, &w1, &w2, &w3, &w4, &a0, &a1, &a2, &tmp1, NULL);
      return res;
-}     
-     
+}
+
 
 /* End: bn_mp_toom_sqr.c */
 
@@ -6832,14 +6847,14 @@ mp_toradix (mp_int * a, char *str, int radix)
   if (radix < 2 || radix > 64) {
     return MP_VAL;
   }
-  
+
   /* quick out if its zero */
   if (mp_iszero(a) == 1) {
      *str++ = '0';
      *str = '\0';
      return MP_OKAY;
   }
-  
+
   if ((res = mp_init_copy (&t, a)) != MP_OKAY) {
     return res;
   }
@@ -6865,11 +6880,11 @@ mp_toradix (mp_int * a, char *str, int radix)
    * to the first digit [exluding the sign] of the number]
    */
   bn_reverse ((unsigned char *)_s, digs);
-  
+
   /* append a NULL so the string is properly terminated */
   *str++ = '\0';
-  
-  
+
+
   mp_clear (&t);
   return MP_OKAY;
 }
@@ -7153,8 +7168,8 @@ s_mp_add (mp_int * a, mp_int * b, mp_int * c)
       *tmpc++ &= MP_MASK;
     }
 
-    /* now copy higher words if any, that is in A+B 
-     * if A or B has more digits add those in 
+    /* now copy higher words if any, that is in A+B
+     * if A or B has more digits add those in
      */
     if (min != max) {
       for (; i < max; i++) {
@@ -7241,7 +7256,7 @@ s_mp_exptmod (mp_int * G, mp_int * X, mp_int * P, mp_int * Y)
   /* init M array */
   /* init first cell */
   if ((err = mp_init(&M[1])) != MP_OKAY) {
-     return err; 
+     return err;
   }
 
   /* now init the second half of the array */
@@ -7265,25 +7280,25 @@ s_mp_exptmod (mp_int * G, mp_int * X, mp_int * P, mp_int * Y)
 
   /* create M table
    *
-   * The M table contains powers of the base, 
+   * The M table contains powers of the base,
    * e.g. M[x] = G**x mod P
    *
-   * The first half of the table is not 
+   * The first half of the table is not
    * computed though accept for M[0] and M[1]
    */
   if ((err = mp_mod (G, P, &M[1])) != MP_OKAY) {
     goto __MU;
   }
 
-  /* compute the value at M[1<<(winsize-1)] by squaring 
-   * M[1] (winsize-1) times 
+  /* compute the value at M[1<<(winsize-1)] by squaring
+   * M[1] (winsize-1) times
    */
   if ((err = mp_copy (&M[1], &M[1 << (winsize - 1)])) != MP_OKAY) {
     goto __MU;
   }
 
   for (x = 0; x < (winsize - 1); x++) {
-    if ((err = mp_sqr (&M[1 << (winsize - 1)], 
+    if ((err = mp_sqr (&M[1 << (winsize - 1)],
                        &M[1 << (winsize - 1)])) != MP_OKAY) {
       goto __MU;
     }
@@ -7441,7 +7456,7 @@ __M:
 #include <tommath.h>
 
 /* multiplies |a| * |b| and only computes upto digs digits of result
- * HAC pp. 595, Algorithm 14.12  Modified so you can control how 
+ * HAC pp. 595, Algorithm 14.12  Modified so you can control how
  * many digits of output are created.
  */
 int
@@ -7455,7 +7470,7 @@ s_mp_mul_digs (mp_int * a, mp_int * b, mp_int * c, int digs)
 
   /* can we use the fast multiplier? */
   if (((digs) < MP_WARRAY) &&
-      MIN (a->used, b->used) < 
+      MIN (a->used, b->used) <
           (1 << ((CHAR_BIT * sizeof (mp_word)) - (2 * DIGIT_BIT)))) {
     return fast_s_mp_mul_digs (a, b, c, digs);
   }
@@ -7477,10 +7492,10 @@ s_mp_mul_digs (mp_int * a, mp_int * b, mp_int * c, int digs)
     /* setup some aliases */
     /* copy of the digit from a used within the nested loop */
     tmpx = a->dp[ix];
-    
+
     /* an alias for the destination shifted ix places */
     tmpt = t.dp + ix;
-    
+
     /* an alias for the digits of b */
     tmpy = b->dp;
 
@@ -7638,7 +7653,7 @@ s_mp_sqr (mp_int * a, mp_int * b)
 
     /* alias for where to store the results */
     tmpt = t.dp + (2*ix + 1);
-    
+
     for (iy = ix + 1; iy < pa; iy++) {
       /* first calculate the product */
       r = ((mp_word)tmpx) * ((mp_word)a->dp[iy]);
@@ -7786,9 +7801,9 @@ s_mp_sub (mp_int * a, mp_int * b, mp_int * c)
 /* configured for a AMD XP Thoroughbred core with etc/tune.c */
 int     KARATSUBA_MUL_CUTOFF = 109,      /* Min. number of digits before Karatsuba multiplication is used. */
         KARATSUBA_SQR_CUTOFF = 127,      /* Min. number of digits before Karatsuba squaring is used. */
-        
+
         TOOM_MUL_CUTOFF      = 350,      /* no optimal values of these are known yet so set em high */
-        TOOM_SQR_CUTOFF      = 400; 
+        TOOM_SQR_CUTOFF      = 400;
 
 /* End: bncore.c */
 

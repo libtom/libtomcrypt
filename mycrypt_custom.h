@@ -16,6 +16,7 @@
 #define XCLOCK clock
 #define XCLOCKS_PER_SEC CLOCKS_PER_SEC
 #define SMALL_CODE
+#define CLEAN_STACK
 #define LTC_TEST
 #define BLOWFISH
 #define RC2

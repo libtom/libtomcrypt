@@ -78,16 +78,12 @@ int hash_file(int hash, const char *fname, unsigned char *dst, unsigned long *ou
 
     in = fopen(fname, "rb");
     if (in == NULL) { 
-       return CRYPT_INVALID_ARG;
+       return CRYPT_FILE_NOTFOUND;
     }
 
-    if ((err = hash_filehandle(hash, in, dst, outlen)) != CRYPT_OK) {
-       (void)fclose(in);
-       return err;
-    }
+    err = hash_filehandle(hash, in, dst, outlen);
     (void)fclose(in);
-
-    return CRYPT_OK;
+    return err;
 #endif
 }
 
