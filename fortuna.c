@@ -274,7 +274,9 @@ int fortuna_export(unsigned char *out, unsigned long *outlen, prng_state *prng)
       }
 
       /* now hash it */
-      sha256_init(md);
+      if ((err = sha256_init(md)) != CRYPT_OK) {
+         goto __ERR;
+      }
       if ((err = sha256_process(md, out+x*32, 32)) != CRYPT_OK) {
          goto __ERR;
       }

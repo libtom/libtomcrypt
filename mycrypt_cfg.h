@@ -42,6 +42,12 @@ int   XMEMCMP(const void *s1, const void *s2, size_t n);
    #define ENDIAN_64BITWORD
 #endif
 
+/* detect amd64 */
+#if defined(__x86_64__)
+   #define ENDIAN_LITTLE
+   #define ENDIAN_64BITWORD
+#endif
+
 /* #define ENDIAN_LITTLE */
 /* #define ENDIAN_BIG */
 

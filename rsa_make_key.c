@@ -61,7 +61,7 @@ int rsa_make_key(prng_state *prng, int wprng, int size, long e, rsa_key *key)
 
    /* make key */
    if ((err = mp_init_multi(&key->e, &key->d, &key->N, &key->dQ, &key->dP,
-                     &key->qP, &key->pQ, &key->p, &key->q, NULL)) != MP_OKAY) {
+                     &key->qP, &key->p, &key->q, NULL)) != MP_OKAY) {
       goto error;
    }
 
@@ -73,15 +73,9 @@ int rsa_make_key(prng_state *prng, int wprng, int size, long e, rsa_key *key)
    /* find d mod q-1 and d mod p-1 */
    if ((err = mp_sub_d(&p, 1, &tmp1)) != MP_OKAY)                     { goto error2; } /* tmp1 = q-1 */
    if ((err = mp_sub_d(&q, 1, &tmp2)) != MP_OKAY)                     { goto error2; } /* tmp2 = p-1 */
-
    if ((err = mp_mod(&key->d, &tmp1, &key->dP)) != MP_OKAY)           { goto error2; } /* dP = d mod p-1 */
    if ((err = mp_mod(&key->d, &tmp2, &key->dQ)) != MP_OKAY)           { goto error2; } /* dQ = d mod q-1 */
-
    if ((err = mp_invmod(&q, &p, &key->qP)) != MP_OKAY)                { goto error2; } /* qP = 1/q mod p */
-   if ((err = mp_mulmod(&key->qP, &q, &key->N, &key->qP)) != MP_OKAY) { goto error2; } /* qP = q * (1/q mod p) mod N */
-
-   if ((err = mp_invmod(&p, &q, &key->pQ)) != MP_OKAY)                { goto error2; } /* pQ = 1/p mod q */
-   if ((err = mp_mulmod(&key->pQ, &p, &key->N, &key->pQ)) != MP_OKAY) { goto error2; } /* pQ = p * (1/p mod q) mod N */
 
    if ((err = mp_copy(&p, &key->p)) != MP_OKAY)                       { goto error2; }
    if ((err = mp_copy(&q, &key->q)) != MP_OKAY)                       { goto error2; }
@@ -93,19 +87,18 @@ int rsa_make_key(prng_state *prng, int wprng, int size, long e, rsa_key *key)
    if ((err = mp_shrink(&key->dQ)) != MP_OKAY)                        { goto error2; }
    if ((err = mp_shrink(&key->dP)) != MP_OKAY)                        { goto error2; }
    if ((err = mp_shrink(&key->qP)) != MP_OKAY)                        { goto error2; }
-   if ((err = mp_shrink(&key->pQ)) != MP_OKAY)                        { goto error2; }
    if ((err = mp_shrink(&key->p)) != MP_OKAY)                         { goto error2; }
    if ((err = mp_shrink(&key->q)) != MP_OKAY)                         { goto error2; }
 
    /* set key type (in this case it's CRT optimized) */
-   key->type = PK_PRIVATE_OPTIMIZED;
+   key->type = PK_PRIVATE;
 
    /* return ok and free temps */
    err       = CRYPT_OK;
    goto done;
 error2:
    mp_clear_multi(&key->d, &key->e, &key->N, &key->dQ, &key->dP,
-                  &key->qP, &key->pQ, &key->p, &key->q, NULL);
+                  &key->qP, &key->p, &key->q, NULL);
 error:
    err = mpi_to_ltc_error(err);
 done:

@@ -90,7 +90,7 @@ static void md2_compress(hash_state *md)
    }
 }
 
-void md2_init(hash_state *md)
+int md2_init(hash_state *md)
 {
    _ARGCHK(md != NULL);
 
@@ -99,6 +99,7 @@ void md2_init(hash_state *md)
    zeromem(md->md2.chksum, sizeof(md->md2.chksum));
    zeromem(md->md2.buf, sizeof(md->md2.buf));
    md->md2.curlen = 0;
+   return CRYPT_OK;
 }
 
 int md2_process(hash_state *md, const unsigned char *buf, unsigned long len)

@@ -22,6 +22,9 @@
 /* size of our temp buffers for exported keys */
 #define ECC_BUF_SIZE 160
 
+/* max private key size */
+#define ECC_MAXSIZE  66
+
 /* This holds the key settings.  ***MUST*** be organized by size from smallest to largest. */
 static const struct {
    int size;
@@ -221,9 +224,6 @@ void ecc_find_base(void)
 }
  
 #endif
-
-
-
 
 static int is_valid_idx(int n)
 {
@@ -613,6 +613,7 @@ int ecc_make_key(prng_state *prng, int wprng, int keysize, ecc_key *key)
    /* find key size */
    for (x = 0; (keysize > sets[x].size) && (sets[x].size != 0); x++);
    keysize = sets[x].size;
+   _ARGCHK(keysize <= ECC_MAXSIZE);
 
    if (sets[x].size == 0) {
       return CRYPT_INVALID_KEYSIZE;
@@ -621,7 +622,7 @@ int ecc_make_key(prng_state *prng, int wprng, int keysize, ecc_key *key)
 
    /* allocate ram */
    base = NULL;
-   buf  = XMALLOC(128);
+   buf  = XMALLOC(ECC_MAXSIZE);
    if (buf == NULL) {
       return CRYPT_MEM;
    }
@@ -669,7 +670,7 @@ __ERR:
    mp_clear(&prime);
 __ERR2:
 #ifdef CLEAN_STACK
-   zeromem(buf, 128);
+   zeromem(buf, ECC_MAXSIZE);
 #endif
 
    XFREE(buf);

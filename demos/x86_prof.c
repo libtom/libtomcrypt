@@ -49,9 +49,9 @@ void tally_results(int type)
 static ulong64 rdtsc (void)
    {
    #if defined __GNUC__
-      #ifdef __i386__
-         ulong64 a;
-         __asm__ __volatile__ ("rdtsc ":"=A" (a));
+      #if defined(__i386__) || defined(__x86_64__)
+         unsigned long long a;
+         __asm__ __volatile__ ("rdtsc\nmovl %%eax,%0\nmovl %%edx,4+%0\n"::"m"(a):"%eax","%edx");
          return a;
       #else /* gcc-IA64 version */
          unsigned long result;
@@ -110,6 +110,7 @@ void init_timer(void)
 
 void reg_algs(void)
 {
+  int err;
 #ifdef RIJNDAEL
   register_cipher (&aes_desc);
 #endif
@@ -190,6 +191,14 @@ void reg_algs(void)
 #ifdef WHIRLPOOL
   register_hash (&whirlpool_desc);
 #endif
+#ifdef CHC_HASH
+  register_hash(&chc_desc);
+  if ((err = chc_register(register_cipher(&aes_desc))) != CRYPT_OK) {
+     printf("chc_register error: %s\n", error_to_string(err));
+     exit(EXIT_FAILURE);
+  }
+#endif
+
 
 #ifndef YARROW 
    #error This demo requires Yarrow.

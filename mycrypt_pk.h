@@ -67,7 +67,6 @@
 
 #define PK_PRIVATE            0        /* PK private keys */
 #define PK_PUBLIC             1        /* PK public keys */
-#define PK_PRIVATE_OPTIMIZED  2        /* PK private key [rsa optimized] */
 
 /* ---- PACKET ---- */
 #ifdef PACKET
@@ -90,7 +89,7 @@
 
 typedef struct Rsa_key {
     int type;
-    mp_int e, d, N, qP, pQ, dP, dQ, p, q;
+    mp_int e, d, N, p, q, qP, dP, dQ;
 } rsa_key;
 
  int rsa_make_key(prng_state *prng, int wprng, int size, long e, rsa_key *key);
@@ -276,3 +275,11 @@ typedef struct {
  int dsa_verify_key(dsa_key *key, int *stat);
 
 #endif
+
+/* DER handling */
+int der_encode_integer(mp_int *num, unsigned char *out, unsigned long *outlen);
+int der_decode_integer(const unsigned char *in, unsigned long *inlen, mp_int *num);
+int der_length_integer(mp_int *num, unsigned long *len);
+int der_put_multi_integer(unsigned char *dst, unsigned long *outlen, mp_int *num, ...);
+int der_get_multi_integer(const unsigned char *src, unsigned long *inlen,  mp_int *num, ...);
+

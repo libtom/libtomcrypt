@@ -65,7 +65,7 @@ int yarrow_start(prng_state *prng)
    prng->yarrow.cipher = register_cipher(&safer_sk128_desc);
 #elif defined(DES)
    prng->yarrow.cipher = register_cipher(&des3_desc);
-#elif
+#else
    #error YARROW needs at least one CIPHER
 #endif
    if ((err = cipher_is_valid(prng->yarrow.cipher)) != CRYPT_OK) {
@@ -118,7 +118,9 @@ int yarrow_add_entropy(const unsigned char *buf, unsigned long len, prng_state *
    }
 
    /* start the hash */
-   hash_descriptor[prng->yarrow.hash].init(&md);
+   if ((err = hash_descriptor[prng->yarrow.hash].init(&md)) != CRYPT_OK) {
+      return err; 
+   }
 
    /* hash the current pool */
    if ((err = hash_descriptor[prng->yarrow.hash].process(&md, prng->yarrow.pool, 

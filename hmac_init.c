@@ -91,7 +91,10 @@ int hmac_init(hmac_state *hmac, int hash, const unsigned char *key, unsigned lon
     }
 
     /* Pre-pend that to the hash data */
-    hash_descriptor[hash].init(&hmac->md);
+    if ((err = hash_descriptor[hash].init(&hmac->md)) != CRYPT_OK) {
+       goto __ERR;
+    }
+
     if ((err = hash_descriptor[hash].process(&hmac->md, buf, HMAC_BLOCKSIZE)) != CRYPT_OK) {
        goto __ERR;
     }

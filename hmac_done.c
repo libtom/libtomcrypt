@@ -75,7 +75,9 @@ int hmac_done(hmac_state *hmac, unsigned char *hashOut, unsigned long *outlen)
     }
 
     /* Now calculate the "outer" hash for step (5), (6), and (7) */
-    hash_descriptor[hash].init(&hmac->md);
+    if ((err = hash_descriptor[hash].init(&hmac->md)) != CRYPT_OK) {
+       goto __ERR;
+    }
     if ((err = hash_descriptor[hash].process(&hmac->md, buf, HMAC_BLOCKSIZE)) != CRYPT_OK) {
        goto __ERR;
     }

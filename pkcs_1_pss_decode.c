@@ -118,7 +118,9 @@ int pkcs_1_pss_decode(const unsigned char *msghash, unsigned long msghashlen,
    }
 
    /* M = (eight) 0x00 || msghash || salt, mask = H(M) */
-   hash_descriptor[hash_idx].init(&md);
+   if ((err = hash_descriptor[hash_idx].init(&md)) != CRYPT_OK) {
+      goto __ERR;
+   }
    zeromem(mask, 8);
    if ((err = hash_descriptor[hash_idx].process(&md, mask, 8)) != CRYPT_OK) {
       goto __ERR;

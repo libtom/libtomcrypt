@@ -56,7 +56,9 @@ int pkcs_1_mgf1(const unsigned char *seed, unsigned long seedlen,
        ++counter;
 
        /* get hash of seed || counter */
-       hash_descriptor[hash_idx].init(md);
+       if ((err = hash_descriptor[hash_idx].init(md)) != CRYPT_OK) {
+          goto __ERR;
+       }
        if ((err = hash_descriptor[hash_idx].process(md, seed, seedlen)) != CRYPT_OK) {
           goto __ERR;
        }

@@ -2,6 +2,8 @@
 
 void reg_algs(void)
 {
+  int err;
+
 #ifdef RIJNDAEL
   register_cipher (&aes_desc);
 #endif
@@ -82,6 +84,14 @@ void reg_algs(void)
 #ifdef WHIRLPOOL
   register_hash (&whirlpool_desc);
 #endif
+#ifdef CHC_HASH
+  register_hash(&chc_desc);
+  if ((err = chc_register(register_cipher(&aes_desc))) != CRYPT_OK) {
+     printf("chc_register error: %s\n", error_to_string(err));
+     exit(EXIT_FAILURE);
+  }
+#endif
+
 }
 
 void hash_gen(void)
@@ -98,7 +108,7 @@ void hash_gen(void)
    
    fprintf(out, "Hash Test Vectors:\n\nThese are the hashes of nn bytes '00 01 02 03 .. (nn-1)'\n\n");
    for (x = 0; hash_descriptor[x].name != NULL; x++) {
-      buf = XMALLOC(2 * hash_descriptor[x].blocksize);
+      buf = XMALLOC(2 * hash_descriptor[x].blocksize + 1);
       if (buf == NULL) {
          perror("can't alloc mem");
          exit(EXIT_FAILURE);
@@ -222,7 +232,7 @@ void hmac_gen(void)
           key[y] = (y&255);
       }
 
-      input = XMALLOC(hash_descriptor[x].blocksize * 2);
+      input = XMALLOC(hash_descriptor[x].blocksize * 2 + 1);
       if (input == NULL) {
          perror("Can't malloc memory");
          exit(EXIT_FAILURE);

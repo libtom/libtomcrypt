@@ -47,7 +47,9 @@ int pkcs_5_alg1(const unsigned char *password, unsigned long password_len,
    }        
 
    /* hash initial password + salt */
-   hash_descriptor[hash_idx].init(md);
+   if ((err = hash_descriptor[hash_idx].init(md)) != CRYPT_OK) {
+       goto __ERR;
+   }
    if ((err = hash_descriptor[hash_idx].process(md, password, password_len)) != CRYPT_OK) {
        goto __ERR;
    }

@@ -32,7 +32,9 @@ int hash_memory(int hash, const unsigned char *data, unsigned long len, unsigned
        return CRYPT_MEM;
     }
 
-    hash_descriptor[hash].init(md);
+    if ((err = hash_descriptor[hash].init(md)) != CRYPT_OK) {
+       goto __ERR;
+    }
     if ((err = hash_descriptor[hash].process(md, data, len)) != CRYPT_OK) {
        goto __ERR;
     }

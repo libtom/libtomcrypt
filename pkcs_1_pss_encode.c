@@ -77,7 +77,9 @@ int pkcs_1_pss_encode(const unsigned char *msghash, unsigned long msghashlen,
    }
 
    /* M = (eight) 0x00 || msghash || salt, hash = H(M) */
-   hash_descriptor[hash_idx].init(&md);
+   if ((err = hash_descriptor[hash_idx].init(&md)) != CRYPT_OK) {
+      goto __ERR;
+   }
    zeromem(DB, 8);
    if ((err = hash_descriptor[hash_idx].process(&md, DB, 8)) != CRYPT_OK) {
       goto __ERR;

@@ -18,7 +18,7 @@
 #define XCLOCKS_PER_SEC CLOCKS_PER_SEC
 
 /* Use small code where possible */
-#define SMALL_CODE
+// #define SMALL_CODE
 
 /* Enable self-test test vector checking */
 #define LTC_TEST
@@ -27,7 +27,7 @@
 // #define CLEAN_STACK
 
 /* disable all file related functions */
-//#define NO_FILE
+// #define NO_FILE
 
 /* various ciphers */
 #define BLOWFISH
@@ -37,10 +37,13 @@
 #define SAFERP
 #define RIJNDAEL
 #define XTEA
+/* _TABLES tells it to use tables during setup, _SMALL means to use the smaller scheduled key format
+ * (saves 4KB of ram), _ALL_TABLES enables all tables during setup */
 #define TWOFISH
 #define TWOFISH_TABLES
 // #define TWOFISH_ALL_TABLES
 // #define TWOFISH_SMALL
+/* DES includes EDE triple-DES */
 #define DES
 #define CAST5
 #define NOEKEON
@@ -50,7 +53,7 @@
  */
 //#define SAFER
 
-/* modes of operation */
+/* block cipher modes of operation */
 #define CFB
 #define OFB
 #define ECB
@@ -58,6 +61,7 @@
 #define CTR
 
 /* hash functions */
+#define CHC_HASH
 #define WHIRLPOOL
 #define SHA512
 #define SHA384
@@ -147,16 +151,7 @@
 /* Include the MPI functionality?  (required by the PK algorithms) */
 #define MPI
 
-/* Use SSE2 optimizations in LTM?  Requires GCC or ICC and a P4 or K8 processor */
-// #define LTMSSE
-
-/* prevents the code from being "unportable" at least to non i386 platforms */
-#if defined(LTMSSE) && !( (defined(__GNUC__) && defined(__i386__)) || defined(INTEL_CC)) 
-   #warning LTMSSE is only available for GNU CC (i386) or Intel CC
-   #undef LTMSSE
-#endif
-
-/* PKCS #1 and #5 stuff */
+/* PKCS #1 (RSA) and #5 (Password Handling) stuff */
 #define PKCS_1
 #define PKCS_5
 

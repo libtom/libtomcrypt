@@ -606,9 +606,9 @@ static void key_schedule(ulong64 *x)
 }    
 
 #ifdef CLEAN_STACK
-static void _tiger_compress(hash_state *md, unsigned char *buf)
+static int _tiger_compress(hash_state *md, unsigned char *buf)
 #else
-static void tiger_compress(hash_state *md, unsigned char *buf)
+static int  tiger_compress(hash_state *md, unsigned char *buf)
 #endif
 {
     ulong64 a, b, c, x[8];
@@ -632,17 +632,21 @@ static void tiger_compress(hash_state *md, unsigned char *buf)
     md->tiger.state[0] = a ^ md->tiger.state[0];
     md->tiger.state[1] = b - md->tiger.state[1];
     md->tiger.state[2] = c + md->tiger.state[2];
+
+    return CRYPT_OK;
 }
 
 #ifdef CLEAN_STACK
-static void tiger_compress(hash_state *md, unsigned char *buf)
+static int tiger_compress(hash_state *md, unsigned char *buf)
 {
-   _tiger_compress(md, buf);
+   int err;
+   err = _tiger_compress(md, buf);
    burn_stack(sizeof(ulong64) * 11 + sizeof(unsigned long));
+   return err;
 }
 #endif
 
-void tiger_init(hash_state *md)
+int tiger_init(hash_state *md)
 {
     _ARGCHK(md != NULL);
     md->tiger.state[0] = CONST64(0x0123456789ABCDEF);
@@ -650,6 +654,7 @@ void tiger_init(hash_state *md)
     md->tiger.state[2] = CONST64(0xF096A5B4C3B2E187);
     md->tiger.curlen = 0;
     md->tiger.length = 0;
+    return CRYPT_OK;
 }
 
 HASH_PROCESS(tiger_process, tiger_compress, tiger, 64)

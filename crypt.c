@@ -123,6 +123,9 @@ const char *crypt_build_settings =
 #if defined(WHIRLPOOL)
    "   WHIRLPOOL\n"
 #endif
+#if defined(CHC_HASH)
+   "   CHC_HASH \n"
+#endif
 
     "\nBlock Chaining Modes:\n"
 #if defined(CFB)

@@ -10,7 +10,11 @@
 /* this is the "32-bit at least" data type 
  * Re-define it to suit your platform but it must be at least 32-bits 
  */
-typedef unsigned long ulong32;
+#if defined(__x86_64__)
+   typedef unsigned ulong32;
+#else
+   typedef unsigned long ulong32;
+#endif
 
 /* ---- HELPER MACROS ---- */
 #ifdef ENDIAN_NEUTRAL
@@ -194,9 +198,9 @@ typedef unsigned long ulong32;
 #define ROR(x,n) _lrotr(x,n)
 #define ROL(x,n) _lrotl(x,n)
 
-#elif defined(__GNUC__) && defined(__i386__) && !defined(INTEL_CC)
+#elif defined(__GNUC__) && (defined(__i386__) || defined(__x86_64__)) && !defined(INTEL_CC)
 
-static inline unsigned long ROL(unsigned long word, int i)
+static inline unsigned ROL(unsigned word, int i)
 {
    __asm__("roll %%cl,%0"
       :"=r" (word)
@@ -204,7 +208,7 @@ static inline unsigned long ROL(unsigned long word, int i)
    return word;
 }
 
-static inline unsigned long ROR(unsigned long word, int i)
+static inline unsigned ROR(unsigned word, int i)
 {
    __asm__("rorl %%cl,%0"
       :"=r" (word)
@@ -220,6 +224,26 @@ static inline unsigned long ROR(unsigned long word, int i)
 
 #endif
 
+#if defined(__GNUCC__) && defined(__x86_64__)
+
+static inline unsigned long ROL64(unsigned long word, int i)
+{
+   __asm__("rolq %%cl,%0"
+      :"=r" (word)
+      :"0" (word),"c" (i));
+   return word;
+}
+
+static inline unsigned long ROR64(unsigned long word, int i)
+{
+   __asm__("rorq %%cl,%0"
+      :"=r" (word)
+      :"0" (word),"c" (i));
+   return word;
+}
+
+#else
+
 #define ROL64(x, y) \
     ( (((x)<<((ulong64)(y)&63)) | \
       (((x)&CONST64(0xFFFFFFFFFFFFFFFF))>>((ulong64)64-((y)&63)))) & CONST64(0xFFFFFFFFFFFFFFFF))
@@ -227,6 +251,8 @@ static inline unsigned long ROR(unsigned long word, int i)
 #define ROR64(x, y) \
     ( ((((x)&CONST64(0xFFFFFFFFFFFFFFFF))>>((ulong64)(y)&CONST64(63))) | \
       ((x)<<((ulong64)(64-((y)&CONST64(63)))))) & CONST64(0xFFFFFFFFFFFFFFFF))
+
+#endif
 
 #undef MAX
 #undef MIN

@@ -23,12 +23,12 @@ int cipher_hash_test(void)
    for (x = 0; prng_descriptor[x].name != NULL; x++) {
       DO(prng_descriptor[x].test());
       DO(prng_descriptor[x].start(&nprng));
-      DO(prng_descriptor[x].add_entropy("helloworld12", 12, &nprng));
+      DO(prng_descriptor[x].add_entropy((unsigned char *)"helloworld12", 12, &nprng));
       DO(prng_descriptor[x].ready(&nprng));
       n = sizeof(buf);
-      DO(prng_descriptor[x].export(buf, &n, &nprng));
+      DO(prng_descriptor[x].pexport(buf, &n, &nprng));
       prng_descriptor[x].done(&nprng);
-      DO(prng_descriptor[x].import(buf, n, &nprng));
+      DO(prng_descriptor[x].pimport(buf, n, &nprng));
       DO(prng_descriptor[x].ready(&nprng));
       if (prng_descriptor[x].read(buf, 100, &nprng) != 100) {
          fprintf(stderr, "Error reading from imported PRNG!\n");

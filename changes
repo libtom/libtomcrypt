@@ -1,3 +1,31 @@
+October 29th, 2004
+v0.99  -- Merged in the latest version of LTM which includes all of the recent bug fixes
+       -- Deprecated LTMSSE and removed it (to be replaced with TFM later on)
+       -- Stefan Arentz pointed out that mp_s_rmap should be extern
+       -- Kristian Gjøsteen pointed out that there are typos in the 
+          "test" makefile and minor issues in Yarrow and Sober [just cosmetics really]
+       -- Matthew P. Cashdollar pointed out that "export" is a C++ keyword 
+          so changed the PRNG api to use "pexport" and "pimport"
+       -- Updated "hashsum" demo so it builds ;-)
+       -- Added automatic support for x86-64 (will configure for 64-bit little endian automagically)
+       -- Zhi Chen pointed out a bug in rsa_exptmod which would leak memory on error. 
+       -- Made hash functions "init" return an int.  slight change to API ;-(
+       -- Added "CHC" mode which turns any cipher into a hash the other LTC functions can use
+       -- Added CHC mode stuff to demos such as tv_gen and hashsum
+       -- Added "makefile.shared" which builds and installs shared/static object copies
+          of the library.
+       -- Added DER for bignum support 
+       -- RSA is now fully joy.  rsa_export/rsa_import use PKCS #1 encodings and should be 
+          compatible with other crypto libs that use the format.
+       -- Added support for x86-64 for the ROL/ROR macros 
+       -- Changed the DLL and SO makefiles to optimize for speed, commented SMALL_CODE in
+          mycrypt_custom.h and added -DSMALL_CODE to the default makefile
+       -- Updated primality testing code so it does a minimum of 5 tests [of Miller-Rabin]
+          (AFAIK not a security fix, just warm fuzzies)
+       -- Minor updates to the OMAC code (additional __ARGCHK and removed printf from omac_test... oops!)
+       -- Update build and configuration info which was really really really out of date.  (Chapter 14)
+       ++ Minor update, switch RSA to use the PKCS style CRT
+
 August 6th, 2004
 v0.98  -- Update to hmac_init to free all allocated memory on error
        -- Update to PRNG API to fix import/export functions of Fortuna and Yarrow

@@ -35,5 +35,6 @@ int rsa_test(void);
 int ecc_tests(void);
 int dsa_test(void);
 int dh_tests(void);
+int der_tests(void);
 
 #endif

@@ -1,12 +1,13 @@
 #include "test.h"
 
-#define RSA_MSGSIZE 78
+#ifdef MRSA 
 
+#define RSA_MSGSIZE 78
 
 int rsa_test(void)
 {
    unsigned char in[1024], out[1024], tmp[1024];
-   rsa_key       key;
+   rsa_key       key, privKey, pubKey;
    int           hash_idx, prng_idx, stat, stat2;
    unsigned long rsa_msgsize, len, len2;
    static unsigned char lparam[] = { 0x01, 0x02, 0x03, 0x04 };
@@ -128,30 +129,90 @@ int rsa_test(void)
    /* sign a message (unsalted, lower cholestorol and Atkins approved) now */
    len = sizeof(out);
    DO(rsa_sign_hash(in, 20, out, &len, &test_yarrow, prng_idx, hash_idx, 0, &key));
+
+/* export key and import as both private and public */
+   len2 = sizeof(tmp);
+   DO(rsa_export(tmp, &len2, PK_PRIVATE, &key)); 
+   DO(rsa_import(tmp, len2, &privKey)); 
+   len2 = sizeof(tmp);
+   DO(rsa_export(tmp, &len2, PK_PUBLIC, &key));
+   DO(rsa_import(tmp, len2, &pubKey));
+
+   /* verify with original */
    DO(rsa_verify_hash(out, len, in, 20, &test_yarrow, prng_idx, hash_idx, 0, &stat, &key));
    /* change a byte */
    in[0] ^= 1;
    DO(rsa_verify_hash(out, len, in, 20, &test_yarrow, prng_idx, hash_idx, 0, &stat2, &key));
    
    if (!(stat == 1 && stat2 == 0)) {
-      printf("rsa_verify_hash (unsalted) failed, %d, %d", stat, stat2);
+      printf("rsa_verify_hash (unsalted, origKey) failed, %d, %d", stat, stat2);
+      rsa_free(&key);
+      rsa_free(&pubKey);
+      rsa_free(&privKey);
       return 1;
    }
 
-   /* sign a message (salted) now */
-   len = sizeof(out);
-   DO(rsa_sign_hash(in, 20, out, &len, &test_yarrow, prng_idx, hash_idx, 8, &key));
-   DO(rsa_verify_hash(out, len, in, 20, &test_yarrow, prng_idx, hash_idx, 8, &stat, &key));
+   /* verify with privKey */
    /* change a byte */
    in[0] ^= 1;
-   DO(rsa_verify_hash(out, len, in, 20, &test_yarrow, prng_idx, hash_idx, 8, &stat2, &key));
+   DO(rsa_verify_hash(out, len, in, 20, &test_yarrow, prng_idx, hash_idx, 0, &stat, &privKey));
+   /* change a byte */
+   in[0] ^= 1;
+   DO(rsa_verify_hash(out, len, in, 20, &test_yarrow, prng_idx, hash_idx, 0, &stat2, &privKey));
+   
+   if (!(stat == 1 && stat2 == 0)) {
+      printf("rsa_verify_hash (unsalted, privKey) failed, %d, %d", stat, stat2);
+      rsa_free(&key);
+      rsa_free(&pubKey);
+      rsa_free(&privKey);
+      return 1;
+   }
+
+   /* verify with pubKey */
+   /* change a byte */
+   in[0] ^= 1;
+   DO(rsa_verify_hash(out, len, in, 20, &test_yarrow, prng_idx, hash_idx, 0, &stat, &pubKey));
+   /* change a byte */
+   in[0] ^= 1;
+   DO(rsa_verify_hash(out, len, in, 20, &test_yarrow, prng_idx, hash_idx, 0, &stat2, &pubKey));
+   
+   if (!(stat == 1 && stat2 == 0)) {
+      printf("rsa_verify_hash (unsalted, pubkey) failed, %d, %d", stat, stat2);
+      rsa_free(&key);
+      rsa_free(&pubKey);
+      rsa_free(&privKey);
+      return 1;
+   }
+
+   /* sign a message (salted) now (use privKey to make, pubKey to verify) */
+   len = sizeof(out);
+   DO(rsa_sign_hash(in, 20, out, &len, &test_yarrow, prng_idx, hash_idx, 8, &privKey));
+   DO(rsa_verify_hash(out, len, in, 20, &test_yarrow, prng_idx, hash_idx, 8, &stat, &pubKey));
+   /* change a byte */
+   in[0] ^= 1;
+   DO(rsa_verify_hash(out, len, in, 20, &test_yarrow, prng_idx, hash_idx, 8, &stat2, &pubKey));
    
    if (!(stat == 1 && stat2 == 0)) {
       printf("rsa_verify_hash (salted) failed, %d, %d", stat, stat2);
+      rsa_free(&key);
+      rsa_free(&pubKey);
+      rsa_free(&privKey);
       return 1;
    }
    
    /* free the key and return */
    rsa_free(&key);
+   rsa_free(&pubKey);
+   rsa_free(&privKey);
    return 0;
 }
+
+#else
+
+int rsa_test(void)
+{
+   printf("NOP");
+   return 0;
+}
+
+#endif

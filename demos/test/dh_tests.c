@@ -1,5 +1,7 @@
 #include "test.h"
 
+#ifdef MDH
+
 int dh_tests (void)
 {
   unsigned char buf[3][4096];
@@ -85,3 +87,13 @@ int dh_tests (void)
   dh_free (&usera);
   return 0;
 }
+
+#else
+
+int dh_tests(void)
+{
+   printf("NOP");
+   return 0;
+}
+
+#endif

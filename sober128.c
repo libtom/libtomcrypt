@@ -438,7 +438,7 @@ int sober128_test(void)
    }
    return CRYPT_OK;
 #endif
-};
+}
 
 #endif
 

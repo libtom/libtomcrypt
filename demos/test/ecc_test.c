@@ -1,5 +1,7 @@
 #include "test.h"
 
+#ifdef MECC
+
 int ecc_tests (void)
 {
   unsigned char buf[4][4096];
@@ -87,3 +89,13 @@ int ecc_tests (void)
   ecc_free (&usera);
   return 0;
 }
+
+#else
+
+int ecc_tests(void)
+{
+   printf("NOP");
+   return 0;
+}
+
+#endif

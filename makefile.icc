@@ -98,7 +98,7 @@ blowfish.o des.o safer_tab.o safer.o saferp.o rc2.o xtea.o \
 rc6.o rc5.o cast5.o noekeon.o twofish.o skipjack.o \
 \
 md2.o md4.o md5.o sha1.o sha256.o sha512.o tiger.o whirl.o \
-rmd128.o rmd160.o \
+rmd128.o rmd160.o chc.o \
 \
 packet_store_header.o  packet_valid_header.o \
 \
@@ -130,7 +130,11 @@ pkcs_1_v15_es_encode.o pkcs_1_v15_es_decode.o pkcs_1_v15_sa_encode.o pkcs_1_v15_
 \
 pkcs_5_1.o pkcs_5_2.o \
 \
+der_encode_integer.o der_decode_integer.o der_length_integer.o \
+der_put_multi_integer.o der_get_multi_integer.o \
+\
 burn_stack.o zeromem.o \
+\
 $(MPIOBJECT)
 
 
