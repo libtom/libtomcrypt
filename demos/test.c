@@ -1837,9 +1837,19 @@ main (void)
   if (hmac_test() != CRYPT_OK) exit(EXIT_FAILURE);
 #endif
 
-#ifdef HMAC
+#ifdef OMAC
   printf ("OMAC: %s\n", omac_test () == CRYPT_OK ? "passed" : "failed");
   if (omac_test() != CRYPT_OK) exit(EXIT_FAILURE);
+#endif
+
+#ifdef EAX_MODE
+  printf ("EAX : %s\n", eax_test () == CRYPT_OK ? "passed" : "failed");
+  if (eax_test() != CRYPT_OK) exit(EXIT_FAILURE);
+#endif
+
+#ifdef OCB_MODE
+  printf ("OCB : %s\n", ocb_test () == CRYPT_OK ? "passed" : "failed");
+  if (ocb_test() != CRYPT_OK) exit(EXIT_FAILURE);
 #endif
 
   store_tests ();

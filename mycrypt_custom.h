@@ -49,6 +49,8 @@
 #define RIPEMD160
 #define HMAC
 #define OMAC
+#define EAX_MODE
+#define OCB_MODE
 #define BASE64
 #define YARROW
 #define SPRNG

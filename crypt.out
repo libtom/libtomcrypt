@@ -24,6 +24,9 @@
 \BOOKMARK [2][-]{subsection.3.4.1}{Background}{section.3.4}
 \BOOKMARK [2][-]{subsection.3.4.2}{Choice of Mode}{section.3.4}
 \BOOKMARK [2][-]{subsection.3.4.3}{Implementation}{section.3.4}
+\BOOKMARK [1][-]{section.3.5}{Encrypt and Authenticate Modes}{chapter.3}
+\BOOKMARK [2][-]{subsection.3.5.1}{EAX Mode}{section.3.5}
+\BOOKMARK [2][-]{subsection.3.5.2}{OCB Mode}{section.3.5}
 \BOOKMARK [0][-]{chapter.4}{One-Way Cryptographic Hash Functions}{}
 \BOOKMARK [1][-]{section.4.1}{Core Functions}{chapter.4}
 \BOOKMARK [1][-]{section.4.2}{Hash Descriptors}{chapter.4}

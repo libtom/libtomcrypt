@@ -1,3 +1,14 @@
+/* LibTomCrypt, modular cryptographic library -- Tom St Denis
+ *
+ * LibTomCrypt is a library that provides various cryptographic
+ * algorithms in a highly modular and flexible manner.
+ *
+ * The library is free for all purposes without any express
+ * gurantee it works.
+ *
+ * Tom St Denis, tomstdenis@iahu.ca, http://libtomcrypt.org
+ */
+
 /* Implements ECC over Z/pZ for curve y^2 = x^3 - 3x + b
  *
  * All curves taken from NIST recommendation paper of July 1999
@@ -741,44 +752,6 @@ error:
 done:
    mp_clear_multi(&p, &tmp, &tmp2, NULL);
    return res;
-}
-
-#define OUTPUT_BIGNUM(num, buf2, y, z)         \
-{                                              \
-      z = (unsigned long)mp_unsigned_bin_size(num);  \
-      STORE32L(z, buf2+y);                     \
-      y += 4;                                  \
-      if (mp_to_unsigned_bin(num, buf2+y) != MP_OKAY) { return CRYPT_MEM; }   \
-      y += z;                                  \
-}
-
-
-#define INPUT_BIGNUM(num, in, x, y)                              \
-{                                                                \
-     /* load value */                                            \
-     if (y+4 > inlen) {                                          \
-        err = CRYPT_INVALID_PACKET;                              \
-        goto error;                                              \
-     }                                                           \
-     LOAD32L(x, in+y);                                           \
-     y += 4;                                                     \
-                                                                 \
-     /* sanity check... */                                       \
-     if (y+x > inlen) {                                          \
-        err = CRYPT_INVALID_PACKET;                              \
-        goto error;                                              \
-     }                                                           \
-                                                                 \
-     /* load it */                                               \
-     if (mp_read_unsigned_bin(num, (unsigned char *)in+y, (int)x) != MP_OKAY) {\
-        err = CRYPT_MEM;                                         \
-        goto error;                                              \
-     }                                                           \
-     y += x;                                                     \
-     if (mp_shrink(num) != MP_OKAY) {                            \
-        err = CRYPT_MEM;                                         \
-        goto error;                                              \
-     }                                                           \
 }
 
 int ecc_export(unsigned char *out, unsigned long *outlen, int type, ecc_key *key)

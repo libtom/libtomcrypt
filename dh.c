@@ -1,3 +1,13 @@
+/* LibTomCrypt, modular cryptographic library -- Tom St Denis
+ *
+ * LibTomCrypt is a library that provides various cryptographic
+ * algorithms in a highly modular and flexible manner.
+ *
+ * The library is free for all purposes without any express
+ * gurantee it works.
+ *
+ * Tom St Denis, tomstdenis@iahu.ca, http://libtomcrypt.org
+ */
 #include "mycrypt.h"
 
 #ifdef MDH
@@ -278,45 +288,6 @@ void dh_free(dh_key *key)
    _ARGCHK(key != NULL);
    mp_clear_multi(&key->x, &key->y, NULL);
 }
-
-#define OUTPUT_BIGNUM(num, buf2, y, z)         \
-{                                              \
-      z = (unsigned long)mp_unsigned_bin_size(num);           \
-      STORE32L(z, buf2+y);                     \
-      y += 4;                                  \
-      if ((err = mp_to_unsigned_bin(num, buf2+y)) != MP_OKAY) { return mpi_to_ltc_error(err); }   \
-      y += z;                                  \
-}
-
-
-#define INPUT_BIGNUM(num, in, x, y)                              \
-{                                                                \
-     /* load value */                                            \
-     if (y + 4 > inlen) {                                        \
-        err = CRYPT_INVALID_PACKET;                            \
-        goto error;                                              \
-     }                                                           \
-     LOAD32L(x, in+y);                                           \
-     y += 4;                                                     \
-                                                                 \
-     /* sanity check... */                                       \
-     if (x+y > inlen) {                                          \
-        err = CRYPT_INVALID_PACKET;                            \
-        goto error;                                              \
-     }                                                           \
-                                                                 \
-     /* load it */                                               \
-     if ((err = mp_read_unsigned_bin(num, (unsigned char *)in+y, (int)x)) != MP_OKAY) {\
-        err = mpi_to_ltc_error(err);                                      \
-        goto error;                                              \
-     }                                                           \
-     y += x;                                                     \
-     if ((err = mp_shrink(num)) != MP_OKAY) {                            \
-        err = mpi_to_ltc_error(err);                                       \
-        goto error;                                              \
-     }                                                           \
-}
-
 
 int dh_export(unsigned char *out, unsigned long *outlen, int type, dh_key *key)
 {

@@ -1,3 +1,14 @@
+/* LibTomCrypt, modular cryptographic library -- Tom St Denis
+ *
+ * LibTomCrypt is a library that provides various cryptographic
+ * algorithms in a highly modular and flexible manner.
+ *
+ * The library is free for all purposes without any express
+ * gurantee it works.
+ *
+ * Tom St Denis, tomstdenis@iahu.ca, http://libtomcrypt.org
+ */
+
 /* Skipjack Implementation by Tom St Denis */
 #include "mycrypt.h"
 
@@ -84,7 +95,7 @@ int skipjack_setup(const unsigned char *key, int keylen, int num_rounds, symmetr
    tmp = ig_func(w2, &kp, key->skipjack.key);     \
    w2  = tmp ^ w3 ^ x;                            \
    w3  = w4; w4 = w1; w1 = tmp;
-   
+
 static unsigned g_func(unsigned w, int *kp, unsigned char *key)
 {
    unsigned char g1,g2;

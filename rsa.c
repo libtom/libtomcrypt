@@ -1,3 +1,15 @@
+/* LibTomCrypt, modular cryptographic library -- Tom St Denis
+ *
+ * LibTomCrypt is a library that provides various cryptographic
+ * algorithms in a highly modular and flexible manner.
+ *
+ * The library is free for all purposes without any express
+ * gurantee it works.
+ *
+ * Tom St Denis, tomstdenis@iahu.ca, http://libtomcrypt.org
+ */
+
+/* RSA Code by Tom St Denis */
 #include "mycrypt.h"
 
 #ifdef MRSA
@@ -308,49 +320,11 @@ int rsa_depad(const unsigned char *in,  unsigned long inlen,
    return CRYPT_OK;
 }
 
-#define OUTPUT_BIGNUM(num, buf2, y, z)         \
-{                                              \
-      z = (unsigned long)mp_unsigned_bin_size(num);  \
-      STORE32L(z, buf2+y);                     \
-      y += 4;                                  \
-      if (mp_to_unsigned_bin(num, buf2+y) != MP_OKAY) { return CRYPT_MEM; }    \
-      y += z;                                  \
-}
-
-
-#define INPUT_BIGNUM(num, in, x, y)                              \
-{                                                                \
-     /* load value */                                            \
-     if (y + 4 > inlen) {                                        \
-         err = CRYPT_INVALID_PACKET;                           \
-         goto error2;                                            \
-     }                                                           \
-     LOAD32L(x, in+y);                                           \
-     y += 4;                                                     \
-                                                                 \
-     /* sanity check... */                                       \
-     if (y+x > inlen) {                                          \
-        err = CRYPT_INVALID_PACKET;                            \
-        goto error2;                                             \
-     }                                                           \
-                                                                 \
-     /* load it */                                               \
-     if (mp_read_unsigned_bin(num, (unsigned char *)in+y, (int)x) != MP_OKAY) {\
-        err = CRYPT_MEM;                                       \
-        goto error2;                                             \
-     }                                                           \
-     y += x;                                                     \
-                                                                 \
-     if (mp_shrink(num) != MP_OKAY) {                            \
-        err = CRYPT_MEM;                                       \
-        goto error2;                                             \
-     }                                                           \
-}
-
 int rsa_export(unsigned char *out, unsigned long *outlen, int type, rsa_key *key)
 {
    unsigned char buf2[5120];
-   unsigned long y, z;
+   unsigned long y, z; 
+   int err;
 
    _ARGCHK(out != NULL);
    _ARGCHK(outlen != NULL);
@@ -464,7 +438,7 @@ int rsa_import(const unsigned char *in, unsigned long inlen, rsa_key *key)
    }
 
    return CRYPT_OK;
-error2:
+error:
    mp_clear_multi(&key->d, &key->e, &key->N, &key->dQ, &key->dP,
                   &key->pQ, &key->qP, &key->p, &key->q, NULL);
    return err;

@@ -47,7 +47,7 @@
 \def\gap{\vspace{0.5ex}}
 \makeindex
 \begin{document}
-\title{A Tiny Crypto Library, \\ LibTomCrypt \\ Version 0.92}
+\title{A Tiny Crypto Library, \\ LibTomCrypt \\ Version 0.93}
 \author{Tom St Denis \\
 Algonquin College \\
 \\
@@ -783,6 +783,174 @@ int main(void)
 }
 \end{verbatim}
 \end{small}
+
+\section{Encrypt and Authenticate Modes}
+
+\subsection{EAX Mode}
+LibTomCrypt provides support for a mode called EAX\footnote{See 
+M. Bellare, P. Rogaway, D. Wagner, A Conventional Authenticated-Encryption Mode.} in a manner similar to the
+way it was intended to be used.
+
+First a short description of what EAX mode is before I explain how to use it.  EAX is a mode that requires a cipher,
+CTR and OMAC support and provides encryption and authentication.  It is initialized with a random ``nonce'' that can
+be shared publicly as well as a ``header'' which can be fixed and public as well as a random secret symmetric key.
+
+The ``header'' data is meant to be meta-data associated with a stream that isn't private (e.g. protocol messages).  It can
+be added at anytime during an EAX stream and is part of the authentication tag.  That is, changes in the meta-data can
+be detected by an invalid output tag.
+
+The mode can then process plaintext producing ciphertext as well as compute a partial checksum.  The actual checksum
+called a ``tag'' is only emitted when the message is finished.  In the interim though the user can process any arbitrary
+sized message block to send to the recipient as ciphertext.  This makes the EAX mode especially suited for streaming modes
+of operation.
+
+The mode is initialized with the following function.
+\begin{verbatim}
+int eax_init(eax_state *eax, int cipher, 
+             const unsigned char *key, unsigned long keylen,
+             const unsigned char *nonce, unsigned long noncelen,
+             const unsigned char *header, unsigned long headerlen);
+\end{verbatim}
+
+Where ``eax'' is the EAX state.  ``cipher'' is the index of the desired cipher in the descriptor table.  
+``key'' is the shared secret symmetric key of length ``keylen''.  ``nonce'' is the random public string of
+length ``noncelen''.  ``header'' is the random (or fixed or \textbf{NULL}) header for the message of length
+``headerlen''.
+
+When this function completes ``eax'' will be initialized such that you can now either have data decrypted or 
+encrypted in EAX mode.  Note that if ``headerlen'' is zero you may pass ``header'' as \textbf{NULL}.  It will still
+initialize the EAX ``H'' value to the correct value.  
+
+To encrypt or decrypt data in a streaming mode use the following.
+\begin{verbatim}
+int eax_encrypt(eax_state *eax, const unsigned char *pt, 
+                unsigned char *ct, unsigned long length);
+
+int eax_decrypt(eax_state *eax, const unsigned char *ct, 
+                unsigned char *pt, unsigned long length);
+\end{verbatim}
+The function ``eax\_encrypt'' will encrypt the bytes in ``pt'' of ``length'' bytes and store the ciphertext in
+``ct''.  Note that ``ct'' and ``pt'' may be the same region in memory.   This function will also send the ciphertext
+through the OMAC function.  The function ``eax\_decrypt'' decrypts ``ct'' and stores it in ``pt''.  This also allows 
+``pt'' and ``ct'' to be the same region in memory.  
+
+Note that both of these functions allow you to send the data in any granularity but the order is important.  While
+the eax\_init() function allows you to add initial header data to the stream you can also add header data during the
+EAX stream with the following.
+
+Also note that you cannot both encrypt or decrypt with the same ``eax'' context.  For bi-directional communication you
+will need to initialize two EAX contexts (preferably with different headers and nonces).  
+
+\begin{verbatim}
+int eax_addheader(eax_state *eax, 
+                  const unsigned char *header, unsigned long length);
+\end{verbatim}
+
+This will add the ``length'' bytes from ``header'' to the given ``eax'' stream.  Once the message is finished the 
+``tag'' (checksum) may be computed with the following function.
+
+\begin{verbatim}
+int eax_done(eax_state *eax, 
+             unsigned char *tag, unsigned long *taglen);
+\end{verbatim}
+This will terminate the EAX state ``eax'' and store upto ``taglen'' bytes of the message tag in ``tag''.  The function
+then stores how many bytes of the tag were written out back into ``taglen''.
+
+The EAX mode code can be tested to ensure it matches the test vectors by calling the following function.
+\begin{verbatim}
+int eax_test(void);
+\end{verbatim}
+This requires that the AES (or Rijndael) block cipher be registered with the cipher\_descriptor table first.
+
+\subsection{OCB Mode}
+LibTomCrypt provides support for a mode called OCB\footnote{See 
+P. Rogaway, M. Bellare, J. Black, T. Krovetz, ``OCB: A Block Cipher Mode of Operation for Efficient Authenticated Encryption''.}
+in a mode somewhat similar to as it was meant to be used.
+
+OCB is an encryption protocol that simultaneously provides authentication.  It is slightly faster to use than EAX mode
+but is less flexible.  Let's review how to initialize an OCB context.
+
+\begin{verbatim}
+int ocb_init(ocb_state *ocb, int cipher, 
+             const unsigned char *key, unsigned long keylen, 
+             const unsigned char *nonce);
+\end{verbatim}
+
+This will initialize the ``ocb'' context using cipher descriptor ``cipher''.  It will use a ``key'' of length ``keylen''
+and the random ``nonce''.  Note that ``nonce'' must be a random (public) string the same length as the block ciphers
+block size (e.g. 16 for AES).
+
+This mode has no ``Associated Data'' like EAX mode does which means you cannot authenticate metadata along with the stream.
+To encrypt or decrypt data use the following.
+
+\begin{verbatim}
+int ocb_encrypt(ocb_state *ocb, const unsigned char *pt, unsigned char *ct);
+int ocb_decrypt(ocb_state *ocb, const unsigned char *ct, unsigned char *pt);
+\end{verbatim}
+
+This will encrypt (or decrypt for the latter) a fixed length of data from ``pt'' to ``ct'' (vice versa for the latter).  
+They assume that ``pt'' and ``ct'' are the same size as the block cipher's block size.  Note that you cannot call 
+both functions given a single ``ocb'' state.  For bi-directional communication you will have to initialize two ``ocb''
+states (with difference nonces).  Also ``pt'' and ``ct'' may point to the same location in memory.
+
+When you are finished encrypting the message you call the following function to compute the tag.
+
+\begin{verbatim}
+int ocb_done_encrypt(ocb_state *ocb, 
+                     const unsigned char *pt, unsigned long ptlen,
+                           unsigned char *ct, 
+                           unsigned char *tag, unsigned long *taglen);
+\end{verbatim}
+
+This will terminate an encrypt stream ``ocb''.  If you have trailing bytes of plaintext that will not complete a block 
+you can pass them here.  This will also encrypt the ``ptlen'' bytes in ``pt'' and store them in ``ct''.  It will also
+store upto ``taglen'' bytes of the tag into ``tag''.
+
+Note that ``ptlen'' must be less than or equal to the block size of block cipher chosen.  Also note that if you have 
+an input message equal to the length of the block size then you pass the data here (not to ocb\_encrypt()) only.  
+
+To terminate a decrypt stream and compared the tag you call the following.
+
+\begin{verbatim}
+int ocb_done_decrypt(ocb_state *ocb, 
+                     const unsigned char *ct,  unsigned long ctlen,
+                           unsigned char *pt, 
+                     const unsigned char *tag, unsigned long taglen, int *res);
+\end{verbatim}
+
+Similarly to the previous function you can pass trailing message bytes into this function.  This will compute the 
+tag of the message (internally) and then compare it against the ``taglen'' bytes of ``tag'' provided.  By default
+``res'' is set to zero.  If all ``taglen'' bytes of ``tag'' can be verified then ``res'' is set to one (authenticated
+message).
+
+To make life simpler the following two functions are provided for memory bound OCB.
+
+\begin{verbatim}
+int ocb_encrypt_authenticate_memory(int cipher,
+    const unsigned char *key,    unsigned long keylen,
+    const unsigned char *nonce,  
+    const unsigned char *pt,     unsigned long ptlen,
+          unsigned char *ct,
+          unsigned char *tag,    unsigned long *taglen);
+\end{verbatim}
+
+This will OCB encrypt the message ``pt'' of length ``ptlen'' and store the ciphertext in ``ct''.  The length ``ptlen''
+can be any arbitrary length.  
+
+\begin{verbatim}
+int ocb_decrypt_verify_memory(int cipher,
+    const unsigned char *key,    unsigned long keylen,
+    const unsigned char *nonce,  
+    const unsigned char *ct,     unsigned long ctlen,
+          unsigned char *pt,
+    const unsigned char *tag,    unsigned long taglen,
+          int           *res);
+\end{verbatim}
+
+Similarly this will OCB decrypt and compare the internally computed tag against the tag provided. ``res'' is set 
+appropriately.
+
+
 
 \chapter{One-Way Cryptographic Hash Functions}
 \section{Core Functions}

@@ -1,3 +1,13 @@
+/* LibTomCrypt, modular cryptographic library -- Tom St Denis
+ *
+ * LibTomCrypt is a library that provides various cryptographic
+ * algorithms in a highly modular and flexible manner.
+ *
+ * The library is free for all purposes without any express
+ * gurantee it works.
+ *
+ * Tom St Denis, tomstdenis@iahu.ca, http://libtomcrypt.org
+ */
 int ecc_encrypt_key(const unsigned char *inkey, unsigned long keylen,
                           unsigned char *out,  unsigned long *len, 
                           prng_state *prng, int wprng, int hash, 

@@ -1,3 +1,22 @@
+Jan 25th, 2004
+v0.93  -- [note: deleted v0.93 changes by accident... recreating from memory...]
+       -- Fix to RC2 to not deference pointer before ARGCHK
+       -- Fix to NOEKEON to match published test vectors as well as cleaned up the code a bit
+       -- Optimized Twofish [down to 28 cycles/byte on my box] and Blowfish
+       -- Fix to OMAC to test cipher block size first [prevents wasting any time]
+       -- Added more OMAC test vectors
+       -- Added EAX Encrypt+Authenticate support
+       -- Fix to DSA to check return of a few LTM functions I forgot [mp_to_unsigned_bin]
+       -- Added common headers to all C files
+       -- CTR mode supports big and little [default] endian counters now.  
+       -- fix to find_cipher_any() so that it can handle a fragmented cipher_descriptor table.
+       -- added find_hash_any() akin to find_cipher_any().
+       -- Added EAX code to demos/tv_gen.c  Hazaa! 
+       -- Removed SONY defines and files from codebase.
+       -- Added OCB support [patents be damned] and to demos/tv_gen.c
+       -- Merge all of the INPUT/OUTPUT BIGNUM macros (less toc) into mycrypt_pk.h
+       -- Made appropriate changes to the debug string in crypt.c
+
 Dec 24th, 2003
 v0.92  -- Updated the config.pl script so the options have more details.
        -- Updated demos/tv_gen to include RIPEMD hashes
