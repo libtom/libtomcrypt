@@ -44,7 +44,7 @@
 \def\gap{\vspace{0.5ex}}
 \makeindex
 \begin{document}
-\title{A Tiny Crypto Library, \\ LibTomCrypt \\ Version 0.76}
+\title{A Tiny Crypto Library, \\ LibTomCrypt \\ Version 0.77}
 \author{Tom St Denis \\
 Algonquin College \\
 \\
@@ -1453,10 +1453,10 @@ Note that if the key fails to ``rsa\_import()'' you do not have to free the memo
 
 \section{Remarks}
 It is important that you match your RSA key size with the function you are performing.  The internal padding for both
-signatures and encryption triple the size of the plaintext you send to rsa\_exptmod().  This means to encrypt or sign
-a message of N bytes with rsa\_exptmod() you must have a modulus of 1+3N bytes.  Note that this doesn't affect the length
-of the plaintext you pass into functions like rsa\_encrypt().  This restriction applies only to data that is passed through
-RSA directly.
+signatures and encryption triple the size of the plaintext.  This means to encrypt or sign
+a message of N bytes you must have a modulus of 1+3N bytes.  Note that this doesn't affect the length of the plaintext 
+you pass into functions like rsa\_encrypt().  This restriction applies only to data that is passed through the
+internal RSA routines directly directly.
 
 The following table gives the size requirements for various hashes.
 \begin{center}
@@ -1517,18 +1517,15 @@ make a Diffie-Hellman private key pair:
 int dh_make_key(prng_state *prng, int wprng, 
                 int keysize, dh_key *key);
 \end{verbatim}
-The ``keysize'' is the size of the modulus you want in bytes.  Currently support sizes are 64 to 512 bytes which correspond 
-to key sizes of 512 to 4096 bits. The smaller the key the faster it is to use however it will be less secure.  When 
+The ``keysize'' is the size of the modulus you want in bytes.  Currently support sizes are 96 to 512 bytes which correspond 
+to key sizes of 768 to 4096 bits. The smaller the key the faster it is to use however it will be less secure.  When 
 specifying a size not explicitly supported by the library it will round {\em up} to the next key size.  If the size is 
-above 512 it will return an error.  So if you pass ``keysize == 32'' it will use a 512 bit key but if you pass 
+above 512 it will return an error.  So if you pass ``keysize == 32'' it will use a 768 bit key but if you pass 
 ``keysize == 20000'' it will return an error.  The primes and generators used are built-into the library and were designed 
 to meet very specific goals.  The primes are strong primes which means that if $p$ is the prime then
 $p-1$ is equal to $2r$ where $r$ is a large prime.  The bases are chosen to generate a group of order $r$ to prevent
 leaking a bit of the key.  This means the bases generate a very large prime order group which is good to make cryptanalysis
 hard.
-
-As for Diffie-Hellman key sizes its recommended that you use at least a 768-bit key.  Since a 512-bit key has never been broken (its much
-harder than 512-bit RSA to attack) a 512-bit key setting is supported.  You can use it if you want I just suggest you don't.
 
 The next two routines are for exporting/importing Diffie-Hellman keys in a binary format.  This is useful for transport
 over communication mediums.  
@@ -1875,6 +1872,15 @@ int ecc_verify_hash(const unsigned char *sig, const unsigned char *hash,
                           ecc_key *key);
 \end{verbatim}
 
+\section{ECC Keysizes}
+With ECC if you try and sign a hash that is bigger than your ECC key you can run into problems.  The math will still work
+and in effect the signature will still work.  With ECC keys the strength of the signature is limited by the size of
+the hash or the size of they key, whichever is smaller.  For example, if you sign with SHA256 and a ECC-160 key in effect
+you have 160-bits of security (e.g. as if you signed with SHA-1).  
+
+The library will not warn you if you make this mistake so it is important to check yourself before using the 
+signatures.
+
 \chapter{Public Keyrings}
 \section{Introduction}
 In order to simplify the usage of the public key algorithms a set of keyring routines have been developed.  They let the 
@@ -2209,14 +2215,21 @@ length of the binary string.
 \subsection{Primality Testing}
 \index{Primality Testing}
 The library includes primality testing and random prime functions as well.  The primality tester will perform the test in
-two phases.  First it will perform trial division by the first few primes.  Second it will perform sixteen rounds of the 
+two phases.  First it will perform trial division by the first few primes.  Second it will perform eight rounds of the 
 Rabin-Miller primality testing algorithm.  If the candidate passes both phases it is declared prime otherwise it is declared
 composite.  No prime number will fail the two phases but composites can.  Each round of the Rabin-Miller algorithm reduces
 the probability of a pseudo-prime by $1 \over 4$ therefore after sixteen rounds the probability is no more than 
-$\left ( { 1 \over 4 } \right )^{16} = 2^{-32}$.  Even if a composite did make it through it would most likely cause the 
-the algorithm trying to use it to fail.  For instance, in RSA two primes $p$ and $q$ are required.  The order of the 
-multiplicative sub-group (modulo $pq$) is given as $\phi(pq)$ or $(p - 1)(q - 1)$.  The decryption exponent $d$ is found
-as $de \equiv 1\mbox{ }(\mbox{mod } \phi(pq))$.  If either $p$ or $q$ is composite the value of $d$ will be incorrect and the user
+$\left ( { 1 \over 4 } \right )^{8} = 2^{-16}$.  In practice the probability of error is in fact much lower than that.
+
+When making random primes the trial division step is in fact an optimized implementation of ``Implementation of Fast RSA Key Generation on Smart Cards''\footnote{Chenghuai Lu, Andre L. M. dos Santos and Francisco R. Pimentel}.
+In essence a table of machine-word sized residues are kept of a candidate modulo a set of primes.  When the candiate
+is rejected and ultimately incremented to test the next number the residues are updated without using multi-word precision
+math operations.  As a result the routine can scan ahead to the next number required for testing with very little work
+involved.
+
+In the event that a composite did make it through it would most likely cause the the algorithm trying to use it to fail.  For 
+instance, in RSA two primes $p$ and $q$ are required.  The order of the multiplicative sub-group (modulo $pq$) is given 
+as $\phi(pq)$ or $(p - 1)(q - 1)$.  The decryption exponent $d$ is found as $de \equiv 1\mbox{ }(\mbox{mod } \phi(pq))$.  If either $p$ or $q$ is composite the value of $d$ will be incorrect and the user
 will not be able to sign or decrypt messages at all.  Suppose $p$ was prime and $q$ was composite this is just a variation of 
 the multi-prime RSA.  Suppose $q = rs$ for two primes $r$ and $s$ then $\phi(pq) = (p - 1)(r - 1)(s - 1)$ which clearly is 
 not equal to $(p - 1)(rs - 1)$.
@@ -2233,7 +2246,7 @@ a random prime call:
 \begin{verbatim}
 int rand_prime(mp_int *N, unsigned long len, prng_state *prng, int wprng);
 \end{verbatim}
-Where ``len'' is the size of the prime in bytes ($2 \le len \le 1024$).  You can set ``len'' to the negative size you want
+Where ``len'' is the size of the prime in bytes ($2 \le len \le 256$).  You can set ``len'' to the negative size you want
 to get a prime of the form $p \equiv 3\mbox{ }(\mbox{mod } 4)$.  So if you want a 1024-bit prime of this sort pass 
 ``len = -128'' to the function.  Upon success it will return {\bf CRYPT\_OK} and ``N'' will contain an integer which
 is very likely prime.

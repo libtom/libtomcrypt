@@ -1,3 +1,27 @@
+Nov 26th, 2002
+v0.77  -- Updated the XTEA code to use pre-computed keys.  With optimizations for speed it achieves 222Mbit/sec
+          compared to the 121Mbit/sec before.  It is 288 bytes bigger than before.
+       -- Cleaned up some of the ciphers and hashes (coding style, cosmetic changes)
+       -- Optimized AES slightly for 256-bit keys [only one if statement now, still two for 192-bit keys]
+       -- Removed most test cases from Blowfish, left three of them there.  Makes it smaller and faster to test.
+       -- Changed the primality routines around.  I now use 8 rounds of Rabin-Miller, I use 256 primes in the sieve
+          step and the "rand_prime" function uses a modified sieve that avoids alot of un-needed bignum work.
+       -- Fixed a bug in the ECC/DH signatures where the keys "setting" value was not checked for validity.  This means
+          that a invalid value could have caused segfaults, etc...
+       -- **NOTE** Changed the way the ECC/DH export/import functions work.  They are source but not binary compatible
+          with v0.76.  Essentially insteading of exporting the setting index like before I export the key size.  Now
+          if you ever re-configure which key settings are supported the lib will still be able to make use of your 
+          keys.
+       -- Optimized Blowfish by inlining the round function, unrolling it for four rounds then using a for loop for the 
+          rest.  It achieves a rate of 425Mbit/sec with the new code compared to 314Mbit/sec before.  The new blowfish 
+          object file is 7,813 bytes compared to 8,663 before and is 850 bytes smaller.  So the code is both smaller and 
+          faster!
+       -- Optimized Twofish as well by inlining the round function.  Gets ~400Mbit/sec compared to 280Mbit/sec before
+          and the code is only 78 bytes larger than the previous copy.
+       -- Removed SMALL_PRIME_TAB build option.  I use the smaller table always.
+       -- Fixed some mistakes concerning prime generation in the manual.
+       -- [Note: sizes/speeds are for GCC 3.2 on an x86 Athlon XP @ 1.53Ghz]
+
 Nov 25th, 2002
 v0.76  -- Updated makefiles a bit more, use "-Os" instead of "-O2" to optimize for size.  Got the lib
           downto 265KB using GCC 3.2 on my x86 box.

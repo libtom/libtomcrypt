@@ -9,7 +9,7 @@
 # a build. This is easy to remedy though, for those that have problems.
 
 # The version
-VERSION=0.76
+VERSION=0.77
 
 #Compiler and Linker Names
 CC=gcc
@@ -154,11 +154,6 @@ CFLAGS += -DKR
 
 # include large integer math routines? (required by the PK code)
 CFLAGS += -DMPI
-
-# Use a small prime table?  It greatly reduces the size of prime.c at a little impact
-# in speed.
-#
-CFLAGS += -DSMALL_PRIME_TAB
 
 # include HMAC support
 CFLAGS += -DHMAC

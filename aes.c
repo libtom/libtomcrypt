@@ -220,11 +220,10 @@ void rijndael_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_
     b0[2] ^= skey->rijndael.eK[2]; b0[3] ^= skey->rijndael.eK[3];
     kp = skey->rijndael.eK + 4;
 
-    if(skey->rijndael.k_len > 6) {
+    if (skey->rijndael.k_len > 6) {
         f_nround(b1, b0, kp); f_nround(b0, b1, kp);
-    }
-
-    if(skey->rijndael.k_len > 4) {
+        f_nround(b1, b0, kp); f_nround(b0, b1, kp);
+    } else if (skey->rijndael.k_len > 4) {
         f_nround(b1, b0, kp); f_nround(b0, b1, kp);
     }
 
@@ -294,9 +293,8 @@ void rijndael_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_
 
     if(skey->rijndael.k_len > 6) {
         i_nround(b1, b0, kp); i_nround(b0, b1, kp);
-    }
-
-    if(skey->rijndael.k_len > 4) {
+        i_nround(b1, b0, kp); i_nround(b0, b1, kp);
+    } else if(skey->rijndael.k_len > 4) {
         i_nround(b1, b0, kp); i_nround(b0, b1, kp);
     }
 

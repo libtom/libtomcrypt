@@ -692,12 +692,6 @@ void dh_tests(void)
 
 /* time stuff */
    t1 = XCLOCK();
-   dh_make_key(&prng, find_prng("yarrow"), 64, &usera);
-   t1 = XCLOCK() - t1;
-   printf("Make dh-512 key took %f msec\n", 1000.0 * ((double)t1 / (double)XCLOCKS_PER_SEC));
-   dh_free(&usera);
-
-   t1 = XCLOCK();
    dh_make_key(&prng, find_prng("yarrow"), 96, &usera);
    t1 = XCLOCK() - t1;
    printf("Make dh-768 key took %f msec\n", 1000.0 * ((double)t1 / (double)XCLOCKS_PER_SEC));
@@ -1166,24 +1160,24 @@ void register_all_algs(void)
 #ifdef RIJNDAEL
    register_cipher(&rijndael_desc);
 #endif
+#ifdef TWOFISH
+   register_cipher(&twofish_desc);
+#endif
 #ifdef SAFER
    register_cipher(&safer_k64_desc);
    register_cipher(&safer_sk64_desc);
    register_cipher(&safer_k128_desc);
    register_cipher(&safer_sk128_desc);
 #endif
-#ifdef TWOFISH
-   register_cipher(&twofish_desc);
-#endif
 #ifdef RC2
    register_cipher(&rc2_desc);
-#endif
-#ifdef CAST5
-   register_cipher(&cast5_desc);
 #endif
 #ifdef DES
    register_cipher(&des_desc);
    register_cipher(&des3_desc);
+#endif
+#ifdef CAST5
+   register_cipher(&cast5_desc);
 #endif
 
    register_cipher(&null_desc);
@@ -1240,9 +1234,16 @@ void kr_test_makekeys(pk_key **kr)
       exit(-1);
    }
 
+   /* make a DH key */
+   printf("KR: Making DH key...\n");
+   if ((errno = kr_make_key(*kr, &prng, find_prng("yarrow"), DH_KEY, 128, "dhkey", "dh@dh.dh", "dhkey one")) != CRYPT_OK) {
+      printf("Make key error: %s\n", error_to_string(errno));
+      exit(-1);
+   }
+
    /* make a ECC key */
    printf("KR: Making ECC key...\n");
-   if ((errno = kr_make_key(*kr, &prng, find_prng("yarrow"), ECC_KEY, 24, "ecckey", "ecc@ecc.ecc", "ecckey one")) != CRYPT_OK) {
+   if ((errno = kr_make_key(*kr, &prng, find_prng("yarrow"), ECC_KEY, 20, "ecckey", "ecc@ecc.ecc", "ecckey one")) != CRYPT_OK) {
       printf("Make key error: %s\n", error_to_string(errno));
       exit(-1);
    }
@@ -1254,12 +1255,6 @@ void kr_test_makekeys(pk_key **kr)
       exit(-1);
    }
 
-   /* make a DH key */
-   printf("KR: Making DH key...\n");
-   if ((errno = kr_make_key(*kr, &prng, find_prng("yarrow"), DH_KEY, 128, "dhkey", "dh@dh.dh", "dhkey one")) != CRYPT_OK) {
-      printf("Make key error: %s\n", error_to_string(errno));
-      exit(-1);
-   }
 }
 
 void kr_test(void)
@@ -1362,7 +1357,7 @@ void kr_test(void)
 #endif
 
 /* test the packet encryption/sign stuff */
-   for (i = 0; i < 16; i++) buf[i] = i;
+   for (i = 0; i < 32; i++) buf[i] = i;
    kr_test_makekeys(&kr);
    _kr = kr;
    for (i = 0; i < 3; i++) {
@@ -1384,18 +1379,18 @@ void kr_test(void)
        printf("kr_encrypt_key passed, ");
 
        len = sizeof(buf2);
-       if ((errno = kr_sign_hash(kr, _kr->ID, buf, 16, buf2, &len, &prng, find_prng("yarrow"))) != CRYPT_OK) {
+       if ((errno = kr_sign_hash(kr, _kr->ID, buf, 32, buf2, &len, &prng, find_prng("yarrow"))) != CRYPT_OK) {
           printf("kr_sign_hash failed, %i, %lu\n", i, len);
           exit(-1);
        }
        printf("kr_sign_hash: ");
-       if ((errno = kr_verify_hash(kr, buf2, buf, 16, &stat)) != CRYPT_OK) {
+       if ((errno = kr_verify_hash(kr, buf2, buf, 32, &stat)) != CRYPT_OK) {
           printf("kr_sign_hash failed, %i, %lu\n", i, len);
           exit(-1);
        }
        printf("%s, ", stat?"passed":"failed");
        buf[15] ^= 1;
-       if ((errno = kr_verify_hash(kr, buf2, buf, 16, &stat)) != CRYPT_OK) {
+       if ((errno = kr_verify_hash(kr, buf2, buf, 32, &stat)) != CRYPT_OK) {
           printf("kr_sign_hash failed, %i, %lu\n", i, len);
           exit(-1);
        }
@@ -1534,7 +1529,7 @@ int main(void)
 #endif
 
  register_all_algs();
-
+ 
  if ((errno = yarrow_start(&prng)) != CRYPT_OK) {
     printf("yarrow_start: %s\n", error_to_string(errno));
  }

@@ -19,8 +19,6 @@ const struct _hash_descriptor tiger_desc =
 #define t3 (table+256*2)
 #define t4 (table+256*3)
 
-#define save_abc  aa = a; bb = b; cc = c;
-
 static const ulong64 table[4*256] = {
     CONST64(0x02AAB17CF7E90C5E) /*    0 */, CONST64(0xAC424B03E243A8EC) /*    1 */,
     CONST64(0x72CD5BE30DD5FCD3) /*    2 */, CONST64(0x6D019B93F6F97F3A) /*    3 */,

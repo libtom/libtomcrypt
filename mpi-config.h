@@ -14,7 +14,7 @@
  */
 
 #ifndef MP_IOFUNC
-#define MP_IOFUNC     1  /* include mp_print() ?                */
+#define MP_IOFUNC     0  /* include mp_print() ?                */
 #endif
 
 #ifndef MP_MODARITH
@@ -55,11 +55,11 @@
 #endif
 
 #ifndef MP_DEFPREC
-#define MP_DEFPREC    8  /* default precision, in digits        */
+#define MP_DEFPREC    64  /* default precision, in digits        */
 #endif
 
 #ifndef MP_MACRO
-#define MP_MACRO      1  /* use macros for frequent calls?      */
+#define MP_MACRO      0  /* use macros for frequent calls?      */
 #endif
 
 #ifndef MP_SQUARE

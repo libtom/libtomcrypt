@@ -44,7 +44,7 @@ struct rijndael_key {
 
 #ifdef XTEA
 struct xtea_key {
-   unsigned long K[4];
+   unsigned long A[32], B[32];
 };
 #endif
 

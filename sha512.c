@@ -90,8 +90,9 @@ static void sha512_compress(hash_state * md)
     }
 
     /* fill W[16..79] */
-    for (i = 16; i < 80; i++)
+    for (i = 16; i < 80; i++) {
         W[i] = Gamma1(W[i - 2]) + W[i - 7] + Gamma0(W[i - 15]) + W[i - 16];
+    }        
 
     /* Compress */
     for (i = 0; i < 80; i++) {

@@ -33,14 +33,14 @@ int rsa_make_key(prng_state *prng, int wprng, int size, long e, rsa_key *key)
        if (rand_prime(&p, size/2, prng, wprng) != CRYPT_OK) { res = CRYPT_ERROR; goto done; }
        if (mp_sub_d(&p, 1, &tmp1) != MP_OKAY)              { goto error; }  /* tmp1 = p-1 */
        if (mp_gcd(&tmp1, &tmp3, &tmp2) != MP_OKAY)         { goto error; }  /* tmp2 = gcd(p-1, e) */
-   } while (mp_cmp_d(&tmp2, 1) != 0);
+   } while (mp_cmp_d(&tmp2, 1) != 0);                                       /* while e divides p-1 */
        
    /* make prime "q" */
    do {
        if (rand_prime(&q, size/2, prng, wprng) != CRYPT_OK) { res = CRYPT_ERROR; goto done; }
        if (mp_sub_d(&q, 1, &tmp1) != MP_OKAY)              { goto error; } /* tmp1 = q-1 */
        if (mp_gcd(&tmp1, &tmp3, &tmp2) != MP_OKAY)         { goto error; } /* tmp2 = gcd(q-1, e) */
-   } while (mp_cmp_d(&tmp2, 1) != 0);
+   } while (mp_cmp_d(&tmp2, 1) != 0);                                      /* while e divides q-1 */
 
    /* tmp1 = lcm(p-1, q-1) */
    if (mp_sub_d(&p, 1, &tmp2) != MP_OKAY)                  { goto error; } /* tmp2 = p-1 */
@@ -191,7 +191,7 @@ int rsa_pad(const unsigned char *in,  unsigned long inlen,
                   unsigned char *out, unsigned long *outlen, 
                   int wprng, prng_state *prng)
 {
-   unsigned char buf[2048];
+   unsigned char buf[1536];
    unsigned long x;
    int errno;
 

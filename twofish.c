@@ -354,14 +354,7 @@ static void h_func(const unsigned char *in, unsigned char *out, unsigned char *M
 
 #ifndef TWOFISH_SMALL
 
-static unsigned long g_func(unsigned long x, symmetric_key *key)
-{
-   return
-       key->twofish.S[0][(x>>0)&255] ^
-       key->twofish.S[1][(x>>8)&255] ^
-       key->twofish.S[2][(x>>16)&255] ^
-       key->twofish.S[3][(x>>24)&255];
-}
+#define g_func(x,dum)  (key->twofish.S[0][((x)>>0)&255] ^ key->twofish.S[1][((x)>>8)&255] ^ key->twofish.S[2][((x)>>16)&255] ^ key->twofish.S[3][((x)>>24)&255])
 
 #else
 
@@ -538,7 +531,7 @@ void twofish_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_k
     c ^= key->twofish.K[2];
     d ^= key->twofish.K[3];
 
-    for (r = 0; r < 16; r += 2) {
+    for (r = 0; r < 16; ++r) {
         t1 = g_func(a, key);
         t2 = g_func(ROL(b, 8), key);
         t2 += (t1 += t2);
@@ -546,14 +539,7 @@ void twofish_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_k
         t2 += key->twofish.K[r+r+9];
         c  ^= t1; c = ROR(c, 1);
         d  = ROL(d, 1) ^ t2;
-
-        t1 = g_func(c, key);
-        t2 = g_func(ROL(d, 8), key);
-        t2 += (t1 += t2);
-        t1 += key->twofish.K[r+r+10];
-        t2 += key->twofish.K[r+r+11];
-        a ^= t1; a = ROR(a, 1);
-        b  = ROL(b, 1) ^ t2;
+        ta = a; a = c; c = ta; tb = b; b = d; d = tb;
     }
 
     /* output with "undo last swap" */
@@ -598,6 +584,8 @@ void twofish_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_k
     c = ta ^ key->twofish.K[4];
     d = tb ^ key->twofish.K[5];
 
+    /* loop is kept partially unrolled because it is slower [at least on an Athlon]
+     * then the tight version.  */
     for (r = 14; r >= 0; r -= 2) {
         t1 = g_func(c, key);
         t2 = g_func(ROL(d, 8), key);

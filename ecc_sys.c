@@ -274,7 +274,12 @@ int ecc_sign(const unsigned char *in,  unsigned long inlen,
    if (key->type != PK_PRIVATE) {
       return CRYPT_PK_NOT_PRIVATE;
    }
-
+   
+   /* is the IDX valid ?  */
+   if (!is_valid_idx(key->idx)) {
+      return CRYPT_PK_INVALID_TYPE;
+   }
+      
    if ((errno = prng_is_valid(wprng)) != CRYPT_OK) {
       return errno;
    }
@@ -675,7 +680,12 @@ int ecc_sign_hash(const unsigned char *in,  unsigned long inlen,
    if (key->type != PK_PRIVATE) {
       return CRYPT_PK_NOT_PRIVATE;
    }
-
+   
+   /* is the IDX valid ?  */
+   if (!is_valid_idx(key->idx)) {
+      return CRYPT_PK_INVALID_TYPE;
+   }
+   
    if ((errno = prng_is_valid(wprng)) != CRYPT_OK) {
       return errno;
    }
@@ -701,7 +711,7 @@ int ecc_sign_hash(const unsigned char *in,  unsigned long inlen,
       return CRYPT_MEM;
    }
    if (mp_read_radix(&p, (unsigned char *)sets[key->idx].order, 10) != MP_OKAY)            { goto error; }
-   if (mp_read_raw(&b, md, 1+MIN(sizeof(md)-1,inlen)) != MP_OKAY)         { goto error; }
+   if (mp_read_raw(&b, md, 1+MIN(sizeof(md)-1,inlen)) != MP_OKAY)                          { goto error; }
 
    /* find b = (m - x)/k */
    if (mp_invmod(&pubkey.k, &p, &pubkey.k) != MP_OKAY)                    { goto error; } /* k = 1/k */

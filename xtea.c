@@ -16,6 +16,8 @@ const struct _cipher_descriptor xtea_desc =
 
 int xtea_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_key *skey)
 {
+   unsigned long x, sum, K[4];
+   
    _ARGCHK(key != NULL);
    _ARGCHK(skey != NULL);
 
@@ -29,16 +31,27 @@ int xtea_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_k
    }
 
    /* load key */
-   LOAD32L(skey->xtea.K[0], key+0);
-   LOAD32L(skey->xtea.K[1], key+4);
-   LOAD32L(skey->xtea.K[2], key+8);
-   LOAD32L(skey->xtea.K[3], key+12);
+   LOAD32L(K[0], key+0);
+   LOAD32L(K[1], key+4);
+   LOAD32L(K[2], key+8);
+   LOAD32L(K[3], key+12);
+   
+   for (x = sum = 0; x < 32; x++) {
+       skey->xtea.A[x] = (sum + K[sum&3]) & 0xFFFFFFFFUL;
+       sum = (sum + 0x9E3779B9UL) & 0xFFFFFFFFUL;
+       skey->xtea.B[x] = (sum + K[(sum>>11)&3]) & 0xFFFFFFFFUL;
+   }
+   
+#ifdef CLEAN_STACK
+   zeromem(&K, sizeof(K));
+#endif   
+   
    return CRYPT_OK;
 }
 
 void xtea_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *key)
 {
-   unsigned long y, z, sum;
+   unsigned long y, z;
    int r;
 
    _ARGCHK(pt != NULL);
@@ -47,11 +60,18 @@ void xtea_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key 
 
    LOAD32L(y, &pt[0]);
    LOAD32L(z, &pt[4]);
-   sum = 0;
-   for (r = 0; r < 32; r++) {
-       y = (y + ((((z<<4)^(z>>5)) + z) ^ (sum + key->xtea.K[sum&3]))) & 0xFFFFFFFFUL;
-       sum = (sum + 0x9E3779B9UL) & 0xFFFFFFFFUL;
-       z = (z + ((((y<<4)^(y>>5)) + y) ^ (sum + key->xtea.K[(sum>>11)&3]))) & 0xFFFFFFFFUL;
+   for (r = 0; r < 32; r += 4) {
+       y = (y + ((((z<<4)^(z>>5)) + z) ^ key->xtea.A[r])) & 0xFFFFFFFFUL;
+       z = (z + ((((y<<4)^(y>>5)) + y) ^ key->xtea.B[r])) & 0xFFFFFFFFUL;
+
+       y = (y + ((((z<<4)^(z>>5)) + z) ^ key->xtea.A[r+1])) & 0xFFFFFFFFUL;
+       z = (z + ((((y<<4)^(y>>5)) + y) ^ key->xtea.B[r+1])) & 0xFFFFFFFFUL;
+
+       y = (y + ((((z<<4)^(z>>5)) + z) ^ key->xtea.A[r+2])) & 0xFFFFFFFFUL;
+       z = (z + ((((y<<4)^(y>>5)) + y) ^ key->xtea.B[r+2])) & 0xFFFFFFFFUL;
+
+       y = (y + ((((z<<4)^(z>>5)) + z) ^ key->xtea.A[r+3])) & 0xFFFFFFFFUL;
+       z = (z + ((((y<<4)^(y>>5)) + y) ^ key->xtea.B[r+3])) & 0xFFFFFFFFUL;
    }
    STORE32L(y, &ct[0]);
    STORE32L(z, &ct[4]);
@@ -59,7 +79,7 @@ void xtea_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key 
 
 void xtea_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *key)
 {
-   unsigned long y, z, sum;
+   unsigned long y, z;
    int r;
 
    _ARGCHK(pt != NULL);
@@ -68,11 +88,18 @@ void xtea_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key 
 
    LOAD32L(y, &ct[0]);
    LOAD32L(z, &ct[4]);
-   sum = (32UL*0x9E3779B9UL)&0xFFFFFFFFUL;
-   for (r = 0; r < 32; r++) {
-       z = (z - ((((y<<4)^(y>>5)) + y) ^ (sum + key->xtea.K[(sum>>11)&3]))) & 0xFFFFFFFFUL;
-       sum = (sum - 0x9E3779B9UL) & 0xFFFFFFFFUL;
-       y = (y - ((((z<<4)^(z>>5)) + z) ^ (sum + key->xtea.K[sum&3]))) & 0xFFFFFFFFUL;
+   for (r = 31; r >= 0; r -= 4) {
+       z = (z - ((((y<<4)^(y>>5)) + y) ^ key->xtea.B[r])) & 0xFFFFFFFFUL;
+       y = (y - ((((z<<4)^(z>>5)) + z) ^ key->xtea.A[r])) & 0xFFFFFFFFUL;
+
+       z = (z - ((((y<<4)^(y>>5)) + y) ^ key->xtea.B[r-1])) & 0xFFFFFFFFUL;
+       y = (y - ((((z<<4)^(z>>5)) + z) ^ key->xtea.A[r-1])) & 0xFFFFFFFFUL;
+
+       z = (z - ((((y<<4)^(y>>5)) + y) ^ key->xtea.B[r-2])) & 0xFFFFFFFFUL;
+       y = (y - ((((z<<4)^(z>>5)) + z) ^ key->xtea.A[r-2])) & 0xFFFFFFFFUL;
+
+       z = (z - ((((y<<4)^(y>>5)) + y) ^ key->xtea.B[r-3])) & 0xFFFFFFFFUL;
+       y = (y - ((((z<<4)^(z>>5)) + z) ^ key->xtea.A[r-3])) & 0xFFFFFFFFUL;
    }
    STORE32L(y, &pt[0]);
    STORE32L(z, &pt[4]);

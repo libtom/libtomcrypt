@@ -8,6 +8,7 @@
 
 #ifdef MECC
 
+/* This holds the key settings.  ***MUST*** be organized by size from smallest to largest. */
 static const struct {
    int size;
    char *name, *prime, *B, *order, *Gx, *Gy;
@@ -668,7 +669,7 @@ int ecc_export(unsigned char *out, unsigned long *outlen, int type, ecc_key *key
    /* output type and magic byte */
    y = PACKET_SIZE;
    buf2[y++] = type;
-   buf2[y++] = key->idx;
+   buf2[y++] = sets[key->idx].size;
 
    /* output x coordinate */
    OUTPUT_BIGNUM(&(key->pubkey.x), buf2, y, z);
@@ -702,7 +703,7 @@ int ecc_export(unsigned char *out, unsigned long *outlen, int type, ecc_key *key
 
 int ecc_import(const unsigned char *in, ecc_key *key)
 {
-   unsigned long x, y;
+   unsigned long x, y, s;
    int res, errno;
 
    _ARGCHK(in != NULL);
@@ -720,7 +721,14 @@ int ecc_import(const unsigned char *in, ecc_key *key)
 
    y = PACKET_SIZE;
    key->type = in[y++];
-   key->idx  = in[y++];
+   s = in[y++];
+   
+   for (x = 0; (s > (unsigned long)sets[x].size) && (sets[x].size); x++);
+   if (sets[x].size == 0) { 
+      res = CRYPT_INVALID_KEYSIZE;
+      goto error2;
+   }
+   key->idx = x;
 
    /* type check both values */
    if ((key->type != PK_PUBLIC) && (key->type != PK_PRIVATE))  {

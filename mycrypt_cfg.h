@@ -79,7 +79,6 @@ extern clock_t XCLOCK(void);
 /* Diffie-Hellman key settings you can omit ones you don't want to save space */
 #ifdef MDH
 
-#define DH512
 #define DH768
 #define DH1024
 #define DH1280

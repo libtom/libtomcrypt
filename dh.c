@@ -2,20 +2,11 @@
 
 #ifdef MDH
 
+/* This holds the key settings.  ***MUST*** be organized by size from smallest to largest. */
 static const struct {
     int size;
     char *name, *base, *prime;
 } sets[] = {
-#ifdef DH512
-{ 
-    64,
-   "DH-512",
-   "3",
-   "1793360119486011337223707056216512835002732007217684422667328794587337075124"
-   "5439587792371960615073855669274087805055507977323024886880985062002853331424"
-   "203"
-},
-#endif
 #ifdef DH768
 {
    96,
@@ -360,7 +351,7 @@ int dh_export(unsigned char *out, unsigned long *outlen, int type, dh_key *key)
 
    /* header */
    buf2[y++] = type;
-   buf2[y++] = key->idx;
+   buf2[y++] = sets[key->idx].size / 8;
 
    /* export y */
    OUTPUT_BIGNUM(&key->y, buf2, y, z);
@@ -392,7 +383,7 @@ int dh_export(unsigned char *out, unsigned long *outlen, int type, dh_key *key)
 
 int dh_import(const unsigned char *in, dh_key *key)
 {
-   long x, y;
+   long x, y, s;
    int errno;
 
    _ARGCHK(in != NULL);
@@ -410,7 +401,14 @@ int dh_import(const unsigned char *in, dh_key *key)
 
    y = PACKET_SIZE;
    key->type = in[y++];
-   key->idx  = in[y++];
+   s  = (long)in[y++] * 8;
+   
+   for (x = 0; (s > sets[x].size) && (sets[x].size); x++);
+   if (sets[x].size == 0) {
+      errno = CRYPT_INVALID_KEYSIZE;
+      goto error;
+   }
+   key->idx = x;
 
    /* type check both values */
    if ((key->type != PK_PUBLIC) && (key->type != PK_PRIVATE))  {

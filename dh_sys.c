@@ -246,6 +246,11 @@ int dh_sign(const unsigned char *in,  unsigned long inlen,
    if (key->type != PK_PRIVATE) {
       return CRYPT_PK_NOT_PRIVATE;
    }
+   
+   /* is the IDX valid ?  */
+   if (!is_valid_idx(key->idx)) {
+      return CRYPT_PK_INVALID_TYPE;
+   }
 
    if ((errno = prng_is_valid(wprng)) != CRYPT_OK) {
       return errno;
@@ -616,6 +621,11 @@ int dh_sign_hash(const unsigned char *in,  unsigned long inlen,
 
    if ((errno = prng_is_valid(wprng)) != CRYPT_OK) {
       return errno;
+   }
+
+   /* is the IDX valid ?  */
+   if (!is_valid_idx(key->idx)) {
+      return CRYPT_PK_INVALID_TYPE;
    }
 
    /* hash the message */
