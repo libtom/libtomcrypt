@@ -239,13 +239,12 @@ static void del_point(ecc_point *p)
    XFREE(p);
 }
 
-
 /* double a point R = 2P, R can be P*/
-static int dbl_point(ecc_point *P, ecc_point *R, mp_int *modulus)
+static int dbl_point(ecc_point *P, ecc_point *R, mp_int *modulus, mp_int *mu)
 {
    mp_int s, tmp, tmpx;
    int res;
-
+   
    if (mp_init_multi(&s, &tmp, &tmpx, NULL) != MP_OKAY) { 
       return CRYPT_MEM;
    }
@@ -254,12 +253,18 @@ static int dbl_point(ecc_point *P, ecc_point *R, mp_int *modulus)
    if (mp_mul_2(&P->y, &tmp) != MP_OKAY)                   { goto error; } /* tmp = 2*y */
    if (mp_invmod(&tmp, modulus, &tmp) != MP_OKAY)          { goto error; } /* tmp = 1/tmp mod modulus */
    if (mp_sqr(&P->x, &s) != MP_OKAY)                       { goto error; } /* s = x^2  */
+   if (mp_reduce(&s, modulus, mu) != MP_OKAY)            { goto error; }
    if (mp_mul_d(&s,(mp_digit)3, &s) != MP_OKAY)            { goto error; } /* s = 3*(x^2) */
    if (mp_sub_d(&s,(mp_digit)3, &s) != MP_OKAY)            { goto error; } /* s = 3*(x^2) - 3 */
-   if (mp_mulmod(&s, &tmp, modulus, &s) != MP_OKAY)        { goto error; } /* s = tmp * s mod modulus */
+   if (mp_cmp_d(&s, 0) == MP_LT) {                         /* if s < 0 add modulus */
+      if (mp_add(&s, modulus, &s) != MP_OKAY)              { goto error; }
+   }
+   if (mp_mul(&s, &tmp, &s) != MP_OKAY)                    { goto error; } /* s = tmp * s mod modulus */
+   if (mp_reduce(&s, modulus, mu) != MP_OKAY)            { goto error; }
 
    /* Xr = s^2 - 2Xp */
    if (mp_sqr(&s,  &tmpx) != MP_OKAY)                      { goto error; } /* tmpx = s^2  */
+   if (mp_reduce(&tmpx, modulus, mu) != MP_OKAY)         { goto error; } /* tmpx = tmpx mod modulus */
    if (mp_sub(&tmpx, &P->x, &tmpx) != MP_OKAY)             { goto error; } /* tmpx = tmpx - x */
    if (mp_submod(&tmpx, &P->x, modulus, &tmpx) != MP_OKAY) { goto error; } /* tmpx = tmpx - x mod modulus */
 
@@ -279,11 +284,11 @@ done:
 }
 
 /* add two different points over Z/pZ, R = P + Q, note R can equal either P or Q */
-static int add_point(ecc_point *P, ecc_point *Q, ecc_point *R, mp_int *modulus)
+static int add_point(ecc_point *P, ecc_point *Q, ecc_point *R, mp_int *modulus, mp_int *mu)
 {
    mp_int s, tmp, tmpx;
    int res;
-
+   
    if (mp_init(&tmp) != MP_OKAY) { 
       return CRYPT_MEM;
    }
@@ -297,7 +302,7 @@ static int add_point(ecc_point *P, ecc_point *Q, ecc_point *R, mp_int *modulus)
    if (mp_cmp(&P->x, &Q->x) == MP_EQ)
       if (mp_cmp(&P->y, &Q->y) == MP_EQ || mp_cmp(&P->y, &tmp) == MP_EQ) {
          mp_clear(&tmp);
-         return dbl_point(P, R, modulus);
+         return dbl_point(P, R, modulus, mu);
       }
 
    if (mp_init_multi(&tmpx, &s, NULL) != MP_OKAY) { 
@@ -306,13 +311,21 @@ static int add_point(ecc_point *P, ecc_point *Q, ecc_point *R, mp_int *modulus)
    }
 
    /* get s = (Yp - Yq)/(Xp-Xq) mod p */
-   if (mp_submod(&P->x, &Q->x, modulus, &tmp) != MP_OKAY)     { goto error; } /* tmp = Px - Qx mod modulus */
+   if (mp_sub(&P->x, &Q->x, &tmp) != MP_OKAY)                 { goto error; } /* tmp = Px - Qx mod modulus */
+   if (mp_cmp_d(&tmp, 0) == MP_LT) {                                          /* if tmp<0 add modulus */
+      if (mp_add(&tmp, modulus, &tmp) != MP_OKAY)             { goto error; }
+   }
    if (mp_invmod(&tmp, modulus, &tmp) != MP_OKAY)             { goto error; } /* tmp = 1/tmp mod modulus */
    if (mp_sub(&P->y, &Q->y, &s) != MP_OKAY)                   { goto error; } /* s = Py - Qy mod modulus */
-   if (mp_mulmod(&s, &tmp, modulus, &s) != MP_OKAY)           { goto error; } /* s = s * tmp mod modulus */
+   if (mp_cmp_d(&s, 0) == MP_LT) {                                            /* if s<0 add modulus */
+      if (mp_add(&s, modulus, &s) != MP_OKAY)                 { goto error; }
+   }
+   if (mp_mul(&s, &tmp, &s) != MP_OKAY)                       { goto error; } /* s = s * tmp mod modulus */
+   if (mp_reduce(&s, modulus, mu) != MP_OKAY)               { goto error; }
 
    /* Xr = s^2 - Xp - Xq */
-   if (mp_sqrmod(&s, modulus, &tmp) != MP_OKAY)               { goto error; } /* tmp = s^2 mod modulus */
+   if (mp_sqr(&s, &tmp) != MP_OKAY)                           { goto error; } /* tmp = s^2 mod modulus */
+   if (mp_reduce(&tmp, modulus, mu) != MP_OKAY)             { goto error; }
    if (mp_sub(&tmp, &P->x, &tmp) != MP_OKAY)                  { goto error; } /* tmp = tmp - Px */
    if (mp_sub(&tmp, &Q->x, &tmpx) != MP_OKAY)                 { goto error; } /* tmpx = tmp - Qx */
 
@@ -334,32 +347,74 @@ done:
 /* perform R = kG where k == integer and G == ecc_point */
 static int ecc_mulmod(mp_int *k, ecc_point *G, ecc_point *R, mp_int *modulus)
 {
-   ecc_point *tG, *M[14];
-   int i, j, z, res;
+   ecc_point *tG, *M[30];
+   int i, j, z, res, Q;
    mp_digit d;
    unsigned char bits[150], m, first;
+   mp_int mu;
    
-   /* init M tab */
-   for (i = 0; i < 14; i++) {
+   
+   if ((USED(k) * MP_DIGIT_BIT) > 256) {
+      Q = 5;
+   } else {
+      Q = 4;
+   }
+   
+   if (mp_init(&mu) != MP_OKAY) {
+      return CRYPT_MEM;
+   }
+   
+  /* init barrett reduction */
+  mp_set(&mu, 1); 
+  mp_lshd(&mu, 2 * USED(modulus));
+  if (mp_div(&mu, modulus, &mu, NULL) != MP_OKAY) {
+    mp_clear(&mu);
+    return CRYPT_MEM;
+  }
+   
+   
+   /* init M tab (alloc here, calculate below)
+    
+    This table holds the first 2^Q multiples of the input base point G, that is 
+    
+       M[x] = x * G
+       
+    Where G is the point and x is a scalar.  The implementation is optimized
+    since M[0] == 0 and M[1] == G so there is no need to waste space for those.  In
+    effect M'[x] == M[x+2] where M'[] is the table we make.  If M[0] or M[1] are needed
+    we handle them with if statements.   
+   
+   */
+   for (i = 0; i < ((1<<Q)-2); i++) {
        M[i] = new_point();
        if (M[i] == NULL) {
           for (j = 0; j < i; j++) {
               del_point(M[j]);
           }
+          mp_clear(&mu);
           return CRYPT_MEM;
        }
    }
    
-   /* get bits of k */
+   /* get bits of k in groupings of Q 
+   
+    The multiplicand is read in groupings of four bits.  This is because the multiplication
+    routine is a Q-ary left-to-write (see HAC chapter 14, algorithm 14.82).
+   */
    first = m = (unsigned char)0;
    for (z = i = 0; z < (int)USED(k); z++) {
+       /* grab a digit from the mp_int, these have MP_DIGIT_BIT bits in them */
        d = DIGIT(k, z);
        for (j = 0; j < (int)MP_DIGIT_BIT; j++) {
+           /* OR the bits against an accumulator */
            first |= (d&1)<<(unsigned)(m++);
-           if (m == (unsigned char)4) {
+           /* if the bit count is Q then we have a Q-bit word ready */
+           if (m == (unsigned char)Q) {
+              /* store the four bit word and reset counters */
               bits[i++] = first;
               first = m = (unsigned char)0;
            }
+           /* shift the digit down to extract the next bit */
            d >>= 1;
        }
    }
@@ -371,34 +426,35 @@ static int ecc_mulmod(mp_int *k, ecc_point *G, ecc_point *R, mp_int *modulus)
 
    /* make a copy of G incase R==G */
    tG = new_point();
-   if (tG == NULL)                                          { goto error; }
+   if (tG == NULL)                                               { goto error; }
 
    /* skip leading digits which are zero */   
    --i; while (i != 0 && bits[i] == (unsigned char)0) { --i; }
    
+   /* if the multiplicand has no non-zero 4-bit words its invalid. */
    if (i == 0) {
       res = CRYPT_INVALID_ARG;
       goto done;
    }
    
-   /* now calc the M tab, note that there are only 14 spots, the normal M[0] is a no-op, and M[1] is the input
+   /* now calc the M tab, note that there are only 2^Q - 2 spots, the normal M[0] is a no-op, and M[1] is the input
       point (saves ram)
    */
    
    /* M[0] now is 2*G */
-   if (dbl_point(G, M[0], modulus) != CRYPT_OK)             { goto error; }
-   for (j = 1; j < 14; j++) {
-       if (add_point(M[j-1], G, M[j], modulus) != CRYPT_OK) { goto error; }
+   if (dbl_point(G, M[0], modulus, &mu) != CRYPT_OK)                  { goto error; }
+   for (j = 1; j < ((1<<Q)-2); j++) {
+       if (add_point(M[j-1], G, M[j], modulus, &mu) != CRYPT_OK)      { goto error; }
    }
   
    /* tG = G */
-   if (mp_copy(&G->x, &tG->x) != MP_OKAY)                   { goto error; }
-   if (mp_copy(&G->y, &tG->y) != MP_OKAY)                   { goto error; }
+   if (mp_copy(&G->x, &tG->x) != MP_OKAY)                        { goto error; }
+   if (mp_copy(&G->y, &tG->y) != MP_OKAY)                        { goto error; }
 
    /* set result M[bits[i]] */
    if (bits[i] == (unsigned char)1) {
-     if (mp_copy(&G->x, &R->x) != MP_OKAY)                  { goto error; }
-     if (mp_copy(&G->y, &R->y) != MP_OKAY)                  { goto error; }
+     if (mp_copy(&G->x, &R->x) != MP_OKAY)                       { goto error; }
+     if (mp_copy(&G->y, &R->y) != MP_OKAY)                       { goto error; }
    } else if (bits[i] >= (unsigned char)2) {
      if (mp_copy(&M[(int)bits[i]-2]->x, &R->x) != MP_OKAY)       { goto error; }
      if (mp_copy(&M[(int)bits[i]-2]->y, &R->y) != MP_OKAY)       { goto error; }
@@ -406,8 +462,8 @@ static int ecc_mulmod(mp_int *k, ecc_point *G, ecc_point *R, mp_int *modulus)
    
    while (--i >= 0) {
        /* double */
-       for (j = 0; j < 4; j++) {
-          if (dbl_point(R, R, modulus) != CRYPT_OK)               { goto error; }
+       for (j = 0; j < Q; j++) {
+          if (dbl_point(R, R, modulus, &mu) != CRYPT_OK)              { goto error; }
        }
        
        /* now based on the value of bits[i] we do ops */
@@ -415,10 +471,10 @@ static int ecc_mulmod(mp_int *k, ecc_point *G, ecc_point *R, mp_int *modulus)
           /* nop */
        } else if (bits[i] == (unsigned char)1) {
           /* add base point */
-          if (add_point(R, tG, R, modulus) != CRYPT_OK)           { goto error; }
+          if (add_point(R, tG, R, modulus, &mu) != CRYPT_OK)          { goto error; }
        } else {
           /* other case */
-          if (add_point(R, M[(int)bits[i] - 2], R, modulus) != CRYPT_OK) { goto error; }
+          if (add_point(R, M[(int)bits[i] - 2], R, modulus, &mu) != CRYPT_OK) { goto error; }
        }
    }
    
@@ -428,9 +484,10 @@ error:
    res = CRYPT_MEM;
 done:
    del_point(tG);
-   for (i = 0; i < 14; i++) {
+   for (i = 0; i < ((1<<Q)-2); i++) {
        del_point(M[i]);
    }
+   mp_clear(&mu);
 #ifdef CLEAN_STACK
    zeromem(bits, sizeof(bits)); 
 #endif

@@ -26,6 +26,9 @@ tomstdenis@yahoo.com.
 6) Clay Culver
 
    Submitted a fix for "rsa.c" which cleaned up some code.  Submited some other fixes too.  :-)
+   Clay has helped find bugs in various pieces of code including the registry functions, base64 routines 
+   and the make process.  He is also now the primary author of the libtomcrypt reference manual and has plan
+   at making a HTML version.
 
 7) Jason Klapste
 
@@ -39,10 +42,14 @@ yarrow code can now default to any cipher/hash that is left after you remove the
 
 9) Wayne Scott (wscott@bitmover.com)
   
-   Submitted base64 that complies with the RFC standards.
+   Submitted base64 that complies with the RFC standards.  Submitted some ideas to improve the RSA key generation
+   as well.
    
 10) Sky Schulz (sky@ogn.com)
 
    Has submitted a set of ideas to improve the library and make it more attractive for professional users.
    
-   
+11) Mike Frysinger 
+
+   Together with Clay came up with a more "unix friendly" makefile.  Mike Frysinger has been keeping copies of 
+   the library for the Gentoo linux distribution.

@@ -1,12 +1,28 @@
 /* ---- NUMBER THEORY ---- */
 #ifdef MPI
 
+#include "tommath.h"
+
 extern int is_prime(mp_int *, int *);
 extern int rand_prime(mp_int *N, long len, prng_state *prng, int wprng);
 extern mp_err mp_init_multi(mp_int* mp, ...);
 extern void mp_clear_multi(mp_int* mp, ...);
 
-#endif
+#else
+   #ifdef MRSA
+      #error RSA requires the big int library 
+   #endif
+   #ifdef MECC
+      #error ECC requires the big int library 
+   #endif
+   #ifdef MDH
+      #error DH requires the big int library 
+   #endif
+   #ifdef MDSA
+      #error DSA requires the big int library 
+   #endif
+#endif /* MPI */
+
 
 /* ---- PUBLIC KEY CRYPTO ---- */
 

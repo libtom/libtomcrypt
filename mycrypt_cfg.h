@@ -80,22 +80,5 @@ extern clock_t XCLOCK(void);
     #define PACKET_SUB_ENC_KEY     3
 #endif
 
-#ifdef MPI
-   #include "mpi.h"
-#else
-   #ifdef MRSA
-      #error RSA requires the big int library 
-   #endif
-   #ifdef MECC
-      #error ECC requires the big int library 
-   #endif
-   #ifdef MDH
-      #error DH requires the big int library 
-   #endif
-   #ifdef MDSA
-      #error DSA requires the big int library 
-   #endif
-#endif /* MPI */
-
 #endif /* MYCRYPT_CFG_H */
 

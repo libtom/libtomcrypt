@@ -73,7 +73,6 @@ int rsa_make_key(prng_state *prng, int wprng, int size, long e, rsa_key *key)
 
    if (mp_copy(&p, &key->p) != MP_OKAY)                    { goto error2; }
    if (mp_copy(&q, &key->q) != MP_OKAY)                    { goto error2; }
-   
  
    /* shrink ram required  */
    if (mp_shrink(&key->e) != MP_OKAY)                      { goto error2; }

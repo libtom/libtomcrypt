@@ -306,7 +306,7 @@ int ecc_verify_hash(const unsigned char *sig, unsigned long siglen,
 {
    ecc_point *mG;
    ecc_key   pubkey;
-   mp_int b, p, m;
+   mp_int b, p, m, mu;
    unsigned long x, y;
    int res, err;
 
@@ -357,14 +357,14 @@ int ecc_verify_hash(const unsigned char *sig, unsigned long siglen,
    y += 4;
 
    /* init values */
-   if (mp_init_multi(&b, &m, &p, NULL) != MP_OKAY) { 
+   if (mp_init_multi(&b, &m, &p, &mu, NULL) != MP_OKAY) { 
       ecc_free(&pubkey);
       return CRYPT_MEM;
    }
 
    mG = new_point();
    if (mG == NULL) { 
-      mp_clear_multi(&b, &m, &p, NULL);
+      mp_clear_multi(&b, &m, &p, &mu, NULL);
       ecc_free(&pubkey);
       return CRYPT_MEM;
    } 
@@ -378,12 +378,20 @@ int ecc_verify_hash(const unsigned char *sig, unsigned long siglen,
    
    /* load prime */
    if (mp_read_radix(&p, (unsigned char *)sets[key->idx].prime, 64) != MP_OKAY)    { goto error; }
+   
+   /* calculate barrett stuff */
+   mp_set(&mu, 1); 
+   mp_lshd(&mu, 2 * USED(&p));
+   if (mp_div(&mu, &p, &mu, NULL) != MP_OKAY) {
+     res = CRYPT_MEM;
+     goto done;
+   }
 
    /* get bA */
-   if (ecc_mulmod(&b, &pubkey.pubkey, &pubkey.pubkey, &p) != CRYPT_OK)             { goto error; }
+   if (ecc_mulmod(&b, &pubkey.pubkey, &pubkey.pubkey, &p) != CRYPT_OK)                  { goto error; }
    
    /* get bA + Y */
-   if (add_point(&pubkey.pubkey, &key->pubkey, &pubkey.pubkey, &p) != CRYPT_OK)    { goto error; }
+   if (add_point(&pubkey.pubkey, &key->pubkey, &pubkey.pubkey, &p, &mu) != CRYPT_OK)    { goto error; }
 
    /* get mG */
    if (mp_read_radix(&mG->x, (unsigned char *)sets[key->idx].Gx, 64) != MP_OKAY)   { goto error; }
@@ -403,7 +411,7 @@ error:
 done:
    del_point(mG);
    ecc_free(&pubkey);
-   mp_clear_multi(&p, &m, &b, NULL);
-   return CRYPT_OK;
+   mp_clear_multi(&p, &m, &b, &mu, NULL);
+   return res;
 }
 

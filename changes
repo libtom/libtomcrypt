@@ -1,3 +1,16 @@
+Jan 16th, 2003
+v0.81  -- Merged in new makefile from Clay Culver and Mike Frysinger
+       -- Sped up the ECC mulmod() routine by making the word size adapt to the input.  Saves a whopping 9 point
+          operations on 521-bit keys now (translates to about 8ms on my Athlon XP).  I also now use barrett reduction
+          as much as possible.  This sped the routine up quite a bit.
+       -- Fixed a huge flaw in ecc_verify_hash() where it would return CRYPT_OK on error... Now fixed.
+       -- Fixed up config.pl by fixing an invalid query and the file is saved in non-windows [e.g. not CR/LF] format
+          (fix due to Mika Boström)
+       -- Merged in LibTomMath for kicks
+       -- Changed the build process so that by default "mycrypt_custom.h" is included and provided
+          The makefile doesn't include any build options anymore
+       -- Removed the PS2 and VC makefiles.
+       
 Dec 16th, 2002
 v0.80  -- Found a change I made to the MPI that is questionable.  Not quite a bug but definately not desired.  Had todo
           with the digit shifting.  In v0.79 I simply truncated without zeroing.  It didn't cause problems during my

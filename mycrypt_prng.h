@@ -56,7 +56,11 @@ extern int prng_is_valid(int idx);
 /* Slow RNG you **might** be able to use to seed a PRNG with.  Be careful as this
  * might not work on all platforms as planned
  */
-extern unsigned long rng_get_bytes(unsigned char *buf, unsigned long len, void (*callback)(void));
+/* ch2-02-1 */ 
+extern unsigned long rng_get_bytes(unsigned char *buf, 
+                                   unsigned long len, 
+                                   void (*callback)(void));
+/* ch2-02-1 */
 
 extern int rng_make_prng(int bits, int wprng, prng_state *prng, void (*callback)(void));
 

@@ -73,7 +73,7 @@
    "DH768,768-bit DH key support,y",
    "DH1024,1024-bit DH key support,y",
    "DH1280,1280-bit DH key support,y",
-   "DH1536,1280-bit DH key support,y",
+   "DH1536,1536-bit DH key support,y",
    "DH1792,1792-bit DH key support,y",
    "DH2048,2048-bit DH key support,y",
    "DH2560,2560-bit DH key support,y",
@@ -90,8 +90,6 @@
    "GF,Include GF(2^w) math support (not used internally),n",
    
    "MPI,Include MPI big integer math support (required by the public key code),y",
-   "MPI_FASTEXPT,Use the faster exponentiation code (uses some heap but is faster),y",
-   "MPI_FASTEXPT_LOWMEM,Use the low ram variant of the fast code\nRequires the fast code to enabled,n", 
 );
 
 # scan for switches and make variables
@@ -110,7 +108,7 @@ for (@opts) {
    $r = <>;  @vars{'CFLAGS'} = @vars{'CFLAGS'} . "-D" . $m[0] . " " if (($r eq "y\n") || ($r eq "\n" && @m[2] eq "y"));
 }   
 
-# write header 
+# write header
 
 open(OUT,">mycrypt_custom.h");
 print OUT "/* This header is meant to be included before mycrypt.h in projects where\n";
@@ -135,6 +133,8 @@ open(OUT,">makefile.out");
 print OUT "#makefile generated with config.pl\n#\n#Tom St Denis (tomstdenis\@yahoo.com, http://tom.iahu.ca) \n\n";
 
 # output unique vars first
+@vars{'CFLAGS'} =~ s/-D.+ /""/ge;
+
 for (@settings) {
    @m = split(",", $_);
    print OUT "@m[0] = @vars{@m[0]}\n"   if (@vars{@m[0]} ne "" && @m[0] ne "CFLAGS");
@@ -149,7 +149,7 @@ print OUT "OBJECTS = keyring.o gf.o mem.o sprng.o ecc.o base64.o dh.o rsa.o bits
 # some depends
 print OUT "rsa.o: rsa_sys.c\ndh.o: dh_sys.c\necc.o: ecc_sys.c\n\n";
 
-# targets 
+# targets
 print OUT "library: \$(OBJECTS)\n\t \$(AR) r libtomcrypt.a \$(OBJECTS)\n\t ranlib libtomcrypt.a\n\n";
 print OUT "clean:\n\trm -f \$(OBJECTS) libtomcrypt.a \n\n";
 
