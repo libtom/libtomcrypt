@@ -3,7 +3,7 @@
 #Tom St Denis
 
 # note optimizations are turned off because it causes a bug in aes.c that cannot be rectified [right away]
-CFLAGS = /I. /Od /G3 /DWIN32 /W3
+CFLAGS = /I. /Ox /DWIN32 /W3
 
 default: library
 
@@ -22,3 +22,7 @@ test.obj: demos/test.c
 
 test: library test.obj
 	cl test.obj tomcrypt.lib advapi32.lib	
+	
+x86_prof: demos/x86_prof.c library
+	nasm -f win32 demos/timer.asm
+	cl $(CFLAGS) demos/x86_prof.c demos/timer.obj tomcrypt.lib advapi32.lib 

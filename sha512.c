@@ -152,7 +152,7 @@ void sha512_process(hash_state * md, const unsigned char *buf, unsigned long len
         buf               += n;
         len               -= n;
 
-        /* is 64 bytes full? */
+        /* is 128 bytes full? */
         if (md->sha512.curlen == 128) {
             sha512_compress(md);
             md->sha512.length += 1024;

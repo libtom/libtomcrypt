@@ -25,7 +25,7 @@ static void _sha1_compress(hash_state *md)
 static void sha1_compress(hash_state *md)
 #endif
 {
-    unsigned long a,b,c,d,e,W[80],i,j,j2,j3;
+    unsigned long a,b,c,d,e,W[80],i,j;
 
     _ARGCHK(md != NULL);
 

@@ -488,7 +488,7 @@ void des_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *
 
 void des3_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *key)
 {
-    unsigned long work[2], *k[3];
+    unsigned long work[2];
     
     _ARGCHK(pt != NULL);
     _ARGCHK(ct != NULL);

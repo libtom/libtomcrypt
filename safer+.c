@@ -446,11 +446,11 @@ int saferp_test(void)
 
    unsigned char buf[2][16];
    symmetric_key skey;
-   int errno, i;
+   int err, i;
 
    for (i = 0; i < (int)(sizeof(tests) / sizeof(tests[0])); i++) {
-      if ((errno = saferp_setup(tests[i].key, tests[i].keylen, 0, &skey)) != CRYPT_OK)  {
-         return errno;
+      if ((err = saferp_setup(tests[i].key, tests[i].keylen, 0, &skey)) != CRYPT_OK)  {
+         return err;
       }
       saferp_ecb_encrypt(tests[i].pt, buf[0], &skey);
       saferp_ecb_decrypt(buf[0], buf[1], &skey);

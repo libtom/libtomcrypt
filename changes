@@ -1,3 +1,14 @@
+Jun 15th, 2003
+v0.86  -- Fixed up AES to workaround MSVC optimizer bug
+       -- Merged in fresh LTM base [based on v0.20] so there are no warnings with MSVC
+       -- Wrote x86_prof which will time the hashes and ciphers downto cycles per byte.
+       -- Fixed up demos/encrypt to remove serpent_desc from the list
+       -- Re-enabled MSVC optimizations w00t w00t
+       -- Replaced "errno" with "err" in all functions that had it so it wouldn't clash
+          with the global "errno"
+       -- Removed a set of unused variables from certain functions
+       -- Removed {#line 0 "..."} stuff from mpi.c to comply with ISO C  :-)
+       
 Jun 11th, 2003
 v0.85  -- Swapped in a new AES routine
        -- Removed Serpent

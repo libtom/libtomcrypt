@@ -908,7 +908,7 @@ int ecc_shared_secret(ecc_key *private_key, ecc_key *public_key,
    unsigned long x, y;
    ecc_point *result;
    mp_int prime;
-   int res, err;
+   int res;
 
    _ARGCHK(private_key != NULL);
    _ARGCHK(public_key != NULL);

@@ -6,7 +6,7 @@
 #define MYCRYPT_CUSTOM_H_
 
 #ifdef CRYPT
-	#error mycrypt_custom.h should be included before mycrypt.h
+    #error mycrypt_custom.h should be included before mycrypt.h
 #endif
 
 #define XMALLOC malloc

@@ -90,7 +90,11 @@ int rijndael_setup(const unsigned char *key, int keylen, int rounds, symmetric_k
         LOAD32H(rk[4], key + 16);
         LOAD32H(rk[5], key + 20);
         for (;;) {
-            temp = rk[ 5];
+        #ifdef _MSC_VER
+            temp = skey->rijndael.eK[rk - skey->rijndael.eK + 5]; 
+        #else
+            temp = rk[5];
+        #endif
             rk[ 6] = rk[ 0] ^
                 (Te4[(temp >> 16) & 0xff] & 0xff000000) ^
                 (Te4[(temp >>  8) & 0xff] & 0x00ff0000) ^
@@ -113,7 +117,11 @@ int rijndael_setup(const unsigned char *key, int keylen, int rounds, symmetric_k
         LOAD32H(rk[6], key + 24);
         LOAD32H(rk[7], key + 28);
         for (;;) {
-            temp = rk[ 7];
+        #ifdef _MSC_VER
+            temp = skey->rijndael.eK[rk - skey->rijndael.eK + 7]; 
+        #else
+            temp = rk[7];
+        #endif
             rk[ 8] = rk[ 0] ^
                 (Te4[(temp >> 16) & 0xff] & 0xff000000) ^
                 (Te4[(temp >>  8) & 0xff] & 0x00ff0000) ^
@@ -278,6 +286,15 @@ void rijndael_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_
      */
     r = Nr >> 1;
     for (;;) {
+
+/* Both of these blocks are equivalent except the top is more friendlier for x86 processors */
+#if 1
+        t0 = rk[4]; t1 = rk[5]; t2 = rk[6]; t3 = rk[7];
+        t1 ^= Te3[(s0      ) & 0xFF]; t2 ^= Te2[(s0 >> 8) & 0xFF]; t3 ^= Te1[(s0 >> 16) & 0xFF]; t0 ^= Te0[(s0 >> 24)];
+        t2 ^= Te3[(s1      ) & 0xFF]; t3 ^= Te2[(s1 >> 8) & 0xFF]; t0 ^= Te1[(s1 >> 16) & 0xFF]; t1 ^= Te0[(s1 >> 24)];
+        t3 ^= Te3[(s2      ) & 0xFF]; t0 ^= Te2[(s2 >> 8) & 0xFF]; t1 ^= Te1[(s2 >> 16) & 0xFF]; t2 ^= Te0[(s2 >> 24)];
+        t0 ^= Te3[(s3      ) & 0xFF]; t1 ^= Te2[(s3 >> 8) & 0xFF]; t2 ^= Te1[(s3 >> 16) & 0xFF]; t3 ^= Te0[(s3 >> 24)];
+#else
         t0 =
             Te0[(s0 >> 24)       ] ^
             Te1[(s1 >> 16) & 0xff] ^
@@ -302,12 +319,21 @@ void rijndael_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_
             Te2[(s1 >>  8) & 0xff] ^
             Te3[(s2      ) & 0xff] ^
             rk[7];
-
+#endif
+       
         rk += 8;
         if (--r == 0) {
             break;
         }
-
+        
+/* this second half optimization actually makes it slower on the Athlon, use with caution. */
+#if 0
+        s1 = rk[1]; s2 = rk[2]; s3 = rk[3]; s0 = rk[0]; 
+        s1 ^= Te3[(t0      ) & 0xFF]; s2 ^= Te2[(t0 >> 8) & 0xFF]; s3 ^= Te1[(t0 >> 16) & 0xFF]; s0 ^= Te0[(t0 >> 24)];
+        s2 ^= Te3[(t1      ) & 0xFF]; s3 ^= Te2[(t1 >> 8) & 0xFF]; s0 ^= Te1[(t1 >> 16) & 0xFF]; s1 ^= Te0[(t1 >> 24)];
+        s3 ^= Te3[(t2      ) & 0xFF]; s0 ^= Te2[(t2 >> 8) & 0xFF]; s1 ^= Te1[(t2 >> 16) & 0xFF]; s2 ^= Te0[(t2 >> 24)];
+        s0 ^= Te3[(t3      ) & 0xFF]; s1 ^= Te2[(t3 >> 8) & 0xFF]; s2 ^= Te1[(t3 >> 16) & 0xFF]; s3 ^= Te0[(t3 >> 24)];
+#else
         s0 =
             Te0[(t0 >> 24)       ] ^
             Te1[(t1 >> 16) & 0xff] ^
@@ -332,6 +358,7 @@ void rijndael_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_
             Te2[(t1 >>  8) & 0xff] ^
             Te3[(t2      ) & 0xff] ^
             rk[3];
+#endif            
     }
 #endif /* SMALL_CODE */
     /*
@@ -562,7 +589,7 @@ int rijndael_test(void)
  #ifndef LTC_TEST
     return CRYPT_NOP;
  #else    
- int errno;
+ int err;
  static const struct {
      int keylen;
      unsigned char key[32], pt[16], ct[16];
@@ -602,8 +629,8 @@ int rijndael_test(void)
  
  for (i = 0; i < (int)(sizeof(tests)/sizeof(tests[0])); i++) {
     zeromem(&key, sizeof(key));
-    if ((errno = rijndael_setup(tests[i].key, tests[i].keylen, 0, &key)) != CRYPT_OK) { 
-       return errno;
+    if ((err = rijndael_setup(tests[i].key, tests[i].keylen, 0, &key)) != CRYPT_OK) { 
+       return err;
     }
   
     rijndael_ecb_encrypt(tests[i].pt, tmp[0], &key);

@@ -1335,29 +1335,29 @@ register_all_algs (void)
 
   register_cipher (&null_desc);
 
+#ifdef TIGER
+  register_hash (&tiger_desc);
+#endif
+#ifdef MD2
+  register_hash (&md2_desc);
+#endif
+#ifdef MD4
+  register_hash (&md4_desc);
+#endif
+#ifdef MD5
+  register_hash (&md5_desc);
+#endif
 #ifdef SHA1
   register_hash (&sha1_desc);
 #endif
 #ifdef SHA256
   register_hash (&sha256_desc);
 #endif
-#ifdef TIGER
-  register_hash (&tiger_desc);
-#endif
-#ifdef MD5
-  register_hash (&md5_desc);
-#endif
 #ifdef SHA384
   register_hash (&sha384_desc);
 #endif
 #ifdef SHA512
   register_hash (&sha512_desc);
-#endif
-#ifdef MD4
-  register_hash (&md4_desc);
-#endif
-#ifdef MD2
-  register_hash (&md2_desc);
 #endif
 
 #ifdef YARROW
@@ -1709,7 +1709,7 @@ main (void)
 #endif
 
   register_all_algs ();
-  
+   
   if ((errnum = yarrow_start (&prng)) != CRYPT_OK) {
     printf ("yarrow_start: %s\n", error_to_string (errnum));
   }
@@ -1738,7 +1738,7 @@ main (void)
   cfb_tests ();
 
   rng_tests ();
-  //test_prime();
+  test_prime();
 
 #ifdef KR
   kr_test ();
