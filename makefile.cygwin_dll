@@ -28,7 +28,7 @@ crypt_find_cipher_id.o     crypt_find_prng.o        crypt_prng_is_valid.o      \
 crypt_unregister_cipher.o  crypt_cipher_is_valid.o  crypt_find_hash.o          \
 crypt_hash_descriptor.o    crypt_register_cipher.o  crypt_unregister_hash.o    \
 \
-sprng.o fortuna.o yarrow.o rc4.o rng_get_bytes.o  rng_make_prng.o \
+sprng.o fortuna.o sober128.o yarrow.o rc4.o rng_get_bytes.o  rng_make_prng.o \
 \
 rand_prime.o is_prime.o \
 \

@@ -47,7 +47,7 @@
 \def\gap{\vspace{0.5ex}}
 \makeindex
 \begin{document}
-\title{LibTomCrypt \\ Version 0.97b}
+\title{LibTomCrypt \\ Version 0.98}
 \author{Tom St Denis \\
 \\
 tomstdenis@iahu.ca \\
@@ -1687,12 +1687,15 @@ int pmac_test(void);
 Which returns {\bf CRYPT\_OK} if the code passes otherwise it returns an error code.
 
 
+
+
+
 \chapter{Pseudo-Random Number Generators}
 \section{Core Functions}
-
 The library provides an array of core functions for Pseudo-Random Number Generators (PRNGs) as well.  A cryptographic PRNG is
 used to expand a shorter bit string into a longer bit string.  PRNGs are used wherever random data is required such as Public Key (PK)
 key generation.  There is a universal structure called ``prng\_state''.  To initialize a PRNG call:
+\index{PRNG start}
 \begin{verbatim}
 int XXX_start(prng_state *prng);
 \end{verbatim}
@@ -1700,6 +1703,7 @@ int XXX_start(prng_state *prng);
 This will setup the PRNG for future use and not seed it.  In order 
 for the PRNG to be cryptographically useful you must give it entropy.  Ideally you'd have some OS level source to tap 
 like in UNIX (see section 5.3).  To add entropy to the PRNG call:
+\index{PRNG add\_entropy}
 \begin{verbatim}
 int XXX_add_entropy(const unsigned char *in, unsigned long len, 
                     prng_state *prng);
@@ -1707,17 +1711,77 @@ int XXX_add_entropy(const unsigned char *in, unsigned long len,
 
 Which returns {\bf CRYPTO\_OK} if the entropy was accepted.  Once you think you have enough entropy you call another
 function to put the entropy into action.
+\index{PRNG ready}
 \begin{verbatim}
 int XXX_ready(prng_state *prng);
 \end{verbatim}
 
 Which returns {\bf CRYPTO\_OK} if it is ready.  Finally to actually read bytes call:
+\index{PRNG read}
 \begin{verbatim}
 unsigned long XXX_read(unsigned char *out, unsigned long len,
                        prng_state *prng);
 \end{verbatim}
 
-Which returns the number of bytes read from the PRNG.
+Which returns the number of bytes read from the PRNG.  When you are finished with a PRNG state you call
+the following.
+
+\index{PRNG done}
+\begin{verbatim}
+void XXX_done(prng_state *prng);
+\end{verbatim}
+
+This will terminate a PRNG state and free any memory (if any) allocated.  To export a PRNG state
+so that you can later resume the PRNG call the following.
+
+\index{PRNG export}
+\begin{verbatim}
+int XXX_export(unsigned char *out, unsigned long *outlen, 
+               prng_state    *prng);
+\end{verbatim}
+
+This will write a ``PRNG state'' to the buffer ``out'' of length ``outlen'' bytes.  The idea of 
+the export is meant to be used as a ``seed file''.  That is, when the program starts up there will not likely
+be that much entropy available.   To import a state to seed a PRNG call the following function.
+
+\index{PRNG import}
+\begin{verbatim}
+int XXX_import(const unsigned char *in, unsigned long inlen, 
+                     prng_state     *prng);
+\end{verbatim}
+
+This will call the start and add\_entropy functions of the given PRNG.  It will use the state in
+``in'' of length ``inlen'' as the initial seed.  You must pass the same seed length as was exported
+by the corresponding export function.
+
+Note that importing a state will not ``resume'' the PRNG from where it left off.  That is, if you export
+a state, emit (say) 8 bytes and then import the previously exported state the next 8 bytes will not 
+specifically equal the 8 bytes you generated previously.
+
+When a program is first executed the normal course of operation is 
+
+\begin{enumerate}
+   \item Gather entropy from your sources for a given period of time or number of events.
+   \item Start, use your entropy via add\_entropy and ready the PRNG yourself.
+\end{enumerate}
+
+When your program is finished you simply call the export function and save the state to a medium (disk,
+flash memory, etc).  The next time your application starts up you can detect the state, feed it to the 
+import function and go on your way.  It is ideal that (as soon as possible) after startup you export a
+fresh state.  This helps in the case that the program aborts or the machine is powered down without
+being given a chance to exit properly.  
+
+Note that even if you have a state to import it is important to add new entropy to the state.  However,
+there is less pressure to do so.  
+
+To test a PRNG for operational conformity call the following functions.
+
+\index{PRNG test}
+\begin{verbatim}
+int XXX_test(void);
+\end{verbatim}
+
+This will return \textbf{CRYPT\_OK} if PRNG is operating properly.
 
 \subsection{Remarks}
 
@@ -1728,8 +1792,8 @@ checking is guaranteed to see if the entropy is sufficient or if the PRNG is eve
 
 \subsection{Example}
 
-Below is a simple snippet to read 10 bytes from yarrow.  Its important to note that this snippet is {\bf NOT} secure since
-the entropy added is not random.
+Below is a simple snippet to read 10 bytes from yarrow.  Its important to note that this snippet is 
+{\bf NOT} secure since the entropy added is not random.
 
 \begin{verbatim}
 #include <mycrypt.h>
@@ -1762,10 +1826,15 @@ PRNGs have descriptors too (surprised?). Stored in the structure ``prng\_descrip
 \begin{verbatim}
 struct _prng_descriptor {
     char *name;
+    int  export_size;    /* size in bytes of exported state */
     int (*start)      (prng_state *);
     int (*add_entropy)(const unsigned char *, unsigned long, prng_state *);
     int (*ready)      (prng_state *);
     unsigned long (*read)(unsigned char *, unsigned long len, prng_state *);
+    void (*done)(prng_state *);
+    int (*export)(unsigned char *, unsigned long *, prng_state *);
+    int (*import)(const unsigned char *, unsigned long, prng_state *);
+    int (*test)(void);
 };
 \end{verbatim}
 
@@ -1779,16 +1848,82 @@ int register_prng(const struct _prng_descriptor *prng);
 int unregister_prng(const struct _prng_descriptor *prng);
 \end{verbatim}
 
-\subsubsection{PRNGs Provided}
-Currently Yarrow (yarrow\_desc), RC4 (rc4\_desc) and the secure RNG (sprng\_desc) are provided as PRNGs within the 
-library.  
+\subsection{PRNGs Provided}
+\begin{figure}[here]
+\begin{center}
+\begin{small}
+\begin{tabular}{|c|c|l|}
+\hline \textbf{Name} & \textbf{Descriptor} & \textbf{Usage} \\
+\hline Yarrow & yarrow\_desc & Fast short-term PRNG \\
+\hline Fortuna & fortuna\_desc & Fast long-term PRNG (recommended) \\
+\hline RC4 & rc4\_desc & Stream Cipher \\
+\hline SOBER-128 & sober128\_desc & Stream Cipher (also very fast PRNG) \\
+\hline
+\end{tabular}
+\end{small}
+\end{center}
+\caption{List of Provided PRNGs}
+\end{figure}
 
-RC4 is provided with a PRNG interface because it is a stream cipher and not well suited for the symmetric block cipher
-interface.  You provide the key for RC4 via the rc4\_add\_entropy() function.  By calling rc4\_ready() the key will be used
-to setup the RC4 state for encryption or decryption.  The rc4\_read() function has been modified from RC4 since it will 
-XOR the output of the RC4 keystream generator against the input buffer you provide.  The following snippet will demonstrate
-how to encrypt a buffer with RC4:
+\subsubsection{Yarrow}
+Yarrow is fast PRNG meant to collect an unspecified amount of entropy from sources 
+(keyboard, mouse, interrupts, etc) and produce an unbounded string of random bytes.  
 
+\textit{Note:} This PRNG is still secure for most taskings but is no longer recommended.  Users
+should use Fortuna instead.
+
+\subsubsection{Fortuna}
+
+Fortuna is a fast attack tolerant and more thoroughly designed PRNG suitable for long term
+usage.  It is faster than the default implementation of Yarrow\footnote{Yarrow has been implemented
+to work with most cipher and hash combos based on which you have chosen to build into the library.} while
+providing more security.  
+
+Fortuna is slightly less flexible than Yarrow in the sense that it only works with the AES block cipher 
+and SHA--256 hash function.  Technically Fortuna will work with any block cipher that accepts a 256--bit
+key and any hash that produces at least a 256--bit output.  However, to make the implementation simpler
+it has been fixed to those choices.
+
+Fortuna is more secure than Yarrow in the sense that attackers who learn parts of the entropy being 
+added to the PRNG learn far less about the state than that of Yarrow.  Without getting into to many
+details Fortuna has the ability to recover from state determination attacks where the attacker starts
+to learn information from the PRNGs output about the internal state.  Yarrow on the other hand cannot 
+recover from that problem until new entropy is added to the pool and put to use through the ready() function.
+
+\subsubsection{RC4}
+
+RC4 is an old stream cipher that can also double duty as a PRNG in a pinch.  You ``key'' it by
+calling add\_entropy() and setup the key by calling ready().  You can only add upto 256 bytes via
+add\_entropy().  
+
+When you read from RC4 the output of the RC4 algorithm is XOR'd against your buffer you provide.  In this
+manner you can use rc4\_read() as an encrypt (and decrypt) function.  
+
+You really shouldn't use RC4 anymore.  This isn't because RC4 is weak (though biases are known to exist) just
+simply that faster alternatives exist.
+
+\subsubsection{SOBER-128}
+
+SOBER-128 is a stream cipher designed by the QUALCOMM Australia team.  Like RC4 you ``key'' it by 
+calling add\_entropy().  There is no need to call ready() for this PRNG as it does not do anything.  
+
+Note that this cipher has several oddities about how it operates.  The first time you call 
+add\_entropy() that sets the cipher's key.  Every other time you call the same function it sets
+the cipher's IV variable.  The IV mechanism allows you to encrypt several messages with the same
+key and not re--use the same key material.
+
+Unlike Yarrow and Fortuna all of the entropy (and hence security) of this algorithm rests in the data
+you pass it on the first call to add\_entropy().  All buffers sent to add\_entropy() must have a length
+that is a multiple of four bytes.
+
+Like RC4 the output of SOBER--128 is XOR'ed against the buffer you provide it.  In this manner you can use
+sober128\_read() as an encrypt (and decrypt) function.
+
+Since SOBER-128 has a fixed keying scheme and is very fast (faster than RC4) the ideal usage of SOBER-128 is to 
+key it from the output of Fortuna (or Yarrow) and use it to encrypt messages.  It is also ideal for
+simulations which need a high quality (and fast) stream of bytes.  
+
+\subsubsection{Example Usage}
 \begin{small}
 \begin{verbatim}
 #include <mycrypt.h>

@@ -82,18 +82,29 @@
 
 /* Various tidbits of modern neatoness */
 #define BASE64
+
+/* Yarrow */
 #define YARROW
 // which descriptor of AES to use? 
 // 0 = rijndael_enc 1 = aes_enc, 2 = rijndael [full], 3 = aes [full]
 #define YARROW_AES 0
+
+#if defined(YARROW) && !defined(CTR)
+   #error YARROW requires CTR chaining mode to be defined!
+#endif
+
 #define SPRNG
 #define RC4
 
-/* Fortuna */
+/* Fortuna PRNG */
 #define FORTUNA
 /* reseed every N calls to the read function */
-#define FORTUNA_WD    1024
+#define FORTUNA_WD    10
+/* number of pools (4..32) can save a bit of ram by lowering the count */
+#define FORTUNA_POOLS 32
 
+/* Greg's SOBER128 PRNG ;-0 */
+#define SOBER128
 
 #define DEVRANDOM
 #define TRY_URANDOM_FIRST
@@ -138,6 +149,12 @@
 
 /* Use SSE2 optimizations in LTM?  Requires GCC or ICC and a P4 or K8 processor */
 // #define LTMSSE
+
+/* prevents the code from being "unportable" at least to non i386 platforms */
+#if defined(LTMSSE) && !( (defined(__GNUC__) && defined(__i386__)) || defined(INTEL_CC)) 
+   #warning LTMSSE is only available for GNU CC (i386) or Intel CC
+   #undef LTMSSE
+#endif
 
 /* PKCS #1 and #5 stuff */
 #define PKCS_1

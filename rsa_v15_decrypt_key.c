@@ -26,6 +26,9 @@ int rsa_v15_decrypt_key(const unsigned char *in,     unsigned long  inlen,
   _ARGCHK(outkey != NULL);
   _ARGCHK(key    != NULL);
   _ARGCHK(res    != NULL);
+ 
+  /* default to invalid */
+  *res = 0;
 
   /* valid prng ? */
   if ((err = prng_is_valid(prng_idx)) != CRYPT_OK) {

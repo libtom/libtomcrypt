@@ -203,7 +203,7 @@ void cipher_gen(void)
 void hmac_gen(void)
 {
    unsigned char key[MAXBLOCKSIZE], output[MAXBLOCKSIZE], *input;
-   int x, y, z, kl, err;
+   int x, y, z, err;
    FILE *out;
    unsigned long len;
   

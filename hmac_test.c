@@ -291,6 +291,7 @@ Key First"
         }
 
         if(memcmp(digest, cases[i].digest, (size_t)hash_descriptor[hash].hashsize) != 0)  {
+            failed++;
 #if 0
             unsigned int j;
             printf("\nHMAC-%s test #%d:\n", cases[i].algo, cases[i].num);
@@ -303,9 +304,8 @@ Key First"
                printf("%2x ", cases[i].digest[j]);
             }
             printf("\n");
+            return CRYPT_ERROR;
 #endif
-            failed++;
-            //return CRYPT_ERROR;
         } else {
             /* printf("HMAC-%s test #%d: Passed\n", cases[i].algo, cases[i].num); */
         }

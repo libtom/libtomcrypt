@@ -13,6 +13,7 @@
 
 #ifdef MRSA
 
+/* Export an RSA key */
 int rsa_export(unsigned char *out, unsigned long *outlen, int type, rsa_key *key)
 {
    unsigned long y, z; 

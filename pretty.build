@@ -21,8 +21,9 @@ foreach my $filename (glob "*.c") {
     if (!($filename =~ "sha384.c")) {
     if (!($filename =~ "dh_sys.c")) {
     if (!($filename =~ "ecc_sys.c")) {
+    if (!($filename =~ "sober128tab.c")) {
        ++$count;
-    }}}}}}}
+    }}}}}}}}
 }
 print "Source files to build: $count\nBuilding...\n";
 my $i = 0;
@@ -36,6 +37,7 @@ foreach my $filename (glob "*.c") {
     if (!($filename =~ "sha384.c")) {
     if (!($filename =~ "dh_sys.c")) {
     if (!($filename =~ "ecc_sys.c")) {
+    if (!($filename =~ "sober128tab.c")) {
        printf("Building %3.2f%%, ", (++$i/$count)*100.0);
        if ($i % 4 == 0) { print "/, "; }
        if ($i % 4 == 1) { print "-, "; }
@@ -71,7 +73,7 @@ foreach my $filename (glob "*.c") {
           my $delay = time - $starttime;
           $rate = $i/$delay;
        }
-    }}}}}}}
+    }}}}}}}}
 }
 
 # finish building the library 

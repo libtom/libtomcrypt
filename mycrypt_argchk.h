@@ -1,6 +1,4 @@
 /* Defines the _ARGCHK macro used within the library */
-
-/* ch1-01-1 */
 /* ARGTYPE is defined in mycrypt_cfg.h */
 #if ARGTYPE == 0
 
@@ -20,5 +18,4 @@
 #define _ARGCHK(x) 
 
 #endif
-/* ch1-01-1 */
 

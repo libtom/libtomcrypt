@@ -20,12 +20,16 @@ void XFREE(void *p);
 void *XMEMCPY(void *dest, const void *src, size_t n);
 int   XMEMCMP(const void *s1, const void *s2, size_t n);
 
-/* ch1-01-1 */
 /* type of argument checking, 0=default, 1=fatal and 2=none */
 #define ARGTYPE  0
-/* ch1-01-1 */
 
-/* Controls endianess and size of registers.  Leave uncommented to get platform neutral [slower] code */
+/* Controls endianess and size of registers.  Leave uncommented to get platform neutral [slower] code 
+ * 
+ * Note: in order to use the optimized macros your platform must support unaligned 32 and 64 bit read/writes.
+ * The x86 platforms allow this but some others [ARM for instance] do not.  On those platforms you **MUST**
+ * use the portable [slower] macros.
+ */
+
 /* detect x86-32 machines somewhat */
 #if defined(INTEL_CC) || (defined(_MSC_VER) && defined(WIN32)) || (defined(__GNUC__) && (defined(__DJGPP__) || defined(__CYGWIN__) || defined(__MINGW32__) || defined(__i386__)))
    #define ENDIAN_LITTLE
@@ -50,12 +54,6 @@ int   XMEMCMP(const void *s1, const void *s2, size_t n);
 
 #if !(defined(ENDIAN_BIG) || defined(ENDIAN_LITTLE))
    #define ENDIAN_NEUTRAL
-#endif
-
-#ifdef YARROW
-   #ifndef CTR
-      #error YARROW requires CTR chaining mode to be defined!
-   #endif
 #endif
 
 /* packet code */

@@ -69,7 +69,7 @@ int rsa_make_key(prng_state *prng, int wprng, int size, long e, rsa_key *key)
    if ((err = mp_invmod(&key->e, &tmp1, &key->d)) != MP_OKAY)         { goto error2; } /* key->d = 1/e mod lcm(p-1,q-1) */
    if ((err = mp_mul(&p, &q, &key->N)) != MP_OKAY)                    { goto error2; } /* key->N = pq */
 
-/* optimize for CRT now */
+   /* optimize for CRT now */
    /* find d mod q-1 and d mod p-1 */
    if ((err = mp_sub_d(&p, 1, &tmp1)) != MP_OKAY)                     { goto error2; } /* tmp1 = q-1 */
    if ((err = mp_sub_d(&q, 1, &tmp2)) != MP_OKAY)                     { goto error2; } /* tmp2 = p-1 */

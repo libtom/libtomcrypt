@@ -19,22 +19,36 @@ we reseed automatically when len(pool0) >= 64 or every FORTUNA_WD calls to the r
 
 #ifdef FORTUNA 
 
+/* requries SHA256 and AES  */
+#if !(defined(RIJNDAEL) && defined(SHA256))
+   #error FORTUNA requires SHA256 and RIJNDAEL (AES)
+#endif
+
+#ifndef FORTUNA_POOLS
+   #warning FORTUNA_POOLS was not previously defined (old headers?)
+   #define FORTUNA_POOLS 32
+#endif
+
+#if FORTUNA_POOLS < 4 || FORTUNA_POOLS > 32
+   #error FORTUNA_POOLS must be in [4..32]
+#endif
+
 const struct _prng_descriptor fortuna_desc = {
-    "fortuna",
+    "fortuna", 1024,
     &fortuna_start,
     &fortuna_add_entropy,
     &fortuna_ready,
     &fortuna_read,
     &fortuna_done,
     &fortuna_export,
-    &fortuna_import
-
+    &fortuna_import,
+    &fortuna_test
 };
 
 /* update the IV */
 static void fortuna_update_iv(prng_state *prng)
 {
-   int x;
+   int            x;
    unsigned char *IV;
    /* update IV */
    IV = prng->fortuna.IV;
@@ -47,7 +61,7 @@ static void fortuna_update_iv(prng_state *prng)
 /* reseed the PRNG */
 static int fortuna_reseed(prng_state *prng)
 {
-   unsigned char tmp[32];
+   unsigned char tmp[MAXBLOCKSIZE];
    hash_state    md;
    int           err, x;
 
@@ -59,7 +73,7 @@ static int fortuna_reseed(prng_state *prng)
       return err;
    }
 
-   for (x = 0; x < 32; x++) {
+   for (x = 0; x < FORTUNA_POOLS; x++) {
        if (x == 0 || ((prng->fortuna.reset_cnt >> (x-1)) & 1) == 0) { 
           /* terminate this hash */
           if ((err = sha256_done(&prng->fortuna.pool[x], tmp)) != CRYPT_OK) {
@@ -105,7 +119,7 @@ int fortuna_start(prng_state *prng)
    _ARGCHK(prng != NULL);
    
    /* initialize the pools */
-   for (x = 0; x < 32; x++) {
+   for (x = 0; x < FORTUNA_POOLS; x++) {
        sha256_init(&prng->fortuna.pool[x]);
    }
    prng->fortuna.pool_idx = prng->fortuna.pool0_len = prng->fortuna.reset_cnt = 
@@ -144,9 +158,11 @@ int fortuna_add_entropy(const unsigned char *buf, unsigned long len, prng_state 
       return err;
    }
    if (prng->fortuna.pool_idx == 0) {
-      prng->fortuna.pool0_len += len + 2;
+      prng->fortuna.pool0_len += len;
    }
-   prng->fortuna.pool_idx = (prng->fortuna.pool_idx + 1) & 31;
+   if (++(prng->fortuna.pool_idx) == FORTUNA_POOLS) {
+      prng->fortuna.pool_idx = 0;
+   }
 
    return CRYPT_OK;
 }
@@ -160,7 +176,7 @@ unsigned long fortuna_read(unsigned char *dst, unsigned long len, prng_state *pr
 {
    unsigned char tmp[16];
    int           err;
-   unsigned long tlen, n;
+   unsigned long tlen;
 
    _ARGCHK(dst  != NULL);
    _ARGCHK(prng != NULL);
@@ -174,18 +190,21 @@ unsigned long fortuna_read(unsigned char *dst, unsigned long len, prng_state *pr
 
    /* now generate the blocks required */
    tlen = len;
-   while (len > 0) {
-       if (len >= 16) {
-          /* encrypt the IV and store it */
-          rijndael_ecb_encrypt(prng->fortuna.IV, dst, &prng->fortuna.skey);
-          dst += 16;
-          len -= 16;
-       } else {
-          rijndael_ecb_encrypt(prng->fortuna.IV, tmp, &prng->fortuna.skey);
-          XMEMCPY(dst, tmp, len);
-          len = 0;
-       }
-       fortuna_update_iv(prng);
+
+   /* handle whole blocks without the extra memcpy */
+   while (len >= 16) {
+      /* encrypt the IV and store it */
+      rijndael_ecb_encrypt(prng->fortuna.IV, dst, &prng->fortuna.skey);
+      dst += 16;
+      len -= 16;
+      fortuna_update_iv(prng);
+   }
+
+   /* left over bytes? */
+   if (len > 0) {
+      rijndael_ecb_encrypt(prng->fortuna.IV, tmp, &prng->fortuna.skey);
+      XMEMCPY(dst, tmp, len);
+      fortuna_update_iv(prng);
    }
        
    /* generate new key */
@@ -201,33 +220,77 @@ unsigned long fortuna_read(unsigned char *dst, unsigned long len, prng_state *pr
    return tlen;
 }   
 
-void fortuna_done(prng_state *prng)
+int fortuna_done(prng_state *prng)
 {
+   int           err, x;
+   unsigned char tmp[32];
+
    _ARGCHK(prng != NULL);
+
+   /* terminate all the hashes */
+   for (x = 0; x < FORTUNA_POOLS; x++) {
+       if ((err = sha256_done(&(prng->fortuna.pool[x]), tmp)) != CRYPT_OK) {
+          return err; 
+       }
+   }
    /* call cipher done when we invent one ;-) */
+
+#ifdef CLEAN_STACK
+   zeromem(tmp, sizeof(tmp));
+#endif
+
+   return CRYPT_OK;
 }
 
 int fortuna_export(unsigned char *out, unsigned long *outlen, prng_state *prng)
 {
-   int x;
+   int         x, err;
+   hash_state *md;
 
    _ARGCHK(out    != NULL);
    _ARGCHK(outlen != NULL);
    _ARGCHK(prng   != NULL);
 
-   /* we'll write 2048 bytes for s&g's */
-   if (*outlen < 2048) {
+   /* we'll write bytes for s&g's */
+   if (*outlen < 32*FORTUNA_POOLS) {
       return CRYPT_BUFFER_OVERFLOW;
    }
 
-   for (x = 0; x < 32; x++) {
-      if (fortuna_read(out+x*64, 64, prng) != 64) {
-         return CRYPT_ERROR_READPRNG;
+   md = XMALLOC(sizeof(hash_state));
+   if (md == NULL) {
+      return CRYPT_MEM;
+   }
+
+   /* to emit the state we copy each pool, terminate it then hash it again so 
+    * an attacker who sees the state can't determine the current state of the PRNG 
+    */   
+   for (x = 0; x < FORTUNA_POOLS; x++) {
+      /* copy the PRNG */
+      XMEMCPY(md, &(prng->fortuna.pool[x]), sizeof(*md));
+
+      /* terminate it */
+      if ((err = sha256_done(md, out+x*32)) != CRYPT_OK) {
+         goto __ERR;
+      }
+
+      /* now hash it */
+      sha256_init(md);
+      if ((err = sha256_process(md, out+x*32, 32)) != CRYPT_OK) {
+         goto __ERR;
+      }
+      if ((err = sha256_done(md, out+x*32)) != CRYPT_OK) {
+         goto __ERR;
       }
    }
-   *outlen = 2048;
+   *outlen = 32*FORTUNA_POOLS;
+   err = CRYPT_OK;
 
-   return CRYPT_OK;
+__ERR:
+#ifdef CLEAN_STACK
+   zeromem(md, sizeof(*md));
+#endif
+   XFREE(md);
+   return err;
 }
  
 int fortuna_import(const unsigned char *in, unsigned long inlen, prng_state *prng)
@@ -237,19 +300,33 @@ int fortuna_import(const unsigned char *in, unsigned long inlen, prng_state *prn
    _ARGCHK(in   != NULL);
    _ARGCHK(prng != NULL);
 
-   if (inlen != 2048) {
+   if (inlen != 32*FORTUNA_POOLS) {
       return CRYPT_INVALID_ARG;
    }
 
    if ((err = fortuna_start(prng)) != CRYPT_OK) {
       return err;
    }
-   for (x = 0; x < 32; x++) {
-      if ((err = fortuna_add_entropy(in+x*64, 64, &prng)) != CRYPT_OK) {
+   for (x = 0; x < FORTUNA_POOLS; x++) {
+      if ((err = fortuna_add_entropy(in+x*32, 32, prng)) != CRYPT_OK) {
          return err;
       }
    }
-   return fortuna_ready(&prng);
+   return err;
+}
+
+int fortuna_test(void)
+{
+#ifndef LTC_TEST
+   return CRYPT_NOP;
+#else
+   int err;
+
+   if ((err = sha256_test()) != CRYPT_OK) {
+      return err;
+   }
+   return rijndael_test();
+#endif
 }
 
 #endif

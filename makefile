@@ -4,7 +4,7 @@
 # Modified by Clay Culver
 
 # The version
-VERSION=0.97b
+VERSION=0.98
 
 # Compiler and Linker Names
 #CC=gcc
@@ -63,7 +63,7 @@ crypt_find_cipher_id.o     crypt_find_prng.o        crypt_prng_is_valid.o      \
 crypt_unregister_cipher.o  crypt_cipher_is_valid.o  crypt_find_hash.o          \
 crypt_hash_descriptor.o    crypt_register_cipher.o  crypt_unregister_hash.o    \
 \
-fortuna.o sprng.o yarrow.o rc4.o rng_get_bytes.o  rng_make_prng.o \
+sober128.o fortuna.o sprng.o yarrow.o rc4.o rng_get_bytes.o  rng_make_prng.o \
 \
 rand_prime.o is_prime.o \
 \
@@ -171,10 +171,10 @@ small: library $(SMALLOBJECTS)
 	$(CC) $(SMALLOBJECTS) $(LIBNAME) -o $(SMALL) $(WARN)
 	
 x86_prof: library $(PROFS)
-	$(CC) $(PROFS) $(LIBNAME) -o $(PROF)
+	$(CC) $(PROFS) $(LIBNAME) $(EXTRALIBS) -o $(PROF)
 
 tv_gen: library $(TVS)
-	$(CC) $(TVS) $(LIBNAME) -o $(TV)
+	$(CC) $(TVS) $(LIBNAME) $(EXTRALIBS) -o $(TV)
 
 #This rule installs the library and the header files. This must be run
 #as root in order to have a high enough permission to write to the correct
@@ -215,12 +215,20 @@ docdvi: crypt.tex
 	echo hello > crypt.ind
 	latex crypt > /dev/null
 	latex crypt > /dev/null
-	makeindex.idx crypt
+	makeindex crypt.idx
 	latex crypt > /dev/null
 
 #pretty build
 pretty:
 	perl pretty.build
+
+#for GCC 3.4+
+profiled:
+	make clean
+	make CFLAGS="$(CFLAGS) -fprofile-generate" EXTRALIBS=-lgcov x86_prof
+	./x86_prof
+	rm *.o *.a x86_prof
+	make CFLAGS="$(CFLAGS) -fprofile-use" EXTRALIBS=-lgcov x86_prof
 
 #beta
 beta: clean

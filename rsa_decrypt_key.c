@@ -13,7 +13,7 @@
 
 #ifdef MRSA
 
-/* decrypt then OAEP depad  */
+/* (PKCS #1 v2.0) decrypt then OAEP depad  */
 int rsa_decrypt_key(const unsigned char *in,     unsigned long inlen,
                           unsigned char *outkey, unsigned long *keylen, 
                     const unsigned char *lparam, unsigned long lparamlen,
@@ -29,6 +29,9 @@ int rsa_decrypt_key(const unsigned char *in,     unsigned long inlen,
   _ARGCHK(keylen != NULL);
   _ARGCHK(key    != NULL);
   _ARGCHK(res    != NULL);
+
+  /* default to invalid */
+  *res = 0;
 
   /* valid hash/prng ? */
   if ((err = prng_is_valid(prng_idx)) != CRYPT_OK) {

@@ -79,7 +79,7 @@ crypt_find_cipher_id.o     crypt_find_prng.o        crypt_prng_is_valid.o      \
 crypt_unregister_cipher.o  crypt_cipher_is_valid.o  crypt_find_hash.o          \
 crypt_hash_descriptor.o    crypt_register_cipher.o  crypt_unregister_hash.o    \
 \
-sprng.o fortuna.o yarrow.o rc4.o rng_get_bytes.o  rng_make_prng.o \
+sober128.o fortuna.o sprng.o yarrow.o rc4.o rng_get_bytes.o  rng_make_prng.o \
 \
 rand_prime.o is_prime.o \
 \
@@ -187,6 +187,13 @@ x86_prof: library $(PROFS)
 
 tv_gen: library $(TVS)
 	$(CC) $(TVS) $(LIBNAME) -o $(TV)
+
+profiled:
+	make clean
+	make CFLAGS="$(CFLAGS) -prof_gen" x86_prof
+	./x86_prof
+	rm *.o *.a x86_prof
+	make CFLAGS="$(CFLAGS) -prof_use" x86_prof
 
   
 #This rule installs the library and the header files. This must be run

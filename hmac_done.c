@@ -64,17 +64,17 @@ int hmac_done(hmac_state *hmac, unsigned char *hashOut, unsigned long *outlen)
        return CRYPT_MEM;
     }
 
-    // Get the hash of the first HMAC vector plus the data
+    /* Get the hash of the first HMAC vector plus the data */
     if ((err = hash_descriptor[hash].done(&hmac->md, isha)) != CRYPT_OK) {
        goto __ERR;
     }
 
-    // Create the second HMAC vector vector for step (3)
+    /* Create the second HMAC vector vector for step (3) */
     for(i=0; i < HMAC_BLOCKSIZE; i++) {
         buf[i] = hmac->key[i] ^ 0x5C;
     }
 
-    // Now calculate the "outer" hash for step (5), (6), and (7)
+    /* Now calculate the "outer" hash for step (5), (6), and (7) */
     hash_descriptor[hash].init(&hmac->md);
     if ((err = hash_descriptor[hash].process(&hmac->md, buf, HMAC_BLOCKSIZE)) != CRYPT_OK) {
        goto __ERR;
@@ -86,7 +86,7 @@ int hmac_done(hmac_state *hmac, unsigned char *hashOut, unsigned long *outlen)
        goto __ERR;
     }
 
-    // copy to output 
+    /* copy to output  */
     for (i = 0; i < hashsize && i < *outlen; i++) {
         hashOut[i] = buf[i];
     }

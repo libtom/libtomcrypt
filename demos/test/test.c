@@ -112,15 +112,21 @@ void register_algs(void)
   register_hash (&whirlpool_desc);
 #endif
 
-   if (register_prng(&yarrow_desc) == -1) {
-      printf("Error registering yarrow PRNG\n");
-      exit(-1);
-   }
-
-   if (register_prng(&sprng_desc) == -1) {
-      printf("Error registering sprng PRNG\n");
-      exit(-1);
-   }
+#ifdef YARROW
+   register_prng(&yarrow_desc);
+#endif
+#ifdef FORTUNA
+   register_prng(&fortuna_desc);
+#endif
+#ifdef RC4
+   register_prng(&rc4_desc);
+#endif
+#ifdef SPRNG
+   register_prng(&sprng_desc);
+#endif
+#ifdef SOBER128
+   register_prng(&sober128_desc);
+#endif
 }
 
 /* sort tests based on their requirement/services.  Helps make sure dependencies are tested first */

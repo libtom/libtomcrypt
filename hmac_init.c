@@ -68,9 +68,9 @@ int hmac_init(hmac_state *hmac, int hash, const unsigned char *key, unsigned lon
        return CRYPT_MEM;
     }
 
-    // (1) make sure we have a large enough key
+    /* (1) make sure we have a large enough key */
     if(keylen > HMAC_BLOCKSIZE) {
-        z = (unsigned long)HMAC_BLOCKSIZE;
+        z = HMAC_BLOCKSIZE;
         if ((err = hash_memory(hash, key, keylen, hmac->key, &z)) != CRYPT_OK) {
            goto __ERR;
         }
@@ -85,15 +85,21 @@ int hmac_init(hmac_state *hmac, int hash, const unsigned char *key, unsigned lon
         }
     }
 
-    // Create the initial vector for step (3)
+    /* Create the initial vector for step (3) */
     for(i=0; i < HMAC_BLOCKSIZE;   i++) {
        buf[i] = hmac->key[i] ^ 0x36;
     }
 
-    // Pre-pend that to the hash data
+    /* Pre-pend that to the hash data */
     hash_descriptor[hash].init(&hmac->md);
-    err = hash_descriptor[hash].process(&hmac->md, buf, HMAC_BLOCKSIZE);
+    if ((err = hash_descriptor[hash].process(&hmac->md, buf, HMAC_BLOCKSIZE)) != CRYPT_OK) {
+       goto __ERR;
+    }
+    goto done;
 __ERR:
+    /* free the key since we failed */
+    XFREE(hmac->key);
+done:
 #ifdef CLEAN_STACK
    zeromem(buf, HMAC_BLOCKSIZE);
 #endif

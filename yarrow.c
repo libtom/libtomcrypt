@@ -15,14 +15,15 @@
 
 const struct _prng_descriptor yarrow_desc =
 {
-    "yarrow",
+    "yarrow", 64,
     &yarrow_start,
     &yarrow_add_entropy,
     &yarrow_ready,
     &yarrow_read,
     &yarrow_done,
     &yarrow_export,
-    &yarrow_import
+    &yarrow_import,
+    &yarrow_test
 };
 
 int yarrow_start(prng_state *prng)
@@ -183,10 +184,12 @@ unsigned long yarrow_read(unsigned char *buf, unsigned long len, prng_state *prn
    return len;
 }
 
-void yarrow_done(prng_state *prng)
+int yarrow_done(prng_state *prng)
 {
    _ARGCHK(prng != NULL);
    /* call cipher done when we invent one ;-) */
+
+   return CRYPT_OK;
 }
 
 int yarrow_export(unsigned char *out, unsigned long *outlen, prng_state *prng)
@@ -222,10 +225,32 @@ int yarrow_import(const unsigned char *in, unsigned long inlen, prng_state *prng
    if ((err = yarrow_start(prng)) != CRYPT_OK) {
       return err;
    }
-   if ((err = yarrow_add_entropy(in, 64, &prng)) != CRYPT_OK) {
+   return yarrow_add_entropy(in, 64, prng);
+}
+
+int yarrow_test(void)
+{
+#ifndef LTC_TEST
+   return CRYPT_NOP;
+#else
+   int err;
+   prng_state prng;
+
+   if ((err = yarrow_start(&prng)) != CRYPT_OK) {
       return err;
    }
-   return yarrow_ready(&prng);
+   
+   /* now let's test the hash/cipher that was chosen */
+   if ((err = cipher_descriptor[prng.yarrow.cipher].test()) != CRYPT_OK) {
+      return err; 
+   }
+   if ((err = hash_descriptor[prng.yarrow.hash].test()) != CRYPT_OK) {
+      return err; 
+   }
+
+   yarrow_done(&prng);
+   return CRYPT_OK;
+#endif
 }
 
 #endif

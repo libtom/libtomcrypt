@@ -14,6 +14,7 @@
 
 #ifdef MRSA
 
+/* compute an RSA modular exponentiation */
 int rsa_exptmod(const unsigned char *in,   unsigned long inlen,
                       unsigned char *out,  unsigned long *outlen, int which,
                       prng_state    *prng, int           prng_idx,

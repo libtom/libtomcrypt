@@ -13,7 +13,7 @@
 
 #ifdef MRSA
 
-/* design then PKCS v1.5 depad */
+/* de-sign then PKCS v1.5 depad */
 int rsa_v15_verify_hash(const unsigned char *sig,      unsigned long siglen,
                         const unsigned char *msghash,  unsigned long msghashlen,
                               prng_state    *prng,     int           prng_idx,
@@ -28,6 +28,9 @@ int rsa_v15_verify_hash(const unsigned char *sig,      unsigned long siglen,
   _ARGCHK(sig      != NULL);
   _ARGCHK(stat     != NULL);
   _ARGCHK(key      != NULL);
+
+  /* default to invalid */
+  *stat = 0;
   
   /* valid hash ? */
   if ((err = hash_is_valid(hash_idx)) != CRYPT_OK) {

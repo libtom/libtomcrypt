@@ -18,7 +18,7 @@ crypt_find_cipher_id.obj     crypt_find_prng.obj        crypt_prng_is_valid.obj 
 crypt_unregister_cipher.obj  crypt_cipher_is_valid.obj  crypt_find_hash.obj          \
 crypt_hash_descriptor.obj    crypt_register_cipher.obj  crypt_unregister_hash.obj    \
 \
-sprng.obj fortuna.obj yarrow.obj rc4.obj rng_get_bytes.obj  rng_make_prng.obj \
+sprng.obj fortuna.obj sober128.obj yarrow.obj rc4.obj rng_get_bytes.obj  rng_make_prng.obj \
 \
 rand_prime.obj is_prime.obj \
 \

@@ -1,3 +1,45 @@
+August 6th, 2004
+v0.98  -- Update to hmac_init to free all allocated memory on error
+       -- Update to PRNG API to fix import/export functions of Fortuna and Yarrow
+       -- Added test functions to PRNG api, RC4 now conforms ;-) [was a minor issue]
+       -- Added the SOBER-128 PRNG based off of code donated by Greg Rose.
+       -- Added Tech Note #4 [notes/tech0004.txt] 
+       -- Changed RC4 back [due to request].  It will now XOR the output so you can use it like 
+          a stream cipher easily.
+       -- Update Fortuna's export() to emit a hash of each pool.  This means that the accumulated 
+          entropy that was spread over all the pools isn't entirely lost when you export/import.
+       -- Zhi Chen suggested a comment for rsa_encrypt_key() to let users know [easily] that it was
+          PKCS #1 v2.0 padding.  (updated other rsa_* functions)
+       -- Cleaned up Noekeon to remove unrolling [wasn't required, was messy and actually slower with GCC/ICC]
+       -- Updated RC4 so that when you feed it >256 bytes of entropy it quietly ignores additional
+          bytes.  Also removed the % from the key setup to speed it up a bit.
+       -- Added cipher/hash/prng tests to x86_prof to help catch bugs while testing
+       -- Made the PRNG "done" return int, fixed sprng_done to not require prng* to be non-null
+       -- Spruced up mycrypt_custom.h to trap more errors and also help prevent LTMSSE from being defined
+          on non-i386 platforms by accident.
+       -- Added RSA/ECC/DH speed tests to x86_prof and cleaned it up to build with zero warnings
+       -- Changed Fortuna to count only entropy [not the 2 byte header] added to pool[0] into the 
+          reseed mechanism.  
+       -- Added "export_size" member to prng_descriptor tables so you can know in advance the size of 
+          the exported state for any given PRNG.  
+       -- Ported over patch on LTM 0.30 [not ready to release LTM 0.31] that fixes bug in mp_mul()/mp_div()
+          that used to result in negative zeroes when you multiplied zero by a negative integer.  
+          (patch due to "Wolfgang Ehrhardt" <Wolfgang.Ehrhardt@munich.netsurf.de>)
+       -- Fixed rsa_*decrypt_key() and rsa_*verify_hash() to default to invalid "stat" or "res".  This way
+          if any of the higher level functions fail [before you get to the padding] the result will be in
+          a known state].  Applied to both v2 and v1.5 padding helpers.
+       -- Added MACs to x86_prof
+       -- Fixed up "warnings" in x86_prof and tv_gen
+       -- Added a "profiled" target back [for GCC 3.4 and ICC v8].  Doesn't seem to help but might be worth
+          tinkering with.
+       -- Beefed up load/store test in demos/test
+
+       ++ New note, in order to use the optimized LOAD/STORE macros your platform
+          must support unaligned 32/64 bit load/stores.  The x86s support this
+          but some [ARM for instance] do not.  If your platform cannot perform
+          unaligned operations you must use the endian neutral code which is safe for 
+          any sort of platform.
+
 July 23rd, 2004
 v0.97b -- Added PKCS #1 v1.5 RSA encrypt/sign helpers (like rsa_sign_hash, etc...)
        -- Added missing prng check to rsa_decrypt_key() [not critical as I don't use 
@@ -62,7 +104,7 @@ v0.96  -- Removed GF and Keyring code
        -- Changed PSS/OAEP API slightly to be more consistent with other PK functions (order of arguments)
        -- rsa_exptmod() now pads with leading zeroes as per I2OSP.
        -- added error checking to yarrow code
-       -- Mike Frysinger pointed out that tommath.h from this distro will overwrite tommath.h
+       --  pointed out that tommath.h from this distro will overwrite tommath.h
           from libtommath.  I changed this to ltc_tommath.h to avoid any such problems.
        -- Fixed bug in PSS encoder/decoder that didn't handle the MSB properly
        -- refactored AES, now sports an "encrypt only" descriptor which uses half as much code space.

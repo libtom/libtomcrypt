@@ -4703,7 +4703,7 @@ int mp_mul (mp_int * a, mp_int * b, mp_int * c)
       res = s_mp_mul (a, b, c);
     }
   }
-  c->sign = neg;
+  c->sign = (c->used == 0) ? MP_ZPOS : neg;
   return res;
 }
 
