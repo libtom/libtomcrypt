@@ -636,16 +636,22 @@ done:
 #define INPUT_BIGNUM(num, in, x, y)                              \
 {                                                                \
      /* load value */                                            \
+     if (y+4 > inlen) {                                          \
+        errno = CRYPT_INVALID_PACKET;                            \
+        goto error;                                              \
+     }                                                           \
      LOAD32L(x, in+y);                                           \
      y += 4;                                                     \
                                                                  \
      /* sanity check... */                                       \
-     if (x > 1024) {                                             \
+     if (y+x > inlen) {                                          \
+        errno = CRYPT_INVALID_PACKET;                            \
         goto error;                                              \
      }                                                           \
                                                                  \
      /* load it */                                               \
      if (mp_read_raw(num, (unsigned char *)in+y, x) != MP_OKAY) {\
+        errno = CRYPT_MEM;                                       \
         goto error;                                              \
      }                                                           \
      y += x;                                                     \
@@ -701,10 +707,10 @@ int ecc_export(unsigned char *out, unsigned long *outlen, int type, ecc_key *key
    return CRYPT_OK;
 }
 
-int ecc_import(const unsigned char *in, ecc_key *key)
+int ecc_import(const unsigned char *in, unsigned long inlen, ecc_key *key)
 {
    unsigned long x, y, s;
-   int res, errno;
+   int errno;
 
    _ARGCHK(in != NULL);
    _ARGCHK(key != NULL);
@@ -712,6 +718,10 @@ int ecc_import(const unsigned char *in, ecc_key *key)
    /* check type */
    if ((errno = packet_valid_header((unsigned char *)in, PACKET_SECT_ECC, PACKET_SUB_KEY)) != CRYPT_OK) { 
       return errno;
+   }
+   
+   if (2+PACKET_SIZE > inlen) {
+      return CRYPT_INVALID_PACKET;
    }
 
    /* init key */
@@ -725,21 +735,21 @@ int ecc_import(const unsigned char *in, ecc_key *key)
    
    for (x = 0; (s > (unsigned long)sets[x].size) && (sets[x].size); x++);
    if (sets[x].size == 0) { 
-      res = CRYPT_INVALID_KEYSIZE;
-      goto error2;
+      errno = CRYPT_INVALID_KEYSIZE;
+      goto error;
    }
    key->idx = x;
 
    /* type check both values */
    if ((key->type != PK_PUBLIC) && (key->type != PK_PRIVATE))  {
-      res = CRYPT_INVALID_PACKET;
-      goto error2;
+      errno = CRYPT_INVALID_PACKET;
+      goto error;
    }
 
    /* is the key idx valid? */
    if (!is_valid_idx(key->idx)) {
-      res = CRYPT_INVALID_PACKET;
-      goto error2;
+      errno = CRYPT_INVALID_PACKET;
+      goto error;
    }
 
    /* load x coordinate */
@@ -747,20 +757,19 @@ int ecc_import(const unsigned char *in, ecc_key *key)
   
    /* load y */
    x = in[y++];
-   if ((errno = expand_y_point(&key->pubkey, key->idx, x)) != CRYPT_OK) { res = errno; goto error2; }
+   if ((errno = expand_y_point(&key->pubkey, key->idx, x)) != CRYPT_OK) { 
+       goto error; 
+   }
 
    if (key->type == PK_PRIVATE) {
       /* load private key */
       INPUT_BIGNUM(&key->k, in, x, y);
    }
-   res = CRYPT_OK;
-   goto done;
+   return CRYPT_OK;
 error:
-   res = CRYPT_MEM;
-error2:
    mp_clear_multi(&key->pubkey.x, &key->pubkey.y, &key->k, NULL);
 done:
-   return res;
+   return errno;
 }
 
 int ecc_shared_secret(ecc_key *private_key, ecc_key *public_key, 

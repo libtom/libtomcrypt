@@ -16,6 +16,9 @@ XCLOCKS_PER_SEC=CLOCKS_PER_SEC
 
 CFLAGS = /c /Ogisy1 /Gs /I. /W3 /DWIN32 /DXMALLOC=$(XMALLOC) /DXCALLOC=$(XCALLOC) /DXFREE=$(XFREE) /DXCLOCK=$(XCLOCK) /DXCLOCKS_PER_SEC=$(XCLOCKS_PER_SEC)
 
+#Small code (smaller variants of some block ciphers)
+CFLAGS += /DSMALL_CODE
+
 #These flags control how the library gets built.
 
 #no file support, when defined the library will not have any functions that can read/write files 
@@ -48,6 +51,7 @@ CFLAGS += /DXTEA
 CFLAGS += /DTWOFISH
 CFLAGS += /DDES
 CFLAGS += /DCAST5
+CFLAGS += /DNOEKEON
 
 #You can also customize the Twofish code.  All four combinations 
 #of the flags are possible but only three of them make sense.
@@ -72,14 +76,6 @@ CFLAGS += /DCAST5
 # This speeds up the cipher somewhat.
 # CFLAGS += /DTWOFISH_TABLES 
 
-#Small code variant of the SAFER+ cipher, uses same RAM but less code space
-#With this defined the cipher is slower.  On my x86 with GCC 3.2 it required 50KB less space
-CFLAGS += /DSAFERP_SMALL
-
-#Small Rijndael [saves 13KB on an x86]
-#With this defined the cipher is slower (by 50Mbit/sec on an Athon XP)
-CFLAGS += /DRIJNDAEL_SMALL
-
 #Use fast PK routines.  Basically this limits the size of the private key in the
 #DH system to 256 bits.  The group order remains unchanged so the best
 #attacks are still GNFS (for DH upto 2560-bits)
@@ -87,10 +83,6 @@ CFLAGS += /DRIJNDAEL_SMALL
 #This will only speed up the key generation and encryption routines.  It lowers the
 #security so its by default not turned on.  USE AT YOUR RISK!
 #CFLAGS += /DFAST_PK
-
-#Include the PK Packet functions (e.g. dh_encrypt)
-#Does not affect the key/hash routines (e.g. ecc_sign_hash)
-#CFLAGS += /DPK_PACKET
 
 # Chaining modes
 CFLAGS += /DCFB
@@ -128,11 +120,6 @@ CFLAGS += /DKR
 
 # include large integer math routines? (required by the PK code)
 CFLAGS += /DMPI
-
-# Use a small prime table?  It greatly reduces the size of prime.c at a little impact
-# in speed.
-#
-CFLAGS += /DSMALL_PRIME_TAB
 
 # include HMAC support
 CFLAGS += /DHMAC
@@ -227,6 +214,8 @@ md2.obj: md2.c
 	$(CC) $(CFLAGS) md2.c
 cast5.obj: cast5.c
 	$(CC) $(CFLAGS) cast5.c
+noekeon.obj: noekeon.c
+	$(CC) $(CFLAGS) noekeon.c
 
 demos/test.obj: demos/test.c
 	$(CC) $(CFLAGS) demos/test.c
@@ -236,11 +225,11 @@ demos/hashsum.obj: demos/hashsum.c
 
 tomcrypt.lib: keyring.obj gf.obj mem.obj sprng.obj ecc.obj  base64.obj dh.obj rsa.obj bits.obj hmac.obj  \
 yarrow.obj cfb.obj ofb.obj ecb.obj ctr.obj cbc.obj hash.obj tiger.obj sha1.obj md2.obj md5.obj md4.obj sha256.obj sha512.obj xtea.obj \
-aes.obj serpent.obj safer_tab.obj safer.obj safer+.obj cast5.obj rc2.obj rc6.obj rc5.obj des.obj blowfish.obj crypt.obj ampi.obj \
+aes.obj serpent.obj safer_tab.obj safer.obj safer+.obj cast5.obj noekeon.obj rc2.obj rc6.obj rc5.obj des.obj blowfish.obj crypt.obj ampi.obj \
 strings.obj mpi.obj prime.obj twofish.obj packet.obj
 	$(AR) /out:tomcrypt.lib keyring.obj gf.obj mem.obj sprng.obj ecc.obj  base64.obj dh.obj rsa.obj hmac.obj \
 bits.obj yarrow.obj cfb.obj ofb.obj ecb.obj ctr.obj cbc.obj hash.obj tiger.obj sha1.obj md2.obj md5.obj md4.obj sha256.obj \
-strings.obj sha512.obj xtea.obj aes.obj serpent.obj safer_tab.obj safer.obj safer+.obj cast5.obj rc2.obj rc6.obj rc5.obj des.obj \
+strings.obj sha512.obj xtea.obj aes.obj serpent.obj safer_tab.obj safer.obj safer+.obj cast5.obj noekeon.obj rc2.obj rc6.obj rc5.obj des.obj \
 blowfish.obj crypt.obj ampi.obj mpi.obj prime.obj twofish.obj packet.obj
 
 

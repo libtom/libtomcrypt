@@ -133,7 +133,7 @@ int xtea_test(void)
 
 int xtea_keysize(int *desired_keysize)
 {
-   _ARGCHK(desired_keysize);
+   _ARGCHK(desired_keysize != NULL);
    if (*desired_keysize < 16) {
       return CRYPT_INVALID_KEYSIZE; 
    }

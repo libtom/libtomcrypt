@@ -1,3 +1,17 @@
+Nov 28th, 2002
+v0.78  -- Made the default ARGCHK macro a function call instead which reduced the code size from 264KB to 239KB.
+       -- Fixed a bug in the XTEA keysize function which called ARGCHK incorrectly.
+       -- Added Noekeon block cipher at 2,800 bytes of object code and 345Mbit/sec it is a welcome addition.
+       -- Made the KR code check if the other PK systems are included [provides error when building otherwise].
+       -- Made "aes" an alias for Rijndael via a pre-processor macro.  Now you can use "aes_ecb_encrypt", etc... :-)
+          Thanks to Jean-Luc Cooke for the "buzzword conformance" suggestion.
+       -- Removed the old PK code entirely (e.g. rsa_sign, dh_encrypt).  The *_sign_hash and *_encrypt_key functions
+          are all that is to remain.
+       -- **NOTE** Changed the PK *_import (including the keyring) routine to accept a "inlen" parameter.  This fixes a
+          bug where improperly made key packets could result in reading passed the end of the buffer.  This means
+          the code is no longer source compatible but still binary compatible.
+       -- Fixed a few other minor bugs in the PK import code while I was at it.
+       
 Nov 26th, 2002
 v0.77  -- Updated the XTEA code to use pre-computed keys.  With optimizations for speed it achieves 222Mbit/sec
           compared to the 121Mbit/sec before.  It is 288 bytes bigger than before.

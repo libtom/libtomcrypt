@@ -31,6 +31,18 @@ const struct _cipher_descriptor rijndael_desc =
     &rijndael_keysize
 };
 
+const struct _cipher_descriptor aes_desc =
+{
+    "aes",
+    6,
+    16, 32, 16, 10,
+    &rijndael_setup,
+    &rijndael_ecb_encrypt,
+    &rijndael_ecb_decrypt,
+    &rijndael_test,
+    &rijndael_keysize
+};
+
 #include "aes_tab.c"
 
 #define byte(x, y) (((x)>>(8*(y)))&255)
@@ -186,7 +198,7 @@ int rijndael_setup(const unsigned char *key, int keylen, int numrounds, symmetri
     f_rl(bo, bi, 2, k);     \
     f_rl(bo, bi, 3, k)
     
-#ifdef RIJNDAEL_SMALL
+#ifdef SMALL_CODE
 
 static void _fnround(unsigned long *bo, unsigned long *bi, unsigned long *k)
 {
@@ -255,7 +267,7 @@ void rijndael_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_
     i_rl(bo, bi, 2, k);     \
     i_rl(bo, bi, 3, k)
     
-#ifdef RIJNDAEL_SMALL
+#ifdef SMALL_CODE
 
 static void _inround(unsigned long *bo, unsigned long *bi, unsigned long *k)
 {

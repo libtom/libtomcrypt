@@ -315,18 +315,22 @@ void dh_free(dh_key *key)
 #define INPUT_BIGNUM(num, in, x, y)                              \
 {                                                                \
      /* load value */                                            \
+     if (y + 4 > inlen) {                                        \
+        errno = CRYPT_INVALID_PACKET;                            \
+        goto error;                                              \
+     }                                                           \
      LOAD32L(x, in+y);                                           \
      y += 4;                                                     \
                                                                  \
      /* sanity check... */                                       \
-     if (x > 1024) {                                             \
-        errno = CRYPT_ERROR;                                     \
+     if (x+y > inlen) {                                          \
+        errno = CRYPT_INVALID_PACKET;                            \
         goto error;                                              \
      }                                                           \
                                                                  \
      /* load it */                                               \
      if (mp_read_raw(num, (unsigned char *)in+y, x) != MP_OKAY) {\
-        return CRYPT_MEM;                                        \
+        errno =  CRYPT_MEM;                                        \
         goto error;                                              \
      }                                                           \
      y += x;                                                     \
@@ -381,9 +385,9 @@ int dh_export(unsigned char *out, unsigned long *outlen, int type, dh_key *key)
    return CRYPT_OK;
 }
 
-int dh_import(const unsigned char *in, dh_key *key)
+int dh_import(const unsigned char *in, unsigned long inlen, dh_key *key)
 {
-   long x, y, s;
+   unsigned long x, y, s;
    int errno;
 
    _ARGCHK(in != NULL);
@@ -392,6 +396,10 @@ int dh_import(const unsigned char *in, dh_key *key)
    /* check type byte */
    if ((errno = packet_valid_header((unsigned char *)in, PACKET_SECT_DH, PACKET_SUB_KEY)) != CRYPT_OK) {
       return errno;
+   }
+   
+   if (2+PACKET_SIZE > inlen) {
+      return CRYPT_INVALID_PACKET;
    }
 
    /* init */
@@ -403,7 +411,7 @@ int dh_import(const unsigned char *in, dh_key *key)
    key->type = in[y++];
    s  = (long)in[y++] * 8;
    
-   for (x = 0; (s > sets[x].size) && (sets[x].size); x++);
+   for (x = 0; (s > (unsigned long)sets[x].size) && (sets[x].size); x++);
    if (sets[x].size == 0) {
       errno = CRYPT_INVALID_KEYSIZE;
       goto error;

@@ -13,8 +13,8 @@ extern "C" {
 #endif
 
 /* version */
-#define CRYPT   0x0077
-#define SCRYPT  "0.77"
+#define CRYPT   0x0078
+#define SCRYPT  "0.78"
 
 /* max size of either a cipher/hash block or symmetric key [largest of the two] */
 #define MAXBLOCKSIZE           128

@@ -304,16 +304,22 @@ int rsa_depad(const unsigned char *in,  unsigned long inlen,
 #define INPUT_BIGNUM(num, in, x, y)                              \
 {                                                                \
      /* load value */                                            \
+     if (y + 4 > inlen) {                                        \
+         errno = CRYPT_INVALID_PACKET;                           \
+         goto error2;                                            \
+     }                                                           \
      LOAD32L(x, in+y);                                           \
      y += 4;                                                     \
                                                                  \
      /* sanity check... */                                       \
-     if (x > 1024) {                                             \
+     if (y+x > inlen) {                                          \
+        errno = CRYPT_INVALID_PACKET;                            \
         goto error2;                                             \
      }                                                           \
                                                                  \
      /* load it */                                               \
      if (mp_read_raw(num, (unsigned char *)in+y, x) != MP_OKAY) {\
+        errno = CRYPT_MEM;                                       \
         goto error2;                                             \
      }                                                           \
      y += x;                                                     \
@@ -378,7 +384,7 @@ int rsa_export(unsigned char *out, unsigned long *outlen, int type, rsa_key *key
    return CRYPT_OK;
 }
 
-int rsa_import(const unsigned char *in, rsa_key *key)
+int rsa_import(const unsigned char *in, unsigned long inlen, rsa_key *key)
 {
    unsigned long x, y;
    int errno;
@@ -389,6 +395,10 @@ int rsa_import(const unsigned char *in, rsa_key *key)
    /* test packet header */
    if ((errno = packet_valid_header((unsigned char *)in, PACKET_SECT_RSA, PACKET_SUB_KEY)) != CRYPT_OK) { 
       return errno;
+   }
+   
+   if (inlen < 1+PACKET_SIZE) {
+      return CRYPT_INVALID_PACKET;
    }
 
    /* init key */
@@ -426,7 +436,7 @@ int rsa_import(const unsigned char *in, rsa_key *key)
 error2:
    mp_clear_multi(&key->d, &key->e, &key->N, &key->dQ, &key->dP, 
                   &key->pQ, &key->qP, &key->p, &key->q, NULL);
-   return CRYPT_MEM;
+   return errno;
 }
 
 #include "rsa_sys.c"

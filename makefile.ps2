@@ -43,15 +43,18 @@ CFLAGS += -c -I./ -Wall -Wsign-compare -W -Wno-unused -Werror  \
    -DXMALLOC=$(XMALLOC) -DXCALLOC=$(XCALLOC) -DXFREE=$(XFREE) -DXCLOCK=$(XCLOCK) \
    -DXCLOCKS_PER_SEC=$(XCLOCKS_PER_SEC)
 
-#no file support, when defined the library will not have any functions that can read/write files 
-#(comment out to have file support)
-CFLAGS += -DNO_FILE
-
 #optimize for SPEED (comment out SIZE line as well)
 #CFLAGS += -O3 -fomit-frame-pointer -funroll-loops
 
 #optimize for SIZE (comment out SPEED line as well)
-CFLAGS += -Os
+CFLAGS += -Os 
+
+#Use small code variants of functions when possible?  (Slows it down!)
+CFLAGS += -DSMALL_CODE
+
+#no file support, when defined the library will not have any functions that can read/write files 
+#(comment out to have file support)
+CFLAGS += -DNO_FILE
 
 #These flags control how the library gets built.
 
@@ -75,6 +78,7 @@ CFLAGS += -DXTEA
 CFLAGS += -DTWOFISH
 CFLAGS += -DDES
 CFLAGS += -DCAST5
+CFLAGS += -DNOEKEON
 
 #You can also customize the Twofish code.  All four combinations 
 #of the flags are possible but only three of them make sense.
@@ -115,10 +119,6 @@ CFLAGS += -DRIJNDAEL_SMALL
 #security so its by default not turned on.  USE AT YOUR RISK!
 #CFLAGS += -DFAST_PK
 
-#Include the PK Packet functions (e.g. dh_encrypt)
-#Does not affect the key/hash routines (e.g. ecc_sign_hash)
-#CFLAGS += -DPK_PACKET
-
 # Chaining modes
 CFLAGS += -DCFB
 CFLAGS += -DOFB
@@ -156,11 +156,6 @@ CFLAGS += -DKR
 # include large integer math routines? (required by the PK code)
 CFLAGS += -DMPI
 
-# Use a small prime table?  It greatly reduces the size of prime.c at a little impact
-# in speed.
-#
-CFLAGS += -DSMALL_PRIME_TAB
-
 # include HMAC support
 CFLAGS += -DHMAC
 
@@ -183,7 +178,7 @@ INCPATH=/usr/include
 OBJECTS=keyring.o gf.o mem.o sprng.o ecc.o base64.o dh.o rsa.o \
 bits.o yarrow.o cfb.o ofb.o ecb.o ctr.o cbc.o hash.o tiger.o sha1.o \
 md5.o md4.o md2.o sha256.o sha512.o xtea.o aes.o serpent.o des.o \
-safer_tab.o safer.o safer+.o rc4.o rc2.o rc6.o rc5.o cast5.o blowfish.o crypt.o \
+safer_tab.o safer.o safer+.o rc4.o rc2.o rc6.o rc5.o cast5.o noekeon.o blowfish.o crypt.o \
 ampi.o mpi.o prime.o twofish.o packet.o hmac.o strings.o
 
 # PlayStation(tm) 2 C run-time startup module

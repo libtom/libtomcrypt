@@ -361,7 +361,7 @@ int kr_export(pk_key *pk, unsigned long ID, int key_type, unsigned char *out, un
    }
 }
 
-int kr_import(pk_key *pk, const unsigned char *in)
+int kr_import(pk_key *pk, const unsigned char *in, unsigned long inlen)
 {
    _pk_key key;
    int system, key_type, errno;
@@ -369,6 +369,10 @@ int kr_import(pk_key *pk, const unsigned char *in)
 
    _ARGCHK(pk != NULL);
    _ARGCHK(in != NULL);
+
+   if (inlen < 10) {
+      return CRYPT_INVALID_PACKET;
+   }
 
    if (memcmp(in, key_magic, 4)) {
       return CRYPT_INVALID_PACKET;
@@ -382,19 +386,23 @@ int kr_import(pk_key *pk, const unsigned char *in)
    }
 
    zeromem(&key, sizeof(key));
+   
+   /* size of remaining packet */
+   inlen -= 10 + 3*MAXLEN;
+   
    switch (system) {
         case RSA_KEY:
-            if ((errno = rsa_import(in+10+3*MAXLEN, &(key.rsa))) != CRYPT_OK) {
+            if ((errno = rsa_import(in+10+3*MAXLEN, inlen, &(key.rsa))) != CRYPT_OK) {
                return errno;
             }
             break;
         case DH_KEY:
-            if ((errno = dh_import(in+10+3*MAXLEN, &(key.dh))) != CRYPT_OK) {
+            if ((errno = dh_import(in+10+3*MAXLEN, inlen, &(key.dh))) != CRYPT_OK) {
                return errno;
             }
             break;
         case ECC_KEY:
-            if ((errno = ecc_import(in+10+3*MAXLEN, &(key.ecc))) != CRYPT_OK) {
+            if ((errno = ecc_import(in+10+3*MAXLEN, inlen, &(key.ecc))) != CRYPT_OK) {
                return errno;
             }
             break;
@@ -443,7 +451,7 @@ int kr_load(pk_key **pk, FILE *in, symmetric_CTR *ctr)
       }
 
       if (_read(buf, len, in, ctr) != len)           { goto done2; }
-      if ((errno = kr_import(*pk, buf)) != CRYPT_OK) { 
+      if ((errno = kr_import(*pk, buf, len)) != CRYPT_OK) { 
          return errno; 
       }
    }

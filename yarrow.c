@@ -20,6 +20,8 @@ int yarrow_start(prng_state *prng)
    /* these are the default hash/cipher combo used */
 #ifdef RIJNDAEL
    prng->yarrow.cipher = register_cipher(&rijndael_desc);
+#elif defined(NOEKEON)   
+   prng->yarrow.cipher = register_cipher(&noekeon_desc);
 #elif defined(BLOWFISH)
    prng->yarrow.cipher = register_cipher(&blowfish_desc);
 #elif defined(TWOFISH)

@@ -1,5 +1,9 @@
 #ifdef KR
 
+#if !defined(MRSA) || !defined(MDH) || !defined(MECC)
+    #error "Keyring code requires all three public key algorithms."
+#endif
+
 #define MAXLEN    256
 
 enum {
@@ -48,7 +52,7 @@ extern int kr_make_key(pk_key *pk, prng_state *prng, int wprng,
                        const unsigned char *email, const unsigned char *description);
 
 extern int kr_export(pk_key *pk, unsigned long ID, int key_type, unsigned char *out, unsigned long *outlen);
-extern int kr_import(pk_key *pk, const unsigned char *in);
+extern int kr_import(pk_key *pk, const unsigned char *in, unsigned long inlen);
 
 extern int kr_load(pk_key **pk, FILE *in, symmetric_CTR *ctr);
 extern int kr_save(pk_key *pk, FILE *out, symmetric_CTR *ctr);

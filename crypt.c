@@ -103,6 +103,21 @@ struct _prng_descriptor prng_descriptor[32] = {
 { NULL, NULL, NULL, NULL, NULL },
 { NULL, NULL, NULL, NULL, NULL } };
 
+#if (ARGTYPE == 0) && defined(SMALL_CODE)
+
+void crypt_argchk(char *v, char *s, int d)
+{
+#ifdef SONY_PS2
+   printf("_ARGCHK '%s' failure on line %d of file %s\n", v, d, s);
+#else 
+   fprintf(stderr, "_ARGCHK '%s' failure on line %d of file %s\n", v, d, s);
+#endif
+   raise(SIGABRT);
+}
+
+#endif
+   
+
 int find_cipher(const char *name)
 {
    int x;
@@ -187,7 +202,7 @@ int register_cipher(const struct _cipher_descriptor *cipher)
 
    /* is it already registered? */
    for (x = 0; x < 32; x++) {
-       if (!memcmp(&cipher_descriptor[x], cipher, sizeof(struct _cipher_descriptor))) {
+       if (cipher_descriptor[x].name != NULL && cipher_descriptor[x].ID == cipher->ID) {
           return x;
        }
    }
@@ -214,6 +229,7 @@ int unregister_cipher(const struct _cipher_descriptor *cipher)
    for (x = 0; x < 32; x++) {
        if (!memcmp(&cipher_descriptor[x], cipher, sizeof(struct _cipher_descriptor))) {
           cipher_descriptor[x].name = NULL;
+          cipher_descriptor[x].ID   = 255;
           return CRYPT_OK;
        }
    }

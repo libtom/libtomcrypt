@@ -9,7 +9,7 @@
 # a build. This is easy to remedy though, for those that have problems.
 
 # The version
-VERSION=0.77
+VERSION=0.78
 
 #Compiler and Linker Names
 CC=gcc
@@ -38,6 +38,9 @@ CFLAGS += -c -I./ -Wall -Wsign-compare -W -Wno-unused -Werror  \
 
 #optimize for SIZE (comment out SPEED/DEBUG line as well)
 CFLAGS += -Os 
+
+#Use small code variants of functions when possible?  (Slows it down!)
+CFLAGS += -DSMALL_CODE
 
 #compile for DEBUGGING 
 #CFLAGS += -g3
@@ -74,6 +77,7 @@ CFLAGS += -DXTEA
 CFLAGS += -DTWOFISH
 CFLAGS += -DDES
 CFLAGS += -DCAST5
+CFLAGS += -DNOEKEON
 
 #You can also customize the Twofish code.  All four combinations 
 #of the flags are possible but only three of them make sense.
@@ -98,14 +102,6 @@ CFLAGS += -DCAST5
 # This speeds up the cipher somewhat.
 #CFLAGS += -DTWOFISH_TABLES 
 
-#Small code variant of the SAFER+ cipher, uses same RAM but less code space
-#With this defined the cipher is slower.  On my x86 with GCC 3.2 it required 50KB less space
-CFLAGS += -DSAFERP_SMALL
-
-#Small Rijndael [saves 13KB on an x86]
-#With this defined the cipher is slower (by 50Mbit/sec on an Athon XP)
-CFLAGS += -DRIJNDAEL_SMALL
-
 #Use fast PK routines.  Basically this limits the size of the private key in the
 #DH system to 256 bits.  The group order remains unchanged so the best
 #attacks are still GNFS (for DH upto 2560-bits)
@@ -113,10 +109,6 @@ CFLAGS += -DRIJNDAEL_SMALL
 #This will only speed up the key generation and encryption routines.  It lowers the
 #security so its by default not turned on.  USE AT YOUR RISK!
 #CFLAGS += -DFAST_PK
-
-#Include the PK Packet functions (e.g. dh_encrypt)
-#Does not affect the key/hash routines (e.g. ecc_sign_hash)
-#CFLAGS += -DPK_PACKET
 
 # Chaining modes
 CFLAGS += -DCFB
@@ -174,7 +166,7 @@ INCPATH=/usr/include
 OBJECTS=keyring.o gf.o mem.o sprng.o ecc.o base64.o dh.o rsa.o \
 bits.o yarrow.o cfb.o ofb.o ecb.o ctr.o cbc.o hash.o tiger.o sha1.o \
 md5.o md4.o md2.o sha256.o sha512.o xtea.o aes.o serpent.o des.o \
-safer_tab.o safer.o safer+.o rc4.o rc2.o rc6.o rc5.o cast5.o blowfish.o crypt.o \
+safer_tab.o safer.o safer+.o rc4.o rc2.o rc6.o rc5.o cast5.o noekeon.o blowfish.o crypt.o \
 ampi.o mpi.o prime.o twofish.o packet.o hmac.o strings.o
 
 TESTOBJECTS=demos/test.o

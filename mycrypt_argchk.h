@@ -10,23 +10,17 @@
  * On embedded platforms you can change the fprintf() to be a routine that would display a message
  * somehow 
  */
-#ifndef SONY_PS2
-
-#define _ARGCHK(x) \
-    if (!(x)) { \
-        fprintf(stderr, "_ARGCHK '%s' failure on line %d of file %s\n", #x, __LINE__, __FILE__); \
-        raise(SIGABRT); \
-    }
-
+ 
+#ifdef SMALL_CODE 
+   extern void crypt_argchk(char *v, char *s, int d);
+   #define _ARGCHK(x) if (!(x)) { crypt_argchk(#x, __FILE__, __LINE__); }
 #else
-
-#define _ARGCHK(x) \
-    if (!(x)) { \
-        printf("_ARGCHK '%s' failure on line %d of file %s\n", #x, __LINE__, __FILE__); \
-        raise(SIGABRT); \
-    }
-
-#endif  /* SONY_PS2 */
+   #ifdef SONY_PS2
+      #define _ARGCHK(x) if (!(x)) { printf("_ARGCHK '%s' failure on line %d of file %s\n", #x, __LINE__, __FILE__); raise(SIGABRT); }
+   #else
+      #define _ARGCHK(x) if (!(x)) { fprintf(stderr, "_ARGCHK '%s' failure on line %d of file %s\n", #x, __LINE__, __FILE__); raise(SIGABRT); }
+   #endif
+#endif   
 
 #elif ARGTYPE == 1
 

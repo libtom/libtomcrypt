@@ -117,7 +117,7 @@ extern const unsigned char safer_ebox[], safer_lbox[];
     iSHUF(b2, b); iPHT(b);    \
     iSHUF(b, b2); iPHT(b2);
     
-#ifdef SAFERP_SMALL    
+#ifdef SMALL_CODE    
 
 static void _round(unsigned char *b, int i, symmetric_key *skey) 
 {

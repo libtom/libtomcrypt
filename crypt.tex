@@ -44,7 +44,7 @@
 \def\gap{\vspace{0.5ex}}
 \makeindex
 \begin{document}
-\title{A Tiny Crypto Library, \\ LibTomCrypt \\ Version 0.77}
+\title{A Tiny Crypto Library, \\ LibTomCrypt \\ Version 0.78}
 \author{Tom St Denis \\
 Algonquin College \\
 \\
@@ -398,12 +398,6 @@ int main(void)
    symmetric_key skey;
    int errno;
 
-   /* first register Blowfish */
-   if (register_cipher(&blowfish_desc) == -1) {
-      printf("Error registering Blowfish.\n");
-      return -1;
-   }
-
    /* ... key is loaded appropriately in ``key'' ... */
    /* ... load a block of plaintext in ``pt'' ... */
 
@@ -484,11 +478,12 @@ As of this release the current cipher\_descriptors elements are
      \hline Safer K128  & safer\_k128\_desc & 8 & 16 & 6 .. 13 \\
      \hline Safer SK128 & safer\_sk128\_desc & 8 & 16 & 6 .. 13 \\
      \hline Serpent & serpent\_desc & 16 & 16 .. 32 & 32 \\
-     \hline Rijndael (AES) & rijndael\_desc & 16 & 16, 24, 32 & 10, 12, 14 \\
+     \hline AES & aes\_desc & 16 & 16, 24, 32 & 10, 12, 14 \\
      \hline Twofish & twofish\_desc & 16 & 16, 24, 32 & 16 \\
      \hline DES & des\_desc & 8 & 7 & 16 \\
      \hline 3DES (EDE mode) & des3\_desc & 8 & 21 & 16 \\
      \hline CAST5 (CAST-128) & cast5\_desc & 8 & 5 .. 16 & 12, 16 \\
+     \hline Noekeon & noekeon\_desc & 16 & 16 & 16 \\
      \hline
 \end{tabular}
 \end{center}
@@ -704,7 +699,7 @@ Where ``XXX'' is one of (ecb, cbc) and ``YYY'' is one of (ctr, ofb, cfb).  In th
 size of the buffer (as number of chars) to encrypt or decrypt.  The CTR, OFB and CFB modes are order sensitive but not
 chunk sensitive.  That is you can encrypt ``ABCDEF'' in three calls like ``AB'', ``CD'', ``EF'' or two like ``ABCDE'' and ``F''
 and end up with the same ciphertext.  However, encrypting ``ABC'' and ``DABC'' will result in different ciphertexts.  All
-four of the functions return {\bf CRYPT\_OK} on success.
+five of the modes will return {\bf CRYPT\_OK} on success from the encrypt or decrypt functions.
 
 To decrypt in either mode you simply perform the setup like before (recall you have to fetch the IV value you used)
 and use the decrypt routine on all of the blocks.  When you are done working with either mode you should wipe the 
@@ -1359,66 +1354,14 @@ int rsa_exptmod(const unsigned char *in, unsigned long inlen,
                 unsigned char *out, unsigned long *outlen, 
                 int which, rsa_key *key);
 \end{verbatim}
-This loads the bignum from ``in'' as a big endian word, raises it to either ``e'' or ``d'' and stores the result
+This loads the bignum from ``in'' as a big endian word in the format PKCS specifies, raises it to either ``e'' or ``d'' and stores the result
 in ``out'' and the size of the result in ``outlen''. ``which'' is set to {\bf PK\_PUBLIC} to use ``e'' 
 (i.e. for encryption/verifying) and set to {\bf PK\_PRIVATE} to use ``d'' as the exponent (i.e. for decrypting/signing).
 
 \section{Packet Routines}
-The remaining RSA functions are non-standard but should (to the best of my knowledge) be secure if used correctly.  To
-encrypt a buffer of memory in a hybrid fashion call:
-\index{rsa\_encrypt()}
-\begin{verbatim}
-int rsa_encrypt(const unsigned char *in, unsigned long len, 
-                unsigned char *out, unsigned long *outlen,
-                prng_state *prng, int wprng, int cipher, 
-                rsa_key *key);
-\end{verbatim}
-This will encrypt the message with the cipher specified by ``cipher'' under a random key made by a PRNG specified by
-``wprng'' and RSA encrypt the symmetric key with ``key''.  This stores all the relevant information in ``out'' and sets
-the length in ``outlen''.  You must ensure that ``outlen'' is set to the buffer size before calling this.  
-
-The rsa\_encrypt() function will use up to a 256-bit symmetric key (limited by the max key length of the cipher being
-used).  To decrypt packets made by this routine call:
-\index{rsa\_decrypt()}
-\begin{verbatim}
-int rsa_decrypt(const unsigned char *in, unsigned long len, 
-                unsigned char *out, unsigned long *outlen, 
-                rsa_key *key);
-\end{verbatim}
-Which works akin to rsa\_encrypt().  ``in'' is the ciphertext and ``out'' is where the plaintext will be stored.  Similarly
-to sign/verify there are:
-\index{rsa\_sign()} \index{rsa\_verify()}
-\begin{verbatim}
-int rsa_sign(const unsigned char *in, unsigned long inlen, 
-                   unsigned char *out, unsigned long *outlen, 
-                   int hash, rsa_key *key);
-
-int rsa_verify(const unsigned char *sig,
-               const unsigned char *msg, 
-               unsigned long inlen, int *stat, 
-               rsa_key *key);
-\end{verbatim}
-
-The verify function sets ``stat'' to 1 if it passes or to 0 if it fails.  The ``sig'' parameter is the output of the
-rsa\_sign() function and ``msg'' is the original msg that was signed.  An important fact to note is that with
-the padding scheme used in ``rsa\_sign()'' you cannot use the SHA-384 or SHA-512 hash function with 1024 bit
-RSA keys.  This is because the padding makes the values too large to fit in the space allowed.  You can use SHA-384
-with 1160 and above bit RSA keys.  You can use SHA-512 with 1544 and above bit RSA keys.
-
-There are related functions to sign and verify hashes.
-\begin{verbatim}
-int rsa_sign_hash(const unsigned char *in,  unsigned long inlen, 
-                        unsigned char *out, unsigned long *outlen, 
-                        rsa_key *key);
-
-int rsa_verify_hash(const unsigned char *sig, const unsigned char *hash,
-                          int *stat, rsa_key *key);
-\end{verbatim}
-Which works just like the two previous functions except the data is not hashed before being signed.
-
-There are times where you may want to encrypt a message to multiple recipients via RSA public keys.  The simplest way to
-accomplish this is to make up your own symmetric key and then RSA encrypt the symmetric key using all of the recipients
-public keys.  To facilitate this task two functions\footnote{Donated by Clay Culver.} are available:
+To encrypt or decrypt a symmetric key using RSA the following functions are provided.  The idea is that you make up
+a random symmetric key and use that to encode your message.  By RSA encrypting the symmetric key you can send it to a
+recipient who can RSA decrypt it and symmetrically decrypt the message.
 \begin{verbatim}
 int rsa_encrypt_key(const unsigned char *inkey, unsigned long inlen,
                           unsigned char *outkey, unsigned long *outlen,
@@ -1434,12 +1377,27 @@ algorithm.  It will store the result in ``outkey'' along with the length in ``ou
 performs the opposite.  The ``in'' variable is where the RSA packet goes and it will store the original symmetric key in
 the ``outkey'' variable along with its length in ``keylen''.
 
+Similarly to sign or verify a hash of a message the following two messages are provided.  The idea is to hash your 
+message then use these functions to RSA sign the hash.  
+\begin{verbatim}
+int rsa_sign_hash(const unsigned char *in,  unsigned long inlen, 
+                        unsigned char *out, unsigned long *outlen, 
+                        rsa_key *key);
+
+int rsa_verify_hash(const unsigned char *sig, const unsigned char *hash,
+                          int *stat, rsa_key *key);
+\end{verbatim}
+For ``rsa\_sign\_hash'' the input is intended to be the hash of a message the user wants to sign.  The output is the 
+RSA signed packet which ``rsa\_verify\_hash'' can verify.  For the verification function ``sig'' is the RSA signature
+and ``hash'' is the hash of the message.  The integer ``stat'' is set to non-zero if the signature is valid or zero 
+otherwise.
+
 To import/export RSA keys as a memory buffer (e.g. to store them to disk) call:
 \begin{verbatim}
 int rsa_export(unsigned char *out, unsigned long *outlen, 
                int type, rsa_key *key);
 
-int rsa_import(const unsigned char *in, rsa_key *key);
+int rsa_import(const unsigned char *in, unsigned long inlen, rsa_key *key);
 \end{verbatim}
 
 The ``type'' parameter is {\bf PK\_PUBLIC}, {\bf PK\_PRIVATE} or {\bf PK\_PRIVATE\_OPTIMIZED} to export either a public or 
@@ -1474,9 +1432,9 @@ The following table gives the size requirements for various hashes.
 \end{center}
 
 The symmetric ciphers will use at a maximum a 256-bit key which means at the least a 776-bit RSA key is 
-required to use all of the symmetric ciphers with the RSA routines.  It is suggested that you make keys that 
-are at a minimum 1024 bits in length.  If you want to use any of the large size message digests 
-(SHA-512 or SHA-384) you will have to use a larger key.
+required to use all of the symmetric ciphers with the RSA routines. If you want to use any of the large size 
+message digests (SHA-512 or SHA-384) you will have to use a larger key.  Or to be simple just make 2048-bit or larger
+keys.  None of the hashes will have problems with such key sizes.
 
 \chapter{Diffie-Hellman Key Exchange}
 
@@ -1535,7 +1493,7 @@ over communication mediums.
 int dh_export(unsigned char *out, unsigned long *outlen, 
               int type, dh_key *key);
 
-int dh_import(const unsigned char *in, dh_key *key);
+int dh_import(const unsigned char *in, unsigned long inlen, dh_key *key);
 \end{verbatim}
 
 These two functions work just like the ``rsa\_export()'' and ``rsa\_import()'' functions except these work with 
@@ -1574,7 +1532,7 @@ int establish_secure_socket(int sock, int mode, unsigned char *key,
 {
    unsigned char buf[4096], buf2[4096];
    unsigned long x, len;
-   int res, errno;
+   int res, errno, inlen;
    dh_key mykey, theirkey;
 
    /* make up our private key */
@@ -1597,13 +1555,13 @@ int establish_secure_socket(int sock, int mode, unsigned char *key,
       }          
 
       /* get their key */
-      if (recv(sock, buf2, sizeof(buf2), 0) <= 0) {
+      if ((inlen = recv(sock, buf2, sizeof(buf2), 0)) <= 0) {
          res = CRYPT_ERROR;
          goto done2;
       }
    } else {
       /* mode >0 so we send second */
-      if (recv(sock, buf2, sizeof(buf2), 0) <= 0) {
+      if ((inlen = recv(sock, buf2, sizeof(buf2), 0)) <= 0) {
          res = CRYPT_ERROR;
          goto done2;
       }
@@ -1614,7 +1572,7 @@ int establish_secure_socket(int sock, int mode, unsigned char *key,
       }
    }
 
-   if ((errno = dh_import(buf2, &theirkey)) != CRYPT_OK) { 
+   if ((errno = dh_import(buf2, inlen, &theirkey)) != CRYPT_OK) { 
       res = errno;
       goto done2;
    }
@@ -1667,31 +1625,8 @@ void dh_sizes(int *low, int *high);
 Which stores the smallest and largest key sizes support into the two variables.
 
 \section{DH Packet}
-There are routines to perform the work similar to that of ``rsa\_encrypt()'' and ``rsa\_decrypt()'' for DH keys as well.
-The encrypt routine will make up a random key, attach the public key to the message and used the shared secret to encrypt
-the message with a cipher you choose (and hash the shared secret into a symmetric key with a hash you choose).  The encrypt
-function is a bit long to call but its worth it.
-\index{dh\_encrypt()}
-\begin{verbatim}
-int dh_encrypt(const unsigned char *in, unsigned long len, 
-               unsigned char *out, unsigned long *outlen,
-               prng_state *prng, int wprng, int cipher, int hash, 
-               dh_key *key);
-\end{verbatim}
-Where ``in'' is the plaintext and ``out'' is where the ciphertext will go.  Make sure you set the ``outlen'' value before
-calling.  The ``key'' is the public DH key of the user you want to encrypt to not your private key.  It will randomly make up
-a Diffie-Hellman key, export the public copy, hash the shared key with the hash you specify and use the message digest in a
-cipher you specify to encrypt the message. To decrypt one of these packets call:
-\index{dh\_decrypt()}
-\begin{verbatim}
-int dh_decrypt(const unsigned char *in, unsigned long len, 
-               unsigned char *out, unsigned long *outlen, 
-               dh_key *key);
-\end{verbatim}
-Where ``in'' is the ciphertext and len is the length of the ciphertext.  ``out'' is where the plaintext should be stored
-and ``outlen'' is the length of the output (you must first set it to the size of your buffer).  
-
-To facilate encrypting to multiple parties the follow two functions are provided:
+Similar to the RSA related functions there are functions to encrypt or decrypt symmetric keys using the DH public key
+algorithms.  
 \begin{verbatim}
 int dh_encrypt_key(const unsigned char *inkey, unsigned long keylen,
                          unsigned char *out,  unsigned long *len, 
@@ -1706,25 +1641,7 @@ and find the hash of the shared secret.  The message digest is than XOR'ed again
 data is placed in ``out'' by ``dh\_encrypt\_key()''.   The hash must produce a message digest at least as large
 as the symmetric key you are trying to share.
 
-To sign with a Diffie-Hellman key call:
-\index{dh\_sign()}
-\begin{verbatim}
-int dh_sign(const unsigned char *in, unsigned long inlen, 
-            unsigned char *out, unsigned long *outlen, int hash, 
-            prng_state *prng, int wprng, dh_key *key);
-\end{verbatim}
-Where ``in'' is the message to size of length ``inlen'' bytes.  ``out'' is where the signature is placed and ``outlen''
-is the length of the signature (you must first set it to the size of your buffer).  To verify call:
-\index{dh\_verify()}
-\begin{verbatim}
-int dh_verify(const unsigned char *sig, 
-              const unsigned char *msg, 
-              unsigned long inlen, int *stat, dh_key *key);
-\end{verbatim}
-Where ``sig'' is the output of ''dh\_sign()`` and ``msg'' is the message of length ``inlen''.  It stores a zero in ``stat''
-if the signature is invalid otherwise it puts a one in there.
-
-Similar to the RSA system you can sign and verify a pre-hashed block as well using:
+Similar to the RSA system you can sign and verify a hash of a message.
 \begin{verbatim}
 int dh_sign_hash(const unsigned char *in,  unsigned long inlen,
                        unsigned char *out, unsigned long *outlen,
@@ -1734,6 +1651,10 @@ int dh_verify_hash(const unsigned char *sig, const unsigned char *hash,
                          unsigned long inlen, int *stat, 
                          dh_key *key);
 \end{verbatim}
+
+The ``dh\_sign\_hash'' function signs the message hash in ``in'' of length ``inlen'' and forms a DH packet in ``out''.  
+The ``dh\_verify\_hash'' function verifies the DH signature in ``sig'' against the hash in ``hash''.  It sets ``stat''
+to non-zero if the signature passes or zero if it fails.
 
 \chapter{Elliptic Curve Cryptography}
 
@@ -1784,7 +1705,7 @@ To import and export a key there are:
 int ecc_export(unsigned char *out, unsigned long *outlen, 
                int type, ecc_key *key);
 
-int ecc_import(const unsigned char *in, ecc_key *key);
+int ecc_import(const unsigned char *in, unsigned long inlen, ecc_key *key);
 \end{verbatim}
 These two work exactly like there DH counterparts.  Finally when you share your public key you can make a shared secret
 with:
@@ -1813,28 +1734,8 @@ void ecc_sizes(int *low, int *high);
 Which both work like their DH counterparts.
 
 \section{ECC Packet}
-There are routines to perform the work similar to that of ``rsa\_encrypt()'' and ``rsa\_decrypt()'' for ECC keys as well.
-The encrypt routine will make up a random key, attach the public key to the message and used the shared secret to encrypt
-the message with a cipher you choose (and hash the shared secret into a symmetric key with a hash you choose).  The encrypt
-function is a bit long to call but its worth it.
-\index{ecc\_encrypt()}
-\begin{verbatim}
-int ecc_encrypt(const unsigned char *in, unsigned long len, 
-                unsigned char *out, unsigned long *outlen,
-                prng_state *prng, 
-                int wprng, int cipher, int hash, 
-                ecc_key *key);
-\end{verbatim}
-Where ``in'' is the plaintext and ``out'' is where the ciphertext will go.  Make sure you set the ``outlen'' value before
-calling.  The ``key'' is the public ECC key of the user you want to encrypt too.  To decrypt one of these packets call:
-\index{ecc\_decrypt()}
-\begin{verbatim}
-int ecc_decrypt(const unsigned char *in, unsigned long len, 
-                unsigned char *out, unsigned long *outlen, 
-                ecc_key *key);
-\end{verbatim}
-Similar to the DH code there are two functions to facilate multi-party code.  They work exactly like the DH code and are 
-given as:
+Similar to the RSA API there are two functions which encrypt and decrypt symmetric keys using the ECC public key
+algorithms.
 \begin{verbatim}
 int ecc_encrypt_key(const unsigned char *inkey, unsigned long keylen,
                           unsigned char *out,  unsigned long *len, 
@@ -1844,24 +1745,13 @@ int ecc_encrypt_key(const unsigned char *inkey, unsigned long keylen,
 int ecc_decrypt_key(const unsigned char *in, unsigned char *outkey, 
                           unsigned long *keylen, ecc_key *key);
 \end{verbatim}
-You can sign messages with the ECC routines as well, to sign a message call:
-\index{ecc\_sign()}
-\begin{verbatim}
-int ecc_sign(const unsigned char *in, unsigned long inlen, 
-             unsigned char *out, unsigned long *outlen, 
-             int hash, prng_state *prng, int wprng, 
-             ecc_key *key);
-\end{verbatim}
-Where ``in'' is the message to sign and ``out'' is where the signature will go.  ``hash'' is the index into the descriptor
-table of which hash function you want to use (e.g. use ``find\_hash()'').  You must set ``outlen'' to the size of the 
-output buffer before calling.  To verify a signature call:
-\index{ecc\_verify()}
-\begin{verbatim}
-int ecc_verify(const unsigned char *sig, const unsigned char *msg, 
-               unsigned long inlen, int *stat, ecc_key *key);
-\end{verbatim}
-Where ``sig'' is the signature from ``ecc\_sign()'' and ``msg'' is the input message.  It sets ``stat'' to 0 if the signature
-is invalid and it sets ``stat'' to 1 if its valid.  To sign or verify pre-hashed blocks use
+
+Where ``inkey'' is an input symmetric key of no more than 32 bytes.  Essentially these routines created a random public key
+and find the hash of the shared secret.  The message digest is than XOR'ed against the symmetric key.  All of the required
+data is placed in ``out'' by ``ecc\_encrypt\_key()''.   The hash chosen must produce a message digest at least as large
+as the symmetric key you are trying to share.
+
+There are also functions to sign and verify the hash of a message.
 \begin{verbatim}
 int ecc_sign_hash(const unsigned char *in,  unsigned long inlen,
                         unsigned char *out, unsigned long *outlen,
@@ -1871,6 +1761,11 @@ int ecc_verify_hash(const unsigned char *sig, const unsigned char *hash,
                           unsigned long inlen, int *stat, 
                           ecc_key *key);
 \end{verbatim}
+
+The ``ecc\_sign\_hash'' function signs the message hash in ``in'' of length ``inlen'' and forms a ECC packet in ``out''.  
+The ``ecc\_verify\_hash'' function verifies the ECC signature in ``sig'' against the hash in ``hash''.  It sets ``stat''
+to non-zero if the signature passes or zero if it fails.
+
 
 \section{ECC Keysizes}
 With ECC if you try and sign a hash that is bigger than your ECC key you can run into problems.  The math will still work
@@ -2417,9 +2312,8 @@ useful when TWOFISH\_SMALL is defined as the table values are computed on the fl
 will increase by approximately 500 bytes.  If this is defined but TWOFISH\_SMALL is not the cipher will still work but
 it will not speed up the encryption or decryption functions.
 
-\subsubsection{SAFERP\_SMALL and RIJNDAEL\_SMALL}
-These two build options let you use slower versions of the ciphers which are also much smaller.  In the case of the SAFER+
-implementation it ends up being 1/6th the size.  As for Rijndael its roughly half the size.
-
+\subsubsection{SMALL\_CODE}
+When this is defined some of the code such as the Rijndael and SAFER+ ciphers are replaced with smaller code variants.
+These variants are slower but can save quite a bit of code space.
 
 \end{document}

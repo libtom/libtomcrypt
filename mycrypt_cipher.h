@@ -94,6 +94,12 @@ struct cast5_key {
 };
 #endif
 
+#ifdef NOEKEON
+struct noekeon_key {
+	unsigned long K[4], dK[4];
+};
+#endif
+
 typedef union Symmetric_key {
 #ifdef DES
    struct des_key des;
@@ -132,6 +138,9 @@ typedef union Symmetric_key {
 #ifdef CAST5
    struct cast5_key    cast5;
 #endif
+#ifdef NOEKEON
+   struct noekeon_key  noekeon;
+#endif   
 } symmetric_key;
 
 /* A block cipher ECB structure */
@@ -252,12 +261,20 @@ extern const struct _cipher_descriptor serpent_desc;
 #endif
 
 #ifdef RIJNDAEL
+
+/* make aes an alias */
+#define aes_setup			rijndael_setup
+#define aes_ecb_encrypt		rijndael_ecb_encrypt
+#define aes_ecb_decrypt		rijndael_ecb_decrypt
+#define aes_test			rijndael_test
+#define aes_keysize			rijndael_keysize
+
 extern int rijndael_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_key *skey);
 extern void rijndael_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *key);
 extern void rijndael_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *key);
 extern int rijndael_test(void);
 extern int rijndael_keysize(int *desired_keysize);
-extern const struct _cipher_descriptor rijndael_desc;
+extern const struct _cipher_descriptor rijndael_desc, aes_desc;
 #endif
 
 #ifdef XTEA
@@ -301,6 +318,15 @@ extern void cast5_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmet
 extern int cast5_test(void);
 extern int cast5_keysize(int *desired_keysize);
 extern const struct _cipher_descriptor cast5_desc;
+#endif
+
+#ifdef NOEKEON
+extern int noekeon_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_key *skey);
+extern void noekeon_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *key);
+extern void noekeon_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *key);
+extern int noekeon_test(void);
+extern int noekeon_keysize(int *desired_keysize);
+extern const struct _cipher_descriptor noekeon_desc;
 #endif
 
 #ifdef ECB

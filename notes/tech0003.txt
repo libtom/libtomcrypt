@@ -33,14 +33,14 @@ RC2         | 256                           |
 DES         | 256                           |
 3DES        | 768                           |
 CAST5       | 132                           |
+Noekeon     | 32                            |
 ------------+-------------------------------/
 Memory used per cipher on a 32-bit platform.
 
 [*] For Twofish with TWOFISH_SMALL defined
 [#] For all 64-bit SAFER ciphers.
 
-Following this chart its ideal that in extremely low memory platforms that all of the ciphers are disabled and CAST5 is
-left.  CAST5 is a fairly fast cipher on all platforms which makes it ideally suited.  It should be noted that the
-SAFER and SAFER+ keys are formed of arrays of unsigned char.  So in effect on platforms where "unsigned long" is 
-8 bytes SAFER would have the smallest key (CAST5 would come out to 264 bytes).  In this case I would recommend 
-SAFER-SK128.
+Noekeon is a fairly fast cipher and uses very little memory.  Ideally in low-ram platforms all other ciphers should be
+left undefined and Noekeon should remain.  While Noekeon is generally considered a secure block cipher (it is insecure
+as a hash) CAST5 is perhaps a "runner-up" choice.  CAST5 has been around longer (it is also known as CAST-128) and is 
+fairly fast as well.  

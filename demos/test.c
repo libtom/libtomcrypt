@@ -259,7 +259,7 @@ void ctr_tests(void)
  for (x = 0; x < 32; x++) blk[x] = count[x] = x;
 
  /* now lets start a ctr session */
- if ((errno = ctr_start(find_cipher("rijndael"), count, key, 16, 0, &ctr)) != CRYPT_OK) { printf("Error: %s\n", error_to_string(errno)); return; }
+ if ((errno = ctr_start(find_cipher("aes"), count, key, 16, 0, &ctr)) != CRYPT_OK) { printf("Error: %s\n", error_to_string(errno)); return; }
 
  /* now lets encode 32 bytes */
  for (x = 0; x < 4; x++)
@@ -272,7 +272,7 @@ void ctr_tests(void)
  for (x = 0; x < 32; x++) count[x] = x;
 
  /* now lets start a cbc session */
- if ((errno = ctr_start(find_cipher("rijndael"), count, key, 16, 0, &ctr)) != CRYPT_OK) { printf("Error: %s\n", error_to_string(errno)); return; }
+ if ((errno = ctr_start(find_cipher("aes"), count, key, 16, 0, &ctr)) != CRYPT_OK) { printf("Error: %s\n", error_to_string(errno)); return; }
 
  /* now lets decode 32 bytes */
  for (x = 0; x < 4; x++)
@@ -369,7 +369,7 @@ void rsa_test(void)
  /* now lets test rsa_encrypt() */
  for (x = 0; x < 8; x++) in[x] = (unsigned char)x;
  x = sizeof(out);
- if ((errno = rsa_encrypt(in, 8, out, &x, &prng, find_prng("yarrow"), find_cipher("rijndael"), &key)) != CRYPT_OK) {
+ if ((errno = rsa_encrypt(in, 8, out, &x, &prng, find_prng("yarrow"), find_cipher("aes"), &key)) != CRYPT_OK) {
     printf("Error: %s\n", error_to_string(errno));
     return;
  }
@@ -410,7 +410,7 @@ void rsa_test(void)
  }
  printf("RSA Export takes %lu bytes\n", x);
  rsa_free(&key);
- if ((errno = rsa_import(out, &key)) != CRYPT_OK) {
+ if ((errno = rsa_import(out, &key, x)) != CRYPT_OK) {
     printf("Error: %s\n", error_to_string(errno));
     return;
  }
@@ -596,7 +596,7 @@ void time_ecb(void)
         func = cipher_descriptor[x].ecb_encrypt;
         y1 = 0;
         t1 = XCLOCK();
-        while (XCLOCK() - t1 < 2*XCLOCKS_PER_SEC) {
+        while (XCLOCK() - t1 < 3*XCLOCKS_PER_SEC) {
             DO256; y1 += 256;
         }
         t1 = XCLOCK() - t1;
@@ -604,7 +604,7 @@ void time_ecb(void)
         func = cipher_descriptor[x].ecb_decrypt;
         y2 = 0;
         t2 = XCLOCK();
-        while (XCLOCK() - t2 < 2*XCLOCKS_PER_SEC) {
+        while (XCLOCK() - t2 < 3*XCLOCKS_PER_SEC) {
             DO256; y2 += 256;
         }
         t2 = XCLOCK() - t2;
@@ -673,7 +673,7 @@ void dh_tests(void)
    dh_free(&userb);
 
    /* import and make the shared secret again */
-   if ((errno = dh_import(buf[1], &userb)) != CRYPT_OK) {
+   if ((errno = dh_import(buf[1], y, &userb)) != CRYPT_OK) {
       printf("Error: %s\n", error_to_string(errno));
       return;
    }
@@ -741,7 +741,7 @@ void dh_tests(void)
    dh_make_key(&prng, find_prng("yarrow"), 24, &usera);
 
    x = 4096;
-   if (dh_encrypt(buf[0], 16, buf[1], &x, &prng, find_prng("yarrow"), find_cipher("rijndael"),
+   if (dh_encrypt(buf[0], 16, buf[1], &x, &prng, find_prng("yarrow"), find_cipher("aes"),
                    find_hash("sha1"), &usera) != CRYPT_OK) {
       printf("dh_encrypt says %s\n", error_to_string(errno));
       return;
@@ -910,7 +910,7 @@ void ecc_tests(void)
    printf("ECC-192 export took %ld bytes\n", y);
 
    /* import and make the shared secret again */
-   if ((errno = ecc_import(buf[1], &userb)) != CRYPT_OK) {
+   if ((errno = ecc_import(buf[1], y, &userb)) != CRYPT_OK) {
       printf("Error: %s\n", error_to_string(errno));
       return;
    }
@@ -973,7 +973,7 @@ void ecc_tests(void)
    ecc_make_key(&prng, find_prng("yarrow"), 20, &usera);
 
    x = 4096;
-   if (ecc_encrypt(buf[0], 16, buf[1], &x, &prng, find_prng("yarrow"), find_cipher("rijndael"),
+   if (ecc_encrypt(buf[0], 16, buf[1], &x, &prng, find_prng("yarrow"), find_cipher("aes"),
                    find_hash("tiger"), &usera) != CRYPT_OK) {
       printf("ecc_encrypt says %s\n", error_to_string(errno));
       return;
@@ -1158,7 +1158,7 @@ void register_all_algs(void)
    register_cipher(&serpent_desc);
 #endif
 #ifdef RIJNDAEL
-   register_cipher(&rijndael_desc);
+   register_cipher(&aes_desc);
 #endif
 #ifdef TWOFISH
    register_cipher(&twofish_desc);
@@ -1178,6 +1178,9 @@ void register_all_algs(void)
 #endif
 #ifdef CAST5
    register_cipher(&cast5_desc);
+#endif
+#ifdef NOEKEON
+   register_cipher(&noekeon_desc);
 #endif
 
    register_cipher(&null_desc);
@@ -1284,7 +1287,7 @@ void kr_test(void)
           exit(-1);
        }
        kr_display(kr);
-       if ((errno = kr_import(kr, buf)) != CRYPT_OK) {
+       if ((errno = kr_import(kr, buf, len)) != CRYPT_OK) {
           printf("Error importing key %d, %s\n", i, error_to_string(errno));
           exit(-1);
        }
@@ -1303,7 +1306,7 @@ void kr_test(void)
           exit(-1);
        }
        kr_display(kr);
-       if ((errno = kr_import(kr, buf)) != CRYPT_OK) {
+       if ((errno = kr_import(kr, buf, len)) != CRYPT_OK) {
           printf("Error importing key %d, %s\n", i, error_to_string(errno));
           exit(-1);
        }
@@ -1441,7 +1444,7 @@ void kr_test(void)
    kr_clear(&kr);
    kr_init(&kr);
    kr_display(kr);
-   if ((errno = kr_import(kr, buf)) != CRYPT_OK) {
+   if ((errno = kr_import(kr, buf, len)) != CRYPT_OK) {
       printf("Error importing key %s\n", error_to_string(errno));
       exit(-1);
    }
@@ -1459,7 +1462,7 @@ void kr_test(void)
    kr_clear(&kr);
    kr_init(&kr);
    kr_display(kr);
-   if ((errno = kr_import(kr, buf2)) != CRYPT_OK) {
+   if ((errno = kr_import(kr, buf2, len)) != CRYPT_OK) {
       printf("Error importing key %s\n", error_to_string(errno));
       exit(-1);
    }
@@ -1529,7 +1532,7 @@ int main(void)
 #endif
 
  register_all_algs();
- 
+
  if ((errno = yarrow_start(&prng)) != CRYPT_OK) {
     printf("yarrow_start: %s\n", error_to_string(errno));
  }
