@@ -82,7 +82,10 @@ int hash_file(int hash, const char *fname, unsigned char *dst, unsigned long *ou
     }
 
     err = hash_filehandle(hash, in, dst, outlen);
-    (void)fclose(in);
+    if (fclose(in) != 0) {
+       return CRYPT_ERROR;
+    }
+
     return err;
 #endif
 }

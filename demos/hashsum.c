@@ -76,4 +76,5 @@ void register_algs(void)
    register_hash(&md2_desc);
    register_hash(&rmd128_desc);
    register_hash(&rmd160_desc);
+   register_hash(&sha224_desc);
 }
