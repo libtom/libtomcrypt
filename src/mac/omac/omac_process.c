@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtomcrypt.org
+ * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.org
  */
 #include "tomcrypt.h"
 
@@ -40,6 +40,20 @@ int omac_process(omac_state *omac, const unsigned char *in, unsigned long inlen)
       return CRYPT_INVALID_ARG;
    }
 
+#ifdef LTC_FAST
+   if (omac->buflen == 0 && inlen > 16) {
+      int y;
+      for (x = 0; x < (inlen - 16); x += 16) {
+          for (y = 0; y < 16; y += sizeof(LTC_FAST_TYPE)) {
+              *((LTC_FAST_TYPE*)(&omac->prev[y])) ^= *((LTC_FAST_TYPE*)(&in[y]));
+          }
+          in += 16;
+          cipher_descriptor[omac->cipher_idx].ecb_encrypt(omac->prev, omac->prev, &omac->key);
+      }
+      inlen -= x;
+    }
+#endif
+
    while (inlen != 0) { 
        /* ok if the block is full we xor in prev, encrypt and replace prev */
        if (omac->buflen == omac->blklen) {
@@ -53,7 +67,7 @@ int omac_process(omac_state *omac, const unsigned char *in, unsigned long inlen)
        /* add bytes */
        n = MIN(inlen, (unsigned long)(omac->blklen - omac->buflen));
        XMEMCPY(omac->block + omac->buflen, in, n);
-       omac->buflen += n;
+       omac->buflen  += n;
        inlen         -= n;
        in            += n;
    }

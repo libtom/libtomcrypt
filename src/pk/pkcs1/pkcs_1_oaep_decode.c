@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtomcrypt.org
+ * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.org
  */
 #include "tomcrypt.h"
 
@@ -55,6 +55,11 @@ int pkcs_1_oaep_decode(const unsigned char *msg,    unsigned long msglen,
    hLen        = hash_descriptor[hash_idx].hashsize;
    modulus_len = (modulus_bitlen >> 3) + (modulus_bitlen & 7 ? 1 : 0);
 
+   /* test hash/message size */
+   if ((2*hLen >= (modulus_len - 2)) || (msglen != modulus_len)) {
+      return CRYPT_PK_INVALID_SIZE;
+   }
+
    /* allocate ram for DB/mask/salt of size modulus_len */
    DB   = XMALLOC(modulus_len);
    mask = XMALLOC(modulus_len);
@@ -70,13 +75,6 @@ int pkcs_1_oaep_decode(const unsigned char *msg,    unsigned long msglen,
          XFREE(seed);
       }
       return CRYPT_MEM;
-   }
-
-
-   /* test message size */
-   if (msglen != modulus_len) {
-      err = CRYPT_PK_INVALID_SIZE;
-      goto LBL_ERR;
    }
 
    /* ok so it's now in the form

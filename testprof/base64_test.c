@@ -1,4 +1,4 @@
-#include  "test.h"
+#include  <tomcrypt_test.h>
 
 int base64_test(void)
 {
@@ -6,7 +6,7 @@ int base64_test(void)
    unsigned long x, l1, l2;
    
    for  (x = 0; x < 64; x++) {
-       yarrow_read(in, x, &test_yarrow);
+       yarrow_read(in, x, &yarrow_prng);
        l1 = sizeof(out);
        DO(base64_encode(in, x, out, &l1));
        l2 = sizeof(tmp);

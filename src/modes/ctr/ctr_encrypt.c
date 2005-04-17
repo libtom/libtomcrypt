@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtomcrypt.org
+ * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.org
  */
 #include "tomcrypt.h"
 
@@ -44,7 +44,19 @@ int ctr_encrypt(const unsigned char *pt, unsigned char *ct, unsigned long len, s
       return CRYPT_INVALID_ARG;
    }
 
-   while (len-- > 0) {
+#ifdef LTC_FAST
+   if (ctr->blocklen % sizeof(LTC_FAST_TYPE)) {
+      return CRYPT_INVALID_ARG;
+   }
+#endif
+   
+   /* handle acceleration only if pad is empty, accelerator is present and length is >= a block size */
+   if ((ctr->padlen == ctr->blocklen) && cipher_descriptor[ctr->cipher].accel_ctr_encrypt != NULL && (len >= (unsigned long)ctr->blocklen)) {
+      cipher_descriptor[ctr->cipher].accel_ctr_encrypt(pt, ct, len/ctr->blocklen, ctr->ctr, ctr->mode, &ctr->key);
+      len %= ctr->blocklen;
+   }
+
+   while (len) {
       /* is the pad empty? */
       if (ctr->padlen == ctr->blocklen) {
          /* increment counter */
@@ -70,7 +82,21 @@ int ctr_encrypt(const unsigned char *pt, unsigned char *ct, unsigned long len, s
          cipher_descriptor[ctr->cipher].ecb_encrypt(ctr->ctr, ctr->pad, &ctr->key);
          ctr->padlen = 0;
       }
-      *ct++ = *pt++ ^ ctr->pad[ctr->padlen++];
+#ifdef LTC_FAST
+      if (ctr->padlen == 0 && len >= (unsigned long)ctr->blocklen) {
+         for (x = 0; x < ctr->blocklen; x += sizeof(LTC_FAST_TYPE)) {
+            *((LTC_FAST_TYPE*)((unsigned char *)ct + x)) = *((LTC_FAST_TYPE*)((unsigned char *)pt + x)) ^
+                                                           *((LTC_FAST_TYPE*)((unsigned char *)ctr->pad + x));
+         }
+	    pt         += ctr->blocklen;
+	    ct         += ctr->blocklen;
+	    len        -= ctr->blocklen;
+	    ctr->padlen = ctr->blocklen;
+	    continue;
+	 }
+#endif	 
+    *ct++ = *pt++ ^ ctr->pad[ctr->padlen++];
+	 --len;
    }
    return CRYPT_OK;
 }

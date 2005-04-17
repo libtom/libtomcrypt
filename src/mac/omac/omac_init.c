@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtomcrypt.org
+ * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.org
  */
 #include "tomcrypt.h"
 
@@ -37,6 +37,12 @@ int omac_init(omac_state *omac, int cipher, const unsigned char *key, unsigned l
    if ((err = cipher_is_valid(cipher)) != CRYPT_OK) {
       return err;
    }
+
+#ifdef LTC_FAST
+   if (16 % sizeof(LTC_FAST_TYPE)) {
+       return CRYPT_INVALID_ARG;
+   }
+#endif
 
    /* now setup the system */
    switch (cipher_descriptor[cipher].block_length) {

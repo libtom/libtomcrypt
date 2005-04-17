@@ -1,4 +1,4 @@
-#include "test.h"
+#include <tomcrypt_test.h>
 
 #ifndef LTC_DER
 
@@ -19,7 +19,7 @@ int der_tests(void)
    DO(mpi_to_ltc_error(mp_init_multi(&a, &b, &c, &d, &e, &f, &g, NULL)));
    for (zz = 0; zz < 16; zz++) {
       for (z = 0; z < 1024; z++) {
-         if (yarrow_read(buf[0], z, &test_yarrow) != z) {
+         if (yarrow_read(buf[0], z, &yarrow_prng) != z) {
             printf("Failed to read %lu bytes from yarrow\n", z);
             return 1;
          }

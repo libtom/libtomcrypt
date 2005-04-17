@@ -1,10 +1,10 @@
 /* test CFB/OFB/CBC modes */
-#include "test.h"
+#include <tomcrypt_test.h>
 
 int modes_test(void)
 {
    unsigned char pt[64], ct[64], tmp[64], key[16], iv[16], iv2[16];
-   int x, cipher_idx;
+   int cipher_idx;
    symmetric_CBC cbc;
    symmetric_CFB cfb;
    symmetric_OFB ofb;
@@ -12,9 +12,9 @@ int modes_test(void)
    unsigned long l;
    
    /* make a random pt, key and iv */
-   yarrow_read(pt,  64, &test_yarrow);
-   yarrow_read(key, 16, &test_yarrow);
-   yarrow_read(iv,  16, &test_yarrow);
+   yarrow_read(pt,  64, &yarrow_prng);
+   yarrow_read(key, 16, &yarrow_prng);
+   yarrow_read(iv,  16, &yarrow_prng);
    
    /* get idx of AES handy */
    cipher_idx = find_cipher("aes");
@@ -23,6 +23,7 @@ int modes_test(void)
       return 1;
    }
    
+#ifdef CBC
    /* test CBC mode */
    /* encode the block */
    DO(cbc_start(cipher_idx, iv, key, 16, 0, &cbc));
@@ -32,21 +33,19 @@ int modes_test(void)
       printf("cbc_getiv failed");
       return 1;
    }
-   for (x = 0; x < 4; x++) {
-      DO(cbc_encrypt(pt+x*16, ct+x*16, &cbc));
-   }
+   DO(cbc_encrypt(pt, ct, 64, &cbc));
    
    /* decode the block */
    DO(cbc_setiv(iv2, l, &cbc));
    zeromem(tmp, sizeof(tmp));
-   for (x = 0; x < 4; x++) {
-      DO(cbc_decrypt(ct+x*16, tmp+x*16, &cbc));
-   }
+   DO(cbc_decrypt(ct, tmp, 64, &cbc));
    if (memcmp(tmp, pt, 64) != 0) {
       printf("CBC failed");
       return 1;
    }
-   
+#endif
+
+#ifdef CFB   
    /* test CFB mode */
    /* encode the block */
    DO(cfb_start(cipher_idx, iv, key, 16, 0, &cfb));
@@ -67,7 +66,9 @@ int modes_test(void)
       printf("CFB failed");
       return 1;
    }
+#endif
    
+#ifdef OFB
    /* test OFB mode */
    /* encode the block */
    DO(ofb_start(cipher_idx, iv, key, 16, 0, &ofb));
@@ -87,7 +88,9 @@ int modes_test(void)
       printf("OFB failed");
       return 1;
    }
-   
+#endif
+
+#ifdef CTR   
    /* test CTR mode */
    /* encode the block */
    DO(ctr_start(cipher_idx, iv, key, 16, 0, &ctr));
@@ -97,16 +100,17 @@ int modes_test(void)
       printf("ctr_getiv failed");
       return 1;
    }
-   DO(ctr_encrypt(pt, ct, 64, &ctr));
+   DO(ctr_encrypt(pt, ct, 57, &ctr));
    
    /* decode the block */
    DO(ctr_setiv(iv2, l, &ctr));
    zeromem(tmp, sizeof(tmp));
-   DO(ctr_decrypt(ct, tmp, 64, &ctr));
-   if (memcmp(tmp, pt, 64) != 0) {
+   DO(ctr_decrypt(ct, tmp, 57, &ctr));
+   if (memcmp(tmp, pt, 57) != 0) {
       printf("CTR failed");
       return 1;
    }
+#endif
          
    return 0;
 }

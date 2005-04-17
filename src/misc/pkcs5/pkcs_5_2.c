@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtomcrypt.org
+ * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.org
  */
 #include <tomcrypt.h>
 
@@ -34,7 +34,8 @@ int pkcs_5_alg2(const unsigned char *password, unsigned long password_len,
                 unsigned char *out,            unsigned long *outlen)
 {
    int err, itts;
-   unsigned long stored, left, x, y, blkno;
+   ulong32  blkno;
+   unsigned long stored, left, x, y;
    unsigned char *buf[2];
    hmac_state    *hmac;
 

@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtomcrypt.org
+ * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.org
  */
 #include "tomcrypt.h"
 
@@ -30,7 +30,8 @@ int pkcs_1_mgf1(const unsigned char *seed, unsigned long seedlen,
                       int            hash_idx,
                       unsigned char *mask, unsigned long masklen)
 {
-   unsigned long hLen, counter, x;
+   unsigned long hLen, x;
+   ulong32       counter;
    int           err;
    hash_state    *md;
    unsigned char *buf;

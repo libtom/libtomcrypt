@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtomcrypt.org
+ * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.org
  */
 /**
   @file blowfish.c
@@ -25,7 +25,9 @@ const struct ltc_cipher_descriptor blowfish_desc =
     &blowfish_ecb_encrypt,
     &blowfish_ecb_decrypt,
     &blowfish_test,
-    &blowfish_keysize
+    &blowfish_done,
+    &blowfish_keysize,
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL
 };
 
 static const ulong32 ORIG_P[16 + 2] = {
@@ -551,6 +553,13 @@ int blowfish_test(void)
    }
    return CRYPT_OK;
  #endif
+}
+
+/** Terminate the context 
+   @param skey    The scheduled key
+*/
+void blowfish_done(symmetric_key *skey)
+{
 }
 
 /**

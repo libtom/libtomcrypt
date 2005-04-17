@@ -1,4 +1,4 @@
-#include "test.h"
+#include <tomcrypt_test.h>
 
 #ifdef MDH
 
@@ -12,8 +12,8 @@ int dh_tests (void)
   DO(dh_test());
 
   /* make up two keys */
-  DO(dh_make_key (&test_yarrow, find_prng ("yarrow"), 512, &usera));
-  DO(dh_make_key (&test_yarrow, find_prng ("yarrow"), 512, &userb));
+  DO(dh_make_key (&yarrow_prng, find_prng ("yarrow"), 512, &usera));
+  DO(dh_make_key (&yarrow_prng, find_prng ("yarrow"), 512, &userb));
 
   /* make the shared secret */
   x = 4096;
@@ -52,12 +52,12 @@ int dh_tests (void)
   dh_free (&userb);
 
 /* test encrypt_key */
-  dh_make_key (&test_yarrow, find_prng ("yarrow"), 512, &usera);
+  dh_make_key (&yarrow_prng, find_prng ("yarrow"), 512, &usera);
   for (x = 0; x < 16; x++) {
     buf[0][x] = x;
   }
   y = sizeof (buf[1]);
-  DO(dh_encrypt_key (buf[0], 16, buf[1], &y, &test_yarrow, find_prng ("yarrow"), find_hash ("md5"), &usera));
+  DO(dh_encrypt_key (buf[0], 16, buf[1], &y, &yarrow_prng, find_prng ("yarrow"), find_hash ("md5"), &usera));
   zeromem (buf[0], sizeof (buf[0]));
   x = sizeof (buf[0]);
   DO(dh_decrypt_key (buf[1], y, buf[0], &x, &usera));
@@ -76,7 +76,7 @@ int dh_tests (void)
      buf[0][x] = x;
   }
   x = sizeof (buf[1]);
-  DO(dh_sign_hash (buf[0], 16, buf[1], &x, &test_yarrow		, find_prng ("yarrow"), &usera));
+  DO(dh_sign_hash (buf[0], 16, buf[1], &x, &yarrow_prng		, find_prng ("yarrow"), &usera));
   DO(dh_verify_hash (buf[1], x, buf[0], 16, &stat, &usera));
   buf[0][0] ^= 1;
   DO(dh_verify_hash (buf[1], x, buf[0], 16, &stat2, &usera));

@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtomcrypt.org
+ * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.org
  */
 #include "tomcrypt.h"
 
@@ -14,4 +14,6 @@
   @file crypt_prng_descriptor.c
   Stores the PRNG descriptors, Tom St Denis
 */  
-struct ltc_prng_descriptor prng_descriptor[TAB_SIZE];
+struct ltc_prng_descriptor prng_descriptor[TAB_SIZE] = {
+{ NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL }
+};

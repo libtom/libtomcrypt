@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtomcrypt.org
+ * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.org
  */
 #include <tomcrypt.h>
 
@@ -74,7 +74,7 @@ int pkcs_5_alg1(const unsigned char *password, unsigned long password_len,
    }
 
    while (--iteration_count) {
-      // code goes here.
+      /* code goes here. */
       x = MAXBLOCKSIZE;
       if ((err = hash_memory(hash_idx, buf, hash_descriptor[hash_idx].hashsize, buf, &x)) != CRYPT_OK) {
          goto LBL_ERR;

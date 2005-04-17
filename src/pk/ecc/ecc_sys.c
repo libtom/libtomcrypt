@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtomcrypt.org
+ * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.org
  */
 
 /**
@@ -520,9 +520,13 @@ int ecc_verify_hash(const unsigned char *sig,  unsigned long siglen,
    /* get bA + Y */
    if ((err = add_point(&pubkey.pubkey, &key->pubkey, &pubkey.pubkey, &p, &mu)) != CRYPT_OK)    { goto done; }
 
+   /* we have to transform it */
+   if ((err = ecc_map(&pubkey.pubkey, &p, &mu)) != CRYPT_OK)                                    { goto done; }
+
    /* get mG */
    if ((err = mp_read_radix(&mG->x, (char *)sets[key->idx].Gx, 64)) != MP_OKAY)                 { goto error; }
    if ((err = mp_read_radix(&mG->y, (char *)sets[key->idx].Gy, 64)) != MP_OKAY)                 { goto error; }
+   mp_set(&mG->z, 1);
    if ((err = ecc_mulmod(&m, mG, mG, &p)) != CRYPT_OK)                                          { goto done; }
 
    /* compare mG to bA + Y */

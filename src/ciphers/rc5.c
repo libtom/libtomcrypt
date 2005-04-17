@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtomcrypt.org
+ * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.org
  */
 
 /**
@@ -27,7 +27,9 @@ const struct ltc_cipher_descriptor rc5_desc =
     &rc5_ecb_encrypt,
     &rc5_ecb_decrypt,
     &rc5_test,
-    &rc5_keysize
+    &rc5_done,
+    &rc5_keysize,
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL
 };
 
 static const ulong32 stab[50] = {
@@ -277,6 +279,13 @@ int rc5_test(void)
    }
    return CRYPT_OK;
   #endif
+}
+
+/** Terminate the context 
+   @param skey    The scheduled key
+*/
+void rc5_done(symmetric_key *skey)
+{
 }
 
 /**

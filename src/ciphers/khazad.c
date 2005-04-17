@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtomcrypt.org
+ * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.org
  */
 #include "tomcrypt.h"
 
@@ -26,7 +26,9 @@ const struct ltc_cipher_descriptor khazad_desc = {
    &khazad_ecb_encrypt,
    &khazad_ecb_decrypt,
    &khazad_test,
-   &khazad_keysize
+   &khazad_done,
+   &khazad_keysize,
+   NULL, NULL, NULL, NULL, NULL, NULL, NULL
 };
 
 #define R      8 
@@ -817,6 +819,13 @@ int khazad_test(void)
    }
    return CRYPT_OK;
 #endif
+}
+
+/** Terminate the context 
+   @param skey    The scheduled key
+*/
+void khazad_done(symmetric_key *skey)
+{
 }
 
 /**

@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtomcrypt.org
+ * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.org
  */
 #include "tomcrypt.h"
 
@@ -22,13 +22,13 @@
   CBC encrypt
   @param pt     Plaintext
   @param ct     [out] Ciphertext
+  @param len    The number of bytes to process (must be multiple of block length)
   @param cbc    CBC state
   @return CRYPT_OK if successful
 */
-int cbc_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_CBC *cbc)
+int cbc_encrypt(const unsigned char *pt, unsigned char *ct, unsigned long len, symmetric_CBC *cbc)
 {
    int x, err;
-   unsigned char tmp[MAXBLOCKSIZE];
 
    LTC_ARGCHK(pt != NULL);
    LTC_ARGCHK(ct != NULL);
@@ -43,22 +43,49 @@ int cbc_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_CBC *cbc)
       return CRYPT_INVALID_ARG;
    }    
 
-   /* xor IV against plaintext */
-   for (x = 0; x < cbc->blocklen; x++) {
-       tmp[x] = pt[x] ^ cbc->IV[x];
+   if (len % cbc->blocklen) {
+      return CRYPT_INVALID_ARG;
    }
-
-   /* encrypt */
-   cipher_descriptor[cbc->cipher].ecb_encrypt(tmp, ct, &cbc->key);
-
-   /* store IV [ciphertext] for a future block */
-   for (x = 0; x < cbc->blocklen; x++) {
-       cbc->IV[x] = ct[x];
+#ifdef LTC_FAST
+   if (len % sizeof(LTC_FAST_TYPE)) {   
+      return CRYPT_INVALID_ARG;
    }
+#endif
 
-   #ifdef LTC_CLEAN_STACK
-      zeromem(tmp, sizeof(tmp));
-   #endif
+   if (cipher_descriptor[cbc->cipher].accel_cbc_encrypt != NULL) {
+      cipher_descriptor[cbc->cipher].accel_cbc_encrypt(pt, ct, len / cbc->blocklen, cbc->IV, &cbc->key);
+   } else {
+      while (len) {
+         /* xor IV against plaintext */
+         #if defined(LTC_FAST)
+	     for (x = 0; x < cbc->blocklen; x += sizeof(LTC_FAST_TYPE)) {
+	         *((LTC_FAST_TYPE*)((unsigned char *)cbc->IV + x)) ^= *((LTC_FAST_TYPE*)((unsigned char *)pt + x));
+	     }
+	 #else 
+            for (x = 0; x < cbc->blocklen; x++) {
+               cbc->IV[x] ^= pt[x];
+            }
+	 #endif
+
+         /* encrypt */
+         cipher_descriptor[cbc->cipher].ecb_encrypt(cbc->IV, ct, &cbc->key);
+
+        /* store IV [ciphertext] for a future block */
+         #if defined(LTC_FAST)
+	     for (x = 0; x < cbc->blocklen; x += sizeof(LTC_FAST_TYPE)) {
+	         *((LTC_FAST_TYPE*)((unsigned char *)cbc->IV + x)) = *((LTC_FAST_TYPE*)((unsigned char *)ct + x));
+	     }
+	 #else 
+             for (x = 0; x < cbc->blocklen; x++) {
+                cbc->IV[x] = ct[x];
+             }
+	 #endif
+        
+        ct  += cbc->blocklen;
+        pt  += cbc->blocklen;
+        len -= cbc->blocklen;
+     }
+   }
    return CRYPT_OK;
 }
 

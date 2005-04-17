@@ -44,7 +44,7 @@ extern "C" {
 
 /* detect 64-bit mode if possible */
 #if defined(__x86_64__) 
-   #if !(defined(MP_64BIT) || defined(MP_31BIT) || defined(MP_16BIT) || defined(MP_8BIT))
+   #if !(defined(MP_64BIT) && defined(MP_16BIT) && defined(MP_8BIT))
       #define MP_64BIT
    #endif
 #endif
@@ -112,7 +112,7 @@ extern "C" {
    #else
       /* prototypes for our heap functions */
       extern void *XMALLOC(size_t n);
-      extern void *REALLOC(void *p, size_t n);
+      extern void *XREALLOC(void *p, size_t n);
       extern void *XCALLOC(size_t n, size_t s);
       extern void XFREE(void *p);
    #endif
@@ -147,7 +147,6 @@ extern "C" {
 /* Primality generation flags */
 #define LTM_PRIME_BBS      0x0001 /* BBS style prime */
 #define LTM_PRIME_SAFE     0x0002 /* Safe prime (p-1)/2 == prime */
-#define LTM_PRIME_2MSB_OFF 0x0004 /* force 2nd MSB to 0 */
 #define LTM_PRIME_2MSB_ON  0x0008 /* force 2nd MSB to 1 */
 
 typedef int           mp_err;
@@ -429,6 +428,15 @@ int mp_reduce_2k_setup(mp_int *a, mp_digit *d);
 /* reduces a modulo b where b is of the form 2**p - k [0 <= a] */
 int mp_reduce_2k(mp_int *a, mp_int *n, mp_digit d);
 
+/* returns true if a can be reduced with mp_reduce_2k_l */
+int mp_reduce_is_2k_l(mp_int *a);
+
+/* determines k value for 2k reduction */
+int mp_reduce_2k_setup_l(mp_int *a, mp_int *d);
+
+/* reduces a modulo b where b is of the form 2**p - k [0 <= a] */
+int mp_reduce_2k_l(mp_int *a, mp_int *n, mp_int *d);
+
 /* d = a**b (mod c) */
 int mp_exptmod(mp_int *a, mp_int *b, mp_int *c, mp_int *d);
 
@@ -509,14 +517,16 @@ int mp_prime_random_ex(mp_int *a, int t, int size, int flags, ltm_prime_callback
 int mp_count_bits(mp_int *a);
 
 int mp_unsigned_bin_size(mp_int *a);
-int mp_read_unsigned_bin(mp_int *a, unsigned char *b, int c);
+int mp_read_unsigned_bin(mp_int *a, const unsigned char *b, int c);
 int mp_to_unsigned_bin(mp_int *a, unsigned char *b);
+int mp_to_unsigned_bin_n (mp_int * a, unsigned char *b, unsigned long *outlen);
 
 int mp_signed_bin_size(mp_int *a);
-int mp_read_signed_bin(mp_int *a, unsigned char *b, int c);
-int mp_to_signed_bin(mp_int *a, unsigned char *b);
+int mp_read_signed_bin(mp_int *a, const unsigned char *b, int c);
+int mp_to_signed_bin(mp_int *a,  unsigned char *b);
+int mp_to_signed_bin_n (mp_int * a, unsigned char *b, unsigned long *outlen);
 
-int mp_read_radix(mp_int *a, char *str, int radix);
+int mp_read_radix(mp_int *a, const char *str, int radix);
 int mp_toradix(mp_int *a, char *str, int radix);
 int mp_toradix_n(mp_int * a, char *str, int radix, int maxlen);
 int mp_radix_size(mp_int *a, int radix, int *size);
@@ -554,7 +564,7 @@ int fast_mp_invmod(mp_int *a, mp_int *b, mp_int *c);
 int mp_invmod_slow (mp_int * a, mp_int * b, mp_int * c);
 int fast_mp_montgomery_reduce(mp_int *a, mp_int *m, mp_digit mp);
 int mp_exptmod_fast(mp_int *G, mp_int *X, mp_int *P, mp_int *Y, int mode);
-int s_mp_exptmod (mp_int * G, mp_int * X, mp_int * P, mp_int * Y);
+int s_mp_exptmod (mp_int * G, mp_int * X, mp_int * P, mp_int * Y, int mode);
 void bn_reverse(unsigned char *s, int len);
 
 extern const char *mp_s_rmap;

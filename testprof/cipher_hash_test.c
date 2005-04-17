@@ -1,6 +1,6 @@
 /* test the ciphers and hashes using their built-in self-tests */
 
-#include "test.h"
+#include <tomcrypt_test.h>
 
 int cipher_hash_test(void)
 {

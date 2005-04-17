@@ -1,4 +1,4 @@
-#include "test.h"
+#include <tomcrypt_test.h>
 
 #ifdef MECC
 
@@ -12,8 +12,8 @@ int ecc_tests (void)
   DO(ecc_test ());
 
   /* make up two keys */
-  DO(ecc_make_key (&test_yarrow, find_prng ("yarrow"), 65, &usera));
-  DO(ecc_make_key (&test_yarrow, find_prng ("yarrow"), 65, &userb));
+  DO(ecc_make_key (&yarrow_prng, find_prng ("yarrow"), 65, &usera));
+  DO(ecc_make_key (&yarrow_prng, find_prng ("yarrow"), 65, &userb));
 
   /* make the shared secret */
   x = 4096;
@@ -55,7 +55,7 @@ int ecc_tests (void)
   ecc_free (&userb);
 
 /* test encrypt_key */
-  DO(ecc_make_key (&test_yarrow, find_prng ("yarrow"), 65, &usera));
+  DO(ecc_make_key (&yarrow_prng, find_prng ("yarrow"), 65, &usera));
 
 /* export key */
   x = sizeof(buf[0]);
@@ -69,7 +69,7 @@ int ecc_tests (void)
     buf[0][x] = x;
   }
   y = sizeof (buf[1]);
-  DO(ecc_encrypt_key (buf[0], 32, buf[1], &y, &test_yarrow, find_prng ("yarrow"), find_hash ("sha256"), &pubKey));
+  DO(ecc_encrypt_key (buf[0], 32, buf[1], &y, &yarrow_prng, find_prng ("yarrow"), find_hash ("sha256"), &pubKey));
   zeromem (buf[0], sizeof (buf[0]));
   x = sizeof (buf[0]);
   DO(ecc_decrypt_key (buf[1], y, buf[0], &x, &privKey));
@@ -87,12 +87,12 @@ int ecc_tests (void)
     buf[0][x] = x;
   }
   x = sizeof (buf[1]);
-  DO(ecc_sign_hash (buf[0], 16, buf[1], &x, &test_yarrow, find_prng ("yarrow"), &privKey));
+  DO(ecc_sign_hash (buf[0], 16, buf[1], &x, &yarrow_prng, find_prng ("yarrow"), &privKey));
   DO(ecc_verify_hash (buf[1], x, buf[0], 16, &stat, &pubKey));
   buf[0][0] ^= 1;
   DO(ecc_verify_hash (buf[1], x, buf[0], 16, &stat2, &privKey));
   if (!(stat == 1 && stat2 == 0)) { 
-    printf("ecc_verify_hash failed");
+    printf("ecc_verify_hash failed %d, %d, ", stat, stat2);
     return 1;
   }
   ecc_free (&usera); 

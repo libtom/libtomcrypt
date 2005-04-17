@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtomcrypt.org
+ * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.org
  */
 #include "tomcrypt.h"
 
@@ -65,8 +65,20 @@ int base64_decode(const unsigned char *in,  unsigned long inlen,
    for (x = y = z = t = 0; x < inlen; x++) {
        c = map[in[x]&0xFF];
        if (c == 255) continue;
-       if (c == 254) { c = 0; g--; }
+       /* the final = symbols are read and used to trim the remaining bytes */
+       if (c == 254) { 
+          c = 0; 
+          /* prevent g < 0 which would potentially allow an overflow later */
+          if (--g < 0) {
+             return CRYPT_INVALID_PACKET;
+          }
+       } else if (g != 3) {
+          /* we only allow = to be at the end */
+          return CRYPT_INVALID_PACKET;
+       }
+
        t = (t<<6)|c;
+
        if (++y == 4) {
           if (z + g > *outlen) { 
              return CRYPT_BUFFER_OVERFLOW; 

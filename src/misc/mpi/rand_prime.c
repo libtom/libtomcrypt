@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtomcrypt.org
+ * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.org
  */
 #include "tomcrypt.h"
 
@@ -54,6 +54,7 @@ int rand_prime(mp_int *N, long len, prng_state *prng, int wprng)
    } else {
       type = 0;
    }
+  type |= LTM_PRIME_2MSB_ON;
 
    /* New prime generation makes the code even more cryptoish-insane.  Do you know what this means!!!
       -- Gir:  Yeah, oh wait, er, no.

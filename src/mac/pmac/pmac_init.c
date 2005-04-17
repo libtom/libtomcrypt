@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtomcrypt.org
+ * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.org
  */
 #include "tomcrypt.h"
 
@@ -65,7 +65,14 @@ int pmac_init(pmac_state *pmac, int cipher, const unsigned char *key, unsigned l
    }
    if (polys[poly].len != pmac->block_len) {
       return CRYPT_INVALID_ARG;
-   }   
+   }
+
+#ifdef LTC_FAST
+   if (pmac->block_len % sizeof(LTC_FAST_TYPE)) {
+      return CRYPT_INVALID_ARG;
+   }
+#endif
+
 
    /* schedule the key */
    if ((err = cipher_descriptor[cipher].setup(key, keylen, 0, &pmac->key)) != CRYPT_OK) {

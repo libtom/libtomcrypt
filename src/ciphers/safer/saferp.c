@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtomcrypt.org
+ * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.org
  */
 
 /** 
@@ -26,7 +26,9 @@ const struct ltc_cipher_descriptor saferp_desc =
     &saferp_ecb_encrypt,
     &saferp_ecb_decrypt,
     &saferp_test,
-    &saferp_keysize
+    &saferp_done,
+    &saferp_keysize,
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL
 };
 
 /* ROUND(b,i) 
@@ -514,6 +516,13 @@ int saferp_test(void)
 
    return CRYPT_OK;
  #endif
+}
+
+/** Terminate the context 
+   @param skey    The scheduled key
+*/
+void saferp_done(symmetric_key *skey)
+{
 }
 
 /**

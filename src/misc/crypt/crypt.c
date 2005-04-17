@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtomcrypt.org
+ * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.org
  */
 #include "tomcrypt.h"
 
@@ -179,6 +179,9 @@ const char *crypt_build_settings =
 #if defined(PMAC)
     "   PMAC\n"
 #endif
+#if defined(PELICAN)
+    "   PELICAN\n"
+#endif
 
     "\nENC + AUTH modes:\n"
 #if defined(EAX_MODE)
@@ -187,6 +190,16 @@ const char *crypt_build_settings =
 #if defined(OCB_MODE)
     "   OCB_MODE\n"
 #endif
+#if defined(CCM_MODE)
+    "   CCM_MODE\n"
+#endif
+#if defined(GCM_MODE)
+    "   GCM_MODE "
+#endif
+#if defined(GCM_TABLES)
+    " (GCM_TABLES) "
+#endif
+   "\n"
 
 
     "\nPRNG:\n"
@@ -270,6 +283,18 @@ const char *crypt_build_settings =
 #endif
 #if defined(LTC_DER)
     " LTC_DER "
+#endif
+#if defined(LTC_FAST)
+    " LTC_FAST "
+#endif
+#if defined(LTC_NO_FAST)
+    " LTC_NO_FAST "
+#endif
+#if defined(LTC_NO_BSWAP)
+    " LTC_NO_BSWAP "
+#endif
+#if defined(LTC_NO_ASM)
+    " LTC_NO_ASM "
 #endif
     "\n"
     "\n\n\n"

@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtomcrypt.org
+ * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.org
  */
 #include "tomcrypt.h"
 
@@ -22,8 +22,9 @@
 */
 void zeromem(void *out, size_t outlen)
 {
- unsigned char *mem = (unsigned char *)out;
- LTC_ARGCHK(out != NULL);
- while (outlen-- > 0)
-    *mem++ = 0;
+   unsigned char *mem = out;
+   LTC_ARGCHK(out != NULL);
+   while (outlen-- > 0) {
+      *mem++ = 0;
+   }
 }

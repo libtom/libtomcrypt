@@ -7,7 +7,9 @@
 // #define SC_RSA_1
 
 /* For reference.... On an Athlon64 optimizing for speed...
+
    LTM's mpi.o with all functions [striped] is 142KiB in size.
+
 */
 
 /* Works for RSA only, mpi.o is 68KiB */
@@ -32,7 +34,7 @@
    #define BN_PRIME_TAB_C
 
    /* other modifiers */
-   #define BN_MP_DIV_SMALL                    /* Slower division, not critical  */
+   #define BN_MP_DIV_SMALL                    /* Slower division, not critical */
 
    /* here we are on the last pass so we turn things off.  The functions classes are still there
     * but we remove them specifically from the build.  This also invokes tweaks in functions

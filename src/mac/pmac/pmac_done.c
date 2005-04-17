@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtomcrypt.org
+ * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.org
  */
 #include "tomcrypt.h"
 
@@ -50,6 +50,7 @@ int pmac_done(pmac_state *state, unsigned char *out, unsigned long *outlen)
 
    /* encrypt it */
    cipher_descriptor[state->cipher_idx].ecb_encrypt(state->checksum, state->checksum, &state->key);
+   cipher_descriptor[state->cipher_idx].done(&state->key);
 
    /* store it */
    for (x = 0; x < state->block_len && x <= (int)*outlen; x++) {

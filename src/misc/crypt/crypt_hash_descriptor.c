@@ -6,14 +6,15 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtomcrypt.org
+ * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.org
  */
 #include "tomcrypt.h"
 
 /**
-  @file crypt_hash_decriptor.c
+  @file crypt_hash_descriptor.c
   Stores the hash descriptor table, Tom St Denis  
 */
 
-struct ltc_hash_descriptor hash_descriptor[TAB_SIZE];
-
+struct ltc_hash_descriptor hash_descriptor[TAB_SIZE] = {
+{ NULL, 0, 0, 0, { 0 }, 0, NULL, NULL, NULL, NULL }
+};

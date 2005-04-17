@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtomcrypt.org
+ * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.org
  */
 
 /**
@@ -26,7 +26,9 @@ const struct ltc_cipher_descriptor skipjack_desc =
     &skipjack_ecb_encrypt,
     &skipjack_ecb_decrypt,
     &skipjack_test,
-    &skipjack_keysize
+    &skipjack_done,
+    &skipjack_keysize,
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL
 };
 
 static const unsigned char sbox[256] = {
@@ -301,6 +303,13 @@ int skipjack_test(void)
 
    return CRYPT_OK;
   #endif
+}
+
+/** Terminate the context 
+   @param skey    The scheduled key
+*/
+void skipjack_done(symmetric_key *skey)
+{
 }
 
 /**

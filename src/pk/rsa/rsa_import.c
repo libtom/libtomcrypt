@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtomcrypt.org
+ * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.org
  */
 #include "tomcrypt.h"
 
@@ -26,7 +26,7 @@
 */
 int rsa_import(const unsigned char *in, unsigned long inlen, rsa_key *key)
 {
-   unsigned long x;
+   unsigned long x, y;
    int err;
 
    LTC_ARGCHK(in  != NULL);
@@ -37,6 +37,35 @@ int rsa_import(const unsigned char *in, unsigned long inlen, rsa_key *key)
                      &key->p, &key->q, NULL)) != MP_OKAY) {
       return mpi_to_ltc_error(err);
    }
+
+   /* check the header */
+   if (inlen < 4) {
+      return CRYPT_INVALID_PACKET;
+   }
+
+   /* should be 0x30 0x8{1|2} LL LL */
+   if ((in[0] != 0x30) || ((in[1] != 0x81) && (in[1] != 0x82))) {
+      return CRYPT_INVALID_PACKET;
+   }
+
+   /* ok all the ASN.1 params are fine so far, let's move up */
+   x = ((unsigned long)in[2]);
+   y = 0;
+   if ((in[1] & 0x0f) == 2) {
+      x   = (x << 8) + ((unsigned long)in[3]) + 1;
+      in += 1;
+      y   = 1;
+   }
+   in += 3; /* advance input */
+   x  += 3; /* size of packet according to header */
+   y  += 3; /* used input */
+
+   if (x != inlen) {
+      return CRYPT_INVALID_PACKET;
+   }
+   
+   /* decrement inlen by the header size */
+   inlen -= y;
 
    /* read first number, it's either N or 0 [0 == private key] */
    x = inlen;

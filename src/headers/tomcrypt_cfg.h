@@ -9,7 +9,7 @@
 
 /* you can change how memory allocation works ... */
 void *XMALLOC(size_t n);
-void *REALLOC(void *p, size_t n);
+void *XREALLOC(void *p, size_t n);
 void *XCALLOC(size_t n, size_t s);
 void XFREE(void *p);
 
@@ -34,6 +34,8 @@ int   XMEMCMP(const void *s1, const void *s2, size_t n);
 #if defined(INTEL_CC) || (defined(_MSC_VER) && defined(WIN32)) || (defined(__GNUC__) && (defined(__DJGPP__) || defined(__CYGWIN__) || defined(__MINGW32__) || defined(__i386__)))
    #define ENDIAN_LITTLE
    #define ENDIAN_32BITWORD
+   #define LTC_FAST
+   #define LTC_FAST_TYPE    unsigned long
 #endif
 
 /* detects MIPS R5900 processors (PS2) */
@@ -46,6 +48,26 @@ int   XMEMCMP(const void *s1, const void *s2, size_t n);
 #if defined(__x86_64__)
    #define ENDIAN_LITTLE
    #define ENDIAN_64BITWORD
+   #define LTC_FAST
+   #define LTC_FAST_TYPE    unsigned long
+#endif
+
+#ifdef LTC_NO_FAST
+   #ifdef LTC_FAST
+      #undef LTC_FAST
+   #endif
+#endif
+
+/* No asm is a quick way to disable anything "not portable" */
+#ifdef LTC_NO_ASM
+   #undef ENDIAN_LITTLE
+   #undef ENDIAN_BIG
+   #undef ENDIAN_32BITWORD
+   #undef ENDIAN_64BITWORD
+   #undef LTC_FAST
+   #undef LTC_FAST_TYPE
+   #define LTC_NO_ROLC
+	#define LTC_NO_BSWAP
 #endif
 
 /* #define ENDIAN_LITTLE */

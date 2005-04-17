@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtomcrypt.org
+ * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.org
  */
 
 /* Implements ECC over Z/pZ for curve y^2 = x^3 - 3x + b
@@ -247,7 +247,7 @@ static ecc_point *new_point(void)
    if (p == NULL) {
       return NULL;
    }
-   if (mp_init_multi(&p->x, &p->y, NULL) != MP_OKAY) {
+   if (mp_init_multi(&p->x, &p->y, &p->z, NULL) != MP_OKAY) {
       XFREE(p);
       return NULL;
    }
@@ -258,113 +258,294 @@ static void del_point(ecc_point *p)
 {
    /* prevents free'ing null arguments */
    if (p != NULL) {
-      mp_clear_multi(&p->x, &p->y, NULL);
+      mp_clear_multi(&p->x, &p->y, &p->z, NULL);
       XFREE(p);
    }
 }
 
-/* double a point R = 2P, R can be P*/
-static int dbl_point(ecc_point *P, ecc_point *R, mp_int *modulus, mp_int *mu)
+static int ecc_map(ecc_point *P, mp_int *modulus, mp_int *mu)
 {
-   mp_int s, tmp, tmpx;
+   mp_int t1, t2;
    int err;
 
-   if ((err = mp_init_multi(&s, &tmp, &tmpx, NULL)) != MP_OKAY) {
-      return mpi_to_ltc_error(err);
+   if ((err = mp_init_multi(&t1, &t2, NULL)) != CRYPT_OK) {
+      return CRYPT_MEM;
    }
 
-   /* s = (3Xp^2 + a) / (2Yp) */
-   if ((err = mp_mul_2(&P->y, &tmp)) != MP_OKAY)                   { goto error; } /* tmp = 2*y */
-   if ((err = mp_invmod(&tmp, modulus, &tmp)) != MP_OKAY)          { goto error; } /* tmp = 1/tmp mod modulus */
-   if ((err = mp_sqr(&P->x, &s)) != MP_OKAY)                       { goto error; } /* s = x^2  */
-   if ((err = mp_reduce(&s, modulus, mu)) != MP_OKAY)              { goto error; }
-   if ((err = mp_mul_d(&s,(mp_digit)3, &s)) != MP_OKAY)            { goto error; } /* s = 3*(x^2) */
-   if ((err = mp_sub_d(&s,(mp_digit)3, &s)) != MP_OKAY)            { goto error; } /* s = 3*(x^2) - 3 */
-   if (mp_cmp_d(&s, 0) == MP_LT) {                                         /* if s < 0 add modulus */
-      if ((err = mp_add(&s, modulus, &s)) != MP_OKAY)              { goto error; }
-   }
-   if ((err = mp_mul(&s, &tmp, &s)) != MP_OKAY)                    { goto error; } /* s = tmp * s mod modulus */
-   if ((err = mp_reduce(&s, modulus, mu)) != MP_OKAY)              { goto error; }
+   /* get 1/z */
+   if ((err = mp_invmod(&P->z, modulus, &t1)) != MP_OKAY)                   { goto error; }
+ 
+   /* get 1/z^2 and 1/z^3 */
+   if ((err = mp_sqr(&t1, &t2)) != MP_OKAY)                        { goto error; }
+   if ((err = mp_reduce(&t2, modulus, mu)) != MP_OKAY)             { goto error; }
+   if ((err = mp_mul(&t1, &t2, &t1)) != MP_OKAY)                   { goto error; }
+   if ((err = mp_reduce(&t1, modulus, mu)) != MP_OKAY)             { goto error; }
 
-   /* Xr = s^2 - 2Xp */
-   if ((err = mp_sqr(&s,  &tmpx)) != MP_OKAY)                      { goto error; } /* tmpx = s^2  */
-   if ((err = mp_reduce(&tmpx, modulus, mu)) != MP_OKAY)           { goto error; } /* tmpx = tmpx mod modulus */
-   if ((err = mp_sub(&tmpx, &P->x, &tmpx)) != MP_OKAY)             { goto error; } /* tmpx = tmpx - x */
-   if ((err = mp_submod(&tmpx, &P->x, modulus, &tmpx)) != MP_OKAY) { goto error; } /* tmpx = tmpx - x mod modulus */
-
-   /* Yr = -Yp + s(Xp - Xr)  */
-   if ((err = mp_sub(&P->x, &tmpx, &tmp)) != MP_OKAY)              { goto error; } /* tmp = x - tmpx */
-   if ((err = mp_mul(&tmp, &s, &tmp)) != MP_OKAY)                  { goto error; } /* tmp = tmp * s */
-   if ((err = mp_submod(&tmp, &P->y, modulus, &R->y)) != MP_OKAY)  { goto error; } /* y = tmp - y mod modulus */
-   if ((err = mp_copy(&tmpx, &R->x)) != MP_OKAY)                   { goto error; } /* x = tmpx */
+   /* multiply against x/y */
+   if ((err = mp_mul(&P->x, &t2, &P->x)) != MP_OKAY)               { goto error; }
+   if ((err = mp_reduce(&P->x, modulus, mu)) != MP_OKAY)           { goto error; }
+   if ((err = mp_mul(&P->y, &t1, &P->y)) != MP_OKAY)               { goto error; }
+   if ((err = mp_reduce(&P->y, modulus, mu)) != MP_OKAY)           { goto error; }
+   mp_set(&P->z, 1);
 
    err = CRYPT_OK;
    goto done;
 error:
    err = mpi_to_ltc_error(err);
 done:
-   mp_clear_multi(&tmpx, &tmp, &s, NULL);
+   mp_clear_multi(&t1, &t2, NULL);
+   return err;
+
+}
+
+
+/* double a point R = 2P, R can be P*/
+static int dbl_point(ecc_point *P, ecc_point *R, mp_int *modulus, mp_int *mu)
+{
+   mp_int t1, t2;
+   int err;
+
+   if ((err = mp_init_multi(&t1, &t2, NULL)) != MP_OKAY) {
+      return mpi_to_ltc_error(err);
+   }
+
+   if ((err = mp_copy(&P->x, &R->x)) != MP_OKAY)                                   { goto error; }
+   if ((err = mp_copy(&P->y, &R->y)) != MP_OKAY)                                   { goto error; }
+   if ((err = mp_copy(&P->z, &R->z)) != MP_OKAY)                                   { goto error; }
+
+   /* t1 = Z * Z */
+   if ((err = mp_sqr(&R->z, &t1)) != MP_OKAY)                                      { goto error; }
+   if ((err = mp_reduce(&t1, modulus, mu)) != MP_OKAY)                             { goto error; }
+   /* Z = Y * Z */
+   if ((err = mp_mul(&R->z, &R->y, &R->z)) != MP_OKAY)                             { goto error; }
+   if ((err = mp_reduce(&R->z, modulus, mu)) != MP_OKAY)                           { goto error; }
+   /* Z = 2Z */
+   if ((err = mp_mul_2(&R->z, &R->z)) != MP_OKAY)                                  { goto error; }
+   if (mp_cmp(&R->z, modulus) != MP_LT) {
+      if ((err = mp_sub(&R->z, modulus, &R->z)) != MP_OKAY)                        { goto error; }
+   }
+
+   /* T2 = X - T1 */
+   if ((err = mp_sub(&R->x, &t1, &t2)) != MP_OKAY)                                 { goto error; }
+   if (mp_cmp_d(&t2, 0) == MP_LT) {
+      if ((err = mp_add(&t2, modulus, &t2)) != MP_OKAY)                            { goto error; }
+   }
+   /* T1 = X + T1 */
+   if ((err = mp_add(&t1, &R->x, &t1)) != MP_OKAY)                                 { goto error; }
+   if (mp_cmp(&t1, modulus) != MP_LT) {
+      if ((err = mp_sub(&t1, modulus, &t1)) != MP_OKAY)                            { goto error; }
+   }
+   /* T2 = T1 * T2 */
+   if ((err = mp_mul(&t1, &t2, &t2)) != MP_OKAY)                                   { goto error; }
+   if ((err = mp_reduce(&t2, modulus, mu)) != MP_OKAY)                             { goto error; }
+   /* T1 = 2T2 */
+   if ((err = mp_mul_2(&t2, &t1)) != MP_OKAY)                                      { goto error; }
+   if (mp_cmp(&t1, modulus) != MP_LT) {
+      if ((err = mp_sub(&t1, modulus, &t1)) != MP_OKAY)                            { goto error; }
+   }
+   /* T1 = T1 + T2 */
+   if ((err = mp_add(&t1, &t2, &t1)) != MP_OKAY)                                   { goto error; }
+   if (mp_cmp(&t1, modulus) != MP_LT) {
+      if ((err = mp_sub(&t1, modulus, &t1)) != MP_OKAY)                            { goto error; }
+   }
+
+   /* Y = 2Y */
+   if ((err = mp_mul_2(&R->y, &R->y)) != MP_OKAY)                                  { goto error; }
+   if (mp_cmp(&R->y, modulus) != MP_LT) {
+      if ((err = mp_sub(&R->y, modulus, &R->y)) != MP_OKAY)                        { goto error; }
+   }
+   /* Y = Y * Y */
+   if ((err = mp_sqr(&R->y, &R->y)) != MP_OKAY)                                    { goto error; }
+   if ((err = mp_reduce(&R->y, modulus, mu)) != MP_OKAY)                           { goto error; }
+   /* T2 = Y * Y */
+   if ((err = mp_sqr(&R->y, &t2)) != MP_OKAY)                                      { goto error; }
+   if ((err = mp_reduce(&t2, modulus, mu)) != MP_OKAY)                             { goto error; }
+   /* T2 = T2/2 */
+   if (mp_isodd(&t2)) {
+      if ((err = mp_add(&t2, modulus, &t2)) != MP_OKAY)                            { goto error; }
+   }
+   if ((err = mp_div_2(&t2, &t2)) != MP_OKAY)                                      { goto error; }
+   /* Y = Y * X */
+   if ((err = mp_mul(&R->y, &R->x, &R->y)) != MP_OKAY)                             { goto error; }
+   if ((err = mp_reduce(&R->y, modulus, mu)) != MP_OKAY)                           { goto error; }
+
+   /* X  = T1 * T1 */
+   if ((err = mp_sqr(&t1, &R->x)) != MP_OKAY)                                      { goto error; }
+   if ((err = mp_reduce(&R->x, modulus, mu)) != MP_OKAY)                           { goto error; }
+   /* X = X - Y */
+   if ((err = mp_sub(&R->x, &R->y, &R->x)) != MP_OKAY)                             { goto error; }
+   if (mp_cmp_d(&R->x, 0) == MP_LT) {
+      if ((err = mp_add(&R->x, modulus, &R->x)) != MP_OKAY)                        { goto error; }
+   }
+   /* X = X - Y */
+   if ((err = mp_sub(&R->x, &R->y, &R->x)) != MP_OKAY)                             { goto error; }
+   if (mp_cmp_d(&R->x, 0) == MP_LT) {
+      if ((err = mp_add(&R->x, modulus, &R->x)) != MP_OKAY)                        { goto error; }
+   }
+
+   /* Y = Y - X */     
+   if ((err = mp_sub(&R->y, &R->x, &R->y)) != MP_OKAY)                             { goto error; }
+   if (mp_cmp_d(&R->y, 0) == MP_LT) {
+      if ((err = mp_add(&R->y, modulus, &R->y)) != MP_OKAY)                        { goto error; }
+   }
+   /* Y = Y * T1 */
+   if ((err = mp_mul(&R->y, &t1, &R->y)) != MP_OKAY)                               { goto error; }
+   if ((err = mp_reduce(&R->y, modulus, mu)) != MP_OKAY)                           { goto error; }
+   /* Y = Y - T2 */
+   if ((err = mp_sub(&R->y, &t2, &R->y)) != MP_OKAY)                               { goto error; }
+   if (mp_cmp_d(&R->y, 0) == MP_LT) {
+      if ((err = mp_add(&R->y, modulus, &R->y)) != MP_OKAY)                        { goto error; }
+   }
+ 
+   err = CRYPT_OK;
+   goto done;
+error:
+   err = mpi_to_ltc_error(err);
+done:
+   mp_clear_multi(&t1, &t2, NULL);
    return err;
 }
 
 /* add two different points over Z/pZ, R = P + Q, note R can equal either P or Q */
 static int add_point(ecc_point *P, ecc_point *Q, ecc_point *R, mp_int *modulus, mp_int *mu)
 {
-   mp_int s, tmp, tmpx;
+   mp_int t1, t2, x, y, z;
    int err;
 
-   if ((err = mp_init(&tmp)) != MP_OKAY) {
+   if ((err = mp_init_multi(&t1, &t2, &x, &y, &z, NULL)) != MP_OKAY) {
       return mpi_to_ltc_error(err);
    }
 
-   /* is P==Q or P==-Q? */
-   if (((err = mp_neg(&Q->y, &tmp)) != MP_OKAY) || ((err = mp_mod(&tmp, modulus, &tmp)) != MP_OKAY)) {
-      mp_clear(&tmp);
-      return mpi_to_ltc_error(err);
+   if ((err = mp_copy(&P->x, &x)) != MP_OKAY)                                   { goto error; }
+   if ((err = mp_copy(&P->y, &y)) != MP_OKAY)                                   { goto error; }
+   if ((err = mp_copy(&P->z, &z)) != MP_OKAY)                                   { goto error; }
+
+   /* if Z' != 1 */
+   if (mp_cmp_d(&Q->z, 1) != MP_EQ) {
+      /* T1 = Z' * Z' */
+      if ((err = mp_sqr(&Q->z, &t1)) != MP_OKAY)                                { goto error; }
+      if ((err = mp_reduce(&t1, modulus, mu)) != MP_OKAY)                       { goto error; }
+      /* X = X * T1 */
+      if ((err = mp_mul(&t1, &x, &x)) != MP_OKAY)                               { goto error; }
+      if ((err = mp_reduce(&x, modulus, mu)) != MP_OKAY)                        { goto error; }
+      /* T1 = Z' * T1 */
+      if ((err = mp_mul(&Q->z, &t1, &t1)) != MP_OKAY)                           { goto error; }
+      if ((err = mp_reduce(&t1, modulus, mu)) != MP_OKAY)                       { goto error; }
+      /* Y = Y * T1 */
+      if ((err = mp_mul(&t1, &y, &y)) != MP_OKAY)                               { goto error; }
+      if ((err = mp_reduce(&y, modulus, mu)) != MP_OKAY)                        { goto error; }
    }
 
-   if (mp_cmp(&P->x, &Q->x) == MP_EQ)
-      if (mp_cmp(&P->y, &Q->y) == MP_EQ || mp_cmp(&P->y, &tmp) == MP_EQ) {
-         mp_clear(&tmp);
-         return dbl_point(P, R, modulus, mu);
-      }
+   /* T1 = Z*Z */
+   if ((err = mp_sqr(&z, &t1)) != MP_OKAY)                                      { goto error; }
+   if ((err = mp_reduce(&t1, modulus, mu)) != MP_OKAY)                          { goto error; }
+   /* T2 = X' * T1 */
+   if ((err = mp_mul(&Q->x, &t1, &t2)) != MP_OKAY)                              { goto error; }
+   if ((err = mp_reduce(&t2, modulus, mu)) != MP_OKAY)                          { goto error; }
+   /* T1 = Z * T1 */
+   if ((err = mp_mul(&z, &t1, &t1)) != MP_OKAY)                                 { goto error; }
+   if ((err = mp_reduce(&t1, modulus, mu)) != MP_OKAY)                          { goto error; }
+   /* T1 = Y' * T1 */
+   if ((err = mp_mul(&Q->y, &t1, &t1)) != MP_OKAY)                              { goto error; }
+   if ((err = mp_reduce(&t1, modulus, mu)) != MP_OKAY)                          { goto error; }
 
-   if ((err = mp_init_multi(&tmpx, &s, NULL)) != MP_OKAY) {
-      mp_clear(&tmp);
-      return mpi_to_ltc_error(err);
+   /* Y = Y - T1 */
+   if ((err = mp_sub(&y, &t1, &y)) != MP_OKAY)                                  { goto error; }
+   if (mp_cmp_d(&y, 0) == MP_LT) {
+      if ((err = mp_add(&y, modulus, &y)) != MP_OKAY)                           { goto error; }
+   }
+   /* T1 = 2T1 */
+   if ((err = mp_mul_2(&t1, &t1)) != MP_OKAY)                                   { goto error; }
+   if (mp_cmp(&t1, modulus) != MP_LT) {
+      if ((err = mp_sub(&t1, modulus, &t1)) != MP_OKAY)                         { goto error; }
+   }
+   /* T1 = Y + T1 */
+   if ((err = mp_add(&t1, &y, &t1)) != MP_OKAY)                                 { goto error; }
+   if (mp_cmp(&t1, modulus) != MP_LT) {
+      if ((err = mp_sub(&t1, modulus, &t1)) != MP_OKAY)                         { goto error; }
+   }
+   /* X = X - T2 */
+   if ((err = mp_sub(&x, &t2, &x)) != MP_OKAY)                                  { goto error; }
+   if (mp_cmp_d(&x, 0) == MP_LT) {
+      if ((err = mp_add(&x, modulus, &x)) != MP_OKAY)                           { goto error; }
+   }
+   /* T2 = 2T2 */
+   if ((err = mp_mul_2(&t2, &t2)) != MP_OKAY)                                   { goto error; }
+   if (mp_cmp(&t2, modulus) != MP_LT) {
+      if ((err = mp_sub(&t2, modulus, &t2)) != MP_OKAY)                         { goto error; }
+   }
+   /* T2 = X + T2 */
+   if ((err = mp_add(&t2, &x, &t2)) != MP_OKAY)                                 { goto error; }
+   if (mp_cmp(&t2, modulus) != MP_LT) {
+      if ((err = mp_sub(&t2, modulus, &t2)) != MP_OKAY)                         { goto error; }
    }
 
-   /* get s = (Yp - Yq)/(Xp-Xq) mod p */
-   if ((err = mp_sub(&P->x, &Q->x, &tmp)) != MP_OKAY)                 { goto error; } /* tmp = Px - Qx mod modulus */
-   if (mp_cmp_d(&tmp, 0) == MP_LT) {                                          /* if tmp<0 add modulus */
-      if ((err = mp_add(&tmp, modulus, &tmp)) != MP_OKAY)             { goto error; }
+   /* if Z' != 1 */
+   if (mp_cmp_d(&Q->z, 1) != MP_EQ) {
+      /* Z = Z * Z' */
+      if ((err = mp_mul(&z, &Q->z, &z)) != MP_OKAY)                             { goto error; }
+      if ((err = mp_reduce(&z, modulus, mu)) != MP_OKAY)                        { goto error; }
    }
-   if ((err = mp_invmod(&tmp, modulus, &tmp)) != MP_OKAY)             { goto error; } /* tmp = 1/tmp mod modulus */
-   if ((err = mp_sub(&P->y, &Q->y, &s)) != MP_OKAY)                   { goto error; } /* s = Py - Qy mod modulus */
-   if (mp_cmp_d(&s, 0) == MP_LT) {                                            /* if s<0 add modulus */
-      if ((err = mp_add(&s, modulus, &s)) != MP_OKAY)                 { goto error; }
+   /* Z = Z * X */
+   if ((err = mp_mul(&z, &x, &z)) != MP_OKAY)                                   { goto error; }
+   if ((err = mp_reduce(&z, modulus, mu)) != MP_OKAY)                           { goto error; }
+
+   /* T1 = T1 * X  */
+   if ((err = mp_mul(&t1, &x, &t1)) != MP_OKAY)                                 { goto error; }
+   if ((err = mp_reduce(&t1, modulus, mu)) != MP_OKAY)                          { goto error; }
+   /* X = X * X */
+   if ((err = mp_sqr(&x, &x)) != MP_OKAY)                                       { goto error; }
+   if ((err = mp_reduce(&x, modulus, mu)) != MP_OKAY)                           { goto error; }
+   /* T2 = T2 * x */
+   if ((err = mp_mul(&t2, &x, &t2)) != MP_OKAY)                                 { goto error; }
+   if ((err = mp_reduce(&t2, modulus, mu)) != MP_OKAY)                          { goto error; }
+   /* T1 = T1 * X  */
+   if ((err = mp_mul(&t1, &x, &t1)) != MP_OKAY)                                 { goto error; }
+   if ((err = mp_reduce(&t1, modulus, mu)) != MP_OKAY)                          { goto error; }
+ 
+   /* X = Y*Y */
+   if ((err = mp_sqr(&y, &x)) != MP_OKAY)                                       { goto error; }
+   if ((err = mp_reduce(&x, modulus, mu)) != MP_OKAY)                           { goto error; }
+   /* X = X - T2 */
+   if ((err = mp_sub(&x, &t2, &x)) != MP_OKAY)                                  { goto error; }
+   if (mp_cmp_d(&x, 0) == MP_LT) {
+      if ((err = mp_add(&x, modulus, &x)) != MP_OKAY)                           { goto error; }
    }
-   if ((err = mp_mul(&s, &tmp, &s)) != MP_OKAY)                       { goto error; } /* s = s * tmp mod modulus */
-   if ((err = mp_reduce(&s, modulus, mu)) != MP_OKAY)                 { goto error; }
 
-   /* Xr = s^2 - Xp - Xq */
-   if ((err = mp_sqr(&s, &tmp)) != MP_OKAY)                           { goto error; } /* tmp = s^2 mod modulus */
-   if ((err = mp_reduce(&tmp, modulus, mu)) != MP_OKAY)               { goto error; }
-   if ((err = mp_sub(&tmp, &P->x, &tmp)) != MP_OKAY)                  { goto error; } /* tmp = tmp - Px */
-   if ((err = mp_sub(&tmp, &Q->x, &tmpx)) != MP_OKAY)                 { goto error; } /* tmpx = tmp - Qx */
+   /* T2 = T2 - X */
+   if ((err = mp_sub(&t2, &x, &t2)) != MP_OKAY)                                 { goto error; }
+   if (mp_cmp_d(&t2, 0) == MP_LT) {
+      if ((err = mp_add(&t2, modulus, &t2)) != MP_OKAY)                         { goto error; }
+   } 
+   /* T2 = T2 - X */
+   if ((err = mp_sub(&t2, &x, &t2)) != MP_OKAY)                                 { goto error; }
+   if (mp_cmp_d(&t2, 0) == MP_LT) {
+      if ((err = mp_add(&t2, modulus, &t2)) != MP_OKAY)                         { goto error; }
+   }
+   /* T2 = T2 * Y */
+   if ((err = mp_mul(&t2, &y, &t2)) != MP_OKAY)                                 { goto error; }
+   if ((err = mp_reduce(&t2, modulus, mu)) != MP_OKAY)                          { goto error; }
+   /* Y = T2 - T1 */
+   if ((err = mp_sub(&t2, &t1, &y)) != MP_OKAY)                                 { goto error; }
+   if (mp_cmp_d(&y, 0) == MP_LT) {
+      if ((err = mp_add(&y, modulus, &y)) != MP_OKAY)                           { goto error; }
+   }
+   /* Y = Y/2 */
+   if (mp_isodd(&y)) {
+      if ((err = mp_add(&y, modulus, &y)) != MP_OKAY)                           { goto error; }
+   }
+   if ((err = mp_div_2(&y, &y)) != MP_OKAY)                                     { goto error; }
 
-   /* Yr = -Yp + s(Xp - Xr) */
-   if ((err = mp_sub(&P->x, &tmpx, &tmp)) != MP_OKAY)                 { goto error; } /* tmp = Px - tmpx */
-   if ((err = mp_mul(&tmp, &s, &tmp)) != MP_OKAY)                     { goto error; } /* tmp = tmp * s */
-   if ((err = mp_submod(&tmp, &P->y, modulus, &R->y)) != MP_OKAY)     { goto error; } /* Ry = tmp - Py mod modulus */
-   if ((err = mp_mod(&tmpx, modulus, &R->x)) != MP_OKAY)              { goto error; } /* Rx = tmpx mod modulus */
+   if ((err = mp_copy(&x, &R->x)) != MP_OKAY)                                   { goto error; }
+   if ((err = mp_copy(&y, &R->y)) != MP_OKAY)                                   { goto error; }
+   if ((err = mp_copy(&z, &R->z)) != MP_OKAY)                                   { goto error; }
 
    err = CRYPT_OK;
    goto done;
 error:
    err = mpi_to_ltc_error(err);
 done:
-   mp_clear_multi(&s, &tmpx, &tmp, NULL);
+   mp_clear_multi(&t1, &t2, &x, &y, &z, NULL);
    return err;
 }
 
@@ -408,6 +589,7 @@ static int ecc_mulmod(mp_int *k, ecc_point *G, ecc_point *R, mp_int *modulus)
    /* tG = G */
    if ((err = mp_copy(&G->x, &tG->x)) != MP_OKAY)                             { goto error; }
    if ((err = mp_copy(&G->y, &tG->y)) != MP_OKAY)                             { goto error; }
+   if ((err = mp_copy(&G->z, &tG->z)) != MP_OKAY)                             { goto error; }
    
    /* calc the M tab, which holds kG for k==8..15 */
    /* M[0] == 8G */
@@ -464,6 +646,7 @@ static int ecc_mulmod(mp_int *k, ecc_point *G, ecc_point *R, mp_int *modulus)
           /* R = kG [k = first window] */
           if ((err = mp_copy(&M[bitbuf-8]->x, &R->x)) != MP_OKAY)             { goto error; }
           if ((err = mp_copy(&M[bitbuf-8]->y, &R->y)) != MP_OKAY)             { goto error; }
+          if ((err = mp_copy(&M[bitbuf-8]->z, &R->z)) != MP_OKAY)             { goto error; }
           first = 0;
        } else {
          /* normal window */
@@ -497,6 +680,7 @@ static int ecc_mulmod(mp_int *k, ecc_point *G, ecc_point *R, mp_int *modulus)
             /* first add, so copy */
             if ((err = mp_copy(&tG->x, &R->x)) != MP_OKAY)                     { goto error; }
             if ((err = mp_copy(&tG->y, &R->y)) != MP_OKAY)                     { goto error; }
+            if ((err = mp_copy(&tG->z, &R->z)) != MP_OKAY)                     { goto error; }
             first = 0;
          } else {
             /* then add */
@@ -505,7 +689,9 @@ static int ecc_mulmod(mp_int *k, ecc_point *G, ecc_point *R, mp_int *modulus)
        }
      }
    }
-   err = CRYPT_OK;
+
+   /* map R back from projective space */
+   err = ecc_map(R, modulus, &mu);
    goto done;
 error:
    err = mpi_to_ltc_error(err);
@@ -566,6 +752,7 @@ int ecc_test(void)
 
        if ((err = mp_read_radix(&G->x, (char *)sets[i].Gx, 64)) != MP_OKAY)         { goto error; }
        if ((err = mp_read_radix(&G->y, (char *)sets[i].Gy, 64)) != MP_OKAY)         { goto error; }
+       mp_set(&G->z, 1);
 
        /* then we should have G == (order + 1)G */
        if ((err = mp_add_d(&order, 1, &order)) != MP_OKAY)                          { goto error; }
@@ -629,9 +816,8 @@ int ecc_make_key(prng_state *prng, int wprng, int keysize, ecc_key *key)
    /* find key size */
    for (x = 0; (keysize > sets[x].size) && (sets[x].size != 0); x++);
    keysize = sets[x].size;
-   LTC_ARGCHK(keysize <= ECC_MAXSIZE);
 
-   if (sets[x].size == 0) {
+   if (keysize > ECC_MAXSIZE || sets[x].size == 0) {
       return CRYPT_INVALID_KEYSIZE;
    }
    key->idx = x;
@@ -650,13 +836,13 @@ int ecc_make_key(prng_state *prng, int wprng, int keysize, ecc_key *key)
    }
 
    /* setup the key variables */
-   if ((err = mp_init_multi(&key->pubkey.x, &key->pubkey.y, &key->k, &prime, NULL)) != MP_OKAY) {
+   if ((err = mp_init_multi(&key->pubkey.x, &key->pubkey.y, &key->pubkey.z, &key->k, &prime, NULL)) != MP_OKAY) {
       err = mpi_to_ltc_error(err);
       goto LBL_ERR;
    }
    base = new_point();
    if (base == NULL) {
-      mp_clear_multi(&key->pubkey.x, &key->pubkey.y, &key->k, &prime, NULL);
+      mp_clear_multi(&key->pubkey.x, &key->pubkey.y, &key->pubkey.z, &key->k, &prime, NULL);
       err = CRYPT_MEM;
       goto LBL_ERR;
    }
@@ -665,6 +851,7 @@ int ecc_make_key(prng_state *prng, int wprng, int keysize, ecc_key *key)
    if ((err = mp_read_radix(&prime, (char *)sets[key->idx].prime, 64)) != MP_OKAY)      { goto error; }
    if ((err = mp_read_radix(&base->x, (char *)sets[key->idx].Gx, 64)) != MP_OKAY)       { goto error; }
    if ((err = mp_read_radix(&base->y, (char *)sets[key->idx].Gy, 64)) != MP_OKAY)       { goto error; }
+   mp_set(&base->z, 1);
    if ((err = mp_read_unsigned_bin(&key->k, (unsigned char *)buf, keysize)) != MP_OKAY) { goto error; }
 
    /* make the public key */
@@ -675,6 +862,7 @@ int ecc_make_key(prng_state *prng, int wprng, int keysize, ecc_key *key)
    if ((err = mp_shrink(&key->k)) != MP_OKAY)                                           { goto error; }
    if ((err = mp_shrink(&key->pubkey.x)) != MP_OKAY)                                    { goto error; }
    if ((err = mp_shrink(&key->pubkey.y)) != MP_OKAY)                                    { goto error; }
+   if ((err = mp_shrink(&key->pubkey.z)) != MP_OKAY)                                    { goto error; }
 
    /* free up ram */
    err = CRYPT_OK;
@@ -701,7 +889,7 @@ LBL_ERR2:
 void ecc_free(ecc_key *key)
 {
    LTC_ARGCHK(key != NULL);
-   mp_clear_multi(&key->pubkey.x, &key->pubkey.y, &key->k, NULL);
+   mp_clear_multi(&key->pubkey.x, &key->pubkey.y, &key->pubkey.z, &key->k, NULL);
 }
 
 static int compress_y_point(ecc_point *pt, int idx, int *result)
@@ -865,7 +1053,7 @@ int ecc_import(const unsigned char *in, unsigned long inlen, ecc_key *key)
    }
 
    /* init key */
-   if (mp_init_multi(&key->pubkey.x, &key->pubkey.y, &key->k, NULL) != MP_OKAY) {
+   if (mp_init_multi(&key->pubkey.x, &key->pubkey.y, &key->pubkey.z, &key->k, NULL) != MP_OKAY) {
       return CRYPT_MEM;
    }
 
@@ -911,9 +1099,12 @@ int ecc_import(const unsigned char *in, unsigned long inlen, ecc_key *key)
       mp_clear(&key->k);
    }
 
+   /* z is always 1 */
+   mp_set(&key->pubkey.z, 1);
+
    return CRYPT_OK;
 error:
-   mp_clear_multi(&key->pubkey.x, &key->pubkey.y, &key->k, NULL);
+   mp_clear_multi(&key->pubkey.x, &key->pubkey.y, &key->pubkey.z, &key->k, NULL);
    return err;
 }
 

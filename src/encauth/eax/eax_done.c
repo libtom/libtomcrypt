@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtomcrypt.org
+ * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.org
  */
 
 /**
@@ -60,6 +60,11 @@ int eax_done(eax_state *eax, unsigned char *tag, unsigned long *taglen)
 
    if ((err = omac_done(&eax->headeromac, headermac, &len)) != CRYPT_OK) {
       goto LBL_ERR; 
+   }
+
+   /* terminate the CTR chain */
+   if ((err = ctr_done(&eax->ctr)) != CRYPT_OK) {
+      goto LBL_ERR;
    }
 
    /* compute N xor H xor C */

@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtomcrypt.org
+ * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.org
  */
 #include "tomcrypt.h"
 
@@ -27,7 +27,8 @@
 */
 int pmac_process(pmac_state *pmac, const unsigned char *in, unsigned long inlen)
 {
-   int err, n, x;
+   int err, n;
+   unsigned long x;
    unsigned char Z[MAXBLOCKSIZE];
 
    LTC_ARGCHK(pmac != NULL);
@@ -41,15 +42,33 @@ int pmac_process(pmac_state *pmac, const unsigned char *in, unsigned long inlen)
       return CRYPT_INVALID_ARG;
    }
 
+#ifdef LTC_FAST
+   if (pmac->buflen == 0 && inlen > 16) {
+      unsigned long y;
+      for (x = 0; x < (inlen - 16); x += 16) {
+          pmac_shift_xor(pmac);
+          for (y = 0; y < 16; y += sizeof(LTC_FAST_TYPE)) {
+              *((LTC_FAST_TYPE*)(&Z[y])) = *((LTC_FAST_TYPE*)(&in[y])) ^ *((LTC_FAST_TYPE*)(&pmac->Li[y]));
+          }
+          cipher_descriptor[pmac->cipher_idx].ecb_encrypt(Z, Z, &pmac->key);
+          for (y = 0; y < 16; y += sizeof(LTC_FAST_TYPE)) {
+              *((LTC_FAST_TYPE*)(&pmac->checksum[y])) ^= *((LTC_FAST_TYPE*)(&Z[y]));
+          }
+          in += 16;
+      }
+      inlen -= x;
+   }
+#endif
+
    while (inlen != 0) { 
        /* ok if the block is full we xor in prev, encrypt and replace prev */
        if (pmac->buflen == pmac->block_len) {
           pmac_shift_xor(pmac);
-          for (x = 0; x < pmac->block_len; x++) {
-              Z[x] = pmac->Li[x] ^ pmac->block[x];
+          for (x = 0; x < (unsigned long)pmac->block_len; x++) {
+               Z[x] = pmac->Li[x] ^ pmac->block[x];
           }
           cipher_descriptor[pmac->cipher_idx].ecb_encrypt(Z, Z, &pmac->key);
-          for (x = 0; x < pmac->block_len; x++) {
+          for (x = 0; x < (unsigned long)pmac->block_len; x++) {
               pmac->checksum[x] ^= Z[x];
           }
           pmac->buflen = 0;

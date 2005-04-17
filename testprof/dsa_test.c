@@ -1,4 +1,4 @@
-#include "test.h"
+#include <tomcrypt_test.h>
 
 #ifdef MDSA
 
@@ -10,7 +10,7 @@ int dsa_test(void)
    dsa_key key, key2;
 
    /* make a random key */
-   DO(dsa_make_key(&test_yarrow, find_prng("yarrow"), 20, 128, &key));
+   DO(dsa_make_key(&yarrow_prng, find_prng("yarrow"), 20, 128, &key));
 
    /* verify it */
    DO(dsa_verify_key(&key, &stat1));
@@ -18,7 +18,7 @@ int dsa_test(void)
 
    /* sign the message */
    x = sizeof(out);
-   DO(dsa_sign_hash(msg, sizeof(msg), out, &x, &test_yarrow, find_prng("yarrow"), &key));
+   DO(dsa_sign_hash(msg, sizeof(msg), out, &x, &yarrow_prng, find_prng("yarrow"), &key));
 
    /* verify it once */
    DO(dsa_verify_hash(out, x, msg, sizeof(msg), &stat1, &key));

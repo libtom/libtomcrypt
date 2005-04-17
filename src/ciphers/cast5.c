@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtomcrypt.org
+ * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.org
  */
  
  /** 
@@ -25,7 +25,9 @@ const struct ltc_cipher_descriptor cast5_desc = {
    &cast5_ecb_encrypt,
    &cast5_ecb_decrypt,
    &cast5_test,
-   &cast5_keysize
+   &cast5_done,
+   &cast5_keysize,
+   NULL, NULL, NULL, NULL, NULL, NULL, NULL
 };
 
 static const ulong32 S1[256] = {
@@ -681,6 +683,13 @@ int cast5_test(void)
    }
    return CRYPT_OK;
  #endif
+}
+
+/** Terminate the context 
+   @param skey    The scheduled key
+*/
+void cast5_done(symmetric_key *skey)
+{
 }
 
 /**

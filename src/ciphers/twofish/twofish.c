@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtomcrypt.org
+ * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.org
  */
 
  /** 
@@ -33,7 +33,9 @@ const struct ltc_cipher_descriptor twofish_desc =
     &twofish_ecb_encrypt,
     &twofish_ecb_decrypt,
     &twofish_test,
-    &twofish_keysize
+    &twofish_done,
+    &twofish_keysize,
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL
 };
 
 /* the two polynomials */
@@ -663,6 +665,13 @@ int twofish_test(void)
  }    
  return CRYPT_OK;
 #endif 
+}
+
+/** Terminate the context 
+   @param skey    The scheduled key
+*/
+void twofish_done(symmetric_key *skey)
+{
 }
 
 /**

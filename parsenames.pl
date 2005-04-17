@@ -11,10 +11,12 @@ print $b;
 foreach my $obj (@a) {
    $len = $len + length($obj);
    $obj =~ s/\*/\$/;
-   if ($len > 80) {
+   if ($len > 100) {
       printf "\\\n";
       $len = length($obj);
    }
    print "$obj ";
 }
+if ($ARGV[0] eq "HEADERS") { print "testprof/tomcrypt_test.h"; }
+
 print "\n\n";

@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtomcrypt.org
+ * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.org
  */
 
 /** 
@@ -114,6 +114,7 @@ int s_ocb_done(ocb_state *ocb, const unsigned char *pt, unsigned long ptlen,
    
    /* encrypt checksum, er... tag!! */
    cipher_descriptor[ocb->cipher].ecb_encrypt(ocb->checksum, X, &ocb->key);
+   cipher_descriptor[ocb->cipher].done(&ocb->key);
 
    /* now store it */
    for (x = 0; x < ocb->block_len && x < (int)*taglen; x++) {

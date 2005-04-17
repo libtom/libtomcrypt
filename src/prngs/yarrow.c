@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtomcrypt.org
+ * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.org
  */
 #include "tomcrypt.h"
 
@@ -222,9 +222,11 @@ unsigned long yarrow_read(unsigned char *out, unsigned long outlen, prng_state *
 int yarrow_done(prng_state *prng)
 {
    LTC_ARGCHK(prng != NULL);
+
    /* call cipher done when we invent one ;-) */
 
-   return CRYPT_OK;
+   /* we invented one */
+   return ctr_done(&prng->yarrow.ctr);
 }
 
 /**

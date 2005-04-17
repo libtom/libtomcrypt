@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtomcrypt.org
+ * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.org
  */
 
 /**
@@ -26,7 +26,9 @@ const struct ltc_cipher_descriptor xtea_desc =
     &xtea_ecb_encrypt,
     &xtea_ecb_decrypt,
     &xtea_test,
-    &xtea_keysize
+    &xtea_done,
+    &xtea_keysize,
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL
 };
 
 int xtea_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_key *skey)
@@ -170,6 +172,13 @@ int xtea_test(void)
 
    return CRYPT_OK;
  #endif
+}
+
+/** Terminate the context 
+   @param skey    The scheduled key
+*/
+void xtea_done(symmetric_key *skey)
+{
 }
 
 /**

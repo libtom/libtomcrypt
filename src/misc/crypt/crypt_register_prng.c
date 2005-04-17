@@ -6,12 +6,12 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtomcrypt.org
+ * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.org
  */
 #include "tomcrypt.h"
 
 /**
-  @file register_prng.c
+  @file crypt_register_prng.c
   Register a PRNG, Tom St Denis
 */
   

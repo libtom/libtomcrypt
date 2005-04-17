@@ -193,7 +193,7 @@ int dh_verify_hash(const unsigned char *sig,  unsigned long siglen,
 /* ---- ECC Routines ---- */
 #ifdef MECC
 typedef struct {
-    mp_int x, y;
+    mp_int x, y, z;
 } ecc_point;
 
 typedef struct {

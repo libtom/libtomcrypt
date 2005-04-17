@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtomcrypt.org
+ * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.org
  */
 #include "tomcrypt.h"
 #include <stdarg.h>
@@ -31,9 +31,9 @@
    @return CRYPT_OK if successful
 */
 int pmac_memory_multi(int cipher, 
-                const unsigned char *key, unsigned long keylen,
+                const unsigned char *key, unsigned long  keylen,
                       unsigned char *out, unsigned long *outlen,
-                const unsigned char *in, unsigned long inlen, ...)
+                const unsigned char *in,  unsigned long  inlen, ...)
 {
    int                  err;
    pmac_state          *pmac;

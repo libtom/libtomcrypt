@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtomcrypt.org
+ * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.org
  */
 #include "tomcrypt.h"
 
@@ -62,6 +62,7 @@ int omac_done(omac_state *omac, unsigned char *out, unsigned long *outlen)
 
    /* encrypt it */
    cipher_descriptor[omac->cipher_idx].ecb_encrypt(omac->block, omac->block, &omac->key);
+   cipher_descriptor[omac->cipher_idx].done(&omac->key);
  
    /* output it */
    for (x = 0; x < (unsigned)omac->blklen && x < *outlen; x++) {

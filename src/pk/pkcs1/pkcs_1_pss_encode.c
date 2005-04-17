@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtomcrypt.org
+ * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.org
  */
 #include "tomcrypt.h"
 
@@ -56,6 +56,11 @@ int pkcs_1_pss_encode(const unsigned char *msghash, unsigned long msghashlen,
    hLen        = hash_descriptor[hash_idx].hashsize;
    modulus_len = (modulus_bitlen>>3) + (modulus_bitlen & 7 ? 1 : 0);
 
+   /* check sizes */
+   if ((saltlen > modulus_len) || (modulus_len < hLen + saltlen + 2)) {
+      return CRYPT_PK_INVALID_SIZE;
+   }
+
    /* allocate ram for DB/mask/salt/hash of size modulus_len */
    DB   = XMALLOC(modulus_len);
    mask = XMALLOC(modulus_len);
@@ -77,12 +82,6 @@ int pkcs_1_pss_encode(const unsigned char *msghash, unsigned long msghashlen,
       return CRYPT_MEM;
    }
 
-
-   /* check sizes */
-   if ((saltlen > modulus_len) || (modulus_len < hLen + saltlen + 2)) {
-      err = CRYPT_INVALID_ARG;
-      goto LBL_ERR;
-   }
 
    /* generate random salt */
    if (saltlen > 0) {

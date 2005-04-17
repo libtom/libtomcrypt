@@ -16,8 +16,8 @@ extern "C" {
 #endif
 
 /* version */
-#define CRYPT   0x0100
-#define SCRYPT  "1.00"
+#define CRYPT   0x0101
+#define SCRYPT  "1.01"
 
 /* max size of either a cipher/hash block or symmetric key [largest of the two] */
 #define MAXBLOCKSIZE  128
@@ -66,6 +66,7 @@ enum {
 #include <tomcrypt_macros.h>
 #include <tomcrypt_cipher.h>
 #include <tomcrypt_hash.h>
+#include <tomcrypt_mac.h>
 #include <tomcrypt_prng.h>
 #include <tomcrypt_pk.h>
 #include <tomcrypt_misc.h>

@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtomcrypt.org
+ * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.org
  */
 /**
    @file noekeon.c
@@ -25,7 +25,9 @@ const struct ltc_cipher_descriptor noekeon_desc =
     &noekeon_ecb_encrypt,
     &noekeon_ecb_decrypt,
     &noekeon_test,
-    &noekeon_keysize
+    &noekeon_done,
+    &noekeon_keysize,
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL
 };
 
 static const ulong32 RC[] = {
@@ -261,6 +263,13 @@ int noekeon_test(void)
  }       
  return CRYPT_OK;
  #endif
+}
+
+/** Terminate the context 
+   @param skey    The scheduled key
+*/
+void noekeon_done(symmetric_key *skey)
+{
 }
 
 /**

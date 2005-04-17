@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtomcrypt.org
+ * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.org
  */
 #include "tomcrypt.h"
 
@@ -29,7 +29,9 @@ const struct ltc_cipher_descriptor des_desc =
     &des_ecb_encrypt,
     &des_ecb_decrypt,
     &des_test,
-    &des_keysize
+    &des_done,
+    &des_keysize,
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL
 };
 
 const struct ltc_cipher_descriptor des3_desc =
@@ -41,7 +43,9 @@ const struct ltc_cipher_descriptor des3_desc =
     &des3_ecb_encrypt,
     &des3_ecb_decrypt,
     &des3_test,
-    &des3_keysize
+    &des3_done,
+    &des3_keysize,
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL
 };
 
 static const ulong32 bytebit[8] =
@@ -1476,7 +1480,7 @@ static void _desfunc(ulong32 *block, const ulong32 *keys)
     work = ((leftt >> 8) ^ right) & 0x00ff00ffL;
     right ^= work;
     leftt ^= (work << 8);
-    // --
+    /* -- */
     work = ((leftt >> 2) ^ right) & 0x33333333L;
     right ^= work;
     leftt ^= (work << 2);
@@ -1665,7 +1669,7 @@ int des_test(void)
  #else    
     int err;
     static const struct des_test_case {
-        int num, mode; // mode 1 = encrypt
+        int num, mode; /* mode 1 = encrypt */
         unsigned char key[8], txt[8], out[8];
     } cases[] = {
         { 1, 1,     { 0x10, 0x31, 0x6E, 0x02, 0x8C, 0x8F, 0x3B, 0x4A },
@@ -1836,6 +1840,21 @@ int des3_test(void)
    return CRYPT_OK;
  #endif
 }
+
+/** Terminate the context 
+   @param skey    The scheduled key
+*/
+void des_done(symmetric_key *skey)
+{
+}
+
+/** Terminate the context 
+   @param skey    The scheduled key
+*/
+void des3_done(symmetric_key *skey)
+{
+}
+
 
 /**
   Gets suitable key size

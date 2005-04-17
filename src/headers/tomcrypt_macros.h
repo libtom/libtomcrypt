@@ -67,6 +67,23 @@
 
 #ifdef ENDIAN_LITTLE
 
+#if !defined(LTC_NO_BSWAP) && (defined(INTEL_CC) || (defined(__GNUC__) && (defined(__DJGPP__) || defined(__CYGWIN__) || defined(__MINGW32__) || defined(__i386__) || defined(__x86_64__))))
+
+#define STORE32H(x, y)           \
+asm __volatile__ (               \
+   "bswapl %0     \n\t"          \
+   "movl   %0,(%2)\n\t"          \
+   "bswapl %0     \n\t"          \
+      :"=r"(x):"0"(x), "r"(y));
+
+#define LOAD32H(x, y)          \
+asm __volatile__ (             \
+   "movl (%2),%0\n\t"          \
+   "bswapl %0\n\t"             \
+   :"=r"(x): "0"(x), "r"(y));
+
+#else
+
 #define STORE32H(x, y)                                                                     \
      { (y)[0] = (unsigned char)(((x)>>24)&255); (y)[1] = (unsigned char)(((x)>>16)&255);   \
        (y)[2] = (unsigned char)(((x)>>8)&255); (y)[3] = (unsigned char)((x)&255); }
@@ -76,6 +93,27 @@
            ((unsigned long)((y)[1] & 255)<<16) | \
            ((unsigned long)((y)[2] & 255)<<8)  | \
            ((unsigned long)((y)[3] & 255)); }
+
+#endif
+
+
+/* x86_64 processor */
+#if !defined(LTC_NO_BSWAP) && (defined(__GNUC__) && defined(__x86_64__))
+
+#define STORE64H(x, y)           \
+asm __volatile__ (               \
+   "bswapq %0     \n\t"          \
+   "movq   %0,(%2)\n\t"          \
+   "bswapq %0     \n\t"          \
+      :"=r"(x):"0"(x), "r"(y):"0");
+
+#define LOAD64H(x, y)          \
+asm __volatile__ (             \
+   "movq (%2),%0\n\t"          \
+   "bswapq %0\n\t"             \
+   :"=r"(x): "0"(x), "r"(y));
+
+#else
 
 #define STORE64H(x, y)                                                                     \
    { (y)[0] = (unsigned char)(((x)>>56)&255); (y)[1] = (unsigned char)(((x)>>48)&255);     \
@@ -88,6 +126,8 @@
          (((ulong64)((y)[2] & 255))<<40)|(((ulong64)((y)[3] & 255))<<32) | \
          (((ulong64)((y)[4] & 255))<<24)|(((ulong64)((y)[5] & 255))<<16) | \
          (((ulong64)((y)[6] & 255))<<8)|(((ulong64)((y)[7] & 255))); }
+
+#endif
 
 #ifdef ENDIAN_32BITWORD 
 
@@ -295,8 +335,8 @@ static inline unsigned long ROR64c(unsigned long word, const int i)
 
 #else /* LTC_NO_ROLC */
 
-#define ROL64c ROL
-#define ROR64c ROR
+#define ROL64c ROL64
+#define ROR64c ROR64
 
 #endif
 

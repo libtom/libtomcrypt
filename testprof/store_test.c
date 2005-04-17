@@ -1,11 +1,11 @@
-#include "test.h"
+#include <tomcrypt_test.h>
 
 /* Test store/load macros with offsets */
 int store_test(void)
 {
   unsigned char buf[24];
-  unsigned long L, L1;
   int y;
+  ulong32 L, L1;
   ulong64 LL, LL1;
 
   L = 0x12345678UL;

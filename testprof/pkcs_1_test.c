@@ -1,4 +1,4 @@
-#include "test.h"
+#include <tomcrypt_test.h>
 
 #ifdef PKCS_1
 
@@ -31,7 +31,7 @@ int pkcs_1_test(void)
 
       /* PKCS v1.5 testing (encryption) */
       l1 = sizeof(buf[1]);
-      DO(pkcs_1_v15_es_encode(buf[0], l3, modlen, &test_yarrow, prng_idx, buf[1], &l1));
+      DO(pkcs_1_v15_es_encode(buf[0], l3, modlen, &yarrow_prng, prng_idx, buf[1], &l1));
       DO(pkcs_1_v15_es_decode(buf[1], l1, modlen, buf[2], l3, &res1));
       if (res1 != 1 || memcmp(buf[0], buf[2], l3)) {
          printf("pkcs v1.5 encrypt failed %d, %lu, %lu ", res1, l1, l3);
@@ -64,7 +64,7 @@ int pkcs_1_test(void)
 
       /* encode it */
       l1 = sizeof(buf[1]);
-      DO(pkcs_1_oaep_encode(buf[0], l3, lparam, lparamlen, modlen, &test_yarrow, prng_idx, hash_idx, buf[1], &l1));
+      DO(pkcs_1_oaep_encode(buf[0], l3, lparam, lparamlen, modlen, &yarrow_prng, prng_idx, hash_idx, buf[1], &l1));
 
       /* decode it */
       l2 = sizeof(buf[2]);
@@ -86,7 +86,7 @@ int pkcs_1_test(void)
 
       /* test PSS */
       l1 = sizeof(buf[1]);
-      DO(pkcs_1_pss_encode(buf[0], l3, saltlen, &test_yarrow, prng_idx, hash_idx, modlen, buf[1], &l1));
+      DO(pkcs_1_pss_encode(buf[0], l3, saltlen, &yarrow_prng, prng_idx, hash_idx, modlen, buf[1], &l1));
       DO(pkcs_1_pss_decode(buf[0], l3, buf[1], l1, saltlen, hash_idx, modlen, &res1));
       
       buf[0][i1 = abs(rand()) % l3] ^= 1;

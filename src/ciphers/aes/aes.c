@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtomcrypt.org
+ * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.org
  */
 
 /* AES implementation by Tom St Denis
@@ -39,6 +39,7 @@
 #define SETUP    rijndael_setup
 #define ECB_ENC  rijndael_ecb_encrypt
 #define ECB_DEC  rijndael_ecb_decrypt
+#define ECB_DONE rijndael_done
 #define ECB_TEST rijndael_test
 #define ECB_KS   rijndael_keysize
 
@@ -47,7 +48,8 @@ const struct ltc_cipher_descriptor rijndael_desc =
     "rijndael",
     6,
     16, 32, 16, 10,
-    SETUP, ECB_ENC, ECB_DEC, ECB_TEST, ECB_KS
+    SETUP, ECB_ENC, ECB_DEC, ECB_TEST, ECB_DONE, ECB_KS,
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL
 };
 
 const struct ltc_cipher_descriptor aes_desc =
@@ -55,7 +57,8 @@ const struct ltc_cipher_descriptor aes_desc =
     "aes",
     6,
     16, 32, 16, 10,
-    SETUP, ECB_ENC, ECB_DEC, ECB_TEST, ECB_KS
+    SETUP, ECB_ENC, ECB_DEC, ECB_TEST, ECB_DONE, ECB_KS,
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL
 };
 
 #else
@@ -63,13 +66,15 @@ const struct ltc_cipher_descriptor aes_desc =
 #define SETUP    rijndael_enc_setup
 #define ECB_ENC  rijndael_enc_ecb_encrypt
 #define ECB_KS   rijndael_enc_keysize
+#define ECB_DONE rijndael_enc_done
 
 const struct ltc_cipher_descriptor rijndael_enc_desc =
 {
     "rijndael",
     6,
     16, 32, 16, 10,
-    SETUP, ECB_ENC, NULL, NULL, ECB_KS
+    SETUP, ECB_ENC, NULL, NULL, ECB_DONE, ECB_KS,
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL
 };
 
 const struct ltc_cipher_descriptor aes_enc_desc =
@@ -77,7 +82,8 @@ const struct ltc_cipher_descriptor aes_enc_desc =
     "aes",
     6,
     16, 32, 16, 10,
-    SETUP, ECB_ENC, NULL, NULL, ECB_KS
+    SETUP, ECB_ENC, NULL, NULL, ECB_DONE, ECB_KS,
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL
 };
 
 #endif
@@ -706,6 +712,15 @@ int ECB_TEST(void)
 }
 
 #endif /* ENCRYPT_ONLY */
+
+
+/** Terminate the context 
+   @param skey    The scheduled key
+*/
+void ECB_DONE(symmetric_key *skey)
+{
+}
+
 
 /**
   Gets suitable key size

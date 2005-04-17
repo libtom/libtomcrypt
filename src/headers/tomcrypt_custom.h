@@ -17,19 +17,25 @@
 #define XCLOCKS_PER_SEC CLOCKS_PER_SEC
 
 /* Use small code where possible */
-// #define LTC_SMALL_CODE
+/* #define LTC_SMALL_CODE */
 
 /* Enable self-test test vector checking */
 #define LTC_TEST
 
 /* clean the stack of functions which put private information on stack */
-// #define LTC_CLEAN_STACK
+/* #define LTC_CLEAN_STACK */
 
 /* disable all file related functions */
-// #define LTC_NO_FILE
+/* #define LTC_NO_FILE */
 
 /* disable all forms of ASM */
-// #define LTC_NO_ASM
+/* #define LTC_NO_ASM */
+
+/* disable FAST mode */
+/* #define LTC_NO_FAST */
+
+/* disable BSWAP on x86 */
+/* #define LTC_NO_BSWAP */
 
 /* ---> Symmetric Block Ciphers <--- */
 #define BLOWFISH
@@ -43,17 +49,14 @@
  * (saves 4KB of ram), _ALL_TABLES enables all tables during setup */
 #define TWOFISH
 #define TWOFISH_TABLES
-// #define TWOFISH_ALL_TABLES
-// #define TWOFISH_SMALL
+/* #define TWOFISH_ALL_TABLES */
+/* #define TWOFISH_SMALL */
 /* DES includes EDE triple-DES */
 #define DES
 #define CAST5
 #define NOEKEON
 #define SKIPJACK
-/* SAFER code isn't public domain.  It appears to be free to use 
- * but has been disabled by default to avoid any such problems 
- */
-//#define SAFER
+#define SAFER
 #define KHAZAD
 #define ANUBIS
 #define ANUBIS_TWEAK
@@ -85,6 +88,11 @@
 #define HMAC
 #define OMAC
 #define PMAC
+#define PELICAN
+
+#if defined(PELICAN) && !defined(RIJNDAEL)
+   #error Pelican-MAC requires RIJNDAEL
+#endif
 
 /* ---> Encrypt + Authenticate Modes <--- */
 #define EAX_MODE
@@ -93,6 +101,11 @@
 #endif
 
 #define OCB_MODE
+#define CCM_MODE
+
+#define GCM_MODE
+/* Use 64KiB tables */
+#define GCM_TABLES 
 
 /* Various tidbits of modern neatoness */
 #define BASE64
@@ -100,8 +113,8 @@
 /* --> Pseudo Random Number Generators <--- */
 /* Yarrow */
 #define YARROW
-// which descriptor of AES to use? 
-// 0 = rijndael_enc 1 = aes_enc, 2 = rijndael [full], 3 = aes [full]
+/* which descriptor of AES to use?  */
+/* 0 = rijndael_enc 1 = aes_enc, 2 = rijndael [full], 3 = aes [full] */
 #define YARROW_AES 0
 
 #if defined(YARROW) && !defined(CTR)

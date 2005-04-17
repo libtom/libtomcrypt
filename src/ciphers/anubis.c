@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtomcrypt.org
+ * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.org
  */
 
 /**
@@ -27,7 +27,9 @@ const struct ltc_cipher_descriptor anubis_desc = {
    &anubis_ecb_encrypt,
    &anubis_ecb_decrypt,
    &anubis_test,
-   &anubis_keysize
+   &anubis_done,
+   &anubis_keysize,
+   NULL, NULL, NULL, NULL, NULL, NULL, NULL
 };
 
 #define MIN_N           4 
@@ -1507,6 +1509,13 @@ int anubis_test(void)
    }
    return CRYPT_OK;
 #endif
+}
+
+/** Terminate the context 
+   @param skey    The scheduled key
+*/
+void anubis_done(symmetric_key *skey)
+{
 }
 
 /**

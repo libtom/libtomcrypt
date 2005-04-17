@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtomcrypt.org
+ * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.org
  */
 /**********************************************************************\
 * To commemorate the 1996 RSA Data Security Conference, the following  *
@@ -34,7 +34,9 @@ const struct ltc_cipher_descriptor rc2_desc = {
    &rc2_ecb_encrypt,
    &rc2_ecb_decrypt,
    &rc2_test,
-   &rc2_keysize
+   &rc2_done,
+   &rc2_keysize,
+   NULL, NULL, NULL, NULL, NULL, NULL, NULL
 };
 
 /* 256-entry permutation table, probably derived somehow from pi */
@@ -317,6 +319,13 @@ int rc2_test(void)
     }
     return CRYPT_OK;
    #endif
+}
+
+/** Terminate the context 
+   @param skey    The scheduled key
+*/
+void rc2_done(symmetric_key *skey)
+{
 }
 
 /**
