@@ -47,7 +47,7 @@
 \def\gap{\vspace{0.5ex}}
 \makeindex
 \begin{document}
-\title{LibTomCrypt \\ Version 1.01}
+\title{LibTomCrypt \\ Version 1.02}
 \author{Tom St Denis \\
 \\
 tomstdenis@gmail.com \\
@@ -167,7 +167,7 @@ The project is hereby released as public domain.
 
 The author (Tom St Denis) is not a patent lawyer so this section is not to be treated as legal advice.  To the best
 of the authors knowledge the only patent related issues within the library are the RC5 and RC6 symmetric block ciphers.  
-They can be removed from a build by simply commenting out the two appropriate lines in ``mycrypt\_custom.h''.  The rest
+They can be removed from a build by simply commenting out the two appropriate lines in ``tomcrypt\_custom.h''.  The rest
 of the ciphers and hashes are patent free or under patents that have since expired.
 
 The RC2 and RC4 symmetric ciphers are not under patents but are under trademark regulations.  This means you can use 
@@ -593,7 +593,7 @@ byte string from the real 7/21 byte key.
 
 \item
 Note that ``Twofish'' has additional configuration options that take place at build time.  These options are found in
-the file ``mycrypt\_cfg.h''.  The first option is ``TWOFISH\_SMALL'' which when defined will force the Twofish code
+the file ``tomcrypt\_cfg.h''.  The first option is ``TWOFISH\_SMALL'' which when defined will force the Twofish code
 to not pre-compute the Twofish ``$g(X)$'' function as a set of four $8 \times 32$ s-boxes.  This means that a scheduled
 key will require less ram but the resulting cipher will be slower.  The second option is ``TWOFISH\_TABLES'' which when
 defined will force the Twofish code to use pre-computed tables for the two s-boxes $q_0, q_1$ as well as the multiplication
@@ -3728,8 +3728,8 @@ This will use libtool and gcc to build a shared library ``libtomcrypt.la'' as we
 and install them into /usr/lib (and the headers into /usr/include).  To link your application you should use the 
 libtool program in ``--mode=link''.
 
-\section{mycrypt\_cfg.h}
-The file ``mycrypt\_cfg.h'' is what lets you control various high level macros which control the behaviour 
+\section{tomcrypt\_cfg.h}
+The file ``tomcrypt\_cfg.h'' is what lets you control various high level macros which control the behaviour 
 of the library. 
 
 \subsubsection{ARGTYPE}
@@ -3748,10 +3748,10 @@ which will work on all platforms.
 Currently LibTomCrypt will detect x86-32 and x86-64 running GCC as well as x86-32 running MSVC.  
 
 \section{The Configure Script}
-There are also options you can specify from the configure script or ``mycrypt\_custom.h''.  
+There are also options you can specify from the configure script or ``tomcrypt\_custom.h''.  
 
 \subsection{X memory routines}
-At the top of mycrypt\_custom.h are four macros denoted as XMALLOC, XCALLOC, XREALLOC and XFREE which resolve to 
+At the top of tomcrypt\_custom.h are four macros denoted as XMALLOC, XCALLOC, XREALLOC and XFREE which resolve to 
 the name of the respective functions.  This lets you substitute in your own memory routines.  If you substitute in 
 your own functions they must behave like the standard C library functions in terms of what they expect as input and 
 output.  By default the library uses the standard C routines.
@@ -3830,7 +3830,7 @@ If you plan on only using RSA with moduli in the range of 1024 to 2560 bits you 
 to reduce the library size.  Follow these steps
 
 \begin{enumerate}
-   \item Undefine MDSA, MECC and MDH from mycrypt\_custom.h
+   \item Undefine MDSA, MECC and MDH from tomcrypt\_custom.h
    \item Undefine LTM\_ALL  from tommath\_superclass.h
    \item Define SC\_RSA\_1 from tommath\_superclass.h
    \item Rebuild the library.

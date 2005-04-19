@@ -51,12 +51,14 @@ ulong64 rdtsc (void)
          ulong64 a;
          asm __volatile__ ("rdtsc\nmovl %%eax,(%0)\nmovl %%edx,4(%0)\n"::"r"(&a):"%eax","%edx");
          return a;
-      #else /* gcc-IA64 version */
+      #elif defined(__ia64__)  /* gcc-IA64 version */
          unsigned long result;
          __asm__ __volatile__("mov %0=ar.itc" : "=r"(result) :: "memory");
          while (__builtin_expect ((int) result == -1, 0))
          __asm__ __volatile__("mov %0=ar.itc" : "=r"(result) :: "memory");
          return result;
+      #else 
+         return XCLOCK();
       #endif
 
    // Microsoft and Intel Windows compilers
@@ -70,7 +72,7 @@ ulong64 rdtsc (void)
      #endif
       return __getReg (3116);
    #else
-     #error need rdtsc function for this build
+     return XCLOCK();
    #endif
    }
 

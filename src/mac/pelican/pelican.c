@@ -142,7 +142,7 @@ int pelican_done(pelican_state *pelmac, unsigned char *out)
    }
    pelmac->state[pelmac->buflen++] ^= 0x80;
    aes_ecb_encrypt(pelmac->state, out, &pelmac->K);
-	aes_done(&pelmac->K);
+   aes_done(&pelmac->K);
    return CRYPT_OK;
 }                        
 

@@ -36,8 +36,10 @@ int gcm_process(gcm_state *gcm,
    int           err;
 
    LTC_ARGCHK(gcm != NULL);
-   LTC_ARGCHK(pt  != NULL);
-   LTC_ARGCHK(ct  != NULL);
+   if (ptlen > 0) {
+      LTC_ARGCHK(pt  != NULL);
+      LTC_ARGCHK(ct  != NULL);
+   }
 
    if (gcm->buflen > 16 || gcm->buflen < 0) {
       return CRYPT_INVALID_ARG;
@@ -51,9 +53,6 @@ int gcm_process(gcm_state *gcm,
    if (gcm->mode == GCM_MODE_AAD) {
       /* let's process the AAD */
       if (gcm->buflen) {
-         for (x = 0; x < (unsigned long)gcm->buflen; x++) {
-             gcm->X[x] ^= gcm->buf[x];
-         }
          gcm->totlen += gcm->buflen * CONST64(8);
          gcm_mult_h(gcm, gcm->X);
       }
@@ -115,9 +114,6 @@ int gcm_process(gcm_state *gcm,
    /* process text */
    for (; x < ptlen; x++) {
        if (gcm->buflen == 16) {
-          for (y = 0; y < 16; y++) {
-              gcm->X[y] ^= gcm->buf[y];
-          }
           gcm->pttotlen += 128;
           gcm_mult_h(gcm, gcm->X);
           
@@ -135,7 +131,7 @@ int gcm_process(gcm_state *gcm,
           b = ct[x];
           pt[x] = ct[x] ^ gcm->buf[gcm->buflen];
        }
-       gcm->buf[gcm->buflen++] = b;          
+       gcm->X[gcm->buflen++] ^= b;          
    }
 
    return CRYPT_OK;

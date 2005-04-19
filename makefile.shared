@@ -6,7 +6,7 @@
 # Tom St Denis
 
 # The version
-VERSION=0:101
+VERSION=0:102
 
 # Compiler and Linker Names
 CC=libtool --mode=compile gcc

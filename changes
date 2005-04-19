@@ -1,3 +1,11 @@
+April 19th, 2005
+v1.02
+      -- Added LTC_TEST support to gcm_test()
+      -- "pt/ct" can now be NULL in gcm_process() if you are processing zero bytes
+      -- Optimized GCM by removing the "double copy" handling of the plaintext/aad
+      -- Richard Outerbridge pointed out that x86_prof won't build on MACOS and that the manual 
+         erroneously refers to "mycrypt" all over the place.  Fixed.
+
 April 17th, 2005
 v1.01
        ** Secure Science Corporation has supported this release cycle by sponsoring the development time taken.  Their 
@@ -54,7 +62,7 @@ v1.01
        -- Added "stest" build to intel CC to test static linked from within the dir (so you don't have to install to test)
        -- Moved testing/benchmark into testprof directory and build it as part of the build.  Now you can link against libtomcrypt_prof.a to get 
           testing info (hint: hardware developers ;-) )
-		 -- Added CCM to tv_gen 
+       -- Added CCM to tv_gen 
        -- Added demos to MSVC makefile
        -- Removed -funroll-all-loops from GCC makefile and replaced with -funroll-loops which is a bit more sane (P4 ain't got much cache for the IDATA)
        -- Fixed GCM prior to release and re-enabled it.  It has not been optimized but it does conform when compiled with optimizations.

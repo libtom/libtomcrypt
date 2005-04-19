@@ -49,9 +49,6 @@ int gcm_done(gcm_state *gcm,
 
    /* handle remaining ciphertext */
    if (gcm->buflen) {
-      for (x = 0; x < (unsigned long)gcm->buflen; x++) {
-          gcm->X[x] ^= gcm->buf[x];  
-      }
       gcm->pttotlen += gcm->buflen * CONST64(8);
       gcm_mult_h(gcm, gcm->X);
    }

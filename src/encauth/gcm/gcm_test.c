@@ -23,6 +23,9 @@
  */
 int gcm_test(void)
 {
+#ifndef LTC_TEST
+   return CRYPT_NOP;
+#else
    static const struct {
        unsigned char K[32];
        int           keylen;
@@ -355,6 +358,7 @@ int gcm_test(void)
 
    }
    return CRYPT_OK;
+#endif
 }
 
 #endif

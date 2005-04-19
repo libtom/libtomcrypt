@@ -51,7 +51,7 @@ int rsa_import(const unsigned char *in, unsigned long inlen, rsa_key *key)
    /* ok all the ASN.1 params are fine so far, let's move up */
    x = ((unsigned long)in[2]);
    y = 0;
-   if ((in[1] & 0x0f) == 2) {
+   if ((in[1] & ~0x80) == 2) {
       x   = (x << 8) + ((unsigned long)in[3]) + 1;
       in += 1;
       y   = 1;
