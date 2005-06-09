@@ -104,3 +104,7 @@ int omac_test(void)
 }   
 
 #endif
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

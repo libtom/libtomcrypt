@@ -38,3 +38,7 @@ int gcm_reset(gcm_state *gcm)
 }
 
 #endif
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

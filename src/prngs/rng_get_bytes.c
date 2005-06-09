@@ -138,3 +138,7 @@ unsigned long rng_get_bytes(unsigned char *out, unsigned long outlen,
 #endif
    return 0;
 }
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

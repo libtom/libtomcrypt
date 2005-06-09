@@ -44,3 +44,7 @@ int register_cipher(const struct ltc_cipher_descriptor *cipher)
    /* no spot */
    return -1;
 }
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

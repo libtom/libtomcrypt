@@ -30,3 +30,7 @@ int is_prime(mp_int *N, int *result)
 }
 
 #endif
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

@@ -32,3 +32,7 @@ int eax_addheader(eax_state *eax, const unsigned char *header,
 }
 
 #endif
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

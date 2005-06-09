@@ -68,3 +68,7 @@ const char *error_to_string(int err)
    }   
 }
 
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

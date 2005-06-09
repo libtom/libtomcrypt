@@ -74,3 +74,7 @@ int rsa_encrypt_key(const unsigned char *in,     unsigned long inlen,
 }
 
 #endif /* MRSA */
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

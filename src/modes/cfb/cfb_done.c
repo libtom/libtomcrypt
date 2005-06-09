@@ -36,3 +36,7 @@ int cfb_done(symmetric_CFB *cfb)
    
 
 #endif
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

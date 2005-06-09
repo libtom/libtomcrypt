@@ -39,3 +39,7 @@ int cbc_getiv(unsigned char *IV, unsigned long *len, symmetric_CBC *cbc)
 }
 
 #endif
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

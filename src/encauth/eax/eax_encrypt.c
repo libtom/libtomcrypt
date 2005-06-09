@@ -45,3 +45,7 @@ int eax_encrypt(eax_state *eax, const unsigned char *pt, unsigned char *ct,
 
 #endif
 
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

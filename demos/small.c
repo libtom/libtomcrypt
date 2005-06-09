@@ -8,3 +8,7 @@ int main(void)
    register_hash(&sha256_desc);
    return 0;
 }
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

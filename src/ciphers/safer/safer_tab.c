@@ -62,3 +62,7 @@ const unsigned char safer_lbox[256] = {
 #endif
 
 
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

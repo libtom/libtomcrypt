@@ -490,3 +490,7 @@ static const ulong32 rs_tab7[256] = {
 #endif /* TWOFISH_ALL_TABLES */
 
 #endif
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

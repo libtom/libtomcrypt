@@ -71,3 +71,7 @@ int ocb_decrypt(ocb_state *ocb, const unsigned char *ct, unsigned char *pt)
 
 #endif
 
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

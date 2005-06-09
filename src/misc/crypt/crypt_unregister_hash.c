@@ -35,3 +35,7 @@ int unregister_hash(const struct ltc_hash_descriptor *hash)
    }
    return CRYPT_ERROR;
 }
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

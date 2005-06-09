@@ -16,8 +16,8 @@ extern "C" {
 #endif
 
 /* version */
-#define CRYPT   0x0102
-#define SCRYPT  "1.02"
+#define CRYPT   0x0103
+#define SCRYPT  "1.03"
 
 /* max size of either a cipher/hash block or symmetric key [largest of the two] */
 #define MAXBLOCKSIZE  128
@@ -79,3 +79,7 @@ enum {
 
 #endif /* TOMCRYPT_H_ */
 
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

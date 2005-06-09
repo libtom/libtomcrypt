@@ -17,7 +17,10 @@ time_sqr();
 time_rsa();
 time_ecc();
 time_dh();
-
 return EXIT_SUCCESS;
 
 }
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

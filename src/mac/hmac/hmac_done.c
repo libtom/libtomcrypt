@@ -103,3 +103,7 @@ LBL_ERR:
 }
 
 #endif
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

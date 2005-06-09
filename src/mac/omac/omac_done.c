@@ -78,3 +78,7 @@ int omac_done(omac_state *omac, unsigned char *out, unsigned long *outlen)
 
 #endif
 
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

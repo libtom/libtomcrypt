@@ -77,3 +77,7 @@ int omac_file(int cipher,
 }
 
 #endif
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

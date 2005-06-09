@@ -293,7 +293,6 @@ int ccm_memory(int cipher,
 
 #ifdef LTC_CLEAN_STACK
    zeromem(skey,   sizeof(*skey));
-   zeromem(B,      sizeof(B));
    zeromem(PAD,    sizeof(PAD));
    zeromem(CTRPAD, sizeof(CTRPAD));
 #endif
@@ -304,3 +303,7 @@ int ccm_memory(int cipher,
 }
 
 #endif
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

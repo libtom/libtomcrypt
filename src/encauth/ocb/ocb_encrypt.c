@@ -64,3 +64,7 @@ int ocb_encrypt(ocb_state *ocb, const unsigned char *pt, unsigned char *ct)
 }
 
 #endif
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

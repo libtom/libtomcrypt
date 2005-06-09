@@ -35,3 +35,7 @@ int pkcs_1_os2ip(mp_int *n, unsigned char *in, unsigned long inlen)
 
 #endif /* PKCS_1 */
 
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

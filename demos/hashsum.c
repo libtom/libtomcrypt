@@ -113,3 +113,7 @@ void register_algs(void)
 #endif
 
 }
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

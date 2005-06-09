@@ -18,7 +18,7 @@
 #ifdef ECB
 
 /** Terminate the chain
-  @param rcb    The ECB chain to terminate
+  @param ecb    The ECB chain to terminate
   @return CRYPT_OK on success
 */
 int ecb_done(symmetric_ECB *ecb)
@@ -36,3 +36,7 @@ int ecb_done(symmetric_ECB *ecb)
    
 
 #endif
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

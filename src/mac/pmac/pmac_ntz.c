@@ -33,3 +33,7 @@ int pmac_ntz(unsigned long x)
 }
 
 #endif
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

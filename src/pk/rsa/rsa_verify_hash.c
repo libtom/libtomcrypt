@@ -80,3 +80,7 @@ int rsa_verify_hash(const unsigned char *sig,      unsigned long siglen,
 }
 
 #endif /* MRSA */
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

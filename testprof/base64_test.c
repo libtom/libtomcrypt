@@ -12,9 +12,13 @@ int base64_test(void)
        l2 = sizeof(tmp);
        DO(base64_decode(out, l1, tmp, &l2));
        if (l2 != x || memcmp(tmp, in, x)) {
-           printf("base64  failed %lu %lu %lu", x, l1, l2);
+           fprintf(stderr, "base64  failed %lu %lu %lu", x, l1, l2);
            return 1;
        }
    }
    return 0;
 }
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

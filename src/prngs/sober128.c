@@ -489,3 +489,7 @@ int sober128_test(void)
 
 #endif
 
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

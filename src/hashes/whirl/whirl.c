@@ -25,9 +25,9 @@ const struct ltc_hash_descriptor whirlpool_desc =
     64,
     64,
 
-    /* DER encoding (not yet supported) */
-    { 0x00 },
-    0,
+   /* OID */
+   { 1, 0, 10118, 3, 0, 55 },
+   6,
 
     &whirlpool_init,
     &whirlpool_process,
@@ -307,3 +307,7 @@ int  whirlpool_test(void)
 
 #endif
 
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

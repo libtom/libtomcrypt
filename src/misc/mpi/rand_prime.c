@@ -64,3 +64,7 @@ int rand_prime(mp_int *N, long len, prng_state *prng, int wprng)
       
 #endif
 
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

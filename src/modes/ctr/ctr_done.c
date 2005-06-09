@@ -36,3 +36,7 @@ int ctr_done(symmetric_CTR *ctr)
    
 
 #endif
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

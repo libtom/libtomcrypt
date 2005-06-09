@@ -258,3 +258,7 @@ int rc4_test(void)
 
 #endif
 
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

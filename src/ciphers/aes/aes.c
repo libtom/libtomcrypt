@@ -127,7 +127,7 @@ int SETUP(const unsigned char *key, int keylen, int num_rounds, symmetric_key *s
 #endif    
     LTC_ARGCHK(key  != NULL);
     LTC_ARGCHK(skey != NULL);
-    
+  
     if (keylen != 16 && keylen != 24 && keylen != 32) {
        return CRYPT_INVALID_KEYSIZE;
     }
@@ -747,3 +747,7 @@ int ECB_KS(int *keysize)
 
 #endif
 
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

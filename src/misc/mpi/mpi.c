@@ -9042,3 +9042,7 @@ int     KARATSUBA_MUL_CUTOFF = 74,      /* Min. number of digits before Karatsub
 
 
 /* EOF */
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

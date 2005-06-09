@@ -64,3 +64,7 @@ int hash_filehandle(int hash, FILE *in, unsigned char *out, unsigned long *outle
 #endif
 }
 
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

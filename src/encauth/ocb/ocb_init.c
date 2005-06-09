@@ -127,3 +127,7 @@ int ocb_init(ocb_state *ocb, int cipher,
 }
 
 #endif
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

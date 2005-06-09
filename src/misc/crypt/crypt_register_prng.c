@@ -44,3 +44,7 @@ int register_prng(const struct ltc_prng_descriptor *prng)
    /* no spot */
    return -1;
 }
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

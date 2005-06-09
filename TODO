@@ -1,1 +1,9 @@
+Things ideal for 1.04
+
+- ASN.1 SET and UTCtime
+- Start working towards making the bignum code plugable
+- Add OID for ciphers and PRNGs to their descriptors
+- Document the ASN.1 a bit more verbosely ;-)
+- Some ASN.1 demo programs [for now read the source code!]
+- Look into other ECC point muls and consider a "precomp" interface 
 

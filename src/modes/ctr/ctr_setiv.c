@@ -52,3 +52,7 @@ int ctr_setiv(const unsigned char *IV, unsigned long len, symmetric_CTR *ctr)
 
 #endif 
 
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

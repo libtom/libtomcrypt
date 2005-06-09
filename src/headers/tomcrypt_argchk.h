@@ -19,3 +19,7 @@ void crypt_argchk(char *v, char *s, int d);
 
 #endif
 
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

@@ -7,3 +7,7 @@ void run_cmd(int res, int line, char *file, char *cmd)
       exit(EXIT_FAILURE);
    }
 }
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

@@ -87,3 +87,7 @@ int hmac_file(int hash, const char *fname,
 
 #endif
 
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

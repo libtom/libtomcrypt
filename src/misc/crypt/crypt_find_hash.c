@@ -31,3 +31,7 @@ int find_hash(const char *name)
    }
    return -1;
 }
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

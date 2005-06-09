@@ -44,3 +44,7 @@ int register_hash(const struct ltc_hash_descriptor *hash)
    /* no spot */
    return -1;
 }
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

@@ -30,3 +30,7 @@ int find_hash_id(unsigned char ID)
    }
    return -1;
 }
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

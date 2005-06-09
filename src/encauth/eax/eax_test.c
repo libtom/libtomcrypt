@@ -276,3 +276,7 @@ int eax_test(void)
 }
 
 #endif /* EAX_MODE */
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

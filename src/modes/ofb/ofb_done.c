@@ -36,3 +36,7 @@ int ofb_done(symmetric_OFB *ofb)
    
 
 #endif
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

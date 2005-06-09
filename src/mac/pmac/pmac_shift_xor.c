@@ -38,3 +38,7 @@ void pmac_shift_xor(pmac_state *pmac)
 }
 
 #endif
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

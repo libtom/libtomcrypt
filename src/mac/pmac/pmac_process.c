@@ -90,3 +90,7 @@ int pmac_process(pmac_state *pmac, const unsigned char *in, unsigned long inlen)
 }
 
 #endif
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

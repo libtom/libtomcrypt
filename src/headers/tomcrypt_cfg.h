@@ -106,3 +106,7 @@ int   XMEMCMP(const void *s1, const void *s2, size_t n);
 
 #endif
 
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

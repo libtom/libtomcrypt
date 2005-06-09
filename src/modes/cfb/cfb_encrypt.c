@@ -57,3 +57,7 @@ int cfb_encrypt(const unsigned char *pt, unsigned char *ct, unsigned long len, s
 }
 
 #endif
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

@@ -27,3 +27,7 @@ void packet_store_header(unsigned char *dst, int section, int subsection)
 }
 
 #endif
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

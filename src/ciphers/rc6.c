@@ -337,3 +337,7 @@ int rc6_keysize(int *keysize)
 #endif /*RC6*/
 
 
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

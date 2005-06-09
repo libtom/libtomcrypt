@@ -62,3 +62,7 @@ LBL_ERR:
 
     return err;
 }
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

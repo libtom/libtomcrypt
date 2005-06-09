@@ -168,3 +168,7 @@ int ccm_test(void)
 }
 
 #endif
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

@@ -51,3 +51,7 @@ int hash_file(int hash, const char *fname, unsigned char *out, unsigned long *ou
 #endif
 }
 
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

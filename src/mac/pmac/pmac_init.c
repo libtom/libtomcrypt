@@ -138,3 +138,7 @@ int pmac_init(pmac_state *pmac, int cipher, const unsigned char *key, unsigned l
 }
 
 #endif
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

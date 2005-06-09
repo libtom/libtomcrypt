@@ -36,3 +36,7 @@ int cbc_done(symmetric_CBC *cbc)
    
 
 #endif
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

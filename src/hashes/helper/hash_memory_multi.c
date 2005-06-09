@@ -80,3 +80,7 @@ LBL_ERR:
     va_end(args);
     return err;
 }
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

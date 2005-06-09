@@ -41,3 +41,7 @@ int find_cipher_any(const char *name, int blocklen, int keylen)
    }
    return -1;
 }
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

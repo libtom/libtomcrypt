@@ -114,3 +114,7 @@ int pelican_test(void)
 
 
 #endif
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

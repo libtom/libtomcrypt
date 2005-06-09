@@ -71,3 +71,7 @@ void time_encmacs(void);
 
 
 #endif
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

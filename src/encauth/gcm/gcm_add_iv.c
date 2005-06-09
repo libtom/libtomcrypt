@@ -88,3 +88,7 @@ int gcm_add_iv(gcm_state *gcm,
 
 #endif
    
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

@@ -384,3 +384,7 @@ int fortuna_test(void)
 
 #endif
 
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

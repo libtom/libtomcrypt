@@ -63,3 +63,7 @@ int rng_make_prng(int bits, int wprng, prng_state *prng,
    return CRYPT_OK;
 }
 
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

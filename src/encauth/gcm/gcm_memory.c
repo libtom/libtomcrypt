@@ -87,3 +87,7 @@ LTC_ERR:
 }
 #endif
 
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

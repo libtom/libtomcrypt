@@ -27,3 +27,7 @@ int hash_is_valid(int idx)
    }
    return CRYPT_OK;
 }
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

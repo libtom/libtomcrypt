@@ -201,3 +201,7 @@ int xtea_keysize(int *keysize)
 
 
 
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

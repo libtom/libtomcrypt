@@ -28,3 +28,7 @@ void dsa_free(dsa_key *key)
 }
 
 #endif
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

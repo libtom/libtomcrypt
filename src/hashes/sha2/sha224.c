@@ -20,9 +20,9 @@ const struct ltc_hash_descriptor sha224_desc =
     28,
     64,
 
-    /* DER identifier (not supported) */
-    { 0x00 },
-    0,
+    /* OID */
+   { 2, 16, 840, 1, 101, 3, 4, 2, 4,  },
+   9,
 
     &sha224_init,
     &sha256_process,
@@ -118,3 +118,7 @@ int  sha224_test(void)
  #endif
 }
 
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

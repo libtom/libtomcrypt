@@ -75,3 +75,7 @@ int gcm_done(gcm_state *gcm,
 
 #endif
 
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

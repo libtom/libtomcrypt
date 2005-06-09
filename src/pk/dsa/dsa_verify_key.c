@@ -96,3 +96,7 @@ done : mp_clear_multi(&tmp, &tmp2, NULL);
    return err;
 }
 #endif
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

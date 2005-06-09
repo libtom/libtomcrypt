@@ -33,3 +33,7 @@ void ocb_shift_xor(ocb_state *ocb, unsigned char *Z)
 }
 
 #endif
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

@@ -296,7 +296,17 @@ const char *crypt_build_settings =
 #if defined(LTC_NO_ASM)
     " LTC_NO_ASM "
 #endif
+#if defined(LTC_NO_TEST)
+    " LTC_NO_TEST "
+#endif
+#if defined(LTC_NO_TABLES)
+    " LTC_NO_TABLES "
+#endif
     "\n"
     "\n\n\n"
     ;
 
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

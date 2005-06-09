@@ -156,3 +156,7 @@ static const ulong32 Sbox[256] = {
     0x45f0b24f, 0x51fda998, 0xc0d52d71, 0xfa0896a8,
     0xf9e6053f, 0xa4b0d300, 0xd499cbcc, 0xb95e3d40,
 };
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

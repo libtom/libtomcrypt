@@ -28,3 +28,7 @@ void zeromem(void *out, size_t outlen)
       *mem++ = 0;
    }
 }
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

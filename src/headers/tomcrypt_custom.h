@@ -1,6 +1,3 @@
-/* This header is meant to be included before mycrypt.h in projects where
- * you don't want to throw all the defines in a makefile. 
- */
 #ifndef TOMCRYPT_CUSTOM_H_
 #define TOMCRYPT_CUSTOM_H_
 
@@ -20,7 +17,9 @@
 /* #define LTC_SMALL_CODE */
 
 /* Enable self-test test vector checking */
-#define LTC_TEST
+#ifndef LTC_NO_TEST
+   #define LTC_TEST
+#endif
 
 /* clean the stack of functions which put private information on stack */
 /* #define LTC_CLEAN_STACK */
@@ -38,6 +37,8 @@
 /* #define LTC_NO_BSWAP */
 
 /* ---> Symmetric Block Ciphers <--- */
+#ifndef LTC_NO_CIPHERS
+
 #define BLOWFISH
 #define RC2
 #define RC5
@@ -48,8 +49,12 @@
 /* _TABLES tells it to use tables during setup, _SMALL means to use the smaller scheduled key format
  * (saves 4KB of ram), _ALL_TABLES enables all tables during setup */
 #define TWOFISH
-#define TWOFISH_TABLES
-/* #define TWOFISH_ALL_TABLES */
+#ifndef LTC_NO_TABLES
+   #define TWOFISH_TABLES
+   /* #define TWOFISH_ALL_TABLES */
+#else
+   #define TWOFISH_SMALL
+#endif
 /* #define TWOFISH_SMALL */
 /* DES includes EDE triple-DES */
 #define DES
@@ -61,15 +66,23 @@
 #define ANUBIS
 #define ANUBIS_TWEAK
 
+#endif /* LTC_NO_CIPHERS */
+
 
 /* ---> Block Cipher Modes of Operation <--- */
+#ifndef LTC_NO_MODES
+
 #define CFB
 #define OFB
 #define ECB
 #define CBC
 #define CTR
 
+#endif /* LTC_NO_MODES */
+
 /* ---> One-Way Hash Functions <--- */
+#ifndef LTC_NO_HASHES 
+
 #define CHC_HASH
 #define WHIRLPOOL
 #define SHA512
@@ -84,7 +97,11 @@
 #define RIPEMD128
 #define RIPEMD160
 
+#endif /* LTC_NO_HASHES */
+
 /* ---> MAC functions <--- */
+#ifndef LTC_NO_MACS
+
 #define HMAC
 #define OMAC
 #define PMAC
@@ -95,6 +112,7 @@
 #endif
 
 /* ---> Encrypt + Authenticate Modes <--- */
+
 #define EAX_MODE
 #if defined(EAX_MODE) && !(defined(CTR) && defined(OMAC))
    #error EAX_MODE requires CTR and OMAC mode
@@ -104,13 +122,20 @@
 #define CCM_MODE
 
 #define GCM_MODE
+
 /* Use 64KiB tables */
-#define GCM_TABLES 
+#ifndef LTC_NO_TABLES
+   #define GCM_TABLES 
+#endif
+
+#endif /* LTC_NO_MACS */
 
 /* Various tidbits of modern neatoness */
 #define BASE64
 
 /* --> Pseudo Random Number Generators <--- */
+#ifndef LTC_NO_PRNGS
+
 /* Yarrow */
 #define YARROW
 /* which descriptor of AES to use?  */
@@ -142,7 +167,11 @@
 /* try /dev/urandom before trying /dev/random */
 #define TRY_URANDOM_FIRST
 
+#endif /* LTC_NO_PRNGS */
+
 /* ---> Public Key Crypto <--- */
+#ifndef LTC_NO_PK
+
 #define MRSA
 
 /* Digital Signature Algorithm */
@@ -168,7 +197,6 @@
 /* ECC */
 #define MECC
 /* Supported Key Sizes */
-#define ECC160
 #define ECC192
 #define ECC224
 #define ECC256
@@ -178,7 +206,11 @@
 /* Include the MPI functionality?  (required by the PK algorithms) */
 #define MPI
 
+#endif /* LTC_NO_PK */
+
 /* PKCS #1 (RSA) and #5 (Password Handling) stuff */
+#ifndef LTC_NO_PKCS
+
 #define PKCS_1
 #define PKCS_5
 
@@ -192,5 +224,11 @@
    #error RSA/DSA requires ASN.1 DER functionality, make sure LTC_DER is enabled
 #endif
 
+#endif /* LTC_NO_PKCS */
+
 #endif
 
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

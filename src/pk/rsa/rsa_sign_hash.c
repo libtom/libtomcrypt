@@ -73,3 +73,7 @@ int rsa_sign_hash(const unsigned char *in,       unsigned long  inlen,
 }
 
 #endif /* MRSA */
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

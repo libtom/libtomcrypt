@@ -41,3 +41,7 @@
    }
    return z;
 }
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

@@ -56,3 +56,7 @@ int cbc_start(int cipher, const unsigned char *IV, const unsigned char *key,
 }
 
 #endif
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

@@ -32,3 +32,7 @@ int find_prng(const char *name)
    return -1;
 }
 
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

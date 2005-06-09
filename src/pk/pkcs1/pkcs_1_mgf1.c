@@ -102,3 +102,7 @@ LBL_ERR:
 }
 
 #endif /* PKCS_1 */
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

@@ -53,3 +53,7 @@ int pelican_memory(const unsigned char *key, unsigned long keylen,
 
 
 #endif
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

@@ -575,3 +575,7 @@ extern const char *mp_s_rmap;
 
 #endif
 
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

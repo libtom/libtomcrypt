@@ -66,3 +66,7 @@ int pmac_done(pmac_state *state, unsigned char *out, unsigned long *outlen)
 
 #endif
 
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

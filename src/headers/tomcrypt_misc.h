@@ -15,3 +15,7 @@ const char *error_to_string(int err);
 int mpi_to_ltc_error(int err);
 
 extern const char *crypt_build_settings;
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

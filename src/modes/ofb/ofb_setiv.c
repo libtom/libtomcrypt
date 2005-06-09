@@ -47,3 +47,7 @@ int ofb_setiv(const unsigned char *IV, unsigned long len, symmetric_OFB *ofb)
 
 #endif 
 
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

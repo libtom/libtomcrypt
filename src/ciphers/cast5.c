@@ -709,3 +709,7 @@ int cast5_keysize(int *keysize)
 } 
 
 #endif
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

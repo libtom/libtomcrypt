@@ -348,3 +348,7 @@ int rc2_keysize(int *keysize)
 
 
 
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

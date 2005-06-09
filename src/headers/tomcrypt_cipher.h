@@ -32,7 +32,7 @@ struct saferp_key {
 
 #ifdef RIJNDAEL
 struct rijndael_key {
-   ulong32 eK[64], dK[64];
+   ulong32 eK[60], dK[60];
    int Nr;
 };
 #endif
@@ -599,8 +599,15 @@ int cbc_done(symmetric_CBC *cbc);
 #endif
 
 #ifdef CTR
-int ctr_start(int cipher, const unsigned char *IV, const unsigned char *key, 
-              int keylen, int num_rounds, symmetric_CTR *ctr);
+
+#define CTR_COUNTER_LITTLE_ENDIAN    0
+#define CTR_COUNTER_BIG_ENDIAN       1
+
+int ctr_start(               int   cipher,
+              const unsigned char *IV,
+              const unsigned char *key,       int keylen,
+                             int  num_rounds, int ctr_mode,
+                   symmetric_CTR *ctr);
 int ctr_encrypt(const unsigned char *pt, unsigned char *ct, unsigned long len, symmetric_CTR *ctr);
 int ctr_decrypt(const unsigned char *ct, unsigned char *pt, unsigned long len, symmetric_CTR *ctr);
 int ctr_getiv(unsigned char *IV, unsigned long *len, symmetric_CTR *ctr);
@@ -617,3 +624,7 @@ int unregister_cipher(const struct ltc_cipher_descriptor *cipher);
 
 int cipher_is_valid(int idx);
 
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

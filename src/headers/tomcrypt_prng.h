@@ -188,3 +188,7 @@ unsigned long rng_get_bytes(unsigned char *out,
 
 int rng_make_prng(int bits, int wprng, prng_state *prng, void (*callback)(void));
 
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

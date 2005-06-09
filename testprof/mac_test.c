@@ -29,3 +29,7 @@ int mac_test(void)
 #endif
    return 0;
 }
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

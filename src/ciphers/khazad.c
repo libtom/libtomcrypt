@@ -845,3 +845,7 @@ int khazad_keysize(int *keysize)
 }
 
 #endif
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

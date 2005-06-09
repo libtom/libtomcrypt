@@ -74,3 +74,7 @@ int base64_encode(const unsigned char *in,  unsigned long inlen,
 
 #endif
 
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

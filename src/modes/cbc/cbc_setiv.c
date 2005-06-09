@@ -38,3 +38,7 @@ int cbc_setiv(const unsigned char *IV, unsigned long len, symmetric_CBC *cbc)
 
 #endif 
 
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

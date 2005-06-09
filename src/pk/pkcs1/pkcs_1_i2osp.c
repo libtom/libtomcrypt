@@ -49,3 +49,7 @@ int pkcs_1_i2osp(mp_int *n, unsigned long modulus_len, unsigned char *out)
 
 #endif /* PKCS_1 */
 
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

@@ -24,3 +24,7 @@ void crypt_argchk(char *v, char *s, int d)
  (void)raise(SIGABRT);
 }
 #endif
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */
