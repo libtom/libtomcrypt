@@ -6,7 +6,7 @@
 # Tom St Denis
 
 # The version
-VERSION=0:103
+VERSION=0:104
 
 # Compiler and Linker Names
 CC=libtool --mode=compile gcc
@@ -222,5 +222,5 @@ timing: library $(LIBTEST) $(TIMINGS)
 	gcc -o $(TIMING) $(TIMINGS) -ltomcrypt_prof -ltomcrypt $(MPISHARED)
 
 # $Source: /cvs/libtom/libtomcrypt/makefile.shared,v $   
-# $Revision: 1.16 $   
-# $Date: 2005/06/08 23:37:40 $ 
+# $Revision: 1.17 $   
+# $Date: 2005/06/14 22:53:25 $ 

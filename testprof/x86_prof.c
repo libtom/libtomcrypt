@@ -724,7 +724,7 @@ void time_ecc(void)
    unsigned char buf[2][4096];
    unsigned long i, x, y, z;
    int           err;
-   static unsigned long sizes[] = {160/8, 256/8, 521/8, 100000};
+   static unsigned long sizes[] = {192/8, 256/8, 384/8, 521/8, 100000};
 
    for (x = sizes[i=0]; x < 100000; x = sizes[++i]) {
        t2 = 0;

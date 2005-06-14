@@ -47,7 +47,7 @@
 \def\gap{\vspace{0.5ex}}
 \makeindex
 \begin{document}
-\title{LibTomCrypt \\ Version 1.03}
+\title{LibTomCrypt \\ Version 1.04}
 \author{Tom St Denis \\
 \\
 tomstdenis@gmail.com \\
@@ -3022,26 +3022,25 @@ than ideally simple manner.  In the case of LibTomCrypt it is meant \textbf{sole
 \begin{small}
 \begin{verbatim}
 ECCPublicKey ::= SEQUENCE {
-    flags       BIT STRING(2), -- public/private flag (always zero), 
-                               -- compressed point
+    flags       BIT STRING(1), -- public/private flag (always zero), 
     keySize     INTEGER,       -- Curve size (in bits) divided by eight 
                                -- and rounded down, e.g. 521 => 65
     pubkey.x    INTEGER,       -- The X co-ordinate of the public key point
+    pubkey.y    INTEGER,       -- The Y co-ordinate of the public key point
 }
 
 ECCPrivateKey ::= SEQUENCE {
-    flags       BIT STRING(2), -- public/private flag (always one), 
-                               -- compressed point
+    flags       BIT STRING(1), -- public/private flag (always one), 
     keySize     INTEGER,       -- Curve size (in bits) divided by eight 
                                -- and rounded down, e.g. 521 => 65
     pubkey.x    INTEGER,       -- The X co-ordinate of the public key point
+    pubkey.y    INTEGER,       -- The Y co-ordinate of the public key point
     secret.k    INTEGER,       -- The secret key scalar
 }
 \end{verbatim}
 \end{small}
 
-The first flags bit denotes whether the key is public (zero) or private (one).  The compressed point bit is equal to zero if $(x^3 - 3x + b)^{(p+1)/4} \mbox{ mod }p$ is 
-congruent to the keys $y$ co-ordinate.  The bit is one if the $y$ co-ordinate is the negative of the computed square root.
+The first flags bit denotes whether the key is public (zero) or private (one).  
 
 \section{Core Functions}
 
@@ -4492,5 +4491,5 @@ but should at least maintain the same level of state entropy.
 \end{document}
 
 % $Source: /cvs/libtom/libtomcrypt/crypt.tex,v $   
-% $Revision: 1.32 $   
-% $Date: 2005/06/09 00:36:17 $ 
+% $Revision: 1.33 $   
+% $Date: 2005/06/14 22:53:24 $ 

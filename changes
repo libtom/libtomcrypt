@@ -1,3 +1,11 @@
+June 15th, 2005
+v1.04
+      -- Fixed off by one [bit] error in dsa_make_key() it was too high by one bit [not a security problem just inconsistent]
+      -- ECC-224 curve was wrong [it was an ok curve just not NIST, so no security flaw just interoperability].
+      -- Removed point compression since it slows down ECC ops to save a measly couple bytes.
+         This makes the ecc export format incompatible with 1.03 [it shouldn't change in the future]
+      -- Removed ECC-160 from timing and added the other curves
+
 June 9th, 2005
 v1.03
       -- Users may want to note that on a P4/GCC3.4 platform "-fno-regmove" greatly accelerates the ciphers/hashes.
@@ -1300,6 +1308,6 @@ v0.02  -- Changed RC5 to only allow 12 to 24 rounds
 v0.01  -- We will call this the first version.
 
 /* $Source: /cvs/libtom/libtomcrypt/changes,v $ */
-/* $Revision: 1.92 $ */
-/* $Date: 2005/06/09 01:06:59 $ */
+/* $Revision: 1.97 $ */
+/* $Date: 2005/06/14 23:09:41 $ */
 

@@ -60,19 +60,20 @@ static const struct {
    "ECC-224",
 
    /* prime */
-   "400000000000000000000000000000000000BV",
+   "3/////////////////////0000000000000001",
 
    /* B */
-   "21HkWGL2CxJIp",
+   "2q1Gg530Ipg/L1CbPGHB2trx/OkYSBEKCZLV+q",
 
    /* order */
-   "4000000000000000000Kxnixk9t8MLzMiV264/",
+   "3//////////////////nQYuBZmFXFTAKLSN2ez",
 
    /* Gx */
-   "jpqOf1BHus6Yd/pyhyVpP",
+   "2t3WozQxI/Vp8JaBbA0y7JLi8H8ZGoWDOHN1qX",
+
 
    /* Gy */
-   "3FCtyo2yHA5SFjkCGbYxbOvNeChwS+j6wSIwck",
+   "2zDsE8jVSZ+qmYt+RDGtMWMWT7P4JLWPc507uq",
 },
 #endif
 #ifdef ECC256
@@ -819,89 +820,6 @@ void ecc_free(ecc_key *key)
    mp_clear_multi(&key->pubkey.x, &key->pubkey.y, &key->pubkey.z, &key->k, NULL);
 }
 
-static int compress_y_point(ecc_point *pt, int idx, int *result)
-{
-   mp_int tmp, tmp2, p;
-   int err;
-
-   LTC_ARGCHK(pt     != NULL);
-   LTC_ARGCHK(result != NULL);
-
-   if ((err = mp_init_multi(&tmp, &tmp2, &p, NULL)) != MP_OKAY) {
-      return mpi_to_ltc_error(err);
-   }
-
-   /* get x^3 - 3x + b */
-   if ((err = mp_read_radix(&p, (char *)sets[idx].B, 64)) != MP_OKAY) { goto error; } /* p = B */
-   if ((err = mp_expt_d(&pt->x, 3, &tmp)) != MP_OKAY)                 { goto error; } /* tmp = pX^3  */
-   if ((err = mp_mul_d(&pt->x, 3, &tmp2)) != MP_OKAY)                 { goto error; } /* tmp2 = 3*pX^3 */
-   if ((err = mp_sub(&tmp, &tmp2, &tmp)) != MP_OKAY)                  { goto error; } /* tmp = tmp - tmp2 */
-   if ((err = mp_add(&tmp, &p, &tmp)) != MP_OKAY)                     { goto error; } /* tmp = tmp + p */
-   if ((err = mp_read_radix(&p, (char *)sets[idx].prime, 64)) != MP_OKAY)  { goto error; } /* p = prime */
-   if ((err = mp_mod(&tmp, &p, &tmp)) != MP_OKAY)                     { goto error; } /* tmp = tmp mod p */
-
-   /* now find square root */
-   if ((err = mp_add_d(&p, 1, &tmp2)) != MP_OKAY)                     { goto error; } /* tmp2 = p + 1 */
-   if ((err = mp_div_2d(&tmp2, 2, &tmp2, NULL)) != MP_OKAY)           { goto error; } /* tmp2 = (p+1)/4 */
-   if ((err = mp_exptmod(&tmp, &tmp2, &p, &tmp)) != MP_OKAY)          { goto error; } /* tmp  = (x^3 - 3x + b)^((p+1)/4) mod p */
-
-   /* if tmp equals the y point give a 0, otherwise 1 */
-   if (mp_cmp(&tmp, &pt->y) == 0) {
-      *result = 0;
-   } else {
-      *result = 1;
-   }
-
-   err = CRYPT_OK;
-   goto done;
-error:
-   err = mpi_to_ltc_error(err);
-done:
-   mp_clear_multi(&p, &tmp, &tmp2, NULL);
-   return err;
-}
-
-static int expand_y_point(ecc_point *pt, int idx, int result)
-{
-   mp_int tmp, tmp2, p;
-   int err;
-
-   LTC_ARGCHK(pt != NULL);
-
-   if ((err = mp_init_multi(&tmp, &tmp2, &p, NULL)) != MP_OKAY) {
-      return CRYPT_MEM;
-   }
-
-   /* get x^3 - 3x + b */
-   if ((err = mp_read_radix(&p, (char *)sets[idx].B, 64)) != MP_OKAY) { goto error; } /* p = B */
-   if ((err = mp_expt_d(&pt->x, 3, &tmp)) != MP_OKAY)                 { goto error; } /* tmp = pX^3 */
-   if ((err = mp_mul_d(&pt->x, 3, &tmp2)) != MP_OKAY)                 { goto error; } /* tmp2 = 3*pX^3 */
-   if ((err = mp_sub(&tmp, &tmp2, &tmp)) != MP_OKAY)                  { goto error; } /* tmp = tmp - tmp2 */
-   if ((err = mp_add(&tmp, &p, &tmp)) != MP_OKAY)                     { goto error; } /* tmp = tmp + p */
-   if ((err = mp_read_radix(&p, (char *)sets[idx].prime, 64)) != MP_OKAY)  { goto error; } /* p = prime */
-   if ((err = mp_mod(&tmp, &p, &tmp)) != MP_OKAY)                     { goto error; } /* tmp = tmp mod p */
-
-   /* now find square root */
-   if ((err = mp_add_d(&p, 1, &tmp2)) != MP_OKAY)                     { goto error; } /* tmp2 = p + 1 */
-   if ((err = mp_div_2d(&tmp2, 2, &tmp2, NULL)) != MP_OKAY)           { goto error; } /* tmp2 = (p+1)/4 */
-   if ((err = mp_exptmod(&tmp, &tmp2, &p, &tmp)) != MP_OKAY)          { goto error; } /* tmp  = (x^3 - 3x + b)^((p+1)/4) mod p */
-
-   /* if result==0, then y==tmp, otherwise y==p-tmp */
-   if (result == 0) {
-      if ((err = mp_copy(&tmp, &pt->y) != MP_OKAY))                   { goto error; }
-   } else {
-      if ((err = mp_sub(&p, &tmp, &pt->y) != MP_OKAY))                { goto error; }
-   }
-
-   err = CRYPT_OK;
-   goto done;
-error:
-   err = mpi_to_ltc_error(err);
-done:
-   mp_clear_multi(&p, &tmp, &tmp2, NULL);
-   return err;
-}
-
 /**
   Export an ECC key as a binary packet
   @param out     [out] Destination for the key
@@ -912,8 +830,8 @@ done:
 */
 int ecc_export(unsigned char *out, unsigned long *outlen, int type, ecc_key *key)
 {
-   int           cp, err;
-   unsigned char flags[2];
+   int           err;
+   unsigned char flags[1];
    unsigned long key_size;
 
    LTC_ARGCHK(out    != NULL);
@@ -929,29 +847,25 @@ int ecc_export(unsigned char *out, unsigned long *outlen, int type, ecc_key *key
       return CRYPT_INVALID_ARG;
    }
 
-   /* compress the y part */
-   if ((err = compress_y_point(&key->pubkey, key->idx, &cp)) != CRYPT_OK) {
-      return err;
-   }
-   flags[1] = cp;
-
    /* we store the NIST byte size */
    key_size = sets[key->idx].size;
 
    if (type == PK_PRIVATE) {
        flags[0] = 1;
        err = der_encode_sequence_multi(out, outlen,
-                                 LTC_ASN1_BIT_STRING,      2UL, flags,
+                                 LTC_ASN1_BIT_STRING,      1UL, flags,
                                  LTC_ASN1_SHORT_INTEGER,   1UL, &key_size,
                                  LTC_ASN1_INTEGER,         1UL, &key->pubkey.x,
+                                 LTC_ASN1_INTEGER,         1UL, &key->pubkey.y,
                                  LTC_ASN1_INTEGER,         1UL, &key->k,
                                  LTC_ASN1_EOL,             0UL, NULL);
    } else {
        flags[0] = 0;
        err = der_encode_sequence_multi(out, outlen,
-                                 LTC_ASN1_BIT_STRING,      2UL, flags,
+                                 LTC_ASN1_BIT_STRING,      1UL, flags,
                                  LTC_ASN1_SHORT_INTEGER,   1UL, &key_size,
                                  LTC_ASN1_INTEGER,         1UL, &key->pubkey.x,
+                                 LTC_ASN1_INTEGER,         1UL, &key->pubkey.y,
                                  LTC_ASN1_EOL,             0UL, NULL);
    }
 
@@ -968,7 +882,7 @@ int ecc_export(unsigned char *out, unsigned long *outlen, int type, ecc_key *key
 int ecc_import(const unsigned char *in, unsigned long inlen, ecc_key *key)
 {
    unsigned long key_size;
-   unsigned char flags[2];
+   unsigned char flags[1];
    int           err;
 
    LTC_ARGCHK(in  != NULL);
@@ -981,7 +895,7 @@ int ecc_import(const unsigned char *in, unsigned long inlen, ecc_key *key)
 
    /* find out what type of key it is */
    if ((err = der_decode_sequence_multi(in, inlen, 
-                                  LTC_ASN1_BIT_STRING, 2UL, &flags,
+                                  LTC_ASN1_BIT_STRING, 1UL, &flags,
                                   LTC_ASN1_EOL,        0UL, NULL)) != CRYPT_OK) {
       goto error;
    }
@@ -991,9 +905,10 @@ int ecc_import(const unsigned char *in, unsigned long inlen, ecc_key *key)
       /* private key */
       key->type = PK_PRIVATE;
       if ((err = der_decode_sequence_multi(in, inlen,
-                                     LTC_ASN1_BIT_STRING,      2UL, flags,
+                                     LTC_ASN1_BIT_STRING,      1UL, flags,
                                      LTC_ASN1_SHORT_INTEGER,   1UL, &key_size,
                                      LTC_ASN1_INTEGER,         1UL, &key->pubkey.x,
+                                     LTC_ASN1_INTEGER,         1UL, &key->pubkey.y,
                                      LTC_ASN1_INTEGER,         1UL, &key->k,
                                      LTC_ASN1_EOL,             0UL, NULL)) != CRYPT_OK) {
          goto error;
@@ -1003,9 +918,10 @@ int ecc_import(const unsigned char *in, unsigned long inlen, ecc_key *key)
       /* private key */
       key->type = PK_PUBLIC;
       if ((err = der_decode_sequence_multi(in, inlen,
-                                     LTC_ASN1_BIT_STRING,      2UL, flags,
+                                     LTC_ASN1_BIT_STRING,      1UL, flags,
                                      LTC_ASN1_SHORT_INTEGER,   1UL, &key_size,
                                      LTC_ASN1_INTEGER,         1UL, &key->pubkey.x,
+                                     LTC_ASN1_INTEGER,         1UL, &key->pubkey.y,
                                      LTC_ASN1_EOL,             0UL, NULL)) != CRYPT_OK) {
          goto error;
       }
@@ -1015,11 +931,6 @@ int ecc_import(const unsigned char *in, unsigned long inlen, ecc_key *key)
    for (key->idx = 0; sets[key->idx].size && (unsigned long)sets[key->idx].size != key_size; ++key->idx);
    if (sets[key->idx].size == 0) {
       err = CRYPT_INVALID_PACKET;
-      goto error;
-   }
-
-   /* compute y */
-   if ((err = expand_y_point(&key->pubkey, key->idx, flags[1])) != CRYPT_OK) {
       goto error;
    }
 

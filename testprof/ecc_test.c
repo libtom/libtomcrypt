@@ -67,7 +67,7 @@ int ecc_tests (void)
        return 1;
      }
      if (memcmp (buf[0], buf[2], x)) {
-       fprintf(stderr, "Failed.  Content didn't match.");
+       fprintf(stderr, "Failed.  Contents didn't match.");
        return 1;
      }
      ecc_free (&usera);

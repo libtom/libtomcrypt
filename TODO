@@ -1,9 +1,10 @@
-Things ideal for 1.04
+Things ideal for 1.05
 
-- ASN.1 SET and UTCtime
+- ASN.1 SET and UTCtime and CHOICE (hint for choice do it as a sep list and just use error codes to know when you got a hit)
 - Start working towards making the bignum code plugable
 - Add OID for ciphers and PRNGs to their descriptors
 - Document the ASN.1 a bit more verbosely ;-)
 - Some ASN.1 demo programs [for now read the source code!]
+- export ECC functions globally
 - Look into other ECC point muls and consider a "precomp" interface 
 
