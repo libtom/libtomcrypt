@@ -259,7 +259,9 @@ enum {
  LTC_ASN1_OBJECT_IDENTIFIER,
  LTC_ASN1_IA5_STRING,
  LTC_ASN1_PRINTABLE_STRING,
+ LTC_ASN1_UTCTIME,
 
+ LTC_ASN1_CHOICE,
  LTC_ASN1_SEQUENCE
 };
 
@@ -267,6 +269,7 @@ typedef struct {
    int           type;
    void         *data;
    unsigned long size;
+   int           used;
 } ltc_asn1_list;
 
 #define LTC_SET_ASN1(list, index, Type, Data, Size)  \
@@ -276,6 +279,7 @@ typedef struct {
       LTC_MACRO_list[LTC_MACRO_temp].type = (Type);  \
       LTC_MACRO_list[LTC_MACRO_temp].data = (Data);  \
       LTC_MACRO_list[LTC_MACRO_temp].size = (Size);  \
+      LTC_MACRO_list[LTC_MACRO_temp].used = 0;       \
    } while (0);
 
 /* SEQUENCE */
@@ -343,6 +347,32 @@ int der_length_printable_string(const unsigned char *octets, unsigned long nocte
 
 int der_printable_char_encode(int c);
 int der_printable_value_decode(int v);
+
+/* CHOICE */
+int der_decode_choice(const unsigned char *in,   unsigned long *inlen,
+                            ltc_asn1_list *list, unsigned long  outlen);
+
+/* UTCTime */
+typedef struct {
+   unsigned YY, /* year */
+            MM, /* month */
+            DD, /* day */
+            hh, /* hour */
+            mm, /* minute */
+            ss, /* second */
+            off_dir, /* timezone offset direction 0 == +, 1 == - */
+            off_hh, /* timezone offset hours */
+            off_mm; /* timezone offset minutes */
+} ltc_utctime;
+
+int der_encode_utctime(ltc_utctime *utctime, 
+                       unsigned char *out,   unsigned long *outlen);
+
+int der_decode_utctime(const unsigned char *in, unsigned long *inlen,
+                             ltc_utctime   *out);
+
+int der_length_utctime(ltc_utctime *utctime, unsigned long *outlen);
+
 
 #endif
 

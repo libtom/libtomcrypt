@@ -10,6 +10,64 @@ int der_tests(void)
 
 #else
 
+static int der_choice_test(void)
+{
+   ltc_asn1_list types[7], host[1];
+   unsigned char bitbuf[10], octetbuf[10], ia5buf[10], printbuf[10], outbuf[256];
+   unsigned long integer, oidbuf[10], outlen, inlen, x, y;
+   mp_int        mpinteger;
+   ltc_utctime   utctime = { 91, 5, 6, 16, 45, 40, 1, 7, 0 };
+
+   /* setup variables */
+   for (x = 0; x < sizeof(bitbuf); x++)   { bitbuf[x]   = x & 1; }
+   for (x = 0; x < sizeof(octetbuf); x++) { octetbuf[x] = x;     }
+   for (x = 0; x < sizeof(ia5buf); x++)   { ia5buf[x]   = 'a';   }
+   for (x = 0; x < sizeof(printbuf); x++) { printbuf[x] = 'a';   }
+   integer = 1;
+   for (x = 0; x < sizeof(oidbuf)/sizeof(oidbuf[0]); x++)   { oidbuf[x] = x + 1;   }
+   DO(mpi_to_ltc_error(mp_init(&mpinteger)));
+
+   for (x = 0; x < 14; x++) {
+       /* setup list */
+       LTC_SET_ASN1(types, 0, LTC_ASN1_PRINTABLE_STRING, printbuf, sizeof(printbuf));
+       LTC_SET_ASN1(types, 1, LTC_ASN1_BIT_STRING, bitbuf, sizeof(bitbuf));
+       LTC_SET_ASN1(types, 2, LTC_ASN1_OCTET_STRING, octetbuf, sizeof(octetbuf));
+       LTC_SET_ASN1(types, 3, LTC_ASN1_IA5_STRING, ia5buf, sizeof(ia5buf));
+       if (x > 7) {
+          LTC_SET_ASN1(types, 4, LTC_ASN1_SHORT_INTEGER, &integer, 1);
+       } else {
+          LTC_SET_ASN1(types, 4, LTC_ASN1_INTEGER, &mpinteger, 1);
+       }
+       LTC_SET_ASN1(types, 5, LTC_ASN1_OBJECT_IDENTIFIER, oidbuf, sizeof(oidbuf)/sizeof(oidbuf[0]));
+       LTC_SET_ASN1(types, 6, LTC_ASN1_UTCTIME, &utctime, 1);
+
+       LTC_SET_ASN1(host, 0, LTC_ASN1_CHOICE, types, 7);
+
+       
+       /* encode */
+       outlen = sizeof(outbuf);
+       DO(der_encode_sequence(&types[x>6?x-7:x], 1, outbuf, &outlen));
+
+       /* decode it */
+       inlen = outlen;
+       DO(der_decode_sequence(outbuf, inlen, &host, 1));
+
+       for (y = 0; y < 7; y++) {
+           if (types[y].used && y != (x>6?x-7:x)) {
+               fprintf(stderr, "CHOICE, flag %lu in trial %lu was incorrectly set to one\n", y, x);
+               return 1;
+           }
+           if (!types[y].used && y == (x>6?x-7:x)) {
+               fprintf(stderr, "CHOICE, flag %lu in trial %lu was incorrectly set to zero\n", y, x);
+               return 1;
+           }
+      }
+  }
+  mp_clear(&mpinteger);
+  return 0;
+}
+   
+
 int der_tests(void)
 {
    unsigned long x, y, z, zz, oid[2][32];
@@ -26,6 +84,13 @@ int der_tests(void)
    static const unsigned char rsa_printable[] = "Test User 1";
    static const unsigned char rsa_printable_der[] = { 0x13, 0x0b, 0x54, 0x65, 0x73, 0x74, 0x20, 0x55, 
                                                       0x73, 0x65, 0x72, 0x20, 0x31 };
+
+   static const ltc_utctime   rsa_time1 = { 91, 5, 6, 16, 45, 40, 1, 7, 0 };
+   static const ltc_utctime   rsa_time2 = { 91, 5, 6, 23, 45, 40, 0, 0, 0 };
+   ltc_utctime                tmp_time;
+
+   static const unsigned char rsa_time1_der[] = { 0x17, 0x11, 0x39, 0x31, 0x30, 0x35, 0x30, 0x36, 0x31, 0x36, 0x34, 0x35, 0x34, 0x30, 0x2D, 0x30, 0x37, 0x30, 0x30 };
+   static const unsigned char rsa_time2_der[] = { 0x17, 0x0d, 0x39, 0x31, 0x30, 0x35, 0x30, 0x36, 0x32, 0x33, 0x34, 0x35, 0x34, 0x30, 0x5a };
 
    DO(mpi_to_ltc_error(mp_init_multi(&a, &b, &c, &d, &e, &f, &g, NULL)));
    for (zz = 0; zz < 16; zz++) {
@@ -199,6 +264,11 @@ int der_tests(void)
       fprintf(stderr, "IA5 encode failed: %lu, %lu\n", x, (unsigned long)sizeof(rsa_ia5_der));
       return 1;
    }
+   DO(der_length_ia5_string(rsa_ia5, strlen(rsa_ia5), &y));
+   if (y != x) {
+      fprintf(stderr, "IA5 length failed to match: %lu, %lu\n", x, y);
+      return 1;
+   }
    y = sizeof(buf[1]);
    DO(der_decode_ia5_string(buf[0], x, buf[1], &y));
    if (y != strlen(rsa_ia5) || memcmp(buf[1], rsa_ia5, strlen(rsa_ia5))) {
@@ -213,6 +283,11 @@ int der_tests(void)
       fprintf(stderr, "PRINTABLE encode failed: %lu, %lu\n", x, (unsigned long)sizeof(rsa_printable_der));
       return 1;
    }
+   DO(der_length_printable_string(rsa_printable, strlen(rsa_printable), &y));
+   if (y != x) {
+      fprintf(stderr, "printable length failed to match: %lu, %lu\n", x, y);
+      return 1;
+   }
    y = sizeof(buf[1]);
    DO(der_decode_printable_string(buf[0], x, buf[1], &y));
    if (y != strlen(rsa_printable) || memcmp(buf[1], rsa_printable, strlen(rsa_printable))) {
@@ -220,7 +295,72 @@ int der_tests(void)
        return 1;
    }
 
-   return 0;
+/* Test UTC time */
+   x = sizeof(buf[0]);
+   DO(der_encode_utctime(&rsa_time1, buf[0], &x));
+   if (x != sizeof(rsa_time1_der) || memcmp(buf[0], rsa_time1_der, x)) {
+      fprintf(stderr, "UTCTIME encode of rsa_time1 failed: %lu, %lu\n", x, (unsigned long)sizeof(rsa_time1_der));
+fprintf(stderr, "\n\n");
+for (y = 0; y < x; y++) fprintf(stderr, "%02x ", buf[0][y]); printf("\n");
+
+      return 1;
+   }
+   DO(der_length_utctime(&rsa_time1, &y));
+   if (y != x) {
+      fprintf(stderr, "UTCTIME length failed to match for rsa_time1: %lu, %lu\n", x, y);
+      return 1;
+   }
+   DO(der_decode_utctime(buf[0], &y, &tmp_time));
+   if (y != x || memcmp(&rsa_time1, &tmp_time, sizeof(ltc_utctime))) {
+      fprintf(stderr, "UTCTIME decode failed for rsa_time1: %lu %lu\n", x, y);
+fprintf(stderr, "\n\n%u %u %u %u %u %u %u %u %u\n\n", 
+tmp_time.YY,
+tmp_time.MM,
+tmp_time.DD,
+tmp_time.hh,
+tmp_time.mm,
+tmp_time.ss,
+tmp_time.off_dir,
+tmp_time.off_mm,
+tmp_time.off_hh);
+      return 1;
+   }
+
+   x = sizeof(buf[0]);
+   DO(der_encode_utctime(&rsa_time2, buf[0], &x));
+   if (x != sizeof(rsa_time2_der) || memcmp(buf[0], rsa_time2_der, x)) {
+      fprintf(stderr, "UTCTIME encode of rsa_time2 failed: %lu, %lu\n", x, (unsigned long)sizeof(rsa_time1_der));
+fprintf(stderr, "\n\n");
+for (y = 0; y < x; y++) fprintf(stderr, "%02x ", buf[0][y]); printf("\n");
+
+      return 1;
+   }
+   DO(der_length_utctime(&rsa_time2, &y));
+   if (y != x) {
+      fprintf(stderr, "UTCTIME length failed to match for rsa_time2: %lu, %lu\n", x, y);
+      return 1;
+   }
+   DO(der_decode_utctime(buf[0], &y, &tmp_time));
+   if (y != x || memcmp(&rsa_time2, &tmp_time, sizeof(ltc_utctime))) {
+      fprintf(stderr, "UTCTIME decode failed for rsa_time2: %lu %lu\n", x, y);
+fprintf(stderr, "\n\n%u %u %u %u %u %u %u %u %u\n\n", 
+tmp_time.YY,
+tmp_time.MM,
+tmp_time.DD,
+tmp_time.hh,
+tmp_time.mm,
+tmp_time.ss,
+tmp_time.off_dir,
+tmp_time.off_mm,
+tmp_time.off_hh);
+
+
+      return 1;
+   }
+
+
+
+   return der_choice_test();
 }
 
 #endif

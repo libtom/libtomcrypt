@@ -279,6 +279,8 @@ int register_hash(const struct ltc_hash_descriptor *hash);
 int unregister_hash(const struct ltc_hash_descriptor *hash);
 int hash_is_valid(int idx);
 
+LTC_MUTEX_PROTO(ltc_hash_mutex);
+
 int hash_memory(int hash, 
                 const unsigned char *in,  unsigned long inlen, 
                       unsigned char *out, unsigned long *outlen);

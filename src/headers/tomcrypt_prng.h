@@ -178,6 +178,7 @@ int find_prng(const char *name);
 int register_prng(const struct ltc_prng_descriptor *prng);
 int unregister_prng(const struct ltc_prng_descriptor *prng);
 int prng_is_valid(int idx);
+LTC_MUTEX_PROTO(ltc_prng_mutex);
 
 /* Slow RNG you **might** be able to use to seed a PRNG with.  Be careful as this
  * might not work on all platforms as planned

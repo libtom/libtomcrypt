@@ -1,3 +1,16 @@
+June 27th, 2005
+v1.05
+      -- Added Technote #6 which covers the current PK compliance.  
+      -- Fixed buffer overflow in OAEP decoder
+      -- Added CHOICE to the list of ASN.1 types
+      -- Added UTCTIME to the list of ASN.1 types
+      -- Added MUTEX locks around descriptor table functions [but not on the functions that are dependent on them]
+         All functions call *_is_valid() before using a descriptor index which means the respective table must be unlocked before 
+         it can be accessed.  However, during the operation [e.g. CCM] if the descriptor has been altered the results will be 
+         undefined.  
+      -- Minor updates to the manual to reflect recent changes
+      -- Added a catch to for an error that should never come up in rsa_exptmod().  Just being thorough.
+
 June 15th, 2005
 v1.04
       -- Fixed off by one [bit] error in dsa_make_key() it was too high by one bit [not a security problem just inconsistent]
@@ -1308,6 +1321,6 @@ v0.02  -- Changed RC5 to only allow 12 to 24 rounds
 v0.01  -- We will call this the first version.
 
 /* $Source: /cvs/libtom/libtomcrypt/changes,v $ */
-/* $Revision: 1.97 $ */
-/* $Date: 2005/06/14 23:09:41 $ */
+/* $Revision: 1.106 $ */
+/* $Date: 2005/06/27 12:37:06 $ */
 

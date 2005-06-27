@@ -86,6 +86,12 @@ int rsa_exptmod(const unsigned char *in,   unsigned long inlen,
       err = CRYPT_BUFFER_OVERFLOW;
       goto done;
    }
+
+   /* this should never happen ... */
+   if (mp_unsigned_bin_size(&tmp) > mp_unsigned_bin_size(&key->N)) {
+      err = CRYPT_ERROR;
+      goto done;
+   }
    *outlen = x;
 
    /* convert it */

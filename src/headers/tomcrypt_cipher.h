@@ -618,12 +618,11 @@ int ctr_done(symmetric_CTR *ctr);
 int find_cipher(const char *name);
 int find_cipher_any(const char *name, int blocklen, int keylen);
 int find_cipher_id(unsigned char ID);
-
 int register_cipher(const struct ltc_cipher_descriptor *cipher);
 int unregister_cipher(const struct ltc_cipher_descriptor *cipher);
-
 int cipher_is_valid(int idx);
 
+LTC_MUTEX_PROTO(ltc_cipher_mutex);
 
 /* $Source$ */
 /* $Revision$ */

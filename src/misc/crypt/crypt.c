@@ -302,6 +302,9 @@ const char *crypt_build_settings =
 #if defined(LTC_NO_TABLES)
     " LTC_NO_TABLES "
 #endif
+#if defined(LTC_PTHREAD)
+    " LTC_PTHREAD "
+#endif
     "\n"
     "\n\n\n"
     ;

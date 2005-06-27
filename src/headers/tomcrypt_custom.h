@@ -229,6 +229,28 @@
 #endif
 
 
+/* THREAD management */
+
+#ifdef LTC_PTHREAD
+
+#include <pthread.h>
+
+#define LTC_MUTEX_GLOBAL(x)   pthread_mutex_t x = PTHREAD_MUTEX_INITIALIZER;
+#define LTC_MUTEX_PROTO(x)    extern pthread_mutex_t x;
+#define LTC_MUTEX_LOCK(x)     pthread_mutex_lock(x);
+#define LTC_MUTEX_UNLOCK(x)   pthread_mutex_unlock(x);
+
+#else 
+
+/* default no functions */
+#define LTC_MUTEX_GLOBAL(x)
+#define LTC_MUTEX_PROTO(x)
+#define LTC_MUTEX_LOCK(x)
+#define LTC_MUTEX_UNLOCK(x)
+
+#endif
+
+
 /* $Source$ */
 /* $Revision$ */
 /* $Date$ */

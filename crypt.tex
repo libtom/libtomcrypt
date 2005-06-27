@@ -47,7 +47,7 @@
 \def\gap{\vspace{0.5ex}}
 \makeindex
 \begin{document}
-\title{LibTomCrypt \\ Version 1.04}
+\title{LibTomCrypt \\ Version 1.05}
 \author{Tom St Denis \\
 \\
 tomstdenis@gmail.com \\
@@ -3051,8 +3051,8 @@ int ecc_make_key(prng_state *prng, int wprng,
                  int keysize, ecc_key *key);
 \end{verbatim}
 
-The ``keysize'' is the size of the modulus in bytes desired.  Currently directly supported values are 20, 24, 28, 32, 48 and 65 bytes which
-correspond to key sizes of 160, 192, 224, 256, 384 and 521 bits respectively.  If you pass a key size that is between any key size
+The ``keysize'' is the size of the modulus in bytes desired.  Currently directly supported values are 24, 28, 32, 48 and 65 bytes which
+correspond to key sizes of 192, 224, 256, 384 and 521 bits respectively.  If you pass a key size that is between any key size
 it will round the keysize up to the next available one.  The rest of the parameters work like they do in the ``dh\_make\_key()'' function.  
 To free the ram allocated by a key call:
 \index{ecc\_free()}
@@ -3150,8 +3150,8 @@ The signature code is an implementation of X9.62 EC-DSA and the output is comfor
 \section{ECC Keysizes}
 With ECC if you try and sign a hash that is bigger than your ECC key you can run into problems.  The math will still work
 and in effect the signature will still work.  With ECC keys the strength of the signature is limited by the size of
-the hash or the size of they key, whichever is smaller.  For example, if you sign with SHA256 and a ECC-160 key in effect
-you have 160-bits of security (e.g. as if you signed with SHA-1).  
+the hash or the size of they key, whichever is smaller.  For example, if you sign with SHA256 and an ECC-192 key in effect
+you have 192-bits of security.  
 
 The library will not warn you if you make this mistake so it is important to check yourself before using the 
 signatures.
@@ -3324,7 +3324,7 @@ LibTomCrypt supports a variety of ASN.1 data types encoded with the Distinguishe
 are all provided with three basic functions with \textit{similar} prototypes.  One function has been dedicated to calculate the length in octets of a given
 format and two functions have been dedicated to encoding and decoding the format.  
 
-On top of the basic data types are the SEQUENCE and\footnote{Planned for LTC 1.04} SET data types which are collections of other ASN.1 types.  They are provided 
+On top of the basic data types are the SEQUENCE and\footnote{Planned for LTC 1.06} SET data types which are collections of other ASN.1 types.  They are provided 
 in the same manner as the other data types except they use list of objects known as the \textbf{ltc\_asn1\_list} structure.  It is defined as 
 
 \index{ltc\_asn1\_list structure}
@@ -3333,11 +3333,13 @@ typedef struct {
    int           type;
    void         *data;
    unsigned long size;
+   int           used;
 } ltc_asn1_list;
 \end{verbatim}
 
 The ``type'' field is one of the following ASN.1 field definitions.  The ``data'' pointer is a void pointer to the data to be encoded (or the destination) and the 
-``size'' field is specific to what you are encoding (e.g. number of bits in the BIT STRING data type).  To help build the lists in an orderly fashion the macro
+``size'' field is specific to what you are encoding (e.g. number of bits in the BIT STRING data type).  The ``used'' field is primarily for the CHOICE decoder
+and reflects if the particular member of a list was the decoded data type.  To help build the lists in an orderly fashion the macro
 ``LTC\_SET\_ASN1(list, index, Type, Data, Size)'' has been provided.
 
 It will assign to the ``index''th position in the ``list'' the tripplet (Type, Data, Size).  An example usage would be:
@@ -3382,7 +3384,9 @@ LTC_SET_ASN1(sequence, x++, LTC_ASN1_NULL,           NULL,   0);
 \hline LTC\_ASN1\_OBJECT\_IDENTIFIER & OBJECT IDENTIFIER (words are in unsigned long) \\
 \hline LTC\_ASN1\_IA5\_STRING        & IA5 STRING (one octet per char) \\
 \hline LTC\_ASN1\_PRINTABLE\_STRING  & PRINTABLE STIRNG (one octet per char) \\
+\hline LTC\_ASN1\_UTCTIME            & UTCTIME (see ltc\_utctime structure) \\
 \hline LTC\_ASN1\_SEQUENCE           & SEQUENCE OF \\
+\hline LTC\_ASN1\_CHOICE             & CHOICE \\
 \hline
 \end{tabular}
 \caption{List of ASN.1 Supported Types}
@@ -3466,7 +3470,7 @@ and ``data'' is \textbf{void} pointer.  The list of items must be terminated wit
 It's ideal that you cast the ``size'' values to unsigned long to ensure that the proper data type is passed to the function.  Constants such as ``1'' without
 a cast or prototype are of type \textbf{int} by default.  Appending \textit{UL} or prepending \textit{(unsigned long)} is enough to cast it to the correct type.
 
-\subsubsection{ASN.1 INTEGER}
+\subsection{ASN.1 INTEGER}
 
 To encode or decode INTEGER data types use the following functions.
 
@@ -3498,7 +3502,7 @@ int der_length_short_integer(unsigned long num, unsigned long *outlen);
 These will encode or decode an unsigned \textbf{unsigned long} type (only reads upto 32--bits).  For values in the range $0 \dots 2^{32} - 1$ the integer 
 and short integer functions can encode and decode each others outputs.  
 
-\subsubsection{ASN.1 BIT STRING}
+\subsection{ASN.1 BIT STRING}
 
 \index{der\_encode\_bit\_string()}
 \index{der\_decode\_bit\_string()}
@@ -3516,7 +3520,7 @@ int der_length_bit_string(unsigned long nbits, unsigned long *outlen);
 These will encode or decode a BIT STRING data type.  The bits are passed in (or read out) using one \textbf{char} per bit.  A non--zero value will be interpretted
 as a one bit and a zero value a zero bit.
 
-\subsubsection{ASN.1 OCTET STRING}
+\subsection{ASN.1 OCTET STRING}
 
 \index{der\_encode\_octet\_string()}
 \index{der\_decode\_octet\_string()}
@@ -3533,7 +3537,7 @@ int der_length_octet_string(unsigned long noctets, unsigned long *outlen);
 
 These will encode or decode an OCTET STRING data type.  The octets are stored using one \textbf{char} each.  
 
-\subsubsection{ASN.1 OBJECT IDENTIFIER}
+\subsection{ASN.1 OBJECT IDENTIFIER}
 
 \index{der\_encode\_object\_identifier()}
 \index{der\_decode\_object\_identifier()}
@@ -3552,7 +3556,7 @@ int der_length_object_identifier(unsigned long *words, unsigned long nwords,
 These will encode or decode an OBJECT IDENTIFIER object.  The words of the OID are stored in individual \textbf{unsigned long} elements and must be in the range
 $0 \ldots 2^{32} - 1$.  
 
-\subsubsection{ASN.1 IA5 STRING}
+\subsection{ASN.1 IA5 STRING}
 
 \index{der\_encode\_ia5\_string()}
 \index{der\_decode\_ia5\_string()}
@@ -3575,7 +3579,7 @@ that the build platform honours the runtime platforms character conventions.
 
 If you're worried try building the test suite and running it.  It has hard coded test vectors to ensure it is operating properly. 
 
-\subsubsection{ASN.1 PRINTABLE STRING}
+\subsection{ASN.1 PRINTABLE STRING}
 
 \index{der\_encode\_printable\_string()}
 \index{der\_decode\_printable\_string()}
@@ -3598,6 +3602,64 @@ that the build platform honours the runtime platforms character conventions.
 
 If you're worried try building the test suite and running it.  It has hard coded test vectors to ensure it is operating properly. 
 
+\subsection{ASN.1 UTCTIME}
+
+The UTCTIME type is to store a date and time in ASN.1 format.  It uses the following structure to organize the time.
+
+\begin{verbatim}
+typedef struct {
+   unsigned YY, /* year    00--99 */
+            MM, /* month   01--12 */
+            DD, /* day     01--31 */
+            hh, /* hour    00--23 */
+            mm, /* minute  00--59 */
+            ss, /* second  00--59 */
+            off_dir, /* timezone offset direction 0 == +, 1 == - */
+            off_hh, /* timezone offset hours */
+            off_mm; /* timezone offset minutes */
+} ltc_utctime;
+\end{verbatim}
+
+The time can be offset plus or minus a set amount of hours (off\_hh) and minutes (off\_mm).  When ``off\_dir'' is zero the time will be added otherwise it 
+will be subtracted.  
+
+For instance, the array $\lbrace 5, 6, 20, 22, 4, 00, 0, 5, 0 \rbrace$ represents the current time of 2005, June 20th, 22:04:00 with a time offset of +05h00.  
+
+\index{der\_encode\_utctime()}
+\index{der\_decode\_utctime()}
+\index{der\_length\_utctime()}
+\begin{verbatim}
+int der_encode_utctime(ltc_utctime *utctime, 
+                       unsigned char *out,   unsigned long *outlen);
+
+int der_decode_utctime(const unsigned char *in, unsigned long *inlen,
+                             ltc_utctime   *out);
+
+int der_length_utctime(ltc_utctime *utctime, unsigned long *outlen);
+\end{verbatim}
+
+The encoder will store time in one of the two ASN.1 formats, either ``YYMMDDhhmmssZ'' or ``YYMMDDhhmmss$\pm$hhmm'' and perform minimal error checking on the 
+input.  The decoder will read all valid ASN.1 formats and perform range checking on the values (not complete but rational) useful for catching packet errors.
+
+It is suggested that decoded data be further scrutinized (e.g. days of month in particular).
+
+\subsection{ASN.1 CHOICE}
+
+The CHOICE ASN.1 type represents a union of ASN.1 types all of which are stored in a ``ltc\_asn1\_list''.  There is no encoder for the CHOICE type, only a 
+decoder.  The decoder will scan through the provided list attempting to use the appropriate decoder on the input packet.  The list can contain any ASN.1 data
+type\footnote{Except it cannot have LTC\_ASN1\_INTEGER and LTC\_ASN1\_SHORT\_INTEGER simultaneously.} except for other CHOICE types.  
+
+There is no encoder for the CHOICE type as the actual DER encoding is the encoding of the chosen type.  
+
+\index{der\_decode\_choice()}
+\begin{verbatim}
+int der_decode_choice(const unsigned char *in,   unsigned long *inlen,
+                            ltc_asn1_list *list, unsigned long  outlen);
+\end{verbatim}
+
+This will decode the input in the ``in'' field of length ``inlen''.  It uses the provided ASN.1 list specified in the ``list'' field which has ``outlen'' elements.  
+The ``inlen'' field will be updated with the length of the decoded data type as well as the respective entry in the ``list'' field will have the ``used'' flag 
+set to non--zero to reflect it was the data type decoded.
 
 \section{Password Based Cryptography}
 \subsection{PKCS \#5}
@@ -3871,7 +3933,6 @@ $n$ it requires $\sqrt n$ work.  The following table sumarizes the work required
 \begin{center}
 \begin{tabular}{|c|c|}
     \hline ECC Key Size (bits) & Work Factor ($log_2$) \\
-    \hline 160 & 80  \\
     \hline 192 & 96  \\
     \hline 224 & 112 \\
     \hline 256 & 128 \\
@@ -4029,8 +4090,8 @@ will increase by approximately 500 bytes.  If this is defined but TWOFISH\_SMALL
 it will not speed up the encryption or decryption functions.
 
 \subsection{GCM\_TABLES}
-When defined GCM will use a 64KB table (per GCM state) which will greatly lower up the per--packet latency.  
-It also increases the initialization time.  
+When defined GCM will use a 64KB table (per GCM state) which will greatly speed up the per--packet latency.  
+It also increases the initialization time and isn't suitable when you are going to use a key a few times only.  
 
 \subsection{SMALL\_CODE}
 When this is defined some of the code such as the Rijndael and SAFER+ ciphers are replaced with smaller code variants.
@@ -4060,6 +4121,13 @@ If you do plan on using the ``LTC\_FAST'' mode you have to also define a ``LTC\_
 data type you can perform integer operations with.  Ideally it should be four or eight bytes since it must properly divide the size 
 of your block cipher (e.g. 16 bytes for AES).  This means sadly if you're on a platform with 57--bit words (or something) you can't 
 use this mode.  So sad.
+
+\subsection{LTC\_PTHREAD}
+When this is activated all of the descriptor table functions will use pthread locking to ensure thread safe updates to the tables.  Note that 
+it doesn't prevent a thread that is passively using a table from being messed up by another thread that updates the table.
+
+Generally the rule of thumb is to setup the tables once at startup and then leave them be.  This added build flag simply makes updating
+the tables safer.
 
 \section{MPI Tweaks}
 \subsection{RSA Only Tweak}
@@ -4491,5 +4559,5 @@ but should at least maintain the same level of state entropy.
 \end{document}
 
 % $Source: /cvs/libtom/libtomcrypt/crypt.tex,v $   
-% $Revision: 1.33 $   
-% $Date: 2005/06/14 22:53:24 $ 
+% $Revision: 1.39 $   
+% $Date: 2005/06/27 13:08:28 $ 

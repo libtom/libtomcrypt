@@ -28,6 +28,7 @@
    x = find_hash(name);
    if (x != -1) return x;
 
+   LTC_MUTEX_LOCK(&ltc_hash_mutex);
    y = MAXBLOCKSIZE+1;
    z = -1;
    for (x = 0; x < TAB_SIZE; x++) {
@@ -39,6 +40,7 @@
           y = hash_descriptor[x].hashsize;
        }
    }
+   LTC_MUTEX_UNLOCK(&ltc_hash_mutex);
    return z;
 }
 

@@ -160,7 +160,7 @@ int pkcs_1_oaep_decode(const unsigned char *msg,    unsigned long msglen,
 
    /* copy message */
    *outlen = (modulus_len - hLen - 1) - x;
-   XMEMCPY(out, DB + x, modulus_len - hLen - 1);
+   XMEMCPY(out, DB + x, modulus_len - hLen - 1 - x);
    x += modulus_len - hLen - 1;
 
    /* valid packet */

@@ -51,6 +51,7 @@ int der_encode_sequence_multi(unsigned char *out, unsigned long *outlen, ...)
            case LTC_ASN1_OBJECT_IDENTIFIER:
            case LTC_ASN1_IA5_STRING:
            case LTC_ASN1_PRINTABLE_STRING:
+           case LTC_ASN1_UTCTIME:
            case LTC_ASN1_SEQUENCE:
                 ++x; 
                 break;
@@ -93,6 +94,7 @@ int der_encode_sequence_multi(unsigned char *out, unsigned long *outlen, ...)
            case LTC_ASN1_OBJECT_IDENTIFIER:
            case LTC_ASN1_IA5_STRING:
            case LTC_ASN1_PRINTABLE_STRING:
+           case LTC_ASN1_UTCTIME:
            case LTC_ASN1_SEQUENCE:
                 list[x].type   = type;
                 list[x].size   = size;
