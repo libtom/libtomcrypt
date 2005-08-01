@@ -45,7 +45,7 @@ int cbc_decrypt(const unsigned char *ct, unsigned char *pt, unsigned long len, s
    }
    
    /* is blocklen valid? */
-   if (cbc->blocklen < 0 || cbc->blocklen > (int)sizeof(cbc->IV)) {
+   if (cbc->blocklen < 1 || cbc->blocklen > (int)sizeof(cbc->IV)) {
       return CRYPT_INVALID_ARG;
    }    
 
@@ -53,7 +53,7 @@ int cbc_decrypt(const unsigned char *ct, unsigned char *pt, unsigned long len, s
       return CRYPT_INVALID_ARG;
    }
 #ifdef LTC_FAST
-   if (len % sizeof(LTC_FAST_TYPE)) {   
+   if (cbc->blocklen % sizeof(LTC_FAST_TYPE)) {   
       return CRYPT_INVALID_ARG;
    }
 #endif

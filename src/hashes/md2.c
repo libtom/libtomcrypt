@@ -31,7 +31,8 @@ const struct ltc_hash_descriptor md2_desc =
     &md2_init,
     &md2_process,
     &md2_done,
-    &md2_test
+    &md2_test,
+    NULL
 };
 
 static const unsigned char PI_SUBST[256] = {

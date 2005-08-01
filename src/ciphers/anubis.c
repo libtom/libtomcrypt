@@ -891,7 +891,7 @@ static const ulong32 rc[] = {
     @param skey The key in as scheduled by this function.
     @return CRYPT_OK if successful
  */
-#ifdef CLEAN_STACK
+#ifdef LTC_CLEAN_STACK
 static int _anubis_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_key *skey)
 #else
 int  anubis_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_key *skey)
@@ -1025,7 +1025,7 @@ int  anubis_setup(const unsigned char *key, int keylen, int num_rounds, symmetri
    return CRYPT_OK;
 }
 
-#ifdef CLEAN_STACK
+#ifdef LTC_CLEAN_STACK
 int  anubis_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_key *skey)
 {
   int err;

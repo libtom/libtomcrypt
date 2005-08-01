@@ -31,7 +31,8 @@ const struct ltc_hash_descriptor sha256_desc =
     &sha256_init,
     &sha256_process,
     &sha256_done,
-    &sha256_test
+    &sha256_test,
+    NULL
 };
 
 #ifdef LTC_SMALL_CODE

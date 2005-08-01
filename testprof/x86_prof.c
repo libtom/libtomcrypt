@@ -57,6 +57,16 @@ ulong64 rdtsc (void)
          while (__builtin_expect ((int) result == -1, 0))
          __asm__ __volatile__("mov %0=ar.itc" : "=r"(result) :: "memory");
          return result;
+      #elif defined(__sparc__)
+         #if defined(__arch64__)
+           ulong64 a;
+           asm volatile("rd %%tick,%0" : "=r" (a));
+           return a;
+         #else
+           register unsigned long x, y;
+           __asm__ __volatile__ ("rd %%tick, %0; clruw %0, %1; srlx %0, 32, %0" : "=r" (x), "=r" (y) : "0" (x), "1" (y));
+           return ((unsigned long long) x << 32) | y; 
+         #endif
       #else 
          return XCLOCK();
       #endif
@@ -527,12 +537,15 @@ int time_hash(void)
    return 0;
 }
 
+#undef MPI
+#warning you need an mp_rand!!!
+
 #ifdef MPI
 void time_mult(void)
 {
    ulong64 t1, t2;
    unsigned long x, y;
-   mp_int  a, b, c;
+   void  *a, *b, *c;
 
    fprintf(stderr, "Timing Multiplying:\n");
    mp_init_multi(&a,&b,&c,NULL);
@@ -655,9 +668,9 @@ void time_rsa(void)
    unsigned long x, y, z, zzz;
    int           err, zz;
 
-   for (x = 1024; x <= 2048; x += 512) {
+   for (x = 1024; x <= 2048; x += 256) {
        t2 = 0;
-       for (y = 0; y < 16; y++) {
+       for (y = 0; y < 4; y++) {
            t_start();
            t1 = t_read();
            if ((err = rsa_make_key(&yarrow_prng, find_prng("yarrow"), x/8, 65537, &key)) != CRYPT_OK) {
@@ -667,11 +680,11 @@ void time_rsa(void)
            t1 = t_read() - t1;
            t2 += t1;
 
-           if (y < 15) {
+           if (y < 3) {
               rsa_free(&key);
            }
        }
-       t2 >>= 4;
+       t2 >>= 2;
        fprintf(stderr, "RSA-%lu make_key    took %15llu cycles\n", x, t2);
 
        t2 = 0;
@@ -765,58 +778,6 @@ void time_ecc(void)
 }
 #else
 void time_ecc(void) { fprintf(stderr, "NO ECC\n"); }
-#endif
-
-#ifdef MDH
-/* time various DH operations */
-void time_dh(void)
-{
-   dh_key key;
-   ulong64 t1, t2;
-   unsigned char buf[2][4096];
-   unsigned long i, x, y, z;
-   int           err;
-   static unsigned long sizes[] = {768/8, 1024/8, 1536/8, 2048/8, 3072/8, 4096/8, 100000};
-
-   for (x = sizes[i=0]; x < 100000; x = sizes[++i]) {
-       t2 = 0;
-       for (y = 0; y < 16; y++) {
-           t_start();
-           t1 = t_read();
-           if ((err = dh_make_key(&yarrow_prng, find_prng("yarrow"), x, &key)) != CRYPT_OK) {
-              fprintf(stderr, "\n\ndh_make_key says %s, wait...no it should say %s...damn you!\n", error_to_string(err), error_to_string(CRYPT_OK));
-              exit(EXIT_FAILURE);
-           }
-           t1 = t_read() - t1;
-           t2 += t1;
-
-           if (y < 15) {
-              dh_free(&key);
-           }
-       }
-       t2 >>= 4;
-       fprintf(stderr, "DH-%4lu make_key    took %15llu cycles\n", x*8, t2);
-
-       t2 = 0;
-       for (y = 0; y < 16; y++) {
-           t_start();
-           t1 = t_read();
-           z = sizeof(buf[1]);
-           if ((err = dh_encrypt_key(buf[0], 20, buf[1], &z, &yarrow_prng, find_prng("yarrow"), find_hash("sha1"),
-                                      &key)) != CRYPT_OK) {
-              fprintf(stderr, "\n\ndh_encrypt_key says %s, wait...no it should say %s...damn you!\n", error_to_string(err), error_to_string(CRYPT_OK));
-              exit(EXIT_FAILURE);
-           }
-           t1 = t_read() - t1;
-           t2 += t1;
-       }
-       t2 >>= 4;
-       fprintf(stderr, "DH-%4lu encrypt_key took %15llu cycles\n", x*8, t2);
-       dh_free(&key);
-  }
-}
-#else
-void time_dh(void) { fprintf(stderr, "NO DH\n"); }
 #endif
 
 void time_macs_(unsigned long MAC_SIZE)

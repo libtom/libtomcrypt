@@ -24,8 +24,8 @@
 void rsa_free(rsa_key *key)
 {
    LTC_ARGCHK(key != NULL);
-   mp_clear_multi(&key->e, &key->d, &key->N, &key->dQ, &key->dP,
-                  &key->qP, &key->p, &key->q, NULL);
+   mp_clear_multi( key->e,  key->d,  key->N,  key->dQ,  key->dP,
+                   key->qP,  key->p,  key->q, NULL);
 }
 
 #endif

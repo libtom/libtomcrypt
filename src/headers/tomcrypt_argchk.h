@@ -15,6 +15,10 @@ void crypt_argchk(char *v, char *s, int d);
 
 #elif ARGTYPE == 2
 
+#define LTC_ARGCHK(x) if (!(x)) { fprintf(stderr, "\nwarning: ARGCHK failed at %s:%d\n", __FILE__, __LINE__); }
+
+#elif ARGTYPE == 3
+
 #define LTC_ARGCHK(x) 
 
 #endif

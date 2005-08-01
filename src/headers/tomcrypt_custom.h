@@ -169,9 +169,21 @@
 
 #endif /* LTC_NO_PRNGS */
 
+/* ---> math provider? <--- */
+#ifndef LTC_NO_MATH
+
+/* LibTomMath */
+/* #define LTM_DESC */
+
+/* TomsFastMath */
+/* #define TFM_DESC */
+
+#endif /* LTC_NO_MATH */
+
 /* ---> Public Key Crypto <--- */
 #ifndef LTC_NO_PK
 
+/* Include RSA support */
 #define MRSA
 
 /* Digital Signature Algorithm */
@@ -181,22 +193,13 @@
 /* Max DSA group size in bytes (default allows 4k-bit groups) */
 #define MDSA_MAX_GROUP 512
 
-/* Diffie-Hellman */
-#define MDH
-/* Supported Key Sizes */
-#define DH768
-#define DH1024
-#define DH1280
-#define DH1536
-#define DH1792
-#define DH2048
-#define DH2560
-#define DH3072
-#define DH4096
-
 /* ECC */
 #define MECC
-/* Supported Key Sizes */
+
+/* Timing Resistant? */
+/* #define LTC_ECC_TIMING_RESISTANT */
+
+/* Supported ECC Key Sizes */
 #define ECC192
 #define ECC224
 #define ECC256

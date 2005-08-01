@@ -123,6 +123,7 @@ typedef union Hash_state {
     void *data;
 } hash_state;
 
+/** hash descriptor */
 extern  struct ltc_hash_descriptor {
     /** name of hash */
     char *name;
@@ -159,6 +160,12 @@ extern  struct ltc_hash_descriptor {
       @return CRYPT_OK if successful, CRYPT_NOP if self-tests have been disabled
     */
     int (*test)(void);
+
+    /* accelerated hmac callback: if you need to-do multiple packets just use the generic hmac_memory and provide a hash callback */
+    int  (*hmac_block)(const unsigned char *key, unsigned long  keylen,
+                       const unsigned char *in,  unsigned long  inlen, 
+                             unsigned char *out, unsigned long *outlen);
+
 } hash_descriptor[];
 
 #ifdef CHC_HASH
@@ -274,12 +281,13 @@ extern const struct ltc_hash_descriptor rmd160_desc;
 
 int find_hash(const char *name);
 int find_hash_id(unsigned char ID);
+int find_hash_oid(const unsigned long *ID, unsigned long IDlen);
 int find_hash_any(const char *name, int digestlen);
 int register_hash(const struct ltc_hash_descriptor *hash);
 int unregister_hash(const struct ltc_hash_descriptor *hash);
 int hash_is_valid(int idx);
 
-LTC_MUTEX_PROTO(ltc_hash_mutex);
+LTC_MUTEX_PROTO(ltc_hash_mutex)
 
 int hash_memory(int hash, 
                 const unsigned char *in,  unsigned long inlen, 

@@ -98,6 +98,16 @@ void reg_algs(void)
   }
 #endif
 
+#ifdef USE_LTM
+   ltc_mp = ltm_desc;
+#elif defined(USE_TFM)
+   ltc_mp = tfm_desc;
+#else
+   extern ltc_math_descriptor EXT_MATH_LIB;
+   ltc_mp = EXT_MATH_LIB;
+#endif
+
+
 }
 
 void hash_gen(void)
@@ -641,29 +651,67 @@ void base64_gen(void)
    fclose(out);
 }
 
+void math_gen(void)
+{
+}
+
+void ecc_gen(void)
+{
+   FILE         *out;
+   unsigned char str[512];
+   void          *k, *order, *modulus;
+   ecc_point    *G, *R;
+   int           x;
+
+   out = fopen("ecc_tv.txt", "w");
+   fprintf(out, "ecc vectors.  These are for kG for k=1,3,9,27,...,3**n until k > order of the curve outputs are <k,x,y> triplets\n\n");
+   G = ltc_ecc_new_point();
+   R = ltc_ecc_new_point();
+   mp_init(&k);
+   mp_init(&order);
+   mp_init(&modulus);
+
+   for (x = 0; ltc_ecc_sets[x].size != 0; x++) {
+        fprintf(out, "ECC-%d\n", ltc_ecc_sets[x].size*8);
+        mp_set(k, 1);
+
+        mp_read_radix(order,   (char *)ltc_ecc_sets[x].order, 64);
+        mp_read_radix(modulus, (char *)ltc_ecc_sets[x].prime, 64);
+        mp_read_radix(G->x,    (char *)ltc_ecc_sets[x].Gx,    64);
+        mp_read_radix(G->y,    (char *)ltc_ecc_sets[x].Gy,    64);
+        mp_set(G->z, 1);  
+
+        while (mp_cmp(k, order) == LTC_MP_LT) {
+            ltc_ecc_mulmod(k, G, R, modulus, 1);
+            mp_tohex(k,    str); fprintf(out, "%s, ", str);
+            mp_tohex(R->x, str); fprintf(out, "%s, ", str);
+            mp_tohex(R->y, str); fprintf(out, "%s\n", str);
+            mp_mul_d(k, 3, k);
+        }
+   }
+   mp_clear_multi(k, order, modulus, NULL);
+   ltc_ecc_del_point(G);
+   ltc_ecc_del_point(R);
+   fclose(out);
+}
+
 int main(void)
 {
    reg_algs();
-   printf("Generating hash   vectors..."); fflush(stdout); hash_gen(); printf("done\n");
+   printf("Generating hash   vectors..."); fflush(stdout); hash_gen();   printf("done\n");
    printf("Generating cipher vectors..."); fflush(stdout); cipher_gen(); printf("done\n");
-   printf("Generating HMAC   vectors..."); fflush(stdout); hmac_gen(); printf("done\n");
-   printf("Generating OMAC   vectors..."); fflush(stdout); omac_gen(); printf("done\n");
-   printf("Generating PMAC   vectors..."); fflush(stdout); pmac_gen(); printf("done\n");
-   printf("Generating EAX    vectors..."); fflush(stdout); eax_gen(); printf("done\n");
-   printf("Generating OCB    vectors..."); fflush(stdout); ocb_gen(); printf("done\n");
-   printf("Generating CCM    vectors..."); fflush(stdout); ccm_gen(); printf("done\n");
-   printf("Generating GCM    vectors..."); fflush(stdout); gcm_gen(); printf("done\n");
+   printf("Generating HMAC   vectors..."); fflush(stdout); hmac_gen();   printf("done\n");
+   printf("Generating OMAC   vectors..."); fflush(stdout); omac_gen();   printf("done\n");
+   printf("Generating PMAC   vectors..."); fflush(stdout); pmac_gen();   printf("done\n");
+   printf("Generating EAX    vectors..."); fflush(stdout); eax_gen();    printf("done\n");
+   printf("Generating OCB    vectors..."); fflush(stdout); ocb_gen();    printf("done\n");
+   printf("Generating CCM    vectors..."); fflush(stdout); ccm_gen();    printf("done\n");
+   printf("Generating GCM    vectors..."); fflush(stdout); gcm_gen();    printf("done\n");
    printf("Generating BASE64 vectors..."); fflush(stdout); base64_gen(); printf("done\n");
+   printf("Generating MATH   vectors..."); fflush(stdout); math_gen();   printf("done\n");
+   printf("Generating ECC    vectors..."); fflush(stdout); ecc_gen();    printf("done\n");
    return 0;
 }
-
-
-         
-      
-      
-      
-    
-   
 
 /* $Source$ */
 /* $Revision$ */

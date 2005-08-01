@@ -256,7 +256,7 @@ int ecc_sign_hash(const unsigned char *in,  unsigned long inlen,
                         prng_state *prng, int wprng, ecc_key *key)
 {
    ecc_key       pubkey;
-   mp_int        r, s, e, p;
+   void          *r, *s, *e, *p;
    int           err;
 
    LTC_ARGCHK(in     != NULL);
@@ -280,13 +280,12 @@ int ecc_sign_hash(const unsigned char *in,  unsigned long inlen,
 
    /* get the hash and load it as a bignum into 'e' */
    /* init the bignums */
-   if ((err = mp_init_multi(&r, &s, &p, &e, NULL)) != MP_OKAY) { 
+   if ((err = mp_init_multi(&r, &s, &p, &e, NULL)) != CRYPT_OK) { 
       ecc_free(&pubkey);
-      err = mpi_to_ltc_error(err);
       goto LBL_ERR;
    }
-   if ((err = mp_read_radix(&p, (char *)sets[key->idx].order, 64)) != MP_OKAY)        { goto error; }
-   if ((err = mp_read_unsigned_bin(&e, (unsigned char *)in, (int)inlen)) != MP_OKAY)  { goto error; }
+   if ((err = mp_read_radix(p, (char *)ltc_ecc_sets[key->idx].order, 64)) != CRYPT_OK)        { goto error; }
+   if ((err = mp_read_unsigned_bin(e, (unsigned char *)in, (int)inlen)) != CRYPT_OK)  { goto error; }
 
    /* make up a key and export the public copy */
    for (;;) {
@@ -295,18 +294,19 @@ int ecc_sign_hash(const unsigned char *in,  unsigned long inlen,
       }
 
       /* find r = x1 mod n */
-      if ((err = mp_mod(&pubkey.pubkey.x, &p, &r)) != MP_OKAY)                           { goto error; }
+      if ((err = mp_mod(pubkey.pubkey.x, p, r)) != CRYPT_OK)                           { goto error; }
 
-      if (mp_iszero(&r)) {
+      if (mp_iszero(r)) {
          ecc_free(&pubkey);
       } else { 
         /* find s = (e + xr)/k */
-        if ((err = mp_invmod(&pubkey.k, &p, &pubkey.k)) != MP_OKAY)            { goto error; } /* k = 1/k */
-        if ((err = mp_mulmod(&key->k, &r, &p, &s)) != MP_OKAY)                 { goto error; } /* s = xr */
-        if ((err = mp_addmod(&e, &s, &p, &s)) != MP_OKAY)                      { goto error; } /* s = e +  xr */
-        if ((err = mp_mulmod(&s, &pubkey.k, &p, &s)) != MP_OKAY)               { goto error; } /* s = (e + xr)/k */
+        if ((err = mp_invmod(pubkey.k, p, pubkey.k)) != CRYPT_OK)            { goto error; } /* k = 1/k */
+        if ((err = mp_mulmod(key->k, r, p, s)) != CRYPT_OK)                 { goto error; } /* s = xr */
+        if ((err = mp_add(e, s, s)) != CRYPT_OK)                      { goto error; } /* s = e +  xr */
+        if ((err = mp_mod(s, p, s)) != CRYPT_OK)                      { goto error; } /* s = e +  xr */
+        if ((err = mp_mulmod(s, pubkey.k, p, s)) != CRYPT_OK)               { goto error; } /* s = (e + xr)/k */
 
-        if (mp_iszero(&s)) {
+        if (mp_iszero(s)) {
            ecc_free(&pubkey);
         } else {
            break;
@@ -316,14 +316,13 @@ int ecc_sign_hash(const unsigned char *in,  unsigned long inlen,
 
    /* store as SEQUENCE { r, s -- integer } */
    err = der_encode_sequence_multi(out, outlen,
-                             LTC_ASN1_INTEGER, 1UL, &r,
-                             LTC_ASN1_INTEGER, 1UL, &s,
+                             LTC_ASN1_INTEGER, 1UL, r,
+                             LTC_ASN1_INTEGER, 1UL, s,
                              LTC_ASN1_EOL, 0UL, NULL);
    goto LBL_ERR;
 error:
-   err = mpi_to_ltc_error(err);
 LBL_ERR:
-   mp_clear_multi(&r, &s, &p, &e, NULL);
+   mp_clear_multi(r, s, p, e, NULL);
    ecc_free(&pubkey);
 
    return err;   
@@ -354,8 +353,8 @@ int ecc_verify_hash(const unsigned char *sig,  unsigned long siglen,
                     int *stat, ecc_key *key)
 {
    ecc_point    *mG, *mQ;
-   mp_int        r, s, v, w, u1, u2, e, p, m;
-   mp_digit      mp;
+   void          *r, *s, *v, *w, *u1, *u2, *e, *p, *m;
+   void          *mp;
    int           err;
 
    LTC_ARGCHK(sig  != NULL);
@@ -365,6 +364,7 @@ int ecc_verify_hash(const unsigned char *sig,  unsigned long siglen,
 
    /* default to invalid signature */
    *stat = 0;
+   mp    = NULL;
 
    /* is the IDX valid ?  */
    if (is_valid_idx(key->idx) != 1) {
@@ -372,13 +372,13 @@ int ecc_verify_hash(const unsigned char *sig,  unsigned long siglen,
    }
 
    /* allocate ints */
-   if ((err = mp_init_multi(&r, &s, &v, &w, &u1, &u2, &p, &e, &m, NULL)) != MP_OKAY) {
+   if ((err = mp_init_multi(&r, &s, &v, &w, &u1, &u2, &p, &e, &m, NULL)) != CRYPT_OK) {
       return CRYPT_MEM;
    }
 
    /* allocate points */
-   mG = new_point();
-   mQ = new_point();
+   mG = ltc_ecc_new_point();
+   mQ = ltc_ecc_new_point();
    if (mQ  == NULL || mG == NULL) {
       err = CRYPT_MEM;
       goto done;
@@ -386,61 +386,69 @@ int ecc_verify_hash(const unsigned char *sig,  unsigned long siglen,
 
    /* parse header */
    if ((err = der_decode_sequence_multi(sig, siglen,
-                                  LTC_ASN1_INTEGER, 1UL, &r,
-                                  LTC_ASN1_INTEGER, 1UL, &s,
+                                  LTC_ASN1_INTEGER, 1UL, r,
+                                  LTC_ASN1_INTEGER, 1UL, s,
                                   LTC_ASN1_EOL, 0UL, NULL)) != CRYPT_OK) {
       goto done;
    }
 
    /* get the order */
-   if ((err = mp_read_radix(&p, (char *)sets[key->idx].order, 64)) != MP_OKAY)                  { goto error; }
+   if ((err = mp_read_radix(p, (char *)ltc_ecc_sets[key->idx].order, 64)) != CRYPT_OK)                  { goto error; }
 
    /* get the modulus */
-   if ((err = mp_read_radix(&m, (char *)sets[key->idx].prime, 64)) != MP_OKAY)                  { goto error; }
+   if ((err = mp_read_radix(m, (char *)ltc_ecc_sets[key->idx].prime, 64)) != CRYPT_OK)                  { goto error; }
 
    /* check for zero */
-   if (mp_iszero(&r) || mp_iszero(&s) || mp_cmp(&r, &p) != MP_LT || mp_cmp(&s, &p) != MP_LT) {
+   if (mp_iszero(r) || mp_iszero(s) || mp_cmp(r, p) != LTC_MP_LT || mp_cmp(s, p) != LTC_MP_LT) {
       err = CRYPT_INVALID_PACKET;
       goto done;
    }
 
    /* read hash */
-   if ((err = mp_read_unsigned_bin(&e, (unsigned char *)hash, (int)hashlen)) != MP_OKAY)        { goto error; }
+   if ((err = mp_read_unsigned_bin(e, (unsigned char *)hash, (int)hashlen)) != CRYPT_OK)                { goto error; }
 
    /*  w  = s^-1 mod n */
-   if ((err = mp_invmod(&s, &p, &w)) != MP_OKAY)                                                { goto error; }
+   if ((err = mp_invmod(s, p, w)) != CRYPT_OK)                                                          { goto error; }
 
    /* u1 = ew */
-   if ((err = mp_mulmod(&e, &w, &p, &u1)) != MP_OKAY)                                           { goto error; }
+   if ((err = mp_mulmod(e, w, p, u1)) != CRYPT_OK)                                                      { goto error; }
 
    /* u2 = rw */
-   if ((err = mp_mulmod(&r, &w, &p, &u2)) != MP_OKAY)                                           { goto error; }
+   if ((err = mp_mulmod(r, w, p, u2)) != CRYPT_OK)                                                      { goto error; }
 
    /* find mG = u1*G */
-   if ((err = mp_read_radix(&mG->x, (char *)sets[key->idx].Gx, 64)) != MP_OKAY)                 { goto error; }
-   if ((err = mp_read_radix(&mG->y, (char *)sets[key->idx].Gy, 64)) != MP_OKAY)                 { goto error; }
-   mp_set(&mG->z, 1);  
-   if ((err = ecc_mulmod(&u1, mG, mG, &m, 0)) != CRYPT_OK)                                      { goto done; }
+   if ((err = mp_read_radix(mG->x, (char *)ltc_ecc_sets[key->idx].Gx, 64)) != CRYPT_OK)                 { goto error; }
+   if ((err = mp_read_radix(mG->y, (char *)ltc_ecc_sets[key->idx].Gy, 64)) != CRYPT_OK)                 { goto error; }
+   mp_set(mG->z, 1);  
+   if ((err = ltc_ecc_mulmod(u1, mG, mG, m, 0)) != CRYPT_OK)                                            { goto done; }
 
    /* find mQ = u2*Q */
-   if ((err = mp_copy(&key->pubkey.x, &mQ->x)) != MP_OKAY)                                      { goto error; }
-   if ((err = mp_copy(&key->pubkey.y, &mQ->y)) != MP_OKAY)                                      { goto error; }
-   if ((err = mp_copy(&key->pubkey.z, &mQ->z)) != MP_OKAY)                                      { goto error; }
-   if ((err = ecc_mulmod(&u2, mQ, mQ, &m, 0)) != CRYPT_OK)                                      { goto done; }
+   if ((err = mp_copy(key->pubkey.x, mQ->x)) != CRYPT_OK)                                               { goto error; }
+   if ((err = mp_copy(key->pubkey.y, mQ->y)) != CRYPT_OK)                                               { goto error; }
+   if ((err = mp_copy(key->pubkey.z, mQ->z)) != CRYPT_OK)                                               { goto error; }
+   if ((err = ltc_ecc_mulmod(u2, mQ, mQ, m, 0)) != CRYPT_OK)                                            { goto done; }
   
    /* find the montgomery mp */
-   if ((err = mp_montgomery_setup(&m, &mp)) != MP_OKAY)                                         { goto error; }
+   if ((err = mp_montgomery_setup(m, &mp)) != CRYPT_OK)                                                 { goto error; }
    /* add them */
-   if ((err = add_point(mQ, mG, mG, &m, mp)) != CRYPT_OK)                                       { goto done; }
+   if (ltc_mp.ecc_ptadd != NULL) {
+      if ((err = ltc_mp.ecc_ptadd(mQ, mG, mG, m, mp)) != CRYPT_OK)                                      { goto done; }
+   } else {
+      if ((err = ltc_ecc_add_point(mQ, mG, mG, m, mp)) != CRYPT_OK)                                     { goto done; }
+   }
    
    /* reduce */
-   if ((err = ecc_map(mG, &m, mp)) != CRYPT_OK)                                                 { goto done; }
+   if (ltc_mp.ecc_map != NULL) {
+      if ((err = ltc_mp.ecc_map(mG, m, mp)) != CRYPT_OK)                                                { goto done; }
+   } else {
+      if ((err = ltc_ecc_map(mG, m, mp)) != CRYPT_OK)                                                   { goto done; }
+   }
 
    /* v = X_x1 mod n */
-   if ((err = mp_mod(&mG->x, &p, &v)) != CRYPT_OK)                                              { goto done; }
+   if ((err = mp_mod(mG->x, p, v)) != CRYPT_OK)                                                         { goto done; }
 
    /* does v == r */
-   if (mp_cmp(&v, &r) == MP_EQ) {
+   if (mp_cmp(v, r) == LTC_MP_EQ) {
       *stat = 1;
    }
 
@@ -448,11 +456,13 @@ int ecc_verify_hash(const unsigned char *sig,  unsigned long siglen,
    err = CRYPT_OK;
    goto done;
 error:
-   err = mpi_to_ltc_error(err);
 done:
-   del_point(mG);
-   del_point(mQ);
-   mp_clear_multi(&r, &s, &v, &w, &u1, &u2, &p, &e, &m, NULL);
+   ltc_ecc_del_point(mG);
+   ltc_ecc_del_point(mQ);
+   mp_clear_multi(r, s, v, w, u1, u2, p, e, m, NULL);
+   if (mp != NULL) { 
+      mp_montgomery_free(mp);
+   }
    return err;
 }
 

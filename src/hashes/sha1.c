@@ -32,7 +32,8 @@ const struct ltc_hash_descriptor sha1_desc =
     &sha1_init,
     &sha1_process,
     &sha1_done,
-    &sha1_test
+    &sha1_test,
+    NULL
 };
 
 #define F0(x,y,z)  (z ^ (x & (y ^ z)))

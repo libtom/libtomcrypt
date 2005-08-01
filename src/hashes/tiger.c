@@ -32,7 +32,8 @@ const struct ltc_hash_descriptor tiger_desc =
     &tiger_init,
     &tiger_process,
     &tiger_done,
-    &tiger_test
+    &tiger_test,
+    NULL
 };
 
 #define t1 (table)

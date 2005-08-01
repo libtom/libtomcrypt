@@ -24,8 +24,10 @@ static const char *baseten = "0123456789";
     out[x++] = der_ia5_char_encode(baseten[y % 10]);
 
 /**
-  Gets length of DER encoding of UTCTIME
-  @param outlen [out] The length of the DER encoding
+  Encodes a UTC time structure in DER format
+  @param utctime      The UTC time structure to encode
+  @param out          The destination of the DER encoding of the UTC time structure
+  @param outlen       [in/out] The length of the DER encoding
   @return CRYPT_OK if successful
 */
 int der_encode_utctime(ltc_utctime *utctime, 

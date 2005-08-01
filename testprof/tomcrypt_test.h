@@ -29,7 +29,6 @@ int store_test(void);
 int rsa_test(void);
 int ecc_tests(void);
 int dsa_test(void);
-int dh_tests(void);
 int der_tests(void);
 
 /* timing */
@@ -63,7 +62,6 @@ void time_sqr(void);
 void time_prng(void);
 void time_rsa(void);
 void time_ecc(void);
-void time_dh(void);
 void time_macs_(unsigned long MAC_SIZE);
 void time_macs(void);
 void time_encmacs(void);

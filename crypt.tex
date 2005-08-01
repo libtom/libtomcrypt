@@ -47,7 +47,7 @@
 \def\gap{\vspace{0.5ex}}
 \makeindex
 \begin{document}
-\title{LibTomCrypt \\ Version 1.05}
+\title{LibTomCrypt \\ Version 1.06}
 \author{Tom St Denis \\
 \\
 tomstdenis@gmail.com \\
@@ -1509,10 +1509,17 @@ struct _hash_descriptor {
 };
 \end{verbatim}
 
+\index{find\_hash()}
 Similarly ``name'' is the name of the hash function in ASCII (all lowercase).  ``hashsize'' is the size of the digest output
 in bytes.  The remaining fields are pointers to the functions that do the respective tasks.  There is a function to
 search the array as well called ``int find\_hash(char *name)''.  It returns -1 if the hash is not found, otherwise the
 position in the descriptor table of the hash.
+
+In addition to find\_hash() there is also find\_hash\_oid() which finds a hash by the ASN.1 OBJECT IDENTIFIER string.
+\index {find\_hash\_oid()}
+\begin{verbatim}
+int find_hash_oid(const unsigned long *ID, unsigned long IDlen);
+\end{verbatim}
 
 You can use the table to indirectly call a hash function that is chosen at runtime.  For example:
 \begin{small}
@@ -2245,6 +2252,7 @@ struct _prng_descriptor {
 };
 \end{verbatim}
 
+\index{find\_prng()}
 There is a ``int find\_prng(char *name)'' function as well.  Returns -1 if the PRNG is not found, otherwise it returns
 the position in the prng\_descriptor array.
 
@@ -2713,6 +2721,9 @@ int main(void)
       return EXIT_FAILURE;
    }
 
+   /* register a math library (in this case TomFastMath)
+   ltc_mp = tfm_desc;
+
    if (register_hash(&sha1_desc) == -1) {
       printf("Error registering sha1");
       return EXIT_FAILURE;
@@ -2767,229 +2778,30 @@ int main(void)
 }
 \end{verbatim}
 
+\subsection{RSA Key Export}
+To export a RSA key use the following function.
 
-\chapter{Diffie-Hellman Key Exchange}
-
-\section{Background}
-
-Diffie-Hellman was the original public key system proposed.  The system is based upon the group structure
-of finite fields.  For Diffie-Hellman a prime $p$ is chosen and a ``base'' $b$ such that $b^x\mbox{ }(\mbox{mod }p)$ 
-generates a large sub-group of prime order (for unique values of $x$).
-
-A secret key is an exponent $x$ and a public key is the value of $y \equiv g^x\mbox{ }(\mbox{mod }p)$.  The term
-``discrete logarithm'' denotes the action of finding $x$ given only $y$, $g$ and $p$.  The key exchange part of
-Diffie-Hellman arises from the fact that two users A and B with keys $(A_x, A_y)$ and $(B_x, B_y)$ can exchange 
-a shared key $K \equiv B_y^{A_x} \equiv A_y^{B_x} \equiv g^{A_xB_x}\mbox{ }(\mbox{mod }p)$.
-
-From this public encryption and signatures can be developed.  The trivial way to encrypt (for example) using a public key 
-$y$ is to perform the key exchange offline.  The sender invents a key $k$ and its public copy 
-$k' \equiv g^k\mbox{ }(\mbox{mod }p)$ and uses $K \equiv k'^{A_x}\mbox{ }(\mbox{mod }p)$ as a key to encrypt
-the message with.  Typically $K$ would be sent to a one-way hash and the message digested used as a key in a 
-symmetric cipher.
-
-It is important that the order of the sub-group that $g$ generates not only be large but also prime.  There are
-discrete logarithm algorithms that take $\sqrt r$ time given the order $r$.  The discrete logarithm can be computed
-modulo each prime factor of $r$ and the results combined using the Chinese Remainder Theorem.  In the cases where 
-$r$ is ``B-Smooth'' (e.g. all small factors or powers of small prime factors) the solution is trivial to find.
-
-To thwart such attacks the primes and bases in the library have been designed and fixed.  Given a prime $p$ the order of
- the sub-group generated is a large prime namely ${p - 1} \over 2$.  Such primes are known as ``strong primes'' and the 
-smaller prime (e.g. the order of the base) are known as Sophie-Germaine primes.
-
-\section{Core Functions}
-
-This library also provides core Diffie-Hellman functions so you can negotiate keys over insecure mediums.  The routines 
-provided are relatively easy to use and only take two function calls to negotiate a shared key.  There is a structure
-called ``dh\_key'' which stores the Diffie-Hellman key in a format these routines can use.  The first routine is to
-make a Diffie-Hellman private key pair:
-\index{dh\_make\_key()}
+\index{rsa\_export()}
 \begin{verbatim}
-int dh_make_key(prng_state *prng, int wprng, 
-                int keysize, dh_key *key);
+int rsa_export(unsigned char *out, unsigned long *outlen, int type, rsa_key *key);
 \end{verbatim}
-The ``keysize'' is the size of the modulus you want in bytes.  Currently support sizes are 96 to 512 bytes which correspond 
-to key sizes of 768 to 4096 bits. The smaller the key the faster it is to use however it will be less secure.  When 
-specifying a size not explicitly supported by the library it will round {\em up} to the next key size.  If the size is 
-above 512 it will return an error.  So if you pass ``keysize == 32'' it will use a 768 bit key but if you pass 
-``keysize == 20000'' it will return an error.  The primes and generators used are built-into the library and were designed 
-to meet very specific goals.  The primes are strong primes which means that if $p$ is the prime then
-$p-1$ is equal to $2r$ where $r$ is a large prime.  The bases are chosen to generate a group of order $r$ to prevent
-leaking a bit of the key.  This means the bases generate a very large prime order group which is good to make cryptanalysis
-hard.
+This will export the RSA key in either a RSAPublicKey or RSAPrivateKey (PKCS \#1 types) depending on the value of ``type''.  When it is 
+set to \textbf{PK\_PRIVATE} the export format will be RSAPrivateKey and otherwise it will be RSAPublicKey.
 
-The next two routines are for exporting/importing Diffie-Hellman keys in a binary format.  This is useful for transport
-over communication mediums.  
+\subsection{RSA Key Import}
+To import a RSA key use the following function.
 
-\index{dh\_export()} \index{dh\_import()}
+\index{rsa\_import()}
 \begin{verbatim}
-int dh_export(unsigned char *out, unsigned long *outlen, 
-              int type, dh_key *key);
-
-int dh_import(const unsigned char *in, unsigned long inlen, dh_key *key);
+int rsa_import(const unsigned char *in, unsigned long inlen, rsa_key *key);
 \end{verbatim}
 
-These two functions work just like the ``rsa\_export()'' and ``rsa\_import()'' functions except these work with 
-Diffie-Hellman keys. Its important to note you do not have to free the ram for a ``dh\_key'' if an import fails.  You can free a 
-``dh\_key'' using:
-\begin{verbatim}
-void dh_free(dh_key *key);
-\end{verbatim}
-After you have exported a copy of your public key (using {\bf PK\_PUBLIC} as ``type'') you can now create a shared secret 
-with the other user using:
-\index{dh\_shared\_secret()}
-\begin{verbatim}
-int dh_shared_secret(dh_key *private_key, 
-                     dh_key *public_key, 
-                     unsigned char *out, unsigned long *outlen);
-\end{verbatim}
+This will import the key stored in ``inlen'' and import it to ``key''.  If the function fails it will automatically free any allocated memory.  This
+function can import both RSAPublicKey and RSAPrivateKey formats.
 
-Where ``private\_key'' is the key you made and ``public\_key'' is the copy of the public key the other user sent you.  The result goes
-into ``out'' and the length into ``outlen''.  If all went correctly the data in ``out'' should be identical for both parties.  It is important to
-note that the two keys have to be the same size in order for this to work.  There is a function to get the size of a
-key:
-\index{dh\_get\_size()}
-\begin{verbatim}
-int dh_get_size(dh_key *key);
-\end{verbatim}
-This returns the size in bytes of the modulus chosen for that key.
-
-\subsection{Remarks on Usage}
-Its important that you hash the shared key before trying to use it as a key for a symmetric cipher or something.  An 
-example program that communicates over sockets, using MD5 and 1024-bit DH keys is\footnote{This function is a small example.  It is suggested that proper packaging be used.  For example, if the public key sent is truncated these routines will not detect that.}:
-\newpage
-\begin{small}
-\begin{verbatim}
-int establish_secure_socket(int sock, int mode, unsigned char *key, 
-                            prng_state *prng, int wprng)
-{
-   unsigned char buf[4096], buf2[4096];
-   unsigned long x, len;
-   int res, err, inlen;
-   dh_key mykey, theirkey;
-
-   /* make up our private key */
-   if ((err = dh_make_key(prng, wprng, 128, &mykey)) != CRYPT_OK)  {
-      return err;
-   }
-
-   /* export our key as public */ 
-   x = sizeof(buf);
-   if ((err = dh_export(buf, &x, PK_PUBLIC, &mykey)) != CRYPT_OK) {
-      res = err;
-      goto done2;
-   }
-
-   if (mode == 0) {
-      /* mode 0 so we send first */
-      if (send(sock, buf, x, 0) != x) {
-         res = CRYPT_ERROR;
-         goto done2;
-      }          
-
-      /* get their key */
-      if ((inlen = recv(sock, buf2, sizeof(buf2), 0)) <= 0) {
-         res = CRYPT_ERROR;
-         goto done2;
-      }
-   } else {
-      /* mode >0 so we send second */
-      if ((inlen = recv(sock, buf2, sizeof(buf2), 0)) <= 0) {
-         res = CRYPT_ERROR;
-         goto done2;
-      }
-
-      if (send(sock, buf, x, 0) != x) {
-         res = CRYPT_ERROR;
-         goto done2;
-      }
-   }
-
-   if ((err = dh_import(buf2, inlen, &theirkey)) != CRYPT_OK) { 
-      res = err;
-      goto done2;
-   }
-
-   /* make shared secret */
-   x = sizeof(buf);
-   if ((err = dh_shared_secret(&mykey, &theirkey, buf, &x)) != CRYPT_OK) {
-      res = err;
-      goto done;
-   }
- 
-   /* hash it */
-   len = 16;        /* default is MD5 so "key" must be at least 16 bytes long */
-   if ((err = hash_memory(find_hash("md5"), buf, x, key, &len)) != CRYPT_OK) {
-      res = err;
-      goto done;
-   }
-
-   /* clean up and return */
-   res = CRYPT_OK;
-done:
-   dh_free(&theirkey);
-done2:
-   dh_free(&mykey);
-   zeromem(buf,  sizeof(buf));
-   zeromem(buf2, sizeof(buf2));
-   return res;
-}
-\end{verbatim}
-\end{small}
-\newpage
-\subsection{Remarks on The Snippet}
-When the above code snippet is done (assuming all went well) their will be a shared 128-bit key in the ``key'' array
-passed to ``establish\_secure\_socket()''.
-
-\section{Other Diffie-Hellman Functions}
-In order to test the Diffie-Hellman function internal workings (e.g. the primes and bases) their is a test function made
-available:
-\index{dh\_test()}
-\begin{verbatim}
-int dh_test(void);
-\end{verbatim}
-
-This function returns {\bf CRYPT\_OK} if the bases and primes in the library are correct.  There is one last helper 
-function:
-\index{dh\_sizes()}
-\begin{verbatim}
-void dh_sizes(int *low, int *high);
-\end{verbatim}
-Which stores the smallest and largest key sizes support into the two variables.
-
-\section{DH Packet}
-Similar to the RSA related functions there are functions to encrypt or decrypt symmetric keys using the DH public key
-algorithms.  
-\index{dh\_encrypt\_key()} \index{dh\_decrypt\_key()}
-\begin{verbatim}
-int dh_encrypt_key(const unsigned char *in,   unsigned long  inlen,
-                         unsigned char *out,  unsigned long *len, 
-                         prng_state *prng, int wprng, int hash, 
-                         dh_key *key);
-
-int dh_decrypt_key(const unsigned char *in,  unsigned long  inlen,
-                         unsigned char *out, unsigned long *outlen, 
-                         dh_key *key);
-\end{verbatim}
-Where ``in'' is an input symmetric key of no more than 32 bytes.  Essentially these routines created a random public key
-and find the hash of the shared secret.  The message digest is than XOR'ed against the symmetric key.  All of the 
-required data is placed in ``out'' by ``dh\_encrypt\_key()''.   The hash must produce a message digest at least as large
-as the symmetric key you are trying to share.
-
-Similar to the RSA system you can sign and verify a hash of a message.
-\index{dh\_sign\_hash()} \index{dh\_verify\_hash()}
-\begin{verbatim}
-int dh_sign_hash(const unsigned char *in,  unsigned long inlen,
-                       unsigned char *out, unsigned long *outlen,
-                       prng_state *prng, int wprng, dh_key *key);
-
-int dh_verify_hash(const unsigned char *sig, unsigned long siglen,
-                         const unsigned char *hash, unsigned long hashlen, 
-                         int *stat, dh_key *key);
-\end{verbatim}
-
-The ``dh\_sign\_hash'' function signs the message hash in ``in'' of length ``inlen'' and forms a DH packet in ``out''.  
-The ``dh\_verify\_hash'' function verifies the DH signature in ``sig'' against the hash in ``hash''.  It sets ``stat''
-to non-zero if the signature passes or zero if it fails.
+As of v1.06 this function can also import OpenSSL DER formatted public RSA keys.  They are essentially encapsulated RSAPublicKeys.  LibTomCrypt will
+import the key, strip off the additional data (it's the preferred hash) and fill in the rsa\_key structure as if it were a native RSAPublicKey.  Note that
+there is no function provided to export in this format.  
 
 \chapter{Elliptic Curve Cryptography}
 
@@ -3044,7 +2856,8 @@ The first flags bit denotes whether the key is public (zero) or private (one).
 
 \section{Core Functions}
 
-Like the DH routines there is a key structure ``ecc\_key'' used by the functions.  There is a function to make a key:
+\subsection{ECC Key Generation}
+There is a key structure called ``ecc\_key'' used by the ECC functions.  There is a function to make a key:
 \index{ecc\_make\_key()}
 \begin{verbatim}
 int ecc_make_key(prng_state *prng, int wprng, 
@@ -3052,48 +2865,42 @@ int ecc_make_key(prng_state *prng, int wprng,
 \end{verbatim}
 
 The ``keysize'' is the size of the modulus in bytes desired.  Currently directly supported values are 24, 28, 32, 48 and 65 bytes which
-correspond to key sizes of 192, 224, 256, 384 and 521 bits respectively.  If you pass a key size that is between any key size
-it will round the keysize up to the next available one.  The rest of the parameters work like they do in the ``dh\_make\_key()'' function.  
-To free the ram allocated by a key call:
+correspond to key sizes of 192, 224, 256, 384 and 521 bits respectively.  If you pass a key size that is between any key size it will round 
+the keysize up to the next available one.   To free the ram allocated by a ecc\_make\_key() or ecc\_import() call use the following function.
+
 \index{ecc\_free()}
 \begin{verbatim}
 void ecc_free(ecc_key *key);
 \end{verbatim}
 
-To import and export a key there are: 
+\subsection{ECC Key Export}
+To export an ECC key.
 \index{ecc\_export()}
-\index{ecc\_import()}
 \begin{verbatim}
 int ecc_export(unsigned char *out, unsigned long *outlen, 
                int type, ecc_key *key);
+\end{verbatim}
+This will export the key with the given ``type'' (\textbf{PK\_PUBLIC} or \textbf{PK\_PRIVATE}) and store it to ``out''.  
 
+\subsection{ECC Key Import}
+\index{ecc\_import()}
+\begin{verbatim}
 int ecc_import(const unsigned char *in, unsigned long inlen, ecc_key *key);
 \end{verbatim}
-These two work exactly like there DH counterparts.  Finally when you share your public key you can make a shared secret
-with:
+
+This will import the ECC key from ``in'' and store it in the ecc\_key structure ``key''.  If the operation fails it will free
+any allocated memory automatically.
+
+\subsection{ECC Shared Secret}
+Finally when you share your public key you can make a shared secret with the following.
 \index{ecc\_shared\_secret()}
 \begin{verbatim}
 int ecc_shared_secret(ecc_key *private_key, 
                       ecc_key *public_key, 
                       unsigned char *out, unsigned long *outlen);
 \end{verbatim}
-Which works exactly like the DH counterpart, the ``private\_key'' is your own key and ``public\_key'' is the key the other
-user sent you.   Note that this function stores both $x$ and $y$ co-ordinates of the shared
-elliptic point.  You should hash the output to get a shared key in a more compact and useful form (most of the entropy is 
-in $x$ anyways).  Both keys have to be the same size for this to work, to help there is a function to get the size in bytes
- of a key.
-\index{ecc\_get\_size()}
-\begin{verbatim}
-int ecc_get_size(ecc_key *key);
-\end{verbatim}
-
-To test the ECC routines and to get the minimum and maximum key sizes there are these two functions:
-\index{ecc\_test()}
-\begin{verbatim}
-int ecc_test(void);
-void ecc_sizes(int *low, int *high);
-\end{verbatim}
-Which both work like their DH counterparts.
+The ``private\_key'' is your own key and ``public\_key'' is the key the other user sent you.   Note that this function stores only the 
+$x$ co-ordinate of the shared elliptic point as described in ANSI X9.63 ECC--DH.  
 
 \section{ECC Packet}
 Similar to the RSA API there are two functions which encrypt and decrypt symmetric keys using the ECC public key
@@ -3766,72 +3573,7 @@ int base64_decode(const unsigned char *in, unsigned long len,
                   unsigned char *out, unsigned long *outlen);
 \end{verbatim}
 
-\section{The Multiple Precision Integer Library (MPI)}
-The library comes with a copy of LibTomMath  which is a multiple precision integer library written by the
-author of LibTomCrypt.  LibTomMath is a trivial to use ANSI C compatible large integer library which is free 
-for all uses and is distributed freely.
-
-At the heart of all the functions is the data type ``mp\_int'' (defined in tommath.h).  This data type is what 
-will hold all large integers.  In order to use an mp\_int one must initialize it first, for example:
-\begin{verbatim}
-#include <tomcrypt.h> /* tomcrypt.h includes mpi.h automatically */
-int main(void)
-{ 
-   mp_int bignum;
-   
-   /* initialize it */
-   mp_init(&bignum);
-
-   return 0;
-}
-\end{verbatim}
-If you are unfamiliar with the syntax of C the \& symbol is used to pass the address of ``bignum'' to the function.  All
-LibTomMath functions require the address of the parameters.  To free the memory of a mp\_int use (for example):
-\begin{verbatim}
-mp_clear(&bignum);
-\end{verbatim}
-
-The functions also have the basic form of one of the following:
-\begin{verbatim}
-mp_XXX(mp_int *a);
-mp_XXX(mp_int *a, mp_int *b, mp_int *c);
-mp_XXX(mp_int *a, mp_int *b, mp_int *c, mp_int *d);
-\end{verbatim}
-
-Where they perform some operation and store the result in the mp\_int variable passed on the far right.  
-For example, to compute $c = a + b \mbox{ }(\mbox{mod }m)$ you would call:
-\begin{verbatim}
-mp_addmod(&a, &b, &m, &c);
-\end{verbatim}
-
-\subsection{Binary Forms of ``mp\_int'' Variables}
-
-Often it is required to store a ``mp\_int'' in binary form for transport (e.g. exporting a key, packet 
-encryption, etc.).  LibTomMath includes two functions to help when exporting numbers:
-\begin{verbatim}
-int mp_raw_size(mp_int *num);
-mp_toraw(&num, buf);
-\end{verbatim}
-
-The former function gives the size in bytes of the raw format and the latter function actually stores the raw data.  All
-``mp\_int'' numbers are stored in big endian form (like PKCS demands) with the first byte being the sign of the number.  The
-``rsa\_exptmod()'' function differs slightly since it will take the input in the form exactly as PKCS demands (without the
-leading sign byte).  All other functions include the sign byte (since its much simpler just to include it).  The sign byte
-must be zero for positive numbers and non-zero for negative numbers.  For example,
-the sequence:
-\begin{verbatim}
-00 FF 30 04
-\end{verbatim}
-Represents the integer $255 \cdot 256^2 + 48 \cdot 256^1 + 4 \cdot 256^0$ or 16,723,972.
-
-To read a binary string back into a ``mp\_int'' call:
-\begin{verbatim}
-mp_read_raw(mp_int *num, unsigned char *str, int len);
-\end{verbatim}
-Where ``num'' is where to store it, ``str'' is the binary string (including the leading sign byte) and ``len'' is the 
-length of the binary string.
-
-\subsection{Primality Testing}
+\section{Primality Testing}
 \index{Primality Testing}
 The library includes primality testing and random prime functions as well.  The primality tester will perform the test in
 two phases.  First it will perform trial division by the first few primes.  Second it will perform eight rounds of the 
@@ -3974,57 +3716,145 @@ The library is fairly flexible about how it can be built, used and generally dis
 each new release that will make the library even more flexible.  Each of the classes of functions can be disabled during
 the build process to make a smaller library.  This is particularly useful for shared libraries.
 
+As of v1.06 of the library the build process has been moved to two steps for the typical LibTomCrypt application.  This is because
+LibTomCrypt no longer provides a math API on its own and relies on third party libraries (such as LibTomMath or TomsFastMath).
+
+The build process now consists of installing a math library first then building and installing LibTomCrypt with a math library
+configured.  Note that LibTomCrypt can be built with no internal math descriptors.  This means that one must be provided at either
+build or run time for the application.  LibTomCrypt comes with two math descriptors that provide a standard interface to math 
+libraries.  One for LibTomMath and one for TomsFastMath.
+
+\section{Makefile variables}
+
+All GNU driven makefiles (including the makefile for ICC) use a set of common variables to control the build and install process.  Most of the 
+settings can be overwritten from the command line which makes custom installation a breeze.
+
+\subsection{IGNORE\_SPEED}
+\index{IGNORE\_SPEED}
+When \textbf{IGNORE\_SPEED} has been defined the default optimization flags for CFLAGS will be disabled which allows the developer to specify new
+CFLAGS on the command line.  E.g. to add debugging
+
+\begin{verbatim}
+CFLAGS="-g3" make IGNORE_SPEED=1
+\end{verbatim}
+
+This will turn off optimizations and add ``-g3'' to the CFLAGS which enables debugging.  
+
+\subsection{LIBNAME and LIBNAME\_S}
+\index{LIBNAME} \index{LIBNAME\_S}
+\textbf{LIBNAME} is the name of the output library (archive) to create.  It defaults to ``libtomcrypt.a'' for static builds and ``libtomcrypt.la'' for
+shared.  The \textbf{LIBNAME\_S} variable is the static name while doing shared builds.  Ideally they should have the same prefix but don't have to.
+
+\index{LIBTEST} \index{LIBTEST\_S}
+Similarly \textbf{LIBTEST} and \textbf{LIBTEST\_S} are the names for the profiling and testing library.  The default is ``libtomcrypt\_prof.a'' for 
+static and ``libtomcrypt\_prof.la'' for shared.
+
+\subsection{Installation Directories}
+\index{DESTDIR} \index{LIBPATH} \index{INCPATH} \index{DATADIR}
+\textbf{DESTDIR} is the prefix for the installation directories.  It defaults to an empty string.  \textbf{LIBPATH} is the prefix for the library
+directory which defaults to ``/usr/lib''.  \textbf{INCPATH} is the prefix for the header file directory which defaults to ``/usr/include''.  
+\textbf{DATADIR} is the prefix for the data (documentation) directory which defaults to ``/usr/share/doc/libtomcrypt/pdf''.
+
+All four can be used to create custom install locations depending on the nature of the OS and file system in use.
+
+\begin{verbatim}
+make LIBPATH=/home/tom/project/lib INCPATH=/home/tom/project/include DATAPATH=/home/tom/project/docs install
+\end{verbatim}
+
+This will build the library and install it to the directories under ``/home/tom/project/''.  e.g.
+
+\begin{small}
+\begin{verbatim}
+/home/tom/project/:
+total 1
+drwxr-xr-x  2 tom users  80 Jul 30 16:02 docs
+drwxr-xr-x  2 tom users 528 Jul 30 16:02 include
+drwxr-xr-x  2 tom users  80 Jul 30 16:02 lib
+
+/home/tom/project/docs:
+total 452
+-rwxr-xr-x  1 tom users 459009 Jul 30 16:02 crypt.pdf
+
+/home/tom/project/include:
+total 132
+-rwxr-xr-x  1 tom users  2482 Jul 30 16:02 tomcrypt.h
+-rwxr-xr-x  1 tom users   702 Jul 30 16:02 tomcrypt_argchk.h
+-rwxr-xr-x  1 tom users  2945 Jul 30 16:02 tomcrypt_cfg.h
+-rwxr-xr-x  1 tom users 22763 Jul 30 16:02 tomcrypt_cipher.h
+-rwxr-xr-x  1 tom users  5174 Jul 30 16:02 tomcrypt_custom.h
+-rwxr-xr-x  1 tom users 11314 Jul 30 16:02 tomcrypt_hash.h
+-rwxr-xr-x  1 tom users 11571 Jul 30 16:02 tomcrypt_mac.h
+-rwxr-xr-x  1 tom users 13614 Jul 30 16:02 tomcrypt_macros.h
+-rwxr-xr-x  1 tom users 14714 Jul 30 16:02 tomcrypt_math.h
+-rwxr-xr-x  1 tom users   632 Jul 30 16:02 tomcrypt_misc.h
+-rwxr-xr-x  1 tom users 10934 Jul 30 16:02 tomcrypt_pk.h
+-rwxr-xr-x  1 tom users  2634 Jul 30 16:02 tomcrypt_pkcs.h
+-rwxr-xr-x  1 tom users  7067 Jul 30 16:02 tomcrypt_prng.h
+-rwxr-xr-x  1 tom users  1467 Jul 30 16:02 tomcrypt_test.h
+
+/home/tom/project/lib:
+total 1073
+-rwxr-xr-x  1 tom users 1096284 Jul 30 16:02 libtomcrypt.a
+\end{verbatim}
+\end{small}
+
+\section{Extra libraries}
+\index{EXTRALIBS}
+\textbf{EXTRALIBS} specifies any extra libraries required to link the test programs and shared libraries.  They are specified in the notation
+that GCC expects for global archives.
+
+\begin{verbatim}
+CFLAGS="-DTFM_DESC -DUSE_TFM" EXTRALIBS=-ltfm make install test timing
+\end{verbatim}
+
+This will install the library using the TomsFastMath library and link the ``libtfm.a'' library out of the default library search path.  The two
+defines are explained below.  You can specify multiple archives (say if you want to support two math libraries, or add on additional code) to 
+the \textbf{EXTRALIBS} variable by separating them by a space.
+
+Note that \textbf{EXTRALIBS} is not required if you are only making and installing the static library but none of the test programs.  
+
 \section{Building a Static Library}
-The library can be built as a static library which is generally the simplest and most portable method of 
-building the library.  With a CC or GCC equipped platform you can issue the following
 
-\begin{alltt}
-make install_lib
-\end{alltt}
+Building a static library is fairly trivial as it only requires one invocation of the GNU make command.  
 
-Which will build the library and install it in /usr/lib (as well as the headers in /usr/include).  The destination
-directory of the library and headers can be changed by editing ``makefile''.  The variable LIBNAME controls
-where the library is to be installed and INCNAME controls where the headers are to be installed.  A developer can 
-then use the library by including ``tomcrypt.h'' in their program and linking against ``libtomcrypt.a''.
+\begin{verbatim}
+CFLAGS="-DTFM_DESC" make install
+\end{verbatim}
 
-A static library can also be built with the Intel C Compiler  (ICC) by issuing the following
+That will build LibTomCrypt (including the TomsFastMath descriptor) and install it in the default locations indicated previously.  You can enable 
+the built--in LibTomMath descriptor as well (or in place of the TomsFastMath descriptor).  Similarly you can build the library with no built--in 
+math descriptors.  
 
-\begin{alltt}
-make -f makefile.icc install
-\end{alltt}
+\begin{verbatim}
+make install
+\end{verbatim}
 
-This will also build ``libtomcrypt.a'' except that it will use ICC.  Additionally Microsoft's Visual C 6.00 can be used
-by issuing
+In this case no math descriptors are present in the library and they will have to be made available at build or run time before you can use any of the 
+public key functions.  
 
-\begin{alltt}
-nmake -f makefile.msvc
-\end{alltt}
+Note that even if you include the built--in descriptors you must link against the source library as well.  
 
-You will have to manually copy ``tomcrypt.lib'' and the headers to your MSVC lib/inc directories.
+\begin{verbatim}
+gcc -DTFM_DESC myprogram.c -ltomcrypt -ltfm -o myprogram
+\end{verbatim}
 
-\subsection{MPI Control}
-If you already have LibTomMath installed you can safely remove it from the build.  By commenting the line
-in the appropriate makefile which starts with 
-
-\begin{alltt}
-MPIOBJECT=mpi
-\end{alltt}
-
-Simply place a \# at the start and re-build the library.  To properly link applications you will have to also
-link in LibTomMath.  Removing MPI has the benefit of cutting down the library size as well potentially have access
-to the latest mpi.
+This will compile ``myprogram'' and link it against the LibTomCrypt library as well as TomsFastMath (which must have been previously installed).  Note that 
+we define \textbf{TFM\_DESC} for compilation.  This is so that the TFM descriptor symbol will be defined for the client application to make use of without 
+giving warnings.
 
 \section{Building a Shared Library}
-LibTomCrypt can also be built as a shared library (.so, .dll, etc...).  With non-Windows platforms the assumption
-of the presence of gcc and ``libtool'' has been made.  These are fairly common on Unix/Linux/BSD platforms.  To
-build a .so shared library issue 
 
-\begin{alltt}
-make -f makefile.shared
-\end{alltt}
-This will use libtool and gcc to build a shared library ``libtomcrypt.la'' as well as a static library ``libtomcrypt.a''
-and install them into /usr/lib (and the headers into /usr/include).  To link your application you should use the 
-libtool program in ``--mode=link''.
+LibTomCrypt can also be built as a shared library through the ``makefile.shared'' make script.  It is similar to use as the static script except
+that you \textbf{must} specify the \textbf{EXTRALIBS} variable at install time.  
+
+\begin{verbatim}
+CFLAGS="-DTFM_DESC" EXTRALIBS=-ltfm make -f makefile.shared
+\end{verbatim}
+
+This will build and install the library and link the shared object against the TomsFastMath library (which must be installed as a shared object as well).
+Note that unlike the static build there is no ``install'' target.  The default action of this make script is to install the library.
+
+The shared build process requires libtool to be installed.
 
 \section{tomcrypt\_cfg.h}
 The file ``tomcrypt\_cfg.h'' is what lets you control various high level macros which control the behaviour 
@@ -4034,16 +3864,17 @@ of the library.
 This lets you control how the \_ARGCHK macro will behave.  The macro is used to check pointers inside the functions against
 NULL.  There are three settings for ARGTYPE.  When set to 0 it will have the default behaviour of printing a message to 
 stderr and raising a SIGABRT signal.  This is provided so all platforms that use libtomcrypt can have an error that functions
-similarly.  When set to 1 it will simply pass on to the assert() macro.  When set to 2 it will resolve to a empty macro
-and no error checking will be performed.
+similarly.  When set to 1 it will simply pass on to the assert() macro.  When set to 2 the macro will display the error to
+stderr then return execution to the caller.  This could lead to a segmentation fault (e.g. when a pointer is \textbf{NULL}) but is useful
+if you handle signals on your own.  When set to 3 it will resolve to a empty macro  and no error checking will be performed.
 
 \subsubsection{Endianess}
-There are five macros related to endianess issues.  For little endian platforms define, ENDIAN\_LITTLE.  For big endian
-platforms define ENDIAN\_BIG.  Similarly when the default word size of an ``unsigned long'' is 32-bits define ENDIAN\_32BITWORD
-or define ENDIAN\_64BITWORD when its 64-bits.  If you do not define any of them the library will automatically use ENDIAN\_NEUTRAL
+There are five macros related to endianess issues.  For little endian platforms define, \textbf{ENDIAN\_LITTLE}.  For big endian
+platforms define \textbf{ENDIAN\_BIG}.  Similarly when the default word size of an ``unsigned long'' is 32-bits define \textbf{ENDIAN\_32BITWORD}
+or define \textbf{ENDIAN\_64BITWORD} when its 64-bits.  If you do not define any of them the library will automatically use \textbf{ENDIAN\_NEUTRAL}
 which will work on all platforms.
 
-Currently LibTomCrypt will detect x86-32 and x86-64 running GCC as well as x86-32 running MSVC.  
+Currently LibTomCrypt will detect x86-32, x86-64, MIPS R5900, SPARC and SPARC64 running GCC as well as x86-32 running MSVC.  
 
 \section{The Configure Script}
 There are also options you can specify from the configure script or ``tomcrypt\_custom.h''.  
@@ -4076,6 +3907,8 @@ There are a plethora of macros for the ciphers, hashes, PRNGs and public key fun
 self-explanatory.  When they are defined the functionality is included otherwise it is not.  There are some 
 dependency issues which are noted in the file.  For instance, Yarrow requires CTR chaining mode, a block 
 cipher and a hash function.
+
+Also see technical note number five for more details.
 
 \subsection{TWOFISH\_SMALL and TWOFISH\_TABLES}
 Twofish is a 128-bit symmetric block cipher that is provided within the library.  The cipher itself is flexible enough
@@ -4129,17 +3962,28 @@ it doesn't prevent a thread that is passively using a table from being messed up
 Generally the rule of thumb is to setup the tables once at startup and then leave them be.  This added build flag simply makes updating
 the tables safer.
 
-\section{MPI Tweaks}
-\subsection{RSA Only Tweak}
-If you plan on only using RSA with moduli in the range of 1024 to 2560 bits you can enable a series of tweaks
-to reduce the library size.  Follow these steps
+\subsection{LTC\_ECC\_TIMING\_RESISTANT}
+When this has been defined the ECC point multiplier (built--in to the library) will use a timing resistant point multipication
+algorithm which prevents leaking key bits of the private key (scalar).  It is a slower algorithm but useful for situations
+where timing side channels pose a significant threat.
 
-\begin{enumerate}
-   \item Undefine MDSA, MECC and MDH from tomcrypt\_custom.h
-   \item Undefine LTM\_ALL  from tommath\_superclass.h
-   \item Define SC\_RSA\_1 from tommath\_superclass.h
-   \item Rebuild the library.
-\end{enumerate}
+\subsection{Math Descriptors}
+The library comes with two math descriptors that allow you to interface the public key cryptography api to freely available math
+libraries.  In this case LibTomMath and TomsFastMath.  When either of \textbf{LTM\_DESC} or \textbf{TFM\_DESC} are defined
+descriptors for the respective library are built and included in the library as ``ltm\_desc'' or ``tfm\_desc'' respectively.
+
+In the test demos that use the libraries the additional flags \textbf{USE\_LTM} and \textbf{USE\_TFM} can be defined
+to tell the program which library to use.  They cannot both be defined at once.
+
+\index{LTM\_DESC} \index{TFM\_DESC} \index{USE\_LTM} \index{USE\_TFM}
+\begin{small}
+\begin{verbatim}
+CFLAGS="-DLTM_DESC -DTFM_DESC -DUSE_TFM" EXTRALIBS="-ltommath -ltfm" 
+    make -f makefile.shared install timing
+\end{verbatim}
+\end{small}
+
+That will build and install the library with both descriptors (and link against both) but then only use TomsFastMath in the timing demo.  
 
 \chapter{Optimizations}
 \section{Introduction}
@@ -4314,6 +4158,7 @@ struct ltc_cipher_descriptor {
 \end{small}
 
 \subsection{Name}
+\index{find\_cipher()}
 The ``name'' parameter specifies the name of the cipher.  This is what a developer would pass to find\_cipher() to find the cipher in the descriptor
 tables.
 
@@ -4433,6 +4278,11 @@ struct ltc_hash_descriptor {
       @return CRYPT_OK if successful, CRYPT_NOP if self-tests have been disabled
     */
     int (*test)(void);
+    /* accelerated hmac callback: if you need to-do multiple packets just use the 
+       generic hmac_memory and provide a hash callback */
+    int  (*hmac_block)(const unsigned char *key, unsigned long  keylen,
+                       const unsigned char *in,  unsigned long  inlen, 
+                             unsigned char *out, unsigned long *outlen);
 };
 \end{verbatim}
 \end{small}
@@ -4464,7 +4314,11 @@ guaranteed to be a multiple of the block size in length.
 The done function terminates the hash and returns the message digest.
 
 \subsection{Acceleration}
-A compatible accelerator must allow processing data in any granularity which may require internal padding on the driver side.  
+A compatible accelerator must allow processing data in any granularity which may require internal padding on the driver side.
+
+\subsection{HMAC Acceleration}
+The hmac\_block() callback is meant for single--shot optimized HMAC implementations.  It is called directly by hmac\_memory() if present.  If you need
+to be able to process multiple blocks per MAC then you will have to simply provide a process() callback and use hmac\_memory() as provided in LibTomCrypt.
 
 \section{Pseudo--Random Number Generators}
 The pseudo--random number generators are accessible through the ltc\_prng\_descriptor structure.
@@ -4554,10 +4408,448 @@ Terminate a PRNG state.  The behaviour of this function depends on the particula
 An exported PRNG state is data that the PRNG can later import to resume activity.  They're not meant to resume ``the same session''
 but should at least maintain the same level of state entropy.
 
+\section{BigNum Math Descriptors}
+The library also makes use of the math descriptors to access math functions.  While bignum math libraries usually differ in implementation
+it hasn't proven hard to write ``glue'' to use math libraries so far.  The basic descriptor looks like.
+
+\begin{small}
+\begin{verbatim}
+/** math descriptor */
+typedef struct {
+   /** Name of the math provider */
+   char *name;
+
+   /** Bits per digit, amount of bits must fit in an unsigned long */
+   int  bits_per_digit;
+
+/* ---- init/deinit functions ---- */
+
+   /** initialize a bignum
+     @param   a     The number to initialize
+     @return  CRYPT_OK on success
+   */
+   int (*init)(void **a);
+   
+   /** init copy 
+     @param  dst    The number to initialize and write to
+     @param  src    The number to copy from
+     @return CRYPT_OK on success
+   */
+   int (*init_copy)(void **dst, void *src);
+
+   /** deinit 
+      @param   a    The number to free
+      @return CRYPT_OK on success
+   */
+   void (*deinit)(void *a);
+
+/* ---- data movement ---- */
+
+   /** copy 
+      @param   src   The number to copy from
+      @param   dst   The number to write to 
+      @return CRYPT_OK on success
+   */
+   int (*copy)(void *src, void *dst);
+
+/* ---- trivial low level functions ---- */
+
+   /** set small constant 
+      @param a    Number to write to
+      @param n    Source upto bits_per_digit (actually meant for very small constants) 
+      @return CRYPT_OK on succcess
+   */
+   int (*set_int)(void *a, unsigned long n);
+
+   /** get small constant 
+      @param a    Number to read, only fetches upto bits_per_digit from the number
+      @return  The lower bits_per_digit of the integer (unsigned)
+   */
+   unsigned long (*get_int)(void *a);
+
+   /** get digit n 
+     @param a  The number to read from
+     @param n  The number of the digit to fetch
+     @return  The bits_per_digit  sized n'th digit of a
+   */
+   unsigned long (*get_digit)(void *a, int n);
+
+   /** Get the number of digits that represent the number
+     @param a   The number to count
+     @return The number of digits used to represent the number
+   */
+   int (*get_digit_count)(void *a);
+
+   /** compare two integers
+     @param a   The left side integer
+     @param b   The right side integer
+     @return LTC_MP_LT if a < b, 
+             LTC_MP_GT if a > b and 
+             LTC_MP_EQ otherwise.  (signed comparison)
+   */
+   int (*compare)(void *a, void *b);
+
+   /** compare against int 
+     @param a   The left side integer
+     @param b   The right side integer (upto bits_per_digit)
+     @return LTC_MP_LT if a < b, 
+             LTC_MP_GT if a > b and 
+             LTC_MP_EQ otherwise.  (signed comparison)
+   */
+   int (*compare_d)(void *a, unsigned long n);
+
+   /** Count the number of bits used to represent the integer
+     @param a   The integer to count
+     @return The number of bits required to represent the integer
+   */
+   int (*count_bits)(void * a);
+
+   /** Compute a power of two
+     @param a  The integer to store the power in
+     @param n  The power of two you want to store (a = 2^n)
+     @return CRYPT_OK on success
+   */
+   int (*twoexpt)(void *a , int n);
+
+/* ---- radix conversions ---- */
+   
+   /** read ascii string 
+     @param a     The integer to store into
+     @param str   The string to read
+     @param radix The radix the integer has been represented in (2-64)
+     @return CRYPT_OK on success
+   */
+   int (*read_radix)(void *a, const char *str, int radix);
+
+   /** write number to string
+     @param a     The integer to store
+     @param str   The destination for the string
+     @param radix The radix the integer is to be represented in (2-64)
+     @return CRYPT_OK on success
+   */
+   int (*write_radix)(void *a, char *str, int radix);
+
+   /** get size as unsigned char string 
+     @param a     The integer to get the size (when stored in array of octets)
+     @return The length of the integer
+   */
+   unsigned long (*unsigned_size)(void *a);
+
+   /** store an integer as an array of octets 
+     @param src   The integer to store
+     @param dst   The buffer to store the integer in
+     @return CRYPT_OK on success
+   */
+   int (*unsigned_write)(void *src, unsigned char *dst);
+
+   /** read an array of octets and store as integer
+     @param dst   The integer to load
+     @param src   The array of octets 
+     @param len   The number of octets 
+     @return CRYPT_OK on success
+   */
+   int (*unsigned_read)(void *dst, unsigned char *src, unsigned long len);
+
+/* ---- basic math ---- */
+
+   /** add two integers 
+     @param a   The first source integer
+     @param b   The second source integer
+     @param c   The destination of "a + b"
+     @return CRYPT_OK on success
+   */
+   int (*add)(void *a, void *b, void *c);
+
+
+   /** add two integers 
+     @param a   The first source integer
+     @param b   The second source integer (single digit of upto bits_per_digit in length)
+     @param c   The destination of "a + b"
+     @return CRYPT_OK on success
+   */
+   int (*addi)(void *a, unsigned long b, void *c);
+
+   /** subtract two integers 
+     @param a   The first source integer
+     @param b   The second source integer
+     @param c   The destination of "a - b"
+     @return CRYPT_OK on success
+   */
+   int (*sub)(void *a, void *b, void *c);
+
+   /** subtract two integers 
+     @param a   The first source integer
+     @param b   The second source integer (single digit of upto bits_per_digit in length)
+     @param c   The destination of "a - b"
+     @return CRYPT_OK on success
+   */
+   int (*subi)(void *a, unsigned long b, void *c);
+
+   /** multiply two integers 
+     @param a   The first source integer
+     @param b   The second source integer (single digit of upto bits_per_digit in length)
+     @param c   The destination of "a * b"
+     @return CRYPT_OK on success
+   */
+   int (*mul)(void *a, void *b, void *c);
+
+   /** multiply two integers 
+     @param a   The first source integer
+     @param b   The second source integer (single digit of upto bits_per_digit in length)
+     @param c   The destination of "a * b"
+     @return CRYPT_OK on success
+   */
+   int (*muli)(void *a, unsigned long b, void *c);
+
+   /** Square an integer
+     @param a    The integer to square
+     @param b    The destination
+     @return CRYPT_OK on success
+   */
+   int (*sqr)(void *a, void *b);
+
+   /** Divide an integer
+     @param a    The dividend
+     @param b    The divisor
+     @param c    The quotient (can be NULL to signify don't care)
+     @param d    The remainder (can be NULL to signify don't care)
+     @return CRYPT_OK on success
+   */
+   int (*div)(void *a, void *b, void *c, void *d);
+
+   /** divide by two 
+      @param  a   The integer to divide (shift right)
+      @param  b   The destination 
+      @return CRYPT_OK on success
+   */
+   int (*div_2)(void *a, void *b);
+
+   /** Get remainder (small value)
+      @param  a    The integer to reduce
+      @param  b    The modulus (upto bits_per_digit in length)
+      @param  c    The destination for the residue
+      @return CRYPT_OK on success
+   */
+   int (*modi)(void *a, unsigned long b, unsigned long *c);
+
+   /** gcd 
+      @param  a     The first integer
+      @param  b     The second integer
+      @param  c     The destination for (a, b)
+      @return CRYPT_OK on success
+   */
+   int (*gcd)(void *a, void *b, void *c);
+
+   /** lcm 
+      @param  a     The first integer
+      @param  b     The second integer
+      @param  c     The destination for [a, b]
+      @return CRYPT_OK on success
+   */
+   int (*lcm)(void *a, void *b, void *c);
+
+   /** Modular multiplication
+      @param  a     The first source
+      @param  b     The second source 
+      @param  c     The modulus
+      @param  d     The destination (a*b mod c)
+      @return CRYPT_OK on success
+   */
+   int (*mulmod)(void *a, void *b, void *c, void *d);
+
+   /** Modular inversion
+      @param  a     The value to invert
+      @param  b     The modulus 
+      @param  c     The destination (1/a mod b)
+      @return CRYPT_OK on success
+   */
+   int (*invmod)(void *, void *, void *);
+
+/* ---- reduction ---- */
+
+   /** setup montgomery
+       @param a  The modulus 
+       @param b  The destination for the reduction digit 
+       @return CRYPT_OK on success
+   */
+   int (*montgomery_setup)(void *a, void **b);
+
+   /** get normalization value 
+       @param a   The destination for the normalization value
+       @param b   The modulus
+       @return  CRYPT_OK on success
+   */
+   int (*montgomery_normalization)(void *a, void *b);
+
+   /** reduce a number
+       @param a   The number [and dest] to reduce
+       @param b   The modulus
+       @param c   The value "b" from montgomery_setup()
+       @return CRYPT_OK on success
+   */
+   int (*montgomery_reduce)(void *a, void *b, void *c);
+
+   /** clean up  (frees memory)
+       @param a   The value "b" from montgomery_setup()
+       @return CRYPT_OK on success
+   */      
+   void (*montgomery_deinit)(void *a);
+
+/* ---- exponentiation ---- */
+
+   /** Modular exponentiation
+       @param a    The base integer
+       @param b    The power (can be negative) integer
+       @param c    The modulus integer
+       @param d    The destination
+       @return CRYPT_OK on success
+   */
+   int (*exptmod)(void *a, void *b, void *c, void *d);
+
+   /** Primality testing
+       @param a     The integer to test
+       @param b     The destination of the result (FP_YES if prime)
+       @return CRYPT_OK on success
+   */
+   int (*isprime)(void *a, int *b);
+
+/* ----  (optional) ecc point math ---- */
+
+   /** ECC GF(p) point multiplication (from the NIST curves)
+       @param k   The integer to multiply the point by
+       @param G   The point to multiply
+       @param R   The destination for kG  
+       @param modulus  The modulus for the field
+       @param map Boolean indicated whether to map back to affine or not (can be 
+                  ignored if you work in affine only)
+       @return CRYPT_OK on success
+   */
+   int (*ecc_ptmul)(void *k, ecc_point *G, ecc_point *R, void *modulus, int map);
+
+   /** ECC GF(p) point addition 
+       @param P    The first point
+       @param Q    The second point
+       @param R    The destination of P + Q
+       @param modulus  The modulus
+       @param mp   The "b" value from montgomery_setup()
+       @return CRYPT_OK on success
+   */
+   int (*ecc_ptadd)(ecc_point *P, ecc_point *Q, ecc_point *R, void *modulus, void *mp);
+
+   /** ECC mapping from projective to affine, currently uses (x,y,z) => (x/z^2, y/z^3, 1)
+       @param P     The point to map
+       @param modulus The modulus
+       @param mp    The "b" value from montgomery_setup()
+       @return CRYPT_OK on success
+       @remark The mapping can be different but keep in mind a ecc_point only has 
+               three integers (x,y,z) so if you use a different mapping you have to make it fit.
+   */
+   int (*ecc_map)(ecc_point *P, void *modulus, void *mp);
+
+/* ---- (optional) rsa optimized math (for internal CRT) ---- */
+
+   /** RSA exponentiation
+      @param in       The octet array representing the base
+      @param inlen    The length of the input
+      @param out      The destination (to be stored in an octet array format)
+      @param outlen   The length of the output buffer and the resulting size (zero padded to the 
+                      size of the modulus)
+      @param which    PK_PUBLIC for public RSA and PK_PRIVATE for private RSA
+      @param key      The RSA key to use 
+      @return CRYPT_OK on success
+   */
+   int (*rsa_me)(const unsigned char *in,   unsigned long inlen,
+                       unsigned char *out,  unsigned long *outlen, int which,
+                       rsa_key *key);
+} ltc_math_descriptor;
+\end{verbatim}
+\end{small}
+
+Most of the functions are fairly straightfoward and do not need documentation.  We'll cover the basic conventions of the API and then explain the accelerated functions.
+
+\subsection{Conventions}
+
+All ``bignums'' are accessed through an opaque ``void *'' data type.  You must interally cast the pointer if you need to access members of your bignum structure.  During
+the init calls a ``void **'' will be passed where you allocate your structure and set the pointer then initialize the number to zero.  During the deinit calls you must 
+free the bignum as well as the structure you allocated to place it in.
+
+All functions except the Montgomery reductions work from left to right with the arguments.  For example, mul(a, b, c) computes $c \leftarrow ab$.  
+
+All functions (except where noted otherwise) return \textbf{CRYPT\_OK} to signify a successful operation.  All error codes must be valid LibTomCrypt error codes.
+
+The digit routines (including functions with the ``i'' suffix) use a ``unsigned long'' to represent the digit.  If your internal digit is larger than this you must
+then partition your digits.  Normally this does not matter as ``unsigned long'' will be the same size as your register size.  Note that if your digit is smaller
+than an ``unsigned long'' that is also acceptable as the ``bits\_per\_digit'' parameter will specify this.  
+
+\subsection{ECC Functions}
+The ECC system in LibTomCrypt is based off of the NIST recommended curves over $GF(p)$ and is used to implement EC-DSA and EC-DH.   The ECC functions work with 
+the \textbf{ecc\_point} structure and assume the points are stored in Jacobian projective format.
+
+\begin{verbatim}
+/** A point on a ECC curve, stored in Jacbobian format such 
+    that (x,y,z) => (x/z^2, y/z^3, 1) when interpretted as affine */
+typedef struct {
+    /** The x co-ordinate */
+    void *x;
+    /** The y co-ordinate */
+    void *y;
+    /** The z co-ordinate */
+    void *z;
+} ecc_point;
+\end{verbatim}
+
+All ECC functions must use this mapping system.  The only exception is when you remap all three ECC callbacks which will allow you to have more control
+over how the ECC math will be implemented.  Out of the box you only have three parameters per point to use $(x, y, z)$ however, these are just void pointers.  They
+could point to anything you want.  The only further exception is the ecc\_export() function which expects the values to be in affine format.
+
+\subsubsection{Point Multiply}
+This will multiply the point $G$ by the scalar $k$ and store the result in the point $R$.  The value should be mapped to affine only if $map$ is set to one.  
+
+\subsubsection{Point Addition}
+This will add the point $P$ to the point $Q$ and store it in the point $R$.  The $mp$ parameter is the ``b'' value from the montgomery\_setup() call.  The input points
+may be in either affine (with $z = 1$) or projective format and the output point is always projective.  
+
+\subsubsection{Point Mapping}
+This will map the point $P$ back from projective to affine.  The output point $P$ must be of the form $(x, y, 1)$.  
+
+\subsection{RSA Functions}
+The RSA Modular Exponentiation (ME) function is used by the RSA API to perform exponentiations for private and public key operations.  In particular for
+private key operations it uses the CRT approach to lower the time required.  It is passed an RSA key with the following format.
+
+\begin{verbatim}
+/** RSA PKCS style key */
+typedef struct Rsa_key {
+    /** Type of key, PK_PRIVATE or PK_PUBLIC */
+    int type;
+    /** The public exponent */
+    void *e; 
+    /** The private exponent */
+    void *d; 
+    /** The modulus */
+    void *N; 
+    /** The p factor of N */
+    void *p; 
+    /** The q factor of N */
+    void *q; 
+    /** The 1/q mod p CRT param */
+    void *qP; 
+    /** The d mod (p - 1) CRT param */
+    void *dP; 
+    /** The d mod (q - 1) CRT param */
+    void *dQ;
+} rsa_key;
+\end{verbatim}
+
+The call reads the ``in'' buffer as an unsigned char array in big endian format.  Then it performs the exponentiation and stores the output in big endian format
+to the ``out'' buffer.  The output must be zero padded (leading bytes) so that the length of the output matches the length of the modulus (in bytes).  For example,
+for RSA--1024 the output is always 128 bytes regardless of how small the numerical value of the exponentiation is.
+
+Since the function is given the entire RSA key (for private keys only) CRT is possible as prescribed in the PKCS \#1 v2.1 specification.
+
 \input{crypt.ind}
 
 \end{document}
 
 % $Source: /cvs/libtom/libtomcrypt/crypt.tex,v $   
-% $Revision: 1.39 $   
-% $Date: 2005/06/27 13:08:28 $ 
+% $Revision: 1.45 $   
+% $Date: 2005/08/01 16:59:29 $ 

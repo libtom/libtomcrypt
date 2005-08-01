@@ -19,11 +19,11 @@
 #ifdef LTC_DER
 /**
   Gets length of DER encoding of num 
-  @param num    The mp_int to get the size of 
+  @param num    The int to get the size of 
   @param outlen [out] The length of the DER encoding for the given integer
   @return CRYPT_OK if successful
 */
-int der_length_integer(mp_int *num, unsigned long *outlen)
+int der_length_integer(void *num, unsigned long *outlen)
 {
    unsigned long z, len;
    int           leading_zero;
@@ -31,11 +31,11 @@ int der_length_integer(mp_int *num, unsigned long *outlen)
    LTC_ARGCHK(num     != NULL);
    LTC_ARGCHK(outlen  != NULL);
 
-   if (mp_cmp_d(num, 0) != MP_LT) {
+   if (mp_cmp_d(num, 0) != LTC_MP_LT) {
       /* positive */
 
       /* we only need a leading zero if the msb of the first byte is one */
-      if ((mp_count_bits(num) & 7) == 0 || mp_iszero(num) == MP_YES) {
+      if ((mp_count_bits(num) & 7) == 0 || mp_iszero(num) == LTC_MP_YES) {
          leading_zero = 1;
       } else {
          leading_zero = 0;

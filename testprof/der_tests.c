@@ -15,7 +15,7 @@ static int der_choice_test(void)
    ltc_asn1_list types[7], host[1];
    unsigned char bitbuf[10], octetbuf[10], ia5buf[10], printbuf[10], outbuf[256];
    unsigned long integer, oidbuf[10], outlen, inlen, x, y;
-   mp_int        mpinteger;
+   void          *mpinteger;
    ltc_utctime   utctime = { 91, 5, 6, 16, 45, 40, 1, 7, 0 };
 
    /* setup variables */
@@ -25,7 +25,7 @@ static int der_choice_test(void)
    for (x = 0; x < sizeof(printbuf); x++) { printbuf[x] = 'a';   }
    integer = 1;
    for (x = 0; x < sizeof(oidbuf)/sizeof(oidbuf[0]); x++)   { oidbuf[x] = x + 1;   }
-   DO(mpi_to_ltc_error(mp_init(&mpinteger)));
+   DO(mp_init(&mpinteger));
 
    for (x = 0; x < 14; x++) {
        /* setup list */
@@ -36,7 +36,7 @@ static int der_choice_test(void)
        if (x > 7) {
           LTC_SET_ASN1(types, 4, LTC_ASN1_SHORT_INTEGER, &integer, 1);
        } else {
-          LTC_SET_ASN1(types, 4, LTC_ASN1_INTEGER, &mpinteger, 1);
+          LTC_SET_ASN1(types, 4, LTC_ASN1_INTEGER, mpinteger, 1);
        }
        LTC_SET_ASN1(types, 5, LTC_ASN1_OBJECT_IDENTIFIER, oidbuf, sizeof(oidbuf)/sizeof(oidbuf[0]));
        LTC_SET_ASN1(types, 6, LTC_ASN1_UTCTIME, &utctime, 1);
@@ -50,7 +50,7 @@ static int der_choice_test(void)
 
        /* decode it */
        inlen = outlen;
-       DO(der_decode_sequence(outbuf, inlen, &host, 1));
+       DO(der_decode_sequence(outbuf, inlen, &host[0], 1));
 
        for (y = 0; y < 7; y++) {
            if (types[y].used && y != (x>6?x-7:x)) {
@@ -63,7 +63,7 @@ static int der_choice_test(void)
            }
       }
   }
-  mp_clear(&mpinteger);
+  mp_clear(mpinteger);
   return 0;
 }
    
@@ -72,7 +72,7 @@ int der_tests(void)
 {
    unsigned long x, y, z, zz, oid[2][32];
    unsigned char buf[3][2048];
-   mp_int a, b, c, d, e, f, g;
+   void *a, *b, *c, *d, *e, *f, *g;
 
    static const unsigned char rsa_oid_der[] = { 0x06, 0x06, 0x2a, 0x86, 0x48, 0x86, 0xf7, 0x0d };
    static const unsigned long rsa_oid[]     = { 1, 2, 840, 113549 };
@@ -92,29 +92,33 @@ int der_tests(void)
    static const unsigned char rsa_time1_der[] = { 0x17, 0x11, 0x39, 0x31, 0x30, 0x35, 0x30, 0x36, 0x31, 0x36, 0x34, 0x35, 0x34, 0x30, 0x2D, 0x30, 0x37, 0x30, 0x30 };
    static const unsigned char rsa_time2_der[] = { 0x17, 0x0d, 0x39, 0x31, 0x30, 0x35, 0x30, 0x36, 0x32, 0x33, 0x34, 0x35, 0x34, 0x30, 0x5a };
 
-   DO(mpi_to_ltc_error(mp_init_multi(&a, &b, &c, &d, &e, &f, &g, NULL)));
+   DO(mp_init_multi(&a, &b, &c, &d, &e, &f, &g, NULL));
    for (zz = 0; zz < 16; zz++) {
+#ifdef USE_TFM
+      for (z = 0; z < 256; z++) {
+#else
       for (z = 0; z < 1024; z++) {
+#endif
          if (yarrow_read(buf[0], z, &yarrow_prng) != z) {
             fprintf(stderr, "Failed to read %lu bytes from yarrow\n", z);
             return 1;
          }
-         DO(mpi_to_ltc_error(mp_read_unsigned_bin(&a, buf[0], z)));
-         if (mp_iszero(&a) == MP_NO) { a.sign = buf[0][0] & 1 ? MP_ZPOS : MP_NEG; }
+         DO(mp_read_unsigned_bin(a, buf[0], z));
+/*          if (mp_iszero(a) == LTC_MP_NO) { a.sign = buf[0][0] & 1 ? LTC_MP_ZPOS : LTC_MP_NEG; } */
          x = sizeof(buf[0]);
-         DO(der_encode_integer(&a, buf[0], &x));
-         DO(der_length_integer(&a, &y));
+         DO(der_encode_integer(a, buf[0], &x));
+         DO(der_length_integer(a, &y));
          if (y != x) { fprintf(stderr, "DER INTEGER size mismatch\n"); return 1; }
-         mp_zero(&b);
-         DO(der_decode_integer(buf[0], y, &b));
-         if (y != x || mp_cmp(&a, &b) != MP_EQ) {
+         mp_set_int(b, 0);
+         DO(der_decode_integer(buf[0], y, b));
+         if (y != x || mp_cmp(a, b) != LTC_MP_EQ) {
             fprintf(stderr, "%lu: %lu vs %lu\n", z, x, y);
 #ifdef BN_MP_TORADIX_C
-            mp_todecimal(&a, buf[0]);
-            mp_todecimal(&b, buf[1]);
+            mp_todecimal(a, buf[0]);
+            mp_todecimal(b, buf[1]);
             fprintf(stderr, "a == %s\nb == %s\n", buf[0], buf[1]);
 #endif
-            mp_clear_multi(&a, &b, &c, &d, &e, &f, &g, NULL);
+            mp_clear_multi(a, b, c, d, e, f, g, NULL);
             return 1;
          }
       }
@@ -128,33 +132,33 @@ int der_tests(void)
             return 1;
          }
          /* encode with normal */
-         DO(mpi_to_ltc_error(mp_read_unsigned_bin(&a, buf[0], z)));
+         DO(mp_read_unsigned_bin(a, buf[0], z));
 
          x = sizeof(buf[0]);
-         DO(der_encode_integer(&a, buf[0], &x));
+         DO(der_encode_integer(a, buf[0], &x));
 
          /* encode with short */
          y = sizeof(buf[1]);
-         DO(der_encode_short_integer(mp_get_int(&a), buf[1], &y));
+         DO(der_encode_short_integer(mp_get_int(a), buf[1], &y));
          if (x != y || memcmp(buf[0], buf[1], x)) {
             fprintf(stderr, "DER INTEGER short encoding failed, %lu, %lu\n", x, y);
             for (z = 0; z < x; z++) fprintf(stderr, "%02x ", buf[0][z]); fprintf(stderr, "\n");
             for (z = 0; z < y; z++) fprintf(stderr, "%02x ", buf[1][z]); fprintf(stderr, "\n");
-            mp_clear_multi(&a, &b, &c, &d, &e, &f, &g, NULL);
+            mp_clear_multi(a, b, c, d, e, f, g, NULL);
             return 1;
          }
 
          /* decode it */
          x = 0;
          DO(der_decode_short_integer(buf[1], y, &x));
-         if (x != mp_get_int(&a)) {
-            fprintf(stderr, "DER INTEGER short decoding failed, %lu, %lu\n", x, mp_get_int(&a));
-            mp_clear_multi(&a, &b, &c, &d, &e, &f, &g, NULL);
+         if (x != mp_get_int(a)) {
+            fprintf(stderr, "DER INTEGER short decoding failed, %lu, %lu\n", x, mp_get_int(a));
+            mp_clear_multi(a, b, c, d, e, f, g, NULL);
             return 1;
          }
       }
    } 
-   mp_clear_multi(&a, &b, &c, &d, &e, &f, &g, NULL);
+   mp_clear_multi(a, b, c, d, e, f, g, NULL);
 
    
 /* Test bit string */

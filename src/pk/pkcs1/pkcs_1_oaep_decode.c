@@ -148,12 +148,12 @@ int pkcs_1_oaep_decode(const unsigned char *msg,    unsigned long msglen,
 
    /* error out if wasn't 0x01 */
    if (x == (modulus_len - hLen - 1) || DB[x] != 0x01) {
-      err = CRYPT_OK;
+      err = CRYPT_INVALID_PACKET;
       goto LBL_ERR;
    }
 
    /* rest is the message (and skip 0x01) */
-   if ((modulus_len - hLen - 1) - ++x > *outlen) {
+   if ((modulus_len - hLen - 1 - ++x) > *outlen) {
       err = CRYPT_BUFFER_OVERFLOW;
       goto LBL_ERR;
    }

@@ -27,7 +27,8 @@ const struct ltc_hash_descriptor sha384_desc =
     &sha384_init,
     &sha512_process,
     &sha384_done,
-    &sha384_test
+    &sha384_test,
+    NULL
 };
 
 /**

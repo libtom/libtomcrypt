@@ -37,7 +37,8 @@ const struct ltc_hash_descriptor rmd128_desc =
     &rmd128_init,
     &rmd128_process,
     &rmd128_done,
-    &rmd128_test
+    &rmd128_test,
+    NULL
 };
 
 /* the four basic functions F(), G() and H() */

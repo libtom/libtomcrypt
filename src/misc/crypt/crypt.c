@@ -223,9 +223,6 @@ const char *crypt_build_settings =
 #if defined(MRSA)
     "   RSA \n"
 #endif
-#if defined(MDH)
-    "   DH\n"
-#endif
 #if defined(MECC)
     "   ECC\n"
 #endif
@@ -305,6 +302,13 @@ const char *crypt_build_settings =
 #if defined(LTC_PTHREAD)
     " LTC_PTHREAD "
 #endif
+#if defined(LTM_DESC)
+    " LTM_DESC "
+#endif
+#if defined(TFM_DESC)
+    " TFM_DESC "
+#endif
+
     "\n"
     "\n\n\n"
     ;

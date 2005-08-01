@@ -7,8 +7,8 @@ int pkcs_1_mgf1(const unsigned char *seed, unsigned long seedlen,
                       int            hash_idx,
                       unsigned char *mask, unsigned long masklen);
 
-int pkcs_1_i2osp(mp_int *n, unsigned long modulus_len, unsigned char *out);
-int pkcs_1_os2ip(mp_int *n, unsigned char *in, unsigned long inlen);
+int pkcs_1_i2osp(void *n, unsigned long modulus_len, unsigned char *out);
+int pkcs_1_os2ip(void *n, unsigned char *in, unsigned long inlen);
 
 /* *** v2.1 padding */
 int pkcs_1_oaep_encode(const unsigned char *msg,    unsigned long msglen,

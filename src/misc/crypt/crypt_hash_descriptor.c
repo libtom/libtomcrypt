@@ -16,10 +16,10 @@
 */
 
 struct ltc_hash_descriptor hash_descriptor[TAB_SIZE] = {
-{ NULL, 0, 0, 0, { 0 }, 0, NULL, NULL, NULL, NULL }
+{ NULL, 0, 0, 0, { 0 }, 0, NULL, NULL, NULL, NULL, NULL }
 };
 
-LTC_MUTEX_GLOBAL(ltc_hash_mutex);
+LTC_MUTEX_GLOBAL(ltc_hash_mutex)
 
 
 /* $Source$ */

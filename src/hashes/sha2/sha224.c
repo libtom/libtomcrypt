@@ -27,7 +27,8 @@ const struct ltc_hash_descriptor sha224_desc =
     &sha224_init,
     &sha256_process,
     &sha224_done,
-    &sha224_test
+    &sha224_test,
+    NULL
 };
 
 /* init the sha256 er... sha224 state ;-) */

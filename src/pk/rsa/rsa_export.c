@@ -46,14 +46,14 @@ int rsa_export(unsigned char *out, unsigned long *outlen, int type, rsa_key *key
        */
       if ((err = der_encode_sequence_multi(out, outlen, 
                           LTC_ASN1_SHORT_INTEGER, 1UL, &zero, 
-                          LTC_ASN1_INTEGER, 1UL, &key->N, 
-                          LTC_ASN1_INTEGER, 1UL, &key->e,
-                          LTC_ASN1_INTEGER, 1UL, &key->d, 
-                          LTC_ASN1_INTEGER, 1UL, &key->p, 
-                          LTC_ASN1_INTEGER, 1UL, &key->q, 
-                          LTC_ASN1_INTEGER, 1UL, &key->dP,
-                          LTC_ASN1_INTEGER, 1UL, &key->dQ, 
-                          LTC_ASN1_INTEGER, 1UL, &key->qP, 
+                          LTC_ASN1_INTEGER, 1UL,  key->N, 
+                          LTC_ASN1_INTEGER, 1UL,  key->e,
+                          LTC_ASN1_INTEGER, 1UL,  key->d, 
+                          LTC_ASN1_INTEGER, 1UL,  key->p, 
+                          LTC_ASN1_INTEGER, 1UL,  key->q, 
+                          LTC_ASN1_INTEGER, 1UL,  key->dP,
+                          LTC_ASN1_INTEGER, 1UL,  key->dQ, 
+                          LTC_ASN1_INTEGER, 1UL,  key->qP, 
                           LTC_ASN1_EOL,     0UL, NULL)) != CRYPT_OK) {
          return err;
       }
@@ -63,8 +63,8 @@ int rsa_export(unsigned char *out, unsigned long *outlen, int type, rsa_key *key
    } else {
       /* public key */
       return der_encode_sequence_multi(out, outlen, 
-                                 LTC_ASN1_INTEGER, 1UL, &key->N, 
-                                 LTC_ASN1_INTEGER, 1UL, &key->e, 
+                                 LTC_ASN1_INTEGER, 1UL,  key->N, 
+                                 LTC_ASN1_INTEGER, 1UL,  key->e, 
                                  LTC_ASN1_EOL,     0UL, NULL);
    }
 }

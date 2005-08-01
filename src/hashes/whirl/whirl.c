@@ -32,7 +32,8 @@ const struct ltc_hash_descriptor whirlpool_desc =
     &whirlpool_init,
     &whirlpool_process,
     &whirlpool_done,
-    &whirlpool_test
+    &whirlpool_test,
+    NULL
 };
 
 /* the sboxes */

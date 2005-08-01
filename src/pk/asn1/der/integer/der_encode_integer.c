@@ -26,7 +26,7 @@
   @param outlen   [in/out] The max size and resulting size of the DER encoded integers
   @return CRYPT_OK if successful
 */
-int der_encode_integer(mp_int *num, unsigned char *out, unsigned long *outlen)
+int der_encode_integer(void *num, unsigned char *out, unsigned long *outlen)
 {  
    unsigned long tmplen, y;
    int           err, leading_zero;
@@ -44,9 +44,9 @@ int der_encode_integer(mp_int *num, unsigned char *out, unsigned long *outlen)
       return CRYPT_BUFFER_OVERFLOW;
    }
 
-   if (mp_cmp_d(num, 0) != MP_LT) {
+   if (mp_cmp_d(num, 0) != LTC_MP_LT) {
       /* we only need a leading zero if the msb of the first byte is one */
-      if ((mp_count_bits(num) & 7) == 0 || mp_iszero(num) == MP_YES) {
+      if ((mp_count_bits(num) & 7) == 0 || mp_iszero(num) == LTC_MP_YES) {
          leading_zero = 1;
       } else {
          leading_zero = 0;
@@ -89,31 +89,31 @@ int der_encode_integer(mp_int *num, unsigned char *out, unsigned long *outlen)
    }
 
    /* if it's not zero store it as big endian */
-   if (mp_cmp_d(num, 0) == MP_GT) {
+   if (mp_cmp_d(num, 0) == LTC_MP_GT) {
       /* now store the mpint */
-      if ((err = mp_to_unsigned_bin(num, out)) != MP_OKAY) {
-          return mpi_to_ltc_error(err);
+      if ((err = mp_to_unsigned_bin(num, out)) != CRYPT_OK) {
+          return err;
       }
-   } else if (mp_iszero(num) != MP_YES) {
-      mp_int tmp;
+   } else if (mp_iszero(num) != LTC_MP_YES) {
+      void *tmp;
       /* negative */
-      if (mp_init(&tmp) != MP_OKAY) {
+      if (mp_init(&tmp) != CRYPT_OK) {
          return CRYPT_MEM;
       }
 
       /* 2^roundup and subtract */
       y = mp_count_bits(num);
       y = y + (8 - (y & 7));
-      if (mp_2expt(&tmp, y) != MP_OKAY || mp_add(&tmp, num, &tmp) != MP_OKAY) {
-         mp_clear(&tmp);
+      if (mp_2expt(tmp, y) != CRYPT_OK || mp_add(tmp, num, tmp) != CRYPT_OK) {
+         mp_clear(tmp);
          return CRYPT_MEM;
       }
 
-      if ((err = mp_to_unsigned_bin(&tmp, out)) != MP_OKAY) {
-         mp_clear(&tmp);
-         return mpi_to_ltc_error(err);
+      if ((err = mp_to_unsigned_bin(tmp, out)) != CRYPT_OK) {
+         mp_clear(tmp);
+         return err;
       }
-      mp_clear(&tmp);
+      mp_clear(tmp);
    }
 
    /* we good */

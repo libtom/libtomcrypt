@@ -1,81 +1,11 @@
 /* ---- NUMBER THEORY ---- */
-#ifdef MPI
 
-#include "ltc_tommath.h"
+enum {
+   PK_PUBLIC=0,
+   PK_PRIVATE=1
+};
 
-/* in/out macros */
-#define OUTPUT_BIGNUM(num, out, y, z)                                                             \
-{                                                                                                 \
-      if ((y + 4) > *outlen) { return CRYPT_BUFFER_OVERFLOW; }                                    \
-      z = (unsigned long)mp_unsigned_bin_size(num);                                               \
-      STORE32L(z, out+y);                                                                         \
-      y += 4;                                                                                     \
-      if ((y + z) > *outlen) { return CRYPT_BUFFER_OVERFLOW; }                                    \
-      if ((err = mp_to_unsigned_bin(num, out+y)) != MP_OKAY) { return mpi_to_ltc_error(err); }    \
-      y += z;                                                                                     \
-}
-
-
-#define INPUT_BIGNUM(num, in, x, y, inlen)                       \
-{                                                                \
-     /* load value */                                            \
-     if ((y + 4) > inlen) {                                      \
-        err = CRYPT_INVALID_PACKET;                              \
-        goto error;                                              \
-     }                                                           \
-     LOAD32L(x, in+y);                                           \
-     y += 4;                                                     \
-                                                                 \
-     /* sanity check... */                                       \
-     if ((x+y) > inlen) {                                        \
-        err = CRYPT_INVALID_PACKET;                              \
-        goto error;                                              \
-     }                                                           \
-                                                                 \
-     /* load it */                                               \
-     if ((err = mp_read_unsigned_bin(num, (unsigned char *)in+y, (int)x)) != MP_OKAY) {\
-        err = mpi_to_ltc_error(err);                             \
-        goto error;                                              \
-     }                                                           \
-     y += x;                                                     \
-     if ((err = mp_shrink(num)) != MP_OKAY) {                    \
-        err = mpi_to_ltc_error(err);                             \
-        goto error;                                              \
-     }                                                           \
-}
-
- int is_prime(mp_int *, int *);
- int rand_prime(mp_int *N, long len, prng_state *prng, int wprng);
-
-#else
-   #ifdef MRSA
-      #error RSA requires the big int library 
-   #endif
-   #ifdef MECC
-      #error ECC requires the big int library 
-   #endif
-   #ifdef MDH
-      #error DH requires the big int library 
-   #endif
-   #ifdef MDSA
-      #error DSA requires the big int library 
-   #endif
-#endif /* MPI */
-
-
-/* ---- PUBLIC KEY CRYPTO ---- */
-
-#define PK_PRIVATE            0        /* PK private keys */
-#define PK_PUBLIC             1        /* PK public keys */
-
-/* ---- PACKET ---- */
-#ifdef PACKET
-
-void packet_store_header(unsigned char *dst, int section, int subsection);
-int packet_valid_header(unsigned char *src, int section, int subsection);
-
-#endif
-
+int rand_prime(void *N, long len, prng_state *prng, int wprng);
 
 /* ---- RSA ---- */
 #ifdef MRSA
@@ -84,9 +14,26 @@ int packet_valid_header(unsigned char *src, int section, int subsection);
 #define MIN_RSA_SIZE 1024
 #define MAX_RSA_SIZE 4096
 
+/** RSA PKCS style key */
 typedef struct Rsa_key {
+    /** Type of key, PK_PRIVATE or PK_PUBLIC */
     int type;
-    mp_int e, d, N, p, q, qP, dP, dQ;
+    /** The public exponent */
+    void *e; 
+    /** The private exponent */
+    void *d; 
+    /** The modulus */
+    void *N; 
+    /** The p factor of N */
+    void *p; 
+    /** The q factor of N */
+    void *q; 
+    /** The 1/q mod p CRT param */
+    void *qP; 
+    /** The d mod (p - 1) CRT param */
+    void *dP; 
+    /** The d mod (q - 1) CRT param */
+    void *dQ;
 } rsa_key;
 
 int rsa_make_key(prng_state *prng, int wprng, int size, long e, rsa_key *key);
@@ -126,58 +73,57 @@ int rsa_import(const unsigned char *in, unsigned long inlen, rsa_key *key);
                         
 #endif
 
-/* ---- DH Routines ---- */
-#ifdef MDH 
-
-typedef struct Dh_key {
-    int idx, type;
-    mp_int x, y;
-} dh_key;
-
-int dh_test(void);
-void dh_sizes(int *low, int *high);
-int dh_get_size(dh_key *key);
-
-int dh_make_key(prng_state *prng, int wprng, int keysize, dh_key *key);
-void dh_free(dh_key *key);
-
-int dh_export(unsigned char *out, unsigned long *outlen, int type, dh_key *key);
-int dh_import(const unsigned char *in, unsigned long inlen, dh_key *key);
-
-int dh_shared_secret(dh_key        *private_key, dh_key        *public_key,
-                     unsigned char *out,         unsigned long *outlen);
-
-int dh_encrypt_key(const unsigned char *in,    unsigned long  keylen,
-                         unsigned char *out,   unsigned long *outlen, 
-                         prng_state    *prng,  int wprng, int hash, 
-                         dh_key        *key);
-
-int dh_decrypt_key(const unsigned char *in,  unsigned long  inlen, 
-                         unsigned char *out, unsigned long *outlen, 
-                         dh_key *key);
-
-int dh_sign_hash(const unsigned char *in,   unsigned long inlen,
-                       unsigned char *out,  unsigned long *outlen,
-                       prng_state    *prng, int wprng, dh_key *key);
-
-int dh_verify_hash(const unsigned char *sig,  unsigned long siglen,
-                   const unsigned char *hash, unsigned long hashlen, 
-                   int *stat, dh_key *key);
-
-
-#endif
-
 /* ---- ECC Routines ---- */
 #ifdef MECC
+
+/** Structure defines a NIST GF(p) curve */
 typedef struct {
-    mp_int x, y, z;
+   /** The size of the curve in octets */
+   int size;
+
+   /** name of curve */
+   char *name; 
+
+   /** The prime that defines the field the curve is in (encoded in base-64) */
+   char *prime;
+
+   /** The fields B param (base64) */
+   char *B;
+
+   /** The order of the curve (base64) */
+   char *order;
+  
+   /** The x co-ordinate of the base point on the curve (base64) */
+   char *Gx;
+ 
+   /** The y co-ordinate of the base point on the curve (base64) */
+   char *Gy;
+} ltc_ecc_set_type;
+
+/** A point on a ECC curve, stored in Jacbobian format such that (x,y,z) => (x/z^2, y/z^3, 1) when interpretted as affine */
+typedef struct {
+    /** The x co-ordinate */
+    void *x;
+    /** The y co-ordinate */
+    void *y;
+    /** The z co-ordinate */
+    void *z;
 } ecc_point;
 
+/** An ECC key */
 typedef struct {
-    int type, idx;
+    /** Type of key, PK_PRIVATE or PK_PUBLIC */
+    int type;
+    /** Index into the ltc_ecc_sets[] for the parameters of this curve */
+    int idx;
+    /** The public key */
     ecc_point pubkey;
-    mp_int k;
+    /** The private key */
+    void *k;
 } ecc_key;
+
+/** the ECC params provided */
+extern const ltc_ecc_set_type ltc_ecc_sets[];
 
 int ecc_test(void);
 void ecc_sizes(int *low, int *high);
@@ -209,13 +155,40 @@ int ecc_verify_hash(const unsigned char *sig,  unsigned long siglen,
                     const unsigned char *hash, unsigned long hashlen, 
                     int *stat, ecc_key *key);
 
+/* low level functions */
+ecc_point *ltc_ecc_new_point(void);
+void       ltc_ecc_del_point(ecc_point *p);
+
+/* point ops (mp == montgomery digit) */
+/* R = 2P */
+int ltc_ecc_dbl_point(ecc_point *P, ecc_point *R, void *modulus, void *mp);
+/* R = P + Q */
+int ltc_ecc_add_point(ecc_point *P, ecc_point *Q, ecc_point *R, void *modulus, void *mp);
+/* R = kG */
+int ltc_ecc_mulmod(void *k, ecc_point *G, ecc_point *R, void *modulus, int map);
+/* map P to affine from projective */
+int ltc_ecc_map(ecc_point *P, void *modulus, void *mp);
+
 #endif
 
 #ifdef MDSA
 
+/** DSA key structure */
 typedef struct {
-   int type, qord;
-   mp_int g, q, p, x, y;
+   /** The key type, PK_PRIVATE or PK_PUBLIC */
+   int type; 
+   /** The order of the sub-group used in octets */
+   int qord;
+   /** The generator  */
+   void *g;
+   /** The prime used to generate the sub-group */
+   void *q;
+   /** The large prime that generats the field the contains the sub-group */
+   void *p;
+   /** The private key */
+   void *x;
+   /** The public key */
+   void *y;
 } dsa_key;
 
 int dsa_make_key(prng_state *prng, int wprng, int group_size, int modulus_size, dsa_key *key);
@@ -223,14 +196,14 @@ void dsa_free(dsa_key *key);
 
 
 int dsa_sign_hash_raw(const unsigned char *in,  unsigned long inlen,
-                                   mp_int *r,   mp_int *s,
+                                   void *r,   void *s,
                                prng_state *prng, int wprng, dsa_key *key);
 
 int dsa_sign_hash(const unsigned char *in,  unsigned long inlen,
                         unsigned char *out, unsigned long *outlen,
                         prng_state *prng, int wprng, dsa_key *key);
 
-int dsa_verify_hash_raw(         mp_int *r,          mp_int *s,
+int dsa_verify_hash_raw(         void *r,          void *s,
                     const unsigned char *hash, unsigned long hashlen, 
                                     int *stat,      dsa_key *key);
 
@@ -265,10 +238,15 @@ enum {
  LTC_ASN1_SEQUENCE
 };
 
+/** A LTC ASN.1 list type */
 typedef struct {
+   /** The LTC ASN.1 enumerated type identifier */
    int           type;
+   /** The data to encode or place for decoding */
    void         *data;
+   /** The size of the input or resulting output */
    unsigned long size;
+   /** The used flag, this is used by the CHOICE ASN.1 type to indicate which choice was made */
    int           used;
 } ltc_asn1_list;
 
@@ -297,9 +275,9 @@ int der_encode_sequence_multi(unsigned char *out, unsigned long *outlen, ...);
 int der_decode_sequence_multi(const unsigned char *in, unsigned long inlen, ...);
 
 /* INTEGER */
-int der_encode_integer(mp_int *num, unsigned char *out, unsigned long *outlen);
-int der_decode_integer(const unsigned char *in, unsigned long inlen, mp_int *num);
-int der_length_integer(mp_int *num, unsigned long *len);
+int der_encode_integer(void *num, unsigned char *out, unsigned long *outlen);
+int der_decode_integer(const unsigned char *in, unsigned long inlen, void *num);
+int der_length_integer(void *num, unsigned long *len);
 
 /* INTEGER -- handy for 0..2^32-1 values */
 int der_decode_short_integer(const unsigned char *in, unsigned long inlen, unsigned long *num);

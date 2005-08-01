@@ -31,7 +31,8 @@ const struct ltc_hash_descriptor sha512_desc =
     &sha512_init,
     &sha512_process,
     &sha512_done,
-    &sha512_test
+    &sha512_test,
+    NULL
 };
 
 /* the K array */

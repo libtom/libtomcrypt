@@ -30,7 +30,8 @@ const struct ltc_hash_descriptor chc_desc = {
    &chc_init,
    &chc_process,
    &chc_done,
-   &chc_test
+   &chc_test,
+   NULL
 };
 
 /**
