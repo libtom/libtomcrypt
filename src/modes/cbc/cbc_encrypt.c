@@ -53,7 +53,7 @@ int cbc_encrypt(const unsigned char *pt, unsigned char *ct, unsigned long len, s
 #endif
 
    if (cipher_descriptor[cbc->cipher].accel_cbc_encrypt != NULL) {
-      cipher_descriptor[cbc->cipher].accel_cbc_encrypt(pt, ct, len / cbc->blocklen, cbc->IV, &cbc->key);
+      return cipher_descriptor[cbc->cipher].accel_cbc_encrypt(pt, ct, len / cbc->blocklen, cbc->IV, &cbc->key);
    } else {
       while (len) {
          /* xor IV against plaintext */
@@ -68,7 +68,9 @@ int cbc_encrypt(const unsigned char *pt, unsigned char *ct, unsigned long len, s
 	 #endif
 
          /* encrypt */
-         cipher_descriptor[cbc->cipher].ecb_encrypt(cbc->IV, ct, &cbc->key);
+         if ((err = cipher_descriptor[cbc->cipher].ecb_encrypt(cbc->IV, ct, &cbc->key)) != CRYPT_OK) {
+            return err;
+         }
 
         /* store IV [ciphertext] for a future block */
          #if defined(LTC_FAST)

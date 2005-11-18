@@ -4,6 +4,7 @@ struct yarrow_prng {
     int                   cipher, hash;
     unsigned char         pool[MAXBLOCKSIZE];
     symmetric_CTR         ctr;
+    LTC_MUTEX_TYPE(prng_lock)
 };
 #endif
 
@@ -28,6 +29,7 @@ struct fortuna_prng {
                   wd;            
 
     ulong64       reset_cnt;  /* number of times we have reset */
+    LTC_MUTEX_TYPE(prng_lock)
 };
 #endif
 

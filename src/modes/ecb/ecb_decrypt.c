@@ -40,10 +40,12 @@ int ecb_decrypt(const unsigned char *ct, unsigned char *pt, unsigned long len, s
 
    /* check for accel */
    if (cipher_descriptor[ecb->cipher].accel_ecb_decrypt != NULL) {
-      cipher_descriptor[ecb->cipher].accel_ecb_decrypt(ct, pt, len / cipher_descriptor[ecb->cipher].block_length, &ecb->key);
+      return cipher_descriptor[ecb->cipher].accel_ecb_decrypt(ct, pt, len / cipher_descriptor[ecb->cipher].block_length, &ecb->key);
    } else {
       while (len) {
-         cipher_descriptor[ecb->cipher].ecb_decrypt(ct, pt, &ecb->key);
+         if ((err = cipher_descriptor[ecb->cipher].ecb_decrypt(ct, pt, &ecb->key)) != CRYPT_OK) {
+            return err;
+         }
          pt  += cipher_descriptor[ecb->cipher].block_length;
          ct  += cipher_descriptor[ecb->cipher].block_length;
          len -= cipher_descriptor[ecb->cipher].block_length;

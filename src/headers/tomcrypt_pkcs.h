@@ -3,8 +3,8 @@
 /* ===> PKCS #1 -- RSA Cryptography <=== */
 #ifdef PKCS_1
 
-int pkcs_1_mgf1(const unsigned char *seed, unsigned long seedlen,
-                      int            hash_idx,
+int pkcs_1_mgf1(      int            hash_idx,
+                const unsigned char *seed, unsigned long seedlen,
                       unsigned char *mask, unsigned long masklen);
 
 int pkcs_1_i2osp(void *n, unsigned long modulus_len, unsigned char *out);

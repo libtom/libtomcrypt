@@ -263,14 +263,16 @@ extern struct ltc_cipher_descriptor {
       @param pt      The plaintext
       @param ct      [out] The ciphertext
       @param skey    The scheduled key
+      @return CRYPT_OK if successful
    */
-   void (*ecb_encrypt)(const unsigned char *pt, unsigned char *ct, symmetric_key *skey);
+   int (*ecb_encrypt)(const unsigned char *pt, unsigned char *ct, symmetric_key *skey);
    /** Decrypt a block
       @param ct      The ciphertext
       @param pt      [out] The plaintext
       @param skey    The scheduled key
+      @return CRYPT_OK if successful
    */
-   void (*ecb_decrypt)(const unsigned char *ct, unsigned char *pt, symmetric_key *skey);
+   int (*ecb_decrypt)(const unsigned char *ct, unsigned char *pt, symmetric_key *skey);
    /** Test the block cipher
        @return CRYPT_OK if successful, CRYPT_NOP if self-testing has been disabled
    */
@@ -293,16 +295,18 @@ extern struct ltc_cipher_descriptor {
        @param ct      Ciphertext
        @param blocks  The number of complete blocks to process
        @param skey    The scheduled key context
+       @return CRYPT_OK if successful
    */
-   void (*accel_ecb_encrypt)(const unsigned char *pt, unsigned char *ct, unsigned long blocks, symmetric_key *skey);
+   int (*accel_ecb_encrypt)(const unsigned char *pt, unsigned char *ct, unsigned long blocks, symmetric_key *skey);
 
    /** Accelerated ECB decryption 
        @param pt      Plaintext
        @param ct      Ciphertext
        @param blocks  The number of complete blocks to process
        @param skey    The scheduled key context
+       @return CRYPT_OK if successful
    */
-   void (*accel_ecb_decrypt)(const unsigned char *ct, unsigned char *pt, unsigned long blocks, symmetric_key *skey);
+   int (*accel_ecb_decrypt)(const unsigned char *ct, unsigned char *pt, unsigned long blocks, symmetric_key *skey);
 
    /** Accelerated CBC encryption 
        @param pt      Plaintext
@@ -310,8 +314,9 @@ extern struct ltc_cipher_descriptor {
        @param blocks  The number of complete blocks to process
        @param IV      The initial value (input/output)
        @param skey    The scheduled key context
+       @return CRYPT_OK if successful
    */
-   void (*accel_cbc_encrypt)(const unsigned char *pt, unsigned char *ct, unsigned long blocks, unsigned char *IV, symmetric_key *skey);
+   int (*accel_cbc_encrypt)(const unsigned char *pt, unsigned char *ct, unsigned long blocks, unsigned char *IV, symmetric_key *skey);
 
    /** Accelerated CBC decryption 
        @param pt      Plaintext
@@ -319,8 +324,9 @@ extern struct ltc_cipher_descriptor {
        @param blocks  The number of complete blocks to process
        @param IV      The initial value (input/output)
        @param skey    The scheduled key context
+       @return CRYPT_OK if successful
    */
-   void (*accel_cbc_decrypt)(const unsigned char *ct, unsigned char *pt, unsigned long blocks, unsigned char *IV, symmetric_key *skey);
+   int (*accel_cbc_decrypt)(const unsigned char *ct, unsigned char *pt, unsigned long blocks, unsigned char *IV, symmetric_key *skey);
 
    /** Accelerated CTR encryption 
        @param pt      Plaintext
@@ -329,12 +335,14 @@ extern struct ltc_cipher_descriptor {
        @param IV      The initial value (input/output)
        @param mode    little or big endian counter (mode=0 or mode=1)
        @param skey    The scheduled key context
+       @return CRYPT_OK if successful
    */
-   void (*accel_ctr_encrypt)(const unsigned char *pt, unsigned char *ct, unsigned long blocks, unsigned char *IV, int mode, symmetric_key *skey);
+   int (*accel_ctr_encrypt)(const unsigned char *pt, unsigned char *ct, unsigned long blocks, unsigned char *IV, int mode, symmetric_key *skey);
 
    /** Accelerated CCM packet (one-shot)
        @param key        The secret key to use
        @param keylen     The length of the secret key (octets)
+       @param uskey      A previously scheduled key [optional can be NULL]
        @param nonce      The session nonce [use once]
        @param noncelen   The length of the nonce
        @param header     The header for the session
@@ -347,8 +355,9 @@ extern struct ltc_cipher_descriptor {
        @param direction  Encrypt or Decrypt direction (0 or 1)
        @return CRYPT_OK if successful
    */
-   void (*accel_ccm_memory)(
+   int (*accel_ccm_memory)(
        const unsigned char *key,    unsigned long keylen,
+       symmetric_key       *uskey,
        const unsigned char *nonce,  unsigned long noncelen,
        const unsigned char *header, unsigned long headerlen,
              unsigned char *pt,     unsigned long ptlen,
@@ -369,8 +378,9 @@ extern struct ltc_cipher_descriptor {
        @param tag               [out] The MAC tag
        @param taglen            [in/out] The MAC tag length
        @param direction         Encrypt or Decrypt mode (GCM_ENCRYPT or GCM_DECRYPT)
+       @return CRYPT_OK on success
    */
-   void (*accel_gcm_memory)(
+   int (*accel_gcm_memory)(
        const unsigned char *key,    unsigned long keylen,
        const unsigned char *IV,     unsigned long IVlen,
        const unsigned char *adata,  unsigned long adatalen,
@@ -382,8 +392,8 @@ extern struct ltc_cipher_descriptor {
 
 #ifdef BLOWFISH
 int blowfish_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_key *skey);
-void blowfish_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey);
-void blowfish_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey);
+int blowfish_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey);
+int blowfish_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey);
 int blowfish_test(void);
 void blowfish_done(symmetric_key *skey);
 int blowfish_keysize(int *keysize);
@@ -392,8 +402,8 @@ extern const struct ltc_cipher_descriptor blowfish_desc;
 
 #ifdef RC5
 int rc5_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_key *skey);
-void rc5_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey);
-void rc5_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey);
+int rc5_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey);
+int rc5_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey);
 int rc5_test(void);
 void rc5_done(symmetric_key *skey);
 int rc5_keysize(int *keysize);
@@ -402,8 +412,8 @@ extern const struct ltc_cipher_descriptor rc5_desc;
 
 #ifdef RC6
 int rc6_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_key *skey);
-void rc6_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey);
-void rc6_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey);
+int rc6_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey);
+int rc6_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey);
 int rc6_test(void);
 void rc6_done(symmetric_key *skey);
 int rc6_keysize(int *keysize);
@@ -412,8 +422,8 @@ extern const struct ltc_cipher_descriptor rc6_desc;
 
 #ifdef RC2
 int rc2_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_key *skey);
-void rc2_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey);
-void rc2_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey);
+int rc2_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey);
+int rc2_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey);
 int rc2_test(void);
 void rc2_done(symmetric_key *skey);
 int rc2_keysize(int *keysize);
@@ -422,8 +432,8 @@ extern const struct ltc_cipher_descriptor rc2_desc;
 
 #ifdef SAFERP
 int saferp_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_key *skey);
-void saferp_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey);
-void saferp_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey);
+int saferp_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey);
+int saferp_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey);
 int saferp_test(void);
 void saferp_done(symmetric_key *skey);
 int saferp_keysize(int *keysize);
@@ -435,8 +445,8 @@ int safer_k64_setup(const unsigned char *key, int keylen, int num_rounds, symmet
 int safer_sk64_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_key *skey);
 int safer_k128_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_key *skey);
 int safer_sk128_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_key *skey);
-void safer_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *key);
-void safer_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *key);
+int safer_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *key);
+int safer_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *key);
 int safer_k64_test(void);
 int safer_sk64_test(void);
 int safer_sk128_test(void);
@@ -461,13 +471,13 @@ extern const struct ltc_cipher_descriptor safer_k64_desc, safer_k128_desc, safer
 #define aes_enc_keysize         rijndael_enc_keysize
 
 int rijndael_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_key *skey);
-void rijndael_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey);
-void rijndael_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey);
+int rijndael_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey);
+int rijndael_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey);
 int rijndael_test(void);
 void rijndael_done(symmetric_key *skey);
 int rijndael_keysize(int *keysize);
 int rijndael_enc_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_key *skey);
-void rijndael_enc_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey);
+int rijndael_enc_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey);
 void rijndael_enc_done(symmetric_key *skey);
 int rijndael_enc_keysize(int *keysize);
 extern const struct ltc_cipher_descriptor rijndael_desc, aes_desc;
@@ -476,8 +486,8 @@ extern const struct ltc_cipher_descriptor rijndael_enc_desc, aes_enc_desc;
 
 #ifdef XTEA
 int xtea_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_key *skey);
-void xtea_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey);
-void xtea_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey);
+int xtea_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey);
+int xtea_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey);
 int xtea_test(void);
 void xtea_done(symmetric_key *skey);
 int xtea_keysize(int *keysize);
@@ -486,8 +496,8 @@ extern const struct ltc_cipher_descriptor xtea_desc;
 
 #ifdef TWOFISH
 int twofish_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_key *skey);
-void twofish_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey);
-void twofish_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey);
+int twofish_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey);
+int twofish_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey);
 int twofish_test(void);
 void twofish_done(symmetric_key *skey);
 int twofish_keysize(int *keysize);
@@ -496,14 +506,14 @@ extern const struct ltc_cipher_descriptor twofish_desc;
 
 #ifdef DES
 int des_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_key *skey);
-void des_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey);
-void des_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey);
+int des_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey);
+int des_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey);
 int des_test(void);
 void des_done(symmetric_key *skey);
 int des_keysize(int *keysize);
 int des3_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_key *skey);
-void des3_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey);
-void des3_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey);
+int des3_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey);
+int des3_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey);
 int des3_test(void);
 void des3_done(symmetric_key *skey);
 int des3_keysize(int *keysize);
@@ -512,8 +522,8 @@ extern const struct ltc_cipher_descriptor des_desc, des3_desc;
 
 #ifdef CAST5
 int cast5_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_key *skey);
-void cast5_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey);
-void cast5_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey);
+int cast5_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey);
+int cast5_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey);
 int cast5_test(void);
 void cast5_done(symmetric_key *skey);
 int cast5_keysize(int *keysize);
@@ -522,8 +532,8 @@ extern const struct ltc_cipher_descriptor cast5_desc;
 
 #ifdef NOEKEON
 int noekeon_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_key *skey);
-void noekeon_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey);
-void noekeon_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey);
+int noekeon_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey);
+int noekeon_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey);
 int noekeon_test(void);
 void noekeon_done(symmetric_key *skey);
 int noekeon_keysize(int *keysize);
@@ -532,8 +542,8 @@ extern const struct ltc_cipher_descriptor noekeon_desc;
 
 #ifdef SKIPJACK
 int skipjack_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_key *skey);
-void skipjack_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey);
-void skipjack_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey);
+int skipjack_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey);
+int skipjack_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey);
 int skipjack_test(void);
 void skipjack_done(symmetric_key *skey);
 int skipjack_keysize(int *keysize);
@@ -542,8 +552,8 @@ extern const struct ltc_cipher_descriptor skipjack_desc;
 
 #ifdef KHAZAD
 int khazad_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_key *skey);
-void khazad_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey);
-void khazad_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey);
+int khazad_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey);
+int khazad_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey);
 int khazad_test(void);
 void khazad_done(symmetric_key *skey);
 int khazad_keysize(int *keysize);
@@ -552,8 +562,8 @@ extern const struct ltc_cipher_descriptor khazad_desc;
 
 #ifdef ANUBIS
 int anubis_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_key *skey);
-void anubis_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey);
-void anubis_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey);
+int anubis_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey);
+int anubis_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey);
 int anubis_test(void);
 void anubis_done(symmetric_key *skey);
 int anubis_keysize(int *keysize);

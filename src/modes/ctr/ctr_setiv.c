@@ -45,9 +45,7 @@ int ctr_setiv(const unsigned char *IV, unsigned long len, symmetric_CTR *ctr)
    
    /* force next block */
    ctr->padlen = 0;
-   cipher_descriptor[ctr->cipher].ecb_encrypt(IV, ctr->pad, &ctr->key);
-   
-   return CRYPT_OK;
+   return cipher_descriptor[ctr->cipher].ecb_encrypt(IV, ctr->pad, &ctr->key);
 }
 
 #endif 

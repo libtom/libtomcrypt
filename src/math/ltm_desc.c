@@ -65,6 +65,13 @@ static void deinit(void *a)
    XFREE(a);
 }
 
+static int neg(void *a, void *b)
+{
+   LTC_ARGCHK(a != NULL);
+   LTC_ARGCHK(b != NULL);
+   return mpi_to_ltc_error(mp_neg(a, b));
+}
+
 static int copy(void *a, void *b)
 {
    LTC_ARGCHK(a != NULL);
@@ -379,6 +386,7 @@ const ltc_math_descriptor ltm_desc = {
    &init_copy,
    &deinit,
 
+   &neg,
    &copy,
 
    &set_int,
@@ -420,10 +428,11 @@ const ltc_math_descriptor ltm_desc = {
    &exptmod,
    &isprime,
 
-   NULL,
-   NULL,
-   NULL,
+   &ltc_ecc_mulmod,
+   &ltc_ecc_projective_add_point,
+   &ltc_ecc_map,
 
+   NULL,
    NULL
 };
 

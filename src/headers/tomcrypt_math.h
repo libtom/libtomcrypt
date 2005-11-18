@@ -11,6 +11,10 @@
    typedef void ecc_point;
 #endif
 
+#ifndef MRSA
+   typedef void rsa_key;
+#endif
+
 /** math descriptor */
 typedef struct {
    /** Name of the math provider */
@@ -42,6 +46,13 @@ typedef struct {
 
 /* ---- data movement ---- */
 
+   /** negate
+      @param   src   The number to negate
+      @param   dst   The destination
+      @return CRYPT_OK on success
+   */
+   int (*neg)(void *src, void *dst);
+   
    /** copy 
       @param   src   The number to copy from
       @param   dst   The number to write to 
@@ -339,11 +350,22 @@ typedef struct {
 
 /* ---- (optional) rsa optimized math (for internal CRT) ---- */
 
+   /** RSA Key Generation 
+       @param prng     An active PRNG state
+       @param wprng    The index of the PRNG desired
+       @param size     The size of the modulus (key size) desired (octets)
+       @param e        The "e" value (public key).  e==65537 is a good choice
+       @param key      [out] Destination of a newly created private key pair
+       @return CRYPT_OK if successful, upon error all allocated ram is freed
+    */
+    int (*rsa_keygen)(prng_state *prng, int wprng, int size, long e, rsa_key *key);
+   
+
    /** RSA exponentiation
       @param in       The octet array representing the base
       @param inlen    The length of the input
       @param out      The destination (to be stored in an octet array format)
-      @param outlen   The length of the output buffer and the resulting size (zero padded to the size of the modulus
+      @param outlen   The length of the output buffer and the resulting size (zero padded to the size of the modulus)
       @param which    PK_PUBLIC for public RSA and PK_PRIVATE for private RSA
       @param key      The RSA key to use 
       @return CRYPT_OK on success
@@ -375,7 +397,9 @@ extern const ltc_math_descriptor tfm_desc;
 #define mp_init_multi                ltc_init_multi
 #define mp_clear(a)                  ltc_mp.deinit(a)
 #define mp_clear_multi               ltc_deinit_multi
+#define mp_init_copy(a, b)           ltc_mp.init_copy(a, b)
 
+#define mp_neg(a, b)                 ltc_mp.neg(a, b)
 #define mp_copy(a, b)                ltc_mp.copy(a, b)
 
 #define mp_set(a, b)                 ltc_mp.set_int(a, b)

@@ -186,6 +186,9 @@
 /* Include RSA support */
 #define MRSA
 
+/* Include Katja (an Rabin variant like RSA) */
+// #define MKAT 
+
 /* Digital Signature Algorithm */
 #define MDSA
 /* Max diff between group and modulus size in bytes */
@@ -200,11 +203,13 @@
 /* #define LTC_ECC_TIMING_RESISTANT */
 
 /* Supported ECC Key Sizes */
-#define ECC192
-#define ECC224
-#define ECC256
-#define ECC384
-#define ECC521
+#ifndef LTC_NO_CURVES
+   #define ECC192
+   #define ECC224
+   #define ECC256
+   #define ECC384
+   #define ECC521
+#endif
 
 /* Include the MPI functionality?  (required by the PK algorithms) */
 #define MPI
@@ -240,14 +245,18 @@
 
 #define LTC_MUTEX_GLOBAL(x)   pthread_mutex_t x = PTHREAD_MUTEX_INITIALIZER;
 #define LTC_MUTEX_PROTO(x)    extern pthread_mutex_t x;
+#define LTC_MUTEX_TYPE(x)     pthread_mutex_t x;
+#define LTC_MUTEX_INIT(x)     pthread_mutex_init(x, NULL);
 #define LTC_MUTEX_LOCK(x)     pthread_mutex_lock(x);
 #define LTC_MUTEX_UNLOCK(x)   pthread_mutex_unlock(x);
 
-#else 
+#else
 
 /* default no functions */
 #define LTC_MUTEX_GLOBAL(x)
 #define LTC_MUTEX_PROTO(x)
+#define LTC_MUTEX_TYPE(x)
+#define LTC_MUTEX_INIT(x)
 #define LTC_MUTEX_LOCK(x)
 #define LTC_MUTEX_UNLOCK(x)
 

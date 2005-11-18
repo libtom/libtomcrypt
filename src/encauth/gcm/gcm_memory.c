@@ -51,7 +51,8 @@ int gcm_memory(      int           cipher,
     }
  
     if (cipher_descriptor[cipher].accel_gcm_memory != NULL) {
-       cipher_descriptor[cipher].accel_gcm_memory
+       return 
+         cipher_descriptor[cipher].accel_gcm_memory
                                           (key,   keylen,
                                            IV,    IVlen,
                                            adata, adatalen,
@@ -59,7 +60,6 @@ int gcm_memory(      int           cipher,
                                            ct,
                                            tag,   taglen,
                                            direction);
-       return CRYPT_OK;
     }
 
 

@@ -123,11 +123,12 @@ int rc5_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_ke
   @param pt The input plaintext (8 bytes)
   @param ct The output ciphertext (8 bytes)
   @param skey The key as scheduled
+  @return CRYPT_OK if successful
 */
 #ifdef LTC_CLEAN_STACK
-static void _rc5_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
+static int _rc5_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
 #else
-void rc5_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
+int rc5_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
 #endif
 {
    ulong32 A, B, *K;
@@ -159,13 +160,16 @@ void rc5_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *
    }
    STORE32L(A, &ct[0]);
    STORE32L(B, &ct[4]);
+
+   return CRYPT_OK;
 }
 
 #ifdef LTC_CLEAN_STACK
-void rc5_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
+int rc5_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
 {
-   _rc5_ecb_encrypt(pt, ct, skey);
+   int err = _rc5_ecb_encrypt(pt, ct, skey);
    burn_stack(sizeof(ulong32) * 2 + sizeof(int));
+   return err;
 }
 #endif
 
@@ -174,11 +178,12 @@ void rc5_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *
   @param ct The input ciphertext (8 bytes)
   @param pt The output plaintext (8 bytes)
   @param skey The key as scheduled 
+  @return CRYPT_OK if successful
 */
 #ifdef LTC_CLEAN_STACK
-static void _rc5_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey)
+static int _rc5_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey)
 #else
-void rc5_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey)
+int rc5_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey)
 #endif
 {
    ulong32 A, B, *K;
@@ -211,13 +216,16 @@ void rc5_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *
    B -= skey->rc5.K[1];
    STORE32L(A, &pt[0]);
    STORE32L(B, &pt[4]);
+
+   return CRYPT_OK;
 }
 
 #ifdef LTC_CLEAN_STACK
-void rc5_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey)
+int rc5_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey)
 {
-   _rc5_ecb_decrypt(ct, pt, skey);
+   int err = _rc5_ecb_decrypt(ct, pt, skey);
    burn_stack(sizeof(ulong32) * 2 + sizeof(int));
+   return err;
 }
 #endif
 

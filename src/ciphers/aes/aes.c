@@ -281,11 +281,12 @@ int SETUP(const unsigned char *key, int keylen, int num_rounds, symmetric_key *s
   @param pt The input plaintext (16 bytes)
   @param ct The output ciphertext (16 bytes)
   @param skey The key as scheduled
+  @return CRYPT_OK if successful
 */
 #ifdef LTC_CLEAN_STACK
-static void _rijndael_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey) 
+static int _rijndael_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey) 
 #else
-void ECB_ENC(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
+int ECB_ENC(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
 #endif
 {
     ulong32 s0, s1, s2, s3, t0, t1, t2, t3, *rk;
@@ -440,13 +441,16 @@ void ECB_ENC(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
         (Te4_0[byte(t2, 0)]) ^ 
         rk[3];
     STORE32H(s3, ct+12);
+
+    return CRYPT_OK;
 }
 
 #ifdef LTC_CLEAN_STACK
-void ECB_ENC(const unsigned char *pt, unsigned char *ct, symmetric_key *skey) 
+int ECB_ENC(const unsigned char *pt, unsigned char *ct, symmetric_key *skey) 
 {
-   _rijndael_ecb_encrypt(pt, ct, skey);
+   int err = _rijndael_ecb_encrypt(pt, ct, skey);
    burn_stack(sizeof(unsigned long)*8 + sizeof(unsigned long*) + sizeof(int)*2);
+   return err;
 }
 #endif
 
@@ -457,11 +461,12 @@ void ECB_ENC(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
   @param ct The input ciphertext (16 bytes)
   @param pt The output plaintext (16 bytes)
   @param skey The key as scheduled 
+  @return CRYPT_OK if successful
 */
 #ifdef LTC_CLEAN_STACK
-static void _rijndael_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey) 
+static int _rijndael_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey) 
 #else
-void ECB_DEC(const unsigned char *ct, unsigned char *pt, symmetric_key *skey)
+int ECB_DEC(const unsigned char *ct, unsigned char *pt, symmetric_key *skey)
 #endif
 {
     ulong32 s0, s1, s2, s3, t0, t1, t2, t3, *rk;
@@ -615,14 +620,17 @@ void ECB_DEC(const unsigned char *ct, unsigned char *pt, symmetric_key *skey)
         (Td4[byte(t0, 0)] & 0x000000ff) ^
         rk[3];
     STORE32H(s3, pt+12);
+
+    return CRYPT_OK;
 }
 
 
 #ifdef LTC_CLEAN_STACK
-void ECB_DEC(const unsigned char *ct, unsigned char *pt, symmetric_key *skey) 
+int ECB_DEC(const unsigned char *ct, unsigned char *pt, symmetric_key *skey) 
 {
-   _rijndael_ecb_decrypt(ct, pt, skey);
+   int err = _rijndael_ecb_decrypt(ct, pt, skey);
    burn_stack(sizeof(unsigned long)*8 + sizeof(unsigned long*) + sizeof(int)*2);
+   return err;
 }
 #endif
 

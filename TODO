@@ -1,6 +1,43 @@
 For 1.07
 
+                
 1. [3 hours]    ASN.1 SET and T61String [punishment, add UTF8 to the list!]
 
+4. [short]      Make parameters in descriptors common, e.g. cipher.block_length => cipher.block_size, hash.blocksize => hash.block_size
 
+DONE
+----
 
+0. [important]  Make ciphers enc/dec routines return int [for accel].  Make the ciphers themselves return CRYPT_OK [default] *AND* make
+                all dependent code check the returns 
+                [x] gcm
+                [x] ccm
+                [x] yarrow
+                [x] fortuna
+                [x] eax
+                [x] ocb
+                [x] omac
+                [x] pmac
+                [x] pelican
+                [x] ctr
+                [x] cbc
+                [x] ecb
+                [x] cfb
+                [x] ofb
+
+2. [many]       ASN.1 flexidecoder.  Basically decode and construct a list of decoded ASN.1 types on the fly.
+                This will allow easy decoding of things like X.509 as their orders can be "screwed up".
+                The concept is simple, just read the ID byte and use a linked list.  I'll do this after step #1.
+
+3. [short]      Make the cipher/hash accelerators return int [not void] to signal errors.  Whoops
+
+5. [short]      Swap arguments of MGF1 around so hash_idx is first
+
+6. [longish]    Re-write parts of the ECC api, re-factor the code, convert to w-NAF, add FP support, add ecc point verifier
+
+7. [shortish]   Provide DH for the DSA code e.g. dsa_encrypt_key()
+
+8. [worthit]    Move the ECC code for point mul and what not as symbols that the TFM/LTM descriptors link in.  Means a change to the hierarchy.  This allows
+                code that uses ECC plugins to simply ignore this code [e.g. save space]
+
+9. [short]      Document the flexi decoder and how it relates to the other DER routines

@@ -54,10 +54,8 @@ int cfb_start(int cipher, const unsigned char *IV, const unsigned char *key,
    }
 
    /* encrypt the IV */
-   cipher_descriptor[cfb->cipher].ecb_encrypt(cfb->IV, cfb->IV, &cfb->key);
    cfb->padlen = 0;
-
-   return CRYPT_OK;
+   return cipher_descriptor[cfb->cipher].ecb_encrypt(cfb->IV, cfb->IV, &cfb->key);
 }
 
 #endif

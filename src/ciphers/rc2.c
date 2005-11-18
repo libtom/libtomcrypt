@@ -125,13 +125,14 @@ int rc2_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_ke
   @param pt The input plaintext (8 bytes)
   @param ct The output ciphertext (8 bytes)
   @param skey The key as scheduled
+  @return CRYPT_OK if successful
 */
 #ifdef LTC_CLEAN_STACK
-static void _rc2_ecb_encrypt( const unsigned char *pt,
+static int _rc2_ecb_encrypt( const unsigned char *pt,
                             unsigned char *ct,
                             symmetric_key *skey)
 #else
-void rc2_ecb_encrypt( const unsigned char *pt,
+int rc2_ecb_encrypt( const unsigned char *pt,
                             unsigned char *ct,
                             symmetric_key *skey)
 #endif
@@ -179,15 +180,18 @@ void rc2_ecb_encrypt( const unsigned char *pt,
     ct[5] = (unsigned char)(x54 >> 8);
     ct[6] = (unsigned char)x76;
     ct[7] = (unsigned char)(x76 >> 8);
+ 
+    return CRYPT_OK;
 }
 
 #ifdef LTC_CLEAN_STACK
-void rc2_ecb_encrypt( const unsigned char *pt,
+int rc2_ecb_encrypt( const unsigned char *pt,
                             unsigned char *ct,
                             symmetric_key *skey)
 {
-    _rc2_ecb_encrypt(pt, ct, skey);
+    int err = _rc2_ecb_encrypt(pt, ct, skey);
     burn_stack(sizeof(unsigned *) + sizeof(unsigned) * 5);
+    return err;
 }
 #endif
 
@@ -199,13 +203,14 @@ void rc2_ecb_encrypt( const unsigned char *pt,
   @param ct The input ciphertext (8 bytes)
   @param pt The output plaintext (8 bytes)
   @param skey The key as scheduled 
+  @return CRYPT_OK if successful
 */
 #ifdef LTC_CLEAN_STACK
-static void _rc2_ecb_decrypt( const unsigned char *ct,
+static int _rc2_ecb_decrypt( const unsigned char *ct,
                             unsigned char *pt,
                             symmetric_key *skey)
 #else
-void rc2_ecb_decrypt( const unsigned char *ct,
+int rc2_ecb_decrypt( const unsigned char *ct,
                             unsigned char *pt,
                             symmetric_key *skey)
 #endif
@@ -254,15 +259,18 @@ void rc2_ecb_decrypt( const unsigned char *ct,
     pt[5] = (unsigned char)(x54 >> 8);
     pt[6] = (unsigned char)x76;
     pt[7] = (unsigned char)(x76 >> 8);
+
+    return CRYPT_OK;
 }
 
 #ifdef LTC_CLEAN_STACK
-void rc2_ecb_decrypt( const unsigned char *ct,
+int rc2_ecb_decrypt( const unsigned char *ct,
                             unsigned char *pt,
                             symmetric_key *skey)
 {
-    _rc2_ecb_decrypt(ct, pt, skey);
+    int err = _rc2_ecb_decrypt(ct, pt, skey);
     burn_stack(sizeof(unsigned *) + sizeof(unsigned) * 4 + sizeof(int));
+    return err;
 }
 #endif
 

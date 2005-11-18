@@ -51,7 +51,9 @@ int ocb_decrypt(ocb_state *ocb, const unsigned char *ct, unsigned char *pt)
    for (x = 0; x < ocb->block_len; x++) {
        tmp[x] = ct[x] ^ Z[x];
    }
-   cipher_descriptor[ocb->cipher].ecb_decrypt(tmp, pt, &ocb->key);
+   if ((err = cipher_descriptor[ocb->cipher].ecb_decrypt(tmp, pt, &ocb->key)) != CRYPT_OK) {
+      return err;
+   }
    for (x = 0; x < ocb->block_len; x++) {
        pt[x] ^= Z[x];
    }

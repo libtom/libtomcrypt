@@ -120,9 +120,9 @@ int rc6_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_ke
   @param skey The key as scheduled
 */
 #ifdef LTC_CLEAN_STACK
-static void _rc6_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
+static int _rc6_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
 #else
-void rc6_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
+int rc6_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
 #endif
 {
    ulong32 a,b,c,d,t,u, *K;
@@ -155,13 +155,15 @@ void rc6_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *
    a += skey->rc6.K[42];
    c += skey->rc6.K[43];
    STORE32L(a,&ct[0]);STORE32L(b,&ct[4]);STORE32L(c,&ct[8]);STORE32L(d,&ct[12]);
+   return CRYPT_OK;
 }
 
 #ifdef LTC_CLEAN_STACK
-void rc6_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
+int rc6_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
 {
-   _rc6_ecb_encrypt(pt, ct, skey);
+   int err = _rc6_ecb_encrypt(pt, ct, skey);
    burn_stack(sizeof(ulong32) * 6 + sizeof(int));
+   return err;
 }
 #endif
 
@@ -172,9 +174,9 @@ void rc6_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *
   @param skey The key as scheduled 
 */
 #ifdef LTC_CLEAN_STACK
-static void _rc6_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey)
+static int _rc6_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey)
 #else
-void rc6_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey)
+int rc6_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey)
 #endif
 {
    ulong32 a,b,c,d,t,u, *K;
@@ -208,13 +210,16 @@ void rc6_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *
    b -= skey->rc6.K[0];
    d -= skey->rc6.K[1];
    STORE32L(a,&pt[0]);STORE32L(b,&pt[4]);STORE32L(c,&pt[8]);STORE32L(d,&pt[12]);
+
+   return CRYPT_OK;
 }
 
 #ifdef LTC_CLEAN_STACK
-void rc6_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey)
+int rc6_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey)
 {
-   _rc6_ecb_decrypt(ct, pt, skey);
+   int err = _rc6_ecb_decrypt(ct, pt, skey);
    burn_stack(sizeof(ulong32) * 6 + sizeof(int));
+   return err;
 }
 #endif
 

@@ -98,7 +98,9 @@ int gcm_init(gcm_state *gcm, int cipher,
 
    /* H = E(0) */
    zeromem(B, 16);
-   cipher_descriptor[cipher].ecb_encrypt(B, gcm->H, &gcm->K);
+   if ((err = cipher_descriptor[cipher].ecb_encrypt(B, gcm->H, &gcm->K)) != CRYPT_OK) {
+      return err;
+   }
 
    /* setup state */
    zeromem(gcm->buf, sizeof(gcm->buf));

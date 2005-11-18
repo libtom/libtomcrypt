@@ -741,13 +741,15 @@ static void khazad_crypt(const unsigned char *plaintext, unsigned char *cipherte
   @param pt The input plaintext (8 bytes)
   @param ct The output ciphertext (8 bytes)
   @param skey The key as scheduled
+  @return CRYPT_OK if successful
 */
-void khazad_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
+int khazad_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
 {
    LTC_ARGCHK(pt   != NULL);
    LTC_ARGCHK(ct   != NULL);
    LTC_ARGCHK(skey != NULL);
    khazad_crypt(pt, ct, skey->khazad.roundKeyEnc);
+   return CRYPT_OK;
 }
 
 /**
@@ -755,13 +757,15 @@ void khazad_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_ke
   @param ct The input ciphertext (8 bytes)
   @param pt The output plaintext (8 bytes)
   @param skey The key as scheduled 
+  @return CRYPT_OK if successful
 */
-void khazad_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey)
+int khazad_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey)
 {
    LTC_ARGCHK(pt   != NULL);
    LTC_ARGCHK(ct   != NULL);
    LTC_ARGCHK(skey != NULL);
    khazad_crypt(ct, pt, skey->khazad.roundKeyDec);
+   return CRYPT_OK;
 }
 
 /**

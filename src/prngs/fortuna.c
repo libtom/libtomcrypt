@@ -140,7 +140,9 @@ int fortuna_start(prng_state *prng)
       return err;
    }
    zeromem(prng->fortuna.IV, 16);
-
+   
+   LTC_MUTEX_INIT(&prng->fortuna.prng_lock)
+   
    return CRYPT_OK;
 }
 
@@ -159,8 +161,11 @@ int fortuna_add_entropy(const unsigned char *in, unsigned long inlen, prng_state
    LTC_ARGCHK(in  != NULL);
    LTC_ARGCHK(prng != NULL);
 
+   LTC_MUTEX_LOCK(&prng->fortuna.prng_lock);
+
    /* ensure inlen <= 32 */
    if (inlen > 32) {
+      LTC_MUTEX_UNLOCK(&prng->fortuna.prng_lock);
       return CRYPT_INVALID_ARG;
    }
 
@@ -168,9 +173,11 @@ int fortuna_add_entropy(const unsigned char *in, unsigned long inlen, prng_state
    tmp[0] = 0;
    tmp[1] = inlen;
    if ((err = sha256_process(&prng->fortuna.pool[prng->fortuna.pool_idx], tmp, 2)) != CRYPT_OK) {
+      LTC_MUTEX_UNLOCK(&prng->fortuna.prng_lock);
       return err;
    }
    if ((err = sha256_process(&prng->fortuna.pool[prng->fortuna.pool_idx], in, inlen)) != CRYPT_OK) {
+      LTC_MUTEX_UNLOCK(&prng->fortuna.prng_lock);
       return err;
    }
    if (prng->fortuna.pool_idx == 0) {
@@ -180,6 +187,7 @@ int fortuna_add_entropy(const unsigned char *in, unsigned long inlen, prng_state
       prng->fortuna.pool_idx = 0;
    }
 
+   LTC_MUTEX_UNLOCK(&prng->fortuna.prng_lock);
    return CRYPT_OK;
 }
 
@@ -209,9 +217,12 @@ unsigned long fortuna_read(unsigned char *out, unsigned long outlen, prng_state 
    LTC_ARGCHK(out  != NULL);
    LTC_ARGCHK(prng != NULL);
 
+   LTC_MUTEX_LOCK(&prng->fortuna.prng_lock);
+
    /* do we have to reseed? */
    if (++prng->fortuna.wd == FORTUNA_WD || prng->fortuna.pool0_len >= 64) {
       if ((err = fortuna_reseed(prng)) != CRYPT_OK) {
+         LTC_MUTEX_UNLOCK(&prng->fortuna.prng_lock);
          return 0;
       }
    }
@@ -239,12 +250,14 @@ unsigned long fortuna_read(unsigned char *out, unsigned long outlen, prng_state 
    rijndael_ecb_encrypt(prng->fortuna.IV, prng->fortuna.K   , &prng->fortuna.skey); fortuna_update_iv(prng);
    rijndael_ecb_encrypt(prng->fortuna.IV, prng->fortuna.K+16, &prng->fortuna.skey); fortuna_update_iv(prng);
    if ((err = rijndael_setup(prng->fortuna.K, 32, 0, &prng->fortuna.skey)) != CRYPT_OK) {
+      LTC_MUTEX_UNLOCK(&prng->fortuna.prng_lock);
       return 0;
    }
 
 #ifdef LTC_CLEAN_STACK
    zeromem(tmp, sizeof(tmp));
 #endif
+   LTC_MUTEX_UNLOCK(&prng->fortuna.prng_lock);
    return tlen;
 }   
 
@@ -259,10 +272,12 @@ int fortuna_done(prng_state *prng)
    unsigned char tmp[32];
 
    LTC_ARGCHK(prng != NULL);
+   LTC_MUTEX_LOCK(&prng->fortuna.prng_lock);
 
    /* terminate all the hashes */
    for (x = 0; x < FORTUNA_POOLS; x++) {
        if ((err = sha256_done(&(prng->fortuna.pool[x]), tmp)) != CRYPT_OK) {
+          LTC_MUTEX_UNLOCK(&prng->fortuna.prng_lock);
           return err; 
        }
    }
@@ -272,6 +287,7 @@ int fortuna_done(prng_state *prng)
    zeromem(tmp, sizeof(tmp));
 #endif
 
+   LTC_MUTEX_UNLOCK(&prng->fortuna.prng_lock);
    return CRYPT_OK;
 }
 
@@ -291,13 +307,17 @@ int fortuna_export(unsigned char *out, unsigned long *outlen, prng_state *prng)
    LTC_ARGCHK(outlen != NULL);
    LTC_ARGCHK(prng   != NULL);
 
+   LTC_MUTEX_LOCK(&prng->fortuna.prng_lock);
+
    /* we'll write bytes for s&g's */
    if (*outlen < 32*FORTUNA_POOLS) {
+      LTC_MUTEX_UNLOCK(&prng->fortuna.prng_lock);
       return CRYPT_BUFFER_OVERFLOW;
    }
 
    md = XMALLOC(sizeof(hash_state));
    if (md == NULL) {
+      LTC_MUTEX_UNLOCK(&prng->fortuna.prng_lock);
       return CRYPT_MEM;
    }
 
@@ -332,6 +352,7 @@ LBL_ERR:
    zeromem(md, sizeof(*md));
 #endif
    XFREE(md);
+   LTC_MUTEX_UNLOCK(&prng->fortuna.prng_lock);
    return err;
 }
  
@@ -349,18 +370,23 @@ int fortuna_import(const unsigned char *in, unsigned long inlen, prng_state *prn
    LTC_ARGCHK(in   != NULL);
    LTC_ARGCHK(prng != NULL);
 
+   LTC_MUTEX_LOCK(&prng->fortuna.prng_lock);
    if (inlen != 32*FORTUNA_POOLS) {
+      LTC_MUTEX_UNLOCK(&prng->fortuna.prng_lock);
       return CRYPT_INVALID_ARG;
    }
 
    if ((err = fortuna_start(prng)) != CRYPT_OK) {
+      LTC_MUTEX_UNLOCK(&prng->fortuna.prng_lock);
       return err;
    }
    for (x = 0; x < FORTUNA_POOLS; x++) {
       if ((err = fortuna_add_entropy(in+x*32, 32, prng)) != CRYPT_OK) {
+         LTC_MUTEX_UNLOCK(&prng->fortuna.prng_lock);
          return err;
       }
    }
+   LTC_MUTEX_UNLOCK(&prng->fortuna.prng_lock);
    return err;
 }
 

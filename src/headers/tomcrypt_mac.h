@@ -200,6 +200,7 @@ int s_ocb_done(ocb_state *ocb, const unsigned char *pt, unsigned long ptlen,
 
 int ccm_memory(int cipher,
     const unsigned char *key,    unsigned long keylen,
+    symmetric_key       *uskey,
     const unsigned char *nonce,  unsigned long noncelen,
     const unsigned char *header, unsigned long headerlen,
           unsigned char *pt,     unsigned long ptlen,

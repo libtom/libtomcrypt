@@ -45,7 +45,9 @@ int cfb_decrypt(const unsigned char *ct, unsigned char *pt, unsigned long len, s
 
    while (len-- > 0) {
        if (cfb->padlen == cfb->blocklen) {
-          cipher_descriptor[cfb->cipher].ecb_encrypt(cfb->pad, cfb->IV, &cfb->key);
+          if ((err = cipher_descriptor[cfb->cipher].ecb_encrypt(cfb->pad, cfb->IV, &cfb->key)) != CRYPT_OK) {
+             return err;
+          }
           cfb->padlen = 0;
        }
        cfb->pad[cfb->padlen] = *ct;

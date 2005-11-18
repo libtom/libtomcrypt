@@ -27,9 +27,7 @@
 */    
 int rsa_export(unsigned char *out, unsigned long *outlen, int type, rsa_key *key)
 {
-   int           err;
    unsigned long zero=0;
-
    LTC_ARGCHK(out    != NULL);
    LTC_ARGCHK(outlen != NULL);
    LTC_ARGCHK(key    != NULL);
@@ -44,7 +42,7 @@ int rsa_export(unsigned char *out, unsigned long *outlen, int type, rsa_key *key
       /* output is 
             Version, n, e, d, p, q, d mod (p-1), d mod (q - 1), 1/q mod p
        */
-      if ((err = der_encode_sequence_multi(out, outlen, 
+      return der_encode_sequence_multi(out, outlen, 
                           LTC_ASN1_SHORT_INTEGER, 1UL, &zero, 
                           LTC_ASN1_INTEGER, 1UL,  key->N, 
                           LTC_ASN1_INTEGER, 1UL,  key->e,
@@ -54,12 +52,7 @@ int rsa_export(unsigned char *out, unsigned long *outlen, int type, rsa_key *key
                           LTC_ASN1_INTEGER, 1UL,  key->dP,
                           LTC_ASN1_INTEGER, 1UL,  key->dQ, 
                           LTC_ASN1_INTEGER, 1UL,  key->qP, 
-                          LTC_ASN1_EOL,     0UL, NULL)) != CRYPT_OK) {
-         return err;
-      }
- 
-      /* clear zero and return */
-      return CRYPT_OK;
+                          LTC_ASN1_EOL,     0UL, NULL);
    } else {
       /* public key */
       return der_encode_sequence_multi(out, outlen, 

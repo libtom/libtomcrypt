@@ -76,13 +76,17 @@ int ocb_init(ocb_state *ocb, int cipher,
  
    /* find L = E[0] */
    zeromem(ocb->L, ocb->block_len);
-   cipher_descriptor[cipher].ecb_encrypt(ocb->L, ocb->L, &ocb->key);
+   if ((err = cipher_descriptor[cipher].ecb_encrypt(ocb->L, ocb->L, &ocb->key)) != CRYPT_OK) {
+      return err;
+   }
 
    /* find R = E[N xor L] */
    for (x = 0; x < ocb->block_len; x++) {
        ocb->R[x] = ocb->L[x] ^ nonce[x];
    }
-   cipher_descriptor[cipher].ecb_encrypt(ocb->R, ocb->R, &ocb->key);
+   if ((err = cipher_descriptor[cipher].ecb_encrypt(ocb->R, ocb->R, &ocb->key)) != CRYPT_OK) {
+      return err;
+   }
 
    /* find Ls[i] = L << i for i == 0..31 */
    XMEMCPY(ocb->Ls[0], ocb->L, ocb->block_len);

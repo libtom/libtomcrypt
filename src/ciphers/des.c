@@ -1582,8 +1582,9 @@ int des3_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_k
   @param pt The input plaintext (8 bytes)
   @param ct The output ciphertext (8 bytes)
   @param skey The key as scheduled
+  @return CRYPT_OK if successful
 */
-void des_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
+int des_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
 {
     ulong32 work[2];
     LTC_ARGCHK(pt   != NULL);
@@ -1594,6 +1595,7 @@ void des_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *
     desfunc(work, skey->des.ek);
     STORE32H(work[0],ct+0);
     STORE32H(work[1],ct+4);
+    return CRYPT_OK;
 }
 
 /**
@@ -1601,8 +1603,9 @@ void des_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *
   @param ct The input ciphertext (8 bytes)
   @param pt The output plaintext (8 bytes)
   @param skey The key as scheduled 
+  @return CRYPT_OK if successful
 */
-void des_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey)
+int des_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey)
 {
     ulong32 work[2];
     LTC_ARGCHK(pt   != NULL);
@@ -1612,7 +1615,8 @@ void des_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *
     LOAD32H(work[1], ct+4);
     desfunc(work, skey->des.dk);
     STORE32H(work[0],pt+0);
-    STORE32H(work[1],pt+4);
+    STORE32H(work[1],pt+4);  
+    return CRYPT_OK;
 }
 
 /**
@@ -1620,8 +1624,9 @@ void des_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *
   @param pt The input plaintext (8 bytes)
   @param ct The output ciphertext (8 bytes)
   @param skey The key as scheduled
+  @return CRYPT_OK if successful
 */
-void des3_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
+int des3_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
 {
     ulong32 work[2];
     
@@ -1635,6 +1640,7 @@ void des3_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key 
     desfunc(work, skey->des3.ek[2]);
     STORE32H(work[0],ct+0);
     STORE32H(work[1],ct+4);
+    return CRYPT_OK;
 }
 
 /**
@@ -1642,8 +1648,9 @@ void des3_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key 
   @param ct The input ciphertext (8 bytes)
   @param pt The output plaintext (8 bytes)
   @param skey The key as scheduled 
+  @return CRYPT_OK if successful
 */
-void des3_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey)
+int des3_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey)
 {
     ulong32 work[2];
     LTC_ARGCHK(pt   != NULL);
@@ -1656,6 +1663,7 @@ void des3_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key 
     desfunc(work, skey->des3.dk[2]);
     STORE32H(work[0],pt+0);
     STORE32H(work[1],pt+4);
+    return CRYPT_OK;
 }
 
 /**

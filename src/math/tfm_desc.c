@@ -59,6 +59,14 @@ static void deinit(void *a)
    XFREE(a);
 }
 
+static int neg(void *a, void *b)
+{
+   LTC_ARGCHK(a != NULL);
+   LTC_ARGCHK(b != NULL);
+   fp_neg(((fp_int*)a), ((fp_int*)b));
+   return CRYPT_OK;
+}
+
 static int copy(void *a, void *b)
 {
    LTC_ARGCHK(a != NULL);
@@ -390,6 +398,7 @@ const ltc_math_descriptor tfm_desc = {
    &init_copy,
    &deinit,
 
+   &neg,
    &copy,
 
    &set_int,
@@ -422,7 +431,7 @@ const ltc_math_descriptor tfm_desc = {
 
    &mulmod,
    &invmod,
-   
+
    &montgomery_setup,
    &montgomery_normalization,
    &montgomery_reduce,
@@ -431,10 +440,11 @@ const ltc_math_descriptor tfm_desc = {
    &exptmod,
    &isprime,
 
-   NULL,
-   NULL,
-   NULL,
+   &ltc_ecc_mulmod,
+   &ltc_ecc_projective_add_point,
+   &ltc_ecc_map,
 
+   NULL,
    NULL
 };
 

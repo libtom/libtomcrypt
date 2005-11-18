@@ -107,11 +107,12 @@ int noekeon_setup(const unsigned char *key, int keylen, int num_rounds, symmetri
   @param pt The input plaintext (16 bytes)
   @param ct The output ciphertext (16 bytes)
   @param skey The key as scheduled
+  @return CRYPT_OK if successful
 */
 #ifdef LTC_CLEAN_STACK
-static void _noekeon_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
+static int _noekeon_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
 #else
-void noekeon_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
+int noekeon_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
 #endif
 {
    ulong32 a,b,c,d,temp;
@@ -142,13 +143,16 @@ void noekeon_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_k
    
    STORE32H(a,&ct[0]); STORE32H(b,&ct[4]);
    STORE32H(c,&ct[8]); STORE32H(d,&ct[12]);
+
+   return CRYPT_OK;
 }
 
 #ifdef LTC_CLEAN_STACK
-void noekeon_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
+int noekeon_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
 {
-   _noekeon_ecb_encrypt(pt, ct, skey);
+   int err = _noekeon_ecb_encrypt(pt, ct, skey);
    burn_stack(sizeof(ulong32) * 5 + sizeof(int));
+   return CRYPT_OK;
 }
 #endif
 
@@ -157,11 +161,12 @@ void noekeon_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_k
   @param ct The input ciphertext (16 bytes)
   @param pt The output plaintext (16 bytes)
   @param skey The key as scheduled 
+  @return CRYPT_OK if successful
 */
 #ifdef LTC_CLEAN_STACK
-static void _noekeon_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey)
+static int _noekeon_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey)
 #else
-void noekeon_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey)
+int noekeon_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey)
 #endif
 {
    ulong32 a,b,c,d, temp;
@@ -192,13 +197,15 @@ void noekeon_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_k
    a ^= RC[0];
    STORE32H(a,&pt[0]); STORE32H(b, &pt[4]);
    STORE32H(c,&pt[8]); STORE32H(d, &pt[12]);
+   return CRYPT_OK;
 }
 
 #ifdef LTC_CLEAN_STACK
-void noekeon_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey)
+int noekeon_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey)
 {
-   _noekeon_ecb_decrypt(ct, pt, skey);
+   int err = _noekeon_ecb_decrypt(ct, pt, skey);
    burn_stack(sizeof(ulong32) * 5 + sizeof(int));
+   return err;
 }
 #endif
 

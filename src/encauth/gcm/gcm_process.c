@@ -62,7 +62,9 @@ int gcm_process(gcm_state *gcm,
           if (++gcm->Y[y]) { break; }
       }
       /* encrypt the counter */
-      cipher_descriptor[gcm->cipher].ecb_encrypt(gcm->Y, gcm->buf, &gcm->K);     
+      if ((err = cipher_descriptor[gcm->cipher].ecb_encrypt(gcm->Y, gcm->buf, &gcm->K)) != CRYPT_OK) {
+         return err;
+      }
 
       gcm->buflen = 0;
       gcm->mode   = GCM_MODE_TEXT;
@@ -89,7 +91,9 @@ int gcm_process(gcm_state *gcm,
              for (y = 15; y >= 12; y--) {
                  if (++gcm->Y[y]) { break; }
              }
-             cipher_descriptor[gcm->cipher].ecb_encrypt(gcm->Y, gcm->buf, &gcm->K);
+             if ((err = cipher_descriptor[gcm->cipher].ecb_encrypt(gcm->Y, gcm->buf, &gcm->K)) != CRYPT_OK) {
+                return err;
+             }
          }
       } else {
          for (x = 0; x < (ptlen & ~15); x += 16) {
@@ -105,7 +109,9 @@ int gcm_process(gcm_state *gcm,
              for (y = 15; y >= 12; y--) {
                  if (++gcm->Y[y]) { break; }
              }
-             cipher_descriptor[gcm->cipher].ecb_encrypt(gcm->Y, gcm->buf, &gcm->K);
+             if ((err = cipher_descriptor[gcm->cipher].ecb_encrypt(gcm->Y, gcm->buf, &gcm->K)) != CRYPT_OK) {
+                return err;
+             }
          }
      }
    }
@@ -121,7 +127,9 @@ int gcm_process(gcm_state *gcm,
           for (y = 15; y >= 12; y--) {
               if (++gcm->Y[y]) { break; }
           }
-          cipher_descriptor[gcm->cipher].ecb_encrypt(gcm->Y, gcm->buf, &gcm->K);
+          if ((err = cipher_descriptor[gcm->cipher].ecb_encrypt(gcm->Y, gcm->buf, &gcm->K)) != CRYPT_OK) {
+             return err;
+          }
           gcm->buflen = 0;
        }
 

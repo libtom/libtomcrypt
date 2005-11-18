@@ -138,11 +138,12 @@ static unsigned ig_func(unsigned w, int *kp, unsigned char *key)
   @param pt The input plaintext (8 bytes)
   @param ct The output ciphertext (8 bytes)
   @param skey The key as scheduled
+  @return CRYPT_OK if successful
 */
 #ifdef LTC_CLEAN_STACK
-static void _skipjack_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
+static int _skipjack_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
 #else
-void skipjack_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
+int skipjack_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
 #endif
 {
    unsigned w1,w2,w3,w4,tmp,tmp1;
@@ -183,13 +184,16 @@ void skipjack_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_
    ct[2] = (w2>>8)&255; ct[3] = w2&255;
    ct[4] = (w3>>8)&255; ct[5] = w3&255;
    ct[6] = (w4>>8)&255; ct[7] = w4&255;
+
+   return CRYPT_OK;
 }
 
 #ifdef LTC_CLEAN_STACK
-void skipjack_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
+int skipjack_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
 {
-   _skipjack_ecb_encrypt(pt, ct, skey);
+   int err = _skipjack_ecb_encrypt(pt, ct, skey);
    burn_stack(sizeof(unsigned) * 8 + sizeof(int) * 2);
+   return err;
 }
 #endif
 
@@ -198,11 +202,12 @@ void skipjack_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_
   @param ct The input ciphertext (8 bytes)
   @param pt The output plaintext (8 bytes)
   @param skey The key as scheduled 
+  @return CRYPT_OK if successful
 */
 #ifdef LTC_CLEAN_STACK
-static void _skipjack_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey)
+static int _skipjack_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey)
 #else
-void skipjack_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey)
+int skipjack_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey)
 #endif
 {
    unsigned w1,w2,w3,w4,tmp;
@@ -247,13 +252,16 @@ void skipjack_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_
    pt[2] = (w2>>8)&255; pt[3] = w2&255;
    pt[4] = (w3>>8)&255; pt[5] = w3&255;
    pt[6] = (w4>>8)&255; pt[7] = w4&255;
+
+   return CRYPT_OK;
 }
 
 #ifdef LTC_CLEAN_STACK
-void skipjack_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey)
+int skipjack_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey)
 {
-   _skipjack_ecb_decrypt(ct, pt, skey);
+   int err = _skipjack_ecb_decrypt(ct, pt, skey);
    burn_stack(sizeof(unsigned) * 7 + sizeof(int) * 2);
+   return err;
 }
 #endif
 

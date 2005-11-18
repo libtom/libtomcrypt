@@ -110,6 +110,7 @@ int yarrow_start(prng_state *prng)
 
    /* zero the memory used */
    zeromem(prng->yarrow.pool, sizeof(prng->yarrow.pool));
+   LTC_MUTEX_INIT(&prng->yarrow.prng_lock)
 
    return CRYPT_OK;
 }
@@ -128,32 +129,40 @@ int yarrow_add_entropy(const unsigned char *in, unsigned long inlen, prng_state 
 
    LTC_ARGCHK(in  != NULL);
    LTC_ARGCHK(prng != NULL);
-
+   
+   LTC_MUTEX_LOCK(&prng->yarrow.prng_lock);
+   
    if ((err = hash_is_valid(prng->yarrow.hash)) != CRYPT_OK) {
+      LTC_MUTEX_UNLOCK(&prng->yarrow.prng_lock);
       return err;
    }
 
    /* start the hash */
    if ((err = hash_descriptor[prng->yarrow.hash].init(&md)) != CRYPT_OK) {
+      LTC_MUTEX_UNLOCK(&prng->yarrow.prng_lock);
       return err; 
    }
 
    /* hash the current pool */
    if ((err = hash_descriptor[prng->yarrow.hash].process(&md, prng->yarrow.pool, 
                                                         hash_descriptor[prng->yarrow.hash].hashsize)) != CRYPT_OK) {
+      LTC_MUTEX_UNLOCK(&prng->yarrow.prng_lock);
       return err;
    }
 
    /* add the new entropy */
    if ((err = hash_descriptor[prng->yarrow.hash].process(&md, in, inlen)) != CRYPT_OK) {
+      LTC_MUTEX_UNLOCK(&prng->yarrow.prng_lock);
       return err;
    }
 
    /* store result */
    if ((err = hash_descriptor[prng->yarrow.hash].done(&md, prng->yarrow.pool)) != CRYPT_OK) {
+      LTC_MUTEX_UNLOCK(&prng->yarrow.prng_lock);
       return err;
    }
 
+   LTC_MUTEX_UNLOCK(&prng->yarrow.prng_lock);
    return CRYPT_OK;
 }
 
@@ -167,18 +176,22 @@ int yarrow_ready(prng_state *prng)
    int ks, err;
 
    LTC_ARGCHK(prng != NULL);
+   LTC_MUTEX_LOCK(&prng->yarrow.prng_lock);
 
    if ((err = hash_is_valid(prng->yarrow.hash)) != CRYPT_OK) {
+      LTC_MUTEX_UNLOCK(&prng->yarrow.prng_lock);
       return err;
    }
    
    if ((err = cipher_is_valid(prng->yarrow.cipher)) != CRYPT_OK) {
+      LTC_MUTEX_UNLOCK(&prng->yarrow.prng_lock);
       return err;
    }
 
    /* setup CTR mode using the "pool" as the key */
    ks = (int)hash_descriptor[prng->yarrow.hash].hashsize;
    if ((err = cipher_descriptor[prng->yarrow.cipher].keysize(&ks)) != CRYPT_OK) {
+      LTC_MUTEX_UNLOCK(&prng->yarrow.prng_lock);
       return err;
    }
 
@@ -188,8 +201,10 @@ int yarrow_ready(prng_state *prng)
                         0,                       /* number of rounds */
                         CTR_COUNTER_LITTLE_ENDIAN, /* little endian counter */
                         &prng->yarrow.ctr)) != CRYPT_OK) {
+      LTC_MUTEX_UNLOCK(&prng->yarrow.prng_lock);
       return err;
    }
+   LTC_MUTEX_UNLOCK(&prng->yarrow.prng_lock);
    return CRYPT_OK;
 }
 
@@ -205,13 +220,17 @@ unsigned long yarrow_read(unsigned char *out, unsigned long outlen, prng_state *
    LTC_ARGCHK(out  != NULL);
    LTC_ARGCHK(prng != NULL);
 
+   LTC_MUTEX_LOCK(&prng->yarrow.prng_lock);
+
    /* put out in predictable state first */
    zeromem(out, outlen);
    
    /* now randomize it */
    if (ctr_encrypt(out, out, outlen, &prng->yarrow.ctr) != CRYPT_OK) {
+      LTC_MUTEX_UNLOCK(&prng->yarrow.prng_lock);
       return 0;
    }
+   LTC_MUTEX_UNLOCK(&prng->yarrow.prng_lock);
    return outlen;
 }
 
@@ -222,12 +241,18 @@ unsigned long yarrow_read(unsigned char *out, unsigned long outlen, prng_state *
 */  
 int yarrow_done(prng_state *prng)
 {
+   int err;
    LTC_ARGCHK(prng != NULL);
+
+   LTC_MUTEX_LOCK(&prng->yarrow.prng_lock);
 
    /* call cipher done when we invent one ;-) */
 
    /* we invented one */
-   return ctr_done(&prng->yarrow.ctr);
+   err = ctr_done(&prng->yarrow.ctr);
+   
+   LTC_MUTEX_UNLOCK(&prng->yarrow.prng_lock);
+   return err;
 }
 
 /**
@@ -243,12 +268,16 @@ int yarrow_export(unsigned char *out, unsigned long *outlen, prng_state *prng)
    LTC_ARGCHK(outlen != NULL);
    LTC_ARGCHK(prng   != NULL);
 
+   LTC_MUTEX_LOCK(&prng->yarrow.prng_lock);
+
    /* we'll write 64 bytes for s&g's */
    if (*outlen < 64) {
+      LTC_MUTEX_UNLOCK(&prng->yarrow.prng_lock);
       return CRYPT_BUFFER_OVERFLOW;
    }
 
    if (yarrow_read(out, 64, prng) != 64) {
+      LTC_MUTEX_UNLOCK(&prng->yarrow.prng_lock);
       return CRYPT_ERROR_READPRNG;
    }
    *outlen = 64;
@@ -269,15 +298,21 @@ int yarrow_import(const unsigned char *in, unsigned long inlen, prng_state *prng
 
    LTC_ARGCHK(in   != NULL);
    LTC_ARGCHK(prng != NULL);
+   
+   LTC_MUTEX_LOCK(&prng->yarrow.prng_lock);
 
    if (inlen != 64) {
+      LTC_MUTEX_UNLOCK(&prng->yarrow.prng_lock);
       return CRYPT_INVALID_ARG;
    }
 
    if ((err = yarrow_start(prng)) != CRYPT_OK) {
+      LTC_MUTEX_UNLOCK(&prng->yarrow.prng_lock);
       return err;
    }
-   return yarrow_add_entropy(in, 64, prng);
+   err = yarrow_add_entropy(in, 64, prng);
+   LTC_MUTEX_UNLOCK(&prng->yarrow.prng_lock);
+   return err;
 }
 
 /**

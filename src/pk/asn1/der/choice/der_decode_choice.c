@@ -96,6 +96,7 @@ int der_decode_choice(const unsigned char *in,   unsigned long *inlen,
            case LTC_ASN1_NULL:
                if (*inlen == 2 && in[x] == 0x05 && in[x+1] == 0x00) {
                   *inlen = 2;
+                  list[x].used   = 1;
                   return CRYPT_OK;
                }
                break;

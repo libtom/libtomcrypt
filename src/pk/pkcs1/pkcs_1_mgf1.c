@@ -26,8 +26,8 @@
    @param masklen     The length of the mask desired
    @return CRYPT_OK if successful
 */
-int pkcs_1_mgf1(const unsigned char *seed, unsigned long seedlen,
-                      int            hash_idx,
+int pkcs_1_mgf1(int                  hash_idx,
+                const unsigned char *seed, unsigned long seedlen,
                       unsigned char *mask, unsigned long masklen)
 {
    unsigned long hLen, x;

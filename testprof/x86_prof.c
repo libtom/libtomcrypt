@@ -51,6 +51,10 @@ ulong64 rdtsc (void)
          ulong64 a;
          asm __volatile__ ("rdtsc\nmovl %%eax,(%0)\nmovl %%edx,4(%0)\n"::"r"(&a):"%eax","%edx");
          return a;
+      #elif defined(LTC_PPC32) || defined(TFM_PPC32)
+         unsigned long a, b;
+         __asm__ __volatile__ ("mftbu %1 \nmftb %0\n":"=r"(a), "=r"(b));
+         return (((ulong64)b) << 32ULL) | ((ulong64)a);
       #elif defined(__ia64__)  /* gcc-IA64 version */
          unsigned long result;
          __asm__ __volatile__("mov %0=ar.itc" : "=r"(result) :: "memory");
@@ -538,7 +542,7 @@ int time_hash(void)
 }
 
 #undef MPI
-#warning you need an mp_rand!!!
+//#warning you need an mp_rand!!!
 
 #ifdef MPI
 void time_mult(void)
@@ -705,7 +709,7 @@ void time_rsa(void)
        fprintf(stderr, "RSA-%lu encrypt_key took %15llu cycles\n", x, t2);
 
        t2 = 0;
-       for (y = 0; y < 16; y++) {
+       for (y = 0; y < 2048; y++) {
            t_start();
            t1 = t_read();
            zzz = sizeof(buf[0]);
@@ -717,7 +721,7 @@ void time_rsa(void)
            t1 = t_read() - t1;
            t2 += t1;
        }
-       t2 >>= 4;
+       t2 >>= 11;
        fprintf(stderr, "RSA-%lu decrypt_key took %15llu cycles\n", x, t2);
 
 
@@ -726,6 +730,76 @@ void time_rsa(void)
 }
 #else
 void time_rsa(void) { fprintf(stderr, "NO RSA\n"); }
+#endif
+
+#ifdef MKAT      
+/* time various KAT operations */
+void time_katja(void)
+{
+   katja_key key;
+   ulong64 t1, t2;
+   unsigned char buf[2][4096];
+   unsigned long x, y, z, zzz;
+   int           err, zz;
+
+   for (x = 1024; x <= 2048; x += 256) {
+       t2 = 0;
+       for (y = 0; y < 4; y++) {
+           t_start();
+           t1 = t_read();
+           if ((err = katja_make_key(&yarrow_prng, find_prng("yarrow"), x/8, &key)) != CRYPT_OK) {
+              fprintf(stderr, "\n\nkatja_make_key says %s, wait...no it should say %s...damn you!\n", error_to_string(err), error_to_string(CRYPT_OK));
+              exit(EXIT_FAILURE);
+           }
+           t1 = t_read() - t1;
+           t2 += t1;
+
+           if (y < 3) {
+              rsa_free(&key);
+           }
+       }
+       t2 >>= 2;
+       fprintf(stderr, "Katja-%lu make_key    took %15llu cycles\n", x, t2);
+
+       t2 = 0;
+       for (y = 0; y < 16; y++) {
+           t_start();
+           t1 = t_read();
+           z = sizeof(buf[1]);
+           if ((err = katja_encrypt_key(buf[0], 32, buf[1], &z, "testprog", 8, &yarrow_prng,
+                                      find_prng("yarrow"), find_hash("sha1"),
+                                      &key)) != CRYPT_OK) {
+              fprintf(stderr, "\n\nkatja_encrypt_key says %s, wait...no it should say %s...damn you!\n", error_to_string(err), error_to_string(CRYPT_OK));
+              exit(EXIT_FAILURE);
+           }
+           t1 = t_read() - t1;
+           t2 += t1;
+       }
+       t2 >>= 4;
+       fprintf(stderr, "Katja-%lu encrypt_key took %15llu cycles\n", x, t2);
+
+       t2 = 0;
+       for (y = 0; y < 2048; y++) {
+           t_start();
+           t1 = t_read();
+           zzz = sizeof(buf[0]);
+           if ((err = katja_decrypt_key(buf[1], z, buf[0], &zzz, "testprog", 8,  find_hash("sha1"), 
+                                      &zz, &key)) != CRYPT_OK) {
+              fprintf(stderr, "\n\nkatja_decrypt_key says %s, wait...no it should say %s...damn you!\n", error_to_string(err), error_to_string(CRYPT_OK));
+              exit(EXIT_FAILURE);
+           }
+           t1 = t_read() - t1;
+           t2 += t1;
+       }
+       t2 >>= 11;
+       fprintf(stderr, "Katja-%lu decrypt_key took %15llu cycles\n", x, t2);
+
+
+       katja_free(&key);
+  }
+}
+#else
+void time_katja(void) { fprintf(stderr, "NO Katja\n"); }
 #endif
 
 #ifdef MECC
@@ -737,11 +811,27 @@ void time_ecc(void)
    unsigned char buf[2][4096];
    unsigned long i, x, y, z;
    int           err;
-   static unsigned long sizes[] = {192/8, 256/8, 384/8, 521/8, 100000};
+   static unsigned long sizes[] = {
+#ifdef ECC192
+192/8, 
+#endif
+#ifdef ECC224
+224/8,
+#endif
+#ifdef ECC256
+256/8, 
+#endif
+#ifdef ECC384
+384/8, 
+#endif
+#ifdef ECC521
+521/8, 
+#endif
+100000};
 
    for (x = sizes[i=0]; x < 100000; x = sizes[++i]) {
        t2 = 0;
-       for (y = 0; y < 16; y++) {
+       for (y = 0; y < 64; y++) {
            t_start();
            t1 = t_read();
            if ((err = ecc_make_key(&yarrow_prng, find_prng("yarrow"), x, &key)) != CRYPT_OK) {
@@ -751,11 +841,11 @@ void time_ecc(void)
            t1 = t_read() - t1;
            t2 += t1;
 
-           if (y < 15) {
+           if (y < 63) {
               ecc_free(&key);
            }
        }
-       t2 >>= 4;
+       t2 >>= 6;
        fprintf(stderr, "ECC-%lu make_key    took %15llu cycles\n", x*8, t2);
 
        t2 = 0;
@@ -881,6 +971,7 @@ void time_encmacs_(unsigned long MAC_SIZE)
    ulong64 t1, t2;
    unsigned long x, z;
    int err, cipher_idx;
+   symmetric_key skey;
 
    fprintf(stderr, "\nENC+MAC Timings (zero byte AAD, 16 byte IV, cycles/byte on %luKB blocks):\n", MAC_SIZE);
 
@@ -909,7 +1000,7 @@ void time_encmacs_(unsigned long MAC_SIZE)
         t1 = t_read() - t1;
         if (t1 < t2) t2 = t1;
    }
-   fprintf(stderr, "EAX \t\t%9llu\n", t2/(ulong64)(MAC_SIZE*1024));
+   fprintf(stderr, "EAX \t\t\t%9llu\n", t2/(ulong64)(MAC_SIZE*1024));
 #endif
 
 #ifdef OCB_MODE
@@ -925,7 +1016,7 @@ void time_encmacs_(unsigned long MAC_SIZE)
         t1 = t_read() - t1;
         if (t1 < t2) t2 = t1;
    }
-   fprintf(stderr, "OCB \t\t%9llu\n", t2/(ulong64)(MAC_SIZE*1024));
+   fprintf(stderr, "OCB \t\t\t%9llu\n", t2/(ulong64)(MAC_SIZE*1024));
 #endif
 
 #ifdef CCM_MODE
@@ -934,14 +1025,30 @@ void time_encmacs_(unsigned long MAC_SIZE)
         t_start();
         t1 = t_read();
         z = 16;
-        if ((err = ccm_memory(cipher_idx, key, 16, IV, 16, NULL, 0, buf, MAC_SIZE*1024, buf, tag, &z, CCM_ENCRYPT)) != CRYPT_OK) {
+        if ((err = ccm_memory(cipher_idx, key, 16, NULL, IV, 16, NULL, 0, buf, MAC_SIZE*1024, buf, tag, &z, CCM_ENCRYPT)) != CRYPT_OK) {
            fprintf(stderr, "\nCCM error... %s\n", error_to_string(err));
            exit(EXIT_FAILURE);
         }
         t1 = t_read() - t1;
         if (t1 < t2) t2 = t1;
    }
-   fprintf(stderr, "CCM \t\t%9llu\n", t2/(ulong64)(MAC_SIZE*1024));
+   fprintf(stderr, "CCM (no-precomp) \t%9llu\n", t2/(ulong64)(MAC_SIZE*1024));
+   
+   cipher_descriptor[cipher_idx].setup(key, 16, 0, &skey);
+   t2 = -1;
+   for (x = 0; x < 10000; x++) {
+        t_start();
+        t1 = t_read();
+        z = 16;
+        if ((err = ccm_memory(cipher_idx, key, 16, &skey, IV, 16, NULL, 0, buf, MAC_SIZE*1024, buf, tag, &z, CCM_ENCRYPT)) != CRYPT_OK) {
+           fprintf(stderr, "\nCCM error... %s\n", error_to_string(err));
+           exit(EXIT_FAILURE);
+        }
+        t1 = t_read() - t1;
+        if (t1 < t2) t2 = t1;
+   }
+   fprintf(stderr, "CCM (precomp) \t\t%9llu\n", t2/(ulong64)(MAC_SIZE*1024));
+   cipher_descriptor[cipher_idx].done(&skey);   
 #endif
 
 #ifdef GCM_MODE
@@ -992,7 +1099,7 @@ void time_encmacs_(unsigned long MAC_SIZE)
         t1 = t_read() - t1;
         if (t1 < t2) t2 = t1;
    }
-   fprintf(stderr, "GCM (precomp)\t%9llu\n", t2/(ulong64)(MAC_SIZE*1024));
+   fprintf(stderr, "GCM (precomp)\t\t%9llu\n", t2/(ulong64)(MAC_SIZE*1024));
    }
 
 #endif

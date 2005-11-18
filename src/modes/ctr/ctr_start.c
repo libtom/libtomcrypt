@@ -59,8 +59,7 @@ int ctr_start(               int   cipher,
    for (x = 0; x < ctr->blocklen; x++) {
        ctr->ctr[x] = IV[x];
    }
-   cipher_descriptor[ctr->cipher].ecb_encrypt(ctr->ctr, ctr->pad, &ctr->key);
-   return CRYPT_OK;
+   return cipher_descriptor[ctr->cipher].ecb_encrypt(ctr->ctr, ctr->pad, &ctr->key);
 }
 
 #endif

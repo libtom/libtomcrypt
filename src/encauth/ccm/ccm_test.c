@@ -116,6 +116,7 @@ int ccm_test(void)
   unsigned long taglen, x;
   unsigned char buf[64], buf2[64], tag2[16], tag[16];
   int           err, idx;
+  symmetric_key skey;
 
   idx = find_cipher("aes");
   if (idx == -1) {
@@ -127,8 +128,13 @@ int ccm_test(void)
 
   for (x = 0; x < (sizeof(tests)/sizeof(tests[0])); x++) {
       taglen = tests[x].taglen;
+      if ((err = cipher_descriptor[idx].setup(tests[x].key, 16, 0, &skey)) != CRYPT_OK) {
+         return err;
+      }
+      
       if ((err = ccm_memory(idx,
                             tests[x].key, 16,
+                            &skey,
                             tests[x].nonce, tests[x].noncelen,
                             tests[x].header, tests[x].headerlen,
                             (unsigned char*)tests[x].pt, tests[x].ptlen,
@@ -146,6 +152,7 @@ int ccm_test(void)
 
       if ((err = ccm_memory(idx,
                             tests[x].key, 16,
+                            NULL,
                             tests[x].nonce, tests[x].noncelen,
                             tests[x].header, tests[x].headerlen,
                             buf2, tests[x].ptlen,
@@ -154,14 +161,13 @@ int ccm_test(void)
          return err;
       }
 
-     if (memcmp(buf2, tests[x].pt, tests[x].ptlen)) {
+      if (memcmp(buf2, tests[x].pt, tests[x].ptlen)) {
          return CRYPT_FAIL_TESTVECTOR;
       }
-     if (memcmp(tag2, tests[x].tag, tests[x].taglen)) {
+      if (memcmp(tag2, tests[x].tag, tests[x].taglen)) {
          return CRYPT_FAIL_TESTVECTOR;
-     }
- 
-
+      }
+      cipher_descriptor[idx].done(&skey);
   }
   return CRYPT_OK;
 #endif

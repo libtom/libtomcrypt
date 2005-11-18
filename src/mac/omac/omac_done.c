@@ -61,7 +61,9 @@ int omac_done(omac_state *omac, unsigned char *out, unsigned long *outlen)
    }
 
    /* encrypt it */
-   cipher_descriptor[omac->cipher_idx].ecb_encrypt(omac->block, omac->block, &omac->key);
+   if ((err = cipher_descriptor[omac->cipher_idx].ecb_encrypt(omac->block, omac->block, &omac->key)) != CRYPT_OK) {
+      return err;
+   }
    cipher_descriptor[omac->cipher_idx].done(&omac->key);
  
    /* output it */

@@ -10,6 +10,293 @@ int der_tests(void)
 
 #else
 
+/* we are encoding 
+
+  SEQUENCE {
+     PRINTABLE "printable"
+     IA5       "ia5"
+     SEQUENCE {
+        INTEGER 12345678
+        UTCTIME { 91, 5, 6, 16, 45, 40, 1, 7, 0 }
+        SEQUENCE {
+           OCTET STRING { 1, 2, 3, 4 }
+           BIT STRING   { 1, 0, 0, 1 }
+           SEQUENCE {
+              OID       { 1, 2, 840, 113549 }
+              NULL
+           }
+        }
+     }
+  }     
+
+*/  
+
+static void der_flexi_test(void)
+{
+   static const char printable_str[]    = "printable";
+   static const char ia5_str[]          = "ia5";
+   static const unsigned long int_val   = 12345678UL;
+   static const ltc_utctime   utctime   = { 91, 5, 6, 16, 45, 40, 1, 7, 0 };
+   static const unsigned char oct_str[] = { 1, 2, 3, 4 };
+   static const unsigned char bit_str[] = { 1, 0, 0, 1 };
+   static const unsigned long oid_str[] = { 1, 2, 840, 113549 };
+   
+   unsigned char encode_buf[128];
+   unsigned long encode_buf_len, decode_len;
+   int           err;
+   
+   ltc_asn1_list static_list[4][3], *decoded_list, *l;
+   
+   /* build list */
+   LTC_SET_ASN1(static_list[0], 0, LTC_ASN1_PRINTABLE_STRING, (void *)printable_str, strlen(printable_str));
+   LTC_SET_ASN1(static_list[0], 1, LTC_ASN1_IA5_STRING,       (void *)ia5_str,       strlen(ia5_str));
+   LTC_SET_ASN1(static_list[0], 2, LTC_ASN1_SEQUENCE,         static_list[1],   3);
+   
+   LTC_SET_ASN1(static_list[1], 0, LTC_ASN1_SHORT_INTEGER,    (void *)&int_val,         1);
+   LTC_SET_ASN1(static_list[1], 1, LTC_ASN1_UTCTIME,          (void *)&utctime,         1);
+   LTC_SET_ASN1(static_list[1], 2, LTC_ASN1_SEQUENCE,         static_list[2],   3);
+
+   LTC_SET_ASN1(static_list[2], 0, LTC_ASN1_OCTET_STRING,     (void *)oct_str,          4);
+   LTC_SET_ASN1(static_list[2], 1, LTC_ASN1_BIT_STRING,       (void *)bit_str,          4);
+   LTC_SET_ASN1(static_list[2], 2, LTC_ASN1_SEQUENCE,         static_list[3],   2);
+
+   LTC_SET_ASN1(static_list[3], 0, LTC_ASN1_OBJECT_IDENTIFIER,(void *)oid_str,          4);
+   LTC_SET_ASN1(static_list[3], 1, LTC_ASN1_NULL,             NULL,             0);
+   
+   /* encode it */
+   encode_buf_len = sizeof(encode_buf);
+   if ((err = der_encode_sequence(&static_list[0][0], 3, encode_buf, &encode_buf_len)) != CRYPT_OK) {
+      fprintf(stderr, "Encoding static_list: %s\n", error_to_string(err));
+      exit(EXIT_FAILURE);
+   }
+   
+#if 0
+   {
+     FILE *f;
+     f = fopen("t.bin", "wb");
+     fwrite(encode_buf, 1, encode_buf_len, f);
+     fclose(f);
+   } 
+#endif    
+   
+   /* decode with flexi */
+   decode_len = encode_buf_len;
+   if ((err = der_decode_sequence_flexi(encode_buf, &decode_len, &decoded_list)) != CRYPT_OK) {
+      fprintf(stderr, "decoding static_list: %s\n", error_to_string(err));
+      exit(EXIT_FAILURE);
+   }
+   
+   if (decode_len != encode_buf_len) {
+      fprintf(stderr, "Decode len of %lu does not match encode len of %lu \n", decode_len, encode_buf_len);
+      exit(EXIT_FAILURE);
+   }
+   
+   /* we expect l->next to be NULL and l->child to not be */
+   l = decoded_list;
+   if (l->next != NULL || l->child == NULL) {
+      fprintf(stderr, "(%d), %d, %lu, next=%p, prev=%p, parent=%p, child=%p\n", __LINE__, l->type, l->size, l->next, l->prev, l->parent, l->child);
+      exit(EXIT_FAILURE);
+   }
+   
+   /* we expect a SEQUENCE */
+      if (l->type != LTC_ASN1_SEQUENCE) {
+         fprintf(stderr, "(%d), %d, %lu, next=%p, prev=%p, parent=%p, child=%p\n", __LINE__, l->type, l->size, l->next, l->prev, l->parent, l->child);
+         exit(EXIT_FAILURE);
+      }
+      l = l->child;
+         
+   /* PRINTABLE STRING */
+      /* we expect printable_str */
+      if (l->next == NULL || l->child != NULL) {
+         fprintf(stderr, "(%d), %d, %lu, next=%p, prev=%p, parent=%p, child=%p\n", __LINE__, l->type, l->size, l->next, l->prev, l->parent, l->child);
+         exit(EXIT_FAILURE);
+      }
+   
+      if (l->type != LTC_ASN1_PRINTABLE_STRING) {
+         fprintf(stderr, "(%d), %d, %lu, next=%p, prev=%p, parent=%p, child=%p\n", __LINE__, l->type, l->size, l->next, l->prev, l->parent, l->child);
+         exit(EXIT_FAILURE);
+      }
+   
+      if (l->size != strlen(printable_str) || memcmp(printable_str, l->data, l->size)) {
+         fprintf(stderr, "(%d), %d, %lu, next=%p, prev=%p, parent=%p, child=%p\n", __LINE__, l->type, l->size, l->next, l->prev, l->parent, l->child);
+         exit(EXIT_FAILURE);
+      }
+   
+      /* move to next */
+      l = l->next;
+      
+   /* IA5 STRING */      
+      /* we expect ia5_str */
+      if (l->next == NULL || l->child != NULL) {
+         fprintf(stderr, "(%d), %d, %lu, next=%p, prev=%p, parent=%p, child=%p\n", __LINE__, l->type, l->size, l->next, l->prev, l->parent, l->child);
+         exit(EXIT_FAILURE);
+      }
+      
+      if (l->type != LTC_ASN1_IA5_STRING) {
+         fprintf(stderr, "(%d), %d, %lu, next=%p, prev=%p, parent=%p, child=%p\n", __LINE__, l->type, l->size, l->next, l->prev, l->parent, l->child);
+         exit(EXIT_FAILURE);
+      }
+   
+      if (l->size != strlen(ia5_str) || memcmp(ia5_str, l->data, l->size)) {
+         fprintf(stderr, "(%d), %d, %lu, next=%p, prev=%p, parent=%p, child=%p\n", __LINE__, l->type, l->size, l->next, l->prev, l->parent, l->child);
+         exit(EXIT_FAILURE);
+      }
+   
+      /* move to next */
+      l = l->next;
+   
+   /* expect child anve move down */
+      
+      if (l->next != NULL || l->child == NULL) {
+         fprintf(stderr, "(%d), %d, %lu, next=%p, prev=%p, parent=%p, child=%p\n", __LINE__, l->type, l->size, l->next, l->prev, l->parent, l->child);
+         exit(EXIT_FAILURE);
+      }
+      
+      if (l->type != LTC_ASN1_SEQUENCE) {
+         fprintf(stderr, "(%d), %d, %lu, next=%p, prev=%p, parent=%p, child=%p\n", __LINE__, l->type, l->size, l->next, l->prev, l->parent, l->child);
+         exit(EXIT_FAILURE);
+      }
+      l = l->child;
+      
+
+   /* INTEGER */
+   
+      if (l->next == NULL || l->child != NULL) {
+         fprintf(stderr, "(%d), %d, %lu, next=%p, prev=%p, parent=%p, child=%p\n", __LINE__, l->type, l->size, l->next, l->prev, l->parent, l->child);
+         exit(EXIT_FAILURE);
+      }
+      
+      if (l->type != LTC_ASN1_INTEGER) {
+         fprintf(stderr, "(%d), %d, %lu, next=%p, prev=%p, parent=%p, child=%p\n", __LINE__, l->type, l->size, l->next, l->prev, l->parent, l->child);
+         exit(EXIT_FAILURE);
+      }
+   
+      if (mp_cmp_d(l->data, 12345678UL) != LTC_MP_EQ) {
+         fprintf(stderr, "(%d), %d, %lu, next=%p, prev=%p, parent=%p, child=%p\n", __LINE__, l->type, l->size, l->next, l->prev, l->parent, l->child);
+         exit(EXIT_FAILURE);
+      }
+   
+      /* move to next */
+      l = l->next;
+      
+   /* UTCTIME */
+         
+      if (l->next == NULL || l->child != NULL) {
+         fprintf(stderr, "(%d), %d, %lu, next=%p, prev=%p, parent=%p, child=%p\n", __LINE__, l->type, l->size, l->next, l->prev, l->parent, l->child);
+         exit(EXIT_FAILURE);
+      }
+      
+      if (l->type != LTC_ASN1_UTCTIME) {
+         fprintf(stderr, "(%d), %d, %lu, next=%p, prev=%p, parent=%p, child=%p\n", __LINE__, l->type, l->size, l->next, l->prev, l->parent, l->child);
+         exit(EXIT_FAILURE);
+      }
+   
+      if (memcmp(l->data, &utctime, sizeof(utctime))) {
+         fprintf(stderr, "(%d), %d, %lu, next=%p, prev=%p, parent=%p, child=%p\n", __LINE__, l->type, l->size, l->next, l->prev, l->parent, l->child);
+         exit(EXIT_FAILURE);
+      }
+   
+      /* move to next */
+      l = l->next;
+      
+   /* expect child anve move down */
+      
+      if (l->next != NULL || l->child == NULL) {
+         fprintf(stderr, "(%d), %d, %lu, next=%p, prev=%p, parent=%p, child=%p\n", __LINE__, l->type, l->size, l->next, l->prev, l->parent, l->child);
+         exit(EXIT_FAILURE);
+      }
+      
+      if (l->type != LTC_ASN1_SEQUENCE) {
+         fprintf(stderr, "(%d), %d, %lu, next=%p, prev=%p, parent=%p, child=%p\n", __LINE__, l->type, l->size, l->next, l->prev, l->parent, l->child);
+         exit(EXIT_FAILURE);
+      }
+      l = l->child;
+      
+      
+   /* OCTET STRING */      
+      /* we expect oct_str */
+      if (l->next == NULL || l->child != NULL) {
+         fprintf(stderr, "(%d), %d, %lu, next=%p, prev=%p, parent=%p, child=%p\n", __LINE__, l->type, l->size, l->next, l->prev, l->parent, l->child);
+         exit(EXIT_FAILURE);
+      }
+      
+      if (l->type != LTC_ASN1_OCTET_STRING) {
+         fprintf(stderr, "(%d), %d, %lu, next=%p, prev=%p, parent=%p, child=%p\n", __LINE__, l->type, l->size, l->next, l->prev, l->parent, l->child);
+         exit(EXIT_FAILURE);
+      }
+   
+      if (l->size != sizeof(oct_str) || memcmp(oct_str, l->data, l->size)) {
+         fprintf(stderr, "(%d), %d, %lu, next=%p, prev=%p, parent=%p, child=%p\n", __LINE__, l->type, l->size, l->next, l->prev, l->parent, l->child);
+         exit(EXIT_FAILURE);
+      }
+   
+      /* move to next */
+      l = l->next;
+
+   /* BIT STRING */      
+      /* we expect oct_str */
+      if (l->next == NULL || l->child != NULL) {
+         fprintf(stderr, "(%d), %d, %lu, next=%p, prev=%p, parent=%p, child=%p\n", __LINE__, l->type, l->size, l->next, l->prev, l->parent, l->child);
+         exit(EXIT_FAILURE);
+      }
+      
+      if (l->type != LTC_ASN1_BIT_STRING) {
+         fprintf(stderr, "(%d), %d, %lu, next=%p, prev=%p, parent=%p, child=%p\n", __LINE__, l->type, l->size, l->next, l->prev, l->parent, l->child);
+         exit(EXIT_FAILURE);
+      }
+   
+      if (l->size != sizeof(bit_str) || memcmp(bit_str, l->data, l->size)) {
+         fprintf(stderr, "(%d), %d, %lu, next=%p, prev=%p, parent=%p, child=%p\n", __LINE__, l->type, l->size, l->next, l->prev, l->parent, l->child);
+         exit(EXIT_FAILURE);
+      }
+   
+      /* move to next */
+      l = l->next;
+
+   /* expect child anve move down */
+      
+      if (l->next != NULL || l->child == NULL) {
+         fprintf(stderr, "(%d), %d, %lu, next=%p, prev=%p, parent=%p, child=%p\n", __LINE__, l->type, l->size, l->next, l->prev, l->parent, l->child);
+         exit(EXIT_FAILURE);
+      }
+      
+      if (l->type != LTC_ASN1_SEQUENCE) {
+         fprintf(stderr, "(%d), %d, %lu, next=%p, prev=%p, parent=%p, child=%p\n", __LINE__, l->type, l->size, l->next, l->prev, l->parent, l->child);
+         exit(EXIT_FAILURE);
+      }
+      l = l->child;
+
+
+   /* OID STRING */      
+      /* we expect oid_str */
+      if (l->next == NULL || l->child != NULL) {
+         fprintf(stderr, "(%d), %d, %lu, next=%p, prev=%p, parent=%p, child=%p\n", __LINE__, l->type, l->size, l->next, l->prev, l->parent, l->child);
+         exit(EXIT_FAILURE);
+      }
+      
+      if (l->type != LTC_ASN1_OBJECT_IDENTIFIER) {
+         fprintf(stderr, "(%d), %d, %lu, next=%p, prev=%p, parent=%p, child=%p\n", __LINE__, l->type, l->size, l->next, l->prev, l->parent, l->child);
+         exit(EXIT_FAILURE);
+      }
+   
+      if (l->size != sizeof(oid_str)/sizeof(oid_str[0]) || memcmp(oid_str, l->data, l->size*sizeof(oid_str[0]))) {
+         fprintf(stderr, "(%d), %d, %lu, next=%p, prev=%p, parent=%p, child=%p\n", __LINE__, l->type, l->size, l->next, l->prev, l->parent, l->child);
+         exit(EXIT_FAILURE);
+      }
+   
+      /* move to next */
+      l = l->next;
+      
+   /* NULL */
+      if (l->type != LTC_ASN1_NULL) {
+         fprintf(stderr, "(%d), %d, %lu, next=%p, prev=%p, parent=%p, child=%p\n", __LINE__, l->type, l->size, l->next, l->prev, l->parent, l->child);
+         exit(EXIT_FAILURE);
+      }
+
+   der_sequence_free(l);
+
+}
+
 static int der_choice_test(void)
 {
    ltc_asn1_list types[7], host[1];
@@ -91,6 +378,8 @@ int der_tests(void)
 
    static const unsigned char rsa_time1_der[] = { 0x17, 0x11, 0x39, 0x31, 0x30, 0x35, 0x30, 0x36, 0x31, 0x36, 0x34, 0x35, 0x34, 0x30, 0x2D, 0x30, 0x37, 0x30, 0x30 };
    static const unsigned char rsa_time2_der[] = { 0x17, 0x0d, 0x39, 0x31, 0x30, 0x35, 0x30, 0x36, 0x32, 0x33, 0x34, 0x35, 0x34, 0x30, 0x5a };
+
+   der_flexi_test();
 
    DO(mp_init_multi(&a, &b, &c, &d, &e, &f, &g, NULL));
    for (zz = 0; zz < 16; zz++) {

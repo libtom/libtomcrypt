@@ -59,11 +59,13 @@ int cbc_decrypt(const unsigned char *ct, unsigned char *pt, unsigned long len, s
 #endif
    
    if (cipher_descriptor[cbc->cipher].accel_cbc_decrypt != NULL) {
-      cipher_descriptor[cbc->cipher].accel_cbc_decrypt(ct, pt, len / cbc->blocklen, cbc->IV, &cbc->key);
+      return cipher_descriptor[cbc->cipher].accel_cbc_decrypt(ct, pt, len / cbc->blocklen, cbc->IV, &cbc->key);
    } else {
       while (len) {
          /* decrypt */
-         cipher_descriptor[cbc->cipher].ecb_decrypt(ct, tmp, &cbc->key);
+         if ((err = cipher_descriptor[cbc->cipher].ecb_decrypt(ct, tmp, &cbc->key)) != CRYPT_OK) {
+            return err;
+         }
 
          /* xor IV against plaintext */
          #if defined(LTC_FAST)

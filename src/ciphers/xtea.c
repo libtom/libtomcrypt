@@ -71,8 +71,9 @@ int xtea_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_k
   @param pt The input plaintext (8 bytes)
   @param ct The output ciphertext (8 bytes)
   @param skey The key as scheduled
+  @return CRYPT_OK if successful
 */
-void xtea_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
+int xtea_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
 {
    unsigned long y, z;
    int r;
@@ -98,6 +99,7 @@ void xtea_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key 
    }
    STORE32L(y, &ct[0]);
    STORE32L(z, &ct[4]);
+   return CRYPT_OK;
 }
 
 /**
@@ -105,8 +107,9 @@ void xtea_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key 
   @param ct The input ciphertext (8 bytes)
   @param pt The output plaintext (8 bytes)
   @param skey The key as scheduled 
+  @return CRYPT_OK if successful
 */
-void xtea_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey)
+int xtea_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey)
 {
    unsigned long y, z;
    int r;
@@ -132,6 +135,7 @@ void xtea_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key 
    }
    STORE32L(y, &pt[0]);
    STORE32L(z, &pt[4]);
+   return CRYPT_OK;
 }
 
 /**

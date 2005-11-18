@@ -35,6 +35,7 @@ int rsa_import(const unsigned char *in, unsigned long inlen, rsa_key *key)
 
    LTC_ARGCHK(in  != NULL);
    LTC_ARGCHK(key != NULL);
+   LTC_ARGCHK(ltc_mp.name != NULL);
 
    /* init key */
    if ((err = mp_init_multi(&zero, &key->e, &key->d, &key->N, &key->dQ, 

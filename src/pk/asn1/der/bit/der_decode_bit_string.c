@@ -51,7 +51,7 @@ int der_decode_bit_string(const unsigned char *in,  unsigned long inlen,
    /* get the length of the data */
    if (in[x] & 0x80) {
       /* long format get number of length bytes */
-      y = in[x++] & 127;
+      y = in[x++] & 0x7F;
 
       /* invalid if 0 or > 2 */
       if (y == 0 || y > 2) {
@@ -65,7 +65,7 @@ int der_decode_bit_string(const unsigned char *in,  unsigned long inlen,
       }
    } else {
       /* short format */
-      dlen = in[x++] & 127;
+      dlen = in[x++] & 0x7F;
    }
   
    /* is the data len too long or too short? */

@@ -33,6 +33,7 @@ int dsa_make_key(prng_state *prng, int wprng, int group_size, int modulus_size, 
    unsigned char *buf;
 
    LTC_ARGCHK(key  != NULL);
+   LTC_ARGCHK(ltc_mp.name != NULL);
 
    /* check prng */
    if ((err = prng_is_valid(wprng)) != CRYPT_OK) {

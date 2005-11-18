@@ -29,7 +29,7 @@ int ecc_tests (void)
 	
   DO(ecc_test ());
 
-  for (s = 0; s < (int)(sizeof(sizes)/sizeof(sizes[0])); s++) {
+  for (s = 0; s < (sizeof(sizes)/sizeof(sizes[0])); s++) {
      /* make up two keys */
      DO(ecc_make_key (&yarrow_prng, find_prng ("yarrow"), sizes[s], &usera));
      DO(ecc_make_key (&yarrow_prng, find_prng ("yarrow"), sizes[s], &userb));

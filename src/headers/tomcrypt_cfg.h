@@ -54,6 +54,14 @@ int   XMEMCMP(const void *s1, const void *s2, size_t n);
    #define LTC_FAST_TYPE    unsigned long
 #endif
 
+/* detect PPC32 */
+#if defined(LTC_PPC32)
+   #define ENDIAN_BIG
+   #define ENDIAN_32BITWORD
+   #define LTC_FAST
+   #define LTC_FAST_TYPE    unsigned long
+#endif   
+
 /* detect sparc and sparc64 */
 #if defined(__sparc__)
   #define ENDIAN_BIG

@@ -385,11 +385,12 @@ int blowfish_setup(const unsigned char *key, int keylen, int num_rounds,
   @param pt The input plaintext (8 bytes)
   @param ct The output ciphertext (8 bytes)
   @param skey The key as scheduled
+  @return CRYPT_OK if successful
 */
 #ifdef LTC_CLEAN_STACK
-static void _blowfish_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
+static int _blowfish_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
 #else
-void blowfish_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
+int blowfish_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
 #endif
 {
    ulong32 L, R;
@@ -428,13 +429,16 @@ void blowfish_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_
    /* store */
    STORE32H(R, &ct[0]);
    STORE32H(L, &ct[4]);
+
+   return CRYPT_OK;
 }
 
 #ifdef LTC_CLEAN_STACK
-void blowfish_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
+int blowfish_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
 {
-    _blowfish_ecb_encrypt(pt, ct, skey);
+    int err = _blowfish_ecb_encrypt(pt, ct, skey);
     burn_stack(sizeof(ulong32) * 2 + sizeof(int));
+    return err;
 }
 #endif
 
@@ -443,11 +447,12 @@ void blowfish_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_
   @param ct The input ciphertext (8 bytes)
   @param pt The output plaintext (8 bytes)
   @param skey The key as scheduled 
+  @return CRYPT_OK if successful
 */
 #ifdef LTC_CLEAN_STACK
-static void _blowfish_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey)
+static int _blowfish_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey)
 #else
-void blowfish_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey)
+int blowfish_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey)
 #endif
 {
    ulong32 L, R;
@@ -486,13 +491,15 @@ void blowfish_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_
    /* store */
    STORE32H(L, &pt[0]);
    STORE32H(R, &pt[4]);
+   return CRYPT_OK;
 }
 
 #ifdef LTC_CLEAN_STACK
-void blowfish_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey)
+int blowfish_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey)
 {
-    _blowfish_ecb_decrypt(ct, pt, skey);
+    int err = _blowfish_ecb_decrypt(ct, pt, skey);
     burn_stack(sizeof(ulong32) * 2 + sizeof(int));
+    return err;
 }
 #endif
 

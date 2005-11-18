@@ -47,7 +47,7 @@
 \def\gap{\vspace{0.5ex}}
 \makeindex
 \begin{document}
-\title{LibTomCrypt \\ Version 1.06}
+\title{LibTomCrypt \\ Version 1.07}
 \author{Tom St Denis \\
 \\
 tomstdenis@gmail.com \\
@@ -236,8 +236,7 @@ int main(void) {
 }
 \end{verbatim}
 
-The header file ``tomcrypt.h'' also includes ``stdio.h'', ``string.h'', ``stdlib.h'', ``time.h'', ``ctype.h'' and 
-``ltc\_tommath.h'' (the bignum library routines).
+The header file ``tomcrypt.h'' also includes ``stdio.h'', ``string.h'', ``stdlib.h'', ``time.h'' and ``ctype.h''.
 
 \section{Macros}
 
@@ -363,16 +362,17 @@ done with a key you can simply discard it (e.g. they can be on the stack).
 To encrypt or decrypt a block in ECB mode there are these two function classes
 \index{Cipher Encrypt} \index{Cipher Decrypt}
 \begin{verbatim}
-void XXX_ecb_encrypt(const unsigned char *pt, unsigned char *ct,
+int XXX_ecb_encrypt(const unsigned char *pt, unsigned char *ct,
                      symmetric_key *skey);
 
-void XXX_ecb_decrypt(const unsigned char *ct, unsigned char *pt,
+int XXX_ecb_decrypt(const unsigned char *ct, unsigned char *pt,
                      symmetric_key *skey);
 \end{verbatim}
 These two functions will encrypt or decrypt (respectively) a single block of text\footnote{The size of which depends on
 which cipher you are using.} and store the result where you want it.  It is possible that the input and output buffer are 
 the same buffer.  For the encrypt function ``pt''\footnote{pt stands for plaintext.} is the input and 
-``ct''\footnote{ct stands for ciphertext.} is the output.  For the decryption function it's the opposite.  To test a particular 
+``ct''\footnote{ct stands for ciphertext.} is the output.  For the decryption function it's the opposite.  They both
+return \textbf{CRYPT\_OK} on success.  To test a particular 
 cipher against test vectors\footnote{As published in their design papers.} call the self-test function
  
 \subsection{Self--Testing}
@@ -496,39 +496,47 @@ struct _cipher_descriptor {
         block_length, 
         default_rounds;
    int  (*setup)(const unsigned char *key, int keylen, int num_rounds, symmetric_key *skey);
-   void (*ecb_encrypt)(const unsigned char *pt, unsigned char *ct, symmetric_key *skey);
-   void (*ecb_decrypt)(const unsigned char *ct, unsigned char *pt, symmetric_key *skey);
-   int (*test)(void);
+   int  (*ecb_encrypt)(const unsigned char *pt, unsigned char *ct, symmetric_key *skey);
+   int  (*ecb_decrypt)(const unsigned char *ct, unsigned char *pt, symmetric_key *skey);
+   int  (*test)(void);
    void (*done)(symmetric_key *skey);      
    int  (*keysize)(int *keysize);
 
-   void (*accel_ecb_encrypt)(const unsigned char *pt, 
+   int (*accel_ecb_encrypt)(const unsigned char *pt, 
                                    unsigned char *ct, 
                                    unsigned long blocks, symmetric_key *skey);
-   void (*accel_ecb_decrypt)(const unsigned char *ct, 
+   int (*accel_ecb_decrypt)(const unsigned char *ct, 
                                    unsigned char *pt, 
                                    unsigned long blocks, symmetric_key *skey);
-   void (*accel_cbc_encrypt)(const unsigned char *pt, 
+   int (*accel_cbc_encrypt)(const unsigned char *pt, 
                                    unsigned char *ct, 
                                    unsigned long blocks, unsigned char *IV, 
                                    symmetric_key *skey);
-   void (*accel_cbc_decrypt)(const unsigned char *ct, 
+   int (*accel_cbc_decrypt)(const unsigned char *ct, 
                                    unsigned char *pt, 
                                    unsigned long blocks, unsigned char *IV, 
                                    symmetric_key *skey);
-   void (*accel_ctr_encrypt)(const unsigned char *pt, 
+   int (*accel_ctr_encrypt)(const unsigned char *pt, 
                                    unsigned char *ct, 
                                    unsigned long blocks, unsigned char *IV, 
                                    int mode, symmetric_key *skey);
-   void (*accel_ccm_memory)(
+   int (*accel_ccm_memory)(
        const unsigned char *key,    unsigned long keylen,
+       symmetric_key       *uskey,
        const unsigned char *nonce,  unsigned long noncelen,
        const unsigned char *header, unsigned long headerlen,
              unsigned char *pt,     unsigned long ptlen,
              unsigned char *ct,
              unsigned char *tag,    unsigned long *taglen,
                        int  direction);
-
+   int (*accel_gcm_memory)(
+       const unsigned char *key,    unsigned long keylen,
+       const unsigned char *IV,     unsigned long IVlen,
+       const unsigned char *adata,  unsigned long adatalen,
+             unsigned char *pt,     unsigned long ptlen,
+             unsigned char *ct,
+             unsigned char *tag,    unsigned long *taglen,
+                       int direction);
 };
 \end{verbatim}
 \end{small}
@@ -1200,6 +1208,7 @@ function that performs the protocol.
 \begin{verbatim}
 int ccm_memory(int cipher,
     const unsigned char *key,    unsigned long keylen,
+    symmetric_key       *uskey,
     const unsigned char *nonce,  unsigned long noncelen,
     const unsigned char *header, unsigned long headerlen,
           unsigned char *pt,     unsigned long ptlen,
@@ -1209,9 +1218,15 @@ int ccm_memory(int cipher,
 \end{verbatim}
 
 This performs the ``CCM'' operation on the data.  The ``cipher'' variable indicates which cipher in the descriptor table to use.  It must have a 
-16--byte block size for CCM.  The key is ``key'' with a length of ``keylen'' octets.  The nonce or salt is ``nonce'' of
-length ``noncelen'' octets.  The header is meta--data you want to send with the message but not have encrypted, it is stored in ``header''
-of length ``headerlen'' octets.  The header can be zero octets long (if $headerlen = 0$ then you can pass ``header'' as \textbf{NULL}).  
+16--byte block size for CCM.  
+
+The key can be specified in one of two fashions.  First it can be passed as an array of octets in ``key'' of length ``keylen''.  Alternatively,
+it can be passed in as a previously scheduled key in ``uskey''.  The latter fashion saves time when the same key is used for multiple packets.  If
+``uskey'' is not \textbf{NULL} then ``key'' may be \textbf{NULL} (and vice-versa). 
+
+The nonce or salt is ``nonce'' of length ``noncelen'' octets.  The header is meta--data you want to send with the message but not have 
+encrypted, it is stored in ``header'' of length ``headerlen'' octets.  The header can be zero octets long (if $headerlen = 0$ then 
+you can pass ``header'' as \textbf{NULL}).  
 
 The plaintext is stored in ``pt'' and the ciphertext in ``ct''.  The length of both are expected to be equal and is passed in as ``ptlen''.  It is
 allowable that $pt = ct$.  The ``direction'' variable indicates whether encryption (direction $=$ \textbf{CCM\_ENCRYPT}) or 
@@ -2902,28 +2917,39 @@ int ecc_shared_secret(ecc_key *private_key,
 The ``private\_key'' is your own key and ``public\_key'' is the key the other user sent you.   Note that this function stores only the 
 $x$ co-ordinate of the shared elliptic point as described in ANSI X9.63 ECC--DH.  
 
-\section{ECC Packet}
+\section{ECC Diffie-Hellman Encryption}
 Similar to the RSA API there are two functions which encrypt and decrypt symmetric keys using the ECC public key
 algorithms.
 
-\index{ecc\_encrypt\_key()} \index{ecc\_decrypt\_key()}
+\index{ecc\_encrypt\_key()}
 \begin{verbatim}
 int ecc_encrypt_key(const unsigned char *in,   unsigned long  inlen,
                           unsigned char *out,  unsigned long *outlen, 
                           prng_state *prng, int wprng, int hash, 
                           ecc_key *key);
+\end{verbatim}
 
+Where ``in'' is an input symmetric key of no more than 64 bytes.  This function creates a random public key
+and computes the hash of the shared secret.  The message digest is then XOR'ed against the symmetric key.  All of the required
+data is placed in ``out'' by ``ecc\_encrypt\_key()''.   The hash chosen must produce a message digest at least as large
+as the symmetric key you are trying to share.
+
+The data is encrypted to the public ECC ``key'' such that only the holder of the private key can decrypt the payload.  If you want
+to have multiple recipients you will have to call this function for each public ECC key you want to encrypt to.
+
+
+\index{ecc\_decrypt\_key()}
+\begin{verbatim}
 int ecc_decrypt_key(const unsigned char *in,  unsigned long  inlen,
                           unsigned char *out, unsigned long *outlen, 
                           ecc_key *key);
 \end{verbatim}
 
-Where ``in'' is an input symmetric key of no more than 64 bytes.  Essentially these routines created a random public key
-and find the hash of the shared secret.  The message digest is than XOR'ed against the symmetric key.  All of the required
-data is placed in ``out'' by ``ecc\_encrypt\_key()''.   The hash chosen must produce a message digest at least as large
-as the symmetric key you are trying to share.
+This function will decrypt an encrypted payload.  The ``key'' provided must be the private key corresponding to the public key
+used during encryption.  If the wrong key is provided the function won't specifically return an error code.  It is important
+to use some form of challenge response in that case (e.g. compute a MAC of a known string).
 
-\subsection{Encrypt Packet Format}
+\subsection{Encrypt Encryption Format}
 
 The packet format for the encrypted keys is the following ASN.1 SEQUENCE:
 
@@ -2935,30 +2961,40 @@ ECCEncrypt ::= SEQUENCE {
 }
 \end{verbatim}
 
+\section{ECC DSA Signatures}
+
 There are also functions to sign and verify the hash of a message.
-\index{ecc\_sign\_hash()} \index{ecc\_verify\_hash()}
+\index{ecc\_sign\_hash()}
 \begin{verbatim}
 int ecc_sign_hash(const unsigned char *in,  unsigned long inlen,
                         unsigned char *out, unsigned long *outlen,
                         prng_state *prng, int wprng, ecc_key *key);
+\end{verbatim}
 
+This function will EC--DSA sign the message digest stored in the buffer ``in'' of length inlen octets.  The signature
+will be stored in the ``out'' buffer of length ``outlen''.  The function requires a properly seeded PRNG and 
+the ECC ``key'' provided must be a private key.
+
+\index{ecc\_verify\_hash()}
+\begin{verbatim}
 int ecc_verify_hash(const unsigned char *sig, unsigned long siglen,
                     const unsigned char *hash, unsigned long hashlen, 
                           int *stat, ecc_key *key);
 \end{verbatim}
 
-The ``ecc\_sign\_hash'' function signs the message hash in ``in'' of length ``inlen'' and forms a ECC packet in ``out''.  
-The ``ecc\_verify\_hash'' function verifies the ECC signature in ``sig'' against the hash in ``hash''.  It sets ``stat''
-to non-zero if the signature passes or zero if it fails.
+This function will verify the EC-DSA signature in ``sig'' of length ``siglen'' against the message digest ``hash''.  
+It will store a non--zero value in ``stat'' if the signature is valid.  Note that the function will not return
+an error if the signature is invalid.  It will if the actual signature payload is an invalid format.  They ECC ``key''
+must be the public (or private) ECC key corresponding to the key that performed the signature.
 
 \subsection{Signature Format}
-The signature code is an implementation of X9.62 EC-DSA and the output is comformant for GF(p) curves.
+The signature code is an implementation of X9.62 EC--DSA and the output is comformant for GF(p) curves.
 
 \section{ECC Keysizes}
 With ECC if you try and sign a hash that is bigger than your ECC key you can run into problems.  The math will still work
 and in effect the signature will still work.  With ECC keys the strength of the signature is limited by the size of
 the hash or the size of they key, whichever is smaller.  For example, if you sign with SHA256 and an ECC-192 key in effect
-you have 192-bits of security.  
+you have 96-bits of security.  
 
 The library will not warn you if you make this mistake so it is important to check yourself before using the 
 signatures.
@@ -3077,6 +3113,7 @@ This will test ``key'' and store the result in ``stat''.  If the result is $stat
 and should not be used at all.  If the result is $stat = 1$ the DSA key is valid (as far as valid mathematics are concerned).
 
 \section{Signatures}
+\subsection{Signature Generation}
 To generate a DSA signature call the following function
 
 \index{dsa\_sign\_hash()}
@@ -3090,6 +3127,7 @@ Which will sign the data in ``in'' of length ``inlen'' bytes.  The signature is 
 of the signature in ``outlen''.  If the signature is longer than the size you initially specify in ``outlen'' nothing
 is stored and the function returns an error code.  The DSA ``key'' must be of the \textbf{PK\_PRIVATE} persuasion.
 
+\subsection{Signature Verification}
 To verify a hash created with that function use the following function
 
 \index{dsa\_verify\_hash()} 
@@ -3100,6 +3138,35 @@ int dsa_verify_hash(const unsigned char *sig, unsigned long siglen,
 \end{verbatim}
 Which will verify the data in ``hash'' of length ``inlen'' against the signature stored in ``sig'' of length ``siglen''.  
 It will set ``stat'' to $1$ if the signature is valid, otherwise it sets ``stat'' to $0$.  
+
+\section{DSA Encrypt and Decrypt}
+As of version 1.07 the DSA keys can be used to encrypt and decrypt small payloads.  It works similar to the ECC encryption where
+a shared key is computed and the hash of the shared key xor'ed against the plaintext forms the ciphertext.
+
+\subsection{DSA Encryption}
+This function will encrypt a small payload with a recipients public DSA key.
+
+\index{dsa\_encrypt\_key()}
+\begin{verbatim}
+int dsa_encrypt_key(const unsigned char *in,   unsigned long inlen,
+                          unsigned char *out,  unsigned long *outlen, 
+                          prng_state *prng, int wprng, int hash, 
+                          dsa_key *key);
+\end{verbatim}
+
+This will encrypt the payload in ``in'' of length ``inlen'' and store the ciphertext in the output buffer ``out''.  The
+length of the ciphertext ``outlen'' must be originally set to the length of the output buffer.  The DSA ``key'' can be 
+a public key.
+
+\subsection{DSA Decryption}
+
+\index{dsa\_decrypt\_key()}
+\begin{verbatim}                      
+int dsa_decrypt_key(const unsigned char *in,  unsigned long  inlen,
+                          unsigned char *out, unsigned long *outlen, 
+                          dsa_key *key);
+\end{verbatim}
+This will decrypt the ciphertext ``in'' of length ``inlen'' and store the original payload in ``out'' of length ``outlen''.  The DSA ``key'' must be a private key.
 
 \section{Import and Export}
 
@@ -3137,13 +3204,16 @@ in the same manner as the other data types except they use list of objects known
 \index{ltc\_asn1\_list structure}
 \begin{verbatim}
 typedef struct {
-   int           type;
-   void         *data;
-   unsigned long size;
-   int           used;
+   int                    type;
+   void                  *data;
+   unsigned long          size;
+   int                    used;
+   struct ltc_asn1_list_ *prev,  *next, 
+                         *child, *parent;
 } ltc_asn1_list;
 \end{verbatim}
 
+\index{LTC\_SET\_ASN1 macro}
 The ``type'' field is one of the following ASN.1 field definitions.  The ``data'' pointer is a void pointer to the data to be encoded (or the destination) and the 
 ``size'' field is specific to what you are encoding (e.g. number of bits in the BIT STRING data type).  The ``used'' field is primarily for the CHOICE decoder
 and reflects if the particular member of a list was the decoded data type.  To help build the lists in an orderly fashion the macro
@@ -3468,6 +3538,45 @@ This will decode the input in the ``in'' field of length ``inlen''.  It uses the
 The ``inlen'' field will be updated with the length of the decoded data type as well as the respective entry in the ``list'' field will have the ``used'' flag 
 set to non--zero to reflect it was the data type decoded.
 
+\subsection{ASN.1 Flexi Decoder}
+The ASN.1 ``flexi'' decoder allows the developer to decode arbitrary ASN.1 DER packets (provided they use data types LibTomCrypt supports) without first knowing
+the structure of the data.  Where der\_decode\_sequence() requires the developer to specify the data types to decode in advance the flexi decoder is entirely
+free form.
+
+The flexi decoder uses the same ``ltc\_asn1\_list'' but instead of being stored in an array it uses the linked list pointers ``prev'', ``next'', ``parent'' 
+and ``child''.  The list works as a ``doubly-linked list'' structure where decoded items at the same level are sibblings (using next and prev) and items
+encoded in a SEQUENCE are stored as a child element.
+
+When a SEQUENCE has been encountered a SEQUENCE item is added as a sibbling (e.g. list.type == LTC\_ASN1\_SEQUENCE) and the child pointer points to a new list
+of items contained within the sequence\footnote{The same will be true for the SET data type when I eventually support it.}.
+
+\index{der\_decode\_sequence\_flexi()}
+\begin{verbatim}
+int  der_decode_sequence_flexi(const unsigned char *in, unsigned long *inlen, 
+                                     ltc_asn1_list **out);
+\end{verbatim}
+
+This will decode items in the ``in'' buffer of max input length ``inlen'' and store the newly created pointer to the list in ``out''.  This function allocates
+all required memory for the decoding.  It stores the number of octets read back into ``inlen''.
+
+The function will terminate when either it hits an invalid ASN.1 type octet or it reads ``inlen'' octets.  An early terminate is a soft error and returns
+normally.  The decoded list ``out'' will point to the very first element of the list (e.g. both parent and prev pointers will be \textbf{NULL}).  
+
+An invalid decoding will terminate the process and free the allocated memory automatically.  
+
+\textbf{Note} that the list decoded by this function is \textbf{NOT} in the correct form for der\_encode\_sequence() to use directly.  You will have to first 
+have to convert the list by first storing all of the sibblings in an array then storing all the children as sub-lists of a sequence using the ``.data'' 
+pointer.  Currently no function in LibTomCrypt provides this ability.
+
+To free the list use the following function.
+
+\index{der\_sequence\_free()}
+\begin{verbatim}
+void der_sequence_free(ltc_asn1_list *in);
+\end{verbatim}
+
+This will free all of the memory allocated by der\_decode\_sequence\_flexi().
+
 \section{Password Based Cryptography}
 \subsection{PKCS \#5}
 \index{PKCS \#5}
@@ -3729,6 +3838,26 @@ libraries.  One for LibTomMath and one for TomsFastMath.
 All GNU driven makefiles (including the makefile for ICC) use a set of common variables to control the build and install process.  Most of the 
 settings can be overwritten from the command line which makes custom installation a breeze.
 
+\index{MAKE}
+\index{CC}
+\index{AR}
+\subsection{MAKE, CC and AR}
+The MAKE, CC and AR flags can all be overwritten.  They default to ``make'', ``\$CC'' and ``\$AR'' respectively.  
+
+Changing MAKE allows you to change what program will be invoked to handle sub--directories.  E.g.
+
+\begin{verbatim}
+MAKE=gmake gmake install
+\end{verbatim}
+
+Will build and install the libraries with the ``gmake'' tool.  Similarly
+
+\begin{verbatim}
+CC=arm-gcc AR=arm-ar make 
+\end{verbatim}
+
+Will build the library using ``arm--gcc'' as the compiler and ``arm--ar'' as the archiver.
+
 \subsection{IGNORE\_SPEED}
 \index{IGNORE\_SPEED}
 When \textbf{IGNORE\_SPEED} has been defined the default optimization flags for CFLAGS will be disabled which allows the developer to specify new
@@ -3758,7 +3887,8 @@ directory which defaults to ``/usr/lib''.  \textbf{INCPATH} is the prefix for th
 All four can be used to create custom install locations depending on the nature of the OS and file system in use.
 
 \begin{verbatim}
-make LIBPATH=/home/tom/project/lib INCPATH=/home/tom/project/include DATAPATH=/home/tom/project/docs install
+make LIBPATH=/home/tom/project/lib INCPATH=/home/tom/project/include \
+     DATAPATH=/home/tom/project/docs install
 \end{verbatim}
 
 This will build the library and install it to the directories under ``/home/tom/project/''.  e.g.
@@ -3848,13 +3978,11 @@ LibTomCrypt can also be built as a shared library through the ``makefile.shared'
 that you \textbf{must} specify the \textbf{EXTRALIBS} variable at install time.  
 
 \begin{verbatim}
-CFLAGS="-DTFM_DESC" EXTRALIBS=-ltfm make -f makefile.shared
+CFLAGS="-DTFM_DESC" EXTRALIBS=-ltfm make -f makefile.shared install
 \end{verbatim}
 
-This will build and install the library and link the shared object against the TomsFastMath library (which must be installed as a shared object as well).
-Note that unlike the static build there is no ``install'' target.  The default action of this make script is to install the library.
-
-The shared build process requires libtool to be installed.
+This will build and install the library and link the shared object against the TomsFastMath library (which must be installed as a shared object as well).  The 
+shared build process requires libtool to be installed.
 
 \section{tomcrypt\_cfg.h}
 The file ``tomcrypt\_cfg.h'' is what lets you control various high level macros which control the behaviour 
@@ -4025,26 +4153,31 @@ struct ltc_cipher_descriptor {
       @param skey        [out] The destination of the scheduled key
       @return CRYPT_OK if successful
    */
-   int  (*setup)(const unsigned char *key, int keylen, 
-                 int num_rounds, symmetric_key *skey);
+   int  (*setup)(const unsigned char *key, int keylen, int num_rounds, symmetric_key *skey);
    /** Encrypt a block
       @param pt      The plaintext
       @param ct      [out] The ciphertext
       @param skey    The scheduled key
+      @return CRYPT_OK if successful
    */
-   void (*ecb_encrypt)(const unsigned char *pt, 
-                             unsigned char *ct, symmetric_key *skey);
+   int (*ecb_encrypt)(const unsigned char *pt, unsigned char *ct, symmetric_key *skey);
    /** Decrypt a block
       @param ct      The ciphertext
       @param pt      [out] The plaintext
       @param skey    The scheduled key
+      @return CRYPT_OK if successful
    */
-   void (*ecb_decrypt)(const unsigned char *ct, 
-                             unsigned char *pt, symmetric_key *skey);
+   int (*ecb_decrypt)(const unsigned char *ct, unsigned char *pt, symmetric_key *skey);
    /** Test the block cipher
        @return CRYPT_OK if successful, CRYPT_NOP if self-testing has been disabled
    */
    int (*test)(void);
+
+   /** Terminate the context 
+      @param skey    The scheduled key
+   */
+   void (*done)(symmetric_key *skey);      
+
    /** Determine a key size
        @param keysize    [in/out] The size of the key desired and the suggested size
        @return CRYPT_OK if successful
@@ -4057,20 +4190,20 @@ struct ltc_cipher_descriptor {
        @param ct      Ciphertext
        @param blocks  The number of complete blocks to process
        @param skey    The scheduled key context
+       @return CRYPT_OK if successful
    */
-   void (*accel_ecb_encrypt)(const unsigned char *pt, 
-                                   unsigned char *ct, unsigned long blocks, 
-                             symmetric_key *skey);
+   int (*accel_ecb_encrypt)(const unsigned char *pt, unsigned char *ct, 
+                                  unsigned long blocks, symmetric_key *skey);
 
    /** Accelerated ECB decryption 
        @param pt      Plaintext
        @param ct      Ciphertext
        @param blocks  The number of complete blocks to process
        @param skey    The scheduled key context
+       @return CRYPT_OK if successful
    */
-   void (*accel_ecb_decrypt)(const unsigned char *ct, 
-                                   unsigned char *pt, unsigned long blocks, 
-                             symmetric_key *skey);
+   int (*accel_ecb_decrypt)(const unsigned char *ct, unsigned char *pt, 
+                                  unsigned long blocks, symmetric_key *skey);
 
    /** Accelerated CBC encryption 
        @param pt      Plaintext
@@ -4078,10 +4211,11 @@ struct ltc_cipher_descriptor {
        @param blocks  The number of complete blocks to process
        @param IV      The initial value (input/output)
        @param skey    The scheduled key context
+       @return CRYPT_OK if successful
    */
-   void (*accel_cbc_encrypt)(const unsigned char *pt, 
-                                   unsigned char *ct, unsigned long blocks, 
-                                   unsigned char *IV, symmetric_key *skey);
+   int (*accel_cbc_encrypt)(const unsigned char *pt,    unsigned char *ct, 
+                                  unsigned long blocks, unsigned char *IV, 
+                                  symmetric_key *skey);
 
    /** Accelerated CBC decryption 
        @param pt      Plaintext
@@ -4089,10 +4223,11 @@ struct ltc_cipher_descriptor {
        @param blocks  The number of complete blocks to process
        @param IV      The initial value (input/output)
        @param skey    The scheduled key context
+       @return CRYPT_OK if successful
    */
-   void (*accel_cbc_decrypt)(const unsigned char *ct, 
-                                   unsigned char *pt, unsigned long blocks, 
-                                   unsigned char *IV, symmetric_key *skey);
+   int (*accel_cbc_decrypt)(const unsigned char *ct,    unsigned char *pt, 
+                                  unsigned long blocks, unsigned char *IV, 
+                                  symmetric_key *skey);
 
    /** Accelerated CTR encryption 
        @param pt      Plaintext
@@ -4101,14 +4236,16 @@ struct ltc_cipher_descriptor {
        @param IV      The initial value (input/output)
        @param mode    little or big endian counter (mode=0 or mode=1)
        @param skey    The scheduled key context
+       @return CRYPT_OK if successful
    */
-   void (*accel_ctr_encrypt)(const unsigned char *pt, 
-                                   unsigned char *ct, unsigned long blocks, 
-                                   unsigned char *IV, int mode, symmetric_key *skey);
+   int (*accel_ctr_encrypt)(const unsigned char *pt,    unsigned char *ct,
+                                  unsigned long blocks, unsigned char *IV, 
+                                  int mode, symmetric_key *skey);
 
    /** Accelerated CCM packet (one-shot)
        @param key        The secret key to use
        @param keylen     The length of the secret key (octets)
+       @param uskey      A previously scheduled key [optional can be NULL]
        @param nonce      The session nonce [use once]
        @param noncelen   The length of the nonce
        @param header     The header for the session
@@ -4121,8 +4258,9 @@ struct ltc_cipher_descriptor {
        @param direction  Encrypt or Decrypt direction (0 or 1)
        @return CRYPT_OK if successful
    */
-   void (*accel_ccm_memory)(
+   int (*accel_ccm_memory)(
        const unsigned char *key,    unsigned long keylen,
+       symmetric_key       *uskey,
        const unsigned char *nonce,  unsigned long noncelen,
        const unsigned char *header, unsigned long headerlen,
              unsigned char *pt,     unsigned long ptlen,
@@ -4143,8 +4281,9 @@ struct ltc_cipher_descriptor {
        @param tag               [out] The MAC tag
        @param taglen            [in/out] The MAC tag length
        @param direction         Encrypt or Decrypt mode (GCM_ENCRYPT or GCM_DECRYPT)
+       @return CRYPT_OK on success
    */
-   void (*accel_gcm_memory)(
+   int (*accel_gcm_memory)(
        const unsigned char *key,    unsigned long keylen,
        const unsigned char *IV,     unsigned long IVlen,
        const unsigned char *adata,  unsigned long adatalen,
@@ -4152,7 +4291,6 @@ struct ltc_cipher_descriptor {
              unsigned char *ct, 
              unsigned char *tag,    unsigned long *taglen,
                        int direction);
-
 };
 \end{verbatim}
 \end{small}
@@ -4231,8 +4369,22 @@ buffer provided) before encrypting it to create the pad.
 The accelerator will only be used to encrypt whole blocks.  Partial blocks are always handled in software.
 
 \subsubsection{Accelerated CCM}
-This function is meant for accelerated CCM encryption or decryption.  It processes the entire packet in one call.  Note that the setup() function will not
-be called prior to this.  This function must handle scheduling the key provided on its own.
+This function is meant for accelerated CCM encryption or decryption.  It processes the entire packet in one call.  You can optimize the work flow somewhat
+by allowing the caller to call the setup() function first to schedule the key if your accelerator cannot do the key schedule on the fly (for instance).  This 
+function MUST support both key passing methods.
+
+\begin{center}
+\begin{small}
+\begin{tabular}{|r|r|l|}
+\hline \textbf{key} & \textbf{uskey} & \textbf{Source of key} \\
+\hline NULL         & NULL           & Error, not supported \\
+\hline non-NULL     & NULL           & Use key, do a key schedule \\
+\hline NULL         & non-NULL       & Use uskey, key schedule not required \\
+\hline non-NULL     & non-NULL       & Use uskey, key schedule not required \\
+\hline
+\end{tabular}
+\end{small}
+\end{center}
 
 \subsubsection{Accelerated GCM}
 This function is meant for accelerated GCM encryption or decryption.  It processes the entire packet in one call.  Note that the setup() function will not
@@ -4560,7 +4712,6 @@ typedef struct {
    */
    int (*add)(void *a, void *b, void *c);
 
-
    /** add two integers 
      @param a   The first source integer
      @param b   The second source integer (single digit of upto bits_per_digit in length)
@@ -4748,6 +4899,16 @@ typedef struct {
 
 /* ---- (optional) rsa optimized math (for internal CRT) ---- */
 
+   /** RSA Key Generation 
+       @param prng     An active PRNG state
+       @param wprng    The index of the PRNG desired
+       @param size     The size of the modulus (key size) desired (octets)
+       @param e        The "e" value (public key).  e==65537 is a good choice
+       @param key      [out] Destination of a newly created private key pair
+       @return CRYPT_OK if successful, upon error all allocated ram is freed
+    */
+    int (*rsa_keygen)(prng_state *prng, int wprng, int size, long e, rsa_key *key);
+
    /** RSA exponentiation
       @param in       The octet array representing the base
       @param inlen    The length of the input
@@ -4851,5 +5012,5 @@ Since the function is given the entire RSA key (for private keys only) CRT is po
 \end{document}
 
 % $Source: /cvs/libtom/libtomcrypt/crypt.tex,v $   
-% $Revision: 1.45 $   
-% $Date: 2005/08/01 16:59:29 $ 
+% $Revision: 1.55 $   
+% $Date: 2005/11/18 01:45:03 $ 

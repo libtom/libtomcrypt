@@ -49,7 +49,9 @@ int omac_process(omac_state *omac, const unsigned char *in, unsigned long inlen)
               *((LTC_FAST_TYPE*)(&omac->prev[y])) ^= *((LTC_FAST_TYPE*)(&in[y]));
           }
           in += 16;
-          cipher_descriptor[omac->cipher_idx].ecb_encrypt(omac->prev, omac->prev, &omac->key);
+          if ((err = cipher_descriptor[omac->cipher_idx].ecb_encrypt(omac->prev, omac->prev, &omac->key)) != CRYPT_OK) {
+             return err;
+          }
       }
       inlen -= x;
     }
@@ -61,7 +63,9 @@ int omac_process(omac_state *omac, const unsigned char *in, unsigned long inlen)
           for (x = 0; x < (unsigned long)omac->blklen; x++) {
               omac->block[x] ^= omac->prev[x];
           }
-          cipher_descriptor[omac->cipher_idx].ecb_encrypt(omac->block, omac->prev, &omac->key);
+          if ((err = cipher_descriptor[omac->cipher_idx].ecb_encrypt(omac->block, omac->prev, &omac->key)) != CRYPT_OK) {
+             return err;
+          }
           omac->buflen = 0;
        }
 

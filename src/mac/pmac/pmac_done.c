@@ -49,7 +49,9 @@ int pmac_done(pmac_state *state, unsigned char *out, unsigned long *outlen)
    }
 
    /* encrypt it */
-   cipher_descriptor[state->cipher_idx].ecb_encrypt(state->checksum, state->checksum, &state->key);
+   if ((err = cipher_descriptor[state->cipher_idx].ecb_encrypt(state->checksum, state->checksum, &state->key)) != CRYPT_OK) {
+      return err;
+   }
    cipher_descriptor[state->cipher_idx].done(&state->key);
 
    /* store it */

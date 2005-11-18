@@ -1134,13 +1134,15 @@ static void anubis_crypt(const unsigned char *plaintext, unsigned char *cipherte
   @param pt The input plaintext (16 bytes)
   @param ct The output ciphertext (16 bytes)
   @param skey The key as scheduled
+  @return CRYPT_OK if successful
 */
-void anubis_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
+int anubis_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
 {
    LTC_ARGCHK(pt   != NULL);
    LTC_ARGCHK(ct   != NULL);
    LTC_ARGCHK(skey != NULL);
    anubis_crypt(pt, ct, skey->anubis.roundKeyEnc, skey->anubis.R);
+   return CRYPT_OK;
 }
 
 /**
@@ -1148,13 +1150,15 @@ void anubis_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_ke
   @param ct The input ciphertext (16 bytes)
   @param pt The output plaintext (16 bytes)
   @param skey The key as scheduled 
+  @return CRYPT_OK if successful
 */
-void anubis_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey)
+int anubis_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey)
 {
    LTC_ARGCHK(pt   != NULL);
    LTC_ARGCHK(ct   != NULL);
    LTC_ARGCHK(skey != NULL);
    anubis_crypt(ct, pt, skey->anubis.roundKeyDec, skey->anubis.R);
+   return CRYPT_OK;
 }
 
 /**
