@@ -32,14 +32,7 @@ int rsa_make_key(prng_state *prng, int wprng, int size, long e, rsa_key *key)
    int    err;
 
    LTC_ARGCHK(ltc_mp.name != NULL);
-
-   /* check for descriptor */
-   if (ltc_mp.rsa_keygen != NULL) {
-      return ltc_mp.rsa_keygen(prng, wprng, size, e, key);
-   }
-   
    LTC_ARGCHK(key != NULL);
-  
 
    if ((size < (MIN_RSA_SIZE/8)) || (size > (MAX_RSA_SIZE/8))) {
       return CRYPT_INVALID_KEYSIZE;

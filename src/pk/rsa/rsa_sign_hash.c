@@ -69,7 +69,7 @@ int rsa_sign_hash(const unsigned char *in,       unsigned long  inlen,
   }
 
   /* RSA encode it */
-  return rsa_exptmod(out, x, out, outlen, PK_PRIVATE, key);
+  return ltc_mp.rsa_me(out, x, out, outlen, PK_PRIVATE, key);
 }
 
 #endif /* MRSA */

@@ -51,6 +51,8 @@ int der_decode_sequence_multi(const unsigned char *in, unsigned long inlen, ...)
            case LTC_ASN1_IA5_STRING:
            case LTC_ASN1_PRINTABLE_STRING:
            case LTC_ASN1_UTCTIME:
+           case LTC_ASN1_SET:
+           case LTC_ASN1_SETOF:
            case LTC_ASN1_SEQUENCE:
            case LTC_ASN1_CHOICE:
                 ++x; 
@@ -96,6 +98,8 @@ int der_decode_sequence_multi(const unsigned char *in, unsigned long inlen, ...)
            case LTC_ASN1_PRINTABLE_STRING:
            case LTC_ASN1_UTCTIME:
            case LTC_ASN1_SEQUENCE:
+           case LTC_ASN1_SET:
+           case LTC_ASN1_SETOF:          
            case LTC_ASN1_CHOICE:
                 list[x].type   = type;
                 list[x].size   = size;

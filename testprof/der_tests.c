@@ -10,6 +10,98 @@ int der_tests(void)
 
 #else
 
+static void der_set_test(void)
+{
+   ltc_asn1_list list[10];
+   static const unsigned char oct_str[] = { 1, 2, 3, 4 };
+   static const unsigned char bin_str[] = { 1, 0, 0, 1 };
+   static const unsigned long int_val   = 12345678UL;
+
+   unsigned char strs[10][10], outbuf[128];
+   unsigned long x, val, outlen;
+   int           err;
+   
+   /* make structure and encode it */
+   LTC_SET_ASN1(list, 0, LTC_ASN1_OCTET_STRING,  oct_str, sizeof(oct_str));
+   LTC_SET_ASN1(list, 1, LTC_ASN1_BIT_STRING,    bin_str, sizeof(bin_str));
+   LTC_SET_ASN1(list, 2, LTC_ASN1_SHORT_INTEGER, &int_val, 1);
+   
+   /* encode it */
+   outlen = sizeof(outbuf);
+   if ((err = der_encode_set(list, 3, outbuf, &outlen)) != CRYPT_OK) {
+      fprintf(stderr, "error encoding set: %s\n", error_to_string(err));
+      exit(EXIT_FAILURE);
+   }
+   
+  
+   /* first let's test the set_decoder out of order to see what happens, we should get all the fields we expect even though they're in a diff order */
+   LTC_SET_ASN1(list, 0, LTC_ASN1_BIT_STRING,    strs[1], sizeof(strs[1]));
+   LTC_SET_ASN1(list, 1, LTC_ASN1_SHORT_INTEGER, &val, 1);
+   LTC_SET_ASN1(list, 2, LTC_ASN1_OCTET_STRING,  strs[0], sizeof(strs[0]));
+   
+   if ((err = der_decode_set(outbuf, outlen, list, 3)) != CRYPT_OK) {
+      fprintf(stderr, "error decoding set using der_decode_set: %s\n", error_to_string(err));
+      exit(EXIT_FAILURE);
+   }
+   
+   /* now compare the items */
+   if (memcmp(strs[0], oct_str, sizeof(oct_str))) {
+      fprintf(stderr, "error decoding set using der_decode_set (oct_str is wrong):\n");
+      exit(EXIT_FAILURE);
+   }
+      
+   if (memcmp(strs[1], bin_str, sizeof(bin_str))) {
+      fprintf(stderr, "error decoding set using der_decode_set (bin_str is wrong):\n");
+      exit(EXIT_FAILURE);
+   }
+   
+   if (val != int_val) {
+      fprintf(stderr, "error decoding set using der_decode_set (int_val is wrong):\n");
+      exit(EXIT_FAILURE);
+   }
+   
+   strcpy(strs[0], "one");
+   strcpy(strs[1], "one2");
+   strcpy(strs[2], "two");
+   strcpy(strs[3], "aaa");
+   strcpy(strs[4], "aaaa");
+   strcpy(strs[5], "aab");
+   strcpy(strs[6], "aaab");
+   strcpy(strs[7], "bbb");
+   strcpy(strs[8], "bbba");
+   strcpy(strs[9], "bbbb");
+   
+   for (x = 0; x < 10; x++) {
+       LTC_SET_ASN1(list, x, LTC_ASN1_PRINTABLE_STRING, strs[x], strlen(strs[x]));
+   }
+   
+   outlen = sizeof(outbuf);
+   if ((err = der_encode_setof(list, 10, outbuf, &outlen)) != CRYPT_OK) {       
+      fprintf(stderr, "error encoding SET OF: %s\n", error_to_string(err));
+      exit(EXIT_FAILURE);
+   }
+   
+   for (x = 0; x < 10; x++) {
+       LTC_SET_ASN1(list, x, LTC_ASN1_PRINTABLE_STRING, strs[x], sizeof(strs[x]) - 1);
+   }
+   XMEMSET(strs, 0, sizeof(strs));
+   
+   if ((err = der_decode_set(outbuf, outlen, list, 10)) != CRYPT_OK) {
+      fprintf(stderr, "error decoding SET OF: %s\n", error_to_string(err));
+      exit(EXIT_FAILURE);
+   }
+   
+   /* now compare */
+   for (x = 1; x < 10; x++) {
+      if (!(strlen(strs[x-1]) <= strlen(strs[x])) && strcmp(strs[x-1], strs[x]) >= 0) {
+         fprintf(stderr, "error SET OF order at %d is wrong\n", x);
+         exit(EXIT_FAILURE);
+      }
+   }      
+   
+}
+
+
 /* we are encoding 
 
   SEQUENCE {
@@ -24,6 +116,9 @@ int der_tests(void)
            SEQUENCE {
               OID       { 1, 2, 840, 113549 }
               NULL
+              SET OF {
+                 PRINTABLE "333"  // WILL GET SORTED
+                 PRINTABLE "222"
            }
         }
      }
@@ -34,6 +129,8 @@ int der_tests(void)
 static void der_flexi_test(void)
 {
    static const char printable_str[]    = "printable";
+   static const char set1_str[]         = "333";
+   static const char set2_str[]         = "222";
    static const char ia5_str[]          = "ia5";
    static const unsigned long int_val   = 12345678UL;
    static const ltc_utctime   utctime   = { 91, 5, 6, 16, 45, 40, 1, 7, 0 };
@@ -41,11 +138,11 @@ static void der_flexi_test(void)
    static const unsigned char bit_str[] = { 1, 0, 0, 1 };
    static const unsigned long oid_str[] = { 1, 2, 840, 113549 };
    
-   unsigned char encode_buf[128];
+   unsigned char encode_buf[192];
    unsigned long encode_buf_len, decode_len;
    int           err;
    
-   ltc_asn1_list static_list[4][3], *decoded_list, *l;
+   ltc_asn1_list static_list[5][3], *decoded_list, *l;
    
    /* build list */
    LTC_SET_ASN1(static_list[0], 0, LTC_ASN1_PRINTABLE_STRING, (void *)printable_str, strlen(printable_str));
@@ -58,11 +155,15 @@ static void der_flexi_test(void)
 
    LTC_SET_ASN1(static_list[2], 0, LTC_ASN1_OCTET_STRING,     (void *)oct_str,          4);
    LTC_SET_ASN1(static_list[2], 1, LTC_ASN1_BIT_STRING,       (void *)bit_str,          4);
-   LTC_SET_ASN1(static_list[2], 2, LTC_ASN1_SEQUENCE,         static_list[3],   2);
+   LTC_SET_ASN1(static_list[2], 2, LTC_ASN1_SEQUENCE,         static_list[3],   3);
 
    LTC_SET_ASN1(static_list[3], 0, LTC_ASN1_OBJECT_IDENTIFIER,(void *)oid_str,          4);
    LTC_SET_ASN1(static_list[3], 1, LTC_ASN1_NULL,             NULL,             0);
-   
+   LTC_SET_ASN1(static_list[3], 2, LTC_ASN1_SETOF,            static_list[4],   2);
+
+   LTC_SET_ASN1(static_list[4], 0, LTC_ASN1_PRINTABLE_STRING, set1_str, strlen(set1_str));
+   LTC_SET_ASN1(static_list[4], 1, LTC_ASN1_PRINTABLE_STRING, set2_str, strlen(set2_str));
+
    /* encode it */
    encode_buf_len = sizeof(encode_buf);
    if ((err = der_encode_sequence(&static_list[0][0], 3, encode_buf, &encode_buf_len)) != CRYPT_OK) {
@@ -292,6 +393,55 @@ static void der_flexi_test(void)
          fprintf(stderr, "(%d), %d, %lu, next=%p, prev=%p, parent=%p, child=%p\n", __LINE__, l->type, l->size, l->next, l->prev, l->parent, l->child);
          exit(EXIT_FAILURE);
       }
+      
+      /* move to next */
+      l = l->next;
+      
+   /* expect child anve move down */
+      if (l->next != NULL || l->child == NULL) {
+         fprintf(stderr, "(%d), %d, %lu, next=%p, prev=%p, parent=%p, child=%p\n", __LINE__, l->type, l->size, l->next, l->prev, l->parent, l->child);
+         exit(EXIT_FAILURE);
+      }
+      
+      if (l->type != LTC_ASN1_SET) {
+         fprintf(stderr, "(%d), %d, %lu, next=%p, prev=%p, parent=%p, child=%p\n", __LINE__, l->type, l->size, l->next, l->prev, l->parent, l->child);
+         exit(EXIT_FAILURE);
+      }
+      l = l->child;
+      
+   /* PRINTABLE STRING */
+      /* we expect printable_str */
+      if (l->next == NULL || l->child != NULL) {
+         fprintf(stderr, "(%d), %d, %lu, next=%p, prev=%p, parent=%p, child=%p\n", __LINE__, l->type, l->size, l->next, l->prev, l->parent, l->child);
+         exit(EXIT_FAILURE);
+      }
+   
+      if (l->type != LTC_ASN1_PRINTABLE_STRING) {
+         fprintf(stderr, "(%d), %d, %lu, next=%p, prev=%p, parent=%p, child=%p\n", __LINE__, l->type, l->size, l->next, l->prev, l->parent, l->child);
+         exit(EXIT_FAILURE);
+      }
+   
+/* note we compare set2_str FIRST because the SET OF is sorted and "222" comes before "333" */   
+      if (l->size != strlen(set2_str) || memcmp(set2_str, l->data, l->size)) {
+         fprintf(stderr, "(%d), %d, %lu, next=%p, prev=%p, parent=%p, child=%p\n", __LINE__, l->type, l->size, l->next, l->prev, l->parent, l->child);
+         exit(EXIT_FAILURE);
+      }
+   
+      /* move to next */
+      l = l->next;
+
+   /* PRINTABLE STRING */
+      /* we expect printable_str */
+      if (l->type != LTC_ASN1_PRINTABLE_STRING) {
+         fprintf(stderr, "(%d), %d, %lu, next=%p, prev=%p, parent=%p, child=%p\n", __LINE__, l->type, l->size, l->next, l->prev, l->parent, l->child);
+         exit(EXIT_FAILURE);
+      }
+   
+      if (l->size != strlen(set1_str) || memcmp(set1_str, l->data, l->size)) {
+         fprintf(stderr, "(%d), %d, %lu, next=%p, prev=%p, parent=%p, child=%p\n", __LINE__, l->type, l->size, l->next, l->prev, l->parent, l->child);
+         exit(EXIT_FAILURE);
+      }
+   
 
    der_sequence_free(l);
 
@@ -378,8 +528,6 @@ int der_tests(void)
 
    static const unsigned char rsa_time1_der[] = { 0x17, 0x11, 0x39, 0x31, 0x30, 0x35, 0x30, 0x36, 0x31, 0x36, 0x34, 0x35, 0x34, 0x30, 0x2D, 0x30, 0x37, 0x30, 0x30 };
    static const unsigned char rsa_time2_der[] = { 0x17, 0x0d, 0x39, 0x31, 0x30, 0x35, 0x30, 0x36, 0x32, 0x33, 0x34, 0x35, 0x34, 0x30, 0x5a };
-
-   der_flexi_test();
 
    DO(mp_init_multi(&a, &b, &c, &d, &e, &f, &g, NULL));
    for (zz = 0; zz < 16; zz++) {
@@ -651,8 +799,8 @@ tmp_time.off_hh);
       return 1;
    }
 
-
-
+   der_set_test();
+   der_flexi_test();
    return der_choice_test();
 }
 

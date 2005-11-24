@@ -3,6 +3,7 @@
 #Tom St Denis
 CFLAGS = /Isrc/headers/ /Itestprof/ /Ox /DWIN32 /DLTC_SOURCE /W3 /Fo$@ $(CF)
 
+#START_INS
 OBJECTS=src/ciphers/aes/aes_enc.obj src/ciphers/aes/aes.obj src/ciphers/anubis.obj src/ciphers/blowfish.obj \
 src/ciphers/cast5.obj src/ciphers/des.obj src/ciphers/khazad.obj src/ciphers/noekeon.obj src/ciphers/rc2.obj \
 src/ciphers/rc5.obj src/ciphers/rc6.obj src/ciphers/safer/safer.obj src/ciphers/safer/safer_tab.obj \
@@ -67,10 +68,13 @@ src/pk/asn1/der/octet/der_length_octet_string.obj \
 src/pk/asn1/der/printable_string/der_decode_printable_string.obj \
 src/pk/asn1/der/printable_string/der_encode_printable_string.obj \
 src/pk/asn1/der/printable_string/der_length_printable_string.obj \
-src/pk/asn1/der/sequence/der_decode_sequence.obj src/pk/asn1/der/sequence/der_decode_sequence_flexi.obj \
-src/pk/asn1/der/sequence/der_decode_sequence_multi.obj src/pk/asn1/der/sequence/der_encode_sequence.obj \
+src/pk/asn1/der/sequence/der_decode_sequence_ex.obj \
+src/pk/asn1/der/sequence/der_decode_sequence_flexi.obj \
+src/pk/asn1/der/sequence/der_decode_sequence_multi.obj \
+src/pk/asn1/der/sequence/der_encode_sequence_ex.obj \
 src/pk/asn1/der/sequence/der_encode_sequence_multi.obj src/pk/asn1/der/sequence/der_length_sequence.obj \
-src/pk/asn1/der/sequence/der_sequence_free.obj src/pk/asn1/der/short_integer/der_decode_short_integer.obj \
+src/pk/asn1/der/sequence/der_sequence_free.obj src/pk/asn1/der/set/der_encode_set.obj \
+src/pk/asn1/der/set/der_encode_setof.obj src/pk/asn1/der/short_integer/der_decode_short_integer.obj \
 src/pk/asn1/der/short_integer/der_encode_short_integer.obj \
 src/pk/asn1/der/short_integer/der_length_short_integer.obj src/pk/asn1/der/utctime/der_decode_utctime.obj \
 src/pk/asn1/der/utctime/der_encode_utctime.obj src/pk/asn1/der/utctime/der_length_utctime.obj \
@@ -98,6 +102,7 @@ src/headers/tomcrypt_custom.h src/headers/tomcrypt_argchk.h src/headers/tomcrypt
 src/headers/tomcrypt_pk.h src/headers/tomcrypt_hash.h src/headers/tomcrypt_math.h \
 src/headers/tomcrypt_misc.h src/headers/tomcrypt.h src/headers/tomcrypt_pkcs.h \
 src/headers/tomcrypt_prng.h testprof/tomcrypt_test.h
+#END_INS
 
 default: library
 
@@ -124,6 +129,5 @@ timing: demos/timing.c library
 	cl $(CFLAGS) demos/timing.c testprof/tomcrypt_prof.lib tomcrypt.lib advapi32.lib $(EXTRALIBS)
 
 # $Source: /cvs/libtom/libtomcrypt/makefile.msvc,v $   
-# $Revision: 1.24 $   
-# $Date: 2005/11/18 01:46:22 $ 
-
+# $Revision: 1.25 $   
+# $Date: 2005/11/23 02:34:57 $ 

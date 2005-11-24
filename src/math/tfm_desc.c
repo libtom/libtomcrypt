@@ -440,12 +440,21 @@ const ltc_math_descriptor tfm_desc = {
    &exptmod,
    &isprime,
 
+#ifdef MECC
    &ltc_ecc_mulmod,
    &ltc_ecc_projective_add_point,
    &ltc_ecc_map,
+#else
+   NULL, NULL, NULL,
+#endif
 
-   NULL,
-   NULL
+#ifdef MRSA
+   &rsa_make_key,
+   &rsa_exptmod,
+#else
+   NULL, NULL
+#endif
+   
 };
 
 

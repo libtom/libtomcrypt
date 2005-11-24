@@ -13,12 +13,16 @@ void *XREALLOC(void *p, size_t n);
 void *XCALLOC(size_t n, size_t s);
 void XFREE(void *p);
 
+void XQSORT(void *base, size_t nmemb, size_t size, int(*compar)(const void *, const void *));
+
+
 /* change the clock function too */
- clock_t XCLOCK(void);
+clock_t XCLOCK(void);
 
 /* various other functions */
 void *XMEMCPY(void *dest, const void *src, size_t n);
 int   XMEMCMP(const void *s1, const void *s2, size_t n);
+void *XMEMSET(void *s, int c, size_t n);
 
 /* type of argument checking, 0=default, 1=fatal and 2=error+continue, 3=nothing */
 #ifndef ARGTYPE

@@ -39,7 +39,7 @@ int der_length_short_integer(unsigned long num, unsigned long *outlen)
      ++z;
      y >>= 8;
    }
-
+   
    /* handle zero */
    if (z == 0) {
       z = 1;
@@ -59,6 +59,7 @@ int der_length_short_integer(unsigned long num, unsigned long *outlen)
 
    /* return length */
    *outlen = len; 
+   
    return CRYPT_OK;
 }
 

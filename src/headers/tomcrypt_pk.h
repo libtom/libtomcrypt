@@ -244,6 +244,12 @@ int ltc_ecc_map(ecc_point *P, void *modulus, void *mp);
 
 #ifdef MDSA
 
+/* Max diff between group and modulus size in bytes */
+#define MDSA_DELTA     512
+
+/* Max DSA group size in bytes (default allows 4k-bit groups) */
+#define MDSA_MAX_GROUP 512
+
 /** DSA key structure */
 typedef struct {
    /** The key type, PK_PRIVATE or PK_PUBLIC */
@@ -300,8 +306,6 @@ int dsa_import(const unsigned char *in, unsigned long inlen, dsa_key *key);
 int dsa_export(unsigned char *out, unsigned long *outlen, int type, dsa_key *key);
 int dsa_verify_key(dsa_key *key, int *stat);
 
-
-
 int dsa_shared_secret(void          *private_key, void *base,
                       dsa_key       *public_key,
                       unsigned char *out,         unsigned long *outlen);
@@ -321,9 +325,10 @@ enum {
  LTC_ASN1_IA5_STRING,
  LTC_ASN1_PRINTABLE_STRING,
  LTC_ASN1_UTCTIME,
-
  LTC_ASN1_CHOICE,
- LTC_ASN1_SEQUENCE
+ LTC_ASN1_SEQUENCE,
+ LTC_ASN1_SET,
+ LTC_ASN1_SETOF
 };
 
 /** A LTC ASN.1 list type */
@@ -351,23 +356,35 @@ typedef struct ltc_asn1_list_ {
    } while (0);
 
 /* SEQUENCE */
-int der_encode_sequence(ltc_asn1_list *list, unsigned long inlen,
-                        unsigned char *out,  unsigned long *outlen);
+int der_encode_sequence_ex(ltc_asn1_list *list, unsigned long inlen,
+                           unsigned char *out,  unsigned long *outlen, int type_of);
+                          
+#define der_encode_sequence(list, inlen, out, outlen) der_encode_sequence_ex(list, inlen, out, outlen, LTC_ASN1_SEQUENCE)                        
 
-int der_decode_sequence(const unsigned char *in,   unsigned long  inlen,
-                              ltc_asn1_list *list, unsigned long  outlen);
+int der_decode_sequence_ex(const unsigned char *in, unsigned long  inlen,
+                           ltc_asn1_list *list,     unsigned long  outlen, int ordered);
+                              
+#define der_decode_sequence(in, inlen, list, outlen) der_decode_sequence_ex(in, inlen, list, outlen, 1)
 
 int der_length_sequence(ltc_asn1_list *list, unsigned long inlen,
                         unsigned long *outlen);
 
+/* SET */
+#define der_decode_set(in, inlen, list, outlen) der_decode_sequence_ex(in, inlen, list, outlen, 0)
+#define der_length_set der_length_sequence
+int der_encode_set(ltc_asn1_list *list, unsigned long inlen,
+                   unsigned char *out,  unsigned long *outlen);
+
+int der_encode_setof(ltc_asn1_list *list, unsigned long inlen,
+                     unsigned char *out,  unsigned long *outlen);
+                        
 /* VA list handy helpers with triplets of <type, size, data> */
 int der_encode_sequence_multi(unsigned char *out, unsigned long *outlen, ...);
 int der_decode_sequence_multi(const unsigned char *in, unsigned long inlen, ...);
 
-/* handle unknown list decoder */
+/* FLEXI DECODER handle unknown list decoder */
 int  der_decode_sequence_flexi(const unsigned char *in, unsigned long *inlen, ltc_asn1_list **out);
 void der_free_sequence_flexi(ltc_asn1_list *list);
-
 void der_sequence_free(ltc_asn1_list *in);
 
 /* INTEGER */

@@ -4,7 +4,7 @@
 # Modified by Clay Culver
 
 # The version
-VERSION=1.07
+VERSION=1.08
 
 # Compiler and Linker Names
 #CC=gcc
@@ -101,6 +101,7 @@ GROUP=wheel
 endif
 
 #List of objects to compile.
+#START_INS
 OBJECTS=src/ciphers/aes/aes_enc.o src/ciphers/aes/aes.o src/ciphers/anubis.o src/ciphers/blowfish.o \
 src/ciphers/cast5.o src/ciphers/des.o src/ciphers/khazad.o src/ciphers/noekeon.o src/ciphers/rc2.o \
 src/ciphers/rc5.o src/ciphers/rc6.o src/ciphers/safer/safer.o src/ciphers/safer/safer_tab.o \
@@ -165,10 +166,13 @@ src/pk/asn1/der/octet/der_length_octet_string.o \
 src/pk/asn1/der/printable_string/der_decode_printable_string.o \
 src/pk/asn1/der/printable_string/der_encode_printable_string.o \
 src/pk/asn1/der/printable_string/der_length_printable_string.o \
-src/pk/asn1/der/sequence/der_decode_sequence.o src/pk/asn1/der/sequence/der_decode_sequence_flexi.o \
-src/pk/asn1/der/sequence/der_decode_sequence_multi.o src/pk/asn1/der/sequence/der_encode_sequence.o \
+src/pk/asn1/der/sequence/der_decode_sequence_ex.o \
+src/pk/asn1/der/sequence/der_decode_sequence_flexi.o \
+src/pk/asn1/der/sequence/der_decode_sequence_multi.o \
+src/pk/asn1/der/sequence/der_encode_sequence_ex.o \
 src/pk/asn1/der/sequence/der_encode_sequence_multi.o src/pk/asn1/der/sequence/der_length_sequence.o \
-src/pk/asn1/der/sequence/der_sequence_free.o src/pk/asn1/der/short_integer/der_decode_short_integer.o \
+src/pk/asn1/der/sequence/der_sequence_free.o src/pk/asn1/der/set/der_encode_set.o \
+src/pk/asn1/der/set/der_encode_setof.o src/pk/asn1/der/short_integer/der_decode_short_integer.o \
 src/pk/asn1/der/short_integer/der_encode_short_integer.o \
 src/pk/asn1/der/short_integer/der_length_short_integer.o src/pk/asn1/der/utctime/der_decode_utctime.o \
 src/pk/asn1/der/utctime/der_encode_utctime.o src/pk/asn1/der/utctime/der_length_utctime.o \
@@ -196,6 +200,7 @@ src/headers/tomcrypt_custom.h src/headers/tomcrypt_argchk.h src/headers/tomcrypt
 src/headers/tomcrypt_pk.h src/headers/tomcrypt_hash.h src/headers/tomcrypt_math.h \
 src/headers/tomcrypt_misc.h src/headers/tomcrypt.h src/headers/tomcrypt_pkcs.h \
 src/headers/tomcrypt_prng.h testprof/tomcrypt_test.h
+#END_INS
 
 TESTOBJECTS=demos/test.o
 HASHOBJECTS=demos/hashsum.o
@@ -356,5 +361,5 @@ zipup: no_oops docs
 
 
 # $Source: /cvs/libtom/libtomcrypt/makefile,v $ 
-# $Revision: 1.103 $ 
-# $Date: 2005/11/18 01:46:22 $ 
+# $Revision: 1.108 $ 
+# $Date: 2005/11/23 02:34:57 $ 

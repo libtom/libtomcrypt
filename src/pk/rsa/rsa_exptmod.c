@@ -35,11 +35,6 @@ int rsa_exptmod(const unsigned char *in,   unsigned long inlen,
    unsigned long x;
    int           err;
 
-   /* Try the accelerator if present */
-   if (ltc_mp.rsa_me != NULL) {
-      return ltc_mp.rsa_me(in, inlen, out, outlen, which, key);
-   }
-
    LTC_ARGCHK(in     != NULL);
    LTC_ARGCHK(out    != NULL);
    LTC_ARGCHK(outlen != NULL);

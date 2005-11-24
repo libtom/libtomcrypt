@@ -9,8 +9,6 @@
  * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.org
  */
 #include "tomcrypt.h"
-#include <stdarg.h>
-
 
 /**
   @file der_length_sequence.c
@@ -108,6 +106,8 @@ int der_length_sequence(ltc_asn1_list *list, unsigned long inlen,
                y += x;
                break;
 
+           case LTC_ASN1_SET:
+           case LTC_ASN1_SETOF:
            case LTC_ASN1_SEQUENCE:
                if ((err = der_length_sequence(data, size, &x)) != CRYPT_OK) {
                   goto LBL_ERR;
@@ -149,3 +149,7 @@ LBL_ERR:
 }
 
 #endif
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

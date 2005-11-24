@@ -144,6 +144,8 @@ int der_decode_choice(const unsigned char *in,   unsigned long *inlen,
                }
                break;
 
+           case LTC_ASN1_SET:
+           case LTC_ASN1_SETOF:
            case LTC_ASN1_SEQUENCE:
                if (der_decode_sequence(in, *inlen, data, size) == CRYPT_OK) {
                   if (der_length_sequence(data, size, &z) == CRYPT_OK) {

@@ -2,16 +2,39 @@
 #define TOMCRYPT_CUSTOM_H_
 
 /* macros for various libc functions you can change for embedded targets */
+#ifndef XMALLOC
 #define XMALLOC  malloc
+#endif
+#ifndef XREALLOC
 #define XREALLOC realloc
+#endif
+#ifndef XCALLOC
 #define XCALLOC  calloc
+#endif
+#ifndef XFREE
 #define XFREE    free
+#endif
 
+#ifndef XMEMSET
 #define XMEMSET  memset
+#endif
+#ifndef XMEMCPY
 #define XMEMCPY  memcpy
+#endif
+#ifndef XMEMCMP
+#define XMEMCMP  memcmp
+#endif
 
+#ifndef XCLOCK
 #define XCLOCK   clock
+#endif
+#ifndef XCLOCKS_PER_SEC
 #define XCLOCKS_PER_SEC CLOCKS_PER_SEC
+#endif
+
+#ifndef XQSORT
+#define XQSORT qsort
+#endif
 
 /* Use small code where possible */
 /* #define LTC_SMALL_CODE */
@@ -186,33 +209,17 @@
 /* Include RSA support */
 #define MRSA
 
-/* Include Katja (an Rabin variant like RSA) */
+/* Include Katja (a Rabin variant like RSA) */
 // #define MKAT 
 
 /* Digital Signature Algorithm */
 #define MDSA
-/* Max diff between group and modulus size in bytes */
-#define MDSA_DELTA     512
-/* Max DSA group size in bytes (default allows 4k-bit groups) */
-#define MDSA_MAX_GROUP 512
 
 /* ECC */
 #define MECC
 
 /* Timing Resistant? */
 /* #define LTC_ECC_TIMING_RESISTANT */
-
-/* Supported ECC Key Sizes */
-#ifndef LTC_NO_CURVES
-   #define ECC192
-   #define ECC224
-   #define ECC256
-   #define ECC384
-   #define ECC521
-#endif
-
-/* Include the MPI functionality?  (required by the PK algorithms) */
-#define MPI
 
 #endif /* LTC_NO_PK */
 
@@ -224,18 +231,38 @@
 
 /* Include ASN.1 DER (required by DSA/RSA) */
 #define LTC_DER
+
+#endif /* LTC_NO_PKCS */
+
+/* cleanup */
+
+#ifdef MECC
+/* Supported ECC Key Sizes */
+#ifndef LTC_NO_CURVES
+   #define ECC192
+   #define ECC224
+   #define ECC256
+   #define ECC384
+   #define ECC521
+#endif
+#endif
+
+#if defined(MECC) || defined(MRSA) || defined(MDSA) || defined(MKATJA)
+   /* Include the MPI functionality?  (required by the PK algorithms) */
+   #define MPI
+#endif
+
+#ifdef MRSA
+   #define PKCS_1
+#endif   
+
 #if defined(LTC_DER) && !defined(MPI) 
    #error ASN.1 DER requires MPI functionality
 #endif
 
-#if (defined(MDSA) || defined(MRSA)) && !defined(LTC_DER)
-   #error RSA/DSA requires ASN.1 DER functionality, make sure LTC_DER is enabled
+#if (defined(MDSA) || defined(MRSA) || defined(MECC) || defined(MKATJA)) && !defined(LTC_DER)
+   #error PK requires ASN.1 DER functionality, make sure LTC_DER is enabled
 #endif
-
-#endif /* LTC_NO_PKCS */
-
-#endif
-
 
 /* THREAD management */
 
@@ -261,6 +288,9 @@
 #define LTC_MUTEX_UNLOCK(x)
 
 #endif
+
+#endif
+
 
 
 /* $Source$ */

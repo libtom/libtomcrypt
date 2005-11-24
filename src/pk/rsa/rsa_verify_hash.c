@@ -68,7 +68,7 @@ int rsa_verify_hash(const unsigned char *sig,      unsigned long siglen,
       
   /* RSA decode it  */
   x = siglen;
-  if ((err = rsa_exptmod(sig, siglen, tmpbuf, &x, PK_PUBLIC, key)) != CRYPT_OK) {
+  if ((err = ltc_mp.rsa_me(sig, siglen, tmpbuf, &x, PK_PUBLIC, key)) != CRYPT_OK) {
      XFREE(tmpbuf);
      return err;
   }

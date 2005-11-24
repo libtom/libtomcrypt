@@ -53,6 +53,8 @@ int der_encode_sequence_multi(unsigned char *out, unsigned long *outlen, ...)
            case LTC_ASN1_PRINTABLE_STRING:
            case LTC_ASN1_UTCTIME:
            case LTC_ASN1_SEQUENCE:
+           case LTC_ASN1_SET:
+           case LTC_ASN1_SETOF:
                 ++x; 
                 break;
           
@@ -96,6 +98,8 @@ int der_encode_sequence_multi(unsigned char *out, unsigned long *outlen, ...)
            case LTC_ASN1_PRINTABLE_STRING:
            case LTC_ASN1_UTCTIME:
            case LTC_ASN1_SEQUENCE:
+           case LTC_ASN1_SET:
+           case LTC_ASN1_SETOF:
                 list[x].type   = type;
                 list[x].size   = size;
                 list[x++].data = data;

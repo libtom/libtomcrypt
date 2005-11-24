@@ -13,7 +13,7 @@
 
 
 /**
-  @file der_encode_sequence.c
+  @file der_encode_sequence_ex.c
   ASN.1 DER, encode a SEQUENCE, Tom St Denis
 */
 
@@ -25,10 +25,11 @@
    @param inlen     The number of items in the list
    @param out       [out] The destination 
    @param outlen    [in/out] The size of the output
+   @param type_of   LTC_ASN1_SEQUENCE or LTC_ASN1_SET/LTC_ASN1_SETOF
    @return CRYPT_OK on success
 */
-int der_encode_sequence(ltc_asn1_list *list, unsigned long inlen,
-                        unsigned char *out,  unsigned long *outlen) 
+int der_encode_sequence_ex(ltc_asn1_list *list, unsigned long inlen,
+                           unsigned char *out,  unsigned long *outlen, int type_of) 
 {
    int           err, type;
    unsigned long size, x, y, z, i;
@@ -110,13 +111,14 @@ int der_encode_sequence(ltc_asn1_list *list, unsigned long inlen,
                y += x;
                break;
 
+           case LTC_ASN1_SET:
+           case LTC_ASN1_SETOF:
            case LTC_ASN1_SEQUENCE:
                if ((err = der_length_sequence(data, size, &x)) != CRYPT_OK) {
                   goto LBL_ERR;
                }
                y += x;
                break;
-
           
            default:
                err = CRYPT_INVALID_ARG;
@@ -150,7 +152,8 @@ int der_encode_sequence(ltc_asn1_list *list, unsigned long inlen,
 
    /* store header */
    x = 0;
-   out[x++] = 0x30;
+   out[x++] = (type_of == LTC_ASN1_SEQUENCE) ? 0x30 : 0x31;
+      
    if (z < 128) {
       out[x++] = z;
    } else if (z < 256) {
@@ -257,15 +260,33 @@ int der_encode_sequence(ltc_asn1_list *list, unsigned long inlen,
                *outlen -= z;
                break;
 
-           case LTC_ASN1_SEQUENCE:
+           case LTC_ASN1_SET:
                z = *outlen;
-               if ((err = der_encode_sequence(data, size, out + x, &z)) != CRYPT_OK) {
+               if ((err = der_encode_set(data, size, out + x, &z)) != CRYPT_OK) {
                   goto LBL_ERR;
                }
                x       += z;
                *outlen -= z;
                break;
 
+           case LTC_ASN1_SETOF:
+               z = *outlen;
+               if ((err = der_encode_setof(data, size, out + x, &z)) != CRYPT_OK) {
+                  goto LBL_ERR;
+               }
+               x       += z;
+               *outlen -= z;
+               break;
+
+           case LTC_ASN1_SEQUENCE:
+               z = *outlen;
+               if ((err = der_encode_sequence_ex(data, size, out + x, &z, type)) != CRYPT_OK) {
+                  goto LBL_ERR;
+               }
+               x       += z;
+               *outlen -= z;
+               break;
+           
            default:
                err = CRYPT_INVALID_ARG;
                goto LBL_ERR;

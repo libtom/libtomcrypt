@@ -13,7 +13,7 @@
 
 
 /**
-  @file der_decode_sequence.c
+  @file der_decode_sequence_ex.c
   ASN.1 DER, decode a SEQUENCE, Tom St Denis
 */
 
@@ -25,10 +25,11 @@
    @param inlen    The size of the input
    @param list     The list of items to decode
    @param outlen   The number of items in the list
+   @param ordered  Search an unordeded or ordered list
    @return CRYPT_OK on success
 */
-int der_decode_sequence(const unsigned char *in,   unsigned long  inlen,
-                              ltc_asn1_list *list, unsigned long  outlen)
+int der_decode_sequence_ex(const unsigned char *in, unsigned long  inlen,
+                           ltc_asn1_list *list,     unsigned long  outlen, int ordered)
 {
    int           err, type;
    unsigned long size, x, y, z, i, blksize;
@@ -36,17 +37,18 @@ int der_decode_sequence(const unsigned char *in,   unsigned long  inlen,
 
    LTC_ARGCHK(in   != NULL);
    LTC_ARGCHK(list != NULL);
-
+   
    /* get blk size */
    if (inlen < 2) {
       return CRYPT_INVALID_PACKET;
    }
 
-   /* sequence type? */
+   /* sequence type? We allow 0x30 SEQUENCE and 0x31 SET since fundamentally they're the same structure */
    x = 0;
-   if (in[x++] != 0x30) {
+   if (in[x] != 0x30 && in[x] != 0x31) {
       return CRYPT_INVALID_PACKET;
    }
+   ++x;
 
    if (in[x] < 128) {
       blksize = in[x++];
@@ -73,12 +75,19 @@ int der_decode_sequence(const unsigned char *in,   unsigned long  inlen,
      return CRYPT_INVALID_PACKET;
   }
 
+   /* mark all as unused */
+   for (i = 0; i < outlen; i++) {
+       list[i].used = 0;
+   }     
+
   /* ok read data */
    inlen = blksize;
    for (i = 0; i < outlen; i++) {
+       z    = 0;
        type = list[i].type;
        size = list[i].size;
        data = list[i].data;
+       if (!ordered && list[i].used == 1) { continue; }
 
        if (type == LTC_ASN1_EOL) { 
           break;
@@ -88,139 +97,155 @@ int der_decode_sequence(const unsigned char *in,   unsigned long  inlen,
            case LTC_ASN1_INTEGER:
                z = inlen;
                if ((err = der_decode_integer(in + x, z, data)) != CRYPT_OK) {
+                  if (!ordered) {  continue; }
                   goto LBL_ERR;
                }
                if ((err = der_length_integer(data, &z)) != CRYPT_OK) {
                   goto LBL_ERR;
                }
-               x     += z;
-               inlen -= z;
                break;
-
 
            case LTC_ASN1_SHORT_INTEGER:
                z = inlen;
                if ((err = der_decode_short_integer(in + x, z, data)) != CRYPT_OK) {
+                  if (!ordered) { continue; }
                   goto LBL_ERR;
                }
-               if ((err = der_length_short_integer(size, &z)) != CRYPT_OK) {
+               if ((err = der_length_short_integer(((unsigned long*)data)[0], &z)) != CRYPT_OK) {
                   goto LBL_ERR;
                }
-               x     += z;
-               inlen -= z;
+               
                break;
 
            case LTC_ASN1_BIT_STRING:
                z = inlen;
                if ((err = der_decode_bit_string(in + x, z, data, &size)) != CRYPT_OK) {
+                  if (!ordered) { continue; }
                   goto LBL_ERR;
                }
                list[i].size = size;
                if ((err = der_length_bit_string(size, &z)) != CRYPT_OK) {
                   goto LBL_ERR;
                }
-               x     += z;
-               inlen -= z;
                break;
 
            case LTC_ASN1_OCTET_STRING:
                z = inlen;
                if ((err = der_decode_octet_string(in + x, z, data, &size)) != CRYPT_OK) {
+                  if (!ordered) { continue; }
                   goto LBL_ERR;
                }
                list[i].size = size;
                if ((err = der_length_octet_string(size, &z)) != CRYPT_OK) {
                   goto LBL_ERR;
                }
-               x     += z;
-               inlen -= z;
                break;
 
            case LTC_ASN1_NULL:
                if (inlen < 2 || in[x] != 0x05 || in[x+1] != 0x00) {
+                  if (!ordered) { continue; }
                   err = CRYPT_INVALID_PACKET;
                   goto LBL_ERR;
                }
-               x     += 2;
-               inlen -= 2;
+               z = 2;
                break;
                   
            case LTC_ASN1_OBJECT_IDENTIFIER:
                z = inlen;
                if ((err = der_decode_object_identifier(in + x, z, data, &size)) != CRYPT_OK) {
+                  if (!ordered) { continue; }
                   goto LBL_ERR;
                }
                list[i].size = size;
                if ((err = der_length_object_identifier(data, size, &z)) != CRYPT_OK) {
                   goto LBL_ERR;
                }
-               x     += z;
-               inlen -= z;
                break;
 
            case LTC_ASN1_IA5_STRING:
                z = inlen;
                if ((err = der_decode_ia5_string(in + x, z, data, &size)) != CRYPT_OK) {
+                  if (!ordered) { continue; }
                   goto LBL_ERR;
                }
                list[i].size = size;
                if ((err = der_length_ia5_string(data, size, &z)) != CRYPT_OK) {
                   goto LBL_ERR;
                }
-               x     += z;
-               inlen -= z;
                break;
 
 
            case LTC_ASN1_PRINTABLE_STRING:
                z = inlen;
                if ((err = der_decode_printable_string(in + x, z, data, &size)) != CRYPT_OK) {
+                  if (!ordered) { continue; }
                   goto LBL_ERR;
                }
                list[i].size = size;
                if ((err = der_length_printable_string(data, size, &z)) != CRYPT_OK) {
                   goto LBL_ERR;
                }
-               x     += z;
-               inlen -= z;
                break;
 
            case LTC_ASN1_UTCTIME:
                z = inlen;
                if ((err = der_decode_utctime(in + x, &z, data)) != CRYPT_OK) {
+                  if (!ordered) { continue; }
                   goto LBL_ERR;
                }
-               x     += z;
-               inlen -= z;
                break;
 
-           case LTC_ASN1_SEQUENCE:
+           case LTC_ASN1_SET:
                z = inlen;
-               if ((err = der_decode_sequence(in + x, z, data, size)) != CRYPT_OK) {
+               if ((err = der_decode_set(in + x, z, data, size)) != CRYPT_OK) {
+                  if (!ordered) { continue; }
                   goto LBL_ERR;
                }
                if ((err = der_length_sequence(data, size, &z)) != CRYPT_OK) {
                   goto LBL_ERR;
                }
-               x     += z;
-               inlen -= z;
+               break;
+           
+           case LTC_ASN1_SETOF:
+           case LTC_ASN1_SEQUENCE:
+               z = inlen;
+               if ((err = der_decode_sequence(in + x, z, data, size)) != CRYPT_OK) {
+                  if (!ordered) { continue; }
+                  goto LBL_ERR;
+               }
+               if ((err = der_length_sequence(data, size, &z)) != CRYPT_OK) {
+                  goto LBL_ERR;
+               }
                break;
 
 
            case LTC_ASN1_CHOICE:
                z = inlen;
                if ((err = der_decode_choice(in + x, &z, data, size)) != CRYPT_OK) {
+                  if (!ordered) { continue; }
                   goto LBL_ERR;
                }
-               x     += z;
-               inlen -= z;
                break;
 
            default:
                err = CRYPT_INVALID_ARG;
                goto LBL_ERR;
        }
+       x           += z;
+       inlen       -= z;
+       list[i].used = 1;
+       if (!ordered) { 
+          /* restart the decoder */
+          i = -1;
+       }          
    }
+     
+   for (i = 0; i < outlen; i++) {
+      if (list[i].used == 0) {
+          err = CRYPT_INVALID_PACKET;
+          goto LBL_ERR;
+      }
+   }                
    err = CRYPT_OK;   
 
 LBL_ERR:

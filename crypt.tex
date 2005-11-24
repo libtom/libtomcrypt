@@ -47,7 +47,7 @@
 \def\gap{\vspace{0.5ex}}
 \makeindex
 \begin{document}
-\title{LibTomCrypt \\ Version 1.07}
+\title{LibTomCrypt \\ Version 1.08}
 \author{Tom St Denis \\
 \\
 tomstdenis@gmail.com \\
@@ -3198,7 +3198,7 @@ LibTomCrypt supports a variety of ASN.1 data types encoded with the Distinguishe
 are all provided with three basic functions with \textit{similar} prototypes.  One function has been dedicated to calculate the length in octets of a given
 format and two functions have been dedicated to encoding and decoding the format.  
 
-On top of the basic data types are the SEQUENCE and\footnote{Planned for LTC 1.06} SET data types which are collections of other ASN.1 types.  They are provided 
+On top of the basic data types are the SEQUENCE and SET data types which are collections of other ASN.1 types.  They are provided 
 in the same manner as the other data types except they use list of objects known as the \textbf{ltc\_asn1\_list} structure.  It is defined as 
 
 \index{ltc\_asn1\_list structure}
@@ -3262,7 +3262,9 @@ LTC_SET_ASN1(sequence, x++, LTC_ASN1_NULL,           NULL,   0);
 \hline LTC\_ASN1\_IA5\_STRING        & IA5 STRING (one octet per char) \\
 \hline LTC\_ASN1\_PRINTABLE\_STRING  & PRINTABLE STIRNG (one octet per char) \\
 \hline LTC\_ASN1\_UTCTIME            & UTCTIME (see ltc\_utctime structure) \\
-\hline LTC\_ASN1\_SEQUENCE           & SEQUENCE OF \\
+\hline LTC\_ASN1\_SEQUENCE           & SEQUENCE (and SEQUENCE OF) \\
+\hline LTC\_ASN1\_SET                & SET \\
+\hline LTC\_ASN1\_SETOF              & SET OF \\
 \hline LTC\_ASN1\_CHOICE             & CHOICE \\
 \hline
 \end{tabular}
@@ -3346,6 +3348,68 @@ and ``data'' is \textbf{void} pointer.  The list of items must be terminated wit
 
 It's ideal that you cast the ``size'' values to unsigned long to ensure that the proper data type is passed to the function.  Constants such as ``1'' without
 a cast or prototype are of type \textbf{int} by default.  Appending \textit{UL} or prepending \textit{(unsigned long)} is enough to cast it to the correct type.
+
+\subsection{SET and SET OF}
+
+\index{SET} \index{SET OF}
+SET and SET OF are related to the SEQUENCE type in that they can be pretty much be decoded with the same code.  However, they are different and they should
+be carefully noted.  The SET type is an unordered array of ASN.1 types sorted by the TAG (type identifier) whereas the SET OF type is an ordered array of 
+a \textbf{single} ASN.1 object sorted in ascending order by the DER their respective encodings.
+
+\subsubsection{SET Encoding}
+
+SETs use the same array structure of ltc\_asn1\_list that the SEQUENCE functions use.  They are encoded with the following function.
+
+\index{der\_encode\_set()}
+\begin{verbatim}
+int der_encode_set(ltc_asn1_list *list, unsigned long inlen,
+                   unsigned char *out,  unsigned long *outlen);
+\end{verbatim}            
+
+This will encode the list of ASN.1 objects in ``list'' of length ``inlen'' objects and store the output in ``out'' of length ``outlen'' bytes.  The function
+will make a copy of the list provided and sort it by the TAG.  Objects with identical TAGs are additionally sorted on their original placement in the 
+array (to make the process deterministic).
+
+This function will \textbf{NOT} recognize ``DEFAULT'' objects and it is the responsibility of the caller to remove them as required.
+
+\subsubsection{SET Decoding}
+
+The SET type can be decoded with the following function.
+
+\index{der\_decode\_set()}
+\begin{verbatim}
+int der_decode_set(const unsigned char *in,   unsigned long  inlen,
+                   ltc_asn1_list       *list, unsigned long  outlen);
+\end{verbatim}
+
+This will decode the SET specified by ``list'' of length ``outlen'' objects from the input buffer ``in'' of length ``inlen'' octets.
+
+It handles the fact that SETs are not strictly ordered and will make multiple passes (as required) through the list to decode all the objects.  
+
+\subsubsection{SET Length}
+The length of a SET can be determined by calling der\_length\_sequence() since they have the same encoding length.
+
+\subsubsection{SET OF Encoding}
+A ``SET OF'' object is an array of identifical objects (e.g. OCTET STRING) sorted in ascending order by the DER encoding of the object.  They are 
+used to store objects deterministically based solely on their encoding.  It uses the same array structure of ltc\_asn1\_list that the SEQUENCE functions
+use.  They are encoded with the following function.
+
+\index{der\_encode\_setof()}
+\begin{verbatim}
+int der_encode_setof(ltc_asn1_list *list, unsigned long inlen,
+                     unsigned char *out,  unsigned long *outlen);
+\end{verbatim}
+
+This will encode a ``SET OF'' containing the ``list'' of ``inlen'' ASN.1 objects and store the encoding in the output buffer ``out'' of length ``outlen''.
+
+The routine will first encode the SET OF in an unordered fashion (in a temporary buffer) then sort using the XQSORT macro and copy back to the output buffer.  This
+means you need at least enough memory to keep an additional copy of the output on the heap.  
+
+\subsubsection{SET OF Decoding}
+Since the decoding of a ``SET OF'' object is unambiguous it can be decoded with der\_decode\_sequence().  
+
+\subsubsection{SET OF Length}
+Like the SET type the der\_length\_sequence() function can be used to determine the length of a ``SET OF'' object.
 
 \subsection{ASN.1 INTEGER}
 
@@ -3547,8 +3611,8 @@ The flexi decoder uses the same ``ltc\_asn1\_list'' but instead of being stored 
 and ``child''.  The list works as a ``doubly-linked list'' structure where decoded items at the same level are sibblings (using next and prev) and items
 encoded in a SEQUENCE are stored as a child element.
 
-When a SEQUENCE has been encountered a SEQUENCE item is added as a sibbling (e.g. list.type == LTC\_ASN1\_SEQUENCE) and the child pointer points to a new list
-of items contained within the sequence\footnote{The same will be true for the SET data type when I eventually support it.}.
+When a SEQUENCE or SET has been encountered a SEQUENCE (or SET resp.) item will be added as a sibbling (e.g. list.type == LTC\_ASN1\_SEQUENCE) and the child 
+pointer points to a new list of items contained within the object.
 
 \index{der\_decode\_sequence\_flexi()}
 \begin{verbatim}
@@ -5012,5 +5076,5 @@ Since the function is given the entire RSA key (for private keys only) CRT is po
 \end{document}
 
 % $Source: /cvs/libtom/libtomcrypt/crypt.tex,v $   
-% $Revision: 1.55 $   
-% $Date: 2005/11/18 01:45:03 $ 
+% $Revision: 1.59 $   
+% $Date: 2005/11/24 01:53:18 $ 

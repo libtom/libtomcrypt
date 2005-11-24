@@ -15,7 +15,7 @@
   DSA Crypto, Tom St Denis
 */  
 
-#ifdef MECC
+#ifdef MDSA
 
 /**
   Decrypt an DSA encrypted key

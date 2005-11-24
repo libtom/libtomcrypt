@@ -12,7 +12,7 @@
 
 /**
   @file der_decode_sequence_flexi.c
-  ASN.1 DER, decode a SEQUENCE with a flexi parser, Tom St Denis
+  ASN.1 DER, decode an array of ASN.1 types with a flexi parser, Tom St Denis
 */
 
 #ifdef LTC_DER
@@ -268,9 +268,10 @@ int der_decode_sequence_flexi(const unsigned char *in, unsigned long *inlen, ltc
             break;
          
          case 0x30: /* SEQUENCE */
+         case 0x31: /* SET */
          
              /* init field */
-             l->type = LTC_ASN1_SEQUENCE;
+             l->type = (type == 0x30) ? LTC_ASN1_SEQUENCE : LTC_ASN1_SET;
              
              /* we have to decode the SEQUENCE header and get it's length */
              
@@ -280,7 +281,7 @@ int der_decode_sequence_flexi(const unsigned char *in, unsigned long *inlen, ltc
                 /* read length byte */
                 x = *in++; --(*inlen);
                 
-                /* smallest SEQUENCE header */
+                /* smallest SEQUENCE/SET header */
                 y = 2;
                 
                 /* now if it's > 127 the next bytes are the length of the length */

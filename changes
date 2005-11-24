@@ -1,3 +1,14 @@
+November 24th, 2005
+v1.08 -- Added SET and SET OF support to the ASN.1 side
+      -- Fixed up X macros, added QSORT to the mix [thanks SET/SETOF]
+      -- Added XMEMCMP to the list of X macros
+      -- In der_decode_sequence() the SHORT_INTEGER type was not being handled correctly [oddly enough it worked just enough to make RSA work ... go figure!]
+      -- Fixed bug in math descriptors where if you hadn't defined MECC (ECC support) you would get linker errors
+      -- Added RSA accelerators to the math descriptors to make it possible to not include the stock routines if you supply your own.
+      -- dsa_decrypt_key() was erroneously dependent on MECC not MDSA ... whoops
+      -- Moved DSA size limits to tomcrypt_pk.h so they're defined with LTC_NO_PK+MDSA
+      -- cleaned up tomcrypt_custom.h to make customizable PK easier (and also cleaned up the error traps so they're correctly reported)
+
 November 18th, 2005
 v1.07 -- Craig Schlenter pointed out the "encrypt" demo doesn't call ctr_start() correctly.  That's because as of a few releases ago
          I added support to set the mode of the counter at init time
@@ -1383,6 +1394,6 @@ v0.02  -- Changed RC5 to only allow 12 to 24 rounds
 v0.01  -- We will call this the first version.
 
 /* $Source: /cvs/libtom/libtomcrypt/changes,v $ */
-/* $Revision: 1.151 $ */
-/* $Date: 2005/11/17 22:04:00 $ */
+/* $Revision: 1.161 $ */
+/* $Date: 2005/11/24 03:30:18 $ */
 
