@@ -54,6 +54,14 @@ static int qsort_helper(const void *a, const void *b)
    }
 }   
 
+/*
+   Encode a SET type
+   @param list      The list of items to encode
+   @param inlen     The number of items in the list
+   @param out       [out] The destination 
+   @param outlen    [in/out] The size of the output
+   @return CRYPT_OK on success
+*/
 int der_encode_set(ltc_asn1_list *list, unsigned long inlen,
                    unsigned char *out,  unsigned long *outlen)
 {

@@ -29,7 +29,7 @@ const struct ltc_cipher_descriptor anubis_desc = {
    &anubis_test,
    &anubis_done,
    &anubis_keysize,
-   NULL, NULL, NULL, NULL, NULL, NULL, NULL
+   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
 };
 
 #define MIN_N           4 

@@ -19,7 +19,7 @@
 #ifdef LTC_DER
 
 /**
-  Read a mp_int integer
+  Read a short integer
   @param in       The DER encoded data
   @param inlen    Size of data
   @param num      [out] The integer to decode

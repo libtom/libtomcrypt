@@ -19,6 +19,13 @@
 
 #ifdef LTC_DER
 
+/**
+  Decode a SEQUENCE type using a VA list
+  @param in    Input buffer
+  @param inlen Length of input in octets
+  @remark <...> is of the form <type, size, data> (int, unsigned long, void*)
+  @return CRYPT_OK on success
+*/  
 int der_decode_sequence_multi(const unsigned char *in, unsigned long inlen, ...)
 {
    int           err, type;

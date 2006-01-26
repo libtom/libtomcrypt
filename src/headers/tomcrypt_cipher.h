@@ -167,6 +167,7 @@ typedef union Symmetric_key {
    void   *data;
 } symmetric_key;
 
+#ifdef ECB
 /** A block cipher ECB structure */
 typedef struct {
    /** The index of the cipher chosen */
@@ -176,7 +177,9 @@ typedef struct {
    /** The scheduled key */                       
    symmetric_key       key;
 } symmetric_ECB;
+#endif
 
+#ifdef CFB
 /** A block cipher CFB structure */
 typedef struct {
    /** The index of the cipher chosen */
@@ -192,7 +195,9 @@ typedef struct {
    /** The scheduled key */
    symmetric_key       key;
 } symmetric_CFB;
+#endif
 
+#ifdef OFB
 /** A block cipher OFB structure */
 typedef struct {
    /** The index of the cipher chosen */
@@ -206,7 +211,9 @@ typedef struct {
    /** The scheduled key */
    symmetric_key       key;
 } symmetric_OFB;
+#endif
 
+#ifdef CBC
 /** A block cipher CBC structure */
 typedef struct {
    /** The index of the cipher chosen */
@@ -218,7 +225,10 @@ typedef struct {
    /** The scheduled key */
    symmetric_key       key;
 } symmetric_CBC;
+#endif
 
+
+#ifdef CTR
 /** A block cipher CTR structure */
 typedef struct {
    /** The index of the cipher chosen */
@@ -236,6 +246,35 @@ typedef struct {
    /** The scheduled key */
    symmetric_key       key;
 } symmetric_CTR;
+#endif
+
+
+#ifdef LRW_MODE
+/** A LRW structure */
+typedef struct {
+    /** The index of the cipher chosen (must be a 128-bit block cipher) */
+    int               cipher;
+
+    /** The current IV */
+    unsigned char     IV[16],
+ 
+    /** the tweak key */
+                      tweak[16],
+
+    /** The current pad, it's the product of the first 15 bytes against the tweak key */
+                      pad[16];
+
+    /** The scheduled symmetric key */
+    symmetric_key     key;
+
+#ifdef LRW_TABLES
+    /** The pre-computed multiplication table */
+    unsigned char     PC[16][256][16];
+#endif
+} symmetric_LRW;
+#endif
+
+
 
 /** cipher descriptor table, last entry has "name == NULL" to mark the end of table */
 extern struct ltc_cipher_descriptor {
@@ -338,6 +377,28 @@ extern struct ltc_cipher_descriptor {
        @return CRYPT_OK if successful
    */
    int (*accel_ctr_encrypt)(const unsigned char *pt, unsigned char *ct, unsigned long blocks, unsigned char *IV, int mode, symmetric_key *skey);
+
+   /** Accelerated LRW 
+       @param pt      Plaintext
+       @param ct      Ciphertext
+       @param blocks  The number of complete blocks to process
+       @param IV      The initial value (input/output)
+       @param tweak   The LRW tweak
+       @param skey    The scheduled key context
+       @return CRYPT_OK if successful
+   */
+   int (*accel_lrw_encrypt)(const unsigned char *pt, unsigned char *ct, unsigned long blocks, unsigned char *IV, const unsigned char *tweak, symmetric_key *skey);
+
+   /** Accelerated LRW 
+       @param ct      Ciphertext
+       @param pt      Plaintext
+       @param blocks  The number of complete blocks to process
+       @param IV      The initial value (input/output)
+       @param tweak   The LRW tweak
+       @param skey    The scheduled key context
+       @return CRYPT_OK if successful
+   */
+   int (*accel_lrw_decrypt)(const unsigned char *ct, unsigned char *pt, unsigned long blocks, unsigned char *IV, const unsigned char *tweak, symmetric_key *skey);
 
    /** Accelerated CCM packet (one-shot)
        @param key        The secret key to use
@@ -624,7 +685,29 @@ int ctr_getiv(unsigned char *IV, unsigned long *len, symmetric_CTR *ctr);
 int ctr_setiv(const unsigned char *IV, unsigned long len, symmetric_CTR *ctr);
 int ctr_done(symmetric_CTR *ctr);
 #endif
-    
+
+#ifdef LRW_MODE
+
+#define LRW_ENCRYPT 0
+#define LRW_DECRYPT 1
+
+int lrw_start(               int   cipher,
+              const unsigned char *IV,
+              const unsigned char *key,       int keylen,
+              const unsigned char *tweak,
+                             int  num_rounds, 
+                   symmetric_LRW *lrw);
+int lrw_encrypt(const unsigned char *pt, unsigned char *ct, unsigned long len, symmetric_LRW *lrw);
+int lrw_decrypt(const unsigned char *ct, unsigned char *pt, unsigned long len, symmetric_LRW *lrw);
+int lrw_getiv(unsigned char *IV, unsigned long *len, symmetric_LRW *lrw);
+int lrw_setiv(const unsigned char *IV, unsigned long len, symmetric_LRW *lrw);
+int lrw_done(symmetric_LRW *lrw);
+
+/* don't call */
+int lrw_process(const unsigned char *pt, unsigned char *ct, unsigned long len, int mode, symmetric_LRW *lrw);
+
+
+#endif    
 int find_cipher(const char *name);
 int find_cipher_any(const char *name, int blocklen, int keylen);
 int find_cipher_id(unsigned char ID);

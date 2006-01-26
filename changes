@@ -1,3 +1,14 @@
+January 26th, 2006
+v1.09 -- Added missing doxygen comments to some of the ASN.1 routines
+      -- Added "easy button" define LTC_EASY and LTC will build with a subset of all the algos.  Reduces build times for typical
+         configurations.  Tunable [see tomcrypt_custom.h]
+      -- Added some error detection to reg_algs() of the testprof.a library to detect when the PRNG is not setup correctly (took me 10 mins to figure out, PITA!)
+      -- Similar fixes to timing demo (MD5 not defined when EASY is defined)
+      -- Added the NLS enc+mac stream cipher from QUALCOMM, disabled for this release, waiting on test vectors
+      -- Finally added an auto-update script for the makefiles.  So when I add new files/dirs it can automatically fix up the makefiles [all four of them...]
+      -- Added LRW to the list of cipher modes supported
+      -- cleaned up ciphers definitions to remove cbc/cfb/ofb/ctr/etc from the namespace when not used.
+
 November 24th, 2005
 v1.08 -- Added SET and SET OF support to the ASN.1 side
       -- Fixed up X macros, added QSORT to the mix [thanks SET/SETOF]
@@ -1394,6 +1405,6 @@ v0.02  -- Changed RC5 to only allow 12 to 24 rounds
 v0.01  -- We will call this the first version.
 
 /* $Source: /cvs/libtom/libtomcrypt/changes,v $ */
-/* $Revision: 1.161 $ */
-/* $Date: 2005/11/24 03:30:18 $ */
+/* $Revision: 1.168 $ */
+/* $Date: 2006/01/26 18:15:51 $ */
 

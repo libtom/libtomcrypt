@@ -14,7 +14,6 @@ echo "uname="`uname -a`
 echo "gcc="`gcc -dumpversion`
 echo
 
-
 # stock build
 bash run.sh "STOCK" " " "$1" "$2" "$3" || exit 1
 
@@ -42,6 +41,9 @@ bash run.sh "CLEANSTACK+NOTABLES+SMALL" "-DLTC_NO_TABLES -DLTC_CLEAN_STACK -DLTC
 # NO_FAST
 bash run.sh "NO_FAST" "-DLTC_NO_FAST" "$1" "$2" "$3" || exit 1
 
+# NO_FAST + NOTABLES
+bash run.sh "NO_FAST+NOTABLES" "-DLTC_NO_FAST -DLTC_NO_TABLES" "$1" "$2" "$3" || exit 1
+
 # NO_ASM
 bash run.sh "NO_ASM" "-DLTC_NO_ASM" "$1" "$2" "$3" || exit 1
 
@@ -52,5 +54,5 @@ bash testbuild.sh "NOTEST" "-DLTC_NO_TEST" "$1" "$2" "$3" || exit 1
 bash testbuild.sh "NOFILE" "-DLTC_NO_FILE" "$1" "$2" "$3" || exit 1
 
 # $Source: /cvs/libtom/libtomcrypt/testme.sh,v $   
-# $Revision: 1.19 $   
-# $Date: 2005/07/28 01:32:41 $ 
+# $Revision: 1.20 $   
+# $Date: 2006/01/26 14:49:43 $ 

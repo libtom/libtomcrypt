@@ -27,7 +27,7 @@ const struct ltc_cipher_descriptor blowfish_desc =
     &blowfish_test,
     &blowfish_done,
     &blowfish_keysize,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
 };
 
 static const ulong32 ORIG_P[16 + 2] = {

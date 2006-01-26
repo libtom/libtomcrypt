@@ -39,6 +39,13 @@ static int char_to_int(unsigned char x)
    if (y >= max) return CRYPT_INVALID_PACKET;           \
    x += 2;
 
+/**
+  Decodes a UTC time structure in DER format (reads all 6 valid encoding formats)
+  @param in     Input buffer
+  @param inlen  Length of input buffer in octets
+  @param out    [out] Destination of UTC time structure
+  @return CRYPT_OK   if successful
+*/
 int der_decode_utctime(const unsigned char *in, unsigned long *inlen,
                              ltc_utctime   *out)
 {

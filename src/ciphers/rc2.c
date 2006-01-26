@@ -36,7 +36,7 @@ const struct ltc_cipher_descriptor rc2_desc = {
    &rc2_test,
    &rc2_done,
    &rc2_keysize,
-   NULL, NULL, NULL, NULL, NULL, NULL, NULL
+   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
 };
 
 /* 256-entry permutation table, probably derived somehow from pi */

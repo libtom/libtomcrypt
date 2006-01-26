@@ -168,6 +168,13 @@ const char *crypt_build_settings =
 #if defined(CTR)
     "   CTR\n"
 #endif
+#if defined(LRW_MODE)
+    "   LRW_MODE"
+#if defined(LRW_TABLES)
+    " (LRW_TABLES) "
+#endif
+    "\n"
+#endif
 
     "\nMACs:\n"
 #if defined(HMAC)
@@ -314,6 +321,9 @@ const char *crypt_build_settings =
 #if defined(TFM_DESC)
     " TFM_DESC "
 #endif
+#if defined(LTC_EASY)
+    " (easy) "
+#endif    
 
     "\n"
     "\n\n\n"

@@ -4,7 +4,7 @@
 # Modified by Clay Culver
 
 # The version
-VERSION=1.08
+VERSION=1.09
 
 # Compiler and Linker Names
 #CC=gcc
@@ -111,8 +111,9 @@ src/encauth/eax/eax_decrypt.o src/encauth/eax/eax_decrypt_verify_memory.o src/en
 src/encauth/eax/eax_encrypt.o src/encauth/eax/eax_encrypt_authenticate_memory.o \
 src/encauth/eax/eax_init.o src/encauth/eax/eax_test.o src/encauth/gcm/gcm_add_aad.o \
 src/encauth/gcm/gcm_add_iv.o src/encauth/gcm/gcm_done.o src/encauth/gcm/gcm_gf_mult.o \
-src/encauth/gcm/gcm_init.o src/encauth/gcm/gcm_memory.o src/encauth/gcm/gcm_process.o \
-src/encauth/gcm/gcm_reset.o src/encauth/gcm/gcm_test.o src/encauth/ocb/ocb_decrypt.o \
+src/encauth/gcm/gcm_init.o src/encauth/gcm/gcm_memory.o src/encauth/gcm/gcm_mult_h.o \
+src/encauth/gcm/gcm_process.o src/encauth/gcm/gcm_reset.o src/encauth/gcm/gcm_test.o \
+src/encauth/nls/nls_memory.o src/encauth/nls/nlsfast.o src/encauth/ocb/ocb_decrypt.o \
 src/encauth/ocb/ocb_decrypt_verify_memory.o src/encauth/ocb/ocb_done_decrypt.o \
 src/encauth/ocb/ocb_done_encrypt.o src/encauth/ocb/ocb_encrypt.o \
 src/encauth/ocb/ocb_encrypt_authenticate_memory.o src/encauth/ocb/ocb_init.o src/encauth/ocb/ocb_ntz.o \
@@ -150,14 +151,16 @@ src/modes/cfb/cfb_getiv.o src/modes/cfb/cfb_setiv.o src/modes/cfb/cfb_start.o \
 src/modes/ctr/ctr_decrypt.o src/modes/ctr/ctr_done.o src/modes/ctr/ctr_encrypt.o \
 src/modes/ctr/ctr_getiv.o src/modes/ctr/ctr_setiv.o src/modes/ctr/ctr_start.o \
 src/modes/ecb/ecb_decrypt.o src/modes/ecb/ecb_done.o src/modes/ecb/ecb_encrypt.o \
-src/modes/ecb/ecb_start.o src/modes/ofb/ofb_decrypt.o src/modes/ofb/ofb_done.o \
-src/modes/ofb/ofb_encrypt.o src/modes/ofb/ofb_getiv.o src/modes/ofb/ofb_setiv.o \
-src/modes/ofb/ofb_start.o src/pk/asn1/der/bit/der_decode_bit_string.o \
-src/pk/asn1/der/bit/der_encode_bit_string.o src/pk/asn1/der/bit/der_length_bit_string.o \
-src/pk/asn1/der/choice/der_decode_choice.o src/pk/asn1/der/ia5/der_decode_ia5_string.o \
-src/pk/asn1/der/ia5/der_encode_ia5_string.o src/pk/asn1/der/ia5/der_length_ia5_string.o \
-src/pk/asn1/der/integer/der_decode_integer.o src/pk/asn1/der/integer/der_encode_integer.o \
-src/pk/asn1/der/integer/der_length_integer.o \
+src/modes/ecb/ecb_start.o src/modes/lrw/lrw_decrypt.o src/modes/lrw/lrw_done.o \
+src/modes/lrw/lrw_encrypt.o src/modes/lrw/lrw_getiv.o src/modes/lrw/lrw_process.o \
+src/modes/lrw/lrw_setiv.o src/modes/lrw/lrw_start.o src/modes/lrw/lrw_test.o \
+src/modes/ofb/ofb_decrypt.o src/modes/ofb/ofb_done.o src/modes/ofb/ofb_encrypt.o \
+src/modes/ofb/ofb_getiv.o src/modes/ofb/ofb_setiv.o src/modes/ofb/ofb_start.o \
+src/pk/asn1/der/bit/der_decode_bit_string.o src/pk/asn1/der/bit/der_encode_bit_string.o \
+src/pk/asn1/der/bit/der_length_bit_string.o src/pk/asn1/der/choice/der_decode_choice.o \
+src/pk/asn1/der/ia5/der_decode_ia5_string.o src/pk/asn1/der/ia5/der_encode_ia5_string.o \
+src/pk/asn1/der/ia5/der_length_ia5_string.o src/pk/asn1/der/integer/der_decode_integer.o \
+src/pk/asn1/der/integer/der_encode_integer.o src/pk/asn1/der/integer/der_length_integer.o \
 src/pk/asn1/der/object_identifier/der_decode_object_identifier.o \
 src/pk/asn1/der/object_identifier/der_encode_object_identifier.o \
 src/pk/asn1/der/object_identifier/der_length_object_identifier.o \
@@ -200,6 +203,7 @@ src/headers/tomcrypt_custom.h src/headers/tomcrypt_argchk.h src/headers/tomcrypt
 src/headers/tomcrypt_pk.h src/headers/tomcrypt_hash.h src/headers/tomcrypt_math.h \
 src/headers/tomcrypt_misc.h src/headers/tomcrypt.h src/headers/tomcrypt_pkcs.h \
 src/headers/tomcrypt_prng.h testprof/tomcrypt_test.h
+
 #END_INS
 
 TESTOBJECTS=demos/test.o
@@ -361,5 +365,5 @@ zipup: no_oops docs
 
 
 # $Source: /cvs/libtom/libtomcrypt/makefile,v $ 
-# $Revision: 1.108 $ 
-# $Date: 2005/11/23 02:34:57 $ 
+# $Revision: 1.114 $ 
+# $Date: 2006/01/26 06:12:31 $ 

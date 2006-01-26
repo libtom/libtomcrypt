@@ -11,11 +11,11 @@
 
 /**
    @file gcm_gf_mult.c
-   GCM implementation, initialize state, by Tom St Denis
+   GCM implementation, do the GF mult, by Tom St Denis
 */
 #include "tomcrypt.h"
 
-#ifdef GCM_MODE
+#if defined(GCM_MODE) || defined(LRW_MODE)
 
 /* right shift */
 static void gcm_rightshift(unsigned char *a)
@@ -57,36 +57,6 @@ void gcm_gf_mult(const unsigned char *a, const unsigned char *b, unsigned char *
    }
    XMEMCPY(c, Z, 16);
 }
-
-/**
-  GCM multiply by H
-  @param gcm   The GCM state which holds the H value
-  @param I     The value to multiply H by
- */
-void gcm_mult_h(gcm_state *gcm, unsigned char *I)
-{
-   unsigned char T[16];
-#ifdef GCM_TABLES
-   int x, y;
-   XMEMCPY(T, &gcm->PC[0][I[0]][0], 16);
-   for (x = 1; x < 16; x++) {
-#ifdef LTC_FAST
-       for (y = 0; y < 16; y += sizeof(LTC_FAST_TYPE)) {
-           *((LTC_FAST_TYPE *)(T + y)) ^= *((LTC_FAST_TYPE *)(&gcm->PC[x][I[x]][y]));
-       }
-#else
-       for (y = 0; y < 16; y++) {
-           T[y] ^= gcm->PC[x][I[x]][y];
-       }
-#endif
-   }
-#else     
-   gcm_gf_mult(gcm->H, I, T); 
-#endif
-   XMEMCPY(I, T, 16);
-}
-
-
 #endif
 
 /* $Source$ */

@@ -233,7 +233,11 @@ register_prng(&rc4_desc);
 register_prng(&sober128_desc);
 #endif
 
-rng_make_prng(128, find_prng("yarrow"), &yarrow_prng, NULL);
+   if ((err = rng_make_prng(128, find_prng("yarrow"), &yarrow_prng, NULL)) != CRYPT_OK) {
+      fprintf(stderr, "rng_make_prng failed: %s\n", error_to_string(err));
+      exit(EXIT_FAILURE);
+   }
+   
 }
 
 int time_keysched(void)
@@ -886,7 +890,12 @@ void time_macs_(unsigned long MAC_SIZE)
    }
 
    cipher_idx = find_cipher("aes");
-   hash_idx   = find_hash("md5");
+   hash_idx   = find_hash("sha1");
+   
+   if (cipher_idx == -1 || hash_idx == -1) {
+      fprintf(stderr, "Warning the MAC tests requires AES and SHA1 to operate... so sorry\n");
+      return;
+   }
 
    yarrow_read(buf, MAC_SIZE*1024, &yarrow_prng);
    yarrow_read(key, 16, &yarrow_prng);
@@ -904,7 +913,7 @@ void time_macs_(unsigned long MAC_SIZE)
         t1 = t_read() - t1;
         if (t1 < t2) t2 = t1;
    }
-   fprintf(stderr, "OMAC-AES\t\t%9llu\n", t2/(ulong64)(MAC_SIZE*1024));
+   fprintf(stderr, "OMAC-%s\t\t%9llu\n", cipher_descriptor[cipher_idx].name, t2/(ulong64)(MAC_SIZE*1024));
 #endif
 
 #ifdef PMAC
@@ -952,7 +961,7 @@ void time_macs_(unsigned long MAC_SIZE)
         t1 = t_read() - t1;
         if (t1 < t2) t2 = t1;
    }
-   fprintf(stderr, "HMAC-MD5\t\t%9llu\n", t2/(ulong64)(MAC_SIZE*1024));
+   fprintf(stderr, "HMAC-%s\t\t%9llu\n", hash_descriptor[hash_idx].name, t2/(ulong64)(MAC_SIZE*1024));
 #endif
 
    XFREE(buf);

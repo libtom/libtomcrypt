@@ -18,9 +18,8 @@
 
 #ifdef LTC_DER
 
-/* Exports a positive integer as DER format (upto 32-bits in size) */
 /**
-  Store a mp_int integer
+  Store a short integer in the range (0,2^32-1)
   @param num      The integer to encode
   @param out      [out] The destination for the DER encoded integers
   @param outlen   [in/out] The max size and resulting size of the DER encoded integers

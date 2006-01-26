@@ -5,10 +5,18 @@ int modes_test(void)
 {
    unsigned char pt[64], ct[64], tmp[64], key[16], iv[16], iv2[16];
    int cipher_idx;
+#ifdef CBC
    symmetric_CBC cbc;
+#endif
+#ifdef CFB
    symmetric_CFB cfb;
+#endif
+#ifdef OFB
    symmetric_OFB ofb;
+#endif
+#ifdef CTR
    symmetric_CTR ctr;
+#endif
    unsigned long l;
    
    /* make a random pt, key and iv */
@@ -23,6 +31,10 @@ int modes_test(void)
       return 1;
    }
    
+#ifdef LRW_MODE
+   DO(lrw_test());
+#endif
+
 #ifdef CBC
    /* test CBC mode */
    /* encode the block */

@@ -27,7 +27,7 @@ const struct ltc_cipher_descriptor cast5_desc = {
    &cast5_test,
    &cast5_done,
    &cast5_keysize,
-   NULL, NULL, NULL, NULL, NULL, NULL, NULL
+   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
 };
 
 static const ulong32 S1[256] = {

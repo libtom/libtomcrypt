@@ -36,6 +36,45 @@
 #define XQSORT qsort
 #endif
 
+/* Easy button? */
+#ifdef LTC_EASY
+   #define LTC_NO_CIPHERS
+   #define RIJNDAEL
+   #define BLOWFISH
+   #define DES
+   #define CAST5
+   
+   #define LTC_NO_MODES
+   #define ECB
+   #define CBC
+   #define CTR
+   
+   #define LTC_NO_HASHES
+   #define SHA1
+   #define SHA512
+   #define SHA384
+   #define SHA256
+   #define SHA224
+   #define WHIRLPOOL
+   
+   #define LTC_NO_MACS
+   #define HMAC
+   #define OMAC
+   #define CCM_MODE
+
+   #define LTC_NO_PRNGS
+   #define SPRNG
+   #define YARROW
+   #define DEVRANDOM
+   #define TRY_URANDOM_FIRST
+      
+   #define LTC_NO_PK
+   #define MRSA
+   #define MECC
+#endif   
+   
+
+
 /* Use small code where possible */
 /* #define LTC_SMALL_CODE */
 
@@ -101,6 +140,15 @@
 #define CBC
 #define CTR
 
+/* LRW mode */
+#define LRW_MODE
+#ifndef LTC_NO_TABLES
+   /* like GCM mode this will enable 16 8x128 tables [64KB] that make
+    * seeking very fast.  
+    */
+   #define LRW_TABLES
+#endif
+
 #endif /* LTC_NO_MODES */
 
 /* ---> One-Way Hash Functions <--- */
@@ -143,8 +191,9 @@
 
 #define OCB_MODE
 #define CCM_MODE
-
 #define GCM_MODE
+/* disabled waiting on test vectors */
+/* #define NLS_MODE */
 
 /* Use 64KiB tables */
 #ifndef LTC_NO_TABLES

@@ -47,7 +47,7 @@
 \def\gap{\vspace{0.5ex}}
 \makeindex
 \begin{document}
-\title{LibTomCrypt \\ Version 1.08}
+\title{LibTomCrypt \\ Version 1.09}
 \author{Tom St Denis \\
 \\
 tomstdenis@gmail.com \\
@@ -520,6 +520,18 @@ struct _cipher_descriptor {
                                    unsigned char *ct, 
                                    unsigned long blocks, unsigned char *IV, 
                                    int mode, symmetric_key *skey);
+   int (*accel_lrw_encrypt)(const unsigned char *pt, 
+                                  unsigned char *ct, 
+                                  unsigned long blocks, 
+                                  unsigned char *IV, 
+                            const unsigned char *tweak, 
+                                  symmetric_key *skey);
+   int (*accel_lrw_decrypt)(const unsigned char *ct, 
+                                  unsigned char *pt, 
+                                  unsigned long blocks, 
+                                  unsigned char *IV, 
+                            const unsigned char *tweak, 
+                                  symmetric_key *skey);
    int (*accel_ccm_memory)(
        const unsigned char *key,    unsigned long keylen,
        symmetric_key       *uskey,
@@ -937,6 +949,61 @@ int main(void)
 }
 \end{verbatim}
 \end{small}
+
+\subsection{LRW Mode}
+
+LRW mode is a cipher mode which is meant for indexed encryption like used to handle storage media.  It is meant to have efficient seeking and overcome the 
+security problems of ECB mode while not increasing the storage requirements.  It is used much like any other chaining mode except with two key differences.
+
+The key is specified as two strings the first key $K_1$ is the (normally AES) key and can be any length (typically 16, 24 or 32 octets long).  The second key 
+$K_2$ is the ``tweak'' key and is always 16 octets long.  The tweak value is \textbf{NOT} a nonce or IV value it must be random and secret.  
+
+To initialize LRW mode use:
+
+\index{lrw\_start()}
+\begin{verbatim}
+int lrw_start(               int   cipher,
+              const unsigned char *IV,
+              const unsigned char *key,       int keylen,
+              const unsigned char *tweak,
+                             int  num_rounds, 
+                   symmetric_LRW *lrw);
+\end{verbatim}
+
+This will initialize the LRW context with the given (16 octet) ``IV'', cipher $K_1$ ``key'' of length ``keylen'' octets and the (16 octet) $K_2$ ``tweak''.  
+While LRW was specified to be used only with AES, LibTomCrypt will allow any 128--bit block cipher to be specified as indexed by ``cipher''.  The
+number of rounds for the block cipher ``num\_rounds'' can be 0 to use the default number of rounds for the given cipher.
+
+To process data use the following functions:
+
+\index{lrw\_encrypt()} \index{lrw\_decrypt()}
+\begin{verbatim}
+int lrw_encrypt(const unsigned char *pt, unsigned char *ct, 
+                      unsigned long len, symmetric_LRW *lrw);
+int lrw_decrypt(const unsigned char *ct, unsigned char *pt, 
+                      unsigned long len, symmetric_LRW *lrw);
+\end{verbatim}
+
+These will encrypt (or decrypt) the plaintext to the ciphertext buffer (or vice versa).  The length is specified by ``len'' in octets but must be a multiple
+of 16.
+
+To manipulate the IV use the following functions:
+
+\index{lrw\_getiv()} \index{lrw\_setiv()} 
+\begin{verbatim}
+int lrw_getiv(unsigned char *IV, unsigned long *len, symmetric_LRW *lrw);
+int lrw_setiv(const unsigned char *IV, unsigned long len, symmetric_LRW *lrw);
+\end{verbatim}
+
+These will get or set the 16--octet IV.  Note that setting the IV is the same as ``seeking'' and unlike other modes is not a free operation.  It requires
+updating the entire tweak which is slower than sequential use.  Avoid seeking excessively in performance constrained code.
+
+To terminate the LRW state use the following:
+
+\index{lrw\_done()}
+\begin{verbatim}
+int lrw_done(symmetric_LRW *lrw);
+\end{verbatim}
 
 \section{Encrypt and Authenticate Modes}
 
@@ -4306,6 +4373,32 @@ struct ltc_cipher_descriptor {
                                   unsigned long blocks, unsigned char *IV, 
                                   int mode, symmetric_key *skey);
 
+   /** Accelerated LRW 
+       @param pt      Plaintext
+       @param ct      Ciphertext
+       @param blocks  The number of complete blocks to process
+       @param IV      The initial value (input/output)
+       @param tweak   The LRW tweak
+       @param skey    The scheduled key context
+       @return CRYPT_OK if successful
+   */
+   int (*accel_lrw_encrypt)(const unsigned char *pt,    unsigned char *ct, 
+                                  unsigned long blocks, unsigned char *IV, 
+                            const unsigned char *tweak, symmetric_key *skey);
+
+   /** Accelerated LRW 
+       @param ct      Ciphertext
+       @param pt      Plaintext
+       @param blocks  The number of complete blocks to process
+       @param IV      The initial value (input/output)
+       @param tweak   The LRW tweak
+       @param skey    The scheduled key context
+       @return CRYPT_OK if successful
+   */
+   int (*accel_lrw_decrypt)(const unsigned char *ct,    unsigned char *pt, 
+                                  unsigned long blocks, unsigned char *IV, 
+                            const unsigned char *tweak, symmetric_key *skey);
+
    /** Accelerated CCM packet (one-shot)
        @param key        The secret key to use
        @param keylen     The length of the secret key (octets)
@@ -4431,6 +4524,18 @@ pass in a minimum of nine extra bytes before the accelerator could be called.  T
 buffer provided) before encrypting it to create the pad.  
 
 The accelerator will only be used to encrypt whole blocks.  Partial blocks are always handled in software.
+
+\subsubsection{Accelerated LRW}
+These functions are meant for accelerated LRW.  They process blocks of input in lengths of multiples of 16 octets.  They must accept the ``IV'' and ``tweak''
+state variables and updated them prior to returning.  Note that you may want to disable \textbf{LRW\_TABLES} in ``tomcrypt\_custom.h'' if you intend
+to use accelerators for LRW.
+
+While both encrypt and decrypt accelerators are not required it is suggested as it makes lrw\_setiv() more efficient.
+
+Note that calling lrw\_done() will only invoke the cipher\_descriptor[].done() function on the ``symmetric\_key'' parameter of the LRW state.  That means 
+if your device requires any (LRW specific) resources you should free them in your ciphers() done function.  The simplest way to think of it is to write
+the plugin solely to do LRW with the cipher.  That way cipher\_descriptor[].setup() means to init LRW resources and cipher\_descriptor[].done() means to
+free them.
 
 \subsubsection{Accelerated CCM}
 This function is meant for accelerated CCM encryption or decryption.  It processes the entire packet in one call.  You can optimize the work flow somewhat
@@ -5076,5 +5181,5 @@ Since the function is given the entire RSA key (for private keys only) CRT is po
 \end{document}
 
 % $Source: /cvs/libtom/libtomcrypt/crypt.tex,v $   
-% $Revision: 1.59 $   
-% $Date: 2005/11/24 01:53:18 $ 
+% $Revision: 1.62 $   
+% $Date: 2006/01/26 18:29:02 $ 
