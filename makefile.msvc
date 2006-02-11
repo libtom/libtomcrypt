@@ -15,9 +15,8 @@ src/encauth/eax/eax_init.obj src/encauth/eax/eax_test.obj src/encauth/gcm/gcm_ad
 src/encauth/gcm/gcm_add_iv.obj src/encauth/gcm/gcm_done.obj src/encauth/gcm/gcm_gf_mult.obj \
 src/encauth/gcm/gcm_init.obj src/encauth/gcm/gcm_memory.obj src/encauth/gcm/gcm_mult_h.obj \
 src/encauth/gcm/gcm_process.obj src/encauth/gcm/gcm_reset.obj src/encauth/gcm/gcm_test.obj \
-src/encauth/nls/nls_memory.obj src/encauth/nls/nlsfast.obj src/encauth/ocb/ocb_decrypt.obj \
-src/encauth/ocb/ocb_decrypt_verify_memory.obj src/encauth/ocb/ocb_done_decrypt.obj \
-src/encauth/ocb/ocb_done_encrypt.obj src/encauth/ocb/ocb_encrypt.obj \
+src/encauth/ocb/ocb_decrypt.obj src/encauth/ocb/ocb_decrypt_verify_memory.obj \
+src/encauth/ocb/ocb_done_decrypt.obj src/encauth/ocb/ocb_done_encrypt.obj src/encauth/ocb/ocb_encrypt.obj \
 src/encauth/ocb/ocb_encrypt_authenticate_memory.obj src/encauth/ocb/ocb_init.obj src/encauth/ocb/ocb_ntz.obj \
 src/encauth/ocb/ocb_shift_xor.obj src/encauth/ocb/ocb_test.obj src/encauth/ocb/s_ocb_done.obj \
 src/hashes/chc/chc.obj src/hashes/helper/hash_file.obj src/hashes/helper/hash_filehandle.obj \
@@ -133,5 +132,5 @@ timing: demos/timing.c library
 	cl $(CFLAGS) demos/timing.c testprof/tomcrypt_prof.lib tomcrypt.lib advapi32.lib $(EXTRALIBS)
 
 # $Source: /cvs/libtom/libtomcrypt/makefile.msvc,v $   
-# $Revision: 1.29 $   
-# $Date: 2006/01/26 06:12:31 $ 
+# $Revision: 1.30 $   
+# $Date: 2006/01/29 15:53:38 $ 

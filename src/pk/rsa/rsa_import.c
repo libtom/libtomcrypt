@@ -38,7 +38,7 @@ int rsa_import(const unsigned char *in, unsigned long inlen, rsa_key *key)
    LTC_ARGCHK(ltc_mp.name != NULL);
 
    /* init key */
-   if ((err = mp_init_multi(&zero, &key->e, &key->d, &key->N, &key->dQ, 
+   if ((err = mp_init_multi(&key->e, &key->d, &key->N, &key->dQ, 
                             &key->dP, &key->qP, &key->p, &key->q, NULL)) != CRYPT_OK) {
       return err;
    }
@@ -95,6 +95,9 @@ int rsa_import(const unsigned char *in, unsigned long inlen, rsa_key *key)
    }
 
    if (mp_cmp_d(key->N, 0) == LTC_MP_EQ) {
+      if ((err = mp_init(&zero)) != CRYPT_OK) { 
+         goto LBL_ERR;
+      }
       /* it's a private key */
       if ((err = der_decode_sequence_multi(in, inlen, 
                           LTC_ASN1_INTEGER, 1UL, zero, 
@@ -107,8 +110,10 @@ int rsa_import(const unsigned char *in, unsigned long inlen, rsa_key *key)
                           LTC_ASN1_INTEGER, 1UL, key->dQ, 
                           LTC_ASN1_INTEGER, 1UL, key->qP, 
                           LTC_ASN1_EOL,     0UL, NULL)) != CRYPT_OK) {
+         mp_clear(zero);
          goto LBL_ERR;
       }
+      mp_clear(zero);
       key->type = PK_PRIVATE;
    } else if (mp_cmp_d(key->N, 1) == LTC_MP_EQ) {
       /* we don't support multi-prime RSA */
@@ -126,7 +131,7 @@ int rsa_import(const unsigned char *in, unsigned long inlen, rsa_key *key)
    }
    return CRYPT_OK;
 LBL_ERR:
-   mp_clear_multi(zero,    key->d, key->e, key->N, key->dQ, key->dP,
+   mp_clear_multi(key->d,  key->e, key->N, key->dQ, key->dP,
                   key->qP, key->p, key->q, NULL);
    return err;
 }

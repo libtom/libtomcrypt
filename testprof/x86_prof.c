@@ -330,6 +330,7 @@ int time_cipher(void)
         c2 = (t2 > c2 ? c2 : t2);
     }
     a2 = c2 - c1 - skew;
+    ecb_done(&ecb);
     
     results[no_results].id = x;
     results[no_results].spd1 = a1/(sizeof(pt)/cipher_descriptor[x].block_length);
@@ -401,6 +402,7 @@ int time_cipher2(void)
         c2 = (t2 > c2 ? c2 : t2);
     }
     a2 = c2 - c1 - skew;
+    cbc_done(&cbc);
     
     results[no_results].id = x;
     results[no_results].spd1 = a1/(sizeof(pt)/cipher_descriptor[x].block_length);
@@ -475,6 +477,7 @@ int time_cipher3(void)
         c2 = (t2 > c2 ? c2 : t2);
     }
     a2 = c2 - c1 - skew;
+    ctr_done(&ctr);
     
     results[no_results].id = x;
     results[no_results].spd1 = a1/(sizeof(pt)/cipher_descriptor[x].block_length);
@@ -493,6 +496,84 @@ int time_cipher3(void)
 #else
 int time_cipher3(void) { fprintf(stderr, "NO CTR\n"); return 0; }
 #endif
+
+#ifdef LRW_MODE
+int time_cipher4(void)
+{
+  unsigned long x, y1;
+  ulong64  t1, t2, c1, c2, a1, a2;
+  symmetric_LRW lrw;
+  unsigned char key[MAXBLOCKSIZE], pt[4096];
+  int err;
+
+  fprintf(stderr, "\n\nLRW Time Trials for the Symmetric Ciphers:\n");
+  no_results = 0;
+  for (x = 0; cipher_descriptor[x].name != NULL; x++) {
+    if (cipher_descriptor[x].block_length != 16) continue;
+    lrw_start(x, pt, key, cipher_descriptor[x].min_key_length, key, 0, &lrw);
+
+    /* sanity check on cipher */
+    if ((err = cipher_descriptor[x].test()) != CRYPT_OK) {
+       fprintf(stderr, "\n\nERROR: Cipher %s failed self-test %s\n", cipher_descriptor[x].name, error_to_string(err));
+       exit(EXIT_FAILURE);
+    }
+
+#define DO1   lrw_encrypt(pt, pt, sizeof(pt), &lrw);
+#define DO2   DO1 DO1
+
+    c1 = c2 = (ulong64)-1;
+    for (y1 = 0; y1 < 100; y1++) {
+        t_start();
+        DO1;
+        t1 = t_read();
+        DO2;
+        t2 = t_read();
+        t2 -= t1;
+
+        c1 = (t1 > c1 ? c1 : t1);
+        c2 = (t2 > c2 ? c2 : t2);
+    }
+    a1 = c2 - c1 - skew;
+
+#undef DO1
+#undef DO2
+#define DO1   lrw_decrypt(pt, pt, sizeof(pt), &lrw);
+#define DO2   DO1 DO1
+
+    c1 = c2 = (ulong64)-1;
+    for (y1 = 0; y1 < 100; y1++) {
+        t_start();
+        DO1;
+        t1 = t_read();
+        DO2;
+        t2 = t_read();
+        t2 -= t1;
+
+        c1 = (t1 > c1 ? c1 : t1);
+        c2 = (t2 > c2 ? c2 : t2);
+    }
+    a2 = c2 - c1 - skew;
+
+    lrw_done(&lrw);
+    
+    results[no_results].id = x;
+    results[no_results].spd1 = a1/(sizeof(pt)/cipher_descriptor[x].block_length);
+    results[no_results].spd2 = a2/(sizeof(pt)/cipher_descriptor[x].block_length);
+    results[no_results].avg = (results[no_results].spd1 + results[no_results].spd2+1)/2;
+    ++no_results;
+    fprintf(stderr, "."); fflush(stdout);
+    
+#undef DO2
+#undef DO1
+   }
+   tally_results(1);
+
+   return 0;
+}
+#else
+int time_cipher4(void) { fprintf(stderr, "NO LRW\n"); return 0; }
+#endif
+
 
 int time_hash(void)
 {

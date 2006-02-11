@@ -192,8 +192,6 @@
 #define OCB_MODE
 #define CCM_MODE
 #define GCM_MODE
-/* disabled waiting on test vectors */
-/* #define NLS_MODE */
 
 /* Use 64KiB tables */
 #ifndef LTC_NO_TABLES

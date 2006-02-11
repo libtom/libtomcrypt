@@ -4,7 +4,7 @@
 # Modified by Clay Culver
 
 # The version
-VERSION=1.09
+VERSION=1.10
 
 # Compiler and Linker Names
 #CC=gcc
@@ -113,9 +113,8 @@ src/encauth/eax/eax_init.o src/encauth/eax/eax_test.o src/encauth/gcm/gcm_add_aa
 src/encauth/gcm/gcm_add_iv.o src/encauth/gcm/gcm_done.o src/encauth/gcm/gcm_gf_mult.o \
 src/encauth/gcm/gcm_init.o src/encauth/gcm/gcm_memory.o src/encauth/gcm/gcm_mult_h.o \
 src/encauth/gcm/gcm_process.o src/encauth/gcm/gcm_reset.o src/encauth/gcm/gcm_test.o \
-src/encauth/nls/nls_memory.o src/encauth/nls/nlsfast.o src/encauth/ocb/ocb_decrypt.o \
-src/encauth/ocb/ocb_decrypt_verify_memory.o src/encauth/ocb/ocb_done_decrypt.o \
-src/encauth/ocb/ocb_done_encrypt.o src/encauth/ocb/ocb_encrypt.o \
+src/encauth/ocb/ocb_decrypt.o src/encauth/ocb/ocb_decrypt_verify_memory.o \
+src/encauth/ocb/ocb_done_decrypt.o src/encauth/ocb/ocb_done_encrypt.o src/encauth/ocb/ocb_encrypt.o \
 src/encauth/ocb/ocb_encrypt_authenticate_memory.o src/encauth/ocb/ocb_init.o src/encauth/ocb/ocb_ntz.o \
 src/encauth/ocb/ocb_shift_xor.o src/encauth/ocb/ocb_test.o src/encauth/ocb/s_ocb_done.o \
 src/hashes/chc/chc.o src/hashes/helper/hash_file.o src/hashes/helper/hash_filehandle.o \
@@ -365,5 +364,5 @@ zipup: no_oops docs
 
 
 # $Source: /cvs/libtom/libtomcrypt/makefile,v $ 
-# $Revision: 1.114 $ 
-# $Date: 2006/01/26 06:12:31 $ 
+# $Revision: 1.116 $ 
+# $Date: 2006/01/29 15:53:38 $ 

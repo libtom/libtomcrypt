@@ -18,6 +18,7 @@ time_keysched();
 time_cipher();
 time_cipher2();
 time_cipher3();
+time_cipher4();
 time_hash();
 time_macs();
 time_encmacs();

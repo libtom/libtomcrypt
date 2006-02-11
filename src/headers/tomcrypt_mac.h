@@ -216,6 +216,12 @@ int ccm_test(void);
 void gcm_gf_mult(const unsigned char *a, const unsigned char *b, unsigned char *c);
 #endif
 
+
+/* table shared between GCM and LRW */
+#if defined(GCM_TABLES) || defined(LRW_TABLES) || ((defined(GCM_MODE) || defined(GCM_MODE)) && defined(LTC_FAST))
+extern const unsigned char gcm_shift_table[];
+#endif
+
 #ifdef GCM_MODE
 
 #define GCM_ENCRYPT 0
@@ -299,48 +305,6 @@ int pelican_memory(const unsigned char *key, unsigned long keylen,
                          unsigned char *out);
 
 #endif
-
-#ifdef NLS_MODE
-
-#define NLS_ENCRYPT 0
-#define NLS_DECRYPT 1
-
-typedef struct {
-    ulong32	R[17];		/* Working storage for the shift register */
-    ulong32	M[8];	/* Working storage for MAC accumulation */
-    ulong32	CRC[8];	/* Working storage for CRC accumulation */
-    ulong32	initR[17];	/* saved register contents */ 
-    ulong32	konst;		/* key dependent constant */
-    ulong32	sbuf;		/* partial ulong32 encryption buffer */
-    ulong32	mbuf;		/* partial ulong32 MAC buffer */
-    int		nbuf;		/* number of part-ulong32 stream bits buffered */
-    ulong32	CtrModF16;	/* Multiprecision counter, modulo F16 */
-    ulong32	CtrMod232;	/* Multiprecision counter, LSW */
-} nls_state;
-
-/* interface definitions */
-int nls_key(nls_state *c,     const unsigned char *key,   unsigned long keylen);   /* set key */
-int nls_nonce(nls_state *c,   const unsigned char *nonce, unsigned long noncelen); /* set IV */
-int nls_maconly(nls_state *c, const unsigned char *buf,   unsigned long nbytes);   /* accumulate MAC */
-int nls_encrypt(nls_state * c, 
-                const unsigned char *pt, unsigned long nbytes,
-                      unsigned char *ct);                                          /* enc+MAC */
-int nls_decrypt(nls_state * c, 
-                const unsigned char *ct, unsigned long nbytes,
-                      unsigned char *pt);                                          /* dec+MAC */
-int nls_finish(nls_state *c,  unsigned char *buf, unsigned long nbytes);           /* finalize MAC */
-
-int nls_memory(const unsigned char *key,    unsigned long keylen,
-               const unsigned char *IV,     unsigned long IVlen,
-               const unsigned char *adata,  unsigned long adatalen,
-                     unsigned char *pt,     unsigned long ptlen,
-                     unsigned char *ct, 
-                     unsigned char *tag,    unsigned long taglen,
-                               int direction);
-
-
-#endif
-
 
 /* $Source$ */
 /* $Revision$ */

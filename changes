@@ -1,3 +1,11 @@
+February 11th, 2006
+v1.10 -- Free ecb/cbc/ctr/lrw structures in timing code by calling the "done" function
+      -- fixed bug in lrw_process() which would always use the slow update ...
+      -- vastly sped up gcm_gf_mult() when LTC_FAST is defined.  This speeds up LRW and GCM state creation, useful for servers with GCM
+      -- Removed NLS since there are some attacks against it.  
+      -- fixed memory leak in rsa_import reported by John Kuhns
+      ++ re-released as the rsa fix was incorrect (bad John bad ... hehehe) and I missed some NULLs in the static descriptor entry for ciphers 
+
 January 26th, 2006
 v1.09 -- Added missing doxygen comments to some of the ASN.1 routines
       -- Added "easy button" define LTC_EASY and LTC will build with a subset of all the algos.  Reduces build times for typical
@@ -1405,6 +1413,6 @@ v0.02  -- Changed RC5 to only allow 12 to 24 rounds
 v0.01  -- We will call this the first version.
 
 /* $Source: /cvs/libtom/libtomcrypt/changes,v $ */
-/* $Revision: 1.168 $ */
-/* $Date: 2006/01/26 18:15:51 $ */
+/* $Revision: 1.173 $ */
+/* $Date: 2006/02/11 09:18:11 $ */
 
