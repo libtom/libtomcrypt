@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.org
+ * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.com
  */
 
 /* Implements ECC over Z/pZ for curve y^2 = x^3 - 3x + b
@@ -88,10 +88,10 @@ int ecc_verify_hash(const unsigned char *sig,  unsigned long siglen,
    }
 
    /* get the order */
-   if ((err = mp_read_radix(p, (char *)ltc_ecc_sets[key->idx].order, 64)) != CRYPT_OK)                  { goto error; }
+   if ((err = mp_read_radix(p, (char *)ltc_ecc_sets[key->idx].order, 16)) != CRYPT_OK)                  { goto error; }
 
    /* get the modulus */
-   if ((err = mp_read_radix(m, (char *)ltc_ecc_sets[key->idx].prime, 64)) != CRYPT_OK)                  { goto error; }
+   if ((err = mp_read_radix(m, (char *)ltc_ecc_sets[key->idx].prime, 16)) != CRYPT_OK)                  { goto error; }
 
    /* check for zero */
    if (mp_iszero(r) || mp_iszero(s) || mp_cmp(r, p) != LTC_MP_LT || mp_cmp(s, p) != LTC_MP_LT) {
@@ -112,8 +112,8 @@ int ecc_verify_hash(const unsigned char *sig,  unsigned long siglen,
    if ((err = mp_mulmod(r, w, p, u2)) != CRYPT_OK)                                                      { goto error; }
 
    /* find mG = u1*G */
-   if ((err = mp_read_radix(mG->x, (char *)ltc_ecc_sets[key->idx].Gx, 64)) != CRYPT_OK)                 { goto error; }
-   if ((err = mp_read_radix(mG->y, (char *)ltc_ecc_sets[key->idx].Gy, 64)) != CRYPT_OK)                 { goto error; }
+   if ((err = mp_read_radix(mG->x, (char *)ltc_ecc_sets[key->idx].Gx, 16)) != CRYPT_OK)                 { goto error; }
+   if ((err = mp_read_radix(mG->y, (char *)ltc_ecc_sets[key->idx].Gy, 16)) != CRYPT_OK)                 { goto error; }
    mp_set(mG->z, 1);  
    if ((err = ltc_mp.ecc_ptmul(u1, mG, mG, m, 0)) != CRYPT_OK)                                          { goto done; }
 

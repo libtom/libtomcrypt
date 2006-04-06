@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.org
+ * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.com
  */
 
 /* Implements ECC over Z/pZ for curve y^2 = x^3 - 3x + b
@@ -33,8 +33,8 @@ static int is_point(ecc_key *key)
    }
    
    /* load prime and b */
-   if ((err = mp_read_radix(prime, ltc_ecc_sets[key->idx].prime, 64)) != CRYPT_OK)            { goto error; }
-   if ((err = mp_read_radix(b, ltc_ecc_sets[key->idx].B, 64)) != CRYPT_OK)                    { goto error; }
+   if ((err = mp_read_radix(prime, ltc_ecc_sets[key->idx].prime, 16)) != CRYPT_OK)            { goto error; }
+   if ((err = mp_read_radix(b, ltc_ecc_sets[key->idx].B, 16)) != CRYPT_OK)                    { goto error; }
    
    /* compute y^2 */
    if ((err = mp_sqr(key->pubkey.y, t1)) != CRYPT_OK)                                         { goto error; }

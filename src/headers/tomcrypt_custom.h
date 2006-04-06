@@ -257,13 +257,17 @@
 #define MRSA
 
 /* Include Katja (a Rabin variant like RSA) */
-// #define MKAT 
+/* #define MKAT */ 
 
 /* Digital Signature Algorithm */
 #define MDSA
 
 /* ECC */
 #define MECC
+
+#if defined(TFM_DESC) && defined(MECC)
+   #define MECC_ACCEL
+#endif   
 
 /* Timing Resistant? */
 /* #define LTC_ECC_TIMING_RESISTANT */

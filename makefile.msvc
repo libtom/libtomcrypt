@@ -30,8 +30,8 @@ src/mac/omac/omac_memory_multi.obj src/mac/omac/omac_process.obj src/mac/omac/om
 src/mac/pelican/pelican.obj src/mac/pelican/pelican_memory.obj src/mac/pelican/pelican_test.obj \
 src/mac/pmac/pmac_done.obj src/mac/pmac/pmac_file.obj src/mac/pmac/pmac_init.obj src/mac/pmac/pmac_memory.obj \
 src/mac/pmac/pmac_memory_multi.obj src/mac/pmac/pmac_ntz.obj src/mac/pmac/pmac_process.obj \
-src/mac/pmac/pmac_shift_xor.obj src/mac/pmac/pmac_test.obj src/math/ltm_desc.obj src/math/multi.obj \
-src/math/rand_prime.obj src/math/tfm_desc.obj src/misc/base64/base64_decode.obj \
+src/mac/pmac/pmac_shift_xor.obj src/mac/pmac/pmac_test.obj src/math/gmp_desc.obj src/math/ltm_desc.obj \
+src/math/multi.obj src/math/rand_prime.obj src/math/tfm_desc.obj src/misc/base64/base64_decode.obj \
 src/misc/base64/base64_encode.obj src/misc/burn_stack.obj src/misc/crypt/crypt.obj \
 src/misc/crypt/crypt_argchk.obj src/misc/crypt/crypt_cipher_descriptor.obj \
 src/misc/crypt/crypt_cipher_is_valid.obj src/misc/crypt/crypt_find_cipher.obj \
@@ -132,5 +132,5 @@ timing: demos/timing.c library
 	cl $(CFLAGS) demos/timing.c testprof/tomcrypt_prof.lib tomcrypt.lib advapi32.lib $(EXTRALIBS)
 
 # $Source: /cvs/libtom/libtomcrypt/makefile.msvc,v $   
-# $Revision: 1.30 $   
-# $Date: 2006/01/29 15:53:38 $ 
+# $Revision: 1.31 $   
+# $Date: 2006/03/18 03:48:32 $ 

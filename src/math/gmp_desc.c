@@ -12,56 +12,53 @@
 #define DESC_DEF_ONLY
 #include "tomcrypt.h"
 
-#ifdef LTM_DESC
+#ifdef GMP_DESC
 
-#include <tommath.h>
+#include <stdio.h>
+#include <gmp.h>
 
 static const struct {
-    int mpi_code, ltc_code;
-} mpi_to_ltc_codes[] = {
-   { MP_OKAY ,  CRYPT_OK},
-   { MP_MEM  ,  CRYPT_MEM},
-   { MP_VAL  ,  CRYPT_INVALID_ARG},
+    int gmp_code, ltc_code;
+} gmp_to_ltc_codes[] = {
+   { GMP_ERROR_NONE,            CRYPT_OK},
+   { GMP_ERROR_ALLOCATE,        CRYPT_MEM},
+   { GMP_ERROR_DIVISION_BY_ZERO,      CRYPT_INVALID_ARG},
+   { GMP_ERROR_UNSUPPORTED_ARGUMENT,  CRYPT_INVALID_ARG},
 };
 
 /**
-   Convert a MPI error to a LTC error (Possibly the most powerful function ever!  Oh wait... no) 
+   Convert a GMP error to a LTC error (Possibly the most powerful function ever!  Oh wait... no) 
    @param err    The error to convert
    @return The equivalent LTC error code or CRYPT_ERROR if none found
 */
-static int mpi_to_ltc_error(int err)
+static int gmp_to_ltc_error(int err)
 {
    int x;
 
-   for (x = 0; x < (int)(sizeof(mpi_to_ltc_codes)/sizeof(mpi_to_ltc_codes[0])); x++) {
-       if (err == mpi_to_ltc_codes[x].mpi_code) { 
-          return mpi_to_ltc_codes[x].ltc_code;
+   for (x = 0; x < (int)(sizeof(gmp_to_ltc_codes)/sizeof(gmp_to_ltc_codes[0])); x++) {
+       if (err == gmp_to_ltc_codes[x].gmp_code) { 
+          return gmp_to_ltc_codes[x].ltc_code;
        }
    }
    return CRYPT_ERROR;
 }
 
 static int init(void **a)
-{
-   int err;
-
+{ 
    LTC_ARGCHK(a != NULL);
 
-   *a = XCALLOC(1, sizeof(mp_int));
+   *a = XCALLOC(1, sizeof(__mpz_struct));
    if (*a == NULL) {
       return CRYPT_MEM;
    }
-   
-   if ((err = mpi_to_ltc_error(mp_init(*a))) != CRYPT_OK) {
-      XFREE(*a);
-   }
-   return err;
+   mpz_init(((__mpz_struct *)*a));
+   return CRYPT_OK;
 }
 
 static void deinit(void *a)
 {
    LTC_ARGCHK(a != NULL);
-   mp_clear(a);
+   mpz_clear(a);
    XFREE(a);
 }
 
@@ -69,14 +66,16 @@ static int neg(void *a, void *b)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
-   return mpi_to_ltc_error(mp_neg(a, b));
+   mpz_neg(b, a);
+   return CRYPT_OK;
 }
 
 static int copy(void *a, void *b)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
-   return mpi_to_ltc_error(mp_copy(a, b));
+   mpz_set(b, a);
+   return CRYPT_OK;
 }
 
 static int init_copy(void **a, void *b)
@@ -91,29 +90,26 @@ static int init_copy(void **a, void *b)
 static int set_int(void *a, unsigned long b)
 {
    LTC_ARGCHK(a != NULL);
-   return mpi_to_ltc_error(mp_set_int(a, b));
+   mpz_set_ui(((__mpz_struct *)a), b);
+   return CRYPT_OK;
 }
 
 static unsigned long get_int(void *a)
 {
    LTC_ARGCHK(a != NULL);
-   return mp_get_int(a);
+   return mpz_get_ui(a);
 }
 
 static unsigned long get_digit(void *a, int n)
 {
-   mp_int *A;
    LTC_ARGCHK(a != NULL);
-   A = a;
-   return (n >= A->used || n < 0) ? 0 : A->dp[n];
+   return mpz_getlimbn(a, n);
 }
 
 static int get_digit_count(void *a)
 {
-   mp_int *A;
    LTC_ARGCHK(a != NULL);
-   A = a;
-   return A->used;
+   return mpz_size(a);
 }
    
 static int compare(void *a, void *b)
@@ -121,38 +117,42 @@ static int compare(void *a, void *b)
    int ret;
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
-   ret = mp_cmp(a, b);
-   switch (ret) {
-      case MP_LT: return LTC_MP_LT;
-      case MP_EQ: return LTC_MP_EQ;
-      case MP_GT: return LTC_MP_GT;
+   ret = mpz_cmp(a, b);
+   if (ret < 0) {
+      return LTC_MP_LT;
+   } else if (ret > 0) {
+      return LTC_MP_GT;
+   } else {
+      return LTC_MP_EQ;
    }
-   return 0;
 }
 
 static int compare_d(void *a, unsigned long b)
 {
    int ret;
    LTC_ARGCHK(a != NULL);
-   ret = mp_cmp_d(a, b);
-   switch (ret) {
-      case MP_LT: return LTC_MP_LT;
-      case MP_EQ: return LTC_MP_EQ;
-      case MP_GT: return LTC_MP_GT;
+   ret = mpz_cmp_ui(((__mpz_struct *)a), b);
+   if (ret < 0) {
+      return LTC_MP_LT;
+   } else if (ret > 0) {
+      return LTC_MP_GT;
+   } else {
+      return LTC_MP_EQ;
    }
-   return 0;
 }
 
 static int count_bits(void *a)
 {
    LTC_ARGCHK(a != NULL);
-   return mp_count_bits(a);
+   return mpz_sizeinbase(a, 2);
 }
 
 static int twoexpt(void *a, int n)
 {
    LTC_ARGCHK(a != NULL);
-   return mpi_to_ltc_error(mp_2expt(a, n));
+   mpz_set_ui(a, 0);
+   mpz_setbit(a, n);
+   return CRYPT_OK;
 }
 
 /* ---- conversions ---- */
@@ -162,7 +162,8 @@ static int read_radix(void *a, const char *b, int radix)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
-   return mpi_to_ltc_error(mp_read_radix(a, b, radix));
+   mpz_set_str(a, b, radix);
+   return CRYPT_OK;
 }
 
 /* write one */
@@ -170,14 +171,18 @@ static int write_radix(void *a, char *b, int radix)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
-   return mpi_to_ltc_error(mp_toradix(a, b, radix));
+   mpz_get_str(b, radix, a);
+   return CRYPT_OK;
 }
 
 /* get size as unsigned char string */
 static unsigned long unsigned_size(void *a)
 {
+   unsigned long t;
    LTC_ARGCHK(a != NULL);
-   return mp_unsigned_bin_size(a);
+   t = mpz_sizeinbase(a, 2);
+   if (mpz_cmp_ui(((__mpz_struct *)a), 0) == 0) return 0;
+   return (t>>3) + ((t&7)?1:0);
 }
 
 /* store */
@@ -185,7 +190,8 @@ static int unsigned_write(void *a, unsigned char *b)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
-   return mpi_to_ltc_error(mp_to_unsigned_bin(a, b));
+   mpz_export(b, NULL, 1, 1, 1, 0, ((__mpz_struct*)a));
+   return CRYPT_OK;
 }
 
 /* read */
@@ -193,7 +199,8 @@ static int unsigned_read(void *a, unsigned char *b, unsigned long len)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
-   return mpi_to_ltc_error(mp_read_unsigned_bin(a, b, len));
+   mpz_import(a, len, 1, 1, 1, 0, b);
+   return CRYPT_OK;
 }
 
 /* add */
@@ -202,14 +209,16 @@ static int add(void *a, void *b, void *c)
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
    LTC_ARGCHK(c != NULL);
-   return mpi_to_ltc_error(mp_add(a, b, c));
+   mpz_add(c, a, b);
+   return CRYPT_OK;
 }
   
 static int addi(void *a, unsigned long b, void *c)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(c != NULL);
-   return mpi_to_ltc_error(mp_add_d(a, b, c));
+   mpz_add_ui(c, a, b);
+   return CRYPT_OK;
 }
 
 /* sub */
@@ -218,14 +227,16 @@ static int sub(void *a, void *b, void *c)
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
    LTC_ARGCHK(c != NULL);
-   return mpi_to_ltc_error(mp_sub(a, b, c));
+   mpz_sub(c, a, b);
+   return CRYPT_OK;
 }
 
 static int subi(void *a, unsigned long b, void *c)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(c != NULL);
-   return mpi_to_ltc_error(mp_sub_d(a, b, c));
+   mpz_sub_ui(c, a, b);
+   return CRYPT_OK;
 }
 
 /* mul */
@@ -234,14 +245,16 @@ static int mul(void *a, void *b, void *c)
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
    LTC_ARGCHK(c != NULL);
-   return mpi_to_ltc_error(mp_mul(a, b, c));
+   mpz_mul(c, a, b);
+   return CRYPT_OK;
 }
 
 static int muli(void *a, unsigned long b, void *c)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(c != NULL);
-   return mpi_to_ltc_error(mp_mul_d(a, b, c));
+   mpz_mul_ui(c, a, b);
+   return CRYPT_OK;
 }
 
 /* sqr */
@@ -249,37 +262,45 @@ static int sqr(void *a, void *b)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
-   return mpi_to_ltc_error(mp_sqr(a, b));
+   mpz_mul(b, a, a);
+   return CRYPT_OK;
 }
 
 /* div */
 static int divide(void *a, void *b, void *c, void *d)
 {
+   mpz_t tmp;
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
-   return mpi_to_ltc_error(mp_div(a, b, c, d));
+   if (c != NULL) {
+      mpz_init(tmp);
+      mpz_divexact(tmp, a, b);
+   }
+   if (d != NULL) {
+      mpz_mod(d, a, b);
+   }
+   if (c != NULL) {
+      mpz_set(c, tmp);
+      mpz_clear(tmp);
+   }
+   return CRYPT_OK;
 }
 
 static int div_2(void *a, void *b)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
-   return mpi_to_ltc_error(mp_div_2(a, b));
+   mpz_divexact_ui(b, a, 2);
+   return CRYPT_OK;
 }
 
 /* modi */
 static int modi(void *a, unsigned long b, unsigned long *c)
 {
-   mp_digit tmp;
-   int      err;
-
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(c != NULL);
-
-   if ((err = mpi_to_ltc_error(mp_mod_d(a, b, &tmp))) != CRYPT_OK) {
-      return err;
-   }
-   *c = tmp;
+   
+   *c = mpz_fdiv_ui(a, b);
    return CRYPT_OK;
 }  
 
@@ -289,7 +310,8 @@ static int gcd(void *a, void *b, void *c)
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
    LTC_ARGCHK(c != NULL);
-   return mpi_to_ltc_error(mp_gcd(a, b, c));
+   mpz_gcd(c, a, b);
+   return CRYPT_OK;
 }
 
 /* lcm */
@@ -298,7 +320,8 @@ static int lcm(void *a, void *b, void *c)
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
    LTC_ARGCHK(c != NULL);
-   return mpi_to_ltc_error(mp_lcm(a, b, c));
+   mpz_lcm(c, a, b);
+   return CRYPT_OK;
 }
 
 static int mulmod(void *a, void *b, void *c, void *d)
@@ -307,7 +330,9 @@ static int mulmod(void *a, void *b, void *c, void *d)
    LTC_ARGCHK(b != NULL);
    LTC_ARGCHK(c != NULL);
    LTC_ARGCHK(d != NULL);
-   return mpi_to_ltc_error(mp_mulmod(a,b,c,d));
+   mpz_mul(d, a, b);
+   mpz_mod(d, d, c);
+   return CRYPT_OK;
 }
 
 /* invmod */
@@ -316,7 +341,8 @@ static int invmod(void *a, void *b, void *c)
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
    LTC_ARGCHK(c != NULL);
-   return mpi_to_ltc_error(mp_invmod(a, b, c));
+   mpz_invert(c, a, b);
+   return CRYPT_OK;
 }
 
 /* setup */
@@ -325,14 +351,8 @@ static int montgomery_setup(void *a, void **b)
    int err;
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
-   *b = XCALLOC(1, sizeof(mp_digit));
-   if (*b == NULL) {
-      return CRYPT_MEM;
-   }
-   if ((err = mpi_to_ltc_error(mp_montgomery_setup(a, (mp_digit *)*b))) != CRYPT_OK) {
-      XFREE(*b);
-   }
-   return err;
+   *b = 1;
+   return CRYPT_OK;
 }
 
 /* get normalization value */
@@ -340,7 +360,8 @@ static int montgomery_normalization(void *a, void *b)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
-   return mpi_to_ltc_error(mp_montgomery_calc_normalization(a, b));
+   mpz_set_ui(a, 1);
+   return CRYPT_OK;
 }
 
 /* reduce */
@@ -349,13 +370,13 @@ static int montgomery_reduce(void *a, void *b, void *c)
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
    LTC_ARGCHK(c != NULL);
-   return mpi_to_ltc_error(mp_montgomery_reduce(a, b, *((mp_digit *)c)));
+   mpz_mod(a, a, b);
+   return CRYPT_OK;
 }
 
 /* clean up */
 static void montgomery_deinit(void *a)
 {
-   XFREE(a);
 }
 
 static int exptmod(void *a, void *b, void *c, void *d)
@@ -364,23 +385,21 @@ static int exptmod(void *a, void *b, void *c, void *d)
    LTC_ARGCHK(b != NULL);
    LTC_ARGCHK(c != NULL);
    LTC_ARGCHK(d != NULL);
-   return mpi_to_ltc_error(mp_exptmod(a,b,c,d));
+   mpz_powm(d, a, b, c);
+   return CRYPT_OK;
 }   
 
 static int isprime(void *a, int *b)
 {
-   int err;
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
-   err = mpi_to_ltc_error(mp_prime_is_prime(a, 8, b));
-   *b = (*b == MP_YES) ? LTC_MP_YES : LTC_MP_NO;
-   return err;
-}   
+   *b = mpz_probab_prime_p(a, 8) > 0 ? LTC_MP_YES : LTC_MP_NO;
+   return CRYPT_OK;
+}
 
-const ltc_math_descriptor ltm_desc = {
-
-   "LibTomMath",
-   (int)DIGIT_BIT,
+const ltc_math_descriptor gmp_desc = {
+   "GNU MP",
+   sizeof(mp_limb_t) * CHAR_BIT - GMP_NAIL_BITS,
 
    &init,
    &init_copy,
@@ -419,7 +438,7 @@ const ltc_math_descriptor ltm_desc = {
 
    &mulmod,
    &invmod,
-   
+
    &montgomery_setup,
    &montgomery_normalization,
    &montgomery_reduce,
@@ -443,6 +462,7 @@ const ltc_math_descriptor ltm_desc = {
 #else
    NULL, NULL
 #endif
+   
 };
 
 

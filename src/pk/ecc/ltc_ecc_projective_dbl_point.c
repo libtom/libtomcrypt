@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.org
+ * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.com
  */
 
 /* Implements ECC over Z/pZ for curve y^2 = x^3 - 3x + b
@@ -21,7 +21,8 @@
   ECC Crypto, Tom St Denis
 */  
 
-#ifdef MECC
+#if defined(MECC) && !defined(MECC_ACCEL)
+
 /**
    Double an ECC point
    @param P   The point to double

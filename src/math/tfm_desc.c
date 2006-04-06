@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.org
+ * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.com
  */
 
 #define DESC_DEF_ONLY
@@ -387,7 +387,280 @@ static int isprime(void *a, int *b)
    LTC_ARGCHK(b != NULL);
    *b = (fp_isprime(a) == FP_YES) ? LTC_MP_YES : LTC_MP_NO;
    return CRYPT_OK;
-}   
+}
+
+#if defined(MECC) && defined(MECC_ACCEL)
+
+static int tfm_ecc_projective_dbl_point(ecc_point *P, ecc_point *R, void *modulus, void *Mp)
+{
+   fp_int t1, t2;
+   fp_digit mp;
+
+   LTC_ARGCHK(P       != NULL);
+   LTC_ARGCHK(R       != NULL);
+   LTC_ARGCHK(modulus != NULL);
+   LTC_ARGCHK(Mp      != NULL);
+
+   mp = *((fp_digit*)Mp);
+
+   fp_init(&t1);
+   fp_init(&t2);
+
+   if (P != R) {
+      fp_copy(P->x, R->x);
+      fp_copy(P->y, R->y);
+      fp_copy(P->z, R->z);
+   }
+
+   /* t1 = Z * Z */
+   fp_sqr(R->z, &t1);
+   fp_montgomery_reduce(&t1, modulus, mp);
+   /* Z = Y * Z */
+   fp_mul(R->z, R->y, R->z);
+   fp_montgomery_reduce(R->z, modulus, mp);
+   /* Z = 2Z */
+   fp_add(R->z, R->z, R->z);
+   if (fp_cmp(R->z, modulus) != FP_LT) {
+      fp_sub(R->z, modulus, R->z);
+   }
+   
+   /* &t2 = X - T1 */
+   fp_sub(R->x, &t1, &t2);
+   if (fp_cmp_d(&t2, 0) == FP_LT) {
+      fp_add(&t2, modulus, &t2);
+   }
+   /* T1 = X + T1 */
+   fp_add(&t1, R->x, &t1);
+   if (fp_cmp(&t1, modulus) != FP_LT) {
+      fp_sub(&t1, modulus, &t1);
+   }
+   /* T2 = T1 * T2 */
+   fp_mul(&t1, &t2, &t2);
+   fp_montgomery_reduce(&t2, modulus, mp);
+   /* T1 = 2T2 */
+   fp_add(&t2, &t2, &t1);
+   if (fp_cmp(&t1, modulus) != FP_LT) {
+      fp_sub(&t1, modulus, &t1);
+   }
+   /* T1 = T1 + T2 */
+   fp_add(&t1, &t2, &t1);
+   if (fp_cmp(&t1, modulus) != FP_LT) {
+      fp_sub(&t1, modulus, &t1);
+   }
+
+   /* Y = 2Y */
+   fp_add(R->y, R->y, R->y);
+   if (fp_cmp(R->y, modulus) != FP_LT) {
+      fp_sub(R->y, modulus, R->y);
+   }
+   /* Y = Y * Y */
+   fp_sqr(R->y, R->y);
+   fp_montgomery_reduce(R->y, modulus, mp);
+   /* T2 = Y * Y */
+   fp_sqr(R->y, &t2);
+   fp_montgomery_reduce(&t2, modulus, mp);
+   /* T2 = T2/2 */
+   if (fp_isodd(&t2)) {
+      fp_add(&t2, modulus, &t2);
+   }
+   fp_div_2(&t2, &t2);
+   /* Y = Y * X */
+   fp_mul(R->y, R->x, R->y);
+   fp_montgomery_reduce(R->y, modulus, mp);
+
+   /* X  = T1 * T1 */
+   fp_sqr(&t1, R->x);
+   fp_montgomery_reduce(R->x, modulus, mp);
+   /* X = X - Y */
+   fp_sub(R->x, R->y, R->x);
+   if (fp_cmp_d(R->x, 0) == FP_LT) {
+      fp_add(R->x, modulus, R->x);
+   }
+   /* X = X - Y */
+   fp_sub(R->x, R->y, R->x);
+   if (fp_cmp_d(R->x, 0) == FP_LT) {
+      fp_add(R->x, modulus, R->x);
+   }
+
+   /* Y = Y - X */     
+   fp_sub(R->y, R->x, R->y);
+   if (fp_cmp_d(R->y, 0) == FP_LT) {
+      fp_add(R->y, modulus, R->y);
+   }
+   /* Y = Y * T1 */
+   fp_mul(R->y, &t1, R->y);
+   fp_montgomery_reduce(R->y, modulus, mp);
+   /* Y = Y - T2 */
+   fp_sub(R->y, &t2, R->y);
+   if (fp_cmp_d(R->y, 0) == FP_LT) {
+      fp_add(R->y, modulus, R->y);
+   }
+ 
+   return CRYPT_OK;
+}
+
+/**
+   Add two ECC points
+   @param P        The point to add
+   @param Q        The point to add
+   @param R        [out] The destination of the double
+   @param modulus  The modulus of the field the ECC curve is in
+   @param mp       The "b" value from montgomery_setup()
+   @return CRYPT_OK on success
+*/
+static int tfm_ecc_projective_add_point(ecc_point *P, ecc_point *Q, ecc_point *R, void *modulus, void *Mp)
+{
+   fp_int  t1, t2, x, y, z;
+   fp_digit mp;  
+   
+   LTC_ARGCHK(P       != NULL);
+   LTC_ARGCHK(Q       != NULL);
+   LTC_ARGCHK(R       != NULL);
+   LTC_ARGCHK(modulus != NULL);
+   LTC_ARGCHK(Mp      != NULL);
+
+   mp = *((fp_digit*)Mp);
+
+   fp_init(&t1);
+   fp_init(&t2);
+   fp_init(&x);
+   fp_init(&y);
+   fp_init(&z);
+
+   /* should we dbl instead? */
+   fp_sub(modulus, Q->y, &t1);
+   if ( (fp_cmp(P->x, Q->x) == FP_EQ) && 
+        (fp_cmp(P->z, Q->z) == FP_EQ) &&
+        (fp_cmp(P->y, Q->y) == FP_EQ || fp_cmp(P->y, &t1) == FP_EQ)) {
+        return tfm_ecc_projective_dbl_point(P, R, modulus, Mp);
+   }
+
+   fp_copy(P->x, &x);
+   fp_copy(P->y, &y);
+   fp_copy(P->z, &z);
+
+   /* if Z is one then these are no-operations */
+      /* T1 = Z' * Z' */
+      fp_sqr(Q->z, &t1);
+      fp_montgomery_reduce(&t1, modulus, mp);
+      /* X = X * T1 */
+      fp_mul(&t1, &x, &x);
+      fp_montgomery_reduce(&x, modulus, mp);
+      /* T1 = Z' * T1 */
+      fp_mul(Q->z, &t1, &t1);
+      fp_montgomery_reduce(&t1, modulus, mp);
+      /* Y = Y * T1 */
+      fp_mul(&t1, &y, &y);
+      fp_montgomery_reduce(&y, modulus, mp);
+   
+   /* T1 = Z*Z */
+   fp_sqr(&z, &t1);
+   fp_montgomery_reduce(&t1, modulus, mp);
+   /* T2 = X' * T1 */
+   fp_mul(Q->x, &t1, &t2);
+   fp_montgomery_reduce(&t2, modulus, mp);
+   /* T1 = Z * T1 */
+   fp_mul(&z, &t1, &t1);
+   fp_montgomery_reduce(&t1, modulus, mp);
+   /* T1 = Y' * T1 */
+   fp_mul(Q->y, &t1, &t1);
+   fp_montgomery_reduce(&t1, modulus, mp);
+
+   /* Y = Y - T1 */
+   fp_sub(&y, &t1, &y);
+   if (fp_cmp_d(&y, 0) == FP_LT) {
+      fp_add(&y, modulus, &y);
+   }
+   /* T1 = 2T1 */
+   fp_add(&t1, &t1, &t1);
+   if (fp_cmp(&t1, modulus) != FP_LT) {
+      fp_sub(&t1, modulus, &t1);
+   }
+   /* T1 = Y + T1 */
+   fp_add(&t1, &y, &t1);
+   if (fp_cmp(&t1, modulus) != FP_LT) {
+      fp_sub(&t1, modulus, &t1);
+   }
+   /* X = X - T2 */
+   fp_sub(&x, &t2, &x);
+   if (fp_cmp_d(&x, 0) == FP_LT) {
+      fp_add(&x, modulus, &x);
+   }
+   /* T2 = 2T2 */
+   fp_add(&t2, &t2, &t2);
+   if (fp_cmp(&t2, modulus) != FP_LT) {
+      fp_sub(&t2, modulus, &t2);
+   }
+   /* T2 = X + T2 */
+   fp_add(&t2, &x, &t2);
+   if (fp_cmp(&t2, modulus) != FP_LT) {
+      fp_sub(&t2, modulus, &t2);
+   }
+
+   /* if Z' != 1 */
+      /* Z = Z * Z' */
+      fp_mul(&z, Q->z, &z);
+      fp_montgomery_reduce(&z, modulus, mp);
+   
+   /* Z = Z * X */
+   fp_mul(&z, &x, &z);
+   fp_montgomery_reduce(&z, modulus, mp);
+
+   /* T1 = T1 * X  */
+   fp_mul(&t1, &x, &t1);
+   fp_montgomery_reduce(&t1, modulus, mp);
+   /* X = X * X */
+   fp_sqr(&x, &x);
+   fp_montgomery_reduce(&x, modulus, mp);
+   /* T2 = T2 * x */
+   fp_mul(&t2, &x, &t2);
+   fp_montgomery_reduce(&t2, modulus, mp);
+   /* T1 = T1 * X  */
+   fp_mul(&t1, &x, &t1);
+   fp_montgomery_reduce(&t1, modulus, mp);
+ 
+   /* X = Y*Y */
+   fp_sqr(&y, &x);
+   fp_montgomery_reduce(&x, modulus, mp);
+   /* X = X - T2 */
+   fp_sub(&x, &t2, &x);
+   if (fp_cmp_d(&x, 0) == FP_LT) {
+      fp_add(&x, modulus, &x);
+   }
+
+   /* T2 = T2 - X */
+   fp_sub(&t2, &x, &t2);
+   if (fp_cmp_d(&t2, 0) == FP_LT) {
+      fp_add(&t2, modulus, &t2);
+   } 
+   /* T2 = T2 - X */
+   fp_sub(&t2, &x, &t2);
+   if (fp_cmp_d(&t2, 0) == FP_LT) {
+      fp_add(&t2, modulus, &t2);
+   }
+   /* T2 = T2 * Y */
+   fp_mul(&t2, &y, &t2);
+   fp_montgomery_reduce(&t2, modulus, mp);
+   /* Y = T2 - T1 */
+   fp_sub(&t2, &t1, &y);
+   if (fp_cmp_d(&y, 0) == FP_LT) {
+      fp_add(&y, modulus, &y);
+   }
+   /* Y = Y/2 */
+   if (fp_isodd(&y)) {
+      fp_add(&y, modulus, &y);
+   }
+   fp_div_2(&y, &y);
+
+   fp_copy(&x, R->x);
+   fp_copy(&y, R->y);
+   fp_copy(&z, R->z);
+   
+   return CRYPT_OK;
+}
+
+
+#endif
 
 const ltc_math_descriptor tfm_desc = {
 
@@ -442,10 +715,16 @@ const ltc_math_descriptor tfm_desc = {
 
 #ifdef MECC
    &ltc_ecc_mulmod,
+#ifdef MECC_ACCEL
+   &tfm_ecc_projective_add_point,
+   &tfm_ecc_projective_dbl_point,
+#else
    &ltc_ecc_projective_add_point,
+   &ltc_ecc_projective_dbl_point,
+#endif
    &ltc_ecc_map,
 #else
-   NULL, NULL, NULL,
+   NULL, NULL, NULL, NULL,
 #endif
 
 #ifdef MRSA

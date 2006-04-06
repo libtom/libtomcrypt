@@ -702,6 +702,7 @@ int lrw_decrypt(const unsigned char *ct, unsigned char *pt, unsigned long len, s
 int lrw_getiv(unsigned char *IV, unsigned long *len, symmetric_LRW *lrw);
 int lrw_setiv(const unsigned char *IV, unsigned long len, symmetric_LRW *lrw);
 int lrw_done(symmetric_LRW *lrw);
+int lrw_test(void);
 
 /* don't call */
 int lrw_process(const unsigned char *pt, unsigned char *ct, unsigned long len, int mode, symmetric_LRW *lrw);

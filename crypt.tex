@@ -47,11 +47,11 @@
 \def\gap{\vspace{0.5ex}}
 \makeindex
 \begin{document}
-\title{LibTomCrypt \\ Version 1.10}
+\title{LibTomCrypt \\ Version 1.11}
 \author{Tom St Denis \\
 \\
 tomstdenis@gmail.com \\
-http://libtomcrypt.org
+http://libtomcrypt.com
 }
 \maketitle
 This text and source code library are both hereby placed in the public domain.  This book has been 
@@ -65,15 +65,15 @@ formatted for A4 paper using the \LaTeX{} {\em book} macro package.
 
 Tom St Denis,
 
-Phone: 1-613-836-3160
+Phone: (647)401-8220
 
-111 Banning Rd 
+3330 South Millway, Unit 20
 
-Kanata, Ontario 
+Mississauga, Ontario
 
-K2L 1C3 
+L5L 3H4
 
-Canada
+Canada   
 \end{flushright}
 \newpage
 \tableofcontents
@@ -5056,6 +5056,15 @@ typedef struct {
    */
    int (*ecc_ptadd)(ecc_point *P, ecc_point *Q, ecc_point *R, void *modulus, void *mp);
 
+   /** ECC GF(p) point double 
+       @param P    The first point
+       @param R    The destination of 2P
+       @param modulus  The modulus
+       @param mp   The "b" value from montgomery_setup()
+       @return CRYPT_OK on success
+   */
+   int (*ecc_ptdbl)(ecc_point *P, ecc_point *R, void *modulus, void *mp);
+
    /** ECC mapping from projective to affine, currently uses (x,y,z) => (x/z^2, y/z^3, 1)
        @param P     The point to map
        @param modulus The modulus
@@ -5181,5 +5190,5 @@ Since the function is given the entire RSA key (for private keys only) CRT is po
 \end{document}
 
 % $Source: /cvs/libtom/libtomcrypt/crypt.tex,v $   
-% $Revision: 1.63 $   
-% $Date: 2006/01/26 19:20:46 $ 
+% $Revision: 1.67 $   
+% $Date: 2006/03/31 14:16:09 $ 

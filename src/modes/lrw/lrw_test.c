@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.org
+ * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.com
  */
 #include "tomcrypt.h"
 
@@ -81,68 +81,47 @@ int lrw_test(void)
      }
   }
 
-#define PRINT
-
   for (x = 0; x < (int)(sizeof(tests)/sizeof(tests[0])); x++) {
      /* schedule it */
      if ((err = lrw_start(idx, tests[x].IV, tests[x].key, 16, tests[x].tweak, 0, &lrw)) != CRYPT_OK) {
-#ifdef PRINT
-   printf("\n\nERR at %d\n", __LINE__);
-#endif
         return err;
      }
 
      /* check pad against expected tweak */
      if (XMEMCMP(tests[x].expected_tweak, lrw.pad, 16)) {
         lrw_done(&lrw);
-#ifdef PRINT
-   printf("\n\nERR at %d\n", __LINE__);
-#endif
         return CRYPT_FAIL_TESTVECTOR;
      }
 
      /* process block */
      if ((err = lrw_encrypt(tests[x].P, buf[0], 16, &lrw)) != CRYPT_OK) {
         lrw_done(&lrw);
-#ifdef PRINT
-   printf("\n\nERR at %d\n", __LINE__);
-#endif
         return err;
      }
 
      if (XMEMCMP(buf[0], tests[x].C, 16)) {
         lrw_done(&lrw);
-#ifdef PRINT
-   printf("\n\nERR at %d\n", __LINE__);
-#endif
         return CRYPT_FAIL_TESTVECTOR;
      }
 
      /* process block */
      if ((err = lrw_setiv(tests[x].IV, 16, &lrw)) != CRYPT_OK) { 
         lrw_done(&lrw);
-#ifdef PRINT
-   printf("\n\nERR at %d\n", __LINE__);
-#endif
         return err;
      }
 
      if ((err = lrw_decrypt(buf[0], buf[1], 16, &lrw)) != CRYPT_OK) {
         lrw_done(&lrw);
-#ifdef PRINT
-   printf("\n\nERR at %d\n", __LINE__);
-#endif
         return err;
      }
 
      if (XMEMCMP(buf[1], tests[x].P, 16)) {
         lrw_done(&lrw);
-#ifdef PRINT
-   printf("\n\nERR at %d\n", __LINE__);
-#endif
         return CRYPT_FAIL_TESTVECTOR;
      }
-     lrw_done(&lrw);
+     if ((err = lrw_done(&lrw)) != CRYPT_OK) {
+        return err;
+     }
    }
    return CRYPT_OK;
 #endif

@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.org
+ * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.com
  */
 
 /* Implements ECC over Z/pZ for curve y^2 = x^3 - 3x + b
@@ -50,8 +50,8 @@ int ecc_test(void)
        #if 0
           printf("Testing %d\n", ltc_ecc_sets[i].size);
        #endif
-       if ((err = mp_read_radix(modulus, (char *)ltc_ecc_sets[i].prime, 64)) != CRYPT_OK)   { goto done; }
-       if ((err = mp_read_radix(order, (char *)ltc_ecc_sets[i].order, 64)) != CRYPT_OK)     { goto done; }
+       if ((err = mp_read_radix(modulus, (char *)ltc_ecc_sets[i].prime, 16)) != CRYPT_OK)   { goto done; }
+       if ((err = mp_read_radix(order, (char *)ltc_ecc_sets[i].order, 16)) != CRYPT_OK)     { goto done; }
 
        /* is prime actually prime? */
        if ((err = mp_prime_is_prime(modulus, 8, &primality)) != CRYPT_OK)                   { goto done; }
@@ -67,8 +67,8 @@ int ecc_test(void)
           goto done;
        }
 
-       if ((err = mp_read_radix(G->x, (char *)ltc_ecc_sets[i].Gx, 64)) != CRYPT_OK)         { goto done; }
-       if ((err = mp_read_radix(G->y, (char *)ltc_ecc_sets[i].Gy, 64)) != CRYPT_OK)         { goto done; }
+       if ((err = mp_read_radix(G->x, (char *)ltc_ecc_sets[i].Gx, 16)) != CRYPT_OK)         { goto done; }
+       if ((err = mp_read_radix(G->y, (char *)ltc_ecc_sets[i].Gy, 16)) != CRYPT_OK)         { goto done; }
        mp_set(G->z, 1);
 
        /* then we should have G == (order + 1)G */

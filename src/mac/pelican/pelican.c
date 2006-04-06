@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.org
+ * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.com
  */
 #include "tomcrypt.h"
 
@@ -18,8 +18,8 @@
 #ifdef PELICAN
 
 #define ENCRYPT_ONLY
+#define PELI_TAB
 #include "../../ciphers/aes/aes_tab.c"
-
 
 /**
    Initialize a Pelican state

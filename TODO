@@ -1,0 +1,3 @@
+- ECC fixed point accelerator
+- look into X9.63 support [in addition to the LTC style ecc_encrypt_key() not replacing]
+

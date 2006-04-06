@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.org
+ * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.com
  */
 
 /* Implements ECC over Z/pZ for curve y^2 = x^3 - 3x + b
@@ -68,7 +68,7 @@ int ecc_shared_secret(ecc_key *private_key, ecc_key *public_key,
       return err;
    }
 
-   if ((err = mp_read_radix(prime, (char *)ltc_ecc_sets[private_key->idx].prime, 64)) != CRYPT_OK)                 { goto done; }
+   if ((err = mp_read_radix(prime, (char *)ltc_ecc_sets[private_key->idx].prime, 16)) != CRYPT_OK)                 { goto done; }
    if ((err = ltc_mp.ecc_ptmul(private_key->k, &public_key->pubkey, result, prime, 1)) != CRYPT_OK)                { goto done; }
 
    x = (unsigned long)mp_unsigned_bin_size(prime);

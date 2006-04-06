@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.org
+ * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.com
  */
 
 /* Implements ECC over Z/pZ for curve y^2 = x^3 - 3x + b
@@ -80,9 +80,9 @@ int ecc_make_key(prng_state *prng, int wprng, int keysize, ecc_key *key)
    }
 
    /* read in the specs for this key */
-   if ((err = mp_read_radix(prime, (char *)ltc_ecc_sets[key->idx].prime, 64)) != CRYPT_OK)      { goto done; }
-   if ((err = mp_read_radix(base->x, (char *)ltc_ecc_sets[key->idx].Gx, 64)) != CRYPT_OK)       { goto done; }
-   if ((err = mp_read_radix(base->y, (char *)ltc_ecc_sets[key->idx].Gy, 64)) != CRYPT_OK)       { goto done; }
+   if ((err = mp_read_radix(prime, (char *)ltc_ecc_sets[key->idx].prime, 16)) != CRYPT_OK)      { goto done; }
+   if ((err = mp_read_radix(base->x, (char *)ltc_ecc_sets[key->idx].Gx, 16)) != CRYPT_OK)       { goto done; }
+   if ((err = mp_read_radix(base->y, (char *)ltc_ecc_sets[key->idx].Gy, 16)) != CRYPT_OK)       { goto done; }
    mp_set(base->z, 1);
    if ((err = mp_read_unsigned_bin(key->k, (unsigned char *)buf, keysize)) != CRYPT_OK)         { goto done; }
 

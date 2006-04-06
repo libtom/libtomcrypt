@@ -24,6 +24,11 @@ CC=icc
 # Compilation flags. Note the += does not write over the user's CFLAGS!
 CFLAGS += -c -Isrc/headers/ -Itestprof/ -DINTEL_CC -DLTC_SOURCE
 
+#ICC v9 doesn't support LTC_FAST for things like Pelican MAC
+#Despite the fact I can't see what's wrong with my code
+#Oh well
+CFLAGS += -DLTC_NO_FAST
+
 #The default rule for make builds the libtomcrypt library.
 default:library
 
@@ -115,8 +120,8 @@ src/mac/omac/omac_memory_multi.o src/mac/omac/omac_process.o src/mac/omac/omac_t
 src/mac/pelican/pelican.o src/mac/pelican/pelican_memory.o src/mac/pelican/pelican_test.o \
 src/mac/pmac/pmac_done.o src/mac/pmac/pmac_file.o src/mac/pmac/pmac_init.o src/mac/pmac/pmac_memory.o \
 src/mac/pmac/pmac_memory_multi.o src/mac/pmac/pmac_ntz.o src/mac/pmac/pmac_process.o \
-src/mac/pmac/pmac_shift_xor.o src/mac/pmac/pmac_test.o src/math/ltm_desc.o src/math/multi.o \
-src/math/rand_prime.o src/math/tfm_desc.o src/misc/base64/base64_decode.o \
+src/mac/pmac/pmac_shift_xor.o src/mac/pmac/pmac_test.o src/math/gmp_desc.o src/math/ltm_desc.o \
+src/math/multi.o src/math/rand_prime.o src/math/tfm_desc.o src/misc/base64/base64_decode.o \
 src/misc/base64/base64_encode.o src/misc/burn_stack.o src/misc/crypt/crypt.o \
 src/misc/crypt/crypt_argchk.o src/misc/crypt/crypt_cipher_descriptor.o \
 src/misc/crypt/crypt_cipher_is_valid.o src/misc/crypt/crypt_find_cipher.o \
@@ -269,6 +274,6 @@ install: library
 	install -g $(GROUP) -o $(USER) $(HEADERS) $(DESTDIR)$(INCPATH)
 
 # $Source: /cvs/libtom/libtomcrypt/makefile.icc,v $   
-# $Revision: 1.50 $   
-# $Date: 2006/01/29 15:53:38 $ 
+# $Revision: 1.53 $   
+# $Date: 2006/04/02 13:23:20 $ 
 

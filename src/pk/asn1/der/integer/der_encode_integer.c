@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.org
+ * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.com
  */
 #include "tomcrypt.h"
 
@@ -96,6 +96,7 @@ int der_encode_integer(void *num, unsigned char *out, unsigned long *outlen)
       }
    } else if (mp_iszero(num) != LTC_MP_YES) {
       void *tmp;
+         
       /* negative */
       if (mp_init(&tmp) != CRYPT_OK) {
          return CRYPT_MEM;

@@ -1,4 +1,5 @@
 #include <tomcrypt_test.h>
+#include <gmp.h>
 
 #ifndef LTC_DER
 
@@ -550,11 +551,6 @@ int der_tests(void)
          DO(der_decode_integer(buf[0], y, b));
          if (y != x || mp_cmp(a, b) != LTC_MP_EQ) {
             fprintf(stderr, "%lu: %lu vs %lu\n", z, x, y);
-#ifdef BN_MP_TORADIX_C
-            mp_todecimal(a, buf[0]);
-            mp_todecimal(b, buf[1]);
-            fprintf(stderr, "a == %s\nb == %s\n", buf[0], buf[1]);
-#endif
             mp_clear_multi(a, b, c, d, e, f, g, NULL);
             return 1;
          }

@@ -21,4 +21,4 @@ $(LIBTEST): $(OBJECTS)
 	libtool --silent --mode=link gcc $(CFLAGS) `find . -type f | grep "[.]lo" |  xargs` -o $@ -rpath $(LIBPATH) -version-info $(VERSION)
 
 install: $(LIBTEST)
-	libtool --silent --mode=install install -c $(LIBTEST) $(LIBPATH)/$(LIBTEST)
+	libtool --silent --mode=install install -c $(LIBTEST) $(DESTDIR)$(LIBPATH)/$(LIBTEST)

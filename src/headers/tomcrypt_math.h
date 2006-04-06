@@ -339,12 +339,22 @@ typedef struct {
    */
    int (*ecc_ptadd)(ecc_point *P, ecc_point *Q, ecc_point *R, void *modulus, void *mp);
 
+   /** ECC GF(p) point double 
+       @param P    The first point
+       @param R    The destination of 2P
+       @param modulus  The modulus
+       @param mp   The "b" value from montgomery_setup()
+       @return CRYPT_OK on success
+   */
+   int (*ecc_ptdbl)(ecc_point *P, ecc_point *R, void *modulus, void *mp);
+
    /** ECC mapping from projective to affine, currently uses (x,y,z) => (x/z^2, y/z^3, 1)
        @param P     The point to map
        @param modulus The modulus
        @param mp    The "b" value from montgomery_setup()
        @return CRYPT_OK on success
-       @remark  The mapping can be different but keep in mind a ecc_point only has three integers (x,y,z) so if you use a different mapping you have to make it fit.
+       @remark  The mapping can be different but keep in mind a ecc_point only has three 
+                integers (x,y,z) so if you use a different mapping you have to make it fit.
    */
    int (*ecc_map)(ecc_point *P, void *modulus, void *mp);
 
@@ -386,6 +396,10 @@ extern const ltc_math_descriptor ltm_desc;
 
 #ifdef TFM_DESC
 extern const ltc_math_descriptor tfm_desc;
+#endif
+
+#ifdef GMP_DESC
+extern const ltc_math_descriptor gmp_desc;
 #endif
 
 #if !defined(DESC_DEF_ONLY) && defined(LTC_SOURCE)

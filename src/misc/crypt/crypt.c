@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.org
+ * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.com
  */
 #include "tomcrypt.h"
 
@@ -320,6 +320,12 @@ const char *crypt_build_settings =
 #endif
 #if defined(TFM_DESC)
     " TFM_DESC "
+#endif
+#if defined(MECC_ACCEL)
+    " MECC_ACCEL "
+#endif
+#if defined(GMP_DESC)
+    " GMP_DESC "
 #endif
 #if defined(LTC_EASY)
     " (easy) "

@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.org
+ * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.com
  */
 #include "tomcrypt.h"
 
@@ -295,7 +295,7 @@ int der_decode_sequence_flexi(const unsigned char *in, unsigned long *inlen, ltc
                 }
              
              /* Sequence elements go as child */
-             len = *inlen;
+             len = len - y;
              if ((err = der_decode_sequence_flexi(in, &len, &(l->child))) != CRYPT_OK) {
                 goto error;
              }

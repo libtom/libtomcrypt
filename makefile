@@ -4,7 +4,7 @@
 # Modified by Clay Culver
 
 # The version
-VERSION=1.10
+VERSION=1.11
 
 # Compiler and Linker Names
 #CC=gcc
@@ -128,8 +128,8 @@ src/mac/omac/omac_memory_multi.o src/mac/omac/omac_process.o src/mac/omac/omac_t
 src/mac/pelican/pelican.o src/mac/pelican/pelican_memory.o src/mac/pelican/pelican_test.o \
 src/mac/pmac/pmac_done.o src/mac/pmac/pmac_file.o src/mac/pmac/pmac_init.o src/mac/pmac/pmac_memory.o \
 src/mac/pmac/pmac_memory_multi.o src/mac/pmac/pmac_ntz.o src/mac/pmac/pmac_process.o \
-src/mac/pmac/pmac_shift_xor.o src/mac/pmac/pmac_test.o src/math/ltm_desc.o src/math/multi.o \
-src/math/rand_prime.o src/math/tfm_desc.o src/misc/base64/base64_decode.o \
+src/mac/pmac/pmac_shift_xor.o src/mac/pmac/pmac_test.o src/math/gmp_desc.o src/math/ltm_desc.o \
+src/math/multi.o src/math/rand_prime.o src/math/tfm_desc.o src/misc/base64/base64_decode.o \
 src/misc/base64/base64_encode.o src/misc/burn_stack.o src/misc/crypt/crypt.o \
 src/misc/crypt/crypt_argchk.o src/misc/crypt/crypt_cipher_descriptor.o \
 src/misc/crypt/crypt_cipher_is_valid.o src/misc/crypt/crypt_find_cipher.o \
@@ -257,16 +257,16 @@ small: library $(SMALLOBJECTS)
 	$(CC) $(SMALLOBJECTS) $(LIBNAME) $(EXTRALIBS) -o $(SMALL) $(WARN)
 	
 tv_gen: library $(TVS)
-	$(CC) $(TVS) $(LIBNAME) $(EXTRALIBS) -o $(TV)
+	$(CC) $(LDFLAGS) $(TVS) $(LIBNAME) $(EXTRALIBS) -o $(TV)
 
 multi: library $(MULTIS)
 	$(CC) $(MULTIS) $(LIBNAME) $(EXTRALIBS) -o $(MULTI)
 
 timing: library testprof/$(LIBTEST) $(TIMINGS)
-	$(CC) $(TIMINGS) testprof/$(LIBTEST) $(LIBNAME) $(EXTRALIBS) -o $(TIMING)
+	$(CC) $(LDFLAGS) $(TIMINGS) testprof/$(LIBTEST) $(LIBNAME) $(EXTRALIBS) -o $(TIMING)
 
 test: library testprof/$(LIBTEST) $(TESTS)
-	$(CC) $(TESTS) testprof/$(LIBTEST) $(LIBNAME) $(EXTRALIBS) -o $(TEST)
+	$(CC) $(LDFLAGS) $(TESTS) testprof/$(LIBTEST) $(LIBNAME) $(EXTRALIBS) -o $(TEST)
 
 #This rule installs the library and the header files. This must be run
 #as root in order to have a high enough permission to write to the correct
@@ -364,5 +364,5 @@ zipup: no_oops docs
 
 
 # $Source: /cvs/libtom/libtomcrypt/makefile,v $ 
-# $Revision: 1.116 $ 
-# $Date: 2006/01/29 15:53:38 $ 
+# $Revision: 1.119 $ 
+# $Date: 2006/03/22 20:48:57 $ 

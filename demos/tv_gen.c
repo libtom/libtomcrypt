@@ -102,6 +102,8 @@ void reg_algs(void)
    ltc_mp = ltm_desc;
 #elif defined(USE_TFM)
    ltc_mp = tfm_desc;
+#elif defined(USE_GMP)
+   ltc_mp = gmp_desc;
 #else
    extern ltc_math_descriptor EXT_MATH_LIB;
    ltc_mp = EXT_MATH_LIB;
@@ -675,10 +677,10 @@ void ecc_gen(void)
         fprintf(out, "ECC-%d\n", ltc_ecc_sets[x].size*8);
         mp_set(k, 1);
 
-        mp_read_radix(order,   (char *)ltc_ecc_sets[x].order, 64);
-        mp_read_radix(modulus, (char *)ltc_ecc_sets[x].prime, 64);
-        mp_read_radix(G->x,    (char *)ltc_ecc_sets[x].Gx,    64);
-        mp_read_radix(G->y,    (char *)ltc_ecc_sets[x].Gy,    64);
+        mp_read_radix(order,   (char *)ltc_ecc_sets[x].order, 16);
+        mp_read_radix(modulus, (char *)ltc_ecc_sets[x].prime, 16);
+        mp_read_radix(G->x,    (char *)ltc_ecc_sets[x].Gx,    16);
+        mp_read_radix(G->y,    (char *)ltc_ecc_sets[x].Gy,    16);
         mp_set(G->z, 1);  
 
         while (mp_cmp(k, order) == LTC_MP_LT) {
@@ -695,6 +697,71 @@ void ecc_gen(void)
    fclose(out);
 }
 
+void lrw_gen(void)
+{
+   FILE *out;
+   unsigned char tweak[16], key[16], iv[16], buf[1024];
+   int x, y, err;
+   symmetric_LRW lrw;
+   
+   /* initialize default key and tweak */
+   for (x = 0; x < 16; x++) {
+      tweak[x] = key[x] = iv[x] = x;
+   }
+
+   out = fopen("lrw_tv.txt", "w");
+   for (x = 16; x < (int)(sizeof(buf)); x += 16) {
+       if ((err = lrw_start(find_cipher("aes"), iv, key, 16, tweak, 0, &lrw)) != CRYPT_OK) {
+          fprintf(stderr, "Error starting LRW-AES: %s\n", error_to_string(err));
+          exit(EXIT_FAILURE);
+       }
+
+       /* encrypt incremental */
+       for (y = 0; y < x; y++) {
+           buf[y] = y & 255;
+       }
+
+       if ((err = lrw_encrypt(buf, buf, x, &lrw)) != CRYPT_OK) {
+          fprintf(stderr, "Error encrypting with LRW-AES: %s\n", error_to_string(err));
+          exit(EXIT_FAILURE);
+       }
+
+       /* display it */
+       fprintf(out, "%d:", x);
+       for (y = 0; y < x; y++) {
+          fprintf(out, "%02x", buf[y]);
+       }
+       fprintf(out, "\n");
+
+       /* reset IV */
+       if ((err = lrw_setiv(iv, 16, &lrw)) != CRYPT_OK) {
+          fprintf(stderr, "Error setting IV: %s\n", error_to_string(err));
+          exit(EXIT_FAILURE);
+       }
+
+       /* copy new tweak, iv and key */
+       for (y = 0; y < 16; y++) {
+          key[y]   = buf[y];
+          iv[y]    = buf[(y+16)%x];
+          tweak[y] = buf[(y+32)%x];
+       }
+
+       if ((err = lrw_decrypt(buf, buf, x, &lrw)) != CRYPT_OK) {
+          fprintf(stderr, "Error decrypting with LRW-AES: %s\n", error_to_string(err));
+          exit(EXIT_FAILURE);
+       }
+
+       /* display it */
+       fprintf(out, "%d:", x);
+       for (y = 0; y < x; y++) {
+          fprintf(out, "%02x", buf[y]);
+       }
+       fprintf(out, "\n");
+       lrw_done(&lrw);
+   }
+   fclose(out);
+}      
+
 int main(void)
 {
    reg_algs();
@@ -710,6 +777,7 @@ int main(void)
    printf("Generating BASE64 vectors..."); fflush(stdout); base64_gen(); printf("done\n");
    printf("Generating MATH   vectors..."); fflush(stdout); math_gen();   printf("done\n");
    printf("Generating ECC    vectors..."); fflush(stdout); ecc_gen();    printf("done\n");
+   printf("Generating LRW    vectors..."); fflush(stdout); lrw_gen();    printf("done\n");
    return 0;
 }
 

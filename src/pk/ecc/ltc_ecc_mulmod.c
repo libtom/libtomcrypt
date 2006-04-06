@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.org
+ * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.com
  */
 
 /* Implements ECC over Z/pZ for curve y^2 = x^3 - 3x + b
@@ -93,13 +93,13 @@ int ltc_ecc_mulmod(void *k, ecc_point *G, ecc_point *R, void *modulus, int map)
    
    /* calc the M tab, which holds kG for k==8..15 */
    /* M[0] == 8G */
-   if ((err = ltc_ecc_projective_dbl_point(tG, M[0], modulus, mp)) != CRYPT_OK)               { goto done; }
-   if ((err = ltc_ecc_projective_dbl_point(M[0], M[0], modulus, mp)) != CRYPT_OK)               { goto done; }
-   if ((err = ltc_ecc_projective_dbl_point(M[0], M[0], modulus, mp)) != CRYPT_OK)               { goto done; }
+   if ((err = ltc_mp.ecc_ptdbl(tG, M[0], modulus, mp)) != CRYPT_OK)                 { goto done; }
+   if ((err = ltc_mp.ecc_ptdbl(M[0], M[0], modulus, mp)) != CRYPT_OK)               { goto done; }
+   if ((err = ltc_mp.ecc_ptdbl(M[0], M[0], modulus, mp)) != CRYPT_OK)               { goto done; }
 
    /* now find (8+k)G for k=1..7 */
    for (j = 9; j < 16; j++) {
-       if ((err = ltc_ecc_projective_add_point(M[j-9], tG, M[j-8], modulus, mp)) != CRYPT_OK)   { goto done; }
+       if ((err = ltc_mp.ecc_ptadd(M[j-9], tG, M[j-8], modulus, mp)) != CRYPT_OK)   { goto done; }
    }
 
    /* setup sliding window */
@@ -118,12 +118,12 @@ int ltc_ecc_mulmod(void *k, ecc_point *G, ecc_point *R, void *modulus, int map)
           break;
        }
        buf    = mp_get_digit(k, digidx);
-       bitcnt = (int) MP_DIGIT_BIT;
+       bitcnt = (int) ltc_mp.bits_per_digit;
        --digidx;
      }
 
      /* grab the next msb from the ltiplicand */
-     i = (buf >> (MP_DIGIT_BIT - 1)) & 1;
+     i = (buf >> (ltc_mp.bits_per_digit - 1)) & 1;
      buf <<= 1;
 
      /* skip leading zero bits */
@@ -133,7 +133,7 @@ int ltc_ecc_mulmod(void *k, ecc_point *G, ecc_point *R, void *modulus, int map)
 
      /* if the bit is zero and mode == 1 then we double */
      if (mode == 1 && i == 0) {
-        if ((err = ltc_ecc_projective_dbl_point(R, R, modulus, mp)) != CRYPT_OK)                 { goto done; }
+        if ((err = ltc_mp.ecc_ptdbl(R, R, modulus, mp)) != CRYPT_OK)                 { goto done; }
         continue;
      }
 
@@ -154,11 +154,11 @@ int ltc_ecc_mulmod(void *k, ecc_point *G, ecc_point *R, void *modulus, int map)
          /* ok window is filled so double as required and add  */
          /* double first */
          for (j = 0; j < WINSIZE; j++) {
-           if ((err = ltc_ecc_projective_dbl_point(R, R, modulus, mp)) != CRYPT_OK)             { goto done; }
+           if ((err = ltc_mp.ecc_ptdbl(R, R, modulus, mp)) != CRYPT_OK)             { goto done; }
          }
 
          /* then add, bitbuf will be 8..15 [8..2^WINSIZE] guaranteed */
-         if ((err = ltc_ecc_projective_add_point(R, M[bitbuf-8], R, modulus, mp)) != CRYPT_OK)  { goto done; }
+         if ((err = ltc_mp.ecc_ptadd(R, M[bitbuf-8], R, modulus, mp)) != CRYPT_OK)  { goto done; }
        }
        /* empty window and reset */
        bitcpy = bitbuf = 0;
@@ -172,7 +172,7 @@ int ltc_ecc_mulmod(void *k, ecc_point *G, ecc_point *R, void *modulus, int map)
      for (j = 0; j < bitcpy; j++) {
        /* only double if we have had at least one add first */
        if (first == 0) {
-          if ((err = ltc_ecc_projective_dbl_point(R, R, modulus, mp)) != CRYPT_OK)             { goto done; }
+          if ((err = ltc_mp.ecc_ptdbl(R, R, modulus, mp)) != CRYPT_OK)             { goto done; }
        }
 
        bitbuf <<= 1;
@@ -185,7 +185,7 @@ int ltc_ecc_mulmod(void *k, ecc_point *G, ecc_point *R, void *modulus, int map)
             first = 0;
          } else {
             /* then add */
-            if ((err = ltc_ecc_projective_add_point(R, tG, R, modulus, mp)) != CRYPT_OK)       { goto done; }
+            if ((err = ltc_mp.ecc_ptadd(R, tG, R, modulus, mp)) != CRYPT_OK)       { goto done; }
          }
        }
      }
@@ -211,3 +211,7 @@ done:
 #undef WINSIZE
 
 #endif
+
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */
