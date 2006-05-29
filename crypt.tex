@@ -47,7 +47,7 @@
 \def\gap{\vspace{0.5ex}}
 \makeindex
 \begin{document}
-\title{LibTomCrypt \\ Version 1.11}
+\title{LibTomCrypt \\ Version 1.12}
 \author{Tom St Denis \\
 \\
 tomstdenis@gmail.com \\
@@ -2909,6 +2909,40 @@ provided are very close to $p$ that is $\vert \vert \phi(\beta) \vert \vert \app
 range in order from $\approx 2^{192}$ points to $\approx 2^{521}$.  According to the source document any key size greater
 than or equal to 256-bits is sufficient for long term security.  
 
+\section{Fixed Point Optimizations}
+\index{Fixed Point ECC}
+As of v1.12 of LibTomCrypt, support for Fixed Point ECC point multiplication has been added.  It is a generic optimization that is
+supported by any conformant math plugin.  It is enabled by defining \textbf{MECC\_FP} during the build, such as 
+
+\begin{verbatim}
+CFLAGS="-DTFM_DESC -DMECC_FP" make 
+\end{verbatim}
+
+which will build LTC using the TFM math library and enabling this new feature.  The feature is not enabled by default as it is \textbf{NOT} thread
+safe (by default).  It supports the LTC locking macros (such as by enabling LTC\_PTHREAD), but by default is not locked.
+
+\index{FP\_ENTRIES}
+The optimization works by using a Fixed Point point multiplier on any base point you use twice or more in a short period of time.  It has a limited size
+cache (of FP\_ENTRIES entries) which it uses to hold recent bases passed to ltc\_ecc\_mulmod().  Any base detected to be used twice is sent through the
+pre--computation phase and then the fixed point algorithm can be used.  For example, if you use a NIST base point twice in a row, the 2nd and 
+all subsequence point multiplications with that point will use the faster algorithm.
+
+\index{FP\_LUT}
+The optimization uses a window on the multiplicand of FP\_LUT bits (default: 8, min: 2, max: 12) and controls the memory/time tradeoff. The larger the 
+value the faster the algorithm will be but the more memory it will take.  The memory usage is $3 \cdot 2^{FP\_LUT}$ integers which by default
+with TFM amounts to about 400kB of memory.  Tuning TFM (by changing FP\_SIZE) can decrease the usage by a fair amount.  Memory is only used by a cache entry
+if it is active.  Both FP\_ENTRIES and FP\_LUT are definable on the command line if you wish to override them. For instance,
+
+\begin{verbatim}
+CFLAGS="-DTFM_DESC -DMECC_FP -DFP_ENTRIES=8 -DFP_LUT=6" make
+\end{verbatim}
+
+\begin{flushleft} 
+would define a window of 6 bits and limit the cache to 8 entries.  Generally it's better to first tune TFM by adjusting FP\_SIZE (from tfm.h).  It defaults
+to 4096 bits (512 bytes) which is way more than what is required by ECC.  At most, you need 1152 bits to accommodate ECC--521.  If you're only using (say)
+ECC--256 you will only need 576 bits, which would reduce the memory usage by 700\%.
+\end{flushleft}
+
 \section{Key Format}
 LibTomCrypt uses it's own format for ECC public and private keys.  While ANSI X9.62 partially specifies key formats (it covers public keys) it does it in a less
 than ideally simple manner.  In the case of LibTomCrypt it is meant \textbf{solely} for NIST $GF(p)$ curves.  The format of the keys is as follows:
@@ -3320,6 +3354,7 @@ LTC_SET_ASN1(sequence, x++, LTC_ASN1_NULL,           NULL,   0);
 \begin{tabular}{|l|l|}
 \hline \textbf{Definition}           & \textbf{ASN.1 Type} \\
 \hline LTC\_ASN1\_EOL                & End of a ASN.1 list structure. \\
+\hline LTC\_ASN1\_BOOLEAN            & BOOLEAN type \\
 \hline LTC\_ASN1\_INTEGER            & INTEGER (uses mp\_int) \\
 \hline LTC\_ASN1\_SHORT\_INTEGER     & INTEGER (32--bit using unsigned long) \\
 \hline LTC\_ASN1\_BIT\_STRING        & BIT STRING (one bit per char) \\
@@ -4825,6 +4860,12 @@ typedef struct {
    */
    int (*count_bits)(void * a);
 
+   /** Count the number of LSB bits which are zero 
+     @param a   The integer to count
+     @return The number of contiguous zero LSB bits
+   */
+   int (*count_lsb_bits)(void *a);
+
    /** Compute a power of two
      @param a  The integer to store the power in
      @param n  The power of two you want to store (a = 2^n)
@@ -5190,5 +5231,5 @@ Since the function is given the entire RSA key (for private keys only) CRT is po
 \end{document}
 
 % $Source: /cvs/libtom/libtomcrypt/crypt.tex,v $   
-% $Revision: 1.67 $   
-% $Date: 2006/03/31 14:16:09 $ 
+% $Revision: 1.71 $   
+% $Date: 2006/05/29 11:19:08 $ 

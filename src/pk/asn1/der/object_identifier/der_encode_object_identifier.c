@@ -27,7 +27,7 @@
 int der_encode_object_identifier(unsigned long *words, unsigned long  nwords,
                                  unsigned char *out,   unsigned long *outlen)
 {
-   unsigned long i, x, y, z, t, mask;
+   unsigned long i, x, y, z, t, mask, wordbuf;
    int           err;
 
    LTC_ARGCHK(words  != NULL);
@@ -43,10 +43,14 @@ int der_encode_object_identifier(unsigned long *words, unsigned long  nwords,
    }
 
    /* compute length to store OID data */
-   z = 1;
-   for (y = 2; y < nwords; y++) {
-       t = der_object_identifier_bits(words[y]);
-       z += t/7 + ((t%7) ? 1 : 0);
+   z = 0;
+   wordbuf = words[0] * 40 + words[1];
+   for (y = 1; y < nwords; y++) {
+       t = der_object_identifier_bits(wordbuf);
+       z += t/7 + ((t%7) ? 1 : 0) + (wordbuf == 0 ? 1 : 0);
+       if (y < nwords - 1) {
+          wordbuf = words[y + 1];
+       }
    }
 
    /* store header + length */
@@ -66,11 +70,10 @@ int der_encode_object_identifier(unsigned long *words, unsigned long  nwords,
    }
 
    /* store first byte */
-   out[x++] = words[0] * 40 + words[1];   
-   
-    for (i = 2; i < nwords; i++) {
+    wordbuf = words[0] * 40 + words[1];   
+    for (i = 1; i < nwords; i++) {
         /* store 7 bit words in little endian */
-        t    = words[i] & 0xFFFFFFFF;
+        t    = wordbuf & 0xFFFFFFFF;
         if (t) {
            y    = x;
            mask = 0;
@@ -89,6 +92,10 @@ int der_encode_object_identifier(unsigned long *words, unsigned long  nwords,
        } else {
           /* zero word */
           out[x++] = 0x00;
+       }
+       
+       if (i < nwords - 1) {
+          wordbuf = words[i + 1];
        }
    }
 

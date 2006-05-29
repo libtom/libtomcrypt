@@ -21,6 +21,7 @@
 static int ltc_to_asn1(int v)
 {
    switch (v) {
+      case LTC_ASN1_BOOLEAN:                 return 0x01;
       case LTC_ASN1_INTEGER:
       case LTC_ASN1_SHORT_INTEGER:           return 0x02;
       case LTC_ASN1_BIT_STRING:              return 0x03;

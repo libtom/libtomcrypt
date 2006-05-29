@@ -4,7 +4,7 @@
 # Modified by Clay Culver
 
 # The version
-VERSION=1.11
+VERSION=1.12
 
 # Compiler and Linker Names
 #CC=gcc
@@ -128,10 +128,10 @@ src/mac/omac/omac_memory_multi.o src/mac/omac/omac_process.o src/mac/omac/omac_t
 src/mac/pelican/pelican.o src/mac/pelican/pelican_memory.o src/mac/pelican/pelican_test.o \
 src/mac/pmac/pmac_done.o src/mac/pmac/pmac_file.o src/mac/pmac/pmac_init.o src/mac/pmac/pmac_memory.o \
 src/mac/pmac/pmac_memory_multi.o src/mac/pmac/pmac_ntz.o src/mac/pmac/pmac_process.o \
-src/mac/pmac/pmac_shift_xor.o src/mac/pmac/pmac_test.o src/math/gmp_desc.o src/math/ltm_desc.o \
-src/math/multi.o src/math/rand_prime.o src/math/tfm_desc.o src/misc/base64/base64_decode.o \
-src/misc/base64/base64_encode.o src/misc/burn_stack.o src/misc/crypt/crypt.o \
-src/misc/crypt/crypt_argchk.o src/misc/crypt/crypt_cipher_descriptor.o \
+src/mac/pmac/pmac_shift_xor.o src/mac/pmac/pmac_test.o src/math/fp/ltc_ecc_fp_mulmod.o \
+src/math/gmp_desc.o src/math/ltm_desc.o src/math/multi.o src/math/rand_prime.o src/math/tfm_desc.o \
+src/misc/base64/base64_decode.o src/misc/base64/base64_encode.o src/misc/burn_stack.o \
+src/misc/crypt/crypt.o src/misc/crypt/crypt_argchk.o src/misc/crypt/crypt_cipher_descriptor.o \
 src/misc/crypt/crypt_cipher_is_valid.o src/misc/crypt/crypt_find_cipher.o \
 src/misc/crypt/crypt_find_cipher_any.o src/misc/crypt/crypt_find_cipher_id.o \
 src/misc/crypt/crypt_find_hash.o src/misc/crypt/crypt_find_hash_any.o \
@@ -156,10 +156,12 @@ src/modes/lrw/lrw_setiv.o src/modes/lrw/lrw_start.o src/modes/lrw/lrw_test.o \
 src/modes/ofb/ofb_decrypt.o src/modes/ofb/ofb_done.o src/modes/ofb/ofb_encrypt.o \
 src/modes/ofb/ofb_getiv.o src/modes/ofb/ofb_setiv.o src/modes/ofb/ofb_start.o \
 src/pk/asn1/der/bit/der_decode_bit_string.o src/pk/asn1/der/bit/der_encode_bit_string.o \
-src/pk/asn1/der/bit/der_length_bit_string.o src/pk/asn1/der/choice/der_decode_choice.o \
-src/pk/asn1/der/ia5/der_decode_ia5_string.o src/pk/asn1/der/ia5/der_encode_ia5_string.o \
-src/pk/asn1/der/ia5/der_length_ia5_string.o src/pk/asn1/der/integer/der_decode_integer.o \
-src/pk/asn1/der/integer/der_encode_integer.o src/pk/asn1/der/integer/der_length_integer.o \
+src/pk/asn1/der/bit/der_length_bit_string.o src/pk/asn1/der/boolean/der_decode_boolean.o \
+src/pk/asn1/der/boolean/der_encode_boolean.o src/pk/asn1/der/boolean/der_length_boolean.o \
+src/pk/asn1/der/choice/der_decode_choice.o src/pk/asn1/der/ia5/der_decode_ia5_string.o \
+src/pk/asn1/der/ia5/der_encode_ia5_string.o src/pk/asn1/der/ia5/der_length_ia5_string.o \
+src/pk/asn1/der/integer/der_decode_integer.o src/pk/asn1/der/integer/der_encode_integer.o \
+src/pk/asn1/der/integer/der_length_integer.o \
 src/pk/asn1/der/object_identifier/der_decode_object_identifier.o \
 src/pk/asn1/der/object_identifier/der_encode_object_identifier.o \
 src/pk/asn1/der/object_identifier/der_length_object_identifier.o \
@@ -364,5 +366,5 @@ zipup: no_oops docs
 
 
 # $Source: /cvs/libtom/libtomcrypt/makefile,v $ 
-# $Revision: 1.119 $ 
-# $Date: 2006/03/22 20:48:57 $ 
+# $Revision: 1.123 $ 
+# $Date: 2006/05/25 10:33:01 $ 

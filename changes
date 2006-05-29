@@ -1,3 +1,20 @@
+May 29th, 2006
+v1.12 -- Fixed OID encoder/decoder/length to properly handle the first two parts of an OID, matches 2002 X.690 now.
+      -- [Wesley Shields] Allows both GMP/LTM and TFM to be defined now.  
+      -- [Wesley Shields] GMP pluggin is cleaner now and doesn't use deprecated symbols. Yipee
+      -- Added count_lsb_bits to get the number of leading LSB zero bits there are.
+      -- Fixed a bug in the INTEGER encoders for values of -(256**k)/2
+      -- Added BOOLEAN type to ASN.1 thingy-ma-do-hicky
+      -- Testprof doesn't strictly require GMP ... oops [Nils Durner]
+      -- Added LTC_CALL and LTC_EXPORT macros in tomcrypt_cfg.h to support various calling and linker conventions
+         (Thanks to John Kirk from Demonware)
+      -- In what has to be the best thing since sliced bread I bring you MECC_FP which is the fixed point
+         ECC point multiplier.  It's fast, it's sexy and what's more it's hella fast [did I mention it's fast?]
+         You can tune it somewhat with FP_LUT (default to 8) for look-up width.
+         Read section 8.2 of the manual for more info.
+         It is disabled by default, you'll have to build LTC with it defined to get it.  
+      -- Fixed bug in ecc_test.c (from testprof) to include the 521 [not 512] bit curve.  :-)
+
 April 4th, 2006
 v1.11 -- Removed printf's from lrw_test ... whoops
       -- lrw_process now checks the return of the cipher ecb encrypt/decrypt calls
@@ -1436,6 +1453,6 @@ v0.02  -- Changed RC5 to only allow 12 to 24 rounds
 v0.01  -- We will call this the first version.
 
 /* $Source: /cvs/libtom/libtomcrypt/changes,v $ */
-/* $Revision: 1.194 $ */
-/* $Date: 2006/04/05 02:51:41 $ */
+/* $Revision: 1.206 $ */
+/* $Date: 2006/05/29 11:21:25 $ */
 

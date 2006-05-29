@@ -51,6 +51,13 @@ int der_encode_sequence_ex(ltc_asn1_list *list, unsigned long inlen,
        }
 
        switch (type) {
+            case LTC_ASN1_BOOLEAN:
+	            if ((err = der_length_boolean(&x)) != CRYPT_OK) {
+	               goto LBL_ERR;
+	            }
+	            y += x;
+	            break;
+
            case LTC_ASN1_INTEGER:
                if ((err = der_length_integer(data, &x)) != CRYPT_OK) {
                   goto LBL_ERR;
@@ -182,6 +189,15 @@ int der_encode_sequence_ex(ltc_asn1_list *list, unsigned long inlen,
        }
 
        switch (type) {
+            case LTC_ASN1_BOOLEAN:
+	            z = *outlen;
+	            if ((err = der_encode_boolean(*((int *)data), out + x, &z)) != CRYPT_OK) {
+	               goto LBL_ERR;
+	            }
+	            x       += z;
+	            *outlen -= z;
+	            break;
+	       
            case LTC_ASN1_INTEGER:
                z = *outlen;
                if ((err = der_encode_integer(data, out + x, &z)) != CRYPT_OK) {

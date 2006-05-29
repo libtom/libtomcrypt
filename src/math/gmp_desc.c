@@ -17,32 +17,6 @@
 #include <stdio.h>
 #include <gmp.h>
 
-static const struct {
-    int gmp_code, ltc_code;
-} gmp_to_ltc_codes[] = {
-   { GMP_ERROR_NONE,            CRYPT_OK},
-   { GMP_ERROR_ALLOCATE,        CRYPT_MEM},
-   { GMP_ERROR_DIVISION_BY_ZERO,      CRYPT_INVALID_ARG},
-   { GMP_ERROR_UNSUPPORTED_ARGUMENT,  CRYPT_INVALID_ARG},
-};
-
-/**
-   Convert a GMP error to a LTC error (Possibly the most powerful function ever!  Oh wait... no) 
-   @param err    The error to convert
-   @return The equivalent LTC error code or CRYPT_ERROR if none found
-*/
-static int gmp_to_ltc_error(int err)
-{
-   int x;
-
-   for (x = 0; x < (int)(sizeof(gmp_to_ltc_codes)/sizeof(gmp_to_ltc_codes[0])); x++) {
-       if (err == gmp_to_ltc_codes[x].gmp_code) { 
-          return gmp_to_ltc_codes[x].ltc_code;
-       }
-   }
-   return CRYPT_ERROR;
-}
-
 static int init(void **a)
 { 
    LTC_ARGCHK(a != NULL);
@@ -146,6 +120,13 @@ static int count_bits(void *a)
    LTC_ARGCHK(a != NULL);
    return mpz_sizeinbase(a, 2);
 }
+
+static int count_lsb_bits(void *a)
+{
+   LTC_ARGCHK(a != NULL);
+   return mpz_scan1(a, 0);
+}
+
 
 static int twoexpt(void *a, int n)
 {
@@ -415,6 +396,7 @@ const ltc_math_descriptor gmp_desc = {
    &compare,
    &compare_d,
    &count_bits,
+   &count_lsb_bits,
    &twoexpt,
 
    &read_radix,
@@ -448,7 +430,11 @@ const ltc_math_descriptor gmp_desc = {
    &isprime,
 
 #ifdef MECC
+#ifdef MECC_FP
+   &ltc_ecc_fp_mulmod,
+#else
    &ltc_ecc_mulmod,
+#endif /* MECC_FP */
    &ltc_ecc_projective_add_point,
    &ltc_ecc_projective_dbl_point,
    &ltc_ecc_map,

@@ -59,7 +59,7 @@ int der_encode_integer(void *num, unsigned char *out, unsigned long *outlen)
       y            = mp_count_bits(num);
       y            = y + (8 - (y & 7));
       y            = y >> 3;
-
+      if (((mp_cnt_lsb(num)+1)==mp_count_bits(num)) && ((mp_count_bits(num)&7)==0)) --y;
    }
 
    /* now store initial data */
@@ -105,11 +105,11 @@ int der_encode_integer(void *num, unsigned char *out, unsigned long *outlen)
       /* 2^roundup and subtract */
       y = mp_count_bits(num);
       y = y + (8 - (y & 7));
+      if (((mp_cnt_lsb(num)+1)==mp_count_bits(num)) && ((mp_count_bits(num)&7)==0)) y -= 8;
       if (mp_2expt(tmp, y) != CRYPT_OK || mp_add(tmp, num, tmp) != CRYPT_OK) {
          mp_clear(tmp);
          return CRYPT_MEM;
       }
-
       if ((err = mp_to_unsigned_bin(tmp, out)) != CRYPT_OK) {
          mp_clear(tmp);
          return err;

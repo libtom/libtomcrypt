@@ -149,6 +149,13 @@ static int count_bits(void *a)
    return mp_count_bits(a);
 }
 
+static int count_lsb_bits(void *a)
+{
+   LTC_ARGCHK(a != NULL);
+   return mp_cnt_lsb(a);
+}
+
+
 static int twoexpt(void *a, int n)
 {
    LTC_ARGCHK(a != NULL);
@@ -396,6 +403,7 @@ const ltc_math_descriptor ltm_desc = {
    &compare,
    &compare_d,
    &count_bits,
+   &count_lsb_bits,
    &twoexpt,
 
    &read_radix,
@@ -429,7 +437,11 @@ const ltc_math_descriptor ltm_desc = {
    &isprime,
 
 #ifdef MECC
+#ifdef MECC_FP
+   &ltc_ecc_fp_mulmod,
+#else   
    &ltc_ecc_mulmod,
+#endif
    &ltc_ecc_projective_add_point,
    &ltc_ecc_projective_dbl_point,
    &ltc_ecc_map,

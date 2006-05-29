@@ -50,6 +50,7 @@ int der_encode_sequence_multi(unsigned char *out, unsigned long *outlen, ...)
        }
 
        switch (type) {
+           case LTC_ASN1_BOOLEAN:
            case LTC_ASN1_INTEGER:
            case LTC_ASN1_SHORT_INTEGER:
            case LTC_ASN1_BIT_STRING:
@@ -95,6 +96,7 @@ int der_encode_sequence_multi(unsigned char *out, unsigned long *outlen, ...)
        }
 
        switch (type) {
+           case LTC_ASN1_BOOLEAN:
            case LTC_ASN1_INTEGER:
            case LTC_ASN1_SHORT_INTEGER:
            case LTC_ASN1_BIT_STRING:

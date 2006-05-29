@@ -108,6 +108,12 @@ typedef struct {
    */
    int (*count_bits)(void * a);
 
+   /** Count the number of LSB bits which are zero 
+     @param a   The integer to count
+     @return The number of contiguous zero LSB bits
+   */
+   int (*count_lsb_bits)(void *a);
+
    /** Compute a power of two
      @param a  The integer to store the power in
      @param n  The power of two you want to store (a = 2^n)
@@ -424,6 +430,7 @@ extern const ltc_math_descriptor gmp_desc;
 #define mp_cmp(a, b)                 ltc_mp.compare(a, b)
 #define mp_cmp_d(a, b)               ltc_mp.compare_d(a, b)
 #define mp_count_bits(a)             ltc_mp.count_bits(a)
+#define mp_cnt_lsb(a)                ltc_mp.count_lsb_bits(a)
 #define mp_2expt(a, b)               ltc_mp.twoexpt(a, b)
 
 #define mp_read_radix(a, b, c)       ltc_mp.read_radix(a, b, c)

@@ -1,5 +1,7 @@
 #include <tomcrypt_test.h>
+#if defined(GMP_DESC) || defined(USE_GMP)
 #include <gmp.h>
+#endif
 
 #ifndef LTC_DER
 

@@ -7,22 +7,34 @@
 #ifndef TOMCRYPT_CFG_H
 #define TOMCRYPT_CFG_H
 
-/* you can change how memory allocation works ... */
-void *XMALLOC(size_t n);
-void *XREALLOC(void *p, size_t n);
-void *XCALLOC(size_t n, size_t s);
-void XFREE(void *p);
+#if defined(_WIN32) || defined(_MSC_VER)
+#define LTC_CALL __cdecl
+#else
+#ifndef LTC_CALL
+   #define LTC_CALL
+#endif
+#endif
 
-void XQSORT(void *base, size_t nmemb, size_t size, int(*compar)(const void *, const void *));
+#ifndef LTC_EXPORT
+#define LTC_EXPORT
+#endif
+
+/* you can change how memory allocation works ... */
+LTC_EXPORT void * LTC_CALL XMALLOC(size_t n);
+LTC_EXPORT void * LTC_CALL XREALLOC(void *p, size_t n);
+LTC_EXPORT void * LTC_CALL XCALLOC(size_t n, size_t s);
+LTC_EXPORT void LTC_CALL XFREE(void *p);
+
+LTC_EXPORT void LTC_CALL XQSORT(void *base, size_t nmemb, size_t size, int(*compar)(const void *, const void *));
 
 
 /* change the clock function too */
-clock_t XCLOCK(void);
+LTC_EXPORT clock_t LTC_CALL XCLOCK(void);
 
 /* various other functions */
-void *XMEMCPY(void *dest, const void *src, size_t n);
-int   XMEMCMP(const void *s1, const void *s2, size_t n);
-void *XMEMSET(void *s, int c, size_t n);
+LTC_EXPORT void * LTC_CALL XMEMCPY(void *dest, const void *src, size_t n);
+LTC_EXPORT int   LTC_CALL XMEMCMP(const void *s1, const void *s2, size_t n);
+LTC_EXPORT void * LTC_CALL XMEMSET(void *s, int c, size_t n);
 
 /* type of argument checking, 0=default, 1=fatal and 2=error+continue, 3=nothing */
 #ifndef ARGTYPE

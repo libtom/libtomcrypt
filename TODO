@@ -1,3 +1,6 @@
+- document new math function count_lsb_bits
+- add BOOLEAN type to the ASN world
+
 - ECC fixed point accelerator
 - look into X9.63 support [in addition to the LTC style ecc_encrypt_key() not replacing]
 

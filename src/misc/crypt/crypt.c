@@ -330,7 +330,9 @@ const char *crypt_build_settings =
 #if defined(LTC_EASY)
     " (easy) "
 #endif    
-
+#if defined(MECC_FP)
+   " MECC_FP "
+#endif
     "\n"
     "\n\n\n"
     ;

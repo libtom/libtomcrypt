@@ -104,6 +104,20 @@ int der_decode_sequence_flexi(const unsigned char *in, unsigned long *inlen, ltc
 
       /* now switch on type */
       switch (type) {
+         case 0x01: /* BOOLEAN */
+	         l->type = LTC_ASN1_BOOLEAN;
+	         l->size = 1;
+	         l->data = XCALLOC(1, sizeof(int));
+	    
+	         if ((err = der_decode_boolean(in, *inlen, l->data)) != CRYPT_OK) {
+	            goto error;
+            }
+	     
+	         if ((err = der_length_boolean(&len)) != CRYPT_OK) {
+	            goto error;
+            }
+	         break;
+
          case 0x02: /* INTEGER */
              /* init field */
              l->type = LTC_ASN1_INTEGER;

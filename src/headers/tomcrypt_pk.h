@@ -226,14 +226,20 @@ ecc_point *ltc_ecc_new_point(void);
 void       ltc_ecc_del_point(ecc_point *p);
 int        ltc_ecc_is_valid_idx(int n);
 
-
 /* point ops (mp == montgomery digit) */
-#ifndef MECC_ACCEL
+#if !defined(MECC_ACCEL) || defined(LTM_DESC) || defined(GMP_DESC)
 /* R = 2P */
 int ltc_ecc_projective_dbl_point(ecc_point *P, ecc_point *R, void *modulus, void *mp);
 
 /* R = P + Q */
 int ltc_ecc_projective_add_point(ecc_point *P, ecc_point *Q, ecc_point *R, void *modulus, void *mp);
+#endif
+
+#if defined(MECC_FP)
+int ltc_ecc_fp_mulmod(void *k, ecc_point *G, ecc_point *R, void *modulus, int map);
+int ltc_ecc_fp_save_state(unsigned char **out, unsigned long *outlen);
+int ltc_ecc_fp_restore_state(unsigned char *in, unsigned long inlen);
+void ltc_ecc_fp_free(void);
 #endif
 
 /* R = kG */
@@ -318,6 +324,7 @@ int dsa_shared_secret(void          *private_key, void *base,
 
 enum {
  LTC_ASN1_EOL,
+ LTC_ASN1_BOOLEAN,
  LTC_ASN1_INTEGER,
  LTC_ASN1_SHORT_INTEGER,
  LTC_ASN1_BIT_STRING,
@@ -389,6 +396,12 @@ int  der_decode_sequence_flexi(const unsigned char *in, unsigned long *inlen, lt
 void der_free_sequence_flexi(ltc_asn1_list *list);
 void der_sequence_free(ltc_asn1_list *in);
 
+/* BOOLEAN */
+int der_length_boolean(unsigned long *outlen);
+int der_encode_boolean(int in, 
+                       unsigned char *out, unsigned long *outlen);
+int der_decode_boolean(const unsigned char *in, unsigned long inlen,
+                                       int *out);		       
 /* INTEGER */
 int der_encode_integer(void *num, unsigned char *out, unsigned long *outlen);
 int der_decode_integer(const unsigned char *in, unsigned long inlen, void *num);

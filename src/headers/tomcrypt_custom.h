@@ -269,6 +269,9 @@
    #define MECC_ACCEL
 #endif   
 
+/* do we want fixed point ECC */
+/* #define MECC_FP */
+
 /* Timing Resistant? */
 /* #define LTC_ECC_TIMING_RESISTANT */
 

@@ -49,6 +49,7 @@ int der_decode_sequence_multi(const unsigned char *in, unsigned long inlen, ...)
        }
 
        switch (type) {
+           case LTC_ASN1_BOOLEAN:
            case LTC_ASN1_INTEGER:
            case LTC_ASN1_SHORT_INTEGER:
            case LTC_ASN1_BIT_STRING:
@@ -95,6 +96,7 @@ int der_decode_sequence_multi(const unsigned char *in, unsigned long inlen, ...)
        }
 
        switch (type) {
+           case LTC_ASN1_BOOLEAN:
            case LTC_ASN1_INTEGER:
            case LTC_ASN1_SHORT_INTEGER:
            case LTC_ASN1_BIT_STRING:
