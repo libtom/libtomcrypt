@@ -1,4 +1,4 @@
-// small demo app that just includes a cipher/hash/prng
+/* small demo app that just includes a cipher/hash/prng */
 #include <tomcrypt.h>
 
 int main(void)

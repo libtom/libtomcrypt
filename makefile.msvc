@@ -52,18 +52,19 @@ src/modes/cfb/cfb_getiv.obj src/modes/cfb/cfb_setiv.obj src/modes/cfb/cfb_start.
 src/modes/ctr/ctr_decrypt.obj src/modes/ctr/ctr_done.obj src/modes/ctr/ctr_encrypt.obj \
 src/modes/ctr/ctr_getiv.obj src/modes/ctr/ctr_setiv.obj src/modes/ctr/ctr_start.obj \
 src/modes/ecb/ecb_decrypt.obj src/modes/ecb/ecb_done.obj src/modes/ecb/ecb_encrypt.obj \
-src/modes/ecb/ecb_start.obj src/modes/lrw/lrw_decrypt.obj src/modes/lrw/lrw_done.obj \
-src/modes/lrw/lrw_encrypt.obj src/modes/lrw/lrw_getiv.obj src/modes/lrw/lrw_process.obj \
-src/modes/lrw/lrw_setiv.obj src/modes/lrw/lrw_start.obj src/modes/lrw/lrw_test.obj \
-src/modes/ofb/ofb_decrypt.obj src/modes/ofb/ofb_done.obj src/modes/ofb/ofb_encrypt.obj \
-src/modes/ofb/ofb_getiv.obj src/modes/ofb/ofb_setiv.obj src/modes/ofb/ofb_start.obj \
-src/pk/asn1/der/bit/der_decode_bit_string.obj src/pk/asn1/der/bit/der_encode_bit_string.obj \
-src/pk/asn1/der/bit/der_length_bit_string.obj src/pk/asn1/der/boolean/der_decode_boolean.obj \
-src/pk/asn1/der/boolean/der_encode_boolean.obj src/pk/asn1/der/boolean/der_length_boolean.obj \
-src/pk/asn1/der/choice/der_decode_choice.obj src/pk/asn1/der/ia5/der_decode_ia5_string.obj \
-src/pk/asn1/der/ia5/der_encode_ia5_string.obj src/pk/asn1/der/ia5/der_length_ia5_string.obj \
-src/pk/asn1/der/integer/der_decode_integer.obj src/pk/asn1/der/integer/der_encode_integer.obj \
-src/pk/asn1/der/integer/der_length_integer.obj \
+src/modes/ecb/ecb_start.obj src/modes/f8/f8_decrypt.obj src/modes/f8/f8_done.obj src/modes/f8/f8_encrypt.obj \
+src/modes/f8/f8_getiv.obj src/modes/f8/f8_setiv.obj src/modes/f8/f8_start.obj src/modes/f8/f8_test_mode.obj \
+src/modes/lrw/lrw_decrypt.obj src/modes/lrw/lrw_done.obj src/modes/lrw/lrw_encrypt.obj \
+src/modes/lrw/lrw_getiv.obj src/modes/lrw/lrw_process.obj src/modes/lrw/lrw_setiv.obj \
+src/modes/lrw/lrw_start.obj src/modes/lrw/lrw_test.obj src/modes/ofb/ofb_decrypt.obj src/modes/ofb/ofb_done.obj \
+src/modes/ofb/ofb_encrypt.obj src/modes/ofb/ofb_getiv.obj src/modes/ofb/ofb_setiv.obj \
+src/modes/ofb/ofb_start.obj src/pk/asn1/der/bit/der_decode_bit_string.obj \
+src/pk/asn1/der/bit/der_encode_bit_string.obj src/pk/asn1/der/bit/der_length_bit_string.obj \
+src/pk/asn1/der/boolean/der_decode_boolean.obj src/pk/asn1/der/boolean/der_encode_boolean.obj \
+src/pk/asn1/der/boolean/der_length_boolean.obj src/pk/asn1/der/choice/der_decode_choice.obj \
+src/pk/asn1/der/ia5/der_decode_ia5_string.obj src/pk/asn1/der/ia5/der_encode_ia5_string.obj \
+src/pk/asn1/der/ia5/der_length_ia5_string.obj src/pk/asn1/der/integer/der_decode_integer.obj \
+src/pk/asn1/der/integer/der_encode_integer.obj src/pk/asn1/der/integer/der_length_integer.obj \
 src/pk/asn1/der/object_identifier/der_decode_object_identifier.obj \
 src/pk/asn1/der/object_identifier/der_encode_object_identifier.obj \
 src/pk/asn1/der/object_identifier/der_length_object_identifier.obj \
@@ -134,5 +135,5 @@ timing: demos/timing.c library
 	cl $(CFLAGS) demos/timing.c testprof/tomcrypt_prof.lib tomcrypt.lib advapi32.lib $(EXTRALIBS)
 
 # $Source: /cvs/libtom/libtomcrypt/makefile.msvc,v $   
-# $Revision: 1.34 $   
-# $Date: 2006/05/25 10:33:01 $ 
+# $Revision: 1.36 $   
+# $Date: 2006/06/16 23:52:08 $ 

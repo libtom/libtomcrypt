@@ -685,9 +685,9 @@ void ecc_gen(void)
 
         while (mp_cmp(k, order) == LTC_MP_LT) {
             ltc_mp.ecc_ptmul(k, G, R, modulus, 1);
-            mp_tohex(k,    str); fprintf(out, "%s, ", str);
-            mp_tohex(R->x, str); fprintf(out, "%s, ", str);
-            mp_tohex(R->y, str); fprintf(out, "%s\n", str);
+            mp_tohex(k,    (char*)str); fprintf(out, "%s, ", (char*)str);
+            mp_tohex(R->x, (char*)str); fprintf(out, "%s, ", (char*)str);
+            mp_tohex(R->y, (char*)str); fprintf(out, "%s\n", (char*)str);
             mp_mul_d(k, 3, k);
         }
    }

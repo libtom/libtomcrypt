@@ -43,6 +43,7 @@ int der_encode_octet_string(const unsigned char *in, unsigned long inlen,
 
    /* too big? */
    if (len > *outlen) {
+      *outlen = len;
       return CRYPT_BUFFER_OVERFLOW;
    }
 

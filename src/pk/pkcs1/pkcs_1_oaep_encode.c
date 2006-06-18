@@ -135,6 +135,7 @@ int pkcs_1_oaep_encode(const unsigned char *msg,    unsigned long msglen,
 
    /* create string of length modulus_len */
    if (*outlen < modulus_len) {
+      *outlen = modulus_len;
       err = CRYPT_BUFFER_OVERFLOW;
       goto LBL_ERR;
    }

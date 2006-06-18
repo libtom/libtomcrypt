@@ -381,6 +381,7 @@ int sober128_export(unsigned char *out, unsigned long *outlen, prng_state *prng)
    LTC_ARGCHK(prng   != NULL);
 
    if (*outlen < 64) {
+      *outlen = 64;
       return CRYPT_BUFFER_OVERFLOW;
    }
 

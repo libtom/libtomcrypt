@@ -1,3 +1,14 @@
+June 17th, 2005
+v1.13 -- Fixed to fortuna_start() to clean up state if an error occurs.  Not really useful at this stage (sha256 can't fail) but useful
+         if I ever make fortuna pluggable
+      -- Mike Marin submitted a whole bunch of patches for fixing up the libs on traditional UNIX platforms.  Go AIX!  Thanks!
+      -- One of bugs found in the multi demo highlights that at least with gcc you need to pass integers with a UL prefix to ensure
+         they're unsigned long
+      -- Updated the FP ECC code to use affine points.  It's teh fast.
+      -- Made it so many functions which return CRYPT_BUFFER_OVERFLOW now also indicate the required buffer size, note that not all functions
+         do this (most do though).
+      -- Added F8 chaining mode.  It's super neato.
+
 May 29th, 2006
 v1.12 -- Fixed OID encoder/decoder/length to properly handle the first two parts of an OID, matches 2002 X.690 now.
       -- [Wesley Shields] Allows both GMP/LTM and TFM to be defined now.  
@@ -1453,6 +1464,6 @@ v0.02  -- Changed RC5 to only allow 12 to 24 rounds
 v0.01  -- We will call this the first version.
 
 /* $Source: /cvs/libtom/libtomcrypt/changes,v $ */
-/* $Revision: 1.206 $ */
-/* $Date: 2006/05/29 11:21:25 $ */
+/* $Revision: 1.213 $ */
+/* $Date: 2006/06/18 01:42:59 $ */
 

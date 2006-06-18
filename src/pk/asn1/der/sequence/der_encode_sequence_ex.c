@@ -153,6 +153,7 @@ int der_encode_sequence_ex(ltc_asn1_list *list, unsigned long inlen,
 
    /* too big ? */
    if (*outlen < y) {
+      *outlen = y;
       err = CRYPT_BUFFER_OVERFLOW;
       goto LBL_ERR;
    }

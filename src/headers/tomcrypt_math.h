@@ -225,7 +225,7 @@ typedef struct {
      @param d    The remainder (can be NULL to signify don't care)
      @return CRYPT_OK on success
    */
-   int (*div)(void *a, void *b, void *c, void *d);
+   int (*mpdiv)(void *a, void *b, void *c, void *d);
 
    /** divide by two 
       @param  a   The integer to divide (shift right)
@@ -266,6 +266,14 @@ typedef struct {
       @return CRYPT_OK on success
    */
    int (*mulmod)(void *a, void *b, void *c, void *d);
+
+   /** Modular squaring
+      @param  a     The first source
+      @param  b     The modulus
+      @param  c     The destination (a*a mod b)
+      @return CRYPT_OK on success
+   */
+   int (*sqrmod)(void *a, void *b, void *c);
 
    /** Modular inversion
       @param  a     The value to invert
@@ -446,14 +454,15 @@ extern const ltc_math_descriptor gmp_desc;
 #define mp_mul(a, b, c)              ltc_mp.mul(a, b, c)
 #define mp_mul_d(a, b, c)            ltc_mp.muli(a, b, c)
 #define mp_sqr(a, b)                 ltc_mp.sqr(a, b)
-#define mp_div(a, b, c, d)           ltc_mp.div(a, b, c, d)
+#define mp_div(a, b, c, d)           ltc_mp.mpdiv(a, b, c, d)
 #define mp_div_2(a, b)               ltc_mp.div_2(a, b)
-#define mp_mod(a, b, c)              ltc_mp.div(a, b, NULL, c)
+#define mp_mod(a, b, c)              ltc_mp.mpdiv(a, b, NULL, c)
 #define mp_mod_d(a, b, c)            ltc_mp.modi(a, b, c)
 #define mp_gcd(a, b, c)              ltc_mp.gcd(a, b, c)
 #define mp_lcm(a, b, c)              ltc_mp.lcm(a, b, c)
 
 #define mp_mulmod(a, b, c, d)        ltc_mp.mulmod(a, b, c, d)
+#define mp_sqrmod(a, b, c)           ltc_mp.sqrmod(a, b, c)
 #define mp_invmod(a, b, c)           ltc_mp.invmod(a, b, c)
 
 #define mp_montgomery_setup(a, b)    ltc_mp.montgomery_setup(a, b)

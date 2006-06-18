@@ -44,6 +44,7 @@ int der_encode_utctime(ltc_utctime *utctime,
        return err;
     }
     if (tmplen > *outlen) {
+        *outlen = tmplen;
         return CRYPT_BUFFER_OVERFLOW;
     }
     

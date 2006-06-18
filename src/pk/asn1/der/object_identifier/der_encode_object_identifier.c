@@ -39,6 +39,7 @@ int der_encode_object_identifier(unsigned long *words, unsigned long  nwords,
       return err;
    }
    if (x > *outlen) {
+      *outlen = x;
       return CRYPT_BUFFER_OVERFLOW;
    }
 

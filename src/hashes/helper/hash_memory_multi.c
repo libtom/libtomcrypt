@@ -43,6 +43,7 @@ int hash_memory_multi(int hash, unsigned char *out, unsigned long *outlen,
     }
 
     if (*outlen < hash_descriptor[hash].hashsize) {
+       *outlen = hash_descriptor[hash].hashsize;
        return CRYPT_BUFFER_OVERFLOW;
     }
 

@@ -42,6 +42,7 @@ int hash_filehandle(int hash, FILE *in, unsigned char *out, unsigned long *outle
     }
 
     if (*outlen < hash_descriptor[hash].hashsize) {
+       *outlen = hash_descriptor[hash].hashsize;
        return CRYPT_BUFFER_OVERFLOW;
     }
     if ((err = hash_descriptor[hash].init(&md)) != CRYPT_OK) {

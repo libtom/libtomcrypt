@@ -31,7 +31,7 @@ static int init(void **a)
 
 static void deinit(void *a)
 {
-   LTC_ARGCHK(a != NULL);
+   LTC_ARGCHKVD(a != NULL);
    mpz_clear(a);
    XFREE(a);
 }
@@ -316,6 +316,16 @@ static int mulmod(void *a, void *b, void *c, void *d)
    return CRYPT_OK;
 }
 
+static int sqrmod(void *a, void *b, void *c)
+{
+   LTC_ARGCHK(a != NULL);
+   LTC_ARGCHK(b != NULL);
+   LTC_ARGCHK(c != NULL);
+   mpz_mul(c, a, a);
+   mpz_mod(c, c, b);
+   return CRYPT_OK;
+}
+
 /* invmod */
 static int invmod(void *a, void *b, void *c)
 {
@@ -329,10 +339,9 @@ static int invmod(void *a, void *b, void *c)
 /* setup */
 static int montgomery_setup(void *a, void **b)
 {
-   int err;
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
-   *b = 1;
+   *b = (void *)1;
    return CRYPT_OK;
 }
 
@@ -419,6 +428,7 @@ const ltc_math_descriptor gmp_desc = {
    &lcm,
 
    &mulmod,
+   &sqrmod,
    &invmod,
 
    &montgomery_setup,

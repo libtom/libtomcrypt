@@ -129,6 +129,7 @@ int pkcs_1_pss_encode(const unsigned char *msghash, unsigned long msghashlen,
 
    /* output is DB || hash || 0xBC */
    if (*outlen < modulus_len) {
+      *outlen = modulus_len;
       err = CRYPT_BUFFER_OVERFLOW;
       goto LBL_ERR;
    }

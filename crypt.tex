@@ -47,7 +47,7 @@
 \def\gap{\vspace{0.5ex}}
 \makeindex
 \begin{document}
-\title{LibTomCrypt \\ Version 1.12}
+\title{LibTomCrypt \\ Version 1.13}
 \author{Tom St Denis \\
 \\
 tomstdenis@gmail.com \\
@@ -280,8 +280,7 @@ There are 32 and 64-bit cyclic rotations as well:
 
 \section{Functions with Variable Length Output}
 Certain functions such as (for example) ``rsa\_export()'' give an output that is variable length.  To prevent buffer overflows you
-must pass it the length of the buffer\footnote{Extensive error checking is not in place but it will be in future releases so it is a good idea to follow through with these guidelines.} where
-the output will be stored.  For example:
+must pass it the length of the buffer where the output will be stored.  For example:
 \begin{small}
 \begin{verbatim}
 #include <tomcrypt.h>
@@ -312,6 +311,9 @@ int main(void) {
 In the above example if the size of the RSA public key was more than 1024 bytes this function would return an error code
 indicating a buffer overflow would have occurred.  If the function succeeds it stores the length of the output
 back into ``x'' so that the calling application will know how many bytes were used.
+
+As of v1.13, most functions will update your length on failure to indicate the size required by the function.  Not all functions
+support this so please check the source before you rely on it doing that.
 
 \section{Functions that need a PRNG}
 \index{Pseudo Random Number Generator} \index{PRNG}
@@ -5018,6 +5020,14 @@ typedef struct {
    */
    int (*mulmod)(void *a, void *b, void *c, void *d);
 
+   /** Modular squaring
+      @param  a     The first source
+      @param  b     The modulus
+      @param  c     The destination (a*a mod b)
+      @return CRYPT_OK on success
+   */
+   int (*sqrmod)(void *a, void *b, void *c);
+
    /** Modular inversion
       @param  a     The value to invert
       @param  b     The modulus 
@@ -5231,5 +5241,5 @@ Since the function is given the entire RSA key (for private keys only) CRT is po
 \end{document}
 
 % $Source: /cvs/libtom/libtomcrypt/crypt.tex,v $   
-% $Revision: 1.71 $   
-% $Date: 2006/05/29 11:19:08 $ 
+% $Revision: 1.74 $   
+% $Date: 2006/06/18 01:35:41 $ 

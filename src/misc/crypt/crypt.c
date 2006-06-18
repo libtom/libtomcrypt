@@ -175,6 +175,9 @@ const char *crypt_build_settings =
 #endif
     "\n"
 #endif
+#if defined(LTC_F8_MODE)
+    "   F8 MODE\n"
+#endif    
 
     "\nMACs:\n"
 #if defined(HMAC)

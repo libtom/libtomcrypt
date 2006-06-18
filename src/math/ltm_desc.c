@@ -60,7 +60,7 @@ static int init(void **a)
 
 static void deinit(void *a)
 {
-   LTC_ARGCHK(a != NULL);
+   LTC_ARGCHKVD(a != NULL);
    mp_clear(a);
    XFREE(a);
 }
@@ -317,6 +317,14 @@ static int mulmod(void *a, void *b, void *c, void *d)
    return mpi_to_ltc_error(mp_mulmod(a,b,c,d));
 }
 
+static int sqrmod(void *a, void *b, void *c)
+{
+   LTC_ARGCHK(a != NULL);
+   LTC_ARGCHK(b != NULL);
+   LTC_ARGCHK(c != NULL);
+   return mpi_to_ltc_error(mp_sqrmod(a,b,c));
+}
+
 /* invmod */
 static int invmod(void *a, void *b, void *c)
 {
@@ -426,6 +434,7 @@ const ltc_math_descriptor ltm_desc = {
    &lcm,
 
    &mulmod,
+   &sqrmod,
    &invmod,
    
    &montgomery_setup,

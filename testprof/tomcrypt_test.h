@@ -5,7 +5,7 @@
 #include <tomcrypt.h>
 
 /* enable stack testing */
-// #define STACK_TEST
+/* #define STACK_TEST */
 
 /* stack testing, define this if stack usage goes downwards [e.g. x86] */
 #define STACK_DOWN

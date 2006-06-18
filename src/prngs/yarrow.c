@@ -273,6 +273,7 @@ int yarrow_export(unsigned char *out, unsigned long *outlen, prng_state *prng)
    /* we'll write 64 bytes for s&g's */
    if (*outlen < 64) {
       LTC_MUTEX_UNLOCK(&prng->yarrow.prng_lock);
+      *outlen = 64;
       return CRYPT_BUFFER_OVERFLOW;
    }
 

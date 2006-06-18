@@ -74,6 +74,7 @@ static int fortuna_reseed(prng_state *prng)
    /* new K == SHA256(K || s) where s == SHA256(P0) || SHA256(P1) ... */
    sha256_init(&md);
    if ((err = sha256_process(&md, prng->fortuna.K, 32)) != CRYPT_OK) {
+      sha256_done(&md, tmp);
       return err;
    }
 
@@ -81,14 +82,19 @@ static int fortuna_reseed(prng_state *prng)
        if (x == 0 || ((prng->fortuna.reset_cnt >> (x-1)) & 1) == 0) { 
           /* terminate this hash */
           if ((err = sha256_done(&prng->fortuna.pool[x], tmp)) != CRYPT_OK) {
+             sha256_done(&md, tmp);
              return err; 
           }
           /* add it to the string */
           if ((err = sha256_process(&md, tmp, 32)) != CRYPT_OK) {
+             sha256_done(&md, tmp);
              return err;
           }
           /* reset this pool */
-          sha256_init(&prng->fortuna.pool[x]);
+          if ((err = sha256_init(&prng->fortuna.pool[x])) != CRYPT_OK) {
+             sha256_done(&md, tmp);
+             return err;
+          }
        } else {
           break;
        }
@@ -123,13 +129,19 @@ static int fortuna_reseed(prng_state *prng)
 */  
 int fortuna_start(prng_state *prng)
 {
-   int err, x;
+   int err, x, y;
+   unsigned char tmp[MAXBLOCKSIZE];
 
    LTC_ARGCHK(prng != NULL);
    
    /* initialize the pools */
    for (x = 0; x < FORTUNA_POOLS; x++) {
-       sha256_init(&prng->fortuna.pool[x]);
+       if ((err = sha256_init(&prng->fortuna.pool[x])) != CRYPT_OK) {
+          for (y = 0; y < x; y++) {
+              sha256_done(&prng->fortuna.pool[x], tmp);
+          }
+          return err;
+       }
    }
    prng->fortuna.pool_idx = prng->fortuna.pool0_len = prng->fortuna.reset_cnt = 
    prng->fortuna.wd = 0;
@@ -137,6 +149,9 @@ int fortuna_start(prng_state *prng)
    /* reset bufs */
    zeromem(prng->fortuna.K, 32);
    if ((err = rijndael_setup(prng->fortuna.K, 32, 0, &prng->fortuna.skey)) != CRYPT_OK) {
+      for (x = 0; x < FORTUNA_POOLS; x++) {
+          sha256_done(&prng->fortuna.pool[x], tmp);
+      }
       return err;
    }
    zeromem(prng->fortuna.IV, 16);
@@ -312,6 +327,7 @@ int fortuna_export(unsigned char *out, unsigned long *outlen, prng_state *prng)
    /* we'll write bytes for s&g's */
    if (*outlen < 32*FORTUNA_POOLS) {
       LTC_MUTEX_UNLOCK(&prng->fortuna.prng_lock);
+      *outlen = 32*FORTUNA_POOLS;
       return CRYPT_BUFFER_OVERFLOW;
    }
 

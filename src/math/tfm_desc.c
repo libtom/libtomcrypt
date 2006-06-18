@@ -55,7 +55,7 @@ static int init(void **a)
 
 static void deinit(void *a)
 {
-   LTC_ARGCHK(a != NULL);
+   LTC_ARGCHKVD(a != NULL);
    XFREE(a);
 }
 
@@ -328,6 +328,14 @@ static int mulmod(void *a, void *b, void *c, void *d)
    return tfm_to_ltc_error(fp_mulmod(a,b,c,d));
 }
 
+static int sqrmod(void *a, void *b, void *c)
+{
+   LTC_ARGCHK(a != NULL);
+   LTC_ARGCHK(b != NULL);
+   LTC_ARGCHK(c != NULL);
+   return tfm_to_ltc_error(fp_sqrmod(a,b,c));
+}
+
 /* invmod */
 static int invmod(void *a, void *b, void *c)
 {
@@ -536,7 +544,7 @@ static int tfm_ecc_projective_add_point(ecc_point *P, ecc_point *Q, ecc_point *R
    /* should we dbl instead? */
    fp_sub(modulus, Q->y, &t1);
    if ( (fp_cmp(P->x, Q->x) == FP_EQ) && 
-        (fp_cmp(P->z, Q->z) == FP_EQ) &&
+        (Q->z != NULL && fp_cmp(P->z, Q->z) == FP_EQ) &&
         (fp_cmp(P->y, Q->y) == FP_EQ || fp_cmp(P->y, &t1) == FP_EQ)) {
         return tfm_ecc_projective_dbl_point(P, R, modulus, Mp);
    }
@@ -546,6 +554,7 @@ static int tfm_ecc_projective_add_point(ecc_point *P, ecc_point *Q, ecc_point *R
    fp_copy(P->z, &z);
 
    /* if Z is one then these are no-operations */
+   if (Q->z != NULL) {
       /* T1 = Z' * Z' */
       fp_sqr(Q->z, &t1);
       fp_montgomery_reduce(&t1, modulus, mp);
@@ -558,7 +567,8 @@ static int tfm_ecc_projective_add_point(ecc_point *P, ecc_point *Q, ecc_point *R
       /* Y = Y * T1 */
       fp_mul(&t1, &y, &y);
       fp_montgomery_reduce(&y, modulus, mp);
-   
+   }
+
    /* T1 = Z*Z */
    fp_sqr(&z, &t1);
    fp_montgomery_reduce(&t1, modulus, mp);
@@ -604,10 +614,12 @@ static int tfm_ecc_projective_add_point(ecc_point *P, ecc_point *Q, ecc_point *R
    }
 
    /* if Z' != 1 */
+   if (Q->z != NULL) {
       /* Z = Z * Z' */
       fp_mul(&z, Q->z, &z);
       fp_montgomery_reduce(&z, modulus, mp);
-   
+   }
+
    /* Z = Z * X */
    fp_mul(&z, &x, &z);
    fp_montgomery_reduce(&z, modulus, mp);
@@ -710,6 +722,7 @@ const ltc_math_descriptor tfm_desc = {
    &lcm,
 
    &mulmod,
+   &sqrmod,
    &invmod,
 
    &montgomery_setup,

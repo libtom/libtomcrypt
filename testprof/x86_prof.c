@@ -18,7 +18,7 @@ void tally_results(int type)
 {
    int x;
 
-   // qsort the results
+   /* qsort the results */
    qsort(results, no_results, sizeof(struct list), &sorter);
 
    fprintf(stderr, "\n");
@@ -75,7 +75,7 @@ ulong64 rdtsc (void)
          return XCLOCK();
       #endif
 
-   // Microsoft and Intel Windows compilers
+   /* Microsoft and Intel Windows compilers */
    #elif defined _M_IX86 && !defined(LTC_NO_ASM)
      __asm rdtsc
    #elif defined _M_AMD64 && !defined(LTC_NO_ASM)
@@ -627,7 +627,7 @@ int time_hash(void)
 }
 
 #undef MPI
-//#warning you need an mp_rand!!!
+/*#warning you need an mp_rand!!!*/
 
 #ifdef MPI
 void time_mult(void)
@@ -781,7 +781,7 @@ void time_rsa(void)
            t_start();
            t1 = t_read();
            z = sizeof(buf[1]);
-           if ((err = rsa_encrypt_key(buf[0], 32, buf[1], &z, "testprog", 8, &yarrow_prng,
+           if ((err = rsa_encrypt_key(buf[0], 32, buf[1], &z, (const unsigned char *)"testprog", 8, &yarrow_prng,
                                       find_prng("yarrow"), find_hash("sha1"),
                                       &key)) != CRYPT_OK) {
               fprintf(stderr, "\n\nrsa_encrypt_key says %s, wait...no it should say %s...damn you!\n", error_to_string(err), error_to_string(CRYPT_OK));
@@ -798,7 +798,7 @@ void time_rsa(void)
            t_start();
            t1 = t_read();
            zzz = sizeof(buf[0]);
-           if ((err = rsa_decrypt_key(buf[1], z, buf[0], &zzz, "testprog", 8,  find_hash("sha1"), 
+           if ((err = rsa_decrypt_key(buf[1], z, buf[0], &zzz, (const unsigned char *)"testprog", 8,  find_hash("sha1"), 
                                       &zz, &key)) != CRYPT_OK) {
               fprintf(stderr, "\n\nrsa_decrypt_key says %s, wait...no it should say %s...damn you!\n", error_to_string(err), error_to_string(CRYPT_OK));
               exit(EXIT_FAILURE);
@@ -916,7 +916,7 @@ void time_ecc(void)
 
    for (x = sizes[i=0]; x < 100000; x = sizes[++i]) {
        t2 = 0;
-       for (y = 0; y < 64; y++) {
+       for (y = 0; y < 256; y++) {
            t_start();
            t1 = t_read();
            if ((err = ecc_make_key(&yarrow_prng, find_prng("yarrow"), x, &key)) != CRYPT_OK) {
@@ -926,15 +926,15 @@ void time_ecc(void)
            t1 = t_read() - t1;
            t2 += t1;
 
-           if (y < 63) {
+           if (y < 255) {
               ecc_free(&key);
            }
        }
-       t2 >>= 6;
+       t2 >>= 8;
        fprintf(stderr, "ECC-%lu make_key    took %15llu cycles\n", x*8, t2);
 
        t2 = 0;
-       for (y = 0; y < 16; y++) {
+       for (y = 0; y < 256; y++) {
            t_start();
            t1 = t_read();
            z = sizeof(buf[1]);
@@ -946,7 +946,7 @@ void time_ecc(void)
            t1 = t_read() - t1;
            t2 += t1;
        }
-       t2 >>= 4;
+       t2 >>= 8;
        fprintf(stderr, "ECC-%lu encrypt_key took %15llu cycles\n", x*8, t2);
        ecc_free(&key);
   }

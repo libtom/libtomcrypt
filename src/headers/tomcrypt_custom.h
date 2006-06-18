@@ -140,6 +140,9 @@
 #define CBC
 #define CTR
 
+/* F8 chaining mode */
+#define LTC_F8_MODE
+
 /* LRW mode */
 #define LRW_MODE
 #ifndef LTC_NO_TABLES

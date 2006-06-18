@@ -26,8 +26,8 @@
 void ecc_sizes(int *low, int *high)
 {
  int i;
- LTC_ARGCHK(low  != NULL);
- LTC_ARGCHK(high != NULL);
+ LTC_ARGCHKVD(low  != NULL);
+ LTC_ARGCHKVD(high != NULL);
 
  *low = INT_MAX;
  *high = 0;

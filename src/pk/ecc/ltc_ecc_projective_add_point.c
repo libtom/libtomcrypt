@@ -51,7 +51,7 @@ int ltc_ecc_projective_add_point(ecc_point *P, ecc_point *Q, ecc_point *R, void 
    if ((err = mp_sub(modulus, Q->y, t1)) != CRYPT_OK)                          { goto done; }
 
    if ( (mp_cmp(P->x, Q->x) == LTC_MP_EQ) && 
-        (mp_cmp(P->z, Q->z) == LTC_MP_EQ) &&
+        (Q->z != NULL && mp_cmp(P->z, Q->z) == LTC_MP_EQ) &&
         (mp_cmp(P->y, Q->y) == LTC_MP_EQ || mp_cmp(P->y, t1) == LTC_MP_EQ)) {
         mp_clear_multi(t1, t2, x, y, z, NULL);
         return ltc_ecc_projective_dbl_point(P, R, modulus, mp);
@@ -62,6 +62,7 @@ int ltc_ecc_projective_add_point(ecc_point *P, ecc_point *Q, ecc_point *R, void 
    if ((err = mp_copy(P->z, z)) != CRYPT_OK)                                   { goto done; }
 
    /* if Z is one then these are no-operations */
+   if (Q->z != NULL) {
       /* T1 = Z' * Z' */
       if ((err = mp_sqr(Q->z, t1)) != CRYPT_OK)                                { goto done; }
       if ((err = mp_montgomery_reduce(t1, modulus, mp)) != CRYPT_OK)           { goto done; }
@@ -74,7 +75,8 @@ int ltc_ecc_projective_add_point(ecc_point *P, ecc_point *Q, ecc_point *R, void 
       /* Y = Y * T1 */
       if ((err = mp_mul(t1, y, y)) != CRYPT_OK)                                { goto done; }
       if ((err = mp_montgomery_reduce(y, modulus, mp)) != CRYPT_OK)            { goto done; }
-   
+   }
+
    /* T1 = Z*Z */
    if ((err = mp_sqr(z, t1)) != CRYPT_OK)                                      { goto done; }
    if ((err = mp_montgomery_reduce(t1, modulus, mp)) != CRYPT_OK)              { goto done; }
@@ -120,10 +122,12 @@ int ltc_ecc_projective_add_point(ecc_point *P, ecc_point *Q, ecc_point *R, void 
    }
 
    /* if Z' != 1 */
+   if (Q->z != NULL) {
       /* Z = Z * Z' */
       if ((err = mp_mul(z, Q->z, z)) != CRYPT_OK)                              { goto done; }
       if ((err = mp_montgomery_reduce(z, modulus, mp)) != CRYPT_OK)            { goto done; }
-   
+   }
+
    /* Z = Z * X */
    if ((err = mp_mul(z, x, z)) != CRYPT_OK)                                    { goto done; }
    if ((err = mp_montgomery_reduce(z, modulus, mp)) != CRYPT_OK)               { goto done; }

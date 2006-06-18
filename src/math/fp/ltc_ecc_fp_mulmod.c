@@ -35,11 +35,12 @@
 /** Our FP cache */
 static struct {
    ecc_point *g,              /* cached COPY of base point */
-             *LUT[1<<FP_LUT]; /* fixed point lookup */ 
+             *LUT[1U<<FP_LUT]; /* fixed point lookup */ 
+   void      *mu;             /* copy of the montgomery constant */
    int        lru_count;      /* amount of times this entry has been used */
 } fp_cache[FP_ENTRIES];
 
-LTC_MUTEX_GLOBAL(ltc_ecc_fp_lock);
+LTC_MUTEX_GLOBAL(ltc_ecc_fp_lock)
 
 /* simple table to help direct the generation of the LUT */
 static const struct {
@@ -574,7 +575,8 @@ static const struct {
 /* find a hole and free as required */
 static int find_hole(void)
 {
-   int x, y, z;
+   unsigned x;
+   int      y, z;
    for (z = 0, y = INT_MAX, x = 0; x < FP_ENTRIES; x++) {
        if (fp_cache[x].lru_count < y) {
           z = x;
@@ -591,9 +593,13 @@ static int find_hole(void)
 
    /* free entry z */
    if (fp_cache[z].g) {
+      if (fp_cache[z].mu != NULL) {
+         mp_clear(fp_cache[z].mu);
+         fp_cache[z].mu = NULL;
+      }
       ltc_ecc_del_point(fp_cache[z].g);
-      fp_cache[z].g = NULL;
-      for (x = 0; x < (1<<FP_LUT); x++) {
+      fp_cache[z].g  = NULL;
+      for (x = 0; x < (1U<<FP_LUT); x++) {
          ltc_ecc_del_point(fp_cache[z].LUT[x]);
          fp_cache[z].LUT[x] = NULL;
       }
@@ -602,6 +608,7 @@ static int find_hole(void)
    return z;
 }
 
+/* determine if a base is already in the cache and if so, where */
 static int find_base(ecc_point *g)
 {
    int x;
@@ -619,9 +626,10 @@ static int find_base(ecc_point *g)
    return x;
 }
 
+/* add a new base to the cache */
 static int add_entry(int idx, ecc_point *g)
 {
-   int x, y;
+   unsigned x, y;
 
    /* allocate base and LUT */
    fp_cache[idx].g = ltc_ecc_new_point();
@@ -638,7 +646,7 @@ static int add_entry(int idx, ecc_point *g)
       return CRYPT_MEM;
    }              
 
-   for (x = 0; x < (1<<FP_LUT); x++) {
+   for (x = 0; x < (1U<<FP_LUT); x++) {
       fp_cache[idx].LUT[x] = ltc_ecc_new_point();
       if (fp_cache[idx].LUT[x] == NULL) {
          for (y = 0; y < x; y++) {
@@ -664,7 +672,10 @@ static int add_entry(int idx, ecc_point *g)
 static int build_lut(int idx, void *modulus, void *mp, void *mu)
 { 
    unsigned x, y, err, bitlen, lut_gap;
-   
+   void    *tmp;
+
+   tmp = NULL;
+
    /* sanity check to make sure lut_order table is of correct size, should compile out to a NOP if true */
    if ((sizeof(lut_orders) / sizeof(lut_orders[0])) < (1U<<FP_LUT)) {
        err = CRYPT_INVALID_ARG;
@@ -678,17 +689,22 @@ static int build_lut(int idx, void *modulus, void *mp, void *mu)
       bitlen += FP_LUT - x;
    }  
    lut_gap = bitlen / FP_LUT;
+
+   /* init the mu */
+   if ((err = mp_init_copy(&fp_cache[idx].mu, mu)) != CRYPT_OK) {
+      goto ERR;
+   }
    
    /* copy base */
    if ((mp_mulmod(fp_cache[idx].g->x, mu, modulus, fp_cache[idx].LUT[1]->x) != CRYPT_OK) || 
        (mp_mulmod(fp_cache[idx].g->y, mu, modulus, fp_cache[idx].LUT[1]->y) != CRYPT_OK) || 
-       (mp_mulmod(fp_cache[idx].g->z, mu, modulus, fp_cache[idx].LUT[1]->z) != CRYPT_OK)) { goto ERR; }
+       (mp_mulmod(fp_cache[idx].g->z, mu, modulus, fp_cache[idx].LUT[1]->z) != CRYPT_OK))        { goto ERR; }
        
    /* make all single bit entries */
    for (x = 1; x < FP_LUT; x++) {
       if ((mp_copy(fp_cache[idx].LUT[1<<(x-1)]->x, fp_cache[idx].LUT[1<<x]->x) != CRYPT_OK) || 
           (mp_copy(fp_cache[idx].LUT[1<<(x-1)]->y, fp_cache[idx].LUT[1<<x]->y) != CRYPT_OK) || 
-          (mp_copy(fp_cache[idx].LUT[1<<(x-1)]->z, fp_cache[idx].LUT[1<<x]->z) != CRYPT_OK)) { goto ERR; }
+          (mp_copy(fp_cache[idx].LUT[1<<(x-1)]->z, fp_cache[idx].LUT[1<<x]->z) != CRYPT_OK))     { goto ERR; }
           
       /* now double it bitlen/FP_LUT times */
       for (y = 0; y < lut_gap; y++) {
@@ -700,7 +716,7 @@ static int build_lut(int idx, void *modulus, void *mp, void *mu)
       
    /* now make all entries in increase order of hamming weight */
    for (x = 2; x <= FP_LUT; x++) {
-       for (y = 0; y < (1<<FP_LUT); y++) {
+       for (y = 0; y < (1UL<<FP_LUT); y++) {
            if (lut_orders[y].ham != (int)x) continue;
                      
            /* perform the add */
@@ -711,20 +727,55 @@ static int build_lut(int idx, void *modulus, void *mp, void *mu)
        }
    }
       
+   /* now map all entries back to affine space to make point addition faster */
+   if ((err = mp_init(&tmp)) != CRYPT_OK)                                                                    { goto ERR; }
+   for (x = 1; x < (1UL<<FP_LUT); x++) {
+       /* convert z to normal from montgomery */
+       if ((err = mp_montgomery_reduce(fp_cache[idx].LUT[x]->z, modulus, mp)) != CRYPT_OK)                   { goto ERR; }
+ 
+       /* invert it */
+       if ((err = mp_invmod(fp_cache[idx].LUT[x]->z, modulus, fp_cache[idx].LUT[x]->z)) != CRYPT_OK)         { goto ERR; }
+
+       /* now square it */
+       if ((err = mp_sqrmod(fp_cache[idx].LUT[x]->z, modulus, tmp)) != CRYPT_OK)                             { goto ERR; }
+       
+       /* fix x */
+       if ((err = mp_mulmod(fp_cache[idx].LUT[x]->x, tmp, modulus, fp_cache[idx].LUT[x]->x)) != CRYPT_OK)    { goto ERR; }
+
+       /* get 1/z^3 */
+       if ((err = mp_mulmod(tmp, fp_cache[idx].LUT[x]->z, modulus, tmp)) != CRYPT_OK)                        { goto ERR; }
+
+       /* fix y */
+       if ((err = mp_mulmod(fp_cache[idx].LUT[x]->y, tmp, modulus, fp_cache[idx].LUT[x]->y)) != CRYPT_OK)    { goto ERR; }
+
+       /* free z */
+       mp_clear(fp_cache[idx].LUT[x]->z);
+       fp_cache[idx].LUT[x]->z = NULL;
+   }
+   mp_clear(tmp);
+
    return CRYPT_OK;                                                                       
 ERR:
    err = CRYPT_MEM;
 DONE:   
-   for (y = 0; y < (1<<FP_LUT); y++) {
+   for (y = 0; y < (1U<<FP_LUT); y++) {
       ltc_ecc_del_point(fp_cache[idx].LUT[y]);
       fp_cache[idx].LUT[y] = NULL;
    }
    ltc_ecc_del_point(fp_cache[idx].g);
    fp_cache[idx].g         = NULL;
    fp_cache[idx].lru_count = 0;
-   return CRYPT_MEM;
+   if (fp_cache[idx].mu != NULL) {
+      mp_clear(fp_cache[idx].mu);
+      fp_cache[idx].mu = NULL;
+   }
+   if (tmp != NULL) {
+      mp_clear(tmp);
+   }
+   return err;
 }
 
+/* perform a fixed point ECC mulmod */
 static int accel_fp_mul(int idx, void *k, ecc_point *R, void *modulus, void *mp, int map)
 {
    unsigned char kb[128];
@@ -831,7 +882,7 @@ static int accel_fp_mul(int idx, void *k, ecc_point *R, void *modulus, void *mp,
        } else if (z) {
           if ((mp_copy(fp_cache[idx].LUT[z]->x, R->x) != CRYPT_OK) || 
               (mp_copy(fp_cache[idx].LUT[z]->y, R->y) != CRYPT_OK) || 
-              (mp_copy(fp_cache[idx].LUT[z]->z, R->z) != CRYPT_OK)) { return CRYPT_MEM; }
+              (mp_copy(fp_cache[idx].mu,        R->z) != CRYPT_OK)) { return CRYPT_MEM; }
               first = 0;              
        }
    }     
@@ -846,6 +897,14 @@ static int accel_fp_mul(int idx, void *k, ecc_point *R, void *modulus, void *mp,
    return err;
 }
 
+/** ECC Fixed Point mulmod global
+    @param k        The multiplicand
+    @param G        Base point to multiply
+    @param R        [out] Destination of product
+    @param modulus  The modulus for the curve
+    @param map      [boolean] If non-zero maps the point back to affine co-ordinates, otherwise it's left in jacobian-montgomery form
+    @return CRYPT_OK if successful
+*/   
 int ltc_ecc_fp_mulmod(void *k, ecc_point *G, ecc_point *R, void *modulus, int map)
 {
    int   idx, err;
@@ -909,18 +968,23 @@ LBL_ERR:
     return err;
 }
 
+/** Free the Fixed Point tables */
 void ltc_ecc_fp_free(void)
 {
-   int x, y;
+   unsigned x, y;
    LTC_MUTEX_LOCK(&ltc_ecc_fp_lock);
    for (x = 0; x < FP_ENTRIES; x++) {
       if (fp_cache[x].g != NULL) {
-         for (y = 0; y < (1<<FP_LUT); y++) {
+         for (y = 0; y < (1U<<FP_LUT); y++) {
             ltc_ecc_del_point(fp_cache[x].LUT[y]);
             fp_cache[x].LUT[y] = NULL;
          }
          ltc_ecc_del_point(fp_cache[x].g);
          fp_cache[x].g         = NULL;
+         if (fp_cache[x].mu != NULL) {
+            mp_clear(fp_cache[x].mu);
+            fp_cache[x].mu     = NULL;
+         }
          fp_cache[x].lru_count = 0;
       }         
    }

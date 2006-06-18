@@ -42,6 +42,7 @@ int base64_encode(const unsigned char *in,  unsigned long inlen,
    /* valid output size ? */
    len2 = 4 * ((inlen + 2) / 3);
    if (*outlen < len2 + 1) {
+      *outlen = len2 + 1;
       return CRYPT_BUFFER_OVERFLOW;
    }
    p = out;

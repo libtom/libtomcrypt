@@ -41,6 +41,7 @@ int der_encode_integer(void *num, unsigned char *out, unsigned long *outlen)
    }
 
    if (*outlen < tmplen) {
+      *outlen = tmplen;
       return CRYPT_BUFFER_OVERFLOW;
    }
 

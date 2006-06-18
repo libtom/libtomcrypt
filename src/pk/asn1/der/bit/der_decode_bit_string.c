@@ -78,6 +78,7 @@ int der_decode_bit_string(const unsigned char *in,  unsigned long inlen,
 
    /* too many bits? */
    if (blen > *outlen) {
+      *outlen = blen;
       return CRYPT_BUFFER_OVERFLOW;
    }
 

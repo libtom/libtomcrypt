@@ -73,6 +73,7 @@ int ecc_shared_secret(ecc_key *private_key, ecc_key *public_key,
 
    x = (unsigned long)mp_unsigned_bin_size(prime);
    if (*outlen < x) {
+      *outlen = x;
       err = CRYPT_BUFFER_OVERFLOW;
       goto done;
    }

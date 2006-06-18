@@ -1,6 +1,2 @@
-- document new math function count_lsb_bits
-- add BOOLEAN type to the ASN world
-
-- ECC fixed point accelerator
-- look into X9.63 support [in addition to the LTC style ecc_encrypt_key() not replacing]
+- long term, start moving macros like CTR over to LTC_CTR to make LTC a bit more "drop-in-able".
 

@@ -4,7 +4,7 @@
 # Modified by Clay Culver
 
 # The version
-VERSION=1.12
+VERSION=1.13
 
 # Compiler and Linker Names
 #CC=gcc
@@ -150,18 +150,19 @@ src/modes/cfb/cfb_getiv.o src/modes/cfb/cfb_setiv.o src/modes/cfb/cfb_start.o \
 src/modes/ctr/ctr_decrypt.o src/modes/ctr/ctr_done.o src/modes/ctr/ctr_encrypt.o \
 src/modes/ctr/ctr_getiv.o src/modes/ctr/ctr_setiv.o src/modes/ctr/ctr_start.o \
 src/modes/ecb/ecb_decrypt.o src/modes/ecb/ecb_done.o src/modes/ecb/ecb_encrypt.o \
-src/modes/ecb/ecb_start.o src/modes/lrw/lrw_decrypt.o src/modes/lrw/lrw_done.o \
-src/modes/lrw/lrw_encrypt.o src/modes/lrw/lrw_getiv.o src/modes/lrw/lrw_process.o \
-src/modes/lrw/lrw_setiv.o src/modes/lrw/lrw_start.o src/modes/lrw/lrw_test.o \
-src/modes/ofb/ofb_decrypt.o src/modes/ofb/ofb_done.o src/modes/ofb/ofb_encrypt.o \
-src/modes/ofb/ofb_getiv.o src/modes/ofb/ofb_setiv.o src/modes/ofb/ofb_start.o \
-src/pk/asn1/der/bit/der_decode_bit_string.o src/pk/asn1/der/bit/der_encode_bit_string.o \
-src/pk/asn1/der/bit/der_length_bit_string.o src/pk/asn1/der/boolean/der_decode_boolean.o \
-src/pk/asn1/der/boolean/der_encode_boolean.o src/pk/asn1/der/boolean/der_length_boolean.o \
-src/pk/asn1/der/choice/der_decode_choice.o src/pk/asn1/der/ia5/der_decode_ia5_string.o \
-src/pk/asn1/der/ia5/der_encode_ia5_string.o src/pk/asn1/der/ia5/der_length_ia5_string.o \
-src/pk/asn1/der/integer/der_decode_integer.o src/pk/asn1/der/integer/der_encode_integer.o \
-src/pk/asn1/der/integer/der_length_integer.o \
+src/modes/ecb/ecb_start.o src/modes/f8/f8_decrypt.o src/modes/f8/f8_done.o src/modes/f8/f8_encrypt.o \
+src/modes/f8/f8_getiv.o src/modes/f8/f8_setiv.o src/modes/f8/f8_start.o src/modes/f8/f8_test_mode.o \
+src/modes/lrw/lrw_decrypt.o src/modes/lrw/lrw_done.o src/modes/lrw/lrw_encrypt.o \
+src/modes/lrw/lrw_getiv.o src/modes/lrw/lrw_process.o src/modes/lrw/lrw_setiv.o \
+src/modes/lrw/lrw_start.o src/modes/lrw/lrw_test.o src/modes/ofb/ofb_decrypt.o src/modes/ofb/ofb_done.o \
+src/modes/ofb/ofb_encrypt.o src/modes/ofb/ofb_getiv.o src/modes/ofb/ofb_setiv.o \
+src/modes/ofb/ofb_start.o src/pk/asn1/der/bit/der_decode_bit_string.o \
+src/pk/asn1/der/bit/der_encode_bit_string.o src/pk/asn1/der/bit/der_length_bit_string.o \
+src/pk/asn1/der/boolean/der_decode_boolean.o src/pk/asn1/der/boolean/der_encode_boolean.o \
+src/pk/asn1/der/boolean/der_length_boolean.o src/pk/asn1/der/choice/der_decode_choice.o \
+src/pk/asn1/der/ia5/der_decode_ia5_string.o src/pk/asn1/der/ia5/der_encode_ia5_string.o \
+src/pk/asn1/der/ia5/der_length_ia5_string.o src/pk/asn1/der/integer/der_decode_integer.o \
+src/pk/asn1/der/integer/der_encode_integer.o src/pk/asn1/der/integer/der_length_integer.o \
 src/pk/asn1/der/object_identifier/der_decode_object_identifier.o \
 src/pk/asn1/der/object_identifier/der_encode_object_identifier.o \
 src/pk/asn1/der/object_identifier/der_length_object_identifier.o \
@@ -366,5 +367,5 @@ zipup: no_oops docs
 
 
 # $Source: /cvs/libtom/libtomcrypt/makefile,v $ 
-# $Revision: 1.123 $ 
-# $Date: 2006/05/25 10:33:01 $ 
+# $Revision: 1.126 $ 
+# $Date: 2006/06/16 23:52:08 $ 

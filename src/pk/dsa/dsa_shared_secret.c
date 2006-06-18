@@ -51,6 +51,7 @@ int dsa_shared_secret(void          *private_key, void *base,
    
    x = (unsigned long)mp_unsigned_bin_size(res);
    if (*outlen < x) {
+      *outlen = x;
       err = CRYPT_BUFFER_OVERFLOW;
       goto done;
    }

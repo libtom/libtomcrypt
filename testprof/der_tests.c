@@ -63,19 +63,19 @@ static void der_set_test(void)
       exit(EXIT_FAILURE);
    }
    
-   strcpy(strs[0], "one");
-   strcpy(strs[1], "one2");
-   strcpy(strs[2], "two");
-   strcpy(strs[3], "aaa");
-   strcpy(strs[4], "aaaa");
-   strcpy(strs[5], "aab");
-   strcpy(strs[6], "aaab");
-   strcpy(strs[7], "bbb");
-   strcpy(strs[8], "bbba");
-   strcpy(strs[9], "bbbb");
+   strcpy((char*)strs[0], "one");
+   strcpy((char*)strs[1], "one2");
+   strcpy((char*)strs[2], "two");
+   strcpy((char*)strs[3], "aaa");
+   strcpy((char*)strs[4], "aaaa");
+   strcpy((char*)strs[5], "aab");
+   strcpy((char*)strs[6], "aaab");
+   strcpy((char*)strs[7], "bbb");
+   strcpy((char*)strs[8], "bbba");
+   strcpy((char*)strs[9], "bbbb");
    
    for (x = 0; x < 10; x++) {
-       LTC_SET_ASN1(list, x, LTC_ASN1_PRINTABLE_STRING, strs[x], strlen(strs[x]));
+       LTC_SET_ASN1(list, x, LTC_ASN1_PRINTABLE_STRING, strs[x], strlen((char*)strs[x]));
    }
    
    outlen = sizeof(outbuf);
@@ -96,8 +96,8 @@ static void der_set_test(void)
    
    /* now compare */
    for (x = 1; x < 10; x++) {
-      if (!(strlen(strs[x-1]) <= strlen(strs[x])) && strcmp(strs[x-1], strs[x]) >= 0) {
-         fprintf(stderr, "error SET OF order at %d is wrong\n", x);
+      if (!(strlen((char*)strs[x-1]) <= strlen((char*)strs[x])) && strcmp((char*)strs[x-1], (char*)strs[x]) >= 0) {
+         fprintf(stderr, "error SET OF order at %lu is wrong\n", x);
          exit(EXIT_FAILURE);
       }
    }      
@@ -638,7 +638,7 @@ int der_tests(void)
 
 /* test OID */
    x = sizeof(buf[0]);
-   DO(der_encode_object_identifier(rsa_oid, sizeof(rsa_oid)/sizeof(rsa_oid[0]), buf[0], &x));
+   DO(der_encode_object_identifier((unsigned long*)rsa_oid, sizeof(rsa_oid)/sizeof(rsa_oid[0]), buf[0], &x));
    if (x != sizeof(rsa_oid_der) || memcmp(rsa_oid_der, buf[0], x)) {
       fprintf(stderr, "rsa_oid_der encode failed to match, %lu, ", x);
       for (y = 0; y < x; y++) fprintf(stderr, "%02x ", buf[0][y]);
@@ -698,45 +698,45 @@ int der_tests(void)
 
 /* IA5 string */
    x = sizeof(buf[0]);
-   DO(der_encode_ia5_string(rsa_ia5, strlen(rsa_ia5), buf[0], &x));
+   DO(der_encode_ia5_string(rsa_ia5, strlen((char*)rsa_ia5), buf[0], &x));
    if (x != sizeof(rsa_ia5_der) || memcmp(buf[0], rsa_ia5_der, x)) {
       fprintf(stderr, "IA5 encode failed: %lu, %lu\n", x, (unsigned long)sizeof(rsa_ia5_der));
       return 1;
    }
-   DO(der_length_ia5_string(rsa_ia5, strlen(rsa_ia5), &y));
+   DO(der_length_ia5_string(rsa_ia5, strlen((char*)rsa_ia5), &y));
    if (y != x) {
       fprintf(stderr, "IA5 length failed to match: %lu, %lu\n", x, y);
       return 1;
    }
    y = sizeof(buf[1]);
    DO(der_decode_ia5_string(buf[0], x, buf[1], &y));
-   if (y != strlen(rsa_ia5) || memcmp(buf[1], rsa_ia5, strlen(rsa_ia5))) {
+   if (y != strlen((char*)rsa_ia5) || memcmp(buf[1], rsa_ia5, strlen((char*)rsa_ia5))) {
        fprintf(stderr, "DER IA5 failed test vector\n");
        return 1;
    }
 
 /* Printable string */
    x = sizeof(buf[0]);
-   DO(der_encode_printable_string(rsa_printable, strlen(rsa_printable), buf[0], &x));
+   DO(der_encode_printable_string(rsa_printable, strlen((char*)rsa_printable), buf[0], &x));
    if (x != sizeof(rsa_printable_der) || memcmp(buf[0], rsa_printable_der, x)) {
       fprintf(stderr, "PRINTABLE encode failed: %lu, %lu\n", x, (unsigned long)sizeof(rsa_printable_der));
       return 1;
    }
-   DO(der_length_printable_string(rsa_printable, strlen(rsa_printable), &y));
+   DO(der_length_printable_string(rsa_printable, strlen((char*)rsa_printable), &y));
    if (y != x) {
       fprintf(stderr, "printable length failed to match: %lu, %lu\n", x, y);
       return 1;
    }
    y = sizeof(buf[1]);
    DO(der_decode_printable_string(buf[0], x, buf[1], &y));
-   if (y != strlen(rsa_printable) || memcmp(buf[1], rsa_printable, strlen(rsa_printable))) {
+   if (y != strlen((char*)rsa_printable) || memcmp(buf[1], rsa_printable, strlen((char*)rsa_printable))) {
        fprintf(stderr, "DER printable failed test vector\n");
        return 1;
    }
 
 /* Test UTC time */
    x = sizeof(buf[0]);
-   DO(der_encode_utctime(&rsa_time1, buf[0], &x));
+   DO(der_encode_utctime((ltc_utctime*)&rsa_time1, buf[0], &x));
    if (x != sizeof(rsa_time1_der) || memcmp(buf[0], rsa_time1_der, x)) {
       fprintf(stderr, "UTCTIME encode of rsa_time1 failed: %lu, %lu\n", x, (unsigned long)sizeof(rsa_time1_der));
 fprintf(stderr, "\n\n");
@@ -744,7 +744,7 @@ for (y = 0; y < x; y++) fprintf(stderr, "%02x ", buf[0][y]); printf("\n");
 
       return 1;
    }
-   DO(der_length_utctime(&rsa_time1, &y));
+   DO(der_length_utctime((ltc_utctime*)&rsa_time1, &y));
    if (y != x) {
       fprintf(stderr, "UTCTIME length failed to match for rsa_time1: %lu, %lu\n", x, y);
       return 1;
@@ -766,7 +766,7 @@ tmp_time.off_hh);
    }
 
    x = sizeof(buf[0]);
-   DO(der_encode_utctime(&rsa_time2, buf[0], &x));
+   DO(der_encode_utctime((ltc_utctime*)&rsa_time2, buf[0], &x));
    if (x != sizeof(rsa_time2_der) || memcmp(buf[0], rsa_time2_der, x)) {
       fprintf(stderr, "UTCTIME encode of rsa_time2 failed: %lu, %lu\n", x, (unsigned long)sizeof(rsa_time1_der));
 fprintf(stderr, "\n\n");
@@ -774,7 +774,7 @@ for (y = 0; y < x; y++) fprintf(stderr, "%02x ", buf[0][y]); printf("\n");
 
       return 1;
    }
-   DO(der_length_utctime(&rsa_time2, &y));
+   DO(der_length_utctime((ltc_utctime*)&rsa_time2, &y));
    if (y != x) {
       fprintf(stderr, "UTCTIME length failed to match for rsa_time2: %lu, %lu\n", x, y);
       return 1;

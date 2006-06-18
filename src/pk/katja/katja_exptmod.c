@@ -83,6 +83,7 @@ int katja_exptmod(const unsigned char *in,   unsigned long inlen,
    /* read it back */
    x = (unsigned long)mp_unsigned_bin_size(key->N);
    if (x > *outlen) {
+      *outlen = x;
       err = CRYPT_BUFFER_OVERFLOW;
       goto done;
    }

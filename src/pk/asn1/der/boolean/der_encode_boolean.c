@@ -32,6 +32,7 @@ int der_encode_boolean(int in,
    LTC_ARGCHK(out    != NULL);
    
    if (*outlen < 3) {
+       *outlen = 3;
        return CRYPT_BUFFER_OVERFLOW;
    }
    

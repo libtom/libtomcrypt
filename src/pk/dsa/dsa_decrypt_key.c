@@ -105,6 +105,7 @@ int dsa_decrypt_key(const unsigned char *in,  unsigned long  inlen,
 
    /* avoid buffer overflow */
    if (*outlen < decode[2].size) {
+      *outlen = decode[2].size;
       err = CRYPT_BUFFER_OVERFLOW;
       goto LBL_ERR;
    }

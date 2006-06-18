@@ -38,6 +38,7 @@ int hash_memory(int hash, const unsigned char *in, unsigned long inlen, unsigned
     }
 
     if (*outlen < hash_descriptor[hash].hashsize) {
+       *outlen = hash_descriptor[hash].hashsize;
        return CRYPT_BUFFER_OVERFLOW;
     }
 

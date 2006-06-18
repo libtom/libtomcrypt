@@ -31,6 +31,10 @@ int modes_test(void)
       return 1;
    }
    
+#ifdef LTC_F8_MODE
+   DO(f8_test_mode());
+#endif   
+   
 #ifdef LRW_MODE
    DO(lrw_test());
 #endif

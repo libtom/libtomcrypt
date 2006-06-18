@@ -42,6 +42,7 @@ int der_encode_short_integer(unsigned long num, unsigned char *out, unsigned lon
    }
 
    if (*outlen < len) {
+      *outlen = len;
       return CRYPT_BUFFER_OVERFLOW;
    }
 
