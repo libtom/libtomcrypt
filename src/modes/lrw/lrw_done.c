@@ -15,7 +15,7 @@
    LRW_MODE implementation, Free resources, Tom St Denis
 */
 
-#ifdef LRW_MODE
+#ifdef LTC_LRW_MODE
 
 /**
   Terminate a LRW state

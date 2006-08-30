@@ -15,7 +15,7 @@
    CBC implementation, finish chain, Tom St Denis
 */
 
-#ifdef CBC
+#ifdef LTC_CBC_MODE
 
 /** Terminate the chain
   @param cbc    The CBC chain to terminate

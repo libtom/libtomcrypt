@@ -347,7 +347,7 @@ int time_cipher(void)
    return 0;
 }
 
-#ifdef CBC 
+#ifdef LTC_CBC_MODE 
 int time_cipher2(void)
 {
   unsigned long x, y1;
@@ -422,7 +422,7 @@ int time_cipher2(void)
 int time_cipher2(void) { fprintf(stderr, "NO CBC\n"); return 0; }
 #endif
 
-#ifdef CTR
+#ifdef LTC_CTR_MODE
 int time_cipher3(void)
 {
   unsigned long x, y1;
@@ -497,7 +497,7 @@ int time_cipher3(void)
 int time_cipher3(void) { fprintf(stderr, "NO CTR\n"); return 0; }
 #endif
 
-#ifdef LRW_MODE
+#ifdef LTC_LRW_MODE
 int time_cipher4(void)
 {
   unsigned long x, y1;
@@ -1157,7 +1157,11 @@ void time_encmacs_(unsigned long MAC_SIZE)
    fprintf(stderr, "GCM (no-precomp)\t%9llu\n", t2/(ulong64)(MAC_SIZE*1024));
 
    {
-   gcm_state gcm;
+   gcm_state gcm
+#ifdef GCM_TABLES_SSE2
+__attribute__ ((aligned (16)))
+#endif
+;
 
    if ((err = gcm_init(&gcm, cipher_idx, key, 16)) != CRYPT_OK) { fprintf(stderr, "gcm_init: %s\n", error_to_string(err)); exit(EXIT_FAILURE); }
    t2 = -1;

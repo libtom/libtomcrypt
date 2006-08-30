@@ -15,7 +15,7 @@
    OFB implementation, set IV, Tom St Denis
 */
 
-#ifdef OFB
+#ifdef LTC_OFB_MODE
 
 /**
    Set an initial vector

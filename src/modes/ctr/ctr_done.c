@@ -15,7 +15,7 @@
    CTR implementation, finish chain, Tom St Denis
 */
 
-#ifdef CTR
+#ifdef LTC_CTR_MODE
 
 /** Terminate the chain
   @param ctr    The CTR chain to terminate

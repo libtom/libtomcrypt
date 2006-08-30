@@ -15,7 +15,7 @@
   OFB implementation, encrypt data, Tom St Denis
 */
 
-#ifdef OFB
+#ifdef LTC_OFB_MODE
 
 /**
   OFB encrypt

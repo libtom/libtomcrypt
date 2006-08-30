@@ -153,19 +153,19 @@ const char *crypt_build_settings =
 #endif
 
     "\nBlock Chaining Modes:\n"
-#if defined(CFB)
+#if defined(LTC_CFB_MODE)
     "   CFB\n"
 #endif
-#if defined(OFB)
+#if defined(LTC_OFB_MODE)
     "   OFB\n"
 #endif
-#if defined(ECB)
+#if defined(LTC_ECB_MODE)
     "   ECB\n"
 #endif
-#if defined(CBC)
+#if defined(LTC_CBC_MODE)
     "   CBC\n"
 #endif
-#if defined(CTR)
+#if defined(LTC_CTR_MODE)
     "   CTR\n"
 #endif
 #if defined(LRW_MODE)

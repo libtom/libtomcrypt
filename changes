@@ -1,3 +1,23 @@
+August 0x1E, 0x07D6
+v1.14 -- Renamed the chaining mode macros from XXX to LTC_XXX_MODE.  Should help avoid polluting the macro name space.
+      -- clean up of SHA-256
+      -- Chris Colman pointed out that der_decode_sequence_* allows LTC_ASN1_SETOF to accept SEQUENCEs and vice versa.
+         Decoder [non-flexi decoder that is] is more strict now and requires a match.
+      -- Steffen Jaeckel pointed out a typo in the user manual (re: rsa_exptmod).  Fixed.  This disproves the notion that
+         nobody reads it.  :-)
+      -- Made GCM a bit more portable w.r.t. handling the CTR IV (e.g. & with 255)
+      -- Add LTC_VERBOSE if you really want to see what test is doing :-)
+      -- Added SSE2 support to GCM [use GCM_TABLES_SSE2 to enable], shaves 2 cycles per byte on Opteron processors
+         Shaved 4 cycles on a Prescott (Intel P4)
+         Requires you align your gcm_state on a 16 byte boundary, see gcm_memory() for more info
+      -- Added missing prototype for f8_test_mode()
+      -- two fixes to CCM for corner cases [L+noncelen > 15] and fixing the CTR pad to encrypt the CBC-MAC tag
+      -- Franz Glasner pointed out the ARGTYPE=4 is not actually valid.  Fixed.
+      -- Fixed bug in f8_start() if your key < saltkey unspecified behaviour occurs.  :-(
+      -- Documented F8 mode.  Yeah, because you read the manual.  
+      -- Minor updates to the technotes.
+
+
 June 17th, 2005
 v1.13 -- Fixed to fortuna_start() to clean up state if an error occurs.  Not really useful at this stage (sha256 can't fail) but useful
          if I ever make fortuna pluggable
@@ -1464,6 +1484,6 @@ v0.02  -- Changed RC5 to only allow 12 to 24 rounds
 v0.01  -- We will call this the first version.
 
 /* $Source: /cvs/libtom/libtomcrypt/changes,v $ */
-/* $Revision: 1.213 $ */
-/* $Date: 2006/06/18 01:42:59 $ */
+/* $Revision: 1.224 $ */
+/* $Date: 2006/08/30 23:23:20 $ */
 

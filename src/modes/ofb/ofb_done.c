@@ -15,7 +15,7 @@
    OFB implementation, finish chain, Tom St Denis
 */
 
-#ifdef OFB
+#ifdef LTC_OFB_MODE
 
 /** Terminate the chain
   @param ofb    The OFB chain to terminate

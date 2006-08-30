@@ -26,6 +26,13 @@ void gcm_mult_h(gcm_state *gcm, unsigned char *I)
    unsigned char T[16];
 #ifdef GCM_TABLES
    int x, y;
+#ifdef GCM_TABLES_SSE2
+   asm("movdqa (%0),%%xmm0"::"r"(&gcm->PC[0][I[0]][0]));
+   for (x = 1; x < 16; x++) {
+      asm("pxor (%0),%%xmm0"::"r"(&gcm->PC[x][I[x]][0]));
+   }
+   asm("movdqa %%xmm0,(%0)"::"r"(&T));
+#else
    XMEMCPY(T, &gcm->PC[0][I[0]][0], 16);
    for (x = 1; x < 16; x++) {
 #ifdef LTC_FAST
@@ -36,8 +43,9 @@ void gcm_mult_h(gcm_state *gcm, unsigned char *I)
        for (y = 0; y < 16; y++) {
            T[y] ^= gcm->PC[x][I[x]][y];
        }
-#endif
+#endif /* LTC_FAST */
    }
+#endif /* GCM_TABLES_SSE2 */
 #else     
    gcm_gf_mult(gcm->H, I, T); 
 #endif

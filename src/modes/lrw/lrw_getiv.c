@@ -15,7 +15,7 @@
    LRW_MODE implementation, Retrieve the current IV, Tom St Denis
 */
 
-#ifdef LRW_MODE
+#ifdef LTC_LRW_MODE
 
 /**
   Get the IV for LRW

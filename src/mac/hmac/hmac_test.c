@@ -55,7 +55,7 @@ int hmac_test(void)
         3. Test Cases for HMAC-SHA-1
 
         test_case =     1
-        key =           0x0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b
+        key =           0x0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c
         key_len =       20
         data =          "Hi Ther     20
         digest =        0x4c1a03424b55e07fe7f27be1d58bb9324a9a5a04

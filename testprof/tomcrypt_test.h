@@ -18,7 +18,12 @@ typedef struct {
 extern prng_state yarrow_prng;
 
 void run_cmd(int res, int line, char *file, char *cmd);
-#define DO(x) { run_cmd((x), __LINE__, __FILE__, #x); }
+
+#ifdef LTC_VERBOSE
+#define DO(x) do { fprintf(stderr, "%s:\n", #x); run_cmd((x), __LINE__, __FILE__, #x); } while (0);
+#else
+#define DO(x) do { run_cmd((x), __LINE__, __FILE__, #x); } while (0);
+#endif
 
 /* TESTS */
 int cipher_hash_test(void);

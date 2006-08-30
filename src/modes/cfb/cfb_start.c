@@ -16,7 +16,7 @@
 */
 
 
-#ifdef CFB
+#ifdef LTC_CFB_MODE
 
 /**
    Initialize a CFB context

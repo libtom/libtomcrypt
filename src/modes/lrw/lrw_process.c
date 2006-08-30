@@ -15,7 +15,7 @@
    LRW_MODE implementation, Encrypt/decrypt blocks, Tom St Denis
 */
 
-#ifdef LRW_MODE
+#ifdef LTC_LRW_MODE
 
 /**
   Process blocks with LRW, since decrypt/encrypt are largely the same they share this code.

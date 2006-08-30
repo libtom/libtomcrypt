@@ -15,7 +15,7 @@
    CFB implementation, finish chain, Tom St Denis
 */
 
-#ifdef CFB
+#ifdef LTC_CFB_MODE
 
 /** Terminate the chain
   @param cfb    The CFB chain to terminate

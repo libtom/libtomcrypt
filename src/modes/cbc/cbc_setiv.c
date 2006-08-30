@@ -16,7 +16,7 @@
 */
 
 
-#ifdef CBC
+#ifdef LTC_CBC_MODE
 
 /**
    Set an initial vector

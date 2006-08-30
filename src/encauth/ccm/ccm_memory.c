@@ -117,6 +117,11 @@ int ccm_memory(int cipher,
       L = 15 - noncelen;
    }
 
+   /* decrease noncelen to match L */
+   if ((noncelen + L) > 15) {
+      noncelen = 15 - L;
+   }
+
    /* allocate mem for the symmetric key */
    if (uskey == NULL) {
       skey = XMALLOC(sizeof(*skey));
@@ -308,8 +313,10 @@ int ccm_memory(int cipher,
       }
    }
 
-   /* setup CTR for the TAG */
-   ctr[14] = ctr[15] = 0x00;
+   /* setup CTR for the TAG (zero the count) */
+   for (y = 15; y > 15 - L; y--) {
+      ctr[y] = 0x00;
+   }
    if ((err = cipher_descriptor[cipher].ecb_encrypt(ctr, CTRPAD, skey)) != CRYPT_OK) {
       goto error;
    }

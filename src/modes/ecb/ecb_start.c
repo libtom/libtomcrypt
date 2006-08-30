@@ -16,7 +16,7 @@
 */
 
 
-#ifdef ECB
+#ifdef LTC_ECB_MODE
 
 /**
    Initialize a ECB context

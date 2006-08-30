@@ -15,7 +15,7 @@
    LRW_MODE implementation, start mode, Tom St Denis
 */
 
-#ifdef LRW_MODE
+#ifdef LTC_LRW_MODE
 
 /**
   Initialize the LRW context

@@ -54,6 +54,7 @@ int f8_start(                int  cipher, const unsigned char *IV,
    f8->padlen   = f8->blocklen;
    
    /* now get key ^ salt_key [extend salt_ket with 0x55 as required to match length] */
+   zeromem(tkey, sizeof(tkey));
    for (x = 0; x < keylen && x < (int)sizeof(tkey); x++) {
        tkey[x] = key[x];
    }

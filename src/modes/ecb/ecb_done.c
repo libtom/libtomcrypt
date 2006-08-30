@@ -15,7 +15,7 @@
    ECB implementation, finish chain, Tom St Denis
 */
 
-#ifdef ECB
+#ifdef LTC_ECB_MODE
 
 /** Terminate the chain
   @param ecb    The ECB chain to terminate

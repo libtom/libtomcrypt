@@ -98,7 +98,7 @@ void pmac_shift_xor(pmac_state *pmac);
 
 #ifdef EAX_MODE
 
-#if !(defined(OMAC) && defined(CTR))
+#if !(defined(OMAC) && defined(LTC_CTR_MODE))
    #error EAX_MODE requires OMAC and CTR
 #endif
 
@@ -248,9 +248,12 @@ typedef struct {
                        pttotlen;     /* 64-bit counter for the PT */
 
 #ifdef GCM_TABLES
-   unsigned char       PC[16][256][16];  /* 16 tables of 8x128 */
+   unsigned char       PC[16][256][16]  /* 16 tables of 8x128 */
+#ifdef GCM_TABLES_SSE2
+__attribute__ ((aligned (16)))
+#endif
+;
 #endif  
-
 } gcm_state;
 
 void gcm_mult_h(gcm_state *gcm, unsigned char *I);

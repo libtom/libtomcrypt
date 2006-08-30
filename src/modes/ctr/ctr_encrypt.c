@@ -16,7 +16,7 @@
 */
 
 
-#ifdef CTR
+#ifdef LTC_CTR_MODE
 
 /**
   CTR encrypt

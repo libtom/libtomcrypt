@@ -15,7 +15,7 @@
   CTR implementation, decrypt data, Tom St Denis
 */
 
-#ifdef CTR
+#ifdef LTC_CTR_MODE
 
 /**
    CTR decrypt

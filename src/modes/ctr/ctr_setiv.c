@@ -15,7 +15,7 @@
   CTR implementation, set IV, Tom St Denis
 */
   
-#ifdef CTR
+#ifdef LTC_CTR_MODE
 
 /**
    Set an initial vector

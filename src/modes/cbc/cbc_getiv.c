@@ -15,7 +15,7 @@
    CBC implementation, get IV, Tom St Denis
 */
 
-#ifdef CBC
+#ifdef LTC_CBC_MODE
 
 /**
    Get the current initial vector

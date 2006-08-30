@@ -37,7 +37,7 @@ const struct ltc_hash_descriptor sha256_desc =
 
 #ifdef LTC_SMALL_CODE
 /* the K array */
-static const unsigned long K[64] = {
+static const ulong32 K[64] = {
     0x428a2f98UL, 0x71374491UL, 0xb5c0fbcfUL, 0xe9b5dba5UL, 0x3956c25bUL,
     0x59f111f1UL, 0x923f82a4UL, 0xab1c5ed5UL, 0xd807aa98UL, 0x12835b01UL,
     0x243185beUL, 0x550c7dc3UL, 0x72be5d74UL, 0x80deb1feUL, 0x9bdc06a7UL,

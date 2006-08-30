@@ -45,9 +45,9 @@
    #define CAST5
    
    #define LTC_NO_MODES
-   #define ECB
-   #define CBC
-   #define CTR
+   #define LTC_ECB_MODE
+   #define LTC_CBC_MODE
+   #define LTC_CTR_MODE
    
    #define LTC_NO_HASHES
    #define SHA1
@@ -55,7 +55,6 @@
    #define SHA384
    #define SHA256
    #define SHA224
-   #define WHIRLPOOL
    
    #define LTC_NO_MACS
    #define HMAC
@@ -72,8 +71,6 @@
    #define MRSA
    #define MECC
 #endif   
-   
-
 
 /* Use small code where possible */
 /* #define LTC_SMALL_CODE */
@@ -134,17 +131,17 @@
 /* ---> Block Cipher Modes of Operation <--- */
 #ifndef LTC_NO_MODES
 
-#define CFB
-#define OFB
-#define ECB
-#define CBC
-#define CTR
+#define LTC_CFB_MODE
+#define LTC_OFB_MODE
+#define LTC_ECB_MODE
+#define LTC_CBC_MODE
+#define LTC_CTR_MODE
 
 /* F8 chaining mode */
 #define LTC_F8_MODE
 
 /* LRW mode */
-#define LRW_MODE
+#define LTC_LRW_MODE
 #ifndef LTC_NO_TABLES
    /* like GCM mode this will enable 16 8x128 tables [64KB] that make
     * seeking very fast.  
@@ -188,7 +185,7 @@
 /* ---> Encrypt + Authenticate Modes <--- */
 
 #define EAX_MODE
-#if defined(EAX_MODE) && !(defined(CTR) && defined(OMAC))
+#if defined(EAX_MODE) && !(defined(LTC_CTR_MODE) && defined(OMAC))
    #error EAX_MODE requires CTR and OMAC mode
 #endif
 
@@ -199,6 +196,11 @@
 /* Use 64KiB tables */
 #ifndef LTC_NO_TABLES
    #define GCM_TABLES 
+#endif
+
+/* USE SSE2? requires GCC works on x86_32 and x86_64*/
+#ifdef GCM_TABLES
+/* #define GCM_TABLES_SSE2 */
 #endif
 
 #endif /* LTC_NO_MACS */
@@ -215,8 +217,8 @@
 /* 0 = rijndael_enc 1 = aes_enc, 2 = rijndael [full], 3 = aes [full] */
 #define YARROW_AES 0
 
-#if defined(YARROW) && !defined(CTR)
-   #error YARROW requires CTR chaining mode to be defined!
+#if defined(YARROW) && !defined(LTC_CTR_MODE)
+   #error YARROW requires LTC_CTR_MODE chaining mode to be defined!
 #endif
 
 /* a PRNG that simply reads from an available system source */

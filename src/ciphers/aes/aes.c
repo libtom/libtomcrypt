@@ -308,7 +308,6 @@ int ECB_ENC(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
     LOAD32H(s2, pt  +  8); s2 ^= rk[2];
     LOAD32H(s3, pt  + 12); s3 ^= rk[3];
 
-
 #ifdef LTC_SMALL_CODE
 
     for (r = 0; ; r++) {

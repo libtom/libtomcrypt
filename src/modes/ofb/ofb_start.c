@@ -16,7 +16,7 @@
 */
 
 
-#ifdef OFB
+#ifdef LTC_OFB_MODE
 
 /**
    Initialize a OFB context

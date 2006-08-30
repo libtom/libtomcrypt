@@ -15,7 +15,7 @@
    OFB implementation, get IV, Tom St Denis
 */
 
-#ifdef OFB
+#ifdef LTC_OFB_MODE
 
 /**
    Get the current initial vector

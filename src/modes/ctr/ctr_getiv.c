@@ -15,7 +15,7 @@
    CTR implementation, get IV, Tom St Denis
 */
 
-#ifdef CTR
+#ifdef LTC_CTR_MODE
 
 /**
    Get the current initial vector

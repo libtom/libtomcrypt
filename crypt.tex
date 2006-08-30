@@ -47,7 +47,7 @@
 \def\gap{\vspace{0.5ex}}
 \makeindex
 \begin{document}
-\title{LibTomCrypt \\ Version 1.13}
+\title{LibTomCrypt \\ Version 1.14}
 \author{Tom St Denis \\
 \\
 tomstdenis@gmail.com \\
@@ -1007,6 +1007,55 @@ To terminate the LRW state use the following:
 int lrw_done(symmetric_LRW *lrw);
 \end{verbatim}
 
+\subsection{F8 Mode}
+\index{F8 Mode}
+The F8 Chaining mode (see RFC 3711 for instance) is yet another chaining mode for block ciphers.  It behaves much like CTR mode in that it XORs a keystream
+against the plaintext to encrypt.  F8 mode comes with the additional twist that the counter value is secret, encrypted by a \textit{salt key}.  We
+initialize F8 mode with the fuollowing function call:
+
+\index{f8\_start()}
+\begin{verbatim}
+int f8_start(                int  cipher, const unsigned char *IV, 
+             const unsigned char *key,                    int  keylen, 
+             const unsigned char *salt_key,               int  skeylen,
+                             int  num_rounds,   symmetric_F8  *f8);
+\end{verbatim}
+This will start the F8 mode state using ``key'' as the secret key, ``IV'' as the counter.  It uses the ``salt\_key`` as IV encryption key (``m'' in the RFC 3711).
+The salt\_key can be shorter than the secret key but it should not be longer.  
+
+To encrypt or decrypt data we use the following two functions:
+
+\index{f8\_encrypt()} \index{f8\_decrypt()}
+\begin{verbatim}
+int f8_encrypt(const unsigned char *pt, unsigned char *ct, 
+                     unsigned long  len, symmetric_F8 *f8);
+
+int f8_decrypt(const unsigned char *ct, unsigned char *pt, 
+                     unsigned long  len, symmetric_F8 *f8);
+\end{verbatim}
+These will encrypt or decrypt a variable length array of bytes using the F8 mode state specified.  The length is specified in bytes and does not have to be a multiple 
+of the ciphers block size.
+
+To change or retrieve the current counter IV value use the following functions:
+
+\index{f8\_getiv()}
+\index{f8\_setiv()}
+\begin{verbatim}
+int f8_getiv(unsigned char *IV, unsigned long *len, symmetric_F8 *f8);
+int f8_setiv(const unsigned char *IV, unsigned long len, symmetric_F8 *f8);
+\end{verbatim}
+These work with the current IV value only and not the encrypted IV value specifed during the call to f8\_start().  The purpose of these two functions is to be
+able to seek within a current session only.  If you want to change the session IV you will have to call f8\_done() and then start a new state with
+f8\_start().
+
+To terminate an F8 state call the following function:
+
+\index{f8\_done()}
+\begin{verbatim}
+int f8_done(symmetric_F8 *f8);
+\end{verbatim}
+
+\vbox{}
 \section{Encrypt and Authenticate Modes}
 
 \subsection{EAX Mode}
@@ -2719,8 +2768,7 @@ To do raw work with the RSA function call:
 \begin{verbatim}
 int rsa_exptmod(const unsigned char *in,   unsigned long inlen,
                       unsigned char *out,  unsigned long *outlen, 
-                      int which, prng_state *prng, int prng_idx,
-                      rsa_key *key);
+                      int which, rsa_key *key);
 \end{verbatim}
 This loads the bignum from ``in'' as a big endian word in the format PKCS specifies, raises it to either ``e'' or ``d'' and stores the result
 in ``out'' and the size of the result in ``outlen''. ``which'' is set to {\bf PK\_PUBLIC} to use ``e'' 
@@ -5241,5 +5289,5 @@ Since the function is given the entire RSA key (for private keys only) CRT is po
 \end{document}
 
 % $Source: /cvs/libtom/libtomcrypt/crypt.tex,v $   
-% $Revision: 1.74 $   
-% $Date: 2006/06/18 01:35:41 $ 
+% $Revision: 1.77 $   
+% $Date: 2006/08/30 23:23:20 $ 

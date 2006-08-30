@@ -15,7 +15,7 @@
    CFB implementation, get IV, Tom St Denis
 */
 
-#ifdef CFB
+#ifdef LTC_CFB_MODE
 
 /**
    Get the current initial vector

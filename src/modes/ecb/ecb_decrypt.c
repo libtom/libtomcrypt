@@ -15,7 +15,7 @@
   ECB implementation, decrypt a block, Tom St Denis
 */
 
-#ifdef ECB
+#ifdef LTC_ECB_MODE
 
 /**
   ECB decrypt

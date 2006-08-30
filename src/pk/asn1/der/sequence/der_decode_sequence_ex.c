@@ -218,6 +218,12 @@ int der_decode_sequence_ex(const unsigned char *in, unsigned long  inlen,
            
            case LTC_ASN1_SETOF:
            case LTC_ASN1_SEQUENCE:
+               /* detect if we have the right type */
+               if ((type == LTC_ASN1_SETOF && (in[x] & 0x3F) != 0x31) || (type == LTC_ASN1_SEQUENCE && (in[x] & 0x3F) != 0x30)) {
+                  err = CRYPT_INVALID_PACKET;
+                  goto LBL_ERR;
+               }
+
                z = inlen;
                if ((err = der_decode_sequence(in + x, z, data, size)) != CRYPT_OK) {
                   if (!ordered) { continue; }

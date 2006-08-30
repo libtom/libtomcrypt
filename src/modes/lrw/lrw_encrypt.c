@@ -15,7 +15,7 @@
    LRW_MODE implementation, Encrypt blocks, Tom St Denis
 */
 
-#ifdef LRW_MODE
+#ifdef LTC_LRW_MODE
  
 /**
   LRW encrypt blocks

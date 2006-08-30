@@ -15,7 +15,7 @@
   CFB implementation, decrypt data, Tom St Denis
 */
 
-#ifdef CFB
+#ifdef LTC_CFB_MODE
 
 /**
    CFB decrypt

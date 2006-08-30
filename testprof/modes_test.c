@@ -5,16 +5,16 @@ int modes_test(void)
 {
    unsigned char pt[64], ct[64], tmp[64], key[16], iv[16], iv2[16];
    int cipher_idx;
-#ifdef CBC
+#ifdef LTC_CBC_MODE
    symmetric_CBC cbc;
 #endif
-#ifdef CFB
+#ifdef LTC_CFB_MODE
    symmetric_CFB cfb;
 #endif
-#ifdef OFB
+#ifdef LTC_OFB_MODE
    symmetric_OFB ofb;
 #endif
-#ifdef CTR
+#ifdef LTC_CTR_MODE
    symmetric_CTR ctr;
 #endif
    unsigned long l;
@@ -35,11 +35,11 @@ int modes_test(void)
    DO(f8_test_mode());
 #endif   
    
-#ifdef LRW_MODE
+#ifdef LTC_LRW_MODE
    DO(lrw_test());
 #endif
 
-#ifdef CBC
+#ifdef LTC_CBC_MODE
    /* test CBC mode */
    /* encode the block */
    DO(cbc_start(cipher_idx, iv, key, 16, 0, &cbc));
@@ -61,7 +61,7 @@ int modes_test(void)
    }
 #endif
 
-#ifdef CFB   
+#ifdef LTC_CFB_MODE
    /* test CFB mode */
    /* encode the block */
    DO(cfb_start(cipher_idx, iv, key, 16, 0, &cfb));
@@ -84,7 +84,7 @@ int modes_test(void)
    }
 #endif
    
-#ifdef OFB
+#ifdef LTC_OFB_MODE
    /* test OFB mode */
    /* encode the block */
    DO(ofb_start(cipher_idx, iv, key, 16, 0, &ofb));
@@ -106,7 +106,7 @@ int modes_test(void)
    }
 #endif
 
-#ifdef CTR   
+#ifdef LTC_CTR_MODE   
    /* test CTR mode */
    /* encode the block */
    DO(ctr_start(cipher_idx, iv, key, 16, 0, CTR_COUNTER_LITTLE_ENDIAN, &ctr));

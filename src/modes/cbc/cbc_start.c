@@ -15,7 +15,7 @@
    CBC implementation, start chain, Tom St Denis
 */
 
-#ifdef CBC
+#ifdef LTC_CBC_MODE
 
 /**
    Initialize a CBC context

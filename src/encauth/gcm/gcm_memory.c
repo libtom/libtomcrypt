@@ -43,6 +43,7 @@ int gcm_memory(      int           cipher,
                      unsigned char *tag,    unsigned long *taglen,
                                int direction)
 {
+    void      *orig;
     gcm_state *gcm;
     int        err;
 
@@ -63,10 +64,25 @@ int gcm_memory(      int           cipher,
     }
 
 
-    gcm = XMALLOC(sizeof(*gcm));
+
+#ifndef GCM_TABLES_SSE2
+    orig = gcm = XMALLOC(sizeof(*gcm));
+#else
+    orig = gcm = XMALLOC(sizeof(*gcm) + 16);
+#endif
     if (gcm == NULL) {
         return CRYPT_MEM;
     }
+
+   /* Force GCM to be on a multiple of 16 so we can use 128-bit aligned operations
+    * note that we only modify gcm and keep orig intact.  This code is not portable
+    * but again it's only for SSE2 anyways, so who cares?
+    */
+#ifdef GCM_TABLES_SSE2
+   if ((unsigned long)gcm & 15) {
+      gcm = (gcm_state *)((unsigned long)gcm + (16 - ((unsigned long)gcm & 15)));
+   }
+#endif
 
     if ((err = gcm_init(gcm, cipher, key, keylen)) != CRYPT_OK) {
        goto LTC_ERR;
@@ -82,7 +98,7 @@ int gcm_memory(      int           cipher,
     }
     err = gcm_done(gcm, tag, taglen);
 LTC_ERR:
-    XFREE(gcm);
+    XFREE(orig);
     return err;
 }
 #endif

@@ -15,7 +15,7 @@
    LRW_MODE implementation, Set the current IV, Tom St Denis
 */
 
-#ifdef LRW_MODE
+#ifdef LTC_LRW_MODE
 
 /**
   Set the IV for LRW

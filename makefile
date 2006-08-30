@@ -4,7 +4,7 @@
 # Modified by Clay Culver
 
 # The version
-VERSION=1.13
+VERSION=1.14
 
 # Compiler and Linker Names
 #CC=gcc
@@ -367,5 +367,5 @@ zipup: no_oops docs
 
 
 # $Source: /cvs/libtom/libtomcrypt/makefile,v $ 
-# $Revision: 1.126 $ 
-# $Date: 2006/06/16 23:52:08 $ 
+# $Revision: 1.127 $ 
+# $Date: 2006/06/29 01:59:34 $ 

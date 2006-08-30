@@ -15,7 +15,7 @@
    LRW_MODE implementation, test LRW, Tom St Denis
 */
 
-#ifdef LRW_MODE
+#ifdef LTC_LRW_MODE
 
 /**
   Test LRW against specs

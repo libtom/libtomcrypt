@@ -14,7 +14,8 @@
   @file cfb_setiv.c
   CFB implementation, set IV, Tom St Denis
 */  
-#ifdef CFB
+
+#ifdef LTC_CFB_MODE
 
 /**
    Set an initial vector
