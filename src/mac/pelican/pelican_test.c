@@ -99,7 +99,7 @@ int pelican_test(void)
           return err;
        }
 
-       if (memcmp(out, tests[x].T, 16)) {
+       if (XMEMCMP(out, tests[x].T, 16)) {
 #if 0
            int y;
            printf("\nFailed test %d\n", x);

@@ -13,7 +13,7 @@ The following build with GCC 3.4.4 on an AMD64 box gets you AES, CTR mode, SHA-2
 roughly 40KB of code (49KB on the ARMv4) (both excluding the math library).
 
 CFLAGS="-DLTC_NO_CIPHERS -DLTC_NO_HASHES -DLTC_NO_PRNGS -DLTC_NO_MACS -DLTC_NO_MODES -DLTC_NO_PK -DRIJNDAEL -DLTC_CTR_MODE -DSHA256 \
--DHMAC -DYARROW -DMRSA -DMPI -DTFM_DESC -DARGTYPE=3 -Os -DLTC_SMALL_CODE -fomit-frame-pointer" make IGNORE_SPEED=1
+-DLTC_HMAC -DYARROW -DMRSA -DMPI -DTFM_DESC -DARGTYPE=3 -Os -DLTC_SMALL_CODE -fomit-frame-pointer" make IGNORE_SPEED=1
 
 Obviously this won't get you performance but if you need to pack a crypto lib in a device with limited means it's more than enough...
 

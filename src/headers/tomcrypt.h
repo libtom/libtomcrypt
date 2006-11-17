@@ -16,8 +16,8 @@ extern "C" {
 #endif
 
 /* version */
-#define CRYPT   0x0114
-#define SCRYPT  "1.14"
+#define CRYPT   0x0115
+#define SCRYPT  "1.15"
 
 /* max size of either a cipher/hash block or symmetric key [largest of the two] */
 #define MAXBLOCKSIZE  128
@@ -59,7 +59,8 @@ enum {
    CRYPT_PK_NOT_FOUND,     /* Key not found in keyring */
    CRYPT_PK_INVALID_SIZE,  /* Invalid size input for PK parameters */
 
-   CRYPT_INVALID_PRIME_SIZE/* Invalid size of prime requested */
+   CRYPT_INVALID_PRIME_SIZE,/* Invalid size of prime requested */
+   CRYPT_PK_INVALID_PADDING /* Invalid padding on input */
 };
 
 #include <tomcrypt_cfg.h>

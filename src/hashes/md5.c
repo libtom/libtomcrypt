@@ -351,7 +351,7 @@ int  md5_test(void)
       md5_init(&md);
       md5_process(&md, (unsigned char *)tests[i].msg, (unsigned long)strlen(tests[i].msg));
       md5_done(&md, tmp);
-      if (memcmp(tmp, tests[i].hash, 16) != 0) {
+      if (XMEMCMP(tmp, tests[i].hash, 16) != 0) {
          return CRYPT_FAIL_TESTVECTOR;
       }
   }

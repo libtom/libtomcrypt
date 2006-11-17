@@ -1,4 +1,8 @@
-- long term, start moving macros like CTR over to LTC_CTR to make LTC a bit more "drop-in-able".
-- F8 mode could use some LTC_FAST love
+- document makefile flags [INSTALL_* for instance]
+- document PK build flags
+- merge PKCS #1 v1.5 back in, document changes to rsa_encrypt and rsa_sign
 
-
+for v1.16
+- Add ECC double-mult-add to plugin and make optional accelerator for baseline and MECC_FP [two goals]
+- add X9.63 IES
+- add CPP macros like OpenSSL has for ASN1 (e.g. encode/decode functions, etc) shameless ripoff :-)

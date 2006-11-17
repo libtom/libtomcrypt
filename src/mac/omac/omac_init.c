@@ -16,7 +16,7 @@
 */
 
 
-#ifdef OMAC
+#ifdef LTC_OMAC
 
 /**
    Initialize an OMAC state

@@ -3,6 +3,15 @@
 #ifdef MECC
 
 static int sizes[] = {
+#ifdef ECC112
+14,
+#endif
+#ifdef ECC128
+16,
+#endif
+#ifdef ECC160
+20,
+#endif
 #ifdef ECC192
 24,
 #endif
@@ -39,10 +48,10 @@ int ecc_tests (void)
      DO(ecc_make_key (&yarrow_prng, find_prng ("yarrow"), sizes[s], &userb));
 
      /* make the shared secret */
-     x = 4096;
+     x = sizeof(buf[0]);
      DO(ecc_shared_secret (&usera, &userb, buf[0], &x));
 
-     y = 4096;
+     y = sizeof(buf[1]);
      DO(ecc_shared_secret (&userb, &usera, buf[1], &y));
 
      if (y != x) {
@@ -56,14 +65,14 @@ int ecc_tests (void)
      }
 
      /* now export userb */
-     y = 4096;
+     y = sizeof(buf[0]);
      DO(ecc_export (buf[1], &y, PK_PUBLIC, &userb));
      ecc_free (&userb);
 
      /* import and make the shared secret again */
      DO(ecc_import (buf[1], y, &userb));
 
-     z = 4096;
+     z = sizeof(buf[0]);
      DO(ecc_shared_secret (&usera, &userb, buf[2], &z));
 
      if (z != x) {
@@ -74,6 +83,28 @@ int ecc_tests (void)
        fprintf(stderr, "Failed.  Contents didn't match.");
        return 1;
      }
+
+     /* export with ANSI X9.63 */
+     y = sizeof(buf[1]);
+     DO(ecc_ansi_x963_export(&userb, buf[1], &y));
+     ecc_free (&userb);
+
+     /* now import the ANSI key */
+     DO(ecc_ansi_x963_import(buf[1], y, &userb));
+
+     /* shared secret */
+     z = sizeof(buf[0]);
+     DO(ecc_shared_secret (&usera, &userb, buf[2], &z));
+
+     if (z != x) {
+       fprintf(stderr, "failed.  Size don't match?");
+       return 1;
+     }
+     if (memcmp (buf[0], buf[2], x)) {
+       fprintf(stderr, "Failed.  Contents didn't match.");
+       return 1;
+     }
+
      ecc_free (&usera);
      ecc_free (&userb);
 

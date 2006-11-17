@@ -15,7 +15,7 @@
   HMAC support, terminate stream, Tom St Denis/Dobes Vandermeer
 */
 
-#ifdef HMAC
+#ifdef LTC_HMAC
 
 #define HMAC_BLOCKSIZE hash_descriptor[hash].blocksize
 

@@ -14,9 +14,6 @@ int modes_test(void)
 #ifdef LTC_OFB_MODE
    symmetric_OFB ofb;
 #endif
-#ifdef LTC_CTR_MODE
-   symmetric_CTR ctr;
-#endif
    unsigned long l;
    
    /* make a random pt, key and iv */
@@ -107,25 +104,7 @@ int modes_test(void)
 #endif
 
 #ifdef LTC_CTR_MODE   
-   /* test CTR mode */
-   /* encode the block */
-   DO(ctr_start(cipher_idx, iv, key, 16, 0, CTR_COUNTER_LITTLE_ENDIAN, &ctr));
-   l = sizeof(iv2);
-   DO(ctr_getiv(iv2, &l, &ctr));
-   if (l != 16 || memcmp(iv2, iv, 16)) {
-      fprintf(stderr, "ctr_getiv failed");
-      return 1;
-   }
-   DO(ctr_encrypt(pt, ct, 57, &ctr));
-   
-   /* decode the block */
-   DO(ctr_setiv(iv2, l, &ctr));
-   zeromem(tmp, sizeof(tmp));
-   DO(ctr_decrypt(ct, tmp, 57, &ctr));
-   if (memcmp(tmp, pt, 57) != 0) {
-      fprintf(stderr, "CTR failed");
-      return 1;
-   }
+   DO(ctr_test());
 #endif
          
    return 0;

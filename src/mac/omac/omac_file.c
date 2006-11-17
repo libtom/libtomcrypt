@@ -15,7 +15,7 @@
   OMAC1 support, process a file, Tom St Denis
 */
 
-#ifdef OMAC
+#ifdef LTC_OMAC
 
 /**
    OMAC a file

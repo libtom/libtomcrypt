@@ -47,6 +47,12 @@ int f8_start(                int  cipher, const unsigned char *IV,
       return err;
    }
 
+#ifdef LTC_FAST
+   if (cipher_descriptor[cipher].block_length % sizeof(LTC_FAST_TYPE)) {
+      return CRYPT_INVALID_ARG;
+   }
+#endif
+
    /* copy details */
    f8->blockcnt = 0;
    f8->cipher   = cipher;

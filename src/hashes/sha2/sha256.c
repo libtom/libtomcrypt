@@ -319,7 +319,7 @@ int  sha256_test(void)
       sha256_init(&md);
       sha256_process(&md, (unsigned char*)tests[i].msg, (unsigned long)strlen(tests[i].msg));
       sha256_done(&md, tmp);
-      if (memcmp(tmp, tests[i].hash, 32) != 0) {
+      if (XMEMCMP(tmp, tests[i].hash, 32) != 0) {
          return CRYPT_FAIL_TESTVECTOR;
       }
   }

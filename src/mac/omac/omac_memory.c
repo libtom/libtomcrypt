@@ -15,7 +15,7 @@
   OMAC1 support, process a block of memory, Tom St Denis
 */
 
-#ifdef OMAC
+#ifdef LTC_OMAC
 
 /**
    OMAC a block of memory 
@@ -40,6 +40,16 @@ int omac_memory(int cipher,
    LTC_ARGCHK(in     != NULL);
    LTC_ARGCHK(out    != NULL);
    LTC_ARGCHK(outlen != NULL);
+
+   /* is the cipher valid? */
+   if ((err = cipher_is_valid(cipher)) != CRYPT_OK) {
+      return err;
+   }
+
+   /* Use accelerator if found */
+   if (cipher_descriptor[cipher].omac_memory != NULL) {
+      return cipher_descriptor[cipher].omac_memory(key, keylen, in, inlen, out, outlen);
+   }
 
    /* allocate ram for omac state */
    omac = XMALLOC(sizeof(omac_state));

@@ -42,7 +42,7 @@ const struct ltc_cipher_descriptor
    &safer_k64_test,
    &safer_done,
    &safer_64_keysize,
-   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
+   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
    },
 
    safer_sk64_desc = {
@@ -54,7 +54,7 @@ const struct ltc_cipher_descriptor
    &safer_sk64_test,
    &safer_done,
    &safer_64_keysize,
-   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
+   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
    },
 
    safer_k128_desc = {
@@ -66,7 +66,7 @@ const struct ltc_cipher_descriptor
    &safer_sk128_test,
    &safer_done,
    &safer_128_keysize,
-   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
+   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
    },
 
    safer_sk128_desc = {
@@ -78,7 +78,7 @@ const struct ltc_cipher_descriptor
    &safer_sk128_test,
    &safer_done,
    &safer_128_keysize,
-   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
+   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
    };
 
 /******************* Constants ************************************************/
@@ -396,7 +396,7 @@ int safer_k64_test(void)
    safer_ecb_encrypt(k64_pt, buf[0], &skey);
    safer_ecb_decrypt(buf[0], buf[1], &skey);
 
-   if (memcmp(buf[0], k64_ct, 8) != 0 || memcmp(buf[1], k64_pt, 8) != 0) {
+   if (XMEMCMP(buf[0], k64_ct, 8) != 0 || XMEMCMP(buf[1], k64_pt, 8) != 0) {
       return CRYPT_FAIL_TESTVECTOR;
    }
 
@@ -426,7 +426,7 @@ int safer_sk64_test(void)
    safer_ecb_encrypt(sk64_pt, buf[0], &skey);
    safer_ecb_decrypt(buf[0], buf[1], &skey);
 
-   if (memcmp(buf[0], sk64_ct, 8) != 0 || memcmp(buf[1], sk64_pt, 8) != 0) {
+   if (XMEMCMP(buf[0], sk64_ct, 8) != 0 || XMEMCMP(buf[1], sk64_pt, 8) != 0) {
       return CRYPT_FAIL_TESTVECTOR;
    }
 
@@ -468,7 +468,7 @@ int safer_sk128_test(void)
    safer_ecb_encrypt(sk128_pt, buf[0], &skey);
    safer_ecb_decrypt(buf[0], buf[1], &skey);
 
-   if (memcmp(buf[0], sk128_ct, 8) != 0 || memcmp(buf[1], sk128_pt, 8) != 0) {
+   if (XMEMCMP(buf[0], sk128_ct, 8) != 0 || XMEMCMP(buf[1], sk128_pt, 8) != 0) {
       return CRYPT_FAIL_TESTVECTOR;
    }
 

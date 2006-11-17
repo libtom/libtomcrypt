@@ -97,10 +97,10 @@ int ctr_encrypt(const unsigned char *pt, unsigned char *ct, unsigned long len, s
 	    len        -= ctr->blocklen;
 	    ctr->padlen = ctr->blocklen;
 	    continue;
-	 }
+	   }
 #endif	 
-    *ct++ = *pt++ ^ ctr->pad[ctr->padlen++];
-	 --len;
+      *ct++ = *pt++ ^ ctr->pad[ctr->padlen++];
+      --len;
    }
    return CRYPT_OK;
 }

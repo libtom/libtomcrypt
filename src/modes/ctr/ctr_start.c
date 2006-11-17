@@ -55,11 +55,33 @@ int ctr_start(               int   cipher,
    ctr->blocklen = cipher_descriptor[cipher].block_length;
    ctr->cipher   = cipher;
    ctr->padlen   = 0;
-   ctr->mode     = ctr_mode;
+   ctr->mode     = ctr_mode & 1;
    for (x = 0; x < ctr->blocklen; x++) {
        ctr->ctr[x] = IV[x];
    }
-   return cipher_descriptor[ctr->cipher].ecb_encrypt(ctr->ctr, ctr->pad, &ctr->key);
+
+   if (ctr_mode & LTC_CTR_RFC3686) {
+      /* increment the IV as per RFC 3686 */
+      if (ctr->mode == CTR_COUNTER_LITTLE_ENDIAN) {
+         /* little-endian */
+         for (x = 0; x < ctr->blocklen; x++) {
+             ctr->ctr[x] = (ctr->ctr[x] + (unsigned char)1) & (unsigned char)255;
+             if (ctr->ctr[x] != (unsigned char)0) {
+                break;
+             }
+         }
+      } else {
+         /* big-endian */
+         for (x = ctr->blocklen-1; x >= 0; x--) {
+             ctr->ctr[x] = (ctr->ctr[x] + (unsigned char)1) & (unsigned char)255;
+             if (ctr->ctr[x] != (unsigned char)0) {
+                break;
+             }
+         }
+      }
+   }
+
+   return cipher_descriptor[ctr->cipher].ecb_encrypt(ctr->ctr, ctr->pad, &ctr->key); 
 }
 
 #endif

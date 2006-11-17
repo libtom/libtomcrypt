@@ -36,7 +36,7 @@ const struct ltc_cipher_descriptor rc2_desc = {
    &rc2_test,
    &rc2_done,
    &rc2_keysize,
-   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
+   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
 };
 
 /* 256-entry permutation table, probably derived somehow from pi */
@@ -315,7 +315,7 @@ int rc2_test(void)
         rc2_ecb_encrypt(tests[x].pt, tmp[0], &skey);
         rc2_ecb_decrypt(tmp[0], tmp[1], &skey);
         
-        if (memcmp(tmp[0], tests[x].ct, 8) != 0 || memcmp(tmp[1], tests[x].pt, 8) != 0) {
+        if (XMEMCMP(tmp[0], tests[x].ct, 8) != 0 || XMEMCMP(tmp[1], tests[x].pt, 8) != 0) {
            return CRYPT_FAIL_TESTVECTOR;
         }
 

@@ -28,7 +28,7 @@ const struct ltc_cipher_descriptor xtea_desc =
     &xtea_test,
     &xtea_done,
     &xtea_keysize,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
 };
 
 int xtea_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_key *skey)
@@ -164,7 +164,7 @@ int xtea_test(void)
    xtea_ecb_encrypt(pt, tmp[0], &skey);
    xtea_ecb_decrypt(tmp[0], tmp[1], &skey);
 
-   if (memcmp(tmp[0], ct, 8) != 0 || memcmp(tmp[1], pt, 8) != 0) { 
+   if (XMEMCMP(tmp[0], ct, 8) != 0 || XMEMCMP(tmp[1], pt, 8) != 0) { 
       return CRYPT_FAIL_TESTVECTOR;
    }
 

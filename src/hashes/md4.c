@@ -289,7 +289,7 @@ int md4_test(void)
         md4_init(&md);
         md4_process(&md, (unsigned char *)cases[i].input, (unsigned long)strlen(cases[i].input));
         md4_done(&md, digest);
-        if (memcmp(digest, cases[i].digest, 16) != 0) {
+        if (XMEMCMP(digest, cases[i].digest, 16) != 0) {
            return CRYPT_FAIL_TESTVECTOR;
         }
 

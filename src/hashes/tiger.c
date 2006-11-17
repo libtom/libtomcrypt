@@ -775,7 +775,7 @@ int  tiger_test(void)
       tiger_init(&md);
       tiger_process(&md, (unsigned char *)tests[i].msg, (unsigned long)strlen(tests[i].msg));
       tiger_done(&md, tmp);
-      if (memcmp(tmp, tests[i].hash, 24) != 0) {
+      if (XMEMCMP(tmp, tests[i].hash, 24) != 0) {
           return CRYPT_FAIL_TESTVECTOR;
       }
   }

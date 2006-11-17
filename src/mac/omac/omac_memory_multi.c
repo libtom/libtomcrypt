@@ -16,7 +16,7 @@
   OMAC1 support, process multiple blocks of memory, Tom St Denis
 */
 
-#ifdef OMAC
+#ifdef LTC_OMAC
 
 /**
    OMAC multiple blocks of memory 

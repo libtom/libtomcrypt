@@ -16,7 +16,7 @@
 */
 
 
-#ifdef PMAC
+#ifdef LTC_PMAC
 
 /**
   Process data in a PMAC stream

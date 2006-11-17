@@ -28,7 +28,7 @@ const struct ltc_cipher_descriptor rc6_desc =
     &rc6_test,
     &rc6_done,
     &rc6_keysize,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
 };
 
 static const ulong32 stab[44] = {
@@ -285,17 +285,17 @@ int rc6_test(void)
       rc6_ecb_decrypt(tmp[0], tmp[1], &key);
 
       /* compare */
-      if (memcmp(tmp[0], tests[x].ct, 16) || memcmp(tmp[1], tests[x].pt, 16)) {
+      if (XMEMCMP(tmp[0], tests[x].ct, 16) || XMEMCMP(tmp[1], tests[x].pt, 16)) {
 #if 0
          printf("\n\nFailed test %d\n", x);
-         if (memcmp(tmp[0], tests[x].ct, 16)) {
+         if (XMEMCMP(tmp[0], tests[x].ct, 16)) {
             printf("Ciphertext:  ");
             for (y = 0; y < 16; y++) printf("%02x ", tmp[0][y]);
             printf("\nExpected  :  ");
             for (y = 0; y < 16; y++) printf("%02x ", tests[x].ct[y]);
             printf("\n");
          }
-         if (memcmp(tmp[1], tests[x].pt, 16)) {
+         if (XMEMCMP(tmp[1], tests[x].pt, 16)) {
             printf("Plaintext:  ");
             for (y = 0; y < 16; y++) printf("%02x ", tmp[0][y]);
             printf("\nExpected :  ");

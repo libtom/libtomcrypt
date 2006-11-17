@@ -15,7 +15,7 @@
   PMAC implementation, terminate a session, by Tom St Denis 
 */
 
-#ifdef PMAC
+#ifdef LTC_PMAC
 
 int pmac_done(pmac_state *state, unsigned char *out, unsigned long *outlen)
 {
@@ -55,7 +55,7 @@ int pmac_done(pmac_state *state, unsigned char *out, unsigned long *outlen)
    cipher_descriptor[state->cipher_idx].done(&state->key);
 
    /* store it */
-   for (x = 0; x < state->block_len && x <= (int)*outlen; x++) {
+   for (x = 0; x < state->block_len && x < (int)*outlen; x++) {
        out[x] = state->checksum[x];
    }
    *outlen = x;

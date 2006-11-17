@@ -57,7 +57,7 @@ int gcm_add_aad(gcm_state *gcm,
             gcm->totlen += gcm->buflen * CONST64(8);
             gcm_mult_h(gcm, gcm->X);
          }
- 
+
          /* mix in the length */
          zeromem(gcm->buf, 8);
          STORE64H(gcm->totlen, gcm->buf+8);

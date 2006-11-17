@@ -143,10 +143,10 @@ int ccm_test(void)
          return err;
       }
 
-      if (memcmp(buf, tests[x].ct, tests[x].ptlen)) {
+      if (XMEMCMP(buf, tests[x].ct, tests[x].ptlen)) {
          return CRYPT_FAIL_TESTVECTOR;
       }
-      if (memcmp(tag, tests[x].tag, tests[x].taglen)) {
+      if (XMEMCMP(tag, tests[x].tag, tests[x].taglen)) {
          return CRYPT_FAIL_TESTVECTOR;
       }
 
@@ -161,10 +161,10 @@ int ccm_test(void)
          return err;
       }
 
-      if (memcmp(buf2, tests[x].pt, tests[x].ptlen)) {
+      if (XMEMCMP(buf2, tests[x].pt, tests[x].ptlen)) {
          return CRYPT_FAIL_TESTVECTOR;
       }
-      if (memcmp(tag2, tests[x].tag, tests[x].taglen)) {
+      if (XMEMCMP(tag2, tests[x].tag, tests[x].taglen)) {
          return CRYPT_FAIL_TESTVECTOR;
       }
       cipher_descriptor[idx].done(&skey);

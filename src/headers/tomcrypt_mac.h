@@ -1,4 +1,4 @@
-#ifdef HMAC
+#ifdef LTC_HMAC
 typedef struct Hmac_state {
      hash_state     md;
      int            hash;
@@ -23,7 +23,7 @@ int hmac_file(int hash, const char *fname, const unsigned char *key,
               unsigned char *dst, unsigned long *dstlen);
 #endif
 
-#ifdef OMAC
+#ifdef LTC_OMAC
 
 typedef struct {
    int             cipher_idx, 
@@ -53,7 +53,7 @@ int omac_file(int cipher,
 int omac_test(void);
 #endif /* OMAC */
 
-#ifdef PMAC
+#ifdef LTC_PMAC
 
 typedef struct {
    unsigned char     Ls[32][MAXBLOCKSIZE],    /* L shifted by i bits to the left */
@@ -98,7 +98,7 @@ void pmac_shift_xor(pmac_state *pmac);
 
 #ifdef EAX_MODE
 
-#if !(defined(OMAC) && defined(LTC_CTR_MODE))
+#if !(defined(LTC_OMAC) && defined(LTC_CTR_MODE))
    #error EAX_MODE requires OMAC and CTR
 #endif
 
@@ -308,6 +308,73 @@ int pelican_memory(const unsigned char *key, unsigned long keylen,
                          unsigned char *out);
 
 #endif
+
+#ifdef LTC_XCBC
+
+typedef struct {
+   unsigned char K[3][MAXBLOCKSIZE],
+                 IV[MAXBLOCKSIZE];
+
+   symmetric_key key;
+
+             int cipher,
+                 buflen,
+                 blocksize;
+} xcbc_state;
+
+int xcbc_init(xcbc_state *xcbc, int cipher, const unsigned char *key, unsigned long keylen);
+int xcbc_process(xcbc_state *xcbc, const unsigned char *in, unsigned long inlen);
+int xcbc_done(xcbc_state *xcbc, unsigned char *out, unsigned long *outlen);
+int xcbc_memory(int cipher, 
+               const unsigned char *key, unsigned long keylen,
+               const unsigned char *in,  unsigned long inlen,
+                     unsigned char *out, unsigned long *outlen);
+int xcbc_memory_multi(int cipher, 
+                const unsigned char *key, unsigned long keylen,
+                      unsigned char *out, unsigned long *outlen,
+                const unsigned char *in,  unsigned long inlen, ...);
+int xcbc_file(int cipher, 
+              const unsigned char *key, unsigned long keylen,
+              const          char *filename, 
+                    unsigned char *out, unsigned long *outlen);
+int xcbc_test(void);
+
+#endif
+
+#ifdef LTC_F9_MODE
+
+typedef struct {
+   unsigned char akey[MAXBLOCKSIZE],
+                 ACC[MAXBLOCKSIZE],
+                 IV[MAXBLOCKSIZE];
+
+   symmetric_key key;
+
+             int cipher,
+                 buflen,
+                 keylen,
+                 blocksize;
+} f9_state;
+
+int f9_init(f9_state *f9, int cipher, const unsigned char *key, unsigned long keylen);
+int f9_process(f9_state *f9, const unsigned char *in, unsigned long inlen);
+int f9_done(f9_state *f9, unsigned char *out, unsigned long *outlen);
+int f9_memory(int cipher, 
+               const unsigned char *key, unsigned long keylen,
+               const unsigned char *in,  unsigned long inlen,
+                     unsigned char *out, unsigned long *outlen);
+int f9_memory_multi(int cipher, 
+                const unsigned char *key, unsigned long keylen,
+                      unsigned char *out, unsigned long *outlen,
+                const unsigned char *in,  unsigned long inlen, ...);
+int f9_file(int cipher, 
+              const unsigned char *key, unsigned long keylen,
+              const          char *filename, 
+                    unsigned char *out, unsigned long *outlen);
+int f9_test(void);
+
+#endif
+
 
 /* $Source$ */
 /* $Revision$ */

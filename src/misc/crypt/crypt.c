@@ -110,6 +110,12 @@ const char *crypt_build_settings =
    " (tweaked)"
 #endif
    "\n"
+#if defined(KSEED)
+   "   KSEED\n"
+#endif
+#if defined(LTC_KASUMI)
+   "   KASUMI\n"
+#endif
 
     "\nHashes built-in:\n"
 #if defined(SHA512)
@@ -166,8 +172,12 @@ const char *crypt_build_settings =
     "   CBC\n"
 #endif
 #if defined(LTC_CTR_MODE)
-    "   CTR\n"
+    "   CTR "
 #endif
+#if defined(LTC_CTR_OLD)
+    " (CTR_OLD) "
+#endif
+    "\n"
 #if defined(LRW_MODE)
     "   LRW_MODE"
 #if defined(LRW_TABLES)
@@ -180,17 +190,23 @@ const char *crypt_build_settings =
 #endif    
 
     "\nMACs:\n"
-#if defined(HMAC)
+#if defined(LTC_HMAC)
     "   HMAC\n"
 #endif
-#if defined(OMAC)
+#if defined(LTC_OMAC)
     "   OMAC\n"
 #endif
-#if defined(PMAC)
+#if defined(LTC_PMAC)
     "   PMAC\n"
 #endif
 #if defined(PELICAN)
     "   PELICAN\n"
+#endif
+#if defined(LTC_XCBC)
+    "   XCBC-MAC\n"
+#endif
+#if defined(LTC_F9_MODE)
+    "   F9-MAC\n"
 #endif
 
     "\nENC + AUTH modes:\n"
@@ -210,7 +226,6 @@ const char *crypt_build_settings =
     " (GCM_TABLES) "
 #endif
    "\n"
-
 
     "\nPRNG:\n"
 #if defined(YARROW)

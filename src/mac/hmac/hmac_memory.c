@@ -15,7 +15,7 @@
   HMAC support, process a block of memory, Tom St Denis/Dobes Vandermeer
 */
 
-#ifdef HMAC
+#ifdef LTC_HMAC
 
 /**
    HMAC a block of memory to produce the authentication tag

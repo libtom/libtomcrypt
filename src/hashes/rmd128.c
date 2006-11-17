@@ -391,7 +391,7 @@ int rmd128_test(void)
        rmd128_init(&md);
        rmd128_process(&md, (unsigned char *)tests[x].msg, strlen(tests[x].msg));
        rmd128_done(&md, buf);
-       if (memcmp(buf, tests[x].md, 16) != 0) {
+       if (XMEMCMP(buf, tests[x].md, 16) != 0) {
        #if 0
           printf("Failed test %d\n", x);
        #endif

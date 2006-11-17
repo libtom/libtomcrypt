@@ -15,7 +15,7 @@
   HMAC support, process data, Tom St Denis/Dobes Vandermeer
 */
 
-#ifdef HMAC
+#ifdef LTC_HMAC
 
 /** 
   Process data through HMAC

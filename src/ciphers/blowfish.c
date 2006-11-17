@@ -27,7 +27,7 @@ const struct ltc_cipher_descriptor blowfish_desc =
     &blowfish_test,
     &blowfish_done,
     &blowfish_keysize,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
 };
 
 static const ulong32 ORIG_P[16 + 2] = {
@@ -548,7 +548,7 @@ int blowfish_test(void)
       blowfish_ecb_decrypt(tmp[0], tmp[1], &key);
 
       /* compare */
-      if ((memcmp(tmp[0], tests[x].ct, 8) != 0) || (memcmp(tmp[1], tests[x].pt, 8) != 0)) {
+      if ((XMEMCMP(tmp[0], tests[x].ct, 8) != 0) || (XMEMCMP(tmp[1], tests[x].pt, 8) != 0)) {
          return CRYPT_FAIL_TESTVECTOR;
       }
 

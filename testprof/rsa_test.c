@@ -126,7 +126,7 @@ int rsa_test(void)
 {
    unsigned char in[1024], out[1024], tmp[1024];
    rsa_key       key, privKey, pubKey;
-   int           hash_idx, prng_idx, stat, stat2;
+   int           hash_idx, prng_idx, stat, stat2, err;
    unsigned long rsa_msgsize, len, len2, cnt;
    static unsigned char lparam[] = { 0x01, 0x02, 0x03, 0x04 };
 
@@ -257,6 +257,24 @@ for (cnt = 0; cnt < len; ) {
       }
    }
 
+   /* encrypt the key PKCS #1 v1.5 (payload from 1 to 117 bytes) */
+   for (rsa_msgsize = 1; rsa_msgsize <= 117; rsa_msgsize++) {
+      len  = sizeof(out);
+      len2 = rsa_msgsize;
+      DO(rsa_encrypt_key_ex(in, rsa_msgsize, out, &len, NULL, 0, &yarrow_prng, prng_idx, 0, LTC_PKCS_1_V1_5, &key));
+
+      len2 = rsa_msgsize;
+      DO(rsa_decrypt_key_ex(out, len, tmp, &len2, NULL, 0, 0, LTC_PKCS_1_V1_5, &stat, &key));
+      if (!(stat == 1 && stat2 == 0)) {
+         fprintf(stderr, "rsa_decrypt_key_ex failed, %d, %d", stat, stat2);
+         return 1;
+      }
+      if (len2 != rsa_msgsize || memcmp(tmp, in, rsa_msgsize)) {
+         fprintf(stderr, "rsa_decrypt_key_ex mismatch len %lu", len2);
+         return 1;
+      }
+   }
+
    /* sign a message (unsalted, lower cholestorol and Atkins approved) now */
    len = sizeof(out);
    DO(rsa_sign_hash(in, 20, out, &len, &yarrow_prng, prng_idx, hash_idx, 0, &key));
@@ -331,6 +349,22 @@ for (cnt = 0; cnt < len; ) {
       return 1;
    }
    
+   /* sign a message with PKCS #1 v1.5 */
+   len = sizeof(out);
+   DO(rsa_sign_hash_ex(in, 20, out, &len, LTC_PKCS_1_V1_5, &yarrow_prng, prng_idx, hash_idx, 8, &privKey));
+   DO(rsa_verify_hash_ex(out, len, in, 20, LTC_PKCS_1_V1_5, hash_idx, 8, &stat, &pubKey));
+   /* change a byte */
+   in[0] ^= 1;
+   DO(rsa_verify_hash_ex(out, len, in, 20, LTC_PKCS_1_V1_5, hash_idx, 8, &stat2, &pubKey));
+   
+   if (!(stat == 1 && stat2 == 0)) {
+      fprintf(stderr, "rsa_verify_hash_ex failed, %d, %d", stat, stat2);
+      rsa_free(&key);
+      rsa_free(&pubKey);
+      rsa_free(&privKey);
+      return 1;
+   }
+
    /* free the key and return */
    rsa_free(&key);
    rsa_free(&pubKey);

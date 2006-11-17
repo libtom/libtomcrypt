@@ -12,8 +12,8 @@
 
 /**
   @file rsa_encrypt_key.c
-  RSA PKCS OAEP encryption, Tom St Denis
-*/  
+  RSA PKCS #1 encryption, Tom St Denis and Andreas Lange
+*/
 
 #ifdef MRSA
 
@@ -28,30 +28,41 @@
     @param prng        An active PRNG
     @param prng_idx    The index of the desired prng
     @param hash_idx    The index of the desired hash
+    @param padding     Type of padding (LTC_PKCS_1_OAEP or LTC_PKCS_1_V1_5)
     @param key         The RSA key to encrypt to
     @return CRYPT_OK if successful
-*/    
-int rsa_encrypt_key(const unsigned char *in,     unsigned long inlen,
-                          unsigned char *out,    unsigned long *outlen,
-                    const unsigned char *lparam, unsigned long lparamlen,
-                    prng_state *prng, int prng_idx, int hash_idx, rsa_key *key)
+*/
+int rsa_encrypt_key_ex(const unsigned char *in,     unsigned long inlen,
+                             unsigned char *out,    unsigned long *outlen,
+                       const unsigned char *lparam, unsigned long lparamlen,
+                       prng_state *prng, int prng_idx, int hash_idx, int padding, rsa_key *key)
 {
   unsigned long modulus_bitlen, modulus_bytelen, x;
   int           err;
-  
+
   LTC_ARGCHK(in     != NULL);
   LTC_ARGCHK(out    != NULL);
   LTC_ARGCHK(outlen != NULL);
   LTC_ARGCHK(key    != NULL);
-  
-  /* valid prng and hash ? */
+
+  /* valid padding? */
+  if ((padding != LTC_PKCS_1_V1_5) &&
+      (padding != LTC_PKCS_1_OAEP)) {
+    return CRYPT_PK_INVALID_PADDING;
+  }
+
+  /* valid prng? */
   if ((err = prng_is_valid(prng_idx)) != CRYPT_OK) {
      return err;
   }
-  if ((err = hash_is_valid(hash_idx)) != CRYPT_OK) {
-     return err;
+
+  if (padding == LTC_PKCS_1_OAEP) {
+    /* valid hash? */
+    if ((err = hash_is_valid(hash_idx)) != CRYPT_OK) {
+       return err;
+    }
   }
-  
+
   /* get modulus len in bits */
   modulus_bitlen = mp_count_bits( (key->N));
 
@@ -61,16 +72,26 @@ int rsa_encrypt_key(const unsigned char *in,     unsigned long inlen,
      *outlen = modulus_bytelen;
      return CRYPT_BUFFER_OVERFLOW;
   }
-      
-  /* OAEP pad the key */
-  x = *outlen;
-  if ((err = pkcs_1_oaep_encode(in, inlen, lparam, 
-                                lparamlen, modulus_bitlen, prng, prng_idx, hash_idx, 
-                                out, &x)) != CRYPT_OK) {
-     return err;
-  }                                
 
-  /* rsa exptmod the OAEP pad */
+  if (padding == LTC_PKCS_1_OAEP) {
+    /* OAEP pad the key */
+    x = *outlen;
+    if ((err = pkcs_1_oaep_encode(in, inlen, lparam,
+                                  lparamlen, modulus_bitlen, prng, prng_idx, hash_idx,
+                                  out, &x)) != CRYPT_OK) {
+       return err;
+    }
+  } else {
+    /* PKCS #1 v1.5 pad the key */
+    x = *outlen;
+    if ((err = pkcs_1_v1_5_encode(in, inlen, LTC_PKCS_1_EME,
+                                  modulus_bitlen, prng, prng_idx,
+                                  out, &x)) != CRYPT_OK) {
+      return err;
+    }
+  }
+
+  /* rsa exptmod the OAEP or PKCS #1 v1.5 pad */
   return ltc_mp.rsa_me(out, x, out, outlen, PK_PUBLIC, key);
 }
 

@@ -173,6 +173,12 @@ void reg_algs(void)
 #ifdef ANUBIS
   register_cipher (&anubis_desc);
 #endif
+#ifdef KSEED
+  register_cipher (&kseed_desc);
+#endif
+#ifdef LTC_KASUMI
+  register_cipher (&kasumi_desc);
+#endif
 
 #ifdef TIGER
   register_hash (&tiger_desc);
@@ -206,6 +212,12 @@ void reg_algs(void)
 #endif
 #ifdef RIPEMD160
   register_hash (&rmd160_desc);
+#endif
+#ifdef RIPEMD256
+  register_hash (&rmd256_desc);
+#endif
+#ifdef RIPEMD320
+  register_hash (&rmd320_desc);
 #endif
 #ifdef WHIRLPOOL
   register_hash (&whirlpool_desc);
@@ -747,15 +759,61 @@ void time_prng(void)
    }
 }
 
+#ifdef MDSA
+/* time various DSA operations */
+void time_dsa(void)
+{
+   dsa_key       key;
+   ulong64       t1, t2;
+   unsigned char buf[2][2048];
+   unsigned long x, y, z, zzz;
+   int           err, zz, stat, i;
+static const struct {
+   int group, modulus;
+} groups[] = {
+{ 20, 96  }, 
+{ 20, 128 },
+{ 24, 192 },
+{ 28, 256 },
+{ 32, 512 }
+};
+
+   for (x = 0; x < (sizeof(groups)/sizeof(groups[0])); x++) {
+       t2 = 0;
+       for (y = 0; y < 4; y++) {
+           t_start();
+           t1 = t_read();
+           if ((err = dsa_make_key(&yarrow_prng, find_prng("yarrow"), groups[x].group, groups[x].modulus, &key)) != CRYPT_OK) {
+              fprintf(stderr, "\n\ndsa_make_key says %s, wait...no it should say %s...damn you!\n", error_to_string(err), error_to_string(CRYPT_OK));
+              exit(EXIT_FAILURE);
+           }
+           t1 = t_read() - t1;
+           t2 += t1;
+
+#ifdef LTC_PROFILE
+       t2 <<= 2;
+       break;
+#endif
+           if (y < 3) {
+              dsa_free(&key);
+           }
+       }
+       t2 >>= 2;
+       fprintf(stderr, "DSA-(%lu, %lu) make_key    took %15llu cycles\n", groups[x].group*8, groups[x].modulus*8, t2);
+   }
+}
+#endif
+
+
 #ifdef MRSA      
 /* time various RSA operations */
 void time_rsa(void)
 {
-   rsa_key key;
-   ulong64 t1, t2;
-   unsigned char buf[2][4096];
+   rsa_key       key;
+   ulong64       t1, t2;
+   unsigned char buf[2][2048];
    unsigned long x, y, z, zzz;
-   int           err, zz;
+   int           err, zz, stat;
 
    for (x = 1024; x <= 2048; x += 256) {
        t2 = 0;
@@ -768,6 +826,11 @@ void time_rsa(void)
            }
            t1 = t_read() - t1;
            t2 += t1;
+
+#ifdef LTC_PROFILE
+       t2 <<= 2;
+       break;
+#endif
 
            if (y < 3) {
               rsa_free(&key);
@@ -789,6 +852,10 @@ void time_rsa(void)
            }
            t1 = t_read() - t1;
            t2 += t1;
+#ifdef LTC_PROFILE
+       t2 <<= 4;
+       break;
+#endif
        }
        t2 >>= 4;
        fprintf(stderr, "RSA-%lu encrypt_key took %15llu cycles\n", x, t2);
@@ -805,11 +872,56 @@ void time_rsa(void)
            }
            t1 = t_read() - t1;
            t2 += t1;
+#ifdef LTC_PROFILE
+       t2 <<= 11;
+       break;
+#endif
        }
        t2 >>= 11;
        fprintf(stderr, "RSA-%lu decrypt_key took %15llu cycles\n", x, t2);
 
+       t2 = 0;
+       for (y = 0; y < 256; y++) {
+          t_start();
+          t1 = t_read();
+          z = sizeof(buf[1]);
+          if ((err = rsa_sign_hash(buf[0], 20, buf[1], &z, &yarrow_prng, 
+                                   find_prng("yarrow"), find_hash("sha1"), 8, &key)) != CRYPT_OK) {
+              fprintf(stderr, "\n\nrsa_sign_hash says %s, wait...no it should say %s...damn you!\n", error_to_string(err), error_to_string(CRYPT_OK));
+              exit(EXIT_FAILURE);
+           }
+           t1 = t_read() - t1;
+           t2 += t1;
+#ifdef LTC_PROFILE
+       t2 <<= 8;
+       break;
+#endif
+	}
+        t2 >>= 8;
+        fprintf(stderr, "RSA-%lu sign_hash took   %15llu cycles\n", x, t2);
 
+       t2 = 0;
+       for (y = 0; y < 2048; y++) {
+          t_start();
+          t1 = t_read();
+          if ((err = rsa_verify_hash(buf[1], z, buf[0], 20, find_hash("sha1"), 8, &stat, &key)) != CRYPT_OK) {
+              fprintf(stderr, "\n\nrsa_verify_hash says %s, wait...no it should say %s...damn you!\n", error_to_string(err), error_to_string(CRYPT_OK));
+              exit(EXIT_FAILURE);
+          }
+          if (stat == 0) {
+             fprintf(stderr, "\n\nrsa_verify_hash for RSA-%lu failed to verify signature(%lu)\n", x, y);
+             exit(EXIT_FAILURE);
+          }
+          t1 = t_read() - t1;
+          t2 += t1;
+#ifdef LTC_PROFILE
+       t2 <<= 11;
+       break;
+#endif
+	}
+        t2 >>= 11;
+        fprintf(stderr, "RSA-%lu verify_hash took %15llu cycles\n", x, t2);
+       fprintf(stderr, "\n\n");
        rsa_free(&key);
   }
 }
@@ -840,7 +952,7 @@ void time_katja(void)
            t2 += t1;
 
            if (y < 3) {
-              rsa_free(&key);
+              katja_free(&key);
            }
        }
        t2 >>= 2;
@@ -893,10 +1005,19 @@ void time_ecc(void)
 {
    ecc_key key;
    ulong64 t1, t2;
-   unsigned char buf[2][4096];
-   unsigned long i, x, y, z;
-   int           err;
+   unsigned char buf[2][256];
+   unsigned long i, w, x, y, z;
+   int           err, stat;
    static unsigned long sizes[] = {
+#ifdef ECC112
+112/8, 
+#endif
+#ifdef ECC128
+128/8, 
+#endif
+#ifdef ECC160
+160/8, 
+#endif
 #ifdef ECC192
 192/8, 
 #endif
@@ -926,6 +1047,11 @@ void time_ecc(void)
            t1 = t_read() - t1;
            t2 += t1;
 
+#ifdef LTC_PROFILE
+       t2 <<= 8;
+       break;
+#endif
+
            if (y < 255) {
               ecc_free(&key);
            }
@@ -945,9 +1071,76 @@ void time_ecc(void)
            }
            t1 = t_read() - t1;
            t2 += t1;
+#ifdef LTC_PROFILE
+       t2 <<= 8;
+       break;
+#endif
        }
        t2 >>= 8;
        fprintf(stderr, "ECC-%lu encrypt_key took %15llu cycles\n", x*8, t2);
+
+       t2 = 0;
+       for (y = 0; y < 256; y++) {
+           t_start();
+           t1 = t_read();
+           w = 20;
+           if ((err = ecc_decrypt_key(buf[1], z, buf[0], &w, &key)) != CRYPT_OK) {
+              fprintf(stderr, "\n\necc_decrypt_key says %s, wait...no it should say %s...damn you!\n", error_to_string(err), error_to_string(CRYPT_OK));
+              exit(EXIT_FAILURE);
+           }
+           t1 = t_read() - t1;
+           t2 += t1;
+#ifdef LTC_PROFILE
+       t2 <<= 8;
+       break;
+#endif
+       }
+       t2 >>= 8;
+       fprintf(stderr, "ECC-%lu decrypt_key took %15llu cycles\n", x*8, t2);
+
+       t2 = 0;
+       for (y = 0; y < 256; y++) {
+          t_start();
+          t1 = t_read();
+          z = sizeof(buf[1]);
+          if ((err = ecc_sign_hash(buf[0], 20, buf[1], &z, &yarrow_prng, 
+                                   find_prng("yarrow"), &key)) != CRYPT_OK) {
+              fprintf(stderr, "\n\necc_sign_hash says %s, wait...no it should say %s...damn you!\n", error_to_string(err), error_to_string(CRYPT_OK));
+              exit(EXIT_FAILURE);
+           }
+           t1 = t_read() - t1;
+           t2 += t1;
+#ifdef LTC_PROFILE
+       t2 <<= 8;
+       break;
+#endif
+	}
+        t2 >>= 8;
+        fprintf(stderr, "ECC-%lu sign_hash took   %15llu cycles\n", x*8, t2);
+
+       t2 = 0;
+       for (y = 0; y < 256; y++) {
+          t_start();
+          t1 = t_read();
+          if ((err = ecc_verify_hash(buf[1], z, buf[0], 20, &stat, &key)) != CRYPT_OK) {
+              fprintf(stderr, "\n\necc_verify_hash says %s, wait...no it should say %s...damn you!\n", error_to_string(err), error_to_string(CRYPT_OK));
+              exit(EXIT_FAILURE);
+          }
+          if (stat == 0) {
+             fprintf(stderr, "\n\necc_verify_hash for ECC-%lu failed to verify signature(%lu)\n", x*8, y);
+             exit(EXIT_FAILURE);
+          }
+          t1 = t_read() - t1;
+          t2 += t1;
+#ifdef LTC_PROFILE
+       t2 <<= 8;
+       break;
+#endif
+	}
+        t2 >>= 8;
+        fprintf(stderr, "ECC-%lu verify_hash took %15llu cycles\n", x*8, t2);
+
+       fprintf(stderr, "\n\n");
        ecc_free(&key);
   }
 }
@@ -981,7 +1174,7 @@ void time_macs_(unsigned long MAC_SIZE)
    yarrow_read(buf, MAC_SIZE*1024, &yarrow_prng);
    yarrow_read(key, 16, &yarrow_prng);
 
-#ifdef OMAC
+#ifdef LTC_OMAC
    t2 = -1;
    for (x = 0; x < 10000; x++) {
         t_start();
@@ -997,7 +1190,39 @@ void time_macs_(unsigned long MAC_SIZE)
    fprintf(stderr, "OMAC-%s\t\t%9llu\n", cipher_descriptor[cipher_idx].name, t2/(ulong64)(MAC_SIZE*1024));
 #endif
 
-#ifdef PMAC
+#ifdef LTC_XCBC
+   t2 = -1;
+   for (x = 0; x < 10000; x++) {
+        t_start();
+        t1 = t_read();
+        z = 16;
+        if ((err = xcbc_memory(cipher_idx, key, 16, buf, MAC_SIZE*1024, tag, &z)) != CRYPT_OK) {
+           fprintf(stderr, "\n\nxcbc error... %s\n", error_to_string(err));
+           exit(EXIT_FAILURE);
+        }
+        t1 = t_read() - t1;
+        if (t1 < t2) t2 = t1;
+   }
+   fprintf(stderr, "XCBC-%s\t\t%9llu\n", cipher_descriptor[cipher_idx].name, t2/(ulong64)(MAC_SIZE*1024));
+#endif
+
+#ifdef LTC_F9_MODE
+   t2 = -1;
+   for (x = 0; x < 10000; x++) {
+        t_start();
+        t1 = t_read();
+        z = 16;
+        if ((err = f9_memory(cipher_idx, key, 16, buf, MAC_SIZE*1024, tag, &z)) != CRYPT_OK) {
+           fprintf(stderr, "\n\nF9 error... %s\n", error_to_string(err));
+           exit(EXIT_FAILURE);
+        }
+        t1 = t_read() - t1;
+        if (t1 < t2) t2 = t1;
+   }
+   fprintf(stderr, "F9-%s\t\t\t%9llu\n", cipher_descriptor[cipher_idx].name, t2/(ulong64)(MAC_SIZE*1024));
+#endif
+
+#ifdef LTC_PMAC
    t2 = -1;
    for (x = 0; x < 10000; x++) {
         t_start();
@@ -1029,7 +1254,7 @@ void time_macs_(unsigned long MAC_SIZE)
    fprintf(stderr, "PELICAN \t\t%9llu\n", t2/(ulong64)(MAC_SIZE*1024));
 #endif
 
-#ifdef HMAC
+#ifdef LTC_HMAC
    t2 = -1;
    for (x = 0; x < 10000; x++) {
         t_start();

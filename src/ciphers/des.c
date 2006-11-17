@@ -31,7 +31,7 @@ const struct ltc_cipher_descriptor des_desc =
     &des_test,
     &des_done,
     &des_keysize,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
 };
 
 const struct ltc_cipher_descriptor des3_desc =
@@ -45,7 +45,7 @@ const struct ltc_cipher_descriptor des3_desc =
     &des3_test,
     &des3_done,
     &des3_keysize,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
 };
 
 static const ulong32 bytebit[8] =
@@ -1798,7 +1798,7 @@ int des_test(void)
            des_ecb_decrypt(cases[i].txt, tmp, &des);
         }
 
-        if (memcmp(cases[i].out, tmp, sizeof(tmp)) != 0) {
+        if (XMEMCMP(cases[i].out, tmp, sizeof(tmp)) != 0) {
            return CRYPT_FAIL_TESTVECTOR;
         }
 
@@ -1841,7 +1841,7 @@ int des3_test(void)
    des3_ecb_encrypt(pt, ct, &skey);
    des3_ecb_decrypt(ct, tmp, &skey);
    
-   if (memcmp(pt, tmp, 8) != 0) {
+   if (XMEMCMP(pt, tmp, 8) != 0) {
       return CRYPT_FAIL_TESTVECTOR;
    }
    

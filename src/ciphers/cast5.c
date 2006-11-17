@@ -27,7 +27,7 @@ const struct ltc_cipher_descriptor cast5_desc = {
    &cast5_test,
    &cast5_done,
    &cast5_keysize,
-   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
+   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
 };
 
 static const ulong32 S1[256] = {
@@ -676,7 +676,7 @@ int cast5_test(void)
        }
        cast5_ecb_encrypt(tests[i].pt, tmp[0], &key);
        cast5_ecb_decrypt(tmp[0], tmp[1], &key);
-       if ((memcmp(tmp[0], tests[i].ct, 8) != 0) || (memcmp(tmp[1], tests[i].pt, 8) != 0)) {
+       if ((XMEMCMP(tmp[0], tests[i].ct, 8) != 0) || (XMEMCMP(tmp[1], tests[i].pt, 8) != 0)) {
           return CRYPT_FAIL_TESTVECTOR;
        }
       /* now see if we can encrypt all zero bytes 1000 times, decrypt and come back where we started */

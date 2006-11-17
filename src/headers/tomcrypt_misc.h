@@ -15,6 +15,9 @@ const char *error_to_string(int err);
 
 extern const char *crypt_build_settings;
 
+/* ---- HMM ---- */
+int crypt_fsa(void *mp, ...);
+
 /* $Source$ */
 /* $Revision$ */
 /* $Date$ */

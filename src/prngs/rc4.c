@@ -130,6 +130,10 @@ unsigned long rc4_read(unsigned char *out, unsigned long outlen, prng_state *prn
    LTC_ARGCHK(out != NULL);
    LTC_ARGCHK(prng != NULL);
 
+#ifdef LTC_VALGRIND
+   zeromem(out, outlen);
+#endif
+
    n = outlen;
    x = prng->rc4.x;
    y = prng->rc4.y;
@@ -212,7 +216,7 @@ int rc4_import(const unsigned char *in, unsigned long inlen, prng_state *prng)
 */  
 int rc4_test(void)
 {
-#ifndef LTC_TEST
+#if !defined(LTC_TEST) || defined(LTC_VALGRIND)
    return CRYPT_NOP;
 #else
    static const struct {
@@ -243,7 +247,7 @@ int rc4_test(void)
           return CRYPT_ERROR_READPRNG;
        }
        rc4_done(&prng);
-       if (memcmp(dst, tests[x].ct, 8)) {
+       if (XMEMCMP(dst, tests[x].ct, 8)) {
 #if 0
           int y;
           printf("\n\nRC4 failed, I got:\n"); 

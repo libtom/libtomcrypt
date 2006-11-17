@@ -124,6 +124,8 @@
 #define KHAZAD
 #define ANUBIS
 #define ANUBIS_TWEAK
+#define KSEED
+#define LTC_KASUMI
 
 #endif /* LTC_NO_CIPHERS */
 
@@ -167,15 +169,19 @@
 #define MD2
 #define RIPEMD128
 #define RIPEMD160
+#define RIPEMD256
+#define RIPEMD320
 
 #endif /* LTC_NO_HASHES */
 
 /* ---> MAC functions <--- */
 #ifndef LTC_NO_MACS
 
-#define HMAC
-#define OMAC
-#define PMAC
+#define LTC_HMAC
+#define LTC_OMAC
+#define LTC_PMAC
+#define LTC_XCBC
+#define LTC_F9_MODE
 #define PELICAN
 
 #if defined(PELICAN) && !defined(RIJNDAEL)
@@ -185,7 +191,7 @@
 /* ---> Encrypt + Authenticate Modes <--- */
 
 #define EAX_MODE
-#if defined(EAX_MODE) && !(defined(LTC_CTR_MODE) && defined(OMAC))
+#if defined(EAX_MODE) && !(defined(LTC_CTR_MODE) && defined(LTC_OMAC))
    #error EAX_MODE requires CTR and OMAC mode
 #endif
 
@@ -298,6 +304,9 @@
 #ifdef MECC
 /* Supported ECC Key Sizes */
 #ifndef LTC_NO_CURVES
+   #define ECC112
+   #define ECC128
+   #define ECC160
    #define ECC192
    #define ECC224
    #define ECC256
@@ -324,7 +333,6 @@
 #endif
 
 /* THREAD management */
-
 #ifdef LTC_PTHREAD
 
 #include <pthread.h>
@@ -347,6 +355,11 @@
 #define LTC_MUTEX_UNLOCK(x)
 
 #endif
+
+/* Debuggers */
+
+/* define this if you use Valgrind, note: it CHANGES the way SOBER-128 and RC4 work (see the code) */
+/* #define LTC_VALGRIND */
 
 #endif
 

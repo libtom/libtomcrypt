@@ -290,7 +290,7 @@ int  whirlpool_test(void)
       whirlpool_init(&md);
       whirlpool_process(&md, (unsigned char *)tests[i].msg, tests[i].len);
       whirlpool_done(&md, tmp);
-      if (memcmp(tmp, tests[i].hash, 64) != 0) {
+      if (XMEMCMP(tmp, tests[i].hash, 64) != 0) {
 #if 0      
          printf("\nFailed test %d\n", i);
          for (i = 0; i < 64; ) {

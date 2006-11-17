@@ -117,7 +117,7 @@ int  sha384_test(void)
       sha384_init(&md);
       sha384_process(&md, (unsigned char*)tests[i].msg, (unsigned long)strlen(tests[i].msg));
       sha384_done(&md, tmp);
-      if (memcmp(tmp, tests[i].hash, 48) != 0) {
+      if (XMEMCMP(tmp, tests[i].hash, 48) != 0) {
          return CRYPT_FAIL_TESTVECTOR;
       }
   }

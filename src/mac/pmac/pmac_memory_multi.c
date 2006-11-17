@@ -16,7 +16,7 @@
    PMAC implementation, process multiple blocks of memory, by Tom St Denis 
 */
 
-#ifdef PMAC
+#ifdef LTC_PMAC
 
 /**
    PMAC multiple blocks of memory

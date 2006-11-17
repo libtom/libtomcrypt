@@ -16,7 +16,7 @@
 */
 
 
-#ifdef OMAC
+#ifdef LTC_OMAC
 
 /** 
    Process data through OMAC

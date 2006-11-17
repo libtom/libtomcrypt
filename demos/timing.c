@@ -16,6 +16,7 @@ reg_algs();
    extern ltc_math_descriptor EXT_MATH_LIB;
    ltc_mp = EXT_MATH_LIB;
 #endif
+
 time_keysched();
 time_cipher();
 time_cipher2();

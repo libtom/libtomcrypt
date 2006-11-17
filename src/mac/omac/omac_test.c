@@ -15,7 +15,7 @@
   OMAC1 support, self-test, by Tom St Denis
 */
 
-#ifdef OMAC
+#ifdef LTC_OMAC
 
 /**
   Test the OMAC setup
@@ -90,7 +90,7 @@ int omac_test(void)
           return err;
        }
 
-       if (memcmp(out, tests[x].tag, 16) != 0) {
+       if (XMEMCMP(out, tests[x].tag, 16) != 0) {
 #if 0
           int y;
           printf("\n\nTag: ");

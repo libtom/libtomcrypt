@@ -48,6 +48,7 @@ struct sober128_prng {
 #endif
 
 typedef union Prng_state {
+    char dummy[1];
 #ifdef YARROW
     struct yarrow_prng    yarrow;
 #endif

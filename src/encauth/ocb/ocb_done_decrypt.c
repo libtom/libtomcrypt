@@ -57,7 +57,7 @@ int ocb_done_decrypt(ocb_state *ocb,
       goto LBL_ERR;
    }
 
-   if (taglen <= tagbuflen && memcmp(tagbuf, tag, taglen) == 0) {
+   if (taglen <= tagbuflen && XMEMCMP(tagbuf, tag, taglen) == 0) {
       *stat = 1;
    }
 

@@ -31,9 +31,9 @@ int gcm_process(gcm_state *gcm,
                      unsigned char *ct,
                      int direction)
 {
-   unsigned long x, y;
+   unsigned long x;
+   int           y, err;
    unsigned char b;
-   int           err;
 
    LTC_ARGCHK(gcm != NULL);
    if (ptlen > 0) {
@@ -58,7 +58,7 @@ int gcm_process(gcm_state *gcm,
       }
 
       /* increment counter */
-      for (y = 15; y >= 12; y--) {
+      for (y = 15; y >= 0; y--) {
           if (++gcm->Y[y] & 255) { break; }
       }
       /* encrypt the counter */
@@ -88,7 +88,7 @@ int gcm_process(gcm_state *gcm,
              gcm->pttotlen += 128;
              gcm_mult_h(gcm, gcm->X);
              /* increment counter */
-             for (y = 15; y >= 12; y--) {
+             for (y = 15; y >= 0; y--) {
                  if (++gcm->Y[y] & 255) { break; }
              }
              if ((err = cipher_descriptor[gcm->cipher].ecb_encrypt(gcm->Y, gcm->buf, &gcm->K)) != CRYPT_OK) {
@@ -106,7 +106,7 @@ int gcm_process(gcm_state *gcm,
              gcm->pttotlen += 128;
              gcm_mult_h(gcm, gcm->X);
              /* increment counter */
-             for (y = 15; y >= 12; y--) {
+             for (y = 15; y >= 0; y--) {
                  if (++gcm->Y[y] & 255) { break; }
              }
              if ((err = cipher_descriptor[gcm->cipher].ecb_encrypt(gcm->Y, gcm->buf, &gcm->K)) != CRYPT_OK) {
@@ -124,7 +124,7 @@ int gcm_process(gcm_state *gcm,
           gcm_mult_h(gcm, gcm->X);
           
           /* increment counter */
-          for (y = 15; y >= 12; y--) {
+          for (y = 15; y >= 0; y--) {
               if (++gcm->Y[y] & 255) { break; }
           }
           if ((err = cipher_descriptor[gcm->cipher].ecb_encrypt(gcm->Y, gcm->buf, &gcm->K)) != CRYPT_OK) {
@@ -145,10 +145,7 @@ int gcm_process(gcm_state *gcm,
    return CRYPT_OK;
 }
 
-
-
 #endif
-   
 
 /* $Source$ */
 /* $Revision$ */

@@ -29,7 +29,7 @@ const struct ltc_cipher_descriptor rc5_desc =
     &rc5_test,
     &rc5_done,
     &rc5_keysize,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
 };
 
 static const ulong32 stab[50] = {
@@ -275,7 +275,7 @@ int rc5_test(void)
       rc5_ecb_decrypt(tmp[0], tmp[1], &key);
 
       /* compare */
-      if (memcmp(tmp[0], tests[x].ct, 8) != 0 || memcmp(tmp[1], tests[x].pt, 8) != 0) {
+      if (XMEMCMP(tmp[0], tests[x].ct, 8) != 0 || XMEMCMP(tmp[1], tests[x].pt, 8) != 0) {
          return CRYPT_FAIL_TESTVECTOR;
       }
 

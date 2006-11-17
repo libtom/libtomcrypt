@@ -138,7 +138,7 @@ int fortuna_start(prng_state *prng)
    for (x = 0; x < FORTUNA_POOLS; x++) {
        if ((err = sha256_init(&prng->fortuna.pool[x])) != CRYPT_OK) {
           for (y = 0; y < x; y++) {
-              sha256_done(&prng->fortuna.pool[x], tmp);
+              sha256_done(&prng->fortuna.pool[y], tmp);
           }
           return err;
        }
@@ -245,7 +245,7 @@ unsigned long fortuna_read(unsigned char *out, unsigned long outlen, prng_state 
    /* now generate the blocks required */
    tlen = outlen;
 
-   /* handle whole blocks without the extra memcpy */
+   /* handle whole blocks without the extra XMEMCPY */
    while (outlen >= 16) {
       /* encrypt the IV and store it */
       rijndael_ecb_encrypt(prng->fortuna.IV, out, &prng->fortuna.skey);
@@ -386,23 +386,18 @@ int fortuna_import(const unsigned char *in, unsigned long inlen, prng_state *prn
    LTC_ARGCHK(in   != NULL);
    LTC_ARGCHK(prng != NULL);
 
-   LTC_MUTEX_LOCK(&prng->fortuna.prng_lock);
    if (inlen != 32*FORTUNA_POOLS) {
-      LTC_MUTEX_UNLOCK(&prng->fortuna.prng_lock);
       return CRYPT_INVALID_ARG;
    }
 
    if ((err = fortuna_start(prng)) != CRYPT_OK) {
-      LTC_MUTEX_UNLOCK(&prng->fortuna.prng_lock);
       return err;
    }
    for (x = 0; x < FORTUNA_POOLS; x++) {
       if ((err = fortuna_add_entropy(in+x*32, 32, prng)) != CRYPT_OK) {
-         LTC_MUTEX_UNLOCK(&prng->fortuna.prng_lock);
          return err;
       }
    }
-   LTC_MUTEX_UNLOCK(&prng->fortuna.prng_lock);
    return err;
 }
 

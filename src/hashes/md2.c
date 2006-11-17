@@ -235,7 +235,7 @@ int md2_test(void)
        md2_init(&md);
        md2_process(&md, (unsigned char*)tests[i].msg, (unsigned long)strlen(tests[i].msg));
        md2_done(&md, buf);
-       if (memcmp(buf, tests[i].md, 16) != 0) {
+       if (XMEMCMP(buf, tests[i].md, 16) != 0) {
           return CRYPT_FAIL_TESTVECTOR;
        }
    }

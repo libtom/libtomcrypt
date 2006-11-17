@@ -4,7 +4,7 @@
 # Modified by Clay Culver
 
 # The version
-VERSION=1.14
+VERSION=1.15
 
 # Compiler and Linker Names
 #CC=gcc
@@ -103,40 +103,46 @@ endif
 #List of objects to compile.
 #START_INS
 OBJECTS=src/ciphers/aes/aes_enc.o src/ciphers/aes/aes.o src/ciphers/anubis.o src/ciphers/blowfish.o \
-src/ciphers/cast5.o src/ciphers/des.o src/ciphers/khazad.o src/ciphers/noekeon.o src/ciphers/rc2.o \
-src/ciphers/rc5.o src/ciphers/rc6.o src/ciphers/safer/safer.o src/ciphers/safer/safer_tab.o \
-src/ciphers/safer/saferp.o src/ciphers/skipjack.o src/ciphers/twofish/twofish.o src/ciphers/xtea.o \
-src/encauth/ccm/ccm_memory.o src/encauth/ccm/ccm_test.o src/encauth/eax/eax_addheader.o \
-src/encauth/eax/eax_decrypt.o src/encauth/eax/eax_decrypt_verify_memory.o src/encauth/eax/eax_done.o \
-src/encauth/eax/eax_encrypt.o src/encauth/eax/eax_encrypt_authenticate_memory.o \
-src/encauth/eax/eax_init.o src/encauth/eax/eax_test.o src/encauth/gcm/gcm_add_aad.o \
-src/encauth/gcm/gcm_add_iv.o src/encauth/gcm/gcm_done.o src/encauth/gcm/gcm_gf_mult.o \
-src/encauth/gcm/gcm_init.o src/encauth/gcm/gcm_memory.o src/encauth/gcm/gcm_mult_h.o \
-src/encauth/gcm/gcm_process.o src/encauth/gcm/gcm_reset.o src/encauth/gcm/gcm_test.o \
-src/encauth/ocb/ocb_decrypt.o src/encauth/ocb/ocb_decrypt_verify_memory.o \
-src/encauth/ocb/ocb_done_decrypt.o src/encauth/ocb/ocb_done_encrypt.o src/encauth/ocb/ocb_encrypt.o \
+src/ciphers/cast5.o src/ciphers/des.o src/ciphers/kasumi.o src/ciphers/khazad.o src/ciphers/kseed.o \
+src/ciphers/noekeon.o src/ciphers/rc2.o src/ciphers/rc5.o src/ciphers/rc6.o src/ciphers/safer/safer.o \
+src/ciphers/safer/safer_tab.o src/ciphers/safer/saferp.o src/ciphers/skipjack.o \
+src/ciphers/twofish/twofish.o src/ciphers/xtea.o src/encauth/ccm/ccm_memory.o \
+src/encauth/ccm/ccm_test.o src/encauth/eax/eax_addheader.o src/encauth/eax/eax_decrypt.o \
+src/encauth/eax/eax_decrypt_verify_memory.o src/encauth/eax/eax_done.o src/encauth/eax/eax_encrypt.o \
+src/encauth/eax/eax_encrypt_authenticate_memory.o src/encauth/eax/eax_init.o \
+src/encauth/eax/eax_test.o src/encauth/gcm/gcm_add_aad.o src/encauth/gcm/gcm_add_iv.o \
+src/encauth/gcm/gcm_done.o src/encauth/gcm/gcm_gf_mult.o src/encauth/gcm/gcm_init.o \
+src/encauth/gcm/gcm_memory.o src/encauth/gcm/gcm_mult_h.o src/encauth/gcm/gcm_process.o \
+src/encauth/gcm/gcm_reset.o src/encauth/gcm/gcm_test.o src/encauth/ocb/ocb_decrypt.o \
+src/encauth/ocb/ocb_decrypt_verify_memory.o src/encauth/ocb/ocb_done_decrypt.o \
+src/encauth/ocb/ocb_done_encrypt.o src/encauth/ocb/ocb_encrypt.o \
 src/encauth/ocb/ocb_encrypt_authenticate_memory.o src/encauth/ocb/ocb_init.o src/encauth/ocb/ocb_ntz.o \
 src/encauth/ocb/ocb_shift_xor.o src/encauth/ocb/ocb_test.o src/encauth/ocb/s_ocb_done.o \
 src/hashes/chc/chc.o src/hashes/helper/hash_file.o src/hashes/helper/hash_filehandle.o \
 src/hashes/helper/hash_memory.o src/hashes/helper/hash_memory_multi.o src/hashes/md2.o src/hashes/md4.o \
-src/hashes/md5.o src/hashes/rmd128.o src/hashes/rmd160.o src/hashes/sha1.o src/hashes/sha2/sha256.o \
-src/hashes/sha2/sha512.o src/hashes/tiger.o src/hashes/whirl/whirl.o src/mac/hmac/hmac_done.o \
-src/mac/hmac/hmac_file.o src/mac/hmac/hmac_init.o src/mac/hmac/hmac_memory.o \
+src/hashes/md5.o src/hashes/rmd128.o src/hashes/rmd160.o src/hashes/rmd256.o src/hashes/rmd320.o \
+src/hashes/sha1.o src/hashes/sha2/sha256.o src/hashes/sha2/sha512.o src/hashes/tiger.o \
+src/hashes/whirl/whirl.o src/mac/f9/f9_done.o src/mac/f9/f9_file.o src/mac/f9/f9_init.o \
+src/mac/f9/f9_memory.o src/mac/f9/f9_memory_multi.o src/mac/f9/f9_process.o src/mac/f9/f9_test.o \
+src/mac/hmac/hmac_done.o src/mac/hmac/hmac_file.o src/mac/hmac/hmac_init.o src/mac/hmac/hmac_memory.o \
 src/mac/hmac/hmac_memory_multi.o src/mac/hmac/hmac_process.o src/mac/hmac/hmac_test.o \
 src/mac/omac/omac_done.o src/mac/omac/omac_file.o src/mac/omac/omac_init.o src/mac/omac/omac_memory.o \
 src/mac/omac/omac_memory_multi.o src/mac/omac/omac_process.o src/mac/omac/omac_test.o \
 src/mac/pelican/pelican.o src/mac/pelican/pelican_memory.o src/mac/pelican/pelican_test.o \
 src/mac/pmac/pmac_done.o src/mac/pmac/pmac_file.o src/mac/pmac/pmac_init.o src/mac/pmac/pmac_memory.o \
 src/mac/pmac/pmac_memory_multi.o src/mac/pmac/pmac_ntz.o src/mac/pmac/pmac_process.o \
-src/mac/pmac/pmac_shift_xor.o src/mac/pmac/pmac_test.o src/math/fp/ltc_ecc_fp_mulmod.o \
-src/math/gmp_desc.o src/math/ltm_desc.o src/math/multi.o src/math/rand_prime.o src/math/tfm_desc.o \
-src/misc/base64/base64_decode.o src/misc/base64/base64_encode.o src/misc/burn_stack.o \
-src/misc/crypt/crypt.o src/misc/crypt/crypt_argchk.o src/misc/crypt/crypt_cipher_descriptor.o \
+src/mac/pmac/pmac_shift_xor.o src/mac/pmac/pmac_test.o src/mac/xcbc/xcbc_done.o \
+src/mac/xcbc/xcbc_file.o src/mac/xcbc/xcbc_init.o src/mac/xcbc/xcbc_memory.o \
+src/mac/xcbc/xcbc_memory_multi.o src/mac/xcbc/xcbc_process.o src/mac/xcbc/xcbc_test.o \
+src/math/fp/ltc_ecc_fp_mulmod.o src/math/gmp_desc.o src/math/ltm_desc.o src/math/multi.o \
+src/math/rand_prime.o src/math/tfm_desc.o src/misc/base64/base64_decode.o \
+src/misc/base64/base64_encode.o src/misc/burn_stack.o src/misc/crypt/crypt.o \
+src/misc/crypt/crypt_argchk.o src/misc/crypt/crypt_cipher_descriptor.o \
 src/misc/crypt/crypt_cipher_is_valid.o src/misc/crypt/crypt_find_cipher.o \
 src/misc/crypt/crypt_find_cipher_any.o src/misc/crypt/crypt_find_cipher_id.o \
 src/misc/crypt/crypt_find_hash.o src/misc/crypt/crypt_find_hash_any.o \
 src/misc/crypt/crypt_find_hash_id.o src/misc/crypt/crypt_find_hash_oid.o \
-src/misc/crypt/crypt_find_prng.o src/misc/crypt/crypt_hash_descriptor.o \
+src/misc/crypt/crypt_find_prng.o src/misc/crypt/crypt_fsa.o src/misc/crypt/crypt_hash_descriptor.o \
 src/misc/crypt/crypt_hash_is_valid.o src/misc/crypt/crypt_ltc_mp_descriptor.o \
 src/misc/crypt/crypt_prng_descriptor.o src/misc/crypt/crypt_prng_is_valid.o \
 src/misc/crypt/crypt_register_cipher.o src/misc/crypt/crypt_register_hash.o \
@@ -148,7 +154,7 @@ src/modes/cbc/cbc_getiv.o src/modes/cbc/cbc_setiv.o src/modes/cbc/cbc_start.o \
 src/modes/cfb/cfb_decrypt.o src/modes/cfb/cfb_done.o src/modes/cfb/cfb_encrypt.o \
 src/modes/cfb/cfb_getiv.o src/modes/cfb/cfb_setiv.o src/modes/cfb/cfb_start.o \
 src/modes/ctr/ctr_decrypt.o src/modes/ctr/ctr_done.o src/modes/ctr/ctr_encrypt.o \
-src/modes/ctr/ctr_getiv.o src/modes/ctr/ctr_setiv.o src/modes/ctr/ctr_start.o \
+src/modes/ctr/ctr_getiv.o src/modes/ctr/ctr_setiv.o src/modes/ctr/ctr_start.o src/modes/ctr/ctr_test.o \
 src/modes/ecb/ecb_decrypt.o src/modes/ecb/ecb_done.o src/modes/ecb/ecb_encrypt.o \
 src/modes/ecb/ecb_start.o src/modes/f8/f8_decrypt.o src/modes/f8/f8_done.o src/modes/f8/f8_encrypt.o \
 src/modes/f8/f8_getiv.o src/modes/f8/f8_setiv.o src/modes/f8/f8_start.o src/modes/f8/f8_test_mode.o \
@@ -184,21 +190,23 @@ src/pk/asn1/der/utctime/der_encode_utctime.o src/pk/asn1/der/utctime/der_length_
 src/pk/dsa/dsa_decrypt_key.o src/pk/dsa/dsa_encrypt_key.o src/pk/dsa/dsa_export.o src/pk/dsa/dsa_free.o \
 src/pk/dsa/dsa_import.o src/pk/dsa/dsa_make_key.o src/pk/dsa/dsa_shared_secret.o \
 src/pk/dsa/dsa_sign_hash.o src/pk/dsa/dsa_verify_hash.o src/pk/dsa/dsa_verify_key.o src/pk/ecc/ecc.o \
-src/pk/ecc/ecc_decrypt_key.o src/pk/ecc/ecc_encrypt_key.o src/pk/ecc/ecc_export.o src/pk/ecc/ecc_free.o \
-src/pk/ecc/ecc_get_size.o src/pk/ecc/ecc_import.o src/pk/ecc/ecc_make_key.o \
-src/pk/ecc/ecc_shared_secret.o src/pk/ecc/ecc_sign_hash.o src/pk/ecc/ecc_sizes.o src/pk/ecc/ecc_test.o \
-src/pk/ecc/ecc_verify_hash.o src/pk/ecc/ltc_ecc_is_valid_idx.o src/pk/ecc/ltc_ecc_map.o \
-src/pk/ecc/ltc_ecc_mulmod.o src/pk/ecc/ltc_ecc_mulmod_timing.o src/pk/ecc/ltc_ecc_points.o \
+src/pk/ecc/ecc_ansi_x963_export.o src/pk/ecc/ecc_ansi_x963_import.o src/pk/ecc/ecc_decrypt_key.o \
+src/pk/ecc/ecc_encrypt_key.o src/pk/ecc/ecc_export.o src/pk/ecc/ecc_free.o src/pk/ecc/ecc_get_size.o \
+src/pk/ecc/ecc_import.o src/pk/ecc/ecc_make_key.o src/pk/ecc/ecc_shared_secret.o \
+src/pk/ecc/ecc_sign_hash.o src/pk/ecc/ecc_sizes.o src/pk/ecc/ecc_test.o src/pk/ecc/ecc_verify_hash.o \
+src/pk/ecc/ltc_ecc_is_valid_idx.o src/pk/ecc/ltc_ecc_map.o src/pk/ecc/ltc_ecc_mulmod.o \
+src/pk/ecc/ltc_ecc_mulmod_timing.o src/pk/ecc/ltc_ecc_points.o \
 src/pk/ecc/ltc_ecc_projective_add_point.o src/pk/ecc/ltc_ecc_projective_dbl_point.o \
 src/pk/katja/katja_decrypt_key.o src/pk/katja/katja_encrypt_key.o src/pk/katja/katja_export.o \
 src/pk/katja/katja_exptmod.o src/pk/katja/katja_free.o src/pk/katja/katja_import.o \
 src/pk/katja/katja_make_key.o src/pk/pkcs1/pkcs_1_i2osp.o src/pk/pkcs1/pkcs_1_mgf1.o \
 src/pk/pkcs1/pkcs_1_oaep_decode.o src/pk/pkcs1/pkcs_1_oaep_encode.o src/pk/pkcs1/pkcs_1_os2ip.o \
-src/pk/pkcs1/pkcs_1_pss_decode.o src/pk/pkcs1/pkcs_1_pss_encode.o src/pk/rsa/rsa_decrypt_key.o \
-src/pk/rsa/rsa_encrypt_key.o src/pk/rsa/rsa_export.o src/pk/rsa/rsa_exptmod.o src/pk/rsa/rsa_free.o \
-src/pk/rsa/rsa_import.o src/pk/rsa/rsa_make_key.o src/pk/rsa/rsa_sign_hash.o \
-src/pk/rsa/rsa_verify_hash.o src/prngs/fortuna.o src/prngs/rc4.o src/prngs/rng_get_bytes.o \
-src/prngs/rng_make_prng.o src/prngs/sober128.o src/prngs/sprng.o src/prngs/yarrow.o 
+src/pk/pkcs1/pkcs_1_pss_decode.o src/pk/pkcs1/pkcs_1_pss_encode.o src/pk/pkcs1/pkcs_1_v1_5_decode.o \
+src/pk/pkcs1/pkcs_1_v1_5_encode.o src/pk/rsa/rsa_decrypt_key.o src/pk/rsa/rsa_encrypt_key.o \
+src/pk/rsa/rsa_export.o src/pk/rsa/rsa_exptmod.o src/pk/rsa/rsa_free.o src/pk/rsa/rsa_import.o \
+src/pk/rsa/rsa_make_key.o src/pk/rsa/rsa_sign_hash.o src/pk/rsa/rsa_verify_hash.o src/prngs/fortuna.o \
+src/prngs/rc4.o src/prngs/rng_get_bytes.o src/prngs/rng_make_prng.o src/prngs/sober128.o \
+src/prngs/sprng.o src/prngs/yarrow.o 
 
 HEADERS=src/headers/tomcrypt_cfg.h src/headers/tomcrypt_mac.h src/headers/tomcrypt_macros.h \
 src/headers/tomcrypt_custom.h src/headers/tomcrypt_argchk.h src/headers/tomcrypt_cipher.h \
@@ -338,6 +346,7 @@ docs: crypt.tex
 	latex crypt > /dev/null
 	latex crypt > /dev/null
 	makeindex crypt.idx > /dev/null
+	perl fixupind.pl
 	latex crypt > /dev/null
 	dvipdf crypt
 	mv -ivf crypt.pdf doc/crypt.pdf
@@ -348,6 +357,8 @@ docdvi: crypt.tex
 	latex crypt > /dev/null
 	latex crypt > /dev/null
 	makeindex crypt.idx
+	perl fixupind.pl
+	latex crypt > /dev/null
 	latex crypt > /dev/null
 
 #zipup the project (take that!)
@@ -367,5 +378,5 @@ zipup: no_oops docs
 
 
 # $Source: /cvs/libtom/libtomcrypt/makefile,v $ 
-# $Revision: 1.127 $ 
-# $Date: 2006/06/29 01:59:34 $ 
+# $Revision: 1.142 $ 
+# $Date: 2006/11/08 22:38:16 $ 

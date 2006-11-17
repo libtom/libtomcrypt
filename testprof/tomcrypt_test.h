@@ -67,6 +67,7 @@ void time_mult(void);
 void time_sqr(void);
 void time_prng(void);
 void time_rsa(void);
+void time_dsa(void);
 void time_katja(void);
 void time_ecc(void);
 void time_macs_(unsigned long MAC_SIZE);

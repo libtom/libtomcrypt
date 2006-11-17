@@ -450,7 +450,7 @@ int rmd160_test(void)
        rmd160_init(&md);
        rmd160_process(&md, (unsigned char *)tests[x].msg, strlen(tests[x].msg));
        rmd160_done(&md, buf);
-       if (memcmp(buf, tests[x].md, 20) != 0) {
+       if (XMEMCMP(buf, tests[x].md, 20) != 0) {
 #if 0
           printf("Failed test %d\n", x);
 #endif

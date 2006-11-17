@@ -15,7 +15,7 @@
   HMAC support, process a file, Tom St Denis/Dobes Vandermeer
 */
 
-#ifdef HMAC
+#ifdef LTC_HMAC
 
 /**
   HMAC a file

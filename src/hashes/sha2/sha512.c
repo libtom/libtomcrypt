@@ -297,7 +297,7 @@ int  sha512_test(void)
       sha512_init(&md);
       sha512_process(&md, (unsigned char *)tests[i].msg, (unsigned long)strlen(tests[i].msg));
       sha512_done(&md, tmp);
-      if (memcmp(tmp, tests[i].hash, 64) != 0) {
+      if (XMEMCMP(tmp, tests[i].hash, 64) != 0) {
          return CRYPT_FAIL_TESTVECTOR;
       }
   }

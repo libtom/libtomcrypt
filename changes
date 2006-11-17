@@ -1,3 +1,44 @@
+November 17th, 2006
+v1.15 -- Andreas Lange found that if sha256_init DID fail in fortuna it wouldn't clean up the state correctly.  Thanks.
+         Fortunately sha256_init cannot fail (as of v1.14) :-)
+      -- Andreas Lange contributed RMD-256 and RMD-320 code.
+      -- Removed mutex locks from fortuna_import as they create a deadlock and aren't required anyways [Avi Zelmanovich]
+      -- Added LTC_NO_PROTOTYPES to avoid prototyping functions like memset/memcpy.  Required for fans of GCC 3.3.x
+      -- David Eder caught a off by one overrun bug in pmac_done() which can be exploited if your output tag buffer is 
+         smaller than the block size of the cipher, e.g. if you have a 4-byte buffer and you tell pmac_done that you want
+         a 4-byte TAG it will store 4 bytes but return an outlen of 5.
+      -- Added signatures to the ECC and RSA benchmarks
+      -- Added LTC_PROFILE to run the PK tests only once in the timing demo (so you can capture events properly)
+      -- Andreas contributed PKCS #1 v1.5 code that merged cleanly with the existing PKCS code.  w00t.
+         (update: I had to fix it to include the digestInfo and what not.  Bad Andreas, bad! hehehe)
+      -- Fixed a signed variable error in gcm_process() (hard to trigger bug fortunately)
+      -- Removed all memcmp/memset/memcpy from the source (replaced with X macros)
+      -- Renamed macros HMAC/OMAC/PMAC to have a LTC_ prefix.  If you pass these on the command line please update your makefiles
+      -- Added XCBC-MAC support [RFC 3566]
+      -- fixed LOAD32H and LOAD64H to stop putting out that darn warning :-)
+      -- Added the Korean SEED block cipher [RFC 4269]
+      -- Added LTC_VALGRIND define which makes SOBER-128 and RC4 a pure PRNG (and not a stream cipher).  Useful if you use 
+         Valgrind to debug your code (reported by Andreas Lange)
+      -- Made SOBER-128 more portable by removing the ASCII key in the test function (my bad, sorry).
+      -- Martin Mocko pointed out that if you have no PRNGs defined the lib won't build.  Fixed, also fixed for if you have no
+         hashes defined.
+      -- Sped up F8 mode with LTC_FAST
+      -- Made CTR mode RFC 3686 compliant (increment counter first), to enable, OR the value LTC_CTR_RFC3686 to the "mode"
+         parameter you pass to ctr_start(), otherwise it will be LTC compliant (e.g. encrypt then increment)
+      -- Added ctr_test() to test CTR mode against RFC 3686
+      -- Added crypt_fsa() ... O_o
+      -- Fixed LTC_ECC_TIMING_RESISTANT so it once again builds properly (pt add/dbl are through the plugin now)
+      -- Added ANSI X9.63 (sec 4.3.6) import/export of public keys (cannot export to compressed formats but will import 
+         hybrid compressed)
+      -- Added SECP curves for 112, 128, and 160 bits (only the 'r1' curves)
+      -- Added 3GPP-F9 MAC (thanks to Greg Rose for the test vectors)
+      -- Added the KASUMI block cipher
+      -- Added F9/XCBC/OMAC callbacks to the cipher plugin
+      -- Added RSA PKCS #1 v1.5 signature/encrypt tests to rsa_test.c
+      -- Fix to yarrow_test() to not call yarrow_done() which is invalid in that context (thanks Valgrind)
+      -- Christophe Devine pointed out that Anubis would fail on various 64-bit UNIX boxes when "x>>24" was used as an index, we needed 
+         to mask it with 0xFF.  Thanks.  Fixed.
+
 August 0x1E, 0x07D6
 v1.14 -- Renamed the chaining mode macros from XXX to LTC_XXX_MODE.  Should help avoid polluting the macro name space.
       -- clean up of SHA-256
@@ -18,7 +59,7 @@ v1.14 -- Renamed the chaining mode macros from XXX to LTC_XXX_MODE.  Should help
       -- Minor updates to the technotes.
 
 
-June 17th, 2005
+June 17th, 2006
 v1.13 -- Fixed to fortuna_start() to clean up state if an error occurs.  Not really useful at this stage (sha256 can't fail) but useful
          if I ever make fortuna pluggable
       -- Mike Marin submitted a whole bunch of patches for fixing up the libs on traditional UNIX platforms.  Go AIX!  Thanks!
@@ -1484,6 +1525,6 @@ v0.02  -- Changed RC5 to only allow 12 to 24 rounds
 v0.01  -- We will call this the first version.
 
 /* $Source: /cvs/libtom/libtomcrypt/changes,v $ */
-/* $Revision: 1.224 $ */
-/* $Date: 2006/08/30 23:23:20 $ */
+/* $Revision: 1.257 $ */
+/* $Date: 2006/11/17 15:18:44 $ */
 

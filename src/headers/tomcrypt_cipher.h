@@ -37,6 +37,20 @@ struct rijndael_key {
 };
 #endif
 
+#ifdef KSEED
+struct kseed_key {
+    ulong32 K[32], dK[32];
+};
+#endif
+
+#ifdef LTC_KASUMI
+struct kasumi_key {
+    ulong32 KLi1[8], KLi2[8],
+            KOi1[8], KOi2[8], KOi3[8],
+            KIi1[8], KIi2[8], KIi3[8];
+};
+#endif
+
 #ifdef XTEA
 struct xtea_key {
    unsigned long A[32], B[32];
@@ -164,6 +178,12 @@ typedef union Symmetric_key {
 #ifdef ANUBIS
    struct anubis_key   anubis;
 #endif
+#ifdef KSEED
+   struct kseed_key    kseed;
+#endif
+#ifdef LTC_KASUMI
+   struct kasumi_key   kasumi;
+#endif  
    void   *data;
 } symmetric_key;
 
@@ -445,18 +465,18 @@ extern struct ltc_cipher_descriptor {
                        int  direction);
 
    /** Accelerated GCM packet (one shot)
-       @param key               The secret key
-       @param keylen            The length of the secret key
-       @param IV                The initial vector 
-       @param IVlen             The length of the initial vector
-       @param adata             The additional authentication data (header)
-       @param adatalen          The length of the adata
-       @param pt                The plaintext
-       @param ptlen             The length of the plaintext (ciphertext length is the same)
-       @param ct                The ciphertext
-       @param tag               [out] The MAC tag
-       @param taglen            [in/out] The MAC tag length
-       @param direction         Encrypt or Decrypt mode (GCM_ENCRYPT or GCM_DECRYPT)
+       @param key        The secret key
+       @param keylen     The length of the secret key
+       @param IV         The initial vector 
+       @param IVlen      The length of the initial vector
+       @param adata      The additional authentication data (header)
+       @param adatalen   The length of the adata
+       @param pt         The plaintext
+       @param ptlen      The length of the plaintext (ciphertext length is the same)
+       @param ct         The ciphertext
+       @param tag        [out] The MAC tag
+       @param taglen     [in/out] The MAC tag length
+       @param direction  Encrypt or Decrypt mode (GCM_ENCRYPT or GCM_DECRYPT)
        @return CRYPT_OK on success
    */
    int (*accel_gcm_memory)(
@@ -467,6 +487,49 @@ extern struct ltc_cipher_descriptor {
              unsigned char *ct, 
              unsigned char *tag,    unsigned long *taglen,
                        int direction);
+
+   /** Accelerated one shot OMAC 
+       @param key            The secret key
+       @param keylen         The key length (octets) 
+       @param in             The message 
+       @param inlen          Length of message (octets)
+       @param out            [out] Destination for tag
+       @param outlen         [in/out] Initial and final size of out
+       @return CRYPT_OK on success
+   */
+   int (*omac_memory)(
+       const unsigned char *key, unsigned long keylen,
+       const unsigned char *in,  unsigned long inlen,
+             unsigned char *out, unsigned long *outlen);
+
+   /** Accelerated one shot XCBC 
+       @param key            The secret key
+       @param keylen         The key length (octets) 
+       @param in             The message 
+       @param inlen          Length of message (octets)
+       @param out            [out] Destination for tag
+       @param outlen         [in/out] Initial and final size of out
+       @return CRYPT_OK on success
+   */
+   int (*xcbc_memory)(
+       const unsigned char *key, unsigned long keylen,
+       const unsigned char *in,  unsigned long inlen,
+             unsigned char *out, unsigned long *outlen);
+
+   /** Accelerated one shot F9 
+       @param key            The secret key
+       @param keylen         The key length (octets) 
+       @param in             The message 
+       @param inlen          Length of message (octets)
+       @param out            [out] Destination for tag
+       @param outlen         [in/out] Initial and final size of out
+       @return CRYPT_OK on success
+       @remark Requires manual padding
+   */
+   int (*f9_memory)(
+       const unsigned char *key, unsigned long keylen,
+       const unsigned char *in,  unsigned long inlen,
+             unsigned char *out, unsigned long *outlen);
 } cipher_descriptor[];
 
 #ifdef BLOWFISH
@@ -649,6 +712,26 @@ int anubis_keysize(int *keysize);
 extern const struct ltc_cipher_descriptor anubis_desc;
 #endif
 
+#ifdef KSEED
+int kseed_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_key *skey);
+int kseed_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey);
+int kseed_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey);
+int kseed_test(void);
+void kseed_done(symmetric_key *skey);
+int kseed_keysize(int *keysize);
+extern const struct ltc_cipher_descriptor kseed_desc;
+#endif
+
+#ifdef LTC_KASUMI
+int kasumi_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_key *skey);
+int kasumi_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey);
+int kasumi_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey);
+int kasumi_test(void);
+void kasumi_done(symmetric_key *skey);
+int kasumi_keysize(int *keysize);
+extern const struct ltc_cipher_descriptor kasumi_desc;
+#endif
+
 #ifdef LTC_ECB_MODE
 int ecb_start(int cipher, const unsigned char *key, 
               int keylen, int num_rounds, symmetric_ECB *ecb);
@@ -691,6 +774,7 @@ int cbc_done(symmetric_CBC *cbc);
 
 #define CTR_COUNTER_LITTLE_ENDIAN    0
 #define CTR_COUNTER_BIG_ENDIAN       1
+#define LTC_CTR_RFC3686              2
 
 int ctr_start(               int   cipher,
               const unsigned char *IV,
@@ -702,6 +786,7 @@ int ctr_decrypt(const unsigned char *ct, unsigned char *pt, unsigned long len, s
 int ctr_getiv(unsigned char *IV, unsigned long *len, symmetric_CTR *ctr);
 int ctr_setiv(const unsigned char *IV, unsigned long len, symmetric_CTR *ctr);
 int ctr_done(symmetric_CTR *ctr);
+int ctr_test(void);
 #endif
 
 #ifdef LTC_LRW_MODE

@@ -43,7 +43,41 @@ int f8_encrypt(const unsigned char *pt, unsigned char *ct, unsigned long len, sy
    }
    
    zeromem(buf, sizeof(buf));
-   while (len-- > 0) {
+
+   /* make sure the pad is empty */
+   if (f8->padlen == f8->blocklen) {
+      /* xor of IV, MIV and blockcnt == what goes into cipher */
+      STORE32H(f8->blockcnt, (buf+(f8->blocklen-4)));
+      ++(f8->blockcnt);
+      for (x = 0; x < f8->blocklen; x++) {
+          f8->IV[x] ^= f8->MIV[x] ^ buf[x];
+      }
+      if ((err = cipher_descriptor[f8->cipher].ecb_encrypt(f8->IV, f8->IV, &f8->key)) != CRYPT_OK) {
+         return err;
+      }
+      f8->padlen = 0;
+   }
+
+#ifdef LTC_FAST
+   if (f8->padlen == 0) {
+      while (len >= (unsigned long)f8->blocklen) {
+         STORE32H(f8->blockcnt, (buf+(f8->blocklen-4)));
+         ++(f8->blockcnt);
+         for (x = 0; x < f8->blocklen; x += sizeof(LTC_FAST_TYPE)) {
+             *((LTC_FAST_TYPE*)(&ct[x])) = *((LTC_FAST_TYPE*)(&pt[x])) ^ *((LTC_FAST_TYPE*)(&f8->IV[x]));
+             *((LTC_FAST_TYPE*)(&f8->IV[x])) ^= *((LTC_FAST_TYPE*)(&f8->MIV[x])) ^ *((LTC_FAST_TYPE*)(&buf[x]));
+         }
+         if ((err = cipher_descriptor[f8->cipher].ecb_encrypt(f8->IV, f8->IV, &f8->key)) != CRYPT_OK) {
+            return err;
+         }
+         len -= x;
+         pt  += x;
+         ct  += x;
+      }
+   }
+#endif             
+
+   while (len > 0) {
        if (f8->padlen == f8->blocklen) {
           /* xor of IV, MIV and blockcnt == what goes into cipher */
           STORE32H(f8->blockcnt, (buf+(f8->blocklen-4)));
@@ -57,6 +91,7 @@ int f8_encrypt(const unsigned char *pt, unsigned char *ct, unsigned long len, sy
           f8->padlen = 0;
        }
        *ct++ = *pt++ ^ f8->IV[f8->padlen++];
+       --len;
    }
    return CRYPT_OK;
 }

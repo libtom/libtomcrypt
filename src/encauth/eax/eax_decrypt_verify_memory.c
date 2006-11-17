@@ -84,7 +84,7 @@ int eax_decrypt_verify_memory(int cipher,
    }
 
    /* compare tags */
-   if (buflen >= taglen && memcmp(buf, tag, taglen) == 0) {
+   if (buflen >= taglen && XMEMCMP(buf, tag, taglen) == 0) {
       *stat = 1;
    }
    

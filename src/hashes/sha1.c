@@ -271,7 +271,7 @@ int  sha1_test(void)
       sha1_init(&md);
       sha1_process(&md, (unsigned char*)tests[i].msg, (unsigned long)strlen(tests[i].msg));
       sha1_done(&md, tmp);
-      if (memcmp(tmp, tests[i].hash, 20) != 0) {
+      if (XMEMCMP(tmp, tests[i].hash, 20) != 0) {
          return CRYPT_FAIL_TESTVECTOR;
       }
   }

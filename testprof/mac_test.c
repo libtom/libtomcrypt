@@ -3,14 +3,20 @@
 
 int mac_test(void)
 {
-#ifdef HMAC
+#ifdef LTC_HMAC
    DO(hmac_test()); 
 #endif
-#ifdef PMAC
+#ifdef LTC_PMAC
    DO(pmac_test()); 
 #endif
-#ifdef OMAC
+#ifdef LTC_OMAC
    DO(omac_test()); 
+#endif
+#ifdef LTC_XCBC
+   DO(xcbc_test());
+#endif
+#ifdef LTC_F9_MODE
+   DO(f9_test());
 #endif
 #ifdef EAX_MODE
    DO(eax_test());  

@@ -28,7 +28,7 @@ const struct ltc_cipher_descriptor skipjack_desc =
     &skipjack_test,
     &skipjack_done,
     &skipjack_keysize,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
 };
 
 static const unsigned char sbox[256] = {
@@ -298,7 +298,7 @@ int skipjack_test(void)
       skipjack_ecb_decrypt(buf[0], buf[1], &key);
 
       /* compare */
-      if (memcmp(buf[0], tests[x].ct, 8) != 0 || memcmp(buf[1], tests[x].pt, 8) != 0) {
+      if (XMEMCMP(buf[0], tests[x].ct, 8) != 0 || XMEMCMP(buf[1], tests[x].pt, 8) != 0) {
          return CRYPT_FAIL_TESTVECTOR;
       }
 

@@ -15,7 +15,7 @@
   OMAC1 support, terminate a stream, Tom St Denis
 */
 
-#ifdef OMAC
+#ifdef LTC_OMAC
 
 /**
   Terminate an OMAC stream

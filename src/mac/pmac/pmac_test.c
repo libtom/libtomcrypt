@@ -16,7 +16,7 @@
 */
 
 
-#ifdef PMAC
+#ifdef LTC_PMAC
 
 /** 
    Test the OMAC implementation
@@ -138,7 +138,7 @@ int pmac_test(void)
            return err;
         }
         
-        if (memcmp(outtag, tests[x].tag, len)) {
+        if (XMEMCMP(outtag, tests[x].tag, len)) {
 #if 0
            unsigned long y;
            printf("\nTAG:\n");

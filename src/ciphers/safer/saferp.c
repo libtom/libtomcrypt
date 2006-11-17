@@ -28,7 +28,7 @@ const struct ltc_cipher_descriptor saferp_desc =
     &saferp_test,
     &saferp_done,
     &saferp_keysize,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
 };
 
 /* ROUND(b,i) 
@@ -507,7 +507,7 @@ int saferp_test(void)
       saferp_ecb_decrypt(tmp[0], tmp[1], &skey);
 
       /* compare */
-      if (memcmp(tmp[0], tests[i].ct, 16) || memcmp(tmp[1], tests[i].pt, 16)) { 
+      if (XMEMCMP(tmp[0], tests[i].ct, 16) || XMEMCMP(tmp[1], tests[i].pt, 16)) { 
          return CRYPT_FAIL_TESTVECTOR;
       }
 

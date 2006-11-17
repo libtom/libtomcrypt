@@ -45,27 +45,42 @@ int rsa_exptmod(const unsigned char *in,   unsigned long inlen,
 void rsa_free(rsa_key *key);
 
 /* These use PKCS #1 v2.0 padding */
-int rsa_encrypt_key(const unsigned char *in,     unsigned long inlen,
-                          unsigned char *out,    unsigned long *outlen,
-                    const unsigned char *lparam, unsigned long lparamlen,
-                    prng_state *prng, int prng_idx, int hash_idx, rsa_key *key);
-                                        
-int rsa_decrypt_key(const unsigned char *in,       unsigned long inlen,
-                          unsigned char *out,      unsigned long *outlen, 
-                    const unsigned char *lparam,   unsigned long lparamlen,
-                          int            hash_idx, int *stat,
-                          rsa_key       *key);
+#define rsa_encrypt_key(_in, _inlen, _out, _outlen, _lparam, _lparamlen, _prng, _prng_idx, _hash_idx, _key) \
+  rsa_encrypt_key_ex(_in, _inlen, _out, _outlen, _lparam, _lparamlen, _prng, _prng_idx, _hash_idx, LTC_PKCS_1_OAEP, _key)
 
-int rsa_sign_hash(const unsigned char *in,     unsigned long  inlen, 
-                        unsigned char *out,    unsigned long *outlen, 
-                        prng_state    *prng,     int            prng_idx,
-                        int            hash_idx, unsigned long  saltlen,
-                        rsa_key *key);
+#define rsa_decrypt_key(_in, _inlen, _out, _outlen, _lparam, _lparamlen, _hash_idx, _stat, _key) \
+  rsa_decrypt_key_ex(_in, _inlen, _out, _outlen, _lparam, _lparamlen, _hash_idx, LTC_PKCS_1_OAEP, _stat, _key)
 
-int rsa_verify_hash(const unsigned char *sig,      unsigned long siglen,
-                    const unsigned char *hash,     unsigned long hashlen,
-                          int            hash_idx, unsigned long saltlen,
-                          int           *stat,     rsa_key      *key);
+#define rsa_sign_hash(_in, _inlen, _out, _outlen, _prng, _prng_idx, _hash_idx, _saltlen, _key) \
+  rsa_sign_hash_ex(_in, _inlen, _out, _outlen, LTC_PKCS_1_PSS, _prng, _prng_idx, _hash_idx, _saltlen, _key)
+
+#define rsa_verify_hash(_sig, _siglen, _hash, _hashlen, _hash_idx, _saltlen, _stat, _key) \
+  rsa_verify_hash_ex(_sig, _siglen, _hash, _hashlen, LTC_PKCS_1_PSS, _hash_idx, _saltlen, _stat, _key)
+
+/* These can be switched between PKCS #1 v2.x and PKCS #1 v1.5 paddings */
+int rsa_encrypt_key_ex(const unsigned char *in,     unsigned long inlen,
+                             unsigned char *out,    unsigned long *outlen,
+                       const unsigned char *lparam, unsigned long lparamlen,
+                       prng_state *prng, int prng_idx, int hash_idx, int padding, rsa_key *key);
+
+int rsa_decrypt_key_ex(const unsigned char *in,       unsigned long  inlen,
+                             unsigned char *out,      unsigned long *outlen,
+                       const unsigned char *lparam,   unsigned long  lparamlen,
+                             int            hash_idx, int            padding,
+                             int           *stat,     rsa_key       *key);
+
+int rsa_sign_hash_ex(const unsigned char *in,       unsigned long  inlen,
+                           unsigned char *out,      unsigned long *outlen,
+                           int            padding,
+                           prng_state    *prng,     int            prng_idx,
+                           int            hash_idx, unsigned long  saltlen,
+                           rsa_key *key);
+
+int rsa_verify_hash_ex(const unsigned char *sig,      unsigned long siglen,
+                       const unsigned char *hash,     unsigned long hashlen,
+                             int            padding,
+                             int            hash_idx, unsigned long saltlen,
+                             int           *stat,     rsa_key      *key);
 
 /* PKCS #1 import/export */
 int rsa_export(unsigned char *out, unsigned long *outlen, int type, rsa_key *key);
@@ -200,6 +215,9 @@ void ecc_free(ecc_key *key);
 
 int  ecc_export(unsigned char *out, unsigned long *outlen, int type, ecc_key *key);
 int  ecc_import(const unsigned char *in, unsigned long inlen, ecc_key *key);
+
+int ecc_ansi_x963_export(ecc_key *key, unsigned char *out, unsigned long *outlen);
+int ecc_ansi_x963_import(const unsigned char *in, unsigned long inlen, ecc_key *key);
 
 int  ecc_shared_secret(ecc_key *private_key, ecc_key *public_key, 
                        unsigned char *out, unsigned long *outlen);

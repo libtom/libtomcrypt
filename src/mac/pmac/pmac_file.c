@@ -15,7 +15,7 @@
    PMAC implementation, process a file, by Tom St Denis 
 */
 
-#ifdef PMAC
+#ifdef LTC_PMAC
 
 /**
    PMAC a file 

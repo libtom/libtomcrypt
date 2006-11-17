@@ -15,7 +15,7 @@
    PMAC implementation, internal function, by Tom St Denis 
 */
 
-#ifdef PMAC
+#ifdef LTC_PMAC
 
 /**
   Internal function.  Performs the state update (adding correct multiple)
