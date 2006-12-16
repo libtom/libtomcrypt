@@ -64,7 +64,7 @@ int f9_file(int cipher,
    } while (x == sizeof(buf));
    fclose(in);
 
-   if ((err = f9_done(&f9, 	out, outlen)) != CRYPT_OK) {
+   if ((err = f9_done(&f9,    out, outlen)) != CRYPT_OK) {
       return err;
    }
 

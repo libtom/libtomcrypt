@@ -32,10 +32,11 @@ int ltc_ecc_is_valid_idx(int n)
    int x;
 
    for (x = 0; ltc_ecc_sets[x].size != 0; x++);
-   if ((n < 0) || (n >= x)) {
-      return 0;
+   /* -1 is a valid index --- indicating that the domain params were supplied by the user */
+   if ((n >= -1) || (n < x)) {
+      return 1;
    }
-   return 1;
+   return 0;
 }
 
 #endif

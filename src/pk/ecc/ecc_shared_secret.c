@@ -34,10 +34,10 @@
 int ecc_shared_secret(ecc_key *private_key, ecc_key *public_key,
                       unsigned char *out, unsigned long *outlen)
 {
-   unsigned long x;
-   ecc_point *result;
-   void *prime;
-   int err;
+   unsigned long  x;
+   ecc_point     *result;
+   void          *prime;
+   int            err;
 
    LTC_ARGCHK(private_key != NULL);
    LTC_ARGCHK(public_key  != NULL);
@@ -49,11 +49,11 @@ int ecc_shared_secret(ecc_key *private_key, ecc_key *public_key,
       return CRYPT_PK_NOT_PRIVATE;
    }
 
-   if (ltc_ecc_is_valid_idx(private_key->idx) == 0) {
+   if (ltc_ecc_is_valid_idx(private_key->idx) == 0 || ltc_ecc_is_valid_idx(public_key->idx) == 0) {
       return CRYPT_INVALID_ARG;
    }
 
-   if (private_key->idx != public_key->idx) {
+   if (XSTRCMP(private_key->dp->name, public_key->dp->name) != 0) {
       return CRYPT_PK_TYPE_MISMATCH;
    }
 
@@ -68,7 +68,7 @@ int ecc_shared_secret(ecc_key *private_key, ecc_key *public_key,
       return err;
    }
 
-   if ((err = mp_read_radix(prime, (char *)ltc_ecc_sets[private_key->idx].prime, 16)) != CRYPT_OK)                 { goto done; }
+   if ((err = mp_read_radix(prime, (char *)private_key->dp->prime, 16)) != CRYPT_OK)                               { goto done; }
    if ((err = ltc_mp.ecc_ptmul(private_key->k, &public_key->pubkey, result, prime, 1)) != CRYPT_OK)                { goto done; }
 
    x = (unsigned long)mp_unsigned_bin_size(prime);

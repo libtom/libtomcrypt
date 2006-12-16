@@ -52,11 +52,11 @@ int der_encode_sequence_ex(ltc_asn1_list *list, unsigned long inlen,
 
        switch (type) {
             case LTC_ASN1_BOOLEAN:
-	            if ((err = der_length_boolean(&x)) != CRYPT_OK) {
-	               goto LBL_ERR;
-	            }
-	            y += x;
-	            break;
+               if ((err = der_length_boolean(&x)) != CRYPT_OK) {
+                  goto LBL_ERR;
+               }
+               y += x;
+               break;
 
            case LTC_ASN1_INTEGER:
                if ((err = der_length_integer(data, &x)) != CRYPT_OK) {
@@ -106,6 +106,13 @@ int der_encode_sequence_ex(ltc_asn1_list *list, unsigned long inlen,
 
            case LTC_ASN1_PRINTABLE_STRING:
                if ((err = der_length_printable_string(data, size, &x)) != CRYPT_OK) {
+                  goto LBL_ERR;
+               }
+               y += x;
+               break;
+
+           case LTC_ASN1_UTF8_STRING:
+               if ((err = der_length_utf8_string(data, size, &x)) != CRYPT_OK) {
                   goto LBL_ERR;
                }
                y += x;
@@ -163,19 +170,19 @@ int der_encode_sequence_ex(ltc_asn1_list *list, unsigned long inlen,
    out[x++] = (type_of == LTC_ASN1_SEQUENCE) ? 0x30 : 0x31;
       
    if (z < 128) {
-      out[x++] = z;
+      out[x++] = (unsigned char)z;
    } else if (z < 256) {
       out[x++] = 0x81;
-      out[x++] = z;
+      out[x++] = (unsigned char)z;
    } else if (z < 65536UL) {
       out[x++] = 0x82;
-      out[x++] = (z>>8UL)&255;
-      out[x++] = z&255;
+      out[x++] = (unsigned char)((z>>8UL)&255);
+      out[x++] = (unsigned char)(z&255);
    } else if (z < 16777216UL) {
       out[x++] = 0x83;
-      out[x++] = (z>>16UL)&255;
-      out[x++] = (z>>8UL)&255;
-      out[x++] = z&255;
+      out[x++] = (unsigned char)((z>>16UL)&255);
+      out[x++] = (unsigned char)((z>>8UL)&255);
+      out[x++] = (unsigned char)(z&255);
    }
 
    /* store data */
@@ -191,14 +198,14 @@ int der_encode_sequence_ex(ltc_asn1_list *list, unsigned long inlen,
 
        switch (type) {
             case LTC_ASN1_BOOLEAN:
-	            z = *outlen;
-	            if ((err = der_encode_boolean(*((int *)data), out + x, &z)) != CRYPT_OK) {
-	               goto LBL_ERR;
-	            }
-	            x       += z;
-	            *outlen -= z;
-	            break;
-	       
+               z = *outlen;
+               if ((err = der_encode_boolean(*((int *)data), out + x, &z)) != CRYPT_OK) {
+                  goto LBL_ERR;
+               }
+               x       += z;
+               *outlen -= z;
+               break;
+          
            case LTC_ASN1_INTEGER:
                z = *outlen;
                if ((err = der_encode_integer(data, out + x, &z)) != CRYPT_OK) {
@@ -262,6 +269,15 @@ int der_encode_sequence_ex(ltc_asn1_list *list, unsigned long inlen,
            case LTC_ASN1_PRINTABLE_STRING:
                z = *outlen;
                if ((err = der_encode_printable_string(data, size, out + x, &z)) != CRYPT_OK) {
+                  goto LBL_ERR;
+               }
+               x       += z;
+               *outlen -= z;
+               break;
+
+           case LTC_ASN1_UTF8_STRING:
+               z = *outlen;
+               if ((err = der_encode_utf8_string(data, size, out + x, &z)) != CRYPT_OK) {
                   goto LBL_ERR;
                }
                x       += z;

@@ -92,13 +92,13 @@ int ctr_encrypt(const unsigned char *pt, unsigned char *ct, unsigned long len, s
             *((LTC_FAST_TYPE*)((unsigned char *)ct + x)) = *((LTC_FAST_TYPE*)((unsigned char *)pt + x)) ^
                                                            *((LTC_FAST_TYPE*)((unsigned char *)ctr->pad + x));
          }
-	    pt         += ctr->blocklen;
-	    ct         += ctr->blocklen;
-	    len        -= ctr->blocklen;
-	    ctr->padlen = ctr->blocklen;
-	    continue;
-	   }
-#endif	 
+       pt         += ctr->blocklen;
+       ct         += ctr->blocklen;
+       len        -= ctr->blocklen;
+       ctr->padlen = ctr->blocklen;
+       continue;
+      }
+#endif    
       *ct++ = *pt++ ^ ctr->pad[ctr->padlen++];
       --len;
    }

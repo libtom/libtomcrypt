@@ -12,7 +12,7 @@
 
 /**
   @file f9_process.c
-  f9 Support, terminate the state
+  f9 Support, Process a block through F9-MAC
 */
 
 #ifdef LTC_F9_MODE

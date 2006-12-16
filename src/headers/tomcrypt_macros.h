@@ -72,9 +72,9 @@
 #define STORE32H(x, y)           \
 asm __volatile__ (               \
    "bswapl %0     \n\t"          \
-   "movl   %0,(%2)\n\t"          \
+   "movl   %0,(%1)\n\t"          \
    "bswapl %0     \n\t"          \
-      :"=r"(x):"0"(x), "r"(y));
+      ::"r"(x), "r"(y));
 
 #define LOAD32H(x, y)          \
 asm __volatile__ (             \
@@ -103,9 +103,9 @@ asm __volatile__ (             \
 #define STORE64H(x, y)           \
 asm __volatile__ (               \
    "bswapq %0     \n\t"          \
-   "movq   %0,(%2)\n\t"          \
+   "movq   %0,(%1)\n\t"          \
    "bswapq %0     \n\t"          \
-      :"=r"(x):"0"(x), "r"(y):"0");
+      ::"r"(x), "r"(y));
 
 #define LOAD64H(x, y)          \
 asm __volatile__ (             \
@@ -132,10 +132,10 @@ asm __volatile__ (             \
 #ifdef ENDIAN_32BITWORD 
 
 #define STORE32L(x, y)        \
-     { ulong32  __t = (x); memcpy(y, &__t, 4); }
+     { ulong32  __t = (x); XMEMCPY(y, &__t, 4); }
 
 #define LOAD32L(x, y)         \
-     memcpy(&(x), y, 4);
+     XMEMCPY(&(x), y, 4);
 
 #define STORE64L(x, y)                                                                     \
      { (y)[7] = (unsigned char)(((x)>>56)&255); (y)[6] = (unsigned char)(((x)>>48)&255);   \
@@ -152,16 +152,16 @@ asm __volatile__ (             \
 #else /* 64-bit words then  */
 
 #define STORE32L(x, y)        \
-     { ulong32 __t = (x); memcpy(y, &__t, 4); }
+     { ulong32 __t = (x); XMEMCPY(y, &__t, 4); }
 
 #define LOAD32L(x, y)         \
-     { memcpy(&(x), y, 4); x &= 0xFFFFFFFF; }
+     { XMEMCPY(&(x), y, 4); x &= 0xFFFFFFFF; }
 
 #define STORE64L(x, y)        \
-     { ulong64 __t = (x); memcpy(y, &__t, 8); }
+     { ulong64 __t = (x); XMEMCPY(y, &__t, 8); }
 
 #define LOAD64L(x, y)         \
-    { memcpy(&(x), y, 8); }
+    { XMEMCPY(&(x), y, 8); }
 
 #endif /* ENDIAN_64BITWORD */
 
@@ -193,10 +193,10 @@ asm __volatile__ (             \
 #ifdef ENDIAN_32BITWORD 
 
 #define STORE32H(x, y)        \
-     { ulong32 __t = (x); memcpy(y, &__t, 4); }
+     { ulong32 __t = (x); XMEMCPY(y, &__t, 4); }
 
 #define LOAD32H(x, y)         \
-     memcpy(&(x), y, 4);
+     XMEMCPY(&(x), y, 4);
 
 #define STORE64H(x, y)                                                                     \
      { (y)[0] = (unsigned char)(((x)>>56)&255); (y)[1] = (unsigned char)(((x)>>48)&255);   \
@@ -213,16 +213,16 @@ asm __volatile__ (             \
 #else /* 64-bit words then  */
 
 #define STORE32H(x, y)        \
-     { ulong32 __t = (x); memcpy(y, &__t, 4); }
+     { ulong32 __t = (x); XMEMCPY(y, &__t, 4); }
 
 #define LOAD32H(x, y)         \
-     { memcpy(&(x), y, 4); x &= 0xFFFFFFFF; }
+     { XMEMCPY(&(x), y, 4); x &= 0xFFFFFFFF; }
 
 #define STORE64H(x, y)        \
-     { ulong64 __t = (x); memcpy(y, &__t, 8); }
+     { ulong64 __t = (x); XMEMCPY(y, &__t, 8); }
 
 #define LOAD64H(x, y)         \
-    { memcpy(&(x), y, 8); }
+    { XMEMCPY(&(x), y, 8); }
 
 #endif /* ENDIAN_64BITWORD */
 #endif /* ENDIAN_BIG */

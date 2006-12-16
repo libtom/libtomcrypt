@@ -35,7 +35,7 @@
 int ltc_ecc_projective_add_point(ecc_point *P, ecc_point *Q, ecc_point *R, void *modulus, void *mp)
 {
    void  *t1, *t2, *x, *y, *z;
-   int err;
+   int    err;
 
    LTC_ARGCHK(P       != NULL);
    LTC_ARGCHK(Q       != NULL);
@@ -183,7 +183,6 @@ int ltc_ecc_projective_add_point(ecc_point *P, ecc_point *Q, ecc_point *R, void 
    if ((err = mp_copy(z, R->z)) != CRYPT_OK)                                   { goto done; }
 
    err = CRYPT_OK;
-   goto done;
 done:
    mp_clear_multi(t1, t2, x, y, z, NULL);
    return err;

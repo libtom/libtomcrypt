@@ -95,15 +95,15 @@ int der_decode_sequence_ex(const unsigned char *in, unsigned long  inlen,
 
        switch (type) {
            case LTC_ASN1_BOOLEAN:
-	            z = inlen;
-	            if ((err = der_decode_boolean(in + x, z, ((int *)data))) != CRYPT_OK) {
-	                goto LBL_ERR;
-	            }
-	            if ((err = der_length_boolean(&z)) != CRYPT_OK) {
-	                goto LBL_ERR;
-	             }
-	             break;
-	       
+               z = inlen;
+               if ((err = der_decode_boolean(in + x, z, ((int *)data))) != CRYPT_OK) {
+                   goto LBL_ERR;
+               }
+               if ((err = der_length_boolean(&z)) != CRYPT_OK) {
+                   goto LBL_ERR;
+                }
+                break;
+          
            case LTC_ASN1_INTEGER:
                z = inlen;
                if ((err = der_decode_integer(in + x, z, data)) != CRYPT_OK) {
@@ -193,6 +193,18 @@ int der_decode_sequence_ex(const unsigned char *in, unsigned long  inlen,
                }
                list[i].size = size;
                if ((err = der_length_printable_string(data, size, &z)) != CRYPT_OK) {
+                  goto LBL_ERR;
+               }
+               break;
+
+           case LTC_ASN1_UTF8_STRING:
+               z = inlen;
+               if ((err = der_decode_utf8_string(in + x, z, data, &size)) != CRYPT_OK) {
+                  if (!ordered) { continue; }
+                  goto LBL_ERR;
+               }
+               list[i].size = size;
+               if ((err = der_length_utf8_string(data, size, &z)) != CRYPT_OK) {
                   goto LBL_ERR;
                }
                break;

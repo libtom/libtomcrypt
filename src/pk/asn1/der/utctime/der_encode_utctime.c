@@ -69,7 +69,7 @@ int der_encode_utctime(ltc_utctime *utctime,
     }
 
     /* store length */
-    out[1] = x - 2;
+    out[1] = (unsigned char)(x - 2);
    
     /* all good let's return */
     *outlen = x;

@@ -54,11 +54,12 @@ int dsa_make_key(prng_state *prng, int wprng, int group_size, int modulus_size, 
 
    /* init mp_ints  */
    if ((err = mp_init_multi(&tmp, &tmp2, &key->g, &key->q, &key->p, &key->x, &key->y, NULL)) != CRYPT_OK) {
-      goto LBL_ERR;
+      XFREE(buf);
+      return err;
    }
 
    /* make our prime q */
-   if ((err = rand_prime(key->q, group_size, prng, wprng)) != CRYPT_OK)             { goto LBL_ERR; }
+   if ((err = rand_prime(key->q, group_size, prng, wprng)) != CRYPT_OK)                { goto error; }
 
    /* double q  */
    if ((err = mp_add(key->q, key->q, tmp)) != CRYPT_OK)                                { goto error; }
@@ -66,7 +67,7 @@ int dsa_make_key(prng_state *prng, int wprng, int group_size, int modulus_size, 
    /* now make a random string and multply it against q */
    if (prng_descriptor[wprng].read(buf+1, modulus_size - group_size, prng) != (unsigned long)(modulus_size - group_size)) {
       err = CRYPT_ERROR_READPRNG;
-      goto LBL_ERR;
+      goto error;
    }
 
    /* force magnitude */
@@ -81,7 +82,7 @@ int dsa_make_key(prng_state *prng, int wprng, int group_size, int modulus_size, 
 
    /* now loop until p is prime */
    for (;;) {
-       if ((err = mp_prime_is_prime(key->p, 8, &res)) != CRYPT_OK)                     { goto LBL_ERR; }
+       if ((err = mp_prime_is_prime(key->p, 8, &res)) != CRYPT_OK)                     { goto error; }
        if (res == LTC_MP_YES) break;
 
        /* add 2q to p and 2 to tmp2 */
@@ -106,7 +107,7 @@ int dsa_make_key(prng_state *prng, int wprng, int group_size, int modulus_size, 
    do {
       if (prng_descriptor[wprng].read(buf, group_size, prng) != (unsigned long)group_size) {
          err = CRYPT_ERROR_READPRNG;
-         goto LBL_ERR;
+         goto error;
       }
       if ((err = mp_read_unsigned_bin(key->x, buf, group_size)) != CRYPT_OK)           { goto error; }
    } while (mp_cmp_d(key->x, 1) != LTC_MP_GT);
@@ -122,11 +123,9 @@ int dsa_make_key(prng_state *prng, int wprng, int group_size, int modulus_size, 
    err = CRYPT_OK;
    goto done;
 error: 
-LBL_ERR: 
     mp_clear_multi(key->g, key->q, key->p, key->x, key->y, NULL);
 done: 
     mp_clear_multi(tmp, tmp2, NULL);
-
     XFREE(buf);
     return err;
 }

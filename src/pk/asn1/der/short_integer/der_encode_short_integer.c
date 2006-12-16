@@ -70,7 +70,7 @@ int der_encode_short_integer(unsigned long num, unsigned char *out, unsigned lon
    /* store header */
    x = 0;
    out[x++] = 0x02;
-   out[x++] = z;
+   out[x++] = (unsigned char)z;
 
    /* if 31st bit is set output a leading zero and decrement count */
    if (z == 5) {
@@ -80,7 +80,7 @@ int der_encode_short_integer(unsigned long num, unsigned char *out, unsigned lon
 
    /* store values */
    for (y = 0; y < z; y++) {
-      out[x++] = (num >> 24) & 0xFF;
+      out[x++] = (unsigned char)((num >> 24) & 0xFF);
       num    <<= 8;
    }
 

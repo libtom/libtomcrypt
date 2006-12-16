@@ -125,7 +125,6 @@ LBL_ERR:
     XFREE(expt);
     
     mp_clear_multi(g_pub, g_priv, NULL);
-
     return err;
 }
 

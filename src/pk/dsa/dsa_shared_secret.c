@@ -30,9 +30,9 @@ int dsa_shared_secret(void          *private_key, void *base,
                       dsa_key       *public_key,
                       unsigned char *out,         unsigned long *outlen)
 {
-   unsigned long x;
-   void *res;
-   int err;
+   unsigned long  x;
+   void          *res;
+   int            err;
 
    LTC_ARGCHK(private_key != NULL);
    LTC_ARGCHK(public_key  != NULL);

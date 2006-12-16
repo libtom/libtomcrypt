@@ -51,7 +51,7 @@ int dsa_verify_hash_raw(         void   *r,          void   *s,
    /* neither r or s can be null or >q*/
    if (mp_iszero(r) == LTC_MP_YES || mp_iszero(s) == LTC_MP_YES || mp_cmp(r, key->q) != LTC_MP_LT || mp_cmp(s, key->q) != LTC_MP_LT) {
       err = CRYPT_INVALID_PACKET;
-      goto done;
+      goto error;
    }
    
    /* w = 1/s mod q */
@@ -76,10 +76,8 @@ int dsa_verify_hash_raw(         void   *r,          void   *s,
    }
 
    err = CRYPT_OK;
-   goto done;
-
-error :
-done  : mp_clear_multi(w, v, u1, u2, NULL);
+error:
+   mp_clear_multi(w, v, u1, u2, NULL);
    return err;
 }
 

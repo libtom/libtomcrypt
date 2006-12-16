@@ -105,18 +105,18 @@ int der_decode_sequence_flexi(const unsigned char *in, unsigned long *inlen, ltc
       /* now switch on type */
       switch (type) {
          case 0x01: /* BOOLEAN */
-	         l->type = LTC_ASN1_BOOLEAN;
-	         l->size = 1;
-	         l->data = XCALLOC(1, sizeof(int));
-	    
-	         if ((err = der_decode_boolean(in, *inlen, l->data)) != CRYPT_OK) {
-	            goto error;
+            l->type = LTC_ASN1_BOOLEAN;
+            l->size = 1;
+            l->data = XCALLOC(1, sizeof(int));
+       
+            if ((err = der_decode_boolean(in, *inlen, l->data)) != CRYPT_OK) {
+               goto error;
             }
-	     
-	         if ((err = der_length_boolean(&len)) != CRYPT_OK) {
-	            goto error;
+        
+            if ((err = der_length_boolean(&len)) != CRYPT_OK) {
+               goto error;
             }
-	         break;
+            break;
 
          case 0x02: /* INTEGER */
              /* init field */
@@ -218,7 +218,26 @@ int der_decode_sequence_flexi(const unsigned char *in, unsigned long *inlen, ltc
             }
             l->data = realloc_tmp;
             break;
+  
+         case 0x0C: /* UTF8 */
          
+            /* init field */
+            l->type = LTC_ASN1_UTF8_STRING;
+            l->size = len;
+
+            if ((l->data = XCALLOC(sizeof(wchar_t), l->size)) == NULL) {
+               err = CRYPT_MEM;
+               goto error;
+            }
+            
+            if ((err = der_decode_utf8_string(in, *inlen, l->data, &l->size)) != CRYPT_OK) {
+               goto error;
+            }
+            
+            if ((err = der_length_utf8_string(l->data, l->size, &len)) != CRYPT_OK) {
+               goto error;
+            }
+            break;
 
          case 0x13: /* PRINTABLE */
          

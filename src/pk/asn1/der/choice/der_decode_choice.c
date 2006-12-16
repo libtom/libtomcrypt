@@ -135,6 +135,17 @@ int der_decode_choice(const unsigned char *in,   unsigned long *inlen,
                }
                break;
 
+           case LTC_ASN1_UTF8_STRING:
+               if (der_decode_utf8_string(in, *inlen, data, &size) == CRYPT_OK) {
+                  if (der_length_utf8_string(data, size, &z) == CRYPT_OK) {
+                     list[x].used = 1;
+                     list[x].size = size;
+                     *inlen       = z;
+                     return CRYPT_OK;
+                  }
+               }
+               break;
+
            case LTC_ASN1_UTCTIME:
                z = *inlen;
                if (der_decode_utctime(in, &z, data) == CRYPT_OK) {

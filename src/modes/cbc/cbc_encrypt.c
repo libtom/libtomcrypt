@@ -58,14 +58,14 @@ int cbc_encrypt(const unsigned char *pt, unsigned char *ct, unsigned long len, s
       while (len) {
          /* xor IV against plaintext */
          #if defined(LTC_FAST)
-	     for (x = 0; x < cbc->blocklen; x += sizeof(LTC_FAST_TYPE)) {
-	         *((LTC_FAST_TYPE*)((unsigned char *)cbc->IV + x)) ^= *((LTC_FAST_TYPE*)((unsigned char *)pt + x));
-	     }
-	 #else 
+        for (x = 0; x < cbc->blocklen; x += sizeof(LTC_FAST_TYPE)) {
+            *((LTC_FAST_TYPE*)((unsigned char *)cbc->IV + x)) ^= *((LTC_FAST_TYPE*)((unsigned char *)pt + x));
+        }
+    #else 
             for (x = 0; x < cbc->blocklen; x++) {
                cbc->IV[x] ^= pt[x];
             }
-	 #endif
+    #endif
 
          /* encrypt */
          if ((err = cipher_descriptor[cbc->cipher].ecb_encrypt(cbc->IV, ct, &cbc->key)) != CRYPT_OK) {
@@ -74,14 +74,14 @@ int cbc_encrypt(const unsigned char *pt, unsigned char *ct, unsigned long len, s
 
         /* store IV [ciphertext] for a future block */
          #if defined(LTC_FAST)
-	     for (x = 0; x < cbc->blocklen; x += sizeof(LTC_FAST_TYPE)) {
-	         *((LTC_FAST_TYPE*)((unsigned char *)cbc->IV + x)) = *((LTC_FAST_TYPE*)((unsigned char *)ct + x));
-	     }
-	 #else 
+        for (x = 0; x < cbc->blocklen; x += sizeof(LTC_FAST_TYPE)) {
+            *((LTC_FAST_TYPE*)((unsigned char *)cbc->IV + x)) = *((LTC_FAST_TYPE*)((unsigned char *)ct + x));
+        }
+    #else 
              for (x = 0; x < cbc->blocklen; x++) {
                 cbc->IV[x] = ct[x];
              }
-	 #endif
+    #endif
         
         ct  += cbc->blocklen;
         pt  += cbc->blocklen;

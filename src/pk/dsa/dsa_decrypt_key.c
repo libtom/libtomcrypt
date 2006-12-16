@@ -125,7 +125,7 @@ LBL_ERR:
 
    XFREE(expt);
    XFREE(skey);
-   
+  
    mp_clear(g_pub);
 
    return err;

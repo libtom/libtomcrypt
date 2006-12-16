@@ -28,6 +28,7 @@ static int ltc_to_asn1(int v)
       case LTC_ASN1_OCTET_STRING:            return 0x04;
       case LTC_ASN1_NULL:                    return 0x05;
       case LTC_ASN1_OBJECT_IDENTIFIER:       return 0x06;
+      case LTC_ASN1_UTF8_STRING:             return 0x0C;
       case LTC_ASN1_PRINTABLE_STRING:        return 0x13;
       case LTC_ASN1_IA5_STRING:              return 0x16;
       case LTC_ASN1_UTCTIME:                 return 0x17;

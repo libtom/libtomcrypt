@@ -51,7 +51,7 @@ int ecc_export(unsigned char *out, unsigned long *outlen, int type, ecc_key *key
    }
 
    /* we store the NIST byte size */
-   key_size = ltc_ecc_sets[key->idx].size;
+   key_size = key->dp->size;
 
    if (type == PK_PRIVATE) {
        flags[0] = 1;

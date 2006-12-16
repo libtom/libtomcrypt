@@ -372,6 +372,20 @@ typedef struct {
    */
    int (*ecc_map)(ecc_point *P, void *modulus, void *mp);
 
+   /** Computes kA*A + kB*B = C using Shamir's Trick
+       @param A        First point to multiply
+       @param kA       What to multiple A by
+       @param B        Second point to multiply
+       @param kB       What to multiple B by
+       @param C        [out] Destination point (can overlap with A or B
+       @param modulus  Modulus for curve 
+       @return CRYPT_OK on success
+   */ 
+   int (*ecc_mul2add)(ecc_point *A, void *kA,
+                      ecc_point *B, void *kB,
+                      ecc_point *C,
+                           void *modulus);
+
 /* ---- (optional) rsa optimized math (for internal CRT) ---- */
 
    /** RSA Key Generation 

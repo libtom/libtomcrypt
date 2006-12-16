@@ -39,6 +39,8 @@ LTC_EXPORT void * LTC_CALL XMEMCPY(void *dest, const void *src, size_t n);
 LTC_EXPORT int   LTC_CALL XMEMCMP(const void *s1, const void *s2, size_t n);
 LTC_EXPORT void * LTC_CALL XMEMSET(void *s, int c, size_t n);
 
+LTC_EXPORT int   LTC_CALL XSTRCMP(const char *s1, const char *s2);
+
 #endif
 
 /* type of argument checking, 0=default, 1=fatal and 2=error+continue, 3=nothing */

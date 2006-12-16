@@ -18,7 +18,7 @@
 #ifdef LTC_F9_MODE
 
 /** Process data through f9-MAC
-  @param f9     The f9-MAC state
+  @param f9       The f9-MAC state
   @param in       Input data to process
   @param inlen    Length of input in octets
   Return CRYPT_OK on success

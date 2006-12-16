@@ -58,14 +58,14 @@ int der_encode_object_identifier(unsigned long *words, unsigned long  nwords,
    x = 0; 
    out[x++] = 0x06;
    if (z < 128) {
-      out[x++] = z;
+      out[x++] = (unsigned char)z;
    } else if (z < 256) {
       out[x++] = 0x81;
-      out[x++] = z;
+      out[x++] = (unsigned char)z;
    } else if (z < 65536UL) {
       out[x++] = 0x82;
-      out[x++] = (z>>8)&255;
-      out[x++] = z&255;
+      out[x++] = (unsigned char)((z>>8)&255);
+      out[x++] = (unsigned char)(z&255);
    } else {
       return CRYPT_INVALID_ARG;
    }
@@ -79,14 +79,14 @@ int der_encode_object_identifier(unsigned long *words, unsigned long  nwords,
            y    = x;
            mask = 0;
            while (t) {
-               out[x++] = (t & 0x7F) | mask;
+               out[x++] = (unsigned char)((t & 0x7F) | mask);
                t    >>= 7;
                mask  |= 0x80;  /* upper bit is set on all but the last byte */
            }
            /* now swap bytes y...x-1 */
            z = x - 1;
            while (y < z) {
-               t = out[y]; out[y] = out[z]; out[z] = t;
+               t = out[y]; out[y] = out[z]; out[z] = (unsigned char)t;
                ++y; 
                --z;
            }

@@ -48,7 +48,7 @@ int ofb_encrypt(const unsigned char *pt, unsigned char *ct, unsigned long len, s
           }
           ofb->padlen = 0;
        }
-       *ct++ = *pt++ ^ ofb->IV[ofb->padlen++];
+       *ct++ = *pt++ ^ ofb->IV[(ofb->padlen)++];
    }
    return CRYPT_OK;
 }

@@ -70,16 +70,16 @@ int der_encode_integer(void *num, unsigned char *out, unsigned long *outlen)
       *out++ = (unsigned char)y;
    } else if (y < 256) {
       *out++ = 0x81;
-      *out++ = y;
+      *out++ = (unsigned char)y;
    } else if (y < 65536UL) {
       *out++ = 0x82;
-      *out++ = (y>>8)&255;
-      *out++ = y;
+      *out++ = (unsigned char)((y>>8)&255);
+      *out++ = (unsigned char)y;
    } else if (y < 16777216UL) {
       *out++ = 0x83;
-      *out++ = (y>>16)&255;
-      *out++ = (y>>8)&255;
-      *out++ = y;
+      *out++ = (unsigned char)((y>>16)&255);
+      *out++ = (unsigned char)((y>>8)&255);
+      *out++ = (unsigned char)y;
    } else {
       return CRYPT_INVALID_ARG;
    }

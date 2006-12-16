@@ -1,8 +1,11 @@
-- document makefile flags [INSTALL_* for instance]
-- document PK build flags
-- merge PKCS #1 v1.5 back in, document changes to rsa_encrypt and rsa_sign
+stopped at ch12
+-- needs examples for ecc/dsa!!! (and for asn.1)
 
-for v1.16
-- Add ECC double-mult-add to plugin and make optional accelerator for baseline and MECC_FP [two goals]
+must have for v1.16
+- document PK build flags
+- document makefile flags [INSTALL_* for instance]
+- prepare manual for printing (both soft and hard cover)
+
+Nice to have [in order of precedence]
 - add X9.63 IES
 - add CPP macros like OpenSSL has for ASN1 (e.g. encode/decode functions, etc) shameless ripoff :-)

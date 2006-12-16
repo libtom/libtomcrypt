@@ -29,6 +29,82 @@ static int sizes[] = {
 #endif
 };
 
+#ifdef LTC_ECC_SHAMIR
+int ecc_test_shamir(void)
+{
+   void *modulus, *mp, *kA, *kB, *rA, *rB;
+   ecc_point *G, *A, *B, *C1, *C2;
+   int x, y, z;
+   unsigned char buf[ECC_BUF_SIZE];
+
+   DO(mp_init_multi(&kA, &kB, &rA, &rB, &modulus, NULL));
+   LTC_ARGCHK((G  = ltc_ecc_new_point()) != NULL);
+   LTC_ARGCHK((A  = ltc_ecc_new_point()) != NULL);
+   LTC_ARGCHK((B  = ltc_ecc_new_point()) != NULL);
+   LTC_ARGCHK((C1 = ltc_ecc_new_point()) != NULL);
+   LTC_ARGCHK((C2 = ltc_ecc_new_point()) != NULL);
+
+   for (x = 0; x < (int)(sizeof(sizes)/sizeof(sizes[0])); x++) {
+       /* get the base point */
+       for (z = 0; ltc_ecc_sets[z].name; z++) {
+           if (sizes[z] < ltc_ecc_sets[z].size) break;
+       }
+       LTC_ARGCHK(ltc_ecc_sets[z].name != NULL);
+
+       /* load it */
+       DO(mp_read_radix(G->x, ltc_ecc_sets[z].Gx, 16));
+       DO(mp_read_radix(G->y, ltc_ecc_sets[z].Gy, 16));
+       DO(mp_set(G->z, 1));
+       DO(mp_read_radix(modulus, ltc_ecc_sets[z].prime, 16));
+       DO(mp_montgomery_setup(modulus, &mp));
+
+       /* do 100 random tests */
+       for (y = 0; y < 100; y++) {
+          /* pick a random r1, r2 */
+          LTC_ARGCHK(yarrow_read(buf, sizes[x], &yarrow_prng) == sizes[x]);
+          DO(mp_read_unsigned_bin(rA, buf, sizes[x]));
+          LTC_ARGCHK(yarrow_read(buf, sizes[x], &yarrow_prng) == sizes[x]);
+          DO(mp_read_unsigned_bin(rB, buf, sizes[x]));
+
+          /* compute rA * G = A */
+          DO(ltc_mp.ecc_ptmul(rA, G, A, modulus, 1));
+       
+          /* compute rB * G = B */
+          DO(ltc_mp.ecc_ptmul(rB, G, B, modulus, 1));
+
+          /* pick a random kA, kB */
+          LTC_ARGCHK(yarrow_read(buf, sizes[x], &yarrow_prng) == sizes[x]);
+          DO(mp_read_unsigned_bin(kA, buf, sizes[x]));
+          LTC_ARGCHK(yarrow_read(buf, sizes[x], &yarrow_prng) == sizes[x]);
+          DO(mp_read_unsigned_bin(kB, buf, sizes[x]));
+
+          /* now, compute kA*A + kB*B = C1 using the older method */
+          DO(ltc_mp.ecc_ptmul(kA, A, C1, modulus, 0));
+          DO(ltc_mp.ecc_ptmul(kB, B, C2, modulus, 0));
+          DO(ltc_mp.ecc_ptadd(C1, C2, C1, modulus, mp));
+          DO(ltc_mp.ecc_map(C1, modulus, mp));
+
+          /* now compute using mul2add */
+          DO(ltc_mp.ecc_mul2add(A, kA, B, kB, C2, modulus));
+
+          /* is they the sames?  */
+          if ((mp_cmp(C1->x, C2->x) != LTC_MP_EQ) || (mp_cmp(C1->y, C2->y) != LTC_MP_EQ) || (mp_cmp(C1->z, C2->z) != LTC_MP_EQ)) {
+             fprintf(stderr, "ECC failed shamir test: size=%d, testno=%d\n", sizes[x], y);
+             return 1;
+          }
+      }
+      mp_montgomery_free(mp);
+  }
+  ltc_ecc_del_point(C2);
+  ltc_ecc_del_point(C1);
+  ltc_ecc_del_point(B);
+  ltc_ecc_del_point(A);
+  ltc_ecc_del_point(G);
+  mp_clear_multi(kA, kB, rA, rB, modulus, NULL);
+  return 0;
+}
+#endif
+
 int ecc_tests (void)
 {
   unsigned char buf[4][4096];
@@ -154,7 +230,11 @@ int ecc_tests (void)
      ecc_free (&pubKey);
      ecc_free (&privKey);
   }
+#ifdef LTC_ECC_SHAMIR
+  return ecc_test_shamir();
+#else
   return 0;
+#endif
 }
 
 #else

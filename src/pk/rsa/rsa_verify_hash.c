@@ -86,6 +86,7 @@ int rsa_verify_hash_ex(const unsigned char *sig,      unsigned long siglen,
 
   /* make sure the output is the right size */
   if (x != siglen) {
+     XFREE(tmpbuf);
      return CRYPT_INVALID_PACKET;
   }
 

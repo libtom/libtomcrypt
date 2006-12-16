@@ -3,26 +3,53 @@
 
 /* macros for various libc functions you can change for embedded targets */
 #ifndef XMALLOC
+   #ifdef malloc 
+   #define LTC_NO_PROTOTYPES
+   #endif
 #define XMALLOC  malloc
 #endif
 #ifndef XREALLOC
+   #ifdef realloc 
+   #define LTC_NO_PROTOTYPES
+   #endif
 #define XREALLOC realloc
 #endif
 #ifndef XCALLOC
+   #ifdef calloc 
+   #define LTC_NO_PROTOTYPES
+   #endif
 #define XCALLOC  calloc
 #endif
 #ifndef XFREE
+   #ifdef free
+   #define LTC_NO_PROTOTYPES
+   #endif
 #define XFREE    free
 #endif
 
 #ifndef XMEMSET
+   #ifdef memset
+   #define LTC_NO_PROTOTYPES
+   #endif
 #define XMEMSET  memset
 #endif
 #ifndef XMEMCPY
+   #ifdef memcpy
+   #define LTC_NO_PROTOTYPES
+   #endif
 #define XMEMCPY  memcpy
 #endif
 #ifndef XMEMCMP
+   #ifdef memcmp 
+   #define LTC_NO_PROTOTYPES
+   #endif
 #define XMEMCMP  memcmp
+#endif
+#ifndef XSTRCMP
+   #ifdef strcmp
+   #define LTC_NO_PROTOTYPES
+   #endif
+#define XSTRCMP strcmp
 #endif
 
 #ifndef XCLOCK
@@ -33,6 +60,9 @@
 #endif
 
 #ifndef XQSORT
+   #ifdef qsort
+   #define LTC_NO_PROTOTYPES
+   #endif
 #define XQSORT qsort
 #endif
 
@@ -275,6 +305,9 @@
 
 /* ECC */
 #define MECC
+
+/* use Shamir's trick for point mul (speeds up signature verification) */
+#define LTC_ECC_SHAMIR
 
 #if defined(TFM_DESC) && defined(MECC)
    #define MECC_ACCEL

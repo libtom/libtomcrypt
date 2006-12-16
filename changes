@@ -1,3 +1,29 @@
+December 16th, 2006
+v1.16 -- Brian Gladman pointed out that a recent change to GCM broke how the IV was handled.  Currently the code complies against his test vectors
+         so the code should be considered frozen now.
+      -- Trevor from Cryptography Research Inc. submitted patches to convert the ECC code to be generic allowing curve parameters to be submitted
+         at runtime.  
+      -- Fixed various doxygen comments
+      -- Added UTF8 support to the ASN1 code
+      -- Fixed STOREXXH macros for x86 platforms (Fix found at Elliptic Inc.)
+      -- Added makefile.unix which is BSD compatible, you have to manually tweak it since well I don't use it normally
+      -- removed a few lingering memcpy's
+      -- Fixed memory free errors in ecc_sign_hash() that can arise if the mp_init_multi() fails
+      -- Fixed incorrect return value in pkcs_1_pss_decode() which would correctly set res to 0 (indicating an incorrect signature) but 
+         would return CRYPT_OK to the caller
+      -- ltc_ecc_mulmod() could leak memory if mp_init(&mu) failed, fixed.  Would you believe that ltc_ecc_mulmod_timing() had the same
+         bug?  Also fixed.  :-)
+      -- Added Shamir's trick to the ECC side (defined as LTC_ECC_SHAMIR, enabled by default), gets ~1.34x to ~1.40x faster ECC verifications
+      -- Added Brian's vector #46 to the GCM code.  It catches the ctr counter error from v1.15.  Originally I was going to add all of his vectors,
+         but they're not as easy to parse and I got a lot of other things to do.  Regression!
+      -- Various other small fixes to the ECC code to clean up error handling (I think most of that was from the move in 1.06 to the plugins)
+         All of the errors were in cleaning up from heap failures.  So they were not likely to be triggered in normal usage
+         Made similar fixes to the RSA and DSA code (my bad)
+      -- Cryptography Research Inc. contributed a bunch of fixes to silence warnings (with MSVC) w.r.t. assigned data to unsigned char types.
+      -- Martin Marko suggested some fixes to make the RNG build with WinCE.
+      -- Updates to the manual for print (some fixes thanks to Martin Marko)
+      
+
 November 17th, 2006
 v1.15 -- Andreas Lange found that if sha256_init DID fail in fortuna it wouldn't clean up the state correctly.  Thanks.
          Fortunately sha256_init cannot fail (as of v1.14) :-)
@@ -1525,6 +1551,6 @@ v0.02  -- Changed RC5 to only allow 12 to 24 rounds
 v0.01  -- We will call this the first version.
 
 /* $Source: /cvs/libtom/libtomcrypt/changes,v $ */
-/* $Revision: 1.257 $ */
-/* $Date: 2006/11/17 15:18:44 $ */
+/* $Revision: 1.274 $ */
+/* $Date: 2006/12/16 19:08:17 $ */
 

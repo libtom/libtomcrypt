@@ -33,7 +33,7 @@
 int ltc_ecc_map(ecc_point *P, void *modulus, void *mp)
 {
    void *t1, *t2;
-   int err;
+   int   err;
 
    LTC_ARGCHK(P       != NULL);
    LTC_ARGCHK(modulus != NULL);
@@ -60,10 +60,9 @@ int ltc_ecc_map(ecc_point *P, void *modulus, void *mp)
    if ((err = mp_montgomery_reduce(P->x, modulus, mp)) != CRYPT_OK)           { goto done; }
    if ((err = mp_mul(P->y, t1, P->y)) != CRYPT_OK)                            { goto done; }
    if ((err = mp_montgomery_reduce(P->y, modulus, mp)) != CRYPT_OK)           { goto done; }
-   mp_set(P->z, 1);
+   if ((err = mp_set(P->z, 1)) != CRYPT_OK)                                   { goto done; }
 
    err = CRYPT_OK;
-   goto done;
 done:
    mp_clear_multi(t1, t2, NULL);
    return err;

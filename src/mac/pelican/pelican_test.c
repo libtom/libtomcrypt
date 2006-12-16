@@ -24,7 +24,7 @@ int pelican_test(void)
 #else
    static const struct {
         unsigned char K[32], MSG[64], T[16];
-	int keylen, ptlen;
+   int keylen, ptlen;
    } tests[] = {
 /* K=16, M=0 */
 {

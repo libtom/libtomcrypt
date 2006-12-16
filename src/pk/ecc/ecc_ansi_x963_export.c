@@ -31,7 +31,7 @@
 */
 int ecc_ansi_x963_export(ecc_key *key, unsigned char *out, unsigned long *outlen)
 {
-   unsigned char buf[128];
+   unsigned char buf[ECC_BUF_SIZE];
    unsigned long numlen;
 
    LTC_ARGCHK(key    != NULL);
@@ -41,7 +41,7 @@ int ecc_ansi_x963_export(ecc_key *key, unsigned char *out, unsigned long *outlen
    if (ltc_ecc_is_valid_idx(key->idx) == 0) {
       return CRYPT_INVALID_ARG;
    }
-   numlen = ltc_ecc_sets[key->idx].size;
+   numlen = key->dp->size;
 
    if (*outlen < (1 + 2*numlen)) {
       *outlen = 1 + 2*numlen;

@@ -12,7 +12,7 @@
 
 /**
   @file xcbc_test.c
-  XCBC Support, terminate the state
+  XCBC Support, Test XCBC-MAC mode
 */
 
 #ifdef LTC_XCBC

@@ -80,7 +80,6 @@ int ecc_test(void)
        }
    }
    err = CRYPT_OK;
-   goto done;
 done:
    ltc_ecc_del_point(GG);
    ltc_ecc_del_point(G);

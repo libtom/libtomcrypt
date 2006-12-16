@@ -412,8 +412,8 @@ int twofish_setup(const unsigned char *key, int keylen, int num_rounds, symmetri
    /* make the sboxes (large ram variant) */
    if (k == 2) {
         for (x = 0; x < 256; x++) {
-           tmpx0 = sbox(0, x);
-           tmpx1 = sbox(1, x);
+           tmpx0 = (unsigned char)sbox(0, x);
+           tmpx1 = (unsigned char)sbox(1, x);
            skey->twofish.S[0][x] = mds_column_mult(sbox(1, (sbox(0, tmpx0 ^ S[0]) ^ S[4])),0);
            skey->twofish.S[1][x] = mds_column_mult(sbox(0, (sbox(0, tmpx1 ^ S[1]) ^ S[5])),1);
            skey->twofish.S[2][x] = mds_column_mult(sbox(1, (sbox(1, tmpx0 ^ S[2]) ^ S[6])),2);
@@ -421,8 +421,8 @@ int twofish_setup(const unsigned char *key, int keylen, int num_rounds, symmetri
         }
    } else if (k == 3) {
         for (x = 0; x < 256; x++) {
-           tmpx0 = sbox(0, x);
-           tmpx1 = sbox(1, x);
+           tmpx0 = (unsigned char)sbox(0, x);
+           tmpx1 = (unsigned char)sbox(1, x);
            skey->twofish.S[0][x] = mds_column_mult(sbox(1, (sbox(0, sbox(0, tmpx1 ^ S[0]) ^ S[4]) ^ S[8])),0);
            skey->twofish.S[1][x] = mds_column_mult(sbox(0, (sbox(0, sbox(1, tmpx1 ^ S[1]) ^ S[5]) ^ S[9])),1);
            skey->twofish.S[2][x] = mds_column_mult(sbox(1, (sbox(1, sbox(0, tmpx0 ^ S[2]) ^ S[6]) ^ S[10])),2);
@@ -430,8 +430,8 @@ int twofish_setup(const unsigned char *key, int keylen, int num_rounds, symmetri
         }
    } else {
         for (x = 0; x < 256; x++) {
-           tmpx0 = sbox(0, x);
-           tmpx1 = sbox(1, x);
+           tmpx0 = (unsigned char)sbox(0, x);
+           tmpx1 = (unsigned char)sbox(1, x);
            skey->twofish.S[0][x] = mds_column_mult(sbox(1, (sbox(0, sbox(0, sbox(1, tmpx1 ^ S[0]) ^ S[4]) ^ S[8]) ^ S[12])),0);
            skey->twofish.S[1][x] = mds_column_mult(sbox(0, (sbox(0, sbox(1, sbox(1, tmpx0 ^ S[1]) ^ S[5]) ^ S[9]) ^ S[13])),1);
            skey->twofish.S[2][x] = mds_column_mult(sbox(1, (sbox(1, sbox(0, sbox(0, tmpx0 ^ S[2]) ^ S[6]) ^ S[10]) ^ S[14])),2);

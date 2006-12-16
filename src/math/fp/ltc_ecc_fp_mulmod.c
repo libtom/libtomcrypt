@@ -897,6 +897,320 @@ static int accel_fp_mul(int idx, void *k, ecc_point *R, void *modulus, void *mp,
    return err;
 }
 
+#ifdef LTC_ECC_SHAMIR
+/* perform a fixed point ECC mulmod */
+static int accel_fp_mul2add(int idx1, int idx2, 
+                            void *kA, void *kB,
+                            ecc_point *R, void *modulus, void *mp)
+{
+   unsigned char kb[2][128];
+   int      x;
+   unsigned y, z, err, bitlen, bitpos, lut_gap, first, zA, zB;
+   void     *tka, *tkb, *order;
+
+   /* if it's smaller than modulus we fine */
+   if (mp_unsigned_bin_size(kA) > mp_unsigned_bin_size(modulus)) {
+      /* find order */
+      y = mp_unsigned_bin_size(modulus);
+      for (x = 0; ltc_ecc_sets[x].size; x++) {
+         if (y <= (unsigned)ltc_ecc_sets[x].size) break;
+      }
+   
+      /* back off if we are on the 521 bit curve */
+      if (y == 66) --x;
+      
+      if ((err = mp_init(&order)) != CRYPT_OK) {
+         return err;
+      }      
+      if ((err = mp_read_radix(order, ltc_ecc_sets[x].order, 16)) != CRYPT_OK) {
+         mp_clear(&order);
+         return err;
+      }
+
+      /* kA must be less than modulus */
+      if (mp_cmp(kA, order) != LTC_MP_LT) {
+         if ((err = mp_init(&tka)) != CRYPT_OK) {
+            mp_clear(order);
+            return err;
+         }
+         if ((err = mp_mod(kA, order, tka)) != CRYPT_OK) {
+            mp_clear(tka);
+            mp_clear(order);
+            return err;
+         }
+      } else {
+         tka = kA;
+      }
+      mp_clear(order);
+   } else {
+      tka = kA;
+   }       
+
+   /* if it's smaller than modulus we fine */
+   if (mp_unsigned_bin_size(kB) > mp_unsigned_bin_size(modulus)) {
+      /* find order */
+      y = mp_unsigned_bin_size(modulus);
+      for (x = 0; ltc_ecc_sets[x].size; x++) {
+         if (y <= (unsigned)ltc_ecc_sets[x].size) break;
+      }
+   
+      /* back off if we are on the 521 bit curve */
+      if (y == 66) --x;
+      
+      if ((err = mp_init(&order)) != CRYPT_OK) {
+         return err;
+      }      
+      if ((err = mp_read_radix(order, ltc_ecc_sets[x].order, 16)) != CRYPT_OK) {
+         mp_clear(&order);
+         return err;
+      }
+
+      /* kB must be less than modulus */
+      if (mp_cmp(kB, order) != LTC_MP_LT) {
+         if ((err = mp_init(&tkb)) != CRYPT_OK) {
+            mp_clear(order);
+            return err;
+         }
+         if ((err = mp_mod(kB, order, tkb)) != CRYPT_OK) {
+            mp_clear(tkb);
+            mp_clear(order);
+            return err;
+         }
+      } else {
+         tkb = kB;
+      }
+      mp_clear(order);
+   } else {
+      tkb = kB;
+   }     
+
+   /* get bitlen and round up to next multiple of FP_LUT */
+   bitlen  = mp_unsigned_bin_size(modulus) << 3;
+   x       = bitlen % FP_LUT;
+   if (x) {
+      bitlen += FP_LUT - x;
+   }  
+   lut_gap = bitlen / FP_LUT;
+        
+   /* get the k value */
+   if ((mp_unsigned_bin_size(tka) > (sizeof(kb[0]) - 2)) || (mp_unsigned_bin_size(tkb) > (sizeof(kb[0]) - 2))  ) {
+      if (tka != kA) {
+         mp_clear(tka);
+      }         
+      if (tkb != kB) {
+         mp_clear(tkb);
+      }         
+      return CRYPT_BUFFER_OVERFLOW;
+   }
+   
+   /* store k */
+   zeromem(kb, sizeof(kb));
+   if ((err = mp_to_unsigned_bin(tka, kb[0])) != CRYPT_OK) {
+      if (tka != kA) {
+         mp_clear(tka);
+      }         
+      if (tkb != kB) {
+         mp_clear(tkb);
+      }         
+      return err;
+   }
+   
+   /* let's reverse kb so it's little endian */
+   x = 0;
+   y = mp_unsigned_bin_size(tka) - 1;
+   if (tka != kA) {
+      mp_clear(tka);
+   }         
+   while ((unsigned)x < y) {
+      z = kb[0][x]; kb[0][x] = kb[0][y]; kb[0][y] = z;
+      ++x; --y;
+   }      
+   
+   /* store b */
+   if ((err = mp_to_unsigned_bin(tkb, kb[1])) != CRYPT_OK) {
+      if (tkb != kB) {
+         mp_clear(tkb);
+      }         
+      return err;
+   }
+
+   x = 0;
+   y = mp_unsigned_bin_size(tkb) - 1;
+   if (tkb != kB) {
+      mp_clear(tkb);
+   }         
+   while ((unsigned)x < y) {
+      z = kb[1][x]; kb[1][x] = kb[1][y]; kb[1][y] = z;
+      ++x; --y;
+   }      
+
+   /* at this point we can start, yipee */
+   first = 1;
+   for (x = lut_gap-1; x >= 0; x--) {
+       /* extract FP_LUT bits from kb spread out by lut_gap bits and offset by x bits from the start */
+       bitpos = x;
+       for (y = zA = zB = 0; y < FP_LUT; y++) {
+          zA |= ((kb[0][bitpos>>3] >> (bitpos&7)) & 1) << y;
+          zB |= ((kb[1][bitpos>>3] >> (bitpos&7)) & 1) << y;
+          bitpos += lut_gap;                               /* it's y*lut_gap + x, but here we can avoid the mult in each loop */
+       }
+              
+       /* double if not first */
+       if (!first) {
+          if ((err = ltc_mp.ecc_ptdbl(R, R, modulus, mp)) != CRYPT_OK) {
+             return err;
+          }
+       }
+       
+       /* add if not first, otherwise copy */          
+       if (!first) {
+          if (zA) {
+             if ((err = ltc_mp.ecc_ptadd(R, fp_cache[idx1].LUT[zA], R, modulus, mp)) != CRYPT_OK) {
+                return err;
+             }
+          }
+          if (zB) {
+             if ((err = ltc_mp.ecc_ptadd(R, fp_cache[idx2].LUT[zB], R, modulus, mp)) != CRYPT_OK) {
+                return err;
+             }
+          }
+       } else {
+          if (zA) {
+              if ((mp_copy(fp_cache[idx1].LUT[zA]->x, R->x) != CRYPT_OK) || 
+                 (mp_copy(fp_cache[idx1].LUT[zA]->y, R->y) != CRYPT_OK) || 
+                 (mp_copy(fp_cache[idx1].mu,        R->z) != CRYPT_OK)) { return CRYPT_MEM; }
+                 first = 0;              
+          }
+          if (zB && first == 0) {
+             if (zB) {
+                if ((err = ltc_mp.ecc_ptadd(R, fp_cache[idx2].LUT[zB], R, modulus, mp)) != CRYPT_OK) {
+                   return err;
+                }
+             }
+          } else if (zB && first == 1) {
+              if ((mp_copy(fp_cache[idx2].LUT[zB]->x, R->x) != CRYPT_OK) || 
+                 (mp_copy(fp_cache[idx2].LUT[zB]->y, R->y) != CRYPT_OK) || 
+                 (mp_copy(fp_cache[idx2].mu,        R->z) != CRYPT_OK)) { return CRYPT_MEM; }
+                 first = 0;              
+          }
+       }
+   }     
+   zeromem(kb, sizeof(kb));
+   return ltc_ecc_map(R, modulus, mp);
+}
+
+/** ECC Fixed Point mulmod global
+    @param k        The multiplicand
+    @param G        Base point to multiply
+    @param R        [out] Destination of product
+    @param modulus  The modulus for the curve
+    @param map      [boolean] If non-zero maps the point back to affine co-ordinates, otherwise it's left in jacobian-montgomery form
+    @return CRYPT_OK if successful
+*/   
+int ltc_ecc_fp_mul2add(ecc_point *A, void *kA,
+                       ecc_point *B, void *kB,
+                       ecc_point *C, void *modulus)
+{
+   int  idx1, idx2, err;
+   void *mp, *mu;
+   
+   mp = NULL;
+   mu = NULL;
+   LTC_MUTEX_LOCK(&ltc_ecc_fp_lock);
+      /* find point */
+      idx1 = find_base(A);
+
+      /* no entry? */
+      if (idx1 == -1) {
+         /* find hole and add it */
+         idx1 = find_hole();
+
+         if ((err = add_entry(idx1, A)) != CRYPT_OK) {
+            goto LBL_ERR;
+         }
+      }
+
+      /* increment LRU */
+      ++(fp_cache[idx1].lru_count);
+ 
+      /* find point */
+      idx2 = find_base(B);
+
+      /* no entry? */
+      if (idx2 == -1) {
+         /* find hole and add it */
+         idx2 = find_hole();
+
+         if ((err = add_entry(idx2, B)) != CRYPT_OK) {
+            goto LBL_ERR;
+         }
+      }
+
+      /* increment LRU */
+      ++(fp_cache[idx2].lru_count);
+
+      /* if it's 2 build the LUT, if it's higher just use the LUT */
+      if (fp_cache[idx1].lru_count == 2) {
+         /* compute mp */
+         if ((err = mp_montgomery_setup(modulus, &mp)) != CRYPT_OK) { goto LBL_ERR; }
+
+         /* compute mu */
+         if ((err = mp_init(&mu)) != CRYPT_OK) {
+             goto LBL_ERR;
+         }
+         if ((err = mp_montgomery_normalization(mu, modulus)) != CRYPT_OK) {
+            goto LBL_ERR;
+         }            
+                 
+         /* build the LUT */
+         if ((err = build_lut(idx1, modulus, mp, mu)) != CRYPT_OK) {
+             goto LBL_ERR;;
+         }  
+      }
+
+      /* if it's 2 build the LUT, if it's higher just use the LUT */
+      if (fp_cache[idx2].lru_count == 2) {
+         if (mp == NULL) {
+            /* compute mp */
+            if ((err = mp_montgomery_setup(modulus, &mp)) != CRYPT_OK) { goto LBL_ERR; }
+
+            /* compute mu */
+            if ((err = mp_init(&mu)) != CRYPT_OK) {
+                goto LBL_ERR;
+            }
+            if ((err = mp_montgomery_normalization(mu, modulus)) != CRYPT_OK) {
+               goto LBL_ERR;
+            }            
+         }
+                 
+         /* build the LUT */
+         if ((err = build_lut(idx2, modulus, mp, mu)) != CRYPT_OK) {
+             goto LBL_ERR;;
+         }  
+      }
+
+
+      if (fp_cache[idx1].lru_count >= 2 && fp_cache[idx2].lru_count >= 2) {
+         if (mp == NULL) {
+            /* compute mp */
+            if ((err = mp_montgomery_setup(modulus, &mp)) != CRYPT_OK) { goto LBL_ERR; }
+         }
+         err = accel_fp_mul2add(idx1, idx2, kA, kB, C, modulus, mp);
+      } else {
+         err = ltc_ecc_mul2add(A, kA, B, kB, C, modulus);
+      }
+LBL_ERR:
+    LTC_MUTEX_UNLOCK(&ltc_ecc_fp_lock);
+    if (mp != NULL) {
+       mp_montgomery_free(mp);
+    }       
+    if (mu != NULL) {
+       mp_clear(mu);
+    }       
+    return err;
+}
+#endif
+
 /** ECC Fixed Point mulmod global
     @param k        The multiplicand
     @param G        Base point to multiply

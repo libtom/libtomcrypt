@@ -33,8 +33,8 @@ int rsa_import(const unsigned char *in, unsigned long inlen, rsa_key *key)
    ltc_asn1_list ssl_pubkey_hashoid[2];
    ltc_asn1_list ssl_pubkey[2];
 
-   LTC_ARGCHK(in  != NULL);
-   LTC_ARGCHK(key != NULL);
+   LTC_ARGCHK(in          != NULL);
+   LTC_ARGCHK(key         != NULL);
    LTC_ARGCHK(ltc_mp.name != NULL);
 
    /* init key */
@@ -67,7 +67,7 @@ int rsa_import(const unsigned char *in, unsigned long inlen, rsa_key *key)
       for (t = y = z = x = 0; x < ssl_pubkey[1].size; x++) {
           y = (y << 1) | tmpbuf[x];
           if (++z == 8) {
-             tmpbuf[t++] = y;
+             tmpbuf[t++] = (unsigned char)y;
              y           = 0;
              z           = 0;
           }
@@ -131,8 +131,7 @@ int rsa_import(const unsigned char *in, unsigned long inlen, rsa_key *key)
    }
    return CRYPT_OK;
 LBL_ERR:
-   mp_clear_multi(key->d,  key->e, key->N, key->dQ, key->dP,
-                  key->qP, key->p, key->q, NULL);
+   mp_clear_multi(key->d,  key->e, key->N, key->dQ, key->dP, key->qP, key->p, key->q, NULL);
    return err;
 }
 

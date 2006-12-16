@@ -52,11 +52,12 @@ int ltc_ecc_mulmod(void *k, ecc_point *G, ecc_point *R, void *modulus, int map)
       return err;
    }
    if ((err = mp_init(&mu)) != CRYPT_OK) {
+      mp_montgomery_free(mp);
       return err;
    }
    if ((err = mp_montgomery_normalization(mu, modulus)) != CRYPT_OK) {
-      mp_montgomery_free(mp);
       mp_clear(mu);
+      mp_montgomery_free(mp);
       return err;
    }
 
@@ -67,8 +68,8 @@ int ltc_ecc_mulmod(void *k, ecc_point *G, ecc_point *R, void *modulus, int map)
          for (j = 0; j < i; j++) {
              ltc_ecc_del_point(M[j]);
          }
-         mp_montgomery_free(mp);
          mp_clear(mu);
+         mp_montgomery_free(mp);
          return CRYPT_MEM;
       }
   }
@@ -82,6 +83,7 @@ int ltc_ecc_mulmod(void *k, ecc_point *G, ecc_point *R, void *modulus, int map)
    if ((err = mp_mulmod(G->y, mu, modulus, tG->y)) != CRYPT_OK)                      { goto done; }
    if ((err = mp_mulmod(G->z, mu, modulus, tG->z)) != CRYPT_OK)                      { goto done; }
    mp_clear(mu);
+   mu = NULL;
    
    /* calc the M tab */
    /* M[0] == G */
@@ -146,6 +148,9 @@ int ltc_ecc_mulmod(void *k, ecc_point *G, ecc_point *R, void *modulus, int map)
       err = CRYPT_OK;
    }
 done:
+   if (mu != NULL) {
+      mp_clear(mu);
+   }
    mp_montgomery_free(mp);
    ltc_ecc_del_point(tG);
    for (i = 0; i < 3; i++) {

@@ -59,7 +59,7 @@ int dsa_sign_hash_raw(const unsigned char *in,  unsigned long inlen,
    }
 
    /* Init our temps */
-   if ((err = mp_init_multi(&k, &kinv, &tmp, NULL)) != CRYPT_OK)                       { goto error; }
+   if ((err = mp_init_multi(&k, &kinv, &tmp, NULL)) != CRYPT_OK)                       { goto ERRBUF; }
 
 retry:
 
@@ -67,7 +67,7 @@ retry:
       /* gen random k */
       if (prng_descriptor[wprng].read(buf, key->qord, prng) != (unsigned long)key->qord) {
          err = CRYPT_ERROR_READPRNG;
-         goto LBL_ERR;
+         goto error;
       }
 
       /* read k */
@@ -98,11 +98,9 @@ retry:
    if (mp_iszero(s) == LTC_MP_YES)                                                     { goto retry; }
 
    err = CRYPT_OK;
-   goto LBL_ERR;
-
 error: 
-LBL_ERR: 
    mp_clear_multi(k, kinv, tmp, NULL);
+ERRBUF:
 #ifdef LTC_CLEAN_STACK
    zeromem(buf, MDSA_MAX_GROUP);
 #endif
@@ -138,7 +136,7 @@ int dsa_sign_hash(const unsigned char *in,  unsigned long inlen,
    }
 
    if ((err = dsa_sign_hash_raw(in, inlen, r, s, prng, wprng, key)) != CRYPT_OK) {
-      goto LBL_ERR;
+      goto error;
    }
 
    err = der_encode_sequence_multi(out, outlen, 
@@ -146,7 +144,7 @@ int dsa_sign_hash(const unsigned char *in,  unsigned long inlen,
                              LTC_ASN1_INTEGER, 1UL, s, 
                              LTC_ASN1_EOL,     0UL, NULL);
 
-LBL_ERR:
+error:
    mp_clear_multi(r, s, NULL);
    return err;
 }

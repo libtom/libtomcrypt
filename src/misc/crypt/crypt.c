@@ -351,6 +351,9 @@ const char *crypt_build_settings =
 #if defined(MECC_FP)
    " MECC_FP "
 #endif
+#if defined(LTC_ECC_SHAMIR)
+   " LTC_ECC_SHAMIR "
+#endif
     "\n"
     "\n\n\n"
     ;

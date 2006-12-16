@@ -77,13 +77,13 @@ int der_decode_object_identifier(const unsigned char *in,    unsigned long  inle
            if (y >= *outlen) {
               return CRYPT_BUFFER_OVERFLOW;
            }
-	   if (y == 0) {
-	      words[0] = t / 40;
-	      words[1] = t % 40;
-	      y = 2;
-	   } else {
+      if (y == 0) {
+         words[0] = t / 40;
+         words[1] = t % 40;
+         y = 2;
+      } else {
               words[y++] = t;
-	   }
+      }
            t          = 0;
        }
    }

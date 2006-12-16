@@ -33,8 +33,8 @@ static int is_point(ecc_key *key)
    }
    
    /* load prime and b */
-   if ((err = mp_read_radix(prime, ltc_ecc_sets[key->idx].prime, 16)) != CRYPT_OK)            { goto error; }
-   if ((err = mp_read_radix(b, ltc_ecc_sets[key->idx].B, 16)) != CRYPT_OK)                    { goto error; }
+   if ((err = mp_read_radix(prime, key->dp->prime, 16)) != CRYPT_OK)                          { goto error; }
+   if ((err = mp_read_radix(b, key->dp->B, 16)) != CRYPT_OK)                                  { goto error; }
    
    /* compute y^2 */
    if ((err = mp_sqr(key->pubkey.y, t1)) != CRYPT_OK)                                         { goto error; }
@@ -79,6 +79,19 @@ error:
   @return CRYPT_OK if successful, upon error all allocated memory will be freed
 */
 int ecc_import(const unsigned char *in, unsigned long inlen, ecc_key *key)
+{
+   return ecc_import_ex(in, inlen, key, NULL);
+}
+
+/**
+  Import an ECC key from a binary packet, using user supplied domain params rather than one of the NIST ones
+  @param in      The packet to import
+  @param inlen   The length of the packet
+  @param key     [out] The destination of the import
+  @param dp      pointer to user supplied params; must be the same as the params used when exporting
+  @return CRYPT_OK if successful, upon error all allocated memory will be freed
+*/
+int ecc_import_ex(const unsigned char *in, unsigned long inlen, ecc_key *key, const ltc_ecc_set_type *dp)
 {
    unsigned long key_size;
    unsigned char flags[1];
@@ -126,15 +139,20 @@ int ecc_import(const unsigned char *in, unsigned long inlen, ecc_key *key)
       }
    }
 
-   /* find the idx */
-   for (key->idx = 0; ltc_ecc_sets[key->idx].size && (unsigned long)ltc_ecc_sets[key->idx].size != key_size; ++key->idx);
-   if (ltc_ecc_sets[key->idx].size == 0) {
-      err = CRYPT_INVALID_PACKET;
-      goto done;
+   if (dp == NULL) {
+     /* find the idx */
+     for (key->idx = 0; ltc_ecc_sets[key->idx].size && (unsigned long)ltc_ecc_sets[key->idx].size != key_size; ++key->idx);
+     if (ltc_ecc_sets[key->idx].size == 0) {
+       err = CRYPT_INVALID_PACKET;
+       goto done;
+     }
+     key->dp = &ltc_ecc_sets[key->idx];
+   } else {
+     key->idx = -1;
+     key->dp = dp;
    }
-
    /* set z */
-   mp_set(key->pubkey.z, 1);
+   if ((err = mp_set(key->pubkey.z, 1)) != CRYPT_OK) { goto done; }
    
    /* is it a point on the curve?  */
    if ((err = is_point(key)) != CRYPT_OK) {
@@ -147,7 +165,6 @@ done:
    mp_clear_multi(key->pubkey.x, key->pubkey.y, key->pubkey.z, key->k, NULL);
    return err;
 }
-
 #endif
 /* $Source$ */
 /* $Revision$ */

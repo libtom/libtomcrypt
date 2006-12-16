@@ -30,7 +30,7 @@
 ecc_point *ltc_ecc_new_point(void)
 {
    ecc_point *p;
-   p = XMALLOC(sizeof(*p));
+   p = XCALLOC(1, sizeof(*p));
    if (p == NULL) {
       return NULL;
    }

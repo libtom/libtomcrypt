@@ -12,7 +12,7 @@
 
 /**
   @file xcbc_process.c
-  XCBC Support, terminate the state
+  XCBC Support, XCBC-MAC a block of memory
 */
 
 #ifdef LTC_XCBC

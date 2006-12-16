@@ -64,7 +64,7 @@ int ecc_encrypt_key(const unsigned char *in,   unsigned long inlen,
     }
 
     /* make a random key and export the public copy */
-    if ((err = ecc_make_key(prng, wprng, ecc_get_size(key), &pubkey)) != CRYPT_OK) {
+    if ((err = ecc_make_key_ex(prng, wprng, &pubkey, key->dp)) != CRYPT_OK) {
        return err;
     }
 

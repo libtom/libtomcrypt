@@ -34,7 +34,7 @@
 int ltc_ecc_projective_dbl_point(ecc_point *P, ecc_point *R, void *modulus, void *mp)
 {
    void *t1, *t2;
-   int err;
+   int   err;
 
    LTC_ARGCHK(P       != NULL);
    LTC_ARGCHK(R       != NULL);
@@ -46,9 +46,9 @@ int ltc_ecc_projective_dbl_point(ecc_point *P, ecc_point *R, void *modulus, void
    }
 
    if (P != R) {
-      if ((err = mp_copy(P->x, R->x)) != CRYPT_OK)                                   { goto done; }
-      if ((err = mp_copy(P->y, R->y)) != CRYPT_OK)                                   { goto done; }
-      if ((err = mp_copy(P->z, R->z)) != CRYPT_OK)                                   { goto done; }
+      if ((err = mp_copy(P->x, R->x)) != CRYPT_OK)                                { goto done; }
+      if ((err = mp_copy(P->y, R->y)) != CRYPT_OK)                                { goto done; }
+      if ((err = mp_copy(P->z, R->z)) != CRYPT_OK)                                { goto done; }
    }
 
    /* t1 = Z * Z */
@@ -136,7 +136,6 @@ int ltc_ecc_projective_dbl_point(ecc_point *P, ecc_point *R, void *modulus, void
    }
  
    err = CRYPT_OK;
-   goto done;
 done:
    mp_clear_multi(t1, t2, NULL);
    return err;

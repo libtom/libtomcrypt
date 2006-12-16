@@ -140,9 +140,9 @@ int ccm_memory(int cipher,
 
    /* form B_0 == flags | Nonce N | l(m) */
    x = 0;
-   PAD[x++] = ((headerlen > 0) ? (1<<6) : 0) |
+   PAD[x++] = (unsigned char)(((headerlen > 0) ? (1<<6) : 0) |
             (((*taglen - 2)>>1)<<3)        |
-            (L-1);
+            (L-1));
 
    /* nonce */
    for (y = 0; y < (16 - (L + 1)); y++) {
@@ -162,7 +162,7 @@ int ccm_memory(int cipher,
        PAD[x++] = 0;
    }
    for (; y < L; y++) {
-       PAD[x++] = (len >> 24) & 255;
+       PAD[x++] = (unsigned char)((len >> 24) & 255);
        len <<= 8;
    }
 
@@ -212,7 +212,7 @@ int ccm_memory(int cipher,
    x = 0;
 
    /* flags */
-   ctr[x++] = L-1;
+   ctr[x++] = (unsigned char)L-1;
  
    /* nonce */
    for (y = 0; y < (16 - (L+1)); ++y) {

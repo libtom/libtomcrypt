@@ -64,22 +64,21 @@ int ecc_sign_hash(const unsigned char *in,  unsigned long inlen,
    /* get the hash and load it as a bignum into 'e' */
    /* init the bignums */
    if ((err = mp_init_multi(&r, &s, &p, &e, NULL)) != CRYPT_OK) { 
-      ecc_free(&pubkey);
-      goto LBL_ERR;
+      return err;
    }
-   if ((err = mp_read_radix(p, (char *)ltc_ecc_sets[key->idx].order, 16)) != CRYPT_OK)        { goto error; }
-   if ((err = mp_read_unsigned_bin(e, (unsigned char *)in, (int)inlen)) != CRYPT_OK)          { goto error; }
+   if ((err = mp_read_radix(p, (char *)key->dp->order, 16)) != CRYPT_OK)                      { goto errnokey; }
+   if ((err = mp_read_unsigned_bin(e, (unsigned char *)in, (int)inlen)) != CRYPT_OK)          { goto errnokey; }
 
    /* make up a key and export the public copy */
    for (;;) {
-      if ((err = ecc_make_key(prng, wprng, ecc_get_size(key), &pubkey)) != CRYPT_OK) {
-         return err;
+      if ((err = ecc_make_key_ex(prng, wprng, &pubkey, key->dp)) != CRYPT_OK) {
+         goto errnokey;
       }
 
       /* find r = x1 mod n */
       if ((err = mp_mod(pubkey.pubkey.x, p, r)) != CRYPT_OK)                 { goto error; }
 
-      if (mp_iszero(r)) {
+      if (mp_iszero(r) == LTC_MP_YES) {
          ecc_free(&pubkey);
       } else { 
         /* find s = (e + xr)/k */
@@ -88,10 +87,8 @@ int ecc_sign_hash(const unsigned char *in,  unsigned long inlen,
         if ((err = mp_add(e, s, s)) != CRYPT_OK)                             { goto error; } /* s = e +  xr */
         if ((err = mp_mod(s, p, s)) != CRYPT_OK)                             { goto error; } /* s = e +  xr */
         if ((err = mp_mulmod(s, pubkey.k, p, s)) != CRYPT_OK)                { goto error; } /* s = (e + xr)/k */
-
-        if (mp_iszero(s)) {
-           ecc_free(&pubkey);
-        } else {
+        ecc_free(&pubkey);
+        if (mp_iszero(s) == LTC_MP_NO) {
            break;
         }
       }
@@ -102,12 +99,11 @@ int ecc_sign_hash(const unsigned char *in,  unsigned long inlen,
                              LTC_ASN1_INTEGER, 1UL, r,
                              LTC_ASN1_INTEGER, 1UL, s,
                              LTC_ASN1_EOL, 0UL, NULL);
-   goto LBL_ERR;
+   goto errnokey;
 error:
-LBL_ERR:
-   mp_clear_multi(r, s, p, e, NULL);
    ecc_free(&pubkey);
-
+errnokey:
+   mp_clear_multi(r, s, p, e, NULL);
    return err;   
 }
 

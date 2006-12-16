@@ -157,7 +157,7 @@ int ccm_test(void)
                             tests[x].header, tests[x].headerlen,
                             buf2, tests[x].ptlen,
                             buf,
-                            tag2, &taglen, 1	)) != CRYPT_OK) {
+                            tag2, &taglen, 1   )) != CRYPT_OK) {
          return err;
       }
 

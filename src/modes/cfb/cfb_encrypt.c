@@ -53,7 +53,7 @@ int cfb_encrypt(const unsigned char *pt, unsigned char *ct, unsigned long len, s
        cfb->pad[cfb->padlen] = (*ct = *pt ^ cfb->IV[cfb->padlen]);
        ++pt; 
        ++ct;
-       ++cfb->padlen;
+       ++(cfb->padlen);
    }
    return CRYPT_OK;
 }

@@ -765,9 +765,8 @@ void time_dsa(void)
 {
    dsa_key       key;
    ulong64       t1, t2;
-   unsigned char buf[2][2048];
-   unsigned long x, y, z, zzz;
-   int           err, zz, stat, i;
+   unsigned long x, y;
+   int           err;
 static const struct {
    int group, modulus;
 } groups[] = {
@@ -799,7 +798,7 @@ static const struct {
            }
        }
        t2 >>= 2;
-       fprintf(stderr, "DSA-(%lu, %lu) make_key    took %15llu cycles\n", groups[x].group*8, groups[x].modulus*8, t2);
+       fprintf(stderr, "DSA-(%lu, %lu) make_key    took %15llu cycles\n", (unsigned long)groups[x].group*8, (unsigned long)groups[x].modulus*8, t2);
    }
 }
 #endif

@@ -1,72 +1,22 @@
-# MAKEFILE for linux ICC (Intel C compiler)
-#
-# Tested with ICC v8....
-#
-# Be aware that ICC isn't quite as stable as GCC and several optimization switches
-# seem to break the code (that GCC and MSVC compile just fine).  In particular
-# "-ip" and "-x*" seem to break the code (ROL/ROR macro problems).  As the makefile 
-# is shipped the code will build and execute properly.
-#
-# Also note that ICC often makes code that is slower than GCC.  This is probably due to 
-# a mix of not being able to use "-ip" and just having fewer optimization algos than GCC.
+# MAKEFILE for bsd make
 #
 # Tom St Denis
 
 # Compiler and Linker Names
-CC=icc
-
-#LD=ld
+CC=cc
+LD=ld
 
 # Archiver [makes .a files]
-#AR=ar
-#ARFLAGS=r
+AR=ar
+ARFLAGS=r
 
 # Compilation flags. Note the += does not write over the user's CFLAGS!
-CFLAGS += -c -Isrc/headers/ -Itestprof/ -DINTEL_CC -DLTC_SOURCE
+CFLAGS = -c -I./testprof/ -I./src/headers/ -DLTC_SOURCE -O2 ${CFLAGS_OPTS} -o $@
 
-#ICC v9 doesn't support LTC_FAST for things like Pelican MAC
-#Despite the fact I can't see what's wrong with my code
-#Oh well
-CFLAGS += -DLTC_NO_FAST
+LIBNAME=libtomcrypt.a
+LIBTEST=libtomcrypt_prof.a
+LIBTEST_S=$(LIBTEST)
 
-#The default rule for make builds the libtomcrypt library.
-default:library
-
-# optimize for SPEED
-#
-# -mcpu= can be pentium, pentiumpro (covers PII through PIII) or pentium4
-# -ax?	specifies make code specifically for ? but compatible with IA-32
-# -x?	   specifies compile solely for ? [not specifically IA-32 compatible]
-#
-# where ? is 
-#	K - PIII
-#	W - first P4 [Williamette]
-#	N - P4 Northwood
-#	P - P4 Prescott
-#	B - Blend of P4 and PM [mobile]
-#
-# Default to just generic max opts
-ifdef LTC_SMALL
-CFLAGS += -O2 -xP -ip
-endif
-
-ifndef IGNORE_SPEED
-CFLAGS += -O3 -xP -ip 
-endif
-
-# want to see stuff?
-#CFLAGS += -opt_report
-
-#These flags control how the library gets built.
-
-#Output filenames for various targets.
-ifndef LIBNAME
-   LIBNAME=libtomcrypt.a
-endif
-ifndef LIBTEST
-   LIBTEST=libtomcrypt_prof.a
-   LIBTEST_S=$(LIBTEST)
-endif
 HASH=hashsum
 CRYPT=encrypt
 SMALL=small
@@ -79,18 +29,14 @@ TEST=test
 #LIBPATH-The directory for libtomcrypt to be installed to.
 #INCPATH-The directory to install the header files for libtomcrypt.
 #DATAPATH-The directory to install the pdf docs.
-ifndef DESTDIR
-   DESTDIR=
-endif
-ifndef LIBPATH
-   LIBPATH=/usr/lib
-endif
-ifndef INCPATH
-   INCPATH=/usr/include
-endif
-ifndef DATAPATH
-   DATAPATH=/usr/share/doc/libtomcrypt/pdf
-endif
+LIBPATH=/usr/local/lib
+INCPATH=/usr/local/include
+DATAPATH=/usr/local/share/doc/libtomcrypt/pdf
+
+#Who do we install as?
+USER=root
+
+GROUP=wheel
 
 #List of objects to compile.
 #START_INS
@@ -210,29 +156,23 @@ src/headers/tomcrypt_prng.h testprof/tomcrypt_test.h
 
 #END_INS
 
-#Who do we install as?
-ifdef INSTALL_USER
-USER=$(INSTALL_USER)
-else
-USER=root
-endif
-
-ifdef INSTALL_GROUP
-GROUP=$(INSTALL_GROUP)
-else
-GROUP=wheel
-endif
-
-#ciphers come in two flavours... enc+dec and enc 
-aes_enc.o: aes.c aes_tab.c
-	$(CC) $(CFLAGS) -DENCRYPT_ONLY -c aes.c -o aes_enc.o
-
+TESTOBJECTS=demos/test.o
 HASHOBJECTS=demos/hashsum.o
 CRYPTOBJECTS=demos/encrypt.o
 SMALLOBJECTS=demos/small.o
 TVS=demos/tv_gen.o
+MULTIS=demos/multi.o
 TIMINGS=demos/timing.o
 TESTS=demos/test.o
+
+#Files left over from making the crypt.pdf.
+LEFTOVERS=*.dvi *.log *.aux *.toc *.idx *.ilg *.ind *.out
+
+#Compressed filenames
+COMPRESSED=crypt-$(VERSION).tar.bz2 crypt-$(VERSION).zip
+
+#The default rule for make builds the libtomcrypt library.
+default:library
 
 #ciphers come in two flavours... enc+dec and enc 
 src/ciphers/aes/aes_enc.o: src/ciphers/aes/aes.c src/ciphers/aes/aes_tab.c
@@ -248,12 +188,12 @@ src/hashes/sha2/sha256.o: src/hashes/sha2/sha256.c src/hashes/sha2/sha224.c
 #This rule makes the libtomcrypt library.
 library: $(LIBNAME)
 
-testprof/$(LIBTEST):
-	cd testprof ; LIBTEST_S=$(LIBTEST) CFLAGS="$(CFLAGS)" make -f makefile.icc
+testprof/$(LIBTEST): 
+	cd testprof ; CFLAGS="$(CFLAGS)" LIBTEST_S=$(LIBTEST_S) $(MAKE) 
 
 $(LIBNAME): $(OBJECTS)
 	$(AR) $(ARFLAGS) $@ $(OBJECTS)
-	ranlib $@
+	$(RANLIB) $@
 
 #This rule makes the hash program included with libtomcrypt
 hashsum: library $(HASHOBJECTS)
@@ -268,25 +208,32 @@ small: library $(SMALLOBJECTS)
 	$(CC) $(SMALLOBJECTS) $(LIBNAME) $(EXTRALIBS) -o $(SMALL) $(WARN)
 	
 tv_gen: library $(TVS)
-	$(CC) $(TVS) $(LIBNAME) $(EXTRALIBS) -o $(TV)
+	$(CC) $(LDFLAGS) $(TVS) $(LIBNAME) $(EXTRALIBS) -o $(TV)
 
-timing: library $(TIMINGS) testprof/$(LIBTEST)
-	$(CC) $(TIMINGS) testprof/$(LIBTEST) $(LIBNAME) $(EXTRALIBS) -o $(TIMING)
+multi: library $(MULTIS)
+	$(CC) $(MULTIS) $(LIBNAME) $(EXTRALIBS) -o $(MULTI)
 
-test: library $(TESTS) testprof/$(LIBTEST)
-	$(CC) $(TESTS) testprof/$(LIBTEST) $(LIBNAME) $(EXTRALIBS) -o $(TEST)
-  
+timing: library testprof/$(LIBTEST) $(TIMINGS)
+	$(CC) $(LDFLAGS) $(TIMINGS) testprof/$(LIBTEST) $(LIBNAME) $(EXTRALIBS) -o $(TIMING)
+
+test: library testprof/$(LIBTEST) $(TESTS)
+	$(CC) $(LDFLAGS) $(TESTS) testprof/$(LIBTEST) $(LIBNAME) $(EXTRALIBS) -o $(TEST)
+
 #This rule installs the library and the header files. This must be run
 #as root in order to have a high enough permission to write to the correct
 #directories and to set the owner and group to root.
 install: library
 	install -d -g $(GROUP) -o $(USER) $(DESTDIR)$(LIBPATH)
 	install -d -g $(GROUP) -o $(USER) $(DESTDIR)$(INCPATH)
+	install -d -g $(GROUP) -o $(USER) $(DESTDIR)$(DATAPATH)
 	install -g $(GROUP) -o $(USER) $(LIBNAME) $(DESTDIR)$(LIBPATH)
-	install -g $(GROUP) -o $(USER) $(LIBTEST) $(DESTDIR)$(LIBPATH)
 	install -g $(GROUP) -o $(USER) $(HEADERS) $(DESTDIR)$(INCPATH)
 
-# $Source: /cvs/libtom/libtomcrypt/makefile.icc,v $   
-# $Revision: 1.73 $   
-# $Date: 2006/12/02 19:23:21 $ 
+install_test: testprof/$(LIBTEST)
+	install -d -g $(GROUP) -o $(USER) $(DESTDIR)$(LIBPATH)
+	install -d -g $(GROUP) -o $(USER) $(DESTDIR)$(INCPATH)
+	install -g $(GROUP) -o $(USER) testprof/$(LIBTEST) $(DESTDIR)$(LIBPATH)
 
+# $Source: /cvs/libtom/libtomcrypt/makefile.unix,v $ 
+# $Revision: 1.4 $ 
+# $Date: 2006/12/02 19:23:21 $ 

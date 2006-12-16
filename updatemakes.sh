@@ -11,6 +11,9 @@ mv -f tmp.delme makefile.icc
 perl filter.pl makefile.shared tmplist
 mv -f tmp.delme makefile.shared
 
+perl filter.pl makefile.unix tmplist
+mv -f tmp.delme makefile.unix
+
 perl filter.pl makefile.msvc tmplist
 sed -e 's/\.o /.obj /g' < tmp.delme > makefile.msvc
 

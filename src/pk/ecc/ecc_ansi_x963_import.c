@@ -30,9 +30,14 @@
 */
 int ecc_ansi_x963_import(const unsigned char *in, unsigned long inlen, ecc_key *key)
 {
+   return ecc_ansi_x963_import_ex(in, inlen, key, NULL);
+}
+
+int ecc_ansi_x963_import_ex(const unsigned char *in, unsigned long inlen, ecc_key *key, ltc_ecc_set_type *dp)
+{
    int x, err;
  
-   LTC_ARGCHK(in != NULL);
+   LTC_ARGCHK(in  != NULL);
    LTC_ARGCHK(key != NULL);
    
    /* must be odd */
@@ -59,21 +64,30 @@ int ecc_ansi_x963_import(const unsigned char *in, unsigned long inlen, ecc_key *
    if ((err = mp_read_unsigned_bin(key->pubkey.y, (unsigned char *)in+1+((inlen-1)>>1), (inlen-1)>>1)) != CRYPT_OK) {
       goto error;
    }
-   mp_set(key->pubkey.z, 1);
+   if ((err = mp_set(key->pubkey.z, 1)) != CRYPT_OK) { goto error; }
 
-   /* determine the idx */
-   for (x = 0; ltc_ecc_sets[x].size != 0; x++) {
-      if ((unsigned)ltc_ecc_sets[x].size >= ((inlen-1)>>1)) {
-         break;
+   if (dp == NULL) {
+     /* determine the idx */
+      for (x = 0; ltc_ecc_sets[x].size != 0; x++) {
+         if ((unsigned)ltc_ecc_sets[x].size >= ((inlen-1)>>1)) {
+            break;
+         }
       }
+      if (ltc_ecc_sets[x].size == 0) {
+         err = CRYPT_INVALID_PACKET;
+         goto error;
+      }
+      /* set the idx */
+      key->idx  = x;
+      key->dp = &ltc_ecc_sets[x];
+   } else {
+      if (((inlen-1)>>1) != (unsigned long) dp->size) {
+         err = CRYPT_INVALID_PACKET;
+         goto error;
+      }
+      key->idx = -1;
+      key->dp  = dp;
    }
-   if (ltc_ecc_sets[x].size == 0) {
-      err = CRYPT_INVALID_PACKET;
-      goto error;
-   }
-
-   /* set the idx */
-   key->idx  = x;
    key->type = PK_PUBLIC;
 
    /* we're done */

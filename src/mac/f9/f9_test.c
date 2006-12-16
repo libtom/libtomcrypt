@@ -12,7 +12,7 @@
 
 /**
   @file f9_test.c
-  f9 Support, terminate the state
+  f9 Support, Test F9 mode 
 */
 
 #ifdef LTC_F9_MODE

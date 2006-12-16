@@ -10,23 +10,24 @@
  */
 #include "tomcrypt.h"
 
-/*! \file pkcs_1_v1_5_decode.c
+/** @file pkcs_1_v1_5_decode.c
  *
  *  PKCS #1 v1.5 Padding. (Andreas Lange)
  */
 
 #ifdef PKCS_1
 
-/*! \brief PKCS #1 v1.5 decode.
+/** @brief PKCS #1 v1.5 decode.
  *
- *  \param msg              The encoded data to decode
- *  \param msglen           The length of the encoded data (octets)
- *  \param block_type       Block type to use in padding (\sa ltc_pkcs_1_v1_5_blocks)
- *  \param modulus_bitlen   The bit length of the RSA modulus
- *  \param out              [out] Destination of decoding
- *  \param outlen           [in/out] The max size and resulting size of the decoding
+ *  @param msg              The encoded data to decode
+ *  @param msglen           The length of the encoded data (octets)
+ *  @param block_type       Block type to use in padding (\sa ltc_pkcs_1_v1_5_blocks)
+ *  @param modulus_bitlen   The bit length of the RSA modulus
+ *  @param out              [out] Destination of decoding
+ *  @param outlen           [in/out] The max size and resulting size of the decoding
+ *  @param is_valid         [out] Boolean whether the padding was valid
  *
- *  \return CRYPT_OK if successful (even if invalid)
+ *  @return CRYPT_OK if successful (even if invalid)
  */
 int pkcs_1_v1_5_decode(const unsigned char *msg, 
                              unsigned long  msglen,

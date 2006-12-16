@@ -87,7 +87,7 @@ static int rsa_compat_test(void)
    len = sizeof(buf);
    DO(rsa_export(buf, &len, PK_PRIVATE, &key));
    if (len != sizeof(openssl_private_rsa) || memcmp(buf, openssl_private_rsa, len)) {
-      fprintf(stderr, "RSA private export failed to match OpenSSL output, %lu, %lu\n", len, sizeof(openssl_private_rsa));
+      fprintf(stderr, "RSA private export failed to match OpenSSL output, %lu, %lu\n", len, (unsigned long)sizeof(openssl_private_rsa));
       return 1;
    }
 
@@ -126,7 +126,7 @@ int rsa_test(void)
 {
    unsigned char in[1024], out[1024], tmp[1024];
    rsa_key       key, privKey, pubKey;
-   int           hash_idx, prng_idx, stat, stat2, err;
+   int           hash_idx, prng_idx, stat, stat2;
    unsigned long rsa_msgsize, len, len2, cnt;
    static unsigned char lparam[] = { 0x01, 0x02, 0x03, 0x04 };
 
