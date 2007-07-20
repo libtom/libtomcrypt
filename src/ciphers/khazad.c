@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.com
+ * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 #include "tomcrypt.h"
 
@@ -16,7 +16,7 @@
   Authors: Paulo S.L.M. Barreto and Vincent Rijmen.
 */
 
-#ifdef KHAZAD
+#ifdef LTC_KHAZAD
 
 const struct ltc_cipher_descriptor khazad_desc = {
    "khazad",

@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.com
+ * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 
 #include "tomcrypt.h"
@@ -16,7 +16,7 @@
   CHC support. (Tom St Denis)
 */
 
-#ifdef CHC_HASH
+#ifdef LTC_CHC_HASH
 
 #define UNDEFED_HASH  -17
 

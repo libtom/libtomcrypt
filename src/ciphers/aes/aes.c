@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.com
+ * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 
 /* AES implementation by Tom St Denis
@@ -32,7 +32,7 @@
 
 #include "tomcrypt.h"
 
-#ifdef RIJNDAEL
+#ifdef LTC_RIJNDAEL
 
 #ifndef ENCRYPT_ONLY 
 

@@ -6,19 +6,19 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.com
+ * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 #include "tomcrypt.h"
 
 /** 
   @file omac_test.c
-  OMAC1 support, self-test, by Tom St Denis
+  LTC_OMAC1 support, self-test, by Tom St Denis
 */
 
 #ifdef LTC_OMAC
 
 /**
-  Test the OMAC setup
+  Test the LTC_OMAC setup
   @return CRYPT_OK if successful, CRYPT_NOP if tests have been disabled
 */
 int omac_test(void)

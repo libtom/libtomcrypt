@@ -1,5 +1,5 @@
-/* ---- BASE64 Routines ---- */
-#ifdef BASE64
+/* ---- LTC_BASE64 Routines ---- */
+#ifdef LTC_BASE64
 int base64_encode(const unsigned char *in,  unsigned long len, 
                         unsigned char *out, unsigned long *outlen);
 

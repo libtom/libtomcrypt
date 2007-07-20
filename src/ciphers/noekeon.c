@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.com
+ * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 /**
    @file noekeon.c
@@ -14,7 +14,7 @@
 */
 #include "tomcrypt.h"
 
-#ifdef NOEKEON
+#ifdef LTC_NOEKEON
 
 const struct ltc_cipher_descriptor noekeon_desc =
 {

@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.com
+ * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 
 /**
@@ -15,7 +15,7 @@
 */
 #include "tomcrypt.h"
 
-#ifdef EAX_MODE
+#ifdef LTC_EAX_MODE
 
 /**
    Terminate an EAX session and get the tag.

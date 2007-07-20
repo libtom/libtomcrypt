@@ -6,21 +6,21 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.com
+ * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 #include "tomcrypt.h"
 
 /** 
   @file omac_init.c
-  OMAC1 support, initialize state, by Tom St Denis
+  LTC_OMAC1 support, initialize state, by Tom St Denis
 */
 
 
 #ifdef LTC_OMAC
 
 /**
-   Initialize an OMAC state
-   @param omac    The OMAC state to initialize
+   Initialize an LTC_OMAC state
+   @param omac    The LTC_OMAC state to initialize
    @param cipher  The index of the desired cipher
    @param key     The secret key
    @param keylen  The length of the secret key (octets)

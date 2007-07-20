@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.com
+ * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 
 /**
@@ -15,7 +15,7 @@
 */
 #include "tomcrypt.h"
 
-#ifdef GCM_MODE
+#ifdef LTC_GCM_MODE
 
 /** 
   Process plaintext/ciphertext through GCM
@@ -50,7 +50,7 @@ int gcm_process(gcm_state *gcm,
    }
 
    /* in AAD mode? */
-   if (gcm->mode == GCM_MODE_AAD) {
+   if (gcm->mode == LTC_GCM_MODE_AAD) {
       /* let's process the AAD */
       if (gcm->buflen) {
          gcm->totlen += gcm->buflen * CONST64(8);
@@ -67,10 +67,10 @@ int gcm_process(gcm_state *gcm,
       }
 
       gcm->buflen = 0;
-      gcm->mode   = GCM_MODE_TEXT;
+      gcm->mode   = LTC_GCM_MODE_TEXT;
    }
 
-   if (gcm->mode != GCM_MODE_TEXT) {
+   if (gcm->mode != LTC_GCM_MODE_TEXT) {
       return CRYPT_INVALID_ARG;
    }
 

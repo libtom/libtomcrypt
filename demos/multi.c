@@ -33,7 +33,7 @@ int main(void)
       return EXIT_FAILURE;
    }
 
-/* HMAC */
+/* LTC_HMAC */
    len = sizeof(buf[0]);
    hmac_memory(find_hash("sha256"), key, 16, (unsigned char*)"hello", 5, buf[0], &len);
    len2 = sizeof(buf[0]);
@@ -55,7 +55,7 @@ int main(void)
       return EXIT_FAILURE;
    }
 
-/* OMAC */
+/* LTC_OMAC */
    len = sizeof(buf[0]);
    omac_memory(find_cipher("aes"), key, 16, (unsigned char*)"hello", 5, buf[0], &len);
    len2 = sizeof(buf[0]);

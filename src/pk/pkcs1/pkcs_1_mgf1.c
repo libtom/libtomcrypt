@@ -6,19 +6,19 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.com
+ * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 #include "tomcrypt.h"
 
 /** 
   @file pkcs_1_mgf1.c
-  The Mask Generation Function (MGF1) for PKCS #1, Tom St Denis 
+  The Mask Generation Function (MGF1) for LTC_PKCS #1, Tom St Denis 
 */
 
-#ifdef PKCS_1
+#ifdef LTC_PKCS_1
 
 /**
-   Perform PKCS #1 MGF1 (internal)
+   Perform LTC_PKCS #1 MGF1 (internal)
    @param seed        The seed for MGF1
    @param seedlen     The length of the seed
    @param hash_idx    The index of the hash desired
@@ -101,7 +101,7 @@ LBL_ERR:
    return err;
 }
 
-#endif /* PKCS_1 */
+#endif /* LTC_PKCS_1 */
 
 /* $Source$ */
 /* $Revision$ */

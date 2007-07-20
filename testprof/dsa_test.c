@@ -1,6 +1,6 @@
 #include <tomcrypt_test.h>
 
-#ifdef MDSA
+#ifdef LTC_MDSA
 
 int dsa_test(void)
 {

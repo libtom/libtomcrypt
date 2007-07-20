@@ -6,19 +6,19 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.com
+ * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 #include "tomcrypt.h"
 
 /**
   @file rsa_export.c
-  Export RSA PKCS keys, Tom St Denis
+  Export RSA LTC_PKCS keys, Tom St Denis
 */  
 
-#ifdef MRSA
+#ifdef LTC_MRSA
 
 /**
-    This will export either an RSAPublicKey or RSAPrivateKey [defined in PKCS #1 v2.1] 
+    This will export either an RSAPublicKey or RSAPrivateKey [defined in LTC_PKCS #1 v2.1] 
     @param out       [out] Destination of the packet
     @param outlen    [in/out] The max size and resulting size of the packet
     @param type      The type of exported key (PK_PRIVATE or PK_PUBLIC)
@@ -62,7 +62,7 @@ int rsa_export(unsigned char *out, unsigned long *outlen, int type, rsa_key *key
    }
 }
 
-#endif /* MRSA */
+#endif /* LTC_MRSA */
 
 /* $Source$ */
 /* $Revision$ */

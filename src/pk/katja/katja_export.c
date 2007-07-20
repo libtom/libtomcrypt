@@ -6,13 +6,13 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.com
+ * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 #include "tomcrypt.h"
 
 /**
   @file katja_export.c
-  Export Katja PKCS-style keys, Tom St Denis
+  Export Katja LTC_PKCS-style keys, Tom St Denis
 */  
 
 #ifdef MKAT
@@ -68,7 +68,7 @@ int katja_export(unsigned char *out, unsigned long *outlen, int type, katja_key 
    }
 }
 
-#endif /* MRSA */
+#endif /* LTC_MRSA */
 
 /* $Source$ */
 /* $Revision$ */

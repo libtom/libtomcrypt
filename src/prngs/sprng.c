@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.com
+ * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 #include "tomcrypt.h"
 
@@ -20,7 +20,7 @@
  * in the various other functions.
  */
 
-#ifdef SPRNG
+#ifdef LTC_SPRNG
 
 const struct ltc_prng_descriptor sprng_desc =
 {

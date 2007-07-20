@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.com
+ * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 /**
   @file blowfish.c
@@ -14,7 +14,7 @@
 */
 #include "tomcrypt.h"
 
-#ifdef BLOWFISH
+#ifdef LTC_BLOWFISH
 
 const struct ltc_cipher_descriptor blowfish_desc =
 {
