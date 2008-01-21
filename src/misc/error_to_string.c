@@ -52,6 +52,9 @@ static const char *err_2_str[] =
 
    "Invalid size for prime.",
 
+   "Invalid padding.",
+
+   "Hash applied to too many bits.",
 };
 
 /**
