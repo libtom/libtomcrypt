@@ -23,7 +23,7 @@
   @param siglen           The length of the signature data (octets)
   @param hash             The hash of the message that was signed
   @param hashlen          The length of the hash of the message that was signed (octets)
-  @param padding          Type of padding (LTC_LTC_PKCS_1_PSS or LTC_LTC_PKCS_1_V1_5)
+  @param padding          Type of padding (LTC_PKCS_1_PSS or LTC_PKCS_1_V1_5)
   @param hash_idx         The index of the desired hash
   @param saltlen          The length of the salt used during signature
   @param stat             [out] The result of the signature comparison, 1==valid, 0==invalid
@@ -50,12 +50,12 @@ int rsa_verify_hash_ex(const unsigned char *sig,      unsigned long siglen,
 
   /* valid padding? */
 
-  if ((padding != LTC_LTC_PKCS_1_V1_5) &&
-      (padding != LTC_LTC_PKCS_1_PSS)) {
+  if ((padding != LTC_PKCS_1_V1_5) &&
+      (padding != LTC_PKCS_1_PSS)) {
     return CRYPT_PK_INVALID_PADDING;
   }
 
-  if (padding == LTC_LTC_PKCS_1_PSS) {
+  if (padding == LTC_PKCS_1_PSS) {
     /* valid hash ? */
     if ((err = hash_is_valid(hash_idx)) != CRYPT_OK) {
        return err;
@@ -90,7 +90,7 @@ int rsa_verify_hash_ex(const unsigned char *sig,      unsigned long siglen,
      return CRYPT_INVALID_PACKET;
   }
 
-  if (padding == LTC_LTC_PKCS_1_PSS) {
+  if (padding == LTC_PKCS_1_PSS) {
     /* PSS decode and verify it */
     err = pkcs_1_pss_decode(hash, hashlen, tmpbuf, x, saltlen, hash_idx, modulus_bitlen, stat);
   } else {
@@ -114,7 +114,7 @@ int rsa_verify_hash_ex(const unsigned char *sig,      unsigned long siglen,
       goto bail_2;
     }
 
-    if ((err = pkcs_1_v1_5_decode(tmpbuf, x, LTC_LTC_PKCS_1_EMSA, modulus_bitlen, out, &outlen, &decoded)) != CRYPT_OK) {
+    if ((err = pkcs_1_v1_5_decode(tmpbuf, x, LTC_PKCS_1_EMSA, modulus_bitlen, out, &outlen, &decoded)) != CRYPT_OK) {
       XFREE(out);       
       goto bail_2;
     }

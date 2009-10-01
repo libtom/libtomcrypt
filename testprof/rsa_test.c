@@ -261,10 +261,10 @@ for (cnt = 0; cnt < len; ) {
    for (rsa_msgsize = 1; rsa_msgsize <= 117; rsa_msgsize++) {
       len  = sizeof(out);
       len2 = rsa_msgsize;
-      DO(rsa_encrypt_key_ex(in, rsa_msgsize, out, &len, NULL, 0, &yarrow_prng, prng_idx, 0, LTC_LTC_PKCS_1_V1_5, &key));
+      DO(rsa_encrypt_key_ex(in, rsa_msgsize, out, &len, NULL, 0, &yarrow_prng, prng_idx, 0, LTC_PKCS_1_V1_5, &key));
 
       len2 = rsa_msgsize;
-      DO(rsa_decrypt_key_ex(out, len, tmp, &len2, NULL, 0, 0, LTC_LTC_PKCS_1_V1_5, &stat, &key));
+      DO(rsa_decrypt_key_ex(out, len, tmp, &len2, NULL, 0, 0, LTC_PKCS_1_V1_5, &stat, &key));
       if (!(stat == 1 && stat2 == 0)) {
          fprintf(stderr, "rsa_decrypt_key_ex failed, %d, %d", stat, stat2);
          return 1;
@@ -351,11 +351,11 @@ for (cnt = 0; cnt < len; ) {
    
    /* sign a message with LTC_PKCS #1 v1.5 */
    len = sizeof(out);
-   DO(rsa_sign_hash_ex(in, 20, out, &len, LTC_LTC_PKCS_1_V1_5, &yarrow_prng, prng_idx, hash_idx, 8, &privKey));
-   DO(rsa_verify_hash_ex(out, len, in, 20, LTC_LTC_PKCS_1_V1_5, hash_idx, 8, &stat, &pubKey));
+   DO(rsa_sign_hash_ex(in, 20, out, &len, LTC_PKCS_1_V1_5, &yarrow_prng, prng_idx, hash_idx, 8, &privKey));
+   DO(rsa_verify_hash_ex(out, len, in, 20, LTC_PKCS_1_V1_5, hash_idx, 8, &stat, &pubKey));
    /* change a byte */
    in[0] ^= 1;
-   DO(rsa_verify_hash_ex(out, len, in, 20, LTC_LTC_PKCS_1_V1_5, hash_idx, 8, &stat2, &pubKey));
+   DO(rsa_verify_hash_ex(out, len, in, 20, LTC_PKCS_1_V1_5, hash_idx, 8, &stat2, &pubKey));
    
    if (!(stat == 1 && stat2 == 0)) {
       fprintf(stderr, "rsa_verify_hash_ex failed, %d, %d", stat, stat2);

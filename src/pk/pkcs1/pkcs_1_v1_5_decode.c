@@ -58,7 +58,7 @@ int pkcs_1_v1_5_decode(const unsigned char *msg,
     goto bail;
   }
 
-  if (block_type == LTC_LTC_PKCS_1_EME) {
+  if (block_type == LTC_PKCS_1_EME) {
     for (i = 2; i < modulus_len; i++) {
       /* separator */
       if (msg[i] == 0x00) { break; }
