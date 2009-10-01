@@ -156,6 +156,8 @@
 #define LTC_ANUBIS_TWEAK
 #define LTC_KSEED
 #define LTC_KASUMI
+#define LTC_MULTI2
+#define LTC_CAMELLIA
 
 #endif /* LTC_NO_CIPHERS */
 

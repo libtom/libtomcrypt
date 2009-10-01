@@ -5,12 +5,12 @@ CFLAGS = /Isrc/headers/ /Itestprof/ /Ox /DWIN32 /DLTC_SOURCE /W3 /Fo$@ $(CF)
 
 #START_INS
 OBJECTS=src/ciphers/aes/aes_enc.obj src/ciphers/aes/aes.obj src/ciphers/anubis.obj src/ciphers/blowfish.obj \
-src/ciphers/cast5.obj src/ciphers/des.obj src/ciphers/kasumi.obj src/ciphers/khazad.obj src/ciphers/kseed.obj \
-src/ciphers/multi2.obj src/ciphers/noekeon.obj src/ciphers/rc2.obj src/ciphers/rc5.obj src/ciphers/rc6.obj \
-src/ciphers/safer/safer.obj src/ciphers/safer/saferp.obj src/ciphers/safer/safer_tab.obj \
+src/ciphers/camellia.obj src/ciphers/cast5.obj src/ciphers/des.obj src/ciphers/kasumi.obj src/ciphers/khazad.obj \
+src/ciphers/kseed.obj src/ciphers/multi2.obj src/ciphers/noekeon.obj src/ciphers/rc2.obj src/ciphers/rc5.obj \
+src/ciphers/rc6.obj src/ciphers/safer/safer.obj src/ciphers/safer/saferp.obj src/ciphers/safer/safer_tab.obj \
 src/ciphers/skipjack.obj src/ciphers/twofish/twofish.obj src/ciphers/xtea.obj src/encauth/ccm/ccm_memory.obj \
-src/encauth/ccm/ccm_test.obj src/encauth/eax/eax_addheader.obj src/encauth/eax/eax_decrypt.obj \
-src/encauth/eax/eax_decrypt_verify_memory.obj src/encauth/eax/eax_done.obj \
+src/encauth/ccm/ccm_memory_ex.obj src/encauth/ccm/ccm_test.obj src/encauth/eax/eax_addheader.obj \
+src/encauth/eax/eax_decrypt.obj src/encauth/eax/eax_decrypt_verify_memory.obj src/encauth/eax/eax_done.obj \
 src/encauth/eax/eax_encrypt_authenticate_memory.obj src/encauth/eax/eax_encrypt.obj \
 src/encauth/eax/eax_init.obj src/encauth/eax/eax_test.obj src/encauth/gcm/gcm_add_aad.obj \
 src/encauth/gcm/gcm_add_iv.obj src/encauth/gcm/gcm_done.obj src/encauth/gcm/gcm_gf_mult.obj \
@@ -148,5 +148,5 @@ timing: demos/timing.c library
 	cl $(CFLAGS) demos/timing.c testprof/tomcrypt_prof.lib tomcrypt.lib advapi32.lib $(EXTRALIBS)
 
 # $Source: /cvs/libtom/libtomcrypt/makefile.msvc,v $   
-# $Revision: 1.54 $   
-# $Date: 2007/02/16 16:36:25 $ 
+# $Revision: 1.55 $   
+# $Date: 2007/06/20 13:14:31 $ 

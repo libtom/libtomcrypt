@@ -182,6 +182,9 @@ void reg_algs(void)
 #ifdef LTC_MULTI2
   register_cipher (&multi2_desc);
 #endif
+#ifdef LTC_CAMELLIA
+  register_cipher (&camellia_desc);
+#endif
 
 #ifdef LTC_TIGER
   register_hash (&tiger_desc);

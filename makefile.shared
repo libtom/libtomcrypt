@@ -100,12 +100,12 @@ endif
 #List of objects to compile.
 #START_INS
 OBJECTS=src/ciphers/aes/aes_enc.o src/ciphers/aes/aes.o src/ciphers/anubis.o src/ciphers/blowfish.o \
-src/ciphers/cast5.o src/ciphers/des.o src/ciphers/kasumi.o src/ciphers/khazad.o src/ciphers/kseed.o \
-src/ciphers/multi2.o src/ciphers/noekeon.o src/ciphers/rc2.o src/ciphers/rc5.o src/ciphers/rc6.o \
-src/ciphers/safer/safer.o src/ciphers/safer/saferp.o src/ciphers/safer/safer_tab.o \
+src/ciphers/camellia.o src/ciphers/cast5.o src/ciphers/des.o src/ciphers/kasumi.o src/ciphers/khazad.o \
+src/ciphers/kseed.o src/ciphers/multi2.o src/ciphers/noekeon.o src/ciphers/rc2.o src/ciphers/rc5.o \
+src/ciphers/rc6.o src/ciphers/safer/safer.o src/ciphers/safer/saferp.o src/ciphers/safer/safer_tab.o \
 src/ciphers/skipjack.o src/ciphers/twofish/twofish.o src/ciphers/xtea.o src/encauth/ccm/ccm_memory.o \
-src/encauth/ccm/ccm_test.o src/encauth/eax/eax_addheader.o src/encauth/eax/eax_decrypt.o \
-src/encauth/eax/eax_decrypt_verify_memory.o src/encauth/eax/eax_done.o \
+src/encauth/ccm/ccm_memory_ex.o src/encauth/ccm/ccm_test.o src/encauth/eax/eax_addheader.o \
+src/encauth/eax/eax_decrypt.o src/encauth/eax/eax_decrypt_verify_memory.o src/encauth/eax/eax_done.o \
 src/encauth/eax/eax_encrypt_authenticate_memory.o src/encauth/eax/eax_encrypt.o \
 src/encauth/eax/eax_init.o src/encauth/eax/eax_test.o src/encauth/gcm/gcm_add_aad.o \
 src/encauth/gcm/gcm_add_iv.o src/encauth/gcm/gcm_done.o src/encauth/gcm/gcm_gf_mult.o \
@@ -278,5 +278,5 @@ timing: library testprof/$(LIBTEST) $(TIMINGS)
 	gcc -o $(TIMING) $(TIMINGS) -ltomcrypt_prof -ltomcrypt $(EXTRALIBS)
 
 # $Source: /cvs/libtom/libtomcrypt/makefile.shared,v $   
-# $Revision: 1.80 $   
-# $Date: 2007/02/16 16:36:25 $ 
+# $Revision: 1.81 $   
+# $Date: 2007/06/20 13:14:31 $ 

@@ -138,6 +138,13 @@ struct multi2_key {
 };
 #endif
 
+#ifdef LTC_CAMELLIA
+struct camellia_key {
+    int R;
+    ulong64 kw[4], k[24], kl[6];
+};
+#endif
+
 typedef union Symmetric_key {
 #ifdef LTC_DES
    struct des_key des;
@@ -193,6 +200,9 @@ typedef union Symmetric_key {
 #endif  
 #ifdef LTC_MULTI2
    struct multi2_key   multi2;
+#endif
+#ifdef LTC_CAMELLIA
+   struct camellia_key camellia;
 #endif
    void   *data;
 } symmetric_key;
@@ -754,6 +764,16 @@ int multi2_test(void);
 void multi2_done(symmetric_key *skey);
 int multi2_keysize(int *keysize);
 extern const struct ltc_cipher_descriptor multi2_desc;
+#endif
+
+#ifdef LTC_CAMELLIA
+int camellia_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_key *skey);
+int camellia_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey);
+int camellia_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey);
+int camellia_test(void);
+void camellia_done(symmetric_key *skey);
+int camellia_keysize(int *keysize);
+extern const struct ltc_cipher_descriptor camellia_desc;
 #endif
 
 #ifdef LTC_ECB_MODE

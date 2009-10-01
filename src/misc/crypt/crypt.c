@@ -116,6 +116,12 @@ const char *crypt_build_settings =
 #if defined(LTC_KASUMI)
    "   KASUMI\n"
 #endif
+#if defined(LTC_MULTI2)
+   "   MULTI2\n"
+#endif
+#if defined(LTC_CAMELLIA)
+   "   Camellia\n"
+#endif
 
     "\nHashes built-in:\n"
 #if defined(LTC_SHA512)
