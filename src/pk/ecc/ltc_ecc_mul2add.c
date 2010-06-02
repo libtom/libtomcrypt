@@ -40,9 +40,9 @@ int ltc_ecc_mul2add(ecc_point *A, void *kA,
                          void *modulus)
 {
   ecc_point     *precomp[16];
-  unsigned       bitbufA, bitbufB, lenA, lenB, len, x, y, nA, nB, nibble;
+  unsigned       bitbufA, bitbufB, lenA, lenB, len, y, nA, nB, nibble;
   unsigned char *tA, *tB;
-  int            err, first;
+  int            err, first, x;
   void          *mp, *mu;
  
   /* argchks */

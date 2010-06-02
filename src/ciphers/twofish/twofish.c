@@ -42,14 +42,6 @@ const struct ltc_cipher_descriptor twofish_desc =
 #define MDS_POLY          0x169
 #define RS_POLY           0x14D
 
-/* The 4x4 MDS Linear Transform */
-static const unsigned char MDS[4][4] = {
-    { 0x01, 0xEF, 0x5B, 0x5B },
-    { 0x5B, 0xEF, 0xEF, 0x01 },
-    { 0xEF, 0x5B, 0x01, 0xEF },
-    { 0xEF, 0x01, 0xEF, 0x5B }
-};
-
 /* The 4x8 RS Linear Transform */
 static const unsigned char RS[4][8] = {
     { 0x01, 0xA4, 0x55, 0x87, 0x5A, 0x58, 0xDB, 0x9E },
@@ -58,6 +50,7 @@ static const unsigned char RS[4][8] = {
     { 0XA4, 0X55, 0X87, 0X5A, 0X58, 0XDB, 0X9E, 0X03 }
 };
 
+#ifdef LTC_TWOFISH_SMALL
 /* sbox usage orderings */
 static const unsigned char qord[4][5] = {
    { 1, 1, 0, 0, 1 },
@@ -65,6 +58,7 @@ static const unsigned char qord[4][5] = {
    { 0, 0, 0, 1, 1 },
    { 1, 0, 1, 1, 0 }
 };
+#endif /* LTC_TWOFISH_SMALL */
 
 #ifdef LTC_TWOFISH_TABLES
 
