@@ -76,13 +76,13 @@ int der_decode_sequence_ex(const unsigned char *in, unsigned long  inlen,
   }
 
    /* mark all as unused */
-   for (i = 0; i < outlen; i++) {
+   for (i = 0; i < (int)outlen; i++) {
        list[i].used = 0;
    }     
 
   /* ok read data */
    inlen = blksize;
-   for (i = 0; i < outlen; i++) {
+   for (i = 0; i < (int)outlen; i++) {
        z    = 0;
        type = list[i].type;
        size = list[i].size;
@@ -268,7 +268,7 @@ int der_decode_sequence_ex(const unsigned char *in, unsigned long  inlen,
        }          
    }
      
-   for (i = 0; i < outlen; i++) {
+   for (i = 0; i < (int)outlen; i++) {
       if (list[i].used == 0) {
           err = CRYPT_INVALID_PACKET;
           goto LBL_ERR;
