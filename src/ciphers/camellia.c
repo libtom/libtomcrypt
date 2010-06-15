@@ -705,6 +705,6 @@ int camellia_keysize(int *keysize)
 
 #endif
 
-/* $Source: /cvs/libtom/libtomcrypt/src/ciphers/camellia.c,v $ */
-/* $Revision: 1.1 $ */
-/* $Date: 2007/06/20 13:14:52 $ */
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */
