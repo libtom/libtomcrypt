@@ -338,29 +338,32 @@ typedef struct {
        @param G   The point to multiply
        @param R   The destination for kG  
        @param modulus  The modulus for the field
+       @param a   The "a" curve parameter
        @param map Boolean indicated whether to map back to affine or not (can be ignored if you work in affine only)
        @return CRYPT_OK on success
    */
-   int (*ecc_ptmul)(void *k, ecc_point *G, ecc_point *R, void *modulus, int map);
+   int (*ecc_ptmul)(void *k, ecc_point *G, ecc_point *R, void *modulus, void *a, int map);
 
    /** ECC GF(p) point addition 
        @param P    The first point
        @param Q    The second point
        @param R    The destination of P + Q
        @param modulus  The modulus
+       @param a    The curve "a" parameter
        @param mp   The "b" value from montgomery_setup()
        @return CRYPT_OK on success
    */
-   int (*ecc_ptadd)(ecc_point *P, ecc_point *Q, ecc_point *R, void *modulus, void *mp);
+   int (*ecc_ptadd)(ecc_point *P, ecc_point *Q, ecc_point *R, void *modulus, void *a, void *mp);
 
    /** ECC GF(p) point double 
        @param P    The first point
        @param R    The destination of 2P
        @param modulus  The modulus
+       @param a    The curve "a" parameter
        @param mp   The "b" value from montgomery_setup()
        @return CRYPT_OK on success
    */
-   int (*ecc_ptdbl)(ecc_point *P, ecc_point *R, void *modulus, void *mp);
+   int (*ecc_ptdbl)(ecc_point *P, ecc_point *R, void *modulus, void *a, void *mp);
 
    /** ECC mapping from projective to affine, currently uses (x,y,z) => (x/z^2, y/z^3, 1)
        @param P     The point to map
@@ -379,12 +382,13 @@ typedef struct {
        @param kB       What to multiple B by
        @param C        [out] Destination point (can overlap with A or B
        @param modulus  Modulus for curve 
+       @param a        A parameter for curve 
        @return CRYPT_OK on success
    */ 
    int (*ecc_mul2add)(ecc_point *A, void *kA,
                       ecc_point *B, void *kB,
                       ecc_point *C,
-                           void *modulus);
+                           void *modulus, void *a);
 
 /* ---- (optional) rsa optimized math (for internal CRT) ---- */
 

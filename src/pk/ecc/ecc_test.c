@@ -29,11 +29,11 @@
 */
 int ecc_test(void)
 {
-   void     *modulus, *order;
+   void     *modulus, *order, *a;
    ecc_point  *G, *GG;
    int i, err, primality;
 
-   if ((err = mp_init_multi(&modulus, &order, NULL)) != CRYPT_OK) {
+   if ((err = mp_init_multi(&modulus, &order, &a, NULL)) != CRYPT_OK) {
       return err;
    }
 
@@ -52,6 +52,7 @@ int ecc_test(void)
        #endif
        if ((err = mp_read_radix(modulus, (char *)ltc_ecc_sets[i].prime, 16)) != CRYPT_OK)   { goto done; }
        if ((err = mp_read_radix(order, (char *)ltc_ecc_sets[i].order, 16)) != CRYPT_OK)     { goto done; }
+       if ((err = mp_read_radix(a, (char *)ltc_ecc_sets[i].A, 16)) != CRYPT_OK)             { goto done; }
 
        /* is prime actually prime? */
        if ((err = mp_prime_is_prime(modulus, 8, &primality)) != CRYPT_OK)                   { goto done; }
@@ -73,7 +74,7 @@ int ecc_test(void)
 
        /* then we should have G == (order + 1)G */
        if ((err = mp_add_d(order, 1, order)) != CRYPT_OK)                                   { goto done; }
-       if ((err = ltc_mp.ecc_ptmul(order, G, GG, modulus, 1)) != CRYPT_OK)                  { goto done; }
+       if ((err = ltc_mp.ecc_ptmul(order, G, GG, modulus, a, 1)) != CRYPT_OK)               { goto done; }
        if (mp_cmp(G->x, GG->x) != LTC_MP_EQ || mp_cmp(G->y, GG->y) != LTC_MP_EQ) {
           err = CRYPT_FAIL_TESTVECTOR;
           goto done;
@@ -83,7 +84,7 @@ int ecc_test(void)
 done:
    ltc_ecc_del_point(GG);
    ltc_ecc_del_point(G);
-   mp_clear_multi(order, modulus, NULL);
+   mp_clear_multi(order, modulus, a, NULL);
    return err;
 }
 

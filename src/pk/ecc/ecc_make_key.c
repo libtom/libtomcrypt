@@ -9,7 +9,7 @@
  * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 
-/* Implements ECC over Z/pZ for curve y^2 = x^3 - 3x + b
+/* Implements ECC over Z/pZ for curve y^2 = x^3 - a x + b
  *
  * All curves taken from NIST recommendation paper of July 1999
  * Available at http://csrc.nist.gov/cryptval/dss.htm
@@ -51,7 +51,7 @@ int ecc_make_key_ex(prng_state *prng, int wprng, ecc_key *key, const ltc_ecc_set
 {
    int            err;
    ecc_point     *base;
-   void          *prime, *order;
+   void          *prime, *order, *a;
    unsigned char *buf;
    int            keysize;
 
@@ -82,7 +82,7 @@ int ecc_make_key_ex(prng_state *prng, int wprng, ecc_key *key, const ltc_ecc_set
    }
 
    /* setup the key variables */
-   if ((err = mp_init_multi(&key->pubkey.x, &key->pubkey.y, &key->pubkey.z, &key->k, &prime, &order, NULL)) != CRYPT_OK) {
+   if ((err = mp_init_multi(&key->pubkey.x, &key->pubkey.y, &key->pubkey.z, &key->k, &prime, &order, &a, NULL)) != CRYPT_OK) {
       goto ERR_BUF;
    }
    base = ltc_ecc_new_point();
@@ -94,6 +94,7 @@ int ecc_make_key_ex(prng_state *prng, int wprng, ecc_key *key, const ltc_ecc_set
    /* read in the specs for this key */
    if ((err = mp_read_radix(prime,   (char *)key->dp->prime, 16)) != CRYPT_OK)                  { goto errkey; }
    if ((err = mp_read_radix(order,   (char *)key->dp->order, 16)) != CRYPT_OK)                  { goto errkey; }
+   if ((err = mp_read_radix(a,       (char *)key->dp->A, 16)) != CRYPT_OK)                      { goto errkey; }
    if ((err = mp_read_radix(base->x, (char *)key->dp->Gx, 16)) != CRYPT_OK)                     { goto errkey; }
    if ((err = mp_read_radix(base->y, (char *)key->dp->Gy, 16)) != CRYPT_OK)                     { goto errkey; }
    if ((err = mp_set(base->z, 1)) != CRYPT_OK)                                                  { goto errkey; }
@@ -104,7 +105,7 @@ int ecc_make_key_ex(prng_state *prng, int wprng, ecc_key *key, const ltc_ecc_set
        if((err = mp_mod(key->k, order, key->k)) != CRYPT_OK)                                    { goto errkey; }
    }
    /* make the public key */
-   if ((err = ltc_mp.ecc_ptmul(key->k, base, &key->pubkey, prime, 1)) != CRYPT_OK)              { goto errkey; }
+   if ((err = ltc_mp.ecc_ptmul(key->k, base, &key->pubkey, prime, a, 1)) != CRYPT_OK)           { goto errkey; }
    key->type = PK_PRIVATE;
 
    /* free up ram */
@@ -114,7 +115,7 @@ errkey:
    mp_clear_multi(key->pubkey.x, key->pubkey.y, key->pubkey.z, key->k, NULL);
 cleanup:
    ltc_ecc_del_point(base);
-   mp_clear_multi(prime, order, NULL);
+   mp_clear_multi(prime, order, a, NULL);
 ERR_BUF:
 #ifdef LTC_CLEAN_STACK
    zeromem(buf, ECC_MAXSIZE);

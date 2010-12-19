@@ -219,6 +219,9 @@ typedef struct {
    /** The prime that defines the field the curve is in (encoded in hex) */
    char *prime;
 
+	 /** The fields A param (hex) */
+	 char *A;
+
    /** The fields B param (hex) */
    char *B;
 
@@ -309,10 +312,10 @@ int        ltc_ecc_is_valid_idx(int n);
 /* point ops (mp == montgomery digit) */
 #if !defined(LTC_MECC_ACCEL) || defined(LTM_LTC_DESC) || defined(GMP_LTC_DESC)
 /* R = 2P */
-int ltc_ecc_projective_dbl_point(ecc_point *P, ecc_point *R, void *modulus, void *mp);
+int ltc_ecc_projective_dbl_point(ecc_point *P, ecc_point *R, void *modulus, void *a, void *mp);
 
 /* R = P + Q */
-int ltc_ecc_projective_add_point(ecc_point *P, ecc_point *Q, ecc_point *R, void *modulus, void *mp);
+int ltc_ecc_projective_add_point(ecc_point *P, ecc_point *Q, ecc_point *R, void *modulus, void *a, void *mp);
 #endif
 
 #if defined(LTC_MECC_FP)
@@ -330,14 +333,14 @@ void ltc_ecc_fp_tablelock(int lock);
 #endif
 
 /* R = kG */
-int ltc_ecc_mulmod(void *k, ecc_point *G, ecc_point *R, void *modulus, int map);
+int ltc_ecc_mulmod(void *k, ecc_point *G, ecc_point *R, void *modulus, void *a, int map);
 
 #ifdef LTC_ECC_SHAMIR
 /* kA*A + kB*B = C */
 int ltc_ecc_mul2add(ecc_point *A, void *kA,
                     ecc_point *B, void *kB,
                     ecc_point *C,
-                         void *modulus);
+                         void *modulus, void *a);
 
 #ifdef LTC_MECC_FP
 /* Shamir's trick with optimized point multiplication using fixed point cache */

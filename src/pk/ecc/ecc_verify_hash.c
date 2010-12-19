@@ -48,7 +48,7 @@ int ecc_verify_hash(const unsigned char *sig,  unsigned long siglen,
                     int *stat, ecc_key *key)
 {
    ecc_point    *mG, *mQ;
-   void          *r, *s, *v, *w, *u1, *u2, *e, *p, *m;
+   void          *r, *s, *v, *w, *u1, *u2, *e, *p, *m, *a;
    void          *mp;
    int           err;
 
@@ -67,7 +67,7 @@ int ecc_verify_hash(const unsigned char *sig,  unsigned long siglen,
    }
 
    /* allocate ints */
-   if ((err = mp_init_multi(&r, &s, &v, &w, &u1, &u2, &p, &e, &m, NULL)) != CRYPT_OK) {
+   if ((err = mp_init_multi(&r, &s, &v, &w, &u1, &u2, &p, &e, &m, &a, NULL)) != CRYPT_OK) {
       return CRYPT_MEM;
    }
 
@@ -92,6 +92,9 @@ int ecc_verify_hash(const unsigned char *sig,  unsigned long siglen,
 
    /* get the modulus */
    if ((err = mp_read_radix(m, (char *)key->dp->prime, 16)) != CRYPT_OK)                                { goto error; }
+
+   /* get the value for A */
+   if ((err = mp_read_radix(a, (char *)key->dp->A, 16)) != CRYPT_OK)                                    { goto error; }
 
    /* check for zero */
    if (mp_iszero(r) || mp_iszero(s) || mp_cmp(r, p) != LTC_MP_LT || mp_cmp(s, p) != LTC_MP_LT) {
@@ -122,20 +125,20 @@ int ecc_verify_hash(const unsigned char *sig,  unsigned long siglen,
 
    /* compute u1*mG + u2*mQ = mG */
    if (ltc_mp.ecc_mul2add == NULL) {
-      if ((err = ltc_mp.ecc_ptmul(u1, mG, mG, m, 0)) != CRYPT_OK)                                       { goto error; }
-      if ((err = ltc_mp.ecc_ptmul(u2, mQ, mQ, m, 0)) != CRYPT_OK)                                       { goto error; }
+      if ((err = ltc_mp.ecc_ptmul(u1, mG, mG, m, a, 0)) != CRYPT_OK)                                    { goto error; }
+      if ((err = ltc_mp.ecc_ptmul(u2, mQ, mQ, m, a, 0)) != CRYPT_OK)                                    { goto error; }
   
       /* find the montgomery mp */
       if ((err = mp_montgomery_setup(m, &mp)) != CRYPT_OK)                                              { goto error; }
 
       /* add them */
-      if ((err = ltc_mp.ecc_ptadd(mQ, mG, mG, m, mp)) != CRYPT_OK)                                      { goto error; }
+      if ((err = ltc_mp.ecc_ptadd(mQ, mG, mG, m, a, mp)) != CRYPT_OK)                                   { goto error; }
    
       /* reduce */
       if ((err = ltc_mp.ecc_map(mG, m, mp)) != CRYPT_OK)                                                { goto error; }
    } else {
       /* use Shamir's trick to compute u1*mG + u2*mQ using half of the doubles */
-      if ((err = ltc_mp.ecc_mul2add(mG, u1, mQ, u2, mG, m)) != CRYPT_OK)                                { goto error; }
+      if ((err = ltc_mp.ecc_mul2add(mG, u1, mQ, u2, mG, m, a)) != CRYPT_OK)                             { goto error; }
    }
 
    /* v = X_x1 mod n */
@@ -151,7 +154,7 @@ int ecc_verify_hash(const unsigned char *sig,  unsigned long siglen,
 error:
    ltc_ecc_del_point(mG);
    ltc_ecc_del_point(mQ);
-   mp_clear_multi(r, s, v, w, u1, u2, p, e, m, NULL);
+   mp_clear_multi(r, s, v, w, u1, u2, p, e, m, a, NULL);
    if (mp != NULL) { 
       mp_montgomery_free(mp);
    }

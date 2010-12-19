@@ -29,10 +29,11 @@
    @param Q        The point to add
    @param R        [out] The destination of the double
    @param modulus  The modulus of the field the ECC curve is in
+   @param a        The A parameter of the ECC curve
    @param mp       The "b" value from montgomery_setup()
    @return CRYPT_OK on success
 */
-int ltc_ecc_projective_add_point(ecc_point *P, ecc_point *Q, ecc_point *R, void *modulus, void *mp)
+int ltc_ecc_projective_add_point(ecc_point *P, ecc_point *Q, ecc_point *R, void *modulus, void *a, void *mp)
 {
    void  *t1, *t2, *x, *y, *z;
    int    err;
@@ -54,7 +55,7 @@ int ltc_ecc_projective_add_point(ecc_point *P, ecc_point *Q, ecc_point *R, void 
         (Q->z != NULL && mp_cmp(P->z, Q->z) == LTC_MP_EQ) &&
         (mp_cmp(P->y, Q->y) == LTC_MP_EQ || mp_cmp(P->y, t1) == LTC_MP_EQ)) {
         mp_clear_multi(t1, t2, x, y, z, NULL);
-        return ltc_ecc_projective_dbl_point(P, R, modulus, mp);
+        return ltc_ecc_projective_dbl_point(P, R, modulus, a, mp);
    }
 
    if ((err = mp_copy(P->x, x)) != CRYPT_OK)                                   { goto done; }

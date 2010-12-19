@@ -36,7 +36,7 @@ int ecc_shared_secret(ecc_key *private_key, ecc_key *public_key,
 {
    unsigned long  x;
    ecc_point     *result;
-   void          *prime;
+   void          *prime, *a;
    int            err;
 
    LTC_ARGCHK(private_key != NULL);
@@ -63,13 +63,14 @@ int ecc_shared_secret(ecc_key *private_key, ecc_key *public_key,
       return CRYPT_MEM;
    }
 
-   if ((err = mp_init(&prime)) != CRYPT_OK) {
+   if ((err = mp_init_multi(&prime, &a, NULL)) != CRYPT_OK) {
       ltc_ecc_del_point(result);
       return err;
    }
 
    if ((err = mp_read_radix(prime, (char *)private_key->dp->prime, 16)) != CRYPT_OK)                               { goto done; }
-   if ((err = ltc_mp.ecc_ptmul(private_key->k, &public_key->pubkey, result, prime, 1)) != CRYPT_OK)                { goto done; }
+   if ((err = mp_read_radix(a, (char *)private_key->dp->A, 16)) != CRYPT_OK)                                       { goto done; }
+   if ((err = ltc_mp.ecc_ptmul(private_key->k, &public_key->pubkey, result, prime, a, 1)) != CRYPT_OK)             { goto done; }
 
    x = (unsigned long)mp_unsigned_bin_size(prime);
    if (*outlen < x) {
@@ -83,7 +84,7 @@ int ecc_shared_secret(ecc_key *private_key, ecc_key *public_key,
    err     = CRYPT_OK;
    *outlen = x;
 done:
-   mp_clear(prime);
+   ltc_deinit_multi(prime, a, NULL);
    ltc_ecc_del_point(result);
    return err;
 }
