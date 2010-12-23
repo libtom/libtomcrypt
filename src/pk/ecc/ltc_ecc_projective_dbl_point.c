@@ -73,6 +73,7 @@ int ltc_ecc_projective_dbl_point(ecc_point *P, ecc_point *R, void *modulus, void
    } else {
       /* T1 = Z ^ 4 */
       if ((err = mp_sqr(R->z, t1)) != CRYPT_OK)                                      { goto done; }
+      if ((err = mp_montgomery_reduce(t1, modulus, mp)) != CRYPT_OK)                 { goto done; }
       if ((err = mp_sqr(t1, t1)) != CRYPT_OK)                                        { goto done; }
       if ((err = mp_montgomery_reduce(t1, modulus, mp)) != CRYPT_OK)                 { goto done; }
       /* T1 = T1 * A */
