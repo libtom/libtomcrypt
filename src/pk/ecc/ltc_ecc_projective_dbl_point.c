@@ -60,12 +60,12 @@ int ltc_ecc_projective_dbl_point(ecc_point *P, ecc_point *R, void *modulus, void
    /* T2 = 2T1 */
    if ((err = mp_add(t1, t1, t2)) != CRYPT_OK)                                    { goto done; }
    if (mp_cmp(t2, modulus) != LTC_MP_LT) {
-     if ((err = mp_sub(t2, modulus, t1)) != CRYPT_OK)                             { goto done; }
+     if ((err = mp_sub(t2, modulus, t2)) != CRYPT_OK)                             { goto done; }
    }
    /* T2 = T2 + T1 */
    if ((err = mp_add(t1, t2, t2)) != CRYPT_OK)                                    { goto done; }
    if (mp_cmp(t2, modulus) != LTC_MP_LT) {
-     if ((err = mp_sub(t2, modulus, t1)) != CRYPT_OK)                             { goto done; }
+     if ((err = mp_sub(t2, modulus, t2)) != CRYPT_OK)                             { goto done; }
    }
    if (mp_iszero(a)) {
       /* T1 = T2 */
