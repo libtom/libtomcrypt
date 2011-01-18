@@ -305,6 +305,28 @@ static int lcm(void *a, void *b, void *c)
    return CRYPT_OK;
 }
 
+static int addmod(void *a, void *b, void *c, void *d)
+{
+   LTC_ARGCHK(a != NULL);
+   LTC_ARGCHK(b != NULL);
+   LTC_ARGCHK(c != NULL);
+   LTC_ARGCHK(d != NULL);
+   mpz_add(d, a, b);
+   mpz_mod(d, d, c);
+   return CRYPT_OK;
+}
+
+static int submod(void *a, void *b, void *c, void *d)
+{
+   LTC_ARGCHK(a != NULL);
+   LTC_ARGCHK(b != NULL);
+   LTC_ARGCHK(c != NULL);
+   LTC_ARGCHK(d != NULL);
+   mpz_sub(d, a, b);
+   mpz_mod(d, d, c);
+   return CRYPT_OK;
+}
+
 static int mulmod(void *a, void *b, void *c, void *d)
 {
    LTC_ARGCHK(a != NULL);
@@ -427,6 +449,8 @@ const ltc_math_descriptor gmp_desc = {
    &gcd,
    &lcm,
 
+   &addmod,
+   &submod,
    &mulmod,
    &sqrmod,
    &invmod,

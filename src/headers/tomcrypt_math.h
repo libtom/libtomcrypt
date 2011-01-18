@@ -258,6 +258,24 @@ typedef struct {
    */
    int (*lcm)(void *a, void *b, void *c);
 
+   /** Modular addition
+      @param  a     The first source
+      @param  b     The second source 
+      @param  c     The modulus
+      @param  d     The destination (a + b mod c)
+      @return CRYPT_OK on success
+   */
+   int (*addmod)(void *a, void *b, void *c, void *d);
+
+   /** Modular substraction
+      @param  a     The first source
+      @param  b     The second source 
+      @param  c     The modulus
+      @param  d     The destination (a - b mod c)
+      @return CRYPT_OK on success
+   */
+   int (*submod)(void *a, void *b, void *c, void *d);
+
    /** Modular multiplication
       @param  a     The first source
       @param  b     The second source 
@@ -475,6 +493,8 @@ extern const ltc_math_descriptor gmp_desc;
 #define mp_gcd(a, b, c)              ltc_mp.gcd(a, b, c)
 #define mp_lcm(a, b, c)              ltc_mp.lcm(a, b, c)
 
+#define mp_addmod(a, b, c, d)        ltc_mp.addmod(a, b, c, d)
+#define mp_submod(a, b, c, d)        ltc_mp.submod(a, b, c, d)
 #define mp_mulmod(a, b, c, d)        ltc_mp.mulmod(a, b, c, d)
 #define mp_sqrmod(a, b, c)           ltc_mp.sqrmod(a, b, c)
 #define mp_invmod(a, b, c)           ltc_mp.invmod(a, b, c)

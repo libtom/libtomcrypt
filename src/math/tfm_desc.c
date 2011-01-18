@@ -319,6 +319,24 @@ static int lcm(void *a, void *b, void *c)
    return CRYPT_OK;
 }
 
+static int addmod(void *a, void *b, void *c, void *d)
+{
+   LTC_ARGCHK(a != NULL);
+   LTC_ARGCHK(b != NULL);
+   LTC_ARGCHK(c != NULL);
+   LTC_ARGCHK(d != NULL);
+   return tfm_to_ltc_error(fp_addmod(a,b,c,d));
+}
+
+static int submod(void *a, void *b, void *c, void *d)
+{
+   LTC_ARGCHK(a != NULL);
+   LTC_ARGCHK(b != NULL);
+   LTC_ARGCHK(c != NULL);
+   LTC_ARGCHK(d != NULL);
+   return tfm_to_ltc_error(fp_submod(a,b,c,d));
+}
+
 static int mulmod(void *a, void *b, void *c, void *d)
 {
    LTC_ARGCHK(a != NULL);
@@ -721,6 +739,8 @@ const ltc_math_descriptor tfm_desc = {
    &gcd,
    &lcm,
 
+   &addmod,
+   &submod,
    &mulmod,
    &sqrmod,
    &invmod,

@@ -3675,6 +3675,230 @@ As of v1.06 this function can also import OpenSSL DER formatted public RSA keys.
 import the key, strip off the additional data (it's the preferred hash) and fill in the rsa\_key structure as if it were a native RSAPublicKey.  Note that
 there is no function provided to export in this format.  
 
+
+\chapter{Diffie-Hellman Key Exchange}
+
+\section{Background}
+
+Diffie-Hellman was the original public key system proposed.  The system is based upon the group structure
+of finite fields.  For Diffie-Hellman a prime $p$ is chosen and a ``base'' $b$ such that $b^x\mbox{ }(\mbox{mod }p)$ 
+generates a large sub-group of prime order (for unique values of $x$).
+
+A secret key is an exponent $x$ and a public key is the value of $y \equiv g^x\mbox{ }(\mbox{mod }p)$.  The term
+``discrete logarithm'' denotes the action of finding $x$ given only $y$, $g$ and $p$.  The key exchange part of
+Diffie-Hellman arises from the fact that two users A and B with keys $(A_x, A_y)$ and $(B_x, B_y)$ can exchange 
+a shared key $K \equiv B_y^{A_x} \equiv A_y^{B_x} \equiv g^{A_xB_x}\mbox{ }(\mbox{mod }p)$.
+
+From this public encryption and signatures can be developed.  The trivial way to encrypt (for example) using a public key 
+$y$ is to perform the key exchange offline.  The sender invents a key $k$ and its public copy 
+$k' \equiv g^k\mbox{ }(\mbox{mod }p)$ and uses $K \equiv k'^{A_x}\mbox{ }(\mbox{mod }p)$ as a key to encrypt
+the message with.  Typically $K$ would be sent to a one-way hash and the message digested used as a key in a 
+symmetric cipher.
+
+It is important that the order of the sub-group that $g$ generates not only be large but also prime.  There are
+discrete logarithm algorithms that take $\sqrt r$ time given the order $r$.  The discrete logarithm can be computed
+modulo each prime factor of $r$ and the results combined using the Chinese Remainder Theorem.  In the cases where 
+$r$ is ``B-Smooth'' (e.g. all small factors or powers of small prime factors) the solution is trivial to find.
+
+To thwart such attacks the primes and bases in the library have been designed and fixed.  Given a prime $p$ the order of
+ the sub-group generated is a large prime namely ${p - 1} \over 2$.  Such primes are known as ``strong primes'' and the 
+smaller prime (e.g. the order of the base) are known as Sophie-Germaine primes.
+
+\section{Core Functions}
+
+This library also provides core Diffie-Hellman functions so you can negotiate keys over insecure mediums.  The routines 
+provided are relatively easy to use and only take two function calls to negotiate a shared key.  There is a structure
+called ``dh\_key'' which stores the Diffie-Hellman key in a format these routines can use.  The first routine is to
+make a Diffie-Hellman private key pair:
+\index{dh\_make\_key()}
+\begin{verbatim}
+int dh_make_key(prng_state *prng, int wprng, 
+                int keysize, dh_key *key);
+\end{verbatim}
+The ``keysize'' is the size of the modulus you want in bytes.  Currently support sizes are 96 to 512 bytes which correspond 
+to key sizes of 768 to 4096 bits. The smaller the key the faster it is to use however it will be less secure.  When 
+specifying a size not explicitly supported by the library it will round {\em up} to the next key size.  If the size is 
+above 512 it will return an error.  So if you pass ``keysize == 32'' it will use a 768 bit key but if you pass 
+``keysize == 20000'' it will return an error.  The primes and generators used are built-into the library and were designed 
+to meet very specific goals.  The primes are strong primes which means that if $p$ is the prime then
+$p-1$ is equal to $2r$ where $r$ is a large prime.  The bases are chosen to generate a group of order $r$ to prevent
+leaking a bit of the key.  This means the bases generate a very large prime order group which is good to make cryptanalysis
+hard.
+
+The next two routines are for exporting/importing Diffie-Hellman keys in a binary format.  This is useful for transport
+over communication mediums.  
+
+\index{dh\_export()} \index{dh\_import()}
+\begin{verbatim}
+int dh_export(unsigned char *out, unsigned long *outlen, 
+              int type, dh_key *key);
+
+int dh_import(const unsigned char *in, unsigned long inlen, dh_key *key);
+\end{verbatim}
+
+These two functions work just like the ``rsa\_export()'' and ``rsa\_import()'' functions except these work with 
+Diffie-Hellman keys. Its important to note you do not have to free the ram for a ``dh\_key'' if an import fails.  You can free a 
+``dh\_key'' using:
+\begin{verbatim}
+void dh_free(dh_key *key);
+\end{verbatim}
+After you have exported a copy of your public key (using {\bf PK\_PUBLIC} as ``type'') you can now create a shared secret 
+with the other user using:
+\index{dh\_shared\_secret()}
+\begin{verbatim}
+int dh_shared_secret(dh_key *private_key, 
+                     dh_key *public_key, 
+                     unsigned char *out, unsigned long *outlen);
+\end{verbatim}
+
+Where ``private\_key'' is the key you made and ``public\_key'' is the copy of the public key the other user sent you.  The result goes
+into ``out'' and the length into ``outlen''.  If all went correctly the data in ``out'' should be identical for both parties.  It is important to
+note that the two keys have to be the same size in order for this to work.  There is a function to get the size of a
+key:
+\index{dh\_get\_size()}
+\begin{verbatim}
+int dh_get_size(dh_key *key);
+\end{verbatim}
+This returns the size in bytes of the modulus chosen for that key.
+
+\subsection{Remarks on Usage}
+Its important that you hash the shared key before trying to use it as a key for a symmetric cipher or something.  An 
+example program that communicates over sockets, using MD5 and 1024-bit DH keys is\footnote{This function is a small example.  It is suggested that proper packaging be used.  For example, if the public key sent is truncated these routines will not detect that.}:
+\newpage
+\begin{small}
+\begin{verbatim}
+int establish_secure_socket(int sock, int mode, unsigned char *key, 
+                            prng_state *prng, int wprng)
+{
+   unsigned char buf[4096], buf2[4096];
+   unsigned long x, len;
+   int res, err, inlen;
+   dh_key mykey, theirkey;
+
+   /* make up our private key */
+   if ((err = dh_make_key(prng, wprng, 128, &mykey)) != CRYPT_OK)  {
+      return err;
+   }
+
+   /* export our key as public */ 
+   x = sizeof(buf);
+   if ((err = dh_export(buf, &x, PK_PUBLIC, &mykey)) != CRYPT_OK) {
+      res = err;
+      goto done2;
+   }
+
+   if (mode == 0) {
+      /* mode 0 so we send first */
+      if (send(sock, buf, x, 0) != x) {
+         res = CRYPT_ERROR;
+         goto done2;
+      }          
+
+      /* get their key */
+      if ((inlen = recv(sock, buf2, sizeof(buf2), 0)) <= 0) {
+         res = CRYPT_ERROR;
+         goto done2;
+      }
+   } else {
+      /* mode >0 so we send second */
+      if ((inlen = recv(sock, buf2, sizeof(buf2), 0)) <= 0) {
+         res = CRYPT_ERROR;
+         goto done2;
+      }
+
+      if (send(sock, buf, x, 0) != x) {
+         res = CRYPT_ERROR;
+         goto done2;
+      }
+   }
+
+   if ((err = dh_import(buf2, inlen, &theirkey)) != CRYPT_OK) { 
+      res = err;
+      goto done2;
+   }
+
+   /* make shared secret */
+   x = sizeof(buf);
+   if ((err = dh_shared_secret(&mykey, &theirkey, buf, &x)) != CRYPT_OK) {
+      res = err;
+      goto done;
+   }
+ 
+   /* hash it */
+   len = 16;        /* default is MD5 so "key" must be at least 16 bytes long */
+   if ((err = hash_memory(find_hash("md5"), buf, x, key, &len)) != CRYPT_OK) {
+      res = err;
+      goto done;
+   }
+
+   /* clean up and return */
+   res = CRYPT_OK;
+done:
+   dh_free(&theirkey);
+done2:
+   dh_free(&mykey);
+   zeromem(buf,  sizeof(buf));
+   zeromem(buf2, sizeof(buf2));
+   return res;
+}
+\end{verbatim}
+\end{small}
+\newpage
+\subsection{Remarks on The Snippet}
+When the above code snippet is done (assuming all went well) their will be a shared 128-bit key in the ``key'' array
+passed to ``establish\_secure\_socket()''.
+
+\section{Other Diffie-Hellman Functions}
+In order to test the Diffie-Hellman function internal workings (e.g. the primes and bases) their is a test function made
+available:
+\index{dh\_test()}
+\begin{verbatim}
+int dh_test(void);
+\end{verbatim}
+
+This function returns {\bf CRYPT\_OK} if the bases and primes in the library are correct.  There is one last helper 
+function:
+\index{dh\_sizes()}
+\begin{verbatim}
+void dh_sizes(int *low, int *high);
+\end{verbatim}
+Which stores the smallest and largest key sizes support into the two variables.
+
+\section{DH Packet}
+Similar to the RSA related functions there are functions to encrypt or decrypt symmetric keys using the DH public key
+algorithms.  
+\index{dh\_encrypt\_key()} \index{dh\_decrypt\_key()}
+\begin{verbatim}
+int dh_encrypt_key(const unsigned char *in,   unsigned long  inlen,
+                         unsigned char *out,  unsigned long *len, 
+                         prng_state *prng, int wprng, int hash, 
+                         dh_key *key);
+
+int dh_decrypt_key(const unsigned char *in,  unsigned long  inlen,
+                         unsigned char *out, unsigned long *outlen, 
+                         dh_key *key);
+\end{verbatim}
+Where ``in'' is an input symmetric key of no more than 32 bytes.  Essentially these routines created a random public key
+and find the hash of the shared secret.  The message digest is than XOR'ed against the symmetric key.  All of the 
+required data is placed in ``out'' by ``dh\_encrypt\_key()''.   The hash must produce a message digest at least as large
+as the symmetric key you are trying to share.
+
+Similar to the RSA system you can sign and verify a hash of a message.
+\index{dh\_sign\_hash()} \index{dh\_verify\_hash()}
+\begin{verbatim}
+int dh_sign_hash(const unsigned char *in,  unsigned long inlen,
+                       unsigned char *out, unsigned long *outlen,
+                       prng_state *prng, int wprng, dh_key *key);
+
+int dh_verify_hash(const unsigned char *sig, unsigned long siglen,
+                         const unsigned char *hash, unsigned long hashlen, 
+                         int *stat, dh_key *key);
+\end{verbatim}
+
+The ``dh\_sign\_hash'' function signs the message hash in ``in'' of length ``inlen'' and forms a DH packet in ``out''.  
+The ``dh\_verify\_hash'' function verifies the DH signature in ``sig'' against the hash in ``hash''.  It sets ``stat''
+to non-zero if the signature passes or zero if it fails.
+
 \chapter{Elliptic Curve Cryptography}
 
 \mysection{Background}

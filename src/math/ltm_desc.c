@@ -308,6 +308,24 @@ static int lcm(void *a, void *b, void *c)
    return mpi_to_ltc_error(mp_lcm(a, b, c));
 }
 
+static int addmod(void *a, void *b, void *c, void *d)
+{
+   LTC_ARGCHK(a != NULL);
+   LTC_ARGCHK(b != NULL);
+   LTC_ARGCHK(c != NULL);
+   LTC_ARGCHK(d != NULL);
+   return mpi_to_ltc_error(mp_addmod(a,b,c,d));
+}
+
+static int submod(void *a, void *b, void *c, void *d)
+{
+   LTC_ARGCHK(a != NULL);
+   LTC_ARGCHK(b != NULL);
+   LTC_ARGCHK(c != NULL);
+   LTC_ARGCHK(d != NULL);
+   return mpi_to_ltc_error(mp_submod(a,b,c,d));
+}
+
 static int mulmod(void *a, void *b, void *c, void *d)
 {
    LTC_ARGCHK(a != NULL);
@@ -433,6 +451,8 @@ const ltc_math_descriptor ltm_desc = {
    &gcd,
    &lcm,
 
+   &addmod,
+   &submod,
    &mulmod,
    &sqrmod,
    &invmod,

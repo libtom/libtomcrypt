@@ -302,6 +302,26 @@
 /* Include RSA support */
 #define LTC_MRSA
 
+/* Include Diffie-Hellman support */
+#ifndef GPM_DESC
+/* is_prime fails for GPM */
+#define MDH
+/* Supported Key Sizes */
+#define DH768
+#define DH1024
+#define DH1280
+#define DH1536
+#define DH1792
+#define DH2048
+
+#ifndef TFM_DESC
+/* tfm has a problem in fp_isprime for larger key sizes */
+#define DH2560
+#define DH3072
+#define DH4096
+#endif
+#endif
+
 /* Include Katja (a Rabin variant like RSA) */
 /* #define MKAT */ 
 
