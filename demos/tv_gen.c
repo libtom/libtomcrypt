@@ -726,7 +726,7 @@ void ecc_gen(void)
 {
    FILE         *out;
    unsigned char str[512];
-   void          *k, *order, *modulus;
+   void          *k, *order, *modulus, *a;
    ecc_point    *G, *R;
    int           x;
 
@@ -734,9 +734,9 @@ void ecc_gen(void)
    fprintf(out, "ecc vectors.  These are for kG for k=1,3,9,27,...,3**n until k > order of the curve outputs are <k,x,y> triplets\n\n");
    G = ltc_ecc_new_point();
    R = ltc_ecc_new_point();
-   mp_init(&k);
-   mp_init(&order);
-   mp_init(&modulus);
+   if (mp_init_multi(&k, &order, &modulus, &a, NULL) != CRYPT_OK) {
+      return;
+   }
 
    for (x = 0; ltc_ecc_sets[x].size != 0; x++) {
         fprintf(out, "ECC-%d\n", ltc_ecc_sets[x].size*8);
@@ -744,12 +744,13 @@ void ecc_gen(void)
 
         mp_read_radix(order,   (char *)ltc_ecc_sets[x].order, 16);
         mp_read_radix(modulus, (char *)ltc_ecc_sets[x].prime, 16);
+        mp_read_radix(a,       (char *)ltc_ecc_sets[x].A,     16);
         mp_read_radix(G->x,    (char *)ltc_ecc_sets[x].Gx,    16);
         mp_read_radix(G->y,    (char *)ltc_ecc_sets[x].Gy,    16);
         mp_set(G->z, 1);
 
         while (mp_cmp(k, order) == LTC_MP_LT) {
-            ltc_mp.ecc_ptmul(k, G, R, modulus, 1);
+            ltc_mp.ecc_ptmul(k, G, R, modulus, a, 1);
             mp_tohex(k,    (char*)str); fprintf(out, "%s, ", (char*)str);
             mp_tohex(R->x, (char*)str); fprintf(out, "%s, ", (char*)str);
             mp_tohex(R->y, (char*)str); fprintf(out, "%s\n", (char*)str);

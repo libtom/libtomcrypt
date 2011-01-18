@@ -32,12 +32,12 @@ static int sizes[] = {
 #ifdef LTC_ECC_SHAMIR
 int ecc_test_shamir(void)
 {
-   void *modulus, *mp, *kA, *kB, *rA, *rB;
+   void *modulus, *mp, *kA, *kB, *rA, *rB, *a;
    ecc_point *G, *A, *B, *C1, *C2;
    int x, y, z;
    unsigned char buf[ECC_BUF_SIZE];
 
-   DO(mp_init_multi(&kA, &kB, &rA, &rB, &modulus, NULL));
+   DO(mp_init_multi(&kA, &kB, &rA, &rB, &modulus, &a, NULL));
    LTC_ARGCHK((G  = ltc_ecc_new_point()) != NULL);
    LTC_ARGCHK((A  = ltc_ecc_new_point()) != NULL);
    LTC_ARGCHK((B  = ltc_ecc_new_point()) != NULL);
@@ -56,6 +56,7 @@ int ecc_test_shamir(void)
        DO(mp_read_radix(G->y, ltc_ecc_sets[z].Gy, 16));
        DO(mp_set(G->z, 1));
        DO(mp_read_radix(modulus, ltc_ecc_sets[z].prime, 16));
+       DO(mp_read_radix(a,       ltc_ecc_sets[z].A,     16));
        DO(mp_montgomery_setup(modulus, &mp));
 
        /* do 100 random tests */
@@ -67,10 +68,10 @@ int ecc_test_shamir(void)
           DO(mp_read_unsigned_bin(rB, buf, sizes[x]));
 
           /* compute rA * G = A */
-          DO(ltc_mp.ecc_ptmul(rA, G, A, modulus, 1));
+          DO(ltc_mp.ecc_ptmul(rA, G, A, modulus, a, 1));
        
           /* compute rB * G = B */
-          DO(ltc_mp.ecc_ptmul(rB, G, B, modulus, 1));
+          DO(ltc_mp.ecc_ptmul(rB, G, B, modulus, a, 1));
 
           /* pick a random kA, kB */
           LTC_ARGCHK(yarrow_read(buf, sizes[x], &yarrow_prng) == sizes[x]);
@@ -79,13 +80,13 @@ int ecc_test_shamir(void)
           DO(mp_read_unsigned_bin(kB, buf, sizes[x]));
 
           /* now, compute kA*A + kB*B = C1 using the older method */
-          DO(ltc_mp.ecc_ptmul(kA, A, C1, modulus, 0));
-          DO(ltc_mp.ecc_ptmul(kB, B, C2, modulus, 0));
-          DO(ltc_mp.ecc_ptadd(C1, C2, C1, modulus, mp));
+          DO(ltc_mp.ecc_ptmul(kA, A, C1, modulus, a, 0));
+          DO(ltc_mp.ecc_ptmul(kB, B, C2, modulus, a, 0));
+          DO(ltc_mp.ecc_ptadd(C1, C2, C1, modulus, a, mp));
           DO(ltc_mp.ecc_map(C1, modulus, mp));
 
           /* now compute using mul2add */
-          DO(ltc_mp.ecc_mul2add(A, kA, B, kB, C2, modulus));
+          DO(ltc_mp.ecc_mul2add(A, kA, B, kB, C2, modulus, a));
 
           /* is they the sames?  */
           if ((mp_cmp(C1->x, C2->x) != LTC_MP_EQ) || (mp_cmp(C1->y, C2->y) != LTC_MP_EQ) || (mp_cmp(C1->z, C2->z) != LTC_MP_EQ)) {
