@@ -451,8 +451,6 @@ const ltc_math_descriptor ltm_desc = {
    &gcd,
    &lcm,
 
-   &addmod,
-   &submod,
    &mulmod,
    &sqrmod,
    &invmod,
@@ -491,8 +489,11 @@ const ltc_math_descriptor ltm_desc = {
    &rsa_make_key,
    &rsa_exptmod,
 #else
-   NULL, NULL
+   NULL, NULL,
 #endif
+   &addmod,
+   &submod,
+   
 };
 
 

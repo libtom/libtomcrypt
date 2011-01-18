@@ -258,24 +258,6 @@ typedef struct {
    */
    int (*lcm)(void *a, void *b, void *c);
 
-   /** Modular addition
-      @param  a     The first source
-      @param  b     The second source 
-      @param  c     The modulus
-      @param  d     The destination (a + b mod c)
-      @return CRYPT_OK on success
-   */
-   int (*addmod)(void *a, void *b, void *c, void *d);
-
-   /** Modular substraction
-      @param  a     The first source
-      @param  b     The second source 
-      @param  c     The modulus
-      @param  d     The destination (a - b mod c)
-      @return CRYPT_OK on success
-   */
-   int (*submod)(void *a, void *b, void *c, void *d);
-
    /** Modular multiplication
       @param  a     The first source
       @param  b     The second source 
@@ -429,6 +411,26 @@ typedef struct {
    int (*rsa_me)(const unsigned char *in,   unsigned long inlen,
                        unsigned char *out,  unsigned long *outlen, int which,
                        rsa_key *key);
+
+/* ---- basic math continued ---- */
+
+   /** Modular addition
+      @param  a     The first source
+      @param  b     The second source 
+      @param  c     The modulus
+      @param  d     The destination (a + b mod c)
+      @return CRYPT_OK on success
+   */
+   int (*addmod)(void *a, void *b, void *c, void *d);
+
+   /** Modular substraction
+      @param  a     The first source
+      @param  b     The second source 
+      @param  c     The modulus
+      @param  d     The destination (a - b mod c)
+      @return CRYPT_OK on success
+   */
+   int (*submod)(void *a, void *b, void *c, void *d);
 } ltc_math_descriptor;
 
 extern ltc_math_descriptor ltc_mp;
