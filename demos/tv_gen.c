@@ -238,12 +238,12 @@ void hmac_gen(void)
    out = fopen("hmac_tv.txt", "w");
 
    fprintf(out, 
-"LTC_HMAC Tests.  In these tests messages of N bytes long (00,01,02,...,NN-1) are LTC_HMACed.  The initial key is\n"
-"of the same format (the same length as the HASH output size).  The LTC_HMAC key in step N+1 is the LTC_HMAC output of\n"
+"HMAC Tests.  In these tests messages of N bytes long (00,01,02,...,NN-1) are HMACed.  The initial key is\n"
+"of the same format (the same length as the HASH output size).  The HMAC key in step N+1 is the HMAC output of\n"
 "step N.\n\n");
 
    for (x = 0; hash_descriptor[x].name != NULL; x++) {
-      fprintf(out, "LTC_HMAC-%s\n", hash_descriptor[x].name);
+      fprintf(out, "HMAC-%s\n", hash_descriptor[x].name);
       
       /* initial key */
       for (y = 0; y < (int)hash_descriptor[x].hashsize; y++) {
@@ -290,8 +290,8 @@ void omac_gen(void)
    out = fopen("omac_tv.txt", "w");
 
    fprintf(out, 
-"LTC_OMAC Tests.  In these tests messages of N bytes long (00,01,02,...,NN-1) are LTC_OMAC'ed.  The initial key is\n"
-"of the same format (length specified per cipher).  The LTC_OMAC key in step N+1 is the LTC_OMAC output of\n"
+"OMAC Tests.  In these tests messages of N bytes long (00,01,02,...,NN-1) are OMAC'ed.  The initial key is\n"
+"of the same format (length specified per cipher).  The OMAC key in step N+1 is the OMAC output of\n"
 "step N (repeated as required to fill the array).\n\n");
 
    for (x = 0; cipher_descriptor[x].name != NULL; x++) {
@@ -303,7 +303,7 @@ void omac_gen(void)
       if (cipher_descriptor[x].keysize(&kl) != CRYPT_OK) {
          kl = cipher_descriptor[x].max_key_length;
       }
-      fprintf(out, "LTC_OMAC-%s (%d byte key)\n", cipher_descriptor[x].name, kl);
+      fprintf(out, "OMAC-%s (%d byte key)\n", cipher_descriptor[x].name, kl);
       
       /* initial key/block */
       for (y = 0; y < kl; y++) {
@@ -345,8 +345,8 @@ void pmac_gen(void)
    out = fopen("pmac_tv.txt", "w");
 
    fprintf(out, 
-"PMAC Tests.  In these tests messages of N bytes long (00,01,02,...,NN-1) are LTC_OMAC'ed.  The initial key is\n"
-"of the same format (length specified per cipher).  The LTC_OMAC key in step N+1 is the LTC_OMAC output of\n"
+"PMAC Tests.  In these tests messages of N bytes long (00,01,02,...,NN-1) are PMAC'ed.  The initial key is\n"
+"of the same format (length specified per cipher).  The PMAC key in step N+1 is the PMAC output of\n"
 "step N (repeated as required to fill the array).\n\n");
 
    for (x = 0; cipher_descriptor[x].name != NULL; x++) {
@@ -767,14 +767,14 @@ int main(void)
    reg_algs();
    printf("Generating hash   vectors..."); fflush(stdout); hash_gen();   printf("done\n");
    printf("Generating cipher vectors..."); fflush(stdout); cipher_gen(); printf("done\n");
-   printf("Generating LTC_HMAC   vectors..."); fflush(stdout); hmac_gen();   printf("done\n");
-   printf("Generating LTC_OMAC   vectors..."); fflush(stdout); omac_gen();   printf("done\n");
+   printf("Generating HMAC   vectors..."); fflush(stdout); hmac_gen();   printf("done\n");
+   printf("Generating OMAC   vectors..."); fflush(stdout); omac_gen();   printf("done\n");
    printf("Generating PMAC   vectors..."); fflush(stdout); pmac_gen();   printf("done\n");
    printf("Generating EAX    vectors..."); fflush(stdout); eax_gen();    printf("done\n");
    printf("Generating OCB    vectors..."); fflush(stdout); ocb_gen();    printf("done\n");
    printf("Generating CCM    vectors..."); fflush(stdout); ccm_gen();    printf("done\n");
    printf("Generating GCM    vectors..."); fflush(stdout); gcm_gen();    printf("done\n");
-   printf("Generating LTC_BASE64 vectors..."); fflush(stdout); base64_gen(); printf("done\n");
+   printf("Generating BASE64 vectors..."); fflush(stdout); base64_gen(); printf("done\n");
    printf("Generating MATH   vectors..."); fflush(stdout); math_gen();   printf("done\n");
    printf("Generating ECC    vectors..."); fflush(stdout); ecc_gen();    printf("done\n");
    printf("Generating LRW    vectors..."); fflush(stdout); lrw_gen();    printf("done\n");

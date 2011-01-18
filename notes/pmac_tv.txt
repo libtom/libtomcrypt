@@ -1,5 +1,5 @@
-PMAC Tests.  In these tests messages of N bytes long (00,01,02,...,NN-1) are OMAC'ed.  The initial key is
-of the same format (length specified per cipher).  The OMAC key in step N+1 is the OMAC output of
+PMAC Tests.  In these tests messages of N bytes long (00,01,02,...,NN-1) are PMAC'ed.  The initial key is
+of the same format (length specified per cipher).  The PMAC key in step N+1 is the PMAC output of
 step N (repeated as required to fill the array).
 
 PMAC-aes (16 byte key)
