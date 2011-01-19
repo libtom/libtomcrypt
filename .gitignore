@@ -1,2 +1,15 @@
 # suppress compiler/linker output
 *.[oa]
+
+# suppress output of build process
+gcc_[12].txt
+testok.txt
+test_*.txt
+tv.txt
+*_tv.txt
+
+# *nix/windows test executables
+test
+test.exe
+tv_gen
+tv_gen.exe
