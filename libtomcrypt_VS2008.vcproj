@@ -217,6 +217,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\src\ciphers\camellia.c"
+				>
+			</File>
+			<File
 				RelativePath="src\ciphers\cast5.c"
 				>
 				<FileConfiguration
@@ -680,6 +684,10 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
+				</File>
+				<File
+					RelativePath=".\src\encauth\ccm\ccm_memory_ex.c"
+					>
 				</File>
 				<File
 					RelativePath="src\encauth\ccm\ccm_test.c"
@@ -6936,6 +6944,14 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
+				</File>
+			</Filter>
+			<Filter
+				Name="dh"
+				>
+				<File
+					RelativePath=".\src\pk\dh\dh.c"
+					>
 				</File>
 			</Filter>
 		</Filter>

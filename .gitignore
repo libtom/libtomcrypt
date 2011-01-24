@@ -1,5 +1,7 @@
 # suppress compiler/linker output
 *.[oa]
+*.obj
+[Dd]ebug/
 
 # suppress output of build process
 gcc_[12].txt
@@ -13,3 +15,15 @@ test
 test.exe
 tv_gen
 tv_gen.exe
+timing
+timing.exe
+
+# Visual Studio special files
+# ignore user specific settings
+*.user
+*.suo
+# ignore non-compressed browse file (holds information for ClassView, IntelliSense and WizardBar)
+*.ncb
+# ignore VS intermediate and program database files
+*.idb
+*.pdb
