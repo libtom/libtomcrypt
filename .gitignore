@@ -2,6 +2,7 @@
 *.[oa]
 *.obj
 [Dd]ebug/
+[Rr]elease/
 
 # suppress output of build process
 gcc_[12].txt
