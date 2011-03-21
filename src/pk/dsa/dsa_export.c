@@ -28,6 +28,7 @@
 int dsa_export(unsigned char *out, unsigned long *outlen, int type, dsa_key *key)
 {
    unsigned char flags[1];
+   unsigned long zero=0;
 
    LTC_ARGCHK(out    != NULL);
    LTC_ARGCHK(outlen != NULL);
@@ -44,12 +45,17 @@ int dsa_export(unsigned char *out, unsigned long *outlen, int type, dsa_key *key
 
    flags[0] = (type != PK_PUBLIC) ? 1 : 0;
 
+   /* This encoding is different from the one in original
+    * libtomcrypt. It uses a compatible encoding with gnutls
+    * and openssl
+    */
+
    if (type == PK_PRIVATE) {
       return der_encode_sequence_multi(out, outlen,
-                                 LTC_ASN1_BIT_STRING,   1UL, flags,
-                                 LTC_ASN1_INTEGER,      1UL, key->g,
+                                 LTC_ASN1_SHORT_INTEGER, 1UL, &zero,
                                  LTC_ASN1_INTEGER,      1UL, key->p,
                                  LTC_ASN1_INTEGER,      1UL, key->q,
+                                 LTC_ASN1_INTEGER,      1UL, key->g,
                                  LTC_ASN1_INTEGER,      1UL, key->y,
                                  LTC_ASN1_INTEGER,      1UL, key->x,
                                  LTC_ASN1_EOL,          0UL, NULL);

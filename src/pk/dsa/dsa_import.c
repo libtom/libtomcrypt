@@ -28,6 +28,7 @@ int dsa_import(const unsigned char *in, unsigned long inlen, dsa_key *key)
 {
    unsigned char flags[1];
    int           err;
+   unsigned long zero = 0;
 
    LTC_ARGCHK(in  != NULL);
    LTC_ARGCHK(key != NULL);
@@ -42,22 +43,19 @@ int dsa_import(const unsigned char *in, unsigned long inlen, dsa_key *key)
    if ((err = der_decode_sequence_multi(in, inlen,
                                   LTC_ASN1_BIT_STRING, 1UL, flags,
                                   LTC_ASN1_EOL, 0UL, NULL)) != CRYPT_OK) {
-      goto error;
-   }
-
-   if (flags[0] == 1) {
-      if ((err = der_decode_sequence_multi(in, inlen,
-                                 LTC_ASN1_BIT_STRING,   1UL, flags,
-                                 LTC_ASN1_INTEGER,      1UL, key->g,
-                                 LTC_ASN1_INTEGER,      1UL, key->p,
-                                 LTC_ASN1_INTEGER,      1UL, key->q,
-                                 LTC_ASN1_INTEGER,      1UL, key->y,
-                                 LTC_ASN1_INTEGER,      1UL, key->x,
-                                 LTC_ASN1_EOL,          0UL, NULL)) != CRYPT_OK) {
-         goto error;
-      }
-      key->type = PK_PRIVATE;
-   } else {
+       /* private key */
+       if ((err = der_decode_sequence_multi(in, inlen,
+                          LTC_ASN1_SHORT_INTEGER, 1UL, &zero,
+                          LTC_ASN1_INTEGER,      1UL, key->p,
+                          LTC_ASN1_INTEGER,      1UL, key->q,
+                          LTC_ASN1_INTEGER,      1UL, key->g,
+                          LTC_ASN1_INTEGER,      1UL, key->y,
+                          LTC_ASN1_INTEGER,      1UL, key->x,
+                          LTC_ASN1_EOL,          0UL, NULL)) != CRYPT_OK) {
+          goto error;
+       }
+       key->type = PK_PRIVATE;
+   } else { /* public */
       if ((err = der_decode_sequence_multi(in, inlen,
                                  LTC_ASN1_BIT_STRING,   1UL, flags,
                                  LTC_ASN1_INTEGER,      1UL, key->g,
