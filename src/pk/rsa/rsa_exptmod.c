@@ -55,7 +55,7 @@ int rsa_exptmod(const unsigned char *in,   unsigned long inlen,
    /* init and copy into tmp */
    if ((err = mp_init_multi(&tmp, &tmpa, &tmpb, &rnd, &rndi, NULL)) != CRYPT_OK)
         { return err; }
-   if ((err = mp_read_unsigned_bin(&tmp, (unsigned char *)in, (int)inlen)) != CRYPT_OK)
+   if ((err = mp_read_unsigned_bin(tmp, (unsigned char *)in, (int)inlen)) != CRYPT_OK)
         { goto error; }
 
 
