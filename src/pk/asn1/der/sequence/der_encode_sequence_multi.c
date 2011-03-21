@@ -64,6 +64,7 @@ int der_encode_sequence_multi(unsigned char *out, unsigned long *outlen, ...)
            case LTC_ASN1_SEQUENCE:
            case LTC_ASN1_SET:
            case LTC_ASN1_SETOF:
+           case LTC_ASN1_RAW_BIT_STRING:
                 ++x; 
                 break;
           
@@ -111,6 +112,7 @@ int der_encode_sequence_multi(unsigned char *out, unsigned long *outlen, ...)
            case LTC_ASN1_SEQUENCE:
            case LTC_ASN1_SET:
            case LTC_ASN1_SETOF:
+           case LTC_ASN1_RAW_BIT_STRING:
                 list[x].type   = type;
                 list[x].size   = size;
                 list[x++].data = data;
