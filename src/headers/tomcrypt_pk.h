@@ -7,6 +7,19 @@ enum {
 
 int rand_prime(void *N, long len, prng_state *prng, int wprng);
 
+enum {
+   PKA_RSA,
+   PKA_DSA
+};
+
+typedef struct Oid {
+    unsigned long OID[16];
+    /** Length of DER encoding */
+    unsigned long OIDlen;
+} oid_st;
+
+int pk_get_oid(int pk, oid_st *st);
+
 /* ---- RSA ---- */
 #ifdef LTC_MRSA
 
@@ -429,7 +442,8 @@ enum {
  LTC_ASN1_CHOICE,
  LTC_ASN1_SEQUENCE,
  LTC_ASN1_SET,
- LTC_ASN1_SETOF
+ LTC_ASN1_SETOF,
+ LTC_ASN1_RAW_BIT_STRING,
 };
 
 /** A LTC ASN.1 list type */
@@ -470,6 +484,15 @@ int der_decode_sequence_ex(const unsigned char *in, unsigned long  inlen,
 int der_length_sequence(ltc_asn1_list *list, unsigned long inlen,
                         unsigned long *outlen);
 
+/* SUBJECT PUBLIC KEY INFO */
+int der_encode_subject_public_key_info(unsigned char *out, unsigned long *outlen,
+        unsigned int algorithm, void* public_key, unsigned long public_key_len,
+        unsigned long parameters_type, void* parameters, unsigned long parameters_len);
+
+int der_decode_subject_public_key_info(const unsigned char *in, unsigned long inlen,
+        unsigned int algorithm, void* public_key, unsigned long* public_key_len,
+        unsigned long parameters_type, ltc_asn1_list* parameters, unsigned long parameters_len);
+
 /* SET */
 #define der_decode_set(in, inlen, list, outlen) der_decode_sequence_ex(in, inlen, list, outlen, 0)
 #define der_length_set der_length_sequence
@@ -508,6 +531,10 @@ int der_length_short_integer(unsigned long num, unsigned long *outlen);
 int der_encode_bit_string(const unsigned char *in, unsigned long inlen,
                                 unsigned char *out, unsigned long *outlen);
 int der_decode_bit_string(const unsigned char *in, unsigned long inlen,
+                                unsigned char *out, unsigned long *outlen);
+int der_encode_raw_bit_string(const unsigned char *in, unsigned long inlen,
+                                unsigned char *out, unsigned long *outlen);
+int der_decode_raw_bit_string(const unsigned char *in, unsigned long inlen,
                                 unsigned char *out, unsigned long *outlen);
 int der_length_bit_string(unsigned long nbits, unsigned long *outlen);
 

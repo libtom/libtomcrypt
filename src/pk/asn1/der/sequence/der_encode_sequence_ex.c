@@ -73,6 +73,7 @@ int der_encode_sequence_ex(ltc_asn1_list *list, unsigned long inlen,
                break;
 
            case LTC_ASN1_BIT_STRING:
+           case LTC_ASN1_RAW_BIT_STRING:
                if ((err = der_length_bit_string(size, &x)) != CRYPT_OK) {
                   goto LBL_ERR;
                }
@@ -227,6 +228,15 @@ int der_encode_sequence_ex(ltc_asn1_list *list, unsigned long inlen,
            case LTC_ASN1_BIT_STRING:
                z = *outlen;
                if ((err = der_encode_bit_string(data, size, out + x, &z)) != CRYPT_OK) {
+                  goto LBL_ERR;
+               }
+               x       += z;
+               *outlen -= z;
+               break;
+
+           case LTC_ASN1_RAW_BIT_STRING:
+               z = *outlen;
+               if ((err = der_encode_raw_bit_string(data, size, out + x, &z)) != CRYPT_OK) {
                   goto LBL_ERR;
                }
                x       += z;

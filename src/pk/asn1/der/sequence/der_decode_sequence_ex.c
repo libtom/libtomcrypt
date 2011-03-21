@@ -139,6 +139,18 @@ int der_decode_sequence_ex(const unsigned char *in, unsigned long  inlen,
                }
                break;
 
+           case LTC_ASN1_RAW_BIT_STRING:
+               z = inlen;
+               if ((err = der_decode_raw_bit_string(in + x, z, data, &size)) != CRYPT_OK) {
+                  if (!ordered) { continue; }
+                  goto LBL_ERR;
+               }
+               list[i].size = size;
+               if ((err = der_length_bit_string(size, &z)) != CRYPT_OK) {
+                  goto LBL_ERR;
+               }
+               break;
+
            case LTC_ASN1_OCTET_STRING:
                z = inlen;
                if ((err = der_decode_octet_string(in + x, z, data, &size)) != CRYPT_OK) {

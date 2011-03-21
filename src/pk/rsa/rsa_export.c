@@ -28,6 +28,7 @@
 int rsa_export(unsigned char *out, unsigned long *outlen, int type, rsa_key *key)
 {
    unsigned long zero=0;
+   int err;
    LTC_ARGCHK(out    != NULL);
    LTC_ARGCHK(outlen != NULL);
    LTC_ARGCHK(key    != NULL);
@@ -55,10 +56,29 @@ int rsa_export(unsigned char *out, unsigned long *outlen, int type, rsa_key *key
                           LTC_ASN1_EOL,     0UL, NULL);
    } else {
       /* public key */
-      return der_encode_sequence_multi(out, outlen, 
-                                 LTC_ASN1_INTEGER, 1UL,  key->N, 
-                                 LTC_ASN1_INTEGER, 1UL,  key->e, 
+      unsigned long tmplen = (mp_count_bits(key->N)/8)*2+8;
+      unsigned char* tmp = XMALLOC(tmplen);
+
+      if (tmp == NULL) {
+	   return CRYPT_MEM;
+      }
+
+      err = der_encode_sequence_multi(tmp, &tmplen,
+                                 LTC_ASN1_INTEGER, 1UL,  key->N,
+                                 LTC_ASN1_INTEGER, 1UL,  key->e,
                                  LTC_ASN1_EOL,     0UL, NULL);
+
+      if (err != CRYPT_OK) {
+		  goto error;
+      }
+
+      err = der_encode_subject_public_key_info(out, outlen,
+        PKA_RSA, tmp, tmplen, LTC_ASN1_NULL, NULL, 0);
+
+error:
+      XFREE(tmp);
+      return err;
+
    }
 }
 

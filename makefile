@@ -143,6 +143,7 @@ src/mac/xcbc/xcbc_file.o src/mac/xcbc/xcbc_init.o src/mac/xcbc/xcbc_memory.o \
 src/mac/xcbc/xcbc_memory_multi.o src/mac/xcbc/xcbc_process.o src/mac/xcbc/xcbc_test.o \
 src/math/fp/ltc_ecc_fp_mulmod.o src/math/gmp_desc.o src/math/ltm_desc.o src/math/multi.o \
 src/math/rand_prime.o src/math/tfm_desc.o src/misc/base64/base64_decode.o \
+src/misc/pk_get_oid.o \
 src/misc/base64/base64_encode.o src/misc/burn_stack.o src/misc/crypt/crypt_argchk.o \
 src/misc/crypt/crypt.o src/misc/crypt/crypt_cipher_descriptor.o src/misc/crypt/crypt_cipher_is_valid.o \
 src/misc/crypt/crypt_find_cipher_any.o src/misc/crypt/crypt_find_cipher.o \
@@ -173,6 +174,7 @@ src/modes/xts/xts_decrypt.o src/modes/xts/xts_done.o src/modes/xts/xts_encrypt.o
 src/modes/xts/xts_init.o src/modes/xts/xts_mult_x.o src/modes/xts/xts_test.o \
 src/pk/asn1/der/bit/der_decode_bit_string.o src/pk/asn1/der/bit/der_encode_bit_string.o \
 src/pk/asn1/der/bit/der_length_bit_string.o src/pk/asn1/der/boolean/der_decode_boolean.o \
+src/pk/asn1/der/bit/der_decode_raw_bit_string.o src/pk/asn1/der/bit/der_encode_raw_bit_string.o \
 src/pk/asn1/der/boolean/der_encode_boolean.o src/pk/asn1/der/boolean/der_length_boolean.o \
 src/pk/asn1/der/choice/der_decode_choice.o src/pk/asn1/der/ia5/der_decode_ia5_string.o \
 src/pk/asn1/der/ia5/der_encode_ia5_string.o src/pk/asn1/der/ia5/der_length_ia5_string.o \
@@ -186,6 +188,8 @@ src/pk/asn1/der/octet/der_length_octet_string.o \
 src/pk/asn1/der/printable_string/der_decode_printable_string.o \
 src/pk/asn1/der/printable_string/der_encode_printable_string.o \
 src/pk/asn1/der/printable_string/der_length_printable_string.o \
+src/pk/asn1/der/sequence/der_encode_subject_public_key_info.o \
+src/pk/asn1/der/sequence/der_decode_subject_public_key_info.o \
 src/pk/asn1/der/sequence/der_decode_sequence_ex.o \
 src/pk/asn1/der/sequence/der_decode_sequence_flexi.o \
 src/pk/asn1/der/sequence/der_decode_sequence_multi.o \
