@@ -1,6 +1,7 @@
 # suppress compiler/linker output
 *.[oa]
 *.obj
+*.gcno
 [Dd]ebug/
 [Rr]elease/
 
