@@ -409,6 +409,13 @@ static int isprime(void *a, int *b)
    return CRYPT_OK;
 }
 
+static int set_rand(void *a, int size)
+{
+   LTC_ARGCHK(a != NULL);
+   mpz_random(a, size);
+   return CRYPT_OK;
+}
+
 const ltc_math_descriptor gmp_desc = {
    "GNU MP",
    sizeof(mp_limb_t) * CHAR_BIT - GMP_NAIL_BITS,
@@ -492,6 +499,8 @@ const ltc_math_descriptor gmp_desc = {
    &addmod,
    &submod,
    
+   &set_rand,
+
 };
 
 

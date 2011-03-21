@@ -431,6 +431,15 @@ typedef struct {
       @return CRYPT_OK on success
    */
    int (*submod)(void *a, void *b, void *c, void *d);
+
+/* ---- misc stuff ---- */
+   /** Make a pseudo-random mpi
+      @param  a     The mpi to make random
+      @param  size  The desired length
+      @return CRYPT_OK on success
+   */
+   int (*rand)(void *a, int size);
+
 } ltc_math_descriptor;
 
 extern ltc_math_descriptor ltc_mp;
@@ -514,6 +523,8 @@ extern const ltc_math_descriptor gmp_desc;
 #define mp_exch(a, b)                do { void *ABC__tmp = a; a = b; b = ABC__tmp; } while(0);
 
 #define mp_tohex(a, b)               mp_toradix(a, b, 16)
+
+#define mp_rand(a, b)                ltc_mp.rand(a, b)
 
 #endif
 

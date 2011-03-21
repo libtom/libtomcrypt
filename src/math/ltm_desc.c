@@ -408,7 +408,13 @@ static int isprime(void *a, int *b)
    err = mpi_to_ltc_error(mp_prime_is_prime(a, 8, b));
    *b = (*b == MP_YES) ? LTC_MP_YES : LTC_MP_NO;
    return err;
-}   
+}
+
+static int set_rand(void *a, int size)
+{
+   LTC_ARGCHK(a != NULL);
+   return mpi_to_ltc_error(mp_rand(a, size));
+}
 
 const ltc_math_descriptor ltm_desc = {
 
@@ -494,6 +500,8 @@ const ltc_math_descriptor ltm_desc = {
    &addmod,
    &submod,
    
+   &set_rand,
+
 };
 
 

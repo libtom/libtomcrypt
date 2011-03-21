@@ -289,10 +289,10 @@
 #ifndef LTC_NO_MATH
 
 /* LibTomMath */
-/* #define LTM_LTC_DESC */
+/* #define LTM_DESC */
 
 /* TomsFastMath */
-/* #define TFM_LTC_DESC */
+/* #define TFM_DESC */
 
 #endif /* LTC_NO_MATH */
 
@@ -301,6 +301,9 @@
 
 /* Include RSA support */
 #define LTC_MRSA
+
+/* Enable RSA blinding when doing private key operations? */
+/* #define LTC_RSA_BLINDING */
 
 /* Include Diffie-Hellman support */
 #ifndef GPM_DESC
@@ -381,6 +384,11 @@
 #ifdef LTC_MRSA
    #define LTC_PKCS_1
 #endif   
+
+#if defined(TFM_DESC) && defined(LTC_RSA_BLINDING)
+    #warning RSA blinding currently not supported in combination with TFM
+    #undef LTC_RSA_BLINDING
+#endif
 
 #if defined(LTC_DER) && !defined(MPI) 
    #error ASN.1 DER requires MPI functionality

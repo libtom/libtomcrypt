@@ -787,6 +787,8 @@ const ltc_math_descriptor tfm_desc = {
    &addmod,
    &submod,
    
+   NULL,
+
 };
 
 
