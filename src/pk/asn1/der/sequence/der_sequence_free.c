@@ -53,7 +53,7 @@ void der_sequence_free(ltc_asn1_list *in)
       
       /* move to next and free current */
       l = in->next;
-      free(in);
+      XFREE(in);
       in = l;
    }     
 }
