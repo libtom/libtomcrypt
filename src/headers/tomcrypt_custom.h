@@ -306,8 +306,8 @@
 /* #define LTC_RSA_BLINDING */
 
 /* Include Diffie-Hellman support */
-#ifndef GPM_DESC
-/* is_prime fails for GPM */
+#ifndef GMP_DESC
+/* is_prime fails for GMP */
 #define MDH
 /* Supported Key Sizes */
 #define DH768
