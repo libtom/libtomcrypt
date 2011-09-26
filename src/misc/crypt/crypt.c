@@ -286,7 +286,9 @@ const char *crypt_build_settings =
 #if defined(_MSC_VER)
     "   MSVC compiler detected.\n"
 #endif
-#if defined(__GNUC__)
+#if defined(__clang_version__)
+    "   Clang compiler " __clang_version__ ".\n"
+#elif defined(__GNUC__)         /* clang also defines __GNUC__ */
     "   GCC compiler detected.\n"
 #endif
 #if defined(INTEL_CC)
