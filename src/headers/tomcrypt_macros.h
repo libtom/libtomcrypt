@@ -96,9 +96,20 @@ asm __volatile__ (             \
 
 #endif
 
+/* gcc 4.3 and up has a bswap builtin */
+#if !defined(LTC_NO_BSWAP) && \
+   (defined(__GNUC__) && (__GNUC__ * 100 + __GNUC_MINOR__ >= 403))
+
+#define STORE64H(x, y)                          \
+   { ulong64 __t = __builtin_bswap64 ((x));     \
+      XMEMCPY ((y), &__t, 8); }
+
+#define LOAD64H(x, y)                           \
+   { XMEMCPY (&(x), (y), 8);                    \
+      (x) = __builtin_bswap64 ((x)); }
 
 /* x86_64 processor */
-#if !defined(LTC_NO_BSWAP) && (defined(__GNUC__) && defined(__x86_64__))
+#elif !defined(LTC_NO_BSWAP) && (defined(__GNUC__) && defined(__x86_64__))
 
 #define STORE64H(x, y)           \
 asm __volatile__ (               \
