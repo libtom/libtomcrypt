@@ -345,7 +345,7 @@ clean:
 	rm -f crypt.aux  crypt.dvi  crypt.idx  crypt.ilg  crypt.ind  crypt.log crypt.toc
 	rm -f $(TV) $(PROF) $(SMALL) $(CRYPT) $(HASHSUM) $(MULTI) $(TIMING) $(TEST)
 	rm -rf doc/doxygen
-	rm -f doc/*.pdf
+	rm -f `find . -type f -name "*.pdf" | grep -FL crypt.pdf | xargs`
 	rm -f *.txt
 
 #build the doxy files (requires Doxygen, tetex and patience)
