@@ -67,7 +67,17 @@
 
 #ifdef ENDIAN_LITTLE
 
-#if !defined(LTC_NO_BSWAP) && (defined(INTEL_CC) || (defined(__GNUC__) && (defined(__DJGPP__) || defined(__CYGWIN__) || defined(__MINGW32__) || defined(__i386__) || defined(__x86_64__))))
+#ifdef LTC_HAVE_BSWAP_BUILTIN
+
+#define STORE32H(x, y)                          \
+   { ulong32 __t = __builtin_bswap32 ((x));     \
+      XMEMCPY ((y), &__t, 4); }
+
+#define LOAD32H(x, y)                           \
+   { XMEMCPY (&(x), (y), 4);                    \
+      (x) = __builtin_bswap32 ((x)); }
+
+#elif !defined(LTC_NO_BSWAP) && (defined(INTEL_CC) || (defined(__GNUC__) && (defined(__DJGPP__) || defined(__CYGWIN__) || defined(__MINGW32__) || defined(__i386__) || defined(__x86_64__))))
 
 #define STORE32H(x, y)           \
 asm __volatile__ (               \
@@ -96,9 +106,7 @@ asm __volatile__ (             \
 
 #endif
 
-/* gcc 4.3 and up has a bswap builtin */
-#if !defined(LTC_NO_BSWAP) && \
-   (defined(__GNUC__) && (__GNUC__ * 100 + __GNUC_MINOR__ >= 403))
+#ifdef LTC_HAVE_BSWAP_BUILTIN
 
 #define STORE64H(x, y)                          \
    { ulong64 __t = __builtin_bswap64 ((x));     \

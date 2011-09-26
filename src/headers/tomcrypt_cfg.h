@@ -128,6 +128,22 @@ LTC_EXPORT int   LTC_CALL XSTRCMP(const char *s1, const char *s2);
    #define ENDIAN_NEUTRAL
 #endif
 
+/* gcc 4.3 and up has a bswap builtin; detect it by gcc version.
+ * clang also supports the bswap builtin, and although clang pretends
+ * to be gcc (macro-wise, anyway), clang pretends to be a version
+ * prior to gcc 4.3, so we can't detect bswap that way.  Instead,
+ * clang has a __has_builtin mechanism that can be used to check
+ * for builtins:
+ * http://clang.llvm.org/docs/LanguageExtensions.html#feature_check */
+#ifndef __has_builtin
+   #define __has_builtin(x) 0
+#endif
+#if !defined(LTC_NO_BSWAP) && defined(__GNUC__) &&                      \
+   ((__GNUC__ * 100 + __GNUC_MINOR__ >= 403) ||                         \
+    (__has_builtin(__builtin_bswap32) && __has_builtin(__builtin_bswap64)))
+   #define LTC_HAVE_BSWAP_BUILTIN
+#endif
+
 #endif
 
 
