@@ -487,7 +487,7 @@ const ltc_math_descriptor gmp_desc = {
    NULL,
 #endif /* LTC_ECC_SHAMIR */
 #else
-   NULL, NULL, NULL, NULL, NULL
+   NULL, NULL, NULL, NULL, NULL,
 #endif /* LTC_MECC */
 
 #ifdef LTC_MRSA
