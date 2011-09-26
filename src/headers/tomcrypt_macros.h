@@ -105,13 +105,13 @@ asm __volatile__ (               \
    "bswapq %0     \n\t"          \
    "movq   %0,(%1)\n\t"          \
    "bswapq %0     \n\t"          \
-      ::"r"(x), "r"(y));
+   ::"r"(x), "r"(y): "memory");
 
 #define LOAD64H(x, y)          \
 asm __volatile__ (             \
    "movq (%1),%0\n\t"          \
    "bswapq %0\n\t"             \
-   :"=r"(x): "r"(y));
+   :"=r"(x): "r"(y): "memory");
 
 #else
 
