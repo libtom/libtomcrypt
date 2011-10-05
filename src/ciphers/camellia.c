@@ -711,9 +711,9 @@ void camellia_done(symmetric_key *skey) {}
 
 int camellia_keysize(int *keysize)
 {
-   if (*keysize > 32) { *keysize = 32; }
-   else if (*keysize > 24) { *keysize = 24; }
-   else if (*keysize > 16) { *keysize = 16; }
+   if (*keysize >= 32) { *keysize = 32; }
+   else if (*keysize >= 24) { *keysize = 24; }
+   else if (*keysize >= 16) { *keysize = 16; }
    else return CRYPT_INVALID_KEYSIZE;
    return CRYPT_OK;
 }
