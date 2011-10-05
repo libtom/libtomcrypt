@@ -53,6 +53,9 @@ void reg_algs(void)
 #ifdef LTC_KHAZAD
   register_cipher (&khazad_desc);
 #endif
+#ifdef LTC_CAMELLIA
+  register_cipher (&camellia_desc);
+#endif
 
 #ifdef LTC_TIGER
   register_hash (&tiger_desc);
