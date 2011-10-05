@@ -188,6 +188,11 @@ static int write_radix(void *a, char *b, int radix)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
+   if (radix >= 11 && radix <= 36)
+      /* If radix is positive, GMP uses lowercase, and if negative, uppercase.
+       * We want it to use uppercase, to match the test vectors (presumably
+       * generated with LibTomMath). */
+      radix = -radix;
    mpz_get_str(b, radix, a);
    return CRYPT_OK;
 }
