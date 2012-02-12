@@ -10,7 +10,7 @@
  */
 
 /**
-  @file camellia.ca
+  @file camellia.c
   Implementation by Tom St Denis of Elliptic Semiconductor
 */
 
