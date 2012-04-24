@@ -62,11 +62,10 @@ int rsa_import(const unsigned char *in, unsigned long inlen, rsa_key *key)
                                            LTC_ASN1_EOL,     0UL, NULL)) != CRYPT_OK) {
          goto LBL_ERR;
       }
-      XFREE(tmpbuf);
       key->type = PK_PUBLIC;
-      return CRYPT_OK;
+      err = CRYPT_OK;
+      goto LBL_FREE;
    }
-   XFREE(tmpbuf);
 
    /* not SSL public key, try to match against LTC_PKCS #1 standards */
    if ((err = der_decode_sequence_multi(in, inlen, 
@@ -110,10 +109,16 @@ int rsa_import(const unsigned char *in, unsigned long inlen, rsa_key *key)
       }
       key->type = PK_PUBLIC;
    }
-   return CRYPT_OK;
+   err = CRYPT_OK;
+   goto LBL_FREE;
+
 LBL_ERR:
-   XFREE(tmpbuf);
    mp_clear_multi(key->d,  key->e, key->N, key->dQ, key->dP, key->qP, key->p, key->q, NULL);
+
+LBL_FREE:
+   if (tmpbuf != NULL)
+     XFREE(tmpbuf);
+
    return err;
 }
 
