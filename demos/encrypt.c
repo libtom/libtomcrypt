@@ -15,7 +15,9 @@ int usage(char *name)
 {
    int x;
 
-   printf("Usage: %s [-d](ecrypt) cipher infile outfile\nCiphers:\n", name);
+   printf("Usage encrypt: %s cipher infile outfile\n", name);
+   printf("Usage decrypt: %s -d cipher infile outfile\n", name);
+   printf("Usage test:    %s -t cipher\nCiphers:\n", name);
    for (x = 0; cipher_descriptor[x].name != NULL; x++) {
       printf("%s\n",cipher_descriptor[x].name);
    }
@@ -108,6 +110,27 @@ int main(int argc, char *argv[])
    register_algs();
 
    if (argc < 4) {
+      if ((argc > 2) && (!strcmp(argv[1], "-t"))) {
+        cipher  = argv[2];
+        cipher_idx = find_cipher(cipher);
+        if (cipher_idx == -1) {
+          printf("Invalid cipher %s entered on command line.\n", cipher);
+          exit(-1);
+        } /* if */
+        if (cipher_descriptor[cipher_idx].test)
+        {
+          if (cipher_descriptor[cipher_idx].test() != CRYPT_OK)
+          {
+            printf("Error when testing cipher %s.\n", cipher);
+            exit(-1);
+          }
+          else
+          {
+            printf("Testing cipher %s succeeded.\n", cipher);
+            exit(0);
+          } /* if ... else */
+        } /* if */
+      }
       return usage(argv[0]);
    }
 
