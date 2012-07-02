@@ -34,7 +34,7 @@ const struct ltc_cipher_descriptor xtea_desc =
 int xtea_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_key *skey)
 {
    unsigned long x, sum, K[4];
-   
+
    LTC_ARGCHK(key != NULL);
    LTC_ARGCHK(skey != NULL);
 
@@ -52,17 +52,17 @@ int xtea_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_k
    LOAD32L(K[1], key+4);
    LOAD32L(K[2], key+8);
    LOAD32L(K[3], key+12);
-   
+
    for (x = sum = 0; x < 32; x++) {
        skey->xtea.A[x] = (sum + K[sum&3]) & 0xFFFFFFFFUL;
        sum = (sum + 0x9E3779B9UL) & 0xFFFFFFFFUL;
        skey->xtea.B[x] = (sum + K[(sum>>11)&3]) & 0xFFFFFFFFUL;
    }
-   
+
 #ifdef LTC_CLEAN_STACK
    zeromem(&K, sizeof(K));
-#endif   
-   
+#endif
+
    return CRYPT_OK;
 }
 
@@ -106,7 +106,7 @@ int xtea_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *
   Decrypts a block of text with LTC_XTEA
   @param ct The input ciphertext (8 bytes)
   @param pt The output plaintext (8 bytes)
-  @param skey The key as scheduled 
+  @param skey The key as scheduled
   @return CRYPT_OK if successful
 */
 int xtea_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey)
@@ -146,13 +146,13 @@ int xtea_test(void)
 {
  #ifndef LTC_TEST
     return CRYPT_NOP;
- #else    
-   static const unsigned char key[16] = 
+ #else
+   static const unsigned char key[16] =
       { 0x78, 0x56, 0x34, 0x12, 0xf0, 0xcd, 0xcb, 0x9a,
         0x48, 0x37, 0x26, 0x15, 0xc0, 0xbf, 0xae, 0x9d };
-   static const unsigned char pt[8] = 
+   static const unsigned char pt[8] =
       { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08 };
-   static const unsigned char ct[8] = 
+   static const unsigned char ct[8] =
       { 0x75, 0xd7, 0xc5, 0xbf, 0xcf, 0x58, 0xc9, 0x3f };
    unsigned char tmp[2][8];
    symmetric_key skey;
@@ -164,7 +164,7 @@ int xtea_test(void)
    xtea_ecb_encrypt(pt, tmp[0], &skey);
    xtea_ecb_decrypt(tmp[0], tmp[1], &skey);
 
-   if (XMEMCMP(tmp[0], ct, 8) != 0 || XMEMCMP(tmp[1], pt, 8) != 0) { 
+   if (XMEMCMP(tmp[0], ct, 8) != 0 || XMEMCMP(tmp[1], pt, 8) != 0) {
       return CRYPT_FAIL_TESTVECTOR;
    }
 
@@ -178,7 +178,7 @@ int xtea_test(void)
  #endif
 }
 
-/** Terminate the context 
+/** Terminate the context
    @param skey    The scheduled key
 */
 void xtea_done(symmetric_key *skey)
@@ -194,7 +194,7 @@ int xtea_keysize(int *keysize)
 {
    LTC_ARGCHK(keysize != NULL);
    if (*keysize < 16) {
-      return CRYPT_INVALID_KEYSIZE; 
+      return CRYPT_INVALID_KEYSIZE;
    }
    *keysize = 16;
    return CRYPT_OK;
