@@ -1329,7 +1329,7 @@ void time_encmacs_(unsigned long MAC_SIZE)
         t_start();
         t1 = t_read();
         z = 16;
-        if ((err = ocb_encrypt_authenticate_memory(cipher_idx, key, 16, IV, buf, MAC_SIZE*1024, buf, tag, &z)) != CRYPT_OK) {
+        if ((err = ocb_encrypt_authenticate_memory(cipher_idx, key, 16, IV, 16, "", 0, buf, MAC_SIZE*1024, buf, tag, &z)) != CRYPT_OK) {
            fprintf(stderr, "\nOCB error... %s\n", error_to_string(err));
            exit(EXIT_FAILURE);
         }

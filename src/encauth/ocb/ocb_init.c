@@ -19,7 +19,7 @@
 
 static const struct {
     int           len;
-    unsigned char poly_div[MAXBLOCKSIZE], 
+    unsigned char poly_div[MAXBLOCKSIZE],
                   poly_mul[MAXBLOCKSIZE];
 } polys[] = {
 {
@@ -27,7 +27,7 @@ static const struct {
     { 0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0D },
     { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x1B }
 }, {
-    16, 
+    16,
     { 0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x43 },
     { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -36,18 +36,21 @@ static const struct {
 };
 
 /**
-  Initialize an OCB context.
-  @param ocb     [out] The destination of the OCB state
-  @param cipher  The index of the desired cipher
-  @param key     The secret key
-  @param keylen  The length of the secret key (octets)
-  @param nonce   The session nonce (length of the block size of the cipher)
-  @return CRYPT_OK if successful
+   Initialize an OCB context
+   @param ocb       [out] The destination of the OCB state
+   @param cipher    The index of the desired cipher
+   @param key       The secret key
+   @param keylen    The length of the secret key (octets)
+   @param nonce     The session nonce
+   @param noncelen  The length of the session nonce (octets)
+   @return CRYPT_OK if successful
 */
-int ocb_init(ocb_state *ocb, int cipher, 
-             const unsigned char *key, unsigned long keylen, const unsigned char *nonce)
+int ocb_init(ocb_state *ocb, int cipher,
+             const unsigned char *key, unsigned long keylen,
+             const unsigned char *nonce, unsigned long noncelen)
 {
    int poly, x, y, m, err;
+   unsigned char *previous, *current;
 
    LTC_ARGCHK(ocb   != NULL);
    LTC_ARGCHK(key   != NULL);
@@ -57,75 +60,69 @@ int ocb_init(ocb_state *ocb, int cipher,
    if ((err = cipher_is_valid(cipher)) != CRYPT_OK) {
       return err;
    }
+   ocb->cipher = cipher;
 
    /* determine which polys to use */
    ocb->block_len = cipher_descriptor[cipher].block_length;
    for (poly = 0; poly < (int)(sizeof(polys)/sizeof(polys[0])); poly++) {
-       if (polys[poly].len == ocb->block_len) { 
+       if (polys[poly].len == ocb->block_len) {
           break;
        }
    }
    if (polys[poly].len != ocb->block_len) {
       return CRYPT_INVALID_ARG;
-   }   
+   }
 
    /* schedule the key */
    if ((err = cipher_descriptor[cipher].setup(key, keylen, 0, &ocb->key)) != CRYPT_OK) {
       return err;
    }
- 
-   /* find L = E[0] */
-   zeromem(ocb->L, ocb->block_len);
-   if ((err = cipher_descriptor[cipher].ecb_encrypt(ocb->L, ocb->L, &ocb->key)) != CRYPT_OK) {
+
+   /* L_* = ENCIPHER(K, zeros(128)) */
+   zeromem(ocb->L_star, ocb->block_len);
+   if ((err = cipher_descriptor[cipher].ecb_encrypt(ocb->L_star, ocb->L_star, &ocb->key)) != CRYPT_OK) {
       return err;
    }
 
-   /* find R = E[N xor L] */
-   for (x = 0; x < ocb->block_len; x++) {
-       ocb->R[x] = ocb->L[x] ^ nonce[x];
-   }
-   if ((err = cipher_descriptor[cipher].ecb_encrypt(ocb->R, ocb->R, &ocb->key)) != CRYPT_OK) {
-      return err;
-   }
-
-   /* find Ls[i] = L << i for i == 0..31 */
-   XMEMCPY(ocb->Ls[0], ocb->L, ocb->block_len);
-   for (x = 1; x < 32; x++) {
-       m = ocb->Ls[x-1][0] >> 7;
+   /* compute L_$, L_0, L_1, ... */
+   for (x = -1; x < 32; x++) {
+       if (x == -1) {                /* gonna compute: L_$ = double(L_*) */
+         current  = ocb->L_dollar;
+         previous = ocb->L_star;
+       }
+       else if (x == 0) {            /* gonna compute: L_0 = double(L_$) */
+         current  = ocb->L_[0];
+         previous = ocb->L_dollar;
+       }
+       else {                        /* gonna compute: L_i = double(L_{i-1}) for every integer i > 0 */
+         current  = ocb->L_[x];
+         previous = ocb->L_[x-1];
+       }
+       m = previous[0] >> 7;
        for (y = 0; y < ocb->block_len-1; y++) {
-           ocb->Ls[x][y] = ((ocb->Ls[x-1][y] << 1) | (ocb->Ls[x-1][y+1] >> 7)) & 255;
+           current[y] = ((previous[y] << 1) | (previous[y+1] >> 7)) & 255;
        }
-       ocb->Ls[x][ocb->block_len-1] = (ocb->Ls[x-1][ocb->block_len-1] << 1) & 255;
-
+       current[ocb->block_len-1] = (previous[ocb->block_len-1] << 1) & 255;
        if (m == 1) {
-          for (y = 0; y < ocb->block_len; y++) {
-              ocb->Ls[x][y] ^= polys[poly].poly_mul[y];
-          }
+          /* current[] = current[] XOR polys[poly].poly_mul[]*/
+          ocb_int_xor_blocks(current, current, polys[poly].poly_mul, ocb->block_len);
        }
     }
 
-    /* find Lr = L / x */
-    m = ocb->L[ocb->block_len-1] & 1;
+    /* initialize ocb->Offset_current = Offset_0 */
+    ocb_int_calc_offset_zero(ocb, nonce, noncelen);
 
-    /* shift right */
-    for (x = ocb->block_len - 1; x > 0; x--) {
-        ocb->Lr[x] = ((ocb->L[x] >> 1) | (ocb->L[x-1] << 7)) & 255;
-    }
-    ocb->Lr[0] = ocb->L[0] >> 1;
-
-    if (m == 1) {
-       for (x = 0; x < ocb->block_len; x++) {
-           ocb->Lr[x] ^= polys[poly].poly_div[x];
-       }
-    }
-
-    /* set Li, checksum */
-    zeromem(ocb->Li,       ocb->block_len);
+    /* initialize checksum to all zeros */
     zeromem(ocb->checksum, ocb->block_len);
 
-    /* set other params */
+    /* set block index */
     ocb->block_index = 1;
-    ocb->cipher      = cipher;
+
+    /* initialize AAD related stuff */
+    ocb->ablock_index = 1;
+    ocb->adata_buffer_bytes = 0;
+    zeromem(ocb->aOffset_current, ocb->block_len);
+    zeromem(ocb->aSum_current, ocb->block_len);
 
     return CRYPT_OK;
 }

@@ -9,7 +9,7 @@
  * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 
-/** 
+/**
   @file ocb_encrypt_authenticate_memory.c
   OCB implementation, encrypt block of memory, by Tom St Denis
 */
@@ -23,6 +23,9 @@
    @param key        The secret key
    @param keylen     The length of the secret key (octets)
    @param nonce      The session nonce (length of the block ciphers block size)
+   @param noncelen   The length of the nonce (octets)
+   @param adata      The AAD - additional associated data
+   @param adatalen   The length of AAD (octets)
    @param pt         The plaintext
    @param ptlen      The length of the plaintext (octets)
    @param ct         [out] The ciphertext
@@ -32,7 +35,8 @@
 */
 int ocb_encrypt_authenticate_memory(int cipher,
     const unsigned char *key,    unsigned long keylen,
-    const unsigned char *nonce,  
+    const unsigned char *nonce,  unsigned long noncelen,
+    const unsigned char *adata,  unsigned long adatalen,
     const unsigned char *pt,     unsigned long ptlen,
           unsigned char *ct,
           unsigned char *tag,    unsigned long *taglen)
@@ -47,33 +51,32 @@ int ocb_encrypt_authenticate_memory(int cipher,
    LTC_ARGCHK(tag    != NULL);
    LTC_ARGCHK(taglen != NULL);
 
-   /* allocate ram */
+   /* allocate memory */
    ocb = XMALLOC(sizeof(ocb_state));
    if (ocb == NULL) {
       return CRYPT_MEM;
    }
 
-   if ((err = ocb_init(ocb, cipher, key, keylen, nonce)) != CRYPT_OK) {
+   if ((err = ocb_init(ocb, cipher, key, keylen, nonce, noncelen)) != CRYPT_OK) {
       goto LBL_ERR;
    }
 
-   while (ptlen > (unsigned long)ocb->block_len) {
-        if ((err = ocb_encrypt(ocb, pt, ct)) != CRYPT_OK) {
-           goto LBL_ERR;
-        }
-        ptlen   -= ocb->block_len;
-        pt      += ocb->block_len;
-        ct      += ocb->block_len;
+   if ((err = ocb_add_aad(ocb, adata, adatalen)) != CRYPT_OK) {
+      goto LBL_ERR;
    }
 
-   err = ocb_done_encrypt(ocb, pt, ptlen, ct, tag, taglen);
+   if ((err = ocb_encrypt_last(ocb, pt, ptlen, ct)) != CRYPT_OK) {
+      goto LBL_ERR;
+   }
+
+   err = ocb_done(ocb, tag, taglen);
+
 LBL_ERR:
 #ifdef LTC_CLEAN_STACK
    zeromem(ocb, sizeof(ocb_state));
 #endif
 
    XFREE(ocb);
-
    return err;
 }
 

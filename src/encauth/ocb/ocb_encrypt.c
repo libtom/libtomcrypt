@@ -9,7 +9,7 @@
  * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 
-/** 
+/**
    @file ocb_encrypt.c
    OCB implementation, encrypt data, by Tom St Denis
 */
@@ -18,16 +18,18 @@
 #ifdef LTC_OCB_MODE
 
 /**
-   Encrypt a block of data with OCB.
+   Encrypt blocks of data with OCB
    @param ocb     The OCB state
-   @param pt      The plaintext (length of the block size of the block cipher)
+   @param pt      The plaintext (length multiple of the block size of the block cipher)
+   @param ptlen   The length of the input (octets)
    @param ct      [out] The ciphertext (same size as the pt)
    @return CRYPT_OK if successful
 */
-int ocb_encrypt(ocb_state *ocb, const unsigned char *pt, unsigned char *ct)
+int ocb_encrypt(ocb_state *ocb, const unsigned char *pt, unsigned long ptlen, unsigned char *ct)
 {
-   unsigned char Z[MAXBLOCKSIZE], tmp[MAXBLOCKSIZE];
-   int err, x;
+   unsigned char tmp[MAXBLOCKSIZE];
+   int err, i, full_blocks;
+   unsigned char *pt_b, *ct_b;
 
    LTC_ARGCHK(ocb != NULL);
    LTC_ARGCHK(pt  != NULL);
@@ -39,30 +41,42 @@ int ocb_encrypt(ocb_state *ocb, const unsigned char *pt, unsigned char *ct)
       return CRYPT_INVALID_ARG;
    }
 
-   /* compute checksum */
-   for (x = 0; x < ocb->block_len; x++) {
-       ocb->checksum[x] ^= pt[x];
+   if (ptlen % ocb->block_len) { /* ptlen has to bu multiple of block_len */
+      return CRYPT_INVALID_ARG;
    }
 
-   /* Get Z[i] value */
-   ocb_shift_xor(ocb, Z);
+   full_blocks = ptlen/ocb->block_len;
+   for(i=0; i<full_blocks; i++) {
+     pt_b = (unsigned char *)pt+i*ocb->block_len;
+     ct_b = (unsigned char *)ct+i*ocb->block_len;
 
-   /* xor pt in, encrypt, xor Z out */
-   for (x = 0; x < ocb->block_len; x++) {
-       tmp[x] = pt[x] ^ Z[x];
-   }
-   if ((err = cipher_descriptor[ocb->cipher].ecb_encrypt(tmp, ct, &ocb->key)) != CRYPT_OK) {
-      return err;
-   }
-   for (x = 0; x < ocb->block_len; x++) {
-       ct[x] ^= Z[x];
+     /* ocb->Offset_current[] = ocb->Offset_current[] ^ Offset_{ntz(block_index)} */
+     ocb_int_xor_blocks(ocb->Offset_current, ocb->Offset_current, ocb->L_[ocb_int_ntz(ocb->block_index)], ocb->block_len);
+
+     /* tmp[] = pt[] XOR ocb->Offset_current[] */
+     ocb_int_xor_blocks(tmp, pt_b, ocb->Offset_current, ocb->block_len);
+
+     /* encrypt */
+     if ((err = cipher_descriptor[ocb->cipher].ecb_encrypt(tmp, tmp, &ocb->key)) != CRYPT_OK) {
+        goto LBL_ERR;
+     }
+
+     /* ct[] = tmp[] XOR ocb->Offset_current[] */
+     ocb_int_xor_blocks(ct_b, tmp, ocb->Offset_current, ocb->block_len);
+
+     /* ocb->checksum[] = ocb->checksum[] XOR pt[] */
+     ocb_int_xor_blocks(ocb->checksum, ocb->checksum, pt_b, ocb->block_len);
+
+     ocb->block_index++;
    }
 
+   err = CRYPT_OK;
+
+LBL_ERR:
 #ifdef LTC_CLEAN_STACK
-   zeromem(Z, sizeof(Z));
    zeromem(tmp, sizeof(tmp));
 #endif
-   return CRYPT_OK;
+   return err;
 }
 
 #endif

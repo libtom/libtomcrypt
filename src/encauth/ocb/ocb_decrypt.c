@@ -11,68 +11,75 @@
 
 /**
    @file ocb_decrypt.c
-   OCB implementation, decrypt data, by Tom St Denis 
+   OCB implementation, decrypt data, by Tom St Denis
 */
 #include "tomcrypt.h"
 
 #ifdef LTC_OCB_MODE
 
 /**
-  Decrypt a block with OCB.
-  @param ocb    The OCB state
-  @param ct     The ciphertext (length of the block size of the block cipher)
-  @param pt     [out] The plaintext (length of ct)
-  @return CRYPT_OK if successful
+   Decrypt blocks of ciphertext with OCB
+   @param ocb     The OCB state
+   @param ct      The ciphertext (length multiple of the block size of the block cipher)
+   @param ctlen   The length of the input (octets)
+   @param pt      [out] The plaintext (length of ct)
+   @return CRYPT_OK if successful
 */
-int ocb_decrypt(ocb_state *ocb, const unsigned char *ct, unsigned char *pt)
+int ocb_decrypt(ocb_state *ocb, const unsigned char *ct, unsigned long ctlen, unsigned char *pt)
 {
-   unsigned char Z[MAXBLOCKSIZE], tmp[MAXBLOCKSIZE];
-   int err, x;
+   unsigned char tmp[MAXBLOCKSIZE];
+   int err, i, full_blocks;
+   unsigned char *pt_b, *ct_b;
 
    LTC_ARGCHK(ocb != NULL);
    LTC_ARGCHK(pt  != NULL);
    LTC_ARGCHK(ct  != NULL);
-
-   /* check if valid cipher */
    if ((err = cipher_is_valid(ocb->cipher)) != CRYPT_OK) {
       return err;
    }
-   LTC_ARGCHK(cipher_descriptor[ocb->cipher].ecb_decrypt != NULL);
-   
-   /* check length */
    if (ocb->block_len != cipher_descriptor[ocb->cipher].block_length) {
       return CRYPT_INVALID_ARG;
    }
 
-   /* Get Z[i] value */
-   ocb_shift_xor(ocb, Z);
-
-   /* xor ct in, encrypt, xor Z out */
-   for (x = 0; x < ocb->block_len; x++) {
-       tmp[x] = ct[x] ^ Z[x];
-   }
-   if ((err = cipher_descriptor[ocb->cipher].ecb_decrypt(tmp, pt, &ocb->key)) != CRYPT_OK) {
-      return err;
-   }
-   for (x = 0; x < ocb->block_len; x++) {
-       pt[x] ^= Z[x];
+   if (ctlen % ocb->block_len) { /* ctlen has to bu multiple of block_len */
+      return CRYPT_INVALID_ARG;
    }
 
-   /* compute checksum */
-   for (x = 0; x < ocb->block_len; x++) {
-       ocb->checksum[x] ^= pt[x];
+   full_blocks = ctlen/ocb->block_len;
+   for(i=0; i<full_blocks; i++) {
+     pt_b = (unsigned char *)pt+i*ocb->block_len;
+     ct_b = (unsigned char *)ct+i*ocb->block_len;
+
+     /* ocb->Offset_current[] = ocb->Offset_current[] ^ Offset_{ntz(block_index)} */
+     ocb_int_xor_blocks(ocb->Offset_current, ocb->Offset_current, ocb->L_[ocb_int_ntz(ocb->block_index)], ocb->block_len);
+
+     /* tmp[] = ct[] XOR ocb->Offset_current[] */
+     ocb_int_xor_blocks(tmp, ct_b, ocb->Offset_current, ocb->block_len);
+
+     /* decrypt */
+     if ((err = cipher_descriptor[ocb->cipher].ecb_decrypt(tmp, tmp, &ocb->key)) != CRYPT_OK) {
+        goto LBL_ERR;
+     }
+
+     /* pt[] = tmp[] XOR ocb->Offset_current[] */
+     ocb_int_xor_blocks(pt_b, tmp, ocb->Offset_current, ocb->block_len);
+
+     /* ocb->checksum[] = ocb->checksum[] XOR pt[] */
+     ocb_int_xor_blocks(ocb->checksum, ocb->checksum, pt_b, ocb->block_len);
+
+     ocb->block_index++;
    }
 
+   err = CRYPT_OK;
 
+LBL_ERR:
 #ifdef LTC_CLEAN_STACK
-   zeromem(Z, sizeof(Z));
    zeromem(tmp, sizeof(tmp));
 #endif
-   return CRYPT_OK;
+   return err;
 }
 
 #endif
-
 
 /* $Source$ */
 /* $Revision$ */
