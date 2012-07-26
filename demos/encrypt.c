@@ -26,8 +26,6 @@ int usage(char *name)
 
 void register_algs(void)
 {
-   int x;
-
 #ifdef LTC_RIJNDAEL
   register_cipher (&aes_desc);
 #endif
