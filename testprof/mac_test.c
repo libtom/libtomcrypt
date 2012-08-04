@@ -24,6 +24,9 @@ int mac_test(void)
 #ifdef LTC_OCB_MODE
    DO(ocb_test());  
 #endif
+#ifdef LTC_OCB3_MODE
+   DO(ocb3_test());  
+#endif
 #ifdef LTC_CCM_MODE
    DO(ccm_test());
 #endif

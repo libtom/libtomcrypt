@@ -1339,6 +1339,22 @@ void time_encmacs_(unsigned long MAC_SIZE)
    fprintf(stderr, "OCB \t\t\t%9llu\n", t2/(ulong64)(MAC_SIZE*1024));
 #endif
 
+#ifdef LTC_OCB3_MODE
+   t2 = -1;
+   for (x = 0; x < 10000; x++) {
+        t_start();
+        t1 = t_read();
+        z = 16;
+        if ((err = ocb3_encrypt_authenticate_memory(cipher_idx, key, 16, IV, 16, "", 0, buf, MAC_SIZE*1024, buf, tag, &z)) != CRYPT_OK) {
+           fprintf(stderr, "\nOCB3 error... %s\n", error_to_string(err));
+           exit(EXIT_FAILURE);
+        }
+        t1 = t_read() - t1;
+        if (t1 < t2) t2 = t1;
+   }
+   fprintf(stderr, "OCB3 \t\t\t%9llu\n", t2/(ulong64)(MAC_SIZE*1024));
+#endif
+
 #ifdef LTC_CCM_MODE
    t2 = -1;
    for (x = 0; x < 10000; x++) {

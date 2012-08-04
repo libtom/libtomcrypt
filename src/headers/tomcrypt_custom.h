@@ -231,6 +231,7 @@
 #endif
 
 #define LTC_OCB_MODE
+#define LTC_OCB3_MODE
 #define LTC_CCM_MODE
 #define LTC_GCM_MODE
 
