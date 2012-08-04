@@ -193,6 +193,67 @@ int s_ocb_done(ocb_state *ocb, const unsigned char *pt, unsigned long ptlen,
 
 #endif /* LTC_OCB_MODE */
 
+#ifdef LTC_OCB3_MODE
+typedef struct {
+   unsigned char     Offset_0[MAXBLOCKSIZE],       /* Offset_0 value */
+                     Offset_current[MAXBLOCKSIZE], /* Offset_{current_block_index} value */
+                     L_dollar[MAXBLOCKSIZE],       /* L_$ value */
+                     L_star[MAXBLOCKSIZE],         /* L_* value */
+                     L_[32][MAXBLOCKSIZE],         /* L_{i} values */
+                     tag_part[MAXBLOCKSIZE],       /* intermediate result of tag calculation */
+                     checksum[MAXBLOCKSIZE];       /* current checksum */
+
+   /* AAD related members */
+   unsigned char     aSum_current[MAXBLOCKSIZE],    /* AAD related helper variable */
+                     aOffset_current[MAXBLOCKSIZE], /* AAD related helper variable */
+                     adata_buffer[MAXBLOCKSIZE];    /* AAD buffer */
+   int               adata_buffer_bytes;            /* bytes in AAD buffer */
+   unsigned long     ablock_index;                  /* index # for current adata (AAD) block */
+
+   symmetric_key     key;                     /* scheduled key for cipher */
+   unsigned long     block_index;             /* index # for current data block */
+   int               cipher,                  /* cipher idx */
+                     block_len;               /* length of block */
+} ocb3_state;
+
+int ocb3_init(ocb3_state *ocb, int cipher,
+             const unsigned char *key, unsigned long keylen,
+             const unsigned char *nonce, unsigned long noncelen);
+
+int ocb3_encrypt(ocb3_state *ocb, const unsigned char *pt, unsigned long ptlen, unsigned char *ct);
+int ocb3_decrypt(ocb3_state *ocb, const unsigned char *ct, unsigned long ctlen, unsigned char *pt);
+int ocb3_encrypt_last(ocb3_state *ocb, const unsigned char *pt, unsigned long ptlen, unsigned char *ct);
+int ocb3_decrypt_last(ocb3_state *ocb, const unsigned char *ct, unsigned long ctlen, unsigned char *pt);
+int ocb3_add_aad(ocb3_state *ocb, const unsigned char *aad, unsigned long aadlen);
+int ocb3_done(ocb3_state *ocb, unsigned char *tag, unsigned long *taglen);
+
+int ocb3_encrypt_authenticate_memory(int cipher,
+    const unsigned char *key,    unsigned long keylen,
+    const unsigned char *nonce,  unsigned long noncelen,
+    const unsigned char *adata,  unsigned long adatalen,
+    const unsigned char *pt,     unsigned long ptlen,
+          unsigned char *ct,
+          unsigned char *tag,    unsigned long *taglen);
+
+int ocb3_decrypt_verify_memory(int cipher,
+    const unsigned char *key,    unsigned long keylen,
+    const unsigned char *nonce,  unsigned long noncelen,
+    const unsigned char *adata,  unsigned long adatalen,
+    const unsigned char *ct,     unsigned long ctlen,
+          unsigned char *pt,
+    const unsigned char *tag,    unsigned long taglen,
+          int           *stat);
+
+int ocb3_test(void);
+
+/* internal helper functions */
+int ocb3_int_aad_add_block(ocb3_state *ocb, const unsigned char *aad_block);
+void ocb3_int_calc_offset_zero(ocb3_state *ocb, const unsigned char *nonce, unsigned long noncelen);
+int ocb3_int_ntz(unsigned long x);
+void ocb3_int_xor_blocks(unsigned char *out, const unsigned char *block_a, const unsigned char *block_b, unsigned long block_len);
+
+#endif /* LTC_OCB3_MODE */
+
 #ifdef LTC_CCM_MODE
 
 #define CCM_ENCRYPT 0
