@@ -4,6 +4,25 @@
 
 #include <tomcrypt.h>
 
+#ifdef USE_LTM
+/* Use libtommath as MPI provider */
+#elif defined(USE_TFM)
+/* Use tomsfastmath as MPI provider */
+#elif defined(USE_GMP)
+/* Use GNU Multiple Precision Arithmetic Library as MPI provider */
+#else
+/* The user must define his own MPI provider! */
+#ifndef EXT_MATH_LIB
+/*
+ * Yes, you're right, you could also name your instance of the MPI provider
+ * "EXT_MATH_LIB" and you wouldn't need to define it, but most users won't do
+ * this and so it's treated as an error and you have to comment out the
+ * following statement :)
+ */
+#error EXT_MATH_LIB is required to be defined
+#endif
+#endif
+
 /* enable stack testing */
 /* #define STACK_TEST */
 
