@@ -360,6 +360,13 @@
 
 #endif /* LTC_NO_PKCS */
 
+/* LTC_HKDF Key Derivation/Expansion stuff */
+#ifndef LTC_NO_HKDF
+
+#define LTC_HKDF
+
+#endif /* LTC_NO_HKDF */
+
 /* cleanup */
 
 #ifdef LTC_MECC
