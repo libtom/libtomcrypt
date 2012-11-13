@@ -5148,6 +5148,82 @@ int main(void)
 }
 \end{verbatim}
 
+\mysection{Key Derviation Functions}
+\subsection{HKDF}
+\index{HKDF}
+A key derivation function (KDF) is a basic and essential component of cryptographic systems.  Its goal is to take some source of initial
+keying material and derive from it one or more cryptographically strong secret keys.
+
+HKDF follows the "extract-then-expand" paradigm, where the KDF logically consists of two modules.  The first stage takes the input
+keying material and "extracts" from it a fixed-length pseudorandom key K.  The second stage "expands" the key K into several additional
+pseudorandom keys (the output of the KDF).
+
+In many applications, the input keying material is not necessarily distributed uniformly, and the attacker may have some partial
+knowledge about it (for example, a Diffie-Hellman value computed by a key exchange protocol) or even partial control of it (as in some
+entropy-gathering applications).  Thus, the goal of the "extract" stage is to "concentrate" the possibly dispersed entropy of the input
+keying material into a short, but cryptographically strong, pseudorandom key.  In some applications, the input may already be a
+good pseudorandom key; in these cases, the "extract" stage is not necessary, and the "expand" part can be used alone.
+
+The second stage "expands" the pseudorandom key to the desired length; the number and lengths of the output keys depend on the
+specific cryptographic algorithms for which the keys are needed.
+
+\subsection{HKDF Extract}
+To perform the extraction phase, use the following function:
+
+\index{hkdf\_extract()}
+\begin{alltt}
+int hkdf_extract(   int  hash_idx,
+    const unsigned char *salt,
+          unsigned long  saltlen,
+    const unsigned char *in,
+          unsigned long  inlen,
+          unsigned char *out,
+          unsigned long *outlen);
+\end{alltt}
+The \textit{hash_idx} parameter is the index into the descriptor table of the hash you want to use.
+The \textit{salt} parameter is a pointer to the array of octets of length \textit{saltlen} containing the salt or a NULL pointer if a salt is not being used (in that case set saltlen to 0).
+\textit{in} is a pointer to an array of octets of length \textit{inlen} containing the source entropy.  The extracted output is stored in the location pointed to by \textit{out}.
+You must set \textit{outlen} to the size of the destination buffer before calling this function. It is updated to the length of the extracted output. If \textit{outlen} is too small the extracted output will be truncated.
+
+While the salt is optional, using one improves HKDF's security. If used, the salt should be randomly chosen, but does not need to be secret and may be re-used. Please see RFC5869 section 3.1 for more details.
+
+\subsection{HKDF Expand}
+To perform the expansion phase, use the following function:
+
+\index{hkdf\_expand()}
+\begin{alltt}
+int hkdf_expand(    int  hash_idx,
+    const unsigned char *info,
+          unsigned long  infolen,
+    const unsigned char *in,
+          unsigned long  inlen,
+          unsigned char *out,
+          unsigned long  outlen);
+\end{alltt}
+
+The \textit{hash_idx} parameter is the index into the descriptor table of the hash you want to use.
+The \textit{info} parameter, an array of octets of length \textit{infolen}, is an optional parameter (set \textit{info} to NULL and \textit{infolen} to 0 if not using it) which
+may be used to bind the derived keys to some application and context specific information. This prevents the same keying material from being generated in different contexts. Please see RFC5869 section 3.2 for more information.
+The extracted keying material is passed as octet array \textit{in} of length \textit{inlen}.  Expanded output of length \textit{outlen} is generated and stored in octet arrat \textit{out}.
+
+\subection{HKDF Extract-and-Expand}
+To perform both phases together, use the following function:
+
+\index{hkdf()}
+\begin{alltt}
+int hkdf(           int  hash_idx,
+    const unsigned char *salt,
+          unsigned long  saltlen,
+    const unsigned char *info,
+          unsigned long  infolen,
+    const unsigned char *in,
+          unsigned long  inlen,
+          unsigned char *out,
+          unsigned long  outlen);
+\end{alltt}
+
+Parameters are as in \textit{hkdf\_extract()} and \textit{hkdf\_expand()}.
+
 \chapter{Miscellaneous}
 \mysection{Base64 Encoding and Decoding}
 The library provides functions to encode and decode a RFC 1521 base--64 coding scheme.  The characters used in the mappings are:
