@@ -270,6 +270,23 @@ int multi2_test(void)
       }
    }
    
+   for (x = 128; x < 256; ++x) {
+        unsigned char ct[8];
+
+        if ((err = multi2_setup(tests[0].key, 40, x, &skey)) != CRYPT_OK) {
+                return err;
+        }
+        if ((err = multi2_ecb_encrypt(tests[0].pt, ct, &skey)) != CRYPT_OK) {
+                return err;
+        }
+        if ((err = multi2_ecb_decrypt(ct, buf, &skey)) != CRYPT_OK) {
+                return err;
+        }
+        if (XMEMCMP(buf, tests[0].pt, 8)) {
+                return CRYPT_FAIL_TESTVECTOR;
+        }
+   }
+
    return CRYPT_OK;
 }
 
