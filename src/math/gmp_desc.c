@@ -138,13 +138,49 @@ static int twoexpt(void *a, int n)
 
 /* ---- conversions ---- */
 
+static const char rmap[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz+/";
+
 /* read ascii string */
 static int read_radix(void *a, const char *b, int radix)
 {
+   int ret;
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
-   mpz_set_str(a, b, radix);
-   return CRYPT_OK;
+   if (radix == 64) {
+      /* Sadly, GMP only supports radixes up to 62, but we need 64.
+       * So, although this is not the most elegant or efficient way,
+       * let's just convert the base 64 string (6 bits per digit) to
+       * an octal string (3 bits per digit) that's twice as long. */
+      char c, *tmp, *q;
+      const char *p;
+      int i;
+      tmp = XMALLOC (1 + 2 * strlen (b));
+      if (tmp == NULL) {
+         return CRYPT_MEM;
+      }
+      p = b;
+      q = tmp;
+      while ((c = *p++) != 0) {
+         for (i = 0; i < 64; i++) {
+            if (c == rmap[i])
+               break;
+         }
+         if (i == 64) {
+            XFREE (tmp);
+            // printf ("c = '%c'\n", c);
+            return CRYPT_ERROR;
+         }
+         *q++ = '0' + (i / 8);
+         *q++ = '0' + (i % 8);
+      }
+      *q = 0;
+      ret = mpz_set_str(a, tmp, 8);
+      // printf ("ret = %d for '%s'\n", ret, tmp);
+      XFREE (tmp);
+   } else {
+      ret = mpz_set_str(a, b, radix);
+   }
+   return (ret == 0 ? CRYPT_OK : CRYPT_ERROR);
 }
 
 /* write one */
@@ -152,6 +188,11 @@ static int write_radix(void *a, char *b, int radix)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
+   if (radix >= 11 && radix <= 36)
+      /* If radix is positive, GMP uses lowercase, and if negative, uppercase.
+       * We want it to use uppercase, to match the test vectors (presumably
+       * generated with LibTomMath). */
+      radix = -radix;
    mpz_get_str(b, radix, a);
    return CRYPT_OK;
 }
@@ -487,7 +528,7 @@ const ltc_math_descriptor gmp_desc = {
    NULL,
 #endif /* LTC_ECC_SHAMIR */
 #else
-   NULL, NULL, NULL, NULL, NULL
+   NULL, NULL, NULL, NULL, NULL,
 #endif /* LTC_MECC */
 
 #ifdef LTC_MRSA

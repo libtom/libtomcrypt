@@ -67,7 +67,17 @@
 
 #ifdef ENDIAN_LITTLE
 
-#if !defined(LTC_NO_BSWAP) && (defined(INTEL_CC) || (defined(__GNUC__) && (defined(__DJGPP__) || defined(__CYGWIN__) || defined(__MINGW32__) || defined(__i386__) || defined(__x86_64__))))
+#ifdef LTC_HAVE_BSWAP_BUILTIN
+
+#define STORE32H(x, y)                          \
+   { ulong32 __t = __builtin_bswap32 ((x));     \
+      XMEMCPY ((y), &__t, 4); }
+
+#define LOAD32H(x, y)                           \
+   { XMEMCPY (&(x), (y), 4);                    \
+      (x) = __builtin_bswap32 ((x)); }
+
+#elif !defined(LTC_NO_BSWAP) && (defined(INTEL_CC) || (defined(__GNUC__) && (defined(__DJGPP__) || defined(__CYGWIN__) || defined(__MINGW32__) || defined(__i386__) || defined(__x86_64__))))
 
 #define STORE32H(x, y)           \
 asm __volatile__ (               \
@@ -96,22 +106,31 @@ asm __volatile__ (             \
 
 #endif
 
+#ifdef LTC_HAVE_BSWAP_BUILTIN
+
+#define STORE64H(x, y)                          \
+   { ulong64 __t = __builtin_bswap64 ((x));     \
+      XMEMCPY ((y), &__t, 8); }
+
+#define LOAD64H(x, y)                           \
+   { XMEMCPY (&(x), (y), 8);                    \
+      (x) = __builtin_bswap64 ((x)); }
 
 /* x86_64 processor */
-#if !defined(LTC_NO_BSWAP) && (defined(__GNUC__) && defined(__x86_64__))
+#elif !defined(LTC_NO_BSWAP) && (defined(__GNUC__) && defined(__x86_64__))
 
 #define STORE64H(x, y)           \
 asm __volatile__ (               \
    "bswapq %0     \n\t"          \
    "movq   %0,(%1)\n\t"          \
    "bswapq %0     \n\t"          \
-      ::"r"(x), "r"(y));
+   ::"r"(x), "r"(y): "memory");
 
 #define LOAD64H(x, y)          \
 asm __volatile__ (             \
    "movq (%1),%0\n\t"          \
    "bswapq %0\n\t"             \
-   :"=r"(x): "r"(y));
+   :"=r"(x): "r"(y): "memory");
 
 #else
 
