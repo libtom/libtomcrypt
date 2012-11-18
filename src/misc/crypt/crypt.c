@@ -231,6 +231,9 @@ const char *crypt_build_settings =
 #if defined(LTC_OCB_MODE)
     "   LTC_OCB_MODE\n"
 #endif
+#if defined(LTC_OCB3_MODE)
+    "   LTC_OCB3_MODE\n"
+#endif
 #if defined(LTC_CCM_MODE)
     "   LTC_CCM_MODE\n"
 #endif

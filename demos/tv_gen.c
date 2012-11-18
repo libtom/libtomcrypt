@@ -513,6 +513,68 @@ void ocb_gen(void)
    fclose(out);
 }
 
+void ocb3_gen(void)
+{
+   int err, kl, x, y1, z;
+   FILE *out;
+   unsigned char key[MAXBLOCKSIZE], nonce[MAXBLOCKSIZE*2], 
+                 plaintext[MAXBLOCKSIZE*2], tag[MAXBLOCKSIZE];
+   unsigned long len;
+
+   out = fopen("ocb3_tv.txt", "w");
+   fprintf(out, "OCB3 Test Vectors.  Uses the 00010203...NN-1 pattern for nonce/plaintext/key.  The outputs\n"
+                "are of the form ciphertext,tag for a given NN.  The key for step N>1 is the tag of the previous\n"
+                "step repeated sufficiently.  The nonce is fixed throughout. AAD is fixed to 3 bytes (ASCII) 'AAD'.\n\n");
+
+   for (x = 0; cipher_descriptor[x].name != NULL; x++) {
+      kl = cipher_descriptor[x].block_length;
+
+      /* skip ciphers which do not have 64 or 128 bit block sizes */
+      if (kl != 8 && kl != 16) continue;
+
+      if (cipher_descriptor[x].keysize(&kl) != CRYPT_OK) {
+         kl = cipher_descriptor[x].max_key_length;
+      }
+      fprintf(out, "OCB-%s (%d byte key)\n", cipher_descriptor[x].name, kl);
+
+      /* the key */
+      for (z = 0; z < kl; z++) {
+          key[z] = (z & 255);
+      }
+
+      /* fixed nonce */
+      for (z = 0; z < cipher_descriptor[x].block_length; z++) {
+          nonce[z] = z;
+      }
+      
+      for (y1 = 0; y1 <= (int)(cipher_descriptor[x].block_length*2); y1++){
+         for (z = 0; z < y1; z++) {
+            plaintext[z] = (unsigned char)(z & 255);
+         }
+         len = sizeof(tag);
+         if ((err = ocb3_encrypt_authenticate_memory(x, key, kl, nonce, cipher_descriptor[x].block_length, "AAD", 3, plaintext, y1, plaintext, tag, &len)) != CRYPT_OK) {
+            printf("Error OCB'ing: %s\n", error_to_string(err));
+            exit(EXIT_FAILURE);
+         }
+         fprintf(out, "%3d: ", y1);
+         for (z = 0; z < y1; z++) {
+            fprintf(out, "%02X", plaintext[z]);
+         }
+         fprintf(out, ", ");
+         for (z = 0; z <(int)len; z++) {
+            fprintf(out, "%02X", tag[z]);
+         }
+         fprintf(out, "\n");
+
+         /* forward the key */
+         for (z = 0; z < kl; z++) {
+             key[z] = tag[z % len];
+         }
+      }
+      fprintf(out, "\n");
+   }
+   fclose(out);
+}
 
 void ccm_gen(void)
 {
@@ -772,6 +834,7 @@ int main(void)
    printf("Generating PMAC   vectors..."); fflush(stdout); pmac_gen();   printf("done\n");
    printf("Generating EAX    vectors..."); fflush(stdout); eax_gen();    printf("done\n");
    printf("Generating OCB    vectors..."); fflush(stdout); ocb_gen();    printf("done\n");
+   printf("Generating OCB3   vectors..."); fflush(stdout); ocb3_gen();   printf("done\n");
    printf("Generating CCM    vectors..."); fflush(stdout); ccm_gen();    printf("done\n");
    printf("Generating GCM    vectors..."); fflush(stdout); gcm_gen();    printf("done\n");
    printf("Generating BASE64 vectors..."); fflush(stdout); base64_gen(); printf("done\n");
