@@ -4988,7 +4988,7 @@ normally.  The decoded list \textit{out} will point to the very first element of
 
 An invalid decoding will terminate the process, and free the allocated memory automatically.  
 
-\textbf{Note:} the list decoded by this function is \textbf{NOT} in the correct form for der\_encode\_sequence() to use directly.  You will have to first 
+\textbf{Note:} the list decoded by this function is \textbf{NOT} in the correct form for der\_encode\_sequence() to use directly.  You will first
 have to convert the list by first storing all of the siblings in an array then storing all the children as sub-lists of a sequence using the \textit{.data} 
 pointer.  Currently no function in LibTomCrypt provides this ability.
 
