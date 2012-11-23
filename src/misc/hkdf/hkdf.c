@@ -22,7 +22,7 @@ int hkdf_extract(int hash_idx, const unsigned char *salt, unsigned long  saltlen
       sense), we can use a single 0 byte as the HMAC key and still generate
       valid results for HKDF. */
    if (salt == NULL || saltlen == 0) {
-      return hmac_memory(hash_idx, "",   1,       in, inlen, out, outlen); 
+      return hmac_memory(hash_idx, (const unsigned char *)"",   1,       in, inlen, out, outlen);
    } else {
       return hmac_memory(hash_idx, salt, saltlen, in, inlen, out, outlen);
    }
