@@ -32,7 +32,7 @@ int hkdf_expand(int hash_idx, const unsigned char *info, unsigned long infolen,
                               const unsigned char *in,   unsigned long inlen,
                                     unsigned char *out,  unsigned long outlen)
 {
-   const unsigned long hashsize = hash_descriptor[hash_idx].hashsize;
+   unsigned long hashsize;
    int err;
    unsigned char N;
    unsigned long Noutlen, outoff;
@@ -40,12 +40,19 @@ int hkdf_expand(int hash_idx, const unsigned char *info, unsigned long infolen,
    unsigned char *T,  *dat;
    unsigned long Tlen, datlen;
 
+   /* make sure hash descriptor is valid */
+   if ((err = hash_is_valid(hash_idx)) != CRYPT_OK) {
+      return err;
+   }
+
+   hashsize = hash_descriptor[hash_idx].hashsize;
+
    /* RFC5869 parameter restrictions */
    if (inlen < hashsize || outlen > hashsize * 255)
       return CRYPT_INVALID_ARG;
    if (info == NULL && infolen != 0)
       return CRYPT_INVALID_ARG;
-   assert(out != NULL);
+   LTC_ARGCHK(out != NULL);
 
    Tlen = hashsize + infolen + 1;
    T = XMALLOC(Tlen); /* Replace with static buffer? */
@@ -92,9 +99,18 @@ int hkdf(int hash_idx, const unsigned char *salt, unsigned long saltlen,
                        const unsigned char *in,   unsigned long inlen,
                              unsigned char *out,  unsigned long outlen)
 {
-   unsigned long hashsize = hash_descriptor[hash_idx].hashsize;
+   unsigned long hashsize;
    int err;
-   unsigned char *extracted = XMALLOC(hashsize); /* replace with static buffer? */
+   unsigned char *extracted;
+
+   /* make sure hash descriptor is valid */
+   if ((err = hash_is_valid(hash_idx)) != CRYPT_OK) {
+      return err;
+   }
+
+   hashsize = hash_descriptor[hash_idx].hashsize;
+
+   extracted = XMALLOC(hashsize); /* replace with static buffer? */
    if (extracted == NULL) {
       return CRYPT_MEM;
    }
