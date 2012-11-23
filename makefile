@@ -156,7 +156,7 @@ src/misc/crypt/crypt_prng_is_valid.o src/misc/crypt/crypt_register_cipher.o \
 src/misc/crypt/crypt_register_hash.o src/misc/crypt/crypt_register_prng.o \
 src/misc/crypt/crypt_unregister_cipher.o src/misc/crypt/crypt_unregister_hash.o \
 src/misc/crypt/crypt_unregister_prng.o src/misc/error_to_string.o src/misc/pkcs5/pkcs_5_1.o \
-src/misc/pkcs5/pkcs_5_2.o src/misc/zeromem.o src/misc/hkdf/hkdf.o \
+src/misc/pkcs5/pkcs_5_2.o src/misc/zeromem.o src/misc/hkdf/hkdf.o src/misc/hkdf/hkdf_test.o \
 src/modes/cbc/cbc_decrypt.o src/modes/cbc/cbc_done.o \
 src/modes/cbc/cbc_encrypt.o src/modes/cbc/cbc_getiv.o src/modes/cbc/cbc_setiv.o \
 src/modes/cbc/cbc_start.o src/modes/cfb/cfb_decrypt.o src/modes/cfb/cfb_done.o \
