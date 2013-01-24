@@ -2911,6 +2911,28 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="src\misc\pk_get_oid.c"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath="src\misc\zeromem.c"
 				>
 				<FileConfiguration
@@ -4732,7 +4754,51 @@
 							</FileConfiguration>
 						</File>
 						<File
+							RelativePath="src\pk\asn1\der\bit\der_decode_raw_bit_string.c"
+							>
+							<FileConfiguration
+								Name="Debug|Win32"
+								>
+								<Tool
+									Name="VCCLCompilerTool"
+									AdditionalIncludeDirectories=""
+									PreprocessorDefinitions=""
+								/>
+							</FileConfiguration>
+							<FileConfiguration
+								Name="Release|Win32"
+								>
+								<Tool
+									Name="VCCLCompilerTool"
+									AdditionalIncludeDirectories=""
+									PreprocessorDefinitions=""
+								/>
+							</FileConfiguration>
+						</File>
+						<File
 							RelativePath="src\pk\asn1\der\bit\der_encode_bit_string.c"
+							>
+							<FileConfiguration
+								Name="Debug|Win32"
+								>
+								<Tool
+									Name="VCCLCompilerTool"
+									AdditionalIncludeDirectories=""
+									PreprocessorDefinitions=""
+								/>
+							</FileConfiguration>
+							<FileConfiguration
+								Name="Release|Win32"
+								>
+								<Tool
+									Name="VCCLCompilerTool"
+									AdditionalIncludeDirectories=""
+									PreprocessorDefinitions=""
+								/>
+							</FileConfiguration>
+						</File>
+						<File
+							RelativePath="src\pk\asn1\der\bit\der_encode_raw_bit_string.c"
 							>
 							<FileConfiguration
 								Name="Debug|Win32"
@@ -5292,6 +5358,28 @@
 							</FileConfiguration>
 						</File>
 						<File
+							RelativePath="src\pk\asn1\der\sequence\der_decode_subject_public_key_info.c"
+							>
+							<FileConfiguration
+								Name="Debug|Win32"
+								>
+								<Tool
+									Name="VCCLCompilerTool"
+									AdditionalIncludeDirectories=""
+									PreprocessorDefinitions=""
+								/>
+							</FileConfiguration>
+							<FileConfiguration
+								Name="Release|Win32"
+								>
+								<Tool
+									Name="VCCLCompilerTool"
+									AdditionalIncludeDirectories=""
+									PreprocessorDefinitions=""
+								/>
+							</FileConfiguration>
+						</File>
+						<File
 							RelativePath="src\pk\asn1\der\sequence\der_encode_sequence_ex.c"
 							>
 							<FileConfiguration
@@ -5315,6 +5403,28 @@
 						</File>
 						<File
 							RelativePath="src\pk\asn1\der\sequence\der_encode_sequence_multi.c"
+							>
+							<FileConfiguration
+								Name="Debug|Win32"
+								>
+								<Tool
+									Name="VCCLCompilerTool"
+									AdditionalIncludeDirectories=""
+									PreprocessorDefinitions=""
+								/>
+							</FileConfiguration>
+							<FileConfiguration
+								Name="Release|Win32"
+								>
+								<Tool
+									Name="VCCLCompilerTool"
+									AdditionalIncludeDirectories=""
+									PreprocessorDefinitions=""
+								/>
+							</FileConfiguration>
+						</File>
+						<File
+							RelativePath="src\pk\asn1\der\sequence\der_encode_subject_public_key_info.c"
 							>
 							<FileConfiguration
 								Name="Debug|Win32"
@@ -5477,6 +5587,54 @@
 						</File>
 						<File
 							RelativePath="src\pk\asn1\der\short_integer\der_length_short_integer.c"
+							>
+							<FileConfiguration
+								Name="Debug|Win32"
+								>
+								<Tool
+									Name="VCCLCompilerTool"
+									AdditionalIncludeDirectories=""
+									PreprocessorDefinitions=""
+								/>
+							</FileConfiguration>
+							<FileConfiguration
+								Name="Release|Win32"
+								>
+								<Tool
+									Name="VCCLCompilerTool"
+									AdditionalIncludeDirectories=""
+									PreprocessorDefinitions=""
+								/>
+							</FileConfiguration>
+						</File>
+					</Filter>
+					<Filter
+						Name="teletex_string"
+						>
+						<File
+							RelativePath="src\pk\asn1\der\teletex_string\der_decode_teletex_string.c"
+							>
+							<FileConfiguration
+								Name="Debug|Win32"
+								>
+								<Tool
+									Name="VCCLCompilerTool"
+									AdditionalIncludeDirectories=""
+									PreprocessorDefinitions=""
+								/>
+							</FileConfiguration>
+							<FileConfiguration
+								Name="Release|Win32"
+								>
+								<Tool
+									Name="VCCLCompilerTool"
+									AdditionalIncludeDirectories=""
+									PreprocessorDefinitions=""
+								/>
+							</FileConfiguration>
+						</File>
+						<File
+							RelativePath="src\pk\asn1\der\teletex_string\der_length_teletex_string.c"
 							>
 							<FileConfiguration
 								Name="Debug|Win32"

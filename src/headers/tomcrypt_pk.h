@@ -444,6 +444,8 @@ enum {
  LTC_ASN1_SET,
  LTC_ASN1_SETOF,
  LTC_ASN1_RAW_BIT_STRING,
+ LTC_ASN1_TELETEX_STRING,
+ LTC_ASN1_CONSTRUCTED,
 };
 
 /** A LTC ASN.1 list type */
@@ -563,7 +565,15 @@ int der_length_ia5_string(const unsigned char *octets, unsigned long noctets, un
 int der_ia5_char_encode(int c);
 int der_ia5_value_decode(int v);
 
-/* Printable STRING */
+/* TELETEX STRING */
+int der_decode_teletex_string(const unsigned char *in, unsigned long inlen,
+                                unsigned char *out, unsigned long *outlen);
+int der_length_teletex_string(const unsigned char *octets, unsigned long noctets, unsigned long *outlen);
+
+int der_teletex_char_encode(int c);
+int der_teletex_value_decode(int v);
+
+/* PRINTABLE STRING */
 int der_encode_printable_string(const unsigned char *in, unsigned long inlen,
                                 unsigned char *out, unsigned long *outlen);
 int der_decode_printable_string(const unsigned char *in, unsigned long inlen,
