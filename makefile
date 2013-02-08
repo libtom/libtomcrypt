@@ -185,6 +185,8 @@ src/pk/asn1/der/object_identifier/der_encode_object_identifier.o \
 src/pk/asn1/der/object_identifier/der_length_object_identifier.o \
 src/pk/asn1/der/octet/der_decode_octet_string.o src/pk/asn1/der/octet/der_encode_octet_string.o \
 src/pk/asn1/der/octet/der_length_octet_string.o \
+src/pk/asn1/der/teletex_string/der_decode_teletex_string.o \
+src/pk/asn1/der/teletex_string/der_length_teletex_string.o \
 src/pk/asn1/der/printable_string/der_decode_printable_string.o \
 src/pk/asn1/der/printable_string/der_encode_printable_string.o \
 src/pk/asn1/der/printable_string/der_length_printable_string.o \
