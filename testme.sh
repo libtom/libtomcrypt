@@ -11,7 +11,12 @@ fi
 echo "date="`date`
 
 # output version
-echo "Testing verion" `grep "^VERSION=" makefile | sed "s/.*=//"`
+version=$(git describe --tags --always --dirty 2>/dev/null)
+if [ ! -e ".git" ] || [ -z $version ]
+then
+	version=$(grep "^VERSION=" makefile | sed "s/.*=//")
+fi
+echo "Testing version:" $version
 #grep "VERSION=" makefile | perl -e "@a = split('=', <>); print @a[1];"`
 
 # get uname 
