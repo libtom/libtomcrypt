@@ -119,6 +119,18 @@ int hkdf(int hash_idx, const unsigned char *salt, unsigned long saltlen,
       XFREE(extracted);
       return err;
    }
+#if 0
+   {
+     int j;
+     printf("\nPRK: 0x");
+     for(j=0; j < hashsize; j++) {
+        printf("%02x ", extracted[j]);
+     }
+     for(j=0; j < hashsize; j++) {
+        printf("%02x ", extracted[j]);
+     }
+   }
+#endif
    err = hkdf_expand(hash_idx, extracted, hashsize, info, infolen, out, outlen);
    zeromem(extracted, hashsize);
    XFREE(extracted);

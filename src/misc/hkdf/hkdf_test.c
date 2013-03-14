@@ -110,7 +110,7 @@ int hkdf_test(void)
 #if 0
           {
             unsigned int j;
-            printf("\LTC_HKDF-%s test #%d:\n", cases[i].Hash, i);
+            printf("\nLTC_HKDF-%s test #%d:\n", cases[i].Hash, i);
             printf(  "Result:  0x");
             for(j=0; j < cases[i].L; j++) {
                 printf("%02x ", OKM[j]);
