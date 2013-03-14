@@ -5180,7 +5180,7 @@ int hkdf_extract(   int  hash_idx,
           unsigned char *out,
           unsigned long *outlen);
 \end{alltt}
-The \textit{hash_idx} parameter is the index into the descriptor table of the hash you want to use.
+The \textit{hash\_idx} parameter is the index into the descriptor table of the hash you want to use.
 The \textit{salt} parameter is a pointer to the array of octets of length \textit{saltlen} containing the salt or a NULL pointer if a salt is not being used (in that case set saltlen to 0).
 \textit{in} is a pointer to an array of octets of length \textit{inlen} containing the source entropy.  The extracted output is stored in the location pointed to by \textit{out}.
 You must set \textit{outlen} to the size of the destination buffer before calling this function. It is updated to the length of the extracted output. If \textit{outlen} is too small the extracted output will be truncated.
@@ -5201,12 +5201,12 @@ int hkdf_expand(    int  hash_idx,
           unsigned long  outlen);
 \end{alltt}
 
-The \textit{hash_idx} parameter is the index into the descriptor table of the hash you want to use.
+The \textit{hash\_idx} parameter is the index into the descriptor table of the hash you want to use.
 The \textit{info} parameter, an array of octets of length \textit{infolen}, is an optional parameter (set \textit{info} to NULL and \textit{infolen} to 0 if not using it) which
 may be used to bind the derived keys to some application and context specific information. This prevents the same keying material from being generated in different contexts. Please see RFC5869 section 3.2 for more information.
 The extracted keying material is passed as octet array \textit{in} of length \textit{inlen}.  Expanded output of length \textit{outlen} is generated and stored in octet arrat \textit{out}.
 
-\subection{HKDF Extract-and-Expand}
+\subsection{HKDF Extract-and-Expand}
 To perform both phases together, use the following function:
 
 \index{hkdf()}
