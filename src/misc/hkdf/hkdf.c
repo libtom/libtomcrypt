@@ -131,7 +131,7 @@ int hkdf(int hash_idx, const unsigned char *salt, unsigned long saltlen,
      }
    }
 #endif
-   err = hkdf_expand(hash_idx, extracted, hashsize, info, infolen, out, outlen);
+   err = hkdf_expand(hash_idx, info, infolen, extracted, hashsize, out, outlen);
    zeromem(extracted, hashsize);
    XFREE(extracted);
    return err;
