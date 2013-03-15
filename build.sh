@@ -2,7 +2,7 @@
 echo "$1 ($2, $3)..."
 make clean 1>/dev/null 2>/dev/null
 echo -n "building..."
-CFLAGS="$2 $CFLAGS $4" EXTRALIBS="$5" make -j4 -f $3 test tv_gen 1>gcc_1.txt 2>gcc_2.txt || (echo "build $1 failed see gcc_2.txt for more information" && cat gcc_2.txt && exit 1)
+CFLAGS="$2 $CFLAGS $4" EXTRALIBS="$5" make -f $3 test tv_gen 1>gcc_1.txt 2>gcc_2.txt || (echo "build $1 failed see gcc_2.txt for more information" && cat gcc_2.txt && exit 1)
 echo -n "testing..."
 if [ -a test ] && [ -f test ] && [ -x test ]; then
    ((./test >test_std.txt 2>test_err.txt && ./tv_gen > tv.txt) && echo "$1 test passed." && echo "y" > testok.txt) || (echo "$1 test failed, look at test_err.txt" && exit 1)
