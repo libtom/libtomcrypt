@@ -121,12 +121,12 @@ void hash_gen(void)
    unsigned long outlen, x, y, z;
    FILE *out;
    int   err;
-   
+
    out = fopen("hash_tv.txt", "w");
    if (out == NULL) {
       perror("can't open hash_tv");
    }
-   
+
    fprintf(out, "Hash Test Vectors:\n\nThese are the hashes of nn bytes '00 01 02 03 .. (nn-1)'\n\n");
    for (x = 0; hash_descriptor[x].name != NULL; x++) {
       buf = XMALLOC(2 * hash_descriptor[x].blocksize + 1);
@@ -163,16 +163,16 @@ void cipher_gen(void)
    int err, kl, lastkl;
    FILE *out;
    symmetric_key skey;
-   
+
    out = fopen("cipher_tv.txt", "w");
-   
-   fprintf(out, 
+
+   fprintf(out,
 "Cipher Test Vectors\n\nThese are test encryptions with key of nn bytes '00 01 02 03 .. (nn-1)' and original PT of the same style.\n"
 "The output of step N is used as the key and plaintext for step N+1 (key bytes repeated as required to fill the key)\n\n");
-                   
+
    for (x = 0; cipher_descriptor[x].name != NULL; x++) {
       fprintf(out, "Cipher: %s\n", cipher_descriptor[x].name);
-      
+
       /* three modes, smallest, medium, large keys */
       lastkl = 10000;
       for (y = 0; y < 3; y++) {
@@ -202,7 +202,7 @@ void cipher_gen(void)
             printf("setup error: %s\n", error_to_string(err));
             exit(EXIT_FAILURE);
          }
-         
+
          for (z = 0; (int)z < cipher_descriptor[x].block_length; z++) {
             pt[z] = (unsigned char)z;
          }
@@ -229,7 +229,7 @@ void cipher_gen(void)
      fprintf(out, "\n");
   }
   fclose(out);
-}  
+}
 
 void hmac_gen(void)
 {
@@ -237,17 +237,17 @@ void hmac_gen(void)
    int x, y, z, err;
    FILE *out;
    unsigned long len;
-  
+
    out = fopen("hmac_tv.txt", "w");
 
-   fprintf(out, 
+   fprintf(out,
 "HMAC Tests.  In these tests messages of N bytes long (00,01,02,...,NN-1) are HMACed.  The initial key is\n"
 "of the same format (the same length as the HASH output size).  The HMAC key in step N+1 is the HMAC output of\n"
 "step N.\n\n");
 
    for (x = 0; hash_descriptor[x].name != NULL; x++) {
       fprintf(out, "HMAC-%s\n", hash_descriptor[x].name);
-      
+
       /* initial key */
       for (y = 0; y < (int)hash_descriptor[x].hashsize; y++) {
           key[y] = (y&255);
@@ -258,7 +258,7 @@ void hmac_gen(void)
          perror("Can't malloc memory");
          exit(EXIT_FAILURE);
       }
-      
+
       for (y = 0; y <= (int)(hash_descriptor[x].blocksize * 2); y++) {
          for (z = 0; z < y; z++) {
             input[z] = (unsigned char)(z & 255);
@@ -282,17 +282,17 @@ void hmac_gen(void)
    }
    fclose(out);
 }
-   
+
 void omac_gen(void)
 {
    unsigned char key[MAXBLOCKSIZE], output[MAXBLOCKSIZE], input[MAXBLOCKSIZE*2+2];
    int err, x, y, z, kl;
    FILE *out;
    unsigned long len;
-  
+
    out = fopen("omac_tv.txt", "w");
 
-   fprintf(out, 
+   fprintf(out,
 "OMAC Tests.  In these tests messages of N bytes long (00,01,02,...,NN-1) are OMAC'ed.  The initial key is\n"
 "of the same format (length specified per cipher).  The OMAC key in step N+1 is the OMAC output of\n"
 "step N (repeated as required to fill the array).\n\n");
@@ -307,12 +307,12 @@ void omac_gen(void)
          kl = cipher_descriptor[x].max_key_length;
       }
       fprintf(out, "OMAC-%s (%d byte key)\n", cipher_descriptor[x].name, kl);
-      
+
       /* initial key/block */
       for (y = 0; y < kl; y++) {
           key[y] = (y & 255);
       }
-      
+
       for (y = 0; y <= (int)(cipher_descriptor[x].block_length*2); y++) {
          for (z = 0; z < y; z++) {
             input[z] = (unsigned char)(z & 255);
@@ -344,10 +344,10 @@ void pmac_gen(void)
    int err, x, y, z, kl;
    FILE *out;
    unsigned long len;
-  
+
    out = fopen("pmac_tv.txt", "w");
 
-   fprintf(out, 
+   fprintf(out,
 "PMAC Tests.  In these tests messages of N bytes long (00,01,02,...,NN-1) are PMAC'ed.  The initial key is\n"
 "of the same format (length specified per cipher).  The PMAC key in step N+1 is the PMAC output of\n"
 "step N (repeated as required to fill the array).\n\n");
@@ -362,12 +362,12 @@ void pmac_gen(void)
          kl = cipher_descriptor[x].max_key_length;
       }
       fprintf(out, "PMAC-%s (%d byte key)\n", cipher_descriptor[x].name, kl);
-      
+
       /* initial key/block */
       for (y = 0; y < kl; y++) {
           key[y] = (y & 255);
       }
-      
+
       for (y = 0; y <= (int)(cipher_descriptor[x].block_length*2); y++) {
          for (z = 0; z < y; z++) {
             input[z] = (unsigned char)(z & 255);
@@ -397,7 +397,7 @@ void eax_gen(void)
 {
    int err, kl, x, y1, z;
    FILE *out;
-   unsigned char key[MAXBLOCKSIZE], nonce[MAXBLOCKSIZE*2], header[MAXBLOCKSIZE*2], 
+   unsigned char key[MAXBLOCKSIZE], nonce[MAXBLOCKSIZE*2], header[MAXBLOCKSIZE*2],
                  plaintext[MAXBLOCKSIZE*2], tag[MAXBLOCKSIZE];
    unsigned long len;
 
@@ -421,7 +421,7 @@ void eax_gen(void)
       for (z = 0; z < kl; z++) {
           key[z] = (z & 255);
       }
-      
+
       for (y1 = 0; y1 <= (int)(cipher_descriptor[x].block_length*2); y1++){
          for (z = 0; z < y1; z++) {
             plaintext[z] = (unsigned char)(z & 255);
@@ -457,7 +457,7 @@ void ocb_gen(void)
 {
    int err, kl, x, y1, z;
    FILE *out;
-   unsigned char key[MAXBLOCKSIZE], nonce[MAXBLOCKSIZE*2], 
+   unsigned char key[MAXBLOCKSIZE], nonce[MAXBLOCKSIZE*2],
                  plaintext[MAXBLOCKSIZE*2], tag[MAXBLOCKSIZE];
    unsigned long len;
 
@@ -486,7 +486,7 @@ void ocb_gen(void)
       for (z = 0; z < cipher_descriptor[x].block_length; z++) {
           nonce[z] = z;
       }
-      
+
       for (y1 = 0; y1 <= (int)(cipher_descriptor[x].block_length*2); y1++){
          for (z = 0; z < y1; z++) {
             plaintext[z] = (unsigned char)(z & 255);
@@ -520,7 +520,7 @@ void ocb3_gen(void)
 {
    int err, kl, x, y1, z;
    FILE *out;
-   unsigned char key[MAXBLOCKSIZE], nonce[MAXBLOCKSIZE*2], 
+   unsigned char key[MAXBLOCKSIZE], nonce[MAXBLOCKSIZE*2],
                  plaintext[MAXBLOCKSIZE*2], tag[MAXBLOCKSIZE];
    unsigned long len;
 
@@ -549,7 +549,7 @@ void ocb3_gen(void)
       for (z = 0; z < cipher_descriptor[x].block_length; z++) {
           nonce[z] = z;
       }
-      
+
       for (y1 = 0; y1 <= (int)(cipher_descriptor[x].block_length*2); y1++){
          for (z = 0; z < y1; z++) {
             plaintext[z] = (unsigned char)(z & 255);
@@ -583,7 +583,7 @@ void ccm_gen(void)
 {
    int err, kl, x, y1, z;
    FILE *out;
-   unsigned char key[MAXBLOCKSIZE], nonce[MAXBLOCKSIZE*2], 
+   unsigned char key[MAXBLOCKSIZE], nonce[MAXBLOCKSIZE*2],
                  plaintext[MAXBLOCKSIZE*2], tag[MAXBLOCKSIZE];
    unsigned long len;
 
@@ -612,7 +612,7 @@ void ccm_gen(void)
       for (z = 0; z < cipher_descriptor[x].block_length; z++) {
           nonce[z] = z;
       }
-      
+
       for (y1 = 0; y1 <= (int)(cipher_descriptor[x].block_length*2); y1++){
          for (z = 0; z < y1; z++) {
             plaintext[z] = (unsigned char)(z & 255);
@@ -669,7 +669,7 @@ void gcm_gen(void)
       for (z = 0; z < kl; z++) {
           key[z] = (z & 255);
       }
-     
+
       for (y1 = 0; y1 <= (int)(cipher_descriptor[x].block_length*2); y1++){
          for (z = 0; z < y1; z++) {
             plaintext[z] = (unsigned char)(z & 255);
@@ -704,7 +704,7 @@ void base64_gen(void)
    FILE *out;
    unsigned char dst[256], src[32];
    unsigned long x, y, len;
-   
+
    out = fopen("base64_tv.txt", "w");
    fprintf(out, "Base64 vectors.  These are the base64 encodings of the strings 00,01,02...NN-1\n\n");
    for (x = 0; x <= 32; x++) {
@@ -746,7 +746,7 @@ void ecc_gen(void)
         mp_read_radix(modulus, (char *)ltc_ecc_sets[x].prime, 16);
         mp_read_radix(G->x,    (char *)ltc_ecc_sets[x].Gx,    16);
         mp_read_radix(G->y,    (char *)ltc_ecc_sets[x].Gy,    16);
-        mp_set(G->z, 1);  
+        mp_set(G->z, 1);
 
         while (mp_cmp(k, order) == LTC_MP_LT) {
             ltc_mp.ecc_ptmul(k, G, R, modulus, 1);
@@ -768,7 +768,7 @@ void lrw_gen(void)
    unsigned char tweak[16], key[16], iv[16], buf[1024];
    int x, y, err;
    symmetric_LRW lrw;
-   
+
    /* initialize default key and tweak */
    for (x = 0; x < 16; x++) {
       tweak[x] = key[x] = iv[x] = x;
@@ -825,7 +825,7 @@ void lrw_gen(void)
        lrw_done(&lrw);
    }
    fclose(out);
-}      
+}
 
 int main(void)
 {
