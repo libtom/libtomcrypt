@@ -93,7 +93,6 @@ LBL_ERR:
 #ifdef LTC_CLEAN_STACK
    zeromem(iOffset_star, MAXBLOCKSIZE);
    zeromem(iPad, MAXBLOCKSIZE);
-   zeromem(ocb, sizeof(*ocb));
 #endif
 
    return err;
