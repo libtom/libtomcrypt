@@ -32,6 +32,7 @@ timing.exe
 
 # oops ;) but we don't want them to appear in the repository...
 *.stackdump
+*.core
 
 # misc
 *.rej
