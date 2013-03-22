@@ -152,7 +152,7 @@ int noekeon_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_ke
 {
    int err = _noekeon_ecb_encrypt(pt, ct, skey);
    burn_stack(sizeof(ulong32) * 5 + sizeof(int));
-   return CRYPT_OK;
+   return err;
 }
 #endif
 
