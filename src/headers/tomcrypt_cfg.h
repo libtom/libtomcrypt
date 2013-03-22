@@ -48,8 +48,8 @@ LTC_EXPORT int   LTC_CALL XSTRCMP(const char *s1, const char *s2);
    #define ARGTYPE  0
 #endif
 
-/* Controls endianess and size of registers.  Leave uncommented to get platform neutral [slower] code 
- * 
+/* Controls endianess and size of registers.  Leave uncommented to get platform neutral [slower] code
+ *
  * Note: in order to use the optimized macros your platform must support unaligned 32 and 64 bit read/writes.
  * The x86 platforms allow this but some others [ARM for instance] do not.  On those platforms you **MUST**
  * use the portable [slower] macros.
@@ -83,7 +83,7 @@ LTC_EXPORT int   LTC_CALL XSTRCMP(const char *s1, const char *s2);
    #define ENDIAN_32BITWORD
    #define LTC_FAST
    #define LTC_FAST_TYPE    unsigned long
-#endif   
+#endif
 
 /* detect sparc and sparc64 */
 #if defined(__sparc__)
