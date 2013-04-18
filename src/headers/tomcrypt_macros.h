@@ -360,7 +360,7 @@ static inline unsigned RORc(unsigned word, const int i)
 
 
 /* 64-bit Rotates */
-#if !defined(__STRICT_ANSI__) && defined(__GNUC__) && defined(__x86_64__) && !defined(LTC_NO_ASM)
+#if !defined(__STRICT_ANSI__) && defined(__GNUC__) && defined(__x86_64__) && !defined(_WIN64) && !defined(LTC_NO_ASM)
 
 static inline unsigned long ROL64(unsigned long word, int i)
 {
