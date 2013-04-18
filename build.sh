@@ -21,7 +21,7 @@ echo -n "testing..."
 if [ -a test ] && [ -f test ] && [ -x test ]; then
    ((./test >test_std.txt 2>test_err.txt && ./tv_gen > tv.txt) && echo "$1 test passed." && echo "y" > testok.txt) || (echo "$1 test failed, look at test_err.txt" && exit 1)
    if find *_tv.txt -type f 1>/dev/null 2>/dev/null ; then
-      for f in *_tv.txt; do if (diff --ignore-case $f notes/$f) then true; else (echo "tv_gen $f failed" && rm -f testok.txt && exit 1); fi; done
+      for f in *_tv.txt; do if (diff -i -w -B $f notes/$f) then true; else (echo "tv_gen $f failed" && rm -f testok.txt && exit 1); fi; done
    fi
 fi
 if [ -a testok.txt ] && [ -f testok.txt ]; then
