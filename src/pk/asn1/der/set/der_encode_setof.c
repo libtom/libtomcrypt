@@ -61,7 +61,8 @@ static int qsort_helper(const void *a, const void *b)
 int der_encode_setof(ltc_asn1_list *list, unsigned long inlen,
                      unsigned char *out,  unsigned long *outlen)
 {
-   unsigned long  x, y, z, hdrlen;
+   unsigned long  x, y, z;
+   ptrdiff_t hdrlen;
    int            err;
    struct edge   *edges;
    unsigned char *ptr, *buf;
@@ -102,7 +103,7 @@ int der_encode_setof(ltc_asn1_list *list, unsigned long inlen,
       }
 
       /* get the size of the static header */
-      hdrlen = ((unsigned long)ptr) - ((unsigned long)buf);
+      hdrlen = ptr - buf;
 
 
    /* scan for edges */
