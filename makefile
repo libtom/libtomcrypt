@@ -9,8 +9,13 @@ VERSION=1.17
 PLATFORM := $(shell uname | sed -e 's/_.*//')
 
 # Compiler and Linker Names
-#CC=gcc
-#LD=ld
+ifndef PREFIX
+  PREFIX=
+endif
+
+CC=$(PREFIX)gcc
+LD=$(PREFIX)ld
+AR=$(PREFIX)ar
 
 # Archiver [makes .a files]
 #AR=ar
@@ -23,9 +28,9 @@ endif
 # ranlib tools
 ifndef RANLIB
 ifeq ($(PLATFORM), Darwin)
-RANLIB=ranlib -c
+RANLIB=$(PREFIX)ranlib -c
 else
-RANLIB=ranlib
+RANLIB=$(PREFIX)ranlib
 endif
 endif
 
@@ -274,7 +279,7 @@ library: $(LIBNAME)
 $(OBJECTS): $(HEADERS)
 
 testprof/$(LIBTEST): 
-	cd testprof ; CFLAGS="$(CFLAGS)" LIBTEST_S=$(LIBTEST_S) $(MAKE) 
+	cd testprof ; CFLAGS="$(CFLAGS)" LIBTEST_S=$(LIBTEST_S) CC="$(CC)" LD="$(LD)" AR="$(AR)" RANLIB="$(RANLIB)" $(MAKE)
 
 $(LIBNAME): $(OBJECTS)
 	$(AR) $(ARFLAGS) $@ $(OBJECTS) 
