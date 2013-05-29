@@ -3,6 +3,11 @@ libtomcrypt
 
 See doc/crypt.pdf for a detailed documentation
 
+Build Status
+------------
+
+develop: [![Build Status](https://api.travis-ci.org/libtom/libtomcrypt.png?branch=develop)](https://api.travis-ci.org/libtom/libtomcrypt.png?branch=develop)
+
 Submitting patches
 ------------------
 
