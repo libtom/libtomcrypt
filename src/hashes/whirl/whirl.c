@@ -37,7 +37,7 @@ const struct ltc_hash_descriptor whirlpool_desc =
 };
 
 /* the sboxes */
-#include "whirltab.c"
+#include "whirltab.h"
 
 /* get a_{i,j} */
 #define GB(a,i,j) ((a[(i) & 7] >> (8 * (j))) & 255)

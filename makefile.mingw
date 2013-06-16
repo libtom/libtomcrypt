@@ -68,8 +68,8 @@ src/encauth/ocb3/ocb3_encrypt.o src/encauth/ocb3/ocb3_encrypt_authenticate_memor
 src/encauth/ocb3/ocb3_encrypt_last.o src/encauth/ocb3/ocb3_init.o \
 src/encauth/ocb3/ocb3_int_aad_add_block.o src/encauth/ocb3/ocb3_int_calc_offset_zero.o \
 src/encauth/ocb3/ocb3_int_ntz.o src/encauth/ocb3/ocb3_int_xor_blocks.o src/encauth/ocb3/ocb3_test.o \
-src/hashes/helper/hash_file.o src/hashes/helper/hash_filehandle.o src/hashes/helper/hash_memory.o \
-src/hashes/helper/hash_memory_multi.o src/hashes/chc/chc.o src/hashes/md2.o src/hashes/md4.o \
+src/hashes/chc/chc.o src/hashes/helper/hash_file.o src/hashes/helper/hash_filehandle.o \
+src/hashes/helper/hash_memory.o src/hashes/helper/hash_memory_multi.o src/hashes/md2.o src/hashes/md4.o \
 src/hashes/md5.o src/hashes/rmd128.o src/hashes/rmd160.o src/hashes/rmd256.o src/hashes/rmd320.o \
 src/hashes/sha1.o src/hashes/sha2/sha256.o src/hashes/sha2/sha512.o src/hashes/tiger.o \
 src/hashes/whirl/whirl.o src/mac/f9/f9_done.o src/mac/f9/f9_file.o src/mac/f9/f9_init.o \
@@ -167,7 +167,7 @@ src/pk/pkcs1/pkcs_1_v1_5_encode.o src/pk/rsa/rsa_decrypt_key.o src/pk/rsa/rsa_en
 src/pk/rsa/rsa_export.o src/pk/rsa/rsa_exptmod.o src/pk/rsa/rsa_free.o src/pk/rsa/rsa_import.o \
 src/pk/rsa/rsa_make_key.o src/pk/rsa/rsa_sign_hash.o src/pk/rsa/rsa_verify_hash.o src/prngs/fortuna.o \
 src/prngs/rc4.o src/prngs/rng_get_bytes.o src/prngs/rng_make_prng.o src/prngs/sober128.o \
-src/prngs/sprng.o src/prngs/yarrow.o
+src/prngs/sprng.o src/prngs/yarrow.o 
 
 HEADERS=src/headers/tomcrypt.h src/headers/tomcrypt_argchk.h src/headers/tomcrypt_cfg.h \
 src/headers/tomcrypt_cipher.h src/headers/tomcrypt_custom.h src/headers/tomcrypt_hash.h \
@@ -190,15 +190,15 @@ TESTS=demos/test.o
 default:library
 
 #ciphers come in two flavours... enc+dec and enc
-src/ciphers/aes/aes_enc.o: src/ciphers/aes/aes.c src/ciphers/aes/aes_tab.c
+src/ciphers/aes/aes_enc.o: src/ciphers/aes/aes.c src/ciphers/aes/aes_tab.h
 	$(CC) $(CFLAGS) -DENCRYPT_ONLY -c src/ciphers/aes/aes.c -o src/ciphers/aes/aes_enc.o
 
 #These are the rules to make certain object files.
-src/ciphers/aes/aes.o: src/ciphers/aes/aes.c src/ciphers/aes/aes_tab.c
-src/ciphers/twofish/twofish.o: src/ciphers/twofish/twofish.c src/ciphers/twofish/twofish_tab.c
-src/hashes/whirl/whirl.o: src/hashes/whirl/whirl.c src/hashes/whirl/whirltab.c
-src/hashes/sha2/sha512.o: src/hashes/sha2/sha512.c src/hashes/sha2/sha384.c
-src/hashes/sha2/sha256.o: src/hashes/sha2/sha256.c src/hashes/sha2/sha224.c
+src/ciphers/aes/aes.o: src/ciphers/aes/aes.c src/ciphers/aes/aes_tab.h
+src/ciphers/twofish/twofish.o: src/ciphers/twofish/twofish.c src/ciphers/twofish/twofish_tab.h
+src/hashes/whirl/whirl.o: src/hashes/whirl/whirl.c src/hashes/whirl/whirltab.h
+src/hashes/sha2/sha512.o: src/hashes/sha2/sha512.c src/hashes/sha2/sha384.h
+src/hashes/sha2/sha256.o: src/hashes/sha2/sha256.c src/hashes/sha2/sha224.h
 
 #This rule makes the libtomcrypt library.
 library: $(LIBNAME)

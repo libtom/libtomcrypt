@@ -138,7 +138,7 @@ src/headers/tomcrypt_pkcs.h src/headers/tomcrypt_prng.h testprof/tomcrypt_test.h
 default: library
 
 #ciphers come in two flavours... enc+dec and enc
-src/ciphers/aes/aes_enc.obj: src/ciphers/aes/aes.c src/ciphers/aes/aes_tab.c
+src/ciphers/aes/aes_enc.obj: src/ciphers/aes/aes.c src/ciphers/aes/aes_tab.h
 	$(CC) $(CFLAGS) /DENCRYPT_ONLY /c src/ciphers/aes/aes.c /Fosrc/ciphers/aes/aes_enc.obj
 
 library: $(OBJECTS)
