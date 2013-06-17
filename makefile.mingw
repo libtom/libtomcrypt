@@ -1,21 +1,33 @@
-# MAKEFILE for bsd make
-#
-# Tom St Denis
+# MAKEFILE for use with MS Windows gcc compiler + GNU make (aka mingw32-make)
+
+### should work with the following native compilers (not cross-compilers)
+# 32bit gcc compiler by mingw.org
+# 32bit gcc compiler by mingw-w64.sf.net
+# 64bit gcc compiler by mingw-w64.sf.net
+
+### build instruction (32bit)
+# gmake -f makefile.mingw CFLAGS_OPTS="-DUSE_LTM -DLTM_DESC -Iz:\dev_libtom\include"
+# gmake -f makefile.mingw CFLAGS_OPTS="-DUSE_LTM -DLTM_DESC -Iz:\dev_libtom\include" INSTPREFIX=z:\dev_libtom install
+# gmake -f makefile.mingw CFLAGS_OPTS="-DUSE_LTM -DLTM_DESC -Iz:\dev_libtom\include" EXTRALIBS="-Lz:\dev_libtom\lib -ltommath" test small tv_gen multi timing
+# gmake -f makefile.mingw CFLAGS_OPTS="-DUSE_LTM -DLTM_DESC -Iz:\dev_libtom\include" INSTPREFIX=z:\dev_libtom install_test
+# gmake -f makefile.mingw clean
+
+### build instruction (64bit)
+# nearly the same as 32bit build
+# just use: CFLAGS_OPTS="-DUSE_LTM -DLTM_DESC -DLTC_NO_ASM -Iz:\dev_libtom\include"
 
 # Compiler and Linker Names
-CC=cc
+CC=gcc
 LD=ld
-
-# Archiver [makes .a files]
 AR=ar
-ARFLAGS=r
+ARFLAGS=rc
+RANLIB=ranlib
 
 # Compilation flags. Note the += does not write over the user's CFLAGS!
 CFLAGS = -c -I./testprof/ -I./src/headers/ -DLTC_SOURCE -O2 ${CFLAGS_OPTS} -o $@
 
 LIBNAME=libtomcrypt.a
 LIBTEST=libtomcrypt_prof.a
-LIBTEST_S=$(LIBTEST)
 
 HASH=hashsum
 CRYPT=encrypt
@@ -28,15 +40,9 @@ TEST=test
 
 #LIBPATH-The directory for libtomcrypt to be installed to.
 #INCPATH-The directory to install the header files for libtomcrypt.
-#DATAPATH-The directory to install the pdf docs.
-LIBPATH=/usr/local/lib
-INCPATH=/usr/local/include
-DATAPATH=/usr/local/share/doc/libtomcrypt/pdf
-
-#Who do we install as?
-USER=root
-
-GROUP=wheel
+INSTPREFIX=c:\devel-libtom
+LIBPATH=$(INSTPREFIX)\lib
+INCPATH=$(INSTPREFIX)\include
 
 #List of objects to compile.
 #START_INS
@@ -180,16 +186,10 @@ MULTIS=demos/multi.o
 TIMINGS=demos/timing.o
 TESTS=demos/test.o
 
-#Files left over from making the crypt.pdf.
-LEFTOVERS=*.dvi *.log *.aux *.toc *.idx *.ilg *.ind *.out
-
-#Compressed filenames
-COMPRESSED=crypt-$(VERSION).tar.bz2 crypt-$(VERSION).zip
-
 #The default rule for make builds the libtomcrypt library.
 default:library
 
-#ciphers come in two flavours... enc+dec and enc 
+#ciphers come in two flavours... enc+dec and enc
 src/ciphers/aes/aes_enc.o: src/ciphers/aes/aes.c src/ciphers/aes/aes_tab.h
 	$(CC) $(CFLAGS) -DENCRYPT_ONLY -c src/ciphers/aes/aes.c -o src/ciphers/aes/aes_enc.o
 
@@ -203,8 +203,8 @@ src/hashes/sha2/sha256.o: src/hashes/sha2/sha256.c src/hashes/sha2/sha224.h
 #This rule makes the libtomcrypt library.
 library: $(LIBNAME)
 
-testprof/$(LIBTEST): 
-	cd testprof ; CFLAGS="$(CFLAGS)" LIBTEST_S=$(LIBTEST_S) $(MAKE) 
+testprof/$(LIBTEST):
+	$(MAKE) -C testprof -f makefile.mingw CFLAGS_OPTS="$(CFLAGS)" LIBTEST_S=$(LIBTEST) CC=$(CC) LD=$(LD) AR=$(AR) ARFLAGS=$(ARFLAGS) RANLIB=$(RANLIB)
 
 $(LIBNAME): $(OBJECTS)
 	$(AR) $(ARFLAGS) $@ $(OBJECTS)
@@ -221,7 +221,7 @@ crypt: library $(CRYPTOBJECTS)
 #makes the small program
 small: library $(SMALLOBJECTS)
 	$(CC) $(SMALLOBJECTS) $(LIBNAME) $(EXTRALIBS) -o $(SMALL) $(WARN)
-	
+
 tv_gen: library $(TVS)
 	$(CC) $(LDFLAGS) $(TVS) $(LIBNAME) $(EXTRALIBS) -o $(TV)
 
@@ -234,21 +234,16 @@ timing: library testprof/$(LIBTEST) $(TIMINGS)
 test: library testprof/$(LIBTEST) $(TESTS)
 	$(CC) $(LDFLAGS) $(TESTS) testprof/$(LIBTEST) $(LIBNAME) $(EXTRALIBS) -o $(TEST)
 
-#This rule installs the library and the header files. This must be run
-#as root in order to have a high enough permission to write to the correct
-#directories and to set the owner and group to root.
 install: library
-	install -d -g $(GROUP) -o $(USER) $(DESTDIR)$(LIBPATH)
-	install -d -g $(GROUP) -o $(USER) $(DESTDIR)$(INCPATH)
-	install -d -g $(GROUP) -o $(USER) $(DESTDIR)$(DATAPATH)
-	install -g $(GROUP) -o $(USER) $(LIBNAME) $(DESTDIR)$(LIBPATH)
-	install -g $(GROUP) -o $(USER) $(HEADERS) $(DESTDIR)$(INCPATH)
+	cmd /c if not exist "$(DESTDIR)$(LIBPATH)" mkdir "$(DESTDIR)$(LIBPATH)"
+	cmd /c if not exist "$(DESTDIR)$(INCPATH)" mkdir "$(DESTDIR)$(INCPATH)"
+	copy /Y $(LIBNAME) "$(DESTDIR)$(LIBPATH)"
+	copy /Y src\headers\tomcrypt*.h "$(DESTDIR)$(INCPATH)"
 
 install_test: testprof/$(LIBTEST)
-	install -d -g $(GROUP) -o $(USER) $(DESTDIR)$(LIBPATH)
-	install -d -g $(GROUP) -o $(USER) $(DESTDIR)$(INCPATH)
-	install -g $(GROUP) -o $(USER) testprof/$(LIBTEST) $(DESTDIR)$(LIBPATH)
+	cmd /c if not exist "$(DESTDIR)$(LIBPATH)" mkdir "$(DESTDIR)$(LIBPATH)"
+	copy /Y testprof\$(LIBTEST) "$(DESTDIR)$(LIBPATH)"
 
-# $Source: /cvs/libtom/libtomcrypt/makefile.unix,v $ 
-# $Revision: 1.8 $ 
-# $Date: 2007/06/20 13:14:31 $ 
+clean:
+	cmd /c del /Q /S *.o *.a *.exe
+	$(MAKE) -C testprof -f makefile.mingw clean

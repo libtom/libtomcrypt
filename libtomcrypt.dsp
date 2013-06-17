@@ -131,7 +131,7 @@ BuildCmds= \
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\ciphers\aes\aes_tab.c
+SOURCE=.\src\ciphers\aes\aes_tab.h
 # PROP Exclude_From_Build 1
 # End Source File
 # End Group
@@ -144,7 +144,7 @@ SOURCE=.\src\ciphers\safer\safer.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\ciphers\safer\safer_tab.c
+SOURCE=.\src\ciphers\safer\safer_tab.h
 # PROP Exclude_From_Build 1
 # End Source File
 # Begin Source File
@@ -161,7 +161,7 @@ SOURCE=.\src\ciphers\twofish\twofish.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\ciphers\twofish\twofish_tab.c
+SOURCE=.\src\ciphers\twofish\twofish_tab.h
 # PROP Exclude_From_Build 1
 # End Source File
 # End Group
@@ -394,7 +394,7 @@ SOURCE=.\src\hashes\helper\hash_memory_multi.c
 # PROP Default_Filter ""
 # Begin Source File
 
-SOURCE=.\src\hashes\sha2\sha224.c
+SOURCE=.\src\hashes\sha2\sha224.h
 # PROP Exclude_From_Build 1
 # End Source File
 # Begin Source File
@@ -403,7 +403,7 @@ SOURCE=.\src\hashes\sha2\sha256.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\hashes\sha2\sha384.c
+SOURCE=.\src\hashes\sha2\sha384.h
 # PROP Exclude_From_Build 1
 # End Source File
 # Begin Source File
@@ -420,7 +420,7 @@ SOURCE=.\src\hashes\whirl\whirl.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\hashes\whirl\whirltab.c
+SOURCE=.\src\hashes\whirl\whirltab.h
 # PROP Exclude_From_Build 1
 # End Source File
 # End Group
@@ -1567,7 +1567,7 @@ SOURCE=.\src\prngs\sober128.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\prngs\sober128tab.c
+SOURCE=.\src\prngs\sober128tab.h
 # PROP Exclude_From_Build 1
 # End Source File
 # Begin Source File

@@ -88,11 +88,15 @@ static unsigned long rng_ansic(unsigned char *buf, unsigned long len,
 
 /* Try the Microsoft CSP */
 #if defined(WIN32) || defined(WINCE)
-#define _WIN32_WINNT 0x0400
+  #ifndef _WIN32_WINNT
+    #define _WIN32_WINNT 0x0400
+  #endif
 #ifdef WINCE
    #define UNDER_CE
    #define ARM
 #endif
+
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <wincrypt.h>
 

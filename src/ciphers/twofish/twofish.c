@@ -62,7 +62,7 @@ static const unsigned char qord[4][5] = {
 
 #ifdef LTC_TWOFISH_TABLES
 
-#include "twofish_tab.c"
+#include "twofish_tab.h"
 
 #define sbox(i, x) ((ulong32)SBOX[i][(x)&255])
 

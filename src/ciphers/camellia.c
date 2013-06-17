@@ -192,7 +192,7 @@ static ulong64 F(ulong64 x)
    D ^= U;
    U = D ^ ROR(U, (const int)8);
 
-   return ((ulong64)U) | (((ulong64)D) << 32ULL);
+   return ((ulong64)U) | (((ulong64)D) << CONST64(32));
 }
 
 static void rot_128(unsigned char *in, unsigned count, unsigned char *out)
@@ -456,17 +456,17 @@ int camellia_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_k
    L ^= F(R ^ skey->camellia.k[5]);
 
    /* FL */
-   a = L >> 32;
-   b = L & 0xFFFFFFFFUL;
-   b ^= ROL((a & (skey->camellia.kl[0] >> 32)), 1);
+   a = (ulong32)(L >> 32);
+   b = (ulong32)(L & 0xFFFFFFFFUL);
+   b ^= ROL((a & (ulong32)(skey->camellia.kl[0] >> 32)), 1);
    a ^= b | (skey->camellia.kl[0] & 0xFFFFFFFFU);
    L = (((ulong64)a) << 32) | b;
 
    /* FL^-1 */
-   a = R >> 32;
-   b = R & 0xFFFFFFFFUL;
+   a = (ulong32)(R >> 32);
+   b = (ulong32)(R & 0xFFFFFFFFUL);
    a ^= b | (skey->camellia.kl[1] & 0xFFFFFFFFU);
-   b ^= ROL((a & (skey->camellia.kl[1] >> 32)), 1);
+   b ^= ROL((a & (ulong32)(skey->camellia.kl[1] >> 32)), 1);
    R = (((ulong64)a) << 32) | b;
 
    /* second 6 rounds */
@@ -478,17 +478,17 @@ int camellia_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_k
    L ^= F(R ^ skey->camellia.k[11]);
 
    /* FL */
-   a = L >> 32;
-   b = L & 0xFFFFFFFFUL;
-   b ^= ROL((a & (skey->camellia.kl[2] >> 32)), 1);
+   a = (ulong32)(L >> 32);
+   b = (ulong32)(L & 0xFFFFFFFFUL);
+   b ^= ROL((a & (ulong32)(skey->camellia.kl[2] >> 32)), 1);
    a ^= b | (skey->camellia.kl[2] & 0xFFFFFFFFU);
    L = (((ulong64)a) << 32) | b;
 
    /* FL^-1 */
-   a = R >> 32;
-   b = R & 0xFFFFFFFFUL;
+   a = (ulong32)(R >> 32);
+   b = (ulong32)(R & 0xFFFFFFFFUL);
    a ^= b | (skey->camellia.kl[3] & 0xFFFFFFFFU);
-   b ^= ROL((a & (skey->camellia.kl[3] >> 32)), 1);
+   b ^= ROL((a & (ulong32)(skey->camellia.kl[3] >> 32)), 1);
    R = (((ulong64)a) << 32) | b;
 
    /* third 6 rounds */
@@ -502,17 +502,17 @@ int camellia_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_k
    /* next FL */
    if (skey->camellia.R == 24) {
       /* FL */
-      a = L >> 32;
-      b = L & 0xFFFFFFFFUL;
-      b ^= ROL((a & (skey->camellia.kl[4] >> 32)), 1);
+      a = (ulong32)(L >> 32);
+      b = (ulong32)(L & 0xFFFFFFFFUL);
+      b ^= ROL((a & (ulong32)(skey->camellia.kl[4] >> 32)), 1);
       a ^= b | (skey->camellia.kl[4] & 0xFFFFFFFFU);
       L = (((ulong64)a) << 32) | b;
 
       /* FL^-1 */
-      a = R >> 32;
-      b = R & 0xFFFFFFFFUL;
+      a = (ulong32)(R >> 32);
+      b = (ulong32)(R & 0xFFFFFFFFUL);
       a ^= b | (skey->camellia.kl[5] & 0xFFFFFFFFU);
-      b ^= ROL((a & (skey->camellia.kl[5] >> 32)), 1);
+      b ^= ROL((a & (ulong32)(skey->camellia.kl[5] >> 32)), 1);
       R = (((ulong64)a) << 32) | b;
 
       /* fourth 6 rounds */
@@ -552,16 +552,16 @@ int camellia_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_k
       R ^= F(L ^ skey->camellia.k[18]);
 
       /* FL */
-      a = L >> 32;
-      b = L & 0xFFFFFFFFUL;
+      a = (ulong32)(L >> 32);
+      b = (ulong32)(L & 0xFFFFFFFFUL);
       a ^= b | (skey->camellia.kl[4] & 0xFFFFFFFFU);
-      b ^= ROL((a & (skey->camellia.kl[4] >> 32)), 1);
+      b ^= ROL((a & (ulong32)(skey->camellia.kl[4] >> 32)), 1);
       L = (((ulong64)a) << 32) | b;
 
       /* FL^-1 */
-      a = R >> 32;
-      b = R & 0xFFFFFFFFUL;
-      b ^= ROL((a & (skey->camellia.kl[5] >> 32)), 1);
+      a = (ulong32)(R >> 32);
+      b = (ulong32)(R & 0xFFFFFFFFUL);
+      b ^= ROL((a & (ulong32)(skey->camellia.kl[5] >> 32)), 1);
       a ^= b | (skey->camellia.kl[5] & 0xFFFFFFFFU);
       R = (((ulong64)a) << 32) | b;
 
@@ -576,16 +576,16 @@ int camellia_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_k
    R ^= F(L ^ skey->camellia.k[12]);
 
    /* FL */
-   a = L >> 32;
-   b = L & 0xFFFFFFFFUL;
+   a = (ulong32)(L >> 32);
+   b = (ulong32)(L & 0xFFFFFFFFUL);
    a ^= b | (skey->camellia.kl[2] & 0xFFFFFFFFU);
-   b ^= ROL((a & (skey->camellia.kl[2] >> 32)), 1);
+   b ^= ROL((a & (ulong32)(skey->camellia.kl[2] >> 32)), 1);
    L = (((ulong64)a) << 32) | b;
 
    /* FL^-1 */
-   a = R >> 32;
-   b = R & 0xFFFFFFFFUL;
-   b ^= ROL((a & (skey->camellia.kl[3] >> 32)), 1);
+   a = (ulong32)(R >> 32);
+   b = (ulong32)(R & 0xFFFFFFFFUL);
+   b ^= ROL((a & (ulong32)(skey->camellia.kl[3] >> 32)), 1);
    a ^= b | (skey->camellia.kl[3] & 0xFFFFFFFFU);
    R = (((ulong64)a) << 32) | b;
 
@@ -598,16 +598,16 @@ int camellia_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_k
    R ^= F(L ^ skey->camellia.k[6]);
 
    /* FL */
-   a = L >> 32;
-   b = L & 0xFFFFFFFFUL;
+   a = (ulong32)(L >> 32);
+   b = (ulong32)(L & 0xFFFFFFFFUL);
    a ^= b | (skey->camellia.kl[0] & 0xFFFFFFFFU);
-   b ^= ROL((a & (skey->camellia.kl[0] >> 32)), 1);
+   b ^= ROL((a & (ulong32)(skey->camellia.kl[0] >> 32)), 1);
    L = (((ulong64)a) << 32) | b;
 
    /* FL^-1 */
-   a = R >> 32;
-   b = R & 0xFFFFFFFFUL;
-   b ^= ROL((a & (skey->camellia.kl[1] >> 32)), 1);
+   a = (ulong32)(R >> 32);
+   b = (ulong32)(R & 0xFFFFFFFFUL);
+   b ^= ROL((a & (ulong32)(skey->camellia.kl[1] >> 32)), 1);
    a ^= b | (skey->camellia.kl[1] & 0xFFFFFFFFU);
    R = (((ulong64)a) << 32) | b;
 
