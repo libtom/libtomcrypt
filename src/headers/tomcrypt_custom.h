@@ -66,6 +66,18 @@
 #define XQSORT qsort
 #endif
 
+/* shortcut to disable automatic inclusion */
+#if defined LTC_NOTHING && !defined LTC_EASY
+  #define LTC_NO_CIPHERS
+  #define LTC_NO_MODES
+  #define LTC_NO_HASHES
+  #define LTC_NO_MACS
+  #define LTC_NO_PRNGS
+  #define LTC_NO_PK
+  #define LTC_NO_PKCS
+  #define LTC_NO_MISC
+#endif /* LTC_NOTHING */
+
 /* Easy button? */
 #ifdef LTC_EASY
    #define LTC_NO_CIPHERS
@@ -100,15 +112,18 @@
    #define LTC_NO_PK
    #define LTC_MRSA
    #define LTC_MECC
-#endif
 
-/* Use small code where possible */
-/* #define LTC_SMALL_CODE */
+   #define LTC_NO_MISC
+   #define LTC_BASE64
+#endif
 
 /* Enable self-test test vector checking */
 #ifndef LTC_NO_TEST
    #define LTC_TEST
 #endif
+
+/* Use small code where possible */
+/* #define LTC_SMALL_CODE */
 
 /* clean the stack of functions which put private information on stack */
 /* #define LTC_CLEAN_STACK */
@@ -124,6 +139,16 @@
 
 /* disable BSWAP on x86 */
 /* #define LTC_NO_BSWAP */
+
+/* ---> math provider? <--- */
+/* LibTomMath */
+/* #define LTM_DESC */
+
+/* TomsFastMath */
+/* #define TFM_DESC */
+
+/* GNU Multiple Precision Arithmetic Library */
+/* #define GMP_DESC */
 
 /* ---> Symmetric Block Ciphers <--- */
 #ifndef LTC_NO_CIPHERS
@@ -247,9 +272,6 @@
 
 #endif /* LTC_NO_MACS */
 
-/* Various tidbits of modern neatoness */
-#define LTC_BASE64
-
 /* --> Pseudo Random Number Generators <--- */
 #ifndef LTC_NO_PRNGS
 
@@ -290,25 +312,16 @@
 
 #endif /* LTC_NO_PRNGS */
 
-/* ---> math provider? <--- */
-#ifndef LTC_NO_MATH
-
-/* LibTomMath */
-/* #define LTM_DESC */
-
-/* TomsFastMath */
-/* #define TFM_DESC */
-
-#endif /* LTC_NO_MATH */
-
 /* ---> Public Key Crypto <--- */
 #ifndef LTC_NO_PK
 
 /* Include RSA support */
 #define LTC_MRSA
 
-/* Enable RSA blinding when doing private key operations? */
-/* #define LTC_RSA_BLINDING */
+#ifndef LTC_NO_RSA_BLINDING
+/* Enable RSA blinding when doing private key operations by default */
+#define LTC_RSA_BLINDING
+#endif  /* LTC_NO_RSA_BLINDING */
 
 /* Include Diffie-Hellman support */
 #ifndef GMP_DESC
@@ -368,6 +381,8 @@
 /* misc stuff */
 #ifndef LTC_NO_MISC
 
+/* Various tidbits of modern neatoness */
+#define LTC_BASE64
 
 /* Keep LTC_NO_HKDF for compatibility reasons
  * superseeded by LTC_NO_MISC*/
