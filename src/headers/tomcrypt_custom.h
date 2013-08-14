@@ -365,12 +365,18 @@
 
 #endif /* LTC_NO_PKCS */
 
-/* LTC_HKDF Key Derivation/Expansion stuff */
+/* misc stuff */
+#ifndef LTC_NO_MISC
+
+
+/* Keep LTC_NO_HKDF for compatibility reasons
+ * superseeded by LTC_NO_MISC*/
 #ifndef LTC_NO_HKDF
-
+/* LTC_HKDF Key Derivation/Expansion stuff */
 #define LTC_HKDF
-
 #endif /* LTC_NO_HKDF */
+
+#endif /* LTC_NO_MISC */
 
 /* cleanup */
 
