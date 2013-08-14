@@ -238,9 +238,9 @@ src/prngs/sprng.o src/prngs/yarrow.o
 
 HEADERS=src/headers/tomcrypt.h src/headers/tomcrypt_argchk.h src/headers/tomcrypt_cfg.h \
 src/headers/tomcrypt_cipher.h src/headers/tomcrypt_custom.h src/headers/tomcrypt_hash.h \
-src/headers/tomcrypt_hkdf.h src/headers/tomcrypt_mac.h src/headers/tomcrypt_macros.h \
-src/headers/tomcrypt_math.h src/headers/tomcrypt_misc.h src/headers/tomcrypt_pk.h \
-src/headers/tomcrypt_pkcs.h src/headers/tomcrypt_prng.h testprof/tomcrypt_test.h
+src/headers/tomcrypt_mac.h src/headers/tomcrypt_macros.h src/headers/tomcrypt_math.h \
+src/headers/tomcrypt_misc.h src/headers/tomcrypt_pk.h src/headers/tomcrypt_pkcs.h \
+src/headers/tomcrypt_prng.h testprof/tomcrypt_test.h
 
 #END_INS
 
