@@ -72,6 +72,9 @@ void rsa_free(rsa_key *key);
 #define rsa_verify_hash(_sig, _siglen, _hash, _hashlen, _hash_idx, _saltlen, _stat, _key) \
   rsa_verify_hash_ex(_sig, _siglen, _hash, _hashlen, LTC_PKCS_1_PSS, _hash_idx, _saltlen, _stat, _key)
 
+#define rsa_sign_saltlen_get_max(_hash_idx, _key) \
+  rsa_sign_saltlen_get_max_ex(LTC_PKCS_1_PSS, _hash_idx, _key)
+
 /* These can be switched between LTC_PKCS #1 v2.x and LTC_PKCS #1 v1.5 paddings */
 int rsa_encrypt_key_ex(const unsigned char *in,     unsigned long inlen,
                              unsigned char *out,    unsigned long *outlen,
@@ -96,6 +99,8 @@ int rsa_verify_hash_ex(const unsigned char *sig,      unsigned long siglen,
                              int            padding,
                              int            hash_idx, unsigned long saltlen,
                              int           *stat,     rsa_key      *key);
+
+int rsa_sign_saltlen_get_max_ex(int padding, int hash_idx, rsa_key *key);
 
 /* LTC_PKCS #1 import/export */
 int rsa_export(unsigned char *out, unsigned long *outlen, int type, rsa_key *key);
