@@ -122,10 +122,11 @@ src/pk/katja/katja_make_key.obj src/pk/pkcs1/pkcs_1_i2osp.obj src/pk/pkcs1/pkcs_
 src/pk/pkcs1/pkcs_1_oaep_decode.obj src/pk/pkcs1/pkcs_1_oaep_encode.obj src/pk/pkcs1/pkcs_1_os2ip.obj \
 src/pk/pkcs1/pkcs_1_pss_decode.obj src/pk/pkcs1/pkcs_1_pss_encode.obj src/pk/pkcs1/pkcs_1_v1_5_decode.obj \
 src/pk/pkcs1/pkcs_1_v1_5_encode.obj src/pk/rsa/rsa_decrypt_key.obj src/pk/rsa/rsa_encrypt_key.obj \
-src/pk/rsa/rsa_export.obj src/pk/rsa/rsa_exptmod.obj src/pk/rsa/rsa_free.obj src/pk/rsa/rsa_import.obj \
-src/pk/rsa/rsa_make_key.obj src/pk/rsa/rsa_sign_hash.obj src/pk/rsa/rsa_verify_hash.obj src/prngs/fortuna.obj \
-src/prngs/rc4.obj src/prngs/rng_get_bytes.obj src/prngs/rng_make_prng.obj src/prngs/sober128.obj \
-src/prngs/sprng.obj src/prngs/yarrow.obj
+src/pk/rsa/rsa_export.obj src/pk/rsa/rsa_exptmod.obj src/pk/rsa/rsa_free.obj src/pk/rsa/rsa_get_size.obj \
+src/pk/rsa/rsa_import.obj src/pk/rsa/rsa_make_key.obj src/pk/rsa/rsa_sign_hash.obj \
+src/pk/rsa/rsa_sign_saltlen_get.obj src/pk/rsa/rsa_verify_hash.obj src/prngs/fortuna.obj src/prngs/rc4.obj \
+src/prngs/rng_get_bytes.obj src/prngs/rng_make_prng.obj src/prngs/sober128.obj src/prngs/sprng.obj \
+src/prngs/yarrow.obj
 
 HEADERS=src/headers/tomcrypt.h src/headers/tomcrypt_argchk.h src/headers/tomcrypt_cfg.h \
 src/headers/tomcrypt_cipher.h src/headers/tomcrypt_custom.h src/headers/tomcrypt_hash.h \
