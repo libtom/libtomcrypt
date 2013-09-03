@@ -125,7 +125,7 @@ src/pk/pkcs1/pkcs_1_v1_5_encode.obj src/pk/rsa/rsa_decrypt_key.obj src/pk/rsa/rs
 src/pk/rsa/rsa_export.obj src/pk/rsa/rsa_exptmod.obj src/pk/rsa/rsa_free.obj src/pk/rsa/rsa_import.obj \
 src/pk/rsa/rsa_make_key.obj src/pk/rsa/rsa_sign_hash.obj src/pk/rsa/rsa_verify_hash.obj src/prngs/fortuna.obj \
 src/prngs/rc4.obj src/prngs/rng_get_bytes.obj src/prngs/rng_make_prng.obj src/prngs/sober128.obj \
-src/prngs/sprng.obj src/prngs/yarrow.obj 
+src/prngs/sprng.obj src/prngs/yarrow.obj
 
 HEADERS=src/headers/tomcrypt.h src/headers/tomcrypt_argchk.h src/headers/tomcrypt_cfg.h \
 src/headers/tomcrypt_cipher.h src/headers/tomcrypt_custom.h src/headers/tomcrypt_hash.h \
@@ -143,7 +143,7 @@ src/ciphers/aes/aes_enc.obj: src/ciphers/aes/aes.c src/ciphers/aes/aes_tab.c
 
 library: $(OBJECTS)
 	lib /out:tomcrypt.lib $(OBJECTS)
-	cd testprof 
+	cd testprof
 	nmake -f makefile.msvc
 	cd ..
 	
@@ -159,6 +159,6 @@ test: demos/test.c library
 timing: demos/timing.c library
 	cl $(CFLAGS) demos/timing.c testprof/tomcrypt_prof.lib tomcrypt.lib advapi32.lib $(EXTRALIBS)
 
-# $Source: /cvs/libtom/libtomcrypt/makefile.msvc,v $   
-# $Revision: 1.55 $   
-# $Date: 2007/06/20 13:14:31 $ 
+# $Source$
+# $Revision$
+# $Date$

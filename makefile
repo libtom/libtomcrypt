@@ -40,7 +40,7 @@ CFLAGS += -c -I./testprof/ -I./src/headers/ -Wall -Wsign-compare -W -Wshadow -Wn
 # additional warnings (newer GCC 3.4 and higher)
 ifdef GCC_34
 CFLAGS += -Wsystem-headers -Wdeclaration-after-statement -Wbad-function-cast -Wcast-align -Wstrict-prototypes -Wmissing-prototypes \
-		  -Wmissing-declarations -Wpointer-arith 
+		  -Wmissing-declarations -Wpointer-arith
 endif
 
 ifndef IGNORE_SPEED
@@ -234,7 +234,7 @@ src/pk/pkcs1/pkcs_1_v1_5_encode.o src/pk/rsa/rsa_decrypt_key.o src/pk/rsa/rsa_en
 src/pk/rsa/rsa_export.o src/pk/rsa/rsa_exptmod.o src/pk/rsa/rsa_free.o src/pk/rsa/rsa_import.o \
 src/pk/rsa/rsa_make_key.o src/pk/rsa/rsa_sign_hash.o src/pk/rsa/rsa_verify_hash.o src/prngs/fortuna.o \
 src/prngs/rc4.o src/prngs/rng_get_bytes.o src/prngs/rng_make_prng.o src/prngs/sober128.o \
-src/prngs/sprng.o src/prngs/yarrow.o 
+src/prngs/sprng.o src/prngs/yarrow.o
 
 HEADERS=src/headers/tomcrypt.h src/headers/tomcrypt_argchk.h src/headers/tomcrypt_cfg.h \
 src/headers/tomcrypt_cipher.h src/headers/tomcrypt_custom.h src/headers/tomcrypt_hash.h \
@@ -262,7 +262,7 @@ COMPRESSED=crypt-$(VERSION).tar.bz2 crypt-$(VERSION).zip
 #The default rule for make builds the libtomcrypt library.
 default:library
 
-#ciphers come in two flavours... enc+dec and enc 
+#ciphers come in two flavours... enc+dec and enc
 src/ciphers/aes/aes_enc.o: src/ciphers/aes/aes.c src/ciphers/aes/aes_tab.c
 	$(CC) $(CFLAGS) -DENCRYPT_ONLY -c src/ciphers/aes/aes.c -o src/ciphers/aes/aes_enc.o
 
@@ -278,11 +278,11 @@ library: $(LIBNAME)
 
 $(OBJECTS): $(HEADERS)
 
-testprof/$(LIBTEST): 
+testprof/$(LIBTEST):
 	cd testprof ; CFLAGS="$(CFLAGS)" LIBTEST_S=$(LIBTEST_S) CC="$(CC)" LD="$(LD)" AR="$(AR)" RANLIB="$(RANLIB)" $(MAKE)
 
 $(LIBNAME): $(OBJECTS)
-	$(AR) $(ARFLAGS) $@ $(OBJECTS) 
+	$(AR) $(ARFLAGS) $@ $(OBJECTS)
 	$(RANLIB) $@
 
 #This rule makes the hash program included with libtomcrypt
@@ -393,7 +393,7 @@ docdvi: crypt.tex
 
 #zipup the project (take that!)
 no_oops: clean
-	cd .. ; cvs commit 
+	cd .. ; cvs commit
 	echo Scanning for scratch/dirty files
 	find . -type f | grep -v CVS | xargs -n 1 bash mess.sh
 
@@ -407,6 +407,6 @@ zipup: no_oops docs
 	mv -fv crypt* ~ ; rm -rf libtomcrypt-$(VERSION)
 
 
-# $Source: /cvs/libtom/libtomcrypt/makefile,v $ 
-# $Revision: 1.151 $ 
-# $Date: 2007/06/20 13:14:31 $ 
+# $Source$
+# $Revision$
+# $Date$
