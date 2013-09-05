@@ -25,6 +25,11 @@ void der_sequence_free(ltc_asn1_list *in)
 {
    ltc_asn1_list *l;
    
+   /* make sure we have been given a list */
+   if (in == NULL) {
+      return;
+   }
+   
    /* walk to the start of the chain */
    while (in->prev != NULL || in->parent != NULL) {
       if (in->parent != NULL) {

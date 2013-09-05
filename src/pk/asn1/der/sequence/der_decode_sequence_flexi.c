@@ -341,9 +341,18 @@ int der_decode_sequence_flexi(const unsigned char *in, unsigned long *inlen, ltc
              
              break;
          default:
+
+           /* first packet is bad ... this is a hard error */
+           if (l->prev == NULL) {
+              XFREE(l);
+              l = NULL;
+              err = CRYPT_INVALID_PACKET;
+              goto error;
+           }
+
            /* invalid byte ... this is a soft error */
            /* remove link */
-           l       = l->prev;
+           l = l->prev;
            XFREE(l->next);
            l->next = NULL;
            goto outside;
