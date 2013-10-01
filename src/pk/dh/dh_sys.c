@@ -343,7 +343,7 @@ int dh_sign_hash(const unsigned char *in,  unsigned long inlen,
    if (prng_descriptor[wprng].read(buf, sets[key->idx].size, prng) !=
        (unsigned long)(sets[key->idx].size)) {
       err = CRYPT_ERROR_READPRNG;
-      goto LBL_ERR;
+      goto LBL_ERR_1;
    }
 
    /* init bignums */
@@ -352,23 +352,23 @@ int dh_sign_hash(const unsigned char *in,  unsigned long inlen,
    }
 
    /* load k and m */
-   if ((err = mp_read_unsigned_bin(m, (unsigned char *)in, inlen)) != CRYPT_OK)        { goto error; }
-   if ((err = mp_read_unsigned_bin(k, buf, sets[key->idx].size)) != CRYPT_OK)          { goto error; }
+   if ((err = mp_read_unsigned_bin(m, (unsigned char *)in, inlen)) != CRYPT_OK)        { goto LBL_ERR; }
+   if ((err = mp_read_unsigned_bin(k, buf, sets[key->idx].size)) != CRYPT_OK)          { goto LBL_ERR; }
 
    /* load g, p and p1 */
-   if ((err = mp_read_radix(g, sets[key->idx].base, 64)) != CRYPT_OK)               { goto error; }
-   if ((err = mp_read_radix(p, sets[key->idx].prime, 64)) != CRYPT_OK)              { goto error; }
-   if ((err = mp_sub_d(p, 1, p1)) != CRYPT_OK)                                     { goto error; }
-   if ((err = mp_div_2(p1, p1)) != CRYPT_OK)                                       { goto error; } /* p1 = (p-1)/2 */
+   if ((err = mp_read_radix(g, sets[key->idx].base, 64)) != CRYPT_OK)               { goto LBL_ERR; }
+   if ((err = mp_read_radix(p, sets[key->idx].prime, 64)) != CRYPT_OK)              { goto LBL_ERR; }
+   if ((err = mp_sub_d(p, 1, p1)) != CRYPT_OK)                                     { goto LBL_ERR; }
+   if ((err = mp_div_2(p1, p1)) != CRYPT_OK)                                       { goto LBL_ERR; } /* p1 = (p-1)/2 */
 
    /* now get a = g^k mod p */
-   if ((err = mp_exptmod(g, k, p, a)) != CRYPT_OK)                               { goto error; }
+   if ((err = mp_exptmod(g, k, p, a)) != CRYPT_OK)                               { goto LBL_ERR; }
 
    /* now find M = xa + kb mod p1 or just b = (M - xa)/k mod p1 */
-   if ((err = mp_invmod(k, p1, k)) != CRYPT_OK)                                   { goto error; } /* k = 1/k mod p1 */
-   if ((err = mp_mulmod(a, key->x, p1, tmp)) != CRYPT_OK)                        { goto error; } /* tmp = xa */
-   if ((err = mp_submod(m, tmp, p1, tmp)) != CRYPT_OK)                           { goto error; } /* tmp = M - xa */
-   if ((err = mp_mulmod(k, tmp, p1, b)) != CRYPT_OK)                             { goto error; } /* b = (M - xa)/k */
+   if ((err = mp_invmod(k, p1, k)) != CRYPT_OK)                                   { goto LBL_ERR; } /* k = 1/k mod p1 */
+   if ((err = mp_mulmod(a, key->x, p1, tmp)) != CRYPT_OK)                        { goto LBL_ERR; } /* tmp = xa */
+   if ((err = mp_submod(m, tmp, p1, tmp)) != CRYPT_OK)                           { goto LBL_ERR; } /* tmp = M - xa */
+   if ((err = mp_mulmod(k, tmp, p1, b)) != CRYPT_OK)                             { goto LBL_ERR; } /* b = (M - xa)/k */
 
    /* check for overflow */
    if ((unsigned long)(PACKET_SIZE + 4 + 4 + mp_unsigned_bin_size(a) + mp_unsigned_bin_size(b)) > *outlen) {
@@ -382,12 +382,12 @@ int dh_sign_hash(const unsigned char *in,  unsigned long inlen,
    /* now store them both (a,b) */
    x = (unsigned long)mp_unsigned_bin_size(a);
    STORE32L(x, out+y);  y += 4;
-   if ((err = mp_to_unsigned_bin(a, out+y)) != CRYPT_OK)                            { goto error; }
+   if ((err = mp_to_unsigned_bin(a, out+y)) != CRYPT_OK)                            { goto LBL_ERR; }
    y += x;
 
    x = (unsigned long)mp_unsigned_bin_size(b);
    STORE32L(x, out+y);  y += 4;
-   if ((err = mp_to_unsigned_bin(b, out+y)) != CRYPT_OK)                            { goto error; }
+   if ((err = mp_to_unsigned_bin(b, out+y)) != CRYPT_OK)                            { goto LBL_ERR; }
    y += x;
 
    /* check if size too big */
@@ -401,10 +401,9 @@ int dh_sign_hash(const unsigned char *in,  unsigned long inlen,
    *outlen = y;
 
    err = CRYPT_OK;
-   goto LBL_ERR;
-error:
 LBL_ERR:
    mp_clear_multi(tmp, p1, g, p, m, k, b, a, NULL);
+LBL_ERR_1:
 
    XFREE(buf);
 

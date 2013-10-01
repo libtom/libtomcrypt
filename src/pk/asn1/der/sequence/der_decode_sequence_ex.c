@@ -50,9 +50,12 @@ int der_decode_sequence_ex(const unsigned char *in, unsigned long  inlen,
    }
    ++x;
 
+   /* check if the msb is set, which signals that the
+    * 7 lsb bits represent the number of bytes of the length
+    */
    if (in[x] < 128) {
       blksize = in[x++];
-   } else if (in[x] & 0x80) {
+   } else {
       if (in[x] < 0x81 || in[x] > 0x83) {
          return CRYPT_INVALID_PACKET;
       }
