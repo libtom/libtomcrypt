@@ -13,7 +13,7 @@ ifndef PREFIX
   PREFIX=
 endif
 
-CC=$(PREFIX)gcc
+CC?=$(PREFIX)gcc
 LD=$(PREFIX)ld
 AR=$(PREFIX)ar
 
