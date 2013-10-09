@@ -73,8 +73,8 @@ retry:
       /* read k */
       if ((err = mp_read_unsigned_bin(k, buf, key->qord)) != CRYPT_OK)                 { goto error; }
 
-      /* k > 1 ? */
-      if (mp_cmp_d(k, 1) != LTC_MP_GT)                                                 { goto retry; }
+      /* k > 1 and k < q ? */
+      if (mp_cmp_d(k, 1) != LTC_MP_GT || mp_cmp(k, key->q) != LTC_MP_LT)               { goto retry; }
 
       /* test gcd */
       if ((err = mp_gcd(k, key->q, tmp)) != CRYPT_OK)                                  { goto error; }
