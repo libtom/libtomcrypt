@@ -29,7 +29,7 @@
 int dsa_make_key(prng_state *prng, int wprng, int group_size, int modulus_size, dsa_key *key)
 {
    void           *tmp, *tmp2;
-   int            err, res;
+   int            err, res, q_size;
    unsigned char *buf;
 
    LTC_ARGCHK(key  != NULL);
@@ -104,13 +104,14 @@ int dsa_make_key(prng_state *prng, int wprng, int group_size, int modulus_size, 
    /* so now we have our DH structure, generator g, order q, modulus p 
       Now we need a random exponent [mod q] and it's power g^x mod p 
     */
+   q_size = mp_unsigned_bin_size(key->q);
    do {
-      if (prng_descriptor[wprng].read(buf, group_size, prng) != (unsigned long)group_size) {
+      if (prng_descriptor[wprng].read(buf, q_size, prng) != (unsigned long)q_size) {
          err = CRYPT_ERROR_READPRNG;
          goto error;
       }
-      if ((err = mp_read_unsigned_bin(key->x, buf, group_size)) != CRYPT_OK)           { goto error; }
-   } while (mp_cmp_d(key->x, 1) != LTC_MP_GT);
+      if ((err = mp_read_unsigned_bin(key->x, buf, q_size)) != CRYPT_OK)           { goto error; }
+   } while (mp_cmp_d(key->x, 1) != LTC_MP_GT || mp_cmp(key->x, key->q) != LTC_MP_LT);
    if ((err = mp_exptmod(key->g, key->x, key->p, key->y)) != CRYPT_OK)                 { goto error; }
   
    key->type = PK_PRIVATE;
