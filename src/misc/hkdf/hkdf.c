@@ -4,6 +4,8 @@
 
 #include <tomcrypt.h>
 
+#ifdef LTC_HKDF
+
 #ifndef MIN
 #define MIN(a,b) ((a)<(b))?(a):(b)
 #endif
@@ -136,6 +138,7 @@ int hkdf(int hash_idx, const unsigned char *salt, unsigned long saltlen,
    XFREE(extracted);
    return err;
 }
+#endif /* LTC_HKDF */
 
 
 /* vim: set ts=2 sw=2 et ai si: */
