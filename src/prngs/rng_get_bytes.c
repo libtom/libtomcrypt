@@ -87,12 +87,16 @@ static unsigned long rng_ansic(unsigned char *buf, unsigned long len,
 #endif 
 
 /* Try the Microsoft CSP */
-#if defined(WIN32) || defined(WINCE)
-#define _WIN32_WINNT 0x0400
+#if defined(WIN32) || defined(_WIN32) || defined(WINCE)
+#ifndef _WIN32_WINNT
+  #define _WIN32_WINNT 0x0400
+#endif
 #ifdef WINCE
    #define UNDER_CE
    #define ARM
 #endif
+
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <wincrypt.h>
 
@@ -134,7 +138,7 @@ unsigned long rng_get_bytes(unsigned char *out, unsigned long outlen,
 #if defined(LTC_DEVRANDOM)
    x = rng_nix(out, outlen, callback);   if (x != 0) { return x; }
 #endif
-#ifdef WIN32
+#if defined(_WIN32) || defined(_WIN32) || defined(WINCE)
    x = rng_win32(out, outlen, callback); if (x != 0) { return x; }
 #endif
 #ifdef ANSI_RNG
