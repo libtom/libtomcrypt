@@ -619,10 +619,10 @@ int camellia_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_k
    L ^= F(R ^ skey->camellia.k[1]);
    R ^= F(L ^ skey->camellia.k[0]);
 
-   L ^= skey->camellia.kw[1];
-   R ^= skey->camellia.kw[0];
+   R ^= skey->camellia.kw[1];
+   L ^= skey->camellia.kw[0];
 
-   STORE64H(R, pt+0); STORE64H(L, pt+8);
+   STORE64H(R, pt+8); STORE64H(L, pt+0);
 
    return CRYPT_OK;
 }
