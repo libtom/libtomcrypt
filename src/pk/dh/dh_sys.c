@@ -9,6 +9,8 @@
  * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.org
  */
 
+#ifdef TOMCRYPT_H_
+
 /**
   @file dh_sys.c
   DH Crypto, Tom St Denis
@@ -488,3 +490,5 @@ done:
    mp_clear_multi(tmp, m, g, p, b, a, NULL);
    return err;
 }
+
+#endif	/* TOMCRYPT_H_ */
