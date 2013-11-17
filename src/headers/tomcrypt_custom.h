@@ -68,6 +68,7 @@
 
 /* shortcut to disable automatic inclusion */
 #if defined LTC_NOTHING && !defined LTC_EASY
+  #define LTC_NO_MATH
   #define LTC_NO_CIPHERS
   #define LTC_NO_MODES
   #define LTC_NO_HASHES
@@ -143,11 +144,15 @@
 /* #define LTC_NO_BSWAP */
 
 /* ---> math provider? <--- */
+#ifndef LTC_NO_MATH
+
 /* LibTomMath */
 /* #define LTM_DESC */
 
 /* TomsFastMath */
 /* #define TFM_DESC */
+
+#endif /* LTC_NO_MATH */
 
 /* GNU Multiple Precision Arithmetic Library */
 /* #define GMP_DESC */
