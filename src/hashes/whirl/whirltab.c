@@ -1,3 +1,5 @@
+#ifdef TOMCRYPT_H_
+
 /**
    @file whirltab.c
    LTC_WHIRLPOOL tables, Tom St Denis
@@ -577,6 +579,7 @@ CONST64(0xca2dbf07ad5a8333),
 CONST64(0x6302aa71c81949d9),
 };
 
+#endif	/* TOMCRYPT_H_ */
 
 /* $Source$ */
 /* $Revision$ */
