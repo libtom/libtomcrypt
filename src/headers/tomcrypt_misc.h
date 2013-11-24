@@ -7,11 +7,13 @@ int base64_decode(const unsigned char *in,  unsigned long len,
                         unsigned char *out, unsigned long *outlen);
 #endif
 
+#ifdef LTC_BASE64_URL
 int base64url_encode(const unsigned char *in,  unsigned long len,
                         unsigned char *out, unsigned long *outlen);
 
 int base64url_decode(const unsigned char *in,  unsigned long len,
                         unsigned char *out, unsigned long *outlen);
+#endif
 
 /* ===> LTC_HKDF -- RFC5869 HMAC-based Key Derivation Function <=== */
 #ifdef LTC_HKDF

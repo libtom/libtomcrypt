@@ -383,6 +383,8 @@
 
 /* Various tidbits of modern neatoness */
 #define LTC_BASE64
+/* ... and it's URL safe version */
+#define LTC_BASE64_URL
 
 /* Keep LTC_NO_HKDF for compatibility reasons
  * superseeded by LTC_NO_MISC*/

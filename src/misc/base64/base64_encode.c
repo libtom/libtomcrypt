@@ -17,15 +17,19 @@
 */
 
 
-#ifdef LTC_BASE64
+#if defined(LTC_BASE64) || defined (LTC_BASE64_URL)
 
+#if defined(LTC_BASE64)
 static const char *codes_base64 =
 "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+#endif /* LTC_BASE64 */
 
+#if defined(LTC_BASE64_URL)
 static const char *codes_base64url =
 "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
+#endif /* LTC_BASE64_URL */
 
-int base64_encode_internal(const unsigned char *in,  unsigned long inlen,
+static int _base64_encode_internal(const unsigned char *in,  unsigned long inlen,
                                  unsigned char *out, unsigned long *outlen,
                                  const char *codes, int pad)
 {
@@ -75,6 +79,7 @@ int base64_encode_internal(const unsigned char *in,  unsigned long inlen,
    return CRYPT_OK;
 }
 
+#if defined(LTC_BASE64)
 /**
    base64 Encode a buffer (NUL terminated)
    @param in      The input buffer to encode
@@ -86,10 +91,12 @@ int base64_encode_internal(const unsigned char *in,  unsigned long inlen,
 int base64_encode(const unsigned char *in,  unsigned long inlen,
                         unsigned char *out, unsigned long *outlen)
 {
-    return base64_encode_internal(in, inlen, out, outlen, codes_base64, 1);
+    return _base64_encode_internal(in, inlen, out, outlen, codes_base64, 1);
 }
+#endif /* LTC_BASE64 */
 
 
+#if defined(LTC_BASE64_URL)
 /**
    base64 (URL Safe, RFC 4648 section 5) Encode a buffer (NUL terminated)
    @param in      The input buffer to encode
@@ -101,8 +108,9 @@ int base64_encode(const unsigned char *in,  unsigned long inlen,
 int base64url_encode(const unsigned char *in,  unsigned long inlen,
                            unsigned char *out, unsigned long *outlen)
 {
-    return base64_encode_internal(in, inlen, out, outlen, codes_base64url, 0);
+    return _base64_encode_internal(in, inlen, out, outlen, codes_base64url, 0);
 }
+#endif /* LTC_BASE64_URL */
 
 #endif
 

@@ -17,8 +17,9 @@
 */
 
 
-#ifdef LTC_BASE64
+#if defined(LTC_BASE64) || defined (LTC_BASE64_URL)
 
+#if defined(LTC_BASE64)
 static const unsigned char map_base64[256] = {
 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
@@ -42,7 +43,9 @@ static const unsigned char map_base64[256] = {
 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
 255, 255, 255, 255 };
+#endif /* LTC_BASE64 */
 
+#if defined(LTC_BASE64_URL)
 static const unsigned char map_base64url[256] = {
 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
@@ -66,8 +69,9 @@ static const unsigned char map_base64url[256] = {
 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
 255, 255, 255, 255 };
+#endif /* LTC_BASE64_URL */
 
-int base64_decode_internal(const unsigned char *in,  unsigned long inlen,
+static int _base64_decode_internal(const unsigned char *in,  unsigned long inlen,
                                  unsigned char *out, unsigned long *outlen,
                            const unsigned char *map)
 {
@@ -84,8 +88,8 @@ int base64_decode_internal(const unsigned char *in,  unsigned long inlen,
        c = map[in[x]&0xFF];
        if (c == 255) continue;
        /* the final = symbols are read and used to trim the remaining bytes */
-       if (c == 254) { 
-          c = 0; 
+       if (c == 254) {
+          c = 0;
           /* prevent g < 0 which would potentially allow an overflow later */
           if (--g < 0) {
              return CRYPT_INVALID_PACKET;
@@ -98,8 +102,8 @@ int base64_decode_internal(const unsigned char *in,  unsigned long inlen,
        t = (t<<6)|c;
 
        if (++y == 4) {
-          if (z + g > *outlen) { 
-             return CRYPT_BUFFER_OVERFLOW; 
+          if (z + g > *outlen) {
+             return CRYPT_BUFFER_OVERFLOW;
           }
           out[z++] = (unsigned char)((t>>16)&255);
           if (g > 1) out[z++] = (unsigned char)((t>>8)&255);
@@ -114,6 +118,7 @@ int base64_decode_internal(const unsigned char *in,  unsigned long inlen,
    return CRYPT_OK;
 }
 
+#if defined(LTC_BASE64)
 /**
    base64 decode a block of memory
    @param in       The base64 data to decode
@@ -125,9 +130,11 @@ int base64_decode_internal(const unsigned char *in,  unsigned long inlen,
 int base64_decode(const unsigned char *in,  unsigned long inlen,
                         unsigned char *out, unsigned long *outlen)
 {
-    return base64_decode_internal(in, inlen, out, outlen, map_base64);
+    return _base64_decode_internal(in, inlen, out, outlen, map_base64);
 }
+#endif /* LTC_BASE64 */
 
+#if defined(LTC_BASE64_URL)
 /**
    base64 (URL Safe, RFC 4648 section 5) decode a block of memory
    @param in       The base64 data to decode
@@ -139,8 +146,9 @@ int base64_decode(const unsigned char *in,  unsigned long inlen,
 int base64url_decode(const unsigned char *in,  unsigned long inlen,
                            unsigned char *out, unsigned long *outlen)
 {
-    return base64_decode_internal(in, inlen, out, outlen, map_base64url);
+    return _base64_decode_internal(in, inlen, out, outlen, map_base64url);
 }
+#endif /* LTC_BASE64_URL */
 
 #endif
 
