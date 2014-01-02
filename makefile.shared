@@ -257,6 +257,9 @@ install: $(LIBNAME)
 	libtool --silent --mode=install install -c libtomcrypt.la $(DESTDIR)$(LIBPATH)/libtomcrypt.la
 	install -d -g $(GROUP) -o $(USER) $(DESTDIR)$(INCPATH)
 	install -g $(GROUP) -o $(USER) $(HEADERS) $(DESTDIR)$(INCPATH)
+	install -d $(DESTDIR)$(LIBPATH)/pkgconfig
+	sed 's,@LIBDIR@,$(LIBPATH),g' libtomcrypt.pc.in > libtomcrypt.pc
+	install -m 0644 -g $(GROUP) -o $(USER) libtomcrypt.pc $(DESTDIR)$(LIBPATH)/pkgconfig/libtomcrypt.pc
 
 #This rule makes the hash program included with libtomcrypt
 hashsum: library
