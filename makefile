@@ -322,26 +322,26 @@ install_test: testprof/$(LIBTEST)
 profile:
 	CFLAGS="$(CFLAGS) -fprofile-generate" $(MAKE) timing EXTRALIBS="$(EXTRALIBS) -lgcov"
 	./timing
-	rm -f timing `find . -type f | grep [.][ao] | xargs`
+	rm -f timing `find . -type f | grep "[.][ao]$$" | xargs`
 	CFLAGS="$(CFLAGS) -fprofile-use" $(MAKE) timing EXTRALIBS="$(EXTRALIBS) -lgcov"
 
 
 #This rule cleans the source tree of all compiled code, not including the pdf
 #documentation.
 clean:
-	rm -f `find . -type f | grep "[.]o" | xargs`
-	rm -f `find . -type f | grep "[.]lo"  | xargs`
-	rm -f `find . -type f | grep "[.]a" | xargs`
-	rm -f `find . -type f | grep "[.]la"  | xargs`
-	rm -f `find . -type f | grep "[.]obj" | xargs`
-	rm -f `find . -type f | grep "[.]lib" | xargs`
-	rm -f `find . -type f | grep "[.]exe" | xargs`
-	rm -f `find . -type f | grep "[.]gcda" | xargs`
-	rm -f `find . -type f | grep "[.]gcno" | xargs`
-	rm -f `find . -type f | grep "[.]il" | xargs`
-	rm -f `find . -type f | grep "[.]dyn" | xargs`
-	rm -f `find . -type f | grep "[.]dpi" | xargs`
-	rm -rf `find . -type d | grep "[.]libs" | xargs`
+	rm -f `find . -type f | grep "[.]o$$" | xargs`
+	rm -f `find . -type f | grep "[.]lo$$"  | xargs`
+	rm -f `find . -type f | grep "[.]a$$" | xargs`
+	rm -f `find . -type f | grep "[.]la$$"  | xargs`
+	rm -f `find . -type f | grep "[.]obj$$" | xargs`
+	rm -f `find . -type f | grep "[.]lib$$" | xargs`
+	rm -f `find . -type f | grep "[.]exe$$" | xargs`
+	rm -f `find . -type f | grep "[.]gcda$$" | xargs`
+	rm -f `find . -type f | grep "[.]gcno$$" | xargs`
+	rm -f `find . -type f | grep "[.]il$$" | xargs`
+	rm -f `find . -type f | grep "[.]dyn$$" | xargs`
+	rm -f `find . -type f | grep "[.]dpi$$" | xargs`
+	rm -rf `find . -type d | grep "[.]libs$$" | xargs`
 	rm -f crypt.aux  crypt.dvi  crypt.idx  crypt.ilg  crypt.ind  crypt.log crypt.toc
 	rm -f $(TV) $(PROF) $(SMALL) $(CRYPT) $(HASHSUM) $(MULTI) $(TIMING) $(TEST)
 	rm -rf doc/doxygen
