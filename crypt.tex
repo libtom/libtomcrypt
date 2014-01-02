@@ -5580,7 +5580,7 @@ stderr then return execution to the caller.  This could lead to a segmentation f
 if you handle signals on your own.  When set to 3, it will resolve to a empty macro and no error checking will be performed.  Finally, when set
 to 4, it will return CRYPT\_INVALID\_ARG to the caller.  
 
-\subsubsection{Endianess}
+\subsubsection{Endianness}
 There are five macros related to endianess issues.  For little endian platforms define, \textbf{ENDIAN\_LITTLE}.  For big endian
 platforms define \textbf{ENDIAN\_BIG}.  Similarly when the default word size of an \textit{unsigned long} is 32-bits define \textbf{ENDIAN\_32BITWORD}
 or define \textbf{ENDIAN\_64BITWORD} when its 64-bits.  If you do not define any of them the library will automatically use \textbf{ENDIAN\_NEUTRAL}
