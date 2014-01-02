@@ -249,7 +249,7 @@ testprof/$(LIBTEST):
 objs: $(OBJECTS)
 
 $(LIBNAME): $(OBJECTS) testprof/$(LIBTEST)
-	libtool --silent --mode=link gcc $(CFLAGS) `find . -type f | grep "[.]lo" | grep "src/" | xargs` $(EXTRALIBS) -o $(LIBNAME) -rpath $(LIBPATH) -version-info $(VERSION)
+	libtool --silent --mode=link gcc $(LDFLAGS) $(CFLAGS) `find . -type f | grep "[.]lo" | grep "src/" | xargs` $(EXTRALIBS) -o $(LIBNAME) -rpath $(LIBPATH) -version-info $(VERSION)
 
 install: $(LIBNAME)
 	install -d -g $(GROUP) -o $(USER) $(DESTDIR)$(LIBPATH)
