@@ -1,6 +1,6 @@
 #include <tomcrypt_test.h>
 
-#ifdef MDH 
+#ifdef MDH
 
 #ifdef DH4096
 #define KEYSIZE 4096
@@ -14,7 +14,6 @@ int dh_test (void)
   unsigned long x, y, z;
   int           stat, stat2;
   dh_key        usera, userb;
-  prng_state yarrow_prng;
 
    if (register_prng(&yarrow_desc) == -1) {
       printf("Error registering yarrow PRNG\n");
@@ -24,7 +23,7 @@ int dh_test (void)
       printf("Error registering md5 hash\n");
       exit(-1);
    }
-   
+
   DO(dh_compat_test());
 
 
@@ -105,7 +104,7 @@ int dh_test (void)
   buf[0][0] ^= 1;
   DO(dh_verify_hash (buf[1], x, buf[0], 16, &stat2, &usera));
   dh_free (&usera);
-  if (!(stat == 1 && stat2 == 0)) { 
+  if (!(stat == 1 && stat2 == 0)) {
      fprintf(stderr, "dh_sign/verify_hash %d %d", stat, stat2);
      return 1;
   }

@@ -10,15 +10,15 @@
  */
 #include "tomcrypt.h"
 
-/** 
+/**
   @file pkcs_1_oaep_decode.c
-  OAEP Padding for LTC_PKCS #1, Tom St Denis 
+  OAEP Padding for PKCS #1, Tom St Denis
 */
 
 #ifdef LTC_PKCS_1
 
 /**
-   LTC_PKCS #1 v2.00 OAEP decode
+   PKCS #1 v2.00 OAEP decode
    @param msg              The encoded data to decode
    @param msglen           The length of the encoded data (octets)
    @param lparam           The session or system data (can be NULL)
@@ -47,9 +47,9 @@ int pkcs_1_oaep_decode(const unsigned char *msg,    unsigned long msglen,
 
    /* default to invalid packet */
    *res = 0;
-   
+
    /* test valid hash */
-   if ((err = hash_is_valid(hash_idx)) != CRYPT_OK) { 
+   if ((err = hash_is_valid(hash_idx)) != CRYPT_OK) {
       return err;
    }
    hLen        = hash_descriptor[hash_idx].hashsize;
@@ -78,11 +78,11 @@ int pkcs_1_oaep_decode(const unsigned char *msg,    unsigned long msglen,
    }
 
    /* ok so it's now in the form
-  
-      0x00  || maskedseed || maskedDB 
-  
+
+      0x00  || maskedseed || maskedDB
+
        1    ||   hLen     ||  modulus_len - hLen - 1
-   
+
     */
 
    /* must have leading 0x00 byte */
@@ -100,7 +100,7 @@ int pkcs_1_oaep_decode(const unsigned char *msg,    unsigned long msglen,
    XMEMCPY(DB, msg + x, modulus_len - hLen - 1);
    x += modulus_len - hLen - 1;
 
-   /* compute MGF1 of maskedDB (hLen) */ 
+   /* compute MGF1 of maskedDB (hLen) */
    if ((err = pkcs_1_mgf1(hash_idx, DB, modulus_len - hLen - 1, mask, hLen)) != CRYPT_OK) {
       goto LBL_ERR;
    }
@@ -117,7 +117,7 @@ int pkcs_1_oaep_decode(const unsigned char *msg,    unsigned long msglen,
 
    /* xor against DB */
    for (y = 0; y < (modulus_len - hLen - 1); y++) {
-       DB[y] ^= mask[y]; 
+       DB[y] ^= mask[y];
    }
 
    /* now DB == lhash || PS || 0x01 || M, PS == k - mlen - 2hlen - 2 zeroes */

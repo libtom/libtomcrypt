@@ -49,7 +49,7 @@ int lrw_process(const unsigned char *pt, unsigned char *ct, unsigned long len, i
       /* increment IV */
       for (x = 15; x >= 0; x--) {
           lrw->IV[x] = (lrw->IV[x] + 1) & 255;
-          if (lrw->IV[x]) { 
+          if (lrw->IV[x]) {
               break;
           }
       }
@@ -92,7 +92,7 @@ int lrw_process(const unsigned char *pt, unsigned char *ct, unsigned long len, i
          if ((err = cipher_descriptor[lrw->cipher].ecb_decrypt(ct, ct, &lrw->key)) != CRYPT_OK) {
             return err;
          }
-      }               
+      }
 
       /* xor prod */
 #ifdef LTC_FAST
@@ -104,7 +104,7 @@ int lrw_process(const unsigned char *pt, unsigned char *ct, unsigned long len, i
          ct[x] = ct[x] ^ prod[x];
       }
 #endif
-   
+
       /* move to next */
       pt  += 16;
       ct  += 16;
@@ -113,7 +113,7 @@ int lrw_process(const unsigned char *pt, unsigned char *ct, unsigned long len, i
 
    return CRYPT_OK;
 }
-      
+
 #endif
 /* $Source$ */
 /* $Revision$ */

@@ -8,7 +8,7 @@
  *
  * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
-/** 
+/**
    @param sha384.c
    LTC_SHA384 hash included in sha512.c, Tom St Denis
 */
@@ -81,12 +81,12 @@ int sha384_done(hash_state * md, unsigned char *out)
 /**
   Self-test the hash
   @return CRYPT_OK if successful, CRYPT_NOP if self-tests have been disabled
-*/  
+*/
 int  sha384_test(void)
 {
  #ifndef LTC_TEST
     return CRYPT_NOP;
- #else    
+ #else
   static const struct {
       char *msg;
       unsigned char hash[48];

@@ -10,17 +10,17 @@
  */
 #include "tomcrypt.h"
 
-/** 
+/**
   @file omac_init.c
-  LTC_OMAC1 support, initialize state, by Tom St Denis
+  OMAC1 support, initialize state, by Tom St Denis
 */
 
 
 #ifdef LTC_OMAC
 
 /**
-   Initialize an LTC_OMAC state
-   @param omac    The LTC_OMAC state to initialize
+   Initialize an OMAC state
+   @param omac    The OMAC state to initialize
    @param cipher  The index of the desired cipher
    @param key     The secret key
    @param keylen  The length of the secret key (octets)
@@ -77,7 +77,7 @@ int omac_init(omac_state *omac, int cipher, const unsigned char *key, unsigned l
            omac->Lu[x][y] = ((omac->Lu[x][y] << 1) | (omac->Lu[x][y+1] >> 7)) & 255;
        }
        omac->Lu[x][len - 1] = ((omac->Lu[x][len - 1] << 1) ^ (msb ? mask : 0)) & 255;
- 
+
        /* copy up as require */
        if (x == 0) {
           XMEMCPY(omac->Lu[1], omac->Lu[0], sizeof(omac->Lu[0]));

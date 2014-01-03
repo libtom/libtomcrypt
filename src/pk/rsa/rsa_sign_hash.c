@@ -12,13 +12,13 @@
 
 /**
   @file rsa_sign_hash.c
-  RSA LTC_PKCS #1 v1.5 and v2 PSS sign hash, Tom St Denis and Andreas Lange
+  RSA PKCS #1 v1.5 and v2 PSS sign hash, Tom St Denis and Andreas Lange
 */
 
 #ifdef LTC_MRSA
 
 /**
-  LTC_PKCS #1 pad then sign
+  PKCS #1 pad then sign
   @param in        The hash to sign
   @param inlen     The length of the hash to sign (octets)
   @param out       [out] The signature
@@ -79,7 +79,7 @@ int rsa_sign_hash_ex(const unsigned char *in,       unsigned long  inlen,
        return err;
     }
   } else {
-    /* LTC_PKCS #1 v1.5 pad the hash */
+    /* PKCS #1 v1.5 pad the hash */
     unsigned char *tmpin;
     ltc_asn1_list digestinfo[2], siginfo[2];
 

@@ -64,7 +64,7 @@ int xcbc_process(xcbc_state *xcbc, const unsigned char *in, unsigned long inlen)
      xcbc->IV[xcbc->buflen++] ^= *in++;
      --inlen;
   }
-  return CRYPT_OK;       
+  return CRYPT_OK;
 }
 
 #endif

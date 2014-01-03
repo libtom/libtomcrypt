@@ -10,15 +10,15 @@
  */
 #include "tomcrypt.h"
 
-/** 
+/**
   @file pkcs_1_pss_decode.c
-  LTC_PKCS #1 PSS Signature Padding, Tom St Denis 
+  PKCS #1 PSS Signature Padding, Tom St Denis
 */
 
 #ifdef LTC_PKCS_1
 
 /**
-   LTC_PKCS #1 v2.00 PSS decode
+   PKCS #1 v2.00 PSS decode
    @param  msghash         The hash to verify
    @param  msghashlen      The length of the hash (octets)
    @param  sig             The signature data (encoded data)
@@ -54,7 +54,7 @@ int pkcs_1_pss_decode(const unsigned char *msghash, unsigned long msghashlen,
    modulus_len = (modulus_bitlen>>3) + (modulus_bitlen & 7 ? 1 : 0);
 
    /* check sizes */
-   if ((saltlen > modulus_len) || 
+   if ((saltlen > modulus_len) ||
        (modulus_len < hLen + saltlen + 2) || (siglen != modulus_len)) {
       return CRYPT_PK_INVALID_SIZE;
    }
@@ -110,7 +110,7 @@ int pkcs_1_pss_decode(const unsigned char *msghash, unsigned long msghashlen,
    for (y = 0; y < (modulus_len - hLen - 1); y++) {
       DB[y] ^= mask[y];
    }
-   
+
    /* now clear the first byte [make sure smaller than modulus] */
    DB[0] &= 0xFF >> ((modulus_len<<3) - (modulus_bitlen-1));
 
@@ -156,10 +156,10 @@ int pkcs_1_pss_decode(const unsigned char *msghash, unsigned long msghashlen,
    err = CRYPT_OK;
 LBL_ERR:
 #ifdef LTC_CLEAN_STACK
-   zeromem(DB,   modulus_len);   
-   zeromem(mask, modulus_len);   
-   zeromem(salt, modulus_len);   
-   zeromem(hash, modulus_len);   
+   zeromem(DB,   modulus_len);
+   zeromem(mask, modulus_len);
+   zeromem(salt, modulus_len);
+   zeromem(hash, modulus_len);
 #endif
 
    XFREE(hash);

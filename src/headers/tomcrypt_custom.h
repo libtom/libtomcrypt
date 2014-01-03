@@ -326,7 +326,7 @@
 /* Include Diffie-Hellman support */
 #ifndef GMP_DESC
 /* is_prime fails for GMP */
-#define MDH
+#define LTC_MDH
 /* Supported Key Sizes */
 #define DH768
 #define DH1024
@@ -367,7 +367,7 @@
 
 #endif /* LTC_NO_PK */
 
-/* LTC_PKCS #1 (RSA) and #5 (Password Handling) stuff */
+/* PKCS #1 (RSA) and #5 (Password Handling) stuff */
 #ifndef LTC_NO_PKCS
 
 #define LTC_PKCS_1

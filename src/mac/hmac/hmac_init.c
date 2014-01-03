@@ -12,7 +12,7 @@
 
 /**
   @file hmac_init.c
-  LTC_HMAC support, initialize state, Tom St Denis/Dobes Vandermeer 
+  HMAC support, initialize state, Tom St Denis/Dobes Vandermeer
 */
 
 #ifdef LTC_HMAC
@@ -20,9 +20,9 @@
 #define LTC_HMAC_BLOCKSIZE hash_descriptor[hash].blocksize
 
 /**
-   Initialize an LTC_HMAC context.
-   @param hmac     The LTC_HMAC state 
-   @param hash     The index of the hash you want to use 
+   Initialize an HMAC context.
+   @param hmac     The HMAC state
+   @param hash     The index of the hash you want to use
    @param key      The secret key
    @param keylen   The length of the secret key (octets)
    @return CRYPT_OK if successful
@@ -100,9 +100,9 @@ done:
 #ifdef LTC_CLEAN_STACK
    zeromem(buf, LTC_HMAC_BLOCKSIZE);
 #endif
- 
+
    XFREE(buf);
-   return err;    
+   return err;
 }
 
 #endif

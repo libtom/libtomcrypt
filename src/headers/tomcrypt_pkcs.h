@@ -1,19 +1,19 @@
-/* LTC_PKCS Header Info */
+/* PKCS Header Info */
 
-/* ===> LTC_PKCS #1 -- RSA Cryptography <=== */
+/* ===> PKCS #1 -- RSA Cryptography <=== */
 #ifdef LTC_PKCS_1
 
 enum ltc_pkcs_1_v1_5_blocks
 {
-  LTC_PKCS_1_EMSA   = 1,        /* Block type 1 (LTC_PKCS #1 v1.5 signature padding) */
-  LTC_PKCS_1_EME    = 2         /* Block type 2 (LTC_PKCS #1 v1.5 encryption padding) */
+  LTC_PKCS_1_EMSA   = 1,        /* Block type 1 (PKCS #1 v1.5 signature padding) */
+  LTC_PKCS_1_EME    = 2         /* Block type 2 (PKCS #1 v1.5 encryption padding) */
 };
 
 enum ltc_pkcs_1_paddings
 {
-  LTC_PKCS_1_V1_5   = 1,        /* LTC_PKCS #1 v1.5 padding (\sa ltc_pkcs_1_v1_5_blocks) */
-  LTC_PKCS_1_OAEP   = 2,        /* LTC_PKCS #1 v2.0 encryption padding */
-  LTC_PKCS_1_PSS    = 3         /* LTC_PKCS #1 v2.1 signature padding */
+  LTC_PKCS_1_V1_5     = 1,        /* PKCS #1 v1.5 padding (\sa ltc_pkcs_1_v1_5_blocks) */
+  LTC_PKCS_1_OAEP     = 2,        /* PKCS #1 v2.0 encryption padding */
+  LTC_PKCS_1_PSS      = 3         /* PKCS #1 v2.1 signature padding */
 };
 
 int pkcs_1_mgf1(      int            hash_idx,
@@ -67,7 +67,7 @@ int pkcs_1_pss_decode(const unsigned char *msghash, unsigned long msghashlen,
 
 #endif /* LTC_PKCS_1 */
 
-/* ===> LTC_PKCS #5 -- Password Based Cryptography <=== */
+/* ===> PKCS #5 -- Password Based Cryptography <=== */
 #ifdef LTC_PKCS_5
 
 /* Algorithm #1 (old) */

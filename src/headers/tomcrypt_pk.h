@@ -27,7 +27,7 @@ int pk_get_oid(int pk, oid_st *st);
 #define MIN_RSA_SIZE 1024
 #define MAX_RSA_SIZE 4096
 
-/** RSA LTC_PKCS style key */
+/** RSA PKCS style key */
 typedef struct Rsa_key {
     /** Type of key, PK_PRIVATE or PK_PUBLIC */
     int type;
@@ -59,7 +59,7 @@ int rsa_exptmod(const unsigned char *in,   unsigned long inlen,
 
 void rsa_free(rsa_key *key);
 
-/* These use LTC_PKCS #1 v2.0 padding */
+/* These use PKCS #1 v2.0 padding */
 #define rsa_encrypt_key(_in, _inlen, _out, _outlen, _lparam, _lparamlen, _prng, _prng_idx, _hash_idx, _key) \
   rsa_encrypt_key_ex(_in, _inlen, _out, _outlen, _lparam, _lparamlen, _prng, _prng_idx, _hash_idx, LTC_PKCS_1_OAEP, _key)
 
@@ -75,7 +75,7 @@ void rsa_free(rsa_key *key);
 #define rsa_sign_saltlen_get_max(_hash_idx, _key) \
   rsa_sign_saltlen_get_max_ex(LTC_PKCS_1_PSS, _hash_idx, _key)
 
-/* These can be switched between LTC_PKCS #1 v2.x and LTC_PKCS #1 v1.5 paddings */
+/* These can be switched between PKCS #1 v2.x and PKCS #1 v1.5 paddings */
 int rsa_encrypt_key_ex(const unsigned char *in,     unsigned long inlen,
                              unsigned char *out,    unsigned long *outlen,
                        const unsigned char *lparam, unsigned long lparamlen,
@@ -102,7 +102,7 @@ int rsa_verify_hash_ex(const unsigned char *sig,      unsigned long siglen,
 
 int rsa_sign_saltlen_get_max_ex(int padding, int hash_idx, rsa_key *key);
 
-/* LTC_PKCS #1 import/export */
+/* PKCS #1 import/export */
 int rsa_export(unsigned char *out, unsigned long *outlen, int type, rsa_key *key);
 int rsa_import(const unsigned char *in, unsigned long inlen, rsa_key *key);
 
@@ -115,7 +115,7 @@ int rsa_import(const unsigned char *in, unsigned long inlen, rsa_key *key);
 #define MIN_KAT_SIZE 1024
 #define MAX_KAT_SIZE 4096
 
-/** Katja LTC_PKCS style key */
+/** Katja PKCS style key */
 typedef struct KAT_key {
     /** Type of key, PK_PRIVATE or PK_PUBLIC */
     int type;
@@ -145,7 +145,7 @@ int katja_exptmod(const unsigned char *in,   unsigned long inlen,
 
 void katja_free(katja_key *key);
 
-/* These use LTC_PKCS #1 v2.0 padding */
+/* These use PKCS #1 v2.0 padding */
 int katja_encrypt_key(const unsigned char *in,     unsigned long inlen,
                             unsigned char *out,    unsigned long *outlen,
                       const unsigned char *lparam, unsigned long lparamlen,
@@ -157,7 +157,7 @@ int katja_decrypt_key(const unsigned char *in,       unsigned long inlen,
                             int            hash_idx, int *stat,
                             katja_key       *key);
 
-/* LTC_PKCS #1 import/export */
+/* PKCS #1 import/export */
 int katja_export(unsigned char *out, unsigned long *outlen, int type, katja_key *key);
 int katja_import(const unsigned char *in, unsigned long inlen, katja_key *key);
 

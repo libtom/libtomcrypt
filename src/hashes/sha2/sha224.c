@@ -72,19 +72,19 @@ int sha224_done(hash_state * md, unsigned char *out)
     XMEMCPY(out, buf, 28);
 #ifdef LTC_CLEAN_STACK
     zeromem(buf, sizeof(buf));
-#endif 
+#endif
     return err;
 }
 
 /**
   Self-test the hash
   @return CRYPT_OK if successful, CRYPT_NOP if self-tests have been disabled
-*/  
+*/
 int  sha224_test(void)
 {
  #ifndef LTC_TEST
     return CRYPT_NOP;
- #else    
+ #else
   static const struct {
       char *msg;
       unsigned char hash[28];

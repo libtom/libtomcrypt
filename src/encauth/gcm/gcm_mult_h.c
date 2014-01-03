@@ -46,8 +46,8 @@ void gcm_mult_h(gcm_state *gcm, unsigned char *I)
 #endif /* LTC_FAST */
    }
 #endif /* LTC_GCM_TABLES_SSE2 */
-#else     
-   gcm_gf_mult(gcm->H, I, T); 
+#else
+   gcm_gf_mult(gcm->H, I, T);
 #endif
    XMEMCPY(I, T, 16);
 }

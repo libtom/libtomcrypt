@@ -10,14 +10,14 @@
  */
 #include "tomcrypt.h"
 
-/** 
+/**
    @file rng_get_bytes.c
    portable way to get secure random bits to feed a PRNG (Tom St Denis)
 */
 
 #ifdef LTC_DEVRANDOM
 /* on *NIX read /dev/random */
-static unsigned long rng_nix(unsigned char *buf, unsigned long len, 
+static unsigned long rng_nix(unsigned char *buf, unsigned long len,
                              void (*callback)(void))
 {
 #ifdef LTC_NO_FILE
@@ -34,13 +34,13 @@ static unsigned long rng_nix(unsigned char *buf, unsigned long len,
     if (f == NULL) {
        return 0;
     }
-    
+
     /* disable buffering */
     if (setvbuf(f, NULL, _IONBF, 0) != 0) {
        fclose(f);
        return 0;
-    }   
- 
+    }
+
     x = (unsigned long)fread(buf, 1, (size_t)len, f);
     fclose(f);
     return x;
@@ -54,7 +54,7 @@ static unsigned long rng_nix(unsigned char *buf, unsigned long len,
 
 #define ANSI_RNG
 
-static unsigned long rng_ansic(unsigned char *buf, unsigned long len, 
+static unsigned long rng_ansic(unsigned char *buf, unsigned long len,
                                void (*callback)(void))
 {
    clock_t t1;
@@ -76,7 +76,7 @@ static unsigned long rng_ansic(unsigned char *buf, unsigned long len,
           } while (a == b);
           acc = (acc << 1) | a;
        }
-       *buf++ = acc; 
+       *buf++ = acc;
        acc  = 0;
        bits = 8;
    }
@@ -84,7 +84,7 @@ static unsigned long rng_ansic(unsigned char *buf, unsigned long len,
    return l;
 }
 
-#endif 
+#endif
 
 /* Try the Microsoft CSP */
 #if defined(WIN32) || defined(_WIN32) || defined(WINCE)
@@ -100,13 +100,13 @@ static unsigned long rng_ansic(unsigned char *buf, unsigned long len,
 #include <windows.h>
 #include <wincrypt.h>
 
-static unsigned long rng_win32(unsigned char *buf, unsigned long len, 
+static unsigned long rng_win32(unsigned char *buf, unsigned long len,
                                void (*callback)(void))
 {
    HCRYPTPROV hProv = 0;
-   if (!CryptAcquireContext(&hProv, NULL, MS_DEF_PROV, PROV_RSA_FULL, 
-                            (CRYPT_VERIFYCONTEXT | CRYPT_MACHINE_KEYSET)) && 
-       !CryptAcquireContext (&hProv, NULL, MS_DEF_PROV, PROV_RSA_FULL, 
+   if (!CryptAcquireContext(&hProv, NULL, MS_DEF_PROV, PROV_RSA_FULL,
+                            (CRYPT_VERIFYCONTEXT | CRYPT_MACHINE_KEYSET)) &&
+       !CryptAcquireContext (&hProv, NULL, MS_DEF_PROV, PROV_RSA_FULL,
                             CRYPT_VERIFYCONTEXT | CRYPT_MACHINE_KEYSET | CRYPT_NEWKEYSET))
       return 0;
 
@@ -127,8 +127,8 @@ static unsigned long rng_win32(unsigned char *buf, unsigned long len,
   @param outlen    Length desired (octets)
   @param callback  Pointer to void function to act as "callback" when RNG is slow.  This can be NULL
   @return Number of octets read
-*/     
-unsigned long rng_get_bytes(unsigned char *out, unsigned long outlen, 
+*/
+unsigned long rng_get_bytes(unsigned char *out, unsigned long outlen,
                             void (*callback)(void))
 {
    unsigned long x;
