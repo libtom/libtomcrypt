@@ -82,6 +82,7 @@ int pkcs_5_alg2(const unsigned char *password, unsigned long password_len,
                 int iteration_count,           int hash_idx,
                 unsigned char *out,            unsigned long *outlen);
 
+int pkcs_5_test (void);
 #endif  /* LTC_PKCS_5 */
 
 /* $Source$ */
