@@ -360,14 +360,24 @@ doxy:
 #delete it if we are rebuilding it.
 docs: crypt.tex
 	rm -f doc/crypt.pdf $(LEFTOVERS)
+	cp crypt.tex crypt.bak
+	touch --reference=crypt.tex crypt.bak
+	(echo "\\def\\fixedpdfdate{"; date +'D:%Y%m%d%H%M%S%:z' -d @$$(stat --format=%Y crypt.tex) | sed "s/:\([0-9][0-9]\)$$/'\1'}/g") > crypt-deterministic.tex
+	echo "\\pdfinfo{" >> crypt-deterministic.tex
+	echo "/CreationDate (\fixedpdfdate)" >> crypt-deterministic.tex
+	echo "/ModDate (\fixedpdfdate) }" >> crypt-deterministic.tex
+	cat crypt.tex >> crypt-deterministic.tex
+	mv crypt-deterministic.tex crypt.tex
+	touch --reference=crypt.bak crypt.tex
 	echo "hello" > crypt.ind
 	latex crypt > /dev/null
 	latex crypt > /dev/null
 	makeindex crypt.idx > /dev/null
 	perl fixupind.pl
-	latex crypt > /dev/null
-	dvipdf crypt
+	pdflatex crypt
+	sed -i 's,^/ID \[.*\]$$,/ID [<0> <0>],g' crypt.pdf
 	mv -ivf crypt.pdf doc/crypt.pdf
+	mv crypt.bak crypt.tex
 	rm -f $(LEFTOVERS)
 
 docdvi: crypt.tex
