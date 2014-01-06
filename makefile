@@ -255,7 +255,7 @@ TIMINGS=demos/timing.o
 TESTS=demos/test.o
 
 #Files left over from making the crypt.pdf.
-LEFTOVERS=*.dvi *.log *.aux *.toc *.idx *.ilg *.ind *.out
+LEFTOVERS=*.dvi *.log *.aux *.toc *.idx *.ilg *.ind *.out *.lof
 
 #Compressed filenames
 COMPRESSED=crypt-$(VERSION).tar.bz2 crypt-$(VERSION).zip
