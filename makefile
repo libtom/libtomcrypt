@@ -388,7 +388,7 @@ docs: crypt.tex
 	makeindex crypt.idx > /dev/null
 	perl fixupind.pl
 	pdflatex crypt
-	sed -i 's,^/ID \[.*\]$$,/ID [<0> <0>],g' crypt.pdf
+	sed -b -i 's,^/ID \[.*\]$$,/ID [<0> <0>],g' crypt.pdf
 	mv -ivf crypt.pdf doc/crypt.pdf
 	mv crypt.bak crypt.tex
 	rm -f $(LEFTOVERS)
