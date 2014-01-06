@@ -9,3 +9,5 @@ before_script:
   - sudo apt-get install libtommath-dev
 after_script:
   - cat gcc_2.txt
+notifications:
+  irc: "chat.freenode.net#libtom"
