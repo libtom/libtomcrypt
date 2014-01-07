@@ -6,6 +6,8 @@ enum {
 };
 
 int rand_prime(void *N, long len, prng_state *prng, int wprng);
+int rand_bn_bits(void *N, int bits, prng_state *prng, int wprng);
+int rand_bn_range(void *N, void *limit, prng_state *prng, int wprng);
 
 enum {
    PKA_RSA,
