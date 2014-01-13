@@ -107,7 +107,7 @@ int dsa_make_key(prng_state *prng, int wprng, int group_size, int modulus_size, 
    qbits = mp_count_bits(key->q);
    do {
       if ((err = rand_bn_bits(key->x, qbits, prng, wprng)) != CRYPT_OK)                { goto error; }
-      /* private key x should be from range: 1 <= x <= q-1 */
+      /* private key x should be from range: 1 <= x <= q-1 (see FIPS 186-4 B.1.2) */
    } while (mp_cmp_d(key->x, 0) != LTC_MP_GT || mp_cmp(key->x, key->q) != LTC_MP_LT);
    if ((err = mp_exptmod(key->g, key->x, key->p, key->y)) != CRYPT_OK)                 { goto error; }
   
