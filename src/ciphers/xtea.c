@@ -33,7 +33,7 @@ const struct ltc_cipher_descriptor xtea_desc =
 
 int xtea_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_key *skey)
 {
-   unsigned long x, sum, K[4];
+   ulong32 x, sum, K[4];
 
    LTC_ARGCHK(key != NULL);
    LTC_ARGCHK(skey != NULL);
@@ -75,7 +75,7 @@ int xtea_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_k
 */
 int xtea_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
 {
-   unsigned long y, z;
+   ulong32 y, z;
    int r;
 
    LTC_ARGCHK(pt   != NULL);
@@ -111,7 +111,7 @@ int xtea_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *
 */
 int xtea_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey)
 {
-   unsigned long y, z;
+   ulong32 y, z;
    int r;
 
    LTC_ARGCHK(pt   != NULL);
