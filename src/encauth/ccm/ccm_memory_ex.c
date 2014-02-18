@@ -15,7 +15,7 @@
   CCM support, process a block of memory, Tom St Denis
 */
 
-#ifdef LTC_CCM_MODE
+#if defined LTC_CCM_MODE && 0
 
 /**
    CCM encrypt/decrypt and produce an authentication tag
