@@ -10,9 +10,6 @@ fi
 # date
 echo "date="`date`
 
-# output version
-bash printinfo.sh
-
 # stock build
 bash run.sh "STOCK" " " "$1" "$2" "$3" || exit 1
 
