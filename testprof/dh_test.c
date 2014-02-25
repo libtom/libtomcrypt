@@ -1,6 +1,6 @@
 #include <tomcrypt_test.h>
 
-#ifdef MDH
+#ifdef LTC_MDH
 
 #ifdef DH4096
 #define KEYSIZE 4096

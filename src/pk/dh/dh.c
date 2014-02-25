@@ -15,7 +15,7 @@
   DH crypto, Tom St Denis
 */
 
-#ifdef MDH
+#ifdef LTC_MDH
 
    /* size of a packet header in bytes */
     #define PACKET_SIZE            4

@@ -164,7 +164,7 @@ int katja_import(const unsigned char *in, unsigned long inlen, katja_key *key);
 #endif
 
 /* ---- DH Routines ---- */
-#ifdef MDH
+#ifdef LTC_MDH
 
 typedef struct Dh_key {
     int idx, type;
