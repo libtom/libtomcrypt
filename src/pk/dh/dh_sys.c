@@ -33,7 +33,7 @@ int dh_encrypt_key(const unsigned char *in,   unsigned long inlen,
 {
     unsigned char *pub_expt, *dh_shared, *skey;
     dh_key        pubkey;
-    unsigned long x, y, z, hashsize, pubkeysize;
+    unsigned long x, y, z, pubkeysize;
     int           err;
 
     LTC_ARGCHK(in != NULL);
@@ -88,9 +88,6 @@ int dh_encrypt_key(const unsigned char *in,   unsigned long inlen,
        err = CRYPT_BUFFER_OVERFLOW;
        goto LBL_ERR;
     }
-
-    /* make random key */
-    hashsize  = hash_descriptor[hash].hashsize;
 
     x = DH_BUF_SIZE;
     if ((err = dh_shared_secret(&pubkey, key, dh_shared, &x)) != CRYPT_OK) {
@@ -158,7 +155,7 @@ int dh_decrypt_key(const unsigned char *in, unsigned long inlen,
                          dh_key *key)
 {
    unsigned char *shared_secret, *skey;
-   unsigned long  x, y, z, hashsize, keysize;
+   unsigned long  x, y, z, keysize;
    int            hash, err;
    dh_key         pubkey;
 
@@ -205,9 +202,6 @@ int dh_decrypt_key(const unsigned char *in, unsigned long inlen,
       err = CRYPT_INVALID_HASH;
       goto LBL_ERR;
    }
-
-   /* common values */
-   hashsize  = hash_descriptor[hash].hashsize;
 
    /* get public key */
    LOAD32L(x, in+y);
