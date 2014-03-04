@@ -244,16 +244,9 @@
 #define LTC_F9_MODE
 #define LTC_PELICAN
 
-#if defined(LTC_PELICAN) && !defined(LTC_RIJNDAEL)
-   #error Pelican-MAC requires LTC_RIJNDAEL
-#endif
-
 /* ---> Encrypt + Authenticate Modes <--- */
 
 #define LTC_EAX_MODE
-#if defined(LTC_EAX_MODE) && !(defined(LTC_CTR_MODE) && defined(LTC_OMAC))
-   #error LTC_EAX_MODE requires CTR and LTC_OMAC mode
-#endif
 
 #define LTC_OCB_MODE
 #define LTC_OCB3_MODE
@@ -283,10 +276,6 @@
   #define LTC_YARROW_AES 0
 #else
   #define LTC_YARROW_AES 2
-#endif
-
-#if defined(LTC_YARROW) && !defined(LTC_CTR_MODE)
-   #error LTC_YARROW requires LTC_CTR_MODE chaining mode to be defined!
 #endif
 
 /* a PRNG that simply reads from an available system source */
@@ -423,6 +412,18 @@
 #if defined(TFM_DESC) && defined(LTC_RSA_BLINDING)
     #warning RSA blinding currently not supported in combination with TFM
     #undef LTC_RSA_BLINDING
+#endif
+
+#if defined(LTC_PELICAN) && !defined(LTC_RIJNDAEL)
+   #error Pelican-MAC requires LTC_RIJNDAEL
+#endif
+
+#if defined(LTC_EAX_MODE) && !(defined(LTC_CTR_MODE) && defined(LTC_OMAC))
+   #error LTC_EAX_MODE requires CTR and LTC_OMAC mode
+#endif
+
+#if defined(LTC_YARROW) && !defined(LTC_CTR_MODE)
+   #error LTC_YARROW requires LTC_CTR_MODE chaining mode to be defined!
 #endif
 
 #if defined(LTC_DER) && !defined(MPI)
