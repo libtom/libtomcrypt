@@ -8,6 +8,9 @@ int misc_test(void)
 #ifdef LTC_PKCS_5
    DO(pkcs_5_test());
 #endif
+#ifdef LTC_BASE64
+   DO(base64_test());
+#endif
    return 0;
 }
 
