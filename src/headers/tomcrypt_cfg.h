@@ -60,7 +60,6 @@ LTC_EXPORT int   LTC_CALL XSTRCMP(const char *s1, const char *s2);
    #define ENDIAN_LITTLE
    #define ENDIAN_32BITWORD
    #define LTC_FAST
-   #define LTC_FAST_TYPE    unsigned long
 #endif
 
 /* detects MIPS R5900 processors (PS2) */
@@ -74,7 +73,6 @@ LTC_EXPORT int   LTC_CALL XSTRCMP(const char *s1, const char *s2);
    #define ENDIAN_LITTLE
    #define ENDIAN_64BITWORD
    #define LTC_FAST
-   #define LTC_FAST_TYPE    unsigned long
 #endif
 
 /* detect PPC32 */
@@ -82,8 +80,15 @@ LTC_EXPORT int   LTC_CALL XSTRCMP(const char *s1, const char *s2);
    #define ENDIAN_BIG
    #define ENDIAN_32BITWORD
    #define LTC_FAST
-   #define LTC_FAST_TYPE    unsigned long
 #endif
+
+#ifdef LTC_FAST
+#if __GNUC__ < 4 /* if the compiler does not support gnu extensions, i.e. its neither clang nor gcc */
+#error the LTC_FAST hack is only available on compilers that support __attribute__((may_alias)) - disable it for your compiler, and dont worry, it won`t buy you much anyway
+#else
+typedef unsigned int __attribute__((__may_alias__)) LTC_FAST_TYPE;
+#endif
+#endif /* LTC_FAST */
 
 /* detect sparc and sparc64 */
 #if defined(__sparc__)
