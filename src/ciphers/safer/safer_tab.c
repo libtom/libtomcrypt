@@ -14,13 +14,11 @@
   Tables for LTC_SAFER block ciphers
 */
 
-#include "tomcrypt.h"
-
-#if defined(LTC_SAFERP) || defined(LTC_SAFER)
+#ifdef __LTC_SAFER_TAB_C__
 
 /* This is the box defined by ebox[x] = 45^x mod 257.
  * Its assumed that the value "256" corresponds to zero. */
-const unsigned char safer_ebox[256] = {
+static const unsigned char safer_ebox[256] = {
   1,  45, 226, 147, 190,  69,  21, 174, 120,   3, 135, 164, 184,  56, 207,  63,
   8, 103,   9, 148, 235,  38, 168, 107, 189,  24,  52,  27, 187, 191, 114, 247,
  64,  53,  72, 156,  81,  47,  59,  85, 227, 192, 159, 216, 211, 243, 141, 177,
@@ -40,7 +38,7 @@ const unsigned char safer_ebox[256] = {
 };
 
 /* This is the inverse of ebox or the base 45 logarithm */
-const unsigned char safer_lbox[256] = {
+static const unsigned char safer_lbox[256] = {
 128,   0, 176,   9,  96, 239, 185, 253,  16,  18, 159, 228, 105, 186, 173, 248,
 192,  56, 194, 101,  79,   6, 148, 252,  25, 222, 106,  27,  93,  78, 168, 130,
 112, 237, 232, 236, 114, 179,  21, 195, 255, 171, 182,  71,  68,   1, 172,  37,
@@ -59,7 +57,7 @@ const unsigned char safer_lbox[256] = {
 184,  64, 120,  45,  58, 233, 100,  31, 146, 144, 125,  57, 111, 224, 137,  48
 };
 
-#endif
+#endif /* __LTC_SAFER_TAB_C__ */
 
 
 

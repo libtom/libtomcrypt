@@ -17,6 +17,9 @@
 
 #ifdef LTC_SAFERP
 
+#define __LTC_SAFER_TAB_C__
+#include "safer_tab.c"
+
 const struct ltc_cipher_descriptor saferp_desc =
 {
     "safer+",
@@ -41,8 +44,6 @@ const struct ltc_cipher_descriptor saferp_desc =
  * comes from not having to compute indirect accesses into the
  * array of 16 bytes b[0..15] which is the block of data
 */
-
-extern const unsigned char safer_ebox[], safer_lbox[];
 
 #define ROUND(b, i)                                                                        \
     b[0]  = (safer_ebox[(b[0] ^ skey->saferp.K[i][0]) & 255] + skey->saferp.K[i+1][0]) & 255;    \
