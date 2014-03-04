@@ -102,8 +102,8 @@ endif
 OBJECTS=src/ciphers/aes/aes_enc.o src/ciphers/aes/aes.o src/ciphers/anubis.o src/ciphers/blowfish.o \
 src/ciphers/camellia.o src/ciphers/cast5.o src/ciphers/des.o src/ciphers/kasumi.o src/ciphers/khazad.o \
 src/ciphers/kseed.o src/ciphers/multi2.o src/ciphers/noekeon.o src/ciphers/rc2.o src/ciphers/rc5.o \
-src/ciphers/rc6.o src/ciphers/safer/safer.o src/ciphers/safer/safer_tab.o src/ciphers/safer/saferp.o \
-src/ciphers/skipjack.o src/ciphers/twofish/twofish.o src/ciphers/xtea.o src/encauth/ccm/ccm_memory.o \
+src/ciphers/rc6.o src/ciphers/safer/safer.o src/ciphers/safer/saferp.o src/ciphers/skipjack.o \
+src/ciphers/twofish/twofish.o src/ciphers/xtea.o src/encauth/ccm/ccm_memory.o \
 src/encauth/ccm/ccm_memory_ex.o src/encauth/ccm/ccm_test.o src/encauth/eax/eax_addheader.o \
 src/encauth/eax/eax_decrypt.o src/encauth/eax/eax_decrypt_verify_memory.o src/encauth/eax/eax_done.o \
 src/encauth/eax/eax_encrypt.o src/encauth/eax/eax_encrypt_authenticate_memory.o \
@@ -124,15 +124,16 @@ src/encauth/ocb3/ocb3_int_ntz.o src/encauth/ocb3/ocb3_int_xor_blocks.o src/encau
 src/hashes/chc/chc.o src/hashes/helper/hash_file.o src/hashes/helper/hash_filehandle.o \
 src/hashes/helper/hash_memory.o src/hashes/helper/hash_memory_multi.o src/hashes/md2.o src/hashes/md4.o \
 src/hashes/md5.o src/hashes/rmd128.o src/hashes/rmd160.o src/hashes/rmd256.o src/hashes/rmd320.o \
-src/hashes/sha1.o src/hashes/sha2/sha256.o src/hashes/sha2/sha512.o src/hashes/tiger.o \
-src/hashes/whirl/whirl.o src/mac/f9/f9_done.o src/mac/f9/f9_file.o src/mac/f9/f9_init.o \
-src/mac/f9/f9_memory.o src/mac/f9/f9_memory_multi.o src/mac/f9/f9_process.o src/mac/f9/f9_test.o \
-src/mac/hmac/hmac_done.o src/mac/hmac/hmac_file.o src/mac/hmac/hmac_init.o src/mac/hmac/hmac_memory.o \
-src/mac/hmac/hmac_memory_multi.o src/mac/hmac/hmac_process.o src/mac/hmac/hmac_test.o \
-src/mac/omac/omac_done.o src/mac/omac/omac_file.o src/mac/omac/omac_init.o src/mac/omac/omac_memory.o \
-src/mac/omac/omac_memory_multi.o src/mac/omac/omac_process.o src/mac/omac/omac_test.o \
-src/mac/pelican/pelican.o src/mac/pelican/pelican_memory.o src/mac/pelican/pelican_test.o \
-src/mac/pmac/pmac_done.o src/mac/pmac/pmac_file.o src/mac/pmac/pmac_init.o src/mac/pmac/pmac_memory.o \
+src/hashes/sha1.o src/hashes/sha2/sha224.o src/hashes/sha2/sha256.o src/hashes/sha2/sha384.o \
+src/hashes/sha2/sha512.o src/hashes/tiger.o src/hashes/whirl/whirl.o src/mac/f9/f9_done.o \
+src/mac/f9/f9_file.o src/mac/f9/f9_init.o src/mac/f9/f9_memory.o src/mac/f9/f9_memory_multi.o \
+src/mac/f9/f9_process.o src/mac/f9/f9_test.o src/mac/hmac/hmac_done.o src/mac/hmac/hmac_file.o \
+src/mac/hmac/hmac_init.o src/mac/hmac/hmac_memory.o src/mac/hmac/hmac_memory_multi.o \
+src/mac/hmac/hmac_process.o src/mac/hmac/hmac_test.o src/mac/omac/omac_done.o src/mac/omac/omac_file.o \
+src/mac/omac/omac_init.o src/mac/omac/omac_memory.o src/mac/omac/omac_memory_multi.o \
+src/mac/omac/omac_process.o src/mac/omac/omac_test.o src/mac/pelican/pelican.o \
+src/mac/pelican/pelican_memory.o src/mac/pelican/pelican_test.o src/mac/pmac/pmac_done.o \
+src/mac/pmac/pmac_file.o src/mac/pmac/pmac_init.o src/mac/pmac/pmac_memory.o \
 src/mac/pmac/pmac_memory_multi.o src/mac/pmac/pmac_ntz.o src/mac/pmac/pmac_process.o \
 src/mac/pmac/pmac_shift_xor.o src/mac/pmac/pmac_test.o src/mac/xcbc/xcbc_done.o \
 src/mac/xcbc/xcbc_file.o src/mac/xcbc/xcbc_init.o src/mac/xcbc/xcbc_memory.o \
@@ -201,9 +202,10 @@ src/pk/asn1/der/teletex_string/der_length_teletex_string.o \
 src/pk/asn1/der/utctime/der_decode_utctime.o src/pk/asn1/der/utctime/der_encode_utctime.o \
 src/pk/asn1/der/utctime/der_length_utctime.o src/pk/asn1/der/utf8/der_decode_utf8_string.o \
 src/pk/asn1/der/utf8/der_encode_utf8_string.o src/pk/asn1/der/utf8/der_length_utf8_string.o \
-src/pk/dh/dh.o src/pk/dsa/dsa_decrypt_key.o src/pk/dsa/dsa_encrypt_key.o src/pk/dsa/dsa_export.o \
-src/pk/dsa/dsa_free.o src/pk/dsa/dsa_import.o src/pk/dsa/dsa_make_key.o src/pk/dsa/dsa_shared_secret.o \
-src/pk/dsa/dsa_sign_hash.o src/pk/dsa/dsa_verify_hash.o src/pk/dsa/dsa_verify_key.o src/pk/ecc/ecc.o \
+src/pk/dh/dh.o src/pk/dh/dh_static.o src/pk/dh/dh_sys.o src/pk/dsa/dsa_decrypt_key.o \
+src/pk/dsa/dsa_encrypt_key.o src/pk/dsa/dsa_export.o src/pk/dsa/dsa_free.o src/pk/dsa/dsa_import.o \
+src/pk/dsa/dsa_make_key.o src/pk/dsa/dsa_shared_secret.o src/pk/dsa/dsa_sign_hash.o \
+src/pk/dsa/dsa_verify_hash.o src/pk/dsa/dsa_verify_key.o src/pk/ecc/ecc.o \
 src/pk/ecc/ecc_ansi_x963_export.o src/pk/ecc/ecc_ansi_x963_import.o src/pk/ecc/ecc_decrypt_key.o \
 src/pk/ecc/ecc_encrypt_key.o src/pk/ecc/ecc_export.o src/pk/ecc/ecc_free.o src/pk/ecc/ecc_get_size.o \
 src/pk/ecc/ecc_import.o src/pk/ecc/ecc_make_key.o src/pk/ecc/ecc_shared_secret.o \
