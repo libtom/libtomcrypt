@@ -17,6 +17,7 @@
 
 #ifdef LTC_PELICAN
 
+#define __LTC_AES_TAB_C__
 #define ENCRYPT_ONLY
 #define PELI_TAB
 #include "../../ciphers/aes/aes_tab.c"
