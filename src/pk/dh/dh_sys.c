@@ -9,10 +9,16 @@
  * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.org
  */
 
+#include "tomcrypt.h"
+
+#ifdef LTC_MDH
 /**
   @file dh_sys.c
   DH Crypto, Tom St Denis
 */
+
+#include "dh_static.h"
+
 
 /**
   Encrypt a short symmetric key with a public DH key
@@ -323,7 +329,7 @@ int dh_sign_hash(const unsigned char *in,  unsigned long inlen,
    }
 
    /* is the IDX valid ?  */
-   if (is_valid_idx(key->idx) != 1) {
+   if (dh_is_valid_idx(key->idx) != 1) {
       return CRYPT_PK_INVALID_TYPE;
    }
 
@@ -482,3 +488,5 @@ done:
    mp_clear_multi(tmp, m, g, p, b, a, NULL);
    return err;
 }
+
+#endif /* LTC_MDH */
