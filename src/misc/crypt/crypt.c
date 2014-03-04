@@ -353,16 +353,16 @@ const char *crypt_build_settings =
 #if defined(LTC_PTHREAD)
     " LTC_PTHREAD "
 #endif
-#if defined(LTM_LTC_DESC)
+#if defined(LTM_DESC)
     " LTM_DESC "
 #endif
-#if defined(TFM_LTC_DESC)
+#if defined(TFM_DESC)
     " TFM_DESC "
 #endif
 #if defined(LTC_MECC_ACCEL)
     " LTC_MECC_ACCEL "
 #endif
-#if defined(GMP_LTC_DESC)
+#if defined(GMP_DESC)
     " GMP_DESC "
 #endif
 #if defined(LTC_EASY)
