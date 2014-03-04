@@ -13,6 +13,10 @@
    LTC_SHA384 hash included in sha512.c, Tom St Denis
 */
 
+#include "tomcrypt.h"
+
+#if defined(LTC_SHA384) && defined(LTC_SHA512)
+
 const struct ltc_hash_descriptor sha384_desc =
 {
     "sha384",
@@ -125,10 +129,7 @@ int  sha384_test(void)
  #endif
 }
 
-
-
-
-
+#endif /* defined(LTC_SHA384) && defined(LTC_SHA512) */
 
 /* $Source$ */
 /* $Revision$ */
