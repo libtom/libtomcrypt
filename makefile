@@ -81,6 +81,8 @@ TV=tv_gen
 MULTI=multi
 TIMING=timing
 TEST=test
+SIZES=sizes
+CONSTANTS=constants
 
 #LIBPATH-The directory for libtomcrypt to be installed to.
 #INCPATH-The directory to install the header files for libtomcrypt.
@@ -255,6 +257,8 @@ TVS=demos/tv_gen.o
 MULTIS=demos/multi.o
 TIMINGS=demos/timing.o
 TESTS=demos/test.o
+CRYPTSIZES=demos/demo_crypt_sizes.o
+CRYPTCONSTANTS=demos/demo_crypt_constants.o
 
 #Files left over from making the crypt.pdf.
 LEFTOVERS=*.dvi *.log *.aux *.toc *.idx *.ilg *.ind *.out *.lof
@@ -312,6 +316,12 @@ timing: library testprof/$(LIBTEST) $(TIMINGS)
 test: library testprof/$(LIBTEST) $(TESTS)
 	$(CC) $(LDFLAGS) $(TESTS) testprof/$(LIBTEST) $(LIBNAME) $(EXTRALIBS) -o $(TEST)
 
+sizes: library $(CRYPTSIZES)
+	$(CC) $(LDFLAGS) $(CRYPTSIZES) $(LIBNAME) $(EXTRALIBS) -o $(SIZES)
+
+constants: library $(CRYPTCONSTANTS)
+	$(CC) $(LDFLAGS) $(CRYPTCONSTANTS) $(LIBNAME) $(EXTRALIBS) -o $(CONSTANTS)
+
 #This rule installs the library and the header files. This must be run
 #as root in order to have a high enough permission to write to the correct
 #directories and to set the owner and group to root.
@@ -360,6 +370,7 @@ clean:
 	rm -rf `find . -type d -name "*.libs" | xargs`
 	rm -f crypt.aux  crypt.dvi  crypt.idx  crypt.ilg  crypt.ind  crypt.log crypt.toc
 	rm -f $(TV) $(SMALL) $(CRYPT) $(HASH) $(MULTI) $(TIMING) $(TEST)
+	rm -f $(SIZES) $(CONSTANTS)
 	rm -rf doc/doxygen
 	rm -f `find . -type f -name "*.pdf" | grep -FL crypt.pdf | xargs`
 	rm -f *.txt
