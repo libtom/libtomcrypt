@@ -13,28 +13,29 @@
     dynamic languages.
     
     This instance uses Python's ctypes and requires a single 
-    .dylib linking together LTC and one or more math libraries.  
-    Building a single .dylib is needed because LTC wants a 
-    fairly tight relationship between itself and the mathlib. 
-    (ctypes can load multiple .dylibs, but it does not support 
-    this level of coupling between those independent libraries.)
+    .dylib linking together LTC and a math library.  Building 
+    a single .dylib is needed because LTC wants a fairly tight 
+    relationship between itself and the mathlib.  (ctypes can 
+    load multiple .dylibs, but it does not support this level 
+    of tight coupling between otherwise independent libraries.)
     
     My .dylib was created on OSX with the following steps:
       
       1- compile LTC to a .a static lib:
-           CFLAGS="-DLTM_DESC -DUSE_LTM -DTFM_DESC -DUSE_TFM \
-                   -I/usr/local/include" make
+           CFLAGS="-DLTM_DESC -DUSE_LTM" make
       
-      2- link LTC, LTM and TFM into a single .dylib:
-           ar2dylib_with_and  tomcrypt  tommath  tfm
-         where ar2dylib_with_and is a shell script that combines 
-         the .a with .dylibs for LTM and TFM
+      2- link LTC and LTM into a single .dylib:
+           ar2dylib_with  tomcrypt  tommath
+         where ar2dylib_with is a shell script that combines 
+         the LTC .a with the LTM .dylib
     
     Reminder: you don't need to bind in a math library unless
               you are going to use LTC functions that depend 
               on a mathlib.  For example, public key crypto 
               needs a mathlib; hashing and symmetric encryption 
-              does not.
+              do not.
+    
+    This code was written for Python 2.7.
     
     Larry Bugbee
     March 2014
@@ -136,40 +137,6 @@ if 1:
         rc = LTC.crypt_get_size(name, byref(size_value))
         value = size_value.value
         print '    %-25s  %d' % (name, value)
-
-
-#---------------------------------------------------------------
-# init the selected math package, change to another mathlib, 
-# and change back to the first mathlib
-
-if 1:
-    print '\n  init the selected math package, change, and change again'
-    
-    # show ltm_desc
-    ptr = c_int.in_dll(LTC, 'ltm_desc')
-    print '    ltm_desc:   ', hex(ptr.value)
-    # show tfm_desc
-    ptr = c_int.in_dll(LTC, 'tfm_desc')
-    print '    tfm_desc:   ', hex(ptr.value)
-    # let's see the initial value of ltc_mp
-    ptr = c_int.in_dll(LTC, 'ltc_mp')
-    print '    initial ptr:', hex(ptr.value)
-    
-    # init LTM and show ltc_mp
-    LTC.init_LTM()
-    ptr = c_int.in_dll(LTC, 'ltc_mp')
-    print '    ptr to LTM: ', hex(ptr.value)
-    
-    # init TFM and show ltc_mp
-    LTC.init_TFM()
-    ptr = c_int.in_dll(LTC, 'ltc_mp')
-    print '    ptr to TFM: ', hex(ptr.value)
-    
-    # now change back to LTM
-    LTC.init_LTM()
-    ptr = c_int.in_dll(LTC, 'ltc_mp')
-    print '    ptr to LTM: ', hex(ptr.value)
-
 
 
 #---------------------------------------------------------------
