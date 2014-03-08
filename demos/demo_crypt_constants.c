@@ -9,6 +9,7 @@
  * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 #include "tomcrypt.h"
+#include "tomcrypt_misc.h"
 
 /**
   @file demo_crypt_constants.c
@@ -18,12 +19,6 @@
   
   Larry Bugbee, February 2013
 */
-
-
-// in lieu of a header file
-int crypt_get_constant(const char* namein, int *valueout);
-int crypt_list_all_constants(char *names_list, 
-                             unsigned long *names_list_size);
 
 
 int main(void) {

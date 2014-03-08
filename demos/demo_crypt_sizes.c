@@ -9,6 +9,7 @@
  * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 #include "tomcrypt.h"
+#include "tomcrypt_misc.h"
 
 /**
   @file demo_crypt_sizes.c
@@ -16,12 +17,6 @@
   Demo how to get various sizes to dynamic languages 
   like Python - Larry Bugbee, February 2013
 */
-
-
-// in lieu of a header file
-int crypt_get_size(const char* namein, int *sizeout);
-int crypt_list_all_sizes(char *names_list, 
-                         unsigned long *names_list_size);
 
 
 int main(void) {

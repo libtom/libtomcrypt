@@ -49,6 +49,15 @@ extern const char *crypt_build_settings;
 /* ---- HMM ---- */
 int crypt_fsa(void *mp, ...);
 
+/* ---- Dynamic language support ---- */
+int crypt_get_constant(const char* namein, int *valueout);
+int crypt_list_all_constants(char *names_list, 
+                             unsigned long *names_list_size);
+
+int crypt_get_size(const char* namein, int *sizeout);
+int crypt_list_all_sizes(char *names_list, 
+                         unsigned long *names_list_size);
+
 /* $Source$ */
 /* $Revision$ */
 /* $Date$ */
