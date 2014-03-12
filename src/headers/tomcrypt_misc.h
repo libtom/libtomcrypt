@@ -58,6 +58,10 @@ int crypt_get_size(const char* namein, int *sizeout);
 int crypt_list_all_sizes(char *names_list, 
                          unsigned long *names_list_size);
 
+void init_LTM(void);
+void init_TFM(void);
+
+
 /* $Source$ */
 /* $Revision$ */
 /* $Date$ */
