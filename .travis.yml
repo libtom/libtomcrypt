@@ -23,6 +23,9 @@ branches:
     - develop
 before_script:
   - sudo apt-get install libtommath-dev
+after_failure:
+  - cat test_std.txt
+  - cat test_err.txt
 after_script:
   - cat gcc_2.txt
 notifications:
