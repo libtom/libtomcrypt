@@ -9,7 +9,6 @@
  * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 #include "tomcrypt.h"
-#include "tomcrypt_misc.h"
 
 /**
   @file demo_crypt_constants.c
