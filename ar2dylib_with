@@ -1,0 +1,14 @@
+#!/bin/bash
+echo ""
+echo "  converting contents of lib$1.a to lib$1.dylib with $2"
+echo ""
+
+mkdir __objects__
+cp lib$1.a __objects__
+cd __objects__
+ar x lib$1.a 
+cd ..
+# clang/gcc
+gcc -dynamiclib -L/usr/local/lib -l$2 -o lib$1.dylib __objects__/*.o
+rm __objects__/*
+rmdir __objects__
