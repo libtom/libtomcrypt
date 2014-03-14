@@ -25,6 +25,30 @@ typedef struct {
 } crypt_constant;
 
 crypt_constant _crypt_constants[] = {
+#ifdef ENDIAN_LITTLE
+    {"ENDIAN_LITTLE",             1},       // true
+#else
+    {"ENDIAN_LITTLE",             0},       // false
+#endif
+
+#ifdef ENDIAN_BIG
+    {"ENDIAN_BIG",                1},       // true
+#else
+    {"ENDIAN_BIG",                0},       // false
+#endif
+
+#ifdef ENDIAN_32BITWORD
+    {"ENDIAN_32BITWORD",          1},       // true
+#else
+    {"ENDIAN_32BITWORD",          0},       // false
+#endif
+
+#ifdef ENDIAN_64BITWORD
+    {"ENDIAN_64BITWORD",          1},       // true
+#else
+    {"ENDIAN_64BITWORD",          0},       // false
+#endif
+
 #ifdef LTC_CTR_MODE
     {"CTR_COUNTER_LITTLE_ENDIAN", CTR_COUNTER_LITTLE_ENDIAN},
     {"CTR_COUNTER_BIG_ENDIAN",    CTR_COUNTER_BIG_ENDIAN},

@@ -109,6 +109,8 @@ if 1:
     print '\n  selected constants:'
     
     names = [
+        'ENDIAN_LITTLE',
+        'ENDIAN_64BITWORD',
         'PK_PUBLIC',
         'MAX_RSA_SIZE',
         'CTR_COUNTER_BIG_ENDIAN',
