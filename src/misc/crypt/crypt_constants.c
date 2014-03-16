@@ -17,6 +17,7 @@
   like Python - Larry Bugbee, February 2013
   
   LB - Dec 2013 - revised to include compiler define options
+  LB - Mar 2014 - added endianness and word size
 */
 
 typedef struct {
@@ -25,6 +26,26 @@ typedef struct {
 } crypt_constant;
 
 crypt_constant _crypt_constants[] = {
+    {"PK_PUBLIC",                 PK_PUBLIC},
+    {"PK_PRIVATE",                PK_PRIVATE},
+
+#ifdef LTC_CTR_MODE
+    {"CTR_COUNTER_LITTLE_ENDIAN", CTR_COUNTER_LITTLE_ENDIAN},
+    {"CTR_COUNTER_BIG_ENDIAN",    CTR_COUNTER_BIG_ENDIAN},
+    {"LTC_CTR_RFC3686",           LTC_CTR_RFC3686},
+#endif
+
+#ifdef LTC_MRSA
+    {"MIN_RSA_SIZE",              MIN_RSA_SIZE},
+    {"MAX_RSA_SIZE",              MAX_RSA_SIZE},
+#endif
+    
+#ifdef LTC_PKCS_1
+    {"LTC_PKCS_1_OAEP",           LTC_PKCS_1_OAEP},
+    {"LTC_PKCS_1_PSS",            LTC_PKCS_1_PSS},
+    {"LTC_PKCS_1_V1_5",           LTC_PKCS_1_V1_5},
+#endif
+
 #ifdef ENDIAN_LITTLE
     {"ENDIAN_LITTLE",             1},       // true
 #else
@@ -48,30 +69,11 @@ crypt_constant _crypt_constants[] = {
 #else
     {"ENDIAN_64BITWORD",          0},       // false
 #endif
-
-#ifdef LTC_CTR_MODE
-    {"CTR_COUNTER_LITTLE_ENDIAN", CTR_COUNTER_LITTLE_ENDIAN},
-    {"CTR_COUNTER_BIG_ENDIAN",    CTR_COUNTER_BIG_ENDIAN},
-    {"LTC_CTR_RFC3686",           LTC_CTR_RFC3686},
-#endif
-
-    {"PK_PUBLIC",                 PK_PUBLIC},
-    {"PK_PRIVATE",                PK_PRIVATE},
-#ifdef LTC_MRSA
-    {"MIN_RSA_SIZE",              MIN_RSA_SIZE},
-    {"MAX_RSA_SIZE",              MAX_RSA_SIZE},
-#endif
-    
-#ifdef LTC_PKCS_1
-    {"LTC_PKCS_1_OAEP",           LTC_PKCS_1_OAEP},
-    {"LTC_PKCS_1_PSS",            LTC_PKCS_1_PSS},
-    {"LTC_PKCS_1_V1_5",           LTC_PKCS_1_V1_5},
-#endif
 };
 
 
 /* crypt_get_constant()
- * sizeout will be the size (bytes) of the named struct or union
+ * valueout will be the value of the named constant
  * return -1 if named item not found
  */
 int crypt_get_constant(const char* namein, int *valueout) {
@@ -88,8 +90,8 @@ int crypt_get_constant(const char* namein, int *valueout) {
 
 /* crypt_list_all_constants()
  * if names_list is NULL, names_list_size will be the minimum 
- *     size needed to receive the complete names_list
- * if names_list is NOT NULL, names_list must be the addr with 
+ *     number of bytes needed to receive the complete names_list
+ * if names_list is NOT NULL, names_list must be the addr of 
  *     sufficient memory allocated into which the names_list 
  *     is to be written.  Also, the value in names_list_size 
  *     sets the upper bound of the number of characters to be 
