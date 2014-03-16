@@ -66,7 +66,7 @@ int gcm_add_aad(gcm_state *gcm,
          }
          gcm_mult_h(gcm, gcm->X);
 
-         /* copy counter out */ 
+         /* copy counter out */
          XMEMCPY(gcm->Y, gcm->X, 16);
          zeromem(gcm->X, 16);
       } else {
@@ -117,7 +117,7 @@ int gcm_add_aad(gcm_state *gcm,
    return CRYPT_OK;
 }
 #endif
-   
+
 
 /* $Source$ */
 /* $Revision$ */

@@ -65,8 +65,8 @@ int lrw_setiv(const unsigned char *IV, unsigned long len, symmetric_LRW *lrw)
 #endif
    }
    XMEMCPY(lrw->pad, T, 16);
-#else     
-   gcm_gf_mult(lrw->tweak, IV, lrw->pad); 
+#else
+   gcm_gf_mult(lrw->tweak, IV, lrw->pad);
 #endif
 
    return CRYPT_OK;

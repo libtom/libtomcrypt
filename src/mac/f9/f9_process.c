@@ -67,7 +67,7 @@ int f9_process(f9_state *f9, const unsigned char *in, unsigned long inlen)
      f9->IV[f9->buflen++] ^= *in++;
      --inlen;
   }
-  return CRYPT_OK;       
+  return CRYPT_OK;
 }
 
 #endif

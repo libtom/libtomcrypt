@@ -48,8 +48,8 @@ LTC_EXPORT int   LTC_CALL XSTRCMP(const char *s1, const char *s2);
    #define ARGTYPE  0
 #endif
 
-/* Controls endianess and size of registers.  Leave uncommented to get platform neutral [slower] code 
- * 
+/* Controls endianess and size of registers.  Leave uncommented to get platform neutral [slower] code
+ *
  * Note: in order to use the optimized macros your platform must support unaligned 32 and 64 bit read/writes.
  * The x86 platforms allow this but some others [ARM for instance] do not.  On those platforms you **MUST**
  * use the portable [slower] macros.
@@ -83,7 +83,7 @@ LTC_EXPORT int   LTC_CALL XSTRCMP(const char *s1, const char *s2);
    #define ENDIAN_32BITWORD
    #define LTC_FAST
    #define LTC_FAST_TYPE    unsigned long
-#endif   
+#endif
 
 /* detect sparc and sparc64 */
 #if defined(__sparc__)
@@ -111,7 +111,7 @@ LTC_EXPORT int   LTC_CALL XSTRCMP(const char *s1, const char *s2);
    #undef LTC_FAST
    #undef LTC_FAST_TYPE
    #define LTC_NO_ROLC
-	#define LTC_NO_BSWAP
+   #define LTC_NO_BSWAP
 #endif
 
 /* #define ENDIAN_LITTLE */
@@ -126,6 +126,22 @@ LTC_EXPORT int   LTC_CALL XSTRCMP(const char *s1, const char *s2);
 
 #if !(defined(ENDIAN_BIG) || defined(ENDIAN_LITTLE))
    #define ENDIAN_NEUTRAL
+#endif
+
+/* gcc 4.3 and up has a bswap builtin; detect it by gcc version.
+ * clang also supports the bswap builtin, and although clang pretends
+ * to be gcc (macro-wise, anyway), clang pretends to be a version
+ * prior to gcc 4.3, so we can't detect bswap that way.  Instead,
+ * clang has a __has_builtin mechanism that can be used to check
+ * for builtins:
+ * http://clang.llvm.org/docs/LanguageExtensions.html#feature_check */
+#ifndef __has_builtin
+   #define __has_builtin(x) 0
+#endif
+#if !defined(LTC_NO_BSWAP) && defined(__GNUC__) &&                      \
+   ((__GNUC__ * 100 + __GNUC_MINOR__ >= 403) ||                         \
+    (__has_builtin(__builtin_bswap32) && __has_builtin(__builtin_bswap64)))
+   #define LTC_HAVE_BSWAP_BUILTIN
 #endif
 
 #endif

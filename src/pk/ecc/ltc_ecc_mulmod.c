@@ -19,7 +19,7 @@
 /**
   @file ltc_ecc_mulmod.c
   ECC Crypto, Tom St Denis
-*/  
+*/
 
 #ifdef LTC_MECC
 #ifndef LTC_ECC_TIMING_RESISTANT
@@ -28,7 +28,7 @@
 #define WINSIZE 4
 
 /**
-   Perform a point multiplication 
+   Perform a point multiplication
    @param k    The scalar to multiply by
    @param G    The base point
    @param R    [out] Destination for kG
@@ -85,7 +85,7 @@ int ltc_ecc_mulmod(void *k, ecc_point *G, ecc_point *R, void *modulus, int map)
       if ((err = mp_copy(G->x, tG->x)) != CRYPT_OK)                                  { goto done; }
       if ((err = mp_copy(G->y, tG->y)) != CRYPT_OK)                                  { goto done; }
       if ((err = mp_copy(G->z, tG->z)) != CRYPT_OK)                                  { goto done; }
-   } else {      
+   } else {
       if ((err = mp_mulmod(G->x, mu, modulus, tG->x)) != CRYPT_OK)                   { goto done; }
       if ((err = mp_mulmod(G->y, mu, modulus, tG->y)) != CRYPT_OK)                   { goto done; }
       if ((err = mp_mulmod(G->z, mu, modulus, tG->z)) != CRYPT_OK)                   { goto done; }

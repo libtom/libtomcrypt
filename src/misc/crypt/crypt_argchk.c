@@ -9,7 +9,6 @@
  * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 #include "tomcrypt.h"
-#include <signal.h>
 
 /**
   @file crypt_argchk.c
@@ -17,6 +16,7 @@
 */  
 
 #if (ARGTYPE == 0)
+#include <signal.h>
 void crypt_argchk(char *v, char *s, int d)
 {
  fprintf(stderr, "LTC_ARGCHK '%s' failure on line %d of file %s\n",

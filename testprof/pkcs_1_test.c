@@ -12,11 +12,11 @@ int pkcs_1_test(void)
    /* get hash/prng  */
    hash_idx = find_hash("sha1");
    prng_idx = find_prng("yarrow");
-   
+
    if (hash_idx == -1 || prng_idx == -1) {
       fprintf(stderr, "pkcs_1 tests require sha1/yarrow");
       return 1;
-   }   
+   }
 
    srand(time(NULL));
    /* do many tests */
@@ -33,7 +33,7 @@ int pkcs_1_test(void)
       /* pick a random saltlen 0..16 */
       saltlen   = abs(rand()) % 17;
 
-      /* LTC_PKCS #1 v2.0 supports modlens not multiple of 8 */
+      /* PKCS #1 v2.0 supports modlens not multiple of 8 */
       modlen = 800 + (abs(rand()) % 224);
 
       /* encode it */
@@ -62,7 +62,7 @@ int pkcs_1_test(void)
       l1 = sizeof(buf[1]);
       DO(pkcs_1_pss_encode(buf[0], l3, saltlen, &yarrow_prng, prng_idx, hash_idx, modlen, buf[1], &l1));
       DO(pkcs_1_pss_decode(buf[0], l3, buf[1], l1, saltlen, hash_idx, modlen, &res1));
-      
+
       buf[0][i1 = abs(rand()) % l3] ^= 1;
       DO(pkcs_1_pss_decode(buf[0], l3, buf[1], l1, saltlen, hash_idx, modlen, &res2));
 

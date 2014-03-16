@@ -36,12 +36,14 @@ typedef struct {
 
 extern prng_state yarrow_prng;
 
-void run_cmd(int res, int line, char *file, char *cmd);
+void run_cmd(int res, int line, char *file, char *cmd, const char *algorithm);
 
 #ifdef LTC_VERBOSE
-#define DO(x) do { fprintf(stderr, "%s:\n", #x); run_cmd((x), __LINE__, __FILE__, #x); } while (0);
+#define DO(x) do { fprintf(stderr, "%s:\n", #x); run_cmd((x), __LINE__, __FILE__, #x, NULL); } while (0);
+#define DOX(x, str) do { fprintf(stderr, "%s - %s:\n", #x, (str)); run_cmd((x), __LINE__, __FILE__, #x, (str)); } while (0);
 #else
-#define DO(x) do { run_cmd((x), __LINE__, __FILE__, #x); } while (0);
+#define DO(x) do { run_cmd((x), __LINE__, __FILE__, #x, NULL); } while (0);
+#define DOX(x, str) do { run_cmd((x), __LINE__, __FILE__, #x, (str)); } while (0);
 #endif
 
 /* TESTS */
@@ -56,6 +58,7 @@ int katja_test(void);
 int ecc_tests(void);
 int dsa_test(void);
 int der_tests(void);
+int misc_test(void);
 
 /* timing */
 #define KTIMES  25

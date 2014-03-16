@@ -7,8 +7,8 @@
    typedef unsigned long long ulong64;
 #endif
 
-/* this is the "32-bit at least" data type 
- * Re-define it to suit your platform but it must be at least 32-bits 
+/* this is the "32-bit at least" data type
+ * Re-define it to suit your platform but it must be at least 32-bits
  */
 #if defined(__x86_64__) || (defined(__sparc__) && defined(__arch64__))
    typedef unsigned ulong32;
@@ -67,7 +67,17 @@
 
 #ifdef ENDIAN_LITTLE
 
-#if !defined(LTC_NO_BSWAP) && (defined(INTEL_CC) || (defined(__GNUC__) && (defined(__DJGPP__) || defined(__CYGWIN__) || defined(__MINGW32__) || defined(__i386__) || defined(__x86_64__))))
+#ifdef LTC_HAVE_BSWAP_BUILTIN
+
+#define STORE32H(x, y)                          \
+   { ulong32 __t = __builtin_bswap32 ((x));     \
+      XMEMCPY ((y), &__t, 4); }
+
+#define LOAD32H(x, y)                           \
+   { XMEMCPY (&(x), (y), 4);                    \
+      (x) = __builtin_bswap32 ((x)); }
+
+#elif !defined(LTC_NO_BSWAP) && (defined(INTEL_CC) || (defined(__GNUC__) && (defined(__DJGPP__) || defined(__CYGWIN__) || defined(__MINGW32__) || defined(__i386__) || defined(__x86_64__))))
 
 #define STORE32H(x, y)           \
 asm __volatile__ (               \
@@ -96,22 +106,31 @@ asm __volatile__ (             \
 
 #endif
 
+#ifdef LTC_HAVE_BSWAP_BUILTIN
+
+#define STORE64H(x, y)                          \
+   { ulong64 __t = __builtin_bswap64 ((x));     \
+      XMEMCPY ((y), &__t, 8); }
+
+#define LOAD64H(x, y)                           \
+   { XMEMCPY (&(x), (y), 8);                    \
+      (x) = __builtin_bswap64 ((x)); }
 
 /* x86_64 processor */
-#if !defined(LTC_NO_BSWAP) && (defined(__GNUC__) && defined(__x86_64__))
+#elif !defined(LTC_NO_BSWAP) && (defined(__GNUC__) && defined(__x86_64__))
 
 #define STORE64H(x, y)           \
 asm __volatile__ (               \
    "bswapq %0     \n\t"          \
    "movq   %0,(%1)\n\t"          \
    "bswapq %0     \n\t"          \
-      ::"r"(x), "r"(y));
+   ::"r"(x), "r"(y): "memory");
 
 #define LOAD64H(x, y)          \
 asm __volatile__ (             \
    "movq (%1),%0\n\t"          \
    "bswapq %0\n\t"             \
-   :"=r"(x): "r"(y));
+   :"=r"(x): "r"(y): "memory");
 
 #else
 
@@ -129,7 +148,7 @@ asm __volatile__ (             \
 
 #endif
 
-#ifdef ENDIAN_32BITWORD 
+#ifdef ENDIAN_32BITWORD
 
 #define STORE32L(x, y)        \
      { ulong32  __t = (x); XMEMCPY(y, &__t, 4); }
@@ -190,7 +209,7 @@ asm __volatile__ (             \
          (((ulong64)((y)[3] & 255))<<24)|(((ulong64)((y)[2] & 255))<<16) | \
          (((ulong64)((y)[1] & 255))<<8)|(((ulong64)((y)[0] & 255))); }
 
-#ifdef ENDIAN_32BITWORD 
+#ifdef ENDIAN_32BITWORD
 
 #define STORE32H(x, y)        \
      { ulong32 __t = (x); XMEMCPY(y, &__t, 4); }
@@ -417,7 +436,7 @@ static inline unsigned long ROR64c(unsigned long word, const int i)
    #define byte(x, n) ((unsigned char)((x) >> (8 * (n))))
 #else
    #define byte(x, n) (((x) >> (8 * (n))) & 255)
-#endif   
+#endif
 
 /* $Source$ */
 /* $Revision$ */

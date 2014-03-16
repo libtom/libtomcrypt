@@ -13,7 +13,7 @@
   @file dh_sys.c
   DH Crypto, Tom St Denis
 */
-  
+
 /**
   Encrypt a short symmetric key with a public DH key
   @param in        The symmetric key to encrypt
@@ -154,7 +154,7 @@ LBL_ERR:
    @return CRYPT_OK if successful
 */
 int dh_decrypt_key(const unsigned char *in, unsigned long inlen,
-                         unsigned char *out, unsigned long *outlen, 
+                         unsigned char *out, unsigned long *outlen,
                          dh_key *key)
 {
    unsigned char *shared_secret, *skey;
@@ -211,7 +211,7 @@ int dh_decrypt_key(const unsigned char *in, unsigned long inlen,
 
    /* get public key */
    LOAD32L(x, in+y);
-   
+
    /* now check if the imported key will fit */
    if (inlen < x) {
       err = CRYPT_INVALID_PACKET;
@@ -219,7 +219,7 @@ int dh_decrypt_key(const unsigned char *in, unsigned long inlen,
    } else {
       inlen -= x;
    }
-   
+
    y += 4;
    if ((err = dh_import(in+y, x, &pubkey)) != CRYPT_OK) {
       goto LBL_ERR;
@@ -241,7 +241,7 @@ int dh_decrypt_key(const unsigned char *in, unsigned long inlen,
 
    /* load in the encrypted key */
    LOAD32L(keysize, in+y);
-   
+
    /* will the out fit as part of the input */
    if (inlen < keysize) {
       err = CRYPT_INVALID_PACKET;
@@ -249,7 +249,7 @@ int dh_decrypt_key(const unsigned char *in, unsigned long inlen,
    } else {
       inlen -= keysize;
    }
-   
+
    if (keysize > *outlen) {
        err = CRYPT_BUFFER_OVERFLOW;
        goto LBL_ERR;
@@ -275,27 +275,27 @@ LBL_ERR:
    return err;
 }
 
-/* perform an ElGamal Signature of a hash 
+/* perform an ElGamal Signature of a hash
  *
  * The math works as follows.  x is the private key, M is the message to sign
- 
+
  1.  pick a random k
  2.  compute a = g^k mod p
  3.  compute b = (M - xa)/k mod p
  4.  Send (a,b)
- 
+
  Now to verify with y=g^x mod p, a and b
- 
+
  1.  compute y^a * a^b = g^(xa) * g^(k*(M-xa)/k)
                        = g^(xa + (M - xa))
                        = g^M [all mod p]
-                       
+
  2.  Compare against g^M mod p [based on input hash].
- 3.  If result of #2 == result of #1 then signature valid 
+ 3.  If result of #2 == result of #1 then signature valid
 */
 
 /**
-  Sign a message digest using a DH private key 
+  Sign a message digest using a DH private key
   @param in      The data to sign
   @param inlen   The length of the input (octets)
   @param out     [out] The destination of the signature
@@ -338,56 +338,56 @@ int dh_sign_hash(const unsigned char *in,  unsigned long inlen,
 
    /* make up a random value k,
     * since the order of the group is prime
-    * we need not check if gcd(k, r) is 1 
+    * we need not check if gcd(k, r) is 1
     */
-   if (prng_descriptor[wprng].read(buf, sets[key->idx].size, prng) != 
+   if (prng_descriptor[wprng].read(buf, sets[key->idx].size, prng) !=
        (unsigned long)(sets[key->idx].size)) {
       err = CRYPT_ERROR_READPRNG;
-      goto LBL_ERR;
+      goto LBL_ERR_1;
    }
 
    /* init bignums */
-   if ((err = mp_init_multi(&a, &b, &k, &m, &p, &g, &p1, &tmp, NULL)) != CRYPT_OK) { 
+   if ((err = mp_init_multi(&a, &b, &k, &m, &p, &g, &p1, &tmp, NULL)) != CRYPT_OK) {
       goto LBL_ERR;
    }
 
    /* load k and m */
-   if ((err = mp_read_unsigned_bin(m, (unsigned char *)in, inlen)) != CRYPT_OK)        { goto error; }
-   if ((err = mp_read_unsigned_bin(k, buf, sets[key->idx].size)) != CRYPT_OK)          { goto error; }
+   if ((err = mp_read_unsigned_bin(m, (unsigned char *)in, inlen)) != CRYPT_OK)        { goto LBL_ERR; }
+   if ((err = mp_read_unsigned_bin(k, buf, sets[key->idx].size)) != CRYPT_OK)          { goto LBL_ERR; }
 
    /* load g, p and p1 */
-   if ((err = mp_read_radix(g, sets[key->idx].base, 64)) != CRYPT_OK)               { goto error; }
-   if ((err = mp_read_radix(p, sets[key->idx].prime, 64)) != CRYPT_OK)              { goto error; }
-   if ((err = mp_sub_d(p, 1, p1)) != CRYPT_OK)                                     { goto error; }
-   if ((err = mp_div_2(p1, p1)) != CRYPT_OK)                                       { goto error; } /* p1 = (p-1)/2 */
+   if ((err = mp_read_radix(g, sets[key->idx].base, 64)) != CRYPT_OK)               { goto LBL_ERR; }
+   if ((err = mp_read_radix(p, sets[key->idx].prime, 64)) != CRYPT_OK)              { goto LBL_ERR; }
+   if ((err = mp_sub_d(p, 1, p1)) != CRYPT_OK)                                     { goto LBL_ERR; }
+   if ((err = mp_div_2(p1, p1)) != CRYPT_OK)                                       { goto LBL_ERR; } /* p1 = (p-1)/2 */
 
    /* now get a = g^k mod p */
-   if ((err = mp_exptmod(g, k, p, a)) != CRYPT_OK)                               { goto error; }
+   if ((err = mp_exptmod(g, k, p, a)) != CRYPT_OK)                               { goto LBL_ERR; }
 
    /* now find M = xa + kb mod p1 or just b = (M - xa)/k mod p1 */
-   if ((err = mp_invmod(k, p1, k)) != CRYPT_OK)                                   { goto error; } /* k = 1/k mod p1 */
-   if ((err = mp_mulmod(a, key->x, p1, tmp)) != CRYPT_OK)                        { goto error; } /* tmp = xa */
-   if ((err = mp_submod(m, tmp, p1, tmp)) != CRYPT_OK)                           { goto error; } /* tmp = M - xa */
-   if ((err = mp_mulmod(k, tmp, p1, b)) != CRYPT_OK)                             { goto error; } /* b = (M - xa)/k */
-   
+   if ((err = mp_invmod(k, p1, k)) != CRYPT_OK)                                   { goto LBL_ERR; } /* k = 1/k mod p1 */
+   if ((err = mp_mulmod(a, key->x, p1, tmp)) != CRYPT_OK)                        { goto LBL_ERR; } /* tmp = xa */
+   if ((err = mp_submod(m, tmp, p1, tmp)) != CRYPT_OK)                           { goto LBL_ERR; } /* tmp = M - xa */
+   if ((err = mp_mulmod(k, tmp, p1, b)) != CRYPT_OK)                             { goto LBL_ERR; } /* b = (M - xa)/k */
+
    /* check for overflow */
    if ((unsigned long)(PACKET_SIZE + 4 + 4 + mp_unsigned_bin_size(a) + mp_unsigned_bin_size(b)) > *outlen) {
       err = CRYPT_BUFFER_OVERFLOW;
       goto LBL_ERR;
    }
-   
+
    /* store header  */
    y = PACKET_SIZE;
 
    /* now store them both (a,b) */
    x = (unsigned long)mp_unsigned_bin_size(a);
    STORE32L(x, out+y);  y += 4;
-   if ((err = mp_to_unsigned_bin(a, out+y)) != CRYPT_OK)                            { goto error; }
+   if ((err = mp_to_unsigned_bin(a, out+y)) != CRYPT_OK)                            { goto LBL_ERR; }
    y += x;
 
    x = (unsigned long)mp_unsigned_bin_size(b);
    STORE32L(x, out+y);  y += 4;
-   if ((err = mp_to_unsigned_bin(b, out+y)) != CRYPT_OK)                            { goto error; }
+   if ((err = mp_to_unsigned_bin(b, out+y)) != CRYPT_OK)                            { goto LBL_ERR; }
    y += x;
 
    /* check if size too big */
@@ -401,10 +401,9 @@ int dh_sign_hash(const unsigned char *in,  unsigned long inlen,
    *outlen = y;
 
    err = CRYPT_OK;
-   goto LBL_ERR;
-error:
 LBL_ERR:
    mp_clear_multi(tmp, p1, g, p, m, k, b, a, NULL);
+LBL_ERR_1:
 
    XFREE(buf);
 
@@ -423,7 +422,7 @@ LBL_ERR:
    @return CRYPT_OK if succsessful (even if signature is invalid)
 */
 int dh_verify_hash(const unsigned char *sig, unsigned long siglen,
-                   const unsigned char *hash, unsigned long hashlen, 
+                   const unsigned char *hash, unsigned long hashlen,
                          int *stat, dh_key *key)
 {
    void        *a, *b, *p, *g, *m, *tmp;
@@ -441,18 +440,18 @@ int dh_verify_hash(const unsigned char *sig, unsigned long siglen,
    /* check initial input length */
    if (siglen < PACKET_SIZE+4+4) {
       return CRYPT_INVALID_PACKET;
-   } 
+   }
 
    /* header ok? */
    if ((err = packet_valid_header((unsigned char *)sig, PACKET_SECT_DH, PACKET_SUB_SIGNED)) != CRYPT_OK) {
       return err;
    }
-   
+
    /* get hash out of packet */
    y = PACKET_SIZE;
 
    /* init all bignums */
-   if ((err = mp_init_multi(&a, &p, &b, &g, &m, &tmp, NULL)) != CRYPT_OK) { 
+   if ((err = mp_init_multi(&a, &p, &b, &g, &m, &tmp, NULL)) != CRYPT_OK) {
       return err;
    }
 

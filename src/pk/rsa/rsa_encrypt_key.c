@@ -12,13 +12,13 @@
 
 /**
   @file rsa_encrypt_key.c
-  RSA LTC_PKCS #1 encryption, Tom St Denis and Andreas Lange
+  RSA PKCS #1 encryption, Tom St Denis and Andreas Lange
 */
 
 #ifdef LTC_MRSA
 
 /**
-    (LTC_PKCS #1 v2.0) OAEP pad then encrypt
+    (PKCS #1 v2.0) OAEP pad then encrypt
     @param in          The plaintext
     @param inlen       The length of the plaintext (octets)
     @param out         [out] The ciphertext
@@ -82,7 +82,7 @@ int rsa_encrypt_key_ex(const unsigned char *in,     unsigned long inlen,
        return err;
     }
   } else {
-    /* LTC_PKCS #1 v1.5 pad the key */
+    /* PKCS #1 v1.5 pad the key */
     x = *outlen;
     if ((err = pkcs_1_v1_5_encode(in, inlen, LTC_PKCS_1_EME,
                                   modulus_bitlen, prng, prng_idx,
@@ -91,7 +91,7 @@ int rsa_encrypt_key_ex(const unsigned char *in,     unsigned long inlen,
     }
   }
 
-  /* rsa exptmod the OAEP or LTC_PKCS #1 v1.5 pad */
+  /* rsa exptmod the OAEP or PKCS #1 v1.5 pad */
   return ltc_mp.rsa_me(out, x, out, outlen, PK_PUBLIC, key);
 }
 

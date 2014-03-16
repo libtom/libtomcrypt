@@ -19,7 +19,7 @@ const char *crypt_build_settings =
    "LibTomCrypt " SCRYPT " (Tom St Denis, tomstdenis@gmail.com)\n"
    "LibTomCrypt is public domain software.\n"
    "Built on " __DATE__ " at " __TIME__ "\n\n\n"
-   "Endianess: "
+   "Endianness: "
 #if defined(ENDIAN_NEUTRAL)
    "neutral\n"
 #elif defined(ENDIAN_LITTLE)
@@ -231,6 +231,9 @@ const char *crypt_build_settings =
 #if defined(LTC_OCB_MODE)
     "   LTC_OCB_MODE\n"
 #endif
+#if defined(LTC_OCB3_MODE)
+    "   LTC_OCB3_MODE\n"
+#endif
 #if defined(LTC_CCM_MODE)
     "   LTC_CCM_MODE\n"
 #endif
@@ -286,7 +289,9 @@ const char *crypt_build_settings =
 #if defined(_MSC_VER)
     "   MSVC compiler detected.\n"
 #endif
-#if defined(__GNUC__)
+#if defined(__clang_version__)
+    "   Clang compiler " __clang_version__ ".\n"
+#elif defined(__GNUC__)         /* clang also defines __GNUC__ */
     "   GCC compiler detected.\n"
 #endif
 #if defined(INTEL_CC)

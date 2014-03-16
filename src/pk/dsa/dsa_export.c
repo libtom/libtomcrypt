@@ -27,7 +27,6 @@
 */
 int dsa_export(unsigned char *out, unsigned long *outlen, int type, dsa_key *key)
 {
-   unsigned char flags[1];
    unsigned long zero=0;
    int err;
 

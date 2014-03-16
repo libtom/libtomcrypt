@@ -14,7 +14,7 @@
 
 /**
   @file rsa_exptmod.c
-  RSA LTC_PKCS exptmod, Tom St Denis
+  RSA PKCS exptmod, Tom St Denis
 */
 
 #ifdef LTC_MRSA

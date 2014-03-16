@@ -94,8 +94,8 @@ static void encrypt(ulong32 *p, int N, ulong32 *uk)
 static void decrypt(ulong32 *p, int N, ulong32 *uk)
 {
    int n, t;
-   for (t = 4*((N&1)^1), n = N; ;  ) {
-      switch (n >= 4 ? 4 : 0) {
+   for (t = 4*(((N-1)>>2)&1), n = N; ;  ) {
+      switch (n<=4 ? n : ((n-1)%4)+1) {
          case 4: pi4(p, uk+t); --n;
          case 3: pi3(p, uk+t); --n;
          case 2: pi2(p, uk+t); --n;
@@ -270,6 +270,23 @@ int multi2_test(void)
       }
    }
    
+   for (x = 128; x < 256; ++x) {
+        unsigned char ct[8];
+
+        if ((err = multi2_setup(tests[0].key, 40, x, &skey)) != CRYPT_OK) {
+                return err;
+        }
+        if ((err = multi2_ecb_encrypt(tests[0].pt, ct, &skey)) != CRYPT_OK) {
+                return err;
+        }
+        if ((err = multi2_ecb_decrypt(ct, buf, &skey)) != CRYPT_OK) {
+                return err;
+        }
+        if (XMEMCMP(buf, tests[0].pt, 8)) {
+                return CRYPT_FAIL_TESTVECTOR;
+        }
+   }
+
    return CRYPT_OK;
 }
 

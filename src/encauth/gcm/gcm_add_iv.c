@@ -24,7 +24,7 @@
   @param IVlen  The length of the IV
   @return CRYPT_OK on success
  */
-int gcm_add_iv(gcm_state *gcm, 
+int gcm_add_iv(gcm_state *gcm,
                const unsigned char *IV,     unsigned long IVlen)
 {
    unsigned long x, y;
@@ -39,7 +39,7 @@ int gcm_add_iv(gcm_state *gcm,
    if (gcm->mode != LTC_GCM_MODE_IV) {
       return CRYPT_INVALID_ARG;
    }
- 
+
    if (gcm->buflen >= 16 || gcm->buflen < 0) {
       return CRYPT_INVALID_ARG;
    }
@@ -87,7 +87,7 @@ int gcm_add_iv(gcm_state *gcm,
 }
 
 #endif
-   
+
 
 /* $Source$ */
 /* $Revision$ */

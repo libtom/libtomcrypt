@@ -29,3 +29,13 @@ timing.exe
 # ignore VS intermediate and program database files
 *.idb
 *.pdb
+
+# oops ;) but we don't want them to appear in the repository...
+*.stackdump
+*.core
+
+# misc
+*.rej
+*.patch
+*.diff
+*.orig

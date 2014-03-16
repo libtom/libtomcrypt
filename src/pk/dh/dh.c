@@ -14,8 +14,8 @@
   @file dh.c
   DH crypto, Tom St Denis
 */
-  
-#ifdef MDH
+
+#ifdef LTC_MDH
 
    /* size of a packet header in bytes */
     #define PACKET_SIZE            4
@@ -367,12 +367,12 @@ int dh_make_key(prng_state *prng, int wprng, int keysize, dh_key *key)
 
    /* make up random string */
    if ( rng_make_prng( keysize, wprng, prng, NULL) != CRYPT_OK) {
-      err = CRYPT_ERROR_READPRNG; 
+      err = CRYPT_ERROR_READPRNG;
       goto error2;
    }
 
    if (prng_descriptor[wprng].read(buf, keysize, prng) != (unsigned long)keysize) {
-      err = CRYPT_ERROR_READPRNG; 
+      err = CRYPT_ERROR_READPRNG;
       goto error2;
    }
 
@@ -407,7 +407,7 @@ error2:
 /**
   Free the allocated ram for a DH key
   @param key   The key which you wish to free
-*/ 
+*/
 void dh_free(dh_key *key)
 {
    LTC_ARGCHK(key != NULL);
@@ -442,7 +442,7 @@ int dh_export(unsigned char *out, unsigned long *outlen, int type, dh_key *key)
    if (*outlen < (PACKET_SIZE + 2)) {
       return CRYPT_BUFFER_OVERFLOW;
    }
-   
+
    if (type == PK_PRIVATE && key->type != PK_PRIVATE) {
       return CRYPT_PK_NOT_PRIVATE;
    }
@@ -550,7 +550,7 @@ error:
 /**
    Create a DH shared secret.
    @param private_key     The private DH key in the pair
-   @param public_key      The public DH key in the pair 
+   @param public_key      The public DH key in the pair
    @param out             [out] The destination of the shared data
    @param outlen          [in/out] The max size and resulting size of the shared data.
    @return CRYPT_OK if successful

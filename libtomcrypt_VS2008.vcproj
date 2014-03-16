@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9,00"
+	Version="9.00"
 	Name="libtomcrypt"
 	ProjectGUID="{E3802982-DCB6-4D85-A2BD-6B08F0657E79}"
 	RootNamespace="libtomcrypt"
@@ -2921,7 +2921,33 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\src\misc\pk_get_oid.c"
+				>
+			</File>
+			<File
 				RelativePath="src\misc\zeromem.c"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="src\misc\hkdf\hkdf.c"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -4742,6 +4768,10 @@
 							</FileConfiguration>
 						</File>
 						<File
+							RelativePath=".\src\pk\asn1\der\bit\der_decode_raw_bit_string.c"
+							>
+						</File>
+						<File
 							RelativePath="src\pk\asn1\der\bit\der_encode_bit_string.c"
 							>
 							<FileConfiguration
@@ -4762,6 +4792,10 @@
 									PreprocessorDefinitions=""
 								/>
 							</FileConfiguration>
+						</File>
+						<File
+							RelativePath=".\src\pk\asn1\der\bit\der_encode_raw_bit_string.c"
+							>
 						</File>
 						<File
 							RelativePath="src\pk\asn1\der\bit\der_length_bit_string.c"
@@ -5302,6 +5336,10 @@
 							</FileConfiguration>
 						</File>
 						<File
+							RelativePath=".\src\pk\asn1\der\sequence\der_decode_subject_public_key_info.c"
+							>
+						</File>
+						<File
 							RelativePath="src\pk\asn1\der\sequence\der_encode_sequence_ex.c"
 							>
 							<FileConfiguration
@@ -5344,6 +5382,10 @@
 									PreprocessorDefinitions=""
 								/>
 							</FileConfiguration>
+						</File>
+						<File
+							RelativePath=".\src\pk\asn1\der\sequence\der_encode_subject_public_key_info.c"
+							>
 						</File>
 						<File
 							RelativePath="src\pk\asn1\der\sequence\der_length_sequence.c"
@@ -5646,6 +5688,18 @@
 									PreprocessorDefinitions=""
 								/>
 							</FileConfiguration>
+						</File>
+					</Filter>
+					<Filter
+						Name="teletex_string"
+						>
+						<File
+							RelativePath=".\src\pk\asn1\der\teletex_string\der_decode_teletex_string.c"
+							>
+						</File>
+						<File
+							RelativePath=".\src\pk\asn1\der\teletex_string\der_length_teletex_string.c"
+							>
 						</File>
 					</Filter>
 				</Filter>

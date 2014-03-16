@@ -12,13 +12,13 @@
 
 /**
   @file rsa_verify_hash.c
-  RSA LTC_PKCS #1 v1.5 or v2 PSS signature verification, Tom St Denis and Andreas Lange
+  RSA PKCS #1 v1.5 or v2 PSS signature verification, Tom St Denis and Andreas Lange
 */
 
 #ifdef LTC_MRSA
 
 /**
-  LTC_PKCS #1 de-sign then v1.5 or PSS depad
+  PKCS #1 de-sign then v1.5 or PSS depad
   @param sig              The signature data
   @param siglen           The length of the signature data (octets)
   @param hash             The hash of the message that was signed
@@ -94,7 +94,7 @@ int rsa_verify_hash_ex(const unsigned char *sig,      unsigned long siglen,
     /* PSS decode and verify it */
     err = pkcs_1_pss_decode(hash, hashlen, tmpbuf, x, saltlen, hash_idx, modulus_bitlen, stat);
   } else {
-    /* LTC_PKCS #1 v1.5 decode it */
+    /* PKCS #1 v1.5 decode it */
     unsigned char *out;
     unsigned long outlen, loid[16];
     int           decoded;
@@ -115,7 +115,7 @@ int rsa_verify_hash_ex(const unsigned char *sig,      unsigned long siglen,
     }
 
     if ((err = pkcs_1_v1_5_decode(tmpbuf, x, LTC_PKCS_1_EMSA, modulus_bitlen, out, &outlen, &decoded)) != CRYPT_OK) {
-      XFREE(out);       
+      XFREE(out);
       goto bail_2;
     }
 
