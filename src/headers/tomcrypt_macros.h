@@ -7,10 +7,10 @@
        (y)[1] = (unsigned char)(((x)>>8)&255); (y)[0] = (unsigned char)((x)&255); }
 
 #define LOAD32L(x, y)                            \
-     { x = ((unsigned long)((y)[3] & 255)<<24) | \
-           ((unsigned long)((y)[2] & 255)<<16) | \
-           ((unsigned long)((y)[1] & 255)<<8)  | \
-           ((unsigned long)((y)[0] & 255)); }
+     { x = ((ulong32)((y)[3] & 255)<<24) | \
+           ((ulong32)((y)[2] & 255)<<16) | \
+           ((ulong32)((y)[1] & 255)<<8)  | \
+           ((ulong32)((y)[0] & 255)); }
 
 #define STORE64L(x, y)                                                                     \
      { (y)[7] = (unsigned char)(((x)>>56)&255); (y)[6] = (unsigned char)(((x)>>48)&255);   \
@@ -29,10 +29,10 @@
        (y)[2] = (unsigned char)(((x)>>8)&255); (y)[3] = (unsigned char)((x)&255); }
 
 #define LOAD32H(x, y)                            \
-     { x = ((unsigned long)((y)[0] & 255)<<24) | \
-           ((unsigned long)((y)[1] & 255)<<16) | \
-           ((unsigned long)((y)[2] & 255)<<8)  | \
-           ((unsigned long)((y)[3] & 255)); }
+     { x = ((ulong32)((y)[0] & 255)<<24) | \
+           ((ulong32)((y)[1] & 255)<<16) | \
+           ((ulong32)((y)[2] & 255)<<8)  | \
+           ((ulong32)((y)[3] & 255)); }
 
 #define STORE64H(x, y)                                                                     \
    { (y)[0] = (unsigned char)(((x)>>56)&255); (y)[1] = (unsigned char)(((x)>>48)&255);     \
@@ -82,10 +82,10 @@ asm __volatile__ (             \
        (y)[2] = (unsigned char)(((x)>>8)&255); (y)[3] = (unsigned char)((x)&255); }
 
 #define LOAD32H(x, y)                            \
-     { x = ((unsigned long)((y)[0] & 255)<<24) | \
-           ((unsigned long)((y)[1] & 255)<<16) | \
-           ((unsigned long)((y)[2] & 255)<<8)  | \
-           ((unsigned long)((y)[3] & 255)); }
+     { x = ((ulong32)((y)[0] & 255)<<24) | \
+           ((ulong32)((y)[1] & 255)<<16) | \
+           ((ulong32)((y)[2] & 255)<<8)  | \
+           ((ulong32)((y)[3] & 255)); }
 
 #endif
 
@@ -175,10 +175,10 @@ asm __volatile__ (             \
        (y)[1] = (unsigned char)(((x)>>8)&255); (y)[0] = (unsigned char)((x)&255); }
 
 #define LOAD32L(x, y)                            \
-     { x = ((unsigned long)((y)[3] & 255)<<24) | \
-           ((unsigned long)((y)[2] & 255)<<16) | \
-           ((unsigned long)((y)[1] & 255)<<8)  | \
-           ((unsigned long)((y)[0] & 255)); }
+     { x = ((ulong32)((y)[3] & 255)<<24) | \
+           ((ulong32)((y)[2] & 255)<<16) | \
+           ((ulong32)((y)[1] & 255)<<8)  | \
+           ((ulong32)((y)[0] & 255)); }
 
 #define STORE64L(x, y)                                                                     \
    { (y)[7] = (unsigned char)(((x)>>56)&255); (y)[6] = (unsigned char)(((x)>>48)&255);     \
@@ -246,7 +246,7 @@ asm __volatile__ (             \
 
 #elif !defined(__STRICT_ANSI__) && defined(__GNUC__) && (defined(__i386__) || defined(__x86_64__)) && !defined(INTEL_CC) && !defined(LTC_NO_ASM)
 
-static inline unsigned ROL(unsigned word, int i)
+static inline ulong32 ROL(ulong32 word, int i)
 {
    asm ("roll %%cl,%0"
       :"=r" (word)
@@ -254,7 +254,7 @@ static inline unsigned ROL(unsigned word, int i)
    return word;
 }
 
-static inline unsigned ROR(unsigned word, int i)
+static inline ulong32 ROR(ulong32 word, int i)
 {
    asm ("rorl %%cl,%0"
       :"=r" (word)
@@ -264,7 +264,7 @@ static inline unsigned ROR(unsigned word, int i)
 
 #ifndef LTC_NO_ROLC
 
-static inline unsigned ROLc(unsigned word, const int i)
+static inline ulong32 ROLc(ulong32 word, const int i)
 {
    asm ("roll %2,%0"
       :"=r" (word)
@@ -272,7 +272,7 @@ static inline unsigned ROLc(unsigned word, const int i)
    return word;
 }
 
-static inline unsigned RORc(unsigned word, const int i)
+static inline ulong32 RORc(ulong32 word, const int i)
 {
    asm ("rorl %2,%0"
       :"=r" (word)
@@ -289,7 +289,7 @@ static inline unsigned RORc(unsigned word, const int i)
 
 #elif !defined(__STRICT_ANSI__) && defined(LTC_PPC32)
 
-static inline unsigned ROL(unsigned word, int i)
+static inline ulong32 ROL(ulong32 word, int i)
 {
    asm ("rotlw %0,%0,%2"
       :"=r" (word)
@@ -297,7 +297,7 @@ static inline unsigned ROL(unsigned word, int i)
    return word;
 }
 
-static inline unsigned ROR(unsigned word, int i)
+static inline ulong32 ROR(ulong32 word, int i)
 {
    asm ("rotlw %0,%0,%2"
       :"=r" (word)
@@ -307,7 +307,7 @@ static inline unsigned ROR(unsigned word, int i)
 
 #ifndef LTC_NO_ROLC
 
-static inline unsigned ROLc(unsigned word, const int i)
+static inline ulong32 ROLc(ulong32 word, const int i)
 {
    asm ("rotlwi %0,%0,%2"
       :"=r" (word)
@@ -315,7 +315,7 @@ static inline unsigned ROLc(unsigned word, const int i)
    return word;
 }
 
-static inline unsigned RORc(unsigned word, const int i)
+static inline ulong32 RORc(ulong32 word, const int i)
 {
    asm ("rotrwi %0,%0,%2"
       :"=r" (word)
@@ -334,10 +334,10 @@ static inline unsigned RORc(unsigned word, const int i)
 #else
 
 /* rotates the hard way */
-#define ROL(x, y) ( (((unsigned long)(x)<<(unsigned long)((y)&31)) | (((unsigned long)(x)&0xFFFFFFFFUL)>>(unsigned long)(32-((y)&31)))) & 0xFFFFFFFFUL)
-#define ROR(x, y) ( ((((unsigned long)(x)&0xFFFFFFFFUL)>>(unsigned long)((y)&31)) | ((unsigned long)(x)<<(unsigned long)(32-((y)&31)))) & 0xFFFFFFFFUL)
-#define ROLc(x, y) ( (((unsigned long)(x)<<(unsigned long)((y)&31)) | (((unsigned long)(x)&0xFFFFFFFFUL)>>(unsigned long)(32-((y)&31)))) & 0xFFFFFFFFUL)
-#define RORc(x, y) ( ((((unsigned long)(x)&0xFFFFFFFFUL)>>(unsigned long)((y)&31)) | ((unsigned long)(x)<<(unsigned long)(32-((y)&31)))) & 0xFFFFFFFFUL)
+#define ROL(x, y) ( (((ulong32)(x)<<(ulong32)((y)&31)) | (((ulong32)(x)&0xFFFFFFFFUL)>>(ulong32)(32-((y)&31)))) & 0xFFFFFFFFUL)
+#define ROR(x, y) ( ((((ulong32)(x)&0xFFFFFFFFUL)>>(ulong32)((y)&31)) | ((ulong32)(x)<<(ulong32)(32-((y)&31)))) & 0xFFFFFFFFUL)
+#define ROLc(x, y) ( (((ulong32)(x)<<(ulong32)((y)&31)) | (((ulong32)(x)&0xFFFFFFFFUL)>>(ulong32)(32-((y)&31)))) & 0xFFFFFFFFUL)
+#define RORc(x, y) ( ((((ulong32)(x)&0xFFFFFFFFUL)>>(ulong32)((y)&31)) | ((ulong32)(x)<<(ulong32)(32-((y)&31)))) & 0xFFFFFFFFUL)
 
 #endif
 
@@ -345,7 +345,7 @@ static inline unsigned RORc(unsigned word, const int i)
 /* 64-bit Rotates */
 #if !defined(__STRICT_ANSI__) && defined(__GNUC__) && defined(__x86_64__) && !defined(LTC_NO_ASM)
 
-static inline unsigned long ROL64(unsigned long word, int i)
+static inline ulong64 ROL64(ulong64 word, int i)
 {
    asm("rolq %%cl,%0"
       :"=r" (word)
@@ -353,7 +353,7 @@ static inline unsigned long ROL64(unsigned long word, int i)
    return word;
 }
 
-static inline unsigned long ROR64(unsigned long word, int i)
+static inline ulong64 ROR64(ulong64 word, int i)
 {
    asm("rorq %%cl,%0"
       :"=r" (word)
@@ -363,7 +363,7 @@ static inline unsigned long ROR64(unsigned long word, int i)
 
 #ifndef LTC_NO_ROLC
 
-static inline unsigned long ROL64c(unsigned long word, const int i)
+static inline ulong64 ROL64c(ulong64 word, const int i)
 {
    asm("rolq %2,%0"
       :"=r" (word)
@@ -371,7 +371,7 @@ static inline unsigned long ROL64c(unsigned long word, const int i)
    return word;
 }
 
-static inline unsigned long ROR64c(unsigned long word, const int i)
+static inline ulong64 ROR64c(ulong64 word, const int i)
 {
    asm("rorq %2,%0"
       :"=r" (word)
