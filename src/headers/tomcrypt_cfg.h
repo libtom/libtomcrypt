@@ -60,7 +60,6 @@ LTC_EXPORT int   LTC_CALL XSTRCMP(const char *s1, const char *s2);
    #define ENDIAN_LITTLE
    #define ENDIAN_32BITWORD
    #define LTC_FAST
-   #define LTC_FAST_TYPE    unsigned long
 #endif
 
 /* detects MIPS R5900 processors (PS2) */
@@ -74,7 +73,6 @@ LTC_EXPORT int   LTC_CALL XSTRCMP(const char *s1, const char *s2);
    #define ENDIAN_LITTLE
    #define ENDIAN_64BITWORD
    #define LTC_FAST
-   #define LTC_FAST_TYPE    unsigned long
 #endif
 
 /* detect PPC32 */
@@ -82,8 +80,37 @@ LTC_EXPORT int   LTC_CALL XSTRCMP(const char *s1, const char *s2);
    #define ENDIAN_BIG
    #define ENDIAN_32BITWORD
    #define LTC_FAST
-   #define LTC_FAST_TYPE    unsigned long
 #endif
+
+/* fix for MSVC ...evil! */
+#ifdef _MSC_VER
+   #define CONST64(n) n ## ui64
+   typedef unsigned __int64 ulong64;
+#else
+   #define CONST64(n) n ## ULL
+   typedef unsigned long long ulong64;
+#endif
+
+/* this is the "32-bit at least" data type
+ * Re-define it to suit your platform but it must be at least 32-bits
+ */
+#if defined(__x86_64__) || (defined(__sparc__) && defined(__arch64__))
+   typedef unsigned ulong32;
+#else
+   typedef unsigned long ulong32;
+#endif
+
+#ifdef LTC_FAST
+#if __GNUC__ < 4 /* if the compiler does not support gnu extensions, i.e. its neither clang nor gcc */
+#error the LTC_FAST hack is only available on compilers that support __attribute__((may_alias)) - disable it for your compiler, and dont worry, it won`t buy you much anyway
+#else
+#ifdef ENDIAN_64BITWORD
+typedef ulong64 __attribute__((__may_alias__)) LTC_FAST_TYPE;
+#else
+typedef ulong32 __attribute__((__may_alias__)) LTC_FAST_TYPE;
+#endif
+#endif
+#endif /* LTC_FAST */
 
 /* detect sparc and sparc64 */
 #if defined(__sparc__)
