@@ -1,20 +1,3 @@
-/* fix for MSVC ...evil! */
-#ifdef _MSC_VER
-   #define CONST64(n) n ## ui64
-   typedef unsigned __int64 ulong64;
-#else
-   #define CONST64(n) n ## ULL
-   typedef unsigned long long ulong64;
-#endif
-
-/* this is the "32-bit at least" data type
- * Re-define it to suit your platform but it must be at least 32-bits
- */
-#if defined(__x86_64__) || (defined(__sparc__) && defined(__arch64__))
-   typedef unsigned ulong32;
-#else
-   typedef unsigned long ulong32;
-#endif
 
 /* ---- HELPER MACROS ---- */
 #ifdef ENDIAN_NEUTRAL
