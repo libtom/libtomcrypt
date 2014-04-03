@@ -39,3 +39,6 @@ timing.exe
 *.patch
 *.diff
 *.orig
+*.out
+*.ll
+*.gcda
