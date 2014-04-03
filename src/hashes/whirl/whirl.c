@@ -37,6 +37,7 @@ const struct ltc_hash_descriptor whirlpool_desc =
 };
 
 /* the sboxes */
+#define __LTC_WHIRLTAB_C__
 #include "whirltab.c"
 
 /* get a_{i,j} */

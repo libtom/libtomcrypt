@@ -23,6 +23,8 @@ Td3[x] = Si[x].[09, 0d, 0b, 0e];
 Td4[x] = Si[x].[01, 01, 01, 01];
 */
 
+#ifdef __LTC_AES_TAB_C__
+
 /**
   @file aes_tab.c
   AES tables
@@ -1022,6 +1024,8 @@ static const ulong32 rcon[] = {
     0x10000000UL, 0x20000000UL, 0x40000000UL, 0x80000000UL,
     0x1B000000UL, 0x36000000UL, /* for 128-bit blocks, Rijndael never uses more than 10 rcon values */
 };
+
+#endif /* __LTC_AES_TAB_C__ */
 
 /* $Source$ */
 /* $Revision$ */

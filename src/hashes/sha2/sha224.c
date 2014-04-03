@@ -13,6 +13,10 @@
    LTC_SHA-224 new NIST standard based off of LTC_SHA-256 truncated to 224 bits (Tom St Denis)
 */
 
+#include "tomcrypt.h"
+
+#if defined(LTC_SHA224) && defined(LTC_SHA256)
+
 const struct ltc_hash_descriptor sha224_desc =
 {
     "sha224",
@@ -118,6 +122,8 @@ int  sha224_test(void)
   return CRYPT_OK;
  #endif
 }
+
+#endif /* defined(LTC_SHA224) && defined(LTC_SHA256) */
 
 
 /* $Source$ */

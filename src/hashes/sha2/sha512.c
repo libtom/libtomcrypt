@@ -305,10 +305,6 @@ int  sha512_test(void)
   #endif
 }
 
-#ifdef LTC_SHA384
-   #include "sha384.c"
-#endif
-
 #endif
 
 

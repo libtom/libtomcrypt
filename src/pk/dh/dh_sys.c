@@ -9,10 +9,16 @@
  * Tom St Denis, tomstdenis@gmail.com, http://libtomcrypt.org
  */
 
+#include "tomcrypt.h"
+
+#ifdef LTC_MDH
 /**
   @file dh_sys.c
   DH Crypto, Tom St Denis
 */
+
+#include "dh_static.h"
+
 
 /**
   Encrypt a short symmetric key with a public DH key
@@ -33,7 +39,7 @@ int dh_encrypt_key(const unsigned char *in,   unsigned long inlen,
 {
     unsigned char *pub_expt, *dh_shared, *skey;
     dh_key        pubkey;
-    unsigned long x, y, z, hashsize, pubkeysize;
+    unsigned long x, y, z, pubkeysize;
     int           err;
 
     LTC_ARGCHK(in != NULL);
@@ -88,9 +94,6 @@ int dh_encrypt_key(const unsigned char *in,   unsigned long inlen,
        err = CRYPT_BUFFER_OVERFLOW;
        goto LBL_ERR;
     }
-
-    /* make random key */
-    hashsize  = hash_descriptor[hash].hashsize;
 
     x = DH_BUF_SIZE;
     if ((err = dh_shared_secret(&pubkey, key, dh_shared, &x)) != CRYPT_OK) {
@@ -158,7 +161,7 @@ int dh_decrypt_key(const unsigned char *in, unsigned long inlen,
                          dh_key *key)
 {
    unsigned char *shared_secret, *skey;
-   unsigned long  x, y, z, hashsize, keysize;
+   unsigned long  x, y, z, keysize;
    int            hash, err;
    dh_key         pubkey;
 
@@ -205,9 +208,6 @@ int dh_decrypt_key(const unsigned char *in, unsigned long inlen,
       err = CRYPT_INVALID_HASH;
       goto LBL_ERR;
    }
-
-   /* common values */
-   hashsize  = hash_descriptor[hash].hashsize;
 
    /* get public key */
    LOAD32L(x, in+y);
@@ -329,7 +329,7 @@ int dh_sign_hash(const unsigned char *in,  unsigned long inlen,
    }
 
    /* is the IDX valid ?  */
-   if (is_valid_idx(key->idx) != 1) {
+   if (dh_is_valid_idx(key->idx) != 1) {
       return CRYPT_PK_INVALID_TYPE;
    }
 
@@ -488,3 +488,5 @@ done:
    mp_clear_multi(tmp, m, g, p, b, a, NULL);
    return err;
 }
+
+#endif /* LTC_MDH */

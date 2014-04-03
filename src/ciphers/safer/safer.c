@@ -32,6 +32,9 @@
 
 #ifdef LTC_SAFER
 
+#define __LTC_SAFER_TAB_C__
+#include "safer_tab.c"
+
 const struct ltc_cipher_descriptor
    safer_k64_desc = {
    "safer-k64",
@@ -95,7 +98,6 @@ const struct ltc_cipher_descriptor
 #define IPHT(x, y)   { x -= y; y -= x; }
 
 /******************* Types ****************************************************/
-extern const unsigned char safer_ebox[], safer_lbox[];
 
 #ifdef LTC_CLEAN_STACK
 static void _Safer_Expand_Userkey(const unsigned char *userkey_1,
