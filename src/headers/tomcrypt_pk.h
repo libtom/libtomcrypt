@@ -477,7 +477,7 @@ typedef struct ltc_asn1_list_ {
       LTC_MACRO_list[LTC_MACRO_temp].data = (void*)(Data);  \
       LTC_MACRO_list[LTC_MACRO_temp].size = (Size);  \
       LTC_MACRO_list[LTC_MACRO_temp].used = 0;       \
-   } while (0);
+   } while (0)
 
 /* SEQUENCE */
 int der_encode_sequence_ex(ltc_asn1_list *list, unsigned long inlen,
