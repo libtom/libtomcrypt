@@ -2141,7 +2141,7 @@ It is highly recommended that you \textbf{not} use the MD4 or MD5 hashes for the
 These hashes are provided for completeness and they still can be used for the purposes of password hashing or one-way accumulators
 (e.g. Yarrow).
 
-The other hashes such as the SHA-1, SHA-2 (that includes SHA-512, SHA-384 and SHA-256) and TIGER-192 are still considered secure
+The other hashes such as the SHA-1, SHA-2 (that includes SHA-512, SHA-384, SHA-256 and SHA-224) and TIGER-192 are still considered secure
 for all purposes you would normally use a hash for.
 
 \chapter{Message Authentication Codes}
@@ -5581,14 +5581,14 @@ if you handle signals on your own.  When set to 3, it will resolve to a empty ma
 to 4, it will return CRYPT\_INVALID\_ARG to the caller.  
 
 \subsubsection{Endianness}
-There are five macros related to endianess issues.  For little endian platforms define, \textbf{ENDIAN\_LITTLE}.  For big endian
+There are five macros related to endianness issues.  For little endian platforms define, \textbf{ENDIAN\_LITTLE}.  For big endian
 platforms define \textbf{ENDIAN\_BIG}.  Similarly when the default word size of an \textit{unsigned long} is 32-bits define \textbf{ENDIAN\_32BITWORD}
 or define \textbf{ENDIAN\_64BITWORD} when its 64-bits.  If you do not define any of them the library will automatically use \textbf{ENDIAN\_NEUTRAL}
 which will work on all platforms.
 
 Currently LibTomCrypt will detect x86-32, x86-64, MIPS R5900, SPARC and SPARC64 running GCC as well as x86-32 running MSVC.  
 
-\mysection{The Configure Script}
+\mysection{Customisation}
 There are also options you can specify from the \textit{tomcrypt\_custom.h} header file.
 
 \subsection{X memory routines}
@@ -5623,7 +5623,7 @@ When this has been defined the library will not use faster word oriented operati
 which can be auto-detected.  This macro ensures that they are never enabled.
 
 \subsection{LTC\_FAST}
-This mode (auto-detected with x86\_32,x86\_64 platforms with GCC or MSVC) configures various routines such as ctr\_encrypt() or 
+This mode (auto-detected with x86\_32, x86\_64 platforms with GCC or CLANG) configures various routines such as ctr\_encrypt() or 
 cbc\_encrypt() that it can safely XOR multiple octets in one step by using a larger data type.  This has the benefit of 
 cutting down the overhead of the respective functions.  
 
@@ -5643,8 +5643,8 @@ The simplest precaution is to make sure you process all data in power of two blo
 CTR'ing a long stream process it in blocks of (say) four kilobytes and handle any remaining incomplete blocks at the end of the stream.  
 
 \index{LTC\_FAST\_TYPE}
-If you do plan on using the \textit{LTC\_FAST} mode you have to also define a \textit{LTC\_FAST\_TYPE} macro which resolves to an optimal sized
-data type you can perform integer operations with.  Ideally it should be four or eight bytes since it must properly divide the size 
+If you do plan on using the \textit{LTC\_FAST} mode, a \textit{LTC\_FAST\_TYPE} type which resolves to an optimal sized
+data type you can perform integer operations with is required.  For the auto-detected platforms this type will be defined automatically.  Ideally it should be four or eight bytes since it must properly divide the size 
 of your block cipher (e.g. 16 bytes for AES).  This means sadly if you're on a platform with 57--bit words (or something) you can't 
 use this mode.  So sad.
 
