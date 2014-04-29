@@ -5,6 +5,6 @@ perl ./parsenames.pl OBJECTS "$a"
 export a=`find src/headers -type f -name "*.h" | xargs`
 perl ./parsenames.pl HEADERS "$a"
 
-# $Source: /cvs/libtom/libtomcrypt/genlist.sh,v $   
-# $Revision: 1.4 $   
-# $Date: 2005/07/17 23:15:12 $ 
+# $Source$
+# $Revision$
+# $Date$

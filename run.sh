@@ -34,6 +34,6 @@ fi
 
 exit 0
 
-# $Source: /cvs/libtom/libtomcrypt/run.sh,v $   
-# $Revision: 1.15 $   
-# $Date: 2005/07/23 14:18:31 $ 
+# $Source$
+# $Revision$
+# $Date$

@@ -15,6 +15,6 @@ if [ -a testok.txt ] && [ -f testok.txt ]; then
 fi
 exit 1
 
-# $Source: /cvs/libtom/libtomcrypt/build.sh,v $   
-# $Revision: 1.9 $   
-# $Date: 2006/03/18 14:10:55 $ 
+# $Source$
+# $Revision$
+# $Date$
