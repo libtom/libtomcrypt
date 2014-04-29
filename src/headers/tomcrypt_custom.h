@@ -121,6 +121,8 @@
 #ifndef LTC_NO_TEST
    #define LTC_TEST
 #endif
+/* Enable extended self-tests */
+/* #define LTC_TEST_EXT */
 
 /* Use small code where possible */
 /* #define LTC_SMALL_CODE */
@@ -170,7 +172,7 @@
    #define LTC_TWOFISH_SMALL
 #endif
 /* #define LTC_TWOFISH_SMALL */
-/* LTC_DES includes EDE triple-LTC_DES */
+/* LTC_DES includes EDE triple-DES */
 #define LTC_DES
 #define LTC_CAST5
 #define LTC_NOEKEON
@@ -378,7 +380,7 @@
 /* Keep LTC_NO_HKDF for compatibility reasons
  * superseeded by LTC_NO_MISC*/
 #ifndef LTC_NO_HKDF
-/* LTC_HKDF Key Derivation/Expansion stuff */
+/* HKDF Key Derivation/Expansion stuff */
 #define LTC_HKDF
 #endif /* LTC_NO_HKDF */
 

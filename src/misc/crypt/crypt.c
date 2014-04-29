@@ -48,13 +48,13 @@ const char *crypt_build_settings =
    "   Blowfish\n"
 #endif
 #if defined(LTC_RC2)
-   "   LTC_RC2\n"
+   "   RC2\n"
 #endif
 #if defined(LTC_RC5)
-   "   LTC_RC5\n"
+   "   RC5\n"
 #endif
 #if defined(LTC_RC6)
-   "   LTC_RC6\n"
+   "   RC6\n"
 #endif
 #if defined(LTC_SAFERP)
    "   Safer+\n"
@@ -66,7 +66,7 @@ const char *crypt_build_settings =
    "   Rijndael\n"
 #endif
 #if defined(LTC_XTEA)
-   "   LTC_XTEA\n"
+   "   XTEA\n"
 #endif
 #if defined(LTC_TWOFISH)
    "   Twofish "
@@ -89,10 +89,10 @@ const char *crypt_build_settings =
    #endif
 #endif
 #if defined(LTC_DES)
-   "   LTC_DES\n"
+   "   DES\n"
 #endif
 #if defined(LTC_CAST5)
-   "   LTC_CAST5\n"
+   "   CAST5\n"
 #endif
 #if defined(LTC_NOEKEON)
    "   Noekeon\n"
@@ -111,7 +111,7 @@ const char *crypt_build_settings =
 #endif
    "\n"
 #if defined(LTC_KSEED)
-   "   LTC_KSEED\n"
+   "   KSEED\n"
 #endif
 #if defined(LTC_KASUMI)
    "   KASUMI\n"
@@ -125,49 +125,49 @@ const char *crypt_build_settings =
 
     "\nHashes built-in:\n"
 #if defined(LTC_SHA512)
-   "   LTC_SHA-512\n"
+   "   SHA-512\n"
 #endif
 #if defined(LTC_SHA384)
-   "   LTC_SHA-384\n"
+   "   SHA-384\n"
 #endif
 #if defined(LTC_SHA256)
-   "   LTC_SHA-256\n"
+   "   SHA-256\n"
 #endif
 #if defined(LTC_SHA224)
-   "   LTC_SHA-224\n"
+   "   SHA-224\n"
 #endif
 #if defined(LTC_TIGER)
-   "   LTC_TIGER\n"
+   "   TIGER\n"
 #endif
 #if defined(LTC_SHA1)
-   "   LTC_SHA1\n"
+   "   SHA1\n"
 #endif
 #if defined(LTC_MD5)
-   "   LTC_MD5\n"
+   "   MD5\n"
 #endif
 #if defined(LTC_MD4)
-   "   LTC_MD4\n"
+   "   MD4\n"
 #endif
 #if defined(LTC_MD2)
-   "   LTC_MD2\n"
+   "   MD2\n"
 #endif
 #if defined(LTC_RIPEMD128)
-   "   LTC_RIPEMD128\n"
+   "   RIPEMD128\n"
 #endif
 #if defined(LTC_RIPEMD160)
-   "   LTC_RIPEMD160\n"
+   "   RIPEMD160\n"
 #endif
 #if defined(LTC_RIPEMD256)
-   "   LTC_RIPEMD256\n"
+   "   RIPEMD256\n"
 #endif
 #if defined(LTC_RIPEMD320)
-   "   LTC_RIPEMD320\n"
+   "   RIPEMD320\n"
 #endif
 #if defined(LTC_WHIRLPOOL)
-   "   LTC_WHIRLPOOL\n"
+   "   WHIRLPOOL\n"
 #endif
 #if defined(LTC_CHC_HASH)
-   "   LTC_CHC_HASH \n"
+   "   CHC_HASH\n"
 #endif
 
     "\nBlock Chaining Modes:\n"
@@ -190,81 +190,91 @@ const char *crypt_build_settings =
     " (CTR_OLD) "
 #endif
     "\n"
-#if defined(LRW_MODE)
-    "   LRW_MODE"
+#if defined(LTC_LRW_MODE)
+    "   LRW"
 #if defined(LRW_TABLES)
-    " (LRW_TABLES) "
+    " (tables) "
 #endif
     "\n"
 #endif
 #if defined(LTC_F8_MODE)
-    "   F8 MODE\n"
+    "   F8\n"
 #endif
 #if defined(LTC_XTS_MODE)
-    "   LTC_XTS_MODE\n"
+    "   XTS\n"
 #endif
 
     "\nMACs:\n"
 #if defined(LTC_HMAC)
-    "   LTC_HMAC\n"
+    "   HMAC\n"
 #endif
 #if defined(LTC_OMAC)
-    "   LTC_OMAC\n"
+    "   OMAC\n"
 #endif
 #if defined(LTC_PMAC)
     "   PMAC\n"
 #endif
 #if defined(LTC_PELICAN)
-    "   LTC_PELICAN\n"
+    "   PELICAN\n"
 #endif
 #if defined(LTC_XCBC)
-    "   XCBC-MAC\n"
+    "   XCBC\n"
 #endif
 #if defined(LTC_F9_MODE)
-    "   F9-MAC\n"
+    "   F9\n"
 #endif
 
     "\nENC + AUTH modes:\n"
 #if defined(LTC_EAX_MODE)
-    "   LTC_EAX_MODE\n"
+    "   EAX\n"
 #endif
 #if defined(LTC_OCB_MODE)
-    "   LTC_OCB_MODE\n"
+    "   OCB\n"
 #endif
 #if defined(LTC_OCB3_MODE)
-    "   LTC_OCB3_MODE\n"
+    "   OCB3\n"
 #endif
 #if defined(LTC_CCM_MODE)
-    "   LTC_CCM_MODE\n"
+    "   CCM\n"
 #endif
 #if defined(LTC_GCM_MODE)
-    "   LTC_GCM_MODE "
-#endif
+    "   GCM"
 #if defined(LTC_GCM_TABLES)
-    " (LTC_GCM_TABLES) "
+    " (tables) "
+#endif
+#if defined(LTC_GCM_TABLES_SSE2)
+    " (SSE2) "
 #endif
    "\n"
+#endif
 
     "\nPRNG:\n"
 #if defined(LTC_YARROW)
     "   Yarrow\n"
 #endif
 #if defined(LTC_SPRNG)
-    "   LTC_SPRNG\n"
+    "   SPRNG\n"
 #endif
 #if defined(LTC_RC4)
-    "   LTC_RC4\n"
+    "   RC4\n"
 #endif
 #if defined(LTC_FORTUNA)
     "   Fortuna\n"
 #endif
 #if defined(LTC_SOBER128)
-    "   LTC_SOBER128\n"
+    "   SOBER128\n"
 #endif
 
     "\nPK Algs:\n"
 #if defined(LTC_MRSA)
-    "   RSA \n"
+    "   RSA"
+#if defined(LTC_RSA_BLINDING)
+    "   (with blinding)"
+#endif
+    "\n"
+#endif
+#if defined(LTC_MDH)
+    "   DH\n"
 #endif
 #if defined(LTC_MECC)
     "   ECC\n"
@@ -301,36 +311,42 @@ const char *crypt_build_settings =
     "   x86-64 detected.\n"
 #endif
 #if defined(LTC_PPC32)
-    "   LTC_PPC32 defined \n"
+    "   PPC32 defined \n"
 #endif
 
     "\nVarious others: "
 #if defined(LTC_BASE64)
-    " LTC_BASE64 "
+    " BASE64 "
+#endif
+#if defined(LTC_BASE64_URL)
+    " BASE64-URL-SAFE "
+#endif
+#if defined(LTC_DER)
+    " DER "
+#endif
+#if defined(LTC_PKCS_1)
+    " PKCS#1 "
+#endif
+#if defined(LTC_PKCS_5)
+    " PKCS#5 "
+#endif
+#if defined(LTC_HKDF)
+    " HKDF "
 #endif
 #if defined(MPI)
     " MPI "
 #endif
-#if defined(TRY_UNRANDOM_FIRST)
-    " TRY_UNRANDOM_FIRST "
+#if defined(TRY_URANDOM_FIRST)
+    " TRY_URANDOM_FIRST "
 #endif
 #if defined(LTC_TEST)
     " LTC_TEST "
-#endif
-#if defined(LTC_PKCS_1)
-    " LTC_PKCS#1 "
-#endif
-#if defined(LTC_PKCS_5)
-    " LTC_PKCS#5 "
 #endif
 #if defined(LTC_SMALL_CODE)
     " LTC_SMALL_CODE "
 #endif
 #if defined(LTC_NO_FILE)
     " LTC_NO_FILE "
-#endif
-#if defined(LTC_DER)
-    " LTC_DER "
 #endif
 #if defined(LTC_FAST)
     " LTC_FAST "
@@ -366,7 +382,7 @@ const char *crypt_build_settings =
     " GMP_DESC "
 #endif
 #if defined(LTC_EASY)
-    " (easy) "
+    " LTC_EASY "
 #endif
 #if defined(LTC_MECC_FP)
    " LTC_MECC_FP "
