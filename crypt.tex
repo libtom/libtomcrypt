@@ -1579,8 +1579,8 @@ int main(void)
                   NULL,       /* not prescheduled */
                   nonce, 12,  /* 96-bit nonce */
                   NULL, 0,    /* no header */
-                  pt, 32,     /* 32-byte plaintext */
-                  ct,         /* ciphertext */
+                  pt, 32,     /* [in]  32-byte plaintext */
+                  ct,         /* [out] ciphertext */
                   tag, &taglen,
                   CCM_ENCRYPT)) != CRYPT_OK) {
        printf("ccm_memory error %s\n", error_to_string(err));
@@ -1596,8 +1596,8 @@ int main(void)
                   NULL,       /* not prescheduled */
                   nonce, 12,  /* 96-bit nonce */
                   NULL, 0,    /* no header */
-                  ct, 32,     /* 32-byte ciphertext */
-                  pt,         /* plaintext */
+                  pt, 32,     /* [out] 32-byte plaintext */
+                  ct,         /* [in]  ciphertext */
                   tagcp, &taglen,
                   CCM_DECRYPT)) != CRYPT_OK) {
        printf("ccm_memory error %s\n", error_to_string(err));

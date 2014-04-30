@@ -19,6 +19,9 @@
 
 /**
    CCM encrypt/decrypt and produce an authentication tag
+
+     *1 'pt' and 'ct' can both be 'in' or 'out', depending on 'direction'
+
    @param cipher     The index of the cipher desired
    @param key        The secret key to use
    @param keylen     The length of the secret key (octets)
@@ -27,9 +30,9 @@
    @param noncelen   The length of the nonce
    @param header     The header for the session
    @param headerlen  The length of the header (octets)
-   @param pt         [out] The plaintext
+   @param pt         [*1] The plaintext
    @param ptlen      The length of the plaintext (octets)
-   @param ct         [out] The ciphertext
+   @param ct         [*1] The ciphertext
    @param tag        [out] The destination tag
    @param taglen     [in/out] The max size and resulting size of the authentication tag
    @param direction  Encrypt or Decrypt direction (0 or 1)
