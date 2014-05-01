@@ -931,10 +931,10 @@ int  anubis_setup(const unsigned char *key, int keylen, int num_rounds, symmetri
     */
     for (i = 0, pos = 0; i < N; i++, pos += 4) {
       kappa[i] =
-         (key[pos    ] << 24) ^
-         (key[pos + 1] << 16) ^
-         (key[pos + 2] <<  8) ^
-         (key[pos + 3]      );
+         (((ulong32)key[pos    ]) << 24) ^
+         (((ulong32)key[pos + 1]) << 16) ^
+         (((ulong32)key[pos + 2]) <<  8) ^
+         (((ulong32)key[pos + 3])      );
     }
 
    /*
@@ -1048,10 +1048,10 @@ static void anubis_crypt(const unsigned char *plaintext, unsigned char *cipherte
     */
     for (i = 0, pos = 0; i < 4; i++, pos += 4) {
       state[i] =
-         (plaintext[pos    ] << 24) ^
-         (plaintext[pos + 1] << 16) ^
-         (plaintext[pos + 2] <<  8) ^
-         (plaintext[pos + 3]      ) ^
+         (((ulong32)plaintext[pos    ]) << 24) ^
+         (((ulong32)plaintext[pos + 1]) << 16) ^
+         (((ulong32)plaintext[pos + 2]) <<  8) ^
+         (((ulong32)plaintext[pos + 3])      ) ^
          roundKey[0][i];
     }
 
