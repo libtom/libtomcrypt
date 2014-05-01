@@ -59,6 +59,7 @@ int ecc_tests(void);
 int dsa_test(void);
 int der_tests(void);
 int misc_test(void);
+int base64_test(void);
 
 /* timing */
 #define KTIMES  25
@@ -85,6 +86,7 @@ int time_keysched(void);
 int time_cipher(void);
 int time_cipher2(void);
 int time_cipher3(void);
+int time_cipher4(void);
 int time_hash(void);
 void time_mult(void);
 void time_sqr(void);

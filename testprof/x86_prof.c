@@ -25,7 +25,7 @@ void tally_results(int type)
    if (type == 0) {
       for (x = 0; x < no_results; x++) {
          fprintf(stderr, "%-20s: Schedule at %6lu\n", cipher_descriptor[results[x].id].name, (unsigned long)results[x].spd1);
-      } 
+      }
    } else if (type == 1) {
       for (x = 0; x < no_results; x++) {
         printf
@@ -48,9 +48,12 @@ ulong64 rdtsc (void)
 			asm ( " rdtsc ":"=A"(a));
          return a;
       #elif defined(__i386__) || defined(__x86_64__)
-         ulong64 a;
-         asm __volatile__ ("rdtsc\nmovl %%eax,(%0)\nmovl %%edx,4(%0)\n"::"r"(&a):"%eax","%edx");
-         return a;
+         /* version from http://www.mcs.anl.gov/~kazutomo/rdtsc.html
+          * the old code always got a warning issued by gcc, clang did not complain...
+          */
+         unsigned hi, lo;
+         __asm__ __volatile__ ("rdtsc" : "=a"(lo), "=d"(hi));
+         return ((ulong64)lo)|( ((ulong64)hi)<<32);
       #elif defined(LTC_PPC32) || defined(TFM_PPC32)
          unsigned long a, b;
          __asm__ __volatile__ ("mftbu %1 \nmftb %0\n":"=r"(a), "=r"(b));
@@ -69,9 +72,9 @@ ulong64 rdtsc (void)
          #else
            register unsigned long x, y;
            __asm__ __volatile__ ("rd %%tick, %0; clruw %0, %1; srlx %0, 32, %0" : "=r" (x), "=r" (y) : "0" (x), "1" (y));
-           return ((unsigned long long) x << 32) | y; 
+           return ((unsigned long long) x << 32) | y;
          #endif
-      #else 
+      #else
          return XCLOCK();
       #endif
 
@@ -104,14 +107,13 @@ ulong64 t_read(void)
 
 void init_timer(void)
 {
-   ulong64 c1, c2, t1, t2, t3;
+   ulong64 c1, c2, t1, t2;
    unsigned long y1;
 
    c1 = c2 = (ulong64)-1;
    for (y1 = 0; y1 < TIMES*100; y1++) {
       t_start();
       t1 = t_read();
-      t3 = t_read();
       t2 = (t_read() - t1)>>1;
 
       c1 = (t1 > c1) ? t1 : c1;
@@ -237,7 +239,7 @@ void reg_algs(void)
 #endif
 
 
-#ifndef LTC_YARROW 
+#ifndef LTC_YARROW
    #error This demo requires Yarrow.
 #endif
 register_prng(&yarrow_desc);
@@ -255,7 +257,7 @@ register_prng(&sober128_desc);
       fprintf(stderr, "rng_make_prng failed: %s\n", error_to_string(err));
       exit(EXIT_FAILURE);
    }
-   
+
 }
 
 int time_keysched(void)
@@ -268,7 +270,7 @@ int time_keysched(void)
   unsigned char key[MAXBLOCKSIZE];
 
   fprintf(stderr, "\n\nKey Schedule Time Trials for the Symmetric Ciphers:\n(Times are cycles per key)\n");
-  no_results = 0; 
+  no_results = 0;
  for (x = 0; cipher_descriptor[x].name != NULL; x++) {
 #define DO1(k)   func(k, kl, 0, &skey);
 
@@ -349,14 +351,14 @@ int time_cipher(void)
     }
     a2 = c2 - c1 - skew;
     ecb_done(&ecb);
-    
+
     results[no_results].id = x;
     results[no_results].spd1 = a1/(sizeof(pt)/cipher_descriptor[x].block_length);
     results[no_results].spd2 = a2/(sizeof(pt)/cipher_descriptor[x].block_length);
     results[no_results].avg = (results[no_results].spd1 + results[no_results].spd2+1)/2;
     ++no_results;
     fprintf(stderr, "."); fflush(stdout);
-    
+
 #undef DO2
 #undef DO1
    }
@@ -365,7 +367,7 @@ int time_cipher(void)
    return 0;
 }
 
-#ifdef LTC_CBC_MODE 
+#ifdef LTC_CBC_MODE
 int time_cipher2(void)
 {
   unsigned long x, y1;
@@ -421,14 +423,14 @@ int time_cipher2(void)
     }
     a2 = c2 - c1 - skew;
     cbc_done(&cbc);
-    
+
     results[no_results].id = x;
     results[no_results].spd1 = a1/(sizeof(pt)/cipher_descriptor[x].block_length);
     results[no_results].spd2 = a2/(sizeof(pt)/cipher_descriptor[x].block_length);
     results[no_results].avg = (results[no_results].spd1 + results[no_results].spd2+1)/2;
     ++no_results;
     fprintf(stderr, "."); fflush(stdout);
-    
+
 #undef DO2
 #undef DO1
    }
@@ -496,14 +498,14 @@ int time_cipher3(void)
     }
     a2 = c2 - c1 - skew;
     ctr_done(&ctr);
-    
+
     results[no_results].id = x;
     results[no_results].spd1 = a1/(sizeof(pt)/cipher_descriptor[x].block_length);
     results[no_results].spd2 = a2/(sizeof(pt)/cipher_descriptor[x].block_length);
     results[no_results].avg = (results[no_results].spd1 + results[no_results].spd2+1)/2;
     ++no_results;
     fprintf(stderr, "."); fflush(stdout);
-    
+
 #undef DO2
 #undef DO1
    }
@@ -573,14 +575,14 @@ int time_cipher4(void)
     a2 = c2 - c1 - skew;
 
     lrw_done(&lrw);
-    
+
     results[no_results].id = x;
     results[no_results].spd1 = a1/(sizeof(pt)/cipher_descriptor[x].block_length);
     results[no_results].spd2 = a2/(sizeof(pt)/cipher_descriptor[x].block_length);
     results[no_results].avg = (results[no_results].spd1 + results[no_results].spd2+1)/2;
     ++no_results;
     fprintf(stderr, "."); fflush(stdout);
-    
+
 #undef DO2
 #undef DO1
    }
@@ -677,7 +679,7 @@ void time_mult(void)
 
 #undef DO1
 #undef DO2
-} 
+}
 
 void time_sqr(void)
 {
@@ -712,7 +714,7 @@ void time_sqr(void)
 void time_mult(void) { fprintf(stderr, "NO MULT\n"); }
 void time_sqr(void) { fprintf(stderr, "NO SQR\n"); }
 #endif
-   
+
 void time_prng(void)
 {
    ulong64 t1, t2;
@@ -776,7 +778,7 @@ void time_dsa(void)
 static const struct {
    int group, modulus;
 } groups[] = {
-{ 20, 96  }, 
+{ 20, 96  },
 { 20, 128 },
 { 24, 192 },
 { 28, 256 },
@@ -810,7 +812,7 @@ static const struct {
 #endif
 
 
-#ifdef LTC_MRSA      
+#ifdef LTC_MRSA
 /* time various RSA operations */
 void time_rsa(void)
 {
@@ -870,7 +872,7 @@ void time_rsa(void)
            t_start();
            t1 = t_read();
            zzz = sizeof(buf[0]);
-           if ((err = rsa_decrypt_key(buf[1], z, buf[0], &zzz, (const unsigned char *)"testprog", 8,  find_hash("sha1"), 
+           if ((err = rsa_decrypt_key(buf[1], z, buf[0], &zzz, (const unsigned char *)"testprog", 8,  find_hash("sha1"),
                                       &zz, &key)) != CRYPT_OK) {
               fprintf(stderr, "\n\nrsa_decrypt_key says %s, wait...no it should say %s...damn you!\n", error_to_string(err), error_to_string(CRYPT_OK));
               exit(EXIT_FAILURE);
@@ -890,7 +892,7 @@ void time_rsa(void)
           t_start();
           t1 = t_read();
           z = sizeof(buf[1]);
-          if ((err = rsa_sign_hash(buf[0], 20, buf[1], &z, &yarrow_prng, 
+          if ((err = rsa_sign_hash(buf[0], 20, buf[1], &z, &yarrow_prng,
                                    find_prng("yarrow"), find_hash("sha1"), 8, &key)) != CRYPT_OK) {
               fprintf(stderr, "\n\nrsa_sign_hash says %s, wait...no it should say %s...damn you!\n", error_to_string(err), error_to_string(CRYPT_OK));
               exit(EXIT_FAILURE);
@@ -934,7 +936,7 @@ void time_rsa(void)
 void time_rsa(void) { fprintf(stderr, "NO RSA\n"); }
 #endif
 
-#ifdef MKAT      
+#ifdef MKAT
 /* time various KAT operations */
 void time_katja(void)
 {
@@ -985,7 +987,7 @@ void time_katja(void)
            t_start();
            t1 = t_read();
            zzz = sizeof(buf[0]);
-           if ((err = katja_decrypt_key(buf[1], z, buf[0], &zzz, "testprog", 8,  find_hash("sha1"), 
+           if ((err = katja_decrypt_key(buf[1], z, buf[0], &zzz, "testprog", 8,  find_hash("sha1"),
                                       &zz, &key)) != CRYPT_OK) {
               fprintf(stderr, "\n\nkatja_decrypt_key says %s, wait...no it should say %s...damn you!\n", error_to_string(err), error_to_string(CRYPT_OK));
               exit(EXIT_FAILURE);
@@ -1015,28 +1017,28 @@ void time_ecc(void)
    int           err, stat;
    static unsigned long sizes[] = {
 #ifdef ECC112
-112/8, 
+112/8,
 #endif
 #ifdef ECC128
-128/8, 
+128/8,
 #endif
 #ifdef ECC160
-160/8, 
+160/8,
 #endif
 #ifdef ECC192
-192/8, 
+192/8,
 #endif
 #ifdef ECC224
 224/8,
 #endif
 #ifdef ECC256
-256/8, 
+256/8,
 #endif
 #ifdef ECC384
-384/8, 
+384/8,
 #endif
 #ifdef ECC521
-521/8, 
+521/8,
 #endif
 100000};
 
@@ -1108,7 +1110,7 @@ void time_ecc(void)
           t_start();
           t1 = t_read();
           z = sizeof(buf[1]);
-          if ((err = ecc_sign_hash(buf[0], 20, buf[1], &z, &yarrow_prng, 
+          if ((err = ecc_sign_hash(buf[0], 20, buf[1], &z, &yarrow_prng,
                                    find_prng("yarrow"), &key)) != CRYPT_OK) {
               fprintf(stderr, "\n\necc_sign_hash says %s, wait...no it should say %s...damn you!\n", error_to_string(err), error_to_string(CRYPT_OK));
               exit(EXIT_FAILURE);
@@ -1170,7 +1172,7 @@ void time_macs_(unsigned long MAC_SIZE)
 
    cipher_idx = find_cipher("aes");
    hash_idx   = find_hash("sha1");
-   
+
    if (cipher_idx == -1 || hash_idx == -1) {
       fprintf(stderr, "Warning the MAC tests requires AES and LTC_SHA1 to operate... so sorry\n");
       return;
@@ -1345,7 +1347,7 @@ void time_encmacs_(unsigned long MAC_SIZE)
         t_start();
         t1 = t_read();
         z = 16;
-        if ((err = ocb3_encrypt_authenticate_memory(cipher_idx, key, 16, IV, 16, "", 0, buf, MAC_SIZE*1024, buf, tag, &z)) != CRYPT_OK) {
+        if ((err = ocb3_encrypt_authenticate_memory(cipher_idx, key, 16, IV, 16, (unsigned char*)"", 0, buf, MAC_SIZE*1024, buf, tag, &z)) != CRYPT_OK) {
            fprintf(stderr, "\nOCB3 error... %s\n", error_to_string(err));
            exit(EXIT_FAILURE);
         }
@@ -1369,7 +1371,7 @@ void time_encmacs_(unsigned long MAC_SIZE)
         if (t1 < t2) t2 = t1;
    }
    fprintf(stderr, "CCM (no-precomp) \t%9llu\n", t2/(ulong64)(MAC_SIZE*1024));
-   
+
    cipher_descriptor[cipher_idx].setup(key, 16, 0, &skey);
    t2 = -1;
    for (x = 0; x < 10000; x++) {
@@ -1384,7 +1386,7 @@ void time_encmacs_(unsigned long MAC_SIZE)
         if (t1 < t2) t2 = t1;
    }
    fprintf(stderr, "CCM (precomp) \t\t%9llu\n", t2/(ulong64)(MAC_SIZE*1024));
-   cipher_descriptor[cipher_idx].done(&skey);   
+   cipher_descriptor[cipher_idx].done(&skey);
 #endif
 
 #ifdef LTC_GCM_MODE
@@ -1431,7 +1433,7 @@ __attribute__ ((aligned (16)))
             fprintf(stderr, "\nGCM error[%d]... %s\n", __LINE__, error_to_string(err));
            exit(EXIT_FAILURE);
         }
-        
+
         if ((err = gcm_done(&gcm, tag, &z)) != CRYPT_OK) {
             fprintf(stderr, "\nGCM error[%d]... %s\n", __LINE__, error_to_string(err));
            exit(EXIT_FAILURE);
@@ -1444,7 +1446,7 @@ __attribute__ ((aligned (16)))
 
 #endif
 
-} 
+}
 
 void time_encmacs(void)
 {

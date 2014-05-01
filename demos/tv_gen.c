@@ -555,7 +555,7 @@ void ocb3_gen(void)
             plaintext[z] = (unsigned char)(z & 255);
          }
          len = sizeof(tag);
-         if ((err = ocb3_encrypt_authenticate_memory(x, key, kl, nonce, cipher_descriptor[x].block_length, "AAD", 3, plaintext, y1, plaintext, tag, &len)) != CRYPT_OK) {
+         if ((err = ocb3_encrypt_authenticate_memory(x, key, kl, nonce, cipher_descriptor[x].block_length, (unsigned char*)"AAD", 3, plaintext, y1, plaintext, tag, &len)) != CRYPT_OK) {
             printf("Error OCB'ing: %s\n", error_to_string(err));
             exit(EXIT_FAILURE);
          }

@@ -5,7 +5,7 @@
 int pkcs_1_test(void)
 {
    unsigned char buf[3][128];
-   int res1, res2, res3, prng_idx, hash_idx, err;
+   int res1, res2, res3, prng_idx, hash_idx;
    unsigned long x, y, l1, l2, l3, i1, i2, lparamlen, saltlen, modlen;
    static const unsigned char lparam[] = { 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16 };
 

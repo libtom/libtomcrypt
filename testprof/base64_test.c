@@ -29,7 +29,7 @@ int base64_test(void)
    for (x = 0; x < sizeof(cases)/sizeof(cases[0]); ++x) {
        slen1 = strlen(cases[x].s);
        l1 = sizeof(out);
-       DO(base64_encode(cases[x].s, slen1, out, &l1));
+       DO(base64_encode((unsigned char*)cases[x].s, slen1, out, &l1));
        l2 = sizeof(tmp);
        DO(base64_decode(out, l1, tmp, &l2));
        if (l2 != slen1 || l1 != strlen(cases[x].b64) || memcmp(tmp, cases[x].s, l2) || memcmp(out, cases[x].b64, l1)) {
