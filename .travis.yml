@@ -15,7 +15,7 @@ env:
   - BUILDSCRIPT="run.sh"        BUILDNAME="NO_FAST+NOTABLES"            BUILDOPTIONS="-DLTC_NO_FAST -DLTC_NO_TABLES"
   - BUILDSCRIPT="run.sh"        BUILDNAME="NO_ASM"                      BUILDOPTIONS="-DLTC_NO_ASM"
   - BUILDSCRIPT="testbuild.sh"  BUILDNAME="NOTEST"                      BUILDOPTIONS="-DLTC_NO_TEST"
-  - BUILDSCRIPT="testbuild.sh"  BUILDNAME="NOFILE"                      BUILDOPTIONS="-DLTC_NO_TEST"
+  - BUILDSCRIPT="testbuild.sh"  BUILDNAME="NOFILE"                      BUILDOPTIONS="-DLTC_NO_FILE"
 matrix:
   fast_finish: true
 branches:
