@@ -12,5 +12,9 @@ echo "Testing version:" $version
 echo "uname="`uname -a`
 
 # get gcc name
-echo "gcc="`gcc -dumpversion`
+if [ -z ${CC} ]
+then
+	CC="gcc"
+fi
+echo "${CC}="`${CC} -dumpversion`
 echo
