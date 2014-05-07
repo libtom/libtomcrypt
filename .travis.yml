@@ -3,6 +3,7 @@ compiler:
   - gcc
 script: bash "${BUILDSCRIPT}" "${BUILDNAME}" "${BUILDOPTIONS}" "makefile" "-DUSE_LTM -DLTM_DESC -I/usr/include" "/usr/lib/libtommath.a"
 env:
+  - BUILDSCRIPT="coverage.sh"   BUILDNAME="COVERAGE"                    BUILDOPTIONS=" "
   - BUILDSCRIPT="run.sh"        BUILDNAME="STOCK"                       BUILDOPTIONS=" "
   - BUILDSCRIPT="run.sh"        BUILDNAME="SMALL"                       BUILDOPTIONS="-DLTC_SMALL_CODE"
   - BUILDSCRIPT="run.sh"        BUILDNAME="NOTABLES"                    BUILDOPTIONS="-DLTC_NO_TABLES"
@@ -23,6 +24,7 @@ branches:
     - develop
 before_script:
   - sudo apt-get install libtommath-dev
+  - sudo pip install cpp-coveralls
 after_failure:
   - cat test_std.txt
   - cat test_err.txt
