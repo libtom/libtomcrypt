@@ -17,7 +17,7 @@ else
 	exit 1
 fi
 
-cpp-coveralls
+cpp-coveralls -e 'demos/' -e 'testprof/' -e 'notes/' -e 'src/headers/'
 
 exit 0
 
