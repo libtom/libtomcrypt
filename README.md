@@ -3,10 +3,10 @@ libtomcrypt
 
 See doc/crypt.pdf for a detailed documentation
 
-Build Status
-------------
+Project Status
+--------------
 
-develop: [![Build Status](https://api.travis-ci.org/libtom/libtomcrypt.png?branch=develop)](https://travis-ci.org/libtom/libtomcrypt)
+develop: [![Build Status](https://api.travis-ci.org/libtom/libtomcrypt.png?branch=develop)](https://travis-ci.org/libtom/libtomcrypt) [![Coverage Status](https://coveralls.io/repos/libtom/libtomcrypt/badge.png?branch=develop)](https://coveralls.io/r/libtom/libtomcrypt)
 
 Submitting patches
 ------------------
