@@ -358,8 +358,10 @@
 /* do we want fixed point ECC */
 /* #define LTC_MECC_FP */
 
-/* Timing Resistant? */
-/* #define LTC_ECC_TIMING_RESISTANT */
+#ifndef LTC_NO_ECC_TIMING_RESISTANT
+/* Enable ECC timing resistant version by default */
+#define LTC_ECC_TIMING_RESISTANT
+#endif
 
 #endif /* LTC_NO_PK */
 
