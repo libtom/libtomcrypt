@@ -186,7 +186,7 @@ int dsa_make_params(prng_state *prng, int wprng, int group_size, int modulus_siz
 cleanup:
   mp_clear_multi(t2L1, t2N1, t2q, t2seedlen, U, W, X, c, h, e, seedinc, NULL);
 cleanup1:
-  XFREE(wbuf);
+  XFREE(sbuf);
 cleanup2:
   XFREE(wbuf);
 cleanup3:
