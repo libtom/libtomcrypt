@@ -105,7 +105,7 @@ int dsa_make_params(prng_state *prng, int wprng, int group_size, int modulus_siz
   if ((sbuf = XMALLOC(seedbytes)) == NULL)                                       { err = CRYPT_MEM; goto cleanup2; }
 
   err = mp_init_multi(&t2L1, &t2N1, &t2q, &t2seedlen, &U, &W, &X, &c, &h, &e, &seedinc, NULL);
-  if (err != CRYPT_OK)                                                           { goto cleanup1; };
+  if (err != CRYPT_OK)                                                           { goto cleanup1; }
 
   if ((err = mp_2expt(t2L1, L-1)) != CRYPT_OK)                                   { goto cleanup; }
   /* t2L1 = 2^(L-1) */
