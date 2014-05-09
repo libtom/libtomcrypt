@@ -442,11 +442,14 @@ static int exptmod(void *a, void *b, void *c, void *d)
    return CRYPT_OK;
 }
 
-static int isprime(void *a, int *b)
+static int isprime(void *a, int b, int *c)
 {
    LTC_ARGCHK(a != NULL);
-   LTC_ARGCHK(b != NULL);
-   *b = mpz_probab_prime_p(a, 8) > 0 ? LTC_MP_YES : LTC_MP_NO;
+   LTC_ARGCHK(c != NULL);
+   if (b == 0) {
+       b = 8;
+   } /* if */
+   *c = mpz_probab_prime_p(a, b) > 0 ? LTC_MP_YES : LTC_MP_NO;
    return CRYPT_OK;
 }
 

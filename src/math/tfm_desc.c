@@ -413,11 +413,12 @@ static int exptmod(void *a, void *b, void *c, void *d)
    return tfm_to_ltc_error(fp_exptmod(a,b,c,d));
 }
 
-static int isprime(void *a, int *b)
+static int isprime(void *a, int b, int *c)
 {
    LTC_ARGCHK(a != NULL);
-   LTC_ARGCHK(b != NULL);
-   *b = (fp_isprime(a) == FP_YES) ? LTC_MP_YES : LTC_MP_NO;
+   LTC_ARGCHK(c != NULL);
+   (void)b;
+   *c = (fp_isprime(a) == FP_YES) ? LTC_MP_YES : LTC_MP_NO;
    return CRYPT_OK;
 }
 
