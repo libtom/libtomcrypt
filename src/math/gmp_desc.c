@@ -18,7 +18,7 @@
 #include <gmp.h>
 
 static int init(void **a)
-{ 
+{
    LTC_ARGCHK(a != NULL);
 
    *a = XCALLOC(1, sizeof(__mpz_struct));
@@ -85,7 +85,7 @@ static int get_digit_count(void *a)
    LTC_ARGCHK(a != NULL);
    return mpz_size(a);
 }
-   
+
 static int compare(void *a, void *b)
 {
    int ret;
@@ -234,7 +234,7 @@ static int add(void *a, void *b, void *c)
    mpz_add(c, a, b);
    return CRYPT_OK;
 }
-  
+
 static int addi(void *a, unsigned long b, void *c)
 {
    LTC_ARGCHK(a != NULL);
@@ -321,10 +321,10 @@ static int modi(void *a, unsigned long b, unsigned long *c)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(c != NULL);
-   
+
    *c = mpz_fdiv_ui(a, b);
    return CRYPT_OK;
-}  
+}
 
 /* gcd */
 static int gcd(void *a, void *b, void *c)
@@ -440,13 +440,16 @@ static int exptmod(void *a, void *b, void *c, void *d)
    LTC_ARGCHK(d != NULL);
    mpz_powm(d, a, b, c);
    return CRYPT_OK;
-}   
+}
 
-static int isprime(void *a, int *b)
+static int isprime(void *a, int b, int *c)
 {
    LTC_ARGCHK(a != NULL);
-   LTC_ARGCHK(b != NULL);
-   *b = mpz_probab_prime_p(a, 8) > 0 ? LTC_MP_YES : LTC_MP_NO;
+   LTC_ARGCHK(c != NULL);
+   if (b == 0) {
+       b = 8;
+   } /* if */
+   *c = mpz_probab_prime_p(a, b) > 0 ? LTC_MP_YES : LTC_MP_NO;
    return CRYPT_OK;
 }
 
@@ -539,7 +542,7 @@ const ltc_math_descriptor gmp_desc = {
 #endif
    &addmod,
    &submod,
-   
+
    &set_rand,
 
 };
