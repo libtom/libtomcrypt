@@ -44,7 +44,7 @@ int rand_bn_bits(void *N, int bits, prng_state *prng, int wprng)
 
 cleanup:
 #ifdef LTC_CLEAN_STACK
-   zeromem(buf, len);
+   zeromem(buf, bytes);
 #endif
    XFREE(buf);
    return res;
