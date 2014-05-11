@@ -71,15 +71,9 @@ int dsa_export(unsigned char *out, unsigned long *outlen, int type, dsa_key *key
 		  goto error;
       }
 
-      int_list[0].data = key->p;
-      int_list[0].size = 1UL;
-      int_list[0].type = LTC_ASN1_INTEGER;
-      int_list[1].data = key->q;
-      int_list[1].size = 1UL;
-      int_list[1].type = LTC_ASN1_INTEGER;
-      int_list[2].data = key->g;
-      int_list[2].size = 1UL;
-      int_list[2].type = LTC_ASN1_INTEGER;
+      LTC_SET_ASN1(int_list, 0, LTC_ASN1_INTEGER, key->p, 1UL);
+      LTC_SET_ASN1(int_list, 1, LTC_ASN1_INTEGER, key->q, 1UL);
+      LTC_SET_ASN1(int_list, 2, LTC_ASN1_INTEGER, key->g, 1UL);
 
       err = der_encode_subject_public_key_info(out, outlen,
         PKA_DSA, tmp, tmplen,
