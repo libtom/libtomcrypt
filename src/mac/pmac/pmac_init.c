@@ -10,16 +10,16 @@
  */
 #include "tomcrypt.h"
 
-/** 
+/**
    @file pmac_init.c
-   PMAC implementation, initialize state, by Tom St Denis 
+   PMAC implementation, initialize state, by Tom St Denis
 */
 
 #ifdef LTC_PMAC
 
 static const struct {
     int           len;
-    unsigned char poly_div[MAXBLOCKSIZE], 
+    unsigned char poly_div[MAXBLOCKSIZE],
                   poly_mul[MAXBLOCKSIZE];
 } polys[] = {
 {
@@ -27,7 +27,7 @@ static const struct {
     { 0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0D },
     { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x1B }
 }, {
-    16, 
+    16,
     { 0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x43 },
     { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -39,7 +39,7 @@ static const struct {
    Initialize a PMAC state
    @param pmac      The PMAC state to initialize
    @param cipher    The index of the desired cipher
-   @param key       The secret key 
+   @param key       The secret key
    @param keylen    The length of the secret key (octets)
    @return CRYPT_OK if successful
 */
@@ -59,7 +59,7 @@ int pmac_init(pmac_state *pmac, int cipher, const unsigned char *key, unsigned l
    /* determine which polys to use */
    pmac->block_len = cipher_descriptor[cipher].block_length;
    for (poly = 0; poly < (int)(sizeof(polys)/sizeof(polys[0])); poly++) {
-       if (polys[poly].len == pmac->block_len) { 
+       if (polys[poly].len == pmac->block_len) {
           break;
        }
    }
@@ -78,7 +78,7 @@ int pmac_init(pmac_state *pmac, int cipher, const unsigned char *key, unsigned l
    if ((err = cipher_descriptor[cipher].setup(key, keylen, 0, &pmac->key)) != CRYPT_OK) {
       return err;
    }
- 
+
    /* allocate L */
    L = XMALLOC(pmac->block_len);
    if (L == NULL) {

@@ -38,7 +38,7 @@ int ltc_init_multi(void **a, ...)
        cur = va_arg(args, void**);
    }
    va_end(args);
-   return CRYPT_OK;   
+   return CRYPT_OK;
 }
 
 void ltc_deinit_multi(void *a, ...)
