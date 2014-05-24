@@ -43,3 +43,8 @@ timing.exe
 *.gcda
 *.gcno
 *.gcov
+
+# coverity intermediate directory etc.
+cov-int/
+.coverity_*
+libtomcrypt.lzma
