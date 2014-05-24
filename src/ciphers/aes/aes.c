@@ -205,6 +205,7 @@ int SETUP(const unsigned char *key, int keylen, int num_rounds, symmetric_key *s
         }
     } else {
        /* this can't happen */
+       /* coverity[dead_error_line] */
        return CRYPT_ERROR;
     }
 
