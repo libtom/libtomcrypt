@@ -79,6 +79,7 @@ int der_encode_utf8_string(const wchar_t *in,  unsigned long inlen,
       out[x++] = (unsigned char)((len>>8)&255);
       out[x++] = (unsigned char)(len&255);
    } else {
+       /* coverity[dead_error_line] */
       return CRYPT_INVALID_ARG;
    }
 
