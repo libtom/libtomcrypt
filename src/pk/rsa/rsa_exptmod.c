@@ -35,7 +35,7 @@ int rsa_exptmod(const unsigned char *in,   unsigned long inlen,
 {
    void        *tmp, *tmpa, *tmpb;
    #ifdef LTC_RSA_BLINDING
-   void        *rnd = NULL, *rndi = NULL /* inverse of rnd */;
+   void        *rnd, *rndi /* inverse of rnd */;
    #endif
    unsigned long x;
    int           err;
@@ -56,7 +56,11 @@ int rsa_exptmod(const unsigned char *in,   unsigned long inlen,
    }
 
    /* init and copy into tmp */
-   if ((err = mp_init_multi(&tmp, &tmpa, &tmpb, NULL)) != CRYPT_OK)
+   if ((err = mp_init_multi(&tmp, &tmpa, &tmpb,
+#ifdef LTC_RSA_BLINDING
+                                               &rnd, &rndi,
+#endif /* LTC_RSA_BLINDING */
+                                                           NULL)) != CRYPT_OK)
         { return err; }
    if ((err = mp_read_unsigned_bin(tmp, (unsigned char *)in, (int)inlen)) != CRYPT_OK)
         { goto error; }
@@ -71,52 +75,50 @@ int rsa_exptmod(const unsigned char *in,   unsigned long inlen,
    /* are we using the private exponent and is the key optimized? */
    if (which == PK_PRIVATE) {
       #ifdef LTC_RSA_BLINDING
-      if ((err = mp_init_multi(&rnd, &rndi, NULL)) != CRYPT_OK)
-            { goto error; }
       /* do blinding */
       err = mp_rand(rnd, mp_count_bits(key->N));
       if (err != CRYPT_OK) {
-             goto error_blind;
+             goto error;
       }
 
       /* rndi = 1/rnd mod N */
       err = mp_invmod(rnd, key->N, rndi);
       if (err != CRYPT_OK) {
-             goto error_blind;
+             goto error;
       }
 
       /* rnd = rnd^e */
       err = mp_exptmod( rnd, key->e, key->N, rnd);
       if (err != CRYPT_OK) {
-             goto error_blind;
+             goto error;
       }
 
       /* tmp = tmp*rnd mod N */
       err = mp_mulmod( tmp, rnd, key->N, tmp);
       if (err != CRYPT_OK) {
-             goto error_blind;
+             goto error;
       }
       #endif /* LTC_RSA_BLINDING */
 
       /* tmpa = tmp^dP mod p */
-      if ((err = mp_exptmod(tmp, key->dP, key->p, tmpa)) != CRYPT_OK)                               { goto error_blind; }
+      if ((err = mp_exptmod(tmp, key->dP, key->p, tmpa)) != CRYPT_OK)                               { goto error; }
 
       /* tmpb = tmp^dQ mod q */
-      if ((err = mp_exptmod(tmp, key->dQ, key->q, tmpb)) != CRYPT_OK)                               { goto error_blind; }
+      if ((err = mp_exptmod(tmp, key->dQ, key->q, tmpb)) != CRYPT_OK)                               { goto error; }
 
       /* tmp = (tmpa - tmpb) * qInv (mod p) */
-      if ((err = mp_sub(tmpa, tmpb, tmp)) != CRYPT_OK)                                              { goto error_blind; }
-      if ((err = mp_mulmod(tmp, key->qP, key->p, tmp)) != CRYPT_OK)                                { goto error_blind; }
+      if ((err = mp_sub(tmpa, tmpb, tmp)) != CRYPT_OK)                                              { goto error; }
+      if ((err = mp_mulmod(tmp, key->qP, key->p, tmp)) != CRYPT_OK)                                { goto error; }
 
       /* tmp = tmpb + q * tmp */
-      if ((err = mp_mul(tmp, key->q, tmp)) != CRYPT_OK)                                             { goto error_blind; }
-      if ((err = mp_add(tmp, tmpb, tmp)) != CRYPT_OK)                                               { goto error_blind; }
+      if ((err = mp_mul(tmp, key->q, tmp)) != CRYPT_OK)                                             { goto error; }
+      if ((err = mp_add(tmp, tmpb, tmp)) != CRYPT_OK)                                               { goto error; }
 
       #ifdef LTC_RSA_BLINDING
       /* unblind */
       err = mp_mulmod( tmp, rndi, key->N, tmp);
       if (err != CRYPT_OK) {
-             goto error_blind;
+             goto error;
       }
       #endif
    } else {
@@ -145,12 +147,12 @@ int rsa_exptmod(const unsigned char *in,   unsigned long inlen,
 
    /* clean up and return */
    err = CRYPT_OK;
-error_blind:
-   #ifdef LTC_RSA_BLINDING
-   mp_clear_multi(rnd, rndi, NULL);
-   #endif
 error:
-   mp_clear_multi(tmp, tmpa, tmpb, NULL);
+   mp_clear_multi(
+#ifdef LTC_RSA_BLINDING
+                  rndi, rnd,
+#endif /* LTC_RSA_BLINDING */
+                             tmpb, tmpa, tmp, NULL);
    return err;
 }
 
