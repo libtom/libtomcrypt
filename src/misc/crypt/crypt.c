@@ -269,7 +269,7 @@ const char *crypt_build_settings =
 #if defined(LTC_MRSA)
     "   RSA"
 #if defined(LTC_RSA_BLINDING)
-    "   (with blinding)"
+    " (with blinding)"
 #endif
     "\n"
 #endif
@@ -277,7 +277,11 @@ const char *crypt_build_settings =
     "   DH\n"
 #endif
 #if defined(LTC_MECC)
-    "   ECC\n"
+    "   ECC"
+#if defined(LTC_ECC_TIMING_RESISTANT)
+    " (with blinding)"
+#endif
+    "\n"
 #endif
 #if defined(LTC_MDSA)
     "   DSA\n"
@@ -301,12 +305,12 @@ const char *crypt_build_settings =
 #endif
 #if defined(__clang_version__)
     "   Clang compiler " __clang_version__ ".\n"
-#elif defined(__GNUC__)         /* clang also defines __GNUC__ */
-    "   GCC compiler detected.\n"
+#elif defined(INTEL_CC)
+    "   Intel C Compiler " __VERSION__ ".\n"
+#elif defined(__GNUC__)         /* clang and icc also define __GNUC__ */
+    "   GCC compiler " __VERSION__ ".\n"
 #endif
-#if defined(INTEL_CC)
-    "   Intel C Compiler detected.\n"
-#endif
+
 #if defined(__x86_64__)
     "   x86-64 detected.\n"
 #endif

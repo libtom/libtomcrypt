@@ -1306,7 +1306,7 @@ void time_macs_(unsigned long MAC_SIZE)
    hash_idx   = find_hash("sha1");
 
    if (cipher_idx == -1 || hash_idx == -1) {
-      fprintf(stderr, "Warning the MAC tests requires AES and LTC_SHA1 to operate... so sorry\n");
+      fprintf(stderr, "Warning the MAC tests requires AES and SHA1 to operate... so sorry\n");
       return;
    }
 
@@ -1320,13 +1320,13 @@ void time_macs_(unsigned long MAC_SIZE)
         t1 = t_read();
         z = 16;
         if ((err = omac_memory(cipher_idx, key, 16, buf, MAC_SIZE*1024, tag, &z)) != CRYPT_OK) {
-           fprintf(stderr, "\n\nomac error... %s\n", error_to_string(err));
+           fprintf(stderr, "\n\nomac-%s error... %s\n", cipher_descriptor[cipher_idx].name, error_to_string(err));
            exit(EXIT_FAILURE);
         }
         t1 = t_read() - t1;
         if (t1 < t2) t2 = t1;
    }
-   fprintf(stderr, "LTC_OMAC-%s\t\t%9llu\n", cipher_descriptor[cipher_idx].name, t2/(ulong64)(MAC_SIZE*1024));
+   fprintf(stderr, "OMAC-%s\t\t%9llu\n", cipher_descriptor[cipher_idx].name, t2/(ulong64)(MAC_SIZE*1024));
 #endif
 
 #ifdef LTC_XCBC
@@ -1336,7 +1336,7 @@ void time_macs_(unsigned long MAC_SIZE)
         t1 = t_read();
         z = 16;
         if ((err = xcbc_memory(cipher_idx, key, 16, buf, MAC_SIZE*1024, tag, &z)) != CRYPT_OK) {
-           fprintf(stderr, "\n\nxcbc error... %s\n", error_to_string(err));
+           fprintf(stderr, "\n\nxcbc-%s error... %s\n", cipher_descriptor[cipher_idx].name, error_to_string(err));
            exit(EXIT_FAILURE);
         }
         t1 = t_read() - t1;
@@ -1352,7 +1352,7 @@ void time_macs_(unsigned long MAC_SIZE)
         t1 = t_read();
         z = 16;
         if ((err = f9_memory(cipher_idx, key, 16, buf, MAC_SIZE*1024, tag, &z)) != CRYPT_OK) {
-           fprintf(stderr, "\n\nF9 error... %s\n", error_to_string(err));
+           fprintf(stderr, "\n\nF9-%s error... %s\n", cipher_descriptor[cipher_idx].name, error_to_string(err));
            exit(EXIT_FAILURE);
         }
         t1 = t_read() - t1;
@@ -1368,13 +1368,13 @@ void time_macs_(unsigned long MAC_SIZE)
         t1 = t_read();
         z = 16;
         if ((err = pmac_memory(cipher_idx, key, 16, buf, MAC_SIZE*1024, tag, &z)) != CRYPT_OK) {
-           fprintf(stderr, "\n\npmac error... %s\n", error_to_string(err));
+           fprintf(stderr, "\n\npmac-%s error... %s\n", cipher_descriptor[cipher_idx].name, error_to_string(err));
            exit(EXIT_FAILURE);
         }
         t1 = t_read() - t1;
         if (t1 < t2) t2 = t1;
    }
-   fprintf(stderr, "PMAC-AES\t\t%9llu\n", t2/(ulong64)(MAC_SIZE*1024));
+   fprintf(stderr, "PMAC-%s\t\t%9llu\n", cipher_descriptor[cipher_idx].name, t2/(ulong64)(MAC_SIZE*1024));
 #endif
 
 #ifdef LTC_PELICAN
@@ -1390,7 +1390,7 @@ void time_macs_(unsigned long MAC_SIZE)
         t1 = t_read() - t1;
         if (t1 < t2) t2 = t1;
    }
-   fprintf(stderr, "LTC_PELICAN \t\t%9llu\n", t2/(ulong64)(MAC_SIZE*1024));
+   fprintf(stderr, "PELICAN \t\t%9llu\n", t2/(ulong64)(MAC_SIZE*1024));
 #endif
 
 #ifdef LTC_HMAC
@@ -1400,13 +1400,13 @@ void time_macs_(unsigned long MAC_SIZE)
         t1 = t_read();
         z = 16;
         if ((err = hmac_memory(hash_idx, key, 16, buf, MAC_SIZE*1024, tag, &z)) != CRYPT_OK) {
-           fprintf(stderr, "\n\nhmac error... %s\n", error_to_string(err));
+           fprintf(stderr, "\n\nhmac-%s error... %s\n", hash_descriptor[hash_idx].name, error_to_string(err));
            exit(EXIT_FAILURE);
         }
         t1 = t_read() - t1;
         if (t1 < t2) t2 = t1;
    }
-   fprintf(stderr, "LTC_HMAC-%s\t\t%9llu\n", hash_descriptor[hash_idx].name, t2/(ulong64)(MAC_SIZE*1024));
+   fprintf(stderr, "HMAC-%s\t\t%9llu\n", hash_descriptor[hash_idx].name, t2/(ulong64)(MAC_SIZE*1024));
 #endif
 
    XFREE(buf);

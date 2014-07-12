@@ -181,7 +181,8 @@ for (cnt = 0; cnt < len; ) {
       len2 = rsa_msgsize;
       DO(rsa_decrypt_key(out, len, tmp, &len2, NULL, 0, hash_idx, &stat, &key));
       if (!(stat == 1 && stat2 == 0)) {
-         fprintf(stderr, "rsa_decrypt_key failed");
+         fprintf(stderr, "rsa_decrypt_key (without lparam) failed (rsa_msgsize = %lu)", rsa_msgsize);
+         fprintf(stderr, "\n stat: %i   stat2: %i", stat, stat2);
          return 1;
       }
       if (len2 != rsa_msgsize || memcmp(tmp, in, rsa_msgsize)) {
@@ -226,7 +227,7 @@ for (cnt = 0; cnt < len; ) {
       len2 = rsa_msgsize;
       DO(rsa_decrypt_key(out, len, tmp, &len2, lparam, sizeof(lparam), hash_idx, &stat, &key));
       if (!(stat == 1 && stat2 == 0)) {
-         fprintf(stderr, "rsa_decrypt_key failed");
+         fprintf(stderr, "rsa_decrypt_key (with lparam) failed (rsa_msgsize = %lu)", rsa_msgsize);
          return 1;
       }
       if (len2 != rsa_msgsize || memcmp(tmp, in, rsa_msgsize)) {
