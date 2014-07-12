@@ -43,11 +43,7 @@ void tally_results(int type)
 ulong64 rdtsc (void)
    {
    #if defined __GNUC__ && !defined(LTC_NO_ASM)
-      #ifdef INTEL_CC
-			ulong64 a;
-			asm ( " rdtsc ":"=A"(a));
-         return a;
-      #elif defined(__i386__) || defined(__x86_64__)
+      #if defined(__i386__) || defined(__x86_64__)
          /* version from http://www.mcs.anl.gov/~kazutomo/rdtsc.html
           * the old code always got a warning issued by gcc, clang did not complain...
           */
