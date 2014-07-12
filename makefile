@@ -351,6 +351,7 @@ clean:
 	rm -f `find . -type f -name "*.obj" | xargs`
 	rm -f `find . -type f -name "*.lib" | xargs`
 	rm -f `find . -type f -name "*.exe" | xargs`
+	rm -f `find . -type f -name "*.gcov" | xargs`
 	rm -f `find . -type f -name "*.gcda" | xargs`
 	rm -f `find . -type f -name "*.gcno" | xargs`
 	rm -f `find . -type f -name "*.il" | xargs`
@@ -362,6 +363,7 @@ clean:
 	rm -rf doc/doxygen
 	rm -f `find . -type f -name "*.pdf" | grep -FL crypt.pdf | xargs`
 	rm -f *.txt
+	cd testprof ; $(MAKE) clean
 
 #build the doxy files (requires Doxygen, tetex and patience)
 doxy:

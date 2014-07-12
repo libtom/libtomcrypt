@@ -20,5 +20,5 @@ $(LIBTEST_S): $(OBJECTS)
 	$(RANLIB) $@
 
 clean:
-	rm -f *.o *.a
+	rm -f *.o *.a *.gcov *.gcda *.gcno
 
