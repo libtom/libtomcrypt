@@ -18,16 +18,16 @@ CC=icc
 #LD=ld
 
 # Archiver [makes .a files]
+# With compile option "-ipo" it can be necessary to archive with 'xiar'
 #AR=ar
 #ARFLAGS=r
 
-# Compilation flags. Note the += does not write over the user's CFLAGS!
-CFLAGS += -c -Isrc/headers/ -Itestprof/ -DINTEL_CC -DLTC_SOURCE
+ifndef MAKE
+  MAKE=make
+endif
 
-#ICC v9 doesn't support LTC_FAST for things like Pelican MAC
-#Despite the fact I can't see what's wrong with my code
-#Oh well
-CFLAGS += -DLTC_NO_FAST
+# Compilation flags. Note the += does not write over the user's CFLAGS!
+CFLAGS += -c -I./testprof/ -I./src/headers/ -Wall -Wsign-compare -W -Wshadow -Wno-unused-parameter -DLTC_SOURCE
 
 #The default rule for make builds the libtomcrypt library.
 default:library
@@ -35,23 +35,28 @@ default:library
 # optimize for SPEED
 #
 # -mcpu= can be pentium, pentiumpro (covers PII through PIII) or pentium4
-# -ax?	specifies make code specifically for ? but compatible with IA-32
-# -x?	   specifies compile solely for ? [not specifically IA-32 compatible]
+# -a?	specifies make code specifically for ? but compatible with IA-32
+# -?	   specifies compile solely for ? [not specifically IA-32 compatible]
 #
 # where ? is
-#	K - PIII
-#	W - first P4 [Williamette]
-#	N - P4 Northwood
-#	P - P4 Prescott
-#	B - Blend of P4 and PM [mobile]
+#	mia   - PIII; has only option "-mia32", no "-amia32"
+#	msse2 - first P4 [Willamette]; has only option "-msse2", no "-amsse2"
+#	xSSE2 - P4 Northwood
+#	xSSE3 - P4 Prescott
+#
+# The easiest way - when compiling on one architecture, only for
+# this architecture - is to enable the compiler option "-fast", which enables
+# "all possible" optimizations for this architecture.
+# ICC 14.0.3 20140422 says "-fast" resolves to
+# "-xHOST -O3 -ipo -no-prec-div -static"
 #
 # Default to just generic max opts
 ifdef LTC_SMALL
-CFLAGS += -O2 -xP -ip
+CFLAGS += -O1
 endif
 
 ifndef IGNORE_SPEED
-CFLAGS += -O3 -xP -ip
+CFLAGS += -O3
 endif
 
 # want to see stuff?
@@ -267,7 +272,7 @@ src/hashes/sha2/sha256.o: src/hashes/sha2/sha256.c src/hashes/sha2/sha224.c
 library: $(LIBNAME)
 
 testprof/$(LIBTEST):
-	cd testprof ; LIBTEST_S=$(LIBTEST) CFLAGS="$(CFLAGS)" make -f makefile.icc
+	cd testprof ; LIBTEST_S=$(LIBTEST) CFLAGS="$(CFLAGS)" CC="$(CC)" AR="$(AR)" $(MAKE) -f makefile.icc
 
 $(LIBNAME): $(OBJECTS)
 	$(AR) $(ARFLAGS) $@ $(OBJECTS)
