@@ -56,7 +56,7 @@ LTC_EXPORT int   LTC_CALL XSTRCMP(const char *s1, const char *s2);
  */
 
 /* detect x86-32 machines somewhat */
-#if !defined(__STRICT_ANSI__) && !defined(_WIN64) && (defined(INTEL_CC) || (defined(_MSC_VER) && defined(WIN32)) || (defined(__GNUC__) && (defined(__DJGPP__) || defined(__CYGWIN__) || defined(__MINGW32__) || defined(__i386__))))
+#if !defined(__STRICT_ANSI__) && !defined(_WIN64) && ((defined(_MSC_VER) && defined(WIN32)) || (defined(__GNUC__) && (defined(__DJGPP__) || defined(__CYGWIN__) || defined(__MINGW32__) || defined(__i386__))))
    #define ENDIAN_LITTLE
    #define ENDIAN_32BITWORD
    #define LTC_FAST
@@ -101,7 +101,7 @@ LTC_EXPORT int   LTC_CALL XSTRCMP(const char *s1, const char *s2);
 #endif
 
 #ifdef LTC_FAST
-#if __GNUC__ < 4 /* if the compiler does not support gnu extensions, i.e. its neither clang nor gcc */
+#if __GNUC__ < 4 /* if the compiler does not support gnu extensions, i.e. its neither clang nor gcc nor icc */
 #error the LTC_FAST hack is only available on compilers that support __attribute__((may_alias)) - disable it for your compiler, and dont worry, it won`t buy you much anyway
 #else
 #ifdef ENDIAN_64BITWORD
