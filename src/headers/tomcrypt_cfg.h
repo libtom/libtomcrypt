@@ -155,6 +155,10 @@ typedef ulong32 __attribute__((__may_alias__)) LTC_FAST_TYPE;
    #define ENDIAN_NEUTRAL
 #endif
 
+#if (defined(ENDIAN_32BITWORD) && defined(ENDIAN_64BITWORD))
+    #error Can not be 32 and 64 bit words...
+#endif
+
 /* gcc 4.3 and up has a bswap builtin; detect it by gcc version.
  * clang also supports the bswap builtin, and although clang pretends
  * to be gcc (macro-wise, anyway), clang pretends to be a version
