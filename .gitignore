@@ -1,8 +1,10 @@
 # suppress compiler/linker output
 *.[oa]
 *.obj
+*.l[oa]
 [Dd]ebug/
 [Rr]elease/
+.libs/
 
 # suppress output of build process
 gcc_[12].txt
@@ -12,6 +14,12 @@ tv.txt
 *_tv.txt
 
 # *nix/windows test executables
+encrypt
+encrypt.exe
+hashsum
+hashsum.exe
+small
+small.exe
 test
 test.exe
 tv_gen
