@@ -9,15 +9,14 @@
 VERSION=0:117
 
 # Compiler and Linker Names
-CC=libtool --mode=compile --tag=CC gcc
-
-# ranlib tools
-ifndef RANLIB
-   RANLIB=ranlib
+ifeq ($(CC),cc)
+  CC = gcc
 endif
+LT ?= libtool
+LTCOMPILE = $(LT) --mode=compile --tag=CC $(CC)
 
 # Compilation flags. Note the += does not write over the user's CFLAGS!
-CFLAGS += -c -I./src/headers/ -Wall -Wsign-compare -W -Wshadow -DLTC_SOURCE
+CFLAGS += -I./testprof/ -I./src/headers/ -Wall -Wsign-compare -W -Wshadow -Wno-unused-parameter -DLTC_SOURCE
 
 # additional warnings (newer GCC 3.4 and higher)
 ifdef GCC_34
@@ -233,7 +232,6 @@ src/headers/tomcrypt_pkcs.h testprof/tomcrypt_test.h
 
 #END_INS
 
-TESTOBJECTS=demos/test.o
 HASHOBJECTS=demos/hashsum.o
 CRYPTOBJECTS=demos/encrypt.o
 SMALLOBJECTS=demos/small.o
@@ -246,7 +244,7 @@ default:library
 
 #ciphers come in two flavours... enc+dec and enc
 src/ciphers/aes/aes_enc.o: src/ciphers/aes/aes.c src/ciphers/aes/aes_tab.c
-	$(CC) $(CFLAGS) -DENCRYPT_ONLY -c src/ciphers/aes/aes.c -o src/ciphers/aes/aes_enc.o
+	$(LTCOMPILE) $(CFLAGS) $(LDFLAGS) -DENCRYPT_ONLY -c src/ciphers/aes/aes.c -o src/ciphers/aes/aes_enc.o
 
 #These are the rules to make certain object files.
 src/ciphers/aes/aes.o: src/ciphers/aes/aes.c src/ciphers/aes/aes_tab.c
@@ -259,41 +257,47 @@ src/hashes/sha2/sha256.o: src/hashes/sha2/sha256.c src/hashes/sha2/sha224.c
 library: $(LIBNAME)
 
 testprof/$(LIBTEST):
-	cd testprof ; CFLAGS="$(CFLAGS)" GROUP=$(GROUP) USER=$(USER) VERSION=$(VERSION) LIBPATH=$(LIBPATH) LIBTEST=$(LIBTEST) LIBTEST_S=$(LIBTEST_S) make -f makefile.shared
+	cd testprof ; CFLAGS="$(CFLAGS)" GROUP=$(GROUP) USER=$(USER) VERSION=$(VERSION) LIBPATH=$(LIBPATH) LIBTEST=$(LIBTEST) LIBTEST_S=$(LIBTEST_S) LT=$(LT) CC=$(CC) make -f makefile.shared
 
-objs: $(OBJECTS)
+.c.o:
+	$(LTCOMPILE) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $@ -c $<
 
-$(LIBNAME): $(OBJECTS) testprof/$(LIBTEST)
-	libtool --silent --mode=link gcc $(LDFLAGS) $(CFLAGS) `find . -type f | grep "[.]lo" | grep "src/" | xargs` $(EXTRALIBS) -o $(LIBNAME) -rpath $(LIBPATH) -version-info $(VERSION)
+$(LIBNAME): $(OBJECTS)
+	$(LT) --mode=link $(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) `find ./src -type f -name "*.lo"` -o $(LIBNAME) -rpath $(LIBPATH) -version-info $(VERSION)
 
 install: $(LIBNAME)
 	install -d -g $(GROUP) -o $(USER) $(DESTDIR)$(LIBPATH)
-	cd testprof ; CFLAGS="$(CFLAGS)" GROUP=$(GROUP) USER=$(USER) VERSION=$(VERSION) LIBPATH=$(LIBPATH) LIBTEST=$(LIBTEST) LIBTEST_S=$(LIBTEST_S) DESTDIR=$(DESTDIR) make -f makefile.shared install
-	libtool --silent --mode=install install -c libtomcrypt.la $(DESTDIR)$(LIBPATH)/libtomcrypt.la
+	$(LT) --mode=install install -c libtomcrypt.la $(DESTDIR)$(LIBPATH)/libtomcrypt.la
 	install -d -g $(GROUP) -o $(USER) $(DESTDIR)$(INCPATH)
 	install -g $(GROUP) -o $(USER) $(HEADERS) $(DESTDIR)$(INCPATH)
 	install -d $(DESTDIR)$(LIBPATH)/pkgconfig
 	sed 's,@LIBDIR@,$(LIBPATH),g' libtomcrypt.pc.in > libtomcrypt.pc
 	install -m 0644 -g $(GROUP) -o $(USER) libtomcrypt.pc $(DESTDIR)$(LIBPATH)/pkgconfig/libtomcrypt.pc
 
+install_test: testprof/$(LIBTEST)
+	install -d -g $(GROUP) -o $(USER) $(DESTDIR)$(LIBPATH)
+	install -d -g $(GROUP) -o $(USER) $(DESTDIR)$(INCPATH)
+	cd testprof ; CFLAGS="$(CFLAGS)" GROUP=$(GROUP) USER=$(USER) VERSION=$(VERSION) LIBPATH=$(LIBPATH) LIBTEST=$(LIBTEST) LIBTEST_S=$(LIBTEST_S) DESTDIR=$(DESTDIR) LT=$(LT) CC=$(CC) make -f makefile.shared install
+
 #This rule makes the hash program included with libtomcrypt
-hashsum: library
-	gcc $(CFLAGS) demos/hashsum.c -o hashsum.o
-	gcc -o hashsum hashsum.o -ltomcrypt $(EXTRALIBS)
+hashsum: library $(HASHOBJECTS)
+	$(LT) --mode=link $(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $(HASH) $(HASHOBJECTS) $(LIBNAME) $(EXTRALIBS)
 
 #makes the crypt program
-crypt: library
-	gcc $(CFLAGS) demos/encrypt.c -o encrypt.o
-	gcc -o crypt encrypt.o -ltomcrypt $(EXTRALIBS)
+crypt: library $(CRYPTOBJECTS)
+	$(LT) --mode=link $(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $(CRYPT) $(CRYPTOBJECTS) $(LIBNAME) $(EXTRALIBS)
+
+small: library $(SMALLOBJECTS)
+	$(LT) --mode=link $(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $(SMALL) $(SMALLOBJECTS) $(LIBNAME) $(EXTRALIBS)
 
 tv_gen: library $(TVS)
-	gcc -o tv_gen $(TVS) -ltomcrypt $(EXTRALIBS)
+	$(LT) --mode=link $(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $(TV) $(TVS) $(LIBNAME) $(EXTRALIBS)
 
 test: library testprof/$(LIBTEST) $(TESTS)
-	gcc -o $(TEST) $(TESTS) -ltomcrypt_prof -ltomcrypt $(EXTRALIBS)
+	$(LT) --mode=link $(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $(TEST) $(TESTS) testprof/$(LIBTEST) $(LIBNAME) $(EXTRALIBS)
 
 timing: library testprof/$(LIBTEST) $(TIMINGS)
-	gcc -o $(TIMING) $(TIMINGS) -ltomcrypt_prof -ltomcrypt $(EXTRALIBS)
+	$(LT) --mode=link $(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $(TIMING) $(TIMINGS) testprof/$(LIBTEST) $(LIBNAME) $(EXTRALIBS)
 
 # $Source$
 # $Revision$
