@@ -13,7 +13,9 @@ ifndef PREFIX
   PREFIX=
 endif
 
-CC?=$(PREFIX)gcc
+ifeq ($(CC),cc)
+  CC = $(PREFIX)gcc
+endif
 LD=$(PREFIX)ld
 AR=$(PREFIX)ar
 
@@ -75,7 +77,6 @@ LIBTEST_S=$(LIBTEST)
 HASH=hashsum
 CRYPT=encrypt
 SMALL=small
-PROF=x86_prof
 TV=tv_gen
 MULTI=multi
 TIMING=timing
@@ -247,7 +248,6 @@ src/headers/tomcrypt_pkcs.h testprof/tomcrypt_test.h
 
 #END_INS
 
-TESTOBJECTS=demos/test.o
 HASHOBJECTS=demos/hashsum.o
 CRYPTOBJECTS=demos/encrypt.o
 SMALLOBJECTS=demos/small.o
@@ -290,15 +290,15 @@ $(LIBNAME): $(OBJECTS)
 
 #This rule makes the hash program included with libtomcrypt
 hashsum: library $(HASHOBJECTS)
-	$(CC) $(HASHOBJECTS) $(LIBNAME) $(EXTRALIBS) -o $(HASH) $(WARN)
+	$(CC) $(HASHOBJECTS) $(LIBNAME) $(EXTRALIBS) -o $(HASH)
 
 #makes the crypt program
 crypt: library $(CRYPTOBJECTS)
-	$(CC) $(CRYPTOBJECTS) $(LIBNAME) $(EXTRALIBS) -o $(CRYPT) $(WARN)
+	$(CC) $(CRYPTOBJECTS) $(LIBNAME) $(EXTRALIBS) -o $(CRYPT)
 
 #makes the small program
 small: library $(SMALLOBJECTS)
-	$(CC) $(SMALLOBJECTS) $(LIBNAME) $(EXTRALIBS) -o $(SMALL) $(WARN)
+	$(CC) $(SMALLOBJECTS) $(LIBNAME) $(EXTRALIBS) -o $(SMALL)
 
 tv_gen: library $(TVS)
 	$(CC) $(LDFLAGS) $(TVS) $(LIBNAME) $(EXTRALIBS) -o $(TV)
@@ -359,7 +359,7 @@ clean:
 	rm -f `find . -type f -name "*.dpi" | xargs`
 	rm -rf `find . -type d -name "*.libs" | xargs`
 	rm -f crypt.aux  crypt.dvi  crypt.idx  crypt.ilg  crypt.ind  crypt.log crypt.toc
-	rm -f $(TV) $(PROF) $(SMALL) $(CRYPT) $(HASHSUM) $(MULTI) $(TIMING) $(TEST)
+	rm -f $(TV) $(SMALL) $(CRYPT) $(HASH) $(MULTI) $(TIMING) $(TEST)
 	rm -rf doc/doxygen
 	rm -f `find . -type f -name "*.pdf" | grep -FL crypt.pdf | xargs`
 	rm -f *.txt
