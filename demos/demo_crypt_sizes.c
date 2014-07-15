@@ -22,7 +22,7 @@ int main(void) {
     int rc;
 
     // given a specific size name, get and print its size
-    char name[] = "ecc_key_struct_size";
+    char name[] = "ecc_key";
     int size;
     rc = crypt_get_size(name, &size);
     printf("\n  size of '%s' is %d \n\n", name, size);

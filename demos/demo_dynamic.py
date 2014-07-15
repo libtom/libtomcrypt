@@ -126,13 +126,13 @@ if 1:
     print '\n  selected sizes:'
     
     names = [
-        'rijndael_key_struct_size',
-        'rsa_key_struct_size',
-        'symmetric_CTR_struct_size',
-        'twofish_key_struct_size',
-        'ecc_point_struct_size',
-        'gcm_state_struct_size',
-        'sha512_state_struct_size',
+        'rijndael_key',
+        'rsa_key',
+        'symmetric_CTR',
+        'twofish_key',
+        'ecc_point',
+        'gcm_state',
+        'sha512_state',
     ]
     for name in names:
         size_value = c_int(0)
@@ -171,8 +171,8 @@ def _get_size(name):
     rc = LTC.crypt_get_size(name, byref(size))
     return size.value
 
-sha256_state_struct_size = _get_size('sha256_state_struct_size')
-sha512_state_struct_size = _get_size('sha512_state_struct_size')
+sha256_state_struct_size = _get_size('sha256_state')
+sha512_state_struct_size = _get_size('sha512_state')
 
 class SHA256(object):
     def __init__(self):
