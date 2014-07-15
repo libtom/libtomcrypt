@@ -25,25 +25,100 @@ typedef struct {
     const long value;
 } crypt_constant;
 
-crypt_constant _crypt_constants[] = {
-    {"PK_PUBLIC",                 PK_PUBLIC},
-    {"PK_PRIVATE",                PK_PRIVATE},
+#define _C_STRINGIFY(s) { #s, s }
 
-#ifdef LTC_CTR_MODE
-    {"CTR_COUNTER_LITTLE_ENDIAN", CTR_COUNTER_LITTLE_ENDIAN},
-    {"CTR_COUNTER_BIG_ENDIAN",    CTR_COUNTER_BIG_ENDIAN},
-    {"LTC_CTR_RFC3686",           LTC_CTR_RFC3686},
+static const crypt_constant _crypt_constants[] = {
+    _C_STRINGIFY(PK_PUBLIC),
+    _C_STRINGIFY(PK_PRIVATE),
+
+    _C_STRINGIFY(PKA_RSA),
+    _C_STRINGIFY(PKA_DSA),
+
+#ifdef LTC_PKCS_1
+    {"LTC_PKCS_1", 1},
+    /* Block types */
+    _C_STRINGIFY(LTC_PKCS_1_EMSA),
+    _C_STRINGIFY(LTC_PKCS_1_EME),
+
+    /* Padding types */
+    _C_STRINGIFY(LTC_PKCS_1_V1_5),
+    _C_STRINGIFY(LTC_PKCS_1_OAEP),
+    _C_STRINGIFY(LTC_PKCS_1_PSS),
+#else
+    {"LTC_PKCS_1", 0},
 #endif
 
 #ifdef LTC_MRSA
-    {"MIN_RSA_SIZE",              MIN_RSA_SIZE},
-    {"MAX_RSA_SIZE",              MAX_RSA_SIZE},
+    {"LTC_MRSA", 1},
+    _C_STRINGIFY(MIN_RSA_SIZE),
+    _C_STRINGIFY(MAX_RSA_SIZE),
+#else
+    {"LTC_MRSA", 0},
 #endif
 
-#ifdef LTC_PKCS_1
-    {"LTC_PKCS_1_OAEP",           LTC_PKCS_1_OAEP},
-    {"LTC_PKCS_1_PSS",            LTC_PKCS_1_PSS},
-    {"LTC_PKCS_1_V1_5",           LTC_PKCS_1_V1_5},
+#ifdef MKAT
+    {"MKAT", 1},
+    _C_STRINGIFY(MIN_KAT_SIZE),
+    _C_STRINGIFY(MAX_KAT_SIZE),
+#else
+    {"MKAT", 0},
+#endif
+
+#ifdef LTC_MECC
+    {"LTC_MECC", 1},
+    _C_STRINGIFY(ECC_BUF_SIZE),
+    _C_STRINGIFY(ECC_MAXSIZE),
+#else
+    {"LTC_MECC", 0},
+#endif
+
+#ifdef LTC_MDSA
+    {"LTC_MDSA", 1},
+    _C_STRINGIFY(LTC_MDSA_DELTA),
+    _C_STRINGIFY(LTC_MDSA_MAX_GROUP),
+#else
+    {"LTC_MDSA", 0},
+#endif
+
+#ifdef LTC_CTR_MODE
+    {"LTC_CTR_MODE", 1},
+    _C_STRINGIFY(CTR_COUNTER_LITTLE_ENDIAN),
+    _C_STRINGIFY(CTR_COUNTER_BIG_ENDIAN),
+    _C_STRINGIFY(LTC_CTR_RFC3686),
+#else
+    {"LTC_CTR_MODE", 0},
+#endif
+
+    _C_STRINGIFY(MAXBLOCKSIZE),
+    _C_STRINGIFY(TAB_SIZE),
+    _C_STRINGIFY(ARGTYPE),
+
+#ifdef LTM_DESC
+    {"LTM_DESC", 1},
+#else
+    {"LTM_DESC", 0},
+#endif
+#ifdef TFM_DESC
+    {"TFM_DESC", 1},
+#else
+    {"TFM_DESC", 0},
+#endif
+#ifdef GMP_DESC
+    {"GMP_DESC", 1},
+#else
+    {"GMP_DESC", 0},
+#endif
+
+#ifdef LTC_FAST
+    {"LTC_FAST", 1},
+#else
+    {"LTC_FAST", 0},
+#endif
+
+#ifdef LTC_NO_FILE
+    {"LTC_NO_FILE", 1},
+#else
+    {"LTC_NO_FILE", 0},
 #endif
 
 #ifdef ENDIAN_LITTLE
@@ -68,6 +143,12 @@ crypt_constant _crypt_constants[] = {
     {"ENDIAN_64BITWORD",          1},
 #else
     {"ENDIAN_64BITWORD",          0},
+#endif
+
+#ifdef ENDIAN_NEUTRAL
+    {"ENDIAN_NEUTRAL",            1},
+#else
+    {"ENDIAN_NEUTRAL",            0},
 #endif
 };
 

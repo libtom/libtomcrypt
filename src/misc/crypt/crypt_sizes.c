@@ -25,165 +25,168 @@ typedef struct {
     const long size;
 } crypt_size;
 
-crypt_size _crypt_sizes[] = {
+#define _SZ_STRINGIFY_S(s) { #s, sizeof(struct s) }
+#define _SZ_STRINGIFY_T(s) { #s, sizeof(s) }
+
+static const crypt_size _crypt_sizes[] = {
     // hash state sizes
-    {"hash_descriptor_struct_size",   sizeof(struct ltc_hash_descriptor)},
-    {"hash_state_union_size",         sizeof(hash_state)},
+    _SZ_STRINGIFY_S(ltc_hash_descriptor),
+    _SZ_STRINGIFY_T(hash_state),
 #ifdef LTC_SHA256
-    {"sha256_state_struct_size",      sizeof(struct sha256_state)},
+    _SZ_STRINGIFY_S(sha256_state),
 #endif
 #ifdef LTC_SHA512
-    {"sha512_state_struct_size",      sizeof(struct sha512_state)},
+    _SZ_STRINGIFY_S(sha512_state),
 #endif
 #ifdef LTC_WHIRLPOOL
-    {"whirlpool_state_struct_size",   sizeof(struct whirlpool_state)},
+    _SZ_STRINGIFY_S(whirlpool_state),
 #endif
 #ifdef LTC_MD2
-    {"md2_state_struct_size",         sizeof(struct md2_state)},
+    _SZ_STRINGIFY_S(md2_state),
 #endif
 #ifdef LTC_MD4
-    {"md4_state_struct_size",         sizeof(struct md4_state)},
+    _SZ_STRINGIFY_S(md4_state),
 #endif
 #ifdef LTC_MD5
-    {"md5_state_struct_size",         sizeof(struct md5_state)},
+    _SZ_STRINGIFY_S(md5_state),
 #endif
 #ifdef LTC_RIPEMD128
-    {"rmd128_state_struct_size",      sizeof(struct rmd128_state)},
+    _SZ_STRINGIFY_S(rmd128_state),
 #endif
 #ifdef LTC_RIPEMD160
-    {"rmd160_state_struct_size",      sizeof(struct rmd160_state)},
+    _SZ_STRINGIFY_S(rmd160_state),
 #endif
 #ifdef LTC_RIPEMD256
-    {"rmd256_state_struct_size",      sizeof(struct rmd256_state)},
+    _SZ_STRINGIFY_S(rmd256_state),
 #endif
 #ifdef LTC_RIPEMD320
-    {"rmd320_state_struct_size",      sizeof(struct rmd320_state)},
+    _SZ_STRINGIFY_S(rmd320_state),
 #endif
 #ifdef LTC_SHA1
-    {"sha1_state_struct_size",        sizeof(struct sha1_state)},
+    _SZ_STRINGIFY_S(sha1_state),
 #endif
 #ifdef LTC_TIGER
-    {"tiger_state_struct_size",       sizeof(struct tiger_state)},
+    _SZ_STRINGIFY_S(tiger_state),
 #endif
 #ifdef LTC_CHC_HASH
-    {"chc_state_struct_size",         sizeof(struct chc_state)},
+    _SZ_STRINGIFY_S(chc_state),
 #endif
 
     // block cipher key sizes
-    {"cipher_descriptor_struct_size", sizeof(struct ltc_cipher_descriptor)},
-    {"symmetric_key_union_size",      sizeof(symmetric_key)},
+    _SZ_STRINGIFY_S(ltc_cipher_descriptor),
+    _SZ_STRINGIFY_T(symmetric_key),
 #ifdef LTC_ANUBIS
-    {"anubis_key_struct_size",        sizeof(struct anubis_key)},
+    _SZ_STRINGIFY_S(anubis_key),
 #endif
 #ifdef LTC_CAMELLIA
-    {"camellia_key_struct_size",      sizeof(struct camellia_key)},
+    _SZ_STRINGIFY_S(camellia_key),
 #endif
 #ifdef LTC_BLOWFISH
-    {"blowfish_key_struct_size",      sizeof(struct blowfish_key)},
+    _SZ_STRINGIFY_S(blowfish_key),
 #endif
 #ifdef LTC_CAST5
-    {"cast5_key_struct_size",         sizeof(struct cast5_key)},
+    _SZ_STRINGIFY_S(cast5_key),
 #endif
 #ifdef LTC_DES
-    {"des_key_struct_size",           sizeof(struct des_key)},
-    {"des3_key_struct_size",          sizeof(struct des3_key)},
+    _SZ_STRINGIFY_S(des_key),
+    _SZ_STRINGIFY_S(des3_key),
 #endif
 #ifdef LTC_KASUMI
-    {"kasumi_key_struct_size",        sizeof(struct kasumi_key)},
+    _SZ_STRINGIFY_S(kasumi_key),
 #endif
 #ifdef LTC_KHAZAD
-    {"khazad_key_struct_size",        sizeof(struct khazad_key)},
+    _SZ_STRINGIFY_S(khazad_key),
 #endif
 #ifdef LTC_KSEED
-    {"kseed_key_struct_size",         sizeof(struct kseed_key)},
+    _SZ_STRINGIFY_S(kseed_key),
 #endif
 #ifdef LTC_MULTI2
-//    {"multi2_key_struct_size",        sizeof(struct multi2_key)},
+    _SZ_STRINGIFY_S(multi2_key),
 #endif
 #ifdef LTC_NOEKEON
-    {"noekeon_key_struct_size",       sizeof(struct noekeon_key)},
+    _SZ_STRINGIFY_S(noekeon_key),
 #endif
 #ifdef LTC_RC2
-    {"rc2_key_struct_size",           sizeof(struct rc2_key)},
+    _SZ_STRINGIFY_S(rc2_key),
 #endif
 #ifdef LTC_RC5
-    {"rc5_key_struct_size",           sizeof(struct rc5_key)},
+    _SZ_STRINGIFY_S(rc5_key),
 #endif
 #ifdef LTC_RC6
-    {"rc6_key_struct_size",           sizeof(struct rc6_key)},
+    _SZ_STRINGIFY_S(rc6_key),
 #endif
 #ifdef LTC_SKIPJACK
-    {"skipjack_key_struct_size",      sizeof(struct skipjack_key)},
+    _SZ_STRINGIFY_S(skipjack_key),
 #endif
 #ifdef LTC_XTEA
-    {"xtea_key_struct_size",          sizeof(struct xtea_key)},
+    _SZ_STRINGIFY_S(xtea_key),
 #endif
 #ifdef LTC_RIJNDAEL
-    {"rijndael_key_struct_size",      sizeof(struct rijndael_key)},
+    _SZ_STRINGIFY_S(rijndael_key),
 #endif
 #ifdef LTC_SAFER
-    {"safer_key_struct_size",         sizeof(struct safer_key)},
+    _SZ_STRINGIFY_S(safer_key),
 #endif
 #ifdef LTC_SAFERP
-    {"saferp_key_struct_size",        sizeof(struct saferp_key)},
+    _SZ_STRINGIFY_S(saferp_key),
 #endif
 #ifdef LTC_TWOFISH
-    {"twofish_key_struct_size",       sizeof(struct twofish_key)},
+    _SZ_STRINGIFY_S(twofish_key),
 #endif
 
     // mode sizes
 #ifdef LTC_CBC_MODE
-    {"symmetric_CBC_struct_size",     sizeof(symmetric_CBC)},
+    _SZ_STRINGIFY_T(symmetric_CBC),
 #endif
 #ifdef LTC_CFB_MODE
-    {"symmetric_CFB_struct_size",     sizeof(symmetric_CFB)},
+    _SZ_STRINGIFY_T(symmetric_CFB),
 #endif
 #ifdef LTC_CTR_MODE
-    {"symmetric_CTR_struct_size",     sizeof(symmetric_CTR)},
+    _SZ_STRINGIFY_T(symmetric_CTR),
 #endif
 #ifdef LTC_ECB_MODE
-    {"symmetric_ECB_struct_size",     sizeof(symmetric_ECB)},
+    _SZ_STRINGIFY_T(symmetric_ECB),
 #endif
 #ifdef LTC_F8_MODE
-    {"symmetric_F8_struct_size",      sizeof(symmetric_F8)},
+    _SZ_STRINGIFY_T(symmetric_F8),
 #endif
 #ifdef LTC_LRW_MODE
-    {"symmetric_LRW_struct_size",     sizeof(symmetric_LRW)},
+    _SZ_STRINGIFY_T(symmetric_LRW),
 #endif
 #ifdef LTC_OFB_MODE
-    {"symmetric_OFB_struct_size",     sizeof(symmetric_OFB)},
+    _SZ_STRINGIFY_T(symmetric_OFB),
 #endif
 
     // MAC sizes            -- no states for ccm, lrw
 #ifdef LTC_F9_MODE
-    {"f9_state_struct_size",          sizeof(f9_state)},
+    _SZ_STRINGIFY_T(f9_state),
 #endif
 #ifdef LTC_HMAC
-    {"hmac_state_struct_size",        sizeof(hmac_state)},
+    _SZ_STRINGIFY_T(hmac_state),
 #endif
 #ifdef LTC_OMAC
-    {"omac_state_struct_size",        sizeof(omac_state)},
+    _SZ_STRINGIFY_T(omac_state),
 #endif
 #ifdef LTC_PELICAN
-    {"pelican_state_struct_size",     sizeof(pelican_state)},
+    _SZ_STRINGIFY_T(pelican_state),
 #endif
 #ifdef LTC_PMAC
-    {"pmac_state_struct_size",        sizeof(pmac_state)},
+    _SZ_STRINGIFY_T(pmac_state),
 #endif
 #ifdef LTC_XCBC
-    {"xcbc_state_struct_size",        sizeof(xcbc_state)},
+    _SZ_STRINGIFY_T(xcbc_state),
 #endif
 #ifdef LTC_OCB_MODE
-    {"ocb_state_struct_size",         sizeof(ocb_state)},
+    _SZ_STRINGIFY_T(ocb_state),
 #endif
 #ifdef LTC_OCB3_MODE
-    {"ocb3_state_struct_size",        sizeof(ocb3_state)},
+    _SZ_STRINGIFY_T(ocb3_state),
 #endif
 #ifdef LTC_GCM_MODE
-    {"gcm_state_struct_size",         sizeof(gcm_state)},
+    _SZ_STRINGIFY_T(gcm_state),
 #endif
 #ifdef LTC_EAX_MODE
-    {"eax_state_struct_size",         sizeof(eax_state)},
+    _SZ_STRINGIFY_T(eax_state),
 #endif
 #ifdef LTC_CCM_MODE
 // not defined
@@ -194,37 +197,37 @@ crypt_size _crypt_sizes[] = {
 
     // asymmetric keys
 #ifdef LTC_MRSA
-    {"rsa_key_struct_size",           sizeof(rsa_key)},
+    _SZ_STRINGIFY_T(rsa_key),
 #endif
 #ifdef LTC_MDSA
-    {"dsa_key_struct_size",           sizeof(dsa_key)},
+    _SZ_STRINGIFY_T(dsa_key),
 #endif
-#ifdef MDH
-    {"dh_key_struct_size",            sizeof(dh_key)},
+#ifdef LTC_MDH
+    _SZ_STRINGIFY_T(dh_key),
 #endif
 #ifdef LTC_MECC
-    {"ecc_set_struct_size",           sizeof(ltc_ecc_set_type)},
-    {"ecc_key_struct_size",           sizeof(ecc_key)},
-    {"ecc_point_struct_size",         sizeof(ecc_point)},
+    _SZ_STRINGIFY_T(ltc_ecc_set_type),
+    _SZ_STRINGIFY_T(ecc_key),
+    _SZ_STRINGIFY_T(ecc_point),
 #endif
 #ifdef MKAT
-//    {"katja_key_struct_size",         sizeof(katja_key)},
+    _SZ_STRINGIFY_T(katja_key),
 #endif
 
     // prng state sizes
-    {"prng_descriptor_struct_size",   sizeof(struct ltc_prng_descriptor)},
-    {"prng_state_union_size",         sizeof(prng_state)},
+    _SZ_STRINGIFY_S(ltc_prng_descriptor),
+    _SZ_STRINGIFY_T(prng_state),
 #ifdef LTC_FORTUNA
-    {"fortuna_prng_struct_size",      sizeof(struct fortuna_prng)},
+    _SZ_STRINGIFY_S(fortuna_prng),
 #endif
 #ifdef LTC_RC4
-    {"rc4_prng_struct_size",          sizeof(struct rc4_prng)},
+    _SZ_STRINGIFY_S(rc4_prng),
 #endif
 #ifdef LTC_SOBER128
-    {"sober128_prng_struct_size",     sizeof(struct sober128_prng)},
+    _SZ_STRINGIFY_S(sober128_prng),
 #endif
 #ifdef LTC_YARROW
-    {"yarrow_prng_struct_size",       sizeof(struct yarrow_prng)},
+    _SZ_STRINGIFY_S(yarrow_prng),
 #endif
     // sprng has no state as it uses other potentially available sources
     // like /dev/random.  See Developers Guide for more info.
