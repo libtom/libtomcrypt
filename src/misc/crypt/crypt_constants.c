@@ -12,10 +12,10 @@
 
 /**
   @file crypt_constants.c
-  
-  Make various constants available to dynamic languages 
+
+  Make various constants available to dynamic languages
   like Python - Larry Bugbee, February 2013
-  
+
   LB - Dec 2013 - revised to include compiler define options
   LB - Mar 2014 - added endianness and word size
 */
@@ -39,7 +39,7 @@ crypt_constant _crypt_constants[] = {
     {"MIN_RSA_SIZE",              MIN_RSA_SIZE},
     {"MAX_RSA_SIZE",              MAX_RSA_SIZE},
 #endif
-    
+
 #ifdef LTC_PKCS_1
     {"LTC_PKCS_1_OAEP",           LTC_PKCS_1_OAEP},
     {"LTC_PKCS_1_PSS",            LTC_PKCS_1_PSS},
@@ -47,27 +47,27 @@ crypt_constant _crypt_constants[] = {
 #endif
 
 #ifdef ENDIAN_LITTLE
-    {"ENDIAN_LITTLE",             1},       // true
+    {"ENDIAN_LITTLE",             1},
 #else
-    {"ENDIAN_LITTLE",             0},       // false
+    {"ENDIAN_LITTLE",             0},
 #endif
 
 #ifdef ENDIAN_BIG
-    {"ENDIAN_BIG",                1},       // true
+    {"ENDIAN_BIG",                1},
 #else
-    {"ENDIAN_BIG",                0},       // false
+    {"ENDIAN_BIG",                0},
 #endif
 
 #ifdef ENDIAN_32BITWORD
-    {"ENDIAN_32BITWORD",          1},       // true
+    {"ENDIAN_32BITWORD",          1},
 #else
-    {"ENDIAN_32BITWORD",          0},       // false
+    {"ENDIAN_32BITWORD",          0},
 #endif
 
 #ifdef ENDIAN_64BITWORD
-    {"ENDIAN_64BITWORD",          1},       // true
+    {"ENDIAN_64BITWORD",          1},
 #else
-    {"ENDIAN_64BITWORD",          0},       // false
+    {"ENDIAN_64BITWORD",          0},
 #endif
 };
 
@@ -89,32 +89,31 @@ int crypt_get_constant(const char* namein, int *valueout) {
 }
 
 /* crypt_list_all_constants()
- * if names_list is NULL, names_list_size will be the minimum 
+ * if names_list is NULL, names_list_size will be the minimum
  *     number of bytes needed to receive the complete names_list
- * if names_list is NOT NULL, names_list must be the addr of 
- *     sufficient memory allocated into which the names_list 
- *     is to be written.  Also, the value in names_list_size 
- *     sets the upper bound of the number of characters to be 
+ * if names_list is NOT NULL, names_list must be the addr of
+ *     sufficient memory allocated into which the names_list
+ *     is to be written.  Also, the value in names_list_size
+ *     sets the upper bound of the number of characters to be
  *     written.
  * a -1 return value signifies insufficient space made available
  */
-int crypt_list_all_constants(char *names_list, 
-                             unsigned long *names_list_size) {
+int crypt_list_all_constants(char *names_list, unsigned long *names_list_size) {
     int i;
     unsigned long total_len = 0;
     char number[10];
     int number_len;
-    int count = sizeof(_crypt_constants) / sizeof(crypt_constant);
-    
+    int count = sizeof(_crypt_constants) / sizeof(_crypt_constants[0]);
+
     /* calculate amount of memory required for the list */
     for (i=0; i<count; i++) {
         total_len += strlen(_crypt_constants[i].name) + 1;
-        // the above +1 is for the commas
+        /* the above +1 is for the commas */
         sprintf(number,"%lu",_crypt_constants[i].value);
         total_len += strlen(number) + 1;
-        // this last +1 is for newlines (and ending NULL)
+        /* this last +1 is for newlines (and ending NULL) */
     }
-    
+
     if (names_list == NULL) {
         *names_list_size = total_len;
     } else {
@@ -128,20 +127,21 @@ int crypt_list_all_constants(char *names_list,
             ptr += strlen(_crypt_constants[i].name);
             strcpy(ptr, ",");
             ptr += 1;
-            
+
             number_len = sprintf(number,"%lu",_crypt_constants[i].value);
             strcpy(ptr, number);
             ptr += number_len;
             strcpy(ptr, "\n");
             ptr += 1;
         }
-        ptr -= 1;       // to remove the trailing comma
+        /* to remove the trailing new-line */
+        ptr -= 1;
         *ptr = 0;
     }
     return 0;
 }
 
 
-/* $Source: /cvs/libtom/libtomcrypt/src/misc/crypt/crypt_constants.c,v $ */
-/* $Revision:  $ */
-/* $Date:  $ */
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

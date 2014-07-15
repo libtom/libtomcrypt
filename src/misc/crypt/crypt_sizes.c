@@ -12,8 +12,8 @@
 
 /**
   @file crypt_sizes.c
-  
-  Make various struct sizes available to dynamic languages 
+
+  Make various struct sizes available to dynamic languages
   like Python - Larry Bugbee, February 2013
 
   LB - Dec 2013 - revised to include compiler define options
@@ -68,7 +68,7 @@ crypt_size _crypt_sizes[] = {
 #ifdef LTC_CHC_HASH
     {"chc_state_struct_size",         sizeof(struct chc_state)},
 #endif
-    
+
     // block cipher key sizes
     {"cipher_descriptor_struct_size", sizeof(struct ltc_cipher_descriptor)},
     {"symmetric_key_union_size",      sizeof(symmetric_key)},
@@ -247,32 +247,31 @@ int crypt_get_size(const char* namein, int *sizeout) {
 }
 
 /* crypt_list_all_sizes()
- * if names_list is NULL, names_list_size will be the minimum 
+ * if names_list is NULL, names_list_size will be the minimum
  *     size needed to receive the complete names_list
- * if names_list is NOT NULL, names_list must be the addr with 
- *     sufficient memory allocated into which the names_list 
- *     is to be written.  Also, the value in names_list_size 
- *     sets the upper bound of the number of characters to be 
+ * if names_list is NOT NULL, names_list must be the addr with
+ *     sufficient memory allocated into which the names_list
+ *     is to be written.  Also, the value in names_list_size
+ *     sets the upper bound of the number of characters to be
  *     written.
  * a -1 return value signifies insufficient space made available
  */
-int crypt_list_all_sizes(char *names_list, 
-                         unsigned long *names_list_size) {
+int crypt_list_all_sizes(char *names_list, unsigned long *names_list_size) {
     int i;
     unsigned long total_len = 0;
     char number[10];
     int number_len;
-    int count = sizeof(_crypt_sizes) / sizeof(crypt_size);
-    
+    int count = sizeof(_crypt_sizes) / sizeof(_crypt_sizes[0]);
+
     /* calculate amount of memory required for the list */
     for (i=0; i<count; i++) {
         total_len += strlen(_crypt_sizes[i].name) + 1;
-        // the above +1 is for the commas
+        /* the above +1 is for the commas */
         sprintf(number,"%lu",_crypt_sizes[i].size);
         total_len += strlen(number) + 1;
-        // this last +1 is for newlines (and ending NULL)
+        /* this last +1 is for newlines (and ending NULL) */
     }
-    
+
     if (names_list == NULL) {
         *names_list_size = total_len;
     } else {
@@ -286,20 +285,21 @@ int crypt_list_all_sizes(char *names_list,
             ptr += strlen(_crypt_sizes[i].name);
             strcpy(ptr, ",");
             ptr += 1;
-            
+
             number_len = sprintf(number,"%lu",_crypt_sizes[i].size);
             strcpy(ptr, number);
             ptr += number_len;
             strcpy(ptr, "\n");
             ptr += 1;
         }
-        ptr -= 1;       // to remove the trailing comma
+        /* to remove the trailing new-line */
+        ptr -= 1;
         *ptr = 0;
     }
     return 0;
 }
 
 
-/* $Source: /cvs/libtom/libtomcrypt/src/misc/crypt/crypt_sizes.c,v $ */
-/* $Revision:  $ */
-/* $Date:  $ */
+/* $Source$ */
+/* $Revision$ */
+/* $Date$ */

@@ -12,35 +12,31 @@
 
 /**
   @file demo_crypt_sizes.c
-  
-  Demo how to get various sizes to dynamic languages 
+
+  Demo how to get various sizes to dynamic languages
   like Python - Larry Bugbee, February 2013
 */
 
 
 int main(void) {
     int rc;
-    printf("\n");
-    
+
     // given a specific size name, get and print its size
     char name[] = "ecc_key_struct_size";
     int size;
     rc = crypt_get_size(name, &size);
-    printf("  %s is %d \n", name, size);
-    printf("\n");
-    
+    printf("\n  size of '%s' is %d \n\n", name, size);
+
     // get and print the length of the names (and sizes) list
     char *sizes_list;
     unsigned long sizes_list_len;
     rc = crypt_list_all_sizes(NULL, &sizes_list_len);
-    printf("  need to allocate %lu bytes \n", sizes_list_len);
-    printf("\n");
-    
+    printf("  need to allocate %lu bytes \n\n", sizes_list_len);
+
     // get and print the names (and sizes) list
     sizes_list = malloc(sizes_list_len);
     rc = crypt_list_all_sizes(sizes_list, &sizes_list_len);
-    printf("  supported sizes: %s \n", sizes_list);
-    printf("\n");
+    printf("  supported sizes:\n\n%s\n\n", sizes_list);
 }
 
 
