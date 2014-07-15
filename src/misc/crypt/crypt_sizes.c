@@ -236,7 +236,7 @@ crypt_size _crypt_sizes[] = {
  */
 int crypt_get_size(const char* namein, int *sizeout) {
     int i;
-    int count = sizeof(_crypt_sizes) / sizeof(crypt_size);
+    int count = sizeof(_crypt_sizes) / sizeof(_crypt_sizes[0]);
     for (i=0; i<count; i++) {
         if (strcmp(_crypt_sizes[i].name, namein) == 0) {
             *sizeout = _crypt_sizes[i].size;
@@ -259,7 +259,7 @@ int crypt_get_size(const char* namein, int *sizeout) {
 int crypt_list_all_sizes(char *names_list, unsigned long *names_list_size) {
     int i;
     unsigned long total_len = 0;
-    char number[10];
+    char number[32];
     int number_len;
     int count = sizeof(_crypt_sizes) / sizeof(_crypt_sizes[0]);
 
@@ -267,7 +267,10 @@ int crypt_list_all_sizes(char *names_list, unsigned long *names_list_size) {
     for (i=0; i<count; i++) {
         total_len += strlen(_crypt_sizes[i].name) + 1;
         /* the above +1 is for the commas */
-        sprintf(number,"%lu",_crypt_sizes[i].size);
+        number_len = snprintf(number, sizeof(number), "%ld", _crypt_sizes[i].size);
+        if ((number_len < 0) ||
+            ((unsigned int)number_len >= sizeof(number)))
+          return -1;
         total_len += strlen(number) + 1;
         /* this last +1 is for newlines (and ending NULL) */
     }
@@ -286,7 +289,7 @@ int crypt_list_all_sizes(char *names_list, unsigned long *names_list_size) {
             strcpy(ptr, ",");
             ptr += 1;
 
-            number_len = sprintf(number,"%lu",_crypt_sizes[i].size);
+            number_len = snprintf(number, sizeof(number), "%ld", _crypt_sizes[i].size);
             strcpy(ptr, number);
             ptr += number_len;
             strcpy(ptr, "\n");

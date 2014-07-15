@@ -78,7 +78,7 @@ crypt_constant _crypt_constants[] = {
  */
 int crypt_get_constant(const char* namein, int *valueout) {
     int i;
-    int _crypt_constants_len = sizeof(_crypt_constants) / sizeof(crypt_constant);
+    int _crypt_constants_len = sizeof(_crypt_constants) / sizeof(_crypt_constants[0]);
     for (i=0; i<_crypt_constants_len; i++) {
         if (strcmp(_crypt_constants[i].name, namein) == 0) {
             *valueout = _crypt_constants[i].value;
@@ -101,7 +101,7 @@ int crypt_get_constant(const char* namein, int *valueout) {
 int crypt_list_all_constants(char *names_list, unsigned long *names_list_size) {
     int i;
     unsigned long total_len = 0;
-    char number[10];
+    char number[32];
     int number_len;
     int count = sizeof(_crypt_constants) / sizeof(_crypt_constants[0]);
 
@@ -109,8 +109,11 @@ int crypt_list_all_constants(char *names_list, unsigned long *names_list_size) {
     for (i=0; i<count; i++) {
         total_len += strlen(_crypt_constants[i].name) + 1;
         /* the above +1 is for the commas */
-        sprintf(number,"%lu",_crypt_constants[i].value);
-        total_len += strlen(number) + 1;
+        number_len = snprintf(number, sizeof(number), "%ld", _crypt_constants[i].value);
+        if ((number_len < 0) ||
+            ((unsigned int)number_len >= sizeof(number)))
+          return -1;
+        total_len += number_len + 1;
         /* this last +1 is for newlines (and ending NULL) */
     }
 
@@ -128,7 +131,7 @@ int crypt_list_all_constants(char *names_list, unsigned long *names_list_size) {
             strcpy(ptr, ",");
             ptr += 1;
 
-            number_len = sprintf(number,"%lu",_crypt_constants[i].value);
+            number_len = snprintf(number, sizeof(number), "%ld", _crypt_constants[i].value);
             strcpy(ptr, number);
             ptr += number_len;
             strcpy(ptr, "\n");
