@@ -83,24 +83,26 @@ src/mac/xcbc/xcbc_test.o src/math/fp/ltc_ecc_fp_mulmod.o src/math/gmp_desc.o src
 src/math/multi.o src/math/rand_bn.o src/math/rand_prime.o src/math/tfm_desc.o \
 src/misc/base64/base64_decode.o src/misc/base64/base64_encode.o src/misc/burn_stack.o \
 src/misc/crypt/crypt_argchk.o src/misc/crypt/crypt.o src/misc/crypt/crypt_cipher_descriptor.o \
-src/misc/crypt/crypt_cipher_is_valid.o src/misc/crypt/crypt_find_cipher_any.o \
-src/misc/crypt/crypt_find_cipher.o src/misc/crypt/crypt_find_cipher_id.o \
-src/misc/crypt/crypt_find_hash_any.o src/misc/crypt/crypt_find_hash.o \
-src/misc/crypt/crypt_find_hash_id.o src/misc/crypt/crypt_find_hash_oid.o \
-src/misc/crypt/crypt_find_prng.o src/misc/crypt/crypt_fsa.o src/misc/crypt/crypt_hash_descriptor.o \
-src/misc/crypt/crypt_hash_is_valid.o src/misc/crypt/crypt_ltc_mp_descriptor.o \
+src/misc/crypt/crypt_cipher_is_valid.o src/misc/crypt/crypt_constants.o \
+src/misc/crypt/crypt_find_cipher_any.o src/misc/crypt/crypt_find_cipher.o \
+src/misc/crypt/crypt_find_cipher_id.o src/misc/crypt/crypt_find_hash_any.o \
+src/misc/crypt/crypt_find_hash.o src/misc/crypt/crypt_find_hash_id.o \
+src/misc/crypt/crypt_find_hash_oid.o src/misc/crypt/crypt_find_prng.o src/misc/crypt/crypt_fsa.o \
+src/misc/crypt/crypt_hash_descriptor.o src/misc/crypt/crypt_hash_is_valid.o \
+src/misc/crypt/crypt_inits.o src/misc/crypt/crypt_ltc_mp_descriptor.o \
 src/misc/crypt/crypt_prng_descriptor.o src/misc/crypt/crypt_prng_is_valid.o \
 src/misc/crypt/crypt_register_cipher.o src/misc/crypt/crypt_register_hash.o \
-src/misc/crypt/crypt_register_prng.o src/misc/crypt/crypt_unregister_cipher.o \
-src/misc/crypt/crypt_unregister_hash.o src/misc/crypt/crypt_unregister_prng.o \
-src/misc/error_to_string.o src/misc/hkdf/hkdf.o src/misc/hkdf/hkdf_test.o src/misc/pkcs5/pkcs_5_1.o \
-src/misc/pkcs5/pkcs_5_2.o src/misc/pkcs5/pkcs_5_test.o src/misc/pk_get_oid.o src/misc/zeromem.o \
-src/modes/cbc/cbc_decrypt.o src/modes/cbc/cbc_done.o src/modes/cbc/cbc_encrypt.o \
-src/modes/cbc/cbc_getiv.o src/modes/cbc/cbc_setiv.o src/modes/cbc/cbc_start.o \
-src/modes/cfb/cfb_decrypt.o src/modes/cfb/cfb_done.o src/modes/cfb/cfb_encrypt.o \
-src/modes/cfb/cfb_getiv.o src/modes/cfb/cfb_setiv.o src/modes/cfb/cfb_start.o \
-src/modes/ctr/ctr_decrypt.o src/modes/ctr/ctr_done.o src/modes/ctr/ctr_encrypt.o \
-src/modes/ctr/ctr_getiv.o src/modes/ctr/ctr_setiv.o src/modes/ctr/ctr_start.o src/modes/ctr/ctr_test.o \
+src/misc/crypt/crypt_register_prng.o src/misc/crypt/crypt_sizes.o \
+src/misc/crypt/crypt_unregister_cipher.o src/misc/crypt/crypt_unregister_hash.o \
+src/misc/crypt/crypt_unregister_prng.o src/misc/error_to_string.o src/misc/hkdf/hkdf.o \
+src/misc/hkdf/hkdf_test.o src/misc/pkcs5/pkcs_5_1.o src/misc/pkcs5/pkcs_5_2.o \
+src/misc/pkcs5/pkcs_5_test.o src/misc/pk_get_oid.o src/misc/zeromem.o src/modes/cbc/cbc_decrypt.o \
+src/modes/cbc/cbc_done.o src/modes/cbc/cbc_encrypt.o src/modes/cbc/cbc_getiv.o \
+src/modes/cbc/cbc_setiv.o src/modes/cbc/cbc_start.o src/modes/cfb/cfb_decrypt.o \
+src/modes/cfb/cfb_done.o src/modes/cfb/cfb_encrypt.o src/modes/cfb/cfb_getiv.o \
+src/modes/cfb/cfb_setiv.o src/modes/cfb/cfb_start.o src/modes/ctr/ctr_decrypt.o \
+src/modes/ctr/ctr_done.o src/modes/ctr/ctr_encrypt.o src/modes/ctr/ctr_getiv.o \
+src/modes/ctr/ctr_setiv.o src/modes/ctr/ctr_start.o src/modes/ctr/ctr_test.o \
 src/modes/ecb/ecb_decrypt.o src/modes/ecb/ecb_done.o src/modes/ecb/ecb_encrypt.o \
 src/modes/ecb/ecb_start.o src/modes/f8/f8_decrypt.o src/modes/f8/f8_done.o src/modes/f8/f8_encrypt.o \
 src/modes/f8/f8_getiv.o src/modes/f8/f8_setiv.o src/modes/f8/f8_start.o src/modes/f8/f8_test_mode.o \
