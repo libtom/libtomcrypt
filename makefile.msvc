@@ -47,24 +47,26 @@ src/mac/xcbc/xcbc_test.obj src/math/fp/ltc_ecc_fp_mulmod.obj src/math/gmp_desc.o
 src/math/multi.obj src/math/rand_bn.obj src/math/rand_prime.obj src/math/tfm_desc.obj \
 src/misc/base64/base64_decode.obj src/misc/base64/base64_encode.obj src/misc/burn_stack.obj \
 src/misc/crypt/crypt_argchk.obj src/misc/crypt/crypt.obj src/misc/crypt/crypt_cipher_descriptor.obj \
-src/misc/crypt/crypt_cipher_is_valid.obj src/misc/crypt/crypt_find_cipher_any.obj \
-src/misc/crypt/crypt_find_cipher.obj src/misc/crypt/crypt_find_cipher_id.obj \
-src/misc/crypt/crypt_find_hash_any.obj src/misc/crypt/crypt_find_hash.obj \
-src/misc/crypt/crypt_find_hash_id.obj src/misc/crypt/crypt_find_hash_oid.obj \
-src/misc/crypt/crypt_find_prng.obj src/misc/crypt/crypt_fsa.obj src/misc/crypt/crypt_hash_descriptor.obj \
-src/misc/crypt/crypt_hash_is_valid.obj src/misc/crypt/crypt_ltc_mp_descriptor.obj \
+src/misc/crypt/crypt_cipher_is_valid.obj src/misc/crypt/crypt_constants.obj \
+src/misc/crypt/crypt_find_cipher_any.obj src/misc/crypt/crypt_find_cipher.obj \
+src/misc/crypt/crypt_find_cipher_id.obj src/misc/crypt/crypt_find_hash_any.obj \
+src/misc/crypt/crypt_find_hash.obj src/misc/crypt/crypt_find_hash_id.obj \
+src/misc/crypt/crypt_find_hash_oid.obj src/misc/crypt/crypt_find_prng.obj src/misc/crypt/crypt_fsa.obj \
+src/misc/crypt/crypt_hash_descriptor.obj src/misc/crypt/crypt_hash_is_valid.obj \
+src/misc/crypt/crypt_inits.obj src/misc/crypt/crypt_ltc_mp_descriptor.obj \
 src/misc/crypt/crypt_prng_descriptor.obj src/misc/crypt/crypt_prng_is_valid.obj \
 src/misc/crypt/crypt_register_cipher.obj src/misc/crypt/crypt_register_hash.obj \
-src/misc/crypt/crypt_register_prng.obj src/misc/crypt/crypt_unregister_cipher.obj \
-src/misc/crypt/crypt_unregister_hash.obj src/misc/crypt/crypt_unregister_prng.obj \
-src/misc/error_to_string.obj src/misc/hkdf/hkdf.obj src/misc/hkdf/hkdf_test.obj src/misc/pkcs5/pkcs_5_1.obj \
-src/misc/pkcs5/pkcs_5_2.obj src/misc/pkcs5/pkcs_5_test.obj src/misc/pk_get_oid.obj src/misc/zeromem.obj \
-src/modes/cbc/cbc_decrypt.obj src/modes/cbc/cbc_done.obj src/modes/cbc/cbc_encrypt.obj \
-src/modes/cbc/cbc_getiv.obj src/modes/cbc/cbc_setiv.obj src/modes/cbc/cbc_start.obj \
-src/modes/cfb/cfb_decrypt.obj src/modes/cfb/cfb_done.obj src/modes/cfb/cfb_encrypt.obj \
-src/modes/cfb/cfb_getiv.obj src/modes/cfb/cfb_setiv.obj src/modes/cfb/cfb_start.obj \
-src/modes/ctr/ctr_decrypt.obj src/modes/ctr/ctr_done.obj src/modes/ctr/ctr_encrypt.obj \
-src/modes/ctr/ctr_getiv.obj src/modes/ctr/ctr_setiv.obj src/modes/ctr/ctr_start.obj src/modes/ctr/ctr_test.obj \
+src/misc/crypt/crypt_register_prng.obj src/misc/crypt/crypt_sizes.obj \
+src/misc/crypt/crypt_unregister_cipher.obj src/misc/crypt/crypt_unregister_hash.obj \
+src/misc/crypt/crypt_unregister_prng.obj src/misc/error_to_string.obj src/misc/hkdf/hkdf.obj \
+src/misc/hkdf/hkdf_test.obj src/misc/pkcs5/pkcs_5_1.obj src/misc/pkcs5/pkcs_5_2.obj \
+src/misc/pkcs5/pkcs_5_test.obj src/misc/pk_get_oid.obj src/misc/zeromem.obj src/modes/cbc/cbc_decrypt.obj \
+src/modes/cbc/cbc_done.obj src/modes/cbc/cbc_encrypt.obj src/modes/cbc/cbc_getiv.obj \
+src/modes/cbc/cbc_setiv.obj src/modes/cbc/cbc_start.obj src/modes/cfb/cfb_decrypt.obj \
+src/modes/cfb/cfb_done.obj src/modes/cfb/cfb_encrypt.obj src/modes/cfb/cfb_getiv.obj \
+src/modes/cfb/cfb_setiv.obj src/modes/cfb/cfb_start.obj src/modes/ctr/ctr_decrypt.obj \
+src/modes/ctr/ctr_done.obj src/modes/ctr/ctr_encrypt.obj src/modes/ctr/ctr_getiv.obj \
+src/modes/ctr/ctr_setiv.obj src/modes/ctr/ctr_start.obj src/modes/ctr/ctr_test.obj \
 src/modes/ecb/ecb_decrypt.obj src/modes/ecb/ecb_done.obj src/modes/ecb/ecb_encrypt.obj \
 src/modes/ecb/ecb_start.obj src/modes/f8/f8_decrypt.obj src/modes/f8/f8_done.obj src/modes/f8/f8_encrypt.obj \
 src/modes/f8/f8_getiv.obj src/modes/f8/f8_setiv.obj src/modes/f8/f8_start.obj src/modes/f8/f8_test_mode.obj \

@@ -14,10 +14,14 @@ tv.txt
 *_tv.txt
 
 # *nix/windows test executables
+constants
+constants.exe
 encrypt
 encrypt.exe
 hashsum
 hashsum.exe
+sizes
+sizes.exe
 small
 small.exe
 test
