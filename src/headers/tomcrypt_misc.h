@@ -56,8 +56,17 @@ int crypt_list_all_constants(char *names_list, unsigned long *names_list_size);
 int crypt_get_size(const char* namein, int *sizeout);
 int crypt_list_all_sizes(char *names_list, unsigned long *names_list_size);
 
+#ifdef LTM_DESC
 void init_LTM(void);
+#endif
+#ifdef TFM_DESC
 void init_TFM(void);
+#endif
+/*                          *** use of GMP is untested ***
+#ifdef GMP_DESC
+void init_GMP(void);
+#endif
+*/
 
 
 /* $Source$ */
