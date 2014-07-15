@@ -265,7 +265,7 @@ testprof/$(LIBTEST):
 	$(LTCOMPILE) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $@ -c $<
 
 $(LIBNAME): $(OBJECTS)
-	$(LT) --mode=link $(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) `find ./src -type f -name "*.lo"` -o $(LIBNAME) -rpath $(LIBPATH) -version-info $(VERSION)
+	$(LT) --mode=link --tag=CC $(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) `find ./src -type f -name "*.lo"` $(EXTRALIBS) -o $(LIBNAME) -rpath $(LIBPATH) -version-info $(VERSION)
 
 install: $(LIBNAME)
 	install -d -g $(GROUP) -o $(USER) $(DESTDIR)$(LIBPATH)
@@ -283,23 +283,23 @@ install_test: testprof/$(LIBTEST)
 
 #This rule makes the hash program included with libtomcrypt
 hashsum: library $(HASHOBJECTS)
-	$(LT) --mode=link $(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $(HASH) $(HASHOBJECTS) $(LIBNAME) $(EXTRALIBS)
+	$(LT) --mode=link --tag=CC $(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $(HASH) $(HASHOBJECTS) $(LIBNAME) $(EXTRALIBS)
 
 #makes the crypt program
 crypt: library $(CRYPTOBJECTS)
-	$(LT) --mode=link $(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $(CRYPT) $(CRYPTOBJECTS) $(LIBNAME) $(EXTRALIBS)
+	$(LT) --mode=link --tag=CC $(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $(CRYPT) $(CRYPTOBJECTS) $(LIBNAME) $(EXTRALIBS)
 
 small: library $(SMALLOBJECTS)
-	$(LT) --mode=link $(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $(SMALL) $(SMALLOBJECTS) $(LIBNAME) $(EXTRALIBS)
+	$(LT) --mode=link --tag=CC $(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $(SMALL) $(SMALLOBJECTS) $(LIBNAME) $(EXTRALIBS)
 
 tv_gen: library $(TVS)
-	$(LT) --mode=link $(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $(TV) $(TVS) $(LIBNAME) $(EXTRALIBS)
+	$(LT) --mode=link --tag=CC $(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $(TV) $(TVS) $(LIBNAME) $(EXTRALIBS)
 
 test: library testprof/$(LIBTEST) $(TESTS)
-	$(LT) --mode=link $(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $(TEST) $(TESTS) testprof/$(LIBTEST) $(LIBNAME) $(EXTRALIBS)
+	$(LT) --mode=link --tag=CC $(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $(TEST) $(TESTS) testprof/$(LIBTEST) $(LIBNAME) $(EXTRALIBS)
 
 timing: library testprof/$(LIBTEST) $(TIMINGS)
-	$(LT) --mode=link $(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $(TIMING) $(TIMINGS) testprof/$(LIBTEST) $(LIBNAME) $(EXTRALIBS)
+	$(LT) --mode=link --tag=CC $(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $(TIMING) $(TIMINGS) testprof/$(LIBTEST) $(LIBNAME) $(EXTRALIBS)
 
 # $Source$
 # $Revision$
