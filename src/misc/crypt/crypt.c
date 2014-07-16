@@ -184,12 +184,8 @@ const char *crypt_build_settings =
     "   CBC\n"
 #endif
 #if defined(LTC_CTR_MODE)
-    "   CTR "
+    "   CTR\n"
 #endif
-#if defined(LTC_CTR_OLD)
-    " (CTR_OLD) "
-#endif
-    "\n"
 #if defined(LTC_LRW_MODE)
     "   LRW"
 #if defined(LRW_TABLES)
@@ -291,7 +287,9 @@ const char *crypt_build_settings =
 #endif
 
     "\nCompiler:\n"
-#if defined(WIN32)
+#if defined(_WIN64)
+    "   WIN64 platform detected.\n"
+#elif defined(_WIN32)
     "   WIN32 platform detected.\n"
 #endif
 #if defined(__CYGWIN__)
@@ -315,7 +313,7 @@ const char *crypt_build_settings =
     "   x86-64 detected.\n"
 #endif
 #if defined(LTC_PPC32)
-    "   PPC32 defined \n"
+    "   PPC32 detected.\n"
 #endif
 
     "\nVarious others: "
@@ -379,14 +377,14 @@ const char *crypt_build_settings =
 #if defined(TFM_DESC)
     " TFM_DESC "
 #endif
-#if defined(LTC_MECC_ACCEL)
-    " LTC_MECC_ACCEL "
-#endif
 #if defined(GMP_DESC)
     " GMP_DESC "
 #endif
 #if defined(LTC_EASY)
     " LTC_EASY "
+#endif
+#if defined(LTC_MECC_ACCEL)
+    " LTC_MECC_ACCEL "
 #endif
 #if defined(LTC_MECC_FP)
    " LTC_MECC_FP "
