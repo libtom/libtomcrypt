@@ -601,7 +601,7 @@ As of this release the current cipher\_descriptors elements are the following:
 \vfil
 \index{Cipher descriptor table}
 \index{blowfish\_desc} \index{xtea\_desc} \index{rc2\_desc} \index{rc5\_desc} \index{rc6\_desc} \index{saferp\_desc} \index{aes\_desc} \index{twofish\_desc}
-\index{des\_desc} \index{des3\_desc} \index{noekeon\_desc} \index{skipjack\_desc} \index{anubis\_desc} \index{khazad\_desc} \index{kseed\_desc} \index{kasumi\_desc}
+\index{des\_desc} \index{des3\_desc} \index{noekeon\_desc} \index{skipjack\_desc} \index{anubis\_desc} \index{khazad\_desc} \index{kseed\_desc} \index{kasumi\_desc} \index{camellia\_desc} \index{aes\_enc\_desc}
 \begin{figure}[hpbt]
 \begin{small}
 \begin{center}
@@ -625,6 +625,7 @@ As of this release the current cipher\_descriptors elements are the following:
      \hline Khazad & khazad\_desc & 8 & 16 & 8 \\
      \hline SEED   & kseed\_desc & 16 & 16 & 16 \\
      \hline KASUMI & kasumi\_desc & 8 & 16 & 8 \\
+     \hline Camellia & camellia\_desc & 16 & 16, 24, 32 & 18, 24 \\
      \hline
 \end{tabular}
 \end{center}
@@ -652,6 +653,8 @@ Rijndael as it makes the most sense for this cipher.
 Note that for \textit{DES} and \textit{3DES} they use 8 and 24 byte keys but only 7 and 21 [respectively] bytes of the keys are in
 fact used for the purposes of encryption.  My suggestion is just to use random 8/24 byte keys instead of trying to make a 8/24
 byte string from the real 7/21 byte key.
+
+For \textit{3DES} exists a two-key mode, that can be initialized by calling the setup function with a \textit{keylen} of 16. This results in the re-usage of key \textit{K1} as key \textit{K3}. This mode has been specified as \textit{Keying Option 2} in FIPS 46-3.
 
 \item
 Note that \textit{Twofish} has additional configuration options (Figure \ref{fig:twofishopts}) that take place at build time.  These options are found in
