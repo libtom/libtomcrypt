@@ -213,8 +213,8 @@ int camellia_setup(const unsigned char *key, int keylen, int num_rounds, symmetr
    int           x;
    ulong64       A, B;
 
-//   LTC_ARGCHK(key  != NULL);
-//   LTC_ARGCHK(skey != NULL);
+   LTC_ARGCHK(key  != NULL);
+   LTC_ARGCHK(skey != NULL);
 
    /* Valid sizes (in bytes) are 16, 24, 32 */
    if (keylen != 16 && keylen != 24 && keylen != 32) {
