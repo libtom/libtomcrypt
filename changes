@@ -1,4 +1,4 @@
-June 25th, 2014
+XXX, 2014
 v1.18 -- Added Camellia block cipher
       -- Thanks to Karel Miko for cotributing a bunchload of patches and additions, namely
          OCBv3, DSA and ECC key generation FIPS-186-4 compliance, BASE64-URL encoding,
