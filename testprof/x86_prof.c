@@ -776,10 +776,10 @@ int time_hash(void)
 
 /*#warning you need an mp_rand!!!*/
 #ifndef USE_LTM
-  #undef MPI
+  #undef LTC_MPI
 #endif
 
-#ifdef MPI
+#ifdef LTC_MPI
 void time_mult(void)
 {
    ulong64 t1, t2;

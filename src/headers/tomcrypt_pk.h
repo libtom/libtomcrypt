@@ -111,7 +111,7 @@ int rsa_import(const unsigned char *in, unsigned long inlen, rsa_key *key);
 #endif
 
 /* ---- Katja ---- */
-#ifdef MKAT
+#ifdef LTC_MKAT
 
 /* Min and Max KAT key sizes (in bits) */
 #define MIN_KAT_SIZE 1024

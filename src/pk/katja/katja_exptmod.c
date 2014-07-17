@@ -15,7 +15,7 @@
   Katja PKCS-style exptmod, Tom St Denis
 */
 
-#ifdef MKAT
+#ifdef LTC_MKAT
 
 /**
    Compute an RSA modular exponentiation

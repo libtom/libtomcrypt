@@ -22,7 +22,7 @@
 
 /* This holds the key settings.  ***MUST*** be organized by size from smallest to largest. */
 const dh_set sets[] = {
-#ifdef DH768
+#ifdef LTC_DH768
 {
    96,
    "DH-768",
@@ -32,7 +32,7 @@ const dh_set sets[] = {
    "//////m3wvV"
 },
 #endif
-#ifdef DH1024
+#ifdef LTC_DH1024
 {
    128,
    "DH-1024",
@@ -42,7 +42,7 @@ const dh_set sets[] = {
    "////////////////////////////////////////////////m3C47"
 },
 #endif
-#ifdef DH1280
+#ifdef LTC_DH1280
 {
    160,
    "DH-1280",
@@ -53,7 +53,7 @@ const dh_set sets[] = {
    "//////////////////////////////m4kSN"
 },
 #endif
-#ifdef DH1536
+#ifdef LTC_DH1536
 {
    192,
    "DH-1536",
@@ -65,7 +65,7 @@ const dh_set sets[] = {
    "////////////m5uqd"
 },
 #endif
-#ifdef DH1792
+#ifdef LTC_DH1792
 {
    224,
    "DH-1792",
@@ -77,7 +77,7 @@ const dh_set sets[] = {
    "//////////////////////////////////////////////////////mT/sd"
 },
 #endif
-#ifdef DH2048
+#ifdef LTC_DH2048
 {
    256,
    "DH-2048",
@@ -90,7 +90,7 @@ const dh_set sets[] = {
    "/////////////////////////////////////////m8MPh"
 },
 #endif
-#ifdef DH2560
+#ifdef LTC_DH2560
 {
    320,
    "DH-2560",
@@ -105,7 +105,7 @@ const dh_set sets[] = {
    "/////mKFpF"
 },
 #endif
-#ifdef DH3072
+#ifdef LTC_DH3072
 {
    384,
    "DH-3072",
@@ -121,7 +121,7 @@ const dh_set sets[] = {
    "/////////////////////////////m32nN"
 },
 #endif
-#ifdef DH4096
+#ifdef LTC_DH4096
 {
    512,
    "DH-4096",

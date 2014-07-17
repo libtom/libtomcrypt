@@ -188,7 +188,7 @@ const char *crypt_build_settings =
 #endif
 #if defined(LTC_LRW_MODE)
     "   LRW"
-#if defined(LRW_TABLES)
+#if defined(LTC_LRW_TABLES)
     " (tables) "
 #endif
     "\n"
@@ -282,7 +282,7 @@ const char *crypt_build_settings =
 #if defined(LTC_MDSA)
     "   DSA\n"
 #endif
-#if defined(MKAT)
+#if defined(LTC_MKAT)
     "   Katja\n"
 #endif
 
@@ -338,8 +338,8 @@ const char *crypt_build_settings =
 #if defined(MPI)
     " MPI "
 #endif
-#if defined(TRY_URANDOM_FIRST)
-    " TRY_URANDOM_FIRST "
+#if defined(LTC_TRY_URANDOM_FIRST)
+    " LTC_TRY_URANDOM_FIRST "
 #endif
 #if defined(LTC_TEST)
     " LTC_TEST "

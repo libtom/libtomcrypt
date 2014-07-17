@@ -15,7 +15,7 @@
   Free an Katja key, Tom St Denis
 */  
 
-#ifdef MKAT
+#ifdef LTC_MKAT
 
 /**
   Free an Katja key from memory

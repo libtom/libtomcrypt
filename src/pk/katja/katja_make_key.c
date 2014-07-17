@@ -15,7 +15,7 @@
   Katja key generation, Tom St Denis
 */  
 
-#ifdef MKAT
+#ifdef LTC_MKAT
 
 /** 
    Create a Katja key

@@ -15,7 +15,7 @@
   Katja PKCS #1 OAEP Decryption, Tom St Denis
 */
 
-#ifdef MKAT
+#ifdef LTC_MKAT
 
 /**
    (PKCS #1 v2.0) decrypt then OAEP depad

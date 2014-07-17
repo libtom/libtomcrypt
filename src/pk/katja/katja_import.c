@@ -15,7 +15,7 @@
   Import a PKCS-style Katja key, Tom St Denis
 */
 
-#ifdef MKAT
+#ifdef LTC_MKAT
 
 /**
   Import an KatjaPublicKey or KatjaPrivateKey [two-prime only, only support >= 1024-bit keys, defined in PKCS #1 v2.1]

@@ -15,7 +15,7 @@
   Export Katja PKCS-style keys, Tom St Denis
 */
 
-#ifdef MKAT
+#ifdef LTC_MKAT
 
 /**
     This will export either an KatjaPublicKey or KatjaPrivateKey

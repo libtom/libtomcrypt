@@ -15,7 +15,7 @@
   Katja PKCS-style OAEP encryption, Tom St Denis
 */
 
-#ifdef MKAT
+#ifdef LTC_MKAT
 
 /**
     (PKCS #1 v2.0) OAEP pad then encrypt

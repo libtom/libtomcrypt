@@ -310,7 +310,7 @@ typedef struct {
     /** The scheduled symmetric key */
     symmetric_key     key;
 
-#ifdef LRW_TABLES
+#ifdef LTC_LRW_TABLES
     /** The pre-computed multiplication table */
     unsigned char     PC[16][256][16];
 #endif

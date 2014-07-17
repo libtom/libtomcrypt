@@ -108,7 +108,7 @@
    #define LTC_SPRNG
    #define LTC_YARROW
    #define LTC_DEVRANDOM
-   #define TRY_URANDOM_FIRST
+   #define LTC_TRY_URANDOM_FIRST
 
    #define LTC_NO_PK
    #define LTC_MRSA
@@ -212,7 +212,7 @@
    /* like GCM mode this will enable 16 8x128 tables [64KB] that make
     * seeking very fast.
     */
-   #define LRW_TABLES
+   #define LTC_LRW_TABLES
 #endif
 
 /* XTS mode */
@@ -304,7 +304,7 @@
 /* the *nix style /dev/random device */
 #define LTC_DEVRANDOM
 /* try /dev/urandom before trying /dev/random */
-#define TRY_URANDOM_FIRST
+#define LTC_TRY_URANDOM_FIRST
 
 #endif /* LTC_NO_PRNGS */
 
@@ -324,23 +324,23 @@
 /* is_prime fails for GMP */
 #define LTC_MDH
 /* Supported Key Sizes */
-#define DH768
-#define DH1024
-#define DH1280
-#define DH1536
-#define DH1792
-#define DH2048
+#define LTC_DH768
+#define LTC_DH1024
+#define LTC_DH1280
+#define LTC_DH1536
+#define LTC_DH1792
+#define LTC_DH2048
 
 #ifndef TFM_DESC
 /* tfm has a problem in fp_isprime for larger key sizes */
-#define DH2560
-#define DH3072
-#define DH4096
+#define LTC_DH2560
+#define LTC_DH3072
+#define LTC_DH4096
 #endif
 #endif
 
 /* Include Katja (a Rabin variant like RSA) */
-/* #define MKAT */
+/* #define LTC_MKAT */
 
 /* Digital Signature Algorithm */
 #define LTC_MDSA
@@ -398,20 +398,20 @@
 #ifdef LTC_MECC
 /* Supported ECC Key Sizes */
 #ifndef LTC_NO_CURVES
-   #define ECC112
-   #define ECC128
-   #define ECC160
-   #define ECC192
-   #define ECC224
-   #define ECC256
-   #define ECC384
-   #define ECC521
+   #define LTC_ECC112
+   #define LTC_ECC128
+   #define LTC_ECC160
+   #define LTC_ECC192
+   #define LTC_ECC224
+   #define LTC_ECC256
+   #define LTC_ECC384
+   #define LTC_ECC521
 #endif
 #endif
 
-#if defined(LTC_MECC) || defined(LTC_MRSA) || defined(LTC_MDSA) || defined(MKATJA)
+#if defined(LTC_MECC) || defined(LTC_MRSA) || defined(LTC_MDSA) || defined(LTC_MKAT)
    /* Include the MPI functionality?  (required by the PK algorithms) */
-   #define MPI
+   #define LTC_MPI
 #endif
 
 #ifdef LTC_MRSA
@@ -435,11 +435,11 @@
    #error LTC_YARROW requires LTC_CTR_MODE chaining mode to be defined!
 #endif
 
-#if defined(LTC_DER) && !defined(MPI)
+#if defined(LTC_DER) && !defined(LTC_MPI)
    #error ASN.1 DER requires MPI functionality
 #endif
 
-#if (defined(LTC_MDSA) || defined(LTC_MRSA) || defined(LTC_MECC) || defined(MKATJA)) && !defined(LTC_DER)
+#if (defined(LTC_MDSA) || defined(LTC_MRSA) || defined(LTC_MECC) || defined(LTC_MKAT)) && !defined(LTC_DER)
    #error PK requires ASN.1 DER functionality, make sure LTC_DER is enabled
 #endif
 
