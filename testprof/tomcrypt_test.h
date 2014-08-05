@@ -72,6 +72,10 @@ extern struct list {
 
 extern int no_results;
 
+#ifdef LTC_PKCS_1
+extern const struct ltc_prng_descriptor no_prng_desc;
+#endif
+
 int sorter(const void *a, const void *b);
 void tally_results(int type);
 ulong64 rdtsc (void);
