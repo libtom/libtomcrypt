@@ -40,8 +40,10 @@ int pkcs_1_pss_test(void)
         prng_descriptor[prng_idx].add_entropy(s->o2, s->o2_l, NULL);
         DOX(hash_memory(hash_idx, s->o1, s->o1_l, buf, &buflen), s->name);
         DOX(rsa_sign_hash(buf, buflen, obuf, &obuflen, NULL, prng_idx, hash_idx, s->o2_l, key), s->name);
+        DOX(obuflen == (unsigned long)s->o3_l?CRYPT_OK:CRYPT_FAIL_TESTVECTOR, s->name);
         DOX(memcmp(s->o3, obuf, s->o3_l)==0?CRYPT_OK:CRYPT_FAIL_TESTVECTOR, s->name);
         DOX(rsa_verify_hash(obuf, obuflen, buf, buflen, hash_idx, s->o2_l, &stat, key), s->name);
+        DOX(stat == 1?CRYPT_OK:CRYPT_FAIL_TESTVECTOR, s->name);
     } /* for */
 
     mp_clear_multi(key->d,  key->e, key->N, key->dQ, key->dP, key->qP, key->p, key->q, NULL);
