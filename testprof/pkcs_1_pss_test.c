@@ -15,8 +15,8 @@ int pkcs_1_pss_test(void)
   DO(prng_is_valid(prng_idx));
   DO(hash_is_valid(hash_idx));
 
-  for (i = 0; i < sizeof(testcases)/sizeof(testcases[0]); ++i) {
-    testcase_t* t = &testcases[i];
+  for (i = 0; i < sizeof(testcases_pss)/sizeof(testcases_pss[0]); ++i) {
+    testcase_t* t = &testcases_pss[i];
     rsa_key k, *key = &k;
     DOX(mp_init_multi(&key->e, &key->d, &key->N, &key->dQ,
                        &key->dP, &key->qP, &key->p, &key->q, NULL), t->name);
@@ -32,16 +32,16 @@ int pkcs_1_pss_test(void)
     key->type = PK_PRIVATE;
 
     unsigned int j;
-    for (j = 0; j < sizeof(t->sig)/sizeof(t->sig[0]); ++j) {
-        rsaSig_t* s = &t->sig[j];
+    for (j = 0; j < sizeof(t->data)/sizeof(t->data[0]); ++j) {
+        rsaData_t* s = &t->data[j];
         unsigned char buf[20], obuf[256];
         unsigned long buflen = sizeof(buf), obuflen = sizeof(obuf);
         int stat;
-        prng_descriptor[prng_idx].add_entropy(s->salt, s->salt_l, NULL);
-        DOX(hash_memory(hash_idx, s->msg, s->msg_l, buf, &buflen), s->name);
-        DOX(rsa_sign_hash(buf, buflen, obuf, &obuflen, NULL, prng_idx, hash_idx, s->salt_l, key), s->name);
-        DOX(memcmp(s->sig, obuf, s->sig_l)==0?CRYPT_OK:CRYPT_FAIL_TESTVECTOR, s->name);
-        DOX(rsa_verify_hash(obuf, obuflen, buf, buflen, hash_idx, s->salt_l, &stat, key), s->name);
+        prng_descriptor[prng_idx].add_entropy(s->o2, s->o2_l, NULL);
+        DOX(hash_memory(hash_idx, s->o1, s->o1_l, buf, &buflen), s->name);
+        DOX(rsa_sign_hash(buf, buflen, obuf, &obuflen, NULL, prng_idx, hash_idx, s->o2_l, key), s->name);
+        DOX(memcmp(s->o3, obuf, s->o3_l)==0?CRYPT_OK:CRYPT_FAIL_TESTVECTOR, s->name);
+        DOX(rsa_verify_hash(obuf, obuflen, buf, buflen, hash_idx, s->o2_l, &stat, key), s->name);
     } /* for */
 
     mp_clear_multi(key->d,  key->e, key->N, key->dQ, key->dP, key->qP, key->p, key->q, NULL);

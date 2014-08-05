@@ -22,23 +22,23 @@ typedef struct rsaKey {
   unsigned char qInv[256];
 } rsaKey_t;
 
-typedef struct rsaSig {
+typedef struct rsaData {
   const char* name;
-  int msg_l;
-  unsigned char msg[256];
-  int salt_l;
-  unsigned char salt[256];
-  int sig_l;
-  unsigned char sig[256];
-} rsaSig_t;
+  int o1_l;
+  unsigned char o1[256];
+  int o2_l;
+  unsigned char o2[256];
+  int o3_l;
+  unsigned char o3[256];
+} rsaData_t;
 
 typedef struct testcase {
   const char* name;
   rsaKey_t rsa;
-  rsaSig_t sig[6];
+  rsaData_t data[6];
 } testcase_t;
 
-testcase_t testcases[] =
+testcase_t testcases_pss[] =
     {
 {
   "Example 1: A 1024-bit RSA Key Pair",

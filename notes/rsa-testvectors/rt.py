@@ -80,33 +80,33 @@ def read_key(f):
 	k = RsaKey(n, e, d, q, p, dP, dQ, qInv)
 	return k
 
-class Signature(object):
-	def __init__(self, name, msg, salt, sig):
+class Data(object):
+	def __init__(self, name, obj1, obj2, obj3):
 		self.name = name
-		self.msg = msg
-		self.salt = salt
-		self.sig = sig
+		self.obj1 = obj1
+		self.obj2 = obj2
+		self.obj3 = obj3
 
 	def __str__(self):
-		return "{{\n  \"{0}\",\n{1},\n{2},\n{3}\n}}\n,".format(self.name, self.msg, self.salt, self.sig)
+		return "{{\n  \"{0}\",\n{1},\n{2},\n{3}\n}}\n,".format(self.name, self.obj1, self.obj2, self.obj3)
 
-def read_sig(f):
-	name = read_until_start(f, '# RSASSA-PSS Signature Example').strip().lstrip('# ')
-	msg = read_part(f, '# Message to be signed')
-	salt = read_part(f, '# Salt')
-	sig = read_part(f, '# Signature')
-	s = Signature(name, msg, salt, sig)
+def read_data(f):
+	name = read_until_start(f, ftype.o).strip().lstrip('# ')
+	obj1 = read_part(f, ftype.o1)
+	obj2 = read_part(f, ftype.o2)
+	obj3 = read_part(f, ftype.o3)
+	s = Data(name, obj1, obj2, obj3)
 	return s
 
 class Example(object):
-	def __init__(self, name, key, s):
+	def __init__(self, name, key, data):
 		self.name = name
 		self.key = key
-		self.s = s
+		self.data = data
 
 	def __str__(self):
 		res = "{{\n  \"{0}\",\n{1},\n{{".format(self.name, str(self.key))
-		for i in self.s:
+		for i in self.data:
 			res += str(i) + '\n'
 		res += '}\n},'
 		return res
@@ -115,15 +115,29 @@ def read_example(f):
 	name = read_until_start(f, '# Example').strip().lstrip('# ')
 	key = read_key(f)
 	l = read_until_start(f, '#')
-	s = []
+	d = []
 	while l.strip().startswith('# --------------------------------'):
-		sig = read_sig(f)
-		s.append(sig)
+		data = read_data(f)
+		d.append(data)
 		l = read_until_start(f, '#')
 
-	e = Example(name, key, s)
+	e = Example(name, key, d)
 	f.seek(-len(l), os.SEEK_CUR)
 	return e
+
+
+class PkcsType(object):
+	def __init__(self, name):
+		if name == 'pss':
+			self.o = '# RSASSA-PSS Signature Example'
+			self.o1 = '# Message to be signed'
+			self.o2 = '# Salt'
+			self.o3 = '# Signature'
+		else:
+			raise ValueError('Type unknown: ' + name)
+		self.name = name
+
+ftype = PkcsType(sys.argv[2])
 
 print('/* Generated from file: %s\n * with md5 hash: %s\n */\n' % (sys.argv[1], md5_for_file(sys.argv[1])))
 print('''
@@ -146,33 +160,31 @@ typedef struct rsaKey {
   unsigned char qInv[256];
 } rsaKey_t;
 
-typedef struct rsaSig {
+typedef struct rsaData {
   const char* name;
-  int msg_l;
-  unsigned char msg[256];
-  int salt_l;
-  unsigned char salt[256];
-  int sig_l;
-  unsigned char sig[256];
-} rsaSig_t;
+  int o1_l;
+  unsigned char o1[256];
+  int o2_l;
+  unsigned char o2[256];
+  int o3_l;
+  unsigned char o3[256];
+} rsaData_t;
 
 typedef struct testcase {
   const char* name;
   rsaKey_t rsa;
-  rsaSig_t sig[6];
+  rsaData_t data[6];
 } testcase_t;
 
-testcase_t testcases[] =
-    {''')
+testcase_t testcases_%s[] =
+    {''' % sys.argv[2])
 
 with open(sys.argv[1], 'rb') as f:
 	ex = []
 	while read_until_eq(f, '# ============================================='):
 		if f.tell() == os.path.getsize(sys.argv[1]):
 			break
-		e = read_example(f)
-#		print e
-		ex.append(e)
+		ex.append(read_example(f))
 
 	for i in ex:
 		print(i)
