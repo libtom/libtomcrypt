@@ -33,7 +33,11 @@ typedef struct rsaData {
 typedef struct testcase {
   const char* name;
   rsaKey_t rsa;
+#ifdef LTC_TEST_EXT
   rsaData_t data[20];
+#else
+  rsaData_t data[1];
+#endif /* LTC_TEST_EXT */
 } testcase_t;
 
 testcase_t testcases_emsa[] =
@@ -87,6 +91,7 @@ testcase_t testcases_emsa[] =
 
 }
 ,
+#ifdef LTC_TEST_EXT
 {
   "PKCS#1 v1.5 Signature Example 1.2",
   /* Message to be signed */
@@ -315,6 +320,7 @@ testcase_t testcases_emsa[] =
 
 }
 ,
+#endif /* LTC_TEST_EXT */
 }
 },
 {
@@ -366,6 +372,7 @@ testcase_t testcases_emsa[] =
 
 }
 ,
+#ifdef LTC_TEST_EXT
 {
   "PKCS#1 v1.5 Signature Example 2.2",
   /* Message to be signed */
@@ -594,6 +601,7 @@ testcase_t testcases_emsa[] =
 
 }
 ,
+#endif /* LTC_TEST_EXT */
 }
 },
 {
@@ -645,6 +653,7 @@ testcase_t testcases_emsa[] =
 
 }
 ,
+#ifdef LTC_TEST_EXT
 {
   "PKCS#1 v1.5 Signature Example 3.2",
   /* Message to be signed */
@@ -873,6 +882,7 @@ testcase_t testcases_emsa[] =
 
 }
 ,
+#endif /* LTC_TEST_EXT */
 }
 },
 {
@@ -924,6 +934,7 @@ testcase_t testcases_emsa[] =
 
 }
 ,
+#ifdef LTC_TEST_EXT
 {
   "PKCS#1 v1.5 Signature Example 4.2",
   /* Message to be signed */
@@ -1152,6 +1163,7 @@ testcase_t testcases_emsa[] =
 
 }
 ,
+#endif /* LTC_TEST_EXT */
 }
 },
 {
@@ -1203,6 +1215,7 @@ testcase_t testcases_emsa[] =
 
 }
 ,
+#ifdef LTC_TEST_EXT
 {
   "PKCS#1 v1.5 Signature Example 5.2",
   /* Message to be signed */
@@ -1431,6 +1444,7 @@ testcase_t testcases_emsa[] =
 
 }
 ,
+#endif /* LTC_TEST_EXT */
 }
 },
 {
@@ -1482,6 +1496,7 @@ testcase_t testcases_emsa[] =
 
 }
 ,
+#ifdef LTC_TEST_EXT
 {
   "PKCS#1 v1.5 Signature Example 6.2",
   /* Message to be signed */
@@ -1710,6 +1725,7 @@ testcase_t testcases_emsa[] =
 
 }
 ,
+#endif /* LTC_TEST_EXT */
 }
 },
 {
@@ -1761,6 +1777,7 @@ testcase_t testcases_emsa[] =
 
 }
 ,
+#ifdef LTC_TEST_EXT
 {
   "PKCS#1 v1.5 Signature Example 7.2",
   /* Message to be signed */
@@ -1989,6 +2006,7 @@ testcase_t testcases_emsa[] =
 
 }
 ,
+#endif /* LTC_TEST_EXT */
 }
 },
 {
@@ -2040,6 +2058,7 @@ testcase_t testcases_emsa[] =
 
 }
 ,
+#ifdef LTC_TEST_EXT
 {
   "PKCS#1 v1.5 Signature Example 8.2",
   /* Message to be signed */
@@ -2268,6 +2287,7 @@ testcase_t testcases_emsa[] =
 
 }
 ,
+#endif /* LTC_TEST_EXT */
 }
 },
 {
@@ -2319,6 +2339,7 @@ testcase_t testcases_emsa[] =
 
 }
 ,
+#ifdef LTC_TEST_EXT
 {
   "PKCS#1 v1.5 Signature Example 9.2",
   /* Message to be signed */
@@ -2547,6 +2568,7 @@ testcase_t testcases_emsa[] =
 
 }
 ,
+#endif /* LTC_TEST_EXT */
 }
 },
 {
@@ -2598,6 +2620,7 @@ testcase_t testcases_emsa[] =
 
 }
 ,
+#ifdef LTC_TEST_EXT
 {
   "PKCS#1 v1.5 Signature Example 10.2",
   /* Message to be signed */
@@ -2826,6 +2849,7 @@ testcase_t testcases_emsa[] =
 
 }
 ,
+#endif /* LTC_TEST_EXT */
 }
 },
 {
@@ -2877,6 +2901,7 @@ testcase_t testcases_emsa[] =
 
 }
 ,
+#ifdef LTC_TEST_EXT
 {
   "PKCS#1 v1.5 Signature Example 11.2",
   /* Message to be signed */
@@ -3105,6 +3130,7 @@ testcase_t testcases_emsa[] =
 
 }
 ,
+#endif /* LTC_TEST_EXT */
 }
 },
 {
@@ -3156,6 +3182,7 @@ testcase_t testcases_emsa[] =
 
 }
 ,
+#ifdef LTC_TEST_EXT
 {
   "PKCS#1 v1.5 Signature Example 12.2",
   /* Message to be signed */
@@ -3384,6 +3411,7 @@ testcase_t testcases_emsa[] =
 
 }
 ,
+#endif /* LTC_TEST_EXT */
 }
 },
 {
@@ -3435,6 +3463,7 @@ testcase_t testcases_emsa[] =
 
 }
 ,
+#ifdef LTC_TEST_EXT
 {
   "PKCS#1 v1.5 Signature Example 13.2",
   /* Message to be signed */
@@ -3663,6 +3692,7 @@ testcase_t testcases_emsa[] =
 
 }
 ,
+#endif /* LTC_TEST_EXT */
 }
 },
 {
@@ -3714,6 +3744,7 @@ testcase_t testcases_emsa[] =
 
 }
 ,
+#ifdef LTC_TEST_EXT
 {
   "PKCS#1 v1.5 Signature Example 14.2",
   /* Message to be signed */
@@ -3942,6 +3973,7 @@ testcase_t testcases_emsa[] =
 
 }
 ,
+#endif /* LTC_TEST_EXT */
 }
 },
 {
@@ -3993,6 +4025,7 @@ testcase_t testcases_emsa[] =
 
 }
 ,
+#ifdef LTC_TEST_EXT
 {
   "PKCS#1 v1.5 Signature Example 15.2",
   /* Message to be signed */
@@ -4221,6 +4254,7 @@ testcase_t testcases_emsa[] =
 
 }
 ,
+#endif /* LTC_TEST_EXT */
 }
 },
 };

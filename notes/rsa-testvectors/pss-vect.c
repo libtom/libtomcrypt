@@ -35,7 +35,11 @@ typedef struct rsaData {
 typedef struct testcase {
   const char* name;
   rsaKey_t rsa;
+#ifdef LTC_TEST_EXT
   rsaData_t data[6];
+#else
+  rsaData_t data[1];
+#endif /* LTC_TEST_EXT */
 } testcase_t;
 
 testcase_t testcases_pss[] =
@@ -93,6 +97,7 @@ testcase_t testcases_pss[] =
 
 }
 ,
+#ifdef LTC_TEST_EXT
 {
   "RSASSA-PSS Signature Example 1.2",
   /* Message to be signed */
@@ -173,6 +178,7 @@ testcase_t testcases_pss[] =
 
 }
 ,
+#endif /* LTC_TEST_EXT */
 }
 },
 {
@@ -228,6 +234,7 @@ testcase_t testcases_pss[] =
 
 }
 ,
+#ifdef LTC_TEST_EXT
 {
   "RSASSA-PSS Signature Example 2.2",
   /* Message to be signed */
@@ -308,6 +315,7 @@ testcase_t testcases_pss[] =
 
 }
 ,
+#endif /* LTC_TEST_EXT */
 }
 },
 {
@@ -363,6 +371,7 @@ testcase_t testcases_pss[] =
 
 }
 ,
+#ifdef LTC_TEST_EXT
 {
   "RSASSA-PSS Signature Example 3.2",
   /* Message to be signed */
@@ -443,6 +452,7 @@ testcase_t testcases_pss[] =
 
 }
 ,
+#endif /* LTC_TEST_EXT */
 }
 },
 {
@@ -498,6 +508,7 @@ testcase_t testcases_pss[] =
 
 }
 ,
+#ifdef LTC_TEST_EXT
 {
   "RSASSA-PSS Signature Example 4.2",
   /* Message to be signed */
@@ -578,6 +589,7 @@ testcase_t testcases_pss[] =
 
 }
 ,
+#endif /* LTC_TEST_EXT */
 }
 },
 {
@@ -633,6 +645,7 @@ testcase_t testcases_pss[] =
 
 }
 ,
+#ifdef LTC_TEST_EXT
 {
   "RSASSA-PSS Signature Example 5.2",
   /* Message to be signed */
@@ -713,6 +726,7 @@ testcase_t testcases_pss[] =
 
 }
 ,
+#endif /* LTC_TEST_EXT */
 }
 },
 {
@@ -768,6 +782,7 @@ testcase_t testcases_pss[] =
 
 }
 ,
+#ifdef LTC_TEST_EXT
 {
   "RSASSA-PSS Signature Example 6.2",
   /* Message to be signed */
@@ -848,6 +863,7 @@ testcase_t testcases_pss[] =
 
 }
 ,
+#endif /* LTC_TEST_EXT */
 }
 },
 {
@@ -903,6 +919,7 @@ testcase_t testcases_pss[] =
 
 }
 ,
+#ifdef LTC_TEST_EXT
 {
   "RSASSA-PSS Signature Example 7.2",
   /* Message to be signed */
@@ -983,6 +1000,7 @@ testcase_t testcases_pss[] =
 
 }
 ,
+#endif /* LTC_TEST_EXT */
 }
 },
 {
@@ -1038,6 +1056,7 @@ testcase_t testcases_pss[] =
 
 }
 ,
+#ifdef LTC_TEST_EXT
 {
   "RSASSA-PSS Signature Example 8.2",
   /* Message to be signed */
@@ -1118,6 +1137,7 @@ testcase_t testcases_pss[] =
 
 }
 ,
+#endif /* LTC_TEST_EXT */
 }
 },
 {
@@ -1173,6 +1193,7 @@ testcase_t testcases_pss[] =
 
 }
 ,
+#ifdef LTC_TEST_EXT
 {
   "RSASSA-PSS Signature Example 9.2",
   /* Message to be signed */
@@ -1253,6 +1274,7 @@ testcase_t testcases_pss[] =
 
 }
 ,
+#endif /* LTC_TEST_EXT */
 }
 },
 {
@@ -1308,6 +1330,7 @@ testcase_t testcases_pss[] =
 
 }
 ,
+#ifdef LTC_TEST_EXT
 {
   "RSASSA-PSS Signature Example 10.2",
   /* Message to be signed */
@@ -1388,6 +1411,7 @@ testcase_t testcases_pss[] =
 
 }
 ,
+#endif /* LTC_TEST_EXT */
 }
 },
 };

@@ -35,7 +35,11 @@ typedef struct rsaData {
 typedef struct testcase {
   const char* name;
   rsaKey_t rsa;
+#ifdef LTC_TEST_EXT
   rsaData_t data[20];
+#else
+  rsaData_t data[1];
+#endif /* LTC_TEST_EXT */
 } testcase_t;
 
 testcase_t testcases_eme[] =
@@ -93,6 +97,7 @@ testcase_t testcases_eme[] =
 
 }
 ,
+#ifdef LTC_TEST_EXT
 {
   "PKCS#1 v1.5 Encryption Example 1.2",
   /* Message */
@@ -397,6 +402,7 @@ testcase_t testcases_eme[] =
 
 }
 ,
+#endif /* LTC_TEST_EXT */
 }
 },
 {
@@ -452,6 +458,7 @@ testcase_t testcases_eme[] =
 
 }
 ,
+#ifdef LTC_TEST_EXT
 {
   "PKCS#1 v1.5 Encryption Example 2.2",
   /* Message */
@@ -756,6 +763,7 @@ testcase_t testcases_eme[] =
 
 }
 ,
+#endif /* LTC_TEST_EXT */
 }
 },
 {
@@ -811,6 +819,7 @@ testcase_t testcases_eme[] =
 
 }
 ,
+#ifdef LTC_TEST_EXT
 {
   "PKCS#1 v1.5 Encryption Example 3.2",
   /* Message */
@@ -1115,6 +1124,7 @@ testcase_t testcases_eme[] =
 
 }
 ,
+#endif /* LTC_TEST_EXT */
 }
 },
 {
@@ -1170,6 +1180,7 @@ testcase_t testcases_eme[] =
 
 }
 ,
+#ifdef LTC_TEST_EXT
 {
   "PKCS#1 v1.5 Encryption Example 4.2",
   /* Message */
@@ -1474,6 +1485,7 @@ testcase_t testcases_eme[] =
 
 }
 ,
+#endif /* LTC_TEST_EXT */
 }
 },
 {
@@ -1529,6 +1541,7 @@ testcase_t testcases_eme[] =
 
 }
 ,
+#ifdef LTC_TEST_EXT
 {
   "PKCS#1 v1.5 Encryption Example 5.2",
   /* Message */
@@ -1833,6 +1846,7 @@ testcase_t testcases_eme[] =
 
 }
 ,
+#endif /* LTC_TEST_EXT */
 }
 },
 {
@@ -1888,6 +1902,7 @@ testcase_t testcases_eme[] =
 
 }
 ,
+#ifdef LTC_TEST_EXT
 {
   "PKCS#1 v1.5 Encryption Example 6.2",
   /* Message */
@@ -2192,6 +2207,7 @@ testcase_t testcases_eme[] =
 
 }
 ,
+#endif /* LTC_TEST_EXT */
 }
 },
 {
@@ -2247,6 +2263,7 @@ testcase_t testcases_eme[] =
 
 }
 ,
+#ifdef LTC_TEST_EXT
 {
   "PKCS#1 v1.5 Encryption Example 7.2",
   /* Message */
@@ -2551,6 +2568,7 @@ testcase_t testcases_eme[] =
 
 }
 ,
+#endif /* LTC_TEST_EXT */
 }
 },
 {
@@ -2606,6 +2624,7 @@ testcase_t testcases_eme[] =
 
 }
 ,
+#ifdef LTC_TEST_EXT
 {
   "PKCS#1 v1.5 Encryption Example 8.2",
   /* Message */
@@ -2910,6 +2929,7 @@ testcase_t testcases_eme[] =
 
 }
 ,
+#endif /* LTC_TEST_EXT */
 }
 },
 {
@@ -2965,6 +2985,7 @@ testcase_t testcases_eme[] =
 
 }
 ,
+#ifdef LTC_TEST_EXT
 {
   "PKCS#1 v1.5 Encryption Example 9.2",
   /* Message */
@@ -3269,6 +3290,7 @@ testcase_t testcases_eme[] =
 
 }
 ,
+#endif /* LTC_TEST_EXT */
 }
 },
 {
@@ -3324,6 +3346,7 @@ testcase_t testcases_eme[] =
 
 }
 ,
+#ifdef LTC_TEST_EXT
 {
   "PKCS#1 v1.5 Encryption Example 10.2",
   /* Message */
@@ -3628,6 +3651,7 @@ testcase_t testcases_eme[] =
 
 }
 ,
+#endif /* LTC_TEST_EXT */
 }
 },
 {
@@ -3683,6 +3707,7 @@ testcase_t testcases_eme[] =
 
 }
 ,
+#ifdef LTC_TEST_EXT
 {
   "PKCS#1 v1.5 Encryption Example 11.2",
   /* Message */
@@ -3987,6 +4012,7 @@ testcase_t testcases_eme[] =
 
 }
 ,
+#endif /* LTC_TEST_EXT */
 }
 },
 {
@@ -4042,6 +4068,7 @@ testcase_t testcases_eme[] =
 
 }
 ,
+#ifdef LTC_TEST_EXT
 {
   "PKCS#1 v1.5 Encryption Example 12.2",
   /* Message */
@@ -4346,6 +4373,7 @@ testcase_t testcases_eme[] =
 
 }
 ,
+#endif /* LTC_TEST_EXT */
 }
 },
 {
@@ -4401,6 +4429,7 @@ testcase_t testcases_eme[] =
 
 }
 ,
+#ifdef LTC_TEST_EXT
 {
   "PKCS#1 v1.5 Encryption Example 13.2",
   /* Message */
@@ -4705,6 +4734,7 @@ testcase_t testcases_eme[] =
 
 }
 ,
+#endif /* LTC_TEST_EXT */
 }
 },
 {
@@ -4760,6 +4790,7 @@ testcase_t testcases_eme[] =
 
 }
 ,
+#ifdef LTC_TEST_EXT
 {
   "PKCS#1 v1.5 Encryption Example 14.2",
   /* Message */
@@ -5064,6 +5095,7 @@ testcase_t testcases_eme[] =
 
 }
 ,
+#endif /* LTC_TEST_EXT */
 }
 },
 {
@@ -5119,6 +5151,7 @@ testcase_t testcases_eme[] =
 
 }
 ,
+#ifdef LTC_TEST_EXT
 {
   "PKCS#1 v1.5 Encryption Example 15.2",
   /* Message */
@@ -5423,6 +5456,7 @@ testcase_t testcases_eme[] =
 
 }
 ,
+#endif /* LTC_TEST_EXT */
 }
 },
 };

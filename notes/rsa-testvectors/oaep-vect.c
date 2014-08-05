@@ -35,7 +35,11 @@ typedef struct rsaData {
 typedef struct testcase {
   const char* name;
   rsaKey_t rsa;
+#ifdef LTC_TEST_EXT
   rsaData_t data[6];
+#else
+  rsaData_t data[1];
+#endif /* LTC_TEST_EXT */
 } testcase_t;
 
 testcase_t testcases_oaep[] =
@@ -93,6 +97,7 @@ testcase_t testcases_oaep[] =
 
 }
 ,
+#ifdef LTC_TEST_EXT
 {
   "RSAES-OAEP Encryption Example 1.2",
   /* Message to be encrypted */
@@ -173,6 +178,7 @@ testcase_t testcases_oaep[] =
 
 }
 ,
+#endif /* LTC_TEST_EXT */
 }
 },
 {
@@ -228,6 +234,7 @@ testcase_t testcases_oaep[] =
 
 }
 ,
+#ifdef LTC_TEST_EXT
 {
   "RSAES-OAEP Encryption Example 2.2",
   /* Message to be encrypted */
@@ -308,6 +315,7 @@ testcase_t testcases_oaep[] =
 
 }
 ,
+#endif /* LTC_TEST_EXT */
 }
 },
 {
@@ -363,6 +371,7 @@ testcase_t testcases_oaep[] =
 
 }
 ,
+#ifdef LTC_TEST_EXT
 {
   "RSAES-OAEP Encryption Example 3.2",
   /* Message to be encrypted */
@@ -443,6 +452,7 @@ testcase_t testcases_oaep[] =
 
 }
 ,
+#endif /* LTC_TEST_EXT */
 }
 },
 {
@@ -498,6 +508,7 @@ testcase_t testcases_oaep[] =
 
 }
 ,
+#ifdef LTC_TEST_EXT
 {
   "RSAES-OAEP Encryption Example 4.2",
   /* Message to be encrypted */
@@ -578,6 +589,7 @@ testcase_t testcases_oaep[] =
 
 }
 ,
+#endif /* LTC_TEST_EXT */
 }
 },
 {
@@ -633,6 +645,7 @@ testcase_t testcases_oaep[] =
 
 }
 ,
+#ifdef LTC_TEST_EXT
 {
   "RSAES-OAEP Encryption Example 5.2",
   /* Message to be encrypted */
@@ -713,6 +726,7 @@ testcase_t testcases_oaep[] =
 
 }
 ,
+#endif /* LTC_TEST_EXT */
 }
 },
 {
@@ -768,6 +782,7 @@ testcase_t testcases_oaep[] =
 
 }
 ,
+#ifdef LTC_TEST_EXT
 {
   "RSAES-OAEP Encryption Example 6.2",
   /* Message to be encrypted */
@@ -848,6 +863,7 @@ testcase_t testcases_oaep[] =
 
 }
 ,
+#endif /* LTC_TEST_EXT */
 }
 },
 {
@@ -903,6 +919,7 @@ testcase_t testcases_oaep[] =
 
 }
 ,
+#ifdef LTC_TEST_EXT
 {
   "RSAES-OAEP Encryption Example 7.2",
   /* Message to be encrypted */
@@ -983,6 +1000,7 @@ testcase_t testcases_oaep[] =
 
 }
 ,
+#endif /* LTC_TEST_EXT */
 }
 },
 {
@@ -1038,6 +1056,7 @@ testcase_t testcases_oaep[] =
 
 }
 ,
+#ifdef LTC_TEST_EXT
 {
   "RSAES-OAEP Encryption Example 8.2",
   /* Message to be encrypted */
@@ -1118,6 +1137,7 @@ testcase_t testcases_oaep[] =
 
 }
 ,
+#endif /* LTC_TEST_EXT */
 }
 },
 {
@@ -1173,6 +1193,7 @@ testcase_t testcases_oaep[] =
 
 }
 ,
+#ifdef LTC_TEST_EXT
 {
   "RSAES-OAEP Encryption Example 9.2",
   /* Message to be encrypted */
@@ -1253,6 +1274,7 @@ testcase_t testcases_oaep[] =
 
 }
 ,
+#endif /* LTC_TEST_EXT */
 }
 },
 {
@@ -1308,6 +1330,7 @@ testcase_t testcases_oaep[] =
 
 }
 ,
+#ifdef LTC_TEST_EXT
 {
   "RSAES-OAEP Encryption Example 10.2",
   /* Message to be encrypted */
@@ -1388,6 +1411,7 @@ testcase_t testcases_oaep[] =
 
 }
 ,
+#endif /* LTC_TEST_EXT */
 }
 },
 };
