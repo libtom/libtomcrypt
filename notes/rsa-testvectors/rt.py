@@ -105,7 +105,7 @@ class Example(object):
 		self.s = s
 
 	def __str__(self):
-		res = "{{/* {0} */\n{1},\n{{".format(self.name, str(self.key))
+		res = "{{\n  \"{0}\",\n{1},\n{{".format(self.name, str(self.key))
 		for i in self.s:
 			res += str(i) + '\n'
 		res += '}\n},'
@@ -157,6 +157,7 @@ typedef struct rsaSig {
 } rsaSig_t;
 
 typedef struct testcase {
+  const char* name;
   rsaKey_t rsa;
   rsaSig_t sig[6];
 } testcase_t;
