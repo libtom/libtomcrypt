@@ -152,6 +152,11 @@ class PkcsType(object):
 			self.o = '# PKCS#1 v1.5 Signature Example'
 			self.o1 = '# Message to be signed'
 			self.o2 = '# Signature'
+		elif name == 'eme':
+			self.o = '# PKCS#1 v1.5 Encryption Example'
+			self.o1 = '# Message'
+			self.o2 = '# Seed'
+			self.o3 = '# Encryption'
 		else:
 			raise ValueError('Type unknown: ' + name)
 
@@ -167,7 +172,7 @@ class PkcsType(object):
 			self.dQ = '# q\'s CRT exponent dQ'
 			self.qInv = '# CRT coefficient qInv'
 			self.sod = '# --------------------------------'
-		elif name == 'emsa':
+		elif name == 'emsa' or name == 'eme':
 			self.version = 1
 			self.numcases = 20
 			self.n = '# Modulus'
