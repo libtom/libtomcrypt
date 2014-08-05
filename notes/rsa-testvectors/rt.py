@@ -133,6 +133,11 @@ class PkcsType(object):
 			self.o1 = '# Message to be signed'
 			self.o2 = '# Salt'
 			self.o3 = '# Signature'
+		elif name == 'oaep':
+			self.o = '# RSAES-OAEP Encryption Example'
+			self.o1 = '# Message to be encrypted'
+			self.o2 = '# Seed'
+			self.o3 = '# Encryption'
 		else:
 			raise ValueError('Type unknown: ' + name)
 		self.name = name
