@@ -114,8 +114,12 @@ class Example(object):
 
 	def __str__(self):
 		res = "{{\n  \"{0}\",\n{1},\n{{".format(self.name, str(self.key))
-		for i in self.data:
-			res += str(i) + '\n'
+		for idx, d in enumerate(self.data, 1):
+			if idx == 2:
+				res += '#ifdef LTC_TEST_EXT\n'
+			res += str(d) + '\n'
+			if idx == ftype.numcases:
+				res += '#endif /* LTC_TEST_EXT */\n'
 		res += '}\n},'
 		return res
 
@@ -225,7 +229,11 @@ print('''} rsaData_t;
 typedef struct testcase {
   const char* name;
   rsaKey_t rsa;
+#ifdef LTC_TEST_EXT
   rsaData_t data[%d];
+#else
+  rsaData_t data[1];
+#endif /* LTC_TEST_EXT */
 } testcase_t;
 
 testcase_t testcases_%s[] =
