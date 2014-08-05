@@ -55,29 +55,29 @@ def read_part(f, s):
 	return e
 
 class RsaKey(object):
-	def __init__(self, n, e, d, q, p, dP, dQ, qInv):
+	def __init__(self, n, e, d, p, q, dP, dQ, qInv):
 		self.n = n
 		self.e = e
 		self.d = d
-		self.q = q
 		self.p = p
+		self.q = q
 		self.dP = dP
 		self.dQ = dQ
 		self.qInv = qInv
 
 	def __str__(self):
-		return "{{\n{0},\n{1},\n{2},\n{3},\n{4},\n{5},\n{6},\n{7}\n}}\n".format(self.n, self.e, self.d, self.q, self.p, self.dP, self.dQ, self.qInv)
+		return "{{\n{0},\n{1},\n{2},\n{3},\n{4},\n{5},\n{6},\n{7}\n}}\n".format(self.n, self.e, self.d, self.p, self.q, self.dP, self.dQ, self.qInv)
 
 def read_key(f):
-	n = read_part(f, '# RSA modulus n')
-	e = read_part(f, '# RSA public exponent e')
-	d = read_part(f, '# RSA private exponent d')
-	q = read_part(f, '# Prime p')
-	p = read_part(f, '# Prime q')
-	dP = read_part(f, '# p\'s CRT exponent dP')
-	dQ = read_part(f, '# q\'s CRT exponent dQ')
-	qInv = read_part(f, '# CRT coefficient qInv')
-	k = RsaKey(n, e, d, q, p, dP, dQ, qInv)
+	n = read_part(f, ftype.n)
+	e = read_part(f, ftype.e)
+	d = read_part(f, ftype.d)
+	p = read_part(f, ftype.p)
+	q = read_part(f, ftype.q)
+	dP = read_part(f, ftype.dP)
+	dQ = read_part(f, ftype.dQ)
+	qInv = read_part(f, ftype.qInv)
+	k = RsaKey(n, e, d, p, q, dP, dQ, qInv)
 	return k
 
 class Data(object):
@@ -140,6 +140,15 @@ class PkcsType(object):
 			self.o3 = '# Encryption'
 		else:
 			raise ValueError('Type unknown: ' + name)
+		if name == 'pss' or name == 'oaep':
+			self.n = '# RSA modulus n'
+			self.e = '# RSA public exponent e'
+			self.d = '# RSA private exponent d'
+			self.p = '# Prime p'
+			self.q = '# Prime q'
+			self.dP = '# p\'s CRT exponent dP'
+			self.dQ = '# q\'s CRT exponent dQ'
+			self.qInv = '# CRT coefficient qInv'
 		self.name = name
 
 ftype = PkcsType(sys.argv[2])
