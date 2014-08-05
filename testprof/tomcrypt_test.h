@@ -51,6 +51,7 @@ int cipher_hash_test(void);
 int modes_test(void);
 int mac_test(void);
 int pkcs_1_test(void);
+int pkcs_1_pss_test(void);
 int store_test(void);
 int rsa_test(void);
 int dh_test(void);

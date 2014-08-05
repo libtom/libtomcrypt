@@ -24,6 +24,7 @@ int main(void)
    printf("\nmodes_test...."); fflush(stdout); x = modes_test();       printf(x ? "failed" : "passed");if (x) exit(EXIT_FAILURE);
    printf("\nder_test......"); fflush(stdout); x = der_tests();        printf(x ? "failed" : "passed");if (x) exit(EXIT_FAILURE);
    printf("\npkcs_1_test..."); fflush(stdout); x = pkcs_1_test();      printf(x ? "failed" : "passed");if (x) exit(EXIT_FAILURE);
+   printf("\npkcs_1_pss_test...."); fflush(stdout); x = pkcs_1_pss_test();       printf(x ? "failed" : "passed");if (x) exit(EXIT_FAILURE);
    printf("\nrsa_test......"); fflush(stdout); x = rsa_test();         printf(x ? "failed" : "passed");if (x) exit(EXIT_FAILURE);
    printf("\ndh_test......."); fflush(stdout); x = dh_test();          printf(x ? "failed" : "passed");if (x) exit(EXIT_FAILURE);
    printf("\necc_test......"); fflush(stdout); x = ecc_tests();        printf(x ? "failed" : "passed");if (x) exit(EXIT_FAILURE);
