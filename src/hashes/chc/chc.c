@@ -251,6 +251,9 @@ int chc_done(hash_state *md, unsigned char *out)
 */
 int chc_test(void)
 {
+#ifndef LTC_TEST
+   return CRYPT_NOP;
+#else
    static const struct {
       unsigned char *msg,
                      md[MAXBLOCKSIZE];
@@ -289,6 +292,7 @@ int chc_test(void)
    }
 
    return CRYPT_OK;
+#endif
 }
 
 #endif
