@@ -273,6 +273,7 @@ src/hashes/sha2/sha256.o: src/hashes/sha2/sha256.c src/hashes/sha2/sha224.c
 #This rule makes the libtomcrypt library.
 library: $(LIBNAME)
 
+.PHONY: testprof/$(LIBTEST)
 testprof/$(LIBTEST):
 	cd testprof ; LIBTEST_S=$(LIBTEST) CFLAGS="$(CFLAGS)" CC="$(CC)" AR="$(AR)" $(MAKE) -f makefile.icc
 
@@ -298,6 +299,7 @@ tv_gen: library $(TVS)
 timing: library $(TIMINGS) testprof/$(LIBTEST)
 	$(CC) $(TIMINGS) testprof/$(LIBTEST) $(LIBNAME) $(EXTRALIBS) -o $(TIMING)
 
+.PHONY: test
 test: library $(TESTS) testprof/$(LIBTEST)
 	$(CC) $(TESTS) testprof/$(LIBTEST) $(LIBNAME) $(EXTRALIBS) -o $(TEST)
 

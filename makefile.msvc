@@ -158,6 +158,7 @@ tv_gen: demos/tv_gen.c library
 hashsum: demos/hashsum.c library
 	cl $(CFLAGS) demos/hashsum.c tomcrypt.lib advapi32.lib $(EXTRALIBS)
 
+.PHONY: test
 test: demos/test.c library
 	cl $(CFLAGS) demos/test.c testprof/tomcrypt_prof.lib tomcrypt.lib advapi32.lib $(EXTRALIBS)
 

@@ -208,6 +208,7 @@ src/hashes/sha2/sha256.o: src/hashes/sha2/sha256.c src/hashes/sha2/sha224.c
 #This rule makes the libtomcrypt library.
 library: $(LIBNAME)
 
+.PHONY: testprof/$(LIBTEST)
 testprof/$(LIBTEST):
 	$(MAKE) -C testprof -f makefile.mingw CFLAGS_OPTS="$(CFLAGS)" LIBTEST_S=$(LIBTEST) CC=$(CC) LD=$(LD) AR=$(AR) ARFLAGS=$(ARFLAGS) RANLIB=$(RANLIB)
 
@@ -236,6 +237,7 @@ multi: library $(MULTIS)
 timing: library testprof/$(LIBTEST) $(TIMINGS)
 	$(CC) $(LDFLAGS) $(TIMINGS) testprof/$(LIBTEST) $(LIBNAME) $(EXTRALIBS) -o $(TIMING)
 
+.PHONY: test
 test: library testprof/$(LIBTEST) $(TESTS)
 	$(CC) $(LDFLAGS) $(TESTS) testprof/$(LIBTEST) $(LIBNAME) $(EXTRALIBS) -o $(TEST)
 

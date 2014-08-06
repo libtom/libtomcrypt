@@ -258,6 +258,7 @@ src/hashes/sha2/sha256.o: src/hashes/sha2/sha256.c src/hashes/sha2/sha224.c
 #This rule makes the libtomcrypt library.
 library: $(LIBNAME)
 
+.PHONY: testprof/$(LIBTEST)
 testprof/$(LIBTEST):
 	cd testprof ; CFLAGS="$(CFLAGS)" GROUP=$(GROUP) USER=$(USER) VERSION=$(VERSION) LIBPATH=$(LIBPATH) LIBTEST=$(LIBTEST) LIBTEST_S=$(LIBTEST_S) LT=$(LT) CC=$(CC) make -f makefile.shared
 
@@ -295,6 +296,7 @@ small: library $(SMALLOBJECTS)
 tv_gen: library $(TVS)
 	$(LT) --mode=link --tag=CC $(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $(TV) $(TVS) $(LIBNAME) $(EXTRALIBS)
 
+.PHONY: test
 test: library testprof/$(LIBTEST) $(TESTS)
 	$(LT) --mode=link --tag=CC $(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $(TEST) $(TESTS) testprof/$(LIBTEST) $(LIBNAME) $(EXTRALIBS)
 
