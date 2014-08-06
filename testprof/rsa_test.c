@@ -105,7 +105,7 @@ int rsa_test(void)
    unsigned char in[1024], out[1024], tmp[1024];
    rsa_key       key, privKey, pubKey;
    int           hash_idx, prng_idx, stat, stat2;
-   unsigned long rsa_msgsize, len, len2, cnt;
+   unsigned long rsa_msgsize, len, len2, len3, cnt, cnt2;
    static unsigned char lparam[] = { 0x01, 0x02, 0x03, 0x04 };
 
    if (rsa_compat_test() != 0) {
@@ -281,7 +281,7 @@ for (cnt = 0; cnt < len; ) {
    }
 
    /* verify with privKey */
-   /* change a byte */
+   /* change byte back to original */
    in[0] ^= 1;
    DO(rsa_verify_hash(out, len, in, 20, hash_idx, 0, &stat, &privKey));
    /* change a byte */
@@ -297,7 +297,7 @@ for (cnt = 0; cnt < len; ) {
    }
 
    /* verify with pubKey */
-   /* change a byte */
+   /* change byte back to original */
    in[0] ^= 1;
    DO(rsa_verify_hash(out, len, in, 20, hash_idx, 0, &stat, &pubKey));
    /* change a byte */
@@ -343,6 +343,79 @@ for (cnt = 0; cnt < len; ) {
       rsa_free(&privKey);
       return 1;
    }
+
+   /* Testcase for Bleichenbacher attack
+    *
+    * (1) Create a valid signature
+    * (2) Check that it can be verified
+    * (3) Decrypt the package to fetch plain text
+    * (4) Forge the structure of PKCS#1-EMSA encoded data
+    * (4.1) Search for start and end of the padding string
+    * (4.2) Move the signature to the front of the padding string
+    * (4.3) Fill the message until the end with random data
+    * (5) Encrypt the package again
+    * (6) Profit :)
+    *     Verification process should succeed, but result should not be valid
+    */
+
+   unsigned char* p = in;
+   unsigned char* p2 = out;
+   unsigned char* p3 = tmp;
+   len = sizeof(in);
+   len2 = sizeof(out);
+   cnt = rsa_get_size(&key);
+   /* (1) */
+   DO(rsa_sign_hash_ex(p, 20, p2, &len2, LTC_PKCS_1_V1_5, &yarrow_prng, prng_idx, hash_idx, 8, &privKey));
+   /* (2) */
+   DOX(rsa_verify_hash_ex(p2, len2, p, 20, LTC_PKCS_1_V1_5, hash_idx, -1, &stat, &pubKey), "should succeed");
+   DOX(stat == 1?CRYPT_OK:CRYPT_FAIL_TESTVECTOR, "should succeed");
+   len3 = sizeof(tmp);
+   /* (3) */
+   DO(ltc_mp.rsa_me(p2, len2, p3, &len3, PK_PUBLIC, &key));
+   /* (4) */
+#if 0
+   printf("\nBefore:");
+   for (cnt = 0; cnt < len3; ++cnt) {
+     if (cnt%32 == 0)
+       printf("\n%3d:", cnt);
+     printf(" %02x", p3[cnt]);
+   }
+#endif
+   /* (4.1) */
+   for (cnt = 0; cnt < len3; ++cnt) {
+      if (p3[cnt] == 0xff)
+        break;
+   }
+   for (cnt2 = cnt+1; cnt2 < len3; ++cnt2) {
+      if (p3[cnt2] != 0xff)
+        break;
+   }
+   /* (4.2) */
+   memmove(&p3[cnt+1], &p3[cnt2], len3-cnt2);
+   /* (4.3) */
+   for (cnt = cnt + len3-cnt2+1; cnt < len; ++cnt) {
+      do {
+          p3[cnt] = (unsigned char)rand();
+      } while (p3[cnt] == 0);
+   }
+#if 0
+   printf("\nAfter:");
+   for (cnt = 0; cnt < len3; ++cnt) {
+     if (cnt%32 == 0)
+       printf("\n%3d:", cnt);
+     printf(" %02x", p3[cnt]);
+   }
+   printf("\n");
+#endif
+
+   len2 = sizeof(out);
+   /* (5) */
+   DO(ltc_mp.rsa_me(p3, len3, p2, &len2, PK_PRIVATE, &key));
+
+   len3 = sizeof(tmp);
+   /* (6) */
+   DOX(rsa_verify_hash_ex(p2, len2, p, 20, LTC_PKCS_1_V1_5, hash_idx, -1, &stat, &pubKey), "should succeed");
+   DOX(stat == 0?CRYPT_OK:CRYPT_FAIL_TESTVECTOR, "should fail");
 
    /* free the key and return */
    rsa_free(&key);
