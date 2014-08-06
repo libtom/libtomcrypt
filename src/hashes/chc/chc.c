@@ -35,8 +35,8 @@ const struct ltc_hash_descriptor chc_desc = {
 };
 
 /**
-  Initialize the CHC state with a given cipher 
-  @param cipher  The index of the cipher you wish to bind 
+  Initialize the CHC state with a given cipher
+  @param cipher  The index of the cipher you wish to bind
   @return CRYPT_OK if successful
 */
 int chc_register(int cipher)
@@ -70,7 +70,7 @@ int chc_register(int cipher)
    }
 
    /* store into descriptor */
-   hash_descriptor[idx].hashsize  = 
+   hash_descriptor[idx].hashsize  =
    hash_descriptor[idx].blocksize = cipher_descriptor[cipher].block_length;
 
    /* store the idx and block size */
@@ -89,7 +89,7 @@ int chc_init(hash_state *md)
    symmetric_key *key;
    unsigned char  buf[MAXBLOCKSIZE];
    int            err;
- 
+
    LTC_ARGCHK(md != NULL);
 
    /* is the cipher valid? */
@@ -105,7 +105,7 @@ int chc_init(hash_state *md)
       return CRYPT_MEM;
    }
 
-   /* zero key and what not */   
+   /* zero key and what not */
    zeromem(buf, cipher_blocksize);
    if ((err = cipher_descriptor[cipher_idx].setup(buf, cipher_blocksize, 0, key)) != CRYPT_OK) {
       XFREE(key);
@@ -123,7 +123,7 @@ int chc_init(hash_state *md)
    return CRYPT_OK;
 }
 
-/* 
+/*
    key    <= state
    T0,T1  <= block
    T0     <= encrypt T0
@@ -248,7 +248,7 @@ int chc_done(hash_state *md, unsigned char *out)
 /**
   Self-test the hash
   @return CRYPT_OK if successful, CRYPT_NOP if self-tests have been disabled
-*/  
+*/
 int chc_test(void)
 {
    static const struct {
@@ -258,7 +258,7 @@ int chc_test(void)
    } tests[] = {
 {
    (unsigned char *)"hello world",
-   { 0xcf, 0x57, 0x9d, 0xc3, 0x0a, 0x0e, 0xea, 0x61, 
+   { 0xcf, 0x57, 0x9d, 0xc3, 0x0a, 0x0e, 0xea, 0x61,
      0x0d, 0x54, 0x47, 0xc4, 0x3c, 0x06, 0xf5, 0x4e },
    16
 }
