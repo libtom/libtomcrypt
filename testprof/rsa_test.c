@@ -104,7 +104,7 @@ int rsa_test(void)
 {
    unsigned char in[1024], out[1024], tmp[1024];
    rsa_key       key, privKey, pubKey;
-   int           hash_idx, prng_idx, stat, stat2;
+   int           hash_idx, prng_idx, stat, stat2, i;
    unsigned long rsa_msgsize, len, len2, len3, cnt, cnt2;
    static unsigned char lparam[] = { 0x01, 0x02, 0x03, 0x04 };
 
@@ -361,61 +361,67 @@ for (cnt = 0; cnt < len; ) {
    unsigned char* p = in;
    unsigned char* p2 = out;
    unsigned char* p3 = tmp;
-   len = sizeof(in);
-   len2 = sizeof(out);
-   cnt = rsa_get_size(&key);
-   /* (1) */
-   DO(rsa_sign_hash_ex(p, 20, p2, &len2, LTC_PKCS_1_V1_5, &yarrow_prng, prng_idx, hash_idx, 8, &privKey));
-   /* (2) */
-   DOX(rsa_verify_hash_ex(p2, len2, p, 20, LTC_PKCS_1_V1_5, hash_idx, -1, &stat, &pubKey), "should succeed");
-   DOX(stat == 1?CRYPT_OK:CRYPT_FAIL_TESTVECTOR, "should succeed");
-   len3 = sizeof(tmp);
-   /* (3) */
-   DO(ltc_mp.rsa_me(p2, len2, p3, &len3, PK_PUBLIC, &key));
-   /* (4) */
+   for (i = 0; i < 9; ++i) {
+     len = sizeof(in);
+     len2 = sizeof(out);
+     cnt = rsa_get_size(&key);
+     /* (1) */
+     DO(rsa_sign_hash_ex(p, 20, p2, &len2, LTC_PKCS_1_V1_5, &yarrow_prng, prng_idx, hash_idx, 8, &privKey));
+     /* (2) */
+     DOX(rsa_verify_hash_ex(p2, len2, p, 20, LTC_PKCS_1_V1_5, hash_idx, -1, &stat, &pubKey), "should succeed");
+     DOX(stat == 1?CRYPT_OK:CRYPT_FAIL_TESTVECTOR, "should succeed");
+     len3 = sizeof(tmp);
+     /* (3) */
+     DO(ltc_mp.rsa_me(p2, len2, p3, &len3, PK_PUBLIC, &key));
+     /* (4) */
 #if 0
-   printf("\nBefore:");
-   for (cnt = 0; cnt < len3; ++cnt) {
-     if (cnt%32 == 0)
-       printf("\n%3d:", cnt);
-     printf(" %02x", p3[cnt]);
-   }
+     printf("\nBefore:");
+     for (cnt = 0; cnt < len3; ++cnt) {
+       if (cnt%32 == 0)
+         printf("\n%3d:", cnt);
+       printf(" %02x", p3[cnt]);
+     }
 #endif
-   /* (4.1) */
-   for (cnt = 0; cnt < len3; ++cnt) {
-      if (p3[cnt] == 0xff)
-        break;
-   }
-   for (cnt2 = cnt+1; cnt2 < len3; ++cnt2) {
-      if (p3[cnt2] != 0xff)
-        break;
-   }
-   /* (4.2) */
-   memmove(&p3[cnt+1], &p3[cnt2], len3-cnt2);
-   /* (4.3) */
-   for (cnt = cnt + len3-cnt2+1; cnt < len; ++cnt) {
-      do {
-          p3[cnt] = (unsigned char)rand();
-      } while (p3[cnt] == 0);
-   }
+     /* (4.1) */
+     for (cnt = 0; cnt < len3; ++cnt) {
+        if (p3[cnt] == 0xff)
+          break;
+     }
+     for (cnt2 = cnt+1; cnt2 < len3; ++cnt2) {
+        if (p3[cnt2] != 0xff)
+          break;
+     }
+     /* (4.2) */
+     memmove(&p3[cnt+i], &p3[cnt2], len3-cnt2);
+     /* (4.3) */
+     for (cnt = cnt + len3-cnt2+i; cnt < len; ++cnt) {
+        do {
+            p3[cnt] = (unsigned char)rand();
+        } while (p3[cnt] == 0);
+     }
 #if 0
-   printf("\nAfter:");
-   for (cnt = 0; cnt < len3; ++cnt) {
-     if (cnt%32 == 0)
-       printf("\n%3d:", cnt);
-     printf(" %02x", p3[cnt]);
-   }
-   printf("\n");
+     printf("\nAfter:");
+     for (cnt = 0; cnt < len3; ++cnt) {
+       if (cnt%32 == 0)
+         printf("\n%3d:", cnt);
+       printf(" %02x", p3[cnt]);
+     }
+     printf("\n");
 #endif
 
-   len2 = sizeof(out);
-   /* (5) */
-   DO(ltc_mp.rsa_me(p3, len3, p2, &len2, PK_PRIVATE, &key));
+     len2 = sizeof(out);
+     /* (5) */
+     DO(ltc_mp.rsa_me(p3, len3, p2, &len2, PK_PRIVATE, &key));
 
-   len3 = sizeof(tmp);
-   /* (6) */
-   DOX(rsa_verify_hash_ex(p2, len2, p, 20, LTC_PKCS_1_V1_5, hash_idx, -1, &stat, &pubKey), "should succeed");
-   DOX(stat == 0?CRYPT_OK:CRYPT_FAIL_TESTVECTOR, "should fail");
+     len3 = sizeof(tmp);
+     /* (6) */
+     if (i < 8)
+       DOX(rsa_verify_hash_ex(p2, len2, p, 20, LTC_PKCS_1_V1_5, hash_idx, -1, &stat, &pubKey)
+           == CRYPT_INVALID_PACKET ? CRYPT_OK:CRYPT_INVALID_PACKET, "should fail");
+     else
+       DOX(rsa_verify_hash_ex(p2, len2, p, 20, LTC_PKCS_1_V1_5, hash_idx, -1, &stat, &pubKey), "should succeed");
+     DOX(stat == 0?CRYPT_OK:CRYPT_FAIL_TESTVECTOR, "should fail");
+   }
 
    /* free the key and return */
    rsa_free(&key);
