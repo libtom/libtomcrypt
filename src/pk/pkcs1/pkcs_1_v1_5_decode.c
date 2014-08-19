@@ -65,9 +65,8 @@ int pkcs_1_v1_5_decode(const unsigned char *msg,
     }
     ps_len = i++ - 2;
 
-    if ((i >= modulus_len) || (ps_len < 8)) {
-      /* There was no octet with hexadecimal value 0x00 to separate ps from m,
-       * or the length of ps is less than 8 octets.
+    if (i >= modulus_len) {
+      /* There was no octet with hexadecimal value 0x00 to separate ps from m.
        */
       result = CRYPT_INVALID_PACKET;
       goto bail;
@@ -85,6 +84,14 @@ int pkcs_1_v1_5_decode(const unsigned char *msg,
     }
 
     ps_len = i - 2;
+  }
+
+  if (ps_len < 8)
+  {
+    /* The length of ps is less than 8 octets.
+     */
+    result = CRYPT_INVALID_PACKET;
+    goto bail;
   }
 
   if (*outlen < (msglen - (2 + ps_len + 1))) {
