@@ -240,11 +240,13 @@ for (cnt = 0; cnt < len; ) {
    for (rsa_msgsize = 1; rsa_msgsize <= 117; rsa_msgsize++) {
       len  = sizeof(out);
       len2 = rsa_msgsize;
+      /* make a random key/msg */
+      yarrow_read(in, rsa_msgsize, &yarrow_prng);
       DO(rsa_encrypt_key_ex(in, rsa_msgsize, out, &len, NULL, 0, &yarrow_prng, prng_idx, 0, LTC_PKCS_1_V1_5, &key));
 
       len2 = rsa_msgsize;
       DO(rsa_decrypt_key_ex(out, len, tmp, &len2, NULL, 0, 0, LTC_PKCS_1_V1_5, &stat, &key));
-      if (!(stat == 1 && stat2 == 0)) {
+      if (stat != 1) {
          fprintf(stderr, "rsa_decrypt_key_ex failed, %d, %d", stat, stat2);
          return 1;
       }
