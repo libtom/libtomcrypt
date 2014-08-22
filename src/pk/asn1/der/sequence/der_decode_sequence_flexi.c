@@ -103,7 +103,7 @@ int der_decode_sequence_flexi(const unsigned char *in, unsigned long *inlen, ltc
          l = l->next;
       }
 
-      if ((is_constructed = ((type & 0x20) ? 1 : 0))) {
+      if ((is_constructed = (((type & 0x20) && type != 0x30 && type != 0x31) ? 1 : 0))) {
          /* constructed, use the 'used' field to store the original tag number */
          l->used = (type & 0x1F);
          /* treat constructed elements like SETs */
