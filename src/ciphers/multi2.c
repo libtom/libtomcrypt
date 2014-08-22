@@ -58,7 +58,7 @@ static void setup(ulong32 *dk, ulong32 *k, ulong32 *uk)
 
    p[0] = dk[0]; p[1] = dk[1];
 
-   t = 4; 
+   t = 4;
    n = 0;
       pi1(p);
       pi2(p, k);
@@ -83,13 +83,13 @@ static void encrypt(ulong32 *p, int N, ulong32 *uk)
 {
    int n, t;
    for (t = n = 0; ; ) {
-      pi1(p); if (++n == N) break;       
+      pi1(p); if (++n == N) break;
       pi2(p, uk+t); if (++n == N) break;
       pi3(p, uk+t); if (++n == N) break;
       pi4(p, uk+t); if (++n == N) break;
       t ^= 4;
    }
-} 
+}
 
 static void decrypt(ulong32 *p, int N, ulong32 *uk)
 {
@@ -104,7 +104,7 @@ static void decrypt(ulong32 *p, int N, ulong32 *uk)
       }
       t ^= 4;
    }
-} 
+}
 
 const struct ltc_cipher_descriptor multi2_desc = {
    "multi2",
@@ -129,7 +129,7 @@ int  multi2_setup(const unsigned char *key, int keylen, int num_rounds, symmetri
 
    if (keylen != 40) return CRYPT_INVALID_KEYSIZE;
    if (num_rounds == 0) num_rounds = 128;
-   
+
    skey->multi2.N = num_rounds;
    for (x = 0; x < 8; x++) {
        LOAD32H(sk[x], key + x*4);
@@ -159,7 +159,7 @@ int multi2_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key
    LOAD32H(p[0], pt);
    LOAD32H(p[1], pt+4);
    encrypt(p, skey->multi2.N, skey->multi2.uk);
-   STORE32H(p[0], ct);   
+   STORE32H(p[0], ct);
    STORE32H(p[1], ct+4);
    return CRYPT_OK;
 }
@@ -180,7 +180,7 @@ int multi2_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key
    LOAD32H(p[0], ct);
    LOAD32H(p[1], ct+4);
    decrypt(p, skey->multi2.N, skey->multi2.uk);
-   STORE32H(p[0], pt);   
+   STORE32H(p[0], pt);
    STORE32H(p[1], pt+4);
    return CRYPT_OK;
 }
@@ -207,7 +207,7 @@ int multi2_test(void)
       0x00, 0x00, 0x00, 0x00,
       0x00, 0x00, 0x00, 0x00,
       0x00, 0x00, 0x00, 0x00,
-   
+
       0x01, 0x23, 0x45, 0x67,
       0x89, 0xAB, 0xCD, 0xEF
    },
@@ -235,7 +235,7 @@ int multi2_test(void)
       0xb1, 0x27, 0xb9, 0x06,
       0xe7, 0x56, 0x22, 0x38,
    },
-   { 
+   {
       0x1f, 0xb4, 0x60, 0x60,
       0xd0, 0xb3, 0x4f, 0xa5
    },
@@ -261,7 +261,7 @@ int multi2_test(void)
       if (XMEMCMP(buf, tests[x].ct, 8)) {
          return CRYPT_FAIL_TESTVECTOR;
       }
-   
+
       if ((err = multi2_ecb_decrypt(buf, buf, &skey)) != CRYPT_OK) {
          return err;
       }
@@ -269,7 +269,7 @@ int multi2_test(void)
          return CRYPT_FAIL_TESTVECTOR;
       }
    }
-   
+
    for (x = 128; x < 256; ++x) {
         unsigned char ct[8];
 
@@ -290,7 +290,7 @@ int multi2_test(void)
    return CRYPT_OK;
 }
 
-/** Terminate the context 
+/** Terminate the context
    @param skey    The scheduled key
 */
 void multi2_done(symmetric_key *skey)

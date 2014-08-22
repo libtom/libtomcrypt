@@ -100,7 +100,7 @@ int der_decode_choice(const unsigned char *in,   unsigned long *inlen,
                   return CRYPT_OK;
                }
                break;
-                  
+
            case LTC_ASN1_OBJECT_IDENTIFIER:
                if (der_decode_object_identifier(in, *inlen, data, &size) == CRYPT_OK) {
                   if (der_length_object_identifier(data, size, &z) == CRYPT_OK) {
@@ -122,7 +122,6 @@ int der_decode_choice(const unsigned char *in,   unsigned long *inlen,
                   }
                }
                break;
-
 
            case LTC_ASN1_PRINTABLE_STRING:
                if (der_decode_printable_string(in, *inlen, data, &size) == CRYPT_OK) {

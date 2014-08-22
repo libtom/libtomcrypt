@@ -25,7 +25,7 @@
   @param outlen [in/out] Length of buffer and resulting length of output
   @remark <...> is of the form <type, size, data> (int, unsigned long, void*)
   @return CRYPT_OK on success
-*/  
+*/
 int der_encode_sequence_multi(unsigned char *out, unsigned long *outlen, ...)
 {
    int           err, type;
@@ -45,7 +45,7 @@ int der_encode_sequence_multi(unsigned char *out, unsigned long *outlen, ...)
        size = va_arg(args, unsigned long);
        data = va_arg(args, void*);
 
-       if (type == LTC_ASN1_EOL) { 
+       if (type == LTC_ASN1_EOL) {
           break;
        }
 
@@ -65,9 +65,9 @@ int der_encode_sequence_multi(unsigned char *out, unsigned long *outlen, ...)
            case LTC_ASN1_SET:
            case LTC_ASN1_SETOF:
            case LTC_ASN1_RAW_BIT_STRING:
-                ++x; 
+                ++x;
                 break;
-          
+
            default:
                va_end(args);
                return CRYPT_INVALID_ARG;
@@ -93,7 +93,7 @@ int der_encode_sequence_multi(unsigned char *out, unsigned long *outlen, ...)
        size = va_arg(args, unsigned long);
        data = va_arg(args, void*);
 
-       if (type == LTC_ASN1_EOL) { 
+       if (type == LTC_ASN1_EOL) {
           break;
        }
 
@@ -117,7 +117,7 @@ int der_encode_sequence_multi(unsigned char *out, unsigned long *outlen, ...)
                 list[x].size   = size;
                 list[x++].data = data;
                 break;
-         
+
            default:
                va_end(args);
                err = CRYPT_INVALID_ARG;
@@ -126,7 +126,7 @@ int der_encode_sequence_multi(unsigned char *out, unsigned long *outlen, ...)
    }
    va_end(args);
 
-   err = der_encode_sequence(list, x, out, outlen);   
+   err = der_encode_sequence(list, x, out, outlen);
 LBL_ERR:
    XFREE(list);
    return err;

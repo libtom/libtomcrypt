@@ -10,7 +10,7 @@
  */
 /**
    @file noekeon.c
-   Implementation of the Noekeon block cipher by Tom St Denis 
+   Implementation of the Noekeon block cipher by Tom St Denis
 */
 #include "tomcrypt.h"
 
@@ -35,7 +35,7 @@ static const ulong32 RC[] = {
    0x000000d8UL, 0x000000abUL, 0x0000004dUL, 0x0000009aUL,
    0x0000002fUL, 0x0000005eUL, 0x000000bcUL, 0x00000063UL,
    0x000000c6UL, 0x00000097UL, 0x00000035UL, 0x0000006aUL,
-   0x000000d4UL 
+   0x000000d4UL
 };
 
 #define kTHETA(a, b, c, d)                                 \
@@ -49,7 +49,7 @@ static const ulong32 RC[] = {
     b ^= temp ^ k[1]; d ^= temp ^ k[3];                    \
     temp = b^d; temp = temp ^ ROLc(temp, 8) ^ RORc(temp, 8); \
     a ^= temp ^ k[0]; c ^= temp ^ k[2];
-    
+
 #define GAMMA(a, b, c, d)     \
     b ^= ~(d|c);              \
     a ^= c&b;                 \
@@ -57,13 +57,13 @@ static const ulong32 RC[] = {
     c ^= a ^ b ^ d;           \
     b ^= ~(d|c);              \
     a ^= c&b;
-    
+
 #define PI1(a, b, c, d) \
     b = ROLc(b, 1); c = ROLc(c, 5); d = ROLc(d, 2);
-    
+
 #define PI2(a, b, c, d) \
     b = RORc(b, 1); c = RORc(c, 5); d = RORc(d, 2);
-    
+
  /**
     Initialize the Noekeon block cipher
     @param key The symmetric key you wish to pass
@@ -75,23 +75,23 @@ static const ulong32 RC[] = {
 int noekeon_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_key *skey)
 {
    ulong32 temp;
-   
+
    LTC_ARGCHK(key != NULL);
    LTC_ARGCHK(skey != NULL);
-   
+
    if (keylen != 16) {
       return CRYPT_INVALID_KEYSIZE;
    }
-   
+
    if (num_rounds != 16 && num_rounds != 0) {
       return CRYPT_INVALID_ROUNDS;
    }
-   
+
    LOAD32H(skey->noekeon.K[0],&key[0]);
    LOAD32H(skey->noekeon.K[1],&key[4]);
    LOAD32H(skey->noekeon.K[2],&key[8]);
    LOAD32H(skey->noekeon.K[3],&key[12]);
-   
+
    LOAD32H(skey->noekeon.dK[0],&key[0]);
    LOAD32H(skey->noekeon.dK[1],&key[4]);
    LOAD32H(skey->noekeon.dK[2],&key[8]);
@@ -121,10 +121,10 @@ int noekeon_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_ke
    LTC_ARGCHK(skey != NULL);
    LTC_ARGCHK(pt   != NULL);
    LTC_ARGCHK(ct   != NULL);
-   
+
    LOAD32H(a,&pt[0]); LOAD32H(b,&pt[4]);
    LOAD32H(c,&pt[8]); LOAD32H(d,&pt[12]);
-   
+
 #define ROUND(i) \
        a ^= RC[i]; \
        THETA(skey->noekeon.K, a,b,c,d); \
@@ -140,7 +140,7 @@ int noekeon_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_ke
 
    a ^= RC[16];
    THETA(skey->noekeon.K, a, b, c, d);
-   
+
    STORE32H(a,&ct[0]); STORE32H(b,&ct[4]);
    STORE32H(c,&ct[8]); STORE32H(d,&ct[12]);
 
@@ -160,7 +160,7 @@ int noekeon_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_ke
   Decrypts a block of text with Noekeon
   @param ct The input ciphertext (16 bytes)
   @param pt The output plaintext (16 bytes)
-  @param skey The key as scheduled 
+  @param skey The key as scheduled
   @return CRYPT_OK if successful
 */
 #ifdef LTC_CLEAN_STACK
@@ -175,17 +175,17 @@ int noekeon_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_ke
    LTC_ARGCHK(skey != NULL);
    LTC_ARGCHK(pt   != NULL);
    LTC_ARGCHK(ct   != NULL);
-   
+
    LOAD32H(a,&ct[0]); LOAD32H(b,&ct[4]);
    LOAD32H(c,&ct[8]); LOAD32H(d,&ct[12]);
-   
+
 
 #define ROUND(i) \
        THETA(skey->noekeon.dK, a,b,c,d); \
        a ^= RC[i]; \
        PI1(a,b,c,d); \
        GAMMA(a,b,c,d); \
-       PI2(a,b,c,d); 
+       PI2(a,b,c,d);
 
    for (r = 16; r > 0; --r) {
        ROUND(r);
@@ -274,16 +274,16 @@ int noekeon_test(void)
  symmetric_key key;
  unsigned char tmp[2][16];
  int err, i, y;
- 
+
  for (i = 0; i < (int)(sizeof(tests)/sizeof(tests[0])); i++) {
     zeromem(&key, sizeof(key));
-    if ((err = noekeon_setup(tests[i].key, tests[i].keylen, 0, &key)) != CRYPT_OK) { 
+    if ((err = noekeon_setup(tests[i].key, tests[i].keylen, 0, &key)) != CRYPT_OK) {
        return err;
     }
-  
+
     noekeon_ecb_encrypt(tests[i].pt, tmp[0], &key);
     noekeon_ecb_decrypt(tmp[0], tmp[1], &key);
-    if (XMEMCMP(tmp[0], tests[i].ct, 16) || XMEMCMP(tmp[1], tests[i].pt, 16)) { 
+    if (XMEMCMP(tmp[0], tests[i].ct, 16) || XMEMCMP(tmp[1], tests[i].pt, 16)) {
 #if 0
        printf("\n\nTest %d failed\n", i);
        if (XMEMCMP(tmp[0], tests[i].ct, 16)) {
@@ -299,7 +299,7 @@ int noekeon_test(void)
           }
           printf("\n");
        }
-#endif       
+#endif
         return CRYPT_FAIL_TESTVECTOR;
     }
 
@@ -308,12 +308,12 @@ int noekeon_test(void)
       for (y = 0; y < 1000; y++) noekeon_ecb_encrypt(tmp[0], tmp[0], &key);
       for (y = 0; y < 1000; y++) noekeon_ecb_decrypt(tmp[0], tmp[0], &key);
       for (y = 0; y < 16; y++) if (tmp[0][y] != 0) return CRYPT_FAIL_TESTVECTOR;
- }       
+ }
  return CRYPT_OK;
  #endif
 }
 
-/** Terminate the context 
+/** Terminate the context
    @param skey    The scheduled key
 */
 void noekeon_done(symmetric_key *skey)

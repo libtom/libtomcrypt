@@ -207,7 +207,7 @@ int kseed_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_
     if (keylen != 16) {
        return CRYPT_INVALID_KEYSIZE;
     }
-   
+
     if (num_rounds != 16 && num_rounds != 0) {
        return CRYPT_INVALID_ROUNDS;
     }
@@ -275,7 +275,7 @@ int kseed_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key 
   Decrypts a block of text with SEED
   @param ct The input ciphertext (16 bytes)
   @param pt The output plaintext (16 bytes)
-  @param skey The key as scheduled 
+  @param skey The key as scheduled
   @return CRYPT_OK if successful
 */
 int kseed_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey)
@@ -293,7 +293,7 @@ int kseed_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key 
    return CRYPT_OK;
 }
 
-/** Terminate the context 
+/** Terminate the context
    @param skey    The scheduled key
 */
 void kseed_done(symmetric_key *skey)

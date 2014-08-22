@@ -150,7 +150,7 @@ int kasumi_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key
     LOAD32H(left, pt);
     LOAD32H(right, pt+4);
 
-    for (n = 0; n <= 7; ) {     
+    for (n = 0; n <= 7; ) {
         temp = FL(left,  n,   skey);
         temp = FO(temp,  n++, skey);
         right ^= temp;

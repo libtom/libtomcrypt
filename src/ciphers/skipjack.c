@@ -75,7 +75,7 @@ int skipjack_setup(const unsigned char *key, int keylen, int num_rounds, symmetr
       return CRYPT_INVALID_KEYSIZE;
    }
 
-   if (num_rounds != 32 && num_rounds != 0) { 
+   if (num_rounds != 32 && num_rounds != 0) {
       return CRYPT_INVALID_ROUNDS;
    }
 
@@ -201,7 +201,7 @@ int skipjack_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_k
   Decrypts a block of text with Skipjack
   @param ct The input ciphertext (8 bytes)
   @param pt The output plaintext (8 bytes)
-  @param skey The key as scheduled 
+  @param skey The key as scheduled
   @return CRYPT_OK if successful
 */
 #ifdef LTC_CLEAN_STACK
@@ -223,7 +223,7 @@ int skipjack_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_k
    w3 = ((unsigned)ct[4]<<8)|ct[5];
    w4 = ((unsigned)ct[6]<<8)|ct[7];
 
-   /* 8 rounds of RULE B^-1 
+   /* 8 rounds of RULE B^-1
 
       Note the value "kp = 8" comes from "kp = (32 * 4) mod 10" where 32*4 is 128 which mod 10 is 8
     */
@@ -273,7 +273,7 @@ int skipjack_test(void)
 {
  #ifndef LTC_TEST
     return CRYPT_NOP;
- #else    
+ #else
    static const struct {
        unsigned char key[10], pt[8], ct[8];
    } tests[] = {
@@ -313,7 +313,7 @@ int skipjack_test(void)
   #endif
 }
 
-/** Terminate the context 
+/** Terminate the context
    @param skey    The scheduled key
 */
 void skipjack_done(symmetric_key *skey)
