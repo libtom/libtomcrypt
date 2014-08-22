@@ -65,6 +65,7 @@ int der_decode_sequence_flexi(const unsigned char *in, unsigned long *inlen, ltc
    ltc_asn1_list *l;
    unsigned long err, type, len, totlen, x, y;
    void          *realloc_tmp;
+   int           is_constructed;
    
    LTC_ARGCHK(in    != NULL);
    LTC_ARGCHK(inlen != NULL);
@@ -102,7 +103,14 @@ int der_decode_sequence_flexi(const unsigned char *in, unsigned long *inlen, ltc
          l = l->next;
       }
 
-      /* now switch on type */
+      if ((is_constructed = (((type & 0x20) && type != 0x30 && type != 0x31) ? 1 : 0))) {
+         /* constructed, use the 'used' field to store the original tag number */
+         l->used = (type & 0x1F);
+         /* treat constructed elements like SETs */
+         type = 0x31;
+      }
+     
+     /* now switch on type */
       switch (type) {
          case 0x01: /* BOOLEAN */
             l->type = LTC_ASN1_BOOLEAN;
@@ -259,6 +267,26 @@ int der_decode_sequence_flexi(const unsigned char *in, unsigned long *inlen, ltc
             }
             break;
          
+         case 0x14: /* TELETEXT */
+         
+            /* init field */
+            l->type = LTC_ASN1_TELETEX_STRING;
+            l->size = len;
+
+            if ((l->data = XCALLOC(1, l->size)) == NULL) {
+               err = CRYPT_MEM;
+               goto error;
+            }
+            
+            if ((err = der_decode_teletex_string(in, *inlen, l->data, &l->size)) != CRYPT_OK) {
+               goto error;
+            }
+            
+            if ((err = der_length_teletex_string(l->data, l->size, &len)) != CRYPT_OK) {
+               goto error;
+            }
+            break;
+            
          case 0x16: /* IA5 */
          
             /* init field */
@@ -304,7 +332,7 @@ int der_decode_sequence_flexi(const unsigned char *in, unsigned long *inlen, ltc
          case 0x31: /* SET */
          
              /* init field */
-             l->type = (type == 0x30) ? LTC_ASN1_SEQUENCE : LTC_ASN1_SET;
+             l->type = (is_constructed ? LTC_ASN1_CONSTRUCTED : ((type == 0x30) ? LTC_ASN1_SEQUENCE : LTC_ASN1_SET));
              
              /* we have to decode the SEQUENCE header and get it's length */
              
@@ -343,9 +371,11 @@ int der_decode_sequence_flexi(const unsigned char *in, unsigned long *inlen, ltc
          default:
            /* invalid byte ... this is a soft error */
            /* remove link */
-           l       = l->prev;
-           XFREE(l->next);
-           l->next = NULL;
+           if (l->prev) {
+              l       = l->prev;
+              XFREE(l->next);
+              l->next = NULL;
+           }
            goto outside;
       }
       
