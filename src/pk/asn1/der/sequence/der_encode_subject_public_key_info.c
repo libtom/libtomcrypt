@@ -49,13 +49,8 @@ int der_encode_subject_public_key_info(unsigned char *out, unsigned long *outlen
         return err;
    }
 
-   alg_id[0].data = oid.OID;
-   alg_id[0].size = oid.OIDlen;
-   alg_id[0].type = LTC_ASN1_OBJECT_IDENTIFIER;
-
-   alg_id[1].data = parameters;
-   alg_id[1].size = parameters_len;
-   alg_id[1].type = parameters_type;
+   LTC_SET_ASN1(alg_id, 0, LTC_ASN1_OBJECT_IDENTIFIER, oid.OID,    oid.OIDlen);
+   LTC_SET_ASN1(alg_id, 1, parameters_type,            parameters, parameters_len);
 
    return der_encode_sequence_multi(out, outlen,
         LTC_ASN1_SEQUENCE, (unsigned long)sizeof(alg_id)/sizeof(alg_id[0]), alg_id,
