@@ -187,6 +187,18 @@ int der_decode_sequence_ex(const unsigned char *in, unsigned long  inlen,
                }
                break;
 
+           case LTC_ASN1_TELETEX_STRING:
+               z = inlen;
+               if ((err = der_decode_teletex_string(in + x, z, data, &size)) != CRYPT_OK) {
+                  if (!ordered) { continue; }
+                  goto LBL_ERR;
+               }
+               list[i].size = size;
+               if ((err = der_length_teletex_string(data, size, &z)) != CRYPT_OK) {
+                  goto LBL_ERR;
+               }
+               break;
+
            case LTC_ASN1_IA5_STRING:
                z = inlen;
                if ((err = der_decode_ia5_string(in + x, z, data, &size)) != CRYPT_OK) {

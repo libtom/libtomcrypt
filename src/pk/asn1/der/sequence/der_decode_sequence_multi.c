@@ -64,6 +64,8 @@ int der_decode_sequence_multi(const unsigned char *in, unsigned long inlen, ...)
            case LTC_ASN1_SETOF:
            case LTC_ASN1_SEQUENCE:
            case LTC_ASN1_CHOICE:
+           case LTC_ASN1_RAW_BIT_STRING:
+           case LTC_ASN1_TELETEX_STRING:
                 ++x;
                 break;
 
@@ -112,6 +114,8 @@ int der_decode_sequence_multi(const unsigned char *in, unsigned long inlen, ...)
            case LTC_ASN1_SET:
            case LTC_ASN1_SETOF:
            case LTC_ASN1_CHOICE:
+           case LTC_ASN1_RAW_BIT_STRING:
+           case LTC_ASN1_TELETEX_STRING:
                 LTC_SET_ASN1(list, x++, type, data, size);
                 break;
 
