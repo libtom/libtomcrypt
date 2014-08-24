@@ -318,6 +318,7 @@ int skipjack_test(void)
 */
 void skipjack_done(symmetric_key *skey)
 {
+  LTC_UNUSED_PARAM(skey);
 }
 
 /**

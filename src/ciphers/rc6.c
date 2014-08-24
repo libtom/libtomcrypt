@@ -321,6 +321,7 @@ int rc6_test(void)
 */
 void rc6_done(symmetric_key *skey)
 {
+  LTC_UNUSED_PARAM(skey);
 }
 
 /**

@@ -298,6 +298,7 @@ int kseed_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key 
 */
 void kseed_done(symmetric_key *skey)
 {
+  LTC_UNUSED_PARAM(skey);
 }
 
 /**

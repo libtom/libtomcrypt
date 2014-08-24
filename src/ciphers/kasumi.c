@@ -236,6 +236,7 @@ int kasumi_setup(const unsigned char *key, int keylen, int num_rounds, symmetric
 
 void kasumi_done(symmetric_key *skey)
 {
+  LTC_UNUSED_PARAM(skey);
 }
 
 int kasumi_keysize(int *keysize)

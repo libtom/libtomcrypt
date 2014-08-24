@@ -721,7 +721,10 @@ int camellia_test(void)
    return CRYPT_OK;
 }
 
-void camellia_done(symmetric_key *skey) {}
+void camellia_done(symmetric_key *skey)
+{
+  LTC_UNUSED_PARAM(skey);
+}
 
 int camellia_keysize(int *keysize)
 {

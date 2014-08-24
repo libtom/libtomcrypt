@@ -447,6 +447,7 @@ int safer_sk64_test(void)
 */
 void safer_done(symmetric_key *skey)
 {
+  LTC_UNUSED_PARAM(skey);
 }
 
 int safer_sk128_test(void)

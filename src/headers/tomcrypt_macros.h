@@ -414,6 +414,10 @@ static inline ulong64 ROR64c(ulong64 word, const int i)
    #define MIN(x, y) ( ((x)<(y))?(x):(y) )
 #endif
 
+#ifndef LTC_UNUSED_PARAM
+   #define LTC_UNUSED_PARAM(x) (void)(x)
+#endif
+
 /* extract a byte portably */
 #ifdef _MSC_VER
    #define byte(x, n) ((unsigned char)((x) >> (8 * (n))))

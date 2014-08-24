@@ -725,6 +725,7 @@ int ECB_TEST(void)
 */
 void ECB_DONE(symmetric_key *skey)
 {
+  LTC_UNUSED_PARAM(skey);
 }
 
 

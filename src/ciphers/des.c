@@ -1864,6 +1864,7 @@ int des3_test(void)
 */
 void des_done(symmetric_key *skey)
 {
+  LTC_UNUSED_PARAM(skey);
 }
 
 /** Terminate the context
@@ -1871,6 +1872,7 @@ void des_done(symmetric_key *skey)
 */
 void des3_done(symmetric_key *skey)
 {
+  LTC_UNUSED_PARAM(skey);
 }
 
 

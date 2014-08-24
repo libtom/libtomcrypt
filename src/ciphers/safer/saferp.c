@@ -528,6 +528,7 @@ int saferp_test(void)
 */
 void saferp_done(symmetric_key *skey)
 {
+  LTC_UNUSED_PARAM(skey);
 }
 
 /**
