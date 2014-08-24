@@ -198,7 +198,9 @@ int der_decode_choice(const unsigned char *in,   unsigned long *inlen,
                }
                break;
 
-           default:
+           case LTC_ASN1_CHOICE:
+           case LTC_ASN1_CONSTRUCTED:
+           case LTC_ASN1_EOL:
                return CRYPT_INVALID_ARG;
        }
    }

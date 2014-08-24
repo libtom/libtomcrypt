@@ -31,7 +31,8 @@
 int der_decode_sequence_ex(const unsigned char *in, unsigned long  inlen,
                            ltc_asn1_list *list,     unsigned long  outlen, int ordered)
 {
-   int           err, type, i;
+   int           err, i;
+   ltc_asn1_type type;
    unsigned long size, x, y, z, blksize;
    void          *data;
 
@@ -282,7 +283,8 @@ int der_decode_sequence_ex(const unsigned char *in, unsigned long  inlen,
                }
                break;
 
-           default:
+           case LTC_ASN1_CONSTRUCTED:
+           case LTC_ASN1_EOL:
                err = CRYPT_INVALID_ARG;
                goto LBL_ERR;
        }

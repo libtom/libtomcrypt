@@ -31,7 +31,8 @@
 int der_encode_sequence_ex(ltc_asn1_list *list, unsigned long inlen,
                            unsigned char *out,  unsigned long *outlen, int type_of)
 {
-   int           err, type;
+   int           err;
+   ltc_asn1_type type;
    unsigned long size, x, y, z, i;
    void          *data;
 
@@ -135,7 +136,10 @@ int der_encode_sequence_ex(ltc_asn1_list *list, unsigned long inlen,
                y += x;
                break;
 
-           default:
+           case LTC_ASN1_CHOICE:
+           case LTC_ASN1_CONSTRUCTED:
+           case LTC_ASN1_EOL:
+           case LTC_ASN1_TELETEX_STRING:
                err = CRYPT_INVALID_ARG;
                goto LBL_ERR;
        }
@@ -330,7 +334,10 @@ int der_encode_sequence_ex(ltc_asn1_list *list, unsigned long inlen,
                *outlen -= z;
                break;
 
-           default:
+           case LTC_ASN1_CHOICE:
+           case LTC_ASN1_CONSTRUCTED:
+           case LTC_ASN1_EOL:
+           case LTC_ASN1_TELETEX_STRING:
                err = CRYPT_INVALID_ARG;
                goto LBL_ERR;
        }

@@ -28,7 +28,8 @@
 */
 int der_encode_sequence_multi(unsigned char *out, unsigned long *outlen, ...)
 {
-   int           err, type;
+   int           err;
+   ltc_asn1_type type;
    unsigned long size, x;
    void          *data;
    va_list       args;
@@ -41,7 +42,7 @@ int der_encode_sequence_multi(unsigned char *out, unsigned long *outlen, ...)
    va_start(args, outlen);
    x = 0;
    for (;;) {
-       type = va_arg(args, int);
+       type = va_arg(args, ltc_asn1_type);
        size = va_arg(args, unsigned long);
        data = va_arg(args, void*);
 
@@ -68,7 +69,10 @@ int der_encode_sequence_multi(unsigned char *out, unsigned long *outlen, ...)
                 ++x;
                 break;
 
-           default:
+           case LTC_ASN1_CHOICE:
+           case LTC_ASN1_CONSTRUCTED:
+           case LTC_ASN1_EOL:
+           case LTC_ASN1_TELETEX_STRING:
                va_end(args);
                return CRYPT_INVALID_ARG;
        }
@@ -89,7 +93,7 @@ int der_encode_sequence_multi(unsigned char *out, unsigned long *outlen, ...)
    va_start(args, outlen);
    x = 0;
    for (;;) {
-       type = va_arg(args, int);
+       type = va_arg(args, ltc_asn1_type);
        size = va_arg(args, unsigned long);
        data = va_arg(args, void*);
 
@@ -116,7 +120,10 @@ int der_encode_sequence_multi(unsigned char *out, unsigned long *outlen, ...)
                 LTC_SET_ASN1(list, x++, type, data, size);
                 break;
 
-           default:
+           case LTC_ASN1_CHOICE:
+           case LTC_ASN1_CONSTRUCTED:
+           case LTC_ASN1_EOL:
+           case LTC_ASN1_TELETEX_STRING:
                va_end(args);
                err = CRYPT_INVALID_ARG;
                goto LBL_ERR;
