@@ -10,6 +10,11 @@ v1.18 -- Added Camellia block cipher
       -- Patrick Pelletier contributed a smart volley of patches
       -- RyanC contributed HKDF including documentation (yippie)
       -- Added 2-key Triple-DES mode, thanks to Paul Howarth
+      -- Christopher Braun contributed some patches and additions to ASN.1/DER
+      -- Applied some patches from the OLPC project regarding PKCS#1 and preventing the
+         the hash algorithms from overflowing
+      -- Fixed the Bleichbacher Signature attack in PKCS#1 v1.5 EMSA, thanks to Alex Dent
+      -- Add PKCS#1 testvectors from RSA
       -- Brought back Diffie-Hellman
       -- Enabled timing resistant calculations of ECC and RSA operations per default
       -- Fixed several build issues on FreeBSD, NetBSD, Linux x32 ABI, x86_64 Windows ...
