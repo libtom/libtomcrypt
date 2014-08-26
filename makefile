@@ -280,6 +280,8 @@ src/ciphers/aes/aes.o: src/ciphers/aes/aes.c src/ciphers/aes/aes_tab.c
 src/ciphers/twofish/twofish.o: src/ciphers/twofish/twofish.c src/ciphers/twofish/twofish_tab.c
 src/hashes/whirl/whirl.o: src/hashes/whirl/whirl.c src/hashes/whirl/whirltab.c
 src/hashes/sha2/sha512.o: src/hashes/sha2/sha512.c src/hashes/sha2/sha384.c
+src/hashes/sha2/sha512_224.o: src/hashes/sha2/sha512.c src/hashes/sha2/sha512_224.c
+src/hashes/sha2/sha512_256.o: src/hashes/sha2/sha512.c src/hashes/sha2/sha512_256.c
 src/hashes/sha2/sha256.o: src/hashes/sha2/sha256.c src/hashes/sha2/sha224.c
 
 #This rule makes the libtomcrypt library.
