@@ -2067,8 +2067,10 @@ The following hashes are provided as of this release within the LibTomCrypt libr
       \hline SHA-512 & sha512\_desc & 64 \\
       \hline SHA-384 & sha384\_desc & 48 \\
       \hline RIPEMD-320 & rmd160\_desc & 40 \\
+      \hline SHA-512/256 & sha512\_256\_desc & 32 \\
       \hline SHA-256 & sha256\_desc & 32 \\
       \hline RIPEMD-256 & rmd160\_desc & 32 \\
+      \hline SHA-512/224 & sha512\_224\_desc & 28 \\
       \hline SHA-224 & sha224\_desc & 28 \\
       \hline TIGER-192 & tiger\_desc & 24 \\
       \hline SHA-1 & sha1\_desc & 20 \\
@@ -2144,7 +2146,7 @@ It is highly recommended that you \textbf{not} use the MD4 or MD5 hashes for the
 These hashes are provided for completeness and they still can be used for the purposes of password hashing or one-way accumulators
 (e.g. Yarrow).
 
-The other hashes such as the SHA-1, SHA-2 (that includes SHA-512, SHA-384, SHA-256 and SHA-224) and TIGER-192 are still considered secure
+The other hashes such as the SHA-1, SHA-2 (that includes SHA-512, SHA-512/384, SHA-384, SHA-512/256, SHA-256 and SHA-224) and TIGER-192 are still considered secure
 for all purposes you would normally use a hash for.
 
 \chapter{Message Authentication Codes}
