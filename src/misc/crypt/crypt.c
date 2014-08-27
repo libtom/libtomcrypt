@@ -130,8 +130,14 @@ const char *crypt_build_settings =
 #if defined(LTC_SHA384)
    "   SHA-384\n"
 #endif
+#if defined(LTC_SHA512_256)
+   "   SHA-512/256\n"
+#endif
 #if defined(LTC_SHA256)
    "   SHA-256\n"
+#endif
+#if defined(LTC_SHA512_224)
+   "   SHA-512/224\n"
 #endif
 #if defined(LTC_SHA224)
    "   SHA-224\n"
