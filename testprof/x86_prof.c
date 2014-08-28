@@ -803,7 +803,7 @@ void time_mult(void)
            t1 = (t_read() - t1)>>1;
            if (t1 < t2) t2 = t1;
        }
-       fprintf(stderr, "%4lu bits: %9llu cycles\n", x*MP_DIGIT_BIT, t2);
+       fprintf(stderr, "%4lu bits: %9"PRI64"u cycles\n", x*MP_DIGIT_BIT, t2);
    }
    mp_clear_multi(a,b,c,NULL);
 
@@ -833,7 +833,7 @@ void time_sqr(void)
            t1 = (t_read() - t1)>>1;
            if (t1 < t2) t2 = t1;
        }
-       fprintf(stderr, "%4lu bits: %9llu cycles\n", x*MP_DIGIT_BIT, t2);
+       fprintf(stderr, "%4lu bits: %9"PRI64"u cycles\n", x*MP_DIGIT_BIT, t2);
    }
    mp_clear_multi(a,b,NULL);
 
@@ -877,7 +877,7 @@ void time_prng(void)
          t1 = (t_read() - t1)>>1;
          if (t1 < t2) t2 = t1;
       }
-      fprintf(stderr, "%20s: %5llu ", prng_descriptor[x].name, t2>>12);
+      fprintf(stderr, "%20s: %5"PRI64"u ", prng_descriptor[x].name, t2>>12);
 #undef DO2
 #undef DO1
 
@@ -890,7 +890,7 @@ void time_prng(void)
          t1 = (t_read() - t1)>>1;
          if (t1 < t2) t2 = t1;
       }
-      fprintf(stderr, "%5llu\n", t2);
+      fprintf(stderr, "%5"PRI64"u\n", t2);
 #undef DO2
 #undef DO1
 
@@ -936,7 +936,7 @@ static const struct {
            }
        }
        t2 >>= 2;
-       fprintf(stderr, "DSA-(%lu, %lu) make_key    took %15llu cycles\n", (unsigned long)groups[x].group*8, (unsigned long)groups[x].modulus*8, t2);
+       fprintf(stderr, "DSA-(%lu, %lu) make_key    took %15"PRI64"u cycles\n", (unsigned long)groups[x].group*8, (unsigned long)groups[x].modulus*8, t2);
    }
 }
 #endif
@@ -974,7 +974,7 @@ void time_rsa(void)
            }
        }
        t2 >>= 2;
-       fprintf(stderr, "RSA-%lu make_key    took %15llu cycles\n", x, t2);
+       fprintf(stderr, "RSA-%lu make_key    took %15"PRI64"u cycles\n", x, t2);
 
        t2 = 0;
        for (y = 0; y < 16; y++) {
@@ -995,7 +995,7 @@ void time_rsa(void)
 #endif
        }
        t2 >>= 4;
-       fprintf(stderr, "RSA-%lu encrypt_key took %15llu cycles\n", x, t2);
+       fprintf(stderr, "RSA-%lu encrypt_key took %15"PRI64"u cycles\n", x, t2);
 
        t2 = 0;
        for (y = 0; y < 2048; y++) {
@@ -1015,7 +1015,7 @@ void time_rsa(void)
 #endif
        }
        t2 >>= 11;
-       fprintf(stderr, "RSA-%lu decrypt_key took %15llu cycles\n", x, t2);
+       fprintf(stderr, "RSA-%lu decrypt_key took %15"PRI64"u cycles\n", x, t2);
 
        t2 = 0;
        for (y = 0; y < 256; y++) {
@@ -1035,7 +1035,7 @@ void time_rsa(void)
 #endif
 	}
         t2 >>= 8;
-        fprintf(stderr, "RSA-%lu sign_hash took   %15llu cycles\n", x, t2);
+        fprintf(stderr, "RSA-%lu sign_hash took   %15"PRI64"u cycles\n", x, t2);
 
        t2 = 0;
        for (y = 0; y < 2048; y++) {
@@ -1057,7 +1057,7 @@ void time_rsa(void)
 #endif
 	}
         t2 >>= 11;
-        fprintf(stderr, "RSA-%lu verify_hash took %15llu cycles\n", x, t2);
+        fprintf(stderr, "RSA-%lu verify_hash took %15"PRI64"u cycles\n", x, t2);
        fprintf(stderr, "\n\n");
        rsa_free(&key);
   }
@@ -1066,7 +1066,7 @@ void time_rsa(void)
 void time_rsa(void) { fprintf(stderr, "NO RSA\n"); }
 #endif
 
-#ifdef MKAT
+#ifdef LTC_MKAT
 /* time various KAT operations */
 void time_katja(void)
 {
@@ -1093,7 +1093,7 @@ void time_katja(void)
            }
        }
        t2 >>= 2;
-       fprintf(stderr, "Katja-%lu make_key    took %15llu cycles\n", x, t2);
+       fprintf(stderr, "Katja-%lu make_key    took %15"PRI64"u cycles\n", x, t2);
 
        t2 = 0;
        for (y = 0; y < 16; y++) {
@@ -1110,7 +1110,7 @@ void time_katja(void)
            t2 += t1;
        }
        t2 >>= 4;
-       fprintf(stderr, "Katja-%lu encrypt_key took %15llu cycles\n", x, t2);
+       fprintf(stderr, "Katja-%lu encrypt_key took %15"PRI64"u cycles\n", x, t2);
 
        t2 = 0;
        for (y = 0; y < 2048; y++) {
@@ -1126,7 +1126,7 @@ void time_katja(void)
            t2 += t1;
        }
        t2 >>= 11;
-       fprintf(stderr, "Katja-%lu decrypt_key took %15llu cycles\n", x, t2);
+       fprintf(stderr, "Katja-%lu decrypt_key took %15"PRI64"u cycles\n", x, t2);
 
 
        katja_free(&key);
@@ -1194,7 +1194,7 @@ void time_ecc(void)
            }
        }
        t2 >>= 8;
-       fprintf(stderr, "ECC-%lu make_key    took %15llu cycles\n", x*8, t2);
+       fprintf(stderr, "ECC-%lu make_key    took %15"PRI64"u cycles\n", x*8, t2);
 
        t2 = 0;
        for (y = 0; y < 256; y++) {
@@ -1214,7 +1214,7 @@ void time_ecc(void)
 #endif
        }
        t2 >>= 8;
-       fprintf(stderr, "ECC-%lu encrypt_key took %15llu cycles\n", x*8, t2);
+       fprintf(stderr, "ECC-%lu encrypt_key took %15"PRI64"u cycles\n", x*8, t2);
 
        t2 = 0;
        for (y = 0; y < 256; y++) {
@@ -1233,7 +1233,7 @@ void time_ecc(void)
 #endif
        }
        t2 >>= 8;
-       fprintf(stderr, "ECC-%lu decrypt_key took %15llu cycles\n", x*8, t2);
+       fprintf(stderr, "ECC-%lu decrypt_key took %15"PRI64"u cycles\n", x*8, t2);
 
        t2 = 0;
        for (y = 0; y < 256; y++) {
@@ -1253,7 +1253,7 @@ void time_ecc(void)
 #endif
 	}
         t2 >>= 8;
-        fprintf(stderr, "ECC-%lu sign_hash took   %15llu cycles\n", x*8, t2);
+        fprintf(stderr, "ECC-%lu sign_hash took   %15"PRI64"u cycles\n", x*8, t2);
 
        t2 = 0;
        for (y = 0; y < 256; y++) {
@@ -1275,7 +1275,7 @@ void time_ecc(void)
 #endif
 	}
         t2 >>= 8;
-        fprintf(stderr, "ECC-%lu verify_hash took %15llu cycles\n", x*8, t2);
+        fprintf(stderr, "ECC-%lu verify_hash took %15"PRI64"u cycles\n", x*8, t2);
 
        fprintf(stderr, "\n\n");
        ecc_free(&key);
@@ -1324,7 +1324,7 @@ void time_macs_(unsigned long MAC_SIZE)
         t1 = t_read() - t1;
         if (t1 < t2) t2 = t1;
    }
-   fprintf(stderr, "OMAC-%s\t\t%9llu\n", cipher_descriptor[cipher_idx].name, t2/(ulong64)(MAC_SIZE*1024));
+   fprintf(stderr, "OMAC-%s\t\t%9"PRI64"u\n", cipher_descriptor[cipher_idx].name, t2/(ulong64)(MAC_SIZE*1024));
 #endif
 
 #ifdef LTC_XCBC
@@ -1340,7 +1340,7 @@ void time_macs_(unsigned long MAC_SIZE)
         t1 = t_read() - t1;
         if (t1 < t2) t2 = t1;
    }
-   fprintf(stderr, "XCBC-%s\t\t%9llu\n", cipher_descriptor[cipher_idx].name, t2/(ulong64)(MAC_SIZE*1024));
+   fprintf(stderr, "XCBC-%s\t\t%9"PRI64"u\n", cipher_descriptor[cipher_idx].name, t2/(ulong64)(MAC_SIZE*1024));
 #endif
 
 #ifdef LTC_F9_MODE
@@ -1356,7 +1356,7 @@ void time_macs_(unsigned long MAC_SIZE)
         t1 = t_read() - t1;
         if (t1 < t2) t2 = t1;
    }
-   fprintf(stderr, "F9-%s\t\t\t%9llu\n", cipher_descriptor[cipher_idx].name, t2/(ulong64)(MAC_SIZE*1024));
+   fprintf(stderr, "F9-%s\t\t\t%9"PRI64"u\n", cipher_descriptor[cipher_idx].name, t2/(ulong64)(MAC_SIZE*1024));
 #endif
 
 #ifdef LTC_PMAC
@@ -1372,7 +1372,7 @@ void time_macs_(unsigned long MAC_SIZE)
         t1 = t_read() - t1;
         if (t1 < t2) t2 = t1;
    }
-   fprintf(stderr, "PMAC-%s\t\t%9llu\n", cipher_descriptor[cipher_idx].name, t2/(ulong64)(MAC_SIZE*1024));
+   fprintf(stderr, "PMAC-%s\t\t%9"PRI64"u\n", cipher_descriptor[cipher_idx].name, t2/(ulong64)(MAC_SIZE*1024));
 #endif
 
 #ifdef LTC_PELICAN
@@ -1388,7 +1388,7 @@ void time_macs_(unsigned long MAC_SIZE)
         t1 = t_read() - t1;
         if (t1 < t2) t2 = t1;
    }
-   fprintf(stderr, "PELICAN \t\t%9llu\n", t2/(ulong64)(MAC_SIZE*1024));
+   fprintf(stderr, "PELICAN \t\t%9"PRI64"u\n", t2/(ulong64)(MAC_SIZE*1024));
 #endif
 
 #ifdef LTC_HMAC
@@ -1404,7 +1404,7 @@ void time_macs_(unsigned long MAC_SIZE)
         t1 = t_read() - t1;
         if (t1 < t2) t2 = t1;
    }
-   fprintf(stderr, "HMAC-%s\t\t%9llu\n", hash_descriptor[hash_idx].name, t2/(ulong64)(MAC_SIZE*1024));
+   fprintf(stderr, "HMAC-%s\t\t%9"PRI64"u\n", hash_descriptor[hash_idx].name, t2/(ulong64)(MAC_SIZE*1024));
 #endif
 
    XFREE(buf);
@@ -1452,7 +1452,7 @@ void time_encmacs_(unsigned long MAC_SIZE)
         t1 = t_read() - t1;
         if (t1 < t2) t2 = t1;
    }
-   fprintf(stderr, "EAX \t\t\t%9llu\n", t2/(ulong64)(MAC_SIZE*1024));
+   fprintf(stderr, "EAX \t\t\t%9"PRI64"u\n", t2/(ulong64)(MAC_SIZE*1024));
 #endif
 
 #ifdef LTC_OCB_MODE
@@ -1468,7 +1468,7 @@ void time_encmacs_(unsigned long MAC_SIZE)
         t1 = t_read() - t1;
         if (t1 < t2) t2 = t1;
    }
-   fprintf(stderr, "OCB \t\t\t%9llu\n", t2/(ulong64)(MAC_SIZE*1024));
+   fprintf(stderr, "OCB \t\t\t%9"PRI64"u\n", t2/(ulong64)(MAC_SIZE*1024));
 #endif
 
 #ifdef LTC_OCB3_MODE
@@ -1484,7 +1484,7 @@ void time_encmacs_(unsigned long MAC_SIZE)
         t1 = t_read() - t1;
         if (t1 < t2) t2 = t1;
    }
-   fprintf(stderr, "OCB3 \t\t\t%9llu\n", t2/(ulong64)(MAC_SIZE*1024));
+   fprintf(stderr, "OCB3 \t\t\t%9"PRI64"u\n", t2/(ulong64)(MAC_SIZE*1024));
 #endif
 
 #ifdef LTC_CCM_MODE
@@ -1500,7 +1500,7 @@ void time_encmacs_(unsigned long MAC_SIZE)
         t1 = t_read() - t1;
         if (t1 < t2) t2 = t1;
    }
-   fprintf(stderr, "CCM (no-precomp) \t%9llu\n", t2/(ulong64)(MAC_SIZE*1024));
+   fprintf(stderr, "CCM (no-precomp) \t%9"PRI64"u\n", t2/(ulong64)(MAC_SIZE*1024));
 
    cipher_descriptor[cipher_idx].setup(key, 16, 0, &skey);
    t2 = -1;
@@ -1515,7 +1515,7 @@ void time_encmacs_(unsigned long MAC_SIZE)
         t1 = t_read() - t1;
         if (t1 < t2) t2 = t1;
    }
-   fprintf(stderr, "CCM (precomp) \t\t%9llu\n", t2/(ulong64)(MAC_SIZE*1024));
+   fprintf(stderr, "CCM (precomp) \t\t%9"PRI64"u\n", t2/(ulong64)(MAC_SIZE*1024));
    cipher_descriptor[cipher_idx].done(&skey);
 #endif
 
@@ -1532,7 +1532,7 @@ void time_encmacs_(unsigned long MAC_SIZE)
         t1 = t_read() - t1;
         if (t1 < t2) t2 = t1;
    }
-   fprintf(stderr, "GCM (no-precomp)\t%9llu\n", t2/(ulong64)(MAC_SIZE*1024));
+   fprintf(stderr, "GCM (no-precomp)\t%9"PRI64"u\n", t2/(ulong64)(MAC_SIZE*1024));
 
    {
    gcm_state gcm
@@ -1571,7 +1571,7 @@ __attribute__ ((aligned (16)))
         t1 = t_read() - t1;
         if (t1 < t2) t2 = t1;
    }
-   fprintf(stderr, "GCM (precomp)\t\t%9llu\n", t2/(ulong64)(MAC_SIZE*1024));
+   fprintf(stderr, "GCM (precomp)\t\t%9"PRI64"u\n", t2/(ulong64)(MAC_SIZE*1024));
    }
 
 #endif
