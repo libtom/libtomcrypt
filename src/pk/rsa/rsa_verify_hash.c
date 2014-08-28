@@ -92,11 +92,18 @@ int rsa_verify_hash_ex(const unsigned char *sig,      unsigned long siglen,
 
   if (padding == LTC_PKCS_1_PSS) {
     /* PSS decode and verify it */
-    err = pkcs_1_pss_decode(hash, hashlen, tmpbuf, x, saltlen, hash_idx, modulus_bitlen, stat);
+
+    if(modulus_bitlen%8 == 1){
+      err = pkcs_1_pss_decode(hash, hashlen, tmpbuf+1, x-1, saltlen, hash_idx, modulus_bitlen, stat);
+    }
+    else{
+      err = pkcs_1_pss_decode(hash, hashlen, tmpbuf, x, saltlen, hash_idx, modulus_bitlen, stat);
+    }
+
   } else {
     /* PKCS #1 v1.5 decode it */
     unsigned char *out;
-    unsigned long outlen, loid[16];
+    unsigned long outlen, loid[16], reallen;
     int           decoded;
     ltc_asn1_list digestinfo[2], siginfo[2];
 
@@ -138,8 +145,14 @@ int rsa_verify_hash_ex(const unsigned char *sig,      unsigned long siglen,
        goto bail_2;
     }
 
+    if ((err = der_length_sequence(siginfo, 2, &reallen)) != CRYPT_OK) {
+       XFREE(out);
+       goto bail_2;
+    }
+
     /* test OID */
-    if ((digestinfo[0].size == hash_descriptor[hash_idx].OIDlen) &&
+    if ((reallen == outlen) &&
+        (digestinfo[0].size == hash_descriptor[hash_idx].OIDlen) &&
         (XMEMCMP(digestinfo[0].data, hash_descriptor[hash_idx].OID, sizeof(unsigned long) * hash_descriptor[hash_idx].OIDlen) == 0) &&
         (siginfo[1].size == hashlen) &&
         (XMEMCMP(siginfo[1].data, hash, hashlen) == 0)) {

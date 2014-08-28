@@ -76,7 +76,7 @@ int rsa_exptmod(const unsigned char *in,   unsigned long inlen,
    if (which == PK_PRIVATE) {
       #ifdef LTC_RSA_BLINDING
       /* do blinding */
-      err = mp_rand(rnd, mp_count_bits(key->N));
+      err = mp_rand(rnd, mp_get_digit_count(key->N));
       if (err != CRYPT_OK) {
              goto error;
       }

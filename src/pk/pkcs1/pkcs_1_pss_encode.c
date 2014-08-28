@@ -54,6 +54,7 @@ int pkcs_1_pss_encode(const unsigned char *msghash, unsigned long msghashlen,
    }
 
    hLen        = hash_descriptor[hash_idx].hashsize;
+   modulus_bitlen--;
    modulus_len = (modulus_bitlen>>3) + (modulus_bitlen & 7 ? 1 : 0);
 
    /* check sizes */
@@ -147,7 +148,7 @@ int pkcs_1_pss_encode(const unsigned char *msghash, unsigned long msghashlen,
    out[y] = 0xBC;
 
    /* now clear the 8*modulus_len - modulus_bitlen most significant bits */
-   out[0] &= 0xFF >> ((modulus_len<<3) - (modulus_bitlen-1));
+   out[0] &= 0xFF >> ((modulus_len<<3) - modulus_bitlen);
 
    /* store output size */
    *outlen = modulus_len;

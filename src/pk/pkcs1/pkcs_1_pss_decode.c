@@ -51,11 +51,12 @@ int pkcs_1_pss_decode(const unsigned char *msghash, unsigned long msghashlen,
    }
 
    hLen        = hash_descriptor[hash_idx].hashsize;
+   modulus_bitlen--;
    modulus_len = (modulus_bitlen>>3) + (modulus_bitlen & 7 ? 1 : 0);
 
    /* check sizes */
    if ((saltlen > modulus_len) ||
-       (modulus_len < hLen + saltlen + 2) || (siglen != modulus_len)) {
+       (modulus_len < hLen + saltlen + 2)) {
       return CRYPT_PK_INVALID_SIZE;
    }
 
@@ -95,8 +96,9 @@ int pkcs_1_pss_decode(const unsigned char *msghash, unsigned long msghashlen,
    XMEMCPY(hash, sig + x, hLen);
    x += hLen;
 
+
    /* check the MSB */
-   if ((sig[0] & ~(0xFF >> ((modulus_len<<3) - (modulus_bitlen-1)))) != 0) {
+   if ((sig[0] & ~(0xFF >> ((modulus_len<<3) - (modulus_bitlen)))) != 0) {
       err = CRYPT_INVALID_PACKET;
       goto LBL_ERR;
    }
@@ -112,7 +114,7 @@ int pkcs_1_pss_decode(const unsigned char *msghash, unsigned long msghashlen,
    }
 
    /* now clear the first byte [make sure smaller than modulus] */
-   DB[0] &= 0xFF >> ((modulus_len<<3) - (modulus_bitlen-1));
+   DB[0] &= 0xFF >> ((modulus_len<<3) - (modulus_bitlen));
 
    /* DB = PS || 0x01 || salt, PS == modulus_len - saltlen - hLen - 2 zero bytes */
 

@@ -39,11 +39,11 @@ extern prng_state yarrow_prng;
 void run_cmd(int res, int line, char *file, char *cmd, const char *algorithm);
 
 #ifdef LTC_VERBOSE
-#define DO(x) do { fprintf(stderr, "%s:\n", #x); run_cmd((x), __LINE__, __FILE__, #x, NULL); } while (0);
-#define DOX(x, str) do { fprintf(stderr, "%s - %s:\n", #x, (str)); run_cmd((x), __LINE__, __FILE__, #x, (str)); } while (0);
+#define DO(x) do { fprintf(stderr, "%s:\n", #x); run_cmd((x), __LINE__, __FILE__, #x, NULL); } while (0)
+#define DOX(x, str) do { fprintf(stderr, "%s - %s:\n", #x, (str)); run_cmd((x), __LINE__, __FILE__, #x, (str)); } while (0)
 #else
-#define DO(x) do { run_cmd((x), __LINE__, __FILE__, #x, NULL); } while (0);
-#define DOX(x, str) do { run_cmd((x), __LINE__, __FILE__, #x, (str)); } while (0);
+#define DO(x) do { run_cmd((x), __LINE__, __FILE__, #x, NULL); } while (0)
+#define DOX(x, str) do { run_cmd((x), __LINE__, __FILE__, #x, (str)); } while (0)
 #endif
 
 /* TESTS */
@@ -51,6 +51,10 @@ int cipher_hash_test(void);
 int modes_test(void);
 int mac_test(void);
 int pkcs_1_test(void);
+int pkcs_1_pss_test(void);
+int pkcs_1_oaep_test(void);
+int pkcs_1_emsa_test(void);
+int pkcs_1_eme_test(void);
 int store_test(void);
 int rsa_test(void);
 int dh_test(void);
@@ -72,6 +76,11 @@ extern struct list {
 
 extern int no_results;
 
+#ifdef LTC_PKCS_1
+extern const struct ltc_prng_descriptor no_prng_desc;
+#endif
+
+void print_hex(const char* what, const unsigned char* p, const unsigned long l);
 int sorter(const void *a, const void *b);
 void tally_results(int type);
 ulong64 rdtsc (void);
