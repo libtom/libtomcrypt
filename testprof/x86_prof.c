@@ -2,6 +2,19 @@
 
 prng_state yarrow_prng;
 
+void print_hex(const char* what, const unsigned char* p, const unsigned long l)
+{
+  unsigned long x;
+  fprintf(stderr, "%s contents: \n", what);
+  for (x = 0; x < l; ) {
+      fprintf(stderr, "%02x ", p[x]);
+      if (!(++x % 16)) {
+         fprintf(stderr, "\n");
+      }
+  }
+  fprintf(stderr, "\n");
+}
+
 struct list results[100];
 int no_results;
 int sorter(const void *a, const void *b)

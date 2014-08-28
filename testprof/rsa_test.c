@@ -100,19 +100,6 @@ static int rsa_compat_test(void)
    return 0;
 }
 
-static void _rsa_testPrint(const char* what, const unsigned char* p, const unsigned long l)
-{
-  unsigned long x;
-  fprintf(stderr, "%s contents: \n", what);
-  for (x = 0; x < l; ) {
-      fprintf(stderr, "%02x ", p[x]);
-      if (!(++x % 16)) {
-         fprintf(stderr, "\n");
-      }
-  }
-  fprintf(stderr, "\n");
-}
-
 int rsa_test(void)
 {
    unsigned char in[1024], out[1024], tmp[1024];
@@ -200,8 +187,8 @@ for (cnt = 0; cnt < len; ) {
       }
       if (len2 != rsa_msgsize || memcmp(tmp, in, rsa_msgsize)) {
          fprintf(stderr, "\nrsa_decrypt_key mismatch, len %lu (second decrypt)\n", len2);
-         _rsa_testPrint("Original", in, rsa_msgsize);
-         _rsa_testPrint("Output", tmp, len2);
+         print_hex("Original", in, rsa_msgsize);
+         print_hex("Output", tmp, len2);
          return 1;
       }
    }
@@ -230,8 +217,8 @@ for (cnt = 0; cnt < len; ) {
       }
       if (len2 != rsa_msgsize || memcmp(tmp, in, rsa_msgsize)) {
          fprintf(stderr, "rsa_decrypt_key mismatch len %lu", len2);
-         _rsa_testPrint("Original", in, rsa_msgsize);
-         _rsa_testPrint("Output", tmp, len2);
+         print_hex("Original", in, rsa_msgsize);
+         print_hex("Output", tmp, len2);
          return 1;
       }
    }
@@ -256,8 +243,8 @@ for (cnt = 0; cnt < len; ) {
       }
       if (memcmp(tmp, in, rsa_msgsize)) {
          fprintf(stderr, "rsa_decrypt_key_ex mismatch data");
-         _rsa_testPrint("Original", in, rsa_msgsize);
-         _rsa_testPrint("Output", tmp, rsa_msgsize);
+         print_hex("Original", in, rsa_msgsize);
+         print_hex("Output", tmp, rsa_msgsize);
          return 1;
       }
    }
