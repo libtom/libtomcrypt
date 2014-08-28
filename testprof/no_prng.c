@@ -28,6 +28,7 @@ static unsigned long no_prng_offset = 0;
 */
 int no_prng_start(prng_state *prng)
 {
+    LTC_UNUSED_PARAM(prng);
     no_prng_len = 0;
     no_prng_offset = 0;
 
@@ -43,6 +44,7 @@ int no_prng_start(prng_state *prng)
 */
 int no_prng_add_entropy(const unsigned char *in, unsigned long inlen, prng_state *prng)
 {
+    LTC_UNUSED_PARAM(prng);
     LTC_ARGCHK(in  != NULL);
     LTC_ARGCHK(inlen <= sizeof(no_prng_entropy));
 
@@ -75,6 +77,7 @@ int no_prng_ready(prng_state *prng)
 */
 unsigned long no_prng_read(unsigned char *out, unsigned long outlen, prng_state *prng)
 {
+   LTC_UNUSED_PARAM(prng);
    LTC_ARGCHK(out != NULL);
 
    outlen = MIN(outlen, no_prng_len - no_prng_offset);
@@ -91,6 +94,7 @@ unsigned long no_prng_read(unsigned char *out, unsigned long outlen, prng_state 
 */
 int no_prng_done(prng_state *prng)
 {
+   LTC_UNUSED_PARAM(prng);
    return CRYPT_OK;
 }
 
@@ -103,6 +107,9 @@ int no_prng_done(prng_state *prng)
 */
 int no_prng_export(unsigned char *out, unsigned long *outlen, prng_state *prng)
 {
+   LTC_UNUSED_PARAM(out);
+   LTC_UNUSED_PARAM(outlen);
+   LTC_UNUSED_PARAM(prng);
    return CRYPT_OK;
 }
 
@@ -115,6 +122,9 @@ int no_prng_export(unsigned char *out, unsigned long *outlen, prng_state *prng)
 */
 int no_prng_import(const unsigned char *in, unsigned long inlen, prng_state *prng)
 {
+   LTC_UNUSED_PARAM(in);
+   LTC_UNUSED_PARAM(inlen);
+   LTC_UNUSED_PARAM(prng);
    return CRYPT_OK;
 }
 
