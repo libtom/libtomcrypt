@@ -2,6 +2,12 @@
 
 #ifdef LTC_PKCS_1
 
+#ifdef LTC_TEST_REAL_RAND
+#define LTC_TEST_RAND_SEED  time(NULL)
+#else
+#define LTC_TEST_RAND_SEED  23
+#endif
+
 int pkcs_1_test(void)
 {
    unsigned char buf[3][128];
@@ -18,7 +24,7 @@ int pkcs_1_test(void)
       return 1;
    }
 
-   srand(time(NULL));
+   srand(LTC_TEST_RAND_SEED);
    /* do many tests */
    for (x = 0; x < 100; x++) {
       zeromem(buf, sizeof(buf));
