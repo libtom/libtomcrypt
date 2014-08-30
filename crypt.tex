@@ -3377,6 +3377,14 @@ in \textit{out} and the size of the result in \textit{outlen}. \textit{which} is
 
 Note: the output of this function is zero--padded as per PKCS \#1 specification.  This allows this routine to work with PKCS \#1 padding functions properly.
 
+\subsection{RSA Key Size}
+To fetch the key size of an RSA key, use the following function:
+\index{rsa\_get\_size()}
+\begin{verbatim}
+int rsa_get_size(rsa_key *key);
+\end{verbatim}
+This can be used to determine the modulus size of an RSA key.
+
 \mysection{RSA Key Encryption}
 Normally RSA is used to encrypt short symmetric keys which are then used in block ciphers to encrypt a message.
 To facilitate encrypting short keys the following functions have been provided.
@@ -3540,6 +3548,22 @@ and the extracted hash is compared against the message digest pointed to by \tex
 
 If the RSA decoded data is not a valid PSS message, or if the PSS decoded hash does not match the \textit{msghash}
 value, \textit{res} is set to $0$.  Otherwise, if the function succeeds, and signature is valid \textit{res} is set to $1$.
+
+\subsection{RSA Signature Salt Length}
+
+The v2.1 signature algorithm requires a salt length to be able to properly
+encode resp. decode. To fetch the maximum possible salt length this function
+is provided:
+
+\index{rsa\_sign\_saltlen\_get\_max()}
+\begin{verbatim}
+int rsa_sign_saltlen_get_max(int hash_idx, rsa_key *key);
+\end{verbatim}
+
+As stated in the PKCS#1 RFC3447 "Typical salt lengths in octets are hLen
+(the length of the output of the hash function Hash) and 0".
+This function is provided to be able to use other lengths as well and to make
+sure at runtime that the RSA key can handle the desired salt length.
 
 \subsection{Extended Verification}
 
