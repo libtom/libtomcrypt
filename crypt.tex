@@ -4550,6 +4550,9 @@ LTC_SET_ASN1(sequence, x++, LTC_ASN1_NULL,           NULL,   0);
 \hline LTC\_ASN1\_SET                & SET \\
 \hline LTC\_ASN1\_SETOF              & SET OF \\
 \hline LTC\_ASN1\_CHOICE             & CHOICE \\
+\hline LTC\_ASN1\_RAW\_BIT\_STRING   & BIT STRING (one octet per char) \\
+\hline LTC\_ASN1\_TELETEX\_STRING    & TELETEX STRING (one octet per char) \\
+\hline LTC\_ASN1\_CONSTRUCTED        & A constructed type that is not SEQUENCE or SET \\
 \hline
 \end{tabular}
 \caption{List of ASN.1 Supported Types}
@@ -4788,6 +4791,30 @@ int der_length_bit_string(unsigned long  nbits,
 These will encode or decode a BIT STRING data type.  The bits are passed in (or read out) using one \textbf{char} per bit.  A non--zero value will be interpreted
 as a one bit, and a zero value a zero bit.
 
+\subsection{ASN.1 RAW BIT STRING}
+
+\index{der\_encode\_raw\_bit\_string()}\index{der\_decode\_raw\_bit\_string()}
+\begin{verbatim}
+int der_encode_raw_bit_string(const unsigned char *in,
+                                    unsigned long  inlen,
+                                    unsigned char *out,
+                                    unsigned long *outlen);
+
+int der_decode_raw_bit_string(const unsigned char *in,
+                                    unsigned long  inlen,
+                                    unsigned char *out,
+                                    unsigned long *outlen);
+\end{verbatim}
+
+These will encode or decode a BIT STRING data type.
+The bits are passed in (or read out) using one \textbf{unsigned char} per 8 bit.
+
+This function differs from the normal BIT STRING, as it can be used to directly
+process raw binary data and store it to resp. read it from an ASN.1 BIT STRING
+data type.
+
+The length function is the same as for the normal BIT STRING \textit{der\_length\_bit\_string()}.
+
 \subsection{ASN.1 OCTET STRING}
 
 \index{der\_encode\_octet\_string()}\index{der\_decode\_octet\_string()}\index{der\_length\_octet\_string()}
@@ -4853,6 +4880,26 @@ These will encode or decode an IA5 STRING.  The characters are read or stored in
 to numerical conversions based on the conventions of the compiler being used.  For instance, on an x86\_32 machine 'A' == 65 but the same may not be true on
 say a SPARC machine.  Internally, these functions have a table of literal characters and their numerical ASCII values.  This provides a stable conversion provided
 that the build platform honours the run--time platforms character conventions.
+
+\subsection{ASN.1 TELETEX STRING}
+
+\index{der\_decode\_teletex\_string()}\index{der\_length\_teletex\_string()}
+\begin{verbatim}
+int der_decode_teletex_string(const unsigned char *in,
+                                    unsigned long  inlen,
+                                    unsigned char *out,
+                                    unsigned long *outlen);
+
+int der_length_teletex_string(const unsigned char *octets,
+                                    unsigned long  noctets,
+                                    unsigned long *outlen);
+\end{verbatim}
+
+These will decode a TELETEX STRING.
+The characters are read in individual \textbf{char} elements.
+The internal structure is similar to that of the IA5 STRING implementation, to
+be able to provide a stable conversion independent of the build-- and run--time
+platform.
 
 \subsection{ASN.1 PRINTABLE STRING}
 
@@ -4977,7 +5024,7 @@ encoded in a SEQUENCE are stored as a child element.
 When a SEQUENCE or SET has been encountered a SEQUENCE (or SET resp.) item will be added as a sibling (e.g. list.type == LTC\_ASN1\_SEQUENCE) and the child
 pointer points to a new list of items contained within the object.
 
-\index{der\_decode\_sequence\_flexi()}
+\index{der\_decode\_sequence\_flexi()}\index{LTC\_ASN1\_CONSTRUCTED}
 \begin{verbatim}
 int  der_decode_sequence_flexi(const unsigned char *in,
                                      unsigned long *inlen,
@@ -4995,6 +5042,12 @@ An invalid decoding will terminate the process, and free the allocated memory au
 \textbf{Note:} the list decoded by this function is \textbf{NOT} in the correct form for der\_encode\_sequence() to use directly.  You will first
 have to convert the list by first storing all of the siblings in an array then storing all the children as sub-lists of a sequence using the \textit{.data}
 pointer.  Currently no function in LibTomCrypt provides this ability.
+
+\textbf{Note 2:} the flexi decoder will also decode arbitrary constructed types
+other than SEQUENCE and SET. The \textit{type} field will be set to
+\textbf{LTC\_ASN1\_CONSTRUCTED} and the plain type that was indicated in the ASN.1
+encoding is stored in the \textit{used} field. Further decoding is done in the
+same way as if it were a SEQUENCE or SET.
 
 \subsubsection{Sample Decoding}
 Suppose we decode the following structure:
