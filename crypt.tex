@@ -3566,7 +3566,8 @@ If the RSA decoded data is not a valid PSS message, or if the PKCS decoded hash 
 value, \textit{res} is set to $0$.  Otherwise, if the function succeeds, and signature is valid \textit{res} is set to $1$.
 
 The \textit{padding} parameter must be set to \textbf{LTC\_PKCS\_1\_V1\_5} to perform a v1.5 verification.  Otherwise, it must be set to
-\textbf{LTC\_PKCS\_1\_PSS} to perform a v2.1 verification.  When performing a v1.5 verification the \textit{hash\_idx} parameter is ignored.
+\textbf{LTC\_PKCS\_1\_PSS} to perform a v2.1 verification.  When performing a v1.5 verification the \textit{hash\_idx} and \textit{saltlen} parameters are ignored.
+
 
 \mysection{RSA Encryption Example}
 \begin{small}
@@ -4563,7 +4564,7 @@ The SEQUENCE data type is a collection of other ASN.1 data types encapsulated wi
 To encode a sequence a \textbf{ltc\_asn1\_list} array must be initialized with the members of the sequence and their respective pointers.  The encoding is performed
 with the following function.
 
-\index{der\_encode\_sequence()}
+\index{der\_encode\_sequence()}\index{LTC\_ASN1\_EOL}
 \begin{verbatim}
 int der_encode_sequence(ltc_asn1_list *list,
                         unsigned long  inlen,
@@ -4617,7 +4618,7 @@ int der_length_sequence(ltc_asn1_list *list,
 
 This will get the encoding size for the given \textit{list} of length \textit{inlen} and store it in \textit{outlen}.
 
-\subsubsection{SEQUENCE Multiple Argument Lists}
+\subsubsection{SEQUENCE Multiple Argument Lists}\index{LTC\_ASN1\_EOL}
 
 For small or simple sequences an encoding or decoding can be performed with one of the following two functions.
 
@@ -4966,7 +4967,7 @@ will have the \textit{used} flag set to non--zero to reflect it was the data typ
 
 \subsection{ASN.1 Flexi Decoder}
 The ASN.1 \textit{flexi} decoder allows the developer to decode arbitrary ASN.1 DER packets (provided they use data types LibTomCrypt supports) without first knowing
-the structure of the data.  Where der\_decode \_sequence() requires the developer to specify the data types to decode in advance the flexi decoder is entirely
+the structure of the data.  Where der\_decode\_sequence() requires the developer to specify the data types to decode in advance the flexi decoder is entirely
 free form.
 
 The flexi decoder uses the same \textit{ltc\_asn1\_list} but instead of being stored in an array it uses the linked list pointers \textit{prev}, \textit{next}, \textit{parent}
