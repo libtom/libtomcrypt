@@ -5381,6 +5381,131 @@ to get a prime of the form $p \equiv 3\mbox{ }(\mbox{mod } 4)$.  So if you want 
 \textit{len = -128} to the function.  Upon success it will return {\bf CRYPT\_OK} and \textit{N} will contain an integer which
 is very likely prime.
 
+\mysection{Dynamic Language Support}
+\index{Dynamic Language Support}
+Various LibTomCrypt functions require that their callers define a struct
+(or a union) and provide a pointer to it, or allocate sufficient memory and
+provide its pointer.  Programs written in C or C++ can obtain the necessary
+information by simply including the appropriate header files, but dynamic
+languages like Python don't understand C header files, and without assistance,
+have no way to know how much memory to allocate.  A similar story can be told
+for certain LTC constant values.
+
+LTC's Dynamic Language Support provides functions that return the size of
+a named struct or union, the value of a named constant, a list of all sizes
+supported, and a list of all named constants supported.  Two additional
+functions can initialize LTM and TFM.
+
+To get the size of a named struct or union:
+\begin{verbatim}
+int crypt_get_size(const char *namein, 
+                          int *sizeout);
+\end{verbatim}
+$namein$ is spelled exactly as found in the C header files with "_struct" 
+or "_union" appended to the name.  This function will return -1 if $namein$ 
+is not found. 
+
+To get the value of a named constant:
+\begin{verbatim}
+int crypt_get_constant(const char *namein,
+                              int *valueout);
+\end{verbatim}
+$namein$ is spelled exactly as found in the C header files.  Again, -1 is
+returned if $namein$ is not found.
+
+To get the names of all the supported structs, unions and constants:
+\begin{verbatim}
+int crypt_list_all_sizes(char *names_list, 
+                          int *names_list_size);
+
+int crypt_list_all_constants(char *names_list, 
+                              int *names_list_size);
+\end{verbatim}
+You may want to call these functions twice, first to get the amount
+of memory to be allocated for the $names_list$, and a final time to
+actually populate $names_list$.  If $names_list$ is NULL,
+$names_list_size$ will be the minimum size needed to receive the
+complete $names_list$.  If $names_list$ is NOT NULL, $names_list$ must
+be a pointer to sufficient memory into which the $names_list$ will be
+written.  Also, the value in $names_list_size$ sets the upper bound of
+the number of characters to be written.  A -1 return value signifies
+insufficient space.
+
+The format of the $names_list$ string is a series of $name,value$ pairs
+where each name and value is separated by a comma, the pairs are separated
+by newlines, and the list is null terminated.
+
+Calling either of these functions will initialize the respective
+math library.
+\begin{verbatim}
+void init_LTM(void);
+void init_TFM(void);
+\end{verbatim}
+
+Here is a Python program demonstrating how to call various LTC dynamic
+language support functions.
+\begin{verbatim}
+from ctypes import *
+
+# load the OSX shared/dynamic library
+LIB = CDLL('libtomcrypt.dylib')
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# print info about this library
+
+little = c_int()        # assume False is big
+word32 = c_int()        # assume False is 64-bit
+
+LIB.crypt_get_constant('ENDIAN_LITTLE', byref(little))
+LIB.crypt_get_constant('ENDIAN_32BITWORD', byref(word32))
+
+print('this lib was compiled for a %s endian %d-bit processor'
+      % ('little' if little else 'big', 32 if word32 else 64))
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# print the size of the struct named "sha256_state"
+
+struct_size = c_int()
+
+# don't forget to add the '_struct' or '_union' suffix
+LIB.crypt_get_size('sha256_state_struct', byref(struct_size))
+
+print('allocate %d bytes for sha256_state' % struct_size.value)
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# print a list of all supported named constants
+
+list_size = c_int()
+
+# call with NULL to calc the min size needed for the list
+LIB.crypt_list_all_constants(None, byref(list_size))
+
+# allocate required space
+names_list = c_buffer(list_size.value)
+
+# call again providing a pointer to where to write the list
+LIB.crypt_list_all_constants(names_list, byref(list_size))
+
+print(names_list.value)
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# print a list of all supported named structs and unions
+
+list_size = c_int()
+
+# call with NULL to calc the min size needed for the list
+LIB.crypt_list_all_sizes(None, byref(list_size))
+
+# allocate required space
+names_list = c_buffer(list_size.value)
+
+# call again providing a pointer to where to write the list
+LIB.crypt_list_all_sizes(names_list, byref(list_size))
+
+print(names_list.value)
+\end{verbatim}
+
+
 \chapter{Programming Guidelines}
 
 \mysection{Secure Pseudo Random Number Generators}
