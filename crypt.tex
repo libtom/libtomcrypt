@@ -277,15 +277,15 @@ There are a few helper macros to make the coding process a bit easier.  The firs
 \begin{small}
 \begin{center}
 \begin{tabular}{|c|c|c|}
-     \hline STORE32L(x, y) & {\bf unsigned long} x, {\bf unsigned char} *y & $x \to y[0 \ldots 3]$ \\
-     \hline STORE64L(x, y) & {\bf unsigned long long} x, {\bf unsigned char} *y & $x \to y[0 \ldots 7]$ \\
-     \hline LOAD32L(x, y) & {\bf unsigned long} x, {\bf unsigned char} *y & $y[0 \ldots 3] \to x$ \\
-     \hline LOAD64L(x, y) & {\bf unsigned long long} x, {\bf unsigned char} *y & $y[0 \ldots 7] \to x$ \\
-     \hline STORE32H(x, y) & {\bf unsigned long} x, {\bf unsigned char} *y & $x \to y[3 \ldots 0]$ \\
-     \hline STORE64H(x, y) & {\bf unsigned long long} x, {\bf unsigned char} *y & $x \to y[7 \ldots 0]$ \\
-     \hline LOAD32H(x, y) & {\bf unsigned long} x, {\bf unsigned char} *y & $y[3 \ldots 0] \to x$ \\
-     \hline LOAD64H(x, y) & {\bf unsigned long long} x, {\bf unsigned char} *y & $y[7 \ldots 0] \to x$ \\
-     \hline BSWAP(x) & {\bf unsigned long} x & Swap bytes \\
+     \hline STORE32L(x, y) & {\bf ulong32} x, {\bf unsigned char} *y & $x \to y[0 \ldots 3]$ \\
+     \hline STORE64L(x, y) & {\bf ulong64} x, {\bf unsigned char} *y & $x \to y[0 \ldots 7]$ \\
+     \hline LOAD32L(x, y) & {\bf ulong32} x, {\bf unsigned char} *y & $y[0 \ldots 3] \to x$ \\
+     \hline LOAD64L(x, y) & {\bf ulong64} x, {\bf unsigned char} *y & $y[0 \ldots 7] \to x$ \\
+     \hline STORE32H(x, y) & {\bf ulong32} x, {\bf unsigned char} *y & $x \to y[3 \ldots 0]$ \\
+     \hline STORE64H(x, y) & {\bf ulong64} x, {\bf unsigned char} *y & $x \to y[7 \ldots 0]$ \\
+     \hline LOAD32H(x, y) & {\bf ulong32} x, {\bf unsigned char} *y & $y[3 \ldots 0] \to x$ \\
+     \hline LOAD64H(x, y) & {\bf ulong64} x, {\bf unsigned char} *y & $y[7 \ldots 0] \to x$ \\
+     \hline BSWAP(x) & {\bf ulong32} x & Swap bytes \\
      \hline
 \end{tabular}
 \caption{Load And Store Macros}
@@ -299,15 +299,15 @@ There are 32 and 64-bit cyclic rotations as well:
 \begin{small}
 \begin{center}
 \begin{tabular}{|c|c|c|}
-     \hline ROL(x, y) & {\bf unsigned long} x, {\bf unsigned long} y & $x << y, 0 \le y \le 31$ \\
-     \hline ROLc(x, y) & {\bf unsigned long} x, {\bf const unsigned long} y & $x << y, 0 \le y \le 31$ \\
-     \hline ROR(x, y) & {\bf unsigned long} x, {\bf unsigned long} y & $x >> y, 0 \le y \le 31$ \\
-     \hline RORc(x, y) & {\bf unsigned long} x, {\bf const unsigned long} y & $x >> y, 0 \le y \le 31$ \\
+     \hline ROL(x, y) & {\bf ulong32} x, {\bf ulong32} y & $x << y, 0 \le y \le 31$ \\
+     \hline ROLc(x, y) & {\bf ulong32} x, {\bf const ulong32} y & $x << y, 0 \le y \le 31$ \\
+     \hline ROR(x, y) & {\bf ulong32} x, {\bf ulong32} y & $x >> y, 0 \le y \le 31$ \\
+     \hline RORc(x, y) & {\bf ulong32} x, {\bf const ulong32} y & $x >> y, 0 \le y \le 31$ \\
      \hline && \\
-     \hline ROL64(x, y) & {\bf unsigned long} x, {\bf unsigned long} y & $x << y, 0 \le y \le 63$ \\
-     \hline ROL64c(x, y) & {\bf unsigned long} x, {\bf const unsigned long} y & $x << y, 0 \le y \le 63$ \\
-     \hline ROR64(x, y) & {\bf unsigned long} x, {\bf unsigned long} y & $x >> y, 0 \le y \le 63$ \\
-     \hline ROR64c(x, y) & {\bf unsigned long} x, {\bf const unsigned long} y & $x >> y, 0 \le y \le 63$ \\
+     \hline ROL64(x, y) & {\bf ulong64} x, {\bf ulong64} y & $x << y, 0 \le y \le 63$ \\
+     \hline ROL64c(x, y) & {\bf ulong64} x, {\bf const ulong64} y & $x << y, 0 \le y \le 63$ \\
+     \hline ROR64(x, y) & {\bf ulong64} x, {\bf ulong64} y & $x >> y, 0 \le y \le 63$ \\
+     \hline ROR64c(x, y) & {\bf ulong64} x, {\bf const ulong64} y & $x >> y, 0 \le y \le 63$ \\
      \hline
 \end{tabular}
 \caption{Rotate Macros}
