@@ -18,7 +18,7 @@
 #ifdef LTC_MDSA
 
 /**
-   Import a DSA key 
+   Import a DSA key
    @param in       The binary packet to import from
    @param inlen    The length of the binary packet
    @param key      [out] Where to store the imported key
@@ -29,6 +29,7 @@ int dsa_import(const unsigned char *in, unsigned long inlen, dsa_key *key)
    int           err;
    unsigned long zero = 0;
    unsigned char* tmpbuf = NULL;
+   unsigned char flags[1];
 
    LTC_ARGCHK(in  != NULL);
    LTC_ARGCHK(key != NULL);
@@ -39,6 +40,42 @@ int dsa_import(const unsigned char *in, unsigned long inlen, dsa_key *key)
       return CRYPT_MEM;
    }
 
+   /* try to match the old libtomcrypt format */
+   if ((err = der_decode_sequence_multi(in, inlen,
+                                  LTC_ASN1_BIT_STRING, 1UL, flags,
+                                  LTC_ASN1_EOL, 0UL, NULL)) == CRYPT_OK) {
+       /* private key */
+       if (flags[0]) {
+           fprintf(stderr, "private key\n");
+           if ((err = der_decode_sequence_multi(in, inlen,
+                                  LTC_ASN1_BIT_STRING,   1UL, flags,
+                                  LTC_ASN1_INTEGER,      1UL, key->g,
+                                  LTC_ASN1_INTEGER,      1UL, key->p,
+                                  LTC_ASN1_INTEGER,      1UL, key->q,
+                                  LTC_ASN1_INTEGER,      1UL, key->y,
+                                  LTC_ASN1_INTEGER,      1UL, key->x,
+                                  LTC_ASN1_EOL,          0UL, NULL)) != CRYPT_OK) {
+               goto LBL_ERR;
+           }
+           key->type = PK_PRIVATE;
+           goto LBL_OK;
+       }
+       /* public key */
+       else {
+           fprintf(stderr, "public key\n");
+           if ((err = der_decode_sequence_multi(in, inlen,
+                                      LTC_ASN1_BIT_STRING,   1UL, flags,
+                                      LTC_ASN1_INTEGER,      1UL, key->g,
+                                      LTC_ASN1_INTEGER,      1UL, key->p,
+                                      LTC_ASN1_INTEGER,      1UL, key->q,
+                                      LTC_ASN1_INTEGER,      1UL, key->y,
+                                      LTC_ASN1_EOL,          0UL, NULL)) != CRYPT_OK) {
+               goto LBL_ERR;
+           }
+           key->type = PK_PUBLIC;
+           goto LBL_OK;
+       }
+   }
    /* get key type */
    if ((err = der_decode_sequence_multi(in, inlen,
                           LTC_ASN1_SHORT_INTEGER, 1UL, &zero,
@@ -78,6 +115,8 @@ int dsa_import(const unsigned char *in, unsigned long inlen, dsa_key *key)
       XFREE(tmpbuf);
       key->type = PK_PUBLIC;
   }
+
+LBL_OK:
   key->qord = mp_unsigned_bin_size(key->q);
 
   if (key->qord >= LTC_MDSA_MAX_GROUP || key->qord <= 15 ||
