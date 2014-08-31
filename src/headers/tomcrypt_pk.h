@@ -519,7 +519,7 @@ int der_decode_sequence_multi(const unsigned char *in, unsigned long inlen, ...)
 
 /* FLEXI DECODER handle unknown list decoder */
 int  der_decode_sequence_flexi(const unsigned char *in, unsigned long *inlen, ltc_asn1_list **out);
-void der_free_sequence_flexi(ltc_asn1_list *list);
+#define der_free_sequence_flexi         der_sequence_free
 void der_sequence_free(ltc_asn1_list *in);
 
 /* BOOLEAN */
