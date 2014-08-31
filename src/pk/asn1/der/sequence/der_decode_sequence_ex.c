@@ -31,7 +31,8 @@
 int der_decode_sequence_ex(const unsigned char *in, unsigned long  inlen,
                            ltc_asn1_list *list,     unsigned long  outlen, int ordered)
 {
-   int           err, type, i;
+   int           err, i;
+   ltc_asn1_type type;
    unsigned long size, x, y, z, blksize;
    void          *data;
 
@@ -187,6 +188,18 @@ int der_decode_sequence_ex(const unsigned char *in, unsigned long  inlen,
                }
                break;
 
+           case LTC_ASN1_TELETEX_STRING:
+               z = inlen;
+               if ((err = der_decode_teletex_string(in + x, z, data, &size)) != CRYPT_OK) {
+                  if (!ordered) { continue; }
+                  goto LBL_ERR;
+               }
+               list[i].size = size;
+               if ((err = der_length_teletex_string(data, size, &z)) != CRYPT_OK) {
+                  goto LBL_ERR;
+               }
+               break;
+
            case LTC_ASN1_IA5_STRING:
                z = inlen;
                if ((err = der_decode_ia5_string(in + x, z, data, &size)) != CRYPT_OK) {
@@ -270,7 +283,8 @@ int der_decode_sequence_ex(const unsigned char *in, unsigned long  inlen,
                }
                break;
 
-           default:
+           case LTC_ASN1_CONSTRUCTED:
+           case LTC_ASN1_EOL:
                err = CRYPT_INVALID_ARG;
                goto LBL_ERR;
        }

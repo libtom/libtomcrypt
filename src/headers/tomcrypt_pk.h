@@ -435,7 +435,7 @@ int dsa_shared_secret(void          *private_key, void *base,
 #ifdef LTC_DER
 /* DER handling */
 
-enum {
+typedef enum ltc_asn1_type_ {
  LTC_ASN1_EOL,
  LTC_ASN1_BOOLEAN,
  LTC_ASN1_INTEGER,
@@ -455,12 +455,12 @@ enum {
  LTC_ASN1_RAW_BIT_STRING,
  LTC_ASN1_TELETEX_STRING,
  LTC_ASN1_CONSTRUCTED,
-};
+} ltc_asn1_type;
 
 /** A LTC ASN.1 list type */
 typedef struct ltc_asn1_list_ {
    /** The LTC ASN.1 enumerated type identifier */
-   int           type;
+   ltc_asn1_type type;
    /** The data to encode or place for decoding */
    void         *data;
    /** The size of the input or resulting output */

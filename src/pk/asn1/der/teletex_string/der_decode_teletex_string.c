@@ -40,7 +40,7 @@ int der_decode_teletex_string(const unsigned char *in, unsigned long inlen,
       return CRYPT_INVALID_PACKET;
    }
 
-   /* check for 0x13 */
+   /* check for 0x14 */
    if ((in[0] & 0x1F) != 0x14) {
       return CRYPT_INVALID_PACKET;
    }
@@ -87,7 +87,7 @@ int der_decode_teletex_string(const unsigned char *in, unsigned long inlen,
 
    return CRYPT_OK;
 }
- 
+
 #endif
 
 /* $Source$ */

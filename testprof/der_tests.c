@@ -22,7 +22,6 @@ static void der_set_test(void)
 
    unsigned char strs[10][10], outbuf[128];
    unsigned long x, val, outlen;
-   int           err;
 
    /* make structure and encode it */
    LTC_SET_ASN1(list, 0, LTC_ASN1_OCTET_STRING,  oct_str, sizeof(oct_str));
@@ -31,21 +30,14 @@ static void der_set_test(void)
 
    /* encode it */
    outlen = sizeof(outbuf);
-   if ((err = der_encode_set(list, 3, outbuf, &outlen)) != CRYPT_OK) {
-      fprintf(stderr, "error encoding set: %s\n", error_to_string(err));
-      exit(EXIT_FAILURE);
-   }
-
+   DO(der_encode_set(list, 3, outbuf, &outlen));
 
    /* first let's test the set_decoder out of order to see what happens, we should get all the fields we expect even though they're in a diff order */
    LTC_SET_ASN1(list, 0, LTC_ASN1_BIT_STRING,    strs[1], sizeof(strs[1]));
    LTC_SET_ASN1(list, 1, LTC_ASN1_SHORT_INTEGER, &val, 1);
    LTC_SET_ASN1(list, 2, LTC_ASN1_OCTET_STRING,  strs[0], sizeof(strs[0]));
 
-   if ((err = der_decode_set(outbuf, outlen, list, 3)) != CRYPT_OK) {
-      fprintf(stderr, "error decoding set using der_decode_set: %s\n", error_to_string(err));
-      exit(EXIT_FAILURE);
-   }
+   DO(der_decode_set(outbuf, outlen, list, 3));
 
    /* now compare the items */
    if (memcmp(strs[0], oct_str, sizeof(oct_str))) {
@@ -79,20 +71,14 @@ static void der_set_test(void)
    }
 
    outlen = sizeof(outbuf);
-   if ((err = der_encode_setof(list, 10, outbuf, &outlen)) != CRYPT_OK) {
-      fprintf(stderr, "error encoding SET OF: %s\n", error_to_string(err));
-      exit(EXIT_FAILURE);
-   }
+   DO(der_encode_setof(list, 10, outbuf, &outlen));
 
    for (x = 0; x < 10; x++) {
        LTC_SET_ASN1(list, x, LTC_ASN1_PRINTABLE_STRING, strs[x], sizeof(strs[x]) - 1);
    }
    XMEMSET(strs, 0, sizeof(strs));
 
-   if ((err = der_decode_set(outbuf, outlen, list, 10)) != CRYPT_OK) {
-      fprintf(stderr, "error decoding SET OF: %s\n", error_to_string(err));
-      exit(EXIT_FAILURE);
-   }
+   DO(der_decode_set(outbuf, outlen, list, 10));
 
    /* now compare */
    for (x = 1; x < 10; x++) {
@@ -143,7 +129,6 @@ static void der_flexi_test(void)
 
    unsigned char encode_buf[192];
    unsigned long encode_buf_len, decode_len;
-   int           err;
 
    ltc_asn1_list static_list[5][3], *decoded_list, *l;
 
@@ -169,10 +154,7 @@ static void der_flexi_test(void)
 
    /* encode it */
    encode_buf_len = sizeof(encode_buf);
-   if ((err = der_encode_sequence(&static_list[0][0], 3, encode_buf, &encode_buf_len)) != CRYPT_OK) {
-      fprintf(stderr, "Encoding static_list: %s\n", error_to_string(err));
-      exit(EXIT_FAILURE);
-   }
+   DO(der_encode_sequence(&static_list[0][0], 3, encode_buf, &encode_buf_len));
 
 #if 0
    {
@@ -185,10 +167,7 @@ static void der_flexi_test(void)
 
    /* decode with flexi */
    decode_len = encode_buf_len;
-   if ((err = der_decode_sequence_flexi(encode_buf, &decode_len, &decoded_list)) != CRYPT_OK) {
-      fprintf(stderr, "decoding static_list: %s\n", error_to_string(err));
-      exit(EXIT_FAILURE);
-   }
+   DO(der_decode_sequence_flexi(encode_buf, &decode_len, &decoded_list));
 
    if (decode_len != encode_buf_len) {
       fprintf(stderr, "Decode len of %lu does not match encode len of %lu \n", decode_len, encode_buf_len);
