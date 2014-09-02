@@ -393,7 +393,6 @@ const char *crypt_build_settings =
    " LTC_ECC_SHAMIR "
 #endif
     "\n"
-    "\n\n\n"
     ;
 
 

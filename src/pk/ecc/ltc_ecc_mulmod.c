@@ -62,7 +62,7 @@ int ltc_ecc_mulmod(void *k, ecc_point *G, ecc_point *R, void *modulus, int map)
       mp_clear(mu);
       return err;
    }
-  
+
   /* alloc ram for window temps */
   for (i = 0; i < 8; i++) {
       M[i] = ltc_ecc_new_point();
@@ -92,7 +92,7 @@ int ltc_ecc_mulmod(void *k, ecc_point *G, ecc_point *R, void *modulus, int map)
    }
    mp_clear(mu);
    mu = NULL;
-   
+
    /* calc the M tab, which holds kG for k==8..15 */
    /* M[0] == 8G */
    if ((err = ltc_mp.ecc_ptdbl(tG, M[0], modulus, mp)) != CRYPT_OK)                 { goto done; }
