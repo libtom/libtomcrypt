@@ -430,6 +430,7 @@ static int montgomery_reduce(void *a, void *b, void *c)
 /* clean up */
 static void montgomery_deinit(void *a)
 {
+  LTC_UNUSED_PARAM(a);
 }
 
 static int exptmod(void *a, void *b, void *c, void *d)
