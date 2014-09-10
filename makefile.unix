@@ -210,7 +210,7 @@ library: $(LIBNAME)
 
 .PHONY: testprof/$(LIBTEST)
 testprof/$(LIBTEST):
-	cd testprof ; CFLAGS="$(CFLAGS)" LIBTEST_S=$(LIBTEST_S) $(MAKE)
+	cd testprof ; CFLAGS="$(CFLAGS)" LIBTEST_S=$(LIBTEST_S) CC="$(CC)" LD="$(LD)" AR="$(AR)" RANLIB="$(RANLIB)" $(MAKE)
 
 $(LIBNAME): $(OBJECTS)
 	$(AR) $(ARFLAGS) $@ $(OBJECTS)
