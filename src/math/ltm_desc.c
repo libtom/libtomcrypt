@@ -100,7 +100,7 @@ static unsigned long get_int(void *a)
    return mp_get_int(a);
 }
 
-static unsigned long get_digit(void *a, int n)
+static ltc_mp_digit get_digit(void *a, int n)
 {
    mp_int *A;
    LTC_ARGCHK(a != NULL);

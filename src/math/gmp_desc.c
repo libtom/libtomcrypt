@@ -74,7 +74,7 @@ static unsigned long get_int(void *a)
    return mpz_get_ui(a);
 }
 
-static unsigned long get_digit(void *a, int n)
+static ltc_mp_digit get_digit(void *a, int n)
 {
    LTC_ARGCHK(a != NULL);
    return mpz_getlimbn(a, n);
