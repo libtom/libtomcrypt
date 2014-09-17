@@ -884,12 +884,12 @@ int xts_start(                int  cipher,
 int xts_encrypt(
    const unsigned char *pt, unsigned long ptlen,
          unsigned char *ct,
-   const unsigned char *tweak,
+         unsigned char *tweak,
          symmetric_xts *xts);
 int xts_decrypt(
    const unsigned char *ct, unsigned long ptlen,
          unsigned char *pt,
-   const unsigned char *tweak,
+         unsigned char *tweak,
          symmetric_xts *xts);
 
 void xts_done(symmetric_xts *xts);
