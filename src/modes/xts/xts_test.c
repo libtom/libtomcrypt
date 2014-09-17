@@ -142,7 +142,7 @@ int xts_test(void)
 },
 
 };
-   unsigned char OUT[512], T[16];
+   unsigned char OUT[512], Torg[16], T[16];
    ulong64       seq;
    symmetric_xts xts;
    int           i, err, idx;
@@ -161,9 +161,10 @@ int xts_test(void)
        }
  
        seq = tests[i].seqnum;
-       STORE64L(seq,T);
-       XMEMSET(T+8, 0, 8);
+       STORE64L(seq,Torg);
+       XMEMSET(Torg+8, 0, 8);
 
+       XMEMCPY(T, Torg, sizeof(T));
        err = xts_encrypt(tests[i].PTX, tests[i].PTLEN, OUT, T, &xts);
        if (err != CRYPT_OK) {
           xts_done(&xts);
@@ -175,6 +176,7 @@ int xts_test(void)
           return CRYPT_FAIL_TESTVECTOR;
        }
 
+       XMEMCPY(T, Torg, sizeof(T));
        err = xts_decrypt(tests[i].CTX, tests[i].PTLEN, OUT, T, &xts);
        if (err != CRYPT_OK) {
           xts_done(&xts);

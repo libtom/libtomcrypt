@@ -60,7 +60,7 @@ static int tweak_uncrypt(const unsigned char *C, unsigned char *P, unsigned char
 */int xts_decrypt(
    const unsigned char *ct, unsigned long ptlen,
          unsigned char *pt,
-   const unsigned char *tweak,
+         unsigned char *tweak,
          symmetric_xts *xts)
 {
    unsigned char PP[16], CC[16], T[16];
@@ -128,6 +128,11 @@ static int tweak_uncrypt(const unsigned char *C, unsigned char *P, unsigned char
       if ((err = tweak_uncrypt(CC, pt, T, xts)) != CRYPT_OK) {
          return err;
       }
+   }
+
+   /* Decrypt the tweak back */
+   if ((err = cipher_descriptor[xts->cipher].ecb_decrypt(T, tweak, &xts->key2)) != CRYPT_OK) {
+      return err;
    }
 
    return CRYPT_OK;
