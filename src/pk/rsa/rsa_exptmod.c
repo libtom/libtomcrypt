@@ -100,16 +100,11 @@ int rsa_exptmod(const unsigned char *in,   unsigned long inlen,
       }
       #endif /* LTC_RSA_BLINDING */
 
-      if (key->dP == NULL) {
+      if ((key->dP == NULL) || (mp_get_digit_count(key->dP) == 0)) {
          /*
-          * In case CRT optimization parameters are provided,
-          * the private key is directly used
+          * In case CRT optimization parameters are not provided,
+          * the private key is directly used to exptmod it
           */
-         LTC_ARGCHK(key->dQ == NULL);
-         LTC_ARGCHK(key->qP == NULL);
-         LTC_ARGCHK(key->p  == NULL);
-         LTC_ARGCHK(key->q  == NULL);
-         /* exptmod it */
          if ((err = mp_exptmod(tmp, key->d, key->N, tmp)) != CRYPT_OK)                              { goto error; }
       } else {
          /* tmpa = tmp^dP mod p */
