@@ -100,19 +100,32 @@ int rsa_exptmod(const unsigned char *in,   unsigned long inlen,
       }
       #endif /* LTC_RSA_BLINDING */
 
-      /* tmpa = tmp^dP mod p */
-      if ((err = mp_exptmod(tmp, key->dP, key->p, tmpa)) != CRYPT_OK)                               { goto error; }
+      if (key->dP == NULL) {
+         /*
+          * In case CRT optimization parameters are provided,
+          * the private key is directly used
+          */
+         LTC_ARGCHK(key->dQ == NULL);
+         LTC_ARGCHK(key->qP == NULL);
+         LTC_ARGCHK(key->p  == NULL);
+         LTC_ARGCHK(key->q  == NULL);
+         /* exptmod it */
+         if ((err = mp_exptmod(tmp, key->d, key->N, tmp)) != CRYPT_OK)                              { goto error; }
+      } else {
+         /* tmpa = tmp^dP mod p */
+         if ((err = mp_exptmod(tmp, key->dP, key->p, tmpa)) != CRYPT_OK)                            { goto error; }
 
-      /* tmpb = tmp^dQ mod q */
-      if ((err = mp_exptmod(tmp, key->dQ, key->q, tmpb)) != CRYPT_OK)                               { goto error; }
+         /* tmpb = tmp^dQ mod q */
+         if ((err = mp_exptmod(tmp, key->dQ, key->q, tmpb)) != CRYPT_OK)                            { goto error; }
 
-      /* tmp = (tmpa - tmpb) * qInv (mod p) */
-      if ((err = mp_sub(tmpa, tmpb, tmp)) != CRYPT_OK)                                              { goto error; }
-      if ((err = mp_mulmod(tmp, key->qP, key->p, tmp)) != CRYPT_OK)                                { goto error; }
+         /* tmp = (tmpa - tmpb) * qInv (mod p) */
+         if ((err = mp_sub(tmpa, tmpb, tmp)) != CRYPT_OK)                                           { goto error; }
+         if ((err = mp_mulmod(tmp, key->qP, key->p, tmp)) != CRYPT_OK)                              { goto error; }
 
-      /* tmp = tmpb + q * tmp */
-      if ((err = mp_mul(tmp, key->q, tmp)) != CRYPT_OK)                                             { goto error; }
-      if ((err = mp_add(tmp, tmpb, tmp)) != CRYPT_OK)                                               { goto error; }
+         /* tmp = tmpb + q * tmp */
+         if ((err = mp_mul(tmp, key->q, tmp)) != CRYPT_OK)                                          { goto error; }
+         if ((err = mp_add(tmp, tmpb, tmp)) != CRYPT_OK)                                            { goto error; }
+      }
 
       #ifdef LTC_RSA_BLINDING
       /* unblind */
