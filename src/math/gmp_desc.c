@@ -74,7 +74,7 @@ static unsigned long get_int(void *a)
    return mpz_get_ui(a);
 }
 
-static unsigned long get_digit(void *a, int n)
+static ltc_mp_digit get_digit(void *a, int n)
 {
    LTC_ARGCHK(a != NULL);
    return mpz_getlimbn(a, n);
@@ -430,6 +430,7 @@ static int montgomery_reduce(void *a, void *b, void *c)
 /* clean up */
 static void montgomery_deinit(void *a)
 {
+  LTC_UNUSED_PARAM(a);
 }
 
 static int exptmod(void *a, void *b, void *c, void *d)

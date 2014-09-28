@@ -80,7 +80,7 @@ typedef struct {
      @param n  The number of the digit to fetch
      @return  The bits_per_digit  sized n'th digit of a
    */
-   unsigned long (*get_digit)(void *a, int n);
+   ltc_mp_digit (*get_digit)(void *a, int n);
 
    /** Get the number of digits that represent the number
      @param a   The number to count

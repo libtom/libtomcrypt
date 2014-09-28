@@ -122,6 +122,11 @@ typedef ulong32 __attribute__((__may_alias__)) LTC_FAST_TYPE;
   #endif
 #endif
 
+#ifdef ENDIAN_64BITWORD
+typedef ulong64 ltc_mp_digit;
+#else
+typedef ulong32 ltc_mp_digit;
+#endif
 
 #ifdef LTC_NO_FAST
    #ifdef LTC_FAST

@@ -263,7 +263,7 @@ library: $(LIBNAME)
 
 .PHONY: testprof/$(LIBTEST)
 testprof/$(LIBTEST):
-	cd testprof ; CFLAGS="$(CFLAGS)" GROUP=$(GROUP) USER=$(USER) VERSION=$(VERSION) LIBPATH=$(LIBPATH) LIBTEST=$(LIBTEST) LIBTEST_S=$(LIBTEST_S) LT=$(LT) CC=$(CC) make -f makefile.shared
+	cd testprof ; CFLAGS="$(CFLAGS)" GROUP=$(GROUP) USER=$(USER) VERSION=$(VERSION) LIBPATH=$(LIBPATH) LIBTEST=$(LIBTEST) LIBTEST_S=$(LIBTEST_S) LT=$(LT) CC="$(CC)" make -f makefile.shared
 
 .c.o:
 	$(LTCOMPILE) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $@ -c $<

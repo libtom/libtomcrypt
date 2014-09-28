@@ -210,7 +210,7 @@ library: $(LIBNAME)
 
 .PHONY: testprof/$(LIBTEST)
 testprof/$(LIBTEST):
-	$(MAKE) -C testprof -f makefile.mingw CFLAGS_OPTS="$(CFLAGS)" LIBTEST_S=$(LIBTEST) CC=$(CC) LD=$(LD) AR=$(AR) ARFLAGS=$(ARFLAGS) RANLIB=$(RANLIB)
+	$(MAKE) -C testprof -f makefile.mingw CFLAGS_OPTS="$(CFLAGS)" LIBTEST_S=$(LIBTEST) CC="$(CC)" LD=$(LD) AR=$(AR) ARFLAGS="$(ARFLAGS)" RANLIB=$(RANLIB)
 
 $(LIBNAME): $(OBJECTS)
 	$(AR) $(ARFLAGS) $@ $(OBJECTS)

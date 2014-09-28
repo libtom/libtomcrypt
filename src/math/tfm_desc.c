@@ -99,7 +99,7 @@ static unsigned long get_int(void *a)
    return A->used > 0 ? A->dp[0] : 0;
 }
 
-static unsigned long get_digit(void *a, int n)
+static ltc_mp_digit get_digit(void *a, int n)
 {
    fp_int *A;
    LTC_ARGCHK(a != NULL);
