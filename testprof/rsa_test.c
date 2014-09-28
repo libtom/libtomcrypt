@@ -291,6 +291,26 @@ for (cnt = 0; cnt < len; ) {
       return 1;
    }
 
+   /* verify with privKey but remove pointer to dP to test without CRT */
+
+   void* dP = privKey.dP;
+   privKey.dP = NULL;
+   /* change byte back to original */
+   in[0] ^= 1;
+   DO(rsa_verify_hash(out, len, in, 20, hash_idx, 0, &stat, &privKey));
+   /* change a byte */
+   in[0] ^= 1;
+   DO(rsa_verify_hash(out, len, in, 20, hash_idx, 0, &stat2, &privKey));
+
+   if (!(stat == 1 && stat2 == 0)) {
+      fprintf(stderr, "rsa_verify_hash (unsalted, privKey) failed, %d, %d", stat, stat2);
+      rsa_free(&key);
+      rsa_free(&pubKey);
+      rsa_free(&privKey);
+      return 1;
+   }
+   privKey.dP = dP;
+
    /* verify with pubKey */
    /* change byte back to original */
    in[0] ^= 1;
