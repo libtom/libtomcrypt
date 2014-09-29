@@ -5398,12 +5398,11 @@ functions can initialize LTM and TFM.
 
 To get the size of a named struct or union:
 \begin{verbatim}
-int crypt_get_size(const char *namein, 
-                          int *sizeout);
+int crypt_get_size(  const char *namein,
+                   unsigned int *sizeout);
 \end{verbatim}
-$namein$ is spelled exactly as found in the C header files with "_struct" 
-or "_union" appended to the name.  This function will return -1 if $namein$ 
-is not found. 
+$namein$ is spelled exactly as found in the C header files.  This function will
+return -1 if $namein$ is not found.
 
 To get the value of a named constant:
 \begin{verbatim}
@@ -5415,11 +5414,11 @@ returned if $namein$ is not found.
 
 To get the names of all the supported structs, unions and constants:
 \begin{verbatim}
-int crypt_list_all_sizes(char *names_list, 
-                          int *names_list_size);
+int crypt_list_all_sizes(        char *names_list,
+                         unsigned int *names_list_size);
 
-int crypt_list_all_constants(char *names_list, 
-                              int *names_list_size);
+int crypt_list_all_constants(        char *names_list,
+                             unsigned int *names_list_size);
 \end{verbatim}
 You may want to call these functions twice, first to get the amount
 of memory to be allocated for the $names_list$, and a final time to
