@@ -226,6 +226,12 @@ static void _unregister_all(void)
 #ifdef LTC_SHA512
   unregister_hash(&sha512_desc);
 #endif
+#ifdef LTC_SHA512_224
+  unregister_hash(&sha512_224_desc);
+#endif
+#ifdef LTC_SHA512_256
+  unregister_hash(&sha512_256_desc);
+#endif
 #ifdef LTC_RIPEMD128
   unregister_hash(&rmd128_desc);
 #endif
@@ -351,6 +357,12 @@ void reg_algs(void)
 #endif
 #ifdef LTC_SHA512
   register_hash (&sha512_desc);
+#endif
+#ifdef LTC_SHA512_224
+  register_hash (&sha512_224_desc);
+#endif
+#ifdef LTC_SHA512_256
+  register_hash (&sha512_256_desc);
 #endif
 #ifdef LTC_RIPEMD128
   register_hash (&rmd128_desc);

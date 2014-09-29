@@ -226,6 +226,8 @@
 #define LTC_CHC_HASH
 #define LTC_WHIRLPOOL
 #define LTC_SHA512
+#define LTC_SHA512_256
+#define LTC_SHA512_224
 #define LTC_SHA384
 #define LTC_SHA256
 #define LTC_SHA224
