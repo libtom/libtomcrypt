@@ -22,7 +22,7 @@
 
 typedef struct {
     const char *name;
-    const long size;
+    const unsigned int size;
 } crypt_size;
 
 #define _SZ_STRINGIFY_S(s) { #s, sizeof(struct s) }
@@ -237,7 +237,7 @@ static const crypt_size _crypt_sizes[] = {
  * sizeout will be the size (bytes) of the named struct or union
  * return -1 if named item not found
  */
-int crypt_get_size(const char* namein, int *sizeout) {
+int crypt_get_size(const char* namein, unsigned int *sizeout) {
     int i;
     int count = sizeof(_crypt_sizes) / sizeof(_crypt_sizes[0]);
     for (i=0; i<count; i++) {
@@ -259,9 +259,9 @@ int crypt_get_size(const char* namein, int *sizeout) {
  *     written.
  * a -1 return value signifies insufficient space made available
  */
-int crypt_list_all_sizes(char *names_list, unsigned long *names_list_size) {
+int crypt_list_all_sizes(char *names_list, unsigned int *names_list_size) {
     int i;
-    unsigned long total_len = 0;
+    unsigned int total_len = 0;
     char number[32];
     int number_len;
     int count = sizeof(_crypt_sizes) / sizeof(_crypt_sizes[0]);
@@ -270,7 +270,7 @@ int crypt_list_all_sizes(char *names_list, unsigned long *names_list_size) {
     for (i=0; i<count; i++) {
         total_len += strlen(_crypt_sizes[i].name) + 1;
         /* the above +1 is for the commas */
-        number_len = snprintf(number, sizeof(number), "%ld", _crypt_sizes[i].size);
+        number_len = snprintf(number, sizeof(number), "%u", _crypt_sizes[i].size);
         if ((number_len < 0) ||
             ((unsigned int)number_len >= sizeof(number)))
           return -1;
@@ -292,7 +292,7 @@ int crypt_list_all_sizes(char *names_list, unsigned long *names_list_size) {
             strcpy(ptr, ",");
             ptr += 1;
 
-            number_len = snprintf(number, sizeof(number), "%ld", _crypt_sizes[i].size);
+            number_len = snprintf(number, sizeof(number), "%u", _crypt_sizes[i].size);
             strcpy(ptr, number);
             ptr += number_len;
             strcpy(ptr, "\n");

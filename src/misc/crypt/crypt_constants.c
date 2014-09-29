@@ -22,7 +22,7 @@
 
 typedef struct {
     const char *name;
-    const long value;
+    const int value;
 } crypt_constant;
 
 #define _C_STRINGIFY(s) { #s, s }
@@ -179,9 +179,9 @@ int crypt_get_constant(const char* namein, int *valueout) {
  *     written.
  * a -1 return value signifies insufficient space made available
  */
-int crypt_list_all_constants(char *names_list, unsigned long *names_list_size) {
+int crypt_list_all_constants(char *names_list, unsigned int *names_list_size) {
     int i;
-    unsigned long total_len = 0;
+    unsigned int total_len = 0;
     char number[32];
     int number_len;
     int count = sizeof(_crypt_constants) / sizeof(_crypt_constants[0]);
@@ -190,7 +190,7 @@ int crypt_list_all_constants(char *names_list, unsigned long *names_list_size) {
     for (i=0; i<count; i++) {
         total_len += strlen(_crypt_constants[i].name) + 1;
         /* the above +1 is for the commas */
-        number_len = snprintf(number, sizeof(number), "%ld", _crypt_constants[i].value);
+        number_len = snprintf(number, sizeof(number), "%d", _crypt_constants[i].value);
         if ((number_len < 0) ||
             ((unsigned int)number_len >= sizeof(number)))
           return -1;
@@ -212,7 +212,7 @@ int crypt_list_all_constants(char *names_list, unsigned long *names_list_size) {
             strcpy(ptr, ",");
             ptr += 1;
 
-            number_len = snprintf(number, sizeof(number), "%ld", _crypt_constants[i].value);
+            number_len = snprintf(number, sizeof(number), "%d", _crypt_constants[i].value);
             strcpy(ptr, number);
             ptr += number_len;
             strcpy(ptr, "\n");
