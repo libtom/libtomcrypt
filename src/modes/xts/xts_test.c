@@ -12,7 +12,11 @@
 
 #ifdef LTC_XTS_MODE
 
-/** 
+#if defined(LTC_XTS_TEST_DBG) && !defined(LTC_NO_TEST)
+void print_hex(const char* what, const unsigned char* p, const unsigned long l);
+#endif
+
+/**
   Source donated by Elliptic Semiconductor Inc (www.ellipticsemi.com) to the LibTom Projects
   Returns CRYPT_OK upon success.
 */
@@ -145,49 +149,102 @@ int xts_test(void)
    unsigned char OUT[512], Torg[16], T[16];
    ulong64       seq;
    symmetric_xts xts;
-   int           i, err, idx;
+   int           i, j, err, idx;
+   unsigned long len;
 
-   /* AES can be under rijndael or aes... try to find it */ 
+   /* AES can be under rijndael or aes... try to find it */
    if ((idx = find_cipher("aes")) == -1) {
       if ((idx = find_cipher("rijndael")) == -1) {
          return CRYPT_NOP;
       }
    }
 
-   for (i = 0; i < (int)(sizeof(tests)/sizeof(tests[0])); i++) {
-       err = xts_start(idx, tests[i].key1, tests[i].key2, tests[i].keylen/2, 0, &xts);
-       if (err != CRYPT_OK) {
-          return err;
-       }
- 
-       seq = tests[i].seqnum;
-       STORE64L(seq,Torg);
-       XMEMSET(Torg+8, 0, 8);
+   for (j = 0; j < 2; j++) {
+     for (i = 0; i < (int)(sizeof(tests)/sizeof(tests[0])); i++) {
+         /* skip the cases where
+          * the length is smaller than 2*blocklen
+          * or the length is not a multiple of 32
+          */
+         if ((j == 1) && ((tests[i].PTLEN < 32) || (tests[i].PTLEN % 32))) {
+             continue;
+         }
+         len = tests[i].PTLEN/2;
 
-       XMEMCPY(T, Torg, sizeof(T));
-       err = xts_encrypt(tests[i].PTX, tests[i].PTLEN, OUT, T, &xts);
-       if (err != CRYPT_OK) {
-          xts_done(&xts);
-          return err;
-       }
+         err = xts_start(idx, tests[i].key1, tests[i].key2, tests[i].keylen/2, 0, &xts);
+         if (err != CRYPT_OK) {
+            return err;
+         }
 
-       if (XMEMCMP(OUT, tests[i].CTX, tests[i].PTLEN)) {
-          xts_done(&xts);
-          return CRYPT_FAIL_TESTVECTOR;
-       }
+         seq = tests[i].seqnum;
+         STORE64L(seq,Torg);
+         XMEMSET(Torg+8, 0, 8);
 
-       XMEMCPY(T, Torg, sizeof(T));
-       err = xts_decrypt(tests[i].CTX, tests[i].PTLEN, OUT, T, &xts);
-       if (err != CRYPT_OK) {
-          xts_done(&xts);
-          return err;
-       }
+         XMEMCPY(T, Torg, sizeof(T));
+         if (j == 0) {
+           err = xts_encrypt(tests[i].PTX, tests[i].PTLEN, OUT, T, &xts);
+           if (err != CRYPT_OK) {
+              xts_done(&xts);
+              return err;
+           }
+         }
+         else {
+#ifdef LTC_XTS_TEST_DBG
+           printf("\nTestcase #%d with original length %lu and half of it %lu\n", i, tests[i].PTLEN, len);
+#endif
+           err = xts_encrypt(tests[i].PTX, len, OUT, T, &xts);
+           if (err != CRYPT_OK) {
+              xts_done(&xts);
+              return err;
+           }
+           err = xts_encrypt(&tests[i].PTX[len], len, &OUT[len], T, &xts);
+           if (err != CRYPT_OK) {
+              xts_done(&xts);
+              return err;
+           }
+         }
 
-       if (XMEMCMP(OUT, tests[i].PTX, tests[i].PTLEN)) {
-          xts_done(&xts);
-          return CRYPT_FAIL_TESTVECTOR;
-       }
-       xts_done(&xts);
+         if (XMEMCMP(OUT, tests[i].CTX, tests[i].PTLEN)) {
+#ifdef LTC_XTS_TEST_DBG
+            printf("\nencrypt\n");
+            print_hex("should", tests[i].CTX, tests[i].PTLEN);
+            print_hex("is", OUT, tests[i].PTLEN);
+#endif
+            xts_done(&xts);
+            return CRYPT_FAIL_TESTVECTOR;
+         }
+
+         XMEMCPY(T, Torg, sizeof(T));
+         if (j == 0) {
+           err = xts_decrypt(tests[i].CTX, tests[i].PTLEN, OUT, T, &xts);
+           if (err != CRYPT_OK) {
+              xts_done(&xts);
+              return err;
+           }
+         }
+         else {
+           err = xts_decrypt(tests[i].CTX, len, OUT, T, &xts);
+           if (err != CRYPT_OK) {
+              xts_done(&xts);
+              return err;
+           }
+           err = xts_decrypt(&tests[i].CTX[len], len, &OUT[len], T, &xts);
+           if (err != CRYPT_OK) {
+              xts_done(&xts);
+              return err;
+           }
+         }
+
+         if (XMEMCMP(OUT, tests[i].PTX, tests[i].PTLEN)) {
+#ifdef LTC_XTS_TEST_DBG
+            printf("\ndecrypt\n");
+            print_hex("should", tests[i].PTX, tests[i].PTLEN);
+            print_hex("is", OUT, tests[i].PTLEN);
+#endif
+            xts_done(&xts);
+            return CRYPT_FAIL_TESTVECTOR;
+         }
+         xts_done(&xts);
+     }
    }
    return CRYPT_OK;
 #endif
