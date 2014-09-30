@@ -13,6 +13,487 @@ int der_tests(void)
 
 #else
 
+static const unsigned char _der_tests_cacert_root_cert[] =
+   "MIIHPTCCBSWgAwIBAgIBADANBgkqhkiG9w0BAQQFADB5MRAwDgYDVQQKEwdSb290\
+    IENBMR4wHAYDVQQLExVodHRwOi8vd3d3LmNhY2VydC5vcmcxIjAgBgNVBAMTGUNB\
+    IENlcnQgU2lnbmluZyBBdXRob3JpdHkxITAfBgkqhkiG9w0BCQEWEnN1cHBvcnRA\
+    Y2FjZXJ0Lm9yZzAeFw0wMzAzMzAxMjI5NDlaFw0zMzAzMjkxMjI5NDlaMHkxEDAO\
+    BgNVBAoTB1Jvb3QgQ0ExHjAcBgNVBAsTFWh0dHA6Ly93d3cuY2FjZXJ0Lm9yZzEi\
+    MCAGA1UEAxMZQ0EgQ2VydCBTaWduaW5nIEF1dGhvcml0eTEhMB8GCSqGSIb3DQEJ\
+    ARYSc3VwcG9ydEBjYWNlcnQub3JnMIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIIC\
+    CgKCAgEAziLA4kZ97DYoB1CW8qAzQIxL8TtmPzHlawI229Z89vGIj053NgVBlfkJ\
+    8BLPRoZzYLdufujAWGSuzbCtRRcMY/pnCujW0r8+55jE8Ez64AO7NV1sId6eINm6\
+    zWYyN3L69wj1x81YyY7nDl7qPv4coRQKFWyGhFtkZip6qUtTefWIonvuLwphK42y\
+    fk1WpRPs6tqSnqxEQR5YYGUFZvjARL3LlPdCfgv3ZWiYUQXw8wWRBB0bF4LsyFe7\
+    w2t6iPGwcswlWyCR7BYCEo8y6RcYSNDHBS4CMEK4JZwFaz+qOqfrU0j36NK2B5jc\
+    G8Y0f3/JHIJ6BVgrCFvzOKKrF11myZjXnhCLotLddJr3cQxyYN/Nb5gznZY0dj4k\
+    epKwDpUeb+agRThHqtdB7Uq3EvbXG4OKDy7YCbZZ16oE/9KTfWgu3YtLq1i6L43q\
+    laegw1SJpfvbi1EinbLDvhG+LJGGi5Z4rSDTii8aP8bQUWWHIbEZAWV/RRyH9XzQ\
+    QUxPKZgh/TMfdQwEUfoZd9vUFBzugcMd9Zi3aQaRIt0AUMyBMawSB3s42mhb5ivU\
+    fslfrejrckzzAeVLIL+aplfKkQABi6F1ITe1Yw1nPkZPcCBnzsXWWdsC4PDSy826\
+    YreQQejdIOQpvGQpQsgi3Hia/0PsmBsJUUtaWsJx8cTLc6nloQsCAwEAAaOCAc4w\
+    ggHKMB0GA1UdDgQWBBQWtTIb1Mfz4OaO873SsDrusjkY0TCBowYDVR0jBIGbMIGY\
+    gBQWtTIb1Mfz4OaO873SsDrusjkY0aF9pHsweTEQMA4GA1UEChMHUm9vdCBDQTEe\
+    MBwGA1UECxMVaHR0cDovL3d3dy5jYWNlcnQub3JnMSIwIAYDVQQDExlDQSBDZXJ0\
+    IFNpZ25pbmcgQXV0aG9yaXR5MSEwHwYJKoZIhvcNAQkBFhJzdXBwb3J0QGNhY2Vy\
+    dC5vcmeCAQAwDwYDVR0TAQH/BAUwAwEB/zAyBgNVHR8EKzApMCegJaAjhiFodHRw\
+    czovL3d3dy5jYWNlcnQub3JnL3Jldm9rZS5jcmwwMAYJYIZIAYb4QgEEBCMWIWh0\
+    dHBzOi8vd3d3LmNhY2VydC5vcmcvcmV2b2tlLmNybDA0BglghkgBhvhCAQgEJxYl\
+    aHR0cDovL3d3dy5jYWNlcnQub3JnL2luZGV4LnBocD9pZD0xMDBWBglghkgBhvhC\
+    AQ0ESRZHVG8gZ2V0IHlvdXIgb3duIGNlcnRpZmljYXRlIGZvciBGUkVFIGhlYWQg\
+    b3ZlciB0byBodHRwOi8vd3d3LmNhY2VydC5vcmcwDQYJKoZIhvcNAQEEBQADggIB\
+    ACjH7pyCArpcgBLKNQodgW+JapnM8mgPf6fhjViVPr3yBsOQWqy1YPaZQwGjiHCc\
+    nWKdpIevZ1gNMDY75q1I08t0AoZxPuIrA2jxNGJARjtT6ij0rPtmlVOKTV39O9lg\
+    18p5aTuxZZKmxoGCXJzN600BiqXfEVWqFcofN8CCmHBh22p8lqOOLlQ+TyGpkO/c\
+    gr/c6EWtTZBzCDyUZbAEmXZ/4rzCahWqlwQ3JNgelE5tDlG+1sSPypZt90Pf6DBl\
+    Jzt7u0NDY8RD97LsaMzhGY4i+5jhe1o+ATc7iwiwovOVThrLm82asduycPAtStvY\
+    sONvRUgzEv/+PDIqVPfE94rwiCPCR/5kenHA0R6mY7AHfqQv0wGP3J8rtsYIqQ+T\
+    SCX8Ev2fQtzzxD72V7DX3WnRBnc0CkvSyqD/HMaMyRa+xMwyN2hzXwj7UfdJUzYF\
+    CpUCTPJ5GhD22Dp1nPMd8aINcGeGG7MW9S/lpOt5hvk9C8JzC6WZrG/8Z7jlLwum\
+    GCSNe9FINSkYQKyTYOGWhlC0elnYjyELn8+CkcY7v2vcB5G5l1YjqrZslMZIBjzk\
+    zk6q5PYvCdxTby78dOs6Y5nCpqyJvKeyRKANihDjbPIky/qbn3BHLt4Ui9SyIAmW\
+    omTxJBzcoTWcFbLUvFUufQb1nA5V9FrWk9p2rSVzTMVD";
+
+/*
+SEQUENCE(3 elem)
+    SEQUENCE(8 elem)
+        [0](1)
+            INTEGER  2
+        INTEGER  0
+        SEQUENCE(2 elem)
+            OBJECT IDENTIFIER 1.2.840.113549.1.1.4
+            NULL
+        SEQUENCE(4 elem)
+            SET(1 elem)
+                SEQUENCE(2 elem)
+                    OBJECT IDENTIFIER 2.5.4.10
+                    PrintableString  Root CA
+            SET(1 elem)
+                SEQUENCE(2 elem)
+                    OBJECT IDENTIFIER 2.5.4.11
+                    PrintableString  http://www.cacert.org
+            SET(1 elem)
+                SEQUENCE(2 elem)
+                    OBJECT IDENTIFIER 2.5.4.3
+                    PrintableString  CA Cert Signing Authority
+            SET(1 elem)
+                SEQUENCE(2 elem)
+                    OBJECT IDENTIFIER 1.2.840.113549.1.9.1
+                    IA5String support@cacert.org
+        SEQUENCE(2 elem)
+            UTCTime03-03-30 12:29:49 UTC
+            UTCTime33-03-29 12:29:49 UTC
+        SEQUENCE(4 elem)
+            SET(1 elem)
+                SEQUENCE(2 elem)
+                    OBJECT IDENTIFIER 2.5.4.10
+                    PrintableString Root CA
+            SET(1 elem)
+                SEQUENCE(2 elem)
+                    OBJECT IDENTIFIER 2.5.4.11
+                    PrintableString http://www.cacert.org
+            SET(1 elem)
+                SEQUENCE(2 elem)
+                    OBJECT IDENTIFIER 2.5.4.3
+                    PrintableString CA Cert Signing Authority
+            SET(1 elem)
+                SEQUENCE(2 elem)
+                    OBJECT IDENTIFIER 1.2.840.113549.1.9.1
+                    IA5String support@cacert.org
+        SEQUENCE(2 elem)
+            SEQUENCE(2 elem)
+                OBJECT IDENTIFIER 1.2.840.113549.1.1.1
+                NULL
+            BIT STRING(1 elem)
+        SEQUENCE(2 elem)
+            INTEGER (4096 bit)
+            INTEGER 65537
+        [3](1)
+            SEQUENCE(7 elem)
+                SEQUENCE(2 elem)
+                    OBJECT IDENTIFIER 2.5.29.14
+                    OCTET STRING(1 elem)
+                        OCTET STRING(20 byte) 16B5321BD4C7F3E0E68EF3BDD2B03AEEB23918D1
+                SEQUENCE(2 elem)
+                    OBJECT IDENTIFIER 2.5.29.35
+                    OCTET STRING(1 elem)
+                        SEQUENCE(3 elem)
+                            [0]
+                            [1](1)
+                                [4](1)
+                                SEQUENCE(4 elem)
+                                    SET(1 elem)
+                                        SEQUENCE(2 elem)
+                                            OBJECT IDENTIFIER 2.5.4.10
+                                            PrintableString Root CA
+                                    SET(1 elem)
+                                        SEQUENCE(2 elem)
+                                            OBJECT IDENTIFIER 2.5.4.11
+                                            PrintableString http://www.cacert.org
+                                    SET(1 elem)
+                                        SEQUENCE(2 elem)
+                                            OBJECT IDENTIFIER 2.5.4.3
+                                            PrintableString CA Cert Signing Authority
+                                    SET(1 elem)
+                                        SEQUENCE(2 elem)
+                                            OBJECT IDENTIFIER 1.2.840.113549.1.9.1
+                                            IA5String support@cacert.org
+                            [2]
+                SEQUENCE(3 elem)
+                    OBJECT IDENTIFIER 2.5.29.19
+                    BOOLEAN true
+                    OCTET STRING(1 elem)
+                        SEQUENCE(1 elem)
+                            BOOLEAN true
+                SEQUENCE(2 elem)
+                    OBJECT IDENTIFIER 2.5.29.31
+                    OCTET STRING(1 elem)
+                        SEQUENCE(1 elem)
+                            SEQUENCE(1 elem)
+                                [0](1)
+                                    [0](1)
+                                        [6]
+                SEQUENCE(2 elem)
+                    OBJECT IDENTIFIER 2.16.840.1.113730.1.4
+                    OCTET STRING(1 elem)
+                        IA5String https://www.cacert.org/revoke.crl
+                SEQUENCE(2 elem)
+                    OBJECT IDENTIFIER 2.16.840.1.113730.1.8
+                    OCTET STRING(1 elem)
+                        IA5String http://www.cacert.org/index.php?id=10
+                SEQUENCE(2 elem)
+                    OBJECT IDENTIFIER 2.16.840.1.113730.1.13
+                    OCTET STRING(1 elem)
+                        IA5String To get your own certificate for FREE head over to http://www.cacert.org
+    SEQUENCE(2 elem)
+        OBJECT IDENTIFIER 1.2.840.113549.1.1.4
+        NULL
+    BIT STRING(4096 bit)
+ */
+
+#define __ASN1_ERR(l) fprintf(stderr, "line: %d, type=%d, size=%lu, next=%p, prev=%p, parent=%p, child=%p\n", __LINE__, (l)->type, (l)->size, (l)->next, (l)->prev, (l)->parent, (l)->child); \
+    exit(EXIT_FAILURE)
+
+#define __CHECK_ASN1_HAS(l, w) do { if ((l)->w == NULL) { \
+    __ASN1_ERR(l);\
+} } while(0)
+
+#define __CHECK_ASN1_HAS_NO(l, w) do { if ((l)->w != NULL) { \
+    __ASN1_ERR(l);\
+} } while(0)
+
+
+
+#define CHECK_ASN1_TYPE(l, t) do { if ((l)->type != (t)) { \
+    __ASN1_ERR(l);\
+} } while(0)
+
+#define CHECK_ASN1_HAS_CHILD(l) __CHECK_ASN1_HAS(l, child)
+#define CHECK_ASN1_HAS_NO_CHILD(l) __CHECK_ASN1_HAS_NO(l, child)
+#define CHECK_ASN1_HAS_NEXT(l) __CHECK_ASN1_HAS(l, next)
+#define CHECK_ASN1_HAS_NO_NEXT(l) __CHECK_ASN1_HAS_NO(l, next)
+
+#ifdef LTC_DER_TESTS_PRINT_FLEXI
+static void _der_tests_print_flexi(ltc_asn1_list* l, unsigned int level)
+{
+  char buf[1024];
+  char* name = NULL;
+  char* text = NULL;
+  ltc_asn1_list* ostring = NULL;
+  unsigned int n;
+
+  switch (l->type)
+    {
+  case LTC_ASN1_EOL:
+    name = "EOL";
+    text = "";
+    break;
+  case LTC_ASN1_BOOLEAN:
+    name = "BOOLEAN";
+    {
+      if (*(int*)l->data)
+        text = "true";
+      else
+        text = "false";
+    }
+    break;
+  case LTC_ASN1_INTEGER:
+    name = "INTEGER";
+    break;
+  case LTC_ASN1_SHORT_INTEGER:
+    name = "SHORT INTEGER";
+    break;
+  case LTC_ASN1_BIT_STRING:
+    name = "BIT STRING";
+    break;
+  case LTC_ASN1_OCTET_STRING:
+    name = "OCTET STRING";
+    {
+      unsigned long ostring_l = l->size;
+      /* sometimes there's another sequence in an octet string...
+       * try to decode that... if it fails print out the octet string
+       */
+      if (der_decode_sequence_flexi(l->data, &ostring_l, &ostring) == CRYPT_OK) {
+          text = "";
+      }
+      else {
+          int r;
+          char* s = buf;
+          int sz = sizeof(buf);
+          for (n = 0; n < l->size; ++n) {
+              r = snprintf(s, sz, "%02X", ((unsigned char*)l->data)[n]);
+              if (r < 0 || r >= sz) {
+                  printf("Octet string boom");
+                  exit(EXIT_FAILURE);
+              }
+              s += r;
+              sz -= r;
+          }
+          text = buf;
+      }
+    }
+    break;
+  case LTC_ASN1_NULL:
+    name = "NULL";
+    text = "";
+    break;
+  case LTC_ASN1_OBJECT_IDENTIFIER:
+    name = "OBJECT IDENTIFIER";
+    {
+      unsigned long i;
+      int r;
+      char* s = buf;
+      int sz = sizeof(buf);
+      for (i = 0; i < l->size; ++i) {
+        r = snprintf(s, sz, "%lu.", ((unsigned long*)l->data)[i]);
+        if (r < 0 || r >= sz) {
+            printf("OID boom");
+            exit(EXIT_FAILURE);
+        }
+        s += r;
+        sz -= r;
+      }
+      /* replace the last . with a \0 */
+      *(s - 1) = '\0';
+      text = buf;
+    }
+    break;
+  case LTC_ASN1_IA5_STRING:
+    name = "IA5 STRING";
+    text = l->data;
+    break;
+  case LTC_ASN1_PRINTABLE_STRING:
+    name = "PRINTABLE STRING";
+    text = l->data;
+    break;
+  case LTC_ASN1_UTF8_STRING:
+    name = "UTF8 STRING";
+    break;
+  case LTC_ASN1_UTCTIME:
+    name = "UTCTIME";
+    {
+      ltc_utctime* ut = l->data;
+      snprintf(buf, sizeof(buf), "%02d-%02d-%02d %02d:%02d:%02d %c%02d:%02d",
+          ut->YY, ut->MM, ut->DD, ut->hh, ut->mm, ut->ss,
+          ut->off_dir ? '-' : '+', ut->off_hh, ut->off_mm);
+      text = buf;
+    }
+    break;
+  case LTC_ASN1_CHOICE:
+    name = "CHOICE";
+    break;
+  case LTC_ASN1_SEQUENCE:
+    name = "SEQUENCE";
+    text = "";
+    break;
+  case LTC_ASN1_SET:
+    name = "SET";
+    text = "";
+    break;
+  case LTC_ASN1_SETOF:
+    name = "SETOF";
+    text = "";
+    break;
+  case LTC_ASN1_RAW_BIT_STRING:
+    name = "RAW BIT STRING";
+    break;
+  case LTC_ASN1_TELETEX_STRING:
+    name = "TELETEX STRING";
+    text = l->data;
+    break;
+  case LTC_ASN1_CONSTRUCTED:
+    name = "CONSTRUCTED";
+    text = "";
+    break;
+  }
+
+  for (n = 0; n < level; ++n) {
+    printf("    ");
+  }
+  if (name) {
+      if (text)
+        printf("%s %s\n", name, text);
+      else
+        printf("%s <missing decoding>\n", name);
+  }
+  else
+    printf("WTF type=%i\n", l->type);
+
+  if (ostring) {
+      _der_tests_print_flexi(ostring, level + 1);
+      der_free_sequence_flexi(ostring);
+  }
+
+  if (l->child)
+    _der_tests_print_flexi(l->child, level + 1);
+
+  if (l->next)
+    _der_tests_print_flexi(l->next, level);
+}
+#endif
+
+static void der_cacert_test(void)
+{
+  unsigned char buf[sizeof(_der_tests_cacert_root_cert)];
+  unsigned long len1 = sizeof(buf), len2;
+
+  ltc_asn1_list *decoded_list, *l, *l1, *l2;
+
+  DO(base64_decode(_der_tests_cacert_root_cert, sizeof(_der_tests_cacert_root_cert), buf, &len1));
+  len2 = len1;
+  DO(der_decode_sequence_flexi(buf, &len2, &decoded_list));
+
+#ifdef LTC_DER_TESTS_PRINT_FLEXI
+  printf("\n\n--- test print start ---\n\n");
+  _der_tests_print_flexi(decoded_list, 0);
+  printf("\n\n--- test print end ---\n\n");
+#endif
+
+  l = decoded_list;
+
+  /*
+SEQUENCE(3 elem)
+    SEQUENCE(8 elem)
+   */
+
+  CHECK_ASN1_TYPE(l, LTC_ASN1_SEQUENCE);
+  CHECK_ASN1_HAS_CHILD(l);
+  CHECK_ASN1_HAS_NO_NEXT(l);
+
+  l = l->child;
+
+  CHECK_ASN1_TYPE(l, LTC_ASN1_SEQUENCE);
+  CHECK_ASN1_HAS_CHILD(l);
+  CHECK_ASN1_HAS_NEXT(l);
+
+  l1 = l->child;
+
+  /*
+        [0](1)
+            INTEGER  2
+   */
+
+  CHECK_ASN1_TYPE(l1, LTC_ASN1_CONSTRUCTED);
+  CHECK_ASN1_HAS_CHILD(l1);
+  CHECK_ASN1_HAS_NEXT(l1);
+
+  l2 = l1->child;
+
+  CHECK_ASN1_TYPE(l2, LTC_ASN1_INTEGER);
+  CHECK_ASN1_HAS_NO_CHILD(l2);
+  CHECK_ASN1_HAS_NO_NEXT(l2);
+
+  l1 = l1->next;
+
+  /*
+        INTEGER  0
+   */
+
+  CHECK_ASN1_TYPE(l1, LTC_ASN1_INTEGER);
+  CHECK_ASN1_HAS_NO_CHILD(l1);
+  CHECK_ASN1_HAS_NEXT(l1);
+
+  l1 = l1->next;
+
+  /*
+        SEQUENCE(2 elem)
+            OBJECT IDENTIFIER 1.2.840.113549.1.1.4
+            NULL
+   */
+
+  CHECK_ASN1_TYPE(l1, LTC_ASN1_SEQUENCE);
+  CHECK_ASN1_HAS_CHILD(l1);
+  CHECK_ASN1_HAS_NEXT(l1);
+
+  l2 = l1->child;
+
+  CHECK_ASN1_TYPE(l2, LTC_ASN1_OBJECT_IDENTIFIER);
+  CHECK_ASN1_HAS_NO_CHILD(l2);
+  CHECK_ASN1_HAS_NEXT(l2);
+
+  l2 = l2->next;
+
+  CHECK_ASN1_TYPE(l2, LTC_ASN1_NULL);
+  CHECK_ASN1_HAS_NO_CHILD(l2);
+  CHECK_ASN1_HAS_NO_NEXT(l2);
+
+  /*
+        SEQUENCE(4 elem)
+            SET(1 elem)
+                SEQUENCE(2 elem)
+                    OBJECT IDENTIFIER 2.5.4.10
+                    PrintableString  Root CA
+            SET(1 elem)
+                SEQUENCE(2 elem)
+                    OBJECT IDENTIFIER 2.5.4.11
+                    PrintableString  http://www.cacert.org
+            SET(1 elem)
+                SEQUENCE(2 elem)
+                    OBJECT IDENTIFIER 2.5.4.3
+                    PrintableString  CA Cert Signing Authority
+            SET(1 elem)
+                SEQUENCE(2 elem)
+                    OBJECT IDENTIFIER 1.2.840.113549.1.9.1
+                    IA5String support@cacert.org
+   */
+
+  l = l->next;
+
+  /*
+    SEQUENCE(2 elem)
+        OBJECT IDENTIFIER 1.2.840.113549.1.1.4
+        NULL
+   */
+
+  CHECK_ASN1_TYPE(l, LTC_ASN1_SEQUENCE);
+  CHECK_ASN1_HAS_CHILD(l);
+  CHECK_ASN1_HAS_NEXT(l);
+
+  l1 = l->child;
+
+  CHECK_ASN1_TYPE(l1, LTC_ASN1_OBJECT_IDENTIFIER);
+  CHECK_ASN1_HAS_NO_CHILD(l1);
+  CHECK_ASN1_HAS_NEXT(l1);
+
+  l1 = l1->next;
+
+  CHECK_ASN1_TYPE(l1, LTC_ASN1_NULL);
+  CHECK_ASN1_HAS_NO_CHILD(l1);
+  CHECK_ASN1_HAS_NO_NEXT(l1);
+
+  l = l->next;
+
+  /*
+    BIT STRING(4096 bit)
+   */
+
+  CHECK_ASN1_TYPE(l, LTC_ASN1_BIT_STRING);
+  CHECK_ASN1_HAS_NO_CHILD(l);
+  CHECK_ASN1_HAS_NO_NEXT(l);
+
+  der_free_sequence_flexi(decoded_list);
+}
+
 static void der_set_test(void)
 {
    ltc_asn1_list list[10];
@@ -518,6 +999,8 @@ int der_tests(void)
 
    unsigned char utf8_buf[32];
    wchar_t utf8_out[32];
+
+   der_cacert_test();
 
    DO(mp_init_multi(&a, &b, &c, &d, &e, &f, &g, NULL));
    for (zz = 0; zz < 16; zz++) {
