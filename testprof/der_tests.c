@@ -549,12 +549,12 @@ int der_tests(void)
 /* test short integer */
    for (zz = 0; zz < 256; zz++) {
       for (z = 1; z < 4; z++) {
-         if (yarrow_read(buf[0], z, &yarrow_prng) != z) {
+         if (yarrow_read(buf[2], z, &yarrow_prng) != z) {
             fprintf(stderr, "Failed to read %lu bytes from yarrow\n", z);
             return 1;
          }
          /* encode with normal */
-         DO(mp_read_unsigned_bin(a, buf[0], z));
+         DO(mp_read_unsigned_bin(a, buf[2], z));
 
          x = sizeof(buf[0]);
          DO(der_encode_integer(a, buf[0], &x));
@@ -563,7 +563,8 @@ int der_tests(void)
          y = sizeof(buf[1]);
          DO(der_encode_short_integer(mp_get_int(a), buf[1], &y));
          if (x != y || memcmp(buf[0], buf[1], x)) {
-            fprintf(stderr, "DER INTEGER short encoding failed, %lu, %lu\n", x, y);
+            fprintf(stderr, "DER INTEGER short encoding failed, %lu, %lu, 0x%lX\n", x, y, mp_get_int(a));
+            for (zz = 0; zz < z; zz++) fprintf(stderr, "%02x ", buf[2][zz]); fprintf(stderr, "\n");
             for (z = 0; z < x; z++) fprintf(stderr, "%02x ", buf[0][z]); fprintf(stderr, "\n");
             for (z = 0; z < y; z++) fprintf(stderr, "%02x ", buf[1][z]); fprintf(stderr, "\n");
             mp_clear_multi(a, b, c, d, e, f, g, NULL);

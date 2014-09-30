@@ -17,6 +17,7 @@ int main(void)
 #endif
 
    printf("build == \n%s\n", crypt_build_settings);
+   printf("MP_DIGIT_BIT = %d\n", MP_DIGIT_BIT);
    printf("\nstore_test...."); fflush(stdout); x = store_test();       printf(x ? "failed" : "passed");if (x) exit(EXIT_FAILURE);
    printf("\nmisc_test....."); fflush(stdout); x = misc_test();        printf(x ? "failed" : "passed");if (x) exit(EXIT_FAILURE);
    printf("\ncipher_test..."); fflush(stdout); x = cipher_hash_test(); printf(x ? "failed" : "passed");if (x) exit(EXIT_FAILURE);
