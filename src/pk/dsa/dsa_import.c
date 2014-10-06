@@ -46,7 +46,6 @@ int dsa_import(const unsigned char *in, unsigned long inlen, dsa_key *key)
                                   LTC_ASN1_EOL, 0UL, NULL)) == CRYPT_OK) {
        /* private key */
        if (flags[0]) {
-           fprintf(stderr, "private key\n");
            if ((err = der_decode_sequence_multi(in, inlen,
                                   LTC_ASN1_BIT_STRING,   1UL, flags,
                                   LTC_ASN1_INTEGER,      1UL, key->g,
@@ -62,7 +61,6 @@ int dsa_import(const unsigned char *in, unsigned long inlen, dsa_key *key)
        }
        /* public key */
        else {
-           fprintf(stderr, "public key\n");
            if ((err = der_decode_sequence_multi(in, inlen,
                                       LTC_ASN1_BIT_STRING,   1UL, flags,
                                       LTC_ASN1_INTEGER,      1UL, key->g,
