@@ -65,7 +65,6 @@ int der_decode_sequence_flexi(const unsigned char *in, unsigned long *inlen, ltc
    ltc_asn1_list *l;
    unsigned long err, type, len, totlen, x, y;
    void          *realloc_tmp;
-   int           is_constructed;
 
    LTC_ARGCHK(in    != NULL);
    LTC_ARGCHK(inlen != NULL);
@@ -104,14 +103,10 @@ int der_decode_sequence_flexi(const unsigned char *in, unsigned long *inlen, ltc
       }
 
       if ((type & 0x20) && (type != 0x30) && (type != 0x31)) {
-         is_constructed = 1;
-         /* constructed, use the 'used' field to store the original tag number */
-         l->used = (type & 0x1F);
+         /* constructed, use the 'used' field to store the original identifier */
+         l->used = type;
          /* treat constructed elements like SETs */
-         type = 0x31;
-      }
-      else {
-         is_constructed = 0;
+         type = 0x20;
       }
 
      /* now switch on type */
@@ -332,11 +327,12 @@ int der_decode_sequence_flexi(const unsigned char *in, unsigned long *inlen, ltc
             }
             break;
 
+         case 0x20: /* Any CONSTRUCTED element that is neither SEQUENCE nor SET */
          case 0x30: /* SEQUENCE */
          case 0x31: /* SET */
 
              /* init field */
-             if (is_constructed) {
+             if (type == 0x20) {
                 l->type = LTC_ASN1_CONSTRUCTED;
              }
              else if (type == 0x30) {
