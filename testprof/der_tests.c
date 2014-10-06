@@ -171,7 +171,10 @@ SEQUENCE(3 elem)
     BIT STRING(4096 bit)
  */
 
-#define __ASN1_ERR(l) fprintf(stderr, "line: %d, type=%d, size=%lu, next=%p, prev=%p, parent=%p, child=%p\n", __LINE__, (l)->type, (l)->size, (l)->next, (l)->prev, (l)->parent, (l)->child); \
+#define __ASN1_FMTSTRING_FMT "line: %d, type=%d, size=%lu, data=%p, self=%p, next=%p, prev=%p, parent=%p, child=%p"
+#define __ASN1_FMTSTRING_VAL(l)  __LINE__, (l)->type, (l)->size, (l)->data, (l), (l)->next, (l)->prev, (l)->parent, (l)->child
+
+#define __ASN1_ERR(l) fprintf(stderr, __ASN1_FMTSTRING_FMT "\n", __ASN1_FMTSTRING_VAL(l)); \
     exit(EXIT_FAILURE)
 
 #define __CHECK_ASN1_HAS(l, w) do { if ((l)->w == NULL) { \
@@ -206,7 +209,8 @@ static void _der_tests_print_flexi(ltc_asn1_list* l, unsigned int level)
     {
   case LTC_ASN1_EOL:
     name = "EOL";
-    text = "";
+    snprintf(buf, sizeof(buf),__ASN1_FMTSTRING_FMT "\n", __ASN1_FMTSTRING_VAL(l));
+    text = buf;
     break;
   case LTC_ASN1_BOOLEAN:
     name = "BOOLEAN";
