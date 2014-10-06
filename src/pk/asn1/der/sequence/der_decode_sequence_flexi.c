@@ -17,24 +17,24 @@
 
 #ifdef LTC_DER
 
-static unsigned long fetch_length(const unsigned char *in, unsigned long inlen)
+static unsigned long fetch_length(const unsigned char *in, unsigned long inlen, unsigned long *data_offset)
 {
-   unsigned long x, y, z;
+   unsigned long x, z;
 
-   y = 0;
+   *data_offset = 0;
 
    /* skip type and read len */
    if (inlen < 2) {
       return 0xFFFFFFFF;
    }
-   ++in; ++y;
+   ++in; ++(*data_offset);
 
    /* read len */
-   x = *in++; ++y;
+   x = *in++; ++(*data_offset);
 
    /* <128 means literal */
    if (x < 128) {
-      return x+y;
+      return x+*data_offset;
    }
    x     &= 0x7F; /* the lower 7 bits are the length of the length */
    inlen -= 2;
@@ -44,13 +44,13 @@ static unsigned long fetch_length(const unsigned char *in, unsigned long inlen)
       return 0xFFFFFFFF;
    }
 
-   y += x;
+   *data_offset += x;
    z = 0;
    while (x--) {
       z = (z<<8) | ((unsigned long)*in);
       ++in;
    }
-   return z+y;
+   return z+*data_offset;
 }
 
 /**
@@ -63,7 +63,7 @@ static unsigned long fetch_length(const unsigned char *in, unsigned long inlen)
 int der_decode_sequence_flexi(const unsigned char *in, unsigned long *inlen, ltc_asn1_list **out)
 {
    ltc_asn1_list *l;
-   unsigned long err, type, len, totlen, x, y;
+   unsigned long err, type, len, totlen, data_offset;
    void          *realloc_tmp;
 
    LTC_ARGCHK(in    != NULL);
@@ -79,7 +79,7 @@ int der_decode_sequence_flexi(const unsigned char *in, unsigned long *inlen, ltc
       type = *in;
 
       /* fetch length */
-      len = fetch_length(in, *inlen);
+      len = fetch_length(in, *inlen, &data_offset);
       if (len > *inlen) {
          err = CRYPT_INVALID_PACKET;
          goto error;
@@ -342,35 +342,18 @@ int der_decode_sequence_flexi(const unsigned char *in, unsigned long *inlen, ltc
                 l->type = LTC_ASN1_SET;
              }
 
-             /* we have to decode the SEQUENCE header and get it's length */
-
-             /* move past type */
-             ++in; --(*inlen);
-
-             /* read length byte */
-             x = *in++; --(*inlen);
-
-             /* smallest SEQUENCE/SET header */
-             y = 2;
-
-             /* now if it's > 127 the next bytes are the length of the length */
-             if (x > 128) {
-                x      &= 0x7F;
-                in     += x;
-                *inlen -= x;
-
-                /* update sequence header len */
-                y      += x;
-             }
+             /* jump to the start of the data */
+             in     += data_offset;
+             *inlen -= data_offset;
+             len = len - data_offset;
 
              /* Sequence elements go as child */
-             len = len - y;
              if ((err = der_decode_sequence_flexi(in, &len, &(l->child))) != CRYPT_OK) {
                 goto error;
              }
 
              /* len update */
-             totlen += y;
+             totlen += data_offset;
 
              /* link them up y0 */
              l->child->parent = l;
