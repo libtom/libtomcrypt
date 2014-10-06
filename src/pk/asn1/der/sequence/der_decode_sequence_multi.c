@@ -72,6 +72,7 @@ int der_decode_sequence_multi(const unsigned char *in, unsigned long inlen, ...)
 
            case LTC_ASN1_EOL:
            case LTC_ASN1_CONSTRUCTED:
+           case LTC_ASN1_CONTEXT_SPECIFIC:
                va_end(args);
                return CRYPT_INVALID_ARG;
        }
@@ -122,6 +123,7 @@ int der_decode_sequence_multi(const unsigned char *in, unsigned long inlen, ...)
                 break;
            case LTC_ASN1_EOL:
            case LTC_ASN1_CONSTRUCTED:
+           case LTC_ASN1_CONTEXT_SPECIFIC:
                 break;
        }
    }

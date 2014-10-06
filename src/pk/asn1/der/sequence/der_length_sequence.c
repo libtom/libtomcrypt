@@ -141,6 +141,7 @@ int der_length_sequence(ltc_asn1_list *list, unsigned long inlen,
 
            case LTC_ASN1_CHOICE:
            case LTC_ASN1_CONSTRUCTED:
+           case LTC_ASN1_CONTEXT_SPECIFIC:
            case LTC_ASN1_EOL:
                err = CRYPT_INVALID_ARG;
                goto LBL_ERR;

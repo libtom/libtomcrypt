@@ -462,6 +462,7 @@ typedef enum ltc_asn1_type_ {
  LTC_ASN1_RAW_BIT_STRING,
  LTC_ASN1_TELETEX_STRING,
  LTC_ASN1_CONSTRUCTED,
+ LTC_ASN1_CONTEXT_SPECIFIC,
 } ltc_asn1_type;
 
 /** A LTC ASN.1 list type */

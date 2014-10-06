@@ -138,6 +138,7 @@ int der_encode_sequence_ex(ltc_asn1_list *list, unsigned long inlen,
 
            case LTC_ASN1_CHOICE:
            case LTC_ASN1_CONSTRUCTED:
+           case LTC_ASN1_CONTEXT_SPECIFIC:
            case LTC_ASN1_EOL:
            case LTC_ASN1_TELETEX_STRING:
                err = CRYPT_INVALID_ARG;
@@ -336,6 +337,7 @@ int der_encode_sequence_ex(ltc_asn1_list *list, unsigned long inlen,
 
            case LTC_ASN1_CHOICE:
            case LTC_ASN1_CONSTRUCTED:
+           case LTC_ASN1_CONTEXT_SPECIFIC:
            case LTC_ASN1_EOL:
            case LTC_ASN1_TELETEX_STRING:
                err = CRYPT_INVALID_ARG;
