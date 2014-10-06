@@ -108,6 +108,12 @@ int der_decode_sequence_flexi(const unsigned char *in, unsigned long *inlen, ltc
          /* treat constructed elements like SETs */
          type = 0x20;
       }
+      else if ((type & 0xC0) == 0x80) {
+         /* context-specific, use the 'used' field to store the original identifier */
+         l->used = type;
+         /* context-specific elements are treated as opaque data */
+         type = 0x80;
+      }
 
      /* now switch on type */
       switch (type) {
@@ -359,6 +365,20 @@ int der_decode_sequence_flexi(const unsigned char *in, unsigned long *inlen, ltc
              l->child->parent = l;
 
              break;
+
+         case 0x80: /* Context-specific */
+             l->type = LTC_ASN1_CONTEXT_SPECIFIC;
+
+             if ((l->data = XCALLOC(1, len - data_offset)) == NULL) {
+                err = CRYPT_MEM;
+                goto error;
+             }
+
+             XMEMCPY(l->data, in + data_offset, len - data_offset);
+             l->size = len - data_offset;
+
+             break;
+
          default:
            /* invalid byte ... this is a soft error */
            /* remove link */
