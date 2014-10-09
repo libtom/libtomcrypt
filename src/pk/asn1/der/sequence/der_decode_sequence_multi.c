@@ -121,6 +121,7 @@ int der_decode_sequence_multi(const unsigned char *in, unsigned long inlen, ...)
            case LTC_ASN1_TELETEX_STRING:
                 LTC_SET_ASN1(list, x++, type, data, size);
                 break;
+           /* coverity[dead_error_line] */
            case LTC_ASN1_EOL:
            case LTC_ASN1_CONSTRUCTED:
            case LTC_ASN1_CONTEXT_SPECIFIC:
