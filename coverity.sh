@@ -31,10 +31,10 @@ mytoken=$(cat .coverity_token)
 mymail=$(cat .coverity_mail)
 myversion=$(git describe --dirty)
 
-curl --form project=libtomcrypt \
+curl -k --form project=libtomcrypt \
   --form token=${mytoken} \
   --form email=${mymail} \
   --form file=@libtomcrypt.lzma \
   --form version=\"${myversion}\" \
-  --form description=\"libtomcrypt version ${myversion}\" \
-  https://scan.coverity.com/builds?project=libtomcrypt
+  --form description="\"libtomcrypt version ${myversion}\"" \
+  https://scan.coverity.com/builds?project=libtom%2Flibtomcrypt
