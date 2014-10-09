@@ -3673,7 +3673,7 @@ int main(void)
 \mysection{RSA Key Format}
 
 The RSA key format adopted for exporting and importing keys is the PKCS \#1 format defined by the ASN.1 constructs known as
-RSAPublicKey and RSAPrivateKey.  Additionally, the OpenSSL key format is supported by the import function only.
+RSAPublicKey and RSAPrivateKey.  Additionally, the OpenSSL key format is supported as well.
 
 \subsection{RSA Key Export}
 To export a RSA key use the following function.
@@ -3685,8 +3685,17 @@ int rsa_export(unsigned char *out,
                          int  type,
                      rsa_key *key);
 \end{verbatim}
-This will export the RSA key in either a RSAPublicKey or RSAPrivateKey (PKCS \#1 types) depending on the value of \textit{type}.  When it is
-set to \textbf{PK\_PRIVATE} the export format will be RSAPrivateKey and otherwise it will be RSAPublicKey.
+
+This will export the RSA key depending on the value of \textit{type}.
+
+The RSAPublicKey (PKCS \#1 type) format will be used for the public key,
+indicated by \textbf{PK\_PUBLIC}.
+The RSAPrivateKey (PKCS \#1 type) format will be used for the private key,
+indicated by \textbf{PK\_PRIVATE}.
+
+As of v1.18 this function can also export OpenSSL-compatible formatted public RSA keys.
+By OR'ing \textbf{PK\_STD} and \textbf{PK\_PUBLIC} the public key will be exported
+in the SubjectPublicKeyInfo (X.509 type) format.
 
 \subsection{RSA Key Import}
 To import a RSA key use the following function.
@@ -3702,8 +3711,7 @@ This will import the key stored in \textit{inlen} and import it to \textit{key}.
 function can import both RSAPublicKey and RSAPrivateKey formats.
 
 As of v1.06 this function can also import OpenSSL DER formatted public RSA keys.  They are essentially encapsulated RSAPublicKeys.  LibTomCrypt will
-import the key, strip off the additional data (it's the preferred hash) and fill in the rsa\_key structure as if it were a native RSAPublicKey.  Note that
-there is no function provided to export in this format.
+import the key, strip off the additional data and fill in the rsa\_key structure.
 
 
 \chapter{Diffie-Hellman Key Exchange}
