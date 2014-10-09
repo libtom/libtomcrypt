@@ -398,10 +398,10 @@ docs: crypt.tex
 	rm -f doc/crypt.pdf $(LEFTOVERS)
 	cp crypt.tex crypt.bak
 	touch --reference=crypt.tex crypt.bak
-	(echo "\\def\\fixedpdfdate{"; date +'D:%Y%m%d%H%M%S%:z' -d @$$(stat --format=%Y crypt.tex) | sed "s/:\([0-9][0-9]\)$$/'\1'}/g") > crypt-deterministic.tex
-	echo "\\pdfinfo{" >> crypt-deterministic.tex
-	echo "/CreationDate (\fixedpdfdate)" >> crypt-deterministic.tex
-	echo "/ModDate (\fixedpdfdate) }" >> crypt-deterministic.tex
+	(printf "%s" "\def\fixedpdfdate{"; date +'D:%Y%m%d%H%M%S%:z' -d @$$(stat --format=%Y crypt.tex) | sed "s/:\([0-9][0-9]\)$$/'\1'}/g") > crypt-deterministic.tex
+	printf "%s\n" "\pdfinfo{" >> crypt-deterministic.tex
+	printf "%s\n" "  /CreationDate (\fixedpdfdate)" >> crypt-deterministic.tex
+	printf "%s\n}\n" "  /ModDate (\fixedpdfdate)" >> crypt-deterministic.tex
 	cat crypt.tex >> crypt-deterministic.tex
 	mv crypt-deterministic.tex crypt.tex
 	touch --reference=crypt.bak crypt.tex
