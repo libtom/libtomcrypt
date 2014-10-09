@@ -5058,7 +5058,9 @@ encoded in a SEQUENCE are stored as a child element.
 When a SEQUENCE or SET has been encountered a SEQUENCE (or SET resp.) item will be added as a sibling (e.g. list.type == LTC\_ASN1\_SEQUENCE) and the child
 pointer points to a new list of items contained within the object.
 
-\index{der\_decode\_sequence\_flexi()}\index{LTC\_ASN1\_CONSTRUCTED}
+\index{der\_decode\_sequence\_flexi()}
+\index{LTC\_ASN1\_CONSTRUCTED}
+\index{LTC\_ASN1\_CONTEXT\_SPECIFIC}
 \begin{verbatim}
 int  der_decode_sequence_flexi(const unsigned char *in,
                                      unsigned long *inlen,
@@ -5073,15 +5075,22 @@ normally.  The decoded list \textit{out} will point to the very first element of
 
 An invalid decoding will terminate the process, and free the allocated memory automatically.
 
+As of v1.18 the flexi decoder will also decode arbitrary constructed types
+other than SEQUENCE and SET. The \textit{type} field will be set to
+\textbf{LTC\_ASN1\_CONSTRUCTED} and the plain identifier that was indicated in the ASN.1
+encoding is stored in the \textit{used} field. Further decoding is done in the
+same way as if it were a SEQUENCE or SET.
+
+Also as of v1.18 the flexi decoder is capable to handle
+\textit{context-specific} encodings. The \textit{type} field will be set to
+\textbf{LTC\_ASN1\_CONTEXT\_SPECIFIC} and the plain identifier that was indicated
+in the ASN.1 encoding is stored in the \textit{used} field. Encapsulated data
+in the \textit{context-specific} encoding is copied to newly allocated memory
+and is accessible through the \textit{data} field.
+
 \textbf{Note:} the list decoded by this function is \textbf{NOT} in the correct form for der\_encode\_sequence() to use directly.  You will first
 have to convert the list by first storing all of the siblings in an array then storing all the children as sub-lists of a sequence using the \textit{.data}
 pointer.  Currently no function in LibTomCrypt provides this ability.
-
-\textbf{Note 2:} the flexi decoder will also decode arbitrary constructed types
-other than SEQUENCE and SET. The \textit{type} field will be set to
-\textbf{LTC\_ASN1\_CONSTRUCTED} and the plain type that was indicated in the ASN.1
-encoding is stored in the \textit{used} field. Further decoding is done in the
-same way as if it were a SEQUENCE or SET.
 
 \subsubsection{Sample Decoding}
 Suppose we decode the following structure:
