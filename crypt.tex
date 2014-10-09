@@ -5075,6 +5075,13 @@ normally.  The decoded list \textit{out} will point to the very first element of
 
 An invalid decoding will terminate the process, and free the allocated memory automatically.
 
+The flexi decoder calls itself when decoding a constructed type. This leads to
+a 'child process' that will terminate when it decodes an unkown/invalid
+identifier and leaves an allocated but uninitialized child element.
+However the parent processing will continue with a "soft-error".
+This can be detected by checking for \textit{child} elements with
+type \textbf{LTC\_ASN1\_EOL} after decoding.
+
 As of v1.18 the flexi decoder will also decode arbitrary constructed types
 other than SEQUENCE and SET. The \textit{type} field will be set to
 \textbf{LTC\_ASN1\_CONSTRUCTED} and the plain identifier that was indicated in the ASN.1
