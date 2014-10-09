@@ -1305,7 +1305,8 @@ tmp_time.off_hh);
      /* encode it */
      x = sizeof(utf8_buf);
      DO(der_encode_utf8_string(utf8_1, sizeof(utf8_1) / sizeof(utf8_1[0]), utf8_buf, &x));
-     if (x != sizeof(utf8_1_der) || memcmp(utf8_buf, utf8_1_der, x)) {
+     DO(der_length_utf8_string(utf8_1, sizeof(utf8_1) / sizeof(utf8_1[0]), &y));
+     if (x != sizeof(utf8_1_der) || memcmp(utf8_buf, utf8_1_der, x) || x != y) {
         fprintf(stderr, "DER UTF8_1 encoded to %lu bytes\n", x);
         for (y = 0; y < x; y++) fprintf(stderr, "%02x ", (unsigned)utf8_buf[y]); fprintf(stderr, "\n");
         return 1;
