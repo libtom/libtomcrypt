@@ -17,6 +17,10 @@
 
 #ifdef LTC_CCM_MODE
 
+#if defined(LTC_CCM_TEST_DBG) && !defined(LTC_NO_TEST)
+void print_hex(const char* what, const unsigned char* p, const unsigned long l);
+#endif
+
 int ccm_test(void)
 {
 #ifndef LTC_TEST
@@ -32,7 +36,7 @@ int ccm_test(void)
        int           ptlen;
        unsigned char ct[64];
        unsigned char tag[16];
-       int           taglen;
+       unsigned long taglen;
    } tests[] = {
 
 /* 13 byte nonce, 8 byte auth, 23 byte pt */
@@ -113,10 +117,11 @@ int ccm_test(void)
 },
 
 };
-  unsigned long taglen, x;
+  unsigned long taglen, x, y;
   unsigned char buf[64], buf2[64], tag2[16], tag[16];
   int           err, idx;
   symmetric_key skey;
+  ccm_state ccm;
 
   idx = find_cipher("aes");
   if (idx == -1) {
@@ -127,47 +132,108 @@ int ccm_test(void)
   }
 
   for (x = 0; x < (sizeof(tests)/sizeof(tests[0])); x++) {
+    for (y = 0; y < 2; y++) {
       taglen = tests[x].taglen;
-      if ((err = cipher_descriptor[idx].setup(tests[x].key, 16, 0, &skey)) != CRYPT_OK) {
-         return err;
-      }
-      
-      if ((err = ccm_memory(idx,
-                            tests[x].key, 16,
-                            &skey,
-                            tests[x].nonce, tests[x].noncelen,
-                            tests[x].header, tests[x].headerlen,
-                            (unsigned char*)tests[x].pt, tests[x].ptlen,
-                            buf,
-                            tag, &taglen, 0)) != CRYPT_OK) {
-         return err;
+      if (y == 0) {
+         if ((err = cipher_descriptor[idx].setup(tests[x].key, 16, 0, &skey)) != CRYPT_OK) {
+            return err;
+         }
+
+         if ((err = ccm_memory(idx,
+                               tests[x].key, 16,
+                               &skey,
+                               tests[x].nonce, tests[x].noncelen,
+                               tests[x].header, tests[x].headerlen,
+                               (unsigned char*)tests[x].pt, tests[x].ptlen,
+                               buf,
+                               tag, &taglen, 0)) != CRYPT_OK) {
+            return err;
+         }
+      } else {
+         if ((err = ccm_init(&ccm, idx, tests[x].key, 16, tests[x].ptlen, tests[x].taglen, 0)) != CRYPT_OK) {
+            return err;
+         }
+         if ((err = ccm_add_nonce(&ccm, tests[x].nonce, tests[x].noncelen)) != CRYPT_OK) {
+            return err;
+         }
+         if ((err = ccm_process(&ccm, (unsigned char*)tests[x].pt, tests[x].ptlen, buf, CCM_ENCRYPT)) != CRYPT_OK) {
+            return err;
+         }
+         if ((err = ccm_done(&ccm, tag, &taglen)) != CRYPT_OK) {
+            return err;
+         }
       }
 
       if (XMEMCMP(buf, tests[x].ct, tests[x].ptlen)) {
+#if defined(LTC_CCM_TEST_DBG)
+         printf("\n%d: x=%lu y=%lu\n", __LINE__, x, y);
+         print_hex("ct is    ", tag, taglen);
+         print_hex("ct should", tests[x].tag, taglen);
+#endif
+         return CRYPT_FAIL_TESTVECTOR;
+      }
+      if (tests[x].taglen != taglen) {
+#if defined(LTC_CCM_TEST_DBG)
+         printf("\n%d: x=%lu y=%lu\n", __LINE__, x, y);
+         printf("taglen %lu (is) %lu (should)\n", taglen, tests[x].taglen);
+#endif
          return CRYPT_FAIL_TESTVECTOR;
       }
       if (XMEMCMP(tag, tests[x].tag, tests[x].taglen)) {
+#if defined(LTC_CCM_TEST_DBG)
+         printf("\n%d: x=%lu y=%lu\n", __LINE__, x, y);
+         print_hex("tag is    ", tag, taglen);
+         print_hex("tag should", tests[x].tag, taglen);
+#endif
          return CRYPT_FAIL_TESTVECTOR;
       }
 
-      if ((err = ccm_memory(idx,
-                            tests[x].key, 16,
-                            NULL,
-                            tests[x].nonce, tests[x].noncelen,
-                            tests[x].header, tests[x].headerlen,
-                            buf2, tests[x].ptlen,
-                            buf,
-                            tag2, &taglen, 1   )) != CRYPT_OK) {
-         return err;
+      if (y == 0) {
+         if ((err = ccm_memory(idx,
+                               tests[x].key, 16,
+                               NULL,
+                               tests[x].nonce, tests[x].noncelen,
+                               tests[x].header, tests[x].headerlen,
+                               buf2, tests[x].ptlen,
+                               buf,
+                               tag2, &taglen, 1   )) != CRYPT_OK) {
+            return err;
+         }
+      } else {
+         if ((err = ccm_init(&ccm, idx, tests[x].key, 16, tests[x].ptlen, tests[x].taglen, 0)) != CRYPT_OK) {
+            return err;
+         }
+         if ((err = ccm_add_nonce(&ccm, tests[x].nonce, tests[x].noncelen)) != CRYPT_OK) {
+            return err;
+         }
+         if ((err = ccm_process(&ccm, buf2, tests[x].ptlen, buf, CCM_DECRYPT)) != CRYPT_OK) {
+            return err;
+         }
+         if ((err = ccm_done(&ccm, tag2, &taglen)) != CRYPT_OK) {
+            return err;
+         }
       }
 
       if (XMEMCMP(buf2, tests[x].pt, tests[x].ptlen)) {
+#if defined(LTC_CCM_TEST_DBG)
+         printf("\n%d: x=%lu y=%lu\n", __LINE__, x, y);
+         print_hex("pt is    ", tag, taglen);
+         print_hex("pt should", tests[x].tag, taglen);
+#endif
          return CRYPT_FAIL_TESTVECTOR;
       }
       if (XMEMCMP(tag2, tests[x].tag, tests[x].taglen)) {
+#if defined(LTC_CCM_TEST_DBG)
+         printf("\n%d: x=%lu y=%lu\n", __LINE__, x, y);
+         print_hex("tag is    ", tag, taglen);
+         print_hex("tag should", tests[x].tag, taglen);
+#endif
          return CRYPT_FAIL_TESTVECTOR;
       }
-      cipher_descriptor[idx].done(&skey);
+      if (y == 0) {
+         cipher_descriptor[idx].done(&skey);
+      }
+    }
   }
   return CRYPT_OK;
 #endif
