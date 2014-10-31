@@ -29,6 +29,7 @@ int ccm_init(ccm_state *ccm, int cipher,
 {
    int            err;
 
+   LTC_ARGCHK(ccm    != NULL);
    LTC_ARGCHK(key    != NULL);
    LTC_ARGCHK(taglen != 0);
 
