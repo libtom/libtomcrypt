@@ -150,10 +150,13 @@ int ccm_test(void)
             return err;
          }
       } else {
-         if ((err = ccm_init(&ccm, idx, tests[x].key, 16, tests[x].ptlen, tests[x].taglen, 0)) != CRYPT_OK) {
+         if ((err = ccm_init(&ccm, idx, tests[x].key, 16, tests[x].ptlen, tests[x].taglen, tests[x].headerlen)) != CRYPT_OK) {
             return err;
          }
          if ((err = ccm_add_nonce(&ccm, tests[x].nonce, tests[x].noncelen)) != CRYPT_OK) {
+            return err;
+         }
+         if ((err = ccm_add_aad(&ccm, tests[x].header, tests[x].headerlen)) != CRYPT_OK) {
             return err;
          }
          if ((err = ccm_process(&ccm, (unsigned char*)tests[x].pt, tests[x].ptlen, buf, CCM_ENCRYPT)) != CRYPT_OK) {
@@ -182,8 +185,8 @@ int ccm_test(void)
       if (XMEMCMP(tag, tests[x].tag, tests[x].taglen)) {
 #if defined(LTC_CCM_TEST_DBG)
          printf("\n%d: x=%lu y=%lu\n", __LINE__, x, y);
-         print_hex("tag is    ", tag, taglen);
-         print_hex("tag should", tests[x].tag, taglen);
+         print_hex("tag is    ", tag, tests[x].taglen);
+         print_hex("tag should", tests[x].tag, tests[x].taglen);
 #endif
          return CRYPT_FAIL_TESTVECTOR;
       }
@@ -200,10 +203,13 @@ int ccm_test(void)
             return err;
          }
       } else {
-         if ((err = ccm_init(&ccm, idx, tests[x].key, 16, tests[x].ptlen, tests[x].taglen, 0)) != CRYPT_OK) {
+         if ((err = ccm_init(&ccm, idx, tests[x].key, 16, tests[x].ptlen, tests[x].taglen, tests[x].headerlen)) != CRYPT_OK) {
             return err;
          }
          if ((err = ccm_add_nonce(&ccm, tests[x].nonce, tests[x].noncelen)) != CRYPT_OK) {
+            return err;
+         }
+         if ((err = ccm_add_aad(&ccm, tests[x].header, tests[x].headerlen)) != CRYPT_OK) {
             return err;
          }
          if ((err = ccm_process(&ccm, buf2, tests[x].ptlen, buf, CCM_DECRYPT)) != CRYPT_OK) {
@@ -225,8 +231,8 @@ int ccm_test(void)
       if (XMEMCMP(tag2, tests[x].tag, tests[x].taglen)) {
 #if defined(LTC_CCM_TEST_DBG)
          printf("\n%d: x=%lu y=%lu\n", __LINE__, x, y);
-         print_hex("tag is    ", tag, taglen);
-         print_hex("tag should", tests[x].tag, taglen);
+         print_hex("tag is    ", tag, tests[x].taglen);
+         print_hex("tag should", tests[x].tag, tests[x].taglen);
 #endif
          return CRYPT_FAIL_TESTVECTOR;
       }
