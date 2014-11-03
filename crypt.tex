@@ -1543,11 +1543,11 @@ int ccm_add_nonce(      ccm_state *ccm,
                         unsigned long noncelen);
 \end{verbatim}
 
-This adds the nonce or salt is \textit{nonce} of length \textit{noncelen} octets to the CCM state \textit{ccm}. Note that this function must be called
+This adds the nonce (a.k.a. salt) \textit{nonce} of length \textit{noncelen} octets to the CCM state \textit{ccm}. Note that this function must be called
 once and only once.
 
 \subsubsection{Additional Authentication Data}
-The header is meta--data you want to send with the message but not have encrypted, it is stored in \textit{adata} of length \textit{adatalen} octets.
+The header is meta--data you want to send with the message but not have encrypted, it must be stored in \textit{adata} of length \textit{adatalen} octets.
 
 \index{ccm\_add\_aad()}
 \begin{verbatim}
@@ -1585,7 +1585,7 @@ This terminates the CCM state \textit{ccm} and stores the tag in \textit{tag} of
 
 \subsubsection{State Reset}
 The call to ccm\_init() will perform considerable pre--computation and if you're going to be dealing with a lot of packets
-it is very costly to have to call it repeatedly.  To aid in this endeavour, the reset function has been provided.
+it is very costly to have to call it repeatedly.  To aid in this endeavour, the reset function is provided.
 
 \index{ccm\_reset()}
 \begin{verbatim}
