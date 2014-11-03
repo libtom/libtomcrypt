@@ -1511,9 +1511,91 @@ Similarly, this will OCB decrypt, and compare the internally computed tag agains
 appropriately.
 
 \subsection{CCM Mode}
-CCM is a NIST proposal for encrypt + authenticate that is centered around using AES (or any 16--byte cipher) as a primitive.  Unlike EAX and OCB mode,
-it is only meant for \textit{packet} mode where the length of the input is known in advance.  Since it is a packet mode function, CCM only has one
-function that performs the protocol.
+CCM is a NIST proposal for encrypt + authenticate that is centered around using AES (or any 16--byte cipher) as a primitive.  
+
+\subsubsection{Initialization}
+To initialize the CCM context with a secret key call the following function.
+
+\index{ccm\_init()}
+\begin{verbatim}
+int ccm_init(      ccm_state *ccm,
+                   int cipher,
+             const unsigned char *key,
+                   int keylen,
+                   int ptlen,
+                   int taglen,
+                   int aadlen);
+\end{verbatim}
+This initializes the CCM state \textit{ccm} for the given cipher indexed by \textit{cipher}, with a secret key \textit{key} of length \textit{keylen} octets. The cipher
+chosen must have a 16--byte block size (e.g., AES).
+Unlike EAX and OCB mode, CCM is only meant for \textit{packet} mode where the length of the input is known in advance. This is why the length of the stream
+to authenticate is given as \textit{ptlen}.
+With CCM, a header is meta--data you want to send with the message but not have encrypted. The header len is given in the init
+as \textit{aadlen}.
+
+\subsubsection{Nonce Vector}
+After the state has been initialized (or reset) the next step is to add the session (or packet) initial vector.  It should be unique per packet encrypted.
+
+\index{ccm\_add\_nonce()}
+\begin{verbatim}
+int ccm_add_nonce(      ccm_state *ccm,
+                  const unsigned char *nonce,
+                        unsigned long noncelen);
+\end{verbatim}
+
+This adds the nonce or salt is \textit{nonce} of length \textit{noncelen} octets to the CCM state \textit{ccm}. Note that this function must be called
+once and only once.
+
+\subsubsection{Additional Authentication Data}
+The header is meta--data you want to send with the message but not have encrypted, it is stored in \textit{adata} of length \textit{adatalen} octets.
+
+\index{ccm\_add\_aad()}
+\begin{verbatim}
+int ccm_add_aad(      ccm_state *ccm,
+                const unsigned char *adata,
+                      unsigned long adatalen);
+\end{verbatim}
+This adds the additional authentication data \textit{adata} of length \textit{adatalen} to the CCM state \textit{ccm}.
+
+\subsubsection{Plaintext Processing}
+After the AAD has been processed, the plaintext (or ciphertext depending on the direction) can be processed.
+
+\index{ccm\_process()}
+\begin{verbatim}
+int ccm_process(ccm_state *ccm,
+                unsigned char *pt,
+                unsigned long  ptlen,
+                unsigned char *ct,
+                int  direction);
+\end{verbatim}
+This processes message data where \textit{pt} is the plaintext and \textit{ct} is the ciphertext.  The length of both are equal and stored in \textit{ptlen}.  Depending on
+the mode \textit{pt} is the input and \textit{ct} is the output (or vice versa).  When \textit{direction} equals \textbf{CCM\_ENCRYPT} the plaintext is read,
+encrypted and stored in the ciphertext buffer.  When \textit{direction} equals \textbf{CCM\_DECRYPT} the opposite occurs.
+
+\subsubsection{State Termination}
+To terminate a CCM state and retrieve the message authentication tag call the following function.
+
+\index{ccm\_done()}
+\begin{verbatim}
+int ccm_done(    ccm_state *ccm,
+             unsigned char *tag,
+             unsigned long *taglen);
+\end{verbatim}
+This terminates the CCM state \textit{ccm} and stores the tag in \textit{tag} of length \textit{taglen} octets.
+
+\subsubsection{State Reset}
+The call to ccm\_init() will perform considerable pre--computation and if you're going to be dealing with a lot of packets
+it is very costly to have to call it repeatedly.  To aid in this endeavour, the reset function has been provided.
+
+\index{ccm\_reset()}
+\begin{verbatim}
+int ccm_reset(ccm_state *ccm);
+\end{verbatim}
+
+This will reset the CCM state \textit{ccm} to the state that ccm\_init() left it.  The user would then call ccm\_add\_nonce(), ccm\_add\_aad(), etc.
+
+\subsubsection{One--Shot Packet}
+To process a single packet under any given key the following helper function can be used.
 
 \index{ccm\_memory()}
 \begin{verbatim}
@@ -1529,86 +1611,107 @@ int ccm_memory(
                     int  direction);
 \end{verbatim}
 
-This performs the \textit{CCM} operation on the data.  The \textit{cipher} variable indicates which cipher in the descriptor table to use.  It must have a
-16--byte block size for CCM.
+This will initialize the CCM state with the given key, nonce and AAD value then proceed to encrypt or decrypt the message text and store the final
+message tag.  The definition of the variables is the same as it is for all the manual functions.
 
-The key can be specified in one of two fashions.  First, it can be passed as an array of octets in \textit{key} of length \textit{keylen}.  Alternatively,
-it can be passed in as a previously scheduled key in \textit{uskey}.  The latter fashion saves time when the same key is used for multiple packets.  If
-\textit{uskey} is not \textbf{NULL}, then \textit{key} may be \textbf{NULL} (and vice-versa).
+If you are processing many packets under the same key you shouldn't use this function as it invokes the pre--computation with each call.
 
-The nonce or salt is \textit{nonce} of length \textit{noncelen} octets.  The header is meta--data you want to send with the message but not have
-encrypted, it is stored in \textit{header} of length \textit{headerlen} octets.  The header can be zero octets long (if $headerlen = 0$ then
-you can pass \textit{header} as \textbf{NULL}).
-
-The plaintext is stored in \textit{pt}, and the ciphertext in \textit{ct}.  The length of both are expected to be equal and is passed in as \textit{ptlen}.  It is
-allowable that $pt = ct$.  The \textit{direction} variable indicates whether encryption (direction $=$ \textbf{CCM\_ENCRYPT}) or
-decryption (direction $=$ \textbf{CCM\_DECRYPT}) is to be performed.
-
-As implemented, this version of CCM cannot handle header or plaintext data longer than $2^{32} - 1$ octets long.
-
-You can test the implementation of CCM with the following function.
-
-\index{ccm\_test()}
-\begin{verbatim}
-int ccm_test(void);
-\end{verbatim}
-
-This will return \textbf{CRYPT\_OK} if the CCM routine passes known test vectors.  It requires AES or Rijndael to be registered previously, otherwise it will
-return \textbf{CRYPT\_NOP}.
-
-\subsubsection{CCM Example}
-The following is a sample of how to call CCM.
+\subsubsection{Example Usage}
+The following is an example usage of how to use CCM over multiple packets with a shared secret key.
 
 \begin{small}
 \begin{verbatim}
 #include <tomcrypt.h>
+
+int send_packet(const unsigned char *pt,     unsigned long ptlen,
+                const unsigned char *nonce,  unsigned long noncelen,
+                const unsigned char *aad,    unsigned long aadlen,
+                      ccm_state     *ccm)
+{
+   int           err;
+   unsigned long taglen;
+   unsigned char tag[16];
+
+   /* reset the state */
+   if ((err = ccm_reset(ccm)) != CRYPT_OK) {
+      return err;
+   }
+
+   /* Add the nonce */
+   if ((err = ccm_add_nonce(ccm, nonce, noncelen)) != CRYPT_OK) {
+      return err;
+   }
+
+   /* Add the AAD (note: aad can be NULL if aadlen == 0) */
+   if ((err = ccm_add_aad(ccm, aad, aadlen)) != CRYPT_OK) {
+      return err;
+   }
+
+   /* process the plaintext */
+   if ((err =
+        ccm_process(ccm, pt, ptlen, pt, CCM_ENCRYPT)) != CRYPT_OK) {
+      return err;
+   }
+
+   /* Finish up and get the MAC tag */
+   taglen = sizeof(tag);
+   if ((err = ccm_done(ccm, tag, &taglen)) != CRYPT_OK) {
+      return err;
+   }
+
+   /* ... send a header describing the lengths ... */
+
+   /* depending on the protocol and how nonce is
+    * generated you may have to send it too... */
+   send(socket, nonce, noncelen, 0);
+
+   /* send the aad */
+   send(socket, aad, aadlen, 0);
+
+   /* send the ciphertext */
+   send(socket, pt, ptlen, 0);
+
+   /* send the tag */
+   send(socket, tag, taglen, 0);
+
+   return CRYPT_OK;
+}
+
 int main(void)
 {
-   unsigned char key[16], nonce[12], pt[32], ct[32],
-                 tag[16], tagcp[16];
-   unsigned long taglen;
-   int           err;
+   ccm_state     ccm;
+   unsigned char key[16], NONCE[12], pt[PACKET_SIZE];
+   int           err, x;
+   unsigned long ptlen;
 
-   /* register cipher */
+   /* somehow fill key/NONCE with random values */
+
+   /* register AES */
    register_cipher(&aes_desc);
 
-   /* somehow fill key, nonce, pt */
-
-   /* encrypt it */
-   taglen = sizeof(tag);
+   /* init the CCM state */
    if ((err =
-       ccm_memory(find_cipher("aes"),
-                  key, 16,    /* 128-bit key */
-                  NULL,       /* not prescheduled */
-                  nonce, 12,  /* 96-bit nonce */
-                  NULL, 0,    /* no header */
-                  pt, 32,     /* [in]  32-byte plaintext */
-                  ct,         /* [out] ciphertext */
-                  tag, &taglen,
-                  CCM_ENCRYPT)) != CRYPT_OK) {
-       printf("ccm_memory error %s\n", error_to_string(err));
-       return -1;
-   }
-   /* ct[0..31] and tag[0..15] now hold the output */
-
-   /* decrypt it */
-   taglen = sizeof(tagcp);
-   if ((err =
-       ccm_memory(find_cipher("aes"),
-                  key, 16,    /* 128-bit key */
-                  NULL,       /* not prescheduled */
-                  nonce, 12,  /* 96-bit nonce */
-                  NULL, 0,    /* no header */
-                  pt, 32,     /* [out] 32-byte plaintext */
-                  ct,         /* [in]  ciphertext */
-                  tagcp, &taglen,
-                  CCM_DECRYPT)) != CRYPT_OK) {
-       printf("ccm_memory error %s\n", error_to_string(err));
-       return -1;
+        ccm_init(&ccm, find_cipher("aes"), key, 16, PACKET_SIZE, 16, size(NONCE))) != CRYPT_OK) {
+      whine_and_pout(err);
    }
 
-   /* now pt[0..31] should hold the original plaintext,
-      tagcp[0..15] and tag[0..15] should have the same contents */
+   /* handle us some packets */
+   for (;;) {
+       ptlen = make_packet_we_want_to_send(pt);
+
+       /* use NONCE as counter (12 byte counter) */
+       for (x = 11; x >= 0; x--) {
+           if (++NONCE[x]) {
+              break;
+           }
+       }
+
+       if ((err = send_packet(pt, ptlen, NONCE, 12, NULL, 0, &ccm))
+           != CRYPT_OK) {
+           whine_and_pout(err);
+       }
+   }
+   return EXIT_SUCCESS;
 }
 \end{verbatim}
 \end{small}
