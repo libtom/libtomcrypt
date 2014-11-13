@@ -136,7 +136,7 @@ int pkcs_1_oaep_decode(const unsigned char *msg,    unsigned long msglen,
    }
 
    /* compare the lhash'es */
-   if (XMEMCMP(seed, DB, hLen) != 0) {
+   if (mem_neq(seed, DB, hLen) != 0) {
       err = CRYPT_OK;
       goto LBL_ERR;
    }
