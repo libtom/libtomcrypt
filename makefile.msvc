@@ -8,8 +8,10 @@ OBJECTS=src/ciphers/aes/aes_enc.obj src/ciphers/aes/aes.obj src/ciphers/anubis.o
 src/ciphers/camellia.obj src/ciphers/cast5.obj src/ciphers/des.obj src/ciphers/kasumi.obj src/ciphers/khazad.obj \
 src/ciphers/kseed.obj src/ciphers/multi2.obj src/ciphers/noekeon.obj src/ciphers/rc2.obj src/ciphers/rc5.obj \
 src/ciphers/rc6.obj src/ciphers/safer/safer.obj src/ciphers/safer/saferp.obj src/ciphers/skipjack.obj \
-src/ciphers/twofish/twofish.obj src/ciphers/xtea.obj src/encauth/ccm/ccm_memory.obj \
-src/encauth/ccm/ccm_memory_ex.obj src/encauth/ccm/ccm_test.obj src/encauth/eax/eax_addheader.obj \
+src/ciphers/twofish/twofish.obj src/ciphers/xtea.obj src/encauth/ccm/ccm_add_aad.obj \
+src/encauth/ccm/ccm_add_nonce.obj src/encauth/ccm/ccm_done.obj src/encauth/ccm/ccm_init.obj \
+src/encauth/ccm/ccm_memory.obj src/encauth/ccm/ccm_memory_ex.obj src/encauth/ccm/ccm_process.obj \
+src/encauth/ccm/ccm_reset.obj src/encauth/ccm/ccm_test.obj src/encauth/eax/eax_addheader.obj \
 src/encauth/eax/eax_decrypt.obj src/encauth/eax/eax_decrypt_verify_memory.obj src/encauth/eax/eax_done.obj \
 src/encauth/eax/eax_encrypt_authenticate_memory.obj src/encauth/eax/eax_encrypt.obj \
 src/encauth/eax/eax_init.obj src/encauth/eax/eax_test.obj src/encauth/gcm/gcm_add_aad.obj \
@@ -59,7 +61,7 @@ src/misc/crypt/crypt_prng_is_valid.obj src/misc/crypt/crypt_register_cipher.obj 
 src/misc/crypt/crypt_register_hash.obj src/misc/crypt/crypt_register_prng.obj src/misc/crypt/crypt_sizes.obj \
 src/misc/crypt/crypt_unregister_cipher.obj src/misc/crypt/crypt_unregister_hash.obj \
 src/misc/crypt/crypt_unregister_prng.obj src/misc/error_to_string.obj src/misc/hkdf/hkdf.obj \
-src/misc/hkdf/hkdf_test.obj src/misc/pkcs5/pkcs_5_1.obj src/misc/pkcs5/pkcs_5_2.obj \
+src/misc/hkdf/hkdf_test.obj src/misc/mem_neq.obj src/misc/pkcs5/pkcs_5_1.obj src/misc/pkcs5/pkcs_5_2.obj \
 src/misc/pkcs5/pkcs_5_test.obj src/misc/pk_get_oid.obj src/misc/zeromem.obj src/modes/cbc/cbc_decrypt.obj \
 src/modes/cbc/cbc_done.obj src/modes/cbc/cbc_encrypt.obj src/modes/cbc/cbc_getiv.obj \
 src/modes/cbc/cbc_setiv.obj src/modes/cbc/cbc_start.obj src/modes/cfb/cfb_decrypt.obj \

@@ -39,6 +39,7 @@ int hkdf(int hash_idx,
 #endif  /* LTC_HKDF */
 
 /* ---- MEM routines ---- */
+int mem_neq(const void *a, const void *b, size_t len);
 void zeromem(volatile void *dst, size_t len);
 void burn_stack(unsigned long len);
 

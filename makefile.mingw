@@ -50,8 +50,10 @@ OBJECTS=src/ciphers/aes/aes_enc.o src/ciphers/aes/aes.o src/ciphers/anubis.o src
 src/ciphers/camellia.o src/ciphers/cast5.o src/ciphers/des.o src/ciphers/kasumi.o src/ciphers/khazad.o \
 src/ciphers/kseed.o src/ciphers/multi2.o src/ciphers/noekeon.o src/ciphers/rc2.o src/ciphers/rc5.o \
 src/ciphers/rc6.o src/ciphers/safer/safer.o src/ciphers/safer/saferp.o src/ciphers/skipjack.o \
-src/ciphers/twofish/twofish.o src/ciphers/xtea.o src/encauth/ccm/ccm_memory.o \
-src/encauth/ccm/ccm_memory_ex.o src/encauth/ccm/ccm_test.o src/encauth/eax/eax_addheader.o \
+src/ciphers/twofish/twofish.o src/ciphers/xtea.o src/encauth/ccm/ccm_add_aad.o \
+src/encauth/ccm/ccm_add_nonce.o src/encauth/ccm/ccm_done.o src/encauth/ccm/ccm_init.o \
+src/encauth/ccm/ccm_memory.o src/encauth/ccm/ccm_memory_ex.o src/encauth/ccm/ccm_process.o \
+src/encauth/ccm/ccm_reset.o src/encauth/ccm/ccm_test.o src/encauth/eax/eax_addheader.o \
 src/encauth/eax/eax_decrypt.o src/encauth/eax/eax_decrypt_verify_memory.o src/encauth/eax/eax_done.o \
 src/encauth/eax/eax_encrypt_authenticate_memory.o src/encauth/eax/eax_encrypt.o \
 src/encauth/eax/eax_init.o src/encauth/eax/eax_test.o src/encauth/gcm/gcm_add_aad.o \
@@ -101,7 +103,7 @@ src/misc/crypt/crypt_prng_is_valid.o src/misc/crypt/crypt_register_cipher.o \
 src/misc/crypt/crypt_register_hash.o src/misc/crypt/crypt_register_prng.o src/misc/crypt/crypt_sizes.o \
 src/misc/crypt/crypt_unregister_cipher.o src/misc/crypt/crypt_unregister_hash.o \
 src/misc/crypt/crypt_unregister_prng.o src/misc/error_to_string.o src/misc/hkdf/hkdf.o \
-src/misc/hkdf/hkdf_test.o src/misc/pkcs5/pkcs_5_1.o src/misc/pkcs5/pkcs_5_2.o \
+src/misc/hkdf/hkdf_test.o src/misc/mem_neq.o src/misc/pkcs5/pkcs_5_1.o src/misc/pkcs5/pkcs_5_2.o \
 src/misc/pkcs5/pkcs_5_test.o src/misc/pk_get_oid.o src/misc/zeromem.o src/modes/cbc/cbc_decrypt.o \
 src/modes/cbc/cbc_done.o src/modes/cbc/cbc_encrypt.o src/modes/cbc/cbc_getiv.o \
 src/modes/cbc/cbc_setiv.o src/modes/cbc/cbc_start.o src/modes/cfb/cfb_decrypt.o \
