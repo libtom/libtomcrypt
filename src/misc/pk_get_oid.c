@@ -27,10 +27,10 @@ int pk_get_oid(int pk, oid_st *st)
 {
    switch (pk) {
       case PKA_RSA:
-         memcpy(st, &rsa_oid, sizeof(*st));
+         XMEMCPY(st, &rsa_oid, sizeof(*st));
          break;
       case PKA_DSA:
-         memcpy(st, &dsa_oid, sizeof(*st));
+         XMEMCPY(st, &dsa_oid, sizeof(*st));
          break;
       default:
          return CRYPT_INVALID_ARG;

@@ -386,7 +386,7 @@ int func_name (hash_state * md, const unsigned char *in, unsigned long inlen)   
            inlen          -= block_size;                                                    \
         } else {                                                                            \
            n = MIN(inlen, (block_size - md-> state_var .curlen));                           \
-           memcpy(md-> state_var .buf + md-> state_var.curlen, in, (size_t)n);              \
+           XMEMCPY(md-> state_var .buf + md-> state_var.curlen, in, (size_t)n);              \
            md-> state_var .curlen += n;                                                     \
            in             += n;                                                             \
            inlen          -= n;                                                             \

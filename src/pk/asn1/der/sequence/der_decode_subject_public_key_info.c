@@ -76,7 +76,7 @@ int der_decode_subject_public_key_info(const unsigned char *in, unsigned long in
    }
 
    if ((alg_id[0].size != oid.OIDlen) ||
-       memcmp(oid.OID, alg_id[0].data, oid.OIDlen * sizeof(oid.OID[0]))) {
+        XMEMCMP(oid.OID, alg_id[0].data, oid.OIDlen * sizeof(oid.OID[0]))) {
         /* OID mismatch */
         err = CRYPT_PK_INVALID_TYPE;
         goto LBL_ERR;
@@ -84,7 +84,7 @@ int der_decode_subject_public_key_info(const unsigned char *in, unsigned long in
 
    len = subject_pubkey[1].size/8;
    if (*public_key_len > len) {
-       memcpy(public_key, subject_pubkey[1].data, len);
+       XMEMCPY(public_key, subject_pubkey[1].data, len);
        *public_key_len = len;
     } else {
         *public_key_len = len;

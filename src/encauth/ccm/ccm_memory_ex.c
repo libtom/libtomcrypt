@@ -329,17 +329,17 @@ if (CTR == NULL) {
       }
    }
 
-// grab the CTR
-memcpy(ctrcopy, ctr, 16);
+   // grab the CTR
+   XMEMCPY(ctrcopy, ctr, 16);
 
    /* setup CTR for the TAG (zero the count) */
-if (CTR == NULL) {
-   for (y = 15; y > 15 - L; y--) {
-      ctr[y] = 0x00;
+   if (CTR == NULL) {
+      for (y = 15; y > 15 - L; y--) {
+         ctr[y] = 0x00;
+      }
+   } else {
+      XMEMCPY(ctr, CTR, 16);
    }
-} else {
-   XMEMCPY(ctr, CTR, 16);
-}
 
    if ((err = cipher_descriptor[cipher].ecb_encrypt(ctr, CTRPAD, skey)) != CRYPT_OK) {
       goto error;
