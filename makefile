@@ -3,67 +3,23 @@
 # Tom St Denis
 # Modified by Clay Culver
 
+include makefile.include
+
+CFLAGS += -c
+
 # The version
 VERSION=1.17
 
 PLATFORM := $(shell uname | sed -e 's/_.*//')
 
-# Compiler and Linker Names
-ifndef PREFIX
-  PREFIX=
-endif
-
-ifeq ($(CC),cc)
-  CC = $(PREFIX)gcc
-endif
-LD=$(PREFIX)ld
-AR=$(PREFIX)ar
-
-# Archiver [makes .a files]
-#AR=ar
-#ARFLAGS=r
-
-ifndef MAKE
-  MAKE=make
-endif
-
 # ranlib tools
 ifndef RANLIB
 ifeq ($(PLATFORM), Darwin)
-RANLIB=$(PREFIX)ranlib -c
+RANLIB:=$(PREFIX)ranlib -c
 else
-RANLIB=$(PREFIX)ranlib
+RANLIB:=$(PREFIX)ranlib
 endif
 endif
-
-# Compilation flags. Note the += does not write over the user's CFLAGS!
-CFLAGS += -c -I./testprof/ -I./src/headers/ -Wall -Wsign-compare -W -Wshadow -DLTC_SOURCE
-
-# additional warnings (newer GCC 3.4 and higher)
-ifdef GCC_34
-CFLAGS += -Wsystem-headers -Wdeclaration-after-statement -Wbad-function-cast -Wcast-align -Wstrict-prototypes -Wmissing-prototypes \
-		  -Wmissing-declarations -Wpointer-arith
-endif
-
-ifndef IGNORE_SPEED
-
-# optimize for SPEED
-CFLAGS += -O3 -funroll-loops
-
-# add -fomit-frame-pointer.  hinders debugging!
-CFLAGS += -fomit-frame-pointer
-
-# optimize for SIZE
-#CFLAGS += -Os -DLTC_SMALL_CODE
-
-endif
-
-# older GCCs can't handle the "rotate with immediate" ROLc/RORc/etc macros
-# define this to help
-#CFLAGS += -DLTC_NO_ROLC
-
-# compile for DEBUGING (required for ccmalloc checking!!!)
-#CFLAGS += -g3 -DLTC_NO_ASM
 
 #Output filenames for various targets.
 ifndef LIBNAME
@@ -73,46 +29,6 @@ ifndef LIBTEST
    LIBTEST=libtomcrypt_prof.a
 endif
 LIBTEST_S=$(LIBTEST)
-
-HASH=hashsum
-CRYPT=encrypt
-SMALL=small
-TV=tv_gen
-MULTI=multi
-TIMING=timing
-TEST=test
-SIZES=sizes
-CONSTANTS=constants
-
-#LIBPATH-The directory for libtomcrypt to be installed to.
-#INCPATH-The directory to install the header files for libtomcrypt.
-#DATAPATH-The directory to install the pdf docs.
-ifndef DESTDIR
-   DESTDIR=
-endif
-
-ifndef LIBPATH
-   LIBPATH=/usr/lib
-endif
-ifndef INCPATH
-   INCPATH=/usr/include
-endif
-ifndef DATAPATH
-   DATAPATH=/usr/share/doc/libtomcrypt/pdf
-endif
-
-#Who do we install as?
-ifdef INSTALL_USER
-USER=$(INSTALL_USER)
-else
-USER=root
-endif
-
-ifdef INSTALL_GROUP
-GROUP=$(INSTALL_GROUP)
-else
-GROUP=wheel
-endif
 
 #List of objects to compile.
 #START_INS

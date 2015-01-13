@@ -1,0 +1,103 @@
+#
+# Include makefile for libtomcrypt
+#
+
+# Compiler and Linker Names
+ifndef PREFIX
+  PREFIX:=
+endif
+
+ifeq ($(CC),cc)
+  CC := $(PREFIX)gcc
+endif
+LD:=$(PREFIX)ld
+AR:=$(PREFIX)ar
+
+# Archiver [makes .a files]
+#AR=ar
+#ARFLAGS=r
+
+ifndef MAKE
+  MAKE:=make
+endif
+
+
+# Compilation flags. Note the += does not write over the user's CFLAGS!
+CFLAGS += -I./testprof/ -I./src/headers/ -Wall -Wsign-compare -Wshadow -DLTC_SOURCE
+
+ifdef OLD_GCC
+CFLAGS += -W
+# older GCCs can't handle the "rotate with immediate" ROLc/RORc/etc macros
+# define this to help
+CFLAGS += -DLTC_NO_ROLC
+else
+CFLAGS += -Wextra
+# additional warnings
+CFLAGS += -Wsystem-headers -Wbad-function-cast -Wcast-align
+CFLAGS += -Wstrict-prototypes -Wpointer-arith
+#CFLAGS += -Wdeclaration-after-statement
+endif
+
+CFLAGS += -Wno-type-limits
+
+ifdef LTC_DEBUG
+# compile for DEBUGING (required for ccmalloc checking!!!)
+CFLAGS += -g3 -DLTC_NO_ASM
+else
+
+ifdef LTC_SMALL
+# optimize for SIZE
+CFLAGS += -Os -DLTC_SMALL_CODE
+else
+
+ifndef IGNORE_SPEED
+# optimize for SPEED
+CFLAGS += -O3 -funroll-loops
+
+# add -fomit-frame-pointer.  hinders debugging!
+CFLAGS += -fomit-frame-pointer
+endif
+
+endif # COMPILE_SMALL
+endif # COMPILE_DEBUG
+
+
+HASH=hashsum
+CRYPT=encrypt
+SMALL=small
+TV=tv_gen
+MULTI=multi
+TIMING=timing
+TEST=test
+SIZES=sizes
+CONSTANTS=constants
+
+#LIBPATH-The directory for libtomcrypt to be installed to.
+#INCPATH-The directory to install the header files for libtomcrypt.
+#DATAPATH-The directory to install the pdf docs.
+ifndef DESTDIR
+   DESTDIR=
+endif
+
+ifndef LIBPATH
+   LIBPATH=/usr/lib
+endif
+ifndef INCPATH
+   INCPATH=/usr/include
+endif
+ifndef DATAPATH
+   DATAPATH=/usr/share/doc/libtomcrypt/pdf
+endif
+
+#Who do we install as?
+ifdef INSTALL_USER
+USER=$(INSTALL_USER)
+else
+USER=root
+endif
+
+ifdef INSTALL_GROUP
+GROUP=$(INSTALL_GROUP)
+else
+GROUP=wheel
+endif

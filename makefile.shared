@@ -5,48 +5,18 @@
 # Thanks to Zed Shaw for helping debug this on BSD/OSX.
 # Tom St Denis
 
+include makefile.include
+
 # The version
 # http://www.gnu.org/software/libtool/manual/html_node/Updating-version-info.html
 VERSION=0:117
 # http://www.gnu.org/software/libtool/manual/html_node/Release-numbers.html
 RELEASE=1.17
 
-# Compiler and Linker Names
-ifeq ($(CC),cc)
-  CC = gcc
-endif
+
 LT ?= libtool
 LTCOMPILE = $(LT) --mode=compile --tag=CC $(CC)
 
-# Compilation flags. Note the += does not write over the user's CFLAGS!
-CFLAGS += -I./testprof/ -I./src/headers/ -Wall -Wsign-compare -W -Wshadow -Wno-unused-parameter -DLTC_SOURCE
-
-# additional warnings (newer GCC 3.4 and higher)
-ifdef GCC_34
-CFLAGS += -Wsystem-headers -Wdeclaration-after-statement -Wbad-function-cast -Wcast-align -Wstrict-prototypes -Wmissing-prototypes \
-			 -Wmissing-declarations -Wpointer-arith
-endif
-
-
-ifndef IGNORE_SPEED
-
-# optimize for SPEED
-CFLAGS += -O3 -funroll-loops
-
-# add -fomit-frame-pointer.  hinders debugging!
-CFLAGS += -fomit-frame-pointer
-
-# optimize for SIZE
-#CFLAGS += -Os -DLTC_SMALL_CODE
-
-endif
-
-# compile for DEBUGING (required for ccmalloc checking!!!)
-#CFLAGS += -g3
-
-# older GCCs can't handle the "rotate with immediate" ROLc/RORc/etc macros
-# define this to help
-#CFLAGS += -DLTC_NO_ROLC
 
 #Output filenames for various targets.
 ifndef LIBTEST_S
@@ -60,43 +30,6 @@ ifndef LIBNAME
 endif
 ifndef LIBNAME_S
    LIBNAME_S=libtomcrypt.a
-endif
-
-HASH=hashsum
-CRYPT=encrypt
-SMALL=small
-PROF=x86_prof
-TV=tv_gen
-TEST=test
-TIMING=timing
-
-#LIBPATH-The directory for libtomcrypt to be installed to.
-#INCPATH-The directory to install the header files for libtomcrypt.
-#DATAPATH-The directory to install the pdf docs.
-ifndef DESTDIR
-   DESTDIR=
-endif
-ifndef LIBPATH
-   LIBPATH=/usr/lib
-endif
-ifndef INCPATH
-   INCPATH=/usr/include
-endif
-ifndef DATAPATH
-   DATAPATH=/usr/share/doc/libtomcrypt/pdf
-endif
-
-#Who do we install as?
-ifdef INSTALL_USER
-USER=$(INSTALL_USER)
-else
-USER=root
-endif
-
-ifdef INSTALL_GROUP
-GROUP=$(INSTALL_GROUP)
-else
-GROUP=wheel
 endif
 
 #List of objects to compile.
