@@ -45,7 +45,7 @@ const struct ltc_cipher_descriptor saferp_desc =
  * array of 16 bytes b[0..15] which is the block of data
 */
 
-#define ROUND(b, i)                                                                        \
+#define ROUND(b, i) do {                                                                         \
     b[0]  = (safer_ebox[(b[0] ^ skey->saferp.K[i][0]) & 255] + skey->saferp.K[i+1][0]) & 255;    \
     b[1]  = safer_lbox[(b[1] + skey->saferp.K[i][1]) & 255] ^ skey->saferp.K[i+1][1];            \
     b[2]  = safer_lbox[(b[2] + skey->saferp.K[i][2]) & 255] ^ skey->saferp.K[i+1][2];            \
@@ -61,10 +61,11 @@ const struct ltc_cipher_descriptor saferp_desc =
     b[12] = (safer_ebox[(b[12] ^ skey->saferp.K[i][12]) & 255] + skey->saferp.K[i+1][12]) & 255; \
     b[13] = safer_lbox[(b[13] + skey->saferp.K[i][13]) & 255] ^ skey->saferp.K[i+1][13];         \
     b[14] = safer_lbox[(b[14] + skey->saferp.K[i][14]) & 255] ^ skey->saferp.K[i+1][14];         \
-    b[15] = (safer_ebox[(b[15] ^ skey->saferp.K[i][15]) & 255] + skey->saferp.K[i+1][15]) & 255;
+    b[15] = (safer_ebox[(b[15] ^ skey->saferp.K[i][15]) & 255] + skey->saferp.K[i+1][15]) & 255; \
+} while (0)
 
 /* This is one inverse key application */
-#define iROUND(b, i)                                                                       \
+#define iROUND(b, i) do {                                                                        \
     b[0]  = safer_lbox[(b[0] - skey->saferp.K[i+1][0]) & 255] ^ skey->saferp.K[i][0];            \
     b[1]  = (safer_ebox[(b[1] ^ skey->saferp.K[i+1][1]) & 255] - skey->saferp.K[i][1]) & 255;    \
     b[2]  = (safer_ebox[(b[2] ^ skey->saferp.K[i+1][2]) & 255] - skey->saferp.K[i][2]) & 255;    \
@@ -80,10 +81,11 @@ const struct ltc_cipher_descriptor saferp_desc =
     b[12] = safer_lbox[(b[12] - skey->saferp.K[i+1][12]) & 255] ^ skey->saferp.K[i][12];         \
     b[13] = (safer_ebox[(b[13] ^ skey->saferp.K[i+1][13]) & 255] - skey->saferp.K[i][13]) & 255; \
     b[14] = (safer_ebox[(b[14] ^ skey->saferp.K[i+1][14]) & 255] - skey->saferp.K[i][14]) & 255; \
-    b[15] = safer_lbox[(b[15] - skey->saferp.K[i+1][15]) & 255] ^ skey->saferp.K[i][15];
+    b[15] = safer_lbox[(b[15] - skey->saferp.K[i+1][15]) & 255] ^ skey->saferp.K[i][15];         \
+} while (0)
 
 /* This is a forward single layer PHT transform.  */
-#define PHT(b)                                               \
+#define PHT(b) do {                                          \
     b[0]  = (b[0] + (b[1] = (b[0] + b[1]) & 255)) & 255;     \
     b[2]  = (b[2] + (b[3] = (b[3] + b[2]) & 255)) & 255;     \
     b[4]  = (b[4] + (b[5] = (b[5] + b[4]) & 255)) & 255;     \
@@ -91,10 +93,11 @@ const struct ltc_cipher_descriptor saferp_desc =
     b[8]  = (b[8] + (b[9] = (b[9] + b[8]) & 255)) & 255;     \
     b[10] = (b[10] + (b[11] = (b[11] + b[10]) & 255)) & 255; \
     b[12] = (b[12] + (b[13] = (b[13] + b[12]) & 255)) & 255; \
-    b[14] = (b[14] + (b[15] = (b[15] + b[14]) & 255)) & 255;
+    b[14] = (b[14] + (b[15] = (b[15] + b[14]) & 255)) & 255; \
+} while (0)
 
 /* This is an inverse single layer PHT transform */
-#define iPHT(b)                                               \
+#define iPHT(b) do {                                          \
     b[15] = (b[15] - (b[14] = (b[14] - b[15]) & 255)) & 255;  \
     b[13] = (b[13] - (b[12] = (b[12] - b[13]) & 255)) & 255;  \
     b[11] = (b[11] - (b[10] = (b[10] - b[11]) & 255)) & 255;  \
@@ -103,37 +106,42 @@ const struct ltc_cipher_descriptor saferp_desc =
     b[5]  = (b[5] - (b[4] = (b[4] - b[5]) & 255)) & 255;      \
     b[3]  = (b[3] - (b[2] = (b[2] - b[3]) & 255)) & 255;      \
     b[1]  = (b[1] - (b[0] = (b[0] - b[1]) & 255)) & 255;      \
+ } while (0)
 
 /* This is the "Armenian" Shuffle.  It takes the input from b and stores it in b2 */
-#define SHUF(b, b2)                                              \
+#define SHUF(b, b2) do {                                         \
     b2[0] = b[8]; b2[1] = b[11]; b2[2] = b[12]; b2[3] = b[15];   \
     b2[4] = b[2]; b2[5] = b[1]; b2[6] = b[6]; b2[7] = b[5];      \
     b2[8] = b[10]; b2[9] = b[9]; b2[10] = b[14]; b2[11] = b[13]; \
-    b2[12] = b[0]; b2[13] = b[7]; b2[14] = b[4]; b2[15] = b[3];
+    b2[12] = b[0]; b2[13] = b[7]; b2[14] = b[4]; b2[15] = b[3];  \
+} while (0)
 
 /* This is the inverse shuffle.  It takes from b and gives to b2 */
-#define iSHUF(b, b2)                                               \
+#define iSHUF(b, b2) do {                                          \
     b2[0] = b[12]; b2[1] = b[5]; b2[2] = b[4]; b2[3] = b[15];      \
     b2[4] = b[14]; b2[5] = b[7]; b2[6] = b[6]; b2[7] = b[13];      \
     b2[8] = b[0]; b2[9] = b[9]; b2[10] = b[8]; b2[11] = b[1];      \
-    b2[12] = b[2]; b2[13] = b[11]; b2[14] = b[10]; b2[15] = b[3];
+    b2[12] = b[2]; b2[13] = b[11]; b2[14] = b[10]; b2[15] = b[3];  \
+} while (0)
 
 /* The complete forward Linear Transform layer.
  * Note that alternating usage of b and b2.
  * Each round of LT starts in 'b' and ends in 'b2'.
  */
-#define LT(b, b2)             \
+#define LT(b, b2) do {        \
     PHT(b);  SHUF(b, b2);     \
     PHT(b2); SHUF(b2, b);     \
     PHT(b);  SHUF(b, b2);     \
-    PHT(b2);
+    PHT(b2);                  \
+} while (0)
 
 /* This is the inverse linear transform layer.  */
-#define iLT(b, b2)            \
+#define iLT(b, b2) do {       \
     iPHT(b);                  \
     iSHUF(b, b2); iPHT(b2);   \
     iSHUF(b2, b); iPHT(b);    \
-    iSHUF(b, b2); iPHT(b2);
+    iSHUF(b, b2); iPHT(b2);   \
+} while (0)
 
 #ifdef LTC_SMALL_CODE
 
