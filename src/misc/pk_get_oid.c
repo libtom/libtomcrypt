@@ -9,6 +9,7 @@
  */
 #include "tomcrypt.h"
 
+#ifdef LTC_DER
 static const oid_st rsa_oid = {
    { 1, 2, 840, 113549, 1, 1, 1  },
    7,
@@ -37,3 +38,4 @@ int pk_get_oid(int pk, oid_st *st)
    }
    return CRYPT_OK;
 }
+#endif

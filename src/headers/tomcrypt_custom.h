@@ -77,6 +77,7 @@
   #define LTC_NO_PK
   #define LTC_NO_PKCS
   #define LTC_NO_MISC
+  #define LTC_NO_FILE
 #endif /* LTC_NOTHING */
 
 /* Easy button? */
@@ -98,6 +99,7 @@
    #define LTC_SHA384
    #define LTC_SHA256
    #define LTC_SHA224
+   #define LTC_HASH_HELPERS
 
    #define LTC_NO_MACS
    #define LTC_HMAC
@@ -109,6 +111,8 @@
    #define LTC_YARROW
    #define LTC_DEVRANDOM
    #define LTC_TRY_URANDOM_FIRST
+   #define LTC_RNG_GET_BYTES
+   #define LTC_RNG_MAKE_PRNG
 
    #define LTC_NO_PK
    #define LTC_MRSA
@@ -241,6 +245,8 @@
 #define LTC_RIPEMD256
 #define LTC_RIPEMD320
 
+#define LTC_HASH_HELPERS
+
 #endif /* LTC_NO_HASHES */
 
 /* ---> MAC functions <--- */
@@ -307,6 +313,10 @@
 #define LTC_DEVRANDOM
 /* try /dev/urandom before trying /dev/random */
 #define LTC_TRY_URANDOM_FIRST
+/* rng_get_bytes() */
+#define LTC_RNG_GET_BYTES
+/* rng_make_prng() */
+#define LTC_RNG_MAKE_PRNG
 
 #endif /* LTC_NO_PRNGS */
 

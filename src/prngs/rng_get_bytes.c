@@ -10,6 +10,7 @@
  */
 #include "tomcrypt.h"
 
+#ifdef LTC_RNG_GET_BYTES
 /**
    @file rng_get_bytes.c
    portable way to get secure random bits to feed a PRNG (Tom St Denis)
@@ -150,6 +151,7 @@ unsigned long rng_get_bytes(unsigned char *out, unsigned long outlen,
 #endif
    return 0;
 }
+#endif /* #ifdef LTC_RNG_GET_BYTES */
 
 /* $Source$ */
 /* $Revision$ */
