@@ -28,10 +28,6 @@ int pk_get_oid(int pk, oid_st *st);
 /* ---- RSA ---- */
 #ifdef LTC_MRSA
 
-/* Min and Max RSA key sizes (in bits) */
-#define MIN_RSA_SIZE 1024
-#define MAX_RSA_SIZE 4096
-
 /** RSA PKCS style key */
 typedef struct Rsa_key {
     /** Type of key, PK_PRIVATE or PK_PUBLIC */

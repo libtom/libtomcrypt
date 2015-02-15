@@ -367,6 +367,30 @@
 
 #endif /* LTC_NO_PK */
 
+/* define these PK sizes out of LTC_NO_PK
+ * to have them always defined
+ */
+#if defined(LTC_MRSA)
+/* Min and Max RSA key sizes (in bits) */
+#ifndef MIN_RSA_SIZE
+#define MIN_RSA_SIZE 1024
+#endif
+#ifndef MAX_RSA_SIZE
+#define MAX_RSA_SIZE 4096
+#endif
+#endif
+
+/* in cases where you want ASN.1/DER functionality, but no
+ * RSA, you can define this externally if 1024 is not enough
+ */
+#if defined(LTC_MRSA)
+#define LTC_DER_MAX_PUBKEY_SIZE MAX_RSA_SIZE
+#elif !defined(LTC_DER_MAX_PUBKEY_SIZE)
+/* this includes DSA */
+#define LTC_DER_MAX_PUBKEY_SIZE 1024
+#endif
+
+
 /* PKCS #1 (RSA) and #5 (Password Handling) stuff */
 #ifndef LTC_NO_PKCS
 
