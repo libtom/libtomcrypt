@@ -153,9 +153,9 @@ int rsa_verify_hash_ex(const unsigned char *sig,      unsigned long siglen,
     /* test OID */
     if ((reallen == outlen) &&
         (digestinfo[0].size == hash_descriptor[hash_idx].OIDlen) &&
-        (mem_neq(digestinfo[0].data, hash_descriptor[hash_idx].OID, sizeof(unsigned long) * hash_descriptor[hash_idx].OIDlen) == 0) &&
+        (XMEM_NEQ(digestinfo[0].data, hash_descriptor[hash_idx].OID, sizeof(unsigned long) * hash_descriptor[hash_idx].OIDlen) == 0) &&
         (siginfo[1].size == hashlen) &&
-        (mem_neq(siginfo[1].data, hash, hashlen) == 0)) {
+        (XMEM_NEQ(siginfo[1].data, hash, hashlen) == 0)) {
        *stat = 1;
     }
 
