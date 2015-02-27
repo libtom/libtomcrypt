@@ -45,6 +45,9 @@
    #endif
 #define XMEMCMP  memcmp
 #endif
+#ifndef XMEM_NEQ
+#define XMEM_NEQ  mem_neq
+#endif
 #ifndef XSTRCMP
    #ifdef strcmp
    #define LTC_NO_PROTOTYPES
