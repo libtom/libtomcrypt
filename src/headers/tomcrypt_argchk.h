@@ -1,5 +1,5 @@
 /* Defines the LTC_ARGCHK macro used within the library */
-/* ARGTYPE is defined in mycrypt_cfg.h */
+/* ARGTYPE is defined in tomcrypt_cfg.h */
 #if ARGTYPE == 0
 
 #include <signal.h>
