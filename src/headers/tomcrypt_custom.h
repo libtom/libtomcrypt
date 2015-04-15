@@ -9,13 +9,13 @@
 #ifdef LTC_MAC_STATIC
 /* Case of static allocation - no need to dynamically alloc / free */
 #define XDECLARE_DYN_OR_STAT(_p, _s) unsigned char _p[(_s)]
-#define XMALLOC_DYN_OR_STAT(_p, _s) {}
-#define XFREE_DYN_OR_STAT(_p) {}
+#define XMALLOC_DYN_OR_STAT(_p, _s) do {} while(0)
+#define XFREE_DYN_OR_STAT(_p) do {} while(0)
 #else
 /* Standard dynamic allocation */
 #define XDECLARE_DYN_OR_STAT(_p, _s) unsigned char *_p
-#define XMALLOC_DYN_OR_STAT(_p, _s) _p = XMALLOC((_s))
-#define XFREE_DYN_OR_STAT(_p) XFREE((_p))
+#define XMALLOC_DYN_OR_STAT(_p, _s) do { _p = XMALLOC((_s)); } while(0)
+#define XFREE_DYN_OR_STAT(_p) do { XFREE((_p)); } while(0)
 #endif
 
 /* macros for various libc functions you can change for embedded targets */
