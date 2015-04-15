@@ -56,7 +56,7 @@ int hmac_init(hmac_state *hmac, int hash, const unsigned char *key, unsigned lon
     }
 
     /* allocate memory for key */
-    hmac->key = XMALLOC(LTC_HMAC_BLOCKSIZE);
+    XMALLOC_DYN_OR_STAT(hmac->key, LTC_HMAC_BLOCKSIZE);
     if (hmac->key == NULL) {
        XFREE(buf);
        return CRYPT_MEM;
@@ -95,7 +95,7 @@ int hmac_init(hmac_state *hmac, int hash, const unsigned char *key, unsigned lon
     goto done;
 LBL_ERR:
     /* free the key since we failed */
-    XFREE(hmac->key);
+    XFREE_DYN_OR_STAT(hmac->key);
 done:
 #ifdef LTC_CLEAN_STACK
    zeromem(buf, LTC_HMAC_BLOCKSIZE);
