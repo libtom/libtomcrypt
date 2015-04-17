@@ -316,7 +316,7 @@ int ccm_memory_ex(int cipher,
           unsigned char *ct,
           unsigned char *tag,    unsigned long *taglen,
                     int  direction,
-    const unsigned char *B0,
+    const unsigned char *B_0,
     const unsigned char *CTR,
                     int  ctrwidth);
 
