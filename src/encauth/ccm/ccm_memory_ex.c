@@ -44,7 +44,7 @@ int ccm_memory_ex(int cipher,
           unsigned char *ct,
           unsigned char *tag,    unsigned long *taglen,
                     int  direction,
-    const unsigned char *B0,
+    const unsigned char *B_0,
     const unsigned char *CTR,
                     int  ctrwidth)
 {
@@ -144,7 +144,7 @@ int ccm_memory_ex(int cipher,
    /* form B_0 == flags | Nonce N | l(m) */
    x = 0;
 
-if (B0 == NULL) {
+if (B_0 == NULL) {
    PAD[x++] = (unsigned char)(((headerlen > 0) ? (1<<6) : 0) |
             (((*taglen - 2)>>1)<<3)        |
             (L-1));
@@ -172,8 +172,8 @@ if (B0 == NULL) {
    }
 
 } else {
-   // B0 != NULL
-   XMEMCPY(PAD, B0, 16);
+   // B_0 != NULL
+   XMEMCPY(PAD, B_0, 16);
 }
 
    /* encrypt PAD */
