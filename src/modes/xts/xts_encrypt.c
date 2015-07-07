@@ -85,27 +85,42 @@ int xts_encrypt(
    m  = ptlen >> 4;
    mo = ptlen & 15;
 
-	   /* must have at least one full block */
+   /* must have at least one full block */
    if (m == 0) {
       return CRYPT_INVALID_ARG;
    }
 
-   /* encrypt the tweak */
-   if ((err = cipher_descriptor[xts->cipher].ecb_encrypt(tweak, T, &xts->key2)) != CRYPT_OK) {
-      return err;
-   }
-
-   /* for i = 0 to m-2 do */
    if (mo == 0) {
       lim = m;
    } else {
       lim = m - 1;
    }
 
-   for (i = 0; i < lim; i++) {
-      err = tweak_crypt(pt, ct, T, xts);
-      ct += 16;
-      pt += 16;
+   if (cipher_descriptor[xts->cipher].accel_xts_encrypt && lim > 0) {
+
+      /* use accelerated encryption for whole blocks */
+      if ((err = cipher_descriptor[xts->cipher].accel_xts_encrypt(pt, ct, lim,
+			tweak, &xts->key1, &xts->key2) != CRYPT_OK)) {
+	 return err;
+      }
+      ct += lim * 16;
+      pt += lim * 16;
+
+      /* tweak is encrypted on output */
+      XMEMCPY(T, tweak, sizeof(T));
+   } else {
+
+      /* encrypt the tweak */
+      if ((err = cipher_descriptor[xts->cipher].ecb_encrypt(tweak, T,
+			&xts->key2)) != CRYPT_OK) {
+	 return err;
+      }
+
+      for (i = 0; i < lim; i++) {
+	 err = tweak_crypt(pt, ct, T, xts);
+	 ct += 16;
+	 pt += 16;
+      }
    }
    
    /* if ptlen not divide 16 then */
@@ -132,7 +147,8 @@ int xts_encrypt(
    }
 
    /* Decrypt the tweak back */
-   if ((err = cipher_descriptor[xts->cipher].ecb_decrypt(T, tweak, &xts->key2)) != CRYPT_OK) {
+   if ((err = cipher_descriptor[xts->cipher].ecb_decrypt(T, tweak,
+		&xts->key2)) != CRYPT_OK) {
       return err;
    }
 

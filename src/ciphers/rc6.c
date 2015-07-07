@@ -28,7 +28,7 @@ const struct ltc_cipher_descriptor rc6_desc =
     &rc6_test,
     &rc6_done,
     &rc6_keysize,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
 };
 
 static const ulong32 stab[44] = {

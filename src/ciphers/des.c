@@ -31,7 +31,7 @@ const struct ltc_cipher_descriptor des_desc =
     &des_test,
     &des_done,
     &des_keysize,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
 };
 
 const struct ltc_cipher_descriptor des3_desc =
@@ -45,7 +45,7 @@ const struct ltc_cipher_descriptor des3_desc =
     &des3_test,
     &des3_done,
     &des3_keysize,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
 };
 
 static const ulong32 bytebit[8] =

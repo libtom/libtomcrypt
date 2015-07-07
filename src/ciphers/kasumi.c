@@ -33,7 +33,7 @@ const struct ltc_cipher_descriptor kasumi_desc = {
    &kasumi_test,
    &kasumi_done,
    &kasumi_keysize,
-   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
+   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
 };
 
 static u16 FI( u16 in, u16 subkey )
