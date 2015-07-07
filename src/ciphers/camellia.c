@@ -28,7 +28,7 @@ const struct ltc_cipher_descriptor camellia_desc = {
    &camellia_test,
    &camellia_done,
    &camellia_keysize,
-   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
+   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
 };
 
 static const ulong32 SP1110[] = {

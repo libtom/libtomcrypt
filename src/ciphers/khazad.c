@@ -28,7 +28,7 @@ const struct ltc_cipher_descriptor khazad_desc = {
    &khazad_test,
    &khazad_done,
    &khazad_keysize,
-   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
+   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
 };
 
 #define R      8

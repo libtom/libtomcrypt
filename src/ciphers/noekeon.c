@@ -27,7 +27,7 @@ const struct ltc_cipher_descriptor noekeon_desc =
     &noekeon_test,
     &noekeon_done,
     &noekeon_keysize,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
 };
 
 static const ulong32 RC[] = {

@@ -28,7 +28,7 @@ const struct ltc_cipher_descriptor xtea_desc =
     &xtea_test,
     &xtea_done,
     &xtea_keysize,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
 };
 
 int xtea_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_key *skey)
