@@ -199,7 +199,7 @@ int ccm_test(void)
                                tests[x].header, tests[x].headerlen,
                                buf2, tests[x].ptlen,
                                buf,
-                               tag2, &taglen, 1   )) != CRYPT_OK) {
+                               tests[x].tag, &taglen, 1   )) != CRYPT_OK) {
             return err;
          }
       } else {
@@ -228,13 +228,17 @@ int ccm_test(void)
 #endif
          return CRYPT_FAIL_TESTVECTOR;
       }
-      if (XMEMCMP(tag2, tests[x].tag, tests[x].taglen)) {
+      /* Only check the tag if ccm_memory was not called: ccm_memory already
+         validates the tag */
+      if (y != 0) {
+         if (XMEMCMP(tag2, tests[x].tag, tests[x].taglen)) {
 #if defined(LTC_CCM_TEST_DBG)
-         printf("\n%d: x=%lu y=%lu\n", __LINE__, x, y);
-         print_hex("tag is    ", tag, tests[x].taglen);
-         print_hex("tag should", tests[x].tag, tests[x].taglen);
+            printf("\n%d: x=%lu y=%lu\n", __LINE__, x, y);
+            print_hex("tag is    ", tag, tests[x].taglen);
+            print_hex("tag should", tests[x].tag, tests[x].taglen);
 #endif
-         return CRYPT_FAIL_TESTVECTOR;
+            return CRYPT_FAIL_TESTVECTOR;
+         }
       }
       if (y == 0) {
          cipher_descriptor[idx].done(&skey);
