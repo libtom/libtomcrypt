@@ -48,7 +48,8 @@ int ccm_memory(int cipher,
           unsigned char *tag,    unsigned long *taglen,
                     int  direction)
 {
-   unsigned char  PAD[16], ctr[16], CTRPAD[16], ptTag[16], b;
+   unsigned char  PAD[16], ctr[16], CTRPAD[16], ptTag[16], b, *pt_real;
+   unsigned char  *pt_work[2] = {0};
    symmetric_key *skey;
    int            err;
    unsigned long  len, L, x, y, z, CTRlen;
@@ -64,6 +65,8 @@ int ccm_memory(int cipher,
    LTC_ARGCHK(ct     != NULL);
    LTC_ARGCHK(tag    != NULL);
    LTC_ARGCHK(taglen != NULL);
+
+   pt_real = pt;
 
 #ifdef LTC_FAST
    if (16 % sizeof(LTC_FAST_TYPE)) {
@@ -139,6 +142,17 @@ int ccm_memory(int cipher,
       }
    } else {
       skey = uskey;
+   }
+   if (direction != CCM_ENCRYPT) {
+      pt_work[0] = XMALLOC(ptlen);
+      pt_work[1] = XCALLOC(1, ptlen);
+
+      if ((pt_work[0] == NULL) || (pt_work[1] == NULL)) {
+         goto error;
+      }
+
+      XMEMCPY(pt_work[0], pt, ptlen);
+      pt = pt_work[0];
    }
 
    /* form B_0 == flags | Nonce N | l(m) */
@@ -346,13 +360,13 @@ int ccm_memory(int cipher,
        */
       err = XMEM_NEQ(ptTag, PAD, *taglen);
 
-      /* TODO: pt should not be revealed when the tag is invalid. However, resetting the
-       *       memory should be done in constant time, which is not the case in the
-       *       (commented) code below.
-      if (err != CRYPT_OK) {
-         zeromem(pt, ptlen);
-      }
-      */
+      /* Here err is 0 or 1, so we just copy either the real plaintext
+       * or the zeroized buffer.
+       */
+      XMEMCPY(pt_real, pt_work[err], ptlen);
+#ifdef LTC_CLEAN_STACK
+      zeromem(pt_work[0], ptlen);
+#endif
    }
 
 #ifdef LTC_CLEAN_STACK
@@ -361,6 +375,12 @@ int ccm_memory(int cipher,
    zeromem(CTRPAD, sizeof(CTRPAD));
 #endif
 error:
+   if (pt_work[1]) {
+      XFREE(pt_work[1]);
+   }
+   if (pt_work[0]) {
+      XFREE(pt_work[0]);
+   }
    if (skey != uskey) {
       XFREE(skey);
    }
