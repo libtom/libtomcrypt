@@ -114,7 +114,7 @@ int ccm_test(void)
 
 };
   unsigned long taglen, x, y;
-  unsigned char buf[64], buf2[64], tag2[16], tag[16];
+  unsigned char buf[64], buf2[64], tag[16], tag2[16], tag3[16];
   int           err, idx;
   symmetric_key skey;
   ccm_state ccm;
@@ -188,6 +188,9 @@ int ccm_test(void)
       }
 
       if (y == 0) {
+
+         XMEMCPY(tag3, tests[x].tag, tests[x].taglen);
+         taglen = tests[x].taglen;
          if ((err = ccm_memory(idx,
                                tests[x].key, 16,
                                NULL,
@@ -195,7 +198,7 @@ int ccm_test(void)
                                tests[x].header, tests[x].headerlen,
                                buf2, tests[x].ptlen,
                                buf,
-                               tests[x].tag, &taglen, 1   )) != CRYPT_OK) {
+                               tag3, &taglen, 1   )) != CRYPT_OK) {
             return err;
          }
       } else {
