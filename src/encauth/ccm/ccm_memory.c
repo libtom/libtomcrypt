@@ -20,7 +20,7 @@
 /**
    CCM encrypt/decrypt and produce an authentication tag
 
-     *1 'pt' and 'ct' can both be 'in' or 'out', depending on 'direction'
+     *1 'pt', 'ct' and 'tag' can both be 'in' or 'out', depending on 'direction'
 
    @param cipher     The index of the cipher desired
    @param key        The secret key to use
@@ -33,8 +33,8 @@
    @param pt         [*1] The plaintext
    @param ptlen      The length of the plaintext (octets)
    @param ct         [*1] The ciphertext
-   @param tag        [out] The destination tag
-   @param taglen     [in/out] The max size and resulting size of the authentication tag
+   @param tag        [*1] The destination tag
+   @param taglen     The max size and resulting size of the authentication tag
    @param direction  Encrypt or Decrypt direction (0 or 1)
    @return CRYPT_OK if successful
 */
@@ -48,7 +48,7 @@ int ccm_memory(int cipher,
           unsigned char *tag,    unsigned long *taglen,
                     int  direction)
 {
-   unsigned char  PAD[16], ctr[16], CTRPAD[16], b;
+   unsigned char  PAD[16], ctr[16], CTRPAD[16], ptTag[16], b;
    symmetric_key *skey;
    int            err;
    unsigned long  len, L, x, y, z, CTRlen;
@@ -203,11 +203,9 @@ int ccm_memory(int cipher,
           PAD[x++] ^= header[y];
       }
 
-      /* remainder? */
-      if (x != 0) {
-         if ((err = cipher_descriptor[cipher].ecb_encrypt(PAD, PAD, skey)) != CRYPT_OK) {
-            goto error;
-         }
+      /* remainder */
+      if ((err = cipher_descriptor[cipher].ecb_encrypt(PAD, PAD, skey)) != CRYPT_OK) {
+         goto error;
       }
    }
 
@@ -254,7 +252,7 @@ int ccm_memory(int cipher,
                    goto error;
                 }
              }
-         } else {
+          } else { /* direction == CCM_DECRYPT */
              for (; y < (ptlen & ~15); y += 16) {
                 /* increment the ctr? */
                 for (z = 15; z > 15-L; z--) {
@@ -328,11 +326,34 @@ int ccm_memory(int cipher,
       cipher_descriptor[cipher].done(skey);
    }
 
-   /* store the TAG */
-   for (x = 0; x < 16 && x < *taglen; x++) {
-       tag[x] = PAD[x] ^ CTRPAD[x];
+   if (direction == CCM_ENCRYPT) {
+      /* store the TAG */
+      for (x = 0; x < 16 && x < *taglen; x++) {
+          tag[x] = PAD[x] ^ CTRPAD[x];
+      }
+      *taglen = x;
+   } else { /* direction == CCM_DECRYPT */
+      /* decrypt the tag */
+      for (x = 0; x < 16 && x < *taglen; x++) {
+         ptTag[x] = tag[x] ^ CTRPAD[x];
+      }
+      *taglen = x;
+
+      /* check validity of the decrypted tag against the computed PAD (in constant time) */
+      /* HACK: the boolean value of XMEM_NEQ becomes either 0 (CRYPT_OK) or 1 (CRYPT_ERR).
+       *       there should be a better way of setting the correct error code in constant
+       *       time.
+       */
+      err = XMEM_NEQ(ptTag, PAD, *taglen);
+
+      /* TODO: pt should not be revealed when the tag is invalid. However, resetting the
+       *       memory should be done in constant time, which is not the case in the
+       *       (commented) code below.
+      if (err != CRYPT_OK) {
+         zeromem(pt, ptlen);
+      }
+      */
    }
-   *taglen = x;
 
 #ifdef LTC_CLEAN_STACK
    zeromem(skey,   sizeof(*skey));
