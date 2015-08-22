@@ -430,6 +430,8 @@
 #define LTC_HKDF
 #endif /* LTC_NO_HKDF */
 
+#define LTC_ADLER32
+
 #endif /* LTC_NO_MISC */
 
 /* cleanup */

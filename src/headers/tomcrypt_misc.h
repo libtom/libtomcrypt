@@ -69,6 +69,17 @@ void init_GMP(void);
 #endif
 */
 
+#ifdef LTC_ADLER32
+typedef struct adler32_state_s
+{
+   unsigned short s[2];
+} adler32_state;
+
+void adler32_init(adler32_state *ctx);
+void adler32_update(adler32_state *ctx, const unsigned char *input, unsigned long length);
+void adler32_finish(adler32_state *ctx, void *hash, unsigned long size);
+int adler32_test(void);
+#endif
 
 /* $Source$ */
 /* $Revision$ */

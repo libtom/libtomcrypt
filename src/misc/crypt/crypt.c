@@ -322,6 +322,9 @@ const char *crypt_build_settings =
 #endif
 
     "\nVarious others: "
+#if defined(LTC_ADLER32)
+    " ADLER32 "
+#endif
 #if defined(LTC_BASE64)
     " BASE64 "
 #endif

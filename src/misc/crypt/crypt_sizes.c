@@ -231,6 +231,10 @@ static const crypt_size _crypt_sizes[] = {
 #endif
     // sprng has no state as it uses other potentially available sources
     // like /dev/random.  See Developers Guide for more info.
+
+#ifdef LTC_ADLER32
+    _SZ_STRINGIFY_T(adler32_state),
+#endif
 };
 
 /* crypt_get_size()
