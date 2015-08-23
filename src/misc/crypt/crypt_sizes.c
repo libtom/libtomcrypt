@@ -235,6 +235,9 @@ static const crypt_size _crypt_sizes[] = {
 #ifdef LTC_ADLER32
     _SZ_STRINGIFY_T(adler32_state),
 #endif
+#ifdef LTC_CRC32
+    _SZ_STRINGIFY_T(crc32_state),
+#endif
 };
 
 /* crypt_get_size()

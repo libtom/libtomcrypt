@@ -432,6 +432,8 @@
 
 #define LTC_ADLER32
 
+#define LTC_CRC32
+
 #endif /* LTC_NO_MISC */
 
 /* cleanup */
