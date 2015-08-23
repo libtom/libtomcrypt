@@ -17,10 +17,6 @@
 
 #ifdef LTC_CCM_MODE
 
-#if defined(LTC_CCM_TEST_DBG) && !defined(LTC_NO_TEST)
-void print_hex(const char* what, const unsigned char* p, const unsigned long l);
-#endif
-
 int ccm_test(void)
 {
 #ifndef LTC_TEST
@@ -168,7 +164,7 @@ int ccm_test(void)
       }
 
       if (XMEMCMP(buf, tests[x].ct, tests[x].ptlen)) {
-#if defined(LTC_CCM_TEST_DBG)
+#if defined(LTC_TEST_DBG)
          printf("\n%d: x=%lu y=%lu\n", __LINE__, x, y);
          print_hex("ct is    ", tag, taglen);
          print_hex("ct should", tests[x].tag, taglen);
@@ -176,14 +172,14 @@ int ccm_test(void)
          return CRYPT_FAIL_TESTVECTOR;
       }
       if (tests[x].taglen != taglen) {
-#if defined(LTC_CCM_TEST_DBG)
+#if defined(LTC_TEST_DBG)
          printf("\n%d: x=%lu y=%lu\n", __LINE__, x, y);
          printf("taglen %lu (is) %lu (should)\n", taglen, tests[x].taglen);
 #endif
          return CRYPT_FAIL_TESTVECTOR;
       }
       if (XMEMCMP(tag, tests[x].tag, tests[x].taglen)) {
-#if defined(LTC_CCM_TEST_DBG)
+#if defined(LTC_TEST_DBG)
          printf("\n%d: x=%lu y=%lu\n", __LINE__, x, y);
          print_hex("tag is    ", tag, tests[x].taglen);
          print_hex("tag should", tests[x].tag, tests[x].taglen);
@@ -221,7 +217,7 @@ int ccm_test(void)
       }
 
       if (XMEMCMP(buf2, tests[x].pt, tests[x].ptlen)) {
-#if defined(LTC_CCM_TEST_DBG)
+#if defined(LTC_TEST_DBG)
          printf("\n%d: x=%lu y=%lu\n", __LINE__, x, y);
          print_hex("pt is    ", tag, taglen);
          print_hex("pt should", tests[x].tag, taglen);
@@ -229,7 +225,7 @@ int ccm_test(void)
          return CRYPT_FAIL_TESTVECTOR;
       }
       if (XMEMCMP(tag2, tests[x].tag, tests[x].taglen)) {
-#if defined(LTC_CCM_TEST_DBG)
+#if defined(LTC_TEST_DBG)
          printf("\n%d: x=%lu y=%lu\n", __LINE__, x, y);
          print_hex("tag is    ", tag, tests[x].taglen);
          print_hex("tag should", tests[x].tag, tests[x].taglen);

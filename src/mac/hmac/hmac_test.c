@@ -603,7 +603,7 @@ int hmac_test(void)
         ++tested;
         outlen = sizeof(digest);
         if((err = hmac_memory(hash, cases[i].key, cases[i].keylen, cases[i].data, cases[i].datalen, digest, &outlen)) != CRYPT_OK) {
-#ifdef LTC_HMAC_TEST_DBG
+#ifdef LTC_TEST_DBG
             printf("HMAC-%s test %s, %s\n", cases[i].algo, cases[i].num, error_to_string(err));
 #endif
             return err;
@@ -611,25 +611,17 @@ int hmac_test(void)
 
         if(XMEMCMP(digest, cases[i].digest, (size_t)hash_descriptor[hash].hashsize) != 0)  {
             failed++;
-#ifdef LTC_HMAC_TEST_DBG
+#ifdef LTC_TEST_DBG
           {
-            unsigned int j;
-            printf("\nHMAC-%s test %s:\n", cases[i].algo, cases[i].num);
-            printf(  "Result:  0x");
-            for(j=0; j < hash_descriptor[hash].hashsize; j++) {
-                printf("%2x ", digest[j]);
-            }
-            printf("\nCorrect: 0x");
-            for(j=0; j < hash_descriptor[hash].hashsize; j++) {
-               printf("%2x ", cases[i].digest[j]);
-            }
-            printf("\n");
+            printf("\nHMAC-%s test %s: Failed\n", cases[i].algo, cases[i].num);
+            print_hex("is", digest, hash_descriptor[hash].hashsize);
+            print_hex("should", cases[i].digest, hash_descriptor[hash].hashsize);
             return CRYPT_FAIL_TESTVECTOR;
           }
-#endif
-#ifdef LTC_HMAC_TEST_DBG
+#if LTC_TEST_DBG > 1
         } else {
             printf("HMAC-%s test %s: Passed\n", cases[i].algo, cases[i].num);
+#endif
 #endif
         }
     }

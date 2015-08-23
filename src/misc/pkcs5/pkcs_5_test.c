@@ -120,7 +120,7 @@ int pkcs_5_test (void)
     int hash = find_hash("sha1");
     if (hash == -1)
     {
-#ifdef LTC_PKCS_5_TEST_DBG
+#ifdef LTC_TEST_DBG
       printf("PKCS#5 test: 'sha1' hash not found\n");
 #endif
       return CRYPT_ERROR;
@@ -132,7 +132,7 @@ int pkcs_5_test (void)
                               (unsigned char*)cases_5_2[i].S, cases_5_2[i].S_len,
                               cases_5_2[i].c, hash,
                               DK, &dkLen)) != CRYPT_OK) {
-#ifdef LTC_PKCS_5_TEST_DBG
+#ifdef LTC_TEST_DBG
             printf("PKCS#5 test #%d: %s\n", i, error_to_string(err));
 #endif
             return err;
@@ -140,7 +140,7 @@ int pkcs_5_test (void)
 
         if (dkLen != cases_5_2[i].dkLen)
         {
-#ifdef LTC_PKCS_5_TEST_DBG
+#ifdef LTC_TEST_DBG
           printf("PKCS#5 test #%d: %lu != %lu\n", i, dkLen, cases_5_2[i].dkLen);
 #endif
           return CRYPT_FAIL_TESTVECTOR;
@@ -148,25 +148,17 @@ int pkcs_5_test (void)
 
         if(XMEMCMP(DK, cases_5_2[i].DK, (size_t)cases_5_2[i].dkLen) != 0)  {
             ++failed;
-#ifdef LTC_PKCS_5_TEST_DBG
+#ifdef LTC_TEST_DBG
           {
-            unsigned int j;
-            printf("\nPKCS#5 test #%d:\n", i);
-            printf(  "Result:  0x");
-            for(j=0; j < cases_5_2[i].dkLen; j++) {
-                printf("%02x ", DK[j]);
-            }
-            printf("\nCorrect: 0x");
-            for(j=0; j < cases_5_2[i].dkLen; j++) {
-               printf("%02x ", cases_5_2[i].DK[j]);
-            }
-            printf("\n");
+            printf("\nPKCS#5 test #%d: Failed\n", i);
+            print_hex("is", DK, cases_5_2[i].dkLen);
+            print_hex("should", cases_5_2[i].DK, cases_5_2[i].dkLen);
             return CRYPT_FAIL_TESTVECTOR;
           }
-#endif
-#ifdef LTC_PKCS_5_TEST_DBG
+#if LTC_TEST_DBG > 1
         } else {
             printf("PKCS#5 test #%d: Passed\n", i);
+#endif
 #endif
         }
     }

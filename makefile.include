@@ -41,8 +41,12 @@ endif
 CFLAGS += -Wno-type-limits
 
 ifdef LTC_DEBUG
-# compile for DEBUGING (required for ccmalloc checking!!!)
-CFLAGS += -g3 -DLTC_NO_ASM
+# compile for DEBUGGING (required for ccmalloc checking!!!)
+ifneq (,$(strip $(LTC_DEBUG)))
+CFLAGS += -g3 -DLTC_NO_ASM -DLTC_TEST_DBG=$(LTC_DEBUG)
+else
+CFLAGS += -g3 -DLTC_NO_ASM -DLTC_TEST_DBG
+endif
 else
 
 ifdef LTC_SMALL

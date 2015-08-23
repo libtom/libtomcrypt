@@ -12,10 +12,6 @@
 
 #ifdef LTC_XTS_MODE
 
-#if defined(LTC_XTS_TEST_DBG) && !defined(LTC_NO_TEST)
-void print_hex(const char* what, const unsigned char* p, const unsigned long l);
-#endif
-
 /**
   Source donated by Elliptic Semiconductor Inc (www.ellipticsemi.com) to the LibTom Projects
   Returns CRYPT_OK upon success.
@@ -188,9 +184,6 @@ int xts_test(void)
            }
          }
          else {
-#ifdef LTC_XTS_TEST_DBG
-           printf("\nTestcase #%d with original length %lu and half of it %lu\n", i, tests[i].PTLEN, len);
-#endif
            err = xts_encrypt(tests[i].PTX, len, OUT, T, &xts);
            if (err != CRYPT_OK) {
               xts_done(&xts);
@@ -204,7 +197,8 @@ int xts_test(void)
          }
 
          if (XMEMCMP(OUT, tests[i].CTX, tests[i].PTLEN)) {
-#ifdef LTC_XTS_TEST_DBG
+#ifdef LTC_TEST_DBG
+            printf("\nTestcase #%d with original length %lu and half of it %lu\n", i, tests[i].PTLEN, len);
             printf("\nencrypt\n");
             print_hex("should", tests[i].CTX, tests[i].PTLEN);
             print_hex("is", OUT, tests[i].PTLEN);
@@ -235,7 +229,7 @@ int xts_test(void)
          }
 
          if (XMEMCMP(OUT, tests[i].PTX, tests[i].PTLEN)) {
-#ifdef LTC_XTS_TEST_DBG
+#ifdef LTC_TEST_DBG
             printf("\ndecrypt\n");
             print_hex("should", tests[i].PTX, tests[i].PTLEN);
             print_hex("is", OUT, tests[i].PTLEN);
