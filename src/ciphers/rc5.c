@@ -29,7 +29,7 @@ const struct ltc_cipher_descriptor rc5_desc =
     &rc5_test,
     &rc5_done,
     &rc5_keysize,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
 };
 
 static const ulong32 stab[50] = {

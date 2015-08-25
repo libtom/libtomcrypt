@@ -87,22 +87,36 @@ static int tweak_uncrypt(const unsigned char *C, unsigned char *P, unsigned char
       return CRYPT_INVALID_ARG;
    }
 
-   /* encrypt the tweak */
-   if ((err = cipher_descriptor[xts->cipher].ecb_encrypt(tweak, T, &xts->key2)) != CRYPT_OK) {
-      return err;
-   }
-
-   /* for i = 0 to m-2 do */
    if (mo == 0) {
       lim = m;
    } else {
       lim = m - 1;
    }
 
-   for (i = 0; i < lim; i++) {
-      err = tweak_uncrypt(ct, pt, T, xts);
-      ct += 16;
-      pt += 16;
+   if (cipher_descriptor[xts->cipher].accel_xts_encrypt && lim > 0) {
+
+	   /* use accelerated decryption for whole blocks */
+	   if ((err = cipher_descriptor[xts->cipher].accel_xts_decrypt(ct, pt,
+			lim, tweak, &xts->key1, &xts->key2) != CRYPT_OK)) {
+	      return err;
+	   }
+	   ct += lim * 16;
+	   pt += lim * 16;
+
+	   /* tweak is encrypted on output */
+	   XMEMCPY(T, tweak, sizeof(T));
+   } else {
+      /* encrypt the tweak */
+      if ((err = cipher_descriptor[xts->cipher].ecb_encrypt(tweak, T,
+			&xts->key2)) != CRYPT_OK) {
+	 return err;
+      }
+
+      for (i = 0; i < lim; i++) {
+	 err = tweak_uncrypt(ct, pt, T, xts);
+	 ct += 16;
+	 pt += 16;
+      }
    }
    
    /* if ptlen not divide 16 then */
@@ -131,7 +145,8 @@ static int tweak_uncrypt(const unsigned char *C, unsigned char *P, unsigned char
    }
 
    /* Decrypt the tweak back */
-   if ((err = cipher_descriptor[xts->cipher].ecb_decrypt(T, tweak, &xts->key2)) != CRYPT_OK) {
+   if ((err = cipher_descriptor[xts->cipher].ecb_decrypt(T, tweak,
+			&xts->key2)) != CRYPT_OK) {
       return err;
    }
 

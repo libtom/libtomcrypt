@@ -45,7 +45,7 @@ const struct ltc_cipher_descriptor
    &safer_k64_test,
    &safer_done,
    &safer_64_keysize,
-   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
+   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
    },
 
    safer_sk64_desc = {
@@ -57,7 +57,7 @@ const struct ltc_cipher_descriptor
    &safer_sk64_test,
    &safer_done,
    &safer_64_keysize,
-   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
+   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
    },
 
    safer_k128_desc = {
@@ -69,7 +69,7 @@ const struct ltc_cipher_descriptor
    &safer_sk128_test,
    &safer_done,
    &safer_128_keysize,
-   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
+   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
    },
 
    safer_sk128_desc = {
@@ -81,7 +81,7 @@ const struct ltc_cipher_descriptor
    &safer_sk128_test,
    &safer_done,
    &safer_128_keysize,
-   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
+   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
    };
 
 /******************* Constants ************************************************/

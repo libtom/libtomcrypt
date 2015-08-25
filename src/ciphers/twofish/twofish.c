@@ -35,7 +35,7 @@ const struct ltc_cipher_descriptor twofish_desc =
     &twofish_test,
     &twofish_done,
     &twofish_keysize,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
 };
 
 /* the two polynomials */
