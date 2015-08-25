@@ -29,7 +29,7 @@ const struct ltc_cipher_descriptor kseed_desc = {
    &kseed_test,
    &kseed_done,
    &kseed_keysize,
-   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
+   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
 };
 
 static const ulong32 SS0[256] = {

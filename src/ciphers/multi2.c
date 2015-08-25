@@ -116,7 +116,7 @@ const struct ltc_cipher_descriptor multi2_desc = {
    &multi2_test,
    &multi2_done,
    &multi2_keysize,
-   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
+   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
 };
 
 int  multi2_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_key *skey)
