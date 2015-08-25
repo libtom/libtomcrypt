@@ -49,10 +49,14 @@ int ccm_memory(int cipher,
                     int  direction)
 {
    unsigned char  PAD[16], ctr[16], CTRPAD[16], ptTag[16], b, *pt_real;
-   unsigned char  *pt_work[2] = {0};
+   unsigned char *pt_work = NULL;
    symmetric_key *skey;
    int            err;
    unsigned long  len, L, x, y, z, CTRlen;
+#ifdef LTC_FAST
+   LTC_FAST_TYPE fastMask = -1; /* initialize fastMask at all zeroes */
+#endif
+   unsigned char mask = 0xff; /* initialize mask at all zeroes */
 
    if (uskey == NULL) {
       LTC_ARGCHK(key    != NULL);
@@ -143,16 +147,14 @@ int ccm_memory(int cipher,
    } else {
       skey = uskey;
    }
-   if (direction != CCM_ENCRYPT) {
-      pt_work[0] = XMALLOC(ptlen);
-      pt_work[1] = XCALLOC(1, ptlen);
-
-      if ((pt_work[0] == NULL) || (pt_work[1] == NULL)) {
+   
+   /* initialize buffer for pt */
+   if (direction == CCM_DECRYPT) {
+      pt_work = XMALLOC(ptlen);
+      if (pt_work == NULL) {
          goto error;
       }
-
-      XMEMCPY(pt_work[0], pt, ptlen);
-      pt = pt_work[0];
+      pt = pt_work;
    }
 
    /* form B_0 == flags | Nonce N | l(m) */
@@ -360,26 +362,39 @@ int ccm_memory(int cipher,
        */
       err = XMEM_NEQ(ptTag, PAD, *taglen);
 
-      /* Here err is 0 or 1, so we just copy either the real plaintext
-       * or the zeroized buffer.
-       */
-      XMEMCPY(pt_real, pt_work[err], ptlen);
-#ifdef LTC_CLEAN_STACK
-      zeromem(pt_work[0], ptlen);
+      /* Zero the plaintext if the tag was invalid (in constant time) */
+      if (ptlen > 0) {
+         y = 0;
+         mask *= 1 - err; /* mask = ( err ? 0 : 0xff ) */
+#ifdef LTC_FAST
+         fastMask *= 1 - err;
+         if (ptlen & ~15) {
+            for (; y < (ptlen & ~15); y += 16) {
+              for (z = 0; z < 16; z += sizeof(LTC_FAST_TYPE)) {
+                *((LTC_FAST_TYPE*)(&pt_real[y+z])) = *((LTC_FAST_TYPE*)(&pt[y+z])) & fastMask;
+              }
+            }
+         }
 #endif
+         for (; y < ptlen; y++) {
+            pt_real[y] = pt[y] & mask;
+         }
+      }
    }
 
 #ifdef LTC_CLEAN_STACK
+   fastMask = 0;
+   mask = 0;
    zeromem(skey,   sizeof(*skey));
    zeromem(PAD,    sizeof(PAD));
    zeromem(CTRPAD, sizeof(CTRPAD));
+   if (pt_work != NULL) {
+     zeromem(pt_work, ptlen);
+   }
 #endif
 error:
-   if (pt_work[1]) {
-      XFREE(pt_work[1]);
-   }
-   if (pt_work[0]) {
-      XFREE(pt_work[0]);
+   if (pt_work) {
+      XFREE(pt_work);
    }
    if (skey != uskey) {
       XFREE(skey);
