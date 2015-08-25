@@ -93,7 +93,7 @@ static int tweak_uncrypt(const unsigned char *C, unsigned char *P, unsigned char
       lim = m - 1;
    }
 
-   if (cipher_descriptor[xts->cipher].accel_xts_encrypt && lim > 0) {
+   if (cipher_descriptor[xts->cipher].accel_xts_decrypt && lim > 0) {
 
 	   /* use accelerated decryption for whole blocks */
 	   if ((err = cipher_descriptor[xts->cipher].accel_xts_decrypt(ct, pt,
