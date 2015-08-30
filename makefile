@@ -275,6 +275,9 @@ profile:
 	rm -f timing `find . -type f | grep [.][ao] | xargs`
 	CFLAGS="$(CFLAGS) -fprofile-use" $(MAKE) timing EXTRALIBS="$(EXTRALIBS) -lgcov"
 
+lcov:
+	lcov `find -name 'coverage_*.info' -exec echo -n " -a {}" \;` -o coverage.info -q 2>/dev/null
+	genhtml coverage.info --output-directory coverage -q
 
 #This rule cleans the source tree of all compiled code, not including the pdf
 #documentation.

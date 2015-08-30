@@ -24,7 +24,12 @@ if [ -a test ] && [ -f test ] && [ -x test ]; then
       for f in *_tv.txt; do if (diff -i -w -B $f notes/$f) then true; else (echo "tv_gen $f failed" && rm -f testok.txt && exit 1); fi; done
    fi
 fi
+
+lcov_opts="--capture --no-external --directory src -q"
+lcov_out=$(echo coverage_$1_$2_$3 | tr ' -=+' '_')".info"
+
 if [ -a testok.txt ] && [ -f testok.txt ]; then
+   [ "$LTC_COVERAGE" != "" ] && lcov $lcov_opts --output-file $lcov_out
    exit 0
 fi
 exit 1

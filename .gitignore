@@ -57,6 +57,9 @@ timing.exe
 *.gcno
 *.gcov
 
+coverage/
+coverage*.info
+
 # coverity intermediate directory etc.
 cov-int/
 .coverity_*
