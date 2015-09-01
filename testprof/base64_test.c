@@ -1,5 +1,6 @@
 #include  <tomcrypt_test.h>
 
+#ifdef LTC_BASE64
 int base64_test(void)
 {
    unsigned char in[64], out[256], tmp[64];
@@ -57,6 +58,7 @@ int base64_test(void)
    }
    return 0;
 }
+#endif
 
 /* $Source$ */
 /* $Revision$ */

@@ -12,7 +12,7 @@
 
 /**
   @file des.c
-  LTC_DES code submitted by Dobes Vandermeer
+  DES code submitted by Dobes Vandermeer
 */
 
 #ifdef LTC_DES
@@ -1450,9 +1450,9 @@ static void _desfunc(ulong32 *block, const ulong32 *keys)
     for (cur_round = 0; cur_round < 8; cur_round++) {
         work  = RORc(right, 4) ^ *keys++;
         leftt ^= SP7[work        & 0x3fL]
-              ^ SP5[(work >>  8) & 0x3fL]
-              ^ SP3[(work >> 16) & 0x3fL]
-              ^ SP1[(work >> 24) & 0x3fL];
+              ^  SP5[(work >>  8) & 0x3fL]
+              ^  SP3[(work >> 16) & 0x3fL]
+              ^  SP1[(work >> 24) & 0x3fL];
         work  = right ^ *keys++;
         leftt ^= SP8[ work        & 0x3fL]
               ^  SP6[(work >>  8) & 0x3fL]
