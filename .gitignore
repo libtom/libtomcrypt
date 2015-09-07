@@ -12,6 +12,7 @@ testok.txt
 test_*.txt
 tv.txt
 *_tv.txt
+doxygen/
 
 # *nix/windows test executables
 constants
