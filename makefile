@@ -275,9 +275,35 @@ profile:
 	rm -f timing `find . -type f | grep [.][ao] | xargs`
 	CFLAGS="$(CFLAGS) -fprofile-use" $(MAKE) timing EXTRALIBS="$(EXTRALIBS) -lgcov"
 
+# target that pre-processes all coverage data
+lcov-single-create:
+	lcov --capture --no-external --directory src -q --output-file coverage_std.info
+
+# target that removes all coverage output
+cleancov-clean:
+	rm -f `find . -type f -name "*.info" | xargs`
+	rm -rf coverage/
+
+# generates html output from all coverage_*.info files
 lcov:
 	lcov `find -name 'coverage_*.info' -exec echo -n " -a {}" \;` -o coverage.info -q 2>/dev/null
 	genhtml coverage.info --output-directory coverage -q
+
+# combines all necessary steps to create the coverage from a single testrun with e.g.
+# CFLAGS="-DUSE_LTM -DLTM_DESC -I../libtommath" EXTRALIBS="../libtommath/libtommath.a" make coverage -j9
+lcov-single: | cleancov-clean lcov-single-create lcov
+
+
+#cmake the code coverage of the library
+coverage: CFLAGS += -fprofile-arcs -ftest-coverage
+coverage: EXTRALIBS += -lgcov
+
+coverage: test
+	./test
+
+
+# cleans everything - coverage output and standard 'clean'
+cleancov: cleancov-clean clean
 
 #This rule cleans the source tree of all compiled code, not including the pdf
 #documentation.
