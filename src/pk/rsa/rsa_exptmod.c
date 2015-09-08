@@ -38,7 +38,7 @@ int rsa_exptmod(const unsigned char *in,   unsigned long inlen,
    void        *rnd, *rndi /* inverse of rnd */;
    #endif
    unsigned long x;
-   int           err;
+   int           err, no_crt;
 
    LTC_ARGCHK(in     != NULL);
    LTC_ARGCHK(out    != NULL);
@@ -100,7 +100,9 @@ int rsa_exptmod(const unsigned char *in,   unsigned long inlen,
       }
       #endif /* LTC_RSA_BLINDING */
 
-      if ((key->dP == NULL) || (mp_get_digit_count(key->dP) == 0)) {
+      no_crt = (key->dP == NULL) || (mp_get_digit_count(key->dP) == 0);
+
+      if (no_crt) {
          /*
           * In case CRT optimization parameters are not provided,
           * the private key is directly used to exptmod it
@@ -127,6 +129,14 @@ int rsa_exptmod(const unsigned char *in,   unsigned long inlen,
       err = mp_mulmod( tmp, rndi, key->N, tmp);
       if (err != CRYPT_OK) {
              goto error;
+      }
+      #endif
+
+      #ifdef LTC_RSA_CRT_HARDENING
+      if (!no_crt) {
+         if ((err = mp_exptmod(tmp, key->e, key->N, tmpa)) != CRYPT_OK)                              { goto error; }
+         if ((err = mp_read_unsigned_bin(tmpb, (unsigned char *)in, (int)inlen)) != CRYPT_OK)        { goto error; }
+         if (mp_cmp(tmpa, tmpb) != LTC_MP_EQ)                                     { err = CRYPT_ERROR; goto error; }
       }
       #endif
    } else {
