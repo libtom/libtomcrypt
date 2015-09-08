@@ -269,8 +269,12 @@ const char *crypt_build_settings =
     "\nPK Algs:\n"
 #if defined(LTC_MRSA)
     "   RSA"
-#if defined(LTC_RSA_BLINDING)
+#if defined(LTC_RSA_BLINDING) && defined(LTC_RSA_CRT_HARDENING)
+    " (with blinding and CRT hardening)"
+#elif defined(LTC_RSA_BLINDING)
     " (with blinding)"
+#elif defined(LTC_RSA_CRT_HARDENING)
+    " (with CRT hardening)"
 #endif
     "\n"
 #endif

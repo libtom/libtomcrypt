@@ -402,6 +402,11 @@
 #define LTC_RSA_BLINDING
 #endif  /* LTC_NO_RSA_BLINDING */
 
+#if defined(LTC_MRSA) && !defined(LTC_NO_RSA_CRT_HARDENING)
+/* Enable RSA CRT hardening when doing private key operations by default */
+#define LTC_RSA_CRT_HARDENING
+#endif  /* LTC_NO_RSA_CRT_HARDENING */
+
 #if defined(LTC_MECC) && !defined(LTC_NO_ECC_TIMING_RESISTANT)
 /* Enable ECC timing resistant version by default */
 #define LTC_ECC_TIMING_RESISTANT
