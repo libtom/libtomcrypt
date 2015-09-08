@@ -14,6 +14,8 @@
   @file crypt.c
   Build strings, Tom St Denis
 */
+#define NAME_VALUE(s) #s"="NAME(s)
+#define NAME(s) #s
 
 const char *crypt_build_settings =
    "LibTomCrypt " SCRYPT " (Tom St Denis, tomstdenis@gmail.com)\n"
@@ -251,7 +253,7 @@ const char *crypt_build_settings =
 
     "\nPRNG:\n"
 #if defined(LTC_YARROW)
-    "   Yarrow\n"
+    "   Yarrow ("NAME_VALUE(LTC_YARROW_AES)")\n"
 #endif
 #if defined(LTC_SPRNG)
     "   SPRNG\n"
@@ -260,7 +262,7 @@ const char *crypt_build_settings =
     "   RC4\n"
 #endif
 #if defined(LTC_FORTUNA)
-    "   Fortuna\n"
+    "   Fortuna (" NAME_VALUE(LTC_FORTUNA_POOLS) ", " NAME_VALUE(LTC_FORTUNA_WD) ")\n"
 #endif
 #if defined(LTC_SOBER128)
     "   SOBER128\n"
@@ -341,6 +343,9 @@ const char *crypt_build_settings =
 #if defined(LTC_DER)
     " DER "
 #endif
+#if defined(LTC_DER_MAX_PUBKEY_SIZE)
+    " " NAME_VALUE(LTC_DER_MAX_PUBKEY_SIZE) " "
+#endif
 #if defined(LTC_PKCS_1)
     " PKCS#1 "
 #endif
@@ -353,11 +358,29 @@ const char *crypt_build_settings =
 #if defined(MPI)
     " MPI "
 #endif
+#if defined(LTC_DEVRANDOM)
+    " LTC_DEVRANDOM "
+#endif
 #if defined(LTC_TRY_URANDOM_FIRST)
     " LTC_TRY_URANDOM_FIRST "
 #endif
+#if defined(LTC_RNG_GET_BYTES)
+    " LTC_RNG_GET_BYTES "
+#endif
+#if defined(LTC_RNG_MAKE_PRNG)
+    " LTC_RNG_MAKE_PRNG "
+#endif
+#if defined(LTC_HASH_HELPERS)
+    " LTC_HASH_HELPERS "
+#endif
+#if defined(LTC_VALGRIND)
+    " LTC_VALGRIND "
+#endif
 #if defined(LTC_TEST)
     " LTC_TEST "
+#endif
+#if defined(LTC_TEST_EXT)
+    " LTC_TEST_EXT "
 #endif
 #if defined(LTC_SMALL_CODE)
     " LTC_SMALL_CODE "
