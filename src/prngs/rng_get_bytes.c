@@ -135,6 +135,13 @@ unsigned long rng_get_bytes(unsigned char *out, unsigned long outlen,
 
    LTC_ARGCHK(out != NULL);
 
+   if (ltc_rng) {
+      x = ltc_rng(out, outlen, callback);
+      if (x != 0) {
+         return x;
+      }
+   }
+
 #if defined(_WIN32) || defined(_WIN32_WCE)
    x = rng_win32(out, outlen, callback); if (x != 0) { return x; }
 #elif defined(LTC_DEVRANDOM)
