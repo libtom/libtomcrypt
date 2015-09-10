@@ -13,7 +13,7 @@ int der_tests(void)
 
 #else
 
-static const unsigned char _der_tests_cacert_root_cert[] =
+const unsigned char _der_tests_cacert_root_cert[] =
    "MIIHPTCCBSWgAwIBAgIBADANBgkqhkiG9w0BAQQFADB5MRAwDgYDVQQKEwdSb290\
     IENBMR4wHAYDVQQLExVodHRwOi8vd3d3LmNhY2VydC5vcmcxIjAgBgNVBAMTGUNB\
     IENlcnQgU2lnbmluZyBBdXRob3JpdHkxITAfBgkqhkiG9w0BCQEWEnN1cHBvcnRA\
@@ -53,6 +53,7 @@ static const unsigned char _der_tests_cacert_root_cert[] =
     GCSNe9FINSkYQKyTYOGWhlC0elnYjyELn8+CkcY7v2vcB5G5l1YjqrZslMZIBjzk\
     zk6q5PYvCdxTby78dOs6Y5nCpqyJvKeyRKANihDjbPIky/qbn3BHLt4Ui9SyIAmW\
     omTxJBzcoTWcFbLUvFUufQb1nA5V9FrWk9p2rSVzTMVD";
+const unsigned long _der_tests_cacert_root_cert_size = sizeof(_der_tests_cacert_root_cert);
 
 /*
 SEQUENCE(3 elem)
@@ -195,6 +196,8 @@ SEQUENCE(3 elem)
 #define CHECK_ASN1_HAS_NO_CHILD(l) __CHECK_ASN1_HAS_NO(l, child)
 #define CHECK_ASN1_HAS_NEXT(l) __CHECK_ASN1_HAS(l, next)
 #define CHECK_ASN1_HAS_NO_NEXT(l) __CHECK_ASN1_HAS_NO(l, next)
+#define CHECK_ASN1_HAS_DATA(l) __CHECK_ASN1_HAS(l, data)
+#define CHECK_ASN1_HAS_NO_DATA(l) __CHECK_ASN1_HAS_NO(l, data)
 
 #ifdef LTC_DER_TESTS_PRINT_FLEXI
 static void _der_tests_print_flexi(ltc_asn1_list* l, unsigned int level)
@@ -395,6 +398,13 @@ static void der_cacert_test(void)
   DO(base64_decode(_der_tests_cacert_root_cert, sizeof(_der_tests_cacert_root_cert), buf, &len1));
   len2 = len1;
   DO(der_decode_sequence_flexi(buf, &len2, &decoded_list));
+  CHECK_ASN1_TYPE(decoded_list, LTC_ASN1_SEQUENCE);
+  CHECK_ASN1_HAS_DATA(decoded_list);
+
+  der_sequence_shrink(decoded_list);
+
+  CHECK_ASN1_TYPE(decoded_list, LTC_ASN1_SEQUENCE);
+  CHECK_ASN1_HAS_NO_DATA(decoded_list);
 
 #ifdef LTC_DER_TESTS_PRINT_FLEXI
   printf("\n\n--- test print start ---\n\n");
