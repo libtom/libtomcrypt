@@ -302,8 +302,23 @@ static void _unregister_all(void)
 #endif
 } /* _cleanup() */
 
+static unsigned long my_test_rng_read;
+
+static unsigned long my_test_rng(unsigned char *buf, unsigned long len,
+                             void (*callback)(void))
+{
+   unsigned long n;
+   LTC_UNUSED_PARAM(callback);
+   for (n = 0; n < len; ++n) {
+      buf[n] = 4;
+   }
+   my_test_rng_read += n;
+   return n;
+}
+
 void reg_algs(void)
 {
+  unsigned long before;
   int err;
 
   atexit(_unregister_all);
@@ -440,6 +455,21 @@ register_prng(&rc4_desc);
 #ifdef LTC_SOBER128
 register_prng(&sober128_desc);
 #endif
+
+   ltc_rng = my_test_rng;
+
+   before = my_test_rng_read;
+   if ((err = rng_make_prng(128, find_prng("yarrow"), &yarrow_prng, NULL)) != CRYPT_OK) {
+      fprintf(stderr, "rng_make_prng with 'my_test_rng' failed: %s\n", error_to_string(err));
+      exit(EXIT_FAILURE);
+   }
+
+   if (before == my_test_rng_read) {
+      fprintf(stderr, "somehow there was no read from the ltc_rng! %lu == %lu\n", before, my_test_rng_read);
+      exit(EXIT_FAILURE);
+   }
+
+   ltc_rng = NULL;
 
    if ((err = rng_make_prng(128, find_prng("yarrow"), &yarrow_prng, NULL)) != CRYPT_OK) {
       fprintf(stderr, "rng_make_prng failed: %s\n", error_to_string(err));
