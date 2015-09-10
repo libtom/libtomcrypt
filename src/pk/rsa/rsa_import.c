@@ -29,7 +29,8 @@ int rsa_import(const unsigned char *in, unsigned long inlen, rsa_key *key)
    int           err;
    void         *zero;
    unsigned char *tmpbuf=NULL;
-   unsigned long tmpbuf_len;
+   unsigned long tmpbuf_len, tmp_inlen;
+   ltc_asn1_list *decoded_list = NULL, *l;
 
    LTC_ARGCHK(in          != NULL);
    LTC_ARGCHK(key         != NULL);
@@ -52,6 +53,53 @@ int rsa_import(const unsigned char *in, unsigned long inlen, rsa_key *key)
    err = der_decode_subject_public_key_info(in, inlen,
         PKA_RSA, tmpbuf, &tmpbuf_len,
         LTC_ASN1_NULL, NULL, 0);
+
+   tmp_inlen = inlen;
+   if (err != CRYPT_OK &&
+         der_decode_sequence_flexi(in, &tmp_inlen, &decoded_list) == CRYPT_OK) {
+      l = decoded_list;
+      /* Move 2 levels up in the tree
+         SEQUENCE
+             SEQUENCE
+                 ...
+       */
+      if (l->type == LTC_ASN1_SEQUENCE && l->child) {
+         l = l->child;
+         if (l->type == LTC_ASN1_SEQUENCE && l->child) {
+            l = l->child;
+
+            /* Move forward in the tree until we find this combination
+                 ...
+                 SEQUENCE
+                     SEQUENCE
+                         OBJECT IDENTIFIER 1.2.840.113549.1.1.1
+                         NULL
+                     BIT STRING
+             */
+            do {
+               /* The additional check for l->data is there to make sure
+                * we won't try to decode a list that has been 'shrunk'
+                */
+               if (l->type == LTC_ASN1_SEQUENCE && l->data && l->child &&
+                     l->child->type == LTC_ASN1_SEQUENCE && l->child->child &&
+                     l->child->child->type == LTC_ASN1_OBJECT_IDENTIFIER && l->child->next &&
+                     l->child->next->type == LTC_ASN1_BIT_STRING) {
+                  err = der_decode_subject_public_key_info(l->data, l->size,
+                       PKA_RSA, tmpbuf, &tmpbuf_len,
+                       LTC_ASN1_NULL, NULL, 0);
+                  if (err == CRYPT_OK) {
+                     break;
+                  }
+               }
+               l = l->next;
+            } while(l);
+         }
+      }
+   }
+
+   if (decoded_list) {
+      der_free_sequence_flexi(decoded_list);
+   }
 
    if (err == CRYPT_OK) { /* SubjectPublicKeyInfo format */
 
