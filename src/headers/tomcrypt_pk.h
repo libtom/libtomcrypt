@@ -540,6 +540,7 @@ int der_decode_sequence_multi(const unsigned char *in, unsigned long inlen, ...)
 int  der_decode_sequence_flexi(const unsigned char *in, unsigned long *inlen, ltc_asn1_list **out);
 #define der_free_sequence_flexi         der_sequence_free
 void der_sequence_free(ltc_asn1_list *in);
+void der_sequence_shrink(ltc_asn1_list *in);
 
 /* BOOLEAN */
 int der_length_boolean(unsigned long *outlen);
