@@ -361,8 +361,11 @@ int der_decode_sequence_flexi(const unsigned char *in, unsigned long *inlen, ltc
              /* len update */
              totlen += data_offset;
 
-             /* link them up y0 */
-             l->child->parent = l;
+             /* the flexi decoder can also do nothing, so make sure a child has been allocated */
+             if (l->child) {
+                /* link them up y0 */
+                l->child->parent = l;
+             }
 
              break;
 
@@ -398,12 +401,15 @@ int der_decode_sequence_flexi(const unsigned char *in, unsigned long *inlen, ltc
 
 outside:
 
-   /* rewind l please */
-   while (l->prev != NULL || l->parent != NULL) {
-      if (l->parent != NULL) {
-         l = l->parent;
-      } else {
-         l = l->prev;
+   /* in case we processed anything */
+   if (totlen) {
+      /* rewind l please */
+      while (l->prev != NULL || l->parent != NULL) {
+         if (l->parent != NULL) {
+            l = l->parent;
+         } else {
+            l = l->prev;
+         }
       }
    }
 
