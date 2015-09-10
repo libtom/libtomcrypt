@@ -348,6 +348,15 @@ int der_decode_sequence_flexi(const unsigned char *in, unsigned long *inlen, ltc
                 l->type = LTC_ASN1_SET;
              }
 
+             if ((l->data = XMALLOC(len)) == NULL) {
+                err = CRYPT_MEM;
+                goto error;
+             }
+
+             XMEMCPY(l->data, in, len);
+             l->size = len;
+
+
              /* jump to the start of the data */
              in     += data_offset;
              *inlen -= data_offset;
