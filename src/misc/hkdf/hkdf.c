@@ -61,7 +61,9 @@ int hkdf_expand(int hash_idx, const unsigned char *info, unsigned long infolen,
    if (T == NULL) {
       return CRYPT_MEM;
    }
-   XMEMCPY(T + hashsize, info, infolen);
+   if (info != NULL) {
+      XMEMCPY(T + hashsize, info, infolen);
+   }
 
    /* HMAC data T(1) doesn't include a previous hash value */
    dat    = T    + hashsize;
