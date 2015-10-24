@@ -246,8 +246,6 @@ int dh_decrypt_key(const unsigned char *in, unsigned long inlen,
    if (inlen < keysize) {
       err = CRYPT_INVALID_PACKET;
       goto LBL_ERR;
-   } else {
-      inlen -= keysize;
    }
 
    if (keysize > *outlen) {

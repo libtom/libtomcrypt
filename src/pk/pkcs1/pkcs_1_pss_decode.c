@@ -94,8 +94,7 @@ int pkcs_1_pss_decode(const unsigned char *msghash, unsigned long msghashlen,
 
    /* copy out the hash */
    XMEMCPY(hash, sig + x, hLen);
-   x += hLen;
-
+   /* x += hLen; */
 
    /* check the MSB */
    if ((sig[0] & ~(0xFF >> ((modulus_len<<3) - (modulus_bitlen)))) != 0) {

@@ -116,7 +116,7 @@ int pkcs_1_pss_encode(const unsigned char *msghash, unsigned long msghashlen,
    x += modulus_len - saltlen - hLen - 2;
    DB[x++] = 0x01;
    XMEMCPY(DB + x, salt, saltlen);
-   x += saltlen;
+   /* x += saltlen; */
 
    /* generate mask of length modulus_len - hLen - 1 from hash */
    if ((err = pkcs_1_mgf1(hash_idx, hash, hLen, mask, modulus_len - hLen - 1)) != CRYPT_OK) {

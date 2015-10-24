@@ -127,11 +127,6 @@ int ccm_memory(int cipher,
       L = 15 - noncelen;
    }
 
-   /* decrease noncelen to match L */
-   if ((noncelen + L) > 15) {
-      noncelen = 15 - L;
-   }
-
    /* allocate mem for the symmetric key */
    if (uskey == NULL) {
       skey = XMALLOC(sizeof(*skey));
@@ -147,7 +142,7 @@ int ccm_memory(int cipher,
    } else {
       skey = uskey;
    }
-   
+
    /* initialize buffer for pt */
    if (direction == CCM_DECRYPT) {
       pt_work = XMALLOC(ptlen);

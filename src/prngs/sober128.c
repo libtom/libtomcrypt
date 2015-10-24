@@ -300,7 +300,6 @@ unsigned long sober128_read(unsigned char *out, unsigned long outlen, prng_state
 #endif
 
    c = &(prng->sober128);
-   t = 0;
    tlen = outlen;
 
    /* handle any previously buffered bytes */

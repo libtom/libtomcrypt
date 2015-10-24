@@ -113,7 +113,9 @@ int xts_encrypt(const unsigned char *pt, unsigned long ptlen, unsigned char *ct,
       }
 
       for (i = 0; i < lim; i++) {
-         err = tweak_crypt(pt, ct, T, xts);
+         if ((err = tweak_crypt(pt, ct, T, xts)) != CRYPT_OK) {
+            return err;
+         }
          ct += 16;
          pt += 16;
       }

@@ -85,7 +85,6 @@ int pkcs_1_oaep_decode(const unsigned char *msg,    unsigned long msglen,
 
     */
 
-   err = CRYPT_OK;
    ret = CRYPT_OK;
 
    /* must have leading 0x00 byte */

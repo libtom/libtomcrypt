@@ -46,7 +46,6 @@ int der_length_integer(void *num, unsigned long *outlen)
    } else {
       /* it's negative */
       /* find power of 2 that is a multiple of eight and greater than count bits */
-      leading_zero = 0;
       z = mp_count_bits(num);
       z = z + (8 - (z & 7));
       if (((mp_cnt_lsb(num)+1)==mp_count_bits(num)) && ((mp_count_bits(num)&7)==0)) --z;

@@ -45,6 +45,8 @@ int der_encode_sequence_multi(unsigned char *out, unsigned long *outlen, ...)
        type = va_arg(args, ltc_asn1_type);
        size = va_arg(args, unsigned long);
        data = va_arg(args, void*);
+       LTC_UNUSED_PARAM(size);
+       LTC_UNUSED_PARAM(data);
 
        if (type == LTC_ASN1_EOL) {
           break;

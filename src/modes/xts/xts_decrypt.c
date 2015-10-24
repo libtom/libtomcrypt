@@ -110,7 +110,9 @@ int xts_decrypt(const unsigned char *ct, unsigned long ptlen, unsigned char *pt,
       }
 
       for (i = 0; i < lim; i++) {
-         err = tweak_uncrypt(ct, pt, T, xts);
+         if ((err = tweak_uncrypt(ct, pt, T, xts)) != CRYPT_OK) {
+            return err;
+         }
          ct += 16;
          pt += 16;
       }
