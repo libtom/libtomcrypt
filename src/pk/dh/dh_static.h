@@ -71,7 +71,7 @@
 
 static inline void packet_store_header (unsigned char *dst, int section, int subsection)
 {
-   LTC_ARGCHK(dst != NULL);
+   LTC_ARGCHKVD(dst != NULL);
 
    /* store version number */
    dst[0] = (unsigned char)(CRYPT&255);

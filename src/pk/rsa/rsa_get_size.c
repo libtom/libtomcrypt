@@ -25,7 +25,7 @@
 int rsa_get_size(rsa_key *key)
 {
   int ret = INT_MAX;
-  LTC_ARGCHKVD(key != NULL);
+  LTC_ARGCHK(key != NULL);
 
   if (key)
   {

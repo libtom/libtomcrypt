@@ -77,8 +77,8 @@ done:
 void dh_sizes(int *low, int *high)
 {
    int x;
-   LTC_ARGCHK(low != NULL);
-   LTC_ARGCHK(high != NULL);
+   LTC_ARGCHKVD(low != NULL);
+   LTC_ARGCHKVD(high != NULL);
    *low  = INT_MAX;
    *high = 0;
    for (x = 0; sets[x].size != 0; x++) {
@@ -187,7 +187,7 @@ error2:
 */
 void dh_free(dh_key *key)
 {
-   LTC_ARGCHK(key != NULL);
+   LTC_ARGCHKVD(key != NULL);
    if ( key->x ) {
 		mp_clear( key->x );
 		key->x = NULL;
