@@ -76,6 +76,14 @@ int pkcs_5_alg1(const unsigned char *password, unsigned long password_len,
                 int iteration_count,  int hash_idx,
                 unsigned char *out,   unsigned long *outlen);
 
+/* Algorithm #1 - OpenSSL-compatible variant for arbitrarily-long keys.
+   Compatible with EVP_BytesToKey() */
+int pkcs_5_alg1_openssl(const unsigned char *password,
+                        unsigned long password_len,
+                        const unsigned char *salt,
+                        int iteration_count,  int hash_idx,
+                        unsigned char *out,   unsigned long *outlen);
+
 /* Algorithm #2 (new) */
 int pkcs_5_alg2(const unsigned char *password, unsigned long password_len,
                 const unsigned char *salt,     unsigned long salt_len,
