@@ -5,12 +5,22 @@
 
 include makefile.include
 
-CFLAGS += -c
-
 # The version
 VERSION=1.17
 
 PLATFORM := $(shell uname | sed -e 's/_.*//')
+
+ifeq ($V,1)
+silent=
+else
+silent=@
+endif
+
+%.o: %.c
+ifneq ($V,1)
+	@echo "   * ${CC} $@"
+endif
+	${silent} ${CC} ${CFLAGS} -c $< -o $@
 
 # ranlib tools
 ifndef RANLIB
@@ -190,9 +200,9 @@ COMPRESSED=crypt-$(VERSION).tar.bz2 crypt-$(VERSION).zip
 #The default rule for make builds the libtomcrypt library.
 default:library
 
-#ciphers come in two flavours... enc+dec and enc
+#AES comes in two flavours... enc+dec and enc
 src/ciphers/aes/aes_enc.o: src/ciphers/aes/aes.c src/ciphers/aes/aes_tab.c
-	$(CC) $(CFLAGS) -DENCRYPT_ONLY -c src/ciphers/aes/aes.c -o src/ciphers/aes/aes_enc.o
+	${silent} ${CC} ${CFLAGS} -DENCRYPT_ONLY -c $< -o $@
 
 #These are the rules to make certain object files.
 src/ciphers/aes/aes.o: src/ciphers/aes/aes.c src/ciphers/aes/aes_tab.c
