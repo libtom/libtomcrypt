@@ -9,7 +9,6 @@
  * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 #include "tomcrypt.h"
-#include <stdarg.h>
 
 
 /**
