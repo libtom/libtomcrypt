@@ -94,8 +94,8 @@ int xts_decrypt(const unsigned char *ct, unsigned long ptlen, unsigned char *pt,
    if (cipher_descriptor[xts->cipher].accel_xts_decrypt && lim > 0) {
 
       /* use accelerated decryption for whole blocks */
-      if ((err = cipher_descriptor[xts->cipher].accel_xts_decrypt(ct, pt, lim, tweak, &xts->key1, &xts->key2) !=
-                 CRYPT_OK)) {
+      if ((err = cipher_descriptor[xts->cipher].accel_xts_decrypt(ct, pt, lim, tweak, &xts->key1, &xts->key2)) !=
+                 CRYPT_OK) {
          return err;
       }
       ct += lim * 16;

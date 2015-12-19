@@ -96,8 +96,8 @@ int xts_encrypt(const unsigned char *pt, unsigned long ptlen, unsigned char *ct,
    if (cipher_descriptor[xts->cipher].accel_xts_encrypt && lim > 0) {
 
       /* use accelerated encryption for whole blocks */
-      if ((err = cipher_descriptor[xts->cipher].accel_xts_encrypt(pt, ct, lim, tweak, &xts->key1, &xts->key2) !=
-                 CRYPT_OK)) {
+      if ((err = cipher_descriptor[xts->cipher].accel_xts_encrypt(pt, ct, lim, tweak, &xts->key1, &xts->key2)) !=
+                 CRYPT_OK) {
          return err;
       }
       ct += lim * 16;
