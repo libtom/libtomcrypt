@@ -267,7 +267,7 @@ static inline ulong32 ROR(ulong32 word, int i)
 #ifndef LTC_NO_ROLC
 
 #define ROLc(word,i) ({ \
-   ulong32 __ROLc_tmp = word; \
+   ulong32 __ROLc_tmp = (word); \
    __asm__ ("roll %2, %0" : \
             "=r" (__ROLc_tmp) : \
             "0" (__ROLc_tmp), \
@@ -275,7 +275,7 @@ static inline ulong32 ROR(ulong32 word, int i)
             __ROLc_tmp; \
    })
 #define RORc(word,i) ({ \
-   ulong32 __RORc_tmp = word; \
+   ulong32 __RORc_tmp = (word); \
    __asm__ ("rorl %2, %0" : \
             "=r" (__RORc_tmp) : \
             "0" (__RORc_tmp), \
