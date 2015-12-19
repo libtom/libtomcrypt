@@ -141,7 +141,7 @@ int ecc_import_ex(const unsigned char *in, unsigned long inlen, ecc_key *key, co
 
    if (dp == NULL) {
      /* find the idx */
-     for (key->idx = 0; ltc_ecc_sets[key->idx].size && (unsigned long)ltc_ecc_sets[key->idx].size != key_size; ++key->idx);
+     for (key->idx = 0; ltc_ecc_sets[key->idx].size && (unsigned long)ltc_ecc_sets[key->idx].size != key_size; ++key->idx) {}
      if (ltc_ecc_sets[key->idx].size == 0) {
        err = CRYPT_INVALID_PACKET;
        goto done;

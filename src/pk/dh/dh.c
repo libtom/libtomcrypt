@@ -125,7 +125,7 @@ int dh_make_key(prng_state *prng, int wprng, int keysize, dh_key *key)
    }
 
    /* find key size */
-   for (x = 0; (keysize > sets[x].size) && (sets[x].size != 0); x++);
+   for (x = 0; (keysize > sets[x].size) && (sets[x].size != 0); x++) {}
 #ifdef FAST_PK
    keysize = MIN(sets[x].size, 32);
 #else
@@ -286,7 +286,7 @@ int dh_import(const unsigned char *in, unsigned long inlen, dh_key *key)
    /* key size in bytes */
    s  = (unsigned long)in[y++] * 8;
 
-   for (x = 0; (s > (unsigned long)sets[x].size) && (sets[x].size != 0); x++);
+   for (x = 0; (s > (unsigned long)sets[x].size) && (sets[x].size != 0); x++) {}
    if (sets[x].size == 0) {
       err = CRYPT_INVALID_KEYSIZE;
       goto error;

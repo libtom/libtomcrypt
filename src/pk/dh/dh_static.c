@@ -152,7 +152,7 @@ int dh_is_valid_idx(int n)
 {
    int x;
 
-   for (x = 0; sets[x].size; x++);
+   for (x = 0; sets[x].size; x++) {}
    if ((n < 0) || (n >= x)) {
       return 0;
    }
