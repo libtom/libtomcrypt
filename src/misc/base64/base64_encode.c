@@ -20,12 +20,12 @@
 #if defined(LTC_BASE64) || defined (LTC_BASE64_URL)
 
 #if defined(LTC_BASE64)
-static const char *codes_base64 =
+static const char * const codes_base64 =
 "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 #endif /* LTC_BASE64 */
 
 #if defined(LTC_BASE64_URL)
-static const char *codes_base64url =
+static const char * const codes_base64url =
 "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
 #endif /* LTC_BASE64_URL */
 

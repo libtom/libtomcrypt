@@ -16,7 +16,7 @@
   Convert error codes to ASCII strings, Tom St Denis
 */
 
-static const char *err_2_str[] =
+static const char * const err_2_str[] =
 {
    "CRYPT_OK",
    "CRYPT_ERROR",

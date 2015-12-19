@@ -17,7 +17,7 @@
 
 #ifdef LTC_DER
 
-static const char *baseten = "0123456789";
+static const char * const baseten = "0123456789";
 
 #define STORE_V(y) \
     out[x++] = der_ia5_char_encode(baseten[(y/10) % 10]); \
