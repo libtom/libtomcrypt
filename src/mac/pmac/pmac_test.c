@@ -150,8 +150,8 @@ int pmac_test(void)
 #endif
            return CRYPT_FAIL_TESTVECTOR;
         }
-     }
-     return CRYPT_OK;
+    }
+    return CRYPT_OK;
 #endif /* LTC_TEST */
 }
 

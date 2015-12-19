@@ -72,19 +72,19 @@ int der_decode_sequence_ex(const unsigned char *in, unsigned long  inlen,
       while (y--) {
           blksize = (blksize << 8) | (unsigned long)in[x++];
       }
-  }
+   }
 
-  /* would this blksize overflow? */
-  if (x + blksize > inlen) {
-     return CRYPT_INVALID_PACKET;
-  }
+   /* would this blksize overflow? */
+   if (x + blksize > inlen) {
+      return CRYPT_INVALID_PACKET;
+   }
 
    /* mark all as unused */
    for (i = 0; i < (int)outlen; i++) {
        list[i].used = 0;
    }
 
-  /* ok read data */
+   /* ok read data */
    inlen = blksize;
    for (i = 0; i < (int)outlen; i++) {
        z    = 0;
@@ -105,8 +105,8 @@ int der_decode_sequence_ex(const unsigned char *in, unsigned long  inlen,
                }
                if ((err = der_length_boolean(&z)) != CRYPT_OK) {
                    goto LBL_ERR;
-                }
-                break;
+               }
+               break;
 
            case LTC_ASN1_INTEGER:
                z = inlen;

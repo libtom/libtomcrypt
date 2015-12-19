@@ -53,18 +53,18 @@ int xcbc_process(xcbc_state *xcbc, const unsigned char *in, unsigned long inlen)
            in    += xcbc->blocksize;
            inlen -= xcbc->blocksize;
        }
-  }
+   }
 #endif
 
    while (inlen) {
-     if (xcbc->buflen == xcbc->blocksize) {
+      if (xcbc->buflen == xcbc->blocksize) {
          cipher_descriptor[xcbc->cipher].ecb_encrypt(xcbc->IV, xcbc->IV, &xcbc->key);
          xcbc->buflen = 0;
-     }
-     xcbc->IV[xcbc->buflen++] ^= *in++;
-     --inlen;
-  }
-  return CRYPT_OK;
+      }
+      xcbc->IV[xcbc->buflen++] ^= *in++;
+      --inlen;
+   }
+   return CRYPT_OK;
 }
 
 #endif

@@ -118,7 +118,7 @@ int gcm_process(gcm_state *gcm,
                 return err;
              }
          }
-     }
+      }
    }
 #endif
 

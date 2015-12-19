@@ -45,8 +45,8 @@ int der_decode_bit_string(const unsigned char *in,  unsigned long inlen,
       return CRYPT_INVALID_PACKET;
    }
 
-    /* offset in the data */
-    x = 1;
+   /* offset in the data */
+   x = 1;
 
    /* get the length of the data */
    if (in[x] & 0x80) {

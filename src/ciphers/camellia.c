@@ -686,8 +686,8 @@ int camellia_test(void)
    unsigned int x;
 
    for (x = 0; x < sizeof(tests)/sizeof(tests[0]); x++) {
-     zeromem(&skey, sizeof(skey));
-     if ((err = camellia_setup(tests[x].key, tests[x].keylen, 0, &skey)) != CRYPT_OK) {
+      zeromem(&skey, sizeof(skey));
+      if ((err = camellia_setup(tests[x].key, tests[x].keylen, 0, &skey)) != CRYPT_OK) {
          return err;
       }
       if ((err = camellia_ecb_encrypt(tests[x].pt, buf[0], &skey)) != CRYPT_OK) {

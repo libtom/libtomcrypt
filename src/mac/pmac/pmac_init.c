@@ -110,37 +110,37 @@ int pmac_init(pmac_state *pmac, int cipher, const unsigned char *key, unsigned l
        }
     }
 
-    /* find Lr = L / x */
-    m = L[pmac->block_len-1] & 1;
+   /* find Lr = L / x */
+   m = L[pmac->block_len-1] & 1;
 
-    /* shift right */
-    for (x = pmac->block_len - 1; x > 0; x--) {
-        pmac->Lr[x] = ((L[x] >> 1) | (L[x-1] << 7)) & 255;
-    }
-    pmac->Lr[0] = L[0] >> 1;
+   /* shift right */
+   for (x = pmac->block_len - 1; x > 0; x--) {
+      pmac->Lr[x] = ((L[x] >> 1) | (L[x-1] << 7)) & 255;
+   }
+   pmac->Lr[0] = L[0] >> 1;
 
-    if (m == 1) {
-       for (x = 0; x < pmac->block_len; x++) {
-           pmac->Lr[x] ^= polys[poly].poly_div[x];
-       }
-    }
+   if (m == 1) {
+      for (x = 0; x < pmac->block_len; x++) {
+         pmac->Lr[x] ^= polys[poly].poly_div[x];
+      }
+   }
 
-    /* zero buffer, counters, etc... */
-    pmac->block_index = 1;
-    pmac->cipher_idx  = cipher;
-    pmac->buflen      = 0;
-    zeromem(pmac->block,    sizeof(pmac->block));
-    zeromem(pmac->Li,       sizeof(pmac->Li));
-    zeromem(pmac->checksum, sizeof(pmac->checksum));
-    err = CRYPT_OK;
+   /* zero buffer, counters, etc... */
+   pmac->block_index = 1;
+   pmac->cipher_idx  = cipher;
+   pmac->buflen      = 0;
+   zeromem(pmac->block,    sizeof(pmac->block));
+   zeromem(pmac->Li,       sizeof(pmac->Li));
+   zeromem(pmac->checksum, sizeof(pmac->checksum));
+   err = CRYPT_OK;
 error:
 #ifdef LTC_CLEAN_STACK
-    zeromem(L, pmac->block_len);
+   zeromem(L, pmac->block_len);
 #endif
 
-    XFREE(L);
+   XFREE(L);
 
-    return err;
+   return err;
 }
 
 #endif

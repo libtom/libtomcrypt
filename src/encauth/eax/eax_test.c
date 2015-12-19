@@ -270,8 +270,8 @@ int eax_test(void)
            return CRYPT_FAIL_TESTVECTOR;
         }
 
-     }
-     return CRYPT_OK;
+    }
+    return CRYPT_OK;
 #endif /* LTC_TEST */
 }
 

@@ -106,32 +106,32 @@ int ocb_init(ocb_state *ocb, int cipher,
               ocb->Ls[x][y] ^= polys[poly].poly_mul[y];
           }
        }
-    }
+   }
 
-    /* find Lr = L / x */
-    m = ocb->L[ocb->block_len-1] & 1;
+   /* find Lr = L / x */
+   m = ocb->L[ocb->block_len-1] & 1;
 
-    /* shift right */
-    for (x = ocb->block_len - 1; x > 0; x--) {
-        ocb->Lr[x] = ((ocb->L[x] >> 1) | (ocb->L[x-1] << 7)) & 255;
-    }
-    ocb->Lr[0] = ocb->L[0] >> 1;
+   /* shift right */
+   for (x = ocb->block_len - 1; x > 0; x--) {
+      ocb->Lr[x] = ((ocb->L[x] >> 1) | (ocb->L[x-1] << 7)) & 255;
+   }
+   ocb->Lr[0] = ocb->L[0] >> 1;
 
-    if (m == 1) {
-       for (x = 0; x < ocb->block_len; x++) {
-           ocb->Lr[x] ^= polys[poly].poly_div[x];
-       }
-    }
+   if (m == 1) {
+      for (x = 0; x < ocb->block_len; x++) {
+         ocb->Lr[x] ^= polys[poly].poly_div[x];
+      }
+   }
 
-    /* set Li, checksum */
-    zeromem(ocb->Li,       ocb->block_len);
-    zeromem(ocb->checksum, ocb->block_len);
+   /* set Li, checksum */
+   zeromem(ocb->Li,       ocb->block_len);
+   zeromem(ocb->checksum, ocb->block_len);
 
-    /* set other params */
-    ocb->block_index = 1;
-    ocb->cipher      = cipher;
+   /* set other params */
+   ocb->block_index = 1;
+   ocb->cipher      = cipher;
 
-    return CRYPT_OK;
+   return CRYPT_OK;
 }
 
 #endif

@@ -311,8 +311,8 @@ unsigned long sober128_read(unsigned char *out, unsigned long outlen, prng_state
    }
 
 #ifndef LTC_SMALL_CODE
-    /* do lots at a time, if there's enough to do */
-    while (outlen >= N*4) {
+   /* do lots at a time, if there's enough to do */
+   while (outlen >= N*4) {
       SROUND(0);
       SROUND(1);
       SROUND(2);
@@ -332,20 +332,20 @@ unsigned long sober128_read(unsigned char *out, unsigned long outlen, prng_state
       SROUND(16);
       out    += 4*N;
       outlen -= 4*N;
-    }
+   }
 #endif
 
-    /* do small or odd size buffers the slow way */
-    while (4 <= outlen) {
+   /* do small or odd size buffers the slow way */
+   while (4 <= outlen) {
       cycle(c->R);
       t = nltap(c);
       XORWORD(t, out);
       out    += 4;
       outlen -= 4;
-    }
+   }
 
-    /* handle any trailing bytes */
-    if (outlen != 0) {
+   /* handle any trailing bytes */
+   if (outlen != 0) {
       cycle(c->R);
       c->sbuf = nltap(c);
       c->nbuf = 32;
@@ -355,9 +355,9 @@ unsigned long sober128_read(unsigned char *out, unsigned long outlen, prng_state
           c->nbuf -= 8;
           --outlen;
       }
-    }
+   }
 
-    return tlen;
+   return tlen;
 }
 
 /**

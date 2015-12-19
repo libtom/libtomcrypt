@@ -94,16 +94,16 @@ int der_encode_setof(ltc_asn1_list *list, unsigned long inlen,
    }
 
    /* skip header */
-      ptr = buf + 1;
+   ptr = buf + 1;
 
-      /* now skip length data */
-      x = *ptr++;
-      if (x >= 0x80) {
-         ptr += (x & 0x7F);
-      }
+   /* now skip length data */
+   x = *ptr++;
+   if (x >= 0x80) {
+      ptr += (x & 0x7F);
+   }
 
-      /* get the size of the static header */
-      hdrlen = ptr - buf;
+   /* get the size of the static header */
+   hdrlen = ptr - buf;
 
 
    /* scan for edges */

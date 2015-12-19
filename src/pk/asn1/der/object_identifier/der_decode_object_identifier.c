@@ -53,14 +53,14 @@ int der_decode_object_identifier(const unsigned char *in,    unsigned long  inle
    if (in[x] < 128) {
       len = in[x++]; 
    } else {
-       if (in[x] < 0x81 || in[x] > 0x82) {
-          return CRYPT_INVALID_PACKET;
-       }
-       y   = in[x++] & 0x7F;
-       len = 0;
-       while (y--) {
-          len = (len << 8) | (unsigned long)in[x++];
-       }
+      if (in[x] < 0x81 || in[x] > 0x82) {
+         return CRYPT_INVALID_PACKET;
+      }
+      y   = in[x++] & 0x7F;
+      len = 0;
+      while (y--) {
+         len = (len << 8) | (unsigned long)in[x++];
+      }
    }
 
    if (len < 1 || (len + x) > inlen) {
@@ -71,21 +71,21 @@ int der_decode_object_identifier(const unsigned char *in,    unsigned long  inle
    y = 0;
    t = 0;
    while (len--) {
-       t = (t << 7) | (in[x] & 0x7F);
-       if (!(in[x++] & 0x80)) {
-           /* store t */
-           if (y >= *outlen) {
-              return CRYPT_BUFFER_OVERFLOW;
-           }
-      if (y == 0) {
-         words[0] = t / 40;
-         words[1] = t % 40;
-         y = 2;
-      } else {
-              words[y++] = t;
+      t = (t << 7) | (in[x] & 0x7F);
+      if (!(in[x++] & 0x80)) {
+         /* store t */
+         if (y >= *outlen) {
+            return CRYPT_BUFFER_OVERFLOW;
+         }
+         if (y == 0) {
+            words[0] = t / 40;
+            words[1] = t % 40;
+            y = 2;
+         } else {
+            words[y++] = t;
+         }
+            t          = 0;
       }
-           t          = 0;
-       }
    }
        
    *outlen = y;

@@ -283,8 +283,8 @@ int ccm_memory(int cipher,
                    goto error;
                 }
              }
-         }
-     }
+          }
+      }
 #endif
 
       for (; y < ptlen; y++) {

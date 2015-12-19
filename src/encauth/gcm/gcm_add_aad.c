@@ -104,9 +104,9 @@ int gcm_add_aad(gcm_state *gcm,
 
    /* start adding AAD data to the state */
    for (; x < adatalen; x++) {
-       gcm->X[gcm->buflen++] ^= *adata++;
+      gcm->X[gcm->buflen++] ^= *adata++;
 
-       if (gcm->buflen == 16) {
+      if (gcm->buflen == 16) {
          /* GF mult it */
          gcm_mult_h(gcm, gcm->X);
          gcm->buflen = 0;

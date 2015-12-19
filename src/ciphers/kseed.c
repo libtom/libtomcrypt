@@ -201,41 +201,41 @@ static const ulong32 KCi[16] = {
  */
 int kseed_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_key *skey)
 {
-    int     i;
-    ulong32 tmp, k1, k2, k3, k4;
+   int     i;
+   ulong32 tmp, k1, k2, k3, k4;
 
-    if (keylen != 16) {
-       return CRYPT_INVALID_KEYSIZE;
-    }
+   if (keylen != 16) {
+      return CRYPT_INVALID_KEYSIZE;
+   }
 
-    if (num_rounds != 16 && num_rounds != 0) {
-       return CRYPT_INVALID_ROUNDS;
-    }
+   if (num_rounds != 16 && num_rounds != 0) {
+      return CRYPT_INVALID_ROUNDS;
+   }
 
-    /* load key */
-    LOAD32H(k1, key);
-    LOAD32H(k2, key+4);
-    LOAD32H(k3, key+8);
-    LOAD32H(k4, key+12);
+   /* load key */
+   LOAD32H(k1, key);
+   LOAD32H(k2, key+4);
+   LOAD32H(k3, key+8);
+   LOAD32H(k4, key+12);
 
-    for (i = 0; i < 16; i++) {
-       skey->kseed.K[2*i+0] = G(k1 + k3 - KCi[i]);
-       skey->kseed.K[2*i+1] = G(k2 - k4 + KCi[i]);
-       if (i&1) {
-          tmp = k3;
-          k3 = ((k3 << 8) | (k4 >> 24)) & 0xFFFFFFFF;
-          k4 = ((k4 << 8) | (tmp >> 24)) & 0xFFFFFFFF;
-       } else {
-          tmp = k1;
-          k1 = ((k1 >> 8) | (k2 << 24)) & 0xFFFFFFFF;
-          k2 = ((k2 >> 8) | (tmp << 24)) & 0xFFFFFFFF;
+   for (i = 0; i < 16; i++) {
+      skey->kseed.K[2*i+0] = G(k1 + k3 - KCi[i]);
+      skey->kseed.K[2*i+1] = G(k2 - k4 + KCi[i]);
+      if (i&1) {
+         tmp = k3;
+         k3 = ((k3 << 8) | (k4 >> 24)) & 0xFFFFFFFF;
+         k4 = ((k4 << 8) | (tmp >> 24)) & 0xFFFFFFFF;
+      } else {
+         tmp = k1;
+         k1 = ((k1 >> 8) | (k2 << 24)) & 0xFFFFFFFF;
+         k2 = ((k2 >> 8) | (tmp << 24)) & 0xFFFFFFFF;
       }
       /* reverse keys for decrypt */
       skey->kseed.dK[2*(15-i)+0] = skey->kseed.K[2*i+0];
       skey->kseed.dK[2*(15-i)+1] = skey->kseed.K[2*i+1];
-    }
+   }
 
-    return CRYPT_OK;
+   return CRYPT_OK;
 }
 
 static void rounds(ulong32 *P, ulong32 *K)

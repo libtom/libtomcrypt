@@ -41,10 +41,10 @@ int lrw_start(               int   cipher,
    int           x, y, z, t;
 #endif
 
-  LTC_ARGCHK(IV    != NULL);
-  LTC_ARGCHK(key   != NULL);
-  LTC_ARGCHK(tweak != NULL);
-  LTC_ARGCHK(lrw   != NULL);
+   LTC_ARGCHK(IV    != NULL);
+   LTC_ARGCHK(key   != NULL);
+   LTC_ARGCHK(tweak != NULL);
+   LTC_ARGCHK(lrw   != NULL);
 
 #ifdef LTC_FAST
    if (16 % sizeof(LTC_FAST_TYPE)) {
@@ -88,8 +88,8 @@ int lrw_start(               int   cipher,
          }
          lrw->PC[x][y][0]  = gcm_shift_table[t<<1];
          lrw->PC[x][y][1] ^= gcm_shift_table[(t<<1)+1];
-     }
-  }
+      }
+   }
 #endif
 
    /* generate first pad */

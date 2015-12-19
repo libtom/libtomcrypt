@@ -122,8 +122,8 @@ int lrw_test(void)
      if ((err = lrw_done(&lrw)) != CRYPT_OK) {
         return err;
      }
-   }
-   return CRYPT_OK;
+  }
+  return CRYPT_OK;
 #endif
 }
 

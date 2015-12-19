@@ -92,8 +92,8 @@ int gcm_init(gcm_state *gcm, int cipher,
          }
          gcm->PC[x][y][0] = gcm_shift_table[t<<1];
          gcm->PC[x][y][1] ^= gcm_shift_table[(t<<1)+1];
-     }
-  }
+      }
+   }
 
 #endif
 

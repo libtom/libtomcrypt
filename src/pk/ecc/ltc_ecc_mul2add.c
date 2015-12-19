@@ -93,16 +93,16 @@ int ltc_ecc_mul2add(ecc_point *A, void *kA,
      }
   }
 
-   /* init montgomery reduction */
-   if ((err = mp_montgomery_setup(modulus, &mp)) != CRYPT_OK) {
+  /* init montgomery reduction */
+  if ((err = mp_montgomery_setup(modulus, &mp)) != CRYPT_OK) {
       goto ERR_P;
-   }
-   if ((err = mp_init(&mu)) != CRYPT_OK) {
+  }
+  if ((err = mp_init(&mu)) != CRYPT_OK) {
       goto ERR_MP;
-   }
-   if ((err = mp_montgomery_normalization(mu, modulus)) != CRYPT_OK) {
+  }
+  if ((err = mp_montgomery_normalization(mu, modulus)) != CRYPT_OK) {
       goto ERR_MU;
-   }
+  }
 
   /* copy ones ... */
   if ((err = mp_mulmod(A->x, mu, modulus, precomp[1]->x)) != CRYPT_OK)                                         { goto ERR_MU; }
