@@ -1363,7 +1363,7 @@ ltc_ecc_fp_add_point(ecc_point *g, void *modulus, int lock)
    if ((err = mp_montgomery_normalization(mu, modulus)) != CRYPT_OK) {
       goto LBL_ERR;
    }            
-	   
+   
    /* build the LUT */
    if ((err = build_lut(idx, modulus, mp, mu)) != CRYPT_OK) {
        goto LBL_ERR;
@@ -1429,9 +1429,9 @@ int ltc_ecc_fp_save_state(unsigned char **out, unsigned long *outlen)
     *      
     */
    /*
-    * The cache itself is a point (3 INTEGERS), 
-	* the LUT as pairs of INTEGERS (2 * 1<<FP_LUT), 
-	* and the mu INTEGER
+    * The cache itself is a point (3 INTEGERS),
+    * the LUT as pairs of INTEGERS (2 * 1<<FP_LUT),
+    * and the mu INTEGER
     */
    cache_entry = XCALLOC(FP_ENTRIES*(2*(1U<<FP_LUT)+4)+3, sizeof(ltc_asn1_list));
    if (cache_entry == NULL)
@@ -1509,8 +1509,8 @@ int ltc_ecc_fp_restore_state(unsigned char *in, unsigned long inlen)
     * decode the input packet: It consists of a sequence with a few
     * integers (including the FP_ENTRIES and FP_LUT sizes), followed by a
     * SEQUENCE which is the cache itself.
-	*
-	* use standard decoding for the first part, then flexible for the second
+    *
+    * use standard decoding for the first part, then flexible for the second
     */
    if((err = der_decode_sequence_multi(in, inlen, 
                                        LTC_ASN1_SHORT_INTEGER, 1, &num_entries,
