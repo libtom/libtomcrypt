@@ -19,7 +19,7 @@
 /**
   @file ecc_export.c
   ECC Crypto, Tom St Denis
-*/  
+*/
 
 #ifdef LTC_MECC
 
@@ -40,7 +40,7 @@ int ecc_export(unsigned char *out, unsigned long *outlen, int type, ecc_key *key
    LTC_ARGCHK(out    != NULL);
    LTC_ARGCHK(outlen != NULL);
    LTC_ARGCHK(key    != NULL);
-   
+
    /* type valid? */
    if (key->type != PK_PRIVATE && type == PK_PRIVATE) {
       return CRYPT_PK_TYPE_MISMATCH;

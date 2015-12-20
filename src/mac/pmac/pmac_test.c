@@ -10,15 +10,15 @@
  */
 #include "tomcrypt.h"
 
-/** 
+/**
    @file pmac_test.c
-   PMAC implementation, self-test, by Tom St Denis 
+   PMAC implementation, self-test, by Tom St Denis
 */
 
 
 #ifdef LTC_PMAC
 
-/** 
+/**
    Test the LTC_OMAC implementation
    @return CRYPT_OK if successful, CRYPT_NOP if testing has been disabled
 */
@@ -27,7 +27,7 @@ int pmac_test(void)
 #if !defined(LTC_TEST)
     return CRYPT_NOP;
 #else
-    static const struct { 
+    static const struct {
         int msglen;
         unsigned char key[16], msg[34], tag[16];
     } tests[] = {
@@ -125,7 +125,7 @@ int pmac_test(void)
    unsigned long len;
    unsigned char outtag[MAXBLOCKSIZE];
 
-    /* AES can be under rijndael or aes... try to find it */ 
+    /* AES can be under rijndael or aes... try to find it */
     if ((idx = find_cipher("aes")) == -1) {
        if ((idx = find_cipher("rijndael")) == -1) {
           return CRYPT_NOP;
@@ -137,7 +137,7 @@ int pmac_test(void)
         if ((err = pmac_memory(idx, tests[x].key, 16, tests[x].msg, tests[x].msglen, outtag, &len)) != CRYPT_OK) {
            return err;
         }
-        
+
         if (XMEMCMP(outtag, tests[x].tag, len)) {
 #if 0
            unsigned long y;
@@ -158,7 +158,7 @@ int pmac_test(void)
 #endif /* PMAC_MODE */
 
 
- 
+
 
 /* $Source$ */
 /* $Revision$ */

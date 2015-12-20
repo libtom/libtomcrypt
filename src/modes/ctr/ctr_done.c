@@ -33,7 +33,7 @@ int ctr_done(symmetric_CTR *ctr)
    return CRYPT_OK;
 }
 
-   
+
 
 #endif
 

@@ -33,7 +33,7 @@ int ofb_done(symmetric_OFB *ofb)
    return CRYPT_OK;
 }
 
-   
+
 
 #endif
 

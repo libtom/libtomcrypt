@@ -19,7 +19,7 @@
 /**
   @file ecc_decrypt_key.c
   ECC Crypto, Tom St Denis
-*/  
+*/
 
 #ifdef LTC_MECC
 
@@ -33,7 +33,7 @@
   @return CRYPT_OK if successful
 */
 int ecc_decrypt_key(const unsigned char *in,  unsigned long  inlen,
-                          unsigned char *out, unsigned long *outlen, 
+                          unsigned char *out, unsigned long *outlen,
                           ecc_key *key)
 {
    unsigned char *ecc_shared, *skey, *pub_expt;
@@ -51,15 +51,15 @@ int ecc_decrypt_key(const unsigned char *in,  unsigned long  inlen,
    if (key->type != PK_PRIVATE) {
       return CRYPT_PK_NOT_PRIVATE;
    }
-   
+
    /* decode to find out hash */
    LTC_SET_ASN1(decode, 0, LTC_ASN1_OBJECT_IDENTIFIER, hashOID, sizeof(hashOID)/sizeof(hashOID[0]));
- 
+
    if ((err = der_decode_sequence(in, inlen, decode, 1)) != CRYPT_OK) {
       return err;
    }
 
-   hash = find_hash_oid(hashOID, decode[0].size);                   
+   hash = find_hash_oid(hashOID, decode[0].size);
    if (hash_is_valid(hash) != CRYPT_OK) {
       return CRYPT_INVALID_PACKET;
    }

@@ -44,7 +44,7 @@ int f8_setiv(const unsigned char *IV, unsigned long len, symmetric_F8 *f8)
    return cipher_descriptor[f8->cipher].ecb_encrypt(IV, f8->IV, &f8->key);
 }
 
-#endif 
+#endif
 
 
 /* $Source$ */

@@ -13,7 +13,7 @@
 /**
   @file rsa_free.c
   Free an RSA key, Tom St Denis
-*/  
+*/
 
 #ifdef LTC_MRSA
 

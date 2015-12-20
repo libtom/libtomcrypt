@@ -9,7 +9,7 @@
  * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 
-/** 
+/**
     @file eax_test.c
     EAX implementation, self-test, by Tom St Denis
 */
@@ -27,16 +27,16 @@ int eax_test(void)
    return CRYPT_NOP;
 #else
    static const struct {
-       int               keylen, 
-                       noncelen, 
-                      headerlen, 
+       int               keylen,
+                       noncelen,
+                      headerlen,
                          msglen;
 
-       unsigned char        key[MAXBLOCKSIZE], 
-                          nonce[MAXBLOCKSIZE], 
-                         header[MAXBLOCKSIZE], 
+       unsigned char        key[MAXBLOCKSIZE],
+                          nonce[MAXBLOCKSIZE],
+                         header[MAXBLOCKSIZE],
                       plaintext[MAXBLOCKSIZE],
-                     ciphertext[MAXBLOCKSIZE], 
+                     ciphertext[MAXBLOCKSIZE],
                             tag[MAXBLOCKSIZE];
    } tests[] = {
 
@@ -107,7 +107,7 @@ int eax_test(void)
      0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f },
    /* nonce */
    { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
-     0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f },  
+     0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f },
    /* header */
    { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
      0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f },
@@ -134,7 +134,7 @@ int eax_test(void)
      0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f },
    /* nonce */
    { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
-     0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e },  
+     0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e },
    /* header */
    { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
      0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d },
@@ -176,7 +176,7 @@ int eax_test(void)
 
 {
    16, 16, 8, 2,
-   /* key */ 
+   /* key */
    { 0x91, 0x94, 0x5d, 0x3f, 0x4d, 0xcb, 0xee, 0x0b,
      0xf4, 0x5e, 0xf5, 0x22, 0x55, 0xf0, 0x95, 0xa4 },
    /* nonce */
@@ -210,14 +210,14 @@ int eax_test(void)
    /* Tag */
    { 0x3a, 0x59, 0xf2, 0x38, 0xa2, 0x3e, 0x39, 0x19,
      0x9d, 0xc9, 0x26, 0x66, 0x26, 0xc4, 0x0f, 0x80 }
-}   
+}
 
 };
    int err, x, idx, res;
    unsigned long len;
    unsigned char outct[MAXBLOCKSIZE], outtag[MAXBLOCKSIZE];
 
-    /* AES can be under rijndael or aes... try to find it */ 
+    /* AES can be under rijndael or aes... try to find it */
     if ((idx = find_cipher("aes")) == -1) {
        if ((idx = find_cipher("rijndael")) == -1) {
           return CRYPT_NOP;

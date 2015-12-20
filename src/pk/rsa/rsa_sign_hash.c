@@ -88,12 +88,12 @@ int rsa_sign_hash_ex(const unsigned char *in,       unsigned long  inlen,
        return CRYPT_INVALID_ARG;
     }
 
-    /* construct the SEQUENCE 
+    /* construct the SEQUENCE
       SEQUENCE {
          SEQUENCE {hashoid OID
                    blah    NULL
          }
-         hash    OCTET STRING 
+         hash    OCTET STRING
       }
    */
     LTC_SET_ASN1(digestinfo, 0, LTC_ASN1_OBJECT_IDENTIFIER, hash_descriptor[hash_idx].OID, hash_descriptor[hash_idx].OIDlen);

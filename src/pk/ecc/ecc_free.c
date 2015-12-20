@@ -19,7 +19,7 @@
 /**
   @file ecc_free.c
   ECC Crypto, Tom St Denis
-*/  
+*/
 
 #ifdef LTC_MECC
 

@@ -19,7 +19,7 @@
 /**
   @file ecc_sizes.c
   ECC Crypto, Tom St Denis
-*/  
+*/
 
 #ifdef LTC_MECC
 

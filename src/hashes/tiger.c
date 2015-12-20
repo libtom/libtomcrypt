@@ -558,16 +558,16 @@ static const ulong64 table[4*256] = {
 #ifdef _MSC_VER
    #define INLINE __inline
 #else
-   #define INLINE 
-#endif   
+   #define INLINE
+#endif
 
 /* one round of the hash function */
 INLINE static void tiger_round(ulong64 *a, ulong64 *b, ulong64 *c, ulong64 x, int mul)
 {
     ulong64 tmp;
-    tmp = (*c ^= x); 
-           *a -= t1[byte(tmp, 0)] ^ t2[byte(tmp, 2)] ^ t3[byte(tmp, 4)] ^ t4[byte(tmp, 6)];      
-    tmp = (*b += t4[byte(tmp, 1)] ^ t3[byte(tmp, 3)] ^ t2[byte(tmp,5)] ^ t1[byte(tmp,7)]); 
+    tmp = (*c ^= x);
+           *a -= t1[byte(tmp, 0)] ^ t2[byte(tmp, 2)] ^ t3[byte(tmp, 4)] ^ t4[byte(tmp, 6)];
+    tmp = (*b += t4[byte(tmp, 1)] ^ t3[byte(tmp, 3)] ^ t2[byte(tmp,5)] ^ t1[byte(tmp,7)]);
     switch (mul) {
         case 5:  *b = (tmp << 2) + tmp; break;
         case 7:  *b = (tmp << 3) - tmp; break;
@@ -578,36 +578,36 @@ INLINE static void tiger_round(ulong64 *a, ulong64 *b, ulong64 *c, ulong64 x, in
 /* one complete pass */
 static void pass(ulong64 *a, ulong64 *b, ulong64 *c, ulong64 *x, int mul)
 {
-   tiger_round(a,b,c,x[0],mul); 
-   tiger_round(b,c,a,x[1],mul); 
-   tiger_round(c,a,b,x[2],mul); 
-   tiger_round(a,b,c,x[3],mul); 
-   tiger_round(b,c,a,x[4],mul); 
-   tiger_round(c,a,b,x[5],mul); 
-   tiger_round(a,b,c,x[6],mul); 
-   tiger_round(b,c,a,x[7],mul);          
-}   
+   tiger_round(a,b,c,x[0],mul);
+   tiger_round(b,c,a,x[1],mul);
+   tiger_round(c,a,b,x[2],mul);
+   tiger_round(a,b,c,x[3],mul);
+   tiger_round(b,c,a,x[4],mul);
+   tiger_round(c,a,b,x[5],mul);
+   tiger_round(a,b,c,x[6],mul);
+   tiger_round(b,c,a,x[7],mul);
+}
 
 /* The key mixing schedule */
-static void key_schedule(ulong64 *x) 
+static void key_schedule(ulong64 *x)
 {
-    x[0] -= x[7] ^ CONST64(0xA5A5A5A5A5A5A5A5); 
-    x[1] ^= x[0];                               
-    x[2] += x[1];                               
-    x[3] -= x[2] ^ ((~x[1])<<19);               
-    x[4] ^= x[3];                               
-    x[5] += x[4];                               
-    x[6] -= x[5] ^ ((~x[4])>>23);               
-    x[7] ^= x[6];                               
-    x[0] += x[7];                               
-    x[1] -= x[0] ^ ((~x[7])<<19);               
-    x[2] ^= x[1];                               
-    x[3] += x[2];                               
-    x[4] -= x[3] ^ ((~x[2])>>23);               
-    x[5] ^= x[4];                               
-    x[6] += x[5];                               
+    x[0] -= x[7] ^ CONST64(0xA5A5A5A5A5A5A5A5);
+    x[1] ^= x[0];
+    x[2] += x[1];
+    x[3] -= x[2] ^ ((~x[1])<<19);
+    x[4] ^= x[3];
+    x[5] += x[4];
+    x[6] -= x[5] ^ ((~x[4])>>23);
+    x[7] ^= x[6];
+    x[0] += x[7];
+    x[1] -= x[0] ^ ((~x[7])<<19);
+    x[2] ^= x[1];
+    x[3] += x[2];
+    x[4] -= x[3] ^ ((~x[2])>>23);
+    x[5] ^= x[4];
+    x[6] += x[5];
     x[7] -= x[6] ^ CONST64(0x0123456789ABCDEF);
-}    
+}
 
 #ifdef LTC_CLEAN_STACK
 static int _tiger_compress(hash_state *md, unsigned char *buf)
@@ -709,7 +709,7 @@ int tiger_done(hash_state * md, unsigned char *out)
 
     /* pad upto 56 bytes of zeroes */
     while (md->tiger.curlen < 56) {
-        md->tiger.buf[md->tiger.curlen++] = (unsigned char)0; 
+        md->tiger.buf[md->tiger.curlen++] = (unsigned char)0;
     }
 
     /* store length */
@@ -730,12 +730,12 @@ int tiger_done(hash_state * md, unsigned char *out)
 /**
   Self-test the hash
   @return CRYPT_OK if successful, CRYPT_NOP if self-tests have been disabled
-*/  
+*/
 int  tiger_test(void)
 {
  #ifndef LTC_TEST
     return CRYPT_NOP;
- #else    
+ #else
   static const struct {
       char *msg;
       unsigned char hash[24];

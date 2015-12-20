@@ -19,11 +19,11 @@
 /**
   @file ecc_ansi_x963_import.c
   ECC Crypto, Tom St Denis
-*/  
+*/
 
 #ifdef LTC_MECC
 
-/** Import an ANSI X9.63 format public key 
+/** Import an ANSI X9.63 format public key
   @param in      The input data to read
   @param inlen   The length of the input data
   @param key     [out] destination to store imported key \
@@ -36,10 +36,10 @@ int ecc_ansi_x963_import(const unsigned char *in, unsigned long inlen, ecc_key *
 int ecc_ansi_x963_import_ex(const unsigned char *in, unsigned long inlen, ecc_key *key, ltc_ecc_set_type *dp)
 {
    int x, err;
- 
+
    LTC_ARGCHK(in  != NULL);
    LTC_ARGCHK(key != NULL);
-   
+
    /* must be odd */
    if ((inlen & 1) == 0) {
       return CRYPT_INVALID_ARG;

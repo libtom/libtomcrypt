@@ -45,12 +45,12 @@ int f9_init(f9_state *f9, int cipher, const unsigned char *key, unsigned long ke
    if ((err = cipher_descriptor[cipher].setup(key, keylen, 0, &f9->key)) != CRYPT_OK) {
       goto done;
    }
-   
+
    /* make the second key */
    for (x = 0; (unsigned)x < keylen; x++) {
       f9->akey[x] = key[x] ^ 0xAA;
    }
- 
+
    /* setup struct */
    zeromem(f9->IV,  cipher_descriptor[cipher].block_length);
    zeromem(f9->ACC, cipher_descriptor[cipher].block_length);

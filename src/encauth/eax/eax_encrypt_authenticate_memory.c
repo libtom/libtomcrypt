@@ -53,15 +53,15 @@ int eax_encrypt_authenticate_memory(int cipher,
    eax = XMALLOC(sizeof(*eax));
 
    if ((err = eax_init(eax, cipher, key, keylen, nonce, noncelen, header, headerlen)) != CRYPT_OK) {
-      goto LBL_ERR; 
+      goto LBL_ERR;
    }
 
    if ((err = eax_encrypt(eax, pt, ct, ptlen)) != CRYPT_OK) {
-      goto LBL_ERR; 
+      goto LBL_ERR;
    }
- 
+
    if ((err = eax_done(eax, tag, taglen)) != CRYPT_OK) {
-      goto LBL_ERR; 
+      goto LBL_ERR;
    }
 
    err = CRYPT_OK;
@@ -72,7 +72,7 @@ LBL_ERR:
 
    XFREE(eax);
 
-   return err;   
+   return err;
 }
 
 #endif

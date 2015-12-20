@@ -62,7 +62,7 @@ int xcbc_done(xcbc_state *xcbc, unsigned char *out, unsigned long *outlen)
       out[x] = xcbc->IV[x];
    }
    *outlen = x;
-  
+
 #ifdef LTC_CLEAN_STACK
    zeromem(xcbc, sizeof(*xcbc));
 #endif

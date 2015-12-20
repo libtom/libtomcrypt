@@ -22,13 +22,13 @@
    Initialize a OFB context
    @param cipher      The index of the cipher desired
    @param IV          The initial vector
-   @param key         The secret key 
+   @param key         The secret key
    @param keylen      The length of the secret key (octets)
    @param num_rounds  Number of rounds in the cipher desired (0 for default)
    @param ofb         The OFB state to initialize
    @return CRYPT_OK if successful
 */
-int ofb_start(int cipher, const unsigned char *IV, const unsigned char *key, 
+int ofb_start(int cipher, const unsigned char *IV, const unsigned char *key,
               int keylen, int num_rounds, symmetric_OFB *ofb)
 {
    int x, err;

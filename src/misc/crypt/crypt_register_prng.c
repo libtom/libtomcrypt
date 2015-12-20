@@ -14,7 +14,7 @@
   @file crypt_register_prng.c
   Register a PRNG, Tom St Denis
 */
-  
+
 /**
    Register a PRNG with the descriptor table
    @param prng   The PRNG you wish to register

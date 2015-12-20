@@ -48,10 +48,10 @@ int der_decode_object_identifier(const unsigned char *in,    unsigned long  inle
    if ((in[x++] & 0x1F) != 0x06) {
       return CRYPT_INVALID_PACKET;
    }
-   
+
    /* get the length */
    if (in[x] < 128) {
-      len = in[x++]; 
+      len = in[x++];
    } else {
       if (in[x] < 0x81 || in[x] > 0x82) {
          return CRYPT_INVALID_PACKET;
@@ -87,7 +87,7 @@ int der_decode_object_identifier(const unsigned char *in,    unsigned long  inle
             t          = 0;
       }
    }
-       
+
    *outlen = y;
    return CRYPT_OK;
 }

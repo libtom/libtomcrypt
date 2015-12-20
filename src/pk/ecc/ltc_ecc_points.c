@@ -19,13 +19,13 @@
 /**
   @file ltc_ecc_points.c
   ECC Crypto, Tom St Denis
-*/  
+*/
 
 #ifdef LTC_MECC
 
 /**
    Allocate a new ECC point
-   @return A newly allocated point or NULL on error 
+   @return A newly allocated point or NULL on error
 */
 ecc_point *ltc_ecc_new_point(void)
 {

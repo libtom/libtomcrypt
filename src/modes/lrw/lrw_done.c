@@ -22,12 +22,12 @@
   @param lrw   The state to terminate
   @return CRYPT_OK if successful
 */
-int lrw_done(symmetric_LRW *lrw) 
+int lrw_done(symmetric_LRW *lrw)
 {
    int err;
 
    LTC_ARGCHK(lrw != NULL);
- 
+
    if ((err = cipher_is_valid(lrw->cipher)) != CRYPT_OK) {
       return err;
    }

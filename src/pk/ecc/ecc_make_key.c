@@ -19,12 +19,12 @@
 /**
   @file ecc_make_key.c
   ECC Crypto, Tom St Denis
-*/  
+*/
 
 #ifdef LTC_MECC
 
 /**
-  Make a new ECC key 
+  Make a new ECC key
   @param prng         An active PRNG state
   @param wprng        The index of the PRNG you wish to use
   @param keysize      The keysize for the new key (in octets from 20 to 65 bytes)

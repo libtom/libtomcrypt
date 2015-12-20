@@ -10,9 +10,9 @@
  */
 #include "tomcrypt.h"
 
-/** 
+/**
   @file pkcs_1_os2ip.c
-  Octet to Integer OS2IP, Tom St Denis 
+  Octet to Integer OS2IP, Tom St Denis
 */
 #ifdef LTC_PKCS_1
 

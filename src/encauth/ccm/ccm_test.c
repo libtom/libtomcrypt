@@ -118,7 +118,7 @@ int ccm_test(void)
   int           err, idx;
   symmetric_key skey;
   ccm_state ccm;
-  
+
   zeromem(zero, 64);
 
   idx = find_cipher("aes");

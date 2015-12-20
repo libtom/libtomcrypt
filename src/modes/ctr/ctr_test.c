@@ -52,7 +52,7 @@ int ctr_test(void)
   unsigned char buf[64];
   symmetric_CTR ctr;
 
-  /* AES can be under rijndael or aes... try to find it */ 
+  /* AES can be under rijndael or aes... try to find it */
   if ((idx = find_cipher("aes")) == -1) {
      if ((idx = find_cipher("rijndael")) == -1) {
         return CRYPT_NOP;

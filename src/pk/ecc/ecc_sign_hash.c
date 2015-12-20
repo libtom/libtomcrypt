@@ -19,7 +19,7 @@
 /**
   @file ecc_sign_hash.c
   ECC Crypto, Tom St Denis
-*/  
+*/
 
 #ifdef LTC_MECC
 
@@ -51,12 +51,12 @@ int ecc_sign_hash_raw(const unsigned char *in,  unsigned long inlen,
    if (key->type != PK_PRIVATE) {
       return CRYPT_PK_NOT_PRIVATE;
    }
-   
+
    /* is the IDX valid ?  */
    if (ltc_ecc_is_valid_idx(key->idx) != 1) {
       return CRYPT_PK_INVALID_TYPE;
    }
-   
+
    if ((err = prng_is_valid(wprng)) != CRYPT_OK) {
       return err;
    }
@@ -80,7 +80,7 @@ int ecc_sign_hash_raw(const unsigned char *in,  unsigned long inlen,
 
       if (mp_iszero(r) == LTC_MP_YES) {
          ecc_free(&pubkey);
-      } else { 
+      } else {
         /* find s = (e + xr)/k */
         if ((err = mp_invmod(pubkey.k, p, pubkey.k)) != CRYPT_OK)            { goto error; } /* k = 1/k */
         if ((err = mp_mulmod(key->k, r, p, s)) != CRYPT_OK)                  { goto error; } /* s = xr */
@@ -143,7 +143,7 @@ int ecc_sign_hash(const unsigned char *in,  unsigned long inlen,
 
 error:
    mp_clear_multi(r, s, NULL);
-   return err;   
+   return err;
 }
 
 #endif

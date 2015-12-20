@@ -9,7 +9,7 @@
  * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 
-/** 
+/**
    @file ocb_done_decrypt.c
    OCB implementation, terminate decryption, by Tom St Denis
 */
@@ -28,9 +28,9 @@
    @param stat    [out] The result of the tag comparison
    @return CRYPT_OK if the process was successful regardless if the tag is valid
 */
-int ocb_done_decrypt(ocb_state *ocb, 
+int ocb_done_decrypt(ocb_state *ocb,
                      const unsigned char *ct,  unsigned long ctlen,
-                           unsigned char *pt, 
+                           unsigned char *pt,
                      const unsigned char *tag, unsigned long taglen, int *stat)
 {
    int err;

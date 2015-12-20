@@ -10,7 +10,7 @@
  */
 #include "tomcrypt.h"
 
-/** 
+/**
   @file f9_file.c
   f9 support, process a file, Tom St Denis
 */
@@ -29,7 +29,7 @@
 */
 int f9_file(int cipher,
               const unsigned char *key, unsigned long keylen,
-              const char *filename, 
+              const char *filename,
                     unsigned char *out, unsigned long *outlen)
 {
 #ifdef LTC_NO_FILE

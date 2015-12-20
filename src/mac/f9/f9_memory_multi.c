@@ -11,7 +11,7 @@
 #include "tomcrypt.h"
 #include <stdarg.h>
 
-/** 
+/**
   @file f9_memory_multi.c
   f9 support, process multiple blocks of memory, Tom St Denis
 */
@@ -19,7 +19,7 @@
 #ifdef LTC_F9_MODE
 
 /**
-   f9 multiple blocks of memory 
+   f9 multiple blocks of memory
    @param cipher    The index of the desired cipher
    @param key       The secret key
    @param keylen    The length of the secret key (octets)
@@ -30,7 +30,7 @@
    @param ...       tuples of (data,len) pairs to f9, terminated with a (NULL,x) (x=don't care)
    @return CRYPT_OK if successful
 */
-int f9_memory_multi(int cipher, 
+int f9_memory_multi(int cipher,
                 const unsigned char *key, unsigned long keylen,
                       unsigned char *out, unsigned long *outlen,
                 const unsigned char *in,  unsigned long inlen, ...)
@@ -57,7 +57,7 @@ int f9_memory_multi(int cipher,
       goto LBL_ERR;
    }
    va_start(args, inlen);
-   curptr = in; 
+   curptr = in;
    curlen = inlen;
    for (;;) {
       /* process buf */
@@ -80,7 +80,7 @@ LBL_ERR:
 #endif
    XFREE(f9);
    va_end(args);
-   return err;   
+   return err;
 }
 
 #endif

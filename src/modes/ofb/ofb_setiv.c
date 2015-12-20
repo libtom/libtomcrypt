@@ -44,7 +44,7 @@ int ofb_setiv(const unsigned char *IV, unsigned long len, symmetric_OFB *ofb)
    return cipher_descriptor[ofb->cipher].ecb_encrypt(IV, ofb->IV, &ofb->key);
 }
 
-#endif 
+#endif
 
 
 /* $Source$ */

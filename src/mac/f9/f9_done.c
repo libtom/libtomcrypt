@@ -62,7 +62,7 @@ int f9_done(f9_state *f9, unsigned char *out, unsigned long *outlen)
       out[x] = f9->ACC[x];
    }
    *outlen = x;
-  
+
 #ifdef LTC_CLEAN_STACK
    zeromem(f9, sizeof(*f9));
 #endif

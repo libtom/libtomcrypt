@@ -19,7 +19,7 @@
 
 static const struct {
     int           len;
-    unsigned char poly_div[MAXBLOCKSIZE], 
+    unsigned char poly_div[MAXBLOCKSIZE],
                   poly_mul[MAXBLOCKSIZE];
 } polys[] = {
 {
@@ -27,7 +27,7 @@ static const struct {
     { 0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0D },
     { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x1B }
 }, {
-    16, 
+    16,
     { 0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x43 },
     { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -44,7 +44,7 @@ static const struct {
   @param nonce   The session nonce (length of the block size of the cipher)
   @return CRYPT_OK if successful
 */
-int ocb_init(ocb_state *ocb, int cipher, 
+int ocb_init(ocb_state *ocb, int cipher,
              const unsigned char *key, unsigned long keylen, const unsigned char *nonce)
 {
    int poly, x, y, m, err;
@@ -62,7 +62,7 @@ int ocb_init(ocb_state *ocb, int cipher,
    ocb->block_len = cipher_descriptor[cipher].block_length;
    x = (int)(sizeof(polys)/sizeof(polys[0]));
    for (poly = 0; poly < x; poly++) {
-       if (polys[poly].len == ocb->block_len) { 
+       if (polys[poly].len == ocb->block_len) {
           break;
        }
    }
@@ -71,13 +71,13 @@ int ocb_init(ocb_state *ocb, int cipher,
    }
    if (polys[poly].len != ocb->block_len) {
       return CRYPT_INVALID_ARG;
-   }   
+   }
 
    /* schedule the key */
    if ((err = cipher_descriptor[cipher].setup(key, keylen, 0, &ocb->key)) != CRYPT_OK) {
       return err;
    }
- 
+
    /* find L = E[0] */
    zeromem(ocb->L, ocb->block_len);
    if ((err = cipher_descriptor[cipher].ecb_encrypt(ocb->L, ocb->L, &ocb->key)) != CRYPT_OK) {

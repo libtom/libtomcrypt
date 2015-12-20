@@ -33,7 +33,7 @@ int cbc_done(symmetric_CBC *cbc)
    return CRYPT_OK;
 }
 
-   
+
 
 #endif
 

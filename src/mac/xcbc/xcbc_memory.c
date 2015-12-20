@@ -17,7 +17,7 @@
 
 #ifdef LTC_XCBC
 
-/** XCBC-MAC a block of memory 
+/** XCBC-MAC a block of memory
   @param cipher     Index of cipher to use
   @param key        [in]  Secret key
   @param keylen     Length of key in octets
@@ -27,7 +27,7 @@
   @param outlen     [in/out] Output size and final tag size
   Return CRYPT_OK on success.
 */
-int xcbc_memory(int cipher, 
+int xcbc_memory(int cipher,
                const unsigned char *key, unsigned long keylen,
                const unsigned char *in,  unsigned long inlen,
                      unsigned char *out, unsigned long *outlen)

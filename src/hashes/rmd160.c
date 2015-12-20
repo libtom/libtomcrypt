@@ -13,7 +13,7 @@
 /**
    @file rmd160.c
    RMD160 hash function
-*/   
+*/
 
 /* Implementation of LTC_RIPEMD-160 based on the source by Antoon Bosselaers, ESAT-COSIC
  *
@@ -42,12 +42,12 @@ const struct ltc_hash_descriptor rmd160_desc =
 };
 
 /* the five basic functions F(), G() and H() */
-#define F(x, y, z)        ((x) ^ (y) ^ (z)) 
-#define G(x, y, z)        (((x) & (y)) | (~(x) & (z))) 
+#define F(x, y, z)        ((x) ^ (y) ^ (z))
+#define G(x, y, z)        (((x) & (y)) | (~(x) & (z)))
 #define H(x, y, z)        (((x) | ~(y)) ^ (z))
-#define I(x, y, z)        (((x) & (z)) | ((y) & ~(z))) 
+#define I(x, y, z)        (((x) & (z)) | ((y) & ~(z)))
 #define J(x, y, z)        ((x) ^ ((y) | ~(z)))
-  
+
 /* the ten basic operations FF() through III() */
 #define FF(a, b, c, d, e, x, s)        \
       (a) += F((b), (c), (d)) + (x);\
@@ -138,7 +138,7 @@ static int  rmd160_compress(hash_state *md, unsigned char *buf)
    FF(cc, dd, ee, aa, bb, X[13],  7);
    FF(bb, cc, dd, ee, aa, X[14],  9);
    FF(aa, bb, cc, dd, ee, X[15],  8);
-                             
+
    /* round 2 */
    GG(ee, aa, bb, cc, dd, X[ 7],  7);
    GG(dd, ee, aa, bb, cc, X[ 4],  6);
@@ -230,7 +230,7 @@ static int  rmd160_compress(hash_state *md, unsigned char *buf)
    JJJ(aaa, bbb, ccc, ddd, eee, X[12],  6);
 
    /* parallel round 2 */
-   III(eee, aaa, bbb, ccc, ddd, X[ 6],  9); 
+   III(eee, aaa, bbb, ccc, ddd, X[ 6],  9);
    III(ddd, eee, aaa, bbb, ccc, X[11], 13);
    III(ccc, ddd, eee, aaa, bbb, X[ 3], 15);
    III(bbb, ccc, ddd, eee, aaa, X[ 7],  7);
@@ -265,7 +265,7 @@ static int  rmd160_compress(hash_state *md, unsigned char *buf)
    HHH(eee, aaa, bbb, ccc, ddd, X[ 4],  7);
    HHH(ddd, eee, aaa, bbb, ccc, X[13],  5);
 
-   /* parallel round 4 */   
+   /* parallel round 4 */
    GGG(ccc, ddd, eee, aaa, bbb, X[ 8], 15);
    GGG(bbb, ccc, ddd, eee, aaa, X[ 6],  5);
    GGG(aaa, bbb, ccc, ddd, eee, X[ 4],  8);
@@ -407,7 +407,7 @@ int rmd160_done(hash_state * md, unsigned char *out)
 /**
   Self-test the hash
   @return CRYPT_OK if successful, CRYPT_NOP if self-tests have been disabled
-*/  
+*/
 int rmd160_test(void)
 {
 #ifndef LTC_TEST

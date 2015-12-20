@@ -19,9 +19,9 @@
 
 /**
   Initialize the LRW context
-  @param cipher        The cipher desired, must be a 128-bit block cipher 
+  @param cipher        The cipher desired, must be a 128-bit block cipher
   @param IV            The index value, must be 128-bits
-  @param key           The cipher key 
+  @param key           The cipher key
   @param keylen        The length of the cipher key in octets
   @param tweak         The tweak value (second key), must be 128-bits
   @param num_rounds    The number of rounds for the cipher (0 == default)
@@ -32,7 +32,7 @@ int lrw_start(               int   cipher,
               const unsigned char *IV,
               const unsigned char *key,       int keylen,
               const unsigned char *tweak,
-                             int  num_rounds, 
+                             int  num_rounds,
                    symmetric_LRW *lrw)
 {
    int           err;

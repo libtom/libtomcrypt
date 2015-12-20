@@ -24,7 +24,7 @@
   @param taglen  [in/out]  The length of the MAC tag
   @return CRYPT_OK on success
  */
-int gcm_done(gcm_state *gcm, 
+int gcm_done(gcm_state *gcm,
                      unsigned char *tag,    unsigned long *taglen)
 {
    unsigned long x;

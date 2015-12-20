@@ -9,7 +9,7 @@
  * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 
-/** 
+/**
    @file ocb_encrypt.c
    OCB implementation, encrypt data, by Tom St Denis
 */

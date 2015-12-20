@@ -105,7 +105,7 @@ int lrw_test(void)
      }
 
      /* process block */
-     if ((err = lrw_setiv(tests[x].IV, 16, &lrw)) != CRYPT_OK) { 
+     if ((err = lrw_setiv(tests[x].IV, 16, &lrw)) != CRYPT_OK) {
         lrw_done(&lrw);
         return err;
      }

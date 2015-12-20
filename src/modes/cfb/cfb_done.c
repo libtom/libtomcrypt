@@ -33,7 +33,7 @@ int cfb_done(symmetric_CFB *cfb)
    return CRYPT_OK;
 }
 
-   
+
 
 #endif
 

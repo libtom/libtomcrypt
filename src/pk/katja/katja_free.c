@@ -13,7 +13,7 @@
 /**
   @file katja_free.c
   Free an Katja key, Tom St Denis
-*/  
+*/
 
 #ifdef LTC_MKAT
 

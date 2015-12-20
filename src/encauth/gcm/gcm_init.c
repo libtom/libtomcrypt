@@ -25,7 +25,7 @@
   @param keylen  The length of the secret key
   @return CRYPT_OK on success
  */
-int gcm_init(gcm_state *gcm, int cipher, 
+int gcm_init(gcm_state *gcm, int cipher,
              const unsigned char *key,  int keylen)
 {
    int           err;

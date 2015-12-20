@@ -10,7 +10,7 @@
  */
 #include "tomcrypt.h"
 
-/** 
+/**
   @file xcbc_file.c
   XCBC support, process a file, Tom St Denis
 */
@@ -27,9 +27,9 @@
    @param outlen   [in/out] The max size and resulting size of the authentication tag
    @return CRYPT_OK if successful, CRYPT_NOP if file support has been disabled
 */
-int xcbc_file(int cipher, 
+int xcbc_file(int cipher,
               const unsigned char *key, unsigned long keylen,
-              const char *filename, 
+              const char *filename,
                     unsigned char *out, unsigned long *outlen)
 {
 #ifdef LTC_NO_FILE

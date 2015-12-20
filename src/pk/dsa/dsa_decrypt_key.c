@@ -13,7 +13,7 @@
 /**
   @file dsa_decrypt_key.c
   DSA Crypto, Tom St Denis
-*/  
+*/
 
 #ifdef LTC_MDSA
 
@@ -27,7 +27,7 @@
   @return CRYPT_OK if successful
 */
 int dsa_decrypt_key(const unsigned char *in,  unsigned long  inlen,
-                          unsigned char *out, unsigned long *outlen, 
+                          unsigned char *out, unsigned long *outlen,
                           dsa_key *key)
 {
    unsigned char  *skey, *expt;
@@ -45,21 +45,21 @@ int dsa_decrypt_key(const unsigned char *in,  unsigned long  inlen,
    if (key->type != PK_PRIVATE) {
       return CRYPT_PK_NOT_PRIVATE;
    }
-   
+
    /* decode to find out hash */
    LTC_SET_ASN1(decode, 0, LTC_ASN1_OBJECT_IDENTIFIER, hashOID, sizeof(hashOID)/sizeof(hashOID[0]));
- 
+
    if ((err = der_decode_sequence(in, inlen, decode, 1)) != CRYPT_OK) {
       return err;
    }
 
-   hash = find_hash_oid(hashOID, decode[0].size);                   
+   hash = find_hash_oid(hashOID, decode[0].size);
    if (hash_is_valid(hash) != CRYPT_OK) {
       return CRYPT_INVALID_PACKET;
    }
 
    /* we now have the hash! */
-   
+
    if ((err = mp_init(&g_pub)) != CRYPT_OK) {
       return err;
    }
@@ -77,7 +77,7 @@ int dsa_decrypt_key(const unsigned char *in,  unsigned long  inlen,
       mp_clear(g_pub);
       return CRYPT_MEM;
    }
-   
+
    LTC_SET_ASN1(decode, 1, LTC_ASN1_INTEGER,          g_pub,      1UL);
    LTC_SET_ASN1(decode, 2, LTC_ASN1_OCTET_STRING,      skey,      MAXBLOCKSIZE);
 
@@ -125,7 +125,7 @@ LBL_ERR:
 
    XFREE(expt);
    XFREE(skey);
-  
+
    mp_clear(g_pub);
 
    return err;
