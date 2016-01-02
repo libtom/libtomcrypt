@@ -43,6 +43,15 @@ LTC_EXPORT int   LTC_CALL XSTRCMP(const char *s1, const char *s2);
 
 #endif
 
+/* some compilers do not like "inline" */
+#if defined(__HP_cc)
+   #define LTC_INLINE
+#elif defined(_MSC_VER)
+   #define LTC_INLINE __inline
+#else
+   #define LTC_INLINE inline
+#endif
+
 /* type of argument checking, 0=default, 1=fatal and 2=error+continue, 3=nothing */
 #ifndef ARGTYPE
    #define ARGTYPE  0

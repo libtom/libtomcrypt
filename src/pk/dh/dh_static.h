@@ -69,7 +69,7 @@
      y += x;                                                     \
 }
 
-static inline void packet_store_header (unsigned char *dst, int section, int subsection)
+static LTC_INLINE void packet_store_header (unsigned char *dst, int section, int subsection)
 {
    LTC_ARGCHKVD(dst != NULL);
 
@@ -83,7 +83,7 @@ static inline void packet_store_header (unsigned char *dst, int section, int sub
 
 }
 
-static inline int packet_valid_header (unsigned char *src, int section, int subsection)
+static LTC_INLINE int packet_valid_header (unsigned char *src, int section, int subsection)
 {
    unsigned long ver;
 
