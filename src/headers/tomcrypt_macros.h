@@ -235,6 +235,7 @@ do { x = (((ulong64)((y)[7] & 255))<<56)|(((ulong64)((y)[6] & 255))<<48) | \
 
 /* 32-bit Rotates */
 #if defined(_MSC_VER)
+#define LTC_ROx_ASM
 
 /* instrinsic rotate */
 #include <stdlib.h>
@@ -245,6 +246,7 @@ do { x = (((ulong64)((y)[7] & 255))<<56)|(((ulong64)((y)[6] & 255))<<48) | \
 #define ROLc(x,n) _lrotl(x,n)
 
 #elif !defined(__STRICT_ANSI__) && defined(__GNUC__) && (defined(__i386__) || defined(__x86_64__)) && !defined(INTEL_CC) && !defined(LTC_NO_ASM)
+#define LTC_ROx_ASM
 
 static inline ulong32 ROL(ulong32 word, int i)
 {
@@ -289,6 +291,7 @@ static inline ulong32 ROR(ulong32 word, int i)
 #endif
 
 #elif !defined(__STRICT_ANSI__) && defined(LTC_PPC32)
+#define LTC_ROx_ASM
 
 static inline ulong32 ROL(ulong32 word, int i)
 {
