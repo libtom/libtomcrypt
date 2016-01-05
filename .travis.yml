@@ -73,6 +73,7 @@ branches:
   only:
     - develop
 before_script:
+  - sudo apt-get update -qq
   - sudo apt-get install libtommath-dev
   - sudo pip install cpp-coveralls
 after_failure:
