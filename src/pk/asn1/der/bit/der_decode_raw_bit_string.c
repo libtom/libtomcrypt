@@ -18,7 +18,7 @@
 
 #ifdef LTC_DER
 
-#define setbit(v, n)    (v=((unsigned char)(v) | (1U << (unsigned char)(n))))
+#define SETBIT(v, n)    (v=((unsigned char)(v) | (1U << (unsigned char)(n))))
 
 /**
   Store a BIT STRING
@@ -87,7 +87,7 @@ int der_decode_raw_bit_string(const unsigned char *in,  unsigned long inlen,
    /* decode/store the bits */
    for (y = 0; y < blen; y++) {
        if (in[x] & (1 << (7 - (y & 7)))) {
-          setbit(out[y/8], 7-(y%8));
+          SETBIT(out[y/8], 7-(y%8));
        }
        if ((y & 7) == 7) {
           ++x;
