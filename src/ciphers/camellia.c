@@ -190,7 +190,7 @@ static ulong64 F(ulong64 x)
    U = SP1110[(x >> loc(1)) & 0xFF] ^ SP0222[(x >> loc(2)) & 0xFF] ^ SP3033[(x >> loc(3)) & 0xFF] ^ SP4404[(x >> loc(4)) & 0xFF];
 
    D ^= U;
-   U = D ^ ROR(U, (const int)8);
+   U = D ^ ROR(U, 8);
 
    return ((ulong64)U) | (((ulong64)D) << CONST64(32));
 }
