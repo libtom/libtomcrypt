@@ -21,14 +21,15 @@
 static unsigned long rng_nix(unsigned char *buf, unsigned long len,
                              void (*callback)(void))
 {
-    LTC_UNUSED_PARAM(callback);
 #ifdef LTC_NO_FILE
+    LTC_UNUSED_PARAM(callback);
     LTC_UNUSED_PARAM(buf);
     LTC_UNUSED_PARAM(len);
     return 0;
 #else
     FILE *f;
     unsigned long x;
+    LTC_UNUSED_PARAM(callback);
 #ifdef LTC_TRY_URANDOM_FIRST
     f = fopen("/dev/urandom", "rb");
     if (f == NULL)
