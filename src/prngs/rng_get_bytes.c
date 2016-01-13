@@ -108,8 +108,8 @@ static unsigned long rng_ansic(unsigned char *buf, unsigned long len,
 static unsigned long rng_win32(unsigned char *buf, unsigned long len,
                                void (*callback)(void))
 {
-   LTC_UNUSED_PARAM(callback);
    HCRYPTPROV hProv = 0;
+   LTC_UNUSED_PARAM(callback);
    if (!CryptAcquireContext(&hProv, NULL, MS_DEF_PROV, PROV_RSA_FULL,
                             (CRYPT_VERIFYCONTEXT | CRYPT_MACHINE_KEYSET)) &&
        !CryptAcquireContext (&hProv, NULL, MS_DEF_PROV, PROV_RSA_FULL,
