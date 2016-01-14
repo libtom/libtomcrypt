@@ -19,7 +19,7 @@
 /**
   @file ecc_ansi_x963_export.c
   ECC Crypto, Tom St Denis
-*/  
+*/
 
 #ifdef LTC_MECC
 
@@ -35,7 +35,6 @@ int ecc_ansi_x963_export(ecc_key *key, unsigned char *out, unsigned long *outlen
    unsigned long numlen, xlen, ylen;
 
    LTC_ARGCHK(key    != NULL);
-   LTC_ARGCHK(out    != NULL);
    LTC_ARGCHK(outlen != NULL);
 
    if (ltc_ecc_is_valid_idx(key->idx) == 0) {
@@ -53,6 +52,8 @@ int ecc_ansi_x963_export(ecc_key *key, unsigned char *out, unsigned long *outlen
       *outlen = 1 + 2*numlen;
       return CRYPT_BUFFER_OVERFLOW;
    }
+
+   LTC_ARGCHK(out    != NULL);
 
    /* store byte 0x04 */
    out[0] = 0x04;
