@@ -134,13 +134,14 @@ int ltc_ecc_mul2add(ecc_point *A, void *kA,
   bitbufB = tB[0];
 
   /* for every byte of the multiplicands */
-  for (x = -1;; ) {
+  for (x = 0;; ) {
      /* grab a nibble */
      if (++nibble == 4) {
-        ++x; if (x == len) break;
+        if (x == len) break;
         bitbufA = tA[x];
         bitbufB = tB[x];
         nibble  = 0;
+        ++x;
      }
 
      /* extract two bits from both, shift/update */
