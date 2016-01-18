@@ -15,7 +15,7 @@ AR:=$(PREFIX)ar
 
 # Archiver [makes .a files]
 #AR=ar
-#ARFLAGS=r
+ARFLAGS:=r
 
 ifndef MAKE
   MAKE:=make

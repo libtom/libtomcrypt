@@ -223,8 +223,14 @@ testprof/$(LIBTEST):
 	cd testprof ; CFLAGS="$(CFLAGS)" LIBTEST_S=$(LIBTEST_S) CC="$(CC)" LD="$(LD)" AR="$(AR)" RANLIB="$(RANLIB)" $(MAKE)
 
 $(LIBNAME): $(OBJECTS)
-	$(AR) $(ARFLAGS) $@ $(OBJECTS)
-	$(RANLIB) $@
+ifneq ($V,1)
+	@echo "   * ${AR} $@"
+endif
+	${silent} $(AR) $(ARFLAGS) $@ $(OBJECTS)
+ifneq ($V,1)
+	@echo "   * ${RANLIB} $@"
+endif
+	${silent} $(RANLIB) $@
 
 #This rule makes the hash program included with libtomcrypt
 hashsum: library $(HASHOBJECTS)
