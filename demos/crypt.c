@@ -177,7 +177,8 @@ int main(int argc, char *argv[])
    }
 
    printf("\nEnter key: ");
-   fgets((char *)tmpkey,sizeof(tmpkey), stdin);
+   if(fgets((char *)tmpkey,sizeof(tmpkey), stdin) == NULL)
+      exit(-1);
    outlen = sizeof(key);
    if ((errno = hash_memory(hash_idx,tmpkey,strlen((char *)tmpkey),key,&outlen)) != CRYPT_OK) {
       printf("Error hashing key: %s\n", error_to_string(errno));

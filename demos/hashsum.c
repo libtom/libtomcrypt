@@ -11,7 +11,7 @@
 
 int errno;
 
-void register_algs();
+void register_algs(void);
 
 int main(int argc, char **argv)
 {
