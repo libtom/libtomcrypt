@@ -56,6 +56,22 @@ int base64_test(void)
            return 1;
        }
    }
+
+   x--;
+   memmove(&out[11], &out[10], l1 - 10);
+   out[10] = '\0';
+   l1++;
+   l2 = sizeof(tmp);
+   DO(base64_decode_ex(out, l1, tmp, &l2, 0));
+   if (l2 != x || memcmp(tmp, in, x)) {
+       fprintf(stderr, "loose base64 decoding failed %lu %lu %lu", x, l1, l2);
+       print_hex("is    ", tmp, l2);
+       print_hex("should", in, x);
+       print_hex("input ", out, l1);
+       return 1;
+   }
+   l2 = sizeof(tmp);
+   DO(base64_decode_ex(out, l1, tmp, &l2, 1) == CRYPT_INVALID_PACKET ? CRYPT_OK : CRYPT_INVALID_PACKET);
    return 0;
 }
 #endif
