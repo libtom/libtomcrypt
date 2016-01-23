@@ -213,10 +213,6 @@ library: $(LIBNAME)
 
 $(OBJECTS): $(HEADERS)
 
-.PHONY: testprof/$(LIBTEST)
-testprof/$(LIBTEST):
-	cd testprof ; CFLAGS="$(CFLAGS)" LIBTEST_S=$(LIBTEST_S) CC="$(CC)" LD="$(LD)" AR="$(AR)" RANLIB="$(RANLIB)" $(MAKE)
-
 $(LIBNAME): $(OBJECTS)
 ifneq ($V,1)
 	@echo "   * ${AR} $@"
@@ -226,6 +222,23 @@ ifneq ($V,1)
 	@echo "   * ${RANLIB} $@"
 endif
 	${silent} $(RANLIB) $@
+
+.PHONY: testprof/$(LIBTEST)
+testprof/$(LIBTEST):
+	CFLAGS="$(CFLAGS)" LIBTEST_S=$(LIBTEST_S) CC="$(CC)" LD="$(LD)" AR="$(AR)" ARFLAGS="$(ARFLAGS)" RANLIB="$(RANLIB)" V="$(V)" $(MAKE) -C testprof
+
+timing: library testprof/$(LIBTEST) $(TIMINGS)
+ifneq ($V,1)
+	@echo "   * ${CC} $@"
+endif
+	${silent} $(CC) $(LDFLAGS) $(TIMINGS) testprof/$(LIBTEST) $(LIBNAME) $(EXTRALIBS) -o $(TIMING)
+
+.PHONY: test
+test: library testprof/$(LIBTEST) $(TESTS)
+ifneq ($V,1)
+	@echo "   * ${CC} $@"
+endif
+	${silent} $(CC) $(LDFLAGS) $(TESTS) testprof/$(LIBTEST) $(LIBNAME) $(EXTRALIBS) -o $(TEST)
 
 # build the demos from a template
 define DEMO_template
@@ -238,12 +251,6 @@ endef
 
 $(foreach demo, $(strip $(DEMOS)), $(eval $(call DEMO_template,$(demo))))
 
-timing: library testprof/$(LIBTEST) $(TIMINGS)
-	$(CC) $(LDFLAGS) $(TIMINGS) testprof/$(LIBTEST) $(LIBNAME) $(EXTRALIBS) -o $(TIMING)
-
-.PHONY: test
-test: library testprof/$(LIBTEST) $(TESTS)
-	$(CC) $(LDFLAGS) $(TESTS) testprof/$(LIBTEST) $(LIBNAME) $(EXTRALIBS) -o $(TEST)
 
 
 #This rule installs the library and the header files. This must be run
