@@ -404,7 +404,7 @@ zipup: no_oops docs
 
 
 check_defines:
-	cat src/headers/tomcrypt_custom.h | grep '\#define[ \t]*LTC_' | sed -e 's@/\*@@g' -e 's@\*/@@g' -e 's@^[ \t]*@@g' \
+	${silent} cat src/headers/tomcrypt_custom.h | grep '\#define[ \t]*LTC_' | sed -e 's@/\*@@g' -e 's@\*/@@g' -e 's@^[ \t]*@@g' \
 	| cut -d' ' -f 2 | sed -e 's@(x)@@g' | sort | uniq \
 	| grep -v -e 'LTC_ECC[0-9]*' -e 'LTC_DH[0-9]*' -e 'LTC_NO_' -e 'LTC_MUTEX' -e 'LTC_MPI' \
 	| xargs -I '{}' sh -c 'grep -q -m 1 -o {} src/misc/crypt/crypt.c || echo {} not found'
