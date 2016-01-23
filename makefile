@@ -225,7 +225,7 @@ endif
 
 .PHONY: testprof/$(LIBTEST)
 testprof/$(LIBTEST):
-	CFLAGS="$(CFLAGS)" LIBTEST_S=$(LIBTEST_S) CC="$(CC)" LD="$(LD)" AR="$(AR)" ARFLAGS="$(ARFLAGS)" RANLIB="$(RANLIB)" V="$(V)" $(MAKE) -C testprof
+	${silent} CFLAGS="$(CFLAGS)" LIBTEST_S=$(LIBTEST_S) CC="$(CC)" LD="$(LD)" AR="$(AR)" ARFLAGS="$(ARFLAGS)" RANLIB="$(RANLIB)" V="$(V)" $(MAKE) -C testprof
 
 timing: library testprof/$(LIBTEST) $(TIMINGS)
 ifneq ($V,1)
