@@ -31,11 +31,11 @@ int main(void) {
 
     // get and print the length of the names (and values) list
     char *names_list;
-    unsigned long names_list_len;
+    unsigned int names_list_len;
 
     if (crypt_list_all_constants(NULL, &names_list_len) != 0)
       exit(EXIT_FAILURE);
-    printf("  need to allocate %lu bytes \n\n", names_list_len);
+    printf("  need to allocate %u bytes \n\n", names_list_len);
 
     // get and print the names (and values) list
     if ((names_list = malloc(names_list_len)) == NULL)

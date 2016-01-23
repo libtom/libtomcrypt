@@ -19,24 +19,27 @@
 
 
 int main(void) {
-    int rc;
 
     // given a specific size name, get and print its size
     char name[] = "ecc_key";
-    int size;
-    rc = crypt_get_size(name, &size);
-    printf("\n  size of '%s' is %d \n\n", name, size);
+    unsigned int size;
+    if(crypt_get_size(name, &size) != 0)
+      exit(EXIT_FAILURE);
+    printf("\n  size of '%s' is %u \n\n", name, size);
 
     // get and print the length of the names (and sizes) list
     char *sizes_list;
-    unsigned long sizes_list_len;
-    rc = crypt_list_all_sizes(NULL, &sizes_list_len);
-    printf("  need to allocate %lu bytes \n\n", sizes_list_len);
+    unsigned int sizes_list_len;
+    if(crypt_list_all_sizes(NULL, &sizes_list_len) != 0)
+       exit(EXIT_FAILURE);
+    printf("  need to allocate %u bytes \n\n", sizes_list_len);
 
     // get and print the names (and sizes) list
     sizes_list = malloc(sizes_list_len);
-    rc = crypt_list_all_sizes(sizes_list, &sizes_list_len);
+    if(crypt_list_all_sizes(sizes_list, &sizes_list_len) != 0)
+       exit(EXIT_FAILURE);
     printf("  supported sizes:\n\n%s\n\n", sizes_list);
+    return 0;
 }
 
 
