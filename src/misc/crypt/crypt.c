@@ -337,6 +337,9 @@ const char *crypt_build_settings =
 #if defined(LTC_BASE64_URL)
     " BASE64-URL-SAFE "
 #endif
+#if defined(LTC_BASE64) || defined(LTC_BASE64_URL)
+    " "NAME_VALUE(LTC_BASE64_STRICT)" "
+#endif
 #if defined(LTC_CRC32)
     " CRC32 "
 #endif
