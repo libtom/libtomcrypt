@@ -181,15 +181,10 @@ src/headers/tomcrypt_prng.h testprof/tomcrypt_test.h
 
 #END_INS
 
-HASHOBJECTS=demos/hashsum.o
-CRYPTOBJECTS=demos/encrypt.o
-SMALLOBJECTS=demos/small.o
-TVS=demos/tv_gen.o
-MULTIS=demos/multi.o
+DEMOS=hashsum crypt small tv_gen multi sizes constants
+
 TIMINGS=demos/timing.o
 TESTS=demos/test.o
-CRYPTSIZES=demos/demo_crypt_sizes.o
-CRYPTCONSTANTS=demos/demo_crypt_constants.o
 
 #Files left over from making the crypt.pdf.
 LEFTOVERS=*.dvi *.log *.aux *.toc *.idx *.ilg *.ind *.out *.lof
@@ -232,23 +227,16 @@ ifneq ($V,1)
 endif
 	${silent} $(RANLIB) $@
 
-#This rule makes the hash program included with libtomcrypt
-hashsum: library $(HASHOBJECTS)
-	$(CC) $(HASHOBJECTS) $(LIBNAME) $(EXTRALIBS) -o $(HASH)
+# build the demos from a template
+define DEMO_template
+$(1): demos/$(1).o library
+ifneq ($V,1)
+	@echo "   * $${CC} $$@"
+endif
+	$${silent} $$(CC) $$< $$(LIBNAME) $$(EXTRALIBS) -o $(1)
+endef
 
-#makes the crypt program
-crypt: library $(CRYPTOBJECTS)
-	$(CC) $(CRYPTOBJECTS) $(LIBNAME) $(EXTRALIBS) -o $(CRYPT)
-
-#makes the small program
-small: library $(SMALLOBJECTS)
-	$(CC) $(SMALLOBJECTS) $(LIBNAME) $(EXTRALIBS) -o $(SMALL)
-
-tv_gen: library $(TVS)
-	$(CC) $(LDFLAGS) $(TVS) $(LIBNAME) $(EXTRALIBS) -o $(TV)
-
-multi: library $(MULTIS)
-	$(CC) $(MULTIS) $(LIBNAME) $(EXTRALIBS) -o $(MULTI)
+$(foreach demo, $(strip $(DEMOS)), $(eval $(call DEMO_template,$(demo))))
 
 timing: library testprof/$(LIBTEST) $(TIMINGS)
 	$(CC) $(LDFLAGS) $(TIMINGS) testprof/$(LIBTEST) $(LIBNAME) $(EXTRALIBS) -o $(TIMING)
@@ -257,11 +245,6 @@ timing: library testprof/$(LIBTEST) $(TIMINGS)
 test: library testprof/$(LIBTEST) $(TESTS)
 	$(CC) $(LDFLAGS) $(TESTS) testprof/$(LIBTEST) $(LIBNAME) $(EXTRALIBS) -o $(TEST)
 
-sizes: library $(CRYPTSIZES)
-	$(CC) $(LDFLAGS) $(CRYPTSIZES) $(LIBNAME) $(EXTRALIBS) -o $(SIZES)
-
-constants: library $(CRYPTCONSTANTS)
-	$(CC) $(LDFLAGS) $(CRYPTCONSTANTS) $(LIBNAME) $(EXTRALIBS) -o $(CONSTANTS)
 
 #This rule installs the library and the header files. This must be run
 #as root in order to have a high enough permission to write to the correct
