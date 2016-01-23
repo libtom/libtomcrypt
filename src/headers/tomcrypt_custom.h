@@ -476,6 +476,11 @@
    #define LTC_PKCS_1
 #endif
 
+#if (defined(LTC_BASE64) || defined(LTC_BASE64_URL)) && !defined(LTC_BASE64_STRICT)
+   /* By default we're doing strict decoding now */
+   #define LTC_BASE64_STRICT 1
+#endif
+
 #if defined(TFM_DESC) && defined(LTC_RSA_BLINDING)
     #warning RSA blinding currently not supported in combination with TFM
     #undef LTC_RSA_BLINDING

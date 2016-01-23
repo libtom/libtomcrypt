@@ -73,7 +73,7 @@ static const unsigned char map_base64url[256] = {
 
 static int _base64_decode_internal(const unsigned char *in,  unsigned long inlen,
                                  unsigned char *out, unsigned long *outlen,
-                           const unsigned char *map)
+                           const unsigned char *map, int strict)
 {
    unsigned long t, x, y, z;
    unsigned char c;
@@ -86,7 +86,12 @@ static int _base64_decode_internal(const unsigned char *in,  unsigned long inlen
    g = 3;
    for (x = y = z = t = 0; x < inlen; x++) {
        c = map[in[x]&0xFF];
-       if (c == 255) continue;
+       if (c == 255) {
+          if (strict)
+             return CRYPT_INVALID_PACKET;
+          else
+             continue;
+       }
        /* the final = symbols are read and used to trim the remaining bytes */
        if (c == 254) {
           c = 0;
@@ -127,10 +132,10 @@ static int _base64_decode_internal(const unsigned char *in,  unsigned long inlen
    @param outlen   [in/out] The max size and resulting size of the decoded data
    @return CRYPT_OK if successful
 */
-int base64_decode(const unsigned char *in,  unsigned long inlen,
-                        unsigned char *out, unsigned long *outlen)
+int base64_decode_ex(const unsigned char *in,  unsigned long inlen,
+                        unsigned char *out, unsigned long *outlen, int strict)
 {
-    return _base64_decode_internal(in, inlen, out, outlen, map_base64);
+    return _base64_decode_internal(in, inlen, out, outlen, map_base64, strict);
 }
 #endif /* LTC_BASE64 */
 
@@ -143,10 +148,10 @@ int base64_decode(const unsigned char *in,  unsigned long inlen,
    @param outlen   [in/out] The max size and resulting size of the decoded data
    @return CRYPT_OK if successful
 */
-int base64url_decode(const unsigned char *in,  unsigned long inlen,
-                           unsigned char *out, unsigned long *outlen)
+int base64url_decode_ex(const unsigned char *in,  unsigned long inlen,
+                           unsigned char *out, unsigned long *outlen, int strict)
 {
-    return _base64_decode_internal(in, inlen, out, outlen, map_base64url);
+    return _base64_decode_internal(in, inlen, out, outlen, map_base64url, strict);
 }
 #endif /* LTC_BASE64_URL */
 
