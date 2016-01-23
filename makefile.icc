@@ -308,6 +308,8 @@ timing: library $(TIMINGS) testprof/$(LIBTEST)
 test: library $(TESTS) testprof/$(LIBTEST)
 	$(CC) $(TESTS) testprof/$(LIBTEST) $(LIBNAME) $(EXTRALIBS) -o $(TEST)
 
+all_test: test tv_gen hashsum crypt small timing
+
 #This rule installs the library and the header files. This must be run
 #as root in order to have a high enough permission to write to the correct
 #directories and to set the owner and group to root.

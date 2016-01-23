@@ -251,7 +251,7 @@ endef
 
 $(foreach demo, $(strip $(DEMOS)), $(eval $(call DEMO_template,$(demo))))
 
-
+all_test: test tv_gen $(DEMOS)
 
 #This rule installs the library and the header files. This must be run
 #as root in order to have a high enough permission to write to the correct

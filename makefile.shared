@@ -244,6 +244,8 @@ test: library testprof/$(LIBTEST) $(TESTS)
 timing: library testprof/$(LIBTEST) $(TIMINGS)
 	$(LT) --mode=link --tag=CC $(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $(TIMING) $(TIMINGS) testprof/$(LIBTEST) $(LIBNAME) $(EXTRALIBS)
 
+all_test: test tv_gen hashsum crypt small timing
+
 # $Source$
 # $Revision$
 # $Date$

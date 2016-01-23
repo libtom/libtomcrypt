@@ -168,6 +168,8 @@ test: demos/test.c library
 timing: demos/timing.c library
 	cl $(CFLAGS) demos/timing.c testprof/tomcrypt_prof.lib tomcrypt.lib advapi32.lib $(EXTRALIBS)
 
+all_test: test tv_gen hashsum timing
+
 # $Source$
 # $Revision$
 # $Date$

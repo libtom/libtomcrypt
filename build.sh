@@ -5,7 +5,7 @@ make clean 1>/dev/null 2>/dev/null
 
 echo -n "building..."
 
-CFLAGS="$2 $CFLAGS $4" EXTRALIBS="$5" make -f $3 test tv_gen 1>gcc_1.txt 2>gcc_2.txt
+CFLAGS="$2 $CFLAGS $4" EXTRALIBS="$5" make -f $3 all_test 1>gcc_1.txt 2>gcc_2.txt
 mret=$?
 cnt=$(wc -l < gcc_2.txt)
 # ignore 2 lines since ar prints to stderr instead of stdout and ar is called for 
