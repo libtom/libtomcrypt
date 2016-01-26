@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 
 if [ -z "$(echo $CC | grep "gcc")" ]; then
     echo "no gcc detected, early exit success"
@@ -16,6 +16,9 @@ else
 	echo "Test failed"
 	exit 1
 fi
+
+./sizes
+./constants
 
 cpp-coveralls -e 'demos/' -e 'testprof/' -e 'notes/' -e 'src/headers/'
 
