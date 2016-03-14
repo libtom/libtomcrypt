@@ -15,16 +15,6 @@
   DH crypto, Tom St Denis
 */
 
-#define LTC_DH768
-#define LTC_DH1024
-#define LTC_DH1280
-#define LTC_DH1536
-#define LTC_DH1536
-#define LTC_DH1792
-#define LTC_DH2048
-#define LTC_DH2560
-#define LTC_DH3072
-#define LTC_DH4096
 #ifdef LTC_MDH
 
 #define __DECL_DH_STATIC_H__
