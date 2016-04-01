@@ -261,19 +261,19 @@ install: library docs
 else
 install: library
 endif
-	install -d -g $(GROUP) -o $(USER) $(DESTDIR)$(LIBPATH)
-	install -d -g $(GROUP) -o $(USER) $(DESTDIR)$(INCPATH)
-	install -d -g $(GROUP) -o $(USER) $(DESTDIR)$(DATAPATH)
-	install -g $(GROUP) -o $(USER) $(LIBNAME) $(DESTDIR)$(LIBPATH)
-	install -g $(GROUP) -o $(USER) $(HEADERS) $(DESTDIR)$(INCPATH)
+	install -d $(DESTDIR)$(LIBPATH)
+	install -d $(DESTDIR)$(INCPATH)
+	install -d $(DESTDIR)$(DATAPATH)
+	install -m 644 $(LIBNAME) $(DESTDIR)$(LIBPATH)
+	install -m 644 $(HEADERS) $(DESTDIR)$(INCPATH)
 ifndef NODOCS
-	install -g $(GROUP) -o $(USER) doc/crypt.pdf $(DESTDIR)$(DATAPATH)
+	install -m 644 doc/crypt.pdf $(DESTDIR)$(DATAPATH)
 endif
 
 install_test: testprof/$(LIBTEST)
-	install -d -g $(GROUP) -o $(USER) $(DESTDIR)$(LIBPATH)
-	install -d -g $(GROUP) -o $(USER) $(DESTDIR)$(INCPATH)
-	install -g $(GROUP) -o $(USER) testprof/$(LIBTEST) $(DESTDIR)$(LIBPATH)
+	install -d $(DESTDIR)$(LIBPATH)
+	install -d $(DESTDIR)$(INCPATH)
+	install -m 644 testprof/$(LIBTEST) $(DESTDIR)$(LIBPATH)
 
 profile:
 	CFLAGS="$(CFLAGS) -fprofile-generate" $(MAKE) timing EXTRALIBS="$(EXTRALIBS) -lgcov"

@@ -210,18 +210,18 @@ $(LIBNAME): $(OBJECTS)
 	$(LT) --mode=link --tag=CC $(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) `find ./src -type f -name "*.lo"` $(EXTRALIBS) -o $(LIBNAME) -rpath $(LIBPATH) -version-info $(VERSION) -release $(RELEASE)
 
 install: $(LIBNAME)
-	install -d -g $(GROUP) -o $(USER) $(DESTDIR)$(LIBPATH)
+	install -d $(DESTDIR)$(LIBPATH)
 	$(LT) --mode=install install -c libtomcrypt.la $(DESTDIR)$(LIBPATH)/libtomcrypt.la
-	install -d -g $(GROUP) -o $(USER) $(DESTDIR)$(INCPATH)
-	install -g $(GROUP) -o $(USER) $(HEADERS) $(DESTDIR)$(INCPATH)
+	install -d $(DESTDIR)$(INCPATH)
+	install -m 644 $(HEADERS) $(DESTDIR)$(INCPATH)
 	install -d $(DESTDIR)$(LIBPATH)/pkgconfig
 	sed 's,@LIBDIR@,$(LIBPATH),g' libtomcrypt.pc.in > libtomcrypt.pc
-	install -m 0644 -g $(GROUP) -o $(USER) libtomcrypt.pc $(DESTDIR)$(LIBPATH)/pkgconfig/libtomcrypt.pc
+	install -m 644 libtomcrypt.pc $(DESTDIR)$(LIBPATH)/pkgconfig/libtomcrypt.pc
 
 install_test: testprof/$(LIBTEST)
-	install -d -g $(GROUP) -o $(USER) $(DESTDIR)$(LIBPATH)
-	install -d -g $(GROUP) -o $(USER) $(DESTDIR)$(INCPATH)
-	cd testprof ; CFLAGS="$(CFLAGS)" GROUP=$(GROUP) USER=$(USER) VERSION=$(VERSION) LIBPATH=$(LIBPATH) LIBTEST=$(LIBTEST) LIBTEST_S=$(LIBTEST_S) DESTDIR=$(DESTDIR) LT=$(LT) CC=$(CC) make -f makefile.shared install
+	install -d $(DESTDIR)$(LIBPATH)
+	install -d $(DESTDIR)$(INCPATH)
+	cd testprof ; CFLAGS="$(CFLAGS)" VERSION=$(VERSION) LIBPATH=$(LIBPATH) LIBTEST=$(LIBTEST) LIBTEST_S=$(LIBTEST_S) DESTDIR=$(DESTDIR) LT=$(LT) CC=$(CC) make -f makefile.shared install
 
 #This rule makes the hash program included with libtomcrypt
 hashsum: library $(HASHOBJECTS)
