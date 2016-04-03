@@ -5,6 +5,9 @@ int base64_test(void)
 {
    unsigned char in[64], out[256], tmp[64];
    unsigned long x, l1, l2, slen1;
+   const char special_case[] =
+      { 0xbe, 0xe8, 0x92, 0x3c, 0xa2, 0x25, 0xf0, 0xf8, 0x91, 0xe4, 0xef, 0xab,
+            0x0b, 0x8c, 0xfd, 0xff, 0x14, 0xd0, 0x29, 0x9d };
 
    /*
     TEST CASES SOURCE:
@@ -24,7 +27,18 @@ int base64_test(void)
        {"foo", "Zm9v"       },
        {"foob", "Zm9vYg=="  },
        {"fooba", "Zm9vYmE=" },
-       {"foobar", "Zm9vYmFy"}
+       {"foobar", "Zm9vYmFy"},
+       {special_case,"vuiSPKIl8PiR5O+rC4z9/xTQKZ0="}
+   };
+
+   const struct {
+      const char* s;
+      int mode;
+   } url_cases[] = {
+         {"vuiSPKIl8PiR5O-rC4z9_xTQKZ0", 0},
+         {"vuiSPKIl8PiR5O-rC4z9_xTQKZ0=", 1},
+         {"vuiS*PKIl8P*iR5O-rC4*z9_xTQKZ0", 0},
+         {"vuiS*PKIl8P*iR5O-rC4*z9_xTQKZ0=", 0},
    };
 
    for (x = 0; x < sizeof(cases)/sizeof(cases[0]); ++x) {
@@ -44,6 +58,20 @@ int base64_test(void)
            return 1;
        }
    }
+
+   for (x = 0; x < sizeof(url_cases)/sizeof(url_cases[0]); ++x) {
+       slen1 = strlen(url_cases[x].s);
+       l1 = sizeof(out);
+       DO(base64url_decode_ex((unsigned char*)url_cases[x].s, slen1, out, &l1, url_cases[x].mode));
+       if (l1 != sizeof(special_case) ||  memcmp(out, special_case, l1)) {
+           fprintf(stderr, "\nbase64url failed case %lu: %s", x, url_cases[x].s);
+           print_hex("\nbase64url should", special_case, sizeof(special_case));
+           out[sizeof(out)-1] = '\0';
+           print_hex("\nbase64url is", out, l1);
+           return 1;
+       }
+   }
+
 
    for  (x = 0; x < 64; x++) {
        yarrow_read(in, x, &yarrow_prng);

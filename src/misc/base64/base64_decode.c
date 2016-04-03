@@ -117,7 +117,11 @@ static int _base64_decode_internal(const unsigned char *in,  unsigned long inlen
        }
    }
    if (y != 0) {
-       return CRYPT_INVALID_PACKET;
+      if (y == 1 || map != map_base64url || strict == 1) return CRYPT_INVALID_PACKET;
+      t = t << (6 * (4 - y));
+      if (z + y - 1 > *outlen) return CRYPT_BUFFER_OVERFLOW;
+      if (y >= 2) out[z++] = (unsigned char) ((t >> 16) & 255);
+      if (y == 3) out[z++] = (unsigned char) ((t >> 8) & 255);
    }
    *outlen = z;
    return CRYPT_OK;
@@ -130,6 +134,7 @@ static int _base64_decode_internal(const unsigned char *in,  unsigned long inlen
    @param inlen    The length of the base64 data
    @param out      [out] The destination of the binary decoded data
    @param outlen   [in/out] The max size and resulting size of the decoded data
+   @param strict   Strict[1] or relaxed[0] decoding of the input
    @return CRYPT_OK if successful
 */
 int base64_decode_ex(const unsigned char *in,  unsigned long inlen,
@@ -146,6 +151,7 @@ int base64_decode_ex(const unsigned char *in,  unsigned long inlen,
    @param inlen    The length of the base64 data
    @param out      [out] The destination of the binary decoded data
    @param outlen   [in/out] The max size and resulting size of the decoded data
+   @param strict   Strict[1] or relaxed[0] decoding of the input
    @return CRYPT_OK if successful
 */
 int base64url_decode_ex(const unsigned char *in,  unsigned long inlen,

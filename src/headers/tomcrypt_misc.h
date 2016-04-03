@@ -12,7 +12,7 @@ int base64_decode_ex(const unsigned char *in,  unsigned long len,
 int base64url_encode(const unsigned char *in,  unsigned long len,
                         unsigned char *out, unsigned long *outlen);
 
-#define base64url_decode(i, il, o, ol) base64_decode_ex(i, il, o, ol, LTC_BASE64_STRICT)
+#define base64url_decode(i, il, o, ol) base64url_decode_ex(i, il, o, ol, LTC_BASE64_STRICT)
 int base64url_decode_ex(const unsigned char *in,  unsigned long len,
                         unsigned char *out, unsigned long *outlen, int strict);
 #endif
