@@ -231,14 +231,14 @@ timing: library testprof/$(LIBTEST) $(TIMINGS)
 ifneq ($V,1)
 	@echo "   * ${CC} $@"
 endif
-	${silent} $(CC) $(LDFLAGS) $(TIMINGS) testprof/$(LIBTEST) $(LIBNAME) $(EXTRALIBS) -o $(TIMING)
+	${silent} $(CC) $(LDFLAGS) $(TIMINGS) testprof/$(LIBTEST) $(LIB_PRE) $(LIBNAME) $(LIB_POST) $(EXTRALIBS) -o $(TIMING)
 
 .PHONY: test
 test: library testprof/$(LIBTEST) $(TESTS)
 ifneq ($V,1)
 	@echo "   * ${CC} $@"
 endif
-	${silent} $(CC) $(LDFLAGS) $(TESTS) testprof/$(LIBTEST) $(LIBNAME) $(EXTRALIBS) -o $(TEST)
+	${silent} $(CC) $(LDFLAGS) $(TESTS) testprof/$(LIBTEST) $(LIB_PRE) $(LIBNAME) $(LIB_POST) $(EXTRALIBS) -o $(TEST)
 
 # build the demos from a template
 define DEMO_template
@@ -246,12 +246,16 @@ $(1): demos/$(1).o library
 ifneq ($V,1)
 	@echo "   * $${CC} $$@"
 endif
-	$${silent} $$(CC) $$< $$(LIBNAME) $$(EXTRALIBS) -o $(1)
+	$${silent} $$(CC) $$< $$(LIB_PRE) $$(LIBNAME) $$(LIB_POST) $$(EXTRALIBS) -o $(1)
 endef
 
 $(foreach demo, $(strip $(DEMOS)), $(eval $(call DEMO_template,$(demo))))
 
 all_test: test tv_gen $(DEMOS)
+ifeq ($(COVERAGE),1)
+all_test: LIB_PRE = -Wl,--whole-archive
+all_test: LIB_POST = -Wl,--no-whole-archive
+endif
 
 #This rule installs the library and the header files. This must be run
 #as root in order to have a high enough permission to write to the correct
@@ -300,9 +304,11 @@ lcov:
 lcov-single: | cleancov-clean lcov-single-create lcov
 
 
-#cmake the code coverage of the library
+#make the code coverage of the library
 coverage: CFLAGS += -fprofile-arcs -ftest-coverage
 coverage: EXTRALIBS += -lgcov
+coverage: LIB_PRE = -Wl,--whole-archive
+coverage: LIB_POST = -Wl,--no-whole-archive
 
 coverage: test
 	./test
