@@ -80,7 +80,7 @@ extern int no_results;
 extern const struct ltc_prng_descriptor no_prng_desc;
 #endif
 
-void print_hex(const char* what, const unsigned char* p, const unsigned long l);
+void print_hex(const char* what, const void* v, const unsigned long l);
 int sorter(const void *a, const void *b);
 void tally_results(int type);
 ulong64 rdtsc (void);

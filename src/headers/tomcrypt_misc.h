@@ -95,7 +95,7 @@ int crc32_test(void);
 
 /* yeah it's not exactly in misc in the library, but in testprof/x86_prof.c */
 #if defined(LTC_TEST) && defined(LTC_TEST_DBG)
-void print_hex(const char* what, const unsigned char* p, const unsigned long l);
+void print_hex(const char* what, const void* p, const unsigned long l);
 #endif
 
 /* $Source$ */

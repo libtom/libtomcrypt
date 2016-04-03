@@ -2,8 +2,9 @@
 
 prng_state yarrow_prng;
 
-void print_hex(const char* what, const unsigned char* p, const unsigned long l)
+void print_hex(const char* what, const void* v, const unsigned long l)
 {
+  const unsigned char* p = v;
   unsigned long x;
   fprintf(stderr, "%s contents: \n", what);
   for (x = 0; x < l; ) {
