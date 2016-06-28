@@ -59,7 +59,7 @@ int gcm_add_iv(gcm_state *gcm,
    if (gcm->buflen == 0) {
       for (x = 0; x < (IVlen & ~15); x += 16) {
           for (y = 0; y < 16; y += sizeof(LTC_FAST_TYPE)) {
-              *((LTC_FAST_TYPE*)(&gcm->X[y])) ^= *((LTC_FAST_TYPE*)(&IV[x + y]));
+              *(LTC_FAST_TYPE_PTR_CAST(&gcm->X[y])) ^= *(LTC_FAST_TYPE_PTR_CAST(&IV[x + y]));
           }
           gcm_mult_h(gcm, gcm->X);
           gcm->totlen += 128;

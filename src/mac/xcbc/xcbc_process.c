@@ -47,7 +47,7 @@ int xcbc_process(xcbc_state *xcbc, const unsigned char *in, unsigned long inlen)
    if (xcbc->buflen == 0) {
        while (inlen > (unsigned long)xcbc->blocksize) {
            for (x = 0; x < xcbc->blocksize; x += sizeof(LTC_FAST_TYPE)) {
-              *((LTC_FAST_TYPE*)&(xcbc->IV[x])) ^= *((LTC_FAST_TYPE*)&(in[x]));
+              *(LTC_FAST_TYPE_PTR_CAST(&(xcbc->IV[x]))) ^= *(LTC_FAST_TYPE_PTR_CAST(&(in[x])));
            }
            cipher_descriptor[xcbc->cipher].ecb_encrypt(xcbc->IV, xcbc->IV, &xcbc->key);
            in    += xcbc->blocksize;

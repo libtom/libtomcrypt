@@ -49,7 +49,7 @@ int omac_process(omac_state *omac, const unsigned char *in, unsigned long inlen)
         unsigned long y;
         for (x = 0; x < (inlen - blklen); x += blklen) {
             for (y = 0; y < blklen; y += sizeof(LTC_FAST_TYPE)) {
-                *((LTC_FAST_TYPE*)(&omac->prev[y])) ^= *((LTC_FAST_TYPE*)(&in[y]));
+                *(LTC_FAST_TYPE_PTR_CAST(&omac->prev[y])) ^= *(LTC_FAST_TYPE_PTR_CAST(&in[y]));
             }
             in += blklen;
             if ((err = cipher_descriptor[omac->cipher_idx].ecb_encrypt(omac->prev, omac->prev, &omac->key)) != CRYPT_OK) {

@@ -48,13 +48,13 @@ int pmac_process(pmac_state *pmac, const unsigned char *in, unsigned long inlen)
       for (x = 0; x < (inlen - 16); x += 16) {
           pmac_shift_xor(pmac);
           for (y = 0; y < 16; y += sizeof(LTC_FAST_TYPE)) {
-              *((LTC_FAST_TYPE*)(&Z[y])) = *((LTC_FAST_TYPE*)(&in[y])) ^ *((LTC_FAST_TYPE*)(&pmac->Li[y]));
+              *(LTC_FAST_TYPE_PTR_CAST(&Z[y])) = *(LTC_FAST_TYPE_PTR_CAST(&in[y])) ^ *(LTC_FAST_TYPE_PTR_CAST(&pmac->Li[y]));
           }
           if ((err = cipher_descriptor[pmac->cipher_idx].ecb_encrypt(Z, Z, &pmac->key)) != CRYPT_OK) {
              return err;
           }
           for (y = 0; y < 16; y += sizeof(LTC_FAST_TYPE)) {
-              *((LTC_FAST_TYPE*)(&pmac->checksum[y])) ^= *((LTC_FAST_TYPE*)(&Z[y]));
+              *(LTC_FAST_TYPE_PTR_CAST(&pmac->checksum[y])) ^= *(LTC_FAST_TYPE_PTR_CAST(&Z[y]));
           }
           in += 16;
       }

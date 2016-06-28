@@ -122,6 +122,7 @@ typedef ulong64 __attribute__((__may_alias__)) LTC_FAST_TYPE;
 #else
 typedef ulong32 __attribute__((__may_alias__)) LTC_FAST_TYPE;
 #endif
+#define LTC_FAST_TYPE_PTR_CAST(x) ((LTC_FAST_TYPE*)(void*)(x))
 #endif
 #endif /* LTC_FAST */
 
