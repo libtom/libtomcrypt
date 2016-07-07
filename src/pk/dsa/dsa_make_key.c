@@ -130,7 +130,6 @@ int dsa_make_params(prng_state *prng, int wprng, int group_size, int modulus_siz
 
     /* p */
     if ((err = mp_read_unsigned_bin(seedinc, sbuf, seedbytes)) != CRYPT_OK)      { goto cleanup; }
-    /* printf("seed="); mp_fwrite(seedinc, 16, stdout); printf("\n"); //XXX-DEBUG */
     if ((err = mp_add(q, q, t2q)) != CRYPT_OK)                                   { goto cleanup; }
     for(counter=0; counter < 4*L && !found_p; counter++) {
       for(j=0; j<=n; j++) {
