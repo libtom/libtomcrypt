@@ -487,7 +487,7 @@ typedef struct ltc_asn1_list_ {
    do {                                              \
       int LTC_MACRO_temp            = (index);       \
       ltc_asn1_list *LTC_MACRO_list = (list);        \
-      LTC_MACRO_list[LTC_MACRO_temp].type = (Type);  \
+      LTC_MACRO_list[LTC_MACRO_temp].type = (ltc_asn1_type)(Type);  \
       LTC_MACRO_list[LTC_MACRO_temp].data = (void*)(Data);  \
       LTC_MACRO_list[LTC_MACRO_temp].size = (Size);  \
       LTC_MACRO_list[LTC_MACRO_temp].used = 0;       \
