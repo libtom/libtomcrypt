@@ -62,7 +62,7 @@ int der_decode_subject_public_key_info(const unsigned char *in, unsigned long in
 
    /* this includes the internal hash ID and optional params (NULL in this case) */
    LTC_SET_ASN1(alg_id, 0, LTC_ASN1_OBJECT_IDENTIFIER, tmpoid, sizeof(tmpoid)/sizeof(tmpoid[0]));
-   LTC_SET_ASN1(alg_id, 1, parameters_type, parameters, parameters_len);
+   LTC_SET_ASN1(alg_id, 1, (ltc_asn1_type)parameters_type, parameters, parameters_len);
 
    /* the actual format of the SSL DER key is odd, it stores a RSAPublicKey
     * in a **BIT** string ... so we have to extract it then proceed to convert bit to octet
