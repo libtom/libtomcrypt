@@ -55,6 +55,23 @@ LTC_EXPORT int   LTC_CALL XSTRCMP(const char *s1, const char *s2);
  * use the portable [slower] macros.
  */
 
+#if defined(__powerpc64__)
+#define ENDIAN_64BITWORD
+#if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+#define ENDIAN_BIG
+#else
+#define ENDIAN_LITTLE
+#endif
+#endif
+
+#if defined(__s390x__)
+#define ENDIAN_64BITWORD
+#define ENDIAN_BIG
+#elif defined(__s390__)
+#define ENDIAN_32BITWORD
+#define ENDIAN_BIG
+#endif
+
 /* detect x86-32 machines somewhat */
 #if !defined(__STRICT_ANSI__) && !defined(__x86_64__) && !defined(_WIN64) && ((defined(_MSC_VER) && defined(WIN32)) || (defined(__GNUC__) && (defined(__DJGPP__) || defined(__CYGWIN__) || defined(__MINGW32__) || defined(__i386__))))
    #define ENDIAN_LITTLE
@@ -94,7 +111,7 @@ LTC_EXPORT int   LTC_CALL XSTRCMP(const char *s1, const char *s2);
 /* this is the "32-bit at least" data type
  * Re-define it to suit your platform but it must be at least 32-bits
  */
-#if defined(__x86_64__) || (defined(__sparc__) && defined(__arch64__))
+#if defined(__x86_64__) || defined(__powerpc64__) || defined(__s390x__) || (defined(__sparc__) && defined(__arch64__))
    typedef unsigned ulong32;
 #else
    typedef unsigned long ulong32;
