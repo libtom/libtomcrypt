@@ -3,7 +3,7 @@
 if [ $# -lt 3 ]
 then
   echo "usage is: ${0##*/} <which makefile and other make options> <additional defines> <path to math provider>"
-  echo "e.g. \"${0##*/} \"makefile -j3\" \"-DUSE_LTM -DLTM_DESC -I/path/to/libtommath\" /path/to/libtommath/libtommath.a\""
+  echo "e.g. \"${0##*/} \"makefile -j3\" \"-DUSE_LTM -DLTM_DESC -I/opt/local/include/libtommath\" /opt/local/lib/libtommath.a\""
   exit -1
 fi
 
