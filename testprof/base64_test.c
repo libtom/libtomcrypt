@@ -5,9 +5,10 @@ int base64_test(void)
 {
    unsigned char in[64], out[256], tmp[64];
    unsigned long x, l1, l2, slen1;
-   const char special_case[] =
-      { 0xbe, 0xe8, 0x92, 0x3c, 0xa2, 0x25, 0xf0, 0xf8, 0x91, 0xe4, 0xef, 0xab,
-            0x0b, 0x8c, 0xfd, 0xff, 0x14, 0xd0, 0x29, 0x9d };
+   const char special_case[] = {
+         0xbe, 0xe8, 0x92, 0x3c, 0xa2, 0x25, 0xf0, 0xf8,
+         0x91, 0xe4, 0xef, 0xab, 0x0b, 0x8c, 0xfd, 0xff,
+         0x14, 0xd0, 0x29, 0x9d, 0x00 };
 
    /*
     TEST CASES SOURCE:
@@ -63,9 +64,9 @@ int base64_test(void)
        slen1 = strlen(url_cases[x].s);
        l1 = sizeof(out);
        DO(base64url_decode_ex((unsigned char*)url_cases[x].s, slen1, out, &l1, url_cases[x].mode));
-       if (l1 != sizeof(special_case) ||  memcmp(out, special_case, l1)) {
+       if (l1 != strlen(special_case) ||  memcmp(out, special_case, l1)) {
            fprintf(stderr, "\nbase64url failed case %lu: %s", x, url_cases[x].s);
-           print_hex("\nbase64url should", special_case, sizeof(special_case));
+           print_hex("\nbase64url should", special_case, strlen(special_case));
            out[sizeof(out)-1] = '\0';
            print_hex("\nbase64url is", out, l1);
            return 1;
