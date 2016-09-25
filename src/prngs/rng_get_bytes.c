@@ -141,11 +141,10 @@ unsigned long rng_get_bytes(unsigned char *out, unsigned long outlen,
 
    LTC_ARGCHK(out != NULL);
 
-#if defined(LTC_DEVRANDOM)
-   x = rng_nix(out, outlen, callback);   if (x != 0) { return x; }
-#endif
 #if defined(_WIN32) || defined(_WIN32_WCE)
    x = rng_win32(out, outlen, callback); if (x != 0) { return x; }
+#elif defined(LTC_DEVRANDOM)
+   x = rng_nix(out, outlen, callback);   if (x != 0) { return x; }
 #endif
 #ifdef ANSI_RNG
    x = rng_ansic(out, outlen, callback); if (x != 0) { return x; }
