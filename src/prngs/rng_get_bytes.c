@@ -55,7 +55,7 @@ static unsigned long rng_nix(unsigned char *buf, unsigned long len,
 #endif /* LTC_DEVRANDOM */
 
 /* on ANSI C platforms with 100 < CLOCKS_PER_SEC < 10000 */
-#if defined(CLOCKS_PER_SEC) && !defined(WINCE)
+#if defined(CLOCKS_PER_SEC) && !defined(_WIN32_WCE)
 
 #define ANSI_RNG
 
@@ -92,11 +92,11 @@ static unsigned long rng_ansic(unsigned char *buf, unsigned long len,
 #endif
 
 /* Try the Microsoft CSP */
-#if defined(WIN32) || defined(_WIN32) || defined(WINCE)
+#if defined(_WIN32) || defined(_WIN32_WCE)
 #ifndef _WIN32_WINNT
   #define _WIN32_WINNT 0x0400
 #endif
-#ifdef WINCE
+#ifdef _WIN32_WCE
    #define UNDER_CE
    #define ARM
 #endif
@@ -144,7 +144,7 @@ unsigned long rng_get_bytes(unsigned char *out, unsigned long outlen,
 #if defined(LTC_DEVRANDOM)
    x = rng_nix(out, outlen, callback);   if (x != 0) { return x; }
 #endif
-#if defined(WIN32) || defined(_WIN32) || defined(WINCE)
+#if defined(_WIN32) || defined(_WIN32_WCE)
    x = rng_win32(out, outlen, callback); if (x != 0) { return x; }
 #endif
 #ifdef ANSI_RNG
