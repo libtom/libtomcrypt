@@ -2,8 +2,12 @@
 
 set -e
 
+if [ "$TRAVIS_CI" == "private" ]; then
+    exit 0
+fi
+
 if [ "$#" != "5" ]; then
-    echo "Usage is: ${0} \"coverage\" \"<first CFLAGS>\" \"<makefile>\" \"<last CFLAGS>\" <math library to link to>"
+    echo "Usage is: ${0} \"coverage\" \"<prepend CFLAGS>\" \"<makefile>\" \"<append CFLAGS>\" <math library to link to>"
     echo "CC=gcc ${0} \"coverage\" \" \" \"makefile\" \"-DUSE_LTM -DLTM_DESC -I../libtommath\" ../libtommath/libtommath.a"
     exit -1
 fi
