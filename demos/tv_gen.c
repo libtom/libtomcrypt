@@ -461,7 +461,7 @@ void ocb_gen(void)
    out = fopen("ocb_tv.txt", "w");
    fprintf(out, "OCB Test Vectors.  Uses the 00010203...NN-1 pattern for nonce/plaintext/key.  The outputs\n"
                 "are of the form ciphertext,tag for a given NN.  The key for step N>1 is the tag of the previous\n"
-                "step repeated sufficiently.  The nonce is fixed throughout.\n\n");
+                "step repeated sufficiently.  The nonce is fixed throughout. AAD is fixed to 3 bytes (ASCII) 'AAD'.\n\n");
 
    for (x = 0; cipher_descriptor[x].name != NULL; x++) {
       kl = cipher_descriptor[x].block_length;
@@ -489,7 +489,7 @@ void ocb_gen(void)
             plaintext[z] = (unsigned char)(z & 255);
          }
          len = sizeof(tag);
-         if ((err = ocb_encrypt_authenticate_memory(x, key, kl, nonce, plaintext, y1, plaintext, tag, &len)) != CRYPT_OK) {
+         if ((err = ocb_encrypt_authenticate_memory(x, key, kl, nonce, cipher_descriptor[x].block_length, "AAD", 3, plaintext, y1, plaintext, tag, &len)) != CRYPT_OK) {
             printf("Error OCB'ing: %s\n", error_to_string(err));
             exit(EXIT_FAILURE);
          }

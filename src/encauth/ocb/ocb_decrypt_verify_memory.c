@@ -9,20 +9,23 @@
  * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 
-/** 
+/**
   @file ocb_decrypt_verify_memory.c
-  OCB implementation, helper to decrypt block of memory, by Tom St Denis 
+  OCB implementation, helper to decrypt block of memory, by Tom St Denis
 */
 #include "tomcrypt.h"
 
 #ifdef LTC_OCB_MODE
 
 /**
-   Decrypt and compare the tag with OCB.
+   Decrypt and compare the tag with OCB
    @param cipher     The index of the cipher desired
    @param key        The secret key
    @param keylen     The length of the secret key (octets)
    @param nonce      The session nonce (length of the block size of the block cipher)
+   @param noncelen   The length of the nonce (octets)
+   @param adata      The AAD - additional associated data
+   @param adatalen   The length of AAD (octets)
    @param ct         The ciphertext
    @param ctlen      The length of the ciphertext (octets)
    @param pt         [out] The plaintext
@@ -33,14 +36,17 @@
 */
 int ocb_decrypt_verify_memory(int cipher,
     const unsigned char *key,    unsigned long keylen,
-    const unsigned char *nonce,  
+    const unsigned char *nonce,  unsigned long noncelen,
+    const unsigned char *adata,  unsigned long adatalen,
     const unsigned char *ct,     unsigned long ctlen,
           unsigned char *pt,
     const unsigned char *tag,    unsigned long taglen,
           int           *stat)
 {
-   int err;
-   ocb_state *ocb;
+   int            err;
+   ocb_state     *ocb;
+   unsigned char *buf;
+   unsigned long  buflen;
 
    LTC_ARGCHK(key    != NULL);
    LTC_ARGCHK(nonce  != NULL);
@@ -49,33 +55,53 @@ int ocb_decrypt_verify_memory(int cipher,
    LTC_ARGCHK(tag    != NULL);
    LTC_ARGCHK(stat    != NULL);
 
+   /* default to zero */
+   *stat = 0;
+
    /* allocate memory */
+   buf = XMALLOC(taglen);
    ocb = XMALLOC(sizeof(ocb_state));
-   if (ocb == NULL) {
+   if (ocb == NULL || buf == NULL) {
+      if (ocb != NULL) {
+         XFREE(ocb);
+      }
+      if (buf != NULL) {
+         XFREE(buf);
+      }
       return CRYPT_MEM;
    }
 
-   if ((err = ocb_init(ocb, cipher, key, keylen, nonce)) != CRYPT_OK) {
-      goto LBL_ERR; 
+   if ((err = ocb_init(ocb, cipher, key, keylen, nonce, noncelen)) != CRYPT_OK) {
+      goto LBL_ERR;
    }
 
-   while (ctlen > (unsigned long)ocb->block_len) {
-        if ((err = ocb_decrypt(ocb, ct, pt)) != CRYPT_OK) {
-            goto LBL_ERR; 
-        }
-        ctlen   -= ocb->block_len;
-        pt      += ocb->block_len;
-        ct      += ocb->block_len;
+   if ((err = ocb_add_aad(ocb, adata, adatalen)) != CRYPT_OK) {
+      goto LBL_ERR;
    }
 
-   err = ocb_done_decrypt(ocb, ct, ctlen, pt, tag, taglen, stat);
+   if ((err = ocb_decrypt_last(ocb, ct, ctlen, pt)) != CRYPT_OK) {
+      goto LBL_ERR;
+   }
+
+   buflen = taglen;
+   if ((err = ocb_done(ocb, buf, &buflen)) != CRYPT_OK) {
+      goto LBL_ERR;
+   }
+
+   /* compare tags */
+   if (buflen >= taglen && XMEMCMP(buf, tag, taglen) == 0) {
+      *stat = 1;
+   }
+
+   err = CRYPT_OK;
+
 LBL_ERR:
 #ifdef LTC_CLEAN_STACK
    zeromem(ocb, sizeof(ocb_state));
 #endif
- 
-   XFREE(ocb);
 
+   XFREE(ocb);
+   XFREE(buf);
    return err;
 }
 
