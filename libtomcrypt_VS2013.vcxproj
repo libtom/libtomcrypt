@@ -286,6 +286,7 @@ cl /nologo /DENCRYPT_ONLY /MLd /W3 /Gm /GX /ZI /Od /I "src\headers" /I "..\libto
     <ClCompile Include="src\misc\crypt\crypt_unregister_prng.c" />
     <ClCompile Include="src\misc\error_to_string.c" />
     <ClCompile Include="src\misc\hkdf\hkdf.c" />
+    <ClCompile Include="src\misc\mem_neq.c" />
     <ClCompile Include="src\misc\pkcs5\pkcs_5_1.c" />
     <ClCompile Include="src\misc\pkcs5\pkcs_5_2.c" />
     <ClCompile Include="src\misc\pk_get_oid.c" />
