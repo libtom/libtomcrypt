@@ -144,9 +144,11 @@ unsigned long rng_get_bytes(unsigned char *out, unsigned long outlen,
 #if defined(LTC_DEVRANDOM)
    x = rng_nix(out, outlen, callback);   if (x != 0) { return x; }
 #endif
+#ifndef NO_WINCRYPT
 #if defined(WIN32) || defined(_WIN32) || defined(WINCE)
    x = rng_win32(out, outlen, callback); if (x != 0) { return x; }
 #endif
+#endif // NO_WINCRYPT
 #ifdef ANSI_RNG
    x = rng_ansic(out, outlen, callback); if (x != 0) { return x; }
 #endif
