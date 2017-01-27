@@ -336,7 +336,9 @@ typedef struct {
 } symmetric_F8;
 #endif
 
-
+//IGNORE WARNINGS RELATED TO COMMENTS. I DON'T CARE!!!
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdocumentation"
 /** cipher descriptor table, last entry has "name == NULL" to mark the end of table */
 extern struct ltc_cipher_descriptor {
    /** name of cipher */
@@ -584,6 +586,8 @@ extern struct ltc_cipher_descriptor {
          unsigned long blocks, unsigned char *tweak, symmetric_key *skey1,
          symmetric_key *skey2);
 } cipher_descriptor[];
+#pragma clang pop
+//END IGNORE WARNINGS INSIDE COMMENTS
 
 #ifdef LTC_BLOWFISH
 int blowfish_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_key *skey);
