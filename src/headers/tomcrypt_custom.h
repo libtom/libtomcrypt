@@ -1,9 +1,7 @@
 #ifndef TOMCRYPT_CUSTOM_H_
 #define TOMCRYPT_CUSTOM_H_
 
-#ifndef NO_WINCRYPT
-   #define NO_WINCRYPT
-#endif
+
 #ifndef LTC_NO_FAST
    #define LTC_NO_FAST
 #endif
