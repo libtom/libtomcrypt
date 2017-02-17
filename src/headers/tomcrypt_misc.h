@@ -3,18 +3,20 @@
 int base64_encode(const unsigned char *in,  unsigned long len,
                         unsigned char *out, unsigned long *outlen);
 
-#define base64_decode(i, il, o, ol) base64_decode_ex(i, il, o, ol, LTC_BASE64_STRICT)
-int base64_decode_ex(const unsigned char *in,  unsigned long len,
-                        unsigned char *out, unsigned long *outlen, int strict);
+int base64_decode(const unsigned char *in,  unsigned long len,
+                        unsigned char *out, unsigned long *outlen);
+int base64_strict_decode(const unsigned char *in,  unsigned long len,
+                        unsigned char *out, unsigned long *outlen);
 #endif
 
 #ifdef LTC_BASE64_URL
 int base64url_encode(const unsigned char *in,  unsigned long len,
                         unsigned char *out, unsigned long *outlen);
 
-#define base64url_decode(i, il, o, ol) base64url_decode_ex(i, il, o, ol, LTC_BASE64_STRICT)
-int base64url_decode_ex(const unsigned char *in,  unsigned long len,
-                        unsigned char *out, unsigned long *outlen, int strict);
+int base64url_decode(const unsigned char *in,  unsigned long len,
+                        unsigned char *out, unsigned long *outlen);
+int base64url_strict_decode(const unsigned char *in,  unsigned long len,
+                        unsigned char *out, unsigned long *outlen);
 #endif
 
 /* ===> LTC_HKDF -- RFC5869 HMAC-based Key Derivation Function <=== */

@@ -89,10 +89,6 @@ static const crypt_constant _crypt_constants[] = {
     {"LTC_CTR_MODE", 0},
 #endif
 
-#if defined(LTC_BASE64) || defined(LTC_BASE64_URL)
-    _C_STRINGIFY(LTC_BASE64_STRICT),
-#endif
-
     _C_STRINGIFY(MAXBLOCKSIZE),
     _C_STRINGIFY(TAB_SIZE),
     _C_STRINGIFY(ARGTYPE),

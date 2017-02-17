@@ -34,7 +34,7 @@ int base64_test(void)
 
    const struct {
       const char* s;
-      int mode;
+      int is_strict;
    } url_cases[] = {
          {"vuiSPKIl8PiR5O-rC4z9_xTQKZ0", 0},
          {"vuiSPKIl8PiR5O-rC4z9_xTQKZ0=", 1},
@@ -63,7 +63,10 @@ int base64_test(void)
    for (x = 0; x < sizeof(url_cases)/sizeof(url_cases[0]); ++x) {
        slen1 = strlen(url_cases[x].s);
        l1 = sizeof(out);
-       DO(base64url_decode_ex((unsigned char*)url_cases[x].s, slen1, out, &l1, url_cases[x].mode));
+       if(url_cases[x].is_strict)
+          DO(base64url_strict_decode((unsigned char*)url_cases[x].s, slen1, out, &l1));
+       else
+          DO(base64url_decode((unsigned char*)url_cases[x].s, slen1, out, &l1));
        if (l1 != strlen(special_case) ||  memcmp(out, special_case, l1)) {
            fprintf(stderr, "\nbase64url failed case %lu: %s", x, url_cases[x].s);
            print_hex("\nbase64url should", special_case, strlen(special_case));
@@ -91,16 +94,16 @@ int base64_test(void)
    out[10] = '\0';
    l1++;
    l2 = sizeof(tmp);
-   DO(base64_decode_ex(out, l1, tmp, &l2, 0));
+   DO(base64_decode(out, l1, tmp, &l2));
    if (l2 != x || memcmp(tmp, in, x)) {
-       fprintf(stderr, "loose base64 decoding failed %lu %lu %lu", x, l1, l2);
+       fprintf(stderr, "relaxed base64 decoding failed %lu %lu %lu", x, l1, l2);
        print_hex("is    ", tmp, l2);
        print_hex("should", in, x);
        print_hex("input ", out, l1);
        return 1;
    }
    l2 = sizeof(tmp);
-   DO(base64_decode_ex(out, l1, tmp, &l2, 1) == CRYPT_INVALID_PACKET ? CRYPT_OK : CRYPT_INVALID_PACKET);
+   DO(base64_strict_decode(out, l1, tmp, &l2) == CRYPT_INVALID_PACKET ? CRYPT_OK : CRYPT_INVALID_PACKET);
    return 0;
 }
 #endif

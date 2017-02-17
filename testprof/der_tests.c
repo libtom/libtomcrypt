@@ -392,7 +392,7 @@ static void der_cacert_test(void)
 
   ltc_asn1_list *decoded_list, *l, *l1, *l2;
 
-  DO(base64_decode_ex(_der_tests_cacert_root_cert, sizeof(_der_tests_cacert_root_cert), buf, &len1, 0));
+  DO(base64_decode(_der_tests_cacert_root_cert, sizeof(_der_tests_cacert_root_cert), buf, &len1));
   len2 = len1;
   DO(der_decode_sequence_flexi(buf, &len2, &decoded_list));
 
