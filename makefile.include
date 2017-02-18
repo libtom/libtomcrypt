@@ -66,6 +66,11 @@ endif # COMPILE_SMALL
 endif # COMPILE_DEBUG
 
 
+ifneq ($(findstring clang,$(CC)),)
+CFLAGS += -Wno-typedef-redefinition -Wno-tautological-compare
+endif
+
+
 HASH=hashsum
 CRYPT=encrypt
 SMALL=small
