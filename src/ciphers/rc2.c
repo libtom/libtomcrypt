@@ -22,7 +22,7 @@
 
 /**
   @file rc2.c
-  Implementation of LTC_RC2
+  Implementation of RC2 with fixed effective key length of 64bits
 */
 
 #ifdef LTC_RC2
@@ -60,7 +60,7 @@ static const unsigned char permute[256] = {
 };
 
  /**
-    Initialize the LTC_RC2 block cipher
+    Initialize the RC2 block cipher
     @param key The symmetric key you wish to pass
     @param keylen The key length in bytes
     @param num_rounds The number of rounds desired (0 for default)
@@ -121,7 +121,7 @@ int rc2_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_ke
 * Encrypt an 8-byte block of plaintext using the given key.            *
 \**********************************************************************/
 /**
-  Encrypts a block of text with LTC_RC2
+  Encrypts a block of text with RC2
   @param pt The input plaintext (8 bytes)
   @param ct The output ciphertext (8 bytes)
   @param skey The key as scheduled
@@ -199,7 +199,7 @@ int rc2_ecb_encrypt( const unsigned char *pt,
 * Decrypt an 8-byte block of ciphertext using the given key.           *
 \**********************************************************************/
 /**
-  Decrypts a block of text with LTC_RC2
+  Decrypts a block of text with RC2
   @param ct The input ciphertext (8 bytes)
   @param pt The output plaintext (8 bytes)
   @param skey The key as scheduled
@@ -275,7 +275,7 @@ int rc2_ecb_decrypt( const unsigned char *ct,
 #endif
 
 /**
-  Performs a self-test of the LTC_RC2 block cipher
+  Performs a self-test of the RC2 block cipher
   @return CRYPT_OK if functional, CRYPT_NOP if self-test has been disabled
 */
 int rc2_test(void)
