@@ -127,11 +127,13 @@
 
 /* The minimal set of functionality to run the tests */
 #ifdef LTC_MINIMAL
+   #define LTC_RIJNDAEL
    #define LTC_SHA256
+   #define LTC_YARROW
    #define LTC_CTR_MODE
+
    #define LTC_RNG_MAKE_PRNG
    #define LTC_RNG_GET_BYTES
-   #define LTC_YARROW
    #define LTC_DEVRANDOM
    #define LTC_TRY_URANDOM_FIRST
 
@@ -172,10 +174,10 @@
 /* TomsFastMath */
 /* #define TFM_DESC */
 
-#endif /* LTC_NO_MATH */
-
 /* GNU Multiple Precision Arithmetic Library */
 /* #define GMP_DESC */
+
+#endif /* LTC_NO_MATH */
 
 /* ---> Symmetric Block Ciphers <--- */
 #ifndef LTC_NO_CIPHERS
@@ -303,13 +305,6 @@
 
 /* Yarrow */
 #define LTC_YARROW
-/* which descriptor of AES to use?  */
-/* 0 = rijndael_enc 1 = aes_enc, 2 = rijndael [full], 3 = aes [full] */
-#ifdef ENCRYPT_ONLY
-  #define LTC_YARROW_AES 0
-#else
-  #define LTC_YARROW_AES 2
-#endif
 
 /* a PRNG that simply reads from an available system source */
 #define LTC_SPRNG
@@ -334,6 +329,18 @@
 #define LTC_RNG_MAKE_PRNG
 
 #endif /* LTC_NO_PRNGS */
+
+#ifdef LTC_YARROW
+
+/* which descriptor of AES to use?  */
+/* 0 = rijndael_enc 1 = aes_enc, 2 = rijndael [full], 3 = aes [full] */
+#ifdef ENCRYPT_ONLY
+  #define LTC_YARROW_AES 0
+#else
+  #define LTC_YARROW_AES 2
+#endif
+
+#endif
 
 #ifdef LTC_FORTUNA
 
