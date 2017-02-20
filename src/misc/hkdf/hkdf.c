@@ -6,10 +6,6 @@
 
 #ifdef LTC_HKDF
 
-#ifndef MIN
-#define MIN(a,b) ((a)<(b))?(a):(b)
-#endif
-
 /* This is mostly just a wrapper around hmac_memory */
 int hkdf_extract(int hash_idx, const unsigned char *salt, unsigned long  saltlen,
                                const unsigned char *in,   unsigned long  inlen,
