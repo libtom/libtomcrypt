@@ -88,41 +88,38 @@ static int _base64_decode_internal(const unsigned char *in,  unsigned long inlen
    LTC_ARGCHK(out    != NULL);
    LTC_ARGCHK(outlen != NULL);
 
-   g = 3;
+   g = 0; /* '=' counter */
    for (x = y = z = t = 0; x < inlen; x++) {
        c = map[in[x]&0xFF];
+       if (c == 254) {
+          g++;
+          continue;
+       }
+       else if (is_strict && g > 0) {
+          /* we only allow '=' to be at the end */
+          return CRYPT_INVALID_PACKET;
+       }
        if (c == 255) {
           if (is_strict)
              return CRYPT_INVALID_PACKET;
           else
              continue;
        }
-       /* the final = symbols are read and used to trim the remaining bytes */
-       if (c == 254) {
-          c = 0;
-          /* prevent g < 0 which would potentially allow an overflow later */
-          if (--g < 0) {
-             return CRYPT_INVALID_PACKET;
-          }
-       } else if (g != 3) {
-          /* we only allow = to be at the end */
-          return CRYPT_INVALID_PACKET;
-       }
 
        t = (t<<6)|c;
 
        if (++y == 4) {
-          if (z + g > *outlen) {
-             return CRYPT_BUFFER_OVERFLOW;
-          }
+          if (z + 3 > *outlen) return CRYPT_BUFFER_OVERFLOW;
           out[z++] = (unsigned char)((t>>16)&255);
-          if (g > 1) out[z++] = (unsigned char)((t>>8)&255);
-          if (g > 2) out[z++] = (unsigned char)(t&255);
+          out[z++] = (unsigned char)((t>>8)&255);
+          out[z++] = (unsigned char)(t&255);
           y = t = 0;
        }
    }
+
    if (y != 0) {
-      if (y == 1 || map != map_base64url || is_strict == 1) return CRYPT_INVALID_PACKET;
+      if (y == 1) return CRYPT_INVALID_PACKET;
+      if ((y + g) != 4 && is_strict) return CRYPT_INVALID_PACKET;
       t = t << (6 * (4 - y));
       if (z + y - 1 > *outlen) return CRYPT_BUFFER_OVERFLOW;
       if (y >= 2) out[z++] = (unsigned char) ((t >> 16) & 255);
@@ -177,6 +174,14 @@ int base64url_decode(const unsigned char *in,  unsigned long inlen,
     return _base64_decode_internal(in, inlen, out, outlen, map_base64url, relaxed);
 }
 
+/**
+   Strict base64 (URL Safe, RFC 4648 section 5) decode a block of memory
+   @param in       The base64 data to decode
+   @param inlen    The length of the base64 data
+   @param out      [out] The destination of the binary decoded data
+   @param outlen   [in/out] The max size and resulting size of the decoded data
+   @return CRYPT_OK if successful
+*/
 int base64url_strict_decode(const unsigned char *in,  unsigned long inlen,
                            unsigned char *out, unsigned long *outlen)
 {
