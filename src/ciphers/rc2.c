@@ -77,7 +77,7 @@ int rc2_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_ke
    LTC_ARGCHK(key  != NULL);
    LTC_ARGCHK(skey != NULL);
 
-   if (keylen < 8 || keylen > 128) {
+   if (keylen < 5 || keylen > 128) {
       return CRYPT_INVALID_KEYSIZE;
    }
 
@@ -345,7 +345,7 @@ void rc2_done(symmetric_key *skey)
 int rc2_keysize(int *keysize)
 {
    LTC_ARGCHK(keysize != NULL);
-   if (*keysize < 8) {
+   if (*keysize < 5) {
        return CRYPT_INVALID_KEYSIZE;
    } else if (*keysize > 128) {
        *keysize = 128;
