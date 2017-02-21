@@ -55,7 +55,7 @@ int dsa_verify_hash_raw(         void   *r,          void   *s,
    }
    
    /* FIPS 186-4 4.7: use leftmost min(bitlen(q), bitlen(hash)) bits of 'hash' */
-   if (hashlen > (unsigned long)(key->qord)) hashlen = (unsigned long)(key->qord);
+   hashlen = MIN(hashlen, (unsigned long)(key->qord));
 
    /* w = 1/s mod q */
    if ((err = mp_invmod(s, key->q, w)) != CRYPT_OK)                                       { goto error; }
