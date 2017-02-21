@@ -5,15 +5,34 @@ prng_state yarrow_prng;
 void print_hex(const char* what, const void* v, const unsigned long l)
 {
   const unsigned char* p = v;
-  unsigned long x;
+  unsigned long x, y = 0, z;
   fprintf(stderr, "%s contents: \n", what);
   for (x = 0; x < l; ) {
-      fprintf(stderr, "%02x ", p[x]);
-      if (!(++x % 16)) {
+      fprintf(stderr, "%02X ", p[x]);
+      if (!(++x % 16) || x == l) {
+         if((x % 16) != 0) {
+            z = 16 - (x % 16);
+            if(z >= 8)
+               fprintf(stderr, " ");
+            for (; z != 0; --z) {
+               fprintf(stderr, "   ");
+            }
+         }
+         fprintf(stderr, " | ");
+         for(; y < x; y++) {
+            if((y % 8) == 0)
+               fprintf(stderr, " ");
+            if(isgraph(p[y]))
+               fprintf(stderr, "%c", p[y]);
+            else
+               fprintf(stderr, ".");
+         }
          fprintf(stderr, "\n");
       }
+      else if((x % 8) == 0) {
+         fprintf(stderr, " ");
+      }
   }
-  fprintf(stderr, "\n");
 }
 
 int compare_testvector(const void* is, const unsigned long is_len, const void* should, const unsigned long should_len, const char* what, int which)
