@@ -430,6 +430,7 @@ int dsa_decrypt_key(const unsigned char *in,  unsigned long  inlen,
                           unsigned char *out, unsigned long *outlen,
                           dsa_key *key);
 
+int dsa_import_radix(int radix, char *p, char *q, char *g, char *x, char *y, dsa_key *key);
 int dsa_import(const unsigned char *in, unsigned long inlen, dsa_key *key);
 int dsa_export(unsigned char *out, unsigned long *outlen, int type, dsa_key *key);
 int dsa_verify_key(dsa_key *key, int *stat);
