@@ -114,26 +114,26 @@ src/pk/asn1/der/utctime/der_length_utctime.obj src/pk/asn1/der/utf8/der_decode_u
 src/pk/asn1/der/utf8/der_encode_utf8_string.obj src/pk/asn1/der/utf8/der_length_utf8_string.obj \
 src/pk/dh/dh.obj src/pk/dh/dh_static.obj src/pk/dh/dh_sys.obj src/pk/dsa/dsa_decrypt_key.obj \
 src/pk/dsa/dsa_encrypt_key.obj src/pk/dsa/dsa_export.obj src/pk/dsa/dsa_free.obj src/pk/dsa/dsa_import.obj \
-src/pk/dsa/dsa_make_key.obj src/pk/dsa/dsa_shared_secret.obj src/pk/dsa/dsa_sign_hash.obj \
-src/pk/dsa/dsa_verify_hash.obj src/pk/dsa/dsa_verify_key.obj src/pk/ecc/ecc_ansi_x963_export.obj \
-src/pk/ecc/ecc_ansi_x963_import.obj src/pk/ecc/ecc.obj src/pk/ecc/ecc_decrypt_key.obj \
-src/pk/ecc/ecc_encrypt_key.obj src/pk/ecc/ecc_export.obj src/pk/ecc/ecc_free.obj src/pk/ecc/ecc_get_size.obj \
-src/pk/ecc/ecc_import.obj src/pk/ecc/ecc_make_key.obj src/pk/ecc/ecc_shared_secret.obj \
-src/pk/ecc/ecc_sign_hash.obj src/pk/ecc/ecc_sizes.obj src/pk/ecc/ecc_test.obj src/pk/ecc/ecc_verify_hash.obj \
-src/pk/ecc/ltc_ecc_is_valid_idx.obj src/pk/ecc/ltc_ecc_map.obj src/pk/ecc/ltc_ecc_mul2add.obj \
-src/pk/ecc/ltc_ecc_mulmod.obj src/pk/ecc/ltc_ecc_mulmod_timing.obj src/pk/ecc/ltc_ecc_points.obj \
-src/pk/ecc/ltc_ecc_projective_add_point.obj src/pk/ecc/ltc_ecc_projective_dbl_point.obj \
-src/pk/katja/katja_decrypt_key.obj src/pk/katja/katja_encrypt_key.obj src/pk/katja/katja_export.obj \
-src/pk/katja/katja_exptmod.obj src/pk/katja/katja_free.obj src/pk/katja/katja_import.obj \
-src/pk/katja/katja_make_key.obj src/pk/pkcs1/pkcs_1_i2osp.obj src/pk/pkcs1/pkcs_1_mgf1.obj \
-src/pk/pkcs1/pkcs_1_oaep_decode.obj src/pk/pkcs1/pkcs_1_oaep_encode.obj src/pk/pkcs1/pkcs_1_os2ip.obj \
-src/pk/pkcs1/pkcs_1_pss_decode.obj src/pk/pkcs1/pkcs_1_pss_encode.obj src/pk/pkcs1/pkcs_1_v1_5_decode.obj \
-src/pk/pkcs1/pkcs_1_v1_5_encode.obj src/pk/rsa/rsa_decrypt_key.obj src/pk/rsa/rsa_encrypt_key.obj \
-src/pk/rsa/rsa_export.obj src/pk/rsa/rsa_exptmod.obj src/pk/rsa/rsa_free.obj src/pk/rsa/rsa_get_size.obj \
-src/pk/rsa/rsa_import.obj src/pk/rsa/rsa_make_key.obj src/pk/rsa/rsa_sign_hash.obj \
-src/pk/rsa/rsa_sign_saltlen_get.obj src/pk/rsa/rsa_verify_hash.obj src/prngs/fortuna.obj src/prngs/rc4.obj \
-src/prngs/rng_get_bytes.obj src/prngs/rng_make_prng.obj src/prngs/sober128.obj src/prngs/sprng.obj \
-src/prngs/yarrow.obj
+src/pk/dsa/dsa_import_radix.obj src/pk/dsa/dsa_make_key.obj src/pk/dsa/dsa_shared_secret.obj \
+src/pk/dsa/dsa_sign_hash.obj src/pk/dsa/dsa_verify_hash.obj src/pk/dsa/dsa_verify_key.obj \
+src/pk/ecc/ecc_ansi_x963_export.obj src/pk/ecc/ecc_ansi_x963_import.obj src/pk/ecc/ecc.obj \
+src/pk/ecc/ecc_decrypt_key.obj src/pk/ecc/ecc_encrypt_key.obj src/pk/ecc/ecc_export.obj src/pk/ecc/ecc_free.obj \
+src/pk/ecc/ecc_get_size.obj src/pk/ecc/ecc_import.obj src/pk/ecc/ecc_make_key.obj \
+src/pk/ecc/ecc_shared_secret.obj src/pk/ecc/ecc_sign_hash.obj src/pk/ecc/ecc_sizes.obj src/pk/ecc/ecc_test.obj \
+src/pk/ecc/ecc_verify_hash.obj src/pk/ecc/ltc_ecc_is_valid_idx.obj src/pk/ecc/ltc_ecc_map.obj \
+src/pk/ecc/ltc_ecc_mul2add.obj src/pk/ecc/ltc_ecc_mulmod.obj src/pk/ecc/ltc_ecc_mulmod_timing.obj \
+src/pk/ecc/ltc_ecc_points.obj src/pk/ecc/ltc_ecc_projective_add_point.obj \
+src/pk/ecc/ltc_ecc_projective_dbl_point.obj src/pk/katja/katja_decrypt_key.obj \
+src/pk/katja/katja_encrypt_key.obj src/pk/katja/katja_export.obj src/pk/katja/katja_exptmod.obj \
+src/pk/katja/katja_free.obj src/pk/katja/katja_import.obj src/pk/katja/katja_make_key.obj \
+src/pk/pkcs1/pkcs_1_i2osp.obj src/pk/pkcs1/pkcs_1_mgf1.obj src/pk/pkcs1/pkcs_1_oaep_decode.obj \
+src/pk/pkcs1/pkcs_1_oaep_encode.obj src/pk/pkcs1/pkcs_1_os2ip.obj src/pk/pkcs1/pkcs_1_pss_decode.obj \
+src/pk/pkcs1/pkcs_1_pss_encode.obj src/pk/pkcs1/pkcs_1_v1_5_decode.obj src/pk/pkcs1/pkcs_1_v1_5_encode.obj \
+src/pk/rsa/rsa_decrypt_key.obj src/pk/rsa/rsa_encrypt_key.obj src/pk/rsa/rsa_export.obj \
+src/pk/rsa/rsa_exptmod.obj src/pk/rsa/rsa_free.obj src/pk/rsa/rsa_get_size.obj src/pk/rsa/rsa_import.obj \
+src/pk/rsa/rsa_make_key.obj src/pk/rsa/rsa_sign_hash.obj src/pk/rsa/rsa_sign_saltlen_get.obj \
+src/pk/rsa/rsa_verify_hash.obj src/prngs/fortuna.obj src/prngs/rc4.obj src/prngs/rng_get_bytes.obj \
+src/prngs/rng_make_prng.obj src/prngs/sober128.obj src/prngs/sprng.obj src/prngs/yarrow.obj
 
 HEADERS=src/headers/tomcrypt_argchk.h src/headers/tomcrypt_cfg.h src/headers/tomcrypt_cipher.h \
 src/headers/tomcrypt_custom.h src/headers/tomcrypt.h src/headers/tomcrypt_hash.h \
