@@ -42,9 +42,9 @@
 #define XQSORT qsort
 #endif
 
-#if defined(malloc) || defined(realloc) || defined(calloc) || defined(free) || \
+#if ( defined(malloc) || defined(realloc) || defined(calloc) || defined(free) || \
       defined(memset) || defined(memcpy) || defined(memcmp) || defined(strcmp) || \
-      defined(clock) || defined(qsort)
+      defined(clock) || defined(qsort) ) && !defined(LTC_NO_PROTOTYPES)
 #define LTC_NO_PROTOTYPES
 #endif
 
