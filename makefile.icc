@@ -226,9 +226,10 @@ src/pk/pkcs1/pkcs_1_oaep_encode.o src/pk/pkcs1/pkcs_1_os2ip.o src/pk/pkcs1/pkcs_
 src/pk/pkcs1/pkcs_1_pss_encode.o src/pk/pkcs1/pkcs_1_v1_5_decode.o src/pk/pkcs1/pkcs_1_v1_5_encode.o \
 src/pk/rsa/rsa_decrypt_key.o src/pk/rsa/rsa_encrypt_key.o src/pk/rsa/rsa_export.o \
 src/pk/rsa/rsa_exptmod.o src/pk/rsa/rsa_free.o src/pk/rsa/rsa_get_size.o src/pk/rsa/rsa_import.o \
-src/pk/rsa/rsa_make_key.o src/pk/rsa/rsa_sign_hash.o src/pk/rsa/rsa_sign_saltlen_get.o \
-src/pk/rsa/rsa_verify_hash.o src/prngs/fortuna.o src/prngs/rc4.o src/prngs/rng_get_bytes.o \
-src/prngs/rng_make_prng.o src/prngs/sober128.o src/prngs/sprng.o src/prngs/yarrow.o
+src/pk/rsa/rsa_import_radix.o src/pk/rsa/rsa_make_key.o src/pk/rsa/rsa_sign_hash.o \
+src/pk/rsa/rsa_sign_saltlen_get.o src/pk/rsa/rsa_verify_hash.o src/prngs/fortuna.o src/prngs/rc4.o \
+src/prngs/rng_get_bytes.o src/prngs/rng_make_prng.o src/prngs/sober128.o src/prngs/sprng.o \
+src/prngs/yarrow.o
 
 HEADERS=src/headers/tomcrypt_argchk.h src/headers/tomcrypt_cfg.h src/headers/tomcrypt_cipher.h \
 src/headers/tomcrypt_custom.h src/headers/tomcrypt.h src/headers/tomcrypt_hash.h \
