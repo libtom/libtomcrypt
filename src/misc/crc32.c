@@ -20,19 +20,20 @@
 
 static const ulong32 _CRC32_NEGL = 0xffffffffUL;
 
-#if defined(ENDIAN_LITTLE) || defined(ENDIAN_NEUTRAL)
+#if defined(ENDIAN_LITTLE)
 #define CRC32_INDEX(c) (c & 0xff)
 #define CRC32_SHIFTED(c) (c >> 8)
-#else
+#elif defined(ENDIAN_BIG)
 #define CRC32_INDEX(c) (c >> 24)
 #define CRC32_SHIFTED(c) (c << 8)
+#else
+#error The existing CRC32 implementation only works properly when the endianness of the target platform is known.
 #endif
-
 
 /* Table of CRC-32's of all single byte values (made by makecrc.c) */
 static const ulong32 crc32_m_tab[] =
 {
-#if defined(ENDIAN_LITTLE) || defined(ENDIAN_NEUTRAL)
+#if defined(ENDIAN_LITTLE)
       0x00000000L, 0x77073096L, 0xee0e612cL, 0x990951baL, 0x076dc419L,
       0x706af48fL, 0xe963a535L, 0x9e6495a3L, 0x0edb8832L, 0x79dcb8a4L,
       0xe0d5e91eL, 0x97d2d988L, 0x09b64c2bL, 0x7eb17cbdL, 0xe7b82d07L,
@@ -162,10 +163,9 @@ void crc32_update(crc32_state *ctx, const unsigned char *input, unsigned long le
 
 void crc32_finish(crc32_state *ctx, void *hash, unsigned long size)
 {
-   unsigned char* h;
    unsigned long i;
+   unsigned char* h;
    ulong32 crc;
-
    LTC_ARGCHKVD(ctx != NULL);
    LTC_ARGCHKVD(hash != NULL);
 
