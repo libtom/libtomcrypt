@@ -3,55 +3,31 @@
 
 /* macros for various libc functions you can change for embedded targets */
 #ifndef XMALLOC
-   #ifdef malloc
-   #define LTC_NO_PROTOTYPES
-   #endif
 #define XMALLOC  malloc
 #endif
 #ifndef XREALLOC
-   #ifdef realloc
-   #define LTC_NO_PROTOTYPES
-   #endif
 #define XREALLOC realloc
 #endif
 #ifndef XCALLOC
-   #ifdef calloc
-   #define LTC_NO_PROTOTYPES
-   #endif
 #define XCALLOC  calloc
 #endif
 #ifndef XFREE
-   #ifdef free
-   #define LTC_NO_PROTOTYPES
-   #endif
 #define XFREE    free
 #endif
 
 #ifndef XMEMSET
-   #ifdef memset
-   #define LTC_NO_PROTOTYPES
-   #endif
 #define XMEMSET  memset
 #endif
 #ifndef XMEMCPY
-   #ifdef memcpy
-   #define LTC_NO_PROTOTYPES
-   #endif
 #define XMEMCPY  memcpy
 #endif
 #ifndef XMEMCMP
-   #ifdef memcmp
-   #define LTC_NO_PROTOTYPES
-   #endif
 #define XMEMCMP  memcmp
 #endif
 #ifndef XMEM_NEQ
 #define XMEM_NEQ  mem_neq
 #endif
 #ifndef XSTRCMP
-   #ifdef strcmp
-   #define LTC_NO_PROTOTYPES
-   #endif
 #define XSTRCMP strcmp
 #endif
 
@@ -63,10 +39,13 @@
 #endif
 
 #ifndef XQSORT
-   #ifdef qsort
-   #define LTC_NO_PROTOTYPES
-   #endif
 #define XQSORT qsort
+#endif
+
+#if ( defined(malloc) || defined(realloc) || defined(calloc) || defined(free) || \
+      defined(memset) || defined(memcpy) || defined(memcmp) || defined(strcmp) || \
+      defined(clock) || defined(qsort) ) && !defined(LTC_NO_PROTOTYPES)
+#define LTC_NO_PROTOTYPES
 #endif
 
 /* shortcut to disable automatic inclusion */
