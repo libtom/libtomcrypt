@@ -34,9 +34,6 @@
 #ifndef XCLOCK
 #define XCLOCK   clock
 #endif
-#ifndef XCLOCKS_PER_SEC
-#define XCLOCKS_PER_SEC CLOCKS_PER_SEC
-#endif
 
 #ifndef XQSORT
 #define XQSORT qsort
