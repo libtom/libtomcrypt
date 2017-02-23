@@ -142,6 +142,15 @@ int ccm_memory(int cipher,
    } else {
       skey = uskey;
    }
+   
+   /* initialize buffer for pt */
+   if (direction == CCM_DECRYPT) {
+      pt_work = XMALLOC(ptlen);
+      if (pt_work == NULL) {
+         goto error;
+      }
+      pt = pt_work;
+   }
 
    /* initialize buffer for pt */
    if (direction == CCM_DECRYPT) {
