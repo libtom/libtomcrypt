@@ -72,7 +72,7 @@ int gcm_add_iv(gcm_state *gcm,
    for (; x < IVlen; x++) {
        gcm->buf[gcm->buflen++] = *IV++;
 
-       if (gcm->buflen == 16) {
+      if (gcm->buflen == 16) {
          /* GF mult it */
          for (y = 0; y < 16; y++) {
              gcm->X[y] ^= gcm->buf[y];

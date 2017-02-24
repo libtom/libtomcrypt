@@ -52,7 +52,7 @@ int cfb_decrypt(const unsigned char *ct, unsigned char *pt, unsigned long len, s
        }
        cfb->pad[cfb->padlen] = *ct;
        *pt = *ct ^ cfb->IV[cfb->padlen];
-       ++pt; 
+       ++pt;
        ++ct;
        ++(cfb->padlen);
    }

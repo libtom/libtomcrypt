@@ -15,7 +15,7 @@
 /**
   @file rand_prime.c
   Generate a random prime, Tom St Denis
-*/  
+*/
 
 #define USE_BBS 1
 
@@ -35,13 +35,13 @@ int rand_prime(void *N, long len, prng_state *prng, int wprng)
    }
 
    /* allow sizes between 2 and 512 bytes for a prime size */
-   if (len < 2 || len > 512) { 
+   if (len < 2 || len > 512) {
       return CRYPT_INVALID_PRIME_SIZE;
    }
-   
+
    /* valid PRNG? Better be! */
    if ((err = prng_is_valid(wprng)) != CRYPT_OK) {
-      return err; 
+      return err;
    }
 
    /* allocate buffer to work with */
@@ -60,7 +60,7 @@ int rand_prime(void *N, long len, prng_state *prng, int wprng)
       /* munge bits */
       buf[0]     |= 0x80 | 0x40;
       buf[len-1] |= 0x01 | ((type & USE_BBS) ? 0x02 : 0x00);
- 
+
       /* load value */
       if ((err = mp_read_unsigned_bin(N, buf, len)) != CRYPT_OK) {
          XFREE(buf);
@@ -81,7 +81,7 @@ int rand_prime(void *N, long len, prng_state *prng, int wprng)
    XFREE(buf);
    return CRYPT_OK;
 }
-      
+
 #endif /* LTC_NO_MATH */
 
 

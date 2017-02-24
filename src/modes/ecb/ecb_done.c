@@ -33,7 +33,7 @@ int ecb_done(symmetric_ECB *ecb)
    return CRYPT_OK;
 }
 
-   
+
 
 #endif
 

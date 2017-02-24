@@ -96,9 +96,9 @@ static void decrypt(ulong32 *p, int N, ulong32 *uk)
    int n, t;
    for (t = 4*(((N-1)>>2)&1), n = N; ;  ) {
       switch (n<=4 ? n : ((n-1)%4)+1) {
-         case 4: pi4(p, uk+t); --n;
-         case 3: pi3(p, uk+t); --n;
-         case 2: pi2(p, uk+t); --n;
+         case 4: pi4(p, uk+t); --n; /* FALLTHROUGH */
+         case 3: pi3(p, uk+t); --n; /* FALLTHROUGH */
+         case 2: pi2(p, uk+t); --n; /* FALLTHROUGH */
          case 1: pi1(p); --n; break;
          case 0: return;
       }

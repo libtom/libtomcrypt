@@ -16,13 +16,13 @@
    Hash open files, Tom St Denis
 */
 
-/** 
-  Hash data from an open file handle.  
+/**
+  Hash data from an open file handle.
   @param hash   The index of the hash you want to use
   @param in     The FILE* handle of the file you want to hash
   @param out    [out] The destination of the digest
   @param outlen [in/out] The max size and resulting size of the digest
-  @result CRYPT_OK if successful   
+  @result CRYPT_OK if successful
 */
 int hash_filehandle(int hash, FILE *in, unsigned char *out, unsigned long *outlen)
 {

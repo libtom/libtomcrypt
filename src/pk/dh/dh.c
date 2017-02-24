@@ -189,12 +189,12 @@ void dh_free(dh_key *key)
 {
    LTC_ARGCHKVD(key != NULL);
    if ( key->x ) {
-		mp_clear( key->x );
-		key->x = NULL;
+      mp_clear( key->x );
+      key->x = NULL;
    }
    if ( key->y ) {
-        mp_clear( key->y );
-		key->y = NULL;
+      mp_clear( key->y );
+      key->y = NULL;
    }
 }
 

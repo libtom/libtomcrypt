@@ -261,8 +261,8 @@ typedef struct {
     /** Index into the ltc_ecc_sets[] for the parameters of this curve; if -1, then this key is using user supplied curve in dp */
     int idx;
 
-	/** pointer to domain parameters; either points to NIST curves (identified by idx >= 0) or user supplied curve */
-	const ltc_ecc_set_type *dp;
+    /** pointer to domain parameters; either points to NIST curves (identified by idx >= 0) or user supplied curve */
+    const ltc_ecc_set_type *dp;
 
     /** The public key */
     ecc_point pubkey;

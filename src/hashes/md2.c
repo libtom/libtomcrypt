@@ -12,7 +12,7 @@
 
 /**
    @param md2.c
-   LTC_MD2 (RFC 1319) hash function implementation by Tom St Denis 
+   LTC_MD2 (RFC 1319) hash function implementation by Tom St Denis
 */
 
 #ifdef LTC_MD2
@@ -64,7 +64,7 @@ static void md2_update_chksum(hash_state *md)
    L = md->md2.chksum[15];
    for (j = 0; j < 16; j++) {
 
-/* caution, the RFC says its "C[j] = S[M[i*16+j] xor L]" but the reference source code [and test vectors] say 
+/* caution, the RFC says its "C[j] = S[M[i*16+j] xor L]" but the reference source code [and test vectors] say
    otherwise.
 */
        L = (md->md2.chksum[j] ^= PI_SUBST[(int)(md->md2.buf[j] ^ L)] & 255);
@@ -75,7 +75,7 @@ static void md2_compress(hash_state *md)
 {
    int j, k;
    unsigned char t;
-   
+
    /* copy block */
    for (j = 0; j < 16; j++) {
        md->md2.X[16+j] = md->md2.buf[j];
@@ -122,9 +122,9 @@ int md2_process(hash_state *md, const unsigned char *in, unsigned long inlen)
     unsigned long n;
     LTC_ARGCHK(md != NULL);
     LTC_ARGCHK(in != NULL);
-    if (md-> md2 .curlen > sizeof(md-> md2 .buf)) {                            
-       return CRYPT_INVALID_ARG;                                                           
-    }                                                                                       
+    if (md-> md2 .curlen > sizeof(md-> md2 .buf)) {
+       return CRYPT_INVALID_ARG;
+    }
     while (inlen > 0) {
         n = MIN(inlen, (16 - md->md2.curlen));
         XMEMCPY(md->md2.buf + md->md2.curlen, in, (size_t)n);
@@ -186,12 +186,12 @@ int md2_done(hash_state * md, unsigned char *out)
 /**
   Self-test the hash
   @return CRYPT_OK if successful, CRYPT_NOP if self-tests have been disabled
-*/  
+*/
 int md2_test(void)
 {
  #ifndef LTC_TEST
     return CRYPT_NOP;
- #else    
+ #else
    static const struct {
         char *msg;
         unsigned char md[16];
@@ -239,7 +239,7 @@ int md2_test(void)
           return CRYPT_FAIL_TESTVECTOR;
        }
    }
-   return CRYPT_OK;        
+   return CRYPT_OK;
   #endif
 }
 

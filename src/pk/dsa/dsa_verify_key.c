@@ -89,7 +89,7 @@ int dsa_verify_key(dsa_key *key, int *stat)
    /* at this point we are out of tests ;-( */
    err   = CRYPT_OK;
    *stat = 1;
-error: 
+error:
    mp_clear_multi(tmp, tmp2, NULL);
    return err;
 }

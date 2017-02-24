@@ -36,7 +36,7 @@ int f8_decrypt(const unsigned char *ct, unsigned char *pt, unsigned long len, sy
 
 #endif
 
- 
+
 
 /* $Source$ */
 /* $Revision$ */

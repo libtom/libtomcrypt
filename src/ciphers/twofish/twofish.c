@@ -245,23 +245,26 @@ static void h_func(const unsigned char *in, unsigned char *out, unsigned char *M
   unsigned char y[4];
   for (x = 0; x < 4; x++) {
       y[x] = in[x];
- }
+  }
   switch (k) {
      case 4:
             y[0] = (unsigned char)(sbox(1, (ulong32)y[0]) ^ M[4 * (6 + offset) + 0]);
             y[1] = (unsigned char)(sbox(0, (ulong32)y[1]) ^ M[4 * (6 + offset) + 1]);
             y[2] = (unsigned char)(sbox(0, (ulong32)y[2]) ^ M[4 * (6 + offset) + 2]);
             y[3] = (unsigned char)(sbox(1, (ulong32)y[3]) ^ M[4 * (6 + offset) + 3]);
+            /* FALLTHROUGH */
      case 3:
             y[0] = (unsigned char)(sbox(1, (ulong32)y[0]) ^ M[4 * (4 + offset) + 0]);
             y[1] = (unsigned char)(sbox(1, (ulong32)y[1]) ^ M[4 * (4 + offset) + 1]);
             y[2] = (unsigned char)(sbox(0, (ulong32)y[2]) ^ M[4 * (4 + offset) + 2]);
             y[3] = (unsigned char)(sbox(0, (ulong32)y[3]) ^ M[4 * (4 + offset) + 3]);
+            /* FALLTHROUGH */
      case 2:
             y[0] = (unsigned char)(sbox(1, sbox(0, sbox(0, (ulong32)y[0]) ^ M[4 * (2 + offset) + 0]) ^ M[4 * (0 + offset) + 0]));
             y[1] = (unsigned char)(sbox(0, sbox(0, sbox(1, (ulong32)y[1]) ^ M[4 * (2 + offset) + 1]) ^ M[4 * (0 + offset) + 1]));
             y[2] = (unsigned char)(sbox(1, sbox(1, sbox(0, (ulong32)y[2]) ^ M[4 * (2 + offset) + 2]) ^ M[4 * (0 + offset) + 2]));
             y[3] = (unsigned char)(sbox(0, sbox(1, sbox(1, (ulong32)y[3]) ^ M[4 * (2 + offset) + 3]) ^ M[4 * (0 + offset) + 3]));
+            /* FALLTHROUGH */
   }
   mds_mult(y, out);
 }
@@ -504,7 +507,7 @@ int twofish_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_ke
         a  = RORc(a ^ (t1 + k[2]), 1);
         b  = ROLc(b, 1) ^ (t2 + t1 + k[3]);
         k += 4;
-   }
+    }
 
     /* output with "undo last swap" */
     ta = c ^ skey->twofish.K[4];
@@ -646,11 +649,11 @@ int twofish_test(void)
 };
 
 
- symmetric_key key;
- unsigned char tmp[2][16];
- int err, i, y;
+  symmetric_key key;
+  unsigned char tmp[2][16];
+  int err, i, y;
 
- for (i = 0; i < (int)(sizeof(tests)/sizeof(tests[0])); i++) {
+  for (i = 0; i < (int)(sizeof(tests)/sizeof(tests[0])); i++) {
     if ((err = twofish_setup(tests[i].key, tests[i].keylen, 0, &key)) != CRYPT_OK) {
        return err;
     }
@@ -662,13 +665,13 @@ int twofish_test(void)
 #endif
        return CRYPT_FAIL_TESTVECTOR;
     }
-      /* now see if we can encrypt all zero bytes 1000 times, decrypt and come back where we started */
-      for (y = 0; y < 16; y++) tmp[0][y] = 0;
-      for (y = 0; y < 1000; y++) twofish_ecb_encrypt(tmp[0], tmp[0], &key);
-      for (y = 0; y < 1000; y++) twofish_ecb_decrypt(tmp[0], tmp[0], &key);
-      for (y = 0; y < 16; y++) if (tmp[0][y] != 0) return CRYPT_FAIL_TESTVECTOR;
- }
- return CRYPT_OK;
+    /* now see if we can encrypt all zero bytes 1000 times, decrypt and come back where we started */
+    for (y = 0; y < 16; y++) tmp[0][y] = 0;
+    for (y = 0; y < 1000; y++) twofish_ecb_encrypt(tmp[0], tmp[0], &key);
+    for (y = 0; y < 1000; y++) twofish_ecb_decrypt(tmp[0], tmp[0], &key);
+    for (y = 0; y < 16; y++) if (tmp[0][y] != 0) return CRYPT_FAIL_TESTVECTOR;
+  }
+  return CRYPT_OK;
 #endif
 }
 

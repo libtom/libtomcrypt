@@ -118,7 +118,7 @@ int ccm_test(void)
   int           err, idx;
   symmetric_key skey;
   ccm_state ccm;
-  
+
   zeromem(zero, 64);
 
   idx = find_cipher("aes");
@@ -190,9 +190,9 @@ int ccm_test(void)
       }
 
       if (y == 0) {
-          XMEMCPY(tag3, tests[x].tag, tests[x].taglen);
-          taglen = tests[x].taglen;
-          if ((err = ccm_memory(idx,
+         XMEMCPY(tag3, tests[x].tag, tests[x].taglen);
+         taglen = tests[x].taglen;
+         if ((err = ccm_memory(idx,
                                tests[x].key, 16,
                                NULL,
                                tests[x].nonce, tests[x].noncelen,

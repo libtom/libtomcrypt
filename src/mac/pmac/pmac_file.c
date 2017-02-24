@@ -10,15 +10,15 @@
  */
 #include "tomcrypt.h"
 
-/** 
+/**
    @file pmac_file.c
-   PMAC implementation, process a file, by Tom St Denis 
+   PMAC implementation, process a file, by Tom St Denis
 */
 
 #ifdef LTC_PMAC
 
 /**
-   PMAC a file 
+   PMAC a file
    @param cipher       The index of the cipher desired
    @param key          The secret key
    @param keylen       The length of the secret key (octets)
@@ -27,9 +27,9 @@
    @param outlen       [in/out] Max size and resulting size of the authentication tag
    @return CRYPT_OK if successful, CRYPT_NOP if file support has been disabled
 */
-int pmac_file(int cipher, 
+int pmac_file(int cipher,
               const unsigned char *key, unsigned long keylen,
-              const char *filename, 
+              const char *filename,
                     unsigned char *out, unsigned long *outlen)
 {
 #ifdef LTC_NO_FILE

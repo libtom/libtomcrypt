@@ -17,7 +17,7 @@
 
 #ifdef LTC_DER
 /**
-  Gets length of DER encoding of a BOOLEAN 
+  Gets length of DER encoding of a BOOLEAN
   @param outlen [out] The length of the DER encoding
   @return CRYPT_OK if successful
 */

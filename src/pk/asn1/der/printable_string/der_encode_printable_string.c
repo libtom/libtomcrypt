@@ -37,7 +37,7 @@ int der_encode_printable_string(const unsigned char *in, unsigned long inlen,
 
    /* get the size */
    if ((err = der_length_printable_string(in, inlen, &len)) != CRYPT_OK) {
-      return err; 
+      return err;
    }
 
    /* too big? */

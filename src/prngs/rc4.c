@@ -13,11 +13,11 @@
 /**
   @file rc4.c
   LTC_RC4 PRNG, Tom St Denis
-*/  
+*/
 
 #ifdef LTC_RC4
 
-const struct ltc_prng_descriptor rc4_desc = 
+const struct ltc_prng_descriptor rc4_desc =
 {
    "rc4", 32,
     &rc4_start,
@@ -34,14 +34,14 @@ const struct ltc_prng_descriptor rc4_desc =
   Start the PRNG
   @param prng     [out] The PRNG state to initialize
   @return CRYPT_OK if successful
-*/  
+*/
 int rc4_start(prng_state *prng)
 {
     LTC_ARGCHK(prng != NULL);
 
     /* set keysize to zero */
     prng->rc4.x = 0;
-    
+
     return CRYPT_OK;
 }
 
@@ -51,12 +51,12 @@ int rc4_start(prng_state *prng)
   @param inlen    Length of the data to add
   @param prng     PRNG state to update
   @return CRYPT_OK if successful
-*/  
+*/
 int rc4_add_entropy(const unsigned char *in, unsigned long inlen, prng_state *prng)
 {
     LTC_ARGCHK(in  != NULL);
     LTC_ARGCHK(prng != NULL);
- 
+
     /* trim as required */
     if (prng->rc4.x + inlen > 256) {
        if (prng->rc4.x == 256) {
@@ -65,7 +65,7 @@ int rc4_add_entropy(const unsigned char *in, unsigned long inlen, prng_state *pr
        } else {
           /* only accept part of it */
           inlen = 256 - prng->rc4.x;
-       }       
+       }
     }
 
     while (inlen--) {
@@ -73,14 +73,14 @@ int rc4_add_entropy(const unsigned char *in, unsigned long inlen, prng_state *pr
     }
 
     return CRYPT_OK;
-    
+
 }
 
 /**
   Make the PRNG ready to read from
   @param prng   The PRNG to make active
   @return CRYPT_OK if successful
-*/  
+*/
 int rc4_ready(prng_state *prng)
 {
     unsigned char key[256], tmp, *s;
@@ -101,7 +101,7 @@ int rc4_ready(prng_state *prng)
     for (j = x = y = 0; x < 256; x++) {
         y = (y + prng->rc4.buf[x] + key[j++]) & 255;
         if (j == keylen) {
-           j = 0; 
+           j = 0;
         }
         tmp = s[x]; s[x] = s[y]; s[y] = tmp;
     }
@@ -121,7 +121,7 @@ int rc4_ready(prng_state *prng)
   @param outlen   Length of output
   @param prng     The active PRNG to read from
   @return Number of octets read
-*/  
+*/
 unsigned long rc4_read(unsigned char *out, unsigned long outlen, prng_state *prng)
 {
    unsigned char x, y, *s, tmp;
@@ -154,7 +154,7 @@ unsigned long rc4_read(unsigned char *out, unsigned long outlen, prng_state *prn
   Terminate the PRNG
   @param prng   The PRNG to terminate
   @return CRYPT_OK if successful
-*/  
+*/
 int rc4_done(prng_state *prng)
 {
    LTC_ARGCHK(prng != NULL);
@@ -167,7 +167,7 @@ int rc4_done(prng_state *prng)
   @param outlen    [in/out] Max size and resulting size of the state
   @param prng      The PRNG to export
   @return CRYPT_OK if successful
-*/  
+*/
 int rc4_export(unsigned char *out, unsigned long *outlen, prng_state *prng)
 {
    LTC_ARGCHK(outlen != NULL);
@@ -186,14 +186,14 @@ int rc4_export(unsigned char *out, unsigned long *outlen, prng_state *prng)
 
    return CRYPT_OK;
 }
- 
+
 /**
   Import a PRNG state
   @param in       The PRNG state
   @param inlen    Size of the state
   @param prng     The PRNG to import
   @return CRYPT_OK if successful
-*/  
+*/
 int rc4_import(const unsigned char *in, unsigned long inlen, prng_state *prng)
 {
    int err;
@@ -203,7 +203,7 @@ int rc4_import(const unsigned char *in, unsigned long inlen, prng_state *prng)
    if (inlen != 32) {
       return CRYPT_INVALID_ARG;
    }
-   
+
    if ((err = rc4_start(prng)) != CRYPT_OK) {
       return err;
    }
@@ -213,7 +213,7 @@ int rc4_import(const unsigned char *in, unsigned long inlen, prng_state *prng)
 /**
   PRNG self-test
   @return CRYPT_OK if successful, CRYPT_NOP if self-testing has been disabled
-*/  
+*/
 int rc4_test(void)
 {
 #if !defined(LTC_TEST) || defined(LTC_VALGRIND)
@@ -250,7 +250,7 @@ int rc4_test(void)
        if (XMEMCMP(dst, tests[x].ct, 8)) {
 #if 0
           int y;
-          printf("\n\nLTC_RC4 failed, I got:\n"); 
+          printf("\n\nLTC_RC4 failed, I got:\n");
           for (y = 0; y < 8; y++) printf("%02x ", dst[y]);
           printf("\n");
 #endif

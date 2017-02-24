@@ -16,7 +16,7 @@
 */
 
 #ifdef LTC_LRW_MODE
- 
+
 /**
   LRW encrypt blocks
   @param pt     The plaintext

@@ -926,16 +926,16 @@ int  anubis_setup(const unsigned char *key, int keylen, int num_rounds, symmetri
       return CRYPT_INVALID_ROUNDS;
    }
 
-    /*
-    * map cipher key to initial key state (mu):
-    */
-    for (i = 0, pos = 0; i < N; i++, pos += 4) {
+   /*
+   * map cipher key to initial key state (mu):
+   */
+   for (i = 0, pos = 0; i < N; i++, pos += 4) {
       kappa[i] =
          (((ulong32)key[pos    ]) << 24) ^
          (((ulong32)key[pos + 1]) << 16) ^
          (((ulong32)key[pos + 2]) <<  8) ^
          (((ulong32)key[pos + 3])      );
-    }
+   }
 
    /*
     * generate R + 1 round keys:

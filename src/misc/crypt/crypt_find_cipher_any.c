@@ -16,7 +16,7 @@
 */
 
 /**
-   Find a cipher flexibly.  First by name then if not present by block and key size 
+   Find a cipher flexibly.  First by name then if not present by block and key size
    @param name        The name of the cipher desired
    @param blocklen    The minimum length of the block cipher desired (octets)
    @param keylen      The minimum length of the key size desired (octets)

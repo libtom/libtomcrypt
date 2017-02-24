@@ -171,7 +171,7 @@ static const ulong32 SP4404[] = {
 0x28280028, 0x7b7b007b, 0xc9c900c9, 0xc1c100c1, 0xe3e300e3, 0xf4f400f4, 0xc7c700c7, 0x9e9e009e,
 };
 
-static ulong64 key_sigma[] = {
+static const ulong64 key_sigma[] = {
    CONST64(0xA09E667F3BCC908B),
    CONST64(0xB67AE8584CAA73B2),
    CONST64(0xC6EF372FE94F82BE),
@@ -686,8 +686,8 @@ int camellia_test(void)
    unsigned int x;
 
    for (x = 0; x < sizeof(tests)/sizeof(tests[0]); x++) {
-     zeromem(&skey, sizeof(skey));
-     if ((err = camellia_setup(tests[x].key, tests[x].keylen, 0, &skey)) != CRYPT_OK) {
+      zeromem(&skey, sizeof(skey));
+      if ((err = camellia_setup(tests[x].key, tests[x].keylen, 0, &skey)) != CRYPT_OK) {
          return err;
       }
       if ((err = camellia_ecb_encrypt(tests[x].pt, buf[0], &skey)) != CRYPT_OK) {

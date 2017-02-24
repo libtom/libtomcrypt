@@ -19,7 +19,7 @@
 /**
   @file ltc_ecc_map.c
   ECC Crypto, Tom St Denis
-*/  
+*/
 
 #ifdef LTC_MECC
 
@@ -48,7 +48,7 @@ int ltc_ecc_map(ecc_point *P, void *modulus, void *mp)
 
    /* get 1/z */
    if ((err = mp_invmod(P->z, modulus, t1)) != CRYPT_OK)                      { goto done; }
- 
+
    /* get 1/z^2 and 1/z^3 */
    if ((err = mp_sqr(t1, t2)) != CRYPT_OK)                                    { goto done; }
    if ((err = mp_mod(t2, modulus, t2)) != CRYPT_OK)                           { goto done; }

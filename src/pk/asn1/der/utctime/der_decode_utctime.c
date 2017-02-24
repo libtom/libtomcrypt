@@ -73,7 +73,7 @@ int der_decode_utctime(const unsigned char *in, unsigned long *inlen,
    *inlen = 2 + x;
 
 
-   /* possible encodings are 
+   /* possible encodings are
 YYMMDDhhmmZ
 YYMMDDhhmm+hh'mm'
 YYMMDDhhmm-hh'mm'
@@ -81,7 +81,7 @@ YYMMDDhhmmssZ
 YYMMDDhhmmss+hh'mm'
 YYMMDDhhmmss-hh'mm'
 
-    So let's do a trivial decode upto [including] mm 
+    So let's do a trivial decode upto [including] mm
    */
 
     x = 0;

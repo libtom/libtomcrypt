@@ -10,9 +10,9 @@
  */
 #include "tomcrypt.h"
 
-/** 
+/**
    @file pmac_ntz.c
-   PMAC implementation, internal function, by Tom St Denis 
+   PMAC implementation, internal function, by Tom St Denis
 */
 
 #ifdef LTC_PMAC

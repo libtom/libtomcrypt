@@ -95,8 +95,8 @@ int dsa_import(const unsigned char *in, unsigned long inlen, dsa_key *key)
 
       tmpbuf = XCALLOC(1, tmpbuf_len);
       if (tmpbuf == NULL) {
-          err = CRYPT_MEM;
-          goto LBL_ERR;
+         err = CRYPT_MEM;
+         goto LBL_ERR;
       }
 
       err = der_decode_subject_public_key_info(in, inlen,
@@ -112,7 +112,7 @@ int dsa_import(const unsigned char *in, unsigned long inlen, dsa_key *key)
 
       XFREE(tmpbuf);
       key->type = PK_PUBLIC;
-  }
+   }
 
 LBL_OK:
   key->qord = mp_unsigned_bin_size(key->q);

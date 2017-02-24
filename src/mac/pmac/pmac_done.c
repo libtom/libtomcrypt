@@ -10,9 +10,9 @@
  */
 #include "tomcrypt.h"
 
-/** 
+/**
   @file pmac_done.c
-  PMAC implementation, terminate a session, by Tom St Denis 
+  PMAC implementation, terminate a session, by Tom St Denis
 */
 
 #ifdef LTC_PMAC

@@ -13,7 +13,7 @@
 /**
    @param rmd128.c
    RMD128 Hash function
-*/   
+*/
 
 /* Implementation of LTC_RIPEMD-128 based on the source by Antoon Bosselaers, ESAT-COSIC
  *
@@ -42,11 +42,11 @@ const struct ltc_hash_descriptor rmd128_desc =
 };
 
 /* the four basic functions F(), G() and H() */
-#define F(x, y, z)        ((x) ^ (y) ^ (z)) 
-#define G(x, y, z)        (((x) & (y)) | (~(x) & (z))) 
+#define F(x, y, z)        ((x) ^ (y) ^ (z))
+#define G(x, y, z)        (((x) & (y)) | (~(x) & (z)))
 #define H(x, y, z)        (((x) | ~(y)) ^ (z))
-#define I(x, y, z)        (((x) & (z)) | ((y) & ~(z))) 
-  
+#define I(x, y, z)        (((x) & (z)) | ((y) & ~(z)))
+
 /* the eight basic operations FF() through III() */
 #define FF(a, b, c, d, x, s)        \
       (a) += F((b), (c), (d)) + (x);\
@@ -88,7 +88,7 @@ static int  rmd128_compress(hash_state *md, unsigned char *buf)
 {
    ulong32 aa,bb,cc,dd,aaa,bbb,ccc,ddd,X[16];
    int i;
-   
+
    /* load words X */
    for (i = 0; i < 16; i++){
       LOAD32L(X[i], buf + (4 * i));
@@ -117,7 +117,7 @@ static int  rmd128_compress(hash_state *md, unsigned char *buf)
    FF(dd, aa, bb, cc, X[13],  7);
    FF(cc, dd, aa, bb, X[14],  9);
    FF(bb, cc, dd, aa, X[15],  8);
-                             
+
    /* round 2 */
    GG(aa, bb, cc, dd, X[ 7],  7);
    GG(dd, aa, bb, cc, X[ 4],  6);
@@ -173,7 +173,7 @@ static int  rmd128_compress(hash_state *md, unsigned char *buf)
    II(bb, cc, dd, aa, X[ 2], 12);
 
    /* parallel round 1 */
-   III(aaa, bbb, ccc, ddd, X[ 5],  8); 
+   III(aaa, bbb, ccc, ddd, X[ 5],  8);
    III(ddd, aaa, bbb, ccc, X[14],  9);
    III(ccc, ddd, aaa, bbb, X[ 7],  9);
    III(bbb, ccc, ddd, aaa, X[ 0], 11);
@@ -208,7 +208,7 @@ static int  rmd128_compress(hash_state *md, unsigned char *buf)
    HHH(ccc, ddd, aaa, bbb, X[ 1], 13);
    HHH(bbb, ccc, ddd, aaa, X[ 2], 11);
 
-   /* parallel round 3 */   
+   /* parallel round 3 */
    GGG(aaa, bbb, ccc, ddd, X[15],  9);
    GGG(ddd, aaa, bbb, ccc, X[ 5],  7);
    GGG(ccc, ddd, aaa, bbb, X[ 1], 15);
@@ -342,13 +342,13 @@ int rmd128_done(hash_state * md, unsigned char *out)
 #ifdef LTC_CLEAN_STACK
     zeromem(md, sizeof(hash_state));
 #endif
-   return CRYPT_OK;  
+   return CRYPT_OK;
 }
 
 /**
   Self-test the hash
   @return CRYPT_OK if successful, CRYPT_NOP if self-tests have been disabled
-*/  
+*/
 int rmd128_test(void)
 {
 #ifndef LTC_TEST

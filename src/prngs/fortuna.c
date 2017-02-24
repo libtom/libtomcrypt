@@ -14,14 +14,14 @@
   @file fortuna.c
   Fortuna PRNG, Tom St Denis
 */
-  
-/* Implementation of Fortuna by Tom St Denis 
+
+/* Implementation of Fortuna by Tom St Denis
 
 We deviate slightly here for reasons of simplicity [and to fit in the API].  First all "sources"
-in the AddEntropy function are fixed to 0.  Second since no reliable timer is provided 
+in the AddEntropy function are fixed to 0.  Second since no reliable timer is provided
 we reseed automatically when len(pool0) >= 64 or every LTC_FORTUNA_WD calls to the read function */
 
-#ifdef LTC_FORTUNA 
+#ifdef LTC_FORTUNA
 
 /* requries LTC_SHA256 and AES  */
 #if !(defined(LTC_RIJNDAEL) && defined(LTC_SHA256))
@@ -79,11 +79,11 @@ static int fortuna_reseed(prng_state *prng)
    }
 
    for (x = 0; x < LTC_FORTUNA_POOLS; x++) {
-       if (x == 0 || ((prng->fortuna.reset_cnt >> (x-1)) & 1) == 0) { 
+       if (x == 0 || ((prng->fortuna.reset_cnt >> (x-1)) & 1) == 0) {
           /* terminate this hash */
           if ((err = sha256_done(&prng->fortuna.pool[x], tmp)) != CRYPT_OK) {
              sha256_done(&md, tmp);
-             return err; 
+             return err;
           }
           /* add it to the string */
           if ((err = sha256_process(&md, tmp, 32)) != CRYPT_OK) {
@@ -102,7 +102,7 @@ static int fortuna_reseed(prng_state *prng)
 
    /* finish key */
    if ((err = sha256_done(&md, prng->fortuna.K)) != CRYPT_OK) {
-      return err; 
+      return err;
    }
    if ((err = rijndael_setup(prng->fortuna.K, 32, 0, &prng->fortuna.skey)) != CRYPT_OK) {
       return err;
@@ -126,14 +126,14 @@ static int fortuna_reseed(prng_state *prng)
   Start the PRNG
   @param prng     [out] The PRNG state to initialize
   @return CRYPT_OK if successful
-*/  
+*/
 int fortuna_start(prng_state *prng)
 {
    int err, x, y;
    unsigned char tmp[MAXBLOCKSIZE];
 
    LTC_ARGCHK(prng != NULL);
-   
+
    /* initialize the pools */
    for (x = 0; x < LTC_FORTUNA_POOLS; x++) {
        if ((err = sha256_init(&prng->fortuna.pool[x])) != CRYPT_OK) {
@@ -155,9 +155,9 @@ int fortuna_start(prng_state *prng)
       return err;
    }
    zeromem(prng->fortuna.IV, 16);
-   
+
    LTC_MUTEX_INIT(&prng->fortuna.prng_lock)
-   
+
    return CRYPT_OK;
 }
 
@@ -167,7 +167,7 @@ int fortuna_start(prng_state *prng)
   @param inlen    Length of the data to add
   @param prng     PRNG state to update
   @return CRYPT_OK if successful
-*/  
+*/
 int fortuna_add_entropy(const unsigned char *in, unsigned long inlen, prng_state *prng)
 {
    unsigned char tmp[2];
@@ -210,7 +210,7 @@ int fortuna_add_entropy(const unsigned char *in, unsigned long inlen, prng_state
   Make the PRNG ready to read from
   @param prng   The PRNG to make active
   @return CRYPT_OK if successful
-*/  
+*/
 int fortuna_ready(prng_state *prng)
 {
    return fortuna_reseed(prng);
@@ -222,7 +222,7 @@ int fortuna_ready(prng_state *prng)
   @param outlen   Length of output
   @param prng     The active PRNG to read from
   @return Number of octets read
-*/  
+*/
 unsigned long fortuna_read(unsigned char *out, unsigned long outlen, prng_state *prng)
 {
    unsigned char tmp[16];
@@ -259,14 +259,14 @@ unsigned long fortuna_read(unsigned char *out, unsigned long outlen, prng_state 
       XMEMCPY(out, tmp, outlen);
       fortuna_update_iv(prng);
    }
-       
+
    /* generate new key */
-   rijndael_ecb_encrypt(prng->fortuna.IV, prng->fortuna.K   , &prng->fortuna.skey); 
+   rijndael_ecb_encrypt(prng->fortuna.IV, prng->fortuna.K   , &prng->fortuna.skey);
    fortuna_update_iv(prng);
-   
-   rijndael_ecb_encrypt(prng->fortuna.IV, prng->fortuna.K+16, &prng->fortuna.skey); 
+
+   rijndael_ecb_encrypt(prng->fortuna.IV, prng->fortuna.K+16, &prng->fortuna.skey);
    fortuna_update_iv(prng);
-   
+
    if (rijndael_setup(prng->fortuna.K, 32, 0, &prng->fortuna.skey) != CRYPT_OK) {
       LTC_MUTEX_UNLOCK(&prng->fortuna.prng_lock);
       return 0;
@@ -277,13 +277,13 @@ unsigned long fortuna_read(unsigned char *out, unsigned long outlen, prng_state 
 #endif
    LTC_MUTEX_UNLOCK(&prng->fortuna.prng_lock);
    return tlen;
-}   
+}
 
 /**
   Terminate the PRNG
   @param prng   The PRNG to terminate
   @return CRYPT_OK if successful
-*/  
+*/
 int fortuna_done(prng_state *prng)
 {
    int           err, x;
@@ -296,7 +296,7 @@ int fortuna_done(prng_state *prng)
    for (x = 0; x < LTC_FORTUNA_POOLS; x++) {
        if ((err = sha256_done(&(prng->fortuna.pool[x]), tmp)) != CRYPT_OK) {
           LTC_MUTEX_UNLOCK(&prng->fortuna.prng_lock);
-          return err; 
+          return err;
        }
    }
    /* call cipher done when we invent one ;-) */
@@ -315,7 +315,7 @@ int fortuna_done(prng_state *prng)
   @param outlen    [in/out] Max size and resulting size of the state
   @param prng      The PRNG to export
   @return CRYPT_OK if successful
-*/  
+*/
 int fortuna_export(unsigned char *out, unsigned long *outlen, prng_state *prng)
 {
    int         x, err;
@@ -340,9 +340,9 @@ int fortuna_export(unsigned char *out, unsigned long *outlen, prng_state *prng)
       return CRYPT_MEM;
    }
 
-   /* to emit the state we copy each pool, terminate it then hash it again so 
-    * an attacker who sees the state can't determine the current state of the PRNG 
-    */   
+   /* to emit the state we copy each pool, terminate it then hash it again so
+    * an attacker who sees the state can't determine the current state of the PRNG
+    */
    for (x = 0; x < LTC_FORTUNA_POOLS; x++) {
       /* copy the PRNG */
       XMEMCPY(md, &(prng->fortuna.pool[x]), sizeof(*md));
@@ -374,14 +374,14 @@ LBL_ERR:
    LTC_MUTEX_UNLOCK(&prng->fortuna.prng_lock);
    return err;
 }
- 
+
 /**
   Import a PRNG state
   @param in       The PRNG state
   @param inlen    Size of the state
   @param prng     The PRNG to import
   @return CRYPT_OK if successful
-*/  
+*/
 int fortuna_import(const unsigned char *in, unsigned long inlen, prng_state *prng)
 {
    int err, x;
@@ -407,7 +407,7 @@ int fortuna_import(const unsigned char *in, unsigned long inlen, prng_state *prn
 /**
   PRNG self-test
   @return CRYPT_OK if successful, CRYPT_NOP if self-testing has been disabled
-*/  
+*/
 int fortuna_test(void)
 {
 #ifndef LTC_TEST

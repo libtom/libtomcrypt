@@ -83,7 +83,7 @@ int der_decode_octet_string(const unsigned char *in, unsigned long inlen,
 
    return CRYPT_OK;
 }
- 
+
 #endif
 
 /* $Source$ */

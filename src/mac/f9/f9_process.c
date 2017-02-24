@@ -53,21 +53,21 @@ int f9_process(f9_state *f9, const unsigned char *in, unsigned long inlen)
            in    += f9->blocksize;
            inlen -= f9->blocksize;
        }
-  }
+   }
 #endif
 
    while (inlen) {
-     if (f9->buflen == f9->blocksize) {
+      if (f9->buflen == f9->blocksize) {
          cipher_descriptor[f9->cipher].ecb_encrypt(f9->IV, f9->IV, &f9->key);
          for (x = 0; x < f9->blocksize; x++) {
             f9->ACC[x] ^= f9->IV[x];
          }
          f9->buflen = 0;
-     }
-     f9->IV[f9->buflen++] ^= *in++;
-     --inlen;
-  }
-  return CRYPT_OK;
+      }
+      f9->IV[f9->buflen++] ^= *in++;
+      --inlen;
+   }
+   return CRYPT_OK;
 }
 
 #endif

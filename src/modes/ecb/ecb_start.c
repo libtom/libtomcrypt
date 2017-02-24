@@ -21,7 +21,7 @@
 /**
    Initialize a ECB context
    @param cipher      The index of the cipher desired
-   @param key         The secret key 
+   @param key         The secret key
    @param keylen      The length of the secret key (octets)
    @param num_rounds  Number of rounds in the cipher desired (0 for default)
    @param ecb         The ECB state to initialize

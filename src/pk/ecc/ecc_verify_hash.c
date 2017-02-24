@@ -19,14 +19,14 @@
 /**
   @file ecc_verify_hash.c
   ECC Crypto, Tom St Denis
-*/  
+*/
 
 #ifdef LTC_MECC
 
-/* verify 
+/* verify
  *
  * w  = s^-1 mod n
- * u1 = xw 
+ * u1 = xw
  * u2 = rw
  * X = u1*G + u2*Q
  * v = X_x1 mod n
@@ -117,13 +117,13 @@ int ecc_verify_hash_raw(      void   *r, void   *s,
    if (ltc_mp.ecc_mul2add == NULL) {
       if ((err = ltc_mp.ecc_ptmul(u1, mG, mG, m, 0)) != CRYPT_OK)                                       { goto error; }
       if ((err = ltc_mp.ecc_ptmul(u2, mQ, mQ, m, 0)) != CRYPT_OK)                                       { goto error; }
-  
+
       /* find the montgomery mp */
       if ((err = mp_montgomery_setup(m, &mp)) != CRYPT_OK)                                              { goto error; }
 
       /* add them */
       if ((err = ltc_mp.ecc_ptadd(mQ, mG, mG, m, mp)) != CRYPT_OK)                                      { goto error; }
-   
+
       /* reduce */
       if ((err = ltc_mp.ecc_map(mG, m, mp)) != CRYPT_OK)                                                { goto error; }
    } else {
@@ -145,7 +145,7 @@ error:
    ltc_ecc_del_point(mG);
    ltc_ecc_del_point(mQ);
    mp_clear_multi(v, w, u1, u2, p, e, m, NULL);
-   if (mp != NULL) { 
+   if (mp != NULL) {
       mp_montgomery_free(mp);
    }
    return err;

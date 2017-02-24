@@ -9,7 +9,7 @@
  * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 
-/** 
+/**
   @file ocb_encrypt_authenticate_memory.c
   OCB implementation, encrypt block of memory, by Tom St Denis
 */
@@ -32,7 +32,7 @@
 */
 int ocb_encrypt_authenticate_memory(int cipher,
     const unsigned char *key,    unsigned long keylen,
-    const unsigned char *nonce,  
+    const unsigned char *nonce,
     const unsigned char *pt,     unsigned long ptlen,
           unsigned char *ct,
           unsigned char *tag,    unsigned long *taglen)

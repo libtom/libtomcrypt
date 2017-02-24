@@ -33,7 +33,7 @@ int gcm_reset(gcm_state *gcm)
    gcm->buflen   = 0;
    gcm->totlen   = 0;
    gcm->pttotlen = 0;
-  
+
    return CRYPT_OK;
 }
 

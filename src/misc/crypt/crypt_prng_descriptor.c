@@ -13,7 +13,7 @@
 /**
   @file crypt_prng_descriptor.c
   Stores the PRNG descriptors, Tom St Denis
-*/  
+*/
 struct ltc_prng_descriptor prng_descriptor[TAB_SIZE] = {
 { NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL }
 };

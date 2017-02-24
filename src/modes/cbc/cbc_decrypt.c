@@ -69,17 +69,17 @@ int cbc_decrypt(const unsigned char *ct, unsigned char *pt, unsigned long len, s
 
          /* xor IV against plaintext */
          #if defined(LTC_FAST)
-        for (x = 0; x < cbc->blocklen; x += sizeof(LTC_FAST_TYPE)) {
+         for (x = 0; x < cbc->blocklen; x += sizeof(LTC_FAST_TYPE)) {
             tmpy = *((LTC_FAST_TYPE*)((unsigned char *)cbc->IV + x)) ^ *((LTC_FAST_TYPE*)((unsigned char *)tmp + x));
-       *((LTC_FAST_TYPE*)((unsigned char *)cbc->IV + x)) = *((LTC_FAST_TYPE*)((unsigned char *)ct + x));
-       *((LTC_FAST_TYPE*)((unsigned char *)pt + x)) = tmpy;
-        }
+            *((LTC_FAST_TYPE*)((unsigned char *)cbc->IV + x)) = *((LTC_FAST_TYPE*)((unsigned char *)ct + x));
+            *((LTC_FAST_TYPE*)((unsigned char *)pt + x)) = tmpy;
+         }
     #else
-            for (x = 0; x < cbc->blocklen; x++) {
-               tmpy       = tmp[x] ^ cbc->IV[x];
-               cbc->IV[x] = ct[x];
-               pt[x]      = tmpy;
-            }
+         for (x = 0; x < cbc->blocklen; x++) {
+            tmpy       = tmp[x] ^ cbc->IV[x];
+            cbc->IV[x] = ct[x];
+            pt[x]      = tmpy;
+         }
     #endif
 
          ct  += cbc->blocklen;

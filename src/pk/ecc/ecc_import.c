@@ -19,7 +19,7 @@
 /**
   @file ecc_import.c
   ECC Crypto, Tom St Denis
-*/  
+*/
 
 #ifdef LTC_MECC
 
@@ -27,26 +27,26 @@ static int is_point(ecc_key *key)
 {
    void *prime, *b, *t1, *t2;
    int err;
-   
+
    if ((err = mp_init_multi(&prime, &b, &t1, &t2, NULL)) != CRYPT_OK) {
       return err;
    }
-   
+
    /* load prime and b */
    if ((err = mp_read_radix(prime, key->dp->prime, 16)) != CRYPT_OK)                          { goto error; }
    if ((err = mp_read_radix(b, key->dp->B, 16)) != CRYPT_OK)                                  { goto error; }
-   
+
    /* compute y^2 */
    if ((err = mp_sqr(key->pubkey.y, t1)) != CRYPT_OK)                                         { goto error; }
-   
+
    /* compute x^3 */
    if ((err = mp_sqr(key->pubkey.x, t2)) != CRYPT_OK)                                         { goto error; }
    if ((err = mp_mod(t2, prime, t2)) != CRYPT_OK)                                             { goto error; }
    if ((err = mp_mul(key->pubkey.x, t2, t2)) != CRYPT_OK)                                     { goto error; }
-   
+
    /* compute y^2 - x^3 */
    if ((err = mp_sub(t1, t2, t1)) != CRYPT_OK)                                                { goto error; }
-   
+
    /* compute y^2 - x^3 + 3x */
    if ((err = mp_add(t1, key->pubkey.x, t1)) != CRYPT_OK)                                     { goto error; }
    if ((err = mp_add(t1, key->pubkey.x, t1)) != CRYPT_OK)                                     { goto error; }
@@ -58,14 +58,14 @@ static int is_point(ecc_key *key)
    while (mp_cmp(t1, prime) != LTC_MP_LT) {
       if ((err = mp_sub(t1, prime, t1)) != CRYPT_OK)                                          { goto error; }
    }
-   
+
    /* compare to b */
    if (mp_cmp(t1, b) != LTC_MP_EQ) {
       err = CRYPT_INVALID_PACKET;
    } else {
       err = CRYPT_OK;
    }
-   
+
 error:
    mp_clear_multi(prime, b, t1, t2, NULL);
    return err;
@@ -153,7 +153,7 @@ int ecc_import_ex(const unsigned char *in, unsigned long inlen, ecc_key *key, co
    }
    /* set z */
    if ((err = mp_set(key->pubkey.z, 1)) != CRYPT_OK) { goto done; }
-   
+
    /* is it a point on the curve?  */
    if ((err = is_point(key)) != CRYPT_OK) {
       goto done;

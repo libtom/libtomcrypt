@@ -33,7 +33,7 @@ int f8_done(symmetric_F8 *f8)
    return CRYPT_OK;
 }
 
-   
+
 
 #endif
 

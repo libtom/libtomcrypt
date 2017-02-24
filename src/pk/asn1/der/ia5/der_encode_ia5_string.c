@@ -37,7 +37,7 @@ int der_encode_ia5_string(const unsigned char *in, unsigned long inlen,
 
    /* get the size */
    if ((err = der_length_ia5_string(in, inlen, &len)) != CRYPT_OK) {
-      return err; 
+      return err;
    }
 
    /* too big? */

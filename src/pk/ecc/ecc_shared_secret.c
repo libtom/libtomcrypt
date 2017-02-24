@@ -19,7 +19,7 @@
 /**
   @file ecc_shared_secret.c
   ECC Crypto, Tom St Denis
-*/  
+*/
 
 #ifdef LTC_MECC
 

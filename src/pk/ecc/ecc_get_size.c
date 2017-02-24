@@ -19,13 +19,13 @@
 /**
   @file ecc_get_size.c
   ECC Crypto, Tom St Denis
-*/  
+*/
 
 #ifdef LTC_MECC
 
 /**
   Get the size of an ECC key
-  @param key    The key to get the size of 
+  @param key    The key to get the size of
   @return The size (octets) of the key or INT_MAX on error
 */
 int ecc_get_size(ecc_key *key)

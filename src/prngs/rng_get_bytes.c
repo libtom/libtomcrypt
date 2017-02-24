@@ -80,7 +80,6 @@ static unsigned long rng_ansic(unsigned char *buf, unsigned long len,
        acc  = 0;
        bits = 8;
    }
-   acc = bits = a = b = 0;
    return l;
 }
 

@@ -88,7 +88,7 @@ int der_decode_printable_string(const unsigned char *in, unsigned long inlen,
 
    return CRYPT_OK;
 }
- 
+
 #endif
 
 /* $Source$ */

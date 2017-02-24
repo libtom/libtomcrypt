@@ -9,7 +9,7 @@
  * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 
-/** 
+/**
    @file ocb_done_encrypt.c
    OCB implementation, terminate encryption, by Tom St Denis
 */
@@ -17,7 +17,7 @@
 
 #ifdef LTC_OCB_MODE
 
-/** 
+/**
    Terminate an encryption OCB state
    @param ocb       The OCB state
    @param pt        Remaining plaintext (if any)
