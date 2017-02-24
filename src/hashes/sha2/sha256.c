@@ -27,7 +27,7 @@ const struct ltc_hash_descriptor sha256_desc =
     /* OID */
    { 2, 16, 840, 1, 101, 3, 4, 2, 1,  },
    9,
-    
+
     &sha256_init,
     &sha256_process,
     &sha256_done,
