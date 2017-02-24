@@ -24,14 +24,14 @@
 const struct ltc_prng_descriptor sober128_desc =
 {
    "sober128", 64,
-    &sober128_start,
-    &sober128_add_entropy,
-    &sober128_ready,
-    &sober128_read,
-    &sober128_done,
-    &sober128_export,
-    &sober128_import,
-    &sober128_test
+    sober128_start,
+    sober128_add_entropy,
+    sober128_ready,
+    sober128_read,
+    sober128_done,
+    sober128_export,
+    sober128_import,
+    sober128_test
 };
 
 /* don't change these... */

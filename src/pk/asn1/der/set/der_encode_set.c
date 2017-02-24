@@ -90,7 +90,7 @@ int der_encode_set(ltc_asn1_list *list, unsigned long inlen,
    }
 
    /* sort it by the "type" field */
-   XQSORT(copy, inlen, sizeof(*copy), &qsort_helper);
+   XQSORT(copy, inlen, sizeof(*copy), qsort_helper);
 
    /* call der_encode_sequence_ex() */
    err = der_encode_sequence_ex(copy, inlen, out, outlen, LTC_ASN1_SET);

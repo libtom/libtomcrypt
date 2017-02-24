@@ -20,14 +20,14 @@
 const struct ltc_prng_descriptor yarrow_desc =
 {
     "yarrow", 64,
-    &yarrow_start,
-    &yarrow_add_entropy,
-    &yarrow_ready,
-    &yarrow_read,
-    &yarrow_done,
-    &yarrow_export,
-    &yarrow_import,
-    &yarrow_test
+    yarrow_start,
+    yarrow_add_entropy,
+    yarrow_ready,
+    yarrow_read,
+    yarrow_done,
+    yarrow_export,
+    yarrow_import,
+    yarrow_test
 };
 
 /**

@@ -27,10 +27,10 @@ static int            cipher_idx=UNDEFED_HASH,        /* which cipher */
 
 const struct ltc_hash_descriptor chc_desc = {
    "chc_hash", 12, 0, 0, { 0 }, 0,
-   &chc_init,
-   &chc_process,
-   &chc_done,
-   &chc_test,
+   chc_init,
+   chc_process,
+   chc_done,
+   chc_test,
    NULL
 };
 

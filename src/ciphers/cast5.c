@@ -21,12 +21,12 @@ const struct ltc_cipher_descriptor cast5_desc = {
    "cast5",
    15,
    5, 16, 8, 16,
-   &cast5_setup,
-   &cast5_ecb_encrypt,
-   &cast5_ecb_decrypt,
-   &cast5_test,
-   &cast5_done,
-   &cast5_keysize,
+   cast5_setup,
+   cast5_ecb_encrypt,
+   cast5_ecb_decrypt,
+   cast5_test,
+   cast5_done,
+   cast5_keysize,
    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
 };
 

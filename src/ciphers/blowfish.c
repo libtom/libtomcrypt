@@ -21,12 +21,12 @@ const struct ltc_cipher_descriptor blowfish_desc =
     "blowfish",
     0,
     8, 56, 8, 16,
-    &blowfish_setup,
-    &blowfish_ecb_encrypt,
-    &blowfish_ecb_decrypt,
-    &blowfish_test,
-    &blowfish_done,
-    &blowfish_keysize,
+    blowfish_setup,
+    blowfish_ecb_encrypt,
+    blowfish_ecb_decrypt,
+    blowfish_test,
+    blowfish_done,
+    blowfish_keysize,
     NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
 };
 

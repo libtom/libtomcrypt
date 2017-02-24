@@ -29,12 +29,12 @@ const struct ltc_cipher_descriptor twofish_desc =
     "twofish",
     7,
     16, 32, 16, 16,
-    &twofish_setup,
-    &twofish_ecb_encrypt,
-    &twofish_ecb_decrypt,
-    &twofish_test,
-    &twofish_done,
-    &twofish_keysize,
+    twofish_setup,
+    twofish_ecb_encrypt,
+    twofish_ecb_decrypt,
+    twofish_test,
+    twofish_done,
+    twofish_keysize,
     NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
 };
 

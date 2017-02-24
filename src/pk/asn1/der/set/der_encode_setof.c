@@ -134,7 +134,7 @@ int der_encode_setof(ltc_asn1_list *list, unsigned long inlen,
    }
 
    /* sort based on contents (using edges) */
-   XQSORT(edges, inlen, sizeof(*edges), &qsort_helper);
+   XQSORT(edges, inlen, sizeof(*edges), qsort_helper);
 
    /* copy static header */
    XMEMCPY(out, buf, hdrlen);

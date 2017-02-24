@@ -28,10 +28,10 @@ const struct ltc_hash_descriptor sha384_desc =
    { 2, 16, 840, 1, 101, 3, 4, 2, 2,  },
    9,
 
-    &sha384_init,
-    &sha512_process,
-    &sha384_done,
-    &sha384_test,
+    sha384_init,
+    sha512_process,
+    sha384_done,
+    sha384_test,
     NULL
 };
 

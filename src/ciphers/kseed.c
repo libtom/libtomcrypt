@@ -23,12 +23,12 @@ const struct ltc_cipher_descriptor kseed_desc = {
    "seed",
    20,
    16, 16, 16, 16,
-   &kseed_setup,
-   &kseed_ecb_encrypt,
-   &kseed_ecb_decrypt,
-   &kseed_test,
-   &kseed_done,
-   &kseed_keysize,
+   kseed_setup,
+   kseed_ecb_encrypt,
+   kseed_ecb_decrypt,
+   kseed_test,
+   kseed_done,
+   kseed_keysize,
    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
 };
 

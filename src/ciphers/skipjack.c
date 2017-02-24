@@ -22,12 +22,12 @@ const struct ltc_cipher_descriptor skipjack_desc =
     "skipjack",
     17,
     10, 10, 8, 32,
-    &skipjack_setup,
-    &skipjack_ecb_encrypt,
-    &skipjack_ecb_decrypt,
-    &skipjack_test,
-    &skipjack_done,
-    &skipjack_keysize,
+    skipjack_setup,
+    skipjack_ecb_encrypt,
+    skipjack_ecb_decrypt,
+    skipjack_test,
+    skipjack_done,
+    skipjack_keysize,
     NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
 };
 

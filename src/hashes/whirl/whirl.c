@@ -29,10 +29,10 @@ const struct ltc_hash_descriptor whirlpool_desc =
    { 1, 0, 10118, 3, 0, 55 },
    6,
 
-    &whirlpool_init,
-    &whirlpool_process,
-    &whirlpool_done,
-    &whirlpool_test,
+    whirlpool_init,
+    whirlpool_process,
+    whirlpool_done,
+    whirlpool_test,
     NULL
 };
 

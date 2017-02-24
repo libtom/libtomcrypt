@@ -22,12 +22,12 @@ const struct ltc_cipher_descriptor rc6_desc =
     "rc6",
     3,
     8, 128, 16, 20,
-    &rc6_setup,
-    &rc6_ecb_encrypt,
-    &rc6_ecb_decrypt,
-    &rc6_test,
-    &rc6_done,
-    &rc6_keysize,
+    rc6_setup,
+    rc6_ecb_encrypt,
+    rc6_ecb_decrypt,
+    rc6_test,
+    rc6_done,
+    rc6_keysize,
     NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
 };
 

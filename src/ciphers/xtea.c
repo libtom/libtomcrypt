@@ -22,12 +22,12 @@ const struct ltc_cipher_descriptor xtea_desc =
     "xtea",
     1,
     16, 16, 8, 32,
-    &xtea_setup,
-    &xtea_ecb_encrypt,
-    &xtea_ecb_decrypt,
-    &xtea_test,
-    &xtea_done,
-    &xtea_keysize,
+    xtea_setup,
+    xtea_ecb_encrypt,
+    xtea_ecb_decrypt,
+    xtea_test,
+    xtea_done,
+    xtea_keysize,
     NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
 };
 

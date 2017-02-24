@@ -424,68 +424,68 @@ const ltc_math_descriptor ltm_desc = {
    "LibTomMath",
    (int)DIGIT_BIT,
 
-   &init,
-   &init_copy,
-   &deinit,
+   init,
+   init_copy,
+   deinit,
 
-   &neg,
-   &copy,
+   neg,
+   copy,
 
-   &set_int,
-   &get_int,
-   &get_digit,
-   &get_digit_count,
-   &compare,
-   &compare_d,
-   &count_bits,
-   &count_lsb_bits,
-   &twoexpt,
+   set_int,
+   get_int,
+   get_digit,
+   get_digit_count,
+   compare,
+   compare_d,
+   count_bits,
+   count_lsb_bits,
+   twoexpt,
 
-   &read_radix,
-   &write_radix,
-   &unsigned_size,
-   &unsigned_write,
-   &unsigned_read,
+   read_radix,
+   write_radix,
+   unsigned_size,
+   unsigned_write,
+   unsigned_read,
 
-   &add,
-   &addi,
-   &sub,
-   &subi,
-   &mul,
-   &muli,
-   &sqr,
-   &divide,
-   &div_2,
-   &modi,
-   &gcd,
-   &lcm,
+   add,
+   addi,
+   sub,
+   subi,
+   mul,
+   muli,
+   sqr,
+   divide,
+   div_2,
+   modi,
+   gcd,
+   lcm,
 
-   &mulmod,
-   &sqrmod,
-   &invmod,
+   mulmod,
+   sqrmod,
+   invmod,
 
-   &montgomery_setup,
-   &montgomery_normalization,
-   &montgomery_reduce,
-   &montgomery_deinit,
+   montgomery_setup,
+   montgomery_normalization,
+   montgomery_reduce,
+   montgomery_deinit,
 
-   &exptmod,
-   &isprime,
+   exptmod,
+   isprime,
 
 #ifdef LTC_MECC
 #ifdef LTC_MECC_FP
-   &ltc_ecc_fp_mulmod,
+   ltc_ecc_fp_mulmod,
 #else
-   &ltc_ecc_mulmod,
+   ltc_ecc_mulmod,
 #endif
-   &ltc_ecc_projective_add_point,
-   &ltc_ecc_projective_dbl_point,
-   &ltc_ecc_map,
+   ltc_ecc_projective_add_point,
+   ltc_ecc_projective_dbl_point,
+   ltc_ecc_map,
 #ifdef LTC_ECC_SHAMIR
 #ifdef LTC_MECC_FP
-   &ltc_ecc_fp_mul2add,
+   ltc_ecc_fp_mul2add,
 #else
-   &ltc_ecc_mul2add,
+   ltc_ecc_mul2add,
 #endif /* LTC_MECC_FP */
 #else
    NULL,
@@ -495,15 +495,15 @@ const ltc_math_descriptor ltm_desc = {
 #endif /* LTC_MECC */
 
 #ifdef LTC_MRSA
-   &rsa_make_key,
-   &rsa_exptmod,
+   rsa_make_key,
+   rsa_exptmod,
 #else
    NULL, NULL,
 #endif
-   &addmod,
-   &submod,
+   addmod,
+   submod,
 
-   &set_rand,
+   set_rand,
 
 };
 

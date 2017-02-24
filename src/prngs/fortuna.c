@@ -39,14 +39,14 @@ we reseed automatically when len(pool0) >= 64 or every LTC_FORTUNA_WD calls to t
 
 const struct ltc_prng_descriptor fortuna_desc = {
     "fortuna", 1024,
-    &fortuna_start,
-    &fortuna_add_entropy,
-    &fortuna_ready,
-    &fortuna_read,
-    &fortuna_done,
-    &fortuna_export,
-    &fortuna_import,
-    &fortuna_test
+    fortuna_start,
+    fortuna_add_entropy,
+    fortuna_ready,
+    fortuna_read,
+    fortuna_done,
+    fortuna_export,
+    fortuna_import,
+    fortuna_test
 };
 
 /* update the IV */

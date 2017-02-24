@@ -39,48 +39,48 @@ const struct ltc_cipher_descriptor
    safer_k64_desc = {
    "safer-k64",
    8, 8, 8, 8, LTC_SAFER_K64_DEFAULT_NOF_ROUNDS,
-   &safer_k64_setup,
-   &safer_ecb_encrypt,
-   &safer_ecb_decrypt,
-   &safer_k64_test,
-   &safer_done,
-   &safer_64_keysize,
+   safer_k64_setup,
+   safer_ecb_encrypt,
+   safer_ecb_decrypt,
+   safer_k64_test,
+   safer_done,
+   safer_64_keysize,
    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
    },
 
    safer_sk64_desc = {
    "safer-sk64",
    9, 8, 8, 8, LTC_SAFER_SK64_DEFAULT_NOF_ROUNDS,
-   &safer_sk64_setup,
-   &safer_ecb_encrypt,
-   &safer_ecb_decrypt,
-   &safer_sk64_test,
-   &safer_done,
-   &safer_64_keysize,
+   safer_sk64_setup,
+   safer_ecb_encrypt,
+   safer_ecb_decrypt,
+   safer_sk64_test,
+   safer_done,
+   safer_64_keysize,
    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
    },
 
    safer_k128_desc = {
    "safer-k128",
    10, 16, 16, 8, LTC_SAFER_K128_DEFAULT_NOF_ROUNDS,
-   &safer_k128_setup,
-   &safer_ecb_encrypt,
-   &safer_ecb_decrypt,
-   &safer_sk128_test,
-   &safer_done,
-   &safer_128_keysize,
+   safer_k128_setup,
+   safer_ecb_encrypt,
+   safer_ecb_decrypt,
+   safer_sk128_test,
+   safer_done,
+   safer_128_keysize,
    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
    },
 
    safer_sk128_desc = {
    "safer-sk128",
    11, 16, 16, 8, LTC_SAFER_SK128_DEFAULT_NOF_ROUNDS,
-   &safer_sk128_setup,
-   &safer_ecb_encrypt,
-   &safer_ecb_decrypt,
-   &safer_sk128_test,
-   &safer_done,
-   &safer_128_keysize,
+   safer_sk128_setup,
+   safer_ecb_encrypt,
+   safer_ecb_decrypt,
+   safer_sk128_test,
+   safer_done,
+   safer_128_keysize,
    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
    };
 

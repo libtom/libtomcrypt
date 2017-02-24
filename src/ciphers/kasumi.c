@@ -27,12 +27,12 @@ const struct ltc_cipher_descriptor kasumi_desc = {
    "kasumi",
    21,
    16, 16, 8, 8,
-   &kasumi_setup,
-   &kasumi_ecb_encrypt,
-   &kasumi_ecb_decrypt,
-   &kasumi_test,
-   &kasumi_done,
-   &kasumi_keysize,
+   kasumi_setup,
+   kasumi_ecb_encrypt,
+   kasumi_ecb_decrypt,
+   kasumi_test,
+   kasumi_done,
+   kasumi_keysize,
    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
 };
 

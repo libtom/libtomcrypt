@@ -28,10 +28,10 @@ const struct ltc_hash_descriptor rmd256_desc =
    { 1, 3, 36, 3, 2, 3 },
    6,
 
-    &rmd256_init,
-    &rmd256_process,
-    &rmd256_done,
-    &rmd256_test,
+    rmd256_init,
+    rmd256_process,
+    rmd256_done,
+    rmd256_test,
     NULL
 };
 

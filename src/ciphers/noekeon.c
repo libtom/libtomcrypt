@@ -21,12 +21,12 @@ const struct ltc_cipher_descriptor noekeon_desc =
     "noekeon",
     16,
     16, 16, 16, 16,
-    &noekeon_setup,
-    &noekeon_ecb_encrypt,
-    &noekeon_ecb_decrypt,
-    &noekeon_test,
-    &noekeon_done,
-    &noekeon_keysize,
+    noekeon_setup,
+    noekeon_ecb_encrypt,
+    noekeon_ecb_decrypt,
+    noekeon_test,
+    noekeon_done,
+    noekeon_keysize,
     NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
 };
 

@@ -34,10 +34,10 @@ const struct ltc_hash_descriptor rmd128_desc =
    { 1, 0, 10118, 3, 0, 50 },
    6,
 
-    &rmd128_init,
-    &rmd128_process,
-    &rmd128_done,
-    &rmd128_test,
+    rmd128_init,
+    rmd128_process,
+    rmd128_done,
+    rmd128_test,
     NULL
 };
 

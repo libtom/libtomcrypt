@@ -22,12 +22,12 @@ const struct ltc_cipher_descriptor khazad_desc = {
    "khazad",
    18,
    16, 16, 8, 8,
-   &khazad_setup,
-   &khazad_ecb_encrypt,
-   &khazad_ecb_decrypt,
-   &khazad_test,
-   &khazad_done,
-   &khazad_keysize,
+   khazad_setup,
+   khazad_ecb_encrypt,
+   khazad_ecb_decrypt,
+   khazad_test,
+   khazad_done,
+   khazad_keysize,
    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
 };
 
