@@ -48,9 +48,9 @@ int hkdf_test(void)
         unsigned char info[80];
         unsigned long info_l;
         unsigned char PRK[32];
-	unsigned long PRK_l;
+        unsigned long PRK_l;
         unsigned char OKM[82];
-	unsigned long OKM_l;
+        unsigned long OKM_l;
     } cases[] = {
 #ifdef LTC_SHA256
         /*

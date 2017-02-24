@@ -37,7 +37,7 @@ int dsa_import_radix(int radix, char *p, char *q, char *g, char *x, char *y, dsa
    /* init key */
    err = mp_init_multi(&key->p, &key->g, &key->q, &key->x, &key->y, NULL);
    if (err != CRYPT_OK) return err;
-   
+
    if ((err = mp_read_radix(key->p , p , radix)) != CRYPT_OK) { goto LBL_ERR; }
    if ((err = mp_read_radix(key->q , q , radix)) != CRYPT_OK) { goto LBL_ERR; }
    if ((err = mp_read_radix(key->g , g , radix)) != CRYPT_OK) { goto LBL_ERR; }
