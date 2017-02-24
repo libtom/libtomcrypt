@@ -45,7 +45,7 @@ int cbc_decrypt(const unsigned char *ct, unsigned char *pt, unsigned long len, s
    }
 
    /* is blocklen valid? */
-   if (cbc->blocklen < 1 || cbc->blocklen > (int)sizeof(cbc->IV)) {
+   if (cbc->blocklen < 1 || cbc->blocklen > (int)sizeof(cbc->IV) || cbc->blocklen > (int)sizeof(tmp)) {
       return CRYPT_INVALID_ARG;
    }
 
