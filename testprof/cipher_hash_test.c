@@ -8,17 +8,17 @@ int cipher_hash_test(void)
    unsigned char buf[4096];
    unsigned long n;
    prng_state    nprng;
-   
+
    /* test ciphers */
    for (x = 0; cipher_descriptor[x].name != NULL; x++) {
       DOX(cipher_descriptor[x].test(), cipher_descriptor[x].name);
    }
-   
+
    /* test hashes */
    for (x = 0; hash_descriptor[x].name != NULL; x++) {
       DOX(hash_descriptor[x].test(), hash_descriptor[x].name);
    }
- 
+
    /* test prngs (test, import/export */
    for (x = 0; prng_descriptor[x].name != NULL; x++) {
       DOX(prng_descriptor[x].test(), prng_descriptor[x].name);
@@ -36,7 +36,7 @@ int cipher_hash_test(void)
       }
       prng_descriptor[x].done(&nprng);
    }
-   
+
    return 0;
 }
 

@@ -1099,7 +1099,7 @@ void time_rsa(void)
        t2 <<= 8;
        break;
 #endif
-	}
+        }
         t2 >>= 8;
         fprintf(stderr, "RSA-%lu sign_hash took   %15"PRI64"u cycles\n", x, t2);
 
@@ -1121,7 +1121,7 @@ void time_rsa(void)
        t2 <<= 11;
        break;
 #endif
-	}
+        }
         t2 >>= 11;
         fprintf(stderr, "RSA-%lu verify_hash took %15"PRI64"u cycles\n", x, t2);
        fprintf(stderr, "\n\n");
@@ -1317,7 +1317,7 @@ void time_ecc(void)
        t2 <<= 8;
        break;
 #endif
-	}
+        }
         t2 >>= 8;
         fprintf(stderr, "ECC-%lu sign_hash took   %15"PRI64"u cycles\n", x*8, t2);
 
@@ -1339,7 +1339,7 @@ void time_ecc(void)
        t2 <<= 8;
        break;
 #endif
-	}
+        }
         t2 >>= 8;
         fprintf(stderr, "ECC-%lu verify_hash took %15"PRI64"u cycles\n", x*8, t2);
 

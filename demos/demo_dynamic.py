@@ -1,42 +1,42 @@
 
 
-""" 
+"""
     demo_dynamic.py                                     v1
-    
-    This program demonstrates Python's use of the dynamic 
-    language support additions to LTC, namely access to LTC 
-    constants, struct and union sizes, and the binding of a 
-    math package to LTC.  Also provided are simple code 
-    fragments to illustrate how one might write a Python 
-    wrapper for LTC and how an app might call the wrapper. 
-    This or a similar model should work for Ruby and other 
+
+    This program demonstrates Python's use of the dynamic
+    language support additions to LTC, namely access to LTC
+    constants, struct and union sizes, and the binding of a
+    math package to LTC.  Also provided are simple code
+    fragments to illustrate how one might write a Python
+    wrapper for LTC and how an app might call the wrapper.
+    This or a similar model should work for Ruby and other
     dynamic languages.
-    
-    This instance uses Python's ctypes and requires a single 
-    .dylib linking together LTC and a math library.  Building 
-    a single .dylib is needed because LTC wants a fairly tight 
-    relationship between itself and the mathlib.  (ctypes can 
-    load multiple .dylibs, but it does not support this level 
+
+    This instance uses Python's ctypes and requires a single
+    .dylib linking together LTC and a math library.  Building
+    a single .dylib is needed because LTC wants a fairly tight
+    relationship between itself and the mathlib.  (ctypes can
+    load multiple .dylibs, but it does not support this level
     of tight coupling between otherwise independent libraries.)
-    
+
     My .dylib was created on OSX with the following steps:
-      
+
       1- compile LTC to a .a static lib:
            CFLAGS="-DLTM_DESC -DUSE_LTM" make
-      
+
       2- link LTC and LTM into a single .dylib:
            ar2dylib_with  tomcrypt  tommath
-         where ar2dylib_with is a shell script that combines 
+         where ar2dylib_with is a shell script that combines
          the LTC .a with the LTM .dylib
-    
+
     Reminder: you don't need to bind in a math library unless
-              you are going to use LTC functions that depend 
-              on a mathlib.  For example, public key crypto 
-              needs a mathlib; hashing and symmetric encryption 
+              you are going to use LTC functions that depend
+              on a mathlib.  For example, public key crypto
+              needs a mathlib; hashing and symmetric encryption
               do not.
-    
+
     This code was written for Python 2.7.
-    
+
     Larry Bugbee
     March 2014
 
@@ -65,34 +65,34 @@ print
 
 
 #---------------------------------------------------------------
-# get list of all supported constants followed by a list of all 
-# supported sizes.  One alternative: these lists may be parsed 
+# get list of all supported constants followed by a list of all
+# supported sizes.  One alternative: these lists may be parsed
 # and used as needed.
 
 if 1:
     print '  all supported constants and their values:'
-    
+
     # get size to allocate for constants output list
     str_len = c_int(0)
     ret = LTC.crypt_list_all_constants(None, byref(str_len))
     print '    need to allocate %d bytes \n' % str_len.value
-    
+
     # allocate that size and get (name, size) pairs, each pair
     # separated by a newline char.
     names_sizes = c_buffer(str_len.value)
     ret = LTC.crypt_list_all_constants(names_sizes, byref(str_len))
     print names_sizes.value
     print
-    
-    
+
+
 if 1:
     print '  all supported sizes:'
-    
+
     # get size to allocate for sizes output list
     str_len = c_int(0)
     ret = LTC.crypt_list_all_sizes(None, byref(str_len))
     print '    need to allocate %d bytes \n' % str_len.value
-    
+
     # allocate that size and get (name, size) pairs, each pair
     # separated by a newline char.
     names_sizes = c_buffer(str_len.value)
@@ -107,7 +107,7 @@ if 1:
 # print selected constants
 if 1:
     print '\n  selected constants:'
-    
+
     names = [
         'ENDIAN_LITTLE',
         'ENDIAN_64BITWORD',
@@ -124,7 +124,7 @@ if 1:
 # print selected sizes
 if 1:
     print '\n  selected sizes:'
-    
+
     names = [
         'rijndael_key',
         'rsa_key',
@@ -143,7 +143,7 @@ if 1:
 
 #---------------------------------------------------------------
 #---------------------------------------------------------------
-# ctypes getting a list of this build's supported algorithms 
+# ctypes getting a list of this build's supported algorithms
 # and compiler switches
 
 def get_named_string(lib, name):
@@ -160,7 +160,7 @@ if 0:
 
 #---------------------------------------------------------------
 #---------------------------------------------------------------
-# here is an example of how a wrapper can make Python access 
+# here is an example of how a wrapper can make Python access
 # more Pythonic
 
 # - - - - - - - - - - - - -

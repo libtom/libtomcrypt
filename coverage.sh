@@ -20,9 +20,9 @@ bash build.sh " $1" " $2" " $3 COVERAGE=1" "$4 -fprofile-arcs -ftest-coverage " 
 if [ -a testok.txt ] && [ -f testok.txt ]; then
    echo
 else
-	echo
-	echo "Test failed"
-	exit 1
+   echo
+   echo "Test failed"
+   exit 1
 fi
 
 ./sizes
@@ -30,9 +30,9 @@ fi
 
 # if this was executed as './coverage.sh ...' create coverage locally
 if [[ "${0%% *}" == "./${0##*/}" ]]; then
-	make lcov-single
+   make lcov-single
 else
-	cpp-coveralls -e 'demos/' -e 'testprof/' -e 'notes/' -e 'src/headers/'
+   cpp-coveralls -e 'demos/' -e 'testprof/' -e 'notes/' -e 'src/headers/'
 fi
 
 exit 0

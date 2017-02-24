@@ -1,8 +1,8 @@
 #!/usr/bin/perl
 #
-# Splits the list of files and outputs for makefile type files 
-# wrapped at 80 chars 
-# 
+# Splits the list of files and outputs for makefile type files
+# wrapped at 80 chars
+#
 # Tom St Denis
 @a = split(" ", $ARGV[1]);
 $b = "$ARGV[0]=";

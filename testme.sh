@@ -55,6 +55,6 @@ bash testbuild.sh "NOTEST" "-DLTC_NO_TEST" "$1" "$2" "$3" || exit 1
 # test build with no file routines
 bash testbuild.sh "NOFILE" "-DLTC_NO_FILE" "$1" "$2" "$3" || exit 1
 
-# $Source$   
-# $Revision$   
-# $Date$ 
+# $Source$
+# $Revision$
+# $Date$

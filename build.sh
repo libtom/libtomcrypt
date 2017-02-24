@@ -15,7 +15,7 @@ fi
 CFLAGS="$2 $CFLAGS $4" EXTRALIBS="$5" make -j$MAKE_JOBS -f $3 all_test 1>gcc_1.txt 2>gcc_2.txt
 mret=$?
 cnt=$(wc -l < gcc_2.txt)
-# ignore 2 lines since ar prints to stderr instead of stdout and ar is called for 
+# ignore 2 lines since ar prints to stderr instead of stdout and ar is called for
 # $(LIBNAME) and testprof/$(LIBTEST_S)
 if [[ $mret -ne 0 ]] || [[ $cnt -gt 2 ]]; then
    echo "build $1 failed! printing gcc_2.txt now for convenience"
