@@ -42,4 +42,5 @@ for my $file (sort @all_files) {
   }
 }
 
-warn $fails > 0 ? "FAILED $fails\n" : "PASS\n";
+die "FAILED $fails\n" if $fails > 0;
+warn "PASS\n";
