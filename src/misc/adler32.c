@@ -115,7 +115,7 @@ int adler32_test(void)
    adler32_state ctx;
    adler32_init(&ctx);
    adler32_update(&ctx, in, strlen(in));
-   adler32_finish(&ctx, &out, 4);
+   adler32_finish(&ctx, out, 4);
    if (XMEMCMP(adler32, out, 4)) {
 #ifdef LTC_TEST_DBG
       ulong32 _out, _adler32;
