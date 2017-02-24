@@ -126,8 +126,8 @@ static int compare(void *a, void *b)
       case MP_LT: return LTC_MP_LT;
       case MP_EQ: return LTC_MP_EQ;
       case MP_GT: return LTC_MP_GT;
+      default:    return 0;
    }
-   return 0;
 }
 
 static int compare_d(void *a, unsigned long b)
@@ -139,8 +139,8 @@ static int compare_d(void *a, unsigned long b)
       case MP_LT: return LTC_MP_LT;
       case MP_EQ: return LTC_MP_EQ;
       case MP_GT: return LTC_MP_GT;
+      default:    return 0;
    }
-   return 0;
 }
 
 static int count_bits(void *a)
