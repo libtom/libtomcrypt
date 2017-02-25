@@ -1,11 +1,16 @@
-open(IN,"<crypt.ind");
-open(OUT,">crypt.ind.tmp");
-$a = <IN>;
-print OUT  "$a\n\\addcontentsline{toc}{chapter}{Index}\n";
-while (<IN>) {
-   print OUT $_;
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+open(my $in, '<', 'crypt.ind');
+open(my $out, '>', 'crypt.ind.tmp');
+my $a = <$in>;
+print {$out} "$a\n\\addcontentsline{toc}{chapter}{Index}\n";
+while (<$in>) {
+   print {$out} $_;
 }
-close OUT;
-close IN;
+close $out;
+close $in;
 system("mv -f crypt.ind.tmp crypt.ind");
 

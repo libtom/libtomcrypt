@@ -406,6 +406,9 @@ check_defines:
 	| grep -v -e 'LTC_ECC[0-9]*' -e 'LTC_DH[0-9]*' -e 'LTC_NO_' -e 'LTC_MUTEX' -e 'LTC_MPI' \
 	| xargs -I '{}' sh -c 'grep -q -m 1 -o {} src/misc/crypt/crypt.c || echo {} not found'
 
+perlcritic:
+	perlcritic *.pl
+
 # $Source$
 # $Revision$
 # $Date$
