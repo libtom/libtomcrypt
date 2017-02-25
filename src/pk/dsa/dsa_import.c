@@ -99,9 +99,9 @@ int dsa_import(const unsigned char *in, unsigned long inlen, dsa_key *key)
          goto LBL_ERR;
       }
 
-      err = der_decode_subject_public_key_info(in, inlen,
-        PKA_DSA, tmpbuf, &tmpbuf_len,
-        LTC_ASN1_SEQUENCE, params, 3);
+      err = der_decode_subject_public_key_info(in, inlen, PKA_DSA,
+                                               tmpbuf, &tmpbuf_len,
+                                               LTC_ASN1_SEQUENCE, params, 3);
       if (err != CRYPT_OK) {
          XFREE(tmpbuf);
          goto LBL_ERR;
