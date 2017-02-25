@@ -4,20 +4,25 @@
 # wrapped at 80 chars
 #
 # Tom St Denis
-@a = split(" ", $ARGV[1]);
-$b = "$ARGV[0]=";
-$len = length($b);
+use strict;
+use warnings;
+
+my @a = split ' ', $ARGV[1];
+my $b = $ARGV[0] . '=';
+my $len = length $b;
 print $b;
 foreach my $obj (@a) {
-   $len = $len + length($obj);
+   $len = $len + length $obj;
    $obj =~ s/\*/\$/;
    if ($len > 100) {
-      printf "\\\n";
-      $len = length($obj);
+      print "\\\n";
+      $len = length $obj;
    }
-   print "$obj ";
+   print $obj . ' ';
 }
-if ($ARGV[0] eq "HEADERS") { print "testprof/tomcrypt_test.h"; }
+if ($ARGV[0] eq 'HEADERS') {
+   print 'testprof/tomcrypt_test.h';
+}
 
 print "\n\n";
 
