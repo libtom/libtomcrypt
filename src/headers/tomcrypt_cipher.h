@@ -617,6 +617,7 @@ extern const struct ltc_cipher_descriptor rc6_desc;
 
 #ifdef LTC_RC2
 int rc2_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_key *skey);
+int rc2_setup_ex(const unsigned char *key, int keylen, int bits, int num_rounds, symmetric_key *skey);
 int rc2_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey);
 int rc2_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey);
 int rc2_test(void);
