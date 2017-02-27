@@ -86,8 +86,8 @@ int gcm_process(gcm_state *gcm,
          for (x = 0; x < (ptlen & ~15); x += 16) {
              /* ctr encrypt */
              for (y = 0; y < 16; y += sizeof(LTC_FAST_TYPE)) {
-                 *((LTC_FAST_TYPE*)(&ct[x + y])) = *((LTC_FAST_TYPE*)(&pt[x+y])) ^ *((LTC_FAST_TYPE*)(&gcm->buf[y]));
-                 *((LTC_FAST_TYPE*)(&gcm->X[y])) ^= *((LTC_FAST_TYPE*)(&ct[x+y]));
+                 *(LTC_FAST_TYPE_PTR_CAST(&ct[x + y])) = *(LTC_FAST_TYPE_PTR_CAST(&pt[x+y])) ^ *(LTC_FAST_TYPE_PTR_CAST(&gcm->buf[y]));
+                 *(LTC_FAST_TYPE_PTR_CAST(&gcm->X[y])) ^= *(LTC_FAST_TYPE_PTR_CAST(&ct[x+y]));
              }
              /* GMAC it */
              gcm->pttotlen += 128;
@@ -104,8 +104,8 @@ int gcm_process(gcm_state *gcm,
          for (x = 0; x < (ptlen & ~15); x += 16) {
              /* ctr encrypt */
              for (y = 0; y < 16; y += sizeof(LTC_FAST_TYPE)) {
-                 *((LTC_FAST_TYPE*)(&gcm->X[y])) ^= *((LTC_FAST_TYPE*)(&ct[x+y]));
-                 *((LTC_FAST_TYPE*)(&pt[x + y])) = *((LTC_FAST_TYPE*)(&ct[x+y])) ^ *((LTC_FAST_TYPE*)(&gcm->buf[y]));
+                 *(LTC_FAST_TYPE_PTR_CAST(&gcm->X[y])) ^= *(LTC_FAST_TYPE_PTR_CAST(&ct[x+y]));
+                 *(LTC_FAST_TYPE_PTR_CAST(&pt[x + y])) = *(LTC_FAST_TYPE_PTR_CAST(&ct[x+y])) ^ *(LTC_FAST_TYPE_PTR_CAST(&gcm->buf[y]));
              }
              /* GMAC it */
              gcm->pttotlen += 128;

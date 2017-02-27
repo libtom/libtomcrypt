@@ -24,7 +24,7 @@ static int tweak_uncrypt(const unsigned char *C, unsigned char *P, unsigned char
    /* tweak encrypt block i */
 #ifdef LTC_FAST
    for (x = 0; x < 16; x += sizeof(LTC_FAST_TYPE)) {
-      *((LTC_FAST_TYPE *)&P[x]) = *((LTC_FAST_TYPE *)&C[x]) ^ *((LTC_FAST_TYPE *)&T[x]);
+      *(LTC_FAST_TYPE_PTR_CAST(&P[x])) = *(LTC_FAST_TYPE_PTR_CAST(&C[x])) ^ *(LTC_FAST_TYPE_PTR_CAST(&T[x]));
    }
 #else
    for (x = 0; x < 16; x++) {
@@ -36,7 +36,7 @@ static int tweak_uncrypt(const unsigned char *C, unsigned char *P, unsigned char
 
 #ifdef LTC_FAST
    for (x = 0; x < 16; x += sizeof(LTC_FAST_TYPE)) {
-      *((LTC_FAST_TYPE *)&P[x]) ^= *((LTC_FAST_TYPE *)&T[x]);
+      *(LTC_FAST_TYPE_PTR_CAST(&P[x])) ^= *(LTC_FAST_TYPE_PTR_CAST(&T[x]));
    }
 #else
    for (x = 0; x < 16; x++) {

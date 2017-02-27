@@ -89,8 +89,8 @@ int ctr_encrypt(const unsigned char *pt, unsigned char *ct, unsigned long len, s
 #ifdef LTC_FAST
       if (ctr->padlen == 0 && len >= (unsigned long)ctr->blocklen) {
          for (x = 0; x < ctr->blocklen; x += sizeof(LTC_FAST_TYPE)) {
-            *((LTC_FAST_TYPE*)((unsigned char *)ct + x)) = *((LTC_FAST_TYPE*)((unsigned char *)pt + x)) ^
-                                                           *((LTC_FAST_TYPE*)((unsigned char *)ctr->pad + x));
+            *(LTC_FAST_TYPE_PTR_CAST((unsigned char *)ct + x)) = *(LTC_FAST_TYPE_PTR_CAST((unsigned char *)pt + x)) ^
+                                                           *(LTC_FAST_TYPE_PTR_CAST((unsigned char *)ctr->pad + x));
          }
        pt         += ctr->blocklen;
        ct         += ctr->blocklen;

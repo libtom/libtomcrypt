@@ -59,7 +59,7 @@ int cbc_encrypt(const unsigned char *pt, unsigned char *ct, unsigned long len, s
          /* xor IV against plaintext */
          #if defined(LTC_FAST)
          for (x = 0; x < cbc->blocklen; x += sizeof(LTC_FAST_TYPE)) {
-            *((LTC_FAST_TYPE*)((unsigned char *)cbc->IV + x)) ^= *((LTC_FAST_TYPE*)((unsigned char *)pt + x));
+            *(LTC_FAST_TYPE_PTR_CAST((unsigned char *)cbc->IV + x)) ^= *(LTC_FAST_TYPE_PTR_CAST((unsigned char *)pt + x));
          }
     #else
          for (x = 0; x < cbc->blocklen; x++) {
@@ -75,7 +75,7 @@ int cbc_encrypt(const unsigned char *pt, unsigned char *ct, unsigned long len, s
          /* store IV [ciphertext] for a future block */
          #if defined(LTC_FAST)
          for (x = 0; x < cbc->blocklen; x += sizeof(LTC_FAST_TYPE)) {
-            *((LTC_FAST_TYPE*)((unsigned char *)cbc->IV + x)) = *((LTC_FAST_TYPE*)((unsigned char *)ct + x));
+            *(LTC_FAST_TYPE_PTR_CAST((unsigned char *)cbc->IV + x)) = *(LTC_FAST_TYPE_PTR_CAST((unsigned char *)ct + x));
          }
     #else
          for (x = 0; x < cbc->blocklen; x++) {
