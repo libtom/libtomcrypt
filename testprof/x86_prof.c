@@ -35,6 +35,7 @@ void print_hex(const char* what, const void* v, const unsigned long l)
   }
 }
 
+#ifndef compare_testvector
 int compare_testvector(const void* is, const unsigned long is_len, const void* should, const unsigned long should_len, const char* what, int which)
 {
    int res = 0;
@@ -51,6 +52,7 @@ int compare_testvector(const void* is, const unsigned long is_len, const void* s
 
    return res;
 }
+#endif
 
 struct list results[100];
 int no_results;

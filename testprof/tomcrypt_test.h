@@ -81,7 +81,9 @@ extern const struct ltc_prng_descriptor no_prng_desc;
 #endif
 
 void print_hex(const char* what, const void* v, const unsigned long l);
+#ifndef compare_testvector
 int compare_testvector(const void* is, const unsigned long is_len, const void* should, const unsigned long should_len, const char* what, int which);
+#endif
 int sorter(const void *a, const void *b);
 void tally_results(int type);
 ulong64 rdtsc (void);
