@@ -29,10 +29,12 @@ void adler32_init(adler32_state *ctx)
 
 void adler32_update(adler32_state *ctx, const unsigned char *input, unsigned long length)
 {
+   unsigned long s1, s2;
+
    LTC_ARGCHKVD(ctx != NULL);
    LTC_ARGCHKVD(input != NULL);
-   unsigned long s1 = ctx->s[0];
-   unsigned long s2 = ctx->s[1];
+   s1 = ctx->s[0];
+   s2 = ctx->s[1];
 
    if (length % 8 != 0) {
       do {
@@ -81,10 +83,12 @@ void adler32_update(adler32_state *ctx, const unsigned char *input, unsigned lon
 
 void adler32_finish(adler32_state *ctx, void *hash, unsigned long size)
 {
+   unsigned char* h;
+
    LTC_ARGCHKVD(ctx != NULL);
    LTC_ARGCHKVD(hash != NULL);
 
-   unsigned char* h = hash;
+   h = hash;
 
    switch (size) {
       default:
