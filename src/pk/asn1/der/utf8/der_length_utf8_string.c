@@ -47,6 +47,7 @@ unsigned long der_utf8_charsize(const wchar_t c)
 */
 int der_utf8_valid_char(const wchar_t c)
 {
+   LTC_UNUSED_PARAM(c);
 #if !defined(__WCHAR_MAX__) || __WCHAR_MAX__ > 0xFFFF
    if (c > 0x10FFFF) return 0;
 #endif
