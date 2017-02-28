@@ -619,6 +619,7 @@ int der_encode_utf8_string(const wchar_t *in,  unsigned long inlen,
 int der_decode_utf8_string(const unsigned char *in,  unsigned long inlen,
                                        wchar_t *out, unsigned long *outlen);
 unsigned long der_utf8_charsize(const wchar_t c);
+int der_utf8_valid_char(const wchar_t c);
 int der_length_utf8_string(const wchar_t *in, unsigned long noctets, unsigned long *outlen);
 
 
