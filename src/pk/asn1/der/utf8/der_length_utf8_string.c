@@ -48,10 +48,10 @@ unsigned long der_utf8_charsize(const wchar_t c)
 int der_utf8_valid_char(const wchar_t c)
 {
 #if !defined(__WCHAR_MAX__) || __WCHAR_MAX__ > 0xFFFF
-   if (in[x] > 0x10FFFF) return 0;
+   if (c > 0x10FFFF) return 0;
 #endif
 #if !defined(__WCHAR_MAX__) || __WCHAR_MAX__ != 0xFFFF && __WCHAR_MAX__ != 0xFFFFFFFF
-   if (in[x] < 0) return 0;
+   if (c < 0) return 0;
 #endif
    return 1;
 }
