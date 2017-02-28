@@ -11,7 +11,7 @@
 #include "tomcrypt.h"
 
 /**
-  @file rsa_sign_saltlen_get_ex.c
+  @file rsa_sign_saltlen_get.c
   Retrieve the maximum size of the salt, Steffen Jaeckel.
 */
 

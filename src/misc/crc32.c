@@ -11,7 +11,7 @@
 #include "tomcrypt.h"
 
 /**
-   @file crc.c
+   @file crc32.c
    CRC-32 checksum algorithm
    Written and placed in the public domain by Wei Dai
    Adapted for libtomcrypt by Steffen Jaeckel

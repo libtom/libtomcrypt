@@ -17,7 +17,7 @@
 #ifdef LTC_XTS_MODE
 
 /** Terminate XTS state
-   @param XTS    The state to terminate
+   @param xts    The state to terminate
 */
 void xts_done(symmetric_xts *xts)
 {
