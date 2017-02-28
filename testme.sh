@@ -13,6 +13,9 @@ echo "date="`date`
 # stock build
 bash run.sh "STOCK" " " "$1" "$2" "$3" || exit 1
 
+# EASY build
+bash run.sh "EASY" "-DLTC_EASY" "$1" "$2" "$3" || exit 1
+
 # SMALL code
 bash run.sh "SMALL" "-DLTC_SMALL_CODE" "$1" "$2" "$3" || exit 1
 

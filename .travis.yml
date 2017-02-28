@@ -14,6 +14,10 @@ env:
     BUILDOPTIONS=" "
   - |
     BUILDSCRIPT="run.sh"
+    BUILDNAME="EASY"
+    BUILDOPTIONS="-DLTC_EASY"
+  - |
+    BUILDSCRIPT="run.sh"
     BUILDNAME="SMALL"
     BUILDOPTIONS="-DLTC_SMALL_CODE"
   - |
