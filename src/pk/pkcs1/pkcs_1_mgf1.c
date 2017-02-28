@@ -19,9 +19,9 @@
 
 /**
    Perform PKCS #1 MGF1 (internal)
+   @param hash_idx    The index of the hash desired
    @param seed        The seed for MGF1
    @param seedlen     The length of the seed
-   @param hash_idx    The index of the hash desired
    @param mask        [out] The destination
    @param masklen     The length of the mask desired
    @return CRYPT_OK if successful

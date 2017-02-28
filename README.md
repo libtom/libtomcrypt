@@ -1,7 +1,7 @@
 libtomcrypt
 ==========
 
-See doc/crypt.pdf for a detailed documentation
+See `doc/crypt.pdf` for a detailed documentation
 
 Project Status
 --------------
@@ -12,6 +12,10 @@ Submitting patches
 ------------------
 
 Please branch off from develop if you want to submit a patch.
+
+Patch integration will be faster if tests and documentation are included.
+
+Please update the makefiles in a separate commit. To update them simply run the `updatemakes.sh` script.
 
 Branches
 --------
