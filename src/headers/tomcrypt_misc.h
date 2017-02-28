@@ -101,7 +101,11 @@ int crc32_test(void);
 
 /* yeah it's not exactly in misc in the library, but in testprof/x86_prof.c */
 #if defined(LTC_TEST) && defined(LTC_TEST_DBG)
-void print_hex(const char* what, const void* p, const unsigned long l);
+void print_hex(const char* what, const void* v, const unsigned long l);
+int compare_testvector(const void* is, const unsigned long is_len, const void* should, const unsigned long should_len, const char* what, int which);
+#else
+#define compare_testvector(is, is_len, should, should_len, what, which) \
+   (((is_len) != (should_len)) || (XMEMCMP((is), (should), (is_len)) != 0))
 #endif
 
 /* $Source$ */
