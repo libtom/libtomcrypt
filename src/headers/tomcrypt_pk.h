@@ -404,6 +404,11 @@ typedef struct {
 } dsa_key;
 
 int dsa_make_key(prng_state *prng, int wprng, int group_size, int modulus_size, dsa_key *key);
+
+int dsa_make_key_ex(prng_state *prng, int wprng, int group_size, int modulus_size, dsa_key *key, char* p_hex, char* q_hex, char* g_hex);
+
+int dsa_make_params(prng_state *prng, int wprng, int group_size, int modulus_size, void *p, void *q, void *g);
+
 void dsa_free(dsa_key *key);
 
 int dsa_sign_hash_raw(const unsigned char *in,  unsigned long inlen,
