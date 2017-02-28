@@ -1,6 +1,7 @@
 language: c
 compiler:
   - gcc
+  - clang
 script: bash "${BUILDSCRIPT}" "${BUILDNAME}" "${BUILDOPTIONS}" "makefile" "-DUSE_LTM -DLTM_DESC -I/usr/include" "/usr/lib/libtommath.a"
 env:
   - |
