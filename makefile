@@ -12,8 +12,10 @@ PLATFORM := $(shell uname | sed -e 's/_.*//')
 
 ifeq ($V,1)
 silent=
+silent_stdout=
 else
 silent=@
+silent_stdout= > /dev/null
 endif
 
 %.o: %.c
@@ -360,7 +362,7 @@ clean:
 
 #build the doxy files (requires Doxygen, tetex and patience)
 doxy:
-	doxygen
+	doxygen $(silent_stdout)
 	cd doc/doxygen/latex ; ${MAKE} ; mv -f refman.pdf ../../.
 	echo The huge doxygen PDF should be available as doc/refman.pdf
 
@@ -380,11 +382,11 @@ docs: crypt.tex
 	mv crypt-deterministic.tex crypt.tex
 	touch --reference=crypt.bak crypt.tex
 	echo "hello" > crypt.ind
-	latex crypt > /dev/null
-	latex crypt > /dev/null
-	makeindex crypt.idx > /dev/null
+	latex crypt $(silent_stdout)
+	latex crypt $(silent_stdout)
+	makeindex crypt.idx $(silent_stdout)
 	perl fixupind.pl
-	pdflatex crypt > /dev/null
+	pdflatex crypt $(silent_stdout)
 	sed -b -i 's,^/ID \[.*\]$$,/ID [<0> <0>],g' crypt.pdf
 	mv -ivf crypt.pdf doc/crypt.pdf
 	mv crypt.bak crypt.tex
@@ -392,12 +394,12 @@ docs: crypt.tex
 
 docdvi: crypt.tex
 	echo hello > crypt.ind
-	latex crypt > /dev/null
-	latex crypt > /dev/null
+	latex crypt $(silent_stdout)
+	latex crypt $(silent_stdout)
 	makeindex crypt.idx
 	perl fixupind.pl
-	latex crypt > /dev/null
-	latex crypt > /dev/null
+	latex crypt $(silent_stdout)
+	latex crypt $(silent_stdout)
 
 #zipup the project (take that!)
 no_oops: clean
