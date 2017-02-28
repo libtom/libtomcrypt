@@ -1,10 +1,12 @@
 #include  <tomcrypt_test.h>
 
-#ifdef LTC_BASE64
+#if defined(LTC_BASE64) || defined(LTC_BASE64_URL)
 int base64_test(void)
 {
    unsigned char in[64], out[256], tmp[64];
    unsigned long x, l1, l2, slen1;
+
+#if defined(LTC_BASE64)
    const char special_case[] = {
          0xbe, 0xe8, 0x92, 0x3c, 0xa2, 0x25, 0xf0, 0xf8,
          0x91, 0xe4, 0xef, 0xab, 0x0b, 0x8c, 0xfd, 0xff,
@@ -31,7 +33,9 @@ int base64_test(void)
        {"foobar", "Zm9vYmFy"},
        {special_case,"vuiSPKIl8PiR5O+rC4z9/xTQKZ0="}
    };
+#endif
 
+#ifdef LTC_BASE64_URL
    const struct {
       const char* s;
       int is_strict;
@@ -47,20 +51,6 @@ int base64_test(void)
          {"vuiS*==PKIl8P*iR5O-rC4*z9_xTQKZ0=", 0},
          {"vuiS*===PKIl8P*iR5O-rC4*z9_xTQKZ0=", 0},
    };
-
-   for (x = 0; x < sizeof(cases)/sizeof(cases[0]); ++x) {
-       memset(out, 0, sizeof(out));
-       memset(tmp, 0, sizeof(tmp));
-       slen1 = strlen(cases[x].s);
-       l1 = sizeof(out);
-       DO(base64_encode((unsigned char*)cases[x].s, slen1, out, &l1));
-       l2 = sizeof(tmp);
-       DO(base64_strict_decode(out, l1, tmp, &l2));
-       if (compare_testvector(out, l1, cases[x].b64, strlen(cases[x].b64), "base64 encode", x) ||
-             compare_testvector(tmp, l2, cases[x].s, slen1, "base64 decode", x)) {
-           return 1;
-       }
-   }
 
    for (x = 0; x < sizeof(url_cases)/sizeof(url_cases[0]); ++x) {
        slen1 = strlen(url_cases[x].s);
@@ -85,6 +75,22 @@ int base64_test(void)
    }
 
    DO(base64url_strict_decode((unsigned char*)url_cases[4].s, slen1, out, &l1) == CRYPT_INVALID_PACKET ? CRYPT_OK : CRYPT_INVALID_PACKET);
+#endif
+
+#if defined(LTC_BASE64)
+   for (x = 0; x < sizeof(cases)/sizeof(cases[0]); ++x) {
+       memset(out, 0, sizeof(out));
+       memset(tmp, 0, sizeof(tmp));
+       slen1 = strlen(cases[x].s);
+       l1 = sizeof(out);
+       DO(base64_encode((unsigned char*)cases[x].s, slen1, out, &l1));
+       l2 = sizeof(tmp);
+       DO(base64_strict_decode(out, l1, tmp, &l2));
+       if (compare_testvector(out, l1, cases[x].b64, strlen(cases[x].b64), "base64 encode", x) ||
+             compare_testvector(tmp, l2, cases[x].s, slen1, "base64 decode", x)) {
+           return 1;
+       }
+   }
 
    for  (x = 0; x < 64; x++) {
        yarrow_read(in, x, &yarrow_prng);
@@ -109,6 +115,8 @@ int base64_test(void)
    }
    l2 = sizeof(tmp);
    DO(base64_strict_decode(out, l1, tmp, &l2) == CRYPT_INVALID_PACKET ? CRYPT_OK : CRYPT_INVALID_PACKET);
+#endif
+
    return 0;
 }
 #endif
