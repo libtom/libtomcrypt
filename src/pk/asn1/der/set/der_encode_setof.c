@@ -140,7 +140,7 @@ int der_encode_setof(ltc_asn1_list *list, unsigned long inlen,
    XMEMCPY(out, buf, hdrlen);
 
    /* copy+sort using edges+indecies to output from buffer */
-   for (y = hdrlen, x = 0; x < inlen; x++) {
+   for (y = (unsigned long)hdrlen, x = 0; x < inlen; x++) {
       XMEMCPY(out+y, edges[x].start, edges[x].size);
       y += edges[x].size;
    }

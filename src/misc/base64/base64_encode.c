@@ -75,7 +75,7 @@ static int _base64_encode_internal(const unsigned char *in,  unsigned long inlen
    *p = '\0';
 
    /* return ok */
-   *outlen = p - out;
+   *outlen = (unsigned long)(p - out);
    return CRYPT_OK;
 }
 

@@ -50,7 +50,7 @@ int hash_filehandle(int hash, FILE *in, unsigned char *out, unsigned long *outle
     *outlen = hash_descriptor[hash].hashsize;
     do {
         x = fread(buf, 1, sizeof(buf), in);
-        if ((err = hash_descriptor[hash].process(&md, buf, x)) != CRYPT_OK) {
+        if ((err = hash_descriptor[hash].process(&md, buf, (unsigned long)x)) != CRYPT_OK) {
            return err;
         }
     } while (x == sizeof(buf));

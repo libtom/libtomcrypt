@@ -35,7 +35,8 @@ int f9_file(int cipher,
 #ifdef LTC_NO_FILE
    return CRYPT_NOP;
 #else
-   int err, x;
+   size_t x;
+   int err;
    f9_state f9;
    FILE *in;
    unsigned char buf[512];
@@ -57,7 +58,7 @@ int f9_file(int cipher,
 
    do {
       x = fread(buf, 1, sizeof(buf), in);
-      if ((err = f9_process(&f9, buf, x)) != CRYPT_OK) {
+      if ((err = f9_process(&f9, buf, (unsigned long)x)) != CRYPT_OK) {
          fclose(in);
          return err;
       }

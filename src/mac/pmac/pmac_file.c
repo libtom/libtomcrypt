@@ -35,7 +35,8 @@ int pmac_file(int cipher,
 #ifdef LTC_NO_FILE
    return CRYPT_NOP;
 #else
-   int err, x;
+   size_t x;
+   int err;
    pmac_state pmac;
    FILE *in;
    unsigned char buf[512];
@@ -58,7 +59,7 @@ int pmac_file(int cipher,
 
    do {
       x = fread(buf, 1, sizeof(buf), in);
-      if ((err = pmac_process(&pmac, buf, x)) != CRYPT_OK) {
+      if ((err = pmac_process(&pmac, buf, (unsigned long)x)) != CRYPT_OK) {
          fclose(in);
          return err;
       }

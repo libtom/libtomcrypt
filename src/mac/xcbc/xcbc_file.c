@@ -35,7 +35,8 @@ int xcbc_file(int cipher,
 #ifdef LTC_NO_FILE
    return CRYPT_NOP;
 #else
-   int err, x;
+   size_t x;
+   int err;
    xcbc_state xcbc;
    FILE *in;
    unsigned char buf[512];
@@ -57,7 +58,7 @@ int xcbc_file(int cipher,
 
    do {
       x = fread(buf, 1, sizeof(buf), in);
-      if ((err = xcbc_process(&xcbc, buf, x)) != CRYPT_OK) {
+      if ((err = xcbc_process(&xcbc, buf, (unsigned long)x)) != CRYPT_OK) {
          fclose(in);
          return err;
       }
