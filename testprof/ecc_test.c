@@ -113,10 +113,6 @@ int ecc_tests (void)
   ecc_key usera, userb, pubKey, privKey;
 
   DO(ecc_test ());
-  DO(ecc_test ());
-  DO(ecc_test ());
-  DO(ecc_test ());
-  DO(ecc_test ());
 
   for (s = 0; s < (sizeof(sizes)/sizeof(sizes[0])); s++) {
      /* make up two keys */
