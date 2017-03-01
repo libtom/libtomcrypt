@@ -149,9 +149,10 @@ void crc32_init(crc32_state *ctx)
 
 void crc32_update(crc32_state *ctx, const unsigned char *input, unsigned long length)
 {
+   ulong32 crc;
    LTC_ARGCHKVD(ctx != NULL);
    LTC_ARGCHKVD(input != NULL);
-   ulong32 crc = ctx->crc;
+   crc = ctx->crc;
 
    while (length--)
       crc = crc32_m_tab[CRC32_INDEX(crc) ^ *input++] ^ CRC32_SHIFTED(crc);
@@ -161,14 +162,18 @@ void crc32_update(crc32_state *ctx, const unsigned char *input, unsigned long le
 
 void crc32_finish(crc32_state *ctx, void *hash, unsigned long size)
 {
+   unsigned char* h;
+   unsigned long i;
+   ulong32 crc;
+
    LTC_ARGCHKVD(ctx != NULL);
    LTC_ARGCHKVD(hash != NULL);
 
-   unsigned char* h = hash;
-   unsigned long i;
-
-   ulong32 crc = ctx->crc;
+   h = hash;
+   crc = ctx->crc;
    crc ^= _CRC32_NEGL;
+
+   if (size > 4) size = 4;
    for (i = 0; i < size; i++) {
       h[i] = ((unsigned char*)&(crc))[i];
    }
