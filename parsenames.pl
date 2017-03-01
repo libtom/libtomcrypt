@@ -11,7 +11,7 @@ my @a = split ' ', $ARGV[1];
 my $b = $ARGV[0] . '=';
 my $len = length $b;
 print $b;
-foreach my $obj (@a) {
+foreach my $obj (sort @a) {
    $len = $len + length $obj;
    $obj =~ s/\*/\$/;
    if ($len > 100) {
