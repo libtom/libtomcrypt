@@ -3,11 +3,6 @@ echo "$1 ($2, $3)..."
 
 make clean 1>/dev/null 2>/dev/null
 
-if [ -f check-source.pl ] ; then
-  echo "checking white spaces..."
-  perl check-source.pl || exit 1
-fi
-
 echo -n "building..."
 
 if [ -f /proc/cpuinfo ]
