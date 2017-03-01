@@ -9,7 +9,6 @@
 use strict;
 use warnings;
 
-use Test::More;
 use File::Find 'find';
 use File::Basename 'basename';
 use File::Glob 'bsd_glob';
@@ -37,7 +36,7 @@ for my $file (sort @all_files) {
     $lineno++;
   }
   for my $k (sort keys %$troubles) {
-    warn "FAIL: [$k] $file line:" . join(",", @{$troubles->{$k}}) . "\n";
+    warn "[$k] $file line:" . join(",", @{$troubles->{$k}}) . "\n";
     $fails++;
   }
 }
