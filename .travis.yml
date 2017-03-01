@@ -5,6 +5,10 @@ compiler:
 script: bash "${BUILDSCRIPT}" "${BUILDNAME}" "${BUILDOPTIONS}" "makefile" "-DUSE_LTM -DLTM_DESC -I/usr/include" "/usr/lib/libtommath.a"
 env:
   - |
+    BUILDSCRIPT="check_source.sh"
+    BUILDNAME="CHECK_SOURCES"
+    BUILDOPTIONS=" "
+  - |
     BUILDSCRIPT="coverage.sh"
     BUILDNAME="COVERAGE"
     BUILDOPTIONS=" "

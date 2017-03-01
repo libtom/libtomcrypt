@@ -10,6 +10,9 @@ fi
 # date
 echo "date="`date`
 
+# check sources
+bash check_source.sh "CHECK_SOURCES" " " "$1" "$2" "$3" || exit 1
+
 # stock build
 bash run.sh "STOCK" " " "$1" "$2" "$3" || exit 1
 
