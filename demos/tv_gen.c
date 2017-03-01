@@ -286,6 +286,7 @@ void hmac_gen(void)
 
 void omac_gen(void)
 {
+#ifdef LTC_OMAC
    unsigned char key[MAXBLOCKSIZE], output[MAXBLOCKSIZE], input[MAXBLOCKSIZE*2+2];
    int err, x, y, z, kl;
    FILE *out;
@@ -337,6 +338,7 @@ void omac_gen(void)
       fprintf(out, "\n");
    }
    fclose(out);
+#endif
 }
 
 void pmac_gen(void)
@@ -848,17 +850,33 @@ int main(void)
    printf("Generating hash   vectors..."); fflush(stdout); hash_gen();   printf("done\n");
    printf("Generating cipher vectors..."); fflush(stdout); cipher_gen(); printf("done\n");
    printf("Generating HMAC   vectors..."); fflush(stdout); hmac_gen();   printf("done\n");
+#ifdef LTC_OMAC
    printf("Generating OMAC   vectors..."); fflush(stdout); omac_gen();   printf("done\n");
+#endif
+#ifdef LTC_PMAC
    printf("Generating PMAC   vectors..."); fflush(stdout); pmac_gen();   printf("done\n");
+#endif
+#ifdef LTC_EAX_MODE
    printf("Generating EAX    vectors..."); fflush(stdout); eax_gen();    printf("done\n");
+#endif
+#ifdef LTC_OCB_MODE
    printf("Generating OCB    vectors..."); fflush(stdout); ocb_gen();    printf("done\n");
+#endif
+#ifdef LTC_OCB3_MODE
    printf("Generating OCB3   vectors..."); fflush(stdout); ocb3_gen();   printf("done\n");
+#endif
+#ifdef LTC_CCM_MODE
    printf("Generating CCM    vectors..."); fflush(stdout); ccm_gen();    printf("done\n");
+#endif
+#ifdef LTC_GCM_MODE
    printf("Generating GCM    vectors..."); fflush(stdout); gcm_gen();    printf("done\n");
+#endif
    printf("Generating BASE64 vectors..."); fflush(stdout); base64_gen(); printf("done\n");
    printf("Generating MATH   vectors..."); fflush(stdout); math_gen();   printf("done\n");
    printf("Generating ECC    vectors..."); fflush(stdout); ecc_gen();    printf("done\n");
+#ifdef LTC_LRW_MODE
    printf("Generating LRW    vectors..."); fflush(stdout); lrw_gen();    printf("done\n");
+#endif
    return 0;
 }
 
