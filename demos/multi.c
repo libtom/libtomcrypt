@@ -56,6 +56,7 @@ int main(void)
    }
 
 /* LTC_OMAC */
+#ifdef LTC_OMAC
    len = sizeof(buf[0]);
    omac_memory(find_cipher("aes"), key, 16, (unsigned char*)"hello", 5, buf[0], &len);
    len2 = sizeof(buf[0]);
@@ -76,8 +77,10 @@ int main(void)
       printf("Failed: %d %lu %lu\n", __LINE__, len, len2);
       return EXIT_FAILURE;
    }
+#endif
 
 /* PMAC */
+#ifdef LTC_PMAC
    len = sizeof(buf[0]);
    pmac_memory(find_cipher("aes"), key, 16, (unsigned char*)"hello", 5, buf[0], &len);
    len2 = sizeof(buf[0]);
@@ -98,7 +101,7 @@ int main(void)
       printf("Failed: %d %lu %lu\n", __LINE__, len, len2);
       return EXIT_FAILURE;
    }
-
+#endif
 
    printf("All passed\n");
    return EXIT_SUCCESS;

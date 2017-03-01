@@ -3,6 +3,7 @@
 void reg_algs(void)
 {
   int err;
+  LTC_UNUSED_PARAM(err);
 
 #ifdef LTC_RIJNDAEL
   register_cipher (&aes_desc);
@@ -340,6 +341,7 @@ void omac_gen(void)
 
 void pmac_gen(void)
 {
+#ifdef LTC_PMAC
    unsigned char key[MAXBLOCKSIZE], output[MAXBLOCKSIZE], input[MAXBLOCKSIZE*2+2];
    int err, x, y, z, kl;
    FILE *out;
@@ -391,10 +393,12 @@ void pmac_gen(void)
       fprintf(out, "\n");
    }
    fclose(out);
+#endif
 }
 
 void eax_gen(void)
 {
+#ifdef LTC_EAX_MODE
    int err, kl, x, y1, z;
    FILE *out;
    unsigned char key[MAXBLOCKSIZE], nonce[MAXBLOCKSIZE*2], header[MAXBLOCKSIZE*2],
@@ -451,10 +455,12 @@ void eax_gen(void)
       fprintf(out, "\n");
    }
    fclose(out);
+#endif
 }
 
 void ocb_gen(void)
 {
+#ifdef LTC_OCB_MODE
    int err, kl, x, y1, z;
    FILE *out;
    unsigned char key[MAXBLOCKSIZE], nonce[MAXBLOCKSIZE*2],
@@ -514,10 +520,12 @@ void ocb_gen(void)
       fprintf(out, "\n");
    }
    fclose(out);
+#endif
 }
 
 void ocb3_gen(void)
 {
+#ifdef LTC_OCB3_MODE
    int err, kl, x, y1, z;
    FILE *out;
    unsigned char key[MAXBLOCKSIZE], nonce[MAXBLOCKSIZE*2],
@@ -577,10 +585,12 @@ void ocb3_gen(void)
       fprintf(out, "\n");
    }
    fclose(out);
+#endif
 }
 
 void ccm_gen(void)
 {
+#ifdef LTC_CCM_MODE
    int err, kl, x, y1, z;
    FILE *out;
    unsigned char key[MAXBLOCKSIZE], nonce[MAXBLOCKSIZE*2],
@@ -640,10 +650,12 @@ void ccm_gen(void)
       fprintf(out, "\n");
    }
    fclose(out);
+#endif
 }
 
 void gcm_gen(void)
 {
+#ifdef LTC_GCM_MODE
    int err, kl, x, y1, z;
    FILE *out;
    unsigned char key[MAXBLOCKSIZE], plaintext[MAXBLOCKSIZE*2], tag[MAXBLOCKSIZE];
@@ -697,6 +709,7 @@ void gcm_gen(void)
       fprintf(out, "\n");
    }
    fclose(out);
+#endif
 }
 
 void base64_gen(void)
@@ -764,6 +777,7 @@ void ecc_gen(void)
 
 void lrw_gen(void)
 {
+#ifdef LTC_LRW_MODE
    FILE *out;
    unsigned char tweak[16], key[16], iv[16], buf[1024];
    int x, y, err;
@@ -825,6 +839,7 @@ void lrw_gen(void)
        lrw_done(&lrw);
    }
    fclose(out);
+#endif
 }
 
 int main(void)

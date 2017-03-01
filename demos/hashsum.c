@@ -67,6 +67,7 @@ int main(int argc, char **argv)
 void register_algs(void)
 {
   int err;
+  LTC_UNUSED_PARAM(err);
 
 #ifdef LTC_TIGER
   register_hash (&tiger_desc);
