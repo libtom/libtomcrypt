@@ -3,9 +3,9 @@
 makefiles=(makefile makefile.icc makefile.shared makefile.unix makefile.mingw)
 
 function update_makefile() {
-	perl filter.pl $1 tmplist
-	sed -e 's/ *$//' < tmp.delme > $1
-	rm -f tmp.delme
+  perl filter.pl $1 tmplist
+  sed -e 's/ *$//' < tmp.delme > $1
+  rm -f tmp.delme
 }
 
 bash genlist.sh > tmplist
