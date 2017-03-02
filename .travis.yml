@@ -2,7 +2,7 @@ language: c
 compiler:
   - gcc
   - clang
-script: bash "${BUILDSCRIPT}" "${BUILDNAME}" "${BUILDOPTIONS}" "makefile" "-DUSE_LTM -DLTM_DESC -I/usr/include" "/usr/lib/libtommath.a"
+script: bash "${BUILDSCRIPT}" "${BUILDNAME}" "${BUILDOPTIONS}" "makefile" "-DUSE_LTM -DLTM_DESC -I/usr/include" "/usr/lib/x86_64-linux-gnu/libtommath.a"
 env:
   - |
     BUILDSCRIPT="check_source.sh"
