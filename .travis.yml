@@ -2,7 +2,7 @@ language: c
 compiler:
   - gcc
   - clang
-script: bash "${BUILDSCRIPT}" "${BUILDNAME}" "${BUILDOPTIONS}" "makefile" "-DUSE_LTM -DLTM_DESC -I/usr/include" "/usr/lib/libtommath.a"
+script: bash "${BUILDSCRIPT}" "${BUILDNAME}" "${BUILDOPTIONS}" "makefile" "-DUSE_LTM -DLTM_DESC -I/usr/include" "/usr/lib/x86_64-linux-gnu/libtommath.a"
 env:
   - |
     BUILDSCRIPT="check_source.sh"
@@ -81,9 +81,15 @@ matrix:
 branches:
   only:
     - develop
+addons:
+  apt:
+    sources:
+    - debian-sid
+    packages:
+    - binutils
+    - libtommath-dev
 before_script:
   - sudo apt-get update -qq
-  - sudo apt-get install libtommath-dev
   - sudo pip install cpp-coveralls
 after_failure:
   - cat test_std.txt
