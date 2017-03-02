@@ -86,6 +86,7 @@ addons:
     sources:
     - debian-sid
     packages:
+    - binutils
     - libtommath-dev
 before_script:
   - sudo apt-get update -qq
