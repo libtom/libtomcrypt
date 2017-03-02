@@ -81,9 +81,14 @@ matrix:
 branches:
   only:
     - develop
+addons:
+  apt:
+    sources:
+    - debian-sid
+    packages:
+    - libtommath-dev
 before_script:
   - sudo apt-get update -qq
-  - sudo apt-get install libtommath-dev
   - sudo pip install cpp-coveralls
 after_failure:
   - cat test_std.txt
