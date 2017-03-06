@@ -430,6 +430,11 @@ static inline ulong64 ROR64(ulong64 word, int i)
    #define byte(x, n) (((x) >> (8 * (n))) & 255)
 #endif
 
+/* there is no snprintf before Visual C++ 2015 */
+#if defined(_MSC_VER) && _MSC_VER < 1900
+#define snprintf _snprintf
+#endif
+
 /* $Source$ */
 /* $Revision$ */
 /* $Date$ */
