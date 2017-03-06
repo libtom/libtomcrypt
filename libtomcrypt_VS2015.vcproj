@@ -495,7 +495,7 @@
 						>
 						<Tool
 							Name="VCCustomBuildTool"
-							CommandLine="cl /nologo /MLd /W3 /Gm /GX /ZI /Od /I &quot;src\headers&quot; /I &quot;..\libtommath&quot; %(PreprocessorDefinitions) /Fp&quot;Debug/libtomcrypt.pch&quot; /YX /Fo&quot;Debug/&quot; /Fd&quot;Debug/&quot; /FD /GZ /c &quot;%(FullPath)&quot;&#x0D;&#x0A;cl /nologo /DENCRYPT_ONLY /MLd /W3 /Gm /GX /ZI /Od /I &quot;src\headers&quot; /I &quot;..\libtommath&quot; %(PreprocessorDefinitions) /Fp&quot;Debug/libtomcrypt.pch&quot; /YX /Fo&quot;Debug/aes_enc.obj&quot; /Fd&quot;Debug/&quot; /FD /GZ /c &quot;%(FullPath)&quot;&#x0D;&#x0A;"
+							CommandLine="cl /nologo /W3 /Gm /EHsc /ZI /Od /I &quot;src\headers&quot; /I &quot;..\libtommath&quot; %(PreprocessorDefinitions) /Fp&quot;Debug/libtomcrypt.pch&quot; /Fo&quot;Debug/&quot; /Fd&quot;Debug/&quot; /FD /RTC1 /c &quot;%(FullPath)&quot;&#x0D;&#x0A;cl /nologo /DENCRYPT_ONLY /W3 /Gm /EHsc /ZI /Od /I &quot;src\headers&quot; /I &quot;..\libtommath&quot; %(PreprocessorDefinitions) /Fp&quot;Debug/libtomcrypt.pch&quot; /Fo&quot;Debug/aes_enc.obj&quot; /Fd&quot;Debug/&quot; /FD /RTC1 /c &quot;%(FullPath)&quot;&#x0D;&#x0A;"
 							Outputs="Debug/aes.obj;Debug/aes_enc.obj"
 						/>
 					</FileConfiguration>
@@ -504,7 +504,7 @@
 						>
 						<Tool
 							Name="VCCustomBuildTool"
-							CommandLine="cl /nologo /MLd /W3 /Gm /GX /ZI /Od /I &quot;src\headers&quot; /I &quot;..\libtommath&quot; %(PreprocessorDefinitions) /Fp&quot;Release/libtomcrypt.pch&quot; /YX /Fo&quot;Release/&quot; /Fd&quot;Release/&quot; /FD /GZ /c &quot;%(FullPath)&quot;&#x0D;&#x0A;cl /nologo /DENCRYPT_ONLY /MLd /W3 /Gm /GX /ZI /Od /I &quot;src\headers&quot; /I &quot;..\libtommath&quot; %(PreprocessorDefinitions) /Fp&quot;Release/libtomcrypt.pch&quot; /YX /Fo&quot;Release/aes_enc.obj&quot; /Fd&quot;Release/&quot; /FD /GZ /c &quot;%(FullPath)&quot;&#x0D;&#x0A;"
+							CommandLine="cl /nologo /W3 /Gm /EHsc /ZI /Od /I &quot;src\headers&quot; /I &quot;..\libtommath&quot; %(PreprocessorDefinitions) /Fp&quot;Release/libtomcrypt.pch&quot; /Fo&quot;Release/&quot; /Fd&quot;Release/&quot; /FD /RTC1 /c &quot;%(FullPath)&quot;&#x0D;&#x0A;cl /nologo /DENCRYPT_ONLY /W3 /Gm /EHsc /ZI /Od /I &quot;src\headers&quot; /I &quot;..\libtommath&quot; %(PreprocessorDefinitions) /Fp&quot;Release/libtomcrypt.pch&quot; /Fo&quot;Release/aes_enc.obj&quot; /Fd&quot;Release/&quot; /FD /RTC1 /c &quot;%(FullPath)&quot;&#x0D;&#x0A;"
 							Outputs="Release/aes.obj;Release/aes_enc.obj"
 						/>
 					</FileConfiguration>
