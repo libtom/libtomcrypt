@@ -70,6 +70,76 @@ sub prepare_variable {
   return $output;
 }
 
+sub prepare_msvc_files_xml {
+  my ($all, $exclude_re, $targets) = @_;
+  my $last = [];
+  my $depth = 2;
+  my $files = "<Files>\r\n";
+  for my $full (@$all) {
+    my @items = split /\//, $full; # split by '/'
+    $full =~ s|/|\\|g;             # replace '/' bt '\'
+    #XXXXXXXXXXXXX
+    shift @items;
+    pop @items; # drop last one
+    my $current = \@items;
+    if (join(':', @$current) ne join(':', @$last)) {
+      my $common = 0;
+      $common++ while ($last->[$common] && $current->[$common] && $last->[$common] eq $current->[$common]);
+      my $back = @$last - $common;
+      if ($back > 0) {
+        $files .= ("\t" x --$depth) . "</Filter>\r\n" for (1..$back);
+      }
+      my $fwd = [ @$current ]; splice(@$fwd, 0, $common);
+      for my $i (0..scalar(@$fwd) - 1) {
+        $files .= ("\t" x $depth) . "<Filter\r\n";
+        $files .= ("\t" x $depth) . "\tName=\"$fwd->[$i]\"\r\n";
+        $files .= ("\t" x $depth) . "\t>\r\n";
+        $depth++;
+      }
+      $last = $current;
+    }
+    $files .= ("\t" x $depth) . "<File\r\n";
+    $files .= ("\t" x $depth) . "\tRelativePath=\"$full\"\r\n";
+    $files .= ("\t" x $depth) . "\t>\r\n";
+    if ($full =~ $exclude_re) {
+      for (@$targets) {
+        $files .= ("\t" x $depth) . "\t<FileConfiguration\r\n";
+        $files .= ("\t" x $depth) . "\t\tName=\"$_\"\r\n";
+        $files .= ("\t" x $depth) . "\t\tExcludedFromBuild=\"true\"\r\n";
+        $files .= ("\t" x $depth) . "\t\t>\r\n";
+        $files .= ("\t" x $depth) . "\t\t<Tool\r\n";
+        $files .= ("\t" x $depth) . "\t\t\tName=\"VCCLCompilerTool\"\r\n";
+        $files .= ("\t" x $depth) . "\t\t\tAdditionalIncludeDirectories=\"\"\r\n";
+        $files .= ("\t" x $depth) . "\t\t\tPreprocessorDefinitions=\"\"\r\n";
+        $files .= ("\t" x $depth) . "\t\t/>\r\n";
+        $files .= ("\t" x $depth) . "\t</FileConfiguration>\r\n";
+      }
+    }
+    if ($full eq 'src\ciphers\aes\aes.c') { #hack
+      my %cmd = (
+        'Debug|Win32'   => [ 'Debug/aes.obj;Debug/aes_enc.obj', 'cl /nologo /MLd /W3 /Gm /GX /ZI /Od /I &quot;src\headers&quot; /I &quot;..\libtommath&quot; /D &quot;_DEBUG&quot; /D &quot;LTM_DESC&quot; /D &quot;WIN32&quot; /D &quot;_MBCS&quot; /D &quot;_LIB&quot; /D &quot;LTC_SOURCE&quot; /D &quot;USE_LTM&quot; /Fp&quot;Debug/libtomcrypt.pch&quot; /YX /Fo&quot;Debug/&quot; /Fd&quot;Debug/&quot; /FD /GZ /c $(InputPath)&#x0D;&#x0A;cl /nologo /DENCRYPT_ONLY /MLd /W3 /Gm /GX /ZI /Od /I &quot;src\headers&quot; /I &quot;..\libtommath&quot; /D &quot;_DEBUG&quot; /D &quot;LTM_DESC&quot; /D &quot;WIN32&quot; /D &quot;_MBCS&quot; /D &quot;_LIB&quot; /D &quot;LTC_SOURCE&quot; /D &quot;USE_LTM&quot; /Fp&quot;Debug/libtomcrypt.pch&quot; /YX /Fo&quot;Debug/aes_enc.obj&quot; /Fd&quot;Debug/&quot; /FD /GZ /c $(InputPath)&#x0D;&#x0A;' ],
+        'Release|Win32' => [ 'Release/aes.obj;Release/aes_enc.obj', 'cl /nologo /MLd /W3 /Gm /GX /ZI /Od /I &quot;src\headers&quot; /I &quot;..\libtommath&quot; /D &quot;_DEBUG&quot; /D &quot;LTM_DESC&quot; /D &quot;WIN32&quot; /D &quot;_MBCS&quot; /D &quot;_LIB&quot; /D &quot;LTC_SOURCE&quot; /D &quot;USE_LTM&quot; /Fp&quot;Release/libtomcrypt.pch&quot; /YX /Fo&quot;Release/&quot; /Fd&quot;Release/&quot; /FD /GZ /c $(InputPath)&#x0D;&#x0A;cl /nologo /DENCRYPT_ONLY /MLd /W3 /Gm /GX /ZI /Od /I &quot;src\headers&quot; /I &quot;..\libtommath&quot; /D &quot;_DEBUG&quot; /D &quot;LTM_DESC&quot; /D &quot;WIN32&quot; /D &quot;_MBCS&quot; /D &quot;_LIB&quot; /D &quot;LTC_SOURCE&quot; /D &quot;USE_LTM&quot; /Fp&quot;Release/libtomcrypt.pch&quot; /YX /Fo&quot;Release/aes_enc.obj&quot; /Fd&quot;Release/&quot; /FD /GZ /c $(InputPath)&#x0D;&#x0A;' ],
+      );
+      for (@$targets) {
+        next unless $cmd{$_};
+        $files .= ("\t" x $depth) . "\t<FileConfiguration\r\n";
+        $files .= ("\t" x $depth) . "\t\tName=\"$_\"\r\n";
+        $files .= ("\t" x $depth) . "\t\t>\r\n";
+        $files .= ("\t" x $depth) . "\t\t<Tool\r\n";
+        $files .= ("\t" x $depth) . "\t\t\tName=\"VCCustomBuildTool\"\r\n";
+        $files .= ("\t" x $depth) . "\t\t\tCommandLine=\"$cmd{$_}[1]\"\r\n";
+        $files .= ("\t" x $depth) . "\t\t\tOutputs=\"$cmd{$_}[0]\"\r\n";
+        $files .= ("\t" x $depth) . "\t\t/>\r\n";
+        $files .= ("\t" x $depth) . "\t</FileConfiguration>\r\n";
+      }
+    }
+    $files .= ("\t" x $depth) . "</File>\r\n";
+  }
+  $files .= ("\t" x --$depth) . "</Filter>\r\n" for (@$last);
+  $files .= "\t</Files>";
+  return $files;
+}
+
 sub patch_makefile {
   my ($in_ref, $out_ref, $data) = @_;
   open(my $src, '<', $in_ref);
@@ -93,18 +163,32 @@ sub patch_makefile {
 
 sub process_makefiles {
   my $write = shift;
+  my $changed_count = 0;
   my @c = ();
   find({ no_chdir => 1, wanted => sub { push @c, $_ if -f $_ && $_ =~ /\.c$/ && $_ !~ /tab.c$/ } }, 'src');
   my @h = ();
   find({ no_chdir => 1, wanted => sub { push @h, $_ if -f $_ && $_ =~ /\.h$/ && $_ !~ /dh_static.h$/ } }, 'src');
+  my @all = ();
+  find({ no_chdir => 1, wanted => sub { push @all, $_ if -f $_ && $_ =~ /\.(c|h)$/  } }, 'src');
 
   my @o = sort ('src/ciphers/aes/aes_enc.o', map { $_ =~ s/\.c$/.o/; $_ } @c);
   my $var_o   = prepare_variable("OBJECTS", @o);
   (my $var_obj = $var_o) =~ s/\.o\b/.obj/sg;
   my $var_h   = prepare_variable("HEADERS", (sort @h, 'testprof/tomcrypt_test.h'));
 
+  my $msvc_files = prepare_msvc_files_xml(\@all, qr/tab\.c$/, ['Debug|Win32', 'Release|Win32']);
+  for my $m (qw/libtomcrypt_VS2008.vcproj libtomcrypt_VS2005.vcproj/) {
+    my $old = read_file($m);
+    my $new = $old;
+    $new =~ s|<Files>.*</Files>|$msvc_files|s;
+    if ($old ne $new) {
+      write_file($m, $new) if $write;
+      warn "changed: $m\n";
+      $changed_count++;
+    }
+  }
+
   my @makefiles = qw( makefile makefile.icc makefile.shared makefile.unix makefile.mingw makefile.msvc );
-  my $changed_count = 0;
   for my $m (@makefiles) {
     my $old = read_file($m);
     my $new;
