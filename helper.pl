@@ -74,8 +74,21 @@ sub prepare_msvc_files_xml {
   my ($all, $exclude_re, $targets) = @_;
   my $last = [];
   my $depth = 2;
+
+  # sort files in the same order as visual studio (ugly, I know)
+  my @parts = ();
+  for my $orig (@$all) {
+    my $p = $orig;
+    $p =~ s|/|/~|g;
+    $p =~ s|/~([^/]+)$|/$1|g;
+    # now we have: 'src/pk/rsa/rsa_verify_hash.c' > 'src/~pk/~rsa/rsa_verify_hash.c'
+    my @l = map { sprintf "% -99s", $_ } split /\//, $p;
+    push @parts, [ $orig, join(':', @l) ];
+  }
+  my @sorted = map { $_->[0] } sort { $a->[1] cmp $b->[1] } @parts;
+
   my $files = "<Files>\r\n";
-  for my $full (sort @$all) {
+  for my $full (@sorted) {
     my @items = split /\//, $full; # split by '/'
     $full =~ s|/|\\|g;             # replace '/' bt '\'
     shift @items; # drop first one (src)
