@@ -238,24 +238,6 @@
 				<File
 					RelativePath="src\ciphers\aes\aes.c"
 					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCustomBuildTool"
-							CommandLine="cl /nologo /MLd /W3 /Gm /GX /ZI /Od /I &quot;src\headers&quot; /I &quot;..\libtommath&quot; /D &quot;_DEBUG&quot; /D &quot;LTM_DESC&quot; /D &quot;WIN32&quot; /D &quot;_MBCS&quot; /D &quot;_LIB&quot; /D &quot;LTC_SOURCE&quot; /D &quot;USE_LTM&quot; /Fp&quot;Debug/libtomcrypt.pch&quot; /YX /Fo&quot;Debug/&quot; /Fd&quot;Debug/&quot; /FD /GZ /c $(InputPath)&#x0D;&#x0A;cl /nologo /DENCRYPT_ONLY /MLd /W3 /Gm /GX /ZI /Od /I &quot;src\headers&quot; /I &quot;..\libtommath&quot; /D &quot;_DEBUG&quot; /D &quot;LTM_DESC&quot; /D &quot;WIN32&quot; /D &quot;_MBCS&quot; /D &quot;_LIB&quot; /D &quot;LTC_SOURCE&quot; /D &quot;USE_LTM&quot; /Fp&quot;Debug/libtomcrypt.pch&quot; /YX /Fo&quot;Debug/aes_enc.obj&quot; /Fd&quot;Debug/&quot; /FD /GZ /c $(InputPath)&#x0D;&#x0A;"
-							Outputs="Debug/aes.obj;Debug/aes_enc.obj"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCustomBuildTool"
-							CommandLine="cl /nologo /MLd /W3 /Gm /GX /ZI /Od /I &quot;src\headers&quot; /I &quot;..\libtommath&quot; /D &quot;_DEBUG&quot; /D &quot;LTM_DESC&quot; /D &quot;WIN32&quot; /D &quot;_MBCS&quot; /D &quot;_LIB&quot; /D &quot;LTC_SOURCE&quot; /D &quot;USE_LTM&quot; /Fp&quot;Release/libtomcrypt.pch&quot; /YX /Fo&quot;Release/&quot; /Fd&quot;Release/&quot; /FD /GZ /c $(InputPath)&#x0D;&#x0A;cl /nologo /DENCRYPT_ONLY /MLd /W3 /Gm /GX /ZI /Od /I &quot;src\headers&quot; /I &quot;..\libtommath&quot; /D &quot;_DEBUG&quot; /D &quot;LTM_DESC&quot; /D &quot;WIN32&quot; /D &quot;_MBCS&quot; /D &quot;_LIB&quot; /D &quot;LTC_SOURCE&quot; /D &quot;USE_LTM&quot; /Fp&quot;Release/libtomcrypt.pch&quot; /YX /Fo&quot;Release/aes_enc.obj&quot; /Fd&quot;Release/&quot; /FD /GZ /c $(InputPath)&#x0D;&#x0A;"
-							Outputs="Release/aes.obj;Release/aes_enc.obj"
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="src\ciphers\aes\aes_tab.c"
