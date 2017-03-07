@@ -170,6 +170,38 @@
 		<Filter
 			Name="ciphers"
 			>
+			<Filter
+				Name="aes"
+				>
+				<File
+					RelativePath="src\ciphers\aes\aes.c"
+					>
+				</File>
+				<File
+					RelativePath="src\ciphers\aes\aes_tab.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							AdditionalIncludeDirectories=""
+							PreprocessorDefinitions=""
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							AdditionalIncludeDirectories=""
+							PreprocessorDefinitions=""
+						/>
+					</FileConfiguration>
+				</File>
+			</Filter>
 			<File
 				RelativePath="src\ciphers\anubis.c"
 				>
@@ -222,55 +254,11 @@
 				RelativePath="src\ciphers\rc6.c"
 				>
 			</File>
-			<File
-				RelativePath="src\ciphers\skipjack.c"
-				>
-			</File>
-			<File
-				RelativePath="src\ciphers\xtea.c"
-				>
-			</File>
-			<Filter
-				Name="aes"
-				>
-				<File
-					RelativePath="src\ciphers\aes\aes.c"
-					>
-				</File>
-				<File
-					RelativePath="src\ciphers\aes\aes_tab.c"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-				</File>
-			</Filter>
 			<Filter
 				Name="safer"
 				>
 				<File
 					RelativePath="src\ciphers\safer\safer.c"
-					>
-				</File>
-				<File
-					RelativePath="src\ciphers\safer\saferp.c"
 					>
 				</File>
 				<File
@@ -297,7 +285,15 @@
 						/>
 					</FileConfiguration>
 				</File>
+				<File
+					RelativePath="src\ciphers\safer\saferp.c"
+					>
+				</File>
 			</Filter>
+			<File
+				RelativePath="src\ciphers\skipjack.c"
+				>
+			</File>
 			<Filter
 				Name="twofish"
 				>
@@ -330,6 +326,10 @@
 					</FileConfiguration>
 				</File>
 			</Filter>
+			<File
+				RelativePath="src\ciphers\xtea.c"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="encauth"
@@ -566,6 +566,34 @@
 		<Filter
 			Name="hashes"
 			>
+			<Filter
+				Name="chc"
+				>
+				<File
+					RelativePath="src\hashes\chc\chc.c"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="helper"
+				>
+				<File
+					RelativePath="src\hashes\helper\hash_file.c"
+					>
+				</File>
+				<File
+					RelativePath="src\hashes\helper\hash_filehandle.c"
+					>
+				</File>
+				<File
+					RelativePath="src\hashes\helper\hash_memory.c"
+					>
+				</File>
+				<File
+					RelativePath="src\hashes\helper\hash_memory_multi.c"
+					>
+				</File>
+			</Filter>
 			<File
 				RelativePath="src\hashes\md2.c"
 				>
@@ -598,38 +626,6 @@
 				RelativePath="src\hashes\sha1.c"
 				>
 			</File>
-			<File
-				RelativePath="src\hashes\tiger.c"
-				>
-			</File>
-			<Filter
-				Name="chc"
-				>
-				<File
-					RelativePath="src\hashes\chc\chc.c"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="helper"
-				>
-				<File
-					RelativePath="src\hashes\helper\hash_file.c"
-					>
-				</File>
-				<File
-					RelativePath="src\hashes\helper\hash_filehandle.c"
-					>
-				</File>
-				<File
-					RelativePath="src\hashes\helper\hash_memory.c"
-					>
-				</File>
-				<File
-					RelativePath="src\hashes\helper\hash_memory_multi.c"
-					>
-				</File>
-			</Filter>
 			<Filter
 				Name="sha2"
 				>
@@ -658,6 +654,10 @@
 					>
 				</File>
 			</Filter>
+			<File
+				RelativePath="src\hashes\tiger.c"
+				>
+			</File>
 			<Filter
 				Name="whirl"
 				>
@@ -938,6 +938,14 @@
 		<Filter
 			Name="math"
 			>
+			<Filter
+				Name="fp"
+				>
+				<File
+					RelativePath="src\math\fp\ltc_ecc_fp_mulmod.c"
+					>
+				</File>
+			</Filter>
 			<File
 				RelativePath="src\math\gmp_desc.c"
 				>
@@ -962,44 +970,12 @@
 				RelativePath="src\math\tfm_desc.c"
 				>
 			</File>
-			<Filter
-				Name="fp"
-				>
-				<File
-					RelativePath="src\math\fp\ltc_ecc_fp_mulmod.c"
-					>
-				</File>
-			</Filter>
 		</Filter>
 		<Filter
 			Name="misc"
 			>
 			<File
 				RelativePath="src\misc\adler32.c"
-				>
-			</File>
-			<File
-				RelativePath="src\misc\burn_stack.c"
-				>
-			</File>
-			<File
-				RelativePath="src\misc\crc32.c"
-				>
-			</File>
-			<File
-				RelativePath="src\misc\error_to_string.c"
-				>
-			</File>
-			<File
-				RelativePath="src\misc\mem_neq.c"
-				>
-			</File>
-			<File
-				RelativePath="src\misc\pk_get_oid.c"
-				>
-			</File>
-			<File
-				RelativePath="src\misc\zeromem.c"
 				>
 			</File>
 			<Filter
@@ -1014,6 +990,14 @@
 					>
 				</File>
 			</Filter>
+			<File
+				RelativePath="src\misc\burn_stack.c"
+				>
+			</File>
+			<File
+				RelativePath="src\misc\crc32.c"
+				>
+			</File>
 			<Filter
 				Name="crypt"
 				>
@@ -1126,6 +1110,10 @@
 					>
 				</File>
 			</Filter>
+			<File
+				RelativePath="src\misc\error_to_string.c"
+				>
+			</File>
 			<Filter
 				Name="hkdf"
 				>
@@ -1138,6 +1126,14 @@
 					>
 				</File>
 			</Filter>
+			<File
+				RelativePath="src\misc\mem_neq.c"
+				>
+			</File>
+			<File
+				RelativePath="src\misc\pk_get_oid.c"
+				>
+			</File>
 			<Filter
 				Name="pkcs5"
 				>
@@ -1154,6 +1150,10 @@
 					>
 				</File>
 			</Filter>
+			<File
+				RelativePath="src\misc\zeromem.c"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="modes"

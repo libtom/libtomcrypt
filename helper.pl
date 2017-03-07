@@ -75,12 +75,11 @@ sub prepare_msvc_files_xml {
   my $last = [];
   my $depth = 2;
   my $files = "<Files>\r\n";
-  for my $full (@$all) {
+  for my $full (sort @$all) {
     my @items = split /\//, $full; # split by '/'
     $full =~ s|/|\\|g;             # replace '/' bt '\'
-    #XXXXXXXXXXXXX
-    shift @items;
-    pop @items; # drop last one
+    shift @items; # drop first one (src)
+    pop @items;   # drop last one (filename.ext)
     my $current = \@items;
     if (join(':', @$current) ne join(':', @$last)) {
       my $common = 0;
