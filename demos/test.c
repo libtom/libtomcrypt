@@ -1,8 +1,34 @@
 #include <tomcrypt_test.h>
 
+#define LTC_TEST_FN(f)  { f, #f }
+
+static const struct {
+   int (*fn)(void);
+   const char* name;
+} test_functions[] =
+{
+      LTC_TEST_FN(store_test),
+      LTC_TEST_FN(misc_test),
+      LTC_TEST_FN(cipher_hash_test),
+      LTC_TEST_FN(mac_test),
+      LTC_TEST_FN(modes_test),
+      LTC_TEST_FN(der_tests),
+      LTC_TEST_FN(pkcs_1_test),
+      LTC_TEST_FN(pkcs_1_pss_test),
+      LTC_TEST_FN(pkcs_1_oaep_test),
+      LTC_TEST_FN(pkcs_1_emsa_test),
+      LTC_TEST_FN(pkcs_1_eme_test),
+      LTC_TEST_FN(rsa_test),
+      LTC_TEST_FN(dh_test),
+      LTC_TEST_FN(ecc_tests),
+      LTC_TEST_FN(dsa_test),
+      LTC_TEST_FN(katja_test),
+};
+
 int main(void)
 {
    int x;
+   size_t fn_len, i, dots;
    reg_algs();
 
 #ifdef USE_LTM
@@ -18,22 +44,33 @@ int main(void)
 
    printf("build == \n%s\n", crypt_build_settings);
    printf("MP_DIGIT_BIT = %d\n", MP_DIGIT_BIT);
-   printf("\nstore_test...."); fflush(stdout); x = store_test();       printf(x ? "failed" : "passed");if (x) exit(EXIT_FAILURE);
-   printf("\nmisc_test....."); fflush(stdout); x = misc_test();        printf(x ? "failed" : "passed");if (x) exit(EXIT_FAILURE);
-   printf("\ncipher_test..."); fflush(stdout); x = cipher_hash_test(); printf(x ? "failed" : "passed");if (x) exit(EXIT_FAILURE);
-   printf("\nmac_test......"); fflush(stdout); x = mac_test();         printf(x ? "failed" : "passed");if (x) exit(EXIT_FAILURE);
-   printf("\nmodes_test...."); fflush(stdout); x = modes_test();       printf(x ? "failed" : "passed");if (x) exit(EXIT_FAILURE);
-   printf("\nder_test......"); fflush(stdout); x = der_tests();        printf(x ? "failed" : "passed");if (x) exit(EXIT_FAILURE);
-   printf("\npkcs_1_test..."); fflush(stdout); x = pkcs_1_test();      printf(x ? "failed" : "passed");if (x) exit(EXIT_FAILURE);
-   printf("\npkcs_1_pss_test...."); fflush(stdout); x = pkcs_1_pss_test();       printf(x ? "failed" : "passed");if (x) exit(EXIT_FAILURE);
-   printf("\npkcs_1_oaep_test...."); fflush(stdout); x = pkcs_1_oaep_test();       printf(x ? "failed" : "passed");if (x) exit(EXIT_FAILURE);
-   printf("\npkcs_1_emsa_test...."); fflush(stdout); x = pkcs_1_emsa_test();       printf(x ? "failed" : "passed");if (x) exit(EXIT_FAILURE);
-   printf("\npkcs_1_eme_test...."); fflush(stdout); x = pkcs_1_eme_test();       printf(x ? "failed" : "passed");if (x) exit(EXIT_FAILURE);
-   printf("\nrsa_test......"); fflush(stdout); x = rsa_test();         printf(x ? "failed" : "passed");if (x) exit(EXIT_FAILURE);
-   printf("\ndh_test......."); fflush(stdout); x = dh_test();          printf(x ? "failed" : "passed");if (x) exit(EXIT_FAILURE);
-   printf("\necc_test......"); fflush(stdout); x = ecc_tests();        printf(x ? "failed" : "passed");if (x) exit(EXIT_FAILURE);
-   printf("\ndsa_test......"); fflush(stdout); x = dsa_test();         printf(x ? "failed" : "passed");if (x) exit(EXIT_FAILURE);
-   printf("\nkatja_test...."); fflush(stdout); x = katja_test();       printf(x ? "failed" : "passed");if (x) exit(EXIT_FAILURE);
+
+   fn_len = 0;
+   for (i = 0; i < sizeof(test_functions)/sizeof(test_functions[0]); ++i) {
+      size_t len = strlen(test_functions[i].name);
+      if (fn_len < len) fn_len = len;
+   }
+
+   fn_len = fn_len + (4 - (fn_len % 4));
+
+   for (i = 0; i < sizeof(test_functions)/sizeof(test_functions[0]); ++i) {
+      dots = fn_len - strlen(test_functions[i].name);
+
+      printf("\n%s", test_functions[i].name);
+      while(dots--) printf(".");
+      fflush(stdout);
+
+      x = test_functions[i].fn();
+
+      if (x) {
+         printf("failed\n");
+         exit(EXIT_FAILURE);
+      }
+      else {
+         printf("passed");
+      }
+   }
+
    printf("\n");
    return EXIT_SUCCESS;
 }
