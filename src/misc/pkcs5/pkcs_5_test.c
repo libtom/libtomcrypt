@@ -154,7 +154,7 @@ int pkcs_5_test (void)
         }
     };
 
-    unsigned char DK[25];
+    unsigned char DK[40];
     unsigned long dkLen;
     int i, err;
     int tested=0, failed=0;
