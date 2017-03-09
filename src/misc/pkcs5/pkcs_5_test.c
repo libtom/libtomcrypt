@@ -34,15 +34,17 @@ int pkcs_5_test (void)
     return CRYPT_NOP;
  #else
 
-    static const struct {
+    typedef struct {
         char* P;
         unsigned long P_len;
         char* S;
         unsigned long S_len;
         int c;
         unsigned long dkLen;
-        unsigned char DK[25];
-    } cases_5_2[] = {
+        unsigned char DK[40];
+    } case_item;
+
+    static const case_item cases_5_2[] = {
         {
             "password",
             8,
@@ -113,6 +115,45 @@ int pkcs_5_test (void)
 #endif /* LTC_TEST_EXT */
     };
 
+    static const case_item cases_5_1[] = {
+        {
+            "password",
+            8,
+            "saltsalt", /* must be 8 octects */
+            8,          /* ignored by alg1 */
+            1,
+            20,
+            { 0xca, 0xb8, 0x6d, 0xd6, 0x26, 0x17, 0x10, 0x89, 0x1e, 0x8c,
+              0xb5, 0x6e, 0xe3, 0x62, 0x56, 0x91, 0xa7, 0x5d, 0xf3, 0x44 }
+        },
+    };
+
+    static const case_item cases_5_1o[] = {
+        {
+            "password",
+            8,
+            "saltsalt", /* must be 8 octects */
+            8,          /* ignored by alg1_openssl */
+            1,
+            20,
+            { 0xca, 0xb8, 0x6d, 0xd6, 0x26, 0x17, 0x10, 0x89, 0x1e, 0x8c,
+              0xb5, 0x6e, 0xe3, 0x62, 0x56, 0x91, 0xa7, 0x5d, 0xf3, 0x44 }
+
+        },
+        {
+            "password",
+            8,
+            "saltsalt", /* must be 8 octects */
+            8,          /* ignored by alg1_openssl */
+            1,
+            30,
+            { 0xca, 0xb8, 0x6d, 0xd6, 0x26, 0x17, 0x10, 0x89, 0x1e, 0x8c,
+              0xb5, 0x6e, 0xe3, 0x62, 0x56, 0x91, 0xa7, 0x5d, 0xf3, 0x44,
+              0xf0, 0xbf, 0xf4, 0xc1, 0x2c, 0xf3, 0x59, 0x6f, 0xc0, 0x0b }
+
+        }
+    };
+
     unsigned char DK[25];
     unsigned long dkLen;
     int i, err;
@@ -120,11 +161,11 @@ int pkcs_5_test (void)
     int hash = find_hash("sha1");
     if (hash == -1)
     {
-#ifdef LTC_TEST_DBG
-      printf("PKCS#5 test: 'sha1' hash not found\n");
-#endif
+      printf("PKCS#5 test failed: 'sha1' hash not found\n");
       return CRYPT_ERROR;
     }
+
+    /* testing alg 2 */
     for(i=0; i < (int)(sizeof(cases_5_2) / sizeof(cases_5_2[0])); i++) {
         ++tested;
         dkLen = cases_5_2[i].dkLen;
@@ -132,42 +173,85 @@ int pkcs_5_test (void)
                               (unsigned char*)cases_5_2[i].S, cases_5_2[i].S_len,
                               cases_5_2[i].c, hash,
                               DK, &dkLen)) != CRYPT_OK) {
-#ifdef LTC_TEST_DBG
-            printf("PKCS#5 test #%d: %s\n", i, error_to_string(err));
-#endif
-            return err;
-        }
-
-        if (dkLen != cases_5_2[i].dkLen)
-        {
-#ifdef LTC_TEST_DBG
-          printf("PKCS#5 test #%d: %lu != %lu\n", i, dkLen, cases_5_2[i].dkLen);
-#endif
-          return CRYPT_FAIL_TESTVECTOR;
-        }
-
-        if(XMEMCMP(DK, cases_5_2[i].DK, (size_t)cases_5_2[i].dkLen) != 0)  {
+            printf("\nPKCS#5_2 test #%d: Failed/1\n", i);
+            printf("err=%d\n", err);
             ++failed;
-#ifdef LTC_TEST_DBG
-          {
-            printf("\nPKCS#5 test #%d: Failed\n", i);
+        }
+        else if (dkLen != cases_5_2[i].dkLen) {
+            printf("\nPKCS#5_2 test #%d: Failed/2\n", i);
+            printf("len is %d\n", (int)dkLen);
+            printf("len should %d\n", (int)cases_5_2[i].dkLen);
+            ++failed;
+        }
+        else if(XMEMCMP(DK, cases_5_2[i].DK, (size_t)cases_5_2[i].dkLen) != 0) {
+            printf("\nPKCS#5_2 test #%d: Failed/3\n", i);
+#if LTC_TEST_DBG
             print_hex("is", DK, cases_5_2[i].dkLen);
             print_hex("should", cases_5_2[i].DK, cases_5_2[i].dkLen);
-            return CRYPT_FAIL_TESTVECTOR;
-          }
-#if LTC_TEST_DBG > 1
-        } else {
-            printf("PKCS#5 test #%d: Passed\n", i);
 #endif
+            ++failed;
+#if LTC_TEST_DBG
+        } else {
+            printf("PKCS#5_2 test #%d: Passed\n", i);
 #endif
         }
     }
 
-    if (failed != 0) {
-        return CRYPT_FAIL_TESTVECTOR;
-    } else {
-        return CRYPT_OK;
+    /* testing alg 1 */
+    for(i=0; i < (int)(sizeof(cases_5_1) / sizeof(case_item)); i++, tested++) {
+        dkLen = cases_5_1[i].dkLen;
+        if((err = pkcs_5_alg1((unsigned char*)cases_5_1[i].P, cases_5_1[i].P_len,
+                              (unsigned char*)cases_5_1[i].S,
+                              cases_5_1[i].c, hash,
+                              DK, &dkLen)) != CRYPT_OK) {
+            printf("\nPKCS#5_1 test #%d: Failed/1\n", i);
+            printf("err=%d\n", err);
+            ++failed;
+        }
+        else if (dkLen != cases_5_1[i].dkLen) {
+            printf("\nPKCS#5_1 test #%d: Failed/2\n", i);
+            printf("len is %d\n", (int)dkLen);
+            printf("len should %d\n", (int)cases_5_1[i].dkLen);
+            ++failed;
+        }
+        else if (XMEMCMP(DK, cases_5_1[i].DK, (size_t)cases_5_1[i].dkLen) != 0) {
+            printf("\nPKCS#5_1 test #%d: Failed/3\n", i);
+#if LTC_TEST_DBG
+            print_hex("is", DK, cases_5_1[i].dkLen);
+            print_hex("should", cases_5_1[i].DK, cases_5_1[i].dkLen);
+#endif
+            ++failed;
+        }
     }
+
+    /* testing alg 1_openssl */
+    for(i = 0; i < (int)(sizeof(cases_5_1o) / sizeof(cases_5_1o[0])); i++, tested++) {
+        dkLen = cases_5_1o[i].dkLen;
+        if ((err = pkcs_5_alg1_openssl((unsigned char*)cases_5_1o[i].P, cases_5_1o[i].P_len,
+                                       (unsigned char*)cases_5_1o[i].S,
+                                       cases_5_1o[i].c, hash,
+                                       DK, &dkLen)) != CRYPT_OK) {
+            printf("\nPKCS#5_1o test #%d: Failed/1\n", i);
+            printf("err=%d\n", err);
+            ++failed;
+        }
+        else if (dkLen != cases_5_1o[i].dkLen) {
+            printf("\nPKCS#5_1o test #%d: Failed/2\n", i);
+            printf("len is %d\n", (int)dkLen);
+            printf("len should %d\n", (int)cases_5_1o[i].dkLen);
+            ++failed;
+        }
+        else if (XMEMCMP(DK, cases_5_1o[i].DK, (size_t)cases_5_1o[i].dkLen) != 0) {
+            printf("\nPKCS#5_1o test #%d: Failed/3\n", i);
+#if LTC_TEST_DBG
+            print_hex("is", DK, cases_5_1o[i].dkLen);
+            print_hex("should", cases_5_1o[i].DK, cases_5_1o[i].dkLen);
+#endif
+            ++failed;
+        }
+    }
+
+    return (failed != 0) ? CRYPT_FAIL_TESTVECTOR : CRYPT_OK;
  #endif
 }
 
