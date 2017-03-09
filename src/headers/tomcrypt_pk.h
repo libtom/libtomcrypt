@@ -619,6 +619,7 @@ int der_printable_value_decode(int v);
 #elif defined(WCHAR_MAX)
 #define LTC_WCHAR_MAX WCHAR_MAX
 #endif
+/* please note that it might happen that LTC_WCHAR_MAX is undefined */
 #else
 typedef ulong32 wchar_t;
 #define LTC_WCHAR_MAX 0xFFFFFFFF
