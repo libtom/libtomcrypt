@@ -5,10 +5,8 @@ bash printinfo.sh
 
 make clean > /dev/null
 
-if [ -f check-source.pl ] ; then
-  echo "checking white spaces..."
-  perl check-source.pl || exit 1
-fi
+echo "checking..."
+./helper.pl --check-source --check-makefiles || exit 1
 
 exit 0
 
