@@ -127,6 +127,25 @@ sub prepare_msvc_files_xml {
         $files .= ("\t" x $depth) . "\t</FileConfiguration>\r\n";
       }
     }
+########### aes_enc "hack" disabled - discussion: https://github.com/libtom/libtomcrypt/pull/158
+#    if ($full eq 'src\ciphers\aes\aes.c') { #hack
+#      my %cmd = (
+#        'Debug|Win32'   => [ 'Debug/aes.obj;Debug/aes_enc.obj', 'cl /nologo /MLd /W3 /Gm /GX /ZI /Od /I &quot;src\headers&quot; /I &quot;..\libtommath&quot; /D &quot;_DEBUG&quot; /D &quot;LTM_DESC&quot; /D &quot;WIN32&quot; /D &quot;_MBCS&quot; /D &quot;_LIB&quot; /D &quot;LTC_SOURCE&quot; /D &quot;USE_LTM&quot; /Fp&quot;Debug/libtomcrypt.pch&quot; /YX /Fo&quot;Debug/&quot; /Fd&quot;Debug/&quot; /FD /GZ /c $(InputPath)&#x0D;&#x0A;cl /nologo /DENCRYPT_ONLY /MLd /W3 /Gm /GX /ZI /Od /I &quot;src\headers&quot; /I &quot;..\libtommath&quot; /D &quot;_DEBUG&quot; /D &quot;LTM_DESC&quot; /D &quot;WIN32&quot; /D &quot;_MBCS&quot; /D &quot;_LIB&quot; /D &quot;LTC_SOURCE&quot; /D &quot;USE_LTM&quot; /Fp&quot;Debug/libtomcrypt.pch&quot; /YX /Fo&quot;Debug/aes_enc.obj&quot; /Fd&quot;Debug/&quot; /FD /GZ /c $(InputPath)&#x0D;&#x0A;' ],
+#        'Release|Win32' => [ 'Release/aes.obj;Release/aes_enc.obj', 'cl /nologo /MLd /W3 /Gm /GX /ZI /Od /I &quot;src\headers&quot; /I &quot;..\libtommath&quot; /D &quot;_DEBUG&quot; /D &quot;LTM_DESC&quot; /D &quot;WIN32&quot; /D &quot;_MBCS&quot; /D &quot;_LIB&quot; /D &quot;LTC_SOURCE&quot; /D &quot;USE_LTM&quot; /Fp&quot;Release/libtomcrypt.pch&quot; /YX /Fo&quot;Release/&quot; /Fd&quot;Release/&quot; /FD /GZ /c $(InputPath)&#x0D;&#x0A;cl /nologo /DENCRYPT_ONLY /MLd /W3 /Gm /GX /ZI /Od /I &quot;src\headers&quot; /I &quot;..\libtommath&quot; /D &quot;_DEBUG&quot; /D &quot;LTM_DESC&quot; /D &quot;WIN32&quot; /D &quot;_MBCS&quot; /D &quot;_LIB&quot; /D &quot;LTC_SOURCE&quot; /D &quot;USE_LTM&quot; /Fp&quot;Release/libtomcrypt.pch&quot; /YX /Fo&quot;Release/aes_enc.obj&quot; /Fd&quot;Release/&quot; /FD /GZ /c $(InputPath)&#x0D;&#x0A;' ],
+#      );
+#      for (@$targets) {
+#        next unless $cmd{$_};
+#        $files .= ("\t" x $depth) . "\t<FileConfiguration\r\n";
+#        $files .= ("\t" x $depth) . "\t\tName=\"$_\"\r\n";
+#        $files .= ("\t" x $depth) . "\t\t>\r\n";
+#        $files .= ("\t" x $depth) . "\t\t<Tool\r\n";
+#        $files .= ("\t" x $depth) . "\t\t\tName=\"VCCustomBuildTool\"\r\n";
+#        $files .= ("\t" x $depth) . "\t\t\tCommandLine=\"$cmd{$_}[1]\"\r\n";
+#        $files .= ("\t" x $depth) . "\t\t\tOutputs=\"$cmd{$_}[0]\"\r\n";
+#        $files .= ("\t" x $depth) . "\t\t/>\r\n";
+#        $files .= ("\t" x $depth) . "\t</FileConfiguration>\r\n";
+#      }
+#    }
     $files .= ("\t" x $depth) . "</File>\r\n";
   }
   $files .= ("\t" x --$depth) . "</Filter>\r\n" for (@$last);
