@@ -51,7 +51,7 @@ int der_utf8_valid_char(const wchar_t c)
 #if !defined(LTC_WCHAR_MAX) || LTC_WCHAR_MAX > 0xFFFF
    if (c > 0x10FFFF) return 0;
 #endif
-#if !defined(LTC_WCHAR_MAX) || LTC_WCHAR_MAX != 0xFFFF && LTC_WCHAR_MAX != 0xFFFFFFFF
+#if LTC_WCHAR_MAX != 0xFFFF && LTC_WCHAR_MAX != 0xFFFFFFFF
    if (c < 0) return 0;
 #endif
    return 1;
