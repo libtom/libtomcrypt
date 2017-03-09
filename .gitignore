@@ -1,3 +1,9 @@
+*.bak
+*.ind
+*.log
+*.pc
+*-e
+
 # suppress compiler/linker output
 *.[oa]
 *.obj

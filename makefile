@@ -363,9 +363,9 @@ docs: crypt.tex
 	mv crypt-deterministic.tex crypt.tex
 	touch --reference=crypt.bak crypt.tex
 	echo "hello" > crypt.ind
-	latex crypt > /dev/null
-	latex crypt > /dev/null
-	makeindex crypt.idx > /dev/null
+	latex crypt 
+	latex crypt 
+	makeindex crypt.idx 
 	perl fixupind.pl
 	pdflatex crypt > /dev/null
 	sed -b -i 's,^/ID \[.*\]$$,/ID [<0> <0>],g' crypt.pdf
@@ -375,12 +375,12 @@ docs: crypt.tex
 
 docdvi: crypt.tex
 	echo hello > crypt.ind
-	latex crypt > /dev/null
-	latex crypt > /dev/null
+	latex crypt 
+	latex crypt 
 	makeindex crypt.idx
 	perl fixupind.pl
-	latex crypt > /dev/null
-	latex crypt > /dev/null
+	latex crypt 
+	latex crypt 
 
 #zipup the project (take that!)
 no_oops: clean
