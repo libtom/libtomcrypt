@@ -27,7 +27,7 @@ unsigned long der_utf8_charsize(const wchar_t c)
       return 1;
    } else if (c <= 0x7FF) {
       return 2;
-#if __WCHAR_MAX__ == 0xFFFF || WCHAR_MAX == 0xFFFF
+#if LTC_WCHAR_MAX == 0xFFFF
    } else {
       return 3;
    }
@@ -48,10 +48,10 @@ unsigned long der_utf8_charsize(const wchar_t c)
 int der_utf8_valid_char(const wchar_t c)
 {
    LTC_UNUSED_PARAM(c);
-#if !defined(__WCHAR_MAX__) && !defined(WCHAR_MAX) || __WCHAR_MAX__ > 0xFFFF || WCHAR_MAX > 0xFFFF
+#if !defined(LTC_WCHAR_MAX) || LTC_WCHAR_MAX > 0xFFFF
    if (c > 0x10FFFF) return 0;
 #endif
-#if !defined(__WCHAR_MAX__) && !defined(WCHAR_MAX) || __WCHAR_MAX__ != 0xFFFF && __WCHAR_MAX__ != 0xFFFFFFFF && WCHAR_MAX != 0xFFFF && WCHAR_MAX != 0xFFFFFFFF
+#if !defined(LTC_WCHAR_MAX) || LTC_WCHAR_MAX != 0xFFFF && LTC_WCHAR_MAX != 0xFFFFFFFF
    if (c < 0) return 0;
 #endif
    return 1;

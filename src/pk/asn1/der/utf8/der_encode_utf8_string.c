@@ -87,7 +87,7 @@ int der_encode_utf8_string(const wchar_t *in,  unsigned long inlen,
           case 1: out[x++] = (unsigned char)in[y]; break;
           case 2: out[x++] = 0xC0 | ((in[y] >> 6) & 0x1F);  out[x++] = 0x80 | (in[y] & 0x3F); break;
           case 3: out[x++] = 0xE0 | ((in[y] >> 12) & 0x0F); out[x++] = 0x80 | ((in[y] >> 6) & 0x3F); out[x++] = 0x80 | (in[y] & 0x3F); break;
-#if !defined(__WCHAR_MAX__) && !defined(WCHAR_MAX) || __WCHAR_MAX__ > 0xFFFF || WCHAR_MAX > 0xFFFF
+#if !defined(LTC_WCHAR_MAX) || LTC_WCHAR_MAX > 0xFFFF
           case 4: out[x++] = 0xF0 | ((in[y] >> 18) & 0x07); out[x++] = 0x80 | ((in[y] >> 12) & 0x3F); out[x++] = 0x80 | ((in[y] >> 6) & 0x3F); out[x++] = 0x80 | (in[y] & 0x3F); break;
 #endif
        }
