@@ -17,6 +17,7 @@ static int _xts_test_accel_xts_encrypt(const unsigned char *pt, unsigned char *c
 {
    int ret;
    symmetric_xts xts;
+   void *orig;
 
    /* AES can be under rijndael or aes... try to find it */
    if ((xts.cipher = find_cipher("aes")) == -1) {
@@ -24,7 +25,7 @@ static int _xts_test_accel_xts_encrypt(const unsigned char *pt, unsigned char *c
          return CRYPT_NOP;
       }
    }
-   void *orig = cipher_descriptor[xts.cipher].accel_xts_encrypt;
+   orig = cipher_descriptor[xts.cipher].accel_xts_encrypt;
    cipher_descriptor[xts.cipher].accel_xts_encrypt = NULL;
 
    XMEMCPY(&xts.key1, skey1, sizeof(symmetric_key));
@@ -41,6 +42,7 @@ static int _xts_test_accel_xts_decrypt(const unsigned char *ct, unsigned char *p
 {
    int ret;
    symmetric_xts xts;
+   void *orig;
 
    /* AES can be under rijndael or aes... try to find it */
    if ((xts.cipher = find_cipher("aes")) == -1) {
@@ -48,7 +50,7 @@ static int _xts_test_accel_xts_decrypt(const unsigned char *ct, unsigned char *p
          return CRYPT_NOP;
       }
    }
-   void *orig = cipher_descriptor[xts.cipher].accel_xts_decrypt;
+   orig = cipher_descriptor[xts.cipher].accel_xts_decrypt;
    cipher_descriptor[xts.cipher].accel_xts_decrypt = NULL;
 
    XMEMCPY(&xts.key1, skey1, sizeof(symmetric_key));

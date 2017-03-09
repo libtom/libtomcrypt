@@ -182,7 +182,7 @@ int crypt_get_constant(const char* namein, int *valueout) {
 int crypt_list_all_constants(char *names_list, unsigned int *names_list_size) {
     int i;
     unsigned int total_len = 0;
-    char number[32];
+    char number[32], *ptr;
     int number_len;
     int count = sizeof(_crypt_constants) / sizeof(_crypt_constants[0]);
 
@@ -205,7 +205,7 @@ int crypt_list_all_constants(char *names_list, unsigned int *names_list_size) {
             return -1;
         }
         /* build the names list */
-        char *ptr = names_list;
+        ptr = names_list;
         for (i=0; i<count; i++) {
             strcpy(ptr, _crypt_constants[i].name);
             ptr += strlen(_crypt_constants[i].name);
