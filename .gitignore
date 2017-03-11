@@ -1,4 +1,3 @@
-# suppress compiler/linker output
 *.[oa]
 *.obj
 *.l[oa]
