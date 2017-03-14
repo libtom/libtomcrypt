@@ -4,6 +4,7 @@
 *.l[oa]
 [Dd]ebug/
 [Rr]elease/
+/MSVC_*
 .libs/
 
 # suppress output of build process

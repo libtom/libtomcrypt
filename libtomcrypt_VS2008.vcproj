@@ -11,19 +11,21 @@
 		<Platform
 			Name="Win32"
 		/>
+		<Platform
+			Name="x64"
+		/>
 	</Platforms>
 	<ToolFiles>
 	</ToolFiles>
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory=".\Debug"
-			IntermediateDirectory=".\Debug"
+			OutputDirectory="MSVC_$(PlatformName)_$(ConfigurationName)"
+			IntermediateDirectory="MSVC_$(PlatformName)_$(ConfigurationName)\Intermediate"
 			ConfigurationType="4"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
-			CharacterSet="2"
+			CharacterSet="0"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -44,17 +46,19 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="src\headers,..\libtommath"
-				PreprocessorDefinitions="_DEBUG;LTM_DESC;WIN32;_LIB;LTC_SOURCE;USE_LTM"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CRT_SECURE_NO_WARNINGS;LTM_DESC;LTC_SOURCE;LTC_NO_TEST;LTC_NO_PROTOTYPES"
 				MinimalRebuild="true"
+				ExceptionHandling="0"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
-				PrecompiledHeaderFile=".\Debug/libtomcrypt.pch"
-				AssemblerListingLocation=".\Debug/"
-				ObjectFile=".\Debug/"
-				ProgramDataBaseFileName=".\Debug/"
+				PrecompiledHeaderFile="$(IntDir)\libtomcrypt.pch"
+				AssemblerListingLocation="$(IntDir)\"
+				ObjectFile="$(IntDir)\"
+				ProgramDataBaseFileName="$(IntDir)\"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
 				DebugInformationFormat="4"
+				CompileAs="1"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -69,7 +73,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="Debug\tomcrypt.lib"
+				OutputFile="$(OutDir)\tomcryptd.lib"
 				SuppressStartupBanner="true"
 			/>
 			<Tool
@@ -92,13 +96,12 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory=".\Release"
-			IntermediateDirectory=".\Release"
+			OutputDirectory="MSVC_$(PlatformName)_$(ConfigurationName)"
+			IntermediateDirectory="MSVC_$(PlatformName)_$(ConfigurationName)\Intermediate"
 			ConfigurationType="4"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
-			CharacterSet="2"
+			CharacterSet="0"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -120,16 +123,18 @@
 				Optimization="2"
 				InlineFunctionExpansion="1"
 				AdditionalIncludeDirectories="src\headers,..\libtommath"
-				PreprocessorDefinitions="NDEBUG;LTM_DESC;WIN32;_LIB;LTC_SOURCE;USE_LTM;;LTC_NO_TEST"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CRT_SECURE_NO_WARNINGS;LTM_DESC;LTC_SOURCE;LTC_NO_TEST;LTC_NO_PROTOTYPES"
 				StringPooling="true"
+				ExceptionHandling="0"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
-				PrecompiledHeaderFile=".\Release/libtomcrypt.pch"
-				AssemblerListingLocation=".\Release/"
-				ObjectFile=".\Release/"
-				ProgramDataBaseFileName=".\Release/"
+				PrecompiledHeaderFile="$(IntDir)\libtomcrypt.pch"
+				AssemblerListingLocation="$(IntDir)\"
+				ObjectFile="$(IntDir)\"
+				ProgramDataBaseFileName="$(IntDir)\"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
+				CompileAs="1"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -144,7 +149,161 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="Release\tomcrypt.lib"
+				OutputFile="$(OutDir)\tomcrypt.lib"
+				SuppressStartupBanner="true"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+				SuppressStartupBanner="true"
+				OutputFile=".\Release/libtomcrypt.bsc"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Debug|x64"
+			OutputDirectory="MSVC_$(PlatformName)_$(ConfigurationName)"
+			IntermediateDirectory="MSVC_$(PlatformName)_$(ConfigurationName)\Intermediate"
+			ConfigurationType="4"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			CharacterSet="0"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				TargetEnvironment="3"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="0"
+				AdditionalIncludeDirectories="src\headers,..\libtommath"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CRT_SECURE_NO_WARNINGS;LTM_DESC;LTC_SOURCE;LTC_NO_TEST;LTC_NO_PROTOTYPES"
+				MinimalRebuild="true"
+				ExceptionHandling="0"
+				BasicRuntimeChecks="3"
+				RuntimeLibrary="1"
+				PrecompiledHeaderFile="$(IntDir)\libtomcrypt.pch"
+				AssemblerListingLocation="$(IntDir)\"
+				ObjectFile="$(IntDir)\"
+				ProgramDataBaseFileName="$(IntDir)\"
+				WarningLevel="3"
+				SuppressStartupBanner="true"
+				DebugInformationFormat="3"
+				CompileAs="1"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="_DEBUG"
+				Culture="1033"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLibrarianTool"
+				OutputFile="$(OutDir)\tomcryptd.lib"
+				SuppressStartupBanner="true"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+				SuppressStartupBanner="true"
+				OutputFile=".\Debug/libtomcrypt.bsc"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Release|x64"
+			OutputDirectory="MSVC_$(PlatformName)_$(ConfigurationName)"
+			IntermediateDirectory="MSVC_$(PlatformName)_$(ConfigurationName)\Intermediate"
+			ConfigurationType="4"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			CharacterSet="0"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				TargetEnvironment="3"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="2"
+				InlineFunctionExpansion="1"
+				AdditionalIncludeDirectories="src\headers,..\libtommath"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CRT_SECURE_NO_WARNINGS;LTM_DESC;LTC_SOURCE;LTC_NO_TEST;LTC_NO_PROTOTYPES"
+				StringPooling="true"
+				ExceptionHandling="0"
+				RuntimeLibrary="0"
+				EnableFunctionLevelLinking="true"
+				PrecompiledHeaderFile="$(IntDir)\libtomcrypt.pch"
+				AssemblerListingLocation="$(IntDir)\"
+				ObjectFile="$(IntDir)\"
+				ProgramDataBaseFileName="$(IntDir)\"
+				WarningLevel="3"
+				SuppressStartupBanner="true"
+				CompileAs="1"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="NDEBUG"
+				Culture="1033"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLibrarianTool"
+				OutputFile="$(OutDir)\tomcrypt.lib"
 				SuppressStartupBanner="true"
 			/>
 			<Tool
@@ -262,6 +421,26 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							AdditionalIncludeDirectories=""
+							PreprocessorDefinitions=""
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							AdditionalIncludeDirectories=""
+							PreprocessorDefinitions=""
+						/>
+					</FileConfiguration>
 				</File>
 			</Filter>
 			<Filter
@@ -286,6 +465,26 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							AdditionalIncludeDirectories=""
+							PreprocessorDefinitions=""
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							AdditionalIncludeDirectories=""
+							PreprocessorDefinitions=""
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
 						ExcludedFromBuild="true"
 						>
 						<Tool
@@ -322,6 +521,26 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							AdditionalIncludeDirectories=""
+							PreprocessorDefinitions=""
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							AdditionalIncludeDirectories=""
+							PreprocessorDefinitions=""
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
 						ExcludedFromBuild="true"
 						>
 						<Tool
@@ -678,6 +897,26 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							AdditionalIncludeDirectories=""
+							PreprocessorDefinitions=""
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							AdditionalIncludeDirectories=""
+							PreprocessorDefinitions=""
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
 						ExcludedFromBuild="true"
 						>
 						<Tool
@@ -1971,6 +2210,26 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
 					ExcludedFromBuild="true"
 					>
 					<Tool

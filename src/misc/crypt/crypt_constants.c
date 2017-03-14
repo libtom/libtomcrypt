@@ -188,7 +188,7 @@ int crypt_list_all_constants(char *names_list, unsigned int *names_list_size) {
 
     /* calculate amount of memory required for the list */
     for (i=0; i<count; i++) {
-        total_len += strlen(_crypt_constants[i].name) + 1;
+        total_len += (unsigned int)strlen(_crypt_constants[i].name) + 1;
         /* the above +1 is for the commas */
         number_len = snprintf(number, sizeof(number), "%d", _crypt_constants[i].value);
         if ((number_len < 0) ||

@@ -1,20 +1,12 @@
-# MAKEFILE for use with MS Windows gcc compiler + GNU make (aka mingw32-make)
+#
+# open a command prompt with gcc + gmake in PATH
+# and start: gmake -f makefile.mingw
+#
 
-### should work with the following native compilers (not cross-compilers)
-# 32bit gcc compiler by mingw.org
-# 32bit gcc compiler by mingw-w64.sf.net
-# 64bit gcc compiler by mingw-w64.sf.net
+EXTRALIBS=../libtommath/libtommath.a
+EXTRAINCLUDE=../libtommath
 
-### build instruction (32bit)
-# gmake -f makefile.mingw CFLAGS_OPTS="-DUSE_LTM -DLTM_DESC -Iz:\dev_libtom\include"
-# gmake -f makefile.mingw CFLAGS_OPTS="-DUSE_LTM -DLTM_DESC -Iz:\dev_libtom\include" INSTPREFIX=z:\dev_libtom install
-# gmake -f makefile.mingw CFLAGS_OPTS="-DUSE_LTM -DLTM_DESC -Iz:\dev_libtom\include" EXTRALIBS="-Lz:\dev_libtom\lib -ltommath" test small tv_gen multi timing
-# gmake -f makefile.mingw CFLAGS_OPTS="-DUSE_LTM -DLTM_DESC -Iz:\dev_libtom\include" INSTPREFIX=z:\dev_libtom install_test
-# gmake -f makefile.mingw clean
-
-### build instruction (64bit)
-# nearly the same as 32bit build
-# just use: CFLAGS_OPTS="-DUSE_LTM -DLTM_DESC -DLTC_NO_ASM -Iz:\dev_libtom\include"
+CFLAGS = -Wall -Wextra -c -I./src/headers -I$(EXTRAINCLUDE) -I./testprof -DUSE_LTM -DLTM_DESC -DLTC_SOURCE -DLTC_NO_PROTOTYPES -O2 ${CFLAGS_OPTS}
 
 # Compiler and Linker Names
 CC=gcc
@@ -22,9 +14,6 @@ LD=ld
 AR=ar
 ARFLAGS=rc
 RANLIB=ranlib
-
-# Compilation flags. Note the += does not write over the user's CFLAGS!
-CFLAGS = -c -I./testprof/ -I./src/headers/ -DLTC_SOURCE -O2 ${CFLAGS_OPTS} -o $@
 
 LIBNAME=libtomcrypt.a
 LIBTEST=libtomcrypt_prof.a
@@ -214,7 +203,10 @@ library: $(LIBNAME)
 
 .PHONY: testprof/$(LIBTEST)
 testprof/$(LIBTEST):
-	$(MAKE) -C testprof -f makefile.mingw CFLAGS_OPTS="$(CFLAGS)" LIBTEST_S=$(LIBTEST) CC="$(CC)" LD=$(LD) AR=$(AR) ARFLAGS="$(ARFLAGS)" RANLIB=$(RANLIB)
+	$(MAKE) -C testprof -f makefile.mingw LIBTEST_S=$(LIBTEST) CC=$(CC) LD=$(LD) AR=$(AR) ARFLAGS=$(ARFLAGS) RANLIB=$(RANLIB)
+
+%.o: %.c
+	${CC} ${CFLAGS} -c $< -o $@
 
 $(LIBNAME): $(OBJECTS)
 	$(AR) $(ARFLAGS) $@ $(OBJECTS)

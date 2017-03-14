@@ -1,7 +1,12 @@
-#MSVC Makefile [tested with MSVC 6.00 with SP5]
 #
-#Tom St Denis
-CFLAGS = /Isrc/headers/ /Itestprof/ /Ox /DWIN32 /DLTC_SOURCE /W3 /Fo$@ $(CF)
+# open a command prompt with WinSDK variables set
+# and start: nmake -f makefile.msvc
+#
+
+EXTRALIBS=../libtommath/tommath.lib
+EXTRAINCLUDE=../libtommath
+
+CFLAGS = /nologo /Isrc/headers/ /I$(EXTRAINCLUDE) /Itestprof/ /Ox /D_CRT_SECURE_NO_WARNINGS /DUSE_LTM /DLTM_DESC /DLTC_SOURCE /DLTC_NO_PROTOTYPES /W3 $(CF)
 
 #START_INS
 OBJECTS=src/ciphers/aes/aes.obj src/ciphers/aes/aes_enc.obj src/ciphers/anubis.obj src/ciphers/blowfish.obj \
@@ -144,6 +149,9 @@ src/headers/tomcrypt_prng.h testprof/tomcrypt_test.h
 
 default: library
 
+.c.obj:
+	$(CC) $(CFLAGS) /c $< /Fo$@
+
 #ciphers come in two flavours... enc+dec and enc
 src/ciphers/aes/aes_enc.obj: src/ciphers/aes/aes.c src/ciphers/aes/aes_tab.c
 	$(CC) $(CFLAGS) /DENCRYPT_ONLY /c src/ciphers/aes/aes.c /Fosrc/ciphers/aes/aes_enc.obj
@@ -153,7 +161,7 @@ library: $(OBJECTS)
 	cd testprof
 	nmake -f makefile.msvc
 	cd ..
-	
+
 tv_gen: demos/tv_gen.c library
 	cl $(CFLAGS) demos/tv_gen.c tomcrypt.lib advapi32.lib $(EXTRALIBS)
 
@@ -168,6 +176,9 @@ timing: demos/timing.c library
 	cl $(CFLAGS) demos/timing.c testprof/tomcrypt_prof.lib tomcrypt.lib advapi32.lib $(EXTRALIBS)
 
 all_test: test tv_gen hashsum timing
+
+clean:
+	cmd /c del /Q /S *.OBJ *.LIB *.EXE
 
 # $Source$
 # $Revision$
