@@ -25,8 +25,8 @@ const char *crypt_build_settings =
 #endif
    "\n\nEndianness: "
 #if defined(ENDIAN_NEUTRAL)
-   "neutral\n"
-#else
+   "neutral/"
+#endif
 #if defined(ENDIAN_LITTLE)
    "little"
 #elif defined(ENDIAN_BIG)
@@ -34,10 +34,11 @@ const char *crypt_build_settings =
 #endif
    #if defined(ENDIAN_32BITWORD)
    " (32-bit words)\n"
-   #else
+   #elif defined(ENDIAN_64BITWORD)
    " (64-bit words)\n"
+   #else
+   " (no wordsize defined)\n"
    #endif
-#endif
    "Clean stack: "
 #if defined(LTC_CLEAN_STACK)
    "enabled\n"
