@@ -248,7 +248,7 @@ int crypt_get_size(const char* namein, unsigned int *sizeout) {
     int i;
     int count = sizeof(_crypt_sizes) / sizeof(_crypt_sizes[0]);
     for (i=0; i<count; i++) {
-        if (strcmp(_crypt_sizes[i].name, namein) == 0) {
+        if (XSTRCMP(_crypt_sizes[i].name, namein) == 0) {
             *sizeout = _crypt_sizes[i].size;
             return 0;
         }

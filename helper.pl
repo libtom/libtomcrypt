@@ -37,11 +37,23 @@ sub check_source {
     my $content = read_file($file);
     push @{$troubles->{crlf_line_end}}, '?' if $content =~ /\r/;
     for my $l (split /\n/, $content) {
-      push @{$troubles->{merge_conflict}}, $lineno if $l =~ /^(<<<<<<<|=======|>>>>>>>)([^<=>]|$)/;
-      push @{$troubles->{trailing_space}}, $lineno if $l =~ / $/;
-      push @{$troubles->{tab}}, $lineno            if $l =~ /\t/ && basename($file) !~ /^makefile/i;
-      push @{$troubles->{non_ascii_char}}, $lineno if $l =~ /[^[:ascii:]]/;
-      push @{$troubles->{cpp_comment}},    $lineno if $file =~ /\.(c|h)$/ && ($l =~ /\s\/\// || $l =~ /\/\/\s/);
+      push @{$troubles->{merge_conflict}},   $lineno if $l =~ /^(<<<<<<<|=======|>>>>>>>)([^<=>]|$)/;
+      push @{$troubles->{trailing_space}},   $lineno if $l =~ / $/;
+      push @{$troubles->{tab}},              $lineno if $l =~ /\t/ && basename($file) !~ /^makefile/i;
+      push @{$troubles->{non_ascii_char}},   $lineno if $l =~ /[^[:ascii:]]/;
+      push @{$troubles->{cpp_comment}},      $lineno if $file =~ /\.(c|h)$/ && ($l =~ /\s\/\// || $l =~ /\/\/\s/);
+      # in ./src we prefer using XMEMCPY, XMALLOC, XFREE ...
+      push @{$troubles->{unwanted_memcpy}},  $lineno if $file =~ /^src\/.*\.c$/ && $l =~ /\bmemcpy\s*\(/;
+      push @{$troubles->{unwanted_malloc}},  $lineno if $file =~ /^src\/.*\.c$/ && $l =~ /\bmalloc\s*\(/;
+      push @{$troubles->{unwanted_realloc}}, $lineno if $file =~ /^src\/.*\.c$/ && $l =~ /\brealloc\s*\(/;
+      push @{$troubles->{unwanted_calloc}},  $lineno if $file =~ /^src\/.*\.c$/ && $l =~ /\bcalloc\s*\(/;
+      push @{$troubles->{unwanted_free}},    $lineno if $file =~ /^src\/.*\.c$/ && $l =~ /\bfree\s*\(/;
+      push @{$troubles->{unwanted_memset}},  $lineno if $file =~ /^src\/.*\.c$/ && $l =~ /\bmemset\s*\(/;
+      push @{$troubles->{unwanted_memcpy}},  $lineno if $file =~ /^src\/.*\.c$/ && $l =~ /\bmemcpy\s*\(/;
+      push @{$troubles->{unwanted_memcmp}},  $lineno if $file =~ /^src\/.*\.c$/ && $l =~ /\bmemcmp\s*\(/;
+      push @{$troubles->{unwanted_strcmp}},  $lineno if $file =~ /^src\/.*\.c$/ && $l =~ /\bstrcmp\s*\(/;
+      push @{$troubles->{unwanted_clock}},   $lineno if $file =~ /^src\/.*\.c$/ && $l =~ /\bclock\s*\(/;
+      push @{$troubles->{unwanted_qsort}},   $lineno if $file =~ /^src\/.*\.c$/ && $l =~ /\bqsort\s*\(/;
       $lineno++;
     }
     for my $k (sort keys %$troubles) {
@@ -51,6 +63,21 @@ sub check_source {
   }
 
   warn( $fails > 0 ? "check-source:    FAIL $fails\n" : "check-source:    PASS\n" );
+  return $fails;
+}
+
+sub check_defines {
+  my $fails = 0;
+  my $cust_h = read_file("src/headers/tomcrypt_custom.h");
+  my $cryp_c = read_file("src/misc/crypt/crypt.c");
+  $cust_h =~ s|/\*.*?\*/||sg; # remove comments
+  $cryp_c =~ s|/\*.*?\*/||sg; # remove comments
+  my %def = map { $_ => 1 } map { $_ =~ s/^\s*#define\s+(LTC_\S+).*$/$1/; $_ } grep { /^\s*#define\s+LTC_\S+/ } split /\n/, $cust_h;
+  for my $d (sort keys %def) {
+    next if $d =~ /^LTC_(DH\d+|ECC\d+|ECC_\S+|MPI|MUTEX_\S+\(x\)|NO_\S+)$/;
+    warn "$d missing in src/misc/crypt/crypt.c\n" and $fails++ if $cryp_c !~ /\Q$d\E/;
+  }
+  warn( $fails > 0 ? "check-defines:   FAIL $fails\n" : "check-defines:   PASS\n" );
   return $fails;
 }
 
@@ -236,6 +263,7 @@ MARKER
 }
 
 GetOptions( "check-source"     => \my $check_source,
+            "check-defines"    => \my $check_defines,
             "check-makefiles"  => \my $check_makefiles,
             "update-makefiles" => \my $update_makefiles,
             "help"             => \my $help
@@ -243,6 +271,7 @@ GetOptions( "check-source"     => \my $check_source,
 
 my $failure;
 $failure ||= check_source()       if $check_source;
+$failure ||= check_defines()      if $check_defines;
 $failure ||= process_makefiles(0) if $check_makefiles;
 $failure ||= process_makefiles(1) if $update_makefiles;
 

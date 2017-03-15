@@ -360,7 +360,7 @@ if (CTR != NULL) {
      ctrcopy[z] = (ctrcopy[z] + 1) & 255;
      if (ctrcopy[z]) break;
   }
-   memcpy(CTR, ctrcopy, 16);
+   XMEMCPY(CTR, ctrcopy, 16);
 }
 
 #ifdef LTC_CLEAN_STACK
