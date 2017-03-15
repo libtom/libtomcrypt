@@ -29,7 +29,7 @@ typedef struct {
 #define _SZ_STRINGIFY_T(s) { #s, sizeof(s) }
 
 static const crypt_size _crypt_sizes[] = {
-    // hash state sizes
+    /* hash state sizes */
     _SZ_STRINGIFY_S(ltc_hash_descriptor),
     _SZ_STRINGIFY_T(hash_state),
 #ifdef LTC_SHA256
@@ -72,7 +72,7 @@ static const crypt_size _crypt_sizes[] = {
     _SZ_STRINGIFY_S(chc_state),
 #endif
 
-    // block cipher key sizes
+    /* block cipher key sizes */
     _SZ_STRINGIFY_S(ltc_cipher_descriptor),
     _SZ_STRINGIFY_T(symmetric_key),
 #ifdef LTC_ANUBIS
@@ -134,7 +134,7 @@ static const crypt_size _crypt_sizes[] = {
     _SZ_STRINGIFY_S(twofish_key),
 #endif
 
-    // mode sizes
+    /* mode sizes */
 #ifdef LTC_CBC_MODE
     _SZ_STRINGIFY_T(symmetric_CBC),
 #endif
@@ -157,7 +157,7 @@ static const crypt_size _crypt_sizes[] = {
     _SZ_STRINGIFY_T(symmetric_OFB),
 #endif
 
-    // MAC sizes            -- no states for ccm, lrw
+    /* MAC sizes            -- no states for ccm, lrw */
 #ifdef LTC_F9_MODE
     _SZ_STRINGIFY_T(f9_state),
 #endif
@@ -189,13 +189,13 @@ static const crypt_size _crypt_sizes[] = {
     _SZ_STRINGIFY_T(eax_state),
 #endif
 #ifdef LTC_CCM_MODE
-// not defined
+/* not defined */
 #endif
 #ifdef LRW_MODE
-// not defined
+/* not defined */
 #endif
 
-    // asymmetric keys
+    /* asymmetric keys */
 #ifdef LTC_MRSA
     _SZ_STRINGIFY_T(rsa_key),
 #endif
@@ -214,7 +214,7 @@ static const crypt_size _crypt_sizes[] = {
     _SZ_STRINGIFY_T(katja_key),
 #endif
 
-    // prng state sizes
+    /* prng state sizes */
     _SZ_STRINGIFY_S(ltc_prng_descriptor),
     _SZ_STRINGIFY_T(prng_state),
 #ifdef LTC_FORTUNA
@@ -229,8 +229,8 @@ static const crypt_size _crypt_sizes[] = {
 #ifdef LTC_YARROW
     _SZ_STRINGIFY_S(yarrow_prng),
 #endif
-    // sprng has no state as it uses other potentially available sources
-    // like /dev/random.  See Developers Guide for more info.
+    /* sprng has no state as it uses other potentially available sources */
+    /* like /dev/random.  See Developers Guide for more info. */
 
 #ifdef LTC_ADLER32
     _SZ_STRINGIFY_T(adler32_state),
