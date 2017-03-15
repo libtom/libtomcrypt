@@ -167,7 +167,7 @@ static int read_radix(void *a, const char *b, int radix)
          }
          if (i == 64) {
             XFREE (tmp);
-            // printf ("c = '%c'\n", c);
+            /* printf ("c = '%c'\n", c); */
             return CRYPT_ERROR;
          }
          *q++ = '0' + (i / 8);
@@ -175,7 +175,7 @@ static int read_radix(void *a, const char *b, int radix)
       }
       *q = 0;
       ret = mpz_set_str(a, tmp, 8);
-      // printf ("ret = %d for '%s'\n", ret, tmp);
+      /* printf ("ret = %d for '%s'\n", ret, tmp); */
       XFREE (tmp);
    } else {
       ret = mpz_set_str(a, b, radix);

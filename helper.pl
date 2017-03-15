@@ -41,6 +41,7 @@ sub check_source {
       push @{$troubles->{trailing_space}}, $lineno if $l =~ / $/;
       push @{$troubles->{tab}}, $lineno            if $l =~ /\t/ && basename($file) !~ /^makefile/i;
       push @{$troubles->{non_ascii_char}}, $lineno if $l =~ /[^[:ascii:]]/;
+      push @{$troubles->{cpp_comment}},    $lineno if $file =~ /\.(c|h)$/ && ($l =~ /\s\/\// || $l =~ /\/\/\s/);
       $lineno++;
     }
     for my $k (sort keys %$troubles) {

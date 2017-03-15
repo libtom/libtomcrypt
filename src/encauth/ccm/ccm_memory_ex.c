@@ -172,7 +172,7 @@ if (B_0 == NULL) {
    }
 
 } else {
-   // B_0 != NULL
+   /* B_0 != NULL */
    XMEMCPY(PAD, B_0, 16);
 }
 
@@ -329,7 +329,7 @@ if (CTR == NULL) {
       }
    }
 
-   // grab the CTR
+   /* grab the CTR */
    XMEMCPY(ctrcopy, ctr, 16);
 
    /* setup CTR for the TAG (zero the count) */

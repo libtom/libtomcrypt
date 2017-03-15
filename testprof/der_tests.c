@@ -620,7 +620,7 @@ static void der_set_test(void)
               OID       { 1, 2, 840, 113549 }
               NULL
               SET OF {
-                 PRINTABLE "333"  // WILL GET SORTED
+                 PRINTABLE "333"  -- WILL GET SORTED
                  PRINTABLE "222"
            }
         }
