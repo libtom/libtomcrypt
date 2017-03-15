@@ -1100,6 +1100,10 @@
 					>
 				</File>
 				<File
+					RelativePath="src\misc\crypt\crypt_prng_rng_descriptor.c"
+					>
+				</File>
+				<File
 					RelativePath="src\misc\crypt\crypt_register_cipher.c"
 					>
 				</File>
