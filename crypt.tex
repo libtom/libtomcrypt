@@ -5070,6 +5070,8 @@ In order to securely handle user passwords for the purposes of creating session 
 is made up of two algorithms, Algorithm One and Algorithm Two.  Algorithm One is the older fairly limited algorithm which has been implemented
 for completeness.  Algorithm Two is a bit more modern and more flexible to work with.
 
+The OpenSSL project implemented an extension to Algorithm One that allows for arbitrary keylengths; we have a compatible implementation described below.
+
 \subsection{Algorithm One}
 Algorithm One accepts as input a password, an 8--byte salt, and an iteration counter.  The iteration counter is meant to act as delay for
 people trying to brute force guess the password.  The higher the iteration counter the longer the delay.  This algorithm also requires a hash 
@@ -5092,6 +5094,17 @@ on the password.  The \textit{hash\_idx} is the index of the hash you wish to us
 The output of length up to \textit{outlen} is stored in \textit{out}.  If \textit{outlen} is initially larger than the size of the hash functions output
 it is set to the number of bytes stored.  If it is smaller than not all of the hash output is stored in \textit{out}.
 
+\index{pkcs\_5\_alg1\_openssl()}
+\begin{alltt}
+int pkcs_5_alg1_openssl(const unsigned char *password,
+                      unsigned long  password_len,
+                const unsigned char *salt,
+                                int  iteration_count,
+                                int  hash_idx,
+                      unsigned char *out,
+                      unsigned long *outlen)
+\end{alltt}
+As above, but we generate as many bytes as requested in outlen per the OpenSSL extension to Algorithm One.  If you are trying to be compatible with OpenSSL's EVP\_BytesToKey() or the "openssl enc" command line (or variants such as perl's Crypt::CBC), then use this function with MD5 as your hash (ick!) and iteration\_count=1 (double-ick!!).
 \subsection{Algorithm Two}
 
 Algorithm Two is the recommended algorithm for this task.  It allows variable length salts, and can produce outputs larger than the 
