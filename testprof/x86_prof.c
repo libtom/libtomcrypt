@@ -302,6 +302,8 @@ static void _unregister_all(void)
 #endif
 } /* _cleanup() */
 
+#ifdef LTC_PRNG_ENABLE_LTC_RNG
+
 static unsigned long my_test_rng_read;
 
 static unsigned long my_test_rng(unsigned char *buf, unsigned long len,
@@ -315,6 +317,8 @@ static unsigned long my_test_rng(unsigned char *buf, unsigned long len,
    my_test_rng_read += n;
    return n;
 }
+
+#endif
 
 void reg_algs(void)
 {
@@ -456,6 +460,7 @@ register_prng(&rc4_desc);
 register_prng(&sober128_desc);
 #endif
 
+#ifdef LTC_PRNG_ENABLE_LTC_RNG
    ltc_rng = my_test_rng;
 
    before = my_test_rng_read;
@@ -470,6 +475,7 @@ register_prng(&sober128_desc);
    }
 
    ltc_rng = NULL;
+#endif
 
    if ((err = rng_make_prng(128, find_prng("yarrow"), &yarrow_prng, NULL)) != CRYPT_OK) {
       fprintf(stderr, "rng_make_prng failed: %s\n", error_to_string(err));

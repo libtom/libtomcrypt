@@ -304,6 +304,9 @@
 /* rng_make_prng() */
 #define LTC_RNG_MAKE_PRNG
 
+/* enable the ltc_rng hook to integrate e.g. embedded hardware RNG's easily */
+/* #define LTC_PRNG_ENABLE_LTC_RNG */
+
 #endif /* LTC_NO_PRNGS */
 
 #ifdef LTC_YARROW

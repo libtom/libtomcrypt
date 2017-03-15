@@ -371,6 +371,9 @@ const char *crypt_build_settings =
 #if defined(LTC_RNG_MAKE_PRNG)
     " LTC_RNG_MAKE_PRNG "
 #endif
+#if defined(LTC_PRNG_ENABLE_LTC_RNG)
+    " LTC_PRNG_ENABLE_LTC_RNG "
+#endif
 #if defined(LTC_HASH_HELPERS)
     " LTC_HASH_HELPERS "
 #endif

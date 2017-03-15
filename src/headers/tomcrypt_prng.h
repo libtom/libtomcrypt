@@ -193,8 +193,10 @@ unsigned long rng_get_bytes(unsigned char *out,
 
 int rng_make_prng(int bits, int wprng, prng_state *prng, void (*callback)(void));
 
+#ifdef LTC_PRNG_ENABLE_LTC_RNG
 extern unsigned long (*ltc_rng)(unsigned char *out, unsigned long outlen,
       void (*callback)(void));
+#endif
 
 
 /* $Source$ */
