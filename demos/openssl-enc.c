@@ -66,8 +66,8 @@ static char salt_header[] = { 'S', 'a', 'l', 't', 'e', 'd', '_', '_' };
 /* A simple way to handle the possibility that a block may increase in size
    after padding. */
 union paddable {
-   char unpad[1024];
-   char pad[1024+MAXBLOCKSIZE];
+   unsigned char unpad[1024];
+   unsigned char pad[1024+MAXBLOCKSIZE];
 };
 
 /*
@@ -112,7 +112,7 @@ int parse_hex_salt(unsigned char *in, unsigned char *out)
 {
    int idx;
    for(idx=0; idx<SALT_LENGTH; idx++)
-      if(sscanf(in+idx*2, "%02hhx", out+idx) != 1)
+      if(sscanf((char*)in+idx*2, "%02hhx", out+idx) != 1)
          return CRYPT_ERROR;
    return CRYPT_OK;
 }
@@ -176,7 +176,7 @@ size_t pkcs7_pad(union paddable *buf, size_t nb, int block_length,
       padval = (unsigned char) (block_length - (nb % block_length));
       padval = padval ? padval : block_length;
 
-      XMEMSET(buf->pad+nb, padval, padval);
+      memset(buf->pad+nb, padval, padval);
       return nb+padval;
    } else {
       /* We are UNPADDING this block (and removing bytes)
@@ -195,7 +195,7 @@ size_t pkcs7_pad(union paddable *buf, size_t nb, int block_length,
       /* First byte's accounted for; do the rest */
       idx--;
 
-      while(idx >= nb-padval)
+      while(idx >= (off_t)(nb-padval))
          if(buf->pad[idx] != padval)
             return -1;
          else
@@ -264,7 +264,7 @@ int do_crypt(FILE *infd, FILE *outfd, unsigned char *key, unsigned char *iv,
          if( feof(infd) )
             nb = pkcs7_pad(&outbuf, nb,
                            aes_desc.block_length, 0);
-         if(nb < 0)
+         if(nb == -1)
             /* The file didn't decrypt correctly */
             return CRYPT_ERROR;
 
@@ -307,9 +307,9 @@ int main(int argc, char *argv[]) {
       BARF("Invalid number of arguments");
 
    /* Check proper mode of operation */
-   if     (!strncmp(argv[1], "enc", sizeof("enc")))
+   if     (!strncmp(argv[1], "enc", 3))
       encrypt = 1;
-   else if(!strncmp(argv[1], "dec", sizeof("dec")))
+   else if(!strncmp(argv[1], "dec", 3))
       encrypt = 0;
    else
       BARF("Bad command name");
@@ -327,7 +327,7 @@ int main(int argc, char *argv[]) {
       /* User-provided */
       if(parse_hex_salt((unsigned char*) argv[5], salt) != CRYPT_OK)
          BARF("Bad user-specified salt");
-   } else if(!strncmp(argv[1], "enc", sizeof("enc"))) {
+   } else if(!strncmp(argv[1], "enc", 3)) {
       /* Encrypting; get from RNG */
       if(rng_get_bytes(salt, sizeof(salt), NULL) != sizeof(salt))
          BARF("Not enough random data");
@@ -349,7 +349,7 @@ int main(int argc, char *argv[]) {
 
    /* Run the key derivation from the provided passphrase.  This gets us
       the key and iv. */
-   ret = pkcs_5_alg1_openssl(argv[4], strlen(argv[4]), salt,
+   ret = pkcs_5_alg1_openssl((unsigned char*)argv[4], strlen(argv[4]), salt,
                              OPENSSL_ITERATIONS, hash, keyiv, &keyivlen );
    if(ret != CRYPT_OK)
       BARF("Could not derive key/iv from passphrase");
@@ -360,7 +360,7 @@ int main(int argc, char *argv[]) {
    printf("iv =");  dump_bytes(iv,  IV_LENGTH );    printf("\n");
 
    /* If we're encrypting, write the salt header as OpenSSL does */
-   if(!strncmp(argv[1], "enc", sizeof("enc"))) {
+   if(!strncmp(argv[1], "enc", 3)) {
       if(fwrite(salt_header, 1, sizeof(salt_header), outfd) !=
          sizeof(salt_header) )
          BARF("Error writing salt header to outfile");
