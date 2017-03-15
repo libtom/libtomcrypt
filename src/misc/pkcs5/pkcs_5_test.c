@@ -185,12 +185,12 @@ int pkcs_5_test (void)
         }
         else if(XMEMCMP(DK, cases_5_2[i].DK, (size_t)cases_5_2[i].dkLen) != 0) {
             printf("\nPKCS#5_2 test #%d: Failed/3\n", i);
-#if LTC_TEST_DBG
+#ifdef LTC_TEST_DBG
             print_hex("is", DK, cases_5_2[i].dkLen);
             print_hex("should", cases_5_2[i].DK, cases_5_2[i].dkLen);
 #endif
             ++failed;
-#if LTC_TEST_DBG
+#ifdef LTC_TEST_DBG
         } else {
             printf("PKCS#5_2 test #%d: Passed\n", i);
 #endif
@@ -216,7 +216,7 @@ int pkcs_5_test (void)
         }
         else if (XMEMCMP(DK, cases_5_1[i].DK, (size_t)cases_5_1[i].dkLen) != 0) {
             printf("\nPKCS#5_1 test #%d: Failed/3\n", i);
-#if LTC_TEST_DBG
+#ifdef LTC_TEST_DBG
             print_hex("is", DK, cases_5_1[i].dkLen);
             print_hex("should", cases_5_1[i].DK, cases_5_1[i].dkLen);
 #endif
@@ -243,7 +243,7 @@ int pkcs_5_test (void)
         }
         else if (XMEMCMP(DK, cases_5_1o[i].DK, (size_t)cases_5_1o[i].dkLen) != 0) {
             printf("\nPKCS#5_1o test #%d: Failed/3\n", i);
-#if LTC_TEST_DBG
+#ifdef LTC_TEST_DBG
             print_hex("is", DK, cases_5_1o[i].dkLen);
             print_hex("should", cases_5_1o[i].DK, cases_5_1o[i].dkLen);
 #endif
