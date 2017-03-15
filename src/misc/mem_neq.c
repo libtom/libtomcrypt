@@ -19,7 +19,7 @@
 /**
    Compare two blocks of memory for inequality.
 
-   The usage is similar to that of standard memcmp(), but you can only test
+   The usage is similar to that of standard memcmp, but you can only test
    if the memory is equal or not - you can not determine by how much the
    first different byte differs.
 

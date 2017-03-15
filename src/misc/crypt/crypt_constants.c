@@ -161,7 +161,7 @@ int crypt_get_constant(const char* namein, int *valueout) {
     int i;
     int _crypt_constants_len = sizeof(_crypt_constants) / sizeof(_crypt_constants[0]);
     for (i=0; i<_crypt_constants_len; i++) {
-        if (strcmp(_crypt_constants[i].name, namein) == 0) {
+        if (XSTRCMP(_crypt_constants[i].name, namein) == 0) {
             *valueout = _crypt_constants[i].value;
             return 0;
         }
