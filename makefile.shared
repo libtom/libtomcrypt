@@ -10,8 +10,6 @@ include makefile.include
 # The version
 # http://www.gnu.org/software/libtool/manual/html_node/Updating-version-info.html
 VERSION=0:117
-# http://www.gnu.org/software/libtool/manual/html_node/Release-numbers.html
-RELEASE=1.17
 
 
 LT ?= libtool
@@ -206,7 +204,7 @@ testprof/$(LIBTEST):
 	$(LTCOMPILE) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $@ -c $<
 
 $(LIBNAME): $(OBJECTS)
-	$(LT) --mode=link --tag=CC $(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) `find ./src -type f -name "*.lo"` $(EXTRALIBS) -o $(LIBNAME) -rpath $(LIBPATH) -version-info $(VERSION) -release $(RELEASE)
+	$(LT) --mode=link --tag=CC $(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) `find ./src -type f -name "*.lo"` $(EXTRALIBS) -o $(LIBNAME) -rpath $(LIBPATH) -version-info $(VERSION)
 
 install: $(LIBNAME)
 	install -d $(DESTDIR)$(LIBPATH)
