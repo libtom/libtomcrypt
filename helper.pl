@@ -257,7 +257,9 @@ sub process_makefiles {
 sub die_usage {
   die <<"MARKER";
   usage: $0 --check-source
+         $0 --check-defines
          $0 --check-makefiles
+         $0 --check-all
          $0 --update-makefiles
 MARKER
 }
@@ -265,14 +267,15 @@ MARKER
 GetOptions( "check-source"     => \my $check_source,
             "check-defines"    => \my $check_defines,
             "check-makefiles"  => \my $check_makefiles,
+            "check-all"        => \my $check_all,
             "update-makefiles" => \my $update_makefiles,
             "help"             => \my $help
           ) or die_usage;
 
 my $failure;
-$failure ||= check_source()       if $check_source;
-$failure ||= check_defines()      if $check_defines;
-$failure ||= process_makefiles(0) if $check_makefiles;
+$failure ||= check_source()       if $check_all || $check_source;
+$failure ||= check_defines()      if $check_all || $check_defines;
+$failure ||= process_makefiles(0) if $check_all || $check_makefiles;
 $failure ||= process_makefiles(1) if $update_makefiles;
 
 die_usage unless defined $failure;
