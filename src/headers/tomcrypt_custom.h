@@ -189,6 +189,8 @@
 #define LTC_KASUMI
 #define LTC_MULTI2
 #define LTC_CAMELLIA
+/* ChaCha is special (a stream cipher) */
+#define LTC_CHACHA
 
 #endif /* LTC_NO_CIPHERS */
 
@@ -255,6 +257,7 @@
 #define LTC_XCBC
 #define LTC_F9_MODE
 #define LTC_PELICAN
+#define LTC_POLY1305
 
 /* ---> Encrypt + Authenticate Modes <--- */
 
@@ -264,6 +267,7 @@
 #define LTC_OCB3_MODE
 #define LTC_CCM_MODE
 #define LTC_GCM_MODE
+#define LTC_CHACHA20POLY1305_MODE
 
 /* Use 64KiB tables */
 #ifndef LTC_NO_TABLES
@@ -502,6 +506,10 @@
 
 #if (defined(LTC_MDSA) || defined(LTC_MRSA) || defined(LTC_MECC) || defined(LTC_MKAT)) && !defined(LTC_DER)
    #error PK requires ASN.1 DER functionality, make sure LTC_DER is enabled
+#endif
+
+#if defined(LTC_CHACHA20POLY1305_MODE) && (!defined(LTC_CHACHA) || !defined(LTC_POLY1305))
+   #error LTC_CHACHA20POLY1305_MODE requires LTC_CHACHA + LTC_POLY1305
 #endif
 
 /* THREAD management */

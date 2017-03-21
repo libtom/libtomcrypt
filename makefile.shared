@@ -39,15 +39,20 @@ src/ciphers/rc6.o src/ciphers/safer/safer.o src/ciphers/safer/saferp.o src/ciphe
 src/ciphers/twofish/twofish.o src/ciphers/xtea.o src/encauth/ccm/ccm_add_aad.o \
 src/encauth/ccm/ccm_add_nonce.o src/encauth/ccm/ccm_done.o src/encauth/ccm/ccm_init.o \
 src/encauth/ccm/ccm_memory.o src/encauth/ccm/ccm_process.o src/encauth/ccm/ccm_reset.o \
-src/encauth/ccm/ccm_test.o src/encauth/eax/eax_addheader.o src/encauth/eax/eax_decrypt.o \
-src/encauth/eax/eax_decrypt_verify_memory.o src/encauth/eax/eax_done.o src/encauth/eax/eax_encrypt.o \
-src/encauth/eax/eax_encrypt_authenticate_memory.o src/encauth/eax/eax_init.o \
-src/encauth/eax/eax_test.o src/encauth/gcm/gcm_add_aad.o src/encauth/gcm/gcm_add_iv.o \
-src/encauth/gcm/gcm_done.o src/encauth/gcm/gcm_gf_mult.o src/encauth/gcm/gcm_init.o \
-src/encauth/gcm/gcm_memory.o src/encauth/gcm/gcm_mult_h.o src/encauth/gcm/gcm_process.o \
-src/encauth/gcm/gcm_reset.o src/encauth/gcm/gcm_test.o src/encauth/ocb/ocb_decrypt.o \
-src/encauth/ocb/ocb_decrypt_verify_memory.o src/encauth/ocb/ocb_done_decrypt.o \
-src/encauth/ocb/ocb_done_encrypt.o src/encauth/ocb/ocb_encrypt.o \
+src/encauth/ccm/ccm_test.o src/encauth/chachapoly/chacha20poly1305_add_aad.o \
+src/encauth/chachapoly/chacha20poly1305_decrypt.o src/encauth/chachapoly/chacha20poly1305_done.o \
+src/encauth/chachapoly/chacha20poly1305_encrypt.o src/encauth/chachapoly/chacha20poly1305_init.o \
+src/encauth/chachapoly/chacha20poly1305_memory.o src/encauth/chachapoly/chacha20poly1305_setiv.o \
+src/encauth/chachapoly/chacha20poly1305_setiv_rfc7905.o \
+src/encauth/chachapoly/chacha20poly1305_test.o src/encauth/eax/eax_addheader.o \
+src/encauth/eax/eax_decrypt.o src/encauth/eax/eax_decrypt_verify_memory.o src/encauth/eax/eax_done.o \
+src/encauth/eax/eax_encrypt.o src/encauth/eax/eax_encrypt_authenticate_memory.o \
+src/encauth/eax/eax_init.o src/encauth/eax/eax_test.o src/encauth/gcm/gcm_add_aad.o \
+src/encauth/gcm/gcm_add_iv.o src/encauth/gcm/gcm_done.o src/encauth/gcm/gcm_gf_mult.o \
+src/encauth/gcm/gcm_init.o src/encauth/gcm/gcm_memory.o src/encauth/gcm/gcm_mult_h.o \
+src/encauth/gcm/gcm_process.o src/encauth/gcm/gcm_reset.o src/encauth/gcm/gcm_test.o \
+src/encauth/ocb/ocb_decrypt.o src/encauth/ocb/ocb_decrypt_verify_memory.o \
+src/encauth/ocb/ocb_done_decrypt.o src/encauth/ocb/ocb_done_encrypt.o src/encauth/ocb/ocb_encrypt.o \
 src/encauth/ocb/ocb_encrypt_authenticate_memory.o src/encauth/ocb/ocb_init.o src/encauth/ocb/ocb_ntz.o \
 src/encauth/ocb/ocb_shift_xor.o src/encauth/ocb/ocb_test.o src/encauth/ocb/s_ocb_done.o \
 src/encauth/ocb3/ocb3_add_aad.o src/encauth/ocb3/ocb3_decrypt.o src/encauth/ocb3/ocb3_decrypt_last.o \
@@ -71,7 +76,9 @@ src/mac/omac/omac_process.o src/mac/omac/omac_test.o src/mac/pelican/pelican.o \
 src/mac/pelican/pelican_memory.o src/mac/pelican/pelican_test.o src/mac/pmac/pmac_done.o \
 src/mac/pmac/pmac_file.o src/mac/pmac/pmac_init.o src/mac/pmac/pmac_memory.o \
 src/mac/pmac/pmac_memory_multi.o src/mac/pmac/pmac_ntz.o src/mac/pmac/pmac_process.o \
-src/mac/pmac/pmac_shift_xor.o src/mac/pmac/pmac_test.o src/mac/xcbc/xcbc_done.o \
+src/mac/pmac/pmac_shift_xor.o src/mac/pmac/pmac_test.o src/mac/poly1305/poly1305.o \
+src/mac/poly1305/poly1305_file.o src/mac/poly1305/poly1305_memory.o \
+src/mac/poly1305/poly1305_memory_multi.o src/mac/poly1305/poly1305_test.o src/mac/xcbc/xcbc_done.o \
 src/mac/xcbc/xcbc_file.o src/mac/xcbc/xcbc_init.o src/mac/xcbc/xcbc_memory.o \
 src/mac/xcbc/xcbc_memory_multi.o src/mac/xcbc/xcbc_process.o src/mac/xcbc/xcbc_test.o \
 src/math/fp/ltc_ecc_fp_mulmod.o src/math/gmp_desc.o src/math/ltm_desc.o src/math/multi.o \
@@ -163,8 +170,11 @@ src/pk/pkcs1/pkcs_1_v1_5_encode.o src/pk/rsa/rsa_decrypt_key.o src/pk/rsa/rsa_en
 src/pk/rsa/rsa_export.o src/pk/rsa/rsa_exptmod.o src/pk/rsa/rsa_free.o src/pk/rsa/rsa_get_size.o \
 src/pk/rsa/rsa_import.o src/pk/rsa/rsa_import_radix.o src/pk/rsa/rsa_import_x509.o \
 src/pk/rsa/rsa_make_key.o src/pk/rsa/rsa_sign_hash.o src/pk/rsa/rsa_sign_saltlen_get.o \
-src/pk/rsa/rsa_verify_hash.o src/prngs/fortuna.o src/prngs/rc4.o src/prngs/rng_get_bytes.o \
-src/prngs/rng_make_prng.o src/prngs/sober128.o src/prngs/sprng.o src/prngs/yarrow.o
+src/pk/rsa/rsa_verify_hash.o src/prngs/chacha.o src/prngs/fortuna.o src/prngs/rc4.o \
+src/prngs/rng_get_bytes.o src/prngs/rng_make_prng.o src/prngs/sober128.o src/prngs/sprng.o \
+src/prngs/yarrow.o src/stream/chacha/chacha_crypt.o src/stream/chacha/chacha_ivctr32.o \
+src/stream/chacha/chacha_ivctr64.o src/stream/chacha/chacha_keystream.o \
+src/stream/chacha/chacha_setup.o src/stream/chacha/chacha_test.o
 
 HEADERS=src/headers/tomcrypt.h src/headers/tomcrypt_argchk.h src/headers/tomcrypt_cfg.h \
 src/headers/tomcrypt_cipher.h src/headers/tomcrypt_custom.h src/headers/tomcrypt_hash.h \

@@ -36,6 +36,12 @@ int mac_test(void)
 #ifdef LTC_PELICAN
    DO(pelican_test());
 #endif
+#ifdef LTC_POLY1305
+   DO(poly1305_test());
+#endif
+#ifdef LTC_CHACHA20POLY1305_MODE
+   DO(chacha20poly1305_test());
+#endif
    return 0;
 }
 

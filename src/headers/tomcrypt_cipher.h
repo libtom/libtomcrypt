@@ -937,6 +937,27 @@ int cipher_is_valid(int idx);
 
 LTC_MUTEX_PROTO(ltc_cipher_mutex)
 
+/* ---- stream ciphers ---- */
+
+#ifdef LTC_CHACHA
+
+typedef struct {
+   ulong32 input[16];
+   unsigned char kstream[64];
+   unsigned long ksleft;
+   unsigned long ivlen;
+   int rounds;
+} chacha_state;
+
+int chacha_setup(chacha_state *st, const unsigned char *key, unsigned long keylen, int rounds);
+int chacha_ivctr32(chacha_state *st, const unsigned char *iv, unsigned long ivlen, ulong32 counter);
+int chacha_ivctr64(chacha_state *st, const unsigned char *iv, unsigned long ivlen, ulong64 counter);
+int chacha_crypt(chacha_state *st, const unsigned char *in, unsigned long inlen, unsigned char *out);
+int chacha_keystream(chacha_state *st, unsigned char *out, unsigned long outlen);
+int chacha_test(void);
+
+#endif /* LTC_CHACHA */
+
 /* $Source$ */
 /* $Revision$ */
 /* $Date$ */
