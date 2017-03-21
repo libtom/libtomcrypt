@@ -322,7 +322,9 @@ static unsigned long my_test_rng(unsigned char *buf, unsigned long len,
 
 void reg_algs(void)
 {
+#ifdef LTC_PRNG_ENABLE_LTC_RNG
   unsigned long before;
+#endif
   int err;
 
   atexit(_unregister_all);
