@@ -278,6 +278,9 @@ install_test: testprof/$(LIBTEST)
 	install -d $(DESTDIR)$(INCPATH)
 	install -m 644 testprof/$(LIBTEST) $(DESTDIR)$(LIBPATH)
 
+install_hooks:
+	for s in `ls hooks/`; do ln -s ../../hooks/$$s .git/hooks/$$s; done
+
 profile:
 	CFLAGS="$(CFLAGS) -fprofile-generate" $(MAKE) timing EXTRALIBS="$(EXTRALIBS) -lgcov"
 	./timing
