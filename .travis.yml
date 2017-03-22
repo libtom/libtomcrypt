@@ -7,6 +7,7 @@ addons:
     packages:
     - binutils
     - libtommath-dev
+    - libtfm-dev
 
 before_script:
   - gem install coveralls-lcov
@@ -22,9 +23,9 @@ branches:
 compiler:
   - gcc
   - clang
-
-script: bash "${BUILDSCRIPT}" "${BUILDNAME}" "${BUILDOPTIONS}" "makefile V=1" "-DUSE_LTM -DLTM_DESC -I/usr/include" "/usr/lib/x86_64-linux-gnu/libtommath.a"
-
+script:
+  - bash "${BUILDSCRIPT}" "${BUILDNAME}" "${BUILDOPTIONS}" "makefile" "-DUSE_LTM -DLTM_DESC -DTFM_DESC -I/usr/include" "/usr/lib/x86_64-linux-gnu/libtommath.a"
+  - bash "${BUILDSCRIPT}" "${BUILDNAME}" "${BUILDOPTIONS}" "makefile.shared" "-DUSE_TFM -DLTM_DESC -DTFM_DESC -I/usr/include" "/usr/lib/x86_64-linux-gnu/libtfm.so"
 env:
   - |
     BUILDSCRIPT="check_source.sh"

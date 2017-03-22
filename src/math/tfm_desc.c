@@ -699,6 +699,13 @@ static int tfm_ecc_projective_add_point(ecc_point *P, ecc_point *Q, ecc_point *R
 
 #endif
 
+static int set_rand(void *a, int size)
+{
+   LTC_ARGCHK(a != NULL);
+   fp_rand(a, size);
+   return CRYPT_OK;
+}
+
 const ltc_math_descriptor tfm_desc = {
 
    "TomsFastMath",
@@ -788,7 +795,7 @@ const ltc_math_descriptor tfm_desc = {
    &addmod,
    &submod,
 
-   NULL,
+   set_rand,
 
 };
 
