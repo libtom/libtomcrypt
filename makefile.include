@@ -81,6 +81,11 @@ TEST=test
 SIZES=sizes
 CONSTANTS=constants
 
+DEMOS=hashsum crypt small tv_gen multi sizes constants
+
+TIMINGS=demos/timing.o
+TESTS=demos/test.o
+
 #LIBPATH-The directory for libtomcrypt to be installed to.
 #INCPATH-The directory to install the header files for libtomcrypt.
 #DATAPATH-The directory to install the pdf docs.

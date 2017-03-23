@@ -180,11 +180,6 @@ src/headers/tomcrypt_prng.h testprof/tomcrypt_test.h
 
 #END_INS
 
-DEMOS=hashsum crypt small tv_gen multi sizes constants
-
-TIMINGS=demos/timing.o
-TESTS=demos/test.o
-
 #Files left over from making the crypt.pdf.
 LEFTOVERS=*.dvi *.log *.aux *.toc *.idx *.ilg *.ind *.out *.lof
 

@@ -170,13 +170,6 @@ src/headers/tomcrypt_prng.h testprof/tomcrypt_test.h
 
 #END_INS
 
-HASHOBJECTS=demos/hashsum.o
-CRYPTOBJECTS=demos/encrypt.o
-SMALLOBJECTS=demos/small.o
-TVS=demos/tv_gen.o
-TESTS=demos/test.o
-TIMINGS=demos/timing.o
-
 #The default rule for make builds the libtomcrypt library.
 default:library
 
@@ -220,19 +213,6 @@ install_test: testprof/$(LIBTEST)
 	install -d $(DESTDIR)$(INCPATH)
 	cd testprof ; CFLAGS="$(CFLAGS)" VERSION=$(VERSION) LIBPATH=$(LIBPATH) LIBTEST=$(LIBTEST) LIBTEST_S=$(LIBTEST_S) DESTDIR=$(DESTDIR) LT=$(LT) CC=$(CC) make -f makefile.shared install
 
-#This rule makes the hash program included with libtomcrypt
-hashsum: library $(HASHOBJECTS)
-	$(LT) --mode=link --tag=CC $(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $(HASH) $(HASHOBJECTS) $(LIBNAME) $(EXTRALIBS)
-
-#makes the crypt program
-crypt: library $(CRYPTOBJECTS)
-	$(LT) --mode=link --tag=CC $(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $(CRYPT) $(CRYPTOBJECTS) $(LIBNAME) $(EXTRALIBS)
-
-small: library $(SMALLOBJECTS)
-	$(LT) --mode=link --tag=CC $(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $(SMALL) $(SMALLOBJECTS) $(LIBNAME) $(EXTRALIBS)
-
-tv_gen: library $(TVS)
-	$(LT) --mode=link --tag=CC $(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $(TV) $(TVS) $(LIBNAME) $(EXTRALIBS)
 
 .PHONY: test
 test: library testprof/$(LIBTEST) $(TESTS)
@@ -241,7 +221,19 @@ test: library testprof/$(LIBTEST) $(TESTS)
 timing: library testprof/$(LIBTEST) $(TIMINGS)
 	$(LT) --mode=link --tag=CC $(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $(TIMING) $(TIMINGS) testprof/$(LIBTEST) $(LIBNAME) $(EXTRALIBS)
 
-all_test: test tv_gen hashsum crypt small timing
+
+# build the demos from a template
+define DEMO_template
+$(1): demos/$(1).o library
+ifneq ($V,1)
+	@echo "   * $${CC} $$@"
+endif
+	$$(LT) --mode=link --tag=CC $$(CC) $$(CFLAGS) $$(CPPFLAGS) $$(LDFLAGS) -o $(1) $$< $$(LIBNAME) $$(EXTRALIBS)
+endef
+
+$(foreach demo, $(strip $(DEMOS)), $(eval $(call DEMO_template,$(demo))))
+
+all_test: test tv_gen $(DEMOS)
 
 # $Source$
 # $Revision$
