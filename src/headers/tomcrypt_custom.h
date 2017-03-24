@@ -343,7 +343,6 @@
 #define LTC_MRSA
 
 /* Include Diffie-Hellman support */
-#ifndef GMP_DESC
 /* is_prime fails for GMP */
 #define LTC_MDH
 /* Supported Key Sizes */
@@ -359,7 +358,6 @@
 #define LTC_DH2560
 #define LTC_DH3072
 #define LTC_DH4096
-#endif
 #endif
 
 /* Include Katja (a Rabin variant like RSA) */
