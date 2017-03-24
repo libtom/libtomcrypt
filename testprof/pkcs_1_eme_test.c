@@ -11,6 +11,7 @@ int pkcs_1_eme_test(void)
   int prng_idx = register_prng(&no_prng_desc);
   int hash_idx = find_hash("sha1");
   unsigned int i;
+  unsigned int j;
 
   DO(prng_is_valid(prng_idx));
   DO(hash_is_valid(hash_idx));
@@ -31,7 +32,6 @@ int pkcs_1_eme_test(void)
     DOX(mp_read_unsigned_bin(key->p, t->rsa.p, t->rsa.p_l), t->name);
     key->type = PK_PRIVATE;
 
-    unsigned int j;
     for (j = 0; j < sizeof(t->data)/sizeof(t->data[0]); ++j) {
         rsaData_t* s = &t->data[j];
         unsigned char buf[256], obuf[256];

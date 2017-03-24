@@ -10,6 +10,7 @@ int pkcs_1_emsa_test(void)
 {
   int hash_idx = find_hash("sha1");
   unsigned int i;
+  unsigned int j;
 
   DO(hash_is_valid(hash_idx));
 
@@ -29,7 +30,6 @@ int pkcs_1_emsa_test(void)
     DOX(mp_read_unsigned_bin(key->p, t->rsa.p, t->rsa.p_l), t->name);
     key->type = PK_PRIVATE;
 
-    unsigned int j;
     for (j = 0; j < sizeof(t->data)/sizeof(t->data[0]); ++j) {
         rsaData_t* s = &t->data[j];
         unsigned char buf[20], obuf[256];

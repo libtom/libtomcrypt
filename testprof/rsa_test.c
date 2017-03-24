@@ -200,6 +200,10 @@ int rsa_test(void)
    int           hash_idx, prng_idx, stat, stat2, i, err;
    unsigned long rsa_msgsize, len, len2, len3, cnt, cnt2;
    static unsigned char lparam[] = { 0x01, 0x02, 0x03, 0x04 };
+   void* dP;
+   unsigned char* p;
+   unsigned char* p2;
+   unsigned char* p3;
 
    if (rsa_compat_test() != 0) {
       return 1;
@@ -388,7 +392,7 @@ for (cnt = 0; cnt < len; ) {
 
    /* verify with privKey but remove pointer to dP to test without CRT */
 
-   void* dP = privKey.dP;
+   dP = privKey.dP;
    privKey.dP = NULL;
    /* change byte back to original */
    in[0] ^= 1;
@@ -470,9 +474,9 @@ for (cnt = 0; cnt < len; ) {
     *     For all PS lengths:  the result should not be valid
     */
 
-   unsigned char* p = in;
-   unsigned char* p2 = out;
-   unsigned char* p3 = tmp;
+   p = in;
+   p2 = out;
+   p3 = tmp;
    for (i = 0; i < 9; ++i) {
      len = sizeof(in);
      len2 = sizeof(out);
