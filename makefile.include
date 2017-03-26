@@ -35,7 +35,7 @@ CFLAGS += -Wextra
 # additional warnings
 CFLAGS += -Wsystem-headers -Wbad-function-cast -Wcast-align
 CFLAGS += -Wstrict-prototypes -Wpointer-arith
-#CFLAGS += -Wdeclaration-after-statement
+CFLAGS += -Wdeclaration-after-statement
 endif
 
 CFLAGS += -Wno-type-limits
