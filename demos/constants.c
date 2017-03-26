@@ -24,14 +24,14 @@ int main(void) {
     /* given a specific constant name, get and print its value */
     char name[] = "CTR_COUNTER_BIG_ENDIAN";
     int  value;
+    char *names_list;
+    unsigned int names_list_len;
 
     if (crypt_get_constant(name, &value) != 0)
       exit(EXIT_FAILURE);
     printf("\n  %s is %d \n\n", name, value);
 
     /* get and print the length of the names (and values) list */
-    char *names_list;
-    unsigned int names_list_len;
 
     if (crypt_list_all_constants(NULL, &names_list_len) != 0)
       exit(EXIT_FAILURE);

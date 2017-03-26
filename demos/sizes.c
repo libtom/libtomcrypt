@@ -23,13 +23,13 @@ int main(void) {
     /* given a specific size name, get and print its size */
     char name[] = "ecc_key";
     unsigned int size;
+    char *sizes_list;
+    unsigned int sizes_list_len;
     if(crypt_get_size(name, &size) != 0)
       exit(EXIT_FAILURE);
     printf("\n  size of '%s' is %u \n\n", name, size);
 
     /* get and print the length of the names (and sizes) list */
-    char *sizes_list;
-    unsigned int sizes_list_len;
     if(crypt_list_all_sizes(NULL, &sizes_list_len) != 0)
        exit(EXIT_FAILURE);
     printf("  need to allocate %u bytes \n\n", sizes_list_len);
