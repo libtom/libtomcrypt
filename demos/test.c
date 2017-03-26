@@ -31,18 +31,22 @@ int main(void)
    size_t fn_len, i, dots;
    reg_algs();
 
+   printf("build == \n%s\n", crypt_build_settings);
+
 #ifdef USE_LTM
    ltc_mp = ltm_desc;
+   printf("math provider = libtommath\n");
 #elif defined(USE_TFM)
    ltc_mp = tfm_desc;
+   printf("math provider = tomsfastmath\n");
 #elif defined(USE_GMP)
    ltc_mp = gmp_desc;
+   printf("math provider = gnump\n");
 #else
    extern ltc_math_descriptor EXT_MATH_LIB;
    ltc_mp = EXT_MATH_LIB;
+   printf("math provider = EXT_MATH_LIB\n");
 #endif
-
-   printf("build == \n%s\n", crypt_build_settings);
    printf("MP_DIGIT_BIT = %d\n", MP_DIGIT_BIT);
 
    fn_len = 0;
