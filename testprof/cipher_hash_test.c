@@ -4,7 +4,7 @@
 
 int cipher_hash_test(void)
 {
-   int           x;
+   int           x, fails = 0;
    unsigned char buf[4096];
    unsigned long n;
    prng_state    nprng;
@@ -34,7 +34,7 @@ int cipher_hash_test(void)
       prng_descriptor[x].done(&nprng);
 
       DOX(prng_descriptor[x].pimport(buf, n, &nprng), prng_descriptor[x].name);
-      /*DOX(prng_descriptor[x].ready(&nprng), prng_descriptor[x].name);*/
+      /*DOX(prng_descriptor[x].ready(&nprng), prng_descriptor[x].name);*/ /* it fails both with/without this line */
       if (prng_descriptor[x].read(buf2, 100, &nprng) != 100) exit(EXIT_FAILURE); /* skip 100 bytes */
       if (prng_descriptor[x].read(buf2, 10, &nprng) != 10) exit(EXIT_FAILURE);   /* 10 bytes for comparison */
       prng_descriptor[x].done(&nprng);
@@ -47,12 +47,13 @@ int cipher_hash_test(void)
          fprintf(stderr, "\n%s buf2: ", prng_descriptor[x].name);
          for(i = 1; i < 10; i++) fprintf(stderr, "%02x ", buf2[i]);
          fprintf(stderr, "\n");
-         /*return CRYPT_FAIL_TESTVECTOR;*/
+         fails++;
       }
       else {
          fprintf(stderr, "%s export/import OK\n", prng_descriptor[x].name);
       }
    }
+   if (fails > 0) return CRYPT_FAIL_TESTVECTOR;
 
    return 0;
 }
