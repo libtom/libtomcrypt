@@ -257,31 +257,6 @@ int rc4_test(void)
           return CRYPT_FAIL_TESTVECTOR;
        }
    }
-   {
-      prng_state prng1, prng2;
-      unsigned char dump[300], buf1[100], buf2[100];
-      unsigned long dumplen = sizeof(dump), i;
-      unsigned char entropy[] = { 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef };
-
-      if ((err = rc4_start(&prng1)) != CRYPT_OK)                                 return err;
-      if ((err = rc4_add_entropy(entropy, sizeof(entropy), &prng1)) != CRYPT_OK) return err;
-      if ((err = rc4_ready(&prng1)) != CRYPT_OK)                                 return err;
-      if (rc4_read(buf1, 100, &prng1) != 100)                                    return CRYPT_ERROR_READPRNG;
-      if ((err = rc4_export(dump, &dumplen, &prng1)) != CRYPT_OK)                return err;
-      if (rc4_read(buf1, 10, &prng1) != 10)                                      return CRYPT_ERROR_READPRNG;
-
-      if ((err = rc4_import(dump, dumplen, &prng2)) != CRYPT_OK)                 return err;
-      if (rc4_read(buf2, 10, &prng2) != 10)                                      return CRYPT_ERROR_READPRNG;
-
-      if (XMEMCMP(buf1, buf2, 10) != 0) {
-         fprintf(stderr, "\nbuf1:\n");
-         for(i = 1; i < 10; i++) fprintf(stderr, "%02x ", buf1[i]);
-         fprintf(stderr, "\nbuf2:\n");
-         for(i = 1; i < 10; i++) fprintf(stderr, "%02x ", buf2[i]);
-         fprintf(stderr, "\n");
-         return CRYPT_FAIL_TESTVECTOR;
-      }
-   }
    return CRYPT_OK;
 #endif
 }
