@@ -307,19 +307,6 @@ int ccm_memory(int cipher,
           unsigned char *tag,    unsigned long *taglen,
                     int  direction);
 
-int ccm_memory_ex(int cipher,
-    const unsigned char *key,    unsigned long keylen,
-    symmetric_key       *uskey,
-    const unsigned char *nonce,  unsigned long noncelen,
-    const unsigned char *header, unsigned long headerlen,
-          unsigned char *pt,     unsigned long ptlen,
-          unsigned char *ct,
-          unsigned char *tag,    unsigned long *taglen,
-                    int  direction,
-    const unsigned char *B_0,
-    const unsigned char *CTR,
-                    int  ctrwidth);
-
 int ccm_test(void);
 
 #endif /* LTC_CCM_MODE */
