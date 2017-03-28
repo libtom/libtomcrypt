@@ -10,16 +10,16 @@ src/ciphers/kseed.obj src/ciphers/multi2.obj src/ciphers/noekeon.obj src/ciphers
 src/ciphers/rc6.obj src/ciphers/safer/safer.obj src/ciphers/safer/saferp.obj src/ciphers/skipjack.obj \
 src/ciphers/twofish/twofish.obj src/ciphers/xtea.obj src/encauth/ccm/ccm_add_aad.obj \
 src/encauth/ccm/ccm_add_nonce.obj src/encauth/ccm/ccm_done.obj src/encauth/ccm/ccm_init.obj \
-src/encauth/ccm/ccm_memory.obj src/encauth/ccm/ccm_memory_ex.obj src/encauth/ccm/ccm_process.obj \
-src/encauth/ccm/ccm_reset.obj src/encauth/ccm/ccm_test.obj src/encauth/eax/eax_addheader.obj \
-src/encauth/eax/eax_decrypt.obj src/encauth/eax/eax_decrypt_verify_memory.obj src/encauth/eax/eax_done.obj \
-src/encauth/eax/eax_encrypt.obj src/encauth/eax/eax_encrypt_authenticate_memory.obj \
-src/encauth/eax/eax_init.obj src/encauth/eax/eax_test.obj src/encauth/gcm/gcm_add_aad.obj \
-src/encauth/gcm/gcm_add_iv.obj src/encauth/gcm/gcm_done.obj src/encauth/gcm/gcm_gf_mult.obj \
-src/encauth/gcm/gcm_init.obj src/encauth/gcm/gcm_memory.obj src/encauth/gcm/gcm_mult_h.obj \
-src/encauth/gcm/gcm_process.obj src/encauth/gcm/gcm_reset.obj src/encauth/gcm/gcm_test.obj \
-src/encauth/ocb/ocb_decrypt.obj src/encauth/ocb/ocb_decrypt_verify_memory.obj \
-src/encauth/ocb/ocb_done_decrypt.obj src/encauth/ocb/ocb_done_encrypt.obj src/encauth/ocb/ocb_encrypt.obj \
+src/encauth/ccm/ccm_memory.obj src/encauth/ccm/ccm_process.obj src/encauth/ccm/ccm_reset.obj \
+src/encauth/ccm/ccm_test.obj src/encauth/eax/eax_addheader.obj src/encauth/eax/eax_decrypt.obj \
+src/encauth/eax/eax_decrypt_verify_memory.obj src/encauth/eax/eax_done.obj src/encauth/eax/eax_encrypt.obj \
+src/encauth/eax/eax_encrypt_authenticate_memory.obj src/encauth/eax/eax_init.obj \
+src/encauth/eax/eax_test.obj src/encauth/gcm/gcm_add_aad.obj src/encauth/gcm/gcm_add_iv.obj \
+src/encauth/gcm/gcm_done.obj src/encauth/gcm/gcm_gf_mult.obj src/encauth/gcm/gcm_init.obj \
+src/encauth/gcm/gcm_memory.obj src/encauth/gcm/gcm_mult_h.obj src/encauth/gcm/gcm_process.obj \
+src/encauth/gcm/gcm_reset.obj src/encauth/gcm/gcm_test.obj src/encauth/ocb/ocb_decrypt.obj \
+src/encauth/ocb/ocb_decrypt_verify_memory.obj src/encauth/ocb/ocb_done_decrypt.obj \
+src/encauth/ocb/ocb_done_encrypt.obj src/encauth/ocb/ocb_encrypt.obj \
 src/encauth/ocb/ocb_encrypt_authenticate_memory.obj src/encauth/ocb/ocb_init.obj src/encauth/ocb/ocb_ntz.obj \
 src/encauth/ocb/ocb_shift_xor.obj src/encauth/ocb/ocb_test.obj src/encauth/ocb/s_ocb_done.obj \
 src/encauth/ocb3/ocb3_add_aad.obj src/encauth/ocb3/ocb3_decrypt.obj src/encauth/ocb3/ocb3_decrypt_last.obj \
