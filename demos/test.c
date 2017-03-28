@@ -8,6 +8,7 @@ static const struct {
 } test_functions[] =
 {
       LTC_TEST_FN(store_test),
+      LTC_TEST_FN(rotate_test),
       LTC_TEST_FN(misc_test),
       LTC_TEST_FN(cipher_hash_test),
       LTC_TEST_FN(mac_test),
