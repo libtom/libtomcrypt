@@ -543,7 +543,7 @@ for (cnt = 0; cnt < len; ) {
    len3 = sizeof(tmp);
    DO(base64_decode(_der_tests_cacert_root_cert, _der_tests_cacert_root_cert_size, tmp, &len3));
 
-   DO(rsa_import(tmp, len3, &key));
+   DO(rsa_import_x509(tmp, len3, &key));
 
    /* free the key and return */
    rsa_free(&key);
