@@ -336,10 +336,10 @@ static inline ulong32 RORc(ulong32 word, const int i)
 #else
 
 /* rotates the hard way */
-#define ROL(x, y) ( (((ulong32)(x)<<(ulong32)((y)&31)) | (((ulong32)(x)&0xFFFFFFFFUL)>>(ulong32)(32-((y)&31)))) & 0xFFFFFFFFUL)
-#define ROR(x, y) ( ((((ulong32)(x)&0xFFFFFFFFUL)>>(ulong32)((y)&31)) | ((ulong32)(x)<<(ulong32)(32-((y)&31)))) & 0xFFFFFFFFUL)
-#define ROLc(x, y) ( (((ulong32)(x)<<(ulong32)((y)&31)) | (((ulong32)(x)&0xFFFFFFFFUL)>>(ulong32)(32-((y)&31)))) & 0xFFFFFFFFUL)
-#define RORc(x, y) ( ((((ulong32)(x)&0xFFFFFFFFUL)>>(ulong32)((y)&31)) | ((ulong32)(x)<<(ulong32)(32-((y)&31)))) & 0xFFFFFFFFUL)
+#define ROL(x, y) ( (((ulong32)(x)<<(ulong32)((y)&31)) | (((ulong32)(x)&0xFFFFFFFFUL)>>(ulong32)((32-((y)&31))&31))) & 0xFFFFFFFFUL)
+#define ROR(x, y) ( ((((ulong32)(x)&0xFFFFFFFFUL)>>(ulong32)((y)&31)) | ((ulong32)(x)<<(ulong32)((32-((y)&31))&31))) & 0xFFFFFFFFUL)
+#define ROLc(x, y) ( (((ulong32)(x)<<(ulong32)((y)&31)) | (((ulong32)(x)&0xFFFFFFFFUL)>>(ulong32)((32-((y)&31))&31))) & 0xFFFFFFFFUL)
+#define RORc(x, y) ( ((((ulong32)(x)&0xFFFFFFFFUL)>>(ulong32)((y)&31)) | ((ulong32)(x)<<(ulong32)((32-((y)&31))&31))) & 0xFFFFFFFFUL)
 
 #endif
 
@@ -393,19 +393,19 @@ static inline ulong64 ROR64(ulong64 word, int i)
 
 #define ROL64(x, y) \
     ( (((x)<<((ulong64)(y)&63)) | \
-      (((x)&CONST64(0xFFFFFFFFFFFFFFFF))>>((ulong64)64-((y)&63)))) & CONST64(0xFFFFFFFFFFFFFFFF))
+      (((x)&CONST64(0xFFFFFFFFFFFFFFFF))>>(((ulong64)64-((y)&63))&63))) & CONST64(0xFFFFFFFFFFFFFFFF))
 
 #define ROR64(x, y) \
     ( ((((x)&CONST64(0xFFFFFFFFFFFFFFFF))>>((ulong64)(y)&CONST64(63))) | \
-      ((x)<<((ulong64)(64-((y)&CONST64(63)))))) & CONST64(0xFFFFFFFFFFFFFFFF))
+      ((x)<<(((ulong64)64-((y)&63))&63))) & CONST64(0xFFFFFFFFFFFFFFFF))
 
 #define ROL64c(x, y) \
     ( (((x)<<((ulong64)(y)&63)) | \
-      (((x)&CONST64(0xFFFFFFFFFFFFFFFF))>>((ulong64)64-((y)&63)))) & CONST64(0xFFFFFFFFFFFFFFFF))
+      (((x)&CONST64(0xFFFFFFFFFFFFFFFF))>>(((ulong64)64-((y)&63))&63))) & CONST64(0xFFFFFFFFFFFFFFFF))
 
 #define ROR64c(x, y) \
     ( ((((x)&CONST64(0xFFFFFFFFFFFFFFFF))>>((ulong64)(y)&CONST64(63))) | \
-      ((x)<<((ulong64)(64-((y)&CONST64(63)))))) & CONST64(0xFFFFFFFFFFFFFFFF))
+      ((x)<<(((ulong64)64-((y)&63))&63))) & CONST64(0xFFFFFFFFFFFFFFFF))
 
 #endif
 
