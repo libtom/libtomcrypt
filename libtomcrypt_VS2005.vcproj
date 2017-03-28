@@ -358,10 +358,6 @@
 					>
 				</File>
 				<File
-					RelativePath="src\encauth\ccm\ccm_memory_ex.c"
-					>
-				</File>
-				<File
 					RelativePath="src\encauth\ccm\ccm_process.c"
 					>
 				</File>
