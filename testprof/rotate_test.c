@@ -5,10 +5,10 @@ int rotate_test(void)
 {
    ulong32 L32 = 0x12345678UL;
    ulong64 L64 = CONST64(0x1122334455667788);
-   int err = 0, ze = 0;
+   int err = 0;
 
    /* ROR */
-   if (ROR(L32, ze) != 0x12345678UL) { fprintf(stderr, "ROR 0  failed\n"); err++; }
+   if (ROR(L32, 0 ) != 0x12345678UL) { fprintf(stderr, "ROR 0  failed\n"); err++; }
    if (ROR(L32, 1 ) != 0x091a2b3cUL) { fprintf(stderr, "ROR 1  failed\n"); err++; }
    if (ROR(L32, 2 ) != 0x048d159eUL) { fprintf(stderr, "ROR 2  failed\n"); err++; }
    if (ROR(L32, 3 ) != 0x02468acfUL) { fprintf(stderr, "ROR 3  failed\n"); err++; }
@@ -41,7 +41,7 @@ int rotate_test(void)
    if (ROR(L32, 30) != 0x48d159e0UL) { fprintf(stderr, "ROR 30 failed\n"); err++; }
    if (ROR(L32, 31) != 0x2468acf0UL) { fprintf(stderr, "ROR 31 failed\n"); err++; }
    /* ROR64 */
-   if (ROR64(L64, ze) != CONST64(0x1122334455667788)) { fprintf(stderr, "ROR64 0  failed\n"); err++; }
+   if (ROR64(L64, 0 ) != CONST64(0x1122334455667788)) { fprintf(stderr, "ROR64 0  failed\n"); err++; }
    if (ROR64(L64, 1 ) != CONST64(0x089119a22ab33bc4)) { fprintf(stderr, "ROR64 1  failed\n"); err++; }
    if (ROR64(L64, 2 ) != CONST64(0x04488cd115599de2)) { fprintf(stderr, "ROR64 2  failed\n"); err++; }
    if (ROR64(L64, 3 ) != CONST64(0x022446688aaccef1)) { fprintf(stderr, "ROR64 3  failed\n"); err++; }
@@ -106,7 +106,7 @@ int rotate_test(void)
    if (ROR64(L64, 62) != CONST64(0x4488cd115599de20)) { fprintf(stderr, "ROR64 62 failed\n"); err++; }
    if (ROR64(L64, 63) != CONST64(0x22446688aaccef10)) { fprintf(stderr, "ROR64 63 failed\n"); err++; }
    /* ROL */
-   if (ROL(L32, ze) != 0x12345678UL) { fprintf(stderr, "ROL 0  failed\n"); err++; }
+   if (ROL(L32, 0 ) != 0x12345678UL) { fprintf(stderr, "ROL 0  failed\n"); err++; }
    if (ROL(L32, 1 ) != 0x2468acf0UL) { fprintf(stderr, "ROL 1  failed\n"); err++; }
    if (ROL(L32, 2 ) != 0x48d159e0UL) { fprintf(stderr, "ROL 2  failed\n"); err++; }
    if (ROL(L32, 3 ) != 0x91a2b3c0UL) { fprintf(stderr, "ROL 3  failed\n"); err++; }
@@ -139,7 +139,7 @@ int rotate_test(void)
    if (ROL(L32, 30) != 0x048d159eUL) { fprintf(stderr, "ROL 30 failed\n"); err++; }
    if (ROL(L32, 31) != 0x091a2b3cUL) { fprintf(stderr, "ROL 31 failed\n"); err++; }
    /* ROL64 */
-   if (ROL64(L64, ze) != CONST64(0x1122334455667788)) { fprintf(stderr, "ROL64 0  failed\n"); err++; }
+   if (ROL64(L64, 0 ) != CONST64(0x1122334455667788)) { fprintf(stderr, "ROL64 0  failed\n"); err++; }
    if (ROL64(L64, 1 ) != CONST64(0x22446688aaccef10)) { fprintf(stderr, "ROL64 1  failed\n"); err++; }
    if (ROL64(L64, 2 ) != CONST64(0x4488cd115599de20)) { fprintf(stderr, "ROL64 2  failed\n"); err++; }
    if (ROL64(L64, 3 ) != CONST64(0x89119a22ab33bc40)) { fprintf(stderr, "ROL64 3  failed\n"); err++; }
@@ -204,7 +204,7 @@ int rotate_test(void)
    if (ROL64(L64, 62) != CONST64(0x04488cd115599de2)) { fprintf(stderr, "ROL64 62 failed\n"); err++; }
    if (ROL64(L64, 63) != CONST64(0x089119a22ab33bc4)) { fprintf(stderr, "ROL64 63 failed\n"); err++; }
    /* RORc */
-   if (RORc(L32, ze) != 0x12345678UL) { fprintf(stderr, "RORc 0  failed\n"); err++; }
+   if (RORc(L32, 0 ) != 0x12345678UL) { fprintf(stderr, "RORc 0  failed\n"); err++; }
    if (RORc(L32, 1 ) != 0x091a2b3cUL) { fprintf(stderr, "RORc 1  failed\n"); err++; }
    if (RORc(L32, 2 ) != 0x048d159eUL) { fprintf(stderr, "RORc 2  failed\n"); err++; }
    if (RORc(L32, 3 ) != 0x02468acfUL) { fprintf(stderr, "RORc 3  failed\n"); err++; }
@@ -237,7 +237,7 @@ int rotate_test(void)
    if (RORc(L32, 30) != 0x48d159e0UL) { fprintf(stderr, "RORc 30 failed\n"); err++; }
    if (RORc(L32, 31) != 0x2468acf0UL) { fprintf(stderr, "RORc 31 failed\n"); err++; }
    /* ROR64c */
-   if (ROR64c(L64, ze) != CONST64(0x1122334455667788)) { fprintf(stderr, "ROR64c 0  failed\n"); err++; }
+   if (ROR64c(L64, 0 ) != CONST64(0x1122334455667788)) { fprintf(stderr, "ROR64c 0  failed\n"); err++; }
    if (ROR64c(L64, 1 ) != CONST64(0x089119a22ab33bc4)) { fprintf(stderr, "ROR64c 1  failed\n"); err++; }
    if (ROR64c(L64, 2 ) != CONST64(0x04488cd115599de2)) { fprintf(stderr, "ROR64c 2  failed\n"); err++; }
    if (ROR64c(L64, 3 ) != CONST64(0x022446688aaccef1)) { fprintf(stderr, "ROR64c 3  failed\n"); err++; }
@@ -302,7 +302,7 @@ int rotate_test(void)
    if (ROR64c(L64, 62) != CONST64(0x4488cd115599de20)) { fprintf(stderr, "ROR64c 62 failed\n"); err++; }
    if (ROR64c(L64, 63) != CONST64(0x22446688aaccef10)) { fprintf(stderr, "ROR64c 63 failed\n"); err++; }
    /* ROLc */
-   if (ROLc(L32, ze) != 0x12345678UL) { fprintf(stderr, "ROLc 0  failed\n"); err++; }
+   if (ROLc(L32, 0 ) != 0x12345678UL) { fprintf(stderr, "ROLc 0  failed\n"); err++; }
    if (ROLc(L32, 1 ) != 0x2468acf0UL) { fprintf(stderr, "ROLc 1  failed\n"); err++; }
    if (ROLc(L32, 2 ) != 0x48d159e0UL) { fprintf(stderr, "ROLc 2  failed\n"); err++; }
    if (ROLc(L32, 3 ) != 0x91a2b3c0UL) { fprintf(stderr, "ROLc 3  failed\n"); err++; }
@@ -335,7 +335,7 @@ int rotate_test(void)
    if (ROLc(L32, 30) != 0x048d159eUL) { fprintf(stderr, "ROLc 30 failed\n"); err++; }
    if (ROLc(L32, 31) != 0x091a2b3cUL) { fprintf(stderr, "ROLc 31 failed\n"); err++; }
    /* ROL64c */
-   if (ROL64c(L64, ze) != CONST64(0x1122334455667788)) { fprintf(stderr, "ROL64c 0  failed\n"); err++; }
+   if (ROL64c(L64, 0 ) != CONST64(0x1122334455667788)) { fprintf(stderr, "ROL64c 0  failed\n"); err++; }
    if (ROL64c(L64, 1 ) != CONST64(0x22446688aaccef10)) { fprintf(stderr, "ROL64c 1  failed\n"); err++; }
    if (ROL64c(L64, 2 ) != CONST64(0x4488cd115599de20)) { fprintf(stderr, "ROL64c 2  failed\n"); err++; }
    if (ROL64c(L64, 3 ) != CONST64(0x89119a22ab33bc40)) { fprintf(stderr, "ROL64c 3  failed\n"); err++; }
