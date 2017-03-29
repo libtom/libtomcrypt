@@ -46,6 +46,22 @@ static const unsigned char openssl_private_rsa[] = {
    0x78, 0x18, 0x5a, 0x79, 0x3d, 0x2e, 0x8e, 0x7e, 0x86, 0x0a, 0xe6, 0xa8, 0x33, 0xc1, 0x04, 0x17,
    0x4a, 0x9f,  };
 
+static const unsigned char x509_public_rsa[] =
+    "MIICdTCCAd4CCQCYjCwz0l9JpjANBgkqhkiG9w0BAQsFADB+MQswCQYDVQQGEwJD\
+     WjEPMA0GA1UECAwGTW9yYXZhMQ0wCwYDVQQHDARCcm5vMRAwDgYDVQQKDAdMVEMg\
+     THRkMQ8wDQYDVQQLDAZDcnlwdG8xEjAQBgNVBAMMCVRlc3QgQ2VydDEYMBYGCSqG\
+     SIb3DQEJARYJdGVzdEBjZXJ0MCAXDTE3MDMwOTIzNDMzOVoYDzIyOTAxMjIyMjM0\
+     MzM5WjB+MQswCQYDVQQGEwJDWjEPMA0GA1UECAwGTW9yYXZhMQ0wCwYDVQQHDARC\
+     cm5vMRAwDgYDVQQKDAdMVEMgTHRkMQ8wDQYDVQQLDAZDcnlwdG8xEjAQBgNVBAMM\
+     CVRlc3QgQ2VydDEYMBYGCSqGSIb3DQEJARYJdGVzdEBjZXJ0MIGfMA0GCSqGSIb3\
+     DQEBAQUAA4GNADCBiQKBgQDPmt5kitrIMyCp14MxGVSymoWnobd1M7aprIQks97b\
+     fYUtlmXlP3KVJJ8oaMpP20QcPmASit0mpev/C17UiDhJKm5bvxI3R70Fa7zb8+7k\
+     EY5BaHxhE9dCyIC+No/cCItPrKTidgzJY2xJWJPtzKrcJTsKYD+LVDrDTTHnlKRE\
+     /QIDAQABMA0GCSqGSIb3DQEBCwUAA4GBAApwWqupmmLGHeKOLFLcthQpAXXYep6T\
+     3S3e8X7fIG6TGhfvn5DHn+/V/C4184oOCwImI+VYRokdXdQ1AMGfVUomHJxsFPia\
+     bv5Aw3hiKsIG3jigKHwmMScgkl3yn+8hLkx6thNbqQoa6Yyo20RqaEFBwlZ5G8lF\
+     rZsdeO84SeCH";
+
 /* private keay - hexadecimal */
 static char *hex_d = "C862B9EADE44531D5697D9979E1ACF301E0A8845862930A34D9F616573E0D6878FB6F306A382DC7CACFE9B289AAEFDFBFE2F0ED89704E3BB1FD1EC0DBAA3497F47AC8A44047E86B739423FAD1EB70EA551F440631EFDBDEA9F419FA8901D6F0A5A9513110D80AF5F64988A2C786865B02B8BA25387CAF16404ABF27BDB83C881";
 static char *hex_dP = "6DEBC32D2EF05EA488310529008AD195299B83CF75DB31E37A27DE3A74300C764CD4502A402D39D99963A95D80AE53CA943F05231EF80504E1B835F217B3A089";
@@ -539,6 +555,19 @@ for (cnt = 0; cnt < len; ) {
        DOX(rsa_verify_hash_ex(p2, len2, p, 20, LTC_PKCS_1_V1_5, hash_idx, -1, &stat, &pubKey), "should succeed");
      DOX(stat == 0?CRYPT_OK:CRYPT_FAIL_TESTVECTOR, "should fail");
    }
+   rsa_free(&key);
+
+   /* try reading the public RSA key from a X509 certificate */
+   len3 = sizeof(tmp);
+   DO(base64_decode(x509_public_rsa, sizeof(x509_public_rsa), tmp, &len3));
+   DO(rsa_import_x509(tmp, len3, &key));
+   len = sizeof(tmp);
+   DO(rsa_export(tmp, &len, PK_PUBLIC, &key));
+   if (len != sizeof(openssl_public_rsa_stripped) || memcmp(tmp, openssl_public_rsa_stripped, len)) {
+      fprintf(stderr, "RSA public export failed to match rsa_import_x509\n");
+      return 1;
+   }
+   rsa_free(&key);
 
    len3 = sizeof(tmp);
    DO(base64_decode(_der_tests_cacert_root_cert, _der_tests_cacert_root_cert_size, tmp, &len3));
