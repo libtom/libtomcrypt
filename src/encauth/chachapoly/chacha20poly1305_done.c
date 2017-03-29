@@ -35,6 +35,7 @@ int chacha20poly1305_done(chachapoly_state *st, unsigned char *tag, unsigned lon
    STORE64L(st->ctlen, buf + 8);
    if ((err = poly1305_process(&st->poly, buf, 16)) != CRYPT_OK)           return err;
    if ((err = poly1305_done(&st->poly, tag, taglen)) != CRYPT_OK)          return err;
+   if ((err = chacha_done(&st->chacha)) != CRYPT_OK)                       return err;
    return CRYPT_OK;
 }
 

@@ -103,6 +103,7 @@ int chacha_prng_ready(prng_state *prng)
 */
 unsigned long chacha_prng_read(unsigned char *out, unsigned long outlen, prng_state *prng)
 {
+   LTC_ARGCHK(prng != NULL);
    if (chacha_keystream(&prng->chacha.s, out, outlen) != CRYPT_OK) return 0;
    return outlen;
 }
@@ -114,10 +115,8 @@ unsigned long chacha_prng_read(unsigned char *out, unsigned long outlen, prng_st
 */
 int chacha_prng_done(prng_state *prng)
 {
-   LTC_UNUSED_PARAM(prng);
-   prng->chacha.ready = 0;
-   XMEMSET(&prng->chacha.s, 0, sizeof(chacha_state));
-   return CRYPT_OK;
+   LTC_ARGCHK(prng != NULL);
+   return chacha_done(&prng->chacha.s);
 }
 
 /**

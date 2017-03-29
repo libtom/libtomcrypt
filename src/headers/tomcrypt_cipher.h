@@ -954,6 +954,7 @@ int chacha_ivctr32(chacha_state *st, const unsigned char *iv, unsigned long ivle
 int chacha_ivctr64(chacha_state *st, const unsigned char *iv, unsigned long ivlen, ulong64 counter);
 int chacha_crypt(chacha_state *st, const unsigned char *in, unsigned long inlen, unsigned char *out);
 int chacha_keystream(chacha_state *st, unsigned char *out, unsigned long outlen);
+int chacha_done(chacha_state *st);
 int chacha_test(void);
 
 #endif /* LTC_CHACHA */
