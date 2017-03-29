@@ -7,11 +7,6 @@
  * guarantee it works.
  */
 
-/* The implementation is based on:
- * chacha-ref.c version 20080118
- * Public domain from D. J. Bernstein
- */
-
 #include "tomcrypt.h"
 
 #ifdef LTC_CHACHA
