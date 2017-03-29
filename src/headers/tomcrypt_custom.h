@@ -74,6 +74,7 @@
 
    #define LTC_NO_HASHES
    #define LTC_SHA1
+   #define LTC_SHA3
    #define LTC_SHA512
    #define LTC_SHA384
    #define LTC_SHA256
@@ -223,6 +224,7 @@
 
 #define LTC_CHC_HASH
 #define LTC_WHIRLPOOL
+#define LTC_SHA3
 #define LTC_SHA512
 #define LTC_SHA512_256
 #define LTC_SHA512_224

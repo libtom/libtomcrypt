@@ -595,6 +595,14 @@
 				>
 			</File>
 			<File
+				RelativePath="src\hashes\sha3.c"
+				>
+			</File>
+			<File
+				RelativePath="src\hashes\sha3_test.c"
+				>
+			</File>
+			<File
 				RelativePath="src\hashes\tiger.c"
 				>
 			</File>

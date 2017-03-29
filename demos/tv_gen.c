@@ -85,6 +85,12 @@ void reg_algs(void)
 #ifdef LTC_SHA512
   register_hash (&sha512_desc);
 #endif
+#ifdef LTC_SHA3
+  register_hash (&sha3_224_desc);
+  register_hash (&sha3_256_desc);
+  register_hash (&sha3_384_desc);
+  register_hash (&sha3_512_desc);
+#endif
 #ifdef LTC_RIPEMD128
   register_hash (&rmd128_desc);
 #endif

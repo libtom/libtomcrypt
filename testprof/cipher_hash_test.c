@@ -19,6 +19,9 @@ int cipher_hash_test(void)
       DOX(hash_descriptor[x].test(), hash_descriptor[x].name);
    }
 
+   /* SHAKE128 + SHAKE256 tests are a bit special */
+   DOX(sha3_shake_test(), "sha3_shake");
+
    /* test prngs (test, import/export */
    for (x = 0; prng_descriptor[x].name != NULL; x++) {
       DOX(prng_descriptor[x].test(), prng_descriptor[x].name);

@@ -1,4 +1,15 @@
 /* ---- HASH FUNCTIONS ---- */
+#ifdef LTC_SHA3
+struct sha3_state {
+    ulong64 saved;                  /* the portion of the input message that we didn't consume yet */
+    union { ulong64 s[25]; unsigned char sb[25 * 8]; };
+    unsigned short byte_index;      /* 0..7--the next byte after the set one (starts from 0; 0--none are buffered) */
+    unsigned short word_index;      /* 0..24--the next word to integrate input (starts from 0) */
+    unsigned short capacity_words;  /* the double size of the hash output in words (e.g. 16 for Keccak 512) */
+    unsigned short xof_flag;
+};
+#endif
+
 #ifdef LTC_SHA512
 struct sha512_state {
     ulong64  length, state[8];
@@ -110,6 +121,9 @@ typedef union Hash_state {
 #ifdef LTC_WHIRLPOOL
     struct whirlpool_state whirlpool;
 #endif
+#ifdef LTC_SHA3
+    struct sha3_state sha3;
+#endif
 #ifdef LTC_SHA512
     struct sha512_state sha512;
 #endif
@@ -206,6 +220,30 @@ int whirlpool_process(hash_state * md, const unsigned char *in, unsigned long in
 int whirlpool_done(hash_state * md, unsigned char *hash);
 int whirlpool_test(void);
 extern const struct ltc_hash_descriptor whirlpool_desc;
+#endif
+
+#ifdef LTC_SHA3
+int sha3_512_init(hash_state * md);
+int sha3_512_test(void);
+extern const struct ltc_hash_descriptor sha3_512_desc;
+int sha3_384_init(hash_state * md);
+int sha3_384_test(void);
+extern const struct ltc_hash_descriptor sha3_384_desc;
+int sha3_256_init(hash_state * md);
+int sha3_256_test(void);
+extern const struct ltc_hash_descriptor sha3_256_desc;
+int sha3_224_init(hash_state * md);
+int sha3_224_test(void);
+extern const struct ltc_hash_descriptor sha3_224_desc;
+/* process + done are the same for all variants */
+int sha3_process(hash_state * md, const unsigned char *in, unsigned long inlen);
+int sha3_done(hash_state *md, unsigned char *hash);
+/* SHAKE128 + SHAKE256 */
+int sha3_shake_init(hash_state *md, int num);
+#define sha3_shake_process(a,b,c) sha3_process(a,b,c)
+int sha3_shake_done(hash_state *md, unsigned char *out, unsigned long outlen);
+int sha3_shake_test(void);
+int sha3_shake_memory(int num, const unsigned char *in, unsigned long inlen, unsigned char *out, unsigned long *outlen);
 #endif
 
 #ifdef LTC_SHA512
