@@ -224,8 +224,7 @@ for (cnt = 0; cnt < len; ) {
 
 int katja_test(void)
 {
-   fprintf(stderr, "NOP");
-   return 0;
+   return CRYPT_NOP;
 }
 
 #endif

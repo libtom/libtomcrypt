@@ -1,5 +1,32 @@
 #include <tomcrypt_test.h>
 
+#if defined(_WIN32)
+  #include <windows.h> /* GetSystemTimeAsFileTime */
+#else
+  #include <sys/time.h>
+#endif
+
+/* microseconds since 1970 (UNIX epoch) */
+ulong64 epoch_usec(void)
+{
+#if defined(LTC_NO_TEST_TIMING)
+  return 0;
+#elif defined(_WIN32)
+  FILETIME CurrentTime;
+  ulong64 cur_time;
+  GetSystemTimeAsFileTime(&CurrentTime);
+  cur_time = ((ulong64)CurrentTime.dwHighDateTime << 32) + (ulong64)CurrentTime.dwLowDateTime;
+  cur_time -= 116444736000000000LL; /* subtract epoch in microseconds */
+  cur_time /= 10; /* nanoseconds > microseconds */
+  return cur_time;
+#else
+  struct timeval tv;
+  struct timezone tz;
+  gettimeofday(&tv, &tz);
+  return (ulong64)(tv.tv_sec) * 1000000 + (ulong64)(tv.tv_usec); /* get microseconds */
+#endif
+}
+
 prng_state yarrow_prng;
 
 void print_hex(const char* what, const void* v, const unsigned long l)
