@@ -217,8 +217,8 @@ sub process_makefiles {
   (my $var_obj = $var_o) =~ s/\.o\b/.obj/sg;
   my $var_h   = prepare_variable("HEADERS", (sort @h, 'testprof/tomcrypt_test.h'));
 
-  my $msvc_files = prepare_msvc_files_xml(\@all, qr/tab\.c$/, ['Debug|Win32', 'Release|Win32']);
-  for my $m (qw/libtomcrypt_VS2008.vcproj libtomcrypt_VS2005.vcproj/) {
+  my $msvc_files = prepare_msvc_files_xml(\@all, qr/tab\.c$/, ['Debug|Win32', 'Release|Win32', 'Debug|x64', 'Release|x64']);
+  for my $m (qw/libtomcrypt_VS2008.vcproj/) {
     my $old = read_file($m);
     my $new = $old;
     $new =~ s|<Files>.*</Files>|$msvc_files|s;
