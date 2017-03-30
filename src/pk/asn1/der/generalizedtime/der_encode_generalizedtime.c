@@ -70,19 +70,19 @@ int der_encode_generalizedtime(ltc_generalizedtime *gtime,
     STORE_V(gtime->ss);
 
     if (gtime->fs) {
-       unsigned long div;
+       unsigned long divisor;
        unsigned fs = gtime->fs;
        unsigned len = 0;
        out[x++] = der_ia5_char_encode('.');
-       div = 1;
+       divisor = 1;
        do {
           fs /= 10;
-          div *= 10;
+          divisor *= 10;
           len++;
        } while(fs != 0);
        while (len-- > 1) {
-          out[x++] = der_ia5_char_encode(baseten[(gtime->fs/div) % 10]);
-          div /= 10;
+          out[x++] = der_ia5_char_encode(baseten[(gtime->fs/divisor) % 10]);
+          divisor /= 10;
        }
        out[x++] = der_ia5_char_encode(baseten[gtime->fs % 10]);
     }
