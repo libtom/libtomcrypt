@@ -26,10 +26,12 @@ static const struct {
       LTC_TEST_FN(katja_test),
 };
 
-int main(void)
+int main(int argc, char **argv)
 {
-   int x;
+   int x, pass = 0, fail = 0, nop = 0;
    size_t fn_len, i, dots;
+   char *single_test = NULL;
+   ulong64 ts, dur = 0;
    reg_algs();
 
    printf("build == \n%s\n", crypt_build_settings);
@@ -58,26 +60,46 @@ int main(void)
 
    fn_len = fn_len + (4 - (fn_len % 4));
 
+   /* single test name from commandline */
+   if (argc > 1) single_test = argv[1];
+
    for (i = 0; i < sizeof(test_functions)/sizeof(test_functions[0]); ++i) {
+      if (single_test && strcmp(test_functions[i].name, single_test)) {
+        continue;
+      }
       dots = fn_len - strlen(test_functions[i].name);
 
       printf("\n%s", test_functions[i].name);
       while(dots--) printf(".");
       fflush(stdout);
 
+      ts = epoch_usec();
       x = test_functions[i].fn();
+      ts = epoch_usec() - ts;
+      dur += ts;
 
-      if (x) {
-         printf("failed\n");
-         exit(EXIT_FAILURE);
+      if (x == CRYPT_OK) {
+         printf("passed %10.3fms", (double)(ts)/1000);
+         pass++;
+      }
+      else if (x == CRYPT_NOP) {
+         printf("nop");
+         nop++;
       }
       else {
-         printf("passed");
+         printf("failed %10.3fms", (double)(ts)/1000);
+         fail++;
       }
    }
 
-   printf("\n");
-   return EXIT_SUCCESS;
+   if (fail > 0 || fail+pass+nop == 0) {
+      printf("\n\nFAILURE: passed=%d failed=%d nop=%d duration=%.1fsec\n", pass, fail, nop, (double)(dur)/(1000*1000));
+      return EXIT_FAILURE;
+   }
+   else {
+      printf("\n\nSUCCESS: passed=%d failed=%d nop=%d duration=%.1fsec\n", pass, fail, nop, (double)(dur)/(1000*1000));
+      return EXIT_SUCCESS;
+   }
 }
 
 /* $Source$ */
