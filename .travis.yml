@@ -97,4 +97,4 @@ after_failure:
 after_script:
   - cat gcc_2.txt
 notifications:
-  irc: "chat.freenode.net#libtom"
+  irc: "chat.freenode.net#libtom-notifications"
