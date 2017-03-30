@@ -1457,6 +1457,22 @@
 						</File>
 					</Filter>
 					<Filter
+						Name="generalizedtime"
+						>
+						<File
+							RelativePath="src\pk\asn1\der\generalizedtime\der_decode_generalizedtime.c"
+							>
+						</File>
+						<File
+							RelativePath="src\pk\asn1\der\generalizedtime\der_encode_generalizedtime.c"
+							>
+						</File>
+						<File
+							RelativePath="src\pk\asn1\der\generalizedtime\der_length_generalizedtime.c"
+							>
+						</File>
+					</Filter>
+					<Filter
 						Name="ia5"
 						>
 						<File
