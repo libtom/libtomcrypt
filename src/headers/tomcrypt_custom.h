@@ -550,7 +550,10 @@
 
 #endif
 
-
+#ifndef LTC_NO_FILE
+   /* buffer size for reading from a file via fread(..) */
+   #define FILE_READ_BUFSIZE 8192
+#endif
 
 /* $Source$ */
 /* $Revision$ */

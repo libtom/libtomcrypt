@@ -42,7 +42,7 @@ int poly1305_file(const char *fname, const unsigned char *key, unsigned long key
    LTC_ARGCHK(maclen != NULL);
 
    if ((in = fopen(fname, "rb")) == NULL)                   { return CRYPT_FILE_NOTFOUND; }
-   if ((buf = XMALLOC(8196)) == NULL)                       { return CRYPT_MEM; }
+   if ((buf = XMALLOC(FILE_READ_BUFSIZE)) == NULL)          { return CRYPT_MEM; }
    if ((err = poly1305_init(&st, key, keylen)) != CRYPT_OK) { goto LBL_ERR; }
 
    do {
