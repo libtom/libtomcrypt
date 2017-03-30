@@ -46,9 +46,7 @@ void der_sequence_free(ltc_asn1_list *in)
       }
 
       switch (in->type) {
-         case LTC_ASN1_SET:
-         case LTC_ASN1_SETOF:
-         case LTC_ASN1_SEQUENCE: break;
+         case LTC_ASN1_SETOF: break;
          case LTC_ASN1_INTEGER : if (in->data != NULL) { mp_clear(in->data); } break;
          default               : if (in->data != NULL) { XFREE(in->data);    }
       }

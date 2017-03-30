@@ -93,6 +93,9 @@ static const unsigned char openssl_public_rsa_stripped[] = {
    0x60, 0x3f, 0x8b, 0x54, 0x3a, 0xc3, 0x4d, 0x31, 0xe7, 0x94, 0xa4, 0x44, 0xfd, 0x02, 0x03, 0x01,
    0x00, 0x01,  };
 
+extern const unsigned char _der_tests_cacert_root_cert[];
+extern const unsigned long _der_tests_cacert_root_cert_size;
+
 static int rsa_compat_test(void)
 {
    rsa_key key;
@@ -195,7 +198,7 @@ static int rsa_compat_test(void)
 
 int rsa_test(void)
 {
-   unsigned char in[1024], out[1024], tmp[1024];
+   unsigned char in[1024], out[1024], tmp[3072];
    rsa_key       key, privKey, pubKey;
    int           hash_idx, prng_idx, stat, stat2, i, err;
    unsigned long rsa_msgsize, len, len2, len3, cnt, cnt2;
@@ -536,6 +539,11 @@ for (cnt = 0; cnt < len; ) {
        DOX(rsa_verify_hash_ex(p2, len2, p, 20, LTC_PKCS_1_V1_5, hash_idx, -1, &stat, &pubKey), "should succeed");
      DOX(stat == 0?CRYPT_OK:CRYPT_FAIL_TESTVECTOR, "should fail");
    }
+
+   len3 = sizeof(tmp);
+   DO(base64_decode(_der_tests_cacert_root_cert, _der_tests_cacert_root_cert_size, tmp, &len3));
+
+   DO(rsa_import_x509(tmp, len3, &key));
 
    /* free the key and return */
    rsa_free(&key);

@@ -1816,6 +1816,10 @@
 							RelativePath="src\pk\asn1\der\sequence\der_sequence_free.c"
 							>
 						</File>
+						<File
+							RelativePath="src\pk\asn1\der\sequence\der_sequence_shrink.c"
+							>
+						</File>
 					</Filter>
 					<Filter
 						Name="set"
@@ -2160,6 +2164,10 @@
 				</File>
 				<File
 					RelativePath="src\pk\rsa\rsa_import_radix.c"
+					>
+				</File>
+				<File
+					RelativePath="src\pk\rsa\rsa_import_x509.c"
 					>
 				</File>
 				<File

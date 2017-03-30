@@ -13,7 +13,36 @@ int der_tests(void)
 
 #else
 
-static const unsigned char _der_tests_cacert_root_cert[] =
+static const unsigned char _der_tests_stinky_root_cert[] =
+   "MIIFETCCA/mgAwIBAgIQbv53JNmv518t5lkCHE272jANBgkqhkiG9w0BAQUFADCB\
+    lTELMAkGA1UEBhMCVVMxCzAJBgNVBAgTAlVUMRcwFQYDVQQHEw5TYWx0IExha2Ug\
+    Q2l0eTEeMBwGA1UEChMVVGhlIFVTRVJUUlVTVCBOZXR3b3JrMSEwHwYDVQQLExho\
+    dHRwOi8vd3d3LnVzZXJ0cnVzdC5jb20xHTAbBgNVBAMTFFVUTi1VU0VSRmlyc3Qt\
+    T2JqZWN0MB4XDTA4MDQyOTAwMDAwMFoXDTEwMDQyOTIzNTk1OVowgbUxCzAJBgNV\
+    BAYTAlVTMQ4wDAYDVQQRDAU0NDE0MzELMAkGA1UECAwCT0gxGTAXBgNVBAcMEE1h\
+    eWZpZWxkIFZpbGxhZ2UxEDAOBgNVBAkMB1N1aXRlIEExFDASBgNVBAkMCzc2NyBC\
+    ZXRhIERyMSIwIAYDVQQKDBlQcmVlbXB0aXZlIFNvbHV0aW9ucywgTExDMSIwIAYD\
+    VQQDDBlQcmVlbXB0aXZlIFNvbHV0aW9ucywgTExDMIIBIjANBgkqhkiG9w0BAQEF\
+    AAOCAQ8AMIIBCgKCAQEAzH7ZBkMcBuHx8d2f10RGTHAf7gzzVteGbOihJGH2BwlS\
+    ZvNp6WEE4DfL+s1vp0wzk1XeLN5tRjg2qum9YqyCk7okh7pXGy46f5mWbLQiefGA\
+    j5UXRcr6WJ3xeACdbXxKrYMV0REia+4Jb2UbFA8S81PjhRon6vcRz76ziUWwt8NC\
+    igX+4ZC0skhhKzKszel6KGL7bJCtLG7ukw9DZCrvPCRcKFeM/GwQ6ACMgP88CSCL\
+    t1fbIXDH1vd/x2XM3QlaSDN6hYDbef8m1T+9TCkXVKeqG1GYjSUrHzYnCZUmTRrR\
+    38jgC3qXxiIpDKW105uM0nlXe2XF9c+ot2MdWvV4TwIDAQABo4IBOTCCATUwHwYD\
+    VR0jBBgwFoAU2u1kdBScFDyr3ZmpvVsoTYs8ydgwHQYDVR0OBBYEFK+1HzZE4i28\
+    oLIzuqlFR9SspiCIMA4GA1UdDwEB/wQEAwIHgDAMBgNVHRMBAf8EAjAAMBMGA1Ud\
+    JQQMMAoGCCsGAQUFBwMDMBEGCWCGSAGG+EIBAQQEAwIEEDBGBgNVHSAEPzA9MDsG\
+    DCsGAQQBsjEBAgEDAjArMCkGCCsGAQUFBwIBFh1odHRwczovL3NlY3VyZS5jb21v\
+    ZG8ubmV0L0NQUzBCBgNVHR8EOzA5MDegNaAzhjFodHRwOi8vY3JsLnVzZXJ0cnVz\
+    dC5jb20vVVROLVVTRVJGaXJzdC1PYmplY3QuY3JsMCEGA1UdEQQaMBiBFnN1cHBv\
+    cnRAcHJlZW1wdGl2ZS5jb20wDQYJKoZIhvcNAQEFBQADggEBAC+JM26Dokvonudl\
+    JXe/Yun7IBhimkagZUjbk9l/GQWN6i+v1o95UJ1wGJtBdm2+MxbSaPoNTDZR4B+2\
+    lYL9MW57UVmePrnfUPXQKZZG+8gTRDz8+7ol/CEAKmS3MLKCRcH5oe+J5345sGxi\
+    FC/KWNKedTNraW95xlg8NTlL2yRP7TMsjvBxgLmkbaFUoXzPTbQWmtovIagIT8GC\
+    JeXwdFaRjbamiz3Irl+u7x/mhxdza6RvgBYylXRFMudANpeGsV7gDXlnfzpFDKHQ\
+    niVwB7P5sbPFIlmIc+4/xRItkLIRjCVXaepgN9KYu3VOgiSDI6wXiTwP44/LUXQM\
+    hetwa7s=";
+const unsigned char _der_tests_cacert_root_cert[] =
    "MIIHPTCCBSWgAwIBAgIBADANBgkqhkiG9w0BAQQFADB5MRAwDgYDVQQKEwdSb290\
     IENBMR4wHAYDVQQLExVodHRwOi8vd3d3LmNhY2VydC5vcmcxIjAgBgNVBAMTGUNB\
     IENlcnQgU2lnbmluZyBBdXRob3JpdHkxITAfBgkqhkiG9w0BCQEWEnN1cHBvcnRA\
@@ -53,6 +82,7 @@ static const unsigned char _der_tests_cacert_root_cert[] =
     GCSNe9FINSkYQKyTYOGWhlC0elnYjyELn8+CkcY7v2vcB5G5l1YjqrZslMZIBjzk\
     zk6q5PYvCdxTby78dOs6Y5nCpqyJvKeyRKANihDjbPIky/qbn3BHLt4Ui9SyIAmW\
     omTxJBzcoTWcFbLUvFUufQb1nA5V9FrWk9p2rSVzTMVD";
+const unsigned long _der_tests_cacert_root_cert_size = sizeof(_der_tests_cacert_root_cert);
 
 /*
 SEQUENCE(3 elem)
@@ -195,6 +225,8 @@ SEQUENCE(3 elem)
 #define CHECK_ASN1_HAS_NO_CHILD(l) __CHECK_ASN1_HAS_NO(l, child)
 #define CHECK_ASN1_HAS_NEXT(l) __CHECK_ASN1_HAS(l, next)
 #define CHECK_ASN1_HAS_NO_NEXT(l) __CHECK_ASN1_HAS_NO(l, next)
+#define CHECK_ASN1_HAS_DATA(l) __CHECK_ASN1_HAS(l, data)
+#define CHECK_ASN1_HAS_NO_DATA(l) __CHECK_ASN1_HAS_NO(l, data)
 
 #ifdef LTC_DER_TESTS_PRINT_FLEXI
 static void _der_tests_print_flexi(ltc_asn1_list* l, unsigned int level)
@@ -392,9 +424,22 @@ static void der_cacert_test(void)
 
   ltc_asn1_list *decoded_list, *l, *l1, *l2;
 
+  DO(base64_decode(_der_tests_stinky_root_cert, sizeof(_der_tests_stinky_root_cert), buf, &len1));
+  len2 = len1;
+  DO(der_decode_sequence_flexi(buf, &len2, &decoded_list));
+  der_free_sequence_flexi(decoded_list);
+
+  len1 = sizeof(buf);
   DO(base64_decode(_der_tests_cacert_root_cert, sizeof(_der_tests_cacert_root_cert), buf, &len1));
   len2 = len1;
   DO(der_decode_sequence_flexi(buf, &len2, &decoded_list));
+  CHECK_ASN1_TYPE(decoded_list, LTC_ASN1_SEQUENCE);
+  CHECK_ASN1_HAS_DATA(decoded_list);
+
+  der_sequence_shrink(decoded_list);
+
+  CHECK_ASN1_TYPE(decoded_list, LTC_ASN1_SEQUENCE);
+  CHECK_ASN1_HAS_NO_DATA(decoded_list);
 
 #ifdef LTC_DER_TESTS_PRINT_FLEXI
   printf("\n\n--- test print start ---\n\n");
