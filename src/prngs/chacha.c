@@ -9,7 +9,7 @@
 
 #include "tomcrypt.h"
 
-#ifdef LTC_CHACHA
+#ifdef LTC_CHACHA20_PRNG
 
 const struct ltc_prng_descriptor chacha_prng_desc =
 {

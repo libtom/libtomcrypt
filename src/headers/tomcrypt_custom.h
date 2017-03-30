@@ -294,6 +294,9 @@
 /* The LTC_RC4 stream cipher */
 #define LTC_RC4
 
+/* The ChaCha20 stream cipher based PRNG */
+#define LTC_CHACHA20_PRNG
+
 /* Fortuna PRNG */
 #define LTC_FORTUNA
 
@@ -510,6 +513,10 @@
 
 #if defined(LTC_CHACHA20POLY1305_MODE) && (!defined(LTC_CHACHA) || !defined(LTC_POLY1305))
    #error LTC_CHACHA20POLY1305_MODE requires LTC_CHACHA + LTC_POLY1305
+#endif
+
+#if defined(LTC_CHACHA20_PRNG) && !defined(LTC_CHACHA)
+   #error LTC_CHACHA20_PRNG requires LTC_CHACHA
 #endif
 
 /* THREAD management */

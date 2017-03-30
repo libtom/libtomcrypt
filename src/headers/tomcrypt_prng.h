@@ -15,7 +15,7 @@ struct rc4_prng {
 };
 #endif
 
-#ifdef LTC_CHACHA
+#ifdef LTC_CHACHA20_PRNG
 struct chacha20_prng {
     chacha_state s;        /* chacha state */
     unsigned char ent[40]; /* entropy buffer */
@@ -64,7 +64,7 @@ typedef union Prng_state {
 #ifdef LTC_RC4
     struct rc4_prng       rc4;
 #endif
-#ifdef LTC_CHACHA
+#ifdef LTC_CHACHA20_PRNG
     struct chacha20_prng  chacha;
 #endif
 #ifdef LTC_FORTUNA
@@ -166,7 +166,7 @@ int  rc4_test(void);
 extern const struct ltc_prng_descriptor rc4_desc;
 #endif
 
-#ifdef LTC_CHACHA
+#ifdef LTC_CHACHA20_PRNG
 int chacha_prng_start(prng_state *prng);
 int chacha_prng_add_entropy(const unsigned char *in, unsigned long inlen, prng_state *prng);
 int chacha_prng_ready(prng_state *prng);
