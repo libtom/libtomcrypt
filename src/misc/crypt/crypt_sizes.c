@@ -224,7 +224,7 @@ static const crypt_size _crypt_sizes[] = {
     _SZ_STRINGIFY_S(fortuna_prng),
 #endif
 #ifdef LTC_CHACHA
-    _SZ_STRINGIFY_S(chacha_prng),
+    _SZ_STRINGIFY_S(chacha20_prng),
 #endif
 #ifdef LTC_RC4
     _SZ_STRINGIFY_S(rc4_prng),

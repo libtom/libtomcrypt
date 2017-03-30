@@ -16,7 +16,7 @@ struct rc4_prng {
 #endif
 
 #ifdef LTC_CHACHA
-struct chacha_prng {
+struct chacha20_prng {
     chacha_state s;        /* chacha state */
     unsigned char ent[40]; /* entropy buffer */
     unsigned long idx;     /* entropy counter */
@@ -65,7 +65,7 @@ typedef union Prng_state {
     struct rc4_prng       rc4;
 #endif
 #ifdef LTC_CHACHA
-    struct chacha_prng    chacha;
+    struct chacha20_prng  chacha;
 #endif
 #ifdef LTC_FORTUNA
     struct fortuna_prng   fortuna;
