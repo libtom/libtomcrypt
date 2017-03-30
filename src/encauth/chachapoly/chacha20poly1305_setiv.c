@@ -18,7 +18,7 @@
   @param inlen  The length of the IV (must be 12 or 8)
   @return CRYPT_OK on success
  */
-int chacha20poly1305_setiv(chachapoly_state *st, const unsigned char *iv, unsigned long ivlen)
+int chacha20poly1305_setiv(chacha20poly1305_state *st, const unsigned char *iv, unsigned long ivlen)
 {
    chacha_state tmp_st;
    int i, err;

@@ -35,7 +35,7 @@ int chacha20poly1305_memory(const unsigned char *key, unsigned long keylen,
                                   unsigned char *tag, unsigned long *taglen,
                             int direction)
 {
-   chachapoly_state st;
+   chacha20poly1305_state st;
    int err;
 
    LTC_ARGCHK(key != NULL);
@@ -62,7 +62,7 @@ int chacha20poly1305_memory(const unsigned char *key, unsigned long keylen,
    err = chacha20poly1305_done(&st, tag, taglen);
 LBL_ERR:
 #ifdef LTC_CLEAN_STACK
-   zeromem(&st, sizeof(chachapoly_state));
+   zeromem(&st, sizeof(chacha20poly1305_state));
 #endif
    return err;
 }

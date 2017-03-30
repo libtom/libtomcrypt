@@ -18,7 +18,7 @@
    @param keylen    The length of the secret key (octets)
    @return CRYPT_OK if successful
 */
-int chacha20poly1305_init(chachapoly_state *st, const unsigned char *key, unsigned long keylen)
+int chacha20poly1305_init(chacha20poly1305_state *st, const unsigned char *key, unsigned long keylen)
 {
    return chacha_setup(&st->chacha, key, keylen, 20);
 }

@@ -505,18 +505,18 @@ typedef struct {
    ulong64 aadlen;
    ulong64 ctlen;
    int aadflg;
-} chachapoly_state;
+} chacha20poly1305_state;
 
 #define CHCHA20POLY1305_ENCRYPT 0
 #define CHCHA20POLY1305_DECRYPT 1
 
-int chacha20poly1305_init(chachapoly_state *st, const unsigned char *key, unsigned long keylen);
-int chacha20poly1305_setiv(chachapoly_state *st, const unsigned char *iv, unsigned long ivlen);
-int chacha20poly1305_setiv_rfc7905(chachapoly_state *st, const unsigned char *iv, unsigned long ivlen, ulong64 sequence_number);
-int chacha20poly1305_add_aad(chachapoly_state *st, const unsigned char *in, unsigned long inlen);
-int chacha20poly1305_encrypt(chachapoly_state *st, const unsigned char *in, unsigned long inlen, unsigned char *out);
-int chacha20poly1305_decrypt(chachapoly_state *st, const unsigned char *in, unsigned long inlen, unsigned char *out);
-int chacha20poly1305_done(chachapoly_state *st, unsigned char *tag, unsigned long *taglen);
+int chacha20poly1305_init(chacha20poly1305_state *st, const unsigned char *key, unsigned long keylen);
+int chacha20poly1305_setiv(chacha20poly1305_state *st, const unsigned char *iv, unsigned long ivlen);
+int chacha20poly1305_setiv_rfc7905(chacha20poly1305_state *st, const unsigned char *iv, unsigned long ivlen, ulong64 sequence_number);
+int chacha20poly1305_add_aad(chacha20poly1305_state *st, const unsigned char *in, unsigned long inlen);
+int chacha20poly1305_encrypt(chacha20poly1305_state *st, const unsigned char *in, unsigned long inlen, unsigned char *out);
+int chacha20poly1305_decrypt(chacha20poly1305_state *st, const unsigned char *in, unsigned long inlen, unsigned char *out);
+int chacha20poly1305_done(chacha20poly1305_state *st, unsigned char *tag, unsigned long *taglen);
 int chacha20poly1305_memory(const unsigned char *key, unsigned long keylen,
                             const unsigned char *iv,  unsigned long ivlen,
                             const unsigned char *aad, unsigned long aadlen,

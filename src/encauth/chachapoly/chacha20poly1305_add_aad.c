@@ -18,7 +18,7 @@
   @param inlen  The length of the ChaCha20Poly1305 data.
   @return CRYPT_OK on success
  */
-int chacha20poly1305_add_aad(chachapoly_state *st, const unsigned char *in, unsigned long inlen)
+int chacha20poly1305_add_aad(chacha20poly1305_state *st, const unsigned char *in, unsigned long inlen)
 {
    int err;
 

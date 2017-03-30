@@ -19,7 +19,7 @@
    @param out     [out] The plaintext (length inlen)
    @return CRYPT_OK if successful
 */
-int chacha20poly1305_decrypt(chachapoly_state *st, const unsigned char *in, unsigned long inlen, unsigned char *out)
+int chacha20poly1305_decrypt(chacha20poly1305_state *st, const unsigned char *in, unsigned long inlen, unsigned char *out)
 {
    unsigned char padzero[16] = { 0 };
    unsigned long padlen;

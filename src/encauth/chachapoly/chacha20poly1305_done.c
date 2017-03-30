@@ -18,7 +18,7 @@
   @param taglen  [in/out]  The length of the MAC tag
   @return CRYPT_OK on success
  */
-int chacha20poly1305_done(chachapoly_state *st, unsigned char *tag, unsigned long *taglen)
+int chacha20poly1305_done(chacha20poly1305_state *st, unsigned char *tag, unsigned long *taglen)
 {
    unsigned char padzero[16] = { 0 };
    unsigned long padlen;

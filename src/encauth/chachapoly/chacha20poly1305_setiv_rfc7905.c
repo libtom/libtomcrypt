@@ -19,7 +19,7 @@
   @param sequence_number   64bit sequence number which is incorporated into IV as described in RFC7905
   @return CRYPT_OK on success
  */
-int chacha20poly1305_setiv_rfc7905(chachapoly_state *st, const unsigned char *iv, unsigned long ivlen, ulong64 sequence_number)
+int chacha20poly1305_setiv_rfc7905(chacha20poly1305_state *st, const unsigned char *iv, unsigned long ivlen, ulong64 sequence_number)
 {
    int i;
    unsigned char combined_iv[12] = { 0 };
