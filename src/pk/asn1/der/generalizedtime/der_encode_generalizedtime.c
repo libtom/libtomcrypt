@@ -86,7 +86,14 @@ int der_encode_generalizedtime(ltc_generalizedtime *gtime,
        }
        out[x++] = der_ia5_char_encode(baseten[gtime->fs % 10]);
     }
-    out[x++] = der_ia5_char_encode('Z');
+
+    if (gtime->off_mm || gtime->off_hh) {
+       out[x++] = der_ia5_char_encode(gtime->off_dir ? '-' : '+');
+       STORE_V(gtime->off_hh);
+       STORE_V(gtime->off_mm);
+    } else {
+       out[x++] = der_ia5_char_encode('Z');
+    }
 
     /* store length */
     out[1] = (unsigned char)(x - 2);

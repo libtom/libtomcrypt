@@ -110,7 +110,7 @@ YYYYMMDDhhmmss.[0-9]*Z
        return CRYPT_OK;
     } else if (buf[x] == '.') {
        x++;
-       while (buf[x] != 'Z') {
+       while (buf[x] >= '0' && buf[x] <= '9') {
           unsigned fs = out->fs;
           if (x >= sizeof(buf)) return CRYPT_INVALID_PACKET;
           out->fs *= 10;
@@ -118,6 +118,15 @@ YYYYMMDDhhmmss.[0-9]*Z
           if (fs < out->fs) return CRYPT_OVERFLOW;
           x++;
        }
+    }
+
+    /* now is it Z, +, - */
+    if (buf[x] == 'Z') {
+       return CRYPT_OK;
+    } else if (buf[x] == '+' || buf[x] == '-') {
+       out->off_dir = (buf[x++] == '+') ? 0 : 1;
+       DECODE_V(out->off_hh, 24);
+       DECODE_V(out->off_mm, 60);
        return CRYPT_OK;
     } else {
        return CRYPT_INVALID_PACKET;

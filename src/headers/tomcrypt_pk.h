@@ -672,7 +672,10 @@ typedef struct {
             hh, /* hour */
             mm, /* minute */
             ss, /* second */
-            fs; /* fractional seconds */
+            fs, /* fractional seconds */
+            off_dir, /* timezone offset direction 0 == +, 1 == - */
+            off_hh, /* timezone offset hours */
+            off_mm; /* timezone offset minutes */
 } ltc_generalizedtime;
 
 int der_encode_generalizedtime(ltc_generalizedtime *gtime,
