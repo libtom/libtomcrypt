@@ -30,7 +30,7 @@
 */
 int poly1305_memory_multi(const unsigned char *key, unsigned long keylen, unsigned char *mac, unsigned long *maclen, const unsigned char *in,  unsigned long inlen, ...)
 {
-   poly_state st;
+   poly1305_state st;
    int err;
    va_list args;
    const unsigned char *curptr;
@@ -54,7 +54,7 @@ int poly1305_memory_multi(const unsigned char *key, unsigned long keylen, unsign
    err = poly1305_done(&st, mac, maclen);
 LBL_ERR:
 #ifdef LTC_CLEAN_STACK
-   zeromem(&st, sizeof(poly_state));
+   zeromem(&st, sizeof(poly1305_state));
 #endif
    va_end(args);
    return err;

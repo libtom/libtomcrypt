@@ -27,7 +27,7 @@ int poly1305_test(void)
    char m[] = "Cryptographic Forum Research Group";
    unsigned long len = 16, mlen = strlen(m);
    unsigned char out[1000];
-   poly_state st;
+   poly1305_state st;
    /* process piece by piece */
    poly1305_init(&st, k, 32);
    poly1305_process(&st, (unsigned char*)m,      5);

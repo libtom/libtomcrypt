@@ -30,7 +30,7 @@ int poly1305_file(const char *fname, const unsigned char *key, unsigned long key
 #ifdef LTC_NO_FILE
    return CRYPT_NOP;
 #else
-   poly_state st;
+   poly1305_state st;
    FILE *in;
    unsigned char *buf;
    size_t x;
@@ -60,7 +60,7 @@ int poly1305_file(const char *fname, const unsigned char *key, unsigned long key
 
 LBL_ERR:
 #ifdef LTC_CLEAN_STACK
-   zeromem(&st, sizeof(poly_state));
+   zeromem(&st, sizeof(poly1305_state));
 #endif
    XFREE(buf);
    return err;

@@ -104,11 +104,11 @@ typedef struct {
    unsigned long leftover;
    unsigned char buffer[16];
    int final;
-} poly_state;
+} poly1305_state;
 
-int poly1305_init(poly_state *st, const unsigned char *key, unsigned long keylen);
-int poly1305_process(poly_state *st, const unsigned char *in, unsigned long inlen);
-int poly1305_done(poly_state *st, unsigned char *mac, unsigned long *maclen);
+int poly1305_init(poly1305_state *st, const unsigned char *key, unsigned long keylen);
+int poly1305_process(poly1305_state *st, const unsigned char *in, unsigned long inlen);
+int poly1305_done(poly1305_state *st, unsigned char *mac, unsigned long *maclen);
 int poly1305_test(void);
 int poly1305_memory(const unsigned char *key, unsigned long keylen, const unsigned char *in, unsigned long inlen, unsigned char *mac, unsigned long *maclen);
 int poly1305_memory_multi(const unsigned char *key, unsigned long keylen, unsigned char *mac, unsigned long *maclen, const unsigned char *in,  unsigned long inlen, ...);
@@ -500,7 +500,7 @@ int f9_test(void);
 #ifdef LTC_CHACHA20POLY1305_MODE
 
 typedef struct {
-   poly_state poly;
+   poly1305_state poly;
    chacha_state chacha;
    ulong64 aadlen;
    ulong64 ctlen;

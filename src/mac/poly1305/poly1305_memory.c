@@ -28,7 +28,7 @@
 */
 int poly1305_memory(const unsigned char *key, unsigned long keylen, const unsigned char *in, unsigned long inlen, unsigned char *mac, unsigned long *maclen)
 {
-   poly_state st;
+   poly1305_state st;
    int err;
 
    LTC_ARGCHK(key    != NULL);
@@ -41,7 +41,7 @@ int poly1305_memory(const unsigned char *key, unsigned long keylen, const unsign
    err = poly1305_done(&st, mac, maclen);
 LBL_ERR:
 #ifdef LTC_CLEAN_STACK
-   zeromem(&st, sizeof(poly_state));
+   zeromem(&st, sizeof(poly1305_state));
 #endif
    return err;
 };

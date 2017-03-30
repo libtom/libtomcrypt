@@ -17,7 +17,7 @@
 #ifdef LTC_POLY1305
 
 /* internal only */
-static void _poly1305_block(poly_state *st, const unsigned char *in, unsigned long inlen)
+static void _poly1305_block(poly1305_state *st, const unsigned char *in, unsigned long inlen)
 {
    const unsigned long hibit = (st->final) ? 0 : (1UL << 24); /* 1 << 128 */
    ulong32 r0,r1,r2,r3,r4;
@@ -86,7 +86,7 @@ static void _poly1305_block(poly_state *st, const unsigned char *in, unsigned lo
    @param keylen   The length of the secret key (octets)
    @return CRYPT_OK if successful
 */
-int poly1305_init(poly_state *st, const unsigned char *key, unsigned long keylen)
+int poly1305_init(poly1305_state *st, const unsigned char *key, unsigned long keylen)
 {
    LTC_ARGCHK(st  != NULL);
    LTC_ARGCHK(key != NULL);
@@ -124,7 +124,7 @@ int poly1305_init(poly_state *st, const unsigned char *key, unsigned long keylen
   @param inlen   The length of the data to HMAC (octets)
   @return CRYPT_OK if successful
 */
-int poly1305_process(poly_state *st, const unsigned char *in, unsigned long inlen)
+int poly1305_process(poly1305_state *st, const unsigned char *in, unsigned long inlen)
 {
    unsigned long i;
 
@@ -168,7 +168,7 @@ int poly1305_process(poly_state *st, const unsigned char *in, unsigned long inle
    @param outlen  [in/out]  The max size and resulting size of the POLY1305 authentication tag
    @return CRYPT_OK if successful
 */
-int poly1305_done(poly_state *st, unsigned char *mac, unsigned long *maclen)
+int poly1305_done(poly1305_state *st, unsigned char *mac, unsigned long *maclen)
 {
    ulong32 h0,h1,h2,h3,h4,c;
    ulong32 g0,g1,g2,g3,g4;
