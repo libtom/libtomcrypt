@@ -149,9 +149,9 @@ src/pk/rsa/rsa_import.obj src/pk/rsa/rsa_import_radix.obj src/pk/rsa/rsa_import_
 src/pk/rsa/rsa_make_key.obj src/pk/rsa/rsa_sign_hash.obj src/pk/rsa/rsa_sign_saltlen_get.obj \
 src/pk/rsa/rsa_verify_hash.obj src/prngs/chacha.obj src/prngs/fortuna.obj src/prngs/rc4.obj \
 src/prngs/rng_get_bytes.obj src/prngs/rng_make_prng.obj src/prngs/sober128.obj src/prngs/sprng.obj \
-src/prngs/yarrow.obj src/stream/chacha/chacha_crypt.obj src/stream/chacha/chacha_ivctr32.obj \
-src/stream/chacha/chacha_ivctr64.obj src/stream/chacha/chacha_keystream.obj \
-src/stream/chacha/chacha_setup.obj src/stream/chacha/chacha_test.obj
+src/prngs/yarrow.obj src/stream/chacha/chacha_crypt.obj src/stream/chacha/chacha_done.obj \
+src/stream/chacha/chacha_ivctr32.obj src/stream/chacha/chacha_ivctr64.obj \
+src/stream/chacha/chacha_keystream.obj src/stream/chacha/chacha_setup.obj src/stream/chacha/chacha_test.obj
 
 HEADERS=src/headers/tomcrypt.h src/headers/tomcrypt_argchk.h src/headers/tomcrypt_cfg.h \
 src/headers/tomcrypt_cipher.h src/headers/tomcrypt_custom.h src/headers/tomcrypt_hash.h \
