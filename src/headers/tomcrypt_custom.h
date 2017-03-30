@@ -552,7 +552,9 @@
 
 #ifndef LTC_NO_FILE
    /* buffer size for reading from a file via fread(..) */
-   #define FILE_READ_BUFSIZE 8192
+   #ifndef LTC_FILE_READ_BUFSIZE
+   #define LTC_FILE_READ_BUFSIZE 8192
+   #endif
 #endif
 
 /* $Source$ */
