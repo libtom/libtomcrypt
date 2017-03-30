@@ -475,6 +475,8 @@ typedef enum ltc_asn1_type_ {
  LTC_ASN1_TELETEX_STRING,
  LTC_ASN1_CONSTRUCTED,
  LTC_ASN1_CONTEXT_SPECIFIC,
+ /* 20 */
+ LTC_ASN1_GENERALIZEDTIME,
 } ltc_asn1_type;
 
 /** A LTC ASN.1 list type */
@@ -661,6 +663,25 @@ int der_decode_utctime(const unsigned char *in, unsigned long *inlen,
                              ltc_utctime   *out);
 
 int der_length_utctime(ltc_utctime *utctime, unsigned long *outlen);
+
+/* GeneralizedTime */
+typedef struct {
+   unsigned YYYY, /* year */
+            MM, /* month */
+            DD, /* day */
+            hh, /* hour */
+            mm, /* minute */
+            ss, /* second */
+            fs; /* fractional seconds */
+} ltc_generalizedtime;
+
+int der_encode_generalizedtime(ltc_generalizedtime *gtime,
+                               unsigned char       *out, unsigned long *outlen);
+
+int der_decode_generalizedtime(const unsigned char *in, unsigned long *inlen,
+                               ltc_generalizedtime *out);
+
+int der_length_generalizedtime(ltc_generalizedtime *gtime, unsigned long *outlen);
 
 
 #endif

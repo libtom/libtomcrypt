@@ -186,6 +186,15 @@ int der_decode_choice(const unsigned char *in,   unsigned long *inlen,
                }
                break;
 
+           case LTC_ASN1_GENERALIZEDTIME:
+               z = *inlen;
+               if (der_decode_generalizedtime(in, &z, data) == CRYPT_OK) {
+                  list[x].used = 1;
+                  *inlen       = z;
+                  return CRYPT_OK;
+               }
+               break;
+
            case LTC_ASN1_SET:
            case LTC_ASN1_SETOF:
            case LTC_ASN1_SEQUENCE:

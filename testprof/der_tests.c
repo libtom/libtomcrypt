@@ -335,6 +335,19 @@ static void _der_tests_print_flexi(ltc_asn1_list* l, unsigned int level)
       text = buf;
     }
     break;
+  case LTC_ASN1_GENERALIZEDTIME:
+    name = "GENERALIZED TIME";
+    {
+      ltc_generalizedtime* gt = l->data;
+      if(gt->fs)
+         snprintf(buf, sizeof(buf), "%04d-%02d-%02d %02d:%02d:%02d.%02dZ",
+          gt->YYYY, gt->MM, gt->DD, gt->hh, gt->mm, gt->ss, gt->fs);
+      else
+         snprintf(buf, sizeof(buf), "%04d-%02d-%02d %02d:%02d:%02dZ",
+          gt->YYYY, gt->MM, gt->DD, gt->hh, gt->mm, gt->ss);
+      text = buf;
+    }
+    break;
   case LTC_ASN1_CHOICE:
     name = "CHOICE";
     break;

@@ -126,6 +126,13 @@ int der_encode_sequence_ex(ltc_asn1_list *list, unsigned long inlen,
                y += x;
                break;
 
+           case LTC_ASN1_GENERALIZEDTIME:
+               if ((err = der_length_generalizedtime(data, &x)) != CRYPT_OK) {
+                  goto LBL_ERR;
+               }
+               y += x;
+               break;
+
            case LTC_ASN1_SET:
            case LTC_ASN1_SETOF:
            case LTC_ASN1_SEQUENCE:
@@ -301,6 +308,15 @@ int der_encode_sequence_ex(ltc_asn1_list *list, unsigned long inlen,
            case LTC_ASN1_UTCTIME:
                z = *outlen;
                if ((err = der_encode_utctime(data, out + x, &z)) != CRYPT_OK) {
+                  goto LBL_ERR;
+               }
+               x       += z;
+               *outlen -= z;
+               break;
+
+           case LTC_ASN1_GENERALIZEDTIME:
+               z = *outlen;
+               if ((err = der_encode_generalizedtime(data, out + x, &z)) != CRYPT_OK) {
                   goto LBL_ERR;
                }
                x       += z;
