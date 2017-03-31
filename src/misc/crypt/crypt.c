@@ -407,6 +407,9 @@ const char *crypt_build_settings =
 #if defined(LTC_NO_FILE)
     " LTC_NO_FILE "
 #endif
+#if defined(LTC_FILE_READ_BUFSIZE)
+    " " NAME_VALUE(LTC_FILE_READ_BUFSIZE) " "
+#endif
 #if defined(LTC_FAST)
     " LTC_FAST "
 #endif
