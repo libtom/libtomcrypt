@@ -89,6 +89,9 @@ src/pk/asn1/der/bit/der_decode_raw_bit_string.obj src/pk/asn1/der/bit/der_encode
 src/pk/asn1/der/bit/der_encode_raw_bit_string.obj src/pk/asn1/der/bit/der_length_bit_string.obj \
 src/pk/asn1/der/boolean/der_decode_boolean.obj src/pk/asn1/der/boolean/der_encode_boolean.obj \
 src/pk/asn1/der/boolean/der_length_boolean.obj src/pk/asn1/der/choice/der_decode_choice.obj \
+src/pk/asn1/der/generalizedtime/der_decode_generalizedtime.obj \
+src/pk/asn1/der/generalizedtime/der_encode_generalizedtime.obj \
+src/pk/asn1/der/generalizedtime/der_length_generalizedtime.obj \
 src/pk/asn1/der/ia5/der_decode_ia5_string.obj src/pk/asn1/der/ia5/der_encode_ia5_string.obj \
 src/pk/asn1/der/ia5/der_length_ia5_string.obj src/pk/asn1/der/integer/der_decode_integer.obj \
 src/pk/asn1/der/integer/der_encode_integer.obj src/pk/asn1/der/integer/der_length_integer.obj \

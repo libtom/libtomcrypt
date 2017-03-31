@@ -244,6 +244,14 @@ int der_decode_sequence_ex(const unsigned char *in, unsigned long  inlen,
                }
                break;
 
+           case LTC_ASN1_GENERALIZEDTIME:
+               z = inlen;
+               if ((err = der_decode_generalizedtime(in + x, &z, data)) != CRYPT_OK) {
+                  if (!ordered) { continue; }
+                  goto LBL_ERR;
+               }
+               break;
+
            case LTC_ASN1_SET:
                z = inlen;
                if ((err = der_decode_set(in + x, z, data, size)) != CRYPT_OK) {

@@ -347,6 +347,25 @@ int der_decode_sequence_flexi(const unsigned char *in, unsigned long *inlen, ltc
             }
             break;
 
+         case 0x18:
+            l->type = LTC_ASN1_GENERALIZEDTIME;
+            l->size = len;
+
+            if ((l->data = XCALLOC(1, sizeof(ltc_generalizedtime))) == NULL) {
+               err = CRYPT_MEM;
+               goto error;
+            }
+
+            if ((err = der_decode_generalizedtime(in, &len, l->data)) != CRYPT_OK) {
+               goto error;
+            }
+
+            if ((err = der_length_generalizedtime(l->data, &len)) != CRYPT_OK) {
+               goto error;
+            }
+
+            break;
+
          case 0x20: /* Any CONSTRUCTED element that is neither SEQUENCE nor SET */
          case 0x30: /* SEQUENCE */
          case 0x31: /* SET */

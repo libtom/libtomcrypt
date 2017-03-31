@@ -179,6 +179,9 @@ src/pk/asn1/der/bit/der_decode_raw_bit_string.o src/pk/asn1/der/bit/der_encode_b
 src/pk/asn1/der/bit/der_encode_raw_bit_string.o src/pk/asn1/der/bit/der_length_bit_string.o \
 src/pk/asn1/der/boolean/der_decode_boolean.o src/pk/asn1/der/boolean/der_encode_boolean.o \
 src/pk/asn1/der/boolean/der_length_boolean.o src/pk/asn1/der/choice/der_decode_choice.o \
+src/pk/asn1/der/generalizedtime/der_decode_generalizedtime.o \
+src/pk/asn1/der/generalizedtime/der_encode_generalizedtime.o \
+src/pk/asn1/der/generalizedtime/der_length_generalizedtime.o \
 src/pk/asn1/der/ia5/der_decode_ia5_string.o src/pk/asn1/der/ia5/der_encode_ia5_string.o \
 src/pk/asn1/der/ia5/der_length_ia5_string.o src/pk/asn1/der/integer/der_decode_integer.o \
 src/pk/asn1/der/integer/der_encode_integer.o src/pk/asn1/der/integer/der_length_integer.o \

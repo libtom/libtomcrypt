@@ -45,9 +45,12 @@ static const char * const err_2_str[] =
    "File Not Found",
 
    "Invalid PK type.",
-   "Invalid PK system.",
-   "Duplicate PK key found on keyring.",
-   "Key not found in keyring.",
+
+   "An overflow of a value was detected/prevented.",
+
+   "UNUSED1.",
+   "UNUSED2.",
+
    "Invalid sized parameter.",
 
    "Invalid size for prime.",

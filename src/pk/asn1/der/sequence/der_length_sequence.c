@@ -122,6 +122,13 @@ int der_length_sequence(ltc_asn1_list *list, unsigned long inlen,
                y += x;
                break;
 
+           case LTC_ASN1_GENERALIZEDTIME:
+               if ((err = der_length_generalizedtime(data, &x)) != CRYPT_OK) {
+                  goto LBL_ERR;
+               }
+               y += x;
+               break;
+
            case LTC_ASN1_UTF8_STRING:
                if ((err = der_length_utf8_string(data, size, &x)) != CRYPT_OK) {
                   goto LBL_ERR;
