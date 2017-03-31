@@ -55,9 +55,12 @@ enum {
    CRYPT_FILE_NOTFOUND,    /* File Not Found */
 
    CRYPT_PK_INVALID_TYPE,  /* Invalid type of PK key */
-   CRYPT_OVERFLOW,         /* An overflow of a value was prevented */
-   CRYPT_PK_DUP,           /* Duplicate key already in key ring */
-   CRYPT_PK_NOT_FOUND,     /* Key not found in keyring */
+
+   CRYPT_OVERFLOW,         /* An overflow of a value was detected/prevented */
+
+   CRYPT_UNUSED1,          /* UNUSED1 */
+   CRYPT_UNUSED2,          /* UNUSED2 */
+
    CRYPT_PK_INVALID_SIZE,  /* Invalid size input for PK parameters */
 
    CRYPT_INVALID_PRIME_SIZE,/* Invalid size of prime requested */
