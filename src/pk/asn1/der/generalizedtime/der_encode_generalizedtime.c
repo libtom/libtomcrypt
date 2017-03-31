@@ -81,8 +81,8 @@ int der_encode_generalizedtime(ltc_generalizedtime *gtime,
           len++;
        } while(fs != 0);
        while (len-- > 1) {
-          out[x++] = der_ia5_char_encode(baseten[(gtime->fs/divisor) % 10]);
           divisor /= 10;
+          out[x++] = der_ia5_char_encode(baseten[(gtime->fs/divisor) % 10]);
        }
        out[x++] = der_ia5_char_encode(baseten[gtime->fs % 10]);
     }

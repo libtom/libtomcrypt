@@ -76,7 +76,9 @@ int der_decode_generalizedtime(const unsigned char *in, unsigned long *inlen,
        if (y == -1) {
           return CRYPT_INVALID_PACKET;
        }
-       if (!((y >= '0' && y <= '9') || y == 'Z')) {
+       if (!((y >= '0' && y <= '9')
+            || y == 'Z' || y == '.'
+            || y == '+' || y == '-')) {
           return CRYPT_INVALID_PACKET;
        }
        buf[x] = y;
@@ -89,7 +91,11 @@ int der_decode_generalizedtime(const unsigned char *in, unsigned long *inlen,
 
    /* possible encodings are
 YYYYMMDDhhmmssZ
-YYYYMMDDhhmmss.[0-9]*Z
+YYYYMMDDhhmmss+hh'mm'
+YYYYMMDDhhmmss-hh'mm'
+YYYYMMDDhhmmss.fsZ
+YYYYMMDDhhmmss.fs+hh'mm'
+YYYYMMDDhhmmss.fs-hh'mm'
 
     So let's do a trivial decode upto [including] ss
    */
@@ -115,7 +121,7 @@ YYYYMMDDhhmmss.[0-9]*Z
           if (x >= sizeof(buf)) return CRYPT_INVALID_PACKET;
           out->fs *= 10;
           out->fs += char_to_int(buf[x]);
-          if (fs < out->fs) return CRYPT_OVERFLOW;
+          if (fs > out->fs) return CRYPT_OVERFLOW;
           x++;
        }
     }
