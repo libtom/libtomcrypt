@@ -671,6 +671,7 @@ static void der_set_test(void)
      SEQUENCE {
         INTEGER 12345678
         UTCTIME { 91, 5, 6, 16, 45, 40, 1, 7, 0 }
+        GENERALIZEDTIME { 2017, 03, 21, 10, 21, 12, 4, 1, 2, 0 }
         SEQUENCE {
            OCTET STRING { 1, 2, 3, 4 }
            BIT STRING   { 1, 0, 0, 1 }
@@ -695,6 +696,7 @@ static void der_flexi_test(void)
    static const char ia5_str[]          = "ia5";
    static const unsigned long int_val   = 12345678UL;
    static const ltc_utctime   utctime   = { 91, 5, 6, 16, 45, 40, 1, 7, 0 };
+   static const ltc_generalizedtime gtime = { 2017, 03, 21, 10, 21, 12, 421, 1, 2, 0 };
    static const unsigned char oct_str[] = { 1, 2, 3, 4 };
    static const unsigned char bit_str[] = { 1, 0, 0, 1 };
    static const unsigned long oid_str[] = { 1, 2, 840, 113549 };
@@ -702,16 +704,17 @@ static void der_flexi_test(void)
    unsigned char encode_buf[192];
    unsigned long encode_buf_len, decode_len;
 
-   ltc_asn1_list static_list[5][3], *decoded_list, *l;
+   ltc_asn1_list static_list[5][4], *decoded_list, *l;
 
    /* build list */
    LTC_SET_ASN1(static_list[0], 0, LTC_ASN1_PRINTABLE_STRING, (void *)printable_str, strlen(printable_str));
    LTC_SET_ASN1(static_list[0], 1, LTC_ASN1_IA5_STRING,       (void *)ia5_str,       strlen(ia5_str));
-   LTC_SET_ASN1(static_list[0], 2, LTC_ASN1_SEQUENCE,         static_list[1],   3);
+   LTC_SET_ASN1(static_list[0], 2, LTC_ASN1_SEQUENCE,         static_list[1],   4);
 
    LTC_SET_ASN1(static_list[1], 0, LTC_ASN1_SHORT_INTEGER,    (void *)&int_val,         1);
    LTC_SET_ASN1(static_list[1], 1, LTC_ASN1_UTCTIME,          (void *)&utctime,         1);
-   LTC_SET_ASN1(static_list[1], 2, LTC_ASN1_SEQUENCE,         static_list[2],   3);
+   LTC_SET_ASN1(static_list[1], 2, LTC_ASN1_GENERALIZEDTIME,  (void *)&gtime,           1);
+   LTC_SET_ASN1(static_list[1], 3, LTC_ASN1_SEQUENCE,         static_list[2],   3);
 
    LTC_SET_ASN1(static_list[2], 0, LTC_ASN1_OCTET_STRING,     (void *)oct_str,          4);
    LTC_SET_ASN1(static_list[2], 1, LTC_ASN1_BIT_STRING,       (void *)bit_str,          4);
@@ -847,6 +850,26 @@ static void der_flexi_test(void)
       }
 
       if (memcmp(l->data, &utctime, sizeof(utctime))) {
+         fprintf(stderr, "(%d), %d, %lu, next=%p, prev=%p, parent=%p, child=%p\n", __LINE__, l->type, l->size, l->next, l->prev, l->parent, l->child);
+         exit(EXIT_FAILURE);
+      }
+
+      /* move to next */
+      l = l->next;
+
+   /* GeneralizedTime */
+
+      if (l->next == NULL || l->child != NULL) {
+         fprintf(stderr, "(%d), %d, %lu, next=%p, prev=%p, parent=%p, child=%p\n", __LINE__, l->type, l->size, l->next, l->prev, l->parent, l->child);
+         exit(EXIT_FAILURE);
+      }
+
+      if (l->type != LTC_ASN1_GENERALIZEDTIME) {
+         fprintf(stderr, "(%d), %d, %lu, next=%p, prev=%p, parent=%p, child=%p\n", __LINE__, l->type, l->size, l->next, l->prev, l->parent, l->child);
+         exit(EXIT_FAILURE);
+      }
+
+      if (memcmp(l->data, &gtime, sizeof(gtime))) {
          fprintf(stderr, "(%d), %d, %lu, next=%p, prev=%p, parent=%p, child=%p\n", __LINE__, l->type, l->size, l->next, l->prev, l->parent, l->child);
          exit(EXIT_FAILURE);
       }
@@ -1008,6 +1031,7 @@ static int der_choice_test(void)
    unsigned long integer, oidbuf[10], outlen, inlen, x, y;
    void          *mpinteger;
    ltc_utctime   utctime = { 91, 5, 6, 16, 45, 40, 1, 7, 0 };
+   ltc_generalizedtime gtime = { 2038, 01, 19, 3, 14, 8, 0, 0, 0, 0 };
 
    /* setup variables */
    for (x = 0; x < sizeof(bitbuf); x++)   { bitbuf[x]   = x & 1; }
@@ -1030,7 +1054,11 @@ static int der_choice_test(void)
           LTC_SET_ASN1(types, 4, LTC_ASN1_INTEGER, mpinteger, 1);
        }
        LTC_SET_ASN1(types, 5, LTC_ASN1_OBJECT_IDENTIFIER, oidbuf, sizeof(oidbuf)/sizeof(oidbuf[0]));
-       LTC_SET_ASN1(types, 6, LTC_ASN1_UTCTIME, &utctime, 1);
+       if (x > 7) {
+          LTC_SET_ASN1(types, 6, LTC_ASN1_UTCTIME, &utctime, 1);
+       } else {
+          LTC_SET_ASN1(types, 6, LTC_ASN1_GENERALIZEDTIME, &gtime, 1);
+       }
 
        LTC_SET_ASN1(host, 0, LTC_ASN1_CHOICE, types, 7);
 
