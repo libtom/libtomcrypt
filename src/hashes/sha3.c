@@ -173,7 +173,7 @@ int sha3_shake_init(hash_state *md, int num)
    LTC_ARGCHK(md != NULL);
    if (num != 128 && num != 256) return CRYPT_INVALID_ARG;
    XMEMSET(&md->sha3, 0, sizeof(md->sha3));
-   md->sha3.capacity_words = 2 * num / (8 * sizeof(ulong64));
+   md->sha3.capacity_words = (unsigned short)(2 * num / (8 * sizeof(ulong64)));
    return CRYPT_OK;
 }
 
