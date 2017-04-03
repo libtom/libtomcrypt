@@ -331,7 +331,7 @@ static void _unregister_all(void)
   unregister_prng(&rc4_desc);
 #endif
 #ifdef LTC_CHACHA
-  unregister_prng(&chacha_prng_desc);
+  unregister_prng(&chacha20_prng_desc);
 #endif
 #ifdef LTC_SOBER128
   unregister_prng(&sober128_desc);
@@ -501,7 +501,7 @@ register_prng(&fortuna_desc);
 register_prng(&rc4_desc);
 #endif
 #ifdef LTC_CHACHA
-register_prng(&chacha_prng_desc);
+register_prng(&chacha20_prng_desc);
 #endif
 #ifdef LTC_SOBER128
 register_prng(&sober128_desc);

@@ -11,7 +11,7 @@
 
 #ifdef LTC_CHACHA20_PRNG
 
-const struct ltc_prng_descriptor chacha_prng_desc =
+const struct ltc_prng_descriptor chacha20_prng_desc =
 {
    "chacha",
    sizeof(chacha_state),

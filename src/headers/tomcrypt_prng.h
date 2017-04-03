@@ -175,7 +175,7 @@ int  chacha_prng_done(prng_state *prng);
 int  chacha_prng_export(unsigned char *out, unsigned long *outlen, prng_state *prng);
 int  chacha_prng_import(const unsigned char *in, unsigned long inlen, prng_state *prng);
 int  chacha_prng_test(void);
-extern const struct ltc_prng_descriptor chacha_prng_desc;
+extern const struct ltc_prng_descriptor chacha20_prng_desc;
 #endif
 
 #ifdef LTC_SPRNG
