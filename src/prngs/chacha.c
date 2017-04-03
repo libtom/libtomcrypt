@@ -7,6 +7,10 @@
  * guarantee it works.
  */
 
+ /* the idea of re-keying loosely follows the approach used in:
+  * http://bxr.su/OpenBSD/lib/libc/crypt/arc4random.c
+  */
+
 #include "tomcrypt.h"
 
 #ifdef LTC_CHACHA20_PRNG
@@ -64,6 +68,8 @@ int chacha_prng_add_entropy(const unsigned char *in, unsigned long inlen, prng_s
       if ((err = chacha_setup(&prng->chacha.s, buf, 32, 20)) != CRYPT_OK)      return err;
       /* iv 8 bytes */
       if ((err = chacha_ivctr64(&prng->chacha.s, buf + 32, 8, 0)) != CRYPT_OK) return err;
+      /* clear KEY + IV */
+      XMEMSET(buf, 0, 40);
    }
    else {
       /* chacha_prng_ready() was not called yet, add entropy to ent buffer */
