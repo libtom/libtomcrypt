@@ -2272,7 +2272,7 @@
 			Name="prngs"
 			>
 			<File
-				RelativePath="src\prngs\chacha.c"
+				RelativePath="src\prngs\chacha20.c"
 				>
 			</File>
 			<File
