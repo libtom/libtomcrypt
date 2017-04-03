@@ -592,6 +592,46 @@
 				</File>
 			</Filter>
 			<Filter
+				Name="chachapoly"
+				>
+				<File
+					RelativePath="src\encauth\chachapoly\chacha20poly1305_add_aad.c"
+					>
+				</File>
+				<File
+					RelativePath="src\encauth\chachapoly\chacha20poly1305_decrypt.c"
+					>
+				</File>
+				<File
+					RelativePath="src\encauth\chachapoly\chacha20poly1305_done.c"
+					>
+				</File>
+				<File
+					RelativePath="src\encauth\chachapoly\chacha20poly1305_encrypt.c"
+					>
+				</File>
+				<File
+					RelativePath="src\encauth\chachapoly\chacha20poly1305_init.c"
+					>
+				</File>
+				<File
+					RelativePath="src\encauth\chachapoly\chacha20poly1305_memory.c"
+					>
+				</File>
+				<File
+					RelativePath="src\encauth\chachapoly\chacha20poly1305_setiv.c"
+					>
+				</File>
+				<File
+					RelativePath="src\encauth\chachapoly\chacha20poly1305_setiv_rfc7905.c"
+					>
+				</File>
+				<File
+					RelativePath="src\encauth\chachapoly\chacha20poly1305_test.c"
+					>
+				</File>
+			</Filter>
+			<Filter
 				Name="eax"
 				>
 				<File
@@ -1144,6 +1184,30 @@
 				</File>
 				<File
 					RelativePath="src\mac\pmac\pmac_test.c"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="poly1305"
+				>
+				<File
+					RelativePath="src\mac\poly1305\poly1305.c"
+					>
+				</File>
+				<File
+					RelativePath="src\mac\poly1305\poly1305_file.c"
+					>
+				</File>
+				<File
+					RelativePath="src\mac\poly1305\poly1305_memory.c"
+					>
+				</File>
+				<File
+					RelativePath="src\mac\poly1305\poly1305_memory_multi.c"
+					>
+				</File>
+				<File
+					RelativePath="src\mac\poly1305\poly1305_test.c"
 					>
 				</File>
 			</Filter>
@@ -2208,6 +2272,10 @@
 			Name="prngs"
 			>
 			<File
+				RelativePath="src\prngs\chacha.c"
+				>
+			</File>
+			<File
 				RelativePath="src\prngs\fortuna.c"
 				>
 			</File>
@@ -2279,6 +2347,42 @@
 				RelativePath="src\prngs\yarrow.c"
 				>
 			</File>
+		</Filter>
+		<Filter
+			Name="stream"
+			>
+			<Filter
+				Name="chacha"
+				>
+				<File
+					RelativePath="src\stream\chacha\chacha_crypt.c"
+					>
+				</File>
+				<File
+					RelativePath="src\stream\chacha\chacha_done.c"
+					>
+				</File>
+				<File
+					RelativePath="src\stream\chacha\chacha_ivctr32.c"
+					>
+				</File>
+				<File
+					RelativePath="src\stream\chacha\chacha_ivctr64.c"
+					>
+				</File>
+				<File
+					RelativePath="src\stream\chacha\chacha_keystream.c"
+					>
+				</File>
+				<File
+					RelativePath="src\stream\chacha\chacha_setup.c"
+					>
+				</File>
+				<File
+					RelativePath="src\stream\chacha\chacha_test.c"
+					>
+				</File>
+			</Filter>
 		</Filter>
 	</Files>
 	<Globals>

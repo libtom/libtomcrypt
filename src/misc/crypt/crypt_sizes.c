@@ -223,6 +223,9 @@ static const crypt_size _crypt_sizes[] = {
 #ifdef LTC_FORTUNA
     _SZ_STRINGIFY_S(fortuna_prng),
 #endif
+#ifdef LTC_CHACHA20_PRNG
+    _SZ_STRINGIFY_S(chacha20_prng),
+#endif
 #ifdef LTC_RC4
     _SZ_STRINGIFY_S(rc4_prng),
 #endif

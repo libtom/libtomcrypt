@@ -15,6 +15,15 @@ struct rc4_prng {
 };
 #endif
 
+#ifdef LTC_CHACHA20_PRNG
+struct chacha20_prng {
+    chacha_state s;        /* chacha state */
+    unsigned char ent[40]; /* entropy buffer */
+    unsigned long idx;     /* entropy counter */
+    short ready;           /* ready flag 0-1 */
+};
+#endif
+
 #ifdef LTC_FORTUNA
 struct fortuna_prng {
     hash_state pool[LTC_FORTUNA_POOLS];     /* the  pools */
@@ -54,6 +63,9 @@ typedef union Prng_state {
 #endif
 #ifdef LTC_RC4
     struct rc4_prng       rc4;
+#endif
+#ifdef LTC_CHACHA20_PRNG
+    struct chacha20_prng  chacha;
 #endif
 #ifdef LTC_FORTUNA
     struct fortuna_prng   fortuna;
@@ -152,6 +164,18 @@ int  rc4_export(unsigned char *out, unsigned long *outlen, prng_state *prng);
 int  rc4_import(const unsigned char *in, unsigned long inlen, prng_state *prng);
 int  rc4_test(void);
 extern const struct ltc_prng_descriptor rc4_desc;
+#endif
+
+#ifdef LTC_CHACHA20_PRNG
+int chacha_prng_start(prng_state *prng);
+int chacha_prng_add_entropy(const unsigned char *in, unsigned long inlen, prng_state *prng);
+int chacha_prng_ready(prng_state *prng);
+unsigned long chacha_prng_read(unsigned char *out, unsigned long outlen, prng_state *prng);
+int  chacha_prng_done(prng_state *prng);
+int  chacha_prng_export(unsigned char *out, unsigned long *outlen, prng_state *prng);
+int  chacha_prng_import(const unsigned char *in, unsigned long inlen, prng_state *prng);
+int  chacha_prng_test(void);
+extern const struct ltc_prng_descriptor chacha20_prng_desc;
 #endif
 
 #ifdef LTC_SPRNG

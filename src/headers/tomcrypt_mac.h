@@ -96,6 +96,26 @@ void pmac_shift_xor(pmac_state *pmac);
 
 #endif /* PMAC */
 
+#ifdef LTC_POLY1305
+typedef struct {
+   ulong32 r[5];
+   ulong32 h[5];
+   ulong32 pad[4];
+   unsigned long leftover;
+   unsigned char buffer[16];
+   int final;
+} poly1305_state;
+
+int poly1305_init(poly1305_state *st, const unsigned char *key, unsigned long keylen);
+int poly1305_process(poly1305_state *st, const unsigned char *in, unsigned long inlen);
+int poly1305_done(poly1305_state *st, unsigned char *mac, unsigned long *maclen);
+int poly1305_test(void);
+int poly1305_memory(const unsigned char *key, unsigned long keylen, const unsigned char *in, unsigned long inlen, unsigned char *mac, unsigned long *maclen);
+int poly1305_memory_multi(const unsigned char *key, unsigned long keylen, unsigned char *mac, unsigned long *maclen, const unsigned char *in,  unsigned long inlen, ...);
+int poly1305_file(const char *fname, const unsigned char *key, unsigned long keylen, unsigned char *mac, unsigned long *maclen);
+int poly1305_test(void);
+#endif /* LTC_POLY1305 */
+
 #ifdef LTC_EAX_MODE
 
 #if !(defined(LTC_OMAC) && defined(LTC_CTR_MODE))
@@ -477,6 +497,36 @@ int f9_test(void);
 
 #endif
 
+#ifdef LTC_CHACHA20POLY1305_MODE
+
+typedef struct {
+   poly1305_state poly;
+   chacha_state chacha;
+   ulong64 aadlen;
+   ulong64 ctlen;
+   int aadflg;
+} chacha20poly1305_state;
+
+#define CHCHA20POLY1305_ENCRYPT 0
+#define CHCHA20POLY1305_DECRYPT 1
+
+int chacha20poly1305_init(chacha20poly1305_state *st, const unsigned char *key, unsigned long keylen);
+int chacha20poly1305_setiv(chacha20poly1305_state *st, const unsigned char *iv, unsigned long ivlen);
+int chacha20poly1305_setiv_rfc7905(chacha20poly1305_state *st, const unsigned char *iv, unsigned long ivlen, ulong64 sequence_number);
+int chacha20poly1305_add_aad(chacha20poly1305_state *st, const unsigned char *in, unsigned long inlen);
+int chacha20poly1305_encrypt(chacha20poly1305_state *st, const unsigned char *in, unsigned long inlen, unsigned char *out);
+int chacha20poly1305_decrypt(chacha20poly1305_state *st, const unsigned char *in, unsigned long inlen, unsigned char *out);
+int chacha20poly1305_done(chacha20poly1305_state *st, unsigned char *tag, unsigned long *taglen);
+int chacha20poly1305_memory(const unsigned char *key, unsigned long keylen,
+                            const unsigned char *iv,  unsigned long ivlen,
+                            const unsigned char *aad, unsigned long aadlen,
+                            const unsigned char *in,  unsigned long inlen,
+                                  unsigned char *out,
+                                  unsigned char *tag, unsigned long *taglen,
+                            int direction);
+int chacha20poly1305_test(void);
+
+#endif /* LTC_CHACHA20POLY1305_MODE */
 
 /* $Source$ */
 /* $Revision$ */
