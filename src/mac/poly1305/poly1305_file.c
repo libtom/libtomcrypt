@@ -46,12 +46,12 @@ int poly1305_file(const char *fname, const unsigned char *key, unsigned long key
    if ((err = poly1305_init(&st, key, keylen)) != CRYPT_OK) { goto LBL_ERR; }
 
    do {
-      x = fread(buf, 1, sizeof(buf), in);
+      x = fread(buf, 1, LTC_FILE_READ_BUFSIZE, in);
       if ((err = poly1305_process(&st, buf, (unsigned long)x)) != CRYPT_OK) {
          fclose(in);
          goto LBL_ERR;
       }
-   } while (x == sizeof(buf));
+   } while (x == LTC_FILE_READ_BUFSIZE);
    if (fclose(in) != 0)  {
       err = CRYPT_ERROR;
       goto LBL_ERR;
