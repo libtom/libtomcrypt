@@ -167,14 +167,14 @@ extern const struct ltc_prng_descriptor rc4_desc;
 #endif
 
 #ifdef LTC_CHACHA20_PRNG
-int chacha_prng_start(prng_state *prng);
-int chacha_prng_add_entropy(const unsigned char *in, unsigned long inlen, prng_state *prng);
-int chacha_prng_ready(prng_state *prng);
-unsigned long chacha_prng_read(unsigned char *out, unsigned long outlen, prng_state *prng);
-int  chacha_prng_done(prng_state *prng);
-int  chacha_prng_export(unsigned char *out, unsigned long *outlen, prng_state *prng);
-int  chacha_prng_import(const unsigned char *in, unsigned long inlen, prng_state *prng);
-int  chacha_prng_test(void);
+int chacha20_prng_start(prng_state *prng);
+int chacha20_prng_add_entropy(const unsigned char *in, unsigned long inlen, prng_state *prng);
+int chacha20_prng_ready(prng_state *prng);
+unsigned long chacha20_prng_read(unsigned char *out, unsigned long outlen, prng_state *prng);
+int  chacha20_prng_done(prng_state *prng);
+int  chacha20_prng_export(unsigned char *out, unsigned long *outlen, prng_state *prng);
+int  chacha20_prng_import(const unsigned char *in, unsigned long inlen, prng_state *prng);
+int  chacha20_prng_test(void);
 extern const struct ltc_prng_descriptor chacha20_prng_desc;
 #endif
 
