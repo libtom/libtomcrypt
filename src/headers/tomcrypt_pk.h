@@ -108,6 +108,8 @@ int rsa_export(unsigned char *out, unsigned long *outlen, int type, rsa_key *key
 int rsa_import(const unsigned char *in, unsigned long inlen, rsa_key *key);
 
 int rsa_import_x509(const unsigned char *in, unsigned long inlen, rsa_key *key);
+int rsa_import_pkcs8(const unsigned char *in, unsigned long inlen,
+                     const unsigned char *passwd, unsigned long passwdlen, rsa_key *key);
 int rsa_import_radix(int radix, char *N, char *e, char *d, char *p, char *q, char *dP, char *dQ, char *qP, rsa_key *key);
 #endif
 
