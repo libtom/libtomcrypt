@@ -42,13 +42,15 @@
 
 /**
   Import an RSAPublicKey or RSAPrivateKey in PKCS#8 format
-  @param in      The packet to import from
-  @param inlen   It's length (octets)
-  @param key     [out] Destination for newly imported key
+  @param in        The packet to import from
+  @param inlen     It's length (octets)
+  @param passwd    The password for decrypting privkey (NOT SUPPORTED YET)
+  @param passwdlen Password's length (octets)
+  @param key       [out] Destination for newly imported key
   @return CRYPT_OK if successful, upon error allocated memory is freed
 */
 int rsa_import_pkcs8(const unsigned char *in, unsigned long inlen,
-                     const unsigned char *passwd, unsigned long passwdlen,
+                     const void *passwd, unsigned long passwdlen,
                      rsa_key *key)
 {
    int           err;
