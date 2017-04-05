@@ -195,21 +195,21 @@ int chacha20_prng_test(void)
    chacha20_prng_add_entropy(en, sizeof(en), &st); /* add entropy to uninitialized prng */
    chacha20_prng_ready(&st);
    chacha20_prng_read(out, 10, &st);  /* 10 bytes for testing */
-   if (compare_testvector(out, 10, t1, sizeof(t1), "CHACHA-PRNG", 1) != 0) return CRYPT_FAIL_TESTVECTOR;
+   if (compare_testvector(out, 10, t1, sizeof(t1), "CHACHA-PRNG", 1)) return CRYPT_FAIL_TESTVECTOR;
    chacha20_prng_read(out, 500, &st);
    chacha20_prng_add_entropy(en, sizeof(en), &st); /* add entropy to already initialized prng */
    chacha20_prng_read(out, 500, &st);
    chacha20_prng_export(dmp, &dmplen, &st);
    chacha20_prng_read(out, 500, &st); /* skip 500 bytes */
    chacha20_prng_read(out, 10, &st);  /* 10 bytes for testing */
-   if (compare_testvector(out, 10, t2, sizeof(t2), "CHACHA-PRNG", 2) != 0) return CRYPT_FAIL_TESTVECTOR;
+   if (compare_testvector(out, 10, t2, sizeof(t2), "CHACHA-PRNG", 2)) return CRYPT_FAIL_TESTVECTOR;
    chacha20_prng_done(&st);
 
    XMEMSET(&st, 0xFF, sizeof(st)); /* just to be sure */
    chacha20_prng_import(dmp, dmplen, &st);
    chacha20_prng_read(out, 500, &st); /* skip 500 bytes */
    chacha20_prng_read(out, 10, &st);  /* 10 bytes for testing */
-   if (compare_testvector(out, 10, t2, sizeof(t2), "CHACHA-PRNG", 3) != 0) return CRYPT_FAIL_TESTVECTOR;
+   if (compare_testvector(out, 10, t2, sizeof(t2), "CHACHA-PRNG", 3)) return CRYPT_FAIL_TESTVECTOR;
    chacha20_prng_done(&st);
 
    return CRYPT_OK;

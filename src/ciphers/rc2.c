@@ -370,8 +370,8 @@ int rc2_test(void)
         rc2_ecb_encrypt(tests[x].pt, tmp[0], &skey);
         rc2_ecb_decrypt(tmp[0], tmp[1], &skey);
 
-        if (compare_testvector(tmp[0], 8, tests[x].ct, 8, "RC2 CT", x) != 0 ||
-              compare_testvector(tmp[1], 8, tests[x].pt, 8, "RC2 PT", x) != 0) {
+        if (compare_testvector(tmp[0], 8, tests[x].ct, 8, "RC2 CT", x) ||
+              compare_testvector(tmp[1], 8, tests[x].pt, 8, "RC2 PT", x)) {
            return CRYPT_FAIL_TESTVECTOR;
         }
 

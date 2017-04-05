@@ -47,17 +47,17 @@ int chacha_test(void)
    chacha_crypt(&st, (unsigned char*)pt + 70,  5,       out + 70);
    chacha_crypt(&st, (unsigned char*)pt + 75,  5,       out + 75);
    chacha_crypt(&st, (unsigned char*)pt + 80, len - 80, out + 80);
-   if (compare_testvector(out, len, ct, sizeof(ct), "CHACHA-TV1", 1) != 0) return CRYPT_FAIL_TESTVECTOR;
+   if (compare_testvector(out, len, ct, sizeof(ct), "CHACHA-TV1", 1)) return CRYPT_FAIL_TESTVECTOR;
    /* crypt in one go */
    chacha_setup(&st, k, sizeof(k), 20);
    chacha_ivctr32(&st, n, sizeof(n), 1);
    chacha_crypt(&st, (unsigned char*)pt, len, out);
-   if (compare_testvector(out, len, ct, sizeof(ct), "CHACHA-TV2", 1) != 0) return CRYPT_FAIL_TESTVECTOR;
+   if (compare_testvector(out, len, ct, sizeof(ct), "CHACHA-TV2", 1)) return CRYPT_FAIL_TESTVECTOR;
    /* crypt in one go - using chacha_ivctr64() */
    chacha_setup(&st, k, sizeof(k), 20);
    chacha_ivctr64(&st, n + 4, sizeof(n) - 4, 1);
    chacha_crypt(&st, (unsigned char*)pt, len, out);
-   if (compare_testvector(out, len, ct, sizeof(ct), "CHACHA-TV3", 1) != 0) return CRYPT_FAIL_TESTVECTOR;
+   if (compare_testvector(out, len, ct, sizeof(ct), "CHACHA-TV3", 1)) return CRYPT_FAIL_TESTVECTOR;
 
    return CRYPT_OK;
 #endif
