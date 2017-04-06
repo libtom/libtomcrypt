@@ -104,6 +104,6 @@ int chacha20poly1305_test(void)
 
    return CRYPT_OK;
 #endif
-};
+}
 
 #endif

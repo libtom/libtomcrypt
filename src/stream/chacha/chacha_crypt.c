@@ -85,6 +85,6 @@ int chacha_crypt(chacha_state *st, const unsigned char *in, unsigned long inlen,
      in  += 64;
    }
    return CRYPT_OK;
-};
+}
 
 #endif

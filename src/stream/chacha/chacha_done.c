@@ -21,6 +21,6 @@ int chacha_done(chacha_state *st)
    LTC_ARGCHK(st != NULL);
    XMEMSET(st, 0, sizeof(chacha_state));
    return CRYPT_OK;
-};
+}
 
 #endif

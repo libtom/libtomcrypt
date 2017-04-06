@@ -55,6 +55,6 @@ int chacha_setup(chacha_state *st, const unsigned char *key, unsigned long keyle
    LOAD32L(st->input[3],  constants + 12);
    st->rounds  = rounds; /* e.g. 20 for chacha20 */
    return CRYPT_OK;
-};
+}
 
 #endif
