@@ -16,8 +16,8 @@
 
 #ifdef LTC_CHACHA
 
-static const char sigma[16] = "expand 32-byte k";
-static const char tau[16]   = "expand 16-byte k";
+static const char * const sigma = "expand 32-byte k";
+static const char * const tau   = "expand 16-byte k";
 
 /**
    Initialize an ChaCha context (only the key)
