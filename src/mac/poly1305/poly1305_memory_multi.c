@@ -58,6 +58,6 @@ LBL_ERR:
 #endif
    va_end(args);
    return err;
-};
+}
 
 #endif

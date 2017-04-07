@@ -45,6 +45,6 @@ int poly1305_test(void)
    if (compare_testvector(out, len, tag, sizeof(tag), "POLY1305-TV2", 1) != 0) return CRYPT_FAIL_TESTVECTOR;
    return CRYPT_OK;
 #endif
-};
+}
 
 #endif

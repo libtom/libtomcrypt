@@ -44,6 +44,6 @@ LBL_ERR:
    zeromem(&st, sizeof(poly1305_state));
 #endif
    return err;
-};
+}
 
 #endif

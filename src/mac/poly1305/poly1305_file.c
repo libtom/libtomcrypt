@@ -65,6 +65,6 @@ LBL_ERR:
    XFREE(buf);
    return err;
 #endif
-};
+}
 
 #endif
