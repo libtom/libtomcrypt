@@ -35,40 +35,25 @@ struct blake2s_param {
    unsigned char personal[BLAKE2S_PERSONALBYTES];
 };
 
-const struct ltc_hash_descriptor blake2s_256_desc =
+const struct ltc_hash_descriptor blake2s_128_desc =
 {
-    "blake2s_256",
-    0,
-    32,
+    "blake2s_128",
+    21,
+    16,
     64,
-    { 1, 3, 6, 1, 4, 1, 1722, 12, 2, 2, 8 },
+    { 1, 3, 6, 1, 4, 1, 1722, 12, 2, 2, 4 },
     11,
-    &blake2s_256_init,
+    &blake2s_128_init,
     &blake2s_process,
     &blake2s_done,
-    &blake2s_256_test,
-    NULL
-};
-
-const struct ltc_hash_descriptor blake2s_224_desc =
-{
-    "blake2s_224",
-    0,
-    32,
-    64,
-    { 1, 3, 6, 1, 4, 1, 1722, 12, 2, 2, 7 },
-    11,
-    &blake2s_224_init,
-    &blake2s_process,
-    &blake2s_done,
-    &blake2s_224_test,
+    &blake2s_128_test,
     NULL
 };
 
 const struct ltc_hash_descriptor blake2s_160_desc =
 {
     "blake2s_160",
-    0,
+    22,
     32,
     64,
     { 1, 3, 6, 1, 4, 1, 1722, 12, 2, 2, 5 },
@@ -80,18 +65,33 @@ const struct ltc_hash_descriptor blake2s_160_desc =
     NULL
 };
 
-const struct ltc_hash_descriptor blake2s_128_desc =
+const struct ltc_hash_descriptor blake2s_224_desc =
 {
-    "blake2s_128",
-    0,
-    16,
+    "blake2s_224",
+    23,
+    32,
     64,
-    { 1, 3, 6, 1, 4, 1, 1722, 12, 2, 2, 4 },
+    { 1, 3, 6, 1, 4, 1, 1722, 12, 2, 2, 7 },
     11,
-    &blake2s_128_init,
+    &blake2s_224_init,
     &blake2s_process,
     &blake2s_done,
-    &blake2s_128_test,
+    &blake2s_224_test,
+    NULL
+};
+
+const struct ltc_hash_descriptor blake2s_256_desc =
+{
+    "blake2s_256",
+    24,
+    32,
+    64,
+    { 1, 3, 6, 1, 4, 1, 1722, 12, 2, 2, 8 },
+    11,
+    &blake2s_256_init,
+    &blake2s_process,
+    &blake2s_done,
+    &blake2s_256_test,
     NULL
 };
 
