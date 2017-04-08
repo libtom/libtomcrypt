@@ -180,6 +180,9 @@ const char *crypt_build_settings =
 #if defined(LTC_WHIRLPOOL)
    "   WHIRLPOOL\n"
 #endif
+#if defined(LTC_BLAKE2S)
+   "   BLAKE2S\n"
+#endif
 #if defined(LTC_CHC_HASH)
    "   CHC_HASH\n"
 #endif

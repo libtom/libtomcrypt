@@ -319,6 +319,12 @@ static void _unregister_all(void)
 #ifdef LTC_WHIRLPOOL
   unregister_hash(&whirlpool_desc);
 #endif
+#ifdef LTC_BLAKE2S
+  unregister_hash(&blake2s_128_desc);
+  unregister_hash(&blake2s_160_desc);
+  unregister_hash(&blake2s_224_desc);
+  unregister_hash(&blake2s_256_desc);
+#endif
 #ifdef LTC_CHC_HASH
   unregister_hash(&chc_desc);
 #endif
@@ -480,6 +486,12 @@ void reg_algs(void)
 #endif
 #ifdef LTC_WHIRLPOOL
   register_hash (&whirlpool_desc);
+#endif
+#ifdef LTC_BLAKE2S
+  register_hash(&blake2s_128_desc);
+  register_hash(&blake2s_160_desc);
+  register_hash(&blake2s_224_desc);
+  register_hash(&blake2s_256_desc);
 #endif
 #ifdef LTC_CHC_HASH
   register_hash(&chc_desc);
