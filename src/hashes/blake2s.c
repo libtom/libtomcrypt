@@ -113,73 +113,73 @@ static const unsigned char blake2s_sigma[10][16] = {
     { 10, 2, 8, 4, 7, 6, 1, 5, 15, 11, 9, 14, 3, 12, 13, 0 },
 };
 
-static inline int blake2s_set_lastnode(struct blake2s_state *S)
+static inline int blake2s_set_lastnode(hash_state *md)
 {
-   S->f[1] = ~0U;
+   md->blake2s.f[1] = ~0U;
    return 0;
 }
 
 /* Some helper functions, not necessarily useful */
-static inline int blake2s_set_lastblock(struct blake2s_state *S)
+static inline int blake2s_set_lastblock(hash_state *md)
 {
-   if (S->last_node)
-      blake2s_set_lastnode(S);
+   if (md->blake2s.last_node)
+      blake2s_set_lastnode(md);
 
-   S->f[0] = ~0U;
+   md->blake2s.f[0] = ~0U;
    return 0;
 }
 
-static inline int blake2s_increment_counter(struct blake2s_state *S, const ulong32 inc)
+static inline int blake2s_increment_counter(hash_state *md, const ulong32 inc)
 {
-   S->t[0] += inc;
-   S->t[1] += (S->t[0] < inc);
+   md->blake2s.t[0] += inc;
+   md->blake2s.t[1] += (md->blake2s.t[0] < inc);
    return 0;
 }
 
-static inline int blake2s_init0(struct blake2s_state *S)
+static inline int blake2s_init0(hash_state *md)
 {
-   XMEMSET(S, 0, sizeof(struct blake2s_state));
+   XMEMSET(&md->blake2s, 0, sizeof(struct blake2s_state));
 
    for (int i = 0; i < 8; ++i)
-      S->h[i] = blake2s_IV[i];
+      md->blake2s.h[i] = blake2s_IV[i];
 
    return CRYPT_OK;
 }
 
 /* init2 xors IV with input parameter block */
-static int blake2s_init_param(struct blake2s_state *S, const struct blake2s_param *P)
+static int blake2s_init_param(hash_state *md, const struct blake2s_param *P)
 {
-   blake2s_init0(S);
+   blake2s_init0(md);
    ulong32 *p = (ulong32 *)(P);
 
    /* IV XOR ParamBlock */
    for (size_t i = 0; i < 8; ++i) {
       ulong32 tmp;
       LOAD32L(tmp, &p[i]);
-      S->h[i] ^= tmp;
+      md->blake2s.h[i] ^= tmp;
    }
 
-   S->outlen = P->digest_length;
+   md->blake2s.outlen = P->digest_length;
    return 0;
 }
 
 /* Sequential blake2s initialization */
 int blake2s_init(hash_state *md, size_t outlen)
 {
-   struct blake2s_param P[1];
+   struct blake2s_param P;
    LTC_ARGCHK(md != NULL);
 
-   XMEMSET(P, 0, sizeof(P));
+   XMEMSET(&P, 0, sizeof(P));
 
    if ((!outlen) || (outlen > BLAKE2S_OUTBYTES))
       return CRYPT_INVALID_ARG;
 
-   P->digest_length = (unsigned char)outlen;
+   P.digest_length = (unsigned char)outlen;
 
-   P->fanout = 1;
-   P->depth = 1;
+   P.fanout = 1;
+   P.depth = 1;
 
-   return blake2s_init_param(&md->blake2s, P);
+   return blake2s_init_param(md, &P);
 }
 
 int blake2s_256_init(hash_state *md) { return blake2s_init(md, 32); }
@@ -283,7 +283,7 @@ int blake2s_process(hash_state *md, const unsigned char *in, unsigned long inlen
       if (inlen > fill) {
          XMEMCPY(md->blake2s.buf + left, in, fill);
          md->blake2s.curlen += fill;
-         blake2s_increment_counter(&md->blake2s, BLAKE2S_BLOCKBYTES);
+         blake2s_increment_counter(md, BLAKE2S_BLOCKBYTES);
          blake2s_compress(md, md->blake2s.buf);
          XMEMCPY(md->blake2s.buf, md->blake2s.buf + BLAKE2S_BLOCKBYTES, BLAKE2S_BLOCKBYTES);
          md->blake2s.curlen -= BLAKE2S_BLOCKBYTES;
@@ -309,17 +309,17 @@ int blake2s_done(hash_state *md, unsigned char *out)
    LTC_ARGCHK(md != NULL);
    LTC_ARGCHK(out != NULL);
 
-   /* if(S->outlen != outlen) return CRYPT_INVALID_ARG; */
+   /* if(md->blake2s.outlen != outlen) return CRYPT_INVALID_ARG; */
 
    if (md->blake2s.curlen > BLAKE2S_BLOCKBYTES) {
-      blake2s_increment_counter(&md->blake2s, BLAKE2S_BLOCKBYTES);
+      blake2s_increment_counter(md, BLAKE2S_BLOCKBYTES);
       blake2s_compress(md, md->blake2s.buf);
       md->blake2s.curlen -= BLAKE2S_BLOCKBYTES;
       XMEMCPY(md->blake2s.buf, md->blake2s.buf + BLAKE2S_BLOCKBYTES, md->blake2s.curlen);
    }
 
-   blake2s_increment_counter(&md->blake2s, (ulong32)md->blake2s.curlen);
-   blake2s_set_lastblock(&md->blake2s);
+   blake2s_increment_counter(md, (ulong32)md->blake2s.curlen);
+   blake2s_set_lastblock(md);
    XMEMSET(md->blake2s.buf + md->blake2s.curlen, 0, 2 * BLAKE2S_BLOCKBYTES - md->blake2s.curlen); /* Padding */
    blake2s_compress(md, md->blake2s.buf);
 
