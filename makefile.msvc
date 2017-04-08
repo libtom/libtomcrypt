@@ -38,7 +38,7 @@ src/encauth/ocb3/ocb3_encrypt.obj src/encauth/ocb3/ocb3_encrypt_authenticate_mem
 src/encauth/ocb3/ocb3_encrypt_last.obj src/encauth/ocb3/ocb3_init.obj \
 src/encauth/ocb3/ocb3_int_aad_add_block.obj src/encauth/ocb3/ocb3_int_calc_offset_zero.obj \
 src/encauth/ocb3/ocb3_int_ntz.obj src/encauth/ocb3/ocb3_int_xor_blocks.obj src/encauth/ocb3/ocb3_test.obj \
-src/hashes/blake2s.obj src/hashes/chc/chc.obj src/hashes/helper/hash_file.obj \
+src/hashes/blake2b.obj src/hashes/blake2s.obj src/hashes/chc/chc.obj src/hashes/helper/hash_file.obj \
 src/hashes/helper/hash_filehandle.obj src/hashes/helper/hash_memory.obj \
 src/hashes/helper/hash_memory_multi.obj src/hashes/md2.obj src/hashes/md4.obj src/hashes/md5.obj \
 src/hashes/rmd128.obj src/hashes/rmd160.obj src/hashes/rmd256.obj src/hashes/rmd320.obj src/hashes/sha1.obj \
