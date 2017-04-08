@@ -74,6 +74,9 @@ static const crypt_size _crypt_sizes[] = {
 #ifdef LTC_BLAKE2S
     _SZ_STRINGIFY_S(blake2s_state),
 #endif
+#ifdef LTC_BLAKE2B
+    _SZ_STRINGIFY_S(blake2b_state),
+#endif
 #ifdef LTC_CHC_HASH
     _SZ_STRINGIFY_S(chc_state),
 #endif

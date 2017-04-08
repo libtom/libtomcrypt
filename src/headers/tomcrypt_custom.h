@@ -243,6 +243,7 @@
 #define LTC_RIPEMD256
 #define LTC_RIPEMD320
 #define LTC_BLAKE2S
+#define LTC_BLAKE2B
 
 #define LTC_HASH_HELPERS
 
