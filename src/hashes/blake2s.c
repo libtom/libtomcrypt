@@ -22,21 +22,18 @@ enum blake2s_constant {
    BLAKE2S_PERSONALBYTES = 8
 };
 
-
 struct blake2s_param {
-    unsigned char digest_length;
-    unsigned char key_length;
-    unsigned char fanout;
-    unsigned char depth;
-    ulong32 leaf_length;
-    unsigned char node_offset[6];
-    unsigned char node_depth;
-    unsigned char inner_length;
-    unsigned char salt[BLAKE2S_SALTBYTES];
-    unsigned char personal[BLAKE2S_PERSONALBYTES];
+   unsigned char digest_length;
+   unsigned char key_length;
+   unsigned char fanout;
+   unsigned char depth;
+   ulong32 leaf_length;
+   unsigned char node_offset[6];
+   unsigned char node_depth;
+   unsigned char inner_length;
+   unsigned char salt[BLAKE2S_SALTBYTES];
+   unsigned char personal[BLAKE2S_PERSONALBYTES];
 };
-
-
 
 const struct ltc_hash_descriptor blake2s_256_desc =
 {
@@ -52,7 +49,6 @@ const struct ltc_hash_descriptor blake2s_256_desc =
     &blake2s_256_test,
     NULL
 };
-
 
 const struct ltc_hash_descriptor blake2s_224_desc =
 {
@@ -84,7 +80,6 @@ const struct ltc_hash_descriptor blake2s_160_desc =
     NULL
 };
 
-
 const struct ltc_hash_descriptor blake2s_128_desc =
 {
     "blake2s_128",
@@ -99,8 +94,6 @@ const struct ltc_hash_descriptor blake2s_128_desc =
     &blake2s_128_test,
     NULL
 };
-
-
 
 static const ulong32 blake2s_IV[8] = {
     0x6A09E667UL, 0xBB67AE85UL, 0x3C6EF372UL, 0xA54FF53AUL,

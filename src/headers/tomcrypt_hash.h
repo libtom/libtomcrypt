@@ -115,8 +115,7 @@ struct chc_state {
 
 
 #ifdef LTC_BLAKE2S
-
-  struct blake2s_state {
+struct blake2s_state {
     ulong32 h[8];
     ulong32 t[2];
     ulong32 f[2];
@@ -124,8 +123,7 @@ struct chc_state {
     ulong32 curlen;
     unsigned char outlen;
     unsigned char last_node;
-  };
-
+};
 #endif
 
 typedef union Hash_state {
