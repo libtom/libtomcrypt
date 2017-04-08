@@ -15,11 +15,11 @@
 #ifdef LTC_BLAKE2S
 
 enum blake2s_constant {
-    BLAKE2S_BLOCKBYTES = 64,
-    BLAKE2S_OUTBYTES   = 32,
-    BLAKE2S_KEYBYTES   = 32,
-    BLAKE2S_SALTBYTES  = 8,
-    BLAKE2S_PERSONALBYTES = 8
+   BLAKE2S_BLOCKBYTES = 64,
+   BLAKE2S_OUTBYTES = 32,
+   BLAKE2S_KEYBYTES = 32,
+   BLAKE2S_SALTBYTES = 8,
+   BLAKE2S_PERSONALBYTES = 8
 };
 
 
@@ -122,35 +122,35 @@ static const unsigned char blake2s_sigma[10][16] = {
 
 static inline int blake2s_set_lastnode(struct blake2s_state *S)
 {
-    S->f[1] = ~0U;
-    return 0;
+   S->f[1] = ~0U;
+   return 0;
 }
 
 /* Some helper functions, not necessarily useful */
 static inline int blake2s_set_lastblock(struct blake2s_state *S)
 {
-    if (S->last_node)
-        blake2s_set_lastnode(S);
+   if (S->last_node)
+      blake2s_set_lastnode(S);
 
-    S->f[0] = ~0U;
-    return 0;
+   S->f[0] = ~0U;
+   return 0;
 }
 
 static inline int blake2s_increment_counter(struct blake2s_state *S, const ulong32 inc)
 {
-    S->t[0] += inc;
-    S->t[1] += (S->t[0] < inc);
-    return 0;
+   S->t[0] += inc;
+   S->t[1] += (S->t[0] < inc);
+   return 0;
 }
 
 static inline int blake2s_init0(struct blake2s_state *S)
 {
-    XMEMSET(S, 0, sizeof(struct blake2s_state));
+   XMEMSET(S, 0, sizeof(struct blake2s_state));
 
-    for (int i = 0; i < 8; ++i)
-        S->h[i] = blake2s_IV[i];
+   for (int i = 0; i < 8; ++i)
+      S->h[i] = blake2s_IV[i];
 
-    return CRYPT_OK;
+   return CRYPT_OK;
 }
 
 /* init2 xors IV with input parameter block */
@@ -197,35 +197,33 @@ int blake2s_160_init(hash_state *md) { return blake2s_init(md, 20); }
 
 int blake2s_128_init(hash_state *md) { return blake2s_init(md, 16); }
 
-
-#define G(r,i,a,b,c,d) \
-  do { \
-    a = a + b + m[blake2s_sigma[r][2*i+0]]; \
-    d = ROR(d ^ a, 16); \
-    c = c + d; \
-    b = ROR(b ^ c, 12); \
-    a = a + b + m[blake2s_sigma[r][2*i+1]]; \
-    d = ROR(d ^ a, 8); \
-    c = c + d; \
-    b = ROR(b ^ c, 7); \
-  } while(0)
-#define ROUND(r)  \
-  do { \
-    G(r,0,v[ 0],v[ 4],v[ 8],v[12]); \
-    G(r,1,v[ 1],v[ 5],v[ 9],v[13]); \
-    G(r,2,v[ 2],v[ 6],v[10],v[14]); \
-    G(r,3,v[ 3],v[ 7],v[11],v[15]); \
-    G(r,4,v[ 0],v[ 5],v[10],v[15]); \
-    G(r,5,v[ 1],v[ 6],v[11],v[12]); \
-    G(r,6,v[ 2],v[ 7],v[ 8],v[13]); \
-    G(r,7,v[ 3],v[ 4],v[ 9],v[14]); \
-  } while(0)
-
+#define G(r, i, a, b, c, d)                                                                                            \
+   do {                                                                                                                \
+      a = a + b + m[blake2s_sigma[r][2 * i + 0]];                                                                      \
+      d = ROR(d ^ a, 16);                                                                                              \
+      c = c + d;                                                                                                       \
+      b = ROR(b ^ c, 12);                                                                                              \
+      a = a + b + m[blake2s_sigma[r][2 * i + 1]];                                                                      \
+      d = ROR(d ^ a, 8);                                                                                               \
+      c = c + d;                                                                                                       \
+      b = ROR(b ^ c, 7);                                                                                               \
+   } while (0)
+#define ROUND(r)                                                                                                       \
+   do {                                                                                                                \
+      G(r, 0, v[0], v[4], v[8], v[12]);                                                                                \
+      G(r, 1, v[1], v[5], v[9], v[13]);                                                                                \
+      G(r, 2, v[2], v[6], v[10], v[14]);                                                                               \
+      G(r, 3, v[3], v[7], v[11], v[15]);                                                                               \
+      G(r, 4, v[0], v[5], v[10], v[15]);                                                                               \
+      G(r, 5, v[1], v[6], v[11], v[12]);                                                                               \
+      G(r, 6, v[2], v[7], v[8], v[13]);                                                                                \
+      G(r, 7, v[3], v[4], v[9], v[14]);                                                                                \
+   } while (0)
 
 #ifdef LTC_CLEAN_STACK
 static int _blake2s_compress(hash_state *md, unsigned char *buf)
 #else
-static int  blake2s_compress(hash_state *md, unsigned char *buf)
+static int blake2s_compress(hash_state *md, unsigned char *buf)
 #endif
 {
    ulong32 m[16];
@@ -247,7 +245,6 @@ static int  blake2s_compress(hash_state *md, unsigned char *buf)
    v[14] = md->blake2s.f[0] ^ blake2s_IV[6];
    v[15] = md->blake2s.f[1] ^ blake2s_IV[7];
 
-
    ROUND(0);
    ROUND(1);
    ROUND(2);
@@ -262,12 +259,10 @@ static int  blake2s_compress(hash_state *md, unsigned char *buf)
    for (size_t i = 0; i < 8; ++i)
       md->blake2s.h[i] = md->blake2s.h[i] ^ v[i] ^ v[i + 8];
 
-
    return 0;
 }
 #undef G
 #undef ROUND
-
 
 #ifdef LTC_CLEAN_STACK
 static int blake2s_compress(hash_state *md, unsigned char *buf)
@@ -284,9 +279,9 @@ int blake2s_process(hash_state *md, const unsigned char *in, unsigned long inlen
    LTC_ARGCHK(md != NULL);
    LTC_ARGCHK(in != NULL);
 
-    if (md->blake2s.curlen > sizeof(md->blake2s.buf)) {
-       return CRYPT_INVALID_ARG;
-    }
+   if (md->blake2s.curlen > sizeof(md->blake2s.buf)) {
+      return CRYPT_INVALID_ARG;
+   }
 
    while (inlen > 0) {
       ulong32 left = md->blake2s.curlen;
@@ -346,12 +341,12 @@ int blake2s_done(hash_state *md, unsigned char *out)
   Self-test the hash
   @return CRYPT_OK if successful, CRYPT_NOP if self-tests have been disabled
 */
-int  blake2s_256_test(void)
+int blake2s_256_test(void)
 {
- #ifndef LTC_TEST
-    return CRYPT_NOP;
- #else
-  static const struct {
+#ifndef LTC_TEST
+   return CRYPT_NOP;
+#else
+   static const struct {
       char *msg;
       unsigned char hash[32];
   } tests[] = {
@@ -364,32 +359,32 @@ int  blake2s_256_test(void)
     { NULL, { 0 } }
   };
 
-  int i;
-  unsigned char tmp[32];
-  hash_state md;
+   int i;
+   unsigned char tmp[32];
+   hash_state md;
 
-  for (i = 0; tests[i].msg != NULL; i++) {
+   for (i = 0; tests[i].msg != NULL; i++) {
       blake2s_256_init(&md);
       blake2s_process(&md, (unsigned char *)tests[i].msg, (unsigned long)strlen(tests[i].msg));
       blake2s_done(&md, tmp);
       if (XMEMCMP(tmp, tests[i].hash, 32) != 0) {
          return CRYPT_FAIL_TESTVECTOR;
       }
-  }
-  return CRYPT_OK;
- #endif
+   }
+   return CRYPT_OK;
+#endif
 }
 
 /**
   Self-test the hash
   @return CRYPT_OK if successful, CRYPT_NOP if self-tests have been disabled
 */
-int  blake2s_224_test(void)
+int blake2s_224_test(void)
 {
- #ifndef LTC_TEST
-    return CRYPT_NOP;
- #else
-  static const struct {
+#ifndef LTC_TEST
+   return CRYPT_NOP;
+#else
+   static const struct {
       char *msg;
       unsigned char hash[28];
   } tests[] = {
@@ -402,32 +397,32 @@ int  blake2s_224_test(void)
     { NULL, { 0 } }
   };
 
-  int i;
-  unsigned char tmp[28];
-  hash_state md;
+   int i;
+   unsigned char tmp[28];
+   hash_state md;
 
-  for (i = 0; tests[i].msg != NULL; i++) {
+   for (i = 0; tests[i].msg != NULL; i++) {
       blake2s_224_init(&md);
       blake2s_process(&md, (unsigned char *)tests[i].msg, (unsigned long)strlen(tests[i].msg));
       blake2s_done(&md, tmp);
       if (XMEMCMP(tmp, tests[i].hash, 28) != 0) {
          return CRYPT_FAIL_TESTVECTOR;
       }
-  }
-  return CRYPT_OK;
- #endif
+   }
+   return CRYPT_OK;
+#endif
 }
 
 /**
   Self-test the hash
   @return CRYPT_OK if successful, CRYPT_NOP if self-tests have been disabled
 */
-int  blake2s_160_test(void)
+int blake2s_160_test(void)
 {
- #ifndef LTC_TEST
-    return CRYPT_NOP;
- #else
-  static const struct {
+#ifndef LTC_TEST
+   return CRYPT_NOP;
+#else
+   static const struct {
       char *msg;
       unsigned char hash[20];
   } tests[] = {
@@ -439,32 +434,32 @@ int  blake2s_160_test(void)
     { NULL, { 0 } }
   };
 
-  int i;
-  unsigned char tmp[20];
-  hash_state md;
+   int i;
+   unsigned char tmp[20];
+   hash_state md;
 
-  for (i = 0; tests[i].msg != NULL; i++) {
+   for (i = 0; tests[i].msg != NULL; i++) {
       blake2s_160_init(&md);
       blake2s_process(&md, (unsigned char *)tests[i].msg, (unsigned long)strlen(tests[i].msg));
       blake2s_done(&md, tmp);
       if (XMEMCMP(tmp, tests[i].hash, 20) != 0) {
          return CRYPT_FAIL_TESTVECTOR;
       }
-  }
-  return CRYPT_OK;
- #endif
+   }
+   return CRYPT_OK;
+#endif
 }
 
 /**
   Self-test the hash
   @return CRYPT_OK if successful, CRYPT_NOP if self-tests have been disabled
 */
-int  blake2s_128_test(void)
+int blake2s_128_test(void)
 {
- #ifndef LTC_TEST
-    return CRYPT_NOP;
- #else
-  static const struct {
+#ifndef LTC_TEST
+   return CRYPT_NOP;
+#else
+   static const struct {
       char *msg;
       unsigned char hash[16];
   } tests[] = {
@@ -475,22 +470,20 @@ int  blake2s_128_test(void)
     { NULL, { 0 } }
   };
 
-  int i;
-  unsigned char tmp[16];
-  hash_state md;
+   int i;
+   unsigned char tmp[16];
+   hash_state md;
 
-  for (i = 0; tests[i].msg != NULL; i++) {
+   for (i = 0; tests[i].msg != NULL; i++) {
       blake2s_128_init(&md);
       blake2s_process(&md, (unsigned char *)tests[i].msg, (unsigned long)strlen(tests[i].msg));
       blake2s_done(&md, tmp);
       if (XMEMCMP(tmp, tests[i].hash, 16) != 0) {
          return CRYPT_FAIL_TESTVECTOR;
       }
-  }
-  return CRYPT_OK;
- #endif
+   }
+   return CRYPT_OK;
+#endif
 }
-
-
 
 #endif
