@@ -292,6 +292,13 @@ static int blake2b_compress(hash_state *md, const unsigned char *buf)
 
 int blake2b_process(hash_state *md, const unsigned char *in, unsigned long inlen)
 {
+   LTC_ARGCHK(md != NULL);
+   LTC_ARGCHK(in != NULL);
+
+   if (md->blake2b.curlen > sizeof(md->blake2b.buf)) {
+      return CRYPT_INVALID_ARG;
+   }
+
    if (inlen > 0) {
       unsigned long left = md->blake2b.curlen;
       unsigned long fill = BLAKE2B_BLOCKBYTES - left;

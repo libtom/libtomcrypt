@@ -179,10 +179,10 @@ int blake2s_init(hash_state *md, unsigned long outlen)
    struct blake2s_param P;
    LTC_ARGCHK(md != NULL);
 
-   XMEMSET(&P, 0, sizeof(P));
-
    if ((!outlen) || (outlen > BLAKE2S_OUTBYTES))
       return CRYPT_INVALID_ARG;
+
+   XMEMSET(&P, 0, sizeof(P));
 
    P.digest_length = (unsigned char)outlen;
 
