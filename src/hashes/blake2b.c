@@ -27,18 +27,15 @@
 
 #ifdef LTC_BLAKE2B
 
-  enum blake2b_constant
-  {
-    BLAKE2B_BLOCKBYTES = 128,
-    BLAKE2B_OUTBYTES   = 64,
-    BLAKE2B_KEYBYTES   = 64,
-    BLAKE2B_SALTBYTES  = 16,
-    BLAKE2B_PERSONALBYTES = 16
-  };
+enum blake2b_constant {
+   BLAKE2B_BLOCKBYTES = 128,
+   BLAKE2B_OUTBYTES = 64,
+   BLAKE2B_KEYBYTES = 64,
+   BLAKE2B_SALTBYTES = 16,
+   BLAKE2B_PERSONALBYTES = 16
+};
 
-
-struct blake2b_param
-{
+struct blake2b_param {
    unsigned char digest_length;
    unsigned char key_length;
    unsigned char fanout;
@@ -138,75 +135,68 @@ static const unsigned char blake2b_sigma[12][16] =
   { 14, 10,  4,  8,  9, 15, 13,  6,  1, 12,  0,  2, 11,  7,  5,  3 }
 };
 
-
-static void blake2b_set_lastnode( hash_state *md )
-{
-  md->blake2b.f[1] = CONST64(0xffffffffffffffff);
-}
+static void blake2b_set_lastnode(hash_state *md) { md->blake2b.f[1] = CONST64(0xffffffffffffffff); }
 
 /* Some helper functions, not necessarily useful */
-static int blake2b_is_lastblock( const hash_state *md )
+static int blake2b_is_lastblock(const hash_state *md) { return md->blake2b.f[0] != 0; }
+
+static void blake2b_set_lastblock(hash_state *md)
 {
-  return md->blake2b.f[0] != 0;
+   if (md->blake2b.last_node)
+      blake2b_set_lastnode(md);
+
+   md->blake2b.f[0] = CONST64(0xffffffffffffffff);
 }
 
-static void blake2b_set_lastblock( hash_state *md )
+static void blake2b_increment_counter(hash_state *md, ulong64 inc)
 {
-  if( md->blake2b.last_node ) blake2b_set_lastnode( md );
-
-  md->blake2b.f[0] = CONST64(0xffffffffffffffff);
+   md->blake2b.t[0] += inc;
+   md->blake2b.t[1] += (md->blake2b.t[0] < inc);
 }
 
-static void blake2b_increment_counter( hash_state *md, ulong64 inc )
+static void blake2b_init0(hash_state *md)
 {
-  md->blake2b.t[0] += inc;
-  md->blake2b.t[1] += ( md->blake2b.t[0] < inc );
-}
+   unsigned long i;
+   XMEMSET(&md->blake2b, 0, sizeof(md->blake2b));
 
-static void blake2b_init0( hash_state *md )
-{
-  unsigned long i;
-  XMEMSET( &md->blake2b, 0, sizeof( md->blake2b ) );
-
-  for( i = 0; i < 8; ++i ) md->blake2b.h[i] = blake2b_IV[i];
+   for (i = 0; i < 8; ++i)
+      md->blake2b.h[i] = blake2b_IV[i];
 }
 
 /* init xors IV with input parameter block */
-int blake2b_init_param( hash_state *md, const struct blake2b_param *P )
+int blake2b_init_param(hash_state *md, const struct blake2b_param *P)
 {
-  const unsigned char *p = ( const unsigned char * )( P );
-  unsigned long i;
+   const unsigned char *p = (const unsigned char *)(P);
+   unsigned long i;
 
-  blake2b_init0( md );
+   blake2b_init0(md);
 
-  /* IV XOR ParamBlock */
-  for( i = 0; i < 8; ++i ) {
-   ulong64 tmp;
-   LOAD64L(tmp, p + sizeof( md->blake2b.h[i] ) * i );
-    md->blake2b.h[i] ^= tmp;
-  }
+   /* IV XOR ParamBlock */
+   for (i = 0; i < 8; ++i) {
+      ulong64 tmp;
+      LOAD64L(tmp, p + sizeof(md->blake2b.h[i]) * i);
+      md->blake2b.h[i] ^= tmp;
+   }
 
-  md->blake2b.outlen = P->digest_length;
-  return CRYPT_OK;
+   md->blake2b.outlen = P->digest_length;
+   return CRYPT_OK;
 }
 
-
-
-int blake2b_init( hash_state *md, unsigned long outlen )
+int blake2b_init(hash_state *md, unsigned long outlen)
 {
-  struct blake2b_param P;
+   struct blake2b_param P;
 
-  LTC_ARGCHK(md != NULL);
+   LTC_ARGCHK(md != NULL);
 
-  if ( ( !outlen ) || ( outlen > BLAKE2B_OUTBYTES ) )
-   return CRYPT_INVALID_ARG;
+   if ((!outlen) || (outlen > BLAKE2B_OUTBYTES))
+      return CRYPT_INVALID_ARG;
 
-  XMEMSET(&P, 0, sizeof(P));
+   XMEMSET(&P, 0, sizeof(P));
 
-  P.digest_length = (unsigned char)outlen;
-  P.fanout        = 1;
-  P.depth         = 1;
-  return blake2b_init_param( md, &P );
+   P.digest_length = (unsigned char)outlen;
+   P.fanout = 1;
+   P.depth = 1;
+   return blake2b_init_param(md, &P);
 }
 
 int blake2b_160_init(hash_state *md) { return blake2b_init(md, 20); }
@@ -217,32 +207,29 @@ int blake2b_384_init(hash_state *md) { return blake2b_init(md, 48); }
 
 int blake2b_512_init(hash_state *md) { return blake2b_init(md, 64); }
 
+#define G(r, i, a, b, c, d)                                                                                            \
+   do {                                                                                                                \
+      a = a + b + m[blake2b_sigma[r][2 * i + 0]];                                                                      \
+      d = ROR64(d ^ a, 32);                                                                                            \
+      c = c + d;                                                                                                       \
+      b = ROR64(b ^ c, 24);                                                                                            \
+      a = a + b + m[blake2b_sigma[r][2 * i + 1]];                                                                      \
+      d = ROR64(d ^ a, 16);                                                                                            \
+      c = c + d;                                                                                                       \
+      b = ROR64(b ^ c, 63);                                                                                            \
+   } while (0)
 
-
-
-#define G(r,i,a,b,c,d)                      \
-  do {                                      \
-    a = a + b + m[blake2b_sigma[r][2*i+0]]; \
-    d = ROR64(d ^ a, 32);                  \
-    c = c + d;                              \
-    b = ROR64(b ^ c, 24);                  \
-    a = a + b + m[blake2b_sigma[r][2*i+1]]; \
-    d = ROR64(d ^ a, 16);                  \
-    c = c + d;                              \
-    b = ROR64(b ^ c, 63);                  \
-  } while(0)
-
-#define ROUND(r)                    \
-  do {                              \
-    G(r,0,v[ 0],v[ 4],v[ 8],v[12]); \
-    G(r,1,v[ 1],v[ 5],v[ 9],v[13]); \
-    G(r,2,v[ 2],v[ 6],v[10],v[14]); \
-    G(r,3,v[ 3],v[ 7],v[11],v[15]); \
-    G(r,4,v[ 0],v[ 5],v[10],v[15]); \
-    G(r,5,v[ 1],v[ 6],v[11],v[12]); \
-    G(r,6,v[ 2],v[ 7],v[ 8],v[13]); \
-    G(r,7,v[ 3],v[ 4],v[ 9],v[14]); \
-  } while(0)
+#define ROUND(r)                                                                                                       \
+   do {                                                                                                                \
+      G(r, 0, v[0], v[4], v[8], v[12]);                                                                                \
+      G(r, 1, v[1], v[5], v[9], v[13]);                                                                                \
+      G(r, 2, v[2], v[6], v[10], v[14]);                                                                               \
+      G(r, 3, v[3], v[7], v[11], v[15]);                                                                               \
+      G(r, 4, v[0], v[5], v[10], v[15]);                                                                               \
+      G(r, 5, v[1], v[6], v[11], v[12]);                                                                               \
+      G(r, 6, v[2], v[7], v[8], v[13]);                                                                                \
+      G(r, 7, v[3], v[4], v[9], v[14]);                                                                                \
+   } while (0)
 
 #ifdef LTC_CLEAN_STACK
 static int _blake2b_compress(hash_state *md, const unsigned char *buf)
@@ -250,44 +237,44 @@ static int _blake2b_compress(hash_state *md, const unsigned char *buf)
 static int blake2b_compress(hash_state *md, const unsigned char *buf)
 #endif
 {
-  ulong64 m[16];
-  ulong64 v[16];
-  unsigned long i;
+   ulong64 m[16];
+   ulong64 v[16];
+   unsigned long i;
 
-  for( i = 0; i < 16; ++i ) {
-    LOAD64L(m[i], buf + i * sizeof( m[i] ) );
-  }
+   for (i = 0; i < 16; ++i) {
+      LOAD64L(m[i], buf + i * sizeof(m[i]));
+   }
 
-  for( i = 0; i < 8; ++i ) {
-    v[i] = md->blake2b.h[i];
-  }
+   for (i = 0; i < 8; ++i) {
+      v[i] = md->blake2b.h[i];
+   }
 
-  v[ 8] = blake2b_IV[0];
-  v[ 9] = blake2b_IV[1];
-  v[10] = blake2b_IV[2];
-  v[11] = blake2b_IV[3];
-  v[12] = blake2b_IV[4] ^ md->blake2b.t[0];
-  v[13] = blake2b_IV[5] ^ md->blake2b.t[1];
-  v[14] = blake2b_IV[6] ^ md->blake2b.f[0];
-  v[15] = blake2b_IV[7] ^ md->blake2b.f[1];
+   v[8] = blake2b_IV[0];
+   v[9] = blake2b_IV[1];
+   v[10] = blake2b_IV[2];
+   v[11] = blake2b_IV[3];
+   v[12] = blake2b_IV[4] ^ md->blake2b.t[0];
+   v[13] = blake2b_IV[5] ^ md->blake2b.t[1];
+   v[14] = blake2b_IV[6] ^ md->blake2b.f[0];
+   v[15] = blake2b_IV[7] ^ md->blake2b.f[1];
 
-  ROUND( 0 );
-  ROUND( 1 );
-  ROUND( 2 );
-  ROUND( 3 );
-  ROUND( 4 );
-  ROUND( 5 );
-  ROUND( 6 );
-  ROUND( 7 );
-  ROUND( 8 );
-  ROUND( 9 );
-  ROUND( 10 );
-  ROUND( 11 );
+   ROUND(0);
+   ROUND(1);
+   ROUND(2);
+   ROUND(3);
+   ROUND(4);
+   ROUND(5);
+   ROUND(6);
+   ROUND(7);
+   ROUND(8);
+   ROUND(9);
+   ROUND(10);
+   ROUND(11);
 
-  for( i = 0; i < 8; ++i ) {
-    md->blake2b.h[i] = md->blake2b.h[i] ^ v[i] ^ v[i + 8];
-  }
-  return CRYPT_OK;
+   for (i = 0; i < 8; ++i) {
+      md->blake2b.h[i] = md->blake2b.h[i] ^ v[i] ^ v[i + 8];
+   }
+   return CRYPT_OK;
 }
 
 #undef G
@@ -303,62 +290,59 @@ static int blake2b_compress(hash_state *md, const unsigned char *buf)
 }
 #endif
 
-int blake2b_process( hash_state *md, const unsigned char *in, unsigned long inlen )
+int blake2b_process(hash_state *md, const unsigned char *in, unsigned long inlen)
 {
-  if( inlen > 0 )
-  {
-    unsigned long left = md->blake2b.curlen;
-    unsigned long fill = BLAKE2B_BLOCKBYTES - left;
-    if( inlen > fill )
-    {
-      md->blake2b.curlen = 0;
-      XMEMCPY( md->blake2b.buf + left, in, fill ); /* Fill buffer */
-      blake2b_increment_counter( md, BLAKE2B_BLOCKBYTES );
-      blake2b_compress( md, md->blake2b.buf ); /* Compress */
-      in += fill; inlen -= fill;
-      while(inlen > BLAKE2B_BLOCKBYTES) {
-        blake2b_increment_counter(md, BLAKE2B_BLOCKBYTES);
-        blake2b_compress( md, in );
-        in += BLAKE2B_BLOCKBYTES;
-        inlen -= BLAKE2B_BLOCKBYTES;
+   if (inlen > 0) {
+      unsigned long left = md->blake2b.curlen;
+      unsigned long fill = BLAKE2B_BLOCKBYTES - left;
+      if (inlen > fill) {
+         md->blake2b.curlen = 0;
+         XMEMCPY(md->blake2b.buf + left, in, fill); /* Fill buffer */
+         blake2b_increment_counter(md, BLAKE2B_BLOCKBYTES);
+         blake2b_compress(md, md->blake2b.buf); /* Compress */
+         in += fill;
+         inlen -= fill;
+         while (inlen > BLAKE2B_BLOCKBYTES) {
+            blake2b_increment_counter(md, BLAKE2B_BLOCKBYTES);
+            blake2b_compress(md, in);
+            in += BLAKE2B_BLOCKBYTES;
+            inlen -= BLAKE2B_BLOCKBYTES;
+         }
       }
-    }
-    XMEMCPY( md->blake2b.buf + md->blake2b.curlen, in, inlen );
-    md->blake2b.curlen += inlen;
-  }
-  return CRYPT_OK;
+      XMEMCPY(md->blake2b.buf + md->blake2b.curlen, in, inlen);
+      md->blake2b.curlen += inlen;
+   }
+   return CRYPT_OK;
 }
 
-int blake2b_done( hash_state *md, unsigned char *out)
+int blake2b_done(hash_state *md, unsigned char *out)
 {
-  unsigned char buffer[BLAKE2B_OUTBYTES] = {0};
-  unsigned long i;
+   unsigned char buffer[BLAKE2B_OUTBYTES] = { 0 };
+   unsigned long i;
 
    LTC_ARGCHK(md != NULL);
    LTC_ARGCHK(out != NULL);
 
    /* if(md->blakebs.outlen != outlen) return CRYPT_INVALID_ARG; */
 
+   if (blake2b_is_lastblock(md))
+      return CRYPT_ERROR;
 
-  if( blake2b_is_lastblock( md ) )
-    return CRYPT_ERROR;
+   blake2b_increment_counter(md, md->blake2b.curlen);
+   blake2b_set_lastblock(md);
+   XMEMSET(md->blake2b.buf + md->blake2b.curlen, 0, BLAKE2B_BLOCKBYTES - md->blake2b.curlen); /* Padding */
+   blake2b_compress(md, md->blake2b.buf);
 
-  blake2b_increment_counter( md, md->blake2b.curlen );
-  blake2b_set_lastblock( md );
-  XMEMSET( md->blake2b.buf + md->blake2b.curlen, 0, BLAKE2B_BLOCKBYTES - md->blake2b.curlen ); /* Padding */
-  blake2b_compress( md, md->blake2b.buf );
+   for (i = 0; i < 8; ++i) /* Output full hash to temp buffer */
+      STORE64L(md->blake2b.h[i], buffer + sizeof(md->blake2b.h[i]) * i);
 
-  for( i = 0; i < 8; ++i ) /* Output full hash to temp buffer */
-    STORE64L( md->blake2b.h[i],  buffer + sizeof( md->blake2b.h[i] ) * i );
-
-  XMEMCPY( out, buffer, md->blake2b.outlen );
+   XMEMCPY(out, buffer, md->blake2b.outlen);
 #ifdef LTC_CLEAN_STACK
-    zeromem(buffer, sizeof(buffer));
-    zeromem(md, sizeof(hash_state));
+   zeromem(buffer, sizeof(buffer));
+   zeromem(md, sizeof(hash_state));
 #endif
-  return CRYPT_OK;
+   return CRYPT_OK;
 }
-
 
 /**
   Self-test the hash
@@ -541,6 +525,5 @@ int blake2b_160_test(void)
    return CRYPT_OK;
 #endif
 }
-
 
 #endif
