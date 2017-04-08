@@ -349,7 +349,7 @@ extern const struct ltc_hash_descriptor blake2s_128_desc;
 int blake2s_128_init(hash_state * md);
 int blake2s_128_test(void);
 
-int blake2s_init(hash_state * md, size_t outlen);
+int blake2s_init(hash_state * md, unsigned long outlen);
 int blake2s_process(hash_state * md, const unsigned char *in, unsigned long inlen);
 int blake2s_done(hash_state * md, unsigned char *hash);
 #endif

@@ -7,7 +7,20 @@
  * guarantee it works.
  */
 
-/* based on https://github.com/BLAKE2/BLAKE2/blob/master/ref/blake2s-ref.c  public domain/cc0 */
+/*
+   BLAKE2 reference source code package - reference C implementations
+
+   Copyright 2012, Samuel Neves <sneves@dei.uc.pt>.  You may use this under the
+   terms of the CC0, the OpenSSL Licence, or the Apache Public License 2.0, at
+   your option.  The terms of these licenses can be found at:
+
+   - CC0 1.0 Universal : http://creativecommons.org/publicdomain/zero/1.0
+   - OpenSSL license   : https://www.openssl.org/source/license.html
+   - Apache 2.0        : http://www.apache.org/licenses/LICENSE-2.0
+
+   More information about the BLAKE2 hash function can be found at
+   https://blake2.net.
+*/
 /* see also https://www.ietf.org/rfc/rfc7693.txt */
 
 #include "tomcrypt.h"
@@ -113,27 +126,24 @@ static const unsigned char blake2s_sigma[10][16] = {
     { 10, 2, 8, 4, 7, 6, 1, 5, 15, 11, 9, 14, 3, 12, 13, 0 },
 };
 
-static inline int blake2s_set_lastnode(hash_state *md)
+static inline void blake2s_set_lastnode(hash_state *md)
 {
    md->blake2s.f[1] = ~0U;
-   return 0;
 }
 
 /* Some helper functions, not necessarily useful */
-static inline int blake2s_set_lastblock(hash_state *md)
+static inline void blake2s_set_lastblock(hash_state *md)
 {
    if (md->blake2s.last_node)
       blake2s_set_lastnode(md);
 
    md->blake2s.f[0] = ~0U;
-   return 0;
 }
 
-static inline int blake2s_increment_counter(hash_state *md, const ulong32 inc)
+static inline void blake2s_increment_counter(hash_state *md, const ulong32 inc)
 {
    md->blake2s.t[0] += inc;
    md->blake2s.t[1] += (md->blake2s.t[0] < inc);
-   return 0;
 }
 
 static inline int blake2s_init0(hash_state *md)
@@ -153,18 +163,18 @@ static int blake2s_init_param(hash_state *md, const struct blake2s_param *P)
    ulong32 *p = (ulong32 *)(P);
 
    /* IV XOR ParamBlock */
-   for (size_t i = 0; i < 8; ++i) {
+   for (unsigned long i = 0; i < 8; ++i) {
       ulong32 tmp;
       LOAD32L(tmp, &p[i]);
       md->blake2s.h[i] ^= tmp;
    }
 
    md->blake2s.outlen = P->digest_length;
-   return 0;
+   return CRYPT_OK;
 }
 
 /* Sequential blake2s initialization */
-int blake2s_init(hash_state *md, size_t outlen)
+int blake2s_init(hash_state *md, unsigned long outlen)
 {
    struct blake2s_param P;
    LTC_ARGCHK(md != NULL);
@@ -182,13 +192,13 @@ int blake2s_init(hash_state *md, size_t outlen)
    return blake2s_init_param(md, &P);
 }
 
-int blake2s_256_init(hash_state *md) { return blake2s_init(md, 32); }
-
-int blake2s_224_init(hash_state *md) { return blake2s_init(md, 28); }
+int blake2s_128_init(hash_state *md) { return blake2s_init(md, 16); }
 
 int blake2s_160_init(hash_state *md) { return blake2s_init(md, 20); }
 
-int blake2s_128_init(hash_state *md) { return blake2s_init(md, 16); }
+int blake2s_224_init(hash_state *md) { return blake2s_init(md, 28); }
+
+int blake2s_256_init(hash_state *md) { return blake2s_init(md, 32); }
 
 #define G(r, i, a, b, c, d)                                                                                            \
    do {                                                                                                                \
@@ -222,11 +232,11 @@ static int blake2s_compress(hash_state *md, unsigned char *buf)
    ulong32 m[16];
    ulong32 v[16];
 
-   for (size_t i = 0; i < 16; ++i) {
+   for (unsigned long i = 0; i < 16; ++i) {
       LOAD32L(m[i], buf + i * sizeof(m[i]));
    }
 
-   for (size_t i = 0; i < 8; ++i)
+   for (unsigned long i = 0; i < 8; ++i)
       v[i] = md->blake2s.h[i];
 
    v[8] = blake2s_IV[0];
@@ -249,10 +259,10 @@ static int blake2s_compress(hash_state *md, unsigned char *buf)
    ROUND(8);
    ROUND(9);
 
-   for (size_t i = 0; i < 8; ++i)
+   for (unsigned long i = 0; i < 8; ++i)
       md->blake2s.h[i] = md->blake2s.h[i] ^ v[i] ^ v[i + 8];
 
-   return 0;
+   return CRYPT_OK;
 }
 #undef G
 #undef ROUND
@@ -304,7 +314,7 @@ int blake2s_process(hash_state *md, const unsigned char *in, unsigned long inlen
 int blake2s_done(hash_state *md, unsigned char *out)
 {
    unsigned char buffer[BLAKE2S_OUTBYTES];
-   size_t i;
+   unsigned long i;
 
    LTC_ARGCHK(md != NULL);
    LTC_ARGCHK(out != NULL);
@@ -327,6 +337,9 @@ int blake2s_done(hash_state *md, unsigned char *out)
       STORE32L(md->blake2s.h[i], buffer + sizeof(md->blake2s.h[i]) * i);
 
    XMEMCPY(out, buffer, md->blake2s.outlen);
+#ifdef LTC_CLEAN_STACK
+    zeromem(md, sizeof(hash_state));
+#endif
    return CRYPT_OK;
 }
 
