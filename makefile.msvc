@@ -38,40 +38,41 @@ src/encauth/ocb3/ocb3_encrypt.obj src/encauth/ocb3/ocb3_encrypt_authenticate_mem
 src/encauth/ocb3/ocb3_encrypt_last.obj src/encauth/ocb3/ocb3_init.obj \
 src/encauth/ocb3/ocb3_int_aad_add_block.obj src/encauth/ocb3/ocb3_int_calc_offset_zero.obj \
 src/encauth/ocb3/ocb3_int_ntz.obj src/encauth/ocb3/ocb3_int_xor_blocks.obj src/encauth/ocb3/ocb3_test.obj \
-src/hashes/chc/chc.obj src/hashes/helper/hash_file.obj src/hashes/helper/hash_filehandle.obj \
-src/hashes/helper/hash_memory.obj src/hashes/helper/hash_memory_multi.obj src/hashes/md2.obj src/hashes/md4.obj \
-src/hashes/md5.obj src/hashes/rmd128.obj src/hashes/rmd160.obj src/hashes/rmd256.obj src/hashes/rmd320.obj \
-src/hashes/sha1.obj src/hashes/sha2/sha224.obj src/hashes/sha2/sha256.obj src/hashes/sha2/sha384.obj \
-src/hashes/sha2/sha512.obj src/hashes/sha2/sha512_224.obj src/hashes/sha2/sha512_256.obj src/hashes/sha3.obj \
-src/hashes/sha3_test.obj src/hashes/tiger.obj src/hashes/whirl/whirl.obj src/mac/f9/f9_done.obj \
-src/mac/f9/f9_file.obj src/mac/f9/f9_init.obj src/mac/f9/f9_memory.obj src/mac/f9/f9_memory_multi.obj \
-src/mac/f9/f9_process.obj src/mac/f9/f9_test.obj src/mac/hmac/hmac_done.obj src/mac/hmac/hmac_file.obj \
-src/mac/hmac/hmac_init.obj src/mac/hmac/hmac_memory.obj src/mac/hmac/hmac_memory_multi.obj \
-src/mac/hmac/hmac_process.obj src/mac/hmac/hmac_test.obj src/mac/omac/omac_done.obj src/mac/omac/omac_file.obj \
-src/mac/omac/omac_init.obj src/mac/omac/omac_memory.obj src/mac/omac/omac_memory_multi.obj \
-src/mac/omac/omac_process.obj src/mac/omac/omac_test.obj src/mac/pelican/pelican.obj \
-src/mac/pelican/pelican_memory.obj src/mac/pelican/pelican_test.obj src/mac/pmac/pmac_done.obj \
-src/mac/pmac/pmac_file.obj src/mac/pmac/pmac_init.obj src/mac/pmac/pmac_memory.obj \
-src/mac/pmac/pmac_memory_multi.obj src/mac/pmac/pmac_ntz.obj src/mac/pmac/pmac_process.obj \
-src/mac/pmac/pmac_shift_xor.obj src/mac/pmac/pmac_test.obj src/mac/poly1305/poly1305.obj \
-src/mac/poly1305/poly1305_file.obj src/mac/poly1305/poly1305_memory.obj \
-src/mac/poly1305/poly1305_memory_multi.obj src/mac/poly1305/poly1305_test.obj src/mac/xcbc/xcbc_done.obj \
-src/mac/xcbc/xcbc_file.obj src/mac/xcbc/xcbc_init.obj src/mac/xcbc/xcbc_memory.obj \
-src/mac/xcbc/xcbc_memory_multi.obj src/mac/xcbc/xcbc_process.obj src/mac/xcbc/xcbc_test.obj \
-src/math/fp/ltc_ecc_fp_mulmod.obj src/math/gmp_desc.obj src/math/ltm_desc.obj src/math/multi.obj \
-src/math/rand_bn.obj src/math/rand_prime.obj src/math/tfm_desc.obj src/misc/adler32.obj \
-src/misc/base64/base64_decode.obj src/misc/base64/base64_encode.obj src/misc/burn_stack.obj src/misc/crc32.obj \
-src/misc/crypt/crypt.obj src/misc/crypt/crypt_argchk.obj src/misc/crypt/crypt_cipher_descriptor.obj \
-src/misc/crypt/crypt_cipher_is_valid.obj src/misc/crypt/crypt_constants.obj \
-src/misc/crypt/crypt_find_cipher.obj src/misc/crypt/crypt_find_cipher_any.obj \
-src/misc/crypt/crypt_find_cipher_id.obj src/misc/crypt/crypt_find_hash.obj \
-src/misc/crypt/crypt_find_hash_any.obj src/misc/crypt/crypt_find_hash_id.obj \
-src/misc/crypt/crypt_find_hash_oid.obj src/misc/crypt/crypt_find_prng.obj src/misc/crypt/crypt_fsa.obj \
-src/misc/crypt/crypt_hash_descriptor.obj src/misc/crypt/crypt_hash_is_valid.obj \
-src/misc/crypt/crypt_inits.obj src/misc/crypt/crypt_ltc_mp_descriptor.obj \
-src/misc/crypt/crypt_prng_descriptor.obj src/misc/crypt/crypt_prng_is_valid.obj \
-src/misc/crypt/crypt_prng_rng_descriptor.obj src/misc/crypt/crypt_register_cipher.obj \
-src/misc/crypt/crypt_register_hash.obj src/misc/crypt/crypt_register_prng.obj src/misc/crypt/crypt_sizes.obj \
+src/hashes/blake2s.obj src/hashes/chc/chc.obj src/hashes/helper/hash_file.obj \
+src/hashes/helper/hash_filehandle.obj src/hashes/helper/hash_memory.obj \
+src/hashes/helper/hash_memory_multi.obj src/hashes/md2.obj src/hashes/md4.obj src/hashes/md5.obj \
+src/hashes/rmd128.obj src/hashes/rmd160.obj src/hashes/rmd256.obj src/hashes/rmd320.obj src/hashes/sha1.obj \
+src/hashes/sha2/sha224.obj src/hashes/sha2/sha256.obj src/hashes/sha2/sha384.obj src/hashes/sha2/sha512.obj \
+src/hashes/sha2/sha512_224.obj src/hashes/sha2/sha512_256.obj src/hashes/sha3.obj src/hashes/sha3_test.obj \
+src/hashes/tiger.obj src/hashes/whirl/whirl.obj src/mac/f9/f9_done.obj src/mac/f9/f9_file.obj \
+src/mac/f9/f9_init.obj src/mac/f9/f9_memory.obj src/mac/f9/f9_memory_multi.obj src/mac/f9/f9_process.obj \
+src/mac/f9/f9_test.obj src/mac/hmac/hmac_done.obj src/mac/hmac/hmac_file.obj src/mac/hmac/hmac_init.obj \
+src/mac/hmac/hmac_memory.obj src/mac/hmac/hmac_memory_multi.obj src/mac/hmac/hmac_process.obj \
+src/mac/hmac/hmac_test.obj src/mac/omac/omac_done.obj src/mac/omac/omac_file.obj src/mac/omac/omac_init.obj \
+src/mac/omac/omac_memory.obj src/mac/omac/omac_memory_multi.obj src/mac/omac/omac_process.obj \
+src/mac/omac/omac_test.obj src/mac/pelican/pelican.obj src/mac/pelican/pelican_memory.obj \
+src/mac/pelican/pelican_test.obj src/mac/pmac/pmac_done.obj src/mac/pmac/pmac_file.obj \
+src/mac/pmac/pmac_init.obj src/mac/pmac/pmac_memory.obj src/mac/pmac/pmac_memory_multi.obj \
+src/mac/pmac/pmac_ntz.obj src/mac/pmac/pmac_process.obj src/mac/pmac/pmac_shift_xor.obj \
+src/mac/pmac/pmac_test.obj src/mac/poly1305/poly1305.obj src/mac/poly1305/poly1305_file.obj \
+src/mac/poly1305/poly1305_memory.obj src/mac/poly1305/poly1305_memory_multi.obj \
+src/mac/poly1305/poly1305_test.obj src/mac/xcbc/xcbc_done.obj src/mac/xcbc/xcbc_file.obj \
+src/mac/xcbc/xcbc_init.obj src/mac/xcbc/xcbc_memory.obj src/mac/xcbc/xcbc_memory_multi.obj \
+src/mac/xcbc/xcbc_process.obj src/mac/xcbc/xcbc_test.obj src/math/fp/ltc_ecc_fp_mulmod.obj \
+src/math/gmp_desc.obj src/math/ltm_desc.obj src/math/multi.obj src/math/rand_bn.obj src/math/rand_prime.obj \
+src/math/tfm_desc.obj src/misc/adler32.obj src/misc/base64/base64_decode.obj src/misc/base64/base64_encode.obj \
+src/misc/burn_stack.obj src/misc/crc32.obj src/misc/crypt/crypt.obj src/misc/crypt/crypt_argchk.obj \
+src/misc/crypt/crypt_cipher_descriptor.obj src/misc/crypt/crypt_cipher_is_valid.obj \
+src/misc/crypt/crypt_constants.obj src/misc/crypt/crypt_find_cipher.obj \
+src/misc/crypt/crypt_find_cipher_any.obj src/misc/crypt/crypt_find_cipher_id.obj \
+src/misc/crypt/crypt_find_hash.obj src/misc/crypt/crypt_find_hash_any.obj \
+src/misc/crypt/crypt_find_hash_id.obj src/misc/crypt/crypt_find_hash_oid.obj \
+src/misc/crypt/crypt_find_prng.obj src/misc/crypt/crypt_fsa.obj src/misc/crypt/crypt_hash_descriptor.obj \
+src/misc/crypt/crypt_hash_is_valid.obj src/misc/crypt/crypt_inits.obj \
+src/misc/crypt/crypt_ltc_mp_descriptor.obj src/misc/crypt/crypt_prng_descriptor.obj \
+src/misc/crypt/crypt_prng_is_valid.obj src/misc/crypt/crypt_prng_rng_descriptor.obj \
+src/misc/crypt/crypt_register_cipher.obj src/misc/crypt/crypt_register_hash.obj \
+src/misc/crypt/crypt_register_prng.obj src/misc/crypt/crypt_sizes.obj \
 src/misc/crypt/crypt_unregister_cipher.obj src/misc/crypt/crypt_unregister_hash.obj \
 src/misc/crypt/crypt_unregister_prng.obj src/misc/error_to_string.obj src/misc/hkdf/hkdf.obj \
 src/misc/hkdf/hkdf_test.obj src/misc/mem_neq.obj src/misc/pk_get_oid.obj src/misc/pkcs5/pkcs_5_1.obj \
