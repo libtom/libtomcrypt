@@ -126,13 +126,13 @@ static const unsigned char blake2s_sigma[10][16] = {
     { 10, 2, 8, 4, 7, 6, 1, 5, 15, 11, 9, 14, 3, 12, 13, 0 },
 };
 
-static inline void blake2s_set_lastnode(hash_state *md)
+static void blake2s_set_lastnode(hash_state *md)
 {
    md->blake2s.f[1] = ~0U;
 }
 
 /* Some helper functions, not necessarily useful */
-static inline void blake2s_set_lastblock(hash_state *md)
+static void blake2s_set_lastblock(hash_state *md)
 {
    if (md->blake2s.last_node)
       blake2s_set_lastnode(md);
@@ -140,13 +140,13 @@ static inline void blake2s_set_lastblock(hash_state *md)
    md->blake2s.f[0] = ~0U;
 }
 
-static inline void blake2s_increment_counter(hash_state *md, const ulong32 inc)
+static void blake2s_increment_counter(hash_state *md, const ulong32 inc)
 {
    md->blake2s.t[0] += inc;
    md->blake2s.t[1] += (md->blake2s.t[0] < inc);
 }
 
-static inline int blake2s_init0(hash_state *md)
+static int blake2s_init0(hash_state *md)
 {
    XMEMSET(&md->blake2s, 0, sizeof(struct blake2s_state));
 
@@ -159,11 +159,13 @@ static inline int blake2s_init0(hash_state *md)
 /* init2 xors IV with input parameter block */
 static int blake2s_init_param(hash_state *md, const struct blake2s_param *P)
 {
-   blake2s_init0(md);
+   unsigned long i;
    ulong32 *p = (ulong32 *)(P);
 
+   blake2s_init0(md);
+
    /* IV XOR ParamBlock */
-   for (unsigned long i = 0; i < 8; ++i) {
+   for (i = 0; i < 8; ++i) {
       ulong32 tmp;
       LOAD32L(tmp, &p[i]);
       md->blake2s.h[i] ^= tmp;
@@ -229,14 +231,15 @@ static int _blake2s_compress(hash_state *md, unsigned char *buf)
 static int blake2s_compress(hash_state *md, unsigned char *buf)
 #endif
 {
+   unsigned long i;
    ulong32 m[16];
    ulong32 v[16];
 
-   for (unsigned long i = 0; i < 16; ++i) {
+   for (i = 0; i < 16; ++i) {
       LOAD32L(m[i], buf + i * sizeof(m[i]));
    }
 
-   for (unsigned long i = 0; i < 8; ++i)
+   for (i = 0; i < 8; ++i)
       v[i] = md->blake2s.h[i];
 
    v[8] = blake2s_IV[0];
@@ -259,7 +262,7 @@ static int blake2s_compress(hash_state *md, unsigned char *buf)
    ROUND(8);
    ROUND(9);
 
-   for (unsigned long i = 0; i < 8; ++i)
+   for (i = 0; i < 8; ++i)
       md->blake2s.h[i] = md->blake2s.h[i] ^ v[i] ^ v[i + 8];
 
    return CRYPT_OK;
