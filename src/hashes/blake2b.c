@@ -411,9 +411,8 @@ int blake2b_512_test(void)
       blake2b_512_init(&md);
       blake2b_process(&md, (unsigned char *)tests[i].msg, (unsigned long)strlen(tests[i].msg));
       blake2b_done(&md, tmp);
-      if (XMEMCMP(tmp, tests[i].hash, 64) != 0) {
+      if (compare_testvector(tmp, sizeof(tmp), tests[i].hash, sizeof(tests[i].hash), "BLAKE2B_512", i))
          return CRYPT_FAIL_TESTVECTOR;
-      }
    }
    return CRYPT_OK;
 #endif
@@ -458,9 +457,8 @@ int blake2b_384_test(void)
       blake2b_384_init(&md);
       blake2b_process(&md, (unsigned char *)tests[i].msg, (unsigned long)strlen(tests[i].msg));
       blake2b_done(&md, tmp);
-      if (XMEMCMP(tmp, tests[i].hash, 48) != 0) {
+      if (compare_testvector(tmp, sizeof(tmp), tests[i].hash, sizeof(tests[i].hash), "BLAKE2B_384", i))
          return CRYPT_FAIL_TESTVECTOR;
-      }
    }
    return CRYPT_OK;
 #endif
@@ -501,9 +499,8 @@ int blake2b_256_test(void)
       blake2b_256_init(&md);
       blake2b_process(&md, (unsigned char *)tests[i].msg, (unsigned long)strlen(tests[i].msg));
       blake2b_done(&md, tmp);
-      if (XMEMCMP(tmp, tests[i].hash, 32) != 0) {
+      if (compare_testvector(tmp, sizeof(tmp), tests[i].hash, sizeof(tests[i].hash), "BLAKE2B_256", i))
          return CRYPT_FAIL_TESTVECTOR;
-      }
    }
    return CRYPT_OK;
 #endif
@@ -542,9 +539,8 @@ int blake2b_160_test(void)
       blake2b_160_init(&md);
       blake2b_process(&md, (unsigned char *)tests[i].msg, (unsigned long)strlen(tests[i].msg));
       blake2b_done(&md, tmp);
-      if (XMEMCMP(tmp, tests[i].hash, 20) != 0) {
+      if (compare_testvector(tmp, sizeof(tmp), tests[i].hash, sizeof(tests[i].hash), "BLAKE2B_160", i))
          return CRYPT_FAIL_TESTVECTOR;
-      }
    }
    return CRYPT_OK;
 #endif
