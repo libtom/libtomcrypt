@@ -32,9 +32,27 @@ enum blake2b_constant {
    BLAKE2B_OUTBYTES = 64,
    BLAKE2B_KEYBYTES = 64,
    BLAKE2B_SALTBYTES = 16,
-   BLAKE2B_PERSONALBYTES = 16
+   BLAKE2B_PERSONALBYTES = 16,
+   BLAKE2B_PARAM_SIZE = 64
 };
 
+/* param offsets */
+enum {
+   O_DIGEST_LENGTH = 0,
+   O_KEY_LENGTH = 1,
+   O_FANOUT = 2,
+   O_DEPTH = 3,
+   O_LEAF_LENGTH = 4,
+   O_NODE_OFFSET = 8,
+   O_XOF_LENGTH = 12,
+   O_NODE_DEPTH = 16,
+   O_INNER_LENGTH = 17,
+   O_RESERVED = 18,
+   O_SALT = 32,
+   O_PERSONAL = 48
+};
+
+/*
 struct blake2b_param {
    unsigned char digest_length;
    unsigned char key_length;
@@ -49,7 +67,7 @@ struct blake2b_param {
    unsigned char salt[BLAKE2B_SALTBYTES];
    unsigned char personal[BLAKE2B_PERSONALBYTES];
 };
-
+*/
 
 const struct ltc_hash_descriptor blake2b_160_desc =
 {
@@ -167,9 +185,8 @@ static void blake2b_init0(hash_state *md)
 }
 
 /* init xors IV with input parameter block */
-static int blake2b_init_param(hash_state *md, const struct blake2b_param *P)
+static int blake2b_init_param(hash_state *md, const unsigned char *P)
 {
-   const unsigned char *p = (const unsigned char *)(P);
    unsigned long i;
 
    blake2b_init0(md);
@@ -177,29 +194,29 @@ static int blake2b_init_param(hash_state *md, const struct blake2b_param *P)
    /* IV XOR ParamBlock */
    for (i = 0; i < 8; ++i) {
       ulong64 tmp;
-      LOAD64L(tmp, p + i * 8);
+      LOAD64L(tmp, P + i * 8);
       md->blake2b.h[i] ^= tmp;
    }
 
-   md->blake2b.outlen = P->digest_length;
+   md->blake2b.outlen = P[O_DIGEST_LENGTH];
    return CRYPT_OK;
 }
 
 int blake2b_init(hash_state *md, unsigned long outlen)
 {
-   struct blake2b_param P;
+   unsigned char P[BLAKE2B_PARAM_SIZE];
 
    LTC_ARGCHK(md != NULL);
 
    if ((!outlen) || (outlen > BLAKE2B_OUTBYTES))
       return CRYPT_INVALID_ARG;
 
-   XMEMSET(&P, 0, sizeof(P));
+   XMEMSET(P, 0, sizeof(P));
 
-   P.digest_length = (unsigned char)outlen;
-   P.fanout = 1;
-   P.depth = 1;
-   return blake2b_init_param(md, &P);
+   P[O_DIGEST_LENGTH] = (unsigned char)outlen;
+   P[O_FANOUT] = 1;
+   P[O_DEPTH] = 1;
+   return blake2b_init_param(md, P);
 }
 
 int blake2b_160_init(hash_state *md) { return blake2b_init(md, 20); }

@@ -32,21 +32,40 @@ enum blake2s_constant {
    BLAKE2S_OUTBYTES = 32,
    BLAKE2S_KEYBYTES = 32,
    BLAKE2S_SALTBYTES = 8,
-   BLAKE2S_PERSONALBYTES = 8
+   BLAKE2S_PERSONALBYTES = 8,
+   BLAKE2S_PARAM_SIZE = 32
 };
 
+/* param offsets */
+enum {
+   O_DIGEST_LENGTH = 0,
+   O_KEY_LENGTH = 1,
+   O_FANOUT = 2,
+   O_DEPTH = 3,
+   O_LEAF_LENGTH = 4,
+   O_NODE_OFFSET = 8,
+   O_XOF_LENGTH = 12,
+   O_NODE_DEPTH = 14,
+   O_INNER_LENGTH = 15,
+   O_SALT = 16,
+   O_PERSONAL = 24
+};
+
+/*
 struct blake2s_param {
    unsigned char digest_length;
    unsigned char key_length;
    unsigned char fanout;
    unsigned char depth;
    ulong32 leaf_length;
-   unsigned char node_offset[6];
+   ulong32 node_offset;
+   ushort16 xof_length;
    unsigned char node_depth;
    unsigned char inner_length;
    unsigned char salt[BLAKE2S_SALTBYTES];
    unsigned char personal[BLAKE2S_PERSONALBYTES];
 };
+*/
 
 const struct ltc_hash_descriptor blake2s_128_desc =
 {
@@ -160,41 +179,40 @@ static int blake2s_init0(hash_state *md)
 }
 
 /* init2 xors IV with input parameter block */
-static int blake2s_init_param(hash_state *md, const struct blake2s_param *P)
+static int blake2s_init_param(hash_state *md, const unsigned char *P)
 {
    unsigned long i;
-   unsigned char *p = (unsigned char *)(P);
 
    blake2s_init0(md);
 
    /* IV XOR ParamBlock */
    for (i = 0; i < 8; ++i) {
       ulong32 tmp;
-      LOAD32L(tmp, p + i * 4);
+      LOAD32L(tmp, P + i * 4);
       md->blake2s.h[i] ^= tmp;
    }
 
-   md->blake2s.outlen = P->digest_length;
+   md->blake2s.outlen = P[O_DIGEST_LENGTH];
    return CRYPT_OK;
 }
 
 /* Sequential blake2s initialization */
 int blake2s_init(hash_state *md, unsigned long outlen)
 {
-   struct blake2s_param P;
+   unsigned char P[BLAKE2S_PARAM_SIZE];
    LTC_ARGCHK(md != NULL);
 
    if ((!outlen) || (outlen > BLAKE2S_OUTBYTES))
       return CRYPT_INVALID_ARG;
 
-   XMEMSET(&P, 0, sizeof(P));
+   XMEMSET(P, 0, sizeof(P));
 
-   P.digest_length = (unsigned char)outlen;
+   P[O_DIGEST_LENGTH] = (unsigned char)outlen;
 
-   P.fanout = 1;
-   P.depth = 1;
+   P[O_FANOUT] = 1;
+   P[O_DEPTH] = 1;
 
-   return blake2s_init_param(md, &P);
+   return blake2s_init_param(md, P);
 }
 
 int blake2s_128_init(hash_state *md) { return blake2s_init(md, 16); }
