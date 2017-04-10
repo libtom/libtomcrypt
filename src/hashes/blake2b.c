@@ -302,7 +302,7 @@ static int blake2b_compress(hash_state *md, const unsigned char *buf)
 {
    int err;
    err = _blake2b_compress(md, buf);
-   burn_stack(sizeof(ulong32) * (32 + 2));
+   burn_stack(sizeof(ulong64) * (32 + 1));
    return err;
 }
 #endif
