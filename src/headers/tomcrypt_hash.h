@@ -118,9 +118,9 @@ struct blake2s_state {
     ulong32 h[8];
     ulong32 t[2];
     ulong32 f[2];
-    unsigned char buf[2 * 64];
-    ulong32 curlen;
-    unsigned char outlen;
+    unsigned char buf[64];
+    unsigned long curlen;
+    unsigned long outlen;
     unsigned char last_node;
 };
 #endif

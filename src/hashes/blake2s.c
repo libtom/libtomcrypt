@@ -128,16 +128,18 @@ static const unsigned char blake2s_sigma[10][16] = {
 
 static void blake2s_set_lastnode(hash_state *md)
 {
-   md->blake2s.f[1] = ~0U;
+   md->blake2s.f[1] = 0xffffffffUL;
 }
 
 /* Some helper functions, not necessarily useful */
+static int blake2s_is_lastblock(const hash_state *md) { return md->blake2s.f[0] != 0; }
+
 static void blake2s_set_lastblock(hash_state *md)
 {
    if (md->blake2s.last_node)
       blake2s_set_lastnode(md);
 
-   md->blake2s.f[0] = ~0U;
+   md->blake2s.f[0] = 0xffffffffUL;
 }
 
 static void blake2s_increment_counter(hash_state *md, const ulong32 inc)
@@ -148,9 +150,10 @@ static void blake2s_increment_counter(hash_state *md, const ulong32 inc)
 
 static int blake2s_init0(hash_state *md)
 {
+   int i;
    XMEMSET(&md->blake2s, 0, sizeof(struct blake2s_state));
 
-   for (int i = 0; i < 8; ++i)
+   for (i = 0; i < 8; ++i)
       md->blake2s.h[i] = blake2s_IV[i];
 
    return CRYPT_OK;
@@ -160,14 +163,14 @@ static int blake2s_init0(hash_state *md)
 static int blake2s_init_param(hash_state *md, const struct blake2s_param *P)
 {
    unsigned long i;
-   ulong32 *p = (ulong32 *)(P);
+   unsigned char *p = (unsigned char *)(P);
 
    blake2s_init0(md);
 
    /* IV XOR ParamBlock */
    for (i = 0; i < 8; ++i) {
       ulong32 tmp;
-      LOAD32L(tmp, &p[i]);
+      LOAD32L(tmp, p + i * 4);
       md->blake2s.h[i] ^= tmp;
    }
 
@@ -226,9 +229,9 @@ int blake2s_256_init(hash_state *md) { return blake2s_init(md, 32); }
    } while (0)
 
 #ifdef LTC_CLEAN_STACK
-static int _blake2s_compress(hash_state *md, unsigned char *buf)
+static int _blake2s_compress(hash_state *md, const unsigned char *buf)
 #else
-static int blake2s_compress(hash_state *md, unsigned char *buf)
+static int blake2s_compress(hash_state *md, const unsigned char *buf)
 #endif
 {
    unsigned long i;
@@ -275,7 +278,7 @@ static int blake2s_compress(hash_state *md, unsigned char *buf)
 {
    int err;
    err = _blake2s_compress(md, buf);
-   burn_stack(sizeof(ulong32) * 32);
+   burn_stack(sizeof(ulong32) * (32 + 2));
    return err;
 }
 #endif
@@ -289,34 +292,32 @@ int blake2s_process(hash_state *md, const unsigned char *in, unsigned long inlen
       return CRYPT_INVALID_ARG;
    }
 
-   while (inlen > 0) {
-      ulong32 left = md->blake2s.curlen;
-      ulong32 fill = 2 * BLAKE2S_BLOCKBYTES - left;
-
+   if (inlen > 0) {
+      unsigned long left = md->blake2s.curlen;
+      unsigned long fill = BLAKE2S_BLOCKBYTES - left;
       if (inlen > fill) {
-         XMEMCPY(md->blake2s.buf + left, in, fill);
-         md->blake2s.curlen += fill;
+         md->blake2s.curlen = 0;
+         XMEMCPY(md->blake2s.buf + left, in, fill); /* Fill buffer */
          blake2s_increment_counter(md, BLAKE2S_BLOCKBYTES);
-         blake2s_compress(md, md->blake2s.buf);
-         XMEMCPY(md->blake2s.buf, md->blake2s.buf + BLAKE2S_BLOCKBYTES, BLAKE2S_BLOCKBYTES);
-         md->blake2s.curlen -= BLAKE2S_BLOCKBYTES;
+         blake2s_compress(md, md->blake2s.buf); /* Compress */
          in += fill;
          inlen -= fill;
-      } else /* inlen <= fill */
-      {
-         XMEMCPY(md->blake2s.buf + left, in, inlen);
-         md->blake2s.curlen += (ulong32)inlen; /* Be lazy, do not compress */
-         in += inlen;
-         inlen -= inlen;
+         while (inlen > BLAKE2S_BLOCKBYTES) {
+            blake2s_increment_counter(md, BLAKE2S_BLOCKBYTES);
+            blake2s_compress(md, in);
+            in += BLAKE2S_BLOCKBYTES;
+            inlen -= BLAKE2S_BLOCKBYTES;
+         }
       }
+      XMEMCPY(md->blake2s.buf + md->blake2s.curlen, in, inlen);
+      md->blake2s.curlen += inlen;
    }
-
    return CRYPT_OK;
 }
 
 int blake2s_done(hash_state *md, unsigned char *out)
 {
-   unsigned char buffer[BLAKE2S_OUTBYTES];
+   unsigned char buffer[BLAKE2S_OUTBYTES] = { 0 };
    unsigned long i;
 
    LTC_ARGCHK(md != NULL);
@@ -324,24 +325,21 @@ int blake2s_done(hash_state *md, unsigned char *out)
 
    /* if(md->blake2s.outlen != outlen) return CRYPT_INVALID_ARG; */
 
-   if (md->blake2s.curlen > BLAKE2S_BLOCKBYTES) {
-      blake2s_increment_counter(md, BLAKE2S_BLOCKBYTES);
-      blake2s_compress(md, md->blake2s.buf);
-      md->blake2s.curlen -= BLAKE2S_BLOCKBYTES;
-      XMEMCPY(md->blake2s.buf, md->blake2s.buf + BLAKE2S_BLOCKBYTES, md->blake2s.curlen);
-   }
+   if (blake2s_is_lastblock(md))
+      return CRYPT_ERROR;
 
-   blake2s_increment_counter(md, (ulong32)md->blake2s.curlen);
+   blake2s_increment_counter(md, md->blake2s.curlen);
    blake2s_set_lastblock(md);
-   XMEMSET(md->blake2s.buf + md->blake2s.curlen, 0, 2 * BLAKE2S_BLOCKBYTES - md->blake2s.curlen); /* Padding */
+   XMEMSET(md->blake2s.buf + md->blake2s.curlen, 0, BLAKE2S_BLOCKBYTES - md->blake2s.curlen); /* Padding */
    blake2s_compress(md, md->blake2s.buf);
 
    for (i = 0; i < 8; ++i) /* Output full hash to temp buffer */
-      STORE32L(md->blake2s.h[i], buffer + sizeof(md->blake2s.h[i]) * i);
+      STORE32L(md->blake2s.h[i], buffer + i * 4);
 
    XMEMCPY(out, buffer, md->blake2s.outlen);
 #ifdef LTC_CLEAN_STACK
-    zeromem(md, sizeof(hash_state));
+   zeromem(buffer, sizeof(buffer));
+   zeromem(md, sizeof(hash_state));
 #endif
    return CRYPT_OK;
 }
