@@ -292,7 +292,7 @@ static int blake2s_compress(hash_state *md, const unsigned char *buf)
 #undef ROUND
 
 #ifdef LTC_CLEAN_STACK
-static int blake2s_compress(hash_state *md, unsigned char *buf)
+static int blake2s_compress(hash_state *md, const unsigned char *buf)
 {
    int err;
    err = _blake2s_compress(md, buf);
