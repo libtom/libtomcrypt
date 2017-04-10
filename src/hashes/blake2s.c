@@ -193,32 +193,50 @@ static int blake2s_init_param(hash_state *md, const unsigned char *P)
    return CRYPT_OK;
 }
 
-/* Sequential blake2s initialization */
-int blake2s_init(hash_state *md, unsigned long outlen)
+int blake2s_init(hash_state *md, unsigned long outlen, const unsigned char *key, unsigned long keylen)
 {
    unsigned char P[BLAKE2S_PARAM_SIZE];
+   int err;
+
    LTC_ARGCHK(md != NULL);
 
    if ((!outlen) || (outlen > BLAKE2S_OUTBYTES))
       return CRYPT_INVALID_ARG;
 
+   if ((key && !keylen) || (keylen && !key) || (keylen > BLAKE2S_KEYBYTES))
+      return CRYPT_INVALID_ARG;
+
    XMEMSET(P, 0, sizeof(P));
 
    P[O_DIGEST_LENGTH] = (unsigned char)outlen;
-
+   P[O_KEY_LENGTH] = (unsigned char)keylen;
    P[O_FANOUT] = 1;
    P[O_DEPTH] = 1;
 
-   return blake2s_init_param(md, P);
+   err = blake2s_init_param(md, P);
+   if (err != CRYPT_OK) return err;
+
+   if (key) {
+      unsigned char block[BLAKE2S_BLOCKBYTES];
+
+      XMEMSET(block, 0, BLAKE2S_BLOCKBYTES);
+      XMEMCPY(block, key, keylen);
+      blake2s_process(md, block, BLAKE2S_BLOCKBYTES);
+
+#ifdef LTC_CLEAN_STACK
+      zeromem(block, sizeof(block));
+#endif
+   }
+   return CRYPT_OK;
 }
 
-int blake2s_128_init(hash_state *md) { return blake2s_init(md, 16); }
+int blake2s_128_init(hash_state *md) { return blake2s_init(md, 16, NULL, 0); }
 
-int blake2s_160_init(hash_state *md) { return blake2s_init(md, 20); }
+int blake2s_160_init(hash_state *md) { return blake2s_init(md, 20, NULL, 0); }
 
-int blake2s_224_init(hash_state *md) { return blake2s_init(md, 28); }
+int blake2s_224_init(hash_state *md) { return blake2s_init(md, 28, NULL, 0); }
 
-int blake2s_256_init(hash_state *md) { return blake2s_init(md, 32); }
+int blake2s_256_init(hash_state *md) { return blake2s_init(md, 32, NULL, 0); }
 
 #define G(r, i, a, b, c, d)                                                                                            \
    do {                                                                                                                \
@@ -293,7 +311,7 @@ static int blake2s_compress(hash_state *md, const unsigned char *buf)
 {
    int err;
    err = _blake2s_compress(md, buf);
-   burn_stack(sizeof(ulong32) * (32 + 2));
+   burn_stack(sizeof(ulong32) * (32) + sizeof(unsigned long));
    return err;
 }
 #endif

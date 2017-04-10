@@ -362,7 +362,7 @@ extern const struct ltc_hash_descriptor blake2s_128_desc;
 int blake2s_128_init(hash_state * md);
 int blake2s_128_test(void);
 
-int blake2s_init(hash_state * md, unsigned long outlen);
+int blake2s_init(hash_state * md, unsigned long outlen, const unsigned char *key, unsigned long keylen);
 int blake2s_process(hash_state * md, const unsigned char *in, unsigned long inlen);
 int blake2s_done(hash_state * md, unsigned char *hash);
 #endif
@@ -384,7 +384,7 @@ extern const struct ltc_hash_descriptor blake2b_160_desc;
 int blake2b_160_init(hash_state * md);
 int blake2b_160_test(void);
 
-int blake2b_init(hash_state * md, unsigned long outlen);
+int blake2b_init(hash_state * md, unsigned long outlen, const unsigned char *key, unsigned long keylen);
 int blake2b_process(hash_state * md, const unsigned char *in, unsigned long inlen);
 int blake2b_done(hash_state * md, unsigned char *hash);
 #endif
