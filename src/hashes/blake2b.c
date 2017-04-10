@@ -153,10 +153,7 @@ static const unsigned char blake2b_sigma[12][16] =
   { 14, 10,  4,  8,  9, 15, 13,  6,  1, 12,  0,  2, 11,  7,  5,  3 }
 };
 
-static void blake2b_set_lastnode(hash_state *md)
-{
-   md->blake2b.f[1] = CONST64(0xffffffffffffffff);
-}
+static void blake2b_set_lastnode(hash_state *md) { md->blake2b.f[1] = CONST64(0xffffffffffffffff); }
 
 /* Some helper functions, not necessarily useful */
 static int blake2b_is_lastblock(const hash_state *md) { return md->blake2b.f[0] != 0; }
