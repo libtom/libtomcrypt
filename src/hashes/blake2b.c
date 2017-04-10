@@ -135,7 +135,10 @@ static const unsigned char blake2b_sigma[12][16] =
   { 14, 10,  4,  8,  9, 15, 13,  6,  1, 12,  0,  2, 11,  7,  5,  3 }
 };
 
-static void blake2b_set_lastnode(hash_state *md) { md->blake2b.f[1] = CONST64(0xffffffffffffffff); }
+static void blake2b_set_lastnode(hash_state *md)
+{
+   md->blake2b.f[1] = CONST64(0xffffffffffffffff);
+}
 
 /* Some helper functions, not necessarily useful */
 static int blake2b_is_lastblock(const hash_state *md) { return md->blake2b.f[0] != 0; }
@@ -164,7 +167,7 @@ static void blake2b_init0(hash_state *md)
 }
 
 /* init xors IV with input parameter block */
-int blake2b_init_param(hash_state *md, const struct blake2b_param *P)
+static int blake2b_init_param(hash_state *md, const struct blake2b_param *P)
 {
    const unsigned char *p = (const unsigned char *)(P);
    unsigned long i;
@@ -174,7 +177,7 @@ int blake2b_init_param(hash_state *md, const struct blake2b_param *P)
    /* IV XOR ParamBlock */
    for (i = 0; i < 8; ++i) {
       ulong64 tmp;
-      LOAD64L(tmp, p + sizeof(md->blake2b.h[i]) * i);
+      LOAD64L(tmp, p + i * 8);
       md->blake2b.h[i] ^= tmp;
    }
 
@@ -341,7 +344,7 @@ int blake2b_done(hash_state *md, unsigned char *out)
    blake2b_compress(md, md->blake2b.buf);
 
    for (i = 0; i < 8; ++i) /* Output full hash to temp buffer */
-      STORE64L(md->blake2b.h[i], buffer + sizeof(md->blake2b.h[i]) * i);
+      STORE64L(md->blake2b.h[i], buffer + i * 8);
 
    XMEMCPY(out, buffer, md->blake2b.outlen);
 #ifdef LTC_CLEAN_STACK
