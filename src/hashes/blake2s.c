@@ -69,7 +69,7 @@ struct blake2s_param {
 
 const struct ltc_hash_descriptor blake2s_128_desc =
 {
-    "blake2s_128",
+    "blake2s-128",
     21,
     16,
     64,
@@ -84,7 +84,7 @@ const struct ltc_hash_descriptor blake2s_128_desc =
 
 const struct ltc_hash_descriptor blake2s_160_desc =
 {
-    "blake2s_160",
+    "blake2s-160",
     22,
     32,
     64,
@@ -99,7 +99,7 @@ const struct ltc_hash_descriptor blake2s_160_desc =
 
 const struct ltc_hash_descriptor blake2s_224_desc =
 {
-    "blake2s_224",
+    "blake2s-224",
     23,
     32,
     64,
@@ -114,7 +114,7 @@ const struct ltc_hash_descriptor blake2s_224_desc =
 
 const struct ltc_hash_descriptor blake2s_256_desc =
 {
-    "blake2s_256",
+    "blake2s-256",
     24,
     32,
     64,
