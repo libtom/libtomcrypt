@@ -382,9 +382,9 @@ int blake2b_done(hash_state *md, unsigned char *out)
       STORE64L(md->blake2b.h[i], buffer + i * 8);
 
    XMEMCPY(out, buffer, md->blake2b.outlen);
+   zeromem(md, sizeof(hash_state));
 #ifdef LTC_CLEAN_STACK
    zeromem(buffer, sizeof(buffer));
-   zeromem(md, sizeof(hash_state));
 #endif
    return CRYPT_OK;
 }

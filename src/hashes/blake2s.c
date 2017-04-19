@@ -370,9 +370,9 @@ int blake2s_done(hash_state *md, unsigned char *out)
       STORE32L(md->blake2s.h[i], buffer + i * 4);
 
    XMEMCPY(out, buffer, md->blake2s.outlen);
+   zeromem(md, sizeof(hash_state));
 #ifdef LTC_CLEAN_STACK
    zeromem(buffer, sizeof(buffer));
-   zeromem(md, sizeof(hash_state));
 #endif
    return CRYPT_OK;
 }
