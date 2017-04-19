@@ -100,6 +100,18 @@ void reg_algs(void)
 #ifdef LTC_WHIRLPOOL
   register_hash (&whirlpool_desc);
 #endif
+#ifdef LTC_BLAKE2S
+  register_hash (&blake2s_128_desc);
+  register_hash (&blake2s_160_desc);
+  register_hash (&blake2s_224_desc);
+  register_hash (&blake2s_256_desc);
+#endif
+#ifdef LTC_BLAKE2B
+  register_hash (&blake2b_160_desc);
+  register_hash (&blake2b_256_desc);
+  register_hash (&blake2b_384_desc);
+  register_hash (&blake2b_512_desc);
+#endif
 #ifdef LTC_CHC_HASH
   register_hash(&chc_desc);
   if ((err = chc_register(register_cipher(&aes_desc))) != CRYPT_OK) {
