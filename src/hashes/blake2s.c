@@ -86,7 +86,7 @@ const struct ltc_hash_descriptor blake2s_160_desc =
 {
     "blake2s-160",
     22,
-    32,
+    20,
     64,
     { 1, 3, 6, 1, 4, 1, 1722, 12, 2, 2, 5 },
     11,
@@ -101,7 +101,7 @@ const struct ltc_hash_descriptor blake2s_224_desc =
 {
     "blake2s-224",
     23,
-    32,
+    28,
     64,
     { 1, 3, 6, 1, 4, 1, 1722, 12, 2, 2, 7 },
     11,
