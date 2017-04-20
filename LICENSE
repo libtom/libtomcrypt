@@ -1,17 +1,3 @@
-LibTomCrypt is licensed under DUAL licensing terms.
-
-Choose and use the license of your needs.
-
-[LICENSE #1]
-
-LibTomCrypt is public domain.  As should all quality software be.
-
-Tom St Denis
-
-[/LICENSE #1]
-
-[LICENSE #2]
-
             DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
                     Version 2, December 2004
 
@@ -24,6 +10,4 @@ Tom St Denis
             DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
    TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
 
-  0. You just DO WHAT THE FUCK YOU WANT TO. 
-
-[/LICENSE #2]
+  0. You just DO WHAT THE FUCK YOU WANT TO.
