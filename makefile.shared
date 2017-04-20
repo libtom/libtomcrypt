@@ -61,40 +61,41 @@ src/encauth/ocb3/ocb3_encrypt.o src/encauth/ocb3/ocb3_encrypt_authenticate_memor
 src/encauth/ocb3/ocb3_encrypt_last.o src/encauth/ocb3/ocb3_init.o \
 src/encauth/ocb3/ocb3_int_aad_add_block.o src/encauth/ocb3/ocb3_int_calc_offset_zero.o \
 src/encauth/ocb3/ocb3_int_ntz.o src/encauth/ocb3/ocb3_int_xor_blocks.o src/encauth/ocb3/ocb3_test.o \
-src/hashes/chc/chc.o src/hashes/helper/hash_file.o src/hashes/helper/hash_filehandle.o \
-src/hashes/helper/hash_memory.o src/hashes/helper/hash_memory_multi.o src/hashes/md2.o src/hashes/md4.o \
-src/hashes/md5.o src/hashes/rmd128.o src/hashes/rmd160.o src/hashes/rmd256.o src/hashes/rmd320.o \
-src/hashes/sha1.o src/hashes/sha2/sha224.o src/hashes/sha2/sha256.o src/hashes/sha2/sha384.o \
-src/hashes/sha2/sha512.o src/hashes/sha2/sha512_224.o src/hashes/sha2/sha512_256.o src/hashes/sha3.o \
-src/hashes/sha3_test.o src/hashes/tiger.o src/hashes/whirl/whirl.o src/mac/f9/f9_done.o \
-src/mac/f9/f9_file.o src/mac/f9/f9_init.o src/mac/f9/f9_memory.o src/mac/f9/f9_memory_multi.o \
-src/mac/f9/f9_process.o src/mac/f9/f9_test.o src/mac/hmac/hmac_done.o src/mac/hmac/hmac_file.o \
-src/mac/hmac/hmac_init.o src/mac/hmac/hmac_memory.o src/mac/hmac/hmac_memory_multi.o \
-src/mac/hmac/hmac_process.o src/mac/hmac/hmac_test.o src/mac/omac/omac_done.o src/mac/omac/omac_file.o \
-src/mac/omac/omac_init.o src/mac/omac/omac_memory.o src/mac/omac/omac_memory_multi.o \
-src/mac/omac/omac_process.o src/mac/omac/omac_test.o src/mac/pelican/pelican.o \
-src/mac/pelican/pelican_memory.o src/mac/pelican/pelican_test.o src/mac/pmac/pmac_done.o \
-src/mac/pmac/pmac_file.o src/mac/pmac/pmac_init.o src/mac/pmac/pmac_memory.o \
-src/mac/pmac/pmac_memory_multi.o src/mac/pmac/pmac_ntz.o src/mac/pmac/pmac_process.o \
-src/mac/pmac/pmac_shift_xor.o src/mac/pmac/pmac_test.o src/mac/poly1305/poly1305.o \
-src/mac/poly1305/poly1305_file.o src/mac/poly1305/poly1305_memory.o \
-src/mac/poly1305/poly1305_memory_multi.o src/mac/poly1305/poly1305_test.o src/mac/xcbc/xcbc_done.o \
-src/mac/xcbc/xcbc_file.o src/mac/xcbc/xcbc_init.o src/mac/xcbc/xcbc_memory.o \
-src/mac/xcbc/xcbc_memory_multi.o src/mac/xcbc/xcbc_process.o src/mac/xcbc/xcbc_test.o \
-src/math/fp/ltc_ecc_fp_mulmod.o src/math/gmp_desc.o src/math/ltm_desc.o src/math/multi.o \
-src/math/rand_bn.o src/math/rand_prime.o src/math/tfm_desc.o src/misc/adler32.o \
-src/misc/base64/base64_decode.o src/misc/base64/base64_encode.o src/misc/burn_stack.o src/misc/crc32.o \
-src/misc/crypt/crypt.o src/misc/crypt/crypt_argchk.o src/misc/crypt/crypt_cipher_descriptor.o \
-src/misc/crypt/crypt_cipher_is_valid.o src/misc/crypt/crypt_constants.o \
-src/misc/crypt/crypt_find_cipher.o src/misc/crypt/crypt_find_cipher_any.o \
-src/misc/crypt/crypt_find_cipher_id.o src/misc/crypt/crypt_find_hash.o \
-src/misc/crypt/crypt_find_hash_any.o src/misc/crypt/crypt_find_hash_id.o \
-src/misc/crypt/crypt_find_hash_oid.o src/misc/crypt/crypt_find_prng.o src/misc/crypt/crypt_fsa.o \
-src/misc/crypt/crypt_hash_descriptor.o src/misc/crypt/crypt_hash_is_valid.o \
-src/misc/crypt/crypt_inits.o src/misc/crypt/crypt_ltc_mp_descriptor.o \
-src/misc/crypt/crypt_prng_descriptor.o src/misc/crypt/crypt_prng_is_valid.o \
-src/misc/crypt/crypt_prng_rng_descriptor.o src/misc/crypt/crypt_register_cipher.o \
-src/misc/crypt/crypt_register_hash.o src/misc/crypt/crypt_register_prng.o src/misc/crypt/crypt_sizes.o \
+src/hashes/blake2b.o src/hashes/blake2s.o src/hashes/chc/chc.o src/hashes/helper/hash_file.o \
+src/hashes/helper/hash_filehandle.o src/hashes/helper/hash_memory.o \
+src/hashes/helper/hash_memory_multi.o src/hashes/md2.o src/hashes/md4.o src/hashes/md5.o \
+src/hashes/rmd128.o src/hashes/rmd160.o src/hashes/rmd256.o src/hashes/rmd320.o src/hashes/sha1.o \
+src/hashes/sha2/sha224.o src/hashes/sha2/sha256.o src/hashes/sha2/sha384.o src/hashes/sha2/sha512.o \
+src/hashes/sha2/sha512_224.o src/hashes/sha2/sha512_256.o src/hashes/sha3.o src/hashes/sha3_test.o \
+src/hashes/tiger.o src/hashes/whirl/whirl.o src/mac/f9/f9_done.o src/mac/f9/f9_file.o \
+src/mac/f9/f9_init.o src/mac/f9/f9_memory.o src/mac/f9/f9_memory_multi.o src/mac/f9/f9_process.o \
+src/mac/f9/f9_test.o src/mac/hmac/hmac_done.o src/mac/hmac/hmac_file.o src/mac/hmac/hmac_init.o \
+src/mac/hmac/hmac_memory.o src/mac/hmac/hmac_memory_multi.o src/mac/hmac/hmac_process.o \
+src/mac/hmac/hmac_test.o src/mac/omac/omac_done.o src/mac/omac/omac_file.o src/mac/omac/omac_init.o \
+src/mac/omac/omac_memory.o src/mac/omac/omac_memory_multi.o src/mac/omac/omac_process.o \
+src/mac/omac/omac_test.o src/mac/pelican/pelican.o src/mac/pelican/pelican_memory.o \
+src/mac/pelican/pelican_test.o src/mac/pmac/pmac_done.o src/mac/pmac/pmac_file.o \
+src/mac/pmac/pmac_init.o src/mac/pmac/pmac_memory.o src/mac/pmac/pmac_memory_multi.o \
+src/mac/pmac/pmac_ntz.o src/mac/pmac/pmac_process.o src/mac/pmac/pmac_shift_xor.o \
+src/mac/pmac/pmac_test.o src/mac/poly1305/poly1305.o src/mac/poly1305/poly1305_file.o \
+src/mac/poly1305/poly1305_memory.o src/mac/poly1305/poly1305_memory_multi.o \
+src/mac/poly1305/poly1305_test.o src/mac/xcbc/xcbc_done.o src/mac/xcbc/xcbc_file.o \
+src/mac/xcbc/xcbc_init.o src/mac/xcbc/xcbc_memory.o src/mac/xcbc/xcbc_memory_multi.o \
+src/mac/xcbc/xcbc_process.o src/mac/xcbc/xcbc_test.o src/math/fp/ltc_ecc_fp_mulmod.o \
+src/math/gmp_desc.o src/math/ltm_desc.o src/math/multi.o src/math/rand_bn.o src/math/rand_prime.o \
+src/math/tfm_desc.o src/misc/adler32.o src/misc/base64/base64_decode.o src/misc/base64/base64_encode.o \
+src/misc/burn_stack.o src/misc/crc32.o src/misc/crypt/crypt.o src/misc/crypt/crypt_argchk.o \
+src/misc/crypt/crypt_cipher_descriptor.o src/misc/crypt/crypt_cipher_is_valid.o \
+src/misc/crypt/crypt_constants.o src/misc/crypt/crypt_find_cipher.o \
+src/misc/crypt/crypt_find_cipher_any.o src/misc/crypt/crypt_find_cipher_id.o \
+src/misc/crypt/crypt_find_hash.o src/misc/crypt/crypt_find_hash_any.o \
+src/misc/crypt/crypt_find_hash_id.o src/misc/crypt/crypt_find_hash_oid.o \
+src/misc/crypt/crypt_find_prng.o src/misc/crypt/crypt_fsa.o src/misc/crypt/crypt_hash_descriptor.o \
+src/misc/crypt/crypt_hash_is_valid.o src/misc/crypt/crypt_inits.o \
+src/misc/crypt/crypt_ltc_mp_descriptor.o src/misc/crypt/crypt_prng_descriptor.o \
+src/misc/crypt/crypt_prng_is_valid.o src/misc/crypt/crypt_prng_rng_descriptor.o \
+src/misc/crypt/crypt_register_cipher.o src/misc/crypt/crypt_register_hash.o \
+src/misc/crypt/crypt_register_prng.o src/misc/crypt/crypt_sizes.o \
 src/misc/crypt/crypt_unregister_cipher.o src/misc/crypt/crypt_unregister_hash.o \
 src/misc/crypt/crypt_unregister_prng.o src/misc/error_to_string.o src/misc/hkdf/hkdf.o \
 src/misc/hkdf/hkdf_test.o src/misc/mem_neq.o src/misc/pk_get_oid.o src/misc/pkcs5/pkcs_5_1.o \
