@@ -260,6 +260,8 @@
 #define LTC_F9_MODE
 #define LTC_PELICAN
 #define LTC_POLY1305
+#define LTC_BLAKE2SMAC
+#define LTC_BLAKE2BMAC
 
 /* ---> Encrypt + Authenticate Modes <--- */
 
@@ -519,6 +521,14 @@
 
 #if defined(LTC_CHACHA20_PRNG) && !defined(LTC_CHACHA)
    #error LTC_CHACHA20_PRNG requires LTC_CHACHA
+#endif
+
+#if defined(LTC_BLAKE2SMAC) && !defined(LTC_BLAKE2S)
+   #error LTC_BLAKE2SMAC requires LTC_BLAKE2S
+#endif
+
+#if defined(LTC_BLAKE2BMAC) && !defined(LTC_BLAKE2B)
+   #error LTC_BLAKE2BMAC requires LTC_BLAKE2B
 #endif
 
 /* THREAD management */

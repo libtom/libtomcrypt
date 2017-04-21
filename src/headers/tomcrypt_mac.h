@@ -116,6 +116,30 @@ int poly1305_file(const char *fname, const unsigned char *key, unsigned long key
 int poly1305_test(void);
 #endif /* LTC_POLY1305 */
 
+#ifdef LTC_BLAKE2SMAC
+typedef hash_state blake2smac_state;
+int blake2smac_init(blake2smac_state *st, unsigned long outlen, const unsigned char *key, unsigned long keylen);
+int blake2smac_process(blake2smac_state *st, const unsigned char *in, unsigned long inlen);
+int blake2smac_done(blake2smac_state *st, unsigned char *mac, unsigned long *maclen);
+int blake2smac_test(void);
+int blake2smac_memory(const unsigned char *key, unsigned long keylen, const unsigned char *in, unsigned long inlen, unsigned char *mac, unsigned long *maclen);
+int blake2smac_memory_multi(const unsigned char *key, unsigned long keylen, unsigned char *mac, unsigned long *maclen, const unsigned char *in,  unsigned long inlen, ...);
+int blake2smac_file(const char *fname, const unsigned char *key, unsigned long keylen, unsigned char *mac, unsigned long *maclen);
+int blake2smac_test(void);
+#endif /* LTC_BLAKE2SMAC */
+
+#ifdef LTC_BLAKE2BMAC
+typedef hash_state blake2bmac_state;
+int blake2bmac_init(blake2bmac_state *st, unsigned long outlen, const unsigned char *key, unsigned long keylen);
+int blake2bmac_process(blake2bmac_state *st, const unsigned char *in, unsigned long inlen);
+int blake2bmac_done(blake2bmac_state *st, unsigned char *mac, unsigned long *maclen);
+int blake2bmac_test(void);
+int blake2bmac_memory(const unsigned char *key, unsigned long keylen, const unsigned char *in, unsigned long inlen, unsigned char *mac, unsigned long *maclen);
+int blake2bmac_memory_multi(const unsigned char *key, unsigned long keylen, unsigned char *mac, unsigned long *maclen, const unsigned char *in,  unsigned long inlen, ...);
+int blake2bmac_file(const char *fname, const unsigned char *key, unsigned long keylen, unsigned char *mac, unsigned long *maclen);
+int blake2bmac_test(void);
+#endif /* LTC_BLAKE2BMAC */
+
 #ifdef LTC_EAX_MODE
 
 #if !(defined(LTC_OMAC) && defined(LTC_CTR_MODE))

@@ -242,6 +242,12 @@ const char *crypt_build_settings =
 #if defined(LTC_POLY1305)
     "   POLY1305\n"
 #endif
+#if defined(LTC_BLAKE2SMAC)
+    "   BLAKE2S MAC\n"
+#endif
+#if defined(LTC_BLAKE2BMAC)
+    "   BLAKE2B MAC\n"
+#endif
 
     "\nENC + AUTH modes:\n"
 #if defined(LTC_EAX_MODE)
