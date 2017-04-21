@@ -81,6 +81,25 @@ sub check_defines {
   return $fails;
 }
 
+sub check_hashes {
+  my @src;
+  my @descriptors;
+  find({ wanted => sub { push @src, $_ if $_ =~ /\.c$/ }, no_chdir=>1 }, './src/hashes/');
+  for my $f (@src) {
+    my @n = map { $_ =~ s/^.*?ltc_hash_descriptor\s+(\S+).*$/$1/; $_ } grep { $_ =~ /ltc_hash_descriptor/ } split /\n/, read_file($f);
+    push @descriptors, @n if @n;
+  }
+  my $fails = 0;
+  for my $d (@descriptors) {
+    for my $f (qw{ demos/tv_gen.c demos/hashsum.c testprof/x86_prof.c }) {
+      my $txt = read_file($f);
+      warn "$d missing in $f\n" and $fails++ if $txt !~ /\Q$d\E/;
+    }
+  }
+  warn( $fails > 0 ? "check-hashes:    FAIL $fails\n" : "check-hashes:    PASS\n" );
+  return $fails;
+}
+
 sub prepare_variable {
   my ($varname, @list) = @_;
   my $output = "$varname=";
@@ -266,6 +285,7 @@ MARKER
 
 GetOptions( "check-source"     => \my $check_source,
             "check-defines"    => \my $check_defines,
+            "check-hashes"     => \my $check_hashes,
             "check-makefiles"  => \my $check_makefiles,
             "check-all"        => \my $check_all,
             "update-makefiles" => \my $update_makefiles,
@@ -275,6 +295,7 @@ GetOptions( "check-source"     => \my $check_source,
 my $failure;
 $failure ||= check_source()       if $check_all || $check_source;
 $failure ||= check_defines()      if $check_all || $check_defines;
+$failure ||= check_hashes()       if $check_all || $check_hashes;
 $failure ||= process_makefiles(0) if $check_all || $check_makefiles;
 $failure ||= process_makefiles(1) if $update_makefiles;
 

@@ -96,11 +96,29 @@ void register_algs(void)
 #ifdef LTC_SHA512
   register_hash (&sha512_desc);
 #endif
+#ifdef LTC_SHA512_224
+  register_hash (&sha512_224_desc);
+#endif
+#ifdef LTC_SHA512_256
+  register_hash (&sha512_256_desc);
+#endif
+#ifdef LTC_SHA3
+  register_hash (&sha3_224_desc);
+  register_hash (&sha3_256_desc);
+  register_hash (&sha3_384_desc);
+  register_hash (&sha3_512_desc);
+#endif
 #ifdef LTC_RIPEMD128
   register_hash (&rmd128_desc);
 #endif
 #ifdef LTC_RIPEMD160
   register_hash (&rmd160_desc);
+#endif
+#ifdef LTC_RIPEMD256
+  register_hash (&rmd256_desc);
+#endif
+#ifdef LTC_RIPEMD320
+  register_hash (&rmd320_desc);
 #endif
 #ifdef LTC_WHIRLPOOL
   register_hash (&whirlpool_desc);
