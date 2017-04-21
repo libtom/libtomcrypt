@@ -39,7 +39,7 @@ int pmac_file(int cipher,
    int err;
    pmac_state pmac;
    FILE *in;
-   unsigned char buf[512];
+   unsigned char *buf;
 
 
    LTC_ARGCHK(key      != NULL);
@@ -47,34 +47,43 @@ int pmac_file(int cipher,
    LTC_ARGCHK(out      != NULL);
    LTC_ARGCHK(outlen   != NULL);
 
-   in = fopen(filename, "rb");
-   if (in == NULL) {
-      return CRYPT_FILE_NOTFOUND;
+   if ((buf = XMALLOC(LTC_FILE_READ_BUFSIZE)) == NULL) {
+      return CRYPT_MEM;
    }
 
    if ((err = pmac_init(&pmac, cipher, key, keylen)) != CRYPT_OK) {
-      fclose(in);
-      return err;
+      goto LBL_ERR;
+   }
+
+   in = fopen(filename, "rb");
+   if (in == NULL) {
+      err = CRYPT_FILE_NOTFOUND;
+      goto LBL_ERR;
    }
 
    do {
-      x = fread(buf, 1, sizeof(buf), in);
+      x = fread(buf, 1, LTC_FILE_READ_BUFSIZE, in);
       if ((err = pmac_process(&pmac, buf, (unsigned long)x)) != CRYPT_OK) {
          fclose(in);
-         return err;
+         goto LBL_CLEANBUF;
       }
-   } while (x == sizeof(buf));
-   fclose(in);
+   } while (x == LTC_FILE_READ_BUFSIZE);
 
-   if ((err = pmac_done(&pmac, out, outlen)) != CRYPT_OK) {
-      return err;
+   if (fclose(in) != 0) {
+      err = CRYPT_ERROR;
+      goto LBL_CLEANBUF;
    }
 
-#ifdef LTC_CLEAN_STACK
-   zeromem(buf, sizeof(buf));
-#endif
+   err = pmac_done(&pmac, out, outlen);
 
-   return CRYPT_OK;
+LBL_CLEANBUF:
+   zeromem(buf, LTC_FILE_READ_BUFSIZE);
+LBL_ERR:
+#ifdef LTC_CLEAN_STACK
+   zeromem(&pmac, sizeof(pmac_state));
+#endif
+   XFREE(buf);
+   return err;
 #endif
 }
 

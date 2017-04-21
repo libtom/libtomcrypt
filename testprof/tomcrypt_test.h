@@ -65,6 +65,7 @@ int dsa_test(void);
 int der_tests(void);
 int misc_test(void);
 int base64_test(void);
+int file_test(void);
 
 /* timing */
 #define KTIMES  25

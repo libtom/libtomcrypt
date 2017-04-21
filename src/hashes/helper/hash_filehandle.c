@@ -27,7 +27,7 @@
 int hash_filehandle(int hash, FILE *in, unsigned char *out, unsigned long *outlen)
 {
     hash_state md;
-    unsigned char buf[512];
+    unsigned char *buf;
     size_t x;
     int err;
 
@@ -35,30 +35,36 @@ int hash_filehandle(int hash, FILE *in, unsigned char *out, unsigned long *outle
     LTC_ARGCHK(outlen != NULL);
     LTC_ARGCHK(in     != NULL);
 
+    if ((buf = XMALLOC(LTC_FILE_READ_BUFSIZE)) == NULL) {
+        return CRYPT_MEM;
+    }
+
     if ((err = hash_is_valid(hash)) != CRYPT_OK) {
-        return err;
+        goto LBL_ERR;
     }
 
     if (*outlen < hash_descriptor[hash].hashsize) {
        *outlen = hash_descriptor[hash].hashsize;
-       return CRYPT_BUFFER_OVERFLOW;
+       err = CRYPT_BUFFER_OVERFLOW;
+       goto LBL_ERR;
     }
     if ((err = hash_descriptor[hash].init(&md)) != CRYPT_OK) {
-       return err;
+       goto LBL_ERR;
     }
 
     *outlen = hash_descriptor[hash].hashsize;
     do {
-        x = fread(buf, 1, sizeof(buf), in);
+        x = fread(buf, 1, LTC_FILE_READ_BUFSIZE, in);
         if ((err = hash_descriptor[hash].process(&md, buf, (unsigned long)x)) != CRYPT_OK) {
-           return err;
+           goto LBL_CLEANBUF;
         }
-    } while (x == sizeof(buf));
+    } while (x == LTC_FILE_READ_BUFSIZE);
     err = hash_descriptor[hash].done(&md, out);
 
-#ifdef LTC_CLEAN_STACK
-    zeromem(buf, sizeof(buf));
-#endif
+LBL_CLEANBUF:
+    zeromem(buf, LTC_FILE_READ_BUFSIZE);
+LBL_ERR:
+    XFREE(buf);
     return err;
 }
 #endif /* #ifndef LTC_NO_FILE */
