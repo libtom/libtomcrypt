@@ -24,6 +24,7 @@ static const struct {
       LTC_TEST_FN(ecc_tests),
       LTC_TEST_FN(dsa_test),
       LTC_TEST_FN(katja_test),
+      LTC_TEST_FN(file_test),
 };
 
 int main(int argc, char **argv)
