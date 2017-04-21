@@ -31,6 +31,7 @@ fi
 
 ./sizes
 ./constants
+./multi
 
 # if this was executed as './coverage.sh ...' create coverage locally
 if [[ "${0%% *}" == "./${0##*/}" ]]; then
