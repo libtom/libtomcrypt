@@ -15,7 +15,7 @@
 
 const struct ltc_hash_descriptor sha3_224_desc =
 {
-   "sha3_224",                  /* name of hash */
+   "sha3-224",                  /* name of hash */
    17,                          /* internal ID */
    28,                          /* Size of digest in octets */
    128,                         /* Input block size in octets */
@@ -30,7 +30,7 @@ const struct ltc_hash_descriptor sha3_224_desc =
 
 const struct ltc_hash_descriptor sha3_256_desc =
 {
-   "sha3_256",                  /* name of hash */
+   "sha3-256",                  /* name of hash */
    18,                          /* internal ID */
    32,                          /* Size of digest in octets */
    128,                         /* Input block size in octets */
@@ -45,7 +45,7 @@ const struct ltc_hash_descriptor sha3_256_desc =
 
 const struct ltc_hash_descriptor sha3_384_desc =
 {
-   "sha3_384",                  /* name of hash */
+   "sha3-384",                  /* name of hash */
    19,                          /* internal ID */
    48,                          /* Size of digest in octets */
    128,                         /* Input block size in octets */
@@ -60,7 +60,7 @@ const struct ltc_hash_descriptor sha3_384_desc =
 
 const struct ltc_hash_descriptor sha3_512_desc =
 {
-   "sha3_512",                  /* name of hash */
+   "sha3-512",                  /* name of hash */
    20,                          /* internal ID */
    64,                          /* Size of digest in octets */
    128,                         /* Input block size in octets */

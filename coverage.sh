@@ -32,6 +32,15 @@ fi
 ./sizes
 ./constants
 ./multi
+for i in $(./hashsum | tail -n +3 | awk '{print $1}' | sort); do echo -n "$i: " && ./hashsum $i testprof/test.key ; done > hashsum_tv.txt
+difftroubles=$(diff -i -w -B hashsum_tv.txt notes/hashsum_tv.txt | grep '^<') || true
+if [ -n "$difftroubles" ]; then
+  echo "FAILURE: hashsum_tv.tx"
+  diff -i -w -B hashsum_tv.txt notes/hashsum_tv.txt
+  echo "hashsum failed" && rm -f testok.txt && exit 1
+else
+  echo "hashsum okay"
+fi
 
 # if this was executed as './coverage.sh ...' create coverage locally
 if [[ "${0%% *}" == "./${0##*/}" ]]; then

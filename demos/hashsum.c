@@ -15,10 +15,9 @@ void register_algs(void);
 
 int main(int argc, char **argv)
 {
-   int idx, x, z;
-   unsigned long w;
+   int idx, z;
+   unsigned long w, x;
    unsigned char hash_buffer[MAXBLOCKSIZE];
-   hash_state md;
 
    /* You need to register algorithms before using them */
    register_algs();
@@ -38,26 +37,25 @@ int main(int argc, char **argv)
    }
 
    if (argc == 2) {
-      hash_descriptor[idx].init(&md);
-      do {
-         x = fread(hash_buffer, 1, sizeof(hash_buffer), stdin);
-         hash_descriptor[idx].process(&md, hash_buffer, x);
-      } while (x == sizeof(hash_buffer));
-      hash_descriptor[idx].done(&md, hash_buffer);
-      for (x = 0; x < (int)hash_descriptor[idx].hashsize; x++) {
-          printf("%02x",hash_buffer[x]);
+      w = sizeof(hash_buffer);
+      if ((errno = hash_filehandle(idx, stdin, hash_buffer, &w)) != CRYPT_OK) {
+         printf("File hash error: %s\n", error_to_string(errno));
+      } else {
+          for (x = 0; x < w; x++) {
+              printf("%02x",hash_buffer[x]);
+          }
+          printf(" *-\n");
       }
-      printf("  (stdin)\n");
    } else {
       for (z = 2; z < argc; z++) {
          w = sizeof(hash_buffer);
          if ((errno = hash_file(idx,argv[z],hash_buffer,&w)) != CRYPT_OK) {
             printf("File hash error: %s\n", error_to_string(errno));
          } else {
-             for (x = 0; x < (int)hash_descriptor[idx].hashsize; x++) {
+             for (x = 0; x < w; x++) {
                  printf("%02x",hash_buffer[x]);
              }
-             printf("  %s\n", argv[z]);
+             printf(" *%s\n", argv[z]);
          }
       }
    }
