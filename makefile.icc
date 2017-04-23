@@ -77,7 +77,6 @@ CRYPT=encrypt
 SMALL=small
 PROF=x86_prof
 TV=tv_gen
-MULTI=multi
 TIMING=timing
 TEST=test
 

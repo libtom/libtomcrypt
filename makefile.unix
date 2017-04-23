@@ -22,7 +22,6 @@ CRYPT=encrypt
 SMALL=small
 PROF=x86_prof
 TV=tv_gen
-MULTI=multi
 TIMING=timing
 TEST=test
 
@@ -202,7 +201,6 @@ HASHOBJECTS=demos/hashsum.o
 CRYPTOBJECTS=demos/encrypt.o
 SMALLOBJECTS=demos/small.o
 TVS=demos/tv_gen.o
-MULTIS=demos/multi.o
 TIMINGS=demos/timing.o
 TESTS=demos/test.o
 
@@ -254,9 +252,6 @@ small: library $(SMALLOBJECTS)
 tv_gen: library $(TVS)
 	$(CC) $(LDFLAGS) $(TVS) $(LIBNAME) $(EXTRALIBS) -o $(TV)
 
-multi: library $(MULTIS)
-	$(CC) $(MULTIS) $(LIBNAME) $(EXTRALIBS) -o $(MULTI)
-
 timing: library testprof/$(LIBTEST) $(TIMINGS)
 	$(CC) $(LDFLAGS) $(TIMINGS) testprof/$(LIBTEST) $(LIBNAME) $(EXTRALIBS) -o $(TIMING)
 
@@ -264,7 +259,7 @@ timing: library testprof/$(LIBTEST) $(TIMINGS)
 test: library testprof/$(LIBTEST) $(TESTS)
 	$(CC) $(LDFLAGS) $(TESTS) testprof/$(LIBTEST) $(LIBNAME) $(EXTRALIBS) -o $(TEST)
 
-all_test: test tv_gen hashsum crypt small multi timing
+all_test: test tv_gen hashsum crypt small timing
 
 #This rule installs the library and the header files. This must be run
 #as root in order to have a high enough permission to write to the correct

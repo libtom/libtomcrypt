@@ -1,7 +1,7 @@
 /* test the multi helpers... */
-#include <tomcrypt.h>
+#include <tomcrypt_test.h>
 
-int main(void)
+int multi_test(void)
 {
    unsigned char key[32], buf[2][MAXBLOCKSIZE];
    unsigned long len, len2;
@@ -17,19 +17,19 @@ int main(void)
    hash_memory_multi(find_hash("sha256"), buf[1], &len2, (unsigned char*)"hello", 5, NULL);
    if (len != len2 || memcmp(buf[0], buf[1], len)) {
       printf("Failed: %d %lu %lu\n", __LINE__, len, len2);
-      return EXIT_FAILURE;
+      return CRYPT_FAIL_TESTVECTOR;
    }
    len2 = sizeof(buf[0]);
    hash_memory_multi(find_hash("sha256"), buf[1], &len2, (unsigned char*)"he", 2UL, "llo", 3UL, NULL, 0);
    if (len != len2 || memcmp(buf[0], buf[1], len)) {
       printf("Failed: %d %lu %lu\n", __LINE__, len, len2);
-      return EXIT_FAILURE;
+      return CRYPT_FAIL_TESTVECTOR;
    }
    len2 = sizeof(buf[0]);
    hash_memory_multi(find_hash("sha256"), buf[1], &len2, (unsigned char*)"h", 1UL, "e", 1UL, "l", 1UL, "l", 1UL, "o", 1UL, NULL);
    if (len != len2 || memcmp(buf[0], buf[1], len)) {
       printf("Failed: %d %lu %lu\n", __LINE__, len, len2);
-      return EXIT_FAILURE;
+      return CRYPT_FAIL_TESTVECTOR;
    }
 
 #ifdef LTC_HMAC
@@ -39,19 +39,19 @@ int main(void)
    hmac_memory_multi(find_hash("sha256"), key, 16, buf[1], &len2, (unsigned char*)"hello", 5UL, NULL);
    if (len != len2 || memcmp(buf[0], buf[1], len)) {
       printf("Failed: %d %lu %lu\n", __LINE__, len, len2);
-      return EXIT_FAILURE;
+      return CRYPT_FAIL_TESTVECTOR;
    }
    len2 = sizeof(buf[0]);
    hmac_memory_multi(find_hash("sha256"), key, 16, buf[1], &len2, (unsigned char*)"he", 2UL, "llo", 3UL, NULL);
    if (len != len2 || memcmp(buf[0], buf[1], len)) {
       printf("Failed: %d %lu %lu\n", __LINE__, len, len2);
-      return EXIT_FAILURE;
+      return CRYPT_FAIL_TESTVECTOR;
    }
    len2 = sizeof(buf[0]);
    hmac_memory_multi(find_hash("sha256"), key, 16, buf[1], &len2, (unsigned char*)"h", 1UL, "e", 1UL, "l", 1UL, "l", 1UL, "o", 1UL, NULL);
    if (len != len2 || memcmp(buf[0], buf[1], len)) {
       printf("Failed: %d %lu %lu\n", __LINE__, len, len2);
-      return EXIT_FAILURE;
+      return CRYPT_FAIL_TESTVECTOR;
    }
 #endif
 
@@ -62,19 +62,19 @@ int main(void)
    omac_memory_multi(find_cipher("aes"), key, 16, buf[1], &len2, (unsigned char*)"hello", 5UL, NULL);
    if (len != len2 || memcmp(buf[0], buf[1], len)) {
       printf("Failed: %d %lu %lu\n", __LINE__, len, len2);
-      return EXIT_FAILURE;
+      return CRYPT_FAIL_TESTVECTOR;
    }
    len2 = sizeof(buf[0]);
    omac_memory_multi(find_cipher("aes"), key, 16, buf[1], &len2, (unsigned char*)"he", 2UL, "llo", 3UL, NULL);
    if (len != len2 || memcmp(buf[0], buf[1], len)) {
       printf("Failed: %d %lu %lu\n", __LINE__, len, len2);
-      return EXIT_FAILURE;
+      return CRYPT_FAIL_TESTVECTOR;
    }
    len2 = sizeof(buf[0]);
    omac_memory_multi(find_cipher("aes"), key, 16, buf[1], &len2, (unsigned char*)"h", 1UL, "e", 1UL, "l", 1UL, "l", 1UL, "o", 1UL, NULL);
    if (len != len2 || memcmp(buf[0], buf[1], len)) {
       printf("Failed: %d %lu %lu\n", __LINE__, len, len2);
-      return EXIT_FAILURE;
+      return CRYPT_FAIL_TESTVECTOR;
    }
 #endif
 
@@ -85,19 +85,19 @@ int main(void)
    pmac_memory_multi(find_cipher("aes"), key, 16, buf[1], &len2, (unsigned char*)"hello", 5, NULL);
    if (len != len2 || memcmp(buf[0], buf[1], len)) {
       printf("Failed: %d %lu %lu\n", __LINE__, len, len2);
-      return EXIT_FAILURE;
+      return CRYPT_FAIL_TESTVECTOR;
    }
    len2 = sizeof(buf[0]);
    pmac_memory_multi(find_cipher("aes"), key, 16, buf[1], &len2, (unsigned char*)"he", 2UL, "llo", 3UL, NULL);
    if (len != len2 || memcmp(buf[0], buf[1], len)) {
       printf("Failed: %d %lu %lu\n", __LINE__, len, len2);
-      return EXIT_FAILURE;
+      return CRYPT_FAIL_TESTVECTOR;
    }
    len2 = sizeof(buf[0]);
    pmac_memory_multi(find_cipher("aes"), key, 16, buf[1], &len2, (unsigned char*)"h", 1UL, "e", 1UL, "l", 1UL, "l", 1UL, "o", 1UL, NULL);
    if (len != len2 || memcmp(buf[0], buf[1], len)) {
       printf("Failed: %d %lu %lu\n", __LINE__, len, len2);
-      return EXIT_FAILURE;
+      return CRYPT_FAIL_TESTVECTOR;
    }
 #endif
 
@@ -108,19 +108,19 @@ int main(void)
    xcbc_memory_multi(find_cipher("aes"), key, 16, buf[1], &len2, (unsigned char*)"hello", 5, NULL);
    if (len != len2 || memcmp(buf[0], buf[1], len)) {
       printf("Failed: %d %lu %lu\n", __LINE__, len, len2);
-      return EXIT_FAILURE;
+      return CRYPT_FAIL_TESTVECTOR;
    }
    len2 = sizeof(buf[0]);
    xcbc_memory_multi(find_cipher("aes"), key, 16, buf[1], &len2, (unsigned char*)"he", 2UL, "llo", 3UL, NULL);
    if (len != len2 || memcmp(buf[0], buf[1], len)) {
       printf("Failed: %d %lu %lu\n", __LINE__, len, len2);
-      return EXIT_FAILURE;
+      return CRYPT_FAIL_TESTVECTOR;
    }
    len2 = sizeof(buf[0]);
    xcbc_memory_multi(find_cipher("aes"), key, 16, buf[1], &len2, (unsigned char*)"h", 1UL, "e", 1UL, "l", 1UL, "l", 1UL, "o", 1UL, NULL);
    if (len != len2 || memcmp(buf[0], buf[1], len)) {
       printf("Failed: %d %lu %lu\n", __LINE__, len, len2);
-      return EXIT_FAILURE;
+      return CRYPT_FAIL_TESTVECTOR;
    }
 #endif
 
@@ -131,19 +131,19 @@ int main(void)
    f9_memory_multi(find_cipher("aes"), key, 16, buf[1], &len2, (unsigned char*)"hello", 5, NULL);
    if (len != len2 || memcmp(buf[0], buf[1], len)) {
       printf("Failed: %d %lu %lu\n", __LINE__, len, len2);
-      return EXIT_FAILURE;
+      return CRYPT_FAIL_TESTVECTOR;
    }
    len2 = sizeof(buf[0]);
    f9_memory_multi(find_cipher("aes"), key, 16, buf[1], &len2, (unsigned char*)"he", 2UL, "llo", 3UL, NULL);
    if (len != len2 || memcmp(buf[0], buf[1], len)) {
       printf("Failed: %d %lu %lu\n", __LINE__, len, len2);
-      return EXIT_FAILURE;
+      return CRYPT_FAIL_TESTVECTOR;
    }
    len2 = sizeof(buf[0]);
    f9_memory_multi(find_cipher("aes"), key, 16, buf[1], &len2, (unsigned char*)"h", 1UL, "e", 1UL, "l", 1UL, "l", 1UL, "o", 1UL, NULL);
    if (len != len2 || memcmp(buf[0], buf[1], len)) {
       printf("Failed: %d %lu %lu\n", __LINE__, len, len2);
-      return EXIT_FAILURE;
+      return CRYPT_FAIL_TESTVECTOR;
    }
 #endif
 
@@ -158,19 +158,19 @@ int main(void)
    poly1305_memory_multi(key, 32, buf[1], &len2, (unsigned char*)"hello", 5, NULL);
    if (len != len2 || memcmp(buf[0], buf[1], len)) {
       printf("Failed: %d %lu %lu\n", __LINE__, len, len2);
-      return EXIT_FAILURE;
+      return CRYPT_FAIL_TESTVECTOR;
    }
    len2 = sizeof(buf[0]);
    poly1305_memory_multi(key, 32, buf[1], &len2, (unsigned char*)"he", 2UL, "llo", 3UL, NULL);
    if (len != len2 || memcmp(buf[0], buf[1], len)) {
       printf("Failed: %d %lu %lu\n", __LINE__, len, len2);
-      return EXIT_FAILURE;
+      return CRYPT_FAIL_TESTVECTOR;
    }
    len2 = sizeof(buf[0]);
    poly1305_memory_multi(key, 32, buf[1], &len2, (unsigned char*)"h", 1UL, "e", 1UL, "l", 1UL, "l", 1UL, "o", 1UL, NULL);
    if (len != len2 || memcmp(buf[0], buf[1], len)) {
       printf("Failed: %d %lu %lu\n", __LINE__, len, len2);
-      return EXIT_FAILURE;
+      return CRYPT_FAIL_TESTVECTOR;
    }
 #endif
 
@@ -181,19 +181,19 @@ int main(void)
    blake2smac_memory_multi(key, 16, buf[1], &len2, (unsigned char*)"hello", 5, NULL);
    if (len != len2 || memcmp(buf[0], buf[1], len)) {
       printf("Failed: %d %lu %lu\n", __LINE__, len, len2);
-      return EXIT_FAILURE;
+      return CRYPT_FAIL_TESTVECTOR;
    }
    len2 = 32;
    blake2smac_memory_multi(key, 16, buf[1], &len2, (unsigned char*)"he", 2UL, "llo", 3UL, NULL);
    if (len != len2 || memcmp(buf[0], buf[1], len)) {
       printf("Failed: %d %lu %lu\n", __LINE__, len, len2);
-      return EXIT_FAILURE;
+      return CRYPT_FAIL_TESTVECTOR;
    }
    len2 = 32;
    blake2smac_memory_multi(key, 16, buf[1], &len2, (unsigned char*)"h", 1UL, "e", 1UL, "l", 1UL, "l", 1UL, "o", 1UL, NULL);
    if (len != len2 || memcmp(buf[0], buf[1], len)) {
       printf("Failed: %d %lu %lu\n", __LINE__, len, len2);
-      return EXIT_FAILURE;
+      return CRYPT_FAIL_TESTVECTOR;
    }
 #endif
 
@@ -204,27 +204,21 @@ int main(void)
    blake2bmac_memory_multi(key, 16, buf[1], &len2, (unsigned char*)"hello", 5, NULL);
    if (len != len2 || memcmp(buf[0], buf[1], len)) {
       printf("Failed: %d %lu %lu\n", __LINE__, len, len2);
-      return EXIT_FAILURE;
+      return CRYPT_FAIL_TESTVECTOR;
    }
    len2 = 64;
    blake2bmac_memory_multi(key, 16, buf[1], &len2, (unsigned char*)"he", 2UL, "llo", 3UL, NULL);
    if (len != len2 || memcmp(buf[0], buf[1], len)) {
       printf("Failed: %d %lu %lu\n", __LINE__, len, len2);
-      return EXIT_FAILURE;
+      return CRYPT_FAIL_TESTVECTOR;
    }
    len2 = 64;
    blake2bmac_memory_multi(key, 16, buf[1], &len2, (unsigned char*)"h", 1UL, "e", 1UL, "l", 1UL, "l", 1UL, "o", 1UL, NULL);
    if (len != len2 || memcmp(buf[0], buf[1], len)) {
       printf("Failed: %d %lu %lu\n", __LINE__, len, len2);
-      return EXIT_FAILURE;
+      return CRYPT_FAIL_TESTVECTOR;
    }
 #endif
 
-   printf("All passed\n");
-   return EXIT_SUCCESS;
+   return CRYPT_OK;
 }
-
-
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
