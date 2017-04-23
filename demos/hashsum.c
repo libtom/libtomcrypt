@@ -47,7 +47,7 @@ int main(int argc, char **argv)
       for (x = 0; x < (int)hash_descriptor[idx].hashsize; x++) {
           printf("%02x",hash_buffer[x]);
       }
-      printf("  (stdin)\n");
+      printf(" *-\n");
    } else {
       for (z = 2; z < argc; z++) {
          w = sizeof(hash_buffer);
@@ -57,7 +57,7 @@ int main(int argc, char **argv)
              for (x = 0; x < (int)hash_descriptor[idx].hashsize; x++) {
                  printf("%02x",hash_buffer[x]);
              }
-             printf("  %s\n", argv[z]);
+             printf(" *%s\n", argv[z]);
          }
       }
    }
