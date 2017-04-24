@@ -22,7 +22,7 @@
 */
 int blake2bmac_file(const char *fname, const unsigned char *key, unsigned long keylen, unsigned char *mac, unsigned long *maclen)
 {
-        #ifdef LTC_NO_FILE
+#ifdef LTC_NO_FILE
    return CRYPT_NOP;
 #else
    blake2bmac_state st;
