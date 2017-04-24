@@ -6,7 +6,7 @@ int cipher_hash_test(void)
 {
    int           x;
    unsigned char buf[4096];
-   unsigned long n;
+   unsigned long n, one;
    prng_state    nprng;
 
    /* test ciphers */
@@ -40,13 +40,20 @@ int cipher_hash_test(void)
       DOX(prng_descriptor[x].add_entropy((unsigned char *)"helloworld12", 12, &nprng), prng_descriptor[x].name);
       DOX(prng_descriptor[x].ready(&nprng), prng_descriptor[x].name);
       n = sizeof(buf);
+      if (strcmp(prng_descriptor[x].name, "sprng")) {
+         one = 1;
+         if (prng_descriptor[x].pexport(buf, &one, &nprng) != CRYPT_BUFFER_OVERFLOW) {
+            fprintf(stderr, "Error testing pexport with a short buffer (%s)\n", prng_descriptor[x].name);
+            return CRYPT_ERROR;
+         }
+      }
       DOX(prng_descriptor[x].pexport(buf, &n, &nprng), prng_descriptor[x].name);
       prng_descriptor[x].done(&nprng);
       DOX(prng_descriptor[x].pimport(buf, n, &nprng), prng_descriptor[x].name);
       DOX(prng_descriptor[x].ready(&nprng), prng_descriptor[x].name);
       if (prng_descriptor[x].read(buf, 100, &nprng) != 100) {
-         fprintf(stderr, "Error reading from imported PRNG!\n");
-         exit(EXIT_FAILURE);
+         fprintf(stderr, "Error reading from imported PRNG (%s)!\n", prng_descriptor[x].name);
+         return CRYPT_ERROR;
       }
       prng_descriptor[x].done(&nprng);
    }

@@ -530,6 +530,9 @@ register_prng(&chacha20_prng_desc);
 #ifdef LTC_SOBER128
 register_prng(&sober128_desc);
 #endif
+#ifdef LTC_SPRNG
+register_prng(&sprng_desc);
+#endif
 
 #ifdef LTC_PRNG_ENABLE_LTC_RNG
    ltc_rng = my_test_rng;
