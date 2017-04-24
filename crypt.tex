@@ -4692,16 +4692,18 @@ LTC_SET_ASN1(sequence, x++, LTC_ASN1_NULL,           NULL,   0);
 \hline LTC\_ASN1\_NULL               & NULL \\
 \hline LTC\_ASN1\_OBJECT\_IDENTIFIER & OBJECT IDENTIFIER  \\
 \hline LTC\_ASN1\_IA5\_STRING        & IA5 STRING (one octet per char) \\
-\hline LTC\_ASN1\_UTF8\_STRING       & UTF8 STRING (one wchar\_t per char) \\
 \hline LTC\_ASN1\_PRINTABLE\_STRING  & PRINTABLE STRING (one octet per char) \\
+\hline LTC\_ASN1\_UTF8\_STRING       & UTF8 STRING (one wchar\_t per char) \\
 \hline LTC\_ASN1\_UTCTIME            & UTCTIME (see ltc\_utctime structure) \\
+\hline LTC\_ASN1\_CHOICE             & CHOICE \\
 \hline LTC\_ASN1\_SEQUENCE           & SEQUENCE (and SEQUENCE OF) \\
 \hline LTC\_ASN1\_SET                & SET \\
 \hline LTC\_ASN1\_SETOF              & SET OF \\
-\hline LTC\_ASN1\_CHOICE             & CHOICE \\
 \hline LTC\_ASN1\_RAW\_BIT\_STRING   & BIT STRING (one octet per char) \\
 \hline LTC\_ASN1\_TELETEX\_STRING    & TELETEX STRING (one octet per char) \\
 \hline LTC\_ASN1\_CONSTRUCTED        & A constructed type that is not SEQUENCE or SET \\
+\hline LTC\_ASN1\_CONTEXT\_SPECIFIC  & A context-specific type \\
+\hline LTC\_ASN1\_GENERALIZEDTIME    & GeneralizedTime (see ltc\_generalizedtime structure) \\
 \hline
 \end{tabular}
 \caption{List of ASN.1 Supported Types}
@@ -5138,6 +5140,57 @@ int der_length_utctime(  ltc_utctime *utctime,
 
 The encoder will store time in one of the two ASN.1 formats, either \textit{YYMMDDhhmmssZ} or \textit{YYMMDDhhmmss$\pm$hhmm}, and perform minimal error checking on the
 input.  The decoder will read all valid ASN.1 formats and perform range checking on the values (not complete but rational) useful for catching packet errors.
+
+It is suggested that decoded data be further scrutinized (e.g. days of month in particular).
+
+\subsection{ASN.1 GeneralizedTime}
+
+The GeneralizedTime type is to store a date and time in ASN.1 format.  It uses the following structure to organize the time.
+
+\index{ltc\_utctime structure}
+\begin{verbatim}
+typedef struct {
+   unsigned YYYY, /* year              0--9999 */
+            MM, /* month               1--12 */
+            DD, /* day                 1--31 */
+            hh, /* hour                0--23 */
+            mm, /* minute              0--59 */
+            ss, /* second              0--59 */
+            fs, /* fractional seconds  1--UINT_MAX */
+            off_dir, /* timezone offset direction 0 == +, 1 == - */
+            off_hh, /* timezone offset hours */
+            off_mm; /* timezone offset minutes */
+} ltc_generalizedtime;
+\end{verbatim}
+
+The time can be offset plus or minus a set amount of hours (off\_hh) and minutes (off\_mm).  When \textit{off\_dir} is zero, the time will be added otherwise it
+will be subtracted.  For instance, the array $\lbrace 2005, 6, 20, 22, 4, 0, 122, 0, 5, 0 \rbrace$ represents the current time of
+\textit{2005, June 20th, 22:04:00.122} with a time offset of +05h00.
+
+\index{der\_encode\_utctime()}\index{der\_decode\_utctime()}\index{der\_length\_utctime()}
+\begin{verbatim}
+int der_encode_generalizedtime(ltc_generalizedtime *gtime,
+                               unsigned char       *out,
+                               unsigned long       *outlen);
+
+int der_decode_generalizedtime(const unsigned char *in,
+                               unsigned long       *inlen,
+                               ltc_generalizedtime *out);
+
+int der_length_generalizedtime(ltc_generalizedtime *gtime,
+                               unsigned long       *outlen);
+\end{verbatim}
+
+The encoder will store time in one of the following ASN.1 formats, either \textit{YYYYMMDDhhmmssZ} or
+\textit{YYYYMMDDhhmmss$\pm$hhmm} or\textit{YYYYMMDDhhmmss.fsZ} or \textit{YYYYMMDDhhmmss.fs$\pm$hhmm},
+and perform minimal error checking on the input.
+The decoder will read all valid ASN.1 formats and perform range checking on the values (not complete but
+rational) useful for catching packet errors.
+
+The fractional seconds are always added in case they are not $0$.
+The implementation of fractional seconds is currently unreliable and you can't detect decoded
+resp. encode leading $0$'s (e.g. \textit{20170424232717.005Z} would be decoded as
+\textit{22. April 2017, 23:27:17.5}).
 
 It is suggested that decoded data be further scrutinized (e.g. days of month in particular).
 
