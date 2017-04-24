@@ -211,16 +211,20 @@ int rc4_test(void)
    unsigned long dmplen = sizeof(dmp);
    unsigned char out[1000];
    unsigned char t1[] = { 0xE0, 0x4D, 0x9A, 0xF6, 0xA8, 0x9D, 0x77, 0x53, 0xAE, 0x09 };
-   unsigned char t2[] = { 0x9D, 0x3C, 0xC6, 0x64, 0x36, 0xB6, 0x76, 0xD5, 0xEB, 0x93 };
-   unsigned char t3[] = { 0x6B, 0x6D, 0xF5, 0xCB, 0x84, 0x37, 0x8F, 0x02, 0xA2, 0x90 };
+   unsigned char t2[] = { 0xEF, 0x80, 0xA2, 0xE6, 0x50, 0x91, 0xF3, 0x17, 0x4A, 0x8A };
+   unsigned char t3[] = { 0x4B, 0xD6, 0x5C, 0x67, 0x99, 0x03, 0x56, 0x12, 0x80, 0x48 };
    int err;
 
    if ((err = rc4_start(&st)) != CRYPT_OK)                         return err;
+   /* add entropy to uninitialized prng */
    if ((err = rc4_add_entropy(en, sizeof(en), &st)) != CRYPT_OK)   return err;
    if ((err = rc4_ready(&st)) != CRYPT_OK)                         return err;
    if (rc4_read(out, 10, &st) != 10)                               return CRYPT_ERROR_READPRNG; /* 10 bytes for testing */
    if (compare_testvector(out, 10, t1, sizeof(t1), "RC4-PRNG", 1)) return CRYPT_FAIL_TESTVECTOR;
-   if (rc4_read(out, 500, &st) != 500)                             return CRYPT_ERROR_READPRNG;
+   if (rc4_read(out, 500, &st) != 500)                             return CRYPT_ERROR_READPRNG; /* skip 500 bytes */
+   /* add entropy to already initialized prng */
+   if ((err = rc4_add_entropy(en, sizeof(en), &st)) != CRYPT_OK)   return err;
+   if (rc4_read(out, 500, &st) != 500)                             return CRYPT_ERROR_READPRNG; /* skip 500 bytes */
    if ((err = rc4_export(dmp, &dmplen, &st)) != CRYPT_OK)          return err;
    if (rc4_read(out, 500, &st) != 500)                             return CRYPT_ERROR_READPRNG; /* skip 500 bytes */
    if (rc4_read(out, 10, &st) != 10)                               return CRYPT_ERROR_READPRNG; /* 10 bytes for testing */
