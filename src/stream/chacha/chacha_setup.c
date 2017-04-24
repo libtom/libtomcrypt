@@ -14,7 +14,7 @@
 
 #include "tomcrypt.h"
 
-#ifdef LTC_CHACHA_STREAM
+#ifdef LTC_CHACHA
 
 static const char * const sigma = "expand 32-byte k";
 static const char * const tau   = "expand 16-byte k";

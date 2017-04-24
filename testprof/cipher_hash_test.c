@@ -15,7 +15,7 @@ int cipher_hash_test(void)
    }
 
    /* stream ciphers */
-#ifdef LTC_CHACHA_STREAM
+#ifdef LTC_CHACHA
    DO(chacha_test());
 #endif
 #ifdef LTC_RC4_STREAM

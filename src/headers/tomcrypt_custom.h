@@ -191,7 +191,7 @@
 #define LTC_CAMELLIA
 
 /* stream ciphers */
-#define LTC_CHACHA_STREAM
+#define LTC_CHACHA
 #define LTC_RC4_STREAM
 #define LTC_SOBER128_STREAM
 
@@ -518,12 +518,12 @@
    #error PK requires ASN.1 DER functionality, make sure LTC_DER is enabled
 #endif
 
-#if defined(LTC_CHACHA20POLY1305_MODE) && (!defined(LTC_CHACHA_STREAM) || !defined(LTC_POLY1305))
-   #error LTC_CHACHA20POLY1305_MODE requires LTC_CHACHA_STREAM + LTC_POLY1305
+#if defined(LTC_CHACHA20POLY1305_MODE) && (!defined(LTC_CHACHA) || !defined(LTC_POLY1305))
+   #error LTC_CHACHA20POLY1305_MODE requires LTC_CHACHA + LTC_POLY1305
 #endif
 
-#if defined(LTC_CHACHA20_PRNG) && !defined(LTC_CHACHA_STREAM)
-   #error LTC_CHACHA20_PRNG requires LTC_CHACHA_STREAM
+#if defined(LTC_CHACHA20_PRNG) && !defined(LTC_CHACHA)
+   #error LTC_CHACHA20_PRNG requires LTC_CHACHA
 #endif
 
 #if defined(LTC_RC4) && !defined(LTC_RC4_STREAM)

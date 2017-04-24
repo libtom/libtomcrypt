@@ -14,7 +14,7 @@
 
 #include "tomcrypt.h"
 
-#ifdef LTC_CHACHA_STREAM
+#ifdef LTC_CHACHA
 
 int chacha_test(void)
 {

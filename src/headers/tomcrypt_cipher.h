@@ -939,7 +939,7 @@ LTC_MUTEX_PROTO(ltc_cipher_mutex)
 
 /* ---- stream ciphers ---- */
 
-#ifdef LTC_CHACHA_STREAM
+#ifdef LTC_CHACHA
 
 typedef struct {
    ulong32 input[16];
@@ -957,7 +957,7 @@ int chacha_keystream(chacha_state *st, unsigned char *out, unsigned long outlen)
 int chacha_done(chacha_state *st);
 int chacha_test(void);
 
-#endif /* LTC_CHACHA_STREAM */
+#endif /* LTC_CHACHA */
 
 #ifdef LTC_RC4_STREAM
 

@@ -14,7 +14,7 @@
 
 #include "tomcrypt.h"
 
-#ifdef LTC_CHACHA_STREAM
+#ifdef LTC_CHACHA
 
 /**
   Generate a stream of random bytes via ChaCha
