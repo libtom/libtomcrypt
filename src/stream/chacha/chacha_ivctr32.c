@@ -36,6 +36,7 @@ int chacha_ivctr32(chacha_state *st, const unsigned char *iv, unsigned long ivle
    LOAD32L(st->input[14], iv + 4);
    LOAD32L(st->input[15], iv + 8);
    st->ksleft = 0;
+   st->ivlen = ivlen;
    return CRYPT_OK;
 }
 
