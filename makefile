@@ -365,7 +365,7 @@ doxygen:
 	doxygen $(silent_stdout)
 
 doxy: doxygen
-	cd doc/doxygen/latex ; ${MAKE} ; mv -f refman.pdf ../../.
+	cd doc/doxygen/latex ; ${MAKE} $(silent_stdout) ; mv -f refman.pdf ../../.
 	@echo The huge doxygen PDF should be available as doc/refman.pdf
 
 #This builds the crypt.pdf file. Note that the rm -f *.pdf has been removed
