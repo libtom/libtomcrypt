@@ -42,6 +42,12 @@ int mac_test(void)
 #ifdef LTC_CHACHA20POLY1305_MODE
    DO(chacha20poly1305_test());
 #endif
+#ifdef LTC_BLAKE2SMAC
+   DO(blake2smac_test());
+#endif
+#ifdef LTC_BLAKE2BMAC
+   DO(blake2bmac_test());
+#endif
    return 0;
 }
 

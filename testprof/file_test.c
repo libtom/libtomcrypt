@@ -79,6 +79,22 @@ int file_test(void)
       if (compare_testvector(buf, len, exp_poly1305, 16, "poly1305_file", 1))   return 1;
    }
 #endif
+#ifdef LTC_BLAKE2SMAC
+   {
+      unsigned char exp_blake2smac[16]   = { 0x4f, 0x94, 0x45, 0x15, 0xcd, 0xd1, 0xca, 0x02, 0x1a, 0x0c, 0x7a, 0xe4, 0x6d, 0x2f, 0xe8, 0xb3 };
+      len = 16;
+      if ((err = blake2smac_file(fname, key, 32, buf, &len)) != CRYPT_OK)             return err;
+      if (compare_testvector(buf, len, exp_blake2smac, 16, "exp_blake2smac_file", 1)) return 1;
+   }
+#endif
+#ifdef LTC_BLAKE2BMAC
+   {
+      unsigned char exp_blake2bmac[16]   = { 0xdf, 0x0e, 0x7a, 0xab, 0x96, 0x6b, 0x75, 0x4e, 0x52, 0x6a, 0x43, 0x96, 0xbd, 0xef, 0xab, 0x44 };
+      len = 16;
+      if ((err = blake2bmac_file(fname, key, 32, buf, &len)) != CRYPT_OK)             return err;
+      if (compare_testvector(buf, len, exp_blake2bmac, 16, "exp_blake2bmac_file", 1)) return 1;
+   }
+#endif
 
    return CRYPT_OK;
 #endif

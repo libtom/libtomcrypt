@@ -1044,6 +1044,50 @@
 			Name="mac"
 			>
 			<Filter
+				Name="blake2"
+				>
+				<File
+					RelativePath="src\mac\blake2\blake2bmac.c"
+					>
+				</File>
+				<File
+					RelativePath="src\mac\blake2\blake2bmac_file.c"
+					>
+				</File>
+				<File
+					RelativePath="src\mac\blake2\blake2bmac_memory.c"
+					>
+				</File>
+				<File
+					RelativePath="src\mac\blake2\blake2bmac_memory_multi.c"
+					>
+				</File>
+				<File
+					RelativePath="src\mac\blake2\blake2bmac_test.c"
+					>
+				</File>
+				<File
+					RelativePath="src\mac\blake2\blake2smac.c"
+					>
+				</File>
+				<File
+					RelativePath="src\mac\blake2\blake2smac_file.c"
+					>
+				</File>
+				<File
+					RelativePath="src\mac\blake2\blake2smac_memory.c"
+					>
+				</File>
+				<File
+					RelativePath="src\mac\blake2\blake2smac_memory_multi.c"
+					>
+				</File>
+				<File
+					RelativePath="src\mac\blake2\blake2smac_test.c"
+					>
+				</File>
+			</Filter>
+			<Filter
 				Name="f9"
 				>
 				<File

@@ -31,7 +31,7 @@ fi
 
 ./sizes
 ./constants
-./multi
+
 for i in $(./hashsum | tail -n +3 | awk '{print $1}' | sort); do echo -n "$i: " && ./hashsum $i testprof/test.key ; done > hashsum_tv.txt
 difftroubles=$(diff -i -w -B hashsum_tv.txt notes/hashsum_tv.txt | grep '^<') || true
 if [ -n "$difftroubles" ]; then
