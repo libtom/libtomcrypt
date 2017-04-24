@@ -19,10 +19,10 @@ int cipher_hash_test(void)
    DO(chacha_test());
 #endif
 #ifdef LTC_RC4_STREAM
-   DO(rc4_test());
+   DO(rc4_stream_test());
 #endif
 #ifdef LTC_SOBER128_STREAM
-   DO(sober128_test());
+   DO(sober128_stream_test());
 #endif
 
    /* test hashes */

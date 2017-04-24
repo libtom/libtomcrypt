@@ -11,7 +11,7 @@
 
 #ifdef LTC_SOBER128
 
-int sober128_test(void)
+int sober128_stream_test(void)
 {
 #ifndef LTC_TEST
    return CRYPT_NOP;
@@ -27,10 +27,10 @@ int sober128_test(void)
    sober128_state st;
 
    XMEMSET(src, 0, len); /* input */
-   if ((err = sober128_setup(&st, key, sizeof(key))) != CRYPT_OK) return err;
-   if ((err = sober128_setiv(&st, iv, sizeof(iv))) != CRYPT_OK)   return err;
-   if ((err = sober128_crypt(&st, src, len, dst)) != CRYPT_OK)    return err;
-   if ((err = sober128_stream_done(&st)) != CRYPT_OK)             return err;
+   if ((err = sober128_stream_setup(&st, key, sizeof(key))) != CRYPT_OK) return err;
+   if ((err = sober128_stream_setiv(&st, iv, sizeof(iv))) != CRYPT_OK)   return err;
+   if ((err = sober128_stream_crypt(&st, src, len, dst)) != CRYPT_OK)    return err;
+   if ((err = sober128_stream_done(&st)) != CRYPT_OK)                    return err;
    if (XMEMCMP(dst, out, len)) {
 #if 0
       int y;

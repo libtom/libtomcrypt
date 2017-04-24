@@ -18,7 +18,7 @@
    @param keylen    The length of the secret key (8 - 256 bytes)
    @return CRYPT_OK if successful
 */
-int rc4_setup(rc4_state *st, const unsigned char *key, unsigned long keylen)
+int rc4_stream_setup(rc4_state *st, const unsigned char *key, unsigned long keylen)
 {
    unsigned char tmp, *s;
    int x, y;
@@ -54,7 +54,7 @@ int rc4_setup(rc4_state *st, const unsigned char *key, unsigned long keylen)
    @param out     [out] The ciphertext (or plaintext), length inlen
    @return CRYPT_OK if successful
 */
-int rc4_crypt(rc4_state *st, const unsigned char *in, unsigned long inlen, unsigned char *out)
+int rc4_stream_crypt(rc4_state *st, const unsigned char *in, unsigned long inlen, unsigned char *out)
 {
    unsigned char x, y, *s, tmp;
 
@@ -84,12 +84,12 @@ int rc4_crypt(rc4_state *st, const unsigned char *in, unsigned long inlen, unsig
   @param outlen  The output length
   @return CRYPT_OK on success
  */
-int rc4_keystream(rc4_state *st, unsigned char *out, unsigned long outlen)
+int rc4_stream_keystream(rc4_state *st, unsigned char *out, unsigned long outlen)
 {
    if (outlen == 0) return CRYPT_OK; /* nothing to do */
    LTC_ARGCHK(out != NULL);
    XMEMSET(out, 0, outlen);
-   return rc4_crypt(st, out, outlen, out);
+   return rc4_stream_crypt(st, out, outlen, out);
 }
 
 /**

@@ -66,12 +66,12 @@ int rc4_add_entropy(const unsigned char *in, unsigned long inlen, prng_state *pr
    LTC_MUTEX_LOCK(&prng->lock);
    if (prng->ready) {
       /* rc4_ready() was already called, do "rekey" operation */
-      if ((err = rc4_keystream(&prng->rc4.s, buf, sizeof(buf))) != CRYPT_OK)    goto LBL_UNLOCK;
+      if ((err = rc4_stream_keystream(&prng->rc4.s, buf, sizeof(buf))) != CRYPT_OK) goto LBL_UNLOCK;
       for(i = 0; i < inlen; i++) buf[i % sizeof(buf)] ^= in[i];
       /* initialize RC4 */
-      if ((err = rc4_setup(&prng->rc4.s, buf, sizeof(buf))) != CRYPT_OK)        goto LBL_UNLOCK;
+      if ((err = rc4_stream_setup(&prng->rc4.s, buf, sizeof(buf))) != CRYPT_OK) goto LBL_UNLOCK;
       /* drop first 3072 bytes - https://en.wikipedia.org/wiki/RC4#Fluhrer.2C_Mantin_and_Shamir_attack */
-      for (i = 0; i < 12; i++) rc4_keystream(&prng->rc4.s, buf, sizeof(buf));
+      for (i = 0; i < 12; i++) rc4_stream_keystream(&prng->rc4.s, buf, sizeof(buf));
    }
    else {
       /* rc4_ready() was not called yet, add entropy to the buffer */
@@ -101,9 +101,9 @@ int rc4_ready(prng_state *prng)
    XMEMCPY(buf, prng->rc4.s.buf, sizeof(buf));
    /* initialize RC4 */
    len = MIN(prng->rc4.s.x, 256); /* TODO: we can perhaps always use all 256 bytes */
-   if ((err = rc4_setup(&prng->rc4.s, buf, len)) != CRYPT_OK) goto LBL_UNLOCK;
+   if ((err = rc4_stream_setup(&prng->rc4.s, buf, len)) != CRYPT_OK) goto LBL_UNLOCK;
    /* drop first 3072 bytes - https://en.wikipedia.org/wiki/RC4#Fluhrer.2C_Mantin_and_Shamir_attack */
-   for (i = 0; i < 12; i++) rc4_keystream(&prng->rc4.s, buf, sizeof(buf));
+   for (i = 0; i < 12; i++) rc4_stream_keystream(&prng->rc4.s, buf, sizeof(buf));
    prng->ready = 1;
 LBL_UNLOCK:
    LTC_MUTEX_UNLOCK(&prng->lock);
@@ -122,7 +122,7 @@ unsigned long rc4_read(unsigned char *out, unsigned long outlen, prng_state *prn
    if (outlen == 0 || prng == NULL || out == NULL) return 0;
    LTC_MUTEX_LOCK(&prng->lock);
    if (!prng->ready) { outlen = 0; goto LBL_UNLOCK; }
-   if (rc4_keystream(&prng->rc4.s, out, outlen) != CRYPT_OK) outlen = 0;
+   if (rc4_stream_keystream(&prng->rc4.s, out, outlen) != CRYPT_OK) outlen = 0;
 LBL_UNLOCK:
    LTC_MUTEX_UNLOCK(&prng->lock);
    return outlen;

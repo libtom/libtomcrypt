@@ -161,7 +161,7 @@ static void s128_diffuse(sober128_state *c)
    @param keylen    The length of the secret key (octets)
    @return CRYPT_OK if successful
 */
-int sober128_setup(sober128_state *c, const unsigned char *key, unsigned long keylen)
+int sober128_stream_setup(sober128_state *c, const unsigned char *key, unsigned long keylen)
 {
    ulong32 i, k;
 
@@ -208,7 +208,7 @@ int sober128_setup(sober128_state *c, const unsigned char *key, unsigned long ke
   @param inlen   The length of the IV (must be 12)
   @return CRYPT_OK on success
  */
-int sober128_setiv(sober128_state *c, const unsigned char *iv, unsigned long ivlen)
+int sober128_stream_setiv(sober128_state *c, const unsigned char *iv, unsigned long ivlen)
 {
    ulong32 i, k;
 
@@ -253,7 +253,7 @@ int sober128_setiv(sober128_state *c, const unsigned char *iv, unsigned long ivl
    @param out     [out] The ciphertext (or plaintext), length inlen
    @return CRYPT_OK if successful
 */
-int sober128_crypt(sober128_state *c, const unsigned char *in, unsigned long inlen, unsigned char *out)
+int sober128_stream_crypt(sober128_state *c, const unsigned char *in, unsigned long inlen, unsigned char *out)
 {
    ulong32 t;
 
@@ -321,12 +321,12 @@ int sober128_crypt(sober128_state *c, const unsigned char *in, unsigned long inl
    return CRYPT_OK;
 }
 
-int sober128_keystream(sober128_state *c, unsigned char *out, unsigned long outlen)
+int sober128_stream_keystream(sober128_state *c, unsigned char *out, unsigned long outlen)
 {
    if (outlen == 0) return CRYPT_OK; /* nothing to do */
    LTC_ARGCHK(out != NULL);
    XMEMSET(out, 0, outlen);
-   return sober128_crypt(c, out, outlen, out);
+   return sober128_stream_crypt(c, out, outlen, out);
 }
 
 /**
