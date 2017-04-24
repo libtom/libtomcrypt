@@ -14,7 +14,7 @@
 
 #include "tomcrypt.h"
 
-#ifdef LTC_CHACHA
+#ifdef LTC_CHACHA_STREAM
 
 /**
   Set IV + counter data to the ChaCha state

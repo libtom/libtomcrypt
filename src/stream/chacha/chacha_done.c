@@ -9,7 +9,7 @@
 
 #include "tomcrypt.h"
 
-#ifdef LTC_CHACHA
+#ifdef LTC_CHACHA_STREAM
 
 /**
   Terminate and clear ChaCha state

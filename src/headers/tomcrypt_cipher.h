@@ -939,7 +939,7 @@ LTC_MUTEX_PROTO(ltc_cipher_mutex)
 
 /* ---- stream ciphers ---- */
 
-#ifdef LTC_CHACHA
+#ifdef LTC_CHACHA_STREAM
 
 typedef struct {
    ulong32 input[16];
@@ -957,7 +957,41 @@ int chacha_keystream(chacha_state *st, unsigned char *out, unsigned long outlen)
 int chacha_done(chacha_state *st);
 int chacha_test(void);
 
-#endif /* LTC_CHACHA */
+#endif /* LTC_CHACHA_STREAM */
+
+#ifdef LTC_RC4_STREAM
+
+typedef struct {
+   int x, y;
+   unsigned char buf[256];
+} rc4_state;
+
+int rc4_setup(rc4_state *st, const unsigned char *key, unsigned long keylen);
+int rc4_crypt(rc4_state *st, const unsigned char *in, unsigned long inlen, unsigned char *out);
+int rc4_keystream(rc4_state *st, unsigned char *out, unsigned long outlen);
+int rc4_stream_done(rc4_state *st);
+int rc4_test(void);
+
+#endif /* LTC_RC4_STREAM */
+
+#ifdef LTC_SOBER128_STREAM
+
+typedef struct {
+   ulong32 R[17],       /* Working storage for the shift register */
+           initR[17],   /* saved register contents */
+           konst,       /* key dependent constant */
+           sbuf;        /* partial word encryption buffer */
+   int     nbuf;        /* number of part-word stream bits buffered */
+} sober128_state;
+
+int sober128_setup(sober128_state *st, const unsigned char *key, unsigned long keylen);
+int sober128_setiv(sober128_state *st, const unsigned char *iv, unsigned long ivlen);
+int sober128_crypt(sober128_state *st, const unsigned char *in, unsigned long inlen, unsigned char *out);
+int sober128_keystream(sober128_state *st, unsigned char *out, unsigned long outlen);
+int sober128_stream_done(sober128_state *st);
+int sober128_test(void);
+
+#endif /* LTC_SOBER128_STREAM */
 
 /* $Source$ */
 /* $Revision$ */

@@ -14,9 +14,15 @@ int cipher_hash_test(void)
       DOX(cipher_descriptor[x].test(), cipher_descriptor[x].name);
    }
 
-#ifdef LTC_CHACHA
-   /* ChaCha is a special case (stream cipher) */
+   /* stream ciphers */
+#ifdef LTC_CHACHA_STREAM
    DO(chacha_test());
+#endif
+#ifdef LTC_RC4_STREAM
+   DO(rc4_test());
+#endif
+#ifdef LTC_SOBER128_STREAM
+   DO(sober128_test());
 #endif
 
    /* test hashes */

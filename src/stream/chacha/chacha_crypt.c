@@ -14,7 +14,7 @@
 
 #include "tomcrypt.h"
 
-#ifdef LTC_CHACHA
+#ifdef LTC_CHACHA_STREAM
 
 #define QUARTERROUND(a,b,c,d) \
   x[a] += x[b]; x[d] = ROL(x[d] ^ x[a], 16); \
