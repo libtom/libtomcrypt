@@ -1,3 +1,34 @@
+XXX, 2014
+v1.18.0
+      -- Added Camellia block cipher
+      -- Thanks to Karel Miko for cotributing a bunchload of patches and additions, namely
+         OCBv3, DSA and ECC key generation FIPS-186-4 compliance, BASE64-URL encoding,
+         a bugfix in Camellia,
+      -- Larry Bugbee contributed the necessary stuff to more easily call libtomcrypt
+         from a dynamic language like Python, as shown in his pyTomCrypt
+      -- Nikos Mavrogiannopoulos contributed RSA blinding and export of RSA and DSA keys
+         in OpenSSL/GnuTLS compatible format
+      -- Patrick Pelletier contributed a smart volley of patches
+      -- RyanC contributed HKDF including documentation (yippie)
+      -- Added 2-key Triple-DES mode, thanks to Paul Howarth
+      -- Christopher Brown contributed some patches and additions to ASN.1/DER
+      -- Pascal Brand of STMicroelectronics contributed patches regarding the
+         XTS mode and RSA private key operations with keys without CRT parameters
+      -- Applied some patches from the OLPC project regarding PKCS#1 and preventing
+         the hash algorithms from overflowing
+      -- Fixed the Bleichbacher Signature attack in PKCS#1 v1.5 EMSA, thanks to Alex Dent
+      -- Add PKCS#1 testvectors from RSA
+      -- Brought back Diffie-Hellman
+      -- Enabled timing resistant calculations of ECC and RSA operations per default
+      -- Fixed several build issues on FreeBSD, NetBSD, Linux x32 ABI, x86_64 Windows ...
+      -- Documentation (crypt.pdf) is now built deterministically, thanks to Michael Stapelberg
+      -- Removed all compiler warnings
+      -- Improved/extended several tests
+      -- Add SHA512/256 and SHA512/224
+      -- Bugfix multi2
+      -- Bugfix Noekeon
+      -- Bugfix XTEA
+
 May 12th, 2007
 v1.17 -- Cryptography Research Inc. contributed another small volley of patches, one to fix __WCHAR_DEFINED__ for BSD platforms, 
          another to silence MSVC warnings.

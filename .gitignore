@@ -14,6 +14,8 @@ test_*.txt
 tv.txt
 *_tv.txt
 doxygen/
+doc/crypt.pdf
+doc/refman.pdf
 
 # *nix/windows test executables
 constants
