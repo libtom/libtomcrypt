@@ -274,22 +274,22 @@ int yarrow_done(prng_state *prng)
 */
 int yarrow_export(unsigned char *out, unsigned long *outlen, prng_state *prng)
 {
+   unsigned long len = yarrow_desc.export_size;
+
    LTC_ARGCHK(out    != NULL);
    LTC_ARGCHK(outlen != NULL);
    LTC_ARGCHK(prng   != NULL);
-   if (!prng->ready) return CRYPT_ERROR;
 
-   /* we'll write 64 bytes for s&g's */
-   if (*outlen < 64) {
-      *outlen = 64;
+   if (*outlen < len) {
+      *outlen = len;
       return CRYPT_BUFFER_OVERFLOW;
    }
 
-   if (yarrow_read(out, 64, prng) != 64) {
+   if (yarrow_read(out, len, prng) != len) {
       return CRYPT_ERROR_READPRNG;
    }
 
-   *outlen = 64;
+   *outlen = len;
    return CRYPT_OK;
 }
 
@@ -306,16 +306,10 @@ int yarrow_import(const unsigned char *in, unsigned long inlen, prng_state *prng
 
    LTC_ARGCHK(in   != NULL);
    LTC_ARGCHK(prng != NULL);
+   if (inlen < (unsigned long)yarrow_desc.export_size) return CRYPT_INVALID_ARG;
 
-   if (inlen != 64) {
-      return CRYPT_INVALID_ARG;
-   }
-   if ((err = yarrow_start(prng)) != CRYPT_OK) {
-      return err;
-   }
-   if ((err = yarrow_add_entropy(in, 64, prng)) != CRYPT_OK) {
-      return err;
-   }
+   if ((err = yarrow_start(prng)) != CRYPT_OK)                  return err;
+   if ((err = yarrow_add_entropy(in, inlen, prng)) != CRYPT_OK) return err;
    return CRYPT_OK;
 }
 

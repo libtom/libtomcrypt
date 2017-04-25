@@ -36,7 +36,8 @@ we reseed automatically when len(pool0) >= 64 or every LTC_FORTUNA_WD calls to t
 #endif
 
 const struct ltc_prng_descriptor fortuna_desc = {
-    "fortuna", 1024,
+    "fortuna",
+    (32 * LTC_FORTUNA_POOLS), /* default: 1024 */
     &fortuna_start,
     &fortuna_add_entropy,
     &fortuna_ready,
@@ -331,6 +332,7 @@ int fortuna_export(unsigned char *out, unsigned long *outlen, prng_state *prng)
 {
    int         x, err;
    hash_state *md;
+   unsigned long len = fortuna_desc.export_size;
 
    LTC_ARGCHK(out    != NULL);
    LTC_ARGCHK(outlen != NULL);
@@ -344,8 +346,8 @@ int fortuna_export(unsigned char *out, unsigned long *outlen, prng_state *prng)
    }
 
    /* we'll write bytes for s&g's */
-   if (*outlen < 32*LTC_FORTUNA_POOLS) {
-      *outlen = 32*LTC_FORTUNA_POOLS;
+   if (*outlen < len) {
+      *outlen = len;
       err = CRYPT_BUFFER_OVERFLOW;
       goto LBL_UNLOCK;
    }
@@ -379,7 +381,7 @@ int fortuna_export(unsigned char *out, unsigned long *outlen, prng_state *prng)
          goto LBL_ERR;
       }
    }
-   *outlen = 32*LTC_FORTUNA_POOLS;
+   *outlen = len;
    err = CRYPT_OK;
 
 LBL_ERR:
@@ -406,7 +408,7 @@ int fortuna_import(const unsigned char *in, unsigned long inlen, prng_state *prn
    LTC_ARGCHK(in   != NULL);
    LTC_ARGCHK(prng != NULL);
 
-   if (inlen != 32*LTC_FORTUNA_POOLS) {
+   if (inlen != (unsigned long)fortuna_desc.export_size) {
       return CRYPT_INVALID_ARG;
    }
 
