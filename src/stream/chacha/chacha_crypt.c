@@ -71,8 +71,14 @@ int chacha_crypt(chacha_state *st, const unsigned char *in, unsigned long inlen,
    }
    for (;;) {
      _chacha_block(buf, st->input, st->rounds);
-     /* increment the counter */
-     if (!++st->input[12] && !++st->input[13] && !++st->input[14]) { ++st->input[15]; }
+     if (st->ivlen == 8) {
+       /* IV-64bit, increment 64bit counter */
+       if (0 == ++st->input[12] && 0 == ++st->input[13]) return CRYPT_OVERFLOW;
+     }
+     else {
+       /* IV-96bit, increment 32bit counter */
+       if (0 == ++st->input[12]) return CRYPT_OVERFLOW;
+     }
      if (inlen <= 64) {
        for (i = 0; i < inlen; ++i) out[i] = in[i] ^ buf[i];
        st->ksleft = 64 - inlen;
