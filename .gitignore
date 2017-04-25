@@ -20,8 +20,8 @@ doc/refman.pdf
 # *nix/windows test executables
 constants
 constants.exe
-crypt
-crypt.exe
+ltcrypt
+ltcrypt.exe
 hashsum
 hashsum.exe
 multi

@@ -365,8 +365,7 @@ clean:
 	rm -f `find . -type f -name "*.dpi" | xargs`
 	rm -rf `find . -type d -name "*.libs" | xargs`
 	rm -f crypt.aux  crypt.dvi  crypt.idx  crypt.ilg  crypt.ind  crypt.log crypt.toc
-	rm -f $(TV) $(SMALL) $(CRYPT) $(HASH) $(TIMING) $(TEST)
-	rm -f $(SIZES) $(CONSTANTS)
+	rm -f $(TIMING) $(TEST) $(DEMOS)
 	rm -rf doc/doxygen
 	rm -f `find . -type f -name "*.pdf" | grep -FL crypt.pdf | xargs`
 	rm -f *.txt

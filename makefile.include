@@ -84,16 +84,10 @@ CFLAGS += -DGIT_VERSION=\"$(GIT_VERSION)\"
 endif
 
 
-HASH=hashsum
-CRYPT=encrypt
-SMALL=small
-TV=tv_gen
 TIMING=timing
 TEST=test
-SIZES=sizes
-CONSTANTS=constants
 
-DEMOS=hashsum crypt small tv_gen sizes constants
+DEMOS=hashsum ltcrypt small tv_gen sizes constants
 
 TIMINGS=demos/timing.o
 TESTS=demos/test.o
