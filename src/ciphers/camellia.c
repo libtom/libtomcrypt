@@ -22,12 +22,12 @@ const struct ltc_cipher_descriptor camellia_desc = {
    "camellia",
    23,
    16, 32, 16, 18,
-   &camellia_setup,
-   &camellia_ecb_encrypt,
-   &camellia_ecb_decrypt,
-   &camellia_test,
-   &camellia_done,
-   &camellia_keysize,
+   camellia_setup,
+   camellia_ecb_encrypt,
+   camellia_ecb_decrypt,
+   camellia_test,
+   camellia_done,
+   camellia_keysize,
    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
 };
 

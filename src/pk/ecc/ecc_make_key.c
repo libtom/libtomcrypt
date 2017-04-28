@@ -36,7 +36,7 @@ int ecc_make_key(prng_state *prng, int wprng, int keysize, ecc_key *key)
    int x, err;
 
    /* find key size */
-   for (x = 0; (keysize > ltc_ecc_sets[x].size) && (ltc_ecc_sets[x].size != 0); x++);
+   for (x = 0; (keysize > ltc_ecc_sets[x].size) && (ltc_ecc_sets[x].size != 0); x++) {}
    keysize = ltc_ecc_sets[x].size;
 
    if (keysize > ECC_MAXSIZE || ltc_ecc_sets[x].size == 0) {

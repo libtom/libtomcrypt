@@ -30,12 +30,12 @@
 const struct ltc_cipher_descriptor rc2_desc = {
    "rc2",
    12, 8, 128, 8, 16,
-   &rc2_setup,
-   &rc2_ecb_encrypt,
-   &rc2_ecb_decrypt,
-   &rc2_test,
-   &rc2_done,
-   &rc2_keysize,
+   rc2_setup,
+   rc2_ecb_encrypt,
+   rc2_ecb_decrypt,
+   rc2_test,
+   rc2_done,
+   rc2_keysize,
    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
 };
 

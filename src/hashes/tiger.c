@@ -29,10 +29,10 @@ const struct ltc_hash_descriptor tiger_desc =
    { 1, 3, 6, 1, 4, 1, 11591, 12, 2,  },
    9,
 
-    &tiger_init,
-    &tiger_process,
-    &tiger_done,
-    &tiger_test,
+    tiger_init,
+    tiger_process,
+    tiger_done,
+    tiger_test,
     NULL
 };
 

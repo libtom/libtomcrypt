@@ -110,12 +110,12 @@ const struct ltc_cipher_descriptor multi2_desc = {
    "multi2",
    22,
    40, 40, 8, 128,
-   &multi2_setup,
-   &multi2_ecb_encrypt,
-   &multi2_ecb_decrypt,
-   &multi2_test,
-   &multi2_done,
-   &multi2_keysize,
+   multi2_setup,
+   multi2_ecb_encrypt,
+   multi2_ecb_decrypt,
+   multi2_test,
+   multi2_done,
+   multi2_keysize,
    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
 };
 

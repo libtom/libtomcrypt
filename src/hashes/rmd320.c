@@ -29,10 +29,10 @@ const struct ltc_hash_descriptor rmd320_desc =
    { 0 },
    0,
 
-    &rmd320_init,
-    &rmd320_process,
-    &rmd320_done,
-    &rmd320_test,
+    rmd320_init,
+    rmd320_process,
+    rmd320_done,
+    rmd320_test,
     NULL
 };
 

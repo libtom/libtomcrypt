@@ -23,12 +23,12 @@ const struct ltc_cipher_descriptor rc5_desc =
     "rc5",
     2,
     8, 128, 8, 12,
-    &rc5_setup,
-    &rc5_ecb_encrypt,
-    &rc5_ecb_decrypt,
-    &rc5_test,
-    &rc5_done,
-    &rc5_keysize,
+    rc5_setup,
+    rc5_ecb_encrypt,
+    rc5_ecb_decrypt,
+    rc5_test,
+    rc5_done,
+    rc5_keysize,
     NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
 };
 

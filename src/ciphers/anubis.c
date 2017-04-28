@@ -23,12 +23,12 @@ const struct ltc_cipher_descriptor anubis_desc = {
    "anubis",
    19,
    16, 40, 16, 12,
-   &anubis_setup,
-   &anubis_ecb_encrypt,
-   &anubis_ecb_decrypt,
-   &anubis_test,
-   &anubis_done,
-   &anubis_keysize,
+   anubis_setup,
+   anubis_ecb_encrypt,
+   anubis_ecb_decrypt,
+   anubis_test,
+   anubis_done,
+   anubis_keysize,
    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
 };
 

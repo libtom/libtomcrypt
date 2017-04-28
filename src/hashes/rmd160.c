@@ -34,10 +34,10 @@ const struct ltc_hash_descriptor rmd160_desc =
    { 1, 3, 36, 3, 2, 1,  },
    6,
 
-    &rmd160_init,
-    &rmd160_process,
-    &rmd160_done,
-    &rmd160_test,
+    rmd160_init,
+    rmd160_process,
+    rmd160_done,
+    rmd160_test,
     NULL
 };
 

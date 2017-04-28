@@ -25,12 +25,12 @@ const struct ltc_cipher_descriptor saferp_desc =
     "safer+",
     4,
     16, 32, 16, 8,
-    &saferp_setup,
-    &saferp_ecb_encrypt,
-    &saferp_ecb_decrypt,
-    &saferp_test,
-    &saferp_done,
-    &saferp_keysize,
+    saferp_setup,
+    saferp_ecb_encrypt,
+    saferp_ecb_decrypt,
+    saferp_test,
+    saferp_done,
+    saferp_keysize,
     NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
 };
 

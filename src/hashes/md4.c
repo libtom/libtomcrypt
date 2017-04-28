@@ -28,10 +28,10 @@ const struct ltc_hash_descriptor md4_desc =
    { 1, 2, 840, 113549, 2, 4,  },
    6,
 
-    &md4_init,
-    &md4_process,
-    &md4_done,
-    &md4_test,
+    md4_init,
+    md4_process,
+    md4_done,
+    md4_test,
     NULL
 };
 

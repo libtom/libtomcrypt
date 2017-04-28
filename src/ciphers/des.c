@@ -25,12 +25,12 @@ const struct ltc_cipher_descriptor des_desc =
     "des",
     13,
     8, 8, 8, 16,
-    &des_setup,
-    &des_ecb_encrypt,
-    &des_ecb_decrypt,
-    &des_test,
-    &des_done,
-    &des_keysize,
+    des_setup,
+    des_ecb_encrypt,
+    des_ecb_decrypt,
+    des_test,
+    des_done,
+    des_keysize,
     NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
 };
 
@@ -39,12 +39,12 @@ const struct ltc_cipher_descriptor des3_desc =
     "3des",
     14,
     24, 24, 8, 16,
-    &des3_setup,
-    &des3_ecb_encrypt,
-    &des3_ecb_decrypt,
-    &des3_test,
-    &des3_done,
-    &des3_keysize,
+    des3_setup,
+    des3_ecb_encrypt,
+    des3_ecb_decrypt,
+    des3_test,
+    des3_done,
+    des3_keysize,
     NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
 };
 

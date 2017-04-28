@@ -29,10 +29,10 @@ const struct ltc_hash_descriptor md5_desc =
    { 1, 2, 840, 113549, 2, 5,  },
    6,
 
-    &md5_init,
-    &md5_process,
-    &md5_done,
-    &md5_test,
+    md5_init,
+    md5_process,
+    md5_done,
+    md5_test,
     NULL
 };
 
