@@ -156,7 +156,9 @@ src/pk/rsa/rsa_verify_hash.obj src/prngs/chacha20.obj src/prngs/fortuna.obj src/
 src/prngs/rng_get_bytes.obj src/prngs/rng_make_prng.obj src/prngs/sober128.obj src/prngs/sprng.obj \
 src/prngs/yarrow.obj src/stream/chacha/chacha_crypt.obj src/stream/chacha/chacha_done.obj \
 src/stream/chacha/chacha_ivctr32.obj src/stream/chacha/chacha_ivctr64.obj \
-src/stream/chacha/chacha_keystream.obj src/stream/chacha/chacha_setup.obj src/stream/chacha/chacha_test.obj
+src/stream/chacha/chacha_keystream.obj src/stream/chacha/chacha_setup.obj src/stream/chacha/chacha_test.obj \
+src/stream/rc4/rc4.obj src/stream/rc4/rc4_test.obj src/stream/sober128/sober128.obj \
+src/stream/sober128/sober128_test.obj
 
 HEADERS=src/headers/tomcrypt.h src/headers/tomcrypt_argchk.h src/headers/tomcrypt_cfg.h \
 src/headers/tomcrypt_cipher.h src/headers/tomcrypt_custom.h src/headers/tomcrypt_hash.h \

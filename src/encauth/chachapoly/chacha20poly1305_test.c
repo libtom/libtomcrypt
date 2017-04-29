@@ -18,7 +18,8 @@ int chacha20poly1305_test(void)
 #else
    chacha20poly1305_state st1, st2;
    unsigned char k[]   = { 0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87, 0x88, 0x89, 0x8a, 0x8b, 0x8c, 0x8d, 0x8e, 0x8f, 0x90, 0x91, 0x92, 0x93, 0x94, 0x95, 0x96, 0x97, 0x98, 0x99, 0x9a, 0x9b, 0x9c, 0x9d, 0x9e, 0x9f };
-   unsigned char iv[]  = { 0x07, 0x00, 0x00, 0x00, 0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47 };
+   unsigned char i12[] = { 0x07, 0x00, 0x00, 0x00, 0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47 };
+   unsigned char i8[]  = { 0x07, 0x00, 0x00, 0x00, 0x40, 0x41, 0x42, 0x43 };
    unsigned char aad[] = { 0x50, 0x51, 0x52, 0x53, 0xc0, 0xc1, 0xc2, 0xc3, 0xc4, 0xc5, 0xc6, 0xc7 };
    unsigned char enc[] = { 0xD3, 0x1A, 0x8D, 0x34, 0x64, 0x8E, 0x60, 0xDB, 0x7B, 0x86, 0xAF, 0xBC, 0x53, 0xEF, 0x7E, 0xC2,
                            0xA4, 0xAD, 0xED, 0x51, 0x29, 0x6E, 0x08, 0xFE, 0xA9, 0xE2, 0xB5, 0xA7, 0x36, 0xEE, 0x62, 0xD6,
@@ -36,71 +37,91 @@ int chacha20poly1305_test(void)
    unsigned char rfc7905_enc[] = { 0xE4, 0x62, 0x85, 0xB4, 0x29, 0x95, 0x34, 0x96, 0xAB, 0xFB, 0x67, 0xCD, 0xAE, 0xAC, 0x94, 0x1E };
    unsigned char rfc7905_tag[] = { 0x16, 0x2C, 0x92, 0x48, 0x2A, 0xDB, 0xD3, 0x5D, 0x48, 0xBE, 0xC6, 0xFF, 0x10, 0x9C, 0xBA, 0xE4 };
    unsigned char ct[1000], pt[1000], emac[16], dmac[16];
+   int err;
 
-   /* encrypt */
-   chacha20poly1305_init(&st1, k, sizeof(k));
-   chacha20poly1305_setiv(&st1, iv, sizeof(iv));
-   chacha20poly1305_add_aad(&st1, aad, sizeof(aad));
+   /* encrypt IV 96bit */
+   if ((err = chacha20poly1305_init(&st1, k, sizeof(k))) != CRYPT_OK) return err;
+   if ((err = chacha20poly1305_setiv(&st1, i12, sizeof(i12))) != CRYPT_OK) return err;
+   if ((err = chacha20poly1305_add_aad(&st1, aad, sizeof(aad))) != CRYPT_OK) return err;
    /* encrypt piece by piece */
-   chacha20poly1305_encrypt(&st1, (unsigned char *)m,      25,        ct);
-   chacha20poly1305_encrypt(&st1, (unsigned char *)m + 25, 10,        ct + 25);
-   chacha20poly1305_encrypt(&st1, (unsigned char *)m + 35, 35,        ct + 35);
-   chacha20poly1305_encrypt(&st1, (unsigned char *)m + 70, 5,         ct + 70);
-   chacha20poly1305_encrypt(&st1, (unsigned char *)m + 75, 5,         ct + 75);
-   chacha20poly1305_encrypt(&st1, (unsigned char *)m + 80, mlen - 80, ct + 80);
+   if ((err = chacha20poly1305_encrypt(&st1, (unsigned char *)m,      25,        ct)) != CRYPT_OK) return err;
+   if ((err = chacha20poly1305_encrypt(&st1, (unsigned char *)m + 25, 10,        ct + 25)) != CRYPT_OK) return err;
+   if ((err = chacha20poly1305_encrypt(&st1, (unsigned char *)m + 35, 35,        ct + 35)) != CRYPT_OK) return err;
+   if ((err = chacha20poly1305_encrypt(&st1, (unsigned char *)m + 70, 5,         ct + 70)) != CRYPT_OK) return err;
+   if ((err = chacha20poly1305_encrypt(&st1, (unsigned char *)m + 75, 5,         ct + 75)) != CRYPT_OK) return err;
+   if ((err = chacha20poly1305_encrypt(&st1, (unsigned char *)m + 80, mlen - 80, ct + 80)) != CRYPT_OK) return err;
    len = sizeof(emac);
-   chacha20poly1305_done(&st1, emac, &len);
+   if ((err = chacha20poly1305_done(&st1, emac, &len)) != CRYPT_OK) return err;
 
    if (compare_testvector(ct, mlen, enc, sizeof(enc), "ENC-CT", 1) != 0) return CRYPT_FAIL_TESTVECTOR;
    if (compare_testvector(emac, len, tag, sizeof(tag), "ENC-TAG", 2) != 0) return CRYPT_FAIL_TESTVECTOR;
 
-   /* decrypt */
-   chacha20poly1305_init(&st2, k, len = sizeof(k));
-   chacha20poly1305_setiv(&st2, iv, len = sizeof(iv));
-   chacha20poly1305_add_aad(&st2, aad, len = sizeof(aad));
-   chacha20poly1305_decrypt(&st2, ct,      21,        pt);
-   chacha20poly1305_decrypt(&st2, ct + 21, mlen - 21, pt + 21);
+   /* decrypt IV 96bit */
+   if ((err = chacha20poly1305_init(&st2, k, sizeof(k))) != CRYPT_OK) return err;
+   if ((err = chacha20poly1305_setiv(&st2, i12, sizeof(i12))) != CRYPT_OK) return err;
+   if ((err = chacha20poly1305_add_aad(&st2, aad, sizeof(aad))) != CRYPT_OK) return err;
+   if ((err = chacha20poly1305_decrypt(&st2, ct,      21,        pt)) != CRYPT_OK) return err;
+   if ((err = chacha20poly1305_decrypt(&st2, ct + 21, mlen - 21, pt + 21)) != CRYPT_OK) return err;
    len = sizeof(dmac);
-   chacha20poly1305_done(&st2, dmac, &len);
+   if ((err = chacha20poly1305_done(&st2, dmac, &len)) != CRYPT_OK) return err;
 
    if (compare_testvector(pt, mlen, m, mlen, "DEC-PT", 3) != 0) return CRYPT_FAIL_TESTVECTOR;
    if (compare_testvector(dmac, len, tag, sizeof(tag), "DEC-TAG", 4) != 0) return CRYPT_FAIL_TESTVECTOR;
 
    /* chacha20poly1305_memory - encrypt */
    len = sizeof(emac);
-   chacha20poly1305_memory(k, sizeof(k), iv, sizeof(iv), aad, sizeof(aad),
-                           (unsigned char *)m, mlen, ct, emac, &len, CHCHA20POLY1305_ENCRYPT);
+   if ((err = chacha20poly1305_memory(k, sizeof(k), i12, sizeof(i12), aad, sizeof(aad), (unsigned char *)m,
+                                      mlen, ct, emac, &len, CHCHA20POLY1305_ENCRYPT)) != CRYPT_OK) return err;
    if (compare_testvector(ct, mlen, enc, sizeof(enc), "ENC-CT2", 1) != 0) return CRYPT_FAIL_TESTVECTOR;
    if (compare_testvector(emac, len, tag, sizeof(tag), "ENC-TAG2", 2) != 0) return CRYPT_FAIL_TESTVECTOR;
 
    /* chacha20poly1305_memory - decrypt */
    len = sizeof(dmac);
-   chacha20poly1305_memory(k, sizeof(k), iv, sizeof(iv), aad, sizeof(aad),
-                           ct, mlen, pt, dmac, &len, CHCHA20POLY1305_DECRYPT);
+   if ((err = chacha20poly1305_memory(k, sizeof(k), i12, sizeof(i12), aad, sizeof(aad),
+                                      ct, mlen, pt, dmac, &len, CHCHA20POLY1305_DECRYPT)) != CRYPT_OK) return err;
    if (compare_testvector(pt, mlen, m, mlen, "DEC-PT2", 3) != 0) return CRYPT_FAIL_TESTVECTOR;
    if (compare_testvector(dmac, len, tag, sizeof(tag), "DEC-TAG2", 4) != 0) return CRYPT_FAIL_TESTVECTOR;
 
    /* encrypt - rfc7905 */
-   chacha20poly1305_init(&st1, k, sizeof(k));
-   chacha20poly1305_setiv_rfc7905(&st1, iv, sizeof(iv), CONST64(0x1122334455667788));
-   chacha20poly1305_add_aad(&st1, aad, sizeof(aad));
-   chacha20poly1305_encrypt(&st1, rfc7905_pt, 16, ct);
+   if ((err = chacha20poly1305_init(&st1, k, sizeof(k))) != CRYPT_OK) return err;
+   if ((err = chacha20poly1305_setiv_rfc7905(&st1, i12, sizeof(i12), CONST64(0x1122334455667788))) != CRYPT_OK) return err;
+   if ((err = chacha20poly1305_add_aad(&st1, aad, sizeof(aad))) != CRYPT_OK) return err;
+   if ((err = chacha20poly1305_encrypt(&st1, rfc7905_pt, 16, ct)) != CRYPT_OK) return err;
    len = sizeof(emac);
-   chacha20poly1305_done(&st1, emac, &len);
+   if ((err = chacha20poly1305_done(&st1, emac, &len)) != CRYPT_OK) return err;
 
    if (compare_testvector(ct, 16, rfc7905_enc, 16, "ENC-CT3", 1) != 0) return CRYPT_FAIL_TESTVECTOR;
    if (compare_testvector(emac, len, rfc7905_tag, 16, "ENC-TAG3", 2) != 0) return CRYPT_FAIL_TESTVECTOR;
 
    /* decrypt - rfc7905 */
-   chacha20poly1305_init(&st1, k, sizeof(k));
-   chacha20poly1305_setiv_rfc7905(&st1, iv, sizeof(iv), CONST64(0x1122334455667788));
-   chacha20poly1305_add_aad(&st1, aad, sizeof(aad));
-   chacha20poly1305_decrypt(&st1, ct, 16, pt);
+   if ((err = chacha20poly1305_init(&st1, k, sizeof(k))) != CRYPT_OK) return err;
+   if ((err = chacha20poly1305_setiv_rfc7905(&st1, i12, sizeof(i12), CONST64(0x1122334455667788))) != CRYPT_OK) return err;
+   if ((err = chacha20poly1305_add_aad(&st1, aad, sizeof(aad))) != CRYPT_OK) return err;
+   if ((err = chacha20poly1305_decrypt(&st1, ct, 16, pt)) != CRYPT_OK) return err;
    len = sizeof(dmac);
-   chacha20poly1305_done(&st1, dmac, &len);
+   if ((err = chacha20poly1305_done(&st1, dmac, &len)) != CRYPT_OK) return err;
 
    if (compare_testvector(pt, 16, rfc7905_pt, 16, "DEC-CT3", 1) != 0) return CRYPT_FAIL_TESTVECTOR;
    if (compare_testvector(dmac, len, rfc7905_tag, 16, "DEC-TAG3", 2) != 0) return CRYPT_FAIL_TESTVECTOR;
+
+   /* encrypt IV 64bit */
+   if ((err = chacha20poly1305_init(&st1, k, sizeof(k))) != CRYPT_OK) return err;
+   if ((err = chacha20poly1305_setiv(&st1, i8, sizeof(i8))) != CRYPT_OK) return err;
+   if ((err = chacha20poly1305_add_aad(&st1, aad, sizeof(aad))) != CRYPT_OK) return err;
+   if ((err = chacha20poly1305_encrypt(&st1, (unsigned char *)m, mlen, ct)) != CRYPT_OK) return err;
+   len = sizeof(emac);
+   if ((err = chacha20poly1305_done(&st1, emac, &len)) != CRYPT_OK) return err;
+
+   /* decrypt IV 64bit */
+   if ((err = chacha20poly1305_init(&st2, k, sizeof(k))) != CRYPT_OK) return err;
+   if ((err = chacha20poly1305_setiv(&st2, i8, sizeof(i8))) != CRYPT_OK) return err;
+   if ((err = chacha20poly1305_add_aad(&st2, aad, sizeof(aad))) != CRYPT_OK) return err;
+   if ((err = chacha20poly1305_decrypt(&st2, ct, mlen, pt)) != CRYPT_OK) return err;
+   len = sizeof(dmac);
+   if ((err = chacha20poly1305_done(&st2, dmac, &len)) != CRYPT_OK) return err;
+
+   if (compare_testvector(pt, mlen, m, mlen, "DEC-PT4", 1) != 0) return CRYPT_FAIL_TESTVECTOR;
+   if (compare_testvector(dmac, len, emac, len, "DEC-TAG4", 2) != 0) return CRYPT_FAIL_TESTVECTOR;
 
    return CRYPT_OK;
 #endif

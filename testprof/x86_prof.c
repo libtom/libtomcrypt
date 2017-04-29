@@ -342,7 +342,7 @@ static void _unregister_all(void)
 #ifdef LTC_RC4
   unregister_prng(&rc4_desc);
 #endif
-#ifdef LTC_CHACHA
+#ifdef LTC_CHACHA20_PRNG
   unregister_prng(&chacha20_prng_desc);
 #endif
 #ifdef LTC_SOBER128
@@ -524,11 +524,14 @@ register_prng(&fortuna_desc);
 #ifdef LTC_RC4
 register_prng(&rc4_desc);
 #endif
-#ifdef LTC_CHACHA
+#ifdef LTC_CHACHA20_PRNG
 register_prng(&chacha20_prng_desc);
 #endif
 #ifdef LTC_SOBER128
 register_prng(&sober128_desc);
+#endif
+#ifdef LTC_SPRNG
+register_prng(&sprng_desc);
 #endif
 
 #ifdef LTC_PRNG_ENABLE_LTC_RNG

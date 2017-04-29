@@ -124,8 +124,15 @@ const char *crypt_build_settings =
 #if defined(LTC_CAMELLIA)
    "   Camellia\n"
 #endif
+   "Stream ciphers built-in:\n"
 #if defined(LTC_CHACHA)
    "   ChaCha\n"
+#endif
+#if defined(LTC_RC4_STREAM)
+   "   RC4\n"
+#endif
+#if defined(LTC_SOBER128_STREAM)
+   "   SOBER128\n"
 #endif
 
     "\nHashes built-in:\n"

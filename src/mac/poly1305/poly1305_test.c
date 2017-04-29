@@ -28,21 +28,23 @@ int poly1305_test(void)
    unsigned long len = 16, mlen = strlen(m);
    unsigned char out[1000];
    poly1305_state st;
+   int err;
+
    /* process piece by piece */
-   poly1305_init(&st, k, 32);
-   poly1305_process(&st, (unsigned char*)m,      5);
-   poly1305_process(&st, (unsigned char*)m + 5,  4);
-   poly1305_process(&st, (unsigned char*)m + 9,  3);
-   poly1305_process(&st, (unsigned char*)m + 12, 2);
-   poly1305_process(&st, (unsigned char*)m + 14, 1);
-   poly1305_process(&st, (unsigned char*)m + 15, mlen - 15);
-   poly1305_done(&st, out, &len);
-   if (compare_testvector(out, len, tag, sizeof(tag), "POLY1305-TV1", 1) != 0) return CRYPT_FAIL_TESTVECTOR;
+   if ((err = poly1305_init(&st, k, 32)) != CRYPT_OK)                                return err;
+   if ((err = poly1305_process(&st, (unsigned char*)m,      5)) != CRYPT_OK)         return err;
+   if ((err = poly1305_process(&st, (unsigned char*)m + 5,  4)) != CRYPT_OK)         return err;
+   if ((err = poly1305_process(&st, (unsigned char*)m + 9,  3)) != CRYPT_OK)         return err;
+   if ((err = poly1305_process(&st, (unsigned char*)m + 12, 2)) != CRYPT_OK)         return err;
+   if ((err = poly1305_process(&st, (unsigned char*)m + 14, 1)) != CRYPT_OK)         return err;
+   if ((err = poly1305_process(&st, (unsigned char*)m + 15, mlen - 15)) != CRYPT_OK) return err;
+   if ((err = poly1305_done(&st, out, &len)) != CRYPT_OK)                            return err;
+   if (compare_testvector(out, len, tag, sizeof(tag), "POLY1305-TV1", 1) != 0)       return CRYPT_FAIL_TESTVECTOR;
    /* process in one go */
-   poly1305_init(&st, k, 32);
-   poly1305_process(&st, (unsigned char*)m, mlen);
-   poly1305_done(&st, out, &len);
-   if (compare_testvector(out, len, tag, sizeof(tag), "POLY1305-TV2", 1) != 0) return CRYPT_FAIL_TESTVECTOR;
+   if ((err = poly1305_init(&st, k, 32)) != CRYPT_OK)                                return err;
+   if ((err = poly1305_process(&st, (unsigned char*)m, mlen)) != CRYPT_OK)           return err;
+   if ((err = poly1305_done(&st, out, &len)) != CRYPT_OK)                            return err;
+   if (compare_testvector(out, len, tag, sizeof(tag), "POLY1305-TV2", 1) != 0)       return CRYPT_FAIL_TESTVECTOR;
    return CRYPT_OK;
 #endif
 }

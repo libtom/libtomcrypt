@@ -189,8 +189,11 @@
 #define LTC_KASUMI
 #define LTC_MULTI2
 #define LTC_CAMELLIA
-/* ChaCha is special (a stream cipher) */
+
+/* stream ciphers */
 #define LTC_CHACHA
+#define LTC_RC4_STREAM
+#define LTC_SOBER128_STREAM
 
 #endif /* LTC_NO_CIPHERS */
 
@@ -295,7 +298,7 @@
 /* a PRNG that simply reads from an available system source */
 #define LTC_SPRNG
 
-/* The LTC_RC4 stream cipher */
+/* The RC4 stream cipher based PRNG */
 #define LTC_RC4
 
 /* The ChaCha20 stream cipher based PRNG */
@@ -304,7 +307,7 @@
 /* Fortuna PRNG */
 #define LTC_FORTUNA
 
-/* Greg's LTC_SOBER128 PRNG ;-0 */
+/* Greg's SOBER128 stream cipher based PRNG */
 #define LTC_SOBER128
 
 /* the *nix style /dev/random device */
@@ -523,6 +526,14 @@
    #error LTC_CHACHA20_PRNG requires LTC_CHACHA
 #endif
 
+#if defined(LTC_RC4) && !defined(LTC_RC4_STREAM)
+   #error LTC_RC4 requires LTC_RC4_STREAM
+#endif
+
+#if defined(LTC_SOBER128) && !defined(LTC_SOBER128_STREAM)
+   #error LTC_SOBER128 requires LTC_SOBER128_STREAM
+#endif
+
 #if defined(LTC_BLAKE2SMAC) && !defined(LTC_BLAKE2S)
    #error LTC_BLAKE2SMAC requires LTC_BLAKE2S
 #endif
@@ -557,7 +568,7 @@
 
 /* Debuggers */
 
-/* define this if you use Valgrind, note: it CHANGES the way SOBER-128 and LTC_RC4 work (see the code) */
+/* define this if you use Valgrind, note: it CHANGES the way SOBER-128 and RC4 work (see the code) */
 /* #define LTC_VALGRIND */
 
 #endif
