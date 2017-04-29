@@ -962,7 +962,7 @@ int chacha_test(void);
 #ifdef LTC_RC4_STREAM
 
 typedef struct {
-   int x, y;
+   unsigned int x, y;
    unsigned char buf[256];
 } rc4_state;
 
