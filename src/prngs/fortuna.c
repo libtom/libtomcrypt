@@ -281,10 +281,10 @@ unsigned long fortuna_read(unsigned char *out, unsigned long outlen, prng_state 
       tlen = 0;
    }
 
+LBL_UNLOCK:
 #ifdef LTC_CLEAN_STACK
    zeromem(tmp, sizeof(tmp));
 #endif
-LBL_UNLOCK:
    LTC_MUTEX_UNLOCK(&prng->lock);
    return tlen;
 }
@@ -313,10 +313,10 @@ int fortuna_done(prng_state *prng)
    /* call cipher done when we invent one ;-) */
    err = CRYPT_OK; /* success */
 
+LBL_UNLOCK:
 #ifdef LTC_CLEAN_STACK
    zeromem(tmp, sizeof(tmp));
 #endif
-LBL_UNLOCK:
    LTC_MUTEX_UNLOCK(&prng->lock);
    return err;
 }
