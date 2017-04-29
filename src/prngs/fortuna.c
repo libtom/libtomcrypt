@@ -408,7 +408,7 @@ int fortuna_import(const unsigned char *in, unsigned long inlen, prng_state *prn
    LTC_ARGCHK(in   != NULL);
    LTC_ARGCHK(prng != NULL);
 
-   if (inlen != (unsigned long)fortuna_desc.export_size) {
+   if (inlen < (unsigned long)fortuna_desc.export_size) {
       return CRYPT_INVALID_ARG;
    }
 

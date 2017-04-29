@@ -50,6 +50,7 @@ int cipher_hash_test(void)
       DOX(prng_descriptor[x].pexport(buf, &n, &nprng), prng_descriptor[x].name);
       prng_descriptor[x].done(&nprng);
       DOX(prng_descriptor[x].pimport(buf, n, &nprng), prng_descriptor[x].name);
+      DOX(prng_descriptor[x].pimport(buf, 4096, &nprng), prng_descriptor[x].name); /* try to import larger data */
       DOX(prng_descriptor[x].ready(&nprng), prng_descriptor[x].name);
       if (prng_descriptor[x].read(buf, 100, &nprng) != 100) {
          fprintf(stderr, "Error reading from imported PRNG (%s)!\n", prng_descriptor[x].name);
