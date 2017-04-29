@@ -57,9 +57,9 @@ int chacha20poly1305_test(void)
    if (compare_testvector(emac, len, tag, sizeof(tag), "ENC-TAG", 2) != 0) return CRYPT_FAIL_TESTVECTOR;
 
    /* decrypt IV 96bit */
-   if ((err = chacha20poly1305_init(&st2, k, len = sizeof(k))) != CRYPT_OK) return err;
-   if ((err = chacha20poly1305_setiv(&st2, i12, len = sizeof(i12))) != CRYPT_OK) return err;
-   if ((err = chacha20poly1305_add_aad(&st2, aad, len = sizeof(aad))) != CRYPT_OK) return err;
+   if ((err = chacha20poly1305_init(&st2, k, sizeof(k))) != CRYPT_OK) return err;
+   if ((err = chacha20poly1305_setiv(&st2, i12, sizeof(i12))) != CRYPT_OK) return err;
+   if ((err = chacha20poly1305_add_aad(&st2, aad, sizeof(aad))) != CRYPT_OK) return err;
    if ((err = chacha20poly1305_decrypt(&st2, ct,      21,        pt)) != CRYPT_OK) return err;
    if ((err = chacha20poly1305_decrypt(&st2, ct + 21, mlen - 21, pt + 21)) != CRYPT_OK) return err;
    len = sizeof(dmac);
@@ -112,10 +112,10 @@ int chacha20poly1305_test(void)
    len = sizeof(emac);
    if ((err = chacha20poly1305_done(&st1, emac, &len)) != CRYPT_OK) return err;
 
-   /* decrypt IV 96bit */
-   if ((err = chacha20poly1305_init(&st2, k, len = sizeof(k))) != CRYPT_OK) return err;
-   if ((err = chacha20poly1305_setiv(&st2, i8, len = sizeof(i8))) != CRYPT_OK) return err;
-   if ((err = chacha20poly1305_add_aad(&st2, aad, len = sizeof(aad))) != CRYPT_OK) return err;
+   /* decrypt IV 64bit */
+   if ((err = chacha20poly1305_init(&st2, k, sizeof(k))) != CRYPT_OK) return err;
+   if ((err = chacha20poly1305_setiv(&st2, i8, sizeof(i8))) != CRYPT_OK) return err;
+   if ((err = chacha20poly1305_add_aad(&st2, aad, sizeof(aad))) != CRYPT_OK) return err;
    if ((err = chacha20poly1305_decrypt(&st2, ct, mlen, pt)) != CRYPT_OK) return err;
    len = sizeof(dmac);
    if ((err = chacha20poly1305_done(&st2, dmac, &len)) != CRYPT_OK) return err;
