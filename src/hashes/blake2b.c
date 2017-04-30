@@ -169,7 +169,7 @@ static void blake2b_set_lastblock(hash_state *md)
 static void blake2b_increment_counter(hash_state *md, ulong64 inc)
 {
    md->blake2b.t[0] += inc;
-   md->blake2b.t[1] += (md->blake2b.t[0] < inc);
+   if (md->blake2b.t[0] < inc) md->blake2b.t[1]++;
 }
 
 static void blake2b_init0(hash_state *md)
