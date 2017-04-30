@@ -92,7 +92,8 @@ int dsa_decrypt_key(const unsigned char *in,  unsigned long  inlen,
       goto LBL_ERR;
    }
 
-   y = MIN(mp_unsigned_bin_size(key->p) + 1, MAXBLOCKSIZE);
+   y = mp_unsigned_bin_size(key->p) + 1;
+   y = MIN(y, MAXBLOCKSIZE);
    if ((err = hash_memory(hash, expt, x, expt, &y)) != CRYPT_OK) {
       goto LBL_ERR;
    }

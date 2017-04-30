@@ -54,7 +54,7 @@ int ocb3_add_aad(ocb3_state *ocb, const unsigned char *aad, unsigned long aadlen
      datalen = aadlen;
    }
 
-   if (datalen <= 0) return CRYPT_OK;
+   if (datalen == 0) return CRYPT_OK;
 
    full_blocks = datalen/ocb->block_len;
    full_blocks_len = full_blocks * ocb->block_len;

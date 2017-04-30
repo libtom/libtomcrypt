@@ -102,7 +102,7 @@ int dsa_verify_hash(const unsigned char *sig, unsigned long siglen,
    void   *r, *s;
 
    if ((err = mp_init_multi(&r, &s, NULL)) != CRYPT_OK) {
-      return CRYPT_MEM;
+      return err;
    }
 
    /* decode the sequence */

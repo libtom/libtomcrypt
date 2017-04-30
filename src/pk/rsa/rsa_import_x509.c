@@ -27,7 +27,7 @@
 int rsa_import_x509(const unsigned char *in, unsigned long inlen, rsa_key *key)
 {
    int           err;
-   unsigned char *tmpbuf=NULL;
+   unsigned char *tmpbuf;
    unsigned long tmpbuf_len, tmp_inlen;
    ltc_asn1_list *decoded_list = NULL, *l;
 
