@@ -52,14 +52,15 @@ int hash_filehandle(int hash, FILE *in, unsigned char *out, unsigned long *outle
        goto LBL_ERR;
     }
 
-    *outlen = hash_descriptor[hash].hashsize;
     do {
         x = fread(buf, 1, LTC_FILE_READ_BUFSIZE, in);
         if ((err = hash_descriptor[hash].process(&md, buf, (unsigned long)x)) != CRYPT_OK) {
            goto LBL_CLEANBUF;
         }
     } while (x == LTC_FILE_READ_BUFSIZE);
-    err = hash_descriptor[hash].done(&md, out);
+    if ((err = hash_descriptor[hash].done(&md, out)) == CRYPT_OK) {
+       *outlen = hash_descriptor[hash].hashsize;
+    }
 
 LBL_CLEANBUF:
     zeromem(buf, LTC_FILE_READ_BUFSIZE);
