@@ -66,7 +66,7 @@ typedef struct {
 #endif
    };
    short ready;            /* ready flag 0-1 */
-   LTC_MUTEX_TYPE(lock);   /* lock */
+   LTC_MUTEX_TYPE(lock)    /* lock */
 } prng_state;
 
 /** PRNG descriptor */
