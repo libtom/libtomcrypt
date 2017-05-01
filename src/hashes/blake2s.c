@@ -161,7 +161,7 @@ static void blake2s_set_lastblock(hash_state *md)
 static void blake2s_increment_counter(hash_state *md, const ulong32 inc)
 {
    md->blake2s.t[0] += inc;
-   md->blake2s.t[1] += (md->blake2s.t[0] < inc);
+   if (md->blake2s.t[0] < inc) md->blake2s.t[1]++;
 }
 
 static int blake2s_init0(hash_state *md)
