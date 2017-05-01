@@ -9,6 +9,12 @@
 
 #include <tomcrypt.h>
 
+#if _POSIX_C_SOURCE >= 200112L
+#include <libgen.h>
+#else
+#define basename(x) x
+#endif
+
 int errno;
 
 void register_algs(void);
@@ -22,24 +28,31 @@ int main(int argc, char **argv)
    /* You need to register algorithms before using them */
    register_algs();
    if (argc < 2) {
-      printf("usage: ./hash algorithm file [file ...]\n");
+      printf("usage: %s algorithm file [file ...]\n", basename(argv[0]));
       printf("Algorithms:\n");
+      w = 0;
       for (x = 0; hash_descriptor[x].name != NULL; x++) {
-         printf(" %s (%d)\n", hash_descriptor[x].name, hash_descriptor[x].ID);
+         w += printf("%-14s", hash_descriptor[x].name);
+         if (w >= 70) {
+            printf("\n");
+            w = 0;
+         }
       }
+      printf("\n");
       exit(EXIT_SUCCESS);
    }
 
    idx = find_hash(argv[1]);
    if (idx == -1) {
       fprintf(stderr, "\nInvalid hash specified on command line.\n");
-      return -1;
+      return EXIT_FAILURE;
    }
 
    if (argc == 2) {
       w = sizeof(hash_buffer);
       if ((errno = hash_filehandle(idx, stdin, hash_buffer, &w)) != CRYPT_OK) {
-         printf("File hash error: %s\n", error_to_string(errno));
+         fprintf(stderr, "File hash error: %s\n", error_to_string(errno));
+         return EXIT_FAILURE;
       } else {
           for (x = 0; x < w; x++) {
               printf("%02x",hash_buffer[x]);
@@ -50,7 +63,8 @@ int main(int argc, char **argv)
       for (z = 2; z < argc; z++) {
          w = sizeof(hash_buffer);
          if ((errno = hash_file(idx,argv[z],hash_buffer,&w)) != CRYPT_OK) {
-            printf("File hash error: %s\n", error_to_string(errno));
+            fprintf(stderr, "File hash error: %s\n", error_to_string(errno));
+            return EXIT_FAILURE;
          } else {
              for (x = 0; x < w; x++) {
                  printf("%02x",hash_buffer[x]);
