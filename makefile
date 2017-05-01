@@ -275,6 +275,8 @@ endef
 
 $(foreach demo, $(strip $(DEMOS)), $(eval $(call DEMO_template,$(demo))))
 
+bins: $(USEFUL_DEMOS)
+
 all_test: test tv_gen $(DEMOS)
 ifeq ($(COVERAGE),1)
 all_test: LIB_PRE = -Wl,--whole-archive
