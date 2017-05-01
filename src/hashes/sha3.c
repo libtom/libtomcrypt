@@ -268,6 +268,17 @@ int sha3_shake_done(hash_state *md, unsigned char *out, unsigned long outlen)
       md->sha3.s[md->sha3.word_index] ^= (md->sha3.saved ^ (CONST64(0x1F) << (md->sha3.byte_index * 8)));
       md->sha3.s[SHA3_KECCAK_SPONGE_WORDS - md->sha3.capacity_words - 1] ^= CONST64(0x8000000000000000);
       keccakf(md->sha3.s);
+#ifndef ENDIAN_LITTLE
+      {
+         unsigned i;
+         for(i = 0; i < SHA3_KECCAK_SPONGE_WORDS; i++) {
+            const ulong32 t1 = (ulong32)(md->sha3.s[i] & CONST64(0xFFFFFFFF));
+            const ulong32 t2 = (ulong32)(md->sha3.s[i] >> 32);
+            STORE32L(t1, md->sha3.sb + i * 8);
+            STORE32L(t2, md->sha3.sb + i * 8 + 4);
+         }
+      }
+#endif
       md->sha3.byte_index = 0;
       md->sha3.xof_flag = 1;
    }
