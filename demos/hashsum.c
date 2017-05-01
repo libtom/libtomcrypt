@@ -15,43 +15,189 @@
 #define basename(x) x
 #endif
 
-int errno;
+/* thanks http://stackoverflow.com/a/8198009 */
+#define _base(x) ((x >= '0' && x <= '9') ? '0' : \
+         (x >= 'a' && x <= 'f') ? 'a' - 10 : \
+         (x >= 'A' && x <= 'F') ? 'A' - 10 : \
+            '\255')
+#define HEXOF(x) (x - _base(x))
 
-void register_algs(void);
+static void register_algs(void);
+
+static char* hashsum;
+
+static void die(int status)
+{
+   unsigned long w, x;
+   FILE* o = status == EXIT_SUCCESS ? stdout : stderr;
+   fprintf(o, "usage: %s -a algorithm [-c] [file...]\n", hashsum);
+   fprintf(o, "Algorithms:\n");
+   w = 0;
+   for (x = 0; hash_descriptor[x].name != NULL; x++) {
+      w += fprintf(o, "%-14s", hash_descriptor[x].name);
+      if (w >= 70) {
+         fprintf(o, "\n");
+         w = 0;
+      }
+   }
+   if (w != 0) fprintf(o, "\n");
+   free(hashsum);
+   exit(status);
+}
+
+static void printf_hex(unsigned char* hash_buffer, unsigned long w)
+{
+   unsigned long x;
+   for (x = 0; x < w; x++) {
+       printf("%02x",hash_buffer[x]);
+   }
+}
+
+static void check_file(int argn, int argc, char **argv)
+{
+   int err, failed, invalid;
+   unsigned char is_buffer[MAXBLOCKSIZE], should_buffer[MAXBLOCKSIZE];
+   char buf[PATH_MAX + (MAXBLOCKSIZE * 3)];
+   /* iterate through all files */
+   while(argn < argc) {
+      char* s;
+      FILE* f = fopen(argv[argn], "rb");
+      if(f == NULL) {
+         int n = snprintf(buf, sizeof(buf), "%s: %s", hashsum, argv[argn]);
+         if (n > 0 && n < (int)sizeof(buf))
+            perror(buf);
+         else
+            perror(argv[argn]);
+         exit(EXIT_FAILURE);
+      }
+      failed = 0;
+      invalid = 0;
+      /* read the file line by line */
+      while((s = fgets(buf, sizeof(buf), f)) != NULL)
+      {
+         int tries, n;
+         unsigned long hash_len, w, x;
+         char* space = strstr(s, " ");
+         if (space == NULL) {
+            fprintf(stderr, "%s: no properly formatted checksum lines found\n", hashsum);
+            goto ERR;
+         }
+
+         hash_len = space - s;
+         hash_len /= 2;
+
+         /* convert the hex-string back to binary */
+         for (x = 0; x < hash_len; ++x) {
+            should_buffer[x] = HEXOF(s[x*2]) << 4 | HEXOF(s[x*2 + 1]);
+         }
+
+         space++;
+         if (*space != '*') {
+            fprintf(stderr, "%s: unsupported input mode '%c'\n", hashsum, *space);
+            goto ERR;
+         }
+         space++;
+
+         for (n = 0; n < (buf + sizeof(buf)) - space; ++n) {
+            if(iscntrl(space[n])) {
+               space[n] = '\0';
+               break;
+            }
+         }
+
+         /* try all hash algorithms that have the appropriate hash size */
+         tries = 0;
+         for (x = 0; hash_descriptor[x].name != NULL; ++x) {
+            if (hash_descriptor[x].hashsize == hash_len) {
+               tries++;
+               w = sizeof(is_buffer);
+               if ((err = hash_file(x, space, is_buffer, &w)) != CRYPT_OK) {
+                  fprintf(stderr, "File hash error: %s: %s\n", space, error_to_string(err));
+ERR:
+                  fclose(f);
+                  exit(EXIT_FAILURE);
+               }
+               if(XMEMCMP(should_buffer, is_buffer, w) == 0) {
+                  printf("%s: OK\n", space);
+                  break;
+               }
+            }
+         } /* for */
+         if (hash_descriptor[x].name == NULL) {
+            if(tries > 0) {
+               printf("%s: FAILED\n", space);
+               failed++;
+            }
+            else {
+               invalid++;
+            }
+         }
+      } /* while */
+      fclose(f);
+      if(invalid) {
+         fprintf(stderr, "%s: WARNING: %d %s is improperly formatted\n", hashsum, invalid, invalid > 1?"lines":"line");
+      }
+      if(failed) {
+         fprintf(stderr, "%s: WARNING: %d computed %s did NOT match\n", hashsum, failed, failed > 1?"checksums":"checksum");
+      }
+      argn++;
+   }
+   exit(EXIT_SUCCESS);
+}
 
 int main(int argc, char **argv)
 {
-   int idx, z;
+   int idx, check, z, err, argn;
    unsigned long w, x;
    unsigned char hash_buffer[MAXBLOCKSIZE];
 
+   hashsum = strdup(basename(argv[0]));
+
    /* You need to register algorithms before using them */
    register_algs();
-   if (argc < 2) {
-      printf("usage: %s algorithm file [file ...]\n", basename(argv[0]));
-      printf("Algorithms:\n");
-      w = 0;
-      for (x = 0; hash_descriptor[x].name != NULL; x++) {
-         w += printf("%-14s", hash_descriptor[x].name);
-         if (w >= 70) {
-            printf("\n");
-            w = 0;
+   if (argc > 1 && (strcmp("-h", argv[1]) == 0 || strcmp("--help", argv[1]) == 0)) {
+      die(EXIT_SUCCESS);
+   }
+   if (argc < 3) {
+      die(EXIT_FAILURE);
+   }
+
+   argn = 1;
+   check = 0;
+   idx = -2;
+
+   while(argn < argc){
+      if(strcmp("-a", argv[argn]) == 0) {
+         argn++;
+         if(argn < argc) {
+            idx = find_hash(argv[argn]);
+            if (idx == -1) {
+               fprintf(stderr, "\nInvalid hash (%s) specified on command line.\n", argv[2]);
+               die(EXIT_FAILURE);
+            }
+            argn++;
+            continue;
+         }
+         else {
+            die(EXIT_FAILURE);
          }
       }
-      printf("\n");
-      exit(EXIT_SUCCESS);
+      if(strcmp("-c", argv[argn]) == 0) {
+         check = 1;
+         argn++;
+         continue;
+      }
+      break;
    }
 
-   idx = find_hash(argv[1]);
-   if (idx == -1) {
-      fprintf(stderr, "\nInvalid hash specified on command line.\n");
-      return EXIT_FAILURE;
+   if (check == 1) {
+      check_file(argn, argc, argv);
    }
 
-   if (argc == 2) {
+   if (argc == argn) {
       w = sizeof(hash_buffer);
-      if ((errno = hash_filehandle(idx, stdin, hash_buffer, &w)) != CRYPT_OK) {
-         fprintf(stderr, "File hash error: %s\n", error_to_string(errno));
+      if ((err = hash_filehandle(idx, stdin, hash_buffer, &w)) != CRYPT_OK) {
+         fprintf(stderr, "File hash error: %s\n", error_to_string(err));
          return EXIT_FAILURE;
       } else {
           for (x = 0; x < w; x++) {
@@ -60,15 +206,13 @@ int main(int argc, char **argv)
           printf(" *-\n");
       }
    } else {
-      for (z = 2; z < argc; z++) {
+      for (z = 3; z < argc; z++) {
          w = sizeof(hash_buffer);
-         if ((errno = hash_file(idx,argv[z],hash_buffer,&w)) != CRYPT_OK) {
-            fprintf(stderr, "File hash error: %s\n", error_to_string(errno));
+         if ((err = hash_file(idx,argv[z],hash_buffer,&w)) != CRYPT_OK) {
+            fprintf(stderr, "File hash error: %s\n", error_to_string(err));
             return EXIT_FAILURE;
          } else {
-             for (x = 0; x < w; x++) {
-                 printf("%02x",hash_buffer[x]);
-             }
+             printf_hex(hash_buffer, w);
              printf(" *%s\n", argv[z]);
          }
       }
@@ -76,7 +220,7 @@ int main(int argc, char **argv)
    return EXIT_SUCCESS;
 }
 
-void register_algs(void)
+static void register_algs(void)
 {
   int err;
   LTC_UNUSED_PARAM(err);
