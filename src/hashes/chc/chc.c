@@ -147,11 +147,11 @@ static int chc_compress(hash_state *md, unsigned char *buf)
    for (x = 0; x < cipher_blocksize; x++) {
        md->chc.state[x] ^= T[0][x] ^ T[1][x];
    }
-   XFREE(key);
 #ifdef LTC_CLEAN_STACK
    zeromem(T, sizeof(T));
-   zeromem(&key, sizeof(key));
+   zeromem(key, sizeof(*key));
 #endif
+   XFREE(key);
    return CRYPT_OK;
 }
 
