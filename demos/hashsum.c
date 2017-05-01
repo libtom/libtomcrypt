@@ -177,15 +177,30 @@ int main(int argc, char **argv)
                   const char* should;
                } shasum_compat[] =
                      {
+#ifdef LTC_SHA1
                            { "1",        sha1_desc.name },
+#endif
+#ifdef LTC_SHA224
                            { "224",      sha224_desc.name  },
+#endif
+#ifdef LTC_SHA256
                            { "256",      sha256_desc.name  },
+#endif
+#ifdef LTC_SHA384
                            { "384",      sha384_desc.name  },
+#endif
+#ifdef LTC_SHA512
                            { "512",      sha512_desc.name  },
+#endif
+#ifdef LTC_SHA512_224
                            { "512224",   sha512_224_desc.name  },
+#endif
+#ifdef LTC_SHA512_256
                            { "512256",   sha512_256_desc.name  },
+#endif
+                           { NULL, NULL }
                      };
-               for (x = 0; x < sizeof(shasum_compat)/sizeof(shasum_compat[0]); ++x) {
+               for (x = 0; shasum_compat[x].is != NULL; ++x) {
                   if(XSTRCMP(shasum_compat[x].is, argv[argn]) == 0) {
                      idx = find_hash(shasum_compat[x].should);
                      break;
@@ -193,7 +208,7 @@ int main(int argc, char **argv)
                }
             }
             if (idx == -1) {
-               fprintf(stderr, "\nInvalid hash (%s) specified on command line.\n", argv[2]);
+               fprintf(stderr, "Invalid hash (%s) specified on command line.\n", argv[2]);
                die(EXIT_FAILURE);
             }
             argn++;
