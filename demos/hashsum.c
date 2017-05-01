@@ -172,6 +172,27 @@ int main(int argc, char **argv)
          if(argn < argc) {
             idx = find_hash(argv[argn]);
             if (idx == -1) {
+               struct {
+                  const char* is;
+                  const char* should;
+               } shasum_compat[] =
+                     {
+                           { "1",        sha1_desc.name },
+                           { "224",      sha224_desc.name  },
+                           { "256",      sha256_desc.name  },
+                           { "384",      sha384_desc.name  },
+                           { "512",      sha512_desc.name  },
+                           { "512224",   sha512_224_desc.name  },
+                           { "512256",   sha512_256_desc.name  },
+                     };
+               for (x = 0; x < sizeof(shasum_compat)/sizeof(shasum_compat[0]); ++x) {
+                  if(XSTRCMP(shasum_compat[x].is, argv[argn]) == 0) {
+                     idx = find_hash(shasum_compat[x].should);
+                     break;
+                  }
+               }
+            }
+            if (idx == -1) {
                fprintf(stderr, "\nInvalid hash (%s) specified on command line.\n", argv[2]);
                die(EXIT_FAILURE);
             }
