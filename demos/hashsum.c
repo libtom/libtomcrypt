@@ -112,7 +112,7 @@ static void check_file(int argn, int argc, char **argv)
                tries++;
                w = sizeof(is_buffer);
                if ((err = hash_file(x, space, is_buffer, &w)) != CRYPT_OK) {
-                  fprintf(stderr, "File hash error: %s: %s\n", space, error_to_string(err));
+                  fprintf(stderr, "%s: File hash error: %s: %s\n", hashsum, space, error_to_string(err));
 ERR:
                   fclose(f);
                   exit(EXIT_FAILURE);
@@ -208,7 +208,7 @@ int main(int argc, char **argv)
                }
             }
             if (idx == -1) {
-               fprintf(stderr, "Invalid hash (%s) specified on command line.\n", argv[2]);
+               fprintf(stderr, "%s: Unrecognized algorithm\n", hashsum);
                die(EXIT_FAILURE);
             }
             argn++;
@@ -233,7 +233,7 @@ int main(int argc, char **argv)
    if (argc == argn) {
       w = sizeof(hash_buffer);
       if ((err = hash_filehandle(idx, stdin, hash_buffer, &w)) != CRYPT_OK) {
-         fprintf(stderr, "File hash error: %s\n", error_to_string(err));
+         fprintf(stderr, "%s: File hash error: %s\n", hashsum, error_to_string(err));
          return EXIT_FAILURE;
       } else {
           for (x = 0; x < w; x++) {
@@ -245,7 +245,7 @@ int main(int argc, char **argv)
       for (z = 3; z < argc; z++) {
          w = sizeof(hash_buffer);
          if ((err = hash_file(idx,argv[z],hash_buffer,&w)) != CRYPT_OK) {
-            fprintf(stderr, "File hash error: %s\n", error_to_string(err));
+            fprintf(stderr, "%s: File hash error: %s\n", hashsum, error_to_string(err));
             return EXIT_FAILURE;
          } else {
              printf_hex(hash_buffer, w);
