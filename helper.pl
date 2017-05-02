@@ -201,24 +201,27 @@ sub prepare_msvc_files_xml {
 }
 
 sub patch_makefile {
-  my ($in_ref, $out_ref, $data) = @_;
-  open(my $src, '<', $in_ref);
-  open(my $dst, '>', $out_ref);
-  my $l = 0;
-  while (<$src>) {
-    if ($_ =~ /START_INS/) {
-      print {$dst} $_;
-      $l = 1;
-      print {$dst} $data;
-    } elsif ($_ =~ /END_INS/) {
-      print {$dst} $_;
-      $l = 0;
-    } elsif ($l == 0) {
-      print {$dst} $_;
+  my ($content, @variables) = @_;
+  for my $v (@variables) {
+    if ($v =~ /^([A-Z0-9_]+)\s*=.*$/si) {
+      my $name = $1;
+      $content =~ s/\n\Q$name\E\b.*?[^\\]\n/\n$v\n/s;
+    }
+    else {
+      die "patch_makefile failed: " . substr($v, 0, 30) . "..";
     }
   }
-  close $dst;
-  close $src;
+  return $content;
+}
+
+sub version_form_tomcrypt_h {
+  my $h = read_file(shift);
+  if ($h =~ /\n#define\s*SCRYPT\s*"([0-9]+)\.([0-9]+)"/s) {
+    return "VERSION_MAJ=$1", "VERSION_MIN=$2", "VERSION=$1.$2", "VERSION_LT=0:$1$2";
+  }
+  else {
+    die "#define SCRYPT not found in tomcrypt.h";
+  }
 }
 
 sub process_makefiles {
@@ -230,12 +233,20 @@ sub process_makefiles {
   find({ no_chdir => 1, wanted => sub { push @h, $_ if -f $_ && $_ =~ /\.h$/ && $_ !~ /dh_static.h$/ } }, 'src');
   my @all = ();
   find({ no_chdir => 1, wanted => sub { push @all, $_ if -f $_ && $_ =~ /\.(c|h)$/  } }, 'src');
+  my @t = qw();
+  find({ no_chdir => 1, wanted => sub { push @t, $_ if $_ =~ /(no_prng|test_driver|x86_prof|_tests?).c$/ } }, 'testprof');
 
   my @o = sort ('src/ciphers/aes/aes_enc.o', map { $_ =~ s/\.c$/.o/; $_ } @c);
-  my $var_o   = prepare_variable("OBJECTS", @o);
+  my $var_o = prepare_variable("OBJECTS", @o);
+  my $var_h = prepare_variable("HEADERS", (sort @h));
   (my $var_obj = $var_o) =~ s/\.o\b/.obj/sg;
-  my $var_h   = prepare_variable("HEADERS", (sort @h, 'testprof/tomcrypt_test.h'));
 
+  my $var_to = prepare_variable("TOBJECTS", sort map { $_ =~ s/\.c$/.o/; $_ } @t);
+  (my $var_tobj = $var_to) =~ s/\.o\b/.obj/sg;
+
+  my @ver_version = version_form_tomcrypt_h("src/headers/tomcrypt.h");
+
+  # update MSVC project files
   my $msvc_files = prepare_msvc_files_xml(\@all, qr/tab\.c$/, ['Debug|Win32', 'Release|Win32', 'Debug|x64', 'Release|x64']);
   for my $m (qw/libtomcrypt_VS2008.vcproj/) {
     my $old = read_file($m);
@@ -248,22 +259,18 @@ sub process_makefiles {
     }
   }
 
-  my @makefiles = qw( makefile makefile.icc makefile.shared makefile.unix makefile.mingw makefile.msvc );
-  for my $m (@makefiles) {
+  # update OBJECTS + HEADERS in makefile*
+  for my $m (qw/ makefile makefile.icc makefile.shared makefile.unix makefile.mingw makefile.msvc makefile.include /) {
     my $old = read_file($m);
-    my $new;
-    if ($m eq 'makefile.msvc') {
-      patch_makefile(\$old, \$new, "$var_obj\n\n$var_h\n\n");
-    }
-    else {
-      patch_makefile(\$old, \$new, "$var_o\n\n$var_h\n\n");
-    }
+    my $new = $m eq 'makefile.msvc' ? patch_makefile($old, $var_obj, $var_h, $var_to, @ver_version)
+                                    : patch_makefile($old, $var_o, $var_h, $var_to, @ver_version);
     if ($old ne $new) {
       write_file($m, $new) if $write;
       warn "changed: $m\n";
       $changed_count++;
     }
   }
+
   if ($write) {
     return 0; # no failures
   }
@@ -283,13 +290,13 @@ sub die_usage {
 MARKER
 }
 
-GetOptions( "check-source"     => \my $check_source,
-            "check-defines"    => \my $check_defines,
-            "check-hashes"     => \my $check_hashes,
-            "check-makefiles"  => \my $check_makefiles,
-            "check-all"        => \my $check_all,
-            "update-makefiles" => \my $update_makefiles,
-            "help"             => \my $help
+GetOptions( "s|check-source"     => \my $check_source,
+            "d|check-defines"    => \my $check_defines,
+            "h|check-hashes"     => \my $check_hashes,
+            "m|check-makefiles"  => \my $check_makefiles,
+            "a|check-all"        => \my $check_all,
+            "u|update-makefiles" => \my $update_makefiles,
+            "h|help"             => \my $help
           ) or die_usage;
 
 my $failure;

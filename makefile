@@ -35,10 +35,8 @@ endif
 ifndef LIBTEST
    LIBTEST=libtomcrypt_prof.a
 endif
-LIBTEST_S=$(LIBTEST)
 
-#List of objects to compile.
-#START_INS
+# List of objects to compile (all goes to libtomcrypt.a)
 OBJECTS=src/ciphers/aes/aes.o src/ciphers/aes/aes_enc.o src/ciphers/anubis.o src/ciphers/blowfish.o \
 src/ciphers/camellia.o src/ciphers/cast5.o src/ciphers/des.o src/ciphers/kasumi.o src/ciphers/khazad.o \
 src/ciphers/kseed.o src/ciphers/multi2.o src/ciphers/noekeon.o src/ciphers/rc2.o src/ciphers/rc5.o \
@@ -190,13 +188,20 @@ src/stream/chacha/chacha_keystream.o src/stream/chacha/chacha_setup.o src/stream
 src/stream/rc4/rc4.o src/stream/rc4/rc4_test.o src/stream/sober128/sober128.o \
 src/stream/sober128/sober128_test.o
 
+# List of test objects to compile (all goes to libtomcrypt_prof.a)
+TOBJECTS=testprof/base64_test.o testprof/cipher_hash_test.o testprof/der_tests.o testprof/dh_test.o \
+testprof/dsa_test.o testprof/ecc_test.o testprof/file_test.o testprof/katja_test.o testprof/mac_test.o \
+testprof/misc_test.o testprof/modes_test.o testprof/multi_test.o testprof/no_prng.o \
+testprof/pkcs_1_eme_test.o testprof/pkcs_1_emsa_test.o testprof/pkcs_1_oaep_test.o \
+testprof/pkcs_1_pss_test.o testprof/pkcs_1_test.o testprof/rotate_test.o testprof/rsa_test.o \
+testprof/store_test.o testprof/test_driver.o testprof/x86_prof.o
+
+# The following headers will be installed by "make install"
 HEADERS=src/headers/tomcrypt.h src/headers/tomcrypt_argchk.h src/headers/tomcrypt_cfg.h \
 src/headers/tomcrypt_cipher.h src/headers/tomcrypt_custom.h src/headers/tomcrypt_hash.h \
 src/headers/tomcrypt_mac.h src/headers/tomcrypt_macros.h src/headers/tomcrypt_math.h \
 src/headers/tomcrypt_misc.h src/headers/tomcrypt_pk.h src/headers/tomcrypt_pkcs.h \
-src/headers/tomcrypt_prng.h testprof/tomcrypt_test.h
-
-#END_INS
+src/headers/tomcrypt_prng.h
 
 #Files left over from making the crypt.pdf.
 LEFTOVERS=*.dvi *.log *.aux *.toc *.idx *.ilg *.ind *.out *.lof
@@ -223,7 +228,9 @@ src/hashes/sha2/sha256.o: src/hashes/sha2/sha256.c src/hashes/sha2/sha224.c
 #This rule makes the libtomcrypt library.
 library: $(LIBNAME)
 
+#Dependencies on *.h
 $(OBJECTS): $(HEADERS)
+$(TOBJECTS): $(HEADERS) testprof/tomcrypt_test.h
 
 $(LIBNAME): $(OBJECTS)
 ifneq ($V,1)
@@ -235,22 +242,27 @@ ifneq ($V,1)
 endif
 	${silent} $(RANLIB) $@
 
-.PHONY: testprof/$(LIBTEST)
-testprof/$(LIBTEST):
-	${silent} CFLAGS="$(CFLAGS)" LIBTEST_S=$(LIBTEST_S) CC="$(CC)" LD="$(LD)" AR="$(AR)" ARFLAGS="$(ARFLAGS)" RANLIB="$(RANLIB)" V="$(V)" $(MAKE) -C testprof
+$(LIBTEST): $(TOBJECTS)
+ifneq ($V,1)
+	@echo "   * ${AR} $@"
+endif
+	${silent} $(AR) $(ARFLAGS) $@ $(TOBJECTS)
+ifneq ($V,1)
+	@echo "   * ${RANLIB} $@"
+endif
+	${silent} $(RANLIB) $@
 
-timing: library testprof/$(LIBTEST) $(TIMINGS)
+timing: library $(LIBTEST) $(TIMINGS)
 ifneq ($V,1)
 	@echo "   * ${CC} $@"
 endif
-	${silent} $(CC) $(LDFLAGS) $(TIMINGS) testprof/$(LIBTEST) $(LIB_PRE) $(LIBNAME) $(LIB_POST) $(EXTRALIBS) -o $(TIMING)
+	${silent} $(CC) $(LDFLAGS) $(TIMINGS) $(LIBTEST) $(LIB_PRE) $(LIBNAME) $(LIB_POST) $(EXTRALIBS) -o $(TIMING)
 
-.PHONY: test
-test: library testprof/$(LIBTEST) $(TESTS)
+test: library $(LIBTEST) $(TESTS)
 ifneq ($V,1)
 	@echo "   * ${CC} $@"
 endif
-	${silent} $(CC) $(LDFLAGS) $(TESTS) testprof/$(LIBTEST) $(LIB_PRE) $(LIBNAME) $(LIB_POST) $(EXTRALIBS) -o $(TEST)
+	${silent} $(CC) $(LDFLAGS) $(TESTS) $(LIBTEST) $(LIB_PRE) $(LIBNAME) $(LIB_POST) $(EXTRALIBS) -o $(TEST)
 
 # build the demos from a template
 define DEMO_template
@@ -277,19 +289,20 @@ install: library docs
 else
 install: library
 endif
-	install -d $(DESTDIR)$(LIBPATH)
-	install -d $(DESTDIR)$(INCPATH)
-	install -d $(DESTDIR)$(DATAPATH)
-	install -m 644 $(LIBNAME) $(DESTDIR)$(LIBPATH)
-	install -m 644 $(HEADERS) $(DESTDIR)$(INCPATH)
+	install -d $(LIBPATH)
+	install -d $(INCPATH)
+	install -d $(DATAPATH)
+	install -m 644 $(LIBNAME) $(LIBPATH)
+	install -m 644 $(HEADERS) $(INCPATH)
 ifndef NODOCS
-	install -m 644 doc/crypt.pdf $(DESTDIR)$(DATAPATH)
+	install -m 644 doc/crypt.pdf $(DATAPATH)
 endif
 
-install_test: testprof/$(LIBTEST)
-	install -d $(DESTDIR)$(LIBPATH)
-	install -d $(DESTDIR)$(INCPATH)
-	install -m 644 testprof/$(LIBTEST) $(DESTDIR)$(LIBPATH)
+install_test: $(LIBTEST)
+	install -d $(LIBPATH)
+	install -d $(INCPATH)
+	install -m 644 $(LIBTEST) $(LIBPATH)
+	install -m 644 testprof/tomcrypt_test.h $(INCPATH)
 
 install_hooks:
 	for s in `ls hooks/`; do ln -s ../../hooks/$$s .git/hooks/$$s; done
@@ -342,6 +355,8 @@ clean:
 	rm -f `find . -type f -name "*.obj" | xargs`
 	rm -f `find . -type f -name "*.lib" | xargs`
 	rm -f `find . -type f -name "*.exe" | xargs`
+	rm -f `find . -type f -name "*.dll" | xargs`
+	rm -f `find . -type f -name "*.so" | xargs`
 	rm -f `find . -type f -name "*.gcov" | xargs`
 	rm -f `find . -type f -name "*.gcda" | xargs`
 	rm -f `find . -type f -name "*.gcno" | xargs`

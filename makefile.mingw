@@ -32,8 +32,7 @@ INSTPREFIX=c:\devel-libtom
 LIBPATH=$(INSTPREFIX)\lib
 INCPATH=$(INSTPREFIX)\include
 
-#List of objects to compile.
-#START_INS
+# List of objects to compile (all goes to libtomcrypt.a)
 OBJECTS=src/ciphers/aes/aes.o src/ciphers/aes/aes_enc.o src/ciphers/anubis.o src/ciphers/blowfish.o \
 src/ciphers/camellia.o src/ciphers/cast5.o src/ciphers/des.o src/ciphers/kasumi.o src/ciphers/khazad.o \
 src/ciphers/kseed.o src/ciphers/multi2.o src/ciphers/noekeon.o src/ciphers/rc2.o src/ciphers/rc5.o \
@@ -185,13 +184,20 @@ src/stream/chacha/chacha_keystream.o src/stream/chacha/chacha_setup.o src/stream
 src/stream/rc4/rc4.o src/stream/rc4/rc4_test.o src/stream/sober128/sober128.o \
 src/stream/sober128/sober128_test.o
 
+# List of test objects to compile (all goes to libtomcrypt_prof.a)
+TOBJECTS=testprof/base64_test.o testprof/cipher_hash_test.o testprof/der_tests.o testprof/dh_test.o \
+testprof/dsa_test.o testprof/ecc_test.o testprof/file_test.o testprof/katja_test.o testprof/mac_test.o \
+testprof/misc_test.o testprof/modes_test.o testprof/multi_test.o testprof/no_prng.o \
+testprof/pkcs_1_eme_test.o testprof/pkcs_1_emsa_test.o testprof/pkcs_1_oaep_test.o \
+testprof/pkcs_1_pss_test.o testprof/pkcs_1_test.o testprof/rotate_test.o testprof/rsa_test.o \
+testprof/store_test.o testprof/test_driver.o testprof/x86_prof.o
+
+# The following headers will be installed by "make install"
 HEADERS=src/headers/tomcrypt.h src/headers/tomcrypt_argchk.h src/headers/tomcrypt_cfg.h \
 src/headers/tomcrypt_cipher.h src/headers/tomcrypt_custom.h src/headers/tomcrypt_hash.h \
 src/headers/tomcrypt_mac.h src/headers/tomcrypt_macros.h src/headers/tomcrypt_math.h \
 src/headers/tomcrypt_misc.h src/headers/tomcrypt_pk.h src/headers/tomcrypt_pkcs.h \
-src/headers/tomcrypt_prng.h testprof/tomcrypt_test.h
-
-#END_INS
+src/headers/tomcrypt_prng.h
 
 TESTOBJECTS=demos/test.o
 HASHOBJECTS=demos/hashsum.o
@@ -220,9 +226,13 @@ src/hashes/sha2/sha256.o: src/hashes/sha2/sha256.c src/hashes/sha2/sha224.c
 #This rule makes the libtomcrypt library.
 library: $(LIBNAME)
 
-.PHONY: testprof/$(LIBTEST)
-testprof/$(LIBTEST):
-	$(MAKE) -C testprof -f makefile.mingw LIBTEST_S=$(LIBTEST) CC=$(CC) LD=$(LD) AR=$(AR) ARFLAGS=$(ARFLAGS) RANLIB=$(RANLIB)
+#Dependencies on *.h
+$(OBJECTS): $(HEADERS)
+$(TOBJECTS): $(HEADERS) testprof/tomcrypt_test.h
+
+$(LIBTEST): $(TOBJECTS)
+	$(AR) $(ARFLAGS) $@ $(TOBJECTS)
+	$(RANLIB) $@
 
 %.o: %.c
 	${CC} ${CFLAGS} -c $< -o $@
@@ -246,24 +256,24 @@ small: library $(SMALLOBJECTS)
 tv_gen: library $(TVS)
 	$(CC) $(LDFLAGS) $(TVS) $(LIBNAME) $(EXTRALIBS) -o $(TV)
 
-timing: library testprof/$(LIBTEST) $(TIMINGS)
-	$(CC) $(LDFLAGS) $(TIMINGS) testprof/$(LIBTEST) $(LIBNAME) $(EXTRALIBS) -o $(TIMING)
+timing: library $(LIBTEST) $(TIMINGS)
+	$(CC) $(LDFLAGS) $(TIMINGS) $(LIBTEST) $(LIBNAME) $(EXTRALIBS) -o $(TIMING)
 
 .PHONY: test
-test: library testprof/$(LIBTEST) $(TESTS)
-	$(CC) $(LDFLAGS) $(TESTS) testprof/$(LIBTEST) $(LIBNAME) $(EXTRALIBS) -o $(TEST)
+test: library $(LIBTEST) $(TESTS)
+	$(CC) $(LDFLAGS) $(TESTS) $(LIBTEST) $(LIBNAME) $(EXTRALIBS) -o $(TEST)
 
 all_test: test tv_gen hashsum crypt small timing
 
 install: library
-	cmd /c if not exist "$(DESTDIR)$(LIBPATH)" mkdir "$(DESTDIR)$(LIBPATH)"
-	cmd /c if not exist "$(DESTDIR)$(INCPATH)" mkdir "$(DESTDIR)$(INCPATH)"
-	copy /Y $(LIBNAME) "$(DESTDIR)$(LIBPATH)"
-	copy /Y src\headers\tomcrypt*.h "$(DESTDIR)$(INCPATH)"
+	cmd /c if not exist "$(LIBPATH)" mkdir "$(LIBPATH)"
+	cmd /c if not exist "$(INCPATH)" mkdir "$(INCPATH)"
+	copy /Y $(LIBNAME) "$(LIBPATH)"
+	copy /Y src\headers\tomcrypt*.h "$(INCPATH)"
 
-install_test: testprof/$(LIBTEST)
-	cmd /c if not exist "$(DESTDIR)$(LIBPATH)" mkdir "$(DESTDIR)$(LIBPATH)"
-	copy /Y testprof\$(LIBTEST) "$(DESTDIR)$(LIBPATH)"
+install_test: $(LIBTEST)
+	cmd /c if not exist "$(LIBPATH)" mkdir "$(LIBPATH)"
+	copy /Y testprof\$(LIBTEST) "$(LIBPATH)"
 
 clean:
 	cmd /c del /Q /S *.o *.a *.exe

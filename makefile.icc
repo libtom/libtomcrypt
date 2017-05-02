@@ -70,7 +70,6 @@ ifndef LIBNAME
 endif
 ifndef LIBTEST
    LIBTEST=libtomcrypt_prof.a
-   LIBTEST_S=$(LIBTEST)
 endif
 HASH=hashsum
 CRYPT=encrypt
@@ -96,8 +95,7 @@ ifndef DATAPATH
    DATAPATH=/usr/share/doc/libtomcrypt/pdf
 endif
 
-#List of objects to compile.
-#START_INS
+# List of objects to compile (all goes to libtomcrypt.a)
 OBJECTS=src/ciphers/aes/aes.o src/ciphers/aes/aes_enc.o src/ciphers/anubis.o src/ciphers/blowfish.o \
 src/ciphers/camellia.o src/ciphers/cast5.o src/ciphers/des.o src/ciphers/kasumi.o src/ciphers/khazad.o \
 src/ciphers/kseed.o src/ciphers/multi2.o src/ciphers/noekeon.o src/ciphers/rc2.o src/ciphers/rc5.o \
@@ -249,13 +247,20 @@ src/stream/chacha/chacha_keystream.o src/stream/chacha/chacha_setup.o src/stream
 src/stream/rc4/rc4.o src/stream/rc4/rc4_test.o src/stream/sober128/sober128.o \
 src/stream/sober128/sober128_test.o
 
+# List of test objects to compile (all goes to libtomcrypt_prof.a)
+TOBJECTS=testprof/base64_test.o testprof/cipher_hash_test.o testprof/der_tests.o testprof/dh_test.o \
+testprof/dsa_test.o testprof/ecc_test.o testprof/file_test.o testprof/katja_test.o testprof/mac_test.o \
+testprof/misc_test.o testprof/modes_test.o testprof/multi_test.o testprof/no_prng.o \
+testprof/pkcs_1_eme_test.o testprof/pkcs_1_emsa_test.o testprof/pkcs_1_oaep_test.o \
+testprof/pkcs_1_pss_test.o testprof/pkcs_1_test.o testprof/rotate_test.o testprof/rsa_test.o \
+testprof/store_test.o testprof/test_driver.o testprof/x86_prof.o
+
+# The following headers will be installed by "make install"
 HEADERS=src/headers/tomcrypt.h src/headers/tomcrypt_argchk.h src/headers/tomcrypt_cfg.h \
 src/headers/tomcrypt_cipher.h src/headers/tomcrypt_custom.h src/headers/tomcrypt_hash.h \
 src/headers/tomcrypt_mac.h src/headers/tomcrypt_macros.h src/headers/tomcrypt_math.h \
 src/headers/tomcrypt_misc.h src/headers/tomcrypt_pk.h src/headers/tomcrypt_pkcs.h \
-src/headers/tomcrypt_prng.h testprof/tomcrypt_test.h
-
-#END_INS
+src/headers/tomcrypt_prng.h
 
 #Who do we install as?
 ifdef INSTALL_USER
@@ -297,9 +302,13 @@ src/hashes/sha2/sha256.o: src/hashes/sha2/sha256.c src/hashes/sha2/sha224.c
 #This rule makes the libtomcrypt library.
 library: $(LIBNAME)
 
-.PHONY: testprof/$(LIBTEST)
-testprof/$(LIBTEST):
-	cd testprof ; LIBTEST_S=$(LIBTEST) CFLAGS="$(CFLAGS)" CC="$(CC)" AR="$(AR)" $(MAKE) -f makefile.icc
+#Dependencies on *.h
+$(OBJECTS): $(HEADERS)
+$(TOBJECTS): $(HEADERS) testprof/tomcrypt_test.h
+
+$(LIBTEST): $(TOBJECTS)
+	$(AR) $(ARFLAGS) $@ $(TOBJECTS)
+	$(RANLIB) $@
 
 $(LIBNAME): $(OBJECTS)
 	$(AR) $(ARFLAGS) $@ $(OBJECTS)
@@ -320,12 +329,11 @@ small: library $(SMALLOBJECTS)
 tv_gen: library $(TVS)
 	$(CC) $(TVS) $(LIBNAME) $(EXTRALIBS) -o $(TV)
 
-timing: library $(TIMINGS) testprof/$(LIBTEST)
-	$(CC) $(TIMINGS) testprof/$(LIBTEST) $(LIBNAME) $(EXTRALIBS) -o $(TIMING)
+timing: library $(TIMINGS) $(LIBTEST)
+	$(CC) $(TIMINGS) $(LIBTEST) $(LIBNAME) $(EXTRALIBS) -o $(TIMING)
 
-.PHONY: test
-test: library $(TESTS) testprof/$(LIBTEST)
-	$(CC) $(TESTS) testprof/$(LIBTEST) $(LIBNAME) $(EXTRALIBS) -o $(TEST)
+test: library $(TESTS) $(LIBTEST)
+	$(CC) $(TESTS) $(LIBTEST) $(LIBNAME) $(EXTRALIBS) -o $(TEST)
 
 all_test: test tv_gen hashsum crypt small timing
 
@@ -333,11 +341,11 @@ all_test: test tv_gen hashsum crypt small timing
 #as root in order to have a high enough permission to write to the correct
 #directories and to set the owner and group to root.
 install: library
-	install -d -g $(GROUP) -o $(USER) $(DESTDIR)$(LIBPATH)
-	install -d -g $(GROUP) -o $(USER) $(DESTDIR)$(INCPATH)
-	install -g $(GROUP) -o $(USER) $(LIBNAME) $(DESTDIR)$(LIBPATH)
-	install -g $(GROUP) -o $(USER) $(LIBTEST) $(DESTDIR)$(LIBPATH)
-	install -g $(GROUP) -o $(USER) $(HEADERS) $(DESTDIR)$(INCPATH)
+	install -d -g $(GROUP) -o $(USER) $(LIBPATH)
+	install -d -g $(GROUP) -o $(USER) $(INCPATH)
+	install -g $(GROUP) -o $(USER) $(LIBNAME) $(LIBPATH)
+	install -g $(GROUP) -o $(USER) $(LIBTEST) $(LIBPATH)
+	install -g $(GROUP) -o $(USER) $(HEADERS) $(INCPATH)
 
 # $Source$
 # $Revision$

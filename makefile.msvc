@@ -8,7 +8,7 @@ EXTRAINCLUDE=../libtommath
 
 CFLAGS = /nologo /Isrc/headers/ /I$(EXTRAINCLUDE) /Itestprof/ /Ox /D_CRT_SECURE_NO_WARNINGS /DUSE_LTM /DLTM_DESC /DLTC_SOURCE /DLTC_NO_PROTOTYPES /W3 $(CF)
 
-#START_INS
+# List of objects to compile (all goes to libtomcrypt.lib)
 OBJECTS=src/ciphers/aes/aes.obj src/ciphers/aes/aes_enc.obj src/ciphers/anubis.obj src/ciphers/blowfish.obj \
 src/ciphers/camellia.obj src/ciphers/cast5.obj src/ciphers/des.obj src/ciphers/kasumi.obj src/ciphers/khazad.obj \
 src/ciphers/kseed.obj src/ciphers/multi2.obj src/ciphers/noekeon.obj src/ciphers/rc2.obj src/ciphers/rc5.obj \
@@ -160,13 +160,20 @@ src/stream/chacha/chacha_keystream.obj src/stream/chacha/chacha_setup.obj src/st
 src/stream/rc4/rc4.obj src/stream/rc4/rc4_test.obj src/stream/sober128/sober128.obj \
 src/stream/sober128/sober128_test.obj
 
+# List of test objects to compile (all goes to libtomcrypt_prof.lib)
+TOBJECTS=testprof/base64_test.o testprof/cipher_hash_test.o testprof/der_tests.o testprof/dh_test.o \
+testprof/dsa_test.o testprof/ecc_test.o testprof/file_test.o testprof/katja_test.o testprof/mac_test.o \
+testprof/misc_test.o testprof/modes_test.o testprof/multi_test.o testprof/no_prng.o \
+testprof/pkcs_1_eme_test.o testprof/pkcs_1_emsa_test.o testprof/pkcs_1_oaep_test.o \
+testprof/pkcs_1_pss_test.o testprof/pkcs_1_test.o testprof/rotate_test.o testprof/rsa_test.o \
+testprof/store_test.o testprof/test_driver.o testprof/x86_prof.o
+
+# The following headers will be installed by "make install"
 HEADERS=src/headers/tomcrypt.h src/headers/tomcrypt_argchk.h src/headers/tomcrypt_cfg.h \
 src/headers/tomcrypt_cipher.h src/headers/tomcrypt_custom.h src/headers/tomcrypt_hash.h \
 src/headers/tomcrypt_mac.h src/headers/tomcrypt_macros.h src/headers/tomcrypt_math.h \
 src/headers/tomcrypt_misc.h src/headers/tomcrypt_pk.h src/headers/tomcrypt_pkcs.h \
-src/headers/tomcrypt_prng.h testprof/tomcrypt_test.h
-
-#END_INS
+src/headers/tomcrypt_prng.h
 
 default: library
 
@@ -177,11 +184,9 @@ default: library
 src/ciphers/aes/aes_enc.obj: src/ciphers/aes/aes.c src/ciphers/aes/aes_tab.c
 	$(CC) $(CFLAGS) /DENCRYPT_ONLY /c src/ciphers/aes/aes.c /Fosrc/ciphers/aes/aes_enc.obj
 
-library: $(OBJECTS)
+library: $(OBJECTS) $(TOBJECTS)
 	lib /out:tomcrypt.lib $(OBJECTS)
-	cd testprof
-	nmake -f makefile.msvc
-	cd ..
+        lib /out:tomcrypt_prof.lib $(TOBJECTS)
 
 tv_gen: demos/tv_gen.c library
 	cl $(CFLAGS) demos/tv_gen.c tomcrypt.lib advapi32.lib $(EXTRALIBS)
@@ -189,12 +194,11 @@ tv_gen: demos/tv_gen.c library
 hashsum: demos/hashsum.c library
 	cl $(CFLAGS) demos/hashsum.c tomcrypt.lib advapi32.lib $(EXTRALIBS)
 
-.PHONY: test
 test: demos/test.c library
-	cl $(CFLAGS) demos/test.c testprof/tomcrypt_prof.lib tomcrypt.lib advapi32.lib $(EXTRALIBS)
+	cl $(CFLAGS) demos/test.c tomcrypt_prof.lib tomcrypt.lib advapi32.lib $(EXTRALIBS)
 
 timing: demos/timing.c library
-	cl $(CFLAGS) demos/timing.c testprof/tomcrypt_prof.lib tomcrypt.lib advapi32.lib $(EXTRALIBS)
+	cl $(CFLAGS) demos/timing.c tomcrypt_prof.lib tomcrypt.lib advapi32.lib $(EXTRALIBS)
 
 all_test: test tv_gen hashsum timing
 
