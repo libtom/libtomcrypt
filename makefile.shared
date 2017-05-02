@@ -7,9 +7,6 @@
 
 include makefile.include
 
-# The version
-# http://www.gnu.org/software/libtool/manual/html_node/Updating-version-info.html
-VERSION=0:117
 
 
 LT ?= libtool
@@ -212,13 +209,13 @@ library: $(LIBNAME)
 
 .PHONY: testprof/$(LIBTEST)
 testprof/$(LIBTEST):
-	cd testprof ; CFLAGS="$(CFLAGS)" GROUP=$(GROUP) USER=$(USER) VERSION=$(VERSION) LIBPATH=$(LIBPATH) LIBTEST=$(LIBTEST) LIBTEST_S=$(LIBTEST_S) LT=$(LT) CC="$(CC)" make -f makefile.shared
+	cd testprof ; CFLAGS="$(CFLAGS)" GROUP=$(GROUP) USER=$(USER) VERSION=$(VERSION_LT) LIBPATH=$(LIBPATH) LIBTEST=$(LIBTEST) LIBTEST_S=$(LIBTEST_S) LT=$(LT) CC="$(CC)" make -f makefile.shared
 
 .c.o:
 	$(LTCOMPILE) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $@ -c $<
 
 $(LIBNAME): $(OBJECTS)
-	$(LT) --mode=link --tag=CC $(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) `find ./src -type f -name "*.lo"` $(EXTRALIBS) -o $(LIBNAME) -rpath $(LIBPATH) -version-info $(VERSION)
+	$(LT) --mode=link --tag=CC $(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) `find ./src -type f -name "*.lo"` $(EXTRALIBS) -o $(LIBNAME) -rpath $(LIBPATH) -version-info $(VERSION_LT)
 
 install: $(LIBNAME)
 	install -d $(DESTDIR)$(LIBPATH)
@@ -232,7 +229,7 @@ install: $(LIBNAME)
 install_test: testprof/$(LIBTEST)
 	install -d $(DESTDIR)$(LIBPATH)
 	install -d $(DESTDIR)$(INCPATH)
-	cd testprof ; CFLAGS="$(CFLAGS)" VERSION=$(VERSION) LIBPATH=$(LIBPATH) LIBTEST=$(LIBTEST) LIBTEST_S=$(LIBTEST_S) DESTDIR=$(DESTDIR) LT=$(LT) CC=$(CC) make -f makefile.shared install
+	cd testprof ; CFLAGS="$(CFLAGS)" VERSION=$(VERSION_LT) LIBPATH=$(LIBPATH) LIBTEST=$(LIBTEST) LIBTEST_S=$(LIBTEST_S) DESTDIR=$(DESTDIR) LT=$(LT) CC=$(CC) make -f makefile.shared install
 
 
 .PHONY: test

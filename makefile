@@ -5,11 +5,6 @@
 
 include makefile.include
 
-# The version
-VERSION=1.17
-
-PLATFORM := $(shell uname | sed -e 's/_.*//')
-
 ifeq ($V,1)
 silent=
 silent_stdout=
