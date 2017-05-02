@@ -1,5 +1,9 @@
 #include <tomcrypt_test.h>
 
+#ifndef GIT_VERSION
+#define GIT_VERSION "Undefined version"
+#endif
+
 #define LTC_TEST_FN(f)  { f, #f }
 
 static const struct {
@@ -37,7 +41,7 @@ int main(int argc, char **argv)
    long delta, dur = 0;
    reg_algs();
 
-   printf("build == \n%s\n", crypt_build_settings);
+   printf("build == %s\n%s\n", GIT_VERSION, crypt_build_settings);
 
 #ifdef USE_LTM
    ltc_mp = ltm_desc;
