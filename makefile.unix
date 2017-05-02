@@ -1,4 +1,4 @@
-# MAKEFILE that is intended to be compatible with any kind of make (GNU make, BDS make , ...)
+# MAKEFILE that is intended to be compatible with any kind of make (GNU make, BSD make, ...)
 #
 # Please do not use here neither any special make syntax nor any unusual tools/utilities!
 
