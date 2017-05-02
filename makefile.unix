@@ -16,14 +16,14 @@
 #
 
 #The following can be overridden from command line e.g. "make -f makefile.unix CC=gcc ARFLAGS=rcs"
-CC        ?= cc
-LD        ?= ld
-AR        ?= ar
-ARFLAGS   ?= r
-RANLIB    ?= ranlib
-CFLAGS    ?= -O2 -DUSE_LTM -DLTM_DESC -I../libtommath
-EXTRALIBS ?= ../libtommath/libtommath.a
-DESTDIR   ?= /usr/local
+CC        = cc
+LD        = ld
+AR        = ar
+ARFLAGS   = r
+RANLIB    = ranlib
+CFLAGS    = -O2 -DUSE_LTM -DLTM_DESC -I../libtommath
+EXTRALIBS = ../libtommath/libtommath.a
+DESTDIR   = /usr/local
 
 #Compilation flags
 LTC_CFLAGS  = $(CFLAGS) -Isrc/headers -Itestprof -DLTC_SOURCE
@@ -249,20 +249,20 @@ $(LIBMAIN_D): $(OBJECTS)
 
 #Demo tools/utilities
 hashsum: demos/hashsum.o $(LIBMAIN_S)
-	$(CC) $< $(LIBMAIN_S) $(LTC_LDFLAGS) -o $@
+	$(CC) demos/hashsum.o $(LIBMAIN_S) $(LTC_LDFLAGS) -o $@
 crypt: demos/crypt.o $(LIBMAIN_S)
-	$(CC) $< $(LIBMAIN_S) $(LTC_LDFLAGS) -o $@
+	$(CC) demos/crypt.o $(LIBMAIN_S) $(LTC_LDFLAGS) -o $@
 small: demos/small.o $(LIBMAIN_S)
-	$(CC) $< $(LIBMAIN_S) $(LTC_LDFLAGS) -o $@
+	$(CC) demos/small.o $(LIBMAIN_S) $(LTC_LDFLAGS) -o $@
 tv_gen: demos/tv_gen.o $(LIBMAIN_S)
-	$(CC) $< $(LIBMAIN_S) $(LTC_LDFLAGS) -o $@
+	$(CC) demos/tv_gen.o $(LIBMAIN_S) $(LTC_LDFLAGS) -o $@
 
 #Tests + timing tests
 timing: demos/timing.o $(LIBTEST_S) $(LIBMAIN_S)
-	$(CC) $< $(LIBTEST_S) $(LIBMAIN_S) $(LTC_LDFLAGS) -o $@
+	$(CC) demos/timing.o $(LIBTEST_S) $(LIBMAIN_S) $(LTC_LDFLAGS) -o $@
 	@echo "NOTICE: start the timing tests by: ./timing"
 test: demos/test.o $(LIBMAIN_S) $(LIBTEST_S)
-	$(CC) $< $(LIBTEST_S) $(LIBMAIN_S) $(LTC_LDFLAGS) -o $@
+	$(CC) demos/test.o $(LIBTEST_S) $(LIBMAIN_S) $(LTC_LDFLAGS) -o $@
 	@echo "NOTICE: start the tests by: ./test"
 
 all: $(LIBMAIN_S) $(LIBMAIN_D) $(LIBTEST_S) hashsum crypt small tv_gen timing test
