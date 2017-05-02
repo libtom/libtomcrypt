@@ -8,8 +8,13 @@
 include makefile.include
 
 
-
-LT ?= libtool
+ifndef LT
+  ifeq ($(PLATFORM), Darwin)
+    LT:=glibtool
+  else
+    LT:=libtool
+  endif
+endif
 LTCOMPILE = $(LT) --mode=compile --tag=CC $(CC)
 
 
