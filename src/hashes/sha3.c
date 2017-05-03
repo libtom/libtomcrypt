@@ -241,7 +241,9 @@ int sha3_done(hash_state *md, unsigned char *hash)
    keccakf(md->sha3.s);
 
    /* store sha3.s[] as little-endian bytes into sha3.sb */
-   for(i = 0; i < SHA3_KECCAK_SPONGE_WORDS; i++) STORE64L(md->sha3.s[i], md->sha3.sb + i * 8);
+   for(i = 0; i < SHA3_KECCAK_SPONGE_WORDS; i++) {
+      STORE64L(md->sha3.s[i], md->sha3.sb + i * 8);
+   }
 
    XMEMCPY(hash, md->sha3.sb, md->sha3.capacity_words * 4);
    return CRYPT_OK;
