@@ -1,6 +1,9 @@
 # MAKEFILE that is intended to be compatible with any kind of make (GNU make, BSD make, ...)
+# works on: Linux, *BSD, Cygwin, AIX, HP-UX and hopefully other UNIX systems
 #
 # Please do not use here neither any special make syntax nor any unusual tools/utilities!
+#
+# BEWARE: variables OBJECTS, TOBJECTS, HEADERS, VERSION are updated via ./updatemakes.sh
 
 ### USAGE:
 #
@@ -16,31 +19,24 @@
 #
 
 #The following can be overridden from command line e.g. "make -f makefile.unix CC=gcc ARFLAGS=rcs"
+DESTDIR   = /usr/local
 CC        = cc
-LD        = ld
 AR        = ar
 ARFLAGS   = r
 RANLIB    = ranlib
 CFLAGS    = -O2 -DUSE_LTM -DLTM_DESC -I../libtommath
 EXTRALIBS = ../libtommath/libtommath.a
-DESTDIR   = /usr/local
 
 #Compilation flags
 LTC_CFLAGS  = $(CFLAGS) -Isrc/headers -Itestprof -DLTC_SOURCE
 LTC_LDFLAGS = $(LDFLAGS) $(EXTRALIBS)
 VERSION=1.17
-VERSION_MAJ=1
-VERSION_MIN=17
 
-#Libraries to be created
+#Libraries to be created (this makefile builds only static libraries)
 LIBMAIN_S =libtomcrypt.a
 LIBTEST_S =libtomcrypt_prof.a
-LIBMAIN_D =libtomcrypt.so.0.0.$(VERSION_MAJ)$(VERSION_MIN)
-#The following will be symlinks to $(LIBMAIN_D)
-LIBMAIN_L1=libtomcrypt.so.0
-LIBMAIN_L2=libtomcrypt.so
 
-# List of objects to compile (all goes to libtomcrypt.a)
+#List of objects to compile (all goes to libtomcrypt.a)
 OBJECTS=src/ciphers/aes/aes.o src/ciphers/aes/aes_enc.o src/ciphers/anubis.o src/ciphers/blowfish.o \
 src/ciphers/camellia.o src/ciphers/cast5.o src/ciphers/des.o src/ciphers/kasumi.o src/ciphers/khazad.o \
 src/ciphers/kseed.o src/ciphers/multi2.o src/ciphers/noekeon.o src/ciphers/rc2.o src/ciphers/rc5.o \
@@ -192,7 +188,7 @@ src/stream/chacha/chacha_keystream.o src/stream/chacha/chacha_setup.o src/stream
 src/stream/rc4/rc4.o src/stream/rc4/rc4_test.o src/stream/sober128/sober128.o \
 src/stream/sober128/sober128_test.o
 
-# List of test objects to compile (all goes to libtomcrypt_prof.a)
+#List of test objects to compile (all goes to libtomcrypt_prof.a)
 TOBJECTS=testprof/base64_test.o testprof/cipher_hash_test.o testprof/der_tests.o testprof/dh_test.o \
 testprof/dsa_test.o testprof/ecc_test.o testprof/file_test.o testprof/katja_test.o testprof/mac_test.o \
 testprof/misc_test.o testprof/modes_test.o testprof/multi_test.o testprof/no_prng.o \
@@ -200,14 +196,14 @@ testprof/pkcs_1_eme_test.o testprof/pkcs_1_emsa_test.o testprof/pkcs_1_oaep_test
 testprof/pkcs_1_pss_test.o testprof/pkcs_1_test.o testprof/rotate_test.o testprof/rsa_test.o \
 testprof/store_test.o testprof/test_driver.o testprof/x86_prof.o
 
-# The following headers will be installed by "make install"
+#The following headers will be installed by "make install"
 HEADERS=src/headers/tomcrypt.h src/headers/tomcrypt_argchk.h src/headers/tomcrypt_cfg.h \
 src/headers/tomcrypt_cipher.h src/headers/tomcrypt_custom.h src/headers/tomcrypt_hash.h \
 src/headers/tomcrypt_mac.h src/headers/tomcrypt_macros.h src/headers/tomcrypt_math.h \
 src/headers/tomcrypt_misc.h src/headers/tomcrypt_pk.h src/headers/tomcrypt_pkcs.h \
 src/headers/tomcrypt_prng.h
 
-#this is necessary for compatibility with BSD make (namely on OpenBSD)
+#This is necessary for compatibility with BSD make (namely on OpenBSD)
 .SUFFIXES: .o .c
 
 .c.o:
@@ -216,7 +212,7 @@ src/headers/tomcrypt_prng.h
 #The default rule for make builds the libtomcrypt.a library (static)
 default: $(LIBMAIN_S)
 
-#SPECIAL: AES come in two flavours... enc+dec and enc-only
+#SPECIAL: AES comes in two flavours - enc+dec and enc-only
 src/ciphers/aes/aes_enc.o: src/ciphers/aes/aes.c src/ciphers/aes/aes_tab.c
 	$(CC) $(LTC_CFLAGS) -DENCRYPT_ONLY -c src/ciphers/aes/aes.c -o src/ciphers/aes/aes_enc.o
 
@@ -243,10 +239,6 @@ $(LIBMAIN_S): $(OBJECTS)
 	$(AR) $(ARFLAGS) $@ $(OBJECTS)
 	$(RANLIB) $@
 
-#Create libtomcrypt.so
-$(LIBMAIN_D): $(OBJECTS)
-	$(CC) -shared -Wl,-soname=$(LIBMAIN_L1) $(OBJECTS) $(LTC_LDFLAGS) -o $@
-
 #Demo tools/utilities
 hashsum: demos/hashsum.o $(LIBMAIN_S)
 	$(CC) demos/hashsum.o $(LIBMAIN_S) $(LTC_LDFLAGS) -o $@
@@ -265,28 +257,18 @@ test: demos/test.o $(LIBMAIN_S) $(LIBTEST_S)
 	$(CC) demos/test.o $(LIBTEST_S) $(LIBMAIN_S) $(LTC_LDFLAGS) -o $@
 	@echo "NOTICE: start the tests by: ./test"
 
-all: $(LIBMAIN_S) $(LIBMAIN_D) $(LIBTEST_S) hashsum crypt small tv_gen timing test
+all: $(LIBMAIN_S) $(LIBTEST_S) hashsum crypt small tv_gen timing test
 
-#NOTE: as this makefile works also on cygwin, thus we need to delete *.exe
+#NOTE: this makefile works also on cygwin, thus we need to delete *.exe
 clean:
 	-@rm -f $(OBJECTS)
-	-@rm -f $(LIBMAIN_S) $(LIBMAIN_D) $(LIBTEST_S)
-	-@rm -f testprof/*.o demos/*.o lib*.so lib*.so.*
+	-@rm -f $(LIBMAIN_S) $(LIBTEST_S)
+	-@rm -f testprof/*.o demos/*.o
 	-@rm -f test tv_gen hashsum crypt small timing
 	-@rm -f test.exe tv_gen.exe hashsum.exe crypt.exe small.exe timing.exe
 
-install_static: $(LIBMAIN_S) $(HEADERS)
+install: $(LIBMAIN_S) $(HEADERS)
 	@mkdir -p $(DESTDIR)/include $(DESTDIR)/lib/pkgconfig
 	@cp $(LIBMAIN_S) $(DESTDIR)/lib/
 	@cp $(HEADERS) $(DESTDIR)/include/
 	@sed -e 's,^prefix=.*,prefix=$(DESTDIR),' -e 's,^Version:.*,Version: $(VERSION),' libtomcrypt.pc.in > $(DESTDIR)/lib/pkgconfig/libtomcrypt.pc
-
-install_dynamic: $(LIBMAIN_D) $(HEADERS)
-	@mkdir -p $(DESTDIR)/include $(DESTDIR)/lib/pkgconfig
-	@cp $(LIBMAIN_D) $(DESTDIR)/lib/
-	@cp $(HEADERS) $(DESTDIR)/include/
-	@ln -sf $(LIBMAIN_D) $(DESTDIR)/lib/$(LIBMAIN_L1)
-	@ln -sf $(LIBMAIN_D) $(DESTDIR)/lib/$(LIBMAIN_L2)
-	@sed -e 's,^prefix=.*,prefix=$(DESTDIR),' -e 's,^Version:.*,Version: $(VERSION),' libtomcrypt.pc.in > $(DESTDIR)/lib/pkgconfig/libtomcrypt.pc
-
-install: install_static install_dynamic
