@@ -263,7 +263,9 @@ int sha3_shake_done(hash_state *md, unsigned char *out, unsigned long outlen)
       md->sha3.s[SHA3_KECCAK_SPONGE_WORDS - md->sha3.capacity_words - 1] ^= CONST64(0x8000000000000000);
       keccakf(md->sha3.s);
       /* store sha3.s[] as little-endian bytes into sha3.sb */
-      for(i = 0; i < SHA3_KECCAK_SPONGE_WORDS; i++) STORE64L(md->sha3.s[i], md->sha3.sb + i * 8);
+      for(i = 0; i < SHA3_KECCAK_SPONGE_WORDS; i++) {
+         STORE64L(md->sha3.s[i], md->sha3.sb + i * 8);
+      }
       md->sha3.byte_index = 0;
       md->sha3.xof_flag = 1;
    }
@@ -272,7 +274,9 @@ int sha3_shake_done(hash_state *md, unsigned char *out, unsigned long outlen)
       if(md->sha3.byte_index >= (SHA3_KECCAK_SPONGE_WORDS - md->sha3.capacity_words) * 8) {
          keccakf(md->sha3.s);
          /* store sha3.s[] as little-endian bytes into sha3.sb */
-         for(i = 0; i < SHA3_KECCAK_SPONGE_WORDS; i++) STORE64L(md->sha3.s[i], md->sha3.sb + i * 8);
+         for(i = 0; i < SHA3_KECCAK_SPONGE_WORDS; i++) {
+            STORE64L(md->sha3.s[i], md->sha3.sb + i * 8);
+         }
          md->sha3.byte_index = 0;
       }
       out[idx] = md->sha3.sb[md->sha3.byte_index++];
