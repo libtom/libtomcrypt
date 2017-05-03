@@ -2,7 +2,8 @@
 #ifdef LTC_SHA3
 struct sha3_state {
     ulong64 saved;                  /* the portion of the input message that we didn't consume yet */
-    union { ulong64 s[25]; unsigned char sb[25 * 8]; };
+    ulong64 s[25];
+    unsigned char sb[25 * 8];       /* used for storing `ulong64 s[25]` as little-endian bytes */
     unsigned short byte_index;      /* 0..7--the next byte after the set one (starts from 0; 0--none are buffered) */
     unsigned short word_index;      /* 0..24--the next word to integrate input (starts from 0) */
     unsigned short capacity_words;  /* the double size of the hash output in words (e.g. 16 for Keccak 512) */
