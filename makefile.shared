@@ -234,11 +234,13 @@ $(LIBNAME): $(OBJECTS)
 $(LIBTEST): $(TOBJECTS)
 	$(LT) --mode=link --tag=CC $(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) `find ./testprof -type f -name "*.lo"` -o $@ -rpath $(LIBPATH) -version-info $(VERSION_LT)
 
-install: $(LIBNAME)
+install: $(LIBNAME) $(USEFUL_DEMOS)
 	install -d $(LIBPATH)/pkgconfig
 	install -d $(INCPATH)
+	install -d $(BINPATH)
 	$(LT) --mode=install install -c $(LIBNAME) $(LIBPATH)/$(LIBNAME)
 	install -m 644 $(HEADERS) $(INCPATH)
+	install -m 775 $(USEFUL_DEMOS) $(BINPATH)
 	sed -e 's,^prefix=.*,prefix=$(DESTDIR),' -e 's,^Version:.*,Version: $(VERSION),' libtomcrypt.pc.in > $(LIBPATH)/pkgconfig/libtomcrypt.pc
 	install -m 644 libtomcrypt.pc $(LIBPATH)/pkgconfig/libtomcrypt.pc
 
