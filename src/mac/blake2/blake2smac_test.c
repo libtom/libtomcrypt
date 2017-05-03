@@ -295,13 +295,13 @@ int blake2smac_test(void)
         blake2smac_process(&st, (unsigned char*)inp + 14, 1);
         blake2smac_process(&st, (unsigned char*)inp + 15, ilen - 15);
         blake2smac_done(&st, out, &olen);
-        if (compare_testvector(out, olen, mac, mlen, "BLAKE2S MAC multi", i) != 0) return CRYPT_FAIL_TESTVECTOR;
+        if (compare_testvector(out, olen, mac, mlen, "BLAKE2S MAC multi", ilen) != 0) return CRYPT_FAIL_TESTVECTOR;
       }
       /* process in one go */
       blake2smac_init(&st, olen, key, klen);
       blake2smac_process(&st, (unsigned char*)inp, ilen);
       blake2smac_done(&st, out, &olen);
-      if (compare_testvector(out, olen, mac, mlen, "BLAKE2S MAC single", i) != 0) return CRYPT_FAIL_TESTVECTOR;
+      if (compare_testvector(out, olen, mac, mlen, "BLAKE2S MAC single", ilen) != 0) return CRYPT_FAIL_TESTVECTOR;
    }
    return CRYPT_OK;
 #endif
