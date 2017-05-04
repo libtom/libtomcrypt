@@ -7,6 +7,10 @@
 /MSVC_*
 .libs/
 
+# release files
+/libtomcrypt-*
+/crypt-*
+
 # suppress output of build process
 gcc_[12].txt
 testok.txt

@@ -1,0 +1,6 @@
+/.*             export-ignore
+/hooks          export-ignore
+doc/*.html      export-ignore
+coverity.sh     export-ignore
+
+/**             export-subst

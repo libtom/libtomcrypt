@@ -387,7 +387,8 @@ doxy: doxygen
 #from the clean command! This is because most people would like to keep the
 #nice pre-compiled crypt.pdf that comes with libtomcrypt! We only need to
 #delete it if we are rebuilding it.
-docs: crypt.tex
+docs: doc/crypt.pdf
+doc/crypt.pdf: crypt.tex
 	rm -f doc/crypt.pdf $(LEFTOVERS)
 	cp crypt.tex crypt.bak
 	touch --reference=crypt.tex crypt.bak
@@ -418,24 +419,21 @@ docdvi: crypt.tex
 	latex crypt $(silent_stdout)
 	latex crypt $(silent_stdout)
 
-#zipup the project (take that!)
-no_oops: clean
-	cd .. ; cvs commit
-	echo Scanning for scratch/dirty files
-	find . -type f | grep -v CVS | xargs -n 1 bash mess.sh
-
-zipup: no_oops docs
-	cd .. ; rm -rf crypt* libtomcrypt-$(VERSION) ; mkdir libtomcrypt-$(VERSION) ; \
-	cp -R ./libtomcrypt/* ./libtomcrypt-$(VERSION)/ ; \
-	cd libtomcrypt-$(VERSION) ; rm -rf `find . -type d | grep CVS | xargs` ; cd .. ; \
-	tar -cjvf crypt-$(VERSION).tar.bz2 libtomcrypt-$(VERSION) ; \
-	zip -9r crypt-$(VERSION).zip libtomcrypt-$(VERSION) ; \
-	gpg -b -a crypt-$(VERSION).tar.bz2 ; gpg -b -a crypt-$(VERSION).zip ; \
-	mv -fv crypt* ~ ; rm -rf libtomcrypt-$(VERSION)
+zipup: doc/crypt.pdf
+	@git diff-index --quiet HEAD -- || ( echo "FAILURE: uncommited changes or not a git" && exit 1 )
+	@perl helper.pl --check-all || ( echo "FAILURE: helper.pl --check-all errors" && exit 1 )
+	rm -rf libtomcrypt-$(VERSION) libtomcrypt-$(VERSION).*
+	# files/dirs excluded from "git archive" are defined in .gitattributes
+	git archive --format=tar --prefix=libtomcrypt-$(VERSION)/ HEAD | tar x
+	mkdir -p libtomcrypt-$(VERSION)/doc
+	cp doc/crypt.pdf libtomcrypt-$(VERSION)/doc/crypt.pdf
+	tar -cjf libtomcrypt-$(VERSION).tar.bz2 libtomcrypt-$(VERSION)
+	zip -9rq libtomcrypt-$(VERSION).zip libtomcrypt-$(VERSION)
+	rm -rf libtomcrypt-$(VERSION)
+	gpg -b -a libtomcrypt-$(VERSION).tar.bz2
+	gpg -b -a libtomcrypt-$(VERSION).zip
 
 perlcritic:
 	perlcritic *.pl
 
-# $Source$
-# $Revision$
-# $Date$
+# git commit: $Format:%h$ $Format:%ai$ $Format:%ci$
