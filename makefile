@@ -203,9 +203,6 @@ src/headers/tomcrypt_mac.h src/headers/tomcrypt_macros.h src/headers/tomcrypt_ma
 src/headers/tomcrypt_misc.h src/headers/tomcrypt_pk.h src/headers/tomcrypt_pkcs.h \
 src/headers/tomcrypt_prng.h
 
-#Files left over from making the crypt.pdf.
-LEFTOVERS=*.dvi *.log *.aux *.toc *.idx *.ilg *.ind *.out *.lof
-
 #Compressed filenames
 COMPRESSED=crypt-$(VERSION).tar.bz2 crypt-$(VERSION).zip
 
@@ -380,47 +377,13 @@ clean:
 
 #build the doxy files (requires Doxygen, tetex and patience)
 doxygen:
-	doxygen $(silent_stdout)
+	$(MAKE) -C doc/ doxygen V=$(V)
 
-doxy: doxygen
-	cd doc/doxygen/latex ; ${MAKE} $(silent_stdout) ; mv -f refman.pdf ../../.
-	@echo The huge doxygen PDF should be available as doc/refman.pdf
+doxy:
+	$(MAKE) -C doc/ doxy V=$(V)
 
-#This builds the crypt.pdf file. Note that the rm -f *.pdf has been removed
-#from the clean command! This is because most people would like to keep the
-#nice pre-compiled crypt.pdf that comes with libtomcrypt! We only need to
-#delete it if we are rebuilding it.
-docs: doc/crypt.pdf
-doc/crypt.pdf: crypt.tex
-	rm -f doc/crypt.pdf $(LEFTOVERS)
-	cp crypt.tex crypt.bak
-	touch --reference=crypt.tex crypt.bak
-	(printf "%s" "\def\fixedpdfdate{"; date +'D:%Y%m%d%H%M%S%:z' -d @$$(stat --format=%Y crypt.tex) | sed "s/:\([0-9][0-9]\)$$/'\1'}/g") > crypt-deterministic.tex
-	printf "%s\n" "\pdfinfo{" >> crypt-deterministic.tex
-	printf "%s\n" "  /CreationDate (\fixedpdfdate)" >> crypt-deterministic.tex
-	printf "%s\n}\n" "  /ModDate (\fixedpdfdate)" >> crypt-deterministic.tex
-	cat crypt.tex >> crypt-deterministic.tex
-	mv crypt-deterministic.tex crypt.tex
-	touch --reference=crypt.bak crypt.tex
-	echo "hello" > crypt.ind
-	latex crypt $(silent_stdout)
-	latex crypt $(silent_stdout)
-	makeindex crypt.idx $(silent_stdout)
-	perl helper.pl --fixupind crypt.ind
-	pdflatex crypt $(silent_stdout)
-	sed -b -i 's,^/ID \[.*\]$$,/ID [<0> <0>],g' crypt.pdf
-	mv -ivf crypt.pdf doc/crypt.pdf
-	mv crypt.bak crypt.tex
-	rm -f $(LEFTOVERS)
-
-docdvi: crypt.tex
-	echo hello > crypt.ind
-	latex crypt $(silent_stdout)
-	latex crypt $(silent_stdout)
-	makeindex crypt.idx
-	perl helper.pl --fixupind crypt.ind
-	latex crypt $(silent_stdout)
-	latex crypt $(silent_stdout)
+docs:
+	$(MAKE) -C doc/ crypt.pdf V=$(V)
 
 zipup: doc/crypt.pdf
 	@git diff-index --quiet HEAD -- || ( echo "FAILURE: uncommited changes or not a git" && exit 1 )
