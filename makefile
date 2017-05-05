@@ -399,7 +399,8 @@ zipup: doc/crypt.pdf
 	gpg -b -a libtomcrypt-$(VERSION).tar.xz
 	gpg -b -a libtomcrypt-$(VERSION).zip
 
-perlcritic:
+codecheck:
+	perl helper.pl -a
 	perlcritic *.pl
 
 # git commit: $Format:%h$ $Format:%ai$
