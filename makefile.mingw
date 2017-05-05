@@ -241,13 +241,13 @@ $(LIBMAIN_D) $(LIBMAIN_I): $(OBJECTS)
 	$(STRIP) -S $(LIBMAIN_D)
 
 #Demo tools/utilities
-hashsum.exe: demos/hashsum.o $(LIBMAIN_S)
+hashsum: demos/hashsum.o testprof/common.o $(LIBMAIN_S)
 	$(CC) $? $(LTC_LDFLAGS) -o $@
-ltcrypt.exe: demos/ltcrypt.o $(LIBMAIN_S)
+crypt: demos/crypt.o testprof/common.o $(LIBMAIN_S)
 	$(CC) $? $(LTC_LDFLAGS) -o $@
-small.exe: demos/small.o $(LIBMAIN_S)
+small: demos/small.o testprof/common.o $(LIBMAIN_S)
 	$(CC) $? $(LTC_LDFLAGS) -o $@
-tv_gen.exe: demos/tv_gen.o $(LIBMAIN_S)
+tv_gen: demos/tv_gen.o testprof/common.o $(LIBMAIN_S)
 	$(CC) $? $(LTC_LDFLAGS) -o $@
 
 #Tests + timing tests

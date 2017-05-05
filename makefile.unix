@@ -243,13 +243,13 @@ $(LIBMAIN_S): $(OBJECTS)
 	$(RANLIB) $@
 
 #Demo tools/utilities
-hashsum: demos/hashsum.o $(LIBMAIN_S)
+hashsum: demos/hashsum.o testprof/common.o $(LIBMAIN_S)
 	$(CC) $? $(LTC_LDFLAGS) -o $@
-ltcrypt: demos/ltcrypt.o $(LIBMAIN_S)
+ltcrypt: demos/ltcrypt.o testprof/common.o $(LIBMAIN_S)
 	$(CC) $? $(LTC_LDFLAGS) -o $@
-small: demos/small.o $(LIBMAIN_S)
+small: demos/small.o testprof/common.o $(LIBMAIN_S)
 	$(CC) $? $(LTC_LDFLAGS) -o $@
-tv_gen: demos/tv_gen.o $(LIBMAIN_S)
+tv_gen: demos/tv_gen.o testprof/common.o $(LIBMAIN_S)
 	$(CC) $? $(LTC_LDFLAGS) -o $@
 
 #Tests + timing tests

@@ -85,11 +85,11 @@ endif
 
 # build the demos from a template
 define DEMO_template
-$(1): demos/$(1).o $$(LIBNAME)
+$(1): demos/$(1).o $$(LIBNAME) testprof/common.o
 ifneq ($V,1)
 	@echo "   * $${CC} $$@"
 endif
-	$${silent} $$(CC) $$(CFLAGS) $$< $$(LIB_PRE) $$(LIBNAME) $$(LIB_POST) $$(EXTRALIBS) -o $(1)
+	$${silent} $$(CC) $$(CFLAGS) $$< testprof/common.o $$(LIB_PRE) $$(LIBNAME) $$(LIB_POST) $$(EXTRALIBS) -o $(1)
 endef
 
 $(foreach demo, $(strip $(DEMOS)), $(eval $(call DEMO_template,$(demo))))
