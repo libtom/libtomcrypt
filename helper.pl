@@ -72,7 +72,7 @@ sub check_defines {
   my $cryp_c = read_file("src/misc/crypt/crypt.c");
   $cust_h =~ s|/\*.*?\*/||sg; # remove comments
   $cryp_c =~ s|/\*.*?\*/||sg; # remove comments
-  my %def = map { $_ => 1 } map { $_ =~ s/^\s*#define\s+(LTC_\S+).*$/$1/; $_ } grep { /^\s*#define\s+LTC_\S+/ } split /\n/, $cust_h;
+  my %def = map { $_ => 1 } map { my $x = $_; $x =~ s/^\s*#define\s+(LTC_\S+).*$/$1/; $x } grep { /^\s*#define\s+LTC_\S+/ } split /\n/, $cust_h;
   for my $d (sort keys %def) {
     next if $d =~ /^LTC_(DH\d+|ECC\d+|ECC_\S+|MPI|MUTEX_\S+\(x\)|NO_\S+)$/;
     warn "$d missing in src/misc/crypt/crypt.c\n" and $fails++ if $cryp_c !~ /\Q$d\E/;
@@ -86,7 +86,7 @@ sub check_hashes {
   my @descriptors;
   find({ wanted => sub { push @src, $_ if $_ =~ /\.c$/ }, no_chdir=>1 }, './src/hashes/');
   for my $f (@src) {
-    my @n = map { $_ =~ s/^.*?ltc_hash_descriptor\s+(\S+).*$/$1/; $_ } grep { $_ =~ /ltc_hash_descriptor/ } split /\n/, read_file($f);
+    my @n = map { my $x = $_; $x =~ s/^.*?ltc_hash_descriptor\s+(\S+).*$/$1/; $x } grep { $_ =~ /ltc_hash_descriptor/ } split /\n/, read_file($f);
     push @descriptors, @n if @n;
   }
   my $fails = 0;
@@ -236,12 +236,12 @@ sub process_makefiles {
   my @t = qw();
   find({ no_chdir => 1, wanted => sub { push @t, $_ if $_ =~ /(no_prng|test_driver|x86_prof|_tests?).c$/ } }, 'testprof');
 
-  my @o = sort ('src/ciphers/aes/aes_enc.o', map { $_ =~ s/\.c$/.o/; $_ } @c);
+  my @o = sort ('src/ciphers/aes/aes_enc.o', map { my $x = $_; $x =~ s/\.c$/.o/; $x } @c);
   my $var_o = prepare_variable("OBJECTS", @o);
   my $var_h = prepare_variable("HEADERS", (sort @h));
   (my $var_obj = $var_o) =~ s/\.o\b/.obj/sg;
 
-  my $var_to = prepare_variable("TOBJECTS", sort map { $_ =~ s/\.c$/.o/; $_ } @t);
+  my $var_to = prepare_variable("TOBJECTS", sort map { my $x = $_; $x =~ s/\.c$/.o/; $x } @t);
   (my $var_tobj = $var_to) =~ s/\.o\b/.obj/sg;
 
   my @ver_version = version_form_tomcrypt_h("src/headers/tomcrypt.h");
