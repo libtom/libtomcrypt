@@ -13,12 +13,6 @@ silent=@
 silent_stdout= > /dev/null
 endif
 
-%.o: %.c
-ifneq ($V,1)
-	@echo "   * ${CC} $@"
-endif
-	${silent} ${CC} ${CFLAGS} -c $< -o $@
-
 # ranlib tools
 ifndef RANLIB
 ifeq ($(PLATFORM), Darwin)
@@ -232,6 +226,12 @@ library: $(LIBNAME)
 $(OBJECTS): $(HEADERS)
 $(DOBJECTS): $(HEADERS) $(THEADERS)
 $(TOBJECTS): $(HEADERS) $(THEADERS)
+
+.c.o:
+ifneq ($V,1)
+	@echo "   * ${CC} $@"
+endif
+	${silent} ${CC} ${CFLAGS} -c $< -o $@
 
 $(LIBNAME): $(OBJECTS)
 ifneq ($V,1)
