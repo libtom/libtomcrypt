@@ -51,6 +51,11 @@ timing.exe
 *.idb
 *.pdb
 
+# Eclipse special files
+.project
+.cproject
+.settings/
+
 # oops ;) but we don't want them to appear in the repository...
 *.stackdump
 *.core
