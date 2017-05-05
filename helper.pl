@@ -287,6 +287,7 @@ sub die_usage {
          $0 --check-makefiles
          $0 --check-all
          $0 --update-makefiles
+         $0 --fixupind crypt.ind
 MARKER
 }
 
@@ -296,8 +297,16 @@ GetOptions( "s|check-source"     => \my $check_source,
             "m|check-makefiles"  => \my $check_makefiles,
             "a|check-all"        => \my $check_all,
             "u|update-makefiles" => \my $update_makefiles,
+            "f|fixupind=s"       => \my $fixupind,
             "h|help"             => \my $help
           ) or die_usage;
+
+if ($fixupind) {
+  my $txt = read_file($fixupind);
+  $txt =~ s/^([^\n]*\n)/$1\n\\addcontentsline{toc}{chapter}{Index}\n/s;
+  write_file($fixupind, $txt);
+  exit 0;
+}
 
 my $failure;
 $failure ||= check_source()       if $check_all || $check_source;

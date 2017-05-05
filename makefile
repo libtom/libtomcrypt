@@ -403,7 +403,7 @@ doc/crypt.pdf: crypt.tex
 	latex crypt $(silent_stdout)
 	latex crypt $(silent_stdout)
 	makeindex crypt.idx $(silent_stdout)
-	perl fixupind.pl
+	perl helper.pl --fixupind crypt.ind
 	pdflatex crypt $(silent_stdout)
 	sed -b -i 's,^/ID \[.*\]$$,/ID [<0> <0>],g' crypt.pdf
 	mv -ivf crypt.pdf doc/crypt.pdf
@@ -415,7 +415,7 @@ docdvi: crypt.tex
 	latex crypt $(silent_stdout)
 	latex crypt $(silent_stdout)
 	makeindex crypt.idx
-	perl fixupind.pl
+	perl helper.pl --fixupind crypt.ind
 	latex crypt $(silent_stdout)
 	latex crypt $(silent_stdout)
 
