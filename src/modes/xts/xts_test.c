@@ -17,7 +17,9 @@ static int _xts_test_accel_xts_encrypt(const unsigned char *pt, unsigned char *c
 {
    int ret;
    symmetric_xts xts;
-   void *orig;
+   int (*orig)(const unsigned char *, unsigned char *,
+               unsigned long , unsigned char *, symmetric_key *,
+               symmetric_key *);
 
    /* AES can be under rijndael or aes... try to find it */
    if ((xts.cipher = find_cipher("aes")) == -1) {
@@ -42,7 +44,9 @@ static int _xts_test_accel_xts_decrypt(const unsigned char *ct, unsigned char *p
 {
    int ret;
    symmetric_xts xts;
-   void *orig;
+   int (*orig)(const unsigned char *, unsigned char *,
+               unsigned long , unsigned char *, symmetric_key *,
+               symmetric_key *);
 
    /* AES can be under rijndael or aes... try to find it */
    if ((xts.cipher = find_cipher("aes")) == -1) {
