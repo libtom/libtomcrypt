@@ -11,11 +11,15 @@
 # ./test
 # make -f makefile.unix install
 #
-#OR:
+#Or:
 #
 # make -f makefile.unix CFLAGS="-O3 -DUSE_LTM -DLTM_DESC -I/path/to/libtommath" EXTRALIBS=/path/to/libtommath/libtommath.a all
 # ./test
 # make -f makefile.unix DESTDIR=/opt/libtom install
+#
+#Or if you are using Intel C compiler you might need something like:
+#
+# make -f makefile.unix CC=icc AR=xiar CFLAGS="-fast -DUSE_LTM -DLTM_DESC -I/path/to/libtommath" EXTRALIBS=/path/to/libtommath/libtommath.a all
 #
 
 #The following can be overridden from command line e.g. "make -f makefile.unix CC=gcc ARFLAGS=rcs"
