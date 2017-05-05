@@ -9,6 +9,8 @@
 
 #include <tomcrypt.h>
 
+#include "common.h"
+
 int usage(char *name)
 {
    int x;
@@ -20,74 +22,6 @@ int usage(char *name)
       printf("%s\n",cipher_descriptor[x].name);
    }
    exit(1);
-}
-
-void register_algs(void)
-{
-#ifdef LTC_RIJNDAEL
-  register_cipher (&aes_desc);
-#endif
-#ifdef LTC_BLOWFISH
-  register_cipher (&blowfish_desc);
-#endif
-#ifdef LTC_XTEA
-  register_cipher (&xtea_desc);
-#endif
-#ifdef LTC_RC5
-  register_cipher (&rc5_desc);
-#endif
-#ifdef LTC_RC6
-  register_cipher (&rc6_desc);
-#endif
-#ifdef LTC_SAFERP
-  register_cipher (&saferp_desc);
-#endif
-#ifdef LTC_TWOFISH
-  register_cipher (&twofish_desc);
-#endif
-#ifdef LTC_SAFER
-  register_cipher (&safer_k64_desc);
-  register_cipher (&safer_sk64_desc);
-  register_cipher (&safer_k128_desc);
-  register_cipher (&safer_sk128_desc);
-#endif
-#ifdef LTC_RC2
-  register_cipher (&rc2_desc);
-#endif
-#ifdef LTC_DES
-  register_cipher (&des_desc);
-  register_cipher (&des3_desc);
-#endif
-#ifdef LTC_CAST5
-  register_cipher (&cast5_desc);
-#endif
-#ifdef LTC_NOEKEON
-  register_cipher (&noekeon_desc);
-#endif
-#ifdef LTC_SKIPJACK
-  register_cipher (&skipjack_desc);
-#endif
-#ifdef LTC_KHAZAD
-  register_cipher (&khazad_desc);
-#endif
-#ifdef LTC_ANUBIS
-  register_cipher (&anubis_desc);
-#endif
-
-   if (register_hash(&sha256_desc) == -1) {
-      printf("Error registering LTC_SHA256\n");
-      exit(-1);
-   }
-
-   if (register_prng(&yarrow_desc) == -1) {
-      printf("Error registering yarrow PRNG\n");
-      exit(-1);
-   }
-
-   if (register_prng(&sprng_desc) == -1) {
-      printf("Error registering sprng PRNG\n");
-      exit(-1);
-   }
 }
 
 int main(int argc, char *argv[])

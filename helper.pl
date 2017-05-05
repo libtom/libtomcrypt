@@ -91,7 +91,7 @@ sub check_hashes {
   }
   my $fails = 0;
   for my $d (@descriptors) {
-    for my $f (qw{ demos/tv_gen.c demos/hashsum.c testprof/x86_prof.c }) {
+    for my $f (qw{ testprof/common.c }) {
       my $txt = read_file($f);
       warn "$d missing in $f\n" and $fails++ if $txt !~ /\Q$d\E/;
     }
@@ -234,7 +234,7 @@ sub process_makefiles {
   my @all = ();
   find({ no_chdir => 1, wanted => sub { push @all, $_ if -f $_ && $_ =~ /\.(c|h)$/  } }, 'src');
   my @t = qw();
-  find({ no_chdir => 1, wanted => sub { push @t, $_ if $_ =~ /(no_prng|test_driver|x86_prof|_tests?).c$/ } }, 'testprof');
+  find({ no_chdir => 1, wanted => sub { push @t, $_ if $_ =~ /(common|no_prng|test_driver|x86_prof|_tests?).c$/ } }, 'testprof');
 
   my @o = sort ('src/ciphers/aes/aes_enc.o', map { my $x = $_; $x =~ s/\.c$/.o/; $x } @c);
   my $var_o = prepare_variable("OBJECTS", @o);

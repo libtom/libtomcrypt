@@ -4,6 +4,8 @@
 
 #include <tomcrypt.h>
 
+#include "common.h"
+
 #ifdef USE_LTM
 /* Use libtommath as MPI provider */
 #elif defined(USE_TFM)
@@ -23,18 +25,10 @@
 #endif
 #endif
 
-/* enable stack testing */
-/* #define STACK_TEST */
-
-/* stack testing, define this if stack usage goes downwards [e.g. x86] */
-#define STACK_DOWN
-
 typedef struct {
     char *name, *prov, *req;
     int  (*entry)(void);
 } test_entry;
-
-extern prng_state yarrow_prng;
 
 void run_cmd(int res, int line, char *file, char *cmd, const char *algorithm);
 
@@ -83,10 +77,6 @@ extern int no_results;
 extern const struct ltc_prng_descriptor no_prng_desc;
 #endif
 
-void print_hex(const char* what, const void* v, const unsigned long l);
-#ifndef compare_testvector
-int compare_testvector(const void* is, const unsigned long is_len, const void* should, const unsigned long should_len, const char* what, int which);
-#endif
 int sorter(const void *a, const void *b);
 void tally_results(int type);
 ulong64 rdtsc (void);
@@ -97,7 +87,6 @@ ulong64 t_read(void);
 void init_timer(void);
 
 /* register default algs */
-void reg_algs(void);
 int time_keysched(void);
 int time_cipher(void);
 int time_cipher2(void);

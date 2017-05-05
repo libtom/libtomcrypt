@@ -39,7 +39,7 @@ int main(int argc, char **argv)
    char *single_test = NULL;
    ulong64 ts;
    long delta, dur = 0;
-   reg_algs();
+   register_algs();
 
    printf("build == %s\n%s\n", GIT_VERSION, crypt_build_settings);
 

@@ -4,7 +4,7 @@ int main(void)
 {
 
 init_timer();
-reg_algs();
+register_algs();
 
 #ifdef USE_LTM
    ltc_mp = ltm_desc;
