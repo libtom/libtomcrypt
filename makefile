@@ -436,4 +436,4 @@ zipup: doc/crypt.pdf
 perlcritic:
 	perlcritic *.pl
 
-# git commit: $Format:%h$ $Format:%ai$ $Format:%ci$
+# git commit: $Format:%h$ $Format:%ai$
