@@ -427,10 +427,10 @@ zipup: doc/crypt.pdf
 	git archive --format=tar --prefix=libtomcrypt-$(VERSION)/ HEAD | tar x
 	mkdir -p libtomcrypt-$(VERSION)/doc
 	cp doc/crypt.pdf libtomcrypt-$(VERSION)/doc/crypt.pdf
-	tar -cjf libtomcrypt-$(VERSION).tar.bz2 libtomcrypt-$(VERSION)
+	tar -cJf libtomcrypt-$(VERSION).tar.xz libtomcrypt-$(VERSION)
 	zip -9rq libtomcrypt-$(VERSION).zip libtomcrypt-$(VERSION)
 	rm -rf libtomcrypt-$(VERSION)
-	gpg -b -a libtomcrypt-$(VERSION).tar.bz2
+	gpg -b -a libtomcrypt-$(VERSION).tar.xz
 	gpg -b -a libtomcrypt-$(VERSION).zip
 
 perlcritic:
