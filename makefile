@@ -373,7 +373,6 @@ clean:
 	rm -rf doc/doxygen
 	rm -f `find . -type f -name "*.pdf" | grep -FL crypt.pdf | xargs`
 	rm -f *.txt
-	cd testprof ; $(MAKE) clean
 
 #build the doxy files (requires Doxygen, tetex and patience)
 doxygen:
