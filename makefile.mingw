@@ -7,13 +7,11 @@
 #
 # gmake -f makefile.mingw all
 # test.exe
-# gmake -f makefile.mingw install
+# gmake -f makefile.mingw DESTDIR=c:\devel\libtom install
 #
 #OR:
 #
 # gmake -f makefile.mingw CFLAGS="-O3 -DUSE_LTM -DLTM_DESC -Ic:/path/to/libtommath" EXTRALIBS="-Lc:/path/to/libtommath -ltommath" all
-# test.exe
-# gmake -f makefile.mingw DESTDIR=c:\devel\libtom install
 #
 
 #The following can be overridden from command line e.g. make -f makefile.mingw CC=gcc ARFLAGS=rcs
@@ -254,24 +252,26 @@ $(LIBMAIN_D) $(LIBMAIN_I): $(OBJECTS)
 	$(STRIP) -S $(LIBMAIN_D)
 
 #Demo tools/utilities
-hashsum: demos/hashsum.o $(LIBMAIN_S)
+hashsum.exe: demos/hashsum.o $(LIBMAIN_S)
 	$(CC) $? $(LTC_LDFLAGS) -o $@
-crypt: demos/crypt.o $(LIBMAIN_S)
+ltcrypt.exe: demos/ltcrypt.o $(LIBMAIN_S)
 	$(CC) $? $(LTC_LDFLAGS) -o $@
-small: demos/small.o $(LIBMAIN_S)
+small.exe: demos/small.o $(LIBMAIN_S)
 	$(CC) $? $(LTC_LDFLAGS) -o $@
-tv_gen: demos/tv_gen.o $(LIBMAIN_S)
+tv_gen.exe: demos/tv_gen.o $(LIBMAIN_S)
 	$(CC) $? $(LTC_LDFLAGS) -o $@
 
 #Tests + timing tests
-timing: demos/timing.o $(LIBTEST_S) $(LIBMAIN_S)
+timing.exe: demos/timing.o $(LIBTEST_S) $(LIBMAIN_S)
 	$(CC) $? $(LTC_LDFLAGS) -o $@
 	@echo NOTICE: start the tests by: timing.exe
-test: demos/test.o $(LIBMAIN_S) $(LIBTEST_S)
+test.exe: demos/test.o $(LIBMAIN_S) $(LIBTEST_S)
 	$(CC) $? $(LTC_LDFLAGS) -o $@
 	@echo NOTICE: start the tests by: test.exe
 
-all: $(LIBMAIN_S) $(LIBMAIN_I) $(LIBMAIN_D) $(LIBTEST_S) hashsum crypt small tv_gen timing test
+all: $(LIBMAIN_S) $(LIBMAIN_I) $(LIBMAIN_D) $(LIBTEST_S) hashsum.exe ltcrypt.exe small.exe tv_gen.exe timing.exe test.exe
+
+test: test.exe
 
 clean:
 	@cmd /c del /Q /S *.o *.a *.exe *.dll 2>nul

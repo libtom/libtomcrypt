@@ -262,7 +262,7 @@ sub process_makefiles {
   # update OBJECTS + HEADERS in makefile*
   for my $m (qw/ makefile makefile.shared makefile.unix makefile.mingw makefile.msvc makefile.include /) {
     my $old = read_file($m);
-    my $new = $m eq 'makefile.msvc' ? patch_makefile($old, $var_obj, $var_h, $var_to, @ver_version)
+    my $new = $m eq 'makefile.msvc' ? patch_makefile($old, $var_obj, $var_h, $var_tobj, @ver_version)
                                     : patch_makefile($old, $var_o, $var_h, $var_to, @ver_version);
     if ($old ne $new) {
       write_file($m, $new) if $write;
