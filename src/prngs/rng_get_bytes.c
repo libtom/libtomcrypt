@@ -14,7 +14,7 @@
    portable way to get secure random bits to feed a PRNG (Tom St Denis)
 */
 
-#ifdef LTC_DEVRANDOM
+#if defined(LTC_DEVRANDOM) && !defined(_WIN32)
 /* on *NIX read /dev/random */
 static unsigned long rng_nix(unsigned char *buf, unsigned long len,
                              void (*callback)(void))
