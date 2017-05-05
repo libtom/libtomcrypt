@@ -85,8 +85,8 @@ endif
 
 
 #List of demo objects
-DSOURCES != ls demos/*.c
-DOBJECTS = ${DSOURCES:.c=.o}
+DSOURCES = $(wildcard demos/*.c)
+DOBJECTS = $(DSOURCES:.c=.o)
 
 #List of testprof headers
 THEADERS != ls testprof/*.h
