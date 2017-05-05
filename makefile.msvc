@@ -186,7 +186,7 @@ src/ciphers/aes/aes_enc.obj: src/ciphers/aes/aes.c src/ciphers/aes/aes_tab.c
 
 library: $(OBJECTS) $(TOBJECTS)
 	lib /out:tomcrypt.lib $(OBJECTS)
-        lib /out:tomcrypt_prof.lib $(TOBJECTS)
+	lib /out:tomcrypt_prof.lib $(TOBJECTS)
 
 tv_gen: demos/tv_gen.c library
 	cl $(CFLAGS) demos/tv_gen.c tomcrypt.lib advapi32.lib $(EXTRALIBS)

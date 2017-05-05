@@ -30,7 +30,7 @@ endif
 
 
 # Compilation flags. Note the += does not write over the user's CFLAGS!
-CFLAGS += -I./testprof/ -I./src/headers/ -Wall -Wsign-compare -Wshadow -DLTC_SOURCE
+CFLAGS += -I./src/headers/ -Wall -Wsign-compare -Wshadow -DLTC_SOURCE
 
 ifdef OLD_GCC
 CFLAGS += -W
@@ -83,6 +83,13 @@ ifneq ($(GIT_VERSION),)
 CFLAGS += -DGIT_VERSION=\"$(GIT_VERSION)\"
 endif
 
+
+#List of demo objects
+DSOURCES != ls demos/*.c
+DOBJECTS = ${DSOURCES:.c=.o}
+
+#List of testprof headers
+THEADERS != ls testprof/*.h
 
 TIMING=timing
 TEST=test

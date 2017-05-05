@@ -203,7 +203,7 @@ src/headers/tomcrypt_prng.h
 #END_INS
 
 #The default rule for make builds the libtomcrypt library.
-default:library
+default: library
 
 #ciphers come in two flavours... enc+dec and enc
 src/ciphers/aes/aes_enc.o: src/ciphers/aes/aes.c src/ciphers/aes/aes_tab.c
@@ -223,7 +223,12 @@ library: $(LIBNAME)
 
 #Dependencies on *.h
 $(OBJECTS): $(HEADERS)
-$(TOBJECTS): $(HEADERS) testprof/tomcrypt_test.h
+$(DOBJECTS): $(HEADERS) $(THEADERS)
+$(TOBJECTS): $(HEADERS) $(THEADERS)
+
+#SPECIAL: demo- and test-objects required include-path "testprof"
+$(DOBJECTS): CFLAGS += -Itestprof
+$(TOBJECTS): CFLAGS += -Itestprof
 
 .c.o:
 	$(LTCOMPILE) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $@ -c $<

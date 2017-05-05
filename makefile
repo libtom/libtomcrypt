@@ -225,12 +225,16 @@ src/hashes/sha2/sha512_224.o: src/hashes/sha2/sha512.c src/hashes/sha2/sha512_22
 src/hashes/sha2/sha512_256.o: src/hashes/sha2/sha512.c src/hashes/sha2/sha512_256.c
 src/hashes/sha2/sha256.o: src/hashes/sha2/sha256.c src/hashes/sha2/sha224.c
 
+$(DOBJECTS): CFLAGS += -Itestprof
+$(TOBJECTS): CFLAGS += -Itestprof
+
 #This rule makes the libtomcrypt library.
 library: $(LIBNAME)
 
 #Dependencies on *.h
 $(OBJECTS): $(HEADERS)
-$(TOBJECTS): $(HEADERS) testprof/tomcrypt_test.h
+$(DOBJECTS): $(HEADERS) $(THEADERS)
+$(TOBJECTS): $(HEADERS) $(THEADERS)
 
 $(LIBNAME): $(OBJECTS)
 ifneq ($V,1)
