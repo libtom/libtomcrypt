@@ -263,11 +263,11 @@ timing: library $(LIBTEST) $(TIMINGS)
 
 # build the demos from a template
 define DEMO_template
-$(1): demos/$(1).o library
+$(1): demos/$(1).o $$(LIBNAME)
 ifneq ($V,1)
 	@echo "   * $${CC} $$@"
 endif
-	$$(LT) --mode=link --tag=CC $$(CC) $$(CFLAGS) $$(CPPFLAGS) $$(LDFLAGS) -o $(1) $$< $$(LIBNAME) $$(EXTRALIBS)
+	$$(LT) --mode=link --tag=CC $$(CC) $$(CFLAGS) $$(CPPFLAGS) $$(LDFLAGS) $$^ $$(EXTRALIBS) -o $(1)
 endef
 
 $(foreach demo, $(strip $(DEMOS)), $(eval $(call DEMO_template,$(demo))))

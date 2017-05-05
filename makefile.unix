@@ -258,20 +258,20 @@ $(LIBMAIN_S): $(OBJECTS)
 
 #Demo tools/utilities
 hashsum: demos/hashsum.o $(LIBMAIN_S)
-	$(CC) demos/hashsum.o $(LIBMAIN_S) $(LTC_LDFLAGS) -o $@
+	$(CC) $? $(LTC_LDFLAGS) -o $@
 ltcrypt: demos/ltcrypt.o $(LIBMAIN_S)
-	$(CC) demos/ltcrypt.o $(LIBMAIN_S) $(LTC_LDFLAGS) -o $@
+	$(CC) $? $(LTC_LDFLAGS) -o $@
 small: demos/small.o $(LIBMAIN_S)
-	$(CC) demos/small.o $(LIBMAIN_S) $(LTC_LDFLAGS) -o $@
+	$(CC) $? $(LTC_LDFLAGS) -o $@
 tv_gen: demos/tv_gen.o $(LIBMAIN_S)
-	$(CC) demos/tv_gen.o $(LIBMAIN_S) $(LTC_LDFLAGS) -o $@
+	$(CC) $? $(LTC_LDFLAGS) -o $@
 
 #Tests + timing tests
 timing: demos/timing.o $(LIBTEST_S) $(LIBMAIN_S)
-	$(CC) demos/timing.o $(LIBTEST_S) $(LIBMAIN_S) $(LTC_LDFLAGS) -o $@
+	$(CC) $? $(LTC_LDFLAGS) -o $@
 	@echo "NOTICE: start the timing tests by: ./timing"
-test: demos/test.o $(LIBMAIN_S) $(LIBTEST_S)
-	$(CC) demos/test.o $(LIBTEST_S) $(LIBMAIN_S) $(LTC_LDFLAGS) -o $@
+test: demos/test.o $(LIBTEST_S) $(LIBMAIN_S)
+	$(CC) $? $(LTC_LDFLAGS) -o $@
 	@echo "NOTICE: start the tests by: ./test"
 
 all: $(LIBMAIN_S) $(LIBTEST_S) hashsum ltcrypt small tv_gen timing test
