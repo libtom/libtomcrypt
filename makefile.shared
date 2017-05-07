@@ -274,9 +274,7 @@ endef
 
 $(foreach demo, $(strip $(DEMOS)), $(eval $(call DEMO_template,$(demo))))
 
-bins: $(USEFUL_DEMOS)
-
-all_test: test tv_gen $(DEMOS)
+include makefile.common
 
 # $Source$
 # $Revision$

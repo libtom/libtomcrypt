@@ -273,9 +273,6 @@ endef
 
 $(foreach demo, $(strip $(DEMOS)), $(eval $(call DEMO_template,$(demo))))
 
-bins: $(USEFUL_DEMOS)
-
-all_test: test tv_gen $(DEMOS)
 ifeq ($(COVERAGE),1)
 all_test: LIB_PRE = -Wl,--whole-archive
 all_test: LIB_POST = -Wl,--no-whole-archive
@@ -307,9 +304,6 @@ install_test: $(LIBTEST)
 	install -d $(INCPATH)
 	install -m 644 $(LIBTEST) $(LIBPATH)
 	install -m 644 testprof/tomcrypt_test.h $(INCPATH)
-
-install_hooks:
-	for s in `ls hooks/`; do ln -s ../../hooks/$$s .git/hooks/$$s; done
 
 profile:
 	CFLAGS="$(CFLAGS) -fprofile-generate" $(MAKE) timing EXTRALIBS="$(EXTRALIBS) -lgcov"
@@ -345,61 +339,9 @@ coverage: LIB_POST = -Wl,--no-whole-archive
 coverage: test
 	./test
 
-
 # cleans everything - coverage output and standard 'clean'
 cleancov: cleancov-clean clean
 
-#This rule cleans the source tree of all compiled code, not including the pdf
-#documentation.
-clean:
-	rm -f `find . -type f -name "*.o" | xargs`
-	rm -f `find . -type f -name "*.lo"  | xargs`
-	rm -f `find . -type f -name "*.a" | xargs`
-	rm -f `find . -type f -name "*.la"  | xargs`
-	rm -f `find . -type f -name "*.obj" | xargs`
-	rm -f `find . -type f -name "*.lib" | xargs`
-	rm -f `find . -type f -name "*.exe" | xargs`
-	rm -f `find . -type f -name "*.dll" | xargs`
-	rm -f `find . -type f -name "*.so" | xargs`
-	rm -f `find . -type f -name "*.gcov" | xargs`
-	rm -f `find . -type f -name "*.gcda" | xargs`
-	rm -f `find . -type f -name "*.gcno" | xargs`
-	rm -f `find . -type f -name "*.il" | xargs`
-	rm -f `find . -type f -name "*.dyn" | xargs`
-	rm -f `find . -type f -name "*.dpi" | xargs`
-	rm -rf `find . -type d -name "*.libs" | xargs`
-	rm -f crypt.aux  crypt.dvi  crypt.idx  crypt.ilg  crypt.ind  crypt.log crypt.toc
-	rm -f $(TIMING) $(TEST) $(DEMOS)
-	rm -rf doc/doxygen
-	rm -f `find . -type f -name "*.pdf" | grep -FL crypt.pdf | xargs`
-	rm -f *.txt
-
-#build the doxy files (requires Doxygen, tetex and patience)
-doxygen:
-	$(MAKE) -C doc/ doxygen V=$(V)
-
-doxy:
-	$(MAKE) -C doc/ doxy V=$(V)
-
-docs:
-	$(MAKE) -C doc/ crypt.pdf V=$(V)
-
-zipup: doc/crypt.pdf
-	@git diff-index --quiet HEAD -- || ( echo "FAILURE: uncommited changes or not a git" && exit 1 )
-	@perl helper.pl --check-all || ( echo "FAILURE: helper.pl --check-all errors" && exit 1 )
-	rm -rf libtomcrypt-$(VERSION) libtomcrypt-$(VERSION).*
-	# files/dirs excluded from "git archive" are defined in .gitattributes
-	git archive --format=tar --prefix=libtomcrypt-$(VERSION)/ HEAD | tar x
-	mkdir -p libtomcrypt-$(VERSION)/doc
-	cp doc/crypt.pdf libtomcrypt-$(VERSION)/doc/crypt.pdf
-	tar -cJf libtomcrypt-$(VERSION).tar.xz libtomcrypt-$(VERSION)
-	zip -9rq libtomcrypt-$(VERSION).zip libtomcrypt-$(VERSION)
-	rm -rf libtomcrypt-$(VERSION)
-	gpg -b -a libtomcrypt-$(VERSION).tar.xz
-	gpg -b -a libtomcrypt-$(VERSION).zip
-
-codecheck:
-	perl helper.pl -a
-	perlcritic *.pl
+include makefile.common
 
 # git commit: $Format:%h$ $Format:%ai$
