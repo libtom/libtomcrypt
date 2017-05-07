@@ -89,7 +89,7 @@ DSOURCES = $(wildcard demos/*.c)
 DOBJECTS = $(DSOURCES:.c=.o)
 
 #List of testprof headers
-THEADERS != ls testprof/*.h
+THEADERS = $(wildcard testprof/*.h)
 
 TIMING=timing
 TEST=test

@@ -197,9 +197,6 @@ src/headers/tomcrypt_mac.h src/headers/tomcrypt_macros.h src/headers/tomcrypt_ma
 src/headers/tomcrypt_misc.h src/headers/tomcrypt_pk.h src/headers/tomcrypt_pkcs.h \
 src/headers/tomcrypt_prng.h
 
-#Compressed filenames
-COMPRESSED=crypt-$(VERSION).tar.bz2 crypt-$(VERSION).zip
-
 #The default rule for make builds the libtomcrypt library.
 default:library
 
@@ -253,13 +250,13 @@ ifneq ($V,1)
 endif
 	${silent} $(RANLIB) $@
 
-timing: library $(LIBTEST) $(TIMINGS)
+timing: $(LIBNAME) $(LIBTEST) $(TIMINGS)
 ifneq ($V,1)
 	@echo "   * ${CC} $@"
 endif
 	${silent} $(CC) $(LDFLAGS) $(TIMINGS) $(LIBTEST) $(LIB_PRE) $(LIBNAME) $(LIB_POST) $(EXTRALIBS) -o $(TIMING)
 
-test: library $(LIBTEST) $(TESTS)
+test: $(LIBNAME) $(LIBTEST) $(TESTS)
 ifneq ($V,1)
 	@echo "   * ${CC} $@"
 endif
@@ -267,7 +264,7 @@ endif
 
 # build the demos from a template
 define DEMO_template
-$(1): demos/$(1).o library
+$(1): demos/$(1).o $$(LIBNAME)
 ifneq ($V,1)
 	@echo "   * $${CC} $$@"
 endif

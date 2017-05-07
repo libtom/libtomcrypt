@@ -203,7 +203,7 @@ src/headers/tomcrypt_prng.h
 #END_INS
 
 #The default rule for make builds the libtomcrypt library.
-default: library
+default: $(LIBNAME)
 
 #ciphers come in two flavours... enc+dec and enc
 src/ciphers/aes/aes_enc.o: src/ciphers/aes/aes.c src/ciphers/aes/aes_tab.c
@@ -257,10 +257,10 @@ install_test: $(LIBTEST)
 	install -m 644 testprof/tomcrypt_test.h $(INCPATH)
 	$(LT) --mode=install install -c $(LIBTEST) $(LIBPATH)/$(LIBTEST)
 
-test: library $(LIBTEST) $(TESTS)
+test: $(LIBNAME) $(LIBTEST) $(TESTS)
 	$(LT) --mode=link --tag=CC $(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $(TEST) $(TESTS) $(LIBTEST) $(LIBNAME) $(EXTRALIBS)
 
-timing: library $(LIBTEST) $(TIMINGS)
+timing: $(LIBNAME) $(LIBTEST) $(TIMINGS)
 	$(LT) --mode=link --tag=CC $(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $(TIMING) $(TIMINGS) $(LIBTEST) $(LIBNAME) $(EXTRALIBS)
 
 # build the demos from a template
@@ -273,6 +273,8 @@ endif
 endef
 
 $(foreach demo, $(strip $(DEMOS)), $(eval $(call DEMO_template,$(demo))))
+
+bins: $(USEFUL_DEMOS)
 
 all_test: test tv_gen $(DEMOS)
 
