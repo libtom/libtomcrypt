@@ -290,18 +290,20 @@ endif
 ifndef NODOCS
 install: library docs
 else
-install: library $(USEFUL_DEMOS)
+install: library
 endif
 	install -d $(LIBPATH)
 	install -d $(INCPATH)
-	install -d $(BINPATH)
 	install -m 644 $(LIBNAME) $(LIBPATH)
 	install -m 644 $(HEADERS) $(INCPATH)
-	install -m 644 $(USEFUL_DEMOS) $(BINPATH)
 ifndef NODOCS
 	install -d $(DATAPATH)
 	install -m 644 doc/crypt.pdf $(DATAPATH)
 endif
+
+install_bins: $(USEFUL_DEMOS)
+	install -d $(BINPATH)
+	install -m 775 $(USEFUL_DEMOS) $(BINPATH)
 
 install_test: $(LIBTEST)
 	install -d $(LIBPATH)
