@@ -46,7 +46,7 @@ fi
 if [[ "${0%% *}" == "./${0##*/}" ]]; then
    make lcov-single
 else
-   cpp-coveralls -e 'demos/' -e 'testprof/' -e 'notes/' -e 'src/headers/'
+   bash <(curl -s https://codecov.io/bash)
 fi
 
 exit 0
