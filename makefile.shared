@@ -18,18 +18,13 @@ endif
 LTCOMPILE = $(LT) --mode=compile --tag=CC $(CC)
 INSTALL_CMD = $(LT) --mode=install install
 
+
 #Output filenames for various targets.
-ifndef LIBTEST_S
-   LIBTEST_S=libtomcrypt_prof.a
-endif
 ifndef LIBTEST
    LIBTEST=libtomcrypt_prof.la
 endif
 ifndef LIBNAME
    LIBNAME=libtomcrypt.la
-endif
-ifndef LIBNAME_S
-   LIBNAME_S=libtomcrypt.a
 endif
 
 #ciphers come in two flavours... enc+dec and enc

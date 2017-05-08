@@ -22,8 +22,7 @@ doxy: doxygen
 #from the clean command! This is because most people would like to keep the
 #nice pre-compiled crypt.pdf that comes with libtomcrypt! We only need to
 #delete it if we are rebuilding it.
-.PHONY: crypt.pdf
-crypt.pdf: crypt.tex
+docs crypt.pdf: crypt.tex
 	rm -f crypt.pdf $(LEFTOVERS)
 	cp crypt.tex crypt.bak
 	touch -r crypt.tex crypt.bak
@@ -52,3 +51,7 @@ docdvi: crypt.tex
 	perl ../helper.pl --fixupind crypt.ind
 	latex crypt $(silent_stdout)
 	latex crypt $(silent_stdout)
+
+clean:
+	rm -f $(LEFTOVERS)
+	rm -rf doxygen/

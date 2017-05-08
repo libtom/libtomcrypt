@@ -2,7 +2,7 @@
 # Include makefile for libtomcrypt
 #
 
-# The version
+# The version - BEWARE: VERSION and VERSION_LT are updated via ./updatemakes.sh
 VERSION=1.17
 # http://www.gnu.org/software/libtool/manual/html_node/Updating-version-info.html
 VERSION_LT=0:117

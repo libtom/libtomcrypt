@@ -9,13 +9,10 @@ bins: $(USEFUL_DEMOS)
 all_test: test tv_gen $(DEMOS)
 
 #build the doxy files (requires Doxygen, tetex and patience)
-doxygen:
-	$(MAKE) -C doc/ doxygen V=$(V)
+doxygen doxy docs:
+	$(MAKE) -C doc/ $@ V=$(V)
 
-doxy:
-	$(MAKE) -C doc/ doxy V=$(V)
-
-docs:
+doc/crypt.pdf:
 	$(MAKE) -C doc/ crypt.pdf V=$(V)
 
 
@@ -38,7 +35,7 @@ install_all: install install_bins install_docs install_test
 	install -m 644 testprof/tomcrypt_test.h $(INCPATH)
 	$(INSTALL_CMD) -m 644 $(LIBTEST) $(LIBPATH)
 
-install_docs: docs
+install_docs: doc/crypt.pdf
 	install -d $(DATAPATH)
 	install -m 644 doc/crypt.pdf $(DATAPATH)
 
@@ -48,28 +45,26 @@ install_hooks:
 #This rule cleans the source tree of all compiled code, not including the pdf
 #documentation.
 clean:
-	rm -f `find . -type f -name "*.o" | xargs`
-	rm -f `find . -type f -name "*.lo"  | xargs`
-	rm -f `find . -type f -name "*.a" | xargs`
-	rm -f `find . -type f -name "*.la"  | xargs`
-	rm -f `find . -type f -name "*.obj" | xargs`
-	rm -f `find . -type f -name "*.lib" | xargs`
-	rm -f `find . -type f -name "*.exe" | xargs`
-	rm -f `find . -type f -name "*.dll" | xargs`
-	rm -f `find . -type f -name "*.so" | xargs`
-	rm -f `find . -type f -name "*.gcov" | xargs`
-	rm -f `find . -type f -name "*.gcda" | xargs`
-	rm -f `find . -type f -name "*.gcno" | xargs`
-	rm -f `find . -type f -name "*.il" | xargs`
-	rm -f `find . -type f -name "*.dyn" | xargs`
-	rm -f `find . -type f -name "*.dpi" | xargs`
-	rm -rf `find . -type d -name "*.libs" | xargs`
-	rm -f crypt.aux  crypt.dvi  crypt.idx  crypt.ilg  crypt.ind  crypt.log crypt.toc
+	find . -type f    -name "*.o"   \
+               -o -name "*.lo"  \
+               -o -name "*.a"   \
+               -o -name "*.la"  \
+               -o -name "*.obj" \
+               -o -name "*.lib" \
+               -o -name "*.exe" \
+               -o -name "*.dll" \
+               -o -name "*.so"  \
+               -o -name "*.gcov"\
+               -o -name "*.gcda"\
+               -o -name "*.gcno"\
+               -o -name "*.il"  \
+               -o -name "*.dyn" \
+               -o -name "*.dpi"  | xargs rm -f
 	rm -f $(TIMING) $(TEST) $(DEMOS)
-	rm -rf doc/doxygen
-	rm -f `find . -type f -name "*.pdf" | grep -FL crypt.pdf | xargs`
-	rm -f *.txt
+	rm -f *_tv.txt
 	rm -f *.pc
+	rm -rf `find . -type d -name "*.libs" | xargs`
+	$(MAKE) -C doc/ clean
 
 zipup: docs
 	@git diff-index --quiet HEAD -- || ( echo "FAILURE: uncommited changes or not a git" && exit 1 )

@@ -217,7 +217,7 @@ sub patch_makefile {
 sub version_form_tomcrypt_h {
   my $h = read_file(shift);
   if ($h =~ /\n#define\s*SCRYPT\s*"([0-9]+)\.([0-9]+)"/s) {
-    return "VERSION_MAJ=$1", "VERSION_MIN=$2", "VERSION=$1.$2", "VERSION_LT=0:$1$2";
+    return "VERSION=$1.$2", "VERSION_LT=0:$1$2";
   }
   else {
     die "#define SCRYPT not found in tomcrypt.h";
