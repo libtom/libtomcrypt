@@ -32,7 +32,7 @@ CFLAGS    = -O2 -DUSE_LTM -DLTM_DESC -I../libtommath
 EXTRALIBS = ../libtommath/libtommath.a
 
 #Compilation flags
-LTC_CFLAGS  = $(CFLAGS) -Isrc/headers -DLTC_SOURCE
+LTC_CFLAGS  = $(CFLAGS) -Isrc/headers -Itestprof -DLTC_SOURCE
 LTC_LDFLAGS = $(LDFLAGS) $(EXTRALIBS)
 VERSION=1.17
 
@@ -207,8 +207,6 @@ src/headers/tomcrypt_mac.h src/headers/tomcrypt_macros.h src/headers/tomcrypt_ma
 src/headers/tomcrypt_misc.h src/headers/tomcrypt_pk.h src/headers/tomcrypt_pkcs.h \
 src/headers/tomcrypt_prng.h
 
-THEADERS != ls testprof/*.h
-
 #The default rule for make builds the libtomcrypt.a library (static)
 default: library
 
@@ -225,21 +223,12 @@ src/hashes/sha2/sha512_224.o: src/hashes/sha2/sha512.c src/hashes/sha2/sha512_22
 src/hashes/sha2/sha512_256.o: src/hashes/sha2/sha512.c src/hashes/sha2/sha512_256.c
 src/hashes/sha2/sha256.o: src/hashes/sha2/sha256.c src/hashes/sha2/sha224.c
 
-#List of demo objects (only used to create a special rule to extend LTC_CFLAGS)
-DSOURCES != ls demos/*.c
-DOBJECTS = ${DSOURCES:.c=.o}
-
 #This rule makes the libtomcrypt library.
 library: $(LIBMAIN_S)
 
 #Dependencies on *.h
 $(OBJECTS): $(HEADERS)
-$(DOBJECTS): $(HEADERS) $(THEADERS)
-$(TOBJECTS): $(HEADERS) $(THEADERS)
-
-#SPECIAL: demo- and test-objects required include-path "testprof"
-$(DOBJECTS): LTC_CFLAGS += -Itestprof
-$(TOBJECTS): LTC_CFLAGS += -Itestprof
+$(TOBJECTS): $(HEADERS) testprof/tomcrypt_test.h
 
 #This is necessary for compatibility with BSD make (namely on OpenBSD)
 .SUFFIXES: .o .c
