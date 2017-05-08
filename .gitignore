@@ -70,6 +70,7 @@ timing.exe
 *.gcda
 *.gcno
 *.gcov
+libtomcrypt.pc
 
 coverage/
 coverage*.info

@@ -244,7 +244,7 @@ install: $(LIBNAME)
 	install -d $(INCPATH)
 	$(LT) --mode=install install -c $(LIBNAME) $(LIBPATH)/$(LIBNAME)
 	install -m 644 $(HEADERS) $(INCPATH)
-	sed -e 's,^prefix=.*,prefix=$(DESTDIR),' -e 's,^Version:.*,Version: $(VERSION),' libtomcrypt.pc.in > $(LIBPATH)/pkgconfig/libtomcrypt.pc
+	sed -e 's,^prefix=.*,prefix=$(DESTDIR),' -e 's,^Version:.*,Version: $(VERSION),' libtomcrypt.pc.in > libtomcrypt.pc
 	install -m 644 libtomcrypt.pc $(LIBPATH)/pkgconfig/libtomcrypt.pc
 
 install_bins: $(USEFUL_DEMOS)
