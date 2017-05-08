@@ -1,5 +1,9 @@
 #common make targets shared over multiple makefiles
 
+ifndef INSTALL_CMD
+$(error your makefile must define INSTALL_CMD)
+endif
+
 bins: $(USEFUL_DEMOS)
 
 all_test: test tv_gen $(DEMOS)
@@ -13,6 +17,30 @@ doxy:
 
 docs:
 	$(MAKE) -C doc/ crypt.pdf V=$(V)
+
+
+install_all: install install_bins install_docs install_test
+
+
+.common_install: $(LIBNAME)
+	install -d $(INCPATH)
+	install -d $(LIBPATH)
+	$(INSTALL_CMD) -m 644 $(LIBNAME) $(LIBPATH)/$(LIBNAME)
+	install -m 644 $(HEADERS) $(INCPATH)
+
+.common_install_bins: $(USEFUL_DEMOS)
+	install -d $(BINPATH)
+	$(INSTALL_CMD) -m 775 $(USEFUL_DEMOS) $(BINPATH)
+
+.common_install_test: $(LIBTEST)
+	install -d $(LIBPATH)
+	install -d $(INCPATH)
+	install -m 644 testprof/tomcrypt_test.h $(INCPATH)
+	$(INSTALL_CMD) -m 644 $(LIBTEST) $(LIBPATH)
+
+install_docs: docs
+	install -d $(DATAPATH)
+	install -m 644 doc/crypt.pdf $(DATAPATH)
 
 install_hooks:
 	for s in `ls hooks/`; do ln -s ../../hooks/$$s .git/hooks/$$s; done

@@ -21,6 +21,8 @@ else
 RANLIB:=$(PREFIX)ranlib
 endif
 endif
+INSTALL_CMD = install
+
 
 #Output filenames for various targets.
 ifndef LIBNAME
@@ -281,29 +283,11 @@ endif
 #This rule installs the library and the header files. This must be run
 #as root in order to have a high enough permission to write to the correct
 #directories and to set the owner and group to root.
-ifndef NODOCS
-install: library docs
-else
-install: library
-endif
-	install -d $(LIBPATH)
-	install -d $(INCPATH)
-	install -m 644 $(LIBNAME) $(LIBPATH)
-	install -m 644 $(HEADERS) $(INCPATH)
-ifndef NODOCS
-	install -d $(DATAPATH)
-	install -m 644 doc/crypt.pdf $(DATAPATH)
-endif
+install: .common_install
 
-install_bins: $(USEFUL_DEMOS)
-	install -d $(BINPATH)
-	install -m 775 $(USEFUL_DEMOS) $(BINPATH)
+install_bins: .common_install_bins
 
-install_test: $(LIBTEST)
-	install -d $(LIBPATH)
-	install -d $(INCPATH)
-	install -m 644 $(LIBTEST) $(LIBPATH)
-	install -m 644 testprof/tomcrypt_test.h $(INCPATH)
+install_test: .common_install_test
 
 profile:
 	CFLAGS="$(CFLAGS) -fprofile-generate" $(MAKE) timing EXTRALIBS="$(EXTRALIBS) -lgcov"
