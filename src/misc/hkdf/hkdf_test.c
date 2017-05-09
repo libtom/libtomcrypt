@@ -265,7 +265,7 @@ int hkdf_test(void)
                         cases[i].info, cases[i].info_l,
                         cases[i].IKM,   cases[i].IKM_l,
                         OKM, cases[i].OKM_l)) != CRYPT_OK) {
-#if 0
+#ifdef LTC_TEST_DBG
             printf("LTC_HKDF-%s test #%d, %s\n", cases[i].Hash, i, error_to_string(err));
 #endif
             return err;
@@ -273,7 +273,7 @@ int hkdf_test(void)
 
         if(XMEMCMP(OKM, cases[i].OKM, (size_t)cases[i].OKM_l) != 0)  {
             failed++;
-#if 0
+#ifdef LTC_TEST_DBG
           {
             unsigned int j;
             printf("\nLTC_HKDF-%s test #%d:\n", cases[i].Hash, cases[i].num);
@@ -288,10 +288,10 @@ int hkdf_test(void)
             printf("\n");
             return CRYPT_ERROR;
           }
-#endif
-#if 0
+#if LTC_TEST_DBG > 1
         } else {
             printf("LTC_HKDF-%s test #%d: Passed\n", cases[i].Hash, cases[i].num);
+#endif
 #endif
         }
     }
