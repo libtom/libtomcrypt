@@ -75,7 +75,7 @@ int dh_test (void)
 /* test encrypt_key */
   dh_make_key (&yarrow_prng, find_prng ("yarrow"), KEYSIZE/8, &usera);
   for (x = 0; x < 16; x++) {
-    buf[0][x] = x;
+    buf[0][x] = (unsigned char)x;
   }
   y = sizeof (buf[1]);
   DO(dh_encrypt_key (buf[0], 16, buf[1], &y, &yarrow_prng, find_prng ("yarrow"), find_hash ("md5"), &usera));
@@ -96,7 +96,7 @@ int dh_test (void)
 
 /* test sign_hash */
   for (x = 0; x < 16; x++) {
-     buf[0][x] = x;
+     buf[0][x] = (unsigned char)x;
   }
   x = sizeof (buf[1]);
   DO(dh_sign_hash (buf[0], 16, buf[1], &x, &yarrow_prng, find_prng ("yarrow"), &usera));

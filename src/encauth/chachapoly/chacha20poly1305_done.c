@@ -27,7 +27,7 @@ int chacha20poly1305_done(chacha20poly1305_state *st, unsigned char *tag, unsign
 
    LTC_ARGCHK(st != NULL);
 
-   padlen = 16 - (st->ctlen % 16);
+   padlen = 16 - (unsigned long)(st->ctlen % 16);
    if (padlen < 16) {
      if ((err = poly1305_process(&st->poly, padzero, padlen)) != CRYPT_OK) return err;
    }

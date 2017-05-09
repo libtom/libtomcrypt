@@ -15,6 +15,11 @@
 #define basename(x) x
 #endif
 
+#if !defined(PATH_MAX) && defined(_MSC_VER)
+#include <windows.h>
+#define PATH_MAX MAX_PATH
+#endif
+
 /* thanks http://stackoverflow.com/a/8198009 */
 #define _base(x) ((x >= '0' && x <= '9') ? '0' : \
          (x >= 'a' && x <= 'f') ? 'a' - 10 : \

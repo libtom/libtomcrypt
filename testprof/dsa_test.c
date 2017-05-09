@@ -186,7 +186,7 @@ int dsa_test(void)
    if (stat1 == 0) { fprintf(stderr, "dsa_verify_key "); return 1; }
 
    /* encrypt a message */
-   for (x = 0; x < 16; x++) { msg[x] = x; }
+   for (x = 0; x < 16; x++) { msg[x] = (unsigned char)x; }
    x = sizeof(out);
    DO(dsa_encrypt_key(msg, 16, out, &x, &yarrow_prng, find_prng("yarrow"), find_hash("sha1"), &key));
 

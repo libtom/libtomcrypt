@@ -30,7 +30,7 @@ int chacha20poly1305_encrypt(chacha20poly1305_state *st, const unsigned char *in
 
    if ((err = chacha_crypt(&st->chacha, in, inlen, out)) != CRYPT_OK)         return err;
    if (st->aadflg) {
-      padlen = 16 - (st->aadlen % 16);
+      padlen = 16 - (unsigned long)(st->aadlen % 16);
       if (padlen < 16) {
         if ((err = poly1305_process(&st->poly, padzero, padlen)) != CRYPT_OK) return err;
       }

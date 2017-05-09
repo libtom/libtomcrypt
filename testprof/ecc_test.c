@@ -192,7 +192,7 @@ int ecc_tests (void)
      DO(ecc_import(buf[0], x, &privKey));
 
      for (x = 0; x < 32; x++) {
-        buf[0][x] = x;
+        buf[0][x] = (unsigned char)x;
      }
      y = sizeof (buf[1]);
      DO(ecc_encrypt_key (buf[0], 32, buf[1], &y, &yarrow_prng, find_prng ("yarrow"), find_hash ("sha256"), &pubKey));
@@ -211,7 +211,7 @@ int ecc_tests (void)
      }
      /* test sign_hash */
      for (x = 0; x < 16; x++) {
-        buf[0][x] = x;
+        buf[0][x] = (unsigned char)x;
      }
      x = sizeof (buf[1]);
      DO(ecc_sign_hash (buf[0], 16, buf[1], &x, &yarrow_prng, find_prng ("yarrow"), &privKey));

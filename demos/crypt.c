@@ -9,8 +9,6 @@
 
 #include <tomcrypt.h>
 
-int errno;
-
 int usage(char *name)
 {
    int x;
@@ -103,6 +101,7 @@ int main(int argc, char *argv[])
    char *infile, *outfile, *cipher;
    prng_state prng;
    FILE *fdin, *fdout;
+   int err;
 
    /* register algs, so they can be printed */
    register_algs();
@@ -180,8 +179,8 @@ int main(int argc, char *argv[])
    if(fgets((char *)tmpkey,sizeof(tmpkey), stdin) == NULL)
       exit(-1);
    outlen = sizeof(key);
-   if ((errno = hash_memory(hash_idx,tmpkey,strlen((char *)tmpkey),key,&outlen)) != CRYPT_OK) {
-      printf("Error hashing key: %s\n", error_to_string(errno));
+   if ((err = hash_memory(hash_idx,tmpkey,strlen((char *)tmpkey),key,&outlen)) != CRYPT_OK) {
+      printf("Error hashing key: %s\n", error_to_string(err));
       exit(-1);
    }
 
@@ -192,8 +191,8 @@ int main(int argc, char *argv[])
          exit(-1);
       }
 
-      if ((errno = ctr_start(cipher_idx,IV,key,ks,0,CTR_COUNTER_LITTLE_ENDIAN,&ctr)) != CRYPT_OK) {
-         printf("ctr_start error: %s\n",error_to_string(errno));
+      if ((err = ctr_start(cipher_idx,IV,key,ks,0,CTR_COUNTER_LITTLE_ENDIAN,&ctr)) != CRYPT_OK) {
+         printf("ctr_start error: %s\n",error_to_string(err));
          exit(-1);
       }
 
@@ -201,8 +200,8 @@ int main(int argc, char *argv[])
       do {
          y = fread(inbuf,1,sizeof(inbuf),fdin);
 
-         if ((errno = ctr_decrypt(inbuf,plaintext,y,&ctr)) != CRYPT_OK) {
-            printf("ctr_decrypt error: %s\n", error_to_string(errno));
+         if ((err = ctr_decrypt(inbuf,plaintext,y,&ctr)) != CRYPT_OK) {
+            printf("ctr_decrypt error: %s\n", error_to_string(err));
             exit(-1);
          }
 
@@ -217,8 +216,8 @@ int main(int argc, char *argv[])
    } else {  /* encrypt */
       /* Setup yarrow for random bytes for IV */
 
-      if ((errno = rng_make_prng(128, find_prng("yarrow"), &prng, NULL)) != CRYPT_OK) {
-         printf("Error setting up PRNG, %s\n", error_to_string(errno));
+      if ((err = rng_make_prng(128, find_prng("yarrow"), &prng, NULL)) != CRYPT_OK) {
+         printf("Error setting up PRNG, %s\n", error_to_string(err));
       }
 
       /* You can use rng_get_bytes on platforms that support it */
@@ -234,16 +233,16 @@ int main(int argc, char *argv[])
          exit(-1);
       }
 
-      if ((errno = ctr_start(cipher_idx,IV,key,ks,0,CTR_COUNTER_LITTLE_ENDIAN,&ctr)) != CRYPT_OK) {
-         printf("ctr_start error: %s\n",error_to_string(errno));
+      if ((err = ctr_start(cipher_idx,IV,key,ks,0,CTR_COUNTER_LITTLE_ENDIAN,&ctr)) != CRYPT_OK) {
+         printf("ctr_start error: %s\n",error_to_string(err));
          exit(-1);
       }
 
       do {
          y = fread(inbuf,1,sizeof(inbuf),fdin);
 
-         if ((errno = ctr_encrypt(inbuf,ciphertext,y,&ctr)) != CRYPT_OK) {
-            printf("ctr_encrypt error: %s\n", error_to_string(errno));
+         if ((err = ctr_encrypt(inbuf,ciphertext,y,&ctr)) != CRYPT_OK) {
+            printf("ctr_encrypt error: %s\n", error_to_string(err));
             exit(-1);
          }
 

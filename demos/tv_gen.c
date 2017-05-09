@@ -754,7 +754,7 @@ void base64_gen(void)
    fprintf(out, "Base64 vectors.  These are the base64 encodings of the strings 00,01,02...NN-1\n\n");
    for (x = 0; x <= 32; x++) {
        for (y = 0; y < x; y++) {
-           src[y] = y;
+           src[y] = (unsigned char)y;
        }
        len = sizeof(dst);
        base64_encode(src, x, dst, &len);
