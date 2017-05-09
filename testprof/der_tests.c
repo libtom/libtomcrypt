@@ -1027,15 +1027,15 @@ static void der_flexi_test(void)
 static int der_choice_test(void)
 {
    ltc_asn1_list types[7], host[1];
-   unsigned char bitbuf[10], octetbuf[10], ia5buf[10], printbuf[10], outbuf[256];
-   unsigned long integer, oidbuf[10], outlen, inlen, x, y;
+   unsigned char bitbuf[10], octetbuf[10], ia5buf[10], printbuf[10], outbuf[256], x, y;
+   unsigned long integer, oidbuf[10], outlen, inlen;
    void          *mpinteger;
    ltc_utctime   utctime = { 91, 5, 6, 16, 45, 40, 1, 7, 0 };
    ltc_generalizedtime gtime = { 2038, 01, 19, 3, 14, 8, 0, 0, 0, 0 };
 
    /* setup variables */
-   for (x = 0; x < sizeof(bitbuf); x++)   { bitbuf[x]   = (unsigned char)(x & 1); }
-   for (x = 0; x < sizeof(octetbuf); x++) { octetbuf[x] = (unsigned char)x;     }
+   for (x = 0; x < sizeof(bitbuf); x++)   { bitbuf[x]   = x & 1; }
+   for (x = 0; x < sizeof(octetbuf); x++) { octetbuf[x] = x;     }
    for (x = 0; x < sizeof(ia5buf); x++)   { ia5buf[x]   = 'a';   }
    for (x = 0; x < sizeof(printbuf); x++) { printbuf[x] = 'a';   }
    integer = 1;
