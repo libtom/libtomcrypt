@@ -9,7 +9,7 @@
 # test.exe
 # gmake -f makefile.mingw DESTDIR=c:\devel\libtom install
 #
-#OR:
+#Or:
 #
 # gmake -f makefile.mingw CFLAGS="-O3 -DUSE_LTM -DLTM_DESC -Ic:/path/to/libtommath" EXTRALIBS="-Lc:/path/to/libtommath -ltommath" all
 #
@@ -27,6 +27,7 @@ EXTRALIBS = -L../libtommath -ltommath
 #Compilation flags
 LTC_CFLAGS  = $(CFLAGS) -Isrc/headers -Itestprof -DLTC_SOURCE
 LTC_LDFLAGS = $(LDFLAGS) $(EXTRALIBS)
+VERSION=1.17
 
 #Libraries to be created
 LIBMAIN_S =libtomcrypt.a
@@ -201,9 +202,6 @@ src/headers/tomcrypt_mac.h src/headers/tomcrypt_macros.h src/headers/tomcrypt_ma
 src/headers/tomcrypt_misc.h src/headers/tomcrypt_pk.h src/headers/tomcrypt_pkcs.h \
 src/headers/tomcrypt_prng.h
 
-.c.o:
-	$(CC) $(LTC_CFLAGS) -c $< -o $@
-
 #The default rule for make builds the libtomcrypt.a library (static)
 default: $(LIBMAIN_S)
 
@@ -223,6 +221,9 @@ src/hashes/sha2/sha256.o: src/hashes/sha2/sha256.c src/hashes/sha2/sha224.c
 #Dependencies on *.h
 $(OBJECTS): $(HEADERS)
 $(TOBJECTS): $(HEADERS) testprof/tomcrypt_test.h
+
+.c.o:
+	$(CC) $(LTC_CFLAGS) -c $< -o $@
 
 #Create libtomcrypt_prof.a
 $(LIBTEST_S): $(TOBJECTS)
@@ -253,7 +254,7 @@ tv_gen.exe: demos/tv_gen.o $(LIBMAIN_S)
 timing.exe: demos/timing.o $(LIBTEST_S) $(LIBMAIN_S)
 	$(CC) $? $(LTC_LDFLAGS) -o $@
 	@echo NOTICE: start the tests by: timing.exe
-test.exe: demos/test.o $(LIBMAIN_S) $(LIBTEST_S)
+test.exe: demos/test.o $(LIBTEST_S) $(LIBMAIN_S)
 	$(CC) $? $(LTC_LDFLAGS) -o $@
 	@echo NOTICE: start the tests by: test.exe
 
@@ -262,8 +263,10 @@ all: $(LIBMAIN_S) $(LIBMAIN_I) $(LIBMAIN_D) $(LIBTEST_S) hashsum.exe ltcrypt.exe
 test: test.exe
 
 clean:
+	@cmd /c del /Q *_tv.txt 2>nul
 	@cmd /c del /Q /S *.o *.a *.exe *.dll 2>nul
 
+#Install the library + headers
 install: $(LIBMAIN_S) $(LIBMAIN_I) $(LIBMAIN_D) $(LIBTEST_S)
 	cmd /c if not exist "$(DESTDIR)\bin" mkdir "$(DESTDIR)\bin"
 	cmd /c if not exist "$(DESTDIR)\lib" mkdir "$(DESTDIR)\lib"
@@ -272,3 +275,13 @@ install: $(LIBMAIN_S) $(LIBMAIN_I) $(LIBMAIN_D) $(LIBTEST_S)
 	copy /Y $(LIBMAIN_I) "$(DESTDIR)\lib"
 	copy /Y $(LIBMAIN_D) "$(DESTDIR)\bin"
 	copy /Y src\headers\tomcrypt*.h "$(DESTDIR)\include"
+
+#Install useful tools
+install_bins: hashsum
+	cmd /c if not exist "$(DESTDIR)\bin" mkdir "$(DESTDIR)\bin"
+	copy /Y hashsum.exe "$(DESTDIR)\bin"
+
+#Install documentation
+install_docs: doc/crypt.pdf
+	cmd /c if not exist "$(DESTDIR)\doc" mkdir "$(DESTDIR)\doc"
+	copy /Y doc\crypt.pdf "$(DESTDIR)\doc"

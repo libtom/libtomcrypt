@@ -208,7 +208,7 @@ src/headers/tomcrypt_misc.h src/headers/tomcrypt_pk.h src/headers/tomcrypt_pkcs.
 src/headers/tomcrypt_prng.h
 
 #The default rule for make builds the libtomcrypt.a library (static)
-default: library
+default: $(LIBMAIN_S)
 
 #SPECIAL: AES comes in two flavours - enc+dec and enc-only
 src/ciphers/aes/aes_enc.o: src/ciphers/aes/aes.c src/ciphers/aes/aes_tab.c
@@ -222,9 +222,6 @@ src/hashes/sha2/sha512.o: src/hashes/sha2/sha512.c src/hashes/sha2/sha384.c
 src/hashes/sha2/sha512_224.o: src/hashes/sha2/sha512.c src/hashes/sha2/sha512_224.c
 src/hashes/sha2/sha512_256.o: src/hashes/sha2/sha512.c src/hashes/sha2/sha512_256.c
 src/hashes/sha2/sha256.o: src/hashes/sha2/sha256.c src/hashes/sha2/sha224.c
-
-#This rule makes the libtomcrypt library.
-library: $(LIBMAIN_S)
 
 #Dependencies on *.h
 $(OBJECTS): $(HEADERS)
@@ -267,14 +264,25 @@ all: $(LIBMAIN_S) $(LIBTEST_S) hashsum ltcrypt small tv_gen timing test
 
 #NOTE: this makefile works also on cygwin, thus we need to delete *.exe
 clean:
-	-@rm -f $(OBJECTS)
+	-@rm -f $(OBJECTS) $(TOBJECTS)
 	-@rm -f $(LIBMAIN_S) $(LIBTEST_S)
-	-@rm -f testprof/*.o demos/*.o
+	-@rm -f demos/*.o *_tv.txt
 	-@rm -f test tv_gen hashsum crypt small timing
 	-@rm -f test.exe tv_gen.exe hashsum.exe crypt.exe small.exe timing.exe
 
+#Install the library + headers
 install: $(LIBMAIN_S) $(HEADERS)
 	@mkdir -p $(DESTDIR)/include $(DESTDIR)/lib/pkgconfig
 	@cp $(LIBMAIN_S) $(DESTDIR)/lib/
 	@cp $(HEADERS) $(DESTDIR)/include/
 	@sed -e 's,^prefix=.*,prefix=$(DESTDIR),' -e 's,^Version:.*,Version: $(VERSION),' libtomcrypt.pc.in > $(DESTDIR)/lib/pkgconfig/libtomcrypt.pc
+
+#Install useful tools
+install_bins: hashsum
+	@mkdir -p $(DESTDIR)/bin
+	@cp hashsum $(DESTDIR)/bin/
+
+#Install documentation
+install_docs: doc/crypt.pdf
+	@mkdir -p $(DESTDIR)/share/doc/libtomcrypt/pdf
+	@cp doc/crypt.pdf $(DESTDIR)/share/doc/libtomcrypt/pdf/
