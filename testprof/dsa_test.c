@@ -171,7 +171,7 @@ static int dsa_compat_test(void)
 
 int dsa_test(void)
 {
-   unsigned char msg[16], out[1024], out2[1024];
+   unsigned char msg[16], out[1024], out2[1024], ch;
    unsigned long x, y;
    int stat1, stat2;
    dsa_key key, key2;
@@ -186,7 +186,7 @@ int dsa_test(void)
    if (stat1 == 0) { fprintf(stderr, "dsa_verify_key "); return 1; }
 
    /* encrypt a message */
-   for (x = 0; x < 16; x++) { msg[x] = (unsigned char)x; }
+   for (ch = 0; ch < 16; ch++) { msg[ch] = ch; }
    x = sizeof(out);
    DO(dsa_encrypt_key(msg, 16, out, &x, &yarrow_prng, find_prng("yarrow"), find_hash("sha1"), &key));
 
