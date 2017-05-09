@@ -188,9 +188,9 @@ src/stream/rc4/rc4.o src/stream/rc4/rc4_test.o src/stream/sober128/sober128.o \
 src/stream/sober128/sober128_test.o
 
 #List of test objects to compile (all goes to libtomcrypt_prof.a)
-TOBJECTS=testprof/base64_test.o testprof/cipher_hash_test.o testprof/der_tests.o testprof/dh_test.o \
-testprof/dsa_test.o testprof/ecc_test.o testprof/file_test.o testprof/katja_test.o testprof/mac_test.o \
-testprof/misc_test.o testprof/modes_test.o testprof/multi_test.o testprof/no_prng.o \
+TOBJECTS=testprof/base64_test.o testprof/cipher_hash_test.o testprof/common.o testprof/der_tests.o \
+testprof/dh_test.o testprof/dsa_test.o testprof/ecc_test.o testprof/file_test.o testprof/katja_test.o \
+testprof/mac_test.o testprof/misc_test.o testprof/modes_test.o testprof/multi_test.o testprof/no_prng.o \
 testprof/pkcs_1_eme_test.o testprof/pkcs_1_emsa_test.o testprof/pkcs_1_oaep_test.o \
 testprof/pkcs_1_pss_test.o testprof/pkcs_1_test.o testprof/rotate_test.o testprof/rsa_test.o \
 testprof/store_test.o testprof/test_driver.o testprof/x86_prof.o

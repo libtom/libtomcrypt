@@ -181,9 +181,9 @@ src/stream/rc4/rc4.obj src/stream/rc4/rc4_test.obj src/stream/sober128/sober128.
 src/stream/sober128/sober128_test.obj
 
 #List of test objects to compile (all goes to tomcrypt_prof.lib)
-TOBJECTS=testprof/base64_test.obj testprof/cipher_hash_test.obj testprof/der_tests.obj testprof/dh_test.obj \
-testprof/dsa_test.obj testprof/ecc_test.obj testprof/file_test.obj testprof/katja_test.obj testprof/mac_test.obj \
-testprof/misc_test.obj testprof/modes_test.obj testprof/multi_test.obj testprof/no_prng.obj \
+TOBJECTS=testprof/base64_test.obj testprof/cipher_hash_test.obj testprof/common.obj testprof/der_tests.obj \
+testprof/dh_test.obj testprof/dsa_test.obj testprof/ecc_test.obj testprof/file_test.obj testprof/katja_test.obj \
+testprof/mac_test.obj testprof/misc_test.obj testprof/modes_test.obj testprof/multi_test.obj testprof/no_prng.obj \
 testprof/pkcs_1_eme_test.obj testprof/pkcs_1_emsa_test.obj testprof/pkcs_1_oaep_test.obj \
 testprof/pkcs_1_pss_test.obj testprof/pkcs_1_test.obj testprof/rotate_test.obj testprof/rsa_test.obj \
 testprof/store_test.obj testprof/test_driver.obj testprof/x86_prof.obj
