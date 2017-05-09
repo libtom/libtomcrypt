@@ -590,7 +590,7 @@ int time_keysched(void)
        c1 = (t1 > c1) ? c1 : t1;
     }
     t1 = c1 - skew;
-    results[no_results].spd1 = results[no_results].avg = (unsigned long)t1;
+    results[no_results].spd1 = results[no_results].avg = t1;
     results[no_results++].id = x;
     fprintf(stderr, "."); fflush(stdout);
 
@@ -659,8 +659,8 @@ int time_cipher(void)
     ecb_done(&ecb);
 
     results[no_results].id = x;
-    results[no_results].spd1 = (unsigned long)(a1/(sizeof(pt)/cipher_descriptor[x].block_length));
-    results[no_results].spd2 = (unsigned long)(a2/(sizeof(pt)/cipher_descriptor[x].block_length));
+    results[no_results].spd1 = a1/(sizeof(pt)/cipher_descriptor[x].block_length);
+    results[no_results].spd2 = a2/(sizeof(pt)/cipher_descriptor[x].block_length);
     results[no_results].avg = (results[no_results].spd1 + results[no_results].spd2+1)/2;
     ++no_results;
     fprintf(stderr, "."); fflush(stdout);
@@ -734,8 +734,8 @@ int time_cipher2(void)
     cbc_done(&cbc);
 
     results[no_results].id = x;
-    results[no_results].spd1 = (unsigned long)(a1/(sizeof(pt)/cipher_descriptor[x].block_length));
-    results[no_results].spd2 = (unsigned long)(a2/(sizeof(pt)/cipher_descriptor[x].block_length));
+    results[no_results].spd1 = a1/(sizeof(pt)/cipher_descriptor[x].block_length);
+    results[no_results].spd2 = a2/(sizeof(pt)/cipher_descriptor[x].block_length);
     results[no_results].avg = (results[no_results].spd1 + results[no_results].spd2+1)/2;
     ++no_results;
     fprintf(stderr, "."); fflush(stdout);
@@ -809,8 +809,8 @@ int time_cipher3(void)
     ctr_done(&ctr);
 
     results[no_results].id = x;
-    results[no_results].spd1 = (unsigned long)(a1/(sizeof(pt)/cipher_descriptor[x].block_length));
-    results[no_results].spd2 = (unsigned long)(a2/(sizeof(pt)/cipher_descriptor[x].block_length));
+    results[no_results].spd1 = a1/(sizeof(pt)/cipher_descriptor[x].block_length);
+    results[no_results].spd2 = a2/(sizeof(pt)/cipher_descriptor[x].block_length);
     results[no_results].avg = (results[no_results].spd1 + results[no_results].spd2+1)/2;
     ++no_results;
     fprintf(stderr, "."); fflush(stdout);
@@ -886,8 +886,8 @@ int time_cipher4(void)
     lrw_done(&lrw);
 
     results[no_results].id = x;
-    results[no_results].spd1 = (unsigned long)(a1/(sizeof(pt)/cipher_descriptor[x].block_length));
-    results[no_results].spd2 = (unsigned long)(a2/(sizeof(pt)/cipher_descriptor[x].block_length));
+    results[no_results].spd1 = a1/(sizeof(pt)/cipher_descriptor[x].block_length);
+    results[no_results].spd2 = a2/(sizeof(pt)/cipher_descriptor[x].block_length);
     results[no_results].avg = (results[no_results].spd1 + results[no_results].spd2+1)/2;
     ++no_results;
     fprintf(stderr, "."); fflush(stdout);
@@ -944,7 +944,7 @@ int time_hash(void)
     t1 = c2 - c1 - skew;
     t1 = ((t1 * CONST64(1000))) / ((ulong64)hash_descriptor[x].blocksize);
     results[no_results].id = x;
-    results[no_results].spd1 = results[no_results].avg = (unsigned long)t1;
+    results[no_results].spd1 = results[no_results].avg = t1;
     ++no_results;
     fprintf(stderr, "."); fflush(stdout);
 #undef DO2
