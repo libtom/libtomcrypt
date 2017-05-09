@@ -54,7 +54,7 @@ int ccm_memory(int cipher,
    int            err;
    unsigned long  len, L, x, y, z, CTRlen;
 #ifdef LTC_FAST
-   LTC_FAST_TYPE fastMask = -1; /* initialize fastMask at all zeroes */
+   LTC_FAST_TYPE fastMask = ~0; /* initialize fastMask at all zeroes */
 #endif
    unsigned char mask = 0xff; /* initialize mask at all zeroes */
 
