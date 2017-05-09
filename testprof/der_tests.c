@@ -1073,11 +1073,11 @@ static int der_choice_test(void)
 
        for (y = 0; y < 7; y++) {
            if (types[y].used && y != (x>6?x-7:x)) {
-               fprintf(stderr, "CHOICE, flag %lu in trial %lu was incorrectly set to one\n", y, x);
+               fprintf(stderr, "CHOICE, flag %u in trial %u was incorrectly set to one\n", y, x);
                return 1;
            }
            if (!types[y].used && y == (x>6?x-7:x)) {
-               fprintf(stderr, "CHOICE, flag %lu in trial %lu was incorrectly set to zero\n", y, x);
+               fprintf(stderr, "CHOICE, flag %u in trial %u was incorrectly set to zero\n", y, x);
                return 1;
            }
       }

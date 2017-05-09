@@ -111,12 +111,12 @@ void tally_results(int type)
    } else if (type == 1) {
       for (x = 0; x < no_results; x++) {
         printf
-          ("%-20s[%3d]: Encrypt at %5lu, Decrypt at %5lu\n", cipher_descriptor[results[x].id].name, cipher_descriptor[results[x].id].ID, results[x].spd1, results[x].spd2);
+          ("%-20s[%3d]: Encrypt at %5"PRI64"u, Decrypt at %5"PRI64"u\n", cipher_descriptor[results[x].id].name, cipher_descriptor[results[x].id].ID, results[x].spd1, results[x].spd2);
       }
    } else {
       for (x = 0; x < no_results; x++) {
         printf
-          ("%-20s: Process at %5lu\n", hash_descriptor[results[x].id].name, results[x].spd1 / 1000);
+          ("%-20s: Process at %5"PRI64"u\n", hash_descriptor[results[x].id].name, results[x].spd1 / 1000);
       }
    }
 }
