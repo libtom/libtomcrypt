@@ -72,6 +72,19 @@ timing.exe
 *.gcov
 libtomcrypt.pc
 
+# output from doc generation
+doxygen/
+*.dvi
+*.log
+*.aux
+*.toc
+*.idx
+*.ilg
+*.ind
+*.out
+*.lof
+*.bak
+
 coverage/
 coverage*.info
 

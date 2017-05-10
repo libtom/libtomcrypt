@@ -384,19 +384,23 @@ clean:
 	rm -rf `find . -type d -name "*.libs" | xargs`
 	$(MAKE) -C doc/ clean
 
-zipup: docs
+zipup: doc/crypt.pdf
+	@# Update the index, so diff-index won't fail in case the pdf has been created.
+	@#   As the pdf creation modifies crypt.tex, git sometimes detects the
+	@#   modified file, but misses that it's put back to its original version.
+	@git update-index --refresh
 	@git diff-index --quiet HEAD -- || ( echo "FAILURE: uncommited changes or not a git" && exit 1 )
 	@perl helper.pl --check-all || ( echo "FAILURE: helper.pl --check-all errors" && exit 1 )
-	rm -rf libtomcrypt-$(VERSION) libtomcrypt-$(VERSION).*
-	# files/dirs excluded from "git archive" are defined in .gitattributes
+	rm -rf libtomcrypt-$(VERSION) crypt-$(VERSION).*
+	@# files/dirs excluded from "git archive" are defined in .gitattributes
 	git archive --format=tar --prefix=libtomcrypt-$(VERSION)/ HEAD | tar x
 	mkdir -p libtomcrypt-$(VERSION)/doc
 	cp doc/crypt.pdf libtomcrypt-$(VERSION)/doc/crypt.pdf
-	tar -cJf libtomcrypt-$(VERSION).tar.xz libtomcrypt-$(VERSION)
-	zip -9rq libtomcrypt-$(VERSION).zip libtomcrypt-$(VERSION)
+	tar -c libtomcrypt-$(VERSION)/ | xz -6e -c - > crypt-$(VERSION).tar.xz
+	zip -9rq crypt-$(VERSION).zip libtomcrypt-$(VERSION)
 	rm -rf libtomcrypt-$(VERSION)
-	gpg -b -a libtomcrypt-$(VERSION).tar.xz
-	gpg -b -a libtomcrypt-$(VERSION).zip
+	gpg -b -a crypt-$(VERSION).tar.xz
+	gpg -b -a crypt-$(VERSION).zip
 
 codecheck:
 	perl helper.pl -a

@@ -139,4 +139,6 @@ coverage: test
 # cleans everything - coverage output and standard 'clean'
 cleancov: cleancov-clean clean
 
-# git commit: $Format:%h$ $Format:%ai$
+# ref:         $Format:%D$
+# git commit:  $Format:%H$
+# commit time: $Format:%ai$
