@@ -4,9 +4,8 @@
 #
 # Thanks to Zed Shaw for helping debug this on BSD/OSX.
 # Tom St Denis
-
-include makefile.include
-
+#
+#  (GNU make only)
 
 ifndef LT
   ifeq ($(PLATFORM), Darwin)
@@ -18,7 +17,6 @@ endif
 LTCOMPILE = $(LT) --mode=compile --tag=CC $(CC)
 INSTALL_CMD = $(LT) --mode=install install
 
-
 #Output filenames for various targets.
 ifndef LIBTEST
    LIBTEST=libtomcrypt_prof.la
@@ -26,6 +24,10 @@ endif
 ifndef LIBNAME
    LIBNAME=libtomcrypt.la
 endif
+
+
+include makefile_include.mk
+
 
 #ciphers come in two flavours... enc+dec and enc
 src/ciphers/aes/aes_enc.o: src/ciphers/aes/aes.c src/ciphers/aes/aes_tab.c
@@ -65,8 +67,6 @@ endif
 endef
 
 $(foreach demo, $(strip $(DEMOS)), $(eval $(call DEMO_template,$(demo))))
-
-include makefile.common
 
 # $Source$
 # $Revision$

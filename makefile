@@ -2,8 +2,8 @@
 #
 # Tom St Denis
 # Modified by Clay Culver
-
-include makefile.include
+#
+#  (GNU make only)
 
 ifeq ($V,1)
 silent=
@@ -23,7 +23,6 @@ endif
 endif
 INSTALL_CMD = install
 
-
 #Output filenames for various targets.
 ifndef LIBNAME
    LIBNAME=libtomcrypt.a
@@ -31,6 +30,10 @@ endif
 ifndef LIBTEST
    LIBTEST=libtomcrypt_prof.a
 endif
+
+
+include makefile_include.mk
+
 
 #AES comes in two flavours... enc+dec and enc
 src/ciphers/aes/aes_enc.o: src/ciphers/aes/aes.c src/ciphers/aes/aes_tab.c
@@ -135,7 +138,5 @@ coverage: test
 
 # cleans everything - coverage output and standard 'clean'
 cleancov: cleancov-clean clean
-
-include makefile.common
 
 # git commit: $Format:%h$ $Format:%ai$

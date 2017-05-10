@@ -1,6 +1,6 @@
 #
-# Include makefile for libtomcrypt
-#
+# Include makefile used by makefile + makefile.shared
+#  (GNU make only)
 
 # The version - BEWARE: VERSION and VERSION_LT are updated via ./updatemakes.sh
 VERSION=1.17
@@ -313,3 +313,91 @@ library: $(LIBNAME)
 $(OBJECTS): $(HEADERS)
 $(DOBJECTS): $(HEADERS) $(THEADERS)
 $(TOBJECTS): $(HEADERS) $(THEADERS)
+
+ifndef INSTALL_CMD
+$(error your makefile must define INSTALL_CMD)
+endif
+
+ifndef EXTRALIBS
+EXTRALIBS=$(shell PKG_CONFIG_PATH=$(LIBPATH)/pkgconfig pkg-config libtommath --libs)
+endif
+
+bins: $(USEFUL_DEMOS)
+
+all_test: test tv_gen $(DEMOS)
+
+#build the doxy files (requires Doxygen, tetex and patience)
+doxygen doxy docs:
+	$(MAKE) -C doc/ $@ V=$(V)
+
+doc/crypt.pdf:
+	$(MAKE) -C doc/ crypt.pdf V=$(V)
+
+
+install_all: install install_bins install_docs install_test
+
+
+.common_install: $(LIBNAME)
+	install -d $(INCPATH)
+	install -d $(LIBPATH)
+	$(INSTALL_CMD) -m 644 $(LIBNAME) $(LIBPATH)/$(LIBNAME)
+	install -m 644 $(HEADERS) $(INCPATH)
+
+.common_install_bins: $(USEFUL_DEMOS)
+	install -d $(BINPATH)
+	$(INSTALL_CMD) -m 775 $(USEFUL_DEMOS) $(BINPATH)
+
+.common_install_test: $(LIBTEST)
+	install -d $(LIBPATH)
+	install -d $(INCPATH)
+	install -m 644 testprof/tomcrypt_test.h $(INCPATH)
+	$(INSTALL_CMD) -m 644 $(LIBTEST) $(LIBPATH)
+
+install_docs: doc/crypt.pdf
+	install -d $(DATAPATH)
+	install -m 644 doc/crypt.pdf $(DATAPATH)
+
+install_hooks:
+	for s in `ls hooks/`; do ln -s ../../hooks/$$s .git/hooks/$$s; done
+
+#This rule cleans the source tree of all compiled code, not including the pdf
+#documentation.
+clean:
+	find . -type f    -name "*.o"   \
+               -o -name "*.lo"  \
+               -o -name "*.a"   \
+               -o -name "*.la"  \
+               -o -name "*.obj" \
+               -o -name "*.lib" \
+               -o -name "*.exe" \
+               -o -name "*.dll" \
+               -o -name "*.so"  \
+               -o -name "*.gcov"\
+               -o -name "*.gcda"\
+               -o -name "*.gcno"\
+               -o -name "*.il"  \
+               -o -name "*.dyn" \
+               -o -name "*.dpi"  | xargs rm -f
+	rm -f $(TIMING) $(TEST) $(DEMOS)
+	rm -f *_tv.txt
+	rm -f *.pc
+	rm -rf `find . -type d -name "*.libs" | xargs`
+	$(MAKE) -C doc/ clean
+
+zipup: docs
+	@git diff-index --quiet HEAD -- || ( echo "FAILURE: uncommited changes or not a git" && exit 1 )
+	@perl helper.pl --check-all || ( echo "FAILURE: helper.pl --check-all errors" && exit 1 )
+	rm -rf libtomcrypt-$(VERSION) libtomcrypt-$(VERSION).*
+	# files/dirs excluded from "git archive" are defined in .gitattributes
+	git archive --format=tar --prefix=libtomcrypt-$(VERSION)/ HEAD | tar x
+	mkdir -p libtomcrypt-$(VERSION)/doc
+	cp doc/crypt.pdf libtomcrypt-$(VERSION)/doc/crypt.pdf
+	tar -cJf libtomcrypt-$(VERSION).tar.xz libtomcrypt-$(VERSION)
+	zip -9rq libtomcrypt-$(VERSION).zip libtomcrypt-$(VERSION)
+	rm -rf libtomcrypt-$(VERSION)
+	gpg -b -a libtomcrypt-$(VERSION).tar.xz
+	gpg -b -a libtomcrypt-$(VERSION).zip
+
+codecheck:
+	perl helper.pl -a
+	perlcritic *.pl
