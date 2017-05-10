@@ -1166,9 +1166,12 @@ int der_tests(void)
          DO(der_encode_short_integer(mp_get_int(a), buf[1], &y));
          if (x != y || memcmp(buf[0], buf[1], x)) {
             fprintf(stderr, "DER INTEGER short encoding failed, %lu, %lu, 0x%lX\n", x, y, mp_get_int(a));
-            for (zz = 0; zz < z; zz++) fprintf(stderr, "%02x ", buf[2][zz]); fprintf(stderr, "\n");
-            for (z = 0; z < x; z++) fprintf(stderr, "%02x ", buf[0][z]); fprintf(stderr, "\n");
-            for (z = 0; z < y; z++) fprintf(stderr, "%02x ", buf[1][z]); fprintf(stderr, "\n");
+            for (zz = 0; zz < z; zz++) fprintf(stderr, "%02x ", buf[2][zz]);
+            fprintf(stderr, "\n");
+            for (z = 0; z < x; z++) fprintf(stderr, "%02x ", buf[0][z]);
+            fprintf(stderr, "\n");
+            for (z = 0; z < y; z++) fprintf(stderr, "%02x ", buf[1][z]);
+            fprintf(stderr, "\n");
             mp_clear_multi(a, b, c, d, e, f, g, NULL);
             return 1;
          }
@@ -1280,7 +1283,8 @@ int der_tests(void)
        }
        if (memcmp(oid[0], oid[1], sizeof(oid[0][0]) * z)) {
           fprintf(stderr, "Random OID %lu test failed, decoded values wrong\n", z);
-          for (x = 0; x < z; x++) fprintf(stderr, "%lu\n", oid[0][x]); fprintf(stderr, "\n\n Got \n\n");
+          for (x = 0; x < z; x++) fprintf(stderr, "%lu\n", oid[0][x]);
+          fprintf(stderr, "\n\n Got \n\n");
           for (x = 0; x < z; x++) fprintf(stderr, "%lu\n", oid[1][x]);
           return 1;
        }
@@ -1329,9 +1333,9 @@ int der_tests(void)
    DO(der_encode_utctime((ltc_utctime*)&rsa_time1, buf[0], &x));
    if (x != sizeof(rsa_time1_der) || memcmp(buf[0], rsa_time1_der, x)) {
       fprintf(stderr, "UTCTIME encode of rsa_time1 failed: %lu, %lu\n", x, (unsigned long)sizeof(rsa_time1_der));
-fprintf(stderr, "\n\n");
-for (y = 0; y < x; y++) fprintf(stderr, "%02x ", buf[0][y]); printf("\n");
-
+      fprintf(stderr, "\n\n");
+      for (y = 0; y < x; y++) fprintf(stderr, "%02x ", buf[0][y]);
+      fprintf(stderr, "\n");
       return 1;
    }
    DO(der_length_utctime((ltc_utctime*)&rsa_time1, &y));
@@ -1359,9 +1363,9 @@ tmp_time.off_hh);
    DO(der_encode_utctime((ltc_utctime*)&rsa_time2, buf[0], &x));
    if (x != sizeof(rsa_time2_der) || memcmp(buf[0], rsa_time2_der, x)) {
       fprintf(stderr, "UTCTIME encode of rsa_time2 failed: %lu, %lu\n", x, (unsigned long)sizeof(rsa_time1_der));
-fprintf(stderr, "\n\n");
-for (y = 0; y < x; y++) fprintf(stderr, "%02x ", buf[0][y]); printf("\n");
-
+      fprintf(stderr, "\n\n");
+      for (y = 0; y < x; y++) fprintf(stderr, "%02x ", buf[0][y]);
+      fprintf(stderr, "\n");
       return 1;
    }
    DO(der_length_utctime((ltc_utctime*)&rsa_time2, &y));
@@ -1394,7 +1398,8 @@ tmp_time.off_hh);
      DO(der_length_utf8_string(utf8_1, sizeof(utf8_1) / sizeof(utf8_1[0]), &y));
      if (x != sizeof(utf8_1_der) || memcmp(utf8_buf, utf8_1_der, x) || x != y) {
         fprintf(stderr, "DER UTF8_1 encoded to %lu bytes\n", x);
-        for (y = 0; y < x; y++) fprintf(stderr, "%02x ", (unsigned)utf8_buf[y]); fprintf(stderr, "\n");
+        for (y = 0; y < x; y++) fprintf(stderr, "%02x ", (unsigned)utf8_buf[y]);
+        fprintf(stderr, "\n");
         return 1;
      }
      /* decode it */
@@ -1402,7 +1407,8 @@ tmp_time.off_hh);
      DO(der_decode_utf8_string(utf8_buf, x, utf8_out, &y));
      if (y != (sizeof(utf8_1) / sizeof(utf8_1[0])) || memcmp(utf8_1, utf8_out, y * sizeof(wchar_t))) {
         fprintf(stderr, "DER UTF8_1 decoded to %lu wchar_t\n", y);
-        for (x = 0; x < y; x++) fprintf(stderr, "%04lx ", (unsigned long)utf8_out[x]); fprintf(stderr, "\n");
+        for (x = 0; x < y; x++) fprintf(stderr, "%04lx ", (unsigned long)utf8_out[x]);
+        fprintf(stderr, "\n");
         return 1;
      }
 
@@ -1411,7 +1417,8 @@ tmp_time.off_hh);
      DO(der_encode_utf8_string(utf8_2, sizeof(utf8_2) / sizeof(utf8_2[0]), utf8_buf, &x));
      if (x != sizeof(utf8_2_der) || memcmp(utf8_buf, utf8_2_der, x)) {
         fprintf(stderr, "DER UTF8_2 encoded to %lu bytes\n", x);
-        for (y = 0; y < x; y++) fprintf(stderr, "%02x ", (unsigned)utf8_buf[y]); fprintf(stderr, "\n");
+        for (y = 0; y < x; y++) fprintf(stderr, "%02x ", (unsigned)utf8_buf[y]);
+        fprintf(stderr, "\n");
         return 1;
      }
      /* decode it */
@@ -1419,7 +1426,8 @@ tmp_time.off_hh);
      DO(der_decode_utf8_string(utf8_buf, x, utf8_out, &y));
      if (y != (sizeof(utf8_2) / sizeof(utf8_2[0])) || memcmp(utf8_2, utf8_out, y * sizeof(wchar_t))) {
         fprintf(stderr, "DER UTF8_2 decoded to %lu wchar_t\n", y);
-        for (x = 0; x < y; x++) fprintf(stderr, "%04lx ", (unsigned long)utf8_out[x]); fprintf(stderr, "\n");
+        for (x = 0; x < y; x++) fprintf(stderr, "%04lx ", (unsigned long)utf8_out[x]);
+        fprintf(stderr, "\n");
         return 1;
      }
 
