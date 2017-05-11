@@ -48,7 +48,9 @@ int pkcs_1_eme_test(void)
     mp_clear_multi(key->d,  key->e, key->N, key->dQ, key->dP, key->qP, key->p, key->q, NULL);
   } /* for */
 
+#ifndef LTC_PTHREAD
   unregister_prng(&no_prng_desc);
+#endif
 
   return 0;
 }
