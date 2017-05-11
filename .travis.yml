@@ -10,6 +10,8 @@ addons:
 
 before_script:
   - gem install coveralls-lcov
+  - curl http://ftp.de.debian.org/debian/pool/main/l/lcov/lcov_1.11.orig.tar.gz | tar xz
+  - export PATH=$PATH:`pwd`/lcov-1.11/bin
 
 matrix:
   fast_finish: true
