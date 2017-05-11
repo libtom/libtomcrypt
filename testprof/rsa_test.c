@@ -530,7 +530,6 @@ for (cnt = 0; cnt < len; ) {
    for (i = 0; i < 9; ++i) {
      len = sizeof(in);
      len2 = sizeof(out);
-     cnt = rsa_get_size(&key);
      /* (1) */
      DO(rsa_sign_hash_ex(p, 20, p2, &len2, LTC_PKCS_1_V1_5, &yarrow_prng, prng_idx, hash_idx, 8, &privKey));
      /* (2) */
@@ -540,7 +539,8 @@ for (cnt = 0; cnt < len; ) {
      /* (3) */
      DO(ltc_mp.rsa_me(p2, len2, p3, &len3, PK_PUBLIC, &key));
      /* (4) */
-#if 0
+#ifdef LTC_TEST_DBG
+     cnt = rsa_get_size(&key);
      printf("\nBefore:");
      for (cnt = 0; cnt < len3; ++cnt) {
        if (cnt%32 == 0)
@@ -563,7 +563,7 @@ for (cnt = 0; cnt < len; ) {
      for (cnt = cnt + len3-cnt2+i; cnt < len; ++cnt) {
         p3[cnt] = 0;
      }
-#if 0
+#ifdef LTC_TEST_DBG
      printf("\nAfter:");
      for (cnt = 0; cnt < len3; ++cnt) {
        if (cnt%32 == 0)

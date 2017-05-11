@@ -723,6 +723,10 @@ void gcm_gen(void)
             printf("Error GCM'ing: %s\n", error_to_string(err));
             exit(EXIT_FAILURE);
          }
+         if (len == 0) {
+            printf("Error GCM'ing: zero length\n");
+            exit(EXIT_FAILURE);
+         }
          fprintf(out, "%3d: ", y1);
          for (z = 0; z < y1; z++) {
             fprintf(out, "%02X", plaintext[z]);

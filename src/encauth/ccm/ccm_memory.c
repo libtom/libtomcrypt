@@ -144,7 +144,7 @@ int ccm_memory(int cipher,
    }
 
    /* initialize buffer for pt */
-   if (direction == CCM_DECRYPT) {
+   if (direction == CCM_DECRYPT && ptlen > 0) {
       pt_work = XMALLOC(ptlen);
       if (pt_work == NULL) {
          goto error;
