@@ -114,8 +114,7 @@ int dh_test (void)
 
 int dh_test(void)
 {
-   fprintf(stderr, "NOP");
-   return 0;
+   return CRYPT_NOP;
 }
 
 #endif

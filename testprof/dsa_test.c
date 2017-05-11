@@ -240,8 +240,7 @@ int dsa_test(void)
 
 int dsa_test(void)
 {
-  fprintf(stderr, "NOP");
-  return 0;
+  return CRYPT_NOP;
 }
 
 #endif

@@ -7,8 +7,7 @@
 
 int der_tests(void)
 {
-   fprintf(stderr, "NOP");
-   return 0;
+   return CRYPT_NOP;
 }
 
 #else

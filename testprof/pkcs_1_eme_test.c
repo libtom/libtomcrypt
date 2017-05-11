@@ -57,8 +57,7 @@ int pkcs_1_eme_test(void)
 
 int pkcs_1_eme_test(void)
 {
-   fprintf(stderr, "NOP");
-   return 0;
+   return CRYPT_NOP;
 }
 
 #endif

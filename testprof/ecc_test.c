@@ -237,8 +237,7 @@ int ecc_tests (void)
 
 int ecc_tests(void)
 {
-   fprintf(stderr, "NOP");
-   return 0;
+   return CRYPT_NOP;
 }
 
 #endif

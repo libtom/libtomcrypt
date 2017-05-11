@@ -114,9 +114,6 @@ int modes_test(void)
    DO(ret = xts_test());
 #endif
 
-   if (ret == CRYPT_NOP)
-      fprintf(stderr, "NOP");
-
    return 0;
 }
 

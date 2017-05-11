@@ -58,8 +58,7 @@ int pkcs_1_pss_test(void)
 
 int pkcs_1_pss_test(void)
 {
-   fprintf(stderr, "NOP");
-   return 0;
+   return CRYPT_NOP;
 }
 
 #endif
