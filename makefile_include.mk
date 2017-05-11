@@ -28,6 +28,20 @@ ifndef MAKE
   MAKE:=make
 endif
 
+ifndef INSTALL_CMD
+$(error your makefile must define INSTALL_CMD)
+endif
+
+ifndef EXTRALIBS
+ifneq ($(shell echo $(CFLAGS) | grep USE_LTM),)
+EXTRALIBS=$(shell PKG_CONFIG_PATH=$(LIBPATH)/pkgconfig pkg-config libtommath --libs)
+else
+ifneq ($(shell echo $(CFLAGS) | grep USE_TFM),)
+EXTRALIBS=$(shell PKG_CONFIG_PATH=$(LIBPATH)/pkgconfig pkg-config tomsfastmath --libs)
+endif
+endif
+endif
+
 
 # Compilation flags. Note the += does not write over the user's CFLAGS!
 CFLAGS += -I./src/headers/ -Wall -Wsign-compare -Wshadow -DLTC_SOURCE
@@ -313,14 +327,6 @@ library: $(LIBNAME)
 $(OBJECTS): $(HEADERS)
 $(DOBJECTS): $(HEADERS) $(THEADERS)
 $(TOBJECTS): $(HEADERS) $(THEADERS)
-
-ifndef INSTALL_CMD
-$(error your makefile must define INSTALL_CMD)
-endif
-
-ifndef EXTRALIBS
-EXTRALIBS=$(shell PKG_CONFIG_PATH=$(LIBPATH)/pkgconfig pkg-config libtommath --libs)
-endif
 
 bins: $(USEFUL_DEMOS)
 
