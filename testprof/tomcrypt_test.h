@@ -74,7 +74,7 @@ int multi_test(void);
 
 extern struct list {
     int id;
-    unsigned long spd1, spd2, avg;
+    ulong64 spd1, spd2, avg;
 } results[];
 
 extern int no_results;

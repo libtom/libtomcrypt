@@ -29,7 +29,7 @@ int chacha20poly1305_decrypt(chacha20poly1305_state *st, const unsigned char *in
    LTC_ARGCHK(st != NULL);
 
    if (st->aadflg) {
-      padlen = 16 - (st->aadlen % 16);
+      padlen = 16 - (unsigned long)(st->aadlen % 16);
       if (padlen < 16) {
         if ((err = poly1305_process(&st->poly, padzero, padlen)) != CRYPT_OK) return err;
       }

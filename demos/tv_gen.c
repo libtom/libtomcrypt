@@ -747,14 +747,14 @@ void gcm_gen(void)
 void base64_gen(void)
 {
    FILE *out;
-   unsigned char dst[256], src[32];
-   unsigned long x, y, len;
+   unsigned char dst[256], src[32], ch;
+   unsigned long x, len;
 
    out = fopen("base64_tv.txt", "w");
    fprintf(out, "Base64 vectors.  These are the base64 encodings of the strings 00,01,02...NN-1\n\n");
    for (x = 0; x <= 32; x++) {
-       for (y = 0; y < x; y++) {
-           src[y] = y;
+       for (ch = 0; ch < x; ch++) {
+           src[ch] = ch;
        }
        len = sizeof(dst);
        base64_encode(src, x, dst, &len);

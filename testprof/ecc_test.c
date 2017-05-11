@@ -107,7 +107,7 @@ int ecc_test_shamir(void)
 
 int ecc_tests (void)
 {
-  unsigned char buf[4][4096];
+  unsigned char buf[4][4096], ch;
   unsigned long x, y, z, s;
   int           stat, stat2;
   ecc_key usera, userb, pubKey, privKey;
@@ -191,8 +191,8 @@ int ecc_tests (void)
      DO(ecc_export(buf[0], &x, PK_PRIVATE, &usera));
      DO(ecc_import(buf[0], x, &privKey));
 
-     for (x = 0; x < 32; x++) {
-        buf[0][x] = x;
+     for (ch = 0; ch < 32; ch++) {
+        buf[0][ch] = ch;
      }
      y = sizeof (buf[1]);
      DO(ecc_encrypt_key (buf[0], 32, buf[1], &y, &yarrow_prng, find_prng ("yarrow"), find_hash ("sha256"), &pubKey));
@@ -203,15 +203,15 @@ int ecc_tests (void)
        fprintf(stderr, "Failed (length)");
        return 1;
      }
-     for (x = 0; x < 32; x++) {
-        if (buf[0][x] != x) {
+     for (ch = 0; ch < 32; ch++) {
+        if (buf[0][ch] != ch) {
            fprintf(stderr, "Failed (contents)");
            return 1;
         }
      }
      /* test sign_hash */
-     for (x = 0; x < 16; x++) {
-        buf[0][x] = x;
+     for (ch = 0; ch < 16; ch++) {
+        buf[0][ch] = ch;
      }
      x = sizeof (buf[1]);
      DO(ecc_sign_hash (buf[0], 16, buf[1], &x, &yarrow_prng, find_prng ("yarrow"), &privKey));

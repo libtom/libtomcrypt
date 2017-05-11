@@ -6,12 +6,12 @@ int base64_test(void)
    unsigned char in[64], out[256], tmp[64];
    unsigned long x, l1, l2, slen1;
 
-#if defined(LTC_BASE64)
-   const char special_case[] = {
+   const unsigned char special_case[] = {
          0xbe, 0xe8, 0x92, 0x3c, 0xa2, 0x25, 0xf0, 0xf8,
          0x91, 0xe4, 0xef, 0xab, 0x0b, 0x8c, 0xfd, 0xff,
          0x14, 0xd0, 0x29, 0x9d, 0x00 };
 
+#if defined(LTC_BASE64)
    /*
     TEST CASES SOURCE:
 
@@ -31,7 +31,7 @@ int base64_test(void)
        {"foob", "Zm9vYg=="  },
        {"fooba", "Zm9vYmE=" },
        {"foobar", "Zm9vYmFy"},
-       {special_case,"vuiSPKIl8PiR5O+rC4z9/xTQKZ0="}
+       {(char*)special_case,"vuiSPKIl8PiR5O+rC4z9/xTQKZ0="}
    };
 #endif
 
@@ -59,7 +59,7 @@ int base64_test(void)
           DO(base64url_strict_decode((unsigned char*)url_cases[x].s, slen1, out, &l1));
        else
           DO(base64url_decode((unsigned char*)url_cases[x].s, slen1, out, &l1));
-       if (compare_testvector(out, l1, special_case, strlen(special_case), "base64url decode", x)) {
+       if (compare_testvector(out, l1, special_case, sizeof(special_case) - 1, "base64url decode", x)) {
            return 1;
        }
        if(x < 2) {

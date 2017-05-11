@@ -10,7 +10,7 @@
 
 int dh_test (void)
 {
-  unsigned char buf[3][4096];
+  unsigned char buf[3][4096], ch;
   unsigned long x, y, z;
   int           stat, stat2;
   dh_key        usera, userb;
@@ -74,8 +74,8 @@ int dh_test (void)
 
 /* test encrypt_key */
   dh_make_key (&yarrow_prng, find_prng ("yarrow"), KEYSIZE/8, &usera);
-  for (x = 0; x < 16; x++) {
-    buf[0][x] = x;
+  for (ch = 0; ch < 16; ch++) {
+    buf[0][ch] = ch;
   }
   y = sizeof (buf[1]);
   DO(dh_encrypt_key (buf[0], 16, buf[1], &y, &yarrow_prng, find_prng ("yarrow"), find_hash ("md5"), &usera));
@@ -87,16 +87,16 @@ int dh_test (void)
     dh_free (&usera);
     return 1;
   }
-  for (x = 0; x < 16; x++)
-    if (buf[0][x] != x) {
+  for (ch = 0; ch < 16; ch++)
+    if (buf[0][ch] != ch) {
       fprintf(stderr, "Failed (contents)\n");
       dh_free (&usera);
       return 1;
     }
 
 /* test sign_hash */
-  for (x = 0; x < 16; x++) {
-     buf[0][x] = x;
+  for (ch = 0; ch < 16; ch++) {
+     buf[0][ch] = ch;
   }
   x = sizeof (buf[1]);
   DO(dh_sign_hash (buf[0], 16, buf[1], &x, &yarrow_prng, find_prng ("yarrow"), &usera));

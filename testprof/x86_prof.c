@@ -14,9 +14,12 @@ ulong64 epoch_usec(void)
 #elif defined(_WIN32)
   FILETIME CurrentTime;
   ulong64 cur_time;
+  ULARGE_INTEGER ul;
   GetSystemTimeAsFileTime(&CurrentTime);
-  cur_time = ((ulong64)CurrentTime.dwHighDateTime << 32) + (ulong64)CurrentTime.dwLowDateTime;
-  cur_time -= 116444736000000000LL; /* subtract epoch in microseconds */
+  ul.LowPart  = CurrentTime.dwLowDateTime;
+  ul.HighPart = CurrentTime.dwHighDateTime;
+  cur_time = ul.QuadPart;
+  cur_time -= CONST64(116444736000000000); /* subtract epoch in microseconds */
   cur_time /= 10; /* nanoseconds > microseconds */
   return cur_time;
 #else
@@ -108,12 +111,12 @@ void tally_results(int type)
    } else if (type == 1) {
       for (x = 0; x < no_results; x++) {
         printf
-          ("%-20s[%3d]: Encrypt at %5lu, Decrypt at %5lu\n", cipher_descriptor[results[x].id].name, cipher_descriptor[results[x].id].ID, results[x].spd1, results[x].spd2);
+          ("%-20s[%3d]: Encrypt at %5"PRI64"u, Decrypt at %5"PRI64"u\n", cipher_descriptor[results[x].id].name, cipher_descriptor[results[x].id].ID, results[x].spd1, results[x].spd2);
       }
    } else {
       for (x = 0; x < no_results; x++) {
         printf
-          ("%-20s: Process at %5lu\n", hash_descriptor[results[x].id].name, results[x].spd1 / 1000);
+          ("%-20s: Process at %5"PRI64"u\n", hash_descriptor[results[x].id].name, results[x].spd1 / 1000);
       }
    }
 }

@@ -14,74 +14,74 @@ int der_tests(void)
 #else
 
 static const unsigned char _der_tests_stinky_root_cert[] =
-   "MIIFETCCA/mgAwIBAgIQbv53JNmv518t5lkCHE272jANBgkqhkiG9w0BAQUFADCB\
-    lTELMAkGA1UEBhMCVVMxCzAJBgNVBAgTAlVUMRcwFQYDVQQHEw5TYWx0IExha2Ug\
-    Q2l0eTEeMBwGA1UEChMVVGhlIFVTRVJUUlVTVCBOZXR3b3JrMSEwHwYDVQQLExho\
-    dHRwOi8vd3d3LnVzZXJ0cnVzdC5jb20xHTAbBgNVBAMTFFVUTi1VU0VSRmlyc3Qt\
-    T2JqZWN0MB4XDTA4MDQyOTAwMDAwMFoXDTEwMDQyOTIzNTk1OVowgbUxCzAJBgNV\
-    BAYTAlVTMQ4wDAYDVQQRDAU0NDE0MzELMAkGA1UECAwCT0gxGTAXBgNVBAcMEE1h\
-    eWZpZWxkIFZpbGxhZ2UxEDAOBgNVBAkMB1N1aXRlIEExFDASBgNVBAkMCzc2NyBC\
-    ZXRhIERyMSIwIAYDVQQKDBlQcmVlbXB0aXZlIFNvbHV0aW9ucywgTExDMSIwIAYD\
-    VQQDDBlQcmVlbXB0aXZlIFNvbHV0aW9ucywgTExDMIIBIjANBgkqhkiG9w0BAQEF\
-    AAOCAQ8AMIIBCgKCAQEAzH7ZBkMcBuHx8d2f10RGTHAf7gzzVteGbOihJGH2BwlS\
-    ZvNp6WEE4DfL+s1vp0wzk1XeLN5tRjg2qum9YqyCk7okh7pXGy46f5mWbLQiefGA\
-    j5UXRcr6WJ3xeACdbXxKrYMV0REia+4Jb2UbFA8S81PjhRon6vcRz76ziUWwt8NC\
-    igX+4ZC0skhhKzKszel6KGL7bJCtLG7ukw9DZCrvPCRcKFeM/GwQ6ACMgP88CSCL\
-    t1fbIXDH1vd/x2XM3QlaSDN6hYDbef8m1T+9TCkXVKeqG1GYjSUrHzYnCZUmTRrR\
-    38jgC3qXxiIpDKW105uM0nlXe2XF9c+ot2MdWvV4TwIDAQABo4IBOTCCATUwHwYD\
-    VR0jBBgwFoAU2u1kdBScFDyr3ZmpvVsoTYs8ydgwHQYDVR0OBBYEFK+1HzZE4i28\
-    oLIzuqlFR9SspiCIMA4GA1UdDwEB/wQEAwIHgDAMBgNVHRMBAf8EAjAAMBMGA1Ud\
-    JQQMMAoGCCsGAQUFBwMDMBEGCWCGSAGG+EIBAQQEAwIEEDBGBgNVHSAEPzA9MDsG\
-    DCsGAQQBsjEBAgEDAjArMCkGCCsGAQUFBwIBFh1odHRwczovL3NlY3VyZS5jb21v\
-    ZG8ubmV0L0NQUzBCBgNVHR8EOzA5MDegNaAzhjFodHRwOi8vY3JsLnVzZXJ0cnVz\
-    dC5jb20vVVROLVVTRVJGaXJzdC1PYmplY3QuY3JsMCEGA1UdEQQaMBiBFnN1cHBv\
-    cnRAcHJlZW1wdGl2ZS5jb20wDQYJKoZIhvcNAQEFBQADggEBAC+JM26Dokvonudl\
-    JXe/Yun7IBhimkagZUjbk9l/GQWN6i+v1o95UJ1wGJtBdm2+MxbSaPoNTDZR4B+2\
-    lYL9MW57UVmePrnfUPXQKZZG+8gTRDz8+7ol/CEAKmS3MLKCRcH5oe+J5345sGxi\
-    FC/KWNKedTNraW95xlg8NTlL2yRP7TMsjvBxgLmkbaFUoXzPTbQWmtovIagIT8GC\
-    JeXwdFaRjbamiz3Irl+u7x/mhxdza6RvgBYylXRFMudANpeGsV7gDXlnfzpFDKHQ\
-    niVwB7P5sbPFIlmIc+4/xRItkLIRjCVXaepgN9KYu3VOgiSDI6wXiTwP44/LUXQM\
-    hetwa7s=";
+   "MIIFETCCA/mgAwIBAgIQbv53JNmv518t5lkCHE272jANBgkqhkiG9w0BAQUFADCB"
+   "lTELMAkGA1UEBhMCVVMxCzAJBgNVBAgTAlVUMRcwFQYDVQQHEw5TYWx0IExha2Ug"
+   "Q2l0eTEeMBwGA1UEChMVVGhlIFVTRVJUUlVTVCBOZXR3b3JrMSEwHwYDVQQLExho"
+   "dHRwOi8vd3d3LnVzZXJ0cnVzdC5jb20xHTAbBgNVBAMTFFVUTi1VU0VSRmlyc3Qt"
+   "T2JqZWN0MB4XDTA4MDQyOTAwMDAwMFoXDTEwMDQyOTIzNTk1OVowgbUxCzAJBgNV"
+   "BAYTAlVTMQ4wDAYDVQQRDAU0NDE0MzELMAkGA1UECAwCT0gxGTAXBgNVBAcMEE1h"
+   "eWZpZWxkIFZpbGxhZ2UxEDAOBgNVBAkMB1N1aXRlIEExFDASBgNVBAkMCzc2NyBC"
+   "ZXRhIERyMSIwIAYDVQQKDBlQcmVlbXB0aXZlIFNvbHV0aW9ucywgTExDMSIwIAYD"
+   "VQQDDBlQcmVlbXB0aXZlIFNvbHV0aW9ucywgTExDMIIBIjANBgkqhkiG9w0BAQEF"
+   "AAOCAQ8AMIIBCgKCAQEAzH7ZBkMcBuHx8d2f10RGTHAf7gzzVteGbOihJGH2BwlS"
+   "ZvNp6WEE4DfL+s1vp0wzk1XeLN5tRjg2qum9YqyCk7okh7pXGy46f5mWbLQiefGA"
+   "j5UXRcr6WJ3xeACdbXxKrYMV0REia+4Jb2UbFA8S81PjhRon6vcRz76ziUWwt8NC"
+   "igX+4ZC0skhhKzKszel6KGL7bJCtLG7ukw9DZCrvPCRcKFeM/GwQ6ACMgP88CSCL"
+   "t1fbIXDH1vd/x2XM3QlaSDN6hYDbef8m1T+9TCkXVKeqG1GYjSUrHzYnCZUmTRrR"
+   "38jgC3qXxiIpDKW105uM0nlXe2XF9c+ot2MdWvV4TwIDAQABo4IBOTCCATUwHwYD"
+   "VR0jBBgwFoAU2u1kdBScFDyr3ZmpvVsoTYs8ydgwHQYDVR0OBBYEFK+1HzZE4i28"
+   "oLIzuqlFR9SspiCIMA4GA1UdDwEB/wQEAwIHgDAMBgNVHRMBAf8EAjAAMBMGA1Ud"
+   "JQQMMAoGCCsGAQUFBwMDMBEGCWCGSAGG+EIBAQQEAwIEEDBGBgNVHSAEPzA9MDsG"
+   "DCsGAQQBsjEBAgEDAjArMCkGCCsGAQUFBwIBFh1odHRwczovL3NlY3VyZS5jb21v"
+   "ZG8ubmV0L0NQUzBCBgNVHR8EOzA5MDegNaAzhjFodHRwOi8vY3JsLnVzZXJ0cnVz"
+   "dC5jb20vVVROLVVTRVJGaXJzdC1PYmplY3QuY3JsMCEGA1UdEQQaMBiBFnN1cHBv"
+   "cnRAcHJlZW1wdGl2ZS5jb20wDQYJKoZIhvcNAQEFBQADggEBAC+JM26Dokvonudl"
+   "JXe/Yun7IBhimkagZUjbk9l/GQWN6i+v1o95UJ1wGJtBdm2+MxbSaPoNTDZR4B+2"
+   "lYL9MW57UVmePrnfUPXQKZZG+8gTRDz8+7ol/CEAKmS3MLKCRcH5oe+J5345sGxi"
+   "FC/KWNKedTNraW95xlg8NTlL2yRP7TMsjvBxgLmkbaFUoXzPTbQWmtovIagIT8GC"
+   "JeXwdFaRjbamiz3Irl+u7x/mhxdza6RvgBYylXRFMudANpeGsV7gDXlnfzpFDKHQ"
+   "niVwB7P5sbPFIlmIc+4/xRItkLIRjCVXaepgN9KYu3VOgiSDI6wXiTwP44/LUXQM"
+   "hetwa7s=";
 const unsigned char _der_tests_cacert_root_cert[] =
-   "MIIHPTCCBSWgAwIBAgIBADANBgkqhkiG9w0BAQQFADB5MRAwDgYDVQQKEwdSb290\
-    IENBMR4wHAYDVQQLExVodHRwOi8vd3d3LmNhY2VydC5vcmcxIjAgBgNVBAMTGUNB\
-    IENlcnQgU2lnbmluZyBBdXRob3JpdHkxITAfBgkqhkiG9w0BCQEWEnN1cHBvcnRA\
-    Y2FjZXJ0Lm9yZzAeFw0wMzAzMzAxMjI5NDlaFw0zMzAzMjkxMjI5NDlaMHkxEDAO\
-    BgNVBAoTB1Jvb3QgQ0ExHjAcBgNVBAsTFWh0dHA6Ly93d3cuY2FjZXJ0Lm9yZzEi\
-    MCAGA1UEAxMZQ0EgQ2VydCBTaWduaW5nIEF1dGhvcml0eTEhMB8GCSqGSIb3DQEJ\
-    ARYSc3VwcG9ydEBjYWNlcnQub3JnMIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIIC\
-    CgKCAgEAziLA4kZ97DYoB1CW8qAzQIxL8TtmPzHlawI229Z89vGIj053NgVBlfkJ\
-    8BLPRoZzYLdufujAWGSuzbCtRRcMY/pnCujW0r8+55jE8Ez64AO7NV1sId6eINm6\
-    zWYyN3L69wj1x81YyY7nDl7qPv4coRQKFWyGhFtkZip6qUtTefWIonvuLwphK42y\
-    fk1WpRPs6tqSnqxEQR5YYGUFZvjARL3LlPdCfgv3ZWiYUQXw8wWRBB0bF4LsyFe7\
-    w2t6iPGwcswlWyCR7BYCEo8y6RcYSNDHBS4CMEK4JZwFaz+qOqfrU0j36NK2B5jc\
-    G8Y0f3/JHIJ6BVgrCFvzOKKrF11myZjXnhCLotLddJr3cQxyYN/Nb5gznZY0dj4k\
-    epKwDpUeb+agRThHqtdB7Uq3EvbXG4OKDy7YCbZZ16oE/9KTfWgu3YtLq1i6L43q\
-    laegw1SJpfvbi1EinbLDvhG+LJGGi5Z4rSDTii8aP8bQUWWHIbEZAWV/RRyH9XzQ\
-    QUxPKZgh/TMfdQwEUfoZd9vUFBzugcMd9Zi3aQaRIt0AUMyBMawSB3s42mhb5ivU\
-    fslfrejrckzzAeVLIL+aplfKkQABi6F1ITe1Yw1nPkZPcCBnzsXWWdsC4PDSy826\
-    YreQQejdIOQpvGQpQsgi3Hia/0PsmBsJUUtaWsJx8cTLc6nloQsCAwEAAaOCAc4w\
-    ggHKMB0GA1UdDgQWBBQWtTIb1Mfz4OaO873SsDrusjkY0TCBowYDVR0jBIGbMIGY\
-    gBQWtTIb1Mfz4OaO873SsDrusjkY0aF9pHsweTEQMA4GA1UEChMHUm9vdCBDQTEe\
-    MBwGA1UECxMVaHR0cDovL3d3dy5jYWNlcnQub3JnMSIwIAYDVQQDExlDQSBDZXJ0\
-    IFNpZ25pbmcgQXV0aG9yaXR5MSEwHwYJKoZIhvcNAQkBFhJzdXBwb3J0QGNhY2Vy\
-    dC5vcmeCAQAwDwYDVR0TAQH/BAUwAwEB/zAyBgNVHR8EKzApMCegJaAjhiFodHRw\
-    czovL3d3dy5jYWNlcnQub3JnL3Jldm9rZS5jcmwwMAYJYIZIAYb4QgEEBCMWIWh0\
-    dHBzOi8vd3d3LmNhY2VydC5vcmcvcmV2b2tlLmNybDA0BglghkgBhvhCAQgEJxYl\
-    aHR0cDovL3d3dy5jYWNlcnQub3JnL2luZGV4LnBocD9pZD0xMDBWBglghkgBhvhC\
-    AQ0ESRZHVG8gZ2V0IHlvdXIgb3duIGNlcnRpZmljYXRlIGZvciBGUkVFIGhlYWQg\
-    b3ZlciB0byBodHRwOi8vd3d3LmNhY2VydC5vcmcwDQYJKoZIhvcNAQEEBQADggIB\
-    ACjH7pyCArpcgBLKNQodgW+JapnM8mgPf6fhjViVPr3yBsOQWqy1YPaZQwGjiHCc\
-    nWKdpIevZ1gNMDY75q1I08t0AoZxPuIrA2jxNGJARjtT6ij0rPtmlVOKTV39O9lg\
-    18p5aTuxZZKmxoGCXJzN600BiqXfEVWqFcofN8CCmHBh22p8lqOOLlQ+TyGpkO/c\
-    gr/c6EWtTZBzCDyUZbAEmXZ/4rzCahWqlwQ3JNgelE5tDlG+1sSPypZt90Pf6DBl\
-    Jzt7u0NDY8RD97LsaMzhGY4i+5jhe1o+ATc7iwiwovOVThrLm82asduycPAtStvY\
-    sONvRUgzEv/+PDIqVPfE94rwiCPCR/5kenHA0R6mY7AHfqQv0wGP3J8rtsYIqQ+T\
-    SCX8Ev2fQtzzxD72V7DX3WnRBnc0CkvSyqD/HMaMyRa+xMwyN2hzXwj7UfdJUzYF\
-    CpUCTPJ5GhD22Dp1nPMd8aINcGeGG7MW9S/lpOt5hvk9C8JzC6WZrG/8Z7jlLwum\
-    GCSNe9FINSkYQKyTYOGWhlC0elnYjyELn8+CkcY7v2vcB5G5l1YjqrZslMZIBjzk\
-    zk6q5PYvCdxTby78dOs6Y5nCpqyJvKeyRKANihDjbPIky/qbn3BHLt4Ui9SyIAmW\
-    omTxJBzcoTWcFbLUvFUufQb1nA5V9FrWk9p2rSVzTMVD";
+   "MIIHPTCCBSWgAwIBAgIBADANBgkqhkiG9w0BAQQFADB5MRAwDgYDVQQKEwdSb290"
+   "IENBMR4wHAYDVQQLExVodHRwOi8vd3d3LmNhY2VydC5vcmcxIjAgBgNVBAMTGUNB"
+   "IENlcnQgU2lnbmluZyBBdXRob3JpdHkxITAfBgkqhkiG9w0BCQEWEnN1cHBvcnRA"
+   "Y2FjZXJ0Lm9yZzAeFw0wMzAzMzAxMjI5NDlaFw0zMzAzMjkxMjI5NDlaMHkxEDAO"
+   "BgNVBAoTB1Jvb3QgQ0ExHjAcBgNVBAsTFWh0dHA6Ly93d3cuY2FjZXJ0Lm9yZzEi"
+   "MCAGA1UEAxMZQ0EgQ2VydCBTaWduaW5nIEF1dGhvcml0eTEhMB8GCSqGSIb3DQEJ"
+   "ARYSc3VwcG9ydEBjYWNlcnQub3JnMIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIIC"
+   "CgKCAgEAziLA4kZ97DYoB1CW8qAzQIxL8TtmPzHlawI229Z89vGIj053NgVBlfkJ"
+   "8BLPRoZzYLdufujAWGSuzbCtRRcMY/pnCujW0r8+55jE8Ez64AO7NV1sId6eINm6"
+   "zWYyN3L69wj1x81YyY7nDl7qPv4coRQKFWyGhFtkZip6qUtTefWIonvuLwphK42y"
+   "fk1WpRPs6tqSnqxEQR5YYGUFZvjARL3LlPdCfgv3ZWiYUQXw8wWRBB0bF4LsyFe7"
+   "w2t6iPGwcswlWyCR7BYCEo8y6RcYSNDHBS4CMEK4JZwFaz+qOqfrU0j36NK2B5jc"
+   "G8Y0f3/JHIJ6BVgrCFvzOKKrF11myZjXnhCLotLddJr3cQxyYN/Nb5gznZY0dj4k"
+   "epKwDpUeb+agRThHqtdB7Uq3EvbXG4OKDy7YCbZZ16oE/9KTfWgu3YtLq1i6L43q"
+   "laegw1SJpfvbi1EinbLDvhG+LJGGi5Z4rSDTii8aP8bQUWWHIbEZAWV/RRyH9XzQ"
+   "QUxPKZgh/TMfdQwEUfoZd9vUFBzugcMd9Zi3aQaRIt0AUMyBMawSB3s42mhb5ivU"
+   "fslfrejrckzzAeVLIL+aplfKkQABi6F1ITe1Yw1nPkZPcCBnzsXWWdsC4PDSy826"
+   "YreQQejdIOQpvGQpQsgi3Hia/0PsmBsJUUtaWsJx8cTLc6nloQsCAwEAAaOCAc4w"
+   "ggHKMB0GA1UdDgQWBBQWtTIb1Mfz4OaO873SsDrusjkY0TCBowYDVR0jBIGbMIGY"
+   "gBQWtTIb1Mfz4OaO873SsDrusjkY0aF9pHsweTEQMA4GA1UEChMHUm9vdCBDQTEe"
+   "MBwGA1UECxMVaHR0cDovL3d3dy5jYWNlcnQub3JnMSIwIAYDVQQDExlDQSBDZXJ0"
+   "IFNpZ25pbmcgQXV0aG9yaXR5MSEwHwYJKoZIhvcNAQkBFhJzdXBwb3J0QGNhY2Vy"
+   "dC5vcmeCAQAwDwYDVR0TAQH/BAUwAwEB/zAyBgNVHR8EKzApMCegJaAjhiFodHRw"
+   "czovL3d3dy5jYWNlcnQub3JnL3Jldm9rZS5jcmwwMAYJYIZIAYb4QgEEBCMWIWh0"
+   "dHBzOi8vd3d3LmNhY2VydC5vcmcvcmV2b2tlLmNybDA0BglghkgBhvhCAQgEJxYl"
+   "aHR0cDovL3d3dy5jYWNlcnQub3JnL2luZGV4LnBocD9pZD0xMDBWBglghkgBhvhC"
+   "AQ0ESRZHVG8gZ2V0IHlvdXIgb3duIGNlcnRpZmljYXRlIGZvciBGUkVFIGhlYWQg"
+   "b3ZlciB0byBodHRwOi8vd3d3LmNhY2VydC5vcmcwDQYJKoZIhvcNAQEEBQADggIB"
+   "ACjH7pyCArpcgBLKNQodgW+JapnM8mgPf6fhjViVPr3yBsOQWqy1YPaZQwGjiHCc"
+   "nWKdpIevZ1gNMDY75q1I08t0AoZxPuIrA2jxNGJARjtT6ij0rPtmlVOKTV39O9lg"
+   "18p5aTuxZZKmxoGCXJzN600BiqXfEVWqFcofN8CCmHBh22p8lqOOLlQ+TyGpkO/c"
+   "gr/c6EWtTZBzCDyUZbAEmXZ/4rzCahWqlwQ3JNgelE5tDlG+1sSPypZt90Pf6DBl"
+   "Jzt7u0NDY8RD97LsaMzhGY4i+5jhe1o+ATc7iwiwovOVThrLm82asduycPAtStvY"
+   "sONvRUgzEv/+PDIqVPfE94rwiCPCR/5kenHA0R6mY7AHfqQv0wGP3J8rtsYIqQ+T"
+   "SCX8Ev2fQtzzxD72V7DX3WnRBnc0CkvSyqD/HMaMyRa+xMwyN2hzXwj7UfdJUzYF"
+   "CpUCTPJ5GhD22Dp1nPMd8aINcGeGG7MW9S/lpOt5hvk9C8JzC6WZrG/8Z7jlLwum"
+   "GCSNe9FINSkYQKyTYOGWhlC0elnYjyELn8+CkcY7v2vcB5G5l1YjqrZslMZIBjzk"
+   "zk6q5PYvCdxTby78dOs6Y5nCpqyJvKeyRKANihDjbPIky/qbn3BHLt4Ui9SyIAmW"
+   "omTxJBzcoTWcFbLUvFUufQb1nA5V9FrWk9p2rSVzTMVD";
 const unsigned long _der_tests_cacert_root_cert_size = sizeof(_der_tests_cacert_root_cert);
 
 /*
@@ -1027,8 +1027,8 @@ static void der_flexi_test(void)
 static int der_choice_test(void)
 {
    ltc_asn1_list types[7], host[1];
-   unsigned char bitbuf[10], octetbuf[10], ia5buf[10], printbuf[10], outbuf[256];
-   unsigned long integer, oidbuf[10], outlen, inlen, x, y;
+   unsigned char bitbuf[10], octetbuf[10], ia5buf[10], printbuf[10], outbuf[256], x, y;
+   unsigned long integer, oidbuf[10], outlen, inlen;
    void          *mpinteger;
    ltc_utctime   utctime = { 91, 5, 6, 16, 45, 40, 1, 7, 0 };
    ltc_generalizedtime gtime = { 2038, 01, 19, 3, 14, 8, 0, 0, 0, 0 };
@@ -1073,11 +1073,11 @@ static int der_choice_test(void)
 
        for (y = 0; y < 7; y++) {
            if (types[y].used && y != (x>6?x-7:x)) {
-               fprintf(stderr, "CHOICE, flag %lu in trial %lu was incorrectly set to one\n", y, x);
+               fprintf(stderr, "CHOICE, flag %u in trial %u was incorrectly set to one\n", y, x);
                return 1;
            }
            if (!types[y].used && y == (x>6?x-7:x)) {
-               fprintf(stderr, "CHOICE, flag %lu in trial %lu was incorrectly set to zero\n", y, x);
+               fprintf(stderr, "CHOICE, flag %u in trial %u was incorrectly set to zero\n", y, x);
                return 1;
            }
       }
@@ -1166,9 +1166,12 @@ int der_tests(void)
          DO(der_encode_short_integer(mp_get_int(a), buf[1], &y));
          if (x != y || memcmp(buf[0], buf[1], x)) {
             fprintf(stderr, "DER INTEGER short encoding failed, %lu, %lu, 0x%lX\n", x, y, mp_get_int(a));
-            for (zz = 0; zz < z; zz++) fprintf(stderr, "%02x ", buf[2][zz]); fprintf(stderr, "\n");
-            for (z = 0; z < x; z++) fprintf(stderr, "%02x ", buf[0][z]); fprintf(stderr, "\n");
-            for (z = 0; z < y; z++) fprintf(stderr, "%02x ", buf[1][z]); fprintf(stderr, "\n");
+            for (zz = 0; zz < z; zz++) fprintf(stderr, "%02x ", buf[2][zz]);
+            fprintf(stderr, "\n");
+            for (z = 0; z < x; z++) fprintf(stderr, "%02x ", buf[0][z]);
+            fprintf(stderr, "\n");
+            for (z = 0; z < y; z++) fprintf(stderr, "%02x ", buf[1][z]);
+            fprintf(stderr, "\n");
             mp_clear_multi(a, b, c, d, e, f, g, NULL);
             return 1;
          }
@@ -1280,7 +1283,8 @@ int der_tests(void)
        }
        if (memcmp(oid[0], oid[1], sizeof(oid[0][0]) * z)) {
           fprintf(stderr, "Random OID %lu test failed, decoded values wrong\n", z);
-          for (x = 0; x < z; x++) fprintf(stderr, "%lu\n", oid[0][x]); fprintf(stderr, "\n\n Got \n\n");
+          for (x = 0; x < z; x++) fprintf(stderr, "%lu\n", oid[0][x]);
+          fprintf(stderr, "\n\n Got \n\n");
           for (x = 0; x < z; x++) fprintf(stderr, "%lu\n", oid[1][x]);
           return 1;
        }
@@ -1329,9 +1333,9 @@ int der_tests(void)
    DO(der_encode_utctime((ltc_utctime*)&rsa_time1, buf[0], &x));
    if (x != sizeof(rsa_time1_der) || memcmp(buf[0], rsa_time1_der, x)) {
       fprintf(stderr, "UTCTIME encode of rsa_time1 failed: %lu, %lu\n", x, (unsigned long)sizeof(rsa_time1_der));
-fprintf(stderr, "\n\n");
-for (y = 0; y < x; y++) fprintf(stderr, "%02x ", buf[0][y]); printf("\n");
-
+      fprintf(stderr, "\n\n");
+      for (y = 0; y < x; y++) fprintf(stderr, "%02x ", buf[0][y]);
+      fprintf(stderr, "\n");
       return 1;
    }
    DO(der_length_utctime((ltc_utctime*)&rsa_time1, &y));
@@ -1359,9 +1363,9 @@ tmp_time.off_hh);
    DO(der_encode_utctime((ltc_utctime*)&rsa_time2, buf[0], &x));
    if (x != sizeof(rsa_time2_der) || memcmp(buf[0], rsa_time2_der, x)) {
       fprintf(stderr, "UTCTIME encode of rsa_time2 failed: %lu, %lu\n", x, (unsigned long)sizeof(rsa_time1_der));
-fprintf(stderr, "\n\n");
-for (y = 0; y < x; y++) fprintf(stderr, "%02x ", buf[0][y]); printf("\n");
-
+      fprintf(stderr, "\n\n");
+      for (y = 0; y < x; y++) fprintf(stderr, "%02x ", buf[0][y]);
+      fprintf(stderr, "\n");
       return 1;
    }
    DO(der_length_utctime((ltc_utctime*)&rsa_time2, &y));
@@ -1394,7 +1398,8 @@ tmp_time.off_hh);
      DO(der_length_utf8_string(utf8_1, sizeof(utf8_1) / sizeof(utf8_1[0]), &y));
      if (x != sizeof(utf8_1_der) || memcmp(utf8_buf, utf8_1_der, x) || x != y) {
         fprintf(stderr, "DER UTF8_1 encoded to %lu bytes\n", x);
-        for (y = 0; y < x; y++) fprintf(stderr, "%02x ", (unsigned)utf8_buf[y]); fprintf(stderr, "\n");
+        for (y = 0; y < x; y++) fprintf(stderr, "%02x ", (unsigned)utf8_buf[y]);
+        fprintf(stderr, "\n");
         return 1;
      }
      /* decode it */
@@ -1402,7 +1407,8 @@ tmp_time.off_hh);
      DO(der_decode_utf8_string(utf8_buf, x, utf8_out, &y));
      if (y != (sizeof(utf8_1) / sizeof(utf8_1[0])) || memcmp(utf8_1, utf8_out, y * sizeof(wchar_t))) {
         fprintf(stderr, "DER UTF8_1 decoded to %lu wchar_t\n", y);
-        for (x = 0; x < y; x++) fprintf(stderr, "%04lx ", (unsigned long)utf8_out[x]); fprintf(stderr, "\n");
+        for (x = 0; x < y; x++) fprintf(stderr, "%04lx ", (unsigned long)utf8_out[x]);
+        fprintf(stderr, "\n");
         return 1;
      }
 
@@ -1411,7 +1417,8 @@ tmp_time.off_hh);
      DO(der_encode_utf8_string(utf8_2, sizeof(utf8_2) / sizeof(utf8_2[0]), utf8_buf, &x));
      if (x != sizeof(utf8_2_der) || memcmp(utf8_buf, utf8_2_der, x)) {
         fprintf(stderr, "DER UTF8_2 encoded to %lu bytes\n", x);
-        for (y = 0; y < x; y++) fprintf(stderr, "%02x ", (unsigned)utf8_buf[y]); fprintf(stderr, "\n");
+        for (y = 0; y < x; y++) fprintf(stderr, "%02x ", (unsigned)utf8_buf[y]);
+        fprintf(stderr, "\n");
         return 1;
      }
      /* decode it */
@@ -1419,7 +1426,8 @@ tmp_time.off_hh);
      DO(der_decode_utf8_string(utf8_buf, x, utf8_out, &y));
      if (y != (sizeof(utf8_2) / sizeof(utf8_2[0])) || memcmp(utf8_2, utf8_out, y * sizeof(wchar_t))) {
         fprintf(stderr, "DER UTF8_2 decoded to %lu wchar_t\n", y);
-        for (x = 0; x < y; x++) fprintf(stderr, "%04lx ", (unsigned long)utf8_out[x]); fprintf(stderr, "\n");
+        for (x = 0; x < y; x++) fprintf(stderr, "%04lx ", (unsigned long)utf8_out[x]);
+        fprintf(stderr, "\n");
         return 1;
      }
 

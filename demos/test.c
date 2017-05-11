@@ -33,7 +33,8 @@ int main(int argc, char **argv)
    int x, pass = 0, fail = 0, nop = 0;
    size_t fn_len, i, dots;
    char *single_test = NULL;
-   ulong64 ts, dur = 0;
+   ulong64 ts;
+   long delta, dur = 0;
    reg_algs();
 
    printf("build == \n%s\n", crypt_build_settings);
@@ -77,11 +78,11 @@ int main(int argc, char **argv)
 
       ts = epoch_usec();
       x = test_functions[i].fn();
-      ts = epoch_usec() - ts;
-      dur += ts;
+      delta = (long)(epoch_usec() - ts);
+      dur += delta;
 
       if (x == CRYPT_OK) {
-         printf("passed %10.3fms", (double)(ts)/1000);
+         printf("passed %10.3fms", (double)(delta)/1000);
          pass++;
       }
       else if (x == CRYPT_NOP) {
@@ -89,7 +90,7 @@ int main(int argc, char **argv)
          nop++;
       }
       else {
-         printf("failed %10.3fms", (double)(ts)/1000);
+         printf("failed %10.3fms", (double)(delta)/1000);
          fail++;
       }
    }
