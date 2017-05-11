@@ -1,10 +1,10 @@
-prefix=/usr
+prefix=@to-be-replaced@
 exec_prefix=${prefix}
-libdir=@LIBDIR@
+libdir=${exec_prefix}/lib
 includedir=${prefix}/include
 
 Name: LibTomCrypt
 Description: public domain open source cryptographic toolkit
-Version: 1.17
+Version: @to-be-replaced@
 Libs: -L${libdir} -ltomcrypt
 Cflags: -I${includedir}

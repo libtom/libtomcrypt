@@ -42,11 +42,14 @@ if [ -a test ] && [ -f test ] && [ -x test ]; then
    fi
 fi
 
-lcov_opts="--capture --no-external --directory src -q"
-lcov_out=$(echo coverage_$1_$2_$3 | tr ' -=+' '_')".info"
 
 if [ -a testok.txt ] && [ -f testok.txt ]; then
-   [ "$LTC_COVERAGE" != "" ] && lcov $lcov_opts --output-file $lcov_out
+   if [ "$LTC_COVERAGE" != "" ]; then
+      ./coverage_more.sh > test_coverage_more.txt || exit 1
+      lcov_opts="--capture --no-external --directory src -q"
+      lcov_out=$(echo coverage_$1_$2_$3 | tr ' -=+' '_')".info"
+      lcov $lcov_opts --output-file $lcov_out
+   fi
    exit 0
 fi
 exit 1

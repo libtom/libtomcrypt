@@ -20,7 +20,7 @@ fi
 # output version
 bash printinfo.sh
 
-bash build.sh " $1" " $2" " $3 COVERAGE=1" "$4 -fprofile-arcs -ftest-coverage " "$5 -lgcov"
+bash build.sh " $1" " $2" " $3 COVERAGE=1" "$4" "$5"
 if [ -a testok.txt ] && [ -f testok.txt ]; then
    echo
 else
@@ -29,24 +29,14 @@ else
    exit 1
 fi
 
-./sizes
-./constants
+./coverage_more.sh > test_coverage_more.txt || { rm -f testok.txt && exit 1 ; }
 
-for i in $(for j in $(echo $(./hashsum -h | tail -n +3)); do echo $j; done | sort); do echo -n "$i: " && ./hashsum -a $i testprof/test.key ; done > hashsum_tv.txt
-difftroubles=$(diff -i -w -B hashsum_tv.txt notes/hashsum_tv.txt | grep '^<') || true
-if [ -n "$difftroubles" ]; then
-  echo "FAILURE: hashsum_tv.tx"
-  diff -i -w -B hashsum_tv.txt notes/hashsum_tv.txt
-  echo "hashsum failed" && rm -f testok.txt && exit 1
-else
-  echo "hashsum okay"
-fi
-
+make lcov-single
 # if this was executed as './coverage.sh ...' create coverage locally
 if [[ "${0%% *}" == "./${0##*/}" ]]; then
-   make lcov-single
+   make lcov-html
 else
-   cpp-coveralls -e 'demos/' -e 'testprof/' -e 'notes/' -e 'src/headers/'
+   coveralls-lcov coverage.info
 fi
 
 exit 0

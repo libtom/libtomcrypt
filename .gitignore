@@ -7,6 +7,10 @@
 /MSVC_*
 .libs/
 
+# release files
+/libtomcrypt-*
+/crypt-*
+
 # suppress output of build process
 gcc_[12].txt
 testok.txt
@@ -20,8 +24,8 @@ doc/refman.pdf
 # *nix/windows test executables
 constants
 constants.exe
-crypt
-crypt.exe
+ltcrypt
+ltcrypt.exe
 hashsum
 hashsum.exe
 multi
@@ -47,6 +51,11 @@ timing.exe
 *.idb
 *.pdb
 
+# Eclipse special files
+.project
+.cproject
+.settings/
+
 # oops ;) but we don't want them to appear in the repository...
 *.stackdump
 *.core
@@ -61,6 +70,20 @@ timing.exe
 *.gcda
 *.gcno
 *.gcov
+libtomcrypt.pc
+
+# output from doc generation
+doxygen/
+*.dvi
+*.log
+*.aux
+*.toc
+*.idx
+*.ilg
+*.ind
+*.out
+*.lof
+*.bak
 
 coverage/
 coverage*.info

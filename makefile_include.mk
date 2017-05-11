@@ -1,103 +1,143 @@
-# MAKEFILE for linux ICC (Intel C compiler)
 #
-# Tested with ICC v8....
-#
-# Be aware that ICC isn't quite as stable as GCC and several optimization switches
-# seem to break the code (that GCC and MSVC compile just fine).  In particular
-# "-ip" and "-x*" seem to break the code (ROL/ROR macro problems).  As the makefile
-# is shipped the code will build and execute properly.
-#
-# Also note that ICC often makes code that is slower than GCC.  This is probably due to
-# a mix of not being able to use "-ip" and just having fewer optimization algos than GCC.
-#
-# Tom St Denis
+# Include makefile used by makefile + makefile.shared
+#  (GNU make only)
+
+# The version - BEWARE: VERSION and VERSION_LT are updated via ./updatemakes.sh
+VERSION=1.17
+# http://www.gnu.org/software/libtool/manual/html_node/Updating-version-info.html
+VERSION_LT=0:117
+
+PLATFORM := $(shell uname | sed -e 's/_.*//')
 
 # Compiler and Linker Names
-CC=icc
+ifndef PREFIX
+  PREFIX:=
+endif
 
-#LD=ld
+ifeq ($(CC),cc)
+  CC := $(PREFIX)gcc
+endif
+LD:=$(PREFIX)ld
+AR:=$(PREFIX)ar
 
 # Archiver [makes .a files]
-# With compile option "-ipo" it can be necessary to archive with 'xiar'
 #AR=ar
-#ARFLAGS=r
+ARFLAGS:=r
 
 ifndef MAKE
-  MAKE=make
+  MAKE:=make
 endif
+
+ifndef INSTALL_CMD
+$(error your makefile must define INSTALL_CMD)
+endif
+
+ifndef EXTRALIBS
+ifneq ($(shell echo $(CFLAGS) | grep USE_LTM),)
+EXTRALIBS=$(shell PKG_CONFIG_PATH=$(LIBPATH)/pkgconfig pkg-config libtommath --libs)
+else
+ifneq ($(shell echo $(CFLAGS) | grep USE_TFM),)
+EXTRALIBS=$(shell PKG_CONFIG_PATH=$(LIBPATH)/pkgconfig pkg-config tomsfastmath --libs)
+endif
+endif
+endif
+
 
 # Compilation flags. Note the += does not write over the user's CFLAGS!
-CFLAGS += -c -I./testprof/ -I./src/headers/ -Wall -Wsign-compare -W -Wshadow -Wno-unused-parameter -DLTC_SOURCE
+CFLAGS += -I./src/headers/ -Wall -Wsign-compare -Wshadow -DLTC_SOURCE
 
-#The default rule for make builds the libtomcrypt library.
-default:library
-
-# optimize for SPEED
-#
-# -mcpu= can be pentium, pentiumpro (covers PII through PIII) or pentium4
-# -a?	specifies make code specifically for ? but compatible with IA-32
-# -?	   specifies compile solely for ? [not specifically IA-32 compatible]
-#
-# where ? is
-#	mia   - PIII; has only option "-mia32", no "-amia32"
-#	msse2 - first P4 [Willamette]; has only option "-msse2", no "-amsse2"
-#	xSSE2 - P4 Northwood
-#	xSSE3 - P4 Prescott
-#
-# The easiest way - when compiling on one architecture, only for
-# this architecture - is to enable the compiler option "-fast", which enables
-# "all possible" optimizations for this architecture.
-# ICC 14.0.3 20140422 says "-fast" resolves to
-# "-xHOST -O3 -ipo -no-prec-div -static"
-#
-# Default to just generic max opts
-ifdef LTC_SMALL
-CFLAGS += -O1
+ifdef OLD_GCC
+CFLAGS += -W
+# older GCCs can't handle the "rotate with immediate" ROLc/RORc/etc macros
+# define this to help
+CFLAGS += -DLTC_NO_ROLC
+else
+CFLAGS += -Wextra
+# additional warnings
+CFLAGS += -Wsystem-headers -Wbad-function-cast -Wcast-align
+CFLAGS += -Wstrict-prototypes -Wpointer-arith
+CFLAGS += -Wdeclaration-after-statement
 endif
+
+CFLAGS += -Wno-type-limits
+
+ifdef LTC_DEBUG
+# compile for DEBUGGING (required for ccmalloc checking!!!)
+ifneq (,$(strip $(LTC_DEBUG)))
+CFLAGS += -g3 -DLTC_NO_ASM -DLTC_TEST_DBG=$(LTC_DEBUG)
+else
+CFLAGS += -g3 -DLTC_NO_ASM -DLTC_TEST_DBG
+endif
+else
+
+ifdef LTC_SMALL
+# optimize for SIZE
+CFLAGS += -Os -DLTC_SMALL_CODE
+else
 
 ifndef IGNORE_SPEED
-CFLAGS += -O3
+# optimize for SPEED
+CFLAGS += -O3 -funroll-loops
+
+# add -fomit-frame-pointer.  hinders debugging!
+CFLAGS += -fomit-frame-pointer
 endif
 
-# want to see stuff?
-#CFLAGS += -opt_report
+endif # COMPILE_SMALL
+endif # COMPILE_DEBUG
 
-#These flags control how the library gets built.
 
-#Output filenames for various targets.
-ifndef LIBNAME
-   LIBNAME=libtomcrypt.a
+ifneq ($(findstring clang,$(CC)),)
+CFLAGS += -Wno-typedef-redefinition -Wno-tautological-compare
 endif
-ifndef LIBTEST
-   LIBTEST=libtomcrypt_prof.a
-   LIBTEST_S=$(LIBTEST)
+
+
+GIT_VERSION := $(shell [ -e .git ] && { echo -n git- ; git describe --tags --always --dirty ; } || echo $(VERSION))
+ifneq ($(GIT_VERSION),)
+CFLAGS += -DGIT_VERSION=\"$(GIT_VERSION)\"
 endif
-HASH=hashsum
-CRYPT=encrypt
-SMALL=small
-PROF=x86_prof
-TV=tv_gen
+
+
+#List of demo objects
+DSOURCES = $(wildcard demos/*.c)
+DOBJECTS = $(DSOURCES:.c=.o)
+
+#List of testprof headers
+THEADERS = $(wildcard testprof/*.h)
+
 TIMING=timing
 TEST=test
 
-#LIBPATH-The directory for libtomcrypt to be installed to.
-#INCPATH-The directory to install the header files for libtomcrypt.
-#DATAPATH-The directory to install the pdf docs.
-ifndef DESTDIR
-   DESTDIR=
-endif
-ifndef LIBPATH
-   LIBPATH=/usr/lib
-endif
-ifndef INCPATH
-   INCPATH=/usr/include
-endif
-ifndef DATAPATH
-   DATAPATH=/usr/share/doc/libtomcrypt/pdf
+USEFUL_DEMOS=hashsum
+DEMOS=$(USEFUL_DEMOS) ltcrypt small tv_gen sizes constants
+
+TIMINGS=demos/timing.o
+TESTS=demos/test.o
+
+#LIBPATH  The directory for libtomcrypt to be installed to.
+#INCPATH  The directory to install the header files for libtomcrypt.
+#DATAPATH The directory to install the pdf docs.
+#BINPATH  The directory to install the binaries provided.
+DESTDIR  ?= /usr/local
+LIBPATH  ?= $(DESTDIR)/lib
+INCPATH  ?= $(DESTDIR)/include
+DATAPATH ?= $(DESTDIR)/share/doc/libtomcrypt/pdf
+BINPATH  ?= $(DESTDIR)/bin
+
+#Who do we install as?
+ifdef INSTALL_USER
+USER=$(INSTALL_USER)
+else
+USER=root
 endif
 
-#List of objects to compile.
-#START_INS
+ifdef INSTALL_GROUP
+GROUP=$(INSTALL_GROUP)
+else
+GROUP=wheel
+endif
+
+# List of objects to compile (all goes to libtomcrypt.a)
 OBJECTS=src/ciphers/aes/aes.o src/ciphers/aes/aes_enc.o src/ciphers/anubis.o src/ciphers/blowfish.o \
 src/ciphers/camellia.o src/ciphers/cast5.o src/ciphers/des.o src/ciphers/kasumi.o src/ciphers/khazad.o \
 src/ciphers/kseed.o src/ciphers/multi2.o src/ciphers/noekeon.o src/ciphers/rc2.o src/ciphers/rc5.o \
@@ -249,41 +289,20 @@ src/stream/chacha/chacha_keystream.o src/stream/chacha/chacha_setup.o src/stream
 src/stream/rc4/rc4.o src/stream/rc4/rc4_test.o src/stream/sober128/sober128.o \
 src/stream/sober128/sober128_test.o
 
+# List of test objects to compile (all goes to libtomcrypt_prof.a)
+TOBJECTS=testprof/base64_test.o testprof/cipher_hash_test.o testprof/der_tests.o testprof/dh_test.o \
+testprof/dsa_test.o testprof/ecc_test.o testprof/file_test.o testprof/katja_test.o testprof/mac_test.o \
+testprof/misc_test.o testprof/modes_test.o testprof/multi_test.o testprof/no_prng.o \
+testprof/pkcs_1_eme_test.o testprof/pkcs_1_emsa_test.o testprof/pkcs_1_oaep_test.o \
+testprof/pkcs_1_pss_test.o testprof/pkcs_1_test.o testprof/rotate_test.o testprof/rsa_test.o \
+testprof/store_test.o testprof/test_driver.o testprof/x86_prof.o
+
+# The following headers will be installed by "make install"
 HEADERS=src/headers/tomcrypt.h src/headers/tomcrypt_argchk.h src/headers/tomcrypt_cfg.h \
 src/headers/tomcrypt_cipher.h src/headers/tomcrypt_custom.h src/headers/tomcrypt_hash.h \
 src/headers/tomcrypt_mac.h src/headers/tomcrypt_macros.h src/headers/tomcrypt_math.h \
 src/headers/tomcrypt_misc.h src/headers/tomcrypt_pk.h src/headers/tomcrypt_pkcs.h \
-src/headers/tomcrypt_prng.h testprof/tomcrypt_test.h
-
-#END_INS
-
-#Who do we install as?
-ifdef INSTALL_USER
-USER=$(INSTALL_USER)
-else
-USER=root
-endif
-
-ifdef INSTALL_GROUP
-GROUP=$(INSTALL_GROUP)
-else
-GROUP=wheel
-endif
-
-#ciphers come in two flavours... enc+dec and enc
-aes_enc.o: aes.c aes_tab.c
-	$(CC) $(CFLAGS) -DENCRYPT_ONLY -c aes.c -o aes_enc.o
-
-HASHOBJECTS=demos/hashsum.o
-CRYPTOBJECTS=demos/encrypt.o
-SMALLOBJECTS=demos/small.o
-TVS=demos/tv_gen.o
-TIMINGS=demos/timing.o
-TESTS=demos/test.o
-
-#ciphers come in two flavours... enc+dec and enc
-src/ciphers/aes/aes_enc.o: src/ciphers/aes/aes.c src/ciphers/aes/aes_tab.c
-	$(CC) $(CFLAGS) -DENCRYPT_ONLY -c src/ciphers/aes/aes.c -o src/ciphers/aes/aes_enc.o
+src/headers/tomcrypt_prng.h
 
 #These are the rules to make certain object files.
 src/ciphers/aes/aes.o: src/ciphers/aes/aes.c src/ciphers/aes/aes_tab.c
@@ -294,51 +313,101 @@ src/hashes/sha2/sha512_224.o: src/hashes/sha2/sha512.c src/hashes/sha2/sha512_22
 src/hashes/sha2/sha512_256.o: src/hashes/sha2/sha512.c src/hashes/sha2/sha512_256.c
 src/hashes/sha2/sha256.o: src/hashes/sha2/sha256.c src/hashes/sha2/sha224.c
 
+
+#The default rule for make builds the libtomcrypt library.
+default:library
+
+$(DOBJECTS): CFLAGS += -Itestprof
+$(TOBJECTS): CFLAGS += -Itestprof
+
 #This rule makes the libtomcrypt library.
 library: $(LIBNAME)
 
-.PHONY: testprof/$(LIBTEST)
-testprof/$(LIBTEST):
-	cd testprof ; LIBTEST_S=$(LIBTEST) CFLAGS="$(CFLAGS)" CC="$(CC)" AR="$(AR)" $(MAKE) -f makefile.icc
+#Dependencies on *.h
+$(OBJECTS): $(HEADERS)
+$(DOBJECTS): $(HEADERS) $(THEADERS)
+$(TOBJECTS): $(HEADERS) $(THEADERS)
 
-$(LIBNAME): $(OBJECTS)
-	$(AR) $(ARFLAGS) $@ $(OBJECTS)
-	ranlib $@
+bins: $(USEFUL_DEMOS)
 
-#This rule makes the hash program included with libtomcrypt
-hashsum: library $(HASHOBJECTS)
-	$(CC) $(HASHOBJECTS) $(LIBNAME) $(EXTRALIBS) -o $(HASH) $(WARN)
+all_test: test tv_gen $(DEMOS)
 
-#makes the crypt program
-crypt: library $(CRYPTOBJECTS)
-	$(CC) $(CRYPTOBJECTS) $(LIBNAME) $(EXTRALIBS) -o $(CRYPT) $(WARN)
+#build the doxy files (requires Doxygen, tetex and patience)
+doxygen doxy docs:
+	$(MAKE) -C doc/ $@ V=$(V)
 
-#makes the small program
-small: library $(SMALLOBJECTS)
-	$(CC) $(SMALLOBJECTS) $(LIBNAME) $(EXTRALIBS) -o $(SMALL) $(WARN)
-	
-tv_gen: library $(TVS)
-	$(CC) $(TVS) $(LIBNAME) $(EXTRALIBS) -o $(TV)
+doc/crypt.pdf:
+	$(MAKE) -C doc/ crypt.pdf V=$(V)
 
-timing: library $(TIMINGS) testprof/$(LIBTEST)
-	$(CC) $(TIMINGS) testprof/$(LIBTEST) $(LIBNAME) $(EXTRALIBS) -o $(TIMING)
 
-.PHONY: test
-test: library $(TESTS) testprof/$(LIBTEST)
-	$(CC) $(TESTS) testprof/$(LIBTEST) $(LIBNAME) $(EXTRALIBS) -o $(TEST)
+install_all: install install_bins install_docs install_test
 
-all_test: test tv_gen hashsum crypt small timing
 
-#This rule installs the library and the header files. This must be run
-#as root in order to have a high enough permission to write to the correct
-#directories and to set the owner and group to root.
-install: library
-	install -d -g $(GROUP) -o $(USER) $(DESTDIR)$(LIBPATH)
-	install -d -g $(GROUP) -o $(USER) $(DESTDIR)$(INCPATH)
-	install -g $(GROUP) -o $(USER) $(LIBNAME) $(DESTDIR)$(LIBPATH)
-	install -g $(GROUP) -o $(USER) $(LIBTEST) $(DESTDIR)$(LIBPATH)
-	install -g $(GROUP) -o $(USER) $(HEADERS) $(DESTDIR)$(INCPATH)
+.common_install: $(LIBNAME)
+	install -d $(INCPATH)
+	install -d $(LIBPATH)
+	$(INSTALL_CMD) -m 644 $(LIBNAME) $(LIBPATH)/$(LIBNAME)
+	install -m 644 $(HEADERS) $(INCPATH)
 
-# $Source$
-# $Revision$
-# $Date$
+.common_install_bins: $(USEFUL_DEMOS)
+	install -d $(BINPATH)
+	$(INSTALL_CMD) -m 775 $(USEFUL_DEMOS) $(BINPATH)
+
+.common_install_test: $(LIBTEST)
+	install -d $(LIBPATH)
+	install -d $(INCPATH)
+	install -m 644 testprof/tomcrypt_test.h $(INCPATH)
+	$(INSTALL_CMD) -m 644 $(LIBTEST) $(LIBPATH)
+
+install_docs: doc/crypt.pdf
+	install -d $(DATAPATH)
+	install -m 644 doc/crypt.pdf $(DATAPATH)
+
+install_hooks:
+	for s in `ls hooks/`; do ln -s ../../hooks/$$s .git/hooks/$$s; done
+
+#This rule cleans the source tree of all compiled code, not including the pdf
+#documentation.
+clean:
+	find . -type f    -name "*.o"   \
+               -o -name "*.lo"  \
+               -o -name "*.a"   \
+               -o -name "*.la"  \
+               -o -name "*.obj" \
+               -o -name "*.lib" \
+               -o -name "*.exe" \
+               -o -name "*.dll" \
+               -o -name "*.so"  \
+               -o -name "*.gcov"\
+               -o -name "*.gcda"\
+               -o -name "*.gcno"\
+               -o -name "*.il"  \
+               -o -name "*.dyn" \
+               -o -name "*.dpi"  | xargs rm -f
+	rm -f $(TIMING) $(TEST) $(DEMOS)
+	rm -f *_tv.txt
+	rm -f *.pc
+	rm -rf `find . -type d -name "*.libs" | xargs`
+	$(MAKE) -C doc/ clean
+
+zipup: doc/crypt.pdf
+	@# Update the index, so diff-index won't fail in case the pdf has been created.
+	@#   As the pdf creation modifies crypt.tex, git sometimes detects the
+	@#   modified file, but misses that it's put back to its original version.
+	@git update-index --refresh
+	@git diff-index --quiet HEAD -- || ( echo "FAILURE: uncommited changes or not a git" && exit 1 )
+	@perl helper.pl --check-all || ( echo "FAILURE: helper.pl --check-all errors" && exit 1 )
+	rm -rf libtomcrypt-$(VERSION) crypt-$(VERSION).*
+	@# files/dirs excluded from "git archive" are defined in .gitattributes
+	git archive --format=tar --prefix=libtomcrypt-$(VERSION)/ HEAD | tar x
+	mkdir -p libtomcrypt-$(VERSION)/doc
+	cp doc/crypt.pdf libtomcrypt-$(VERSION)/doc/crypt.pdf
+	tar -c libtomcrypt-$(VERSION)/ | xz -6e -c - > crypt-$(VERSION).tar.xz
+	zip -9rq crypt-$(VERSION).zip libtomcrypt-$(VERSION)
+	rm -rf libtomcrypt-$(VERSION)
+	gpg -b -a crypt-$(VERSION).tar.xz
+	gpg -b -a crypt-$(VERSION).zip
+
+codecheck:
+	perl helper.pl -a
+	perlcritic *.pl

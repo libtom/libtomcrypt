@@ -1,14 +1,34 @@
+# MAKEFILE for MS Windows (nmake + Windows SDK)
 #
-# open a command prompt with WinSDK variables set
-# and start: nmake -f makefile.msvc
+# BEWARE: variables OBJECTS, TOBJECTS, HEADERS, VERSION are updated via ./updatemakes.sh
+
+### USAGE:
+# Open a command prompt with WinSDK variables set and start:
+#
+# nmake -f makefile.msvc all
+# test.exe
+# nmake -f makefile.msvc DESTDIR=c:\devel\libtom install
+#
+#Or:
+#
+# nmake -f makefile.msvc CFLAGS="/DUSE_LTM /DLTM_DESC /Ic:\path\to\libtommath" EXTRALIBS=c:\path\to\libtommath\tommath.lib all
 #
 
-EXTRALIBS=../libtommath/tommath.lib
-EXTRAINCLUDE=../libtommath
+#The following can be overridden from command line e.g. make -f makefile.msvc CC=gcc ARFLAGS=rcs
+DESTDIR   = c:\devel
+CFLAGS    = /Ox /DUSE_LTM /DLTM_DESC /I../libtommath
+EXTRALIBS = ../libtommath/tommath.lib
 
-CFLAGS = /nologo /Isrc/headers/ /I$(EXTRAINCLUDE) /Itestprof/ /Ox /D_CRT_SECURE_NO_WARNINGS /DUSE_LTM /DLTM_DESC /DLTC_SOURCE /DLTC_NO_PROTOTYPES /W3 $(CF)
+#Compilation flags
+LTC_CFLAGS  = $(CFLAGS) /nologo /Isrc/headers/ /Itestprof/ /D_CRT_SECURE_NO_WARNINGS /D_CRT_NONSTDC_NO_DEPRECATE /DLTC_SOURCE /W3
+LTC_LDFLAGS = advapi32.lib $(EXTRALIBS)
+VERSION=1.17
 
-#START_INS
+#Libraries to be created (this makefile builds only static libraries)
+LIBMAIN_S =tomcrypt.lib
+LIBTEST_S =tomcrypt_prof.lib
+
+#List of objects to compile (all goes to tomcrypt.lib)
 OBJECTS=src/ciphers/aes/aes.obj src/ciphers/aes/aes_enc.obj src/ciphers/anubis.obj src/ciphers/blowfish.obj \
 src/ciphers/camellia.obj src/ciphers/cast5.obj src/ciphers/des.obj src/ciphers/kasumi.obj src/ciphers/khazad.obj \
 src/ciphers/kseed.obj src/ciphers/multi2.obj src/ciphers/noekeon.obj src/ciphers/rc2.obj src/ciphers/rc5.obj \
@@ -160,47 +180,90 @@ src/stream/chacha/chacha_keystream.obj src/stream/chacha/chacha_setup.obj src/st
 src/stream/rc4/rc4.obj src/stream/rc4/rc4_test.obj src/stream/sober128/sober128.obj \
 src/stream/sober128/sober128_test.obj
 
+#List of test objects to compile (all goes to tomcrypt_prof.lib)
+TOBJECTS=testprof/base64_test.obj testprof/cipher_hash_test.obj testprof/der_tests.obj testprof/dh_test.obj \
+testprof/dsa_test.obj testprof/ecc_test.obj testprof/file_test.obj testprof/katja_test.obj testprof/mac_test.obj \
+testprof/misc_test.obj testprof/modes_test.obj testprof/multi_test.obj testprof/no_prng.obj \
+testprof/pkcs_1_eme_test.obj testprof/pkcs_1_emsa_test.obj testprof/pkcs_1_oaep_test.obj \
+testprof/pkcs_1_pss_test.obj testprof/pkcs_1_test.obj testprof/rotate_test.obj testprof/rsa_test.obj \
+testprof/store_test.obj testprof/test_driver.obj testprof/x86_prof.obj
+
+#The following headers will be installed by "make install"
 HEADERS=src/headers/tomcrypt.h src/headers/tomcrypt_argchk.h src/headers/tomcrypt_cfg.h \
 src/headers/tomcrypt_cipher.h src/headers/tomcrypt_custom.h src/headers/tomcrypt_hash.h \
 src/headers/tomcrypt_mac.h src/headers/tomcrypt_macros.h src/headers/tomcrypt_math.h \
 src/headers/tomcrypt_misc.h src/headers/tomcrypt_pk.h src/headers/tomcrypt_pkcs.h \
-src/headers/tomcrypt_prng.h testprof/tomcrypt_test.h
+src/headers/tomcrypt_prng.h
 
-#END_INS
+#The default rule for make builds the tomcrypt.lib library (static)
+default: $(LIBMAIN_S)
 
-default: library
+#SPECIAL: AES comes in two flavours - enc+dec and enc-only
+src/ciphers/aes/aes_enc.obj: src/ciphers/aes/aes.c src/ciphers/aes/aes_tab.c
+	$(CC) $(LTC_CFLAGS) /DENCRYPT_ONLY /c src/ciphers/aes/aes.c /Fosrc/ciphers/aes/aes_enc.obj
+
+#SPECIAL: these are the rules to make certain object files
+src/ciphers/aes/aes.obj: src/ciphers/aes/aes.c src/ciphers/aes/aes_tab.c
+src/ciphers/twofish/twofish.obj: src/ciphers/twofish/twofish.c src/ciphers/twofish/twofish_tab.c
+src/hashes/whirl/whirl.obj: src/hashes/whirl/whirl.c src/hashes/whirl/whirltab.c
+src/hashes/sha2/sha512.obj: src/hashes/sha2/sha512.c src/hashes/sha2/sha384.c
+src/hashes/sha2/sha512_224.obj: src/hashes/sha2/sha512.c src/hashes/sha2/sha512_224.c
+src/hashes/sha2/sha512_256.obj: src/hashes/sha2/sha512.c src/hashes/sha2/sha512_256.c
+src/hashes/sha2/sha256.obj: src/hashes/sha2/sha256.c src/hashes/sha2/sha224.c
+
+#Dependencies on *.h
+$(OBJECTS): $(HEADERS)
+$(TOBJECTS): $(HEADERS) testprof/tomcrypt_test.h
 
 .c.obj:
-	$(CC) $(CFLAGS) /c $< /Fo$@
+	$(CC) $(LTC_CFLAGS) /c $< /Fo$@
 
-#ciphers come in two flavours... enc+dec and enc
-src/ciphers/aes/aes_enc.obj: src/ciphers/aes/aes.c src/ciphers/aes/aes_tab.c
-	$(CC) $(CFLAGS) /DENCRYPT_ONLY /c src/ciphers/aes/aes.c /Fosrc/ciphers/aes/aes_enc.obj
+#Create tomcrypt_prof.lib
+$(LIBTEST_S): $(TOBJECTS)
+	lib /out:$(LIBTEST_S) $(TOBJECTS)
 
-library: $(OBJECTS)
-	lib /out:tomcrypt.lib $(OBJECTS)
-	cd testprof
-	nmake -f makefile.msvc
-	cd ..
+#Create tomcrypt.lib
+$(LIBMAIN_S): $(OBJECTS)
+	lib /out:$(LIBMAIN_S) $(OBJECTS)
 
-tv_gen: demos/tv_gen.c library
-	cl $(CFLAGS) demos/tv_gen.c tomcrypt.lib advapi32.lib $(EXTRALIBS)
+#Demo tools/utilities
+hashsum.exe: demos/hashsum.c $(LIBMAIN_S)
+	cl $(LTC_CFLAGS) demos/hashsum.c $(LIBMAIN_S) $(LTC_LDFLAGS)
+ltcrypt.exe: demos/ltcrypt.c $(LIBMAIN_S)
+	cl $(LTC_CFLAGS) demos/ltcrypt.c $(LIBMAIN_S) $(LTC_LDFLAGS)
+small.exe: demos/small.c $(LIBMAIN_S)
+	cl $(LTC_CFLAGS) demos/small.c $(LIBMAIN_S) $(LTC_LDFLAGS)
+tv_gen.exe: demos/tv_gen.c $(LIBMAIN_S)
+	cl $(LTC_CFLAGS) demos/tv_gen.c $(LIBMAIN_S) $(LTC_LDFLAGS)
 
-hashsum: demos/hashsum.c library
-	cl $(CFLAGS) demos/hashsum.c tomcrypt.lib advapi32.lib $(EXTRALIBS)
+#Tests + timing tests
+timing.exe: demos/timing.c $(LIBMAIN_S) $(LIBTEST_S)
+	cl $(LTC_CFLAGS) demos/timing.c $(LIBTEST_S) $(LIBMAIN_S) $(LTC_LDFLAGS)
+test.exe: demos/test.c $(LIBMAIN_S) $(LIBTEST_S)
+	cl $(LTC_CFLAGS) demos/test.c $(LIBTEST_S) $(LIBMAIN_S) $(LTC_LDFLAGS)
 
-.PHONY: test
-test: demos/test.c library
-	cl $(CFLAGS) demos/test.c testprof/tomcrypt_prof.lib tomcrypt.lib advapi32.lib $(EXTRALIBS)
+all: $(LIBMAIN_S) $(LIBTEST_S) hashsum.exe ltcrypt.exe small.exe tv_gen.exe timing.exe test.exe
 
-timing: demos/timing.c library
-	cl $(CFLAGS) demos/timing.c testprof/tomcrypt_prof.lib tomcrypt.lib advapi32.lib $(EXTRALIBS)
-
-all_test: test tv_gen hashsum timing
+test: test.exe
 
 clean:
-	cmd /c del /Q /S *.OBJ *.LIB *.EXE
+	@cmd /c del /Q *_tv.txt 2>nul
+	@cmd /c del /Q /S *.OBJ *.LIB *.EXE *.DLL 2>nul
 
-# $Source$
-# $Revision$
-# $Date$
+#Install the library + headers
+install: $(LIBMAIN_S) $(LIBTEST_S)
+	cmd /c if not exist "$(DESTDIR)\bin" mkdir "$(DESTDIR)\bin"
+	cmd /c if not exist "$(DESTDIR)\lib" mkdir "$(DESTDIR)\lib"
+	cmd /c if not exist "$(DESTDIR)\include" mkdir "$(DESTDIR)\include"
+	copy /Y $(LIBMAIN_S) "$(DESTDIR)\lib"
+	copy /Y src\headers\tomcrypt*.h "$(DESTDIR)\include"
+
+#Install useful tools
+install_bins: hashsum
+	cmd /c if not exist "$(DESTDIR)\bin" mkdir "$(DESTDIR)\bin"
+	copy /Y hashsum.exe "$(DESTDIR)\bin"
+
+#Install documentation
+install_docs: doc/crypt.pdf
+	cmd /c if not exist "$(DESTDIR)\doc" mkdir "$(DESTDIR)\doc"
+	copy /Y doc\crypt.pdf "$(DESTDIR)\doc"
