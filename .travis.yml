@@ -90,7 +90,7 @@ addons:
     - libtommath-dev
 before_script:
   - sudo apt-get update -qq
-  - sudo pip install cpp-coveralls
+  - sudo gem install coveralls-lcov
 after_failure:
   - cat test_std.txt
   - cat test_err.txt

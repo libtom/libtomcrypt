@@ -34,6 +34,12 @@ endif
 
 include makefile_include.mk
 
+ifeq ($(COVERAGE),1)
+all_test: LIB_PRE = -Wl,--whole-archive
+all_test: LIB_POST = -Wl,--no-whole-archive
+CFLAGS += -fprofile-arcs -ftest-coverage
+EXTRALIBS += -lgcov
+endif
 
 #AES comes in two flavours... enc+dec and enc
 src/ciphers/aes/aes_enc.o: src/ciphers/aes/aes.c src/ciphers/aes/aes_tab.c
@@ -88,10 +94,6 @@ endef
 
 $(foreach demo, $(strip $(DEMOS)), $(eval $(call DEMO_template,$(demo))))
 
-ifeq ($(COVERAGE),1)
-all_test: LIB_PRE = -Wl,--whole-archive
-all_test: LIB_POST = -Wl,--no-whole-archive
-endif
 
 #This rule installs the library and the header files. This must be run
 #as root in order to have a high enough permission to write to the correct
@@ -117,14 +119,20 @@ cleancov-clean:
 	rm -f `find . -type f -name "*.info" | xargs`
 	rm -rf coverage/
 
+# merges all coverage_*.info files into coverage.info
+coverage.info:
+	lcov `find -name 'coverage_*.info' -exec echo -n " -a {}" \;` -o coverage.info
+
 # generates html output from all coverage_*.info files
-lcov:
-	lcov `find -name 'coverage_*.info' -exec echo -n " -a {}" \;` -o coverage.info -q 2>/dev/null
+lcov-html: coverage.info
 	genhtml coverage.info --output-directory coverage -q
 
 # combines all necessary steps to create the coverage from a single testrun with e.g.
 # CFLAGS="-DUSE_LTM -DLTM_DESC -I../libtommath" EXTRALIBS="../libtommath/libtommath.a" make coverage -j9
-lcov-single: | cleancov-clean lcov-single-create lcov
+lcov-single:
+	$(MAKE) cleancov-clean
+	$(MAKE) lcov-single-create
+	$(MAKE) coverage.info
 
 
 #make the code coverage of the library
