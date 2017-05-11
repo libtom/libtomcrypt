@@ -1,8 +1,28 @@
 language: c
+
+addons:
+  apt:
+    sources:
+    - debian-sid
+    packages:
+    - binutils
+    - libtommath-dev
+
+before_script:
+  - gem install coveralls-lcov
+
+matrix:
+  fast_finish: true
+branches:
+  only:
+    - develop
+
 compiler:
   - gcc
   - clang
+
 script: bash "${BUILDSCRIPT}" "${BUILDNAME}" "${BUILDOPTIONS}" "makefile V=1" "-DUSE_LTM -DLTM_DESC -I/usr/include" "/usr/lib/x86_64-linux-gnu/libtommath.a"
+
 env:
   - |
     BUILDSCRIPT="check_source.sh"
@@ -76,26 +96,14 @@ env:
     BUILDSCRIPT="testbuild.sh"
     BUILDNAME="NOFILE"
     BUILDOPTIONS="-DLTC_NO_FILE"
-matrix:
-  fast_finish: true
-branches:
-  only:
-    - develop
-addons:
-  apt:
-    sources:
-    - debian-sid
-    packages:
-    - binutils
-    - libtommath-dev
-before_script:
-  - sudo apt-get update -qq
-  - sudo gem install coveralls-lcov
+
 after_failure:
   - cat test_std.txt
   - cat test_err.txt
+
 after_script:
   - cat gcc_1.txt
   - cat gcc_2.txt
+
 notifications:
   irc: "chat.freenode.net#libtom-notifications"
