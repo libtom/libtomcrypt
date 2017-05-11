@@ -49,7 +49,7 @@ static int char_to_int(unsigned char x)
 int der_decode_utctime(const unsigned char *in, unsigned long *inlen,
                              ltc_utctime   *out)
 {
-   unsigned char buf[32];
+   unsigned char buf[32] = { 0 }; /* initialize as all zeroes */
    unsigned long x;
    int           y;
 

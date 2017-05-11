@@ -104,7 +104,7 @@ static void check_file(int argn, int argc, char **argv)
          space++;
 
          for (n = 0; n < (buf + sizeof(buf)) - space; ++n) {
-            if(iscntrl(space[n])) {
+            if(iscntrl((int)space[n])) {
                space[n] = '\0';
                break;
             }

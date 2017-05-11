@@ -899,7 +899,7 @@ int  anubis_setup(const unsigned char *key, int keylen, int num_rounds, symmetri
 {
    int N, R, i, pos, r;
    ulong32 kappa[MAX_N];
-   ulong32 inter[MAX_N];
+   ulong32 inter[MAX_N] = { 0 }; /* initialize as all zeroes */
    ulong32 v, K0, K1, K2, K3;
 
    LTC_ARGCHK(key  != NULL);

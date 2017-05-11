@@ -1487,7 +1487,7 @@ void time_macs_(unsigned long MAC_SIZE)
 
    if (cipher_idx == -1 || hash_idx == -1) {
       fprintf(stderr, "Warning the MAC tests requires AES and SHA1 to operate... so sorry\n");
-      return;
+      exit(EXIT_FAILURE);
    }
 
    yarrow_read(buf, MAC_SIZE*1024, &yarrow_prng);
