@@ -737,6 +737,8 @@ void lrw_gen(void)
 int main(void)
 {
    register_algs();
+   setup_math();
+
    printf("Generating hash   vectors..."); fflush(stdout); hash_gen();   printf("done\n");
    printf("Generating cipher vectors..."); fflush(stdout); cipher_gen(); printf("done\n");
    printf("Generating HMAC   vectors..."); fflush(stdout); hmac_gen();   printf("done\n");

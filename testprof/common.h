@@ -11,5 +11,6 @@ int compare_testvector(const void* is, const unsigned long is_len, const void* s
 #endif
 
 void register_algs(void);
+void setup_math(void);
 
 #endif /* DEMOS_COMMON_H_ */

@@ -292,11 +292,11 @@ void register_algs(void)
 #ifdef LTC_SKIPJACK
   register_cipher (&skipjack_desc);
 #endif
-#ifdef LTC_KHAZAD
-  register_cipher (&khazad_desc);
-#endif
 #ifdef LTC_ANUBIS
   register_cipher (&anubis_desc);
+#endif
+#ifdef LTC_KHAZAD
+  register_cipher (&khazad_desc);
 #endif
 #ifdef LTC_KSEED
   register_cipher (&kseed_desc);
@@ -432,4 +432,21 @@ register_prng(&sprng_desc);
        exit(EXIT_FAILURE);
    }
 
+}
+
+void setup_math(void)
+{
+#ifdef USE_LTM
+   ltc_mp = ltm_desc;
+#elif defined(USE_TFM)
+   ltc_mp = tfm_desc;
+#elif defined(USE_GMP)
+   ltc_mp = gmp_desc;
+#elif defined(EXT_MATH_LIB)
+   extern ltc_math_descriptor EXT_MATH_LIB;
+   ltc_mp = EXT_MATH_LIB;
+#else
+   fprintf(stderr, "No MPI provider available\n");
+   exit(EXIT_FAILURE);
+#endif
 }
