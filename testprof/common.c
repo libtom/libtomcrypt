@@ -250,7 +250,17 @@ void register_algs(void)
   atexit(_unregister_all);
 
 #ifdef LTC_RIJNDAEL
+#ifdef ENCRYPT_ONLY
+  /* alternative would be
+   * register_cipher (&rijndael_enc_desc);
+   */
+   register_cipher (&aes_enc_desc);
+#else
+  /* alternative would be
+   * register_cipher (&rijndael_desc);
+   */
   register_cipher (&aes_desc);
+#endif
 #endif
 #ifdef LTC_BLOWFISH
   register_cipher (&blowfish_desc);

@@ -81,12 +81,17 @@ sub check_defines {
   return $fails;
 }
 
-sub check_hashes {
+sub check_descriptors {
   my @src;
   my @descriptors;
   find({ wanted => sub { push @src, $_ if $_ =~ /\.c$/ }, no_chdir=>1 }, './src/hashes/');
   for my $f (@src) {
     my @n = map { my $x = $_; $x =~ s/^.*?ltc_hash_descriptor\s+(\S+).*$/$1/; $x } grep { $_ =~ /ltc_hash_descriptor/ } split /\n/, read_file($f);
+    push @descriptors, @n if @n;
+  }
+  find({ wanted => sub { push @src, $_ if $_ =~ /\.c$/ }, no_chdir=>1 }, './src/ciphers/');
+  for my $f (@src) {
+    my @n = map { my $x = $_; $x =~ s/^.*?ltc_cipher_descriptor\s+(\S+).*$/$1/; $x } grep { $_ =~ /ltc_cipher_descriptor/ } split /\n/, read_file($f);
     push @descriptors, @n if @n;
   }
   my $fails = 0;
@@ -291,14 +296,14 @@ sub die_usage {
 MARKER
 }
 
-GetOptions( "s|check-source"     => \my $check_source,
-            "d|check-defines"    => \my $check_defines,
-            "h|check-hashes"     => \my $check_hashes,
-            "m|check-makefiles"  => \my $check_makefiles,
-            "a|check-all"        => \my $check_all,
-            "u|update-makefiles" => \my $update_makefiles,
-            "f|fixupind=s"       => \my $fixupind,
-            "h|help"             => \my $help
+GetOptions( "s|check-source"        => \my $check_source,
+            "c|check-descriptors"   => \my $check_descriptors,
+            "d|check-defines"       => \my $check_defines,
+            "m|check-makefiles"     => \my $check_makefiles,
+            "a|check-all"           => \my $check_all,
+            "u|update-makefiles"    => \my $update_makefiles,
+            "f|fixupind=s"          => \my $fixupind,
+            "h|help"                => \my $help
           ) or die_usage;
 
 if ($fixupind) {
@@ -311,7 +316,7 @@ if ($fixupind) {
 my $failure;
 $failure ||= check_source()       if $check_all || $check_source;
 $failure ||= check_defines()      if $check_all || $check_defines;
-$failure ||= check_hashes()       if $check_all || $check_hashes;
+$failure ||= check_descriptors()  if $check_all || $check_descriptors;
 $failure ||= process_makefiles(0) if $check_all || $check_makefiles;
 $failure ||= process_makefiles(1) if $update_makefiles;
 

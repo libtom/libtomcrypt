@@ -35,8 +35,7 @@
 #define __LTC_SAFER_TAB_C__
 #include "safer_tab.c"
 
-const struct ltc_cipher_descriptor
-   safer_k64_desc = {
+const struct ltc_cipher_descriptor safer_k64_desc = {
    "safer-k64",
    8, 8, 8, 8, LTC_SAFER_K64_DEFAULT_NOF_ROUNDS,
    &safer_k64_setup,
