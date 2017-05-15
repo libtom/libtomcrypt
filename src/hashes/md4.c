@@ -257,8 +257,8 @@ int md4_test(void)
  #else
     static const struct md4_test_case {
         char *input;
-        unsigned char digest[16];
-    } cases[] = {
+        unsigned char hash[16];
+    } tests[] = {
         { "",
           {0x31, 0xd6, 0xcf, 0xe0, 0xd1, 0x6a, 0xe9, 0x31,
            0xb7, 0x3c, 0x59, 0xd7, 0xe0, 0xc0, 0x89, 0xc0} },
@@ -281,15 +281,16 @@ int md4_test(void)
           {0xe3, 0x3b, 0x4d, 0xdc, 0x9c, 0x38, 0xf2, 0x19,
            0x9c, 0x3e, 0x7b, 0x16, 0x4f, 0xcc, 0x05, 0x36} },
     };
-    int i;
-    hash_state md;
-    unsigned char digest[16];
 
-    for(i = 0; i < (int)(sizeof(cases) / sizeof(cases[0])); i++) {
+    int i;
+    unsigned char tmp[16];
+    hash_state md;
+
+    for(i = 0; i < (int)(sizeof(tests) / sizeof(tests[0])); i++) {
         md4_init(&md);
-        md4_process(&md, (unsigned char *)cases[i].input, (unsigned long)strlen(cases[i].input));
-        md4_done(&md, digest);
-        if (XMEMCMP(digest, cases[i].digest, 16) != 0) {
+        md4_process(&md, (unsigned char *)tests[i].input, (unsigned long)strlen(tests[i].input));
+        md4_done(&md, tmp);
+        if (compare_testvector(tmp, sizeof(tmp), tests[i].hash, sizeof(tests[i].hash), "MD4", i)) {
            return CRYPT_FAIL_TESTVECTOR;
         }
 
