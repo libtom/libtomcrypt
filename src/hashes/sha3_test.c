@@ -42,7 +42,7 @@ int sha3_224_test(void)
    /* SHA3-224 on an empty buffer */
    sha3_224_init(&c);
    sha3_done(&c, hash);
-   if (compare_testvector(hash, sizeof(hash), sha3_224_empty, sizeof(sha3_224_empty), "SHA3-224", 1)) {
+   if (compare_testvector(hash, sizeof(hash), sha3_224_empty, sizeof(sha3_224_empty), "SHA3-224", 0)) {
       return CRYPT_FAIL_TESTVECTOR;
    }
 
@@ -98,7 +98,7 @@ int sha3_256_test(void)
    /* SHA3-256 on an empty buffer */
    sha3_256_init(&c);
    sha3_done(&c, hash);
-   if (compare_testvector(hash, sizeof(hash), sha3_256_empty, sizeof(sha3_256_empty), "SHA3-256", 1)) {
+   if (compare_testvector(hash, sizeof(hash), sha3_256_empty, sizeof(sha3_256_empty), "SHA3-256", 0)) {
       return CRYPT_FAIL_TESTVECTOR;
    }
 
@@ -106,7 +106,7 @@ int sha3_256_test(void)
    sha3_256_init(&c);
    sha3_process(&c, buf, sizeof(buf));
    sha3_done(&c, hash);
-   if (compare_testvector(hash, sizeof(hash), sha3_256_0xa3_200_times, sizeof(sha3_256_0xa3_200_times), "SHA3-256", 2)) {
+   if (compare_testvector(hash, sizeof(hash), sha3_256_0xa3_200_times, sizeof(sha3_256_0xa3_200_times), "SHA3-256", 1)) {
       return CRYPT_FAIL_TESTVECTOR;
    }
 
@@ -115,7 +115,7 @@ int sha3_256_test(void)
    sha3_process(&c, buf, sizeof(buf) / 2);
    sha3_process(&c, buf + sizeof(buf) / 2, sizeof(buf) / 2);
    sha3_done(&c, hash);
-   if (compare_testvector(hash, sizeof(hash), sha3_256_0xa3_200_times, sizeof(sha3_256_0xa3_200_times), "SHA3-224", 3)) {
+   if (compare_testvector(hash, sizeof(hash), sha3_256_0xa3_200_times, sizeof(sha3_256_0xa3_200_times), "SHA3-256", 2)) {
       return CRYPT_FAIL_TESTVECTOR;
    }
 
@@ -126,7 +126,7 @@ int sha3_256_test(void)
        sha3_process(&c, &c1, 1);
    }
    sha3_done(&c, hash);
-   if (compare_testvector(hash, sizeof(hash), sha3_256_0xa3_200_times, sizeof(sha3_256_0xa3_200_times), "SHA3-224", 4)) {
+   if (compare_testvector(hash, sizeof(hash), sha3_256_0xa3_200_times, sizeof(sha3_256_0xa3_200_times), "SHA3-256", 3)) {
       return CRYPT_FAIL_TESTVECTOR;
    }
 
@@ -156,7 +156,7 @@ int sha3_256_test(void)
            "\xa1\x9e\xee\x92\xbb\x20\x97\xb6"
            "\x4e\x82\x3d\x59\x77\x98\xaa\x18"
            "\xbe\x9b\x7c\x73\x6b\x80\x59\xab"
-           "\xfd\x67\x79\xac\x35\xac\x81\xb5", 256 / 8, "SHA2-256", 5)) {
+           "\xfd\x67\x79\xac\x35\xac\x81\xb5", 256 / 8, "SHA3-256", 4)) {
       return CRYPT_FAIL_TESTVECTOR;
    }
 
@@ -346,7 +346,7 @@ int sha3_shake_test(void)
    sha3_shake_init(&c, 256);
    while (i--) sha3_shake_process(&c, &c1, 1);
    for (i = 0; i < 16; i++) sha3_shake_done(&c, hash, 32); /* get 512 bytes, keep in hash the last 32 */
-   if (compare_testvector(hash, sizeof(shake256_0xa3_200_times), shake256_0xa3_200_times, sizeof(shake256_0xa3_200_times), "SHAKE256", 3)) {
+   if (compare_testvector(hash, sizeof(shake256_0xa3_200_times), shake256_0xa3_200_times, sizeof(shake256_0xa3_200_times), "SHAKE256", 4)) {
       return CRYPT_FAIL_TESTVECTOR;
    }
 
