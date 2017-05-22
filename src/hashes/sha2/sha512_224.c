@@ -117,7 +117,7 @@ int  sha512_224_test(void)
       sha512_224_init(&md);
       sha512_224_process(&md, (unsigned char*)tests[i].msg, (unsigned long)strlen(tests[i].msg));
       sha512_224_done(&md, tmp);
-      if (XMEMCMP(tmp, tests[i].hash, 28) != 0) {
+      if (compare_testvector(tmp, sizeof(tmp), tests[i].hash, sizeof(tests[i].hash), "SHA512-224", i)) {
          return CRYPT_FAIL_TESTVECTOR;
       }
   }

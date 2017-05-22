@@ -434,7 +434,7 @@ int rmd320_test(void)
 #else
    static const struct {
         char *msg;
-        unsigned char md[40];
+        unsigned char hash[40];
    } tests[] = {
    { "",
      { 0x22, 0xd6, 0x5d, 0x56, 0x61, 0x53, 0x6c, 0xdc, 0x75, 0xc1,
@@ -473,18 +473,16 @@ int rmd320_test(void)
        0xbc, 0x74, 0x70, 0xa9, 0x69, 0xc9, 0xd0, 0x72, 0xa1, 0xac }
    }
    };
-   int x;
-   unsigned char buf[40];
+
+   int i;
+   unsigned char tmp[40];
    hash_state md;
 
-   for (x = 0; x < (int)(sizeof(tests)/sizeof(tests[0])); x++) {
+   for (i = 0; i < (int)(sizeof(tests)/sizeof(tests[0])); i++) {
        rmd320_init(&md);
-       rmd320_process(&md, (unsigned char *)tests[x].msg, strlen(tests[x].msg));
-       rmd320_done(&md, buf);
-       if (XMEMCMP(buf, tests[x].md, 40) != 0) {
-#if 0
-          printf("Failed test %d\n", x);
-#endif
+       rmd320_process(&md, (unsigned char *)tests[i].msg, strlen(tests[i].msg));
+       rmd320_done(&md, tmp);
+       if (compare_testvector(tmp, sizeof(tmp), tests[i].hash, sizeof(tests[i].hash), "RIPEMD320", i)) {
           return CRYPT_FAIL_TESTVECTOR;
        }
    }

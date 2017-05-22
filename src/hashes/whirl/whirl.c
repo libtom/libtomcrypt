@@ -291,14 +291,7 @@ int  whirlpool_test(void)
       whirlpool_init(&md);
       whirlpool_process(&md, (unsigned char *)tests[i].msg, tests[i].len);
       whirlpool_done(&md, tmp);
-      if (XMEMCMP(tmp, tests[i].hash, 64) != 0) {
-#if 0
-         printf("\nFailed test %d\n", i);
-         for (i = 0; i < 64; ) {
-            printf("%02x ", tmp[i]);
-            if (!(++i & 15)) printf("\n");
-         }
-#endif
+      if (compare_testvector(tmp, sizeof(tmp), tests[i].hash, sizeof(tests[i].hash), "WHIRLPOOL", i)) {
          return CRYPT_FAIL_TESTVECTOR;
       }
   }

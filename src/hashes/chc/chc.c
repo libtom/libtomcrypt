@@ -256,7 +256,7 @@ int chc_test(void)
 #else
    static const struct {
       unsigned char *msg,
-                     md[MAXBLOCKSIZE];
+                     hash[MAXBLOCKSIZE];
       int            len;
    } tests[] = {
 {
@@ -266,8 +266,8 @@ int chc_test(void)
    16
 }
 };
-   int x, oldhashidx, idx;
-   unsigned char out[MAXBLOCKSIZE];
+   int i, oldhashidx, idx;
+   unsigned char tmp[MAXBLOCKSIZE];
    hash_state md;
 
    /* AES can be under rijndael or aes... try to find it */
@@ -279,11 +279,11 @@ int chc_test(void)
    oldhashidx = cipher_idx;
    chc_register(idx);
 
-   for (x = 0; x < (int)(sizeof(tests)/sizeof(tests[0])); x++) {
+   for (i = 0; i < (int)(sizeof(tests)/sizeof(tests[0])); i++) {
        chc_init(&md);
-       chc_process(&md, tests[x].msg, strlen((char *)tests[x].msg));
-       chc_done(&md, out);
-       if (XMEMCMP(out, tests[x].md, tests[x].len)) {
+       chc_process(&md, tests[i].msg, strlen((char *)tests[i].msg));
+       chc_done(&md, tmp);
+       if (compare_testvector(tmp, tests[i].len, tests[i].hash, tests[i].len, "CHC", i)) {
           return CRYPT_FAIL_TESTVECTOR;
        }
    }
