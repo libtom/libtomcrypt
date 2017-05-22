@@ -33,6 +33,10 @@ env:
     BUILDNAME="CHECK_SOURCES"
     BUILDOPTIONS=" "
   - |
+    BUILDSCRIPT="scan_build.sh"
+    BUILDNAME="SCAN_BUILD"
+    BUILDOPTIONS=" "
+  - |
     BUILDSCRIPT="coverage.sh"
     BUILDNAME="COVERAGE"
     BUILDOPTIONS=" "
