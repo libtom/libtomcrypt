@@ -30,16 +30,6 @@ typedef struct {
     int  (*entry)(void);
 } test_entry;
 
-void run_cmd(int res, int line, char *file, char *cmd, const char *algorithm);
-
-#ifdef LTC_VERBOSE
-#define DO(x) do { fprintf(stderr, "%s:\n", #x); run_cmd((x), __LINE__, __FILE__, #x, NULL); } while (0)
-#define DOX(x, str) do { fprintf(stderr, "%s - %s:\n", #x, (str)); run_cmd((x), __LINE__, __FILE__, #x, (str)); } while (0)
-#else
-#define DO(x) do { run_cmd((x), __LINE__, __FILE__, #x, NULL); } while (0)
-#define DOX(x, str) do { run_cmd((x), __LINE__, __FILE__, #x, (str)); } while (0)
-#endif
-
 /* TESTS */
 int cipher_hash_test(void);
 int modes_test(void);
