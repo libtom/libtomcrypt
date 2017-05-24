@@ -92,7 +92,7 @@ CFLAGS += -Wno-typedef-redefinition -Wno-tautological-compare
 endif
 
 
-GIT_VERSION := $(shell [ -e .git ] && { echo -n git- ; git describe --tags --always --dirty ; } || echo $(VERSION))
+GIT_VERSION := $(shell [ -e .git ] && { printf git- ; git describe --tags --always --dirty ; } || echo $(VERSION))
 ifneq ($(GIT_VERSION),)
 CFLAGS += -DGIT_VERSION=\"$(GIT_VERSION)\"
 endif
