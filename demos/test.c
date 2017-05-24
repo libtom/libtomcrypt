@@ -32,6 +32,36 @@ static const struct {
       LTC_TEST_FN(multi_test),
 };
 
+#if defined(_WIN32)
+  #include <windows.h> /* GetSystemTimeAsFileTime */
+#else
+  #include <sys/time.h>
+#endif
+
+/* microseconds since 1970 (UNIX epoch) */
+static ulong64 epoch_usec(void)
+{
+#if defined(LTC_NO_TEST_TIMING)
+  return 0;
+#elif defined(_WIN32)
+  FILETIME CurrentTime;
+  ulong64 cur_time;
+  ULARGE_INTEGER ul;
+  GetSystemTimeAsFileTime(&CurrentTime);
+  ul.LowPart  = CurrentTime.dwLowDateTime;
+  ul.HighPart = CurrentTime.dwHighDateTime;
+  cur_time = ul.QuadPart;
+  cur_time -= CONST64(116444736000000000); /* subtract epoch in microseconds */
+  cur_time /= 10; /* nanoseconds > microseconds */
+  return cur_time;
+#else
+  struct timeval tv;
+  struct timezone tz;
+  gettimeofday(&tv, &tz);
+  return (ulong64)(tv.tv_sec) * 1000000 + (ulong64)(tv.tv_usec); /* get microseconds */
+#endif
+}
+
 int main(int argc, char **argv)
 {
    int x, pass = 0, fail = 0, nop = 0;

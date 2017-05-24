@@ -70,7 +70,6 @@ extern const struct ltc_prng_descriptor no_prng_desc;
 int sorter(const void *a, const void *b);
 void tally_results(int type);
 ulong64 rdtsc (void);
-ulong64 epoch_usec(void);
 
 void t_start(void);
 ulong64 t_read(void);
