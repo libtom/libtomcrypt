@@ -18,10 +18,10 @@ register_algs();
 #endif
 
 time_keysched();
-time_cipher();
-time_cipher2();
-time_cipher3();
-time_cipher4();
+time_cipher_ecb();
+time_cipher_cbc();
+time_cipher_ctr();
+time_cipher_lrw();
 time_hash();
 time_macs();
 time_encmacs();

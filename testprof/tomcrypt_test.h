@@ -77,10 +77,10 @@ void init_timer(void);
 
 /* register default algs */
 int time_keysched(void);
-int time_cipher(void);
-int time_cipher2(void);
-int time_cipher3(void);
-int time_cipher4(void);
+int time_cipher_ecb(void);
+int time_cipher_cbc(void);
+int time_cipher_ctr(void);
+int time_cipher_lrw(void);
 int time_hash(void);
 void time_mult(void);
 void time_sqr(void);

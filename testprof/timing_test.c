@@ -154,7 +154,7 @@ int time_keysched(void)
 }
 
 #ifdef LTC_ECB_MODE
-int time_cipher(void)
+int time_cipher_ecb(void)
 {
   unsigned long x, y1;
   ulong64  t1, t2, c1, c2, a1, a2;
@@ -225,11 +225,11 @@ int time_cipher(void)
    return 0;
 }
 #else
-int time_cipher(void) { fprintf(stderr, "NO ECB\n"); return 0; }
+int time_cipher_ecb(void) { fprintf(stderr, "NO ECB\n"); return 0; }
 #endif
 
 #ifdef LTC_CBC_MODE
-int time_cipher2(void)
+int time_cipher_cbc(void)
 {
   unsigned long x, y1;
   ulong64  t1, t2, c1, c2, a1, a2;
@@ -300,11 +300,11 @@ int time_cipher2(void)
    return 0;
 }
 #else
-int time_cipher2(void) { fprintf(stderr, "NO CBC\n"); return 0; }
+int time_cipher_cbc(void) { fprintf(stderr, "NO CBC\n"); return 0; }
 #endif
 
 #ifdef LTC_CTR_MODE
-int time_cipher3(void)
+int time_cipher_ctr(void)
 {
   unsigned long x, y1;
   ulong64  t1, t2, c1, c2, a1, a2;
@@ -375,11 +375,11 @@ int time_cipher3(void)
    return 0;
 }
 #else
-int time_cipher3(void) { fprintf(stderr, "NO CTR\n"); return 0; }
+int time_cipher_ctr(void) { fprintf(stderr, "NO CTR\n"); return 0; }
 #endif
 
 #ifdef LTC_LRW_MODE
-int time_cipher4(void)
+int time_cipher_lrw(void)
 {
   unsigned long x, y1;
   ulong64  t1, t2, c1, c2, a1, a2;
@@ -452,7 +452,7 @@ int time_cipher4(void)
    return 0;
 }
 #else
-int time_cipher4(void) { fprintf(stderr, "NO LRW\n"); return 0; }
+int time_cipher_lrw(void) { fprintf(stderr, "NO LRW\n"); return 0; }
 #endif
 
 
@@ -1155,7 +1155,7 @@ void time_macs(void)
    time_macs_(32);
 }
 
-void time_encmacs_(unsigned long MAC_SIZE)
+static void time_encmacs_(unsigned long MAC_SIZE)
 {
 #if defined(LTC_EAX_MODE) || defined(LTC_OCB_MODE) || defined(LTC_OCB3_MODE) || defined(LTC_CCM_MODE) || defined(LTC_GCM_MODE)
    unsigned char *buf, IV[16], key[16], tag[16];
