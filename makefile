@@ -71,11 +71,11 @@ ifneq ($V,1)
 endif
 	${silent} $(RANLIB) $@
 
-timing: $(LIBNAME) $(LIBTEST) $(TIMINGS)
+timing: $(LIBNAME) $(TIMINGS) testprof/common.o
 ifneq ($V,1)
 	@echo "   * ${CC} $@"
 endif
-	${silent} $(CC) $(LDFLAGS) $(TIMINGS) $(LIBTEST) $(LIB_PRE) $(LIBNAME) $(LIB_POST) $(EXTRALIBS) -o $(TIMING)
+	${silent} $(CC) $(LDFLAGS) $(TIMINGS) testprof/common.o $(LIB_PRE) $(LIBNAME) $(LIB_POST) $(EXTRALIBS) -o $(TIMING)
 
 test: $(LIBNAME) $(LIBTEST) $(TESTS)
 ifneq ($V,1)

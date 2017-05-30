@@ -239,7 +239,7 @@ sub process_makefiles {
   my @all = ();
   find({ no_chdir => 1, wanted => sub { push @all, $_ if -f $_ && $_ =~ /\.(c|h)$/  } }, 'src');
   my @t = qw();
-  find({ no_chdir => 1, wanted => sub { push @t, $_ if $_ =~ /(common|no_prng|test_driver|x86_prof|_tests?).c$/ } }, 'testprof');
+  find({ no_chdir => 1, wanted => sub { push @t, $_ if $_ =~ /(common|no_prng|_tests?).c$/ } }, 'testprof');
 
   my @o = sort ('src/ciphers/aes/aes_enc.o', map { my $x = $_; $x =~ s/\.c$/.o/; $x } @c);
   my $var_o = prepare_variable("OBJECTS", @o);

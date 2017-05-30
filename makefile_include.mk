@@ -296,7 +296,7 @@ testprof/dh_test.o testprof/dsa_test.o testprof/ecc_test.o testprof/file_test.o 
 testprof/mac_test.o testprof/misc_test.o testprof/modes_test.o testprof/multi_test.o testprof/no_prng.o \
 testprof/pkcs_1_eme_test.o testprof/pkcs_1_emsa_test.o testprof/pkcs_1_oaep_test.o \
 testprof/pkcs_1_pss_test.o testprof/pkcs_1_test.o testprof/rotate_test.o testprof/rsa_test.o \
-testprof/store_test.o testprof/timing_test.o
+testprof/store_test.o
 
 # The following headers will be installed by "make install"
 HEADERS=src/headers/tomcrypt.h src/headers/tomcrypt_argchk.h src/headers/tomcrypt_cfg.h \

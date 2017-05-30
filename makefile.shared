@@ -54,8 +54,8 @@ install_test: .common_install_test
 test: $(LIBNAME) $(LIBTEST) $(TESTS)
 	$(LT) --mode=link --tag=CC $(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $(TEST) $(TESTS) $(LIBTEST) $(LIBNAME) $(EXTRALIBS)
 
-timing: $(LIBNAME) $(LIBTEST) $(TIMINGS)
-	$(LT) --mode=link --tag=CC $(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $(TIMING) $(TIMINGS) $(LIBTEST) $(LIBNAME) $(EXTRALIBS)
+timing: $(TIMINGS) testprof/common.o $(LIBNAME)
+	$(LT) --mode=link --tag=CC $(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $(TIMING) $? $(EXTRALIBS)
 
 # build the demos from a template
 define DEMO_template

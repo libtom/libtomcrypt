@@ -52,53 +52,8 @@ int base64_test(void);
 int file_test(void);
 int multi_test(void);
 
-/* timing */
-#define KTIMES  25
-#define TIMES   100000
-
-extern struct list {
-    int id;
-    ulong64 spd1, spd2, avg;
-} results[];
-
-extern int no_results;
-
 #ifdef LTC_PKCS_1
 extern const struct ltc_prng_descriptor no_prng_desc;
-#endif
-
-int sorter(const void *a, const void *b);
-void tally_results(int type);
-ulong64 rdtsc (void);
-
-void t_start(void);
-ulong64 t_read(void);
-void init_timer(void);
-
-/* register default algs */
-int time_keysched(void);
-int time_cipher_ecb(void);
-int time_cipher_cbc(void);
-int time_cipher_ctr(void);
-int time_cipher_lrw(void);
-int time_hash(void);
-void time_mult(void);
-void time_sqr(void);
-void time_prng(void);
-void time_rsa(void);
-void time_dsa(void);
-void time_katja(void);
-void time_ecc(void);
-void time_macs_(unsigned long MAC_SIZE);
-void time_macs(void);
-void time_encmacs(void);
-
-
-
-#if defined(_WIN32)
-   #define PRI64  "I64d"
-#else
-   #define PRI64  "ll"
 #endif
 
 #endif
