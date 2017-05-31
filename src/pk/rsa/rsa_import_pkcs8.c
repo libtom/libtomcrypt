@@ -75,14 +75,14 @@ int rsa_import_pkcs8(const unsigned char *in, unsigned long inlen,
    /* alloc buffers */
    buf1len = inlen; /* approx. */
    buf1 = XMALLOC(buf1len);
-   if (buf1 == NULL) { err = CRYPT_MEM; goto LBL_NOCLEAR; }
+   if (buf1 == NULL) { err = CRYPT_MEM; goto LBL_NOFREE; }
    buf2len = inlen; /* approx. */
    buf2 = XMALLOC(buf2len);
-   if (buf2 == NULL) { err = CRYPT_MEM; goto LBL_FREE; }
+   if (buf2 == NULL) { err = CRYPT_MEM; goto LBL_FREE1; }
 
    /* init key */
    err = mp_init_multi(&key->e, &key->d, &key->N, &key->dQ, &key->dP, &key->qP, &key->p, &key->q, &zero, &iter, NULL);
-   if (err != CRYPT_OK) { goto LBL_NOCLEAR; }
+   if (err != CRYPT_OK) { goto LBL_FREE2; }
 
    /* try to decode encrypted priv key */
    LTC_SET_ASN1(key_seq_e, 0, LTC_ASN1_OCTET_STRING, buf1, buf1len);
@@ -136,13 +136,13 @@ int rsa_import_pkcs8(const unsigned char *in, unsigned long inlen,
    mp_clear_multi(zero, iter, NULL);
    key->type = PK_PRIVATE;
    err = CRYPT_OK;
-   goto LBL_FREE;
+   goto LBL_FREE2;
 
 LBL_ERR:
    mp_clear_multi(key->d, key->e, key->N, key->dQ, key->dP, key->qP, key->p, key->q, zero, iter, NULL);
-LBL_NOCLEAR:
+LBL_FREE2:
    XFREE(buf2);
-LBL_FREE:
+LBL_FREE1:
    XFREE(buf1);
 LBL_NOFREE:
    return err;
