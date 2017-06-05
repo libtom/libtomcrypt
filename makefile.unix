@@ -38,7 +38,6 @@ VERSION=1.17
 
 #Libraries to be created (this makefile builds only static libraries)
 LIBMAIN_S =libtomcrypt.a
-LIBTEST_S =libtomcrypt_prof.a
 
 #List of objects to compile (all goes to libtomcrypt.a)
 OBJECTS=src/ciphers/aes/aes.o src/ciphers/aes/aes_enc.o src/ciphers/anubis.o src/ciphers/blowfish.o \
@@ -198,7 +197,7 @@ testprof/dh_test.o testprof/dsa_test.o testprof/ecc_test.o testprof/file_test.o 
 testprof/mac_test.o testprof/misc_test.o testprof/modes_test.o testprof/multi_test.o testprof/no_prng.o \
 testprof/pkcs_1_eme_test.o testprof/pkcs_1_emsa_test.o testprof/pkcs_1_oaep_test.o \
 testprof/pkcs_1_pss_test.o testprof/pkcs_1_test.o testprof/rotate_test.o testprof/rsa_test.o \
-testprof/store_test.o
+testprof/store_test.o testprof/test.o
 
 #The following headers will be installed by "make install"
 HEADERS=src/headers/tomcrypt.h src/headers/tomcrypt_argchk.h src/headers/tomcrypt_cfg.h \
@@ -232,11 +231,6 @@ $(TOBJECTS): $(HEADERS) testprof/tomcrypt_test.h
 .c.o:
 	$(CC) $(LTC_CFLAGS) -c $< -o $@
 
-#Create libtomcrypt_prof.a
-$(LIBTEST_S): $(TOBJECTS)
-	$(AR) $(ARFLAGS) $@ $(TOBJECTS)
-	$(RANLIB) $@
-
 #Create libtomcrypt.a
 $(LIBMAIN_S): $(OBJECTS)
 	$(AR) $(ARFLAGS) $@ $(OBJECTS)
@@ -244,28 +238,28 @@ $(LIBMAIN_S): $(OBJECTS)
 
 #Demo tools/utilities
 hashsum: demos/hashsum.o testprof/common.o $(LIBMAIN_S)
-	$(CC) $? $(LTC_LDFLAGS) -o $@
+	$(CC) demos/hashsum.o testprof/common.o $(LIBMAIN_S) $(LTC_LDFLAGS) -o $@
 ltcrypt: demos/ltcrypt.o testprof/common.o $(LIBMAIN_S)
-	$(CC) $? $(LTC_LDFLAGS) -o $@
+	$(CC) demos/ltcrypt.o testprof/common.o $(LIBMAIN_S) $(LTC_LDFLAGS) -o $@
 small: demos/small.o testprof/common.o $(LIBMAIN_S)
-	$(CC) $? $(LTC_LDFLAGS) -o $@
+	$(CC) demos/small.o testprof/common.o $(LIBMAIN_S) $(LTC_LDFLAGS) -o $@
 tv_gen: demos/tv_gen.o testprof/common.o $(LIBMAIN_S)
-	$(CC) $? $(LTC_LDFLAGS) -o $@
+	$(CC) demos/tv_gen.o testprof/common.o $(LIBMAIN_S) $(LTC_LDFLAGS) -o $@
 
 #Tests + timing tests
-timing: demos/timing.o testprof/common.o $(LIBMAIN_S)
-	$(CC) $? $(LTC_LDFLAGS) -o $@
+timing: demos/timing.o $(LIBMAIN_S) testprof/common.o
+	$(CC) demos/timing.o $(LIBMAIN_S) testprof/common.o $(LTC_LDFLAGS) -o $@
 	@echo "NOTICE: start the timing tests by: ./timing"
-test: demos/test.o $(LIBTEST_S) $(LIBMAIN_S)
-	$(CC) $? $(LTC_LDFLAGS) -o $@
+test: $(TOBJECTS) $(LIBMAIN_S)
+	$(CC) $(TOBJECTS) $(LIBMAIN_S) $(LTC_LDFLAGS) -o $@
 	@echo "NOTICE: start the tests by: ./test"
 
-all: $(LIBMAIN_S) $(LIBTEST_S) hashsum ltcrypt small tv_gen timing test
+all: $(LIBMAIN_S) hashsum ltcrypt small tv_gen timing test
 
 #NOTE: this makefile works also on cygwin, thus we need to delete *.exe
 clean:
 	-@rm -f $(OBJECTS) $(TOBJECTS)
-	-@rm -f $(LIBMAIN_S) $(LIBTEST_S)
+	-@rm -f $(LIBMAIN_S)
 	-@rm -f demos/*.o *_tv.txt
 	-@rm -f test tv_gen hashsum crypt small timing
 	-@rm -f test.exe tv_gen.exe hashsum.exe crypt.exe small.exe timing.exe

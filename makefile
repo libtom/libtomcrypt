@@ -27,9 +27,6 @@ INSTALL_CMD = install
 ifndef LIBNAME
    LIBNAME=libtomcrypt.a
 endif
-ifndef LIBTEST
-   LIBTEST=libtomcrypt_prof.a
-endif
 
 
 include makefile_include.mk
@@ -61,27 +58,17 @@ ifneq ($V,1)
 endif
 	${silent} $(RANLIB) $@
 
-$(LIBTEST): $(TOBJECTS)
-ifneq ($V,1)
-	@echo "   * ${AR} $@"
-endif
-	${silent} $(AR) $(ARFLAGS) $@ $(TOBJECTS)
-ifneq ($V,1)
-	@echo "   * ${RANLIB} $@"
-endif
-	${silent} $(RANLIB) $@
-
 timing: $(LIBNAME) $(TIMINGS) testprof/common.o
 ifneq ($V,1)
 	@echo "   * ${CC} $@"
 endif
 	${silent} $(CC) $(LDFLAGS) $(TIMINGS) testprof/common.o $(LIB_PRE) $(LIBNAME) $(LIB_POST) $(EXTRALIBS) -o $(TIMING)
 
-test: $(LIBNAME) $(LIBTEST) $(TESTS)
+test: $(LIBNAME) $(TOBJECTS)
 ifneq ($V,1)
 	@echo "   * ${CC} $@"
 endif
-	${silent} $(CC) $(LDFLAGS) $(TESTS) $(LIBTEST) $(LIB_PRE) $(LIBNAME) $(LIB_POST) $(EXTRALIBS) -o $(TEST)
+	${silent} $(CC) $(LDFLAGS) $(TOBJECTS) $(LIB_PRE) $(LIBNAME) $(LIB_POST) $(EXTRALIBS) -o $(TEST)
 
 # build the demos from a template
 define DEMO_template
@@ -101,8 +88,6 @@ $(foreach demo, $(strip $(DEMOS)), $(eval $(call DEMO_template,$(demo))))
 install: .common_install
 
 install_bins: .common_install_bins
-
-install_test: .common_install_test
 
 profile:
 	CFLAGS="$(CFLAGS) -fprofile-generate" $(MAKE) timing EXTRALIBS="$(EXTRALIBS) -lgcov"

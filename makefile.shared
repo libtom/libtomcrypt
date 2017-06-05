@@ -18,9 +18,6 @@ LTCOMPILE = $(LT) --mode=compile --tag=CC $(CC)
 INSTALL_CMD = $(LT) --mode=install install
 
 #Output filenames for various targets.
-ifndef LIBTEST
-   LIBTEST=libtomcrypt_prof.la
-endif
 ifndef LIBNAME
    LIBNAME=libtomcrypt.la
 endif
@@ -39,9 +36,6 @@ src/ciphers/aes/aes_enc.o: src/ciphers/aes/aes.c src/ciphers/aes/aes_tab.c
 $(LIBNAME): $(OBJECTS)
 	$(LT) --mode=link --tag=CC $(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) `find ./src -type f -name "*.lo" | LC_ALL=C sort` $(EXTRALIBS) -o $@ -rpath $(LIBPATH) -version-info $(VERSION_LT)
 
-$(LIBTEST): $(TOBJECTS)
-	$(LT) --mode=link --tag=CC $(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) `find ./testprof -type f -name "*.lo" | LC_ALL=C sort` -o $@ -rpath $(LIBPATH) -version-info $(VERSION_LT)
-
 install: .common_install
 	sed -e 's,^prefix=.*,prefix=$(DESTDIR),' -e 's,^Version:.*,Version: $(VERSION),' libtomcrypt.pc.in > libtomcrypt.pc
 	install -d $(LIBPATH)/pkgconfig
@@ -49,13 +43,11 @@ install: .common_install
 
 install_bins: .common_install_bins
 
-install_test: .common_install_test
-
-test: $(LIBNAME) $(LIBTEST) $(TESTS)
-	$(LT) --mode=link --tag=CC $(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $(TEST) $(TESTS) $(LIBTEST) $(LIBNAME) $(EXTRALIBS)
+test: $(LIBNAME) $(TOBJECTS)
+	$(LT) --mode=link --tag=CC $(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $(TEST) $(TOBJECTS) $(LIBNAME) $(EXTRALIBS)
 
 timing: $(TIMINGS) testprof/common.o $(LIBNAME)
-	$(LT) --mode=link --tag=CC $(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $(TIMING) $? $(EXTRALIBS)
+	$(LT) --mode=link --tag=CC $(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $(TIMING) $^ $(EXTRALIBS)
 
 # build the demos from a template
 define DEMO_template

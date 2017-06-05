@@ -33,7 +33,6 @@ VERSION=1.17
 LIBMAIN_S =libtomcrypt.a
 LIBMAIN_I =libtomcrypt.dll.a
 LIBMAIN_D =libtomcrypt.dll
-LIBTEST_S =libtomcrypt_prof.a
 
 #List of objects to compile (all goes to libtomcrypt.a)
 OBJECTS=src/ciphers/aes/aes.o src/ciphers/aes/aes_enc.o src/ciphers/anubis.o src/ciphers/blowfish.o \
@@ -193,7 +192,7 @@ testprof/dh_test.o testprof/dsa_test.o testprof/ecc_test.o testprof/file_test.o 
 testprof/mac_test.o testprof/misc_test.o testprof/modes_test.o testprof/multi_test.o testprof/no_prng.o \
 testprof/pkcs_1_eme_test.o testprof/pkcs_1_emsa_test.o testprof/pkcs_1_oaep_test.o \
 testprof/pkcs_1_pss_test.o testprof/pkcs_1_test.o testprof/rotate_test.o testprof/rsa_test.o \
-testprof/store_test.o
+testprof/store_test.o testprof/test.o
 
 #The following headers will be installed by "make install"
 HEADERS=src/headers/tomcrypt.h src/headers/tomcrypt_argchk.h src/headers/tomcrypt_cfg.h \
@@ -225,11 +224,6 @@ $(TOBJECTS): $(HEADERS) testprof/tomcrypt_test.h
 .c.o:
 	$(CC) $(LTC_CFLAGS) -c $< -o $@
 
-#Create libtomcrypt_prof.a
-$(LIBTEST_S): $(TOBJECTS)
-	$(AR) $(ARFLAGS) $@ $(TOBJECTS)
-	$(RANLIB) $@
-
 #Create libtomcrypt.a
 $(LIBMAIN_S): $(OBJECTS)
 	$(AR) $(ARFLAGS) $@ $(OBJECTS)
@@ -252,13 +246,13 @@ tv_gen: demos/tv_gen.o testprof/common.o $(LIBMAIN_S)
 
 #Tests + timing tests
 timing.exe: demos/timing.o testprof/common.o $(LIBMAIN_S)
-	$(CC) $? $(LTC_LDFLAGS) -o $@
+	$(CC) demos/timing.o testprof/common.o $(LIBMAIN_S) $(LTC_LDFLAGS) -o $@
 	@echo NOTICE: start the tests by: timing.exe
-test.exe: demos/test.o $(LIBTEST_S) $(LIBMAIN_S)
-	$(CC) $? $(LTC_LDFLAGS) -o $@
+test.exe: $(TOBJECTS) $(LIBMAIN_S)
+	$(CC) $(TOBJECTS) $(LIBMAIN_S) $(LTC_LDFLAGS) -o $@
 	@echo NOTICE: start the tests by: test.exe
 
-all: $(LIBMAIN_S) $(LIBMAIN_I) $(LIBMAIN_D) $(LIBTEST_S) hashsum.exe ltcrypt.exe small.exe tv_gen.exe timing.exe test.exe
+all: $(LIBMAIN_S) $(LIBMAIN_I) $(LIBMAIN_D) hashsum.exe ltcrypt.exe small.exe tv_gen.exe timing.exe test.exe
 
 test: test.exe
 
@@ -267,7 +261,7 @@ clean:
 	@cmd /c del /Q /S *.o *.a *.exe *.dll 2>nul
 
 #Install the library + headers
-install: $(LIBMAIN_S) $(LIBMAIN_I) $(LIBMAIN_D) $(LIBTEST_S)
+install: $(LIBMAIN_S) $(LIBMAIN_I) $(LIBMAIN_D)
 	cmd /c if not exist "$(DESTDIR)\bin" mkdir "$(DESTDIR)\bin"
 	cmd /c if not exist "$(DESTDIR)\lib" mkdir "$(DESTDIR)\lib"
 	cmd /c if not exist "$(DESTDIR)\include" mkdir "$(DESTDIR)\include"
