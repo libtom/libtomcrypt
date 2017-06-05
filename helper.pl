@@ -27,7 +27,7 @@ sub write_file {
 
 sub check_source {
   my @all_files = (bsd_glob("makefile*"), bsd_glob("*.sh"), bsd_glob("*.pl"));
-  find({ wanted=>sub { push @all_files, $_ if -f $_ }, no_chdir=>1 }, qw/src testprof demos/);
+  find({ wanted=>sub { push @all_files, $_ if -f $_ }, no_chdir=>1 }, qw/src tests demos/);
 
   my $fails = 0;
   for my $file (sort @all_files) {
@@ -96,7 +96,7 @@ sub check_descriptors {
   }
   my $fails = 0;
   for my $d (@descriptors) {
-    for my $f (qw{ testprof/common.c }) {
+    for my $f (qw{ tests/common.c }) {
       my $txt = read_file($f);
       warn "$d missing in $f\n" and $fails++ if $txt !~ /\Q$d\E/;
     }
@@ -239,7 +239,7 @@ sub process_makefiles {
   my @all = ();
   find({ no_chdir => 1, wanted => sub { push @all, $_ if -f $_ && $_ =~ /\.(c|h)$/  } }, 'src');
   my @t = qw();
-  find({ no_chdir => 1, wanted => sub { push @t, $_ if $_ =~ /(common|no_prng|_tests?|test).c$/ } }, 'testprof');
+  find({ no_chdir => 1, wanted => sub { push @t, $_ if $_ =~ /(common|no_prng|_tests?|test).c$/ } }, 'tests');
 
   my @o = sort ('src/ciphers/aes/aes_enc.o', map { my $x = $_; $x =~ s/\.c$/.o/; $x } @c);
   my $var_o = prepare_variable("OBJECTS", @o);

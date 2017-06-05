@@ -102,8 +102,8 @@ endif
 DSOURCES = $(wildcard demos/*.c)
 DOBJECTS = $(DSOURCES:.c=.o)
 
-#List of testprof headers
-THEADERS = $(wildcard testprof/*.h)
+#List of tests headers
+THEADERS = $(wildcard tests/*.h)
 
 TIMING=timing
 TEST=test
@@ -290,12 +290,11 @@ src/stream/rc4/rc4.o src/stream/rc4/rc4_test.o src/stream/sober128/sober128.o \
 src/stream/sober128/sober128_test.o
 
 # List of test objects to compile (all goes to libtomcrypt_prof.a)
-TOBJECTS=testprof/base64_test.o testprof/cipher_hash_test.o testprof/common.o testprof/der_tests.o \
-testprof/dh_test.o testprof/dsa_test.o testprof/ecc_test.o testprof/file_test.o testprof/katja_test.o \
-testprof/mac_test.o testprof/misc_test.o testprof/modes_test.o testprof/multi_test.o testprof/no_prng.o \
-testprof/pkcs_1_eme_test.o testprof/pkcs_1_emsa_test.o testprof/pkcs_1_oaep_test.o \
-testprof/pkcs_1_pss_test.o testprof/pkcs_1_test.o testprof/rotate_test.o testprof/rsa_test.o \
-testprof/store_test.o testprof/test.o
+TOBJECTS=tests/base64_test.o tests/cipher_hash_test.o tests/common.o tests/der_tests.o tests/dh_test.o \
+tests/dsa_test.o tests/ecc_test.o tests/file_test.o tests/katja_test.o tests/mac_test.o tests/misc_test.o \
+tests/modes_test.o tests/multi_test.o tests/no_prng.o tests/pkcs_1_eme_test.o tests/pkcs_1_emsa_test.o \
+tests/pkcs_1_oaep_test.o tests/pkcs_1_pss_test.o tests/pkcs_1_test.o tests/rotate_test.o \
+tests/rsa_test.o tests/store_test.o tests/test.o
 
 # The following headers will be installed by "make install"
 HEADERS=src/headers/tomcrypt.h src/headers/tomcrypt_argchk.h src/headers/tomcrypt_cfg.h \
@@ -317,8 +316,8 @@ src/hashes/sha2/sha256.o: src/hashes/sha2/sha256.c src/hashes/sha2/sha224.c
 #The default rule for make builds the libtomcrypt library.
 default:library
 
-$(DOBJECTS): CFLAGS += -Itestprof
-$(TOBJECTS): CFLAGS += -Itestprof
+$(DOBJECTS): CFLAGS += -Itests
+$(TOBJECTS): CFLAGS += -Itests
 
 #This rule makes the libtomcrypt library.
 library: $(LIBNAME)
