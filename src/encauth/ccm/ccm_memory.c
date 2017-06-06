@@ -378,7 +378,9 @@ int ccm_memory(int cipher,
    }
 
 #ifdef LTC_CLEAN_STACK
+#ifdef LTC_FAST
    fastMask = 0;
+#endif
    mask = 0;
    zeromem(skey,   sizeof(*skey));
    zeromem(PAD,    sizeof(PAD));
