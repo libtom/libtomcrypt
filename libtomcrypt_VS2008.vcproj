@@ -1344,6 +1344,10 @@
 				>
 			</File>
 			<File
+				RelativePath="src\misc\compare_testvector.c"
+				>
+			</File>
+			<File
 				RelativePath="src\misc\crc32.c"
 				>
 			</File>
