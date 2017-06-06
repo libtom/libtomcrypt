@@ -61,25 +61,6 @@ void print_hex(const char* what, const void* v, const unsigned long l)
   }
 }
 
-#ifndef compare_testvector
-int compare_testvector(const void* is, const unsigned long is_len, const void* should, const unsigned long should_len, const char* what, int which)
-{
-   int res = 0;
-   if(is_len != should_len)
-      res = is_len > should_len ? -1 : 1;
-   else
-      res = XMEMCMP(is, should, MAX(is_len, should_len));
-
-   if (res != 0) {
-      fprintf(stderr, "Testvector #%i of %s failed:\n", which, what);
-      print_hex("SHOULD", should, should_len);
-      print_hex("IS    ", is, is_len);
-   }
-
-   return res;
-}
-#endif
-
 prng_state yarrow_prng;
 
 /*
