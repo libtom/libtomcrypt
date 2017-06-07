@@ -245,11 +245,10 @@ small: demos/small.o tests/common.o $(LIBMAIN_S)
 	$(CC) demos/small.o tests/common.o $(LIBMAIN_S) $(LTC_LDFLAGS) -o $@
 tv_gen: demos/tv_gen.o tests/common.o $(LIBMAIN_S)
 	$(CC) demos/tv_gen.o tests/common.o $(LIBMAIN_S) $(LTC_LDFLAGS) -o $@
+timing: demos/timing.o tests/common.o $(LIBMAIN_S)
+	$(CC) demos/timing.o tests/common.o $(LIBMAIN_S) $(LTC_LDFLAGS) -o $@
 
-#Tests + timing tests
-timing: demos/timing.o $(LIBMAIN_S) tests/common.o
-	$(CC) demos/timing.o $(LIBMAIN_S) tests/common.o $(LTC_LDFLAGS) -o $@
-	@echo "NOTICE: start the timing tests by: ./timing"
+#Tests
 test: $(TOBJECTS) $(LIBMAIN_S)
 	$(CC) $(TOBJECTS) $(LIBMAIN_S) $(LTC_LDFLAGS) -o $@
 	@echo "NOTICE: start the tests by: ./test"

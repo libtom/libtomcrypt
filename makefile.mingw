@@ -187,7 +187,7 @@ src/stream/chacha/chacha_keystream.o src/stream/chacha/chacha_setup.o src/stream
 src/stream/rc4/rc4.o src/stream/rc4/rc4_test.o src/stream/sober128/sober128.o \
 src/stream/sober128/sober128_test.o
 
-#List of test objects to compile (all goes to libtomcrypt_prof.a)
+#List of test objects to compile
 TOBJECTS=tests/base64_test.o tests/cipher_hash_test.o tests/common.o tests/der_tests.o tests/dh_test.o \
 tests/dsa_test.o tests/ecc_test.o tests/file_test.o tests/katja_test.o tests/mac_test.o tests/misc_test.o \
 tests/modes_test.o tests/multi_test.o tests/no_prng.o tests/pkcs_1_eme_test.o tests/pkcs_1_emsa_test.o \
@@ -235,19 +235,18 @@ $(LIBMAIN_D) $(LIBMAIN_I): $(OBJECTS)
 	$(STRIP) -S $(LIBMAIN_D)
 
 #Demo tools/utilities
-hashsum: demos/hashsum.o tests/common.o $(LIBMAIN_S)
+hashsum.exe: demos/hashsum.o tests/common.o $(LIBMAIN_S)
 	$(CC) $? $(LTC_LDFLAGS) -o $@
-crypt: demos/crypt.o tests/common.o $(LIBMAIN_S)
+ltcrypt.exe: demos/ltcrypt.o tests/common.o $(LIBMAIN_S)
 	$(CC) $? $(LTC_LDFLAGS) -o $@
-small: demos/small.o tests/common.o $(LIBMAIN_S)
+small.exe: demos/small.o tests/common.o $(LIBMAIN_S)
 	$(CC) $? $(LTC_LDFLAGS) -o $@
-tv_gen: demos/tv_gen.o tests/common.o $(LIBMAIN_S)
+tv_gen.exe: demos/tv_gen.o tests/common.o $(LIBMAIN_S)
+	$(CC) $? $(LTC_LDFLAGS) -o $@
+timing.exe: demos/timing.o tests/common.o $(LIBMAIN_S)
 	$(CC) $? $(LTC_LDFLAGS) -o $@
 
-#Tests + timing tests
-timing.exe: demos/timing.o tests/common.o $(LIBMAIN_S)
-	$(CC) demos/timing.o tests/common.o $(LIBMAIN_S) $(LTC_LDFLAGS) -o $@
-	@echo NOTICE: start the tests by: timing.exe
+#Tests
 test.exe: $(TOBJECTS) $(LIBMAIN_S)
 	$(CC) $(TOBJECTS) $(LIBMAIN_S) $(LTC_LDFLAGS) -o $@
 	@echo NOTICE: start the tests by: test.exe
@@ -257,8 +256,8 @@ all: $(LIBMAIN_S) $(LIBMAIN_I) $(LIBMAIN_D) hashsum.exe ltcrypt.exe small.exe tv
 test: test.exe
 
 clean:
-	@cmd /c del /Q *_tv.txt 2>nul
-	@cmd /c del /Q /S *.o *.a *.exe *.dll 2>nul
+	@-cmd /c del /Q *_tv.txt 2>nul
+	@-cmd /c del /Q /S *.o *.a *.exe *.dll 2>nul
 
 #Install the library + headers
 install: $(LIBMAIN_S) $(LIBMAIN_I) $(LIBMAIN_D)
