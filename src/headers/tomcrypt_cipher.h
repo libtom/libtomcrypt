@@ -933,6 +933,7 @@ int find_cipher_any(const char *name, int blocklen, int keylen);
 int find_cipher_id(unsigned char ID);
 int register_cipher(const struct ltc_cipher_descriptor *cipher);
 int unregister_cipher(const struct ltc_cipher_descriptor *cipher);
+int register_all_ciphers(void);
 int cipher_is_valid(int idx);
 
 LTC_MUTEX_PROTO(ltc_cipher_mutex)

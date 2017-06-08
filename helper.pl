@@ -81,27 +81,33 @@ sub check_defines {
   return $fails;
 }
 
-sub check_descriptors {
+sub check_descriptor {
+  my $which = shift;
+  my $what = shift;
   my @src;
   my @descriptors;
-  find({ wanted => sub { push @src, $_ if $_ =~ /\.c$/ }, no_chdir=>1 }, './src/hashes/');
+  find({ wanted => sub { push @src, $_ if $_ =~ /\.c$/ }, no_chdir=>1 }, "./src/${which}/");
   for my $f (@src) {
-    my @n = map { my $x = $_; $x =~ s/^.*?ltc_hash_descriptor\s+(\S+).*$/$1/; $x } grep { $_ =~ /ltc_hash_descriptor/ } split /\n/, read_file($f);
-    push @descriptors, @n if @n;
-  }
-  find({ wanted => sub { push @src, $_ if $_ =~ /\.c$/ }, no_chdir=>1 }, './src/ciphers/');
-  for my $f (@src) {
-    my @n = map { my $x = $_; $x =~ s/^.*?ltc_cipher_descriptor\s+(\S+).*$/$1/; $x } grep { $_ =~ /ltc_cipher_descriptor/ } split /\n/, read_file($f);
+    my @n = map { my $x = $_; $x =~ s/^.*?ltc_${what}_descriptor\s+(\S+).*$/$1/; $x } grep { $_ =~ /ltc_${what}_descriptor/ } split /\n/, read_file($f);
     push @descriptors, @n if @n;
   }
   my $fails = 0;
   for my $d (@descriptors) {
-    for my $f (qw{ tests/common.c }) {
+    for my $f ("./src/misc/crypt/crypt_register_all_${which}.c") {
       my $txt = read_file($f);
       warn "$d missing in $f\n" and $fails++ if $txt !~ /\Q$d\E/;
     }
   }
-  warn( $fails > 0 ? "check-hashes:    FAIL $fails\n" : "check-hashes:    PASS\n" );
+  my $name = sprintf("%-17s", "check-${which}:");
+  warn( $fails > 0 ? "${name}FAIL $fails\n" : "${name}PASS\n" );
+  return $fails;
+}
+
+sub check_descriptors {
+  my $fails = 0;
+  $fails = $fails + check_descriptor("ciphers", "cipher");
+  $fails = $fails + check_descriptor("hashes", "hash");
+  $fails = $fails + check_descriptor("prngs", "prng");
   return $fails;
 }
 
