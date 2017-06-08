@@ -30,6 +30,7 @@ static const struct {
       LTC_TEST_FN(katja_test),
       LTC_TEST_FN(file_test),
       LTC_TEST_FN(multi_test),
+      LTC_TEST_FN(prng_test),
 };
 
 #if defined(_WIN32)
@@ -60,6 +61,182 @@ static ulong64 epoch_usec(void)
   gettimeofday(&tv, &tz);
   return (ulong64)(tv.tv_sec) * 1000000 + (ulong64)(tv.tv_usec); /* get microseconds */
 #endif
+}
+
+
+/*
+ * unregister ciphers, hashes & prngs
+ */
+static void _unregister_all(void)
+{
+#ifdef LTC_RIJNDAEL
+  unregister_cipher(&aes_desc);
+#endif
+#ifdef LTC_BLOWFISH
+  unregister_cipher(&blowfish_desc);
+#endif
+#ifdef LTC_XTEA
+  unregister_cipher(&xtea_desc);
+#endif
+#ifdef LTC_RC5
+  unregister_cipher(&rc5_desc);
+#endif
+#ifdef LTC_RC6
+  unregister_cipher(&rc6_desc);
+#endif
+#ifdef LTC_SAFERP
+  unregister_cipher(&saferp_desc);
+#endif
+#ifdef LTC_TWOFISH
+  unregister_cipher(&twofish_desc);
+#endif
+#ifdef LTC_SAFER
+  unregister_cipher(&safer_k64_desc);
+  unregister_cipher(&safer_sk64_desc);
+  unregister_cipher(&safer_k128_desc);
+  unregister_cipher(&safer_sk128_desc);
+#endif
+#ifdef LTC_RC2
+  unregister_cipher(&rc2_desc);
+#endif
+#ifdef LTC_DES
+  unregister_cipher(&des_desc);
+  unregister_cipher(&des3_desc);
+#endif
+#ifdef LTC_CAST5
+  unregister_cipher(&cast5_desc);
+#endif
+#ifdef LTC_NOEKEON
+  unregister_cipher(&noekeon_desc);
+#endif
+#ifdef LTC_SKIPJACK
+  unregister_cipher(&skipjack_desc);
+#endif
+#ifdef LTC_KHAZAD
+  unregister_cipher(&khazad_desc);
+#endif
+#ifdef LTC_ANUBIS
+  unregister_cipher(&anubis_desc);
+#endif
+#ifdef LTC_KSEED
+  unregister_cipher(&kseed_desc);
+#endif
+#ifdef LTC_KASUMI
+  unregister_cipher(&kasumi_desc);
+#endif
+#ifdef LTC_MULTI2
+  unregister_cipher(&multi2_desc);
+#endif
+#ifdef LTC_CAMELLIA
+  unregister_cipher(&camellia_desc);
+#endif
+
+#ifdef LTC_TIGER
+  unregister_hash(&tiger_desc);
+#endif
+#ifdef LTC_MD2
+  unregister_hash(&md2_desc);
+#endif
+#ifdef LTC_MD4
+  unregister_hash(&md4_desc);
+#endif
+#ifdef LTC_MD5
+  unregister_hash(&md5_desc);
+#endif
+#ifdef LTC_SHA1
+  unregister_hash(&sha1_desc);
+#endif
+#ifdef LTC_SHA224
+  unregister_hash(&sha224_desc);
+#endif
+#ifdef LTC_SHA256
+  unregister_hash(&sha256_desc);
+#endif
+#ifdef LTC_SHA384
+  unregister_hash(&sha384_desc);
+#endif
+#ifdef LTC_SHA512
+  unregister_hash(&sha512_desc);
+#endif
+#ifdef LTC_SHA512_224
+  unregister_hash(&sha512_224_desc);
+#endif
+#ifdef LTC_SHA512_256
+  unregister_hash(&sha512_256_desc);
+#endif
+#ifdef LTC_SHA3
+  unregister_hash(&sha3_224_desc);
+  unregister_hash(&sha3_256_desc);
+  unregister_hash(&sha3_384_desc);
+  unregister_hash(&sha3_512_desc);
+#endif
+#ifdef LTC_RIPEMD128
+  unregister_hash(&rmd128_desc);
+#endif
+#ifdef LTC_RIPEMD160
+  unregister_hash(&rmd160_desc);
+#endif
+#ifdef LTC_RIPEMD256
+  unregister_hash(&rmd256_desc);
+#endif
+#ifdef LTC_RIPEMD320
+  unregister_hash(&rmd320_desc);
+#endif
+#ifdef LTC_WHIRLPOOL
+  unregister_hash(&whirlpool_desc);
+#endif
+#ifdef LTC_BLAKE2S
+  unregister_hash(&blake2s_128_desc);
+  unregister_hash(&blake2s_160_desc);
+  unregister_hash(&blake2s_224_desc);
+  unregister_hash(&blake2s_256_desc);
+#endif
+#ifdef LTC_BLAKE2B
+  unregister_hash(&blake2b_160_desc);
+  unregister_hash(&blake2b_256_desc);
+  unregister_hash(&blake2b_384_desc);
+  unregister_hash(&blake2b_512_desc);
+#endif
+#ifdef LTC_CHC_HASH
+  unregister_hash(&chc_desc);
+#endif
+
+  unregister_prng(&yarrow_desc);
+#ifdef LTC_FORTUNA
+  unregister_prng(&fortuna_desc);
+#endif
+#ifdef LTC_RC4
+  unregister_prng(&rc4_desc);
+#endif
+#ifdef LTC_CHACHA20_PRNG
+  unregister_prng(&chacha20_prng_desc);
+#endif
+#ifdef LTC_SOBER128
+  unregister_prng(&sober128_desc);
+#endif
+} /* _cleanup() */
+
+static void register_algs(void)
+{
+  int err;
+
+  atexit(_unregister_all);
+
+#ifndef LTC_YARROW
+   #error This demo requires Yarrow.
+#endif
+  register_all_ciphers();
+  register_all_hashes();
+  register_all_prngs();
+
+   if ((err = rng_make_prng(128, find_prng("yarrow"), &yarrow_prng, NULL)) != CRYPT_OK) {
+      fprintf(stderr, "rng_make_prng failed: %s\n", error_to_string(err));
+      exit(EXIT_FAILURE);
+   }
+
+   if (strcmp("CRYPT_OK", error_to_string(err))) {
+       exit(EXIT_FAILURE);
+   }
 }
 
 int main(int argc, char **argv)

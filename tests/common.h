@@ -23,7 +23,4 @@ void run_cmd(int res, int line, char *file, char *cmd, const char *algorithm);
 
 void print_hex(const char* what, const void* v, const unsigned long l);
 
-void register_algs(void);
-void setup_math(void);
-
 #endif /* DEMOS_COMMON_H_ */
