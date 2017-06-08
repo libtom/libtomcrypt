@@ -48,6 +48,9 @@
 #ifndef LTC_RNG_GET_BYTES
 #error Cannot compile this demo; random generator required
 #endif
+#ifndef LTC_MD5
+#error Cannot compile this demo; MD5 required
+#endif
 
 /* OpenSSL by default only runs one hash round */
 #define OPENSSL_ITERATIONS 1

@@ -108,8 +108,9 @@ THEADERS = $(wildcard testprof/*.h)
 TIMING=timing
 TEST=test
 
-USEFUL_DEMOS=hashsum openssl-enc
-DEMOS=$(USEFUL_DEMOS) ltcrypt small tv_gen sizes constants
+USEFUL_DEMOS=hashsum
+UNBROKEN_DEMOS=$(USEFUL_DEMOS) ltcrypt small tv_gen sizes constants
+DEMOS=$(UNBROKEN_DEMOS) openssl-enc
 
 TIMINGS=demos/timing.o
 TESTS=demos/test.o
@@ -330,7 +331,7 @@ $(TOBJECTS): $(HEADERS) $(THEADERS)
 
 bins: $(USEFUL_DEMOS)
 
-all_test: test tv_gen $(DEMOS)
+all_test: test $(UNBROKEN_DEMOS)
 
 #build the doxy files (requires Doxygen, tetex and patience)
 doxygen doxy docs:
