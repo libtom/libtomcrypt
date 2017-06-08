@@ -262,15 +262,7 @@ int xts_test(void)
                }
             }
 
-            if (XMEMCMP(OUT, tests[i].CTX, tests[i].PTLEN)) {
-#ifdef LTC_TEST_DBG
-               printf("\nTestcase #%d with original length %lu and half of it "
-                      "%lu\n",
-                      i, tests[i].PTLEN, len);
-               printf("\nencrypt\n");
-               print_hex("should", tests[i].CTX, tests[i].PTLEN);
-               print_hex("is", OUT, tests[i].PTLEN);
-#endif
+            if (compare_testvector(OUT, tests[i].PTLEN, tests[i].CTX, tests[i].PTLEN, "XTS encrypt", i)) {
                xts_done(&xts);
                return CRYPT_FAIL_TESTVECTOR;
             }
@@ -295,12 +287,7 @@ int xts_test(void)
                }
             }
 
-            if (XMEMCMP(OUT, tests[i].PTX, tests[i].PTLEN)) {
-#ifdef LTC_TEST_DBG
-               printf("\ndecrypt\n");
-               print_hex("should", tests[i].PTX, tests[i].PTLEN);
-               print_hex("is", OUT, tests[i].PTLEN);
-#endif
+            if (compare_testvector(OUT, tests[i].PTLEN, tests[i].PTX, tests[i].PTLEN, "XTS decrypt", i)) {
                xts_done(&xts);
                return CRYPT_FAIL_TESTVECTOR;
             }

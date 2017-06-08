@@ -19,24 +19,25 @@
 
 
 #ifdef LTM_DESC
-void init_LTM(void) {
+void init_LTM(void)
+{
     ltc_mp = ltm_desc;
 }
 #endif
 
 #ifdef TFM_DESC
-void init_TFM(void) {
+void init_TFM(void)
+{
     ltc_mp = tfm_desc;
 }
 #endif
 
-/*                          *** use of GMP is untested ***
 #ifdef GMP_DESC
-void init_GMP(void) {
+void init_GMP(void)
+{
     ltc_mp = gmp_desc;
 }
 #endif
-*/
 
 
 /* $Source$ */
