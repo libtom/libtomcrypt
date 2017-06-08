@@ -1467,6 +1467,18 @@
 					>
 				</File>
 				<File
+					RelativePath="src\misc\crypt\crypt_register_all_ciphers.c"
+					>
+				</File>
+				<File
+					RelativePath="src\misc\crypt\crypt_register_all_hashes.c"
+					>
+				</File>
+				<File
+					RelativePath="src\misc\crypt\crypt_register_all_prngs.c"
+					>
+				</File>
+				<File
 					RelativePath="src\misc\crypt\crypt_register_cipher.c"
 					>
 				</File>
