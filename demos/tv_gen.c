@@ -1,7 +1,5 @@
 #include <tomcrypt.h>
 
-#include "common.h"
-
 void hash_gen(void)
 {
    unsigned char md[MAXBLOCKSIZE], *buf;
@@ -736,8 +734,22 @@ void lrw_gen(void)
 
 int main(void)
 {
-   register_algs();
-   setup_math();
+   register_all_ciphers();
+   register_all_hashes();
+   register_all_prngs();
+#ifdef USE_LTM
+   ltc_mp = ltm_desc;
+#elif defined(USE_TFM)
+   ltc_mp = tfm_desc;
+#elif defined(USE_GMP)
+   ltc_mp = gmp_desc;
+#elif defined(EXT_MATH_LIB)
+   extern ltc_math_descriptor EXT_MATH_LIB;
+   ltc_mp = EXT_MATH_LIB;
+#else
+   fprintf(stderr, "No MPI provider available\n");
+   exit(EXIT_FAILURE);
+#endif
 
    printf("Generating hash   vectors..."); fflush(stdout); hash_gen();   printf("done\n");
    printf("Generating cipher vectors..."); fflush(stdout); cipher_gen(); printf("done\n");

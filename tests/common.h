@@ -3,12 +3,6 @@
 
 #include <tomcrypt.h>
 
-#if defined(_WIN32)
-   #define PRI64  "I64d"
-#else
-   #define PRI64  "ll"
-#endif
-
 extern prng_state yarrow_prng;
 
 #ifdef LTC_VERBOSE

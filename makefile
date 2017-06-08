@@ -58,11 +58,11 @@ ifneq ($V,1)
 endif
 	${silent} $(RANLIB) $@
 
-timing: $(LIBNAME) $(TIMINGS) tests/common.o
+timing: $(LIBNAME) $(TIMINGS)
 ifneq ($V,1)
 	@echo "   * ${CC} $@"
 endif
-	${silent} $(CC) $(LDFLAGS) $(TIMINGS) tests/common.o $(LIB_PRE) $(LIBNAME) $(LIB_POST) $(EXTRALIBS) -o $(TIMING)
+	${silent} $(CC) $(LDFLAGS) $(TIMINGS) $(LIB_PRE) $(LIBNAME) $(LIB_POST) $(EXTRALIBS) -o $(TIMING)
 
 test: $(LIBNAME) $(TOBJECTS)
 ifneq ($V,1)
@@ -72,11 +72,11 @@ endif
 
 # build the demos from a template
 define DEMO_template
-$(1): demos/$(1).o $$(LIBNAME) tests/common.o
+$(1): demos/$(1).o $$(LIBNAME)
 ifneq ($V,1)
 	@echo "   * $${CC} $$@"
 endif
-	$${silent} $$(CC) $$(CFLAGS) $$< tests/common.o $$(LIB_PRE) $$(LIBNAME) $$(LIB_POST) $$(EXTRALIBS) -o $(1)
+	$${silent} $$(CC) $$(CFLAGS) $$< $$(LIB_PRE) $$(LIBNAME) $$(LIB_POST) $$(EXTRALIBS) -o $(1)
 endef
 
 $(foreach demo, $(strip $(DEMOS)), $(eval $(call DEMO_template,$(demo))))

@@ -1,4 +1,12 @@
-#include <common.h>
+#include <tomcrypt.h>
+
+#if defined(_WIN32)
+   #define PRI64  "I64d"
+#else
+   #define PRI64  "ll"
+#endif
+
+static prng_state yarrow_prng;
 
 /* timing */
 #define KTIMES  25
@@ -1341,9 +1349,11 @@ static void time_encmacs(void)
 
 int main(void)
 {
-
+int err;
 init_timer();
-register_algs();
+register_all_ciphers();
+register_all_hashes();
+register_all_prngs();
 
 #ifdef USE_LTM
    ltc_mp = ltm_desc;
@@ -1355,6 +1365,11 @@ register_algs();
    extern ltc_math_descriptor EXT_MATH_LIB;
    ltc_mp = EXT_MATH_LIB;
 #endif
+
+if ((err = rng_make_prng(128, find_prng("yarrow"), &yarrow_prng, NULL)) != CRYPT_OK) {
+   fprintf(stderr, "rng_make_prng failed: %s\n", error_to_string(err));
+   exit(EXIT_FAILURE);
+}
 
 time_keysched();
 time_cipher_ecb();

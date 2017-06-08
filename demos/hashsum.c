@@ -15,8 +15,6 @@
 #define basename(x) x
 #endif
 
-#include "common.h"
-
 #if !defined(PATH_MAX) && defined(_MSC_VER)
 #include <windows.h>
 #define PATH_MAX MAX_PATH
@@ -159,7 +157,8 @@ int main(int argc, char **argv)
    hashsum = strdup(basename(argv[0]));
 
    /* You need to register algorithms before using them */
-   register_algs();
+   register_all_ciphers();
+   register_all_hashes();
    if (argc > 1 && (strcmp("-h", argv[1]) == 0 || strcmp("--help", argv[1]) == 0)) {
       die(EXIT_SUCCESS);
    }

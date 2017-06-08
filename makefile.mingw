@@ -235,16 +235,16 @@ $(LIBMAIN_D) $(LIBMAIN_I): $(OBJECTS)
 	$(STRIP) -S $(LIBMAIN_D)
 
 #Demo tools/utilities
-hashsum.exe: demos/hashsum.o tests/common.o $(LIBMAIN_S)
-	$(CC) $? $(LTC_LDFLAGS) -o $@
-ltcrypt.exe: demos/ltcrypt.o tests/common.o $(LIBMAIN_S)
-	$(CC) $? $(LTC_LDFLAGS) -o $@
-small.exe: demos/small.o tests/common.o $(LIBMAIN_S)
-	$(CC) $? $(LTC_LDFLAGS) -o $@
-tv_gen.exe: demos/tv_gen.o tests/common.o $(LIBMAIN_S)
-	$(CC) $? $(LTC_LDFLAGS) -o $@
-timing.exe: demos/timing.o tests/common.o $(LIBMAIN_S)
-	$(CC) $? $(LTC_LDFLAGS) -o $@
+hashsum.exe: demos/hashsum.o $(LIBMAIN_S)
+	$(CC) demos/hashsum.o $(LIBMAIN_S) $(LTC_LDFLAGS) -o $@
+crypt.exe: demos/crypt.o $(LIBMAIN_S)
+	$(CC) demos/crypt.o $(LIBMAIN_S) $(LTC_LDFLAGS) -o $@
+small.exe: demos/small.o $(LIBMAIN_S)
+	$(CC) demos/small.o $(LIBMAIN_S) $(LTC_LDFLAGS) -o $@
+tv_gen.exe: demos/tv_gen.o $(LIBMAIN_S)
+	$(CC) demos/tv_gen.o $(LIBMAIN_S) $(LTC_LDFLAGS) -o $@
+timing.exe: demos/timing.o $(LIBMAIN_S)
+	$(CC) demos/timing.o $(LIBMAIN_S) $(LTC_LDFLAGS) -o $@
 
 #Tests
 test.exe: $(TOBJECTS) $(LIBMAIN_S)

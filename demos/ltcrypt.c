@@ -9,8 +9,6 @@
 
 #include <tomcrypt.h>
 
-#include "common.h"
-
 int usage(char *name)
 {
    int x;
@@ -38,7 +36,8 @@ int main(int argc, char *argv[])
    int err;
 
    /* register algs, so they can be printed */
-   register_algs();
+   register_all_ciphers();
+   register_all_hashes();
 
    if (argc < 4) {
       if ((argc > 2) && (!strcmp(argv[1], "-t"))) {
