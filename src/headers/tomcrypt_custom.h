@@ -364,16 +364,15 @@
 /* Supported Key Sizes */
 #define LTC_DH768
 #define LTC_DH1024
-#define LTC_DH1280
 #define LTC_DH1536
-#define LTC_DH1792
 #define LTC_DH2048
 
 #ifndef TFM_DESC
 /* tfm has a problem in fp_isprime for larger key sizes */
-#define LTC_DH2560
 #define LTC_DH3072
 #define LTC_DH4096
+#define LTC_DH6144
+#define LTC_DH8192
 #endif
 
 /* Include Katja (a Rabin variant like RSA) */

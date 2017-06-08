@@ -35,8 +35,8 @@ int dh_compat_test(void)
 #if 0
         printf("dh_test():testing size %d-bits\n", sets[x].size * 8);
 #endif
-        if ((err = mp_read_radix(g,(char *)sets[x].base, 64)) != CRYPT_OK)    { goto error; }
-        if ((err = mp_read_radix(p,(char *)sets[x].prime, 64)) != CRYPT_OK)   { goto error; }
+        if ((err = mp_read_radix(g,(char *)sets[x].base, 16)) != CRYPT_OK)    { goto error; }
+        if ((err = mp_read_radix(p,(char *)sets[x].prime, 16)) != CRYPT_OK)   { goto error; }
 
         /* ensure p is prime */
         if ((err = mp_prime_is_prime(p, 8, &primality)) != CRYPT_OK)                     { goto done; }
@@ -158,8 +158,8 @@ int dh_make_key(prng_state *prng, int wprng, int keysize, dh_key *key)
       goto error;
    }
 
-   if ((err = mp_read_radix(g, sets[key->idx].base, 64)) != CRYPT_OK)      { goto error; }
-   if ((err = mp_read_radix(p, sets[key->idx].prime, 64)) != CRYPT_OK)     { goto error; }
+   if ((err = mp_read_radix(g, sets[key->idx].base, 16)) != CRYPT_OK)      { goto error; }
+   if ((err = mp_read_radix(p, sets[key->idx].prime, 16)) != CRYPT_OK)     { goto error; }
 
    /* load the x value */
    if ((err = mp_read_unsigned_bin(key->x, buf, keysize)) != CRYPT_OK)     { goto error; }
@@ -359,7 +359,7 @@ int dh_shared_secret(dh_key *private_key, dh_key *public_key,
       return err;
    }
 
-   if ((err = mp_read_radix(p, (char *)sets[private_key->idx].prime, 64)) != CRYPT_OK)     { goto error; }
+   if ((err = mp_read_radix(p, (char *)sets[private_key->idx].prime, 16)) != CRYPT_OK)     { goto error; }
    if ((err = mp_exptmod(public_key->y, private_key->x, p, tmp)) != CRYPT_OK)           { goto error; }
 
    /* enough space for output? */

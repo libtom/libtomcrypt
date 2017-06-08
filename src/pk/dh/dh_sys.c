@@ -354,8 +354,8 @@ int dh_sign_hash(const unsigned char *in,  unsigned long inlen,
    if ((err = mp_read_unsigned_bin(k, buf, sets[key->idx].size)) != CRYPT_OK)          { goto LBL_ERR; }
 
    /* load g, p and p1 */
-   if ((err = mp_read_radix(g, sets[key->idx].base, 64)) != CRYPT_OK)               { goto LBL_ERR; }
-   if ((err = mp_read_radix(p, sets[key->idx].prime, 64)) != CRYPT_OK)              { goto LBL_ERR; }
+   if ((err = mp_read_radix(g, sets[key->idx].base, 16)) != CRYPT_OK)               { goto LBL_ERR; }
+   if ((err = mp_read_radix(p, sets[key->idx].prime, 16)) != CRYPT_OK)              { goto LBL_ERR; }
    if ((err = mp_sub_d(p, 1, p1)) != CRYPT_OK)                                     { goto LBL_ERR; }
    if ((err = mp_div_2(p1, p1)) != CRYPT_OK)                                       { goto LBL_ERR; } /* p1 = (p-1)/2 */
 
@@ -458,8 +458,8 @@ int dh_verify_hash(const unsigned char *sig, unsigned long siglen,
    INPUT_BIGNUM(b, sig, x, y, siglen);
 
    /* load p and g */
-   if ((err = mp_read_radix(p, sets[key->idx].prime, 64)) != CRYPT_OK)              { goto error1; }
-   if ((err = mp_read_radix(g, sets[key->idx].base, 64)) != CRYPT_OK)               { goto error1; }
+   if ((err = mp_read_radix(p, sets[key->idx].prime, 16)) != CRYPT_OK)              { goto error1; }
+   if ((err = mp_read_radix(g, sets[key->idx].base, 16)) != CRYPT_OK)               { goto error1; }
 
    /* load m */
    if ((err = mp_read_unsigned_bin(m, (unsigned char *)hash, hashlen)) != CRYPT_OK) { goto error1; }
