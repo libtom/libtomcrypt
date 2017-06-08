@@ -46,7 +46,7 @@ int dh_test(void);
 int katja_test(void);
 int ecc_tests(void);
 int dsa_test(void);
-int der_tests(void);
+int der_test(void);
 int misc_test(void);
 int base64_test(void);
 int file_test(void);

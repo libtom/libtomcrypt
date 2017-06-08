@@ -17,7 +17,7 @@ static const struct {
       LTC_TEST_FN(cipher_hash_test),
       LTC_TEST_FN(mac_test),
       LTC_TEST_FN(modes_test),
-      LTC_TEST_FN(der_tests),
+      LTC_TEST_FN(der_test),
       LTC_TEST_FN(pkcs_1_test),
       LTC_TEST_FN(pkcs_1_pss_test),
       LTC_TEST_FN(pkcs_1_oaep_test),
