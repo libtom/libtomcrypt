@@ -237,6 +237,7 @@ timing.exe: demos/timing.c $(LIBMAIN_S)
 #Tests
 test.exe: $(LIBMAIN_S) $(TOBJECTS)
 	cl $(LTC_CFLAGS) $(TOBJECTS) $(LIBMAIN_S) $(LTC_LDFLAGS) /Fe$@
+	@echo NOTICE: start the tests by launching test.exe
 
 all: $(LIBMAIN_S) hashsum.exe ltcrypt.exe small.exe tv_gen.exe timing.exe test.exe
 
