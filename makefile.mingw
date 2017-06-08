@@ -189,7 +189,7 @@ src/stream/rc4/rc4.o src/stream/rc4/rc4_test.o src/stream/sober128/sober128.o \
 src/stream/sober128/sober128_test.o
 
 #List of test objects to compile
-TOBJECTS=tests/base64_test.o tests/cipher_hash_test.o tests/common.o tests/der_tests.o tests/dh_test.o \
+TOBJECTS=tests/base64_test.o tests/cipher_hash_test.o tests/common.o tests/der_test.o tests/dh_test.o \
 tests/dsa_test.o tests/ecc_test.o tests/file_test.o tests/katja_test.o tests/mac_test.o tests/misc_test.o \
 tests/modes_test.o tests/multi_test.o tests/no_prng.o tests/pkcs_1_eme_test.o tests/pkcs_1_emsa_test.o \
 tests/pkcs_1_oaep_test.o tests/pkcs_1_pss_test.o tests/pkcs_1_test.o tests/prng_test.o \

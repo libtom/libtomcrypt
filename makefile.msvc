@@ -182,7 +182,7 @@ src/stream/rc4/rc4.obj src/stream/rc4/rc4_test.obj src/stream/sober128/sober128.
 src/stream/sober128/sober128_test.obj
 
 #List of test objects to compile
-TOBJECTS=tests/base64_test.obj tests/cipher_hash_test.obj tests/common.obj tests/der_tests.obj tests/dh_test.obj \
+TOBJECTS=tests/base64_test.obj tests/cipher_hash_test.obj tests/common.obj tests/der_test.obj tests/dh_test.obj \
 tests/dsa_test.obj tests/ecc_test.obj tests/file_test.obj tests/katja_test.obj tests/mac_test.obj tests/misc_test.obj \
 tests/modes_test.obj tests/multi_test.obj tests/no_prng.obj tests/pkcs_1_eme_test.obj tests/pkcs_1_emsa_test.obj \
 tests/pkcs_1_oaep_test.obj tests/pkcs_1_pss_test.obj tests/pkcs_1_test.obj tests/prng_test.obj \
