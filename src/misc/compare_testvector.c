@@ -15,8 +15,7 @@
   Function to compare two testvectors and print a (detailed) error-message if required, Steffen Jaeckel
 */
 
-#ifndef compare_testvector
-
+#if defined(LTC_TEST) && defined(LTC_TEST_DBG)
 static void _print_hex(const char* what, const void* v, const unsigned long l)
 {
   const unsigned char* p = v;
@@ -49,6 +48,7 @@ static void _print_hex(const char* what, const void* v, const unsigned long l)
       }
   }
 }
+#endif
 
 int compare_testvector(const void* is, const unsigned long is_len, const void* should, const unsigned long should_len, const char* what, int which)
 {
@@ -58,16 +58,19 @@ int compare_testvector(const void* is, const unsigned long is_len, const void* s
    else
       res = XMEMCMP(is, should, MAX(is_len, should_len));
 
+#if defined(LTC_TEST) && defined(LTC_TEST_DBG)
    if (res != 0) {
       fprintf(stderr, "Testvector #%i of %s failed:\n", which, what);
       _print_hex("SHOULD", should, should_len);
       _print_hex("IS    ", is, is_len);
    }
+#else
+   LTC_UNUSED_PARAM(which);
+   LTC_UNUSED_PARAM(what);
+#endif
 
    return res;
 }
-#endif
-
 
 /* $Source$ */
 /* $Revision$ */
