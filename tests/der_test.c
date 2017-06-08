@@ -5,7 +5,7 @@
 
 #ifndef LTC_DER
 
-int der_tests(void)
+int der_test(void)
 {
    return CRYPT_NOP;
 }
@@ -1086,7 +1086,7 @@ static int der_choice_test(void)
 }
 
 
-int der_tests(void)
+int der_test(void)
 {
    unsigned long x, y, z, zz, oid[2][32];
    unsigned char buf[3][2048];

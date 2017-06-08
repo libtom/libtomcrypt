@@ -609,20 +609,8 @@ int hmac_test(void)
             return err;
         }
 
-        if(XMEMCMP(digest, cases[i].digest, (size_t)hash_descriptor[hash].hashsize) != 0)  {
+        if(compare_testvector(digest, outlen, cases[i].digest, (size_t)hash_descriptor[hash].hashsize, cases[i].num, i)) {
             failed++;
-#ifdef LTC_TEST_DBG
-          {
-            printf("\nHMAC-%s test %s: Failed\n", cases[i].algo, cases[i].num);
-            print_hex("is", digest, hash_descriptor[hash].hashsize);
-            print_hex("should", cases[i].digest, hash_descriptor[hash].hashsize);
-            return CRYPT_FAIL_TESTVECTOR;
-          }
-#if LTC_TEST_DBG > 1
-        } else {
-            printf("HMAC-%s test %s: Passed\n", cases[i].algo, cases[i].num);
-#endif
-#endif
         }
     }
 

@@ -1,151 +1,5 @@
 #include <tomcrypt.h>
 
-void reg_algs(void)
-{
-  int err;
-  LTC_UNUSED_PARAM(err);
-
-#ifdef LTC_RIJNDAEL
-  register_cipher (&aes_desc);
-#endif
-#ifdef LTC_BLOWFISH
-  register_cipher (&blowfish_desc);
-#endif
-#ifdef LTC_XTEA
-  register_cipher (&xtea_desc);
-#endif
-#ifdef LTC_RC5
-  register_cipher (&rc5_desc);
-#endif
-#ifdef LTC_RC6
-  register_cipher (&rc6_desc);
-#endif
-#ifdef LTC_SAFERP
-  register_cipher (&saferp_desc);
-#endif
-#ifdef LTC_TWOFISH
-  register_cipher (&twofish_desc);
-#endif
-#ifdef LTC_SAFER
-  register_cipher (&safer_k64_desc);
-  register_cipher (&safer_sk64_desc);
-  register_cipher (&safer_k128_desc);
-  register_cipher (&safer_sk128_desc);
-#endif
-#ifdef LTC_RC2
-  register_cipher (&rc2_desc);
-#endif
-#ifdef LTC_DES
-  register_cipher (&des_desc);
-  register_cipher (&des3_desc);
-#endif
-#ifdef LTC_CAST5
-  register_cipher (&cast5_desc);
-#endif
-#ifdef LTC_NOEKEON
-  register_cipher (&noekeon_desc);
-#endif
-#ifdef LTC_SKIPJACK
-  register_cipher (&skipjack_desc);
-#endif
-#ifdef LTC_ANUBIS
-  register_cipher (&anubis_desc);
-#endif
-#ifdef LTC_KHAZAD
-  register_cipher (&khazad_desc);
-#endif
-#ifdef LTC_CAMELLIA
-  register_cipher (&camellia_desc);
-#endif
-
-#ifdef LTC_TIGER
-  register_hash (&tiger_desc);
-#endif
-#ifdef LTC_MD2
-  register_hash (&md2_desc);
-#endif
-#ifdef LTC_MD4
-  register_hash (&md4_desc);
-#endif
-#ifdef LTC_MD5
-  register_hash (&md5_desc);
-#endif
-#ifdef LTC_SHA1
-  register_hash (&sha1_desc);
-#endif
-#ifdef LTC_SHA224
-  register_hash (&sha224_desc);
-#endif
-#ifdef LTC_SHA256
-  register_hash (&sha256_desc);
-#endif
-#ifdef LTC_SHA384
-  register_hash (&sha384_desc);
-#endif
-#ifdef LTC_SHA512
-  register_hash (&sha512_desc);
-#endif
-#ifdef LTC_SHA512_224
-  register_hash (&sha512_224_desc);
-#endif
-#ifdef LTC_SHA512_256
-  register_hash (&sha512_256_desc);
-#endif
-#ifdef LTC_SHA3
-  register_hash (&sha3_224_desc);
-  register_hash (&sha3_256_desc);
-  register_hash (&sha3_384_desc);
-  register_hash (&sha3_512_desc);
-#endif
-#ifdef LTC_RIPEMD128
-  register_hash (&rmd128_desc);
-#endif
-#ifdef LTC_RIPEMD160
-  register_hash (&rmd160_desc);
-#endif
-#ifdef LTC_RIPEMD256
-  register_hash (&rmd256_desc);
-#endif
-#ifdef LTC_RIPEMD320
-  register_hash (&rmd320_desc);
-#endif
-#ifdef LTC_WHIRLPOOL
-  register_hash (&whirlpool_desc);
-#endif
-#ifdef LTC_BLAKE2S
-  register_hash (&blake2s_128_desc);
-  register_hash (&blake2s_160_desc);
-  register_hash (&blake2s_224_desc);
-  register_hash (&blake2s_256_desc);
-#endif
-#ifdef LTC_BLAKE2B
-  register_hash (&blake2b_160_desc);
-  register_hash (&blake2b_256_desc);
-  register_hash (&blake2b_384_desc);
-  register_hash (&blake2b_512_desc);
-#endif
-#ifdef LTC_CHC_HASH
-  register_hash(&chc_desc);
-  if ((err = chc_register(register_cipher(&aes_desc))) != CRYPT_OK) {
-     printf("chc_register error: %s\n", error_to_string(err));
-     exit(EXIT_FAILURE);
-  }
-#endif
-
-#ifdef USE_LTM
-   ltc_mp = ltm_desc;
-#elif defined(USE_TFM)
-   ltc_mp = tfm_desc;
-#elif defined(USE_GMP)
-   ltc_mp = gmp_desc;
-#else
-   extern ltc_math_descriptor EXT_MATH_LIB;
-   ltc_mp = EXT_MATH_LIB;
-#endif
-
-
-}
-
 void hash_gen(void)
 {
    unsigned char md[MAXBLOCKSIZE], *buf;
@@ -880,7 +734,23 @@ void lrw_gen(void)
 
 int main(void)
 {
-   reg_algs();
+   register_all_ciphers();
+   register_all_hashes();
+   register_all_prngs();
+#ifdef USE_LTM
+   ltc_mp = ltm_desc;
+#elif defined(USE_TFM)
+   ltc_mp = tfm_desc;
+#elif defined(USE_GMP)
+   ltc_mp = gmp_desc;
+#elif defined(EXT_MATH_LIB)
+   extern ltc_math_descriptor EXT_MATH_LIB;
+   ltc_mp = EXT_MATH_LIB;
+#else
+   fprintf(stderr, "No MPI provider available\n");
+   exit(EXIT_FAILURE);
+#endif
+
    printf("Generating hash   vectors..."); fflush(stdout); hash_gen();   printf("done\n");
    printf("Generating cipher vectors..."); fflush(stdout); cipher_gen(); printf("done\n");
    printf("Generating HMAC   vectors..."); fflush(stdout); hmac_gen();   printf("done\n");

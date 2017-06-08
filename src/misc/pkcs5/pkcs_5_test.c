@@ -161,7 +161,9 @@ int pkcs_5_test (void)
     int hash = find_hash("sha1");
     if (hash == -1)
     {
+#ifdef LTC_TEST_DBG
       printf("PKCS#5 test failed: 'sha1' hash not found\n");
+#endif
       return CRYPT_ERROR;
     }
 
@@ -173,27 +175,14 @@ int pkcs_5_test (void)
                               (unsigned char*)cases_5_2[i].S, cases_5_2[i].S_len,
                               cases_5_2[i].c, hash,
                               DK, &dkLen)) != CRYPT_OK) {
+#ifdef LTC_TEST_DBG
             printf("\nPKCS#5_2 test #%d: Failed/1\n", i);
             printf("err=%d\n", err);
-            ++failed;
-        }
-        else if (dkLen != cases_5_2[i].dkLen) {
-            printf("\nPKCS#5_2 test #%d: Failed/2\n", i);
-            printf("len is %d\n", (int)dkLen);
-            printf("len should %d\n", (int)cases_5_2[i].dkLen);
-            ++failed;
-        }
-        else if(XMEMCMP(DK, cases_5_2[i].DK, (size_t)cases_5_2[i].dkLen) != 0) {
-            printf("\nPKCS#5_2 test #%d: Failed/3\n", i);
-#ifdef LTC_TEST_DBG
-            print_hex("is", DK, cases_5_2[i].dkLen);
-            print_hex("should", cases_5_2[i].DK, cases_5_2[i].dkLen);
 #endif
             ++failed;
-#ifdef LTC_TEST_DBG
-        } else {
-            printf("PKCS#5_2 test #%d: Passed\n", i);
-#endif
+        }
+        else if (compare_testvector(DK, dkLen, cases_5_2[i].DK, cases_5_2[i].dkLen, "PKCS#5_2", i)) {
+            ++failed;
         }
     }
 
@@ -204,24 +193,15 @@ int pkcs_5_test (void)
                               (unsigned char*)cases_5_1[i].S,
                               cases_5_1[i].c, hash,
                               DK, &dkLen)) != CRYPT_OK) {
+#ifdef LTC_TEST_DBG
             printf("\nPKCS#5_1 test #%d: Failed/1\n", i);
             printf("err=%d\n", err);
-            ++failed;
-        }
-        else if (dkLen != cases_5_1[i].dkLen) {
-            printf("\nPKCS#5_1 test #%d: Failed/2\n", i);
-            printf("len is %d\n", (int)dkLen);
-            printf("len should %d\n", (int)cases_5_1[i].dkLen);
-            ++failed;
-        }
-        else if (XMEMCMP(DK, cases_5_1[i].DK, (size_t)cases_5_1[i].dkLen) != 0) {
-            printf("\nPKCS#5_1 test #%d: Failed/3\n", i);
-#ifdef LTC_TEST_DBG
-            print_hex("is", DK, cases_5_1[i].dkLen);
-            print_hex("should", cases_5_1[i].DK, cases_5_1[i].dkLen);
 #endif
             ++failed;
         }
+        else if (compare_testvector(DK, dkLen, cases_5_1[i].DK, cases_5_1[i].dkLen, "PKCS#5_1", i)) {
+            ++failed;
+       }
     }
 
     /* testing alg 1_openssl */
@@ -231,22 +211,13 @@ int pkcs_5_test (void)
                                        (unsigned char*)cases_5_1o[i].S,
                                        cases_5_1o[i].c, hash,
                                        DK, &dkLen)) != CRYPT_OK) {
+#ifdef LTC_TEST_DBG
             printf("\nPKCS#5_1o test #%d: Failed/1\n", i);
             printf("err=%d\n", err);
-            ++failed;
-        }
-        else if (dkLen != cases_5_1o[i].dkLen) {
-            printf("\nPKCS#5_1o test #%d: Failed/2\n", i);
-            printf("len is %d\n", (int)dkLen);
-            printf("len should %d\n", (int)cases_5_1o[i].dkLen);
-            ++failed;
-        }
-        else if (XMEMCMP(DK, cases_5_1o[i].DK, (size_t)cases_5_1o[i].dkLen) != 0) {
-            printf("\nPKCS#5_1o test #%d: Failed/3\n", i);
-#ifdef LTC_TEST_DBG
-            print_hex("is", DK, cases_5_1o[i].dkLen);
-            print_hex("should", cases_5_1o[i].DK, cases_5_1o[i].dkLen);
 #endif
+            ++failed;
+        }
+        else if (compare_testvector(DK, dkLen, cases_5_1o[i].DK, cases_5_1o[i].dkLen, "PKCS#5_1o", i)) {
             ++failed;
         }
     }

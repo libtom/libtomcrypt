@@ -63,10 +63,11 @@ CFLAGS += -Wno-type-limits
 
 ifdef LTC_DEBUG
 # compile for DEBUGGING (required for ccmalloc checking!!!)
+CFLAGS += -g3 -DLTC_NO_ASM
 ifneq (,$(strip $(LTC_DEBUG)))
-CFLAGS += -g3 -DLTC_NO_ASM -DLTC_TEST_DBG=$(LTC_DEBUG)
+CFLAGS += -DLTC_TEST_DBG=$(LTC_DEBUG)
 else
-CFLAGS += -g3 -DLTC_NO_ASM -DLTC_TEST_DBG
+CFLAGS += -DLTC_TEST_DBG
 endif
 else
 
@@ -102,8 +103,8 @@ endif
 DSOURCES = $(wildcard demos/*.c)
 DOBJECTS = $(DSOURCES:.c=.o)
 
-#List of testprof headers
-THEADERS = $(wildcard testprof/*.h)
+#List of tests headers
+THEADERS = $(wildcard tests/*.h)
 
 TIMING=timing
 TEST=test
@@ -113,7 +114,6 @@ UNBROKEN_DEMOS=$(USEFUL_DEMOS) ltcrypt small tv_gen sizes constants
 DEMOS=$(UNBROKEN_DEMOS) openssl-enc
 
 TIMINGS=demos/timing.o
-TESTS=demos/test.o
 
 #LIBPATH  The directory for libtomcrypt to be installed to.
 #INCPATH  The directory to install the header files for libtomcrypt.
@@ -195,17 +195,19 @@ src/mac/xcbc/xcbc_file.o src/mac/xcbc/xcbc_init.o src/mac/xcbc/xcbc_memory.o \
 src/mac/xcbc/xcbc_memory_multi.o src/mac/xcbc/xcbc_process.o src/mac/xcbc/xcbc_test.o \
 src/math/fp/ltc_ecc_fp_mulmod.o src/math/gmp_desc.o src/math/ltm_desc.o src/math/multi.o \
 src/math/rand_bn.o src/math/rand_prime.o src/math/tfm_desc.o src/misc/adler32.o \
-src/misc/base64/base64_decode.o src/misc/base64/base64_encode.o src/misc/burn_stack.o src/misc/crc32.o \
-src/misc/crypt/crypt.o src/misc/crypt/crypt_argchk.o src/misc/crypt/crypt_cipher_descriptor.o \
-src/misc/crypt/crypt_cipher_is_valid.o src/misc/crypt/crypt_constants.o \
-src/misc/crypt/crypt_find_cipher.o src/misc/crypt/crypt_find_cipher_any.o \
-src/misc/crypt/crypt_find_cipher_id.o src/misc/crypt/crypt_find_hash.o \
-src/misc/crypt/crypt_find_hash_any.o src/misc/crypt/crypt_find_hash_id.o \
-src/misc/crypt/crypt_find_hash_oid.o src/misc/crypt/crypt_find_prng.o src/misc/crypt/crypt_fsa.o \
-src/misc/crypt/crypt_hash_descriptor.o src/misc/crypt/crypt_hash_is_valid.o \
-src/misc/crypt/crypt_inits.o src/misc/crypt/crypt_ltc_mp_descriptor.o \
-src/misc/crypt/crypt_prng_descriptor.o src/misc/crypt/crypt_prng_is_valid.o \
-src/misc/crypt/crypt_prng_rng_descriptor.o src/misc/crypt/crypt_register_cipher.o \
+src/misc/base64/base64_decode.o src/misc/base64/base64_encode.o src/misc/burn_stack.o \
+src/misc/compare_testvector.o src/misc/crc32.o src/misc/crypt/crypt.o src/misc/crypt/crypt_argchk.o \
+src/misc/crypt/crypt_cipher_descriptor.o src/misc/crypt/crypt_cipher_is_valid.o \
+src/misc/crypt/crypt_constants.o src/misc/crypt/crypt_find_cipher.o \
+src/misc/crypt/crypt_find_cipher_any.o src/misc/crypt/crypt_find_cipher_id.o \
+src/misc/crypt/crypt_find_hash.o src/misc/crypt/crypt_find_hash_any.o \
+src/misc/crypt/crypt_find_hash_id.o src/misc/crypt/crypt_find_hash_oid.o \
+src/misc/crypt/crypt_find_prng.o src/misc/crypt/crypt_fsa.o src/misc/crypt/crypt_hash_descriptor.o \
+src/misc/crypt/crypt_hash_is_valid.o src/misc/crypt/crypt_inits.o \
+src/misc/crypt/crypt_ltc_mp_descriptor.o src/misc/crypt/crypt_prng_descriptor.o \
+src/misc/crypt/crypt_prng_is_valid.o src/misc/crypt/crypt_prng_rng_descriptor.o \
+src/misc/crypt/crypt_register_all_ciphers.o src/misc/crypt/crypt_register_all_hashes.o \
+src/misc/crypt/crypt_register_all_prngs.o src/misc/crypt/crypt_register_cipher.o \
 src/misc/crypt/crypt_register_hash.o src/misc/crypt/crypt_register_prng.o src/misc/crypt/crypt_sizes.o \
 src/misc/crypt/crypt_unregister_cipher.o src/misc/crypt/crypt_unregister_hash.o \
 src/misc/crypt/crypt_unregister_prng.o src/misc/error_to_string.o src/misc/hkdf/hkdf.o \
@@ -291,12 +293,11 @@ src/stream/rc4/rc4.o src/stream/rc4/rc4_test.o src/stream/sober128/sober128.o \
 src/stream/sober128/sober128_test.o
 
 # List of test objects to compile (all goes to libtomcrypt_prof.a)
-TOBJECTS=testprof/base64_test.o testprof/cipher_hash_test.o testprof/der_tests.o testprof/dh_test.o \
-testprof/dsa_test.o testprof/ecc_test.o testprof/file_test.o testprof/katja_test.o testprof/mac_test.o \
-testprof/misc_test.o testprof/modes_test.o testprof/multi_test.o testprof/no_prng.o \
-testprof/pkcs_1_eme_test.o testprof/pkcs_1_emsa_test.o testprof/pkcs_1_oaep_test.o \
-testprof/pkcs_1_pss_test.o testprof/pkcs_1_test.o testprof/rotate_test.o testprof/rsa_test.o \
-testprof/store_test.o testprof/test_driver.o testprof/x86_prof.o
+TOBJECTS=tests/base64_test.o tests/cipher_hash_test.o tests/common.o tests/der_test.o tests/dh_test.o \
+tests/dsa_test.o tests/ecc_test.o tests/file_test.o tests/katja_test.o tests/mac_test.o tests/misc_test.o \
+tests/modes_test.o tests/multi_test.o tests/no_prng.o tests/pkcs_1_eme_test.o tests/pkcs_1_emsa_test.o \
+tests/pkcs_1_oaep_test.o tests/pkcs_1_pss_test.o tests/pkcs_1_test.o tests/prng_test.o \
+tests/rotate_test.o tests/rsa_test.o tests/store_test.o tests/test.o
 
 # The following headers will be installed by "make install"
 HEADERS=src/headers/tomcrypt.h src/headers/tomcrypt_argchk.h src/headers/tomcrypt_cfg.h \
@@ -318,8 +319,8 @@ src/hashes/sha2/sha256.o: src/hashes/sha2/sha256.c src/hashes/sha2/sha224.c
 #The default rule for make builds the libtomcrypt library.
 default:library
 
-$(DOBJECTS): CFLAGS += -Itestprof
-$(TOBJECTS): CFLAGS += -Itestprof
+$(DOBJECTS): CFLAGS += -Itests
+$(TOBJECTS): CFLAGS += -Itests
 
 #This rule makes the libtomcrypt library.
 library: $(LIBNAME)
@@ -353,12 +354,6 @@ install_all: install install_bins install_docs install_test
 .common_install_bins: $(USEFUL_DEMOS)
 	install -d $(BINPATH)
 	$(INSTALL_CMD) -m 775 $(USEFUL_DEMOS) $(BINPATH)
-
-.common_install_test: $(LIBTEST)
-	install -d $(LIBPATH)
-	install -d $(INCPATH)
-	install -m 644 testprof/tomcrypt_test.h $(INCPATH)
-	$(INSTALL_CMD) -m 644 $(LIBTEST) $(LIBPATH)
 
 install_docs: doc/crypt.pdf
 	install -d $(DATAPATH)

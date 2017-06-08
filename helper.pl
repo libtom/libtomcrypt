@@ -27,7 +27,7 @@ sub write_file {
 
 sub check_source {
   my @all_files = (bsd_glob("makefile*"), bsd_glob("*.sh"), bsd_glob("*.pl"));
-  find({ wanted=>sub { push @all_files, $_ if -f $_ }, no_chdir=>1 }, qw/src testprof demos/);
+  find({ wanted=>sub { push @all_files, $_ if -f $_ }, no_chdir=>1 }, qw/src tests demos/);
 
   my $fails = 0;
   for my $file (sort @all_files) {
@@ -81,22 +81,33 @@ sub check_defines {
   return $fails;
 }
 
-sub check_hashes {
+sub check_descriptor {
+  my $which = shift;
+  my $what = shift;
   my @src;
   my @descriptors;
-  find({ wanted => sub { push @src, $_ if $_ =~ /\.c$/ }, no_chdir=>1 }, './src/hashes/');
+  find({ wanted => sub { push @src, $_ if $_ =~ /\.c$/ }, no_chdir=>1 }, "./src/${which}/");
   for my $f (@src) {
-    my @n = map { my $x = $_; $x =~ s/^.*?ltc_hash_descriptor\s+(\S+).*$/$1/; $x } grep { $_ =~ /ltc_hash_descriptor/ } split /\n/, read_file($f);
+    my @n = map { my $x = $_; $x =~ s/^.*?ltc_${what}_descriptor\s+(\S+).*$/$1/; $x } grep { $_ =~ /ltc_${what}_descriptor/ } split /\n/, read_file($f);
     push @descriptors, @n if @n;
   }
   my $fails = 0;
   for my $d (@descriptors) {
-    for my $f (qw{ demos/tv_gen.c demos/hashsum.c testprof/x86_prof.c }) {
+    for my $f ("./src/misc/crypt/crypt_register_all_${which}.c") {
       my $txt = read_file($f);
       warn "$d missing in $f\n" and $fails++ if $txt !~ /\Q$d\E/;
     }
   }
-  warn( $fails > 0 ? "check-hashes:    FAIL $fails\n" : "check-hashes:    PASS\n" );
+  my $name = sprintf("%-17s", "check-${which}:");
+  warn( $fails > 0 ? "${name}FAIL $fails\n" : "${name}PASS\n" );
+  return $fails;
+}
+
+sub check_descriptors {
+  my $fails = 0;
+  $fails = $fails + check_descriptor("ciphers", "cipher");
+  $fails = $fails + check_descriptor("hashes", "hash");
+  $fails = $fails + check_descriptor("prngs", "prng");
   return $fails;
 }
 
@@ -234,7 +245,7 @@ sub process_makefiles {
   my @all = ();
   find({ no_chdir => 1, wanted => sub { push @all, $_ if -f $_ && $_ =~ /\.(c|h)$/  } }, 'src');
   my @t = qw();
-  find({ no_chdir => 1, wanted => sub { push @t, $_ if $_ =~ /(no_prng|test_driver|x86_prof|_tests?).c$/ } }, 'testprof');
+  find({ no_chdir => 1, wanted => sub { push @t, $_ if $_ =~ /(common|no_prng|_tests?|test).c$/ } }, 'tests');
 
   my @o = sort ('src/ciphers/aes/aes_enc.o', map { my $x = $_; $x =~ s/\.c$/.o/; $x } @c);
   my $var_o = prepare_variable("OBJECTS", @o);
@@ -291,14 +302,14 @@ sub die_usage {
 MARKER
 }
 
-GetOptions( "s|check-source"     => \my $check_source,
-            "d|check-defines"    => \my $check_defines,
-            "h|check-hashes"     => \my $check_hashes,
-            "m|check-makefiles"  => \my $check_makefiles,
-            "a|check-all"        => \my $check_all,
-            "u|update-makefiles" => \my $update_makefiles,
-            "f|fixupind=s"       => \my $fixupind,
-            "h|help"             => \my $help
+GetOptions( "s|check-source"        => \my $check_source,
+            "c|check-descriptors"   => \my $check_descriptors,
+            "d|check-defines"       => \my $check_defines,
+            "m|check-makefiles"     => \my $check_makefiles,
+            "a|check-all"           => \my $check_all,
+            "u|update-makefiles"    => \my $update_makefiles,
+            "f|fixupind=s"          => \my $fixupind,
+            "h|help"                => \my $help
           ) or die_usage;
 
 if ($fixupind) {
@@ -311,7 +322,7 @@ if ($fixupind) {
 my $failure;
 $failure ||= check_source()       if $check_all || $check_source;
 $failure ||= check_defines()      if $check_all || $check_defines;
-$failure ||= check_hashes()       if $check_all || $check_hashes;
+$failure ||= check_descriptors()  if $check_all || $check_descriptors;
 $failure ||= process_makefiles(0) if $check_all || $check_makefiles;
 $failure ||= process_makefiles(1) if $update_makefiles;
 

@@ -20,13 +20,12 @@ CFLAGS    = /Ox /DUSE_LTM /DLTM_DESC /I../libtommath
 EXTRALIBS = ../libtommath/tommath.lib
 
 #Compilation flags
-LTC_CFLAGS  = $(CFLAGS) /nologo /Isrc/headers/ /Itestprof/ /D_CRT_SECURE_NO_WARNINGS /D_CRT_NONSTDC_NO_DEPRECATE /DLTC_SOURCE /W3
+LTC_CFLAGS  = $(CFLAGS) /nologo /Isrc/headers/ /Itests/ /D_CRT_SECURE_NO_WARNINGS /D_CRT_NONSTDC_NO_DEPRECATE /DLTC_SOURCE /W3
 LTC_LDFLAGS = advapi32.lib $(EXTRALIBS)
 VERSION=1.17
 
 #Libraries to be created (this makefile builds only static libraries)
 LIBMAIN_S =tomcrypt.lib
-LIBTEST_S =tomcrypt_prof.lib
 
 #List of objects to compile (all goes to tomcrypt.lib)
 OBJECTS=src/ciphers/aes/aes.obj src/ciphers/aes/aes_enc.obj src/ciphers/anubis.obj src/ciphers/blowfish.obj \
@@ -85,17 +84,19 @@ src/mac/xcbc/xcbc_file.obj src/mac/xcbc/xcbc_init.obj src/mac/xcbc/xcbc_memory.o
 src/mac/xcbc/xcbc_memory_multi.obj src/mac/xcbc/xcbc_process.obj src/mac/xcbc/xcbc_test.obj \
 src/math/fp/ltc_ecc_fp_mulmod.obj src/math/gmp_desc.obj src/math/ltm_desc.obj src/math/multi.obj \
 src/math/rand_bn.obj src/math/rand_prime.obj src/math/tfm_desc.obj src/misc/adler32.obj \
-src/misc/base64/base64_decode.obj src/misc/base64/base64_encode.obj src/misc/burn_stack.obj src/misc/crc32.obj \
-src/misc/crypt/crypt.obj src/misc/crypt/crypt_argchk.obj src/misc/crypt/crypt_cipher_descriptor.obj \
-src/misc/crypt/crypt_cipher_is_valid.obj src/misc/crypt/crypt_constants.obj \
-src/misc/crypt/crypt_find_cipher.obj src/misc/crypt/crypt_find_cipher_any.obj \
-src/misc/crypt/crypt_find_cipher_id.obj src/misc/crypt/crypt_find_hash.obj \
-src/misc/crypt/crypt_find_hash_any.obj src/misc/crypt/crypt_find_hash_id.obj \
-src/misc/crypt/crypt_find_hash_oid.obj src/misc/crypt/crypt_find_prng.obj src/misc/crypt/crypt_fsa.obj \
-src/misc/crypt/crypt_hash_descriptor.obj src/misc/crypt/crypt_hash_is_valid.obj \
-src/misc/crypt/crypt_inits.obj src/misc/crypt/crypt_ltc_mp_descriptor.obj \
-src/misc/crypt/crypt_prng_descriptor.obj src/misc/crypt/crypt_prng_is_valid.obj \
-src/misc/crypt/crypt_prng_rng_descriptor.obj src/misc/crypt/crypt_register_cipher.obj \
+src/misc/base64/base64_decode.obj src/misc/base64/base64_encode.obj src/misc/burn_stack.obj \
+src/misc/compare_testvector.obj src/misc/crc32.obj src/misc/crypt/crypt.obj src/misc/crypt/crypt_argchk.obj \
+src/misc/crypt/crypt_cipher_descriptor.obj src/misc/crypt/crypt_cipher_is_valid.obj \
+src/misc/crypt/crypt_constants.obj src/misc/crypt/crypt_find_cipher.obj \
+src/misc/crypt/crypt_find_cipher_any.obj src/misc/crypt/crypt_find_cipher_id.obj \
+src/misc/crypt/crypt_find_hash.obj src/misc/crypt/crypt_find_hash_any.obj \
+src/misc/crypt/crypt_find_hash_id.obj src/misc/crypt/crypt_find_hash_oid.obj \
+src/misc/crypt/crypt_find_prng.obj src/misc/crypt/crypt_fsa.obj src/misc/crypt/crypt_hash_descriptor.obj \
+src/misc/crypt/crypt_hash_is_valid.obj src/misc/crypt/crypt_inits.obj \
+src/misc/crypt/crypt_ltc_mp_descriptor.obj src/misc/crypt/crypt_prng_descriptor.obj \
+src/misc/crypt/crypt_prng_is_valid.obj src/misc/crypt/crypt_prng_rng_descriptor.obj \
+src/misc/crypt/crypt_register_all_ciphers.obj src/misc/crypt/crypt_register_all_hashes.obj \
+src/misc/crypt/crypt_register_all_prngs.obj src/misc/crypt/crypt_register_cipher.obj \
 src/misc/crypt/crypt_register_hash.obj src/misc/crypt/crypt_register_prng.obj src/misc/crypt/crypt_sizes.obj \
 src/misc/crypt/crypt_unregister_cipher.obj src/misc/crypt/crypt_unregister_hash.obj \
 src/misc/crypt/crypt_unregister_prng.obj src/misc/error_to_string.obj src/misc/hkdf/hkdf.obj \
@@ -180,13 +181,12 @@ src/stream/chacha/chacha_keystream.obj src/stream/chacha/chacha_setup.obj src/st
 src/stream/rc4/rc4.obj src/stream/rc4/rc4_test.obj src/stream/sober128/sober128.obj \
 src/stream/sober128/sober128_test.obj
 
-#List of test objects to compile (all goes to tomcrypt_prof.lib)
-TOBJECTS=testprof/base64_test.obj testprof/cipher_hash_test.obj testprof/der_tests.obj testprof/dh_test.obj \
-testprof/dsa_test.obj testprof/ecc_test.obj testprof/file_test.obj testprof/katja_test.obj testprof/mac_test.obj \
-testprof/misc_test.obj testprof/modes_test.obj testprof/multi_test.obj testprof/no_prng.obj \
-testprof/pkcs_1_eme_test.obj testprof/pkcs_1_emsa_test.obj testprof/pkcs_1_oaep_test.obj \
-testprof/pkcs_1_pss_test.obj testprof/pkcs_1_test.obj testprof/rotate_test.obj testprof/rsa_test.obj \
-testprof/store_test.obj testprof/test_driver.obj testprof/x86_prof.obj
+#List of test objects to compile
+TOBJECTS=tests/base64_test.obj tests/cipher_hash_test.obj tests/common.obj tests/der_test.obj tests/dh_test.obj \
+tests/dsa_test.obj tests/ecc_test.obj tests/file_test.obj tests/katja_test.obj tests/mac_test.obj tests/misc_test.obj \
+tests/modes_test.obj tests/multi_test.obj tests/no_prng.obj tests/pkcs_1_eme_test.obj tests/pkcs_1_emsa_test.obj \
+tests/pkcs_1_oaep_test.obj tests/pkcs_1_pss_test.obj tests/pkcs_1_test.obj tests/prng_test.obj \
+tests/rotate_test.obj tests/rsa_test.obj tests/store_test.obj tests/test.obj
 
 #The following headers will be installed by "make install"
 HEADERS=src/headers/tomcrypt.h src/headers/tomcrypt_argchk.h src/headers/tomcrypt_cfg.h \
@@ -213,45 +213,42 @@ src/hashes/sha2/sha256.obj: src/hashes/sha2/sha256.c src/hashes/sha2/sha224.c
 
 #Dependencies on *.h
 $(OBJECTS): $(HEADERS)
-$(TOBJECTS): $(HEADERS) testprof/tomcrypt_test.h
+$(TOBJECTS): $(HEADERS) tests/tomcrypt_test.h
 
 .c.obj:
 	$(CC) $(LTC_CFLAGS) /c $< /Fo$@
-
-#Create tomcrypt_prof.lib
-$(LIBTEST_S): $(TOBJECTS)
-	lib /out:$(LIBTEST_S) $(TOBJECTS)
 
 #Create tomcrypt.lib
 $(LIBMAIN_S): $(OBJECTS)
 	lib /out:$(LIBMAIN_S) $(OBJECTS)
 
 #Demo tools/utilities
-hashsum.exe: demos/hashsum.c $(LIBMAIN_S)
-	cl $(LTC_CFLAGS) demos/hashsum.c $(LIBMAIN_S) $(LTC_LDFLAGS)
+hashsum.exe: demos/hashsum.c tests/common.c $(LIBMAIN_S)
+	cl $(LTC_CFLAGS) demos/hashsum.c tests/common.c $(LIBMAIN_S) $(LTC_LDFLAGS) /Fe$@
 ltcrypt.exe: demos/ltcrypt.c $(LIBMAIN_S)
-	cl $(LTC_CFLAGS) demos/ltcrypt.c $(LIBMAIN_S) $(LTC_LDFLAGS)
+	cl $(LTC_CFLAGS) demos/ltcrypt.c tests/common.c $(LIBMAIN_S) $(LTC_LDFLAGS) /Fe$@
 small.exe: demos/small.c $(LIBMAIN_S)
-	cl $(LTC_CFLAGS) demos/small.c $(LIBMAIN_S) $(LTC_LDFLAGS)
+	cl $(LTC_CFLAGS) demos/small.c tests/common.c $(LIBMAIN_S) $(LTC_LDFLAGS) /Fe$@
 tv_gen.exe: demos/tv_gen.c $(LIBMAIN_S)
-	cl $(LTC_CFLAGS) demos/tv_gen.c $(LIBMAIN_S) $(LTC_LDFLAGS)
+	cl $(LTC_CFLAGS) demos/tv_gen.c tests/common.c $(LIBMAIN_S) $(LTC_LDFLAGS) /Fe$@
+timing.exe: demos/timing.c $(LIBMAIN_S)
+	cl $(LTC_CFLAGS) demos/timing.c tests/common.c $(LIBMAIN_S) $(LTC_LDFLAGS) /Fe$@
 
-#Tests + timing tests
-timing.exe: demos/timing.c $(LIBMAIN_S) $(LIBTEST_S)
-	cl $(LTC_CFLAGS) demos/timing.c $(LIBTEST_S) $(LIBMAIN_S) $(LTC_LDFLAGS)
-test.exe: demos/test.c $(LIBMAIN_S) $(LIBTEST_S)
-	cl $(LTC_CFLAGS) demos/test.c $(LIBTEST_S) $(LIBMAIN_S) $(LTC_LDFLAGS)
+#Tests
+test.exe: $(LIBMAIN_S) $(TOBJECTS)
+	cl $(LTC_CFLAGS) $(TOBJECTS) $(LIBMAIN_S) $(LTC_LDFLAGS) /Fe$@
+	@echo NOTICE: start the tests by launching test.exe
 
-all: $(LIBMAIN_S) $(LIBTEST_S) hashsum.exe ltcrypt.exe small.exe tv_gen.exe timing.exe test.exe
+all: $(LIBMAIN_S) hashsum.exe ltcrypt.exe small.exe tv_gen.exe timing.exe test.exe
 
 test: test.exe
 
 clean:
-	@cmd /c del /Q *_tv.txt 2>nul
-	@cmd /c del /Q /S *.OBJ *.LIB *.EXE *.DLL 2>nul
+	@-cmd /c del /Q *_tv.txt 2>nul
+	@-cmd /c del /Q /S *.OBJ *.LIB *.EXE *.DLL 2>nul
 
 #Install the library + headers
-install: $(LIBMAIN_S) $(LIBTEST_S)
+install: $(LIBMAIN_S)
 	cmd /c if not exist "$(DESTDIR)\bin" mkdir "$(DESTDIR)\bin"
 	cmd /c if not exist "$(DESTDIR)\lib" mkdir "$(DESTDIR)\lib"
 	cmd /c if not exist "$(DESTDIR)\include" mkdir "$(DESTDIR)\include"

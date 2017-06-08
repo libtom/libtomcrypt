@@ -461,6 +461,7 @@ int find_hash_oid(const unsigned long *ID, unsigned long IDlen);
 int find_hash_any(const char *name, int digestlen);
 int register_hash(const struct ltc_hash_descriptor *hash);
 int unregister_hash(const struct ltc_hash_descriptor *hash);
+int register_all_hashes(void);
 int hash_is_valid(int idx);
 
 LTC_MUTEX_PROTO(ltc_hash_mutex)

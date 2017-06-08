@@ -1344,6 +1344,10 @@
 				>
 			</File>
 			<File
+				RelativePath="src\misc\compare_testvector.c"
+				>
+			</File>
+			<File
 				RelativePath="src\misc\crc32.c"
 				>
 			</File>
@@ -1460,6 +1464,18 @@
 				</File>
 				<File
 					RelativePath="src\misc\crypt\crypt_prng_rng_descriptor.c"
+					>
+				</File>
+				<File
+					RelativePath="src\misc\crypt\crypt_register_all_ciphers.c"
+					>
+				</File>
+				<File
+					RelativePath="src\misc\crypt\crypt_register_all_hashes.c"
+					>
+				</File>
+				<File
+					RelativePath="src\misc\crypt\crypt_register_all_prngs.c"
 					>
 				</File>
 				<File

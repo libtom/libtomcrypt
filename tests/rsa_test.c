@@ -274,29 +274,15 @@ int rsa_test(void)
 
 len = mp_unsigned_bin_size(key.N);
 mp_to_unsigned_bin(key.N, tmp);
- fprintf(stderr, "N == \n");
-for (cnt = 0; cnt < len; ) {
-   fprintf(stderr, "%02x ", tmp[cnt]);
-   if (!(++cnt & 15)) fprintf(stderr, "\n");
-}
+print_hex("N", tmp, len);
 
 len = mp_unsigned_bin_size(key.p);
 mp_to_unsigned_bin(key.p, tmp);
- fprintf(stderr, "p == \n");
-for (cnt = 0; cnt < len; ) {
-   fprintf(stderr, "%02x ", tmp[cnt]);
-   if (!(++cnt & 15)) fprintf(stderr, "\n");
-}
+print_hex("p", tmp, len);
 
 len = mp_unsigned_bin_size(key.q);
 mp_to_unsigned_bin(key.q, tmp);
- fprintf(stderr, "\nq == \n");
-for (cnt = 0; cnt < len; ) {
-   fprintf(stderr, "%02x ", tmp[cnt]);
-   if (!(++cnt & 15)) fprintf(stderr, "\n");
-}
- fprintf(stderr, "\n");
-
+print_hex("q", tmp, len);
 
          return 1;
       }
@@ -539,14 +525,8 @@ for (cnt = 0; cnt < len; ) {
      /* (3) */
      DO(ltc_mp.rsa_me(p2, len2, p3, &len3, PK_PUBLIC, &key));
      /* (4) */
-#ifdef LTC_TEST_DBG
-     cnt = rsa_get_size(&key);
-     printf("\nBefore:");
-     for (cnt = 0; cnt < len3; ++cnt) {
-       if (cnt%32 == 0)
-         printf("\n%3lu:", cnt);
-       printf(" %02x", p3[cnt]);
-     }
+#if defined(LTC_TEST_DBG) && LTC_TEST_DBG > 1
+     print_hex("Original signature", p3, len3);
 #endif
      /* (4.1) */
      for (cnt = 0; cnt < len3; ++cnt) {
@@ -563,14 +543,8 @@ for (cnt = 0; cnt < len; ) {
      for (cnt = cnt + len3-cnt2+i; cnt < len; ++cnt) {
         p3[cnt] = 0;
      }
-#ifdef LTC_TEST_DBG
-     printf("\nAfter:");
-     for (cnt = 0; cnt < len3; ++cnt) {
-       if (cnt%32 == 0)
-         printf("\n%3lu:", cnt);
-       printf(" %02x", p3[cnt]);
-     }
-     printf("\n");
+#if defined(LTC_TEST_DBG) && LTC_TEST_DBG > 1
+     print_hex("Forged signature", p3, len3);
 #endif
 
      len2 = sizeof(out);
