@@ -108,7 +108,7 @@ THEADERS = $(wildcard testprof/*.h)
 TIMING=timing
 TEST=test
 
-USEFUL_DEMOS=hashsum
+USEFUL_DEMOS=hashsum openssl-enc
 DEMOS=$(USEFUL_DEMOS) ltcrypt small tv_gen sizes constants
 
 TIMINGS=demos/timing.o

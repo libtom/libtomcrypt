@@ -30,6 +30,8 @@ hashsum
 hashsum.exe
 multi
 multi.exe
+openssl-enc
+openssl-enc.exe
 sizes
 sizes.exe
 small

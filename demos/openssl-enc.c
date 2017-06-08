@@ -157,8 +157,8 @@ void dump_bytes(unsigned char *in, unsigned long len)
  * Set is_padding to 1 to pad, 0 to unpad.
  *
  * Input:        paddable buffer, size read, block length of cipher, mode
- * Output:       none
- * Side Effects: bytes printed as a hex blob, no lf at the end
+ * Output:       number of bytes after padding resp. after unpadding
+ * Side Effects: none
  */
 size_t pkcs7_pad(union paddable *buf, size_t nb, int block_length,
                  int is_padding)
@@ -190,14 +190,14 @@ size_t pkcs7_pad(union paddable *buf, size_t nb, int block_length,
 
       /* padval must be nonzero and <= block length */
       if(padval <= 0 || padval > block_length)
-         return -1;
+         return 0;
 
       /* First byte's accounted for; do the rest */
       idx--;
 
       while(idx >= (off_t)(nb-padval))
          if(buf->pad[idx] != padval)
-            return -1;
+            return 0;
          else
             idx--;
 
@@ -264,7 +264,7 @@ int do_crypt(FILE *infd, FILE *outfd, unsigned char *key, unsigned char *iv,
          if( feof(infd) )
             nb = pkcs7_pad(&outbuf, nb,
                            aes_desc.block_length, 0);
-         if(nb == -1)
+         if(nb == 0)
             /* The file didn't decrypt correctly */
             return CRYPT_ERROR;
 
