@@ -888,6 +888,58 @@ static void time_katja(void)
 static void time_katja(void) { fprintf(stderr, "NO Katja\n"); }
 #endif
 
+#ifdef LTC_MDH
+/* time various DH operations */
+static void time_dh(void)
+{
+   dh_key key;
+   ulong64 t1, t2;
+   unsigned char buf[2][4096];
+   unsigned long i, x, y, z;
+   int           err;
+   static unsigned long sizes[] = {768/8, 1024/8, 1536/8, 2048/8, 3072/8, 4096/8, 6144/8, 8192/8, 100000};
+
+   for (x = sizes[i=0]; x < 100000; x = sizes[++i]) {
+       t2 = 0;
+       for (y = 0; y < 16; y++) {
+           t_start();
+           t1 = t_read();
+           if ((err = dh_make_key(&yarrow_prng, find_prng("yarrow"), x, &key)) != CRYPT_OK) {
+              fprintf(stderr, "\n\ndh_make_key says %s, wait...no it should say %s...damn you!\n", error_to_string(err), error_to_string(CRYPT_OK));
+              exit(EXIT_FAILURE);
+           }
+           t1 = t_read() - t1;
+           t2 += t1;
+
+           if (y < 15) {
+              dh_free(&key);
+           }
+       }
+       t2 >>= 4;
+       fprintf(stderr, "DH-%4lu make_key    took %15llu cycles\n", x*8, t2);
+
+       t2 = 0;
+       for (y = 0; y < 16; y++) {
+           t_start();
+           t1 = t_read();
+           z = sizeof(buf[1]);
+           if ((err = dh_encrypt_key(buf[0], 20, buf[1], &z, &yarrow_prng, find_prng("yarrow"), find_hash("sha1"),
+                                      &key)) != CRYPT_OK) {
+              fprintf(stderr, "\n\ndh_encrypt_key says %s, wait...no it should say %s...damn you!\n", error_to_string(err), error_to_string(CRYPT_OK));
+              exit(EXIT_FAILURE);
+           }
+           t1 = t_read() - t1;
+           t2 += t1;
+       }
+       t2 >>= 4;
+       fprintf(stderr, "DH-%4lu encrypt_key took %15llu cycles\n", x*8, t2);
+       dh_free(&key);
+  }
+}
+#else
+static void time_dh(void) { fprintf(stderr, "NO DH\n"); }
+#endif
+
 #ifdef LTC_MECC
 /* time various ECC operations */
 static void time_ecc(void)
@@ -1386,6 +1438,7 @@ time_rsa();
 time_dsa();
 time_ecc();
 time_katja();
+time_dh();
 return EXIT_SUCCESS;
 
 }
