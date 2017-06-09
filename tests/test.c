@@ -32,6 +32,10 @@ static const test_function test_functions[] =
       LTC_TEST_FN(katja_test),
       LTC_TEST_FN(file_test),
       LTC_TEST_FN(multi_test),
+      /* keep the prng_test always at the end as
+       * it has to be handled specially when
+       * testing with LTC_PTHREAD enabled
+       */
       LTC_TEST_FN(prng_test),
 };
 
@@ -72,7 +76,7 @@ typedef struct
    pthread_t thread_id;
    const test_function* t;
    int err;
-   ulong64 ts;
+   ulong64 delta;
 } thread_info;
 
 static void *run(void *arg)
@@ -82,7 +86,7 @@ static void *run(void *arg)
 
    ts = epoch_usec();
    tinfo->err = tinfo->t->fn();
-   tinfo->ts = epoch_usec() - ts;
+   tinfo->delta = epoch_usec() - ts;
 
    return arg;
 }
@@ -322,6 +326,7 @@ int main(int argc, char **argv)
       if (fn_len < len) fn_len = len;
 
 #ifdef LTC_PTHREAD
+      if(test_functions[i].fn == prng_test) continue;
       tinfo[i].t = &test_functions[i];
       x = pthread_create(&tinfo[i].thread_id, NULL, run, &tinfo[i]);
       if (x != 0)  {
@@ -348,20 +353,26 @@ int main(int argc, char **argv)
       fflush(stdout);
 
 #ifdef LTC_PTHREAD
-      x = pthread_join(tinfo[i].thread_id, (void**)&res);
-      if (x != 0){
-         printf("\n\nFAILURE: pthread_join\n");
-         return EXIT_FAILURE;
+      if(test_functions[i].fn != prng_test) {
+         x = pthread_join(tinfo[i].thread_id, (void**)&res);
+         if (x != 0){
+            printf("\n\nFAILURE: pthread_join\n");
+            return EXIT_FAILURE;
+         }
+         x = res->err;
+         delta = res->delta;
       }
-      ts = res->ts;
-      x = res->err;
+      else {
+         ts = epoch_usec();
+         x = test_functions[i].fn();
+         delta = (long)(epoch_usec() - ts);
+      }
 #else
       ts = epoch_usec();
       x = test_functions[i].fn();
       delta = (long)(epoch_usec() - ts);
-      dur += delta;
 #endif
-      real += dur;
+      real += delta;
 
       if (x == CRYPT_OK) {
          printf("passed %10.3fms", (double)(delta)/1000);
