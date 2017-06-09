@@ -3,7 +3,8 @@
 
 int multi_test(void)
 {
-   unsigned char key[32], buf[2][MAXBLOCKSIZE];
+   unsigned char key[32] = { 0 };
+   unsigned char buf[2][MAXBLOCKSIZE];
    unsigned long len, len2;
 
 /* register algos */
