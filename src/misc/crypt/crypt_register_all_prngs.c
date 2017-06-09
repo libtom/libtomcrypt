@@ -16,7 +16,7 @@
 */
 
 #define REGISTER_PRNG(h) do {\
-   LTC_ARGCHK((err = register_prng(h) == -1 ? CRYPT_ERROR : CRYPT_OK) == CRYPT_OK); \
+   LTC_ARGCHK(((err = register_prng(h)) == -1 ? CRYPT_ERROR : CRYPT_OK) == CRYPT_OK); \
 } while(0)
 
 int register_all_prngs(void)

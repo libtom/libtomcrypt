@@ -16,7 +16,7 @@
 */
 
 #define REGISTER_HASH(h) do {\
-   LTC_ARGCHK((err = register_hash(h) == -1 ? CRYPT_ERROR : CRYPT_OK) == CRYPT_OK); \
+   LTC_ARGCHK(((err = register_hash(h)) == -1 ? CRYPT_ERROR : CRYPT_OK) == CRYPT_OK); \
 } while(0)
 
 int register_all_hashes(void)
