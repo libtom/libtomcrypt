@@ -18,7 +18,7 @@
 #ifdef LTC_MDSA
 
 /**
-  Create DSA parameters
+  Create DSA parameters (INTERNAL ONLY, not part of public API)
   @param prng          An active PRNG state
   @param wprng         The index of the PRNG desired
   @param group_size    Size of the multiplicative group (octets)
@@ -28,7 +28,7 @@
   @param g             [out] bignum where generated 'g' is stored (must be initialized by caller)
   @return CRYPT_OK if successful, upon error this function will free all allocated memory
 */
-int dsa_make_params(prng_state *prng, int wprng, int group_size, int modulus_size, void *p, void *q, void *g)
+static int dsa_make_params(prng_state *prng, int wprng, int group_size, int modulus_size, void *p, void *q, void *g)
 {
   unsigned long L, N, n, outbytes, seedbytes, counter, j, i;
   int err, res, mr_tests_q, mr_tests_p, found_p, found_q, hash;
