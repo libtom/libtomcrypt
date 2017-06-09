@@ -188,11 +188,6 @@ int dh_make_key(prng_state *prng, int wprng, int keysize, dh_key *key)
    }
 
    /* make up random string */
-   if ( rng_make_prng( keysize, wprng, prng, NULL) != CRYPT_OK) {
-      err = CRYPT_ERROR_READPRNG;
-      goto error2;
-   }
-
    if (prng_descriptor[wprng].read(buf, keysize, prng) != (unsigned long)keysize) {
       err = CRYPT_ERROR_READPRNG;
       goto error2;
