@@ -49,7 +49,7 @@ int prng_test(void)
 
    /* test prngs (test, import/export) */
    for (x = 0; prng_descriptor[x].name != NULL; x++) {
-      if(strcmp(prng_descriptor[x].name, "no_prng") == 0) continue;
+      if(strstr(prng_descriptor[x].name, "no_prng") == prng_descriptor[x].name) continue;
       err = CRYPT_OK;
       DOX(prng_descriptor[x].test(), prng_descriptor[x].name);
       DOX(prng_descriptor[x].start(&nprng), prng_descriptor[x].name);

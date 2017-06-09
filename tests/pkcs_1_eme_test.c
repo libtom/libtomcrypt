@@ -8,7 +8,8 @@
 
 int pkcs_1_eme_test(void)
 {
-  int prng_idx = register_prng(&no_prng_desc);
+  struct ltc_prng_descriptor* no_prng_desc = no_prng_desc_get();
+  int prng_idx = register_prng(no_prng_desc);
   int hash_idx = find_hash("sha1");
   unsigned int i;
   unsigned int j;
@@ -37,8 +38,8 @@ int pkcs_1_eme_test(void)
         unsigned char buf[256], obuf[256];
         unsigned long buflen = sizeof(buf), obuflen = sizeof(obuf);
         int stat;
-        prng_descriptor[prng_idx].add_entropy(s->o2, s->o2_l, NULL);
-        DOX(rsa_encrypt_key_ex(s->o1, s->o1_l, obuf, &obuflen, NULL, 0, NULL, prng_idx, -1, LTC_PKCS_1_V1_5, key), s->name);
+        prng_descriptor[prng_idx].add_entropy(s->o2, s->o2_l, (prng_state*)no_prng_desc);
+        DOX(rsa_encrypt_key_ex(s->o1, s->o1_l, obuf, &obuflen, NULL, 0, (prng_state*)no_prng_desc, prng_idx, -1, LTC_PKCS_1_V1_5, key), s->name);
         DOX(obuflen == (unsigned long)s->o3_l?CRYPT_OK:CRYPT_FAIL_TESTVECTOR, s->name);
         DOX(memcmp(s->o3, obuf, s->o3_l)==0?CRYPT_OK:CRYPT_FAIL_TESTVECTOR, s->name);
         DOX(rsa_decrypt_key_ex(obuf, obuflen, buf, &buflen, NULL, 0, -1, LTC_PKCS_1_V1_5, &stat, key), s->name);
@@ -48,9 +49,8 @@ int pkcs_1_eme_test(void)
     mp_clear_multi(key->d,  key->e, key->N, key->dQ, key->dP, key->qP, key->p, key->q, NULL);
   } /* for */
 
-#ifndef LTC_PTHREAD
-  unregister_prng(&no_prng_desc);
-#endif
+  unregister_prng(no_prng_desc);
+  no_prng_desc_free(no_prng_desc);
 
   return 0;
 }
