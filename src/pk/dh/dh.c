@@ -116,6 +116,39 @@ int dh_make_key(prng_state *prng, int wprng, int keysize, dh_key *key)
    unsigned long x;
    void *p, *g;
    int err;
+   /* Table of the strength estimates from https://tools.ietf.org/html/rfc3526#section-8
+    * We use them as a reference to estimate an appropriate private key size.
+    */
+   const int private_key_sizes[][2] =
+      {
+#ifdef LTC_DH768
+           { 180, 240, },
+#endif
+#ifdef LTC_DH1024
+           { 180, 240, },
+#endif
+#ifdef LTC_DH1536
+           { 180, 240, },
+#endif
+#ifdef LTC_DH2048
+           /* here we use 224 instead of 220 as NIST requires
+            * at least 224bits for the 2048bit group */
+           { 224, 320, },
+#endif
+#ifdef LTC_DH3072
+           { 260, 420, },
+#endif
+#ifdef LTC_DH4096
+           { 300, 480, },
+#endif
+#ifdef LTC_DH6144
+           { 340, 540, },
+#endif
+#ifdef LTC_DH8192
+           { 380, 620, },
+#endif
+           { INT_MAX, INT_MAX, }
+      };
 
    LTC_ARGCHK(key  != NULL);
 
@@ -126,15 +159,27 @@ int dh_make_key(prng_state *prng, int wprng, int keysize, dh_key *key)
 
    /* find key size */
    for (x = 0; (keysize > sets[x].size) && (sets[x].size != 0); x++);
-#ifdef FAST_PK
-   keysize = MIN(sets[x].size, 32);
-#else
-   keysize = sets[x].size;
-#endif
    if (sets[x].size == 0) {
       return CRYPT_INVALID_KEYSIZE;
    }
+   if (x >= sizeof(private_key_sizes) / sizeof(private_key_sizes[0])) {
+      return CRYPT_INVALID_KEYSIZE;
+   }
    key->idx = x;
+
+   /* 1. Read a random digit
+    * 2. Shorten it to the range between both strengths'
+    * 3. Now we have a random digit between both strengths'
+    * 4. Make sure the division afterwards rounds up
+    * 5. Convert bit to byte
+    */
+   if (prng_descriptor[wprng].read((void*)&keysize, sizeof(keysize), prng) != sizeof(keysize)) {
+      return CRYPT_ERROR_READPRNG;
+   }
+   keysize %= private_key_sizes[x][1] - private_key_sizes[x][0];
+   keysize += private_key_sizes[x][0];
+   keysize += 7;
+   keysize /= 8;
 
    /* allocate buffer */
    buf = XMALLOC(keysize);
