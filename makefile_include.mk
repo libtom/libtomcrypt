@@ -90,7 +90,7 @@ endif # COMPILE_DEBUG
 
 
 ifneq ($(findstring clang,$(CC)),)
-CFLAGS += -Wno-typedef-redefinition -Wno-tautological-compare
+CFLAGS += -Wno-typedef-redefinition -Wno-tautological-compare -Wno-builtin-requires-header
 endif
 
 
