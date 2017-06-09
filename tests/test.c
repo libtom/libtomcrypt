@@ -95,7 +95,17 @@ static void *run(void *arg)
 static void _unregister_all(void)
 {
 #ifdef LTC_RIJNDAEL
-  unregister_cipher(&aes_desc);
+#ifdef ENCRYPT_ONLY
+   /* alternative would be
+    * unregister_cipher(&rijndael_enc_desc);
+    */
+   unregister_cipher(&aes_enc_desc);
+#else
+   /* alternative would be
+    * unregister_cipher(&rijndael_desc);
+    */
+   unregister_cipher(&aes_desc);
+#endif
 #endif
 #ifdef LTC_BLOWFISH
   unregister_cipher(&blowfish_desc);
@@ -238,6 +248,9 @@ static void _unregister_all(void)
 #endif
 #ifdef LTC_SOBER128
   unregister_prng(&sober128_desc);
+#endif
+#ifdef LTC_SPRNG
+  unregister_prng(&sprng_desc);
 #endif
 } /* _cleanup() */
 
