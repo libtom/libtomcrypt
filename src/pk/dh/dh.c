@@ -119,7 +119,6 @@ int dh_make_key(prng_state *prng, int wprng, int groupsize, dh_key *key)
 
    LTC_ARGCHK(key  != NULL);
    LTC_ARGCHK(prng != NULL);
-   LTC_ARGCHK(groupsize >= 32);
 
    /* good prng? */
    if ((err = prng_is_valid(wprng)) != CRYPT_OK) {
@@ -183,8 +182,8 @@ int dh_make_key(prng_state *prng, int wprng, int groupsize, dh_key *key)
       if ((err = mp_read_unsigned_bin(key->x, buf, keysize)) != CRYPT_OK)  { goto error; }
       /* compute the y value - public key */
       if ((err = mp_exptmod(g, key->x, p, key->y)) != CRYPT_OK)            { goto error; }
-      /* avoid: y == 1 OR y == p-1 */
-    } while (mp_cmp(key->y, p_minus1) != LTC_MP_LT || mp_cmp_d(key->y, 1) != LTC_MP_GT);
+      /* avoid: y <= 1 OR y >= p-1 */
+   } while (mp_cmp(key->y, p_minus1) != LTC_MP_LT || mp_cmp_d(key->y, 1) != LTC_MP_GT);
 
    /* success */
    key->idx = idx;
