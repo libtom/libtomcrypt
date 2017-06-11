@@ -141,7 +141,7 @@ int dh_make_key(prng_state *prng, int wprng, int groupsize, dh_key *key)
    }
 
    /* find key size */
-   for (x = 0; (keysize > sets[x].size) && (sets[x].size != 0); x++);
+   for (x = 0; ((int)keysize > sets[x].size) && (sets[x].size != 0); x++);
    if (sets[x].size == 0) {
       return CRYPT_INVALID_KEYSIZE;
    }
