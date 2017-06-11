@@ -355,7 +355,7 @@ error:
 int dh_shared_secret(dh_key *private_key, dh_key *public_key,
                      unsigned char *out, unsigned long *outlen)
 {
-   void *tmp, *p;
+   void *tmp, *p, *p_minus1;
    unsigned long x;
    int err;
 
@@ -375,26 +375,31 @@ int dh_shared_secret(dh_key *private_key, dh_key *public_key,
    }
 
    /* compute y^x mod p */
-   if ((err = mp_init_multi(&tmp, &p, NULL)) != CRYPT_OK) {
+   if ((err = mp_init_multi(&tmp, &p, &p_minus1, NULL)) != CRYPT_OK) {
       return err;
    }
 
-   if ((err = mp_read_radix(p, (char *)sets[private_key->idx].prime, 16)) != CRYPT_OK)     { goto error; }
-   if ((err = mp_exptmod(public_key->y, private_key->x, p, tmp)) != CRYPT_OK)           { goto error; }
+   if ((err = mp_read_radix(p, sets[private_key->idx].prime, 16)) != CRYPT_OK)  { goto error; }
+   if ((err = mp_sub_d(p, 1, p_minus1)) != CRYPT_OK)                            { goto error; }
+   if (mp_cmp(public_key->y, p_minus1) != LTC_MP_LT || mp_cmp_d(public_key->y, 1) != LTC_MP_GT) {
+      /* reject public key with: y <= 1 OR y >= p-1 */
+      err = CRYPT_INVALID_ARG;
+      goto error;
+   };
+   if ((err = mp_exptmod(public_key->y, private_key->x, p, tmp)) != CRYPT_OK)   { goto error; }
 
    /* enough space for output? */
    x = (unsigned long)mp_unsigned_bin_size(tmp);
    if (*outlen < x) {
       err = CRYPT_BUFFER_OVERFLOW;
-      goto done;
+      goto error;
    }
-   if ((err = mp_to_unsigned_bin(tmp, out)) != CRYPT_OK)                                   { goto error; }
+   if ((err = mp_to_unsigned_bin(tmp, out)) != CRYPT_OK)                        { goto error; }
    *outlen = x;
    err = CRYPT_OK;
-   goto done;
+
 error:
-done:
-   mp_clear_multi(p, tmp, NULL);
+   mp_clear_multi(p_minus1, p, tmp, NULL);
    return err;
 }
 
