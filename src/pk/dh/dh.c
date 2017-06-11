@@ -113,39 +113,50 @@ int dh_get_size(dh_key *key)
 int dh_make_key(prng_state *prng, int wprng, int groupsize, dh_key *key)
 {
    unsigned char *buf;
-   unsigned long x, keysize;
+   unsigned long idx, keysize;
    void *p, *g, *p_minus1;
    int err;
 
    LTC_ARGCHK(key  != NULL);
    LTC_ARGCHK(prng != NULL);
-
-   /* Table of the strength estimates from https://tools.ietf.org/html/rfc3526#section-8
-    * We use "Estimate 2" to get an appropriate private key (exponent) size.
-    */
-   switch (groupsize) {
-      case 96:   keysize = 30; break;   /*  768-bit => key size 240-bit */
-      case 128:  keysize = 30; break;   /* 1024-bit => key size 240-bit */
-      case 192:  keysize = 30; break;   /* 1536-bit => key size 240-bit */
-      case 256:  keysize = 40; break;   /* 2048-bit => key size 320-bit */
-      case 384:  keysize = 52; break;   /* 3072-bit => key size 416-bit */
-      case 512:  keysize = 60; break;   /* 4096-bit => key size 480-bit */
-      case 768:  keysize = 67; break;   /* 6144-bit => key size 536-bit */
-      case 1024: keysize = 77; break;   /* 8192-bit => key size 616-bit */
-      default: return CRYPT_INVALID_KEYSIZE;
-   }
+   LTC_ARGCHK(groupsize >= 32);
 
    /* good prng? */
    if ((err = prng_is_valid(wprng)) != CRYPT_OK) {
       return err;
    }
 
-   /* find key size */
-   for (x = 0; ((int)keysize > sets[x].size) && (sets[x].size != 0); x++);
-   if (sets[x].size == 0) {
+   /* find group size */
+   for (idx = 0; (groupsize > sets[idx].size) && (sets[idx].size != 0); idx++);
+   if (sets[idx].size == 0) {
       return CRYPT_INVALID_KEYSIZE;
    }
-   key->idx = x;
+   groupsize = sets[idx].size;
+
+   /* The strength estimates from https://tools.ietf.org/html/rfc3526#section-8
+    * We use "Estimate 2" to get an appropriate private key (exponent) size.
+    */
+   if (groupsize <= 192) {
+      keysize = 30;     /* 1536-bit => key size 240-bit */
+   }
+   else if (groupsize <= 256) {
+      keysize = 40;     /* 2048-bit => key size 320-bit */
+   }
+   else if (groupsize <= 384) {
+      keysize = 52;     /* 3072-bit => key size 416-bit */
+   }
+   else if (groupsize <= 512) {
+      keysize = 60;     /* 4096-bit => key size 480-bit */
+   }
+   else if (groupsize <= 768) {
+      keysize = 67;     /* 6144-bit => key size 536-bit */
+   }
+   else if (groupsize <= 1024) {
+      keysize = 77;     /* 8192-bit => key size 616-bit */
+   }
+   else {
+      return CRYPT_INVALID_KEYSIZE;
+   }
 
    /* allocate buffer */
    buf = XMALLOC(keysize);
@@ -158,8 +169,8 @@ int dh_make_key(prng_state *prng, int wprng, int groupsize, dh_key *key)
       goto freebuf;
    }
 
-   if ((err = mp_read_radix(g, sets[key->idx].base, 16)) != CRYPT_OK)      { goto error; }
-   if ((err = mp_read_radix(p, sets[key->idx].prime, 16)) != CRYPT_OK)     { goto error; }
+   if ((err = mp_read_radix(g, sets[idx].base, 16)) != CRYPT_OK)           { goto error; }
+   if ((err = mp_read_radix(p, sets[idx].prime, 16)) != CRYPT_OK)          { goto error; }
    if ((err = mp_sub_d(p, 1, p_minus1)) != CRYPT_OK)                       { goto error; }
 
    do {
@@ -173,9 +184,10 @@ int dh_make_key(prng_state *prng, int wprng, int groupsize, dh_key *key)
       /* compute the y value - public key */
       if ((err = mp_exptmod(g, key->x, p, key->y)) != CRYPT_OK)            { goto error; }
       /* avoid: y == 1 OR y == p-1 */
-    } while (mp_cmp(key->y, p_minus1) == LTC_MP_EQ || mp_cmp_d(key->y, 1) == LTC_MP_EQ);
+    } while (mp_cmp(key->y, p_minus1) != LTC_MP_LT || mp_cmp_d(key->y, 1) != LTC_MP_GT);
 
    /* success */
+   key->idx = idx;
    key->type = PK_PRIVATE;
    err = CRYPT_OK;
    goto done;
