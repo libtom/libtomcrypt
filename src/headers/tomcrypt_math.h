@@ -24,6 +24,12 @@
    typedef void rsa_key;
 #endif
 
+#ifndef LTC_MILLER_RABIN_REPS
+   /* Number of rounds of the Miller-Rabin test
+    * "Reasonable values of reps are between 15 and 50." c.f. gmp doc of mpz_probab_prime_p() */
+   #define LTC_MILLER_RABIN_REPS    35
+#endif
+
 /** math descriptor */
 typedef struct {
    /** Name of the math provider */
@@ -345,7 +351,7 @@ typedef struct {
 
    /** Primality testing
        @param a     The integer to test
-       @param b     The number of tests that shall be executed
+       @param b     The number of Miller-Rabin tests that shall be executed
        @param c     The destination of the result (FP_YES if prime)
        @return CRYPT_OK on success
    */
@@ -472,13 +478,13 @@ typedef struct {
    int (*submod)(void *a, void *b, void *c, void *d);
 
 /* ---- misc stuff ---- */
+
    /** Make a pseudo-random mpi
       @param  a     The mpi to make random
       @param  size  The desired length
       @return CRYPT_OK on success
    */
    int (*rand)(void *a, int size);
-
 } ltc_math_descriptor;
 
 extern ltc_math_descriptor ltc_mp;

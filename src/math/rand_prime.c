@@ -66,7 +66,7 @@ int rand_prime(void *N, long len, prng_state *prng, int wprng)
       }
 
       /* test */
-      if ((err = mp_prime_is_prime(N, 8, &res)) != CRYPT_OK) {
+      if ((err = mp_prime_is_prime(N, LTC_MILLER_RABIN_REPS, &res)) != CRYPT_OK) {
          XFREE(buf);
          return err;
       }

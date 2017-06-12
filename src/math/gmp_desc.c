@@ -446,7 +446,7 @@ static int isprime(void *a, int b, int *c)
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(c != NULL);
    if (b == 0) {
-       b = 8;
+       b = LTC_MILLER_RABIN_REPS;
    } /* if */
    *c = mpz_probab_prime_p(a, b) > 0 ? LTC_MP_YES : LTC_MP_NO;
    return CRYPT_OK;

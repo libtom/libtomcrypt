@@ -415,8 +415,10 @@ static int isprime(void *a, int b, int *c)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(c != NULL);
-   (void)b;
-   *c = (fp_isprime(a) == FP_YES) ? LTC_MP_YES : LTC_MP_NO;
+   if (b == 0) {
+       b = LTC_MILLER_RABIN_REPS;
+   } /* if */
+   *c = (fp_isprime_ex(a, b) == FP_YES) ? LTC_MP_YES : LTC_MP_NO;
    return CRYPT_OK;
 }
 
