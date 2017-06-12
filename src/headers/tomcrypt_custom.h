@@ -492,11 +492,6 @@
    #define LTC_PKCS_1
 #endif
 
-#if defined(TFM_DESC) && defined(LTC_RSA_BLINDING)
-    #warning RSA blinding currently not supported in combination with TFM
-    #undef LTC_RSA_BLINDING
-#endif
-
 #if defined(LTC_PELICAN) && !defined(LTC_RIJNDAEL)
    #error Pelican-MAC requires LTC_RIJNDAEL
 #endif
