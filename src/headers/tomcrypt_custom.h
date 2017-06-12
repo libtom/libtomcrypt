@@ -1,6 +1,23 @@
 #ifndef TOMCRYPT_CUSTOM_H_
 #define TOMCRYPT_CUSTOM_H_
 
+/*
+ * LTC_MAC_STATIC: When defined, static arrays are defined in mac structures.
+ * When not defined, pointers are declared. Dynamic allocation is then
+ * performed in the related xxx_init() and xxx_done() functions
+ */
+#ifdef LTC_MAC_STATIC
+/* Case of static allocation - no need to dynamically alloc / free */
+#define XDECLARE_DYN_OR_STAT(_p, _s) unsigned char _p[(_s)]
+#define XMALLOC_DYN_OR_STAT(_p, _s) do {} while(0)
+#define XFREE_DYN_OR_STAT(_p) do {} while(0)
+#else
+/* Standard dynamic allocation */
+#define XDECLARE_DYN_OR_STAT(_p, _s) unsigned char *_p
+#define XMALLOC_DYN_OR_STAT(_p, _s) do { _p = XMALLOC((_s)); } while(0)
+#define XFREE_DYN_OR_STAT(_p) do { XFREE((_p)); } while(0)
+#endif
+
 /* macros for various libc functions you can change for embedded targets */
 #ifndef XMALLOC
 #define XMALLOC  malloc
