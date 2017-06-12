@@ -385,7 +385,7 @@ int dh_shared_secret(dh_key *private_key, dh_key *public_key,
       /* reject public key with: y <= 1 OR y >= p-1 */
       err = CRYPT_INVALID_ARG;
       goto error;
-   };
+   }
    if ((err = mp_exptmod(public_key->y, private_key->x, p, tmp)) != CRYPT_OK)   { goto error; }
 
    /* enough space for output? */
