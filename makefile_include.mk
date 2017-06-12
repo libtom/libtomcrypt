@@ -92,6 +92,9 @@ endif # COMPILE_DEBUG
 ifneq ($(findstring clang,$(CC)),)
 CFLAGS += -Wno-typedef-redefinition -Wno-tautological-compare -Wno-builtin-requires-header
 endif
+ifeq ($(PLATFORM), Darwin)
+CFLAGS += -Wno-nullability-completeness
+endif
 
 
 GIT_VERSION := $(shell [ -e .git ] && { printf git- ; git describe --tags --always --dirty ; } || echo $(VERSION))
