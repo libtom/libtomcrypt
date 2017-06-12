@@ -20,7 +20,12 @@ static unsigned long my_test_rng(unsigned char *buf, unsigned long len,
 
 int prng_test(void)
 {
-   int err = CRYPT_NOP;
+   int           err = CRYPT_NOP;
+   int           x;
+   unsigned char buf[4096];
+   unsigned long n, one;
+   prng_state    nprng;
+
 #ifdef LTC_PRNG_ENABLE_LTC_RNG
    unsigned long before;
 
@@ -41,5 +46,33 @@ int prng_test(void)
 
    ltc_rng = previous;
 #endif
+
+   /* test prngs (test, import/export) */
+   for (x = 0; prng_descriptor[x].name != NULL; x++) {
+      if(strstr(prng_descriptor[x].name, "no_prng") == prng_descriptor[x].name) continue;
+      err = CRYPT_OK;
+      DOX(prng_descriptor[x].test(), prng_descriptor[x].name);
+      DOX(prng_descriptor[x].start(&nprng), prng_descriptor[x].name);
+      DOX(prng_descriptor[x].add_entropy((unsigned char *)"helloworld12", 12, &nprng), prng_descriptor[x].name);
+      DOX(prng_descriptor[x].ready(&nprng), prng_descriptor[x].name);
+      n = sizeof(buf);
+      if (strcmp(prng_descriptor[x].name, "sprng")) {
+         one = 1;
+         if (prng_descriptor[x].pexport(buf, &one, &nprng) != CRYPT_BUFFER_OVERFLOW) {
+            fprintf(stderr, "Error testing pexport with a short buffer (%s)\n", prng_descriptor[x].name);
+            return CRYPT_ERROR;
+         }
+      }
+      DOX(prng_descriptor[x].pexport(buf, &n, &nprng), prng_descriptor[x].name);
+      prng_descriptor[x].done(&nprng);
+      DOX(prng_descriptor[x].pimport(buf, n, &nprng), prng_descriptor[x].name);
+      DOX(prng_descriptor[x].pimport(buf, 4096, &nprng), prng_descriptor[x].name); /* try to import larger data */
+      DOX(prng_descriptor[x].ready(&nprng), prng_descriptor[x].name);
+      if (prng_descriptor[x].read(buf, 100, &nprng) != 100) {
+         fprintf(stderr, "Error reading from imported PRNG (%s)!\n", prng_descriptor[x].name);
+         return CRYPT_ERROR;
+      }
+      prng_descriptor[x].done(&nprng);
+   }
    return err;
 }

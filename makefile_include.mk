@@ -42,8 +42,9 @@ endif
 endif
 endif
 
-
+#
 # Compilation flags. Note the += does not write over the user's CFLAGS!
+#
 CFLAGS += -I./src/headers/ -Wall -Wsign-compare -Wshadow -DLTC_SOURCE
 
 ifdef OLD_GCC
@@ -89,7 +90,7 @@ endif # COMPILE_DEBUG
 
 
 ifneq ($(findstring clang,$(CC)),)
-CFLAGS += -Wno-typedef-redefinition -Wno-tautological-compare
+CFLAGS += -Wno-typedef-redefinition -Wno-tautological-compare -Wno-builtin-requires-header
 endif
 
 
@@ -98,6 +99,10 @@ ifneq ($(GIT_VERSION),)
 CFLAGS += -DGIT_VERSION=\"$(GIT_VERSION)\"
 endif
 
+
+ifneq ($(findstring -DLTC_PTHREAD,$(CFLAGS)),)
+LDFLAGS += -pthread
+endif
 
 #List of demo objects
 DSOURCES = $(wildcard demos/*.c)

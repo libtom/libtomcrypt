@@ -98,6 +98,12 @@ sub check_descriptor {
       warn "$d missing in $f\n" and $fails++ if $txt !~ /\Q$d\E/;
     }
   }
+  for my $d (@descriptors) {
+    for my $f ("./tests/test.c") {
+      my $txt = read_file($f);
+      warn "$d missing in $f\n" and $fails++ if $txt !~ /\Q$d\E/;
+    }
+  }
   my $name = sprintf("%-17s", "check-${which}:");
   warn( $fails > 0 ? "${name}FAIL $fails\n" : "${name}PASS\n" );
   return $fails;

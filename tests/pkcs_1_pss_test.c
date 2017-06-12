@@ -8,7 +8,8 @@
 
 int pkcs_1_pss_test(void)
 {
-  int prng_idx = register_prng(&no_prng_desc);
+  struct ltc_prng_descriptor* no_prng_desc = no_prng_desc_get();
+  int prng_idx = register_prng(no_prng_desc);
   int hash_idx = find_hash("sha1");
   unsigned int i;
   unsigned int j;
@@ -37,9 +38,9 @@ int pkcs_1_pss_test(void)
         unsigned char buf[20], obuf[256];
         unsigned long buflen = sizeof(buf), obuflen = sizeof(obuf);
         int stat;
-        prng_descriptor[prng_idx].add_entropy(s->o2, s->o2_l, NULL);
+        prng_descriptor[prng_idx].add_entropy(s->o2, s->o2_l, (prng_state*)no_prng_desc);
         DOX(hash_memory(hash_idx, s->o1, s->o1_l, buf, &buflen), s->name);
-        DOX(rsa_sign_hash(buf, buflen, obuf, &obuflen, NULL, prng_idx, hash_idx, s->o2_l, key), s->name);
+        DOX(rsa_sign_hash(buf, buflen, obuf, &obuflen, (prng_state*)no_prng_desc, prng_idx, hash_idx, s->o2_l, key), s->name);
         DOX(obuflen == (unsigned long)s->o3_l?CRYPT_OK:CRYPT_FAIL_TESTVECTOR, s->name);
         DOX(memcmp(s->o3, obuf, s->o3_l)==0?CRYPT_OK:CRYPT_FAIL_TESTVECTOR, s->name);
         DOX(rsa_verify_hash(obuf, obuflen, buf, buflen, hash_idx, s->o2_l, &stat, key), s->name);
@@ -49,7 +50,8 @@ int pkcs_1_pss_test(void)
     mp_clear_multi(key->d,  key->e, key->N, key->dQ, key->dP, key->qP, key->p, key->q, NULL);
   } /* for */
 
-  unregister_prng(&no_prng_desc);
+  unregister_prng(no_prng_desc);
+  no_prng_desc_free(no_prng_desc);
 
   return 0;
 }

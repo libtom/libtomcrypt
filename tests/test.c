@@ -6,10 +6,12 @@
 
 #define LTC_TEST_FN(f)  { f, #f }
 
-static const struct {
+typedef struct {
    int (*fn)(void);
    const char* name;
-} test_functions[] =
+} test_function;
+
+static const test_function test_functions[] =
 {
       LTC_TEST_FN(store_test),
       LTC_TEST_FN(rotate_test),
@@ -30,8 +32,13 @@ static const struct {
       LTC_TEST_FN(katja_test),
       LTC_TEST_FN(file_test),
       LTC_TEST_FN(multi_test),
+      /* keep the prng_test always at the end as
+       * it has to be handled specially when
+       * testing with LTC_PTHREAD enabled
+       */
       LTC_TEST_FN(prng_test),
 };
+
 
 #if defined(_WIN32)
   #include <windows.h> /* GetSystemTimeAsFileTime */
@@ -63,6 +70,28 @@ static ulong64 epoch_usec(void)
 #endif
 }
 
+#ifdef LTC_PTHREAD
+typedef struct
+{
+   pthread_t thread_id;
+   const test_function* t;
+   int err;
+   ulong64 delta;
+} thread_info;
+
+static void *run(void *arg)
+{
+   thread_info *tinfo = arg;
+   ulong64 ts;
+
+   ts = epoch_usec();
+   tinfo->err = tinfo->t->fn();
+   tinfo->delta = epoch_usec() - ts;
+
+   return arg;
+}
+#endif
+
 
 /*
  * unregister ciphers, hashes & prngs
@@ -70,7 +99,17 @@ static ulong64 epoch_usec(void)
 static void _unregister_all(void)
 {
 #ifdef LTC_RIJNDAEL
-  unregister_cipher(&aes_desc);
+#ifdef ENCRYPT_ONLY
+   /* alternative would be
+    * unregister_cipher(&rijndael_enc_desc);
+    */
+   unregister_cipher(&aes_enc_desc);
+#else
+   /* alternative would be
+    * unregister_cipher(&rijndael_desc);
+    */
+   unregister_cipher(&aes_desc);
+#endif
 #endif
 #ifdef LTC_BLOWFISH
   unregister_cipher(&blowfish_desc);
@@ -214,6 +253,9 @@ static void _unregister_all(void)
 #ifdef LTC_SOBER128
   unregister_prng(&sober128_desc);
 #endif
+#ifdef LTC_SPRNG
+  unregister_prng(&sprng_desc);
+#endif
 } /* _cleanup() */
 
 static void register_algs(void)
@@ -241,11 +283,14 @@ static void register_algs(void)
 
 int main(int argc, char **argv)
 {
+#ifdef LTC_PTHREAD
+   thread_info *tinfo, *res;
+#endif
    int x, pass = 0, fail = 0, nop = 0;
    size_t fn_len, i, dots;
    char *single_test = NULL;
    ulong64 ts;
-   long delta, dur = 0;
+   long delta, dur, real = 0;
    register_algs();
 
    printf("build == %s\n%s\n", GIT_VERSION, crypt_build_settings);
@@ -266,10 +311,29 @@ int main(int argc, char **argv)
 #endif
    printf("MP_DIGIT_BIT = %d\n", MP_DIGIT_BIT);
 
+
+#ifdef LTC_PTHREAD
+   tinfo = XCALLOC(sizeof(test_functions)/sizeof(test_functions[0]), sizeof(thread_info));
+   if (tinfo == NULL) {
+      printf("\n\nFAILURE: XCALLOC\n");
+      return EXIT_FAILURE;
+   }
+#endif
+
    fn_len = 0;
-   for (i = 0; i < sizeof(test_functions)/sizeof(test_functions[0]); ++i) {
+   for (i = 0; i < sizeof(test_functions) / sizeof(test_functions[0]); ++i) {
       size_t len = strlen(test_functions[i].name);
       if (fn_len < len) fn_len = len;
+
+#ifdef LTC_PTHREAD
+      if(test_functions[i].fn == prng_test) continue;
+      tinfo[i].t = &test_functions[i];
+      x = pthread_create(&tinfo[i].thread_id, NULL, run, &tinfo[i]);
+      if (x != 0)  {
+         printf("\n\nFAILURE: pthread_create\n");
+         return EXIT_FAILURE;
+      }
+#endif
    }
 
    fn_len = fn_len + (4 - (fn_len % 4));
@@ -277,6 +341,7 @@ int main(int argc, char **argv)
    /* single test name from commandline */
    if (argc > 1) single_test = argv[1];
 
+   dur = epoch_usec();
    for (i = 0; i < sizeof(test_functions)/sizeof(test_functions[0]); ++i) {
       if (single_test && strcmp(test_functions[i].name, single_test)) {
         continue;
@@ -287,10 +352,27 @@ int main(int argc, char **argv)
       while(dots--) printf(".");
       fflush(stdout);
 
+#ifdef LTC_PTHREAD
+      if(test_functions[i].fn != prng_test) {
+         x = pthread_join(tinfo[i].thread_id, (void**)&res);
+         if (x != 0){
+            printf("\n\nFAILURE: pthread_join\n");
+            return EXIT_FAILURE;
+         }
+         x = res->err;
+         delta = res->delta;
+      }
+      else {
+         ts = epoch_usec();
+         x = test_functions[i].fn();
+         delta = (long)(epoch_usec() - ts);
+      }
+#else
       ts = epoch_usec();
       x = test_functions[i].fn();
       delta = (long)(epoch_usec() - ts);
-      dur += delta;
+#endif
+      real += delta;
 
       if (x == CRYPT_OK) {
          printf("passed %10.3fms", (double)(delta)/1000);
@@ -305,15 +387,15 @@ int main(int argc, char **argv)
          fail++;
       }
    }
+   dur = epoch_usec() - dur;
 
-   if (fail > 0 || fail+pass+nop == 0) {
-      printf("\n\nFAILURE: passed=%d failed=%d nop=%d duration=%.1fsec\n", pass, fail, nop, (double)(dur)/(1000*1000));
-      return EXIT_FAILURE;
-   }
-   else {
-      printf("\n\nSUCCESS: passed=%d failed=%d nop=%d duration=%.1fsec\n", pass, fail, nop, (double)(dur)/(1000*1000));
-      return EXIT_SUCCESS;
-   }
+#ifdef LTC_PTHREAD
+   XFREE(tinfo);
+#endif
+
+   x = (fail > 0 || fail+pass+nop == 0) ? EXIT_FAILURE : EXIT_SUCCESS;
+   printf("\n\n%s: passed=%d failed=%d nop=%d duration=%.1fsec real=%.1fsec\n", x ? "FAILURE" : "SUCCESS", pass, fail, nop, (double)(dur)/(1000*1000), (double)(real)/(1000*1000));
+   return x;
 }
 
 /* $Source$ */

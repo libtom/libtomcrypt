@@ -17,9 +17,14 @@
 
 #ifdef LTC_PKCS_1
 
-static unsigned char no_prng_entropy[1024];
-static unsigned long no_prng_len = 0;
-static unsigned long no_prng_offset = 0;
+typedef struct
+{
+   struct ltc_prng_descriptor desc;
+   char name[64];
+   unsigned char entropy[1024];
+   unsigned long len;
+   unsigned long offset;
+} no_prng_desc_t;
 
 /**
   Start the PRNG
@@ -28,11 +33,13 @@ static unsigned long no_prng_offset = 0;
 */
 int no_prng_start(prng_state *prng)
 {
-    LTC_UNUSED_PARAM(prng);
-    no_prng_len = 0;
-    no_prng_offset = 0;
+   no_prng_desc_t *no_prng = (no_prng_desc_t*) prng;
+   LTC_ARGCHK(no_prng != NULL);
+   LTC_ARGCHK(no_prng->name == (char*)no_prng + offsetof(no_prng_desc_t, name));
+   no_prng->len = 0;
+   no_prng->offset = 0;
 
-    return CRYPT_OK;
+   return CRYPT_OK;
 }
 
 /**
@@ -44,15 +51,17 @@ int no_prng_start(prng_state *prng)
 */
 int no_prng_add_entropy(const unsigned char *in, unsigned long inlen, prng_state *prng)
 {
-    LTC_UNUSED_PARAM(prng);
-    LTC_ARGCHK(in  != NULL);
-    LTC_ARGCHK(inlen <= sizeof(no_prng_entropy));
+   no_prng_desc_t *no_prng = (no_prng_desc_t*) prng;
+   LTC_ARGCHK(no_prng != NULL);
+   LTC_ARGCHK(no_prng->name == (char*)no_prng + offsetof(no_prng_desc_t, name));
+   LTC_ARGCHK(in != NULL);
+   LTC_ARGCHK(inlen <= sizeof(no_prng->entropy));
 
-    no_prng_len = MIN(inlen, sizeof(no_prng_entropy));
-    memcpy(no_prng_entropy, in, no_prng_len);
-    no_prng_offset = 0;
+   no_prng->len = MIN(inlen, sizeof(no_prng->entropy));
+   memcpy(no_prng->entropy, in, no_prng->len);
+   no_prng->offset = 0;
 
-    return CRYPT_OK;
+   return CRYPT_OK;
 
 }
 
@@ -77,12 +86,14 @@ int no_prng_ready(prng_state *prng)
 */
 unsigned long no_prng_read(unsigned char *out, unsigned long outlen, prng_state *prng)
 {
-   LTC_UNUSED_PARAM(prng);
+   no_prng_desc_t *no_prng = (no_prng_desc_t*) prng;
+   LTC_ARGCHK(no_prng != NULL);
+   LTC_ARGCHK(no_prng->name == (char*)no_prng + offsetof(no_prng_desc_t, name));
    LTC_ARGCHK(out != NULL);
 
-   outlen = MIN(outlen, no_prng_len - no_prng_offset);
-   memcpy(out, &no_prng_entropy[no_prng_offset], outlen);
-   no_prng_offset += outlen;
+   outlen = MIN(outlen, no_prng->len - no_prng->offset);
+   memcpy(out, &no_prng->entropy[no_prng->offset], outlen);
+   no_prng->offset += outlen;
 
    return outlen;
 }
@@ -137,9 +148,9 @@ int no_prng_test(void)
    return CRYPT_OK;
 }
 
-const struct ltc_prng_descriptor no_prng_desc =
+static const struct ltc_prng_descriptor no_prng_desc =
 {
-   "no_prng", 0,
+    NULL, 0,
     &no_prng_start,
     &no_prng_add_entropy,
     &no_prng_ready,
@@ -149,6 +160,24 @@ const struct ltc_prng_descriptor no_prng_desc =
     &no_prng_import,
     &no_prng_test
 };
+
+struct ltc_prng_descriptor* no_prng_desc_get(void)
+{
+   no_prng_desc_t* no_prng = XMALLOC(sizeof(*no_prng));
+   LTC_ARGCHK(no_prng != NULL);
+   XMEMCPY(&no_prng->desc, &no_prng_desc, sizeof(no_prng_desc));
+   LTC_ARGCHK(snprintf(no_prng->name, sizeof(no_prng->name), "no_prng@%p", no_prng) < (int)sizeof(no_prng->name));
+   no_prng->desc.name = no_prng->name;
+   return &no_prng->desc;
+}
+
+void no_prng_desc_free(struct ltc_prng_descriptor* prng)
+{
+   no_prng_desc_t *no_prng = (no_prng_desc_t*) prng;
+   LTC_ARGCHK(no_prng != NULL);
+   LTC_ARGCHK(no_prng->name == (char*)no_prng + offsetof(no_prng_desc_t, name));
+   XFREE(no_prng);
+}
 
 #endif
 
