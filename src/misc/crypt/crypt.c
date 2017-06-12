@@ -332,6 +332,23 @@ const char *crypt_build_settings =
     "   Katja\n"
 #endif
 
+    "\nMPI (Math):\n"
+#if defined(LTC_MPI)
+    "   LTC_MPI\n"
+#endif
+#if defined(LTM_DESC)
+    "   LTM_DESC\n"
+#endif
+#if defined(TFM_DESC)
+    "   TFM_DESC\n"
+#endif
+#if defined(GMP_DESC)
+    "   GMP_DESC\n"
+#endif
+#if defined(LTC_MILLER_RABIN_REPS)
+    "   "NAME_VALUE(LTC_MILLER_RABIN_REPS)"\n"
+#endif
+
     "\nCompiler:\n"
 #if defined(_WIN64)
     "   WIN64 platform detected.\n"
@@ -389,9 +406,6 @@ const char *crypt_build_settings =
 #endif
 #if defined(LTC_HKDF)
     " HKDF "
-#endif
-#if defined(MPI)
-    " MPI "
 #endif
 #if defined(LTC_DEVRANDOM)
     " LTC_DEVRANDOM "
@@ -455,15 +469,6 @@ const char *crypt_build_settings =
 #endif
 #if defined(LTC_PTHREAD)
     " LTC_PTHREAD "
-#endif
-#if defined(LTM_DESC)
-    " LTM_DESC "
-#endif
-#if defined(TFM_DESC)
-    " TFM_DESC "
-#endif
-#if defined(GMP_DESC)
-    " GMP_DESC "
 #endif
 #if defined(LTC_EASY)
     " LTC_EASY "
