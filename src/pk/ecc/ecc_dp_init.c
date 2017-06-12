@@ -9,24 +9,23 @@
 
 #include "tomcrypt.h"
 
-/**
-  @file ecc_test.c
-  ECC Crypto, Tom St Denis
-*/
-
 #ifdef LTC_MECC
 
-int ecc_test(void)
+int ecc_dp_init(ltc_ecc_set_type *dp)
 {
-   /* the main ECC tests are in tests/ecc_test.c
-    * this function is kept just for API compatibility
-    */
-   return CRYPT_OK;
+  if (dp == NULL) return CRYPT_INVALID_ARG;
+
+  dp->name  = NULL;
+  dp->prime = NULL;
+  dp->A     = NULL;
+  dp->B     = NULL;
+  dp->order = NULL;
+  dp->Gx    = NULL;
+  dp->Gy    = NULL;
+  dp->oid.OIDlen = 0;
+  dp->cofactor = 0;
+
+  return CRYPT_OK;
 }
 
 #endif
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */
-

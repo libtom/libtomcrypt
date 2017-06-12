@@ -7,11 +7,6 @@
  * guarantee it works.
  */
 
-/* Implements ECC over Z/pZ for curve y^2 = x^3 - 3x + b
- *
- * All curves taken from NIST recommendation paper of July 1999
- * Available at http://csrc.nist.gov/cryptval/dss.htm
- */
 #include "tomcrypt.h"
 
 /**
@@ -31,6 +26,10 @@
 */
 int ecc_make_key(prng_state *prng, int wprng, int keysize, ecc_key *key)
 {
+   /* BEWARE: Here we are looking up the curve params by keysize (neither curve name nor curve oid),
+    *         which might be ambiguous (there can more than one curve for given keysize).
+    *         Thus the chosen curve depends on order of items in ltc_ecc_sets[] - see ecc.c file.
+    */
    int x, err;
 
    /* find key size */
@@ -49,9 +48,9 @@ int ecc_make_key_ex(prng_state *prng, int wprng, ecc_key *key, const ltc_ecc_set
 {
    int            err;
    ecc_point     *base;
-   void          *prime, *order;
+   void          *prime, *order, *a;
    unsigned char *buf;
-   int            keysize;
+   int            keysize, orderbits;
 
    LTC_ARGCHK(key         != NULL);
    LTC_ARGCHK(ltc_mp.name != NULL);
@@ -80,7 +79,7 @@ int ecc_make_key_ex(prng_state *prng, int wprng, ecc_key *key, const ltc_ecc_set
    }
 
    /* setup the key variables */
-   if ((err = mp_init_multi(&key->pubkey.x, &key->pubkey.y, &key->pubkey.z, &key->k, &prime, &order, NULL)) != CRYPT_OK) {
+   if ((err = mp_init_multi(&key->pubkey.x, &key->pubkey.y, &key->pubkey.z, &key->k, &prime, &order, &a, NULL)) != CRYPT_OK) {
       goto ERR_BUF;
    }
    base = ltc_ecc_new_point();
@@ -97,12 +96,21 @@ int ecc_make_key_ex(prng_state *prng, int wprng, ecc_key *key, const ltc_ecc_set
    if ((err = mp_set(base->z, 1)) != CRYPT_OK)                                                  { goto errkey; }
    if ((err = mp_read_unsigned_bin(key->k, (unsigned char *)buf, keysize)) != CRYPT_OK)         { goto errkey; }
 
-   /* the key should be smaller than the order of base point */
-   if (mp_cmp(key->k, order) != LTC_MP_LT) {
-       if((err = mp_mod(key->k, order, key->k)) != CRYPT_OK)                                    { goto errkey; }
-   }
+   /* ECC key pair generation according to FIPS-186-4 (B.4.2 Key Pair Generation by Testing Candidates):
+    * the generated private key k should be the range [1, order-1]
+    *  a/ N = bitlen(order)
+    *  b/ generate N random bits and convert them into big integer k
+    *  c/ if k not in [1, order-1] go to b/
+    *  e/ Q = k*G
+    */
+   orderbits = mp_count_bits(order);
+   do {
+     if ((err = rand_bn_bits(key->k, orderbits, prng, wprng)) != CRYPT_OK)                      { goto errkey; }
+   } while (mp_iszero(key->k) || mp_cmp(key->k, order) != LTC_MP_LT);
+
    /* make the public key */
-   if ((err = ltc_mp.ecc_ptmul(key->k, base, &key->pubkey, prime, 1)) != CRYPT_OK)              { goto errkey; }
+   if ((err = mp_read_radix(a, (char *)key->dp->A, 16)) != CRYPT_OK)                            { goto errkey; }
+   if ((err = ltc_mp.ecc_ptmul(key->k, base, &key->pubkey, a, prime, 1)) != CRYPT_OK)           { goto errkey; }
    key->type = PK_PRIVATE;
 
    /* free up ram */
@@ -112,7 +120,7 @@ errkey:
    mp_clear_multi(key->pubkey.x, key->pubkey.y, key->pubkey.z, key->k, NULL);
 cleanup:
    ltc_ecc_del_point(base);
-   mp_clear_multi(prime, order, NULL);
+   mp_clear_multi(prime, order, a, NULL);
 ERR_BUF:
 #ifdef LTC_CLEAN_STACK
    zeromem(buf, ECC_MAXSIZE);

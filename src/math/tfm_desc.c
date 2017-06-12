@@ -265,6 +265,16 @@ static int sqr(void *a, void *b)
    return CRYPT_OK;
 }
 
+/* sqrtmod_prime */
+static int sqrtmod_prime(void *a, void *b, void *c)
+{
+   LTC_ARGCHK(a != NULL);
+   LTC_ARGCHK(b != NULL);
+   LTC_ARGCHK(c != NULL);
+   fprintf(stderr, "TFM does not support sqrtmod_prime\n"); /* XXX-FIXME */
+   return CRYPT_ERROR;
+}
+
 /* div */
 static int divide(void *a, void *b, void *c, void *d)
 {
@@ -739,6 +749,7 @@ const ltc_math_descriptor tfm_desc = {
    &mul,
    &muli,
    &sqr,
+   &sqrtmod_prime,
    &divide,
    &div_2,
    &modi,
