@@ -133,7 +133,7 @@ static void init_timer(void)
    fprintf(stderr, "Clock Skew: %lu\n", (unsigned long)skew);
 }
 
-static int time_keysched(void)
+static void time_keysched(void)
 {
   unsigned long x, y1;
   ulong64 t1, c1;
@@ -165,12 +165,10 @@ static int time_keysched(void)
 #undef DO1
    }
    tally_results(0);
-
-   return 0;
 }
 
 #ifdef LTC_ECB_MODE
-static int time_cipher_ecb(void)
+static void time_cipher_ecb(void)
 {
   unsigned long x, y1;
   ulong64  t1, t2, c1, c2, a1, a2;
@@ -237,15 +235,13 @@ static int time_cipher_ecb(void)
 #undef DO1
    }
    tally_results(1);
-
-   return 0;
 }
 #else
-static int time_cipher_ecb(void) { fprintf(stderr, "NO ECB\n"); return 0; }
+static void time_cipher_ecb(void) { fprintf(stderr, "NO ECB\n"); return 0; }
 #endif
 
 #ifdef LTC_CBC_MODE
-static int time_cipher_cbc(void)
+static void time_cipher_cbc(void)
 {
   unsigned long x, y1;
   ulong64  t1, t2, c1, c2, a1, a2;
@@ -312,15 +308,13 @@ static int time_cipher_cbc(void)
 #undef DO1
    }
    tally_results(1);
-
-   return 0;
 }
 #else
-static int time_cipher_cbc(void) { fprintf(stderr, "NO CBC\n"); return 0; }
+static void time_cipher_cbc(void) { fprintf(stderr, "NO CBC\n"); return 0; }
 #endif
 
 #ifdef LTC_CTR_MODE
-static int time_cipher_ctr(void)
+static void time_cipher_ctr(void)
 {
   unsigned long x, y1;
   ulong64  t1, t2, c1, c2, a1, a2;
@@ -387,15 +381,13 @@ static int time_cipher_ctr(void)
 #undef DO1
    }
    tally_results(1);
-
-   return 0;
 }
 #else
-static int time_cipher_ctr(void) { fprintf(stderr, "NO CTR\n"); return 0; }
+static void time_cipher_ctr(void) { fprintf(stderr, "NO CTR\n"); return 0; }
 #endif
 
 #ifdef LTC_LRW_MODE
-static int time_cipher_lrw(void)
+static void time_cipher_lrw(void)
 {
   unsigned long x, y1;
   ulong64  t1, t2, c1, c2, a1, a2;
@@ -464,15 +456,13 @@ static int time_cipher_lrw(void)
 #undef DO1
    }
    tally_results(1);
-
-   return 0;
 }
 #else
-static int time_cipher_lrw(void) { fprintf(stderr, "NO LRW\n"); return 0; }
+static void time_cipher_lrw(void) { fprintf(stderr, "NO LRW\n"); return 0; }
 #endif
 
 
-static int time_hash(void)
+static void time_hash(void)
 {
   unsigned long x, y1, len;
   ulong64 t1, t2, c1, c2;
@@ -519,8 +509,6 @@ static int time_hash(void)
 #undef DO1
    }
    tally_results(2);
-
-   return 0;
 }
 
 /*#warning you need an mp_rand!!!*/
@@ -886,6 +874,58 @@ static void time_katja(void)
 }
 #else
 static void time_katja(void) { fprintf(stderr, "NO Katja\n"); }
+#endif
+
+#ifdef LTC_MDH
+/* time various DH operations */
+static void time_dh(void)
+{
+   dh_key key;
+   ulong64 t1, t2;
+   unsigned char buf[2][4096];
+   unsigned long i, x, y, z;
+   int           err;
+   static unsigned long sizes[] = {768/8, 1024/8, 1536/8, 2048/8, 3072/8, 4096/8, 6144/8, 8192/8, 100000};
+
+   for (x = sizes[i=0]; x < 100000; x = sizes[++i]) {
+       t2 = 0;
+       for (y = 0; y < 16; y++) {
+           t_start();
+           t1 = t_read();
+           if ((err = dh_make_key(&yarrow_prng, find_prng("yarrow"), x, &key)) != CRYPT_OK) {
+              fprintf(stderr, "\n\ndh_make_key says %s, wait...no it should say %s...damn you!\n", error_to_string(err), error_to_string(CRYPT_OK));
+              exit(EXIT_FAILURE);
+           }
+           t1 = t_read() - t1;
+           t2 += t1;
+
+           if (y < 15) {
+              dh_free(&key);
+           }
+       }
+       t2 >>= 4;
+       fprintf(stderr, "DH-%4lu make_key    took %15llu cycles\n", x*8, t2);
+
+       t2 = 0;
+       for (y = 0; y < 16; y++) {
+           t_start();
+           t1 = t_read();
+           z = sizeof(buf[1]);
+           if ((err = dh_encrypt_key(buf[0], 20, buf[1], &z, &yarrow_prng, find_prng("yarrow"), find_hash("sha1"),
+                                      &key)) != CRYPT_OK) {
+              fprintf(stderr, "\n\ndh_encrypt_key says %s, wait...no it should say %s...damn you!\n", error_to_string(err), error_to_string(CRYPT_OK));
+              exit(EXIT_FAILURE);
+           }
+           t1 = t_read() - t1;
+           t2 += t1;
+       }
+       t2 >>= 4;
+       fprintf(stderr, "DH-%4lu encrypt_key took %15llu cycles\n", x*8, t2);
+       dh_free(&key);
+  }
+}
+#else
+static void time_dh(void) { fprintf(stderr, "NO DH\n"); }
 #endif
 
 #ifdef LTC_MECC
@@ -1347,9 +1387,36 @@ static void time_encmacs(void)
    time_encmacs_(32);
 }
 
-int main(void)
+#define LTC_TEST_FN(f)  { f, #f }
+int main(int argc, char **argv)
 {
 int err;
+
+const struct
+{
+   void (*fn)(void);
+   const char* name;
+} test_functions[] = {
+   LTC_TEST_FN(time_keysched),
+   LTC_TEST_FN(time_cipher_ecb),
+   LTC_TEST_FN(time_cipher_cbc),
+   LTC_TEST_FN(time_cipher_ctr),
+   LTC_TEST_FN(time_cipher_lrw),
+   LTC_TEST_FN(time_hash),
+   LTC_TEST_FN(time_macs),
+   LTC_TEST_FN(time_encmacs),
+   LTC_TEST_FN(time_prng),
+   LTC_TEST_FN(time_mult),
+   LTC_TEST_FN(time_sqr),
+   LTC_TEST_FN(time_rsa),
+   LTC_TEST_FN(time_dsa),
+   LTC_TEST_FN(time_ecc),
+   LTC_TEST_FN(time_dh),
+   LTC_TEST_FN(time_katja)
+};
+char *single_test = NULL;
+unsigned int i;
+
 init_timer();
 register_all_ciphers();
 register_all_hashes();
@@ -1371,21 +1438,16 @@ if ((err = rng_make_prng(128, find_prng("yarrow"), &yarrow_prng, NULL)) != CRYPT
    exit(EXIT_FAILURE);
 }
 
-time_keysched();
-time_cipher_ecb();
-time_cipher_cbc();
-time_cipher_ctr();
-time_cipher_lrw();
-time_hash();
-time_macs();
-time_encmacs();
-time_prng();
-time_mult();
-time_sqr();
-time_rsa();
-time_dsa();
-time_ecc();
-time_katja();
+/* single test name from commandline */
+if (argc > 1) single_test = argv[1];
+
+for (i = 0; i < sizeof(test_functions)/sizeof(test_functions[0]); ++i) {
+   if (single_test && strstr(test_functions[i].name, single_test) == NULL) {
+     continue;
+   }
+   test_functions[i].fn();
+}
+
 return EXIT_SUCCESS;
 
 }
