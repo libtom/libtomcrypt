@@ -71,7 +71,7 @@ int chacha20_prng_add_entropy(const unsigned char *in, unsigned long inlen, prng
       /* iv 8 bytes */
       if ((err = chacha_ivctr64(&prng->chacha.s, buf + 32, 8, 0)) != CRYPT_OK) goto LBL_UNLOCK;
       /* clear KEY + IV */
-      XMEMSET(buf, 0, sizeof(buf));
+      zeromem(buf, sizeof(buf));
    }
    else {
       /* chacha20_prng_ready() was not called yet, add entropy to ent buffer */

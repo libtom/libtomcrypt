@@ -72,6 +72,7 @@ int rc4_add_entropy(const unsigned char *in, unsigned long inlen, prng_state *pr
       if ((err = rc4_stream_setup(&prng->rc4.s, buf, sizeof(buf))) != CRYPT_OK) goto LBL_UNLOCK;
       /* drop first 3072 bytes - https://en.wikipedia.org/wiki/RC4#Fluhrer.2C_Mantin_and_Shamir_attack */
       for (i = 0; i < 12; i++) rc4_stream_keystream(&prng->rc4.s, buf, sizeof(buf));
+      zeromem(buf, sizeof(buf));
    }
    else {
       /* rc4_ready() was not called yet, add entropy to the buffer */
