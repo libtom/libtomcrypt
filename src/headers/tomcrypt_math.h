@@ -67,7 +67,7 @@ typedef struct {
       @param n    Source upto bits_per_digit (actually meant for very small constants)
       @return CRYPT_OK on success
    */
-   int (*set_int)(void *a, unsigned long n);
+   int (*set_int)(void *a, ltc_mp_digit n);
 
    /** get small constant
       @param a  Small number to read,
@@ -105,7 +105,7 @@ typedef struct {
              LTC_MP_GT if a > b and
              LTC_MP_EQ otherwise.  (signed comparison)
    */
-   int (*compare_d)(void *a, unsigned long n);
+   int (*compare_d)(void *a, ltc_mp_digit n);
 
    /** Count the number of bits used to represent the integer
      @param a   The integer to count
@@ -184,7 +184,7 @@ typedef struct {
      @param c   The destination of "a + b"
      @return CRYPT_OK on success
    */
-   int (*addi)(void *a, unsigned long b, void *c);
+   int (*addi)(void *a, ltc_mp_digit b, void *c);
 
    /** subtract two integers
      @param a   The first source integer
@@ -201,7 +201,7 @@ typedef struct {
      @param c   The destination of "a - b"
      @return CRYPT_OK on success
    */
-   int (*subi)(void *a, unsigned long b, void *c);
+   int (*subi)(void *a, ltc_mp_digit b, void *c);
 
    /** multiply two integers
      @param a   The first source integer
@@ -219,7 +219,7 @@ typedef struct {
      @param c   The destination of "a * b"
      @return CRYPT_OK on success
    */
-   int (*muli)(void *a, unsigned long b, void *c);
+   int (*muli)(void *a, ltc_mp_digit b, void *c);
 
    /** Square an integer
      @param a    The integer to square
@@ -250,7 +250,7 @@ typedef struct {
       @param  c    The destination for the residue
       @return CRYPT_OK on success
    */
-   int (*modi)(void *a, unsigned long b, unsigned long *c);
+   int (*modi)(void *a, ltc_mp_digit b, ltc_mp_digit *c);
 
    /** gcd
       @param  a     The first integer

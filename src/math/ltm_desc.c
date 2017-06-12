@@ -88,7 +88,7 @@ static int init_copy(void **a, void *b)
 }
 
 /* ---- trivial ---- */
-static int set_int(void *a, unsigned long b)
+static int set_int(void *a, ltc_mp_digit b)
 {
    LTC_ARGCHK(a != NULL);
    return mpi_to_ltc_error(mp_set_int(a, b));
@@ -130,7 +130,7 @@ static int compare(void *a, void *b)
    }
 }
 
-static int compare_d(void *a, unsigned long b)
+static int compare_d(void *a, ltc_mp_digit b)
 {
    int ret;
    LTC_ARGCHK(a != NULL);
@@ -212,7 +212,7 @@ static int add(void *a, void *b, void *c)
    return mpi_to_ltc_error(mp_add(a, b, c));
 }
 
-static int addi(void *a, unsigned long b, void *c)
+static int addi(void *a, ltc_mp_digit b, void *c)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(c != NULL);
@@ -228,7 +228,7 @@ static int sub(void *a, void *b, void *c)
    return mpi_to_ltc_error(mp_sub(a, b, c));
 }
 
-static int subi(void *a, unsigned long b, void *c)
+static int subi(void *a, ltc_mp_digit b, void *c)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(c != NULL);
@@ -244,7 +244,7 @@ static int mul(void *a, void *b, void *c)
    return mpi_to_ltc_error(mp_mul(a, b, c));
 }
 
-static int muli(void *a, unsigned long b, void *c)
+static int muli(void *a, ltc_mp_digit b, void *c)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(c != NULL);
@@ -275,7 +275,7 @@ static int div_2(void *a, void *b)
 }
 
 /* modi */
-static int modi(void *a, unsigned long b, unsigned long *c)
+static int modi(void *a, ltc_mp_digit b, ltc_mp_digit *c)
 {
    mp_digit tmp;
    int      err;
