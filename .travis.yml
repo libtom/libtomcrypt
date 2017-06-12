@@ -25,8 +25,8 @@ compiler:
   - gcc
   - clang
 script:
-  - bash "${BUILDSCRIPT}" "${BUILDNAME}" "${BUILDOPTIONS}" "makefile V=1" "-DUSE_LTM -DLTM_DESC -DTFM_DESC -I/usr/include" "/usr/lib/x86_64-linux-gnu/libtommath.a"
-  - bash "${BUILDSCRIPT}" "${BUILDNAME}" "${BUILDOPTIONS}" "makefile.shared V=1" "-DUSE_TFM -DLTM_DESC -DTFM_DESC -I/usr/include" "/usr/lib/x86_64-linux-gnu/libtfm.so"
+  - bash "${BUILDSCRIPT}" "${BUILDNAME}" "${BUILDOPTIONS}" "makefile V=1"        "-DUSE_LTM -DLTM_DESC" "/usr/lib/x86_64-linux-gnu/libtommath.a"
+  - bash "${BUILDSCRIPT}" "${BUILDNAME}" "${BUILDOPTIONS}" "makefile.shared V=1" "-DUSE_TFM -DTFM_DESC" "-ltfm"
 env:
   - |
     BUILDSCRIPT="check_source.sh"
