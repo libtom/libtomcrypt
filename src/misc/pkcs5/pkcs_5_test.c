@@ -201,7 +201,7 @@ int pkcs_5_test (void)
         }
         else if (compare_testvector(DK, dkLen, cases_5_1[i].DK, cases_5_1[i].dkLen, "PKCS#5_1", i)) {
             ++failed;
-       }
+        }
     }
 
     /* testing alg 1_openssl */
