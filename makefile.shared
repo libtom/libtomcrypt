@@ -7,6 +7,13 @@
 #
 #  (GNU make only)
 
+### USAGE:
+#
+# CFLAGS="-DUSE_LTM -DLTM_DESC -I/path/to/libtommath" make -f makefile.shared all EXTRALIBS=/path/to/libtommath/libtommath.a
+# ./test
+# make -f makefile.shared DESTDIR=/opt/libtom install
+#
+
 PLATFORM := $(shell uname | sed -e 's/_.*//')
 
 ifndef LT

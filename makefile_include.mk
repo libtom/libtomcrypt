@@ -43,6 +43,11 @@ endif
 #
 # Compilation flags. Note the += does not write over the user's CFLAGS!
 #
+# Also note that we're extending the environments' CFLAGS.
+# If you think that our CFLAGS are not nice you can easily override them
+# by giving them as a parameter to make:
+#  make CFLAGS="-I./src/headers/ -DLTC_SOURCE ..." ...
+#
 CFLAGS += -I./src/headers/ -Wall -Wsign-compare -Wshadow -DLTC_SOURCE
 
 ifdef OLD_GCC
@@ -337,6 +342,8 @@ $(DOBJECTS): $(HEADERS) $(THEADERS)
 $(TOBJECTS): $(HEADERS) $(THEADERS)
 
 bins: $(USEFUL_DEMOS)
+
+all: all_test
 
 all_test: test $(UNBROKEN_DEMOS)
 
