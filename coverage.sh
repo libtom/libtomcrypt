@@ -17,8 +17,8 @@ if [ -z "$(echo $CC | grep "gcc")" ]; then
     exit 0
 fi
 
-if [ "$(echo $2 | grep -v 'makefile[.]')" == "" ]; then
-    echo "only run coverage for the regular makefile, early exit success"
+if [ "$(echo $3 | grep -v 'makefile[.]')" == "" ]; then
+    echo "only run $0 for the regular makefile, early exit success"
     exit 0
 fi
 
