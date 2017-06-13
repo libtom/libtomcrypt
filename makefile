@@ -13,13 +13,17 @@ silent=@
 silent_stdout= > /dev/null
 endif
 
+PLATFORM := $(shell uname | sed -e 's/_.*//')
+
+ifneq ($(MAKECMDGOALS),clean)
+ifeq ($(PLATFORM), Darwin)
+$(error Can't build static library on Mac, please use makefile.shared)
+endif
+endif
+
 # ranlib tools
 ifndef RANLIB
-ifeq ($(PLATFORM), Darwin)
-RANLIB:=$(PREFIX)ranlib -c
-else
 RANLIB:=$(PREFIX)ranlib
-endif
 endif
 INSTALL_CMD = install
 

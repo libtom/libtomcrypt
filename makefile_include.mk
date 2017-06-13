@@ -7,8 +7,6 @@ VERSION=1.17
 # http://www.gnu.org/software/libtool/manual/html_node/Updating-version-info.html
 VERSION_LT=0:117
 
-PLATFORM := $(shell uname | sed -e 's/_.*//')
-
 # Compiler and Linker Names
 ifndef PREFIX
   PREFIX:=
