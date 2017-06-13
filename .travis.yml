@@ -1,17 +1,17 @@
+dist: trusty
+sudo: required
+
 language: c
 
 addons:
   apt:
     sources:
     - debian-sid
-    - ubuntu-toolchain-r-test
-    - llvm-toolchain-precise-3.7
+    - llvm-toolchain-trusty-4.0
     packages:
     - binutils
-    - clang-3.7
-    - cloud-utils
+    - clang-4.0
     - libtommath-dev
-    - util-linux
 
 before_script:
   - gem install coveralls-lcov
