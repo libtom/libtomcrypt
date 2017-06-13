@@ -4,9 +4,14 @@ addons:
   apt:
     sources:
     - debian-sid
+    - ubuntu-toolchain-r-test
+    - llvm-toolchain-precise-3.7
     packages:
     - binutils
+    - clang-3.7
+    - cloud-utils
     - libtommath-dev
+    - util-linux
 
 before_script:
   - gem install coveralls-lcov
