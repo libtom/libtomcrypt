@@ -6,9 +6,10 @@ language: c
 addons:
   apt:
     sources:
-    - llvm-toolchain-trusty-4.0
+    - ubuntu-toolchain-r-test
+    - llvm-toolchain-precise-3.8
     packages:
-    - clang-4.0
+    - clang-3.8
 
 before_script:
   - gem install coveralls-lcov
