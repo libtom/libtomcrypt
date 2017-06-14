@@ -1,18 +1,25 @@
+dist: trusty
+sudo: required
+
 language: c
 
 addons:
   apt:
     sources:
-    - debian-sid
+    - ubuntu-toolchain-r-test
+    - llvm-toolchain-precise-3.8
     packages:
-    - binutils
-    - libtommath-dev
+    - clang-3.8
+
+install:
+    - sudo apt-get update -qq
+    - sudo apt-get install libtommath-dev
 
 before_script:
   - gem install coveralls-lcov
   - curl http://ftp.de.debian.org/debian/pool/main/l/lcov/lcov_1.11.orig.tar.gz | tar xz
   - export PATH=$PATH:`pwd`/lcov-1.11/bin
-  - curl -s https://packagecloud.io/install/repositories/libtom/tomsfastmath/script.deb.sh | sudo bash
+  - curl -s https://packagecloud.io/install/repositories/libtom/packages/script.deb.sh | sudo bash
   - sudo apt-get install libtfm-dev=0.13-5
 
 matrix:
@@ -25,12 +32,16 @@ compiler:
   - gcc
   - clang
 script:
-  - bash "${BUILDSCRIPT}" "${BUILDNAME}" "${BUILDOPTIONS}" "makefile V=1"        "-DUSE_LTM -DLTM_DESC" "/usr/lib/x86_64-linux-gnu/libtommath.a"
+  - bash "${BUILDSCRIPT}" "${BUILDNAME}" "${BUILDOPTIONS}" "makefile V=1"        "-DUSE_LTM -DLTM_DESC" "-ltommath"
   - bash "${BUILDSCRIPT}" "${BUILDNAME}" "${BUILDOPTIONS}" "makefile.shared V=1" "-DUSE_TFM -DTFM_DESC" "-ltfm"
 env:
   - |
     BUILDSCRIPT="check_source.sh"
     BUILDNAME="CHECK_SOURCES"
+    BUILDOPTIONS=" "
+  - |
+    BUILDSCRIPT="scan_build.sh"
+    BUILDNAME="SCAN_BUILD"
     BUILDOPTIONS=" "
   - |
     BUILDSCRIPT="coverage.sh"
