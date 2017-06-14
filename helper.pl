@@ -117,6 +117,40 @@ sub check_descriptors {
   return $fails;
 }
 
+sub check_comments {
+  my $fails = 0;
+  my $first_comment = <<'MARKER';
+/* LibTomCrypt, modular cryptographic library -- Tom St Denis
+ *
+ * LibTomCrypt is a library that provides various cryptographic
+ * algorithms in a highly modular and flexible manner.
+ *
+ * The library is free for all purposes without any express
+ * guarantee it works.
+ */
+MARKER
+  my $last_comment = <<'MARKER';
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */
+MARKER
+  my @all_files;
+  find({ wanted=> sub { push @all_files, $_ if $_ =~ /\.(c|h)$/ }, no_chdir=>1 }, 'src');
+  for my $f (@all_files) {
+    my $txt = read_file($f);
+    if ($txt !~ /^\Q$first_comment\E/s) {
+      warn "[first_comment] $f\n";
+      $fails++;
+    }
+    if ($txt !~ /\Q$last_comment\E\s*$/s) {
+      warn "[last_comment] $f\n";
+      $fails++;
+    }
+  }
+  warn( $fails > 0 ? "check-comments:  FAIL $fails\n" : "check-comments:  PASS\n" );
+  return $fails;
+}
+
 sub prepare_variable {
   my ($varname, @list) = @_;
   my $output = "$varname=";
@@ -299,18 +333,21 @@ sub process_makefiles {
 
 sub die_usage {
   die <<"MARKER";
-  usage: $0 --check-source
-         $0 --check-defines
-         $0 --check-makefiles
-         $0 --check-all
-         $0 --update-makefiles
-         $0 --fixupind crypt.ind
+usage: $0 -s   OR   $0 --check-source
+       $0 -c   OR   $0 --check-descriptors
+       $0 -d   OR   $0 --check-defines
+       $0 -o   OR   $0 --check-comments
+       $0 -m   OR   $0 --check-makefiles
+       $0 -a   OR   $0 --check-all
+       $0 -u   OR   $0 --update-makefiles
+       $0 --fixupind crypt.ind
 MARKER
 }
 
 GetOptions( "s|check-source"        => \my $check_source,
             "c|check-descriptors"   => \my $check_descriptors,
             "d|check-defines"       => \my $check_defines,
+            "o|check-comments"      => \my $check_comments,
             "m|check-makefiles"     => \my $check_makefiles,
             "a|check-all"           => \my $check_all,
             "u|update-makefiles"    => \my $update_makefiles,
@@ -329,6 +366,7 @@ my $failure;
 $failure ||= check_source()       if $check_all || $check_source;
 $failure ||= check_defines()      if $check_all || $check_defines;
 $failure ||= check_descriptors()  if $check_all || $check_descriptors;
+$failure ||= check_comments()     if $check_comments; #XXX-FIXME not included in "--check-all"
 $failure ||= process_makefiles(0) if $check_all || $check_makefiles;
 $failure ||= process_makefiles(1) if $update_makefiles;
 
