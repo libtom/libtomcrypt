@@ -80,6 +80,13 @@ static const crypt_constant _crypt_constants[] = {
     {"LTC_MDSA", 0},
 #endif
 
+#ifdef LTC_DER_MAX_PUBKEY_SIZE
+    _C_STRINGIFY(LTC_DER_MAX_PUBKEY_SIZE),
+#endif
+#ifdef LTC_MILLER_RABIN_REPS
+    _C_STRINGIFY(LTC_MILLER_RABIN_REPS),
+#endif
+
 #ifdef LTC_CTR_MODE
     {"LTC_CTR_MODE", 1},
     _C_STRINGIFY(CTR_COUNTER_LITTLE_ENDIAN),

@@ -6789,6 +6789,13 @@ typedef struct {
 
 /* ---- data movement ---- */
 
+   /** negate
+      @param   src   The number to negate
+      @param   dst   The destination
+      @return CRYPT_OK on success
+   */
+   int (*neg)(void *src, void *dst);
+
    /** copy
       @param   src   The number to copy from
       @param   dst   The number to write to
@@ -6800,13 +6807,14 @@ typedef struct {
 
    /** set small constant
       @param a    Number to write to
-      @param n    Source upto bits_per_digit (meant for small constants)
+      @param n    Source upto bits_per_digit (actually meant for very small constants)
       @return CRYPT_OK on success
    */
    int (*set_int)(void *a, unsigned long n);
 
    /** get small constant
-      @param a  Small number to read
+      @param a  Small number to read,
+                only fetches up to bits_per_digit from the number
       @return   The lower bits_per_digit of the integer (unsigned)
    */
    unsigned long (*get_int)(void *a);
@@ -6816,7 +6824,7 @@ typedef struct {
      @param n  The number of the digit to fetch
      @return  The bits_per_digit  sized n'th digit of a
    */
-   unsigned long (*get_digit)(void *a, int n);
+   ltc_mp_digit (*get_digit)(void *a, int n);
 
    /** Get the number of digits that represent the number
      @param a   The number to count
@@ -6880,7 +6888,7 @@ typedef struct {
    int (*write_radix)(void *a, char *str, int radix);
 
    /** get size as unsigned char string
-     @param a  The integer to get the size
+     @param a  The integer to get the size (when stored in array of octets)
      @return   The length of the integer in octets
    */
    unsigned long (*unsigned_size)(void *a);
@@ -6915,7 +6923,7 @@ typedef struct {
    /** add two integers
      @param a   The first source integer
      @param b   The second source integer
-               (single digit of upto bits_per_digit in length)
+                (single digit of upto bits_per_digit in length)
      @param c   The destination of "a + b"
      @return CRYPT_OK on success
    */
@@ -6970,7 +6978,7 @@ typedef struct {
      @param d    The remainder (can be NULL to signify don't care)
      @return CRYPT_OK on success
    */
-   int (*div)(void *a, void *b, void *c, void *d);
+   int (*mpdiv)(void *a, void *b, void *c, void *d);
 
    /** divide by two
       @param  a   The integer to divide (shift right)
@@ -7071,10 +7079,11 @@ typedef struct {
 
    /** Primality testing
        @param a     The integer to test
-       @param b     The destination of the result (FP_YES if prime)
+       @param b     The number of Miller-Rabin tests that shall be executed
+       @param c     The destination of the result (FP_YES if prime)
        @return CRYPT_OK on success
    */
-   int (*isprime)(void *a, int *b);
+   int (*isprime)(void *a, int b, int *c);
 
 /* ----  (optional) ecc point math ---- */
 
@@ -7145,7 +7154,6 @@ typedef struct {
                       ecc_point *C,
                            void *modulus);
 
-
 /* ---- (optional) rsa optimized math (for internal CRT) ---- */
 
    /** RSA Key Generation
@@ -7176,6 +7184,35 @@ typedef struct {
    int (*rsa_me)(const unsigned char *in,   unsigned long inlen,
                        unsigned char *out,  unsigned long *outlen, int which,
                        rsa_key *key);
+
+/* ---- basic math continued ---- */
+
+   /** Modular addition
+      @param  a     The first source
+      @param  b     The second source
+      @param  c     The modulus
+      @param  d     The destination (a + b mod c)
+      @return CRYPT_OK on success
+   */
+   int (*addmod)(void *a, void *b, void *c, void *d);
+
+   /** Modular substraction
+      @param  a     The first source
+      @param  b     The second source
+      @param  c     The modulus
+      @param  d     The destination (a - b mod c)
+      @return CRYPT_OK on success
+   */
+   int (*submod)(void *a, void *b, void *c, void *d);
+
+/* ---- misc stuff ---- */
+
+   /** Make a pseudo-random mpi
+      @param  a     The mpi to make random
+      @param  size  The desired length
+      @return CRYPT_OK on success
+   */
+   int (*rand)(void *a, int size);
 } ltc_math_descriptor;
 \end{verbatim}
 \end{small}

@@ -7,8 +7,6 @@ VERSION=1.17
 # http://www.gnu.org/software/libtool/manual/html_node/Updating-version-info.html
 VERSION_LT=0:117
 
-PLATFORM := $(shell uname | sed -e 's/_.*//')
-
 # Compiler and Linker Names
 ifndef PREFIX
   PREFIX:=
@@ -44,6 +42,11 @@ endif
 
 #
 # Compilation flags. Note the += does not write over the user's CFLAGS!
+#
+# Also note that we're extending the environments' CFLAGS.
+# If you think that our CFLAGS are not nice you can easily override them
+# by giving them as a parameter to make:
+#  make CFLAGS="-I./src/headers/ -DLTC_SOURCE ..." ...
 #
 CFLAGS += -I./src/headers/ -Wall -Wsign-compare -Wshadow -DLTC_SOURCE
 
@@ -91,6 +94,9 @@ endif # COMPILE_DEBUG
 
 ifneq ($(findstring clang,$(CC)),)
 CFLAGS += -Wno-typedef-redefinition -Wno-tautological-compare -Wno-builtin-requires-header
+endif
+ifeq ($(PLATFORM), Darwin)
+CFLAGS += -Wno-nullability-completeness
 endif
 
 
@@ -336,6 +342,8 @@ $(DOBJECTS): $(HEADERS) $(THEADERS)
 $(TOBJECTS): $(HEADERS) $(THEADERS)
 
 bins: $(USEFUL_DEMOS)
+
+all: all_test
 
 all_test: test $(UNBROKEN_DEMOS)
 
