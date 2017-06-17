@@ -5,7 +5,6 @@
  *
  * The library is free for all purposes without any express
  * guarantee it works.
- *
  */
 #include "tomcrypt.h"
 

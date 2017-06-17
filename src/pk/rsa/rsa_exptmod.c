@@ -5,14 +5,13 @@
  *
  * The library is free for all purposes without any express
  * guarantee it works.
- *
- * Added RSA blinding --nmav
  */
 #include "tomcrypt.h"
 
 /**
   @file rsa_exptmod.c
   RSA PKCS exptmod, Tom St Denis
+  Added RSA blinding --nmav
 */
 
 #ifdef LTC_MRSA
