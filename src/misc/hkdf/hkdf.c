@@ -11,7 +11,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <tomcrypt.h>
+#include "tomcrypt.h"
 
 #ifdef LTC_HKDF
 
