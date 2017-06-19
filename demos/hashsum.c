@@ -1,3 +1,12 @@
+/* LibTomCrypt, modular cryptographic library -- Tom St Denis
+ *
+ * LibTomCrypt is a library that provides various cryptographic
+ * algorithms in a highly modular and flexible manner.
+ *
+ * The library is free for all purposes without any express
+ * guarantee it works.
+ */
+
 /*
  * Written by Daniel Richards <kyhwana@world-net.co.nz> 6/7/2002
  * hash.c: This app uses libtomcrypt to hash either stdin or a file

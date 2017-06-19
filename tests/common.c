@@ -62,3 +62,7 @@ void print_hex(const char* what, const void* v, const unsigned long l)
 }
 
 prng_state yarrow_prng;
+
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

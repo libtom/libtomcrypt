@@ -16,7 +16,7 @@
 #define NAME(s) #s
 
 const char *crypt_build_settings =
-   "LibTomCrypt " SCRYPT " (Tom St Denis, tomstdenis@gmail.com)\n"
+   "LibTomCrypt " SCRYPT " (www.libtom.net)\n"
    "LibTomCrypt is public domain software.\n"
 #if defined(INCLUDE_BUILD_DATE)
    "Built on " __DATE__ " at " __TIME__ "\n"

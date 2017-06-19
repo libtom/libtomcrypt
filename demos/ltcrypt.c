@@ -1,3 +1,12 @@
+/* LibTomCrypt, modular cryptographic library -- Tom St Denis
+ *
+ * LibTomCrypt is a library that provides various cryptographic
+ * algorithms in a highly modular and flexible manner.
+ *
+ * The library is free for all purposes without any express
+ * guarantee it works.
+ */
+
 /* encrypt V1.1 Fri Oct 18 04:28:03 NZDT 2002 */
 /* File de/encryption, using libtomcrypt */
 /* Written by Daniel Richards <kyhwana@world-net.co.nz> */

@@ -136,6 +136,8 @@ MARKER
 MARKER
   my @all_files;
   find({ wanted=> sub { push @all_files, $_ if $_ =~ /\.(c|h)$/ }, no_chdir=>1 }, 'src');
+  find({ wanted=> sub { push @all_files, $_ if $_ =~ /\.(c|h)$/ }, no_chdir=>1 }, 'demos');
+  find({ wanted=> sub { push @all_files, $_ if $_ =~ /\.(c|h)$/ }, no_chdir=>1 }, 'tests');
   for my $f (@all_files) {
     my $txt = read_file($f);
     if ($txt !~ /^\Q$first_comment\E/s) {
