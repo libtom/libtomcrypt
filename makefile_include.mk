@@ -357,11 +357,12 @@ doc/crypt.pdf:
 
 install_all: install install_bins install_docs install_test
 
+INSTALL_OPTS ?= -m 644
 
 .common_install: $(LIBNAME)
 	install -d $(INCPATH)
 	install -d $(LIBPATH)
-	$(INSTALL_CMD) -m 644 $(LIBNAME) $(LIBPATH)/$(LIBNAME)
+	$(INSTALL_CMD) $(INSTALL_OPTS) $(LIBNAME) $(LIBPATH)/$(LIBNAME)
 	install -m 644 $(HEADERS) $(INCPATH)
 
 .common_install_bins: $(USEFUL_DEMOS)
