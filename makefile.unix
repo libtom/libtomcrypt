@@ -25,6 +25,10 @@
 #The following can be overridden from command line e.g. "make -f makefile.unix CC=gcc ARFLAGS=rcs"
 DESTDIR   =
 PREFIX    = /usr/local
+LIBPATH   = $(DESTDIR)$(PREFIX)/lib
+INCPATH   = $(DESTDIR)$(PREFIX)/include
+DATAPATH  = $(DESTDIR)$(PREFIX)/share/doc/libtomcrypt/pdf
+BINPATH   = $(DESTDIR)$(PREFIX)/bin
 CC        = cc
 AR        = ar
 ARFLAGS   = r
@@ -267,17 +271,17 @@ clean:
 
 #Install the library + headers
 install: $(LIBMAIN_S) $(HEADERS)
-	@mkdir -p $(PREFIX)/include $(PREFIX)/lib/pkgconfig
-	@cp $(LIBMAIN_S) $(PREFIX)/lib/
-	@cp $(HEADERS) $(PREFIX)/include/
-	@sed -e 's,^prefix=.*,prefix=$(PREFIX),' -e 's,^Version:.*,Version: $(VERSION),' libtomcrypt.pc.in > $(PREFIX)/lib/pkgconfig/libtomcrypt.pc
+	@mkdir -p $(INCPATH) $(LIBPATH)/pkgconfig
+	@cp $(LIBMAIN_S) $(LIBPATH)/
+	@cp $(HEADERS) $(INCPATH)/
+	@sed -e 's,^prefix=.*,prefix=$(PREFIX),' -e 's,^Version:.*,Version: $(VERSION),' libtomcrypt.pc.in > $(LIBPATH)/pkgconfig/libtomcrypt.pc
 
 #Install useful tools
 install_bins: hashsum
-	@mkdir -p $(PREFIX)/bin
-	@cp hashsum $(PREFIX)/bin/
+	@mkdir -p $(BINPATH)
+	@cp hashsum $(BINPATH)/
 
 #Install documentation
 install_docs: doc/crypt.pdf
-	@mkdir -p $(PREFIX)/share/doc/libtomcrypt/pdf
-	@cp doc/crypt.pdf $(PREFIX)/share/doc/libtomcrypt/pdf/
+	@mkdir -p $(DATAPATH)
+	@cp doc/crypt.pdf $(DATAPATH)/
