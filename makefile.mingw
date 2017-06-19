@@ -7,7 +7,7 @@
 #
 # gmake -f makefile.mingw all
 # test.exe
-# gmake -f makefile.mingw DESTDIR=c:\devel\libtom install
+# gmake -f makefile.mingw PREFIX=c:\devel\libtom install
 #
 #Or:
 #
@@ -15,7 +15,7 @@
 #
 
 #The following can be overridden from command line e.g. make -f makefile.mingw CC=gcc ARFLAGS=rcs
-DESTDIR   = c:\mingw
+PREFIX    = c:\mingw
 CC        = gcc
 AR        = ar
 ARFLAGS   = r
@@ -262,20 +262,20 @@ clean:
 
 #Install the library + headers
 install: $(LIBMAIN_S) $(LIBMAIN_I) $(LIBMAIN_D)
-	cmd /c if not exist "$(DESTDIR)\bin" mkdir "$(DESTDIR)\bin"
-	cmd /c if not exist "$(DESTDIR)\lib" mkdir "$(DESTDIR)\lib"
-	cmd /c if not exist "$(DESTDIR)\include" mkdir "$(DESTDIR)\include"
-	copy /Y $(LIBMAIN_S) "$(DESTDIR)\lib"
-	copy /Y $(LIBMAIN_I) "$(DESTDIR)\lib"
-	copy /Y $(LIBMAIN_D) "$(DESTDIR)\bin"
-	copy /Y src\headers\tomcrypt*.h "$(DESTDIR)\include"
+	cmd /c if not exist "$(PREFIX)\bin" mkdir "$(PREFIX)\bin"
+	cmd /c if not exist "$(PREFIX)\lib" mkdir "$(PREFIX)\lib"
+	cmd /c if not exist "$(PREFIX)\include" mkdir "$(PREFIX)\include"
+	copy /Y $(LIBMAIN_S) "$(PREFIX)\lib"
+	copy /Y $(LIBMAIN_I) "$(PREFIX)\lib"
+	copy /Y $(LIBMAIN_D) "$(PREFIX)\bin"
+	copy /Y src\headers\tomcrypt*.h "$(PREFIX)\include"
 
 #Install useful tools
 install_bins: hashsum
-	cmd /c if not exist "$(DESTDIR)\bin" mkdir "$(DESTDIR)\bin"
-	copy /Y hashsum.exe "$(DESTDIR)\bin"
+	cmd /c if not exist "$(PREFIX)\bin" mkdir "$(PREFIX)\bin"
+	copy /Y hashsum.exe "$(PREFIX)\bin"
 
 #Install documentation
 install_docs: doc/crypt.pdf
-	cmd /c if not exist "$(DESTDIR)\doc" mkdir "$(DESTDIR)\doc"
-	copy /Y doc\crypt.pdf "$(DESTDIR)\doc"
+	cmd /c if not exist "$(PREFIX)\doc" mkdir "$(PREFIX)\doc"
+	copy /Y doc\crypt.pdf "$(PREFIX)\doc"

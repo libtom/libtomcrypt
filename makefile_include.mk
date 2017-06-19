@@ -130,11 +130,12 @@ TIMINGS=demos/timing.o
 #INCPATH  The directory to install the header files for libtomcrypt.
 #DATAPATH The directory to install the pdf docs.
 #BINPATH  The directory to install the binaries provided.
-DESTDIR  ?= /usr/local
-LIBPATH  ?= $(DESTDIR)/lib
-INCPATH  ?= $(DESTDIR)/include
-DATAPATH ?= $(DESTDIR)/share/doc/libtomcrypt/pdf
-BINPATH  ?= $(DESTDIR)/bin
+DESTDIR  ?=
+PREFIX   ?= /usr/local
+LIBPATH  ?= $(DESTDIR)$(PREFIX)/lib
+INCPATH  ?= $(DESTDIR)$(PREFIX)/include
+DATAPATH ?= $(DESTDIR)$(PREFIX)/share/doc/libtomcrypt/pdf
+BINPATH  ?= $(DESTDIR)$(PREFIX)/bin
 
 #Who do we install as?
 ifdef INSTALL_USER
