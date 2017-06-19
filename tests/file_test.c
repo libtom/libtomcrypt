@@ -23,7 +23,9 @@ int file_test(void)
 
    len = sizeof(buf);
    if ((in = fopen(fname, "rb")) == NULL)                                       return CRYPT_FILE_NOTFOUND;
-   if ((err = hash_filehandle(isha256, in, buf, &len)) != CRYPT_OK)             return err;
+   err = hash_filehandle(isha256, in, buf, &len);
+   fclose(in);
+   if (err != CRYPT_OK)                                                         return err;
    if (compare_testvector(buf, len, exp_sha256, 32, "hash_filehandle", 1))      return 1;
 
    len = sizeof(buf);

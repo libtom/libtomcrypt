@@ -674,6 +674,7 @@ static const struct {
        }
        t2 >>= 2;
        fprintf(stderr, "DSA-(%lu, %lu) make_key    took %15"PRI64"u cycles\n", (unsigned long)groups[x].group*8, (unsigned long)groups[x].modulus*8, t2);
+       dsa_free(&key);
    }
    fprintf(stderr, "\n\n");
 }

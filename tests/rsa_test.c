@@ -193,6 +193,7 @@ static int rsa_compat_test(void)
       fprintf(stderr, "RSA rsa_verify_hash_ex + LTC_PKCS_1_V1_5_NA1 failed\n");
       return 1;
    }
+   rsa_free(&pubkey);
 
    /* now try to export private/public and compare */
    len = sizeof(buf);
