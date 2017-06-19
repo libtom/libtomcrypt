@@ -173,7 +173,7 @@ static void time_cipher_ecb(void)
   unsigned long x, y1;
   ulong64  t1, t2, c1, c2, a1, a2;
   symmetric_ECB ecb;
-  unsigned char key[MAXBLOCKSIZE], pt[4096];
+  unsigned char key[MAXBLOCKSIZE] = { 0 }, pt[4096] = { 0 };
   int err;
 
   fprintf(stderr, "\n\nECB Time Trials for the Symmetric Ciphers:\n");
@@ -246,7 +246,7 @@ static void time_cipher_cbc(void)
   unsigned long x, y1;
   ulong64  t1, t2, c1, c2, a1, a2;
   symmetric_CBC cbc;
-  unsigned char key[MAXBLOCKSIZE], pt[4096];
+  unsigned char key[MAXBLOCKSIZE] = { 0 }, pt[4096] = { 0 };
   int err;
 
   fprintf(stderr, "\n\nCBC Time Trials for the Symmetric Ciphers:\n");
@@ -319,7 +319,7 @@ static void time_cipher_ctr(void)
   unsigned long x, y1;
   ulong64  t1, t2, c1, c2, a1, a2;
   symmetric_CTR ctr;
-  unsigned char key[MAXBLOCKSIZE], pt[4096];
+  unsigned char key[MAXBLOCKSIZE] = { 0 }, pt[4096] = { 0 };
   int err;
 
   fprintf(stderr, "\n\nCTR Time Trials for the Symmetric Ciphers:\n");
@@ -392,7 +392,7 @@ static void time_cipher_lrw(void)
   unsigned long x, y1;
   ulong64  t1, t2, c1, c2, a1, a2;
   symmetric_LRW lrw;
-  unsigned char key[MAXBLOCKSIZE], pt[4096];
+  unsigned char key[MAXBLOCKSIZE] = { 0 }, pt[4096] = { 0 };
   int err;
 
   fprintf(stderr, "\n\nLRW Time Trials for the Symmetric Ciphers:\n");
@@ -468,7 +468,7 @@ static void time_hash(void)
   ulong64 t1, t2, c1, c2;
   hash_state md;
   int    (*func)(hash_state *, const unsigned char *, unsigned long), err;
-  unsigned char pt[MAXBLOCKSIZE];
+  unsigned char pt[MAXBLOCKSIZE] = { 0 };
 
 
   fprintf(stderr, "\n\nHASH Time Trials for:\n");
@@ -688,7 +688,7 @@ static void time_rsa(void)
 {
    rsa_key       key;
    ulong64       t1, t2;
-   unsigned char buf[2][2048];
+   unsigned char buf[2][2048] = { 0 };
    unsigned long x, y, z, zzz;
    int           err, zz, stat;
 
@@ -934,7 +934,7 @@ static void time_ecc(void)
 {
    ecc_key key;
    ulong64 t1, t2;
-   unsigned char buf[2][256];
+   unsigned char buf[2][256] = { 0 };
    unsigned long i, w, x, y, z;
    int           err, stat;
    static unsigned long sizes[] = {
