@@ -52,7 +52,7 @@ void ltc_ecc_del_point(ecc_point *p)
 }
 
 #endif
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */
 

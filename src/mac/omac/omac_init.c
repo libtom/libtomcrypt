@@ -94,6 +94,6 @@ int omac_init(omac_state *omac, int cipher, const unsigned char *key, unsigned l
 
 #endif
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

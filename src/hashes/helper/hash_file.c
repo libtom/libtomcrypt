@@ -48,6 +48,6 @@ int hash_file(int hash, const char *fname, unsigned char *out, unsigned long *ou
 #endif /* #ifndef LTC_NO_FILE */
 
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

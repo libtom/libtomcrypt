@@ -552,6 +552,6 @@ int chacha20poly1305_test(void);
 
 #endif /* LTC_CHACHA20POLY1305_MODE */
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

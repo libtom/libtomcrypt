@@ -91,6 +91,6 @@ int cbc_encrypt(const unsigned char *pt, unsigned char *ct, unsigned long len, s
 
 #endif
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

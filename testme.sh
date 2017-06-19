@@ -66,6 +66,6 @@ bash testbuild.sh "NOTEST" "-DLTC_NO_TEST" "$mk" "$2" "$3" || exit 1
 # test build with no file routines
 bash testbuild.sh "NOFILE" "-DLTC_NO_FILE" "$mk" "$2" "$3" || exit 1
 
-# $Source$
-# $Revision$
-# $Date$
+# ref:         $Format:%D$
+# git commit:  $Format:%H$
+# commit time: $Format:%ai$

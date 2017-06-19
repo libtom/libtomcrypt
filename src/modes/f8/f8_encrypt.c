@@ -96,6 +96,6 @@ int f8_encrypt(const unsigned char *pt, unsigned char *ct, unsigned long len, sy
 
 #endif
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

@@ -104,6 +104,6 @@ int der_encode_object_identifier(unsigned long *words, unsigned long  nwords,
 
 #endif
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

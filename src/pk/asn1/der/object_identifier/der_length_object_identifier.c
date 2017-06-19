@@ -82,6 +82,6 @@ int der_length_object_identifier(unsigned long *words, unsigned long nwords, uns
 
 #endif
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

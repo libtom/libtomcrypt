@@ -47,6 +47,6 @@ int der_length_bit_string(unsigned long nbits, unsigned long *outlen)
 #endif
 
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

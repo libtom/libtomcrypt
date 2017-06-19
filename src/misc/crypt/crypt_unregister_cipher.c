@@ -38,6 +38,6 @@ int unregister_cipher(const struct ltc_cipher_descriptor *cipher)
    return CRYPT_ERROR;
 }
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

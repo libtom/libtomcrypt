@@ -433,6 +433,6 @@ static inline ulong64 ROR64(ulong64 word, int i)
 #define snprintf _snprintf
 #endif
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

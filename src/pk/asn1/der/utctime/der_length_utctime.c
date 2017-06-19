@@ -39,6 +39,6 @@ int der_length_utctime(ltc_utctime *utctime, unsigned long *outlen)
 
 #endif
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

@@ -80,6 +80,6 @@ int katja_encrypt_key(const unsigned char *in,     unsigned long inlen,
 
 #endif /* LTC_MRSA */
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

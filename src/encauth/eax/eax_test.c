@@ -275,6 +275,6 @@ int eax_test(void)
 
 #endif /* LTC_EAX_MODE */
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

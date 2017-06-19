@@ -49,6 +49,6 @@ int ctr_setiv(const unsigned char *IV, unsigned long len, symmetric_CTR *ctr)
 #endif
 
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

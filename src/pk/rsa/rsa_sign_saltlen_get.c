@@ -42,6 +42,6 @@ int rsa_sign_saltlen_get_max_ex(int padding, int hash_idx, rsa_key *key)
 
 #endif
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

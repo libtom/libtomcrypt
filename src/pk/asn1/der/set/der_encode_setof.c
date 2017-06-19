@@ -156,6 +156,6 @@ int der_encode_setof(ltc_asn1_list *list, unsigned long inlen,
 
 #endif
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

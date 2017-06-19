@@ -994,6 +994,6 @@ int sober128_stream_test(void);
 
 #endif /* LTC_SOBER128_STREAM */
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

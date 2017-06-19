@@ -69,6 +69,6 @@ LBL_ERR:
 #endif /* #ifndef LTC_NO_FILE */
 
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

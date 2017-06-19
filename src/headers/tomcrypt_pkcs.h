@@ -94,6 +94,6 @@ int pkcs_5_alg2(const unsigned char *password, unsigned long password_len,
 int pkcs_5_test (void);
 #endif  /* LTC_PKCS_5 */
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

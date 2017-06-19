@@ -260,6 +260,6 @@ int main(int argc, char **argv)
    return EXIT_SUCCESS;
 }
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

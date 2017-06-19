@@ -36,6 +36,6 @@ int f8_decrypt(const unsigned char *ct, unsigned char *pt, unsigned long len, sy
 
 
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

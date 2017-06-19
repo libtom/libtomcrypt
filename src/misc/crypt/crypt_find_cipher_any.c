@@ -43,6 +43,6 @@ int find_cipher_any(const char *name, int blocklen, int keylen)
    return -1;
 }
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

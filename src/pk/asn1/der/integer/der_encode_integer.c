@@ -123,6 +123,6 @@ int der_encode_integer(void *num, unsigned char *out, unsigned long *outlen)
 
 #endif
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

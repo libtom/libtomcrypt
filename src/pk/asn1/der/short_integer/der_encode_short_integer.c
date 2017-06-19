@@ -90,6 +90,6 @@ int der_encode_short_integer(unsigned long num, unsigned char *out, unsigned lon
 
 #endif
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

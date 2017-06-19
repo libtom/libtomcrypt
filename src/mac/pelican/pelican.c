@@ -159,6 +159,6 @@ int pelican_done(pelican_state *pelmac, unsigned char *out)
 
 #endif
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

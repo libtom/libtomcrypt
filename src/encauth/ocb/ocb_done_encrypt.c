@@ -39,6 +39,6 @@ int ocb_done_encrypt(ocb_state *ocb, const unsigned char *pt, unsigned long ptle
 #endif
 
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

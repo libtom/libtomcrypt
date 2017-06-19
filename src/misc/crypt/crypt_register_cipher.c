@@ -47,6 +47,6 @@ int register_cipher(const struct ltc_cipher_descriptor *cipher)
    return -1;
 }
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

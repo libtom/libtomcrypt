@@ -129,6 +129,6 @@ int  sha384_test(void)
 
 #endif /* defined(LTC_SHA384) && defined(LTC_SHA512) */
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

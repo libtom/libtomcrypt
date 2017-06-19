@@ -99,6 +99,6 @@ int der_encode_utf8_string(const wchar_t *in,  unsigned long inlen,
 
 #endif
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

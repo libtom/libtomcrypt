@@ -152,6 +152,6 @@ int xts_encrypt(const unsigned char *pt, unsigned long ptlen, unsigned char *ct,
 
 #endif
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

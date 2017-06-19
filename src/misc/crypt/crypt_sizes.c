@@ -323,6 +323,6 @@ int crypt_list_all_sizes(char *names_list, unsigned int *names_list_size) {
 }
 
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

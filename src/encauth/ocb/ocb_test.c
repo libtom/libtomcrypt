@@ -230,6 +230,6 @@ int ocb_test(void)
    -- The setup is somewhat complicated...
 */
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

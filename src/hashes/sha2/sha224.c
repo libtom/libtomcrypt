@@ -124,6 +124,6 @@ int  sha224_test(void)
 #endif /* defined(LTC_SHA224) && defined(LTC_SHA256) */
 
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

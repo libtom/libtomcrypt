@@ -107,6 +107,6 @@ int pkcs_1_v1_5_decode(const unsigned char *msg,
 
 #endif /* #ifdef LTC_PKCS_1 */
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

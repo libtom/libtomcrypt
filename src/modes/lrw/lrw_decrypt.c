@@ -44,6 +44,6 @@ int lrw_decrypt(const unsigned char *ct, unsigned char *pt, unsigned long len, s
 
 #endif
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

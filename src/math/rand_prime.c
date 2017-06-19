@@ -83,6 +83,6 @@ int rand_prime(void *N, long len, prng_state *prng, int wprng)
 #endif /* LTC_NO_MATH */
 
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

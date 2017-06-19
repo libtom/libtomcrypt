@@ -104,6 +104,6 @@ bail:
 
 #endif /* #ifdef LTC_PKCS_1 */
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */
