@@ -22,7 +22,7 @@ int prng_test(void)
 {
    int           err = CRYPT_NOP;
    int           x;
-   unsigned char buf[4096];
+   unsigned char buf[4096] = { 0 };
    unsigned long n, one;
    prng_state    nprng;
 
