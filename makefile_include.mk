@@ -8,15 +8,15 @@ VERSION=1.17
 VERSION_LT=0:117
 
 # Compiler and Linker Names
-ifndef PREFIX
-  PREFIX:=
+ifndef CROSS_COMPILE
+  CROSS_COMPILE:=
 endif
 
 ifeq ($(CC),cc)
-  CC := $(PREFIX)gcc
+  CC := $(CROSS_COMPILE)gcc
 endif
-LD:=$(PREFIX)ld
-AR:=$(PREFIX)ar
+LD:=$(CROSS_COMPILE)ld
+AR:=$(CROSS_COMPILE)ar
 
 # Archiver [makes .a files]
 #AR=ar
