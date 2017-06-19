@@ -105,3 +105,7 @@ int rc4_stream_done(rc4_state *st)
 }
 
 #endif
+
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

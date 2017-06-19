@@ -32,3 +32,7 @@ int chacha_keystream(chacha_state *st, unsigned char *out, unsigned long outlen)
 }
 
 #endif
+
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

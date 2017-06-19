@@ -9,3 +9,7 @@
 #include "tomcrypt.h"
 
 ltc_math_descriptor ltc_mp;
+
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

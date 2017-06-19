@@ -300,3 +300,7 @@ int sha3_shake_memory(int num, const unsigned char *in, unsigned long inlen, uns
 }
 
 #endif
+
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

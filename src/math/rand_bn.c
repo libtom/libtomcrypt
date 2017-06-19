@@ -68,3 +68,7 @@ int rand_bn_range(void *N, void *limit, prng_state *prng, int wprng)
    return CRYPT_OK;
 }
 #endif
+
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

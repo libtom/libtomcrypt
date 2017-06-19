@@ -59,3 +59,7 @@ int blake2smac_done(blake2smac_state *st, unsigned char *mac, unsigned long *mac
 }
 
 #endif
+
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

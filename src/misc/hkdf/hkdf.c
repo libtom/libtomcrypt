@@ -149,3 +149,7 @@ int hkdf(int hash_idx, const unsigned char *salt, unsigned long saltlen,
 
 
 /* vim: set ts=2 sw=2 et ai si: */
+
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

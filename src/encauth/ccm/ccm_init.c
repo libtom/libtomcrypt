@@ -75,3 +75,7 @@ int ccm_init(ccm_state *ccm, int cipher,
 }
 
 #endif
+
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

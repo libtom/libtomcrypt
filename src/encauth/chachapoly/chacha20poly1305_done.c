@@ -40,3 +40,7 @@ int chacha20poly1305_done(chacha20poly1305_state *st, unsigned char *tag, unsign
 }
 
 #endif
+
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

@@ -38,3 +38,7 @@ int pk_get_oid(int pk, oid_st *st)
    return CRYPT_OK;
 }
 #endif
+
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

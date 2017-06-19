@@ -262,3 +262,7 @@ int poly1305_done(poly1305_state *st, unsigned char *mac, unsigned long *maclen)
 }
 
 #endif
+
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

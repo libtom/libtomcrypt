@@ -82,3 +82,7 @@ int ccm_process(ccm_state *ccm,
 }
 
 #endif
+
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */
