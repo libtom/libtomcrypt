@@ -1374,6 +1374,7 @@ __attribute__ ((aligned (16)))
    }
 
 #endif
+   XFREE(buf);
 #else
    LTC_UNUSED_PARAM(MAC_SIZE);
    fprintf(stderr, "NO ENCMACs\n");
