@@ -283,24 +283,8 @@ int rc6_test(void)
       rc6_ecb_decrypt(tmp[0], tmp[1], &key);
 
       /* compare */
-      if (XMEMCMP(tmp[0], tests[x].ct, 16) || XMEMCMP(tmp[1], tests[x].pt, 16)) {
-#if 0
-         printf("\n\nFailed test %d\n", x);
-         if (XMEMCMP(tmp[0], tests[x].ct, 16)) {
-            printf("Ciphertext:  ");
-            for (y = 0; y < 16; y++) printf("%02x ", tmp[0][y]);
-            printf("\nExpected  :  ");
-            for (y = 0; y < 16; y++) printf("%02x ", tests[x].ct[y]);
-            printf("\n");
-         }
-         if (XMEMCMP(tmp[1], tests[x].pt, 16)) {
-            printf("Plaintext:  ");
-            for (y = 0; y < 16; y++) printf("%02x ", tmp[0][y]);
-            printf("\nExpected :  ");
-            for (y = 0; y < 16; y++) printf("%02x ", tests[x].pt[y]);
-            printf("\n");
-         }
-#endif
+      if (compare_testvector(tmp[0], 16, tests[x].ct, 16, "RC6 Encrypt", x) ||
+            compare_testvector(tmp[1], 16, tests[x].pt, 16, "RC6 Decrypt", x)) {
          return CRYPT_FAIL_TESTVECTOR;
       }
 

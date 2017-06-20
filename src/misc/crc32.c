@@ -189,13 +189,7 @@ int crc32_test(void)
    crc32_init(&ctx);
    crc32_update(&ctx, in, strlen(in));
    crc32_finish(&ctx, out, 4);
-   if (XMEMCMP(crc32, out, 4)) {
-#ifdef LTC_TEST_DBG
-      ulong32 _out, _crc32;
-      LOAD32H(_out, out);
-      LOAD32H(_crc32, crc32);
-      printf("crc32 fail! Is: 0x%x Should: 0x%x\n", _out, _crc32);
-#endif
+   if (compare_testvector(crc32, 4, out, 4, "CRC32", 0)) {
       return CRYPT_FAIL_TESTVECTOR;
    }
    return CRYPT_OK;

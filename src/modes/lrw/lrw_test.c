@@ -86,7 +86,7 @@ int lrw_test(void)
      }
 
      /* check pad against expected tweak */
-     if (XMEMCMP(tests[x].expected_tweak, lrw.pad, 16)) {
+     if (compare_testvector(tests[x].expected_tweak, 16, lrw.pad, 16, "LRW Tweak", x)) {
         lrw_done(&lrw);
         return CRYPT_FAIL_TESTVECTOR;
      }
@@ -97,7 +97,7 @@ int lrw_test(void)
         return err;
      }
 
-     if (XMEMCMP(buf[0], tests[x].C, 16)) {
+     if (compare_testvector(buf[0], 16, tests[x].C, 16, "LRW Encrypt", x)) {
         lrw_done(&lrw);
         return CRYPT_FAIL_TESTVECTOR;
      }
@@ -113,7 +113,7 @@ int lrw_test(void)
         return err;
      }
 
-     if (XMEMCMP(buf[1], tests[x].P, 16)) {
+     if (compare_testvector(buf[1], 16, tests[x].P, 16, "LRW Decrypt", x)) {
         lrw_done(&lrw);
         return CRYPT_FAIL_TESTVECTOR;
      }

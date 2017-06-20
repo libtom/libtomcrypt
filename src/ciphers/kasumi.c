@@ -302,7 +302,8 @@ int kasumi_test(void)
        if ((err = kasumi_ecb_decrypt(tests[x].ct, buf[1], &key)) != CRYPT_OK) {
           return err;
        }
-       if (XMEMCMP(tests[x].pt, buf[1], 8) || XMEMCMP(tests[x].ct, buf[0], 8)) {
+       if (compare_testvector(buf[1], 8, tests[x].pt, 8, "Kasumi Decrypt", x) ||
+             compare_testvector(buf[0], 8, tests[x].ct, 8, "Kasumi Encrypt", x)) {
           return CRYPT_FAIL_TESTVECTOR;
        }
    }

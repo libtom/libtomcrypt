@@ -1498,13 +1498,14 @@ int anubis_test(void)
        anubis_setup(tests[x].key, tests[x].keylen, 0, &skey);
        anubis_ecb_encrypt(tests[x].pt, buf[0], &skey);
        anubis_ecb_decrypt(buf[0], buf[1], &skey);
-       if (XMEMCMP(buf[0], tests[x].ct, 16) || XMEMCMP(buf[1], tests[x].pt, 16)) {
+       if (compare_testvector(buf[0], 16, tests[x].ct, 16, "Anubis Encrypt", x) ||
+             compare_testvector(buf[1], 16, tests[x].pt, 16, "Anubis Decrypt", x)) {
           return CRYPT_FAIL_TESTVECTOR;
        }
 
        for (y = 0; y < 1000; y++) anubis_ecb_encrypt(buf[0], buf[0], &skey);
        for (y = 0; y < 1000; y++) anubis_ecb_decrypt(buf[0], buf[0], &skey);
-       if (XMEMCMP(buf[0], tests[x].ct, 16)) {
+       if (compare_testvector(buf[0], 16, tests[x].ct, 16, "Anubis 1000", 1000)) {
           return CRYPT_FAIL_TESTVECTOR;
        }
 

@@ -118,13 +118,7 @@ int adler32_test(void)
    adler32_init(&ctx);
    adler32_update(&ctx, in, strlen(in));
    adler32_finish(&ctx, out, 4);
-   if (XMEMCMP(adler32, out, 4)) {
-#ifdef LTC_TEST_DBG
-      ulong32 _out, _adler32;
-      LOAD32H(_out, out);
-      LOAD32H(_adler32, adler32);
-      printf("adler32 fail! Is: 0x%x Should: 0x%x\n", _out, _adler32);
-#endif
+   if (compare_testvector(adler32, 4, out, 4, "adler32", 0)) {
       return CRYPT_FAIL_TESTVECTOR;
    }
    return CRYPT_OK;
