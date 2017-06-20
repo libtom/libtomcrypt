@@ -21,7 +21,7 @@
 
 #ifdef LTC_MECC
 
-static int is_point(ecc_key *key)
+static int _is_point(ecc_key *key)
 {
    void *prime, *b, *t1, *t2;
    int err;
@@ -153,7 +153,7 @@ int ecc_import_ex(const unsigned char *in, unsigned long inlen, ecc_key *key, co
    if ((err = mp_set(key->pubkey.z, 1)) != CRYPT_OK) { goto done; }
 
    /* is it a point on the curve?  */
-   if ((err = is_point(key)) != CRYPT_OK) {
+   if ((err = _is_point(key)) != CRYPT_OK) {
       goto done;
    }
 
