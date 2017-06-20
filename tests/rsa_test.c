@@ -206,15 +206,13 @@ static int rsa_compat_test(void)
    /* now try to export private/public and compare */
    len = sizeof(buf);
    DO(rsa_export(buf, &len, PK_PRIVATE, &key));
-   if (len != sizeof(openssl_private_rsa) || memcmp(buf, openssl_private_rsa, len)) {
-      fprintf(stderr, "RSA private export failed to match OpenSSL output, %lu, %lu\n", len, (unsigned long)sizeof(openssl_private_rsa));
+   if (compare_testvector(buf, len, openssl_private_rsa, sizeof(openssl_private_rsa), "RSA private export (from OpenSSL)", 0)) {
       return 1;
    }
 
    len = sizeof(buf);
    DO(rsa_export(buf, &len, PK_PUBLIC, &key));
-   if (len != sizeof(openssl_public_rsa_stripped) || memcmp(buf, openssl_public_rsa_stripped, len)) {
-      fprintf(stderr, "RSA(private) public export failed to match OpenSSL output\n");
+   if (compare_testvector(buf, len, openssl_public_rsa_stripped, sizeof(openssl_public_rsa_stripped), "RSA public export (from OpenSSL private key)", 0)) {
       return 1;
    }
    rsa_free(&key);
@@ -223,8 +221,7 @@ static int rsa_compat_test(void)
    DO(rsa_import(openssl_public_rsa_stripped, sizeof(openssl_public_rsa_stripped), &key));
    len = sizeof(buf);
    DO(rsa_export(buf, &len, PK_PUBLIC, &key));
-   if (len != sizeof(openssl_public_rsa_stripped) || memcmp(buf, openssl_public_rsa_stripped, len)) {
-      fprintf(stderr, "RSA(public) stripped public import failed to match OpenSSL output\n");
+   if (compare_testvector(buf, len, openssl_public_rsa_stripped, sizeof(openssl_public_rsa_stripped), "RSA public export (from stripped OpenSSL)", 0)) {
       return 1;
    }
    rsa_free(&key);
@@ -233,8 +230,7 @@ static int rsa_compat_test(void)
    DO(rsa_import(openssl_public_rsa, sizeof(openssl_public_rsa), &key));
    len = sizeof(buf);
    DO(rsa_export(buf, &len, PK_PUBLIC, &key));
-   if (len != sizeof(openssl_public_rsa_stripped) || memcmp(buf, openssl_public_rsa_stripped, len)) {
-      fprintf(stderr, "RSA(public) SSL public import failed to match OpenSSL output\n");
+   if (compare_testvector(buf, len, openssl_public_rsa_stripped, sizeof(openssl_public_rsa_stripped), "RSA public export (from OpenSSL)", 0)) {
       return 1;
    }
    rsa_free(&key);
@@ -243,8 +239,7 @@ static int rsa_compat_test(void)
    DO(rsa_import_pkcs8(pkcs8_private_rsa, sizeof(pkcs8_private_rsa), NULL, 0, &key));
    len = sizeof(buf);
    DO(rsa_export(buf, &len, PK_PRIVATE, &key));
-   if (len != sizeof(openssl_private_rsa) || memcmp(buf, openssl_private_rsa, len)) {
-      fprintf(stderr, "RSA private export failed to match rsa_import_pkcs8\n");
+   if (compare_testvector(buf, len, openssl_private_rsa, sizeof(openssl_private_rsa), "RSA private export (from PKCS#8)", 0)) {
       return 1;
    }
    rsa_free(&key);
@@ -253,8 +248,7 @@ static int rsa_compat_test(void)
    DO(rsa_import_radix(PK_PART_HEX(hex_N), PK_PART_HEX(hex_e), PK_PART_HEX(hex_d), PK_PART_HEX(hex_p), PK_PART_HEX(hex_q), PK_PART_HEX(hex_dP), PK_PART_HEX(hex_dQ), PK_PART_HEX(hex_qP), &key));
    len = sizeof(buf);
    DO(rsa_export(buf, &len, PK_PRIVATE, &key));
-   if (len != sizeof(openssl_private_rsa) || memcmp(buf, openssl_private_rsa, len)) {
-      fprintf(stderr, "RSA private export failed to match rsa_import_radix(16, ..)\n");
+   if (compare_testvector(buf, len, openssl_private_rsa, sizeof(openssl_private_rsa), "RSA private export (from hex)", 0)) {
       return 1;
    }
    rsa_free(&key);
@@ -263,8 +257,7 @@ static int rsa_compat_test(void)
    DO(rsa_import_radix(PK_PART_DEC(dec_N), PK_PART_DEC(dec_e), PK_PART_DEC(dec_d), PK_PART_DEC(dec_p), PK_PART_DEC(dec_q), PK_PART_DEC(dec_dP), PK_PART_DEC(dec_dQ), PK_PART_DEC(dec_qP), &key));
    len = sizeof(buf);
    DO(rsa_export(buf, &len, PK_PRIVATE, &key));
-   if (len != sizeof(openssl_private_rsa) || memcmp(buf, openssl_private_rsa, len)) {
-      fprintf(stderr, "RSA private export failed to match rsa_import_radix(10, ..)\n");
+   if (compare_testvector(buf, len, openssl_private_rsa, sizeof(openssl_private_rsa), "RSA private export (from dec)", 0)) {
       return 1;
    }
    rsa_free(&key);
@@ -273,8 +266,7 @@ static int rsa_compat_test(void)
    DO(rsa_import_radix(PK_PART_HEX(hex_N), PK_PART_HEX(hex_e), NULL, NULL, NULL, NULL, NULL, NULL, &key));
    len = sizeof(buf);
    DO(rsa_export(buf, &len, PK_PUBLIC, &key));
-   if (len != sizeof(openssl_public_rsa_stripped) || memcmp(buf, openssl_public_rsa_stripped, len)) {
-      fprintf(stderr, "RSA public export failed to match rsa_import_radix(16, ..)\n");
+   if (compare_testvector(buf, len, openssl_public_rsa_stripped, sizeof(openssl_public_rsa_stripped), "RSA public export (from hex)", 0)) {
       return 1;
    }
    rsa_free(&key);
@@ -283,8 +275,7 @@ static int rsa_compat_test(void)
    DO(rsa_import_radix(PK_PART_DEC(dec_N), PK_PART_DEC(dec_e), NULL, NULL, NULL, NULL, NULL, NULL, &key));
    len = sizeof(buf);
    DO(rsa_export(buf, &len, PK_PUBLIC, &key));
-   if (len != sizeof(openssl_public_rsa_stripped) || memcmp(buf, openssl_public_rsa_stripped, len)) {
-      fprintf(stderr, "RSA public export failed to match rsa_import_radix(10, ..)\n");
+   if (compare_testvector(buf, len, openssl_public_rsa_stripped, sizeof(openssl_public_rsa_stripped), "RSA public export (from dec)", 0)) {
       return 1;
    }
    rsa_free(&key);
