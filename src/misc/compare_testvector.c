@@ -5,7 +5,6 @@
  *
  * The library is free for all purposes without any express
  * guarantee it works.
- *
  */
 
 #include "tomcrypt.h"
@@ -72,6 +71,6 @@ int compare_testvector(const void* is, const unsigned long is_len, const void* s
    return res;
 }
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

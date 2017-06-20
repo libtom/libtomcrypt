@@ -44,6 +44,6 @@ int ocb3_int_aad_add_block(ocb3_state *ocb, const unsigned char *aad_block)
 #endif
 
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

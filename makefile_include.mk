@@ -8,15 +8,15 @@ VERSION=1.17
 VERSION_LT=0:117
 
 # Compiler and Linker Names
-ifndef PREFIX
-  PREFIX:=
+ifndef CROSS_COMPILE
+  CROSS_COMPILE:=
 endif
 
 ifeq ($(CC),cc)
-  CC := $(PREFIX)gcc
+  CC := $(CROSS_COMPILE)gcc
 endif
-LD:=$(PREFIX)ld
-AR:=$(PREFIX)ar
+LD:=$(CROSS_COMPILE)ld
+AR:=$(CROSS_COMPILE)ar
 
 # Archiver [makes .a files]
 #AR=ar
@@ -130,11 +130,12 @@ TIMINGS=demos/timing.o
 #INCPATH  The directory to install the header files for libtomcrypt.
 #DATAPATH The directory to install the pdf docs.
 #BINPATH  The directory to install the binaries provided.
-DESTDIR  ?= /usr/local
-LIBPATH  ?= $(DESTDIR)/lib
-INCPATH  ?= $(DESTDIR)/include
-DATAPATH ?= $(DESTDIR)/share/doc/libtomcrypt/pdf
-BINPATH  ?= $(DESTDIR)/bin
+DESTDIR  ?=
+PREFIX   ?= /usr/local
+LIBPATH  ?= $(DESTDIR)$(PREFIX)/lib
+INCPATH  ?= $(DESTDIR)$(PREFIX)/include
+DATAPATH ?= $(DESTDIR)$(PREFIX)/share/doc/libtomcrypt/pdf
+BINPATH  ?= $(DESTDIR)$(PREFIX)/bin
 
 #Who do we install as?
 ifdef INSTALL_USER
@@ -357,11 +358,12 @@ doc/crypt.pdf:
 
 install_all: install install_bins install_docs install_test
 
+INSTALL_OPTS ?= -m 644
 
 .common_install: $(LIBNAME)
 	install -d $(INCPATH)
 	install -d $(LIBPATH)
-	$(INSTALL_CMD) -m 644 $(LIBNAME) $(LIBPATH)/$(LIBNAME)
+	$(INSTALL_CMD) $(INSTALL_OPTS) $(LIBNAME) $(LIBPATH)/$(LIBNAME)
 	install -m 644 $(HEADERS) $(INCPATH)
 
 .common_install_bins: $(USEFUL_DEMOS)

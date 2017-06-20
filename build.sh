@@ -54,6 +54,6 @@ if [ -a testok.txt ] && [ -f testok.txt ]; then
 fi
 exit 1
 
-# $Source$
-# $Revision$
-# $Date$
+# ref:         $Format:%D$
+# git commit:  $Format:%H$
+# commit time: $Format:%ai$

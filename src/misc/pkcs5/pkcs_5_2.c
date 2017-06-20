@@ -5,10 +5,8 @@
  *
  * The library is free for all purposes without any express
  * guarantee it works.
- *
- * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
-#include <tomcrypt.h>
+#include "tomcrypt.h"
 
 /**
    @file pkcs_5_2.c
@@ -124,6 +122,6 @@ LBL_ERR:
 #endif
 
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

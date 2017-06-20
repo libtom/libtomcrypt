@@ -34,3 +34,7 @@ int chacha20poly1305_setiv_rfc7905(chacha20poly1305_state *st, const unsigned ch
 }
 
 #endif
+
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

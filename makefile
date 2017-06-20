@@ -23,7 +23,7 @@ endif
 
 # ranlib tools
 ifndef RANLIB
-RANLIB:=$(PREFIX)ranlib
+RANLIB:=$(CROSS_COMPILE)ranlib
 endif
 INSTALL_CMD = install
 

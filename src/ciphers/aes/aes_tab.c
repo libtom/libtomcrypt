@@ -5,8 +5,6 @@
  *
  * The library is free for all purposes without any express
  * guarantee it works.
- *
- * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 /* The precomputed tables for AES */
 /*
@@ -1027,6 +1025,6 @@ static const ulong32 rcon[] = {
 
 #endif /* __LTC_AES_TAB_C__ */
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

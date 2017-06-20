@@ -5,8 +5,6 @@
  *
  * The library is free for all purposes without any express
  * guarantee it works.
- *
- * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 
 /*******************************************************************************
@@ -28,7 +26,7 @@
 *
 *******************************************************************************/
 
-#include <tomcrypt.h>
+#include "tomcrypt.h"
 
 #ifdef LTC_SAFER
 
@@ -489,6 +487,6 @@ int safer_sk128_test(void)
 
 
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

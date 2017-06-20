@@ -5,16 +5,13 @@
  *
  * The library is free for all purposes without any express
  * guarantee it works.
- *
- * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
- *
- * Added RSA blinding --nmav
  */
 #include "tomcrypt.h"
 
 /**
   @file rsa_exptmod.c
   RSA PKCS exptmod, Tom St Denis
+  Added RSA blinding --nmav
 */
 
 #ifdef LTC_MRSA
@@ -178,6 +175,6 @@ error:
 
 #endif
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

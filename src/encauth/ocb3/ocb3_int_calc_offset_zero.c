@@ -67,6 +67,6 @@ void ocb3_int_calc_offset_zero(ocb3_state *ocb, const unsigned char *nonce, unsi
 
 #endif
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

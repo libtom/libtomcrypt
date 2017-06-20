@@ -11,7 +11,7 @@
 #
 # CFLAGS="-DUSE_LTM -DLTM_DESC -I/path/to/libtommath" make -f makefile.shared all EXTRALIBS=/path/to/libtommath/libtommath.a
 # ./test
-# make -f makefile.shared DESTDIR=/opt/libtom install
+# make -f makefile.shared PREFIX=/opt/libtom install
 #
 
 PLATFORM := $(shell uname | sed -e 's/_.*//')
@@ -46,7 +46,7 @@ $(LIBNAME): $(OBJECTS)
 	$(LT) --mode=link --tag=CC $(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) `find ./src -type f -name "*.lo" | LC_ALL=C sort` $(EXTRALIBS) -o $@ -rpath $(LIBPATH) -version-info $(VERSION_LT)
 
 install: .common_install
-	sed -e 's,^prefix=.*,prefix=$(DESTDIR),' -e 's,^Version:.*,Version: $(VERSION),' libtomcrypt.pc.in > libtomcrypt.pc
+	sed -e 's,^prefix=.*,prefix=$(PREFIX),' -e 's,^Version:.*,Version: $(VERSION),' libtomcrypt.pc.in > libtomcrypt.pc
 	install -d $(LIBPATH)/pkgconfig
 	install -m 644 libtomcrypt.pc $(LIBPATH)/pkgconfig/
 
@@ -69,6 +69,6 @@ endef
 
 $(foreach demo, $(strip $(DEMOS)), $(eval $(call DEMO_template,$(demo))))
 
-# $Source$
-# $Revision$
-# $Date$
+# ref:         $Format:%D$
+# git commit:  $Format:%H$
+# commit time: $Format:%ai$

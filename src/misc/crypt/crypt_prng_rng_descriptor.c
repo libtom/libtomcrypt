@@ -5,11 +5,13 @@
  *
  * The library is free for all purposes without any express
  * guarantee it works.
- *
- * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 #include "tomcrypt.h"
 
 #ifdef LTC_PRNG_ENABLE_LTC_RNG
 unsigned long (*ltc_rng)(unsigned char *out, unsigned long outlen, void (*callback)(void));
 #endif
+
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

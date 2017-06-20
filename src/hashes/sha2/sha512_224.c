@@ -5,8 +5,6 @@
  *
  * The library is free for all purposes without any express
  * guarantee it works.
- *
- * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 /**
    @param sha512_224.c
@@ -127,6 +125,6 @@ int  sha512_224_test(void)
 
 #endif /* defined(LTC_SHA384) && defined(LTC_SHA512) */
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

@@ -5,8 +5,6 @@
  *
  * The library is free for all purposes without any express
  * guarantee it works.
- *
- * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 #include "tomcrypt.h"
 
@@ -18,7 +16,7 @@
 #define NAME(s) #s
 
 const char *crypt_build_settings =
-   "LibTomCrypt " SCRYPT " (Tom St Denis, tomstdenis@gmail.com)\n"
+   "LibTomCrypt " SCRYPT " (www.libtom.net)\n"
    "LibTomCrypt is public domain software.\n"
 #if defined(INCLUDE_BUILD_DATE)
    "Built on " __DATE__ " at " __TIME__ "\n"
@@ -486,6 +484,6 @@ const char *crypt_build_settings =
     ;
 
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

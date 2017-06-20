@@ -24,3 +24,7 @@ int chacha20poly1305_init(chacha20poly1305_state *st, const unsigned char *key, 
 }
 
 #endif
+
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

@@ -15,7 +15,7 @@
 #
 # make -f makefile.unix CFLAGS="-O3 -DUSE_LTM -DLTM_DESC -I/path/to/libtommath" EXTRALIBS=/path/to/libtommath/libtommath.a all
 # ./test
-# make -f makefile.unix DESTDIR=/opt/libtom install
+# make -f makefile.unix PREFIX=/opt/libtom install
 #
 #Or if you are using Intel C compiler you might need something like:
 #
@@ -23,7 +23,12 @@
 #
 
 #The following can be overridden from command line e.g. "make -f makefile.unix CC=gcc ARFLAGS=rcs"
-DESTDIR   = /usr/local
+DESTDIR   =
+PREFIX    = /usr/local
+LIBPATH   = $(DESTDIR)$(PREFIX)/lib
+INCPATH   = $(DESTDIR)$(PREFIX)/include
+DATAPATH  = $(DESTDIR)$(PREFIX)/share/doc/libtomcrypt/pdf
+BINPATH   = $(DESTDIR)$(PREFIX)/bin
 CC        = cc
 AR        = ar
 ARFLAGS   = r
@@ -266,17 +271,17 @@ clean:
 
 #Install the library + headers
 install: $(LIBMAIN_S) $(HEADERS)
-	@mkdir -p $(DESTDIR)/include $(DESTDIR)/lib/pkgconfig
-	@cp $(LIBMAIN_S) $(DESTDIR)/lib/
-	@cp $(HEADERS) $(DESTDIR)/include/
-	@sed -e 's,^prefix=.*,prefix=$(DESTDIR),' -e 's,^Version:.*,Version: $(VERSION),' libtomcrypt.pc.in > $(DESTDIR)/lib/pkgconfig/libtomcrypt.pc
+	@mkdir -p $(INCPATH) $(LIBPATH)/pkgconfig
+	@cp $(LIBMAIN_S) $(LIBPATH)/
+	@cp $(HEADERS) $(INCPATH)/
+	@sed -e 's,^prefix=.*,prefix=$(PREFIX),' -e 's,^Version:.*,Version: $(VERSION),' libtomcrypt.pc.in > $(LIBPATH)/pkgconfig/libtomcrypt.pc
 
 #Install useful tools
 install_bins: hashsum
-	@mkdir -p $(DESTDIR)/bin
-	@cp hashsum $(DESTDIR)/bin/
+	@mkdir -p $(BINPATH)
+	@cp hashsum $(BINPATH)/
 
 #Install documentation
 install_docs: doc/crypt.pdf
-	@mkdir -p $(DESTDIR)/share/doc/libtomcrypt/pdf
-	@cp doc/crypt.pdf $(DESTDIR)/share/doc/libtomcrypt/pdf/
+	@mkdir -p $(DATAPATH)
+	@cp doc/crypt.pdf $(DATAPATH)/

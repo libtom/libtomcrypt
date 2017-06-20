@@ -43,3 +43,7 @@ int chacha20poly1305_decrypt(chacha20poly1305_state *st, const unsigned char *in
 }
 
 #endif
+
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

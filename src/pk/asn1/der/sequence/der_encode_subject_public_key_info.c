@@ -5,7 +5,6 @@
  *
  * The library is free for all purposes without any express
  * guarantee it works.
- *
  */
 #include "tomcrypt.h"
 
@@ -66,4 +65,7 @@ int der_encode_subject_public_key_info(unsigned char *out, unsigned long *outlen
 
 #endif
 
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */
 
