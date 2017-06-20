@@ -55,7 +55,10 @@ sub check_source {
       push @{$troubles->{unwanted_clock}},   $lineno if $file =~ /^src\/.*\.c$/ && $l =~ /\bclock\s*\(/;
       push @{$troubles->{unwanted_qsort}},   $lineno if $file =~ /^src\/.*\.c$/ && $l =~ /\bqsort\s*\(/;
       if ($file =~ m|src/.*\.c$| &&
+          $file !~ m|src/ciphers/.*\.c$| &&
+          $file !~ m|src/hashes/.*\.c$| &&
           $file !~ m|src/math/.+_desc.c$| &&
+          $file !~ m|src/stream/sober128/sober128.c$| &&
           $l =~ /^static\s+\S+\s+([^_][a-zA-Z0-9_]+)\s*\(/) {
         push @{$troubles->{staticfunc_name}}, "$lineno($1)";
       }
