@@ -181,6 +181,7 @@ static int rsa_compat_test(void)
 {
    rsa_key key, pubkey;
    int stat;
+   void* mpi;
    unsigned char buf[1024];
    unsigned long len;
 
@@ -276,6 +277,20 @@ static int rsa_compat_test(void)
    len = sizeof(buf);
    DO(rsa_export(buf, &len, PK_PUBLIC, &key));
    if (compare_testvector(buf, len, openssl_public_rsa_stripped, sizeof(openssl_public_rsa_stripped), "RSA public export (from dec)", 0)) {
+      return 1;
+   }
+   rsa_free(&key);
+
+   /* try import public key from mixed numbers */
+   DO(mp_init(&mpi));
+   DO(mp_read_radix(mpi, dec_N, 10));
+   DO(mp_to_unsigned_bin(mpi, buf));
+   len = mp_unsigned_bin_size(mpi);
+   DO(rsa_import_radix(PK_PART_BIN(buf, len), PK_PART_DEC(dec_e), NULL, NULL, NULL, NULL, NULL, NULL, &key));
+   mp_clear(mpi);
+   len = sizeof(buf);
+   DO(rsa_export(buf, &len, PK_PUBLIC, &key));
+   if (compare_testvector(buf, len, openssl_public_rsa_stripped, sizeof(openssl_public_rsa_stripped), "RSA public export (from mixed)", 0)) {
       return 1;
    }
    rsa_free(&key);
