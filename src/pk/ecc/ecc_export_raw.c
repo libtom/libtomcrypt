@@ -56,3 +56,7 @@ int ecc_export_raw(unsigned char *out, unsigned long *outlen, int type, ecc_key 
 }
 
 #endif
+
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

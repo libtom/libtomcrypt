@@ -93,3 +93,7 @@ int ecc_dp_set(ltc_ecc_set_type *dp, char *ch_prime, char *ch_A, char *ch_B, cha
 }
 
 #endif
+
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

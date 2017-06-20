@@ -51,3 +51,7 @@ int ecc_dp_fill_from_sets(ltc_ecc_set_type *dp)
 }
 
 #endif
+
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

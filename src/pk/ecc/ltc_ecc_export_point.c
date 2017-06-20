@@ -57,3 +57,7 @@ int ltc_ecc_export_point(unsigned char *out, unsigned long *outlen, void *x, voi
 }
 
 #endif
+
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */
