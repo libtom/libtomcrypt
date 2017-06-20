@@ -163,7 +163,7 @@ int rsa_verify_hash_ex(const unsigned char *sig,      unsigned long siglen,
     } else {
       /* only check if the hash is equal */
       if ((hashlen == outlen) &&
-          (XMEMCMP(out, hash, hashlen) == 0)) {
+          (XMEM_NEQ(out, hash, hashlen) == 0)) {
         *stat = 1;
       }
     }

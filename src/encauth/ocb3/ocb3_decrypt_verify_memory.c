@@ -87,7 +87,7 @@ int ocb3_decrypt_verify_memory(int cipher,
    }
 
    /* compare tags */
-   if (buflen >= taglen && XMEMCMP(buf, tag, taglen) == 0) {
+   if (buflen >= taglen && XMEM_NEQ(buf, tag, taglen) == 0) {
       *stat = 1;
    }
 
