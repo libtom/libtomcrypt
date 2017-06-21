@@ -2135,6 +2135,10 @@
 					>
 				</File>
 				<File
+					RelativePath="src\pk\ecc\ecc_dp_clear.c"
+					>
+				</File>
+				<File
 					RelativePath="src\pk\ecc\ecc_dp_find_by_name.c"
 					>
 				</File>

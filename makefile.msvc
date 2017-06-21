@@ -158,9 +158,9 @@ src/pk/dsa/dsa_encrypt_key.obj src/pk/dsa/dsa_export.obj src/pk/dsa/dsa_free.obj
 src/pk/dsa/dsa_import_radix.obj src/pk/dsa/dsa_make_key.obj src/pk/dsa/dsa_shared_secret.obj \
 src/pk/dsa/dsa_sign_hash.obj src/pk/dsa/dsa_verify_hash.obj src/pk/dsa/dsa_verify_key.obj src/pk/ecc/ecc.obj \
 src/pk/ecc/ecc_ansi_x963_export.obj src/pk/ecc/ecc_ansi_x963_import.obj src/pk/ecc/ecc_decrypt_key.obj \
-src/pk/ecc/ecc_dp_alloc_bn.obj src/pk/ecc/ecc_dp_find_by_name.obj src/pk/ecc/ecc_dp_find_by_oid.obj \
-src/pk/ecc/ecc_dp_find_by_params.obj src/pk/ecc/ecc_encrypt_key.obj src/pk/ecc/ecc_export.obj \
-src/pk/ecc/ecc_export_full.obj src/pk/ecc/ecc_export_raw.obj src/pk/ecc/ecc_free.obj \
+src/pk/ecc/ecc_dp_alloc_bn.obj src/pk/ecc/ecc_dp_clear.obj src/pk/ecc/ecc_dp_find_by_name.obj \
+src/pk/ecc/ecc_dp_find_by_oid.obj src/pk/ecc/ecc_dp_find_by_params.obj src/pk/ecc/ecc_encrypt_key.obj \
+src/pk/ecc/ecc_export.obj src/pk/ecc/ecc_export_full.obj src/pk/ecc/ecc_export_raw.obj src/pk/ecc/ecc_free.obj \
 src/pk/ecc/ecc_get_size.obj src/pk/ecc/ecc_import.obj src/pk/ecc/ecc_import_full.obj \
 src/pk/ecc/ecc_import_pkcs8.obj src/pk/ecc/ecc_import_raw.obj src/pk/ecc/ecc_make_key.obj \
 src/pk/ecc/ecc_shared_secret.obj src/pk/ecc/ecc_sign_hash.obj src/pk/ecc/ecc_sizes.obj src/pk/ecc/ecc_test.obj \
