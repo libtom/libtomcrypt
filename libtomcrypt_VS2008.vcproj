@@ -2131,27 +2131,19 @@
 					>
 				</File>
 				<File
-					RelativePath="src\pk\ecc\ecc_dp_clear.c"
+					RelativePath="src\pk\ecc\ecc_dp_alloc_bn.c"
 					>
 				</File>
 				<File
-					RelativePath="src\pk\ecc\ecc_dp_fill_from_sets.c"
+					RelativePath="src\pk\ecc\ecc_dp_find_by_name.c"
 					>
 				</File>
 				<File
-					RelativePath="src\pk\ecc\ecc_dp_from_oid.c"
+					RelativePath="src\pk\ecc\ecc_dp_find_by_oid.c"
 					>
 				</File>
 				<File
-					RelativePath="src\pk\ecc\ecc_dp_from_params.c"
-					>
-				</File>
-				<File
-					RelativePath="src\pk\ecc\ecc_dp_init.c"
-					>
-				</File>
-				<File
-					RelativePath="src\pk\ecc\ecc_dp_set.c"
+					RelativePath="src\pk\ecc\ecc_dp_find_by_params.c"
 					>
 				</File>
 				<File
