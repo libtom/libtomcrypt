@@ -7,11 +7,6 @@
  * guarantee it works.
  */
 
-/* Implements ECC over Z/pZ for curve y^2 = x^3 - 3x + b
- *
- * All curves taken from NIST recommendation paper of July 1999
- * Available at http://csrc.nist.gov/cryptval/dss.htm
- */
 #include "tomcrypt.h"
 
 /**
@@ -34,11 +29,11 @@
    @param map      Boolean whether to map back to affine or not (1==map, 0 == leave in projective)
    @return CRYPT_OK on success
 */
-int ltc_ecc_mulmod(void *k, ecc_point *G, ecc_point *R, void *modulus, int map)
+int ltc_ecc_mulmod(void *k, ecc_point *G, ecc_point *R, void *a, void *modulus, int map)
 {
    ecc_point *tG, *M[8];
    int        i, j, err;
-   void       *mu, *mp;
+   void       *mu, *mp, *ma;
    ltc_mp_digit buf;
    int        first, bitbuf, bitcpy, bitcnt, mode, digidx;
 
@@ -47,17 +42,30 @@ int ltc_ecc_mulmod(void *k, ecc_point *G, ecc_point *R, void *modulus, int map)
    LTC_ARGCHK(R       != NULL);
    LTC_ARGCHK(modulus != NULL);
 
+   if (ltc_ecc_is_point_at_infinity(G, modulus)) {
+      /* return the point at infinity */
+      if ((err = mp_set(R->x, 1)) != CRYPT_OK) { return err; }
+      if ((err = mp_set(R->y, 1)) != CRYPT_OK) { return err; }
+      if ((err = mp_set(R->z, 0)) != CRYPT_OK) { return err; }
+      return CRYPT_OK;
+   }
+
    /* init montgomery reduction */
    if ((err = mp_montgomery_setup(modulus, &mp)) != CRYPT_OK) {
       return err;
    }
-   if ((err = mp_init(&mu)) != CRYPT_OK) {
+   if ((err = mp_init_multi(&mu, &ma, NULL)) != CRYPT_OK) {
       mp_montgomery_free(mp);
       return err;
    }
    if ((err = mp_montgomery_normalization(mu, modulus)) != CRYPT_OK) {
       mp_montgomery_free(mp);
-      mp_clear(mu);
+      mp_clear_multi(mu, ma, NULL);
+      return err;
+   }
+   if ((err = mp_mulmod(a, mu, modulus, ma)) != CRYPT_OK) {
+      mp_montgomery_free(mp);
+      mp_clear_multi(mu, ma, NULL);
       return err;
    }
 
@@ -69,7 +77,7 @@ int ltc_ecc_mulmod(void *k, ecc_point *G, ecc_point *R, void *modulus, int map)
              ltc_ecc_del_point(M[j]);
          }
          mp_montgomery_free(mp);
-         mp_clear(mu);
+         mp_clear_multi(mu, ma, NULL);
          return CRYPT_MEM;
       }
   }
@@ -93,13 +101,13 @@ int ltc_ecc_mulmod(void *k, ecc_point *G, ecc_point *R, void *modulus, int map)
 
    /* calc the M tab, which holds kG for k==8..15 */
    /* M[0] == 8G */
-   if ((err = ltc_mp.ecc_ptdbl(tG, M[0], modulus, mp)) != CRYPT_OK)                 { goto done; }
-   if ((err = ltc_mp.ecc_ptdbl(M[0], M[0], modulus, mp)) != CRYPT_OK)               { goto done; }
-   if ((err = ltc_mp.ecc_ptdbl(M[0], M[0], modulus, mp)) != CRYPT_OK)               { goto done; }
+   if ((err = ltc_mp.ecc_ptdbl(tG, M[0], ma, modulus, mp)) != CRYPT_OK)              { goto done; }
+   if ((err = ltc_mp.ecc_ptdbl(M[0], M[0], ma, modulus, mp)) != CRYPT_OK)            { goto done; }
+   if ((err = ltc_mp.ecc_ptdbl(M[0], M[0], ma, modulus, mp)) != CRYPT_OK)            { goto done; }
 
    /* now find (8+k)G for k=1..7 */
    for (j = 9; j < 16; j++) {
-       if ((err = ltc_mp.ecc_ptadd(M[j-9], tG, M[j-8], modulus, mp)) != CRYPT_OK)   { goto done; }
+       if ((err = ltc_mp.ecc_ptadd(M[j-9], tG, M[j-8], ma, modulus, mp)) != CRYPT_OK) { goto done; }
    }
 
    /* setup sliding window */
@@ -133,7 +141,7 @@ int ltc_ecc_mulmod(void *k, ecc_point *G, ecc_point *R, void *modulus, int map)
 
      /* if the bit is zero and mode == 1 then we double */
      if (mode == 1 && i == 0) {
-        if ((err = ltc_mp.ecc_ptdbl(R, R, modulus, mp)) != CRYPT_OK)                 { goto done; }
+        if ((err = ltc_mp.ecc_ptdbl(R, R, ma, modulus, mp)) != CRYPT_OK)             { goto done; }
         continue;
      }
 
@@ -154,11 +162,11 @@ int ltc_ecc_mulmod(void *k, ecc_point *G, ecc_point *R, void *modulus, int map)
          /* ok window is filled so double as required and add  */
          /* double first */
          for (j = 0; j < WINSIZE; j++) {
-           if ((err = ltc_mp.ecc_ptdbl(R, R, modulus, mp)) != CRYPT_OK)              { goto done; }
+           if ((err = ltc_mp.ecc_ptdbl(R, R, ma, modulus, mp)) != CRYPT_OK)          { goto done; }
          }
 
          /* then add, bitbuf will be 8..15 [8..2^WINSIZE] guaranteed */
-         if ((err = ltc_mp.ecc_ptadd(R, M[bitbuf-8], R, modulus, mp)) != CRYPT_OK)   { goto done; }
+         if ((err = ltc_mp.ecc_ptadd(R, M[bitbuf-8], R, ma, modulus, mp)) != CRYPT_OK) { goto done; }
        }
        /* empty window and reset */
        bitcpy = bitbuf = 0;
@@ -172,7 +180,7 @@ int ltc_ecc_mulmod(void *k, ecc_point *G, ecc_point *R, void *modulus, int map)
      for (j = 0; j < bitcpy; j++) {
        /* only double if we have had at least one add first */
        if (first == 0) {
-          if ((err = ltc_mp.ecc_ptdbl(R, R, modulus, mp)) != CRYPT_OK)              { goto done; }
+          if ((err = ltc_mp.ecc_ptdbl(R, R, ma, modulus, mp)) != CRYPT_OK)           { goto done; }
        }
 
        bitbuf <<= 1;
@@ -185,7 +193,7 @@ int ltc_ecc_mulmod(void *k, ecc_point *G, ecc_point *R, void *modulus, int map)
             first = 0;
          } else {
             /* then add */
-            if ((err = ltc_mp.ecc_ptadd(R, tG, R, modulus, mp)) != CRYPT_OK)        { goto done; }
+            if ((err = ltc_mp.ecc_ptadd(R, tG, R, ma, modulus, mp)) != CRYPT_OK)     { goto done; }
          }
        }
      }
@@ -201,6 +209,7 @@ done:
    if (mu != NULL) {
       mp_clear(mu);
    }
+   mp_clear(ma);
    mp_montgomery_free(mp);
    ltc_ecc_del_point(tG);
    for (i = 0; i < 8; i++) {

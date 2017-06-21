@@ -7,11 +7,6 @@
  * guarantee it works.
  */
 
-/* Implements ECC over Z/pZ for curve y^2 = x^3 - 3x + b
- *
- * All curves taken from NIST recommendation paper of July 1999
- * Available at http://csrc.nist.gov/cryptval/dss.htm
- */
 #include "tomcrypt.h"
 
 /**
@@ -89,7 +84,7 @@ int ecc_decrypt_key(const unsigned char *in,  unsigned long  inlen,
    }
 
    /* import ECC key from packet */
-   if ((err = ecc_import(decode[1].data, decode[1].size, &pubkey)) != CRYPT_OK) {
+   if ((err = ecc_import_raw(decode[1].data, decode[1].size, &pubkey, (ltc_ecc_set_type *)key->dp)) != CRYPT_OK) {
       goto LBL_ERR;
    }
 

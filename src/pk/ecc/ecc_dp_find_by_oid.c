@@ -9,19 +9,19 @@
 
 #include "tomcrypt.h"
 
-/**
-  @file ecc_test.c
-  ECC Crypto, Tom St Denis
-*/
-
 #ifdef LTC_MECC
 
-int ecc_test(void)
+ltc_ecc_set_type* ecc_dp_find_by_oid(unsigned long *oid, unsigned long oidsize)
 {
-   /* the main ECC tests are in tests/ecc_test.c
-    * this function is kept just for API compatibility
-    */
-   return CRYPT_OK;
+   int i;
+
+   for (i = 0; ltc_ecc_sets[i].size != 0; i++) {
+      if ((oidsize == ltc_ecc_sets[i].oid.OIDlen) &&
+          (XMEM_NEQ(oid, ltc_ecc_sets[i].oid.OID, sizeof(unsigned long) * ltc_ecc_sets[i].oid.OIDlen) == 0)) {
+         return (ltc_ecc_set_type*)&ltc_ecc_sets[i];
+      }
+   }
+   return NULL;
 }
 
 #endif
@@ -29,4 +29,3 @@ int ecc_test(void)
 /* ref:         $Format:%D$ */
 /* git commit:  $Format:%H$ */
 /* commit time: $Format:%ai$ */
-

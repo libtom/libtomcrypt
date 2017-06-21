@@ -237,6 +237,14 @@ typedef struct {
    */
    int (*sqr)(void *a, void *b);
 
+   /** Square root (mod prime)
+     @param a    The integer to compute square root mod prime from
+     @param b    The prime
+     @param c    The destination
+     @return CRYPT_OK on success
+   */
+   int (*sqrtmod_prime)(void *a, void *b, void *c);
+
    /** Divide an integer
      @param a    The dividend
      @param b    The divisor
@@ -357,6 +365,7 @@ typedef struct {
        @param k   The integer to multiply the point by
        @param G   The point to multiply
        @param R   The destination for kG
+       @param a   ECC curve parameter a (if NULL we assume a == -3)
        @param modulus  The modulus for the field
        @param map Boolean indicated whether to map back to affine or not
                   (can be ignored if you work in affine only)
@@ -365,6 +374,7 @@ typedef struct {
    int (*ecc_ptmul)(     void *k,
                     ecc_point *G,
                     ecc_point *R,
+                         void *a,
                          void *modulus,
                           int  map);
 
@@ -372,6 +382,7 @@ typedef struct {
        @param P    The first point
        @param Q    The second point
        @param R    The destination of P + Q
+       @param a    ECC curve parameter a (if NULL we assume a == -3)
        @param modulus  The modulus
        @param mp   The "b" value from montgomery_setup()
        @return CRYPT_OK on success
@@ -379,18 +390,21 @@ typedef struct {
    int (*ecc_ptadd)(ecc_point *P,
                     ecc_point *Q,
                     ecc_point *R,
+                         void *a,
                          void *modulus,
                          void *mp);
 
    /** ECC GF(p) point double
        @param P    The first point
        @param R    The destination of 2P
+       @param a    ECC curve parameter a (if NULL we assume a == -3)
        @param modulus  The modulus
        @param mp   The "b" value from montgomery_setup()
        @return CRYPT_OK on success
    */
    int (*ecc_ptdbl)(ecc_point *P,
                     ecc_point *R,
+                         void *a,
                          void *modulus,
                          void *mp);
 
@@ -418,6 +432,7 @@ typedef struct {
    int (*ecc_mul2add)(ecc_point *A, void *kA,
                       ecc_point *B, void *kB,
                       ecc_point *C,
+                           void *a,
                            void *modulus);
 
 /* ---- (optional) rsa optimized math (for internal CRT) ---- */
@@ -536,6 +551,7 @@ extern const ltc_math_descriptor gmp_desc;
 #define mp_mul(a, b, c)              ltc_mp.mul(a, b, c)
 #define mp_mul_d(a, b, c)            ltc_mp.muli(a, b, c)
 #define mp_sqr(a, b)                 ltc_mp.sqr(a, b)
+#define mp_sqrtmod_prime(a, b, c)    ltc_mp.sqrtmod_prime(a, b, c)
 #define mp_div(a, b, c, d)           ltc_mp.mpdiv(a, b, c, d)
 #define mp_div_2(a, b)               ltc_mp.div_2(a, b)
 #define mp_mod(a, b, c)              ltc_mp.mpdiv(a, b, NULL, c)

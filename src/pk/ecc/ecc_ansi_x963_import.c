@@ -7,11 +7,6 @@
  * guarantee it works.
  */
 
-/* Implements ECC over Z/pZ for curve y^2 = x^3 - 3x + b
- *
- * All curves taken from NIST recommendation paper of July 1999
- * Available at http://csrc.nist.gov/cryptval/dss.htm
- */
 #include "tomcrypt.h"
 
 /**
@@ -65,6 +60,10 @@ int ecc_ansi_x963_import_ex(const unsigned char *in, unsigned long inlen, ecc_ke
    if ((err = mp_set(key->pubkey.z, 1)) != CRYPT_OK) { goto error; }
 
    if (dp == NULL) {
+     /* BEWARE: Here we are looking up the curve params by keysize (neither curve name nor curve oid),
+      *         which might be ambiguous (there can more than one curve for given keysize).
+      *         Thus the chosen curve depends on order of items in ltc_ecc_sets[] - see ecc.c file.
+      */
      /* determine the idx */
       for (x = 0; ltc_ecc_sets[x].size != 0; x++) {
          if ((unsigned)ltc_ecc_sets[x].size >= ((inlen-1)>>1)) {

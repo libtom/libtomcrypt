@@ -40,6 +40,15 @@ int der_decode_subject_public_key_info(const unsigned char *in, unsigned long in
         unsigned int algorithm, void* public_key, unsigned long* public_key_len,
         unsigned long parameters_type, ltc_asn1_list* parameters, unsigned long parameters_len)
 {
+   return der_decode_subject_public_key_info_ex(in, inlen, algorithm, public_key, public_key_len,
+                                                parameters_type, parameters, parameters_len, NULL);
+}
+
+int der_decode_subject_public_key_info_ex(const unsigned char *in, unsigned long inlen,
+        unsigned int algorithm, void* public_key, unsigned long* public_key_len,
+        unsigned long parameters_type, void* parameters, unsigned long parameters_len,
+        unsigned long *parameters_outsize)
+{
    int err;
    unsigned long len;
    oid_st oid;
@@ -78,6 +87,8 @@ int der_decode_subject_public_key_info(const unsigned char *in, unsigned long in
    if (err != CRYPT_OK) {
            goto LBL_ERR;
    }
+
+   if (parameters_outsize) *parameters_outsize = alg_id[1].size;
 
    if ((alg_id[0].size != oid.OIDlen) ||
         XMEMCMP(oid.OID, alg_id[0].data, oid.OIDlen * sizeof(oid.OID[0]))) {

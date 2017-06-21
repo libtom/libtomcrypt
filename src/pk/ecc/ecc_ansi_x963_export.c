@@ -7,11 +7,6 @@
  * guarantee it works.
  */
 
-/* Implements ECC over Z/pZ for curve y^2 = x^3 - 3x + b
- *
- * All curves taken from NIST recommendation paper of July 1999
- * Available at http://csrc.nist.gov/cryptval/dss.htm
- */
 #include "tomcrypt.h"
 
 /**
@@ -33,6 +28,7 @@ int ecc_ansi_x963_export(ecc_key *key, unsigned char *out, unsigned long *outlen
    unsigned long numlen, xlen, ylen;
 
    LTC_ARGCHK(key    != NULL);
+   LTC_ARGCHK(out    != NULL);
    LTC_ARGCHK(outlen != NULL);
 
    if (ltc_ecc_is_valid_idx(key->idx) == 0) {
@@ -50,8 +46,6 @@ int ecc_ansi_x963_export(ecc_key *key, unsigned char *out, unsigned long *outlen
       *outlen = 1 + 2*numlen;
       return CRYPT_BUFFER_OVERFLOW;
    }
-
-   LTC_ARGCHK(out    != NULL);
 
    /* store byte 0x04 */
    out[0] = 0x04;

@@ -51,6 +51,7 @@ sub check_source {
       push @{$troubles->{unwanted_memset}},  $lineno if $file =~ /^src\/.*\.c$/ && $l =~ /\bmemset\s*\(/;
       push @{$troubles->{unwanted_memcpy}},  $lineno if $file =~ /^src\/.*\.c$/ && $l =~ /\bmemcpy\s*\(/;
       push @{$troubles->{unwanted_memcmp}},  $lineno if $file =~ /^src\/.*\.c$/ && $l =~ /\bmemcmp\s*\(/;
+      push @{$troubles->{unwanted_memmove}}, $lineno if $file =~ /^src\/.*\.c$/ && $l =~ /\bmemmove\s*\(/;
       push @{$troubles->{unwanted_strcmp}},  $lineno if $file =~ /^src\/.*\.c$/ && $l =~ /\bstrcmp\s*\(/;
       push @{$troubles->{unwanted_clock}},   $lineno if $file =~ /^src\/.*\.c$/ && $l =~ /\bclock\s*\(/;
       push @{$troubles->{unwanted_qsort}},   $lineno if $file =~ /^src\/.*\.c$/ && $l =~ /\bqsort\s*\(/;

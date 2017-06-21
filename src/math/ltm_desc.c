@@ -257,6 +257,15 @@ static int sqr(void *a, void *b)
    return mpi_to_ltc_error(mp_sqr(a, b));
 }
 
+/* sqrtmod_prime */
+static int sqrtmod_prime(void *a, void *b, void *c)
+{
+   LTC_ARGCHK(a != NULL);
+   LTC_ARGCHK(b != NULL);
+   LTC_ARGCHK(c != NULL);
+   return mpi_to_ltc_error(mp_sqrtmod_prime(a, b, c));
+}
+
 /* div */
 static int divide(void *a, void *b, void *c, void *d)
 {
@@ -452,6 +461,7 @@ const ltc_math_descriptor ltm_desc = {
    &mul,
    &muli,
    &sqr,
+   &sqrtmod_prime,
    &divide,
    &div_2,
    &modi,

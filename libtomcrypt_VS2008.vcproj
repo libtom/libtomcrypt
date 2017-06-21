@@ -2131,11 +2131,39 @@
 					>
 				</File>
 				<File
+					RelativePath="src\pk\ecc\ecc_dp_alloc_bn.c"
+					>
+				</File>
+				<File
+					RelativePath="src\pk\ecc\ecc_dp_clear.c"
+					>
+				</File>
+				<File
+					RelativePath="src\pk\ecc\ecc_dp_find_by_name.c"
+					>
+				</File>
+				<File
+					RelativePath="src\pk\ecc\ecc_dp_find_by_oid.c"
+					>
+				</File>
+				<File
+					RelativePath="src\pk\ecc\ecc_dp_find_by_params.c"
+					>
+				</File>
+				<File
 					RelativePath="src\pk\ecc\ecc_encrypt_key.c"
 					>
 				</File>
 				<File
 					RelativePath="src\pk\ecc\ecc_export.c"
+					>
+				</File>
+				<File
+					RelativePath="src\pk\ecc\ecc_export_full.c"
+					>
+				</File>
+				<File
+					RelativePath="src\pk\ecc\ecc_export_raw.c"
 					>
 				</File>
 				<File
@@ -2148,6 +2176,18 @@
 				</File>
 				<File
 					RelativePath="src\pk\ecc\ecc_import.c"
+					>
+				</File>
+				<File
+					RelativePath="src\pk\ecc\ecc_import_full.c"
+					>
+				</File>
+				<File
+					RelativePath="src\pk\ecc\ecc_import_pkcs8.c"
+					>
+				</File>
+				<File
+					RelativePath="src\pk\ecc\ecc_import_raw.c"
 					>
 				</File>
 				<File
@@ -2172,6 +2212,26 @@
 				</File>
 				<File
 					RelativePath="src\pk\ecc\ecc_verify_hash.c"
+					>
+				</File>
+				<File
+					RelativePath="src\pk\ecc\ecc_verify_key.c"
+					>
+				</File>
+				<File
+					RelativePath="src\pk\ecc\ltc_ecc_export_point.c"
+					>
+				</File>
+				<File
+					RelativePath="src\pk\ecc\ltc_ecc_import_point.c"
+					>
+				</File>
+				<File
+					RelativePath="src\pk\ecc\ltc_ecc_is_point.c"
+					>
+				</File>
+				<File
+					RelativePath="src\pk\ecc\ltc_ecc_is_point_at_infinity.c"
 					>
 				</File>
 				<File
