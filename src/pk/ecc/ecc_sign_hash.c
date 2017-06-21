@@ -22,7 +22,7 @@ static int _ecc_sign_hash(const unsigned char *in,  unsigned long inlen,
 {
    ecc_key       pubkey;
    void          *r, *s, *e, *p;
-   int           err;
+   int           err, max_iterations = 20;
    unsigned long pbits, pbytes, i, shift_right;
    unsigned char ch, buf[MAXBLOCKSIZE];
 
@@ -71,7 +71,7 @@ static int _ecc_sign_hash(const unsigned char *in,  unsigned long inlen,
    }
 
    /* make up a key and export the public copy */
-   for (;;) {
+   do {
       if ((err = ecc_make_key_ex(prng, wprng, &pubkey, key->dp)) != CRYPT_OK) {
          goto errnokey;
       }
@@ -93,6 +93,10 @@ static int _ecc_sign_hash(const unsigned char *in,  unsigned long inlen,
             break;
          }
       }
+   } while (--max_iterations > 0);
+
+   if (max_iterations == 0) {
+     goto errnokey;
    }
 
    if (sigformat == 1) {
