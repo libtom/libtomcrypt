@@ -11,21 +11,17 @@
 
 #ifdef LTC_MECC
 
-int ecc_dp_init(ltc_ecc_set_type *dp)
+ltc_ecc_set_type* ecc_dp_find_by_oid(unsigned long *oid, unsigned long oidsize)
 {
-  if (dp == NULL) return CRYPT_INVALID_ARG;
+   int i;
 
-  dp->name  = NULL;
-  dp->prime = NULL;
-  dp->A     = NULL;
-  dp->B     = NULL;
-  dp->order = NULL;
-  dp->Gx    = NULL;
-  dp->Gy    = NULL;
-  dp->oid.OIDlen = 0;
-  dp->cofactor = 0;
-
-  return CRYPT_OK;
+   for (i = 0; ltc_ecc_sets[i].size != 0; i++) {
+      if ((oidsize == ltc_ecc_sets[i].oid.OIDlen) &&
+          (XMEM_NEQ(oid, ltc_ecc_sets[i].oid.OID, sizeof(unsigned long) * ltc_ecc_sets[i].oid.OIDlen) == 0)) {
+         return (ltc_ecc_set_type*)&ltc_ecc_sets[i];
+      }
+   }
+   return NULL;
 }
 
 #endif

@@ -28,7 +28,8 @@ int ecc_import_full(const unsigned char *in, unsigned long inlen, ecc_key *key, 
   err = der_decode_subject_public_key_info_ex(in, inlen, PKA_EC, bin_xy, &len_xy, LTC_ASN1_OBJECT_IDENTIFIER, curveoid, 16UL, &len_oid);
   if (err == CRYPT_OK) {
     /* load curve parameters for given curve OID */
-    if ((err = ecc_dp_set_by_oid(dp, curveoid, len_oid)) != CRYPT_OK) { goto error; }
+    dp = ecc_dp_find_by_oid(curveoid, len_oid);
+    if (dp == NULL)                                                  { goto error; }
     /* load public key */
     if ((err = ecc_import_raw(bin_xy, len_xy, key, dp)) != CRYPT_OK) { goto error; }
     goto success;
@@ -65,7 +66,7 @@ int ecc_import_full(const unsigned char *in, unsigned long inlen, ecc_key *key, 
     if ((err = mp_read_unsigned_bin(b, bin_b, len_b)) != CRYPT_OK)                   { goto error; }
     if ((err = ltc_ecc_import_point(bin_g, len_g, prime, a, b, gx, gy)) != CRYPT_OK) { goto error; }
     /* load curve parameters */
-    if ((err = ecc_dp_set_bn(dp, a, b, prime, order, gx, gy, cofactor)) != CRYPT_OK) { goto error; }
+    if ((err = ecc_dp_alloc_bn(dp, a, b, prime, order, gx, gy, cofactor)) != CRYPT_OK) { goto error; }
     /* load public key */
     if ((err = ecc_import_raw(bin_xy, len_xy, key, dp)) != CRYPT_OK)                 { goto error; }
     goto success;
@@ -85,7 +86,8 @@ int ecc_import_full(const unsigned char *in, unsigned long inlen, ecc_key *key, 
 
   if (err == CRYPT_OK) {
     /* load curve parameters for given curve OID */
-    if ((err = ecc_dp_set_by_oid(dp, curveoid, seq_priv[2].size)) != CRYPT_OK) { goto error; }
+    dp = ecc_dp_find_by_oid(curveoid, seq_priv[2].size);
+    if (dp == NULL)                                                           { goto error; }
     /* load private+public key */
     if ((err = ecc_import_raw(bin_k, seq_priv[1].size, key, dp)) != CRYPT_OK) { goto error; }
     goto success;
@@ -129,7 +131,7 @@ int ecc_import_full(const unsigned char *in, unsigned long inlen, ecc_key *key, 
     if ((err = mp_read_unsigned_bin(b, bin_b, len_b)) != CRYPT_OK)                   { goto error; }
     if ((err = ltc_ecc_import_point(bin_g, len_g, prime, a, b, gx, gy)) != CRYPT_OK) { goto error; }
     /* load curve parameters */
-    if ((err = ecc_dp_set_bn(dp, a, b, prime, order, gx, gy, cofactor)) != CRYPT_OK) { goto error; }
+    if ((err = ecc_dp_alloc_bn(dp, a, b, prime, order, gx, gy, cofactor)) != CRYPT_OK) { goto error; }
     /* load private+public key */
     if ((err = ecc_import_raw(bin_k, len_k, key, dp)) != CRYPT_OK)                   { goto error; }
     goto success;

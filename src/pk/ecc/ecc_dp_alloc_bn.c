@@ -11,7 +11,7 @@
 
 #ifdef LTC_MECC
 
-int ecc_dp_set_bn(ltc_ecc_set_type *dp, void *a, void *b, void *prime, void *order, void *gx, void *gy, unsigned long cofactor)
+int ecc_dp_alloc_bn(ltc_ecc_set_type *dp, void *a, void *b, void *prime, void *order, void *gx, void *gy, unsigned long cofactor)
 {
   unsigned char buf[ECC_BUF_SIZE];
   unsigned long len;
@@ -49,18 +49,14 @@ int ecc_dp_set_bn(ltc_ecc_set_type *dp, void *a, void *b, void *prime, void *ord
   /* cofactor & size */
   dp->cofactor = cofactor;
   dp->size = mp_unsigned_bin_size(prime);
-  /* see if we can fill in the missing parameters from known curves */
-  if ((ecc_dp_fill_from_sets(dp)) != CRYPT_OK) {
-    /* custom name */
-    if ((dp->name = XMALLOC(7)) == NULL)        goto cleanup7;
-    strcpy(dp->name, "custom");  /* XXX-TODO check this */
-    /* no oid */
-    dp->oid.OIDlen = 0;
-  }
+  /* custom name */
+  if ((dp->name = XMALLOC(7)) == NULL)          goto cleanup7;
+  strcpy(dp->name, "CUSTOM");
+  /* no oid */
+  dp->oid.OIDlen = 0;
   /* done - success */
   return CRYPT_OK;
 
-  /* XFREE(dp->name); **** warning: statement not reached *** */
 cleanup7:
   XFREE(dp->Gy);
 cleanup6:

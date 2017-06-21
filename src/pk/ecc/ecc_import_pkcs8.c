@@ -82,8 +82,8 @@ int ecc_import_pkcs8(const unsigned char *in,  unsigned long inlen,
    err=der_decode_sequence(decrypted, decryptedlen, top_seq, 3UL);
    if (err == CRYPT_OK) {
       /* load curve parameters for given curve OID */
-      err = ecc_dp_set_by_oid(dp, curveoid, alg_seq[1].size);
-      if (err != CRYPT_OK) { goto LBL_ERR; }
+      dp = ecc_dp_find_by_oid(curveoid, alg_seq[1].size);
+      if (dp == NULL) { goto LBL_ERR; }
    }
    else {
       /* try to decode unencrypted priv key - curve defined by params */
@@ -119,7 +119,7 @@ int ecc_import_pkcs8(const unsigned char *in,  unsigned long inlen,
       if ((err = mp_read_unsigned_bin(b, bin_b, len_b)) != CRYPT_OK)                   { goto LBL_ERR; }
       if ((err = ltc_ecc_import_point(bin_g, len_g, prime, a, b, gx, gy)) != CRYPT_OK) { goto LBL_ERR; }
       /* load curve parameters */
-      if ((err = ecc_dp_set_bn(dp, a, b, prime, order, gx, gy, cofactor)) != CRYPT_OK) { goto LBL_ERR; }
+      if ((err = ecc_dp_alloc_bn(dp, a, b, prime, order, gx, gy, cofactor)) != CRYPT_OK) { goto LBL_ERR; }
    }
 
    /* check alg oid */
