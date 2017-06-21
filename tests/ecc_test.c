@@ -230,6 +230,19 @@ int ecc_tests (void)
         fprintf(stderr, "ecc_verify_hash failed %d, %d, ", stat, stat2);
         return 1;
      }
+     /* test sign_hash_rfc7518 */
+     for (ch = 0; ch < 16; ch++) {
+        buf[0][ch] = ch;
+     }
+     x = sizeof (buf[1]);
+     DO(ecc_sign_hash_rfc7518(buf[0], 16, buf[1], &x, &yarrow_prng, find_prng ("yarrow"), &privKey));
+     DO(ecc_verify_hash_rfc7518(buf[1], x, buf[0], 16, &stat, &pubKey));
+     buf[0][0] ^= 1;
+     DO(ecc_verify_hash_rfc7518(buf[1], x, buf[0], 16, &stat2, &privKey));
+     if (!(stat == 1 && stat2 == 0)) {
+        fprintf(stderr, "ecc_verify_hash_rfc7518 failed %d, %d, ", stat, stat2);
+        return 1;
+     }
      ecc_free (&usera);
      ecc_free (&pubKey);
      ecc_free (&privKey);
