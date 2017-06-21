@@ -53,7 +53,7 @@ int ecc_import_ex(const unsigned char *in, unsigned long inlen, ecc_key *key, co
 
    /* find out what type of key it is */
    if ((err = der_decode_sequence_multi(in, inlen,
-                                  LTC_ASN1_BIT_STRING, 1UL, &flags,
+                                  LTC_ASN1_BIT_STRING, 1UL, flags,
                                   LTC_ASN1_EOL,        0UL, NULL)) != CRYPT_OK) {
       goto done;
    }
