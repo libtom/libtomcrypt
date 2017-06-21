@@ -309,7 +309,6 @@ int  ecc_get_size(ecc_key *key);
 ltc_ecc_set_type* ecc_dp_find_by_oid(unsigned long *oid, unsigned long oidsize);
 ltc_ecc_set_type* ecc_dp_find_by_name(char *curve_name);
 ltc_ecc_set_type* ecc_dp_find_by_params(char *hex_prime, char *hex_A, char *hex_B, char *hex_order, char *hex_Gx, char *hex_Gy, unsigned long cofactor);
-int  ecc_dp_alloc_bn(ltc_ecc_set_type *dp, void *a, void *b, void *prime, void *order, void *gx, void *gy, unsigned long cofactor);
 
 int  ecc_make_key(prng_state *prng, int wprng, int keysize, ecc_key *key);
 int  ecc_make_key_ex(prng_state *prng, int wprng, ecc_key *key, const ltc_ecc_set_type *dp);
@@ -357,6 +356,12 @@ int  ecc_verify_hash(const unsigned char *sig,  unsigned long siglen,
                      int *stat, ecc_key *key);
 
 int  ecc_verify_key(ecc_key *key);
+
+#ifdef LTC_SOURCE
+/* INTERNAL ONLY - it should be later moved to src/headers/tomcrypt_internal.h */
+
+int ecc_dp_alloc_bn(ltc_ecc_set_type *dp, void *a, void *b, void *prime, void *order, void *gx, void *gy, unsigned long cofactor);
+int ecc_dp_clear(ltc_ecc_set_type *dp);
 
 /* low level functions */
 ecc_point *ltc_ecc_new_point(void);
@@ -415,6 +420,8 @@ int ltc_ecc_fp_mul2add(ecc_point *A, void *kA,
 
 /* map P to affine from projective */
 int ltc_ecc_map(ecc_point *P, void *modulus, void *mp);
+
+#endif /* LTC_SOURCE */
 
 #endif
 

@@ -69,7 +69,7 @@ int ecc_export(unsigned char *out, unsigned long *outlen, int type, ecc_key *key
 }
 
 #endif
-
 /* ref:         $Format:%D$ */
 /* git commit:  $Format:%H$ */
 /* commit time: $Format:%ai$ */
+

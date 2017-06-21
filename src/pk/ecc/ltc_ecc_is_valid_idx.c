@@ -33,7 +33,7 @@ int ltc_ecc_is_valid_idx(int n)
 }
 
 #endif
-
 /* ref:         $Format:%D$ */
 /* git commit:  $Format:%H$ */
 /* commit time: $Format:%ai$ */
+

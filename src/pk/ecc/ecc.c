@@ -418,3 +418,4 @@ const ltc_ecc_set_type ltc_ecc_sets[] = {
 /* ref:         $Format:%D$ */
 /* git commit:  $Format:%H$ */
 /* commit time: $Format:%ai$ */
+

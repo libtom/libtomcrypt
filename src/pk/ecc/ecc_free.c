@@ -24,10 +24,14 @@ void ecc_free(ecc_key *key)
 {
    LTC_ARGCHKVD(key != NULL);
    mp_clear_multi(key->pubkey.x, key->pubkey.y, key->pubkey.z, key->k, NULL);
+   if (key->dp->name && XSTRCMP(key->dp->name, "CUSTOM") == 0) {
+      /* we need to deallocate custom parameters */
+      ecc_dp_clear((ltc_ecc_set_type *)(key->dp));
+   }
 }
 
 #endif
-
 /* ref:         $Format:%D$ */
 /* git commit:  $Format:%H$ */
 /* commit time: $Format:%ai$ */
+
