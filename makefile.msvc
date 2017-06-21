@@ -15,6 +15,7 @@
 #
 
 #The following can be overridden from command line e.g. make -f makefile.msvc CC=gcc ARFLAGS=rcs
+DESTDIR   =
 PREFIX    = c:\devel
 CFLAGS    = /Ox /DUSE_LTM /DLTM_DESC /I../libtommath
 EXTRALIBS = ../libtommath/tommath.lib
@@ -250,18 +251,18 @@ clean:
 
 #Install the library + headers
 install: $(LIBMAIN_S)
-	cmd /c if not exist "$(PREFIX)\bin" mkdir "$(PREFIX)\bin"
-	cmd /c if not exist "$(PREFIX)\lib" mkdir "$(PREFIX)\lib"
-	cmd /c if not exist "$(PREFIX)\include" mkdir "$(PREFIX)\include"
-	copy /Y $(LIBMAIN_S) "$(PREFIX)\lib"
-	copy /Y src\headers\tomcrypt*.h "$(PREFIX)\include"
+	cmd /c if not exist "$(DESTDIR)$(PREFIX)\bin" mkdir "$(DESTDIR)$(PREFIX)\bin"
+	cmd /c if not exist "$(DESTDIR)$(PREFIX)\lib" mkdir "$(DESTDIR)$(PREFIX)\lib"
+	cmd /c if not exist "$(DESTDIR)$(PREFIX)\include" mkdir "$(DESTDIR)$(PREFIX)\include"
+	copy /Y $(LIBMAIN_S) "$(DESTDIR)$(PREFIX)\lib"
+	copy /Y src\headers\tomcrypt*.h "$(DESTDIR)$(PREFIX)\include"
 
 #Install useful tools
 install_bins: hashsum
-	cmd /c if not exist "$(PREFIX)\bin" mkdir "$(PREFIX)\bin"
-	copy /Y hashsum.exe "$(PREFIX)\bin"
+	cmd /c if not exist "$(DESTDIR)$(PREFIX)\bin" mkdir "$(DESTDIR)$(PREFIX)\bin"
+	copy /Y hashsum.exe "$(DESTDIR)$(PREFIX)\bin"
 
 #Install documentation
 install_docs: doc/crypt.pdf
-	cmd /c if not exist "$(PREFIX)\doc" mkdir "$(PREFIX)\doc"
-	copy /Y doc\crypt.pdf "$(PREFIX)\doc"
+	cmd /c if not exist "$(DESTDIR)$(PREFIX)\doc" mkdir "$(DESTDIR)$(PREFIX)\doc"
+	copy /Y doc\crypt.pdf "$(DESTDIR)$(PREFIX)\doc"
