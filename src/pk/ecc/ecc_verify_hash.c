@@ -126,6 +126,9 @@ static int _ecc_verify_hash(const unsigned char *sig,  unsigned long siglen,
       if ((err = ltc_mp.ecc_ptmul(u1, mG, mG, m, 0)) != CRYPT_OK)                                       { goto error; }
       if ((err = ltc_mp.ecc_ptmul(u2, mQ, mQ, m, 0)) != CRYPT_OK)                                       { goto error; }
 
+      /* find the montgomery mp */
+      if ((err = mp_montgomery_setup(m, &mp)) != CRYPT_OK)                                              { goto error; }
+
       /* add them */
       if ((err = ltc_mp.ecc_ptadd(mQ, mG, mG, m, mp)) != CRYPT_OK)                                      { goto error; }
 
