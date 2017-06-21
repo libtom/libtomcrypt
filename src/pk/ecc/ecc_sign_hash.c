@@ -22,7 +22,7 @@ static int _ecc_sign_hash(const unsigned char *in,  unsigned long inlen,
 {
    ecc_key       pubkey;
    void          *r, *s, *e, *p;
-   int           err, max_iterations = 20;
+   int           err, max_iterations = PK_MAX_RETRIES;
    unsigned long pbits, pbytes, i, shift_right;
    unsigned char ch, buf[MAXBLOCKSIZE];
 
