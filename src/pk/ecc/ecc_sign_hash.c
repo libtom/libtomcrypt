@@ -96,7 +96,7 @@ static int _ecc_sign_hash(const unsigned char *in,  unsigned long inlen,
    } while (--max_iterations > 0);
 
    if (max_iterations == 0) {
-     goto errnokey;
+      goto errnokey;
    }
 
    if (sigformat == 1) {
