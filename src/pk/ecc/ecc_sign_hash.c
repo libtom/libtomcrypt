@@ -16,9 +16,9 @@
   ECC Crypto, Tom St Denis
 */
 
-static int ecc_sign_hash_ex(const unsigned char *in,  unsigned long inlen,
-                                  unsigned char *out, unsigned long *outlen,
-                                  prng_state *prng, int wprng, ecc_key *key, int sigformat)
+static int _ecc_sign_hash(const unsigned char *in,  unsigned long inlen,
+                                unsigned char *out, unsigned long *outlen,
+                                prng_state *prng, int wprng, ecc_key *key, int sigformat)
 {
    ecc_key       pubkey;
    void          *r, *s, *e, *p;
@@ -136,7 +136,7 @@ int ecc_sign_hash(const unsigned char *in,  unsigned long inlen,
                         unsigned char *out, unsigned long *outlen,
                         prng_state *prng, int wprng, ecc_key *key)
 {
-   return ecc_sign_hash_ex(in, inlen, out, outlen, prng, wprng, key, 0);
+   return _ecc_sign_hash(in, inlen, out, outlen, prng, wprng, key, 0);
 }
 
 /**
@@ -154,7 +154,7 @@ int ecc_sign_hash_rfc7518(const unsigned char *in,  unsigned long inlen,
                                 unsigned char *out, unsigned long *outlen,
                                 prng_state *prng, int wprng, ecc_key *key)
 {
-   return ecc_sign_hash_ex(in, inlen, out, outlen, prng, wprng, key, 1);
+   return _ecc_sign_hash(in, inlen, out, outlen, prng, wprng, key, 1);
 }
 
 #endif

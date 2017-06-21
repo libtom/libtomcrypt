@@ -16,9 +16,9 @@
   ECC Crypto, Tom St Denis
 */
 
-static int ecc_verify_hash_ex(const unsigned char *sig,  unsigned long siglen,
-                              const unsigned char *hash, unsigned long hashlen,
-                              int *stat, ecc_key *key, int sigformat)
+static int _ecc_verify_hash(const unsigned char *sig,  unsigned long siglen,
+                            const unsigned char *hash, unsigned long hashlen,
+                            int *stat, ecc_key *key, int sigformat)
 {
    ecc_point    *mG, *mQ;
    void          *r, *s, *v, *w, *u1, *u2, *e, *p, *m;
@@ -170,7 +170,7 @@ int ecc_verify_hash(const unsigned char *sig,  unsigned long siglen,
                     const unsigned char *hash, unsigned long hashlen,
                     int *stat, ecc_key *key)
 {
-   return ecc_verify_hash_ex(sig, siglen, hash, hashlen, stat, key, 0);
+   return _ecc_verify_hash(sig, siglen, hash, hashlen, stat, key, 0);
 }
 
 /**
@@ -187,7 +187,7 @@ int ecc_verify_hash_rfc7518(const unsigned char *sig,  unsigned long siglen,
                             const unsigned char *hash, unsigned long hashlen,
                             int *stat, ecc_key *key)
 {
-   return ecc_verify_hash_ex(sig, siglen, hash, hashlen, stat, key, 1);
+   return _ecc_verify_hash(sig, siglen, hash, hashlen, stat, key, 1);
 }
 
 #endif
