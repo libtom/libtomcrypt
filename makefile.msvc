@@ -153,7 +153,8 @@ src/pk/asn1/der/teletex_string/der_length_teletex_string.obj \
 src/pk/asn1/der/utctime/der_decode_utctime.obj src/pk/asn1/der/utctime/der_encode_utctime.obj \
 src/pk/asn1/der/utctime/der_length_utctime.obj src/pk/asn1/der/utf8/der_decode_utf8_string.obj \
 src/pk/asn1/der/utf8/der_encode_utf8_string.obj src/pk/asn1/der/utf8/der_length_utf8_string.obj \
-src/pk/dh/dh.obj src/pk/dh/dh_static.obj src/pk/dh/dh_sys.obj src/pk/dsa/dsa_decrypt_key.obj \
+src/pk/dh/dh.obj src/pk/dh/dh_check_pubkey.obj src/pk/dh/dh_export.obj src/pk/dh/dh_free.obj \
+src/pk/dh/dh_import.obj src/pk/dh/dh_make_key.obj src/pk/dh/dh_shared_secret.obj src/pk/dsa/dsa_decrypt_key.obj \
 src/pk/dsa/dsa_encrypt_key.obj src/pk/dsa/dsa_export.obj src/pk/dsa/dsa_free.obj src/pk/dsa/dsa_import.obj \
 src/pk/dsa/dsa_import_radix.obj src/pk/dsa/dsa_make_key.obj src/pk/dsa/dsa_shared_secret.obj \
 src/pk/dsa/dsa_sign_hash.obj src/pk/dsa/dsa_verify_hash.obj src/pk/dsa/dsa_verify_key.obj src/pk/ecc/ecc.obj \

@@ -366,7 +366,7 @@ my $failure;
 $failure ||= check_source()       if $check_all || $check_source;
 $failure ||= check_defines()      if $check_all || $check_defines;
 $failure ||= check_descriptors()  if $check_all || $check_descriptors;
-$failure ||= check_comments()     if $check_comments; #XXX-FIXME not included in "--check-all"
+$failure ||= check_comments()     if $check_all || $check_comments;
 $failure ||= process_makefiles(0) if $check_all || $check_makefiles;
 $failure ||= process_makefiles(1) if $update_makefiles;
 
