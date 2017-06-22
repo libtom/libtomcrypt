@@ -30,6 +30,9 @@
 #ifndef XMEMCPY
 #define XMEMCPY  memcpy
 #endif
+#ifndef XMEMMOVE
+#define XMEMMOVE memmove
+#endif
 #ifndef XMEMCMP
 #define XMEMCMP  memcmp
 #endif
