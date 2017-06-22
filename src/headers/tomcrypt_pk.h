@@ -205,24 +205,11 @@ typedef struct {
 int dh_get_groupsize(dh_key *key);
 
 int dh_make_key(prng_state *prng, int wprng, int groupsize, dh_key *key);
-int dh_make_key_ex(prng_state *prng, int wprng, int radix,
-                   void *prime, unsigned long primelen,
-                   void *base,  unsigned long baselen,
-                   dh_key *key);
 int dh_make_key_dhparam(prng_state *prng, int wprng, unsigned char *dhparam, unsigned long dhparamlen, dh_key *key);
 void dh_free(dh_key *key);
 
 int dh_export(unsigned char *out, unsigned long *outlen, int type, dh_key *key);
 int dh_import(const unsigned char *in, unsigned long inlen, dh_key *key);
-
-int dh_export_radix(int radix,
-                    void *out, unsigned long *outlen,
-                    int type, dh_key *key);
-int dh_import_radix(int radix,
-                    void *in,    unsigned long inlen,
-                    void *prime, unsigned long primelen,
-                    void *base,  unsigned long baselen,
-                    int type, dh_key *key);
 
 int dh_shared_secret(dh_key        *private_key, dh_key        *public_key,
                      unsigned char *out,         unsigned long *outlen);
