@@ -10,6 +10,7 @@
 
 #ifdef LTC_XTS_MODE
 
+#ifndef LTC_NO_TEST
 static int _xts_test_accel_xts_encrypt(const unsigned char *pt, unsigned char *ct, unsigned long blocks,
                                        unsigned char *tweak, symmetric_key *skey1, symmetric_key *skey2)
 {
@@ -63,6 +64,7 @@ static int _xts_test_accel_xts_decrypt(const unsigned char *ct, unsigned char *p
 
    return ret;
 }
+#endif
 
 /**
   Source donated by Elliptic Semiconductor Inc (www.ellipticsemi.com) to the LibTom Projects
