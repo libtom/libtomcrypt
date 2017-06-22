@@ -47,8 +47,8 @@ $(LIBNAME): $(OBJECTS)
 
 install: .common_install
 	sed -e 's,^prefix=.*,prefix=$(PREFIX),' -e 's,^Version:.*,Version: $(VERSION),' libtomcrypt.pc.in > libtomcrypt.pc
-	install -d $(LIBPATH)/pkgconfig
-	install -m 644 libtomcrypt.pc $(LIBPATH)/pkgconfig/
+	install -d $(DESTDIR)/$(LIBPATH)/pkgconfig
+	install -m 644 libtomcrypt.pc $(DESTDIR)/$(LIBPATH)/pkgconfig/
 
 install_bins: .common_install_bins
 
