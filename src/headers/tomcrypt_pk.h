@@ -183,44 +183,56 @@ int katja_import(const unsigned char *in, unsigned long inlen, katja_key *key);
 /* ---- DH Routines ---- */
 #ifdef LTC_MDH
 
-typedef struct Dh_key {
-    int idx, type;
+#ifndef DH_BUF_SIZE
+#define DH_BUF_SIZE 2100
+#endif
+
+typedef struct {
+  int size;
+  char *name, *base, *prime;
+} ltc_dh_set_type;
+
+extern const ltc_dh_set_type ltc_dh_sets[];
+
+typedef struct {
+    int type;
     void *x;
     void *y;
+    void *base;
+    void *prime;
 } dh_key;
 
-int dh_compat_test(void);
-void dh_sizes(int *low, int *high);
-int dh_get_size(dh_key *key);
+int dh_get_groupsize(dh_key *key);
 
-int dh_make_key(prng_state *prng, int wprng, int keysize, dh_key *key);
+int dh_make_key(prng_state *prng, int wprng, int groupsize, dh_key *key);
+int dh_make_key_ex(prng_state *prng, int wprng, int radix,
+                   void *prime, unsigned long primelen,
+                   void *base,  unsigned long baselen,
+                   dh_key *key);
+int dh_make_key_dhparam(prng_state *prng, int wprng, unsigned char *dhparam, unsigned long dhparamlen, dh_key *key);
 void dh_free(dh_key *key);
 
 int dh_export(unsigned char *out, unsigned long *outlen, int type, dh_key *key);
 int dh_import(const unsigned char *in, unsigned long inlen, dh_key *key);
 
+int dh_export_radix(int radix,
+                    void *out, unsigned long *outlen,
+                    int type, dh_key *key);
+int dh_import_radix(int radix,
+                    void *in,    unsigned long inlen,
+                    void *prime, unsigned long primelen,
+                    void *base,  unsigned long baselen,
+                    int type, dh_key *key);
+
 int dh_shared_secret(dh_key        *private_key, dh_key        *public_key,
                      unsigned char *out,         unsigned long *outlen);
 
-int dh_encrypt_key(const unsigned char *in,    unsigned long  keylen,
-                         unsigned char *out,   unsigned long *outlen,
-                         prng_state    *prng,  int wprng, int hash,
-                         dh_key        *key);
-
-int dh_decrypt_key(const unsigned char *in,  unsigned long  inlen,
-                         unsigned char *out, unsigned long *outlen,
-                         dh_key *key);
-
-int dh_sign_hash(const unsigned char *in,   unsigned long inlen,
-                       unsigned char *out,  unsigned long *outlen,
-                       prng_state    *prng, int wprng, dh_key *key);
-
-int dh_verify_hash(const unsigned char *sig,  unsigned long siglen,
-                   const unsigned char *hash, unsigned long hashlen,
-                   int *stat, dh_key *key);
-
-
+#ifdef LTC_SOURCE
+/* INTERNAL ONLY - it should be later moved to src/headers/tomcrypt_internal.h */
+int dh_check_pubkey(dh_key *key);
 #endif
+
+#endif /* LTC_MDH */
 
 
 /* ---- ECC Routines ---- */
