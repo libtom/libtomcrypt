@@ -75,11 +75,23 @@ static int dsa_make_params(prng_state *prng, int wprng, int group_size, int modu
   L = modulus_size * 8;
   N = group_size * 8;
 
+  /* XXX-TODO no Lucas test */
+#ifdef LTC_MPI_HAS_LUCAS_TEST
   /* M-R tests (when followed by one Lucas test) according FIPS-186-4 - Appendix C.3 - table C.1 */
   mr_tests_p = (L <= 2048) ? 3 : 2;
   if      (N <= 160)  { mr_tests_q = 19; }
   else if (N <= 224)  { mr_tests_q = 24; }
   else                { mr_tests_q = 27; }
+#else
+  /* M-R tests (without Lucas test) according FIPS-186-4 - Appendix C.3 - table C.1 */
+  if      (L <= 1024) { mr_tests_p = 40; }
+  else if (L <= 2048) { mr_tests_p = 56; }
+  else                { mr_tests_p = 64; }
+
+  if      (N <= 160)  { mr_tests_q = 40; }
+  else if (N <= 224)  { mr_tests_q = 56; }
+  else                { mr_tests_q = 64; }
+#endif
 
   if (N <= 256) {
     hash = register_hash(&sha256_desc);
@@ -122,7 +134,7 @@ static int dsa_make_params(prng_state *prng, int wprng, int group_size, int modu
       if ((err = mp_mod(U, t2N1, U)) != CRYPT_OK)                                { goto cleanup; }
       if ((err = mp_add(t2N1, U, q)) != CRYPT_OK)                                { goto cleanup; }
       if (!mp_isodd(q)) mp_add_d(q, 1, q);
-      if ((err = mp_prime_is_prime(q, mr_tests_q, &res)) != CRYPT_OK)            { goto cleanup; }       /* XXX-TODO rounds are ignored; no Lucas test */
+      if ((err = mp_prime_is_prime(q, mr_tests_q, &res)) != CRYPT_OK)            { goto cleanup; }
       if (res == LTC_MP_YES) found_q = 1;
     }
 
@@ -149,7 +161,7 @@ static int dsa_make_params(prng_state *prng, int wprng, int group_size, int modu
       if ((err = mp_sub(X, p, p))    != CRYPT_OK)                                { goto cleanup; }
       if (mp_cmp(p, t2L1) != LTC_MP_LT) {
         /* p >= 2^(L-1) */
-        if ((err = mp_prime_is_prime(p, mr_tests_p, &res)) != CRYPT_OK)          { goto cleanup; }       /* XXX-TODO rounds are ignored; no Lucas test */
+        if ((err = mp_prime_is_prime(p, mr_tests_p, &res)) != CRYPT_OK)          { goto cleanup; }
         if (res == LTC_MP_YES) {
           found_p = 1;
         }

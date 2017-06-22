@@ -404,7 +404,7 @@ static int isprime(void *a, int b, int *c)
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(c != NULL);
    if (b == 0) {
-       b = 8;
+       b = LTC_MILLER_RABIN_REPS;
    } /* if */
    err = mpi_to_ltc_error(mp_prime_is_prime(a, b, c));
    *c = (*c == MP_YES) ? LTC_MP_YES : LTC_MP_NO;
