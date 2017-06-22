@@ -183,10 +183,6 @@ int katja_import(const unsigned char *in, unsigned long inlen, katja_key *key);
 /* ---- DH Routines ---- */
 #ifdef LTC_MDH
 
-#ifndef DH_BUF_SIZE
-#define DH_BUF_SIZE 2100
-#endif
-
 typedef struct {
   int size;
   char *name, *base, *prime;
