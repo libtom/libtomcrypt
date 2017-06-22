@@ -107,6 +107,43 @@ freemp:
 }
 
 /**
+  Make a DH key (custom DH group) [private key pair]
+  @param prng       An active PRNG state
+  @param wprng      The index for the PRNG you desire to use
+  @param prime_hex  The prime p (hexadecimal string)
+  @param base_hex   The base g (hexadecimal string)
+  @param key        [out] Where the newly created DH key will be stored
+  @return CRYPT_OK if successful, note: on error all allocated memory will be freed automatically.
+*/
+int dh_make_key_ex(prng_state *prng, int wprng, int radix,
+                   void *prime, unsigned long primelen,
+                   void *base,  unsigned long baselen,
+                   dh_key *key)
+{
+   void *p, *b;
+   int err;
+
+   LTC_ARGCHK(prime != NULL);
+   LTC_ARGCHK(base  != NULL);
+   LTC_ARGCHK((radix >= 2 && radix <= 64) || radix == 256);
+
+   if ((err = mp_init_multi(&p, &b, NULL)) != CRYPT_OK)    { return err; }
+   if (radix == 256) {
+     if ((err = mp_read_unsigned_bin(b, base, baselen)) != CRYPT_OK)   { goto error; }
+     if ((err = mp_read_unsigned_bin(p, prime, primelen)) != CRYPT_OK) { goto error; }
+   }
+   else {
+     if ((err = mp_read_radix(b, base, radix)) != CRYPT_OK)  { goto error; }
+     if ((err = mp_read_radix(p, prime, radix)) != CRYPT_OK) { goto error; }
+   }
+   err = _dh_make_key(prng, wprng, p, b, key);
+
+error:
+   mp_clear_multi(p, b, NULL);
+   return err;
+}
+
+/**
   Make a DH key (use built-in DH groups) [private key pair]
   @param prng       An active PRNG state
   @param wprng      The index for the PRNG you desire to use
@@ -116,22 +153,17 @@ freemp:
 */
 int dh_make_key(prng_state *prng, int wprng, int groupsize, dh_key *key)
 {
-   void *p, *b;
-   int i, err;
+   int i;
 
    LTC_ARGCHK(groupsize > 0);
 
    for (i = 0; (groupsize > ltc_dh_sets[i].size) && (ltc_dh_sets[i].size != 0); i++);
    if (ltc_dh_sets[i].size == 0) return CRYPT_INVALID_KEYSIZE;
 
-   if ((err = mp_init_multi(&p, &b, NULL)) != CRYPT_OK)                { return err; }
-   if ((err = mp_read_radix(b, ltc_dh_sets[i].base, 16)) != CRYPT_OK)  { goto error; }
-   if ((err = mp_read_radix(p, ltc_dh_sets[i].prime, 16)) != CRYPT_OK) { goto error; }
-   err = _dh_make_key(prng, wprng, p, b, key);
-
-error:
-   mp_clear_multi(p, b, NULL);
-   return err;
+   return dh_make_key_ex(prng, wprng, 16,
+                         ltc_dh_sets[i].prime, strlen(ltc_dh_sets[i].prime) + 1,
+                         ltc_dh_sets[i].base,  strlen(ltc_dh_sets[i].base)  + 1,
+                         key);
 }
 
 /**
