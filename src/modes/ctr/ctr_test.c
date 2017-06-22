@@ -65,7 +65,7 @@ int ctr_test(void)
         return err;
      }
      ctr_done(&ctr);
-     if (XMEMCMP(buf, tests[x].ct, tests[x].msglen)) {
+     if (compare_testvector(buf, tests[x].msglen, tests[x].ct, tests[x].msglen, "CTR", x)) {
         return CRYPT_FAIL_TESTVECTOR;
      }
   }

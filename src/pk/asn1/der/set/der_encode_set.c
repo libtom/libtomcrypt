@@ -16,7 +16,7 @@
 #ifdef LTC_DER
 
 /* LTC define to ASN.1 TAG */
-static int ltc_to_asn1(ltc_asn1_type v)
+static int _ltc_to_asn1(ltc_asn1_type v)
 {
    switch (v) {
       case LTC_ASN1_BOOLEAN:                 return 0x01;
@@ -45,12 +45,12 @@ static int ltc_to_asn1(ltc_asn1_type v)
 }
 
 
-static int qsort_helper(const void *a, const void *b)
+static int _qsort_helper(const void *a, const void *b)
 {
    ltc_asn1_list *A = (ltc_asn1_list *)a, *B = (ltc_asn1_list *)b;
    int            r;
 
-   r = ltc_to_asn1(A->type) - ltc_to_asn1(B->type);
+   r = _ltc_to_asn1(A->type) - _ltc_to_asn1(B->type);
 
    /* for QSORT the order is UNDEFINED if they are "equal" which means it is NOT DETERMINISTIC.  So we force it to be :-) */
    if (r == 0) {
@@ -89,7 +89,7 @@ int der_encode_set(ltc_asn1_list *list, unsigned long inlen,
    }
 
    /* sort it by the "type" field */
-   XQSORT(copy, inlen, sizeof(*copy), &qsort_helper);
+   XQSORT(copy, inlen, sizeof(*copy), &_qsort_helper);
 
    /* call der_encode_sequence_ex() */
    err = der_encode_sequence_ex(copy, inlen, out, outlen, LTC_ASN1_SET);

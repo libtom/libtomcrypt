@@ -59,7 +59,7 @@ int f8_test_mode(void)
    f8_done(&f8);
 
    /* compare */
-   if (XMEMCMP(buf, ct, sizeof(ct))) {
+   if (compare_testvector(buf, sizeof(ct), ct, sizeof(ct), "f8", 0)) {
       return CRYPT_FAIL_TESTVECTOR;
    }
 

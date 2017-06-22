@@ -30,9 +30,15 @@
 #ifndef XMEMCPY
 #define XMEMCPY  memcpy
 #endif
+#ifndef XMEMMOVE
+#define XMEMMOVE memmove
+#endif
 #ifndef XMEMCMP
 #define XMEMCMP  memcmp
 #endif
+/* A memory compare function that has to run in constant time,
+ * c.f. mem_neq() API summary.
+ */
 #ifndef XMEM_NEQ
 #define XMEM_NEQ  mem_neq
 #endif

@@ -132,10 +132,10 @@ TIMINGS=demos/timing.o
 #BINPATH  The directory to install the binaries provided.
 DESTDIR  ?=
 PREFIX   ?= /usr/local
-LIBPATH  ?= $(DESTDIR)$(PREFIX)/lib
-INCPATH  ?= $(DESTDIR)$(PREFIX)/include
-DATAPATH ?= $(DESTDIR)$(PREFIX)/share/doc/libtomcrypt/pdf
-BINPATH  ?= $(DESTDIR)$(PREFIX)/bin
+LIBPATH  ?= $(PREFIX)/lib
+INCPATH  ?= $(PREFIX)/include
+DATAPATH ?= $(PREFIX)/share/doc/libtomcrypt/pdf
+BINPATH  ?= $(PREFIX)/bin
 
 #Who do we install as?
 ifdef INSTALL_USER
@@ -362,18 +362,18 @@ install_all: install install_bins install_docs install_test
 INSTALL_OPTS ?= -m 644
 
 .common_install: $(LIBNAME)
-	install -d $(INCPATH)
-	install -d $(LIBPATH)
-	$(INSTALL_CMD) $(INSTALL_OPTS) $(LIBNAME) $(LIBPATH)/$(LIBNAME)
-	install -m 644 $(HEADERS) $(INCPATH)
+	install -d $(DESTDIR)/$(INCPATH)
+	install -d $(DESTDIR)/$(LIBPATH)
+	$(INSTALL_CMD) $(INSTALL_OPTS) $(LIBNAME) $(DESTDIR)/$(LIBPATH)/$(LIBNAME)
+	install -m 644 $(HEADERS) $(DESTDIR)/$(INCPATH)
 
 .common_install_bins: $(USEFUL_DEMOS)
 	install -d $(BINPATH)
-	$(INSTALL_CMD) -m 775 $(USEFUL_DEMOS) $(BINPATH)
+	$(INSTALL_CMD) -m 775 $(USEFUL_DEMOS) $(DESTDIR)/$(BINPATH)
 
 install_docs: doc/crypt.pdf
 	install -d $(DATAPATH)
-	install -m 644 doc/crypt.pdf $(DATAPATH)
+	install -m 644 doc/crypt.pdf $(DESTDIR)/$(DATAPATH)
 
 install_hooks:
 	for s in `ls hooks/`; do ln -s ../../hooks/$$s .git/hooks/$$s; done

@@ -15,7 +15,7 @@
 
 #ifdef LTC_DER
 
-static unsigned long fetch_length(const unsigned char *in, unsigned long inlen, unsigned long *data_offset)
+static unsigned long _fetch_length(const unsigned char *in, unsigned long inlen, unsigned long *data_offset)
 {
    unsigned long x, z;
 
@@ -51,7 +51,7 @@ static unsigned long fetch_length(const unsigned char *in, unsigned long inlen, 
    return z+*data_offset;
 }
 
-static int new_element(ltc_asn1_list **l)
+static int _new_element(ltc_asn1_list **l)
 {
    /* alloc new link */
    if (*l == NULL) {
@@ -92,7 +92,7 @@ int der_decode_sequence_flexi(const unsigned char *in, unsigned long *inlen, ltc
 
    if (*inlen == 0) {
       /* alloc new link */
-      if ((err = new_element(&l)) != CRYPT_OK) {
+      if ((err = _new_element(&l)) != CRYPT_OK) {
          goto error;
       }
    }
@@ -103,14 +103,14 @@ int der_decode_sequence_flexi(const unsigned char *in, unsigned long *inlen, ltc
       type = *in;
 
       /* fetch length */
-      len = fetch_length(in, *inlen, &data_offset);
+      len = _fetch_length(in, *inlen, &data_offset);
       if (len > *inlen) {
          err = CRYPT_INVALID_PACKET;
          goto error;
       }
 
       /* alloc new link */
-      if ((err = new_element(&l)) != CRYPT_OK) {
+      if ((err = _new_element(&l)) != CRYPT_OK) {
          goto error;
       }
 

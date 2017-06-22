@@ -808,13 +808,14 @@ int khazad_test(void)
        khazad_setup(tests[x].key, 16, 0, &skey);
        khazad_ecb_encrypt(tests[x].pt, buf[0], &skey);
        khazad_ecb_decrypt(buf[0], buf[1], &skey);
-       if (XMEMCMP(buf[0], tests[x].ct, 8) || XMEMCMP(buf[1], tests[x].pt, 8)) {
+       if (compare_testvector(buf[0], 8, tests[x].ct, 8, "Khazad Encrypt", x) ||
+             compare_testvector(buf[1], 8, tests[x].pt, 8, "Khazad Decrypt", x)) {
           return CRYPT_FAIL_TESTVECTOR;
        }
 
        for (y = 0; y < 1000; y++) khazad_ecb_encrypt(buf[0], buf[0], &skey);
        for (y = 0; y < 1000; y++) khazad_ecb_decrypt(buf[0], buf[0], &skey);
-       if (XMEMCMP(buf[0], tests[x].ct, 8)) {
+       if (compare_testvector(buf[0], 8, tests[x].ct, 8, "Khazad 1000", 1000)) {
           return CRYPT_FAIL_TESTVECTOR;
        }
 

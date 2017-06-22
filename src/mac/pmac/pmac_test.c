@@ -136,16 +136,7 @@ int pmac_test(void)
            return err;
         }
 
-        if (XMEMCMP(outtag, tests[x].tag, len)) {
-#if 0
-           unsigned long y;
-           printf("\nTAG:\n");
-           for (y = 0; y < len; ) {
-               printf("0x%02x", outtag[y]);
-               if (y < len-1) printf(", ");
-               if (!(++y % 8)) printf("\n");
-           }
-#endif
+        if (compare_testvector(outtag, len, tests[x].tag, sizeof(tests[x].tag), "PMAC", x)) {
            return CRYPT_FAIL_TESTVECTOR;
         }
     }

@@ -49,7 +49,7 @@ const struct ltc_prng_descriptor fortuna_desc = {
 };
 
 /* update the IV */
-static void fortuna_update_iv(prng_state *prng)
+static void _fortuna_update_iv(prng_state *prng)
 {
    int            x;
    unsigned char *IV;
@@ -62,7 +62,7 @@ static void fortuna_update_iv(prng_state *prng)
 }
 
 /* reseed the PRNG */
-static int fortuna_reseed(prng_state *prng)
+static int _fortuna_reseed(prng_state *prng)
 {
    unsigned char tmp[MAXBLOCKSIZE];
    hash_state    md;
@@ -106,7 +106,7 @@ static int fortuna_reseed(prng_state *prng)
    if ((err = rijndael_setup(prng->fortuna.K, 32, 0, &prng->fortuna.skey)) != CRYPT_OK) {
       return err;
    }
-   fortuna_update_iv(prng);
+   _fortuna_update_iv(prng);
 
    /* reset pool len */
    prng->fortuna.pool0_len = 0;
@@ -217,7 +217,7 @@ int fortuna_ready(prng_state *prng)
    LTC_ARGCHK(prng != NULL);
 
    LTC_MUTEX_LOCK(&prng->lock);
-   err = fortuna_reseed(prng);
+   err = _fortuna_reseed(prng);
    prng->ready = (err == CRYPT_OK) ? 1 : 0;
 
    LTC_MUTEX_UNLOCK(&prng->lock);
@@ -246,7 +246,7 @@ unsigned long fortuna_read(unsigned char *out, unsigned long outlen, prng_state 
 
    /* do we have to reseed? */
    if (++prng->fortuna.wd == LTC_FORTUNA_WD || prng->fortuna.pool0_len >= 64) {
-      if (fortuna_reseed(prng) != CRYPT_OK) {
+      if (_fortuna_reseed(prng) != CRYPT_OK) {
          goto LBL_UNLOCK;
       }
    }
@@ -260,22 +260,22 @@ unsigned long fortuna_read(unsigned char *out, unsigned long outlen, prng_state 
       rijndael_ecb_encrypt(prng->fortuna.IV, out, &prng->fortuna.skey);
       out += 16;
       outlen -= 16;
-      fortuna_update_iv(prng);
+      _fortuna_update_iv(prng);
    }
 
    /* left over bytes? */
    if (outlen > 0) {
       rijndael_ecb_encrypt(prng->fortuna.IV, tmp, &prng->fortuna.skey);
       XMEMCPY(out, tmp, outlen);
-      fortuna_update_iv(prng);
+      _fortuna_update_iv(prng);
    }
 
    /* generate new key */
    rijndael_ecb_encrypt(prng->fortuna.IV, prng->fortuna.K   , &prng->fortuna.skey);
-   fortuna_update_iv(prng);
+   _fortuna_update_iv(prng);
 
    rijndael_ecb_encrypt(prng->fortuna.IV, prng->fortuna.K+16, &prng->fortuna.skey);
-   fortuna_update_iv(prng);
+   _fortuna_update_iv(prng);
 
    if (rijndael_setup(prng->fortuna.K, 32, 0, &prng->fortuna.skey) != CRYPT_OK) {
       tlen = 0;

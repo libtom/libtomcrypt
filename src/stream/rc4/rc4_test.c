@@ -25,7 +25,7 @@ int rc4_stream_test(void)
 
    if ((err = rc4_stream_setup(&st, key, sizeof(key))) != CRYPT_OK)    return err;
    if ((err = rc4_stream_crypt(&st, pt, sizeof(pt), buf)) != CRYPT_OK) return err;
-   if (XMEMCMP(buf, ct, sizeof(ct)))                                   return CRYPT_FAIL_TESTVECTOR;
+   if (compare_testvector(buf, sizeof(ct), ct, sizeof(ct), "RC4", 0))  return CRYPT_FAIL_TESTVECTOR;
    if ((err = rc4_stream_done(&st)) != CRYPT_OK)                       return err;
 
    return CRYPT_OK;

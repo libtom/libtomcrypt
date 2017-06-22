@@ -186,22 +186,8 @@ int ocb3_test(void)
            return err;
         }
 
-        if (XMEMCMP(outtag, tests[x].tag, len) || XMEMCMP(outct, tests[x].ct, tests[x].ptlen)) {
-#if 0
-           unsigned long y;
-           printf("\n\nFailure: \nCT:\n");
-           for (y = 0; y < (unsigned long)tests[x].ptlen; ) {
-               printf("0x%02x", outct[y]);
-               if (y < (unsigned long)(tests[x].ptlen-1)) printf(", ");
-               if (!(++y % 8)) printf("\n");
-           }
-           printf("\nTAG:\n");
-           for (y = 0; y < len; ) {
-               printf("0x%02x", outtag[y]);
-               if (y < len-1) printf(", ");
-               if (!(++y % 8)) printf("\n");
-           }
-#endif
+        if (compare_testvector(outtag, len, tests[x].tag, sizeof(tests[x].tag), "OCB3 Tag", x) ||
+              compare_testvector(outct, tests[x].ptlen, tests[x].ct, tests[x].ptlen, "OCB3 CT", x)) {
            return CRYPT_FAIL_TESTVECTOR;
         }
 
@@ -213,17 +199,12 @@ int ocb3_test(void)
              outct, tests[x].tag, len, &res)) != CRYPT_OK) {
            return err;
         }
-        if ((res != 1) || XMEMCMP(tests[x].pt, outct, tests[x].ptlen)) {
-#if 0
-           unsigned long y;
-           printf("\n\nFailure-decrypt: \nPT:\n");
-           for (y = 0; y < (unsigned long)tests[x].ptlen; ) {
-               printf("0x%02x", outct[y]);
-               if (y < (unsigned long)(tests[x].ptlen-1)) printf(", ");
-               if (!(++y % 8)) printf("\n");
-           }
+        if ((res != 1) || compare_testvector(outct, tests[x].ptlen, tests[x].pt, tests[x].ptlen, "OCB3", x)) {
+#ifdef LTC_TEST_DBG
+           printf("\n\nOCB3: Failure-decrypt\n");
            printf("\nres = %d\n\n", res);
 #endif
+           return CRYPT_FAIL_TESTVECTOR;
         }
     }
     return CRYPT_OK;

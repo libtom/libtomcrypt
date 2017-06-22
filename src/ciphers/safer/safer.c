@@ -395,7 +395,8 @@ int safer_k64_test(void)
    safer_ecb_encrypt(k64_pt, buf[0], &skey);
    safer_ecb_decrypt(buf[0], buf[1], &skey);
 
-   if (XMEMCMP(buf[0], k64_ct, 8) != 0 || XMEMCMP(buf[1], k64_pt, 8) != 0) {
+   if (compare_testvector(buf[0], 8, k64_ct, 8, "Safer K64 Encrypt", 0) != 0 ||
+         compare_testvector(buf[1], 8, k64_pt, 8, "Safer K64 Decrypt", 0) != 0) {
       return CRYPT_FAIL_TESTVECTOR;
    }
 
@@ -425,7 +426,8 @@ int safer_sk64_test(void)
    safer_ecb_encrypt(sk64_pt, buf[0], &skey);
    safer_ecb_decrypt(buf[0], buf[1], &skey);
 
-   if (XMEMCMP(buf[0], sk64_ct, 8) != 0 || XMEMCMP(buf[1], sk64_pt, 8) != 0) {
+   if (compare_testvector(buf[0], 8, sk64_ct, 8, "Safer SK64 Encrypt", 0) != 0 ||
+         compare_testvector(buf[1], 8, sk64_pt, 8, "Safer SK64 Decrypt", 0) != 0) {
       return CRYPT_FAIL_TESTVECTOR;
    }
 
@@ -468,7 +470,8 @@ int safer_sk128_test(void)
    safer_ecb_encrypt(sk128_pt, buf[0], &skey);
    safer_ecb_decrypt(buf[0], buf[1], &skey);
 
-   if (XMEMCMP(buf[0], sk128_ct, 8) != 0 || XMEMCMP(buf[1], sk128_pt, 8) != 0) {
+   if (compare_testvector(buf[0], 8, sk128_ct, 8, "Safer SK128 Encrypt", 0) != 0 ||
+         compare_testvector(buf[1], 8, sk128_pt, 8, "Safer SK128 Decrypt", 0) != 0) {
       return CRYPT_FAIL_TESTVECTOR;
    }
 

@@ -229,22 +229,8 @@ int eax_test(void)
             tests[x].plaintext, tests[x].msglen, outct, outtag, &len)) != CRYPT_OK) {
            return err;
         }
-        if (XMEMCMP(outct, tests[x].ciphertext, tests[x].msglen) || XMEMCMP(outtag, tests[x].tag, len)) {
-#if 0
-           unsigned long y;
-           printf("\n\nFailure: \nCT:\n");
-           for (y = 0; y < (unsigned long)tests[x].msglen; ) {
-               printf("0x%02x", outct[y]);
-               if (y < (unsigned long)(tests[x].msglen-1)) printf(", ");
-               if (!(++y % 8)) printf("\n");
-           }
-           printf("\nTAG:\n");
-           for (y = 0; y < len; ) {
-               printf("0x%02x", outtag[y]);
-               if (y < len-1) printf(", ");
-               if (!(++y % 8)) printf("\n");
-           }
-#endif
+        if (compare_testvector(outtag, len, tests[x].tag, len, "EAX Tag", x) ||
+              compare_testvector(outct, tests[x].msglen, tests[x].ciphertext, tests[x].msglen, "EAX CT", x)) {
            return CRYPT_FAIL_TESTVECTOR;
         }
 
@@ -254,16 +240,10 @@ int eax_test(void)
              outct, tests[x].msglen, outct, outtag, len, &res)) != CRYPT_OK) {
             return err;
         }
-        if ((res != 1) || XMEMCMP(outct, tests[x].plaintext, tests[x].msglen)) {
-#if 0
-           unsigned long y;
-           printf("\n\nFailure (res == %d): \nPT:\n", res);
-           for (y = 0; y < (unsigned long)tests[x].msglen; ) {
-               printf("0x%02x", outct[y]);
-               if (y < (unsigned long)(tests[x].msglen-1)) printf(", ");
-               if (!(++y % 8)) printf("\n");
-           }
-           printf("\n\n");
+        if ((res != 1) || compare_testvector(outct, tests[x].msglen, tests[x].plaintext, tests[x].msglen, "EAX", x)) {
+#ifdef LTC_TEST_DBG
+           printf("\n\nEAX: Failure-decrypt\n");
+           printf("\nres = %d\n\n", res);
 #endif
            return CRYPT_FAIL_TESTVECTOR;
         }

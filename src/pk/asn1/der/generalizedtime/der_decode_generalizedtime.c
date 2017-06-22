@@ -16,7 +16,7 @@
 
 #ifdef LTC_DER
 
-static int char_to_int(unsigned char x)
+static int _char_to_int(unsigned char x)
 {
    switch (x)  {
       case '0': return 0;
@@ -34,13 +34,13 @@ static int char_to_int(unsigned char x)
 }
 
 #define DECODE_V(y, max) do {\
-   y  = char_to_int(buf[x])*10 + char_to_int(buf[x+1]); \
+   y  = _char_to_int(buf[x])*10 + _char_to_int(buf[x+1]); \
    if (y >= max) return CRYPT_INVALID_PACKET;           \
    x += 2; \
 } while(0)
 
 #define DECODE_V4(y, max) do {\
-   y  = char_to_int(buf[x])*1000 + char_to_int(buf[x+1])*100 + char_to_int(buf[x+2])*10 + char_to_int(buf[x+3]); \
+   y  = _char_to_int(buf[x])*1000 + _char_to_int(buf[x+1])*100 + _char_to_int(buf[x+2])*10 + _char_to_int(buf[x+3]); \
    if (y >= max) return CRYPT_INVALID_PACKET; \
    x += 4; \
 } while(0)
@@ -118,7 +118,7 @@ YYYYMMDDhhmmss.fs-hh'mm'
           unsigned fs = out->fs;
           if (x >= sizeof(buf)) return CRYPT_INVALID_PACKET;
           out->fs *= 10;
-          out->fs += char_to_int(buf[x]);
+          out->fs += _char_to_int(buf[x]);
           if (fs > out->fs) return CRYPT_OVERFLOW;
           x++;
        }

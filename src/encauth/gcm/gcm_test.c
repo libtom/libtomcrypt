@@ -345,25 +345,11 @@ int gcm_test(void)
           return err;
        }
 
-       if (XMEMCMP(out[0], tests[x].C, tests[x].ptlen)) {
-#if 0
-          printf("\nCiphertext wrong %lu\n", x);
-          for (y = 0; y < tests[x].ptlen; y++) {
-              printf("%02x", out[0][y] & 255);
-          }
-          printf("\n");
-#endif
+       if (compare_testvector(out[0], tests[x].ptlen, tests[x].C, tests[x].ptlen, "GCM CT", x)) {
           return CRYPT_FAIL_TESTVECTOR;
        }
 
-       if (XMEMCMP(T[0], tests[x].T, 16)) {
-#if 0
-          printf("\nTag on plaintext wrong %lu\n", x);
-          for (y = 0; y < 16; y++) {
-              printf("%02x", T[0][y] & 255);
-          }
-          printf("\n");
-#endif
+       if (compare_testvector(T[0], y, tests[x].T, 16, "GCM Encrypt Tag", x)) {
           return CRYPT_FAIL_TESTVECTOR;
        }
 
@@ -376,25 +362,11 @@ int gcm_test(void)
           return err;
        }
 
-       if (XMEMCMP(out[1], tests[x].P, tests[x].ptlen)) {
-#if 0
-          printf("\nplaintext wrong %lu\n", x);
-          for (y = 0; y < tests[x].ptlen; y++) {
-              printf("%02x", out[0][y] & 255);
-          }
-          printf("\n");
-#endif
+       if (compare_testvector(out[1], tests[x].ptlen, tests[x].P, tests[x].ptlen, "GCM PT", x)) {
           return CRYPT_FAIL_TESTVECTOR;
        }
 
-       if (XMEMCMP(T[1], tests[x].T, 16)) {
-#if 0
-          printf("\nTag on ciphertext wrong %lu\n", x);
-          for (y = 0; y < 16; y++) {
-              printf("%02x", T[1][y] & 255);
-          }
-          printf("\n");
-#endif
+       if (compare_testvector(T[1], y, tests[x].T, 16, "GCM Decrypt Tag", x)) {
           return CRYPT_FAIL_TESTVECTOR;
        }
 
