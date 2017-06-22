@@ -559,6 +559,8 @@ int der_decode_sequence_ex(const unsigned char *in, unsigned long  inlen,
 
 int der_length_sequence(ltc_asn1_list *list, unsigned long inlen,
                         unsigned long *outlen);
+int der_length_sequence_ex(ltc_asn1_list *list, unsigned long inlen,
+                           unsigned long *outlen, unsigned long *payloadlen);
 
 
 #ifdef LTC_SOURCE
