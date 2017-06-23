@@ -29,8 +29,8 @@ static int _char_to_int(unsigned char x)
       case '7': return 7;
       case '8': return 8;
       case '9': return 9;
+      default:  return 100;
    }
-   return 100;
 }
 
 #define DECODE_V(y, max) do {\
