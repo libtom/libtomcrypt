@@ -272,17 +272,17 @@ clean:
 
 #Install the library + headers
 install: $(LIBMAIN_S) $(HEADERS)
-	@mkdir -p $(DESTDIR)/$(INCPATH) $(DESTDIR)/$(LIBPATH)/pkgconfig
-	@cp $(LIBMAIN_S) $(DESTDIR)/$(LIBPATH)/
-	@cp $(HEADERS) $(DESTDIR)/$(INCPATH)/
-	@sed -e 's,^prefix=.*,prefix=$(PREFIX),' -e 's,^Version:.*,Version: $(VERSION),' libtomcrypt.pc.in > $(DESTDIR)/$(LIBPATH)/pkgconfig/libtomcrypt.pc
+	@mkdir -p $(DESTDIR)$(INCPATH) $(DESTDIR)$(LIBPATH)/pkgconfig
+	@cp $(LIBMAIN_S) $(DESTDIR)$(LIBPATH)/
+	@cp $(HEADERS) $(DESTDIR)$(INCPATH)/
+	@sed -e 's,^prefix=.*,prefix=$(PREFIX),' -e 's,^Version:.*,Version: $(VERSION),' libtomcrypt.pc.in > $(DESTDIR)$(LIBPATH)/pkgconfig/libtomcrypt.pc
 
 #Install useful tools
 install_bins: hashsum
-	@mkdir -p $(DESTDIR)/$(BINPATH)
-	@cp hashsum $(DESTDIR)/$(BINPATH)/
+	@mkdir -p $(DESTDIR)$(BINPATH)
+	@cp hashsum $(DESTDIR)$(BINPATH)/
 
 #Install documentation
 install_docs: doc/crypt.pdf
-	@mkdir -p $(DESTDIR)/$(DATAPATH)
-	@cp doc/crypt.pdf $(DESTDIR)/$(DATAPATH)/
+	@mkdir -p $(DESTDIR)$(DATAPATH)
+	@cp doc/crypt.pdf $(DESTDIR)$(DATAPATH)/
