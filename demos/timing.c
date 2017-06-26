@@ -697,7 +697,7 @@ static void time_rsa(void)
 {
    rsa_key       key;
    ulong64       t1, t2;
-   unsigned char buf[2][2048] = { 0 };
+   unsigned char buf[2][2048] = { { 0 } };
    unsigned long x, y, z, zzz;
    int           err, zz, stat;
 
@@ -923,7 +923,7 @@ static void time_ecc(void)
 {
    ecc_key key;
    ulong64 t1, t2;
-   unsigned char buf[2][256] = { 0 };
+   unsigned char buf[2][256] = { { 0 } };
    unsigned long i, w, x, y, z;
    int           err, stat;
    static unsigned long sizes[] = {
