@@ -2075,11 +2075,11 @@
 					>
 				</File>
 				<File
-					RelativePath="src\pk\dh\dh_import_radix.c"
+					RelativePath="src\pk\dh\dh_make_key.c"
 					>
 				</File>
 				<File
-					RelativePath="src\pk\dh\dh_make_key.c"
+					RelativePath="src\pk\dh\dh_set.c"
 					>
 				</File>
 				<File
