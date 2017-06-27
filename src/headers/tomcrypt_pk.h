@@ -47,9 +47,8 @@ typedef struct {
   int radix;
 } ltc_pk_part;
 
-#define PK_PART_HEX(s)     &((ltc_pk_part){s, 0, 16})
-#define PK_PART_DEC(d)     &((ltc_pk_part){d, 0, 10})
-#define PK_PART_BIN(b, l)  &((ltc_pk_part){b, l, 256})
+#define PK_PART_HEX(s) &((ltc_pk_part){s, 0, 16})
+#define PK_PART_DEC(s) &((ltc_pk_part){s, 0, 10})
 
 /* ---- RSA ---- */
 #ifdef LTC_MRSA
