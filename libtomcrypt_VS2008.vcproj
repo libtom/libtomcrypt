@@ -2063,6 +2063,10 @@
 					>
 				</File>
 				<File
+					RelativePath="src\pk\dh\dh_export_key.c"
+					>
+				</File>
+				<File
 					RelativePath="src\pk\dh\dh_free.c"
 					>
 				</File>
@@ -2072,6 +2076,10 @@
 				</File>
 				<File
 					RelativePath="src\pk\dh\dh_make_key.c"
+					>
+				</File>
+				<File
+					RelativePath="src\pk\dh\dh_set.c"
 					>
 				</File>
 				<File
