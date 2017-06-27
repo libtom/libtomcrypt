@@ -30,6 +30,8 @@
    #define LTC_MILLER_RABIN_REPS    35
 #endif
 
+int radix_to_bin(const void *in, int radix, void *out, size_t* len);
+
 /** math descriptor */
 typedef struct {
    /** Name of the math provider */
