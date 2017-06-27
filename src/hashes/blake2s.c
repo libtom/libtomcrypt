@@ -321,14 +321,14 @@ int blake2s_process(hash_state *md, const unsigned char *in, unsigned long inlen
    LTC_ARGCHK(md != NULL);
    LTC_ARGCHK(in != NULL);
 
-   if (md->blake2s.curlen >= sizeof(md->blake2s.buf)) {
+   if (md->blake2s.curlen > sizeof(md->blake2s.buf)) {
       return CRYPT_INVALID_ARG;
    }
 
    if (inlen > 0) {
       unsigned long left = md->blake2s.curlen;
       unsigned long fill = BLAKE2S_BLOCKBYTES - left;
-      if (inlen >= fill) {
+      if (inlen > fill) {
          md->blake2s.curlen = 0;
          XMEMCPY(md->blake2s.buf + left, in, fill); /* Fill buffer */
          blake2s_increment_counter(md, BLAKE2S_BLOCKBYTES);
