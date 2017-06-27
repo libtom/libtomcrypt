@@ -97,9 +97,11 @@ int rsa_exptmod(const unsigned char *in,   unsigned long inlen,
       }
       #endif /* LTC_RSA_BLINDING */
 
-      has_crt_parameters = (key->dP != NULL) && (mp_get_digit_count(key->dP) != 0) &&
-                              (key->dQ != NULL) && (mp_get_digit_count(key->dQ) != 0) &&
-                                 (key->qP != NULL) && (mp_get_digit_count(key->qP) != 0);
+      has_crt_parameters = (key->p != NULL) && (mp_get_digit_count(key->p) != 0) &&
+                              (key->q != NULL) && (mp_get_digit_count(key->q) != 0) &&
+                                 (key->dP != NULL) && (mp_get_digit_count(key->dP) != 0) &&
+                                    (key->dQ != NULL) && (mp_get_digit_count(key->dQ) != 0) &&
+                                       (key->qP != NULL) && (mp_get_digit_count(key->qP) != 0);
 
       if (!has_crt_parameters) {
          /*
