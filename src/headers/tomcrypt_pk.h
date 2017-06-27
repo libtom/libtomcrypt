@@ -213,6 +213,8 @@ typedef struct {
     void *prime;
 } dh_key;
 
+#define LTC_DH_KEY_INITIALIZER { PK_PUBLIC, NULL, NULL, NULL, NULL }
+
 int dh_get_groupsize(dh_key *key);
 
 int dh_make_key(prng_state *prng, int wprng, int groupsize, dh_key *key);
@@ -226,13 +228,16 @@ void dh_free(dh_key *key);
 int dh_export(unsigned char *out, unsigned long *outlen, int type, dh_key *key);
 int dh_import(const unsigned char *in, unsigned long inlen, dh_key *key);
 
+int dh_set_pg(const unsigned char *p, unsigned long plen,
+              const unsigned char *g, unsigned long glen,
+              dh_key *key);
+/* here we can support either one or both */
+int dh_set_key(const unsigned char *pub, unsigned long publen,
+               const unsigned char *priv, unsigned long privlen,
+               dh_key *key);
+
 int dh_export_radix(int radix,
                     void *out, unsigned long *outlen,
-                    int type, dh_key *key);
-int dh_import_radix(int radix,
-                    void *in,    unsigned long inlen,
-                    void *prime, unsigned long primelen,
-                    void *base,  unsigned long baselen,
                     int type, dh_key *key);
 
 int dh_shared_secret(dh_key        *private_key, dh_key        *public_key,

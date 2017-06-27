@@ -149,10 +149,12 @@ static int _dhparam_test(void)
 
 static int _radix_test(void)
 {
-   dh_key k1, k2, k3;
-   unsigned char buf[DH_BUF_SIZE];
+   dh_key k1 = LTC_DH_KEY_INITIALIZER;
+   dh_key k2 = LTC_DH_KEY_INITIALIZER;
+   dh_key k3 = LTC_DH_KEY_INITIALIZER;
+   unsigned char buf[4096];
    unsigned long len;
-   int i;
+   int i, j;
    /* RADIX 16 */
    char *ghex = "2";
    char *phex = "FFFFFFFFFFFFFFFFC90FDAA22168C234C4C6628B80DC1CD129024E088A67CC74020BBEA63B139B22"
@@ -311,6 +313,8 @@ static int _radix_test(void)
       0xF3, 0x7E, 0xE9, 0x0A, 0x0D, 0xA9, 0x5B, 0xE9, 0x6F, 0xC9, 0x39, 0xE8, 0x8F, 0xE0, 0xBD, 0x2C,
       0xD0, 0x9F, 0xC8, 0xF5, 0x24, 0x20, 0x8C
    };
+   unsigned char key_parts[4][512];
+   unsigned long key_lens[4];
 
    if (register_prng(&yarrow_desc) == -1) {
       printf("Error registering yarrow PRNG\n");
@@ -318,7 +322,23 @@ static int _radix_test(void)
    }
 
    for (i = 0; i < 4; i++) {
-      DO(dh_import_radix(test[i].radix, test[i].x, test[i].xlen, test[i].p, test[i].plen, test[i].g, test[i].glen, PK_PRIVATE, &k1));
+      for (j = 0; j < 4; ++j) {
+         key_lens[j] = sizeof(key_parts[j]);
+      }
+      if(test[i].radix != 256) {
+         DO(radix_to_bin(test[i].x, test[i].radix, key_parts[0], &key_lens[0]));
+         DO(radix_to_bin(test[i].y, test[i].radix, key_parts[1], &key_lens[1]));
+         DO(radix_to_bin(test[i].p, test[i].radix, key_parts[2], &key_lens[2]));
+         DO(radix_to_bin(test[i].g, test[i].radix, key_parts[3], &key_lens[3]));
+
+         DO(dh_set_pg(key_parts[2], key_lens[2], key_parts[3], key_lens[3], &k1));
+         DO(dh_set_key(NULL, 0, key_parts[0], key_lens[0], &k1));
+      }
+      else {
+         DO(dh_set_pg(test[i].p, test[i].plen, test[i].g, test[i].glen, &k1));
+         DO(dh_set_key(NULL, 0, test[i].x, test[i].xlen, &k1));
+      }
+
       len = sizeof(buf);
       DO(dh_export(buf, &len, PK_PRIVATE, &k1));
       if (compare_testvector(buf, len, export_private, sizeof(export_private), "radix_test", i*10 + 0)) {
@@ -363,7 +383,15 @@ static int _radix_test(void)
       }
       dh_free(&k1);
 
-      DO(dh_import_radix(test[i].radix, test[i].y, test[i].ylen, test[i].p, test[i].plen, test[i].g, test[i].glen, PK_PUBLIC, &k2));
+      if(test[i].radix != 256) {
+         DO(dh_set_pg(key_parts[2], key_lens[2], key_parts[3], key_lens[3], &k2));
+         DO(dh_set_key(key_parts[1], key_lens[1], NULL, 0, &k2));
+      }
+      else {
+         DO(dh_set_pg(test[i].p, test[i].plen, test[i].g, test[i].glen, &k2));
+         DO(dh_set_key(test[i].y, test[i].ylen, NULL, 0, &k2));
+      }
+
       len = sizeof(buf);
       DO(dh_export(buf, &len, PK_PUBLIC, &k2));
       if (compare_testvector(buf, len, export_public, sizeof(export_public), "radix_test", i*10 + 6)) {
