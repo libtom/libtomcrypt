@@ -2063,7 +2063,7 @@
 					>
 				</File>
 				<File
-					RelativePath="src\pk\dh\dh_export_radix.c"
+					RelativePath="src\pk\dh\dh_export_key.c"
 					>
 				</File>
 				<File
