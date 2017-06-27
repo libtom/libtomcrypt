@@ -1312,6 +1312,10 @@
 				>
 			</File>
 			<File
+				RelativePath="src\math\radix_to_bin.c"
+				>
+			</File>
+			<File
 				RelativePath="src\math\rand_bn.c"
 				>
 			</File>
@@ -2327,15 +2331,15 @@
 					>
 				</File>
 				<File
-					RelativePath="src\pk\rsa\rsa_import_radix.c"
-					>
-				</File>
-				<File
 					RelativePath="src\pk\rsa\rsa_import_x509.c"
 					>
 				</File>
 				<File
 					RelativePath="src\pk\rsa\rsa_make_key.c"
+					>
+				</File>
+				<File
+					RelativePath="src\pk\rsa\rsa_set.c"
 					>
 				</File>
 				<File
