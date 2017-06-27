@@ -21,6 +21,9 @@ enum {
 #define PK_MAX_RETRIES  20
 
 int rand_prime(void *N, long len, prng_state *prng, int wprng);
+
+#ifdef LTC_SOURCE
+/* internal helper functions */
 int rand_bn_bits(void *N, int bits, prng_state *prng, int wprng);
 int rand_bn_range(void *N, void *limit, prng_state *prng, int wprng);
 
@@ -36,6 +39,7 @@ typedef struct Oid {
 } oid_st;
 
 int pk_get_oid(int pk, oid_st *st);
+#endif /* LTC_SOURCE */
 
 /* ---- RSA ---- */
 #ifdef LTC_MRSA
@@ -183,10 +187,6 @@ int katja_import(const unsigned char *in, unsigned long inlen, katja_key *key);
 /* ---- DH Routines ---- */
 #ifdef LTC_MDH
 
-#ifndef DH_BUF_SIZE
-#define DH_BUF_SIZE 2100
-#endif
-
 typedef struct {
   int size;
   char *name, *base, *prime;
@@ -215,7 +215,7 @@ int dh_shared_secret(dh_key        *private_key, dh_key        *public_key,
                      unsigned char *out,         unsigned long *outlen);
 
 #ifdef LTC_SOURCE
-/* INTERNAL ONLY - it should be later moved to src/headers/tomcrypt_internal.h */
+/* internal helper functions */
 int dh_check_pubkey(dh_key *key);
 #endif
 
@@ -528,6 +528,9 @@ int der_decode_sequence_ex(const unsigned char *in, unsigned long  inlen,
 int der_length_sequence(ltc_asn1_list *list, unsigned long inlen,
                         unsigned long *outlen);
 
+
+#ifdef LTC_SOURCE
+/* internal helper functions */
 /* SUBJECT PUBLIC KEY INFO */
 int der_encode_subject_public_key_info(unsigned char *out, unsigned long *outlen,
         unsigned int algorithm, void* public_key, unsigned long public_key_len,
@@ -536,6 +539,7 @@ int der_encode_subject_public_key_info(unsigned char *out, unsigned long *outlen
 int der_decode_subject_public_key_info(const unsigned char *in, unsigned long inlen,
         unsigned int algorithm, void* public_key, unsigned long* public_key_len,
         unsigned long parameters_type, ltc_asn1_list* parameters, unsigned long parameters_len);
+#endif /* LTC_SOURCE */
 
 /* SET */
 #define der_decode_set(in, inlen, list, outlen) der_decode_sequence_ex(in, inlen, list, outlen, 0)
@@ -613,8 +617,12 @@ int der_decode_teletex_string(const unsigned char *in, unsigned long inlen,
                                 unsigned char *out, unsigned long *outlen);
 int der_length_teletex_string(const unsigned char *octets, unsigned long noctets, unsigned long *outlen);
 
+#ifdef LTC_SOURCE
+/* internal helper functions */
 int der_teletex_char_encode(int c);
 int der_teletex_value_decode(int v);
+#endif /* LTC_SOURCE */
+
 
 /* PRINTABLE STRING */
 int der_encode_printable_string(const unsigned char *in, unsigned long inlen,
@@ -646,7 +654,10 @@ int der_encode_utf8_string(const wchar_t *in,  unsigned long inlen,
 int der_decode_utf8_string(const unsigned char *in,  unsigned long inlen,
                                        wchar_t *out, unsigned long *outlen);
 unsigned long der_utf8_charsize(const wchar_t c);
+#ifdef LTC_SOURCE
+/* internal helper functions */
 int der_utf8_valid_char(const wchar_t c);
+#endif /* LTC_SOURCE */
 int der_length_utf8_string(const wchar_t *in, unsigned long noctets, unsigned long *outlen);
 
 

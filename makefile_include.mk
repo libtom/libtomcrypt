@@ -362,18 +362,18 @@ install_all: install install_bins install_docs install_test
 INSTALL_OPTS ?= -m 644
 
 .common_install: $(LIBNAME)
-	install -d $(DESTDIR)/$(INCPATH)
-	install -d $(DESTDIR)/$(LIBPATH)
-	$(INSTALL_CMD) $(INSTALL_OPTS) $(LIBNAME) $(DESTDIR)/$(LIBPATH)/$(LIBNAME)
-	install -m 644 $(HEADERS) $(DESTDIR)/$(INCPATH)
+	install -d $(DESTDIR)$(INCPATH)
+	install -d $(DESTDIR)$(LIBPATH)
+	$(INSTALL_CMD) $(INSTALL_OPTS) $(LIBNAME) $(DESTDIR)$(LIBPATH)/$(LIBNAME)
+	install -m 644 $(HEADERS) $(DESTDIR)$(INCPATH)
 
 .common_install_bins: $(USEFUL_DEMOS)
-	install -d $(BINPATH)
-	$(INSTALL_CMD) -m 775 $(USEFUL_DEMOS) $(DESTDIR)/$(BINPATH)
+	install -d $(DESTDIR)$(BINPATH)
+	$(INSTALL_CMD) -m 775 $(USEFUL_DEMOS) $(DESTDIR)$(BINPATH)
 
 install_docs: doc/crypt.pdf
-	install -d $(DATAPATH)
-	install -m 644 doc/crypt.pdf $(DESTDIR)/$(DATAPATH)
+	install -d $(DESTDIR)$(DATAPATH)
+	install -m 644 doc/crypt.pdf $(DESTDIR)$(DATAPATH)
 
 install_hooks:
 	for s in `ls hooks/`; do ln -s ../../hooks/$$s .git/hooks/$$s; done

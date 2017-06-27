@@ -267,22 +267,22 @@ clean:
 	-@rm -f $(OBJECTS) $(TOBJECTS)
 	-@rm -f $(LIBMAIN_S)
 	-@rm -f demos/*.o *_tv.txt
-	-@rm -f test tv_gen hashsum crypt small timing
-	-@rm -f test.exe tv_gen.exe hashsum.exe crypt.exe small.exe timing.exe
+	-@rm -f test tv_gen hashsum ltcrypt small timing
+	-@rm -f test.exe tv_gen.exe hashsum.exe ltcrypt.exe small.exe timing.exe
 
 #Install the library + headers
 install: $(LIBMAIN_S) $(HEADERS)
-	@mkdir -p $(DESTDIR)/$(INCPATH) $(DESTDIR)/$(LIBPATH)/pkgconfig
-	@cp $(LIBMAIN_S) $(DESTDIR)/$(LIBPATH)/
-	@cp $(HEADERS) $(DESTDIR)/$(INCPATH)/
-	@sed -e 's,^prefix=.*,prefix=$(PREFIX),' -e 's,^Version:.*,Version: $(VERSION),' libtomcrypt.pc.in > $(DESTDIR)/$(LIBPATH)/pkgconfig/libtomcrypt.pc
+	@mkdir -p $(DESTDIR)$(INCPATH) $(DESTDIR)$(LIBPATH)/pkgconfig
+	@cp $(LIBMAIN_S) $(DESTDIR)$(LIBPATH)/
+	@cp $(HEADERS) $(DESTDIR)$(INCPATH)/
+	@sed -e 's,^prefix=.*,prefix=$(PREFIX),' -e 's,^Version:.*,Version: $(VERSION),' libtomcrypt.pc.in > $(DESTDIR)$(LIBPATH)/pkgconfig/libtomcrypt.pc
 
 #Install useful tools
 install_bins: hashsum
-	@mkdir -p $(DESTDIR)/$(BINPATH)
-	@cp hashsum $(DESTDIR)/$(BINPATH)/
+	@mkdir -p $(DESTDIR)$(BINPATH)
+	@cp hashsum $(DESTDIR)$(BINPATH)/
 
 #Install documentation
 install_docs: doc/crypt.pdf
-	@mkdir -p $(DESTDIR)/$(DATAPATH)
-	@cp doc/crypt.pdf $(DESTDIR)/$(DATAPATH)/
+	@mkdir -p $(DESTDIR)$(DATAPATH)
+	@cp doc/crypt.pdf $(DESTDIR)$(DATAPATH)/

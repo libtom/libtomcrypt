@@ -16,7 +16,7 @@ myCflags=""
 myCflags="$myCflags -O2 ${2}"
 myCflags="$myCflags -pipe -Werror -Wpointer-arith -Winit-self -Wextra -Wall -Wformat -Wformat-security"
 
-CFLAGS="$myCflags" cov-build --dir cov-int  make -f makefile -j3 IGNORE_SPEED=1 1>gcc_1.txt
+CFLAGS="$myCflags" cov-build --dir cov-int  make -f makefile.unix $MAKE_OPTS IGNORE_SPEED=1 1>gcc_1.txt
 
 if [ $? -ne 0 ]
 then
