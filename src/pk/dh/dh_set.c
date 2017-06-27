@@ -51,6 +51,82 @@ LBL_ERR:
 }
 
 /**
+  Import DH key parts p and g from dhparam
+
+      dhparam data: openssl dhparam -outform DER -out dhparam.der 2048
+
+  @param dhparam    The DH param DER encoded data
+  @param dhparamlen The length of dhparam data
+  @param key        [out] Where the newly created DH key will be stored
+  @return CRYPT_OK if successful, note: on error all allocated memory will be freed automatically.
+*/
+int dh_set_pg_dhparam(const unsigned char *dhparam, unsigned long dhparamlen, dh_key *key)
+{
+   int err;
+
+   LTC_ARGCHK(key         != NULL);
+   LTC_ARGCHK(key->x      == NULL);
+   LTC_ARGCHK(key->y      == NULL);
+   LTC_ARGCHK(key->base   == NULL);
+   LTC_ARGCHK(key->prime  == NULL);
+   LTC_ARGCHK(ltc_mp.name != NULL);
+   LTC_ARGCHK(dhparam     != NULL);
+   LTC_ARGCHK(dhparamlen  > 0);
+
+   if ((err = mp_init_multi(&key->x, &key->y, &key->base, &key->prime, NULL)) != CRYPT_OK) {
+      return err;
+   }
+   if ((err = der_decode_sequence_multi(dhparam, dhparamlen,
+                                        LTC_ASN1_INTEGER, 1UL, key->prime,
+                                        LTC_ASN1_INTEGER, 1UL, key->base,
+                                        LTC_ASN1_EOL,     0UL, NULL)) != CRYPT_OK) {
+      goto LBL_ERR;
+   }
+
+   return CRYPT_OK;
+
+LBL_ERR:
+   dh_free(key);
+   return err;
+}
+
+/**
+  Import DH key parts p and g from built-in DH groups
+
+  @param dhparam    The DH param DER encoded data
+  @param dhparamlen The length of dhparam data
+  @param key        [out] Where the newly created DH key will be stored
+  @return CRYPT_OK if successful, note: on error all allocated memory will be freed automatically.
+*/
+int dh_set_pg_groupsize(int groupsize, dh_key *key)
+{
+   int err, i;
+
+   LTC_ARGCHK(key         != NULL);
+   LTC_ARGCHK(key->x      == NULL);
+   LTC_ARGCHK(key->y      == NULL);
+   LTC_ARGCHK(key->base   == NULL);
+   LTC_ARGCHK(key->prime  == NULL);
+   LTC_ARGCHK(ltc_mp.name != NULL);
+   LTC_ARGCHK(groupsize   > 0);
+
+   for (i = 0; (groupsize > ltc_dh_sets[i].size) && (ltc_dh_sets[i].size != 0); i++);
+   if (ltc_dh_sets[i].size == 0) return CRYPT_INVALID_KEYSIZE;
+
+   if ((err = mp_init_multi(&key->x, &key->y, &key->base, &key->prime, NULL)) != CRYPT_OK) {
+      return err;
+   }
+   if ((err = mp_read_radix(key->base, ltc_dh_sets[i].base, 16)) != CRYPT_OK)  { goto LBL_ERR; }
+   if ((err = mp_read_radix(key->prime, ltc_dh_sets[i].prime, 16)) != CRYPT_OK) { goto LBL_ERR; }
+
+   return CRYPT_OK;
+
+LBL_ERR:
+   dh_free(key);
+   return err;
+}
+
+/**
   Import DH key parts pub and priv from raw numbers
 
   @param pub     DH's pub (public key) (can be NULL if priv is valid)
