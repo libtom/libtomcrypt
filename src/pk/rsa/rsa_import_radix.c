@@ -25,19 +25,7 @@
 
 #ifdef LTC_MRSA
 
-static int _rsa_read_pk_part(void* mpi, ltc_pk_part *p)
-{
-   int err;
-   if(p->radix == 256) {
-      if (p->len != 0) err = mp_read_unsigned_bin(mpi, p->p, p->len);
-      else err = CRYPT_PK_INVALID_SIZE;
-   } else {
-      err = mp_read_radix(mpi, p->p , p->radix);
-   }
-   return err;
-}
-
-int rsa_import_radix(ltc_pk_part *N, ltc_pk_part *e, ltc_pk_part *d, ltc_pk_part *p, ltc_pk_part *q, ltc_pk_part *dP, ltc_pk_part *dQ, ltc_pk_part *qP, rsa_key *key)
+int rsa_import_radix(int radix, char *N, char *e, char *d, char *p, char *q, char *dP, char *dQ, char *qP, rsa_key *key)
 {
    int err;
 
@@ -49,16 +37,16 @@ int rsa_import_radix(ltc_pk_part *N, ltc_pk_part *e, ltc_pk_part *d, ltc_pk_part
    err = mp_init_multi(&key->e, &key->d, &key->N, &key->dQ, &key->dP, &key->qP, &key->p, &key->q, NULL);
    if (err != CRYPT_OK) return err;
 
-   if ((err = _rsa_read_pk_part(key->N , N)) != CRYPT_OK)    { goto LBL_ERR; }
-   if ((err = _rsa_read_pk_part(key->e , e)) != CRYPT_OK)    { goto LBL_ERR; }
-   if (d && p && q && dP && dQ && qP && strlen(d->p)>0 && strlen(p->p)>0 &&
-       strlen(q->p)>0 && strlen(dP->p)>0 && strlen(dQ->p)>0 && strlen(qP->p)>0) {
-      if ((err = _rsa_read_pk_part(key->d , d)) != CRYPT_OK) { goto LBL_ERR; }
-      if ((err = _rsa_read_pk_part(key->p , p)) != CRYPT_OK) { goto LBL_ERR; }
-      if ((err = _rsa_read_pk_part(key->q , q)) != CRYPT_OK) { goto LBL_ERR; }
-      if ((err = _rsa_read_pk_part(key->dP, dP)) != CRYPT_OK) { goto LBL_ERR; }
-      if ((err = _rsa_read_pk_part(key->dQ, dQ)) != CRYPT_OK) { goto LBL_ERR; }
-      if ((err = _rsa_read_pk_part(key->qP, qP)) != CRYPT_OK) { goto LBL_ERR; }
+   if ((err = mp_read_radix(key->N , N , radix)) != CRYPT_OK)    { goto LBL_ERR; }
+   if ((err = mp_read_radix(key->e , e , radix)) != CRYPT_OK)    { goto LBL_ERR; }
+   if (d && p && q && dP && dQ && qP && strlen(d)>0 && strlen(p)>0 &&
+       strlen(q)>0 && strlen(dP)>0 && strlen(dQ)>0 && strlen(qP)>0) {
+      if ((err = mp_read_radix(key->d , d , radix)) != CRYPT_OK) { goto LBL_ERR; }
+      if ((err = mp_read_radix(key->p , p , radix)) != CRYPT_OK) { goto LBL_ERR; }
+      if ((err = mp_read_radix(key->q , q , radix)) != CRYPT_OK) { goto LBL_ERR; }
+      if ((err = mp_read_radix(key->dP, dP, radix)) != CRYPT_OK) { goto LBL_ERR; }
+      if ((err = mp_read_radix(key->dQ, dQ, radix)) != CRYPT_OK) { goto LBL_ERR; }
+      if ((err = mp_read_radix(key->qP, qP, radix)) != CRYPT_OK) { goto LBL_ERR; }
       key->type = PK_PRIVATE;
    }
    else {

@@ -41,15 +41,6 @@ typedef struct Oid {
 int pk_get_oid(int pk, oid_st *st);
 #endif /* LTC_SOURCE */
 
-typedef struct {
-  void* p;
-  unsigned long len;
-  int radix;
-} ltc_pk_part;
-
-#define PK_PART_HEX(s) &((ltc_pk_part){s, 0, 16})
-#define PK_PART_DEC(s) &((ltc_pk_part){s, 0, 10})
-
 /* ---- RSA ---- */
 #ifdef LTC_MRSA
 
@@ -135,7 +126,7 @@ int rsa_import(const unsigned char *in, unsigned long inlen, rsa_key *key);
 int rsa_import_x509(const unsigned char *in, unsigned long inlen, rsa_key *key);
 int rsa_import_pkcs8(const unsigned char *in, unsigned long inlen,
                      const void *passwd, unsigned long passwdlen, rsa_key *key);
-int rsa_import_radix(ltc_pk_part *N, ltc_pk_part *e, ltc_pk_part *d, ltc_pk_part *p, ltc_pk_part *q, ltc_pk_part *dP, ltc_pk_part *dQ, ltc_pk_part *qP, rsa_key *key);
+int rsa_import_radix(int radix, char *N, char *e, char *d, char *p, char *q, char *dP, char *dQ, char *qP, rsa_key *key);
 #endif
 
 /* ---- Katja ---- */

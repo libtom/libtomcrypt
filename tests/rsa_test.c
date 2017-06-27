@@ -112,7 +112,7 @@ static const unsigned char pkcs8_private_rsa[] = {
    0xf1, 0x4a, 0x21, 0x56, 0x67, 0xfd, 0xcc, 0x20, 0xa3, 0x8f, 0x78, 0x18, 0x5a, 0x79, 0x3d, 0x2e,
    0x8e, 0x7e, 0x86, 0x0a, 0xe6, 0xa8, 0x33, 0xc1, 0x04, 0x17, 0x4a, 0x9f };
 
-/* private key - hexadecimal */
+/* private keay - hexadecimal */
 static char *hex_d = "C862B9EADE44531D5697D9979E1ACF301E0A8845862930A34D9F616573E0D6878FB6F306A382DC7CACFE9B289AAEFDFBFE2F0ED89704E3BB1FD1EC0DBAA3497F47AC8A44047E86B739423FAD1EB70EA551F440631EFDBDEA9F419FA8901D6F0A5A9513110D80AF5F64988A2C786865B02B8BA25387CAF16404ABF27BDB83C881";
 static char *hex_dP = "6DEBC32D2EF05EA488310529008AD195299B83CF75DB31E37A27DE3A74300C764CD4502A402D39D99963A95D80AE53CA943F05231EF80504E1B835F217B3A089";
 static char *hex_dQ = "AB9088FA600829509A438BA050CCD85AFE976463717422A320025ACFEBC6169554D1CBAB8D1AC600FA08929C71D552523596714B8B920CD0E9BFAD630BA5E9B1";
@@ -122,7 +122,7 @@ static char *hex_p  = "F7BE5E23C3323FBF8B8E3AEEFCFCCBE5F7F10BBC4282AED57A3ECAF7D
 static char *hex_q  = "D6860E85420B0408842160F00E0D88FD1E3610654F1E53B40872805C3F596617E698F2E96C7A064CAC763DED8CA1CEAD1BBDB47D28BCE30E388D99D805B5A371";
 static char *hex_qP = "DCCC27C8E4DC6248D59BAFF5AB60F621FD53E2B75D09C91AA104A9FC612C5D04583A5A39F14A215667FDCC20A38F78185A793D2E8E7E860AE6A833C104174A9F";
 
-/* private key - decimal */
+/* private keay - decimal */
 static char *dec_d  = "140715588362011445903700789698620706303856890313846506579552319155852306603445626455616876267358538338151320072087950597426668358843246116141391746806252390039505422193715556188330352166601762210959618868365359433828069868584168017348772565936127608284367789455480066115411950431014508224203325089671253575809";
 static char *dec_dP = "5757027123463051531073361217943880203685183318942602176865989327630429772398553254013771630974725523559703665512845231173916766336576994271809362147385481";
 static char *dec_dQ = "8985566687080619280443708121716583572314829758991088624433980393739288226842152842353421251125477168722728289150354056572727675764519591179919295246625201";
@@ -245,7 +245,7 @@ static int rsa_compat_test(void)
    rsa_free(&key);
 
    /* try import private key from raw hexadecimal numbers */
-   DO(rsa_import_radix(PK_PART_HEX(hex_N), PK_PART_HEX(hex_e), PK_PART_HEX(hex_d), PK_PART_HEX(hex_p), PK_PART_HEX(hex_q), PK_PART_HEX(hex_dP), PK_PART_HEX(hex_dQ), PK_PART_HEX(hex_qP), &key));
+   DO(rsa_import_radix(16, hex_N, hex_e, hex_d, hex_p, hex_q, hex_dP, hex_dQ, hex_qP, &key));
    len = sizeof(buf);
    DO(rsa_export(buf, &len, PK_PRIVATE, &key));
    if (compare_testvector(buf, len, openssl_private_rsa, sizeof(openssl_private_rsa), "RSA private export (from hex)", 0)) {
@@ -254,7 +254,7 @@ static int rsa_compat_test(void)
    rsa_free(&key);
 
    /* try import private key from raw decimal numbers */
-   DO(rsa_import_radix(PK_PART_DEC(dec_N), PK_PART_DEC(dec_e), PK_PART_DEC(dec_d), PK_PART_DEC(dec_p), PK_PART_DEC(dec_q), PK_PART_DEC(dec_dP), PK_PART_DEC(dec_dQ), PK_PART_DEC(dec_qP), &key));
+   DO(rsa_import_radix(10, dec_N, dec_e, dec_d, dec_p, dec_q, dec_dP, dec_dQ, dec_qP, &key));
    len = sizeof(buf);
    DO(rsa_export(buf, &len, PK_PRIVATE, &key));
    if (compare_testvector(buf, len, openssl_private_rsa, sizeof(openssl_private_rsa), "RSA private export (from dec)", 0)) {
@@ -263,7 +263,7 @@ static int rsa_compat_test(void)
    rsa_free(&key);
 
    /* try import public key from raw hexadecimal numbers */
-   DO(rsa_import_radix(PK_PART_HEX(hex_N), PK_PART_HEX(hex_e), NULL, NULL, NULL, NULL, NULL, NULL, &key));
+   DO(rsa_import_radix(16, hex_N, hex_e, NULL, NULL, NULL, NULL, NULL, NULL, &key));
    len = sizeof(buf);
    DO(rsa_export(buf, &len, PK_PUBLIC, &key));
    if (compare_testvector(buf, len, openssl_public_rsa_stripped, sizeof(openssl_public_rsa_stripped), "RSA public export (from hex)", 0)) {
@@ -272,7 +272,7 @@ static int rsa_compat_test(void)
    rsa_free(&key);
 
    /* try import public key from raw decimal numbers */
-   DO(rsa_import_radix(PK_PART_DEC(dec_N), PK_PART_DEC(dec_e), NULL, NULL, NULL, NULL, NULL, NULL, &key));
+   DO(rsa_import_radix(10, dec_N, dec_e, NULL, NULL, NULL, NULL, NULL, NULL, &key));
    len = sizeof(buf);
    DO(rsa_export(buf, &len, PK_PUBLIC, &key));
    if (compare_testvector(buf, len, openssl_public_rsa_stripped, sizeof(openssl_public_rsa_stripped), "RSA public export (from dec)", 0)) {
