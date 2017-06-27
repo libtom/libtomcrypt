@@ -350,29 +350,15 @@ static int _radix_test(void)
          return CRYPT_ERROR;
       }
       len = sizeof(buf);
-      DO(dh_export_radix(256, buf, &len, PK_PRIVATE, &k1));
+      DO(dh_export_key(buf, &len, PK_PRIVATE, &k1));
       if (compare_testvector(buf, len, xbin, sizeof(xbin), "radix_test", i*10 + 2)) {
          printf("radix_test: dh_export+PK_PRIVATE mismatch\n");
          dh_free(&k1);
          return CRYPT_ERROR;
       }
       len = sizeof(buf);
-      DO(dh_export_radix(256, buf, &len, PK_PUBLIC, &k1));
+      DO(dh_export_key(buf, &len, PK_PUBLIC, &k1));
       if (compare_testvector(buf, len, ybin, sizeof(ybin), "radix_test", i*10 + 3)) {
-         printf("radix_test: dh_export+PK_PUBLIC mismatch\n");
-         dh_free(&k1);
-         return CRYPT_ERROR;
-      }
-      len = sizeof(buf);
-      DO(dh_export_radix(47, buf, &len, PK_PRIVATE, &k1));
-      if (compare_testvector(buf, len, xr47, strlen(xr47)+1, "radix_test", i*10 + 4)) {
-         printf("radix_test: dh_export+PK_PRIVATE mismatch\n");
-         dh_free(&k1);
-         return CRYPT_ERROR;
-      }
-      len = sizeof(buf);
-      DO(dh_export_radix(47, buf, &len, PK_PUBLIC, &k1));
-      if (compare_testvector(buf, len, yr47, strlen(yr47)+1, "radix_test", i*10 + 5)) {
          printf("radix_test: dh_export+PK_PUBLIC mismatch\n");
          dh_free(&k1);
          return CRYPT_ERROR;
@@ -396,7 +382,7 @@ static int _radix_test(void)
          return CRYPT_ERROR;
       }
       len = sizeof(buf);
-      DO(dh_export_radix(256, buf, &len, PK_PUBLIC, &k2));
+      DO(dh_export_key(buf, &len, PK_PUBLIC, &k2));
       if (compare_testvector(buf, len, ybin, sizeof(ybin), "radix_test", i*10 + 7)) {
          printf("radix_test: dh_export+PK_PUBLIC mismatch\n");
          dh_free(&k2);
