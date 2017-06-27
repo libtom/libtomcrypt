@@ -330,7 +330,7 @@ int blake2s_process(hash_state *md, const unsigned char *in, unsigned long inlen
       unsigned long fill = BLAKE2S_BLOCKBYTES - left;
       if (inlen > fill) {
          md->blake2s.curlen = 0;
-         XMEMCPY(md->blake2s.buf + left, in, fill); /* Fill buffer */
+         XMEMCPY(md->blake2s.buf + (left % sizeof(md->blake2s.buf)), in, fill); /* Fill buffer */
          blake2s_increment_counter(md, BLAKE2S_BLOCKBYTES);
          blake2s_compress(md, md->blake2s.buf); /* Compress */
          in += fill;
