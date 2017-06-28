@@ -18,22 +18,7 @@
 void dh_free(dh_key *key)
 {
    LTC_ARGCHKVD(key != NULL);
-   if ( key->base ) {
-      mp_clear( key->base );
-      key->base = NULL;
-   }
-   if ( key->prime ) {
-      mp_clear( key->prime );
-      key->prime = NULL;
-   }
-   if ( key->x ) {
-      mp_clear( key->x );
-      key->x = NULL;
-   }
-   if ( key->y ) {
-      mp_clear( key->y );
-      key->y = NULL;
-   }
+   mp_cleanup_multi(&key->base, &key->prime, &key->x, &key->y, NULL);
 }
 
 #endif /* LTC_MDH */
