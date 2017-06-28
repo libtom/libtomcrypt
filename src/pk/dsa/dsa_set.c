@@ -14,10 +14,13 @@
 /**
   Import DSA's p, q & g from raw numbers
   @param p       DSA's p  in binary representation
+  @param plen    The length of p
   @param q       DSA's q  in binary representation
+  @param qlen    The length of q
   @param g       DSA's g  in binary representation
+  @param glen    The length of g
   @param key     [out] the destination for the imported key
-  @return CRYPT_OK if successful, upon error allocated memory is freed
+  @return CRYPT_OK if successful.
 */
 int dsa_set_pqg(const unsigned char *p,  unsigned long plen,
                 const unsigned char *q,  unsigned long qlen,
@@ -68,7 +71,7 @@ LBL_ERR:
   @param dsaparam    The DSA param DER encoded data
   @param dsaparamlen The length of dhparam data
   @param key         [out] the destination for the imported key
-  @return CRYPT_OK if successful, upon error allocated memory is freed
+  @return CRYPT_OK if successful.
 */
 int dsa_set_pqg_dsaparam(const unsigned char *dsaparam, unsigned long dsaparamlen,
                          dsa_key *key)
@@ -113,10 +116,12 @@ LBL_ERR:
 
 /**
   Import DSA public or private key from raw numbers
-  @param x       DSA's x  in binary representation (only private key, NULL for public key)
-  @param y       DSA's y  in binary representation
+  @param pub     DSA's y (public key) in binary representation
+  @param publen  The length of pub
+  @param priv    DSA's x (private key) in binary representation (can be NULL when importing public key)
+  @param privlen The length of priv
   @param key     [out] the destination for the imported key
-  @return CRYPT_OK if successful, upon error allocated memory is freed
+  @return CRYPT_OK if successful.
 */
 int dsa_set_key(const unsigned char *pub, unsigned long publen,
                 const unsigned char *priv, unsigned long privlen,

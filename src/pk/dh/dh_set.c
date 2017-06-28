@@ -93,8 +93,7 @@ LBL_ERR:
 /**
   Import DH key parts p and g from built-in DH groups
 
-  @param dhparam    The DH param DER encoded data
-  @param dhparamlen The length of dhparam data
+  @param groupsize  The size of the DH group to use
   @param key        [out] Where the newly created DH key will be stored
   @return CRYPT_OK if successful, note: on error all allocated memory will be freed automatically.
 */
