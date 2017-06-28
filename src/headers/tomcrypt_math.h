@@ -493,6 +493,7 @@ extern ltc_math_descriptor ltc_mp;
 
 int ltc_init_multi(void **a, ...);
 void ltc_deinit_multi(void *a, ...);
+void ltc_cleanup_multi(void **a, ...);
 
 #ifdef LTM_DESC
 extern const ltc_math_descriptor ltm_desc;
@@ -515,6 +516,7 @@ extern const ltc_math_descriptor gmp_desc;
 #define mp_init_multi                ltc_init_multi
 #define mp_clear(a)                  ltc_mp.deinit(a)
 #define mp_clear_multi               ltc_deinit_multi
+#define mp_cleanup_multi             ltc_cleanup_multi
 #define mp_init_copy(a, b)           ltc_mp.init_copy(a, b)
 
 #define mp_neg(a, b)                 ltc_mp.neg(a, b)
