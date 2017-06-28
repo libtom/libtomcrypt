@@ -3016,9 +3016,9 @@ struct _prng_descriptor {
 
     void (*done)(prng_state *);
 
-    int (*export)(unsigned char *, unsigned long *, prng_state *);
+    int (*pexport)(unsigned char *, unsigned long *, prng_state *);
 
-    int (*import)(const unsigned char *, unsigned long, prng_state *);
+    int (*pimport)(const unsigned char *, unsigned long, prng_state *);
 
     int (*test)(void);
 };
@@ -3050,10 +3050,12 @@ will return \textbf{CRYPT\_OK} if the PRNG was found and removed.  Otherwise, it
 \begin{small}
 \begin{tabular}{|c|c|l|}
 \hline \textbf{Name} & \textbf{Descriptor} & \textbf{Usage} \\
+\hline ChaCha20 & chacha20\_prng\_desc & Stream Cipher PRNG (recommended, fast) \\
+\hline Fortuna & fortuna\_desc & Fast long-term PRNG (recommended, secure) \\
+\hline RC4 & rc4\_desc & Stream Cipher PRNG \\
+\hline SOBER-128 & sober128\_desc & Stream Cipher PRNG \\
+\hline sprng & sprng\_desc & Secure PRNG using the System RNG \\
 \hline Yarrow & yarrow\_desc & Fast short-term PRNG \\
-\hline Fortuna & fortuna\_desc & Fast long-term PRNG (recommended) \\
-\hline RC4 & rc4\_desc & Stream Cipher \\
-\hline SOBER-128 & sober128\_desc & Stream Cipher (also very fast PRNG) \\
 \hline
 \end{tabular}
 \end{small}
@@ -3066,7 +3068,7 @@ Yarrow is fast PRNG meant to collect an unspecified amount of entropy from sourc
 (keyboard, mouse, interrupts, etc), and produce an unbounded string of random bytes.
 
 \textit{Note:} This PRNG is still secure for most tasks but is no longer recommended.  Users
-should use Fortuna instead.
+should use Fortuna or ChaCha20 instead.
 
 \subsubsection{Fortuna}
 
@@ -3089,14 +3091,9 @@ recover from that problem until new entropy is added to the pool and put to use 
 \subsubsection{RC4}
 
 RC4 is an old stream cipher that can also double duty as a PRNG in a pinch.  You key RC4 by
-calling add\_entropy(), and setup the key by calling ready().  You can only add up to 256 bytes via
-add\_entropy().
+calling add\_entropy(), and setup the key by calling ready().
 
-When you read from RC4, the output is XOR'ed against your buffer you provide.  In this manner, you can use rc4\_read()
-as an encrypt (and decrypt) function.
-
-You really should not use RC4.  This is not because RC4 is weak, (though biases are known to exist) but simply due to
-the fact that faster alternatives exist.
+You really should not use RC4 for cryptographical purposes, it's broken.
 
 \subsubsection{SOBER-128}
 
@@ -3114,9 +3111,16 @@ that is a multiple of four bytes.
 Like RC4, the output of SOBER--128 is XOR'ed against the buffer you provide it.  In this manner, you can use
 sober128\_read() as an encrypt (and decrypt) function.
 
-Since SOBER-128 has a fixed keying scheme, and is very fast (faster than RC4) the ideal usage of SOBER-128 is to
+Since SOBER--128 has a fixed keying scheme, and is very fast (faster than RC4) the ideal usage of SOBER-128 is to
 key it from the output of Fortuna (or Yarrow), and use it to encrypt messages.  It is also ideal for
 simulations which need a high quality (and fast) stream of bytes.
+
+\subsubsection{ChaCha20}
+
+ChaCha20 is a fast stream cipher built on a pseudorandom function designed by Daniel J. Bernstein.
+It can also double duty as a PRNG.
+
+The implementation supports adding entropy via the add\_entropy() function while already being operational.
 
 \subsubsection{Example Usage}
 \begin{small}
@@ -3225,6 +3229,7 @@ int main(void)
 \end{small}
 
 \subsection{The Secure PRNG Interface}
+\index{sprng\_desc}
 It is possible to access the secure RNG through the PRNG interface, and in turn use it within dependent functions such
 as the PK API.  This simplifies the cryptosystem on platforms where the secure RNG is fast.  The secure PRNG never
 requires to be started, that is you need not call the start, add\_entropy, or ready functions.  For example, consider
