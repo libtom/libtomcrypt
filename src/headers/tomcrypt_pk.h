@@ -442,9 +442,20 @@ typedef struct {
    void *y;
 } dsa_key;
 
+#define LTC_DSA_KEY_INITIALIZER { PK_PUBLIC, 0, NULL, NULL, NULL, NULL, NULL }
+
 int dsa_make_key(prng_state *prng, int wprng, int group_size, int modulus_size, dsa_key *key);
 
-int dsa_make_key_ex(prng_state *prng, int wprng, int group_size, int modulus_size, dsa_key *key, char* p_hex, char* q_hex, char* g_hex);
+int dsa_set_pqg(const unsigned char *p,  unsigned long plen,
+                const unsigned char *q,  unsigned long qlen,
+                const unsigned char *g,  unsigned long glen,
+                dsa_key *key);
+int dsa_generate_pqg(prng_state *prng, int wprng, int group_size, int modulus_size, dsa_key *key);
+
+int dsa_set_key(const unsigned char *pub, unsigned long publen,
+                const unsigned char *priv, unsigned long privlen,
+                dsa_key *key);
+int dsa_make_key_ex(prng_state *prng, int wprng, dsa_key *key);
 
 void dsa_free(dsa_key *key);
 
@@ -473,7 +484,6 @@ int dsa_decrypt_key(const unsigned char *in,  unsigned long  inlen,
                           unsigned char *out, unsigned long *outlen,
                           dsa_key *key);
 
-int dsa_import_radix(int radix, char *p, char *q, char *g, char *x, char *y, dsa_key *key);
 int dsa_import(const unsigned char *in, unsigned long inlen, dsa_key *key);
 int dsa_export(unsigned char *out, unsigned long *outlen, int type, dsa_key *key);
 int dsa_verify_key(dsa_key *key, int *stat);

@@ -646,7 +646,7 @@ static void time_prng(void)
 /* time various DSA operations */
 static void time_dsa(void)
 {
-   dsa_key       key;
+   dsa_key       key = LTC_DSA_KEY_INITIALIZER;
    ulong64       t1, t2;
    unsigned long x, y;
    int           err;
@@ -665,7 +665,11 @@ static const struct {
        for (y = 0; y < 4; y++) {
            t_start();
            t1 = t_read();
-           if ((err = dsa_make_key(&yarrow_prng, find_prng("yarrow"), groups[x].group, groups[x].modulus, &key)) != CRYPT_OK) {
+           if ((err = dsa_generate_pqg(&yarrow_prng, find_prng("yarrow"), groups[x].group, groups[x].modulus, &key)) != CRYPT_OK) {
+              fprintf(stderr, "\n\ndsa_generate_pqg says %s, wait...no it should say %s...damn you!\n", error_to_string(err), error_to_string(CRYPT_OK));
+              exit(EXIT_FAILURE);
+           }
+           if ((err = dsa_make_key_ex(&yarrow_prng, find_prng("yarrow"), &key)) != CRYPT_OK) {
               fprintf(stderr, "\n\ndsa_make_key says %s, wait...no it should say %s...damn you!\n", error_to_string(err), error_to_string(CRYPT_OK));
               exit(EXIT_FAILURE);
            }
