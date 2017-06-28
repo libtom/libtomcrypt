@@ -18,7 +18,7 @@
 
 /**
   Gets length of DER encoding of GeneralizedTime
-  @param utctime      The UTC time structure to get the size of
+  @param gtime        The GeneralizedTime structure to get the size of
   @param outlen [out] The length of the DER encoding
   @return CRYPT_OK if successful
 */

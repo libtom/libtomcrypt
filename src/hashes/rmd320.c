@@ -364,6 +364,7 @@ int rmd320_init(hash_state * md)
    @param inlen  The length of the data (octets)
    @return CRYPT_OK if successful
 */
+int rmd320_process(hash_state * md, const unsigned char *in, unsigned long inlen);
 HASH_PROCESS(rmd320_process, rmd320_compress, rmd320, 64)
 
 /**

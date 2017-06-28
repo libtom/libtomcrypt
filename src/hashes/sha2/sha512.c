@@ -193,6 +193,7 @@ int sha512_init(hash_state * md)
    @param inlen  The length of the data (octets)
    @return CRYPT_OK if successful
 */
+int sha512_process(hash_state * md, const unsigned char *in, unsigned long inlen);
 HASH_PROCESS(sha512_process, sha512_compress, sha512, 128)
 
 /**
