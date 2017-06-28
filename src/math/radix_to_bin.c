@@ -10,15 +10,15 @@
 
 /**
    @file radix_to_bin.c
-   Convert an MPI from a specific radix to binary data.
+   Convert data from a specific radix to binary.
    Steffen Jaeckel
 */
 
 /**
-   Convert an MPI from a specific radix to binary data
+   Convert data from a specific radix to binary
 
    @param in    The input
-   @param radix The radix of the input
+   @param radix The radix of the input 2..64
    @param out   The output buffer
    @param len   [in/out] The length of the output buffer
 

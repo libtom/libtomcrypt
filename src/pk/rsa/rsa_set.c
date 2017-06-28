@@ -25,7 +25,7 @@
 */
 int rsa_set_key(const unsigned char *N,  unsigned long Nlen,
                 const unsigned char *e,  unsigned long elen,
-                const unsigned char *d,  unsigned long dlen, /* is NULL for public keys */
+                const unsigned char *d,  unsigned long dlen,
                 rsa_key *key)
 {
    int err;

@@ -125,7 +125,7 @@ LBL_OK:
 
   return CRYPT_OK;
 LBL_ERR:
-   mp_clear_multi(key->p, key->g, key->q, key->x, key->y, NULL);
+   dsa_free(key);
    return err;
 }
 

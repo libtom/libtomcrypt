@@ -129,7 +129,7 @@ int rsa_import_pkcs8(const unsigned char *in, unsigned long inlen,
 
 int rsa_set_key(const unsigned char *N,  unsigned long Nlen,
                 const unsigned char *e,  unsigned long elen,
-                const unsigned char *d,  unsigned long dlen, /* is NULL for public keys */
+                const unsigned char *d,  unsigned long dlen,
                 rsa_key *key);
 int rsa_set_factors(const unsigned char *p,  unsigned long plen,
                     const unsigned char *q,  unsigned long qlen,

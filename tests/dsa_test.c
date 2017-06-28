@@ -112,21 +112,27 @@ static int _dsa_compat_test(void)
 
   x = sizeof(tmp);
   DO(dsa_export(tmp, &x, PK_PRIVATE | PK_STD, &key));
-  DO((x == sizeof(openssl_priv_dsa))?CRYPT_OK:CRYPT_ERROR);
-  DO((memcmp(tmp, openssl_priv_dsa, sizeof(openssl_priv_dsa)) == 0)?CRYPT_OK:CRYPT_ERROR);
+  if (compare_testvector(tmp, x, openssl_priv_dsa, sizeof(openssl_priv_dsa),
+                         "DSA private export failed from dsa_import(priv_key)\n", 0)) {
+     return CRYPT_FAIL_TESTVECTOR;
+  }
 
   x = sizeof(tmp);
   DO(dsa_export(tmp, &x, PK_PUBLIC | PK_STD, &key));
-  DO((x == sizeof(openssl_pub_dsa))?CRYPT_OK:CRYPT_ERROR);
-  DO((memcmp(tmp, openssl_pub_dsa, sizeof(openssl_pub_dsa)) == 0)?CRYPT_OK:CRYPT_ERROR);
+  if (compare_testvector(tmp, x, openssl_pub_dsa, sizeof(openssl_pub_dsa),
+                         "DSA public export failed from dsa_import(priv_key)\n", 0)) {
+     return CRYPT_FAIL_TESTVECTOR;
+  }
   dsa_free(&key);
 
   DO(dsa_import(openssl_pub_dsa, sizeof(openssl_pub_dsa), &key));
 
   x = sizeof(tmp);
   DO(dsa_export(tmp, &x, PK_PUBLIC | PK_STD, &key));
-  DO((x == sizeof(openssl_pub_dsa))?CRYPT_OK:CRYPT_ERROR);
-  DO((memcmp(tmp, openssl_pub_dsa, sizeof(openssl_pub_dsa)) == 0)?CRYPT_OK:CRYPT_ERROR);
+  if (compare_testvector(tmp, x, openssl_pub_dsa, sizeof(openssl_pub_dsa),
+                         "DSA public export failed from dsa_import(pub_key)\n", 0)) {
+     return CRYPT_FAIL_TESTVECTOR;
+  }
   dsa_free(&key);
 
   /* try import private key from raw hexadecimal numbers */
@@ -148,9 +154,9 @@ static int _dsa_compat_test(void)
                  &key));
   len = sizeof(buf);
   DO(dsa_export(buf, &len, PK_PRIVATE | PK_STD, &key));
-  if (len != sizeof(openssl_priv_dsa) || memcmp(buf, openssl_priv_dsa, len)) {
-     fprintf(stderr, "DSA private export failed to match dsa_import_radix(16, ..)\n");
-     return 1;
+  if (compare_testvector(buf, len, openssl_priv_dsa, sizeof(openssl_priv_dsa),
+                         "DSA private export failed from dsa_set_pqg() & dsa_set_key()\n", 0)) {
+     return CRYPT_FAIL_TESTVECTOR;
   }
   dsa_free(&key);
 
@@ -164,13 +170,13 @@ static int _dsa_compat_test(void)
                  &key));
   len = sizeof(buf);
   DO(dsa_export(buf, &len, PK_PUBLIC | PK_STD, &key));
-  if (len != sizeof(openssl_pub_dsa) || memcmp(buf, openssl_pub_dsa, len)) {
-     fprintf(stderr, "DSA public export failed to match dsa_import_radix(16, ..)\n");
-     return 1;
+  if (compare_testvector(buf, len, openssl_pub_dsa, sizeof(openssl_pub_dsa),
+                         "DSA public export failed from dsa_set_pqg() & dsa_set_key()\n", 0)) {
+     return CRYPT_FAIL_TESTVECTOR;
   }
   dsa_free(&key);
 
-  return 0;
+  return CRYPT_OK;
 }
 
 int dsa_test(void)
@@ -181,7 +187,7 @@ int dsa_test(void)
    dsa_key key = LTC_DSA_KEY_INITIALIZER;
    dsa_key key2 = LTC_DSA_KEY_INITIALIZER;
 
-   _dsa_compat_test();
+   DO(_dsa_compat_test());
 
    /* make a random key */
    DO(dsa_generate_pqg(&yarrow_prng, find_prng("yarrow"), 20, 128, &key));

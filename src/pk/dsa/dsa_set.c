@@ -12,7 +12,7 @@
 #ifdef LTC_MDSA
 
 /**
-  Import DSA public or private key from raw numbers
+  Import DSA's p, q & g from raw numbers
   @param p       DSA's p  in binary representation
   @param q       DSA's q  in binary representation
   @param g       DSA's g  in binary representation
@@ -42,9 +42,9 @@ int dsa_set_pqg(const unsigned char *p,  unsigned long plen,
    err = mp_init_multi(&key->p, &key->g, &key->q, &key->x, &key->y, NULL);
    if (err != CRYPT_OK) return err;
 
-   if ((err = mp_read_unsigned_bin(key->p , (unsigned char *)p , plen)) != CRYPT_OK) { goto LBL_ERR; }
-   if ((err = mp_read_unsigned_bin(key->g , (unsigned char *)g , glen)) != CRYPT_OK) { goto LBL_ERR; }
-   if ((err = mp_read_unsigned_bin(key->q , (unsigned char *)q , qlen)) != CRYPT_OK) { goto LBL_ERR; }
+   if ((err = mp_read_unsigned_bin(key->p, (unsigned char *)p , plen)) != CRYPT_OK) { goto LBL_ERR; }
+   if ((err = mp_read_unsigned_bin(key->g, (unsigned char *)g , glen)) != CRYPT_OK) { goto LBL_ERR; }
+   if ((err = mp_read_unsigned_bin(key->q, (unsigned char *)q , qlen)) != CRYPT_OK) { goto LBL_ERR; }
 
    key->qord = mp_unsigned_bin_size(key->q);
 
@@ -82,10 +82,10 @@ int dsa_set_key(const unsigned char *pub, unsigned long publen,
    LTC_ARGCHK(key->q      != NULL);
    LTC_ARGCHK(ltc_mp.name != NULL);
 
-   if ((err = mp_read_unsigned_bin(key->y , (unsigned char *)pub , publen)) != CRYPT_OK) { goto LBL_ERR; }
+   if ((err = mp_read_unsigned_bin(key->y, (unsigned char *)pub , publen)) != CRYPT_OK) { goto LBL_ERR; }
    if (priv != NULL) {
       key->type = PK_PRIVATE;
-      if ((err = mp_read_unsigned_bin(key->x , (unsigned char *)priv , privlen)) != CRYPT_OK) { goto LBL_ERR; }
+      if ((err = mp_read_unsigned_bin(key->x, (unsigned char *)priv , privlen)) != CRYPT_OK) { goto LBL_ERR; }
    }
    else {
       key->type = PK_PUBLIC;
