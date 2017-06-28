@@ -163,9 +163,9 @@ src/pk/asn1/der/utf8/der_encode_utf8_string.o src/pk/asn1/der/utf8/der_length_ut
 src/pk/dh/dh.o src/pk/dh/dh_check_pubkey.o src/pk/dh/dh_export.o src/pk/dh/dh_export_key.o \
 src/pk/dh/dh_free.o src/pk/dh/dh_import.o src/pk/dh/dh_make_key.o src/pk/dh/dh_set.o \
 src/pk/dh/dh_shared_secret.o src/pk/dsa/dsa_decrypt_key.o src/pk/dsa/dsa_encrypt_key.o \
-src/pk/dsa/dsa_export.o src/pk/dsa/dsa_free.o src/pk/dsa/dsa_import.o src/pk/dsa/dsa_import_radix.o \
-src/pk/dsa/dsa_make_key.o src/pk/dsa/dsa_shared_secret.o src/pk/dsa/dsa_sign_hash.o \
-src/pk/dsa/dsa_verify_hash.o src/pk/dsa/dsa_verify_key.o src/pk/ecc/ecc.o \
+src/pk/dsa/dsa_export.o src/pk/dsa/dsa_free.o src/pk/dsa/dsa_generate_pqg.o src/pk/dsa/dsa_import.o \
+src/pk/dsa/dsa_make_key.o src/pk/dsa/dsa_set.o src/pk/dsa/dsa_shared_secret.o \
+src/pk/dsa/dsa_sign_hash.o src/pk/dsa/dsa_verify_hash.o src/pk/dsa/dsa_verify_key.o src/pk/ecc/ecc.o \
 src/pk/ecc/ecc_ansi_x963_export.o src/pk/ecc/ecc_ansi_x963_import.o src/pk/ecc/ecc_decrypt_key.o \
 src/pk/ecc/ecc_encrypt_key.o src/pk/ecc/ecc_export.o src/pk/ecc/ecc_free.o src/pk/ecc/ecc_get_size.o \
 src/pk/ecc/ecc_import.o src/pk/ecc/ecc_make_key.o src/pk/ecc/ecc_shared_secret.o \
@@ -193,9 +193,9 @@ src/stream/sober128/sober128_test.o
 #List of test objects to compile
 TOBJECTS=tests/base64_test.o tests/cipher_hash_test.o tests/common.o tests/der_test.o tests/dh_test.o \
 tests/dsa_test.o tests/ecc_test.o tests/file_test.o tests/katja_test.o tests/mac_test.o tests/misc_test.o \
-tests/modes_test.o tests/multi_test.o tests/no_prng.o tests/pkcs_1_eme_test.o tests/pkcs_1_emsa_test.o \
-tests/pkcs_1_oaep_test.o tests/pkcs_1_pss_test.o tests/pkcs_1_test.o tests/prng_test.o \
-tests/rotate_test.o tests/rsa_test.o tests/store_test.o tests/test.o
+tests/modes_test.o tests/mpi_test.o tests/multi_test.o tests/no_prng.o tests/pkcs_1_eme_test.o \
+tests/pkcs_1_emsa_test.o tests/pkcs_1_oaep_test.o tests/pkcs_1_pss_test.o tests/pkcs_1_test.o \
+tests/prng_test.o tests/rotate_test.o tests/rsa_test.o tests/store_test.o tests/test.o
 
 #The following headers will be installed by "make install"
 HEADERS=src/headers/tomcrypt.h src/headers/tomcrypt_argchk.h src/headers/tomcrypt_cfg.h \
