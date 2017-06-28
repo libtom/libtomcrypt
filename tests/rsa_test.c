@@ -133,17 +133,6 @@ static const char *hex_key[] = {
      "D6860E85420B0408842160F00E0D88FD1E3610654F1E53B40872805C3F596617E698F2E96C7A064CAC763DED8CA1CEAD1BBDB47D28BCE30E388D99D805B5A371",
      "DCCC27C8E4DC6248D59BAFF5AB60F621FD53E2B75D09C91AA104A9FC612C5D04583A5A39F14A215667FDCC20A38F78185A793D2E8E7E860AE6A833C104174A9F" };
 
-/* private key - decimal */
-static const char *dec_key[] = {
-     "140715588362011445903700789698620706303856890313846506579552319155852306603445626455616876267358538338151320072087950597426668358843246116141391746806252390039505422193715556188330352166601762210959618868365359433828069868584168017348772565936127608284367789455480066115411950431014508224203325089671253575809",
-     "5757027123463051531073361217943880203685183318942602176865989327630429772398553254013771630974725523559703665512845231173916766336576994271809362147385481",
-     "8985566687080619280443708121716583572314829758991088624433980393739288226842152842353421251125477168722728289150354056572727675764519591179919295246625201",
-     "65537",
-     "145785157837445763858971808379627955816432214431353481009581718367907499729204464589803079767521523397316119124291441688063985017444589154155338311524887989148444674974298105211582428885045820631376256167593861203305479546421254276833052913791538765775697977909548553897629170045372476652935456198173974086909",
-     "12975386429272921390465467849934248466500992474501042673679976015025637113752114471707151502138750486193421113099777767227628554763059580218432153760685133",
-     "11235515692122231999359687466333538198133993435121038200055897831921312127192760781281669977582095991578071163376390471936482431583372835883432943212143473",
-     "11564102464723136702427739477324729528451027211272900753079601723449664482225846595388433622640284454614991112736446376964904474099700895632145077333609119" };
-
 /*** openssl public RSA key in DER format */
 static const unsigned char openssl_public_rsa[] = {
    0x30, 0x81, 0x9f, 0x30, 0x0d, 0x06, 0x09, 0x2a, 0x86, 0x48, 0x86, 0xf7, 0x0d, 0x01, 0x01, 0x01,
@@ -277,32 +266,6 @@ static int rsa_compat_test(void)
    len = sizeof(buf);
    DO(rsa_export(buf, &len, PK_PUBLIC, &key));
    if (compare_testvector(buf, len, openssl_public_rsa_stripped, sizeof(openssl_public_rsa_stripped), "RSA public export (from hex)", 0)) {
-      return 1;
-   }
-   rsa_free(&key);
-
-
-   /* convert raw decimal numbers to binary */
-   for (i = 0; i < 8; ++i) {
-      key_lens[i] = sizeof(key_parts[i]);
-      DO(radix_to_bin(dec_key[i], 10, key_parts[i], &key_lens[i]));
-   }
-   /* try import private key from converted raw decimal numbers */
-   DO(rsa_set_key(key_parts[pk_N], key_lens[pk_N], key_parts[pk_e], key_lens[pk_e], key_parts[pk_d], key_lens[pk_d], &key));
-   DO(rsa_set_factors(key_parts[pk_p], key_lens[pk_p], key_parts[pk_q], key_lens[pk_q], &key));
-   DO(rsa_set_crt_params(key_parts[pk_dP], key_lens[pk_dP], key_parts[pk_dQ], key_lens[pk_dQ], key_parts[pk_qP], key_lens[pk_qP], &key));
-   len = sizeof(buf);
-   DO(rsa_export(buf, &len, PK_PRIVATE, &key));
-   if (compare_testvector(buf, len, openssl_private_rsa, sizeof(openssl_private_rsa), "RSA private export (from dec)", 0)) {
-      return 1;
-   }
-   rsa_free(&key);
-
-   /* try import public key from raw converted decimal numbers */
-   DO(rsa_set_key(key_parts[pk_N], key_lens[pk_N], key_parts[pk_e], key_lens[pk_e], NULL, 0, &key));
-   len = sizeof(buf);
-   DO(rsa_export(buf, &len, PK_PUBLIC, &key));
-   if (compare_testvector(buf, len, openssl_public_rsa_stripped, sizeof(openssl_public_rsa_stripped), "RSA public export (from dec)", 0)) {
       return 1;
    }
    rsa_free(&key);

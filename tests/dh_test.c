@@ -10,7 +10,7 @@
 
 #ifdef LTC_MDH
 
-#ifdef DH4096
+#ifdef LTC_DH4096
 #define KEYSIZE 4096
 #else
 #define KEYSIZE 2048
@@ -148,58 +148,14 @@ static int _dhparam_test(void)
    return CRYPT_OK;
 }
 
-static int _radix_test(void)
+static int _set_test(void)
 {
    dh_key k1 = LTC_DH_KEY_INITIALIZER;
    dh_key k2 = LTC_DH_KEY_INITIALIZER;
    dh_key k3 = LTC_DH_KEY_INITIALIZER;
    unsigned char buf[4096];
    unsigned long len;
-   int i, j;
-   /* RADIX 16 */
-   char *ghex = "2";
-   char *phex = "FFFFFFFFFFFFFFFFC90FDAA22168C234C4C6628B80DC1CD129024E088A67CC74020BBEA63B139B22"
-                "514A08798E3404DDEF9519B3CD3A431B302B0A6DF25F14374FE1356D6D51C245E485B576625E7EC6"
-                "F44C42E9A637ED6B0BFF5CB6F406B7EDEE386BFB5A899FA5AE9F24117C4B1FE649286651ECE45B3D"
-                "C2007CB8A163BF0598DA48361C55D39A69163FA8FD24CF5F83655D23DCA3AD961C62F356208552BB"
-                "9ED529077096966D670C354E4ABC9804F1746C08CA18217C32905E462E36CE3BE39E772C180E8603"
-                "9B2783A2EC07A28FB5C55DF06F4C52C9DE2BCBF6955817183995497CEA956AE515D2261898FA0510"
-                "15728E5A8AACAA68FFFFFFFFFFFFFFFF";
-   char *xhex = "A6681ADC386CE944C3DED9A7301DCC9C518250E3EDB62F959198F8DC0057DD6FB57ABAFD788198B1";
-   char *yhex = "39046632C834418DFA07B3091538B614D1FB5DBB785C0FBEA3B98B295BC0CD076A88D9452141A269"
-                "E8BAEB1DD654EBA03A5705318D129754CDF4003A8C399240FBB8F162490F6F0DC70E414B6FEE8808"
-                "6AFAA48E9F3A248EDC093452663D34E0E809D4F6BADBB36F80B6813EBF7C3281B862209E5604BDEA"
-                "8B8F5F7BFDC3EEB7ADB73048289BCEA0F5A5CDEE7DF91CD1F0BA632F06DBE9BA7EF014B84B02D497"
-                "CA7D0C60F734752A649DA496946B4E531B30D9F82EDD855636C0B0F2AE232E4186454E8887BB423E"
-                "32A5A2495EACBA99620ACD03A38345EBB6735E62330A8EE9AA6C8370410F5CD45AF37EE90A0DA95B"
-                "E96FC939E88FE0BD2CD09FC8F524208C";
-   /* RADIX 47 */
-   char *gr47 = "2";
-   char *pr47 = "F27Mg1SadOFIRbDOJ5dHgHiVF02Z1LHHQ6G5SLG2U8aTdfH1ETk4GARRE7WW99dBUBLb9e2OHFIaSM1A"
-                "ag2LNNjgYa9I9CjQGJihL3J7A2SGQe8j5Ch8EHMj5jVbAYDiQKhhPhM6Hc56fKS40GUfJkGO7KJ6EXZQ"
-                "VgbSa2AkPC65F91g0PaYie8AGNVaFKaV9HOQf3ia1iW4i6eCOB9CcBbH7TbQij8AEgjZ0VRBcLKc6UYO"
-                "1Zc3I2Jc0h1H2HBEH8ONI3OYBbaPV6XhAd8WCc60D0RDBU3H9U7cWL28a0c90XNO0dh5RXEFBbUCE2ZG"
-                "gh9XQSVIHkVbFIS5F5IGVOkiWAVc9i8BHB2V0UbGW6UdRTZVV";
-   char *xr47 = "6bhO7O9NWFRgEMjdU0Y5POj3c1JP15MYEdIg3FO1PEjUY2aGYNSXcaF01R";
-   char *yr47 = "3GNPNWEYfKML1cIbI7Cc1Z0O7aQLJgB734dO2i56LLYDdI4gHYk2GAbQH2WI97hNeC7dj3fPEH8I9gV9"
-                "U323AXj1AJXbFPFIHGOTdC29QUUeH2SSc6NWhfQDDXd5Q5iXCKEAUGX3SKcNFIfVOYJgZCLjfHYQdgOQ"
-                "GCjKNgbEV7Hj34MU3b79iANX2DbMYfb9iGi78BWH2HYAd7IAhk7U0OYGHKJX1bIUUj1KBLhAUg46GaER"
-                "G9W3ARMfBCj6kSdDF9TdkWAjWTDj722IeVJERC4bKU2VDFG20kDhCMF985efD1SS8DfXcdCHF1kDUkSA"
-                "884FHYiFEPkaagQOBQaN9BNaEHNbbd002DCIIX5eMP4HgPJPF";
-   /* RADIX 64 */
-   char *gr64 = "2";
-   char *pr64 = "3//////////yaFsg8XQC8qnCPYYu3S7D4f0au8YcVCT08BlgOx4viYKKe8UOuq1DtlbHcppJf36p0h2c"
-                "toNnGtJ+4rRMrHmaNaXRLsObv+nlHCGkccD+rh2/zSjlG6j+tkE6lxMecVfQwV915yIn/cIIXcKUpaMp"
-                "t207oueME/1PZQI3OSLTEQQHO/gFqapr+3PLqZtAEjbXnYyrOWXLAxdjKf1t2Mbcrd33LEIhoO1F5qR0"
-                "ZA625yCf1UHYuspZlZddSi60w60vidWwBi1wAFjSLTy6zCKidUAylsbLWN63cLINpgbMhb5T8c69Zw1H"
-                "0LSevQYgogQF//////////";
-   char *xr64 = "2cQ1hSE6pfHCFUsQSm7SoSKO9Gu+ssBvMHcFZS05VTRxLwklruWPYn";
-   char *yr64 = "v16Ooo3H1ZVe7imaLEBOKqVjTktXS3xwZkOifMy3D1sg8sKKXGQ9fwBhh7TPKww0wLmKnZHANLCtq03g"
-                "CEP90+xZnOaaFRmt73a5BR+w826hwf8wVEYIEt0aqKcOzDE3e2TJskjkpRu2sWJw/V3A1k68WdbO4lUg"
-                "BZrzx/SFkjwstC4WecywWzQNDxdtv7D7mkcCl1jlfkdxm5BXB0jINodqCOFSqTIfadQIMb6jEKnimsVW"
-                "ktOLMDi2myguZBa66HKw8Xxj2FZAbeabUhBgPOWhD0wE3HUksSrvYCmgEwQfiWt113rpKMlD+wGeDgLl"
-                "fRyavw8/WlIpGdyZr922C";
-   /* RADIX 256 */
+   int i;
    unsigned char gbin[] = { 0x02 };
    unsigned char pbin[] = {
       0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xC9, 0x0F, 0xDA, 0xA2, 0x21, 0x68, 0xC2, 0x34,
@@ -249,10 +205,7 @@ static int _radix_test(void)
      void* p; int plen;
      void* x; int xlen;
      void* y; int ylen;
-   } test[4] = {
-      { 16,  ghex, strlen(ghex)+1, phex, strlen(phex)+1, xhex, strlen(xhex)+1, yhex, strlen(yhex)+1 },
-      { 47,  gr47, strlen(gr47)+1, pr47, strlen(pr47)+1, xr47, strlen(xr47)+1, yr47, strlen(yr47)+1 },
-      { 64,  gr64, strlen(gr64)+1, pr64, strlen(pr64)+1, xr64, strlen(xr64)+1, yr64, strlen(yr64)+1 },
+   } test[1] = {
       { 256, gbin, sizeof(gbin),   pbin, sizeof(pbin),   xbin, sizeof(xbin),   ybin, sizeof(ybin)   }
    };
 
@@ -314,26 +267,10 @@ static int _radix_test(void)
       0xF3, 0x7E, 0xE9, 0x0A, 0x0D, 0xA9, 0x5B, 0xE9, 0x6F, 0xC9, 0x39, 0xE8, 0x8F, 0xE0, 0xBD, 0x2C,
       0xD0, 0x9F, 0xC8, 0xF5, 0x24, 0x20, 0x8C
    };
-   unsigned char key_parts[4][512];
-   unsigned long key_lens[4];
 
-   for (i = 0; i < 4; i++) {
-      for (j = 0; j < 4; ++j) {
-         key_lens[j] = sizeof(key_parts[j]);
-      }
-      if(test[i].radix != 256) {
-         DO(radix_to_bin(test[i].x, test[i].radix, key_parts[0], &key_lens[0]));
-         DO(radix_to_bin(test[i].y, test[i].radix, key_parts[1], &key_lens[1]));
-         DO(radix_to_bin(test[i].p, test[i].radix, key_parts[2], &key_lens[2]));
-         DO(radix_to_bin(test[i].g, test[i].radix, key_parts[3], &key_lens[3]));
-
-         DO(dh_set_pg(key_parts[2], key_lens[2], key_parts[3], key_lens[3], &k1));
-         DO(dh_set_key(NULL, 0, key_parts[0], key_lens[0], &k1));
-      }
-      else {
-         DO(dh_set_pg(test[i].p, test[i].plen, test[i].g, test[i].glen, &k1));
-         DO(dh_set_key(NULL, 0, test[i].x, test[i].xlen, &k1));
-      }
+   for (i = 0; i < 1; i++) {
+      DO(dh_set_pg(test[i].p, test[i].plen, test[i].g, test[i].glen, &k1));
+      DO(dh_set_key(NULL, 0, test[i].x, test[i].xlen, &k1));
 
       len = sizeof(buf);
       DO(dh_export(buf, &len, PK_PRIVATE, &k1));
@@ -365,14 +302,27 @@ static int _radix_test(void)
       }
       dh_free(&k1);
 
-      if(test[i].radix != 256) {
-         DO(dh_set_pg(key_parts[2], key_lens[2], key_parts[3], key_lens[3], &k2));
-         DO(dh_set_key(key_parts[1], key_lens[1], NULL, 0, &k2));
+      DO(dh_set_pg(test[i].p, test[i].plen, test[i].g, test[i].glen, &k1));
+      DO(dh_set_key(test[i].y, test[i].ylen, test[i].x, test[i].xlen, &k1));
+
+      len = sizeof(buf);
+      DO(dh_export(buf, &len, PK_PRIVATE, &k1));
+      if (compare_testvector(buf, len, export_private, sizeof(export_private), "radix_test", i*10 + 4)) {
+         printf("radix_test: dh_export+PK_PRIVATE mismatch\n");
+         dh_free(&k1);
+         return CRYPT_ERROR;
       }
-      else {
-         DO(dh_set_pg(test[i].p, test[i].plen, test[i].g, test[i].glen, &k2));
-         DO(dh_set_key(test[i].y, test[i].ylen, NULL, 0, &k2));
+      len = sizeof(buf);
+      DO(dh_export(buf, &len, PK_PUBLIC, &k1));
+      if (compare_testvector(buf, len, export_public, sizeof(export_public), "radix_test", i*10 + 5)) {
+         printf("radix_test: dh_export+PK_PUBLIC mismatch\n");
+         dh_free(&k1);
+         return CRYPT_ERROR;
       }
+      dh_free(&k1);
+
+      DO(dh_set_pg(test[i].p, test[i].plen, test[i].g, test[i].glen, &k2));
+      DO(dh_set_key(test[i].y, test[i].ylen, NULL, 0, &k2));
 
       len = sizeof(buf);
       DO(dh_export(buf, &len, PK_PUBLIC, &k2));
@@ -390,14 +340,9 @@ static int _radix_test(void)
       }
       dh_free(&k2);
 
-      if(test[i].radix != 256) {
-         DO(dh_set_pg(key_parts[2], key_lens[2], key_parts[3], key_lens[3], &k3));
-      }
-      else {
-         DO(dh_set_pg(test[i].p, test[i].plen, test[i].g, test[i].glen, &k3));
-      }
-
+      DO(dh_set_pg(test[i].p, test[i].plen, test[i].g, test[i].glen, &k3));
       DO(dh_make_key(&yarrow_prng, find_prng("yarrow"), &k3));
+
       len = mp_unsigned_bin_size(k3.prime);
       DO(mp_to_unsigned_bin(k3.prime, buf));
       if (compare_testvector(buf, len, pbin, sizeof(pbin), "radix_test", i*10 + 8)) {
@@ -494,7 +439,7 @@ int dh_test(void)
    if (_prime_test() != CRYPT_OK) fails++;
    if (_basic_test() != CRYPT_OK) fails++;
    if (_dhparam_test() != CRYPT_OK) fails++;
-   if (_radix_test() != CRYPT_OK) fails++;
+   if (_set_test() != CRYPT_OK) fails++;
    return fails > 0 ? CRYPT_FAIL_TESTVECTOR : CRYPT_OK;
 }
 
