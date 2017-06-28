@@ -51,7 +51,7 @@ cleanup:
 }
 
 /**
-  Generate a random number N in a range: 0 <= N < limit
+  Generate a random number N in a range: 1 <= N < limit
 */
 int rand_bn_range(void *N, void *limit, prng_state *prng, int wprng)
 {
@@ -63,7 +63,7 @@ int rand_bn_range(void *N, void *limit, prng_state *prng, int wprng)
    do {
      res = rand_bn_bits(N, mp_count_bits(limit), prng, wprng);
      if (res != CRYPT_OK) return res;
-   } while (mp_cmp(N, limit) != LTC_MP_LT);
+   } while (mp_cmp_d(N, 0) != LTC_MP_GT || mp_cmp(N, limit) != LTC_MP_LT);
 
    return CRYPT_OK;
 }

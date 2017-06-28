@@ -24,7 +24,7 @@
 */
 int dsa_make_key_ex(prng_state *prng, int wprng, dsa_key *key)
 {
-  int err, qbits;
+  int err;
 
   LTC_ARGCHK(key         != NULL);
   LTC_ARGCHK(key->x      != NULL);
@@ -37,12 +37,9 @@ int dsa_make_key_ex(prng_state *prng, int wprng, dsa_key *key)
   /* so now we have our DH structure, generator g, order q, modulus p
      Now we need a random exponent [mod q] and it's power g^x mod p
    */
-  qbits = mp_count_bits(key->q);
-  do {
-     if ((err = rand_bn_bits(key->x, qbits, prng, wprng)) != CRYPT_OK)                  { return err; }
-     /* private key x should be from range: 1 <= x <= q-1 (see FIPS 186-4 B.1.2) */
-  } while (mp_cmp_d(key->x, 0) != LTC_MP_GT || mp_cmp(key->x, key->q) != LTC_MP_LT);
-  if ((err = mp_exptmod(key->g, key->x, key->p, key->y)) != CRYPT_OK)                   { return err; }
+  /* private key x should be from range: 1 <= x <= q-1 (see FIPS 186-4 B.1.2) */
+  if ((err = rand_bn_range(key->x, key->q, prng, wprng)) != CRYPT_OK)            { return err; }
+  if ((err = mp_exptmod(key->g, key->x, key->p, key->y)) != CRYPT_OK)            { return err; }
   key->type = PK_PRIVATE;
 
   return CRYPT_OK;
