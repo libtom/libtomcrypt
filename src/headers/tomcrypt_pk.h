@@ -450,6 +450,7 @@ int dsa_set_pqg(const unsigned char *p,  unsigned long plen,
                 const unsigned char *q,  unsigned long qlen,
                 const unsigned char *g,  unsigned long glen,
                 dsa_key *key);
+int dsa_set_pqg_dsaparam(const unsigned char *dsaparam, unsigned long dsaparamlen, dsa_key *key);
 int dsa_generate_pqg(prng_state *prng, int wprng, int group_size, int modulus_size, dsa_key *key);
 
 int dsa_set_key(const unsigned char *pub, unsigned long publen,
