@@ -60,6 +60,7 @@ int base64_test(void);
 int file_test(void);
 int multi_test(void);
 int prng_test(void);
+int mpi_test(void);
 
 #ifdef LTC_PKCS_1
 struct ltc_prng_descriptor* no_prng_desc_get(void);
