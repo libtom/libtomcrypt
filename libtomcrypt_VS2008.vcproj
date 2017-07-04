@@ -2071,15 +2071,19 @@
 					>
 				</File>
 				<File
+					RelativePath="src\pk\dh\dh_generate_key.c"
+					>
+				</File>
+				<File
 					RelativePath="src\pk\dh\dh_import.c"
 					>
 				</File>
 				<File
-					RelativePath="src\pk\dh\dh_make_key.c"
+					RelativePath="src\pk\dh\dh_set.c"
 					>
 				</File>
 				<File
-					RelativePath="src\pk\dh\dh_set.c"
+					RelativePath="src\pk\dh\dh_set_pg_dhparam.c"
 					>
 				</File>
 				<File
@@ -2107,6 +2111,10 @@
 					>
 				</File>
 				<File
+					RelativePath="src\pk\dsa\dsa_generate_key.c"
+					>
+				</File>
+				<File
 					RelativePath="src\pk\dsa\dsa_generate_pqg.c"
 					>
 				</File>
@@ -2120,6 +2128,10 @@
 				</File>
 				<File
 					RelativePath="src\pk\dsa\dsa_set.c"
+					>
+				</File>
+				<File
+					RelativePath="src\pk\dsa\dsa_set_pqg_dsaparam.c"
 					>
 				</File>
 				<File
