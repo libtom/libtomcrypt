@@ -909,7 +909,7 @@ static void time_dh(void)
 
            t_start();
            t1 = t_read();
-           if ((err = dh_make_key(&yarrow_prng, find_prng("yarrow"), &key)) != CRYPT_OK) {
+           if ((err = dh_generate_key(&yarrow_prng, find_prng("yarrow"), &key)) != CRYPT_OK) {
               fprintf(stderr, "\n\ndh_make_key says %s, wait...no it should say %s...damn you!\n", error_to_string(err), error_to_string(CRYPT_OK));
               exit(EXIT_FAILURE);
            }

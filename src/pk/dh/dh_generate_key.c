@@ -42,7 +42,7 @@ static int _dh_groupsize_to_keysize(int groupsize)
    }
 }
 
-int dh_make_key(prng_state *prng, int wprng, dh_key *key)
+int dh_generate_key(prng_state *prng, int wprng, dh_key *key)
 {
    unsigned char *buf;
    unsigned long keysize;
