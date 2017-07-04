@@ -50,7 +50,6 @@ int dh_make_key(prng_state *prng, int wprng, dh_key *key)
 
    LTC_ARGCHK(key         != NULL);
    LTC_ARGCHK(ltc_mp.name != NULL);
-   LTC_ARGCHK(prng        != NULL);
 
    /* good prng? */
    if ((err = prng_is_valid(wprng)) != CRYPT_OK) {
