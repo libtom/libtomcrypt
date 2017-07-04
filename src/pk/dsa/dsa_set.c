@@ -118,6 +118,11 @@ int dsa_set_key(const unsigned char *pub, unsigned long publen,
    int err;
 
    LTC_ARGCHK(key         != NULL);
+   LTC_ARGCHK(key->x      != NULL);
+   LTC_ARGCHK(key->y      != NULL);
+   LTC_ARGCHK(key->p      != NULL);
+   LTC_ARGCHK(key->g      != NULL);
+   LTC_ARGCHK(key->q      != NULL);
    LTC_ARGCHK(ltc_mp.name != NULL);
 
    if ((err = mp_read_unsigned_bin(key->y, (unsigned char *)pub , publen)) != CRYPT_OK) { goto LBL_ERR; }

@@ -452,7 +452,7 @@ int dsa_generate_pqg(prng_state *prng, int wprng, int group_size, int modulus_si
 int dsa_set_key(const unsigned char *pub, unsigned long publen,
                 const unsigned char *priv, unsigned long privlen,
                 dsa_key *key);
-int dsa_make_key_ex(prng_state *prng, int wprng, dsa_key *key);
+int dsa_generate_key(prng_state *prng, int wprng, dsa_key *key);
 
 void dsa_free(dsa_key *key);
 

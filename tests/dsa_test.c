@@ -208,7 +208,7 @@ static int _dsa_compat_test(void)
 
   /* try import dsaparam */
   DO(dsa_set_pqg_dsaparam(dsaparam_der, sizeof(dsaparam_der), &key));
-  DO(dsa_make_key_ex(&yarrow_prng, find_prng("yarrow"), &key));
+  DO(dsa_generate_key(&yarrow_prng, find_prng("yarrow"), &key));
   /* verify it */
   DO(dsa_verify_key(&key, &stat));
   if (stat == 0) {
@@ -257,7 +257,7 @@ int dsa_test(void)
 
    /* make a random key */
    DO(dsa_generate_pqg(&yarrow_prng, find_prng("yarrow"), 20, 128, &key));
-   DO(dsa_make_key_ex(&yarrow_prng, find_prng("yarrow"), &key));
+   DO(dsa_generate_key(&yarrow_prng, find_prng("yarrow"), &key));
 
    /* verify it */
    DO(dsa_verify_key(&key, &stat1));

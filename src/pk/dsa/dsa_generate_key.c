@@ -16,20 +16,26 @@
 #ifdef LTC_MDSA
 
 /**
-  Old-style creation of a DSA key
+  Create a DSA key
   @param prng          An active PRNG state
   @param wprng         The index of the PRNG desired
-  @param group_size    Size of the multiplicative group (octets)
-  @param modulus_size  Size of the modulus (octets)
-  @param key           [out] Where to store the created key
+  @param key           [in/out] Where to store the created key
   @return CRYPT_OK if successful.
 */
-int dsa_make_key(prng_state *prng, int wprng, int group_size, int modulus_size, dsa_key *key)
+int dsa_generate_key(prng_state *prng, int wprng, dsa_key *key)
 {
   int err;
 
-  if ((err = dsa_generate_pqg(prng, wprng, group_size, modulus_size, key)) != CRYPT_OK) { return err; }
-  if ((err = dsa_generate_key(prng, wprng, key)) != CRYPT_OK) { return err; }
+  LTC_ARGCHK(key         != NULL);
+  LTC_ARGCHK(ltc_mp.name != NULL);
+
+  /* so now we have our DH structure, generator g, order q, modulus p
+     Now we need a random exponent [mod q] and it's power g^x mod p
+   */
+  /* private key x should be from range: 1 <= x <= q-1 (see FIPS 186-4 B.1.2) */
+  if ((err = rand_bn_range(key->x, key->q, prng, wprng)) != CRYPT_OK)            { return err; }
+  if ((err = mp_exptmod(key->g, key->x, key->p, key->y)) != CRYPT_OK)            { return err; }
+  key->type = PK_PRIVATE;
 
   return CRYPT_OK;
 }
