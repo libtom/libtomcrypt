@@ -213,26 +213,28 @@ cleanup3:
 */
 int dsa_generate_pqg(prng_state *prng, int wprng, int group_size, int modulus_size, dsa_key *key)
 {
-  int err;
+   int err;
 
-  LTC_ARGCHK(key         != NULL);
-  LTC_ARGCHK(ltc_mp.name != NULL);
+   LTC_ARGCHK(key         != NULL);
+   LTC_ARGCHK(ltc_mp.name != NULL);
 
-  /* init mp_ints */
-  if ((err = mp_init_multi(&key->p, &key->g, &key->q, &key->x, &key->y, NULL)) != CRYPT_OK) {
-    return err;
-  }
- /* generate params */
- err = _dsa_make_params(prng, wprng, group_size, modulus_size, key->p, key->q, key->g);
- if (err != CRYPT_OK)   { goto cleanup; }
+   /* init mp_ints */
+   if ((err = mp_init_multi(&key->p, &key->g, &key->q, &key->x, &key->y, NULL)) != CRYPT_OK) {
+      return err;
+   }
+   /* generate params */
+   err = _dsa_make_params(prng, wprng, group_size, modulus_size, key->p, key->q, key->g);
+   if (err != CRYPT_OK) {
+      goto cleanup;
+   }
 
-  key->qord = group_size;
+   key->qord = group_size;
 
-  return CRYPT_OK;
+   return CRYPT_OK;
 
 cleanup:
-  dsa_free(key);
-  return err;
+   dsa_free(key);
+   return err;
 }
 
 #endif
