@@ -213,8 +213,6 @@ typedef struct {
     void *prime;
 } dh_key;
 
-#define LTC_DH_KEY_INITIALIZER { PK_PUBLIC, NULL, NULL, NULL, NULL }
-
 int dh_get_groupsize(dh_key *key);
 
 int dh_export(unsigned char *out, unsigned long *outlen, int type, dh_key *key);
@@ -441,8 +439,6 @@ typedef struct {
    /** The public key */
    void *y;
 } dsa_key;
-
-#define LTC_DSA_KEY_INITIALIZER { PK_PUBLIC, 0, NULL, NULL, NULL, NULL, NULL }
 
 int dsa_make_key(prng_state *prng, int wprng, int group_size, int modulus_size, dsa_key *key);
 

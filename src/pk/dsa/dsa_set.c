@@ -33,12 +33,6 @@ int dsa_set_pqg(const unsigned char *p,  unsigned long plen,
    LTC_ARGCHK(q           != NULL);
    LTC_ARGCHK(g           != NULL);
    LTC_ARGCHK(key         != NULL);
-   LTC_ARGCHK(key->x      == NULL);
-   LTC_ARGCHK(key->y      == NULL);
-   LTC_ARGCHK(key->p      == NULL);
-   LTC_ARGCHK(key->g      == NULL);
-   LTC_ARGCHK(key->q      == NULL);
-   LTC_ARGCHK(key->qord   == 0);
    LTC_ARGCHK(ltc_mp.name != NULL);
 
    /* init key */
@@ -80,12 +74,6 @@ int dsa_set_pqg_dsaparam(const unsigned char *dsaparam, unsigned long dsaparamle
 
    LTC_ARGCHK(dsaparam    != NULL);
    LTC_ARGCHK(key         != NULL);
-   LTC_ARGCHK(key->x      == NULL);
-   LTC_ARGCHK(key->y      == NULL);
-   LTC_ARGCHK(key->p      == NULL);
-   LTC_ARGCHK(key->g      == NULL);
-   LTC_ARGCHK(key->q      == NULL);
-   LTC_ARGCHK(key->qord   == 0);
    LTC_ARGCHK(ltc_mp.name != NULL);
 
    /* init key */
@@ -130,11 +118,6 @@ int dsa_set_key(const unsigned char *pub, unsigned long publen,
    int err;
 
    LTC_ARGCHK(key         != NULL);
-   LTC_ARGCHK(key->x      != NULL);
-   LTC_ARGCHK(key->y      != NULL);
-   LTC_ARGCHK(key->p      != NULL);
-   LTC_ARGCHK(key->g      != NULL);
-   LTC_ARGCHK(key->q      != NULL);
    LTC_ARGCHK(ltc_mp.name != NULL);
 
    if ((err = mp_read_unsigned_bin(key->y, (unsigned char *)pub , publen)) != CRYPT_OK) { goto LBL_ERR; }

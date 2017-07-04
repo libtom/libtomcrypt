@@ -49,10 +49,6 @@ int dh_make_key(prng_state *prng, int wprng, dh_key *key)
    int err, max_iterations = PK_MAX_RETRIES;
 
    LTC_ARGCHK(key         != NULL);
-   LTC_ARGCHK(key->x      != NULL);
-   LTC_ARGCHK(key->y      != NULL);
-   LTC_ARGCHK(key->base   != NULL);
-   LTC_ARGCHK(key->prime  != NULL);
    LTC_ARGCHK(ltc_mp.name != NULL);
    LTC_ARGCHK(prng        != NULL);
 

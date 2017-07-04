@@ -131,7 +131,7 @@ static unsigned char dsaparam_der[] = {
 
 static int _dsa_compat_test(void)
 {
-  dsa_key key = LTC_DSA_KEY_INITIALIZER;
+  dsa_key key;
   unsigned char tmp[1024], buf[1024];
   unsigned long x, len;
   unsigned char key_parts[5][256];
@@ -251,8 +251,7 @@ int dsa_test(void)
    unsigned char msg[16], out[1024], out2[1024], ch;
    unsigned long x, y;
    int stat1, stat2;
-   dsa_key key = LTC_DSA_KEY_INITIALIZER;
-   dsa_key key2 = LTC_DSA_KEY_INITIALIZER;
+   dsa_key key, key2;
 
    DO(_dsa_compat_test());
 

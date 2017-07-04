@@ -28,10 +28,6 @@ int dh_set_pg(const unsigned char *p, unsigned long plen,
    int err;
 
    LTC_ARGCHK(key         != NULL);
-   LTC_ARGCHK(key->x      == NULL);
-   LTC_ARGCHK(key->y      == NULL);
-   LTC_ARGCHK(key->base   == NULL);
-   LTC_ARGCHK(key->prime  == NULL);
    LTC_ARGCHK(p           != NULL);
    LTC_ARGCHK(g           != NULL);
    LTC_ARGCHK(ltc_mp.name != NULL);
@@ -65,10 +61,6 @@ int dh_set_pg_dhparam(const unsigned char *dhparam, unsigned long dhparamlen, dh
    int err;
 
    LTC_ARGCHK(key         != NULL);
-   LTC_ARGCHK(key->x      == NULL);
-   LTC_ARGCHK(key->y      == NULL);
-   LTC_ARGCHK(key->base   == NULL);
-   LTC_ARGCHK(key->prime  == NULL);
    LTC_ARGCHK(ltc_mp.name != NULL);
    LTC_ARGCHK(dhparam     != NULL);
    LTC_ARGCHK(dhparamlen  > 0);
@@ -102,10 +94,6 @@ int dh_set_pg_groupsize(int groupsize, dh_key *key)
    int err, i;
 
    LTC_ARGCHK(key         != NULL);
-   LTC_ARGCHK(key->x      == NULL);
-   LTC_ARGCHK(key->y      == NULL);
-   LTC_ARGCHK(key->base   == NULL);
-   LTC_ARGCHK(key->prime  == NULL);
    LTC_ARGCHK(ltc_mp.name != NULL);
    LTC_ARGCHK(groupsize   > 0);
 
@@ -142,10 +130,6 @@ int dh_set_key(const unsigned char *pub, unsigned long publen,
    int err;
 
    LTC_ARGCHK(key         != NULL);
-   LTC_ARGCHK(key->x      != NULL);
-   LTC_ARGCHK(key->y      != NULL);
-   LTC_ARGCHK(key->base   != NULL);
-   LTC_ARGCHK(key->prime  != NULL);
    LTC_ARGCHK(ltc_mp.name != NULL);
 
    if(priv == NULL) {

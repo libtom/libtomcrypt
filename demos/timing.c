@@ -646,7 +646,7 @@ static void time_prng(void)
 /* time various DSA operations */
 static void time_dsa(void)
 {
-   dsa_key       key = LTC_DSA_KEY_INITIALIZER;
+   dsa_key       key;
    ulong64       t1, t2;
    unsigned long x, y;
    int           err;
@@ -893,7 +893,7 @@ static void time_katja(void) { fprintf(stderr, "NO Katja\n"); }
 /* time various DH operations */
 static void time_dh(void)
 {
-   dh_key key = LTC_DH_KEY_INITIALIZER;
+   dh_key key;
    ulong64 t1, t2;
    unsigned long i, x, y;
    int           err;

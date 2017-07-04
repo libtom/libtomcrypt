@@ -27,11 +27,6 @@ int dsa_make_key_ex(prng_state *prng, int wprng, dsa_key *key)
   int err;
 
   LTC_ARGCHK(key         != NULL);
-  LTC_ARGCHK(key->x      != NULL);
-  LTC_ARGCHK(key->y      != NULL);
-  LTC_ARGCHK(key->p      != NULL);
-  LTC_ARGCHK(key->g      != NULL);
-  LTC_ARGCHK(key->q      != NULL);
   LTC_ARGCHK(ltc_mp.name != NULL);
 
   /* so now we have our DH structure, generator g, order q, modulus p

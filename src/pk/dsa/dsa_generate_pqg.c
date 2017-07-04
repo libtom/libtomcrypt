@@ -216,12 +216,6 @@ int dsa_generate_pqg(prng_state *prng, int wprng, int group_size, int modulus_si
   int err;
 
   LTC_ARGCHK(key         != NULL);
-  LTC_ARGCHK(key->x      == NULL);
-  LTC_ARGCHK(key->y      == NULL);
-  LTC_ARGCHK(key->p      == NULL);
-  LTC_ARGCHK(key->g      == NULL);
-  LTC_ARGCHK(key->q      == NULL);
-  LTC_ARGCHK(key->qord   == 0);
   LTC_ARGCHK(ltc_mp.name != NULL);
 
   /* init mp_ints */
