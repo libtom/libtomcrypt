@@ -55,13 +55,14 @@ cleanup:
 */
 int rand_bn_range(void *N, void *limit, prng_state *prng, int wprng)
 {
-   int res;
+   int res, bits;
 
    LTC_ARGCHK(N != NULL);
    LTC_ARGCHK(limit != NULL);
 
+   bits = mp_count_bits(limit);
    do {
-     res = rand_bn_bits(N, mp_count_bits(limit), prng, wprng);
+     res = rand_bn_bits(N, bits, prng, wprng);
      if (res != CRYPT_OK) return res;
    } while (mp_cmp_d(N, 0) != LTC_MP_GT || mp_cmp(N, limit) != LTC_MP_LT);
 
