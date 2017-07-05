@@ -159,7 +159,7 @@ ERR:
 
 int main(int argc, char **argv)
 {
-   int idx, check, z, err, argn;
+   int idxs[TAB_SIZE], idx, check, y, z, err, argn;
    unsigned long w, x;
    unsigned char hash_buffer[MAXBLOCKSIZE];
 
@@ -175,16 +175,19 @@ int main(int argc, char **argv)
       die(EXIT_FAILURE);
    }
 
+   for (x = 0; x < sizeof(idxs)/sizeof(idxs[0]); ++x) {
+      idxs[x] = -2;
+   }
    argn = 1;
    check = 0;
-   idx = -2;
+   idx = 0;
 
    while(argn < argc){
       if(strcmp("-a", argv[argn]) == 0) {
          argn++;
          if(argn < argc) {
-            idx = find_hash(argv[argn]);
-            if (idx == -1) {
+            idxs[idx] = find_hash(argv[argn]);
+            if (idxs[idx] == -1) {
                struct {
                   const char* is;
                   const char* should;
@@ -215,13 +218,18 @@ int main(int argc, char **argv)
                      };
                for (x = 0; shasum_compat[x].is != NULL; ++x) {
                   if(XSTRCMP(shasum_compat[x].is, argv[argn]) == 0) {
-                     idx = find_hash(shasum_compat[x].should);
+                     idxs[idx] = find_hash(shasum_compat[x].should);
                      break;
                   }
                }
             }
-            if (idx == -1) {
+            if (idxs[idx] == -1) {
                fprintf(stderr, "%s: Unrecognized algorithm\n", hashsum);
+               die(EXIT_FAILURE);
+            }
+            idx++;
+            if ((size_t)idx >= sizeof(idxs)/sizeof(idxs[0])) {
+               fprintf(stderr, "%s: Too many '-a' options chosen\n", hashsum);
                die(EXIT_FAILURE);
             }
             argn++;
@@ -245,7 +253,7 @@ int main(int argc, char **argv)
 
    if (argc == argn) {
       w = sizeof(hash_buffer);
-      if ((err = hash_filehandle(idx, stdin, hash_buffer, &w)) != CRYPT_OK) {
+      if ((err = hash_filehandle(idxs[0], stdin, hash_buffer, &w)) != CRYPT_OK) {
          fprintf(stderr, "%s: File hash error: %s\n", hashsum, error_to_string(err));
          return EXIT_FAILURE;
       } else {
@@ -255,14 +263,16 @@ int main(int argc, char **argv)
           printf(" *-\n");
       }
    } else {
-      for (z = 3; z < argc; z++) {
-         w = sizeof(hash_buffer);
-         if ((err = hash_file(idx,argv[z],hash_buffer,&w)) != CRYPT_OK) {
-            fprintf(stderr, "%s: File hash error: %s\n", hashsum, error_to_string(err));
-            return EXIT_FAILURE;
-         } else {
-             printf_hex(hash_buffer, w);
-             printf(" *%s\n", argv[z]);
+      for (z = argn; z < argc; z++) {
+         for (y = 0; y < idx; ++y) {
+            w = sizeof(hash_buffer);
+            if ((err = hash_file(idxs[y],argv[z],hash_buffer,&w)) != CRYPT_OK) {
+               fprintf(stderr, "%s: File hash error: %s\n", hashsum, error_to_string(err));
+               return EXIT_FAILURE;
+            } else {
+                printf_hex(hash_buffer, w);
+                printf(" *%s\n", argv[z]);
+            }
          }
       }
    }
