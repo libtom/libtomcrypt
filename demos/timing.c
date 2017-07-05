@@ -665,7 +665,11 @@ static const struct {
        for (y = 0; y < 4; y++) {
            t_start();
            t1 = t_read();
-           if ((err = dsa_make_key(&yarrow_prng, find_prng("yarrow"), groups[x].group, groups[x].modulus, &key)) != CRYPT_OK) {
+           if ((err = dsa_generate_pqg(&yarrow_prng, find_prng("yarrow"), groups[x].group, groups[x].modulus, &key)) != CRYPT_OK) {
+              fprintf(stderr, "\n\ndsa_generate_pqg says %s, wait...no it should say %s...damn you!\n", error_to_string(err), error_to_string(CRYPT_OK));
+              exit(EXIT_FAILURE);
+           }
+           if ((err = dsa_generate_key(&yarrow_prng, find_prng("yarrow"), &key)) != CRYPT_OK) {
               fprintf(stderr, "\n\ndsa_make_key says %s, wait...no it should say %s...damn you!\n", error_to_string(err), error_to_string(CRYPT_OK));
               exit(EXIT_FAILURE);
            }
@@ -898,9 +902,14 @@ static void time_dh(void)
    for (x = sizes[i=0]; x < 100000; x = sizes[++i]) {
        t2 = 0;
        for (y = 0; y < 16; y++) {
+           if((err = dh_set_pg_groupsize(x, &key)) != CRYPT_OK) {
+              fprintf(stderr, "\n\ndh_set_pg_groupsize says %s, wait...no it should say %s...damn you!\n", error_to_string(err), error_to_string(CRYPT_OK));
+              exit(EXIT_FAILURE);
+           }
+
            t_start();
            t1 = t_read();
-           if ((err = dh_make_key(&yarrow_prng, find_prng("yarrow"), x, &key)) != CRYPT_OK) {
+           if ((err = dh_generate_key(&yarrow_prng, find_prng("yarrow"), &key)) != CRYPT_OK) {
               fprintf(stderr, "\n\ndh_make_key says %s, wait...no it should say %s...damn you!\n", error_to_string(err), error_to_string(CRYPT_OK));
               exit(EXIT_FAILURE);
            }

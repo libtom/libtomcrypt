@@ -59,13 +59,6 @@ static char *hex_q = "AA5BD7F4E5062413E58835CA00C7A635716194C5";
 static char *hex_x = "9936E5E4E9FB28BE91F5065FE8C935B3F5D81FC5";
 static char *hex_y = "5316B0FBBF598A5E5595C14FAC43B80853E6CF0D9223FAB184595239BFCBF22D383ADD935205497E2B12C46173E36F54BD96E5A7AAA95A58A4B767D2C0BDC81EB13A124F98C005EF395D6ABAB70B3BD8B795DD796EA2D28473470388B464D9B9B84FF1C934BBF97366F57C2E11FEC331E60838596781EB6D4127D70D74AFA035";
 
-/* private key - raw decimal numbers */
-static char *dec_g = "41834149751984197912953436480983170533071735026506895442815002322147255782590882063707309354781506433716654796985480894012184326029507913813728323760888731712844346877576824916725534905000120412305763983626878322597033839508975868744887842375259196379140567488975525420966465471602331600963525846901216912348";
-static char *dec_p = "138366127874251453574215823372867983172559870428080754538874699342292548213873551009389476481395012375639515165022292709776266658812209612126692196557051247870332681145778007636026326219557730049370214260237710845864302921876857532769906463917243319959886290876544710558897185626634470575981605420411381006287";
-static char *dec_q = "972576611327916959546542817054443329226761409733";
-static char *dec_x = "874699854785640347852049895863914110365034094533";
-static char *dec_y = "58346825863862115220306694056113472976936045407556113559931032566376300411053620606958863235131122432665794570437845128216268156672161823000705623178942581094085367656740608001229642983928728905397237964247962716781137229394844332774819193277135681825866994604976120931444766148118918668354923664000689348661";
-
 /* The public part of test_dsa.key in SubjectPublicKeyInfo format */
 static const unsigned char openssl_pub_dsa[] = {
   0x30, 0x82, 0x01, 0xb6, 0x30, 0x82, 0x01, 0x2b, 0x06, 0x07, 0x2a, 0x86,
@@ -107,74 +100,150 @@ static const unsigned char openssl_pub_dsa[] = {
   0xeb, 0x6d, 0x41, 0x27, 0xd7, 0x0d, 0x74, 0xaf, 0xa0, 0x35
 };
 
-static int dsa_compat_test(void)
+static unsigned char dsaparam_der[] = {
+   0x30, 0x82, 0x01, 0x1e, 0x02, 0x81, 0x81, 0x00, 0xc5, 0x0a, 0x37, 0x51,
+   0x5c, 0xab, 0xd6, 0x18, 0xd5, 0xa2, 0x70, 0xbd, 0x4a, 0x6f, 0x6b, 0x4a,
+   0xf9, 0xe1, 0x39, 0x95, 0x0f, 0x2b, 0x99, 0x38, 0x7d, 0x9a, 0x64, 0xd6,
+   0x4c, 0xb5, 0x96, 0x7a, 0xdc, 0xed, 0xac, 0xa8, 0xac, 0xc6, 0x1b, 0x65,
+   0x5a, 0xde, 0xdb, 0x00, 0x61, 0x25, 0x1a, 0x18, 0x2c, 0xee, 0xa1, 0x07,
+   0x90, 0x62, 0x5e, 0x4d, 0x12, 0x31, 0x90, 0xc7, 0x03, 0x21, 0xfa, 0x09,
+   0xe7, 0xb1, 0x73, 0xd7, 0x8e, 0xaf, 0xdb, 0xfd, 0xbf, 0xb3, 0xef, 0xad,
+   0xd1, 0xa1, 0x2a, 0x03, 0x6d, 0xe7, 0x06, 0x92, 0x4a, 0x85, 0x2a, 0xff,
+   0x7a, 0x01, 0x66, 0x53, 0x1f, 0xea, 0xc6, 0x67, 0x41, 0x84, 0x5a, 0xc0,
+   0x6c, 0xed, 0x62, 0xf9, 0xc2, 0x62, 0x62, 0x05, 0xa4, 0xfa, 0x48, 0xa0,
+   0x66, 0xec, 0x35, 0xc9, 0xa8, 0x11, 0xfe, 0xb9, 0x81, 0xab, 0xee, 0xbe,
+   0x31, 0xb6, 0xbf, 0xcf, 0x02, 0x15, 0x00, 0xaa, 0x5b, 0xd7, 0xf4, 0xe5,
+   0x06, 0x24, 0x13, 0xe5, 0x88, 0x35, 0xca, 0x00, 0xc7, 0xa6, 0x35, 0x71,
+   0x61, 0x94, 0xc5, 0x02, 0x81, 0x80, 0x3b, 0x92, 0xe4, 0xff, 0x59, 0x29,
+   0x15, 0x0b, 0x08, 0x99, 0x5a, 0x7b, 0xf2, 0xad, 0x14, 0x40, 0x55, 0x6f,
+   0xa0, 0x47, 0xff, 0x90, 0x99, 0xb3, 0x44, 0xb3, 0xd4, 0xfc, 0x45, 0x15,
+   0x05, 0xae, 0x67, 0x22, 0x43, 0x9c, 0xba, 0x37, 0x10, 0xa5, 0x89, 0x47,
+   0x37, 0xec, 0xcc, 0xf5, 0xae, 0xad, 0xa8, 0xb4, 0x7a, 0x35, 0xcb, 0x9d,
+   0x93, 0x5c, 0xed, 0xe6, 0xb0, 0x7e, 0x96, 0x94, 0xc4, 0xa6, 0x0c, 0x7d,
+   0xd6, 0x70, 0x8a, 0x09, 0x4f, 0x81, 0x4a, 0x0e, 0xc2, 0x13, 0xfb, 0xeb,
+   0x16, 0xbf, 0xea, 0xa4, 0xf4, 0x56, 0xff, 0x72, 0x30, 0x05, 0xde, 0x8a,
+   0x44, 0x3f, 0xbe, 0xc6, 0x85, 0x26, 0x55, 0xd6, 0x2d, 0x1d, 0x1e, 0xdb,
+   0x15, 0xda, 0xa4, 0x45, 0x83, 0x3c, 0x17, 0x97, 0x98, 0x0b, 0x8d, 0x87,
+   0xf3, 0x49, 0x0d, 0x90, 0xbd, 0xa9, 0xab, 0x67, 0x6e, 0x87, 0x68, 0x72,
+   0x23, 0xdc
+ };
+
+
+static int _dsa_compat_test(void)
 {
   dsa_key key;
   unsigned char tmp[1024], buf[1024];
   unsigned long x, len;
+  unsigned char key_parts[5][256];
+  unsigned long key_lens[5];
+  int stat;
 
   DO(dsa_import(openssl_priv_dsa, sizeof(openssl_priv_dsa), &key));
 
   x = sizeof(tmp);
   DO(dsa_export(tmp, &x, PK_PRIVATE | PK_STD, &key));
-  DO((x == sizeof(openssl_priv_dsa))?CRYPT_OK:CRYPT_ERROR);
-  DO((memcmp(tmp, openssl_priv_dsa, sizeof(openssl_priv_dsa)) == 0)?CRYPT_OK:CRYPT_ERROR);
+  if (compare_testvector(tmp, x, openssl_priv_dsa, sizeof(openssl_priv_dsa),
+                         "DSA private export failed from dsa_import(priv_key)\n", 0)) {
+     return CRYPT_FAIL_TESTVECTOR;
+  }
 
   x = sizeof(tmp);
   DO(dsa_export(tmp, &x, PK_PUBLIC | PK_STD, &key));
-  DO((x == sizeof(openssl_pub_dsa))?CRYPT_OK:CRYPT_ERROR);
-  DO((memcmp(tmp, openssl_pub_dsa, sizeof(openssl_pub_dsa)) == 0)?CRYPT_OK:CRYPT_ERROR);
+  if (compare_testvector(tmp, x, openssl_pub_dsa, sizeof(openssl_pub_dsa),
+                         "DSA public export failed from dsa_import(priv_key)\n", 0)) {
+     return CRYPT_FAIL_TESTVECTOR;
+  }
   dsa_free(&key);
 
   DO(dsa_import(openssl_pub_dsa, sizeof(openssl_pub_dsa), &key));
 
   x = sizeof(tmp);
   DO(dsa_export(tmp, &x, PK_PUBLIC | PK_STD, &key));
-  DO((x == sizeof(openssl_pub_dsa))?CRYPT_OK:CRYPT_ERROR);
-  DO((memcmp(tmp, openssl_pub_dsa, sizeof(openssl_pub_dsa)) == 0)?CRYPT_OK:CRYPT_ERROR);
-  dsa_free(&key);
-
-  /* try import private key from raw hexadecimal numbers */
-  DO(dsa_import_radix(16, hex_p, hex_q, hex_g, hex_x, hex_y, &key));
-  len = sizeof(buf);
-  DO(dsa_export(buf, &len, PK_PRIVATE | PK_STD, &key));
-  if (len != sizeof(openssl_priv_dsa) || memcmp(buf, openssl_priv_dsa, len)) {
-     fprintf(stderr, "DSA private export failed to match dsa_import_radix(16, ..)\n");
-     return 1;
+  if (compare_testvector(tmp, x, openssl_pub_dsa, sizeof(openssl_pub_dsa),
+                         "DSA public export failed from dsa_import(pub_key)\n", 0)) {
+     return CRYPT_FAIL_TESTVECTOR;
   }
   dsa_free(&key);
 
-  /* try import private key from raw decimal numbers */
-  DO(dsa_import_radix(10, dec_p, dec_q, dec_g, dec_x, dec_y, &key));
+  /* try import private key from raw hexadecimal numbers */
+  for (x = 0; x < 5; ++x) {
+     key_lens[x] = sizeof(key_parts[x]);
+  }
+  DO(radix_to_bin(hex_p, 16, key_parts[0], &key_lens[0]));
+  DO(radix_to_bin(hex_q, 16, key_parts[1], &key_lens[1]));
+  DO(radix_to_bin(hex_g, 16, key_parts[2], &key_lens[2]));
+  DO(radix_to_bin(hex_y, 16, key_parts[3], &key_lens[3]));
+  DO(radix_to_bin(hex_x, 16, key_parts[4], &key_lens[4]));
+
+  DO(dsa_set_pqg(key_parts[0], key_lens[0],
+                 key_parts[1], key_lens[1],
+                 key_parts[2], key_lens[2],
+                 &key));
+  DO(dsa_set_key(key_parts[3], key_lens[3],
+                 key_parts[4], key_lens[4],
+                 &key));
   len = sizeof(buf);
   DO(dsa_export(buf, &len, PK_PRIVATE | PK_STD, &key));
-  if (len != sizeof(openssl_priv_dsa) || memcmp(buf, openssl_priv_dsa, len)) {
-     fprintf(stderr, "DSA private export failed to match dsa_import_radix(10, ..)\n");
-     return 1;
+  if (compare_testvector(buf, len, openssl_priv_dsa, sizeof(openssl_priv_dsa),
+                         "DSA private export failed from dsa_set_pqg() & dsa_set_key()\n", 0)) {
+     return CRYPT_FAIL_TESTVECTOR;
   }
   dsa_free(&key);
 
   /* try import public key from raw hexadecimal numbers */
-  DO(dsa_import_radix(16, hex_p, hex_q, hex_g, NULL, hex_y, &key));
+  DO(dsa_set_pqg(key_parts[0], key_lens[0],
+                 key_parts[1], key_lens[1],
+                 key_parts[2], key_lens[2],
+                 &key));
+  DO(dsa_set_key(key_parts[3], key_lens[3],
+                 NULL, 0,
+                 &key));
   len = sizeof(buf);
   DO(dsa_export(buf, &len, PK_PUBLIC | PK_STD, &key));
-  if (len != sizeof(openssl_pub_dsa) || memcmp(buf, openssl_pub_dsa, len)) {
-     fprintf(stderr, "DSA public export failed to match dsa_import_radix(16, ..)\n");
-     return 1;
+  if (compare_testvector(buf, len, openssl_pub_dsa, sizeof(openssl_pub_dsa),
+                         "DSA public export failed from dsa_set_pqg() & dsa_set_key()\n", 0)) {
+     return CRYPT_FAIL_TESTVECTOR;
   }
   dsa_free(&key);
 
-  /* try import public key from raw decimal numbers */
-  DO(dsa_import_radix(10, dec_p, dec_q, dec_g, NULL, dec_y, &key));
-  len = sizeof(buf);
-  DO(dsa_export(buf, &len, PK_PUBLIC | PK_STD, &key));
-  if (len != sizeof(openssl_pub_dsa) || memcmp(buf, openssl_pub_dsa, len)) {
-     fprintf(stderr, "DSA public export failed to match dsa_import_radix(10, ..)\n");
-     return 1;
+  /* try import dsaparam */
+  DO(dsa_set_pqg_dsaparam(dsaparam_der, sizeof(dsaparam_der), &key));
+  DO(dsa_generate_key(&yarrow_prng, find_prng("yarrow"), &key));
+  /* verify it */
+  DO(dsa_verify_key(&key, &stat));
+  if (stat == 0) {
+     fprintf(stderr, "dsa_verify_key after dsa_set_pqg_dsaparam()");
+     return CRYPT_FAIL_TESTVECTOR;
   }
   dsa_free(&key);
 
-  return 0;
+  /* try import dsaparam - our public key */
+  DO(dsa_set_pqg_dsaparam(dsaparam_der, sizeof(dsaparam_der), &key));
+  DO(dsa_set_key(key_parts[3], key_lens[3],
+                 NULL, 0,
+                 &key));
+  len = sizeof(buf);
+  DO(dsa_export(buf, &len, PK_PUBLIC | PK_STD, &key));
+  if (compare_testvector(buf, len, openssl_pub_dsa, sizeof(openssl_pub_dsa),
+                         "DSA public export failed from dsa_set_pqg_dsaparam()\n", 0)) {
+     return CRYPT_FAIL_TESTVECTOR;
+  }
+  dsa_free(&key);
+
+  /* try import dsaparam - our private key */
+  DO(dsa_set_pqg_dsaparam(dsaparam_der, sizeof(dsaparam_der), &key));
+  DO(dsa_set_key(key_parts[3], key_lens[3],
+                 key_parts[4], key_lens[4],
+                 &key));
+  len = sizeof(buf);
+  DO(dsa_export(buf, &len, PK_PRIVATE | PK_STD, &key));
+  if (compare_testvector(buf, len, openssl_priv_dsa, sizeof(openssl_priv_dsa),
+                         "DSA private export failed from dsa_set_pqg_dsaparam()\n", 0)) {
+     return CRYPT_FAIL_TESTVECTOR;
+  }
+  dsa_free(&key);
+
+  return CRYPT_OK;
 }
 
 int dsa_test(void)
@@ -184,10 +253,11 @@ int dsa_test(void)
    int stat1, stat2;
    dsa_key key, key2;
 
-   dsa_compat_test();
+   DO(_dsa_compat_test());
 
    /* make a random key */
-   DO(dsa_make_key(&yarrow_prng, find_prng("yarrow"), 20, 128, &key));
+   DO(dsa_generate_pqg(&yarrow_prng, find_prng("yarrow"), 20, 128, &key));
+   DO(dsa_generate_key(&yarrow_prng, find_prng("yarrow"), &key));
 
    /* verify it */
    DO(dsa_verify_key(&key, &stat1));

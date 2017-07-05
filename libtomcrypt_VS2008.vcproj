@@ -1312,6 +1312,10 @@
 				>
 			</File>
 			<File
+				RelativePath="src\math\radix_to_bin.c"
+				>
+			</File>
+			<File
 				RelativePath="src\math\rand_bn.c"
 				>
 			</File>
@@ -2059,7 +2063,15 @@
 					>
 				</File>
 				<File
+					RelativePath="src\pk\dh\dh_export_key.c"
+					>
+				</File>
+				<File
 					RelativePath="src\pk\dh\dh_free.c"
+					>
+				</File>
+				<File
+					RelativePath="src\pk\dh\dh_generate_key.c"
 					>
 				</File>
 				<File
@@ -2067,7 +2079,11 @@
 					>
 				</File>
 				<File
-					RelativePath="src\pk\dh\dh_make_key.c"
+					RelativePath="src\pk\dh\dh_set.c"
+					>
+				</File>
+				<File
+					RelativePath="src\pk\dh\dh_set_pg_dhparam.c"
 					>
 				</File>
 				<File
@@ -2095,15 +2111,27 @@
 					>
 				</File>
 				<File
+					RelativePath="src\pk\dsa\dsa_generate_key.c"
+					>
+				</File>
+				<File
+					RelativePath="src\pk\dsa\dsa_generate_pqg.c"
+					>
+				</File>
+				<File
 					RelativePath="src\pk\dsa\dsa_import.c"
 					>
 				</File>
 				<File
-					RelativePath="src\pk\dsa\dsa_import_radix.c"
+					RelativePath="src\pk\dsa\dsa_make_key.c"
 					>
 				</File>
 				<File
-					RelativePath="src\pk\dsa\dsa_make_key.c"
+					RelativePath="src\pk\dsa\dsa_set.c"
+					>
+				</File>
+				<File
+					RelativePath="src\pk\dsa\dsa_set_pqg_dsaparam.c"
 					>
 				</File>
 				<File
@@ -2327,15 +2355,15 @@
 					>
 				</File>
 				<File
-					RelativePath="src\pk\rsa\rsa_import_radix.c"
-					>
-				</File>
-				<File
 					RelativePath="src\pk\rsa\rsa_import_x509.c"
 					>
 				</File>
 				<File
 					RelativePath="src\pk\rsa\rsa_make_key.c"
+					>
+				</File>
+				<File
+					RelativePath="src\pk\rsa\rsa_set.c"
 					>
 				</File>
 				<File

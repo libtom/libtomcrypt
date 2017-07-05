@@ -23,9 +23,6 @@ int dh_check_pubkey(dh_key *key)
    int i, digit_count, bits_set = 0, err;
 
    LTC_ARGCHK(key != NULL);
-   LTC_ARGCHK(key->y != NULL);
-   LTC_ARGCHK(key->base != NULL);
-   LTC_ARGCHK(key->prime != NULL);
 
    if ((err = mp_init(&p_minus1)) != CRYPT_OK) {
       return err;

@@ -25,7 +25,7 @@ int rand_prime(void *N, long len, prng_state *prng, int wprng);
 #ifdef LTC_SOURCE
 /* internal helper functions */
 int rand_bn_bits(void *N, int bits, prng_state *prng, int wprng);
-int rand_bn_range(void *N, void *limit, prng_state *prng, int wprng);
+int rand_bn_upto(void *N, void *limit, prng_state *prng, int wprng);
 
 enum public_key_algorithms {
    PKA_RSA,
@@ -126,7 +126,18 @@ int rsa_import(const unsigned char *in, unsigned long inlen, rsa_key *key);
 int rsa_import_x509(const unsigned char *in, unsigned long inlen, rsa_key *key);
 int rsa_import_pkcs8(const unsigned char *in, unsigned long inlen,
                      const void *passwd, unsigned long passwdlen, rsa_key *key);
-int rsa_import_radix(int radix, char *N, char *e, char *d, char *p, char *q, char *dP, char *dQ, char *qP, rsa_key *key);
+
+int rsa_set_key(const unsigned char *N,  unsigned long Nlen,
+                const unsigned char *e,  unsigned long elen,
+                const unsigned char *d,  unsigned long dlen,
+                rsa_key *key);
+int rsa_set_factors(const unsigned char *p,  unsigned long plen,
+                    const unsigned char *q,  unsigned long qlen,
+                    rsa_key *key);
+int rsa_set_crt_params(const unsigned char *dP, unsigned long dPlen,
+                       const unsigned char *dQ, unsigned long dQlen,
+                       const unsigned char *qP, unsigned long qPlen,
+                       rsa_key *key);
 #endif
 
 /* ---- Katja ---- */
@@ -204,15 +215,27 @@ typedef struct {
 
 int dh_get_groupsize(dh_key *key);
 
-int dh_make_key(prng_state *prng, int wprng, int groupsize, dh_key *key);
-int dh_make_key_dhparam(prng_state *prng, int wprng, unsigned char *dhparam, unsigned long dhparamlen, dh_key *key);
-void dh_free(dh_key *key);
-
 int dh_export(unsigned char *out, unsigned long *outlen, int type, dh_key *key);
 int dh_import(const unsigned char *in, unsigned long inlen, dh_key *key);
 
+int dh_set_pg(const unsigned char *p, unsigned long plen,
+              const unsigned char *g, unsigned long glen,
+              dh_key *key);
+int dh_set_pg_dhparam(const unsigned char *dhparam, unsigned long dhparamlen, dh_key *key);
+int dh_set_pg_groupsize(int groupsize, dh_key *key);
+
+int dh_set_key(const unsigned char *pub, unsigned long publen,
+               const unsigned char *priv, unsigned long privlen,
+               dh_key *key);
+int dh_generate_key(prng_state *prng, int wprng, dh_key *key);
+
 int dh_shared_secret(dh_key        *private_key, dh_key        *public_key,
                      unsigned char *out,         unsigned long *outlen);
+
+void dh_free(dh_key *key);
+
+int dh_export_key(void *out, unsigned long *outlen,
+                  int type, dh_key *key);
 
 #ifdef LTC_SOURCE
 /* internal helper functions */
@@ -419,7 +442,17 @@ typedef struct {
 
 int dsa_make_key(prng_state *prng, int wprng, int group_size, int modulus_size, dsa_key *key);
 
-int dsa_make_key_ex(prng_state *prng, int wprng, int group_size, int modulus_size, dsa_key *key, char* p_hex, char* q_hex, char* g_hex);
+int dsa_set_pqg(const unsigned char *p,  unsigned long plen,
+                const unsigned char *q,  unsigned long qlen,
+                const unsigned char *g,  unsigned long glen,
+                dsa_key *key);
+int dsa_set_pqg_dsaparam(const unsigned char *dsaparam, unsigned long dsaparamlen, dsa_key *key);
+int dsa_generate_pqg(prng_state *prng, int wprng, int group_size, int modulus_size, dsa_key *key);
+
+int dsa_set_key(const unsigned char *pub, unsigned long publen,
+                const unsigned char *priv, unsigned long privlen,
+                dsa_key *key);
+int dsa_generate_key(prng_state *prng, int wprng, dsa_key *key);
 
 void dsa_free(dsa_key *key);
 
@@ -448,7 +481,6 @@ int dsa_decrypt_key(const unsigned char *in,  unsigned long  inlen,
                           unsigned char *out, unsigned long *outlen,
                           dsa_key *key);
 
-int dsa_import_radix(int radix, char *p, char *q, char *g, char *x, char *y, dsa_key *key);
 int dsa_import(const unsigned char *in, unsigned long inlen, dsa_key *key);
 int dsa_export(unsigned char *out, unsigned long *outlen, int type, dsa_key *key);
 int dsa_verify_key(dsa_key *key, int *stat);
