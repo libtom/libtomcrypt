@@ -17,8 +17,15 @@
 /**
    Convert data from a specific radix to binary
 
+      The default MPI descriptors #ltm_desc, #tfm_desc and #gmp_desc
+      have the following restrictions on parameters:
+
+        \p in    - NUL-terminated char buffer
+
+        \p radix - 2..64
+
    @param in    The input
-   @param radix The radix of the input 2..64
+   @param radix The radix of the input
    @param out   The output buffer
    @param len   [in/out] The length of the output buffer
 
