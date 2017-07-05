@@ -563,6 +563,8 @@ int der_length_sequence(ltc_asn1_list *list, unsigned long inlen,
 
 #ifdef LTC_SOURCE
 /* internal helper functions */
+int der_length_sequence_ex(ltc_asn1_list *list, unsigned long inlen,
+                           unsigned long *outlen, unsigned long *payloadlen);
 /* SUBJECT PUBLIC KEY INFO */
 int der_encode_subject_public_key_info(unsigned char *out, unsigned long *outlen,
         unsigned int algorithm, void* public_key, unsigned long public_key_len,

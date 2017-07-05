@@ -98,6 +98,7 @@ int der_decode_sequence_ex(const unsigned char *in, unsigned long  inlen,
            case LTC_ASN1_BOOLEAN:
                z = inlen;
                if ((err = der_decode_boolean(in + x, z, ((int *)data))) != CRYPT_OK) {
+                   if (!ordered) { continue; }
                    goto LBL_ERR;
                }
                if ((err = der_length_boolean(&z)) != CRYPT_OK) {
