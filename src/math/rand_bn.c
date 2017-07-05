@@ -53,7 +53,7 @@ cleanup:
 /**
   Generate a random number N in a range: 1 <= N < limit
 */
-int rand_bn_range(void *N, void *limit, prng_state *prng, int wprng)
+int rand_bn_upto(void *N, void *limit, prng_state *prng, int wprng)
 {
    int res, bits;
 

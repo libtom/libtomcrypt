@@ -76,7 +76,7 @@ int dsa_encrypt_key(const unsigned char *in,   unsigned long inlen,
     /* make a random g_priv, g_pub = g^x pair
        private key x should be in range: 1 <= x <= q-1 (see FIPS 186-4 B.1.2)
      */
-    if ((err = rand_bn_range(g_priv, key->q, prng, wprng)) != CRYPT_OK) {
+    if ((err = rand_bn_upto(g_priv, key->q, prng, wprng)) != CRYPT_OK) {
       goto LBL_ERR;
     }
 
