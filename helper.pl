@@ -274,10 +274,10 @@ sub patch_makefile {
   return $content;
 }
 
-sub version_form_tomcrypt_h {
+sub version_from_tomcrypt_h {
   my $h = read_file(shift);
-  if ($h =~ /\n#define\s*SCRYPT\s*"([0-9]+)\.([0-9]+)\.([0-9]+).*"/s) {
-    return "VERSION=$1.$2.$3", "VERSION_LT=0:$1$2";
+  if ($h =~ /\n#define\s*SCRYPT\s*"([0-9]+)\.([0-9]+)\.([0-9]+)(.*)"/s) {
+    return "VERSION_PC=$1.$2.$3", "VERSION_LT=0:$1$2", "VERSION=$1.$2.$3$4";
   }
   else {
     die "#define SCRYPT not found in tomcrypt.h";
@@ -304,7 +304,7 @@ sub process_makefiles {
   my $var_to = prepare_variable("TOBJECTS", sort map { my $x = $_; $x =~ s/\.c$/.o/; $x } @t);
   (my $var_tobj = $var_to) =~ s/\.o\b/.obj/sg;
 
-  my @ver_version = version_form_tomcrypt_h("src/headers/tomcrypt.h");
+  my @ver_version = version_from_tomcrypt_h("src/headers/tomcrypt.h");
 
   # update MSVC project files
   my $msvc_files = prepare_msvc_files_xml(\@all, qr/tab\.c$/, ['Debug|Win32', 'Release|Win32', 'Debug|x64', 'Release|x64']);

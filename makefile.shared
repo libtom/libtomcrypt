@@ -46,7 +46,7 @@ $(LIBNAME): $(OBJECTS)
 	$(LT) --mode=link --tag=CC $(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) `find ./src -type f -name "*.lo" | LC_ALL=C sort` $(EXTRALIBS) -o $@ -rpath $(LIBPATH) -version-info $(VERSION_LT)
 
 install: .common_install
-	sed -e 's,^prefix=.*,prefix=$(PREFIX),' -e 's,^Version:.*,Version: $(VERSION),' libtomcrypt.pc.in > libtomcrypt.pc
+	sed -e 's,^prefix=.*,prefix=$(PREFIX),' -e 's,^Version:.*,Version: $(VERSION_PC),' libtomcrypt.pc.in > libtomcrypt.pc
 	install -d $(DESTDIR)$(LIBPATH)/pkgconfig
 	install -m 644 libtomcrypt.pc $(DESTDIR)$(LIBPATH)/pkgconfig/
 

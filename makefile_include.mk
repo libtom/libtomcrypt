@@ -2,8 +2,9 @@
 # Include makefile used by makefile + makefile.shared
 #  (GNU make only)
 
-# The version - BEWARE: VERSION and VERSION_LT are updated via ./updatemakes.sh
-VERSION=1.18.0
+# The version - BEWARE: VERSION, VERSION_PC and VERSION_LT are updated via ./updatemakes.sh
+VERSION=1.18.0-rc1
+VERSION_PC=1.18.0
 # http://www.gnu.org/software/libtool/manual/html_node/Updating-version-info.html
 VERSION_LT=0:118
 
