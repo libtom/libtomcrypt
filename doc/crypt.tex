@@ -7264,9 +7264,13 @@ All functions except the Montgomery reductions work from left to right with the 
 
 All functions (except where noted otherwise) return \textbf{CRYPT\_OK} to signify a successful operation.  All error codes must be valid LibTomCrypt error codes.
 
-The digit routines (including functions with the \textit{i} suffix) use a \textit{unsigned long} to represent the digit.  If your internal digit is larger than this you must
-then partition your digits.  Normally this does not matter as \textit{unsigned long} will be the same size as your register size.  Note that if your digit is smaller
-than an \textit{unsigned long} that is also acceptable as the \textit{bits\_per\_digit} parameter will specify this.
+The digit routines (including functions with the \textit{i} suffix) use a \textit{ltc\_mp\_digit} to represent the digit.  If your internal digit is larger than this you must
+then partition your digits.  Note that if your digit is smaller than an \textit{ltc\_mp\_digit} that is also acceptable as the \textit{bits\_per\_digit} parameter will specify this.
+
+\subsubsection{ltc\_mp\_digit}
+\index{ltc\_mp\_digit}
+
+Depending on the archtitecture \textit{ltc\_mp\_digit} is either a $32$- or $64$-bit long \textit{unsigned} data type.
 
 \subsection{ECC Functions}
 The ECC system in LibTomCrypt is based off of the NIST recommended curves over $GF(p)$ and is used to implement EC-DSA and EC-DH.   The ECC functions work with
