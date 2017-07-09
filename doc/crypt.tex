@@ -5557,7 +5557,7 @@ int base64_decode(const unsigned char *in,
 \mysection{Primality Testing}
 \index{Primality Testing}
 The library includes primality testing and random prime functions as well.  The primality tester will perform the test in
-two phases.  First it will perform trial division by the first few primes.  Second it will perform eight rounds of the
+two phases.  First it will perform trial division by the first few primes.  Second it will perform \textit{LTC\_MILLER\_RABIN\_REPS} (pre-defined to $35$) rounds of the
 Rabin-Miller primality testing algorithm.  If the candidate passes both phases it is declared prime otherwise it is declared
 composite.  No prime number will fail the two phases but composites can.  Each round of the Rabin-Miller algorithm reduces
 the probability of a pseudo-prime by $1 \over 4$ therefore after sixteen rounds the probability is no more than
