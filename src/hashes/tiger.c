@@ -671,7 +671,6 @@ int tiger_init(hash_state *md)
    @param inlen  The length of the data (octets)
    @return CRYPT_OK if successful
 */
-int tiger_process(hash_state * md, const unsigned char *in, unsigned long inlen);
 HASH_PROCESS(tiger_process, tiger_compress, tiger, 64)
 
 /**

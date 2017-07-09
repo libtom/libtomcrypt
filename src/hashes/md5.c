@@ -247,7 +247,6 @@ int md5_init(hash_state * md)
    @param inlen  The length of the data (octets)
    @return CRYPT_OK if successful
 */
-int md5_process(hash_state * md, const unsigned char *in, unsigned long inlen);
 HASH_PROCESS(md5_process, md5_compress, md5, 64)
 
 /**
