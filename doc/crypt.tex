@@ -3653,8 +3653,14 @@ This will PKCS encode the message digest pointed to by \textit{in} of length \te
 must be set to \textbf{LTC\_PKCS\_1\_V1\_5} to produce a v1.5 signature, otherwise, it must be set to \textbf{LTC\_PKCS\_1\_PSS} to produce a
 v2.1 signature.
 
-When performing a v1.5 signature the \textit{prng}, \textit{prng\_idx}, and \textit{hash\_idx} parameters are not checked and can be left to any
-values such as $\lbrace$\textbf{NULL}, 0, 0$\rbrace$.
+\index{LTC\_PKCS\_1\_V1\_5\_NA1}
+As of v1.18.0, the library also supports v1.5 signature generation without ASN.1 encoding the signature which can be indicated by passing
+\textbf{LTC\_PKCS\_1\_V1\_5\_NA1} as \textit{padding} parameter. This option has been introduced to provide compatibilty to SSL3.0 implementations
+which implemented this.
+
+When generating a standard v1.5 signature the \textit{prng}, and \textit{prng\_idx} parameters are not checked and can be left to any
+values such as $\lbrace$\textbf{NULL}, 0$\rbrace$. When generating a v1.5 signature without ASN.1 additionally the parameter \textit{hash\_idx} is not
+checked and can be set to $0$.
 
 \mysection{RSA Signature Verification}
 \index{rsa\_verify\_hash()}
@@ -3716,7 +3722,13 @@ If the RSA decoded data is not a valid PSS message, or if the PKCS decoded hash 
 value, \textit{res} is set to $0$.  Otherwise, if the function succeeds, and signature is valid \textit{res} is set to $1$.
 
 The \textit{padding} parameter must be set to \textbf{LTC\_PKCS\_1\_V1\_5} to perform a v1.5 verification.  Otherwise, it must be set to
-\textbf{LTC\_PKCS\_1\_PSS} to perform a v2.1 verification.  When performing a v1.5 verification the \textit{hash\_idx} and \textit{saltlen} parameters are ignored.
+\textbf{LTC\_PKCS\_1\_PSS} to perform a v2.1 verification.
+
+As of v1.18.0, the library also supports v1.5 signature verification without ASN.1 decoding the signature which can be indicated by passing
+\textbf{LTC\_PKCS\_1\_V1\_5\_NA1} as \textit{padding} parameter.
+
+When performing a standard v1.5 verification the \textit{saltlen} parameter is ignored.
+When performing a v1.5 verification without ASN.1 decoding additionally the \textit{hash\_idx} parameter is ignored.
 
 
 \mysection{RSA Encryption Example}
