@@ -151,6 +151,11 @@ else
 GROUP=wheel
 endif
 
+
+#The default rule for make builds the libtomcrypt library.
+default: library
+
+
 # List of objects to compile (all goes to libtomcrypt.a)
 OBJECTS=src/ciphers/aes/aes.o src/ciphers/aes/aes_enc.o src/ciphers/anubis.o src/ciphers/blowfish.o \
 src/ciphers/camellia.o src/ciphers/cast5.o src/ciphers/des.o src/ciphers/kasumi.o src/ciphers/khazad.o \
@@ -331,10 +336,6 @@ src/hashes/sha2/sha512.o: src/hashes/sha2/sha512.c src/hashes/sha2/sha384.c
 src/hashes/sha2/sha512_224.o: src/hashes/sha2/sha512.c src/hashes/sha2/sha512_224.c
 src/hashes/sha2/sha512_256.o: src/hashes/sha2/sha512.c src/hashes/sha2/sha512_256.c
 src/hashes/sha2/sha256.o: src/hashes/sha2/sha256.c src/hashes/sha2/sha224.c
-
-
-#The default rule for make builds the libtomcrypt library.
-default:library
 
 $(DOBJECTS): CFLAGS += -Itests
 $(TOBJECTS): CFLAGS += -Itests
