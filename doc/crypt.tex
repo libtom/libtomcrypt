@@ -3817,7 +3817,7 @@ indicated by \textbf{PK\_PUBLIC}.
 The RSAPrivateKey (PKCS \#1 type) format will be used for the private key,
 indicated by \textbf{PK\_PRIVATE}.
 
-As of v1.18 this function can also export OpenSSL-compatible formatted public RSA keys.
+As of v1.18.0 this function can also export OpenSSL-compatible formatted public RSA keys.
 By OR'ing \textbf{PK\_STD} and \textbf{PK\_PUBLIC} the public key will be exported
 in the SubjectPublicKeyInfo (X.509 type) format.
 
@@ -5259,13 +5259,13 @@ However the parent processing will continue with a "soft-error".
 This can be detected by checking for \textit{child} elements with
 type \textbf{LTC\_ASN1\_EOL} after decoding.
 
-As of v1.18 the flexi decoder will also decode arbitrary constructed types
+As of v1.18.0 the flexi decoder will also decode arbitrary constructed types
 other than SEQUENCE and SET. The \textit{type} field will be set to
 \textbf{LTC\_ASN1\_CONSTRUCTED} and the plain identifier that was indicated in the ASN.1
 encoding is stored in the \textit{used} field. Further decoding is done in the
 same way as if it were a SEQUENCE or SET.
 
-Also as of v1.18 the flexi decoder is capable to handle
+Also as of v1.18.0 the flexi decoder is capable to handle
 \textit{context-specific} encodings. The \textit{type} field will be set to
 \textbf{LTC\_ASN1\_CONTEXT\_SPECIFIC} and the plain identifier that was indicated
 in the ASN.1 encoding is stored in the \textit{used} field. Encapsulated data
