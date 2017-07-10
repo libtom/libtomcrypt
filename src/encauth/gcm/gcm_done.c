@@ -40,6 +40,15 @@ int gcm_done(gcm_state *gcm,
       return err;
    }
 
+   if (gcm->mode == LTC_GCM_MODE_IV) {
+      /* let's process the IV */
+      if ((err = gcm_add_aad(gcm, NULL, 0)) != CRYPT_OK) return err;
+   }
+
+   if (gcm->mode == LTC_GCM_MODE_AAD) {
+      /* let's process the AAD */
+      if ((err = gcm_process(gcm, NULL, 0, NULL, 0)) != CRYPT_OK) return err;
+   }
 
    if (gcm->mode != LTC_GCM_MODE_TEXT) {
       return CRYPT_INVALID_ARG;
