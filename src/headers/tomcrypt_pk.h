@@ -224,9 +224,7 @@ int dh_set_pg(const unsigned char *p, unsigned long plen,
 int dh_set_pg_dhparam(const unsigned char *dhparam, unsigned long dhparamlen, dh_key *key);
 int dh_set_pg_groupsize(int groupsize, dh_key *key);
 
-int dh_set_key(const unsigned char *pub, unsigned long publen,
-               const unsigned char *priv, unsigned long privlen,
-               dh_key *key);
+int dh_set_key(const unsigned char *in, unsigned long inlen, int type, dh_key *key);
 int dh_generate_key(prng_state *prng, int wprng, dh_key *key);
 
 int dh_shared_secret(dh_key        *private_key, dh_key        *public_key,
@@ -449,9 +447,7 @@ int dsa_set_pqg(const unsigned char *p,  unsigned long plen,
 int dsa_set_pqg_dsaparam(const unsigned char *dsaparam, unsigned long dsaparamlen, dsa_key *key);
 int dsa_generate_pqg(prng_state *prng, int wprng, int group_size, int modulus_size, dsa_key *key);
 
-int dsa_set_key(const unsigned char *pub, unsigned long publen,
-                const unsigned char *priv, unsigned long privlen,
-                dsa_key *key);
+int dsa_set_key(const unsigned char *in, unsigned long inlen, int type, dsa_key *key);
 int dsa_generate_key(prng_state *prng, int wprng, dsa_key *key);
 
 void dsa_free(dsa_key *key);

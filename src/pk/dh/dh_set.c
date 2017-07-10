@@ -87,31 +87,21 @@ LBL_ERR:
   @param key     [out] the destination for the imported key
   @return CRYPT_OK if successful
 */
-int dh_set_key(const unsigned char *pub, unsigned long publen,
-               const unsigned char *priv, unsigned long privlen,
-               dh_key *key)
+int dh_set_key(const unsigned char *in, unsigned long inlen, int type, dh_key *key)
 {
    int err;
 
    LTC_ARGCHK(key         != NULL);
    LTC_ARGCHK(ltc_mp.name != NULL);
 
-   if(priv == NULL) {
-      if ((err = mp_read_unsigned_bin(key->y, (unsigned char*)pub, publen)) != CRYPT_OK)         { goto LBL_ERR; }
-      key->type = PK_PUBLIC;
-      mp_clear(key->x);
-      key->x = NULL;
+   if (type == PK_PRIVATE) {
+      key->type = PK_PRIVATE;
+      if ((err = mp_read_unsigned_bin(key->x, (unsigned char*)in, inlen)) != CRYPT_OK) { goto LBL_ERR; }
+      if ((err = mp_exptmod(key->base, key->x, key->prime, key->y)) != CRYPT_OK)       { goto LBL_ERR; }
    }
    else {
-      if ((err = mp_read_unsigned_bin(key->x, (unsigned char*)priv, privlen)) != CRYPT_OK)         { goto LBL_ERR; }
-      if (pub != NULL) {
-         if ((err = mp_read_unsigned_bin(key->y, (unsigned char*)pub, publen)) != CRYPT_OK)         { goto LBL_ERR; }
-      }
-      else {
-         /* compute y value */
-         if ((err = mp_exptmod(key->base, key->x, key->prime, key->y)) != CRYPT_OK)  { goto LBL_ERR; }
-      }
-      key->type = PK_PRIVATE;
+      key->type = PK_PUBLIC;
+      if ((err = mp_read_unsigned_bin(key->y, (unsigned char*)in, inlen)) != CRYPT_OK) { goto LBL_ERR; }
    }
 
    /* check public key */

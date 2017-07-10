@@ -66,9 +66,7 @@ LBL_ERR:
   @param key     [out] the destination for the imported key
   @return CRYPT_OK if successful.
 */
-int dsa_set_key(const unsigned char *pub, unsigned long publen,
-                const unsigned char *priv, unsigned long privlen,
-                dsa_key *key)
+int dsa_set_key(const unsigned char *in, unsigned long inlen, int type, dsa_key *key)
 {
    int err;
 
@@ -80,13 +78,14 @@ int dsa_set_key(const unsigned char *pub, unsigned long publen,
    LTC_ARGCHK(key->q      != NULL);
    LTC_ARGCHK(ltc_mp.name != NULL);
 
-   if ((err = mp_read_unsigned_bin(key->y, (unsigned char *)pub , publen)) != CRYPT_OK) { goto LBL_ERR; }
-   if (priv != NULL) {
+   if (type == PK_PRIVATE) {
       key->type = PK_PRIVATE;
-      if ((err = mp_read_unsigned_bin(key->x, (unsigned char *)priv , privlen)) != CRYPT_OK) { goto LBL_ERR; }
+      if ((err = mp_read_unsigned_bin(key->x, (unsigned char *)in, inlen)) != CRYPT_OK) { goto LBL_ERR; }
+      if ((err = mp_exptmod(key->g, key->x, key->p, key->y)) != CRYPT_OK)               { goto LBL_ERR; }
    }
    else {
       key->type = PK_PUBLIC;
+      if ((err = mp_read_unsigned_bin(key->y, (unsigned char *)in, inlen)) != CRYPT_OK) { goto LBL_ERR; }
    }
 
    return CRYPT_OK;

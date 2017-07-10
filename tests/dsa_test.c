@@ -179,8 +179,8 @@ static int _dsa_compat_test(void)
                  key_parts[1], key_lens[1],
                  key_parts[2], key_lens[2],
                  &key));
-  DO(dsa_set_key(key_parts[3], key_lens[3],
-                 key_parts[4], key_lens[4],
+  DO(dsa_set_key(key_parts[4], key_lens[4],
+                 PK_PRIVATE,
                  &key));
   len = sizeof(buf);
   DO(dsa_export(buf, &len, PK_PRIVATE | PK_STD, &key));
@@ -196,7 +196,7 @@ static int _dsa_compat_test(void)
                  key_parts[2], key_lens[2],
                  &key));
   DO(dsa_set_key(key_parts[3], key_lens[3],
-                 NULL, 0,
+                 PK_PUBLIC,
                  &key));
   len = sizeof(buf);
   DO(dsa_export(buf, &len, PK_PUBLIC | PK_STD, &key));
@@ -220,7 +220,7 @@ static int _dsa_compat_test(void)
   /* try import dsaparam - our public key */
   DO(dsa_set_pqg_dsaparam(dsaparam_der, sizeof(dsaparam_der), &key));
   DO(dsa_set_key(key_parts[3], key_lens[3],
-                 NULL, 0,
+                 PK_PUBLIC,
                  &key));
   len = sizeof(buf);
   DO(dsa_export(buf, &len, PK_PUBLIC | PK_STD, &key));
@@ -232,8 +232,8 @@ static int _dsa_compat_test(void)
 
   /* try import dsaparam - our private key */
   DO(dsa_set_pqg_dsaparam(dsaparam_der, sizeof(dsaparam_der), &key));
-  DO(dsa_set_key(key_parts[3], key_lens[3],
-                 key_parts[4], key_lens[4],
+  DO(dsa_set_key(key_parts[4], key_lens[4],
+                 PK_PRIVATE,
                  &key));
   len = sizeof(buf);
   DO(dsa_export(buf, &len, PK_PRIVATE | PK_STD, &key));
