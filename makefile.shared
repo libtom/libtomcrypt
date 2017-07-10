@@ -25,6 +25,7 @@ ifndef LT
 endif
 LTCOMPILE = $(LT) --mode=compile --tag=CC $(CC)
 INSTALL_CMD = $(LT) --mode=install install
+UNINSTALL_CMD = $(LT) --mode=uninstall rm
 
 #Output filenames for various targets.
 ifndef LIBNAME
@@ -51,6 +52,9 @@ install: .common_install
 	install -m 644 libtomcrypt.pc $(DESTDIR)$(LIBPATH)/pkgconfig/
 
 install_bins: .common_install_bins
+
+uninstall: .common_uninstall
+	rm $(DESTDIR)$(LIBPATH)/pkgconfig/libtomcrypt.pc
 
 test: $(LIBNAME) $(TOBJECTS)
 	$(LT) --mode=link --tag=CC $(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $(TEST) $(TOBJECTS) $(LIBNAME) $(EXTRALIBS)

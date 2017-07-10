@@ -30,6 +30,9 @@ endif
 ifndef INSTALL_CMD
 $(error your makefile must define INSTALL_CMD)
 endif
+ifndef UNINSTALL_CMD
+$(error your makefile must define UNINSTALL_CMD)
+endif
 
 ifndef EXTRALIBS
 ifneq ($(shell echo $(CFLAGS) | grep USE_LTM),)
@@ -382,6 +385,12 @@ install_docs: doc/crypt.pdf
 
 install_hooks:
 	for s in `ls hooks/`; do ln -s ../../hooks/$$s .git/hooks/$$s; done
+
+
+HEADER_FILES=$(notdir $(HEADERS))
+.common_uninstall:
+	$(UNINSTALL_CMD) $(LIBPATH)/$(LIBNAME)
+	rm $(HEADER_FILES:%=$(INCPATH)/%)
 
 #This rule cleans the source tree of all compiled code, not including the pdf
 #documentation.

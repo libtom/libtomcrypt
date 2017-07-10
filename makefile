@@ -26,6 +26,7 @@ ifndef RANLIB
 RANLIB:=$(CROSS_COMPILE)ranlib
 endif
 INSTALL_CMD = install
+UNINSTALL_CMD = rm
 
 #Output filenames for various targets.
 ifndef LIBNAME
@@ -92,6 +93,8 @@ $(foreach demo, $(strip $(DEMOS)), $(eval $(call DEMO_template,$(demo))))
 install: .common_install
 
 install_bins: .common_install_bins
+
+uninstall: .common_uninstall
 
 profile:
 	CFLAGS="$(CFLAGS) -fprofile-generate" $(MAKE) timing EXTRALIBS="$(EXTRALIBS) -lgcov"
