@@ -161,7 +161,7 @@ static int chc_compress(hash_state *md, unsigned char *buf)
    @return CRYPT_OK if successful
 */
 static int _chc_process(hash_state * md, const unsigned char *buf, unsigned long len);
-HASH_PROCESS(_chc_process, chc_compress, chc, (unsigned long)cipher_blocksize)
+static HASH_PROCESS(_chc_process, chc_compress, chc, (unsigned long)cipher_blocksize)
 
 /**
    Process a block of memory though the hash
