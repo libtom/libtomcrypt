@@ -201,8 +201,7 @@ int ocb3_test(void)
         }
         if ((res != 1) || compare_testvector(outct, tests[x].ptlen, tests[x].pt, tests[x].ptlen, "OCB3", x)) {
 #ifdef LTC_TEST_DBG
-           printf("\n\nOCB3: Failure-decrypt\n");
-           printf("\nres = %d\n\n", res);
+           printf("\n\nOCB3: Failure-decrypt - res = %d\n", res);
 #endif
            return CRYPT_FAIL_TESTVECTOR;
         }
