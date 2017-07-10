@@ -38,15 +38,15 @@ include makefile_include.mk
 
 #ciphers come in two flavours... enc+dec and enc
 src/ciphers/aes/aes_enc.o: src/ciphers/aes/aes.c src/ciphers/aes/aes_tab.c
-	$(LTCOMPILE) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) -DENCRYPT_ONLY -c src/ciphers/aes/aes.c -o src/ciphers/aes/aes_enc.o
+	$(LTCOMPILE) $(LTC_CFLAGS) $(CPPFLAGS) $(LTC_LDFLAGS) -DENCRYPT_ONLY -c src/ciphers/aes/aes.c -o src/ciphers/aes/aes_enc.o
 
 .c.o:
-	$(LTCOMPILE) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $@ -c $<
+	$(LTCOMPILE) $(LTC_CFLAGS) $(CPPFLAGS) $(LTC_LDFLAGS) -o $@ -c $<
 
 LOBJECTS = $(OBJECTS:.o=.lo)
 
 $(LIBNAME): $(OBJECTS)
-	$(LT) --mode=link --tag=CC $(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) $(LOBJECTS) $(EXTRALIBS) -o $@ -rpath $(LIBPATH) -version-info $(VERSION_LT)
+	$(LT) --mode=link --tag=CC $(CC) $(LTC_CFLAGS) $(CPPFLAGS) $(LTC_LDFLAGS) $(LOBJECTS) $(EXTRALIBS) -o $@ -rpath $(LIBPATH) -version-info $(VERSION_LT)
 
 install: .common_install
 	sed -e 's,^prefix=.*,prefix=$(PREFIX),' -e 's,^Version:.*,Version: $(VERSION_PC),' libtomcrypt.pc.in > libtomcrypt.pc
@@ -59,10 +59,10 @@ uninstall: .common_uninstall
 	rm $(DESTDIR)$(LIBPATH)/pkgconfig/libtomcrypt.pc
 
 test: $(LIBNAME) $(TOBJECTS)
-	$(LT) --mode=link --tag=CC $(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $(TEST) $(TOBJECTS) $(LIBNAME) $(EXTRALIBS)
+	$(LT) --mode=link --tag=CC $(CC) $(LTC_CFLAGS) $(CPPFLAGS) $(LTC_LDFLAGS) -o $(TEST) $(TOBJECTS) $(LIBNAME) $(EXTRALIBS)
 
 timing: $(TIMINGS) $(LIBNAME)
-	$(LT) --mode=link --tag=CC $(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $(TIMING) $^ $(EXTRALIBS)
+	$(LT) --mode=link --tag=CC $(CC) $(LTC_CFLAGS) $(CPPFLAGS) $(LTC_LDFLAGS) -o $(TIMING) $^ $(EXTRALIBS)
 
 # build the demos from a template
 define DEMO_template
@@ -70,7 +70,7 @@ $(1): demos/$(1).o $$(LIBNAME)
 ifneq ($V,1)
 	@echo "   * $${CC} $$@"
 endif
-	$$(LT) --mode=link --tag=CC $$(CC) $$(CFLAGS) $$(CPPFLAGS) $$(LDFLAGS) $$^ $$(EXTRALIBS) -o $(1)
+	$$(LT) --mode=link --tag=CC $$(CC) $$(LTC_CFLAGS) $$(CPPFLAGS) $$(LTC_LDFLAGS) $$^ $$(EXTRALIBS) -o $(1)
 endef
 
 $(foreach demo, $(strip $(DEMOS)), $(eval $(call DEMO_template,$(demo))))

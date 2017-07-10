@@ -52,44 +52,44 @@ endif
 # by giving them as a parameter to make:
 #  make CFLAGS="-I./src/headers/ -DLTC_SOURCE ..." ...
 #
-CFLAGS += -I./src/headers/ -Wall -Wsign-compare -Wshadow -DLTC_SOURCE
+LTC_CFLAGS += -I./src/headers/ -Wall -Wsign-compare -Wshadow -DLTC_SOURCE
 
 ifdef OLD_GCC
-CFLAGS += -W
+LTC_CFLAGS += -W
 # older GCCs can't handle the "rotate with immediate" ROLc/RORc/etc macros
 # define this to help
-CFLAGS += -DLTC_NO_ROLC
+LTC_CFLAGS += -DLTC_NO_ROLC
 else
-CFLAGS += -Wextra
+LTC_CFLAGS += -Wextra
 # additional warnings
-CFLAGS += -Wsystem-headers -Wbad-function-cast -Wcast-align
-CFLAGS += -Wstrict-prototypes -Wpointer-arith
-CFLAGS += -Wdeclaration-after-statement
+LTC_CFLAGS += -Wsystem-headers -Wbad-function-cast -Wcast-align
+LTC_CFLAGS += -Wstrict-prototypes -Wpointer-arith
+LTC_CFLAGS += -Wdeclaration-after-statement
 endif
 
-CFLAGS += -Wno-type-limits
+LTC_CFLAGS += -Wno-type-limits
 
 ifdef LTC_DEBUG
 # compile for DEBUGGING (required for ccmalloc checking!!!)
-CFLAGS += -g3 -DLTC_NO_ASM
+LTC_CFLAGS += -g3 -DLTC_NO_ASM
 ifneq (,$(strip $(LTC_DEBUG)))
-CFLAGS += -DLTC_TEST_DBG=$(LTC_DEBUG)
+LTC_CFLAGS += -DLTC_TEST_DBG=$(LTC_DEBUG)
 else
-CFLAGS += -DLTC_TEST_DBG
+LTC_CFLAGS += -DLTC_TEST_DBG
 endif
 else
 
 ifdef LTC_SMALL
 # optimize for SIZE
-CFLAGS += -Os -DLTC_SMALL_CODE
+LTC_CFLAGS += -Os -DLTC_SMALL_CODE
 else
 
 ifndef IGNORE_SPEED
 # optimize for SPEED
-CFLAGS += -O3 -funroll-loops
+LTC_CFLAGS += -O3 -funroll-loops
 
 # add -fomit-frame-pointer.  hinders debugging!
-CFLAGS += -fomit-frame-pointer
+LTC_CFLAGS += -fomit-frame-pointer
 endif
 
 endif # COMPILE_SMALL
@@ -97,22 +97,25 @@ endif # COMPILE_DEBUG
 
 
 ifneq ($(findstring clang,$(CC)),)
-CFLAGS += -Wno-typedef-redefinition -Wno-tautological-compare -Wno-builtin-requires-header
+LTC_CFLAGS += -Wno-typedef-redefinition -Wno-tautological-compare -Wno-builtin-requires-header
 endif
 ifeq ($(PLATFORM), Darwin)
-CFLAGS += -Wno-nullability-completeness
+LTC_CFLAGS += -Wno-nullability-completeness
 endif
 
 
 GIT_VERSION := $(shell [ -e .git ] && { printf git- ; git describe --tags --always --dirty ; } || echo $(VERSION))
 ifneq ($(GIT_VERSION),)
-CFLAGS += -DGIT_VERSION=\"$(GIT_VERSION)\"
+LTC_CFLAGS += -DGIT_VERSION=\"$(GIT_VERSION)\"
 endif
 
+LTC_CFLAGS := $(LTC_CFLAGS) $(CFLAGS)
 
-ifneq ($(findstring -DLTC_PTHREAD,$(CFLAGS)),)
-LDFLAGS += -pthread
+ifneq ($(findstring -DLTC_PTHREAD,$(LTC_CFLAGS)),)
+LTC_LDFLAGS += -pthread
 endif
+
+LTC_LDFLAGS := $(LTC_LDFLAGS) $(LDFLAGS)
 
 #List of demo objects
 DSOURCES = $(wildcard demos/*.c)
@@ -340,8 +343,8 @@ src/hashes/sha2/sha512_224.o: src/hashes/sha2/sha512.c src/hashes/sha2/sha512_22
 src/hashes/sha2/sha512_256.o: src/hashes/sha2/sha512.c src/hashes/sha2/sha512_256.c
 src/hashes/sha2/sha256.o: src/hashes/sha2/sha256.c src/hashes/sha2/sha224.c
 
-$(DOBJECTS): CFLAGS += -Itests
-$(TOBJECTS): CFLAGS += -Itests
+$(DOBJECTS): LTC_CFLAGS += -Itests
+$(TOBJECTS): LTC_CFLAGS += -Itests
 
 #This rule makes the libtomcrypt library.
 library: $(LIBNAME)
