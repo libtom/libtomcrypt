@@ -268,7 +268,7 @@ static int _set_test(void)
 
    for (i = 0; i < 1; i++) {
       DO(dh_set_pg(test[i].p, test[i].plen, test[i].g, test[i].glen, &k1));
-      DO(dh_set_key(NULL, 0, test[i].x, test[i].xlen, &k1));
+      DO(dh_set_key(test[i].x, test[i].xlen, PK_PRIVATE, &k1));
 
       len = sizeof(buf);
       DO(dh_export(buf, &len, PK_PRIVATE, &k1));
@@ -301,7 +301,7 @@ static int _set_test(void)
       dh_free(&k1);
 
       DO(dh_set_pg(test[i].p, test[i].plen, test[i].g, test[i].glen, &k1));
-      DO(dh_set_key(test[i].y, test[i].ylen, test[i].x, test[i].xlen, &k1));
+      DO(dh_set_key(test[i].x, test[i].xlen, PK_PRIVATE, &k1));
 
       len = sizeof(buf);
       DO(dh_export(buf, &len, PK_PRIVATE, &k1));
@@ -320,7 +320,7 @@ static int _set_test(void)
       dh_free(&k1);
 
       DO(dh_set_pg(test[i].p, test[i].plen, test[i].g, test[i].glen, &k2));
-      DO(dh_set_key(test[i].y, test[i].ylen, NULL, 0, &k2));
+      DO(dh_set_key(test[i].y, test[i].ylen, PK_PUBLIC, &k2));
 
       len = sizeof(buf);
       DO(dh_export(buf, &len, PK_PUBLIC, &k2));
