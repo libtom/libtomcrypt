@@ -58,11 +58,13 @@ LBL_ERR:
 }
 
 /**
-  Import DSA public or private key from raw numbers
-  @param pub     DSA's y (public key) in binary representation
-  @param publen  The length of pub
-  @param priv    DSA's x (private key) in binary representation (can be NULL when importing public key)
-  @param privlen The length of priv
+  Import DSA public or private key-part from raw numbers
+
+     NB: The p, q & g parts must be set beforehand
+
+  @param in      The key-part to import, either public or private.
+  @param inlen   The key-part's length
+  @param type    Which type of key (PK_PRIVATE or PK_PUBLIC)
   @param key     [out] the destination for the imported key
   @return CRYPT_OK if successful.
 */

@@ -78,12 +78,13 @@ LBL_ERR:
 }
 
 /**
-  Import DH key parts pub and priv from raw numbers
+  Import DH public or private key part from raw numbers
 
-  @param pub     DH's pub (public key) (can be NULL if priv is valid)
-  @param publen  DH's pub's length
-  @param priv    DH's priv (private key) (can be NULL if pub is valid)
-  @param privlen DH's priv's length
+     NB: The p & g parts must be set beforehand
+
+  @param in      The key-part to import, either public or private.
+  @param inlen   The key-part's length
+  @param type    Which type of key (PK_PRIVATE or PK_PUBLIC)
   @param key     [out] the destination for the imported key
   @return CRYPT_OK if successful
 */

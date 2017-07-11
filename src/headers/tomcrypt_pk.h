@@ -232,8 +232,7 @@ int dh_shared_secret(dh_key        *private_key, dh_key        *public_key,
 
 void dh_free(dh_key *key);
 
-int dh_export_key(void *out, unsigned long *outlen,
-                  int type, dh_key *key);
+int dh_export_key(void *out, unsigned long *outlen, int type, dh_key *key);
 
 #ifdef LTC_SOURCE
 /* internal helper functions */
