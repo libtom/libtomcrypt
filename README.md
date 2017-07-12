@@ -24,3 +24,21 @@ Please be aware, that all branches besides _master_ and _develop_ __can__ and __
 
 If you want to rely on such an _unstable_ branch, create your own fork of this repository to make sure nothing breaks for you.
 
+Building
+--------
+
+If you have `libtommath` installed on your system:
+
+    make CFLAGS="-DUSE_LTM -DLTM_DESC" EXTRALIBS="-ltommath" all
+
+For building a shared library use:
+
+    make -f makefile.shared CFLAGS="-DUSE_LTM -DLTM_DESC" EXTRALIBS="-ltommath" all
+
+If you have `libtommath` in a non-standard location:
+
+    make CFLAGS="-DUSE_LTM -DLTM_DESC -I/opt/devel/ltm" EXTRALIBS="/opt/devel/ltm/libtommath.a" all
+
+On unusual UNIX platforms, or if you do not have GNU make, have a look at `makefile.unix`.
+
+On MS Windows try `libtomcrypt_VS2008.sln` (Visual Studio) or `makefile.mingw` or `makefile.msvc`.
