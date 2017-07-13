@@ -37,7 +37,7 @@ CFLAGS    = -O2 -DUSE_LTM -DLTM_DESC -I../libtommath
 EXTRALIBS = ../libtommath/libtommath.a
 
 #Compilation flags
-LTC_CFLAGS  = $(CFLAGS) -Isrc/headers -Itests -DLTC_SOURCE
+LTC_CFLAGS  = -Isrc/headers -Itests -DLTC_SOURCE $(CFLAGS)
 LTC_LDFLAGS = $(LDFLAGS) $(EXTRALIBS)
 VERSION=1.18.0-rc1
 

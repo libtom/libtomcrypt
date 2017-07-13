@@ -39,19 +39,19 @@ include makefile_include.mk
 ifeq ($(COVERAGE),1)
 all_test: LIB_PRE = -Wl,--whole-archive
 all_test: LIB_POST = -Wl,--no-whole-archive
-CFLAGS += -fprofile-arcs -ftest-coverage
+LTC_CFLAGS += -fprofile-arcs -ftest-coverage
 EXTRALIBS += -lgcov
 endif
 
 #AES comes in two flavours... enc+dec and enc
 src/ciphers/aes/aes_enc.o: src/ciphers/aes/aes.c src/ciphers/aes/aes_tab.c
-	${silent} ${CC} ${CFLAGS} -DENCRYPT_ONLY -c $< -o $@
+	${silent} ${CC} ${LTC_CFLAGS} -DENCRYPT_ONLY -c $< -o $@
 
 .c.o:
 ifneq ($V,1)
 	@echo "   * ${CC} $@"
 endif
-	${silent} ${CC} ${CFLAGS} -c $< -o $@
+	${silent} ${CC} ${LTC_CFLAGS} -c $< -o $@
 
 $(LIBNAME): $(OBJECTS)
 ifneq ($V,1)
@@ -67,13 +67,13 @@ timing: $(LIBNAME) $(TIMINGS)
 ifneq ($V,1)
 	@echo "   * ${CC} $@"
 endif
-	${silent} $(CC) $(LDFLAGS) $(TIMINGS) $(LIB_PRE) $(LIBNAME) $(LIB_POST) $(EXTRALIBS) -o $(TIMING)
+	${silent} $(CC) $(LTC_LDFLAGS) $(TIMINGS) $(LIB_PRE) $(LIBNAME) $(LIB_POST) $(EXTRALIBS) -o $(TIMING)
 
 test: $(LIBNAME) $(TOBJECTS)
 ifneq ($V,1)
 	@echo "   * ${CC} $@"
 endif
-	${silent} $(CC) $(LDFLAGS) $(TOBJECTS) $(LIB_PRE) $(LIBNAME) $(LIB_POST) $(EXTRALIBS) -o $(TEST)
+	${silent} $(CC) $(LTC_LDFLAGS) $(TOBJECTS) $(LIB_PRE) $(LIBNAME) $(LIB_POST) $(EXTRALIBS) -o $(TEST)
 
 # build the demos from a template
 define DEMO_template
@@ -81,7 +81,7 @@ $(1): demos/$(1).o $$(LIBNAME)
 ifneq ($V,1)
 	@echo "   * $${CC} $$@"
 endif
-	$${silent} $$(CC) $$(CFLAGS) $$< $$(LIB_PRE) $$(LIBNAME) $$(LIB_POST) $$(EXTRALIBS) -o $(1)
+	$${silent} $$(CC) $$(LTC_CFLAGS) $$< $$(LIB_PRE) $$(LIBNAME) $$(LIB_POST) $$(EXTRALIBS) -o $(1)
 endef
 
 $(foreach demo, $(strip $(DEMOS)), $(eval $(call DEMO_template,$(demo))))
@@ -97,10 +97,10 @@ install_bins: .common_install_bins
 uninstall: .common_uninstall
 
 profile:
-	CFLAGS="$(CFLAGS) -fprofile-generate" $(MAKE) timing EXTRALIBS="$(EXTRALIBS) -lgcov"
+	LTC_CFLAGS="$(LTC_CFLAGS) -fprofile-generate" $(MAKE) timing EXTRALIBS="$(EXTRALIBS) -lgcov"
 	./timing
 	rm -f timing `find . -type f | grep [.][ao] | xargs`
-	CFLAGS="$(CFLAGS) -fprofile-use" $(MAKE) timing EXTRALIBS="$(EXTRALIBS) -lgcov"
+	LTC_CFLAGS="$(LTC_CFLAGS) -fprofile-use" $(MAKE) timing EXTRALIBS="$(EXTRALIBS) -lgcov"
 
 # target that pre-processes all coverage data
 lcov-single-create:
@@ -128,7 +128,7 @@ lcov-single:
 
 
 #make the code coverage of the library
-coverage: CFLAGS += -fprofile-arcs -ftest-coverage
+coverage: LTC_CFLAGS += -fprofile-arcs -ftest-coverage
 coverage: EXTRALIBS += -lgcov
 coverage: LIB_PRE = -Wl,--whole-archive
 coverage: LIB_POST = -Wl,--no-whole-archive
