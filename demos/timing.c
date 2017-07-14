@@ -919,7 +919,7 @@ static void time_dh(void)
            dh_free(&key);
        }
        t2 >>= 4;
-       fprintf(stderr, "DH-%4lu make_key    took %15llu cycles\n", x*8, t2);
+       fprintf(stderr, "DH-%4lu make_key    took %15"PRI64"u cycles\n", x*8, t2);
   }
 }
 #else
