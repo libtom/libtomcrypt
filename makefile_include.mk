@@ -138,11 +138,12 @@ USEFUL_DEMOS   = hashsum
 USEABLE_DEMOS  = ltcrypt sizes constants
 
 # Demos that are used for testing or measuring
-TEST_DEMOS     = small timing tv_gen
+TEST_DEMOS     = small tv_gen
 
 # Demos that are in one config broken
 #  openssl-enc - can't be build with LTC_EASY
-BROKEN_DEMOS   = openssl-enc
+#  timing      - not really broken, but older gcc builds spit warnings
+BROKEN_DEMOS   = openssl-enc timing
 
 # Combine demos in groups
 UNBROKEN_DEMOS = $(TEST_DEMOS) $(USEABLE_DEMOS) $(USEFUL_DEMOS)
