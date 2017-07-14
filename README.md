@@ -58,7 +58,7 @@ There are several `makefile`s provided. Please choose the one that fits best for
 
 | makefile | use-case |
 | -------- | -------- |
-| `makefile` | builds a static library (GNU Make required) |
+| `makefile` | builds a static library (GNU Make required, broken on Mac OSX - use `makefile.unix` instead) |
 | `makefile.shared` | builds a shared (and static) library (GNU Make required) |
 | `makefile.unix` | for unusual UNIX platforms, or if you do not have GNU Make |
 | `makefile.mingw` | for usage with the mingw compiler on MS Windows |
