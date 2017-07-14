@@ -124,14 +124,24 @@ DOBJECTS = $(DSOURCES:.c=.o)
 #List of tests headers
 THEADERS = $(wildcard tests/*.h)
 
-TIMING=timing
 TEST=test
 
-USEFUL_DEMOS=hashsum
-UNBROKEN_DEMOS=$(USEFUL_DEMOS) ltcrypt small tv_gen sizes constants
-DEMOS=$(UNBROKEN_DEMOS) openssl-enc
+# Demos that are even somehow useful and could be installed as a system-tool
+USEFUL_DEMOS   = hashsum
 
-TIMINGS=demos/timing.o
+# Demos that are usable but only rarely make sense to be installed
+USEABLE_DEMOS  = ltcrypt sizes constants
+
+# Demos that are used for testing or measuring
+TEST_DEMOS     = small timing tv_gen
+
+# Demos that are in one config broken
+#  openssl-enc - can't be build with LTC_EASY
+BROKEN_DEMOS   = openssl-enc
+
+# Combine demos in groups
+UNBROKEN_DEMOS = $(TEST_DEMOS) $(USEABLE_DEMOS) $(USEFUL_DEMOS)
+DEMOS          = $(UNBROKEN_DEMOS) $(BROKEN_DEMOS)
 
 #LIBPATH  The directory for libtomcrypt to be installed to.
 #INCPATH  The directory to install the header files for libtomcrypt.
@@ -356,7 +366,7 @@ $(TOBJECTS): $(HEADERS) $(THEADERS)
 
 bins: $(USEFUL_DEMOS)
 
-all: all_test
+all: all_test $(BROKEN_DEMOS)
 
 all_test: test $(UNBROKEN_DEMOS)
 

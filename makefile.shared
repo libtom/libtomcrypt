@@ -61,9 +61,6 @@ uninstall: .common_uninstall
 test: $(LIBNAME) $(TOBJECTS)
 	$(LT) --mode=link --tag=CC $(CC) $(LTC_CFLAGS) $(CPPFLAGS) $(LTC_LDFLAGS) -o $(TEST) $(TOBJECTS) $(LIBNAME) $(EXTRALIBS)
 
-timing: $(TIMINGS) $(LIBNAME)
-	$(LT) --mode=link --tag=CC $(CC) $(LTC_CFLAGS) $(CPPFLAGS) $(LTC_LDFLAGS) -o $(TIMING) $^ $(EXTRALIBS)
-
 # build the demos from a template
 define DEMO_template
 $(1): demos/$(1).o $$(LIBNAME)

@@ -63,12 +63,6 @@ ifneq ($V,1)
 endif
 	${silent} $(RANLIB) $@
 
-timing: $(LIBNAME) $(TIMINGS)
-ifneq ($V,1)
-	@echo "   * ${CC} $@"
-endif
-	${silent} $(CC) $(LTC_LDFLAGS) $(TIMINGS) $(LIB_PRE) $(LIBNAME) $(LIB_POST) $(EXTRALIBS) -o $(TIMING)
-
 test: $(LIBNAME) $(TOBJECTS)
 ifneq ($V,1)
 	@echo "   * ${CC} $@"
