@@ -17,7 +17,7 @@ PLATFORM := $(shell uname | sed -e 's/_.*//')
 
 ifneq ($(MAKECMDGOALS),clean)
 ifeq ($(PLATFORM), Darwin)
-$(error Can't build static library on Mac, please use makefile.shared)
+$(error Known to not work on Mac, please use makefile.unix for static libraries or makefile.shared for shared libraries)
 endif
 endif
 
@@ -63,13 +63,7 @@ ifneq ($V,1)
 endif
 	${silent} $(RANLIB) $@
 
-timing: $(LIBNAME) $(TIMINGS)
-ifneq ($V,1)
-	@echo "   * ${CC} $@"
-endif
-	${silent} $(CC) $(LTC_LDFLAGS) $(TIMINGS) $(LIB_PRE) $(LIBNAME) $(LIB_POST) $(EXTRALIBS) -o $(TIMING)
-
-test: $(LIBNAME) $(TOBJECTS)
+test: $(call print-help,test,Builds the library and the 'test' application to run all self-tests) $(LIBNAME) $(TOBJECTS)
 ifneq ($V,1)
 	@echo "   * ${CC} $@"
 endif
@@ -77,7 +71,7 @@ endif
 
 # build the demos from a template
 define DEMO_template
-$(1): demos/$(1).o $$(LIBNAME)
+$(1): $(call print-help,$(1),Builds the library and the '$(1)' demo) demos/$(1).o $$(LIBNAME)
 ifneq ($V,1)
 	@echo "   * $${CC} $$@"
 endif
@@ -90,11 +84,11 @@ $(foreach demo, $(strip $(DEMOS)), $(eval $(call DEMO_template,$(demo))))
 #This rule installs the library and the header files. This must be run
 #as root in order to have a high enough permission to write to the correct
 #directories and to set the owner and group to root.
-install: .common_install
+install: $(call print-help,install,Installs the library and headers)) .common_install
 
-install_bins: .common_install_bins
+install_bins: $(call print-help,install_bins,Installs the useful demos ($(USEFUL_DEMOS))) .common_install_bins
 
-uninstall: .common_uninstall
+uninstall: $(call print-help,uninstall,Uninstalls the library and headers)) .common_uninstall
 
 profile:
 	LTC_CFLAGS="$(LTC_CFLAGS) -fprofile-generate" $(MAKE) timing EXTRALIBS="$(EXTRALIBS) -lgcov"
@@ -133,7 +127,7 @@ coverage: EXTRALIBS += -lgcov
 coverage: LIB_PRE = -Wl,--whole-archive
 coverage: LIB_POST = -Wl,--no-whole-archive
 
-coverage: test
+coverage: $(call print-help,coverage,Create code-coverage of the library - but better use coverage.sh) test
 	./test
 
 # cleans everything - coverage output and standard 'clean'

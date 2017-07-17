@@ -44,6 +44,11 @@ endif
 endif
 endif
 
+need-help := $(filter help,$(MAKECMDGOALS))
+define print-help
+$(if $(need-help),$(info $1 -- $2))
+endef
+
 #
 # Compilation flags. Note the += does not write over the user's CFLAGS!
 #
@@ -124,14 +129,25 @@ DOBJECTS = $(DSOURCES:.c=.o)
 #List of tests headers
 THEADERS = $(wildcard tests/*.h)
 
-TIMING=timing
 TEST=test
 
-USEFUL_DEMOS=hashsum
-UNBROKEN_DEMOS=$(USEFUL_DEMOS) ltcrypt small tv_gen sizes constants
-DEMOS=$(UNBROKEN_DEMOS) openssl-enc
+# Demos that are even somehow useful and could be installed as a system-tool
+USEFUL_DEMOS   = hashsum
 
-TIMINGS=demos/timing.o
+# Demos that are usable but only rarely make sense to be installed
+USEABLE_DEMOS  = ltcrypt sizes constants
+
+# Demos that are used for testing or measuring
+TEST_DEMOS     = small tv_gen
+
+# Demos that are in one config broken
+#  openssl-enc - can't be build with LTC_EASY
+#  timing      - not really broken, but older gcc builds spit warnings
+BROKEN_DEMOS   = openssl-enc timing
+
+# Combine demos in groups
+UNBROKEN_DEMOS = $(TEST_DEMOS) $(USEABLE_DEMOS) $(USEFUL_DEMOS)
+DEMOS          = $(UNBROKEN_DEMOS) $(BROKEN_DEMOS)
 
 #LIBPATH  The directory for libtomcrypt to be installed to.
 #INCPATH  The directory to install the header files for libtomcrypt.
@@ -158,8 +174,8 @@ GROUP=wheel
 endif
 
 
-#The default rule for make builds the libtomcrypt library.
-default: library
+#The first rule is also the default rule and builds the libtomcrypt library.
+library: $(call print-help,library,Builds the library) $(LIBNAME)
 
 
 # List of objects to compile (all goes to libtomcrypt.a)
@@ -346,29 +362,30 @@ src/hashes/sha2/sha256.o: src/hashes/sha2/sha256.c src/hashes/sha2/sha224.c
 $(DOBJECTS): LTC_CFLAGS := -Itests $(LTC_CFLAGS)
 $(TOBJECTS): LTC_CFLAGS := -Itests $(LTC_CFLAGS)
 
-#This rule makes the libtomcrypt library.
-library: $(LIBNAME)
-
 #Dependencies on *.h
 $(OBJECTS): $(HEADERS)
 $(DOBJECTS): $(HEADERS) $(THEADERS)
 $(TOBJECTS): $(HEADERS) $(THEADERS)
 
-bins: $(USEFUL_DEMOS)
+all: $(call print-help,all,Builds the library and all demos and test utils (test $(UNBROKEN_DEMOS) $(BROKEN_DEMOS))) all_test $(BROKEN_DEMOS)
 
-all: all_test
+all_test: $(call print-help,all_test,Builds the library and all unbroken demos and test utils (test $(UNBROKEN_DEMOS))) test $(UNBROKEN_DEMOS)
 
-all_test: test $(UNBROKEN_DEMOS)
+bins: $(call print-help,bins,Builds the library and all useful demos) $(USEFUL_DEMOS)
 
 #build the doxy files (requires Doxygen, tetex and patience)
-doxygen doxy docs:
+doxygen: $(call print-help,doxygen,Builds the doxygen html documentation)
+	$(MAKE) -C doc/ $@ V=$(V)
+doxy: $(call print-help,doxy,Builds the complete doxygen documentation including refman.pdf (takes long to generate))
+	$(MAKE) -C doc/ $@ V=$(V)
+docs: $(call print-help,docs,Builds the Developer Manual)
 	$(MAKE) -C doc/ $@ V=$(V)
 
-doc/crypt.pdf:
+doc/crypt.pdf: $(call print-help,doc/crypt.pdf,Builds the Developer Manual)
 	$(MAKE) -C doc/ crypt.pdf V=$(V)
 
 
-install_all: install install_bins install_docs install_test
+install_all: $(call print-help,install_all,Install everything - library bins docs tests) install install_bins install_docs install_test
 
 INSTALL_OPTS ?= -m 644
 
@@ -378,17 +395,21 @@ INSTALL_OPTS ?= -m 644
 	$(INSTALL_CMD) $(INSTALL_OPTS) $(LIBNAME) $(DESTDIR)$(LIBPATH)/$(LIBNAME)
 	install -m 644 $(HEADERS) $(DESTDIR)$(INCPATH)
 
-.common_install_bins: $(USEFUL_DEMOS)
+$(DESTDIR)$(BINPATH):
 	install -d $(DESTDIR)$(BINPATH)
+
+.common_install_bins: $(USEFUL_DEMOS) $(DESTDIR)$(BINPATH)
 	$(INSTALL_CMD) -m 775 $(USEFUL_DEMOS) $(DESTDIR)$(BINPATH)
 
-install_docs: doc/crypt.pdf
+install_docs: $(call print-help,install_docs,Installs the Developer Manual) doc/crypt.pdf
 	install -d $(DESTDIR)$(DATAPATH)
 	install -m 644 doc/crypt.pdf $(DESTDIR)$(DATAPATH)
 
-install_hooks:
-	for s in `ls hooks/`; do ln -s ../../hooks/$$s .git/hooks/$$s; done
+install_test: $(call print-help,install_test,Installs the self-test binary) test $(DESTDIR)$(BINPATH)
+	$(INSTALL_CMD) -m 775 $< $(DESTDIR)$(BINPATH)
 
+install_hooks: $(call print-help,install_hooks,Installs the git hooks)
+	for s in `ls hooks/`; do ln -s ../../hooks/$$s .git/hooks/$$s; done
 
 HEADER_FILES=$(notdir $(HEADERS))
 .common_uninstall:
@@ -397,7 +418,7 @@ HEADER_FILES=$(notdir $(HEADERS))
 
 #This rule cleans the source tree of all compiled code, not including the pdf
 #documentation.
-clean:
+clean: $(call print-help,clean,Clean everything besides the pdf documentation)
 	find . -type f    -name "*.o"   \
                -o -name "*.lo"  \
                -o -name "*.a"   \
@@ -419,7 +440,7 @@ clean:
 	rm -rf `find . -type d -name "*.libs" | xargs`
 	$(MAKE) -C doc/ clean
 
-zipup: doc/crypt.pdf
+zipup: $(call print-help,zipup,Prepare the archives for a release) doc/crypt.pdf
 	@# Update the index, so diff-index won't fail in case the pdf has been created.
 	@#   As the pdf creation modifies crypt.tex, git sometimes detects the
 	@#   modified file, but misses that it's put back to its original version.
@@ -437,6 +458,8 @@ zipup: doc/crypt.pdf
 	gpg -b -a crypt-$(VERSION).tar.xz
 	gpg -b -a crypt-$(VERSION).zip
 
-codecheck:
+codecheck: $(call print-help,codecheck,Check the code of the library)
 	perl helper.pl -a
 	perlcritic *.pl
+
+help: $(call print-help,help,That's what you're currently looking at)
