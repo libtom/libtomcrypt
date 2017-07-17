@@ -3865,9 +3865,9 @@ int rsa_import_pkcs8(const unsigned char *in,
                                 rsa_key *key);
 \end{verbatim}
 
-This function can import RSA private keys serialized in PKCS#8 format.
+This function can import RSA private keys serialized in PKCS\#8 format.
 
-It provides a \textit{password} parameter for the encrypted PKCS#8 format, but this functionality is currently NOT implemented.
+It provides a \textit{password} parameter for the encrypted PKCS\#8 format, but this functionality is currently NOT implemented.
 
 \index{rsa\_import\_x509()}
 \begin{verbatim}
@@ -3891,8 +3891,8 @@ int rsa_set_key(const unsigned char *N,
                 rsa_key *key);
 \end{verbatim}
 
-This function can import the plain RSA key parameters \texit{N}, \texit{e} and \texit{d}.
-The parameter \texit{d} is optional and only required when importing a private key.
+This function can import the plain RSA key parameters \textit{N}, \textit{e} and \textit{d}.
+The parameter \textit{d} is optional and only required when importing a private key.
 
 \index{rsa\_set\_factors()}
 \begin{verbatim}
@@ -3903,7 +3903,7 @@ int rsa_set_factors(const unsigned char *p,
                     rsa_key *key);
 \end{verbatim}
 
-This function can import the plain RSA key factors \texit{p} and \texit{q}.
+This function can import the plain RSA key factors \textit{p} and \textit{q}.
 
 \index{rsa\_set\_crt\_params()}
 \begin{verbatim}
@@ -3916,9 +3916,9 @@ int rsa_set_crt_params(const unsigned char *dP,
                        rsa_key *key);
 \end{verbatim}
 
-This function can import the plain RSA CRT (chinese remainder theorem) parameters \texit{dP}, \texit{dQ} and \texit{qP}.
+This function can import the plain RSA CRT (chinese remainder theorem) parameters \textit{dP}, \textit{dQ} and \textit{qP}.
 
-After importing \texit{p}, \texit{q}, \texit{dP}, \texit{dQ} and \texit{qP}
+After importing \textit{p}, \textit{q}, \textit{dP}, \textit{dQ} and \textit{qP}
 the library can perfrom the optimized CRT calculations on private key operations.
 
 \chapter{Diffie-Hellman Key Exchange}
