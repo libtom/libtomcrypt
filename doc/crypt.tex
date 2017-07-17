@@ -1231,10 +1231,65 @@ To terminate an F8 state call the following function:
 int f8_done(symmetric_F8 *f8);
 \end{verbatim}
 
-\vfil
-\mysection{Encrypt and Authenticate Modes}
+\chapter{Stream Ciphers}
 
-\subsection{EAX Mode}
+\mysection{RC4}
+
+XXX-TODO
+
+\begin{small}
+\begin{verbatim}
+int rc4_stream_setup(rc4_state *st, const unsigned char *key, unsigned long keylen);
+int rc4_stream_crypt(rc4_state *st, const unsigned char *in, unsigned long inlen, unsigned char *out);
+int rc4_stream_done(rc4_state *st);
+int rc4_stream_keystream(rc4_state *st, unsigned char *out, unsigned long outlen);
+\end{verbatim}
+\end{small}
+
+\url{https://en.wikipedia.org/wiki/RC4}
+
+\mysection{Sober128}
+
+XXX-TODO
+
+\begin{small}
+\begin{verbatim}
+int sober128_stream_setup(sober128_state *st, const unsigned char *key, unsigned long keylen);
+int sober128_stream_setiv(sober128_state *st, const unsigned char *iv, unsigned long ivlen);
+int sober128_stream_crypt(sober128_state *st, const unsigned char *in, unsigned long inlen, unsigned char *out);
+int sober128_stream_done(sober128_state *st);
+int sober128_stream_keystream(sober128_state *st, unsigned char *out, unsigned long outlen);
+\end{verbatim}
+\end{small}
+
+\url{https://en.wikipedia.org/wiki/SOBER-128}
+
+\mysection{ChaCha}
+
+XXX-TODO
+
+\begin{small}
+\begin{verbatim}
+int chacha_setup(chacha_state *st, const unsigned char *key, unsigned long keylen, int rounds);
+int chacha_ivctr32(chacha_state *st, const unsigned char *iv, unsigned long ivlen, ulong32 counter);
+int chacha_ivctr64(chacha_state *st, const unsigned char *iv, unsigned long ivlen, ulong64 counter);
+int chacha_crypt(chacha_state *st, const unsigned char *in, unsigned long inlen, unsigned char *out);
+int chacha_done(chacha_state *st);
+int chacha_keystream(chacha_state *st, unsigned char *out, unsigned long outlen);
+\end{verbatim}
+\end{small}
+
+\url{https://en.wikipedia.org/wiki/ChaCha_(cipher)}
+
+\chapter{Authenticated Encryption}
+
+Authenticated Encryption - sometimes also called Authenticated Encryption with Associated Data (AEAD) - is a variant of encryption
+that provides not only confidentiality (as other symmetric or stream ciphers) but also integrity.
+
+The inputs of Authenticated Encryption are: \textit{key}, \textit{nonce} (sometimes called initialization vector), \textit{plaintext}, 
+optional \textit{header} (sometimes called additional authenticated data - AAD). The outputs are: \textit{ciphertext} and \textit{tag}.
+
+\mysection{EAX Mode}
 LibTomCrypt provides support for a mode called EAX\footnote{See
 M. Bellare, P. Rogaway, D. Wagner, A Conventional Authenticated-Encryption Mode.} in a manner similar to the way it was intended to be used
 by the designers.  First, a short description of what EAX mode is before we explain how to use it.  EAX is a mode that requires a cipher,
@@ -1406,7 +1461,7 @@ have the same meaning as with those respective functions.
 The only difference is eax\_decrypt\_verify\_memory() does not emit a tag.  Instead you pass it a tag as input and it compares it against
 the tag it computed while decrypting the message.  If the tags match then it stores a $1$ in \textit{res}, otherwise it stores a $0$.
 
-\subsection{OCB Mode}
+\mysection{OCB Mode}
 LibTomCrypt provides support for a mode called OCB\footnote{See
 P. Rogaway, M. Bellare, J. Black, T. Krovetz, \textit{OCB: A Block Cipher Mode of Operation for Efficient Authenticated Encryption}.}
 .  OCB is an encryption protocol that simultaneously provides authentication.  It is slightly faster to use than EAX mode
@@ -1444,7 +1499,7 @@ They assume that \textit{pt} and \textit{ct} are the same size as the block ciph
 both functions given a single \textit{ocb} state.  For bi-directional communication you will have to initialize two \textit{ocb}
 states (with different nonces).  Also \textit{pt} and \textit{ct} may point to the same location in memory.
 
-\subsubsection{State Termination}
+\subsection{State Termination}
 
 When you are finished encrypting the message you call the following function to compute the tag.
 
@@ -1482,7 +1537,7 @@ tag of the message (internally) and then compare it against the \textit{taglen} 
 \textit{res} is set to zero.  If all \textit{taglen} bytes of \textit{tag} can be verified then \textit{res} is set to one (authenticated
 message).
 
-\subsubsection{Packet Functions}
+\subsection{Packet Functions}
 To make life simpler the following two functions are provided for memory bound OCB.
 
 %\index{ocb\_encrypt\_authenticate\_memory()}
@@ -1514,10 +1569,10 @@ int ocb_decrypt_verify_memory(
 Similarly, this will OCB decrypt, and compare the internally computed tag against the tag provided. \textit{res} is set
 appropriately.
 
-\subsection{CCM Mode}
+\mysection{CCM Mode}
 CCM is a NIST proposal for encrypt + authenticate that is centered around using AES (or any 16--byte cipher) as a primitive.
 
-\subsubsection{Initialization}
+\subsection{Initialization}
 To initialize the CCM context with a secret key call the following function.
 
 \index{ccm\_init()}
@@ -1537,7 +1592,7 @@ to authenticate is given as \textit{ptlen}.
 With CCM, a header is meta--data you want to send with the message but not have encrypted. The header len is given in the init
 as \textit{aadlen}.
 
-\subsubsection{Nonce Vector}
+\subsection{Nonce Vector}
 After the state has been initialized (or reset) the next step is to add the session (or packet) initial vector.  It should be unique per packet encrypted.
 
 \index{ccm\_add\_nonce()}
@@ -1550,7 +1605,7 @@ int ccm_add_nonce(      ccm_state *ccm,
 This adds the nonce (a.k.a. salt) \textit{nonce} of length \textit{noncelen} octets to the CCM state \textit{ccm}. Note that this function must be called
 once and only once.
 
-\subsubsection{Additional Authentication Data}
+\subsection{Additional Authentication Data}
 The header is meta--data you want to send with the message but not have encrypted, it must be stored in \textit{adata} of length \textit{adatalen} octets.
 
 \index{ccm\_add\_aad()}
@@ -1561,7 +1616,7 @@ int ccm_add_aad(      ccm_state *ccm,
 \end{verbatim}
 This adds the additional authentication data \textit{adata} of length \textit{adatalen} to the CCM state \textit{ccm}.
 
-\subsubsection{Plaintext Processing}
+\subsection{Plaintext Processing}
 After the AAD has been processed, the plaintext (or ciphertext depending on the direction) can be processed.
 
 \index{ccm\_process()}
@@ -1576,7 +1631,7 @@ This processes message data where \textit{pt} is the plaintext and \textit{ct} i
 the mode \textit{pt} is the input and \textit{ct} is the output (or vice versa).  When \textit{direction} equals \textbf{CCM\_ENCRYPT} the plaintext is read,
 encrypted and stored in the ciphertext buffer.  When \textit{direction} equals \textbf{CCM\_DECRYPT} the opposite occurs.
 
-\subsubsection{State Termination}
+\subsection{State Termination}
 To terminate a CCM state and retrieve the message authentication tag call the following function.
 
 \index{ccm\_done()}
@@ -1587,7 +1642,7 @@ int ccm_done(    ccm_state *ccm,
 \end{verbatim}
 This terminates the CCM state \textit{ccm} and stores the tag in \textit{tag} of length \textit{taglen} octets.
 
-\subsubsection{State Reset}
+\subsection{State Reset}
 The call to ccm\_init() will perform considerable pre--computation and if you're going to be dealing with a lot of packets
 it is very costly to have to call it repeatedly.  To aid in this endeavour, the reset function is provided.
 
@@ -1598,7 +1653,7 @@ int ccm_reset(ccm_state *ccm);
 
 This will reset the CCM state \textit{ccm} to the state that ccm\_init() left it.  The user would then call ccm\_add\_nonce(), ccm\_add\_aad(), etc.
 
-\subsubsection{One--Shot Packet}
+\subsection{One--Shot Packet}
 To process a single packet under any given key the following helper function can be used.
 
 \index{ccm\_memory()}
@@ -1620,7 +1675,7 @@ message tag.  The definition of the variables is the same as it is for all the m
 
 If you are processing many packets under the same key you shouldn't use this function as it invokes the pre--computation with each call.
 
-\subsubsection{Example Usage}
+\subsection{Example Usage}
 The following is an example usage of how to use CCM over multiple packets with a shared secret key.
 
 \begin{small}
@@ -1720,7 +1775,7 @@ int main(void)
 \end{verbatim}
 \end{small}
 
-\subsection{GCM Mode}
+\mysection{GCM Mode}
 Galois counter mode is an IEEE proposal for authenticated encryption (also it is a planned NIST standard).  Like EAX and OCB mode, it can be used in a streaming capacity
 however, unlike EAX it cannot accept \textit{additional authentication data} (meta--data) after plaintext has been processed.  This mode also only works with
 block ciphers with a 16--byte block.
@@ -1728,7 +1783,7 @@ block ciphers with a 16--byte block.
 A GCM stream is meant to be processed in three modes, one after another.  First, the initial vector (per session) data is processed.  This should be
 unique to every session.  Next, the the optional additional authentication data is processed, and finally the plaintext (or ciphertext depending on the direction).
 
-\subsubsection{Initialization}
+\subsection{Initialization}
 To initialize the GCM context with a secret key call the following function.
 
 \index{gcm\_init()}
@@ -1741,7 +1796,7 @@ int gcm_init(          gcm_state *gcm,
 This initializes the GCM state \textit{gcm} for the given cipher indexed by \textit{cipher}, with a secret key \textit{key} of length \textit{keylen} octets.  The cipher
 chosen must have a 16--byte block size (e.g., AES).
 
-\subsubsection{Initial Vector}
+\subsection{Initial Vector}
 After the state has been initialized (or reset) the next step is to add the session (or packet) initial vector.  It should be unique per packet encrypted.
 
 \index{gcm\_add\_iv()}
@@ -1756,7 +1811,7 @@ to process the entire IV.
 Note: the GCM protocols provides a \textit{shortcut} for 12--byte IVs where no pre-processing is to be done.  If you want to minimize per packet latency it is ideal
 to only use 12--byte IVs.  You can just increment it like a counter for each packet.
 
-\subsubsection{Additional Authentication Data}
+\subsection{Additional Authentication Data}
 After the entire IV has been processed, the additional authentication data can be processed.  Unlike the IV, a packet/session does not require additional
 authentication data (AAD) for security.  The AAD is meant to be used as side--channel data you want to be authenticated with the packet.  Note:  once
 you begin adding AAD to the GCM state you cannot return to adding IV data until the state has been reset.
@@ -1769,7 +1824,7 @@ int gcm_add_aad(          gcm_state *gcm,
 \end{verbatim}
 This adds the additional authentication data \textit{adata} of length \textit{adatalen} to the GCM state \textit{gcm}.
 
-\subsubsection{Plaintext Processing}
+\subsection{Plaintext Processing}
 After the AAD has been processed, the plaintext (or ciphertext depending on the direction) can be processed.
 
 \index{gcm\_process()}
@@ -1784,7 +1839,7 @@ This processes message data where \textit{pt} is the plaintext and \textit{ct} i
 the mode \textit{pt} is the input and \textit{ct} is the output (or vice versa).  When \textit{direction} equals \textbf{GCM\_ENCRYPT} the plaintext is read,
 encrypted and stored in the ciphertext buffer.  When \textit{direction} equals \textbf{GCM\_DECRYPT} the opposite occurs.
 
-\subsubsection{State Termination}
+\subsection{State Termination}
 To terminate a GCM state and retrieve the message authentication tag call the following function.
 
 \index{gcm\_done()}
@@ -1795,7 +1850,7 @@ int gcm_done(    gcm_state *gcm,
 \end{verbatim}
 This terminates the GCM state \textit{gcm} and stores the tag in \textit{tag} of length \textit{taglen} octets.
 
-\subsubsection{State Reset}
+\subsection{State Reset}
 The call to gcm\_init() will perform considerable pre--computation (when \textbf{GCM\_TABLES} is defined) and if you're going to be dealing with a lot of packets
 it is very costly to have to call it repeatedly.  To aid in this endeavour, the reset function has been provided.
 
@@ -1806,7 +1861,7 @@ int gcm_reset(gcm_state *gcm);
 
 This will reset the GCM state \textit{gcm} to the state that gcm\_init() left it.  The user would then call gcm\_add\_iv(), gcm\_add\_aad(), etc.
 
-\subsubsection{One--Shot Packet}
+\subsection{One--Shot Packet}
 To process a single packet under any given key the following helper function can be used.
 
 \index{gcm\_memory()}
@@ -1828,7 +1883,7 @@ message tag.  The definition of the variables is the same as it is for all the m
 
 If you are processing many packets under the same key you shouldn't use this function as it invokes the pre--computation with each call.
 
-\subsubsection{Example Usage}
+\subsection{Example Usage}
 The following is an example usage of how to use GCM over multiple packets with a shared secret key.
 
 \begin{small}
@@ -1927,6 +1982,33 @@ int main(void)
 }
 \end{verbatim}
 \end{small}
+
+\mysection{ChaCha20--Poly1305}
+
+This authenticated encryption is based on ChaCha20 stream cipher and Poly1305 authenticator.
+
+XXX-TODO
+
+\begin{small}
+\begin{verbatim}
+int chacha20poly1305_init(chacha20poly1305_state *st, const unsigned char *key, unsigned long keylen);
+int chacha20poly1305_setiv(chacha20poly1305_state *st, const unsigned char *iv, unsigned long ivlen);
+int chacha20poly1305_setiv_rfc7905(chacha20poly1305_state *st, const unsigned char *iv, unsigned long ivlen, ulong64 sequence_number);
+int chacha20poly1305_add_aad(chacha20poly1305_state *st, const unsigned char *in, unsigned long inlen);
+int chacha20poly1305_encrypt(chacha20poly1305_state *st, const unsigned char *in, unsigned long inlen, unsigned char *out);
+int chacha20poly1305_decrypt(chacha20poly1305_state *st, const unsigned char *in, unsigned long inlen, unsigned char *out);
+int chacha20poly1305_done(chacha20poly1305_state *st, unsigned char *tag, unsigned long *taglen);
+int chacha20poly1305_memory(const unsigned char *key, unsigned long keylen,
+                            const unsigned char *iv,  unsigned long ivlen,
+                            const unsigned char *aad, unsigned long aadlen,
+                            const unsigned char *in,  unsigned long inlen,
+                                  unsigned char *out,
+                                  unsigned char *tag, unsigned long *taglen,
+                            int direction);
+\end{verbatim}
+\end{small}
+
+\url{https://tools.ietf.org/html/rfc7539}
 
 \chapter{One-Way Cryptographic Hash Functions}
 \mysection{Core Functions}
@@ -2860,6 +2942,24 @@ int f9_test(void);
 
 This will return \textbf{CRYPT\_OK} on success.  This requires the AES or Rijndael descriptor be previously registered, otherwise, it will return
 \textbf{CRYPT\_NOP}.
+
+\mysection{Poly1305}
+
+XXX-TODO
+
+\begin{small}
+\begin{verbatim}
+int poly1305_init(poly1305_state *st, const unsigned char *key, unsigned long keylen);
+int poly1305_process(poly1305_state *st, const unsigned char *in, unsigned long inlen);
+int poly1305_done(poly1305_state *st, unsigned char *mac, unsigned long *maclen);
+int poly1305_test(void);
+int poly1305_memory(const unsigned char *key, unsigned long keylen, const unsigned char *in, unsigned long inlen, unsigned char *mac, unsigned long *maclen);
+int poly1305_memory_multi(const unsigned char *key, unsigned long keylen, unsigned char *mac, unsigned long *maclen, const unsigned char *in,  unsigned long inlen, ...);
+int poly1305_file(const char *fname, const unsigned char *key, unsigned long keylen, unsigned char *mac, unsigned long *maclen);
+\end{verbatim}
+\end{small}
+
+\url{https://en.wikipedia.org/wiki/Poly1305}
 
 \chapter{Pseudo-Random Number Generators}
 \mysection{Core Functions}
@@ -4469,6 +4569,20 @@ This function will EC--DSA sign the message digest stored in the array pointed t
 will be stored in the array pointed to by \textit{out} of length \textit{outlen} octets.  The function requires a properly seeded PRNG, and
 the ECC \textit{key} provided must be a private key.
 
+\index{ecc\_sign\_hash\_rfc7518()}
+\begin{verbatim}
+int ecc_sign_hash_rfc7518(const unsigned char *in,  
+                                unsigned long  inlen,
+                                unsigned char *out,
+                                unsigned long *outlen,
+                                   prng_state *prng, 
+                                          int  wprng, 
+                                      ecc_key *key);
+\end{verbatim}
+
+This function creates the same EC--DSA signature as \textit{ecc\_sign\_hash} only the output format is different.
+The format follows \url{https://tools.ietf.org/html/rfc7518#section-3.4}, sometimes it is also called plain signature.
+
 \subsection{EC-DSA Signature Verification}
 \index{ecc\_verify\_hash()}
 \begin{verbatim}
@@ -4484,9 +4598,20 @@ This function will verify the EC-DSA signature in the array pointed to by \texti
 pointed to by the array \textit{hash} of length \textit{hashlen}.  It will store a non--zero value in \textit{stat} if the signature is valid.  Note:
 the function will not return an error if the signature is invalid.  It will return an error, if the actual signature payload is an invalid format.
 The ECC \textit{key} must be the public (or private) ECC key corresponding to the key that performed the signature.
+The function \textit{ecc\_verify\_hash} implements signature format according to X9.62 EC--DSA, and the output is compliant for GF(p) curves.
 
-\subsection{Signature Format}
-The signature code is an implementation of X9.62 EC--DSA, and the output is compliant for GF(p) curves.
+\index{ecc\_verify\_hash\_rfc7518()}
+\begin{verbatim}
+int ecc_verify_hash_rfc7518(const unsigned char *sig,
+                                  unsigned long  siglen,
+                            const unsigned char *hash,
+                                  unsigned long  hashlen,
+                                            int *stat,
+                                        ecc_key *key);
+\end{verbatim}
+
+This function validate the EC--DSA signature as \textit{ecc\_verify\_hash} only the signature input format 
+follows \url{https://tools.ietf.org/html/rfc7518#section-3.4}.
 
 \mysection{ECC Keysizes}
 With ECC if you try to sign a hash that is bigger than your ECC key you can run into problems.  The math will still work, and in effect the signature will still
@@ -5606,7 +5731,10 @@ Parameters are as in \textit{hkdf\_extract()} and \textit{hkdf\_expand()}.
 
 \chapter{Miscellaneous}
 \mysection{Base64 Encoding and Decoding}
-The library provides functions to encode and decode a RFC 1521 base--64 coding scheme.  The characters used in the mappings are:
+The library provides functions to encode and decode a RFC 4648 Base64 coding scheme. 
+
+\subsection{Standard 'base64' encoding}
+The characters used in the mappings are:
 \begin{verbatim}
 ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/
 \end{verbatim}
@@ -5620,7 +5748,7 @@ put any character (that is not in the above sequence) in between any character o
 break up the first four characters.
 
 To encode a binary string in base64 call:
-\index{base64\_encode()}  \index{base64\_decode()}
+\index{base64\_encode()}
 \begin{verbatim}
 int base64_encode(const unsigned char *in,
                         unsigned long  len,
@@ -5630,11 +5758,42 @@ int base64_encode(const unsigned char *in,
 Where \textit{in} is the binary string and \textit{out} is where the ASCII output is placed.  You must set the value of \textit{outlen} prior
 to calling this function and it sets the length of the base64 output in \textit{outlen} when it is done.  To decode a base64
 string call:
+\index{base64\_decode()}
 \begin{verbatim}
 int base64_decode(const unsigned char *in,
                         unsigned long  len,
                         unsigned char *out,
                         unsigned long *outlen);
+\end{verbatim}
+
+The function \textit{base64\_decode} works in a relaxed way which allows decoding some inputs that do not strictly follow the standard.
+If you want to be strict during decoding you can use:
+\index{base64\_strict\_decode()}
+\begin{verbatim}
+int base64_strict_decode(const unsigned char *in,
+                               unsigned long  len,
+                               unsigned char *out,
+                               unsigned long *outlen);
+\end{verbatim}
+
+\subsection{URL--safe 'base64url' encoding}
+The characters used in the mappings are:
+\begin{verbatim}
+ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_
+\end{verbatim}
+Those characters are sometimes also called URL and filename safe alphabet.
+
+XXX-TODO
+
+\begin{verbatim}
+int base64url_encode(const unsigned char *in,  unsigned long len,
+                           unsigned char *out, unsigned long *outlen);
+int base64url_strict_encode(const unsigned char *in,  unsigned long inlen,
+                                  unsigned char *out, unsigned long *outlen);
+int base64url_decode(const unsigned char *in,  unsigned long len,
+                           unsigned char *out, unsigned long *outlen);
+int base64url_strict_decode(const unsigned char *in,  unsigned long len,
+                                  unsigned char *out, unsigned long *outlen);
 \end{verbatim}
 
 \mysection{Primality Testing}
