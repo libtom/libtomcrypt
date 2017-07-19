@@ -529,6 +529,26 @@ int gcm_memory(      int           cipher,
                      unsigned char *ct,
                      unsigned char *tag,    unsigned long *taglen,
                                int direction);
+#ifndef LTC_NO_FILE
+int gcm_file(      int           cipher,
+             const unsigned char *key,    unsigned long keylen,
+             const unsigned char *IV,     unsigned long IVlen,
+             const unsigned char *adata,  unsigned long adatalen,
+                      const char *in,
+                      const char *out,
+                   unsigned long taglen,
+                             int direction,
+                             int *res);
+int gcm_filehandle(      int           cipher,
+                   const unsigned char *key,    unsigned long keylen,
+                   const unsigned char *IV,     unsigned long IVlen,
+                   const unsigned char *adata,  unsigned long adatalen,
+                                  FILE *in,
+                                  FILE *out,
+                         unsigned long taglen,
+                                   int direction,
+                                   int *res);
+#endif
 int gcm_test(void);
 
 #endif /* LTC_GCM_MODE */
