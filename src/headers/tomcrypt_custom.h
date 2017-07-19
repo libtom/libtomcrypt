@@ -71,7 +71,6 @@
   #define LTC_NO_PK
   #define LTC_NO_PKCS
   #define LTC_NO_MISC
-  #define LTC_NO_FILE
 #endif /* LTC_NOTHING */
 
 /* Easy button? */
