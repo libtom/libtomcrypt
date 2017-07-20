@@ -19,7 +19,7 @@
 int main(void) {
 
     /* given a specific size name, get and print its size */
-    char name[] = "ecc_key";
+    char name[] = "ltc_hash_descriptor";
     unsigned int size;
     char *sizes_list;
     unsigned int sizes_list_len;
