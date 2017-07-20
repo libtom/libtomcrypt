@@ -550,6 +550,10 @@
    #error LTC_BLAKE2BMAC requires LTC_BLAKE2B
 #endif
 
+#if defined(LTC_SPRNG) && !defined(LTC_RNG_GET_BYTES)
+   #error LTC_SPRNG requires LTC_RNG_GET_BYTES
+#endif
+
 #if defined(LTC_NO_MATH) && (defined(LTM_DESC) || defined(TFM_DESC) || defined(GMP_DESC))
    #error LTC_NO_MATH defined, but also a math descriptor
 #endif
