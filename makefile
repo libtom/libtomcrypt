@@ -84,11 +84,11 @@ $(foreach demo, $(strip $(DEMOS)), $(eval $(call DEMO_template,$(demo))))
 #This rule installs the library and the header files. This must be run
 #as root in order to have a high enough permission to write to the correct
 #directories and to set the owner and group to root.
-install: $(call print-help,install,Installs the library and headers)) .common_install
+install: $(call print-help,install,Installs the library and headers) .common_install
 
 install_bins: $(call print-help,install_bins,Installs the useful demos ($(USEFUL_DEMOS))) .common_install_bins
 
-uninstall: $(call print-help,uninstall,Uninstalls the library and headers)) .common_uninstall
+uninstall: $(call print-help,uninstall,Uninstalls the library and headers) .common_uninstall
 
 profile:
 	LTC_CFLAGS="$(LTC_CFLAGS) -fprofile-generate" $(MAKE) timing EXTRALIBS="$(EXTRALIBS) -lgcov"
