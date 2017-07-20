@@ -129,13 +129,6 @@ The library was designed such that new ciphers/hashes/PRNGs can be added at run-
 block cipher and hash function to ensure that they compile and execute to the published design specifications.  The library
 also performs extensive parameter error checking to prevent any number of run-time exploits or errors.
 
-\subsection{What the library IS for?}
-
-The library serves as a toolkit for developers who have to solve cryptographic problems.  Out of the box LibTomCrypt
-does not process SSL or OpenPGP messages, it doesn't read X.509 certificates, or write PEM encoded data.  It does, however,
-provide all of the tools required to build such functionality.  LibTomCrypt was designed to be a flexible library that
-was not tied to any particular cryptographic problem.
-
 \mysection{Why did I write it?}
 You may be wondering, \textit{Tom, why did you write a crypto library.  I already have one.}  Well the reason falls into
 two categories:
@@ -1630,6 +1623,44 @@ int ocb_decrypt_verify_memory(
 Similarly, this will OCB decrypt, and compare the internally computed tag against the tag provided. \textit{res} is set
 appropriately.
 
+\mysection{OCB3 Mode}
+
+OCB3 is a successor of OCB as defined in RFC7253 -- see \url{https://tools.ietf.org/html/rfc7253}.
+
+XXX-TODO
+
+\begin{small}
+\begin{verbatim}
+int ocb3_init(ocb3_state *ocb, int cipher,
+             const unsigned char *key, unsigned long keylen,
+             const unsigned char *nonce, unsigned long noncelen);
+
+int ocb3_encrypt(ocb3_state *ocb, const unsigned char *pt, unsigned long ptlen, unsigned char *ct);
+int ocb3_decrypt(ocb3_state *ocb, const unsigned char *ct, unsigned long ctlen, unsigned char *pt);
+int ocb3_encrypt_last(ocb3_state *ocb, const unsigned char *pt, unsigned long ptlen, unsigned char *ct);
+int ocb3_decrypt_last(ocb3_state *ocb, const unsigned char *ct, unsigned long ctlen, unsigned char *pt);
+int ocb3_add_aad(ocb3_state *ocb, const unsigned char *aad, unsigned long aadlen);
+int ocb3_done(ocb3_state *ocb, unsigned char *tag, unsigned long *taglen);
+
+int ocb3_encrypt_authenticate_memory(int cipher,
+    const unsigned char *key,    unsigned long keylen,
+    const unsigned char *nonce,  unsigned long noncelen,
+    const unsigned char *adata,  unsigned long adatalen,
+    const unsigned char *pt,     unsigned long ptlen,
+          unsigned char *ct,
+          unsigned char *tag,    unsigned long *taglen);
+
+int ocb3_decrypt_verify_memory(int cipher,
+    const unsigned char *key,    unsigned long keylen,
+    const unsigned char *nonce,  unsigned long noncelen,
+    const unsigned char *adata,  unsigned long adatalen,
+    const unsigned char *ct,     unsigned long ctlen,
+          unsigned char *pt,
+    const unsigned char *tag,    unsigned long taglen,
+          int           *stat);
+\end{verbatim}
+\end{small}
+
 \mysection{CCM Mode}
 CCM is a NIST proposal for encrypt + authenticate that is centered around using AES (or any 16--byte cipher) as a primitive.
 
@@ -2411,6 +2442,28 @@ These hashes are provided for completeness and they still can be used for the pu
 The other hashes such as the SHA-2 (that includes SHA-512, SHA-512/384, SHA-384, SHA-512/256, SHA-256 and SHA-224) and TIGER-192 are still considered secure
 for all purposes you would normally use a hash for.
 
+\chapter{Checksum Functions}
+
+\mysection{CRC32 -- Cyclic redundancy check}
+
+XXX-TODO see \url{https://en.wikipedia.org/wiki/Cyclic_redundancy_check}
+
+\begin{verbatim}
+void crc32_init(crc32_state *ctx);
+void crc32_update(crc32_state *ctx, const unsigned char *input, unsigned long length);
+void crc32_finish(crc32_state *ctx, void *hash, unsigned long size);
+\end{verbatim}
+
+\mysection{Adler32}
+
+XXX-TODO see \url{https://en.wikipedia.org/wiki/Adler-32}
+
+\begin{verbatim}
+void adler32_init(adler32_state *ctx);
+void adler32_update(adler32_state *ctx, const unsigned char *input, unsigned long length);
+void adler32_finish(adler32_state *ctx, void *hash, unsigned long size);
+\end{verbatim}
+
 \chapter{Message Authentication Codes}
 \mysection{HMAC Protocol}
 Thanks to Dobes Vandermeer, the library now includes support for hash based message authentication codes, or HMAC for short.  An HMAC
@@ -3004,9 +3057,9 @@ int f9_test(void);
 This will return \textbf{CRYPT\_OK} on success.  This requires the AES or Rijndael descriptor be previously registered, otherwise, it will return
 \textbf{CRYPT\_NOP}.
 
-\mysection{Poly1305}
+\mysection{Poly1305 MAC}
 
-XXX-TODO
+XXX-TODO see \url{https://en.wikipedia.org/wiki/Poly1305}
 
 \begin{small}
 \begin{verbatim}
@@ -3020,7 +3073,29 @@ int poly1305_file(const char *fname, const unsigned char *key, unsigned long key
 \end{verbatim}
 \end{small}
 
-\url{https://en.wikipedia.org/wiki/Poly1305}
+\mysection{BLAKE2s + BLAKE2b MAC}
+
+XXX-TODO see \url{https://tools.ietf.org/html/rfc7693}
+
+\begin{small}
+\begin{verbatim}
+int blake2smac_init(blake2smac_state *st, unsigned long outlen, const unsigned char *key, unsigned long keylen);
+int blake2smac_process(blake2smac_state *st, const unsigned char *in, unsigned long inlen);
+int blake2smac_done(blake2smac_state *st, unsigned char *mac, unsigned long *maclen);
+int blake2smac_test(void);
+int blake2smac_memory(const unsigned char *key, unsigned long keylen, const unsigned char *in, unsigned long inlen, unsigned char *mac, unsigned long *maclen);
+int blake2smac_memory_multi(const unsigned char *key, unsigned long keylen, unsigned char *mac, unsigned long *maclen, const unsigned char *in,  unsigned long inlen, ...);
+int blake2smac_file(const char *fname, const unsigned char *key, unsigned long keylen, unsigned char *mac, unsigned long *maclen);
+
+int blake2bmac_init(blake2bmac_state *st, unsigned long outlen, const unsigned char *key, unsigned long keylen);
+int blake2bmac_process(blake2bmac_state *st, const unsigned char *in, unsigned long inlen);
+int blake2bmac_done(blake2bmac_state *st, unsigned char *mac, unsigned long *maclen);
+int blake2bmac_test(void);
+int blake2bmac_memory(const unsigned char *key, unsigned long keylen, const unsigned char *in, unsigned long inlen, unsigned char *mac, unsigned long *maclen);
+int blake2bmac_memory_multi(const unsigned char *key, unsigned long keylen, unsigned char *mac, unsigned long *maclen, const unsigned char *in,  unsigned long inlen, ...);
+int blake2bmac_file(const char *fname, const unsigned char *key, unsigned long keylen, unsigned char *mac, unsigned long *maclen);
+\end{verbatim}
+\end{small}
 
 \chapter{Pseudo-Random Number Generators}
 \mysection{Core Functions}
@@ -3279,6 +3354,8 @@ simulations which need a high quality (and fast) stream of bytes.
 
 ChaCha20 is a fast stream cipher built on a pseudorandom function designed by Daniel J. Bernstein.
 It can also double duty as a PRNG.
+
+It is recommended to use 40 bytes of truly random bytes for initialization.
 
 The implementation supports adding entropy via the add\_entropy() function while already being operational.
 
@@ -4114,18 +4191,18 @@ smaller prime (e.g. the order of the base) are known as Sophie-Germaine primes.
 
 This library also provides core Diffie-Hellman functions so you can negotiate keys over insecure mediums.  The routines
 provided are relatively easy to use and only take two function calls to negotiate a shared key.  There is a structure
-called ``dh\_key'' which stores the Diffie-Hellman key in a format these routines can use.  The first routine is to
-make a Diffie-Hellman private key pair:
+called ``dh\_key'' which stores the Diffie-Hellman key in a format these routines can use.  The first set of routines
+are to make a Diffie-Hellman private key pair:
 \index{dh\_make\_key()}
 \begin{verbatim}
-int dh_make_key(prng_state *prng, int wprng,
-                int keysize, dh_key *key);
+int dh_set_pg_groupsize(int groupsize, dh_key *key);
+int dh_generate_key(prng_state *prng, int wprng, dh_key *key);
 \end{verbatim}
-The ``keysize'' is the size of the modulus you want in bytes.  Currently support sizes are 96 to 512 bytes which correspond
-to key sizes of 768 to 4096 bits. The smaller the key the faster it is to use however it will be less secure.  When
+The ``groupsize'' is the size of the modulus you want in bytes.  Currently support sizes are 96 to 1024 bytes which correspond
+to key sizes of 768 to 8192 bits. The smaller the key the faster it is to use however it will be less secure.  When
 specifying a size not explicitly supported by the library it will round {\em up} to the next key size.  If the size is
-above 512 it will return an error.  So if you pass ``keysize == 32'' it will use a 768 bit key but if you pass
-``keysize == 20000'' it will return an error.  The primes and generators used are built-into the library and were designed
+above 512 it will return an error.  So if you pass ``groupsize == 32'' it will use a 768 bit key but if you pass
+``groupsize == 20000'' it will return an error.  The primes and generators used are built-into the library and were designed
 to meet very specific goals.  The primes are strong primes which means that if $p$ is the prime then
 $p-1$ is equal to $2r$ where $r$ is a large prime.  The bases are chosen to generate a group of order $r$ to prevent
 leaking a bit of the key.  This means the bases generate a very large prime order group which is good to make cryptanalysis
@@ -4161,9 +4238,9 @@ Where ``private\_key'' is the key you made and ``public\_key'' is the copy of th
 into ``out'' and the length into ``outlen''.  If all went correctly the data in ``out'' should be identical for both parties.  It is important to
 note that the two keys have to be the same size in order for this to work.  There is a function to get the size of a
 key:
-\index{dh\_get\_size()}
+\index{dh\_get\_groupsize()}
 \begin{verbatim}
-int dh_get_size(dh_key *key);
+int dh_get_groupsize(dh_key *key);
 \end{verbatim}
 This returns the size in bytes of the modulus chosen for that key.
 
@@ -4182,7 +4259,10 @@ int establish_secure_socket(int sock, int mode, unsigned char *key,
    dh_key mykey, theirkey;
 
    /* make up our private key */
-   if ((err = dh_make_key(prng, wprng, 128, &mykey)) != CRYPT_OK)  {
+   if ((err = dh_set_pg_groupsize(128, &mykey)) != CRYPT_OK)  {
+      return err;
+   }
+   if ((err = dh_generate_key(prng, wprng, &mykey)) != CRYPT_OK)  {
       return err;
    }
 
@@ -4255,55 +4335,16 @@ When the above code snippet is done (assuming all went well) their will be a sha
 passed to ``establish\_secure\_socket()''.
 
 \section{Other Diffie-Hellman Functions}
-In order to test the Diffie-Hellman function internal workings (e.g. the primes and bases) their is a test function made
-available:
-\index{dh\_test()}
+
+XXX-TODO
+
 \begin{verbatim}
-int dh_test(void);
+int dh_set_pg(const unsigned char *p, unsigned long plen,
+              const unsigned char *g, unsigned long glen,
+              dh_key *key);
+int dh_set_pg_dhparam(const unsigned char *dhparam, unsigned long dhparamlen, dh_key *key);
+int dh_set_key(const unsigned char *in, unsigned long inlen, int type, dh_key *key);
 \end{verbatim}
-
-This function returns {\bf CRYPT\_OK} if the bases and primes in the library are correct.  There is one last helper
-function:
-\index{dh\_sizes()}
-\begin{verbatim}
-void dh_sizes(int *low, int *high);
-\end{verbatim}
-Which stores the smallest and largest key sizes support into the two variables.
-
-\section{DH Packet}
-Similar to the RSA related functions there are functions to encrypt or decrypt symmetric keys using the DH public key
-algorithms.
-\index{dh\_encrypt\_key()} \index{dh\_decrypt\_key()}
-\begin{verbatim}
-int dh_encrypt_key(const unsigned char *in,   unsigned long  inlen,
-                         unsigned char *out,  unsigned long *len,
-                         prng_state *prng, int wprng, int hash,
-                         dh_key *key);
-
-int dh_decrypt_key(const unsigned char *in,  unsigned long  inlen,
-                         unsigned char *out, unsigned long *outlen,
-                         dh_key *key);
-\end{verbatim}
-Where ``in'' is an input symmetric key of no more than 32 bytes.  Essentially these routines created a random public key
-and find the hash of the shared secret.  The message digest is than XOR'ed against the symmetric key.  All of the
-required data is placed in ``out'' by ``dh\_encrypt\_key()''.   The hash must produce a message digest at least as large
-as the symmetric key you are trying to share.
-
-Similar to the RSA system you can sign and verify a hash of a message.
-\index{dh\_sign\_hash()} \index{dh\_verify\_hash()}
-\begin{verbatim}
-int dh_sign_hash(const unsigned char *in,  unsigned long inlen,
-                       unsigned char *out, unsigned long *outlen,
-                       prng_state *prng, int wprng, dh_key *key);
-
-int dh_verify_hash(const unsigned char *sig, unsigned long siglen,
-                         const unsigned char *hash, unsigned long hashlen,
-                         int *stat, dh_key *key);
-\end{verbatim}
-
-The ``dh\_sign\_hash'' function signs the message hash in ``in'' of length ``inlen'' and forms a DH packet in ``out''.
-The ``dh\_verify\_hash'' function verifies the DH signature in ``sig'' against the hash in ``hash''.  It sets ``stat''
-to non-zero if the signature passes or zero if it fails.
 
 \chapter{Elliptic Curve Cryptography}
 
@@ -4900,6 +4941,23 @@ int dsa_import(const unsigned char *in,
 
 This will import the DSA key from the buffer \textit{in} of length \textit{inlen} to the \textit{key}.  If the process fails the function
 will automatically free all of the heap allocated in the process (you don't have to call dsa\_free()).
+
+\subsection{Other DSA Functions}
+
+XXX-TODO
+
+\begin{small}
+\begin{verbatim}
+int dsa_set_pqg(const unsigned char *p,  unsigned long plen,
+                const unsigned char *q,  unsigned long qlen,
+                const unsigned char *g,  unsigned long glen,
+                dsa_key *key);
+int dsa_set_pqg_dsaparam(const unsigned char *dsaparam, unsigned long dsaparamlen, dsa_key *key);
+int dsa_generate_pqg(prng_state *prng, int wprng, int group_size, int modulus_size, dsa_key *key);
+int dsa_set_key(const unsigned char *in, unsigned long inlen, int type, dsa_key *key);
+int dsa_generate_key(prng_state *prng, int wprng, dsa_key *key);
+\end{verbatim}
+\end{small}
 
 \chapter{Standards Support}
 \mysection{ASN.1 Formats}
