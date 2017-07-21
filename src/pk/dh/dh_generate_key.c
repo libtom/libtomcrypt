@@ -91,7 +91,7 @@ freebuf:
    zeromem(buf, keysize);
    XFREE(buf);
 freemp:
-   if (err != CRYPT_OK) mp_clear_multi(key->x, key->y, key->base, key->prime, NULL);
+   if (err != CRYPT_OK) dh_free(key);
    return err;
 }
 

@@ -131,14 +131,14 @@ int rsa_import_pkcs8(const unsigned char *in, unsigned long inlen,
                                    LTC_ASN1_INTEGER, 1UL, key->qP,
                                    LTC_ASN1_EOL,     0UL, NULL);
    if (err != CRYPT_OK) { goto LBL_ERR; }
-   mp_clear_multi(zero, iter, NULL);
    key->type = PK_PRIVATE;
    err = CRYPT_OK;
    goto LBL_FREE2;
 
 LBL_ERR:
-   mp_clear_multi(key->d, key->e, key->N, key->dQ, key->dP, key->qP, key->p, key->q, zero, iter, NULL);
+   rsa_free(key);
 LBL_FREE2:
+   mp_clear_multi(iter, zero, NULL);
    XFREE(buf2);
 LBL_FREE1:
    XFREE(buf1);
