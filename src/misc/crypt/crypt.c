@@ -378,6 +378,9 @@ const char *crypt_build_settings =
 #endif
 
     "\nVarious others: "
+#if defined(ARGTYPE)
+    " " NAME_VALUE(ARGTYPE) " "
+#endif
 #if defined(LTC_ADLER32)
     " ADLER32 "
 #endif
