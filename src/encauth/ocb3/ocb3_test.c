@@ -180,7 +180,7 @@ int ocb3_test(void)
         if ((err = ocb3_encrypt_authenticate_memory(idx,
                                                    key, sizeof(key),
                                                    nonce, sizeof(nonce),
-                                                   tests[x].aad, tests[x].aadlen,
+                                                   tests[x].aadlen != 0 ? tests[x].aad : NULL, tests[x].aadlen,
                                                    tests[x].pt, tests[x].ptlen,
                                                    outct, outtag, &len)) != CRYPT_OK) {
            return err;
@@ -194,9 +194,9 @@ int ocb3_test(void)
         if ((err = ocb3_decrypt_verify_memory(idx,
                                              key, sizeof(key),
                                              nonce, sizeof(nonce),
-                                             tests[x].aad, tests[x].aadlen,
+                                             tests[x].aadlen != 0 ? tests[x].aad : NULL, tests[x].aadlen,
                                              outct, tests[x].ptlen,
-             outct, tests[x].tag, len, &res)) != CRYPT_OK) {
+                                             outct, tests[x].tag, len, &res)) != CRYPT_OK) {
            return err;
         }
         if ((res != 1) || compare_testvector(outct, tests[x].ptlen, tests[x].pt, tests[x].ptlen, "OCB3", x)) {
@@ -211,13 +211,6 @@ int ocb3_test(void)
 }
 
 #endif /* LTC_OCB3_MODE */
-
-/* some comments
-
-   -- it's hard to seek
-   -- hard to stream [you can't emit ciphertext until full block]
-   -- The setup is somewhat complicated...
-*/
 
 /* ref:         $Format:%D$ */
 /* git commit:  $Format:%H$ */

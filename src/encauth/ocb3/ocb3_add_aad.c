@@ -29,9 +29,10 @@ int ocb3_add_aad(ocb3_state *ocb, const unsigned char *aad, unsigned long aadlen
    unsigned long datalen, l;
 
    LTC_ARGCHK(ocb    != NULL);
-   LTC_ARGCHK(aad    != NULL);
+   if (aad == NULL) LTC_ARGCHK(aadlen == 0);
+   if (aadlen == 0) LTC_ARGCHK(aad    == NULL);
 
-   if (aadlen == 0) return CRYPT_OK;
+   if (aad == NULL || aadlen == 0) return CRYPT_OK;
 
    if (ocb->adata_buffer_bytes > 0) {
      l = ocb->block_len - ocb->adata_buffer_bytes;

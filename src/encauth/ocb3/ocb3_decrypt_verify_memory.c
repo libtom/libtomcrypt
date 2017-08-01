@@ -73,8 +73,10 @@ int ocb3_decrypt_verify_memory(int cipher,
       goto LBL_ERR;
    }
 
-   if ((err = ocb3_add_aad(ocb, adata, adatalen)) != CRYPT_OK) {
-      goto LBL_ERR;
+   if (adata != NULL || adatalen != 0) {
+      if ((err = ocb3_add_aad(ocb, adata, adatalen)) != CRYPT_OK) {
+         goto LBL_ERR;
+      }
    }
 
    if ((err = ocb3_decrypt_last(ocb, ct, ctlen, pt)) != CRYPT_OK) {
