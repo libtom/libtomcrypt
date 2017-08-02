@@ -56,6 +56,12 @@ int ocb3_init(ocb3_state *ocb, int cipher,
    }
    ocb->cipher = cipher;
 
+   /* Valid Nonce?
+    * As of RFC7253: "string of no more than 120 bits" */
+   if (noncelen > (120/8)) {
+      return CRYPT_INVALID_ARG;
+   }
+
    /* determine which polys to use */
    ocb->block_len = cipher_descriptor[cipher].block_length;
    x = (int)(sizeof(polys)/sizeof(polys[0]));
