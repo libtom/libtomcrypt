@@ -21,7 +21,7 @@
    @param nonce     The session nonce
    @param noncelen  The length of the session nonce (octets)
 */
-void ocb3_int_calc_offset_zero(ocb3_state *ocb, const unsigned char *nonce, unsigned long noncelen)
+void ocb3_int_calc_offset_zero(ocb3_state *ocb, const unsigned char *nonce, unsigned long noncelen, unsigned long taglen)
 {
    int x, y, bottom;
    int idx, shift;
@@ -35,6 +35,7 @@ void ocb3_int_calc_offset_zero(ocb3_state *ocb, const unsigned char *nonce, unsi
      iNonce[x] = nonce[noncelen-y-1];
    }
    iNonce[x] = 0x01;
+   iNonce[0] |= ((taglen*8) % 128) << 1;
 
    /* bottom = str2num(Nonce[123..128])               */
    bottom = iNonce[ocb->block_len-1] & 0x3F;

@@ -69,7 +69,7 @@ int ocb3_decrypt_verify_memory(int cipher,
       return CRYPT_MEM;
    }
 
-   if ((err = ocb3_init(ocb, cipher, key, keylen, nonce, noncelen)) != CRYPT_OK) {
+   if ((err = ocb3_init(ocb, cipher, key, keylen, nonce, noncelen, taglen)) != CRYPT_OK) {
       goto LBL_ERR;
    }
 

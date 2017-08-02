@@ -41,7 +41,8 @@ static const struct {
 */
 int ocb3_init(ocb3_state *ocb, int cipher,
              const unsigned char *key, unsigned long keylen,
-             const unsigned char *nonce, unsigned long noncelen)
+             const unsigned char *nonce, unsigned long noncelen,
+             unsigned long taglen)
 {
    int poly, x, y, m, err;
    unsigned char *previous, *current;
@@ -60,6 +61,11 @@ int ocb3_init(ocb3_state *ocb, int cipher,
     * As of RFC7253: "string of no more than 120 bits" */
    if (noncelen > (120/8)) {
       return CRYPT_INVALID_ARG;
+   }
+
+   /* Make sure taglen isn't too long */
+   if (taglen > (unsigned long)cipher_descriptor[cipher].block_length) {
+      taglen = cipher_descriptor[cipher].block_length;
    }
 
    /* determine which polys to use */
@@ -114,7 +120,7 @@ int ocb3_init(ocb3_state *ocb, int cipher,
    }
 
    /* initialize ocb->Offset_current = Offset_0 */
-   ocb3_int_calc_offset_zero(ocb, nonce, noncelen);
+   ocb3_int_calc_offset_zero(ocb, nonce, noncelen, taglen);
 
    /* initialize checksum to all zeros */
    zeromem(ocb->checksum, ocb->block_len);
