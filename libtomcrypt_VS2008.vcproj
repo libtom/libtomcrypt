@@ -799,14 +799,6 @@
 					>
 				</File>
 				<File
-					RelativePath="src\encauth\ocb3\ocb3_int_aad_add_block.c"
-					>
-				</File>
-				<File
-					RelativePath="src\encauth\ocb3\ocb3_int_calc_offset_zero.c"
-					>
-				</File>
-				<File
 					RelativePath="src\encauth\ocb3\ocb3_int_ntz.c"
 					>
 				</File>
