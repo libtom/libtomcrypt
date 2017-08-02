@@ -16,6 +16,32 @@
 #ifdef LTC_OCB3_MODE
 
 /**
+   Add one block of AAD data (internal function)
+   @param ocb        The OCB state
+   @param aad_block  [in] AAD data (block_len size)
+   @return CRYPT_OK if successful
+*/
+static int _ocb3_int_aad_add_block(ocb3_state *ocb, const unsigned char *aad_block)
+{
+   unsigned char tmp[MAXBLOCKSIZE];
+   int err;
+
+   /* Offset_i = Offset_{i-1} xor L_{ntz(i)} */
+   ocb3_int_xor_blocks(ocb->aOffset_current, ocb->aOffset_current, ocb->L_[ocb3_int_ntz(ocb->ablock_index)], ocb->block_len);
+
+   /* Sum_i = Sum_{i-1} xor ENCIPHER(K, A_i xor Offset_i) */
+   ocb3_int_xor_blocks(tmp, aad_block, ocb->aOffset_current, ocb->block_len);
+   if ((err = cipher_descriptor[ocb->cipher].ecb_encrypt(tmp, tmp, &ocb->key)) != CRYPT_OK) {
+     return err;
+   }
+   ocb3_int_xor_blocks(ocb->aSum_current, ocb->aSum_current, tmp, ocb->block_len);
+
+   ocb->ablock_index++;
+
+   return CRYPT_OK;
+}
+
+/**
    Add AAD - additional associated data
    @param ocb       The OCB state
    @param aad       The AAD data
@@ -41,7 +67,7 @@ int ocb3_add_aad(ocb3_state *ocb, const unsigned char *aad, unsigned long aadlen
      ocb->adata_buffer_bytes += l;
 
      if (ocb->adata_buffer_bytes == ocb->block_len) {
-       if ((err = ocb3_int_aad_add_block(ocb, ocb->adata_buffer)) != CRYPT_OK) {
+       if ((err = _ocb3_int_aad_add_block(ocb, ocb->adata_buffer)) != CRYPT_OK) {
          return err;
        }
        ocb->adata_buffer_bytes = 0;
@@ -62,7 +88,7 @@ int ocb3_add_aad(ocb3_state *ocb, const unsigned char *aad, unsigned long aadlen
    last_block_len = datalen - full_blocks_len;
 
    for (x=0; x<full_blocks; x++) {
-     if ((err = ocb3_int_aad_add_block(ocb, data+x*ocb->block_len)) != CRYPT_OK) {
+     if ((err = _ocb3_int_aad_add_block(ocb, data+x*ocb->block_len)) != CRYPT_OK) {
        return err;
      }
    }

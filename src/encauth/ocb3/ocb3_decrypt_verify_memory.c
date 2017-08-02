@@ -46,18 +46,13 @@ int ocb3_decrypt_verify_memory(int cipher,
    unsigned char *buf;
    unsigned long  buflen;
 
-   LTC_ARGCHK(key    != NULL);
-   LTC_ARGCHK(nonce  != NULL);
-   LTC_ARGCHK(pt     != NULL);
-   LTC_ARGCHK(ct     != NULL);
-   LTC_ARGCHK(tag    != NULL);
    LTC_ARGCHK(stat    != NULL);
 
    /* default to zero */
    *stat = 0;
 
    /* allocate memory */
-   buf = XMALLOC(taglen);
+   buf = XMALLOC(MIN(taglen, MAXBLOCKSIZE));
    ocb = XMALLOC(sizeof(ocb3_state));
    if (ocb == NULL || buf == NULL) {
       if (ocb != NULL) {
