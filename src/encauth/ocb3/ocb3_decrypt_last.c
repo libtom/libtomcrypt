@@ -31,8 +31,10 @@ int ocb3_decrypt_last(ocb3_state *ocb, const unsigned char *ct, unsigned long ct
 
    LTC_ARGCHK(ocb != NULL);
    if (ct == NULL) LTC_ARGCHK(ctlen == 0);
-   if (ctlen == 0) LTC_ARGCHK(ct    == NULL);
-   else            LTC_ARGCHK(pt    != NULL);
+   if (ctlen != 0) {
+      LTC_ARGCHK(ct    != NULL);
+      LTC_ARGCHK(pt    != NULL);
+   }
 
    if ((err = cipher_is_valid(ocb->cipher)) != CRYPT_OK) {
       goto LBL_ERR;
