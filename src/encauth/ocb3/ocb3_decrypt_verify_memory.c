@@ -51,8 +51,11 @@ int ocb3_decrypt_verify_memory(int cipher,
    /* default to zero */
    *stat = 0;
 
+   /* limit taglen */
+   taglen = MIN(taglen, MAXBLOCKSIZE);
+
    /* allocate memory */
-   buf = XMALLOC(MIN(taglen, MAXBLOCKSIZE));
+   buf = XMALLOC(taglen);
    ocb = XMALLOC(sizeof(ocb3_state));
    if (ocb == NULL || buf == NULL) {
       if (ocb != NULL) {
