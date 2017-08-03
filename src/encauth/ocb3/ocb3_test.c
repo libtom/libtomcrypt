@@ -219,8 +219,8 @@ int ocb3_test(void)
                                                    key, sizeof(key),
                                                    nonce, sizeof(nonce),
                                                    tests[x].aadlen != 0 ? tests[x].aad : NULL, tests[x].aadlen,
-                                                   tests[x].pt, tests[x].ptlen,
-                                                   outct, outtag, &len)) != CRYPT_OK) {
+                                                   tests[x].ptlen != 0 ? tests[x].pt : NULL, tests[x].ptlen,
+                                                   tests[x].ptlen != 0 ? outct : NULL, outtag, &len)) != CRYPT_OK) {
            return err;
         }
 
@@ -233,8 +233,8 @@ int ocb3_test(void)
                                              key, sizeof(key),
                                              nonce, sizeof(nonce),
                                              tests[x].aadlen != 0 ? tests[x].aad : NULL, tests[x].aadlen,
-                                             outct, tests[x].ptlen,
-                                             outct, tests[x].tag, len, &res)) != CRYPT_OK) {
+                                             tests[x].ptlen != 0 ? outct : NULL, tests[x].ptlen,
+                                             tests[x].ptlen != 0 ? outct : NULL, tests[x].tag, len, &res)) != CRYPT_OK) {
            return err;
         }
         if ((res != 1) || compare_testvector(outct, tests[x].ptlen, tests[x].pt, tests[x].ptlen, "OCB3", x)) {
