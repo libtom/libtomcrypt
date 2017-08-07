@@ -205,6 +205,7 @@ int ocb3_test(void)
    int err, x, idx, res;
    unsigned long len;
    unsigned char outct[MAXBLOCKSIZE], outtag[MAXBLOCKSIZE];
+   ocb3_state ocb;
 
     /* AES can be under rijndael or aes... try to find it */
     if ((idx = find_cipher("aes")) == -1) {
@@ -244,6 +245,8 @@ int ocb3_test(void)
            return CRYPT_FAIL_TESTVECTOR;
         }
     }
+
+    /* RFC 7253 - test vector with a tag length of 96 bits - part 1 */
     x = 99;
     len = 12;
     if ((err = ocb3_encrypt_authenticate_memory(idx,
@@ -274,6 +277,26 @@ int ocb3_test(void)
 #endif
        return CRYPT_FAIL_TESTVECTOR;
     }
+
+    /* RFC 7253 - test vector with a tag length of 96 bits - part 2 */
+    x = 100;
+    if ((err = ocb3_init(&ocb, idx, K, sizeof(K), N, sizeof(N), 12)) != CRYPT_OK)  return err;
+    if ((err = ocb3_add_aad(&ocb, A, sizeof(A))) != CRYPT_OK)                      return err;
+    if ((err = ocb3_encrypt(&ocb, P, 32, outct)) != CRYPT_OK)                      return err;
+    if ((err = ocb3_encrypt_last(&ocb, P+32, sizeof(P)-32, outct+32)) != CRYPT_OK) return err;
+    len = sizeof(outtag); /* intentionally more than 12 */
+    if ((err = ocb3_done(&ocb, outtag, &len)) != CRYPT_OK)                         return err;
+    if (compare_testvector(outct, sizeof(P), C, sizeof(C), "OCB3 CT", x))          return CRYPT_FAIL_TESTVECTOR;
+    if (compare_testvector(outtag, len, T, sizeof(T), "OCB3 Tag.enc", x))          return CRYPT_FAIL_TESTVECTOR;
+    if ((err = ocb3_init(&ocb, idx, K, sizeof(K), N, sizeof(N), 12)) != CRYPT_OK)  return err;
+    if ((err = ocb3_add_aad(&ocb, A, sizeof(A))) != CRYPT_OK)                      return err;
+    if ((err = ocb3_decrypt(&ocb, C, 32, outct)) != CRYPT_OK)                      return err;
+    if ((err = ocb3_decrypt_last(&ocb, C+32, sizeof(C)-32, outct+32)) != CRYPT_OK) return err;
+    len = sizeof(outtag); /* intentionally more than 12 */
+    if ((err = ocb3_done(&ocb, outtag, &len)) != CRYPT_OK)                         return err;
+    if (compare_testvector(outct, sizeof(C), P, sizeof(P), "OCB3 PT", x))          return CRYPT_FAIL_TESTVECTOR;
+    if (compare_testvector(outtag, len, T, sizeof(T), "OCB3 Tag.dec", x))          return CRYPT_FAIL_TESTVECTOR;
+
     return CRYPT_OK;
 #endif /* LTC_TEST */
 }

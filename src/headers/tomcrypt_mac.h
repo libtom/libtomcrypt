@@ -266,6 +266,7 @@ typedef struct {
    symmetric_key     key;                     /* scheduled key for cipher */
    unsigned long     block_index;             /* index # for current data block */
    int               cipher,                  /* cipher idx */
+                     tag_len,                 /* length of tag */
                      block_len;               /* length of block */
 } ocb3_state;
 

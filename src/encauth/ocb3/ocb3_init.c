@@ -118,6 +118,7 @@ int ocb3_init(ocb3_state *ocb, int cipher,
    if (taglen > (unsigned long)cipher_descriptor[cipher].block_length) {
       taglen = cipher_descriptor[cipher].block_length;
    }
+   ocb->tag_len = taglen;
 
    /* determine which polys to use */
    ocb->block_len = cipher_descriptor[cipher].block_length;
