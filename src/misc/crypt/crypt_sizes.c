@@ -180,6 +180,15 @@ static const crypt_size _crypt_sizes[] = {
 #ifdef LTC_PMAC
     _SZ_STRINGIFY_T(pmac_state),
 #endif
+#ifdef LTC_POLY1305
+    _SZ_STRINGIFY_T(poly1305_state),
+#endif
+#ifdef LTC_BLAKE2SMAC
+    _SZ_STRINGIFY_T(blake2smac_state),
+#endif
+#ifdef LTC_BLAKE2BMAC
+    _SZ_STRINGIFY_T(blake2bmac_state),
+#endif
 #ifdef LTC_XCBC
     _SZ_STRINGIFY_T(xcbc_state),
 #endif
@@ -189,6 +198,9 @@ static const crypt_size _crypt_sizes[] = {
 #ifdef LTC_OCB3_MODE
     _SZ_STRINGIFY_T(ocb3_state),
 #endif
+#ifdef LTC_CHACHA20POLY1305_MODE
+    _SZ_STRINGIFY_T(chacha20poly1305_state),
+#endif
 #ifdef LTC_GCM_MODE
     _SZ_STRINGIFY_T(gcm_state),
 #endif
@@ -196,10 +208,7 @@ static const crypt_size _crypt_sizes[] = {
     _SZ_STRINGIFY_T(eax_state),
 #endif
 #ifdef LTC_CCM_MODE
-/* not defined */
-#endif
-#ifdef LRW_MODE
-/* not defined */
+    _SZ_STRINGIFY_T(ccm_state),
 #endif
 
     /* asymmetric keys */
@@ -241,6 +250,16 @@ static const crypt_size _crypt_sizes[] = {
 #endif
     /* sprng has no state as it uses other potentially available sources */
     /* like /dev/random.  See Developers Guide for more info. */
+
+#ifdef LTC_SOBER128_STREAM
+    _SZ_STRINGIFY_T(sober128_state),
+#endif
+#ifdef LTC_RC4_STREAM
+    _SZ_STRINGIFY_T(rc4_state),
+#endif
+#ifdef LTC_CHACHA
+    _SZ_STRINGIFY_T(chacha_state),
+#endif
 
 #ifdef LTC_ADLER32
     _SZ_STRINGIFY_T(adler32_state),
