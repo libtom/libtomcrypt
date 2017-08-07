@@ -26,7 +26,7 @@ fi
 echo -n "testing..."
 
 if [ -a test ] && [ -f test ] && [ -x test ]; then
-   ((./test >test_std.txt 2>test_err.txt && ./tv_gen > tv.txt) && echo "$1 test passed." && echo "y" > testok.txt) || (echo "$1 test failed, look at test_err.txt" && exit 1)
+   ((./test >test_std.txt 2>test_err.txt && ./tv_gen > tv.txt) && echo "$1 test passed." && echo "y" > testok.txt) || (echo "$1 test failed, look at test_err.txt or tv.txt" && exit 1)
    if find *_tv.txt -type f 1>/dev/null 2>/dev/null ; then
       for f in *_tv.txt; do
          # check for lines starting with '<' ($f might be a subset of notes/$f)

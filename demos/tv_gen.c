@@ -435,12 +435,12 @@ void ocb3_gen(void)
       kl = cipher_descriptor[x].block_length;
 
       /* skip ciphers which do not have 64 or 128 bit block sizes */
-      if (kl != 8 && kl != 16) continue;
+      if (kl != 16) continue;
 
       if (cipher_descriptor[x].keysize(&kl) != CRYPT_OK) {
          kl = cipher_descriptor[x].max_key_length;
       }
-      fprintf(out, "OCB-%s (%d byte key)\n", cipher_descriptor[x].name, kl);
+      fprintf(out, "OCB3-%s (%d byte key)\n", cipher_descriptor[x].name, kl);
 
       /* the key */
       for (z = 0; z < kl; z++) {
@@ -459,7 +459,7 @@ void ocb3_gen(void)
          }
          len = 16;
          if ((err = ocb3_encrypt_authenticate_memory(x, key, kl, nonce, noncelen, (unsigned char*)"AAD", 3, plaintext, y1, plaintext, tag, &len)) != CRYPT_OK) {
-            printf("Error OCB'ing: %s\n", error_to_string(err));
+            printf("Error OCB3'ing: %s\n", error_to_string(err));
             exit(EXIT_FAILURE);
          }
          fprintf(out, "%3d: ", y1);
