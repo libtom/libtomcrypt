@@ -42,11 +42,6 @@ int ocb3_encrypt_authenticate_memory(int cipher,
    int err;
    ocb3_state *ocb;
 
-   LTC_ARGCHK(key    != NULL);
-   LTC_ARGCHK(nonce  != NULL);
-   LTC_ARGCHK(pt     != NULL);
-   LTC_ARGCHK(ct     != NULL);
-   LTC_ARGCHK(tag    != NULL);
    LTC_ARGCHK(taglen != NULL);
 
    /* allocate memory */
@@ -55,7 +50,7 @@ int ocb3_encrypt_authenticate_memory(int cipher,
       return CRYPT_MEM;
    }
 
-   if ((err = ocb3_init(ocb, cipher, key, keylen, nonce, noncelen)) != CRYPT_OK) {
+   if ((err = ocb3_init(ocb, cipher, key, keylen, nonce, noncelen, *taglen)) != CRYPT_OK) {
       goto LBL_ERR;
    }
 

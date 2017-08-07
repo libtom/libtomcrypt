@@ -46,15 +46,13 @@ int ocb3_decrypt_verify_memory(int cipher,
    unsigned char *buf;
    unsigned long  buflen;
 
-   LTC_ARGCHK(key    != NULL);
-   LTC_ARGCHK(nonce  != NULL);
-   LTC_ARGCHK(pt     != NULL);
-   LTC_ARGCHK(ct     != NULL);
-   LTC_ARGCHK(tag    != NULL);
    LTC_ARGCHK(stat    != NULL);
 
    /* default to zero */
    *stat = 0;
+
+   /* limit taglen */
+   taglen = MIN(taglen, MAXBLOCKSIZE);
 
    /* allocate memory */
    buf = XMALLOC(taglen);
@@ -69,7 +67,7 @@ int ocb3_decrypt_verify_memory(int cipher,
       return CRYPT_MEM;
    }
 
-   if ((err = ocb3_init(ocb, cipher, key, keylen, nonce, noncelen)) != CRYPT_OK) {
+   if ((err = ocb3_init(ocb, cipher, key, keylen, nonce, noncelen, taglen)) != CRYPT_OK) {
       goto LBL_ERR;
    }
 

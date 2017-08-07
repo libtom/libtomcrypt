@@ -30,8 +30,12 @@ int ocb3_encrypt(ocb3_state *ocb, const unsigned char *pt, unsigned long ptlen, 
    unsigned char *pt_b, *ct_b;
 
    LTC_ARGCHK(ocb != NULL);
-   LTC_ARGCHK(pt  != NULL);
-   LTC_ARGCHK(ct  != NULL);
+   if (pt == NULL) LTC_ARGCHK(ptlen == 0);
+   if (ptlen != 0) {
+      LTC_ARGCHK(pt    != NULL);
+      LTC_ARGCHK(ct    != NULL);
+   }
+
    if ((err = cipher_is_valid(ocb->cipher)) != CRYPT_OK) {
       return err;
    }

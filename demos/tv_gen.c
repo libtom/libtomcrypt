@@ -420,7 +420,7 @@ void ocb_gen(void)
 void ocb3_gen(void)
 {
 #ifdef LTC_OCB3_MODE
-   int err, kl, x, y1, z;
+   int err, kl, x, y1, z, noncelen;
    FILE *out;
    unsigned char key[MAXBLOCKSIZE], nonce[MAXBLOCKSIZE*2],
                  plaintext[MAXBLOCKSIZE*2], tag[MAXBLOCKSIZE];
@@ -448,7 +448,8 @@ void ocb3_gen(void)
       }
 
       /* fixed nonce */
-      for (z = 0; z < cipher_descriptor[x].block_length; z++) {
+      noncelen = MIN(15, cipher_descriptor[x].block_length);
+      for (z = 0; z < noncelen; z++) {
           nonce[z] = z;
       }
 
@@ -456,8 +457,8 @@ void ocb3_gen(void)
          for (z = 0; z < y1; z++) {
             plaintext[z] = (unsigned char)(z & 255);
          }
-         len = sizeof(tag);
-         if ((err = ocb3_encrypt_authenticate_memory(x, key, kl, nonce, cipher_descriptor[x].block_length, (unsigned char*)"AAD", 3, plaintext, y1, plaintext, tag, &len)) != CRYPT_OK) {
+         len = 16;
+         if ((err = ocb3_encrypt_authenticate_memory(x, key, kl, nonce, noncelen, (unsigned char*)"AAD", 3, plaintext, y1, plaintext, tag, &len)) != CRYPT_OK) {
             printf("Error OCB'ing: %s\n", error_to_string(err));
             exit(EXIT_FAILURE);
          }
