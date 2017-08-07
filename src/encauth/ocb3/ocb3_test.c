@@ -215,7 +215,7 @@ int ocb3_test(void)
     }
 
     for (x = 0; x < (int)(sizeof(tests)/sizeof(tests[0])); x++) {
-        len = sizeof(outtag);
+        len = 16; /* must be the same as the required taglen */
         if ((err = ocb3_encrypt_authenticate_memory(idx,
                                                    key, sizeof(key),
                                                    nonce, sizeof(nonce),

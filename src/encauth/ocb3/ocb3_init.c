@@ -114,9 +114,14 @@ int ocb3_init(ocb3_state *ocb, int cipher,
       return CRYPT_INVALID_ARG;
    }
 
-   /* Make sure taglen isn't too long */
-   if (taglen > (unsigned long)cipher_descriptor[cipher].block_length) {
-      taglen = cipher_descriptor[cipher].block_length;
+   /* The blockcipher must have a 128-bit blocksize */
+   if (cipher_descriptor[cipher].block_length != 16) {
+      return CRYPT_INVALID_ARG;
+   }
+
+   /* The TAGLEN may be any value up to 128 (bits) */
+   if (taglen > 16) {
+      return CRYPT_INVALID_ARG;
    }
    ocb->tag_len = taglen;
 
