@@ -91,7 +91,7 @@ union paddable {
  */
 void barf(char *pname, char *err)
 {
-   printf("Usage: %s <enc|dec> infile outfile [salt]\n", pname);
+   printf("Usage: %s <enc|dec> infile outfile passphrase [salt]\n", pname);
    printf("\n");
    printf("       # encrypts infile->outfile, random salt\n");
    printf("       %s enc infile outfile \"passphrase\"\n", pname);
