@@ -432,6 +432,9 @@ const char *crypt_build_settings =
 #if defined(LTC_TEST)
     " LTC_TEST "
 #endif
+#if defined(LTC_TEST_DBG)
+    " " NAME_VALUE(LTC_TEST_DBG) " "
+#endif
 #if defined(LTC_TEST_EXT)
     " LTC_TEST_EXT "
 #endif
