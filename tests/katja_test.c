@@ -8,7 +8,7 @@
  */
 #include <tomcrypt_test.h>
 
-#ifdef LTC_MKAT
+#if defined(LTC_MKAT) && defined(LTC_TEST_MPI)
 
 int katja_test(void)
 {

@@ -8,7 +8,7 @@
  */
 #include <tomcrypt_test.h>
 
-#ifdef LTC_PKCS_1
+#if defined(LTC_PKCS_1) && defined(LTC_TEST_MPI)
 
 #include "../notes/rsa-testvectors/pkcs1v15crypt-vectors.c"
 

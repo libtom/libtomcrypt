@@ -313,12 +313,24 @@ int main(int argc, char **argv)
 #elif defined(USE_GMP)
    ltc_mp = gmp_desc;
    printf("math provider = gnump\n");
-#else
-   extern ltc_math_descriptor EXT_MATH_LIB;
-   ltc_mp = EXT_MATH_LIB;
-   printf("math provider = EXT_MATH_LIB\n");
+#elif defined(EXT_MATH_LIB)
+   {
+      extern ltc_math_descriptor EXT_MATH_LIB;
+      ltc_mp = EXT_MATH_LIB;
+   }
+
+#define NAME_VALUE(s) #s"="NAME(s)
+#define NAME(s) #s
+   printf("math provider = %s\n", NAME_VALUE(EXT_MATH_LIB));
+#undef NAME_VALUE
+#undef NAME
+
 #endif
+#ifdef LTC_TEST_MPI
    printf("MP_DIGIT_BIT = %d\n", MP_DIGIT_BIT);
+#else
+   printf("NO math provider selected, all tests requiring MPI were disabled and will 'nop'\n");
+#endif
 
 
 #ifdef LTC_PTHREAD

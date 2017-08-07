@@ -8,7 +8,7 @@
  */
 #include <tomcrypt_test.h>
 
-#ifdef LTC_MDH
+#if defined(LTC_MDH) && defined(LTC_TEST_MPI)
 
 #ifdef LTC_DH4096
 #define KEYSIZE 4096

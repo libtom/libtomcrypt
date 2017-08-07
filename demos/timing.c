@@ -520,8 +520,11 @@ static void time_hash(void)
 }
 
 /*#warning you need an mp_rand!!!*/
-#ifndef USE_LTM
+#if !defined(USE_LTM) && !defined(USE_TFM) && !defined(USE_GMP) && !defined(EXT_MATH_LIB)
   #undef LTC_MPI
+  #undef LTC_TEST_MPI
+#else
+  #define LTC_TEST_MPI
 #endif
 
 #ifdef LTC_MPI
@@ -642,7 +645,7 @@ static void time_prng(void)
    }
 }
 
-#ifdef LTC_MDSA
+#if defined(LTC_MDSA) && defined(LTC_TEST_MPI)
 /* time various DSA operations */
 static void time_dsa(void)
 {
@@ -695,7 +698,7 @@ static void time_dsa(void) { fprintf(stderr, "NO DSA\n"); }
 #endif
 
 
-#ifdef LTC_MRSA
+#if defined(LTC_MRSA) && defined(LTC_TEST_MPI)
 /* time various RSA operations */
 static void time_rsa(void)
 {
@@ -819,7 +822,7 @@ static void time_rsa(void)
 static void time_rsa(void) { fprintf(stderr, "NO RSA\n"); }
 #endif
 
-#ifdef LTC_MKAT
+#if defined(LTC_MKAT) && defined(LTC_TEST_MPI)
 /* time various KAT operations */
 static void time_katja(void)
 {
@@ -889,7 +892,7 @@ static void time_katja(void)
 static void time_katja(void) { fprintf(stderr, "NO Katja\n"); }
 #endif
 
-#ifdef LTC_MDH
+#if defined(LTC_MDH) && defined(LTC_TEST_MPI)
 /* time various DH operations */
 static void time_dh(void)
 {
@@ -926,7 +929,7 @@ static void time_dh(void)
 static void time_dh(void) { fprintf(stderr, "NO DH\n"); }
 #endif
 
-#ifdef LTC_MECC
+#if defined(LTC_MECC) && defined(LTC_TEST_MPI)
 /* time various ECC operations */
 static void time_ecc(void)
 {
@@ -1427,9 +1430,11 @@ register_all_prngs();
    ltc_mp = tfm_desc;
 #elif defined(USE_GMP)
    ltc_mp = gmp_desc;
-#else
-   extern ltc_math_descriptor EXT_MATH_LIB;
-   ltc_mp = EXT_MATH_LIB;
+#elif defined(EXT_MATH_LIB)
+   {
+      extern ltc_math_descriptor EXT_MATH_LIB;
+      ltc_mp = EXT_MATH_LIB;
+   }
 #endif
 
 if ((err = rng_make_prng(128, find_prng("yarrow"), &yarrow_prng, NULL)) != CRYPT_OK) {
