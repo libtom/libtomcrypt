@@ -680,8 +680,24 @@ Twofish round function.
 \caption{Twofish Build Options}
 \label{fig:twofishopts}
 \end{figure}
+
+\item
+As of v1.18.0 of the library RC2 got an extended setup function (which didn't fit in the regular API):
+
+\index{rc2\_setup\_ex()}
+\begin{verbatim}
+int rc2_setup_ex(const unsigned char *key,
+                                 int keylen,
+                                 int bits,
+                                 int num_rounds,
+                       symmetric_key *skey);
+\end{verbatim}
+
+This setup function also allows to configure the effective key length in bits of the RC2 cipher as in its original specification.
+
 \end{enumerate}
 \end{small}
+
 
 To work with the cipher\_descriptor array there is a function:
 \index{find\_cipher()}
@@ -1229,7 +1245,7 @@ int f8_done(symmetric_F8 *f8);
 Stream ciphers are symmetric key ciphers which operate on a stream of bytes (in theory on a stream of bits
 however LibTomCrypt's implementation works with bytes).
 
-The API for all stream ciphers operates in mode: \textit{setup} -- \textit{crypt} -- \textit{crypt} -- ... -- \textit{done}. 
+The API for all stream ciphers operates in mode: \textit{setup} -- \textit{crypt} -- \textit{crypt} -- ... -- \textit{done}.
 Please note that both encryption and decryption is implemented via \textit{crypt}.
 
 Another useful feature of stream ciphers API is generation of random stream of bytes which works like:
@@ -1238,7 +1254,7 @@ implemented like encryption of a stream o zero bytes.
 
 \mysection{ChaCha}
 
-The \textit{ChaCha} is currently the most modern stream cipher included in LibTomCrypt, so use this one unless you 
+The \textit{ChaCha} is currently the most modern stream cipher included in LibTomCrypt, so use this one unless you
 have a reason for using some of the older algorithms.
 
 For more information about ChaCha see \url{https://en.wikipedia.org/wiki/ChaCha_(cipher)}.
@@ -1259,7 +1275,7 @@ err = chacha_setup(&st, key, key_len, rounds);
 err = chacha_ivctr64(&st, nonce, 8, initial_64bit_ctr);
 \end{verbatim}
 
-The \textit{chacha\_setup} takes as a parameter the number of rounds -- choose 20 if you are not sure. 
+The \textit{chacha\_setup} takes as a parameter the number of rounds -- choose 20 if you are not sure.
 As always never ever used the same key + nonce pair more than once.
 
 For the actual encryption or decryption you to call:
@@ -1340,7 +1356,7 @@ err = sober128_stream_done(&st);
 Authenticated Encryption - sometimes also called Authenticated Encryption with Associated Data (AEAD) - is a variant of encryption
 that provides not only confidentiality (as other symmetric or stream ciphers) but also integrity.
 
-The inputs of Authenticated Encryption are: \textit{key}, \textit{nonce} (sometimes called initialization vector), \textit{plaintext}, 
+The inputs of Authenticated Encryption are: \textit{key}, \textit{nonce} (sometimes called initialization vector), \textit{plaintext},
 optional \textit{header} (sometimes called additional authenticated data - AAD). The outputs are: \textit{ciphertext} and \textit{tag}.
 
 \mysection{EAX Mode}
@@ -1515,11 +1531,22 @@ have the same meaning as with those respective functions.
 The only difference is eax\_decrypt\_verify\_memory() does not emit a tag.  Instead you pass it a tag as input and it compares it against
 the tag it computed while decrypting the message.  If the tags match then it stores a $1$ in \textit{res}, otherwise it stores a $0$.
 
-\mysection{OCB Mode}
-LibTomCrypt provides support for a mode called OCB\footnote{See
+\mysection{OCB Modes}
+\subsection{Preface}
+
+LibTomCrypt provides support for a mode called OCB in version 1 ''OCB''\footnote{See
 P. Rogaway, M. Bellare, J. Black, T. Krovetz, \textit{OCB: A Block Cipher Mode of Operation for Efficient Authenticated Encryption}.}
-.  OCB is an encryption protocol that simultaneously provides authentication.  It is slightly faster to use than EAX mode
-but is less flexible.  Let's review how to initialize an OCB context.
+and version 3 ''OCB3''\footnote{See RFC7253, T. Krovetz, P. Rogaway, \textit{The OCB Authenticated-Encryption Algorithm}.}.
+OCB is an encryption protocol that simultaneously provides authentication.  It is slightly faster to use than EAX mode
+but is less flexible.
+
+Please be aware that all versions of OCB are patented and there are several licensing models provided by P. Rogaway, the patent holder
+-- see \url{http://web.cs.ucdavis.edu/~rogaway/ocb/license.htm}.
+
+\subsection{OCB}
+\subsubsection{Initialization and processing}
+
+Let's review how to initialize an OCB context.
 
 \index{ocb\_init()}
 \begin{verbatim}
@@ -1553,7 +1580,7 @@ They assume that \textit{pt} and \textit{ct} are the same size as the block ciph
 both functions given a single \textit{ocb} state.  For bi-directional communication you will have to initialize two \textit{ocb}
 states (with different nonces).  Also \textit{pt} and \textit{ct} may point to the same location in memory.
 
-\subsection{State Termination}
+\subsubsection{State Termination}
 
 When you are finished encrypting the message you call the following function to compute the tag.
 
@@ -1591,7 +1618,7 @@ tag of the message (internally) and then compare it against the \textit{taglen} 
 \textit{res} is set to zero.  If all \textit{taglen} bytes of \textit{tag} can be verified then \textit{res} is set to one (authenticated
 message).
 
-\subsection{Packet Functions}
+\subsubsection{Packet Functions}
 To make life simpler the following two functions are provided for memory bound OCB.
 
 %\index{ocb\_encrypt\_authenticate\_memory()}
@@ -1621,27 +1648,78 @@ int ocb_decrypt_verify_memory(
 \end{verbatim}
 
 Similarly, this will OCB decrypt, and compare the internally computed tag against the tag provided. \textit{res} is set
-appropriately.
+appropriately to \textit{1} if the tag matches or to \textit{0} if it doesn't match.
 
-\mysection{OCB3 Mode}
+\subsection{OCB3}
+\subsubsection{Initialization and processing}
 
-OCB3 is a successor of OCB as defined in RFC7253 -- see \url{https://tools.ietf.org/html/rfc7253}.
-
-XXX-TODO
-
-\begin{small}
+\index{ocb3\_init()}
 \begin{verbatim}
 int ocb3_init(ocb3_state *ocb, int cipher,
              const unsigned char *key, unsigned long keylen,
              const unsigned char *nonce, unsigned long noncelen);
+\end{verbatim}
 
-int ocb3_encrypt(ocb3_state *ocb, const unsigned char *pt, unsigned long ptlen, unsigned char *ct);
-int ocb3_decrypt(ocb3_state *ocb, const unsigned char *ct, unsigned long ctlen, unsigned char *pt);
-int ocb3_encrypt_last(ocb3_state *ocb, const unsigned char *pt, unsigned long ptlen, unsigned char *ct);
-int ocb3_decrypt_last(ocb3_state *ocb, const unsigned char *ct, unsigned long ctlen, unsigned char *pt);
+This will initialize the \textit{ocb} context using cipher descriptor \textit{cipher}.  It will use a \textit{key} of length \textit{keylen}
+and the random \textit{nonce} of length \textit{noncelen}.  Note that \textit{nonce} must be a random (public) string of an arbitrary length
+between 1 and 15 octets.
+
+\subsubsection{Additional Authenticated Data}
+
+OCB3 has, in contrary to OCB, the possibility to add "Additional Authenticated Data" (AAD) when performing cryptographic operations.
+
+\index{ocb3\_add\_aad()}
+\begin{verbatim}
 int ocb3_add_aad(ocb3_state *ocb, const unsigned char *aad, unsigned long aadlen);
-int ocb3_done(ocb3_state *ocb, unsigned char *tag, unsigned long *taglen);
+\end{verbatim}
 
+This will add the AAD at \textit{aad} of the arbitrary length \textit{aadlen} to be authenticated within the context \textit{ocb}.
+
+\index{ocb3\_encrypt()} \index{ocb3\_decrypt()}
+\begin{verbatim}
+int ocb3_encrypt(         ocb3_state *ocb,
+                 const unsigned char *pt,
+                       unsigned long ptlen,
+                       unsigned char *ct);
+
+int ocb3_decrypt(         ocb3_state *ocb,
+                 const unsigned char *ct,
+                       unsigned long ctlen,
+                       unsigned char *pt);
+\end{verbatim}
+
+This will encrypt (or decrypt for the latter) a fixed length of data from \textit{pt} to \textit{ct} (vice versa for the latter).
+They assume that \textit{pt} and \textit{ct} are the same size as the block cipher's block size.  Note that you cannot call
+both functions given a single \textit{ocb} state.  For bi-directional communication you will have to initialize two \textit{ocb}
+states (with different nonces).  Also \textit{pt} and \textit{ct} may point to the same location in memory.
+
+\subsubsection{State Termination}
+
+\index{ocb3\_encrypt\_last()} \index{ocb3\_decrypt\_last()}
+\begin{verbatim}
+int ocb3_encrypt_last(ocb3_state *ocb, const unsigned char *pt, unsigned long ptlen, unsigned char *ct);
+
+int ocb3_decrypt_last(ocb3_state *ocb, const unsigned char *ct, unsigned long ctlen, unsigned char *pt);
+\end{verbatim}
+
+XXX-TODO
+
+When you are finished encrypting the message you call the following function to compute the tag.
+
+\index{ocb3\_done()}
+\begin{verbatim}
+int ocb3_done(ocb3_state *ocb, unsigned char *tag, unsigned long *taglen);
+\end{verbatim}
+
+This stores the tag of the \textit{ocb} state in \textit{tag}.
+The \textit{taglen} parameter defines on input the length of the tag to output and will be set to the actual length written, which
+is at most the block length of the cipher in use.
+
+\subsubsection{Packet Functions}
+To make life simpler the following two functions are provided for memory bound OCB3.
+
+\index{ocb3\_encrypt\_authenticate\_memory()}
+\begin{verbatim}
 int ocb3_encrypt_authenticate_memory(int cipher,
     const unsigned char *key,    unsigned long keylen,
     const unsigned char *nonce,  unsigned long noncelen,
@@ -1649,7 +1727,10 @@ int ocb3_encrypt_authenticate_memory(int cipher,
     const unsigned char *pt,     unsigned long ptlen,
           unsigned char *ct,
           unsigned char *tag,    unsigned long *taglen);
+\end{verbatim}
 
+\index{ocb3\_decrypt\_verify\_memory()}
+\begin{verbatim}
 int ocb3_decrypt_verify_memory(int cipher,
     const unsigned char *key,    unsigned long keylen,
     const unsigned char *nonce,  unsigned long noncelen,
@@ -1659,7 +1740,6 @@ int ocb3_decrypt_verify_memory(int cipher,
     const unsigned char *tag,    unsigned long taglen,
           int           *stat);
 \end{verbatim}
-\end{small}
 
 \mysection{CCM Mode}
 CCM is a NIST proposal for encrypt + authenticate that is centered around using AES (or any 16--byte cipher) as a primitive.
@@ -4673,12 +4753,12 @@ the ECC \textit{key} provided must be a private key.
 
 \index{ecc\_sign\_hash\_rfc7518()}
 \begin{verbatim}
-int ecc_sign_hash_rfc7518(const unsigned char *in,  
+int ecc_sign_hash_rfc7518(const unsigned char *in,
                                 unsigned long  inlen,
                                 unsigned char *out,
                                 unsigned long *outlen,
-                                   prng_state *prng, 
-                                          int  wprng, 
+                                   prng_state *prng,
+                                          int  wprng,
                                       ecc_key *key);
 \end{verbatim}
 
@@ -4712,7 +4792,7 @@ int ecc_verify_hash_rfc7518(const unsigned char *sig,
                                         ecc_key *key);
 \end{verbatim}
 
-This function validate the EC--DSA signature as \textit{ecc\_verify\_hash} only the signature input format 
+This function validate the EC--DSA signature as \textit{ecc\_verify\_hash} only the signature input format
 follows \url{https://tools.ietf.org/html/rfc7518#section-3.4}.
 
 \mysection{ECC Keysizes}
@@ -5850,7 +5930,7 @@ Parameters are as in \textit{hkdf\_extract()} and \textit{hkdf\_expand()}.
 
 \chapter{Miscellaneous}
 \mysection{Base64 Encoding and Decoding}
-The library provides functions to encode and decode a RFC 4648 Base64 coding scheme. 
+The library provides functions to encode and decode a RFC 4648 Base64 coding scheme.
 
 \subsection{Standard 'base64' encoding}
 The characters used in the mappings are:
@@ -6040,6 +6120,7 @@ math library.
 \begin{verbatim}
 void init_LTM(void);
 void init_TFM(void);
+void init_GMP(void);
 \end{verbatim}
 
 Here is a Python program demonstrating how to call various LTC dynamic
@@ -6227,6 +6308,8 @@ build, or run time for the application.  LibTomCrypt comes with three math descr
 libraries.
 
 \mysection{Makefile variables}
+
+XXX-TODO review
 
 All GNU driven makefiles (including the makefile for ICC) use a set of common variables to control the build and install process.  Most of the
 settings can be overwritten from the command line which makes custom installation a breeze.
