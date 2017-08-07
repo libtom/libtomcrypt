@@ -29,7 +29,7 @@
  * this and so it's treated as an error and you have to comment out the
  * following statement :)
  */
-#error EXT_MATH_LIB is required to be defined
+#error One of USE_LTM, USE_TFM, USE_GMP and EXT_MATH_LIB is required to be defined
 #endif
 #endif
 

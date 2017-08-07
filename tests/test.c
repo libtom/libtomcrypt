@@ -392,7 +392,7 @@ int main(int argc, char **argv)
          nop++;
       }
       else {
-         printf("failed %10.3fms", (double)(delta)/1000);
+         printf("failed (%s) %10.3fms", error_to_string(x), (double)(delta)/1000);
          fail++;
       }
    }
