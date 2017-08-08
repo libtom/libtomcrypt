@@ -660,7 +660,9 @@ static const struct {
 { 20, 128 },
 { 24, 192 },
 { 28, 256 },
-{ 32, 512 }
+#ifndef TFM_DESC
+{ 32, 512 },
+#endif
 };
 
    for (x = 0; x < (sizeof(groups)/sizeof(groups[0])); x++) {
