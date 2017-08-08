@@ -26,8 +26,12 @@ typedef struct {
 #define _C_STRINGIFY(s) { #s, s }
 
 static const crypt_constant _crypt_constants[] = {
+
     _C_STRINGIFY(PK_PUBLIC),
     _C_STRINGIFY(PK_PRIVATE),
+
+    {"LTC_ENCRYPT", 0},      /* good for all other xxx_ENCRYPT prefixes */
+    {"LTC_DECRYPT", 1},      /* good for all other xxx_DECRYPT prefixes */
 
     _C_STRINGIFY(PKA_RSA),
     _C_STRINGIFY(PKA_DSA),
@@ -42,6 +46,7 @@ static const crypt_constant _crypt_constants[] = {
     _C_STRINGIFY(LTC_PKCS_1_V1_5),
     _C_STRINGIFY(LTC_PKCS_1_OAEP),
     _C_STRINGIFY(LTC_PKCS_1_PSS),
+    _C_STRINGIFY(LTC_PKCS_1_V1_5_NA1),
 #else
     {"LTC_PKCS_1", 0},
 #endif
@@ -85,6 +90,31 @@ static const crypt_constant _crypt_constants[] = {
     _C_STRINGIFY(LTC_MILLER_RABIN_REPS),
 #endif
 
+#ifdef LTC_DER
+/* DER handling */
+    _C_STRINGIFY(LTC_ASN1_EOL),
+    _C_STRINGIFY(LTC_ASN1_BOOLEAN),
+    _C_STRINGIFY(LTC_ASN1_INTEGER),
+    _C_STRINGIFY(LTC_ASN1_SHORT_INTEGER),
+    _C_STRINGIFY(LTC_ASN1_BIT_STRING),
+    _C_STRINGIFY(LTC_ASN1_OCTET_STRING),
+    _C_STRINGIFY(LTC_ASN1_NULL),
+    _C_STRINGIFY(LTC_ASN1_OBJECT_IDENTIFIER),
+    _C_STRINGIFY(LTC_ASN1_IA5_STRING),
+    _C_STRINGIFY(LTC_ASN1_PRINTABLE_STRING),
+    _C_STRINGIFY(LTC_ASN1_UTF8_STRING),
+    _C_STRINGIFY(LTC_ASN1_UTCTIME),
+    _C_STRINGIFY(LTC_ASN1_CHOICE),
+    _C_STRINGIFY(LTC_ASN1_SEQUENCE),
+    _C_STRINGIFY(LTC_ASN1_SET),
+    _C_STRINGIFY(LTC_ASN1_SETOF),
+    _C_STRINGIFY(LTC_ASN1_RAW_BIT_STRING),
+    _C_STRINGIFY(LTC_ASN1_TELETEX_STRING),
+    _C_STRINGIFY(LTC_ASN1_CONSTRUCTED),
+    _C_STRINGIFY(LTC_ASN1_CONTEXT_SPECIFIC),
+    _C_STRINGIFY(LTC_ASN1_GENERALIZEDTIME),
+#endif
+
 #ifdef LTC_CTR_MODE
     {"LTC_CTR_MODE", 1},
     _C_STRINGIFY(CTR_COUNTER_LITTLE_ENDIAN),
@@ -93,6 +123,14 @@ static const crypt_constant _crypt_constants[] = {
 #else
     {"LTC_CTR_MODE", 0},
 #endif
+#ifdef LTC_GCM_MODE
+    _C_STRINGIFY(LTC_GCM_MODE_IV),
+    _C_STRINGIFY(LTC_GCM_MODE_AAD),
+    _C_STRINGIFY(LTC_GCM_MODE_TEXT),
+#endif
+
+    _C_STRINGIFY(LTC_MP_NO),
+    _C_STRINGIFY(LTC_MP_YES),
 
     _C_STRINGIFY(MAXBLOCKSIZE),
     _C_STRINGIFY(TAB_SIZE),
