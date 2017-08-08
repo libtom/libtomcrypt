@@ -227,7 +227,6 @@ static const crypt_size _crypt_sizes[] = {
     _SZ_STRINGIFY_T(dsa_key),
 #endif
 #ifdef LTC_MDH
-    _SZ_STRINGIFY_T(ltc_dh_set_type),
     _SZ_STRINGIFY_T(dh_key),
 #endif
 #ifdef LTC_MECC
