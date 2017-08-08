@@ -238,9 +238,6 @@ static const crypt_size _crypt_sizes[] = {
 #ifdef LTC_MKAT
     _SZ_STRINGIFY_T(katja_key),
 #endif
-#ifdef LTC_SOURCE
-    _SZ_STRINGIFY_T(oid_st),
-#endif
 
     /* DER handling */
 #ifdef LTC_DER
