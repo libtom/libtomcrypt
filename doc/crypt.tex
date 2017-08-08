@@ -1657,12 +1657,16 @@ appropriately to \textit{1} if the tag matches or to \textit{0} if it doesn't ma
 \begin{verbatim}
 int ocb3_init(ocb3_state *ocb, int cipher,
              const unsigned char *key, unsigned long keylen,
-             const unsigned char *nonce, unsigned long noncelen);
+             const unsigned char *nonce, unsigned long noncelen,
+             unsigned long taglen);
 \end{verbatim}
 
 This will initialize the \textit{ocb} context using cipher descriptor \textit{cipher}.  It will use a \textit{key} of length \textit{keylen}
-and the random \textit{nonce} of length \textit{noncelen}.  Note that \textit{nonce} must be a random (public) string of an arbitrary length
-between 1 and 15 octets.
+and the random \textit{nonce} of length \textit{noncelen}.  The \textit{nonce} must be a random (public) string of an arbitrary length
+between 1 and 15 octets.  The desired length of the TAG that should be created when terminating the state has to be passed in \textit{taglen}
+and has to be between 0 and 16 octets.
+
+Note that you can only use ciphers with a block length of 16.
 
 \subsubsection{Additional Authenticated Data}
 
@@ -1697,12 +1701,19 @@ states (with different nonces).  Also \textit{pt} and \textit{ct} may point to t
 
 \index{ocb3\_encrypt\_last()} \index{ocb3\_decrypt\_last()}
 \begin{verbatim}
-int ocb3_encrypt_last(ocb3_state *ocb, const unsigned char *pt, unsigned long ptlen, unsigned char *ct);
+int ocb3_encrypt_last(         ocb3_state *ocb,
+                      const unsigned char *pt,
+                            unsigned long ptlen,
+                            unsigned char *ct);
 
-int ocb3_decrypt_last(ocb3_state *ocb, const unsigned char *ct, unsigned long ctlen, unsigned char *pt);
+int ocb3_decrypt_last(         ocb3_state *ocb,
+                      const unsigned char *ct,
+                            unsigned long ctlen,
+                            unsigned char *pt);
 \end{verbatim}
 
-XXX-TODO
+This has to be called for the last encrypt (or decrypt) operation. Note that if you have to invoke only a single operation you can
+directly use these functions instead of \textit{ocb3\_encrypt()} or \textit{ocb3\_decrypt()}.
 
 When you are finished encrypting the message you call the following function to compute the tag.
 
@@ -1713,7 +1724,7 @@ int ocb3_done(ocb3_state *ocb, unsigned char *tag, unsigned long *taglen);
 
 This stores the tag of the \textit{ocb} state in \textit{tag}.
 The \textit{taglen} parameter defines on input the length of the tag to output and will be set to the actual length written, which
-is at most the block length of the cipher in use.
+is at most 16 octets.
 
 \subsubsection{Packet Functions}
 To make life simpler the following two functions are provided for memory bound OCB3.
@@ -1729,6 +1740,11 @@ int ocb3_encrypt_authenticate_memory(int cipher,
           unsigned char *tag,    unsigned long *taglen);
 \end{verbatim}
 
+This will OCB3 encrypt the message \textit{pt} of length \textit{ptlen}, and store the ciphertext in \textit{ct}.  The length \textit{ptlen}
+can be any arbitrary length.  The additional authenticated data \textit{adata} of length \textit{adatalen} is optional and can be left out
+by passing \textit{NULL} as \textit{adata}. The length of the authentication TAG will be stored in \textit{tag}, which is also optional.
+The length of the TAG passed in \textit{taglen} has to be between 0 and 16.
+
 \index{ocb3\_decrypt\_verify\_memory()}
 \begin{verbatim}
 int ocb3_decrypt_verify_memory(int cipher,
@@ -1740,6 +1756,9 @@ int ocb3_decrypt_verify_memory(int cipher,
     const unsigned char *tag,    unsigned long taglen,
           int           *stat);
 \end{verbatim}
+
+Similarly, this will OCB3 decrypt, and compare the internally computed tag against the tag provided. \textit{res} is set
+appropriately to \textit{1} if the tag matches or to \textit{0} if it doesn't match.
 
 \mysection{CCM Mode}
 CCM is a NIST proposal for encrypt + authenticate that is centered around using AES (or any 16--byte cipher) as a primitive.
