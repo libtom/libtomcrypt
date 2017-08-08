@@ -1246,15 +1246,15 @@ Stream ciphers are symmetric key ciphers which operate on a stream of bytes (in 
 however LibTomCrypt's implementation works with bytes).
 
 The API for all stream ciphers operates in mode: \textit{setup} -- \textit{crypt} -- \textit{crypt} -- ... -- \textit{done}.
-Please note that both encryption and decryption is implemented via \textit{crypt}.
+Please note that both encryption and decryption are implemented via \textit{crypt}.
 
-Another useful feature of stream ciphers API is generation of random stream of bytes which works like:
+Another useful feature of the stream ciphers API is generation of a random stream of bytes which works like:
 \textit{setup} -- \textit{keystream} -- \textit{keystream} -- ... -- \textit{done}. The random stream generation is
-implemented like encryption of a stream o zero bytes.
+implemented like encryption of a stream of \textit{0x00} bytes.
 
 \mysection{ChaCha}
 
-The \textit{ChaCha} is currently the most modern stream cipher included in LibTomCrypt, so use this one unless you
+\textit{ChaCha} is currently the most modern stream cipher included in LibTomCrypt, so use this one unless you
 have a reason for using some of the older algorithms.
 
 For more information about ChaCha see \url{https://en.wikipedia.org/wiki/ChaCha_(cipher)}.
@@ -1275,20 +1275,21 @@ err = chacha_setup(&st, key, key_len, rounds);
 err = chacha_ivctr64(&st, nonce, 8, initial_64bit_ctr);
 \end{verbatim}
 
-The \textit{chacha\_setup} takes as a parameter the number of rounds -- choose 20 if you are not sure.
-As always never ever used the same key + nonce pair more than once.
+The \textit{chacha\_setup} takes the number of rounds as a parameter -- choose 20 if you are not sure.
+As always never ever use the same key + nonce pair more than once.
 
-For the actual encryption or decryption you to call:
+For the actual encryption or decryption you have to call:
 \begin{verbatim}
 err = chacha_crypt(&st, in_buffer, in_len, out_buffer);
 \end{verbatim}
 
-If you just want a random stream of bytes initialize the cipher with truly random \textit{key} (32 bytes),
-truly random \textit{nonce} (8 bytes) and zero initial counter. After that you can get a stream of pseudo--random
+If you just want a random stream of bytes initialize the cipher with a truly random \textit{key} (32 bytes),
+a truly random \textit{nonce} (8 bytes) and zero initial counter. After that you can get a stream of pseudo--random
 bytes via:
 \begin{verbatim}
 err = chacha_keystream(&st, out_buffer, out_len);
 \end{verbatim}
+Note that it's probably a better idea to use the PRNG interface for this purpose as that one allows re-seeding.
 
 At the end you have to terminate the state:
 \begin{verbatim}
@@ -1301,13 +1302,13 @@ For more information about RC4 see \url{https://en.wikipedia.org/wiki/RC4}.
 
 Supported key size: 5--256 bytes
 
-You need to initialize RC with a \textit{key} (no \textit{nonce}, no \textit{IV}, no \textit{counter}).
+You need to initialize RC4 only with a \textit{key}.
 \begin{verbatim}
 rc4_state st;
 err = rc4_stream_setup(&st, key, key_len);
 \end{verbatim}
 
-For the actual encryption or decryption you to call:
+For the actual encryption or decryption you have to call:
 \begin{verbatim}
 err = rc4_stream_crypt(&st, in_buffer, in_len, out_buffer);
 \end{verbatim}
@@ -1318,6 +1319,7 @@ After that you can get a stream of pseudo--random bytes via:
 \begin{verbatim}
 err = rc4_stream_keystream(&st, out_buffer, out_len);
 \end{verbatim}
+Note that it's probably a better idea to use the PRNG interface for this purpose as that one allows re-seeding.
 
 At the end you have to terminate the state:
 \begin{verbatim}
@@ -1345,6 +1347,7 @@ and a truly random \textit{nonce}. After that you can get a stream of pseudo--ra
 \begin{verbatim}
 err = sober128_stream_keystream(&st, out_buffer, out_len);
 \end{verbatim}
+Note that it's probably a better idea to use the PRNG interface for this purpose as that one allows re-seeding.
 
 At the end you have to terminate the state:
 \begin{verbatim}
