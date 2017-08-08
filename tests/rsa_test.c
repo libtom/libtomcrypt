@@ -8,7 +8,7 @@
  */
 #include <tomcrypt_test.h>
 
-#ifdef LTC_MRSA
+#if defined(LTC_MRSA) && defined(LTC_TEST_MPI)
 
 #define RSA_MSGSIZE 78
 

@@ -11,7 +11,7 @@
 #include <gmp.h>
 #endif
 
-#ifndef LTC_DER
+#if !defined(LTC_DER) || !defined(LTC_TEST_MPI)
 
 int der_test(void)
 {

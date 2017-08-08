@@ -8,7 +8,7 @@
  */
 #include  <tomcrypt_test.h>
 
-#ifdef LTC_MPI
+#if defined(LTC_MPI) && defined(LTC_TEST_MPI)
 static int _radix_to_bin_test(void)
 {
    /* RADIX 16 */

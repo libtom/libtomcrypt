@@ -8,7 +8,7 @@
  */
 #include <tomcrypt_test.h>
 
-#ifdef LTC_MECC
+#if defined(LTC_MECC) && defined(LTC_TEST_MPI)
 
 static unsigned int sizes[] = {
 #ifdef LTC_ECC112
