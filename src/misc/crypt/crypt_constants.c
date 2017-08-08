@@ -30,8 +30,8 @@ static const crypt_constant _crypt_constants[] = {
     _C_STRINGIFY(PK_PUBLIC),
     _C_STRINGIFY(PK_PRIVATE),
 
-    {"LTC_ENCRYPT", 0},      /* good for all other xxx_ENCRYPT prefixes */
-    {"LTC_DECRYPT", 1},      /* good for all other xxx_DECRYPT prefixes */
+    _C_STRINGIFY(LTC_ENCRYPT),
+    _C_STRINGIFY(LTC_DECRYPT),
 
     _C_STRINGIFY(PKA_RSA),
     _C_STRINGIFY(PKA_DSA),
