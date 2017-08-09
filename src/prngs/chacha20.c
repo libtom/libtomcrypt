@@ -31,7 +31,7 @@ const struct ltc_prng_descriptor chacha20_prng_desc =
 
 /**
   Start the PRNG
-  @param prng[out] The PRNG state to initialize
+  @param prng The PRNG state to initialize
   @return CRYPT_OK if successful
 */
 int chacha20_prng_start(prng_state *prng)

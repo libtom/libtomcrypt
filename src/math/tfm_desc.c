@@ -538,7 +538,7 @@ static int tfm_ecc_projective_dbl_point(ecc_point *P, ecc_point *R, void *modulu
    @param Q        The point to add
    @param R        [out] The destination of the double
    @param modulus  The modulus of the field the ECC curve is in
-   @param mp       The "b" value from montgomery_setup()
+   @param Mp       The "b" value from montgomery_setup()
    @return CRYPT_OK on success
 */
 static int tfm_ecc_projective_add_point(ecc_point *P, ecc_point *Q, ecc_point *R, void *modulus, void *Mp)

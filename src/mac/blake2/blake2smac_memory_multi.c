@@ -16,8 +16,8 @@
    BLAKE2S MAC multiple blocks of memory to produce the authentication tag
    @param key       The secret key
    @param keylen    The length of the secret key (octets)
-   @param out       [out] Destination of the authentication tag
-   @param outlen    [in/out] Max size and resulting size of authentication tag
+   @param mac       [out] Destination of the authentication tag
+   @param maclen    [in/out] Max size and resulting size of authentication tag
    @param in        The data to BLAKE2S MAC
    @param inlen     The length of the data to BLAKE2S MAC (octets)
    @param ...       tuples of (data,len) pairs to BLAKE2S MAC, terminated with a (NULL,x) (x=don't care)

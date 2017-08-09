@@ -9,7 +9,7 @@
 #include "tomcrypt.h"
 
 /**
- @file sober128.c
+ @file stream/sober128/sober128.c
  Implementation of SOBER-128 by Tom St Denis.
  Based on s128fast.c reference code supplied by Greg Rose of QUALCOMM.
 */
@@ -203,7 +203,7 @@ int sober128_stream_setup(sober128_state *c, const unsigned char *key, unsigned 
   Set IV to the Sober128 state
   @param c       The Sober12820 state
   @param iv      The IV data to add
-  @param inlen   The length of the IV (must be 12)
+  @param ivlen   The length of the IV (must be 12)
   @return CRYPT_OK on success
  */
 int sober128_stream_setiv(sober128_state *c, const unsigned char *iv, unsigned long ivlen)

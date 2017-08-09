@@ -31,7 +31,7 @@
    @param algorithm             One out of the enum #public_key_algorithms
    @param public_key            The buffer for the public key
    @param public_key_len        [in/out] The length of the public key buffer and the written length
-   @param parameters_type       The parameters' type out of the enum #ltc_asn1_type
+   @param parameters_type       The parameters' type out of the enum ltc_asn1_type
    @param parameters            The parameters to include
    @param parameters_len        The number of parameters to include
    @return CRYPT_OK on success

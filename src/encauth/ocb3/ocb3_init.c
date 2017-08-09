@@ -15,12 +15,6 @@
 
 #ifdef LTC_OCB3_MODE
 
-/**
-   Sets 'ocb->Offset_current' to 'Offset_0' value (internal function)
-   @param ocb       The OCB state
-   @param nonce     The session nonce
-   @param noncelen  The length of the session nonce (octets)
-*/
 static void _ocb3_int_calc_offset_zero(ocb3_state *ocb, const unsigned char *nonce, unsigned long noncelen, unsigned long taglen)
 {
    int x, y, bottom;
@@ -87,7 +81,8 @@ static const struct {
    @param key       The secret key
    @param keylen    The length of the secret key (octets)
    @param nonce     The session nonce
-   @param noncelen  The length of the session nonce (octets)
+   @param noncelen  The length of the session nonce (octets, up to 15)
+   @param taglen    The length of the tag (octets, up to 16)
    @return CRYPT_OK if successful
 */
 int ocb3_init(ocb3_state *ocb, int cipher,

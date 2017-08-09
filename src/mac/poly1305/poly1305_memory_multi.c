@@ -21,8 +21,8 @@
    POLY1305 multiple blocks of memory to produce the authentication tag
    @param key       The secret key
    @param keylen    The length of the secret key (octets)
-   @param out       [out] Destination of the authentication tag
-   @param outlen    [in/out] Max size and resulting size of authentication tag
+   @param mac       [out] Destination of the authentication tag
+   @param maclen    [in/out] Max size and resulting size of authentication tag
    @param in        The data to POLY1305
    @param inlen     The length of the data to POLY1305 (octets)
    @param ...       tuples of (data,len) pairs to POLY1305, terminated with a (NULL,x) (x=don't care)
