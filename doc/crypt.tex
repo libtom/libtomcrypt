@@ -2546,9 +2546,17 @@ for all purposes you would normally use a hash for.
 
 \chapter{Checksum Functions}
 
-\mysection{CRC32 -- Cyclic redundancy check}
+\mysection{Preface}
 
-XXX-TODO see \url{https://en.wikipedia.org/wiki/Cyclic_redundancy_check}
+The API for all checksum functions operate in mode: \textit{init} -- \textit{update} -- \textit{update} -- ... -- \textit{finish}.
+
+The \textit{finish} functions allow to output a partial result if necessary.
+
+\mysection{CRC-32 -- Cyclic redundancy check}
+
+A Cyclic Redundancy Check is an error-detecting code, where LibTomCrypt implements CRC-32 with the polynomial \textit{0x04C11DB7}.
+
+For further information see \url{https://en.wikipedia.org/wiki/Cyclic_redundancy_check}
 
 \begin{verbatim}
 void crc32_init(crc32_state *ctx);
@@ -2556,9 +2564,11 @@ void crc32_update(crc32_state *ctx, const unsigned char *input, unsigned long le
 void crc32_finish(crc32_state *ctx, void *hash, unsigned long size);
 \end{verbatim}
 
-\mysection{Adler32}
+\mysection{Adler-32}
 
-XXX-TODO see \url{https://en.wikipedia.org/wiki/Adler-32}
+Adler-32 is a checksum algorithm.
+
+For further information see \url{https://en.wikipedia.org/wiki/Adler-32}.
 
 \begin{verbatim}
 void adler32_init(adler32_state *ctx);
@@ -5763,8 +5773,17 @@ At this point, we are pointing to the last node of the list.  Lists are terminat
 can walk up and down the nodes without keeping pointers lying around.
 
 
+\subsubsection{Shrink'ing a Flexi List}
+While decoding the flexi decoder will recursively decode an ASN.1 \textit{constructed} type it will store the decoded list
+as well as the plain data that was decoded.
+To free up this additional data a shrink function is provided.
 
+\index{der\_sequence\_shrink()}
+\begin{verbatim}
+void der_sequence_shrink(ltc_asn1_list *in);
+\end{verbatim}
 
+This will free all the plain constructed data, but keep the decoded list intact.
 
 \subsubsection{Free'ing a Flexi List}
 To free the list use the following function.
@@ -6083,6 +6102,28 @@ int rand_bn_upto(       void *N,
 \end{verbatim}
 
 This ensures that \textit{N} is set to a random MPI in the range $1 \le N < limit$.
+
+
+\mysection{Helper functions}
+
+\subsection{Zero'ing data}
+
+XXX-TODO
+
+\index{zeromem()}
+\begin{verbatim}
+void zeromem(volatile void *out, size_t outlen);
+\end{verbatim}
+
+\subsection{Constant-time memory compare}
+
+XXX-TODO
+
+\index{mem\_neq()}
+\begin{verbatim}
+int mem_neq(const void *a, const void *b, size_t len);
+\end{verbatim}
+
 
 \mysection{Dynamic Language Support}
 \index{Dynamic Language Support}
