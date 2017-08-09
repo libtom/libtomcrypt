@@ -18,6 +18,16 @@ Patch integration will be faster if tests and documentation are included.
 
 Please update the makefiles in a separate commit. To update them simply run the `updatemakes.sh` script.
 
+If you have something bigger to submit, feel free to contact us beforehand.
+Then we can give you write access to this repo, so you can open your PR based on this repo
+and we can easier follow the rebase-before-merge approach we're using (or even do the rebase ourself).
+
+### Reviews
+
+We're using Pull Request reviews to make sure that the code is in line with the existing code base.
+
+Please have a look [here](https://help.github.com/articles/approving-a-pull-request-with-required-reviews/) to get an idea of the approach.
+
 ## Branches
 
 Please be aware, that all branches besides _master_ and _develop_ __can__ and __will be__ force-pushed, rebased and/or removed!
