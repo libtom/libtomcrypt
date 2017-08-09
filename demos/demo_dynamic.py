@@ -24,6 +24,10 @@
             CFLAGS="-DUSE_TFM -DTFM_DESC -I/usr/local/include"  \
             EXTRALIBS=/usr/local/lib/libtfm.a  install
 
+    For python 2.7.12 on Ubuntu Xenial the following worked for
+    me (without MPI support):
+        sudo make -f makefile.shared install PREFIX="/usr"
+
     Reminder: you don't need to bind in a math library unless
               you are going to use LTC functions that need a
               mathlib.  For example, public key crypto requires
