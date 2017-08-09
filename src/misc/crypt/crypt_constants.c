@@ -60,9 +60,6 @@ static const crypt_constant _crypt_constants[] = {
     _C_STRINGIFY(LTC_ENCRYPT),
     _C_STRINGIFY(LTC_DECRYPT),
 
-    _C_STRINGIFY(PKA_RSA),
-    _C_STRINGIFY(PKA_DSA),
-
 #ifdef LTC_PKCS_1
     {"LTC_PKCS_1", 1},
     /* Block types */
