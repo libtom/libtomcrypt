@@ -9,7 +9,7 @@
 #include "tomcrypt.h"
 
 /**
-  @file rc4.c
+  @file prngs/rc4.c
   RC4 PRNG, Tom St Denis
 */
 

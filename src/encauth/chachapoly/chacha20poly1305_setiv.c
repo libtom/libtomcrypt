@@ -15,7 +15,7 @@
   Set IV + counter data to the ChaCha20Poly1305 state and reset the context
   @param st     The ChaCha20Poly1305 state
   @param iv     The IV data to add
-  @param inlen  The length of the IV (must be 12 or 8)
+  @param ivlen  The length of the IV (must be 12 or 8)
   @return CRYPT_OK on success
  */
 int chacha20poly1305_setiv(chacha20poly1305_state *st, const unsigned char *iv, unsigned long ivlen)
