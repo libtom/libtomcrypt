@@ -1,7 +1,7 @@
 
 
 """
-    demo_dynamic.py                                     v2
+    demo_dynamic.py                                     v2b
 
     This program demonstrates Python's use of the dynamic
     language support additions to LTC, namely access to LTC
@@ -33,11 +33,12 @@
               mathlib.  For example, public key crypto requires
               a mathlib; hashing and symmetric encryption do not.
 
-    This code was written for Python 2.7.
+    This code was written for Python 2.7 with the ctypes standard
+    library.
 
     Larry Bugbee
     March 2014      v1
-    August 2017     v2
+    August 2017     v2b
 
 """
 
@@ -195,6 +196,13 @@ def _get_constant(name):
         raise Exception('LTC.crypt_get_constant(%s) rc = %d' % (name, rc))
     return constant.value
 
+def _err2str(err):
+    # define return type
+    errstr = LTC.error_to_string
+    errstr.restype = c_char_p
+    # get and return err string
+    return errstr(err)
+
 CRYPT_OK = _get_constant('CRYPT_OK')
 
 class SHA256(object):
@@ -213,15 +221,17 @@ class ChaCha(object):
         self.state   = c_buffer(_get_size('chacha_state'))
         self.counter = c_int(1)
         err = LTC.chacha_setup(byref(self.state), key, len(key), rounds)
+        if err != CRYPT_OK:
+            raise Exception('LTC.chacha_setup(), err = %d, "%s"' % (err, _err2str(err)))
     def set_iv32(self, iv):
         err = LTC.chacha_ivctr32(byref(self.state), iv, len(iv), byref(self.counter))
         if err != CRYPT_OK:
-            raise Exception('LTC.chacha_ivctr32() err = %d' % err)
+            raise Exception('LTC.chacha_ivctr32(), err = %d, "%s"' % (err, _err2str(err)))
     def crypt(self, datain):
         dataout = c_buffer(len(datain))
         err = LTC.chacha_crypt(byref(self.state), datain, len(datain), byref(dataout))
         if err != CRYPT_OK:
-            raise Exception('LTC.chacha_crypt() err = %d' % err)
+            raise Exception('LTC.chacha_crypt(), err = %d, "%s"' % (err, _err2str(err)))
         return dataout.raw
 
 # - - - - - - - - - - - - -
@@ -254,8 +264,15 @@ if SHOW_CHACHA_EXAMPLE:
     cha.set_iv32(iv)
     cipher = cha.crypt(plain)
 
-    template = '\n  ChaCha%d ciphertext for "%s" is "%s" \n'
+    template = '\n  ChaCha%d ciphertext   for "%s" is "%s"'
     print template % (rounds, plain, cipher.encode('hex'))
+    
+    # reset to decrypt
+    cha.set_iv32(iv)
+    decrypted = cha.crypt(cipher)
+
+    template = '  ChaCha%d decoded text for "%s" is "%s" \n'
+    print template % (rounds, plain, decrypted)
 
 
 
