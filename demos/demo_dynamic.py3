@@ -1,7 +1,7 @@
 
 
 """
-    demo_dynamic.py                                     v2b
+    demo_dynamic.py3                                    v2b
 
     This program demonstrates Python's use of the dynamic
     language support additions to LTC, namely access to LTC
@@ -33,8 +33,34 @@
               mathlib.  For example, public key crypto requires
               a mathlib; hashing and symmetric encryption do not.
 
-    This code was written for Python 2.7 with the ctypes standard
-    library.
+    ------
+    
+    This code was originally written for Python 2.7 with the
+    ctypes standard library.  This version was modified so that
+    it would run under both Python 2.7 and 3.6.  You might want
+    to run a diff on the .py and .py3 files to see the differences
+    between the two languages.    
+    
+    Arguably the biggest change for Python3 has to do with
+    strings.  Under Python2, native strings are ASCII bytes and
+    passing them to LTC is natural and requires no conversion.
+    Under Python3 all native strings are Unicode which requires 
+    they be converted to bytes before use by LTC.
+
+    Note the following for Python3.
+        - ASCII keys, IVs and other string arguments must be
+          'bytes'.  Define them with a 'b' prefix or convert
+          via the 'bytes()' function.
+        - "strings" returned from LTC are bytes and conversion
+          to Unicode might be necessary for proper printing.
+          If so, use <string>.decode('utf-8').
+        - The Python2 'print' statement becomes a function in
+          Python3 which requires parenthesis, eg. 'print()'.
+        
+    NB: Unicode is achieved under Python2 by either defining
+        a Unicode string with a 'u' prefix or passing ASCII
+        strings thru the 'unicode()' function.
+    
 
     Larry Bugbee
     March 2014      v1
@@ -43,6 +69,7 @@
 """
 
 
+import sys
 from ctypes import *
 from ctypes.util import find_library
 
@@ -55,21 +82,25 @@ SHOW_BUILD_OPTIONS_ALGS = True
 SHOW_SHA256_EXAMPLE     = True
 SHOW_CHACHA_EXAMPLE     = True
 
-print
+print(' ')
 print('  demo_dynamic.py')
 
+def inprint(s, indent=0):
+    "prints strings indented, including multline strings"
+    for line in s.split('\n'):
+        print(' '*indent + line)
 
 #-------------------------------------------------------------------------------
 # load the .dylib
 
 libname = 'tomcrypt'
 libpath = find_library(libname)
-print
+print(' ')
 print('  path to library %s: %s' % (libname, libpath))
 
 LTC = cdll.LoadLibrary(libpath)
 print('  loaded: %s' % LTC)
-print
+print(' ')
 
 
 #-------------------------------------------------------------------------------
@@ -78,37 +109,37 @@ print
 # and used as needed.
 
 if SHOW_ALL_CONSTANTS:
-    print '-'*60
-    print '  all supported constants and their values:'
+    print('-'*60)
+    print('  all supported constants and their values:')
 
     # get size to allocate for constants output list
     str_len = c_int(0)
     ret = LTC.crypt_list_all_constants(None, byref(str_len))
-    print '    need to allocate %d bytes to build list \n' % str_len.value
+    print('    need to allocate %d bytes to build list \n' % str_len.value)
 
     # allocate that size and get (name, size) pairs, each pair
     # separated by a newline char.
     names_sizes = c_buffer(str_len.value)
     ret = LTC.crypt_list_all_constants(names_sizes, byref(str_len))
-    print names_sizes.value
-    print
+    print(names_sizes.value.decode("utf-8"))
+    print(' ')
 
 
 if SHOW_ALL_SIZES:
-    print '-'*60
-    print '  all supported sizes:'
+    print('-'*60)
+    print('  all supported sizes:')
 
     # get size to allocate for sizes output list
     str_len = c_int(0)
     ret = LTC.crypt_list_all_sizes(None, byref(str_len))
-    print '    need to allocate %d bytes to build list \n' % str_len.value
+    print('    need to allocate %d bytes to build list \n' % str_len.value)
 
     # allocate that size and get (name, size) pairs, each pair
     # separated by a newline char.
     names_sizes = c_buffer(str_len.value)
     ret = LTC.crypt_list_all_sizes(names_sizes, byref(str_len))
-    print names_sizes.value
-    print
+    print(names_sizes.value.decode("utf-8"))
+    print(' ')
 
 
 #-------------------------------------------------------------------------------
@@ -116,43 +147,43 @@ if SHOW_ALL_SIZES:
 
 # print selected constants
 if SHOW_SELECTED_CONSTANTS:
-    print '-'*60
-    print '\n  selected constants:'
+    print('-'*60)
+    print('\n  selected constants:')
 
     names = [
-        'ENDIAN_LITTLE',
-        'ENDIAN_64BITWORD',
-        'PK_PUBLIC',
-        'MAX_RSA_SIZE',
-        'CTR_COUNTER_BIG_ENDIAN',
+        b'ENDIAN_LITTLE',
+        b'ENDIAN_64BITWORD',
+        b'PK_PUBLIC',
+        b'MAX_RSA_SIZE',
+        b'CTR_COUNTER_BIG_ENDIAN',
     ]
     for name in names:
         const_value = c_int(0)
         rc = LTC.crypt_get_constant(name, byref(const_value))
         value = const_value.value
-        print '    %-25s  %d' % (name, value)
-    print
+        print('    %-25s  %d' % (name.decode("utf-8"), value))
+    print(' ')
 
 # print selected sizes
 if SHOW_SELECTED_SIZES:
-    print '-'*60
-    print '\n  selected sizes:'
+    print('-'*60)
+    print('\n  selected sizes:')
 
     names = [
-        'rijndael_key',
-        'rsa_key',
-        'symmetric_CTR',
-        'twofish_key',
-        'ecc_point',
-        'gcm_state',
-        'sha512_state',
+        b'rijndael_key',
+        b'rsa_key',
+        b'symmetric_CTR',
+        b'twofish_key',
+        b'ecc_point',
+        b'gcm_state',
+        b'sha512_state',
     ]
     for name in names:
         size_value = c_int(0)
         rc = LTC.crypt_get_size(name, byref(size_value))
         value = size_value.value
-        print '    %-25s  %d' % (name, value)
-    print
+        print('    %-25s  %d' % (name.decode("utf-8"), value))
+    print(' ')
 
 
 #-------------------------------------------------------------------------------
@@ -165,13 +196,14 @@ if SHOW_SELECTED_SIZES:
 #   nm /usr/local/lib/libtomcrypt.dylib | grep " D "
 
 def get_named_string(lib, name):
-    return c_char_p.in_dll(lib, name).value
+    return c_char_p.in_dll(lib, name).value.decode("utf-8")
 
 if SHOW_BUILD_OPTIONS_ALGS:
-    print '-'*60
-    print 'This is a string compiled into LTC showing compile '
-    print 'options and algorithms supported by this build \n'
-    print get_named_string(LTC, 'crypt_build_settings')
+    print('-'*60)
+    print('This is a string compiled into LTC showing compile')
+    print('options and algorithms supported by this build \n')
+#    print(get_named_string(LTC, 'crypt_build_settings'))
+    inprint(get_named_string(LTC, 'crypt_build_settings'), 4)
 
 
 #-------------------------------------------------------------------------------
@@ -182,19 +214,7 @@ if SHOW_BUILD_OPTIONS_ALGS:
 # - - - - - - - - - - - - -
 # definitions
 
-def _get_size(name):
-    size = c_int(0)
-    rc = LTC.crypt_get_size(name, byref(size))
-    if rc != 0:
-        raise Exception('LTC.crypt_get_size(%s) rc = %d' % (name, rc))
-    return size.value
-
-def _get_constant(name):
-    constant = c_int(0)
-    rc = LTC.crypt_get_constant(name, byref(constant))
-    if rc != 0:
-        raise Exception('LTC.crypt_get_constant(%s) rc = %d' % (name, rc))
-    return constant.value
+from binascii import hexlify, unhexlify
 
 def _err2str(err):
     # define return type
@@ -203,11 +223,25 @@ def _err2str(err):
     # get and return err string
     return errstr(err)
 
-CRYPT_OK = _get_constant('CRYPT_OK')
+def _get_size(name):
+    size = c_int(0)
+    rc = LTC.crypt_get_size(bytes(name), byref(size))
+    if rc != 0:
+        raise Exception('LTC.crypt_get_size(%s) rc = %d' % (name, rc))
+    return size.value
+
+def _get_constant(name):
+    constant = c_int(0)
+    rc = LTC.crypt_get_constant(bytes(name), byref(constant))
+    if rc != 0:
+        raise Exception('LTC.crypt_get_constant(%s) rc = %d' % (name, rc))
+    return constant.value
+
+CRYPT_OK = _get_constant(b'CRYPT_OK')
 
 class SHA256(object):
     def __init__(self):
-        self.state = c_buffer(_get_size('sha256_state'))
+        self.state = c_buffer(_get_size(b'sha256_state'))
         LTC.sha256_init(byref(self.state))
     def update(self, data):
         LTC.sha256_process(byref(self.state), data, len(data))
@@ -218,7 +252,7 @@ class SHA256(object):
 
 class ChaCha(object):
     def __init__(self, key, rounds):
-        self.state   = c_buffer(_get_size('chacha_state'))
+        self.state   = c_buffer(_get_size(b'chacha_state'))
         self.counter = c_int(1)
         err = LTC.chacha_setup(byref(self.state), key, len(key), rounds)
         if err != CRYPT_OK:
@@ -237,42 +271,39 @@ class ChaCha(object):
 # - - - - - - - - - - - - -
 # a SHA256 app fragment
 
-# from wrapper import *         # uncomment in real life
-
 if SHOW_SHA256_EXAMPLE:
-    print '-'*60
-    data = 'hello world'
+    print('-'*60)
+    data = b'hello world'               # we want bytes, not Unicode
 
     sha256 = SHA256()
     sha256.update(data)
     md = sha256.digest()
 
     template = '\n  the SHA256 digest for "%s" is %s \n'
-    print template % (data, md.encode('hex'))
+    print(template % (data, hexlify(md)))
 
 # - - - - - - - - - - - - -
 # a ChaCha app fragment
 
 if SHOW_CHACHA_EXAMPLE:
-    print '-'*60
-    key     = 'hownowbrowncow\x00\x00'  # exactly 16 or 32 bytes
+    print('-'*60)
+    key     = b'hownowbrowncow\x00\x00' # exactly 16 or 32 bytes
     rounds  = 12                        # common values: 8, 12, 20
-    iv      = '123456789012'            # exactly 12 bytes
-    plain   = 'Kilroy was here, there, and everywhere!'
+    iv      = b'123456789012'           # exactly 12 bytes
+    plain   = b'Kilroy was here, there, and everywhere!'
 
     cha = ChaCha(key, rounds)
     cha.set_iv32(iv)
     cipher = cha.crypt(plain)
 
     template = '\n  ChaCha%d ciphertext   for "%s" is "%s"'
-    print template % (rounds, plain, cipher.encode('hex'))
+    print(template % (rounds, plain, hexlify(cipher)))
 
-    # reset to decrypt
-    cha.set_iv32(iv)
+    cha.set_iv32(iv)                    # reset to decrypt
     decrypted = cha.crypt(cipher)
 
     template = '  ChaCha%d decoded text for "%s" is "%s" \n'
-    print template % (rounds, plain, decrypted)
+    print(template % (rounds, plain, decrypted.decode("utf-8")))
 
 # Footnote: Keys should be erased fm memory as soon as possible after use,
 # and that includes Python.  For a tip on how to do that in Python, see

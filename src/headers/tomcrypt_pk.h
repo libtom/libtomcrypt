@@ -199,13 +199,6 @@ int katja_import(const unsigned char *in, unsigned long inlen, katja_key *key);
 #ifdef LTC_MDH
 
 typedef struct {
-  int size;
-  char *name, *base, *prime;
-} ltc_dh_set_type;
-
-extern const ltc_dh_set_type ltc_dh_sets[];
-
-typedef struct {
     int type;
     void *x;
     void *y;
@@ -235,6 +228,13 @@ void dh_free(dh_key *key);
 int dh_export_key(void *out, unsigned long *outlen, int type, dh_key *key);
 
 #ifdef LTC_SOURCE
+typedef struct {
+  int size;
+  char *name, *base, *prime;
+} ltc_dh_set_type;
+
+extern const ltc_dh_set_type ltc_dh_sets[];
+
 /* internal helper functions */
 int dh_check_pubkey(dh_key *key);
 #endif

@@ -64,6 +64,11 @@ LTC_EXPORT int   LTC_CALL XSTRCMP(const char *s1, const char *s2);
    #define ARGTYPE  0
 #endif
 
+#undef LTC_ENCRYPT
+#define LTC_ENCRYPT 0
+#undef LTC_DECRYPT
+#define LTC_DECRYPT 1
+
 /* Controls endianess and size of registers.  Leave uncommented to get platform neutral [slower] code
  *
  * Note: in order to use the optimized macros your platform must support unaligned 32 and 64 bit read/writes.

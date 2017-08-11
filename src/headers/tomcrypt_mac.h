@@ -311,8 +311,8 @@ void ocb3_int_xor_blocks(unsigned char *out, const unsigned char *block_a, const
 
 #ifdef LTC_CCM_MODE
 
-#define CCM_ENCRYPT 0
-#define CCM_DECRYPT 1
+#define CCM_ENCRYPT LTC_ENCRYPT
+#define CCM_DECRYPT LTC_DECRYPT
 
 typedef struct {
    symmetric_key       K;
@@ -378,8 +378,8 @@ extern const unsigned char gcm_shift_table[];
 
 #ifdef LTC_GCM_MODE
 
-#define GCM_ENCRYPT 0
-#define GCM_DECRYPT 1
+#define GCM_ENCRYPT LTC_ENCRYPT
+#define GCM_DECRYPT LTC_DECRYPT
 
 #define LTC_GCM_MODE_IV    0
 #define LTC_GCM_MODE_AAD   1
@@ -542,8 +542,8 @@ typedef struct {
    int aadflg;
 } chacha20poly1305_state;
 
-#define CHCHA20POLY1305_ENCRYPT 0
-#define CHCHA20POLY1305_DECRYPT 1
+#define CHCHA20POLY1305_ENCRYPT LTC_ENCRYPT
+#define CHCHA20POLY1305_DECRYPT LTC_DECRYPT
 
 int chacha20poly1305_init(chacha20poly1305_state *st, const unsigned char *key, unsigned long keylen);
 int chacha20poly1305_setiv(chacha20poly1305_state *st, const unsigned char *iv, unsigned long ivlen);

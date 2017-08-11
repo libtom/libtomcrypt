@@ -875,8 +875,8 @@ int ctr_test(void);
 
 #ifdef LTC_LRW_MODE
 
-#define LRW_ENCRYPT 0
-#define LRW_DECRYPT 1
+#define LRW_ENCRYPT LTC_ENCRYPT
+#define LRW_DECRYPT LTC_DECRYPT
 
 int lrw_start(               int   cipher,
               const unsigned char *IV,
