@@ -298,7 +298,7 @@ if SHOW_CHACHA_EXAMPLE:
 
     template = '\n  ChaCha%d ciphertext   for "%s" is "%s"'
     print(template % (rounds, plain, hexlify(cipher)))
-    
+
     cha.set_iv32(iv)                    # reset to decrypt
     decrypted = cha.crypt(cipher)
 
