@@ -58,7 +58,8 @@ SHOW_CHACHA_EXAMPLE     = True
 print
 print('  demo_dynamic.py')
 
-#---------------------------------------------------------------
+
+#-------------------------------------------------------------------------------
 # load the .dylib
 
 libname = 'tomcrypt'
@@ -71,8 +72,7 @@ print('  loaded: %s' % LTC)
 print
 
 
-
-#---------------------------------------------------------------
+#-------------------------------------------------------------------------------
 # get list of all supported constants followed by a list of all
 # supported sizes.  One alternative: these lists may be parsed
 # and used as needed.
@@ -84,7 +84,7 @@ if SHOW_ALL_CONSTANTS:
     # get size to allocate for constants output list
     str_len = c_int(0)
     ret = LTC.crypt_list_all_constants(None, byref(str_len))
-    print '    need to allocate %d bytes \n' % str_len.value
+    print '    need to allocate %d bytes to build list \n' % str_len.value
 
     # allocate that size and get (name, size) pairs, each pair
     # separated by a newline char.
@@ -101,7 +101,7 @@ if SHOW_ALL_SIZES:
     # get size to allocate for sizes output list
     str_len = c_int(0)
     ret = LTC.crypt_list_all_sizes(None, byref(str_len))
-    print '    need to allocate %d bytes \n' % str_len.value
+    print '    need to allocate %d bytes to build list \n' % str_len.value
 
     # allocate that size and get (name, size) pairs, each pair
     # separated by a newline char.
@@ -111,7 +111,7 @@ if SHOW_ALL_SIZES:
     print
 
 
-#---------------------------------------------------------------
+#-------------------------------------------------------------------------------
 # get individually named constants and sizes
 
 # print selected constants
@@ -131,6 +131,7 @@ if SHOW_SELECTED_CONSTANTS:
         rc = LTC.crypt_get_constant(name, byref(const_value))
         value = const_value.value
         print '    %-25s  %d' % (name, value)
+    print
 
 # print selected sizes
 if SHOW_SELECTED_SIZES:
@@ -151,10 +152,11 @@ if SHOW_SELECTED_SIZES:
         rc = LTC.crypt_get_size(name, byref(size_value))
         value = size_value.value
         print '    %-25s  %d' % (name, value)
+    print
 
 
-#---------------------------------------------------------------
-#---------------------------------------------------------------
+#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 # LibTomCrypt exposes one interesting string that can be accessed
 # via Python's ctypes module, "crypt_build_settings", which
 # provides a list of this build's compiler switches and supported
@@ -170,12 +172,10 @@ if SHOW_BUILD_OPTIONS_ALGS:
     print 'This is a string compiled into LTC showing compile '
     print 'options and algorithms supported by this build \n'
     print get_named_string(LTC, 'crypt_build_settings')
-    print
 
 
-
-#---------------------------------------------------------------
-#---------------------------------------------------------------
+#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 # here is an example of how Python code can be written to access
 # LTC's implementation of SHA256 and ChaCha,
 
@@ -235,7 +235,7 @@ class ChaCha(object):
         return dataout.raw
 
 # - - - - - - - - - - - - -
-# a SHA256 app fragment...
+# a SHA256 app fragment
 
 # from wrapper import *         # uncomment in real life
 
@@ -251,7 +251,7 @@ if SHOW_SHA256_EXAMPLE:
     print template % (data, md.encode('hex'))
 
 # - - - - - - - - - - - - -
-# a ChaCha app fragment...
+# a ChaCha app fragment
 
 if SHOW_CHACHA_EXAMPLE:
     print '-'*60
@@ -274,8 +274,10 @@ if SHOW_CHACHA_EXAMPLE:
     template = '  ChaCha%d decoded text for "%s" is "%s" \n'
     print template % (rounds, plain, decrypted)
 
+# Footnote: Keys should be erased fm memory as soon as possible after use,
+# and that includes Python.  For a tip on how to do that in Python, see
+# http://buggywhip.blogspot.com/2010/12/erase-keys-and-credit-card-numbers-in.html
 
-
-#---------------------------------------------------------------
-#---------------------------------------------------------------
-#---------------------------------------------------------------
+#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
