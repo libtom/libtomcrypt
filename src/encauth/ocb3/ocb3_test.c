@@ -204,7 +204,8 @@ int ocb3_test(void)
 
    int err, x, idx, res;
    unsigned long len;
-   unsigned char outct[MAXBLOCKSIZE] = { 0 }, outtag[MAXBLOCKSIZE] = { 0 };
+   unsigned char outct[MAXBLOCKSIZE]  = { 0 };
+   unsigned char outtag[MAXBLOCKSIZE] = { 0 };
    ocb3_state ocb;
 
     /* AES can be under rijndael or aes... try to find it */
