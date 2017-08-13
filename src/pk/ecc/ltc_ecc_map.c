@@ -38,7 +38,7 @@ int ltc_ecc_map(ecc_point *P, void *modulus, void *mp)
    LTC_ARGCHK(mp      != NULL);
 
    if ((err = mp_init_multi(&t1, &t2, NULL)) != CRYPT_OK) {
-      return CRYPT_MEM;
+      return err;
    }
 
    /* first map z back to normal */

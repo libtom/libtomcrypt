@@ -342,7 +342,6 @@ int gcm_test(void)
    if ((err = gcm_add_iv(&gcm, tests[0].IV, tests[0].IVlen)) != CRYPT_OK)    return err;
    /* intentionally skip gcm_add_aad + gcm_process */
    if ((err = gcm_done(&gcm, T[0], &y)) != CRYPT_OK)                         return err;
-   if (compare_testvector(out[0], 0, tests[0].C, tests[0].ptlen, "GCM CT-special", 0)) return CRYPT_FAIL_TESTVECTOR;
    if (compare_testvector(T[0], y, tests[0].T, 16, "GCM Encrypt Tag-special", 0))      return CRYPT_FAIL_TESTVECTOR;
 
    for (x = 0; x < (int)(sizeof(tests)/sizeof(tests[0])); x++) {
