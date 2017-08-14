@@ -6164,6 +6164,46 @@ int mem_neq(const void *a, const void *b, size_t len);
 This will compare the buffer \textit{a} against the buffer \textit{b} for \textit{len} bytes.
 The return value is either \textit{0} when the content of \textit{a} and \textit{b} is equal or \textit{1} when it differs.
 
+\subsection{Radix to binary conversion}
+
+All public-key cryptographic algorithms provide a way to import and/or export their key parameters in binary format.
+In order to be able to import keys stored in different formats, e.g. hexadecimal strings, the \textit{radix\_to\_bin()} function is provided.
+
+\index{radix\_to\_bin()}
+\begin{verbatim}
+int radix_to_bin(const void *in, int radix, void *out, unsigned long *len);
+\end{verbatim}
+
+This will convert the MPI \textit{in} of radix \textit{radix} to the buffer pointed to by \textit{out}.
+The field \textit{len} is a pointer to the length of the buffer on input and the length stored on output.
+
+In case you don't know the length of the buffer you can use \textit{radix\_to\_bin()} to determine the length for you.
+
+\begin{verbatim}
+#include <tomcrypt.h>
+
+int main(void)
+{
+   const char *mpi = "AABBCCDD";
+   unsigned long l = 0;
+   void* buf;
+   int ret;
+   ltc_mp = ltm_desc;
+
+   if (radix_to_bin(mpi, 16, NULL, &l) != CRYPT_BUFFER_OVERFLOW)
+      return EXIT_FAILURE;
+   buf = malloc(l);
+
+   ret = EXIT_SUCCESS;
+   if (radix_to_bin(mpi, 16, buf, &l) != CRYPT_OK)
+      ret = EXIT_FAILURE;
+
+   free(buf);
+   return ret;
+}
+\end{verbatim}
+
+
 \mysection{Dynamic Language Support}
 \index{Dynamic Language Support}
 Various LibTomCrypt functions require that their callers define a struct
