@@ -1252,6 +1252,8 @@ Another useful feature of the stream ciphers API is generation of a random strea
 \textit{setup} -- \textit{keystream} -- \textit{keystream} -- ... -- \textit{done}. The random stream generation is
 implemented like encryption of a stream of \textit{0x00} bytes.
 
+Note: You shouldn't use the keystream interface as a PRNG, as it doesn't allow to re-seed the internal state.
+
 \mysection{ChaCha}
 
 \textit{ChaCha} is currently the most modern stream cipher included in LibTomCrypt, so use this one unless you
@@ -1289,7 +1291,6 @@ bytes via:
 \begin{verbatim}
 err = chacha_keystream(&st, out_buffer, out_len);
 \end{verbatim}
-Note that it's probably a better idea to use the PRNG interface for this purpose as that one allows re-seeding.
 
 At the end you have to terminate the state:
 \begin{verbatim}
@@ -1319,7 +1320,6 @@ After that you can get a stream of pseudo--random bytes via:
 \begin{verbatim}
 err = rc4_stream_keystream(&st, out_buffer, out_len);
 \end{verbatim}
-Note that it's probably a better idea to use the PRNG interface for this purpose as that one allows re-seeding.
 
 At the end you have to terminate the state:
 \begin{verbatim}
@@ -1347,7 +1347,6 @@ and a truly random \textit{nonce}. After that you can get a stream of pseudo--ra
 \begin{verbatim}
 err = sober128_stream_keystream(&st, out_buffer, out_len);
 \end{verbatim}
-Note that it's probably a better idea to use the PRNG interface for this purpose as that one allows re-seeding.
 
 At the end you have to terminate the state:
 \begin{verbatim}
@@ -4306,7 +4305,7 @@ the library can perfrom the optimized CRT calculations on private key operations
 
 \chapter{Diffie-Hellman Key Exchange}
 
-\section{Background}
+\mysection{Background}
 
 Diffie-Hellman was the original public key system proposed.  The system is based upon the group structure
 of finite fields.  For Diffie-Hellman a prime $p$ is chosen and a ``base'' $b$ such that $b^x\mbox{ }(\mbox{mod }p)$
@@ -4332,7 +4331,7 @@ To thwart such attacks the primes and bases in the library have been designed an
  the sub-group generated is a large prime namely ${p - 1} \over 2$.  Such primes are known as ``strong primes'' and the
 smaller prime (e.g. the order of the base) are known as Sophie-Germaine primes.
 
-\section{Core Functions}
+\mysection{Core Functions}
 
 This library also provides core Diffie-Hellman functions so you can negotiate keys over insecure mediums.  The routines
 provided are relatively easy to use and only take two function calls to negotiate a shared key.  There is a structure
@@ -4353,7 +4352,7 @@ $p-1$ is equal to $2r$ where $r$ is a large prime.  The bases are chosen to gene
 leaking a bit of the key.  This means the bases generate a very large prime order group which is good to make cryptanalysis
 hard.
 
-The next two routines are for exporting/importing Diffie-Hellman keys in a binary format.  This is useful for transport
+The next two routines are for exporting/importing Diffie-Hellman keys in/from DER encoded ASN.1.  This is useful for transport
 over communication mediums.
 
 \index{dh\_export()} \index{dh\_import()}
@@ -4364,9 +4363,27 @@ int dh_export(unsigned char *out, unsigned long *outlen,
 int dh_import(const unsigned char *in, unsigned long inlen, dh_key *key);
 \end{verbatim}
 
+The ASN.1 sequence used to represent a DH key is as following:
+
+\begin{verbatim}
+DiffieHellmanKey ::= SEQUENCE {
+      version Version,
+      flags   Flags,
+      p       INTEGER, -- prime
+      g       INTEGER, -- base/group
+      n       INTEGER  -- either x when private key or y when public key }
+
+Version  ::=  INTEGER  {  v1(0)  }
+
+Flags ::= BIT STRING {
+      privateKey      (0) -- this BIT is '1' if it's a private key or '0' if it's a public key
+}
+\end{verbatim}
+
 These two functions work just like the ``rsa\_export()'' and ``rsa\_import()'' functions except these work with
-Diffie-Hellman keys. Its important to note you do not have to free the ram for a ``dh\_key'' if an import fails.  You can free a
-``dh\_key'' using:
+Diffie-Hellman keys. Its important to note you do not have to free the ram for a ``dh\_key'' if an import fails.
+
+You can free a ``dh\_key'' using:
 \begin{verbatim}
 void dh_free(dh_key *key);
 \end{verbatim}
@@ -4389,7 +4406,39 @@ int dh_get_groupsize(dh_key *key);
 \end{verbatim}
 This returns the size in bytes of the modulus chosen for that key.
 
-\subsection{Remarks on Usage}
+\mysection{Other Diffie-Hellman Functions}
+
+To be able to import Diffie-Hellman keys LibTomCrypt provides several API functions.
+\\
+
+To import the prime and group from binary format:
+\index{dh\_set\_pg()}
+\begin{verbatim}
+int dh_set_pg(const unsigned char *p, unsigned long plen,
+              const unsigned char *g, unsigned long glen,
+              dh_key *key);
+\end{verbatim}
+This sets the prime \textit{p} of length \textit{plen} and the generator/base \textit{g} of length \textit{glen} in the DH key \textit{key}.
+\\
+
+To import the prime and group from an ASN.1 encoded DHparam Sequence:
+\index{dh\_set\_pg\_dhparam()}
+\begin{verbatim}
+int dh_set_pg_dhparam(const unsigned char *dhparam, unsigned long dhparamlen, dh_key *key);
+\end{verbatim}
+This sets the parameters in \textit{dhparam} of \textit{dhparamlen} in the DH key \textit{key}.
+\\
+
+To import a private or public key from binary data:
+\index{dh\_set\_key()}
+\begin{verbatim}
+int dh_set_key(const unsigned char *in, unsigned long inlen, int type, dh_key *key);
+\end{verbatim}
+This will import, depending on \textit{type} which can be either \textit{PK\_PRIVATE} or \textit{PK\_PUBLIC},
+the according part of the DH key \textit{key} from \textit{in} of length \textit{inlen}.
+After import the key will be verified and in case of an error it will be free'd.
+
+\mysection{Remarks on Usage}
 Its important that you hash the shared key before trying to use it as a key for a symmetric cipher or something.  An
 example program that communicates over sockets, using MD5 and 1024-bit DH keys is\footnote{This function is a small example.  It is suggested that proper packaging be used.  For example, if the public key sent is truncated these routines will not detect that.}:
 \newpage
@@ -4474,22 +4523,9 @@ done2:
 }
 \end{verbatim}
 \end{small}
-\newpage
 \subsection{Remarks on The Snippet}
-When the above code snippet is done (assuming all went well) their will be a shared 128-bit key in the ``key'' array
+When the above code snippet is done (assuming all went well) there will be a shared 128-bit key in the ``key'' array
 passed to ``establish\_secure\_socket()''.
-
-\section{Other Diffie-Hellman Functions}
-
-XXX-TODO
-
-\begin{verbatim}
-int dh_set_pg(const unsigned char *p, unsigned long plen,
-              const unsigned char *g, unsigned long glen,
-              dh_key *key);
-int dh_set_pg_dhparam(const unsigned char *dhparam, unsigned long dhparamlen, dh_key *key);
-int dh_set_key(const unsigned char *in, unsigned long inlen, int type, dh_key *key);
-\end{verbatim}
 
 \chapter{Elliptic Curve Cryptography}
 
