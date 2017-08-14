@@ -35,6 +35,8 @@ int chacha_setup(chacha_state *st, const unsigned char *key, unsigned long keyle
    LTC_ARGCHK(key != NULL);
    LTC_ARGCHK(keylen == 32 || keylen == 16);
 
+   if (rounds == 0) rounds = 20;
+
    LOAD32L(st->input[4], key + 0);
    LOAD32L(st->input[5], key + 4);
    LOAD32L(st->input[6], key + 8);
