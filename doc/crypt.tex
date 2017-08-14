@@ -6411,59 +6411,73 @@ libraries.
 
 \mysection{Makefile variables}
 
-XXX-TODO review
-
 All GNU driven makefiles (including the makefile for ICC) use a set of common variables to control the build and install process.  Most of the
 settings can be overwritten from the command line which makes custom installation a breeze.
 
-\index{MAKE}\index{CC}\index{AR}
-\subsection{MAKE, CC and AR}
+\subsection{MAKE, CC, AR and CROSS\_COMPILE}
+\index{MAKE} \index{CC} \index{AR} \index{CROSS\_COMPILE}
 The MAKE, CC and AR flags can all be overwritten.  They default to \textit{make}, \textit{\$CC} and \textit{\$AR} respectively.
 Changing MAKE allows you to change what program will be invoked to handle sub--directories. For example, this
 
 \begin{verbatim}
-MAKE=gmake gmake install
+gmake install MAKE=gmake
 \end{verbatim}
 
 \begin{flushleft} will build and install the libraries with the \textit{gmake} tool.  Similarly, \end{flushleft}
 
 \begin{verbatim}
-CC=arm-gcc AR=arm-ar make
+make CC=arm-gcc AR=arm-ar
 \end{verbatim}
 
 \begin{flushleft} will build the library using \textit{arm--gcc} as the compiler and \textit{arm--ar} as the archiver. \end{flushleft}
 
-\subsection{IGNORE\_SPEED}
-\index{IGNORE\_SPEED}
+\begin{verbatim}
+make CROSS_COMPILE=arm-none-eabi-
+\end{verbatim}
+
+\begin{flushleft} will build the library using the \textit{arm--none--eabi--} prefix'ed toolchain. \end{flushleft}
+
+\subsection{IGNORE\_SPEED and LTC\_DEBUG}
+\index{IGNORE\_SPEED} \index{LTC\_DEBUG}
 When \textbf{IGNORE\_SPEED} has been defined the default optimization flags for CFLAGS will be disabled which allows the developer to specify new
 CFLAGS on the command line.  E.g. to add debugging
 
 \begin{verbatim}
-CFLAGS="-g3" make IGNORE_SPEED=1
+make IGNORE_SPEED=1 CFLAGS="-g3"
 \end{verbatim}
 
 This will turn off optimizations and add \textit{-g3} to the CFLAGS which enables debugging.
 
-\subsection{LIBNAME and LIBNAME\_S}
-\index{LIBNAME} \index{LIBNAME\_S}
-\textbf{LIBNAME} is the name of the output library (archive) to create.  It defaults to \textit{libtomcrypt.a} for static builds and \textit{libtomcrypt.la} for
-shared.  The \textbf{LIBNAME\_S} variable is the static name while doing shared builds.  Ideally they should have the same prefix but don't have to.
+Alternatively one can define \textbf{LTC\_DEBUG} instead, which additionally defines \textit{LTC\_NO\_ASM} and enables debug output on test failures.
 
-\index{LIBTEST} \index{LIBTEST\_S}
-Similarly \textbf{LIBTEST} and \textbf{LIBTEST\_S} are the names for the profiling and testing library.  The default is \textit{libtomcrypt\_prof.a} for
-static and \textit{libtomcrypt\_prof.la} for shared.
-
-\subsection{Installation Directories}
-\index{DESTDIR} \index{LIBPATH} \index{INCPATH} \index{DATADIR}
-\textbf{DESTDIR} is the prefix for the installation directories.  It defaults to an empty string.  \textbf{LIBPATH} is the prefix for the library
-directory which defaults to \textit{/usr/lib}.  \textbf{INCPATH} is the prefix for the header file directory which defaults to \textit{/usr/include}.
-\textbf{DATADIR} is the prefix for the data (documentation) directory which defaults to \textit{/usr/share/doc/libtomcrypt/pdf}.
-
-All four can be used to create custom install locations depending on the nature of the OS and file system in use.
+Defining \textit{LTC\_DEBUG=2} has the effect to enable verbose output in some of the tests.
 
 \begin{verbatim}
-make LIBPATH=/home/tom/project/lib INCPATH=/home/tom/project/include \
-     DATAPATH=/home/tom/project/docs install
+make LTC_DEBUG=2
+\end{verbatim}
+
+\begin{flushleft} will build the library without compiler-optimisation or architecture specific code and will enable debugging
+and verbose debug output. \end{flushleft}
+
+\subsection{LIBNAME}
+\index{LIBNAME}
+\textbf{LIBNAME} is the name of the output library (archive) to create.  It defaults to \textit{libtomcrypt.a} for static builds and \textit{libtomcrypt.la} for
+shared.
+On installation of the shared library the appropriately versioned \textit{libtomcrypt.so}, \textit{libtomcrypt.so.0} etc. will be created by \textit{libtool}.
+
+\subsection{Installation Directories}
+\index{DESTDIR} \index{PREFIX} \index{LIBPATH} \index{INCPATH} \index{DATAPATH} \index{BINPATH}
+\textbf{DESTDIR} is the location where the output will be stored.  It default to an empty string.
+\textbf{PREFIX} is the prefix for the installation directories.  It defaults to \textit{/usr/local}.
+\textbf{LIBPATH} is the location of the library directory which defaults to \textit{\$PREFIX/lib}.
+\textbf{INCPATH} is the location of the header file directory which defaults to \textit{\$PREFIX/include}.
+\textbf{DATAPATH} is the location of the data (documentation) directory which defaults to \textit{\$PREFIX/share/doc/libtomcrypt/pdf}.
+\textbf{BINPATH} is the location of the binary file directory which defaults to \textit{\$PREFIX/bin}.
+
+They allow to configure the installation locations of the libary.
+
+\begin{verbatim}
+make PREFIX=/home/tom/project DATAPATH=/home/tom/project/docs install
 \end{verbatim}
 
 This will build the library and install it to the directories under \textit{/home/tom/project/}.  e.g.
@@ -6503,14 +6517,16 @@ total 1073
 \end{verbatim}
 \end{small}
 
+For further information see: \url{https://www.gnu.org/prep/standards/html_node/DESTDIR.html}
+and \url{https://www.freebsd.org/doc/en/books/porters-handbook/porting-prefix.html}.
+
 \mysection{Extra libraries}
 \index{EXTRALIBS}
 \textbf{EXTRALIBS} specifies any extra libraries required to link the test programs and shared libraries.  They are specified in the notation
 that GCC expects for global archives.
 
 \begin{verbatim}
-CFLAGS="-DTFM_DESC -DUSE_TFM" EXTRALIBS=-ltfm make install \
-                                                   test timing
+make install test timing CFLAGS="-DTFM_DESC -DUSE_TFM" EXTRALIBS=-ltfm
 \end{verbatim}
 
 This will install the library using the TomsFastMath library and link the \textit{libtfm.a} library out of the default library search path.  The two
@@ -6524,7 +6540,7 @@ Note that \textbf{EXTRALIBS} is not required if you are only making and installi
 Building a static library is fairly trivial as it only requires one invocation of the GNU make command.
 
 \begin{verbatim}
-CFLAGS="-DTFM_DESC" make install
+make install CFLAGS="-DTFM_DESC"
 \end{verbatim}
 
 That will build LibTomCrypt (including the TomsFastMath descriptor), and install it in the default locations indicated previously.  You can enable
@@ -6554,7 +6570,7 @@ LibTomCrypt can also be built as a shared library through the \textit{makefile.s
 that you \textbf{must} specify the \textbf{EXTRALIBS} variable at install time.
 
 \begin{verbatim}
-CFLAGS="-DTFM_DESC" EXTRALIBS=-ltfm make -f makefile.shared install
+make -f makefile.shared install CFLAGS="-DTFM_DESC" EXTRALIBS=-ltfm
 \end{verbatim}
 
 This will build and install the library and link the shared object against the TomsFastMath library (which must be installed as a shared object as well).  The
@@ -6585,13 +6601,14 @@ Currently LibTomCrypt will detect x86-32, x86-64, MIPS R5900, SPARC and SPARC64 
 There are also options you can specify from the \textit{tomcrypt\_custom.h} header file.
 
 \subsection{X memory routines}
-\index{XMALLOC}\index{XCALLOC}\index{XREALLOC}\index{XFREE}
+\index{XMALLOC}\index{XREALLOC}\index{XCALLOC}\index{XFREE}\index{XMEMSET}\index{XMEMCPY}\index{XMEMMOVE}\index{XMEMCMP}\index{XSTRCMP}
 At the top of tomcrypt\_custom.h are a series of macros denoted as XMALLOC, XCALLOC, XREALLOC, XFREE, and so on.  They resolve to
 the name of the respective functions from the standard C library by default.  This lets you substitute in your own memory routines.
 If you substitute in your own functions they must behave like the standard C library functions in terms of what they expect as input and
 output.
 
-These macros are handy for working with platforms which do not have a standard C library.  For instance, the OLPC\footnote{See http://dev.laptop.org/git?p=bios-crypto;a=summary}
+These macros are handy for working with platforms which do not have a standard C library.
+For instance, the OLPC\footnote{See \url{http://dev.laptop.org/git?p=bios-crypto;a=summary}}
 bios code uses these macros to redirect to very compact heap and string operations.
 
 \subsection{X clock routines}
@@ -6695,6 +6712,18 @@ When this has been defined the ECC point multiplier (built--in to the library) w
 algorithm which prevents leaking key bits of the private key (scalar).  It is a slower algorithm but useful for situations
 where timing side channels pose a significant threat.
 
+This is enabled by default and can be disabled by defining \textbf{LTC\_NO\_ECC\_TIMING\_RESISTANT}.
+
+\subsection{LTC\_RSA\_BLINDING}
+When this has been defined the RSA modular exponentiation will use a blinding algorithm to improve timing resistance.
+
+This is enabled by default and can be disabled by defining \textbf{LTC\_NO\_RSA\_BLINDING}.
+
+\subsection{LTC\_RSA\_CRT\_HARDENING}
+When this has been defined the RSA modular exponentiation will do some sanity checks regarding the CRT parameters and the operations' results.
+
+This is enabled by default and can be disabled by defining \textbf{LTC\_NO\_RSA\_CRT\_HARDENING}.
+
 \subsection{Math Descriptors}
 The library comes with three math descriptors that allow you to interface the public key cryptography API to freely available math
 libraries.  When \textbf{GMP\_DESC}, \textbf{LTM\_DESC}, or \textbf{TFM\_DESC} are defined
@@ -6706,8 +6735,8 @@ to tell the program which library to use.  Only one of the USE flags can be defi
 \index{GMP\_DESC} \index{USE\_GMP} \index{LTM\_DESC} \index{TFM\_DESC} \index{USE\_LTM} \index{USE\_TFM}
 \begin{small}
 \begin{verbatim}
-CFLAGS="-DGMP_DESC -DLTM_DESC -DTFM_DESC -DUSE_TFM" \
-EXTRALIBS="-lgmp -ltommath -ltfm" make -f makefile.shared install timing
+make -f makefile.shared install timing CFLAGS="-DGMP_DESC -DLTM_DESC -DTFM_DESC -DUSE_TFM" \
+EXTRALIBS="-lgmp -ltommath -ltfm"
 \end{verbatim}
 \end{small}
 
