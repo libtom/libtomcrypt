@@ -2220,8 +2220,9 @@ int XXX_process(         hash_state *md,
                       unsigned long  inlen);
 \end{verbatim}
 Essentially all hash messages are virtually infinitely\footnote{Most hashes are limited to $2^{64}$ bits or 2,305,843,009,213,693,952 bytes.} long message which
-are buffered.  The data can be passed in any sized chunks as long as the order of the bytes are the same the message digest (hash output) will be the same.  For example,
-this means that:
+are buffered.  In the case where this limit is reached the \textit{XXX\_process()} function returns \textit{CRYPT\_HASH\_OVERFLOW}.
+\index{CRYPT\_HASH\_OVERFLOW}
+The data can be passed in any sized chunks as long as the order of the bytes are the same, the message digest (hash output) will be the same.  For example, this means that:
 \begin{verbatim}
 md5_process(&md, "hello ", 6);
 md5_process(&md, "world", 5);
@@ -2535,6 +2536,38 @@ int main(void)
 }
 \end{verbatim}
 
+\mysection{SHA3 SHAKE}
+The SHA3 class of algorithms provides a special XOF (Extendable Output Functions) mode, called SHAKE.
+SHAKE operates in 2 security configurations, 128bit or 256bit, and allows to generate message digests of an arbitrary length.
+
+For further information see \url{https://en.wikipedia.org/wiki/SHA-3}
+
+Example of using SHAKE256 with an arbitrary length output.
+
+\begin{verbatim}
+#include <tomcrypt.h>
+int main(void)
+{
+   int err;
+   hash_state state;
+   const void* msg = "The quick brown fox jumps over the lazy dog";
+   unsigned char output[345];
+
+   if ((err = sha3_shake_init(&state, 256)) != CRYPT_OK) {
+      printf("Could not init SHAKE256 (%s)\n", error_to_string(err));
+      return EXIT_FAILURE;
+   }
+   if ((err = sha3_shake_process(&state, msg, strlen(msg))) != CRYPT_OK) {
+      printf("Could not process SHAKE256 (%s)\n", error_to_string(err));
+      return EXIT_FAILURE;
+   }
+   if ((err = sha3_shake_done(&state, output, sizeof(output))) != CRYPT_OK) {
+      printf("Could not finish SHAKE256 (%s)\n", error_to_string(err));
+      return EXIT_FAILURE;
+   }
+   return EXIT_SUCCESS;
+}
+\end{verbatim}
 
 \mysection{Notice}
 It is highly recommended that you \textbf{not} use the MD2, MD4, MD5, or SHA-1 hashes for the purposes of digital signatures or authentication codes.
@@ -6108,22 +6141,28 @@ This ensures that \textit{N} is set to a random MPI in the range $1 \le N < limi
 
 \subsection{Zero'ing data}
 
-XXX-TODO
+As widely know optimizing-compilers are sometimes allowed to remove an invocation of \textit{memset(out, 0, outlen)}, which could result
+in sensitive data beeing not zero'ed out. Therefore LibTomCrypt implements a variant of this routine which won't be optimized-away.
 
 \index{zeromem()}
 \begin{verbatim}
 void zeromem(volatile void *out, size_t outlen);
 \end{verbatim}
 
+This zero's the buffer \textit{out} of size \textit{outlen}.
+
 \subsection{Constant-time memory compare}
 
-XXX-TODO
+Some symmetric-key cryptographic operation-modes are vulnerable to timing attacks in case non-contant-time memory comparison functions
+are used to compare results. Therefore LibTomCrypt implements a constant-time memory compare function.
 
 \index{mem\_neq()}
 \begin{verbatim}
 int mem_neq(const void *a, const void *b, size_t len);
 \end{verbatim}
 
+This will compare the buffer \textit{a} against the buffer \textit{b} for \textit{len} bytes.
+The return value is either \textit{0} when the content of \textit{a} and \textit{b} is equal or \textit{1} when it differs.
 
 \mysection{Dynamic Language Support}
 \index{Dynamic Language Support}
