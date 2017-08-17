@@ -114,7 +114,6 @@ if SHOW_ALL_SIZES:
 #-------------------------------------------------------------------------------
 # get individually named constants and sizes
 
-# print selected constants
 if SHOW_SELECTED_CONSTANTS:
     print '-'*60
     print '\n  selected constants:'
@@ -133,7 +132,6 @@ if SHOW_SELECTED_CONSTANTS:
         print '    %-25s  %d' % (name, value)
     print
 
-# print selected sizes
 if SHOW_SELECTED_SIZES:
     print '-'*60
     print '\n  selected sizes:'
