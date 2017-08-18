@@ -1,7 +1,7 @@
 
 
 """
-    demo_dynamic.py3                                    v2b
+    demo_dynamic.py                                    v2b
 
     This program demonstrates Python's use of the dynamic
     language support additions to LTC, namely access to LTC
