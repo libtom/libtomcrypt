@@ -34,17 +34,17 @@
               a mathlib; hashing and symmetric encryption do not.
 
     ------
-    
+
     This code was originally written for Python 2.7 with the
     ctypes standard library.  This version was modified so that
     it would run under both Python 2.7 and 3.6.  You might want
     to run a diff on the .py and .py3 files to see the differences
-    between the two languages.    
-    
+    between the two languages.
+
     Arguably the biggest change for Python3 has to do with
     strings.  Under Python2, native strings are ASCII bytes and
     passing them to LTC is natural and requires no conversion.
-    Under Python3 all native strings are Unicode which requires 
+    Under Python3 all native strings are Unicode which requires
     they be converted to bytes before use by LTC.
 
     Note the following for Python3.
@@ -56,11 +56,10 @@
           If so, use <string>.decode('utf-8').
         - The Python2 'print' statement becomes a function in
           Python3 which requires parenthesis, eg. 'print()'.
-        
+
     NB: Unicode is achieved under Python2 by either defining
         a Unicode string with a 'u' prefix or passing ASCII
         strings thru the 'unicode()' function.
-    
 
     Larry Bugbee
     March 2014      v1
