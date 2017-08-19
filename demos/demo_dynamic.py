@@ -36,10 +36,8 @@
     ------
 
     This code was originally written for Python 2.7 with the
-    ctypes standard library.  This version was modified so that
-    it would run under both Python 2.7 and 3.6.  You might want
-    to run a diff on the .py and .py3 files to see the differences
-    between the two languages.
+    ctypes standard library.  This version is modified to run
+    under both Python 2.7 and 3.6.
 
     Arguably the biggest change for Python3 has to do with
     strings.  Under Python2, native strings are ASCII bytes and
