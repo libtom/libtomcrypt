@@ -20,7 +20,7 @@ static const char * const err_2_str[] =
    "CRYPT_ERROR",
    "Non-fatal 'no-operation' requested.",
 
-   "Invalid keysize for block cipher.",
+   "Invalid key size.",
    "Invalid number of rounds for block cipher.",
    "Algorithm failed test vectors.",
 
