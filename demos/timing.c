@@ -902,7 +902,12 @@ static void time_dh(void)
    ulong64 t1, t2;
    unsigned long i, x, y;
    int           err;
-   static unsigned long sizes[] = {768/8, 1024/8, 1536/8, 2048/8, 3072/8, 4096/8, 6144/8, 8192/8, 100000};
+   static unsigned long sizes[] = {768/8, 1024/8, 1536/8, 2048/8,
+#ifndef TFM_DESC
+                                   3072/8, 4096/8, 6144/8, 8192/8,
+#endif
+                                   100000
+   };
 
    for (x = sizes[i=0]; x < 100000; x = sizes[++i]) {
        t2 = 0;
