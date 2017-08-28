@@ -577,7 +577,7 @@ void gcm_gen(void)
           key[z] = (z & 255);
       }
 
-      for (y1 = 0; y1 <= (int)(cipher_descriptor[x].block_length*2); y1++){
+      for (y1 = 1; y1 <= (int)(cipher_descriptor[x].block_length*2); y1++){
          for (z = 0; z < y1; z++) {
             plaintext[z] = (unsigned char)(z & 255);
          }

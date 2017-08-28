@@ -46,6 +46,8 @@ int gcm_add_aad(gcm_state *gcm,
 
    /* in IV mode? */
    if (gcm->mode == LTC_GCM_MODE_IV) {
+      /* IV length must be > 0 */
+      if (gcm->buflen == 0 && gcm->totlen == 0) return CRYPT_ERROR;
       /* let's process the IV */
       if (gcm->ivmode || gcm->buflen != 12) {
          for (x = 0; x < (unsigned long)gcm->buflen; x++) {
