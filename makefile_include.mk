@@ -412,8 +412,8 @@ install_hooks: $(call print-help,install_hooks,Installs the git hooks)
 
 HEADER_FILES=$(notdir $(HEADERS))
 .common_uninstall:
-	$(UNINSTALL_CMD) $(LIBPATH)/$(LIBNAME)
-	rm $(HEADER_FILES:%=$(INCPATH)/%)
+	$(UNINSTALL_CMD) $(DESTDIR)$(LIBPATH)/$(LIBNAME)
+	rm $(HEADER_FILES:%=$(DESTDIR)$(INCPATH)/%)
 
 #This rule cleans the source tree of all compiled code, not including the pdf
 #documentation.
