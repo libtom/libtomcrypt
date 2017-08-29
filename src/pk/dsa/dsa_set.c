@@ -45,11 +45,6 @@ int dsa_set_pqg(const unsigned char *p,  unsigned long plen,
 
    key->qord = mp_unsigned_bin_size(key->q);
 
-   /* just a quick, basic test - use dsa_verify_key if you want more */
-   if (mp_cmp_d(key->p, 1) != LTC_MP_GT || mp_cmp_d(key->g, 1) != LTC_MP_GT || mp_cmp_d(key->q, 1) != LTC_MP_GT) {
-      goto LBL_ERR;
-   }
-
    if (key->qord >= LTC_MDSA_MAX_GROUP || key->qord <= 15 ||
       (unsigned long)key->qord >= mp_unsigned_bin_size(key->p) || (mp_unsigned_bin_size(key->p) - key->qord) >= LTC_MDSA_DELTA) {
       err = CRYPT_INVALID_PACKET;
@@ -88,15 +83,11 @@ int dsa_set_key(const unsigned char *in, unsigned long inlen, int type, dsa_key 
    if (type == PK_PRIVATE) {
       key->type = PK_PRIVATE;
       if ((err = mp_read_unsigned_bin(key->x, (unsigned char *)in, inlen)) != CRYPT_OK) { goto LBL_ERR; }
-      if (mp_cmp_d(key->x, 1) != LTC_MP_GT)                                             { goto LBL_ERR; }
       if ((err = mp_exptmod(key->g, key->x, key->p, key->y)) != CRYPT_OK)               { goto LBL_ERR; }
-      if (mp_cmp_d(key->y, 1) != LTC_MP_GT)                                             { goto LBL_ERR; }
    }
    else {
       key->type = PK_PUBLIC;
       if ((err = mp_read_unsigned_bin(key->y, (unsigned char *)in, inlen)) != CRYPT_OK) { goto LBL_ERR; }
-      if (mp_cmp_d(key->y, 1) != LTC_MP_GT)                                             { goto LBL_ERR; }
-      if (mp_cmp(key->y, key->p) != LTC_MP_LT)                                          { goto LBL_ERR; }
    }
 
    return CRYPT_OK;
