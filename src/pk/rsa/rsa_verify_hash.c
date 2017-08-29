@@ -143,8 +143,12 @@ int rsa_verify_hash_ex(const unsigned char *sig,      unsigned long siglen,
       LTC_SET_ASN1(siginfo,    1, LTC_ASN1_OCTET_STRING,      tmpbuf,                        siglen);
 
       if ((err = der_decode_sequence(out, outlen, siginfo, 2)) != CRYPT_OK) {
-         XFREE(out);
-         goto bail_2;
+         /* fallback to Legacy:missing NULL */
+         LTC_SET_ASN1(siginfo, 0, LTC_ASN1_SEQUENCE,          digestinfo,                    1);
+         if ((err = der_decode_sequence(out, outlen, siginfo, 2)) != CRYPT_OK) {
+           XFREE(out);
+           goto bail_2;
+         }
       }
 
       if ((err = der_length_sequence(siginfo, 2, &reallen)) != CRYPT_OK) {
