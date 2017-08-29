@@ -98,16 +98,23 @@ int dsa_verify_hash(const unsigned char *sig, unsigned long siglen,
 {
    int    err;
    void   *r, *s;
+   ltc_asn1_list sig_seq[2];
+   unsigned long reallen = 0;
 
    if ((err = mp_init_multi(&r, &s, NULL)) != CRYPT_OK) {
       return err;
    }
 
-   /* decode the sequence */
-   if ((err = der_decode_sequence_multi(sig, siglen,
-                                  LTC_ASN1_INTEGER, 1UL, r,
-                                  LTC_ASN1_INTEGER, 1UL, s,
-                                  LTC_ASN1_EOL,     0UL, NULL)) != CRYPT_OK) {
+   LTC_SET_ASN1(sig_seq, 0, LTC_ASN1_INTEGER, r, 1UL);
+   LTC_SET_ASN1(sig_seq, 1, LTC_ASN1_INTEGER, s, 1UL);
+
+   err = der_decode_sequence(sig, siglen, sig_seq, 2);
+   if (err != CRYPT_OK) {
+      goto LBL_ERR;
+   }
+
+   err = der_length_sequence(sig_seq, 2, &reallen);
+   if (err != CRYPT_OK || reallen != siglen) {
       goto LBL_ERR;
    }
 
