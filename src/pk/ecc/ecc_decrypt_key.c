@@ -52,8 +52,8 @@ int ecc_decrypt_key(const unsigned char *in,  unsigned long  inlen,
 
    /* decode to find out hash */
    LTC_SET_ASN1(decode, 0, LTC_ASN1_OBJECT_IDENTIFIER, hashOID, sizeof(hashOID)/sizeof(hashOID[0]));
-
-   if ((err = der_decode_sequence(in, inlen, decode, 1)) != CRYPT_OK) {
+   err = der_decode_sequence(in, inlen, decode, 1);
+   if (err != CRYPT_OK && err != CRYPT_PK_INVALID_SIZE) {
       return err;
    }
 
