@@ -235,6 +235,10 @@ small.exe: demos/small.c $(LIBMAIN_S)
 	cl $(LTC_CFLAGS) demos/small.c tests/common.c $(LIBMAIN_S) $(LTC_LDFLAGS) /Fe$@
 tv_gen.exe: demos/tv_gen.c $(LIBMAIN_S)
 	cl $(LTC_CFLAGS) demos/tv_gen.c tests/common.c $(LIBMAIN_S) $(LTC_LDFLAGS) /Fe$@
+sizes.exe: demos/sizes.c $(LIBMAIN_S)
+	cl $(LTC_CFLAGS) demos/sizes.c tests/common.c $(LIBMAIN_S) $(LTC_LDFLAGS) /Fe$@
+constants.exe: demos/constants.c $(LIBMAIN_S)
+	cl $(LTC_CFLAGS) demos/constants.c tests/common.c $(LIBMAIN_S) $(LTC_LDFLAGS) /Fe$@
 timing.exe: demos/timing.c $(LIBMAIN_S)
 	cl $(LTC_CFLAGS) demos/timing.c tests/common.c $(LIBMAIN_S) $(LTC_LDFLAGS) /Fe$@
 
@@ -243,7 +247,7 @@ test.exe: $(LIBMAIN_S) $(TOBJECTS)
 	cl $(LTC_CFLAGS) $(TOBJECTS) $(LIBMAIN_S) $(LTC_LDFLAGS) /Fe$@
 	@echo NOTICE: start the tests by launching test.exe
 
-all: $(LIBMAIN_S) hashsum.exe ltcrypt.exe small.exe tv_gen.exe timing.exe test.exe
+all: $(LIBMAIN_S) hashsum.exe ltcrypt.exe small.exe tv_gen.exe sizes.exe constants.exe timing.exe test.exe
 
 test: test.exe
 
