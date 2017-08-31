@@ -15,12 +15,6 @@ endif
 
 PLATFORM := $(shell uname | sed -e 's/_.*//')
 
-ifneq ($(MAKECMDGOALS),clean)
-ifeq ($(PLATFORM), Darwin)
-$(error Known to not work on Mac, please use makefile.unix for static libraries or makefile.shared for shared libraries)
-endif
-endif
-
 # ranlib tools
 ifndef RANLIB
 RANLIB:=$(CROSS_COMPILE)ranlib
