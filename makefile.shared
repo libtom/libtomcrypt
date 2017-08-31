@@ -59,14 +59,14 @@ endef
 
 $(foreach demo, $(strip $(DEMOS)), $(eval $(call DEMO_template,$(demo))))
 
-install: $(call print-help,install,Installs the library, headers and pkd-config file) .common_install
+install: $(call print-help,install,Installs the library + headers + pkg-config file) .common_install
 	sed -e 's,^prefix=.*,prefix=$(PREFIX),' -e 's,^Version:.*,Version: $(VERSION_PC),' libtomcrypt.pc.in > libtomcrypt.pc
 	install -d $(DESTDIR)$(LIBPATH)/pkgconfig
 	install -m 644 libtomcrypt.pc $(DESTDIR)$(LIBPATH)/pkgconfig/
 
 install_bins: $(call print-help,install_bins,Installs the useful demos ($(USEFUL_DEMOS))) .common_install_bins
 
-uninstall: $(call print-help,uninstall,Uninstalls the library, headers and pkd-config file) .common_uninstall
+uninstall: $(call print-help,uninstall,Uninstalls the library + headers + pkg-config file) .common_uninstall
 	rm $(DESTDIR)$(LIBPATH)/pkgconfig/libtomcrypt.pc
 
 # ref:         $Format:%D$
