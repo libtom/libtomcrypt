@@ -247,6 +247,10 @@ small.exe: demos/small.o $(LIBMAIN_S)
 	$(CC) demos/small.o $(LIBMAIN_S) $(LTC_LDFLAGS) -o $@
 tv_gen.exe: demos/tv_gen.o $(LIBMAIN_S)
 	$(CC) demos/tv_gen.o $(LIBMAIN_S) $(LTC_LDFLAGS) -o $@
+sizes.exe: demos/sizes.o $(LIBMAIN_S)
+	$(CC) demos/sizes.o $(LIBMAIN_S) $(LTC_LDFLAGS) -o $@
+constants.exe: demos/constants.o $(LIBMAIN_S)
+	$(CC) demos/constants.o $(LIBMAIN_S) $(LTC_LDFLAGS) -o $@
 timing.exe: demos/timing.o $(LIBMAIN_S)
 	$(CC) demos/timing.o $(LIBMAIN_S) $(LTC_LDFLAGS) -o $@
 
@@ -255,7 +259,7 @@ test.exe: $(TOBJECTS) $(LIBMAIN_S)
 	$(CC) $(TOBJECTS) $(LIBMAIN_S) $(LTC_LDFLAGS) -o $@
 	@echo NOTICE: start the tests by launching test.exe
 
-all: $(LIBMAIN_S) $(LIBMAIN_I) $(LIBMAIN_D) hashsum.exe ltcrypt.exe small.exe tv_gen.exe timing.exe test.exe
+all: $(LIBMAIN_S) $(LIBMAIN_I) $(LIBMAIN_D) hashsum.exe ltcrypt.exe small.exe tv_gen.exe sizes.exe constants.exe timing.exe test.exe
 
 test: test.exe
 
