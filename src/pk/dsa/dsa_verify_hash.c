@@ -47,7 +47,7 @@ int dsa_verify_hash_raw(         void   *r,          void   *s,
    }
 
    /* neither r or s can be null or >q*/
-   if (mp_iszero(r) == LTC_MP_YES || mp_iszero(s) == LTC_MP_YES || mp_cmp(r, key->q) != LTC_MP_LT || mp_cmp(s, key->q) != LTC_MP_LT) {
+   if (mp_cmp_d(r, 0) != LTC_MP_GT || mp_cmp_d(s, 0) != LTC_MP_GT || mp_cmp(r, key->q) != LTC_MP_LT || mp_cmp(s, key->q) != LTC_MP_LT) {
       err = CRYPT_INVALID_PACKET;
       goto error;
    }
@@ -98,16 +98,23 @@ int dsa_verify_hash(const unsigned char *sig, unsigned long siglen,
 {
    int    err;
    void   *r, *s;
+   ltc_asn1_list sig_seq[2];
+   unsigned long reallen = 0;
 
    if ((err = mp_init_multi(&r, &s, NULL)) != CRYPT_OK) {
       return err;
    }
 
-   /* decode the sequence */
-   if ((err = der_decode_sequence_multi(sig, siglen,
-                                  LTC_ASN1_INTEGER, 1UL, r,
-                                  LTC_ASN1_INTEGER, 1UL, s,
-                                  LTC_ASN1_EOL,     0UL, NULL)) != CRYPT_OK) {
+   LTC_SET_ASN1(sig_seq, 0, LTC_ASN1_INTEGER, r, 1UL);
+   LTC_SET_ASN1(sig_seq, 1, LTC_ASN1_INTEGER, s, 1UL);
+
+   err = der_decode_sequence(sig, siglen, sig_seq, 2);
+   if (err != CRYPT_OK) {
+      goto LBL_ERR;
+   }
+
+   err = der_length_sequence(sig_seq, 2, &reallen);
+   if (err != CRYPT_OK || reallen != siglen) {
       goto LBL_ERR;
    }
 
