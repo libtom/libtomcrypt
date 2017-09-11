@@ -16,17 +16,55 @@
 #ifdef LTC_MDSA
 
 /**
-   Verify a DSA key for validity
-   @param key   The key to verify
+   Validate a DSA key
+
+     Yeah, this function should've been called dsa_validate_key()
+     in the first place and for compat-reasons we keep it
+     as it was (for now).
+
+   @param key   The key to validate
    @param stat  [out]  Result of test, 1==valid, 0==invalid
    @return CRYPT_OK if successful
 */
 int dsa_verify_key(dsa_key *key, int *stat)
 {
-   return dsa_verify_key_ex(key, stat, 1); /* 1 = full check */
+   int    res, err;
+
+   LTC_ARGCHK(key  != NULL);
+   LTC_ARGCHK(stat != NULL);
+
+   /* default to an invalid key */
+   *stat = 0;
+
+   /* first make sure key->q and key->p are prime */
+   if ((err = mp_prime_is_prime(key->q, 8, &res)) != CRYPT_OK) {
+      return err;
+   }
+   if (res == LTC_MP_NO) {
+      return CRYPT_OK;
+   }
+
+   if ((err = mp_prime_is_prime(key->p, 8, &res)) != CRYPT_OK) {
+      return err;
+   }
+   if (res == LTC_MP_NO) {
+      return CRYPT_OK;
+   }
+
+   return dsa_int_validate_key(key, stat); /* 1 = full check */
 }
 
-int dsa_verify_key_ex(dsa_key *key, int *stat, int mode)
+/**
+   Non-complex part of the validation of a DSA key
+
+     This is the computation-wise 'non-complex' part of the
+     DSA key validation
+
+   @param key   The key to validate
+   @param stat  [out]  Result of test, 1==valid, 0==invalid
+   @return CRYPT_OK if successful
+*/
+int dsa_int_validate_key(dsa_key *key, int *stat)
 {
    void   *tmp, *tmp2;
    int    res, err;
@@ -36,23 +74,6 @@ int dsa_verify_key_ex(dsa_key *key, int *stat, int mode)
 
    /* default to an invalid key */
    *stat = 0;
-
-   if (mode == 1) {
-      /* first make sure key->q and key->p are prime */
-      if ((err = mp_prime_is_prime(key->q, 8, &res)) != CRYPT_OK) {
-         return err;
-      }
-      if (res == 0) {
-         return CRYPT_OK;
-      }
-
-      if ((err = mp_prime_is_prime(key->p, 8, &res)) != CRYPT_OK) {
-         return err;
-      }
-      if (res == 0) {
-         return CRYPT_OK;
-      }
-   }
 
    /* now make sure that g is not -1, 0 or 1 and <p */
    if (mp_cmp_d(key->g, 0) == LTC_MP_EQ || mp_cmp_d(key->g, 1) == LTC_MP_EQ) {
