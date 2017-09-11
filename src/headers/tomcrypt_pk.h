@@ -479,7 +479,9 @@ int dsa_decrypt_key(const unsigned char *in,  unsigned long  inlen,
 int dsa_import(const unsigned char *in, unsigned long inlen, dsa_key *key);
 int dsa_export(unsigned char *out, unsigned long *outlen, int type, dsa_key *key);
 int dsa_verify_key(dsa_key *key, int *stat);
-
+#ifdef LTC_SOURCE
+int dsa_verify_key_ex(dsa_key *key, int *stat, int mode);
+#endif
 int dsa_shared_secret(void          *private_key, void *base,
                       dsa_key       *public_key,
                       unsigned char *out,         unsigned long *outlen);

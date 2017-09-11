@@ -23,6 +23,11 @@
 */
 int dsa_verify_key(dsa_key *key, int *stat)
 {
+   return dsa_verify_key_ex(key, stat, 1); /* 1 = full check */
+}
+
+int dsa_verify_key_ex(dsa_key *key, int *stat, int mode)
+{
    void   *tmp, *tmp2;
    int    res, err;
 
@@ -32,19 +37,21 @@ int dsa_verify_key(dsa_key *key, int *stat)
    /* default to an invalid key */
    *stat = 0;
 
-   /* first make sure key->q and key->p are prime */
-   if ((err = mp_prime_is_prime(key->q, 8, &res)) != CRYPT_OK) {
-      return err;
-   }
-   if (res == 0) {
-      return CRYPT_OK;
-   }
+   if (mode == 1) {
+      /* first make sure key->q and key->p are prime */
+      if ((err = mp_prime_is_prime(key->q, 8, &res)) != CRYPT_OK) {
+         return err;
+      }
+      if (res == 0) {
+         return CRYPT_OK;
+      }
 
-   if ((err = mp_prime_is_prime(key->p, 8, &res)) != CRYPT_OK) {
-      return err;
-   }
-   if (res == 0) {
-      return CRYPT_OK;
+      if ((err = mp_prime_is_prime(key->p, 8, &res)) != CRYPT_OK) {
+         return err;
+      }
+      if (res == 0) {
+         return CRYPT_OK;
+      }
    }
 
    /* now make sure that g is not -1, 0 or 1 and <p */
