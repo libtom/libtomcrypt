@@ -51,7 +51,7 @@ int dsa_verify_key(dsa_key *key, int *stat)
       return CRYPT_OK;
    }
 
-   return dsa_int_validate_key(key, stat); /* 1 = full check */
+   return dsa_int_validate_key(key, stat);
 }
 
 /**
@@ -67,7 +67,7 @@ int dsa_verify_key(dsa_key *key, int *stat)
 int dsa_int_validate_key(dsa_key *key, int *stat)
 {
    void   *tmp, *tmp2;
-   int    res, err;
+   int    err;
 
    LTC_ARGCHK(key  != NULL);
    LTC_ARGCHK(stat != NULL);

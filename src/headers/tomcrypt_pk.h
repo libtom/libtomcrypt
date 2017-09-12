@@ -480,7 +480,7 @@ int dsa_import(const unsigned char *in, unsigned long inlen, dsa_key *key);
 int dsa_export(unsigned char *out, unsigned long *outlen, int type, dsa_key *key);
 int dsa_verify_key(dsa_key *key, int *stat);
 #ifdef LTC_SOURCE
-int dsa_int_validate_key(dsa_key *key, int *stat, int mode);
+int dsa_int_validate_key(dsa_key *key, int *stat);
 #endif
 int dsa_shared_secret(void          *private_key, void *base,
                       dsa_key       *public_key,

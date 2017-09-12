@@ -90,7 +90,8 @@ int dsa_set_key(const unsigned char *in, unsigned long inlen, int type, dsa_key 
       if ((err = mp_read_unsigned_bin(key->y, (unsigned char *)in, inlen)) != CRYPT_OK) { goto LBL_ERR; }
    }
 
-   if ((err = dsa_int_validate_key(key, &stat, 0)) != CRYPT_OK)                            { goto LBL_ERR; }
+   /* do only a quick validation, without primality testing */
+   if ((err = dsa_int_validate_key(key, &stat)) != CRYPT_OK)                            { goto LBL_ERR; }
    if (stat == 0) {
       err = CRYPT_INVALID_ARG;
       goto LBL_ERR;
