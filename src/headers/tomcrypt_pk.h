@@ -480,6 +480,7 @@ int dsa_import(const unsigned char *in, unsigned long inlen, dsa_key *key);
 int dsa_export(unsigned char *out, unsigned long *outlen, int type, dsa_key *key);
 int dsa_verify_key(dsa_key *key, int *stat);
 #ifdef LTC_SOURCE
+/* internal helper functions */
 int dsa_int_validate_xy(dsa_key *key, int *stat);
 int dsa_int_validate_pqg(dsa_key *key, int *stat);
 int dsa_int_validate_primes(dsa_key *key, int *stat);
