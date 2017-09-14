@@ -145,7 +145,7 @@ int dsa_int_validate_xy(dsa_key *key, int *stat)
    if ((err = mp_sub_d(key->p, 1, tmp)) != CRYPT_OK) {
       goto error;
    }
-   if (!(mp_cmp_d(key->y, 1) == LTC_MP_GT && mp_cmp(key->y, tmp) == LTC_MP_LT)) {
+   if (mp_cmp_d(key->y, 1) != LTC_MP_GT || mp_cmp(key->y, tmp) != LTC_MP_LT) {
       err = CRYPT_OK;
       goto error;
    }
