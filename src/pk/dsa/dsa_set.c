@@ -45,12 +45,6 @@ int dsa_set_pqg(const unsigned char *p,  unsigned long plen,
 
    key->qord = mp_unsigned_bin_size(key->q);
 
-   if (key->qord >= LTC_MDSA_MAX_GROUP || key->qord <= 15 ||
-      (unsigned long)key->qord >= mp_unsigned_bin_size(key->p) || (mp_unsigned_bin_size(key->p) - key->qord) >= LTC_MDSA_DELTA) {
-      err = CRYPT_INVALID_PACKET;
-      goto LBL_ERR;
-   }
-
    /* do only a quick validation, without primality testing */
    if ((err = dsa_int_validate_pqg(key, &stat)) != CRYPT_OK)                        { goto LBL_ERR; }
    if (stat == 0) {

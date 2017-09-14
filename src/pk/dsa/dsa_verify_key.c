@@ -56,6 +56,14 @@ int dsa_int_validate_pqg(dsa_key *key, int *stat)
    LTC_ARGCHK(key  != NULL);
    LTC_ARGCHK(stat != NULL);
 
+   /* check q-order */
+   if ( key->qord >= LTC_MDSA_MAX_GROUP || key->qord <= 15 ||
+        (unsigned long)key->qord >= mp_unsigned_bin_size(key->p) ||
+        (mp_unsigned_bin_size(key->p) - key->qord) >= LTC_MDSA_DELTA ) {
+      err = CRYPT_OK;
+      goto error;
+   }
+
    /* FIPS 186-4 chapter 4.1: 1 < g < p */
    if (mp_cmp_d(key->g, 1) != LTC_MP_GT || mp_cmp(key->g, key->p) != LTC_MP_LT) {
       return CRYPT_OK;
