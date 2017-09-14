@@ -52,9 +52,9 @@ int dsa_int_validate_pqg(dsa_key *key, int *stat)
    void *tmp1, *tmp2;
    int  err;
 
-   *stat = 0;
    LTC_ARGCHK(key  != NULL);
    LTC_ARGCHK(stat != NULL);
+   *stat = 0;
 
    /* check q-order */
    if ( key->qord >= LTC_MDSA_MAX_GROUP || key->qord <= 15 ||
