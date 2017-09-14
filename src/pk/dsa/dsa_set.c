@@ -27,7 +27,7 @@ int dsa_set_pqg(const unsigned char *p,  unsigned long plen,
                 const unsigned char *g,  unsigned long glen,
                 dsa_key *key)
 {
-   int err;
+   int err, stat;
 
    LTC_ARGCHK(p           != NULL);
    LTC_ARGCHK(q           != NULL);
@@ -50,6 +50,14 @@ int dsa_set_pqg(const unsigned char *p,  unsigned long plen,
       err = CRYPT_INVALID_PACKET;
       goto LBL_ERR;
    }
+
+   /* do only a quick validation, without primality testing */
+   if ((err = dsa_int_validate_pqg(key, &stat)) != CRYPT_OK)                        { goto LBL_ERR; }
+   if (stat == 0) {
+      err = CRYPT_INVALID_ARG;
+      goto LBL_ERR;
+   }
+
    return CRYPT_OK;
 
 LBL_ERR:
@@ -90,8 +98,7 @@ int dsa_set_key(const unsigned char *in, unsigned long inlen, int type, dsa_key 
       if ((err = mp_read_unsigned_bin(key->y, (unsigned char *)in, inlen)) != CRYPT_OK) { goto LBL_ERR; }
    }
 
-   /* do only a quick validation, without primality testing */
-   if ((err = dsa_int_validate_key(key, &stat)) != CRYPT_OK)                            { goto LBL_ERR; }
+   if ((err = dsa_int_validate_xy(key, &stat)) != CRYPT_OK)                             { goto LBL_ERR; }
    if (stat == 0) {
       err = CRYPT_INVALID_ARG;
       goto LBL_ERR;
