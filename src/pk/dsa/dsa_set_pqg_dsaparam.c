@@ -24,7 +24,7 @@
 int dsa_set_pqg_dsaparam(const unsigned char *dsaparam, unsigned long dsaparamlen,
                          dsa_key *key)
 {
-   int err;
+   int err, stat;
 
    LTC_ARGCHK(dsaparam    != NULL);
    LTC_ARGCHK(key         != NULL);
@@ -49,6 +49,16 @@ int dsa_set_pqg_dsaparam(const unsigned char *dsaparam, unsigned long dsaparamle
       err = CRYPT_INVALID_PACKET;
       goto LBL_ERR;
    }
+
+   /* quick p, q, g validation, without primality testing */
+   if ((err = dsa_int_validate_pqg(key, &stat)) != CRYPT_OK) {
+      goto LBL_ERR;
+   }
+   if (stat == 0) {
+      err = CRYPT_INVALID_PACKET;
+      goto LBL_ERR;
+   }
+
    return CRYPT_OK;
 
 LBL_ERR:
