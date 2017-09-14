@@ -103,7 +103,7 @@ int dsa_int_validate_primes(dsa_key *key, int *stat)
    LTC_ARGCHK(stat != NULL);
 
    /* key->q prime? */
-   if ((err = mp_prime_is_prime(key->q, 8, &res)) != CRYPT_OK) {
+   if ((err = mp_prime_is_prime(key->q, LTC_MILLER_RABIN_REPS, &res)) != CRYPT_OK) {
       return err;
    }
    if (res == LTC_MP_NO) {
@@ -111,7 +111,7 @@ int dsa_int_validate_primes(dsa_key *key, int *stat)
    }
 
    /* key->p prime? */
-   if ((err = mp_prime_is_prime(key->p, 8, &res)) != CRYPT_OK) {
+   if ((err = mp_prime_is_prime(key->p, LTC_MILLER_RABIN_REPS, &res)) != CRYPT_OK) {
       return err;
    }
    if (res == LTC_MP_NO) {
