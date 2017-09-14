@@ -102,7 +102,7 @@ endif # COMPILE_DEBUG
 
 
 ifneq ($(findstring clang,$(CC)),)
-LTC_CFLAGS += -Wno-typedef-redefinition -Wno-tautological-compare -Wno-builtin-requires-header
+LTC_CFLAGS += -Wno-typedef-redefinition -Wno-tautological-compare -Wno-builtin-requires-header -Wno-missing-field-initializers
 endif
 ifeq ($(PLATFORM), Darwin)
 LTC_CFLAGS += -Wno-nullability-completeness
