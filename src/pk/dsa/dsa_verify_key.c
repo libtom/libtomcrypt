@@ -60,8 +60,7 @@ int dsa_int_validate_pqg(dsa_key *key, int *stat)
    if ( key->qord >= LTC_MDSA_MAX_GROUP || key->qord <= 15 ||
         (unsigned long)key->qord >= mp_unsigned_bin_size(key->p) ||
         (mp_unsigned_bin_size(key->p) - key->qord) >= LTC_MDSA_DELTA ) {
-      err = CRYPT_OK;
-      goto error;
+      return CRYPT_OK;
    }
 
    /* FIPS 186-4 chapter 4.1: 1 < g < p */
