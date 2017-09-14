@@ -91,7 +91,7 @@ int dsa_int_validate_pqg(dsa_key *key, int *stat)
    err   = CRYPT_OK;
    *stat = 1;
 error:
-   mp_clear_multi(tmp1, tmp2, NULL);
+   mp_clear_multi(tmp2, tmp1, NULL);
    return err;
 }
 
