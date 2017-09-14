@@ -27,7 +27,7 @@ int dsa_set_pqg(const unsigned char *p,  unsigned long plen,
                 const unsigned char *g,  unsigned long glen,
                 dsa_key *key)
 {
-   int err;
+   int err, stat;
 
    LTC_ARGCHK(p           != NULL);
    LTC_ARGCHK(q           != NULL);
@@ -45,11 +45,13 @@ int dsa_set_pqg(const unsigned char *p,  unsigned long plen,
 
    key->qord = mp_unsigned_bin_size(key->q);
 
-   if (key->qord >= LTC_MDSA_MAX_GROUP || key->qord <= 15 ||
-      (unsigned long)key->qord >= mp_unsigned_bin_size(key->p) || (mp_unsigned_bin_size(key->p) - key->qord) >= LTC_MDSA_DELTA) {
+   /* do only a quick validation, without primality testing */
+   if ((err = dsa_int_validate_pqg(key, &stat)) != CRYPT_OK)                        { goto LBL_ERR; }
+   if (stat == 0) {
       err = CRYPT_INVALID_PACKET;
       goto LBL_ERR;
    }
+
    return CRYPT_OK;
 
 LBL_ERR:
@@ -70,7 +72,7 @@ LBL_ERR:
 */
 int dsa_set_key(const unsigned char *in, unsigned long inlen, int type, dsa_key *key)
 {
-   int err;
+   int err, stat = 0;
 
    LTC_ARGCHK(key         != NULL);
    LTC_ARGCHK(key->x      != NULL);
@@ -88,6 +90,12 @@ int dsa_set_key(const unsigned char *in, unsigned long inlen, int type, dsa_key 
    else {
       key->type = PK_PUBLIC;
       if ((err = mp_read_unsigned_bin(key->y, (unsigned char *)in, inlen)) != CRYPT_OK) { goto LBL_ERR; }
+   }
+
+   if ((err = dsa_int_validate_xy(key, &stat)) != CRYPT_OK)                             { goto LBL_ERR; }
+   if (stat == 0) {
+      err = CRYPT_INVALID_PACKET;
+      goto LBL_ERR;
    }
 
    return CRYPT_OK;
