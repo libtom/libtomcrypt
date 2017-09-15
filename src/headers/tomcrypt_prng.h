@@ -81,7 +81,7 @@ typedef struct {
 /** PRNG descriptor */
 extern struct ltc_prng_descriptor {
     /** Name of the PRNG */
-    char *name;
+    const char *name;
     /** size in bytes of exported state */
     int  export_size;
     /** Start a PRNG state

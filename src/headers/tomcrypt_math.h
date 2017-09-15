@@ -35,7 +35,7 @@ int radix_to_bin(const void *in, int radix, void *out, unsigned long *len);
 /** math descriptor */
 typedef struct {
    /** Name of the math provider */
-   char *name;
+   const char *name;
 
    /** Bits per digit, amount of bits must fit in an unsigned long */
    int  bits_per_digit;
