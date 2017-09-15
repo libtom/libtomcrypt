@@ -16,4 +16,4 @@ scan_build=$(which scan-build)
 [ -z "$scan_build" ] && { echo "couldn't find clang scan-build"; exit 1; } || echo "run $scan_build"
 export CFLAGS="-DUSE_LTM -DLTM_DESC -I/usr/include"
 export EXTRALIBS="-ltommath"
-$scan_build make -f makefile.unix all CFLAGS="$CFLAGS" EXTRALIBS="$EXTRALIBS"
+$scan_build --status-bugs make -f makefile.unix all CFLAGS="$CFLAGS" EXTRALIBS="$EXTRALIBS"
