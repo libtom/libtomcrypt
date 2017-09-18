@@ -15,7 +15,7 @@
   Steffen Jaeckel
 */
 
-void run_cmd(int res, int line, char *file, char *cmd, const char *algorithm)
+void run_cmd(int res, int line, const char *file, const char *cmd, const char *algorithm)
 {
    if (res != CRYPT_OK) {
       fprintf(stderr, "%s (%d)%s%s\n%s:%d:%s\n",

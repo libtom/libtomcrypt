@@ -412,7 +412,7 @@ int rmd160_test(void)
    return CRYPT_NOP;
 #else
    static const struct {
-        char *msg;
+        const char *msg;
         unsigned char hash[20];
    } tests[] = {
    { "",

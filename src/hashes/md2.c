@@ -191,7 +191,7 @@ int md2_test(void)
     return CRYPT_NOP;
  #else
    static const struct {
-        char *msg;
+        const char *msg;
         unsigned char hash[16];
    } tests[] = {
       { "",

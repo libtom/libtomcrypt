@@ -40,7 +40,7 @@ int hkdf_test(void)
 
     static const struct hkdf_test_case {
         int num;
-        char* Hash;
+        const char* Hash;
         unsigned char IKM[80];
         unsigned long IKM_l;
         unsigned char salt[80];
