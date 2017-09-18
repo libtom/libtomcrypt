@@ -35,9 +35,9 @@ int pkcs_5_test (void)
  #else
 
     typedef struct {
-        char* P;
+        const char* P;
         unsigned long P_len;
-        char* S;
+        const char* S;
         unsigned long S_len;
         int c;
         unsigned long dkLen;

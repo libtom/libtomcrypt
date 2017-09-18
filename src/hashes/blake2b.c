@@ -399,7 +399,7 @@ int blake2b_512_test(void)
    return CRYPT_NOP;
 #else
    static const struct {
-      char *msg;
+      const char *msg;
       unsigned char hash[64];
   } tests[] = {
     { "",
@@ -450,7 +450,7 @@ int blake2b_384_test(void)
    return CRYPT_NOP;
 #else
    static const struct {
-      char *msg;
+      const char *msg;
       unsigned char hash[48];
   } tests[] = {
     { "",
@@ -497,7 +497,7 @@ int blake2b_256_test(void)
    return CRYPT_NOP;
 #else
    static const struct {
-      char *msg;
+      const char *msg;
       unsigned char hash[32];
   } tests[] = {
     { "",
@@ -550,7 +550,7 @@ int blake2b_160_test(void)
    return CRYPT_NOP;
 #else
    static const struct {
-      char *msg;
+      const char *msg;
       unsigned char hash[20];
   } tests[] = {
     { "",

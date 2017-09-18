@@ -21,7 +21,7 @@ extern prng_state yarrow_prng;
 #define DOX(x, str) do { run_cmd((x), __LINE__, __FILE__, #x, (str)); } while (0)
 #endif
 
-void run_cmd(int res, int line, char *file, char *cmd, const char *algorithm);
+void run_cmd(int res, int line, const char *file, const char *cmd, const char *algorithm);
 
 void print_hex(const char* what, const void* v, const unsigned long l);
 
