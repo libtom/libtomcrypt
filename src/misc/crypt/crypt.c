@@ -43,7 +43,7 @@ const char *crypt_build_settings =
 #else
    "disabled\n"
 #endif
-   "Ciphers built-in:\n"
+   "\nCiphers built-in:\n"
 #if defined(LTC_BLOWFISH)
    "   Blowfish\n"
 #endif

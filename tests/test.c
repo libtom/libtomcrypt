@@ -301,17 +301,17 @@ int main(int argc, char **argv)
    long delta, dur, real = 0;
    register_algs();
 
-   printf("build == %s\n%s\n", GIT_VERSION, crypt_build_settings);
+   printf("LTC_VERSION  = %s\n%s\n\n", GIT_VERSION, crypt_build_settings);
 
 #ifdef USE_LTM
    ltc_mp = ltm_desc;
-   printf("math provider = libtommath\n");
+   printf("MP_PROVIDER  = LibTomMath\n");
 #elif defined(USE_TFM)
    ltc_mp = tfm_desc;
-   printf("math provider = tomsfastmath\n");
+   printf("MP_PROVIDER  = TomsFastMath\n");
 #elif defined(USE_GMP)
    ltc_mp = gmp_desc;
-   printf("math provider = gnump\n");
+   printf("MP_PROVIDER  = GnuMP\n");
 #elif defined(EXT_MATH_LIB)
    {
       extern ltc_math_descriptor EXT_MATH_LIB;
@@ -320,7 +320,7 @@ int main(int argc, char **argv)
 
 #define NAME_VALUE(s) #s"="NAME(s)
 #define NAME(s) #s
-   printf("math provider = %s\n", NAME_VALUE(EXT_MATH_LIB));
+   printf("MP_PROVIDER  = %s\n", NAME_VALUE(EXT_MATH_LIB));
 #undef NAME_VALUE
 #undef NAME
 
