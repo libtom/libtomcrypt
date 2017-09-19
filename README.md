@@ -93,12 +93,23 @@ The following list does not claim to be complete resp. to be available across al
 | `timing` | builds the `timing` binary, which can be used to measure timings for algorithms and modes *\*4* *\*6* |
 | `bins` | builds `hashsum` *\*4* |
 | `all_test` | builds `test`, `hashsum`, `ltcrypt`, `small`, `tv_gen`, `sizes` & `constants` *\*4* |
+| `docs` | builds the developer documentation `doc/crypt.pdf` |
+| `install` | installs the `library` and header files *\*7* *\*8* |
+| `install_bins` | installs the binaries created by the `bins` target *\*7* *\*8* |
+| `install_docs` | installs the documentation created by the `docs` target *\*7* *\*8* |
+| `install_test` | installs the test-app created by the `test` target *\*7* *\*8* |
+| `install_all` | installs everything (i.e. `library`, `bins`, `docs` and `test`) *\*8* |
+| `uninstall` | uninstalls the `library` and header files |
 
 *\*4* also builds `library`
 
 *\*5* broken build in some configurations, therefore not built by default
 
 *\*6* requires define of one of `USE_GMP`, `USE_LTM` or `USE_TFM` (+ the appropriate MPI provider)
+
+*\*7* also builds the necessary artifact(s) before installing it
+
+*\*8* also have a look at the 'Installation' section of this file
 
 ### Examples
 
@@ -125,3 +136,37 @@ You have `gmp`, `libtommath` and `tomsfastmath` installed on your system and wan
 If you have `libtommath` in a non-standard location:
 
     make CFLAGS="-DUSE_LTM -DLTM_DESC -I/opt/devel/ltm" EXTRALIBS="/opt/devel/ltm/libtommath.a" all
+
+## Installation
+
+There exist several _install_ make-targets which are described in the table above.
+
+These targets support the standard ways (c.f. [[GNU]], [[FreeBSD]])
+to modify the installation path via the following set of variables:
+
+    DESTDIR
+    PREFIX
+    LIBPATH
+    INCPATH
+    DATAPATH
+    BINPATH
+
+The entire set of the variables is only supported in `makefile`, `makefile.shared` and `makefile.unix`.
+
+In case you have to use one of the other makefiles, check in the file which variables are supported.
+
+### Examples
+
+You want to install the static library to the default paths
+
+    make install
+
+You want to install the shared library to a special path and use it from this path
+
+    make -f makefile.shared PREFIX=/opt/special/path
+
+Have a look at the developer documentation, [[GNU]] or [[FreeBSD]] to get a detailed explanation of all the variables.
+
+[GNU]: https://www.gnu.org/prep/standards/html_node/DESTDIR.html
+
+[FreeBSD]: https://www.freebsd.org/doc/en/books/porters-handbook/porting-prefix.html
