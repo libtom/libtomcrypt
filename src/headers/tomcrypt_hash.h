@@ -204,7 +204,7 @@ typedef union Hash_state {
 /** hash descriptor */
 extern  struct ltc_hash_descriptor {
     /** name of hash */
-    char *name;
+    const char *name;
     /** internal ID */
     unsigned char ID;
     /** Size of digest in octets */

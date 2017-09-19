@@ -349,7 +349,7 @@ typedef struct {
 /** cipher descriptor table, last entry has "name == NULL" to mark the end of table */
 extern struct ltc_cipher_descriptor {
    /** name of cipher */
-   char *name;
+   const char *name;
    /** internal ID */
    unsigned char ID;
    /** min keysize (octets) */

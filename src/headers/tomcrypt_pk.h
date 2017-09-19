@@ -230,7 +230,7 @@ int dh_export_key(void *out, unsigned long *outlen, int type, dh_key *key);
 #ifdef LTC_SOURCE
 typedef struct {
   int size;
-  char *name, *base, *prime;
+  const char *name, *base, *prime;
 } ltc_dh_set_type;
 
 extern const ltc_dh_set_type ltc_dh_sets[];
@@ -257,22 +257,22 @@ typedef struct {
    int size;
 
    /** name of curve */
-   char *name;
+   const char *name;
 
    /** The prime that defines the field the curve is in (encoded in hex) */
-   char *prime;
+   const char *prime;
 
    /** The fields B param (hex) */
-   char *B;
+   const char *B;
 
    /** The order of the curve (hex) */
-   char *order;
+   const char *order;
 
    /** The x co-ordinate of the base point on the curve (hex) */
-   char *Gx;
+   const char *Gx;
 
    /** The y co-ordinate of the base point on the curve (hex) */
-   char *Gy;
+   const char *Gy;
 } ltc_ecc_set_type;
 
 /** A point on a ECC curve, stored in Jacbobian format such that (x,y,z) => (x/z^2, y/z^3, 1) when interpretted as affine */

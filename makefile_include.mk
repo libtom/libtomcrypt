@@ -70,6 +70,7 @@ LTC_CFLAGS += -Wextra
 LTC_CFLAGS += -Wsystem-headers -Wbad-function-cast -Wcast-align
 LTC_CFLAGS += -Wstrict-prototypes -Wpointer-arith
 LTC_CFLAGS += -Wdeclaration-after-statement
+LTC_CFLAGS += -Wwrite-strings
 endif
 
 LTC_CFLAGS += -Wno-type-limits
