@@ -97,6 +97,25 @@ static int _radix_to_bin_test(void)
       0xAA, 0x6C, 0x83, 0x70, 0x41, 0x0F, 0x5C, 0xD4, 0x5A, 0xF3, 0x7E, 0xE9, 0x0A, 0x0D, 0xA9, 0x5B,
       0xE9, 0x6F, 0xC9, 0x39, 0xE8, 0x8F, 0xE0, 0xBD, 0x2C, 0xD0, 0x9F, 0xC8, 0xF5, 0x24, 0x20, 0x8C
    };
+   /* long HEX */
+   const char *lhex =
+      "308203423082023506072a8648ce3804013082022802820101008f7935d9b9aae9bfabed887acf4951b6f32ec59e3baf3718"
+      "e8eac4961f3efd3606e74351a9c4183339b809e7c2ae1c539ba7475b85d011adb8b47987754984695cac0e8f14b3360828a2"
+      "2ffa27110a3d62a993453409a0fe696c4658f84bdd20819c3709a01057b195adcd00233dba5484b6291f9d648ef883448677"
+      "979cec04b434a6ac2e75e9985de23db0292fc1118c9ffa9d8181e7338db792b730d7b9e349592f68099872153915ea3d6b8b"
+      "4653c633458f803b32a4c2e0f27290256e4e3f8a3b0838a1c450e4e18c1a29a37ddf5ea143de4b66ff04903ed5cf1623e158"
+      "d487c608e97f211cd81dca23cb6e380765f822e342be484c05763939601cd667021d00baf696a68578f7dfdee7fa67c977c7"
+      "85ef32b233bae580c0bcd5695d0282010016a65c58204850704e7502a39757040d34da3a3478c154d4e4a5c02d242ee04f96"
+      "e61e4bd0904abdac8f37eeb1e09f3182d23c9043cb642f88004160edf9ca09b32076a79c32a627f2473e91879ba2c4e744bd"
+      "2081544cb55b802c368d1fa83ed489e94e0fa0688e32428a5c78c478c68d0527b71c9a3abb0b0be12c44689639e7d3ce74db"
+      "101a65aa2b87f64c6826db3ec72f4b5599834bb4edb02f7c90e9a496d3a55d535bebfc45d4f619f63f3dedbb873925c2f224"
+      "e07731296da887ec1e4748f87efb5fdeb75484316b2232dee553ddaf02112b0d1f02da30973224fe27aeda8b9d4b2922d9ba"
+      "8be39ed9e103a63c52810bc688b7e2ed4316e1ef17dbde0382010500028201001e77f842b1ae0fcd9929d394161d41e14614"
+      "ff7507a9a31f4a1f14d22e2a627a1f4e596624883f1a5b168e9425146f22d5f6ee28757414714bb994ba1129f015d6e04a71"
+      "7edf9b530a5d5cab94f14631e8b4cf79aeb358cc741845553841e8ac461630e804a62f43676ba6794af66899c377b869ea61"
+      "2a7b9fe6611aa96be52eb8b62c979117bbbcca8a7ec1e1ffab1c7dfcfc7048700d3ae3858136e897701d7c2921b5dfef1d1f"
+      "897f50d96ca1b5c2edc58cada18919e35642f0807eebfa00c99a32f4d095c3188f78ed54711be0325c4b532aeccd6540a567"
+      "c327225440ea15319bde06510479a1861799e25b57decc73c036d75a0702bd373ca231349931";
 
    struct {
      int radix;
@@ -113,6 +132,8 @@ static int _radix_to_bin_test(void)
    int i, j;
    unsigned char key_parts[4][256];
    unsigned long key_lens[4];
+   unsigned char lbuf[1000];
+   unsigned long lbuflen = sizeof(lbuf);
 
    for (i = 1; i < 4; i++) {
       for (j = 0; j < 4; ++j) {
@@ -128,6 +149,13 @@ static int _radix_to_bin_test(void)
       if (compare_testvector(key_parts[2], key_lens[2], test[0].p, test[0].plen, "radix_to_bin(p)", i)) return CRYPT_FAIL_TESTVECTOR;
       if (compare_testvector(key_parts[3], key_lens[3], test[0].g, test[0].glen, "radix_to_bin(g)", i)) return CRYPT_FAIL_TESTVECTOR;
    }
+
+   DO(radix_to_bin(lhex, 16, lbuf, &lbuflen));
+   if (lbuflen != 838) {
+      fprintf(stderr, "radix_to_bin failed, lbuflen=%lu (expected 838)\n", lbuflen);
+      return CRYPT_FAIL_TESTVECTOR;
+   }
+
    return CRYPT_OK;
 }
 
