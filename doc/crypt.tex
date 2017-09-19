@@ -3282,21 +3282,69 @@ int f9_test(void);
 This will return \textbf{CRYPT\_OK} on success.  This requires the AES or Rijndael descriptor be previously registered, otherwise, it will return
 \textbf{CRYPT\_NOP}.
 
-\mysection{Poly1305 MAC}
+\mysection{Poly1305--MAC}
 
-XXX-TODO see \url{https://en.wikipedia.org/wiki/Poly1305}
+The Poly1305--MAC is a cryptographic message authentication code created by Daniel J. Bernstein.
+More info at \url{https://en.wikipedia.org/wiki/Poly1305}.
 
-\begin{small}
+\subsection{Poly1305--MAC Functions}
+
+A Poly1305--MAC state is initialized with the following function:
+\index{poly1305\_init()}
 \begin{verbatim}
-int poly1305_init(poly1305_state *st, const unsigned char *key, unsigned long keylen);
-int poly1305_process(poly1305_state *st, const unsigned char *in, unsigned long inlen);
-int poly1305_done(poly1305_state *st, unsigned char *mac, unsigned long *maclen);
-int poly1305_test(void);
-int poly1305_memory(const unsigned char *key, unsigned long keylen, const unsigned char *in, unsigned long inlen, unsigned char *mac, unsigned long *maclen);
-int poly1305_memory_multi(const unsigned char *key, unsigned long keylen, unsigned char *mac, unsigned long *maclen, const unsigned char *in,  unsigned long inlen, ...);
-int poly1305_file(const char *fname, const unsigned char *key, unsigned long keylen, unsigned char *mac, unsigned long *maclen);
+int poly1305_init(     poly1305_state *st,
+                  const unsigned char *key,
+                        unsigned long  keylen);
 \end{verbatim}
-\end{small}
+This will initialize the Poly1305--MAC state \textit{st}, with the key specified in \textit{key} of length \textit{keylen} octets (always 32).
+
+To process data through Poly1305--MAC use the following function:
+\index{poly1305\_process()}
+\begin{verbatim}
+int poly1305_process(     poly1305_state *st,
+                     const unsigned char *in,
+                           unsigned long  inlen);
+\end{verbatim}
+
+This will add the message octets pointed to by \textit{in} of length \textit{inlen} to the Poly1305--MAC state pointed to by \textit{st}.
+
+To compute the MAC tag value use the following function:
+\index{poly1305\_done()}
+\begin{verbatim}
+int poly1305_done(poly1305_state *st,
+                   unsigned char *mac,
+                   unsigned long *maclen);
+\end{verbatim}
+
+This will retrieve the Poly1305--MAC tag from the state pointed to by \textit{st}, and store it in the array pointed to by \textit{mac}.
+The \textit{maclen} parameter specifies the maximum size of the destination buffer, and is updated to hold the final size of the tag when
+the function returns.
+
+Helper functions are provided to make parsing memory buffers and files easier. The following functions are provided:
+\index{poly1305\_memory()}
+\begin{verbatim}
+int poly1305_memory(const unsigned char *key,
+                          unsigned long  keylen,
+                    const unsigned char *in,
+                          unsigned long  inlen,
+                          unsigned char *mac,
+                          unsigned long *maclen);
+\end{verbatim}
+This will compute the Poly1305--MAC of \textit{inlen} bytes of \textit{in}, using the key \textit{key} of length \textit{keylen} bytes.
+It will store the MAC in \textit{mac} with the same rules as poly1305\_done().
+
+To Poly1305--MAC a file use
+\index{poly1305\_file()}
+\begin{verbatim}
+int poly1305_file(         const char *fname,
+                  const unsigned char *key,
+                        unsigned long  keylen,
+                        unsigned char *mac,
+                        unsigned long *maclen);
+\end{verbatim}
+
+Which will Poly1305--MAC the entire contents of the file specified by \textit{fname} using the key \textit{key} of
+length \textit{keylen} bytes. It will store the MAC in \textit{mac} with the same rules as poly1305\_done().
 
 \mysection{BLAKE2s + BLAKE2b MAC}
 
