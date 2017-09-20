@@ -101,6 +101,9 @@ int dsa_verify_hash(const unsigned char *sig, unsigned long siglen,
    ltc_asn1_list sig_seq[2];
    unsigned long reallen = 0;
 
+   LTC_ARGCHK(stat != NULL);
+   *stat = 0; /* must be set before the first return */
+
    if ((err = mp_init_multi(&r, &s, NULL)) != CRYPT_OK) {
       return err;
    }

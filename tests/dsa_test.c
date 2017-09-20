@@ -246,6 +246,76 @@ static int _dsa_compat_test(void)
   return CRYPT_OK;
 }
 
+static int _dsa_wycheproof_test(void)
+{
+   /* test case from https://github.com/google/wycheproof/blob/master/testvectors/dsa_test.json
+    *
+    * "comment" : "appending unused 0's",
+    * "message" : "48656c6c6f",
+    * "result" : "invalid",
+    * "sig" : "303d021c1e41b479ad576905b960fe14eadb91b0ccf34843dab916173bb8c9cd021d00ade65988d237d30f9ef41dd424a4e1c8f16967cf3365813fe87862360000",
+    * "tcId" : 55
+    */
+   unsigned char msg[] = { 0x48, 0x65, 0x6c, 0x6c, 0x6f };
+   unsigned char sig[] = { 0x30, 0x3d, 0x02, 0x1c, 0x1e, 0x41, 0xb4, 0x79, 0xad, 0x57, 0x69, 0x05, 0xb9, 0x60, 0xfe,
+                           0x14, 0xea, 0xdb, 0x91, 0xb0, 0xcc, 0xf3, 0x48, 0x43, 0xda, 0xb9, 0x16, 0x17, 0x3b, 0xb8,
+                           0xc9, 0xcd, 0x02, 0x1d, 0x00, 0xad, 0xe6, 0x59, 0x88, 0xd2, 0x37, 0xd3, 0x0f, 0x9e, 0xf4,
+                           0x1d, 0xd4, 0x24, 0xa4, 0xe1, 0xc8, 0xf1, 0x69, 0x67, 0xcf, 0x33, 0x65, 0x81, 0x3f, 0xe8,
+                           0x78, 0x62, 0x36, 0x00, 0x00 };
+   const char* b64key =
+      "MIIDQjCCAjUGByqGSM44BAEwggIoAoIBAQCPeTXZuarpv6vtiHrPSVG28y7FnjuvNxjo6sSWHz79"
+      "NgbnQ1GpxBgzObgJ58KuHFObp0dbhdARrbi0eYd1SYRpXKwOjxSzNggooi/6JxEKPWKpk0U0CaD+"
+      "aWxGWPhL3SCBnDcJoBBXsZWtzQAjPbpUhLYpH51kjviDRIZ3l5zsBLQ0pqwudemYXeI9sCkvwRGM"
+      "n/qdgYHnM423krcw17njSVkvaAmYchU5Feo9a4tGU8YzRY+AOzKkwuDycpAlbk4/ijsIOKHEUOTh"
+      "jBopo33fXqFD3ktm/wSQPtXPFiPhWNSHxgjpfyEc2B3KI8tuOAdl+CLjQr5ITAV2OTlgHNZnAh0A"
+      "uvaWpoV499/e5/pnyXfHhe8ysjO65YDAvNVpXQKCAQAWplxYIEhQcE51AqOXVwQNNNo6NHjBVNTk"
+      "pcAtJC7gT5bmHkvQkEq9rI837rHgnzGC0jyQQ8tkL4gAQWDt+coJsyB2p5wypifyRz6Rh5uixOdE"
+      "vSCBVEy1W4AsNo0fqD7UielOD6BojjJCilx4xHjGjQUntxyaOrsLC+EsRGiWOefTznTbEBplqiuH"
+      "9kxoJts+xy9LVZmDS7TtsC98kOmkltOlXVNb6/xF1PYZ9j897buHOSXC8iTgdzEpbaiH7B5HSPh+"
+      "+1/et1SEMWsiMt7lU92vAhErDR8C2jCXMiT+J67ai51LKSLZuovjntnhA6Y8UoELxoi34u1DFuHv"
+      "F9veA4IBBQACggEAHnf4QrGuD82ZKdOUFh1B4UYU/3UHqaMfSh8U0i4qYnofTllmJIg/GlsWjpQl"
+      "FG8i1fbuKHV0FHFLuZS6ESnwFdbgSnF+35tTCl1cq5TxRjHotM95rrNYzHQYRVU4QeisRhYw6ASm"
+      "L0Nna6Z5SvZomcN3uGnqYSp7n+ZhGqlr5S64tiyXkRe7vMqKfsHh/6scffz8cEhwDTrjhYE26Jdw"
+      "HXwpIbXf7x0fiX9Q2WyhtcLtxYytoYkZ41ZC8IB+6/oAyZoy9NCVwxiPeO1UcRvgMlxLUyrszWVA"
+      "pWfDJyJUQOoVMZveBlEEeaGGF5niW1fezHPANtdaBwK9NzyiMTSZMQ==";
+   unsigned char derkey[838];
+   unsigned long derlen = sizeof(derkey);
+   unsigned char hash[32];
+   unsigned long hashlen = sizeof(hash);
+   dsa_key key;
+   int stat;
+
+   DO(base64_decode((unsigned char*)b64key, strlen(b64key), derkey, &derlen));
+   if (derlen != 838) {
+      fprintf(stderr, "base64_decode failed, derlen=%lu (expected 838)\n", derlen);
+      return CRYPT_FAIL_TESTVECTOR;
+   }
+   DO(dsa_import(derkey, derlen, &key));
+   DO(hash_memory(find_hash("sha224"), msg, sizeof(msg), hash, &hashlen));
+   if (hashlen != 28) {
+      fprintf(stderr, "hash_memory failed, hashlen=%lu (expected 32)\n", hashlen);
+      return CRYPT_FAIL_TESTVECTOR;
+   }
+
+   stat = 666; /* intentionally not one, not zero */
+   DO(dsa_verify_hash(sig, sizeof(sig)-2, hash, hashlen, &stat, &key));
+   /* without the last two 0x00 bytes it is a valid signature */
+   if (stat != 1) {
+      fprintf(stderr, "dsa_verify_hash rejected valid signature\n");
+      return CRYPT_FAIL_TESTVECTOR;
+   }
+
+   stat = 666; /* intentionally not one, not zero */
+   DO(dsa_verify_hash(sig, sizeof(sig), hash, hashlen, &stat, &key));
+   /* this should be invalid */
+   if (stat != 0) {
+      fprintf(stderr, "dsa_verify_hash did not reject invalid signature\n");
+      return CRYPT_FAIL_TESTVECTOR;
+   }
+
+   return CRYPT_OK;
+}
+
 int dsa_test(void)
 {
    unsigned char msg[16], out[1024], out2[1024], ch;
@@ -254,6 +324,7 @@ int dsa_test(void)
    dsa_key key, key2;
 
    DO(_dsa_compat_test());
+   DO(_dsa_wycheproof_test());
 
    /* make a random key */
    DO(dsa_generate_pqg(&yarrow_prng, find_prng("yarrow"), 20, 128, &key));
@@ -291,9 +362,9 @@ int dsa_test(void)
    if (!(stat1 == 1 && stat2 == 0)) { fprintf(stderr, "dsa_verify %d %d", stat1, stat2); return 1; }
 
    /* test exporting it */
-   x = sizeof(out2);
-   DO(dsa_export(out2, &x, PK_PRIVATE, &key));
-   DO(dsa_import(out2, x, &key2));
+   y = sizeof(out2);
+   DO(dsa_export(out2, &y, PK_PRIVATE, &key));
+   DO(dsa_import(out2, y, &key2));
 
    /* verify a signature with it */
    DO(dsa_verify_hash(out, x, msg, sizeof(msg), &stat1, &key2));
@@ -301,10 +372,10 @@ int dsa_test(void)
    dsa_free(&key2);
 
    /* export as public now */
-   x = sizeof(out2);
-   DO(dsa_export(out2, &x, PK_PUBLIC, &key));
+   y = sizeof(out2);
+   DO(dsa_export(out2, &y, PK_PUBLIC, &key));
 
-   DO(dsa_import(out2, x, &key2));
+   DO(dsa_import(out2, y, &key2));
    /* verify a signature with it */
    DO(dsa_verify_hash(out, x, msg, sizeof(msg), &stat1, &key2));
    if (stat1 == 0) { fprintf(stderr, "dsa_verify (import public) %d ", stat1); return 1; }
