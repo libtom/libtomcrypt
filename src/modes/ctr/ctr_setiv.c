@@ -16,8 +16,8 @@
 #ifdef LTC_CTR_MODE
 
 /**
-   Set an initial vector
-   @param IV   The initial vector
+   Set an initialization vector
+   @param IV   The initialization vector
    @param len  The length of the vector (in octets)
    @param ctr  The CTR state
    @return CRYPT_OK if successful

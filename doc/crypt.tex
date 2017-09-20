@@ -781,7 +781,7 @@ This snippet is a small program that registers Rijndael.
 \subsection{Background}
 A typical symmetric block cipher can be used in chaining modes to effectively encrypt messages larger than the block
 size of the cipher.  Given a key $k$, a plaintext $P$ and a cipher $E$ we shall denote the encryption of the block
-$P$ under the key $k$ as $E_k(P)$.  In some modes there exists an initial vector denoted as $C_{-1}$.
+$P$ under the key $k$ as $E_k(P)$.  In some modes there exists an initialization vector denoted as $C_{-1}$.
 
 \subsubsection{ECB Mode}
 \index{ECB mode}
@@ -799,19 +799,19 @@ It is given as:
 \begin{equation}
 C_i = E_k(P_i \oplus C_{i - 1})
 \end{equation}
-It is important that the initial vector be unique and preferably random for each message encrypted under the same key.
+It is important that the initialization vector be unique and preferably random for each message encrypted under the same key.
 
 \subsubsection{CTR Mode}
 \index{CTR mode}
-CTR or Counter Mode is a mode which only uses the encryption function of the cipher.  Given a initial vector which is
+CTR or Counter Mode is a mode which only uses the encryption function of the cipher.  Given a initialization vector which is
 treated as a large binary counter the CTR mode is given as:
 \begin{eqnarray}
 C_{-1} = C_{-1} + 1\mbox{ }(\mbox{mod }2^W) \nonumber \\
 C_i = P_i \oplus E_k(C_{-1})
 \end{eqnarray}
-Where $W$ is the size of a block in bits (e.g. 64 for Blowfish).  As long as the initial vector is random for each message
+Where $W$ is the size of a block in bits (e.g. 64 for Blowfish).  As long as the initialization vector is random for each message
 encrypted under the same key replay and swap attacks are infeasible.  CTR mode may look simple but it is as secure
-as the block cipher is under a chosen plaintext attack (provided the initial vector is unique).
+as the block cipher is under a chosen plaintext attack (provided the initialization vector is unique).
 
 \subsubsection{CFB Mode}
 \index{CFB mode}
@@ -822,7 +822,7 @@ C_{-1} = E_k(C_i)
 \end{eqnarray}
 Note that in this library the output feedback width is equal to the size of the block cipher.  That is this mode is used
 to encrypt whole blocks at a time.  However, the library will buffer data allowing the user to encrypt or decrypt partial
-blocks without a delay.  When this mode is first setup it will initially encrypt the initial vector as required.
+blocks without a delay.  When this mode is first setup it will initially encrypt the initialization vector as required.
 
 \subsubsection{OFB Mode}
 \index{OFB mode}
@@ -1012,7 +1012,7 @@ int main(void)
    /* start up CTR mode */
    if ((err = ctr_start(
         find_cipher("twofish"), /* index of desired cipher */
-                            IV, /* the initial vector */
+                            IV, /* the initialization vector */
                            key, /* the secret key */
                             16, /* length of secret key (16 bytes) */
                              0, /* 0 == default # of rounds */
@@ -1786,7 +1786,7 @@ With CCM, a header is meta--data you want to send with the message but not have 
 as \textit{aadlen}.
 
 \subsection{Nonce Vector}
-After the state has been initialized (or reset) the next step is to add the session (or packet) initial vector.  It should be unique per packet encrypted.
+After the state has been initialized (or reset) the next step is to add the session (or packet) initialization vector.  It should be unique per packet encrypted.
 
 \index{ccm\_add\_nonce()}
 \begin{verbatim}
@@ -1973,7 +1973,7 @@ Galois counter mode is an IEEE proposal for authenticated encryption (also it is
 however, unlike EAX it cannot accept \textit{additional authentication data} (meta--data) after plaintext has been processed.  This mode also only works with
 block ciphers with a 16--byte block.
 
-A GCM stream is meant to be processed in three modes, one after another.  First, the initial vector (per session) data is processed.  This should be
+A GCM stream is meant to be processed in three modes, one after another.  First, the initialization vector (per session) data is processed.  This should be
 unique to every session.  Next, the the optional additional authentication data is processed, and finally the plaintext (or ciphertext depending on the direction).
 
 \subsection{Initialization}
@@ -1989,8 +1989,8 @@ int gcm_init(          gcm_state *gcm,
 This initializes the GCM state \textit{gcm} for the given cipher indexed by \textit{cipher}, with a secret key \textit{key} of length \textit{keylen} octets.  The cipher
 chosen must have a 16--byte block size (e.g., AES).
 
-\subsection{Initial Vector}
-After the state has been initialized (or reset) the next step is to add the session (or packet) initial vector.  It should be unique per packet encrypted.
+\subsection{Initialization Vector}
+After the state has been initialized (or reset) the next step is to add the session (or packet) initialization vector.  It should be unique per packet encrypted.
 
 \index{gcm\_add\_iv()}
 \begin{verbatim}
@@ -1998,7 +1998,7 @@ int gcm_add_iv(          gcm_state *gcm,
                const unsigned char *IV,
                      unsigned long  IVlen);
 \end{verbatim}
-This adds the initial vector octets from \textit{IV} of length \textit{IVlen} to the GCM state \textit{gcm}.  You can call this function as many times as required
+This adds the initialization vector octets from \textit{IV} of length \textit{IVlen} to the GCM state \textit{gcm}.  You can call this function as many times as required
 to process the entire IV.
 
 Note: the GCM protocols provides a \textit{shortcut} for 12--byte IVs where no pre-processing is to be done.  If you want to minimize per packet latency it is ideal
@@ -2193,8 +2193,8 @@ int chacha20poly1305_init(chacha20poly1305_state *st,
 This initializes the ChaCha20--Poly1305 state \textit{st} with a secret key \textit{key} of length \textit{keylen}
 octets (valid lengths: 32 or 16).
 
-\subsection{Initial Vector}
-After the state has been initialized the next step is to add the initial vector.
+\subsection{Initialization Vector}
+After the state has been initialized the next step is to add the initialization vector.
 
 \index{chacha20poly1305\_setiv()}
 \begin{verbatim}
@@ -2202,7 +2202,7 @@ int chacha20poly1305_setiv(chacha20poly1305_state *st,
                               const unsigned char *iv,
                                     unsigned long  ivlen);
 \end{verbatim}
-This adds the initial vector from \textit{iv} of length \textit{ivlen} octects (valid lengths: 8 or 12) to
+This adds the initialization vector from \textit{iv} of length \textit{ivlen} octects (valid lengths: 8 or 12) to
 the ChaCha20--Poly1305 state \textit{st}.
 
 \index{chacha20poly1305\_setiv\_rfc7905()}
@@ -2212,7 +2212,7 @@ int chacha20poly1305_setiv_rfc7905(chacha20poly1305_state *st,
                                             unsigned long  ivlen,
                                                   ulong64  sequence_number);
 \end{verbatim}
-This also adds the initial vector from \textit{iv} of length \textit{ivlen} octects (valid lengths: 8 or 12) to
+This also adds the initialization vector from \textit{iv} of length \textit{ivlen} octects (valid lengths: 8 or 12) to
 the state \textit{st} but it also incorporates 64bit \textit{sequence\_number} into IV as described in RFC7905.
 
 You can call only one of \textit{chacha20poly1305\_setiv} or \textit{chacha20poly1305\_setiv\_rfc7905}.
@@ -6163,7 +6163,7 @@ As above, but we generate as many bytes as requested in outlen per the OpenSSL e
 \subsection{Algorithm Two}
 
 Algorithm Two is the recommended algorithm for this task.  It allows variable length salts, and can produce outputs larger than the
-hash functions output.  As such, it can easily be used to derive session keys for ciphers and MACs as well initial vectors as required
+hash functions output.  As such, it can easily be used to derive session keys for ciphers and MACs as well initialization vectors as required
 from a single password and invocation of this algorithm.
 
 \index{pkcs\_5\_alg2()}
@@ -7295,8 +7295,8 @@ struct ltc_cipher_descriptor {
    /** Accelerated GCM packet (one shot)
        @param key        The secret key
        @param keylen     The length of the secret key
-       @param IV         The initial vector
-       @param IVlen      The length of the initial vector
+       @param IV         The initialization vector
+       @param IVlen      The length of the initialization vector
        @param adata      The additional authentication data (header)
        @param adatalen   The length of the adata
        @param pt         The plaintext
@@ -7412,7 +7412,7 @@ through the accel\_ecb\_encrypt and accel\_ecb\_decrypt pointers.  The \textit{b
 
 \subsubsection{Accelerated CBC}
 These two functions are meant for accelerated CBC encryption.  These functions are accessed through the accel\_cbc\_encrypt and accel\_cbc\_decrypt pointers.
-The \textit{blocks} value is the number of complete blocks to process.  The \textit{IV} is the CBC initial vector.  It is an input upon calling this function and must be
+The \textit{blocks} value is the number of complete blocks to process.  The \textit{IV} is the CBC initialization vector.  It is an input upon calling this function and must be
 updated by the function before returning.
 
 \subsubsection{Accelerated CTR}

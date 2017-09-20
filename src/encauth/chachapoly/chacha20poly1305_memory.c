@@ -15,8 +15,8 @@
   Process an entire GCM packet in one call.
   @param key               The secret key
   @param keylen            The length of the secret key
-  @param iv                The initial vector
-  @param ivlen             The length of the initial vector
+  @param iv                The initialization vector
+  @param ivlen             The length of the initialization vector
   @param aad               The additional authentication data (header)
   @param aadlen            The length of the aad
   @param in                The plaintext
