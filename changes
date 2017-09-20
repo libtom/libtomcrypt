@@ -22,6 +22,8 @@ v1.18.0
          XTS mode and RSA private key operations with keys without CRT parameters
       -- RC2 now also works with smaller key-sizes
       -- Improved/extended several tests & demos
+      -- Hardened DSA and RSA by testing (through Karel's perl-CryptX)
+         against Google's "Wycheproof" and Kudelski Security's "CDF"
       -- Fixed all compiler warnings
       -- Fixed several build issues on FreeBSD, NetBSD, Linux x32 ABI, HP-UX/IA64,
          Mac OS X, Windows (32&64bit, MingW&MSVC) ...
@@ -33,7 +35,7 @@ v1.18.0
       -- Add Base64-URL de-/encoding and some strict variants
       -- Add Blake2b & Blake2s (hash & mac), thanks to Kelvin Sherlock
       -- Add Camellia block cipher
-      -- Add ChaCha20 (stream cipher), Poly1305 (mac), ChaCha20Poly1305 (encauth)
+      -- Add ChaCha (stream cipher), Poly1305 (mac), ChaCha20Poly1305 (encauth)
       -- Add constant-time mem-compare mem_neq()
       -- Add DER GeneralizedTime de-/encoding
       -- Add DSA and ECC key generation FIPS-186-4 compliance
