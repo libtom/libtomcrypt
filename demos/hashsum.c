@@ -90,6 +90,10 @@ static void check_file(int argn, int argc, char **argv)
          int tries, n;
          unsigned long hash_len, w, x;
          char* space = strstr(s, " ");
+
+         /* skip lines with comments */
+         if (buf[0] == '#') continue;
+
          if (space == NULL) {
             fprintf(stderr, "%s: no properly formatted checksum lines found\n", hashsum);
             goto ERR;
