@@ -499,8 +499,8 @@ extern struct ltc_cipher_descriptor {
    /** Accelerated GCM packet (one shot)
        @param key        The secret key
        @param keylen     The length of the secret key
-       @param IV         The initial vector
-       @param IVlen      The length of the initial vector
+       @param IV         The initialization vector
+       @param IVlen      The length of the initialization vector
        @param adata      The additional authentication data (header)
        @param adatalen   The length of the adata
        @param pt         The plaintext

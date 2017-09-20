@@ -17,8 +17,8 @@
 #ifdef LTC_CBC_MODE
 
 /**
-   Set an initial vector
-   @param IV   The initial vector
+   Set an initialization vector
+   @param IV   The initialization vector
    @param len  The length of the vector (in octets)
    @param cbc  The CBC state
    @return CRYPT_OK if successful

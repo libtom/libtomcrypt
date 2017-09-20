@@ -23,7 +23,7 @@
   @param hash     The hash that was signed
   @param hashlen  The length of the hash that was signed
   @param stat     [out] The result of the signature verification, 1==valid, 0==invalid
-  @param key      The corresponding public DH key
+  @param key      The corresponding public DSA key
   @return CRYPT_OK if successful (even if the signature is invalid)
 */
 int dsa_verify_hash_raw(         void   *r,          void   *s,
@@ -89,7 +89,7 @@ error:
   @param hash     The hash that was signed
   @param hashlen  The length of the hash that was signed
   @param stat     [out] The result of the signature verification, 1==valid, 0==invalid
-  @param key      The corresponding public DH key
+  @param key      The corresponding public DSA key
   @return CRYPT_OK if successful (even if the signature is invalid)
 */
 int dsa_verify_hash(const unsigned char *sig, unsigned long siglen,

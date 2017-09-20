@@ -55,6 +55,9 @@ docdvi: crypt.tex
 	latex crypt $(silent_stdout)
 	latex crypt $(silent_stdout)
 
+termdoc: docdvi
+	dvi2tty crypt.dvi -w120
+
 clean:
 	rm -f $(LEFTOVERS)
 	rm -rf doxygen/

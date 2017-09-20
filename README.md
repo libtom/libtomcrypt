@@ -89,8 +89,8 @@ The following list does not claim to be complete resp. to be available across al
 | `sizes` | builds the `sizes` binary, printing all internal data sizes on invocation *\*4* |
 | `constants` | builds the `constants` binary, printing all internal constants on invocation *\*4* |
 | `openssl-enc` | builds the `openssl-enc` binary, which is more or less compatible to [`openssl enc`](https://linux.die.net/man/1/enc) *\*4* *\*5* |
-| `test` | builds the `test` binary, which runs all algorithm self-tests + some extended tests *\*4* *\*6* |
-| `timing` | builds the `timing` binary, which can be used to measure timings for algorithms and modes *\*4* *\*6* |
+| `test` | builds the `test` binary, which runs all algorithm self-tests + some extended tests *\*4* |
+| `timing` | builds the `timing` binary, which can be used to measure timings for algorithms and modes *\*4* |
 | `bins` | builds `hashsum` *\*4* |
 | `all_test` | builds `test`, `hashsum`, `ltcrypt`, `small`, `tv_gen`, `sizes` & `constants` *\*4* |
 | `docs` | builds the developer documentation `doc/crypt.pdf` |
@@ -104,8 +104,6 @@ The following list does not claim to be complete resp. to be available across al
 *\*4* also builds `library`
 
 *\*5* broken build in some configurations, therefore not built by default
-
-*\*6* requires define of one of `USE_GMP`, `USE_LTM` or `USE_TFM` (+ the appropriate MPI provider)
 
 *\*7* also builds the necessary artifact(s) before installing it
 

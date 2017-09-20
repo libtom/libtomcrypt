@@ -8,6 +8,7 @@
 \usepackage{graphicx}
 \usepackage{layout}
 \usepackage{fancyhdr}
+\usepackage{float}
 \def\union{\cup}
 \def\intersect{\cap}
 \def\getsrandom{\stackrel{\rm R}{\gets}}
@@ -128,13 +129,6 @@ The library was designed such that new ciphers/hashes/PRNGs can be added at run-
 (and helper API functions) are able to use the new designs automatically.  There exists self-check functions for each
 block cipher and hash function to ensure that they compile and execute to the published design specifications.  The library
 also performs extensive parameter error checking to prevent any number of run-time exploits or errors.
-
-\subsection{What the library IS for?}
-
-The library serves as a toolkit for developers who have to solve cryptographic problems.  Out of the box LibTomCrypt
-does not process SSL or OpenPGP messages, it doesn't read X.509 certificates, or write PEM encoded data.  It does, however,
-provide all of the tools required to build such functionality.  LibTomCrypt was designed to be a flexible library that
-was not tied to any particular cryptographic problem.
 
 \mysection{Why did I write it?}
 You may be wondering, \textit{Tom, why did you write a crypto library.  I already have one.}  Well the reason falls into
@@ -687,8 +681,24 @@ Twofish round function.
 \caption{Twofish Build Options}
 \label{fig:twofishopts}
 \end{figure}
+
+\item
+As of v1.18.0 of the library RC2 got an extended setup function (which didn't fit in the regular API):
+
+\index{rc2\_setup\_ex()}
+\begin{verbatim}
+int rc2_setup_ex(const unsigned char *key,
+                                 int keylen,
+                                 int bits,
+                                 int num_rounds,
+                       symmetric_key *skey);
+\end{verbatim}
+
+This setup function also allows to configure the effective key length in bits of the RC2 cipher as in its original specification.
+
 \end{enumerate}
 \end{small}
+
 
 To work with the cipher\_descriptor array there is a function:
 \index{find\_cipher()}
@@ -772,7 +782,7 @@ This snippet is a small program that registers Rijndael.
 \subsection{Background}
 A typical symmetric block cipher can be used in chaining modes to effectively encrypt messages larger than the block
 size of the cipher.  Given a key $k$, a plaintext $P$ and a cipher $E$ we shall denote the encryption of the block
-$P$ under the key $k$ as $E_k(P)$.  In some modes there exists an initial vector denoted as $C_{-1}$.
+$P$ under the key $k$ as $E_k(P)$.  In some modes there exists an initialization vector denoted as $C_{-1}$.
 
 \subsubsection{ECB Mode}
 \index{ECB mode}
@@ -790,19 +800,19 @@ It is given as:
 \begin{equation}
 C_i = E_k(P_i \oplus C_{i - 1})
 \end{equation}
-It is important that the initial vector be unique and preferably random for each message encrypted under the same key.
+It is important that the initialization vector be unique and preferably random for each message encrypted under the same key.
 
 \subsubsection{CTR Mode}
 \index{CTR mode}
-CTR or Counter Mode is a mode which only uses the encryption function of the cipher.  Given a initial vector which is
+CTR or Counter Mode is a mode which only uses the encryption function of the cipher.  Given a initialization vector which is
 treated as a large binary counter the CTR mode is given as:
 \begin{eqnarray}
 C_{-1} = C_{-1} + 1\mbox{ }(\mbox{mod }2^W) \nonumber \\
 C_i = P_i \oplus E_k(C_{-1})
 \end{eqnarray}
-Where $W$ is the size of a block in bits (e.g. 64 for Blowfish).  As long as the initial vector is random for each message
+Where $W$ is the size of a block in bits (e.g. 64 for Blowfish).  As long as the initialization vector is random for each message
 encrypted under the same key replay and swap attacks are infeasible.  CTR mode may look simple but it is as secure
-as the block cipher is under a chosen plaintext attack (provided the initial vector is unique).
+as the block cipher is under a chosen plaintext attack (provided the initialization vector is unique).
 
 \subsubsection{CFB Mode}
 \index{CFB mode}
@@ -813,7 +823,7 @@ C_{-1} = E_k(C_i)
 \end{eqnarray}
 Note that in this library the output feedback width is equal to the size of the block cipher.  That is this mode is used
 to encrypt whole blocks at a time.  However, the library will buffer data allowing the user to encrypt or decrypt partial
-blocks without a delay.  When this mode is first setup it will initially encrypt the initial vector as required.
+blocks without a delay.  When this mode is first setup it will initially encrypt the initialization vector as required.
 
 \subsubsection{OFB Mode}
 \index{OFB mode}
@@ -1003,7 +1013,7 @@ int main(void)
    /* start up CTR mode */
    if ((err = ctr_start(
         find_cipher("twofish"), /* index of desired cipher */
-                            IV, /* the initial vector */
+                            IV, /* the initialization vector */
                            key, /* the secret key */
                             16, /* length of secret key (16 bytes) */
                              0, /* 0 == default # of rounds */
@@ -1231,10 +1241,128 @@ To terminate an F8 state call the following function:
 int f8_done(symmetric_F8 *f8);
 \end{verbatim}
 
-\vfil
-\mysection{Encrypt and Authenticate Modes}
+\chapter{Stream Ciphers}
 
-\subsection{EAX Mode}
+Stream ciphers are symmetric key ciphers which operate on a stream of bytes (in theory on a stream of bits
+however LibTomCrypt's implementation works with bytes).
+
+The API for all stream ciphers operates in mode: \textit{setup} -- \textit{crypt} -- \textit{crypt} -- ... -- \textit{done}.
+Please note that both encryption and decryption are implemented via \textit{crypt}.
+
+Another useful feature of the stream ciphers API is generation of a random stream of bytes which works like:
+\textit{setup} -- \textit{keystream} -- \textit{keystream} -- ... -- \textit{done}. The random stream generation is
+implemented like encryption of a stream of \textit{0x00} bytes.
+
+Note: You shouldn't use the keystream interface as a PRNG, as it doesn't allow to re-seed the internal state.
+
+\mysection{ChaCha}
+
+\textit{ChaCha} is currently the most modern stream cipher included in LibTomCrypt, so use this one unless you
+have a reason for using some of the older algorithms.
+
+For more information about ChaCha see \url{https://en.wikipedia.org/wiki/ChaCha_(cipher)}.
+
+Supported key size: 16 or 32 bytes (128 or 256 bits).
+
+You can initialize ChaCha with 96bit \textit{nonce} + 32bit \textit{counter}:
+\begin{verbatim}
+chacha_state st;
+err = chacha_setup(&st, key, key_len, rounds);
+err = chacha_ivctr32(&st, nonce, 12, initial_32bit_ctr);
+\end{verbatim}
+
+Or with 64bit \textit{nonce} + 64bit \textit{counter}:
+\begin{verbatim}
+chacha_state st;
+err = chacha_setup(&st, key, key_len, rounds);
+err = chacha_ivctr64(&st, nonce, 8, initial_64bit_ctr);
+\end{verbatim}
+
+The \textit{chacha\_setup} takes the number of rounds as a parameter -- choose 20 if you are not sure.
+As always never ever use the same key + nonce pair more than once.
+
+For the actual encryption or decryption you have to call:
+\begin{verbatim}
+err = chacha_crypt(&st, in_buffer, in_len, out_buffer);
+\end{verbatim}
+
+If you just want a random stream of bytes initialize the cipher with a truly random \textit{key} (32 bytes),
+a truly random \textit{nonce} (8 bytes) and zero initial counter. After that you can get a stream of pseudo--random
+bytes via:
+\begin{verbatim}
+err = chacha_keystream(&st, out_buffer, out_len);
+\end{verbatim}
+
+At the end you have to terminate the state:
+\begin{verbatim}
+err = chacha_done(&st);
+\end{verbatim}
+
+\mysection{RC4}
+
+For more information about RC4 see \url{https://en.wikipedia.org/wiki/RC4}.
+
+Supported key size: 5--256 bytes
+
+You need to initialize RC4 only with a \textit{key}.
+\begin{verbatim}
+rc4_state st;
+err = rc4_stream_setup(&st, key, key_len);
+\end{verbatim}
+
+For the actual encryption or decryption you have to call:
+\begin{verbatim}
+err = rc4_stream_crypt(&st, in_buffer, in_len, out_buffer);
+\end{verbatim}
+
+
+If you just want a random stream of bytes initialize the cipher with truly random \textit{key}.
+After that you can get a stream of pseudo--random bytes via:
+\begin{verbatim}
+err = rc4_stream_keystream(&st, out_buffer, out_len);
+\end{verbatim}
+
+At the end you have to terminate the state:
+\begin{verbatim}
+err = rc4_stream_done(&st);
+\end{verbatim}
+
+\mysection{Sober128}
+
+Supported key size: must be multiple of 4 bytes
+
+You need to initialize Sober128 with a \textit{key} and a \textit{nonce} (must be multiple of 4 bytes).
+\begin{verbatim}
+sober128_state st;
+err = sober128_stream_setup(&st, key, 16);
+err = sober128_stream_setiv(&st, nonce, 12);
+\end{verbatim}
+
+For the actual encryption or decryption you to call:
+\begin{verbatim}
+err = sober128_stream_crypt(&st, in_buffer, in_len, out_buffer);
+\end{verbatim}
+
+If you just want a random stream of bytes initialize the cipher with a truly random \textit{key}
+and a truly random \textit{nonce}. After that you can get a stream of pseudo--random bytes via:
+\begin{verbatim}
+err = sober128_stream_keystream(&st, out_buffer, out_len);
+\end{verbatim}
+
+At the end you have to terminate the state:
+\begin{verbatim}
+err = sober128_stream_done(&st);
+\end{verbatim}
+
+\chapter{Authenticated Encryption}
+
+Authenticated Encryption - sometimes also called Authenticated Encryption with Associated Data (AEAD) - is a variant of encryption
+that provides not only confidentiality (as other symmetric or stream ciphers) but also integrity.
+
+The inputs of Authenticated Encryption are: \textit{key}, \textit{nonce} (sometimes called initialization vector), \textit{plaintext},
+optional \textit{header} (sometimes called additional authenticated data - AAD). The outputs are: \textit{ciphertext} and \textit{tag}.
+
+\mysection{EAX Mode}
 LibTomCrypt provides support for a mode called EAX\footnote{See
 M. Bellare, P. Rogaway, D. Wagner, A Conventional Authenticated-Encryption Mode.} in a manner similar to the way it was intended to be used
 by the designers.  First, a short description of what EAX mode is before we explain how to use it.  EAX is a mode that requires a cipher,
@@ -1406,11 +1534,22 @@ have the same meaning as with those respective functions.
 The only difference is eax\_decrypt\_verify\_memory() does not emit a tag.  Instead you pass it a tag as input and it compares it against
 the tag it computed while decrypting the message.  If the tags match then it stores a $1$ in \textit{res}, otherwise it stores a $0$.
 
-\subsection{OCB Mode}
-LibTomCrypt provides support for a mode called OCB\footnote{See
+\mysection{OCB Modes}
+\subsection{Preface}
+
+LibTomCrypt provides support for a mode called OCB in version 1 ''OCB''\footnote{See
 P. Rogaway, M. Bellare, J. Black, T. Krovetz, \textit{OCB: A Block Cipher Mode of Operation for Efficient Authenticated Encryption}.}
-.  OCB is an encryption protocol that simultaneously provides authentication.  It is slightly faster to use than EAX mode
-but is less flexible.  Let's review how to initialize an OCB context.
+and version 3 ''OCB3''\footnote{See RFC7253, T. Krovetz, P. Rogaway, \textit{The OCB Authenticated-Encryption Algorithm}.}.
+OCB is an encryption protocol that simultaneously provides authentication.  It is slightly faster to use than EAX mode
+but is less flexible.
+
+Please be aware that all versions of OCB are patented and there are several licensing models provided by P. Rogaway, the patent holder
+-- see \url{http://web.cs.ucdavis.edu/~rogaway/ocb/license.htm}.
+
+\subsection{OCB}
+\subsubsection{Initialization and processing}
+
+Let's review how to initialize an OCB context.
 
 \index{ocb\_init()}
 \begin{verbatim}
@@ -1512,12 +1651,122 @@ int ocb_decrypt_verify_memory(
 \end{verbatim}
 
 Similarly, this will OCB decrypt, and compare the internally computed tag against the tag provided. \textit{res} is set
-appropriately.
+appropriately to \textit{1} if the tag matches or to \textit{0} if it doesn't match.
 
-\subsection{CCM Mode}
-CCM is a NIST proposal for encrypt + authenticate that is centered around using AES (or any 16--byte cipher) as a primitive.  
+\subsection{OCB3}
+\subsubsection{Initialization and processing}
 
-\subsubsection{Initialization}
+\index{ocb3\_init()}
+\begin{verbatim}
+int ocb3_init(ocb3_state *ocb, int cipher,
+             const unsigned char *key, unsigned long keylen,
+             const unsigned char *nonce, unsigned long noncelen,
+             unsigned long taglen);
+\end{verbatim}
+
+This will initialize the \textit{ocb} context using cipher descriptor \textit{cipher}.  It will use a \textit{key} of length \textit{keylen}
+and the random \textit{nonce} of length \textit{noncelen}.  The \textit{nonce} must be a random (public) string of an arbitrary length
+between 1 and 15 octets.  The desired length of the TAG that should be created when terminating the state has to be passed in \textit{taglen}
+and has to be between 0 and 16 octets.
+
+Note that you can only use ciphers with a block length of 16.
+
+\subsubsection{Additional Authenticated Data}
+
+OCB3 has, in contrary to OCB, the possibility to add "Additional Authenticated Data" (AAD) when performing cryptographic operations.
+
+\index{ocb3\_add\_aad()}
+\begin{verbatim}
+int ocb3_add_aad(ocb3_state *ocb, const unsigned char *aad, unsigned long aadlen);
+\end{verbatim}
+
+This will add the AAD at \textit{aad} of the arbitrary length \textit{aadlen} to be authenticated within the context \textit{ocb}.
+
+\index{ocb3\_encrypt()} \index{ocb3\_decrypt()}
+\begin{verbatim}
+int ocb3_encrypt(         ocb3_state *ocb,
+                 const unsigned char *pt,
+                       unsigned long ptlen,
+                       unsigned char *ct);
+
+int ocb3_decrypt(         ocb3_state *ocb,
+                 const unsigned char *ct,
+                       unsigned long ctlen,
+                       unsigned char *pt);
+\end{verbatim}
+
+This will encrypt (or decrypt for the latter) a fixed length of data from \textit{pt} to \textit{ct} (vice versa for the latter).
+They assume that \textit{pt} and \textit{ct} are the same size as the block cipher's block size.  Note that you cannot call
+both functions given a single \textit{ocb} state.  For bi-directional communication you will have to initialize two \textit{ocb}
+states (with different nonces).  Also \textit{pt} and \textit{ct} may point to the same location in memory.
+
+\subsubsection{State Termination}
+
+\index{ocb3\_encrypt\_last()} \index{ocb3\_decrypt\_last()}
+\begin{verbatim}
+int ocb3_encrypt_last(         ocb3_state *ocb,
+                      const unsigned char *pt,
+                            unsigned long ptlen,
+                            unsigned char *ct);
+
+int ocb3_decrypt_last(         ocb3_state *ocb,
+                      const unsigned char *ct,
+                            unsigned long ctlen,
+                            unsigned char *pt);
+\end{verbatim}
+
+This has to be called for the last encrypt (or decrypt) operation. Note that if you have to invoke only a single operation you can
+directly use these functions instead of \textit{ocb3\_encrypt()} or \textit{ocb3\_decrypt()}.
+
+When you are finished encrypting the message you call the following function to compute the tag.
+
+\index{ocb3\_done()}
+\begin{verbatim}
+int ocb3_done(ocb3_state *ocb, unsigned char *tag, unsigned long *taglen);
+\end{verbatim}
+
+This stores the tag of the \textit{ocb} state in \textit{tag}.
+The \textit{taglen} parameter defines on input the length of the tag to output and will be set to the actual length written, which
+is at most 16 octets.
+
+\subsubsection{Packet Functions}
+To make life simpler the following two functions are provided for memory bound OCB3.
+
+\index{ocb3\_encrypt\_authenticate\_memory()}
+\begin{verbatim}
+int ocb3_encrypt_authenticate_memory(int cipher,
+    const unsigned char *key,    unsigned long keylen,
+    const unsigned char *nonce,  unsigned long noncelen,
+    const unsigned char *adata,  unsigned long adatalen,
+    const unsigned char *pt,     unsigned long ptlen,
+          unsigned char *ct,
+          unsigned char *tag,    unsigned long *taglen);
+\end{verbatim}
+
+This will OCB3 encrypt the message \textit{pt} of length \textit{ptlen}, and store the ciphertext in \textit{ct}.  The length \textit{ptlen}
+can be any arbitrary length.  The additional authenticated data \textit{adata} of length \textit{adatalen} is optional and can be left out
+by passing \textit{NULL} as \textit{adata}. The length of the authentication TAG will be stored in \textit{tag}, which is also optional.
+The length of the TAG passed in \textit{taglen} has to be between 0 and 16.
+
+\index{ocb3\_decrypt\_verify\_memory()}
+\begin{verbatim}
+int ocb3_decrypt_verify_memory(int cipher,
+    const unsigned char *key,    unsigned long keylen,
+    const unsigned char *nonce,  unsigned long noncelen,
+    const unsigned char *adata,  unsigned long adatalen,
+    const unsigned char *ct,     unsigned long ctlen,
+          unsigned char *pt,
+    const unsigned char *tag,    unsigned long taglen,
+          int           *stat);
+\end{verbatim}
+
+Similarly, this will OCB3 decrypt, and compare the internally computed tag against the tag provided. \textit{res} is set
+appropriately to \textit{1} if the tag matches or to \textit{0} if it doesn't match.
+
+\mysection{CCM Mode}
+CCM is a NIST proposal for encrypt + authenticate that is centered around using AES (or any 16--byte cipher) as a primitive.
+
+\subsection{Initialization}
 To initialize the CCM context with a secret key call the following function.
 
 \index{ccm\_init()}
@@ -1537,8 +1786,8 @@ to authenticate is given as \textit{ptlen}.
 With CCM, a header is meta--data you want to send with the message but not have encrypted. The header len is given in the init
 as \textit{aadlen}.
 
-\subsubsection{Nonce Vector}
-After the state has been initialized (or reset) the next step is to add the session (or packet) initial vector.  It should be unique per packet encrypted.
+\subsection{Nonce Vector}
+After the state has been initialized (or reset) the next step is to add the session (or packet) initialization vector.  It should be unique per packet encrypted.
 
 \index{ccm\_add\_nonce()}
 \begin{verbatim}
@@ -1550,7 +1799,7 @@ int ccm_add_nonce(      ccm_state *ccm,
 This adds the nonce (a.k.a. salt) \textit{nonce} of length \textit{noncelen} octets to the CCM state \textit{ccm}. Note that this function must be called
 once and only once.
 
-\subsubsection{Additional Authentication Data}
+\subsection{Additional Authentication Data}
 The header is meta--data you want to send with the message but not have encrypted, it must be stored in \textit{adata} of length \textit{adatalen} octets.
 
 \index{ccm\_add\_aad()}
@@ -1561,7 +1810,7 @@ int ccm_add_aad(      ccm_state *ccm,
 \end{verbatim}
 This adds the additional authentication data \textit{adata} of length \textit{adatalen} to the CCM state \textit{ccm}.
 
-\subsubsection{Plaintext Processing}
+\subsection{Plaintext Processing}
 After the AAD has been processed, the plaintext (or ciphertext depending on the direction) can be processed.
 
 \index{ccm\_process()}
@@ -1576,7 +1825,7 @@ This processes message data where \textit{pt} is the plaintext and \textit{ct} i
 the mode \textit{pt} is the input and \textit{ct} is the output (or vice versa).  When \textit{direction} equals \textbf{CCM\_ENCRYPT} the plaintext is read,
 encrypted and stored in the ciphertext buffer.  When \textit{direction} equals \textbf{CCM\_DECRYPT} the opposite occurs.
 
-\subsubsection{State Termination}
+\subsection{State Termination}
 To terminate a CCM state and retrieve the message authentication tag call the following function.
 
 \index{ccm\_done()}
@@ -1587,7 +1836,7 @@ int ccm_done(    ccm_state *ccm,
 \end{verbatim}
 This terminates the CCM state \textit{ccm} and stores the tag in \textit{tag} of length \textit{taglen} octets.
 
-\subsubsection{State Reset}
+\subsection{State Reset}
 The call to ccm\_init() will perform considerable pre--computation and if you're going to be dealing with a lot of packets
 it is very costly to have to call it repeatedly.  To aid in this endeavour, the reset function is provided.
 
@@ -1598,7 +1847,7 @@ int ccm_reset(ccm_state *ccm);
 
 This will reset the CCM state \textit{ccm} to the state that ccm\_init() left it.  The user would then call ccm\_add\_nonce(), ccm\_add\_aad(), etc.
 
-\subsubsection{One--Shot Packet}
+\subsection{One--Shot Packet}
 To process a single packet under any given key the following helper function can be used.
 
 \index{ccm\_memory()}
@@ -1620,7 +1869,7 @@ message tag.  The definition of the variables is the same as it is for all the m
 
 If you are processing many packets under the same key you shouldn't use this function as it invokes the pre--computation with each call.
 
-\subsubsection{Example Usage}
+\subsection{Example Usage}
 The following is an example usage of how to use CCM over multiple packets with a shared secret key.
 
 \begin{small}
@@ -1720,15 +1969,15 @@ int main(void)
 \end{verbatim}
 \end{small}
 
-\subsection{GCM Mode}
+\mysection{GCM Mode}
 Galois counter mode is an IEEE proposal for authenticated encryption (also it is a planned NIST standard).  Like EAX and OCB mode, it can be used in a streaming capacity
 however, unlike EAX it cannot accept \textit{additional authentication data} (meta--data) after plaintext has been processed.  This mode also only works with
 block ciphers with a 16--byte block.
 
-A GCM stream is meant to be processed in three modes, one after another.  First, the initial vector (per session) data is processed.  This should be
+A GCM stream is meant to be processed in three modes, one after another.  First, the initialization vector (per session) data is processed.  This should be
 unique to every session.  Next, the the optional additional authentication data is processed, and finally the plaintext (or ciphertext depending on the direction).
 
-\subsubsection{Initialization}
+\subsection{Initialization}
 To initialize the GCM context with a secret key call the following function.
 
 \index{gcm\_init()}
@@ -1741,8 +1990,8 @@ int gcm_init(          gcm_state *gcm,
 This initializes the GCM state \textit{gcm} for the given cipher indexed by \textit{cipher}, with a secret key \textit{key} of length \textit{keylen} octets.  The cipher
 chosen must have a 16--byte block size (e.g., AES).
 
-\subsubsection{Initial Vector}
-After the state has been initialized (or reset) the next step is to add the session (or packet) initial vector.  It should be unique per packet encrypted.
+\subsection{Initialization Vector}
+After the state has been initialized (or reset) the next step is to add the session (or packet) initialization vector.  It should be unique per packet encrypted.
 
 \index{gcm\_add\_iv()}
 \begin{verbatim}
@@ -1750,13 +1999,13 @@ int gcm_add_iv(          gcm_state *gcm,
                const unsigned char *IV,
                      unsigned long  IVlen);
 \end{verbatim}
-This adds the initial vector octets from \textit{IV} of length \textit{IVlen} to the GCM state \textit{gcm}.  You can call this function as many times as required
+This adds the initialization vector octets from \textit{IV} of length \textit{IVlen} to the GCM state \textit{gcm}.  You can call this function as many times as required
 to process the entire IV.
 
 Note: the GCM protocols provides a \textit{shortcut} for 12--byte IVs where no pre-processing is to be done.  If you want to minimize per packet latency it is ideal
 to only use 12--byte IVs.  You can just increment it like a counter for each packet.
 
-\subsubsection{Additional Authentication Data}
+\subsection{Additional Authentication Data}
 After the entire IV has been processed, the additional authentication data can be processed.  Unlike the IV, a packet/session does not require additional
 authentication data (AAD) for security.  The AAD is meant to be used as side--channel data you want to be authenticated with the packet.  Note:  once
 you begin adding AAD to the GCM state you cannot return to adding IV data until the state has been reset.
@@ -1769,7 +2018,7 @@ int gcm_add_aad(          gcm_state *gcm,
 \end{verbatim}
 This adds the additional authentication data \textit{adata} of length \textit{adatalen} to the GCM state \textit{gcm}.
 
-\subsubsection{Plaintext Processing}
+\subsection{Plaintext Processing}
 After the AAD has been processed, the plaintext (or ciphertext depending on the direction) can be processed.
 
 \index{gcm\_process()}
@@ -1784,7 +2033,7 @@ This processes message data where \textit{pt} is the plaintext and \textit{ct} i
 the mode \textit{pt} is the input and \textit{ct} is the output (or vice versa).  When \textit{direction} equals \textbf{GCM\_ENCRYPT} the plaintext is read,
 encrypted and stored in the ciphertext buffer.  When \textit{direction} equals \textbf{GCM\_DECRYPT} the opposite occurs.
 
-\subsubsection{State Termination}
+\subsection{State Termination}
 To terminate a GCM state and retrieve the message authentication tag call the following function.
 
 \index{gcm\_done()}
@@ -1795,7 +2044,7 @@ int gcm_done(    gcm_state *gcm,
 \end{verbatim}
 This terminates the GCM state \textit{gcm} and stores the tag in \textit{tag} of length \textit{taglen} octets.
 
-\subsubsection{State Reset}
+\subsection{State Reset}
 The call to gcm\_init() will perform considerable pre--computation (when \textbf{GCM\_TABLES} is defined) and if you're going to be dealing with a lot of packets
 it is very costly to have to call it repeatedly.  To aid in this endeavour, the reset function has been provided.
 
@@ -1806,7 +2055,7 @@ int gcm_reset(gcm_state *gcm);
 
 This will reset the GCM state \textit{gcm} to the state that gcm\_init() left it.  The user would then call gcm\_add\_iv(), gcm\_add\_aad(), etc.
 
-\subsubsection{One--Shot Packet}
+\subsection{One--Shot Packet}
 To process a single packet under any given key the following helper function can be used.
 
 \index{gcm\_memory()}
@@ -1828,7 +2077,7 @@ message tag.  The definition of the variables is the same as it is for all the m
 
 If you are processing many packets under the same key you shouldn't use this function as it invokes the pre--computation with each call.
 
-\subsubsection{Example Usage}
+\subsection{Example Usage}
 The following is an example usage of how to use GCM over multiple packets with a shared secret key.
 
 \begin{small}
@@ -1928,6 +2177,114 @@ int main(void)
 \end{verbatim}
 \end{small}
 
+\mysection{ChaCha20--Poly1305}
+
+This authenticated encryption is based on ChaCha20 stream cipher and Poly1305 authenticator.
+It is defined by \url{https://tools.ietf.org/html/rfc7539}.
+
+\subsection{Initialization}
+To initialize the ChaCha20--Poly1305 context with a secret key call the following function.
+
+\index{chacha20poly1305\_init()}
+\begin{verbatim}
+int chacha20poly1305_init(chacha20poly1305_state *st,
+                             const unsigned char *key,
+                                   unsigned long  keylen);
+\end{verbatim}
+This initializes the ChaCha20--Poly1305 state \textit{st} with a secret key \textit{key} of length \textit{keylen}
+octets (valid lengths: 32 or 16).
+
+\subsection{Initialization Vector}
+After the state has been initialized the next step is to add the initialization vector.
+
+\index{chacha20poly1305\_setiv()}
+\begin{verbatim}
+int chacha20poly1305_setiv(chacha20poly1305_state *st,
+                              const unsigned char *iv,
+                                    unsigned long  ivlen);
+\end{verbatim}
+This adds the initialization vector from \textit{iv} of length \textit{ivlen} octects (valid lengths: 8 or 12) to
+the ChaCha20--Poly1305 state \textit{st}.
+
+\index{chacha20poly1305\_setiv\_rfc7905()}
+\begin{verbatim}
+int chacha20poly1305_setiv_rfc7905(chacha20poly1305_state *st,
+                                      const unsigned char *iv,
+                                            unsigned long  ivlen,
+                                                  ulong64  sequence_number);
+\end{verbatim}
+This also adds the initialization vector from \textit{iv} of length \textit{ivlen} octects (valid lengths: 8 or 12) to
+the state \textit{st} but it also incorporates 64bit \textit{sequence\_number} into IV as described in RFC7905.
+
+You can call only one of \textit{chacha20poly1305\_setiv} or \textit{chacha20poly1305\_setiv\_rfc7905}.
+
+\subsection{Additional Authentication Data}
+After the IV has been set, the additional authentication data can be processed.
+
+\index{chacha20poly1305\_add\_aad()}
+\begin{verbatim}
+int chacha20poly1305_add_aad(chacha20poly1305_state *st,
+                                const unsigned char *adata,
+                                      unsigned long  adatalen);
+
+\end{verbatim}
+This adds the additional authentication data \textit{adata} of length \textit{adatalen} to the ChaCha20--Poly1305 state \textit{st}.
+
+\subsection{Encryption / Decryption}
+After the AAD has been processed, the plaintext (or ciphertext depending on the direction) can be processed.
+
+\index{chacha20poly1305\_encrypt()}
+\begin{verbatim}
+int chacha20poly1305_encrypt(chacha20poly1305_state *st,
+                                const unsigned char *in,
+                                      unsigned long  inlen,
+                                      unsigned char *out);
+\end{verbatim}
+This encrypts the data where \textit{in} is the plaintext and \textit{out} is the ciphertext. The length of both are equal and stored in \textit{inlen}.
+
+\index{chacha20poly1305\_decrypt()}
+\begin{verbatim}
+int chacha20poly1305_decrypt(chacha20poly1305_state *st,
+                                const unsigned char *in,
+                                      unsigned long  inlen,
+                                      unsigned char *out);
+\end{verbatim}
+This decrypts the data where \textit{in} is the ciphertext and \textit{out} is the plaintext. The length of both are equal and stored in \textit{inlen}.
+
+\subsection{State Termination}
+To terminate a ChaCha20--Poly1305 state and retrieve the message authentication tag call the following function.
+
+\index{chacha20poly1305\_done()}
+\begin{verbatim}
+int chacha20poly1305_done(chacha20poly1305_state *st,
+                                   unsigned char *tag,
+                                   unsigned long *taglen);
+\end{verbatim}
+This terminates the ChaCha20--Poly1305 state \textit{st} and stores the tag in \textit{tag} of length \textit{taglen} octets (always 16).
+
+\subsection{One--Shot Packet}
+To process a single packet under any given key the following helper function can be used.
+
+\index{chacha20poly1305\_memory()}
+\begin{verbatim}
+int chacha20poly1305_memory(const unsigned char *key,
+                                  unsigned long  keylen,
+                            const unsigned char *iv,
+                                  unsigned long  ivlen,
+                            const unsigned char *aad,
+                                  unsigned long  aadlen,
+                            const unsigned char *in,
+                                  unsigned long  inlen,
+                                  unsigned char *out,
+                                  unsigned char *tag,
+                                  unsigned long *taglen,
+                                            int  direction);
+\end{verbatim}
+This will initialize the ChaCha20--Poly1305 state with the given key, IV and AAD value then proceed to
+encrypt (\textit{direction} equals \textbf{CHCHA20POLY1305\_ENCRYPT}) or decrypt (\textit{direction} equals
+\textbf{CHCHA20POLY1305\_DECRYPT}) the message text and store the final message tag. The definition of the
+variables is the same as it is for all the manual functions.
+
 \chapter{One-Way Cryptographic Hash Functions}
 \mysection{Core Functions}
 Like the ciphers, there are hash core functions and a universal data type to hold the hash state called \textit{hash\_state}.  To initialize hash
@@ -1944,8 +2301,9 @@ int XXX_process(         hash_state *md,
                       unsigned long  inlen);
 \end{verbatim}
 Essentially all hash messages are virtually infinitely\footnote{Most hashes are limited to $2^{64}$ bits or 2,305,843,009,213,693,952 bytes.} long message which
-are buffered.  The data can be passed in any sized chunks as long as the order of the bytes are the same the message digest (hash output) will be the same.  For example,
-this means that:
+are buffered.  In the case where this limit is reached the \textit{XXX\_process()} function returns \textit{CRYPT\_HASH\_OVERFLOW}.
+\index{CRYPT\_HASH\_OVERFLOW}
+The data can be passed in any sized chunks as long as the order of the bytes are the same, the message digest (hash output) will be the same.  For example, this means that:
 \begin{verbatim}
 md5_process(&md, "hello ", 6);
 md5_process(&md, "world", 5);
@@ -2166,7 +2524,7 @@ int unregister_hash(const struct _hash_descriptor *hash);
 The following hashes are provided as of this release within the LibTomCrypt library:
 \index{Hash descriptor table}
 
-\begin{figure}[h]
+\begin{figure}[H]
 \begin{center}
 \begin{tabular}{|c|c|c|}
       \hline \textbf{Name} & \textbf{Descriptor Name} & \textbf{Size of Message Digest (bytes)} \\
@@ -2259,6 +2617,38 @@ int main(void)
 }
 \end{verbatim}
 
+\mysection{SHA3 SHAKE}
+The SHA3 class of algorithms provides a special XOF (Extendable Output Functions) mode, called SHAKE.
+SHAKE operates in 2 security configurations, 128bit or 256bit, and allows to generate message digests of an arbitrary length.
+
+For further information see \url{https://en.wikipedia.org/wiki/SHA-3}
+
+Example of using SHAKE256 with an arbitrary length output.
+
+\begin{verbatim}
+#include <tomcrypt.h>
+int main(void)
+{
+   int err;
+   hash_state state;
+   const void* msg = "The quick brown fox jumps over the lazy dog";
+   unsigned char output[345];
+
+   if ((err = sha3_shake_init(&state, 256)) != CRYPT_OK) {
+      printf("Could not init SHAKE256 (%s)\n", error_to_string(err));
+      return EXIT_FAILURE;
+   }
+   if ((err = sha3_shake_process(&state, msg, strlen(msg))) != CRYPT_OK) {
+      printf("Could not process SHAKE256 (%s)\n", error_to_string(err));
+      return EXIT_FAILURE;
+   }
+   if ((err = sha3_shake_done(&state, output, sizeof(output))) != CRYPT_OK) {
+      printf("Could not finish SHAKE256 (%s)\n", error_to_string(err));
+      return EXIT_FAILURE;
+   }
+   return EXIT_SUCCESS;
+}
+\end{verbatim}
 
 \mysection{Notice}
 It is highly recommended that you \textbf{not} use the MD2, MD4, MD5, or SHA-1 hashes for the purposes of digital signatures or authentication codes.
@@ -2267,6 +2657,38 @@ These hashes are provided for completeness and they still can be used for the pu
 
 The other hashes such as the SHA-2 (that includes SHA-512, SHA-512/384, SHA-384, SHA-512/256, SHA-256 and SHA-224) and TIGER-192 are still considered secure
 for all purposes you would normally use a hash for.
+
+\chapter{Checksum Functions}
+
+\mysection{Preface}
+
+The API for all checksum functions operate in mode: \textit{init} -- \textit{update} -- \textit{update} -- ... -- \textit{finish}.
+
+The \textit{finish} functions allow to output a partial result if necessary.
+
+\mysection{CRC-32 -- Cyclic redundancy check}
+
+A Cyclic Redundancy Check is an error-detecting code, where LibTomCrypt implements CRC-32 with the polynomial \textit{0x04C11DB7}.
+
+For further information see \url{https://en.wikipedia.org/wiki/Cyclic_redundancy_check}
+
+\begin{verbatim}
+void crc32_init(crc32_state *ctx);
+void crc32_update(crc32_state *ctx, const unsigned char *input, unsigned long length);
+void crc32_finish(crc32_state *ctx, void *hash, unsigned long size);
+\end{verbatim}
+
+\mysection{Adler-32}
+
+Adler-32 is a checksum algorithm.
+
+For further information see \url{https://en.wikipedia.org/wiki/Adler-32}.
+
+\begin{verbatim}
+void adler32_init(adler32_state *ctx);
+void adler32_update(adler32_state *ctx, const unsigned char *input, unsigned long length);
+void adler32_finish(adler32_state *ctx, void *hash, unsigned long size);
+\end{verbatim}
 
 \chapter{Message Authentication Codes}
 \mysection{HMAC Protocol}
@@ -2861,6 +3283,168 @@ int f9_test(void);
 This will return \textbf{CRYPT\_OK} on success.  This requires the AES or Rijndael descriptor be previously registered, otherwise, it will return
 \textbf{CRYPT\_NOP}.
 
+\mysection{Poly1305--MAC}
+
+The Poly1305--MAC is a cryptographic message authentication code created by Daniel J. Bernstein.
+More info at \url{https://en.wikipedia.org/wiki/Poly1305}.
+
+A Poly1305--MAC state is initialized with the following function:
+\index{poly1305\_init()}
+\begin{verbatim}
+int poly1305_init(     poly1305_state *st,
+                  const unsigned char *key,
+                        unsigned long  keylen);
+\end{verbatim}
+This will initialize the Poly1305--MAC state \textit{st}, with the key specified in \textit{key} of length \textit{keylen} octets (always 32).
+
+To process data through Poly1305--MAC use the following function:
+\index{poly1305\_process()}
+\begin{verbatim}
+int poly1305_process(     poly1305_state *st,
+                     const unsigned char *in,
+                           unsigned long  inlen);
+\end{verbatim}
+
+This will add the message octets pointed to by \textit{in} of length \textit{inlen} to the Poly1305--MAC state pointed to by \textit{st}.
+
+To compute the MAC tag value use the following function:
+\index{poly1305\_done()}
+\begin{verbatim}
+int poly1305_done(poly1305_state *st,
+                   unsigned char *mac,
+                   unsigned long *maclen);
+\end{verbatim}
+
+This will retrieve the Poly1305--MAC tag from the state pointed to by \textit{st}, and store it in the array pointed to by \textit{mac}.
+The \textit{maclen} parameter specifies the maximum size of the destination buffer, and is updated to hold the final size of the tag when
+the function returns.
+
+Helper functions are provided to make parsing memory buffers and files easier. The following functions are provided:
+\index{poly1305\_memory()}
+\begin{verbatim}
+int poly1305_memory(const unsigned char *key,
+                          unsigned long  keylen,
+                    const unsigned char *in,
+                          unsigned long  inlen,
+                          unsigned char *mac,
+                          unsigned long *maclen);
+\end{verbatim}
+This will compute the Poly1305--MAC of \textit{inlen} bytes of \textit{in}, using the key \textit{key} of length \textit{keylen} bytes.
+It will store the MAC in \textit{mac} with the same rules as poly1305\_done().
+
+To Poly1305--MAC a file use
+\index{poly1305\_file()}
+\begin{verbatim}
+int poly1305_file(         const char *fname,
+                  const unsigned char *key,
+                        unsigned long  keylen,
+                        unsigned char *mac,
+                        unsigned long *maclen);
+\end{verbatim}
+
+Which will Poly1305--MAC the entire contents of the file specified by \textit{fname} using the key \textit{key} of
+length \textit{keylen} bytes. It will store the MAC in \textit{mac} with the same rules as poly1305\_done().
+
+\mysection{BLAKE2s + BLAKE2b MAC}
+
+The BLAKE2s and BLAKE2b are cryptographic message authentication code designed by Jean--Philippe Aumasson,
+Samuel Neves, Zooko Wilcox-O'Hearn, and Christian Winnerlein. More info at \url{https://tools.ietf.org/html/rfc7693}.
+
+A BLAKE2s/b--MAC state is initialized with the following function:
+\index{blake2smac\_init()}
+\begin{verbatim}
+int blake2smac_init(blake2smac_state *st,
+                       unsigned long  outlen,
+                 const unsigned char *key,
+                       unsigned long  keylen);
+\end{verbatim}
+\index{blake2bmac\_init()}
+\begin{verbatim}
+int blake2bmac_init(blake2smac_state *st,
+                       unsigned long  outlen,
+                 const unsigned char *key,
+                       unsigned long  keylen);
+\end{verbatim}
+This will initialize the BLAKE2s/b--MAC state \textit{st}, with the key specified in \textit{key} of length \textit{keylen} octets (up to 64).
+The \textit{outlen} specifies the size of the final tag (up to 64 octets).
+
+To process data through BLAKE2s/b--MAC use the following function:
+\index{blake2smac\_process()}
+\begin{verbatim}
+int blake2smac_process(   blake2smac_state *st,
+                       const unsigned char *in,
+                             unsigned long  inlen);
+\end{verbatim}
+\index{blake2bmac\_process()}
+\begin{verbatim}
+int blake2bmac_process(   blake2bmac_state *st,
+                       const unsigned char *in,
+                             unsigned long  inlen);
+\end{verbatim}
+
+This will add the message octets pointed to by \textit{in} of length \textit{inlen} to the BLAKE2s/b--MAC state pointed to by \textit{st}.
+
+To compute the MAC tag value use the following function:
+\index{blake2smac\_done()}
+\begin{verbatim}
+int blake2smac_done(blake2smac_state *st,
+                       unsigned char *mac,
+                       unsigned long *maclen);
+\end{verbatim}
+\index{blake2bmac\_done()}
+\begin{verbatim}
+int blake2bmac_done(blake2bmac_state *st,
+                       unsigned char *mac,
+                       unsigned long *maclen);
+\end{verbatim}
+
+This will retrieve the BLAKE2s/b--MAC tag from the state pointed to by \textit{st}, and store it in the array pointed to by \textit{mac}.
+The \textit{maclen} parameter specifies the maximum size of the destination buffer, and is updated to hold the final size of the tag when
+the function returns.
+
+Helper functions are provided to make parsing memory buffers and files easier. The following functions are provided:
+\index{blake2smac\_memory()}
+\begin{verbatim}
+int blake2smac_memory(const unsigned char *key,
+                            unsigned long  keylen,
+                      const unsigned char *in,
+                            unsigned long  inlen,
+                            unsigned char *mac,
+                            unsigned long *maclen);
+\end{verbatim}
+\index{blake2bmac\_memory()}
+\begin{verbatim}
+int blake2bmac_memory(const unsigned char *key,
+                            unsigned long  keylen,
+                      const unsigned char *in,
+                            unsigned long  inlen,
+                            unsigned char *mac,
+                            unsigned long *maclen);
+\end{verbatim}
+This will compute the BLAKE2s/b--MAC of \textit{inlen} bytes of \textit{in}, using the key \textit{key} of length \textit{keylen} bytes.
+It will store the MAC in \textit{mac} with the same rules as blake2smac\_done().
+
+To BLAKE2s/b--MAC a file use
+\index{blake2smac\_file()}
+\begin{verbatim}
+int blake2smac_file(         const char *fname,
+                    const unsigned char *key,
+                          unsigned long  keylen,
+                          unsigned char *mac,
+                          unsigned long *maclen);
+\end{verbatim}
+\index{blake2bmac\_file()}
+\begin{verbatim}
+int blake2bmac_file(         const char *fname,
+                    const unsigned char *key,
+                          unsigned long  keylen,
+                          unsigned char *mac,
+                          unsigned long *maclen);
+\end{verbatim}
+
+Which will BLAKE2s/b--MAC the entire contents of the file specified by \textit{fname} using the key \textit{key} of
+length \textit{keylen} bytes. It will store the MAC in \textit{mac} with the same rules as blake2smac\_done().
+
 \chapter{Pseudo-Random Number Generators}
 \mysection{Core Functions}
 The library provides an array of core functions for Pseudo-Random Number Generators (PRNGs) as well.  A cryptographic PRNG is
@@ -3044,7 +3628,7 @@ descriptor twice, and will return the index of the current placement in the tabl
 will return \textbf{CRYPT\_OK} if the PRNG was found and removed.  Otherwise, it returns \textbf{CRYPT\_ERROR}.
 
 \subsection{PRNGs Provided}
-\begin{figure}[h]
+\begin{figure}[H]
 \begin{center}
 \begin{small}
 \begin{tabular}{|c|c|l|}
@@ -3118,6 +3702,8 @@ simulations which need a high quality (and fast) stream of bytes.
 
 ChaCha20 is a fast stream cipher built on a pseudorandom function designed by Daniel J. Bernstein.
 It can also double duty as a PRNG.
+
+It is recommended to use 40 bytes of truly random bytes for initialization.
 
 The implementation supports adding entropy via the add\_entropy() function while already being operational.
 
@@ -3653,8 +4239,14 @@ This will PKCS encode the message digest pointed to by \textit{in} of length \te
 must be set to \textbf{LTC\_PKCS\_1\_V1\_5} to produce a v1.5 signature, otherwise, it must be set to \textbf{LTC\_PKCS\_1\_PSS} to produce a
 v2.1 signature.
 
-When performing a v1.5 signature the \textit{prng}, \textit{prng\_idx}, and \textit{hash\_idx} parameters are not checked and can be left to any
-values such as $\lbrace$\textbf{NULL}, 0, 0$\rbrace$.
+\index{LTC\_PKCS\_1\_V1\_5\_NA1}
+As of v1.18.0, the library also supports v1.5 signature generation without ASN.1 encoding the signature which can be indicated by passing
+\textbf{LTC\_PKCS\_1\_V1\_5\_NA1} as \textit{padding} parameter. This option has been introduced to provide compatibilty to SSL3.0 implementations
+which implemented this.
+
+When generating a standard v1.5 signature the \textit{prng}, and \textit{prng\_idx} parameters are not checked and can be left to any
+values such as $\lbrace$\textbf{NULL}, 0$\rbrace$. When generating a v1.5 signature without ASN.1 additionally the parameter \textit{hash\_idx} is not
+checked and can be set to $0$.
 
 \mysection{RSA Signature Verification}
 \index{rsa\_verify\_hash()}
@@ -3716,7 +4308,13 @@ If the RSA decoded data is not a valid PSS message, or if the PKCS decoded hash 
 value, \textit{res} is set to $0$.  Otherwise, if the function succeeds, and signature is valid \textit{res} is set to $1$.
 
 The \textit{padding} parameter must be set to \textbf{LTC\_PKCS\_1\_V1\_5} to perform a v1.5 verification.  Otherwise, it must be set to
-\textbf{LTC\_PKCS\_1\_PSS} to perform a v2.1 verification.  When performing a v1.5 verification the \textit{hash\_idx} and \textit{saltlen} parameters are ignored.
+\textbf{LTC\_PKCS\_1\_PSS} to perform a v2.1 verification.
+
+As of v1.18.0, the library also supports v1.5 signature verification without ASN.1 decoding the signature which can be indicated by passing
+\textbf{LTC\_PKCS\_1\_V1\_5\_NA1} as \textit{padding} parameter.
+
+When performing a standard v1.5 verification the \textit{saltlen} parameter is ignored.
+When performing a v1.5 verification without ASN.1 decoding additionally the \textit{hash\_idx} parameter is ignored.
 
 
 \mysection{RSA Encryption Example}
@@ -3817,12 +4415,20 @@ indicated by \textbf{PK\_PUBLIC}.
 The RSAPrivateKey (PKCS \#1 type) format will be used for the private key,
 indicated by \textbf{PK\_PRIVATE}.
 
-As of v1.18 this function can also export OpenSSL-compatible formatted public RSA keys.
+As of v1.18.0 this function can also export OpenSSL-compatible formatted public RSA keys.
 By OR'ing \textbf{PK\_STD} and \textbf{PK\_PUBLIC} the public key will be exported
 in the SubjectPublicKeyInfo (X.509 type) format.
 
 \subsection{RSA Key Import}
-To import a RSA key use the following function.
+To import a RSA key use one of the following function.
+
+\subsubsection{Import from standard formats}
+
+This will import the key stored in \textit{in} of length inlen and import it to \textit{key}.
+
+These formats are normally distributed in the PEM format, consisting of a label defining the content and base64 encoded DER-serialized data.
+
+All the import functions expect binary DER data.
 
 \index{rsa\_import()}
 \begin{verbatim}
@@ -3831,16 +4437,79 @@ int rsa_import(const unsigned char *in,
                            rsa_key *key);
 \end{verbatim}
 
-This will import the key stored in \textit{inlen} and import it to \textit{key}.  If the function fails it will automatically free any allocated memory.  This
-function can import both RSAPublicKey and RSAPrivateKey formats.
+This function can import both RSAPublicKey and RSAPrivateKey formats.
 
 As of v1.06 this function can also import OpenSSL DER formatted public RSA keys.  They are essentially encapsulated RSAPublicKeys.  LibTomCrypt will
-import the key, strip off the additional data and fill in the rsa\_key structure.
+import the key, strip off the additional data and fill in the \textit{rsa\_key} structure.
 
+\index{rsa\_import\_pkcs8()}
+\begin{verbatim}
+int rsa_import_pkcs8(const unsigned char *in,
+                           unsigned long inlen,
+                              const void *passwd,
+                           unsigned long passwdlen,
+                                rsa_key *key);
+\end{verbatim}
+
+This function can import RSA private keys serialized in PKCS\#8 format.
+
+It provides a \textit{password} parameter for the encrypted PKCS\#8 format, but this functionality is currently NOT implemented.
+
+\index{rsa\_import\_x509()}
+\begin{verbatim}
+int rsa_import_x509(const unsigned char *in,
+                          unsigned long inlen,
+                                rsa_key *key);
+\end{verbatim}
+
+This function can import the RSA public key from a X.509 certificate.
+
+\subsubsection{Import from plain big numbers}
+
+\index{rsa\_set\_key()}
+\begin{verbatim}
+int rsa_set_key(const unsigned char *N,
+                      unsigned long Nlen,
+                const unsigned char *e,
+                      unsigned long elen,
+                const unsigned char *d,
+                      unsigned long dlen,
+                rsa_key *key);
+\end{verbatim}
+
+This function can import the plain RSA key parameters \textit{N}, \textit{e} and \textit{d}.
+The parameter \textit{d} is optional and only required when importing a private key.
+
+\index{rsa\_set\_factors()}
+\begin{verbatim}
+int rsa_set_factors(const unsigned char *p,
+                          unsigned long plen,
+                    const unsigned char *q,
+                          unsigned long qlen,
+                    rsa_key *key);
+\end{verbatim}
+
+This function can import the plain RSA key factors \textit{p} and \textit{q}.
+
+\index{rsa\_set\_crt\_params()}
+\begin{verbatim}
+int rsa_set_crt_params(const unsigned char *dP,
+                             unsigned long dPlen,
+                       const unsigned char *dQ,
+                             unsigned long dQlen,
+                       const unsigned char *qP,
+                             unsigned long qPlen,
+                       rsa_key *key);
+\end{verbatim}
+
+This function can import the plain RSA CRT (chinese remainder theorem) parameters \textit{dP}, \textit{dQ} and \textit{qP}.
+
+After importing \textit{p}, \textit{q}, \textit{dP}, \textit{dQ} and \textit{qP}
+the library can perfrom the optimized CRT calculations on private key operations.
 
 \chapter{Diffie-Hellman Key Exchange}
 
-\section{Background}
+\mysection{Background}
 
 Diffie-Hellman was the original public key system proposed.  The system is based upon the group structure
 of finite fields.  For Diffie-Hellman a prime $p$ is chosen and a ``base'' $b$ such that $b^x\mbox{ }(\mbox{mod }p)$
@@ -3866,28 +4535,28 @@ To thwart such attacks the primes and bases in the library have been designed an
  the sub-group generated is a large prime namely ${p - 1} \over 2$.  Such primes are known as ``strong primes'' and the
 smaller prime (e.g. the order of the base) are known as Sophie-Germaine primes.
 
-\section{Core Functions}
+\mysection{Core Functions}
 
 This library also provides core Diffie-Hellman functions so you can negotiate keys over insecure mediums.  The routines
 provided are relatively easy to use and only take two function calls to negotiate a shared key.  There is a structure
-called ``dh\_key'' which stores the Diffie-Hellman key in a format these routines can use.  The first routine is to
-make a Diffie-Hellman private key pair:
+called ``dh\_key'' which stores the Diffie-Hellman key in a format these routines can use.  The first set of routines
+are to make a Diffie-Hellman private key pair:
 \index{dh\_make\_key()}
 \begin{verbatim}
-int dh_make_key(prng_state *prng, int wprng,
-                int keysize, dh_key *key);
+int dh_set_pg_groupsize(int groupsize, dh_key *key);
+int dh_generate_key(prng_state *prng, int wprng, dh_key *key);
 \end{verbatim}
-The ``keysize'' is the size of the modulus you want in bytes.  Currently support sizes are 96 to 512 bytes which correspond
-to key sizes of 768 to 4096 bits. The smaller the key the faster it is to use however it will be less secure.  When
+The ``groupsize'' is the size of the modulus you want in bytes.  Currently support sizes are 96 to 1024 bytes which correspond
+to key sizes of 768 to 8192 bits. The smaller the key the faster it is to use however it will be less secure.  When
 specifying a size not explicitly supported by the library it will round {\em up} to the next key size.  If the size is
-above 512 it will return an error.  So if you pass ``keysize == 32'' it will use a 768 bit key but if you pass
-``keysize == 20000'' it will return an error.  The primes and generators used are built-into the library and were designed
+above 512 it will return an error.  So if you pass ``groupsize == 32'' it will use a 768 bit key but if you pass
+``groupsize == 20000'' it will return an error.  The primes and generators used are built-into the library and were designed
 to meet very specific goals.  The primes are strong primes which means that if $p$ is the prime then
 $p-1$ is equal to $2r$ where $r$ is a large prime.  The bases are chosen to generate a group of order $r$ to prevent
 leaking a bit of the key.  This means the bases generate a very large prime order group which is good to make cryptanalysis
 hard.
 
-The next two routines are for exporting/importing Diffie-Hellman keys in a binary format.  This is useful for transport
+The next two routines are for exporting/importing Diffie-Hellman keys in/from DER encoded ASN.1.  This is useful for transport
 over communication mediums.
 
 \index{dh\_export()} \index{dh\_import()}
@@ -3898,9 +4567,28 @@ int dh_export(unsigned char *out, unsigned long *outlen,
 int dh_import(const unsigned char *in, unsigned long inlen, dh_key *key);
 \end{verbatim}
 
+The ASN.1 sequence used to represent a DH key is as following:
+
+\begin{verbatim}
+DiffieHellmanKey ::= SEQUENCE {
+      version Version,
+      flags   Flags,
+      p       INTEGER, -- prime
+      g       INTEGER, -- base/group
+      n       INTEGER  -- either x when private key or y when public key }
+
+Version  ::=  INTEGER  {  v1(0)  }
+
+Flags    ::=  BIT STRING {
+      privateKey      (0) -- this BIT is '1' if it's a private key
+                          --          or '0' if it's a public key
+}
+\end{verbatim}
+
 These two functions work just like the ``rsa\_export()'' and ``rsa\_import()'' functions except these work with
-Diffie-Hellman keys. Its important to note you do not have to free the ram for a ``dh\_key'' if an import fails.  You can free a
-``dh\_key'' using:
+Diffie-Hellman keys. Its important to note you do not have to free the ram for a ``dh\_key'' if an import fails.
+
+You can free a ``dh\_key'' using:
 \begin{verbatim}
 void dh_free(dh_key *key);
 \end{verbatim}
@@ -3917,13 +4605,45 @@ Where ``private\_key'' is the key you made and ``public\_key'' is the copy of th
 into ``out'' and the length into ``outlen''.  If all went correctly the data in ``out'' should be identical for both parties.  It is important to
 note that the two keys have to be the same size in order for this to work.  There is a function to get the size of a
 key:
-\index{dh\_get\_size()}
+\index{dh\_get\_groupsize()}
 \begin{verbatim}
-int dh_get_size(dh_key *key);
+int dh_get_groupsize(dh_key *key);
 \end{verbatim}
 This returns the size in bytes of the modulus chosen for that key.
 
-\subsection{Remarks on Usage}
+\mysection{Other Diffie-Hellman Functions}
+
+To be able to import Diffie-Hellman keys LibTomCrypt provides several API functions.
+\\
+
+To import the prime and group from binary format:
+\index{dh\_set\_pg()}
+\begin{verbatim}
+int dh_set_pg(const unsigned char *p, unsigned long plen,
+              const unsigned char *g, unsigned long glen,
+              dh_key *key);
+\end{verbatim}
+This sets the prime \textit{p} of length \textit{plen} and the generator/base \textit{g} of length \textit{glen} in the DH key \textit{key}.
+\\
+
+To import the prime and group from an ASN.1 encoded DHparam Sequence:
+\index{dh\_set\_pg\_dhparam()}
+\begin{verbatim}
+int dh_set_pg_dhparam(const unsigned char *dhparam, unsigned long dhparamlen, dh_key *key);
+\end{verbatim}
+This sets the parameters in \textit{dhparam} of \textit{dhparamlen} in the DH key \textit{key}.
+\\
+
+To import a private or public key from binary data:
+\index{dh\_set\_key()}
+\begin{verbatim}
+int dh_set_key(const unsigned char *in, unsigned long inlen, int type, dh_key *key);
+\end{verbatim}
+This will import, depending on \textit{type} which can be either \textit{PK\_PRIVATE} or \textit{PK\_PUBLIC},
+the according part of the DH key \textit{key} from \textit{in} of length \textit{inlen}.
+After import the key will be verified and in case of an error it will be free'd.
+
+\mysection{Remarks on Usage}
 Its important that you hash the shared key before trying to use it as a key for a symmetric cipher or something.  An
 example program that communicates over sockets, using MD5 and 1024-bit DH keys is\footnote{This function is a small example.  It is suggested that proper packaging be used.  For example, if the public key sent is truncated these routines will not detect that.}:
 \newpage
@@ -3938,7 +4658,10 @@ int establish_secure_socket(int sock, int mode, unsigned char *key,
    dh_key mykey, theirkey;
 
    /* make up our private key */
-   if ((err = dh_make_key(prng, wprng, 128, &mykey)) != CRYPT_OK)  {
+   if ((err = dh_set_pg_groupsize(128, &mykey)) != CRYPT_OK)  {
+      return err;
+   }
+   if ((err = dh_generate_key(prng, wprng, &mykey)) != CRYPT_OK)  {
       return err;
    }
 
@@ -4005,61 +4728,9 @@ done2:
 }
 \end{verbatim}
 \end{small}
-\newpage
 \subsection{Remarks on The Snippet}
-When the above code snippet is done (assuming all went well) their will be a shared 128-bit key in the ``key'' array
+When the above code snippet is done (assuming all went well) there will be a shared 128-bit key in the ``key'' array
 passed to ``establish\_secure\_socket()''.
-
-\section{Other Diffie-Hellman Functions}
-In order to test the Diffie-Hellman function internal workings (e.g. the primes and bases) their is a test function made
-available:
-\index{dh\_test()}
-\begin{verbatim}
-int dh_test(void);
-\end{verbatim}
-
-This function returns {\bf CRYPT\_OK} if the bases and primes in the library are correct.  There is one last helper
-function:
-\index{dh\_sizes()}
-\begin{verbatim}
-void dh_sizes(int *low, int *high);
-\end{verbatim}
-Which stores the smallest and largest key sizes support into the two variables.
-
-\section{DH Packet}
-Similar to the RSA related functions there are functions to encrypt or decrypt symmetric keys using the DH public key
-algorithms.
-\index{dh\_encrypt\_key()} \index{dh\_decrypt\_key()}
-\begin{verbatim}
-int dh_encrypt_key(const unsigned char *in,   unsigned long  inlen,
-                         unsigned char *out,  unsigned long *len,
-                         prng_state *prng, int wprng, int hash,
-                         dh_key *key);
-
-int dh_decrypt_key(const unsigned char *in,  unsigned long  inlen,
-                         unsigned char *out, unsigned long *outlen,
-                         dh_key *key);
-\end{verbatim}
-Where ``in'' is an input symmetric key of no more than 32 bytes.  Essentially these routines created a random public key
-and find the hash of the shared secret.  The message digest is than XOR'ed against the symmetric key.  All of the
-required data is placed in ``out'' by ``dh\_encrypt\_key()''.   The hash must produce a message digest at least as large
-as the symmetric key you are trying to share.
-
-Similar to the RSA system you can sign and verify a hash of a message.
-\index{dh\_sign\_hash()} \index{dh\_verify\_hash()}
-\begin{verbatim}
-int dh_sign_hash(const unsigned char *in,  unsigned long inlen,
-                       unsigned char *out, unsigned long *outlen,
-                       prng_state *prng, int wprng, dh_key *key);
-
-int dh_verify_hash(const unsigned char *sig, unsigned long siglen,
-                         const unsigned char *hash, unsigned long hashlen,
-                         int *stat, dh_key *key);
-\end{verbatim}
-
-The ``dh\_sign\_hash'' function signs the message hash in ``in'' of length ``inlen'' and forms a DH packet in ``out''.
-The ``dh\_verify\_hash'' function verifies the DH signature in ``sig'' against the hash in ``hash''.  It sets ``stat''
-to non-zero if the signature passes or zero if it fails.
 
 \chapter{Elliptic Curve Cryptography}
 
@@ -4386,6 +5057,20 @@ This function will EC--DSA sign the message digest stored in the array pointed t
 will be stored in the array pointed to by \textit{out} of length \textit{outlen} octets.  The function requires a properly seeded PRNG, and
 the ECC \textit{key} provided must be a private key.
 
+\index{ecc\_sign\_hash\_rfc7518()}
+\begin{verbatim}
+int ecc_sign_hash_rfc7518(const unsigned char *in,
+                                unsigned long  inlen,
+                                unsigned char *out,
+                                unsigned long *outlen,
+                                   prng_state *prng,
+                                          int  wprng,
+                                      ecc_key *key);
+\end{verbatim}
+
+This function creates the same EC--DSA signature as \textit{ecc\_sign\_hash} only the output format is different.
+The format follows \url{https://tools.ietf.org/html/rfc7518#section-3.4}, sometimes it is also called plain signature.
+
 \subsection{EC-DSA Signature Verification}
 \index{ecc\_verify\_hash()}
 \begin{verbatim}
@@ -4401,9 +5086,20 @@ This function will verify the EC-DSA signature in the array pointed to by \texti
 pointed to by the array \textit{hash} of length \textit{hashlen}.  It will store a non--zero value in \textit{stat} if the signature is valid.  Note:
 the function will not return an error if the signature is invalid.  It will return an error, if the actual signature payload is an invalid format.
 The ECC \textit{key} must be the public (or private) ECC key corresponding to the key that performed the signature.
+The function \textit{ecc\_verify\_hash} implements signature format according to X9.62 EC--DSA, and the output is compliant for GF(p) curves.
 
-\subsection{Signature Format}
-The signature code is an implementation of X9.62 EC--DSA, and the output is compliant for GF(p) curves.
+\index{ecc\_verify\_hash\_rfc7518()}
+\begin{verbatim}
+int ecc_verify_hash_rfc7518(const unsigned char *sig,
+                                  unsigned long  siglen,
+                            const unsigned char *hash,
+                                  unsigned long  hashlen,
+                                            int *stat,
+                                        ecc_key *key);
+\end{verbatim}
+
+This function validate the EC--DSA signature as \textit{ecc\_verify\_hash} only the signature input format
+follows \url{https://tools.ietf.org/html/rfc7518#section-3.4}.
 
 \mysection{ECC Keysizes}
 With ECC if you try to sign a hash that is bigger than your ECC key you can run into problems.  The math will still work, and in effect the signature will still
@@ -4471,7 +5167,7 @@ The variable \textit{prng} is an active PRNG state and \textit{wprng} the index 
 \textit{group\_size} the more difficult a forgery becomes upto a limit.  The value of $group\_size$ is limited by
 $15 < group\_size < 1024$ and $modulus\_size - group\_size < 512$.  Suggested values for the pairs are as follows.
 
-\begin{figure}[h]
+\begin{figure}[H]
 \begin{center}
 \begin{tabular}{|c|c|c|}
 \hline \textbf{Bits of Security} & \textbf{group\_size} & \textbf{modulus\_size} \\
@@ -4631,6 +5327,74 @@ int dsa_import(const unsigned char *in,
 
 This will import the DSA key from the buffer \textit{in} of length \textit{inlen} to the \textit{key}.  If the process fails the function
 will automatically free all of the heap allocated in the process (you don't have to call dsa\_free()).
+
+\mysection{Other DSA Functions}
+
+The following functions allow to create a DSA key in 2 steps:
+
+\begin{enumerate}
+    \item Load or generate \textit{p}, \textit{q}, \textit{g} part of the key via \textit{dsa\_set\_pqg()}, \textit{dsa\_set\_pqg\_dsaparam()} or \textit{dsa\_generate\_pqg()}.
+    \item Load or generate the actual DSA key -- private (\textit{x} and \textit{y} values) or public (\textit{y} value).
+\end{enumerate}
+
+\index{dsa\_set\_pqg()}
+\begin{verbatim}
+int dsa_set_pqg(const unsigned char *p,  unsigned long plen,
+                const unsigned char *q,  unsigned long qlen,
+                const unsigned char *g,  unsigned long glen,
+                dsa_key *key);
+\end{verbatim}
+
+This will initialise the \textit{p}, \textit{q} and \textit{g} part of \textit{key} structure by directly loading binary
+representation of \textit{p} (with length of \textit{plen}), \textit{q} (with length of \textit{qlen}) and \textit{g} (with length of \textit{glen}).
+A simple DSA key validity check (without primality testing) is performed at the end of this function.
+
+\index{dsa\_set\_pqg\_dsaparam()}
+\begin{verbatim}
+int dsa_set_pqg_dsaparam(const unsigned char *dsaparam,
+                               unsigned long  dsaparamlen,
+                                     dsa_key *key);
+\end{verbatim}
+
+This will initialise the \textit{p}, \textit{q} and \textit{g} part of \textit{key} structure by directly loading binary representation
+of DSA parameters stored as a binary data in a buffer \textit{dsaparam} (with length of \textit{dsaparamlen}). A simple DSA key validity
+check (without primality testing) is performed at the end of this function. The \textit{dsaparam} can be generated via:
+\begin{verbatim}
+ openssl dsaparam 2048 -outform DER -out dsaparam.der
+\end{verbatim}
+
+\index{dsa\_generate\_pqg()}
+\begin{verbatim}
+int dsa_generate_pqg(prng_state *prng,
+                            int  wprng,
+                            int  group_size,
+                            int  modulus_size,
+                        dsa_key *key);
+\end{verbatim}
+
+This will initialise the \textit{p}, \textit{q} and \textit{g} part of \textit{key} structure with newly generated random values.
+As for the parameters they are the same as by \textit{dsa\_make\_key}.
+
+\index{dsa\_set\_key()}
+\begin{verbatim}
+int dsa_set_key(const unsigned char *in,
+                      unsigned long  inlen,
+                                int  type,
+                            dsa_key *key);
+\end{verbatim}
+
+This function can be used for setting the actual DSA key. If \textit{type} is \textit{PK\_PRIVATE} then the buffer \textit{in}
+(with length of \textit{inlen}) contains a binary representation of \textit{x} part of the key (the public part \textit{y} is computed).
+If \textit{type} is \textit{PK\_PUBLIC} then the buffer \textit{in} contains a binary representation of \textit{y} part of the key.
+
+\index{dsa\_generate\_key()}
+\begin{verbatim}
+int dsa_generate_key(prng_state *prng,
+                            int  wprng,
+                        dsa_key *key);
+\end{verbatim}
+
+This function generates a private DSA key containing both \textit{x} and \textit{y} parts.
 
 \chapter{Standards Support}
 \mysection{ASN.1 Formats}
@@ -5259,13 +6023,13 @@ However the parent processing will continue with a "soft-error".
 This can be detected by checking for \textit{child} elements with
 type \textbf{LTC\_ASN1\_EOL} after decoding.
 
-As of v1.18 the flexi decoder will also decode arbitrary constructed types
+As of v1.18.0 the flexi decoder will also decode arbitrary constructed types
 other than SEQUENCE and SET. The \textit{type} field will be set to
 \textbf{LTC\_ASN1\_CONSTRUCTED} and the plain identifier that was indicated in the ASN.1
 encoding is stored in the \textit{used} field. Further decoding is done in the
 same way as if it were a SEQUENCE or SET.
 
-Also as of v1.18 the flexi decoder is capable to handle
+Also as of v1.18.0 the flexi decoder is capable to handle
 \textit{context-specific} encodings. The \textit{type} field will be set to
 \textbf{LTC\_ASN1\_CONTEXT\_SPECIFIC} and the plain identifier that was indicated
 in the ASN.1 encoding is stored in the \textit{used} field. Encapsulated data
@@ -5334,8 +6098,17 @@ At this point, we are pointing to the last node of the list.  Lists are terminat
 can walk up and down the nodes without keeping pointers lying around.
 
 
+\subsubsection{Shrink'ing a Flexi List}
+While decoding the flexi decoder will recursively decode an ASN.1 \textit{constructed} type it will store the decoded list
+as well as the plain data that was decoded.
+To free up this additional data a shrink function is provided.
 
+\index{der\_sequence\_shrink()}
+\begin{verbatim}
+void der_sequence_shrink(ltc_asn1_list *in);
+\end{verbatim}
 
+This will free all the plain constructed data, but keep the decoded list intact.
 
 \subsubsection{Free'ing a Flexi List}
 To free the list use the following function.
@@ -5392,7 +6165,7 @@ As above, but we generate as many bytes as requested in outlen per the OpenSSL e
 \subsection{Algorithm Two}
 
 Algorithm Two is the recommended algorithm for this task.  It allows variable length salts, and can produce outputs larger than the
-hash functions output.  As such, it can easily be used to derive session keys for ciphers and MACs as well initial vectors as required
+hash functions output.  As such, it can easily be used to derive session keys for ciphers and MACs as well initialization vectors as required
 from a single password and invocation of this algorithm.
 
 \index{pkcs\_5\_alg2()}
@@ -5523,7 +6296,10 @@ Parameters are as in \textit{hkdf\_extract()} and \textit{hkdf\_expand()}.
 
 \chapter{Miscellaneous}
 \mysection{Base64 Encoding and Decoding}
-The library provides functions to encode and decode a RFC 1521 base--64 coding scheme.  The characters used in the mappings are:
+The library provides functions to encode and decode a RFC 4648 Base64 coding scheme.
+
+\subsection{Standard 'base64' encoding}
+The characters used in the mappings are:
 \begin{verbatim}
 ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/
 \end{verbatim}
@@ -5537,7 +6313,7 @@ put any character (that is not in the above sequence) in between any character o
 break up the first four characters.
 
 To encode a binary string in base64 call:
-\index{base64\_encode()}  \index{base64\_decode()}
+\index{base64\_encode()}
 \begin{verbatim}
 int base64_encode(const unsigned char *in,
                         unsigned long  len,
@@ -5547,6 +6323,7 @@ int base64_encode(const unsigned char *in,
 Where \textit{in} is the binary string and \textit{out} is where the ASCII output is placed.  You must set the value of \textit{outlen} prior
 to calling this function and it sets the length of the base64 output in \textit{outlen} when it is done.  To decode a base64
 string call:
+\index{base64\_decode()}
 \begin{verbatim}
 int base64_decode(const unsigned char *in,
                         unsigned long  len,
@@ -5554,10 +6331,42 @@ int base64_decode(const unsigned char *in,
                         unsigned long *outlen);
 \end{verbatim}
 
+The function \textit{base64\_decode} works in a relaxed way which allows decoding some inputs that do not strictly follow the standard.
+If you want to be strict during decoding you can use:
+\index{base64\_strict\_decode()}
+\begin{verbatim}
+int base64_strict_decode(const unsigned char *in,
+                               unsigned long  len,
+                               unsigned char *out,
+                               unsigned long *outlen);
+\end{verbatim}
+
+\subsection{URL--safe 'base64url' encoding}
+The characters used in the mappings are:
+\begin{verbatim}
+ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_
+\end{verbatim}
+Those characters are sometimes also called URL and filename safe alphabet.
+The interface is analogous to \textit{base64\_xxxx} functions in previous chapter.
+
+\begin{verbatim}
+int base64url_encode(const unsigned char *in,  unsigned long len,
+                           unsigned char *out, unsigned long *outlen);
+
+int base64url_strict_encode(const unsigned char *in,  unsigned long inlen,
+                                  unsigned char *out, unsigned long *outlen);
+
+int base64url_decode(const unsigned char *in,  unsigned long len,
+                           unsigned char *out, unsigned long *outlen);
+
+int base64url_strict_decode(const unsigned char *in,  unsigned long len,
+                                  unsigned char *out, unsigned long *outlen);
+\end{verbatim}
+
 \mysection{Primality Testing}
 \index{Primality Testing}
 The library includes primality testing and random prime functions as well.  The primality tester will perform the test in
-two phases.  First it will perform trial division by the first few primes.  Second it will perform eight rounds of the
+two phases.  First it will perform trial division by the first few primes.  Second it will perform \textit{LTC\_MILLER\_RABIN\_REPS} (pre-defined to $35$) rounds of the
 Rabin-Miller primality testing algorithm.  If the candidate passes both phases it is declared prime otherwise it is declared
 composite.  No prime number will fail the two phases but composites can.  Each round of the Rabin-Miller algorithm reduces
 the probability of a pseudo-prime by $1 \over 4$ therefore after sixteen rounds the probability is no more than
@@ -5594,6 +6403,100 @@ Where \textit{len} is the size of the prime in bytes ($2 \le len \le 256$).  You
 to get a prime of the form $p \equiv 3\mbox{ }(\mbox{mod } 4)$.  So if you want a 1024-bit prime of this sort pass
 \textit{len = -128} to the function.  Upon success it will return {\bf CRYPT\_OK} and \textit{N} will contain an integer which
 is very likely prime.
+
+\mysection{Random MPI Generation}
+\index{Random MPI Generation}
+
+Several Public Key Cryptography algorithms require random MPI's for operations like signature generation.
+The library provides two API functions to generate random MPI's which allow the utilisation of a user-defined PRNG to aquire the random data.
+
+\index{rand\_bn\_bits()}
+\begin{verbatim}
+int rand_bn_bits(       void *N,
+                         int bits,
+                  prng_state *prng,
+                         int wprng);
+\end{verbatim}
+
+This sets \textit{N} to a \textit{bits}-long random MPI.
+
+\index{rand\_bn\_upto()}
+\begin{verbatim}
+int rand_bn_upto(       void *N,
+                        void *limit,
+                  prng_state *prng,
+                         int wprng);
+\end{verbatim}
+
+This ensures that \textit{N} is set to a random MPI in the range $1 \le N < limit$.
+
+
+\mysection{Helper functions}
+
+\subsection{Zero'ing data}
+
+As widely know optimizing-compilers are sometimes allowed to remove an invocation of \textit{memset(out, 0, outlen)}, which could result
+in sensitive data beeing not zero'ed out. Therefore LibTomCrypt implements a variant of this routine which won't be optimized-away.
+
+\index{zeromem()}
+\begin{verbatim}
+void zeromem(volatile void *out, size_t outlen);
+\end{verbatim}
+
+This zero's the buffer \textit{out} of size \textit{outlen}.
+
+\subsection{Constant-time memory compare}
+
+Some symmetric-key cryptographic operation-modes are vulnerable to timing attacks in case non-contant-time memory comparison functions
+are used to compare results. Therefore LibTomCrypt implements a constant-time memory compare function.
+
+\index{mem\_neq()}
+\begin{verbatim}
+int mem_neq(const void *a, const void *b, size_t len);
+\end{verbatim}
+
+This will compare the buffer \textit{a} against the buffer \textit{b} for \textit{len} bytes.
+The return value is either \textit{0} when the content of \textit{a} and \textit{b} is equal or \textit{1} when it differs.
+
+\subsection{Radix to binary conversion}
+
+All public-key cryptographic algorithms provide a way to import and/or export their key parameters in binary format.
+In order to be able to import keys stored in different formats, e.g. hexadecimal strings, the \textit{radix\_to\_bin()} function is provided.
+
+\index{radix\_to\_bin()}
+\begin{verbatim}
+int radix_to_bin(const void *in, int radix, void *out, unsigned long *len);
+\end{verbatim}
+
+This will convert the MPI \textit{in} of radix \textit{radix} to the buffer pointed to by \textit{out}.
+The field \textit{len} is a pointer to the length of the buffer on input and the length stored on output.
+
+In case you don't know the length of the buffer you can use \textit{radix\_to\_bin()} to determine the length for you.
+
+\begin{verbatim}
+#include <tomcrypt.h>
+
+int main(void)
+{
+   const char *mpi = "AABBCCDD";
+   unsigned long l = 0;
+   void* buf;
+   int ret;
+   ltc_mp = ltm_desc;
+
+   if (radix_to_bin(mpi, 16, NULL, &l) != CRYPT_BUFFER_OVERFLOW)
+      return EXIT_FAILURE;
+   buf = malloc(l);
+
+   ret = EXIT_SUCCESS;
+   if (radix_to_bin(mpi, 16, buf, &l) != CRYPT_OK)
+      ret = EXIT_FAILURE;
+
+   free(buf);
+   return ret;
+}
+\end{verbatim}
+
 
 \mysection{Dynamic Language Support}
 \index{Dynamic Language Support}
@@ -5653,6 +6556,7 @@ math library.
 \begin{verbatim}
 void init_LTM(void);
 void init_TFM(void);
+void init_GMP(void);
 \end{verbatim}
 
 Here is a Python program demonstrating how to call various LTC dynamic
@@ -5763,7 +6667,7 @@ e^{1.923 \cdot ln(n)^{1 \over 3} \cdot ln(ln(n))^{2 \over 3}}
 
 Note that $n$ is not the bit-length but the magnitude.  For example, for a 1024-bit key $n = 2^{1024}$.  The work required
 is:
-\begin{figure}[h]
+\begin{figure}[H]
 \begin{center}
 \begin{tabular}{|c|c|}
     \hline RSA/DH Key Size (bits) & Work Factor ($log_2$) \\
@@ -5783,7 +6687,7 @@ is:
 
 The work factor for ECC keys is much higher since the best attack is still fully exponential.  Given a key of magnitude
 $n$ it requires $\sqrt n$ work.  The following table summarizes the work required:
-\begin{figure}[h]
+\begin{figure}[H]
 \begin{center}
 \begin{tabular}{|c|c|}
     \hline ECC Key Size (bits) & Work Factor ($log_2$) \\
@@ -5844,54 +6748,70 @@ libraries.
 All GNU driven makefiles (including the makefile for ICC) use a set of common variables to control the build and install process.  Most of the
 settings can be overwritten from the command line which makes custom installation a breeze.
 
-\index{MAKE}\index{CC}\index{AR}
-\subsection{MAKE, CC and AR}
+\subsection{MAKE, CC, AR and CROSS\_COMPILE}
+\index{MAKE} \index{CC} \index{AR} \index{CROSS\_COMPILE}
 The MAKE, CC and AR flags can all be overwritten.  They default to \textit{make}, \textit{\$CC} and \textit{\$AR} respectively.
 Changing MAKE allows you to change what program will be invoked to handle sub--directories. For example, this
 
 \begin{verbatim}
-MAKE=gmake gmake install
+gmake install MAKE=gmake
 \end{verbatim}
 
 \begin{flushleft} will build and install the libraries with the \textit{gmake} tool.  Similarly, \end{flushleft}
 
 \begin{verbatim}
-CC=arm-gcc AR=arm-ar make
+make CC=arm-gcc AR=arm-ar
 \end{verbatim}
 
 \begin{flushleft} will build the library using \textit{arm--gcc} as the compiler and \textit{arm--ar} as the archiver. \end{flushleft}
 
-\subsection{IGNORE\_SPEED}
-\index{IGNORE\_SPEED}
+\begin{verbatim}
+make CROSS_COMPILE=arm-none-eabi-
+\end{verbatim}
+
+\begin{flushleft} will build the library using the \textit{arm--none--eabi--} prefix'ed toolchain. \end{flushleft}
+
+\subsection{IGNORE\_SPEED and LTC\_DEBUG}
+\index{IGNORE\_SPEED} \index{LTC\_DEBUG}
 When \textbf{IGNORE\_SPEED} has been defined the default optimization flags for CFLAGS will be disabled which allows the developer to specify new
 CFLAGS on the command line.  E.g. to add debugging
 
 \begin{verbatim}
-CFLAGS="-g3" make IGNORE_SPEED=1
+make IGNORE_SPEED=1 CFLAGS="-g3"
 \end{verbatim}
 
 This will turn off optimizations and add \textit{-g3} to the CFLAGS which enables debugging.
 
-\subsection{LIBNAME and LIBNAME\_S}
-\index{LIBNAME} \index{LIBNAME\_S}
-\textbf{LIBNAME} is the name of the output library (archive) to create.  It defaults to \textit{libtomcrypt.a} for static builds and \textit{libtomcrypt.la} for
-shared.  The \textbf{LIBNAME\_S} variable is the static name while doing shared builds.  Ideally they should have the same prefix but don't have to.
+Alternatively one can define \textbf{LTC\_DEBUG} instead, which additionally defines \textit{LTC\_NO\_ASM} and enables debug output on test failures.
 
-\index{LIBTEST} \index{LIBTEST\_S}
-Similarly \textbf{LIBTEST} and \textbf{LIBTEST\_S} are the names for the profiling and testing library.  The default is \textit{libtomcrypt\_prof.a} for
-static and \textit{libtomcrypt\_prof.la} for shared.
-
-\subsection{Installation Directories}
-\index{DESTDIR} \index{LIBPATH} \index{INCPATH} \index{DATADIR}
-\textbf{DESTDIR} is the prefix for the installation directories.  It defaults to an empty string.  \textbf{LIBPATH} is the prefix for the library
-directory which defaults to \textit{/usr/lib}.  \textbf{INCPATH} is the prefix for the header file directory which defaults to \textit{/usr/include}.
-\textbf{DATADIR} is the prefix for the data (documentation) directory which defaults to \textit{/usr/share/doc/libtomcrypt/pdf}.
-
-All four can be used to create custom install locations depending on the nature of the OS and file system in use.
+Defining \textit{LTC\_DEBUG=2} has the effect to enable verbose output in some of the tests.
 
 \begin{verbatim}
-make LIBPATH=/home/tom/project/lib INCPATH=/home/tom/project/include \
-     DATAPATH=/home/tom/project/docs install
+make LTC_DEBUG=2
+\end{verbatim}
+
+\begin{flushleft} will build the library without compiler-optimisation or architecture specific code and will enable debugging
+and verbose debug output. \end{flushleft}
+
+\subsection{LIBNAME}
+\index{LIBNAME}
+\textbf{LIBNAME} is the name of the output library (archive) to create.  It defaults to \textit{libtomcrypt.a} for static builds and \textit{libtomcrypt.la} for
+shared.
+On installation of the shared library the appropriately versioned \textit{libtomcrypt.so}, \textit{libtomcrypt.so.0} etc. will be created by \textit{libtool}.
+
+\subsection{Installation Directories}
+\index{DESTDIR} \index{PREFIX} \index{LIBPATH} \index{INCPATH} \index{DATAPATH} \index{BINPATH}
+\textbf{DESTDIR} is the location where the output will be stored.  It default to an empty string.
+\textbf{PREFIX} is the prefix for the installation directories.  It defaults to \textit{/usr/local}.
+\textbf{LIBPATH} is the location of the library directory which defaults to \textit{\$PREFIX/lib}.
+\textbf{INCPATH} is the location of the header file directory which defaults to \textit{\$PREFIX/include}.
+\textbf{DATAPATH} is the location of the data (documentation) directory which defaults to \textit{\$PREFIX/share/doc/libtomcrypt/pdf}.
+\textbf{BINPATH} is the location of the binary file directory which defaults to \textit{\$PREFIX/bin}.
+
+They allow to configure the installation locations of the libary.
+
+\begin{verbatim}
+make PREFIX=/home/tom/project DATAPATH=/home/tom/project/docs install
 \end{verbatim}
 
 This will build the library and install it to the directories under \textit{/home/tom/project/}.  e.g.
@@ -5931,14 +6851,16 @@ total 1073
 \end{verbatim}
 \end{small}
 
+For further information see: \url{https://www.gnu.org/prep/standards/html_node/DESTDIR.html}
+and \url{https://www.freebsd.org/doc/en/books/porters-handbook/porting-prefix.html}.
+
 \mysection{Extra libraries}
 \index{EXTRALIBS}
 \textbf{EXTRALIBS} specifies any extra libraries required to link the test programs and shared libraries.  They are specified in the notation
 that GCC expects for global archives.
 
 \begin{verbatim}
-CFLAGS="-DTFM_DESC -DUSE_TFM" EXTRALIBS=-ltfm make install \
-                                                   test timing
+make install test timing CFLAGS="-DTFM_DESC -DUSE_TFM" EXTRALIBS=-ltfm
 \end{verbatim}
 
 This will install the library using the TomsFastMath library and link the \textit{libtfm.a} library out of the default library search path.  The two
@@ -5952,7 +6874,7 @@ Note that \textbf{EXTRALIBS} is not required if you are only making and installi
 Building a static library is fairly trivial as it only requires one invocation of the GNU make command.
 
 \begin{verbatim}
-CFLAGS="-DTFM_DESC" make install
+make install CFLAGS="-DTFM_DESC"
 \end{verbatim}
 
 That will build LibTomCrypt (including the TomsFastMath descriptor), and install it in the default locations indicated previously.  You can enable
@@ -5982,7 +6904,7 @@ LibTomCrypt can also be built as a shared library through the \textit{makefile.s
 that you \textbf{must} specify the \textbf{EXTRALIBS} variable at install time.
 
 \begin{verbatim}
-CFLAGS="-DTFM_DESC" EXTRALIBS=-ltfm make -f makefile.shared install
+make -f makefile.shared install CFLAGS="-DTFM_DESC" EXTRALIBS=-ltfm
 \end{verbatim}
 
 This will build and install the library and link the shared object against the TomsFastMath library (which must be installed as a shared object as well).  The
@@ -6013,13 +6935,14 @@ Currently LibTomCrypt will detect x86-32, x86-64, MIPS R5900, SPARC and SPARC64 
 There are also options you can specify from the \textit{tomcrypt\_custom.h} header file.
 
 \subsection{X memory routines}
-\index{XMALLOC}\index{XCALLOC}\index{XREALLOC}\index{XFREE}
+\index{XMALLOC}\index{XREALLOC}\index{XCALLOC}\index{XFREE}\index{XMEMSET}\index{XMEMCPY}\index{XMEMMOVE}\index{XMEMCMP}\index{XSTRCMP}
 At the top of tomcrypt\_custom.h are a series of macros denoted as XMALLOC, XCALLOC, XREALLOC, XFREE, and so on.  They resolve to
 the name of the respective functions from the standard C library by default.  This lets you substitute in your own memory routines.
 If you substitute in your own functions they must behave like the standard C library functions in terms of what they expect as input and
 output.
 
-These macros are handy for working with platforms which do not have a standard C library.  For instance, the OLPC\footnote{See http://dev.laptop.org/git?p=bios-crypto;a=summary}
+These macros are handy for working with platforms which do not have a standard C library.
+For instance, the OLPC\footnote{See \url{http://dev.laptop.org/git?p=bios-crypto;a=summary}}
 bios code uses these macros to redirect to very compact heap and string operations.
 
 \subsection{X clock routines}
@@ -6123,6 +7046,18 @@ When this has been defined the ECC point multiplier (built--in to the library) w
 algorithm which prevents leaking key bits of the private key (scalar).  It is a slower algorithm but useful for situations
 where timing side channels pose a significant threat.
 
+This is enabled by default and can be disabled by defining \textbf{LTC\_NO\_ECC\_TIMING\_RESISTANT}.
+
+\subsection{LTC\_RSA\_BLINDING}
+When this has been defined the RSA modular exponentiation will use a blinding algorithm to improve timing resistance.
+
+This is enabled by default and can be disabled by defining \textbf{LTC\_NO\_RSA\_BLINDING}.
+
+\subsection{LTC\_RSA\_CRT\_HARDENING}
+When this has been defined the RSA modular exponentiation will do some sanity checks regarding the CRT parameters and the operations' results.
+
+This is enabled by default and can be disabled by defining \textbf{LTC\_NO\_RSA\_CRT\_HARDENING}.
+
 \subsection{Math Descriptors}
 The library comes with three math descriptors that allow you to interface the public key cryptography API to freely available math
 libraries.  When \textbf{GMP\_DESC}, \textbf{LTM\_DESC}, or \textbf{TFM\_DESC} are defined
@@ -6134,8 +7069,8 @@ to tell the program which library to use.  Only one of the USE flags can be defi
 \index{GMP\_DESC} \index{USE\_GMP} \index{LTM\_DESC} \index{TFM\_DESC} \index{USE\_LTM} \index{USE\_TFM}
 \begin{small}
 \begin{verbatim}
-CFLAGS="-DGMP_DESC -DLTM_DESC -DTFM_DESC -DUSE_TFM" \
-EXTRALIBS="-lgmp -ltommath -ltfm" make -f makefile.shared install timing
+make -f makefile.shared install timing CFLAGS="-DGMP_DESC -DLTM_DESC -DTFM_DESC -DUSE_TFM" \
+EXTRALIBS="-lgmp -ltommath -ltfm"
 \end{verbatim}
 \end{small}
 
@@ -6362,8 +7297,8 @@ struct ltc_cipher_descriptor {
    /** Accelerated GCM packet (one shot)
        @param key        The secret key
        @param keylen     The length of the secret key
-       @param IV         The initial vector
-       @param IVlen      The length of the initial vector
+       @param IV         The initialization vector
+       @param IVlen      The length of the initialization vector
        @param adata      The additional authentication data (header)
        @param adatalen   The length of the adata
        @param pt         The plaintext
@@ -6479,7 +7414,7 @@ through the accel\_ecb\_encrypt and accel\_ecb\_decrypt pointers.  The \textit{b
 
 \subsubsection{Accelerated CBC}
 These two functions are meant for accelerated CBC encryption.  These functions are accessed through the accel\_cbc\_encrypt and accel\_cbc\_decrypt pointers.
-The \textit{blocks} value is the number of complete blocks to process.  The \textit{IV} is the CBC initial vector.  It is an input upon calling this function and must be
+The \textit{blocks} value is the number of complete blocks to process.  The \textit{IV} is the CBC initialization vector.  It is an input upon calling this function and must be
 updated by the function before returning.
 
 \subsubsection{Accelerated CTR}
@@ -7238,9 +8173,13 @@ All functions except the Montgomery reductions work from left to right with the 
 
 All functions (except where noted otherwise) return \textbf{CRYPT\_OK} to signify a successful operation.  All error codes must be valid LibTomCrypt error codes.
 
-The digit routines (including functions with the \textit{i} suffix) use a \textit{unsigned long} to represent the digit.  If your internal digit is larger than this you must
-then partition your digits.  Normally this does not matter as \textit{unsigned long} will be the same size as your register size.  Note that if your digit is smaller
-than an \textit{unsigned long} that is also acceptable as the \textit{bits\_per\_digit} parameter will specify this.
+The digit routines (including functions with the \textit{i} suffix) use a \textit{ltc\_mp\_digit} to represent the digit.  If your internal digit is larger than this you must
+then partition your digits.  Note that if your digit is smaller than an \textit{ltc\_mp\_digit} that is also acceptable as the \textit{bits\_per\_digit} parameter will specify this.
+
+\subsubsection{ltc\_mp\_digit}
+\index{ltc\_mp\_digit}
+
+Depending on the archtitecture \textit{ltc\_mp\_digit} is either a $32$- or $64$-bit long \textit{unsigned} data type.
 
 \subsection{ECC Functions}
 The ECC system in LibTomCrypt is based off of the NIST recommended curves over $GF(p)$ and is used to implement EC-DSA and EC-DH.   The ECC functions work with

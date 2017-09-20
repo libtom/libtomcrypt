@@ -16,8 +16,8 @@
 #ifdef LTC_F8_MODE
 
 /**
-   Set an initial vector
-   @param IV   The initial vector
+   Set an initialization vector
+   @param IV   The initialization vector
    @param len  The length of the vector (in octets)
    @param f8   The F8 state
    @return CRYPT_OK if successful
