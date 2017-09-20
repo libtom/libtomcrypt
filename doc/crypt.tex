@@ -8,6 +8,7 @@
 \usepackage{graphicx}
 \usepackage{layout}
 \usepackage{fancyhdr}
+\usepackage{float}
 \def\union{\cup}
 \def\intersect{\cap}
 \def\getsrandom{\stackrel{\rm R}{\gets}}
@@ -2523,7 +2524,7 @@ int unregister_hash(const struct _hash_descriptor *hash);
 The following hashes are provided as of this release within the LibTomCrypt library:
 \index{Hash descriptor table}
 
-\begin{figure}[h]
+\begin{figure}[H]
 \begin{center}
 \begin{tabular}{|c|c|c|}
       \hline \textbf{Name} & \textbf{Descriptor Name} & \textbf{Size of Message Digest (bytes)} \\
@@ -3627,7 +3628,7 @@ descriptor twice, and will return the index of the current placement in the tabl
 will return \textbf{CRYPT\_OK} if the PRNG was found and removed.  Otherwise, it returns \textbf{CRYPT\_ERROR}.
 
 \subsection{PRNGs Provided}
-\begin{figure}[h]
+\begin{figure}[H]
 \begin{center}
 \begin{small}
 \begin{tabular}{|c|c|l|}
@@ -5166,7 +5167,7 @@ The variable \textit{prng} is an active PRNG state and \textit{wprng} the index 
 \textit{group\_size} the more difficult a forgery becomes upto a limit.  The value of $group\_size$ is limited by
 $15 < group\_size < 1024$ and $modulus\_size - group\_size < 512$.  Suggested values for the pairs are as follows.
 
-\begin{figure}[h]
+\begin{figure}[H]
 \begin{center}
 \begin{tabular}{|c|c|c|}
 \hline \textbf{Bits of Security} & \textbf{group\_size} & \textbf{modulus\_size} \\
@@ -6666,7 +6667,7 @@ e^{1.923 \cdot ln(n)^{1 \over 3} \cdot ln(ln(n))^{2 \over 3}}
 
 Note that $n$ is not the bit-length but the magnitude.  For example, for a 1024-bit key $n = 2^{1024}$.  The work required
 is:
-\begin{figure}[h]
+\begin{figure}[H]
 \begin{center}
 \begin{tabular}{|c|c|}
     \hline RSA/DH Key Size (bits) & Work Factor ($log_2$) \\
@@ -6686,7 +6687,7 @@ is:
 
 The work factor for ECC keys is much higher since the best attack is still fully exponential.  Given a key of magnitude
 $n$ it requires $\sqrt n$ work.  The following table summarizes the work required:
-\begin{figure}[h]
+\begin{figure}[H]
 \begin{center}
 \begin{tabular}{|c|c|}
     \hline ECC Key Size (bits) & Work Factor ($log_2$) \\
