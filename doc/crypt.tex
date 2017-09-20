@@ -5326,22 +5326,73 @@ int dsa_import(const unsigned char *in,
 This will import the DSA key from the buffer \textit{in} of length \textit{inlen} to the \textit{key}.  If the process fails the function
 will automatically free all of the heap allocated in the process (you don't have to call dsa\_free()).
 
-\subsection{Other DSA Functions}
+\mysection{Other DSA Functions}
 
-XXX-TODO
+The following functions allow to create a DSA key in 2 steps:
 
-\begin{small}
+\begin{enumerate}
+    \item Load or generate \textit{p}, \textit{q}, \textit{g} part of the key via \textit{dsa\_set\_pqg()}, \textit{dsa\_set\_pqg\_dsaparam()} or \textit{dsa\_generate\_pqg()}.
+    \item Load or generate the actual DSA key -- private (\textit{x} and \textit{y} values) or public (\textit{y} value).
+\end{enumerate}
+
+\index{dsa\_set\_pqg()}
 \begin{verbatim}
 int dsa_set_pqg(const unsigned char *p,  unsigned long plen,
                 const unsigned char *q,  unsigned long qlen,
                 const unsigned char *g,  unsigned long glen,
                 dsa_key *key);
-int dsa_set_pqg_dsaparam(const unsigned char *dsaparam, unsigned long dsaparamlen, dsa_key *key);
-int dsa_generate_pqg(prng_state *prng, int wprng, int group_size, int modulus_size, dsa_key *key);
-int dsa_set_key(const unsigned char *in, unsigned long inlen, int type, dsa_key *key);
-int dsa_generate_key(prng_state *prng, int wprng, dsa_key *key);
 \end{verbatim}
-\end{small}
+
+This will initialise the \textit{p}, \textit{q} and \textit{g} part of \textit{key} structure by directly loading binary
+representation of \textit{p} (with length of \textit{plen}), \textit{q} (with length of \textit{qlen}) and \textit{g} (with length of \textit{glen}).
+A simple DSA key validity check (without primality testing) is performed at the end of this function.
+
+\index{dsa\_set\_pqg\_dsaparam()}
+\begin{verbatim}
+int dsa_set_pqg_dsaparam(const unsigned char *dsaparam,
+                               unsigned long  dsaparamlen,
+                                     dsa_key *key);
+\end{verbatim}
+
+This will initialise the \textit{p}, \textit{q} and \textit{g} part of \textit{key} structure by directly loading binary representation
+of DSA parameters stored as a binary data in a buffer \textit{dsaparam} (with length of \textit{dsaparamlen}). A simple DSA key validity
+check (without primality testing) is performed at the end of this function. The \textit{dsaparam} can be generated via:
+\begin{verbatim}
+ openssl dsaparam 2048 -outform DER -out dsaparam.der
+\end{verbatim}
+
+\index{dsa\_generate\_pqg()}
+\begin{verbatim}
+int dsa_generate_pqg(prng_state *prng,
+                            int  wprng,
+                            int  group_size,
+                            int  modulus_size,
+                        dsa_key *key);
+\end{verbatim}
+
+This will initialise the \textit{p}, \textit{q} and \textit{g} part of \textit{key} structure with newly generated random values.
+As for the parameters they are the same as by \textit{dsa\_make\_key}.
+
+\index{dsa\_set\_key()}
+\begin{verbatim}
+int dsa_set_key(const unsigned char *in,
+                      unsigned long  inlen,
+                                int  type,
+                            dsa_key *key);
+\end{verbatim}
+
+This function can be used for setting the actual DSA key. If \textit{type} is \textit{PK\_PRIVATE} then the buffer \textit{in}
+(with length of \textit{inlen}) contains a binary representation of \textit{x} part of the key (the public part \textit{y} is computed).
+If \textit{type} is \textit{PK\_PUBLIC} then the buffer \textit{in} contains a binary representation of \textit{y} part of the key.
+
+\index{dsa\_generate\_key()}
+\begin{verbatim}
+int dsa_generate_key(prng_state *prng,
+                            int  wprng,
+                        dsa_key *key);
+\end{verbatim}
+
+This function generates a private DSA key containing both \textit{x} and \textit{y} parts.
 
 \chapter{Standards Support}
 \mysection{ASN.1 Formats}
@@ -6294,16 +6345,18 @@ The characters used in the mappings are:
 ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_
 \end{verbatim}
 Those characters are sometimes also called URL and filename safe alphabet.
-
-XXX-TODO
+The interface is analogous to \textit{base64\_xxxx} functions in previous chapter.
 
 \begin{verbatim}
 int base64url_encode(const unsigned char *in,  unsigned long len,
                            unsigned char *out, unsigned long *outlen);
+
 int base64url_strict_encode(const unsigned char *in,  unsigned long inlen,
                                   unsigned char *out, unsigned long *outlen);
+
 int base64url_decode(const unsigned char *in,  unsigned long len,
                            unsigned char *out, unsigned long *outlen);
+
 int base64url_strict_decode(const unsigned char *in,  unsigned long len,
                                   unsigned char *out, unsigned long *outlen);
 \end{verbatim}
