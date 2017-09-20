@@ -4578,8 +4578,9 @@ DiffieHellmanKey ::= SEQUENCE {
 
 Version  ::=  INTEGER  {  v1(0)  }
 
-Flags ::= BIT STRING {
-      privateKey      (0) -- this BIT is '1' if it's a private key or '0' if it's a public key
+Flags    ::=  BIT STRING {
+      privateKey      (0) -- this BIT is '1' if it's a private key
+                          --          or '0' if it's a public key
 }
 \end{verbatim}
 
