@@ -98,6 +98,11 @@ static void check_file(int argn, int argc, char **argv)
          hash_len = space - s;
          hash_len /= 2;
 
+         if (hash_len > sizeof(should_buffer)) {
+            fprintf(stderr, "%s: hash too long\n", hashsum);
+            goto ERR;
+         }
+
          /* convert the hex-string back to binary */
          for (x = 0; x < hash_len; ++x) {
             should_buffer[x] = HEXOF(s[x*2]) << 4 | HEXOF(s[x*2 + 1]);
