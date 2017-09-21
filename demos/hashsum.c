@@ -38,6 +38,11 @@
 
 static char* hashsum;
 
+static void cleanup(void)
+{
+   free(hashsum);
+}
+
 static void die(int status)
 {
    unsigned long w, x;
@@ -53,7 +58,6 @@ static void die(int status)
       }
    }
    if (w != 0) fprintf(o, "\n");
-   free(hashsum);
    exit(status);
 }
 
@@ -173,6 +177,7 @@ int main(int argc, char **argv)
    unsigned char hash_buffer[MAXBLOCKSIZE];
 
    hashsum = strdup(basename(argv[0]));
+   atexit(cleanup);
 
    /* You need to register algorithms before using them */
    register_all_ciphers();
