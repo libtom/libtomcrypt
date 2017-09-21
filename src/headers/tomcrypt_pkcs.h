@@ -80,13 +80,13 @@ int pkcs_1_pss_decode(const unsigned char *msghash, unsigned long msghashlen,
 /* ===> PKCS #5 -- Password Based Cryptography <=== */
 #ifdef LTC_PKCS_5
 
-/* Algorithm #1 (old) */
+/* Algorithm #1 (PBKDF1) */
 int pkcs_5_alg1(const unsigned char *password, unsigned long password_len,
                 const unsigned char *salt,
                 int iteration_count,  int hash_idx,
                 unsigned char *out,   unsigned long *outlen);
 
-/* Algorithm #1 - OpenSSL-compatible variant for arbitrarily-long keys.
+/* Algorithm #1 (PBKDF1) - OpenSSL-compatible variant for arbitrarily-long keys.
    Compatible with EVP_BytesToKey() */
 int pkcs_5_alg1_openssl(const unsigned char *password,
                         unsigned long password_len,
@@ -94,7 +94,7 @@ int pkcs_5_alg1_openssl(const unsigned char *password,
                         int iteration_count,  int hash_idx,
                         unsigned char *out,   unsigned long *outlen);
 
-/* Algorithm #2 (new) */
+/* Algorithm #2 (PBKDF2) */
 int pkcs_5_alg2(const unsigned char *password, unsigned long password_len,
                 const unsigned char *salt,     unsigned long salt_len,
                 int iteration_count,           int hash_idx,
