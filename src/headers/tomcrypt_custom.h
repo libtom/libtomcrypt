@@ -500,6 +500,11 @@
 #if defined(LTC_MECC) || defined(LTC_MRSA) || defined(LTC_MDSA) || defined(LTC_MKAT)
    /* Include the MPI functionality?  (required by the PK algorithms) */
    #define LTC_MPI
+
+   #ifndef LTC_PK_MAX_RETRIES
+      /* iterations limit for retry-loops */
+      #define LTC_PK_MAX_RETRIES  20
+   #endif
 #endif
 
 #ifdef LTC_MRSA

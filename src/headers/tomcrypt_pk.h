@@ -17,9 +17,6 @@ enum {
 /* Indicates standard output formats that can be read e.g. by OpenSSL or GnuTLS */
 #define PK_STD          0x1000
 
-/* iterations limit for retry-loops */
-#define PK_MAX_RETRIES  20
-
 int rand_prime(void *N, long len, prng_state *prng, int wprng);
 
 #ifdef LTC_SOURCE

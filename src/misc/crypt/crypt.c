@@ -301,7 +301,7 @@ const char *crypt_build_settings =
     "   SOBER128\n"
 #endif
 
-    "\nPK Algs:\n"
+    "\nPK Crypto:\n"
 #if defined(LTC_MRSA)
     "   RSA"
 #if defined(LTC_RSA_BLINDING) && defined(LTC_RSA_CRT_HARDENING)
@@ -328,6 +328,9 @@ const char *crypt_build_settings =
 #endif
 #if defined(LTC_MKAT)
     "   Katja\n"
+#endif
+#if defined(LTC_PK_MAX_RETRIES)
+    "   "NAME_VALUE(LTC_PK_MAX_RETRIES)"\n"
 #endif
 
     "\nMPI (Math):\n"

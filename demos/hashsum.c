@@ -38,22 +38,28 @@
 
 static char* hashsum;
 
+static void cleanup(void)
+{
+   free(hashsum);
+}
+
 static void die(int status)
 {
    unsigned long w, x;
    FILE* o = status == EXIT_SUCCESS ? stdout : stderr;
-   fprintf(o, "usage: %s -a algorithm [-c] [file...]\n", hashsum);
-   fprintf(o, "Algorithms:\n");
+   fprintf(o, "usage: %s -a algorithm [-c] [file...]\n\n", hashsum);
+   fprintf(o, "\t-c\tCheck the hash(es) of the file(s) written in [file].\n");
+   fprintf(o, "\t\t(-a not required)\n");
+   fprintf(o, "\nAlgorithms:\n\t");
    w = 0;
    for (x = 0; hash_descriptor[x].name != NULL; x++) {
       w += fprintf(o, "%-14s", hash_descriptor[x].name);
       if (w >= 70) {
-         fprintf(o, "\n");
+         fprintf(o, "\n\t");
          w = 0;
       }
    }
    if (w != 0) fprintf(o, "\n");
-   free(hashsum);
    exit(status);
 }
 
@@ -173,6 +179,7 @@ int main(int argc, char **argv)
    unsigned char hash_buffer[MAXBLOCKSIZE];
 
    hashsum = strdup(basename(argv[0]));
+   atexit(cleanup);
 
    /* You need to register algorithms before using them */
    register_all_ciphers();
