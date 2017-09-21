@@ -46,7 +46,7 @@ int dh_generate_key(prng_state *prng, int wprng, dh_key *key)
 {
    unsigned char *buf;
    unsigned long keysize;
-   int err, max_iterations = PK_MAX_RETRIES;
+   int err, max_iterations = LTC_PK_MAX_RETRIES;
 
    LTC_ARGCHK(key         != NULL);
    LTC_ARGCHK(ltc_mp.name != NULL);
