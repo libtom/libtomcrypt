@@ -47,13 +47,15 @@ static void die(int status)
 {
    unsigned long w, x;
    FILE* o = status == EXIT_SUCCESS ? stdout : stderr;
-   fprintf(o, "usage: %s -a algorithm [-c] [file...]\n", hashsum);
-   fprintf(o, "Algorithms:\n");
+   fprintf(o, "usage: %s -a algorithm [-c] [file...]\n\n", hashsum);
+   fprintf(o, "\t-c\tCheck the hash(es) of the file(s) written in [file].\n");
+   fprintf(o, "\t\t(-a not required)\n");
+   fprintf(o, "\nAlgorithms:\n\t");
    w = 0;
    for (x = 0; hash_descriptor[x].name != NULL; x++) {
       w += fprintf(o, "%-14s", hash_descriptor[x].name);
       if (w >= 70) {
-         fprintf(o, "\n");
+         fprintf(o, "\n\t");
          w = 0;
       }
    }
