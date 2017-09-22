@@ -78,11 +78,9 @@ void init_LTM(void);
 #ifdef TFM_DESC
 void init_TFM(void);
 #endif
-/*                          *** use of GMP is untested ***
 #ifdef GMP_DESC
 void init_GMP(void);
 #endif
-*/
 
 #ifdef LTC_ADLER32
 typedef struct adler32_state_s
