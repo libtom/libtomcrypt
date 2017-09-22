@@ -8,7 +8,7 @@
  */
 #include <tomcrypt_test.h>
 
-#if defined(LTC_MRSA) && defined(LTC_TEST_MPI)
+#if defined(LTC_MRSA)
 
 #define RSA_MSGSIZE 78
 
@@ -354,6 +354,8 @@ int rsa_test(void)
    unsigned char* p;
    unsigned char* p2;
    unsigned char* p3;
+
+   if (ltc_mp.name == NULL) return CRYPT_NOP;
 
    if (rsa_compat_test() != 0) {
       return 1;

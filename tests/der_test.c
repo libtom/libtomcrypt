@@ -7,11 +7,8 @@
  * guarantee it works.
  */
 #include <tomcrypt_test.h>
-#if defined(GMP_LTC_DESC) || defined(USE_GMP)
-#include <gmp.h>
-#endif
 
-#if !defined(LTC_DER) || !defined(LTC_TEST_MPI)
+#if !defined(LTC_DER)
 
 int der_test(void)
 {
@@ -1125,6 +1122,8 @@ int der_test(void)
 
    unsigned char utf8_buf[32];
    wchar_t utf8_out[32];
+
+   if (ltc_mp.name == NULL) return CRYPT_NOP;
 
    der_cacert_test();
 
