@@ -14,20 +14,6 @@
 
 #include "common.h"
 
-#ifdef USE_LTM
-/* Use libtommath as MPI provider */
-#define LTC_TEST_MPI
-#elif defined(USE_TFM)
-/* Use tomsfastmath as MPI provider */
-#define LTC_TEST_MPI
-#elif defined(USE_GMP)
-/* Use GNU Multiple Precision Arithmetic Library as MPI provider */
-#define LTC_TEST_MPI
-#elif defined(EXT_MATH_LIB)
-/* The user must define his own MPI provider! */
-#define LTC_TEST_MPI
-#endif
-
 typedef struct {
     char *name, *prov, *req;
     int  (*entry)(void);

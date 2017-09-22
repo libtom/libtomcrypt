@@ -8,7 +8,7 @@
  */
 #include <tomcrypt_test.h>
 
-#if defined(LTC_MECC) && defined(LTC_TEST_MPI)
+#if defined(LTC_MECC)
 
 static unsigned int sizes[] = {
 #ifdef LTC_ECC112
@@ -119,6 +119,8 @@ int ecc_tests (void)
   unsigned long x, y, z, s;
   int           stat, stat2;
   ecc_key usera, userb, pubKey, privKey;
+
+  if (ltc_mp.name == NULL) return CRYPT_NOP;
 
   DO(ecc_test ());
 

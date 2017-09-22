@@ -8,7 +8,7 @@
  */
 #include <tomcrypt_test.h>
 
-#if defined(LTC_MDH) && defined(LTC_TEST_MPI)
+#if defined(LTC_MDH)
 
 #ifdef LTC_DH4096
 #define KEYSIZE 4096
@@ -433,6 +433,9 @@ static int _basic_test(void)
 int dh_test(void)
 {
    int fails = 0;
+
+   if (ltc_mp.name == NULL) return CRYPT_NOP;
+
    if (_prime_test() != CRYPT_OK) fails++;
    if (_basic_test() != CRYPT_OK) fails++;
    if (_dhparam_test() != CRYPT_OK) fails++;

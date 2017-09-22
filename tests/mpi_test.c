@@ -8,7 +8,7 @@
  */
 #include  <tomcrypt_test.h>
 
-#if defined(LTC_MPI) && defined(LTC_TEST_MPI)
+#if defined(LTC_MPI)
 static int _radix_to_bin_test(void)
 {
    /* RADIX 16 */
@@ -133,6 +133,7 @@ static int _radix_to_bin_test(void)
 
 int mpi_test(void)
 {
+   if (ltc_mp.name == NULL) return CRYPT_NOP;
    return _radix_to_bin_test();
 }
 #else

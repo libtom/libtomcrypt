@@ -8,7 +8,7 @@
  */
 #include <tomcrypt_test.h>
 
-#if defined(LTC_MKAT) && defined(LTC_TEST_MPI)
+#if defined(LTC_MKAT)
 
 int katja_test(void)
 {
@@ -17,6 +17,8 @@ int katja_test(void)
    int           hash_idx, prng_idx, stat, stat2, size;
    unsigned long kat_msgsize, len, len2, cnt;
    static unsigned char lparam[] = { 0x01, 0x02, 0x03, 0x04 };
+
+   if (ltc_mp.name == NULL) return CRYPT_NOP;
 
    hash_idx = find_hash("sha1");
    prng_idx = find_prng("yarrow");

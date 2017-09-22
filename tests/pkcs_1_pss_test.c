@@ -8,7 +8,7 @@
  */
 #include <tomcrypt_test.h>
 
-#if defined(LTC_PKCS_1) && defined(LTC_TEST_MPI)
+#if defined(LTC_PKCS_1)
 
 #include "../notes/rsa-testvectors/pss-vect.c"
 
@@ -21,6 +21,8 @@ int pkcs_1_pss_test(void)
   int hash_idx = find_hash("sha1");
   unsigned int i;
   unsigned int j;
+
+  if (ltc_mp.name == NULL) return CRYPT_NOP;
 
   DO(prng_is_valid(prng_idx));
   DO(hash_is_valid(hash_idx));
