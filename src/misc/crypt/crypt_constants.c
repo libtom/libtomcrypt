@@ -153,6 +153,10 @@ static const crypt_constant _crypt_constants[] = {
     _C_STRINGIFY(LTC_GCM_MODE_TEXT),
 #endif
 
+    _C_STRINGIFY(LTC_MP_LT),
+    _C_STRINGIFY(LTC_MP_EQ),
+    _C_STRINGIFY(LTC_MP_GT),
+
     _C_STRINGIFY(LTC_MP_NO),
     _C_STRINGIFY(LTC_MP_YES),
 
