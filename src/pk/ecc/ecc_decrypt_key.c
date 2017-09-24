@@ -35,7 +35,8 @@ int ecc_decrypt_key(const unsigned char *in,  unsigned long  inlen,
                           ecc_key *key)
 {
    unsigned char *ecc_shared, *skey, *pub_expt;
-   unsigned long  x, y, hashOID[32];
+   unsigned long  x, y;
+   unsigned long  hashOID[32] = { 0 };
    int            hash, err;
    ecc_key        pubkey;
    ltc_asn1_list  decode[3];

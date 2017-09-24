@@ -38,13 +38,14 @@ int dsa_import(const unsigned char *in, unsigned long inlen, dsa_key *key)
       return CRYPT_MEM;
    }
 
+   flags[0] = 0xff;
    /* try to match the old libtomcrypt format */
    err = der_decode_sequence_multi(in, inlen, LTC_ASN1_BIT_STRING, 1UL, flags,
                                               LTC_ASN1_EOL,        0UL, NULL);
 
    if (err == CRYPT_OK || err == CRYPT_PK_INVALID_SIZE) {
        /* private key */
-       if (flags[0]) {
+       if (flags[0] == 1) {
            if ((err = der_decode_sequence_multi(in, inlen,
                                   LTC_ASN1_BIT_STRING,   1UL, flags,
                                   LTC_ASN1_INTEGER,      1UL, key->g,
@@ -59,7 +60,7 @@ int dsa_import(const unsigned char *in, unsigned long inlen, dsa_key *key)
            goto LBL_OK;
        }
        /* public key */
-       else {
+       else if (flags[0] == 0) {
            if ((err = der_decode_sequence_multi(in, inlen,
                                       LTC_ASN1_BIT_STRING,   1UL, flags,
                                       LTC_ASN1_INTEGER,      1UL, key->g,
@@ -71,6 +72,10 @@ int dsa_import(const unsigned char *in, unsigned long inlen, dsa_key *key)
            }
            key->type = PK_PUBLIC;
            goto LBL_OK;
+       }
+       else {
+          err = CRYPT_INVALID_PACKET;
+          goto LBL_ERR;
        }
    }
    /* get key type */

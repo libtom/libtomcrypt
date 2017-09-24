@@ -30,7 +30,8 @@ int dsa_decrypt_key(const unsigned char *in,  unsigned long  inlen,
 {
    unsigned char  *skey, *expt;
    void           *g_pub;
-   unsigned long  x, y, hashOID[32];
+   unsigned long  x, y;
+   unsigned long  hashOID[32] = { 0 };
    int            hash, err;
    ltc_asn1_list  decode[3];
 
