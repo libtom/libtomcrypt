@@ -69,8 +69,6 @@ int dh_import(const unsigned char *in, unsigned long inlen, dh_key *key)
                                               LTC_ASN1_EOL,           0UL, NULL)) != CRYPT_OK) {
             goto error;
          }
-         mp_clear(key->x);
-         key->x = NULL;
       }
    }
    else {
