@@ -65,12 +65,11 @@ int rsa_import(const unsigned char *in, unsigned long inlen, rsa_key *key)
       goto LBL_FREE;
    }
 
-   mp_set_int(key->N, 666);
    /* not SSL public key, try to match against PKCS #1 standards */
    err = der_decode_sequence_multi(in, inlen, LTC_ASN1_INTEGER, 1UL, key->N,
                                               LTC_ASN1_EOL,     0UL, NULL);
 
-   if (err != CRYPT_OK && err != CRYPT_PK_INVALID_SIZE) {
+   if (err != CRYPT_OK && err != CRYPT_INPUT_TOO_LONG) {
       goto LBL_ERR;
    }
 

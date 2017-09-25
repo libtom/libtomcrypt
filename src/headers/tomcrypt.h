@@ -68,7 +68,8 @@ enum {
    CRYPT_OVERFLOW,         /* An overflow of a value was detected/prevented */
 
    CRYPT_UNUSED1,          /* UNUSED1 */
-   CRYPT_UNUSED2,          /* UNUSED2 */
+
+   CRYPT_INPUT_TOO_LONG,   /* The input was longer than expected. */
 
    CRYPT_PK_INVALID_SIZE,  /* Invalid size input for PK parameters */
 
