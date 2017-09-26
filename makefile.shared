@@ -23,6 +23,9 @@ ifndef LT
     LT:=libtool
   endif
 endif
+ifeq ($(PLATFORM), CYGWIN)
+  NO_UNDEFINED:=-no-undefined
+endif
 LTCOMPILE = $(LT) --mode=compile --tag=CC $(CC)
 INSTALL_CMD = $(LT) --mode=install install
 UNINSTALL_CMD = $(LT) --mode=uninstall rm
@@ -46,7 +49,7 @@ src/ciphers/aes/aes_enc.o: src/ciphers/aes/aes.c src/ciphers/aes/aes_tab.c
 LOBJECTS = $(OBJECTS:.o=.lo)
 
 $(LIBNAME): $(OBJECTS)
-	$(LT) --mode=link --tag=CC $(CC) $(LTC_CFLAGS) $(CPPFLAGS) $(LTC_LDFLAGS) $(LOBJECTS) $(EXTRALIBS) -o $@ -rpath $(LIBPATH) -version-info $(VERSION_LT)
+	$(LT) --mode=link --tag=CC $(CC) $(LTC_CFLAGS) $(CPPFLAGS) $(LTC_LDFLAGS) $(LOBJECTS) $(EXTRALIBS) -o $@ -rpath $(LIBPATH) -version-info $(VERSION_LT) $(NO_UNDEFINED)
 
 test: $(call print-help,test,Builds the library and the 'test' application to run all self-tests) $(LIBNAME) $(TOBJECTS)
 	$(LT) --mode=link --tag=CC $(CC) $(LTC_CFLAGS) $(CPPFLAGS) $(LTC_LDFLAGS) -o $(TEST) $(TOBJECTS) $(LIBNAME) $(EXTRALIBS)
