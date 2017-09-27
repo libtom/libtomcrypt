@@ -107,7 +107,7 @@ int ecc_import_ex(const unsigned char *in, unsigned long inlen, ecc_key *key, co
    /* find out what type of key it is */
    err = der_decode_sequence_multi(in, inlen, LTC_ASN1_BIT_STRING, 1UL, flags,
                                               LTC_ASN1_EOL,        0UL, NULL);
-   if (err != CRYPT_OK && err != CRYPT_PK_INVALID_SIZE) {
+   if (err != CRYPT_OK && err != CRYPT_INPUT_TOO_LONG) {
       goto done;
    }
 
@@ -124,7 +124,7 @@ int ecc_import_ex(const unsigned char *in, unsigned long inlen, ecc_key *key, co
                                      LTC_ASN1_EOL,             0UL, NULL)) != CRYPT_OK) {
          goto done;
       }
-   } else {
+   } else if (flags[0] == 0) {
       /* public key */
       key->type = PK_PUBLIC;
       if ((err = der_decode_sequence_multi(in, inlen,
@@ -135,6 +135,10 @@ int ecc_import_ex(const unsigned char *in, unsigned long inlen, ecc_key *key, co
                                      LTC_ASN1_EOL,             0UL, NULL)) != CRYPT_OK) {
          goto done;
       }
+   }
+   else {
+      err = CRYPT_INVALID_PACKET;
+      goto done;
    }
 
    if (dp == NULL) {

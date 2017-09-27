@@ -30,7 +30,8 @@ int dsa_decrypt_key(const unsigned char *in,  unsigned long  inlen,
 {
    unsigned char  *skey, *expt;
    void           *g_pub;
-   unsigned long  x, y, hashOID[32];
+   unsigned long  x, y;
+   unsigned long  hashOID[32] = { 0 };
    int            hash, err;
    ltc_asn1_list  decode[3];
 
@@ -47,7 +48,7 @@ int dsa_decrypt_key(const unsigned char *in,  unsigned long  inlen,
    /* decode to find out hash */
    LTC_SET_ASN1(decode, 0, LTC_ASN1_OBJECT_IDENTIFIER, hashOID, sizeof(hashOID)/sizeof(hashOID[0]));
    err = der_decode_sequence(in, inlen, decode, 1);
-   if (err != CRYPT_OK && err != CRYPT_PK_INVALID_SIZE) {
+   if (err != CRYPT_OK && err != CRYPT_INPUT_TOO_LONG) {
       return err;
    }
 

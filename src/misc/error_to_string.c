@@ -47,7 +47,8 @@ static const char * const err_2_str[] =
    "An overflow of a value was detected/prevented.",
 
    "UNUSED1.",
-   "UNUSED2.",
+
+   "The input was longer than expected.",
 
    "Invalid sized parameter.",
 

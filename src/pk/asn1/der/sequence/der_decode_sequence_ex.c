@@ -314,7 +314,7 @@ int der_decode_sequence_ex(const unsigned char *in, unsigned long  inlen,
    if (inlen == 0) {
       err = CRYPT_OK;
    } else {
-      err = CRYPT_PK_INVALID_SIZE;
+      err = CRYPT_INPUT_TOO_LONG;
    }
 
 LBL_ERR:
