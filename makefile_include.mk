@@ -6,7 +6,7 @@
 VERSION=1.18.0-rc4
 VERSION_PC=1.18.0
 # http://www.gnu.org/software/libtool/manual/html_node/Updating-version-info.html
-VERSION_LT=0:118
+VERSION_LT=1:0
 
 # Compiler and Linker Names
 ifndef CROSS_COMPILE
