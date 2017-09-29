@@ -399,9 +399,6 @@ const char *crypt_build_settings =
 #if defined(LTC_DER)
     " DER "
 #endif
-#if defined(LTC_DER_MAX_PUBKEY_SIZE)
-    " " NAME_VALUE(LTC_DER_MAX_PUBKEY_SIZE) " "
-#endif
 #if defined(LTC_PKCS_1)
     " PKCS#1 "
 #endif
