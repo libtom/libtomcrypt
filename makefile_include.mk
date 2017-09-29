@@ -76,6 +76,7 @@ endif
 LTC_CFLAGS += -Wno-type-limits
 
 ifdef LTC_DEBUG
+$(info Debug build)
 # compile for DEBUGGING (required for ccmalloc checking!!!)
 LTC_CFLAGS += -g3 -DLTC_NO_ASM
 ifneq (,$(strip $(LTC_DEBUG)))
