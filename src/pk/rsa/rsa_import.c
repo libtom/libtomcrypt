@@ -40,7 +40,7 @@ int rsa_import(const unsigned char *in, unsigned long inlen, rsa_key *key)
    }
 
    /* see if the OpenSSL DER format RSA public key will work */
-   tmpbuf_len = MAX_RSA_SIZE / 8;
+   tmpbuf_len = inlen;
    tmpbuf = XCALLOC(1, tmpbuf_len);
    if (tmpbuf == NULL) {
        err = CRYPT_MEM;
