@@ -58,7 +58,7 @@ int der_encode_subject_public_key_info(unsigned char *out, unsigned long *outlen
 
    return der_encode_sequence_multi(out, outlen,
         LTC_ASN1_SEQUENCE, (unsigned long)sizeof(alg_id)/sizeof(alg_id[0]), alg_id,
-        LTC_ASN1_RAW_BIT_STRING, (unsigned long)(public_key_len*8), public_key,
+        LTC_ASN1_RAW_BIT_STRING, public_key_len*8U, public_key,
         LTC_ASN1_EOL,     0UL, NULL);
 
 }
