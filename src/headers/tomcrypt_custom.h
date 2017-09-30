@@ -425,19 +425,6 @@
 #define LTC_ECC_TIMING_RESISTANT
 #endif
 
-/* define these PK sizes out of LTC_NO_PK
- * to have them always defined
- */
-#if defined(LTC_MRSA)
-/* Min and Max RSA key sizes (in bits) */
-#ifndef MIN_RSA_SIZE
-#define MIN_RSA_SIZE 1024
-#endif
-#ifndef MAX_RSA_SIZE
-#define MAX_RSA_SIZE 4096
-#endif
-#endif
-
 /* PKCS #1 (RSA) and #5 (Password Handling) stuff */
 #ifndef LTC_NO_PKCS
 

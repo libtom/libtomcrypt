@@ -150,7 +150,7 @@ if SHOW_SELECTED_CONSTANTS:
         b'ENDIAN_LITTLE',
         b'ENDIAN_64BITWORD',
         b'PK_PUBLIC',
-        b'MAX_RSA_SIZE',
+        b'LTC_MILLER_RABIN_REPS',
         b'CTR_COUNTER_BIG_ENDIAN',
     ]
     for name in names:

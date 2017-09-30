@@ -48,7 +48,6 @@ The following list is a small part of the available, but the most often required
 | ---- | -------- |
 | `LTC_NO_TEST` | Remove all algorithm self-tests from the library |
 | `LTC_NO_FILE` | Remove all API functions requiring a pre-defined `FILE` data-type (mostly useful for embedded targets) |
-| `MAX_RSA_SIZE` | Per default set to `4096`, if you need support for generating bigger RSA keys, change this at compile-time. |
 | `GMP_DESC` | enable [gmp](https://gmplib.org/) as MPI provider *\*1* |
 | `LTM_DESC` | enable [libtommath](http://www.libtom.net/) as MPI provider *\*1* |
 | `TFM_DESC` | enable [tomsfastmath](http://www.libtom.net/) as MPI provider *\*1* *\*2* |

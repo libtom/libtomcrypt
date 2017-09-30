@@ -313,10 +313,10 @@ static int _rsa_key_cmp(const int should_type, const rsa_key *should, const rsa_
 static int _rsa_issue_301(int prng_idx)
 {
    rsa_key       key, key_in;
-   unsigned char buf[MAX_RSA_SIZE];
+   unsigned char buf[4096];
    unsigned long len;
 
-   DO(rsa_make_key(&yarrow_prng, prng_idx, MAX_RSA_SIZE/8, 65537, &key));
+   DO(rsa_make_key(&yarrow_prng, prng_idx, sizeof(buf)/8, 65537, &key));
 
    len = sizeof(buf);
    DO(rsa_export(buf, &len, PK_PRIVATE, &key));
