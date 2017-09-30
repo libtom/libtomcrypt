@@ -72,7 +72,7 @@ int der_decode_subject_public_key_info(const unsigned char *in, unsigned long in
     * in a **BIT** string ... so we have to extract it then proceed to convert bit to octet
     */
    LTC_SET_ASN1(subject_pubkey, 0, LTC_ASN1_SEQUENCE, alg_id, 2);
-   LTC_SET_ASN1(subject_pubkey, 1, LTC_ASN1_RAW_BIT_STRING, tmpbuf, inlen);
+   LTC_SET_ASN1(subject_pubkey, 1, LTC_ASN1_RAW_BIT_STRING, tmpbuf, inlen*8U);
 
    err=der_decode_sequence(in, inlen, subject_pubkey, 2UL);
    if (err != CRYPT_OK) {
