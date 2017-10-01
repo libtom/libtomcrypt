@@ -31,6 +31,7 @@ int rsa_make_key(prng_state *prng, int wprng, int size, long e, rsa_key *key)
 
    LTC_ARGCHK(ltc_mp.name != NULL);
    LTC_ARGCHK(key         != NULL);
+   LTC_ARGCHK(size        > 0);
 
    if ((e < 3) || ((e & 1) == 0)) {
       return CRYPT_INVALID_ARG;
