@@ -339,6 +339,7 @@ static int _rsa_issue_301(int prng_idx)
    DO(_rsa_key_cmp(PK_PUBLIC, &key, &key_in));
    rsa_free(&key_in);
 
+   rsa_free(&key);
    return 0;
 }
 
