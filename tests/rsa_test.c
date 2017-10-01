@@ -340,7 +340,7 @@ static int _rsa_issue_301(int prng_idx)
    rsa_free(&key_in);
 
    rsa_free(&key);
-   return 0;
+   return CRYPT_OK;
 }
 
 int rsa_test(void)
@@ -366,9 +366,7 @@ int rsa_test(void)
       return 1;
    }
 
-   if (_rsa_issue_301(prng_idx) != 0) {
-      return 1;
-   }
+   DO(_rsa_issue_301(prng_idx));
 
    /* make 10 random key */
    for (cnt = 0; cnt < 10; cnt++) {
