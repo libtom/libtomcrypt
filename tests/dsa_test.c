@@ -313,6 +313,7 @@ static int _dsa_wycheproof_test(void)
       return CRYPT_FAIL_TESTVECTOR;
    }
 
+   dsa_free(&key);
    return CRYPT_OK;
 }
 
