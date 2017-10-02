@@ -77,8 +77,6 @@ static const crypt_constant _crypt_constants[] = {
 
 #ifdef LTC_MRSA
     {"LTC_MRSA", 1},
-    _C_STRINGIFY(MIN_RSA_SIZE),
-    _C_STRINGIFY(MAX_RSA_SIZE),
 #else
     {"LTC_MRSA", 0},
 #endif
@@ -107,9 +105,6 @@ static const crypt_constant _crypt_constants[] = {
     {"LTC_MDSA", 0},
 #endif
 
-#ifdef LTC_DER_MAX_PUBKEY_SIZE
-    _C_STRINGIFY(LTC_DER_MAX_PUBKEY_SIZE),
-#endif
 #ifdef LTC_MILLER_RABIN_REPS
     _C_STRINGIFY(LTC_MILLER_RABIN_REPS),
 #endif

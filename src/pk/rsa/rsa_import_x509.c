@@ -39,7 +39,7 @@ int rsa_import_x509(const unsigned char *in, unsigned long inlen, rsa_key *key)
       return err;
    }
 
-   tmpbuf_len = MAX_RSA_SIZE * 8;
+   tmpbuf_len = inlen;
    tmpbuf = XCALLOC(1, tmpbuf_len);
    if (tmpbuf == NULL) {
        err = CRYPT_MEM;

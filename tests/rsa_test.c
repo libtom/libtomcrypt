@@ -285,6 +285,64 @@ static int rsa_compat_test(void)
    return 0;
 }
 
+static int _rsa_key_cmp(const int should_type, const rsa_key *should, const rsa_key *is)
+{
+   if(should_type != is->type)
+      return CRYPT_ERROR;
+   if(should_type == PK_PRIVATE) {
+      if(mp_cmp(should->q, is->q) != LTC_MP_EQ)
+         return CRYPT_ERROR;
+      if(mp_cmp(should->p, is->p) != LTC_MP_EQ)
+         return CRYPT_ERROR;
+      if(mp_cmp(should->qP, is->qP) != LTC_MP_EQ)
+         return CRYPT_ERROR;
+      if(mp_cmp(should->dP, is->dP) != LTC_MP_EQ)
+         return CRYPT_ERROR;
+      if(mp_cmp(should->dQ, is->dQ) != LTC_MP_EQ)
+         return CRYPT_ERROR;
+      if(mp_cmp(should->d, is->d) != LTC_MP_EQ)
+         return CRYPT_ERROR;
+   }
+   if(mp_cmp(should->N, is->N) != LTC_MP_EQ)
+      return CRYPT_ERROR;
+   if(mp_cmp(should->e, is->e) != LTC_MP_EQ)
+      return CRYPT_ERROR;
+   return CRYPT_OK;
+}
+
+static int _rsa_issue_301(int prng_idx)
+{
+   rsa_key       key, key_in;
+   unsigned char buf[4096];
+   unsigned long len;
+
+   DO(rsa_make_key(&yarrow_prng, prng_idx, sizeof(buf)/8, 65537, &key));
+
+   len = sizeof(buf);
+   DO(rsa_export(buf, &len, PK_PRIVATE, &key));
+   DO(rsa_import(buf, len, &key_in));
+
+   DO(_rsa_key_cmp(PK_PRIVATE, &key, &key_in));
+   rsa_free(&key_in);
+
+   len = sizeof(buf);
+   DO(rsa_export(buf, &len, PK_PUBLIC, &key));
+   DO(rsa_import(buf, len, &key_in));
+
+   DO(_rsa_key_cmp(PK_PUBLIC, &key, &key_in));
+   rsa_free(&key_in);
+
+   len = sizeof(buf);
+   DO(rsa_export(buf, &len, PK_PUBLIC | PK_STD, &key));
+   DO(rsa_import(buf, len, &key_in));
+
+   DO(_rsa_key_cmp(PK_PUBLIC, &key, &key_in));
+   rsa_free(&key_in);
+
+   rsa_free(&key);
+   return CRYPT_OK;
+}
+
 int rsa_test(void)
 {
    unsigned char in[1024], out[1024], tmp[3072];
@@ -307,6 +365,8 @@ int rsa_test(void)
       fprintf(stderr, "rsa_test requires LTC_SHA1 and yarrow");
       return 1;
    }
+
+   DO(_rsa_issue_301(prng_idx));
 
    /* make 10 random key */
    for (cnt = 0; cnt < 10; cnt++) {
