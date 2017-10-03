@@ -219,10 +219,10 @@ LTC_EXPORT int   LTC_CALL XSTRCMP(const char *s1, const char *s2);
    #endif
 #endif
 
-#ifdef ENDIAN_64BITWORD
-typedef ulong64 ltc_mp_digit;
+#if defined(ENDIAN_64BITWORD) && (defined(__ILP32__) || defined(_ILP32))
+typedef unsigned long long ltc_mp_digit;
 #else
-typedef ulong32 ltc_mp_digit;
+typedef unsigned long ltc_mp_digit;
 #endif
 
 /* No asm is a quick way to disable anything "not portable" */
