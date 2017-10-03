@@ -219,6 +219,22 @@ LTC_EXPORT int   LTC_CALL XSTRCMP(const char *s1, const char *s2);
    #endif
 #endif
 
+#ifdef ENDIAN_64BITWORD
+typedef ulong64 ltc_mp_digit;
+#else
+typedef ulong32 ltc_mp_digit;
+#endif
+
+/* No asm is a quick way to disable anything "not portable" */
+#ifdef LTC_NO_ASM
+   #define ENDIAN_NEUTRAL
+   #undef ENDIAN_32BITWORD
+   #undef ENDIAN_64BITWORD
+   #undef LTC_FAST
+   #define LTC_NO_ROLC
+   #define LTC_NO_BSWAP
+#endif
+
 /* No LTC_FAST if: explicitly disabled OR non-gcc/non-clang compiler OR old gcc OR using -ansi -std=c99 */
 #if defined(LTC_NO_FAST) || (__GNUC__ < 4) || defined(__STRICT_ANSI__)
    #undef LTC_FAST
@@ -233,25 +249,8 @@ LTC_EXPORT int   LTC_CALL XSTRCMP(const char *s1, const char *s2);
    #endif
 #endif
 
-#ifdef ENDIAN_64BITWORD
-typedef ulong64 ltc_mp_digit;
-#else
-typedef ulong32 ltc_mp_digit;
-#endif
-
-/* No asm is a quick way to disable anything "not portable" */
-#ifdef LTC_NO_ASM
-   #define ENDIAN_NEUTRAL
-   #undef ENDIAN_32BITWORD
-   #undef ENDIAN_64BITWORD
-   #undef LTC_FAST
-   #undef LTC_FAST_TYPE
-   #define LTC_NO_ROLC
-   #define LTC_NO_BSWAP
-#endif
-
 #if !defined(ENDIAN_NEUTRAL) && (defined(ENDIAN_BIG) || defined(ENDIAN_LITTLE)) && !(defined(ENDIAN_32BITWORD) || defined(ENDIAN_64BITWORD))
-    #error You must specify a word size as well as endianess in tomcrypt_cfg.h
+   #error You must specify a word size as well as endianess in tomcrypt_cfg.h
 #endif
 
 #if !(defined(ENDIAN_BIG) || defined(ENDIAN_LITTLE))
@@ -259,7 +258,7 @@ typedef ulong32 ltc_mp_digit;
 #endif
 
 #if (defined(ENDIAN_32BITWORD) && defined(ENDIAN_64BITWORD))
-    #error Cannot be 32 and 64 bit words...
+   #error Cannot be 32 and 64 bit words...
 #endif
 
 /* gcc 4.3 and up has a bswap builtin; detect it by gcc version.
