@@ -331,6 +331,7 @@ int main(int argc, char **argv)
    printf("NO math provider selected, all tests requiring MPI were disabled and will 'nop'\n");
 #endif
 
+   printf("sizeof(ltc_mp_digit) = %d\n", (int)sizeof(ltc_mp_digit));
 
 #ifdef LTC_PTHREAD
    tinfo = XCALLOC(sizeof(test_functions)/sizeof(test_functions[0]), sizeof(thread_info));

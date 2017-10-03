@@ -273,6 +273,7 @@ static const crypt_size _crypt_sizes[] = {
     _SZ_STRINGIFY_T(crc32_state),
 #endif
 
+    _SZ_STRINGIFY_T(ltc_mp_digit),
     _SZ_STRINGIFY_T(ltc_math_descriptor)
 
 };
