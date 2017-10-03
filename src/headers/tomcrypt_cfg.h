@@ -219,7 +219,7 @@ LTC_EXPORT int   LTC_CALL XSTRCMP(const char *s1, const char *s2);
    #endif
 #endif
 
-#if defined(ENDIAN_64BITWORD) && (defined(__ILP32__) || defined(_ILP32))
+#if defined(ENDIAN_64BITWORD) && !defined(_MSC_VER)
 typedef unsigned long long ltc_mp_digit;
 #else
 typedef unsigned long ltc_mp_digit;
