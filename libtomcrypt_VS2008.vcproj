@@ -2447,7 +2447,7 @@
 				Name="rc4"
 				>
 				<File
-					RelativePath="src\stream\rc4\rc4.c"
+					RelativePath="src\stream\rc4\rc4_stream.c"
 					>
 				</File>
 				<File
@@ -2459,7 +2459,7 @@
 				Name="sober128"
 				>
 				<File
-					RelativePath="src\stream\sober128\sober128.c"
+					RelativePath="src\stream\sober128\sober128_stream.c"
 					>
 				</File>
 				<File
