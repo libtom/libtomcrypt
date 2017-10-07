@@ -4244,9 +4244,8 @@ As of v1.18.0, the library also supports v1.5 signature generation without ASN.1
 \textbf{LTC\_PKCS\_1\_V1\_5\_NA1} as \textit{padding} parameter. This option has been introduced to provide compatibilty to SSL3.0 implementations
 which implemented this.
 
-When generating a standard v1.5 signature the \textit{prng}, and \textit{prng\_idx} parameters are not checked and can be left to any
-values such as $\lbrace$\textbf{NULL}, 0$\rbrace$. When generating a v1.5 signature without ASN.1 additionally the parameter \textit{hash\_idx} is not
-checked and can be set to $0$.
+When generating a standard v1.5 signature the \textit{prng}, and \textit{prng\_idx} parameters are ignored.
+When generating a v1.5 signature without ASN.1 decoding additionally the textit{hash\_idx} parameter is ignored.
 
 \mysection{RSA Signature Verification}
 \index{rsa\_verify\_hash()}
