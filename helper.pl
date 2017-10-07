@@ -59,7 +59,7 @@ sub check_source {
           $file !~ m|src/ciphers/.*\.c$| &&
           $file !~ m|src/hashes/.*\.c$| &&
           $file !~ m|src/math/.+_desc.c$| &&
-          $file !~ m|src/stream/sober128/sober128.c$| &&
+          $file !~ m|src/stream/sober128/sober128_stream.c$| &&
           $l =~ /^static\s+\S+\s+([^_][a-zA-Z0-9_]+)\s*\(/) {
         push @{$troubles->{staticfunc_name}}, "$lineno($1)";
       }
