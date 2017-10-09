@@ -26,8 +26,9 @@
 
 #ifndef LTC_MILLER_RABIN_REPS
    /* Number of rounds of the Miller-Rabin test
-    * "Reasonable values of reps are between 15 and 50." c.f. gmp doc of mpz_probab_prime_p() */
-   #define LTC_MILLER_RABIN_REPS    35
+    * "Reasonable values of reps are between 15 and 50." c.f. gmp doc of mpz_probab_prime_p()
+    * As of https://security.stackexchange.com/a/4546 we should use 40 rounds */
+   #define LTC_MILLER_RABIN_REPS    40
 #endif
 
 int radix_to_bin(const void *in, int radix, void *out, unsigned long *len);
