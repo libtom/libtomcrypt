@@ -26,7 +26,7 @@ v1.18.0
          against Google's "Wycheproof" and Kudelski Security's "CDF"
       -- Fixed all compiler warnings
       -- Fixed several build issues on FreeBSD, NetBSD, Linux x32 ABI, HP-UX/IA64,
-         Mac OS X, Windows (32&64bit, MingW&MSVC) ...
+         Mac OS X, Windows (32&64bit, Cygwin, MingW & MSVC) ...
       -- Re-worked all makefiles
       -- Re-worked most PRNG's
       -- The code is now verified by a linter, thanks to Francois Perrad
@@ -43,7 +43,7 @@ v1.18.0
       -- Add OCBv3
       -- Add PKCS#1 v1.5 mode of SSL3.0
       -- Add PKCS#1 testvectors from RSA
-      -- Add PKCS#8 import for RSA keys
+      -- Add PKCS#8 & X.509 import for RSA keys
       -- Add stream cipher API
       -- Add SHA3 & SHAKE
       -- Add SHA512/256 and SHA512/224

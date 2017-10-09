@@ -10,6 +10,8 @@ develop: [![Build Status](https://api.travis-ci.org/libtom/libtomcrypt.png?branc
 
 [![Coverity Scan Build Status](https://scan.coverity.com/projects/487/badge.svg)](https://scan.coverity.com/projects/487)
 
+API/ABI changes: [check here](https://abi-laboratory.pro/tracker/timeline/libtomcrypt/)
+
 ## Submitting patches
 
 Please branch off from develop if you want to submit a patch.
