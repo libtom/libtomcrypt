@@ -5,8 +5,6 @@
  *
  * The library is free for all purposes without any express
  * guarantee it works.
- *
- * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 
 /* Implements ECC over Z/pZ for curve y^2 = x^3 - 3x + b
@@ -19,7 +17,7 @@
 /**
   @file ltc_ecc_mulmod_timing.c
   ECC Crypto, Tom St Denis
-*/  
+*/
 
 #ifdef LTC_MECC
 
@@ -39,8 +37,8 @@ int ltc_ecc_mulmod(void *k, ecc_point *G, ecc_point *R, void *modulus, int map)
    ecc_point *tG, *M[3];
    int        i, j, err;
    void       *mu, *mp;
-   unsigned long buf;
-   int        first, bitbuf, bitcpy, bitcnt, mode, digidx;
+   ltc_mp_digit buf;
+   int        bitcnt, mode, digidx;
 
    LTC_ARGCHK(k       != NULL);
    LTC_ARGCHK(G       != NULL);
@@ -61,8 +59,8 @@ int ltc_ecc_mulmod(void *k, ecc_point *G, ecc_point *R, void *modulus, int map)
       return err;
    }
 
-  /* alloc ram for window temps */
-  for (i = 0; i < 3; i++) {
+   /* alloc ram for window temps */
+   for (i = 0; i < 3; i++) {
       M[i] = ltc_ecc_new_point();
       if (M[i] == NULL) {
          for (j = 0; j < i; j++) {
@@ -72,7 +70,7 @@ int ltc_ecc_mulmod(void *k, ecc_point *G, ecc_point *R, void *modulus, int map)
          mp_montgomery_free(mp);
          return CRYPT_MEM;
       }
-  }
+   }
 
    /* make a copy of G incase R==G */
    tG = ltc_ecc_new_point();
@@ -84,7 +82,7 @@ int ltc_ecc_mulmod(void *k, ecc_point *G, ecc_point *R, void *modulus, int map)
    if ((err = mp_mulmod(G->z, mu, modulus, tG->z)) != CRYPT_OK)                      { goto done; }
    mp_clear(mu);
    mu = NULL;
-   
+
    /* calc the M tab */
    /* M[0] == G */
    if ((err = mp_copy(tG->x, M[0]->x)) != CRYPT_OK)                                  { goto done; }
@@ -98,8 +96,6 @@ int ltc_ecc_mulmod(void *k, ecc_point *G, ecc_point *R, void *modulus, int map)
    bitcnt = 1;
    buf    = 0;
    digidx = mp_get_digit_count(k) - 1;
-   bitcpy = bitbuf = 0;
-   first  = 1;
 
    /* perform ops */
    for (;;) {
@@ -161,7 +157,7 @@ done:
 
 #endif
 #endif
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */
 

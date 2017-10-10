@@ -5,8 +5,6 @@
  *
  * The library is free for all purposes without any express
  * guarantee it works.
- *
- * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 #include "tomcrypt.h"
 
@@ -73,10 +71,10 @@ int der_decode_utf8_string(const unsigned char *in,  unsigned long inlen,
    for (y = 0; x < inlen; ) {
       /* get first byte */
       tmp = in[x++];
- 
+
       /* count number of bytes */
       for (z = 0; (tmp & 0x80) && (z <= 4); z++, tmp = (tmp << 1) & 0xFF);
-      
+
       if (z > 4 || (x + (z - 1) > inlen)) {
          return CRYPT_INVALID_PACKET;
       }
@@ -103,9 +101,9 @@ int der_decode_utf8_string(const unsigned char *in,  unsigned long inlen,
 
    return CRYPT_OK;
 }
- 
+
 #endif
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

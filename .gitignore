@@ -1,0 +1,96 @@
+# suppress compiler/linker output
+*.[oa]
+*.obj
+*.l[oa]
+[Dd]ebug/
+[Rr]elease/
+/MSVC_*
+.libs/
+
+# release files
+/libtomcrypt-*
+/crypt-*
+
+# suppress output of build process
+gcc_[12].txt
+testok.txt
+test_*.txt
+tv.txt
+*_tv.txt
+doxygen/
+doc/crypt.pdf
+doc/refman.pdf
+
+# *nix/windows test executables
+constants
+constants.exe
+ltcrypt
+ltcrypt.exe
+hashsum
+hashsum.exe
+multi
+multi.exe
+openssl-enc
+openssl-enc.exe
+sizes
+sizes.exe
+small
+small.exe
+test
+test.exe
+tv_gen
+tv_gen.exe
+timing
+timing.exe
+
+# Visual Studio special files
+# ignore user specific settings
+*.user
+*.suo
+# ignore non-compressed browse file (holds information for ClassView, IntelliSense and WizardBar)
+*.ncb
+# ignore VS intermediate and program database files
+*.idb
+*.pdb
+
+# Eclipse special files
+.project
+.cproject
+.settings/
+
+# oops ;) but we don't want them to appear in the repository...
+*.stackdump
+*.core
+
+# misc
+*.rej
+*.patch
+*.diff
+*.orig
+*.out
+*.ll
+*.gcda
+*.gcno
+*.gcov
+libtomcrypt.pc
+
+# output from doc generation
+doxygen/
+*.dvi
+*.log
+*.aux
+*.toc
+*.idx
+*.ilg
+*.ind
+*.out
+*.lof
+*.bak
+
+coverage/
+coverage*.info
+
+# coverity intermediate directory etc.
+cov-int/
+.coverity_*
+libtomcrypt.lzma

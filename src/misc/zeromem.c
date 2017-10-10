@@ -5,8 +5,6 @@
  *
  * The library is free for all purposes without any express
  * guarantee it works.
- *
- * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 #include "tomcrypt.h"
 
@@ -20,15 +18,15 @@
    @param out    The destination of the area to zero
    @param outlen The length of the area to zero (octets)
 */
-void zeromem(void *out, size_t outlen)
+void zeromem(volatile void *out, size_t outlen)
 {
-   unsigned char *mem = out;
+   volatile char *mem = out;
    LTC_ARGCHKVD(out != NULL);
    while (outlen-- > 0) {
-      *mem++ = 0;
+      *mem++ = '\0';
    }
 }
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */
