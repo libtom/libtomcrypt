@@ -106,6 +106,9 @@ endif # COMPILE_DEBUG
 ifneq ($(findstring clang,$(CC)),)
 LTC_CFLAGS += -Wno-typedef-redefinition -Wno-tautological-compare -Wno-builtin-requires-header -Wno-missing-field-initializers
 endif
+ifneq ($(findstring mingw,$(CC)),)
+LTC_CFLAGS += -Wno-shadow -Wno-attributes
+endif
 ifeq ($(PLATFORM), Darwin)
 LTC_CFLAGS += -Wno-nullability-completeness
 endif
