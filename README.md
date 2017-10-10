@@ -1,6 +1,8 @@
 # libtomcrypt
 
-See `doc/crypt.pdf` for a detailed documentation
+Previously the git repository contained `doc/crypt.pdf` for detailed documentation.
+This was changed and the file is now only available from the tarball of the appropriate version
+or from the page https://github.com/libtom/libtomcrypt/releases .
 
 ## Project Status
 
