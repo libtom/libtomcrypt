@@ -16,9 +16,9 @@
 #ifdef LTC_OFB_MODE
 
 /**
-   Get the current initial vector
-   @param IV   [out] The destination of the initial vector
-   @param len  [in/out]  The max size and resulting size of the initial vector
+   Get the current initialization vector
+   @param IV   [out] The destination of the initialization vector
+   @param len  [in/out]  The max size and resulting size of the initialization vector
    @param ofb  The OFB state
    @return CRYPT_OK if successful
 */

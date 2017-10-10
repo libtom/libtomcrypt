@@ -520,8 +520,11 @@ static void time_hash(void)
 }
 
 /*#warning you need an mp_rand!!!*/
-#ifndef USE_LTM
+#if !defined(USE_LTM) && !defined(USE_TFM) && !defined(USE_GMP) && !defined(EXT_MATH_LIB)
   #undef LTC_MPI
+  #undef LTC_TEST_MPI
+#else
+  #define LTC_TEST_MPI
 #endif
 
 #ifdef LTC_MPI
@@ -642,7 +645,7 @@ static void time_prng(void)
    }
 }
 
-#ifdef LTC_MDSA
+#if defined(LTC_MDSA) && defined(LTC_TEST_MPI)
 /* time various DSA operations */
 static void time_dsa(void)
 {
@@ -657,7 +660,9 @@ static const struct {
 { 20, 128 },
 { 24, 192 },
 { 28, 256 },
-{ 32, 512 }
+#ifndef TFM_DESC
+{ 32, 512 },
+#endif
 };
 
    for (x = 0; x < (sizeof(groups)/sizeof(groups[0])); x++) {
@@ -695,7 +700,7 @@ static void time_dsa(void) { fprintf(stderr, "NO DSA\n"); }
 #endif
 
 
-#ifdef LTC_MRSA
+#if defined(LTC_MRSA) && defined(LTC_TEST_MPI)
 /* time various RSA operations */
 static void time_rsa(void)
 {
@@ -819,7 +824,7 @@ static void time_rsa(void)
 static void time_rsa(void) { fprintf(stderr, "NO RSA\n"); }
 #endif
 
-#ifdef LTC_MKAT
+#if defined(LTC_MKAT) && defined(LTC_TEST_MPI)
 /* time various KAT operations */
 static void time_katja(void)
 {
@@ -889,7 +894,7 @@ static void time_katja(void)
 static void time_katja(void) { fprintf(stderr, "NO Katja\n"); }
 #endif
 
-#ifdef LTC_MDH
+#if defined(LTC_MDH) && defined(LTC_TEST_MPI)
 /* time various DH operations */
 static void time_dh(void)
 {
@@ -897,7 +902,12 @@ static void time_dh(void)
    ulong64 t1, t2;
    unsigned long i, x, y;
    int           err;
-   static unsigned long sizes[] = {768/8, 1024/8, 1536/8, 2048/8, 3072/8, 4096/8, 6144/8, 8192/8, 100000};
+   static unsigned long sizes[] = {768/8, 1024/8, 1536/8, 2048/8,
+#ifndef TFM_DESC
+                                   3072/8, 4096/8, 6144/8, 8192/8,
+#endif
+                                   100000
+   };
 
    for (x = sizes[i=0]; x < 100000; x = sizes[++i]) {
        t2 = 0;
@@ -919,14 +929,14 @@ static void time_dh(void)
            dh_free(&key);
        }
        t2 >>= 4;
-       fprintf(stderr, "DH-%4lu make_key    took %15llu cycles\n", x*8, t2);
+       fprintf(stderr, "DH-%4lu make_key    took %15"PRI64"u cycles\n", x*8, t2);
   }
 }
 #else
 static void time_dh(void) { fprintf(stderr, "NO DH\n"); }
 #endif
 
-#ifdef LTC_MECC
+#if defined(LTC_MECC) && defined(LTC_TEST_MPI)
 /* time various ECC operations */
 static void time_ecc(void)
 {
@@ -1273,7 +1283,7 @@ static void time_encmacs_(unsigned long MAC_SIZE)
         t_start();
         t1 = t_read();
         z = 16;
-        if ((err = ocb3_encrypt_authenticate_memory(cipher_idx, key, 16, IV, 16, (unsigned char*)"", 0, buf, MAC_SIZE*1024, buf, tag, &z)) != CRYPT_OK) {
+        if ((err = ocb3_encrypt_authenticate_memory(cipher_idx, key, 16, IV, 15, (unsigned char*)"", 0, buf, MAC_SIZE*1024, buf, tag, &z)) != CRYPT_OK) {
            fprintf(stderr, "\nOCB3 error... %s\n", error_to_string(err));
            exit(EXIT_FAILURE);
         }
@@ -1427,9 +1437,11 @@ register_all_prngs();
    ltc_mp = tfm_desc;
 #elif defined(USE_GMP)
    ltc_mp = gmp_desc;
-#else
-   extern ltc_math_descriptor EXT_MATH_LIB;
-   ltc_mp = EXT_MATH_LIB;
+#elif defined(EXT_MATH_LIB)
+   {
+      extern ltc_math_descriptor EXT_MATH_LIB;
+      ltc_mp = EXT_MATH_LIB;
+   }
 #endif
 
 if ((err = rng_make_prng(128, find_prng("yarrow"), &yarrow_prng, NULL)) != CRYPT_OK) {

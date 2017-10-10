@@ -31,10 +31,7 @@ int rsa_make_key(prng_state *prng, int wprng, int size, long e, rsa_key *key)
 
    LTC_ARGCHK(ltc_mp.name != NULL);
    LTC_ARGCHK(key         != NULL);
-
-   if ((size < (MIN_RSA_SIZE/8)) || (size > (MAX_RSA_SIZE/8))) {
-      return CRYPT_INVALID_KEYSIZE;
-   }
+   LTC_ARGCHK(size        > 0);
 
    if ((e < 3) || ((e & 1) == 0)) {
       return CRYPT_INVALID_ARG;
@@ -97,7 +94,7 @@ int rsa_make_key(prng_state *prng, int wprng, int size, long e, rsa_key *key)
    err       = CRYPT_OK;
    goto cleanup;
 errkey:
-   mp_clear_multi(key->q, key->p, key->qP, key->dP, key->dQ, key->N, key->d, key->e, NULL);
+   rsa_free(key);
 cleanup:
    mp_clear_multi(tmp3, tmp2, tmp1, q, p, NULL);
    return err;

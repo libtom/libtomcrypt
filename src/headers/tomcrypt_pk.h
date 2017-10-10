@@ -17,9 +17,6 @@ enum {
 /* Indicates standard output formats that can be read e.g. by OpenSSL or GnuTLS */
 #define PK_STD          0x1000
 
-/* iterations limit for retry-loops */
-#define PK_MAX_RETRIES  20
-
 int rand_prime(void *N, long len, prng_state *prng, int wprng);
 
 #ifdef LTC_SOURCE
@@ -199,13 +196,6 @@ int katja_import(const unsigned char *in, unsigned long inlen, katja_key *key);
 #ifdef LTC_MDH
 
 typedef struct {
-  int size;
-  char *name, *base, *prime;
-} ltc_dh_set_type;
-
-extern const ltc_dh_set_type ltc_dh_sets[];
-
-typedef struct {
     int type;
     void *x;
     void *y;
@@ -224,9 +214,7 @@ int dh_set_pg(const unsigned char *p, unsigned long plen,
 int dh_set_pg_dhparam(const unsigned char *dhparam, unsigned long dhparamlen, dh_key *key);
 int dh_set_pg_groupsize(int groupsize, dh_key *key);
 
-int dh_set_key(const unsigned char *pub, unsigned long publen,
-               const unsigned char *priv, unsigned long privlen,
-               dh_key *key);
+int dh_set_key(const unsigned char *in, unsigned long inlen, int type, dh_key *key);
 int dh_generate_key(prng_state *prng, int wprng, dh_key *key);
 
 int dh_shared_secret(dh_key        *private_key, dh_key        *public_key,
@@ -234,10 +222,16 @@ int dh_shared_secret(dh_key        *private_key, dh_key        *public_key,
 
 void dh_free(dh_key *key);
 
-int dh_export_key(void *out, unsigned long *outlen,
-                  int type, dh_key *key);
+int dh_export_key(void *out, unsigned long *outlen, int type, dh_key *key);
 
 #ifdef LTC_SOURCE
+typedef struct {
+  int size;
+  const char *name, *base, *prime;
+} ltc_dh_set_type;
+
+extern const ltc_dh_set_type ltc_dh_sets[];
+
 /* internal helper functions */
 int dh_check_pubkey(dh_key *key);
 #endif
@@ -260,22 +254,22 @@ typedef struct {
    int size;
 
    /** name of curve */
-   char *name;
+   const char *name;
 
    /** The prime that defines the field the curve is in (encoded in hex) */
-   char *prime;
+   const char *prime;
 
    /** The fields B param (hex) */
-   char *B;
+   const char *B;
 
    /** The order of the curve (hex) */
-   char *order;
+   const char *order;
 
    /** The x co-ordinate of the base point on the curve (hex) */
-   char *Gx;
+   const char *Gx;
 
    /** The y co-ordinate of the base point on the curve (hex) */
-   char *Gy;
+   const char *Gy;
 } ltc_ecc_set_type;
 
 /** A point on a ECC curve, stored in Jacbobian format such that (x,y,z) => (x/z^2, y/z^3, 1) when interpretted as affine */
@@ -449,9 +443,7 @@ int dsa_set_pqg(const unsigned char *p,  unsigned long plen,
 int dsa_set_pqg_dsaparam(const unsigned char *dsaparam, unsigned long dsaparamlen, dsa_key *key);
 int dsa_generate_pqg(prng_state *prng, int wprng, int group_size, int modulus_size, dsa_key *key);
 
-int dsa_set_key(const unsigned char *pub, unsigned long publen,
-                const unsigned char *priv, unsigned long privlen,
-                dsa_key *key);
+int dsa_set_key(const unsigned char *in, unsigned long inlen, int type, dsa_key *key);
 int dsa_generate_key(prng_state *prng, int wprng, dsa_key *key);
 
 void dsa_free(dsa_key *key);
@@ -484,7 +476,12 @@ int dsa_decrypt_key(const unsigned char *in,  unsigned long  inlen,
 int dsa_import(const unsigned char *in, unsigned long inlen, dsa_key *key);
 int dsa_export(unsigned char *out, unsigned long *outlen, int type, dsa_key *key);
 int dsa_verify_key(dsa_key *key, int *stat);
-
+#ifdef LTC_SOURCE
+/* internal helper functions */
+int dsa_int_validate_xy(dsa_key *key, int *stat);
+int dsa_int_validate_pqg(dsa_key *key, int *stat);
+int dsa_int_validate_primes(dsa_key *key, int *stat);
+#endif
 int dsa_shared_secret(void          *private_key, void *base,
                       dsa_key       *public_key,
                       unsigned char *out,         unsigned long *outlen);

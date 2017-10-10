@@ -14,7 +14,10 @@ LEFTOVERS=*.dvi *.log *.aux *.toc *.idx *.ilg *.ind *.out *.lof
 doxygen:
 	doxygen $(silent_stdout)
 
-doxy: doxygen
+patched_doxygen:
+	(cat Doxyfile && echo "HAVE_DOT=no") | doxygen - $(silent_stdout)
+
+doxy: patched_doxygen
 	${MAKE} -C doxygen/latex $(silent_stdout) && mv -f doxygen/latex/refman.pdf .
 	@echo The huge doxygen PDF should be available as doc/refman.pdf
 
@@ -51,6 +54,9 @@ docdvi: crypt.tex
 	perl ../helper.pl --fixupind crypt.ind
 	latex crypt $(silent_stdout)
 	latex crypt $(silent_stdout)
+
+termdoc: docdvi
+	dvi2tty crypt.dvi -w120
 
 clean:
 	rm -f $(LEFTOVERS)

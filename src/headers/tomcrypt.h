@@ -26,8 +26,8 @@ extern "C" {
 #endif
 
 /* version */
-#define CRYPT   0x0117
-#define SCRYPT  "1.17"
+#define CRYPT   0x0118
+#define SCRYPT  "1.18.0"
 
 /* max size of either a cipher/hash block or symmetric key [largest of the two] */
 #define MAXBLOCKSIZE  128
@@ -68,7 +68,8 @@ enum {
    CRYPT_OVERFLOW,         /* An overflow of a value was detected/prevented */
 
    CRYPT_UNUSED1,          /* UNUSED1 */
-   CRYPT_UNUSED2,          /* UNUSED2 */
+
+   CRYPT_INPUT_TOO_LONG,   /* The input was longer than expected. */
 
    CRYPT_PK_INVALID_SIZE,  /* Invalid size input for PK parameters */
 

@@ -32,8 +32,8 @@ static const char * const baseten = "0123456789";
 
 /**
   Encodes a Generalized time structure in DER format
-  @param utctime      The UTC time structure to encode
-  @param out          The destination of the DER encoding of the UTC time structure
+  @param gtime        The GeneralizedTime structure to encode
+  @param out          The destination of the DER encoding of the GeneralizedTime structure
   @param outlen       [in/out] The length of the DER encoding
   @return CRYPT_OK if successful
 */

@@ -349,7 +349,7 @@ typedef struct {
 /** cipher descriptor table, last entry has "name == NULL" to mark the end of table */
 extern struct ltc_cipher_descriptor {
    /** name of cipher */
-   char *name;
+   const char *name;
    /** internal ID */
    unsigned char ID;
    /** min keysize (octets) */
@@ -499,8 +499,8 @@ extern struct ltc_cipher_descriptor {
    /** Accelerated GCM packet (one shot)
        @param key        The secret key
        @param keylen     The length of the secret key
-       @param IV         The initial vector
-       @param IVlen      The length of the initial vector
+       @param IV         The initialization vector
+       @param IVlen      The length of the initialization vector
        @param adata      The additional authentication data (header)
        @param adatalen   The length of the adata
        @param pt         The plaintext
@@ -875,8 +875,8 @@ int ctr_test(void);
 
 #ifdef LTC_LRW_MODE
 
-#define LRW_ENCRYPT 0
-#define LRW_DECRYPT 1
+#define LRW_ENCRYPT LTC_ENCRYPT
+#define LRW_DECRYPT LTC_DECRYPT
 
 int lrw_start(               int   cipher,
               const unsigned char *IV,

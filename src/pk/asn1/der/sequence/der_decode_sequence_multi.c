@@ -39,7 +39,7 @@ int der_decode_sequence_multi(const unsigned char *in, unsigned long inlen, ...)
    va_start(args, inlen);
    x = 0;
    for (;;) {
-       type = va_arg(args, ltc_asn1_type);
+       type = (ltc_asn1_type)va_arg(args, int);
        size = va_arg(args, unsigned long);
        data = va_arg(args, void*);
        LTC_UNUSED_PARAM(size);
@@ -94,7 +94,7 @@ int der_decode_sequence_multi(const unsigned char *in, unsigned long inlen, ...)
    va_start(args, inlen);
    x = 0;
    for (;;) {
-       type = va_arg(args, ltc_asn1_type);
+       type = (ltc_asn1_type)va_arg(args, int);
        size = va_arg(args, unsigned long);
        data = va_arg(args, void*);
 

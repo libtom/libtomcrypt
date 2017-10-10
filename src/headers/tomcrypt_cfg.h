@@ -64,6 +64,11 @@ LTC_EXPORT int   LTC_CALL XSTRCMP(const char *s1, const char *s2);
    #define ARGTYPE  0
 #endif
 
+#undef LTC_ENCRYPT
+#define LTC_ENCRYPT 0
+#undef LTC_DECRYPT
+#define LTC_DECRYPT 1
+
 /* Controls endianess and size of registers.  Leave uncommented to get platform neutral [slower] code
  *
  * Note: in order to use the optimized macros your platform must support unaligned 32 and 64 bit read/writes.
@@ -168,15 +173,17 @@ LTC_EXPORT int   LTC_CALL XSTRCMP(const char *s1, const char *s2);
 
 /* endianness fallback */
 #if !defined(ENDIAN_BIG) && !defined(ENDIAN_LITTLE)
-  #if defined(__BYTE_ORDER) && __BYTE_ORDER == __BIG_ENDIAN || \
+  #if defined(_BYTE_ORDER) && _BYTE_ORDER == _BIG_ENDIAN || \
+      defined(__BYTE_ORDER) && __BYTE_ORDER == __BIG_ENDIAN || \
       defined(__BYTE_ORDER__) && __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__ || \
-      defined(__BIG_ENDIAN__) || defined(_BIG_ENDIAN) || \
+      defined(__BIG_ENDIAN__) || \
       defined(__ARMEB__) || defined(__THUMBEB__) || defined(__AARCH64EB__) || \
       defined(_MIPSEB) || defined(__MIPSEB) || defined(__MIPSEB__)
     #define ENDIAN_BIG
-  #elif defined(__BYTE_ORDER) && __BYTE_ORDER == __LITTLE_ENDIAN || \
+  #elif defined(_BYTE_ORDER) && _BYTE_ORDER == _LITTLE_ENDIAN || \
+      defined(__BYTE_ORDER) && __BYTE_ORDER == __LITTLE_ENDIAN || \
       defined(__BYTE_ORDER__) && __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__ || \
-      defined(__LITTLE_ENDIAN__) || defined(_LITTLE_ENDIAN) || \
+      defined(__LITTLE_ENDIAN__) || \
       defined(__ARMEL__) || defined(__THUMBEL__) || defined(__AARCH64EL__) || \
       defined(_MIPSEL) || defined(__MIPSEL) || defined(__MIPSEL__)
     #define ENDIAN_LITTLE
@@ -212,6 +219,22 @@ LTC_EXPORT int   LTC_CALL XSTRCMP(const char *s1, const char *s2);
    #endif
 #endif
 
+#if defined(ENDIAN_64BITWORD) && !defined(_MSC_VER)
+typedef unsigned long long ltc_mp_digit;
+#else
+typedef unsigned long ltc_mp_digit;
+#endif
+
+/* No asm is a quick way to disable anything "not portable" */
+#ifdef LTC_NO_ASM
+   #define ENDIAN_NEUTRAL
+   #undef ENDIAN_32BITWORD
+   #undef ENDIAN_64BITWORD
+   #undef LTC_FAST
+   #define LTC_NO_ROLC
+   #define LTC_NO_BSWAP
+#endif
+
 /* No LTC_FAST if: explicitly disabled OR non-gcc/non-clang compiler OR old gcc OR using -ansi -std=c99 */
 #if defined(LTC_NO_FAST) || (__GNUC__ < 4) || defined(__STRICT_ANSI__)
    #undef LTC_FAST
@@ -226,25 +249,8 @@ LTC_EXPORT int   LTC_CALL XSTRCMP(const char *s1, const char *s2);
    #endif
 #endif
 
-#ifdef ENDIAN_64BITWORD
-typedef ulong64 ltc_mp_digit;
-#else
-typedef ulong32 ltc_mp_digit;
-#endif
-
-/* No asm is a quick way to disable anything "not portable" */
-#ifdef LTC_NO_ASM
-   #define ENDIAN_NEUTRAL
-   #undef ENDIAN_32BITWORD
-   #undef ENDIAN_64BITWORD
-   #undef LTC_FAST
-   #undef LTC_FAST_TYPE
-   #define LTC_NO_ROLC
-   #define LTC_NO_BSWAP
-#endif
-
 #if !defined(ENDIAN_NEUTRAL) && (defined(ENDIAN_BIG) || defined(ENDIAN_LITTLE)) && !(defined(ENDIAN_32BITWORD) || defined(ENDIAN_64BITWORD))
-    #error You must specify a word size as well as endianess in tomcrypt_cfg.h
+   #error You must specify a word size as well as endianess in tomcrypt_cfg.h
 #endif
 
 #if !(defined(ENDIAN_BIG) || defined(ENDIAN_LITTLE))
@@ -252,7 +258,7 @@ typedef ulong32 ltc_mp_digit;
 #endif
 
 #if (defined(ENDIAN_32BITWORD) && defined(ENDIAN_64BITWORD))
-    #error Cannot be 32 and 64 bit words...
+   #error Cannot be 32 and 64 bit words...
 #endif
 
 /* gcc 4.3 and up has a bswap builtin; detect it by gcc version.

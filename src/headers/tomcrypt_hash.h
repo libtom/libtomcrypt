@@ -204,7 +204,7 @@ typedef union Hash_state {
 /** hash descriptor */
 extern  struct ltc_hash_descriptor {
     /** name of hash */
-    char *name;
+    const char *name;
     /** internal ID */
     unsigned char ID;
     /** Size of digest in octets */
@@ -497,7 +497,7 @@ int func_name (hash_state * md, const unsigned char *in, unsigned long inlen)   
     if (md-> state_var .curlen > sizeof(md-> state_var .buf)) {                             \
        return CRYPT_INVALID_ARG;                                                            \
     }                                                                                       \
-    if ((md-> state_var .length + inlen) < md-> state_var .length) {                       \
+    if ((md-> state_var .length + inlen) < md-> state_var .length) {                        \
       return CRYPT_HASH_OVERFLOW;                                                           \
     }                                                                                       \
     while (inlen > 0) {                                                                     \
@@ -510,7 +510,7 @@ int func_name (hash_state * md, const unsigned char *in, unsigned long inlen)   
            inlen          -= block_size;                                                    \
         } else {                                                                            \
            n = MIN(inlen, (block_size - md-> state_var .curlen));                           \
-           XMEMCPY(md-> state_var .buf + md-> state_var.curlen, in, (size_t)n);              \
+           XMEMCPY(md-> state_var .buf + md-> state_var.curlen, in, (size_t)n);             \
            md-> state_var .curlen += n;                                                     \
            in             += n;                                                             \
            inlen          -= n;                                                             \

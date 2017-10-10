@@ -10,7 +10,7 @@
 #include "tomcrypt.h"
 
 /**
- @file sober128.c
+ @file prngs/sober128.c
  Implementation of SOBER-128 by Tom St Denis.
  Based on s128fast.c reference code supplied by Greg Rose of QUALCOMM.
 */

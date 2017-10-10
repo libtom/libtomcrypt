@@ -25,9 +25,9 @@ CFLAGS    = -O2 -DUSE_LTM -DLTM_DESC -I../libtommath
 EXTRALIBS = -L../libtommath -ltommath
 
 #Compilation flags
-LTC_CFLAGS  = $(CFLAGS) -Isrc/headers -Itests -DLTC_SOURCE
+LTC_CFLAGS  = -Isrc/headers -Itests -DLTC_SOURCE $(CFLAGS)
 LTC_LDFLAGS = $(LDFLAGS) $(EXTRALIBS)
-VERSION=1.17
+VERSION=1.18.0
 
 #Libraries to be created
 LIBMAIN_S =libtomcrypt.a
@@ -61,10 +61,9 @@ src/encauth/ocb/ocb_shift_xor.o src/encauth/ocb/ocb_test.o src/encauth/ocb/s_ocb
 src/encauth/ocb3/ocb3_add_aad.o src/encauth/ocb3/ocb3_decrypt.o src/encauth/ocb3/ocb3_decrypt_last.o \
 src/encauth/ocb3/ocb3_decrypt_verify_memory.o src/encauth/ocb3/ocb3_done.o \
 src/encauth/ocb3/ocb3_encrypt.o src/encauth/ocb3/ocb3_encrypt_authenticate_memory.o \
-src/encauth/ocb3/ocb3_encrypt_last.o src/encauth/ocb3/ocb3_init.o \
-src/encauth/ocb3/ocb3_int_aad_add_block.o src/encauth/ocb3/ocb3_int_calc_offset_zero.o \
-src/encauth/ocb3/ocb3_int_ntz.o src/encauth/ocb3/ocb3_int_xor_blocks.o src/encauth/ocb3/ocb3_test.o \
-src/hashes/blake2b.o src/hashes/blake2s.o src/hashes/chc/chc.o src/hashes/helper/hash_file.o \
+src/encauth/ocb3/ocb3_encrypt_last.o src/encauth/ocb3/ocb3_init.o src/encauth/ocb3/ocb3_int_ntz.o \
+src/encauth/ocb3/ocb3_int_xor_blocks.o src/encauth/ocb3/ocb3_test.o src/hashes/blake2b.o \
+src/hashes/blake2s.o src/hashes/chc/chc.o src/hashes/helper/hash_file.o \
 src/hashes/helper/hash_filehandle.o src/hashes/helper/hash_memory.o \
 src/hashes/helper/hash_memory_multi.o src/hashes/md2.o src/hashes/md4.o src/hashes/md5.o \
 src/hashes/rmd128.o src/hashes/rmd160.o src/hashes/rmd256.o src/hashes/rmd320.o src/hashes/sha1.o \
@@ -189,7 +188,7 @@ src/prngs/rc4.o src/prngs/rng_get_bytes.o src/prngs/rng_make_prng.o src/prngs/so
 src/prngs/sprng.o src/prngs/yarrow.o src/stream/chacha/chacha_crypt.o src/stream/chacha/chacha_done.o \
 src/stream/chacha/chacha_ivctr32.o src/stream/chacha/chacha_ivctr64.o \
 src/stream/chacha/chacha_keystream.o src/stream/chacha/chacha_setup.o src/stream/chacha/chacha_test.o \
-src/stream/rc4/rc4.o src/stream/rc4/rc4_test.o src/stream/sober128/sober128.o \
+src/stream/rc4/rc4_stream.o src/stream/rc4/rc4_test.o src/stream/sober128/sober128_stream.o \
 src/stream/sober128/sober128_test.o
 
 #List of test objects to compile
@@ -248,6 +247,10 @@ small.exe: demos/small.o $(LIBMAIN_S)
 	$(CC) demos/small.o $(LIBMAIN_S) $(LTC_LDFLAGS) -o $@
 tv_gen.exe: demos/tv_gen.o $(LIBMAIN_S)
 	$(CC) demos/tv_gen.o $(LIBMAIN_S) $(LTC_LDFLAGS) -o $@
+sizes.exe: demos/sizes.o $(LIBMAIN_S)
+	$(CC) demos/sizes.o $(LIBMAIN_S) $(LTC_LDFLAGS) -o $@
+constants.exe: demos/constants.o $(LIBMAIN_S)
+	$(CC) demos/constants.o $(LIBMAIN_S) $(LTC_LDFLAGS) -o $@
 timing.exe: demos/timing.o $(LIBMAIN_S)
 	$(CC) demos/timing.o $(LIBMAIN_S) $(LTC_LDFLAGS) -o $@
 
@@ -256,7 +259,7 @@ test.exe: $(TOBJECTS) $(LIBMAIN_S)
 	$(CC) $(TOBJECTS) $(LIBMAIN_S) $(LTC_LDFLAGS) -o $@
 	@echo NOTICE: start the tests by launching test.exe
 
-all: $(LIBMAIN_S) $(LIBMAIN_I) $(LIBMAIN_D) hashsum.exe ltcrypt.exe small.exe tv_gen.exe timing.exe test.exe
+all: $(LIBMAIN_S) $(LIBMAIN_I) $(LIBMAIN_D) hashsum.exe ltcrypt.exe small.exe tv_gen.exe sizes.exe constants.exe timing.exe test.exe
 
 test: test.exe
 

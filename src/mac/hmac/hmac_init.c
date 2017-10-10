@@ -75,7 +75,7 @@ int hmac_init(hmac_state *hmac, int hash, const unsigned char *key, unsigned lon
        zeromem((hmac->key) + keylen, (size_t)(LTC_HMAC_BLOCKSIZE - keylen));
     }
 
-    /* Create the initial vector for step (3) */
+    /* Create the initialization vector for step (3) */
     for(i=0; i < LTC_HMAC_BLOCKSIZE;   i++) {
        buf[i] = hmac->key[i] ^ 0x36;
     }

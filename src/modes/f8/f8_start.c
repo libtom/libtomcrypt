@@ -19,7 +19,7 @@
 /**
    Initialize an F8 context
    @param cipher      The index of the cipher desired
-   @param IV          The initial vector
+   @param IV          The initialization vector
    @param key         The secret key
    @param keylen      The length of the secret key (octets)
    @param salt_key    The salting key for the IV

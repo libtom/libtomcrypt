@@ -31,7 +31,7 @@
    @param algorithm             One out of the enum #public_key_algorithms
    @param public_key            The buffer for the public key
    @param public_key_len        [in/out] The length of the public key buffer and the written length
-   @param parameters_type       The parameters' type out of the enum #ltc_asn1_type
+   @param parameters_type       The parameters' type out of the enum ltc_asn1_type
    @param parameters            The parameters to include
    @param parameters_len        The number of parameters to include
    @return CRYPT_OK on success
@@ -58,7 +58,7 @@ int der_decode_subject_public_key_info(const unsigned char *in, unsigned long in
    }
 
    /* see if the OpenSSL DER format RSA public key will work */
-   tmpbuf = XCALLOC(1, LTC_DER_MAX_PUBKEY_SIZE*8);
+   tmpbuf = XCALLOC(1, inlen);
    if (tmpbuf == NULL) {
        err = CRYPT_MEM;
        goto LBL_ERR;
@@ -72,7 +72,7 @@ int der_decode_subject_public_key_info(const unsigned char *in, unsigned long in
     * in a **BIT** string ... so we have to extract it then proceed to convert bit to octet
     */
    LTC_SET_ASN1(subject_pubkey, 0, LTC_ASN1_SEQUENCE, alg_id, 2);
-   LTC_SET_ASN1(subject_pubkey, 1, LTC_ASN1_RAW_BIT_STRING, tmpbuf, LTC_DER_MAX_PUBKEY_SIZE*8);
+   LTC_SET_ASN1(subject_pubkey, 1, LTC_ASN1_RAW_BIT_STRING, tmpbuf, inlen*8U);
 
    err=der_decode_sequence(in, inlen, subject_pubkey, 2UL);
    if (err != CRYPT_OK) {

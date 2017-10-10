@@ -89,9 +89,9 @@ union paddable {
  * Output:       <no return>
  * Side Effects: print messages and barf (does exit(3))
  */
-void barf(char *pname, char *err)
+void barf(const char *pname, const char *err)
 {
-   printf("Usage: %s <enc|dec> infile outfile [salt]\n", pname);
+   printf("Usage: %s <enc|dec> infile outfile passphrase [salt]\n", pname);
    printf("\n");
    printf("       # encrypts infile->outfile, random salt\n");
    printf("       %s enc infile outfile \"passphrase\"\n", pname);

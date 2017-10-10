@@ -14,6 +14,7 @@
 /**
    Initialize an BLAKE2S MAC context.
    @param st       The BLAKE2S MAC state
+   @param outlen   The size of the MAC output (octets)
    @param key      The secret key
    @param keylen   The length of the secret key (octets)
    @return CRYPT_OK if successful

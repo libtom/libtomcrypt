@@ -2,10 +2,11 @@
 # Include makefile used by makefile + makefile.shared
 #  (GNU make only)
 
-# The version - BEWARE: VERSION and VERSION_LT are updated via ./updatemakes.sh
-VERSION=1.17
+# The version - BEWARE: VERSION, VERSION_PC and VERSION_LT are updated via ./updatemakes.sh
+VERSION=1.18.0
+VERSION_PC=1.18.0
 # http://www.gnu.org/software/libtool/manual/html_node/Updating-version-info.html
-VERSION_LT=0:117
+VERSION_LT=1:0
 
 # Compiler and Linker Names
 ifndef CROSS_COMPILE
@@ -29,6 +30,9 @@ endif
 ifndef INSTALL_CMD
 $(error your makefile must define INSTALL_CMD)
 endif
+ifndef UNINSTALL_CMD
+$(error your makefile must define UNINSTALL_CMD)
+endif
 
 ifndef EXTRALIBS
 ifneq ($(shell echo $(CFLAGS) | grep USE_LTM),)
@@ -40,6 +44,11 @@ endif
 endif
 endif
 
+need-help := $(filter help,$(MAKECMDGOALS))
+define print-help
+$(if $(need-help),$(info $1 -- $2))
+endef
+
 #
 # Compilation flags. Note the += does not write over the user's CFLAGS!
 #
@@ -48,44 +57,46 @@ endif
 # by giving them as a parameter to make:
 #  make CFLAGS="-I./src/headers/ -DLTC_SOURCE ..." ...
 #
-CFLAGS += -I./src/headers/ -Wall -Wsign-compare -Wshadow -DLTC_SOURCE
+LTC_CFLAGS += -I./src/headers/ -Wall -Wsign-compare -Wshadow -DLTC_SOURCE
 
 ifdef OLD_GCC
-CFLAGS += -W
+LTC_CFLAGS += -W
 # older GCCs can't handle the "rotate with immediate" ROLc/RORc/etc macros
 # define this to help
-CFLAGS += -DLTC_NO_ROLC
+LTC_CFLAGS += -DLTC_NO_ROLC
 else
-CFLAGS += -Wextra
+LTC_CFLAGS += -Wextra
 # additional warnings
-CFLAGS += -Wsystem-headers -Wbad-function-cast -Wcast-align
-CFLAGS += -Wstrict-prototypes -Wpointer-arith
-CFLAGS += -Wdeclaration-after-statement
+LTC_CFLAGS += -Wsystem-headers -Wbad-function-cast -Wcast-align
+LTC_CFLAGS += -Wstrict-prototypes -Wpointer-arith
+LTC_CFLAGS += -Wdeclaration-after-statement
+LTC_CFLAGS += -Wwrite-strings
 endif
 
-CFLAGS += -Wno-type-limits
+LTC_CFLAGS += -Wno-type-limits
 
 ifdef LTC_DEBUG
+$(info Debug build)
 # compile for DEBUGGING (required for ccmalloc checking!!!)
-CFLAGS += -g3 -DLTC_NO_ASM
+LTC_CFLAGS += -g3 -DLTC_NO_ASM
 ifneq (,$(strip $(LTC_DEBUG)))
-CFLAGS += -DLTC_TEST_DBG=$(LTC_DEBUG)
+LTC_CFLAGS += -DLTC_TEST_DBG=$(LTC_DEBUG)
 else
-CFLAGS += -DLTC_TEST_DBG
+LTC_CFLAGS += -DLTC_TEST_DBG
 endif
 else
 
 ifdef LTC_SMALL
 # optimize for SIZE
-CFLAGS += -Os -DLTC_SMALL_CODE
+LTC_CFLAGS += -Os -DLTC_SMALL_CODE
 else
 
 ifndef IGNORE_SPEED
 # optimize for SPEED
-CFLAGS += -O3 -funroll-loops
+LTC_CFLAGS += -O3 -funroll-loops
 
 # add -fomit-frame-pointer.  hinders debugging!
-CFLAGS += -fomit-frame-pointer
+LTC_CFLAGS += -fomit-frame-pointer
 endif
 
 endif # COMPILE_SMALL
@@ -93,22 +104,28 @@ endif # COMPILE_DEBUG
 
 
 ifneq ($(findstring clang,$(CC)),)
-CFLAGS += -Wno-typedef-redefinition -Wno-tautological-compare -Wno-builtin-requires-header
+LTC_CFLAGS += -Wno-typedef-redefinition -Wno-tautological-compare -Wno-builtin-requires-header -Wno-missing-field-initializers
+endif
+ifneq ($(findstring mingw,$(CC)),)
+LTC_CFLAGS += -Wno-shadow -Wno-attributes
 endif
 ifeq ($(PLATFORM), Darwin)
-CFLAGS += -Wno-nullability-completeness
+LTC_CFLAGS += -Wno-nullability-completeness
 endif
 
 
-GIT_VERSION := $(shell [ -e .git ] && { printf git- ; git describe --tags --always --dirty ; } || echo $(VERSION))
+GIT_VERSION := $(shell { [ -e .git ] && which git 2>/dev/null 1>&2 ; } && { printf git- ; git describe --tags --always --dirty ; } || echo $(VERSION))
 ifneq ($(GIT_VERSION),)
-CFLAGS += -DGIT_VERSION=\"$(GIT_VERSION)\"
+LTC_CFLAGS += -DGIT_VERSION=\"$(GIT_VERSION)\"
 endif
 
+LTC_CFLAGS := $(LTC_CFLAGS) $(CFLAGS)
 
-ifneq ($(findstring -DLTC_PTHREAD,$(CFLAGS)),)
-LDFLAGS += -pthread
+ifneq ($(findstring -DLTC_PTHREAD,$(LTC_CFLAGS)),)
+LTC_LDFLAGS += -pthread
 endif
+
+LTC_LDFLAGS := $(LTC_LDFLAGS) $(LDFLAGS)
 
 #List of demo objects
 DSOURCES = $(wildcard demos/*.c)
@@ -117,14 +134,25 @@ DOBJECTS = $(DSOURCES:.c=.o)
 #List of tests headers
 THEADERS = $(wildcard tests/*.h)
 
-TIMING=timing
 TEST=test
 
-USEFUL_DEMOS=hashsum
-UNBROKEN_DEMOS=$(USEFUL_DEMOS) ltcrypt small tv_gen sizes constants
-DEMOS=$(UNBROKEN_DEMOS) openssl-enc
+# Demos that are even somehow useful and could be installed as a system-tool
+USEFUL_DEMOS   = hashsum
 
-TIMINGS=demos/timing.o
+# Demos that are usable but only rarely make sense to be installed
+USEABLE_DEMOS  = ltcrypt sizes constants
+
+# Demos that are used for testing or measuring
+TEST_DEMOS     = small tv_gen
+
+# Demos that are in one config broken
+#  openssl-enc - can't be build with LTC_EASY
+#  timing      - not really broken, but older gcc builds spit warnings
+BROKEN_DEMOS   = openssl-enc timing
+
+# Combine demos in groups
+UNBROKEN_DEMOS = $(TEST_DEMOS) $(USEABLE_DEMOS) $(USEFUL_DEMOS)
+DEMOS          = $(UNBROKEN_DEMOS) $(BROKEN_DEMOS)
 
 #LIBPATH  The directory for libtomcrypt to be installed to.
 #INCPATH  The directory to install the header files for libtomcrypt.
@@ -149,6 +177,11 @@ GROUP=$(INSTALL_GROUP)
 else
 GROUP=wheel
 endif
+
+
+#The first rule is also the default rule and builds the libtomcrypt library.
+library: $(call print-help,library,Builds the library) $(LIBNAME)
+
 
 # List of objects to compile (all goes to libtomcrypt.a)
 OBJECTS=src/ciphers/aes/aes.o src/ciphers/aes/aes_enc.o src/ciphers/anubis.o src/ciphers/blowfish.o \
@@ -177,10 +210,9 @@ src/encauth/ocb/ocb_shift_xor.o src/encauth/ocb/ocb_test.o src/encauth/ocb/s_ocb
 src/encauth/ocb3/ocb3_add_aad.o src/encauth/ocb3/ocb3_decrypt.o src/encauth/ocb3/ocb3_decrypt_last.o \
 src/encauth/ocb3/ocb3_decrypt_verify_memory.o src/encauth/ocb3/ocb3_done.o \
 src/encauth/ocb3/ocb3_encrypt.o src/encauth/ocb3/ocb3_encrypt_authenticate_memory.o \
-src/encauth/ocb3/ocb3_encrypt_last.o src/encauth/ocb3/ocb3_init.o \
-src/encauth/ocb3/ocb3_int_aad_add_block.o src/encauth/ocb3/ocb3_int_calc_offset_zero.o \
-src/encauth/ocb3/ocb3_int_ntz.o src/encauth/ocb3/ocb3_int_xor_blocks.o src/encauth/ocb3/ocb3_test.o \
-src/hashes/blake2b.o src/hashes/blake2s.o src/hashes/chc/chc.o src/hashes/helper/hash_file.o \
+src/encauth/ocb3/ocb3_encrypt_last.o src/encauth/ocb3/ocb3_init.o src/encauth/ocb3/ocb3_int_ntz.o \
+src/encauth/ocb3/ocb3_int_xor_blocks.o src/encauth/ocb3/ocb3_test.o src/hashes/blake2b.o \
+src/hashes/blake2s.o src/hashes/chc/chc.o src/hashes/helper/hash_file.o \
 src/hashes/helper/hash_filehandle.o src/hashes/helper/hash_memory.o \
 src/hashes/helper/hash_memory_multi.o src/hashes/md2.o src/hashes/md4.o src/hashes/md5.o \
 src/hashes/rmd128.o src/hashes/rmd160.o src/hashes/rmd256.o src/hashes/rmd320.o src/hashes/sha1.o \
@@ -305,7 +337,7 @@ src/prngs/rc4.o src/prngs/rng_get_bytes.o src/prngs/rng_make_prng.o src/prngs/so
 src/prngs/sprng.o src/prngs/yarrow.o src/stream/chacha/chacha_crypt.o src/stream/chacha/chacha_done.o \
 src/stream/chacha/chacha_ivctr32.o src/stream/chacha/chacha_ivctr64.o \
 src/stream/chacha/chacha_keystream.o src/stream/chacha/chacha_setup.o src/stream/chacha/chacha_test.o \
-src/stream/rc4/rc4.o src/stream/rc4/rc4_test.o src/stream/sober128/sober128.o \
+src/stream/rc4/rc4_stream.o src/stream/rc4/rc4_test.o src/stream/sober128/sober128_stream.o \
 src/stream/sober128/sober128_test.o
 
 # List of test objects to compile (all goes to libtomcrypt_prof.a)
@@ -331,36 +363,33 @@ src/hashes/sha2/sha512_224.o: src/hashes/sha2/sha512.c src/hashes/sha2/sha512_22
 src/hashes/sha2/sha512_256.o: src/hashes/sha2/sha512.c src/hashes/sha2/sha512_256.c
 src/hashes/sha2/sha256.o: src/hashes/sha2/sha256.c src/hashes/sha2/sha224.c
 
-
-#The default rule for make builds the libtomcrypt library.
-default:library
-
-$(DOBJECTS): CFLAGS += -Itests
-$(TOBJECTS): CFLAGS += -Itests
-
-#This rule makes the libtomcrypt library.
-library: $(LIBNAME)
+$(DOBJECTS): LTC_CFLAGS := -Itests $(LTC_CFLAGS)
+$(TOBJECTS): LTC_CFLAGS := -Itests $(LTC_CFLAGS)
 
 #Dependencies on *.h
 $(OBJECTS): $(HEADERS)
 $(DOBJECTS): $(HEADERS) $(THEADERS)
 $(TOBJECTS): $(HEADERS) $(THEADERS)
 
-bins: $(USEFUL_DEMOS)
+all: $(call print-help,all,Builds the library and all demos and test utils (test $(UNBROKEN_DEMOS) $(BROKEN_DEMOS))) all_test $(BROKEN_DEMOS)
 
-all: all_test
+all_test: $(call print-help,all_test,Builds the library and all unbroken demos and test utils (test $(UNBROKEN_DEMOS))) test $(UNBROKEN_DEMOS)
 
-all_test: test $(UNBROKEN_DEMOS)
+bins: $(call print-help,bins,Builds the library and all useful demos) $(USEFUL_DEMOS)
 
 #build the doxy files (requires Doxygen, tetex and patience)
-doxygen doxy docs:
+doxygen: $(call print-help,doxygen,Builds the doxygen html documentation)
+	$(MAKE) -C doc/ $@ V=$(V)
+doxy: $(call print-help,doxy,Builds the complete doxygen documentation including refman.pdf (takes long to generate))
+	$(MAKE) -C doc/ $@ V=$(V)
+docs: $(call print-help,docs,Builds the Developer Manual)
 	$(MAKE) -C doc/ $@ V=$(V)
 
-doc/crypt.pdf:
+doc/crypt.pdf: $(call print-help,doc/crypt.pdf,Builds the Developer Manual)
 	$(MAKE) -C doc/ crypt.pdf V=$(V)
 
 
-install_all: install install_bins install_docs install_test
+install_all: $(call print-help,install_all,Install everything - library bins docs tests) install install_bins install_docs install_test
 
 INSTALL_OPTS ?= -m 644
 
@@ -370,20 +399,30 @@ INSTALL_OPTS ?= -m 644
 	$(INSTALL_CMD) $(INSTALL_OPTS) $(LIBNAME) $(DESTDIR)$(LIBPATH)/$(LIBNAME)
 	install -m 644 $(HEADERS) $(DESTDIR)$(INCPATH)
 
-.common_install_bins: $(USEFUL_DEMOS)
+$(DESTDIR)$(BINPATH):
 	install -d $(DESTDIR)$(BINPATH)
+
+.common_install_bins: $(USEFUL_DEMOS) $(DESTDIR)$(BINPATH)
 	$(INSTALL_CMD) -m 775 $(USEFUL_DEMOS) $(DESTDIR)$(BINPATH)
 
-install_docs: doc/crypt.pdf
+install_docs: $(call print-help,install_docs,Installs the Developer Manual) doc/crypt.pdf
 	install -d $(DESTDIR)$(DATAPATH)
 	install -m 644 doc/crypt.pdf $(DESTDIR)$(DATAPATH)
 
-install_hooks:
+install_test: $(call print-help,install_test,Installs the self-test binary) test $(DESTDIR)$(BINPATH)
+	$(INSTALL_CMD) -m 775 $< $(DESTDIR)$(BINPATH)
+
+install_hooks: $(call print-help,install_hooks,Installs the git hooks)
 	for s in `ls hooks/`; do ln -s ../../hooks/$$s .git/hooks/$$s; done
+
+HEADER_FILES=$(notdir $(HEADERS))
+.common_uninstall:
+	$(UNINSTALL_CMD) $(DESTDIR)$(LIBPATH)/$(LIBNAME)
+	rm $(HEADER_FILES:%=$(DESTDIR)$(INCPATH)/%)
 
 #This rule cleans the source tree of all compiled code, not including the pdf
 #documentation.
-clean:
+clean: $(call print-help,clean,Clean everything besides the pdf documentation)
 	find . -type f    -name "*.o"   \
                -o -name "*.lo"  \
                -o -name "*.a"   \
@@ -405,7 +444,7 @@ clean:
 	rm -rf `find . -type d -name "*.libs" | xargs`
 	$(MAKE) -C doc/ clean
 
-zipup: doc/crypt.pdf
+zipup: $(call print-help,zipup,Prepare the archives for a release) doc/crypt.pdf
 	@# Update the index, so diff-index won't fail in case the pdf has been created.
 	@#   As the pdf creation modifies crypt.tex, git sometimes detects the
 	@#   modified file, but misses that it's put back to its original version.
@@ -423,6 +462,8 @@ zipup: doc/crypt.pdf
 	gpg -b -a crypt-$(VERSION).tar.xz
 	gpg -b -a crypt-$(VERSION).zip
 
-codecheck:
+codecheck: $(call print-help,codecheck,Check the code of the library)
 	perl helper.pl -a
 	perlcritic *.pl
+
+help: $(call print-help,help,That's what you're currently looking at)

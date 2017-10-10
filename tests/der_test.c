@@ -11,7 +11,7 @@
 #include <gmp.h>
 #endif
 
-#ifndef LTC_DER
+#if !defined(LTC_DER) || !defined(LTC_TEST_MPI)
 
 int der_test(void)
 {
@@ -239,8 +239,8 @@ SEQUENCE(3 elem)
 static void _der_tests_print_flexi(ltc_asn1_list* l, unsigned int level)
 {
   char buf[1024];
-  char* name = NULL;
-  char* text = NULL;
+  const char* name = NULL;
+  const char* text = NULL;
   ltc_asn1_list* ostring = NULL;
   unsigned int n;
 

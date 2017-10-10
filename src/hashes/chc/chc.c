@@ -153,7 +153,13 @@ static int chc_compress(hash_state *md, unsigned char *buf)
    return CRYPT_OK;
 }
 
-/* function for processing blocks */
+/**
+   Function for processing blocks
+   @param md   The hash state
+   @param buf  The data to hash
+   @param len  The length of the data (octets)
+   @return CRYPT_OK if successful
+*/
 static int _chc_process(hash_state * md, const unsigned char *buf, unsigned long len);
 static HASH_PROCESS(_chc_process, chc_compress, chc, (unsigned long)cipher_blocksize)
 

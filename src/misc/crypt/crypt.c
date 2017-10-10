@@ -43,7 +43,7 @@ const char *crypt_build_settings =
 #else
    "disabled\n"
 #endif
-   "Ciphers built-in:\n"
+   "\nCiphers built-in:\n"
 #if defined(LTC_BLOWFISH)
    "   Blowfish\n"
 #endif
@@ -301,7 +301,7 @@ const char *crypt_build_settings =
     "   SOBER128\n"
 #endif
 
-    "\nPK Algs:\n"
+    "\nPK Crypto:\n"
 #if defined(LTC_MRSA)
     "   RSA"
 #if defined(LTC_RSA_BLINDING) && defined(LTC_RSA_CRT_HARDENING)
@@ -328,6 +328,9 @@ const char *crypt_build_settings =
 #endif
 #if defined(LTC_MKAT)
     "   Katja\n"
+#endif
+#if defined(LTC_PK_MAX_RETRIES)
+    "   "NAME_VALUE(LTC_PK_MAX_RETRIES)"\n"
 #endif
 
     "\nMPI (Math):\n"
@@ -378,6 +381,9 @@ const char *crypt_build_settings =
 #endif
 
     "\nVarious others: "
+#if defined(ARGTYPE)
+    " " NAME_VALUE(ARGTYPE) " "
+#endif
 #if defined(LTC_ADLER32)
     " ADLER32 "
 #endif
@@ -392,9 +398,6 @@ const char *crypt_build_settings =
 #endif
 #if defined(LTC_DER)
     " DER "
-#endif
-#if defined(LTC_DER_MAX_PUBKEY_SIZE)
-    " " NAME_VALUE(LTC_DER_MAX_PUBKEY_SIZE) " "
 #endif
 #if defined(LTC_PKCS_1)
     " PKCS#1 "
@@ -428,6 +431,9 @@ const char *crypt_build_settings =
 #endif
 #if defined(LTC_TEST)
     " LTC_TEST "
+#endif
+#if defined(LTC_TEST_DBG)
+    " " NAME_VALUE(LTC_TEST_DBG) " "
 #endif
 #if defined(LTC_TEST_EXT)
     " LTC_TEST_EXT "

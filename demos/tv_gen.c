@@ -420,7 +420,7 @@ void ocb_gen(void)
 void ocb3_gen(void)
 {
 #ifdef LTC_OCB3_MODE
-   int err, kl, x, y1, z;
+   int err, kl, x, y1, z, noncelen;
    FILE *out;
    unsigned char key[MAXBLOCKSIZE], nonce[MAXBLOCKSIZE*2],
                  plaintext[MAXBLOCKSIZE*2], tag[MAXBLOCKSIZE];
@@ -435,12 +435,12 @@ void ocb3_gen(void)
       kl = cipher_descriptor[x].block_length;
 
       /* skip ciphers which do not have 64 or 128 bit block sizes */
-      if (kl != 8 && kl != 16) continue;
+      if (kl != 16) continue;
 
       if (cipher_descriptor[x].keysize(&kl) != CRYPT_OK) {
          kl = cipher_descriptor[x].max_key_length;
       }
-      fprintf(out, "OCB-%s (%d byte key)\n", cipher_descriptor[x].name, kl);
+      fprintf(out, "OCB3-%s (%d byte key)\n", cipher_descriptor[x].name, kl);
 
       /* the key */
       for (z = 0; z < kl; z++) {
@@ -448,7 +448,8 @@ void ocb3_gen(void)
       }
 
       /* fixed nonce */
-      for (z = 0; z < cipher_descriptor[x].block_length; z++) {
+      noncelen = MIN(15, cipher_descriptor[x].block_length);
+      for (z = 0; z < noncelen; z++) {
           nonce[z] = z;
       }
 
@@ -456,9 +457,9 @@ void ocb3_gen(void)
          for (z = 0; z < y1; z++) {
             plaintext[z] = (unsigned char)(z & 255);
          }
-         len = sizeof(tag);
-         if ((err = ocb3_encrypt_authenticate_memory(x, key, kl, nonce, cipher_descriptor[x].block_length, (unsigned char*)"AAD", 3, plaintext, y1, plaintext, tag, &len)) != CRYPT_OK) {
-            printf("Error OCB'ing: %s\n", error_to_string(err));
+         len = 16;
+         if ((err = ocb3_encrypt_authenticate_memory(x, key, kl, nonce, noncelen, (unsigned char*)"AAD", 3, plaintext, y1, plaintext, tag, &len)) != CRYPT_OK) {
+            printf("Error OCB3'ing: %s\n", error_to_string(err));
             exit(EXIT_FAILURE);
          }
          fprintf(out, "%3d: ", y1);
@@ -526,6 +527,10 @@ void ccm_gen(void)
             printf("Error CCM'ing: %s\n", error_to_string(err));
             exit(EXIT_FAILURE);
          }
+         if (len == 0) {
+            printf("Error CCM'ing: zero length\n");
+            exit(EXIT_FAILURE);
+         }
          fprintf(out, "%3d: ", y1);
          for (z = 0; z < y1; z++) {
             fprintf(out, "%02X", plaintext[z]);
@@ -576,7 +581,7 @@ void gcm_gen(void)
           key[z] = (z & 255);
       }
 
-      for (y1 = 0; y1 <= (int)(cipher_descriptor[x].block_length*2); y1++){
+      for (y1 = 1; y1 <= (int)(cipher_descriptor[x].block_length*2); y1++){
          for (z = 0; z < y1; z++) {
             plaintext[z] = (unsigned char)(z & 255);
          }

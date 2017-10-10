@@ -10,7 +10,7 @@
 #include "tomcrypt.h"
 
 /**
-  @file compare_testvecotr.c
+  @file compare_testvector.c
   Function to compare two testvectors and print a (detailed) error-message if required, Steffen Jaeckel
 */
 
@@ -49,13 +49,24 @@ static void _print_hex(const char* what, const void* v, const unsigned long l)
 }
 #endif
 
+/**
+  Compare two test-vectors
+
+  @param is             The data as it is
+  @param is_len         The length of is
+  @param should         The data as it should
+  @param should_len     The length of should
+  @param what           The type of the data
+  @param which          The iteration count
+  @return 0 on equality, -1 or 1 on difference
+*/
 int compare_testvector(const void* is, const unsigned long is_len, const void* should, const unsigned long should_len, const char* what, int which)
 {
    int res = 0;
    if(is_len != should_len)
       res = is_len > should_len ? -1 : 1;
    else
-      res = XMEMCMP(is, should, MAX(is_len, should_len));
+      res = XMEMCMP(is, should, is_len);
 
 #if defined(LTC_TEST) && defined(LTC_TEST_DBG)
    if (res != 0) {

@@ -30,8 +30,11 @@ static const crypt_size _crypt_sizes[] = {
     /* hash state sizes */
     _SZ_STRINGIFY_S(ltc_hash_descriptor),
     _SZ_STRINGIFY_T(hash_state),
-#ifdef LTC_SHA256
-    _SZ_STRINGIFY_S(sha256_state),
+#ifdef LTC_CHC_HASH
+    _SZ_STRINGIFY_S(chc_state),
+#endif
+#ifdef LTC_WHIRLPOOL
+    _SZ_STRINGIFY_S(whirlpool_state),
 #endif
 #ifdef LTC_SHA3
     _SZ_STRINGIFY_S(sha3_state),
@@ -39,17 +42,23 @@ static const crypt_size _crypt_sizes[] = {
 #ifdef LTC_SHA512
     _SZ_STRINGIFY_S(sha512_state),
 #endif
-#ifdef LTC_WHIRLPOOL
-    _SZ_STRINGIFY_S(whirlpool_state),
+#ifdef LTC_SHA256
+    _SZ_STRINGIFY_S(sha256_state),
 #endif
-#ifdef LTC_MD2
-    _SZ_STRINGIFY_S(md2_state),
+#ifdef LTC_SHA1
+    _SZ_STRINGIFY_S(sha1_state),
+#endif
+#ifdef LTC_MD5
+    _SZ_STRINGIFY_S(md5_state),
 #endif
 #ifdef LTC_MD4
     _SZ_STRINGIFY_S(md4_state),
 #endif
-#ifdef LTC_MD5
-    _SZ_STRINGIFY_S(md5_state),
+#ifdef LTC_MD2
+    _SZ_STRINGIFY_S(md2_state),
+#endif
+#ifdef LTC_TIGER
+    _SZ_STRINGIFY_S(tiger_state),
 #endif
 #ifdef LTC_RIPEMD128
     _SZ_STRINGIFY_S(rmd128_state),
@@ -63,20 +72,11 @@ static const crypt_size _crypt_sizes[] = {
 #ifdef LTC_RIPEMD320
     _SZ_STRINGIFY_S(rmd320_state),
 #endif
-#ifdef LTC_SHA1
-    _SZ_STRINGIFY_S(sha1_state),
-#endif
-#ifdef LTC_TIGER
-    _SZ_STRINGIFY_S(tiger_state),
-#endif
 #ifdef LTC_BLAKE2S
     _SZ_STRINGIFY_S(blake2s_state),
 #endif
 #ifdef LTC_BLAKE2B
     _SZ_STRINGIFY_S(blake2b_state),
-#endif
-#ifdef LTC_CHC_HASH
-    _SZ_STRINGIFY_S(chc_state),
 #endif
 
     /* block cipher key sizes */
@@ -142,46 +142,57 @@ static const crypt_size _crypt_sizes[] = {
 #endif
 
     /* mode sizes */
-#ifdef LTC_CBC_MODE
-    _SZ_STRINGIFY_T(symmetric_CBC),
+#ifdef LTC_ECB_MODE
+    _SZ_STRINGIFY_T(symmetric_ECB),
 #endif
 #ifdef LTC_CFB_MODE
     _SZ_STRINGIFY_T(symmetric_CFB),
 #endif
+#ifdef LTC_OFB_MODE
+    _SZ_STRINGIFY_T(symmetric_OFB),
+#endif
+#ifdef LTC_CBC_MODE
+    _SZ_STRINGIFY_T(symmetric_CBC),
+#endif
 #ifdef LTC_CTR_MODE
     _SZ_STRINGIFY_T(symmetric_CTR),
-#endif
-#ifdef LTC_ECB_MODE
-    _SZ_STRINGIFY_T(symmetric_ECB),
-#endif
-#ifdef LTC_F8_MODE
-    _SZ_STRINGIFY_T(symmetric_F8),
 #endif
 #ifdef LTC_LRW_MODE
     _SZ_STRINGIFY_T(symmetric_LRW),
 #endif
-#ifdef LTC_OFB_MODE
-    _SZ_STRINGIFY_T(symmetric_OFB),
+#ifdef LTC_F8_MODE
+    _SZ_STRINGIFY_T(symmetric_F8),
+#endif
+#ifdef LTC_XTS_MODE
+    _SZ_STRINGIFY_T(symmetric_xts),
+#endif
+
+    /* stream cipher sizes */
+#ifdef LTC_CHACHA
+    _SZ_STRINGIFY_T(chacha_state),
+#endif
+#ifdef LTC_RC4_STREAM
+    _SZ_STRINGIFY_T(rc4_state),
+#endif
+#ifdef LTC_SOBER128_STREAM
+    _SZ_STRINGIFY_T(sober128_state),
 #endif
 
     /* MAC sizes            -- no states for ccm, lrw */
-#ifdef LTC_F9_MODE
-    _SZ_STRINGIFY_T(f9_state),
-#endif
 #ifdef LTC_HMAC
     _SZ_STRINGIFY_T(hmac_state),
 #endif
 #ifdef LTC_OMAC
     _SZ_STRINGIFY_T(omac_state),
 #endif
-#ifdef LTC_PELICAN
-    _SZ_STRINGIFY_T(pelican_state),
-#endif
 #ifdef LTC_PMAC
     _SZ_STRINGIFY_T(pmac_state),
 #endif
-#ifdef LTC_XCBC
-    _SZ_STRINGIFY_T(xcbc_state),
+#ifdef LTC_POLY1305
+    _SZ_STRINGIFY_T(poly1305_state),
+#endif
+#ifdef LTC_EAX_MODE
+    _SZ_STRINGIFY_T(eax_state),
 #endif
 #ifdef LTC_OCB_MODE
     _SZ_STRINGIFY_T(ocb_state),
@@ -189,17 +200,23 @@ static const crypt_size _crypt_sizes[] = {
 #ifdef LTC_OCB3_MODE
     _SZ_STRINGIFY_T(ocb3_state),
 #endif
+#ifdef LTC_CCM_MODE
+    _SZ_STRINGIFY_T(ccm_state),
+#endif
 #ifdef LTC_GCM_MODE
     _SZ_STRINGIFY_T(gcm_state),
 #endif
-#ifdef LTC_EAX_MODE
-    _SZ_STRINGIFY_T(eax_state),
+#ifdef LTC_PELICAN
+    _SZ_STRINGIFY_T(pelican_state),
 #endif
-#ifdef LTC_CCM_MODE
-/* not defined */
+#ifdef LTC_XCBC
+    _SZ_STRINGIFY_T(xcbc_state),
 #endif
-#ifdef LRW_MODE
-/* not defined */
+#ifdef LTC_F9_MODE
+    _SZ_STRINGIFY_T(f9_state),
+#endif
+#ifdef LTC_CHACHA20POLY1305_MODE
+    _SZ_STRINGIFY_T(chacha20poly1305_state),
 #endif
 
     /* asymmetric keys */
@@ -214,11 +231,18 @@ static const crypt_size _crypt_sizes[] = {
 #endif
 #ifdef LTC_MECC
     _SZ_STRINGIFY_T(ltc_ecc_set_type),
-    _SZ_STRINGIFY_T(ecc_key),
     _SZ_STRINGIFY_T(ecc_point),
+    _SZ_STRINGIFY_T(ecc_key),
 #endif
 #ifdef LTC_MKAT
     _SZ_STRINGIFY_T(katja_key),
+#endif
+
+    /* DER handling */
+#ifdef LTC_DER
+    _SZ_STRINGIFY_T(ltc_asn1_list),  /* a list entry */
+    _SZ_STRINGIFY_T(ltc_utctime),
+    _SZ_STRINGIFY_T(ltc_generalizedtime),
 #endif
 
     /* prng state sizes */
@@ -248,6 +272,10 @@ static const crypt_size _crypt_sizes[] = {
 #ifdef LTC_CRC32
     _SZ_STRINGIFY_T(crc32_state),
 #endif
+
+    _SZ_STRINGIFY_T(ltc_mp_digit),
+    _SZ_STRINGIFY_T(ltc_math_descriptor)
+
 };
 
 /* crypt_get_size()

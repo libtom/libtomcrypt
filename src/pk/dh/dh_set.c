@@ -78,40 +78,31 @@ LBL_ERR:
 }
 
 /**
-  Import DH key parts pub and priv from raw numbers
+  Import DH public or private key part from raw numbers
 
-  @param pub     DH's pub (public key) (can be NULL if priv is valid)
-  @param publen  DH's pub's length
-  @param priv    DH's priv (private key) (can be NULL if pub is valid)
-  @param privlen DH's priv's length
+     NB: The p & g parts must be set beforehand
+
+  @param in      The key-part to import, either public or private.
+  @param inlen   The key-part's length
+  @param type    Which type of key (PK_PRIVATE or PK_PUBLIC)
   @param key     [out] the destination for the imported key
   @return CRYPT_OK if successful
 */
-int dh_set_key(const unsigned char *pub, unsigned long publen,
-               const unsigned char *priv, unsigned long privlen,
-               dh_key *key)
+int dh_set_key(const unsigned char *in, unsigned long inlen, int type, dh_key *key)
 {
    int err;
 
    LTC_ARGCHK(key         != NULL);
    LTC_ARGCHK(ltc_mp.name != NULL);
 
-   if(priv == NULL) {
-      if ((err = mp_read_unsigned_bin(key->y, (unsigned char*)pub, publen)) != CRYPT_OK)         { goto LBL_ERR; }
-      key->type = PK_PUBLIC;
-      mp_clear(key->x);
-      key->x = NULL;
+   if (type == PK_PRIVATE) {
+      key->type = PK_PRIVATE;
+      if ((err = mp_read_unsigned_bin(key->x, (unsigned char*)in, inlen)) != CRYPT_OK) { goto LBL_ERR; }
+      if ((err = mp_exptmod(key->base, key->x, key->prime, key->y)) != CRYPT_OK)       { goto LBL_ERR; }
    }
    else {
-      if ((err = mp_read_unsigned_bin(key->x, (unsigned char*)priv, privlen)) != CRYPT_OK)         { goto LBL_ERR; }
-      if (pub != NULL) {
-         if ((err = mp_read_unsigned_bin(key->y, (unsigned char*)pub, publen)) != CRYPT_OK)         { goto LBL_ERR; }
-      }
-      else {
-         /* compute y value */
-         if ((err = mp_exptmod(key->base, key->x, key->prime, key->y)) != CRYPT_OK)  { goto LBL_ERR; }
-      }
-      key->type = PK_PRIVATE;
+      key->type = PK_PUBLIC;
+      if ((err = mp_read_unsigned_bin(key->y, (unsigned char*)in, inlen)) != CRYPT_OK) { goto LBL_ERR; }
    }
 
    /* check public key */

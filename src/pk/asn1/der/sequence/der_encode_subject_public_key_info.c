@@ -32,7 +32,7 @@
    @param algorithm             One out of the enum #public_key_algorithms
    @param public_key            The buffer for the public key
    @param public_key_len        The length of the public key buffer
-   @param parameters_type       The parameters' type out of the enum #ltc_asn1_type
+   @param parameters_type       The parameters' type out of the enum ltc_asn1_type
    @param parameters            The parameters to include
    @param parameters_len        The number of parameters to include
    @return CRYPT_OK on success
@@ -58,7 +58,7 @@ int der_encode_subject_public_key_info(unsigned char *out, unsigned long *outlen
 
    return der_encode_sequence_multi(out, outlen,
         LTC_ASN1_SEQUENCE, (unsigned long)sizeof(alg_id)/sizeof(alg_id[0]), alg_id,
-        LTC_ASN1_RAW_BIT_STRING, (unsigned long)(public_key_len*8), public_key,
+        LTC_ASN1_RAW_BIT_STRING, public_key_len*8U, public_key,
         LTC_ASN1_EOL,     0UL, NULL);
 
 }

@@ -62,7 +62,6 @@
 
 /* shortcut to disable automatic inclusion */
 #if defined LTC_NOTHING && !defined LTC_EASY
-  #define LTC_NO_MATH
   #define LTC_NO_CIPHERS
   #define LTC_NO_MODES
   #define LTC_NO_HASHES
@@ -71,7 +70,6 @@
   #define LTC_NO_PK
   #define LTC_NO_PKCS
   #define LTC_NO_MISC
-  #define LTC_NO_FILE
 #endif /* LTC_NOTHING */
 
 /* Easy button? */
@@ -426,30 +424,6 @@
 #define LTC_ECC_TIMING_RESISTANT
 #endif
 
-/* define these PK sizes out of LTC_NO_PK
- * to have them always defined
- */
-#if defined(LTC_MRSA)
-/* Min and Max RSA key sizes (in bits) */
-#ifndef MIN_RSA_SIZE
-#define MIN_RSA_SIZE 1024
-#endif
-#ifndef MAX_RSA_SIZE
-#define MAX_RSA_SIZE 4096
-#endif
-#endif
-
-/* in cases where you want ASN.1/DER functionality, but no
- * RSA, you can define this externally if 1024 is not enough
- */
-#if defined(LTC_MRSA)
-#define LTC_DER_MAX_PUBKEY_SIZE MAX_RSA_SIZE
-#elif !defined(LTC_DER_MAX_PUBKEY_SIZE)
-/* this includes DSA */
-#define LTC_DER_MAX_PUBKEY_SIZE 1024
-#endif
-
-
 /* PKCS #1 (RSA) and #5 (Password Handling) stuff */
 #ifndef LTC_NO_PKCS
 
@@ -501,6 +475,11 @@
 #if defined(LTC_MECC) || defined(LTC_MRSA) || defined(LTC_MDSA) || defined(LTC_MKAT)
    /* Include the MPI functionality?  (required by the PK algorithms) */
    #define LTC_MPI
+
+   #ifndef LTC_PK_MAX_RETRIES
+      /* iterations limit for retry-loops */
+      #define LTC_PK_MAX_RETRIES  20
+   #endif
 #endif
 
 #ifdef LTC_MRSA
@@ -549,6 +528,10 @@
 
 #if defined(LTC_BLAKE2BMAC) && !defined(LTC_BLAKE2B)
    #error LTC_BLAKE2BMAC requires LTC_BLAKE2B
+#endif
+
+#if defined(LTC_SPRNG) && !defined(LTC_RNG_GET_BYTES)
+   #error LTC_SPRNG requires LTC_RNG_GET_BYTES
 #endif
 
 #if defined(LTC_NO_MATH) && (defined(LTM_DESC) || defined(TFM_DESC) || defined(GMP_DESC))

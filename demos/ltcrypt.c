@@ -47,6 +47,7 @@ int main(int argc, char *argv[])
    /* register algs, so they can be printed */
    register_all_ciphers();
    register_all_hashes();
+   register_all_prngs();
 
    if (argc < 4) {
       if ((argc > 2) && (!strcmp(argv[1], "-t"))) {

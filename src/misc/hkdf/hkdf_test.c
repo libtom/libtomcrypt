@@ -40,7 +40,7 @@ int hkdf_test(void)
 
     static const struct hkdf_test_case {
         int num;
-        char* Hash;
+        const char* Hash;
         unsigned char IKM[80];
         unsigned long IKM_l;
         unsigned char salt[80];
@@ -273,10 +273,6 @@ int hkdf_test(void)
 
         if(compare_testvector(OKM, cases[i].OKM_l, cases[i].OKM, (size_t)cases[i].OKM_l, "HKDF", cases[i].num)) {
             failed++;
-#if LTC_TEST_DBG > 1
-        } else {
-            printf("LTC_HKDF-%s test #%d: Passed\n", cases[i].Hash, cases[i].num);
-#endif
         }
     }
 

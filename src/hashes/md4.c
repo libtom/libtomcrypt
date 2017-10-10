@@ -254,7 +254,7 @@ int md4_test(void)
     return CRYPT_NOP;
  #else
     static const struct md4_test_case {
-        char *input;
+        const char *input;
         unsigned char hash[16];
     } tests[] = {
         { "",

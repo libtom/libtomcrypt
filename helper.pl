@@ -59,7 +59,7 @@ sub check_source {
           $file !~ m|src/ciphers/.*\.c$| &&
           $file !~ m|src/hashes/.*\.c$| &&
           $file !~ m|src/math/.+_desc.c$| &&
-          $file !~ m|src/stream/sober128/sober128.c$| &&
+          $file !~ m|src/stream/sober128/sober128_stream.c$| &&
           $l =~ /^static\s+\S+\s+([^_][a-zA-Z0-9_]+)\s*\(/) {
         push @{$troubles->{staticfunc_name}}, "$lineno($1)";
       }
@@ -260,7 +260,7 @@ sub prepare_msvc_files_xml {
   return $files;
 }
 
-sub patch_makefile {
+sub patch_file {
   my ($content, @variables) = @_;
   for my $v (@variables) {
     if ($v =~ /^([A-Z0-9_]+)\s*=.*$/si) {
@@ -268,16 +268,16 @@ sub patch_makefile {
       $content =~ s/\n\Q$name\E\b.*?[^\\]\n/\n$v\n/s;
     }
     else {
-      die "patch_makefile failed: " . substr($v, 0, 30) . "..";
+      die "patch_file failed: " . substr($v, 0, 30) . "..";
     }
   }
   return $content;
 }
 
-sub version_form_tomcrypt_h {
+sub version_from_tomcrypt_h {
   my $h = read_file(shift);
-  if ($h =~ /\n#define\s*SCRYPT\s*"([0-9]+)\.([0-9]+)"/s) {
-    return "VERSION=$1.$2", "VERSION_LT=0:$1$2";
+  if ($h =~ /\n#define\s*SCRYPT\s*"([0-9]+)\.([0-9]+)\.([0-9]+)(.*)"/s) {
+    return "VERSION_PC=$1.$2.$3", "VERSION_LT=1:0", "VERSION=$1.$2.$3$4", "PROJECT_NUMBER=$1.$2.$3$4";
   }
   else {
     die "#define SCRYPT not found in tomcrypt.h";
@@ -304,7 +304,7 @@ sub process_makefiles {
   my $var_to = prepare_variable("TOBJECTS", sort map { my $x = $_; $x =~ s/\.c$/.o/; $x } @t);
   (my $var_tobj = $var_to) =~ s/\.o\b/.obj/sg;
 
-  my @ver_version = version_form_tomcrypt_h("src/headers/tomcrypt.h");
+  my @ver_version = version_from_tomcrypt_h("src/headers/tomcrypt.h");
 
   # update MSVC project files
   my $msvc_files = prepare_msvc_files_xml(\@all, qr/tab\.c$/, ['Debug|Win32', 'Release|Win32', 'Debug|x64', 'Release|x64']);
@@ -320,10 +320,10 @@ sub process_makefiles {
   }
 
   # update OBJECTS + HEADERS in makefile*
-  for my $m (qw/ makefile makefile.shared makefile.unix makefile.mingw makefile.msvc makefile_include.mk /) {
+  for my $m (qw/ makefile makefile.shared makefile.unix makefile.mingw makefile.msvc makefile_include.mk doc\/Doxyfile /) {
     my $old = read_file($m);
-    my $new = $m eq 'makefile.msvc' ? patch_makefile($old, $var_obj, $var_h, $var_tobj, @ver_version)
-                                    : patch_makefile($old, $var_o, $var_h, $var_to, @ver_version);
+    my $new = $m eq 'makefile.msvc' ? patch_file($old, $var_obj, $var_h, $var_tobj, @ver_version)
+                                    : patch_file($old, $var_o, $var_h, $var_to, @ver_version);
     if ($old ne $new) {
       write_file($m, $new) if $write;
       warn "changed: $m\n";

@@ -26,7 +26,9 @@ matrix:
   fast_finish: true
 branches:
   only:
+    - master
     - develop
+    - /^release\/.*$/
 
 compiler:
   - gcc
@@ -123,6 +125,7 @@ env:
 after_failure:
   - cat test_std.txt
   - cat test_err.txt
+  - cat tv.txt
 
 after_script:
   - cat gcc_1.txt

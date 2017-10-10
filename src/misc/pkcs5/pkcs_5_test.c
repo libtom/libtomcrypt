@@ -35,9 +35,9 @@ int pkcs_5_test (void)
  #else
 
     typedef struct {
-        char* P;
+        const char* P;
         unsigned long P_len;
-        char* S;
+        const char* S;
         unsigned long S_len;
         int c;
         unsigned long dkLen;
@@ -176,8 +176,7 @@ int pkcs_5_test (void)
                               cases_5_2[i].c, hash,
                               DK, &dkLen)) != CRYPT_OK) {
 #ifdef LTC_TEST_DBG
-            printf("\nPKCS#5_2 test #%d: Failed/1\n", i);
-            printf("err=%d\n", err);
+            printf("\npkcs_5_alg2() #%d: Failed/1 (%s)\n", i, error_to_string(err));
 #endif
             ++failed;
         }
@@ -194,8 +193,7 @@ int pkcs_5_test (void)
                               cases_5_1[i].c, hash,
                               DK, &dkLen)) != CRYPT_OK) {
 #ifdef LTC_TEST_DBG
-            printf("\nPKCS#5_1 test #%d: Failed/1\n", i);
-            printf("err=%d\n", err);
+            printf("\npkcs_5_alg1() #%d: Failed/1 (%s)\n", i, error_to_string(err));
 #endif
             ++failed;
         }
@@ -212,8 +210,7 @@ int pkcs_5_test (void)
                                        cases_5_1o[i].c, hash,
                                        DK, &dkLen)) != CRYPT_OK) {
 #ifdef LTC_TEST_DBG
-            printf("\nPKCS#5_1o test #%d: Failed/1\n", i);
-            printf("err=%d\n", err);
+            printf("\npkcs_5_alg1_openssl() #%d: Failed/1 (%s)\n", i, error_to_string(err));
 #endif
             ++failed;
         }

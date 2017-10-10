@@ -20,7 +20,7 @@
 #define NORETURN
 #endif
 
-void crypt_argchk(char *v, char *s, int d) NORETURN;
+void crypt_argchk(const char *v, const char *s, int d) NORETURN;
 #define LTC_ARGCHK(x) do { if (!(x)) { crypt_argchk(#x, __FILE__, __LINE__); } }while(0)
 #define LTC_ARGCHKVD(x) do { if (!(x)) { crypt_argchk(#x, __FILE__, __LINE__); } }while(0)
 

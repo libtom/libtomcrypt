@@ -55,6 +55,9 @@ int eax_decrypt_verify_memory(int cipher,
    /* default to zero */
    *stat = 0;
 
+   /* limit taglen */
+   taglen = MIN(taglen, MAXBLOCKSIZE);
+
    /* allocate ram */
    buf = XMALLOC(taglen);
    eax = XMALLOC(sizeof(*eax));

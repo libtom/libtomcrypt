@@ -19,7 +19,7 @@
 /**
    Initialize a CFB context
    @param cipher      The index of the cipher desired
-   @param IV          The initial vector
+   @param IV          The initialization vector
    @param key         The secret key
    @param keylen      The length of the secret key (octets)
    @param num_rounds  Number of rounds in the cipher desired (0 for default)

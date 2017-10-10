@@ -52,6 +52,11 @@ int gcm_process(gcm_state *gcm,
       return CRYPT_INVALID_ARG;
    }
 
+   if (gcm->mode == LTC_GCM_MODE_IV) {
+      /* let's process the IV */
+      if ((err = gcm_add_aad(gcm, NULL, 0)) != CRYPT_OK) return err;
+   }
+
    /* in AAD mode? */
    if (gcm->mode == LTC_GCM_MODE_AAD) {
       /* let's process the AAD */

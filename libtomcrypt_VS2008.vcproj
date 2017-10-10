@@ -799,14 +799,6 @@
 					>
 				</File>
 				<File
-					RelativePath="src\encauth\ocb3\ocb3_int_aad_add_block.c"
-					>
-				</File>
-				<File
-					RelativePath="src\encauth\ocb3\ocb3_int_calc_offset_zero.c"
-					>
-				</File>
-				<File
 					RelativePath="src\encauth\ocb3\ocb3_int_ntz.c"
 					>
 				</File>
@@ -2455,7 +2447,7 @@
 				Name="rc4"
 				>
 				<File
-					RelativePath="src\stream\rc4\rc4.c"
+					RelativePath="src\stream\rc4\rc4_stream.c"
 					>
 				</File>
 				<File
@@ -2467,7 +2459,7 @@
 				Name="sober128"
 				>
 				<File
-					RelativePath="src\stream\sober128\sober128.c"
+					RelativePath="src\stream\sober128\sober128_stream.c"
 					>
 				</File>
 				<File

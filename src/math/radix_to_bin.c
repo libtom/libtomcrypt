@@ -31,9 +31,9 @@
 
    @return CRYPT_OK on success.
 */
-int radix_to_bin(const void *in, int radix, void *out, size_t* len)
+int radix_to_bin(const void *in, int radix, void *out, unsigned long *len)
 {
-   size_t l;
+   unsigned long l;
    void* mpi;
    int err;
 

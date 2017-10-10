@@ -142,8 +142,8 @@ int hmac_test(void)
     };
 
     static const struct hmac_test_case {
-        char *num;
-        char *algo;
+        const char *num;
+        const char *algo;
         const unsigned char *key;
         unsigned long keylen;
         const unsigned char *data;

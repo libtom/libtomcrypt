@@ -73,8 +73,7 @@ static ulong64 epoch_usec(void)
   return cur_time;
 #else
   struct timeval tv;
-  struct timezone tz;
-  gettimeofday(&tv, &tz);
+  gettimeofday(&tv, NULL);
   return (ulong64)(tv.tv_sec) * 1000000 + (ulong64)(tv.tv_usec); /* get microseconds */
 #endif
 }
@@ -302,24 +301,37 @@ int main(int argc, char **argv)
    long delta, dur, real = 0;
    register_algs();
 
-   printf("build == %s\n%s\n", GIT_VERSION, crypt_build_settings);
+   printf("LTC_VERSION  = %s\n%s\n\n", GIT_VERSION, crypt_build_settings);
 
 #ifdef USE_LTM
    ltc_mp = ltm_desc;
-   printf("math provider = libtommath\n");
+   printf("MP_PROVIDER  = LibTomMath\n");
 #elif defined(USE_TFM)
    ltc_mp = tfm_desc;
-   printf("math provider = tomsfastmath\n");
+   printf("MP_PROVIDER  = TomsFastMath\n");
 #elif defined(USE_GMP)
    ltc_mp = gmp_desc;
-   printf("math provider = gnump\n");
-#else
-   extern ltc_math_descriptor EXT_MATH_LIB;
-   ltc_mp = EXT_MATH_LIB;
-   printf("math provider = EXT_MATH_LIB\n");
-#endif
-   printf("MP_DIGIT_BIT = %d\n", MP_DIGIT_BIT);
+   printf("MP_PROVIDER  = GnuMP\n");
+#elif defined(EXT_MATH_LIB)
+   {
+      extern ltc_math_descriptor EXT_MATH_LIB;
+      ltc_mp = EXT_MATH_LIB;
+   }
 
+#define NAME_VALUE(s) #s"="NAME(s)
+#define NAME(s) #s
+   printf("MP_PROVIDER  = %s\n", NAME_VALUE(EXT_MATH_LIB));
+#undef NAME_VALUE
+#undef NAME
+
+#endif
+#ifdef LTC_TEST_MPI
+   printf("MP_DIGIT_BIT = %d\n", MP_DIGIT_BIT);
+#else
+   printf("NO math provider selected, all tests requiring MPI were disabled and will 'nop'\n");
+#endif
+
+   printf("sizeof(ltc_mp_digit) = %d\n", (int)sizeof(ltc_mp_digit));
 
 #ifdef LTC_PTHREAD
    tinfo = XCALLOC(sizeof(test_functions)/sizeof(test_functions[0]), sizeof(thread_info));
@@ -392,7 +404,7 @@ int main(int argc, char **argv)
          nop++;
       }
       else {
-         printf("failed %10.3fms", (double)(delta)/1000);
+         printf("failed (%s) %10.3fms", error_to_string(x), (double)(delta)/1000);
          fail++;
       }
    }

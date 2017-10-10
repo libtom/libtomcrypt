@@ -28,7 +28,7 @@ int dh_import(const unsigned char *in, unsigned long inlen, dh_key *key)
    LTC_ARGCHK(key != NULL);
 
    /* init */
-   if ((err = mp_init_multi(&key->prime, &key->base, &key->x, &key->y, NULL)) != CRYPT_OK) {
+   if ((err = mp_init_multi(&key->x, &key->y, &key->base, &key->prime, NULL)) != CRYPT_OK) {
       return err;
    }
 
@@ -37,7 +37,7 @@ int dh_import(const unsigned char *in, unsigned long inlen, dh_key *key)
                                    LTC_ASN1_SHORT_INTEGER, 1UL, &version,
                                    LTC_ASN1_BIT_STRING, 1UL, &flags,
                                    LTC_ASN1_EOL, 0UL, NULL);
-   if (err != CRYPT_OK) {
+   if (err != CRYPT_OK && err != CRYPT_INPUT_TOO_LONG) {
       goto error;
    }
 
@@ -58,7 +58,7 @@ int dh_import(const unsigned char *in, unsigned long inlen, dh_key *key)
             goto error;
          }
       }
-      else {
+      else if (flags[0] == 0) {
          key->type = PK_PUBLIC;
          if ((err = der_decode_sequence_multi(in, inlen,
                                               LTC_ASN1_SHORT_INTEGER, 1UL, &version,
@@ -69,8 +69,10 @@ int dh_import(const unsigned char *in, unsigned long inlen, dh_key *key)
                                               LTC_ASN1_EOL,           0UL, NULL)) != CRYPT_OK) {
             goto error;
          }
-         mp_clear(key->x);
-         key->x = NULL;
+      }
+      else {
+         err = CRYPT_INVALID_PACKET;
+         goto error;
       }
    }
    else {
@@ -86,7 +88,7 @@ int dh_import(const unsigned char *in, unsigned long inlen, dh_key *key)
    return CRYPT_OK;
 
 error:
-   mp_clear_multi(key->prime, key->base, key->y, key->x, NULL);
+   dh_free(key);
    return err;
 }
 

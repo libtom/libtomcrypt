@@ -27,7 +27,7 @@ int dsa_set_pqg(const unsigned char *p,  unsigned long plen,
                 const unsigned char *g,  unsigned long glen,
                 dsa_key *key)
 {
-   int err;
+   int err, stat;
 
    LTC_ARGCHK(p           != NULL);
    LTC_ARGCHK(q           != NULL);
@@ -45,11 +45,13 @@ int dsa_set_pqg(const unsigned char *p,  unsigned long plen,
 
    key->qord = mp_unsigned_bin_size(key->q);
 
-   if (key->qord >= LTC_MDSA_MAX_GROUP || key->qord <= 15 ||
-      (unsigned long)key->qord >= mp_unsigned_bin_size(key->p) || (mp_unsigned_bin_size(key->p) - key->qord) >= LTC_MDSA_DELTA) {
+   /* do only a quick validation, without primality testing */
+   if ((err = dsa_int_validate_pqg(key, &stat)) != CRYPT_OK)                        { goto LBL_ERR; }
+   if (stat == 0) {
       err = CRYPT_INVALID_PACKET;
       goto LBL_ERR;
    }
+
    return CRYPT_OK;
 
 LBL_ERR:
@@ -58,19 +60,19 @@ LBL_ERR:
 }
 
 /**
-  Import DSA public or private key from raw numbers
-  @param pub     DSA's y (public key) in binary representation
-  @param publen  The length of pub
-  @param priv    DSA's x (private key) in binary representation (can be NULL when importing public key)
-  @param privlen The length of priv
+  Import DSA public or private key-part from raw numbers
+
+     NB: The p, q & g parts must be set beforehand
+
+  @param in      The key-part to import, either public or private.
+  @param inlen   The key-part's length
+  @param type    Which type of key (PK_PRIVATE or PK_PUBLIC)
   @param key     [out] the destination for the imported key
   @return CRYPT_OK if successful.
 */
-int dsa_set_key(const unsigned char *pub, unsigned long publen,
-                const unsigned char *priv, unsigned long privlen,
-                dsa_key *key)
+int dsa_set_key(const unsigned char *in, unsigned long inlen, int type, dsa_key *key)
 {
-   int err;
+   int err, stat = 0;
 
    LTC_ARGCHK(key         != NULL);
    LTC_ARGCHK(key->x      != NULL);
@@ -80,13 +82,20 @@ int dsa_set_key(const unsigned char *pub, unsigned long publen,
    LTC_ARGCHK(key->q      != NULL);
    LTC_ARGCHK(ltc_mp.name != NULL);
 
-   if ((err = mp_read_unsigned_bin(key->y, (unsigned char *)pub , publen)) != CRYPT_OK) { goto LBL_ERR; }
-   if (priv != NULL) {
+   if (type == PK_PRIVATE) {
       key->type = PK_PRIVATE;
-      if ((err = mp_read_unsigned_bin(key->x, (unsigned char *)priv , privlen)) != CRYPT_OK) { goto LBL_ERR; }
+      if ((err = mp_read_unsigned_bin(key->x, (unsigned char *)in, inlen)) != CRYPT_OK) { goto LBL_ERR; }
+      if ((err = mp_exptmod(key->g, key->x, key->p, key->y)) != CRYPT_OK)               { goto LBL_ERR; }
    }
    else {
       key->type = PK_PUBLIC;
+      if ((err = mp_read_unsigned_bin(key->y, (unsigned char *)in, inlen)) != CRYPT_OK) { goto LBL_ERR; }
+   }
+
+   if ((err = dsa_int_validate_xy(key, &stat)) != CRYPT_OK)                             { goto LBL_ERR; }
+   if (stat == 0) {
+      err = CRYPT_INVALID_PACKET;
+      goto LBL_ERR;
    }
 
    return CRYPT_OK;

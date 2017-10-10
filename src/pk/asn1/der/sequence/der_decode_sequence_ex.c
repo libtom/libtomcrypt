@@ -310,7 +310,12 @@ int der_decode_sequence_ex(const unsigned char *in, unsigned long  inlen,
           goto LBL_ERR;
       }
    }
-   err = CRYPT_OK;
+
+   if (inlen == 0) {
+      err = CRYPT_OK;
+   } else {
+      err = CRYPT_INPUT_TOO_LONG;
+   }
 
 LBL_ERR:
    return err;

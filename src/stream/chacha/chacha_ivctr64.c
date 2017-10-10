@@ -20,7 +20,7 @@
   Set IV + counter data to the ChaCha state
   @param st      The ChaCha20 state
   @param iv      The IV data to add
-  @param inlen   The length of the IV (must be 8)
+  @param ivlen   The length of the IV (must be 8)
   @param counter 64bit (unsigned) initial counter value
   @return CRYPT_OK on success
  */

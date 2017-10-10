@@ -242,8 +242,7 @@ int eax_test(void)
         }
         if ((res != 1) || compare_testvector(outct, tests[x].msglen, tests[x].plaintext, tests[x].msglen, "EAX", x)) {
 #ifdef LTC_TEST_DBG
-           printf("\n\nEAX: Failure-decrypt\n");
-           printf("\nres = %d\n\n", res);
+           printf("\n\nEAX: Failure-decrypt - res = %d\n", res);
 #endif
            return CRYPT_FAIL_TESTVECTOR;
         }

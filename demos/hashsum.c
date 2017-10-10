@@ -38,22 +38,28 @@
 
 static char* hashsum;
 
+static void cleanup(void)
+{
+   free(hashsum);
+}
+
 static void die(int status)
 {
    unsigned long w, x;
    FILE* o = status == EXIT_SUCCESS ? stdout : stderr;
-   fprintf(o, "usage: %s -a algorithm [-c] [file...]\n", hashsum);
-   fprintf(o, "Algorithms:\n");
+   fprintf(o, "usage: %s -a algorithm [-c] [file...]\n\n", hashsum);
+   fprintf(o, "\t-c\tCheck the hash(es) of the file(s) written in [file].\n");
+   fprintf(o, "\t\t(-a not required)\n");
+   fprintf(o, "\nAlgorithms:\n\t");
    w = 0;
    for (x = 0; hash_descriptor[x].name != NULL; x++) {
       w += fprintf(o, "%-14s", hash_descriptor[x].name);
       if (w >= 70) {
-         fprintf(o, "\n");
+         fprintf(o, "\n\t");
          w = 0;
       }
    }
    if (w != 0) fprintf(o, "\n");
-   free(hashsum);
    exit(status);
 }
 
@@ -90,6 +96,10 @@ static void check_file(int argn, int argc, char **argv)
          int tries, n;
          unsigned long hash_len, w, x;
          char* space = strstr(s, " ");
+
+         /* skip lines with comments */
+         if (buf[0] == '#') continue;
+
          if (space == NULL) {
             fprintf(stderr, "%s: no properly formatted checksum lines found\n", hashsum);
             goto ERR;
@@ -97,6 +107,11 @@ static void check_file(int argn, int argc, char **argv)
 
          hash_len = space - s;
          hash_len /= 2;
+
+         if (hash_len > sizeof(should_buffer)) {
+            fprintf(stderr, "%s: hash too long\n", hashsum);
+            goto ERR;
+         }
 
          /* convert the hex-string back to binary */
          for (x = 0; x < hash_len; ++x) {
@@ -164,6 +179,7 @@ int main(int argc, char **argv)
    unsigned char hash_buffer[MAXBLOCKSIZE];
 
    hashsum = strdup(basename(argv[0]));
+   atexit(cleanup);
 
    /* You need to register algorithms before using them */
    register_all_ciphers();

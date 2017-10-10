@@ -27,7 +27,7 @@ int ocb3_test(void)
    /* test vectors from: http://tools.ietf.org/html/draft-krovetz-ocb-03 */
    unsigned char key[16]   = { 0x00,0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,0x0A,0x0B,0x0C,0x0D,0x0E,0x0F };
    unsigned char nonce[12] = { 0x00,0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,0x0A,0x0B };
-   static const struct {
+   const struct {
          int ptlen;
          int aadlen;
          unsigned char pt[64], aad[64], ct[64], tag[16];
@@ -163,10 +163,50 @@ int ocb3_test(void)
    },
 
 };
+   /* As of RFC 7253 - 'Appendix A.  Sample Results'
+    *    The next tuple shows a result with a tag length of 96 bits and a
+   different key.
+
+     K: 0F0E0D0C0B0A09080706050403020100
+
+     N: BBAA9988776655443322110D
+     A: 000102030405060708090A0B0C0D0E0F1011121314151617
+        18191A1B1C1D1E1F2021222324252627
+     P: 000102030405060708090A0B0C0D0E0F1011121314151617
+        18191A1B1C1D1E1F2021222324252627
+     C: 1792A4E31E0755FB03E31B22116E6C2DDF9EFD6E33D536F1
+        A0124B0A55BAE884ED93481529C76B6AD0C515F4D1CDD4FD
+        AC4F02AA
+
+        The C has been split up in C and T (tag)
+    */
+   const unsigned char K[] = { 0x0F,0x0E,0x0D,0x0C,0x0B,0x0A,0x09,0x08,
+                               0x07,0x06,0x05,0x04,0x03,0x02,0x01,0x00 };
+   const unsigned char N[] = { 0xBB,0xAA,0x99,0x88,0x77,0x66,0x55,0x44,
+                               0x33,0x22,0x11,0x0D };
+   const unsigned char A[] = { 0x00,0x01,0x02,0x03,0x04,0x05,0x06,0x07,
+                               0x08,0x09,0x0A,0x0B,0x0C,0x0D,0x0E,0x0F,
+                               0x10,0x11,0x12,0x13,0x14,0x15,0x16,0x17,
+                               0x18,0x19,0x1A,0x1B,0x1C,0x1D,0x1E,0x1F,
+                               0x20,0x21,0x22,0x23,0x24,0x25,0x26,0x27 };
+   const unsigned char P[] = { 0x00,0x01,0x02,0x03,0x04,0x05,0x06,0x07,
+                               0x08,0x09,0x0A,0x0B,0x0C,0x0D,0x0E,0x0F,
+                               0x10,0x11,0x12,0x13,0x14,0x15,0x16,0x17,
+                               0x18,0x19,0x1A,0x1B,0x1C,0x1D,0x1E,0x1F,
+                               0x20,0x21,0x22,0x23,0x24,0x25,0x26,0x27 };
+   const unsigned char C[] = { 0x17,0x92,0xA4,0xE3,0x1E,0x07,0x55,0xFB,
+                               0x03,0xE3,0x1B,0x22,0x11,0x6E,0x6C,0x2D,
+                               0xDF,0x9E,0xFD,0x6E,0x33,0xD5,0x36,0xF1,
+                               0xA0,0x12,0x4B,0x0A,0x55,0xBA,0xE8,0x84,
+                               0xED,0x93,0x48,0x15,0x29,0xC7,0x6B,0x6A };
+   const unsigned char T[] = { 0xD0,0xC5,0x15,0xF4,0xD1,0xCD,0xD4,0xFD,
+                               0xAC,0x4F,0x02,0xAA };
 
    int err, x, idx, res;
    unsigned long len;
-   unsigned char outct[MAXBLOCKSIZE], outtag[MAXBLOCKSIZE];
+   unsigned char outct[MAXBLOCKSIZE]  = { 0 };
+   unsigned char outtag[MAXBLOCKSIZE] = { 0 };
+   ocb3_state ocb;
 
     /* AES can be under rijndael or aes... try to find it */
     if ((idx = find_cipher("aes")) == -1) {
@@ -176,13 +216,13 @@ int ocb3_test(void)
     }
 
     for (x = 0; x < (int)(sizeof(tests)/sizeof(tests[0])); x++) {
-        len = sizeof(outtag);
+        len = 16; /* must be the same as the required taglen */
         if ((err = ocb3_encrypt_authenticate_memory(idx,
                                                    key, sizeof(key),
                                                    nonce, sizeof(nonce),
-                                                   tests[x].aad, tests[x].aadlen,
-                                                   tests[x].pt, tests[x].ptlen,
-                                                   outct, outtag, &len)) != CRYPT_OK) {
+                                                   tests[x].aadlen != 0 ? tests[x].aad : NULL, tests[x].aadlen,
+                                                   tests[x].ptlen != 0 ? tests[x].pt : NULL, tests[x].ptlen,
+                                                   tests[x].ptlen != 0 ? outct : NULL, outtag, &len)) != CRYPT_OK) {
            return err;
         }
 
@@ -194,31 +234,75 @@ int ocb3_test(void)
         if ((err = ocb3_decrypt_verify_memory(idx,
                                              key, sizeof(key),
                                              nonce, sizeof(nonce),
-                                             tests[x].aad, tests[x].aadlen,
-                                             outct, tests[x].ptlen,
-             outct, tests[x].tag, len, &res)) != CRYPT_OK) {
+                                             tests[x].aadlen != 0 ? tests[x].aad : NULL, tests[x].aadlen,
+                                             tests[x].ptlen != 0 ? outct : NULL, tests[x].ptlen,
+                                             tests[x].ptlen != 0 ? outct : NULL, tests[x].tag, len, &res)) != CRYPT_OK) {
            return err;
         }
         if ((res != 1) || compare_testvector(outct, tests[x].ptlen, tests[x].pt, tests[x].ptlen, "OCB3", x)) {
 #ifdef LTC_TEST_DBG
-           printf("\n\nOCB3: Failure-decrypt\n");
-           printf("\nres = %d\n\n", res);
+           printf("\n\nOCB3: Failure-decrypt - res = %d\n", res);
 #endif
            return CRYPT_FAIL_TESTVECTOR;
         }
     }
+
+    /* RFC 7253 - test vector with a tag length of 96 bits - part 1 */
+    x = 99;
+    len = 12;
+    if ((err = ocb3_encrypt_authenticate_memory(idx,
+                                                K, sizeof(K),
+                                                N, sizeof(N),
+                                                A, sizeof(A),
+                                                P, sizeof(P),
+                                                outct, outtag, &len)) != CRYPT_OK) {
+       return err;
+    }
+
+    if (compare_testvector(outtag, len, T, sizeof(T), "OCB3 Tag", x) ||
+          compare_testvector(outct, sizeof(P), C, sizeof(C), "OCB3 CT", x)) {
+       return CRYPT_FAIL_TESTVECTOR;
+    }
+
+    if ((err = ocb3_decrypt_verify_memory(idx,
+                                          K, sizeof(K),
+                                          N, sizeof(N),
+                                          A, sizeof(A),
+                                          C, sizeof(C),
+                                          outct, T, sizeof(T), &res)) != CRYPT_OK) {
+       return err;
+    }
+    if ((res != 1) || compare_testvector(outct, sizeof(C), P, sizeof(P), "OCB3", x)) {
+#ifdef LTC_TEST_DBG
+       printf("\n\nOCB3: Failure-decrypt - res = %d\n", res);
+#endif
+       return CRYPT_FAIL_TESTVECTOR;
+    }
+
+    /* RFC 7253 - test vector with a tag length of 96 bits - part 2 */
+    x = 100;
+    if ((err = ocb3_init(&ocb, idx, K, sizeof(K), N, sizeof(N), 12)) != CRYPT_OK)  return err;
+    if ((err = ocb3_add_aad(&ocb, A, sizeof(A))) != CRYPT_OK)                      return err;
+    if ((err = ocb3_encrypt(&ocb, P, 32, outct)) != CRYPT_OK)                      return err;
+    if ((err = ocb3_encrypt_last(&ocb, P+32, sizeof(P)-32, outct+32)) != CRYPT_OK) return err;
+    len = sizeof(outtag); /* intentionally more than 12 */
+    if ((err = ocb3_done(&ocb, outtag, &len)) != CRYPT_OK)                         return err;
+    if (compare_testvector(outct, sizeof(P), C, sizeof(C), "OCB3 CT", x))          return CRYPT_FAIL_TESTVECTOR;
+    if (compare_testvector(outtag, len, T, sizeof(T), "OCB3 Tag.enc", x))          return CRYPT_FAIL_TESTVECTOR;
+    if ((err = ocb3_init(&ocb, idx, K, sizeof(K), N, sizeof(N), 12)) != CRYPT_OK)  return err;
+    if ((err = ocb3_add_aad(&ocb, A, sizeof(A))) != CRYPT_OK)                      return err;
+    if ((err = ocb3_decrypt(&ocb, C, 32, outct)) != CRYPT_OK)                      return err;
+    if ((err = ocb3_decrypt_last(&ocb, C+32, sizeof(C)-32, outct+32)) != CRYPT_OK) return err;
+    len = sizeof(outtag); /* intentionally more than 12 */
+    if ((err = ocb3_done(&ocb, outtag, &len)) != CRYPT_OK)                         return err;
+    if (compare_testvector(outct, sizeof(C), P, sizeof(P), "OCB3 PT", x))          return CRYPT_FAIL_TESTVECTOR;
+    if (compare_testvector(outtag, len, T, sizeof(T), "OCB3 Tag.dec", x))          return CRYPT_FAIL_TESTVECTOR;
+
     return CRYPT_OK;
 #endif /* LTC_TEST */
 }
 
 #endif /* LTC_OCB3_MODE */
-
-/* some comments
-
-   -- it's hard to seek
-   -- hard to stream [you can't emit ciphertext until full block]
-   -- The setup is somewhat complicated...
-*/
 
 /* ref:         $Format:%D$ */
 /* git commit:  $Format:%H$ */
