@@ -260,7 +260,7 @@ sub prepare_msvc_files_xml {
   return $files;
 }
 
-sub patch_makefile {
+sub patch_file {
   my ($content, @variables) = @_;
   for my $v (@variables) {
     if ($v =~ /^([A-Z0-9_]+)\s*=.*$/si) {
@@ -268,7 +268,7 @@ sub patch_makefile {
       $content =~ s/\n\Q$name\E\b.*?[^\\]\n/\n$v\n/s;
     }
     else {
-      die "patch_makefile failed: " . substr($v, 0, 30) . "..";
+      die "patch_file failed: " . substr($v, 0, 30) . "..";
     }
   }
   return $content;
@@ -277,7 +277,7 @@ sub patch_makefile {
 sub version_from_tomcrypt_h {
   my $h = read_file(shift);
   if ($h =~ /\n#define\s*SCRYPT\s*"([0-9]+)\.([0-9]+)\.([0-9]+)(.*)"/s) {
-    return "VERSION_PC=$1.$2.$3", "VERSION_LT=1:0", "VERSION=$1.$2.$3$4";
+    return "VERSION_PC=$1.$2.$3", "VERSION_LT=1:0", "VERSION=$1.$2.$3$4", "PROJECT_NUMBER=$1.$2.$3$4";
   }
   else {
     die "#define SCRYPT not found in tomcrypt.h";
@@ -320,10 +320,10 @@ sub process_makefiles {
   }
 
   # update OBJECTS + HEADERS in makefile*
-  for my $m (qw/ makefile makefile.shared makefile.unix makefile.mingw makefile.msvc makefile_include.mk /) {
+  for my $m (qw/ makefile makefile.shared makefile.unix makefile.mingw makefile.msvc makefile_include.mk doc\/Doxyfile /) {
     my $old = read_file($m);
-    my $new = $m eq 'makefile.msvc' ? patch_makefile($old, $var_obj, $var_h, $var_tobj, @ver_version)
-                                    : patch_makefile($old, $var_o, $var_h, $var_to, @ver_version);
+    my $new = $m eq 'makefile.msvc' ? patch_file($old, $var_obj, $var_h, $var_tobj, @ver_version)
+                                    : patch_file($old, $var_o, $var_h, $var_to, @ver_version);
     if ($old ne $new) {
       write_file($m, $new) if $write;
       warn "changed: $m\n";
