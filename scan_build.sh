@@ -1,5 +1,8 @@
 #!/bin/bash
-[ "$TRAVIS_CI" != "" ] && { [ -z "$(which scan-build)" ] && { echo "installing clang"; sudo apt-get install clang -y -qq; }; } || true
+if [ "$TRAVIS_CI" != "" ] && [ -z "$(echo $CC | grep "clang")" ]; then
+    echo "no clang detected, early exit success"
+    exit 0
+fi
 
 if [ "$#" = "5" -a "$(echo $3 | grep -v 'makefile[.]')" = "" ]; then
     echo "only run $0 for the regular makefile, early exit success"
