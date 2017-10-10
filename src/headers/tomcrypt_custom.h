@@ -62,7 +62,6 @@
 
 /* shortcut to disable automatic inclusion */
 #if defined LTC_NOTHING && !defined LTC_EASY
-  #define LTC_NO_MATH
   #define LTC_NO_CIPHERS
   #define LTC_NO_MODES
   #define LTC_NO_HASHES
