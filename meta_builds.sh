@@ -33,7 +33,10 @@ function run_gcc() {
 }
 
 function run_clang() {
-   bash scan_build.sh "SCAN_BUILD" "$2" "$3" "$4" "$5"
+   scan_build=$(which scan-build)
+   [ -z "$scan_build" ] && scan_build=$(find /usr/bin/ -name 'scan-build-*' | sort -nr | head -n1) || true
+   [ -z "$scan_build" ] && { echo "couldn't find clang scan-build"; exit 1; } || echo "run $scan_build"
+   $scan_build --status-bugs make all CFLAGS="$2 $CFLAGS $4" EXTRALIBS="$5"
 
    make clean &>/dev/null
 
