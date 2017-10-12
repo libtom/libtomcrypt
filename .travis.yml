@@ -13,7 +13,7 @@ addons:
 
 install:
     - sudo apt-get update -qq
-    - sudo apt-get install libtommath-dev
+    - sudo apt-get install libtommath-dev libgmp-dev
 
 before_script:
   - gem install coveralls-lcov
@@ -38,17 +38,9 @@ script:
   - bash "${BUILDSCRIPT}" "${BUILDNAME}" "${BUILDOPTIONS}" "makefile.shared V=1" "-DUSE_TFM -DTFM_DESC" "-ltfm"
 env:
   - |
-    BUILDSCRIPT="check_source.sh"
-    BUILDNAME="CHECK_SOURCES"
-    BUILDOPTIONS=" "
-  - |
-    BUILDSCRIPT="scan_build.sh"
-    BUILDNAME="SCAN_BUILD"
-    BUILDOPTIONS=" "
-  - |
-    BUILDSCRIPT="coverage.sh"
-    BUILDNAME="COVERAGE"
-    BUILDOPTIONS=" "
+    BUILDSCRIPT="meta_builds.sh"
+    BUILDNAME="META_BUILS"
+    BUILDOPTIONS="-DGMP_DESC"
   - |
     BUILDSCRIPT="run.sh"
     BUILDNAME="STOCK"
@@ -113,14 +105,6 @@ env:
     BUILDSCRIPT="run.sh"
     BUILDNAME="CLEANSTACK+NOTABLES+SMALL+NO_ASM+NO_TIMING_RESISTANCE+PTHREAD"
     BUILDOPTIONS="-DLTC_CLEAN_STACK -DLTC_NO_TABLES -DLTC_SMALL_CODE -DLTC_NO_ECC_TIMING_RESISTANT -DLTC_NO_RSA_BLINDING -DLTC_PTHREAD"
-  - |
-    BUILDSCRIPT="testbuild.sh"
-    BUILDNAME="NOTEST"
-    BUILDOPTIONS="-DLTC_NO_TEST"
-  - |
-    BUILDSCRIPT="testbuild.sh"
-    BUILDNAME="NOFILE"
-    BUILDOPTIONS="-DLTC_NO_FILE"
 
 after_failure:
   - cat test_std.txt
