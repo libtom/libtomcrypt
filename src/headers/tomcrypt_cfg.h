@@ -277,6 +277,15 @@ typedef unsigned long ltc_mp_digit;
    #define LTC_HAVE_BSWAP_BUILTIN
 #endif
 
+#ifdef __GNUC__
+   #define LTC_DEPRECATED __attribute__((deprecated))
+#elif defined(_MSC_VER)
+   #define LTC_DEPRECATED __declspec(deprecated)
+#endif
+
+#ifndef LTC_DEPRECATED
+   #error "You need to define LTC_DEPRECATED for this compiler"
+#endif
 
 /* ref:         $Format:%D$ */
 /* git commit:  $Format:%H$ */
