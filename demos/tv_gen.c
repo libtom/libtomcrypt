@@ -213,7 +213,11 @@ void omac_gen(void)
          }
          len = sizeof(output);
          if ((err = omac_memory(x, key, kl, input, y, output, &len)) != CRYPT_OK) {
-            printf("Error omacing: %s\n", error_to_string(err));
+            printf("Error OMAC'ing: %s\n", error_to_string(err));
+            exit(EXIT_FAILURE);
+         }
+         if (len == 0) {
+            printf("Error OMAC'ing: zero length\n");
             exit(EXIT_FAILURE);
          }
          fprintf(out, "%3d: ", y);
@@ -270,7 +274,11 @@ void pmac_gen(void)
          }
          len = sizeof(output);
          if ((err = pmac_memory(x, key, kl, input, y, output, &len)) != CRYPT_OK) {
-            printf("Error omacing: %s\n", error_to_string(err));
+            printf("Error PMACing: %s\n", error_to_string(err));
+            exit(EXIT_FAILURE);
+         }
+         if (len == 0) {
+            printf("Error PMAC'ing: zero length\n");
             exit(EXIT_FAILURE);
          }
          fprintf(out, "%3d: ", y);
@@ -329,6 +337,10 @@ void eax_gen(void)
          len = sizeof(tag);
          if ((err = eax_encrypt_authenticate_memory(x, key, kl, nonce, y1, header, y1, plaintext, y1, plaintext, tag, &len)) != CRYPT_OK) {
             printf("Error EAX'ing: %s\n", error_to_string(err));
+            exit(EXIT_FAILURE);
+         }
+         if (len == 0) {
+            printf("Error EAX'ing: zero length\n");
             exit(EXIT_FAILURE);
          }
          fprintf(out, "%3d: ", y1);
@@ -396,6 +408,10 @@ void ocb_gen(void)
             printf("Error OCB'ing: %s\n", error_to_string(err));
             exit(EXIT_FAILURE);
          }
+         if (len == 0) {
+            printf("Error OCB'ing: zero length\n");
+            exit(EXIT_FAILURE);
+         }
          fprintf(out, "%3d: ", y1);
          for (z = 0; z < y1; z++) {
             fprintf(out, "%02X", plaintext[z]);
@@ -460,6 +476,10 @@ void ocb3_gen(void)
          len = 16;
          if ((err = ocb3_encrypt_authenticate_memory(x, key, kl, nonce, noncelen, (unsigned char*)"AAD", 3, plaintext, y1, plaintext, tag, &len)) != CRYPT_OK) {
             printf("Error OCB3'ing: %s\n", error_to_string(err));
+            exit(EXIT_FAILURE);
+         }
+         if (len == 0) {
+            printf("Error OCB3'ing: zero length\n");
             exit(EXIT_FAILURE);
          }
          fprintf(out, "%3d: ", y1);
