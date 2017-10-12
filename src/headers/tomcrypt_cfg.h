@@ -277,14 +277,12 @@ typedef unsigned long ltc_mp_digit;
    #define LTC_HAVE_BSWAP_BUILTIN
 #endif
 
-#ifdef __GNUC__
+#if defined(__GNUC__) && (__GNUC__ * 100 + __GNUC_MINOR__ >= 301)
    #define LTC_DEPRECATED __attribute__((deprecated))
 #elif defined(_MSC_VER)
    #define LTC_DEPRECATED __declspec(deprecated)
-#endif
-
-#ifndef LTC_DEPRECATED
-   #error "You need to define LTC_DEPRECATED for this compiler"
+#else
+   #define LTC_DEPRECATED
 #endif
 
 /* ref:         $Format:%D$ */
