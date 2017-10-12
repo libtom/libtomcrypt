@@ -1399,45 +1399,6 @@ static void time_encmacs(void)
    time_encmacs_(32);
 }
 
-static void init_mpi(const char* mpi)
-{
-   switch (mpi[0]) {
-#ifdef LTM_DESC
-      case 'l':
-         init_LTM();
-         break;
-#endif
-#ifdef TFM_DESC
-      case 't':
-         init_TFM();
-         break;
-#endif
-#ifdef GMP_DESC
-      case 'g':
-         init_GMP();
-         break;
-#endif
-#ifdef EXT_MATH_LIB
-      case 'e':
-         {
-            extern ltc_math_descriptor EXT_MATH_LIB;
-            ltc_mp = EXT_MATH_LIB;
-         }
-
-#define NAME_VALUE(s) #s"="NAME(s)
-#define NAME(s) #s
-         printf("EXT_MATH_LIB = %s\n", NAME_VALUE(EXT_MATH_LIB));
-#undef NAME_VALUE
-#undef NAME
-
-         break;
-#endif
-      default:
-         printf("Unknown/Invalid MPI provider: %s\n", mpi);
-         break;
-   }
-}
-
 #define LTC_TEST_FN(f)  { f, #f }
 int main(int argc, char **argv)
 {
@@ -1488,7 +1449,7 @@ register_all_prngs();
       mpi_provider = argv[2];
    }
 
-   init_mpi(mpi_provider);
+   crypt_mp_init(mpi_provider);
 
 if ((err = rng_make_prng(128, find_prng("yarrow"), &yarrow_prng, NULL)) != CRYPT_OK) {
    fprintf(stderr, "rng_make_prng failed: %s\n", error_to_string(err));

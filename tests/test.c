@@ -292,45 +292,6 @@ static void register_algs(void)
    }
 }
 
-static void init_mpi(const char* mpi)
-{
-   switch (mpi[0]) {
-#ifdef LTM_DESC
-      case 'l':
-         init_LTM();
-         break;
-#endif
-#ifdef TFM_DESC
-      case 't':
-         init_TFM();
-         break;
-#endif
-#ifdef GMP_DESC
-      case 'g':
-         init_GMP();
-         break;
-#endif
-#ifdef EXT_MATH_LIB
-      case 'e':
-         {
-            extern ltc_math_descriptor EXT_MATH_LIB;
-            ltc_mp = EXT_MATH_LIB;
-         }
-
-#define NAME_VALUE(s) #s"="NAME(s)
-#define NAME(s) #s
-         printf("EXT_MATH_LIB = %s\n", NAME_VALUE(EXT_MATH_LIB));
-#undef NAME_VALUE
-#undef NAME
-
-         break;
-#endif
-      default:
-         printf("Unknown/Invalid MPI provider: %s\n", mpi);
-         break;
-   }
-}
-
 int main(int argc, char **argv)
 {
 #ifdef LTC_PTHREAD
@@ -360,7 +321,7 @@ int main(int argc, char **argv)
       mpi_provider = argv[2];
    }
 
-   init_mpi(mpi_provider);
+   crypt_mp_init(mpi_provider);
 
    if (ltc_mp.name != NULL) {
       printf("MP_PROVIDER  = %s\n", ltc_mp.name);
