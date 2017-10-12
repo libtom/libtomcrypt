@@ -81,6 +81,7 @@ void init_TFM(void);
 #ifdef GMP_DESC
 void init_GMP(void);
 #endif
+int crypt_mp_init(const char* mpi);
 
 #ifdef LTC_ADLER32
 typedef struct adler32_state_s
