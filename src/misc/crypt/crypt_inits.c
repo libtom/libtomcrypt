@@ -44,19 +44,19 @@ int crypt_mp_init(const char* mpi)
 #ifdef LTM_DESC
       case 'l':
       case 'L':
-         init_LTM();
+         ltc_mp = ltm_desc;
          return CRYPT_OK;
 #endif
 #ifdef TFM_DESC
       case 't':
       case 'T':
-         init_TFM();
+         ltc_mp = tfm_desc;
          return CRYPT_OK;
 #endif
 #ifdef GMP_DESC
       case 'g':
       case 'G':
-         init_GMP();
+         ltc_mp = gmp_desc;
          return CRYPT_OK;
 #endif
 #ifdef EXT_MATH_LIB
