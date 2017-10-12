@@ -21,15 +21,15 @@ function run_gcc() {
 
    make clean &>/dev/null
 
-   make CFLAGS="$2 $CFLAGS $4" EXTRALIBS="$5" test LTC_DEBUG=2
+   make CFLAGS="$2 $CFLAGS $4" EXTRALIBS="$5" test LTC_DEBUG=1 1>gcc_1.txt 2>gcc_2.txt
 
-   valgrind --error-exitcode=666 --leak-check=full --show-leak-kinds=all --errors-for-leak-kinds=all ./test
+   valgrind --error-exitcode=666 --leak-check=full --show-leak-kinds=all --errors-for-leak-kinds=all ./test 1>test_std.txt 2> test_err.txt
 
    make clean &>/dev/null
 
-   make CFLAGS="-fsanitize=address -fno-omit-frame-pointer -static-libasan $2 $CFLAGS $4" EXTRALIBS="-lasan $5" test LTC_DEBUG=1
-   ASAN_OPTIONS=verbosity=1 ./test t ltm
-   ASAN_OPTIONS=verbosity=1 ./test t gmp
+   make CFLAGS="-fsanitize=address -fno-omit-frame-pointer -static-libasan $2 $CFLAGS $4" EXTRALIBS="-lasan $5" test LTC_DEBUG=1 1>gcc_1.txt 2>gcc_2.txt
+   ASAN_OPTIONS=verbosity=1 ./test t ltm 1>test_std.txt 2> test_err.txt
+   ASAN_OPTIONS=verbosity=1 ./test t gmp 1>test_std.txt 2> test_err.txt
 }
 
 function run_clang() {
@@ -37,9 +37,9 @@ function run_clang() {
 
    make clean &>/dev/null
 
-   make LDFLAGS="-fsanitize=undefined" CFLAGS="$2 $CFLAGS $4" EXTRALIBS="$5" all LTC_DEBUG=1
-   UBSAN_OPTIONS=verbosity=1 ./test t ltm
-   UBSAN_OPTIONS=verbosity=1 ./test t gmp
+   make LDFLAGS="-fsanitize=undefined" CFLAGS="$2 $CFLAGS $4" EXTRALIBS="$5" all LTC_DEBUG=1 1>gcc_1.txt 2>gcc_2.txt
+   UBSAN_OPTIONS=verbosity=1 ./test t ltm 1>test_std.txt 2> test_err.txt
+   UBSAN_OPTIONS=verbosity=1 ./test t gmp 1>test_std.txt 2> test_err.txt
 }
 
 
