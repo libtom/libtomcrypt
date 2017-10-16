@@ -157,12 +157,20 @@ int idea_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_k
 
 int idea_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
 {
-   return _process_block(pt, ct, skey->idea.ek);
+   int err = _process_block(pt, ct, skey->idea.ek);
+#ifdef LTC_CLEAN_STACK
+   burn_stack(sizeof(ushort16) * 6 + sizeof(int));
+#endif
+   return err;
 }
 
 int idea_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey)
 {
-   return _process_block(ct, pt, skey->idea.dk);
+   int err = _process_block(ct, pt, skey->idea.dk);
+#ifdef LTC_CLEAN_STACK
+   burn_stack(sizeof(ushort16) * 6 + sizeof(int));
+#endif
+   return err;
 }
 
 void idea_done(symmetric_key *skey)
