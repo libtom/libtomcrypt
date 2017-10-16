@@ -202,6 +202,7 @@
 #define LTC_KASUMI
 #define LTC_MULTI2
 #define LTC_CAMELLIA
+#define LTC_IDEA
 
 /* stream ciphers */
 #define LTC_CHACHA
