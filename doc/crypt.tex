@@ -6539,29 +6539,36 @@ int crypt_list_all_constants(        char *names_list,
                              unsigned int *names_list_size);
 \end{verbatim}
 You may want to call these functions twice, first to get the amount
-of memory to be allocated for the $names_list$, and a final time to
-actually populate $names_list$.  If $names_list$ is NULL,
-$names_list_size$ will be the minimum size needed to receive the
-complete $names_list$.  If $names_list$ is NOT NULL, $names_list$ must
-be a pointer to sufficient memory into which the $names_list$ will be
-written.  Also, the value in $names_list_size$ sets the upper bound of
+of memory to be allocated for the $names\_list$, and a final time to
+actually populate $names\_list$.  If $names\_list$ is NULL,
+$names\_list\_size$ will be the minimum size needed to receive the
+complete $names\_list$.  If $names\_list$ is NOT NULL, $names\_list$ must
+be a pointer to sufficient memory into which the $names\_list$ will be
+written.  Also, the value in $names\_list\_size$ sets the upper bound of
 the number of characters to be written.  A -1 return value signifies
 insufficient space.
 
-The format of the $names_list$ string is a series of $name,value$ pairs
+The format of the $names\_list$ string is a series of $name,value$ pairs
 where each name and value is separated by a comma, the pairs are separated
 by newlines, and the list is null terminated.
 
-Calling either of these functions will initialize the respective
-math library.
+\index{crypt\_mp\_init()}
 \begin{verbatim}
-void init_LTM(void);
-void init_TFM(void);
-void init_GMP(void);
+int crypt_mp_init(const char* mpi);
 \end{verbatim}
+
+To ease the setup of a specific math descriptor, in cases where the library was compiled with support for multiple MPI libraries,
+the function \textit{crypt\_mp\_init()} is provided.
+It takes a string to the desired MPI library to use as an argument.
+The three default MPI libraries are identified as follows, \textit{LibTomMath} as \texttt{"ltm"}, \textit{TomsFastmath} as \texttt{"tfm"}
+and the \textit{GNU Multi Precision Arithmetic Library} as \texttt{"gmp"}.
+The identification happens case-insensitive and only on the first character.
 
 Here is a Python program demonstrating how to call various LTC dynamic
 language support functions.
+
+A more detailed example is given in the library source in \texttt{demos/demo\_dynamic.py}.
+
 \begin{verbatim}
 from ctypes import *
 
@@ -8254,6 +8261,20 @@ to the \textit{out} buffer.  The output must be zero padded (leading bytes) so t
 for RSA--1024 the output is always 128 bytes regardless of how small the numerical value of the exponentiation is.
 
 Since the function is given the entire RSA key (for private keys only) CRT is possible as prescribed in the PKCS \#1 v2.1 specification.
+
+
+\mysection{Deprecated API functions}
+
+\subsection{After v1.18.0}
+
+\index{init\_LTM()} \index{init\_TFM()} \index{init\_GMP()}
+\begin{verbatim}
+void init_LTM(void);
+void init_TFM(void);
+void init_GMP(void);
+\end{verbatim}
+
+These three MPI init functions have been introduced in version 1.18.0 and have been deprecated in the same version in favor of \textit{crypt\_mp\_init()}.
 
 \newpage
 \markboth{Index}{Index}
