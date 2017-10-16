@@ -454,6 +454,8 @@ zipup: $(call print-help,zipup,Prepare the archives for a release) doc/crypt.pdf
 	rm -rf libtomcrypt-$(VERSION) crypt-$(VERSION).*
 	@# files/dirs excluded from "git archive" are defined in .gitattributes
 	git archive --format=tar --prefix=libtomcrypt-$(VERSION)/ HEAD | tar x
+	@echo 'fixme check'
+	-@(find libtomcrypt-$(VERSION)/ -type f | xargs grep 'FIXM[E]') && echo '############## BEWARE: the "fixme" marker was found !!! ##############'
 	mkdir -p libtomcrypt-$(VERSION)/doc
 	cp doc/crypt.pdf libtomcrypt-$(VERSION)/doc/crypt.pdf
 	tar -c libtomcrypt-$(VERSION)/ | xz -6e -c - > crypt-$(VERSION).tar.xz
