@@ -71,14 +71,14 @@ int chacha20poly1305_test(void)
    /* chacha20poly1305_memory - encrypt */
    len = sizeof(emac);
    if ((err = chacha20poly1305_memory(k, sizeof(k), i12, sizeof(i12), aad, sizeof(aad), (unsigned char *)m,
-                                      mlen, ct, emac, &len, CHCHA20POLY1305_ENCRYPT)) != CRYPT_OK) return err;
+                                      mlen, ct, emac, &len, CHACHA20POLY1305_ENCRYPT)) != CRYPT_OK) return err;
    if (compare_testvector(ct, mlen, enc, sizeof(enc), "ENC-CT2", 1) != 0) return CRYPT_FAIL_TESTVECTOR;
    if (compare_testvector(emac, len, tag, sizeof(tag), "ENC-TAG2", 2) != 0) return CRYPT_FAIL_TESTVECTOR;
 
    /* chacha20poly1305_memory - decrypt */
    len = sizeof(dmac);
    if ((err = chacha20poly1305_memory(k, sizeof(k), i12, sizeof(i12), aad, sizeof(aad),
-                                      ct, mlen, pt, dmac, &len, CHCHA20POLY1305_DECRYPT)) != CRYPT_OK) return err;
+                                      ct, mlen, pt, dmac, &len, CHACHA20POLY1305_DECRYPT)) != CRYPT_OK) return err;
    if (compare_testvector(pt, mlen, m, mlen, "DEC-PT2", 3) != 0) return CRYPT_FAIL_TESTVECTOR;
    if (compare_testvector(dmac, len, tag, sizeof(tag), "DEC-TAG2", 4) != 0) return CRYPT_FAIL_TESTVECTOR;
 

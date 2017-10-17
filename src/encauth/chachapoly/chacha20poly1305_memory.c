@@ -24,7 +24,7 @@
   @param out               The ciphertext
   @param tag               [out] The MAC tag
   @param taglen            [in/out] The MAC tag length
-  @param direction         Encrypt or Decrypt mode (CHCHA20POLY1305_ENCRYPT or CHCHA20POLY1305_DECRYPT)
+  @param direction         Encrypt or Decrypt mode (CHACHA20POLY1305_ENCRYPT or CHACHA20POLY1305_DECRYPT)
   @return CRYPT_OK on success
  */
 int chacha20poly1305_memory(const unsigned char *key, unsigned long keylen,
@@ -49,10 +49,10 @@ int chacha20poly1305_memory(const unsigned char *key, unsigned long keylen,
    if (aad && aadlen > 0) {
       if ((err = chacha20poly1305_add_aad(&st, aad, aadlen)) != CRYPT_OK)    { goto LBL_ERR; }
    }
-   if (direction == CHCHA20POLY1305_ENCRYPT) {
+   if (direction == CHACHA20POLY1305_ENCRYPT) {
       if ((err = chacha20poly1305_encrypt(&st, in, inlen, out)) != CRYPT_OK) { goto LBL_ERR; }
    }
-   else if (direction == CHCHA20POLY1305_DECRYPT) {
+   else if (direction == CHACHA20POLY1305_DECRYPT) {
       if ((err = chacha20poly1305_decrypt(&st, in, inlen, out)) != CRYPT_OK) { goto LBL_ERR; }
    }
    else {
