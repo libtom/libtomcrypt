@@ -97,6 +97,9 @@ int register_all_ciphers(void)
 #ifdef LTC_IDEA
    REGISTER_CIPHER(&idea_desc);
 #endif
+#ifdef LTC_SERPENT
+   REGISTER_CIPHER(&serpent_desc);
+#endif
    return err;
 }
 

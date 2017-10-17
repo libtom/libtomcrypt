@@ -125,6 +125,9 @@ static const crypt_size _crypt_sizes[] = {
 #ifdef LTC_RC6
     _SZ_STRINGIFY_S(rc6_key),
 #endif
+#ifdef LTC_SERPENT
+    _SZ_STRINGIFY_S(serpent_key),
+#endif
 #ifdef LTC_SKIPJACK
     _SZ_STRINGIFY_S(skipjack_key),
 #endif

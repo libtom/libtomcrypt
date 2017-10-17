@@ -180,6 +180,9 @@ static void _unregister_all(void)
 #ifdef LTC_IDEA
   unregister_cipher(&idea_desc);
 #endif
+#ifdef LTC_SERPENT
+  unregister_cipher(&serpent_desc);
+#endif
 
 #ifdef LTC_TIGER
   unregister_hash(&tiger_desc);
