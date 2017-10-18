@@ -28,6 +28,6 @@ echo "Run tests with valgrind..."
 for i in `seq 1 10` ; do sleep 300 && echo "Valgrind tests in Progress..."; done &
 alive_pid=$!
 
-valgrind --error-exitcode=666 --leak-check=full --show-leak-kinds=all --errors-for-leak-kinds=all ./test 1>test_std.txt 2>test_err.txt || { kill $alive_pid; echo "Valgrind failed"; exit 1; }
+valgrind --error-exitcode=666 --leak-check=full --show-leak-kinds=all --errors-for-leak-kinds=all ./test >test_std.txt 2> >(tee -a test_err.txt >&2) || { kill $alive_pid; echo "Valgrind failed"; exit 1; }
 
 kill $alive_pid
