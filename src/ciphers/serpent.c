@@ -539,7 +539,7 @@ static int _dec_block(const unsigned char *in, unsigned char *out, ulong32 *k)
    LOAD32L(b, in + 4);
    LOAD32L(c, in + 8);
    LOAD32L(d, in + 12);
-   e = 0;
+   e = 0; LTC_UNUSED_PARAM(e); /* avoid scan-build warning */
    i = 4;
    k += 96;
 
