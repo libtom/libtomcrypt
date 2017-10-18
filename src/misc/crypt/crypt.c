@@ -125,6 +125,9 @@ const char *crypt_build_settings =
 #if defined(LTC_IDEA)
    "   IDEA\n"
 #endif
+#if defined(LTC_SERPENT)
+   "   Serpent\n"
+#endif
    "Stream ciphers built-in:\n"
 #if defined(LTC_CHACHA)
    "   ChaCha\n"

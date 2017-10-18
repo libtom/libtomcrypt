@@ -388,6 +388,10 @@
 				>
 			</File>
 			<File
+				RelativePath="src\ciphers\serpent.c"
+				>
+			</File>
+			<File
 				RelativePath="src\ciphers\skipjack.c"
 				>
 			</File>

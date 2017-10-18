@@ -165,6 +165,12 @@ struct idea_key {
 };
 #endif
 
+#ifdef LTC_SERPENT
+struct serpent_key {
+   ulong32 k[33*4];
+};
+#endif
+
 typedef union Symmetric_key {
 #ifdef LTC_DES
    struct des_key des;
@@ -226,6 +232,9 @@ typedef union Symmetric_key {
 #endif
 #ifdef LTC_IDEA
    struct idea_key     idea;
+#endif
+#ifdef LTC_SERPENT
+   struct serpent_key  serpent;
 #endif
    void   *data;
 } symmetric_key;
@@ -838,6 +847,16 @@ int idea_test(void);
 void idea_done(symmetric_key *skey);
 int idea_keysize(int *keysize);
 extern const struct ltc_cipher_descriptor idea_desc;
+#endif
+
+#ifdef LTC_SERPENT
+int serpent_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_key *skey);
+int serpent_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey);
+int serpent_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey);
+int serpent_test(void);
+void serpent_done(symmetric_key *skey);
+int serpent_keysize(int *keysize);
+extern const struct ltc_cipher_descriptor serpent_desc;
 #endif
 
 #ifdef LTC_ECB_MODE
