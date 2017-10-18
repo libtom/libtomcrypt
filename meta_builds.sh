@@ -12,6 +12,13 @@ if [ "$#" = "5" -a "$(echo $3 | grep -v 'makefile[.]')" = "" ]; then
    exit 0
 fi
 
+if [ -f /proc/cpuinfo ]
+then
+   MAKE_JOBS=$(( ($(cat /proc/cpuinfo | grep -E '^processor[[:space:]]*:' | tail -n -1 | cut -d':' -f2) + 1) * 2 + 1 ))
+else
+   MAKE_JOBS=8
+fi
+
 function run_gcc() {
    bash check_source.sh "CHECK_SOURCES" "$2" "$3" "$4" "$5"
 
@@ -20,7 +27,7 @@ function run_gcc() {
    echo
    echo "Build for ASAN..."
 
-   make CFLAGS="-fsanitize=address -fno-omit-frame-pointer -static-libasan $2 $CFLAGS $4" EXTRALIBS="-lasan $5" test LTC_DEBUG=1 1>gcc_1.txt 2>gcc_2.txt
+   make -j$MAKE_JOBS CFLAGS="-fsanitize=address -fno-omit-frame-pointer -static-libasan $2 $CFLAGS $4" EXTRALIBS="-lasan $5" test LTC_DEBUG=1 1>gcc_1.txt 2>gcc_2.txt
 
    echo
    echo "Run ASAN tests with LTM..."
@@ -49,14 +56,14 @@ function run_clang() {
    scan_build=$(which scan-build)
    [ -z "$scan_build" ] && scan_build=$(find /usr/bin/ -name 'scan-build-*' | sort -nr | head -n1) || true
    [ -z "$scan_build" ] && { echo "couldn't find clang scan-build"; exit 1; } || echo "run $scan_build"
-   $scan_build --status-bugs make all CFLAGS="$2 $CFLAGS $4" EXTRALIBS="$5"
+   $scan_build --status-bugs make -j$MAKE_JOBS all CFLAGS="$2 $CFLAGS $4" EXTRALIBS="$5"
 
    make clean &>/dev/null
 
    echo
    echo "Build for UBSAN..."
 
-   make LDFLAGS="-fsanitize=undefined" CFLAGS="$2 $CFLAGS $4" EXTRALIBS="$5" all LTC_DEBUG=1 1>gcc_1.txt 2>gcc_2.txt
+   make -j$MAKE_JOBS LDFLAGS="-fsanitize=undefined" CFLAGS="$2 $CFLAGS $4" EXTRALIBS="$5" all LTC_DEBUG=1 1>gcc_1.txt 2>gcc_2.txt
 
    echo "Run UBSAN tests with LTM..."
    UBSAN_OPTIONS=verbosity=1 ./test t ltm 1>test_std.txt 2> test_err.txt || exit 1

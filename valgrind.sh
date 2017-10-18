@@ -7,6 +7,13 @@ if [ "$#" = "5" -a "$(echo $3 | grep -v 'makefile[.]')" = "" ]; then
    exit 0
 fi
 
+if [ -f /proc/cpuinfo ]
+then
+   MAKE_JOBS=$(( ($(cat /proc/cpuinfo | grep -E '^processor[[:space:]]*:' | tail -n -1 | cut -d':' -f2) + 1) * 2 + 1 ))
+else
+   MAKE_JOBS=8
+fi
+
 # output version
 bash printinfo.sh
 
@@ -14,7 +21,7 @@ make clean &>/dev/null
 
 echo "Build for valgrind..."
 
-make CFLAGS="$2 $CFLAGS $4" EXTRALIBS="$5" test LTC_DEBUG=1 1>gcc_1.txt 2>gcc_2.txt
+make -j$MAKE_JOBS CFLAGS="$2 $CFLAGS $4" EXTRALIBS="$5" test LTC_DEBUG=1 1>gcc_1.txt 2>gcc_2.txt
 
 echo "Run tests with valgrind..."
 
