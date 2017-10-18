@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # output version
-bash printinfo.sh
+bash .ci/printinfo.sh
 
 if [ -f /proc/cpuinfo ]
 then

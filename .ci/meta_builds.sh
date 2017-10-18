@@ -20,7 +20,7 @@ else
 fi
 
 function run_gcc() {
-   bash check_source.sh "CHECK_SOURCES" "$2" "$3" "$4" "$5"
+   bash .ci/check_source.sh "CHECK_SOURCES" "$2" "$3" "$4" "$5"
 
    make clean &>/dev/null
 
@@ -46,12 +46,12 @@ function run_gcc() {
    echo
    echo "Create code coverage"
 
-   bash coverage.sh "COVERAGE" "$2" "$3" "$4" "$5"
+   bash .ci/coverage.sh "COVERAGE" "$2" "$3" "$4" "$5"
 }
 
 function run_clang() {
    # output version
-   bash printinfo.sh
+   bash .ci/printinfo.sh
 
    scan_build=$(which scan-build)
    [ -z "$scan_build" ] && scan_build=$(find /usr/bin/ -name 'scan-build-*' | sort -nr | head -n1) || true
@@ -90,8 +90,8 @@ fi
 
 make clean &>/dev/null
 
-bash testbuild.sh "NOTEST" "-DLTC_NO_TEST" "$3" "$4" "$5"
+bash .ci/testbuild.sh "NOTEST" "-DLTC_NO_TEST" "$3" "$4" "$5"
 
 make clean &>/dev/null
 
-bash testbuild.sh "NOFILE" "-DLTC_NO_FILE" "$3" "$4" "$5"
+bash .ci/testbuild.sh "NOFILE" "-DLTC_NO_FILE" "$3" "$4" "$5"

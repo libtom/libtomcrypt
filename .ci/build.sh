@@ -45,7 +45,7 @@ fi
 
 if [ -a testok.txt ] && [ -f testok.txt ]; then
    if [ "$LTC_COVERAGE" != "" ]; then
-      ./coverage_more.sh > test_coverage_more.txt || exit 1
+      bash .ci/coverage_more.sh > test_coverage_more.txt || exit 1
       lcov_opts="--capture --no-external --directory src -q"
       lcov_out=$(echo coverage_$1_$2_$3 | tr ' -=+' '_')".info"
       lcov $lcov_opts --output-file $lcov_out
