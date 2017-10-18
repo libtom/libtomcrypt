@@ -94,6 +94,9 @@ int register_all_ciphers(void)
 #ifdef LTC_CAMELLIA
    REGISTER_CIPHER(&camellia_desc);
 #endif
+#ifdef LTC_IDEA
+   REGISTER_CIPHER(&idea_desc);
+#endif
    return err;
 }
 

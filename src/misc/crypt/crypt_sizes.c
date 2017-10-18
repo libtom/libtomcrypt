@@ -98,6 +98,9 @@ static const crypt_size _crypt_sizes[] = {
     _SZ_STRINGIFY_S(des_key),
     _SZ_STRINGIFY_S(des3_key),
 #endif
+#ifdef LTC_IDEA
+    _SZ_STRINGIFY_S(idea_key),
+#endif
 #ifdef LTC_KASUMI
     _SZ_STRINGIFY_S(kasumi_key),
 #endif

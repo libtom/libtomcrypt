@@ -352,6 +352,10 @@
 				>
 			</File>
 			<File
+				RelativePath="src\ciphers\idea.c"
+				>
+			</File>
+			<File
 				RelativePath="src\ciphers\kasumi.c"
 				>
 			</File>

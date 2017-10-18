@@ -177,6 +177,9 @@ static void _unregister_all(void)
 #ifdef LTC_CAMELLIA
   unregister_cipher(&camellia_desc);
 #endif
+#ifdef LTC_IDEA
+  unregister_cipher(&idea_desc);
+#endif
 
 #ifdef LTC_TIGER
   unregister_hash(&tiger_desc);
