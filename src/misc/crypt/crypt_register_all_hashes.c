@@ -16,12 +16,11 @@
 */
 
 #define REGISTER_HASH(h) do {\
-   LTC_ARGCHK((err = register_hash(h)) != -1); \
+   LTC_ARGCHK(register_hash(h) != -1); \
 } while(0)
 
 int register_all_hashes(void)
 {
-   int err = CRYPT_NOP;
 #ifdef LTC_TIGER
    REGISTER_HASH(&tiger_desc);
 #endif
@@ -90,9 +89,9 @@ int register_all_hashes(void)
 #endif
 #ifdef LTC_CHC_HASH
    REGISTER_HASH(&chc_desc);
-   LTC_ARGCHK((err = chc_register(find_cipher_any("aes", 8, 16))) == CRYPT_OK);
+   LTC_ARGCHK(chc_register(find_cipher_any("aes", 8, 16)) == CRYPT_OK);
 #endif
-   return err;
+   return CRYPT_OK;
 }
 
 /* ref:         $Format:%D$ */
