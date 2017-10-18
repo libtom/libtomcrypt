@@ -37,8 +37,8 @@ fi
 bash .ci/coverage_more.sh "$5" > test_coverage_more.txt || { rm -f testok.txt && exit 1 ; }
 
 make lcov-single
-# if this was executed as './coverage.sh ...' create coverage locally
-if [[ "${0%% *}" == "./${0##*/}" ]]; then
+# if this isn't run on Travis CI create coverage locally
+if [ "$TRAVIS" == "" ]; then
    make lcov-html
 else
    coveralls-lcov coverage.info
