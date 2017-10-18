@@ -34,7 +34,7 @@ else
    exit 1
 fi
 
-./coverage_more.sh > test_coverage_more.txt || { rm -f testok.txt && exit 1 ; }
+./coverage_more.sh "$5" > test_coverage_more.txt || { rm -f testok.txt && exit 1 ; }
 
 make lcov-single
 # if this was executed as './coverage.sh ...' create coverage locally

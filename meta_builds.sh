@@ -45,6 +45,8 @@ function run_clang() {
    UBSAN_OPTIONS=verbosity=1 ./test t gmp 1>test_std.txt 2> test_err.txt
 }
 
+# output version
+bash printinfo.sh
 
 make clean &>/dev/null
 
