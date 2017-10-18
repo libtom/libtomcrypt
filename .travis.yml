@@ -42,6 +42,10 @@ env:
     BUILDNAME="META_BUILS"
     BUILDOPTIONS="-DGMP_DESC"
   - |
+    BUILDSCRIPT="valgrind.sh"
+    BUILDNAME="VALGRIND"
+    BUILDOPTIONS=" "
+  - |
     BUILDSCRIPT="run.sh"
     BUILDNAME="STOCK"
     BUILDOPTIONS=" "

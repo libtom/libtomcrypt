@@ -17,22 +17,35 @@ function run_gcc() {
 
    make clean &>/dev/null
 
-   bash coverage.sh "COVERAGE" "$2" "$3" "$4" "$5"
-
-   make clean &>/dev/null
-
-   make CFLAGS="$2 $CFLAGS $4" EXTRALIBS="$5" test LTC_DEBUG=1 1>gcc_1.txt 2>gcc_2.txt
-
-   valgrind --error-exitcode=666 --leak-check=full --show-leak-kinds=all --errors-for-leak-kinds=all ./test 1>test_std.txt 2> test_err.txt
-
-   make clean &>/dev/null
+   echo
+   echo "Build for ASAN..."
 
    make CFLAGS="-fsanitize=address -fno-omit-frame-pointer -static-libasan $2 $CFLAGS $4" EXTRALIBS="-lasan $5" test LTC_DEBUG=1 1>gcc_1.txt 2>gcc_2.txt
-   ASAN_OPTIONS=verbosity=1 ./test t ltm 1>test_std.txt 2> test_err.txt
-   ASAN_OPTIONS=verbosity=1 ./test t gmp 1>test_std.txt 2> test_err.txt
+
+   echo
+   echo "Run ASAN tests with LTM..."
+
+   ASAN_OPTIONS=verbosity=1 ./test t ltm 1>test_std.txt 2> test_err.txt || exit 1
+
+   if echo $2 | grep -q GMP ; then
+      echo
+      echo "Run ASAN tests with GMP..."
+
+      ASAN_OPTIONS=verbosity=1 ./test t gmp 1>test_std.txt 2> test_err.txt || exit 1
+   fi
+
+   make clean &>/dev/null
+
+   echo
+   echo "Create code coverage"
+
+   bash coverage.sh "COVERAGE" "$2" "$3" "$4" "$5"
 }
 
 function run_clang() {
+   # output version
+   bash printinfo.sh
+
    scan_build=$(which scan-build)
    [ -z "$scan_build" ] && scan_build=$(find /usr/bin/ -name 'scan-build-*' | sort -nr | head -n1) || true
    [ -z "$scan_build" ] && { echo "couldn't find clang scan-build"; exit 1; } || echo "run $scan_build"
@@ -40,17 +53,27 @@ function run_clang() {
 
    make clean &>/dev/null
 
-   make LDFLAGS="-fsanitize=undefined" CFLAGS="$2 $CFLAGS $4" EXTRALIBS="$5" all LTC_DEBUG=1 1>gcc_1.txt 2>gcc_2.txt
-   UBSAN_OPTIONS=verbosity=1 ./test t ltm 1>test_std.txt 2> test_err.txt
-   UBSAN_OPTIONS=verbosity=1 ./test t gmp 1>test_std.txt 2> test_err.txt
-}
+   echo
+   echo "Build for UBSAN..."
 
-# output version
-bash printinfo.sh
+   make LDFLAGS="-fsanitize=undefined" CFLAGS="$2 $CFLAGS $4" EXTRALIBS="$5" all LTC_DEBUG=1 1>gcc_1.txt 2>gcc_2.txt
+
+   echo "Run UBSAN tests with LTM..."
+   UBSAN_OPTIONS=verbosity=1 ./test t ltm 1>test_std.txt 2> test_err.txt || exit 1
+
+   if echo $2 | grep -q GMP ; then
+      echo
+      echo "Run UBSAN tests with GMP..."
+
+      UBSAN_OPTIONS=verbosity=1 ./test t gmp 1>test_std.txt 2> test_err.txt || exit 1
+   fi
+}
 
 make clean &>/dev/null
 
-EXTRALIBS="$5 -lgmp"
+EXTRALIBS="$5"
+
+echo $2 | grep -q GMP && EXTRALIBS="$EXTRALIBS -lgmp"
 
 if [ -z "$(echo $CC | grep "clang")" ]; then
    run_gcc "$1" "$2" "$3" "$4" "$EXTRALIBS"
