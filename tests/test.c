@@ -299,6 +299,7 @@ int main(int argc, char **argv)
 #endif
    int x, pass = 0, fail = 0, nop = 0;
    size_t fn_len, i, dots;
+   const char* mpi_provider = NULL;
    char *single_test = NULL;
    ulong64 ts;
    long delta, dur, real = 0;
@@ -307,34 +308,28 @@ int main(int argc, char **argv)
    printf("LTC_VERSION  = %s\n%s\n\n", GIT_VERSION, crypt_build_settings);
 
 #ifdef USE_LTM
-   ltc_mp = ltm_desc;
-   printf("MP_PROVIDER  = LibTomMath\n");
+   mpi_provider = "ltm";
 #elif defined(USE_TFM)
-   ltc_mp = tfm_desc;
-   printf("MP_PROVIDER  = TomsFastMath\n");
+   mpi_provider = "tfm";
 #elif defined(USE_GMP)
-   ltc_mp = gmp_desc;
-   printf("MP_PROVIDER  = GnuMP\n");
+   mpi_provider = "gmp";
 #elif defined(EXT_MATH_LIB)
-   {
-      extern ltc_math_descriptor EXT_MATH_LIB;
-      ltc_mp = EXT_MATH_LIB;
+   mpi_provider = "ext";
+#endif
+
+   if (argc > 2) {
+      mpi_provider = argv[2];
    }
 
-#define NAME_VALUE(s) #s"="NAME(s)
-#define NAME(s) #s
-   printf("MP_PROVIDER  = %s\n", NAME_VALUE(EXT_MATH_LIB));
-#undef NAME_VALUE
-#undef NAME
+   crypt_mp_init(mpi_provider);
 
-#endif
-#ifdef LTC_TEST_MPI
-   printf("MP_DIGIT_BIT = %d\n", MP_DIGIT_BIT);
-#else
-   printf("NO math provider selected, all tests requiring MPI were disabled and will 'nop'\n");
-#endif
-
-   printf("sizeof(ltc_mp_digit) = %d\n", (int)sizeof(ltc_mp_digit));
+   if (ltc_mp.name != NULL) {
+      printf("MP_PROVIDER  = %s\n", ltc_mp.name);
+      printf("MP_DIGIT_BIT = %d\n", MP_DIGIT_BIT);
+      printf("sizeof(ltc_mp_digit) = %d\n", (int)sizeof(ltc_mp_digit));
+   } else {
+      printf("NO math provider selected, all tests requiring MPI will 'nop'\n");
+   }
 
 #ifdef LTC_PTHREAD
    tinfo = XCALLOC(sizeof(test_functions)/sizeof(test_functions[0]), sizeof(thread_info));

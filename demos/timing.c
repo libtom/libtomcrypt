@@ -520,19 +520,14 @@ static void time_hash(void)
 }
 
 /*#warning you need an mp_rand!!!*/
-#if !defined(USE_LTM) && !defined(USE_TFM) && !defined(USE_GMP) && !defined(EXT_MATH_LIB)
-  #undef LTC_MPI
-  #undef LTC_TEST_MPI
-#else
-  #define LTC_TEST_MPI
-#endif
 
-#ifdef LTC_MPI
 static void time_mult(void)
 {
    ulong64 t1, t2;
    unsigned long x, y;
    void  *a, *b, *c;
+
+   if (ltc_mp.name == NULL) return;
 
    fprintf(stderr, "Timing Multiplying:\n");
    mp_init_multi(&a,&b,&c,NULL);
@@ -565,6 +560,8 @@ static void time_sqr(void)
    unsigned long x, y;
    void *a, *b;
 
+   if (ltc_mp.name == NULL) return;
+
    fprintf(stderr, "Timing Squaring:\n");
    mp_init_multi(&a,&b,NULL);
    for (x = 128/MP_DIGIT_BIT; x <= (unsigned long)1536/MP_DIGIT_BIT; x += 128/MP_DIGIT_BIT) {
@@ -588,10 +585,6 @@ static void time_sqr(void)
 #undef DO1
 #undef DO2
 }
-#else
-static void time_mult(void) { fprintf(stderr, "NO MULT\n"); }
-static void time_sqr(void) { fprintf(stderr, "NO SQR\n"); }
-#endif
 
 static void time_prng(void)
 {
@@ -645,7 +638,7 @@ static void time_prng(void)
    }
 }
 
-#if defined(LTC_MDSA) && defined(LTC_TEST_MPI)
+#if defined(LTC_MDSA)
 /* time various DSA operations */
 static void time_dsa(void)
 {
@@ -664,6 +657,8 @@ static const struct {
 { 32, 512 },
 #endif
 };
+
+   if (ltc_mp.name == NULL) return;
 
    for (x = 0; x < (sizeof(groups)/sizeof(groups[0])); x++) {
        t2 = 0;
@@ -700,7 +695,7 @@ static void time_dsa(void) { fprintf(stderr, "NO DSA\n"); }
 #endif
 
 
-#if defined(LTC_MRSA) && defined(LTC_TEST_MPI)
+#if defined(LTC_MRSA)
 /* time various RSA operations */
 static void time_rsa(void)
 {
@@ -709,6 +704,8 @@ static void time_rsa(void)
    unsigned char buf[2][2048] = { 0 };
    unsigned long x, y, z, zzz;
    int           err, zz, stat;
+
+   if (ltc_mp.name == NULL) return;
 
    for (x = 1024; x <= 2048; x += 256) {
        t2 = 0;
@@ -824,7 +821,7 @@ static void time_rsa(void)
 static void time_rsa(void) { fprintf(stderr, "NO RSA\n"); }
 #endif
 
-#if defined(LTC_MKAT) && defined(LTC_TEST_MPI)
+#if defined(LTC_MKAT)
 /* time various KAT operations */
 static void time_katja(void)
 {
@@ -833,6 +830,8 @@ static void time_katja(void)
    unsigned char buf[2][4096];
    unsigned long x, y, z, zzz;
    int           err, zz;
+
+   if (ltc_mp.name == NULL) return;
 
    for (x = 1024; x <= 2048; x += 256) {
        t2 = 0;
@@ -894,7 +893,7 @@ static void time_katja(void)
 static void time_katja(void) { fprintf(stderr, "NO Katja\n"); }
 #endif
 
-#if defined(LTC_MDH) && defined(LTC_TEST_MPI)
+#if defined(LTC_MDH)
 /* time various DH operations */
 static void time_dh(void)
 {
@@ -908,6 +907,8 @@ static void time_dh(void)
 #endif
                                    100000
    };
+
+   if (ltc_mp.name == NULL) return;
 
    for (x = sizes[i=0]; x < 100000; x = sizes[++i]) {
        t2 = 0;
@@ -936,7 +937,7 @@ static void time_dh(void)
 static void time_dh(void) { fprintf(stderr, "NO DH\n"); }
 #endif
 
-#if defined(LTC_MECC) && defined(LTC_TEST_MPI)
+#if defined(LTC_MECC)
 /* time various ECC operations */
 static void time_ecc(void)
 {
@@ -971,6 +972,8 @@ static void time_ecc(void)
 521/8,
 #endif
 100000};
+
+   if (ltc_mp.name == NULL) return;
 
    for (x = sizes[i=0]; x < 100000; x = sizes[++i]) {
        t2 = 0;
@@ -1425,6 +1428,7 @@ const struct
 };
 char *single_test = NULL;
 unsigned int i;
+const char* mpi_provider = NULL;
 
 init_timer();
 register_all_ciphers();
@@ -1432,17 +1436,20 @@ register_all_hashes();
 register_all_prngs();
 
 #ifdef USE_LTM
-   ltc_mp = ltm_desc;
+   mpi_provider = "ltm";
 #elif defined(USE_TFM)
-   ltc_mp = tfm_desc;
+   mpi_provider = "tfm";
 #elif defined(USE_GMP)
-   ltc_mp = gmp_desc;
+   mpi_provider = "gmp";
 #elif defined(EXT_MATH_LIB)
-   {
-      extern ltc_math_descriptor EXT_MATH_LIB;
-      ltc_mp = EXT_MATH_LIB;
-   }
+   mpi_provider = "ext";
 #endif
+
+   if (argc > 2) {
+      mpi_provider = argv[2];
+   }
+
+   crypt_mp_init(mpi_provider);
 
 if ((err = rng_make_prng(128, find_prng("yarrow"), &yarrow_prng, NULL)) != CRYPT_OK) {
    fprintf(stderr, "rng_make_prng failed: %s\n", error_to_string(err));

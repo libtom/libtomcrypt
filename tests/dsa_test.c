@@ -8,7 +8,7 @@
  */
 #include <tomcrypt_test.h>
 
-#if defined(LTC_MDSA) && defined(LTC_TEST_MPI)
+#if defined(LTC_MDSA)
 
 /* This is the private key from test_dsa.key */
 static const unsigned char openssl_priv_dsa[] = {
@@ -323,6 +323,8 @@ int dsa_test(void)
    unsigned long x, y;
    int stat1, stat2;
    dsa_key key, key2;
+
+   if (ltc_mp.name == NULL) return CRYPT_NOP;
 
    DO(_dsa_compat_test());
    DO(_dsa_wycheproof_test());
