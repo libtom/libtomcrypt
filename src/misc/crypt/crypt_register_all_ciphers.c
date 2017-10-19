@@ -16,13 +16,11 @@
 */
 
 #define REGISTER_CIPHER(h) do {\
-   LTC_ARGCHK((err = register_cipher(h)) != -1); \
+   LTC_ARGCHK(register_cipher(h) != -1); \
 } while(0)
 
 int register_all_ciphers(void)
 {
-   int err = CRYPT_NOP;
-
 #ifdef LTC_RIJNDAEL
 #ifdef ENCRYPT_ONLY
    /* alternative would be
@@ -100,7 +98,7 @@ int register_all_ciphers(void)
 #ifdef LTC_SERPENT
    REGISTER_CIPHER(&serpent_desc);
 #endif
-   return err;
+   return CRYPT_OK;
 }
 
 /* ref:         $Format:%D$ */
