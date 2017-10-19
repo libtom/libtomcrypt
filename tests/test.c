@@ -275,9 +275,18 @@ static void register_algs(void)
 #ifndef LTC_YARROW
    #error This demo requires Yarrow.
 #endif
-  register_all_ciphers();
-  register_all_hashes();
-  register_all_prngs();
+   if ((err = register_all_ciphers()) != CRYPT_OK) {
+      fprintf(stderr, "register_all_ciphers err=%s\n", error_to_string(err));
+      exit(EXIT_FAILURE);
+   }
+   if ((err = register_all_hashes()) != CRYPT_OK) {
+      fprintf(stderr, "register_all_hashes err=%s\n", error_to_string(err));
+      exit(EXIT_FAILURE);
+   }
+   if ((err = register_all_prngs()) != CRYPT_OK) {
+      fprintf(stderr, "register_all_prngs err=%s\n", error_to_string(err));
+      exit(EXIT_FAILURE);
+   }
 
    if ((err = rng_make_prng(128, find_prng("yarrow"), &yarrow_prng, NULL)) != CRYPT_OK) {
       fprintf(stderr, "rng_make_prng failed: %s\n", error_to_string(err));
