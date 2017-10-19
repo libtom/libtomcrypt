@@ -25,7 +25,7 @@
 int dsa_import(const unsigned char *in, unsigned long inlen, dsa_key *key)
 {
    int           err, stat;
-   unsigned long zero = 0;
+   unsigned long zero = 0, len;
    unsigned char* tmpbuf = NULL;
    unsigned char flags[1];
 
@@ -102,9 +102,10 @@ int dsa_import(const unsigned char *in, unsigned long inlen, dsa_key *key)
          goto LBL_ERR;
       }
 
+      len = 3;
       err = der_decode_subject_public_key_info(in, inlen, PKA_DSA,
                                                tmpbuf, &tmpbuf_len,
-                                               LTC_ASN1_SEQUENCE, params, 3);
+                                               LTC_ASN1_SEQUENCE, params, &len);
       if (err != CRYPT_OK) {
          XFREE(tmpbuf);
          goto LBL_ERR;

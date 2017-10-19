@@ -33,21 +33,12 @@
    @param public_key_len        [in/out] The length of the public key buffer and the written length
    @param parameters_type       The parameters' type out of the enum ltc_asn1_type
    @param parameters            The parameters to include
-   @param parameters_len        The number of parameters to include
+   @param parameters_len        [in/out]The number of parameters to include
    @return CRYPT_OK on success
 */
 int der_decode_subject_public_key_info(const unsigned char *in, unsigned long inlen,
         unsigned int algorithm, void* public_key, unsigned long* public_key_len,
-        unsigned long parameters_type, ltc_asn1_list* parameters, unsigned long parameters_len)
-{
-   return der_decode_subject_public_key_info_ex(in, inlen, algorithm, public_key, public_key_len,
-                                                parameters_type, parameters, parameters_len, NULL);
-}
-
-int der_decode_subject_public_key_info_ex(const unsigned char *in, unsigned long inlen,
-        unsigned int algorithm, void* public_key, unsigned long* public_key_len,
-        unsigned long parameters_type, void* parameters, unsigned long parameters_len,
-        unsigned long *parameters_outsize)
+        unsigned long parameters_type, void* parameters, unsigned long *parameters_len)
 {
    int err;
    unsigned long len;
@@ -60,6 +51,7 @@ int der_decode_subject_public_key_info_ex(const unsigned char *in, unsigned long
    LTC_ARGCHK(in    != NULL);
    LTC_ARGCHK(inlen != 0);
    LTC_ARGCHK(public_key_len != NULL);
+   LTC_ARGCHK(parameters_len != NULL);
 
    err = pk_get_oid(algorithm, &oid);
    if (err != CRYPT_OK) {
@@ -75,7 +67,7 @@ int der_decode_subject_public_key_info_ex(const unsigned char *in, unsigned long
 
    /* this includes the internal hash ID and optional params (NULL in this case) */
    LTC_SET_ASN1(alg_id, 0, LTC_ASN1_OBJECT_IDENTIFIER, tmpoid, sizeof(tmpoid)/sizeof(tmpoid[0]));
-   LTC_SET_ASN1(alg_id, 1, (ltc_asn1_type)parameters_type, parameters, parameters_len);
+   LTC_SET_ASN1(alg_id, 1, (ltc_asn1_type)parameters_type, parameters, *parameters_len);
 
    /* the actual format of the SSL DER key is odd, it stores a RSAPublicKey
     * in a **BIT** string ... so we have to extract it then proceed to convert bit to octet
@@ -88,7 +80,7 @@ int der_decode_subject_public_key_info_ex(const unsigned char *in, unsigned long
            goto LBL_ERR;
    }
 
-   if (parameters_outsize) *parameters_outsize = alg_id[1].size;
+   *parameters_len = alg_id[1].size;
 
    if ((alg_id[0].size != oid.OIDlen) ||
         XMEMCMP(oid.OID, alg_id[0].data, oid.OIDlen * sizeof(oid.OID[0]))) {

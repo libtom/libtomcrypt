@@ -27,7 +27,7 @@ int rsa_import(const unsigned char *in, unsigned long inlen, rsa_key *key)
    int           err;
    void         *zero;
    unsigned char *tmpbuf=NULL;
-   unsigned long tmpbuf_len;
+   unsigned long tmpbuf_len, len;
 
    LTC_ARGCHK(in          != NULL);
    LTC_ARGCHK(key         != NULL);
@@ -47,9 +47,10 @@ int rsa_import(const unsigned char *in, unsigned long inlen, rsa_key *key)
        goto LBL_ERR;
    }
 
+   len = 0;
    err = der_decode_subject_public_key_info(in, inlen,
         PKA_RSA, tmpbuf, &tmpbuf_len,
-        LTC_ASN1_NULL, NULL, 0);
+        LTC_ASN1_NULL, NULL, &len);
 
    if (err == CRYPT_OK) { /* SubjectPublicKeyInfo format */
 

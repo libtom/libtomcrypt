@@ -26,7 +26,7 @@ int rsa_import_x509(const unsigned char *in, unsigned long inlen, rsa_key *key)
 {
    int           err;
    unsigned char *tmpbuf;
-   unsigned long tmpbuf_len, tmp_inlen;
+   unsigned long tmpbuf_len, tmp_inlen, len;
    ltc_asn1_list *decoded_list = NULL, *l;
 
    LTC_ARGCHK(in          != NULL);
@@ -77,9 +77,10 @@ int rsa_import_x509(const unsigned char *in, unsigned long inlen, rsa_key *key)
                      l->child->type == LTC_ASN1_SEQUENCE && l->child->child &&
                      l->child->child->type == LTC_ASN1_OBJECT_IDENTIFIER && l->child->next &&
                      l->child->next->type == LTC_ASN1_BIT_STRING) {
+                  len = 0;
                   err = der_decode_subject_public_key_info(l->data, l->size,
                        PKA_RSA, tmpbuf, &tmpbuf_len,
-                       LTC_ASN1_NULL, NULL, 0);
+                       LTC_ASN1_NULL, NULL, &len);
                   if (err == CRYPT_OK) {
                      /* now it should be SEQUENCE { INTEGER, INTEGER } */
                      if ((err = der_decode_sequence_multi(tmpbuf, tmpbuf_len,
