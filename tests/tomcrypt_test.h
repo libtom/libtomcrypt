@@ -38,6 +38,7 @@ int dsa_test(void);
 int der_test(void);
 int misc_test(void);
 int base64_test(void);
+int base32_test(void);
 int file_test(void);
 int multi_test(void);
 int prng_test(void);

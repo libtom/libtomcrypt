@@ -6365,6 +6365,45 @@ int base64url_strict_decode(const unsigned char *in,  unsigned long len,
                                   unsigned char *out, unsigned long *outlen);
 \end{verbatim}
 
+\mysection{Base32 Encoding and Decoding}
+
+The library provides functions to encode and decode a Base32 coding scheme. The supported mappings are:
+
+\begin{center}
+\begin{tabular}{|c|c|c|}
+     \hline \textbf{alphabet\_idx} & \textbf{Mapping} & \textbf{Name} \\
+     \hline 0 & \textit{ABCDEFGHIJKLMNOPQRSTUVWXYZ234567} & RFC-4648 \\
+     \hline 1 & \textit{0123456789ABCDEFGHIJKLMNOPQRSTUV} & Base32hex \\
+     \hline 2 & \textit{YBNDRFG8EJKMCPQXOT1UWISZA345H769} & ZBase32 \\
+     \hline 3 & \textit{0123456789ABCDEFGHJKMNPQRSTVWXYZ} & Crockford \\
+     \hline
+\end{tabular}
+\end{center}
+
+To encode a binary string in base32 call:
+
+\index{base32\_encode()}
+\begin{verbatim}
+int base32_encode(const unsigned char *in,
+                        unsigned long  len,
+                        unsigned char *out,
+                        unsigned long *outlen,
+                        unsigned int   alphabet_idx);
+\end{verbatim}
+
+Where \textit{in} is the binary string, \textit{out} is where the ASCII output is placed and \textit{alphabet\_idx} is the alphabet index from the table above.
+
+To decode a base32 string call:
+
+\index{base32\_decode()}
+\begin{verbatim}
+int base32_decode(const unsigned char *in,
+                        unsigned long  len,
+                        unsigned char *out,
+                        unsigned long *outlen,
+                        unsigned int   alphabet_idx);
+\end{verbatim}
+
 \mysection{Primality Testing}
 \index{Primality Testing}
 The library includes primality testing and random prime functions as well.  The primality tester will perform the test in

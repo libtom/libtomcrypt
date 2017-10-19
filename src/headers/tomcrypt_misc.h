@@ -30,6 +30,16 @@ int base64url_strict_decode(const unsigned char *in,  unsigned long len,
                         unsigned char *out, unsigned long *outlen);
 #endif
 
+/* ---- BASE32 Routines ---- */
+#ifdef LTC_BASE32
+int base32_encode(const unsigned char *in,  unsigned long inlen,
+                        unsigned char *out, unsigned long *outlen,
+                        unsigned int alphabet_idx);
+int base32_decode(const unsigned char *in,  unsigned long inlen,
+                        unsigned char *out, unsigned long *outlen,
+                        unsigned int alphabet_idx);
+#endif
+
 /* ===> LTC_HKDF -- RFC5869 HMAC-based Key Derivation Function <=== */
 #ifdef LTC_HKDF
 
