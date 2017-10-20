@@ -23,9 +23,9 @@ if [ "$(echo $3 | grep -v 'makefile[.]')" == "" ]; then
 fi
 
 # output version
-bash printinfo.sh
+bash .ci/printinfo.sh
 
-bash build.sh " $1" " $2" " $3 COVERAGE=1" "$4" "$5"
+bash .ci/build.sh " $1" " $2" " $3 COVERAGE=1" "$4" "$5"
 if [ -a testok.txt ] && [ -f testok.txt ]; then
    echo
 else
@@ -34,11 +34,11 @@ else
    exit 1
 fi
 
-./coverage_more.sh > test_coverage_more.txt || { rm -f testok.txt && exit 1 ; }
+bash .ci/coverage_more.sh "$5" > test_coverage_more.txt || { rm -f testok.txt && exit 1 ; }
 
 make lcov-single
-# if this was executed as './coverage.sh ...' create coverage locally
-if [[ "${0%% *}" == "./${0##*/}" ]]; then
+# if this isn't run on Travis CI create coverage locally
+if [ "$TRAVIS" == "" ]; then
    make lcov-html
 else
    coveralls-lcov coverage.info

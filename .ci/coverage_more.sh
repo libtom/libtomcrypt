@@ -2,6 +2,10 @@
 
 set -e
 
+if [ "$#" = "1" -a "$(echo $1 | grep 'gmp')" != "" ]; then
+   ./test t gmp
+fi
+
 ./sizes
 ./constants
 
