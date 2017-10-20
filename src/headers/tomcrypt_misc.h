@@ -32,12 +32,18 @@ int base64url_strict_decode(const unsigned char *in,  unsigned long len,
 
 /* ---- BASE32 Routines ---- */
 #ifdef LTC_BASE32
+typedef enum {
+   BASE32_RFC4648   = 0,
+   BASE32_BASE32HEX = 1,
+   BASE32_ZBASE32   = 2,
+   BASE32_CROCKFORD = 3
+} base32_alphabet;
 int base32_encode(const unsigned char *in,  unsigned long inlen,
                         unsigned char *out, unsigned long *outlen,
-                        unsigned int alphabet_idx);
+                        base32_alphabet alpha_id);
 int base32_decode(const unsigned char *in,  unsigned long inlen,
                         unsigned char *out, unsigned long *outlen,
-                        unsigned int alphabet_idx);
+                        base32_alphabet alpha_id);
 #endif
 
 /* ===> LTC_HKDF -- RFC5869 HMAC-based Key Derivation Function <=== */

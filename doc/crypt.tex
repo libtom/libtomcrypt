@@ -6370,12 +6370,12 @@ int base64url_strict_decode(const unsigned char *in,  unsigned long len,
 The library provides functions to encode and decode a Base32 coding scheme. The supported mappings are:
 
 \begin{center}
-\begin{tabular}{|c|c|c|}
-     \hline \textbf{alphabet\_idx} & \textbf{Mapping} & \textbf{Name} \\
-     \hline 0 & \textit{ABCDEFGHIJKLMNOPQRSTUVWXYZ234567} & RFC-4648 \\
-     \hline 1 & \textit{0123456789ABCDEFGHIJKLMNOPQRSTUV} & Base32hex \\
-     \hline 2 & \textit{YBNDRFG8EJKMCPQXOT1UWISZA345H769} & ZBase32 \\
-     \hline 3 & \textit{0123456789ABCDEFGHJKMNPQRSTVWXYZ} & Crockford \\
+\begin{tabular}{|l|l|l|}
+     \hline \textbf{alpha\_id} & \textbf{Mapping} & \textbf{Name} \\
+     \hline BASE32\_RFC4648 & ABCDEFGHIJKLMNOPQRSTUVWXYZ234567 & RFC-4648 \\
+     \hline BASE32\_BASE32HEX & 0123456789ABCDEFGHIJKLMNOPQRSTUV & Base32hex \\
+     \hline BASE32\_ZBASE32 & YBNDRFG8EJKMCPQXOT1UWISZA345H769 & ZBase32 \\
+     \hline BASE32\_CROCKFORD & 0123456789ABCDEFGHJKMNPQRSTVWXYZ & Crockford \\
      \hline
 \end{tabular}
 \end{center}
@@ -6388,10 +6388,11 @@ int base32_encode(const unsigned char *in,
                         unsigned long  len,
                         unsigned char *out,
                         unsigned long *outlen,
-                        unsigned int   alphabet_idx);
+                        unsigned int   alpha_id);
 \end{verbatim}
 
-Where \textit{in} is the binary string, \textit{out} is where the ASCII output is placed and \textit{alphabet\_idx} is the alphabet index from the table above.
+Where \textit{in} is the binary string, \textit{out} is where the ASCII output is placed and \textit{alpha\_id} is
+\textit{BASE32\_RFC4648}, \textit{BASE32\_BASE32HEX}, \textit{BASE32\_ZBASE32} or \textit{BASE32\_CROCKFORD} according the table above.
 
 To decode a base32 string call:
 
@@ -6401,7 +6402,7 @@ int base32_decode(const unsigned char *in,
                         unsigned long  len,
                         unsigned char *out,
                         unsigned long *outlen,
-                        unsigned int   alphabet_idx);
+                        unsigned int   alpha_id);
 \end{verbatim}
 
 \mysection{Primality Testing}
