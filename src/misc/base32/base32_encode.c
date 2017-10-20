@@ -17,26 +17,27 @@
    @param inlen    The length of the input buffer
    @param out      [out] The destination of the Base32 encoded data
    @param outlen   [in/out] The max size and resulting size of the encoded data
-   @param alpha_id Alphabet to use BASE32_RFC4648, BASE32_BASE32HEX, BASE32_ZBASE32 or BASE32_CROCKFORD
+   @param id       Alphabet to use BASE32_RFC4648, BASE32_BASE32HEX, BASE32_ZBASE32 or BASE32_CROCKFORD
    @return CRYPT_OK if successful
 */
 int base32_encode(const unsigned char *in,  unsigned long inlen,
                         unsigned char *out, unsigned long *outlen,
-                        base32_alphabet alpha_id)
+                        base32_alphabet id)
 {
    unsigned long i, x;
    unsigned char *codes;
    const char *alphabet[4] = {
-      "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567",     /* alpha_id BASE32_RFC4648   */
-      "0123456789ABCDEFGHIJKLMNOPQRSTUV",     /* alpha_id BASE32_BASE32HEX */
-      "ybndrfg8ejkmcpqxot1uwisza345h769",     /* alpha_id BASE32_ZBASE32   */
-      "0123456789ABCDEFGHJKMNPQRSTVWXYZ"      /* alpha_id BASE32_CROCKFORD */
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567",     /* id = BASE32_RFC4648   */
+      "0123456789ABCDEFGHIJKLMNOPQRSTUV",     /* id = BASE32_BASE32HEX */
+      "ybndrfg8ejkmcpqxot1uwisza345h769",     /* id = BASE32_ZBASE32   */
+      "0123456789ABCDEFGHJKMNPQRSTVWXYZ"      /* id = BASE32_CROCKFORD */
    };
 
    LTC_ARGCHK(in     != NULL);
    LTC_ARGCHK(out    != NULL);
    LTC_ARGCHK(outlen != NULL);
-   LTC_ARGCHK(alpha_id < 4);
+   LTC_ARGCHK(id >= BASE32_RFC4648);
+   LTC_ARGCHK(id <= BASE32_CROCKFORD);
 
    /* no input, nothing to do */
    if (inlen == 0) {
@@ -52,7 +53,7 @@ int base32_encode(const unsigned char *in,  unsigned long inlen,
    }
    *outlen = x;
 
-   codes = (unsigned char*)alphabet[alpha_id];
+   codes = (unsigned char*)alphabet[id];
    x = 5 * (inlen / 5);
    for (i = 0; i < x; i += 5) {
       *out++ = codes[(in[0] >> 3) & 0x1F];

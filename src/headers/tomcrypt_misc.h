@@ -40,10 +40,10 @@ typedef enum {
 } base32_alphabet;
 int base32_encode(const unsigned char *in,  unsigned long inlen,
                         unsigned char *out, unsigned long *outlen,
-                        base32_alphabet alpha_id);
+                        base32_alphabet id);
 int base32_decode(const unsigned char *in,  unsigned long inlen,
                         unsigned char *out, unsigned long *outlen,
-                        base32_alphabet alpha_id);
+                        base32_alphabet id);
 #endif
 
 /* ===> LTC_HKDF -- RFC5869 HMAC-based Key Derivation Function <=== */

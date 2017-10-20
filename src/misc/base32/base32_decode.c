@@ -17,12 +17,12 @@
    @param inlen    The length of the Base32 data
    @param out      [out] The destination of the binary decoded data
    @param outlen   [in/out] The max size and resulting size of the decoded data
-   @param alpha_id Alphabet to use BASE32_RFC4648, BASE32_BASE32HEX, BASE32_ZBASE32 or BASE32_CROCKFORD
+   @param id       Alphabet to use BASE32_RFC4648, BASE32_BASE32HEX, BASE32_ZBASE32 or BASE32_CROCKFORD
    @return CRYPT_OK if successful
 */
 int base32_decode(const unsigned char *in,  unsigned long inlen,
                         unsigned char *out, unsigned long *outlen,
-                        base32_alphabet alpha_id)
+                        base32_alphabet id)
 {
    unsigned long x;
    int y = 0;
@@ -30,25 +30,25 @@ int base32_decode(const unsigned char *in,  unsigned long inlen,
    unsigned char c;
    const unsigned char *map;
    const unsigned char tables[4][43] = {
-      {  /* alpha_id BASE32_RFC4648 : ABCDEFGHIJKLMNOPQRSTUVWXYZ234567 */
+      {  /* id = BASE32_RFC4648 : ABCDEFGHIJKLMNOPQRSTUVWXYZ234567 */
          99/*0*/,99/*1*/,26/*2*/,27/*3*/,28/*4*/,29/*5*/,30/*6*/,31/*7*/,99/*8*/,99/*9*/,
          99/*:*/,99/*;*/,99/*<*/,99/*=*/,99/*>*/,99/*?*/,99/*@*/,
           0/*A*/, 1/*B*/, 2/*C*/, 3/*D*/, 4/*E*/, 5/*F*/, 6/*G*/, 7/*H*/, 8/*I*/, 9/*J*/,10/*K*/,11/*L*/,12/*M*/,
          13/*N*/,14/*O*/,15/*P*/,16/*Q*/,17/*R*/,18/*S*/,19/*T*/,20/*U*/,21/*V*/,22/*W*/,23/*X*/,24/*Y*/,25/*Z*/
       },
-      {  /* alpha_id BASE32_BASE32HEX : 0123456789ABCDEFGHIJKLMNOPQRSTUV */
+      {  /* id = BASE32_BASE32HEX : 0123456789ABCDEFGHIJKLMNOPQRSTUV */
            0/*0*/, 1/*1*/, 2/*2*/, 3/*3*/, 4/*4*/, 5/*5*/, 6/*6*/, 7/*7*/, 8/*8*/, 9/*9*/,
           99/*:*/,99/*;*/,99/*<*/,99/*=*/,99/*>*/,99/*?*/,99/*@*/,
           10/*A*/,11/*B*/,12/*C*/,13/*D*/,14/*E*/,15/*F*/,16/*G*/,17/*H*/,18/*I*/,19/*J*/,20/*K*/,21/*L*/,22/*M*/,
           23/*N*/,24/*O*/,25/*P*/,26/*Q*/,27/*R*/,28/*S*/,29/*T*/,30/*U*/,31/*V*/,99/*W*/,99/*X*/,99/*Y*/,99/*Z*/
       },
-      {  /* alpha_id BASE32_ZBASE32 : YBNDRFG8EJKMCPQXOT1UWISZA345H769 */
+      {  /* id = BASE32_ZBASE32 : YBNDRFG8EJKMCPQXOT1UWISZA345H769 */
          99/*0*/,18/*1*/,99/*2*/,25/*3*/,26/*4*/,27/*5*/,30/*6*/,29/*7*/, 7/*8*/,31/*9*/,
          99/*:*/,99/*;*/,99/*<*/,99/*=*/,99/*>*/,99/*?*/,99/*@*/,
          24/*A*/, 1/*B*/,12/*C*/, 3/*D*/, 8/*E*/, 5/*F*/, 6/*G*/,28/*H*/,21/*I*/, 9/*J*/,10/*K*/,99/*L*/,11/*M*/,
           2/*N*/,16/*O*/,13/*P*/,14/*Q*/, 4/*R*/,22/*S*/,17/*T*/,19/*U*/,99/*V*/,20/*W*/,15/*X*/, 0/*Y*/,23/*Z*/
       },
-      {  /* alpha_id BASE32_CROCKFORD : 0123456789ABCDEFGHJKMNPQRSTVWXYZ + O=>0 + IL=>1 */
+      {  /* id = BASE32_CROCKFORD : 0123456789ABCDEFGHJKMNPQRSTVWXYZ + O=>0 + IL=>1 */
           0/*0*/, 1/*1*/, 2/*2*/, 3/*3*/, 4/*4*/, 5/*5*/, 6/*6*/, 7/*7*/, 8/*8*/, 9/*9*/,
          99/*:*/,99/*;*/,99/*<*/,99/*=*/,99/*>*/,99/*?*/,99/*@*/,
          10/*A*/,11/*B*/,12/*C*/,13/*D*/,14/*E*/,15/*F*/,16/*G*/,17/*H*/, 1/*I*/,18/*J*/,19/*K*/, 1/*L*/,20/*M*/,
@@ -59,7 +59,8 @@ int base32_decode(const unsigned char *in,  unsigned long inlen,
    LTC_ARGCHK(in     != NULL);
    LTC_ARGCHK(out    != NULL);
    LTC_ARGCHK(outlen != NULL);
-   LTC_ARGCHK(alpha_id < 4);
+   LTC_ARGCHK(id >= BASE32_RFC4648);
+   LTC_ARGCHK(id <= BASE32_CROCKFORD);
 
    /* ignore all trailing = */
    while (inlen > 0 && in[inlen-1] == '=') inlen--;
@@ -84,7 +85,7 @@ int base32_decode(const unsigned char *in,  unsigned long inlen,
       return CRYPT_INVALID_PACKET;
    }
 
-   map = tables[alpha_id];
+   map = tables[id];
    for (x = 0; x < inlen; x++) {
       c = in[x];
       /* convert to upper case */
