@@ -19,6 +19,9 @@ int misc_test(void)
 #ifdef LTC_BASE64
    DO(base64_test());
 #endif
+#ifdef LTC_BASE32
+   DO(base32_test());
+#endif
 #ifdef LTC_ADLER32
    DO(adler32_test());
 #endif

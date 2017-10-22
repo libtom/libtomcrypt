@@ -1372,6 +1372,18 @@
 				>
 			</File>
 			<Filter
+				Name="base32"
+				>
+				<File
+					RelativePath="src\misc\base32\base32_decode.c"
+					>
+				</File>
+				<File
+					RelativePath="src\misc\base32\base32_encode.c"
+					>
+				</File>
+			</Filter>
+			<Filter
 				Name="base64"
 				>
 				<File

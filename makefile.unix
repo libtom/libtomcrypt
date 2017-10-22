@@ -101,20 +101,21 @@ src/mac/xcbc/xcbc_file.o src/mac/xcbc/xcbc_init.o src/mac/xcbc/xcbc_memory.o \
 src/mac/xcbc/xcbc_memory_multi.o src/mac/xcbc/xcbc_process.o src/mac/xcbc/xcbc_test.o \
 src/math/fp/ltc_ecc_fp_mulmod.o src/math/gmp_desc.o src/math/ltm_desc.o src/math/multi.o \
 src/math/radix_to_bin.o src/math/rand_bn.o src/math/rand_prime.o src/math/tfm_desc.o src/misc/adler32.o \
-src/misc/base64/base64_decode.o src/misc/base64/base64_encode.o src/misc/burn_stack.o \
-src/misc/compare_testvector.o src/misc/crc32.o src/misc/crypt/crypt.o src/misc/crypt/crypt_argchk.o \
-src/misc/crypt/crypt_cipher_descriptor.o src/misc/crypt/crypt_cipher_is_valid.o \
-src/misc/crypt/crypt_constants.o src/misc/crypt/crypt_find_cipher.o \
-src/misc/crypt/crypt_find_cipher_any.o src/misc/crypt/crypt_find_cipher_id.o \
-src/misc/crypt/crypt_find_hash.o src/misc/crypt/crypt_find_hash_any.o \
-src/misc/crypt/crypt_find_hash_id.o src/misc/crypt/crypt_find_hash_oid.o \
-src/misc/crypt/crypt_find_prng.o src/misc/crypt/crypt_fsa.o src/misc/crypt/crypt_hash_descriptor.o \
-src/misc/crypt/crypt_hash_is_valid.o src/misc/crypt/crypt_inits.o \
-src/misc/crypt/crypt_ltc_mp_descriptor.o src/misc/crypt/crypt_prng_descriptor.o \
-src/misc/crypt/crypt_prng_is_valid.o src/misc/crypt/crypt_prng_rng_descriptor.o \
-src/misc/crypt/crypt_register_all_ciphers.o src/misc/crypt/crypt_register_all_hashes.o \
-src/misc/crypt/crypt_register_all_prngs.o src/misc/crypt/crypt_register_cipher.o \
-src/misc/crypt/crypt_register_hash.o src/misc/crypt/crypt_register_prng.o src/misc/crypt/crypt_sizes.o \
+src/misc/base32/base32_decode.o src/misc/base32/base32_encode.o src/misc/base64/base64_decode.o \
+src/misc/base64/base64_encode.o src/misc/burn_stack.o src/misc/compare_testvector.o src/misc/crc32.o \
+src/misc/crypt/crypt.o src/misc/crypt/crypt_argchk.o src/misc/crypt/crypt_cipher_descriptor.o \
+src/misc/crypt/crypt_cipher_is_valid.o src/misc/crypt/crypt_constants.o \
+src/misc/crypt/crypt_find_cipher.o src/misc/crypt/crypt_find_cipher_any.o \
+src/misc/crypt/crypt_find_cipher_id.o src/misc/crypt/crypt_find_hash.o \
+src/misc/crypt/crypt_find_hash_any.o src/misc/crypt/crypt_find_hash_id.o \
+src/misc/crypt/crypt_find_hash_oid.o src/misc/crypt/crypt_find_prng.o src/misc/crypt/crypt_fsa.o \
+src/misc/crypt/crypt_hash_descriptor.o src/misc/crypt/crypt_hash_is_valid.o \
+src/misc/crypt/crypt_inits.o src/misc/crypt/crypt_ltc_mp_descriptor.o \
+src/misc/crypt/crypt_prng_descriptor.o src/misc/crypt/crypt_prng_is_valid.o \
+src/misc/crypt/crypt_prng_rng_descriptor.o src/misc/crypt/crypt_register_all_ciphers.o \
+src/misc/crypt/crypt_register_all_hashes.o src/misc/crypt/crypt_register_all_prngs.o \
+src/misc/crypt/crypt_register_cipher.o src/misc/crypt/crypt_register_hash.o \
+src/misc/crypt/crypt_register_prng.o src/misc/crypt/crypt_sizes.o \
 src/misc/crypt/crypt_unregister_cipher.o src/misc/crypt/crypt_unregister_hash.o \
 src/misc/crypt/crypt_unregister_prng.o src/misc/error_to_string.o src/misc/hkdf/hkdf.o \
 src/misc/hkdf/hkdf_test.o src/misc/mem_neq.o src/misc/pk_get_oid.o src/misc/pkcs5/pkcs_5_1.o \
@@ -203,11 +204,12 @@ src/stream/rc4/rc4_stream.o src/stream/rc4/rc4_test.o src/stream/sober128/sober1
 src/stream/sober128/sober128_test.o
 
 #List of test objects to compile (all goes to libtomcrypt_prof.a)
-TOBJECTS=tests/base64_test.o tests/cipher_hash_test.o tests/common.o tests/der_test.o tests/dh_test.o \
-tests/dsa_test.o tests/ecc_test.o tests/file_test.o tests/katja_test.o tests/mac_test.o tests/misc_test.o \
-tests/modes_test.o tests/mpi_test.o tests/multi_test.o tests/no_prng.o tests/pkcs_1_eme_test.o \
-tests/pkcs_1_emsa_test.o tests/pkcs_1_oaep_test.o tests/pkcs_1_pss_test.o tests/pkcs_1_test.o \
-tests/prng_test.o tests/rotate_test.o tests/rsa_test.o tests/store_test.o tests/test.o
+TOBJECTS=tests/base32_test.o tests/base64_test.o tests/cipher_hash_test.o tests/common.o \
+tests/der_test.o tests/dh_test.o tests/dsa_test.o tests/ecc_test.o tests/file_test.o tests/katja_test.o \
+tests/mac_test.o tests/misc_test.o tests/modes_test.o tests/mpi_test.o tests/multi_test.o tests/no_prng.o \
+tests/pkcs_1_eme_test.o tests/pkcs_1_emsa_test.o tests/pkcs_1_oaep_test.o tests/pkcs_1_pss_test.o \
+tests/pkcs_1_test.o tests/prng_test.o tests/rotate_test.o tests/rsa_test.o tests/store_test.o \
+tests/test.o
 
 #The following headers will be installed by "make install"
 HEADERS=src/headers/tomcrypt.h src/headers/tomcrypt_argchk.h src/headers/tomcrypt_cfg.h \
