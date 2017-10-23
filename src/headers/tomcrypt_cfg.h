@@ -279,7 +279,8 @@ typedef unsigned long ltc_mp_digit;
 
 #if defined(__GNUC__) && (__GNUC__ * 100 + __GNUC_MINOR__ >= 301)
    #define LTC_DEPRECATED __attribute__((deprecated))
-#elif defined(_MSC_VER)
+#elif defined(_MSC_VER) && _MSC_VER >= 1500
+   /* supported since Visual Studio 2008 */
    #define LTC_DEPRECATED __declspec(deprecated)
 #else
    #define LTC_DEPRECATED
