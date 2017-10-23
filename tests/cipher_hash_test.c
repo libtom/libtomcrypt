@@ -14,14 +14,17 @@ int cipher_hash_test(void)
 {
    int           x;
 
-   /* test ciphers */
+   /* test block ciphers */
    for (x = 0; cipher_descriptor[x].name != NULL; x++) {
       DOX(cipher_descriptor[x].test(), cipher_descriptor[x].name);
    }
 
-   /* stream ciphers */
+   /* test stream ciphers */
 #ifdef LTC_CHACHA
    DO(chacha_test());
+#endif
+#ifdef LTC_SALSA20
+   DO(salsa20_test());
 #endif
 #ifdef LTC_RC4_STREAM
    DO(rc4_stream_test());

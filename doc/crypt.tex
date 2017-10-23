@@ -1301,6 +1301,49 @@ At the end you have to terminate the state:
 err = chacha_done(&st);
 \end{verbatim}
 
+\mysection{Salsa20}
+
+\textit{Salsa20} is the forerunner of the ChaCha stream cipher.  The ChaCha cipher is
+Salsa20 with a few minor tweaks to further improve its strength, and in so doing, increase its
+speed performance by about 5 percent.  Unless you need Salsa20 for some reason, you should
+probably choose ChaCha instead.
+
+In April 2008 \textit{Salsa20/12} was named one of the winners in the EU eSTREAM competition.
+Salsa20 was originally submitted by Daniel Bernstein with 20 rounds of strength but the
+12-round reduced-round version was deemed to have sufficient strength and declared a winner.
+Even the 8-round reduced-round version, Salsa20/8, has withstood attack.
+
+For more information about Salsa20 see \url{https://en.wikipedia.org/wiki/Salsa20}.
+
+Supported key size: 16 or 32 bytes (128 or 256 bits).
+
+You can initialize Salsa20 with 64bit \textit{nonce} + 64bit \textit{counter}:
+\begin{verbatim}
+salsa20_state st;
+err = salsa20_setup(&st, key, key_len, rounds);
+err = salsa20_ivctr64(&st, nonce, 8, initial_64bit_ctr);
+\end{verbatim}
+
+The \textit{salsa20\_setup} takes the number of rounds as a parameter -- choose 20 (the default)
+if you are not sure.  As always never ever use the same key + nonce pair more than once.
+
+For the actual encryption or decryption you have to call:
+\begin{verbatim}
+err = salsa20_crypt(&st, in_buffer, in_len, out_buffer);
+\end{verbatim}
+
+If you just want a random stream of bytes initialize the cipher with a truly random \textit{key}
+(32 bytes), a truly random \textit{nonce} (8 bytes) and zero initial counter. After that you can
+get a stream of pseudo--random bytes via:
+\begin{verbatim}
+err = salsa20_keystream(&st, out_buffer, out_len);
+\end{verbatim}
+
+At the end you have to terminate the state:
+\begin{verbatim}
+err = salsa20_done(&st);
+\end{verbatim}
+
 \mysection{RC4}
 
 For more information about RC4 see \url{https://en.wikipedia.org/wiki/RC4}.
