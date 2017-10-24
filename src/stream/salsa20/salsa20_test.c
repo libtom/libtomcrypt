@@ -35,13 +35,14 @@ int salsa20_test(void)
                            0x83, 0xc3, 0x34, 0x10, 0xb6, 0xe1, 0xab, 0xe7, 0xf5, 0xab, 0xab, 0xed, 0xa4, 0xff };
    char pt[]    = "Kilroy was here, and there. ...and everywhere!";    /* len = 46 bytes */
    len = strlen(pt);
-   int counter = 0;
-   int rounds  = 0;
    salsa20_state st;
+   int counter;
+   int rounds;
    int err;
 
    /* crypt piece by piece */
-   rounds = 12;
+   counter = 0;
+   rounds  = 12;
    if ((err = salsa20_setup(&st, k, sizeof(k), rounds)) != CRYPT_OK)                        return err;
    if ((err = salsa20_ivctr64(&st, n, sizeof(n), counter)) != CRYPT_OK)                     return err;
    if ((err = salsa20_crypt(&st, (unsigned char*)pt,       5,       out)) != CRYPT_OK)      return err;
@@ -51,7 +52,8 @@ int salsa20_test(void)
    if (compare_testvector(out, len, ct, sizeof(ct), "SALSA20-TV1", 1))                      return CRYPT_FAIL_TESTVECTOR;
 
    /* crypt in one go - using salsa20_ivctr64() */
-   rounds = 20;
+   counter = 0;
+   rounds  = 20;
    if ((err = salsa20_setup(&st, k, sizeof(k), rounds)) != CRYPT_OK)                        return err;
    if ((err = salsa20_ivctr64(&st, n, sizeof(n), counter)) != CRYPT_OK)                     return err;
    if ((err = salsa20_crypt(&st, (unsigned char*)pt, len, out)) != CRYPT_OK)                return err;
@@ -68,8 +70,9 @@ int salsa20_test(void)
                            0xF2, 0x78, 0x11, 0x2C, 0xA7, 0x18, 0x0D, 0x56, 0x5B, 0x42, 0x0A, 0x48, 0x01, 0x96, 0x70, 0xEA,
                            0xF2, 0x4C, 0xE4, 0x93, 0xA8, 0x62, 0x63, 0xF6, 0x77, 0xB4, 0x6A, 0xCE, 0x19, 0x24, 0x77, 0x3D,
                            0x2B, 0xB2, 0x55, 0x71, 0xE1, 0xAA, 0x85, 0x93, 0x75, 0x8F, 0xC3, 0x82, 0xB1, 0x28, 0x0B, 0x71 };
-   int rounds3 = 20;
-   if ((err = salsa20_setup(&st, k3, sizeof(k3), rounds3)) != CRYPT_OK)                     return err;
+   counter = 0;
+   rounds  = 20;
+   if ((err = salsa20_setup(&st, k3, sizeof(k3), rounds)) != CRYPT_OK)                      return err;
    if ((err = salsa20_ivctr64(&st, n3, sizeof(n3), counter)) != CRYPT_OK)                   return err;
    if ((err = salsa20_keystream(&st, out, 64)) != CRYPT_OK)                                 return err;
    if ((err = salsa20_done(&st)) != CRYPT_OK)                                               return err;
