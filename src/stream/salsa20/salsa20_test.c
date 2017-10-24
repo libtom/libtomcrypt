@@ -22,8 +22,6 @@ int salsa20_test(void)
 #ifndef LTC_TEST
    return CRYPT_NOP;
 #else
-   int  counter = 0;
-   int  rounds  = 0;
    unsigned long len;
    unsigned char out[1000];
    unsigned char k[]   = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,
@@ -36,12 +34,14 @@ int salsa20_test(void)
                            0xa6, 0x5b, 0xa0, 0x89, 0x9d, 0xd2, 0x6c, 0xaa, 0xbb, 0x2f, 0x5f, 0x30, 0x89, 0x54, 0xff, 0x3e,
                            0x83, 0xc3, 0x34, 0x10, 0xb6, 0xe1, 0xab, 0xe7, 0xf5, 0xab, 0xab, 0xed, 0xa4, 0xff };
    char pt[]    = "Kilroy was here, and there. ...and everywhere!";    /* len = 46 bytes */
+   len = strlen(pt);
+   int counter = 0;
+   int rounds  = 0;
    salsa20_state st;
    int err;
 
-   len = strlen(pt);
    /* crypt piece by piece */
-   rounds  = 12;
+   rounds = 12;
    if ((err = salsa20_setup(&st, k, sizeof(k), rounds)) != CRYPT_OK)                        return err;
    if ((err = salsa20_ivctr64(&st, n, sizeof(n), counter)) != CRYPT_OK)                     return err;
    if ((err = salsa20_crypt(&st, (unsigned char*)pt,       5,       out)) != CRYPT_OK)      return err;
@@ -49,12 +49,31 @@ int salsa20_test(void)
    if ((err = salsa20_crypt(&st, (unsigned char*)pt + 30, 10,       out + 30)) != CRYPT_OK) return err;
    if ((err = salsa20_crypt(&st, (unsigned char*)pt + 40, len - 40, out + 40)) != CRYPT_OK) return err;
    if (compare_testvector(out, len, ct, sizeof(ct), "SALSA20-TV1", 1))                      return CRYPT_FAIL_TESTVECTOR;
+
    /* crypt in one go - using salsa20_ivctr64() */
-   rounds  = 20;
+   rounds = 20;
    if ((err = salsa20_setup(&st, k, sizeof(k), rounds)) != CRYPT_OK)                        return err;
    if ((err = salsa20_ivctr64(&st, n, sizeof(n), counter)) != CRYPT_OK)                     return err;
    if ((err = salsa20_crypt(&st, (unsigned char*)pt, len, out)) != CRYPT_OK)                return err;
    if (compare_testvector(out, len, ct2, sizeof(ct), "SALSA20-TV2", 1))                     return CRYPT_FAIL_TESTVECTOR;
+
+   /* keystream
+    * http://www.ecrypt.eu.org/stream/svn/viewcvs.cgi/ecrypt/trunk/submissions/salsa20/full/verified.test-vectors?rev=161&view=markup
+    * Set 6, vector 0
+    */
+   unsigned char k3[]  = { 0x00, 0x53, 0xA6, 0xF9, 0x4C, 0x9F, 0xF2, 0x45, 0x98, 0xEB, 0x3E, 0x91, 0xE4, 0x37, 0x8A, 0xDD,
+                           0x30, 0x83, 0xD6, 0x29, 0x7C, 0xCF, 0x22, 0x75, 0xC8, 0x1B, 0x6E, 0xC1, 0x14, 0x67, 0xBA, 0x0D };
+   unsigned char n3[]  = { 0x0D, 0x74, 0xDB, 0x42, 0xA9, 0x10, 0x77, 0xDE };
+   unsigned char ct3[] = { 0xF5, 0xFA, 0xD5, 0x3F, 0x79, 0xF9, 0xDF, 0x58, 0xC4, 0xAE, 0xA0, 0xD0, 0xED, 0x9A, 0x96, 0x01,
+                           0xF2, 0x78, 0x11, 0x2C, 0xA7, 0x18, 0x0D, 0x56, 0x5B, 0x42, 0x0A, 0x48, 0x01, 0x96, 0x70, 0xEA,
+                           0xF2, 0x4C, 0xE4, 0x93, 0xA8, 0x62, 0x63, 0xF6, 0x77, 0xB4, 0x6A, 0xCE, 0x19, 0x24, 0x77, 0x3D,
+                           0x2B, 0xB2, 0x55, 0x71, 0xE1, 0xAA, 0x85, 0x93, 0x75, 0x8F, 0xC3, 0x82, 0xB1, 0x28, 0x0B, 0x71 };
+   int rounds3 = 20;
+   if ((err = salsa20_setup(&st, k3, sizeof(k3), rounds3)) != CRYPT_OK)                     return err;
+   if ((err = salsa20_ivctr64(&st, n3, sizeof(n3), counter)) != CRYPT_OK)                   return err;
+   if ((err = salsa20_keystream(&st, out, 64)) != CRYPT_OK)                                 return err;
+   if ((err = salsa20_done(&st)) != CRYPT_OK)                                               return err;
+   if (compare_testvector(out, 64, ct3, sizeof(ct3), "SALSA20-TV3", 1))                     return CRYPT_FAIL_TESTVECTOR;
 
    return CRYPT_OK;
 #endif
