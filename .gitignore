@@ -58,6 +58,12 @@ timing.exe
 .cproject
 .settings/
 
+# macOS special files
+.DS_Store
+
+# other special files
+showlibs      # symlink to .libs
+
 # oops ;) but we don't want them to appear in the repository...
 *.stackdump
 *.core

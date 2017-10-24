@@ -1012,6 +1012,25 @@ int chacha_test(void);
 
 #endif /* LTC_CHACHA */
 
+#ifdef LTC_SALSA20
+
+typedef struct {
+   ulong32 input[16];
+   unsigned char kstream[64];
+   unsigned long ksleft;
+   unsigned long ivlen;
+   int rounds;
+} salsa20_state;
+
+int salsa20_setup(salsa20_state *st, const unsigned char *key, unsigned long keylen, int rounds);
+int salsa20_ivctr64(salsa20_state *st, const unsigned char *iv, unsigned long ivlen, ulong64 counter);
+int salsa20_crypt(salsa20_state *st, const unsigned char *in, unsigned long inlen, unsigned char *out);
+int salsa20_keystream(salsa20_state *st, unsigned char *out, unsigned long outlen);
+int salsa20_done(salsa20_state *st);
+int salsa20_test(void);
+
+#endif /* LTC_SALSA20 */
+
 #ifdef LTC_RC4_STREAM
 
 typedef struct {

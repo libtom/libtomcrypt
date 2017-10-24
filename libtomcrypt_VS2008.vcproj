@@ -2476,6 +2476,34 @@
 				</File>
 			</Filter>
 			<Filter
+				Name="salsa20"
+				>
+				<File
+					RelativePath="src\stream\salsa20\salsa20_crypt.c"
+					>
+				</File>
+				<File
+					RelativePath="src\stream\salsa20\salsa20_done.c"
+					>
+				</File>
+				<File
+					RelativePath="src\stream\salsa20\salsa20_ivctr64.c"
+					>
+				</File>
+				<File
+					RelativePath="src\stream\salsa20\salsa20_keystream.c"
+					>
+				</File>
+				<File
+					RelativePath="src\stream\salsa20\salsa20_setup.c"
+					>
+				</File>
+				<File
+					RelativePath="src\stream\salsa20\salsa20_test.c"
+					>
+				</File>
+			</Filter>
+			<Filter
 				Name="sober128"
 				>
 				<File
