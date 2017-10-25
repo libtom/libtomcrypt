@@ -15,7 +15,7 @@
 */
 
 #if defined(LTC_TEST) && defined(LTC_TEST_DBG)
-static void _print_hex(const char* what, const void* v, const unsigned long l)
+void _print_hex(const char* what, const void* v, const unsigned long l)
 {
   const unsigned char* p = v;
   unsigned long x, y = 0, z;

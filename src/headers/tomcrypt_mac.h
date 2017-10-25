@@ -563,6 +563,18 @@ int chacha20poly1305_test(void);
 
 #endif /* LTC_CHACHA20POLY1305_MODE */
 
+#ifdef LTC_SIV_MODE
+
+int siv_encrypt(int cipher,
+    const unsigned char *key,    unsigned long keylen,
+    const unsigned char **ad,    unsigned long *adlen,
+    const unsigned char *in,     unsigned long inlen,
+          unsigned char *out,    unsigned long *outlen);
+
+int siv_test(void);
+
+#endif
+
 /* ref:         $Format:%D$ */
 /* git commit:  $Format:%H$ */
 /* commit time: $Format:%ai$ */
