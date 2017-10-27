@@ -43,7 +43,7 @@ int rng_make_prng(int bits, int wprng, prng_state *prng,
       return err;
    }
 
-   bits = ((bits/8)+((bits&7)!=0?1:0)) * 2;
+   bits = ((bits+7)/8) * 2;
    if (rng_get_bytes(buf, (unsigned long)bits, callback) != (unsigned long)bits) {
       return CRYPT_ERROR_READPRNG;
    }
