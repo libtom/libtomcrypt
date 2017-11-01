@@ -265,7 +265,7 @@ int hkdf_test(void)
                         cases[i].info, cases[i].info_l,
                         cases[i].IKM,   cases[i].IKM_l,
                         OKM, cases[i].OKM_l)) != CRYPT_OK) {
-#if LTC_TEST_DBG > 1
+#if defined(LTC_TEST_DBG) && (LTC_TEST_DBG > 1)
             printf("LTC_HKDF-%s test #%d, %s\n", cases[i].Hash, i, error_to_string(err));
 #endif
             return err;
