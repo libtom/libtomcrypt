@@ -55,6 +55,7 @@ sub check_source {
       push @{$troubles->{unwanted_strcmp}},  $lineno if $file =~ /^src\/.*\.c$/ && $l =~ /\bstrcmp\s*\(/;
       push @{$troubles->{unwanted_clock}},   $lineno if $file =~ /^src\/.*\.c$/ && $l =~ /\bclock\s*\(/;
       push @{$troubles->{unwanted_qsort}},   $lineno if $file =~ /^src\/.*\.c$/ && $l =~ /\bqsort\s*\(/;
+      push @{$troubles->{sizeof_no_brackets}}, $lineno if $file =~ /^src\/.*\.c$/ && $l =~ /\bsizeof\s*[^\(]/;
       if ($file =~ m|src/.*\.c$| &&
           $file !~ m|src/ciphers/.*\.c$| &&
           $file !~ m|src/hashes/.*\.c$| &&
