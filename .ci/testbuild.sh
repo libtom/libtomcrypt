@@ -20,3 +20,7 @@ if find testok.txt -type f 1>/dev/null 2>/dev/null ; then
    exit 0
 fi
 exit 1
+
+# ref:         $Format:%D$
+# git commit:  $Format:%H$
+# commit time: $Format:%ai$

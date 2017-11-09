@@ -475,3 +475,7 @@ codecheck: $(call print-help,codecheck,Check the code of the library)
 	perlcritic *.pl
 
 help: $(call print-help,help,That's what you're currently looking at)
+
+# ref:         $Format:%D$
+# git commit:  $Format:%H$
+# commit time: $Format:%ai$

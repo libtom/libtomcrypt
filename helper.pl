@@ -382,3 +382,7 @@ $failure ||= process_makefiles(1) if $update_makefiles;
 
 die_usage unless defined $failure;
 exit $failure ? 1 : 0;
+
+# ref:         $Format:%D$
+# git commit:  $Format:%H$
+# commit time: $Format:%ai$

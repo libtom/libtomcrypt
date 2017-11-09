@@ -298,3 +298,7 @@ install_bins: hashsum
 install_docs: doc/crypt.pdf
 	@mkdir -p $(DESTDIR)$(DATAPATH)
 	@cp doc/crypt.pdf $(DESTDIR)$(DATAPATH)/
+
+# ref:         $Format:%D$
+# git commit:  $Format:%H$
+# commit time: $Format:%ai$

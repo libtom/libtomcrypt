@@ -10,3 +10,7 @@ if [ $# -eq 1 ] && [ "$1" == "-c" ]; then
 fi
 
 exit 0
+
+# ref:         $Format:%D$
+# git commit:  $Format:%H$
+# commit time: $Format:%ai$

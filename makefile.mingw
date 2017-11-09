@@ -292,3 +292,7 @@ install_bins: hashsum
 install_docs: doc/crypt.pdf
 	cmd /c if not exist "$(PREFIX)\doc" mkdir "$(PREFIX)\doc"
 	copy /Y doc\crypt.pdf "$(PREFIX)\doc"
+
+# ref:         $Format:%D$
+# git commit:  $Format:%H$
+# commit time: $Format:%ai$

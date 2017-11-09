@@ -31,3 +31,7 @@ alive_pid=$!
 valgrind --error-exitcode=666 --leak-check=full --show-leak-kinds=all --errors-for-leak-kinds=all ./test >test_std.txt 2> >(tee -a test_err.txt >&2) || { kill $alive_pid; echo "Valgrind failed"; exit 1; }
 
 kill $alive_pid
+
+# ref:         $Format:%D$
+# git commit:  $Format:%H$
+# commit time: $Format:%ai$

@@ -38,3 +38,7 @@ curl -k --form project=libtomcrypt \
   --form version=\"${myversion}\" \
   --form description="\"libtomcrypt version ${myversion}\"" \
   https://scan.coverity.com/builds?project=libtom%2Flibtomcrypt
+
+# ref:         $Format:%D$
+# git commit:  $Format:%H$
+# commit time: $Format:%ai$
