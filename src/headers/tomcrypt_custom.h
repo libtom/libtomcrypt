@@ -291,6 +291,7 @@
 #define LTC_CCM_MODE
 #define LTC_GCM_MODE
 #define LTC_CHACHA20POLY1305_MODE
+#define LTC_SIV_MODE
 
 /* Use 64KiB tables */
 #ifndef LTC_NO_TABLES

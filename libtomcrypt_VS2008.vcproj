@@ -819,6 +819,14 @@
 					>
 				</File>
 			</Filter>
+			<Filter
+				Name="siv"
+				>
+				<File
+					RelativePath="src\encauth\siv\siv.c"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="hashes"
@@ -1349,6 +1357,10 @@
 			</File>
 			<File
 				RelativePath="src\misc\compare_testvector.c"
+				>
+			</File>
+			<File
+				RelativePath="src\misc\copy_or_zeromem.c"
 				>
 			</File>
 			<File

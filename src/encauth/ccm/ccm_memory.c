@@ -51,10 +51,6 @@ int ccm_memory(int cipher,
    symmetric_key *skey;
    int            err;
    unsigned long  len, L, x, y, z, CTRlen;
-#ifdef LTC_FAST
-   LTC_FAST_TYPE fastMask = ~0; /* initialize fastMask at all zeroes */
-#endif
-   unsigned char mask = 0xff; /* initialize mask at all zeroes */
 
    if (uskey == NULL) {
       LTC_ARGCHK(key    != NULL);
@@ -357,29 +353,11 @@ int ccm_memory(int cipher,
 
       /* Zero the plaintext if the tag was invalid (in constant time) */
       if (ptlen > 0) {
-         y = 0;
-         mask *= 1 - err; /* mask = ( err ? 0 : 0xff ) */
-#ifdef LTC_FAST
-         fastMask *= 1 - err;
-         if (ptlen & ~15) {
-            for (; y < (ptlen & ~15); y += 16) {
-              for (z = 0; z < 16; z += sizeof(LTC_FAST_TYPE)) {
-                *(LTC_FAST_TYPE_PTR_CAST(&pt_real[y+z])) = *(LTC_FAST_TYPE_PTR_CAST(&pt[y+z])) & fastMask;
-              }
-            }
-         }
-#endif
-         for (; y < ptlen; y++) {
-            pt_real[y] = pt[y] & mask;
-         }
+         copy_or_zeromem(pt, pt_real, ptlen, err);
       }
    }
 
 #ifdef LTC_CLEAN_STACK
-#ifdef LTC_FAST
-   fastMask = 0;
-#endif
-   mask = 0;
    zeromem(skey,   sizeof(*skey));
    zeromem(PAD,    sizeof(PAD));
    zeromem(CTRPAD, sizeof(CTRPAD));
