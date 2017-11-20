@@ -67,7 +67,7 @@ enum {
 
    CRYPT_OVERFLOW,         /* An overflow of a value was detected/prevented */
 
-   CRYPT_UNUSED1,          /* UNUSED1 */
+   CRYPT_PK_ASN1_ERROR,    /* An error occurred while en- or decoding ASN.1 data */
 
    CRYPT_INPUT_TOO_LONG,   /* The input was longer than expected. */
 

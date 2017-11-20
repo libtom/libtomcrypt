@@ -46,7 +46,7 @@ static const char * const err_2_str[] =
 
    "An overflow of a value was detected/prevented.",
 
-   "UNUSED1.",
+   "An ASN.1 decoding error occurred.",
 
    "The input was longer than expected.",
 
