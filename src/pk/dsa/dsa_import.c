@@ -103,7 +103,7 @@ int dsa_import(const unsigned char *in, unsigned long inlen, dsa_key *key)
       }
 
       len = 3;
-      err = der_decode_subject_public_key_info(in, inlen, PKA_DSA,
+      err = x509_decode_subject_public_key_info(in, inlen, PKA_DSA,
                                                tmpbuf, &tmpbuf_len,
                                                LTC_ASN1_SEQUENCE, params, &len);
       if (err != CRYPT_OK) {

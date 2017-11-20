@@ -78,7 +78,7 @@ int rsa_import_x509(const unsigned char *in, unsigned long inlen, rsa_key *key)
                      l->child->child->type == LTC_ASN1_OBJECT_IDENTIFIER && l->child->next &&
                      l->child->next->type == LTC_ASN1_BIT_STRING) {
                   len = 0;
-                  err = der_decode_subject_public_key_info(l->data, l->size,
+                  err = x509_decode_subject_public_key_info(l->data, l->size,
                        PKA_RSA, tmpbuf, &tmpbuf_len,
                        LTC_ASN1_NULL, NULL, &len);
                   if (err == CRYPT_OK) {

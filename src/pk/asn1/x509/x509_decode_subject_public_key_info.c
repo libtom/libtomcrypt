@@ -7,9 +7,10 @@
  * guarantee it works.
  */
 #include "tomcrypt.h"
+
 /**
-  @file der_decode_subject_public_key_info.c
-  ASN.1 DER, encode a Subject Public Key structure --nmav
+  @file x509_decode_subject_public_key_info.c
+  ASN.1 DER/X.509, encode a SubjectPublicKeyInfo structure --nmav
 */
 
 #ifdef LTC_DER
@@ -25,7 +26,7 @@
  * }
  */
 /**
-  Decode a subject public key info
+  Decode a SubjectPublicKeyInfo
    @param in      The input buffer
    @param inlen   The length of the input buffer
    @param algorithm             One out of the enum #public_key_algorithms
@@ -36,7 +37,7 @@
    @param parameters_len        [in/out]The number of parameters to include
    @return CRYPT_OK on success
 */
-int der_decode_subject_public_key_info(const unsigned char *in, unsigned long inlen,
+int x509_decode_subject_public_key_info(const unsigned char *in, unsigned long inlen,
         unsigned int algorithm, void* public_key, unsigned long* public_key_len,
         unsigned long parameters_type, void* parameters, unsigned long *parameters_len)
 {
