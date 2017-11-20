@@ -51,25 +51,11 @@ int der_decode_sequence_ex(const unsigned char *in, unsigned long  inlen,
    /* check if the msb is set, which signals that the
     * 7 lsb bits represent the number of bytes of the length
     */
-   if (in[x] < 128) {
-      blksize = in[x++];
-   } else {
-      if (in[x] < 0x81 || in[x] > 0x83) {
-         return CRYPT_INVALID_PACKET;
-      }
-      y = in[x++] & 0x7F;
-
-      /* would reading the len bytes overrun? */
-      if (x + y > inlen) {
-         return CRYPT_INVALID_PACKET;
-      }
-
-      /* read len */
-      blksize = 0;
-      while (y--) {
-          blksize = (blksize << 8) | (unsigned long)in[x++];
-      }
+   y = inlen - x;
+   if ((err = der_decode_asn1_length(&in[x], &y, &blksize)) != CRYPT_OK) {
+      return err;
    }
+   x += y;
 
    /* would this blksize overflow? */
    if (x + blksize > inlen) {

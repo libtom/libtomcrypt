@@ -1127,6 +1127,12 @@ int der_test(void)
 
    der_cacert_test();
 
+      /* we have to modify x to be larger than the encoded
+       * length as der_decode_asn1_length() checks also if
+       * the encoded length is reasonable in regards to the
+       * available buffer size.
+       */
+      x = y + x;
    DO(mp_init_multi(&a, &b, &c, &d, &e, &f, &g, NULL));
    for (zz = 0; zz < 16; zz++) {
 #ifdef USE_TFM

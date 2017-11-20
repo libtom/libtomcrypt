@@ -33,7 +33,7 @@ int der_length_sequence_ex(ltc_asn1_list *list, unsigned long inlen,
 {
    int           err;
    ltc_asn1_type type;
-   unsigned long size, x, y, i, z;
+   unsigned long size, x, y, i;
    void          *data;
 
    LTC_ARGCHK(list    != NULL);
@@ -178,27 +178,16 @@ int der_length_sequence_ex(ltc_asn1_list *list, unsigned long inlen,
        }
    }
 
-   /* calc header size */
-   z = y;
-   if (y < 128) {
-      y += 2;
-   } else if (y < 256) {
-      /* 0x30 0x81 LL */
-      y += 3;
-   } else if (y < 65536UL) {
-      /* 0x30 0x82 LL LL */
-      y += 4;
-   } else if (y < 16777216UL) {
-      /* 0x30 0x83 LL LL LL */
-      y += 5;
-   } else {
-      err = CRYPT_INVALID_ARG;
+   if ((err = der_length_asn1_length(y, &x)) != CRYPT_OK) {
       goto LBL_ERR;
    }
 
+   if (payloadlen != NULL) {
+      *payloadlen = y;
+   }
+
    /* store size */
-   if (payloadlen) *payloadlen = z;
-   *outlen = y;
+   *outlen = y + x + 1;
    err     = CRYPT_OK;
 
 LBL_ERR:

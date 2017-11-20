@@ -15,42 +15,6 @@
 
 #ifdef LTC_DER
 
-static unsigned long _fetch_length(const unsigned char *in, unsigned long inlen, unsigned long *data_offset)
-{
-   unsigned long x, z;
-
-   *data_offset = 0;
-
-   /* skip type and read len */
-   if (inlen < 2) {
-      return 0xFFFFFFFF;
-   }
-   ++in; ++(*data_offset);
-
-   /* read len */
-   x = *in++; ++(*data_offset);
-
-   /* <128 means literal */
-   if (x < 128) {
-      return x+*data_offset;
-   }
-   x     &= 0x7F; /* the lower 7 bits are the length of the length */
-   inlen -= 2;
-
-   /* len means len of len! */
-   if (x == 0 || x > 4 || x > inlen) {
-      return 0xFFFFFFFF;
-   }
-
-   *data_offset += x;
-   z = 0;
-   while (x--) {
-      z = (z<<8) | ((unsigned long)*in);
-      ++in;
-   }
-   return z+*data_offset;
-}
-
 static int _new_element(ltc_asn1_list **l)
 {
    /* alloc new link */
@@ -103,8 +67,10 @@ int der_decode_sequence_flexi(const unsigned char *in, unsigned long *inlen, ltc
       type = *in;
 
       /* fetch length */
-      len = _fetch_length(in, *inlen, &data_offset);
-      if (len > *inlen) {
+      data_offset = *inlen;
+      if ((err = der_decode_asn1_length(in, &data_offset, &len)) != CRYPT_OK) {
+         goto error;
+      } else if (len > *inlen) {
          err = CRYPT_INVALID_PACKET;
          goto error;
       }

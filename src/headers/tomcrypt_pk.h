@@ -549,6 +549,11 @@ typedef struct ltc_asn1_list_ {
       LTC_MACRO_list[LTC_MACRO_temp].optional = 0;   \
    } while (0)
 
+int der_encode_asn1_length(unsigned long len, unsigned char* out, unsigned long* outlen);
+int der_decode_asn1_length(const unsigned char* len, unsigned long* lenlen, unsigned long* outlen);
+int der_length_asn1_length(unsigned long len, unsigned long *outlen);
+
+
 /* SEQUENCE */
 int der_encode_sequence_ex(ltc_asn1_list *list, unsigned long inlen,
                            unsigned char *out,  unsigned long *outlen, int type_of);
