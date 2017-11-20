@@ -333,6 +333,9 @@ int ccm_memory(int cipher,
 
    if (skey != uskey) {
       cipher_descriptor[cipher].done(skey);
+#ifdef LTC_CLEAN_STACK
+      zeromem(skey,   sizeof(*skey));
+#endif
    }
 
    if (direction == CCM_ENCRYPT) {
@@ -380,7 +383,6 @@ int ccm_memory(int cipher,
    fastMask = 0;
 #endif
    mask = 0;
-   zeromem(skey,   sizeof(*skey));
    zeromem(PAD,    sizeof(PAD));
    zeromem(CTRPAD, sizeof(CTRPAD));
    if (pt_work != NULL) {
