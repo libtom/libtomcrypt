@@ -1339,10 +1339,57 @@ get a stream of pseudo--random bytes via:
 err = salsa20_keystream(&st, out_buffer, out_len);
 \end{verbatim}
 
-At the end you have to terminate the state:
+When finished you should wipe the state:
 \begin{verbatim}
 err = salsa20_done(&st);
 \end{verbatim}
+
+\mysection{Sosemanuk}
+
+\textit{Sosemanuk}, along with Salsa20, HC-128, and Rabbit, was named one of the winners in
+the EU eSTREAM competition.  Sosemanuk is a stream cipher that borrows heavily from SNOW,
+another stream cipher, and the block cipher Serpent.  (Sosemanuk means "snow snake" in the
+Cree Indian language.)
+
+Sosemanuk will accept a key between 1 and 256 bits, but Sosemanuk's security level of 128
+bits is achieved only if the key is between 128 and 256 bits.  Keys longer than 128 bits
+are not guaranteed to provided higher security.  The initialization vector is 128 bits.
+
+See \url{http://www.ecrypt.eu.org/stream/p3ciphers/sosemanuk/sosemanuk_p3.pdf} for more
+information.
+
+You begin initializing Sosemanuk by creating a key context using a 128- to 256-bit key.
+\begin{verbatim}
+sosemanuk_key_context kc;
+err = sosemanuk_schedule(&kc, key, key_len);
+\end{verbatim}
+
+Use the key context to create a run context and finish initialization with a 128-bit iv.
+\begin{verbatim}
+sosemanuk_run_context rc;
+err = sosemanuk_init(&rc, &kc, iv, iv_len);
+\end{verbatim}
+
+For the actual encryption or decryption, call:
+\begin{verbatim}
+err = sosemanuk_crypt(&rc, in_buffer, in_len, out_buffer);
+\end{verbatim}
+
+If you just want a random stream of bytes initialize the cipher with a truly random \textit{key}
+(32 bytes), a truly random \textit{iv} (16 bytes). After that you can
+get a stream of pseudo--random bytes via:
+\begin{verbatim}
+err = sosemanuk_keystream(&rc, out_buffer, out_len);
+\end{verbatim}
+
+When finished you should wipe the key and run contexts:
+\begin{verbatim}
+err = sosemanuk_done(&kc, &rc);
+\end{verbatim}
+
+To do multiple encryptions and decryptions with the same key, you can reset the algorithm
+using sosemanuk_init() if you saved the key context and did not wipe it with sosemanuk_done().
+You will want to use a different iv but you do not need to re-run sosemanuk_schedule() again.
 
 \mysection{RC4}
 

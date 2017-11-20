@@ -135,6 +135,9 @@ const char *crypt_build_settings =
 #if defined(LTC_SALSA20)
    "   Salsa20\n"
 #endif
+#if defined(LTC_SOSEMANUK)
+   "   Sosemanuk\n"
+#endif
 #if defined(LTC_RC4_STREAM)
    "   RC4\n"
 #endif

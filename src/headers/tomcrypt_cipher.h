@@ -1031,6 +1031,34 @@ int salsa20_test(void);
 
 #endif /* LTC_SALSA20 */
 
+
+
+#ifdef LTC_SOSEMANUK
+
+typedef struct {
+    ulong32 kc[100];    /* key_context */
+    ulong32 s00, s01, s02, s03, s04, s05, s06, s07, s08, s09;
+    ulong32 r1, r2;
+    /*
+     * Buffering: the stream cipher produces output data by
+     * blocks of 640 bits. buf[] contains such a block, and
+     * "ptr" is the index of the next output byte.
+     */
+    unsigned char buf[80];
+    unsigned ptr;
+} sosemanuk_state;
+
+int sosemanuk_setup(sosemanuk_state *ss, unsigned char *key, unsigned long keylen);
+int sosemanuk_setiv(sosemanuk_state *ss, unsigned char *iv, unsigned long ivlen);
+int sosemanuk_crypt(sosemanuk_state *ss, const unsigned char *in, unsigned long datalen, unsigned char *out);
+int sosemanuk_keystream(sosemanuk_state *ss, unsigned char *out, unsigned long outlen);
+int sosemanuk_done(sosemanuk_state *ss);
+int sosemanuk_test(void);
+
+#endif /* LTC_SOSEMANUK */
+
+
+
 #ifdef LTC_RC4_STREAM
 
 typedef struct {

@@ -51,12 +51,14 @@ LTC_EXPORT int   LTC_CALL XSTRCMP(const char *s1, const char *s2);
 #endif
 
 /* some compilers do not like "inline" (or maybe "static inline"), namely: HP cc, IBM xlc */
-#if defined(__HP_cc) || defined(__xlc__)
-   #define LTC_INLINE
-#elif defined(_MSC_VER)
+#if defined(__GNUC__) || defined(__xlc__)
+   #define LTC_INLINE __inline__
+#elif defined(_MSC_VER) || defined(__HP_cc)
    #define LTC_INLINE __inline
-#else
+#elif defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L
    #define LTC_INLINE inline
+#else
+   #define LTC_INLINE
 #endif
 
 /* type of argument checking, 0=default, 1=fatal and 2=error+continue, 3=nothing */
