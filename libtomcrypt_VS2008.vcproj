@@ -2559,6 +2559,18 @@
 					</FileConfiguration>
 				</File>
 			</Filter>
+			<Filter
+				Name="sosemanuk"
+				>
+				<File
+					RelativePath="src\stream\sosemanuk\sosemanuk.c"
+					>
+				</File>
+				<File
+					RelativePath="src\stream\sosemanuk\sosemanuk_test.c"
+					>
+				</File>
+			</Filter>
 		</Filter>
 	</Files>
 	<Globals>

@@ -343,7 +343,8 @@ src/stream/rc4/rc4_stream.o src/stream/rc4/rc4_test.o src/stream/salsa20/salsa20
 src/stream/salsa20/salsa20_done.o src/stream/salsa20/salsa20_ivctr64.o \
 src/stream/salsa20/salsa20_keystream.o src/stream/salsa20/salsa20_setup.o \
 src/stream/salsa20/salsa20_test.o src/stream/sober128/sober128_stream.o \
-src/stream/sober128/sober128_test.o
+src/stream/sober128/sober128_test.o src/stream/sosemanuk/sosemanuk.o \
+src/stream/sosemanuk/sosemanuk_test.o
 
 # List of test objects to compile (all goes to libtomcrypt_prof.a)
 TOBJECTS=tests/base32_test.o tests/base64_test.o tests/cipher_hash_test.o tests/common.o \
