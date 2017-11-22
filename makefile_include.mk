@@ -280,6 +280,12 @@ src/pk/asn1/der/bit/der_decode_raw_bit_string.o src/pk/asn1/der/bit/der_encode_b
 src/pk/asn1/der/bit/der_encode_raw_bit_string.o src/pk/asn1/der/bit/der_length_bit_string.o \
 src/pk/asn1/der/boolean/der_decode_boolean.o src/pk/asn1/der/boolean/der_encode_boolean.o \
 src/pk/asn1/der/boolean/der_length_boolean.o src/pk/asn1/der/choice/der_decode_choice.o \
+src/pk/asn1/der/custom_type/der_decode_custom_type.o \
+src/pk/asn1/der/custom_type/der_encode_custom_type.o \
+src/pk/asn1/der/custom_type/der_length_custom_type.o src/pk/asn1/der/general/der_asn1_maps.o \
+src/pk/asn1/der/general/der_decode_asn1_identifier.o src/pk/asn1/der/general/der_decode_asn1_length.o \
+src/pk/asn1/der/general/der_encode_asn1_identifier.o src/pk/asn1/der/general/der_encode_asn1_length.o \
+src/pk/asn1/der/general/der_length_asn1_identifier.o src/pk/asn1/der/general/der_length_asn1_length.o \
 src/pk/asn1/der/generalizedtime/der_decode_generalizedtime.o \
 src/pk/asn1/der/generalizedtime/der_encode_generalizedtime.o \
 src/pk/asn1/der/generalizedtime/der_length_generalizedtime.o \
@@ -297,13 +303,11 @@ src/pk/asn1/der/printable_string/der_length_printable_string.o \
 src/pk/asn1/der/sequence/der_decode_sequence_ex.o \
 src/pk/asn1/der/sequence/der_decode_sequence_flexi.o \
 src/pk/asn1/der/sequence/der_decode_sequence_multi.o \
-src/pk/asn1/der/sequence/der_decode_subject_public_key_info.o \
 src/pk/asn1/der/sequence/der_encode_sequence_ex.o \
-src/pk/asn1/der/sequence/der_encode_sequence_multi.o \
-src/pk/asn1/der/sequence/der_encode_subject_public_key_info.o \
-src/pk/asn1/der/sequence/der_length_sequence.o src/pk/asn1/der/sequence/der_sequence_free.o \
-src/pk/asn1/der/sequence/der_sequence_shrink.o src/pk/asn1/der/set/der_encode_set.o \
-src/pk/asn1/der/set/der_encode_setof.o src/pk/asn1/der/short_integer/der_decode_short_integer.o \
+src/pk/asn1/der/sequence/der_encode_sequence_multi.o src/pk/asn1/der/sequence/der_length_sequence.o \
+src/pk/asn1/der/sequence/der_sequence_free.o src/pk/asn1/der/sequence/der_sequence_shrink.o \
+src/pk/asn1/der/set/der_encode_set.o src/pk/asn1/der/set/der_encode_setof.o \
+src/pk/asn1/der/short_integer/der_decode_short_integer.o \
 src/pk/asn1/der/short_integer/der_encode_short_integer.o \
 src/pk/asn1/der/short_integer/der_length_short_integer.o \
 src/pk/asn1/der/teletex_string/der_decode_teletex_string.o \
@@ -311,10 +315,11 @@ src/pk/asn1/der/teletex_string/der_length_teletex_string.o \
 src/pk/asn1/der/utctime/der_decode_utctime.o src/pk/asn1/der/utctime/der_encode_utctime.o \
 src/pk/asn1/der/utctime/der_length_utctime.o src/pk/asn1/der/utf8/der_decode_utf8_string.o \
 src/pk/asn1/der/utf8/der_encode_utf8_string.o src/pk/asn1/der/utf8/der_length_utf8_string.o \
-src/pk/dh/dh.o src/pk/dh/dh_check_pubkey.o src/pk/dh/dh_export.o src/pk/dh/dh_export_key.o \
-src/pk/dh/dh_free.o src/pk/dh/dh_generate_key.o src/pk/dh/dh_import.o src/pk/dh/dh_set.o \
-src/pk/dh/dh_set_pg_dhparam.o src/pk/dh/dh_shared_secret.o src/pk/dsa/dsa_decrypt_key.o \
-src/pk/dsa/dsa_encrypt_key.o src/pk/dsa/dsa_export.o src/pk/dsa/dsa_free.o \
+src/pk/asn1/x509/x509_decode_subject_public_key_info.o \
+src/pk/asn1/x509/x509_encode_subject_public_key_info.o src/pk/dh/dh.o src/pk/dh/dh_check_pubkey.o \
+src/pk/dh/dh_export.o src/pk/dh/dh_export_key.o src/pk/dh/dh_free.o src/pk/dh/dh_generate_key.o \
+src/pk/dh/dh_import.o src/pk/dh/dh_set.o src/pk/dh/dh_set_pg_dhparam.o src/pk/dh/dh_shared_secret.o \
+src/pk/dsa/dsa_decrypt_key.o src/pk/dsa/dsa_encrypt_key.o src/pk/dsa/dsa_export.o src/pk/dsa/dsa_free.o \
 src/pk/dsa/dsa_generate_key.o src/pk/dsa/dsa_generate_pqg.o src/pk/dsa/dsa_import.o \
 src/pk/dsa/dsa_make_key.o src/pk/dsa/dsa_set.o src/pk/dsa/dsa_set_pqg_dsaparam.o \
 src/pk/dsa/dsa_shared_secret.o src/pk/dsa/dsa_sign_hash.o src/pk/dsa/dsa_verify_hash.o \
