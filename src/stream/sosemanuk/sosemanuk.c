@@ -380,7 +380,7 @@ int sosemanuk_setiv(sosemanuk_state *ss, unsigned char *iv, unsigned long ivlen)
     unsigned char ivtmp[16] = {0};
 
     LTC_ARGCHK(ss != NULL);
-    LTC_ARGCHK(ivlen >= 0 && ivlen <= 16);
+    LTC_ARGCHK(ivlen <= 16);
     LTC_ARGCHK(iv != NULL || ivlen == 0);
 
     if (ivlen > 0) XMEMCPY(ivtmp, iv, ivlen);
@@ -448,7 +448,7 @@ int sosemanuk_setiv(sosemanuk_state *ss, unsigned char *iv, unsigned long ivlen)
 /*
  * Multiplication by alpha: alpha * x = T32(x << 8) ^ mul_a[x >> 24]
  */
-static ulong32 mul_a[] = {
+static const ulong32 mul_a[] = {
     0x00000000, 0xE19FCF13, 0x6B973726, 0x8A08F835,
     0xD6876E4C, 0x3718A15F, 0xBD10596A, 0x5C8F9679,
     0x05A7DC98, 0xE438138B, 0x6E30EBBE, 0x8FAF24AD,
@@ -518,7 +518,7 @@ static ulong32 mul_a[] = {
 /*
  * Multiplication by 1/alpha: 1/alpha * x = (x >> 8) ^ mul_ia[x & 0xFF]
  */
-static ulong32 mul_ia[] = {
+static const ulong32 mul_ia[] = {
     0x00000000, 0x180F40CD, 0x301E8033, 0x2811C0FE,
     0x603CA966, 0x7833E9AB, 0x50222955, 0x482D6998,
     0xC078FBCC, 0xD877BB01, 0xF0667BFF, 0xE8693B32,
