@@ -374,39 +374,6 @@ static void _der_tests_print_flexi(ltc_asn1_list* l, unsigned int level)
     name = "TELETEX STRING";
     text = l->data;
     break;
-  case LTC_ASN1_CONSTRUCTED:
-    if (l->used & 0x80)
-      name = "CONTEXT SPECIFIC";
-    else
-      name = "CONSTRUCTED";
-    snprintf(buf, sizeof(buf), "[%d]", l->used & 0x1f);
-    text = buf;
-    break;
-  case LTC_ASN1_CONTEXT_SPECIFIC:
-    name = "CONTEXT SPECIFIC";
-    {
-      int r;
-      char* s = buf;
-      int sz = sizeof(buf);
-      r = snprintf(s, sz, "[%d] ", l->used & 0x1f);
-      if (r < 0 || r >= sz) {
-          printf("Context Specific boom");
-          exit(EXIT_FAILURE);
-      }
-      s += r;
-      sz -= r;
-      for (n = 0; n < l->size; ++n) {
-          r = snprintf(s, sz, "%02X", ((unsigned char*)l->data)[n]);
-          if (r < 0 || r >= sz) {
-              printf("Context Specific boom");
-              exit(EXIT_FAILURE);
-          }
-          s += r;
-          sz -= r;
-      }
-      text = buf;
-    }
-    break;
   }
 
   for (n = 0; n < level; ++n) {

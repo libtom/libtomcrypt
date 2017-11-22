@@ -42,9 +42,6 @@ const int der_asn1_type_to_identifier_map[] =
  49, /* LTC_ASN1_SETOF, */
   3, /* LTC_ASN1_RAW_BIT_STRING, */
  20, /* LTC_ASN1_TELETEX_STRING, */
- -1, /* LTC_ASN1_CONSTRUCTED, */
- -1, /* LTC_ASN1_CONTEXT_SPECIFIC, */
-     /* 20 */
  24, /* LTC_ASN1_GENERALIZEDTIME, */
  -1, /* LTC_ASN1_CUSTOM_TYPE, */
 };

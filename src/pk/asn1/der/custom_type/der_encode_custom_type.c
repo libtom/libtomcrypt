@@ -210,8 +210,6 @@ int der_encode_custom_type(const ltc_asn1_list *root,
                break;
 
            case LTC_ASN1_CHOICE:
-           case LTC_ASN1_CONSTRUCTED:
-           case LTC_ASN1_CONTEXT_SPECIFIC:
            case LTC_ASN1_EOL:
            case LTC_ASN1_TELETEX_STRING:
                err = CRYPT_INVALID_ARG;
