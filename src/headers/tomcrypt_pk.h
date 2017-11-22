@@ -517,6 +517,7 @@ typedef enum ltc_asn1_type_ {
  LTC_ASN1_CONTEXT_SPECIFIC,
  /* 20 */
  LTC_ASN1_GENERALIZEDTIME,
+ LTC_ASN1_CUSTOM_TYPE,
 } ltc_asn1_type;
 
 /** A LTC ASN.1 list type */
@@ -554,6 +555,15 @@ int der_decode_asn1_length(const unsigned char* len, unsigned long* lenlen, unsi
 int der_length_asn1_length(unsigned long len, unsigned long *outlen);
 
 
+extern const char*          der_asn1_class_to_string_map[];
+extern const unsigned long  der_asn1_class_to_string_map_sz;
+
+extern const char*          der_asn1_pc_to_string_map[];
+extern const unsigned long  der_asn1_pc_to_string_map_sz;
+
+extern const char*          der_asn1_tag_to_string_map[];
+extern const unsigned long  der_asn1_tag_to_string_map_sz;
+
 /* SEQUENCE */
 int der_encode_sequence_ex(ltc_asn1_list *list, unsigned long inlen,
                            unsigned char *out,  unsigned long *outlen, int type_of);
@@ -572,6 +582,12 @@ int der_length_sequence(ltc_asn1_list *list, unsigned long inlen,
 /* internal helper functions */
 int der_length_sequence_ex(ltc_asn1_list *list, unsigned long inlen,
                            unsigned long *outlen, unsigned long *payloadlen);
+
+extern const ltc_asn1_type  der_asn1_tag_to_type_map[];
+extern const unsigned long  der_asn1_tag_to_type_map_sz;
+
+extern const int der_asn1_type_to_identifier_map[];
+extern const unsigned long der_asn1_type_to_identifier_map_sz;
 #endif /* LTC_SOURCE */
 
 /* SET */

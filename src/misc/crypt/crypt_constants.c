@@ -132,6 +132,7 @@ static const crypt_constant _crypt_constants[] = {
     _C_STRINGIFY(LTC_ASN1_CONSTRUCTED),
     _C_STRINGIFY(LTC_ASN1_CONTEXT_SPECIFIC),
     _C_STRINGIFY(LTC_ASN1_GENERALIZEDTIME),
+    _C_STRINGIFY(LTC_ASN1_CUSTOM_TYPE),
 #endif
 
 #ifdef LTC_CTR_MODE
