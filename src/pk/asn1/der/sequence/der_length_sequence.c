@@ -143,6 +143,13 @@ int der_length_sequence_ex(ltc_asn1_list *list, unsigned long inlen,
                y += x;
                break;
 
+           case LTC_ASN1_CUSTOM_TYPE:
+               if ((err = der_length_custom_type(&list[i], &x, NULL)) != CRYPT_OK) {
+                  goto LBL_ERR;
+               }
+               y += x;
+               break;
+
            case LTC_ASN1_SET:
            case LTC_ASN1_SETOF:
            case LTC_ASN1_SEQUENCE:
@@ -152,29 +159,12 @@ int der_length_sequence_ex(ltc_asn1_list *list, unsigned long inlen,
                y += x;
                break;
 
-
            case LTC_ASN1_CHOICE:
            case LTC_ASN1_CONSTRUCTED:
            case LTC_ASN1_CONTEXT_SPECIFIC:
            case LTC_ASN1_EOL:
                err = CRYPT_INVALID_ARG;
                goto LBL_ERR;
-       }
-
-       /* handle context specific tags size */
-       if (list[i].tag > 0) {
-         if (x < 128) {
-            y += 2;
-         } else if (x < 256) {
-            y += 3;
-         } else if (x < 65536UL) {
-            y += 4;
-         } else if (x < 16777216UL) {
-            y += 5;
-         } else {
-            err = CRYPT_INVALID_ARG;
-            goto LBL_ERR;
-         }
        }
    }
 

@@ -205,6 +205,16 @@ int der_decode_choice(const unsigned char *in,   unsigned long *inlen,
                }
                break;
 
+           case LTC_ASN1_CUSTOM_TYPE:
+               if (der_decode_custom_type(in, *inlen, &list[x]) == CRYPT_OK) {
+                  if (der_length_custom_type(&list[x], &z, NULL) == CRYPT_OK) {
+                     list[x].used = 1;
+                     *inlen       = z;
+                     return CRYPT_OK;
+                  }
+               }
+               break;
+
            case LTC_ASN1_CHOICE:
            case LTC_ASN1_CONSTRUCTED:
            case LTC_ASN1_CONTEXT_SPECIFIC:

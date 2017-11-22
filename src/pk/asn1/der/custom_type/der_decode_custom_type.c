@@ -72,14 +72,21 @@ int der_decode_custom_type(const unsigned char *in, unsigned long  inlen,
    outlen = root->size;
 
    if (root->pc == LTC_ASN1_PC_PRIMITIVE) {
-      if (der_asn1_type_to_identifier_map[list[0].type] == -1) {
+      if (((unsigned long)root->used >= der_asn1_type_to_identifier_map_sz) ||
+            (der_asn1_type_to_identifier_map[root->used] == -1)) {
          err = CRYPT_INVALID_PACKET;
          goto LBL_ERR;
       }
+
+      root->type = (ltc_asn1_type)root->used;
+      list = root;
+      outlen = 1;
+
       x -= 1;
       in_new[x] = (unsigned char)der_asn1_type_to_identifier_map[list[0].type];
       blksize = inlen - x;
    } else {
+
       y = inlen - x;
       if ((err = der_decode_asn1_length(&in[x], &y, &blksize)) != CRYPT_OK) {
          goto LBL_ERR;

@@ -29,7 +29,7 @@
 int der_length_custom_type(const ltc_asn1_list *root, unsigned long *outlen, unsigned long *payloadlen)
 {
    int           err;
-   ltc_asn1_list *list;
+   const ltc_asn1_list *list;
    ltc_asn1_type type;
    unsigned long size, x, y, i, inlen, id_len;
    void          *data;
@@ -37,23 +37,25 @@ int der_length_custom_type(const ltc_asn1_list *root, unsigned long *outlen, uns
    LTC_ARGCHK(root    != NULL);
    LTC_ARGCHK(outlen  != NULL);
 
-   if ((root->pc == LTC_ASN1_PC_PRIMITIVE) && (root->size != 1)) {
-      /* In case it's a PRIMITIVE element there has to be
-       * exactly one element following.
-       */
-      return CRYPT_INVALID_PACKET;
-   }
-
    /* get size of output that will be required */
    if ((err = der_length_asn1_identifier(root, &id_len)) != CRYPT_OK) {
       return err;
    }
    y = id_len;
 
-   inlen = root->size;
-   list = root->data;
+   if (root->pc == LTC_ASN1_PC_PRIMITIVE) {
+      list = root;
+      inlen = 1;
+   } else {
+      list = root->data;
+      inlen = root->size;
+   }
    for (i = 0; i < inlen; i++) {
-       type = list[i].type;
+       if (root->pc == LTC_ASN1_PC_PRIMITIVE) {
+          type = (ltc_asn1_type)list[i].used;
+       } else {
+          type = list[i].type;
+       }
        size = list[i].size;
        data = list[i].data;
 

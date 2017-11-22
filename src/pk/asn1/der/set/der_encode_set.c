@@ -39,6 +39,7 @@ static int _ltc_to_asn1(ltc_asn1_type v)
       case LTC_ASN1_CHOICE:
       case LTC_ASN1_CONSTRUCTED:
       case LTC_ASN1_CONTEXT_SPECIFIC:
+      case LTC_ASN1_CUSTOM_TYPE:
       case LTC_ASN1_EOL:                     return -1;
    }
    return -1;

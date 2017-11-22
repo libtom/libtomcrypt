@@ -72,6 +72,7 @@ int der_decode_sequence_multi(const unsigned char *in, unsigned long inlen, ...)
                 break;
 
            case LTC_ASN1_EOL:
+           case LTC_ASN1_CUSTOM_TYPE:
            case LTC_ASN1_CONSTRUCTED:
            case LTC_ASN1_CONTEXT_SPECIFIC:
                va_end(args);
@@ -125,6 +126,7 @@ int der_decode_sequence_multi(const unsigned char *in, unsigned long inlen, ...)
                 break;
            /* coverity[dead_error_line] */
            case LTC_ASN1_EOL:
+           case LTC_ASN1_CUSTOM_TYPE:
            case LTC_ASN1_CONSTRUCTED:
            case LTC_ASN1_CONTEXT_SPECIFIC:
                 break;
