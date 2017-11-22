@@ -61,7 +61,7 @@ sub check_source {
           $file !~ m|src/hashes/.*\.c$| &&
           $file !~ m|src/math/.+_desc.c$| &&
           $file !~ m|src/stream/sober128/sober128_stream.c$| &&
-          $l =~ /^static(\s+\S+)+\s+([^_][a-zA-Z0-9_]+)\s*\(/) {
+          $l =~ /^static(\s+[a-zA-Z0-9_]+)+\s+([^_][a-zA-Z0-9_]+)\s*\(/) {
         push @{$troubles->{staticfunc_name}}, "$lineno($2)";
       }
       $lineno++;
