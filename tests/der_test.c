@@ -259,6 +259,8 @@ static void _der_tests_print_flexi(ltc_asn1_list* l, unsigned int level)
     break;
   case LTC_ASN1_INTEGER:
     name = "INTEGER";
+    mp_toradix(l->data, buf, 10);
+    text = buf;
     break;
   case LTC_ASN1_SHORT_INTEGER:
     name = "SHORT INTEGER";
@@ -374,6 +376,24 @@ static void _der_tests_print_flexi(ltc_asn1_list* l, unsigned int level)
     name = "TELETEX STRING";
     text = l->data;
     break;
+  case LTC_ASN1_CUSTOM_TYPE:
+    name = "NON STANDARD";
+    {
+       int r;
+       char* s = buf;
+       int sz = sizeof(buf);
+
+       r = snprintf(s, sz, "[%s %s %llu]", der_asn1_class_to_string_map[l->class], der_asn1_pc_to_string_map[l->pc], l->tag);
+       if (r < 0 || r >= sz) {
+           fprintf(stderr, "%s boom\n", name);
+           exit(EXIT_FAILURE);
+       }
+       s += r;
+       sz -= r;
+
+       text = buf;
+    }
+    break;
   }
 
   for (n = 0; n < level; ++n) {
@@ -455,7 +475,7 @@ SEQUENCE(3 elem)
             INTEGER  2
    */
 
-  CHECK_ASN1_TYPE(l1, LTC_ASN1_CONSTRUCTED);
+  CHECK_ASN1_TYPE(l1, LTC_ASN1_CUSTOM_TYPE);
   CHECK_ASN1_HAS_CHILD(l1);
   CHECK_ASN1_HAS_NEXT(l1);
 
@@ -995,11 +1015,13 @@ static void der_flexi_test(void)
 
 }
 
-static int der_choice_test(void)
+static int der_choice_n_custom_test(void)
 {
-   ltc_asn1_list types[7], host[1];
-   unsigned char bitbuf[10], octetbuf[10], ia5buf[10], printbuf[10], outbuf[256], x, y;
-   unsigned long integer, oidbuf[10], outlen, inlen;
+   ltc_asn1_list types[10], host[1], custom[1], root[1], child[1];
+   int boolean[1];
+   unsigned char bitbuf[10], octetbuf[10], ia5buf[10], printbuf[10], outbuf[256], custbuf[256], x, y;
+   wchar_t utf8buf[10];
+   unsigned long integer, oidbuf[10], outlen, custlen, inlen, n;
    void          *mpinteger;
    ltc_utctime   utctime = { 91, 5, 6, 16, 45, 40, 1, 7, 0 };
    ltc_generalizedtime gtime = { 2038, 01, 19, 3, 14, 8, 0, 0, 0, 0 };
@@ -1009,54 +1031,401 @@ static int der_choice_test(void)
    for (x = 0; x < sizeof(octetbuf); x++) { octetbuf[x] = x;     }
    for (x = 0; x < sizeof(ia5buf); x++)   { ia5buf[x]   = 'a';   }
    for (x = 0; x < sizeof(printbuf); x++) { printbuf[x] = 'a';   }
+   for (x = 0; x < sizeof(utf8buf)/sizeof(utf8buf[0]); x++) { utf8buf[x] = L'a';   }
    integer = 1;
+   boolean[0] = 1;
    for (x = 0; x < sizeof(oidbuf)/sizeof(oidbuf[0]); x++)   { oidbuf[x] = x + 1;   }
    DO(mp_init(&mpinteger));
 
-   for (x = 0; x < 14; x++) {
+   n = sizeof(types)/sizeof(types[0]);
+   for (x = 0; x < n * 2; x++) {
        /* setup list */
-       LTC_SET_ASN1(types, 0, LTC_ASN1_PRINTABLE_STRING, printbuf, sizeof(printbuf));
-       LTC_SET_ASN1(types, 1, LTC_ASN1_BIT_STRING, bitbuf, sizeof(bitbuf));
-       LTC_SET_ASN1(types, 2, LTC_ASN1_OCTET_STRING, octetbuf, sizeof(octetbuf));
-       LTC_SET_ASN1(types, 3, LTC_ASN1_IA5_STRING, ia5buf, sizeof(ia5buf));
-       if (x > 7) {
-          LTC_SET_ASN1(types, 4, LTC_ASN1_SHORT_INTEGER, &integer, 1);
+       y = 0;
+       LTC_SET_ASN1(types, y++, LTC_ASN1_PRINTABLE_STRING, printbuf, sizeof(printbuf));
+       if (x > n) {
+          LTC_SET_ASN1(types, y++, LTC_ASN1_BIT_STRING, bitbuf, sizeof(bitbuf));
        } else {
-          LTC_SET_ASN1(types, 4, LTC_ASN1_INTEGER, mpinteger, 1);
+          LTC_SET_ASN1(types, y++, LTC_ASN1_RAW_BIT_STRING, bitbuf, sizeof(bitbuf));
        }
-       LTC_SET_ASN1(types, 5, LTC_ASN1_OBJECT_IDENTIFIER, oidbuf, sizeof(oidbuf)/sizeof(oidbuf[0]));
-       if (x > 7) {
-          LTC_SET_ASN1(types, 6, LTC_ASN1_UTCTIME, &utctime, 1);
+       LTC_SET_ASN1(types, y++, LTC_ASN1_OCTET_STRING, octetbuf, sizeof(octetbuf));
+       LTC_SET_ASN1(types, y++, LTC_ASN1_IA5_STRING, ia5buf, sizeof(ia5buf));
+       LTC_SET_ASN1(types, y++, LTC_ASN1_BOOLEAN, boolean, sizeof(boolean)/sizeof(boolean[0]));
+       if (x > n) {
+          LTC_SET_ASN1(types, y++, LTC_ASN1_SHORT_INTEGER, &integer, 1);
        } else {
-          LTC_SET_ASN1(types, 6, LTC_ASN1_GENERALIZEDTIME, &gtime, 1);
+          LTC_SET_ASN1(types, y++, LTC_ASN1_INTEGER, mpinteger, 1);
+       }
+       LTC_SET_ASN1(types, y++, LTC_ASN1_OBJECT_IDENTIFIER, oidbuf, sizeof(oidbuf)/sizeof(oidbuf[0]));
+       if (x > n) {
+          LTC_SET_ASN1(types, y++, LTC_ASN1_UTCTIME, &utctime, 1);
+       } else {
+          LTC_SET_ASN1(types, y++, LTC_ASN1_GENERALIZEDTIME, &gtime, 1);
        }
 
-       LTC_SET_ASN1(host, 0, LTC_ASN1_CHOICE, types, 7);
+       LTC_SET_ASN1(custom, 0, LTC_ASN1_NULL, NULL, 0);
+       LTC_SET_ASN1_CUSTOM_CONSTRUCTED(types, y++, LTC_ASN1_CL_CONTEXT_SPECIFIC, 0, custom);
+
+       LTC_SET_ASN1(types, y++, LTC_ASN1_UTF8_STRING, utf8buf, sizeof(utf8buf)/sizeof(utf8buf[0]));
+
+       LTC_SET_ASN1(host, 0, LTC_ASN1_CHOICE, types, n);
 
 
        /* encode */
        outlen = sizeof(outbuf);
-       DO(der_encode_sequence(&types[x>6?x-7:x], 1, outbuf, &outlen));
+       DO(der_encode_sequence(&types[x % n], 1, outbuf, &outlen));
+
+       /* custom encode */
+       child[0] = types[x % n];
+       if (x < n) {
+          LTC_SET_ASN1_CUSTOM_CONSTRUCTED(root, 0, LTC_ASN1_CL_CONTEXT_SPECIFIC, 1U << (x % n), child);
+       } else {
+          LTC_SET_ASN1_CUSTOM_PRIMITIVE(root, 0, LTC_ASN1_CL_CONTEXT_SPECIFIC, 1U << (x % n), child->type, child->data, child->size);
+       }
+       custlen = sizeof(custbuf);
+       /* don't try to custom-encode a primitive custom-type */
+       if (child[0].type != LTC_ASN1_CUSTOM_TYPE || root->pc != LTC_ASN1_PC_PRIMITIVE) {
+          DO(der_encode_custom_type(root, custbuf, &custlen));
+       }
 
        /* decode it */
        inlen = outlen;
-       DO(der_decode_sequence(outbuf, inlen, &host[0], 1));
+       DO(der_decode_sequence(outbuf, inlen, host, 1));
 
-       for (y = 0; y < 7; y++) {
-           if (types[y].used && y != (x>6?x-7:x)) {
+       for (y = 0; y < n; y++) {
+           if (types[y].used && y != (x % n)) {
                fprintf(stderr, "CHOICE, flag %u in trial %u was incorrectly set to one\n", y, x);
                return 1;
            }
-           if (!types[y].used && y == (x>6?x-7:x)) {
+           if (!types[y].used && y == (x % n)) {
                fprintf(stderr, "CHOICE, flag %u in trial %u was incorrectly set to zero\n", y, x);
                return 1;
            }
+      }
+
+      /* custom decode */
+      if (child[0].type != LTC_ASN1_CUSTOM_TYPE || root->pc != LTC_ASN1_PC_PRIMITIVE) {
+         DO(der_decode_custom_type(custbuf, custlen, root));
       }
   }
   mp_clear(mpinteger);
   return 0;
 }
 
+static void _der_decode_print(const void* p, unsigned long* plen)
+{
+   ltc_asn1_list *list;
+   DO(der_decode_sequence_flexi(p, plen, &list));
+#ifdef LTC_DER_TESTS_PRINT_FLEXI
+   fprintf(stderr, "\n\n");
+   _der_tests_print_flexi(list, 0);
+   fprintf(stderr, "\n\n");
+#endif
+   der_sequence_free(list);
+}
+
+static const unsigned char eckey_privc_der[] = {
+  0x30, 0x81, 0xf0, 0x02, 0x01, 0x01, 0x04, 0x18, 0x96, 0x9d, 0x28, 0xf2, 0x40, 0x48, 0x19, 0x11,
+  0x79, 0xb0, 0x47, 0x8e, 0x8c, 0x6b, 0x3d, 0x9b, 0xf2, 0x31, 0x16, 0x10, 0x08, 0x72, 0xb1, 0x86,
+  0xa0, 0x81, 0xb2, 0x30, 0x81, 0xaf, 0x02, 0x01, 0x01, 0x30, 0x24, 0x06, 0x07, 0x2a, 0x86, 0x48,
+  0xce, 0x3d, 0x01, 0x01, 0x02, 0x19, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+  0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xfe, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x30,
+  0x4b, 0x04, 0x18, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+  0xff, 0xff, 0xfe, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xfc, 0x04, 0x18, 0x22, 0x12, 0x3d,
+  0xc2, 0x39, 0x5a, 0x05, 0xca, 0xa7, 0x42, 0x3d, 0xae, 0xcc, 0xc9, 0x47, 0x60, 0xa7, 0xd4, 0x62,
+  0x25, 0x6b, 0xd5, 0x69, 0x16, 0x03, 0x15, 0x00, 0xc4, 0x69, 0x68, 0x44, 0x35, 0xde, 0xb3, 0x78,
+  0xc4, 0xb6, 0x5c, 0xa9, 0x59, 0x1e, 0x2a, 0x57, 0x63, 0x05, 0x9a, 0x2e, 0x04, 0x19, 0x02, 0x7d,
+  0x29, 0x77, 0x81, 0x00, 0xc6, 0x5a, 0x1d, 0xa1, 0x78, 0x37, 0x16, 0x58, 0x8d, 0xce, 0x2b, 0x8b,
+  0x4a, 0xee, 0x8e, 0x22, 0x8f, 0x18, 0x96, 0x02, 0x19, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+  0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x7a, 0x62, 0xd0, 0x31, 0xc8, 0x3f, 0x42, 0x94, 0xf6, 0x40,
+  0xec, 0x13, 0x02, 0x01, 0x01, 0xa1, 0x1c, 0x03, 0x1a, 0x00, 0x02, 0x55, 0x2c, 0xb8, 0x73, 0x5c,
+  0x9d, 0x98, 0xe4, 0x57, 0xfe, 0xd5, 0x96, 0x0a, 0x73, 0x8d, 0x82, 0xd7, 0xce, 0x05, 0xa9, 0x79,
+  0x91, 0x5c, 0xf9
+};
+
+static const unsigned char eckey_privs_der[] = {
+  0x30, 0x50, 0x02, 0x01, 0x01, 0x04, 0x14, 0x82, 0xef, 0x42, 0x0b, 0xc7, 0xe2, 0x9f, 0x3a, 0x84,
+  0xe5, 0x74, 0xec, 0x9c, 0xc5, 0x10, 0x26, 0x63, 0x8d, 0xb5, 0x46, 0xa0, 0x07, 0x06, 0x05, 0x2b,
+  0x81, 0x04, 0x00, 0x09, 0xa1, 0x2c, 0x03, 0x2a, 0x00, 0x04, 0xb5, 0xb1, 0x5a, 0xb0, 0x2a, 0x10,
+  0xd1, 0xf5, 0x4d, 0x6a, 0x41, 0xde, 0xcd, 0x69, 0x09, 0xb3, 0x5f, 0x26, 0xb0, 0xa2, 0xaf, 0xd3,
+  0x02, 0x89, 0x5e, 0xd4, 0x96, 0x5c, 0xbc, 0x2a, 0x7e, 0x75, 0x85, 0x86, 0x29, 0xb3, 0x29, 0x13,
+  0x77, 0xc3
+};
+static void der_custom_test(void)
+{
+   ltc_asn1_list bool_ean[1], seq1[1], custom[1];
+   int boolean;
+   unsigned long len;
+   unsigned char buf[1024];
+   unsigned char buf1[] = { 0xbf, 0xa0, 0x00, 0x04, 0x30, 0x02, 0x05, 0x00 };
+   unsigned char buf2[] = { 0x30, 0x08, 0xbf, 0xa0, 0x00, 0x04, 0x30, 0x02, 0x05, 0x00 };
+
+   boolean = 0x1;
+   LTC_SET_ASN1(bool_ean, 0, LTC_ASN1_BOOLEAN, &boolean, 1);
+   LTC_SET_ASN1(seq1, 0, LTC_ASN1_SEQUENCE, bool_ean, 1);
+   LTC_SET_ASN1_CUSTOM_CONSTRUCTED(custom, 0, LTC_ASN1_CL_CONTEXT_SPECIFIC, 0x1000, seq1);
+
+   DO(der_length_custom_type(custom, &len, NULL));
+   len = sizeof(buf);
+   DO(der_encode_custom_type(custom, buf, &len));
+   _der_decode_print(buf, &len);
+
+   boolean = 0x0;
+   DO(der_decode_custom_type(buf, len, custom));
+
+   DO(der_length_sequence(custom, 1, &len));
+   len = sizeof(buf);
+   DO(der_encode_sequence(custom, 1, buf, &len));
+   _der_decode_print(buf, &len);
+
+   boolean = 0x0;
+   DO(der_decode_sequence(buf, len, custom, 1));
+
+   LTC_SET_ASN1_CUSTOM_PRIMITIVE(bool_ean, 0, LTC_ASN1_CL_CONTEXT_SPECIFIC, 0x8000, LTC_ASN1_BOOLEAN, &boolean, 1);
+   DO(der_length_custom_type(bool_ean, &len, NULL));
+   len = sizeof(buf);
+   DO(der_encode_custom_type(bool_ean, buf, &len));
+   _der_decode_print(buf, &len);
+
+   LTC_SET_ASN1_CUSTOM_PRIMITIVE(bool_ean, 0, LTC_ASN1_CL_CONTEXT_SPECIFIC, 0x8000, LTC_ASN1_BOOLEAN, &boolean, 1);
+   DO(der_decode_custom_type(buf, len, bool_ean));
+
+   len = sizeof(buf1);
+   _der_decode_print(buf1, &len);
+
+   len = sizeof(buf2);
+   _der_decode_print(buf2, &len);
+
+   len = sizeof(eckey_privc_der);
+   _der_decode_print(eckey_privc_der, &len);
+
+   len = sizeof(eckey_privs_der);
+   _der_decode_print(eckey_privs_der, &len);
+}
+
+typedef int (*_der_Xcode)(const void*, unsigned long, void*, unsigned long*);
+
+typedef struct {
+   _der_Xcode encode;
+   _der_Xcode decode;
+   const void* in;
+   size_t in_sz;
+   size_t factor;
+   size_t type_sz;
+   const char* what;
+} der_Xcode_t;
+
+static void der_Xcode_run(const der_Xcode_t* x)
+{
+   unsigned long l1, l2, sz;
+   void *d1, *d2;
+   int err;
+
+   l1 = 1;
+   d1 = XMALLOC(l1 * x->type_sz);
+   sz = (x->in_sz * x->factor)/x->type_sz;
+
+   if ((err = x->encode(x->in, sz, d1, &l1)) == CRYPT_BUFFER_OVERFLOW) {
+      d1 = XREALLOC(d1, l1 * x->type_sz);
+   }
+   DO(x->encode(x->in, sz, d1, &l1));
+   l2 = 1;
+   d2 = XMALLOC(l2 * x->type_sz);
+   while ((err = x->decode(d1, l1, d2, &l2)) == CRYPT_BUFFER_OVERFLOW) {
+      d2 = XREALLOC(d2, l2 * x->type_sz);
+   }
+   DO(x->decode(d1, l1, d2, &l2));
+   DO(compare_testvector(d2, (l2/x->factor) * x->type_sz, x->in, x->in_sz, x->what, __LINE__) == 0 ? CRYPT_OK : CRYPT_FAIL_TESTVECTOR);
+   XFREE(d2);
+   XFREE(d1);
+}
+
+#define DER_XCODE_X(n, b, x) {  \
+      (_der_Xcode)der_encode_ ## n,    \
+      (_der_Xcode)der_decode_ ## n,    \
+      b,                   \
+      sizeof(b),           \
+      x,                   \
+      sizeof(typeof(b[0])),\
+      #n                   \
+}
+
+#define DER_XCODE(n, b) DER_XCODE_X(n, b, 1)
+
+static void der_Xcode_test(void)
+{
+   unsigned long i;
+   ltc_asn1_list *list;
+   ltc_asn1_list ttex_neg_int[2];
+   unsigned char buf[128];
+   void* mpinteger;
+   const unsigned long oid[3] = { 1, 23, 42 };
+   const unsigned char bit_string[] = { 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1 };
+   const unsigned char multi_buf[] = { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
+   const char multi_string[] = {'l','i','b','t','o','m','c','r','y','p','t'};
+   const wchar_t wchar_string[] = L"libtomcrypt";
+
+   const unsigned char teletex_neg_int[] = {   0x30, 0x11, 0x14, 0x0b, 0x6c, 0x69, 0x62, 0x74,
+                                               0x6f, 0x6d, 0x63, 0x72, 0x79, 0x70, 0x74, 0x02,
+                                               0x02, 0xfc, 0x19 };
+
+   const der_Xcode_t xcode_tests[] =
+   {
+    DER_XCODE(bit_string, bit_string),
+    DER_XCODE_X(raw_bit_string, multi_buf, 8),
+    DER_XCODE(octet_string, multi_buf),
+    DER_XCODE(object_identifier, oid),
+    DER_XCODE(ia5_string, multi_string),
+    DER_XCODE(printable_string, multi_string),
+    DER_XCODE(utf8_string, wchar_string),
+   };
+
+   for (i = 0; i < sizeof(xcode_tests)/sizeof(xcode_tests[0]); ++i) {
+      der_Xcode_run(&xcode_tests[i]);
+   }
+
+   i = sizeof(teletex_neg_int);
+   DO(der_decode_sequence_flexi(teletex_neg_int, &i, &list));
+#ifdef LTC_DER_TESTS_PRINT_FLEXI
+   fprintf(stderr, "\n\n");
+   _der_tests_print_flexi(list, 0);
+   fprintf(stderr, "\n\n");
+#endif
+   if (list->child == NULL || list->child->next == NULL)
+      exit(EXIT_FAILURE);
+   ttex_neg_int[0] = *list->child->next;
+   i = sizeof(buf);
+   DO(der_encode_sequence(ttex_neg_int, 1, buf, &i));
+   der_sequence_free(list);
+
+   DO(mp_init(&mpinteger));
+   LTC_SET_ASN1(ttex_neg_int, 0, LTC_ASN1_TELETEX_STRING, buf, sizeof(buf));
+   LTC_SET_ASN1(ttex_neg_int, 1, LTC_ASN1_INTEGER, mpinteger, 1);
+
+   DO(der_decode_sequence(teletex_neg_int, sizeof(teletex_neg_int), ttex_neg_int, 2));
+
+   mp_clear(mpinteger);
+}
+
+
+static void _der_regression_test(void)
+{
+   static const unsigned char _broken_sequence[] = {
+     0x30,0x41,0x02,0x84,0x7f,0xff,0xff,0xff,0x1e,0x41,0xb4,0x79,0xad,0x57,0x69,
+     0x05,0xb9,0x60,0xfe,0x14,0xea,0xdb,0x91,0xb0,0xcc,0xf3,0x48,0x43,0xda,0xb9,
+     0x16,0x17,0x3b,0xb8,0xc9,0xcd,0x02,0x1d,0x00,0xad,0xe6,0x59,0x88,0xd2,0x37,
+     0xd3,0x0f,0x9e,0xf4,0x1d,0xd4,0x24,0xa4,0xe1,0xc8,0xf1,0x69,0x67,0xcf,0x33,
+     0x65,0x81,0x3f,0xe8,0x78,0x62,0x36
+   };
+   static const unsigned char _addtl_bytes[] = {
+     0x30,0x45,0x02,0x21,0x00,0xb7,0xba,0xba,0xe9,0x33,0x2b,0x54,0xb8,0xa3,0xa0,0x5b,0x70,0x04,0x57,
+     0x98,0x21,0xa8,0x87,0xa1,0xb2,0x14,0x65,0xf7,0xdb,0x8a,0x3d,0x49,0x1b,0x39,0xfd,0x2c,0x3f,0x02,
+     0x20,0x74,0x72,0x91,0xdd,0x2f,0x3f,0x44,0xaf,0x7a,0xce,0x68,0xea,0x33,0x43,0x1d,0x6f,0x94,0xe4,
+     0x18,0xc1,0x06,0xa6,0xe7,0x62,0x85,0xcd,0x59,0xf4,0x32,0x60,0xec,0xce,0x00,0x00
+   };
+   unsigned long len;
+   void *x, *y;
+   ltc_asn1_list seq[2];
+   mp_init_multi(&x, &y, NULL);
+   LTC_SET_ASN1(seq, 0, LTC_ASN1_INTEGER, x, 1UL);
+   LTC_SET_ASN1(seq, 1, LTC_ASN1_INTEGER, y, 1UL);
+   DO(der_decode_sequence(_broken_sequence, sizeof(_broken_sequence), seq, 2) != CRYPT_OK ? CRYPT_OK : CRYPT_FAIL_TESTVECTOR);
+   mp_cleanup_multi(&y, &x, NULL);
+   len = sizeof(_broken_sequence);
+
+   mp_init_multi(&x, &y, NULL);
+   LTC_SET_ASN1(seq, 0, LTC_ASN1_INTEGER, x, 1UL);
+   LTC_SET_ASN1(seq, 1, LTC_ASN1_INTEGER, y, 1UL);
+   DO(der_decode_sequence(_addtl_bytes, sizeof(_addtl_bytes), seq, 2) == CRYPT_INPUT_TOO_LONG ? CRYPT_OK : CRYPT_FAIL_TESTVECTOR);
+   mp_cleanup_multi(&y, &x, NULL);
+   len = sizeof(_addtl_bytes);
+   _der_decode_print(_addtl_bytes, &len);
+}
+
+static void der_toolong_test(void)
+{
+   int err, failed = 0;
+   ltc_asn1_list *list;
+   unsigned long len;
+   unsigned char buf5[5], buf12[12];
+   static const unsigned char invalid1[] = {
+         0x30,0x19, /* SEQUENCE len=25 bytes */
+              0x30,0x0a, /* SEQUENCE len=10 bytes (which is wrong, should be 9) */
+                   0x04,0x05, /* OCTET STRING len=5 */ 0x2b,0x0e,0x03,0x02,0x1a,
+                   0x05,0x00, /* NULL */
+              0x04,0x0c, /* OCTET STRING len=12 */ 0xf7,0xff,0x9e,0x8b,0x7b,0xb2,0xe0,0x9b,0x70,0x93,0x5a,0x5d,
+   };
+   static const unsigned char invalid2[] = {
+         0x30,0x0d, /* SEQUENCE len=13 bytes*/
+              0x02,0x05, /* INTEGER len=5 */ 0x00,0xb7,0xba,0xba,0xe9,
+              0x02,0x04, /* INTEGER len=4 */ 0x74,0x72,0x91,0xdd,
+         0x00,0x00 /* garbage after the sequence, der_decode_sequence_flexi should ignore this */
+   };
+   static const unsigned char invalid3[] = {
+         0x30,0x0f, /* SEQUENCE len=15 bytes*/
+              0x02,0x05, /* INTEGER len=5 */ 0x00,0xb7,0xba,0xba,0xe9,
+              0x02,0x04, /* INTEGER len=4 */ 0x74,0x72,0x91,0xdd,
+              0x00,0x00  /* garbage inside the sequence */
+   };
+
+   ltc_asn1_list seqsub[2], seqmain[2], seqint[2];
+   void *int1, *int2;
+
+   LTC_SET_ASN1(seqsub,  0, LTC_ASN1_OCTET_STRING, buf5,   5);
+   LTC_SET_ASN1(seqsub,  1, LTC_ASN1_NULL,         NULL,   0);
+   LTC_SET_ASN1(seqmain, 0, LTC_ASN1_SEQUENCE,     seqsub, 2);
+   LTC_SET_ASN1(seqmain, 1, LTC_ASN1_OCTET_STRING, buf12,  12);
+
+   len = sizeof(invalid1);
+   err = der_decode_sequence(invalid1, len, seqmain, 2);
+   if (err == CRYPT_OK) {
+      fprintf(stderr,"Sequence invalid%d accepted by der_decode_sequence\n", 1);
+      failed = 1;
+   }
+   len = sizeof(invalid1);
+   err = der_decode_sequence_flexi(invalid1, &len, &list);
+   if (err == CRYPT_OK) {
+      fprintf(stderr,"Sequence invalid%d accepted by der_decode_sequence_flexi\n", 1);
+      failed = 1;
+      der_sequence_free(list);
+   }
+
+   mp_init_multi(&int1, &int2, NULL);
+   LTC_SET_ASN1(seqint,  0, LTC_ASN1_INTEGER,      int1,   1);
+   LTC_SET_ASN1(seqint,  1, LTC_ASN1_INTEGER,      int2,   1);
+
+   len = sizeof(invalid2);
+   err = der_decode_sequence(invalid2, len, seqint, 2);
+   if (err == CRYPT_OK) {
+      fprintf(stderr,"Sequence invalid%d accepted by der_decode_sequence\n", 2);
+      failed = 1;
+   }
+   len = sizeof(invalid2);
+   err = der_decode_sequence_flexi(invalid2, &len, &list);
+   /* flexi parser should decode this; however returning "len" shorter than "sizeof(invalid2)" */
+   if (err != CRYPT_OK || len != 15) {
+      fprintf(stderr,"der_decode_sequence_flexi failed, err=%d (expected 0) len=%lu (expected 15)\n", err, len);
+      failed = 1;
+   }
+   if (err == CRYPT_OK)
+      der_sequence_free(list);
+
+   len = sizeof(invalid3);
+   err = der_decode_sequence(invalid3, len, seqint, 2);
+   if (err == CRYPT_OK) {
+      fprintf(stderr,"Sequence invalid%d accepted by der_decode_sequence\n", 3);
+      failed = 1;
+   }
+   len = sizeof(invalid3);
+   err = der_decode_sequence_flexi(invalid3, &len, &list);
+   if (err == CRYPT_OK) {
+      fprintf(stderr,"Sequence invalid%d accepted by der_decode_sequence_flexi\n", 3);
+      failed = 1;
+      der_sequence_free(list);
+   }
+
+   mp_clear_multi(int1, int2, NULL);
+   if (failed) exit(EXIT_FAILURE);
+}
 
 int der_test(void)
 {
@@ -1092,14 +1461,37 @@ int der_test(void)
 
    if (ltc_mp.name == NULL) return CRYPT_NOP;
 
+   der_Xcode_test();
+
+   der_custom_test();
+
+   _der_regression_test();
+
+   der_toolong_test();
+
    der_cacert_test();
 
+   y = 0xffffff00;
+#if ULONG_MAX == ULLONG_MAX
+   y <<= 32;
+#endif
+   while (y != 0) {
       /* we have to modify x to be larger than the encoded
        * length as der_decode_asn1_length() checks also if
        * the encoded length is reasonable in regards to the
        * available buffer size.
        */
+      x = sizeof(buf[0]);
+      DO(der_encode_asn1_length(y, buf[0], &x));
       x = y + x;
+      DO(der_decode_asn1_length(buf[0], &x, &z));
+      if (y != z) {
+         fprintf(stderr, "Failed to en- or decode length correctly! %lu != %lu\n", y, z);
+         return 1;
+      }
+      y >>= 3;
+   }
+
    DO(mp_init_multi(&a, &b, &c, &d, &e, &f, &g, NULL));
    for (zz = 0; zz < 16; zz++) {
 #ifdef USE_TFM
@@ -1116,7 +1508,7 @@ int der_test(void)
          x = sizeof(buf[0]);
          DO(der_encode_integer(a, buf[0], &x));
          DO(der_length_integer(a, &y));
-         if (y != x) { fprintf(stderr, "DER INTEGER size mismatch\n"); return 1; }
+         if (y != x) { fprintf(stderr, "DER INTEGER size mismatch %lu != %lu\n", y, x); return 1; }
          mp_set_int(b, 0);
          DO(der_decode_integer(buf[0], y, b));
          if (y != x || mp_cmp(a, b) != LTC_MP_EQ) {
@@ -1413,7 +1805,7 @@ tmp_time.off_hh);
 
    der_set_test();
    der_flexi_test();
-   return der_choice_test();
+   return der_choice_n_custom_test();
 }
 
 #endif
