@@ -617,6 +617,18 @@ int der_decode_sequence_ex(const unsigned char *in, unsigned long  inlen,
 int der_length_sequence(ltc_asn1_list *list, unsigned long inlen,
                         unsigned long *outlen);
 
+
+/* Custom-types */
+int der_encode_custom_type(const ltc_asn1_list *root,
+                                 unsigned char *out, unsigned long *outlen);
+
+int der_decode_custom_type(const unsigned char *in, unsigned long inlen,
+                                 ltc_asn1_list *root);
+
+int der_length_custom_type(const ltc_asn1_list *root,
+                                 unsigned long *outlen,
+                                 unsigned long *payloadlen);
+
 #ifdef LTC_SOURCE
 /* internal helper functions */
 int der_encode_asn1_identifier(const ltc_asn1_list *id, unsigned char *out, unsigned long *outlen);
