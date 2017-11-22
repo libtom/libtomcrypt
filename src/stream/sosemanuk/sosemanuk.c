@@ -380,7 +380,7 @@ int sosemanuk_setiv(sosemanuk_state *ss, unsigned char *iv, unsigned long ivlen)
     unsigned char ivtmp[16] = {0};
 
     LTC_ARGCHK(ss != NULL);
-    LTC_ARGCHK(ivlen >= 0 && ivlen <= 16);
+    LTC_ARGCHK(ivlen <= 16);
     LTC_ARGCHK(iv != NULL || ivlen == 0);
 
     if (ivlen > 0) XMEMCPY(ivtmp, iv, ivlen);
