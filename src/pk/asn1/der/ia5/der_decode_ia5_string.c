@@ -28,7 +28,7 @@ int der_decode_ia5_string(const unsigned char *in, unsigned long inlen,
                                 unsigned char *out, unsigned long *outlen)
 {
    unsigned long x, y, len;
-   int           t;
+   int           t, err;
 
    LTC_ARGCHK(in     != NULL);
    LTC_ARGCHK(out    != NULL);
@@ -45,23 +45,12 @@ int der_decode_ia5_string(const unsigned char *in, unsigned long inlen,
    }
    x = 1;
 
-   /* decode the length */
-   if (in[x] & 0x80) {
-      /* valid # of bytes in length are 1,2,3 */
-      y = in[x] & 0x7F;
-      if ((y == 0) || (y > 3) || ((x + y) > inlen)) {
-         return CRYPT_INVALID_PACKET;
-      }
-
-      /* read the length in */
-      len = 0;
-      ++x;
-      while (y--) {
-         len = (len << 8) | in[x++];
-      }
-   } else {
-      len = in[x++] & 0x7F;
+   /* get the length of the data */
+   y = inlen - x;
+   if ((err = der_decode_asn1_length(in + x, &y, &len)) != CRYPT_OK) {
+      return err;
    }
+   x += y;
 
    /* is it too long? */
    if (len > *outlen) {

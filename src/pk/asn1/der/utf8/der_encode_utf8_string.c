@@ -28,6 +28,7 @@ int der_encode_utf8_string(const wchar_t *in,  unsigned long inlen,
                            unsigned char *out, unsigned long *outlen)
 {
    unsigned long x, y, len;
+   int err;
 
    LTC_ARGCHK(in     != NULL);
    LTC_ARGCHK(out    != NULL);
@@ -38,46 +39,26 @@ int der_encode_utf8_string(const wchar_t *in,  unsigned long inlen,
        if (!der_utf8_valid_char(in[x])) return CRYPT_INVALID_ARG;
        len += der_utf8_charsize(in[x]);
    }
-
-   if (len < 128) {
-      y = 2 + len;
-   } else if (len < 256) {
-      y = 3 + len;
-   } else if (len < 65536UL) {
-      y = 4 + len;
-   } else if (len < 16777216UL) {
-      y = 5 + len;
-   } else {
-      return CRYPT_INVALID_ARG;
+   if ((err = der_length_asn1_length(len, &x)) != CRYPT_OK) {
+      return err;
    }
+   x += len + 1;
 
    /* too big? */
-   if (y > *outlen) {
-      *outlen = y;
+   if (x > *outlen) {
+      *outlen = x;
       return CRYPT_BUFFER_OVERFLOW;
    }
 
    /* encode the header+len */
    x = 0;
    out[x++] = 0x0C;
-   if (len < 128) {
-      out[x++] = (unsigned char)len;
-   } else if (len < 256) {
-      out[x++] = 0x81;
-      out[x++] = (unsigned char)len;
-   } else if (len < 65536UL) {
-      out[x++] = 0x82;
-      out[x++] = (unsigned char)((len>>8)&255);
-      out[x++] = (unsigned char)(len&255);
-   } else if (len < 16777216UL) {
-      out[x++] = 0x83;
-      out[x++] = (unsigned char)((len>>16)&255);
-      out[x++] = (unsigned char)((len>>8)&255);
-      out[x++] = (unsigned char)(len&255);
-   } else {
-       /* coverity[dead_error_line] */
-      return CRYPT_INVALID_ARG;
+
+   y = *outlen - x;
+   if ((err = der_encode_asn1_length(len, out + x, &y)) != CRYPT_OK) {
+      return err;
    }
+   x += y;
 
    /* store UTF8 */
    for (y = 0; y < inlen; y++) {
@@ -91,7 +72,7 @@ int der_encode_utf8_string(const wchar_t *in,  unsigned long inlen,
        }
    }
 
-   /* retun length */
+   /* return length */
    *outlen = x;
 
    return CRYPT_OK;

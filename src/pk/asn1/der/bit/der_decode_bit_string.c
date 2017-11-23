@@ -28,6 +28,7 @@ int der_decode_bit_string(const unsigned char *in,  unsigned long inlen,
                                 unsigned char *out, unsigned long *outlen)
 {
    unsigned long dlen, blen, x, y;
+   int err;
 
    LTC_ARGCHK(in     != NULL);
    LTC_ARGCHK(out    != NULL);
@@ -47,25 +48,11 @@ int der_decode_bit_string(const unsigned char *in,  unsigned long inlen,
    x = 1;
 
    /* get the length of the data */
-   if (in[x] & 0x80) {
-      /* long format get number of length bytes */
-      y = in[x++] & 0x7F;
-
-      /* invalid if 0 or > 2 */
-      if (y == 0 || y > 2) {
-         return CRYPT_INVALID_PACKET;
-      }
-
-      /* read the data len */
-      dlen = 0;
-      while (y--) {
-         dlen = (dlen << 8) | (unsigned long)in[x++];
-      }
-   } else {
-      /* short format */
-      dlen = in[x++] & 0x7F;
+   y = inlen - 1;
+   if ((err = der_decode_asn1_length(in + x, &y, &dlen)) != CRYPT_OK) {
+      return err;
    }
-
+   x += y;
    /* is the data len too long or too short? */
    if ((dlen == 0) || (dlen + x > inlen)) {
        return CRYPT_INVALID_PACKET;

@@ -24,7 +24,7 @@
 int der_length_integer(void *num, unsigned long *outlen)
 {
    unsigned long z, len;
-   int           leading_zero;
+   int           leading_zero, err;
 
    LTC_ARGCHK(num     != NULL);
    LTC_ARGCHK(outlen  != NULL);
@@ -40,35 +40,21 @@ int der_length_integer(void *num, unsigned long *outlen)
       }
 
       /* size for bignum */
-      z = len = leading_zero + mp_unsigned_bin_size(num);
+      len = leading_zero + mp_unsigned_bin_size(num);
    } else {
       /* it's negative */
       /* find power of 2 that is a multiple of eight and greater than count bits */
       z = mp_count_bits(num);
       z = z + (8 - (z & 7));
       if (((mp_cnt_lsb(num)+1)==mp_count_bits(num)) && ((mp_count_bits(num)&7)==0)) --z;
-      len = z = z >> 3;
+      len = z >> 3;
    }
 
-   /* now we need a length */
-   if (z < 128) {
-      /* short form */
-      ++len;
-   } else {
-      /* long form (relies on z != 0), assumes length bytes < 128 */
-      ++len;
-
-      while (z) {
-         ++len;
-         z >>= 8;
-      }
+   if ((err = der_length_asn1_length(len, &z)) != CRYPT_OK) {
+      return err;
    }
+   *outlen = 1 + z + len;
 
-   /* we need a 0x02 to indicate it's INTEGER */
-   ++len;
-
-   /* return length */
-   *outlen = len;
    return CRYPT_OK;
 }
 

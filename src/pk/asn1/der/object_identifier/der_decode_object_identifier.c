@@ -49,19 +49,12 @@ int der_decode_object_identifier(const unsigned char *in,    unsigned long  inle
       return CRYPT_INVALID_PACKET;
    }
 
-   /* get the length */
-   if (in[x] < 128) {
-      len = in[x++];
-   } else {
-      if (in[x] < 0x81 || in[x] > 0x82) {
-         return CRYPT_INVALID_PACKET;
-      }
-      y   = in[x++] & 0x7F;
-      len = 0;
-      while (y--) {
-         len = (len << 8) | (unsigned long)in[x++];
-      }
+   /* get the length of the data */
+   y = inlen - x;
+   if ((err = der_decode_asn1_length(in + x, &y, &len)) != CRYPT_OK) {
+      return err;
    }
+   x += y;
 
    if (len < 1 || (len + x) > inlen) {
       return CRYPT_INVALID_PACKET;

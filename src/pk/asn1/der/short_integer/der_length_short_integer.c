@@ -23,7 +23,8 @@
 */
 int der_length_short_integer(unsigned long num, unsigned long *outlen)
 {
-   unsigned long z, y, len;
+   unsigned long z, y;
+   int err;
 
    LTC_ARGCHK(outlen  != NULL);
 
@@ -41,22 +42,15 @@ int der_length_short_integer(unsigned long num, unsigned long *outlen)
    /* handle zero */
    if (z == 0) {
       z = 1;
+   } else if ((num&(1UL<<((z<<3) - 1))) != 0) {
+      /* in case msb is set */
+      ++z;
    }
 
-   /* we need a 0x02 to indicate it's INTEGER */
-   len = 1;
-
-   /* length byte */
-   ++len;
-
-   /* bytes in value */
-   len += z;
-
-   /* see if msb is set */
-   len += (num&(1UL<<((z<<3) - 1))) ? 1 : 0;
-
-   /* return length */
-   *outlen = len;
+   if ((err = der_length_asn1_length(z, &y)) != CRYPT_OK) {
+      return err;
+   }
+   *outlen = 1 + y + z;
 
    return CRYPT_OK;
 }

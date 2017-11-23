@@ -65,6 +65,7 @@ int der_utf8_valid_char(const wchar_t c)
 int der_length_utf8_string(const wchar_t *in, unsigned long noctets, unsigned long *outlen)
 {
    unsigned long x, len;
+   int err;
 
    LTC_ARGCHK(in     != NULL);
    LTC_ARGCHK(outlen != NULL);
@@ -75,21 +76,10 @@ int der_length_utf8_string(const wchar_t *in, unsigned long noctets, unsigned lo
       len += der_utf8_charsize(in[x]);
    }
 
-   if (len < 128) {
-      /* 0C LL DD DD DD ... */
-      *outlen = 2 + len;
-   } else if (len < 256) {
-      /* 0C 81 LL DD DD DD ... */
-      *outlen = 3 + len;
-   } else if (len < 65536UL) {
-      /* 0C 82 LL LL DD DD DD ... */
-      *outlen = 4 + len;
-   } else if (len < 16777216UL) {
-      /* 0C 83 LL LL LL DD DD DD ... */
-      *outlen = 5 + len;
-   } else {
-      return CRYPT_INVALID_ARG;
+   if ((err = der_length_asn1_length(len, &x)) != CRYPT_OK) {
+      return err;
    }
+   *outlen = 1 + x + len;
 
    return CRYPT_OK;
 }
