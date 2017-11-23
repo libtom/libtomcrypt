@@ -26,6 +26,7 @@ int der_decode_object_identifier(const unsigned char *in,    unsigned long  inle
                                        unsigned long *words, unsigned long *outlen)
 {
    unsigned long x, y, t, len;
+   int err;
 
    LTC_ARGCHK(in     != NULL);
    LTC_ARGCHK(words  != NULL);
@@ -38,6 +39,7 @@ int der_decode_object_identifier(const unsigned char *in,    unsigned long  inle
 
    /* must be room for at least two words */
    if (*outlen < 2) {
+      *outlen = 2;
       return CRYPT_BUFFER_OVERFLOW;
    }
 
@@ -73,21 +75,28 @@ int der_decode_object_identifier(const unsigned char *in,    unsigned long  inle
       if (!(in[x++] & 0x80)) {
          /* store t */
          if (y >= *outlen) {
-            return CRYPT_BUFFER_OVERFLOW;
-         }
-         if (y == 0) {
-            words[0] = t / 40;
-            words[1] = t % 40;
-            y = 2;
+            y++;
          } else {
-            words[y++] = t;
+            if (y == 0) {
+               words[0] = t / 40;
+               words[1] = t % 40;
+               y = 2;
+            } else {
+               words[y++] = t;
+            }
          }
-            t          = 0;
+         t = 0;
       }
    }
 
+   if (y > *outlen) {
+      err =  CRYPT_BUFFER_OVERFLOW;
+   } else {
+      err =  CRYPT_OK;
+   }
+
    *outlen = y;
-   return CRYPT_OK;
+   return err;
 }
 
 #endif
