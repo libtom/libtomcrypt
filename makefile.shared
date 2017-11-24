@@ -49,15 +49,15 @@ src/ciphers/aes/aes_enc.o: src/ciphers/aes/aes.c src/ciphers/aes/aes_tab.c
 LOBJECTS = $(OBJECTS:.o=.lo)
 
 $(LIBNAME): $(OBJECTS)
-	$(LT) --mode=link --tag=CC $(CC) $(LTC_CFLAGS) $(CPPFLAGS) $(LTC_LDFLAGS) $(LOBJECTS) $(EXTRALIBS) -o $@ -rpath $(LIBPATH) -version-info $(VERSION_LT) $(NO_UNDEFINED)
+	$(LT) --mode=link --tag=CC $(CC) $(LTC_LDFLAGS) $(LOBJECTS) $(EXTRALIBS) -o $@ -rpath $(LIBPATH) -version-info $(VERSION_LT) $(NO_UNDEFINED)
 
 test: $(call print-help,test,Builds the library and the 'test' application to run all self-tests) $(LIBNAME) $(TOBJECTS)
-	$(LT) --mode=link --tag=CC $(CC) $(LTC_CFLAGS) $(CPPFLAGS) $(LTC_LDFLAGS) -o $(TEST) $(TOBJECTS) $(LIBNAME) $(EXTRALIBS)
+	$(LT) --mode=link --tag=CC $(CC) $(LTC_LDFLAGS) -o $(TEST) $(TOBJECTS) $(LIBNAME) $(EXTRALIBS)
 
 # build the demos from a template
 define DEMO_template
 $(1): $(call print-help,$(1),Builds the library and the '$(1)' demo) demos/$(1).o $$(LIBNAME)
-	$$(LT) --mode=link --tag=CC $$(CC) $$(LTC_CFLAGS) $$(CPPFLAGS) $$(LTC_LDFLAGS) $$^ $$(EXTRALIBS) -o $(1)
+	$$(LT) --mode=link --tag=CC $$(CC) $$(LTC_LDFLAGS) $$^ $$(EXTRALIBS) -o $(1)
 endef
 
 $(foreach demo, $(strip $(DEMOS)), $(eval $(call DEMO_template,$(demo))))
