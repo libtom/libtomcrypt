@@ -104,7 +104,8 @@ endif # COMPILE_DEBUG
 
 
 ifneq ($(findstring clang,$(CC)),)
-LTC_CFLAGS += -Wno-typedef-redefinition -Wno-tautological-compare -Wno-builtin-requires-header -Wno-missing-field-initializers
+LTC_CFLAGS += -Wno-typedef-redefinition -Wno-tautological-compare -Wno-builtin-requires-header
+LTC_CFLAGS += -Wno-missing-field-initializers -Wno-missing-braces
 endif
 ifneq ($(findstring mingw,$(CC)),)
 LTC_CFLAGS += -Wno-shadow -Wno-attributes
