@@ -5500,7 +5500,7 @@ in the same manner as the other data types except they use list of objects known
 \index{ltc\_asn1\_list structure}
 \begin{verbatim}
 typedef struct {
-   int                    type;
+   ltc_asn1_type          type;
    void                  *data;
    unsigned long          size;
    int                    used;
@@ -5572,6 +5572,7 @@ LTC_SET_ASN1(sequence, x++, LTC_ASN1_NULL,           NULL,   0);
 \hline
 \end{tabular}
 \caption{List of ASN.1 Supported Types}
+\index{ltc\_asn1\_type}
 \end{small}
 \end{center}
 \end{figure}
