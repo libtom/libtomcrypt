@@ -30,6 +30,8 @@ endif
 
 include makefile_include.mk
 
+LTC_CFLAGS += -fPIC
+
 ifeq ($(COVERAGE),1)
 all_test: LIB_PRE = -Wl,--whole-archive
 all_test: LIB_POST = -Wl,--no-whole-archive
