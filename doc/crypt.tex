@@ -1376,7 +1376,7 @@ err = sosemanuk_crypt(&ss, in, inlen, out);
 \end{verbatim}
 
 If you just want a random stream of bytes initialize the cipher with a truly random
-\textit{key} (256 bits), a truly random \textit{iv} (128 bits). After that you can
+\textit{key} (256 bits) and a truly random \textit{iv} (128 bits). After that you can
 get a stream of pseudo--random bytes via:
 \begin{verbatim}
 err = sosemanuk_keystream(&ss, out, outlen);
