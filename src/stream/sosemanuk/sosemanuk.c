@@ -194,11 +194,11 @@
 /* ======================================================================== */
 
 /*
- * Key schedule: initialize the key context structure with the provided
- * secret key. The secret key is an array of 1 to 32 bytes.
+ * Initialize Sosemanuk's state by providing a key. The key is an array of
+ * 1 to 32 bytes.
  * @param ss       The Sosemanuk state
  * @param key      Key
- * @param keylen   Length of key
+ * @param keylen   Length of key in bytes
  * @return CRYPT_OK on success
  */
 int sosemanuk_setup(sosemanuk_state *ss, unsigned char *key, unsigned long keylen)
@@ -331,12 +331,14 @@ int sosemanuk_setup(sosemanuk_state *ss, unsigned char *key, unsigned long keyle
 
 
 /*
- * Cipher initialization: the cipher internal state is initialized, using
- * the provided key context and IV. The IV length is up to 16 bytes. If
- * "ivlen" is 0 (no IV), then the "iv" parameter can be NULL.
+ * Initialization continues by setting the IV. The IV length is up to 16 bytes.
+ * If "ivlen" is 0 (no IV), then the "iv" parameter can be NULL.  If multiple
+ * encryptions/decryptions are to be performed with the same key and
+ * sosemanuk_done() has not been called, only sosemanuk_setiv() need be called
+ * to set the state.
  * @param ss       The Sosemanuk state
  * @param iv       Initialization vector
- * @param ivlen    Length of iv
+ * @param ivlen    Length of iv in bytes
  * @return CRYPT_OK on success
  */
 int sosemanuk_setiv(sosemanuk_state *ss, unsigned char *iv, unsigned long ivlen)
@@ -743,12 +745,12 @@ static LTC_INLINE void _xorbuf(const unsigned char *in1, const unsigned char *in
  * reference distinct buffers (no partial overlap is allowed).
  * @param ss       The Sosemanuk state
  * @param in       Data in
+ * @param inlen    Length of data in bytes
  * @param out      Data out
- * @param datalen  Length of data
  * @return CRYPT_OK on success
  */
 int sosemanuk_crypt(sosemanuk_state *ss,
-                        const unsigned char *in, unsigned long datalen, unsigned char *out)
+                        const unsigned char *in, unsigned long inlen, unsigned char *out)
 {
     LTC_ARGCHK(ss  != NULL);
     LTC_ARGCHK(in  != NULL);
@@ -757,29 +759,30 @@ int sosemanuk_crypt(sosemanuk_state *ss,
     if (ss->ptr < (sizeof(ss->buf))) {
         unsigned long rlen = (sizeof(ss->buf)) - ss->ptr;
 
-        if (rlen > datalen)
-            rlen = datalen;
+        if (rlen > inlen)
+            rlen = inlen;
         _xorbuf(ss->buf + ss->ptr, in, out, rlen);
         in += rlen;
         out += rlen;
-        datalen -= rlen;
+        inlen -= rlen;
         ss->ptr += rlen;
     }
-    while (datalen > 0) {
+    while (inlen > 0) {
         _sosemanuk_internal(ss);
-        if (datalen >= sizeof(ss->buf)) {
+        if (inlen >= sizeof(ss->buf)) {
             _xorbuf(ss->buf, in, out, sizeof(ss->buf));
             in += sizeof(ss->buf);
             out += sizeof(ss->buf);
-            datalen -= sizeof(ss->buf);
+            inlen -= sizeof(ss->buf);
         } else {
-            _xorbuf(ss->buf, in, out, datalen);
-            ss->ptr = datalen;
-            datalen = 0;
+            _xorbuf(ss->buf, in, out, inlen);
+            ss->ptr = inlen;
+            inlen = 0;
         }
     }
     return CRYPT_OK;
 }
+
 
 
 /*
@@ -787,7 +790,7 @@ int sosemanuk_crypt(sosemanuk_state *ss,
  * pseudo-random bytes as output from the stream cipher.
  * @param ss       The Sosemanuk state
  * @param out      Data out
- * @param outlen   Length of output
+ * @param outlen   Length of output in bytes
  * @return CRYPT_OK on success
  */
 int sosemanuk_keystream(sosemanuk_state *ss, unsigned char *out, unsigned long outlen)
@@ -801,7 +804,7 @@ int sosemanuk_keystream(sosemanuk_state *ss, unsigned char *out, unsigned long o
 
 /*
  * Terminate and clear Sosemanuk key context
- * @param kc      The Sosemanuk key context
+ * @param ss      The Sosemanuk state
  * @return CRYPT_OK on success
  */
 int sosemanuk_done(sosemanuk_state *ss)
