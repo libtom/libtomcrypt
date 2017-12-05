@@ -745,12 +745,12 @@ static LTC_INLINE void _xorbuf(const unsigned char *in1, const unsigned char *in
  * reference distinct buffers (no partial overlap is allowed).
  * @param ss       The Sosemanuk state
  * @param in       Data in
+ * @param inlen    Length of data in bytes
  * @param out      Data out
- * @param datalen  Length of data in bytes
  * @return CRYPT_OK on success
  */
 int sosemanuk_crypt(sosemanuk_state *ss,
-                        const unsigned char *in, unsigned long datalen, unsigned char *out)
+                        const unsigned char *in, unsigned long inlen, unsigned char *out)
 {
     LTC_ARGCHK(ss  != NULL);
     LTC_ARGCHK(in  != NULL);
@@ -759,29 +759,30 @@ int sosemanuk_crypt(sosemanuk_state *ss,
     if (ss->ptr < (sizeof(ss->buf))) {
         unsigned long rlen = (sizeof(ss->buf)) - ss->ptr;
 
-        if (rlen > datalen)
-            rlen = datalen;
+        if (rlen > inlen)
+            rlen = inlen;
         _xorbuf(ss->buf + ss->ptr, in, out, rlen);
         in += rlen;
         out += rlen;
-        datalen -= rlen;
+        inlen -= rlen;
         ss->ptr += rlen;
     }
-    while (datalen > 0) {
+    while (inlen > 0) {
         _sosemanuk_internal(ss);
-        if (datalen >= sizeof(ss->buf)) {
+        if (inlen >= sizeof(ss->buf)) {
             _xorbuf(ss->buf, in, out, sizeof(ss->buf));
             in += sizeof(ss->buf);
             out += sizeof(ss->buf);
-            datalen -= sizeof(ss->buf);
+            inlen -= sizeof(ss->buf);
         } else {
-            _xorbuf(ss->buf, in, out, datalen);
-            ss->ptr = datalen;
-            datalen = 0;
+            _xorbuf(ss->buf, in, out, inlen);
+            ss->ptr = inlen;
+            inlen = 0;
         }
     }
     return CRYPT_OK;
 }
+
 
 
 /*
