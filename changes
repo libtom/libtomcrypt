@@ -1,3 +1,11 @@
+December FIXME, 2017
+v1.18.1
+      -- Fix wrong SHA3 blocksizes, thanks to Claus Fischer for reporting this via Mail (PR #329)
+      -- Fix NULL-pointer dereference in `ccm_memory()` with LTC_CLEAN_STACK enabled (PR #327)
+      -- Fix `ccm_process()` being unable to process input buffers longer than 256 bytes (PR #326)
+      -- Fix the `register_all_{ciphers,hashes,prngs}()` return values (PR #316)
+      -- Fix some typos, warnings and duplicate prototypes in code & doc (PR's #310 #320 #321)
+
 October 10th, 2017
 v1.18.0
       -- Bugfix multi2
