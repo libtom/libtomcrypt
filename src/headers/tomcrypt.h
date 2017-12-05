@@ -30,7 +30,7 @@ extern "C" {
 #define SCRYPT  "1.18.0"
 
 /* max size of either a cipher/hash block or symmetric key [largest of the two] */
-#define MAXBLOCKSIZE  128
+#define MAXBLOCKSIZE  144
 
 /* descriptor table size */
 #define TAB_SIZE      32
