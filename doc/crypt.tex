@@ -1382,7 +1382,7 @@ get a stream of pseudo--random bytes via:
 err = sosemanuk_keystream(&ss, out, outlen);
 \end{verbatim}
 
-When finished you should wipe the key and run contexts:
+When finished you should wipe the key by running \textit{sosemanuk\_done()}.
 \begin{verbatim}
 err = sosemanuk_done(&ss);
 \end{verbatim}
