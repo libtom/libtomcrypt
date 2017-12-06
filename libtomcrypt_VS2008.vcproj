@@ -2468,6 +2468,14 @@
 				</File>
 			</Filter>
 			<Filter
+				Name="rabbit"
+				>
+				<File
+					RelativePath="src\stream\rabbit\rabbit.c"
+					>
+				</File>
+			</Filter>
+			<Filter
 				Name="rc4"
 				>
 				<File
