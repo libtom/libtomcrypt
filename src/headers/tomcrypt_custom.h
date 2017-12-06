@@ -209,6 +209,7 @@
 #define LTC_CHACHA
 #define LTC_SALSA20
 #define LTC_SOSEMANUK
+#define LTC_RABBIT
 #define LTC_RC4_STREAM
 #define LTC_SOBER128_STREAM
 

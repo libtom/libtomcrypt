@@ -1031,8 +1031,6 @@ int salsa20_test(void);
 
 #endif /* LTC_SALSA20 */
 
-
-
 #ifdef LTC_SOSEMANUK
 
 typedef struct {
@@ -1057,7 +1055,29 @@ int sosemanuk_test(void);
 
 #endif /* LTC_SOSEMANUK */
 
+#ifdef LTC_RABBIT
 
+typedef struct {
+   ulong32 x[8];
+   ulong32 c[8];
+   ulong32 carry;
+} rabbit_ctx;
+
+typedef struct {
+   rabbit_ctx master_ctx;
+   rabbit_ctx work_ctx;
+   unsigned char block[16];     /* last keystream block containing unused bytes */
+   ulong32       unused;        /* count fm right */
+} rabbit_state;
+
+int rabbit_setup(rabbit_state* st, const unsigned char *key, unsigned long keylen);
+int rabbit_setiv(rabbit_state* st, const unsigned char *iv, unsigned long ivlen);
+int rabbit_crypt(rabbit_state* st, const unsigned char *in, unsigned long inlen, unsigned char *out);
+int rabbit_keystream(rabbit_state* st, unsigned char *out, unsigned long outlen);
+int rabbit_done(rabbit_state *st);
+int rabbit_test(void);
+
+#endif /* LTC_RABBIT */
 
 #ifdef LTC_RC4_STREAM
 
