@@ -34,8 +34,10 @@ ifeq ($(COVERAGE),1)
 all_test: LIB_PRE = -Wl,--whole-archive
 all_test: LIB_POST = -Wl,--no-whole-archive
 LTC_CFLAGS += -fprofile-arcs -ftest-coverage
-EXTRALIBS += -lgcov
+LTC_EXTRALIBS += -lgcov
 endif
+
+LTC_EXTRALIBS += $(EXTRALIBS)
 
 #AES comes in two flavours... enc+dec and enc
 src/ciphers/aes/aes_enc.o: src/ciphers/aes/aes.c src/ciphers/aes/aes_tab.c
@@ -61,7 +63,7 @@ test: $(call print-help,test,Builds the library and the 'test' application to ru
 ifneq ($V,1)
 	@echo "   * ${CC} $@"
 endif
-	${silent} $(CC) $(LTC_LDFLAGS) $(TOBJECTS) $(LIB_PRE) $(LIBNAME) $(LIB_POST) $(EXTRALIBS) -o $(TEST)
+	${silent} $(CC) $(LTC_LDFLAGS) $(TOBJECTS) $(LIB_PRE) $(LIBNAME) $(LIB_POST) $(LTC_EXTRALIBS) -o $(TEST)
 
 # build the demos from a template
 define DEMO_template
@@ -69,7 +71,7 @@ $(1): $(call print-help,$(1),Builds the library and the '$(1)' demo) demos/$(1).
 ifneq ($V,1)
 	@echo "   * $${CC} $$@"
 endif
-	$${silent} $$(CC) $$< $$(LIB_PRE) $$(LIBNAME) $$(LIB_POST) $$(EXTRALIBS) -o $(1)
+	$${silent} $$(CC) $$< $$(LIB_PRE) $$(LIBNAME) $$(LIB_POST) $$(LTC_EXTRALIBS) -o $(1)
 endef
 
 $(foreach demo, $(strip $(DEMOS)), $(eval $(call DEMO_template,$(demo))))
@@ -85,10 +87,10 @@ install_bins: $(call print-help,install_bins,Installs the useful demos ($(USEFUL
 uninstall: $(call print-help,uninstall,Uninstalls the library and headers) .common_uninstall
 
 profile:
-	LTC_CFLAGS="$(LTC_CFLAGS) -fprofile-generate" $(MAKE) timing EXTRALIBS="$(EXTRALIBS) -lgcov"
+	LTC_CFLAGS="$(LTC_CFLAGS) -fprofile-generate" $(MAKE) timing EXTRALIBS="$(LTC_EXTRALIBS) -lgcov"
 	./timing
 	rm -f timing `find . -type f | grep [.][ao] | xargs`
-	LTC_CFLAGS="$(LTC_CFLAGS) -fprofile-use" $(MAKE) timing EXTRALIBS="$(EXTRALIBS) -lgcov"
+	LTC_CFLAGS="$(LTC_CFLAGS) -fprofile-use" $(MAKE) timing EXTRALIBS="$(LTC_EXTRALIBS) -lgcov"
 
 # target that pre-processes all coverage data
 lcov-single-create:
@@ -117,7 +119,7 @@ lcov-single:
 
 #make the code coverage of the library
 coverage: LTC_CFLAGS += -fprofile-arcs -ftest-coverage
-coverage: EXTRALIBS += -lgcov
+coverage: LTC_EXTRALIBS += -lgcov
 coverage: LIB_PRE = -Wl,--whole-archive
 coverage: LIB_POST = -Wl,--no-whole-archive
 
