@@ -358,9 +358,30 @@
 
 #ifdef LTC_FORTUNA
 
+#if !defined(LTC_FORTUNA_RESEED_RATELIMIT_STATIC) && \
+      ((defined(_POSIX_C_SOURCE) && _POSIX_C_SOURCE >= 200112L) || defined(_WIN32))
+
+/* time-based rate limit of the reseeding */
+#define LTC_FORTUNA_RESEED_RATELIMIT_TIMED
+
+#else
+
 #ifndef LTC_FORTUNA_WD
 /* reseed every N calls to the read function */
 #define LTC_FORTUNA_WD    10
+#endif
+
+#ifdef LTC_FORTUNA_RESEED_RATELIMIT_TIMED
+/* make sure only one of
+ *   LTC_FORTUNA_RESEED_RATELIMIT_STATIC
+ * and
+ *   LTC_FORTUNA_RESEED_RATELIMIT_TIMED
+ * is defined.
+ */
+#undef LTC_FORTUNA_RESEED_RATELIMIT_TIMED
+#warning "undef'ed LTC_FORTUNA_RESEED_RATELIMIT_TIMED, looks like your architecture doesn't support it"
+#endif
+
 #endif
 
 #ifndef LTC_FORTUNA_POOLS

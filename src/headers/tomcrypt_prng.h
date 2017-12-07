@@ -43,7 +43,7 @@ struct fortuna_prng {
                   pool0_len,  /* length of 0'th pool */
                   wd;
 
-    ulong64       reset_cnt;  /* number of times we have reset */
+    ulong64       reset_cnt;  /* number of times we have reseeded */
 };
 #endif
 

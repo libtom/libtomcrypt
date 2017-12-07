@@ -61,6 +61,29 @@ static void _fortuna_update_iv(prng_state *prng)
    }
 }
 
+#ifdef LTC_FORTUNA_RESEED_RATELIMIT_TIMED
+/* get the current time in 100ms steps */
+static ulong64 _fortuna_current_time(void)
+{
+   ulong64 cur_time;
+#if defined(_POSIX_C_SOURCE) && _POSIX_C_SOURCE >= 200112L
+   struct timespec ts;
+   clock_gettime(CLOCK_MONOTONIC, &ts);
+   cur_time = (ulong64)(ts.tv_sec) * 1000000 + (ulong64)(ts.tv_nsec) / 1000; /* get microseconds */
+#elif defined(_WIN32)
+   FILETIME CurrentTime;
+   ULARGE_INTEGER ul;
+   GetSystemTimeAsFileTime(&CurrentTime);
+   ul.LowPart  = CurrentTime.dwLowDateTime;
+   ul.HighPart = CurrentTime.dwHighDateTime;
+   cur_time = ul.QuadPart;
+   cur_time -= CONST64(116444736000000000); /* subtract epoch in microseconds */
+   cur_time /= 1000; /* nanoseconds -> microseconds */
+#endif
+   return cur_time / 100;
+}
+#endif
+
 /* reseed the PRNG */
 static int _fortuna_reseed(prng_state *prng)
 {
@@ -69,6 +92,14 @@ static int _fortuna_reseed(prng_state *prng)
    ulong64       reset_cnt;
    int           err, x;
 
+#ifdef LTC_FORTUNA_RESEED_RATELIMIT_TIMED
+   unsigned long now = _fortuna_current_time();
+   if (now == prng->fortuna.wd)
+      return CRYPT_OK;
+#else
+   if (++prng->fortuna.wd < LTC_FORTUNA_WD)
+      return CRYPT_OK;
+#endif
 
    /* new K == LTC_SHA256(K || s) where s == LTC_SHA256(P0) || LTC_SHA256(P1) ... */
    sha256_init(&md);
@@ -112,7 +143,11 @@ static int _fortuna_reseed(prng_state *prng)
 
    /* reset/update internals */
    prng->fortuna.pool0_len = 0;
+#ifdef LTC_FORTUNA_RESEED_RATELIMIT_TIMED
+   prng->fortuna.wd        = now;
+#else
    prng->fortuna.wd        = 0;
+#endif
    prng->fortuna.reset_cnt = reset_cnt;
 
 
@@ -260,6 +295,13 @@ int fortuna_ready(prng_state *prng)
    LTC_ARGCHK(prng != NULL);
 
    LTC_MUTEX_LOCK(&prng->lock);
+   /* make sure the reseed doesn't fail because
+    * of the chosen rate limit */
+#ifdef LTC_FORTUNA_RESEED_RATELIMIT_TIMED
+   prng->fortuna.wd = _fortuna_current_time() - 1;
+#else
+   prng->fortuna.wd = LTC_FORTUNA_WD;
+#endif
    err = _fortuna_reseed(prng);
    prng->ready = (err == CRYPT_OK) ? 1 : 0;
 
@@ -288,7 +330,7 @@ unsigned long fortuna_read(unsigned char *out, unsigned long outlen, prng_state 
    }
 
    /* do we have to reseed? */
-   if (++prng->fortuna.wd == LTC_FORTUNA_WD || prng->fortuna.pool0_len >= 64) {
+   if (prng->fortuna.pool0_len >= 64) {
       if (_fortuna_reseed(prng) != CRYPT_OK) {
          goto LBL_UNLOCK;
       }
