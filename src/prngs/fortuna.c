@@ -413,6 +413,7 @@ LBL_UNLOCK:
 int fortuna_import(const unsigned char *in, unsigned long inlen, prng_state *prng)
 {
    int err, x;
+   unsigned long len;
 
    LTC_ARGCHK(in   != NULL);
    LTC_ARGCHK(prng != NULL);
@@ -424,10 +425,14 @@ int fortuna_import(const unsigned char *in, unsigned long inlen, prng_state *prn
    if ((err = fortuna_start(prng)) != CRYPT_OK) {
       return err;
    }
-   for (x = 0; x < LTC_FORTUNA_POOLS; x++) {
-      if ((err = fortuna_add_entropy(in+x*32, 32, prng)) != CRYPT_OK) {
+   x = 0;
+   while (inlen > 0) {
+      len = MIN(inlen, 32);
+      if ((err = fortuna_add_entropy(in+x*32, len, prng)) != CRYPT_OK) {
          return err;
       }
+      x++;
+      inlen -= len;
    }
    return CRYPT_OK;
 }
