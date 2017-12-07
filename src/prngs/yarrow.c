@@ -262,6 +262,7 @@ int yarrow_done(prng_state *prng)
    err = ctr_done(&prng->yarrow.ctr);
 
    LTC_MUTEX_UNLOCK(&prng->lock);
+   LTC_MUTEX_DESTROY(&prng->lock);
    return err;
 }
 

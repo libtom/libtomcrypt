@@ -318,6 +318,7 @@ LBL_UNLOCK:
    zeromem(tmp, sizeof(tmp));
 #endif
    LTC_MUTEX_UNLOCK(&prng->lock);
+   LTC_MUTEX_DESTROY(&prng->lock);
    return err;
 }
 
