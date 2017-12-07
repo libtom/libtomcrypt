@@ -66,9 +66,9 @@ static int _fortuna_reseed(prng_state *prng)
 {
    unsigned char tmp[MAXBLOCKSIZE];
    hash_state    md;
+   ulong64       reset_cnt;
    int           err, x;
 
-   ++prng->fortuna.reset_cnt;
 
    /* new K == LTC_SHA256(K || s) where s == LTC_SHA256(P0) || LTC_SHA256(P1) ... */
    sha256_init(&md);
@@ -77,8 +77,10 @@ static int _fortuna_reseed(prng_state *prng)
       return err;
    }
 
+   reset_cnt = prng->fortuna.reset_cnt + 1;
+
    for (x = 0; x < LTC_FORTUNA_POOLS; x++) {
-       if (x == 0 || ((prng->fortuna.reset_cnt >> (x-1)) & 1) == 0) {
+       if (x == 0 || ((reset_cnt >> (x-1)) & 1) == 0) {
           /* terminate this hash */
           if ((err = sha256_done(&prng->fortuna.pool[x], tmp)) != CRYPT_OK) {
              sha256_done(&md, tmp);
@@ -108,9 +110,10 @@ static int _fortuna_reseed(prng_state *prng)
    }
    _fortuna_update_iv(prng);
 
-   /* reset pool len */
+   /* reset/update internals */
    prng->fortuna.pool0_len = 0;
    prng->fortuna.wd        = 0;
+   prng->fortuna.reset_cnt = reset_cnt;
 
 
 #ifdef LTC_CLEAN_STACK
@@ -249,6 +252,11 @@ unsigned long fortuna_read(unsigned char *out, unsigned long outlen, prng_state 
       if (_fortuna_reseed(prng) != CRYPT_OK) {
          goto LBL_UNLOCK;
       }
+   }
+
+   /* ensure that one reseed happened before allowing to read */
+   if (prng->fortuna.reset_cnt == 0) {
+      goto LBL_UNLOCK;
    }
 
    /* now generate the blocks required */
