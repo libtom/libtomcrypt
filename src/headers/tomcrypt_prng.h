@@ -148,6 +148,7 @@ extern const struct ltc_prng_descriptor yarrow_desc;
 #ifdef LTC_FORTUNA
 int fortuna_start(prng_state *prng);
 int fortuna_add_entropy(const unsigned char *in, unsigned long inlen, prng_state *prng);
+int fortuna_add_random_event(unsigned long source, unsigned long pool, const unsigned char *in, unsigned long inlen, prng_state *prng);
 int fortuna_ready(prng_state *prng);
 unsigned long fortuna_read(unsigned char *out, unsigned long outlen, prng_state *prng);
 int fortuna_done(prng_state *prng);

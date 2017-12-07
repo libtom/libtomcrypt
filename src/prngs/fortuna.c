@@ -239,6 +239,60 @@ int fortuna_start(prng_state *prng)
    return CRYPT_OK;
 }
 
+static int _fortuna_add(unsigned long source, unsigned long pool, const unsigned char *in, unsigned long inlen, prng_state *prng)
+{
+   unsigned char tmp[2];
+   int err;
+
+   /* ensure inlen <= 32 */
+   if (inlen > 32) {
+      inlen = 32;
+   }
+
+   /* add s || length(in) || in to pool[pool_idx] */
+   tmp[0] = (unsigned char)source;
+   tmp[1] = (unsigned char)inlen;
+
+   if ((err = sha256_process(&prng->fortuna.pool[pool], tmp, 2)) != CRYPT_OK) {
+      return err;
+   }
+   if ((err = sha256_process(&prng->fortuna.pool[pool], in, inlen)) != CRYPT_OK) {
+      return err;
+   }
+   if (pool == 0) {
+      prng->fortuna.pool0_len += inlen;
+   }
+   return CRYPT_OK; /* success */
+}
+
+/**
+  Add random event to the PRNG state as proposed by the original paper.
+  @param source   The source this random event comes from (0 .. 255)
+  @param pool     The pool where to add the data to (0 .. LTC_FORTUNA_POOLS)
+  @param in       The data to add
+  @param inlen    Length of the data to add
+  @param prng     PRNG state to update
+  @return CRYPT_OK if successful
+*/
+int fortuna_add_random_event(unsigned long source, unsigned long pool, const unsigned char *in, unsigned long inlen, prng_state *prng)
+{
+   int           err;
+
+   LTC_ARGCHK(prng != NULL);
+   LTC_ARGCHK(in != NULL);
+   LTC_ARGCHK(inlen > 0);
+   LTC_ARGCHK(source <= 255);
+   LTC_ARGCHK(pool < LTC_FORTUNA_POOLS);
+
+   LTC_MUTEX_LOCK(&prng->lock);
+
+   err = _fortuna_add(source, pool, in, inlen, prng);
+
+   LTC_MUTEX_UNLOCK(&prng->lock);
+
+   return err;
+}
+
 /**
   Add entropy to the PRNG state
   @param in       The data to add
@@ -248,39 +302,23 @@ int fortuna_start(prng_state *prng)
 */
 int fortuna_add_entropy(const unsigned char *in, unsigned long inlen, prng_state *prng)
 {
-   unsigned char tmp[2];
-   int           err;
+   int err;
 
    LTC_ARGCHK(prng != NULL);
    LTC_ARGCHK(in != NULL);
    LTC_ARGCHK(inlen > 0);
 
-   /* ensure inlen <= 32 */
-   if (inlen > 32) {
-      inlen = 32;
-   }
-
-   /* add s || length(in) || in to pool[pool_idx] */
-   tmp[0] = 0;
-   tmp[1] = (unsigned char)inlen;
-
    LTC_MUTEX_LOCK(&prng->lock);
-   if ((err = sha256_process(&prng->fortuna.pool[prng->fortuna.pool_idx], tmp, 2)) != CRYPT_OK) {
-      goto LBL_UNLOCK;
-   }
-   if ((err = sha256_process(&prng->fortuna.pool[prng->fortuna.pool_idx], in, inlen)) != CRYPT_OK) {
-      goto LBL_UNLOCK;
-   }
-   if (prng->fortuna.pool_idx == 0) {
-      prng->fortuna.pool0_len += inlen;
-   }
-   if (++(prng->fortuna.pool_idx) == LTC_FORTUNA_POOLS) {
-      prng->fortuna.pool_idx = 0;
-   }
-   err = CRYPT_OK; /* success */
 
-LBL_UNLOCK:
+   err = _fortuna_add(0, prng->fortuna.pool_idx, in, inlen, prng);
+
+   if (err == CRYPT_OK) {
+      ++(prng->fortuna.pool_idx);
+      prng->fortuna.pool_idx %= LTC_FORTUNA_POOLS;
+   }
+
    LTC_MUTEX_UNLOCK(&prng->lock);
+
    return err;
 }
 
