@@ -42,10 +42,11 @@ int prng_test(void)
 
    before = my_test_rng_read;
 
-   if ((err = rng_make_prng(128, find_prng("yarrow"), &yarrow_prng, NULL)) != CRYPT_OK) {
+   if ((err = rng_make_prng(128, find_prng("yarrow"), &nprng, NULL)) != CRYPT_OK) {
       fprintf(stderr, "rng_make_prng with 'my_test_rng' failed: %s\n", error_to_string(err));
       exit(EXIT_FAILURE);
    }
+   DO(yarrow_done(&nprng));
 
    if (before == my_test_rng_read) {
       fprintf(stderr, "somehow there was no read from the ltc_rng! %lu == %lu\n", before, my_test_rng_read);
@@ -58,7 +59,6 @@ int prng_test(void)
    /* test prngs (test, import/export) */
    for (x = 0; prng_descriptor[x].name != NULL; x++) {
       if(strstr(prng_descriptor[x].name, "no_prng") == prng_descriptor[x].name) continue;
-      err = CRYPT_OK;
       DOX(prng_descriptor[x].test(), prng_descriptor[x].name);
       DOX(prng_descriptor[x].start(&nprng), prng_descriptor[x].name);
       DOX(prng_descriptor[x].add_entropy((unsigned char *)"helloworld12", 12, &nprng), prng_descriptor[x].name);
@@ -82,6 +82,11 @@ int prng_test(void)
       }
       prng_descriptor[x].done(&nprng);
    }
+
+   if ((err = rng_make_prng(-1, find_prng("yarrow"), &nprng, NULL)) != CRYPT_OK) {
+      fprintf(stderr, "rng_make_prng(-1,..) with 'yarrow' failed: %s\n", error_to_string(err));
+   }
+   DO(yarrow_done(&nprng));
    return err;
 }
 

@@ -16,7 +16,12 @@
 
 /**
   Create a PRNG from a RNG
-  @param bits     Number of bits of entropy desired (64 ... 1024)
+
+     In case you pass bits as '-1' the PRNG will be setup
+     as if the export/import functionality has been used,
+     but the imported data comes directly from the RNG.
+
+  @param bits     Number of bits of entropy desired (-1 or 64 ... 1024)
   @param wprng    Index of which PRNG to setup
   @param prng     [out] PRNG state to initialize
   @param callback A pointer to a void function for when the RNG is slow, this can be NULL
@@ -25,7 +30,8 @@
 int rng_make_prng(int bits, int wprng, prng_state *prng,
                   void (*callback)(void))
 {
-   unsigned char buf[256];
+   unsigned char* buf;
+   unsigned long bytes;
    int err;
 
    LTC_ARGCHK(prng != NULL);
@@ -35,31 +41,47 @@ int rng_make_prng(int bits, int wprng, prng_state *prng,
       return err;
    }
 
-   if (bits < 64 || bits > 1024) {
+   if (bits == -1) {
+      bytes = prng_descriptor[wprng].export_size;
+   } else if (bits < 64 || bits > 1024) {
       return CRYPT_INVALID_PRNGSIZE;
+   } else {
+      bytes = (unsigned long)((bits+7)/8) * 2;
    }
 
    if ((err = prng_descriptor[wprng].start(prng)) != CRYPT_OK) {
       return err;
    }
 
-   bits = ((bits+7)/8) * 2;
-   if (rng_get_bytes(buf, (unsigned long)bits, callback) != (unsigned long)bits) {
-      return CRYPT_ERROR_READPRNG;
+   buf = XMALLOC(bytes);
+   if (buf == NULL) {
+      return CRYPT_MEM;
    }
 
-   if ((err = prng_descriptor[wprng].add_entropy(buf, (unsigned long)bits, prng)) != CRYPT_OK) {
-      return err;
+   if (rng_get_bytes(buf, bytes, callback) != bytes) {
+      err = CRYPT_ERROR_READPRNG;
+      goto LBL_ERR;
    }
 
+   if (bits == -1) {
+      if ((err = prng_descriptor[wprng].pimport(buf, bytes, prng)) != CRYPT_OK) {
+         goto LBL_ERR;
+      }
+   } else {
+      if ((err = prng_descriptor[wprng].add_entropy(buf, bytes, prng)) != CRYPT_OK) {
+         goto LBL_ERR;
+      }
+   }
    if ((err = prng_descriptor[wprng].ready(prng)) != CRYPT_OK) {
-      return err;
+      goto LBL_ERR;
    }
 
+LBL_ERR:
    #ifdef LTC_CLEAN_STACK
-      zeromem(buf, sizeof(buf));
+   zeromem(buf, bytes);
    #endif
-   return CRYPT_OK;
+   XFREE(buf);
+   return err;
 }
 #endif /* #ifdef LTC_RNG_MAKE_PRNG */
 
