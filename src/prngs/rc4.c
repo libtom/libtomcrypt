@@ -142,6 +142,7 @@ int rc4_done(prng_state *prng)
    prng->ready = 0;
    err = rc4_stream_done(&prng->rc4.s);
    LTC_MUTEX_UNLOCK(&prng->lock);
+   LTC_MUTEX_DESTROY(&prng->lock);
    return err;
 }
 
