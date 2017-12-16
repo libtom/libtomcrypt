@@ -39,7 +39,7 @@ script:
 env:
   - |
     BUILDSCRIPT=".ci/meta_builds.sh"
-    BUILDNAME="META_BUILS"
+    BUILDNAME="META_BUILDS"
     BUILDOPTIONS="-DGMP_DESC"
   - |
     BUILDSCRIPT=".ci/valgrind.sh"

@@ -47,7 +47,7 @@ int der_encode_bit_string(const unsigned char *in, unsigned long inlen,
 
    /* store header (include bit padding count in length) */
    x = 0;
-   y = (inlen >> 3) + ((inlen&7) ? 1 : 0) + 1;
+   y = ((inlen + 7) >> 3) + 1;
 
    out[x++] = 0x03;
    if (y < 128) {

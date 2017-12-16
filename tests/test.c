@@ -72,9 +72,9 @@ static ulong64 epoch_usec(void)
   cur_time /= 10; /* nanoseconds > microseconds */
   return cur_time;
 #else
-  struct timeval tv;
-  gettimeofday(&tv, NULL);
-  return (ulong64)(tv.tv_sec) * 1000000 + (ulong64)(tv.tv_usec); /* get microseconds */
+  struct timespec ts;
+  clock_gettime(CLOCK_MONOTONIC, &ts);
+  return (ulong64)(ts.tv_sec) * 1000000 + (ulong64)(ts.tv_nsec) / 1000; /* get microseconds */
 #endif
 }
 
