@@ -183,12 +183,12 @@ src/prngs/rc4.obj src/prngs/rng_get_bytes.obj src/prngs/rng_make_prng.obj src/pr
 src/prngs/sprng.obj src/prngs/yarrow.obj src/stream/chacha/chacha_crypt.obj src/stream/chacha/chacha_done.obj \
 src/stream/chacha/chacha_ivctr32.obj src/stream/chacha/chacha_ivctr64.obj \
 src/stream/chacha/chacha_keystream.obj src/stream/chacha/chacha_setup.obj src/stream/chacha/chacha_test.obj \
-src/stream/rc4/rc4_stream.obj src/stream/rc4/rc4_test.obj src/stream/salsa20/salsa20_crypt.obj \
-src/stream/salsa20/salsa20_done.obj src/stream/salsa20/salsa20_ivctr64.obj \
-src/stream/salsa20/salsa20_keystream.obj src/stream/salsa20/salsa20_setup.obj \
-src/stream/salsa20/salsa20_test.obj src/stream/sober128/sober128_stream.obj \
-src/stream/sober128/sober128_test.obj src/stream/sosemanuk/sosemanuk.obj \
-src/stream/sosemanuk/sosemanuk_test.obj
+src/stream/rabbit/rabbit.obj src/stream/rc4/rc4_stream.obj src/stream/rc4/rc4_test.obj \
+src/stream/salsa20/salsa20_crypt.obj src/stream/salsa20/salsa20_done.obj \
+src/stream/salsa20/salsa20_ivctr64.obj src/stream/salsa20/salsa20_keystream.obj \
+src/stream/salsa20/salsa20_setup.obj src/stream/salsa20/salsa20_test.obj \
+src/stream/sober128/sober128_stream.obj src/stream/sober128/sober128_test.obj \
+src/stream/sosemanuk/sosemanuk.obj src/stream/sosemanuk/sosemanuk_test.obj
 
 #List of test objects to compile
 TOBJECTS=tests/base32_test.obj tests/base64_test.obj tests/cipher_hash_test.obj tests/common.obj \

@@ -29,6 +29,9 @@ int cipher_hash_test(void)
 #ifdef LTC_SOSEMANUK
    DO(sosemanuk_test());
 #endif
+#ifdef LTC_RABBIT
+   DO(rabbit_test());
+#endif
 #ifdef LTC_RC4_STREAM
    DO(rc4_stream_test());
 #endif
