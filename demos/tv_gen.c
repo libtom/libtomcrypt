@@ -663,7 +663,7 @@ void ecc_gen(void)
 {
    FILE         *out;
    unsigned char str[512];
-   void          *k, *order, *modulus;
+   void          *k, *order, *modulus, *a;
    ecc_point    *G, *R;
    int           x;
 
@@ -674,26 +674,28 @@ void ecc_gen(void)
    mp_init(&k);
    mp_init(&order);
    mp_init(&modulus);
+   mp_init(&a);
 
-   for (x = 0; ltc_ecc_sets[x].size != 0; x++) {
-        fprintf(out, "ECC-%d\n", ltc_ecc_sets[x].size*8);
+   for (x = 0; ltc_ecc_curves[x].prime != NULL; x++) {
+        fprintf(out, "%s\n", ltc_ecc_curves[x].OID);
         mp_set(k, 1);
 
-        mp_read_radix(order,   (char *)ltc_ecc_sets[x].order, 16);
-        mp_read_radix(modulus, (char *)ltc_ecc_sets[x].prime, 16);
-        mp_read_radix(G->x,    (char *)ltc_ecc_sets[x].Gx,    16);
-        mp_read_radix(G->y,    (char *)ltc_ecc_sets[x].Gy,    16);
+        mp_read_radix(order,   (char *)ltc_ecc_curves[x].order, 16);
+        mp_read_radix(modulus, (char *)ltc_ecc_curves[x].prime, 16);
+        mp_read_radix(a,       (char *)ltc_ecc_curves[x].A,     16);
+        mp_read_radix(G->x,    (char *)ltc_ecc_curves[x].Gx,    16);
+        mp_read_radix(G->y,    (char *)ltc_ecc_curves[x].Gy,    16);
         mp_set(G->z, 1);
 
         while (mp_cmp(k, order) == LTC_MP_LT) {
-            ltc_mp.ecc_ptmul(k, G, R, modulus, 1);
+            ltc_mp.ecc_ptmul(k, G, R, a, modulus, 1);
             mp_tohex(k,    (char*)str); fprintf(out, "%s, ", (char*)str);
             mp_tohex(R->x, (char*)str); fprintf(out, "%s, ", (char*)str);
             mp_tohex(R->y, (char*)str); fprintf(out, "%s\n", (char*)str);
             mp_mul_d(k, 3, k);
         }
    }
-   mp_clear_multi(k, order, modulus, NULL);
+   mp_clear_multi(k, order, modulus, a, NULL);
    ltc_ecc_del_point(G);
    ltc_ecc_del_point(R);
    fclose(out);

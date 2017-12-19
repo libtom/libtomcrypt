@@ -7,11 +7,6 @@
  * guarantee it works.
  */
 
-/* Implements ECC over Z/pZ for curve y^2 = x^3 - 3x + b
- *
- * All curves taken from NIST recommendation paper of July 1999
- * Available at http://csrc.nist.gov/cryptval/dss.htm
- */
 #include "tomcrypt.h"
 
 /**
@@ -29,7 +24,7 @@
   @param key     The key to export
   @return CRYPT_OK if successful
 */
-int ecc_export(unsigned char *out, unsigned long *outlen, int type, ecc_key *key)
+int ecc_export(unsigned char *out, unsigned long *outlen, int type, const ecc_key *key)
 {
    int           err;
    unsigned char flags[1];
@@ -44,12 +39,8 @@ int ecc_export(unsigned char *out, unsigned long *outlen, int type, ecc_key *key
       return CRYPT_PK_TYPE_MISMATCH;
    }
 
-   if (ltc_ecc_is_valid_idx(key->idx) == 0) {
-      return CRYPT_INVALID_ARG;
-   }
-
    /* we store the NIST byte size */
-   key_size = key->dp->size;
+   key_size = key->dp.size;
 
    if (type == PK_PRIVATE) {
        flags[0] = 1;

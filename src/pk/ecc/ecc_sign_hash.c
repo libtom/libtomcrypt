@@ -18,7 +18,7 @@
 
 static int _ecc_sign_hash(const unsigned char *in,  unsigned long inlen,
                                 unsigned char *out, unsigned long *outlen,
-                                prng_state *prng, int wprng, ecc_key *key, int sigformat)
+                                prng_state *prng, int wprng, const ecc_key *key, int sigformat)
 {
    ecc_key       pubkey;
    void          *r, *s, *e, *p;
@@ -36,22 +36,13 @@ static int _ecc_sign_hash(const unsigned char *in,  unsigned long inlen,
       return CRYPT_PK_NOT_PRIVATE;
    }
 
-   /* is the IDX valid ?  */
-   if (ltc_ecc_is_valid_idx(key->idx) != 1) {
-      return CRYPT_PK_INVALID_TYPE;
-   }
-
-   if ((err = prng_is_valid(wprng)) != CRYPT_OK) {
-      return err;
-   }
-
    /* init the bignums */
-   if ((err = mp_init_multi(&r, &s, &p, &e, NULL)) != CRYPT_OK) {
+   if ((err = mp_init_multi(&r, &s, &e, NULL)) != CRYPT_OK) {
       return err;
    }
-   if ((err = mp_read_radix(p, (char *)key->dp->order, 16)) != CRYPT_OK)              { goto errnokey; }
 
    /* get the hash and load it as a bignum into 'e' */
+   p = key->dp.order;
    pbits = mp_count_bits(p);
    pbytes = (pbits+7) >> 3;
    if (pbits > inlen*8) {
@@ -72,12 +63,11 @@ static int _ecc_sign_hash(const unsigned char *in,  unsigned long inlen,
 
    /* make up a key and export the public copy */
    do {
-      if ((err = ecc_make_key_ex(prng, wprng, &pubkey, key->dp)) != CRYPT_OK) {
-         goto errnokey;
-      }
+      if ((err = ecc_copy_dp(key, &pubkey)) != CRYPT_OK)                   { goto errnokey; }
+      if ((err = ecc_generate_key(prng, wprng, &pubkey)) != CRYPT_OK)      { goto errnokey; }
 
       /* find r = x1 mod n */
-      if ((err = mp_mod(pubkey.pubkey.x, p, r)) != CRYPT_OK)                          { goto error; }
+      if ((err = mp_mod(pubkey.pubkey.x, p, r)) != CRYPT_OK)               { goto error; }
 
       if (mp_iszero(r) == LTC_MP_YES) {
          ecc_free(&pubkey);
@@ -121,7 +111,7 @@ static int _ecc_sign_hash(const unsigned char *in,  unsigned long inlen,
 error:
    ecc_free(&pubkey);
 errnokey:
-   mp_clear_multi(r, s, p, e, NULL);
+   mp_clear_multi(r, s, e, NULL);
    return err;
 }
 
@@ -138,7 +128,7 @@ errnokey:
 */
 int ecc_sign_hash(const unsigned char *in,  unsigned long inlen,
                         unsigned char *out, unsigned long *outlen,
-                        prng_state *prng, int wprng, ecc_key *key)
+                        prng_state *prng, int wprng, const ecc_key *key)
 {
    return _ecc_sign_hash(in, inlen, out, outlen, prng, wprng, key, 0);
 }
@@ -156,7 +146,7 @@ int ecc_sign_hash(const unsigned char *in,  unsigned long inlen,
 */
 int ecc_sign_hash_rfc7518(const unsigned char *in,  unsigned long inlen,
                                 unsigned char *out, unsigned long *outlen,
-                                prng_state *prng, int wprng, ecc_key *key)
+                                prng_state *prng, int wprng, const ecc_key *key)
 {
    return _ecc_sign_hash(in, inlen, out, outlen, prng, wprng, key, 1);
 }

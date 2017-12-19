@@ -503,14 +503,40 @@
 #ifdef LTC_MECC
 /* Supported ECC Key Sizes */
 #ifndef LTC_NO_CURVES
-   #define LTC_ECC112
-   #define LTC_ECC128
-   #define LTC_ECC160
-   #define LTC_ECC192
-   #define LTC_ECC224
-   #define LTC_ECC256
-   #define LTC_ECC384
-   #define LTC_ECC521
+   #define LTC_ECC_BRAINPOOLP160R1
+   #define LTC_ECC_BRAINPOOLP160T1
+   #define LTC_ECC_BRAINPOOLP192R1
+   #define LTC_ECC_BRAINPOOLP192T1
+   #define LTC_ECC_BRAINPOOLP224R1
+   #define LTC_ECC_BRAINPOOLP224T1
+   #define LTC_ECC_BRAINPOOLP256R1
+   #define LTC_ECC_BRAINPOOLP256T1
+   #define LTC_ECC_BRAINPOOLP320R1
+   #define LTC_ECC_BRAINPOOLP320T1
+   #define LTC_ECC_BRAINPOOLP384R1
+   #define LTC_ECC_BRAINPOOLP384T1
+   #define LTC_ECC_BRAINPOOLP512R1
+   #define LTC_ECC_BRAINPOOLP512T1
+   #define LTC_ECC_PRIME192V2
+   #define LTC_ECC_PRIME192V3
+   #define LTC_ECC_PRIME239V1
+   #define LTC_ECC_PRIME239V2
+   #define LTC_ECC_PRIME239V3
+   #define LTC_ECC_SECP112R1
+   #define LTC_ECC_SECP112R2
+   #define LTC_ECC_SECP128R1
+   #define LTC_ECC_SECP128R2
+   #define LTC_ECC_SECP160K1
+   #define LTC_ECC_SECP160R1
+   #define LTC_ECC_SECP160R2
+   #define LTC_ECC_SECP192K1
+   #define LTC_ECC_SECP192R1
+   #define LTC_ECC_SECP224K1
+   #define LTC_ECC_SECP224R1
+   #define LTC_ECC_SECP256K1
+   #define LTC_ECC_SECP256R1
+   #define LTC_ECC_SECP384R1
+   #define LTC_ECC_SECP521R1
 #endif
 #endif
 
@@ -625,6 +651,40 @@
    #ifndef LTC_FILE_READ_BUFSIZE
    #define LTC_FILE_READ_BUFSIZE 8192
    #endif
+#endif
+
+/* ECC backwards compatibility */
+#if !defined(LTC_ECC_SECP112R1) && defined(LTC_ECC112)
+#define LTC_ECC_SECP112R1
+#undef LTC_ECC112
+#endif
+#if !defined(LTC_ECC_SECP128R1) && defined(LTC_ECC128)
+#define LTC_ECC_SECP128R1
+#undef LTC_ECC128
+#endif
+#if !defined(LTC_ECC_SECP160R1) && defined(LTC_ECC160)
+#define LTC_ECC_SECP160R1
+#undef LTC_ECC160
+#endif
+#if !defined(LTC_ECC_SECP192R1) && defined(LTC_ECC192)
+#define LTC_ECC_SECP192R1
+#undef LTC_ECC192
+#endif
+#if !defined(LTC_ECC_SECP224R1) && defined(LTC_ECC224)
+#define LTC_ECC_SECP224R1
+#undef LTC_ECC224
+#endif
+#if !defined(LTC_ECC_SECP256R1) && defined(LTC_ECC256)
+#define LTC_ECC_SECP256R1
+#undef LTC_ECC256
+#endif
+#if !defined(LTC_ECC_SECP384R1) && defined(LTC_ECC384)
+#define LTC_ECC_SECP384R1
+#undef LTC_ECC384
+#endif
+#if !defined(LTC_ECC_SECP512R1) && defined(LTC_ECC521)
+#define LTC_ECC_SECP521R1
+#undef LTC_ECC521
 #endif
 
 /* ref:         $Format:%D$ */

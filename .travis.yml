@@ -20,7 +20,7 @@ before_script:
   - curl http://ftp.de.debian.org/debian/pool/main/l/lcov/lcov_1.11.orig.tar.gz | tar xz
   - export PATH=$PATH:`pwd`/lcov-1.11/bin
   - curl -s https://packagecloud.io/install/repositories/libtom/packages/script.deb.sh | sudo bash
-  - sudo apt-get install libtfm-dev=0.13-5
+  - sudo apt-get install libtfm-dev=0.13-5 libtommath-dev=1.0-5
 
 matrix:
   fast_finish: true
