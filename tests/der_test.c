@@ -17,6 +17,10 @@ int der_test(void)
 
 #else
 
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <dirent.h>
+
 static const unsigned char _der_tests_stinky_root_cert[] =
    "MIIFETCCA/mgAwIBAgIQbv53JNmv518t5lkCHE272jANBgkqhkiG9w0BAQUFADCB"
    "lTELMAkGA1UEBhMCVVMxCzAJBgNVBAgTAlVUMRcwFQYDVQQHEw5TYWx0IExha2Ug"
@@ -1306,6 +1310,68 @@ static void der_Xcode_test(void)
    mp_clear(mpinteger);
 }
 
+static off_t fsize(const char *filename)
+{
+   struct stat st;
+
+   if (stat(filename, &st) == 0) return st.st_size;
+
+   return -1;
+}
+
+static void der_asn1_test(void)
+{
+   DIR *d = opendir("tests/asn1");
+   struct dirent *de;
+   char fname[PATH_MAX];
+   void* buf = NULL;
+   FILE *f = NULL;
+   off_t fsz;
+   unsigned long sz;
+   ltc_asn1_list *list;
+   int err;
+   if (d == NULL)
+      return;
+   while((de = readdir(d)) != NULL) {
+      fname[0] = '\0';
+      if (strcmp(de->d_name, ".") == 0 || strcmp(de->d_name, "..") == 0)
+         continue;
+      strcat(fname, "tests/asn1/");
+      strcat(fname, de->d_name);
+      fsz = fsize(fname);
+      if (fsz == -1)
+         break;
+#if defined(LTC_TEST_DBG) && LTC_TEST_DBG > 1
+      fprintf(stderr, "Try to decode %s\n", fname);
+#endif
+      f = fopen(fname, "rb");
+      sz = fsz;
+      buf = XMALLOC(fsz);
+      if (fread(buf, 1, sz, f) != sz)
+         break;
+
+      if ((err = der_decode_sequence_flexi(buf, &sz, &list)) == CRYPT_OK) {
+#ifdef LTC_DER_TESTS_PRINT_FLEXI
+         fprintf(stderr, "\n\n");
+         _der_tests_print_flexi(list, 0);
+         fprintf(stderr, "\n\n");
+#endif
+         der_sequence_free(list);
+      } else {
+#if defined(LTC_TEST_DBG)
+         fprintf(stderr, "Could not decode %s: %s\n\n", fname, error_to_string(err));
+#endif
+      }
+      XFREE(buf);
+      buf = NULL;
+      fclose(f);
+      f = NULL;
+   }
+   if (buf != NULL) XFREE(buf);
+   if (f != NULL) fclose(f);
+   closedir(d);
+}
+
 
 static void _der_regression_test(void)
 {
@@ -1462,6 +1528,8 @@ int der_test(void)
    if (ltc_mp.name == NULL) return CRYPT_NOP;
 
    der_Xcode_test();
+
+   der_asn1_test();
 
    der_custom_test();
 
