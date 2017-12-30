@@ -19,6 +19,16 @@ static const oid_st dsa_oid = {
    6,
 };
 
+static const oid_st ec_oid = {
+   { 1, 2, 840, 10045, 2, 1 },
+   6,
+};
+
+static const oid_st ec_primef = {
+   { 1, 2, 840, 10045, 1, 1 },
+   6,
+};
+
 /*
    Returns the OID of the public key algorithm.
    @return CRYPT_OK if valid
@@ -31,6 +41,12 @@ int pk_get_oid(int pk, oid_st *st)
          break;
       case PKA_DSA:
          XMEMCPY(st, &dsa_oid, sizeof(*st));
+         break;
+      case PKA_EC:
+         XMEMCPY(st, &ec_oid, sizeof(*st));
+         break;
+      case PKA_EC_PRIMEF:
+         XMEMCPY(st, &ec_primef, sizeof(*st));
          break;
       default:
          return CRYPT_INVALID_ARG;
