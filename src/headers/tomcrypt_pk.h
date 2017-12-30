@@ -270,6 +270,10 @@ int ecc_ansi_x963_export(const ecc_key *key, unsigned char *out, unsigned long *
 int ecc_ansi_x963_import(const unsigned char *in, unsigned long inlen, ecc_key *key);
 int ecc_ansi_x963_import_ex(const unsigned char *in, unsigned long inlen, ecc_key *key, const ltc_ecc_curve *cu);
 
+int ecc_export_openssl(unsigned char *out, unsigned long *outlen, int type, const ecc_key *key);
+int ecc_import_openssl(const unsigned char *in, unsigned long inlen, ecc_key *key);
+int ecc_import_x509(const unsigned char *in, unsigned long inlen, ecc_key *key);
+
 int  ecc_shared_secret(const ecc_key *private_key, const ecc_key *public_key,
                        unsigned char *out, unsigned long *outlen);
 
