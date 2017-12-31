@@ -58,7 +58,7 @@ int der_decode_sequence_ex(const unsigned char *in, unsigned long  inlen,
    x += y;
 
    /* would this blksize overflow? */
-   if (x + blksize > inlen) {
+   if (blksize > (inlen - x)) {
       return CRYPT_INVALID_PACKET;
    }
 

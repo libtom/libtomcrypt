@@ -58,7 +58,7 @@ int der_decode_printable_string(const unsigned char *in, unsigned long inlen,
       return CRYPT_BUFFER_OVERFLOW;
    }
 
-   if (len + x > inlen) {
+   if (len > (inlen - x)) {
       return CRYPT_INVALID_PACKET;
    }
 

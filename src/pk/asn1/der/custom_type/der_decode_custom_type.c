@@ -95,7 +95,7 @@ int der_decode_custom_type(const unsigned char *in, unsigned long  inlen,
    }
 
    /* would this blksize overflow? */
-   if (x + blksize > inlen) {
+   if (blksize > (inlen - x)) {
       err = CRYPT_INVALID_PACKET;
       goto LBL_ERR;
    }

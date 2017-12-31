@@ -54,7 +54,7 @@ int der_decode_bit_string(const unsigned char *in,  unsigned long inlen,
    }
    x += y;
    /* is the data len too long or too short? */
-   if ((dlen == 0) || (dlen + x > inlen)) {
+   if ((dlen == 0) || (dlen > (inlen - x))) {
        return CRYPT_INVALID_PACKET;
    }
 

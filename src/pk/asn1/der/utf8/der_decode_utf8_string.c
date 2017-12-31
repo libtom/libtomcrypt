@@ -53,7 +53,7 @@ int der_decode_utf8_string(const unsigned char *in,  unsigned long inlen,
    }
    x += y;
 
-   if (len + x > inlen) {
+   if (len > (inlen - x)) {
       return CRYPT_INVALID_PACKET;
    }
 

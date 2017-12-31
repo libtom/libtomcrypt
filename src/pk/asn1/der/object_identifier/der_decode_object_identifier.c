@@ -56,7 +56,7 @@ int der_decode_object_identifier(const unsigned char *in,    unsigned long  inle
    }
    x += y;
 
-   if (len < 1 || (len + x) > inlen) {
+   if ((len == 0) || (len > (inlen - x))) {
       return CRYPT_INVALID_PACKET;
    }
 

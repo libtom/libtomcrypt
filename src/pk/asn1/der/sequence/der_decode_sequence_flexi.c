@@ -87,7 +87,7 @@ int der_decode_sequence_flexi(const unsigned char *in, unsigned long *inlen, ltc
             fprintf(stderr, "E1 %02lx: hl=%4lu l=%4lu - %s (%s)\n", identifier, data_offset, len, der_asn1_tag_to_string_map[l->tag], error_to_string(err));
 #endif
             goto error;
-         } else if ((len + id_len + len_len) > *inlen) {
+         } else if (len > (*inlen - id_len - len_len)) {
             err = CRYPT_INVALID_PACKET;
 #if defined(LTC_TEST_DBG)
             fprintf(stderr, "E2 %02lx: hl=%4lu l=%4lu - %s (%s)\n", identifier, data_offset, len, der_asn1_tag_to_string_map[l->tag], error_to_string(err));
