@@ -286,7 +286,7 @@ static void _der_tests_print_flexi(ltc_asn1_list* l, unsigned int level)
           for (n = 0; n < l->size; ++n) {
               r = snprintf(s, sz, "%02X", ((unsigned char*)l->data)[n]);
               if (r < 0 || r >= sz) {
-                  printf("Octet string boom");
+                  fprintf(stderr, "%s boom\n", name);
                   exit(EXIT_FAILURE);
               }
               s += r;
@@ -310,7 +310,7 @@ static void _der_tests_print_flexi(ltc_asn1_list* l, unsigned int level)
       for (i = 0; i < l->size; ++i) {
         r = snprintf(s, sz, "%lu.", ((unsigned long*)l->data)[i]);
         if (r < 0 || r >= sz) {
-            printf("OID boom");
+            fprintf(stderr, "%s boom\n", name);
             exit(EXIT_FAILURE);
         }
         s += r;
@@ -413,16 +413,16 @@ static void _der_tests_print_flexi(ltc_asn1_list* l, unsigned int level)
   }
 
   for (n = 0; n < level; ++n) {
-    printf("    ");
+     fprintf(stderr, "    ");
   }
   if (name) {
       if (text)
-        printf("%s %s\n", name, text);
+         fprintf(stderr, "%s %s\n", name, text);
       else
-        printf("%s <missing decoding>\n", name);
+         fprintf(stderr, "%s <missing decoding>\n", name);
   }
   else
-    printf("WTF type=%i\n", l->type);
+     fprintf(stderr, "WTF type=%i\n", l->type);
 
   if (ostring) {
       _der_tests_print_flexi(ostring, level + 1);
