@@ -650,6 +650,10 @@ int der_length_custom_type(const ltc_asn1_list *root,
 
 #ifdef LTC_SOURCE
 /* internal helper functions */
+int der_decode_custom_type_ex(const unsigned char *in, unsigned long  inlen,
+                           ltc_asn1_list *root,
+                           ltc_asn1_list *list,     unsigned long  outlen, unsigned int flags);
+
 int der_encode_asn1_identifier(const ltc_asn1_list *id, unsigned char *out, unsigned long *outlen);
 int der_decode_asn1_identifier(const unsigned char *in, unsigned long *inlen, ltc_asn1_list *id);
 int der_length_asn1_identifier(const ltc_asn1_list *id, unsigned long *idlen);
