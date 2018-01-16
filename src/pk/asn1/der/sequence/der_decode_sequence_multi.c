@@ -21,27 +21,27 @@
   Decode a SEQUENCE type using a VA list
   @param in    Input buffer
   @param inlen Length of input in octets
-  @remark <...> is of the form <type, size, data> (int, unsigned long, void*)
+  @param a1    Initialized argument list #1
+  @param a2    Initialized argument list #2 (copy of #1)
+  @param flags    c.f. enum ltc_der_seq
   @return CRYPT_OK on success
 */
-int der_decode_sequence_multi(const unsigned char *in, unsigned long inlen, ...)
+static int _der_decode_sequence_va(const unsigned char *in, unsigned long inlen, va_list a1, va_list a2, unsigned int flags)
 {
    int           err;
    ltc_asn1_type type;
    unsigned long size, x;
    void          *data;
-   va_list       args;
    ltc_asn1_list *list;
 
    LTC_ARGCHK(in    != NULL);
 
    /* get size of output that will be required */
-   va_start(args, inlen);
    x = 0;
    for (;;) {
-       type = (ltc_asn1_type)va_arg(args, int);
-       size = va_arg(args, unsigned long);
-       data = va_arg(args, void*);
+       type = (ltc_asn1_type)va_arg(a1, int);
+       size = va_arg(a1, unsigned long);
+       data = va_arg(a1, void*);
        LTC_UNUSED_PARAM(size);
        LTC_UNUSED_PARAM(data);
 
@@ -73,11 +73,9 @@ int der_decode_sequence_multi(const unsigned char *in, unsigned long inlen, ...)
 
            case LTC_ASN1_EOL:
            case LTC_ASN1_CUSTOM_TYPE:
-               va_end(args);
                return CRYPT_INVALID_ARG;
        }
    }
-   va_end(args);
 
    /* allocate structure for x elements */
    if (x == 0) {
@@ -90,12 +88,11 @@ int der_decode_sequence_multi(const unsigned char *in, unsigned long inlen, ...)
    }
 
    /* fill in the structure */
-   va_start(args, inlen);
    x = 0;
    for (;;) {
-       type = (ltc_asn1_type)va_arg(args, int);
-       size = va_arg(args, unsigned long);
-       data = va_arg(args, void*);
+       type = (ltc_asn1_type)va_arg(a2, int);
+       size = va_arg(a2, unsigned long);
+       data = va_arg(a2, void*);
 
        if (type == LTC_ASN1_EOL) {
           break;
@@ -128,10 +125,60 @@ int der_decode_sequence_multi(const unsigned char *in, unsigned long inlen, ...)
                 break;
        }
    }
-   va_end(args);
 
-   err = der_decode_sequence(in, inlen, list, x);
+   err = der_decode_sequence_ex(in, inlen, list, x, flags);
    XFREE(list);
+   return err;
+}
+
+/**
+  Decode a SEQUENCE type using a VA list
+  @param in    Input buffer
+  @param inlen Length of input in octets
+  @remark <...> is of the form <type, size, data> (int, unsigned long, void*)
+  @return CRYPT_OK on success
+*/
+int der_decode_sequence_multi(const unsigned char *in, unsigned long inlen, ...)
+{
+   va_list       a1, a2;
+   int err;
+
+   LTC_ARGCHK(in    != NULL);
+
+   va_start(a1, inlen);
+   va_start(a2, inlen);
+
+   err = _der_decode_sequence_va(in, inlen, a1, a2, LTC_DER_SEQ_SEQUENCE | LTC_DER_SEQ_RELAXED);
+
+   va_end(a2);
+   va_end(a1);
+
+   return err;
+}
+
+/**
+  Decode a SEQUENCE type using a VA list
+  @param in    Input buffer
+  @param inlen Length of input in octets
+  @param flags c.f. enum ltc_der_seq
+  @remark <...> is of the form <type, size, data> (int, unsigned long, void*)
+  @return CRYPT_OK on success
+*/
+int der_decode_sequence_multi_ex(const unsigned char *in, unsigned long inlen, unsigned int flags, ...)
+{
+   va_list       a1, a2;
+   int err;
+
+   LTC_ARGCHK(in    != NULL);
+
+   va_start(a1, flags);
+   va_start(a2, flags);
+
+   err = _der_decode_sequence_va(in, inlen, a1, a2, flags);
+
+   va_end(a2);
+   va_end(a1);
+
    return err;
 }
 

@@ -111,7 +111,7 @@ int dsa_verify_hash(const unsigned char *sig, unsigned long siglen,
    LTC_SET_ASN1(sig_seq, 0, LTC_ASN1_INTEGER, r, 1UL);
    LTC_SET_ASN1(sig_seq, 1, LTC_ASN1_INTEGER, s, 1UL);
 
-   err = der_decode_sequence(sig, siglen, sig_seq, 2);
+   err = der_decode_sequence_strict(sig, siglen, sig_seq, 2);
    if (err != CRYPT_OK) {
       goto LBL_ERR;
    }

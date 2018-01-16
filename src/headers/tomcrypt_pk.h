@@ -606,10 +606,32 @@ int der_encode_sequence_ex(ltc_asn1_list *list, unsigned long inlen,
 
 #define der_encode_sequence(list, inlen, out, outlen) der_encode_sequence_ex(list, inlen, out, outlen, LTC_ASN1_SEQUENCE)
 
-int der_decode_sequence_ex(const unsigned char *in, unsigned long  inlen,
-                           ltc_asn1_list *list,     unsigned long  outlen, int ordered);
+/** The supported bitmap for all the
+ * decoders with a `flags` argument.
+ */
+enum ltc_der_seq {
+   LTC_DER_SEQ_ZERO = 0x0u,
 
-#define der_decode_sequence(in, inlen, list, outlen) der_decode_sequence_ex(in, inlen, list, outlen, 1)
+   /** Bit0  - [0]=Unordered (SET or SETOF)
+    *          [1]=Ordered (SEQUENCE) */
+   LTC_DER_SEQ_UNORDERED = LTC_DER_SEQ_ZERO,
+   LTC_DER_SEQ_ORDERED = 0x1u,
+
+   /** Bit1  - [0]=Relaxed
+    *          [1]=Strict */
+   LTC_DER_SEQ_RELAXED = LTC_DER_SEQ_ZERO,
+   LTC_DER_SEQ_STRICT = 0x2u,
+
+   /** Alternative naming */
+   LTC_DER_SEQ_SET = LTC_DER_SEQ_UNORDERED,
+   LTC_DER_SEQ_SEQUENCE = LTC_DER_SEQ_ORDERED,
+};
+
+int der_decode_sequence_ex(const unsigned char *in, unsigned long  inlen,
+                           ltc_asn1_list *list,     unsigned long  outlen, unsigned int flags);
+
+#define der_decode_sequence(in, inlen, list, outlen) der_decode_sequence_ex(in, inlen, list, outlen, LTC_DER_SEQ_SEQUENCE | LTC_DER_SEQ_RELAXED)
+#define der_decode_sequence_strict(in, inlen, list, outlen) der_decode_sequence_ex(in, inlen, list, outlen, LTC_DER_SEQ_SEQUENCE | LTC_DER_SEQ_STRICT)
 
 int der_length_sequence(ltc_asn1_list *list, unsigned long inlen,
                         unsigned long *outlen);
@@ -647,7 +669,7 @@ extern const unsigned long der_asn1_type_to_identifier_map_sz;
 #endif /* LTC_SOURCE */
 
 /* SET */
-#define der_decode_set(in, inlen, list, outlen) der_decode_sequence_ex(in, inlen, list, outlen, 0)
+#define der_decode_set(in, inlen, list, outlen) der_decode_sequence_ex(in, inlen, list, outlen, LTC_DER_SEQ_SET)
 #define der_length_set der_length_sequence
 int der_encode_set(ltc_asn1_list *list, unsigned long inlen,
                    unsigned char *out,  unsigned long *outlen);
@@ -658,6 +680,10 @@ int der_encode_setof(ltc_asn1_list *list, unsigned long inlen,
 /* VA list handy helpers with triplets of <type, size, data> */
 int der_encode_sequence_multi(unsigned char *out, unsigned long *outlen, ...);
 int der_decode_sequence_multi(const unsigned char *in, unsigned long inlen, ...);
+#ifdef LTC_SOURCE
+/* internal helper functions */
+int der_decode_sequence_multi_ex(const unsigned char *in, unsigned long inlen, unsigned int flags, ...);
+#endif /* LTC_SOURCE */
 
 /* FLEXI DECODER handle unknown list decoder */
 int  der_decode_sequence_flexi(const unsigned char *in, unsigned long *inlen, ltc_asn1_list **out);

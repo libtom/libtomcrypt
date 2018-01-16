@@ -733,11 +733,8 @@ print_hex("q", tmp, len);
 
      len3 = sizeof(tmp);
      /* (6) */
-     if (i < 8)
-       DOX(rsa_verify_hash_ex(p2, len2, p, 20, LTC_PKCS_1_V1_5, hash_idx, -1, &stat, &pubKey)
+     DOX(rsa_verify_hash_ex(p2, len2, p, 20, LTC_PKCS_1_V1_5, hash_idx, -1, &stat, &pubKey)
            == CRYPT_INVALID_PACKET ? CRYPT_OK:CRYPT_INVALID_PACKET, "should fail");
-     else
-       DOX(rsa_verify_hash_ex(p2, len2, p, 20, LTC_PKCS_1_V1_5, hash_idx, -1, &stat, &pubKey), "should succeed");
      DOX(stat == 0?CRYPT_OK:CRYPT_FAIL_TESTVECTOR, "should fail");
    }
    rsa_free(&key);

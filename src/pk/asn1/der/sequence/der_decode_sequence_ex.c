@@ -22,13 +22,13 @@
    @param inlen    The size of the input
    @param list     The list of items to decode
    @param outlen   The number of items in the list
-   @param ordered  Search an unordeded or ordered list
+   @param flags    c.f. enum ltc_der_seq
    @return CRYPT_OK on success
 */
 int der_decode_sequence_ex(const unsigned char *in, unsigned long  inlen,
-                           ltc_asn1_list *list,     unsigned long  outlen, int ordered)
+                           ltc_asn1_list *list,     unsigned long  outlen, unsigned int flags)
 {
-   int           err, i;
+   int           err, seq_err, i, ordered;
    ltc_asn1_type type;
    unsigned long size, x, y, z, blksize;
    void          *data;
@@ -66,10 +66,12 @@ int der_decode_sequence_ex(const unsigned char *in, unsigned long  inlen,
    for (i = 0; i < (int)outlen; i++) {
        list[i].used = 0;
    }
+   ordered = flags & LTC_DER_SEQ_ORDERED;
 
    /* ok read data */
-   blksize = inlen;
-   inlen -= x;
+   seq_err  = CRYPT_OK;
+   blksize += x;
+   inlen   -= x;
    for (i = 0; i < (int)outlen; i++) {
        z    = 0;
        type = list[i].type;
@@ -258,7 +260,12 @@ int der_decode_sequence_ex(const unsigned char *in, unsigned long  inlen,
                }
 
                z = inlen;
-               if ((err = der_decode_sequence(in + x, z, data, size)) != CRYPT_OK) {
+               err = der_decode_sequence_ex(in + x, z, data, size, flags);
+               if (err == CRYPT_INPUT_TOO_LONG) {
+                  seq_err = CRYPT_INPUT_TOO_LONG;
+                  err = CRYPT_OK;
+               }
+               if (err != CRYPT_OK) {
                   if (!ordered || list[i].optional) { continue; }
                   goto LBL_ERR;
                }
@@ -306,8 +313,14 @@ int der_decode_sequence_ex(const unsigned char *in, unsigned long  inlen,
       }
    }
 
-   if (blksize == x) {
+   if (blksize == x && seq_err == CRYPT_OK && inlen == 0) {
+      /* everything decoded and no errors in nested sequences */
       err = CRYPT_OK;
+   } else if (blksize == x && seq_err == CRYPT_INPUT_TOO_LONG && inlen == 0) {
+      /* a sequence reported too-long input, but now we've decoded everything */
+      err = CRYPT_OK;
+   } else if (blksize != x && ((flags & LTC_DER_SEQ_RELAXED) != LTC_DER_SEQ_RELAXED)) {
+      err = CRYPT_INVALID_PACKET;
    } else {
       err = CRYPT_INPUT_TOO_LONG;
    }
