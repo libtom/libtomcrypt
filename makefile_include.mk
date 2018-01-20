@@ -402,23 +402,23 @@ install_all: $(call print-help,install_all,Install everything - library bins doc
 INSTALL_OPTS ?= -m 644
 
 .common_install: $(LIBNAME)
-	install -d $(DESTDIR)$(INCPATH)
-	install -d $(DESTDIR)$(LIBPATH)
-	$(INSTALL_CMD) $(INSTALL_OPTS) $(LIBNAME) $(DESTDIR)$(LIBPATH)/$(LIBNAME)
-	install -m 644 $(HEADERS) $(DESTDIR)$(INCPATH)
+	install -p -d $(DESTDIR)$(INCPATH)
+	install -p -d $(DESTDIR)$(LIBPATH)
+	$(INSTALL_CMD) -p $(INSTALL_OPTS) $(LIBNAME) $(DESTDIR)$(LIBPATH)/$(LIBNAME)
+	install -p -m 644 $(HEADERS) $(DESTDIR)$(INCPATH)
 
 $(DESTDIR)$(BINPATH):
-	install -d $(DESTDIR)$(BINPATH)
+	install -p -d $(DESTDIR)$(BINPATH)
 
 .common_install_bins: $(USEFUL_DEMOS) $(DESTDIR)$(BINPATH)
-	$(INSTALL_CMD) -m 775 $(USEFUL_DEMOS) $(DESTDIR)$(BINPATH)
+	$(INSTALL_CMD) -p -m 775 $(USEFUL_DEMOS) $(DESTDIR)$(BINPATH)
 
 install_docs: $(call print-help,install_docs,Installs the Developer Manual) doc/crypt.pdf
-	install -d $(DESTDIR)$(DATAPATH)
-	install -m 644 doc/crypt.pdf $(DESTDIR)$(DATAPATH)
+	install -p -d $(DESTDIR)$(DATAPATH)
+	install -p -m 644 doc/crypt.pdf $(DESTDIR)$(DATAPATH)
 
 install_test: $(call print-help,install_test,Installs the self-test binary) test $(DESTDIR)$(BINPATH)
-	$(INSTALL_CMD) -m 775 $< $(DESTDIR)$(BINPATH)
+	$(INSTALL_CMD) -p -m 775 $< $(DESTDIR)$(BINPATH)
 
 install_hooks: $(call print-help,install_hooks,Installs the git hooks)
 	for s in `ls hooks/`; do ln -s ../../hooks/$$s .git/hooks/$$s; done
