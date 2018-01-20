@@ -1412,7 +1412,7 @@ rabbit_state st;
 err = rabbit_setup(&st, key, keylen);
 \end{verbatim}
 
-Set the IV using \textit{rabbit\_setiv() with a 64-bit IV.
+Set the IV using \textit{rabbit\_setiv()} with a 64-bit IV.
 \begin{verbatim}
 err = rabbit_setiv(&st, iv, iv_len);
 \end{verbatim}
@@ -1438,7 +1438,7 @@ Technically, it is possible to initialize Rabbit with only a call to \textit{rab
 skipping the call to \textit{rabbit\_setiv()}.  This is not recommended for interoperability reasons,
 but there may be special cases like closed systems or custom protocols where doing so might be
 appropriate.  Please note that skipping \textit{rabbit\_setiv()} will give results different than
-calling \textit{rabbit\_setiv()} passing a zero-valued IV.  You should call rabbit_setiv() unless
+calling \textit{rabbit\_setiv()} passing a zero-valued IV.  You should call \textit{rabbit\_setiv()} unless
 you have a special reason for not doing so.
 
 To do multiple encryptions and decryptions with the same key, you can reset the algorithm
