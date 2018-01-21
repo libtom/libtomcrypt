@@ -5563,6 +5563,10 @@ typedef struct {
    void                  *data;
    unsigned long          size;
    int                    used;
+   int                    optional;
+   ltc_asn1_class         class;
+   ltc_asn1_pc            pc;
+   ulong64                tag;
    struct ltc_asn1_list_ *prev,  *next,
                          *child, *parent;
 } ltc_asn1_list;
@@ -5625,9 +5629,8 @@ LTC_SET_ASN1(sequence, x++, LTC_ASN1_NULL,           NULL,   0);
 \hline LTC\_ASN1\_SETOF              & SET OF \\
 \hline LTC\_ASN1\_RAW\_BIT\_STRING   & BIT STRING (one octet per char) \\
 \hline LTC\_ASN1\_TELETEX\_STRING    & TELETEX STRING (one octet per char) \\
-\hline LTC\_ASN1\_CONSTRUCTED        & A constructed type that is not SEQUENCE or SET \\
-\hline LTC\_ASN1\_CONTEXT\_SPECIFIC  & A context-specific type \\
 \hline LTC\_ASN1\_GENERALIZEDTIME    & GeneralizedTime (see ltc\_generalizedtime structure) \\
+\hline LTC\_ASN1\_CUSTOM\_TYPE       & A custom type (see LTC\_SET\_ASN1\_CUSTOM\_XXX macros) \\
 \hline
 \end{tabular}
 \caption{List of ASN.1 Supported Types}
@@ -5635,6 +5638,36 @@ LTC_SET_ASN1(sequence, x++, LTC_ASN1_NULL,           NULL,   0);
 \end{small}
 \end{center}
 \end{figure}
+
+\index{LTC\_ASN1\_CUSTOM\_TYPE}
+\index{LTC\_SET\_ASN1\_CUSTOM\_CONSTRUCTED macro}
+\index{LTC\_SET\_ASN1\_CUSTOM\_PRIMITIVE macro}
+
+To be able to encode and decode all other valid ASN.1 Identifiers, such as Context-Specific types the macros
+\textit{LTC\_SET\_ASN1\_CUSTOM\_CONSTRUCTED(list, index, Class, Tag, Data)} resp.
+\textit{LTC\_SET\_ASN1\_CUSTOM\_PRIMITIVE(list, index, Class, Tag, Type, Data, Size)} have been provided.
+
+They will assign to the \textit{index}th position in the \textit{list} the Identifier-triplet (Class, CONSTRUCTED resp. PRIMITIVE, Tag).
+An example usage would be:
+
+\begin{small}
+\begin{verbatim}
+...
+ltc_asn1_list   sequence[4], custom[1];
+unsigned long   three=3;
+unsigned char   buf[128];
+
+LTC_SET_ASN1(sequence, 0, LTC_ASN1_IA5_STRING,    "hello", 5);
+LTC_SET_ASN1(sequence, 1, LTC_ASN1_SHORT_INTEGER, &three,  1);
+LTC_SET_ASN1(sequence, 2, LTC_ASN1_NULL,           NULL,   0);
+LTC_SET_ASN1_CUSTOM_PRIMITIVE(sequence, 3, LTC_ASN1_CL_CONTEXT_SPECIFIC, 23, \
+                                        LTC_ASN1_OCTET_STRING, buf, sizeof(buf));
+
+LTC_SET_ASN1_CUSTOM_CONSTRUCTED(custom, 0, LTC_ASN1_CL_CONTEXT_SPECIFIC, 0, sequence);
+\end{verbatim}
+\end{small}
+
+This would allow (un)pack'ing the given \textit{sequence} from/in the context-specific tag \textit{[0]}.
 
 \subsection{SEQUENCE Type}
 The SEQUENCE data type is a collection of other ASN.1 data types encapsulated with a small header which is a useful way of sending multiple data types in one packet.
@@ -5660,6 +5693,7 @@ the \textit{data} pointer is simply a pointer to another \textbf{ltc\_asn1\_list
 \subsubsection{SEQUENCE Decoding}
 
 \index{der\_decode\_sequence()}
+\index{der\_decode\_sequence\_strict()}
 
 Decoding a SEQUENCE is similar to encoding.  You set up an array of \textbf{ltc\_asn1\_list} where in this case the \textit{size} member is the maximum size
 (in certain cases).  For types such as IA5 STRING, BIT STRING, OCTET STRING (etc) the \textit{size} field is updated after successful decoding to reflect how many
@@ -5670,18 +5704,27 @@ int der_decode_sequence(const unsigned char *in,
                               unsigned long  inlen,
                               ltc_asn1_list *list,
                               unsigned long  outlen);
+
+int der_decode_sequence_strict(const unsigned char *in,
+                                     unsigned long  inlen,
+                                     ltc_asn1_list *list,
+                                     unsigned long  outlen);
 \end{verbatim}
 
 This will decode upto \textit{outlen} items from the input buffer \textit{in} of length \textit{inlen} octets.  The function will stop (gracefully) when it runs out of items to decode.
 It will fail (for among other reasons) when it runs out of input bytes to read, a data type is invalid or a heap failure occurred.
+The regular variant will return \textbf{CRYPT\_INPUT\_TOO\_LONG} in cases where there was more data to be decoded given through \textit{inlen} than the ASN.1 length-tag specified.
+The strict variant \textit{der\_decode\_sequence\_strict()} returns an error in this case.
 
 For the following types the \textit{size} field will be updated to reflect the number of units read of the given type.
 \begin{enumerate}
-   \item BIT STRING
+   \item (RAW) BIT STRING
    \item OCTET STRING
    \item OBJECT IDENTIFIER
    \item IA5 STRING
    \item PRINTABLE STRING
+   \item TELETEX STRING
+   \item UTF8 STRING
 \end{enumerate}
 
 \subsubsection{SEQUENCE Length}
@@ -6139,32 +6182,53 @@ This will decode the input in the \textit{in} field of length \textit{inlen}.  I
 \textit{outlen} elements.  The \textit{inlen} field will be updated with the length of the decoded data type, as well as the respective entry in the \textit{list} field
 will have the \textit{used} flag set to non--zero to reflect it was the data type decoded.
 
+\subsection{ASN.1 Custom Types}
+
+To be able to represent all other valid types besides the primitive types having their own decoder, the \textit{custom\_type} de- and encoders are provided.
+
+\index{der\_encode\_custom\_type()} \index{der\_decode\_custom\_type()} \index{der\_length\_custom\_type()} \index{LTC\_ASN1\_CUSTOM\_TYPE}
+\begin{verbatim}
+int der_encode_custom_type(const ltc_asn1_list *root,
+                                 unsigned char *out, unsigned long *outlen);
+
+int der_decode_custom_type(const unsigned char *in, unsigned long inlen,
+                                 ltc_asn1_list *root);
+
+int der_length_custom_type(const ltc_asn1_list *root,
+                                 unsigned long *outlen,
+                                 unsigned long *payloadlen);
+\end{verbatim}
+
+The usage of this de- and encoder is a bit different than the others since the type to be encoded has to be passed to the function.
+Therefore the \textit{root} parameter identifies the type that should be encoded which has been set by the \textit{LTC\_SET\_ASN1}
+and \textit{LTC\_SET\_ASN1\_IDENTIFIER}, resp. \textit{LTC\_SET\_ASN1\_CUSTOM} macros.
+The value to de-/encode has to be linked through the \textit{data} argument of the \textit{LTC\_SET\_ASN1} macro, as done for sequences.
+The value that should be de-/encoded can either be a primitive or a constructed type.
+
 \subsection{ASN.1 Flexi Decoder}
-The ASN.1 \textit{flexi} decoder allows the developer to decode arbitrary ASN.1 DER packets (provided they use data types LibTomCrypt supports) without first knowing
-the structure of the data.  Where der\_decode\_sequence() requires the developer to specify the data types to decode in advance the flexi decoder is entirely
-free form.
+
+The ASN.1 \textit{flexi} decoder allows the developer to decode arbitrary ASN.1 DER packets without first knowing the structure of the data.
+Where der\_decode\_sequence() requires the developer to specify the data types to decode in advance the flexi decoder is entirely free form.
 
 The flexi decoder uses the same \textit{ltc\_asn1\_list} but instead of being stored in an array it uses the linked list pointers \textit{prev}, \textit{next}, \textit{parent}
-and \textit{child}.  The list works as a \textit{doubly-linked list} structure where decoded items at the same level are siblings (using next and prev) and items
-encoded in a SEQUENCE are stored as a child element.
+and \textit{child}.  The list works as a \textit{doubly-linked list} structure where decoded items at the same level are siblings (using \textit{next} and \textit{prev}) and items
+encoded in a SEQUENCE are stored as a \textit{child} element.
 
-When a SEQUENCE or SET has been encountered a SEQUENCE (or SET resp.) item will be added as a sibling (e.g. list.type == LTC\_ASN1\_SEQUENCE) and the child
+When a SEQUENCE or SET has been encountered a SEQUENCE (or SET resp.) item will be added as a sibling (e.g. list.type == LTC\_ASN1\_SEQUENCE) and the \textit{child}
 pointer points to a new list of items contained within the object.
 
 \index{der\_decode\_sequence\_flexi()}
-\index{LTC\_ASN1\_CONSTRUCTED}
-\index{LTC\_ASN1\_CONTEXT\_SPECIFIC}
 \begin{verbatim}
 int  der_decode_sequence_flexi(const unsigned char *in,
                                      unsigned long *inlen,
-                                    ltc_asn1_list **out);
+                                     ltc_asn1_list **out);
 \end{verbatim}
 
 This will decode items in the \textit{in} buffer of max input length \textit{inlen} and store the newly created pointer to the list in \textit{out}.  This function allocates
 all required memory for the decoding.  It stores the number of octets read back into \textit{inlen}.
 
 The function will terminate when either it hits an invalid ASN.1 tag, or it reads \textit{inlen} octets.  An early termination is a soft error, and returns
-normally.  The decoded list \textit{out} will point to the very first element of the list (e.g. both parent and prev pointers will be \textbf{NULL}).
+normally.  The decoded list \textit{out} will point to the very first element of the list (i.e. both parent and prev pointers will be \textbf{NULL}).
 
 An invalid decoding will terminate the process, and free the allocated memory automatically.
 
@@ -6175,18 +6239,12 @@ However the parent processing will continue with a "soft-error".
 This can be detected by checking for \textit{child} elements with
 type \textbf{LTC\_ASN1\_EOL} after decoding.
 
-As of v1.18.0 the flexi decoder will also decode arbitrary constructed types
-other than SEQUENCE and SET. The \textit{type} field will be set to
-\textbf{LTC\_ASN1\_CONSTRUCTED} and the plain identifier that was indicated in the ASN.1
-encoding is stored in the \textit{used} field. Further decoding is done in the
-same way as if it were a SEQUENCE or SET.
+The v1.18.0 of the library had support for decoding two new types, \textbf{LTC\_ASN1\_CONSTRUCTED} and \textbf{LTC\_ASN1\_CONTEXT\_SPECIFIC},
+which has been replaced in FIXME-version-next by a more complete approach.
 
-Also as of v1.18.0 the flexi decoder is capable to handle
-\textit{context-specific} encodings. The \textit{type} field will be set to
-\textbf{LTC\_ASN1\_CONTEXT\_SPECIFIC} and the plain identifier that was indicated
-in the ASN.1 encoding is stored in the \textit{used} field. Encapsulated data
-in the \textit{context-specific} encoding is copied to newly allocated memory
-and is accessible through the \textit{data} field.
+As of FIXME-version-next all ASN.1 Identifiers which don't have a decoder implemented (and thereby their own type) will be marked as
+\textbf{LTC\_ASN1\_CUSTOM\_TYPE}.
+
 
 \textbf{Note:} the list decoded by this function is \textbf{NOT} in the correct form for der\_encode\_sequence() to use directly.  You will first
 have to convert the list by first storing all of the siblings in an array then storing all the children as sub-lists of a sequence using the \textit{.data}
