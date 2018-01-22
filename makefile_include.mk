@@ -3,10 +3,10 @@
 #  (GNU make only)
 
 # The version - BEWARE: VERSION, VERSION_PC and VERSION_LT are updated via ./updatemakes.sh
-VERSION=1.18.0
-VERSION_PC=1.18.0
+VERSION=1.18.1
+VERSION_PC=1.18.1
 # http://www.gnu.org/software/libtool/manual/html_node/Updating-version-info.html
-VERSION_LT=1:0
+VERSION_LT=1:1
 
 # Compiler and Linker Names
 ifndef CROSS_COMPILE
@@ -463,7 +463,7 @@ zipup: $(call print-help,zipup,Prepare the archives for a release) doc/crypt.pdf
 	@# files/dirs excluded from "git archive" are defined in .gitattributes
 	git archive --format=tar --prefix=libtomcrypt-$(VERSION)/ HEAD | tar x
 	@echo 'fixme check'
-	-@(find libtomcrypt-$(VERSION)/ -type f | xargs grep 'FIXM[E]') && echo '############## BEWARE: the "fixme" marker was found !!! ##############'
+	-@(find libtomcrypt-$(VERSION)/ -type f | xargs grep 'FIXM[E]') && echo '############## BEWARE: the "fixme" marker was found !!! ##############' || true
 	mkdir -p libtomcrypt-$(VERSION)/doc
 	cp doc/crypt.pdf libtomcrypt-$(VERSION)/doc/crypt.pdf
 	tar -c libtomcrypt-$(VERSION)/ | xz -6e -c - > crypt-$(VERSION).tar.xz
