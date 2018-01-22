@@ -147,9 +147,10 @@ USEABLE_DEMOS  = ltcrypt sizes constants
 TEST_DEMOS     = small tv_gen
 
 # Demos that are in one config broken
-#  openssl-enc - can't be build with LTC_EASY
+#  aesgcm      - can't be built with LTC_EASY
+#  openssl-enc - can't be built with LTC_EASY
 #  timing      - not really broken, but older gcc builds spit warnings
-BROKEN_DEMOS   = openssl-enc timing
+BROKEN_DEMOS   = aesgcm openssl-enc timing
 
 # Combine demos in groups
 UNBROKEN_DEMOS = $(TEST_DEMOS) $(USEABLE_DEMOS) $(USEFUL_DEMOS)
