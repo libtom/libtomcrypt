@@ -16,12 +16,11 @@
 */
 
 #define REGISTER_PRNG(h) do {\
-   LTC_ARGCHK((err = register_prng(h)) != -1); \
+   LTC_ARGCHK(register_prng(h) != -1); \
 } while(0)
 
 int register_all_prngs(void)
 {
-   int err = CRYPT_NOP;
 #ifdef LTC_YARROW
    REGISTER_PRNG(&yarrow_desc);
 #endif
@@ -41,7 +40,7 @@ int register_all_prngs(void)
    REGISTER_PRNG(&sprng_desc);
 #endif
 
-   return err;
+   return CRYPT_OK;
 }
 
 /* ref:         $Format:%D$ */

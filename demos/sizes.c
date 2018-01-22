@@ -9,7 +9,7 @@
 
 #include "tomcrypt.h"
 
-#if _POSIX_C_SOURCE >= 200112L
+#if defined(_POSIX_C_SOURCE) && _POSIX_C_SOURCE >= 200112L
 #include <libgen.h>
 #else
 #define basename(x) x

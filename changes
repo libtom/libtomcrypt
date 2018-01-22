@@ -1,4 +1,16 @@
-XXX, 2017
+January 22nd, 2018
+v1.18.1
+      -- Fix wrong SHA3 blocksizes, thanks to Claus Fischer for reporting this via Mail (PR #329)
+      -- Fix NULL-pointer dereference in `ccm_memory()` with LTC_CLEAN_STACK enabled (PR #327)
+      -- Fix `ccm_process()` being unable to process input buffers longer than 256 bytes (PR #326)
+      -- Fix the `register_all_{ciphers,hashes,prngs}()` return values (PR #316)
+      -- Fix some typos, warnings and duplicate prototypes in code & doc (PR's #310 #320 #321 #335)
+      -- Fix possible undefined behavior with LTC_PTHREAD (PR #337)
+      -- Fix some DER bugs (PR #339)
+      -- Fix CTR-mode when accelerator is used (OP-TEE/optee_os #2086)
+      -- Fix installation procedure (Issue #340)
+
+October 10th, 2017
 v1.18.0
       -- Bugfix multi2
       -- Bugfix Noekeon

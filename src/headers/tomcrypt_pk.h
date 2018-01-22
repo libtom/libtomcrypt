@@ -31,7 +31,7 @@ enum public_key_algorithms {
 
 typedef struct Oid {
     unsigned long OID[16];
-    /** Length of DER encoding */
+    /** Number of OID digits in use */
     unsigned long OIDlen;
 } oid_st;
 

@@ -145,6 +145,17 @@ int ccm_test(void)
                                tag, &taglen, 0)) != CRYPT_OK) {
             return err;
          }
+         /* run a second time to make sure skey is not touched */
+         if ((err = ccm_memory(idx,
+                               tests[x].key, 16,
+                               &skey,
+                               tests[x].nonce, tests[x].noncelen,
+                               tests[x].header, tests[x].headerlen,
+                               (unsigned char*)tests[x].pt, tests[x].ptlen,
+                               buf,
+                               tag, &taglen, 0)) != CRYPT_OK) {
+            return err;
+         }
       } else {
          if ((err = ccm_init(&ccm, idx, tests[x].key, 16, tests[x].ptlen, tests[x].taglen, tests[x].headerlen)) != CRYPT_OK) {
             return err;

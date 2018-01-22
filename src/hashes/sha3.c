@@ -18,7 +18,7 @@ const struct ltc_hash_descriptor sha3_224_desc =
    "sha3-224",                  /* name of hash */
    17,                          /* internal ID */
    28,                          /* Size of digest in octets */
-   128,                         /* Input block size in octets */
+   144,                         /* Input block size in octets */
    { 2,16,840,1,101,3,4,2,7 },  /* ASN.1 OID */
    9,                           /* Length OID */
    &sha3_224_init,
@@ -33,7 +33,7 @@ const struct ltc_hash_descriptor sha3_256_desc =
    "sha3-256",                  /* name of hash */
    18,                          /* internal ID */
    32,                          /* Size of digest in octets */
-   128,                         /* Input block size in octets */
+   136,                         /* Input block size in octets */
    { 2,16,840,1,101,3,4,2,8 },  /* ASN.1 OID */
    9,                           /* Length OID */
    &sha3_256_init,
@@ -48,7 +48,7 @@ const struct ltc_hash_descriptor sha3_384_desc =
    "sha3-384",                  /* name of hash */
    19,                          /* internal ID */
    48,                          /* Size of digest in octets */
-   128,                         /* Input block size in octets */
+   104,                         /* Input block size in octets */
    { 2,16,840,1,101,3,4,2,9 },  /* ASN.1 OID */
    9,                           /* Length OID */
    &sha3_384_init,
@@ -63,7 +63,7 @@ const struct ltc_hash_descriptor sha3_512_desc =
    "sha3-512",                  /* name of hash */
    20,                          /* internal ID */
    64,                          /* Size of digest in octets */
-   128,                         /* Input block size in octets */
+   72,                          /* Input block size in octets */
    { 2,16,840,1,101,3,4,2,10 }, /* ASN.1 OID */
    9,                           /* Length OID */
    &sha3_512_init,

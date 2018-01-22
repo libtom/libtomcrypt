@@ -55,13 +55,14 @@ sub check_source {
       push @{$troubles->{unwanted_strcmp}},  $lineno if $file =~ /^src\/.*\.c$/ && $l =~ /\bstrcmp\s*\(/;
       push @{$troubles->{unwanted_clock}},   $lineno if $file =~ /^src\/.*\.c$/ && $l =~ /\bclock\s*\(/;
       push @{$troubles->{unwanted_qsort}},   $lineno if $file =~ /^src\/.*\.c$/ && $l =~ /\bqsort\s*\(/;
+      push @{$troubles->{sizeof_no_brackets}}, $lineno if $file =~ /^src\/.*\.c$/ && $l =~ /\bsizeof\s*[^\(]/;
       if ($file =~ m|src/.*\.c$| &&
           $file !~ m|src/ciphers/.*\.c$| &&
           $file !~ m|src/hashes/.*\.c$| &&
           $file !~ m|src/math/.+_desc.c$| &&
           $file !~ m|src/stream/sober128/sober128_stream.c$| &&
-          $l =~ /^static\s+\S+\s+([^_][a-zA-Z0-9_]+)\s*\(/) {
-        push @{$troubles->{staticfunc_name}}, "$lineno($1)";
+          $l =~ /^static(\s+[a-zA-Z0-9_]+)+\s+([^_][a-zA-Z0-9_]+)\s*\(/) {
+        push @{$troubles->{staticfunc_name}}, "$lineno($2)";
       }
       $lineno++;
     }
@@ -277,7 +278,7 @@ sub patch_file {
 sub version_from_tomcrypt_h {
   my $h = read_file(shift);
   if ($h =~ /\n#define\s*SCRYPT\s*"([0-9]+)\.([0-9]+)\.([0-9]+)(.*)"/s) {
-    return "VERSION_PC=$1.$2.$3", "VERSION_LT=1:0", "VERSION=$1.$2.$3$4", "PROJECT_NUMBER=$1.$2.$3$4";
+    return "VERSION_PC=$1.$2.$3", "VERSION_LT=1:1", "VERSION=$1.$2.$3$4", "PROJECT_NUMBER=$1.$2.$3$4";
   }
   else {
     die "#define SCRYPT not found in tomcrypt.h";

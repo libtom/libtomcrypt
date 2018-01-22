@@ -53,7 +53,7 @@ int der_encode_utf8_string(const wchar_t *in,  unsigned long inlen,
 
    /* too big? */
    if (y > *outlen) {
-      *outlen = len;
+      *outlen = y;
       return CRYPT_BUFFER_OVERFLOW;
    }
 

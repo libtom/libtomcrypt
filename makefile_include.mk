@@ -3,10 +3,10 @@
 #  (GNU make only)
 
 # The version - BEWARE: VERSION, VERSION_PC and VERSION_LT are updated via ./updatemakes.sh
-VERSION=1.18.0
-VERSION_PC=1.18.0
+VERSION=1.18.1
+VERSION_PC=1.18.1
 # http://www.gnu.org/software/libtool/manual/html_node/Updating-version-info.html
-VERSION_LT=1:0
+VERSION_LT=1:1
 
 # Compiler and Linker Names
 ifndef CROSS_COMPILE
@@ -394,23 +394,23 @@ install_all: $(call print-help,install_all,Install everything - library bins doc
 INSTALL_OPTS ?= -m 644
 
 .common_install: $(LIBNAME)
-	install -d $(DESTDIR)$(INCPATH)
-	install -d $(DESTDIR)$(LIBPATH)
-	$(INSTALL_CMD) $(INSTALL_OPTS) $(LIBNAME) $(DESTDIR)$(LIBPATH)/$(LIBNAME)
-	install -m 644 $(HEADERS) $(DESTDIR)$(INCPATH)
+	install -p -d $(DESTDIR)$(INCPATH)
+	install -p -d $(DESTDIR)$(LIBPATH)
+	$(INSTALL_CMD) -p $(INSTALL_OPTS) $(LIBNAME) $(DESTDIR)$(LIBPATH)/$(LIBNAME)
+	install -p -m 644 $(HEADERS) $(DESTDIR)$(INCPATH)
 
 $(DESTDIR)$(BINPATH):
-	install -d $(DESTDIR)$(BINPATH)
+	install -p -d $(DESTDIR)$(BINPATH)
 
 .common_install_bins: $(USEFUL_DEMOS) $(DESTDIR)$(BINPATH)
-	$(INSTALL_CMD) -m 775 $(USEFUL_DEMOS) $(DESTDIR)$(BINPATH)
+	$(INSTALL_CMD) -p -m 775 $(USEFUL_DEMOS) $(DESTDIR)$(BINPATH)
 
 install_docs: $(call print-help,install_docs,Installs the Developer Manual) doc/crypt.pdf
-	install -d $(DESTDIR)$(DATAPATH)
-	install -m 644 doc/crypt.pdf $(DESTDIR)$(DATAPATH)
+	install -p -d $(DESTDIR)$(DATAPATH)
+	install -p -m 644 doc/crypt.pdf $(DESTDIR)$(DATAPATH)
 
 install_test: $(call print-help,install_test,Installs the self-test binary) test $(DESTDIR)$(BINPATH)
-	$(INSTALL_CMD) -m 775 $< $(DESTDIR)$(BINPATH)
+	$(INSTALL_CMD) -p -m 775 $< $(DESTDIR)$(BINPATH)
 
 install_hooks: $(call print-help,install_hooks,Installs the git hooks)
 	for s in `ls hooks/`; do ln -s ../../hooks/$$s .git/hooks/$$s; done
@@ -454,6 +454,8 @@ zipup: $(call print-help,zipup,Prepare the archives for a release) doc/crypt.pdf
 	rm -rf libtomcrypt-$(VERSION) crypt-$(VERSION).*
 	@# files/dirs excluded from "git archive" are defined in .gitattributes
 	git archive --format=tar --prefix=libtomcrypt-$(VERSION)/ HEAD | tar x
+	@echo 'fixme check'
+	-@(find libtomcrypt-$(VERSION)/ -type f | xargs grep 'FIXM[E]') && echo '############## BEWARE: the "fixme" marker was found !!! ##############' || true
 	mkdir -p libtomcrypt-$(VERSION)/doc
 	cp doc/crypt.pdf libtomcrypt-$(VERSION)/doc/crypt.pdf
 	tar -c libtomcrypt-$(VERSION)/ | xz -6e -c - > crypt-$(VERSION).tar.xz
