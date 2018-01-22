@@ -6,7 +6,7 @@
 VERSION=1.18.1
 VERSION_PC=1.18.1
 # http://www.gnu.org/software/libtool/manual/html_node/Updating-version-info.html
-VERSION_LT=1:0
+VERSION_LT=1:1
 
 # Compiler and Linker Names
 ifndef CROSS_COMPILE
