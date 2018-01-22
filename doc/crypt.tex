@@ -2229,6 +2229,35 @@ message tag.  The definition of the variables is the same as it is for all the m
 
 If you are processing many packets under the same key you shouldn't use this function as it invokes the pre--computation with each call.
 
+\subsection{File--API}
+To process files two helper functions are provided.
+
+\begin{verbatim}
+int gcm_file(      int           cipher,
+             const unsigned char *key,    unsigned long keylen,
+             const unsigned char *IV,     unsigned long IVlen,
+             const unsigned char *adata,  unsigned long adatalen,
+                      const char *in,
+                      const char *out,
+                   unsigned long taglen,
+                             int direction,
+                             int *res);
+
+int gcm_filehandle(      int           cipher,
+                   const unsigned char *key,    unsigned long keylen,
+                   const unsigned char *IV,     unsigned long IVlen,
+                   const unsigned char *adata,  unsigned long adatalen,
+                                  FILE *in,
+                                  FILE *out,
+                         unsigned long taglen,
+                                   int direction,
+                                   int *res);
+\end{verbatim}
+
+The \textit{gcm\_file} function works with filenames whereas the \textit{gcm\_filehandle} function works with \textit{FILE} handles.
+
+In case of an error in either of both functions, possibly written data is zero'ed and possibly created files are removed again.
+
 \subsection{Example Usage}
 The following is an example usage of how to use GCM over multiple packets with a shared secret key.
 
