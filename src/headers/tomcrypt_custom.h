@@ -464,6 +464,8 @@
 
 #define LTC_CRC32
 
+#define LTC_PADDING
+
 #endif /* LTC_NO_MISC */
 
 /* cleanup */
