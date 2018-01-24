@@ -6650,6 +6650,72 @@ int base16_decode(const          char *in,
                         unsigned char *out, unsigned long *outlen);
 \end{verbatim}
 
+\mysection{Padding data}
+
+The library provides functions to pad and depad according to several standards, please refer to Figure \ref{fig:paddingmodes} for details about the supported standards.
+
+
+\subsection{Padding mode argument}
+
+All functions have a \textit{mode} argument which must be set to the bit-wise OR of the desired blocksize and one of the modes as shown in the following table:
+
+\begin{figure}[H]
+\begin{minipage}{\textwidth}
+\begin{center}
+\begin{tabular}{|l|l|}
+     \hline \textbf{mode} & \textbf{Standard} \\
+     \hline LTC\_PAD\_PKCS7  & RFC-5652 / PKCS \#7 \\
+     \hline LTC\_PAD\_ISO\_10126 & ISO/IEC 10126 \footnote{\textit{ISO/IEC 10126} support is only available when the library is built with \textit{rng\_get\_bytes()} support} \\
+     \hline LTC\_PAD\_ANSI\_X923 & ANSI X.923 \\
+     \hline LTC\_PAD\_ONE\_AND\_ZERO & ISO/IEC 7816-4 \\
+     \hline LTC\_PAD\_ZERO & ISO/IEC 10118-1 \\
+     \hline LTC\_PAD\_ZERO\_ALWAYS & ISO/IEC 10118-1 \footnote{\textit{LTC\_PAD\_ZERO\_ALWAYS} adds an entire block of padding if the plaintext length is divisible by the blocksize} \\
+     \hline
+\end{tabular}
+\end{center}
+\end{minipage}
+\caption{Padding modes}
+\label{fig:paddingmodes}
+\end{figure}
+
+\textit{ISO/IEC 10126} has been withdrawn as an ISO/IEC standard in 2007 and is only provided for historical reasons (it was used e.g. in early versions of TLS/SSL).
+Therefore it should not be used for new designs.
+
+
+\subsection{Padding}
+
+To pad data call:
+
+\index{padding\_pad()}
+\begin{verbatim}
+int padding_pad(unsigned char *data,
+                unsigned long  length,
+                unsigned long *padded_length,
+                unsigned long  mode);
+\end{verbatim}
+
+Where \textit{data} is a pointer to a buffer containing the data to pad,
+\textit{length} is the original length of the data to pad and
+\textit{padded\_length} is a pointer that should contain the length of buffer available and will contain the padded data-length.
+It is possible to call this function with \textit{padded\_length} set to $0$ which will then return with the error-code \textit{CRYPT\_BUFFER\_OVERFLOW}
+and \textit{padded\_length} set to the required size of the buffer.
+
+
+\subsection{Depadding}
+
+To depad data call:
+
+\index{padding\_depad()}
+\begin{verbatim}
+int pkcs7_depad(unsigned char *data,
+                unsigned long *length,
+                unsigned long  mode);
+\end{verbatim}
+
+Where \textit{data} is a pointer to the data to depad,
+\textit{length} is a pointer that should contain the length of the padded data and will be updated to contain the length of the data after depadding.
+
+
 \mysection{Primality Testing}
 \index{Primality Testing}
 The library includes primality testing and random prime functions as well.  The primality tester will perform the test in
