@@ -61,6 +61,15 @@ void print_hex(const char* what, const void* v, const unsigned long l)
   }
 }
 
+int do_compare_testvector(const void* is, const unsigned long is_len, const void* should, const unsigned long should_len, const char* what, int which)
+{
+   if (compare_testvector(is, is_len, should, should_len, what, which) == 0) {
+      return CRYPT_OK;
+   } else {
+      return CRYPT_FAIL_TESTVECTOR;
+   }
+}
+
 prng_state yarrow_prng;
 
 /* ref:         $Format:%D$ */
