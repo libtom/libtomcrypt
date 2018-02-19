@@ -847,12 +847,12 @@ int der_length_generalizedtime(ltc_generalizedtime *gtime, unsigned long *outlen
 /* internal helper functions */
 /* SUBJECT PUBLIC KEY INFO */
 int x509_encode_subject_public_key_info(unsigned char *out, unsigned long *outlen,
-        unsigned int algorithm, void* public_key, unsigned long public_key_len,
-        unsigned long parameters_type, void* parameters, unsigned long parameters_len);
+        unsigned int algorithm, const void* public_key, unsigned long public_key_len,
+        ltc_asn1_type parameters_type, ltc_asn1_list* parameters, unsigned long parameters_len);
 
 int x509_decode_subject_public_key_info(const unsigned char *in, unsigned long inlen,
         unsigned int algorithm, void* public_key, unsigned long* public_key_len,
-        unsigned long parameters_type, void* parameters, unsigned long *parameters_len);
+        ltc_asn1_type parameters_type, ltc_asn1_list* parameters, unsigned long *parameters_len);
 #endif /* LTC_SOURCE */
 
 #endif

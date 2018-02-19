@@ -39,10 +39,10 @@
 */
 int x509_decode_subject_public_key_info(const unsigned char *in, unsigned long inlen,
         unsigned int algorithm, void* public_key, unsigned long* public_key_len,
-        unsigned long parameters_type, void* parameters, unsigned long *parameters_len)
+        ltc_asn1_type parameters_type, ltc_asn1_list* parameters, unsigned long *parameters_len)
 {
    int err;
-   unsigned long len;
+   unsigned long len, alg_id_num;
    oid_st oid;
    unsigned char *tmpbuf;
    unsigned long  tmpoid[16];
@@ -52,7 +52,9 @@ int x509_decode_subject_public_key_info(const unsigned char *in, unsigned long i
    LTC_ARGCHK(in    != NULL);
    LTC_ARGCHK(inlen != 0);
    LTC_ARGCHK(public_key_len != NULL);
-   LTC_ARGCHK(parameters_len != NULL);
+   if (parameters_type != LTC_ASN1_EOL) {
+      LTC_ARGCHK(parameters_len != NULL);
+   }
 
    err = pk_get_oid(algorithm, &oid);
    if (err != CRYPT_OK) {
@@ -68,20 +70,27 @@ int x509_decode_subject_public_key_info(const unsigned char *in, unsigned long i
 
    /* this includes the internal hash ID and optional params (NULL in this case) */
    LTC_SET_ASN1(alg_id, 0, LTC_ASN1_OBJECT_IDENTIFIER, tmpoid, sizeof(tmpoid)/sizeof(tmpoid[0]));
-   LTC_SET_ASN1(alg_id, 1, (ltc_asn1_type)parameters_type, parameters, *parameters_len);
+   if (parameters_type == LTC_ASN1_EOL) {
+      alg_id_num = 1;
+   }
+   else {
+      LTC_SET_ASN1(alg_id, 1, parameters_type, parameters, *parameters_len);
+      alg_id_num = 2;
+   }
 
    /* the actual format of the SSL DER key is odd, it stores a RSAPublicKey
     * in a **BIT** string ... so we have to extract it then proceed to convert bit to octet
     */
-   LTC_SET_ASN1(subject_pubkey, 0, LTC_ASN1_SEQUENCE, alg_id, 2);
+   LTC_SET_ASN1(subject_pubkey, 0, LTC_ASN1_SEQUENCE, alg_id, alg_id_num);
    LTC_SET_ASN1(subject_pubkey, 1, LTC_ASN1_RAW_BIT_STRING, tmpbuf, inlen*8U);
 
    err=der_decode_sequence(in, inlen, subject_pubkey, 2UL);
    if (err != CRYPT_OK) {
            goto LBL_ERR;
    }
-
-   *parameters_len = alg_id[1].size;
+   if (parameters_type != LTC_ASN1_EOL) {
+      *parameters_len = alg_id[1].size;
+   }
 
    if ((alg_id[0].size != oid.OIDlen) ||
         XMEMCMP(oid.OID, alg_id[0].data, oid.OIDlen * sizeof(oid.OID[0]))) {
@@ -91,7 +100,7 @@ int x509_decode_subject_public_key_info(const unsigned char *in, unsigned long i
    }
 
    len = subject_pubkey[1].size/8;
-   if (*public_key_len > len) {
+   if (*public_key_len >= len) {
        XMEMCPY(public_key, subject_pubkey[1].data, len);
        *public_key_len = len;
     } else {
