@@ -9,13 +9,15 @@
 
 /* ---- NUMBER THEORY ---- */
 
-enum {
-   PK_PUBLIC=0,
-   PK_PRIVATE=1
-};
+enum public_key_type {
+   /* Refers to the public key */
+   PK_PUBLIC      = 0x0000,
+   /* Refers to the private key */
+   PK_PRIVATE     = 0x0001,
 
-/* Indicates standard output formats that can be read e.g. by OpenSSL or GnuTLS */
-#define PK_STD          0x1000
+   /* Indicates standard output formats that can be read e.g. by OpenSSL or GnuTLS */
+   PK_STD         = 0x1000,
+};
 
 int rand_prime(void *N, long len, prng_state *prng, int wprng);
 
