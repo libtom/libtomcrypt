@@ -52,21 +52,11 @@ int der_encode_sequence_ex(ltc_asn1_list *list, unsigned long inlen,
    x = 0;
    out[x++] = (type_of == LTC_ASN1_SEQUENCE) ? 0x30 : 0x31;
 
-   if (z < 128) {
-      out[x++] = (unsigned char)z;
-   } else if (z < 256) {
-      out[x++] = 0x81;
-      out[x++] = (unsigned char)z;
-   } else if (z < 65536UL) {
-      out[x++] = 0x82;
-      out[x++] = (unsigned char)((z>>8UL)&255);
-      out[x++] = (unsigned char)(z&255);
-   } else if (z < 16777216UL) {
-      out[x++] = 0x83;
-      out[x++] = (unsigned char)((z>>16UL)&255);
-      out[x++] = (unsigned char)((z>>8UL)&255);
-      out[x++] = (unsigned char)(z&255);
+   y = *outlen - x;
+   if ((err = der_encode_asn1_length(z, &out[x], &y)) != CRYPT_OK) {
+      goto LBL_ERR;
    }
+   x += y;
 
    /* store data */
    *outlen -= x;
@@ -191,9 +181,14 @@ int der_encode_sequence_ex(ltc_asn1_list *list, unsigned long inlen,
                }
                break;
 
+           case LTC_ASN1_CUSTOM_TYPE:
+               z = *outlen;
+               if ((err = der_encode_custom_type(&list[i], out + x, &z)) != CRYPT_OK) {
+                  goto LBL_ERR;
+               }
+               break;
+
            case LTC_ASN1_CHOICE:
-           case LTC_ASN1_CONSTRUCTED:
-           case LTC_ASN1_CONTEXT_SPECIFIC:
            case LTC_ASN1_EOL:
            case LTC_ASN1_TELETEX_STRING:
                err = CRYPT_INVALID_ARG;

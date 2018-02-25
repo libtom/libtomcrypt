@@ -66,7 +66,7 @@ static int _ecc_verify_hash(const unsigned char *sig,  unsigned long siglen,
    }
    else {
       /* ASN.1 format */
-      if ((err = der_decode_sequence_multi(sig, siglen,
+      if ((err = der_decode_sequence_multi_ex(sig, siglen, LTC_DER_SEQ_SEQUENCE | LTC_DER_SEQ_STRICT,
                                      LTC_ASN1_INTEGER, 1UL, r,
                                      LTC_ASN1_INTEGER, 1UL, s,
                                      LTC_ASN1_EOL, 0UL, NULL)) != CRYPT_OK)                             { goto error; }

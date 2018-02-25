@@ -1850,6 +1850,54 @@
 						</File>
 					</Filter>
 					<Filter
+						Name="custom_type"
+						>
+						<File
+							RelativePath="src\pk\asn1\der\custom_type\der_decode_custom_type.c"
+							>
+						</File>
+						<File
+							RelativePath="src\pk\asn1\der\custom_type\der_encode_custom_type.c"
+							>
+						</File>
+						<File
+							RelativePath="src\pk\asn1\der\custom_type\der_length_custom_type.c"
+							>
+						</File>
+					</Filter>
+					<Filter
+						Name="general"
+						>
+						<File
+							RelativePath="src\pk\asn1\der\general\der_asn1_maps.c"
+							>
+						</File>
+						<File
+							RelativePath="src\pk\asn1\der\general\der_decode_asn1_identifier.c"
+							>
+						</File>
+						<File
+							RelativePath="src\pk\asn1\der\general\der_decode_asn1_length.c"
+							>
+						</File>
+						<File
+							RelativePath="src\pk\asn1\der\general\der_encode_asn1_identifier.c"
+							>
+						</File>
+						<File
+							RelativePath="src\pk\asn1\der\general\der_encode_asn1_length.c"
+							>
+						</File>
+						<File
+							RelativePath="src\pk\asn1\der\general\der_length_asn1_identifier.c"
+							>
+						</File>
+						<File
+							RelativePath="src\pk\asn1\der\general\der_length_asn1_length.c"
+							>
+						</File>
+					</Filter>
+					<Filter
 						Name="generalizedtime"
 						>
 						<File
@@ -1961,19 +2009,11 @@
 							>
 						</File>
 						<File
-							RelativePath="src\pk\asn1\der\sequence\der_decode_subject_public_key_info.c"
-							>
-						</File>
-						<File
 							RelativePath="src\pk\asn1\der\sequence\der_encode_sequence_ex.c"
 							>
 						</File>
 						<File
 							RelativePath="src\pk\asn1\der\sequence\der_encode_sequence_multi.c"
-							>
-						</File>
-						<File
-							RelativePath="src\pk\asn1\der\sequence\der_encode_subject_public_key_info.c"
 							>
 						</File>
 						<File
@@ -2061,6 +2101,18 @@
 							>
 						</File>
 					</Filter>
+				</Filter>
+				<Filter
+					Name="x509"
+					>
+					<File
+						RelativePath="src\pk\asn1\x509\x509_decode_subject_public_key_info.c"
+						>
+					</File>
+					<File
+						RelativePath="src\pk\asn1\x509\x509_encode_subject_public_key_info.c"
+						>
+					</File>
 				</Filter>
 			</Filter>
 			<Filter

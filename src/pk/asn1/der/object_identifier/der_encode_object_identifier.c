@@ -55,18 +55,11 @@ int der_encode_object_identifier(unsigned long *words, unsigned long  nwords,
    /* store header + length */
    x = 0;
    out[x++] = 0x06;
-   if (z < 128) {
-      out[x++] = (unsigned char)z;
-   } else if (z < 256) {
-      out[x++] = 0x81;
-      out[x++] = (unsigned char)z;
-   } else if (z < 65536UL) {
-      out[x++] = 0x82;
-      out[x++] = (unsigned char)((z>>8)&255);
-      out[x++] = (unsigned char)(z&255);
-   } else {
-      return CRYPT_INVALID_ARG;
+   y = *outlen - x;
+   if ((err = der_encode_asn1_length(z, out + x, &y)) != CRYPT_OK) {
+      return err;
    }
+   x += y;
 
    /* store first byte */
    wordbuf = words[0] * 40 + words[1];

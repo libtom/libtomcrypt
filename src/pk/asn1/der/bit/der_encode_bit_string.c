@@ -50,16 +50,11 @@ int der_encode_bit_string(const unsigned char *in, unsigned long inlen,
    y = ((inlen + 7) >> 3) + 1;
 
    out[x++] = 0x03;
-   if (y < 128) {
-      out[x++] = (unsigned char)y;
-   } else if (y < 256) {
-      out[x++] = 0x81;
-      out[x++] = (unsigned char)y;
-   } else if (y < 65536) {
-      out[x++] = 0x82;
-      out[x++] = (unsigned char)((y>>8)&255);
-      out[x++] = (unsigned char)(y&255);
+   len = *outlen - x;
+   if ((err = der_encode_asn1_length(y, out + x, &len)) != CRYPT_OK) {
+      return err;
    }
+   x += len;
 
    /* store number of zero padding bits */
    out[x++] = (unsigned char)((8 - inlen) & 7);

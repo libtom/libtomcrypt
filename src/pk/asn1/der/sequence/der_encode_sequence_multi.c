@@ -71,8 +71,7 @@ int der_encode_sequence_multi(unsigned char *out, unsigned long *outlen, ...)
                 break;
 
            case LTC_ASN1_CHOICE:
-           case LTC_ASN1_CONSTRUCTED:
-           case LTC_ASN1_CONTEXT_SPECIFIC:
+           case LTC_ASN1_CUSTOM_TYPE:
            case LTC_ASN1_EOL:
            case LTC_ASN1_TELETEX_STRING:
                va_end(args);
@@ -124,8 +123,7 @@ int der_encode_sequence_multi(unsigned char *out, unsigned long *outlen, ...)
                 break;
 
            case LTC_ASN1_CHOICE:
-           case LTC_ASN1_CONSTRUCTED:
-           case LTC_ASN1_CONTEXT_SPECIFIC:
+           case LTC_ASN1_CUSTOM_TYPE:
            case LTC_ASN1_EOL:
            case LTC_ASN1_TELETEX_STRING:
                va_end(args);

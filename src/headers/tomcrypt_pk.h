@@ -513,11 +513,21 @@ typedef enum ltc_asn1_type_ {
  LTC_ASN1_SETOF,
  LTC_ASN1_RAW_BIT_STRING,
  LTC_ASN1_TELETEX_STRING,
- LTC_ASN1_CONSTRUCTED,
- LTC_ASN1_CONTEXT_SPECIFIC,
- /* 20 */
  LTC_ASN1_GENERALIZEDTIME,
+ LTC_ASN1_CUSTOM_TYPE,
 } ltc_asn1_type;
+
+typedef enum {
+   LTC_ASN1_CL_UNIVERSAL = 0x0,
+   LTC_ASN1_CL_APPLICATION = 0x1,
+   LTC_ASN1_CL_CONTEXT_SPECIFIC = 0x2,
+   LTC_ASN1_CL_PRIVATE = 0x3,
+} ltc_asn1_class;
+
+typedef enum {
+   LTC_ASN1_PC_PRIMITIVE = 0x0,
+   LTC_ASN1_PC_CONSTRUCTED = 0x1,
+} ltc_asn1_pc;
 
 /** A LTC ASN.1 list type */
 typedef struct ltc_asn1_list_ {
@@ -527,8 +537,17 @@ typedef struct ltc_asn1_list_ {
    void         *data;
    /** The size of the input or resulting output */
    unsigned long size;
-   /** The used flag, this is used by the CHOICE ASN.1 type to indicate which choice was made */
+   /** The used flag
+    * 1. This is used by the CHOICE ASN.1 type to indicate which choice was made
+    * 2. This is used by the ASN.1 decoder to indicate if an element is used
+    * 3. This is used by the flexi-decoder to indicate the first byte of the identifier */
    int           used;
+   /** Flag used to indicate optional items in ASN.1 sequences */
+   int           optional;
+   /** ASN.1 identifier */
+   ltc_asn1_class class;
+   ltc_asn1_pc    pc;
+   ulong64        tag;
    /** prev/next entry in the list */
    struct ltc_asn1_list_ *prev, *next, *child, *parent;
 } ltc_asn1_list;
@@ -541,7 +560,45 @@ typedef struct ltc_asn1_list_ {
       LTC_MACRO_list[LTC_MACRO_temp].data = (void*)(Data);  \
       LTC_MACRO_list[LTC_MACRO_temp].size = (Size);  \
       LTC_MACRO_list[LTC_MACRO_temp].used = 0;       \
+      LTC_MACRO_list[LTC_MACRO_temp].optional = 0;   \
+      LTC_MACRO_list[LTC_MACRO_temp].class = 0;      \
+      LTC_MACRO_list[LTC_MACRO_temp].pc = 0;         \
+      LTC_MACRO_list[LTC_MACRO_temp].tag = 0;        \
    } while (0)
+
+#define __LTC_SET_ASN1_IDENTIFIER(list, index, Class, Pc, Tag)      \
+   do {                                                           \
+      int LTC_MACRO_temp            = (index);                    \
+      ltc_asn1_list *LTC_MACRO_list = (list);                     \
+      LTC_MACRO_list[LTC_MACRO_temp].type = LTC_ASN1_CUSTOM_TYPE; \
+      LTC_MACRO_list[LTC_MACRO_temp].class = (Class);             \
+      LTC_MACRO_list[LTC_MACRO_temp].pc = (Pc);                   \
+      LTC_MACRO_list[LTC_MACRO_temp].tag = (Tag);                 \
+   } while (0)
+
+#define LTC_SET_ASN1_CUSTOM_CONSTRUCTED(list, index, Class, Tag, Data)    \
+   do {                                                           \
+      int LTC_MACRO_temp##__LINE__ = (index);                     \
+      LTC_SET_ASN1(list, LTC_MACRO_temp##__LINE__, LTC_ASN1_CUSTOM_TYPE, Data, 1);   \
+      __LTC_SET_ASN1_IDENTIFIER(list, LTC_MACRO_temp##__LINE__, Class, LTC_ASN1_PC_CONSTRUCTED, Tag);       \
+   } while (0)
+
+#define LTC_SET_ASN1_CUSTOM_PRIMITIVE(list, index, Class, Tag, Type, Data, Size)    \
+   do {                                                           \
+      int LTC_MACRO_temp##__LINE__ = (index);                     \
+      LTC_SET_ASN1(list, LTC_MACRO_temp##__LINE__, LTC_ASN1_CUSTOM_TYPE, Data, Size);   \
+      __LTC_SET_ASN1_IDENTIFIER(list, LTC_MACRO_temp##__LINE__, Class, LTC_ASN1_PC_PRIMITIVE, Tag);       \
+      list[LTC_MACRO_temp##__LINE__].used = (int)(Type);       \
+   } while (0)
+
+extern const char*          der_asn1_class_to_string_map[];
+extern const unsigned long  der_asn1_class_to_string_map_sz;
+
+extern const char*          der_asn1_pc_to_string_map[];
+extern const unsigned long  der_asn1_pc_to_string_map_sz;
+
+extern const char*          der_asn1_tag_to_string_map[];
+extern const unsigned long  der_asn1_tag_to_string_map_sz;
 
 /* SEQUENCE */
 int der_encode_sequence_ex(ltc_asn1_list *list, unsigned long inlen,
@@ -549,31 +606,74 @@ int der_encode_sequence_ex(ltc_asn1_list *list, unsigned long inlen,
 
 #define der_encode_sequence(list, inlen, out, outlen) der_encode_sequence_ex(list, inlen, out, outlen, LTC_ASN1_SEQUENCE)
 
-int der_decode_sequence_ex(const unsigned char *in, unsigned long  inlen,
-                           ltc_asn1_list *list,     unsigned long  outlen, int ordered);
+/** The supported bitmap for all the
+ * decoders with a `flags` argument.
+ */
+enum ltc_der_seq {
+   LTC_DER_SEQ_ZERO = 0x0u,
 
-#define der_decode_sequence(in, inlen, list, outlen) der_decode_sequence_ex(in, inlen, list, outlen, 1)
+   /** Bit0  - [0]=Unordered (SET or SETOF)
+    *          [1]=Ordered (SEQUENCE) */
+   LTC_DER_SEQ_UNORDERED = LTC_DER_SEQ_ZERO,
+   LTC_DER_SEQ_ORDERED = 0x1u,
+
+   /** Bit1  - [0]=Relaxed
+    *          [1]=Strict */
+   LTC_DER_SEQ_RELAXED = LTC_DER_SEQ_ZERO,
+   LTC_DER_SEQ_STRICT = 0x2u,
+
+   /** Alternative naming */
+   LTC_DER_SEQ_SET = LTC_DER_SEQ_UNORDERED,
+   LTC_DER_SEQ_SEQUENCE = LTC_DER_SEQ_ORDERED,
+};
+
+int der_decode_sequence_ex(const unsigned char *in, unsigned long  inlen,
+                           ltc_asn1_list *list,     unsigned long  outlen, unsigned int flags);
+
+#define der_decode_sequence(in, inlen, list, outlen) der_decode_sequence_ex(in, inlen, list, outlen, LTC_DER_SEQ_SEQUENCE | LTC_DER_SEQ_RELAXED)
+#define der_decode_sequence_strict(in, inlen, list, outlen) der_decode_sequence_ex(in, inlen, list, outlen, LTC_DER_SEQ_SEQUENCE | LTC_DER_SEQ_STRICT)
 
 int der_length_sequence(ltc_asn1_list *list, unsigned long inlen,
                         unsigned long *outlen);
 
 
+/* Custom-types */
+int der_encode_custom_type(const ltc_asn1_list *root,
+                                 unsigned char *out, unsigned long *outlen);
+
+int der_decode_custom_type(const unsigned char *in, unsigned long inlen,
+                                 ltc_asn1_list *root);
+
+int der_length_custom_type(const ltc_asn1_list *root,
+                                 unsigned long *outlen,
+                                 unsigned long *payloadlen);
+
 #ifdef LTC_SOURCE
 /* internal helper functions */
+int der_decode_custom_type_ex(const unsigned char *in, unsigned long  inlen,
+                           ltc_asn1_list *root,
+                           ltc_asn1_list *list,     unsigned long  outlen, unsigned int flags);
+
+int der_encode_asn1_identifier(const ltc_asn1_list *id, unsigned char *out, unsigned long *outlen);
+int der_decode_asn1_identifier(const unsigned char *in, unsigned long *inlen, ltc_asn1_list *id);
+int der_length_asn1_identifier(const ltc_asn1_list *id, unsigned long *idlen);
+
+int der_encode_asn1_length(unsigned long len, unsigned char* out, unsigned long* outlen);
+int der_decode_asn1_length(const unsigned char* len, unsigned long* lenlen, unsigned long* outlen);
+int der_length_asn1_length(unsigned long len, unsigned long *outlen);
+
 int der_length_sequence_ex(ltc_asn1_list *list, unsigned long inlen,
                            unsigned long *outlen, unsigned long *payloadlen);
-/* SUBJECT PUBLIC KEY INFO */
-int der_encode_subject_public_key_info(unsigned char *out, unsigned long *outlen,
-        unsigned int algorithm, void* public_key, unsigned long public_key_len,
-        unsigned long parameters_type, void* parameters, unsigned long parameters_len);
 
-int der_decode_subject_public_key_info(const unsigned char *in, unsigned long inlen,
-        unsigned int algorithm, void* public_key, unsigned long* public_key_len,
-        unsigned long parameters_type, ltc_asn1_list* parameters, unsigned long parameters_len);
+extern const ltc_asn1_type  der_asn1_tag_to_type_map[];
+extern const unsigned long  der_asn1_tag_to_type_map_sz;
+
+extern const int der_asn1_type_to_identifier_map[];
+extern const unsigned long der_asn1_type_to_identifier_map_sz;
 #endif /* LTC_SOURCE */
 
 /* SET */
-#define der_decode_set(in, inlen, list, outlen) der_decode_sequence_ex(in, inlen, list, outlen, 0)
+#define der_decode_set(in, inlen, list, outlen) der_decode_sequence_ex(in, inlen, list, outlen, LTC_DER_SEQ_SET)
 #define der_length_set der_length_sequence
 int der_encode_set(ltc_asn1_list *list, unsigned long inlen,
                    unsigned char *out,  unsigned long *outlen);
@@ -584,6 +684,10 @@ int der_encode_setof(ltc_asn1_list *list, unsigned long inlen,
 /* VA list handy helpers with triplets of <type, size, data> */
 int der_encode_sequence_multi(unsigned char *out, unsigned long *outlen, ...);
 int der_decode_sequence_multi(const unsigned char *in, unsigned long inlen, ...);
+#ifdef LTC_SOURCE
+/* internal helper functions */
+int der_decode_sequence_multi_ex(const unsigned char *in, unsigned long inlen, unsigned int flags, ...);
+#endif /* LTC_SOURCE */
 
 /* FLEXI DECODER handle unknown list decoder */
 int  der_decode_sequence_flexi(const unsigned char *in, unsigned long *inlen, ltc_asn1_list **out);
@@ -739,6 +843,17 @@ int der_decode_generalizedtime(const unsigned char *in, unsigned long *inlen,
 
 int der_length_generalizedtime(ltc_generalizedtime *gtime, unsigned long *outlen);
 
+#ifdef LTC_SOURCE
+/* internal helper functions */
+/* SUBJECT PUBLIC KEY INFO */
+int x509_encode_subject_public_key_info(unsigned char *out, unsigned long *outlen,
+        unsigned int algorithm, void* public_key, unsigned long public_key_len,
+        unsigned long parameters_type, void* parameters, unsigned long parameters_len);
+
+int x509_decode_subject_public_key_info(const unsigned char *in, unsigned long inlen,
+        unsigned int algorithm, void* public_key, unsigned long* public_key_len,
+        unsigned long parameters_type, void* parameters, unsigned long *parameters_len);
+#endif /* LTC_SOURCE */
 
 #endif
 

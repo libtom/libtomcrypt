@@ -25,7 +25,7 @@
 */
 int der_decode_integer(const unsigned char *in, unsigned long inlen, void *num)
 {
-   unsigned long x, y, z;
+   unsigned long x, y;
    int           err;
 
    LTC_ARGCHK(num    != NULL);
@@ -42,45 +42,15 @@ int der_decode_integer(const unsigned char *in, unsigned long inlen, void *num)
       return CRYPT_INVALID_PACKET;
    }
 
-   /* now decode the len stuff */
-   z = in[x++];
+   /* get the length of the data */
+   inlen -= x;
+   if ((err = der_decode_asn1_length(in + x, &inlen, &y)) != CRYPT_OK) {
+      return err;
+   }
+   x += inlen;
 
-   if ((z & 0x80) == 0x00) {
-      /* short form */
-
-      /* will it overflow? */
-      if (x + z > inlen) {
-         return CRYPT_INVALID_PACKET;
-      }
-
-      /* no so read it */
-      if ((err = mp_read_unsigned_bin(num, (unsigned char *)in + x, z)) != CRYPT_OK) {
-         return err;
-      }
-   } else {
-      /* long form */
-      z &= 0x7F;
-
-      /* will number of length bytes overflow? (or > 4) */
-      if (((x + z) > inlen) || (z > 4) || (z == 0)) {
-         return CRYPT_INVALID_PACKET;
-      }
-
-      /* now read it in */
-      y = 0;
-      while (z--) {
-         y = ((unsigned long)(in[x++])) | (y << 8);
-      }
-
-      /* now will reading y bytes overrun? */
-      if ((x + y) > inlen) {
-         return CRYPT_INVALID_PACKET;
-      }
-
-      /* no so read it */
-      if ((err = mp_read_unsigned_bin(num, (unsigned char *)in + x, y)) != CRYPT_OK) {
-         return err;
-      }
+   if ((err = mp_read_unsigned_bin(num, (unsigned char *)in + x, y)) != CRYPT_OK) {
+      return err;
    }
 
    /* see if it's negative */

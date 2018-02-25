@@ -79,7 +79,7 @@ int rsa_export(unsigned char *out, unsigned long *outlen, int type, rsa_key *key
           goto finish;
       }
 
-      err = der_encode_subject_public_key_info(out, outlen,
+      err = x509_encode_subject_public_key_info(out, outlen,
         PKA_RSA, tmp, tmplen, LTC_ASN1_NULL, NULL, 0);
 
 finish:

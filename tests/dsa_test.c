@@ -306,7 +306,8 @@ static int _dsa_wycheproof_test(void)
    }
 
    stat = 666; /* intentionally not one, not zero */
-   DO(dsa_verify_hash(sig, sizeof(sig), hash, hashlen, &stat, &key));
+   DOX(dsa_verify_hash(sig, sizeof(sig), hash, hashlen, &stat, &key)
+               == CRYPT_INPUT_TOO_LONG ? CRYPT_OK:CRYPT_INVALID_PACKET, "should be too long");
    /* this should be invalid */
    if (stat != 0) {
       fprintf(stderr, "dsa_verify_hash did not reject invalid signature\n");
