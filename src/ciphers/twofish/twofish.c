@@ -237,7 +237,7 @@ static void rs_mult(const unsigned char *in, unsigned char *out)
 #endif
 
 /* computes h(x) */
-static void h_func(const unsigned char *in, unsigned char *out, unsigned char *M, int k, int offset)
+static void h_func(const unsigned char *in, unsigned char *out, const unsigned char *M, int k, int offset)
 {
   int x;
   unsigned char y[4];

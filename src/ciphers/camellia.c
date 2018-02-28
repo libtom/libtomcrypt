@@ -193,7 +193,7 @@ static ulong64 F(ulong64 x)
    return ((ulong64)U) | (((ulong64)D) << CONST64(32));
 }
 
-static void rot_128(unsigned char *in, unsigned count, unsigned char *out)
+static void rot_128(const unsigned char *in, unsigned count, unsigned char *out)
 {
    unsigned x, w, b;
 

@@ -35,7 +35,7 @@ unsigned long der_object_identifier_bits(unsigned long x)
   @param outlen   [out] The length of the DER encoding for the given string
   @return CRYPT_OK if successful
 */
-int der_length_object_identifier(unsigned long *words, unsigned long nwords, unsigned long *outlen)
+int der_length_object_identifier(const unsigned long *words, unsigned long nwords, unsigned long *outlen)
 {
    unsigned long y, z, t, wordbuf;
 

@@ -96,7 +96,7 @@ const struct ltc_hash_descriptor rmd320_desc =
 #ifdef LTC_CLEAN_STACK
 static int _rmd320_compress(hash_state *md, unsigned char *buf)
 #else
-static int  rmd320_compress(hash_state *md, unsigned char *buf)
+static int  rmd320_compress(hash_state *md, const unsigned char *buf)
 #endif
 {
    ulong32 aa,bb,cc,dd,ee,aaa,bbb,ccc,ddd,eee,tmp,X[16];

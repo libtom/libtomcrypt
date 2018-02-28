@@ -20,7 +20,7 @@ static void pi1(ulong32 *p)
    p[1] ^= p[0];
 }
 
-static void pi2(ulong32 *p, ulong32 *k)
+static void pi2(ulong32 *p, const ulong32 *k)
 {
    ulong32 t;
    t = (p[1] + k[0]) & 0xFFFFFFFFUL;
@@ -29,7 +29,7 @@ static void pi2(ulong32 *p, ulong32 *k)
    p[0] ^= t;
 }
 
-static void pi3(ulong32 *p, ulong32 *k)
+static void pi3(ulong32 *p, const ulong32 *k)
 {
    ulong32 t;
    t = p[0] + k[1];
@@ -41,7 +41,7 @@ static void pi3(ulong32 *p, ulong32 *k)
    p[1] ^= t;
 }
 
-static void pi4(ulong32 *p, ulong32 *k)
+static void pi4(ulong32 *p, const ulong32 *k)
 {
    ulong32 t;
    t = (p[1] + k[3])  & 0xFFFFFFFFUL;
@@ -49,7 +49,7 @@ static void pi4(ulong32 *p, ulong32 *k)
    p[0] ^= t;
 }
 
-static void setup(ulong32 *dk, ulong32 *k, ulong32 *uk)
+static void setup(const ulong32 *dk, ulong32 *k, ulong32 *uk)
 {
    int n, t;
    ulong32 p[2];

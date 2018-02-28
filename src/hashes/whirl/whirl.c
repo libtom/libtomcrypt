@@ -53,9 +53,9 @@ const struct ltc_hash_descriptor whirlpool_desc =
     SB7(GB(a, i-7, 0)))
 
 #ifdef LTC_CLEAN_STACK
-static int _whirlpool_compress(hash_state *md, unsigned char *buf)
+static int _whirlpool_compress(hash_state *md, const unsigned char *buf)
 #else
-static int whirlpool_compress(hash_state *md, unsigned char *buf)
+static int whirlpool_compress(hash_state *md, const unsigned char *buf)
 #endif
 {
    ulong64 K[2][8], T[3][8];

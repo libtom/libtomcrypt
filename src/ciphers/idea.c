@@ -104,7 +104,7 @@ static int _setup_key(const unsigned char *key, symmetric_key *skey)
    return CRYPT_OK;
 }
 
-static int _process_block(const unsigned char *in, unsigned char *out, ushort16 *m_key)
+static int _process_block(const unsigned char *in, unsigned char *out, const ushort16 *m_key)
 {
    int i;
    ushort16 x0, x1, x2, x3, t0, t1;

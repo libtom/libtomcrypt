@@ -608,9 +608,9 @@ static void key_schedule(ulong64 *x)
 }
 
 #ifdef LTC_CLEAN_STACK
-static int _tiger_compress(hash_state *md, unsigned char *buf)
+static int _tiger_compress(hash_state *md, const unsigned char *buf)
 #else
-static int  tiger_compress(hash_state *md, unsigned char *buf)
+static int  tiger_compress(hash_state *md, const unsigned char *buf)
 #endif
 {
     ulong64 a, b, c, x[8];

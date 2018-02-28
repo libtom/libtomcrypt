@@ -19,7 +19,7 @@
   @param key    The key you wish to export
   @return CRYPT_OK if successful
 */
-int dh_export(unsigned char *out, unsigned long *outlen, int type, dh_key *key)
+int dh_export(unsigned char *out, unsigned long *outlen, int type, const dh_key *key)
 {
    unsigned char flags[1];
    int err;

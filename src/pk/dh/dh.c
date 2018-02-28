@@ -224,7 +224,7 @@ const ltc_dh_set_type ltc_dh_sets[] = {
   @param key   The DH key to get the size of
   @return The group size in octets (0 on error)
  */
-int dh_get_groupsize(dh_key *key)
+int dh_get_groupsize(const dh_key *key)
 {
    if (key == NULL) return 0;
    return mp_unsigned_bin_size(key->prime);

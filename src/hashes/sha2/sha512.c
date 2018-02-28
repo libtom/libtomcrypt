@@ -91,7 +91,7 @@ CONST64(0x5fcb6fab3ad6faec), CONST64(0x6c44198c4a475817)
 #ifdef LTC_CLEAN_STACK
 static int _sha512_compress(hash_state * md, unsigned char *buf)
 #else
-static int  sha512_compress(hash_state * md, unsigned char *buf)
+static int  sha512_compress(hash_state * md, const unsigned char *buf)
 #endif
 {
     ulong64 S[8], W[80], t0, t1;

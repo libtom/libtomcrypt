@@ -28,7 +28,7 @@
 
 #define B(x,i) ((unsigned char)(((x) >> (8*i)) & 0xFF))
 
-static ulong32 BYTE2WORD(unsigned char *b)
+static ulong32 BYTE2WORD(const unsigned char *b)
 {
    ulong32 t;
    LOAD32L(t, b);

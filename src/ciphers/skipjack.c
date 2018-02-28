@@ -107,7 +107,7 @@ int skipjack_setup(const unsigned char *key, int keylen, int num_rounds, symmetr
    w2  = tmp ^ w3 ^ x;                            \
    w3  = w4; w4 = w1; w1 = tmp;
 
-static unsigned g_func(unsigned w, int *kp, unsigned char *key)
+static unsigned g_func(unsigned w, int *kp, const unsigned char *key)
 {
    unsigned char g1,g2;
 
@@ -119,7 +119,7 @@ static unsigned g_func(unsigned w, int *kp, unsigned char *key)
    return ((unsigned)g1<<8)|(unsigned)g2;
 }
 
-static unsigned ig_func(unsigned w, int *kp, unsigned char *key)
+static unsigned ig_func(unsigned w, int *kp, const unsigned char *key)
 {
    unsigned char g1,g2;
 

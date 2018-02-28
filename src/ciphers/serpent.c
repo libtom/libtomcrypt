@@ -488,7 +488,7 @@ static int _setup_key(const unsigned char *key, int keylen, int rounds, ulong32 
    return CRYPT_OK;
 }
 
-static int _enc_block(const unsigned char *in, unsigned char *out, ulong32 *k)
+static int _enc_block(const unsigned char *in, unsigned char *out, const ulong32 *k)
 {
    ulong32 a, b, c, d, e;
    unsigned int i = 1;
@@ -530,7 +530,7 @@ static int _enc_block(const unsigned char *in, unsigned char *out, ulong32 *k)
    return CRYPT_OK;
 }
 
-static int _dec_block(const unsigned char *in, unsigned char *out, ulong32 *k)
+static int _dec_block(const unsigned char *in, unsigned char *out, const ulong32 *k)
 {
    ulong32 a, b, c, d, e;
    unsigned int i;
