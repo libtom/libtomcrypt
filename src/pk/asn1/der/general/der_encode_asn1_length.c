@@ -63,13 +63,21 @@ int der_encode_asn1_length(unsigned long len, unsigned char *out, unsigned long 
          out[x++] = (unsigned char)((len>>16UL)&255);
          out[x++] = (unsigned char)((len>>8UL)&255);
          out[x++] = (unsigned char)(len&255);
+      #if ULONG_MAX != ULLONG_MAX
+      } else {
+         out[x++] = 0x84;
+         out[x++] = (unsigned char)((len>>24UL)&255);
+         out[x++] = (unsigned char)((len>>16UL)&255);
+         out[x++] = (unsigned char)((len>>8UL)&255);
+         out[x++] = (unsigned char)(len&255);
+      }
+      #else
       } else if (len <= 0xffffffffUL) {
          out[x++] = 0x84;
          out[x++] = (unsigned char)((len>>24UL)&255);
          out[x++] = (unsigned char)((len>>16UL)&255);
          out[x++] = (unsigned char)((len>>8UL)&255);
          out[x++] = (unsigned char)(len&255);
-   #if ULONG_MAX == ULLONG_MAX
       } else if (len <= 0xffffffffffULL) {
          out[x++] = 0x85;
          out[x++] = (unsigned char)((len>>32ULL)&255);
@@ -94,7 +102,7 @@ int der_encode_asn1_length(unsigned long len, unsigned char *out, unsigned long 
          out[x++] = (unsigned char)((len>>16ULL)&255);
          out[x++] = (unsigned char)((len>>8ULL)&255);
          out[x++] = (unsigned char)(len&255);
-      } else if (len <= 0xffffffffffffffffULL) {
+      } else {
          out[x++] = 0x88;
          out[x++] = (unsigned char)((len>>56ULL)&255);
          out[x++] = (unsigned char)((len>>48ULL)&255);
@@ -104,10 +112,8 @@ int der_encode_asn1_length(unsigned long len, unsigned char *out, unsigned long 
          out[x++] = (unsigned char)((len>>16ULL)&255);
          out[x++] = (unsigned char)((len>>8ULL)&255);
          out[x++] = (unsigned char)(len&255);
-   #endif
-      } else {
-         return CRYPT_INPUT_TOO_LONG;
       }
+      #endif
    }
    *outlen = x;
 
