@@ -1,5 +1,14 @@
 #!/bin/bash
-echo "$1 ($2, $3)..."
+
+if echo "$1" | grep -q "STOCK"
+then
+   MAKE_OPTIONS="$3 all"
+   CFLAGS="$CFLAGS -Wno-missing-braces"
+else
+   MAKE_OPTIONS="$3 all_test"
+fi
+
+echo "$1 ($2, $MAKE_OPTIONS)..."
 
 make clean 1>/dev/null 2>/dev/null
 
@@ -12,7 +21,7 @@ else
   MAKE_JOBS=8
 fi
 
-CFLAGS="$2 $CFLAGS $4" EXTRALIBS="$5" make -j$MAKE_JOBS -f $3 all_test 1>gcc_1.txt 2>gcc_2.txt
+make -j$MAKE_JOBS -f $MAKE_OPTIONS CFLAGS="$2 $CFLAGS $4" EXTRALIBS="$5" 1>gcc_1.txt 2>gcc_2.txt
 mret=$?
 cnt=$(wc -l < gcc_2.txt)
 # ignore 1 line since ar prints to stderr instead of stdout and ar is called for
