@@ -165,10 +165,10 @@ int der_decode_custom_type_ex(const unsigned char *in,   unsigned long  inlen,
                z = inlen;
                if ((err = der_decode_boolean(in + x, z, ((int *)data))) != CRYPT_OK) {
                   if (!ordered || list[i].optional) { continue; }
-                   goto LBL_ERR;
+                  goto LBL_ERR;
                }
                if ((err = der_length_boolean(&z)) != CRYPT_OK) {
-                   goto LBL_ERR;
+                  goto LBL_ERR;
                }
                break;
 

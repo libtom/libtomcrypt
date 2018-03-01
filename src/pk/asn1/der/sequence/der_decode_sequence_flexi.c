@@ -122,6 +122,7 @@ int der_decode_sequence_flexi(const unsigned char *in, unsigned long *inlen, ltc
           * switch-case should go to default anyway...
           */
          data_offset = 0;
+         len = 0;
       }
 
      /* now switch on type */
