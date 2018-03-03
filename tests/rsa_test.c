@@ -10,10 +10,6 @@
 
 #if defined(LTC_MRSA)
 
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <dirent.h>
-
 #define RSA_MSGSIZE 78
 
 /* These are test keys [see file test.key] that I use to test my import/export against */
@@ -347,6 +343,12 @@ static int _rsa_issue_301(int prng_idx)
    return CRYPT_OK;
 }
 
+#if !((defined(_WIN32) || defined(_WIN32_WCE)) && !defined(__GNUC__))
+
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <dirent.h>
+
 static off_t fsize(const char *filename)
 {
    struct stat st;
@@ -416,6 +418,7 @@ static int _rsa_size_test(void)
    closedir(d);
    return err;
 }
+#endif
 
 int rsa_test(void)
 {
@@ -442,7 +445,9 @@ int rsa_test(void)
       return 1;
    }
 
+#if !((defined(_WIN32) || defined(_WIN32_WCE)) && !defined(__GNUC__))
    DO(_rsa_size_test());
+#endif
 
    DO(_rsa_issue_301(prng_idx));
 

@@ -17,10 +17,6 @@ int der_test(void)
 
 #else
 
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <dirent.h>
-
 #if defined(LTC_TEST_DBG) && LTC_TEST_DBG > 1
 #define LTC_DER_TESTS_PRINT_FLEXI
 #endif
@@ -1314,6 +1310,12 @@ static void der_Xcode_test(void)
    mp_clear(mpinteger);
 }
 
+#if !((defined(_WIN32) || defined(_WIN32_WCE)) && !defined(__GNUC__))
+
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <dirent.h>
+
 static off_t fsize(const char *filename)
 {
    struct stat st;
@@ -1375,6 +1377,7 @@ static void der_asn1_test(void)
    if (f != NULL) fclose(f);
    closedir(d);
 }
+#endif
 
 
 static void _der_regression_test(void)
@@ -1613,7 +1616,9 @@ int der_test(void)
 
    der_Xcode_test();
 
+#if !((defined(_WIN32) || defined(_WIN32_WCE)) && !defined(__GNUC__))
    der_asn1_test();
+#endif
 
    der_custom_test();
 
