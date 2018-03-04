@@ -134,11 +134,7 @@ static int _dhparam_test(void)
       return CRYPT_ERROR;
    }
    DO(mp_to_unsigned_bin(k.prime, buf));
-   if (compare_testvector(buf, sizeof(prime), prime, sizeof(prime), "dhparam_test", 1)) {
-      printf("dhparam_test: prime mismatch\n");
-      dh_free(&k);
-      return CRYPT_ERROR;
-   }
+   DO(do_compare_testvector(buf, sizeof(prime), prime, sizeof(prime), "dhparam_test: prime mismatch", 1));
    if (mp_cmp_d(k.base, 2) != LTC_MP_EQ) {
       printf("dhparam_test: base mismatch\n");
       dh_free(&k);
@@ -272,32 +268,16 @@ static int _set_test(void)
 
       len = sizeof(buf);
       DO(dh_export(buf, &len, PK_PRIVATE, &k1));
-      if (compare_testvector(buf, len, export_private, sizeof(export_private), "radix_test", i*10 + 0)) {
-         printf("radix_test: dh_export+PK_PRIVATE mismatch\n");
-         dh_free(&k1);
-         return CRYPT_ERROR;
-      }
+      DO(do_compare_testvector(buf, len, export_private, sizeof(export_private), "radix_test: dh_export+PK_PRIVATE mismatch", i*10 + 0));
       len = sizeof(buf);
       DO(dh_export(buf, &len, PK_PUBLIC, &k1));
-      if (compare_testvector(buf, len, export_public, sizeof(export_public), "radix_test", i*10 + 1)) {
-         printf("radix_test: dh_export+PK_PUBLIC mismatch\n");
-         dh_free(&k1);
-         return CRYPT_ERROR;
-      }
+      DO(do_compare_testvector(buf, len, export_public, sizeof(export_public), "radix_test: dh_export+PK_PUBLIC mismatch", i*10 + 1));
       len = sizeof(buf);
       DO(dh_export_key(buf, &len, PK_PRIVATE, &k1));
-      if (compare_testvector(buf, len, xbin, sizeof(xbin), "radix_test", i*10 + 2)) {
-         printf("radix_test: dh_export+PK_PRIVATE mismatch\n");
-         dh_free(&k1);
-         return CRYPT_ERROR;
-      }
+      DO(do_compare_testvector(buf, len, xbin, sizeof(xbin), "radix_test: dh_export+PK_PRIVATE mismatch", i*10 + 2));
       len = sizeof(buf);
       DO(dh_export_key(buf, &len, PK_PUBLIC, &k1));
-      if (compare_testvector(buf, len, ybin, sizeof(ybin), "radix_test", i*10 + 3)) {
-         printf("radix_test: dh_export+PK_PUBLIC mismatch\n");
-         dh_free(&k1);
-         return CRYPT_ERROR;
-      }
+      DO(do_compare_testvector(buf, len, ybin, sizeof(ybin), "radix_test: dh_export+PK_PUBLIC mismatch", i*10 + 3));
       dh_free(&k1);
 
       DO(dh_set_pg(test[i].p, test[i].plen, test[i].g, test[i].glen, &k1));
@@ -305,18 +285,10 @@ static int _set_test(void)
 
       len = sizeof(buf);
       DO(dh_export(buf, &len, PK_PRIVATE, &k1));
-      if (compare_testvector(buf, len, export_private, sizeof(export_private), "radix_test", i*10 + 4)) {
-         printf("radix_test: dh_export+PK_PRIVATE mismatch\n");
-         dh_free(&k1);
-         return CRYPT_ERROR;
-      }
+      DO(do_compare_testvector(buf, len, export_private, sizeof(export_private), "radix_test: dh_export+PK_PRIVATE mismatc", i*10 + 4));
       len = sizeof(buf);
       DO(dh_export(buf, &len, PK_PUBLIC, &k1));
-      if (compare_testvector(buf, len, export_public, sizeof(export_public), "radix_test", i*10 + 5)) {
-         printf("radix_test: dh_export+PK_PUBLIC mismatch\n");
-         dh_free(&k1);
-         return CRYPT_ERROR;
-      }
+      DO(do_compare_testvector(buf, len, export_public, sizeof(export_public), "radix_test: dh_export+PK_PUBLIC mismatch", i*10 + 5));
       dh_free(&k1);
 
       DO(dh_set_pg(test[i].p, test[i].plen, test[i].g, test[i].glen, &k2));
@@ -324,18 +296,10 @@ static int _set_test(void)
 
       len = sizeof(buf);
       DO(dh_export(buf, &len, PK_PUBLIC, &k2));
-      if (compare_testvector(buf, len, export_public, sizeof(export_public), "radix_test", i*10 + 6)) {
-         printf("radix_test: dh_export+PK_PUBLIC mismatch\n");
-         dh_free(&k2);
-         return CRYPT_ERROR;
-      }
+      DO(do_compare_testvector(buf, len, export_public, sizeof(export_public), "radix_test: dh_export+PK_PUBLIC mismatch", i*10 + 6));
       len = sizeof(buf);
       DO(dh_export_key(buf, &len, PK_PUBLIC, &k2));
-      if (compare_testvector(buf, len, ybin, sizeof(ybin), "radix_test", i*10 + 7)) {
-         printf("radix_test: dh_export+PK_PUBLIC mismatch\n");
-         dh_free(&k2);
-         return CRYPT_ERROR;
-      }
+      DO(do_compare_testvector(buf, len, ybin, sizeof(ybin), "radix_test: dh_export+PK_PUBLIC mismatch", i*10 + 7));
       dh_free(&k2);
 
       DO(dh_set_pg(test[i].p, test[i].plen, test[i].g, test[i].glen, &k3));
@@ -343,18 +307,10 @@ static int _set_test(void)
 
       len = mp_unsigned_bin_size(k3.prime);
       DO(mp_to_unsigned_bin(k3.prime, buf));
-      if (compare_testvector(buf, len, pbin, sizeof(pbin), "radix_test", i*10 + 8)) {
-         printf("radix_test: dh_make_key_ex prime mismatch\n");
-         dh_free(&k3);
-         return CRYPT_ERROR;
-      }
+      DO(do_compare_testvector(buf, len, pbin, sizeof(pbin), "radix_test: dh_make_key_ex prime mismatch", i*10 + 8));
       len = mp_unsigned_bin_size(k3.base);
       DO(mp_to_unsigned_bin(k3.base, buf));
-      if (compare_testvector(buf, len, gbin, sizeof(gbin), "radix_test", i*10 + 9)) {
-         printf("radix_test: dh_make_key_ex base mismatch\n");
-         dh_free(&k3);
-         return CRYPT_ERROR;
-      }
+      DO(do_compare_testvector(buf, len, gbin, sizeof(gbin), "radix_test: dh_make_key_ex base mismatch", i*10 + 9));
       dh_free(&k3);
    }
 
