@@ -223,6 +223,12 @@ static void _unregister_all(void)
   unregister_hash(&sha3_384_desc);
   unregister_hash(&sha3_512_desc);
 #endif
+#ifdef LTC_KECCAK
+  unregister_hash(&keccak_224_desc);
+  unregister_hash(&keccak_256_desc);
+  unregister_hash(&keccak_384_desc);
+  unregister_hash(&keccak_512_desc);
+#endif
 #ifdef LTC_RIPEMD128
   unregister_hash(&rmd128_desc);
 #endif

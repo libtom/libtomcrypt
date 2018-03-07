@@ -8,7 +8,7 @@
  */
 
 /* ---- HASH FUNCTIONS ---- */
-#ifdef LTC_SHA3
+#if defined(LTC_SHA3) || defined(LTC_KECCAK)
 struct sha3_state {
     ulong64 saved;                  /* the portion of the input message that we didn't consume yet */
     ulong64 s[25];
@@ -155,7 +155,7 @@ typedef union Hash_state {
 #ifdef LTC_WHIRLPOOL
     struct whirlpool_state whirlpool;
 #endif
-#ifdef LTC_SHA3
+#if defined(LTC_SHA3) || defined(LTC_KECCAK)
     struct sha3_state sha3;
 #endif
 #ifdef LTC_SHA512
@@ -263,21 +263,25 @@ int whirlpool_test(void);
 extern const struct ltc_hash_descriptor whirlpool_desc;
 #endif
 
-#ifdef LTC_SHA3
+#if defined(LTC_SHA3) || defined(LTC_KECCAK)
+/* sha3_NNN_init are shared by SHA3 and KECCAK */
 int sha3_512_init(hash_state * md);
+int sha3_384_init(hash_state * md);
+int sha3_256_init(hash_state * md);
+int sha3_224_init(hash_state * md);
+/* sha3_process is the same for all variants of SHA3 + KECCAK */
+int sha3_process(hash_state * md, const unsigned char *in, unsigned long inlen);
+#endif
+
+#ifdef LTC_SHA3
 int sha3_512_test(void);
 extern const struct ltc_hash_descriptor sha3_512_desc;
-int sha3_384_init(hash_state * md);
 int sha3_384_test(void);
 extern const struct ltc_hash_descriptor sha3_384_desc;
-int sha3_256_init(hash_state * md);
 int sha3_256_test(void);
 extern const struct ltc_hash_descriptor sha3_256_desc;
-int sha3_224_init(hash_state * md);
 int sha3_224_test(void);
 extern const struct ltc_hash_descriptor sha3_224_desc;
-/* process + done are the same for all variants */
-int sha3_process(hash_state * md, const unsigned char *in, unsigned long inlen);
 int sha3_done(hash_state *md, unsigned char *hash);
 /* SHAKE128 + SHAKE256 */
 int sha3_shake_init(hash_state *md, int num);
@@ -285,6 +289,18 @@ int sha3_shake_init(hash_state *md, int num);
 int sha3_shake_done(hash_state *md, unsigned char *out, unsigned long outlen);
 int sha3_shake_test(void);
 int sha3_shake_memory(int num, const unsigned char *in, unsigned long inlen, unsigned char *out, unsigned long *outlen);
+#endif
+
+#ifdef LTC_KECCAK
+extern const struct ltc_hash_descriptor keccak_512_desc;
+int keccak_512_test(void);
+extern const struct ltc_hash_descriptor keccak_384_desc;
+int keccak_384_test(void);
+extern const struct ltc_hash_descriptor keccak_256_desc;
+int keccak_256_test(void);
+extern const struct ltc_hash_descriptor keccak_224_desc;
+int keccak_224_test(void);
+int keccak_done(hash_state *md, unsigned char *hash);
 #endif
 
 #ifdef LTC_SHA512

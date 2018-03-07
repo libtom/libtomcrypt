@@ -72,6 +72,67 @@ const struct ltc_hash_descriptor sha3_512_desc =
    &sha3_512_test,
    NULL
 };
+#endif
+
+#ifdef LTC_KECCAK
+const struct ltc_hash_descriptor keccak_224_desc =
+{
+   "keccak224",                 /* name of hash */
+   29,                          /* internal ID */
+   28,                          /* Size of digest in octets */
+   144,                         /* Input block size in octets */
+   { 0 }, 0,                    /* no ASN.1 OID */
+   &sha3_224_init,
+   &sha3_process,
+   &keccak_done,
+   &keccak_224_test,
+   NULL
+};
+
+const struct ltc_hash_descriptor keccak_256_desc =
+{
+   "keccak256",                 /* name of hash */
+   30,                          /* internal ID */
+   32,                          /* Size of digest in octets */
+   136,                         /* Input block size in octets */
+   { 0 }, 0,                    /* no ASN.1 OID */
+   &sha3_256_init,
+   &sha3_process,
+   &keccak_done,
+   &keccak_256_test,
+   NULL
+};
+
+const struct ltc_hash_descriptor keccak_384_desc =
+{
+   "keccak384",                 /* name of hash */
+   31,                          /* internal ID */
+   48,                          /* Size of digest in octets */
+   104,                         /* Input block size in octets */
+   { 0 }, 0,                    /* no ASN.1 OID */
+   &sha3_384_init,
+   &sha3_process,
+   &keccak_done,
+   &keccak_384_test,
+   NULL
+};
+
+const struct ltc_hash_descriptor keccak_512_desc =
+{
+   "keccak512",                 /* name of hash */
+   32,                          /* internal ID */
+   64,                          /* Size of digest in octets */
+   72,                          /* Input block size in octets */
+   { 0 }, 0,                    /* no ASN.1 OID */
+   &sha3_512_init,
+   &sha3_process,
+   &keccak_done,
+   &keccak_512_test,
+   NULL
+};
+#endif
+
+#if defined(LTC_SHA3) || defined(LTC_KECCAK)
 
 #define SHA3_KECCAK_SPONGE_WORDS 25 /* 1600 bits > 200 bytes > 25 x ulong64 */
 #define SHA3_KECCAK_ROUNDS 24
@@ -134,6 +195,26 @@ static void keccakf(ulong64 s[25])
    }
 }
 
+static LTC_INLINE int _done(hash_state *md, unsigned char *hash, ulong64 pad)
+{
+   unsigned i;
+
+   LTC_ARGCHK(md   != NULL);
+   LTC_ARGCHK(hash != NULL);
+
+   md->sha3.s[md->sha3.word_index] ^= (md->sha3.saved ^ (pad << (md->sha3.byte_index * 8)));
+   md->sha3.s[SHA3_KECCAK_SPONGE_WORDS - md->sha3.capacity_words - 1] ^= CONST64(0x8000000000000000);
+   keccakf(md->sha3.s);
+
+   /* store sha3.s[] as little-endian bytes into sha3.sb */
+   for(i = 0; i < SHA3_KECCAK_SPONGE_WORDS; i++) {
+      STORE64L(md->sha3.s[i], md->sha3.sb + i * 8);
+   }
+
+   XMEMCPY(hash, md->sha3.sb, md->sha3.capacity_words * 4);
+   return CRYPT_OK;
+}
+
 /* Public Inteface */
 
 int sha3_224_init(hash_state *md)
@@ -168,6 +249,7 @@ int sha3_512_init(hash_state *md)
    return CRYPT_OK;
 }
 
+#ifdef LTC_SHA3
 int sha3_shake_init(hash_state *md, int num)
 {
    LTC_ARGCHK(md != NULL);
@@ -176,6 +258,7 @@ int sha3_shake_init(hash_state *md, int num)
    md->sha3.capacity_words = (unsigned short)(2 * num / (8 * sizeof(ulong64)));
    return CRYPT_OK;
 }
+#endif
 
 int sha3_process(hash_state *md, const unsigned char *in, unsigned long inlen)
 {
@@ -229,26 +312,21 @@ int sha3_process(hash_state *md, const unsigned char *in, unsigned long inlen)
    return CRYPT_OK;
 }
 
+#ifdef LTC_SHA3
 int sha3_done(hash_state *md, unsigned char *hash)
 {
-   unsigned i;
-
-   LTC_ARGCHK(md   != NULL);
-   LTC_ARGCHK(hash != NULL);
-
-   md->sha3.s[md->sha3.word_index] ^= (md->sha3.saved ^ (CONST64(0x06) << (md->sha3.byte_index * 8)));
-   md->sha3.s[SHA3_KECCAK_SPONGE_WORDS - md->sha3.capacity_words - 1] ^= CONST64(0x8000000000000000);
-   keccakf(md->sha3.s);
-
-   /* store sha3.s[] as little-endian bytes into sha3.sb */
-   for(i = 0; i < SHA3_KECCAK_SPONGE_WORDS; i++) {
-      STORE64L(md->sha3.s[i], md->sha3.sb + i * 8);
-   }
-
-   XMEMCPY(hash, md->sha3.sb, md->sha3.capacity_words * 4);
-   return CRYPT_OK;
+   return _done(md, hash, CONST64(0x06));
 }
+#endif
 
+#ifdef LTC_KECCAK
+int keccak_done(hash_state *md, unsigned char *hash)
+{
+   return _done(md, hash, CONST64(0x01));
+}
+#endif
+
+#ifdef LTC_SHA3
 int sha3_shake_done(hash_state *md, unsigned char *out, unsigned long outlen)
 {
    /* IMPORTANT NOTE: sha3_shake_done can be called many times */
@@ -298,6 +376,7 @@ int sha3_shake_memory(int num, const unsigned char *in, unsigned long inlen, uns
    if ((err = sha3_shake_done(&md, out, *outlen)) != CRYPT_OK) return err;
    return CRYPT_OK;
 }
+#endif
 
 #endif
 

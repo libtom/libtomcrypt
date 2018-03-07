@@ -44,8 +44,10 @@ int cipher_hash_test(void)
       DOX(hash_descriptor[x].test(), hash_descriptor[x].name);
    }
 
+#ifdef LTC_SHA3
    /* SHAKE128 + SHAKE256 tests are a bit special */
    DOX(sha3_shake_test(), "sha3_shake");
+#endif
 
    return 0;
 }

@@ -152,6 +152,9 @@ const char *crypt_build_settings =
 #if defined(LTC_SHA3)
    "   SHA3\n"
 #endif
+#if defined(LTC_KECCAK)
+   "   KECCAK\n"
+#endif
 #if defined(LTC_SHA512)
    "   SHA-512\n"
 #endif
