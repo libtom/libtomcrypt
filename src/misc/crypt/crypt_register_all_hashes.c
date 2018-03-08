@@ -60,6 +60,12 @@ int register_all_hashes(void)
    REGISTER_HASH(&sha3_384_desc);
    REGISTER_HASH(&sha3_512_desc);
 #endif
+#ifdef LTC_KECCAK
+   REGISTER_HASH(&keccak_224_desc);
+   REGISTER_HASH(&keccak_256_desc);
+   REGISTER_HASH(&keccak_384_desc);
+   REGISTER_HASH(&keccak_512_desc);
+#endif
 #ifdef LTC_RIPEMD128
    REGISTER_HASH(&rmd128_desc);
 #endif
