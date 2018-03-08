@@ -30,7 +30,7 @@ int der_encode_asn1_identifier(const ltc_asn1_list *id, unsigned char *out, unsi
    LTC_ARGCHK(outlen != NULL);
 
    if (id->type != LTC_ASN1_CUSTOM_TYPE) {
-      if (id->type >= der_asn1_type_to_identifier_map_sz) {
+      if ((unsigned)id->type >= der_asn1_type_to_identifier_map_sz) {
          return CRYPT_INVALID_ARG;
       }
       if (der_asn1_type_to_identifier_map[id->type] == -1) {
