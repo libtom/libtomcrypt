@@ -292,6 +292,11 @@ int sha3_shake_memory(int num, const unsigned char *in, unsigned long inlen, uns
 #endif
 
 #ifdef LTC_KECCAK
+#define keccak_512_init(a)    sha3_512_init(a)
+#define keccak_384_init(a)    sha3_384_init(a)
+#define keccak_256_init(a)    sha3_256_init(a)
+#define keccak_224_init(a)    sha3_224_init(a)
+#define keccak_process(a,b,c) sha3_process(a,b,c)
 extern const struct ltc_hash_descriptor keccak_512_desc;
 int keccak_512_test(void);
 extern const struct ltc_hash_descriptor keccak_384_desc;

@@ -406,8 +406,8 @@ int keccak_224_test(void)
    hash_state c;
    unsigned char hash[MAXBLOCKSIZE];
 
-   sha3_224_init(&c);
-   sha3_process(&c, (unsigned char*) "\xcc", 1);
+   keccak_224_init(&c);
+   keccak_process(&c, (unsigned char*) "\xcc", 1);
    keccak_done(&c, hash);
    if(compare_testvector(hash, 28,
                          "\xa9\xca\xb5\x9e\xb4\x0a\x10\xb2"
@@ -418,8 +418,8 @@ int keccak_224_test(void)
        return CRYPT_FAIL_TESTVECTOR;
    }
 
-   sha3_224_init(&c);
-   sha3_process(&c, (unsigned char*)"\x41\xfb", 2);
+   keccak_224_init(&c);
+   keccak_process(&c, (unsigned char*)"\x41\xfb", 2);
    keccak_done(&c, hash);
    if(compare_testvector(hash, 28,
                          "\x61\x5b\xa3\x67\xaf\xdc\x35\xaa"
@@ -430,8 +430,8 @@ int keccak_224_test(void)
        return CRYPT_FAIL_TESTVECTOR;
    }
 
-   sha3_224_init(&c);
-   sha3_process(&c, (unsigned char*)
+   keccak_224_init(&c);
+   keccak_process(&c, (unsigned char*)
                     "\x52\xa6\x08\xab\x21\xcc\xdd\x8a"
                     "\x44\x57\xa5\x7e\xde\x78\x21\x76", 16);
    keccak_done(&c, hash);
@@ -444,8 +444,8 @@ int keccak_224_test(void)
        return CRYPT_FAIL_TESTVECTOR;
    }
 
-   sha3_224_init(&c);
-   sha3_process(&c, (unsigned char*)
+   keccak_224_init(&c);
+   keccak_process(&c, (unsigned char*)
                     "\x43\x3c\x53\x03\x13\x16\x24\xc0"
                     "\x02\x1d\x86\x8a\x30\x82\x54\x75"
                     "\xe8\xd0\xbd\x30\x52\xa0\x22\x18"
@@ -481,8 +481,8 @@ int keccak_256_test(void)
    hash_state c;
    unsigned char hash[MAXBLOCKSIZE];
 
-   sha3_256_init(&c);
-   sha3_process(&c, (unsigned char*) "\xcc", 1);
+   keccak_256_init(&c);
+   keccak_process(&c, (unsigned char*) "\xcc", 1);
    keccak_done(&c, hash);
    if(compare_testvector(hash, 32,
                          "\xee\xad\x6d\xbf\xc7\x34\x0a\x56"
@@ -493,8 +493,8 @@ int keccak_256_test(void)
        return CRYPT_FAIL_TESTVECTOR;
    }
 
-   sha3_256_init(&c);
-   sha3_process(&c, (unsigned char*)"\x41\xfb", 2);
+   keccak_256_init(&c);
+   keccak_process(&c, (unsigned char*)"\x41\xfb", 2);
    keccak_done(&c, hash);
    if(compare_testvector(hash, 32,
                          "\xa8\xea\xce\xda\x4d\x47\xb3\x28"
@@ -505,8 +505,8 @@ int keccak_256_test(void)
        return CRYPT_FAIL_TESTVECTOR;
    }
 
-   sha3_256_init(&c);
-   sha3_process(&c, (unsigned char*)
+   keccak_256_init(&c);
+   keccak_process(&c, (unsigned char*)
                     "\x52\xa6\x08\xab\x21\xcc\xdd\x8a"
                     "\x44\x57\xa5\x7e\xde\x78\x21\x76", 16);
    keccak_done(&c, hash);
@@ -519,8 +519,8 @@ int keccak_256_test(void)
        return CRYPT_FAIL_TESTVECTOR;
    }
 
-   sha3_256_init(&c);
-   sha3_process(&c, (unsigned char*)
+   keccak_256_init(&c);
+   keccak_process(&c, (unsigned char*)
                     "\x43\x3c\x53\x03\x13\x16\x24\xc0"
                     "\x02\x1d\x86\x8a\x30\x82\x54\x75"
                     "\xe8\xd0\xbd\x30\x52\xa0\x22\x18"
@@ -556,8 +556,8 @@ int keccak_384_test(void)
    hash_state c;
    unsigned char hash[MAXBLOCKSIZE];
 
-   sha3_384_init(&c);
-   sha3_process(&c, (unsigned char*) "\xcc", 1);
+   keccak_384_init(&c);
+   keccak_process(&c, (unsigned char*) "\xcc", 1);
    keccak_done(&c, hash);
    if(compare_testvector(hash, 48,
                          "\x1b\x84\xe6\x2a\x46\xe5\xa2\x01"
@@ -570,8 +570,8 @@ int keccak_384_test(void)
        return CRYPT_FAIL_TESTVECTOR;
    }
 
-   sha3_384_init(&c);
-   sha3_process(&c, (unsigned char*)"\x41\xfb", 2);
+   keccak_384_init(&c);
+   keccak_process(&c, (unsigned char*)"\x41\xfb", 2);
    keccak_done(&c, hash);
    if(compare_testvector(hash, 48,
                          "\x49\x5c\xce\x27\x14\xcd\x72\xc8"
@@ -584,8 +584,8 @@ int keccak_384_test(void)
        return CRYPT_FAIL_TESTVECTOR;
    }
 
-   sha3_384_init(&c);
-   sha3_process(&c, (unsigned char*)
+   keccak_384_init(&c);
+   keccak_process(&c, (unsigned char*)
                     "\x52\xa6\x08\xab\x21\xcc\xdd\x8a"
                     "\x44\x57\xa5\x7e\xde\x78\x21\x76", 16);
    keccak_done(&c, hash);
@@ -600,8 +600,8 @@ int keccak_384_test(void)
        return CRYPT_FAIL_TESTVECTOR;
    }
 
-   sha3_384_init(&c);
-   sha3_process(&c, (unsigned char*)
+   keccak_384_init(&c);
+   keccak_process(&c, (unsigned char*)
                     "\x43\x3c\x53\x03\x13\x16\x24\xc0"
                     "\x02\x1d\x86\x8a\x30\x82\x54\x75"
                     "\xe8\xd0\xbd\x30\x52\xa0\x22\x18"
@@ -639,8 +639,8 @@ int keccak_512_test(void)
    hash_state c;
    unsigned char hash[MAXBLOCKSIZE];
 
-   sha3_512_init(&c);
-   sha3_process(&c, (unsigned char*) "\xcc", 1);
+   keccak_512_init(&c);
+   keccak_process(&c, (unsigned char*) "\xcc", 1);
    keccak_done(&c, hash);
    if(compare_testvector(hash, 64,
                          "\x86\x30\xc1\x3c\xbd\x06\x6e\xa7"
@@ -655,8 +655,8 @@ int keccak_512_test(void)
        return CRYPT_FAIL_TESTVECTOR;
    }
 
-   sha3_512_init(&c);
-   sha3_process(&c, (unsigned char*)"\x41\xfb", 2);
+   keccak_512_init(&c);
+   keccak_process(&c, (unsigned char*)"\x41\xfb", 2);
    keccak_done(&c, hash);
    if(compare_testvector(hash, 64,
                          "\x55\x1d\xa6\x23\x6f\x8b\x96\xfc"
@@ -671,8 +671,8 @@ int keccak_512_test(void)
        return CRYPT_FAIL_TESTVECTOR;
    }
 
-   sha3_512_init(&c);
-   sha3_process(&c, (unsigned char*)
+   keccak_512_init(&c);
+   keccak_process(&c, (unsigned char*)
                     "\x52\xa6\x08\xab\x21\xcc\xdd\x8a"
                     "\x44\x57\xa5\x7e\xde\x78\x21\x76", 16);
    keccak_done(&c, hash);
@@ -689,8 +689,8 @@ int keccak_512_test(void)
        return CRYPT_FAIL_TESTVECTOR;
    }
 
-   sha3_512_init(&c);
-   sha3_process(&c, (unsigned char*)
+   keccak_512_init(&c);
+   keccak_process(&c, (unsigned char*)
                     "\x43\x3c\x53\x03\x13\x16\x24\xc0"
                     "\x02\x1d\x86\x8a\x30\x82\x54\x75"
                     "\xe8\xd0\xbd\x30\x52\xa0\x22\x18"
