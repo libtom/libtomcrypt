@@ -93,7 +93,7 @@ int der_decode_custom_type_ex(const unsigned char *in,   unsigned long  inlen,
          goto LBL_ERR;
       }
       if ((ident.type != root->type) ||
-            (ident.class != root->class) ||
+            (ident.klass != root->klass) ||
             (ident.pc != root->pc) ||
             (ident.tag != root->tag)) {
          err = CRYPT_INVALID_PACKET;

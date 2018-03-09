@@ -545,7 +545,7 @@ typedef struct ltc_asn1_list_ {
    /** Flag used to indicate optional items in ASN.1 sequences */
    int           optional;
    /** ASN.1 identifier */
-   ltc_asn1_class class;
+   ltc_asn1_class klass;
    ltc_asn1_pc    pc;
    ulong64        tag;
    /** prev/next entry in the list */
@@ -561,7 +561,7 @@ typedef struct ltc_asn1_list_ {
       LTC_MACRO_list[LTC_MACRO_temp].size = (Size);  \
       LTC_MACRO_list[LTC_MACRO_temp].used = 0;       \
       LTC_MACRO_list[LTC_MACRO_temp].optional = 0;   \
-      LTC_MACRO_list[LTC_MACRO_temp].class = 0;      \
+      LTC_MACRO_list[LTC_MACRO_temp].klass = 0;      \
       LTC_MACRO_list[LTC_MACRO_temp].pc = 0;         \
       LTC_MACRO_list[LTC_MACRO_temp].tag = 0;        \
    } while (0)
@@ -571,7 +571,7 @@ typedef struct ltc_asn1_list_ {
       int LTC_MACRO_temp            = (index);                    \
       ltc_asn1_list *LTC_MACRO_list = (list);                     \
       LTC_MACRO_list[LTC_MACRO_temp].type = LTC_ASN1_CUSTOM_TYPE; \
-      LTC_MACRO_list[LTC_MACRO_temp].class = (Class);             \
+      LTC_MACRO_list[LTC_MACRO_temp].klass = (Class);             \
       LTC_MACRO_list[LTC_MACRO_temp].pc = (Pc);                   \
       LTC_MACRO_list[LTC_MACRO_temp].tag = (Tag);                 \
    } while (0)
