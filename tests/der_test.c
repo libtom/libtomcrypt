@@ -21,6 +21,10 @@ int der_test(void)
 #include <sys/types.h>
 #include <dirent.h>
 
+#if defined(LTC_TEST_DBG) && LTC_TEST_DBG > 1
+#define LTC_DER_TESTS_PRINT_FLEXI
+#endif
+
 static const unsigned char _der_tests_stinky_root_cert[] =
    "MIIFETCCA/mgAwIBAgIQbv53JNmv518t5lkCHE272jANBgkqhkiG9w0BAQUFADCB"
    "lTELMAkGA1UEBhMCVVMxCzAJBgNVBAgTAlVUMRcwFQYDVQQHEw5TYWx0IExha2Ug"

@@ -27,7 +27,7 @@ function run_gcc() {
    echo
    echo "Build for ASAN..."
 
-   make -j$MAKE_JOBS CFLAGS="-fsanitize=address -fno-omit-frame-pointer -static-libasan $2 $CFLAGS $4" EXTRALIBS="-lasan $5" test LTC_DEBUG=1 1>gcc_1.txt 2>gcc_2.txt
+   make -j$MAKE_JOBS CFLAGS="-fsanitize=address -fno-omit-frame-pointer -static-libasan $2 $CFLAGS $4" EXTRALIBS="-lasan $5" test LTC_DEBUG=1 V=1 1>gcc_1.txt 2>gcc_2.txt
 
    echo
    echo "Run ASAN tests with LTM..."
@@ -63,7 +63,7 @@ function run_clang() {
    echo
    echo "Build for UBSAN..."
 
-   make -j$MAKE_JOBS LDFLAGS="-fsanitize=undefined" CFLAGS="$2 $CFLAGS $4" EXTRALIBS="$5" all LTC_DEBUG=1 1>gcc_1.txt 2>gcc_2.txt
+   make -j$MAKE_JOBS LDFLAGS="-fsanitize=undefined" CFLAGS="$2 $CFLAGS $4" EXTRALIBS="$5" all LTC_DEBUG=1 V=1 1>gcc_1.txt 2>gcc_2.txt
 
    echo "Run UBSAN tests with LTM..."
    UBSAN_OPTIONS=verbosity=1 ./test t ltm 1>test_std.txt 2> test_err.txt || exit 1
@@ -95,6 +95,13 @@ bash .ci/testbuild.sh "NOTEST" "-DLTC_NO_TEST" "$3" "$4" "$5"
 make clean &>/dev/null
 
 bash .ci/testbuild.sh "NOFILE" "-DLTC_NO_FILE" "$3" "$4" "$5"
+
+make clean &>/dev/null
+
+echo
+echo "Build full debug..."
+
+make -j$MAKE_JOBS CFLAGS="$2 $CFLAGS $4" EXTRALIBS="$EXTRALIBS" all_test LTC_DEBUG=2 V=1 1>gcc_1.txt 2>gcc_2.txt
 
 # ref:         $Format:%D$
 # git commit:  $Format:%H$
