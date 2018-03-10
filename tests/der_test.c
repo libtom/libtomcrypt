@@ -21,6 +21,10 @@ int der_test(void)
 #include <sys/types.h>
 #include <dirent.h>
 
+#if defined(LTC_TEST_DBG) && LTC_TEST_DBG > 1
+#define LTC_DER_TESTS_PRINT_FLEXI
+#endif
+
 static const unsigned char _der_tests_stinky_root_cert[] =
    "MIIFETCCA/mgAwIBAgIQbv53JNmv518t5lkCHE272jANBgkqhkiG9w0BAQUFADCB"
    "lTELMAkGA1UEBhMCVVMxCzAJBgNVBAgTAlVUMRcwFQYDVQQHEw5TYWx0IExha2Ug"
@@ -387,7 +391,7 @@ static void _der_tests_print_flexi(ltc_asn1_list* l, unsigned int level)
        char* s = buf;
        int sz = sizeof(buf);
 
-       r = snprintf(s, sz, "[%s %s %llu]", der_asn1_class_to_string_map[l->class], der_asn1_pc_to_string_map[l->pc], l->tag);
+       r = snprintf(s, sz, "[%s %s %llu]", der_asn1_class_to_string_map[l->klass], der_asn1_pc_to_string_map[l->pc], l->tag);
        if (r < 0 || r >= sz) {
            fprintf(stderr, "%s boom\n", name);
            exit(EXIT_FAILURE);
