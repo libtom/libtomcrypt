@@ -42,7 +42,7 @@ int der_encode_asn1_identifier(const ltc_asn1_list *id, unsigned char *out, unsi
       *outlen = 1;
       return CRYPT_OK;
    } else {
-      if (id->class < LTC_ASN1_CL_UNIVERSAL || id->class > LTC_ASN1_CL_PRIVATE) {
+      if (id->klass < LTC_ASN1_CL_UNIVERSAL || id->klass > LTC_ASN1_CL_PRIVATE) {
          return CRYPT_INVALID_ARG;
       }
       if (id->pc < LTC_ASN1_PC_PRIMITIVE || id->pc > LTC_ASN1_PC_CONSTRUCTED) {
@@ -58,7 +58,7 @@ int der_encode_asn1_identifier(const ltc_asn1_list *id, unsigned char *out, unsi
          return CRYPT_BUFFER_OVERFLOW;
       }
 
-      out[0] = id->class << 6 | id->pc << 5;
+      out[0] = id->klass << 6 | id->pc << 5;
    }
 
    if (id->tag < 0x1f) {

@@ -77,7 +77,7 @@ int der_decode_asn1_identifier(const unsigned char *in, unsigned long *inlen, lt
    }
 
    tag_len = 1;
-   id->class = (in[0] >> 6) & 0x3;
+   id->klass = (in[0] >> 6) & 0x3;
    id->pc = (in[0] >> 5) & 0x1;
    id->tag = in[0] & 0x1f;
 
@@ -105,17 +105,17 @@ int der_decode_asn1_identifier(const unsigned char *in, unsigned long *inlen, lt
 
    if (err != CRYPT_OK) {
       id->pc = 0;
-      id->class = 0;
+      id->klass = 0;
       id->tag = 0;
    } else {
       *inlen = tag_len;
-      if ((id->class == LTC_ASN1_CL_UNIVERSAL) &&
+      if ((id->klass == LTC_ASN1_CL_UNIVERSAL) &&
             (id->tag < der_asn1_tag_to_type_map_sz) &&
             (id->tag < tag_constructed_map_sz) &&
             (id->pc == tag_constructed_map[id->tag])) {
          id->type = der_asn1_tag_to_type_map[id->tag];
       } else {
-         if ((id->class == LTC_ASN1_CL_UNIVERSAL) && (id->tag == 0)) {
+         if ((id->klass == LTC_ASN1_CL_UNIVERSAL) && (id->tag == 0)) {
             id->type = LTC_ASN1_EOL;
          } else {
             id->type = LTC_ASN1_CUSTOM_TYPE;
