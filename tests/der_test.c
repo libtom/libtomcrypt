@@ -387,7 +387,7 @@ static void _der_tests_print_flexi(ltc_asn1_list* l, unsigned int level)
        char* s = buf;
        int sz = sizeof(buf);
 
-       r = snprintf(s, sz, "[%s %s %llu]", der_asn1_class_to_string_map[l->class], der_asn1_pc_to_string_map[l->pc], l->tag);
+       r = snprintf(s, sz, "[%s %s %llu]", der_asn1_class_to_string_map[l->klass], der_asn1_pc_to_string_map[l->pc], l->tag);
        if (r < 0 || r >= sz) {
            fprintf(stderr, "%s boom\n", name);
            exit(EXIT_FAILURE);

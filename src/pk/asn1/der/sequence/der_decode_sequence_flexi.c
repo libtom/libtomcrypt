@@ -96,7 +96,7 @@ int der_decode_sequence_flexi(const unsigned char *in, unsigned long *inlen, ltc
          }
          data_offset = id_len + len_len;
 #if defined(LTC_TEST_DBG) && LTC_TEST_DBG > 1
-         if (l->type == LTC_ASN1_CUSTOM_TYPE && l->class == LTC_ASN1_CL_CONTEXT_SPECIFIC) {
+         if (l->type == LTC_ASN1_CUSTOM_TYPE && l->klass == LTC_ASN1_CL_CONTEXT_SPECIFIC) {
             fprintf(stderr, "OK %02lx: hl=%4lu l=%4lu - Context Specific[%s %llu]\n", identifier, data_offset, len, der_asn1_pc_to_string_map[l->pc], l->tag);
          } else {
             fprintf(stderr, "OK %02lx: hl=%4lu l=%4lu - %s\n", identifier, data_offset, len, der_asn1_tag_to_string_map[l->tag]);
