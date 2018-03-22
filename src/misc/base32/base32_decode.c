@@ -20,14 +20,14 @@
    @param id       Alphabet to use BASE32_RFC4648, BASE32_BASE32HEX, BASE32_ZBASE32 or BASE32_CROCKFORD
    @return CRYPT_OK if successful
 */
-int base32_decode(const unsigned char *in,  unsigned long inlen,
+int base32_decode(const          char *in,  unsigned long inlen,
                         unsigned char *out, unsigned long *outlen,
                         base32_alphabet id)
 {
    unsigned long x;
    int y = 0;
    ulong64 t = 0;
-   unsigned char c;
+   char c;
    const unsigned char *map;
    const unsigned char tables[4][43] = {
       {  /* id = BASE32_RFC4648 : ABCDEFGHIJKLMNOPQRSTUVWXYZ234567 */
@@ -90,11 +90,10 @@ int base32_decode(const unsigned char *in,  unsigned long inlen,
       c = in[x];
       /* convert to upper case */
       if ((c >= 'a') && (c <= 'z')) c -= 32;
-      /* '0' = 48 .. 'Z' = 90 */
-      if (c < 48 || c > 90 || map[c-48] > 31) {
+      if (c < '0' || c > 'Z' || map[c-'0'] > 31) {
          return CRYPT_INVALID_PACKET;
       }
-      t = (t<<5)|map[c-48];
+      t = (t<<5) | map[c-'0'];
       if (++y == 8) {
          *out++ = (unsigned char)((t>>32) & 255);
          *out++ = (unsigned char)((t>>24) & 255);

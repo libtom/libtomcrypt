@@ -39,9 +39,9 @@ typedef enum {
    BASE32_CROCKFORD = 3
 } base32_alphabet;
 int base32_encode(const unsigned char *in,  unsigned long inlen,
-                        unsigned char *out, unsigned long *outlen,
+                                 char *out, unsigned long *outlen,
                         base32_alphabet id);
-int base32_decode(const unsigned char *in,  unsigned long inlen,
+int base32_decode(const          char *in,  unsigned long inlen,
                         unsigned char *out, unsigned long *outlen,
                         base32_alphabet id);
 #endif
