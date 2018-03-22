@@ -153,26 +153,7 @@ int rc4_done(prng_state *prng)
   @param prng      The PRNG to export
   @return CRYPT_OK if successful
 */
-int rc4_export(unsigned char *out, unsigned long *outlen, prng_state *prng)
-{
-   unsigned long len = rc4_desc.export_size;
-
-   LTC_ARGCHK(prng   != NULL);
-   LTC_ARGCHK(out    != NULL);
-   LTC_ARGCHK(outlen != NULL);
-
-   if (*outlen < len) {
-      *outlen = len;
-      return CRYPT_BUFFER_OVERFLOW;
-   }
-
-   if (rc4_read(out, len, prng) != len) {
-      return CRYPT_ERROR_READPRNG;
-   }
-
-   *outlen = len;
-   return CRYPT_OK;
-}
+_LTC_PRNG_EXPORT(rc4)
 
 /**
   Import a PRNG state
