@@ -46,6 +46,15 @@ int base32_decode(const unsigned char *in,  unsigned long inlen,
                         base32_alphabet id);
 #endif
 
+/* ---- BASE16 Routines ---- */
+#ifdef LTC_BASE16
+int base16_encode(const unsigned char *in,  unsigned long  inlen,
+                                 char *out, unsigned long *outlen,
+                                 int  caps);
+int base16_decode(const          char *in,
+                        unsigned char *out, unsigned long *outlen);
+#endif
+
 /* ===> LTC_HKDF -- RFC5869 HMAC-based Key Derivation Function <=== */
 #ifdef LTC_HKDF
 

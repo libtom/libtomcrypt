@@ -450,6 +450,8 @@
 #define LTC_BASE64_URL
 /* Base32 encoding/decoding */
 #define LTC_BASE32
+/* Base16/hex encoding/decoding */
+#define LTC_BASE16
 
 /* Keep LTC_NO_HKDF for compatibility reasons
  * superseeded by LTC_NO_MISC*/
