@@ -25,6 +25,8 @@ void run_cmd(int res, int line, const char *file, const char *cmd, const char *a
 
 void print_hex(const char* what, const void* v, const unsigned long l);
 
+int do_compare_testvector(const void* is, const unsigned long is_len, const void* should, const unsigned long should_len, const char* what, int which);
+
 #endif /* DEMOS_COMMON_H_ */
 
 /* ref:         $Format:%D$ */

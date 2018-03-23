@@ -17,10 +17,6 @@ int der_test(void)
 
 #else
 
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <dirent.h>
-
 #if defined(LTC_TEST_DBG) && LTC_TEST_DBG > 1
 #define LTC_DER_TESTS_PRINT_FLEXI
 #endif
@@ -1242,7 +1238,7 @@ static void der_Xcode_run(const der_Xcode_t* x)
       d2 = XREALLOC(d2, l2 * x->type_sz);
    }
    DO(x->decode(d1, l1, d2, &l2));
-   DO(compare_testvector(d2, (l2/x->factor) * x->type_sz, x->in, x->in_sz, x->what, __LINE__) == 0 ? CRYPT_OK : CRYPT_FAIL_TESTVECTOR);
+   DO(do_compare_testvector(d2, (l2/x->factor) * x->type_sz, x->in, x->in_sz, x->what, __LINE__));
    XFREE(d2);
    XFREE(d1);
 }
@@ -1314,6 +1310,12 @@ static void der_Xcode_test(void)
    mp_clear(mpinteger);
 }
 
+#if !((defined(_WIN32) || defined(_WIN32_WCE)) && !defined(__GNUC__))
+
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <dirent.h>
+
 static off_t fsize(const char *filename)
 {
    struct stat st;
@@ -1375,6 +1377,7 @@ static void der_asn1_test(void)
    if (f != NULL) fclose(f);
    closedir(d);
 }
+#endif
 
 
 static void _der_regression_test(void)
@@ -1613,7 +1616,9 @@ int der_test(void)
 
    der_Xcode_test();
 
+#if !((defined(_WIN32) || defined(_WIN32_WCE)) && !defined(__GNUC__))
    der_asn1_test();
+#endif
 
    der_custom_test();
 

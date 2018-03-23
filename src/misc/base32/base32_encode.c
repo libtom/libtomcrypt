@@ -21,11 +21,11 @@
    @return CRYPT_OK if successful
 */
 int base32_encode(const unsigned char *in,  unsigned long inlen,
-                        unsigned char *out, unsigned long *outlen,
+                                 char *out, unsigned long *outlen,
                         base32_alphabet id)
 {
    unsigned long i, x;
-   unsigned char *codes;
+   const char *codes;
    const char *alphabet[4] = {
       "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567",     /* id = BASE32_RFC4648   */
       "0123456789ABCDEFGHIJKLMNOPQRSTUV",     /* id = BASE32_BASE32HEX */
@@ -53,7 +53,7 @@ int base32_encode(const unsigned char *in,  unsigned long inlen,
    }
    *outlen = x;
 
-   codes = (unsigned char*)alphabet[id];
+   codes = alphabet[id];
    x = 5 * (inlen / 5);
    for (i = 0; i < x; i += 5) {
       *out++ = codes[(in[0] >> 3) & 0x1F];

@@ -6581,6 +6581,7 @@ int base64url_strict_decode(const unsigned char *in,  unsigned long len,
 
 The library provides functions to encode and decode a Base32 coding scheme. The supported mappings are:
 
+\begin{figure}[H]
 \begin{center}
 \begin{tabular}{|l|l|l|}
      \hline \textbf{id} & \textbf{Mapping} & \textbf{Name} \\
@@ -6591,6 +6592,8 @@ The library provides functions to encode and decode a Base32 coding scheme. The 
      \hline
 \end{tabular}
 \end{center}
+\caption{Base32 coding schemes}
+\end{figure}
 
 To encode a binary string in base32 call:
 
@@ -6598,7 +6601,7 @@ To encode a binary string in base32 call:
 \begin{verbatim}
 int base32_encode(const unsigned char *in,
                         unsigned long  len,
-                        unsigned char *out,
+                                 char *out,
                         unsigned long *outlen,
                         base32_alphabet id);
 \end{verbatim}
@@ -6610,11 +6613,37 @@ To decode a base32 string call:
 
 \index{base32\_decode()}
 \begin{verbatim}
-int base32_decode(const unsigned char *in,
+int base32_decode(const          char *in,
                         unsigned long  len,
                         unsigned char *out,
                         unsigned long *outlen,
                         base32_alphabet id);
+\end{verbatim}
+
+
+\mysection{Base16 Encoding and Decoding}
+
+The library provides functions to encode and decode a Base16 a.k.a Hex string.
+
+To encode a binary string in base16 call:
+
+\index{base32\_encode()}
+\begin{verbatim}
+int base16_encode(const unsigned char *in,  unsigned long  inlen,
+                                 char *out, unsigned long *outlen,
+                                 int  caps);
+\end{verbatim}
+
+Where \textit{in} is the binary string,
+\textit{out} is where the ASCII output is placed
+and \textit{caps} is either $0$ to use lower-letter \textit{a..f} or else to use caps \textit{A..F}.
+
+To decode a base16 string call:
+
+\index{base32\_decode()}
+\begin{verbatim}
+int base16_decode(const          char *in,
+                        unsigned char *out, unsigned long *outlen);
 \end{verbatim}
 
 \mysection{Primality Testing}

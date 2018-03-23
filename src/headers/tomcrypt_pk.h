@@ -9,13 +9,15 @@
 
 /* ---- NUMBER THEORY ---- */
 
-enum {
-   PK_PUBLIC=0,
-   PK_PRIVATE=1
-};
+enum public_key_type {
+   /* Refers to the public key */
+   PK_PUBLIC      = 0x0000,
+   /* Refers to the private key */
+   PK_PRIVATE     = 0x0001,
 
-/* Indicates standard output formats that can be read e.g. by OpenSSL or GnuTLS */
-#define PK_STD          0x1000
+   /* Indicates standard output formats that can be read e.g. by OpenSSL or GnuTLS */
+   PK_STD         = 0x1000,
+};
 
 int rand_prime(void *N, long len, prng_state *prng, int wprng);
 
@@ -847,12 +849,12 @@ int der_length_generalizedtime(ltc_generalizedtime *gtime, unsigned long *outlen
 /* internal helper functions */
 /* SUBJECT PUBLIC KEY INFO */
 int x509_encode_subject_public_key_info(unsigned char *out, unsigned long *outlen,
-        unsigned int algorithm, void* public_key, unsigned long public_key_len,
-        unsigned long parameters_type, void* parameters, unsigned long parameters_len);
+        unsigned int algorithm, const void* public_key, unsigned long public_key_len,
+        ltc_asn1_type parameters_type, ltc_asn1_list* parameters, unsigned long parameters_len);
 
 int x509_decode_subject_public_key_info(const unsigned char *in, unsigned long inlen,
         unsigned int algorithm, void* public_key, unsigned long* public_key_len,
-        unsigned long parameters_type, void* parameters, unsigned long *parameters_len);
+        ltc_asn1_type parameters_type, ltc_asn1_list* parameters, unsigned long *parameters_len);
 #endif /* LTC_SOURCE */
 
 #endif

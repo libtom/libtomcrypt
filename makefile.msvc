@@ -84,21 +84,22 @@ src/mac/xcbc/xcbc_file.obj src/mac/xcbc/xcbc_init.obj src/mac/xcbc/xcbc_memory.o
 src/mac/xcbc/xcbc_memory_multi.obj src/mac/xcbc/xcbc_process.obj src/mac/xcbc/xcbc_test.obj \
 src/math/fp/ltc_ecc_fp_mulmod.obj src/math/gmp_desc.obj src/math/ltm_desc.obj src/math/multi.obj \
 src/math/radix_to_bin.obj src/math/rand_bn.obj src/math/rand_prime.obj src/math/tfm_desc.obj src/misc/adler32.obj \
-src/misc/base32/base32_decode.obj src/misc/base32/base32_encode.obj src/misc/base64/base64_decode.obj \
-src/misc/base64/base64_encode.obj src/misc/burn_stack.obj src/misc/compare_testvector.obj \
-src/misc/copy_or_zeromem.obj src/misc/crc32.obj src/misc/crypt/crypt.obj src/misc/crypt/crypt_argchk.obj \
-src/misc/crypt/crypt_cipher_descriptor.obj src/misc/crypt/crypt_cipher_is_valid.obj \
-src/misc/crypt/crypt_constants.obj src/misc/crypt/crypt_find_cipher.obj \
-src/misc/crypt/crypt_find_cipher_any.obj src/misc/crypt/crypt_find_cipher_id.obj \
-src/misc/crypt/crypt_find_hash.obj src/misc/crypt/crypt_find_hash_any.obj \
-src/misc/crypt/crypt_find_hash_id.obj src/misc/crypt/crypt_find_hash_oid.obj \
-src/misc/crypt/crypt_find_prng.obj src/misc/crypt/crypt_fsa.obj src/misc/crypt/crypt_hash_descriptor.obj \
-src/misc/crypt/crypt_hash_is_valid.obj src/misc/crypt/crypt_inits.obj \
-src/misc/crypt/crypt_ltc_mp_descriptor.obj src/misc/crypt/crypt_prng_descriptor.obj \
-src/misc/crypt/crypt_prng_is_valid.obj src/misc/crypt/crypt_prng_rng_descriptor.obj \
-src/misc/crypt/crypt_register_all_ciphers.obj src/misc/crypt/crypt_register_all_hashes.obj \
-src/misc/crypt/crypt_register_all_prngs.obj src/misc/crypt/crypt_register_cipher.obj \
-src/misc/crypt/crypt_register_hash.obj src/misc/crypt/crypt_register_prng.obj src/misc/crypt/crypt_sizes.obj \
+src/misc/base16/base16_decode.obj src/misc/base16/base16_encode.obj src/misc/base32/base32_decode.obj \
+src/misc/base32/base32_encode.obj src/misc/base64/base64_decode.obj src/misc/base64/base64_encode.obj \
+src/misc/burn_stack.obj src/misc/compare_testvector.obj src/misc/copy_or_zeromem.obj src/misc/crc32.obj \
+src/misc/crypt/crypt.obj src/misc/crypt/crypt_argchk.obj src/misc/crypt/crypt_cipher_descriptor.obj \
+src/misc/crypt/crypt_cipher_is_valid.obj src/misc/crypt/crypt_constants.obj \
+src/misc/crypt/crypt_find_cipher.obj src/misc/crypt/crypt_find_cipher_any.obj \
+src/misc/crypt/crypt_find_cipher_id.obj src/misc/crypt/crypt_find_hash.obj \
+src/misc/crypt/crypt_find_hash_any.obj src/misc/crypt/crypt_find_hash_id.obj \
+src/misc/crypt/crypt_find_hash_oid.obj src/misc/crypt/crypt_find_prng.obj src/misc/crypt/crypt_fsa.obj \
+src/misc/crypt/crypt_hash_descriptor.obj src/misc/crypt/crypt_hash_is_valid.obj \
+src/misc/crypt/crypt_inits.obj src/misc/crypt/crypt_ltc_mp_descriptor.obj \
+src/misc/crypt/crypt_prng_descriptor.obj src/misc/crypt/crypt_prng_is_valid.obj \
+src/misc/crypt/crypt_prng_rng_descriptor.obj src/misc/crypt/crypt_register_all_ciphers.obj \
+src/misc/crypt/crypt_register_all_hashes.obj src/misc/crypt/crypt_register_all_prngs.obj \
+src/misc/crypt/crypt_register_cipher.obj src/misc/crypt/crypt_register_hash.obj \
+src/misc/crypt/crypt_register_prng.obj src/misc/crypt/crypt_sizes.obj \
 src/misc/crypt/crypt_unregister_cipher.obj src/misc/crypt/crypt_unregister_hash.obj \
 src/misc/crypt/crypt_unregister_prng.obj src/misc/error_to_string.obj src/misc/hkdf/hkdf.obj \
 src/misc/hkdf/hkdf_test.obj src/misc/mem_neq.obj src/misc/pk_get_oid.obj src/misc/pkcs5/pkcs_5_1.obj \
@@ -196,12 +197,12 @@ src/stream/sober128/sober128_stream.obj src/stream/sober128/sober128_test.obj \
 src/stream/sosemanuk/sosemanuk.obj src/stream/sosemanuk/sosemanuk_test.obj
 
 #List of test objects to compile
-TOBJECTS=tests/base32_test.obj tests/base64_test.obj tests/cipher_hash_test.obj tests/common.obj \
-tests/der_test.obj tests/dh_test.obj tests/dsa_test.obj tests/ecc_test.obj tests/file_test.obj tests/katja_test.obj \
-tests/mac_test.obj tests/misc_test.obj tests/modes_test.obj tests/mpi_test.obj tests/multi_test.obj tests/no_prng.obj \
-tests/pkcs_1_eme_test.obj tests/pkcs_1_emsa_test.obj tests/pkcs_1_oaep_test.obj tests/pkcs_1_pss_test.obj \
-tests/pkcs_1_test.obj tests/prng_test.obj tests/rotate_test.obj tests/rsa_test.obj tests/store_test.obj \
-tests/test.obj
+TOBJECTS=tests/base16_test.obj tests/base32_test.obj tests/base64_test.obj tests/cipher_hash_test.obj \
+tests/common.obj tests/der_test.obj tests/dh_test.obj tests/dsa_test.obj tests/ecc_test.obj tests/file_test.obj \
+tests/katja_test.obj tests/mac_test.obj tests/misc_test.obj tests/modes_test.obj tests/mpi_test.obj \
+tests/multi_test.obj tests/no_prng.obj tests/pkcs_1_eme_test.obj tests/pkcs_1_emsa_test.obj \
+tests/pkcs_1_oaep_test.obj tests/pkcs_1_pss_test.obj tests/pkcs_1_test.obj tests/prng_test.obj \
+tests/rotate_test.obj tests/rsa_test.obj tests/store_test.obj tests/test.obj
 
 #The following headers will be installed by "make install"
 HEADERS=src/headers/tomcrypt.h src/headers/tomcrypt_argchk.h src/headers/tomcrypt_cfg.h \

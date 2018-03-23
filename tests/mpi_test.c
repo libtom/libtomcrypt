@@ -123,10 +123,10 @@ static int _radix_to_bin_test(void)
       DO(radix_to_bin(test[i].p, test[i].radix, key_parts[2], &key_lens[2]));
       DO(radix_to_bin(test[i].g, test[i].radix, key_parts[3], &key_lens[3]));
 
-      if (compare_testvector(key_parts[0], key_lens[0], test[0].x, test[0].xlen, "radix_to_bin(x)", i)) return CRYPT_FAIL_TESTVECTOR;
-      if (compare_testvector(key_parts[1], key_lens[1], test[0].y, test[0].ylen, "radix_to_bin(y)", i)) return CRYPT_FAIL_TESTVECTOR;
-      if (compare_testvector(key_parts[2], key_lens[2], test[0].p, test[0].plen, "radix_to_bin(p)", i)) return CRYPT_FAIL_TESTVECTOR;
-      if (compare_testvector(key_parts[3], key_lens[3], test[0].g, test[0].glen, "radix_to_bin(g)", i)) return CRYPT_FAIL_TESTVECTOR;
+      DO(do_compare_testvector(key_parts[0], key_lens[0], test[0].x, test[0].xlen, "radix_to_bin(x)", i));
+      DO(do_compare_testvector(key_parts[1], key_lens[1], test[0].y, test[0].ylen, "radix_to_bin(y)", i));
+      DO(do_compare_testvector(key_parts[2], key_lens[2], test[0].p, test[0].plen, "radix_to_bin(p)", i));
+      DO(do_compare_testvector(key_parts[3], key_lens[3], test[0].g, test[0].glen, "radix_to_bin(g)", i));
    }
    return CRYPT_OK;
 }

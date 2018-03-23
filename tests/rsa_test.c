@@ -10,10 +10,6 @@
 
 #if defined(LTC_MRSA)
 
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <dirent.h>
-
 #define RSA_MSGSIZE 78
 
 /* These are test keys [see file test.key] that I use to test my import/export against */
@@ -211,42 +207,32 @@ static int rsa_compat_test(void)
    /* now try to export private/public and compare */
    len = sizeof(buf);
    DO(rsa_export(buf, &len, PK_PRIVATE, &key));
-   if (compare_testvector(buf, len, openssl_private_rsa, sizeof(openssl_private_rsa), "RSA private export (from OpenSSL)", 0)) {
-      return 1;
-   }
+   DO(do_compare_testvector(buf, len, openssl_private_rsa, sizeof(openssl_private_rsa), "RSA private export (from OpenSSL)", 0));
 
    len = sizeof(buf);
    DO(rsa_export(buf, &len, PK_PUBLIC, &key));
-   if (compare_testvector(buf, len, openssl_public_rsa_stripped, sizeof(openssl_public_rsa_stripped), "RSA public export (from OpenSSL private key)", 0)) {
-      return 1;
-   }
+   DO(do_compare_testvector(buf, len, openssl_public_rsa_stripped, sizeof(openssl_public_rsa_stripped), "RSA public export (from OpenSSL private key)", 0));
    rsa_free(&key);
 
    /* try reading the public key */
    DO(rsa_import(openssl_public_rsa_stripped, sizeof(openssl_public_rsa_stripped), &key));
    len = sizeof(buf);
    DO(rsa_export(buf, &len, PK_PUBLIC, &key));
-   if (compare_testvector(buf, len, openssl_public_rsa_stripped, sizeof(openssl_public_rsa_stripped), "RSA public export (from stripped OpenSSL)", 0)) {
-      return 1;
-   }
+   DO(do_compare_testvector(buf, len, openssl_public_rsa_stripped, sizeof(openssl_public_rsa_stripped), "RSA public export (from stripped OpenSSL)", 0));
    rsa_free(&key);
 
    /* try reading the public key */
    DO(rsa_import(openssl_public_rsa, sizeof(openssl_public_rsa), &key));
    len = sizeof(buf);
    DO(rsa_export(buf, &len, PK_PUBLIC, &key));
-   if (compare_testvector(buf, len, openssl_public_rsa_stripped, sizeof(openssl_public_rsa_stripped), "RSA public export (from OpenSSL)", 0)) {
-      return 1;
-   }
+   DO(do_compare_testvector(buf, len, openssl_public_rsa_stripped, sizeof(openssl_public_rsa_stripped), "RSA public export (from OpenSSL)", 0));
    rsa_free(&key);
 
    /* try import private key in pkcs8 format */
    DO(rsa_import_pkcs8(pkcs8_private_rsa, sizeof(pkcs8_private_rsa), NULL, 0, &key));
    len = sizeof(buf);
    DO(rsa_export(buf, &len, PK_PRIVATE, &key));
-   if (compare_testvector(buf, len, openssl_private_rsa, sizeof(openssl_private_rsa), "RSA private export (from PKCS#8)", 0)) {
-      return 1;
-   }
+   DO(do_compare_testvector(buf, len, openssl_private_rsa, sizeof(openssl_private_rsa), "RSA private export (from PKCS#8)", 0));
    rsa_free(&key);
 
    /* convert raw hexadecimal numbers to binary */
@@ -260,18 +246,14 @@ static int rsa_compat_test(void)
    DO(rsa_set_crt_params(key_parts[pk_dP], key_lens[pk_dP], key_parts[pk_dQ], key_lens[pk_dQ], key_parts[pk_qP], key_lens[pk_qP], &key));
    len = sizeof(buf);
    DO(rsa_export(buf, &len, PK_PRIVATE, &key));
-   if (compare_testvector(buf, len, openssl_private_rsa, sizeof(openssl_private_rsa), "RSA private export (from hex)", 0)) {
-      return 1;
-   }
+   DO(do_compare_testvector(buf, len, openssl_private_rsa, sizeof(openssl_private_rsa), "RSA private export (from hex)", 0));
    rsa_free(&key);
 
    /* try import public key from converted raw hexadecimal numbers */
    DO(rsa_set_key(key_parts[pk_N], key_lens[pk_N], key_parts[pk_e], key_lens[pk_e], NULL, 0, &key));
    len = sizeof(buf);
    DO(rsa_export(buf, &len, PK_PUBLIC, &key));
-   if (compare_testvector(buf, len, openssl_public_rsa_stripped, sizeof(openssl_public_rsa_stripped), "RSA public export (from hex)", 0)) {
-      return 1;
-   }
+   DO(do_compare_testvector(buf, len, openssl_public_rsa_stripped, sizeof(openssl_public_rsa_stripped), "RSA public export (from hex)", 0));
    rsa_free(&key);
 
    /* try export in SubjectPublicKeyInfo format of the public key */
@@ -347,6 +329,12 @@ static int _rsa_issue_301(int prng_idx)
    return CRYPT_OK;
 }
 
+#if !((defined(_WIN32) || defined(_WIN32_WCE)) && !defined(__GNUC__))
+
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <dirent.h>
+
 static off_t fsize(const char *filename)
 {
    struct stat st;
@@ -416,6 +404,7 @@ static int _rsa_size_test(void)
    closedir(d);
    return err;
 }
+#endif
 
 int rsa_test(void)
 {
@@ -442,7 +431,9 @@ int rsa_test(void)
       return 1;
    }
 
+#if !((defined(_WIN32) || defined(_WIN32_WCE)) && !defined(__GNUC__))
    DO(_rsa_size_test());
+#endif
 
    DO(_rsa_issue_301(prng_idx));
 

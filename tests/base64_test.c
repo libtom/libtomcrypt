@@ -67,18 +67,14 @@ int base64_test(void)
           DO(base64url_strict_decode((unsigned char*)url_cases[x].s, slen1, out, &l1));
        else
           DO(base64url_decode((unsigned char*)url_cases[x].s, slen1, out, &l1));
-       if (compare_testvector(out, l1, special_case, sizeof(special_case) - 1, "base64url decode", x)) {
-           return 1;
-       }
+       DO(do_compare_testvector(out, l1, special_case, sizeof(special_case) - 1, "base64url decode", x));
        if(x < 2) {
           l2 = sizeof(tmp);
           if(x == 0)
              DO(base64url_encode(out, l1, tmp, &l2));
           else
              DO(base64url_strict_encode(out, l1, tmp, &l2));
-          if (compare_testvector(tmp, l2, url_cases[x].s, strlen(url_cases[x].s), "base64url encode", x)) {
-              return 1;
-          }
+          DO(do_compare_testvector(tmp, l2, url_cases[x].s, strlen(url_cases[x].s), "base64url encode", x));
        }
    }
 
@@ -94,10 +90,8 @@ int base64_test(void)
        DO(base64_encode((unsigned char*)cases[x].s, slen1, out, &l1));
        l2 = sizeof(tmp);
        DO(base64_strict_decode(out, l1, tmp, &l2));
-       if (compare_testvector(out, l1, cases[x].b64, strlen(cases[x].b64), "base64 encode", x) ||
-             compare_testvector(tmp, l2, cases[x].s, slen1, "base64 decode", x)) {
-           return 1;
-       }
+       DO(do_compare_testvector(out, l1, cases[x].b64, strlen(cases[x].b64), "base64 encode", x));
+       DO(do_compare_testvector(tmp, l2, cases[x].s, slen1, "base64 decode", x));
    }
 
    for  (x = 0; x < 64; x++) {
@@ -106,9 +100,7 @@ int base64_test(void)
        DO(base64_encode(in, x, out, &l1));
        l2 = sizeof(tmp);
        DO(base64_decode(out, l1, tmp, &l2));
-       if (compare_testvector(tmp, x, in, x, "random base64", x)) {
-           return 1;
-       }
+       DO(do_compare_testvector(tmp, x, in, x, "random base64", x));
    }
 
    x--;
