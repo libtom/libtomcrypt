@@ -125,6 +125,46 @@ static int _fortuna_reseed(prng_state *prng)
 }
 
 /**
+  "Update Seed File"-compliant update of K
+
+  @param in       The PRNG state
+  @param inlen    Size of the state
+  @param prng     The PRNG to import
+  @return CRYPT_OK if successful
+*/
+static int _fortuna_update_seed(const unsigned char *in, unsigned long inlen, prng_state *prng)
+{
+   int           err;
+   unsigned char tmp[MAXBLOCKSIZE];
+   hash_state    md;
+
+   LTC_MUTEX_LOCK(&prng->lock);
+   /* new K = LTC_SHA256(K || in) */
+   sha256_init(&md);
+   if ((err = sha256_process(&md, prng->fortuna.K, 32)) != CRYPT_OK) {
+      sha256_done(&md, tmp);
+      goto LBL_UNLOCK;
+   }
+   if ((err = sha256_process(&md, in, inlen)) != CRYPT_OK) {
+      sha256_done(&md, tmp);
+      goto LBL_UNLOCK;
+   }
+   /* finish key */
+   if ((err = sha256_done(&md, prng->fortuna.K)) != CRYPT_OK) {
+      goto LBL_UNLOCK;
+   }
+   _fortuna_update_iv(prng);
+
+LBL_UNLOCK:
+   LTC_MUTEX_UNLOCK(&prng->lock);
+#ifdef LTC_CLEAN_STACK
+   zeromem(&md, sizeof(md));
+#endif
+
+   return err;
+}
+
+/**
   Start the PRNG
   @param prng     [out] The PRNG state to initialize
   @return CRYPT_OK if successful
@@ -412,11 +452,10 @@ LBL_UNLOCK:
 */
 int fortuna_import(const unsigned char *in, unsigned long inlen, prng_state *prng)
 {
-   int err, x;
-   unsigned long len;
+   int           err;
 
-   LTC_ARGCHK(in   != NULL);
-   LTC_ARGCHK(prng != NULL);
+   LTC_ARGCHK(in    != NULL);
+   LTC_ARGCHK(prng  != NULL);
 
    if (inlen < (unsigned long)fortuna_desc.export_size) {
       return CRYPT_INVALID_ARG;
@@ -425,16 +464,12 @@ int fortuna_import(const unsigned char *in, unsigned long inlen, prng_state *prn
    if ((err = fortuna_start(prng)) != CRYPT_OK) {
       return err;
    }
-   x = 0;
-   while (inlen > 0) {
-      len = MIN(inlen, 32);
-      if ((err = fortuna_add_entropy(in+x*32, len, prng)) != CRYPT_OK) {
-         return err;
-      }
-      x++;
-      inlen -= len;
+
+   if ((err = _fortuna_update_seed(in, inlen, prng)) != CRYPT_OK) {
+      return err;
    }
-   return CRYPT_OK;
+
+   return err;
 }
 
 /**
