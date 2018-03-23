@@ -273,26 +273,7 @@ int yarrow_done(prng_state *prng)
   @param prng      The PRNG to export
   @return CRYPT_OK if successful
 */
-int yarrow_export(unsigned char *out, unsigned long *outlen, prng_state *prng)
-{
-   unsigned long len = yarrow_desc.export_size;
-
-   LTC_ARGCHK(out    != NULL);
-   LTC_ARGCHK(outlen != NULL);
-   LTC_ARGCHK(prng   != NULL);
-
-   if (*outlen < len) {
-      *outlen = len;
-      return CRYPT_BUFFER_OVERFLOW;
-   }
-
-   if (yarrow_read(out, len, prng) != len) {
-      return CRYPT_ERROR_READPRNG;
-   }
-
-   *outlen = len;
-   return CRYPT_OK;
-}
+_LTC_PRNG_EXPORT(yarrow)
 
 /**
   Import a PRNG state

@@ -152,26 +152,7 @@ int sober128_done(prng_state *prng)
   @param prng      The PRNG to export
   @return CRYPT_OK if successful
 */
-int sober128_export(unsigned char *out, unsigned long *outlen, prng_state *prng)
-{
-   unsigned long len = sober128_desc.export_size;
-
-   LTC_ARGCHK(prng   != NULL);
-   LTC_ARGCHK(out    != NULL);
-   LTC_ARGCHK(outlen != NULL);
-
-   if (*outlen < len) {
-      *outlen = len;
-      return CRYPT_BUFFER_OVERFLOW;
-   }
-
-   if (sober128_read(out, len, prng) != len) {
-      return CRYPT_ERROR_READPRNG;
-   }
-
-   *outlen = len;
-   return CRYPT_OK;
-}
+_LTC_PRNG_EXPORT(sober128)
 
 /**
   Import a PRNG state
@@ -189,7 +170,7 @@ int sober128_import(const unsigned char *in, unsigned long inlen, prng_state *pr
    if (inlen < (unsigned long)sober128_desc.export_size) return CRYPT_INVALID_ARG;
 
    if ((err = sober128_start(prng)) != CRYPT_OK) return err;
-   if ((err = sober128_add_entropy(in, sober128_desc.export_size, prng)) != CRYPT_OK) return err;
+   if ((err = sober128_add_entropy(in, inlen, prng)) != CRYPT_OK) return err;
    return CRYPT_OK;
 }
 
