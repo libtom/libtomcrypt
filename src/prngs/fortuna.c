@@ -167,7 +167,7 @@ static int _fortuna_reseed(prng_state *prng)
   @param prng     The PRNG to import
   @return CRYPT_OK if successful
 */
-static int _fortuna_update_seed(const unsigned char *in, unsigned long inlen, prng_state *prng)
+int fortuna_update_seed(const unsigned char *in, unsigned long inlen, prng_state *prng)
 {
    int           err;
    unsigned char tmp[MAXBLOCKSIZE];
@@ -481,7 +481,7 @@ int fortuna_import(const unsigned char *in, unsigned long inlen, prng_state *prn
       return err;
    }
 
-   if ((err = _fortuna_update_seed(in, inlen, prng)) != CRYPT_OK) {
+   if ((err = fortuna_update_seed(in, inlen, prng)) != CRYPT_OK) {
       return err;
    }
 

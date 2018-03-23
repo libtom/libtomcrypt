@@ -152,9 +152,10 @@ int fortuna_add_random_event(unsigned long source, unsigned long pool, const uns
 int fortuna_ready(prng_state *prng);
 unsigned long fortuna_read(unsigned char *out, unsigned long outlen, prng_state *prng);
 int fortuna_done(prng_state *prng);
-int  fortuna_export(unsigned char *out, unsigned long *outlen, prng_state *prng);
-int  fortuna_import(const unsigned char *in, unsigned long inlen, prng_state *prng);
-int  fortuna_test(void);
+int fortuna_export(unsigned char *out, unsigned long *outlen, prng_state *prng);
+int fortuna_import(const unsigned char *in, unsigned long inlen, prng_state *prng);
+int fortuna_update_seed(const unsigned char *in, unsigned long inlen, prng_state *prng);
+int fortuna_test(void);
 extern const struct ltc_prng_descriptor fortuna_desc;
 #endif
 
