@@ -50,14 +50,14 @@ int base64_test(void)
    } url_cases[] = {
          {"vuiSPKIl8PiR5O-rC4z9_xTQKZ0", 0},
          {"vuiSPKIl8PiR5O-rC4z9_xTQKZ0=", 1},
-         {"vuiS PKIl8P\niR5O-rC4\tz9_xTQKZ0", 0},
-         {"vuiS PKIl8P\niR5O-rC4\tz9_xTQKZ0=", 0},
-         {"vuiS PKIl8P\niR5O-rC4\tz9_xTQKZ0==", 0},
-         {"vuiS PKIl8P\niR5O-rC4\tz9_xTQKZ0===", 0},
-         {"vuiS PKIl8P\niR5O-rC4\tz9_xTQKZ0====", 0},
-         {"vuiS\rPKIl8P\niR5O-rC4\tz9_xTQKZ0=", 0},
-         {"vuiS\rPKIl8P\niR5O-rC4\tz9_xTQKZ0= = = ", 0},
-         {"\nvuiS\rPKIl8P\niR5O-rC4\tz9_xTQKZ0=\n", 0},
+         {"vuiS*PKIl8P*iR5O-rC4*z9_xTQKZ0", 0},
+         {"vuiS*PKIl8P*iR5O-rC4*z9_xTQKZ0=", 0},
+         {"vuiS*PKIl8P*iR5O-rC4*z9_xTQKZ0==", 0},
+         {"vuiS*PKIl8P*iR5O-rC4*z9_xTQKZ0===", 0},
+         {"vuiS*PKIl8P*iR5O-rC4*z9_xTQKZ0====", 0},
+         {"vuiS*=PKIl8P*iR5O-rC4*z9_xTQKZ0=", 0},
+         {"vuiS*==PKIl8P*iR5O-rC4*z9_xTQKZ0=", 0},
+         {"vuiS*===PKIl8P*iR5O-rC4*z9_xTQKZ0=", 0},
    };
 
    for (x = 0; x < sizeof(url_cases)/sizeof(url_cases[0]); ++x) {
@@ -105,7 +105,7 @@ int base64_test(void)
 
    x--;
    memmove(&out[11], &out[10], l1 - 10);
-   out[10] = ' ';
+   out[10] = '=';
    l1++;
    l2 = sizeof(tmp);
    DO(base64_decode(out, l1, tmp, &l2));

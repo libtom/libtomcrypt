@@ -6550,8 +6550,6 @@ int base64_decode(const unsigned char *in,
 \end{verbatim}
 
 The function \textit{base64\_decode} works in a relaxed way which allows decoding some inputs that do not strictly follow the standard.
-The relaxed mode ignores white-spaces (\textit{CR}, \textit{LF}, \textit{TAB}, \textit{space}), does not care about trailing \textit{=}
-and also ignores the last input byte in case it is \textit{NUL}.
 If you want to be strict during decoding you can use:
 \index{base64\_strict\_decode()}
 \begin{verbatim}
