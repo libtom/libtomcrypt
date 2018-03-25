@@ -6535,7 +6535,7 @@ To encode a binary string in base64 call:
 \begin{verbatim}
 int base64_encode(const unsigned char *in,
                         unsigned long  len,
-                        unsigned char *out,
+                                 char *out,
                         unsigned long *outlen);
 \end{verbatim}
 Where \textit{in} is the binary string and \textit{out} is where the ASCII output is placed.  You must set the value of \textit{outlen} prior
@@ -6543,20 +6543,20 @@ to calling this function and it sets the length of the base64 output in \textit{
 string call:
 \index{base64\_decode()}
 \begin{verbatim}
-int base64_decode(const unsigned char *in,
-                        unsigned long  len,
-                        unsigned char *out,
-                        unsigned long *outlen);
+int base64_decode(   const char *in,
+                  unsigned long  len,
+                  unsigned char *out,
+                  unsigned long *outlen);
 \end{verbatim}
 
 The function \textit{base64\_decode} works in a relaxed way which allows decoding some inputs that do not strictly follow the standard.
 If you want to be strict during decoding you can use:
 \index{base64\_strict\_decode()}
 \begin{verbatim}
-int base64_strict_decode(const unsigned char *in,
-                               unsigned long  len,
-                               unsigned char *out,
-                               unsigned long *outlen);
+int base64_strict_decode(   const char *in,
+                         unsigned long  len,
+                         unsigned char *out,
+                         unsigned long *outlen);
 \end{verbatim}
 
 \subsection{URL--safe 'base64url' encoding}
@@ -6569,16 +6569,16 @@ The interface is analogous to \textit{base64\_xxxx} functions in previous chapte
 
 \begin{verbatim}
 int base64url_encode(const unsigned char *in,  unsigned long len,
-                           unsigned char *out, unsigned long *outlen);
+                                    char *out, unsigned long *outlen);
 
 int base64url_strict_encode(const unsigned char *in,  unsigned long inlen,
-                                  unsigned char *out, unsigned long *outlen);
+                                           char *out, unsigned long *outlen);
 
-int base64url_decode(const unsigned char *in,  unsigned long len,
-                           unsigned char *out, unsigned long *outlen);
+int base64url_decode(   const char *in,  unsigned long len,
+                     unsigned char *out, unsigned long *outlen);
 
-int base64url_strict_decode(const unsigned char *in,  unsigned long len,
-                                  unsigned char *out, unsigned long *outlen);
+int base64url_strict_decode(   const char *in,  unsigned long len,
+                            unsigned char *out, unsigned long *outlen);
 \end{verbatim}
 
 \mysection{Base32 Encoding and Decoding}
