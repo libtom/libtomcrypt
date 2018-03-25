@@ -11,7 +11,8 @@
 #if defined(LTC_BASE64) || defined(LTC_BASE64_URL)
 int base64_test(void)
 {
-   unsigned char in[64], out[256], tmp[64];
+   unsigned char in[64], tmp[64];
+   char out[256];
    unsigned long x, l1, l2, slen1;
 
    const unsigned char special_case[] = {
@@ -62,23 +63,23 @@ int base64_test(void)
 
    for (x = 0; x < sizeof(url_cases)/sizeof(url_cases[0]); ++x) {
        slen1 = strlen(url_cases[x].s);
-       l1 = sizeof(out);
+       l1 = sizeof(tmp);
        if(url_cases[x].is_strict)
-          DO(base64url_strict_decode((unsigned char*)url_cases[x].s, slen1, out, &l1));
+          DO(base64url_strict_decode(url_cases[x].s, slen1, tmp, &l1));
        else
-          DO(base64url_decode((unsigned char*)url_cases[x].s, slen1, out, &l1));
-       DO(do_compare_testvector(out, l1, special_case, sizeof(special_case) - 1, "base64url decode", x));
+          DO(base64url_decode(url_cases[x].s, slen1, tmp, &l1));
+       DO(do_compare_testvector(tmp, l1, special_case, sizeof(special_case) - 1, "base64url decode", x));
        if(x < 2) {
-          l2 = sizeof(tmp);
+          l2 = sizeof(out);
           if(x == 0)
-             DO(base64url_encode(out, l1, tmp, &l2));
+             DO(base64url_encode(tmp, l1, out, &l2));
           else
-             DO(base64url_strict_encode(out, l1, tmp, &l2));
-          DO(do_compare_testvector(tmp, l2, url_cases[x].s, strlen(url_cases[x].s), "base64url encode", x));
+             DO(base64url_strict_encode(tmp, l1, out, &l2));
+          DO(do_compare_testvector(out, l2, url_cases[x].s, strlen(url_cases[x].s), "base64url encode", x));
        }
    }
 
-   DO(base64url_strict_decode((unsigned char*)url_cases[4].s, slen1, out, &l1) == CRYPT_INVALID_PACKET ? CRYPT_OK : CRYPT_INVALID_PACKET);
+   DO(base64url_strict_decode(url_cases[4].s, slen1, tmp, &l1) == CRYPT_INVALID_PACKET ? CRYPT_OK : CRYPT_INVALID_PACKET);
 #endif
 
 #if defined(LTC_BASE64)

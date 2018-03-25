@@ -75,7 +75,7 @@ enum {
    strict = 1
 };
 
-static int _base64_decode_internal(const unsigned char *in,  unsigned long inlen,
+static int _base64_decode_internal(const char *in,  unsigned long inlen,
                                  unsigned char *out, unsigned long *outlen,
                            const unsigned char *map, int is_strict)
 {
@@ -89,7 +89,7 @@ static int _base64_decode_internal(const unsigned char *in,  unsigned long inlen
 
    g = 0; /* '=' counter */
    for (x = y = z = t = 0; x < inlen; x++) {
-       c = map[in[x]&0xFF];
+       c = map[(unsigned char)in[x]&0xFF];
        if (c == 254) {
           g++;
           continue;
@@ -137,7 +137,7 @@ static int _base64_decode_internal(const unsigned char *in,  unsigned long inlen
    @param outlen   [in/out] The max size and resulting size of the decoded data
    @return CRYPT_OK if successful
 */
-int base64_decode(const unsigned char *in,  unsigned long inlen,
+int base64_decode(const char *in,  unsigned long inlen,
                         unsigned char *out, unsigned long *outlen)
 {
     return _base64_decode_internal(in, inlen, out, outlen, map_base64, relaxed);
@@ -151,7 +151,7 @@ int base64_decode(const unsigned char *in,  unsigned long inlen,
    @param outlen   [in/out] The max size and resulting size of the decoded data
    @return CRYPT_OK if successful
 */
-int base64_strict_decode(const unsigned char *in,  unsigned long inlen,
+int base64_strict_decode(const char *in,  unsigned long inlen,
                         unsigned char *out, unsigned long *outlen)
 {
    return _base64_decode_internal(in, inlen, out, outlen, map_base64, strict);
@@ -167,7 +167,7 @@ int base64_strict_decode(const unsigned char *in,  unsigned long inlen,
    @param outlen   [in/out] The max size and resulting size of the decoded data
    @return CRYPT_OK if successful
 */
-int base64url_decode(const unsigned char *in,  unsigned long inlen,
+int base64url_decode(const char *in,  unsigned long inlen,
                            unsigned char *out, unsigned long *outlen)
 {
     return _base64_decode_internal(in, inlen, out, outlen, map_base64url, relaxed);
@@ -181,7 +181,7 @@ int base64url_decode(const unsigned char *in,  unsigned long inlen,
    @param outlen   [in/out] The max size and resulting size of the decoded data
    @return CRYPT_OK if successful
 */
-int base64url_strict_decode(const unsigned char *in,  unsigned long inlen,
+int base64url_strict_decode(const char *in,  unsigned long inlen,
                            unsigned char *out, unsigned long *outlen)
 {
     return _base64_decode_internal(in, inlen, out, outlen, map_base64url, strict);

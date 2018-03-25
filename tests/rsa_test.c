@@ -54,7 +54,7 @@ static const unsigned char openssl_private_rsa[] = {
    0x78, 0x18, 0x5a, 0x79, 0x3d, 0x2e, 0x8e, 0x7e, 0x86, 0x0a, 0xe6, 0xa8, 0x33, 0xc1, 0x04, 0x17,
    0x4a, 0x9f,  };
 
-static const unsigned char x509_public_rsa[] =
+static const char x509_public_rsa[] =
     "MIICdTCCAd4CCQCYjCwz0l9JpjANBgkqhkiG9w0BAQsFADB+MQswCQYDVQQGEwJD\
      WjEPMA0GA1UECAwGTW9yYXZhMQ0wCwYDVQQHDARCcm5vMRAwDgYDVQQKDAdMVEMg\
      THRkMQ8wDQYDVQQLDAZDcnlwdG8xEjAQBgNVBAMMCVRlc3QgQ2VydDEYMBYGCSqG\
@@ -175,7 +175,7 @@ static const unsigned char openssl_rsautl_pkcs[] = {
    0xef, 0x57, 0x23, 0x4b, 0x3a, 0xa3, 0x24, 0x91, 0x4d, 0xfb, 0xb2, 0xd4, 0xe7, 0x5e, 0x41, 0x7e,
 };
 
-extern const unsigned char _der_tests_cacert_root_cert[];
+extern const char _der_tests_cacert_root_cert[];
 extern const unsigned long _der_tests_cacert_root_cert_size;
 
 static int rsa_compat_test(void)
