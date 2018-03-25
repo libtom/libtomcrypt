@@ -17,11 +17,16 @@
 
 #if defined(LTC_BASE64) || defined (LTC_BASE64_URL)
 
+/* 253 - ignored in "relaxed" mode: TAB(9), CR(13), LF(10), space(32)
+ * 254 - padding character '=' (allowed only at the end)
+ * 255 - invalid character (not allowed even in relaxed mode)
+ */
+
 #if defined(LTC_BASE64)
 static const unsigned char map_base64[256] = {
-255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+255, 255, 255, 255, 255, 255, 255, 255, 255, 253, 253, 255,
+255, 253, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+255, 255, 255, 255, 255, 255, 255, 255, 253, 255, 255, 255,
 255, 255, 255, 255, 255, 255, 255,  62, 255, 255, 255,  63,
  52,  53,  54,  55,  56,  57,  58,  59,  60,  61, 255, 255,
 255, 254, 255, 255, 255,   0,   1,   2,   3,   4,   5,   6,
@@ -45,9 +50,9 @@ static const unsigned char map_base64[256] = {
 
 static const unsigned char map_base64url[] = {
 #if defined(LTC_BASE64_URL)
-255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+255, 255, 255, 255, 255, 255, 255, 255, 255, 253, 253, 255,
+255, 253, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+255, 255, 255, 255, 255, 255, 255, 255, 253, 255, 255, 255,
 255, 255, 255, 255, 255, 255, 255, 255, 255,  62, 255, 255,
  52,  53,  54,  55,  56,  57,  58,  59,  60,  61, 255, 255,
 255, 254, 255, 255, 255,   0,   1,   2,   3,   4,   5,   6,
@@ -89,20 +94,24 @@ static int _base64_decode_internal(const unsigned char *in,  unsigned long inlen
 
    g = 0; /* '=' counter */
    for (x = y = z = t = 0; x < inlen; x++) {
+       if (in[x] == 0 && x == (inlen - 1)) continue; /* allow the last byte to be NUL */
        c = map[in[x]&0xFF];
        if (c == 254) {
           g++;
           continue;
        }
-       else if (is_strict && g > 0) {
-          /* we only allow '=' to be at the end */
-          return CRYPT_INVALID_PACKET;
-       }
-       if (c == 255) {
+       if (c == 253) {
           if (is_strict)
              return CRYPT_INVALID_PACKET;
           else
              continue;
+       }
+       if (c == 255) {
+          return CRYPT_INVALID_PACKET;
+       }
+       if (g > 0) {
+          /* we only allow '=' to be at the end */
+          return CRYPT_INVALID_PACKET;
        }
 
        t = (t<<6)|c;
