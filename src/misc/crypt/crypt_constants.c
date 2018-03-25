@@ -75,6 +75,21 @@ static const crypt_constant _crypt_constants[] = {
     {"LTC_PKCS_1", 0},
 #endif
 
+#ifdef LTC_PADDING
+    {"LTC_PADDING", 1},
+
+    _C_STRINGIFY(LTC_PAD_PKCS7),
+#ifdef LTC_RNG_GET_BYTES
+    _C_STRINGIFY(LTC_PAD_ISO_10126),
+#endif
+    _C_STRINGIFY(LTC_PAD_ANSI_X923),
+    _C_STRINGIFY(LTC_PAD_ONE_AND_ZERO),
+    _C_STRINGIFY(LTC_PAD_ZERO),
+    _C_STRINGIFY(LTC_PAD_ZERO_ALWAYS),
+#else
+    {"LTC_PADDING", 0},
+#endif
+
 #ifdef LTC_MRSA
     {"LTC_MRSA", 1},
 #else

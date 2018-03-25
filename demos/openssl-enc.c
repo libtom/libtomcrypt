@@ -172,50 +172,21 @@ void dump_bytes(unsigned char *in, unsigned long len)
  * Output:       number of bytes after padding resp. after unpadding
  * Side Effects: none
  */
-size_t pkcs7_pad(union paddable *buf, size_t nb, int block_length,
+static size_t _pkcs7_pad(union paddable *buf, size_t nb, int block_length,
                  int is_padding)
 {
-   unsigned char padval;
-   off_t idx;
+   unsigned long length;
 
    if(is_padding) {
-      /* We are PADDING this block (and therefore adding bytes) */
-      /* The pad value in PKCS#7 is the number of bytes remaining in
-         the block, so for a 16-byte block and 3 bytes left, it's
-         0x030303.  In the oddball case where nb is an exact multiple
-         multiple of block_length, set the padval to blocksize (i.e.
-         add one full block) */
-      padval = (unsigned char) (block_length - (nb % block_length));
-      padval = padval ? padval : block_length;
-
-      memset(buf->pad+nb, padval, padval);
-      return nb+padval;
-   } else {
-      /* We are UNPADDING this block (and removing bytes)
-         We really just need to verify that the pad bytes are correct,
-         so start at the end of the string and work backwards. */
-
-      /* Figure out what the padlength should be by looking at the
-         last byte */
-      idx = nb-1;
-      padval = buf->pad[idx];
-
-      /* padval must be nonzero and <= block length */
-      if(padval <= 0 || padval > block_length)
+      length = sizeof(buf->pad);
+      if (padding_pad(buf->pad, nb, &length, block_length) != CRYPT_OK)
          return 0;
-
-      /* First byte's accounted for; do the rest */
-      idx--;
-
-      while(idx >= (off_t)(nb-padval))
-         if(buf->pad[idx] != padval)
-            return 0;
-         else
-            idx--;
-
-      /* If we got here, the pad checked out, so return a smaller
-         number of bytes than nb (basically where we left off+1) */
-      return idx+1;
+      return length;
+   } else {
+      length = nb;
+      if (padding_depad(buf->pad, &length, 0) != CRYPT_OK)
+         return 0;
+      return length;
    }
 }
 
@@ -259,7 +230,7 @@ int do_crypt(FILE *infd, FILE *outfd, unsigned char *key, unsigned char *iv,
          /* We're encrypting, so pad first (if at EOF) and then
             crypt */
          if(feof(infd))
-            nb = pkcs7_pad(&inbuf, nb,
+            nb = _pkcs7_pad(&inbuf, nb,
                            aes_desc.block_length, 1);
 
          ret = cbc_encrypt(inbuf.pad, outbuf.pad, nb, &cbc);
@@ -273,8 +244,8 @@ int do_crypt(FILE *infd, FILE *outfd, unsigned char *key, unsigned char *iv,
          if( ret != CRYPT_OK )
             return ret;
 
-         if( feof(infd) )
-            nb = pkcs7_pad(&outbuf, nb,
+         if(feof(infd))
+            nb = _pkcs7_pad(&outbuf, nb,
                            aes_desc.block_length, 0);
          if(nb == 0)
             /* The file didn't decrypt correctly */

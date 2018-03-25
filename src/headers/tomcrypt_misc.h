@@ -135,6 +135,29 @@ void crc32_finish(crc32_state *ctx, void *hash, unsigned long size);
 int crc32_test(void);
 #endif
 
+
+#ifdef LTC_PADDING
+
+enum padding_type {
+   LTC_PAD_PKCS7        = 0x0000U,
+#ifdef LTC_RNG_GET_BYTES
+   LTC_PAD_ISO_10126    = 0x1000U,
+#endif
+   LTC_PAD_ANSI_X923    = 0x2000U,
+   LTC_PAD_ONE_AND_ZERO = 0x8000U,
+   LTC_PAD_ZERO         = 0x9000U,
+   LTC_PAD_ZERO_ALWAYS  = 0xA000U,
+};
+
+int padding_pad(unsigned char *data, unsigned long length, unsigned long* padded_length, unsigned long mode);
+int padding_depad(unsigned char *data, unsigned long *length, unsigned long mode);
+
+#ifdef LTC_SOURCE
+/* internal helper functions */
+#define LTC_PAD_MASK       (0xF000U)
+#endif
+#endif  /* LTC_PADDING */
+
 int compare_testvector(const void* is, const unsigned long is_len, const void* should, const unsigned long should_len, const char* what, int which);
 
 /* ref:         $Format:%D$ */

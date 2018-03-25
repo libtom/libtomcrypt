@@ -1552,6 +1552,18 @@
 				</File>
 			</Filter>
 			<Filter
+				Name="padding"
+				>
+				<File
+					RelativePath="src\misc\padding\padding_depad.c"
+					>
+				</File>
+				<File
+					RelativePath="src\misc\padding\padding_pad.c"
+					>
+				</File>
+			</Filter>
+			<Filter
 				Name="pkcs5"
 				>
 				<File
