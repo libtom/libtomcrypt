@@ -28,8 +28,9 @@ int base16_test(void)
          yarrow_read(in, x, &yarrow_prng);
          l1 = sizeof(out);
          DO(base16_encode(in, x, out, &l1, idx));
+         l1--;
          l2 = sizeof(tmp);
-         DO(base16_decode(out, tmp, &l2));
+         DO(base16_decode(out, l1, tmp, &l2));
          DO(do_compare_testvector(tmp, l2, in, x, "random base16", idx * 100 + x));
       }
    }
@@ -38,8 +39,9 @@ int base16_test(void)
       l1 = sizeof(out);
       DO(base16_encode(testin, sizeof(testin), out, &l1, idx));
       DO(do_compare_testvector(out, strlen(out), testout[idx], strlen(testout[idx]), "testout base16", idx));
+      l1--;
       l2 = sizeof(tmp);
-      DO(base16_decode(out, tmp, &l2));
+      DO(base16_decode(out, l1, tmp, &l2));
       DO(do_compare_testvector(tmp, l2, testin, sizeof(testin), "testin base16", idx));
    }
 

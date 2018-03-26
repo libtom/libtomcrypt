@@ -25,10 +25,10 @@
    @param outlen   [in/out] The max size and resulting size of the decoded data
    @return CRYPT_OK if successful
 */
-int base16_decode(const          char *in,
+int base16_decode(const          char *in,  unsigned long  inlen,
                         unsigned char *out, unsigned long *outlen)
 {
-   unsigned long pos, in_len, out_len;
+   unsigned long pos, out_len;
    unsigned char idx0;
    unsigned char idx1;
 
@@ -46,10 +46,9 @@ int base16_decode(const          char *in,
    LTC_ARGCHK(out    != NULL);
    LTC_ARGCHK(outlen != NULL);
 
-   in_len = strlen(in);
-   if ((in_len % 2) == 1) return CRYPT_INVALID_PACKET;
+   if ((inlen % 2) == 1) return CRYPT_INVALID_PACKET;
    out_len = *outlen * 2;
-   for (pos = 0; ((pos + 1 < out_len) && (pos + 1 < in_len)); pos += 2) {
+   for (pos = 0; ((pos + 1 < out_len) && (pos + 1 < inlen)); pos += 2) {
       idx0 = (unsigned char) (in[pos + 0] & 0x1F) ^ 0x10;
       idx1 = (unsigned char) (in[pos + 1] & 0x1F) ^ 0x10;
       out[pos / 2] = (unsigned char) (hashmap[idx0] << 4) | hashmap[idx1];
