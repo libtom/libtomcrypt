@@ -28,11 +28,11 @@ static const char * const codes_base64url =
 #endif /* LTC_BASE64_URL */
 
 static int _base64_encode_internal(const unsigned char *in,  unsigned long inlen,
-                                 unsigned char *out, unsigned long *outlen,
+                                 char *out, unsigned long *outlen,
                                  const char *codes, int pad)
 {
    unsigned long i, len2, leven;
-   unsigned char *p;
+   char *p;
 
    LTC_ARGCHK(in     != NULL);
    LTC_ARGCHK(out    != NULL);
@@ -87,7 +87,7 @@ static int _base64_encode_internal(const unsigned char *in,  unsigned long inlen
    @return CRYPT_OK if successful
 */
 int base64_encode(const unsigned char *in,  unsigned long inlen,
-                        unsigned char *out, unsigned long *outlen)
+                                 char *out, unsigned long *outlen)
 {
     return _base64_encode_internal(in, inlen, out, outlen, codes_base64, 1);
 }
@@ -104,13 +104,13 @@ int base64_encode(const unsigned char *in,  unsigned long inlen,
    @return CRYPT_OK if successful
 */
 int base64url_encode(const unsigned char *in,  unsigned long inlen,
-                           unsigned char *out, unsigned long *outlen)
+                                    char *out, unsigned long *outlen)
 {
     return _base64_encode_internal(in, inlen, out, outlen, codes_base64url, 0);
 }
 
 int base64url_strict_encode(const unsigned char *in,  unsigned long inlen,
-                           unsigned char *out, unsigned long *outlen)
+                                           char *out, unsigned long *outlen)
 {
     return _base64_encode_internal(in, inlen, out, outlen, codes_base64url, 1);
 }

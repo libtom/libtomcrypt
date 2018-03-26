@@ -638,7 +638,8 @@ void gcm_gen(void)
 void base64_gen(void)
 {
    FILE *out;
-   unsigned char dst[256], src[32], ch;
+   unsigned char src[32], ch;
+   char dst[256];
    unsigned long x, len;
 
    out = fopen("base64_tv.txt", "w");

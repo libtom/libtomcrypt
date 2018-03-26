@@ -21,7 +21,7 @@ int der_test(void)
 #define LTC_DER_TESTS_PRINT_FLEXI
 #endif
 
-static const unsigned char _der_tests_stinky_root_cert[] =
+static const char _der_tests_stinky_root_cert[] =
    "MIIFETCCA/mgAwIBAgIQbv53JNmv518t5lkCHE272jANBgkqhkiG9w0BAQUFADCB"
    "lTELMAkGA1UEBhMCVVMxCzAJBgNVBAgTAlVUMRcwFQYDVQQHEw5TYWx0IExha2Ug"
    "Q2l0eTEeMBwGA1UEChMVVGhlIFVTRVJUUlVTVCBOZXR3b3JrMSEwHwYDVQQLExho"
@@ -50,7 +50,7 @@ static const unsigned char _der_tests_stinky_root_cert[] =
    "JeXwdFaRjbamiz3Irl+u7x/mhxdza6RvgBYylXRFMudANpeGsV7gDXlnfzpFDKHQ"
    "niVwB7P5sbPFIlmIc+4/xRItkLIRjCVXaepgN9KYu3VOgiSDI6wXiTwP44/LUXQM"
    "hetwa7s=";
-const unsigned char _der_tests_cacert_root_cert[] =
+const char _der_tests_cacert_root_cert[] =
    "MIIHPTCCBSWgAwIBAgIBADANBgkqhkiG9w0BAQQFADB5MRAwDgYDVQQKEwdSb290"
    "IENBMR4wHAYDVQQLExVodHRwOi8vd3d3LmNhY2VydC5vcmcxIjAgBgNVBAMTGUNB"
    "IENlcnQgU2lnbmluZyBBdXRob3JpdHkxITAfBgkqhkiG9w0BCQEWEnN1cHBvcnRA"
