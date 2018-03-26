@@ -691,6 +691,14 @@
 					>
 				</File>
 				<File
+					RelativePath="src\encauth\gcm\gcm_file.c"
+					>
+				</File>
+				<File
+					RelativePath="src\encauth\gcm\gcm_filehandle.c"
+					>
+				</File>
+				<File
 					RelativePath="src\encauth\gcm\gcm_gf_mult.c"
 					>
 				</File>

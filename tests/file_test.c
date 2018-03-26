@@ -9,6 +9,7 @@
 /* test file related functions */
 
 #include <tomcrypt_test.h>
+#include <unistd.h>
 
 int file_test(void)
 {
@@ -105,8 +106,64 @@ int file_test(void)
       DO(do_compare_testvector(buf, len, exp_blake2bmac, 16, "exp_blake2bmac_file", 1));
    }
 #endif
+#ifdef LTC_GCM_MODE
+   {
+      unsigned char iv[32] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
+                                0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F };
+      int tmp, res;
+      char tmp_X_enc[] = "/tmp/ltc_test_XXXXXX";
+      char tmp_X_dec[] = "/tmp/ltc_test_XXXXXX";
 
-   return CRYPT_OK;
+      tmp = mkstemp(tmp_X_enc);
+      if (tmp == -1) return CRYPT_FILE_NOTFOUND;
+      close(tmp);
+      res = 666;
+      if ((err = gcm_file(iaes,
+                     key,    32,
+                     iv,     sizeof(iv),
+                     NULL,   0,
+                     fname,
+                     tmp_X_enc,
+                     16,
+                     GCM_ENCRYPT,
+                     &res)) != CRYPT_OK) goto GCM_OUT_1;
+      if (res != 1) {
+         err = CRYPT_FAIL_TESTVECTOR;
+         goto GCM_OUT_1;
+      }
+
+      tmp = mkstemp(tmp_X_dec);
+      if (tmp == -1) {
+         err = CRYPT_FILE_NOTFOUND;
+         goto GCM_OUT_1;
+      }
+      close(tmp);
+      res = 666;
+      if ((err = gcm_file(iaes,
+                     key,    32,
+                     iv,     sizeof(iv),
+                     NULL,   0,
+                     tmp_X_enc,
+                     tmp_X_dec,
+                     16,
+                     GCM_DECRYPT,
+                     &res)) != CRYPT_OK) goto GCM_OUT_2;
+      if (res != 1) {
+         err = CRYPT_FAIL_TESTVECTOR;
+         goto GCM_OUT_2;
+      }
+
+      len = sizeof(buf);
+      if ((err = hash_file(isha256, tmp_X_dec, buf, &len)) != CRYPT_OK)                return err;
+      if (compare_testvector(buf, len, exp_sha256, 32, "gcm'ed file", 1))            return 1;
+GCM_OUT_2:
+      unlink(tmp_X_dec);
+GCM_OUT_1:
+      unlink(tmp_X_enc);
+   }
+#endif
+
+   return err;
 #endif
 }
 
