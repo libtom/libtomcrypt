@@ -6631,7 +6631,7 @@ The library provides functions to encode and decode a Base16 a.k.a Hex string.
 
 To encode a binary string in base16 call:
 
-\index{base32\_encode()}
+\index{base16\_encode()}
 \begin{verbatim}
 int base16_encode(const unsigned char *in,  unsigned long  inlen,
                                  char *out, unsigned long *outlen,
@@ -6644,9 +6644,9 @@ and \textit{caps} is either $0$ to use lower-letter \textit{a..f} or else to use
 
 To decode a base16 string call:
 
-\index{base32\_decode()}
+\index{base16\_decode()}
 \begin{verbatim}
-int base16_decode(const          char *in,
+int base16_decode(const          char *in,  unsigned long  inlen,
                         unsigned char *out, unsigned long *outlen);
 \end{verbatim}
 
