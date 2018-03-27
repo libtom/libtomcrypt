@@ -6549,7 +6549,8 @@ int base64_decode(   const char *in,
                   unsigned long *outlen);
 \end{verbatim}
 
-The function \textit{base64\_decode} works in a relaxed way which allows decoding some inputs that do not strictly follow the standard.
+The function \textit{base64\_decode} works in a dangerously relaxed way which allows decoding some inputs that do not strictly follow the standard.
+
 If you want to be strict during decoding you can use:
 \index{base64\_strict\_decode()}
 \begin{verbatim}
@@ -6557,6 +6558,16 @@ int base64_strict_decode(   const char *in,
                          unsigned long  len,
                          unsigned char *out,
                          unsigned long *outlen);
+\end{verbatim}
+
+There is also so called sane mode that ignores white-spaces (\textit{CR}, \textit{LF}, \textit{TAB}, \textit{space}),
+does not care about trailing \textit{=} and also ignores the last input byte in case it is \textit{NUL}.
+\index{base64\_sane\_decode()}
+\begin{verbatim}
+int base64_sane_decode(   const char *in,
+                       unsigned long  len,
+                       unsigned char *out,
+                       unsigned long *outlen);
 \end{verbatim}
 
 \subsection{URL--safe 'base64url' encoding}
@@ -6567,6 +6578,11 @@ ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_
 Those characters are sometimes also called URL and filename safe alphabet.
 The interface is analogous to \textit{base64\_xxxx} functions in previous chapter.
 
+\index{base64url\_encode()}
+\index{base64url\_strict\_encode()}
+\index{base64url\_decode()}
+\index{base64url\_strict\_decode()}
+\index{base64url\_sane\_decode()}
 \begin{verbatim}
 int base64url_encode(const unsigned char *in,  unsigned long len,
                                     char *out, unsigned long *outlen);
@@ -6579,6 +6595,9 @@ int base64url_decode(   const char *in,  unsigned long len,
 
 int base64url_strict_decode(   const char *in,  unsigned long len,
                             unsigned char *out, unsigned long *outlen);
+
+int base64url_sane_decode(   const char *in,  unsigned long len,
+                          unsigned char *out, unsigned long *outlen);
 \end{verbatim}
 
 \mysection{Base32 Encoding and Decoding}

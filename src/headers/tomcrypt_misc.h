@@ -16,6 +16,8 @@ int base64_decode(const char *in,  unsigned long len,
                         unsigned char *out, unsigned long *outlen);
 int base64_strict_decode(const char *in,  unsigned long len,
                         unsigned char *out, unsigned long *outlen);
+int base64_sane_decode(const char *in,  unsigned long inlen,
+                        unsigned char *out, unsigned long *outlen);
 #endif
 
 #ifdef LTC_BASE64_URL
@@ -27,6 +29,8 @@ int base64url_strict_encode(const unsigned char *in,  unsigned long inlen,
 int base64url_decode(const char *in,  unsigned long len,
                         unsigned char *out, unsigned long *outlen);
 int base64url_strict_decode(const char *in,  unsigned long len,
+                        unsigned char *out, unsigned long *outlen);
+int base64url_sane_decode(const char *in,  unsigned long inlen,
                         unsigned char *out, unsigned long *outlen);
 #endif
 
