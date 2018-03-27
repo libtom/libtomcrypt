@@ -145,7 +145,7 @@ static int _base64_decode_internal(const char *in,  unsigned long inlen,
 
 #if defined(LTC_BASE64)
 /**
-   Relaxed base64 decode a block of memory
+   Dangerously relaxed base64 decode a block of memory
    @param in       The base64 data to decode
    @param inlen    The length of the base64 data
    @param out      [out] The destination of the binary decoded data
@@ -173,7 +173,7 @@ int base64_strict_decode(const char *in,  unsigned long inlen,
 }
 
 /**
-   Relaxed base64 decode a block of memory
+   Sane base64 decode a block of memory
    @param in       The base64 data to decode
    @param inlen    The length of the base64 data
    @param out      [out] The destination of the binary decoded data
@@ -189,7 +189,7 @@ int base64_sane_decode(const char *in,  unsigned long inlen,
 
 #if defined(LTC_BASE64_URL)
 /**
-   Relaxed base64 (URL Safe, RFC 4648 section 5) decode a block of memory
+   Dangerously relaxed base64 (URL Safe, RFC 4648 section 5) decode a block of memory
    @param in       The base64 data to decode
    @param inlen    The length of the base64 data
    @param out      [out] The destination of the binary decoded data
@@ -217,7 +217,7 @@ int base64url_strict_decode(const char *in,  unsigned long inlen,
 }
 
 /**
-   Relaxed base64 (URL Safe, RFC 4648 section 5) decode a block of memory
+   Sane base64 (URL Safe, RFC 4648 section 5) decode a block of memory
    @param in       The base64 data to decode
    @param inlen    The length of the base64 data
    @param out      [out] The destination of the binary decoded data
