@@ -10,6 +10,26 @@
 #ifndef TOMCRYPT_CUSTOM_H_
 #define TOMCRYPT_CUSTOM_H_
 
+
+#ifndef LTC_NO_FAST
+   #define LTC_NO_FAST
+#endif
+#ifndef inline
+   #define inline __inline
+#endif
+#ifndef LTC_NO_PROTOTYPES
+   #define LTC_NO_PROTOTYPES
+#endif
+#ifndef LTC_SOURCE
+   #define LTC_SOURCE
+#endif
+#ifndef USE_LTM
+   #define USE_LTM
+#endif
+#ifndef LTM_DESC
+   #define LTM_DESC
+#endif
+
 /* macros for various libc functions you can change for embedded targets */
 #ifndef XMALLOC
 #define XMALLOC  malloc
