@@ -5,8 +5,6 @@
  *
  * The library is free for all purposes without any express
  * guarantee it works.
- *
- * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 /**
    @param sha384.c
@@ -92,7 +90,7 @@ int  sha384_test(void)
     return CRYPT_NOP;
  #else
   static const struct {
-      char *msg;
+      const char *msg;
       unsigned char hash[48];
   } tests[] = {
     { "abc",
@@ -121,7 +119,7 @@ int  sha384_test(void)
       sha384_init(&md);
       sha384_process(&md, (unsigned char*)tests[i].msg, (unsigned long)strlen(tests[i].msg));
       sha384_done(&md, tmp);
-      if (XMEMCMP(tmp, tests[i].hash, 48) != 0) {
+      if (compare_testvector(tmp, sizeof(tmp), tests[i].hash, sizeof(tests[i].hash), "SHA384", i)) {
          return CRYPT_FAIL_TESTVECTOR;
       }
   }
@@ -131,6 +129,6 @@ int  sha384_test(void)
 
 #endif /* defined(LTC_SHA384) && defined(LTC_SHA512) */
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

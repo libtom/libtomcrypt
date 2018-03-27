@@ -5,8 +5,6 @@
  *
  * The library is free for all purposes without any express
  * guarantee it works.
- *
- * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 #include "tomcrypt.h"
 
@@ -81,7 +79,7 @@ int rsa_export(unsigned char *out, unsigned long *outlen, int type, rsa_key *key
           goto finish;
       }
 
-      err = der_encode_subject_public_key_info(out, outlen,
+      err = x509_encode_subject_public_key_info(out, outlen,
         PKA_RSA, tmp, tmplen, LTC_ASN1_NULL, NULL, 0);
 
 finish:
@@ -94,6 +92,6 @@ finish:
 
 #endif /* LTC_MRSA */
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

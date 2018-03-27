@@ -5,8 +5,6 @@
  *
  * The library is free for all purposes without any express
  * guarantee it works.
- *
- * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 #include "tomcrypt.h"
 
@@ -18,15 +16,15 @@
 #define NAME(s) #s
 
 const char *crypt_build_settings =
-   "LibTomCrypt " SCRYPT " (Tom St Denis, tomstdenis@gmail.com)\n"
+   "LibTomCrypt " SCRYPT " (www.libtom.net)\n"
    "LibTomCrypt is public domain software.\n"
 #if defined(INCLUDE_BUILD_DATE)
    "Built on " __DATE__ " at " __TIME__ "\n"
 #endif
    "\n\nEndianness: "
 #if defined(ENDIAN_NEUTRAL)
-   "neutral\n"
-#else
+   "neutral/"
+#endif
 #if defined(ENDIAN_LITTLE)
    "little"
 #elif defined(ENDIAN_BIG)
@@ -34,17 +32,18 @@ const char *crypt_build_settings =
 #endif
    #if defined(ENDIAN_32BITWORD)
    " (32-bit words)\n"
-   #else
+   #elif defined(ENDIAN_64BITWORD)
    " (64-bit words)\n"
+   #else
+   " (no wordsize defined)\n"
    #endif
-#endif
    "Clean stack: "
 #if defined(LTC_CLEAN_STACK)
    "enabled\n"
 #else
    "disabled\n"
 #endif
-   "Ciphers built-in:\n"
+   "\nCiphers built-in:\n"
 #if defined(LTC_BLOWFISH)
    "   Blowfish\n"
 #endif
@@ -123,8 +122,39 @@ const char *crypt_build_settings =
 #if defined(LTC_CAMELLIA)
    "   Camellia\n"
 #endif
+#if defined(LTC_IDEA)
+   "   IDEA\n"
+#endif
+#if defined(LTC_SERPENT)
+   "   Serpent\n"
+#endif
+   "Stream ciphers built-in:\n"
+#if defined(LTC_CHACHA)
+   "   ChaCha\n"
+#endif
+#if defined(LTC_SALSA20)
+   "   Salsa20\n"
+#endif
+#if defined(LTC_SOSEMANUK)
+   "   Sosemanuk\n"
+#endif
+#if defined(LTC_RABBIT)
+   "   Rabbit\n"
+#endif
+#if defined(LTC_RC4_STREAM)
+   "   RC4\n"
+#endif
+#if defined(LTC_SOBER128_STREAM)
+   "   SOBER128\n"
+#endif
 
     "\nHashes built-in:\n"
+#if defined(LTC_SHA3)
+   "   SHA3\n"
+#endif
+#if defined(LTC_KECCAK)
+   "   KECCAK\n"
+#endif
 #if defined(LTC_SHA512)
    "   SHA-512\n"
 #endif
@@ -172,6 +202,12 @@ const char *crypt_build_settings =
 #endif
 #if defined(LTC_WHIRLPOOL)
    "   WHIRLPOOL\n"
+#endif
+#if defined(LTC_BLAKE2S)
+   "   BLAKE2S\n"
+#endif
+#if defined(LTC_BLAKE2B)
+   "   BLAKE2B\n"
 #endif
 #if defined(LTC_CHC_HASH)
    "   CHC_HASH\n"
@@ -226,6 +262,15 @@ const char *crypt_build_settings =
 #if defined(LTC_F9_MODE)
     "   F9\n"
 #endif
+#if defined(LTC_POLY1305)
+    "   POLY1305\n"
+#endif
+#if defined(LTC_BLAKE2SMAC)
+    "   BLAKE2S MAC\n"
+#endif
+#if defined(LTC_BLAKE2BMAC)
+    "   BLAKE2B MAC\n"
+#endif
 
     "\nENC + AUTH modes:\n"
 #if defined(LTC_EAX_MODE)
@@ -250,6 +295,9 @@ const char *crypt_build_settings =
 #endif
    "\n"
 #endif
+#if defined(LTC_CHACHA20POLY1305_MODE)
+    "   CHACHA20POLY1305\n"
+#endif
 
     "\nPRNG:\n"
 #if defined(LTC_YARROW)
@@ -261,6 +309,9 @@ const char *crypt_build_settings =
 #if defined(LTC_RC4)
     "   RC4\n"
 #endif
+#if defined(LTC_CHACHA20_PRNG)
+    "   ChaCha20\n"
+#endif
 #if defined(LTC_FORTUNA)
     "   Fortuna (" NAME_VALUE(LTC_FORTUNA_POOLS) ", " NAME_VALUE(LTC_FORTUNA_WD) ")\n"
 #endif
@@ -268,7 +319,7 @@ const char *crypt_build_settings =
     "   SOBER128\n"
 #endif
 
-    "\nPK Algs:\n"
+    "\nPK Crypto:\n"
 #if defined(LTC_MRSA)
     "   RSA"
 #if defined(LTC_RSA_BLINDING) && defined(LTC_RSA_CRT_HARDENING)
@@ -295,6 +346,26 @@ const char *crypt_build_settings =
 #endif
 #if defined(LTC_MKAT)
     "   Katja\n"
+#endif
+#if defined(LTC_PK_MAX_RETRIES)
+    "   "NAME_VALUE(LTC_PK_MAX_RETRIES)"\n"
+#endif
+
+    "\nMPI (Math):\n"
+#if defined(LTC_MPI)
+    "   LTC_MPI\n"
+#endif
+#if defined(LTM_DESC)
+    "   LTM_DESC\n"
+#endif
+#if defined(TFM_DESC)
+    "   TFM_DESC\n"
+#endif
+#if defined(GMP_DESC)
+    "   GMP_DESC\n"
+#endif
+#if defined(LTC_MILLER_RABIN_REPS)
+    "   "NAME_VALUE(LTC_MILLER_RABIN_REPS)"\n"
 #endif
 
     "\nCompiler:\n"
@@ -328,6 +399,9 @@ const char *crypt_build_settings =
 #endif
 
     "\nVarious others: "
+#if defined(ARGTYPE)
+    " " NAME_VALUE(ARGTYPE) " "
+#endif
 #if defined(LTC_ADLER32)
     " ADLER32 "
 #endif
@@ -337,14 +411,17 @@ const char *crypt_build_settings =
 #if defined(LTC_BASE64_URL)
     " BASE64-URL-SAFE "
 #endif
+#if defined(LTC_BASE32)
+    " BASE32 "
+#endif
+#if defined(LTC_BASE16)
+    " BASE16 "
+#endif
 #if defined(LTC_CRC32)
     " CRC32 "
 #endif
 #if defined(LTC_DER)
     " DER "
-#endif
-#if defined(LTC_DER_MAX_PUBKEY_SIZE)
-    " " NAME_VALUE(LTC_DER_MAX_PUBKEY_SIZE) " "
 #endif
 #if defined(LTC_PKCS_1)
     " PKCS#1 "
@@ -352,11 +429,11 @@ const char *crypt_build_settings =
 #if defined(LTC_PKCS_5)
     " PKCS#5 "
 #endif
+#if defined(LTC_PADDING)
+    " PADDING "
+#endif
 #if defined(LTC_HKDF)
     " HKDF "
-#endif
-#if defined(MPI)
-    " MPI "
 #endif
 #if defined(LTC_DEVRANDOM)
     " LTC_DEVRANDOM "
@@ -370,6 +447,9 @@ const char *crypt_build_settings =
 #if defined(LTC_RNG_MAKE_PRNG)
     " LTC_RNG_MAKE_PRNG "
 #endif
+#if defined(LTC_PRNG_ENABLE_LTC_RNG)
+    " LTC_PRNG_ENABLE_LTC_RNG "
+#endif
 #if defined(LTC_HASH_HELPERS)
     " LTC_HASH_HELPERS "
 #endif
@@ -379,6 +459,9 @@ const char *crypt_build_settings =
 #if defined(LTC_TEST)
     " LTC_TEST "
 #endif
+#if defined(LTC_TEST_DBG)
+    " " NAME_VALUE(LTC_TEST_DBG) " "
+#endif
 #if defined(LTC_TEST_EXT)
     " LTC_TEST_EXT "
 #endif
@@ -387,6 +470,9 @@ const char *crypt_build_settings =
 #endif
 #if defined(LTC_NO_FILE)
     " LTC_NO_FILE "
+#endif
+#if defined(LTC_FILE_READ_BUFSIZE)
+    " " NAME_VALUE(LTC_FILE_READ_BUFSIZE) " "
 #endif
 #if defined(LTC_FAST)
     " LTC_FAST "
@@ -415,15 +501,6 @@ const char *crypt_build_settings =
 #if defined(LTC_PTHREAD)
     " LTC_PTHREAD "
 #endif
-#if defined(LTM_DESC)
-    " LTM_DESC "
-#endif
-#if defined(TFM_DESC)
-    " TFM_DESC "
-#endif
-#if defined(GMP_DESC)
-    " GMP_DESC "
-#endif
 #if defined(LTC_EASY)
     " LTC_EASY "
 #endif
@@ -440,6 +517,6 @@ const char *crypt_build_settings =
     ;
 
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

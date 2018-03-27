@@ -5,55 +5,29 @@
  *
  * The library is free for all purposes without any express
  * guarantee it works.
- *
- * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 
-/* Implements ECC over Z/pZ for curve y^2 = x^3 - 3x + b
- *
- * All curves taken from NIST recommendation paper of July 1999
- * Available at http://csrc.nist.gov/cryptval/dss.htm
- */
 #include "tomcrypt.h"
+
+#ifdef LTC_MECC
 
 /**
   @file ecc_verify_hash.c
   ECC Crypto, Tom St Denis
-*/  
-
-#ifdef LTC_MECC
-
-/* verify 
- *
- * w  = s^-1 mod n
- * u1 = xw 
- * u2 = rw
- * X = u1*G + u2*Q
- * v = X_x1 mod n
- * accept if v == r
- */
-
-/**
-  Verify a ECC signature
-  @param r        ECC "r" parameter
-  @param s        ECC "s" parameter
-  @param hash     The hash that was signed
-  @param hashlen  The length of the hash that was signed
-  @param stat     [out] The result of the signature verification, 1==valid, 0==invalid
-  @param key      The corresponding public DH key
-  @return CRYPT_OK if successful (even if the signature is invalid)
 */
-int ecc_verify_hash_raw(      void   *r, void   *s,
-                        const unsigned char *hash, unsigned long hashlen,
-                        int *stat, ecc_key *key)
+
+static int _ecc_verify_hash(const unsigned char *sig,  unsigned long siglen,
+                            const unsigned char *hash, unsigned long hashlen,
+                            int *stat, ecc_key *key, int sigformat)
 {
    ecc_point    *mG, *mQ;
-   void          *v, *w, *u1, *u2, *e, *p, *m;
-   void          *mp = NULL;
+   void          *r, *s, *v, *w, *u1, *u2, *e, *p, *m;
+   void          *mp;
    int           err;
+   unsigned long pbits, pbytes, i, shift_right;
+   unsigned char ch, buf[MAXBLOCKSIZE];
 
-   LTC_ARGCHK(r    != NULL);
-   LTC_ARGCHK(s    != NULL);
+   LTC_ARGCHK(sig  != NULL);
    LTC_ARGCHK(hash != NULL);
    LTC_ARGCHK(stat != NULL);
    LTC_ARGCHK(key  != NULL);
@@ -68,7 +42,7 @@ int ecc_verify_hash_raw(      void   *r, void   *s,
    }
 
    /* allocate ints */
-   if ((err = mp_init_multi(&v, &w, &u1, &u2, &p, &e, &m, NULL)) != CRYPT_OK) {
+   if ((err = mp_init_multi(&r, &s, &v, &w, &u1, &u2, &p, &e, &m, NULL)) != CRYPT_OK) {
       return CRYPT_MEM;
    }
 
@@ -78,6 +52,24 @@ int ecc_verify_hash_raw(      void   *r, void   *s,
    if (mQ  == NULL || mG == NULL) {
       err = CRYPT_MEM;
       goto error;
+   }
+
+   if (sigformat == 1) {
+      /* RFC7518 format */
+      if ((siglen % 2) == 1) {
+         err = CRYPT_INVALID_PACKET;
+         goto error;
+      }
+      i = siglen / 2;
+      if ((err = mp_read_unsigned_bin(r, (unsigned char *)sig,   i)) != CRYPT_OK)                       { goto error; }
+      if ((err = mp_read_unsigned_bin(s, (unsigned char *)sig+i, i)) != CRYPT_OK)                       { goto error; }
+   }
+   else {
+      /* ASN.1 format */
+      if ((err = der_decode_sequence_multi_ex(sig, siglen, LTC_DER_SEQ_SEQUENCE | LTC_DER_SEQ_STRICT,
+                                     LTC_ASN1_INTEGER, 1UL, r,
+                                     LTC_ASN1_INTEGER, 1UL, s,
+                                     LTC_ASN1_EOL, 0UL, NULL)) != CRYPT_OK)                             { goto error; }
    }
 
    /* get the order */
@@ -92,8 +84,24 @@ int ecc_verify_hash_raw(      void   *r, void   *s,
       goto error;
    }
 
-   /* read hash */
-   if ((err = mp_read_unsigned_bin(e, (unsigned char *)hash, (int)hashlen)) != CRYPT_OK)                { goto error; }
+   /* read hash - truncate if needed */
+   pbits = mp_count_bits(p);
+   pbytes = (pbits+7) >> 3;
+   if (pbits > hashlen*8) {
+      if ((err = mp_read_unsigned_bin(e, (unsigned char *)hash, hashlen)) != CRYPT_OK)                  { goto error; }
+   }
+   else if (pbits % 8 == 0) {
+      if ((err = mp_read_unsigned_bin(e, (unsigned char *)hash, pbytes)) != CRYPT_OK)                   { goto error; }
+   }
+   else {
+      shift_right = 8 - pbits % 8;
+      for (i=0, ch=0; i<pbytes; i++) {
+        buf[i] = ch;
+        ch = (hash[i] << (8-shift_right));
+        buf[i] = buf[i] ^ (hash[i] >> shift_right);
+      }
+      if ((err = mp_read_unsigned_bin(e, (unsigned char *)buf, pbytes)) != CRYPT_OK)                    { goto error; }
+   }
 
    /*  w  = s^-1 mod n */
    if ((err = mp_invmod(s, p, w)) != CRYPT_OK)                                                          { goto error; }
@@ -117,13 +125,13 @@ int ecc_verify_hash_raw(      void   *r, void   *s,
    if (ltc_mp.ecc_mul2add == NULL) {
       if ((err = ltc_mp.ecc_ptmul(u1, mG, mG, m, 0)) != CRYPT_OK)                                       { goto error; }
       if ((err = ltc_mp.ecc_ptmul(u2, mQ, mQ, m, 0)) != CRYPT_OK)                                       { goto error; }
-  
+
       /* find the montgomery mp */
       if ((err = mp_montgomery_setup(m, &mp)) != CRYPT_OK)                                              { goto error; }
 
       /* add them */
       if ((err = ltc_mp.ecc_ptadd(mQ, mG, mG, m, mp)) != CRYPT_OK)                                      { goto error; }
-   
+
       /* reduce */
       if ((err = ltc_mp.ecc_map(mG, m, mp)) != CRYPT_OK)                                                { goto error; }
    } else {
@@ -144,8 +152,8 @@ int ecc_verify_hash_raw(      void   *r, void   *s,
 error:
    ltc_ecc_del_point(mG);
    ltc_ecc_del_point(mQ);
-   mp_clear_multi(v, w, u1, u2, p, e, m, NULL);
-   if (mp != NULL) { 
+   mp_clear_multi(r, s, v, w, u1, u2, p, e, m, NULL);
+   if (mp != NULL) {
       mp_montgomery_free(mp);
    }
    return err;
@@ -161,42 +169,32 @@ error:
    @param key         The corresponding public ECC key
    @return CRYPT_OK if successful (even if the signature is not valid)
 */
-
 int ecc_verify_hash(const unsigned char *sig,  unsigned long siglen,
                     const unsigned char *hash, unsigned long hashlen,
                     int *stat, ecc_key *key)
 {
-   void          *r, *s;
-   int           err;
+   return _ecc_verify_hash(sig, siglen, hash, hashlen, stat, key, 0);
+}
 
-   LTC_ARGCHK(sig  != NULL);
-   LTC_ARGCHK(hash != NULL);
-   LTC_ARGCHK(stat != NULL);
-   LTC_ARGCHK(key  != NULL);
-
-   /* allocate ints */
-   if ((err = mp_init_multi(&r, &s, NULL)) != CRYPT_OK) {
-      return CRYPT_MEM;
-   }
-
-   /* parse header */
-   if ((err = der_decode_sequence_multi(sig, siglen,
-                                  LTC_ASN1_INTEGER, 1UL, r,
-                                  LTC_ASN1_INTEGER, 1UL, s,
-                                  LTC_ASN1_EOL, 0UL, NULL)) != CRYPT_OK) {
-      goto error;
-   }
-
-   /* do the op */
-   err = ecc_verify_hash_raw(r, s, hash, hashlen, stat, key);
-
-error:
-   mp_clear_multi(r, s, NULL);
-   return err;
+/**
+   Verify an ECC signature in RFC7518 format
+   @param sig         The signature to verify
+   @param siglen      The length of the signature (octets)
+   @param hash        The hash (message digest) that was signed
+   @param hashlen     The length of the hash (octets)
+   @param stat        Result of signature, 1==valid, 0==invalid
+   @param key         The corresponding public ECC key
+   @return CRYPT_OK if successful (even if the signature is not valid)
+*/
+int ecc_verify_hash_rfc7518(const unsigned char *sig,  unsigned long siglen,
+                            const unsigned char *hash, unsigned long hashlen,
+                            int *stat, ecc_key *key)
+{
+   return _ecc_verify_hash(sig, siglen, hash, hashlen, stat, key, 1);
 }
 
 #endif
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
 
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

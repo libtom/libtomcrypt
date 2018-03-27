@@ -5,8 +5,6 @@
  *
  * The library is free for all purposes without any express
  * guarantee it works.
- *
- * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 #include "tomcrypt.h"
 
@@ -53,10 +51,6 @@ int ccm_memory(int cipher,
    symmetric_key *skey;
    int            err;
    unsigned long  len, L, x, y, z, CTRlen;
-#ifdef LTC_FAST
-   LTC_FAST_TYPE fastMask = -1; /* initialize fastMask at all zeroes */
-#endif
-   unsigned char mask = 0xff; /* initialize mask at all zeroes */
 
    if (uskey == NULL) {
       LTC_ARGCHK(key    != NULL);
@@ -144,7 +138,7 @@ int ccm_memory(int cipher,
    }
 
    /* initialize buffer for pt */
-   if (direction == CCM_DECRYPT) {
+   if (direction == CCM_DECRYPT && ptlen > 0) {
       pt_work = XMALLOC(ptlen);
       if (pt_work == NULL) {
          goto error;
@@ -256,8 +250,8 @@ int ccm_memory(int cipher,
 
                 /* xor the PT against the pad first */
                 for (z = 0; z < 16; z += sizeof(LTC_FAST_TYPE)) {
-                    *((LTC_FAST_TYPE*)(&PAD[z]))  ^= *((LTC_FAST_TYPE*)(&pt[y+z]));
-                    *((LTC_FAST_TYPE*)(&ct[y+z])) = *((LTC_FAST_TYPE*)(&pt[y+z])) ^ *((LTC_FAST_TYPE*)(&CTRPAD[z]));
+                    *(LTC_FAST_TYPE_PTR_CAST(&PAD[z]))  ^= *(LTC_FAST_TYPE_PTR_CAST(&pt[y+z]));
+                    *(LTC_FAST_TYPE_PTR_CAST(&ct[y+z])) = *(LTC_FAST_TYPE_PTR_CAST(&pt[y+z])) ^ *(LTC_FAST_TYPE_PTR_CAST(&CTRPAD[z]));
                 }
                 if ((err = cipher_descriptor[cipher].ecb_encrypt(PAD, PAD, skey)) != CRYPT_OK) {
                    goto error;
@@ -276,15 +270,15 @@ int ccm_memory(int cipher,
 
                 /* xor the PT against the pad last */
                 for (z = 0; z < 16; z += sizeof(LTC_FAST_TYPE)) {
-                    *((LTC_FAST_TYPE*)(&pt[y+z])) = *((LTC_FAST_TYPE*)(&ct[y+z])) ^ *((LTC_FAST_TYPE*)(&CTRPAD[z]));
-                    *((LTC_FAST_TYPE*)(&PAD[z]))  ^= *((LTC_FAST_TYPE*)(&pt[y+z]));
+                    *(LTC_FAST_TYPE_PTR_CAST(&pt[y+z])) = *(LTC_FAST_TYPE_PTR_CAST(&ct[y+z])) ^ *(LTC_FAST_TYPE_PTR_CAST(&CTRPAD[z]));
+                    *(LTC_FAST_TYPE_PTR_CAST(&PAD[z]))  ^= *(LTC_FAST_TYPE_PTR_CAST(&pt[y+z]));
                 }
                 if ((err = cipher_descriptor[cipher].ecb_encrypt(PAD, PAD, skey)) != CRYPT_OK) {
                    goto error;
                 }
              }
-         }
-     }
+          }
+      }
 #endif
 
       for (; y < ptlen; y++) {
@@ -335,6 +329,9 @@ int ccm_memory(int cipher,
 
    if (skey != uskey) {
       cipher_descriptor[cipher].done(skey);
+#ifdef LTC_CLEAN_STACK
+      zeromem(skey,   sizeof(*skey));
+#endif
    }
 
    if (direction == CCM_ENCRYPT) {
@@ -359,28 +356,11 @@ int ccm_memory(int cipher,
 
       /* Zero the plaintext if the tag was invalid (in constant time) */
       if (ptlen > 0) {
-         y = 0;
-         mask *= 1 - err; /* mask = ( err ? 0 : 0xff ) */
-#ifdef LTC_FAST
-         fastMask *= 1 - err;
-         if (ptlen & ~15) {
-            for (; y < (ptlen & ~15); y += 16) {
-              for (z = 0; z < 16; z += sizeof(LTC_FAST_TYPE)) {
-                *((LTC_FAST_TYPE*)(&pt_real[y+z])) = *((LTC_FAST_TYPE*)(&pt[y+z])) & fastMask;
-              }
-            }
-         }
-#endif
-         for (; y < ptlen; y++) {
-            pt_real[y] = pt[y] & mask;
-         }
+         copy_or_zeromem(pt, pt_real, ptlen, err);
       }
    }
 
 #ifdef LTC_CLEAN_STACK
-   fastMask = 0;
-   mask = 0;
-   zeromem(skey,   sizeof(*skey));
    zeromem(PAD,    sizeof(PAD));
    zeromem(CTRPAD, sizeof(CTRPAD));
    if (pt_work != NULL) {
@@ -400,6 +380,6 @@ error:
 
 #endif
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

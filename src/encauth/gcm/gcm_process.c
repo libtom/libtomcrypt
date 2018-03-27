@@ -5,8 +5,6 @@
  *
  * The library is free for all purposes without any express
  * guarantee it works.
- *
- * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 
 /**
@@ -54,6 +52,11 @@ int gcm_process(gcm_state *gcm,
       return CRYPT_INVALID_ARG;
    }
 
+   if (gcm->mode == LTC_GCM_MODE_IV) {
+      /* let's process the IV */
+      if ((err = gcm_add_aad(gcm, NULL, 0)) != CRYPT_OK) return err;
+   }
+
    /* in AAD mode? */
    if (gcm->mode == LTC_GCM_MODE_AAD) {
       /* let's process the AAD */
@@ -86,8 +89,8 @@ int gcm_process(gcm_state *gcm,
          for (x = 0; x < (ptlen & ~15); x += 16) {
              /* ctr encrypt */
              for (y = 0; y < 16; y += sizeof(LTC_FAST_TYPE)) {
-                 *((LTC_FAST_TYPE*)(&ct[x + y])) = *((LTC_FAST_TYPE*)(&pt[x+y])) ^ *((LTC_FAST_TYPE*)(&gcm->buf[y]));
-                 *((LTC_FAST_TYPE*)(&gcm->X[y])) ^= *((LTC_FAST_TYPE*)(&ct[x+y]));
+                 *(LTC_FAST_TYPE_PTR_CAST(&ct[x + y])) = *(LTC_FAST_TYPE_PTR_CAST(&pt[x+y])) ^ *(LTC_FAST_TYPE_PTR_CAST(&gcm->buf[y]));
+                 *(LTC_FAST_TYPE_PTR_CAST(&gcm->X[y])) ^= *(LTC_FAST_TYPE_PTR_CAST(&ct[x+y]));
              }
              /* GMAC it */
              gcm->pttotlen += 128;
@@ -104,8 +107,8 @@ int gcm_process(gcm_state *gcm,
          for (x = 0; x < (ptlen & ~15); x += 16) {
              /* ctr encrypt */
              for (y = 0; y < 16; y += sizeof(LTC_FAST_TYPE)) {
-                 *((LTC_FAST_TYPE*)(&gcm->X[y])) ^= *((LTC_FAST_TYPE*)(&ct[x+y]));
-                 *((LTC_FAST_TYPE*)(&pt[x + y])) = *((LTC_FAST_TYPE*)(&ct[x+y])) ^ *((LTC_FAST_TYPE*)(&gcm->buf[y]));
+                 *(LTC_FAST_TYPE_PTR_CAST(&gcm->X[y])) ^= *(LTC_FAST_TYPE_PTR_CAST(&ct[x+y]));
+                 *(LTC_FAST_TYPE_PTR_CAST(&pt[x + y])) = *(LTC_FAST_TYPE_PTR_CAST(&ct[x+y])) ^ *(LTC_FAST_TYPE_PTR_CAST(&gcm->buf[y]));
              }
              /* GMAC it */
              gcm->pttotlen += 128;
@@ -118,7 +121,7 @@ int gcm_process(gcm_state *gcm,
                 return err;
              }
          }
-     }
+      }
    }
 #endif
 
@@ -152,6 +155,6 @@ int gcm_process(gcm_state *gcm,
 
 #endif
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

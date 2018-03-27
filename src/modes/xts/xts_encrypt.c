@@ -5,8 +5,6 @@
  *
  * The library is free for all purposes without any express
  * guarantee it works.
- *
- * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 #include "tomcrypt.h"
 
@@ -16,7 +14,7 @@
 
 #ifdef LTC_XTS_MODE
 
-static int tweak_crypt(const unsigned char *P, unsigned char *C, unsigned char *T, symmetric_xts *xts)
+static int _tweak_crypt(const unsigned char *P, unsigned char *C, unsigned char *T, symmetric_xts *xts)
 {
    unsigned long x;
    int err;
@@ -24,7 +22,7 @@ static int tweak_crypt(const unsigned char *P, unsigned char *C, unsigned char *
    /* tweak encrypt block i */
 #ifdef LTC_FAST
    for (x = 0; x < 16; x += sizeof(LTC_FAST_TYPE)) {
-      *((LTC_FAST_TYPE *)&C[x]) = *((LTC_FAST_TYPE *)&P[x]) ^ *((LTC_FAST_TYPE *)&T[x]);
+      *(LTC_FAST_TYPE_PTR_CAST(&C[x])) = *(LTC_FAST_TYPE_PTR_CAST(&P[x])) ^ *(LTC_FAST_TYPE_PTR_CAST(&T[x]));
    }
 #else
    for (x = 0; x < 16; x++) {
@@ -38,7 +36,7 @@ static int tweak_crypt(const unsigned char *P, unsigned char *C, unsigned char *
 
 #ifdef LTC_FAST
    for (x = 0; x < 16; x += sizeof(LTC_FAST_TYPE)) {
-      *((LTC_FAST_TYPE *)&C[x]) ^= *((LTC_FAST_TYPE *)&T[x]);
+      *(LTC_FAST_TYPE_PTR_CAST(&C[x])) ^= *(LTC_FAST_TYPE_PTR_CAST(&T[x]));
    }
 #else
    for (x = 0; x < 16; x++) {
@@ -96,8 +94,8 @@ int xts_encrypt(const unsigned char *pt, unsigned long ptlen, unsigned char *ct,
    if (cipher_descriptor[xts->cipher].accel_xts_encrypt && lim > 0) {
 
       /* use accelerated encryption for whole blocks */
-      if ((err = cipher_descriptor[xts->cipher].accel_xts_encrypt(pt, ct, lim, tweak, &xts->key1, &xts->key2) !=
-                 CRYPT_OK)) {
+      if ((err = cipher_descriptor[xts->cipher].accel_xts_encrypt(pt, ct, lim, tweak, &xts->key1, &xts->key2)) !=
+                 CRYPT_OK) {
          return err;
       }
       ct += lim * 16;
@@ -113,7 +111,7 @@ int xts_encrypt(const unsigned char *pt, unsigned long ptlen, unsigned char *ct,
       }
 
       for (i = 0; i < lim; i++) {
-         if ((err = tweak_crypt(pt, ct, T, xts)) != CRYPT_OK) {
+         if ((err = _tweak_crypt(pt, ct, T, xts)) != CRYPT_OK) {
             return err;
          }
          ct += 16;
@@ -124,7 +122,7 @@ int xts_encrypt(const unsigned char *pt, unsigned long ptlen, unsigned char *ct,
    /* if ptlen not divide 16 then */
    if (mo > 0) {
       /* CC = tweak encrypt block m-1 */
-      if ((err = tweak_crypt(pt, CC, T, xts)) != CRYPT_OK) {
+      if ((err = _tweak_crypt(pt, CC, T, xts)) != CRYPT_OK) {
          return err;
       }
 
@@ -139,7 +137,7 @@ int xts_encrypt(const unsigned char *pt, unsigned long ptlen, unsigned char *ct,
       }
 
       /* Cm-1 = Tweak encrypt PP */
-      if ((err = tweak_crypt(PP, ct, T, xts)) != CRYPT_OK) {
+      if ((err = _tweak_crypt(PP, ct, T, xts)) != CRYPT_OK) {
          return err;
       }
    }
@@ -154,6 +152,6 @@ int xts_encrypt(const unsigned char *pt, unsigned long ptlen, unsigned char *ct,
 
 #endif
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

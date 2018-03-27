@@ -1,3 +1,12 @@
+/* LibTomCrypt, modular cryptographic library -- Tom St Denis
+ *
+ * LibTomCrypt is a library that provides various cryptographic
+ * algorithms in a highly modular and flexible manner.
+ *
+ * The library is free for all purposes without any express
+ * guarantee it works.
+ */
+
 /** math functions **/
 
 #define LTC_MP_LT   -1
@@ -15,10 +24,19 @@
    typedef void rsa_key;
 #endif
 
+#ifndef LTC_MILLER_RABIN_REPS
+   /* Number of rounds of the Miller-Rabin test
+    * "Reasonable values of reps are between 15 and 50." c.f. gmp doc of mpz_probab_prime_p()
+    * As of https://security.stackexchange.com/a/4546 we should use 40 rounds */
+   #define LTC_MILLER_RABIN_REPS    40
+#endif
+
+int radix_to_bin(const void *in, int radix, void *out, unsigned long *len);
+
 /** math descriptor */
 typedef struct {
    /** Name of the math provider */
-   char *name;
+   const char *name;
 
    /** Bits per digit, amount of bits must fit in an unsigned long */
    int  bits_per_digit;
@@ -65,13 +83,14 @@ typedef struct {
    /** set small constant
       @param a    Number to write to
       @param n    Source upto bits_per_digit (actually meant for very small constants)
-      @return CRYPT_OK on succcess
+      @return CRYPT_OK on success
    */
-   int (*set_int)(void *a, unsigned long n);
+   int (*set_int)(void *a, ltc_mp_digit n);
 
    /** get small constant
-      @param a    Number to read, only fetches upto bits_per_digit from the number
-      @return  The lower bits_per_digit of the integer (unsigned)
+      @param a  Small number to read,
+                only fetches up to bits_per_digit from the number
+      @return   The lower bits_per_digit of the integer (unsigned)
    */
    unsigned long (*get_int)(void *a);
 
@@ -91,16 +110,20 @@ typedef struct {
    /** compare two integers
      @param a   The left side integer
      @param b   The right side integer
-     @return LTC_MP_LT if a < b, LTC_MP_GT if a > b and LTC_MP_EQ otherwise.  (signed comparison)
+     @return LTC_MP_LT if a < b,
+             LTC_MP_GT if a > b and
+             LTC_MP_EQ otherwise.  (signed comparison)
    */
    int (*compare)(void *a, void *b);
 
    /** compare against int
      @param a   The left side integer
      @param b   The right side integer (upto bits_per_digit)
-     @return LTC_MP_LT if a < b, LTC_MP_GT if a > b and LTC_MP_EQ otherwise.  (signed comparison)
+     @return LTC_MP_LT if a < b,
+             LTC_MP_GT if a > b and
+             LTC_MP_EQ otherwise.  (signed comparison)
    */
-   int (*compare_d)(void *a, unsigned long n);
+   int (*compare_d)(void *a, ltc_mp_digit n);
 
    /** Count the number of bits used to represent the integer
      @param a   The integer to count
@@ -140,8 +163,8 @@ typedef struct {
    int (*write_radix)(void *a, char *str, int radix);
 
    /** get size as unsigned char string
-     @param a     The integer to get the size (when stored in array of octets)
-     @return The length of the integer
+     @param a  The integer to get the size (when stored in array of octets)
+     @return   The length of the integer in octets
    */
    unsigned long (*unsigned_size)(void *a);
 
@@ -158,7 +181,9 @@ typedef struct {
      @param len   The number of octets
      @return CRYPT_OK on success
    */
-   int (*unsigned_read)(void *dst, unsigned char *src, unsigned long len);
+   int (*unsigned_read)(         void *dst,
+                        unsigned char *src,
+                        unsigned long  len);
 
 /* ---- basic math ---- */
 
@@ -170,14 +195,14 @@ typedef struct {
    */
    int (*add)(void *a, void *b, void *c);
 
-
    /** add two integers
      @param a   The first source integer
-     @param b   The second source integer (single digit of upto bits_per_digit in length)
+     @param b   The second source integer
+                (single digit of upto bits_per_digit in length)
      @param c   The destination of "a + b"
      @return CRYPT_OK on success
    */
-   int (*addi)(void *a, unsigned long b, void *c);
+   int (*addi)(void *a, ltc_mp_digit b, void *c);
 
    /** subtract two integers
      @param a   The first source integer
@@ -189,15 +214,17 @@ typedef struct {
 
    /** subtract two integers
      @param a   The first source integer
-     @param b   The second source integer (single digit of upto bits_per_digit in length)
+     @param b   The second source integer
+                (single digit of upto bits_per_digit in length)
      @param c   The destination of "a - b"
      @return CRYPT_OK on success
    */
-   int (*subi)(void *a, unsigned long b, void *c);
+   int (*subi)(void *a, ltc_mp_digit b, void *c);
 
    /** multiply two integers
      @param a   The first source integer
-     @param b   The second source integer (single digit of upto bits_per_digit in length)
+     @param b   The second source integer
+                (single digit of upto bits_per_digit in length)
      @param c   The destination of "a * b"
      @return CRYPT_OK on success
    */
@@ -205,11 +232,12 @@ typedef struct {
 
    /** multiply two integers
      @param a   The first source integer
-     @param b   The second source integer (single digit of upto bits_per_digit in length)
+     @param b   The second source integer
+                (single digit of upto bits_per_digit in length)
      @param c   The destination of "a * b"
      @return CRYPT_OK on success
    */
-   int (*muli)(void *a, unsigned long b, void *c);
+   int (*muli)(void *a, ltc_mp_digit b, void *c);
 
    /** Square an integer
      @param a    The integer to square
@@ -240,7 +268,7 @@ typedef struct {
       @param  c    The destination for the residue
       @return CRYPT_OK on success
    */
-   int (*modi)(void *a, unsigned long b, unsigned long *c);
+   int (*modi)(void *a, ltc_mp_digit b, ltc_mp_digit *c);
 
    /** gcd
       @param  a     The first integer
@@ -285,7 +313,7 @@ typedef struct {
 
 /* ---- reduction ---- */
 
-   /** setup montgomery
+   /** setup Montgomery
        @param a  The modulus
        @param b  The destination for the reduction digit
        @return CRYPT_OK on success
@@ -326,7 +354,7 @@ typedef struct {
 
    /** Primality testing
        @param a     The integer to test
-       @param b     The number of tests that shall be executed
+       @param b     The number of Miller-Rabin tests that shall be executed
        @param c     The destination of the result (FP_YES if prime)
        @return CRYPT_OK on success
    */
@@ -339,10 +367,15 @@ typedef struct {
        @param G   The point to multiply
        @param R   The destination for kG
        @param modulus  The modulus for the field
-       @param map Boolean indicated whether to map back to affine or not (can be ignored if you work in affine only)
+       @param map Boolean indicated whether to map back to affine or not
+                  (can be ignored if you work in affine only)
        @return CRYPT_OK on success
    */
-   int (*ecc_ptmul)(void *k, ecc_point *G, ecc_point *R, void *modulus, int map);
+   int (*ecc_ptmul)(     void *k,
+                    ecc_point *G,
+                    ecc_point *R,
+                         void *modulus,
+                          int  map);
 
    /** ECC GF(p) point addition
        @param P    The first point
@@ -352,7 +385,11 @@ typedef struct {
        @param mp   The "b" value from montgomery_setup()
        @return CRYPT_OK on success
    */
-   int (*ecc_ptadd)(ecc_point *P, ecc_point *Q, ecc_point *R, void *modulus, void *mp);
+   int (*ecc_ptadd)(ecc_point *P,
+                    ecc_point *Q,
+                    ecc_point *R,
+                         void *modulus,
+                         void *mp);
 
    /** ECC GF(p) point double
        @param P    The first point
@@ -361,15 +398,20 @@ typedef struct {
        @param mp   The "b" value from montgomery_setup()
        @return CRYPT_OK on success
    */
-   int (*ecc_ptdbl)(ecc_point *P, ecc_point *R, void *modulus, void *mp);
+   int (*ecc_ptdbl)(ecc_point *P,
+                    ecc_point *R,
+                         void *modulus,
+                         void *mp);
 
-   /** ECC mapping from projective to affine, currently uses (x,y,z) => (x/z^2, y/z^3, 1)
+   /** ECC mapping from projective to affine,
+       currently uses (x,y,z) => (x/z^2, y/z^3, 1)
        @param P     The point to map
        @param modulus The modulus
        @param mp    The "b" value from montgomery_setup()
        @return CRYPT_OK on success
-       @remark  The mapping can be different but keep in mind a ecc_point only has three
-                integers (x,y,z) so if you use a different mapping you have to make it fit.
+       @remark The mapping can be different but keep in mind a
+               ecc_point only has three integers (x,y,z) so if
+               you use a different mapping you have to make it fit.
    */
    int (*ecc_map)(ecc_point *P, void *modulus, void *mp);
 
@@ -378,7 +420,7 @@ typedef struct {
        @param kA       What to multiple A by
        @param B        Second point to multiply
        @param kB       What to multiple B by
-       @param C        [out] Destination point (can overlap with A or B
+       @param C        [out] Destination point (can overlap with A or B)
        @param modulus  Modulus for curve
        @return CRYPT_OK on success
    */
@@ -392,19 +434,24 @@ typedef struct {
    /** RSA Key Generation
        @param prng     An active PRNG state
        @param wprng    The index of the PRNG desired
-       @param size     The size of the modulus (key size) desired (octets)
-       @param e        The "e" value (public key).  e==65537 is a good choice
+       @param size     The size of the key in octets
+       @param e        The "e" value (public key).
+                       e==65537 is a good choice
        @param key      [out] Destination of a newly created private key pair
        @return CRYPT_OK if successful, upon error all allocated ram is freed
     */
-    int (*rsa_keygen)(prng_state *prng, int wprng, int size, long e, rsa_key *key);
-
+    int (*rsa_keygen)(prng_state *prng,
+                             int  wprng,
+                             int  size,
+                            long  e,
+                         rsa_key *key);
 
    /** RSA exponentiation
       @param in       The octet array representing the base
       @param inlen    The length of the input
       @param out      The destination (to be stored in an octet array format)
-      @param outlen   The length of the output buffer and the resulting size (zero padded to the size of the modulus)
+      @param outlen   The length of the output buffer and the resulting size
+                      (zero padded to the size of the modulus)
       @param which    PK_PUBLIC for public RSA and PK_PRIVATE for private RSA
       @param key      The RSA key to use
       @return CRYPT_OK on success
@@ -434,19 +481,20 @@ typedef struct {
    int (*submod)(void *a, void *b, void *c, void *d);
 
 /* ---- misc stuff ---- */
+
    /** Make a pseudo-random mpi
       @param  a     The mpi to make random
       @param  size  The desired length
       @return CRYPT_OK on success
    */
    int (*rand)(void *a, int size);
-
 } ltc_math_descriptor;
 
 extern ltc_math_descriptor ltc_mp;
 
 int ltc_init_multi(void **a, ...);
 void ltc_deinit_multi(void *a, ...);
+void ltc_cleanup_multi(void **a, ...);
 
 #ifdef LTM_DESC
 extern const ltc_math_descriptor ltm_desc;
@@ -469,6 +517,7 @@ extern const ltc_math_descriptor gmp_desc;
 #define mp_init_multi                ltc_init_multi
 #define mp_clear(a)                  ltc_mp.deinit(a)
 #define mp_clear_multi               ltc_deinit_multi
+#define mp_cleanup_multi             ltc_cleanup_multi
 #define mp_init_copy(a, b)           ltc_mp.init_copy(a, b)
 
 #define mp_neg(a, b)                 ltc_mp.neg(a, b)
@@ -529,6 +578,6 @@ extern const ltc_math_descriptor gmp_desc;
 
 #endif
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

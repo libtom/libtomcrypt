@@ -1,3 +1,12 @@
+/* LibTomCrypt, modular cryptographic library -- Tom St Denis
+ *
+ * LibTomCrypt is a library that provides various cryptographic
+ * algorithms in a highly modular and flexible manner.
+ *
+ * The library is free for all purposes without any express
+ * guarantee it works.
+ */
+
 /* ---- SYMMETRIC KEY STUFF -----
  *
  * We put each of the ciphers scheduled keys in their own structs then we put all of
@@ -145,6 +154,23 @@ struct camellia_key {
 };
 #endif
 
+#ifdef LTC_IDEA
+/* rounds */
+#define LTC_IDEA_ROUNDS 8
+/* key schedule length in # of unsigned shorts */
+#define LTC_IDEA_KEYLEN 6*LTC_IDEA_ROUNDS+4
+struct idea_key {
+   unsigned short int ek[LTC_IDEA_KEYLEN]; /* enc key */
+   unsigned short int dk[LTC_IDEA_KEYLEN]; /* dec key */
+};
+#endif
+
+#ifdef LTC_SERPENT
+struct serpent_key {
+   ulong32 k[33*4];
+};
+#endif
+
 typedef union Symmetric_key {
 #ifdef LTC_DES
    struct des_key des;
@@ -203,6 +229,12 @@ typedef union Symmetric_key {
 #endif
 #ifdef LTC_CAMELLIA
    struct camellia_key camellia;
+#endif
+#ifdef LTC_IDEA
+   struct idea_key     idea;
+#endif
+#ifdef LTC_SERPENT
+   struct serpent_key  serpent;
 #endif
    void   *data;
 } symmetric_key;
@@ -340,7 +372,7 @@ typedef struct {
 /** cipher descriptor table, last entry has "name == NULL" to mark the end of table */
 extern struct ltc_cipher_descriptor {
    /** name of cipher */
-   char *name;
+   const char *name;
    /** internal ID */
    unsigned char ID;
    /** min keysize (octets) */
@@ -490,8 +522,8 @@ extern struct ltc_cipher_descriptor {
    /** Accelerated GCM packet (one shot)
        @param key        The secret key
        @param keylen     The length of the secret key
-       @param IV         The initial vector
-       @param IVlen      The length of the initial vector
+       @param IV         The initialization vector
+       @param IVlen      The length of the initialization vector
        @param adata      The additional authentication data (header)
        @param adatalen   The length of the adata
        @param pt         The plaintext
@@ -617,6 +649,7 @@ extern const struct ltc_cipher_descriptor rc6_desc;
 
 #ifdef LTC_RC2
 int rc2_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_key *skey);
+int rc2_setup_ex(const unsigned char *key, int keylen, int bits, int num_rounds, symmetric_key *skey);
 int rc2_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey);
 int rc2_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey);
 int rc2_test(void);
@@ -806,6 +839,26 @@ int camellia_keysize(int *keysize);
 extern const struct ltc_cipher_descriptor camellia_desc;
 #endif
 
+#ifdef LTC_IDEA
+int idea_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_key *skey);
+int idea_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey);
+int idea_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey);
+int idea_test(void);
+void idea_done(symmetric_key *skey);
+int idea_keysize(int *keysize);
+extern const struct ltc_cipher_descriptor idea_desc;
+#endif
+
+#ifdef LTC_SERPENT
+int serpent_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_key *skey);
+int serpent_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey);
+int serpent_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey);
+int serpent_test(void);
+void serpent_done(symmetric_key *skey);
+int serpent_keysize(int *keysize);
+extern const struct ltc_cipher_descriptor serpent_desc;
+#endif
+
 #ifdef LTC_ECB_MODE
 int ecb_start(int cipher, const unsigned char *key,
               int keylen, int num_rounds, symmetric_ECB *ecb);
@@ -865,8 +918,8 @@ int ctr_test(void);
 
 #ifdef LTC_LRW_MODE
 
-#define LRW_ENCRYPT 0
-#define LRW_DECRYPT 1
+#define LRW_ENCRYPT LTC_ENCRYPT
+#define LRW_DECRYPT LTC_DECRYPT
 
 int lrw_start(               int   cipher,
               const unsigned char *IV,
@@ -932,10 +985,134 @@ int find_cipher_any(const char *name, int blocklen, int keylen);
 int find_cipher_id(unsigned char ID);
 int register_cipher(const struct ltc_cipher_descriptor *cipher);
 int unregister_cipher(const struct ltc_cipher_descriptor *cipher);
+int register_all_ciphers(void);
 int cipher_is_valid(int idx);
 
 LTC_MUTEX_PROTO(ltc_cipher_mutex)
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ---- stream ciphers ---- */
+
+#ifdef LTC_CHACHA
+
+typedef struct {
+   ulong32 input[16];
+   unsigned char kstream[64];
+   unsigned long ksleft;
+   unsigned long ivlen;
+   int rounds;
+} chacha_state;
+
+int chacha_setup(chacha_state *st, const unsigned char *key, unsigned long keylen, int rounds);
+int chacha_ivctr32(chacha_state *st, const unsigned char *iv, unsigned long ivlen, ulong32 counter);
+int chacha_ivctr64(chacha_state *st, const unsigned char *iv, unsigned long ivlen, ulong64 counter);
+int chacha_crypt(chacha_state *st, const unsigned char *in, unsigned long inlen, unsigned char *out);
+int chacha_keystream(chacha_state *st, unsigned char *out, unsigned long outlen);
+int chacha_done(chacha_state *st);
+int chacha_test(void);
+
+#endif /* LTC_CHACHA */
+
+#ifdef LTC_SALSA20
+
+typedef struct {
+   ulong32 input[16];
+   unsigned char kstream[64];
+   unsigned long ksleft;
+   unsigned long ivlen;
+   int rounds;
+} salsa20_state;
+
+int salsa20_setup(salsa20_state *st, const unsigned char *key, unsigned long keylen, int rounds);
+int salsa20_ivctr64(salsa20_state *st, const unsigned char *iv, unsigned long ivlen, ulong64 counter);
+int salsa20_crypt(salsa20_state *st, const unsigned char *in, unsigned long inlen, unsigned char *out);
+int salsa20_keystream(salsa20_state *st, unsigned char *out, unsigned long outlen);
+int salsa20_done(salsa20_state *st);
+int salsa20_test(void);
+
+#endif /* LTC_SALSA20 */
+
+#ifdef LTC_SOSEMANUK
+
+typedef struct {
+    ulong32 kc[100];    /* key_context */
+    ulong32 s00, s01, s02, s03, s04, s05, s06, s07, s08, s09;
+    ulong32 r1, r2;
+    /*
+     * Buffering: the stream cipher produces output data by
+     * blocks of 640 bits. buf[] contains such a block, and
+     * "ptr" is the index of the next output byte.
+     */
+    unsigned char buf[80];
+    unsigned ptr;
+} sosemanuk_state;
+
+int sosemanuk_setup(sosemanuk_state *ss, unsigned char *key, unsigned long keylen);
+int sosemanuk_setiv(sosemanuk_state *ss, unsigned char *iv, unsigned long ivlen);
+int sosemanuk_crypt(sosemanuk_state *ss, const unsigned char *in, unsigned long datalen, unsigned char *out);
+int sosemanuk_keystream(sosemanuk_state *ss, unsigned char *out, unsigned long outlen);
+int sosemanuk_done(sosemanuk_state *ss);
+int sosemanuk_test(void);
+
+#endif /* LTC_SOSEMANUK */
+
+#ifdef LTC_RABBIT
+
+typedef struct {
+   ulong32 x[8];
+   ulong32 c[8];
+   ulong32 carry;
+} rabbit_ctx;
+
+typedef struct {
+   rabbit_ctx master_ctx;
+   rabbit_ctx work_ctx;
+   unsigned char block[16];     /* last keystream block containing unused bytes */
+   ulong32       unused;        /* count fm right */
+} rabbit_state;
+
+int rabbit_setup(rabbit_state* st, const unsigned char *key, unsigned long keylen);
+int rabbit_setiv(rabbit_state* st, const unsigned char *iv, unsigned long ivlen);
+int rabbit_crypt(rabbit_state* st, const unsigned char *in, unsigned long inlen, unsigned char *out);
+int rabbit_keystream(rabbit_state* st, unsigned char *out, unsigned long outlen);
+int rabbit_done(rabbit_state *st);
+int rabbit_test(void);
+
+#endif /* LTC_RABBIT */
+
+#ifdef LTC_RC4_STREAM
+
+typedef struct {
+   unsigned int x, y;
+   unsigned char buf[256];
+} rc4_state;
+
+int rc4_stream_setup(rc4_state *st, const unsigned char *key, unsigned long keylen);
+int rc4_stream_crypt(rc4_state *st, const unsigned char *in, unsigned long inlen, unsigned char *out);
+int rc4_stream_keystream(rc4_state *st, unsigned char *out, unsigned long outlen);
+int rc4_stream_done(rc4_state *st);
+int rc4_stream_test(void);
+
+#endif /* LTC_RC4_STREAM */
+
+#ifdef LTC_SOBER128_STREAM
+
+typedef struct {
+   ulong32 R[17],       /* Working storage for the shift register */
+           initR[17],   /* saved register contents */
+           konst,       /* key dependent constant */
+           sbuf;        /* partial word encryption buffer */
+   int     nbuf;        /* number of part-word stream bits buffered */
+} sober128_state;
+
+int sober128_stream_setup(sober128_state *st, const unsigned char *key, unsigned long keylen);
+int sober128_stream_setiv(sober128_state *st, const unsigned char *iv, unsigned long ivlen);
+int sober128_stream_crypt(sober128_state *st, const unsigned char *in, unsigned long inlen, unsigned char *out);
+int sober128_stream_keystream(sober128_state *st, unsigned char *out, unsigned long outlen);
+int sober128_stream_done(sober128_state *st);
+int sober128_stream_test(void);
+
+#endif /* LTC_SOBER128_STREAM */
+
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

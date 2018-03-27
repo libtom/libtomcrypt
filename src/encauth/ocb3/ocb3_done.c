@@ -5,8 +5,6 @@
  *
  * The library is free for all purposes without any express
  * guarantee it works.
- *
- * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 
 /**
@@ -34,6 +32,12 @@ int ocb3_done(ocb3_state *ocb, unsigned char *tag, unsigned long *taglen)
    LTC_ARGCHK(taglen != NULL);
    if ((err = cipher_is_valid(ocb->cipher)) != CRYPT_OK) {
       goto LBL_ERR;
+   }
+
+   /* check taglen */
+   if ((int)*taglen < ocb->tag_len) {
+      *taglen = (unsigned long)ocb->tag_len;
+      return CRYPT_BUFFER_OVERFLOW;
    }
 
    /* finalize AAD processing */
@@ -66,13 +70,9 @@ int ocb3_done(ocb3_state *ocb, unsigned char *tag, unsigned long *taglen)
    /* tag = tag ^ HASH(K, A) */
    ocb3_int_xor_blocks(tmp, ocb->tag_part, ocb->aSum_current, ocb->block_len);
 
-   /* fix taglen if needed */
-   if ((int)*taglen > ocb->block_len) {
-     *taglen = (unsigned long)ocb->block_len;
-   }
-
    /* copy tag bytes */
-   for(x=0; x<(int)*taglen; x++) tag[x] = tmp[x];
+   for(x = 0; x < ocb->tag_len; x++) tag[x] = tmp[x];
+   *taglen = (unsigned long)ocb->tag_len;
 
    err = CRYPT_OK;
 
@@ -87,6 +87,6 @@ LBL_ERR:
 
 #endif
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

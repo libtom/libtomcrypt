@@ -5,8 +5,6 @@
  *
  * The library is free for all purposes without any express
  * guarantee it works.
- *
- * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 
 /**
@@ -213,23 +211,8 @@ int xtea_test(void)
        xtea_ecb_encrypt(tests[i].pt, tmp[0], &skey);
        xtea_ecb_decrypt(tmp[0], tmp[1], &skey);
 
-       if (XMEMCMP(tmp[0], tests[i].ct, 8) != 0 || XMEMCMP(tmp[1], tests[i].pt, 8) != 0) {
-#if 0
-          printf("\n\nTest %d failed\n", i);
-          if (XMEMCMP(tmp[0], tests[i].ct, 8)) {
-            printf("CT: ");
-            for (i = 0; i < 8; i++) {
-              printf("%02x ", tmp[0][i]);
-            }
-            printf("\n");
-          } else {
-            printf("PT: ");
-            for (i = 0; i < 8; i++) {
-              printf("%02x ", tmp[1][i]);
-            }
-            printf("\n");
-          }
-#endif
+       if (compare_testvector(tmp[0], 8, tests[i].ct, 8, "XTEA Encrypt", i) != 0 ||
+             compare_testvector(tmp[1], 8, tests[i].pt, 8, "XTEA Decrypt", i) != 0) {
           return CRYPT_FAIL_TESTVECTOR;
        }
 
@@ -273,6 +256,6 @@ int xtea_keysize(int *keysize)
 
 
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

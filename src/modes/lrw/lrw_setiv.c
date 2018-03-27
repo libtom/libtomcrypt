@@ -5,8 +5,6 @@
  *
  * The library is free for all purposes without any express
  * guarantee it works.
- *
- * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 #include "tomcrypt.h"
 
@@ -56,7 +54,7 @@ int lrw_setiv(const unsigned char *IV, unsigned long len, symmetric_LRW *lrw)
    for (x = 1; x < 16; x++) {
 #ifdef LTC_FAST
        for (y = 0; y < 16; y += sizeof(LTC_FAST_TYPE)) {
-           *((LTC_FAST_TYPE *)(T + y)) ^= *((LTC_FAST_TYPE *)(&lrw->PC[x][IV[x]][y]));
+           *(LTC_FAST_TYPE_PTR_CAST(T + y)) ^= *(LTC_FAST_TYPE_PTR_CAST(&lrw->PC[x][IV[x]][y]));
        }
 #else
        for (y = 0; y < 16; y++) {
@@ -74,6 +72,6 @@ int lrw_setiv(const unsigned char *IV, unsigned long len, symmetric_LRW *lrw)
 
 
 #endif
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

@@ -5,8 +5,6 @@
  *
  * The library is free for all purposes without any express
  * guarantee it works.
- *
- * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 #include "tomcrypt.h"
 
@@ -29,7 +27,7 @@ int rsa_import(const unsigned char *in, unsigned long inlen, rsa_key *key)
    int           err;
    void         *zero;
    unsigned char *tmpbuf=NULL;
-   unsigned long tmpbuf_len;
+   unsigned long tmpbuf_len, len;
 
    LTC_ARGCHK(in          != NULL);
    LTC_ARGCHK(key         != NULL);
@@ -42,16 +40,17 @@ int rsa_import(const unsigned char *in, unsigned long inlen, rsa_key *key)
    }
 
    /* see if the OpenSSL DER format RSA public key will work */
-   tmpbuf_len = MAX_RSA_SIZE * 8;
+   tmpbuf_len = inlen;
    tmpbuf = XCALLOC(1, tmpbuf_len);
    if (tmpbuf == NULL) {
        err = CRYPT_MEM;
        goto LBL_ERR;
    }
 
-   err = der_decode_subject_public_key_info(in, inlen,
+   len = 0;
+   err = x509_decode_subject_public_key_info(in, inlen,
         PKA_RSA, tmpbuf, &tmpbuf_len,
-        LTC_ASN1_NULL, NULL, 0);
+        LTC_ASN1_NULL, NULL, &len);
 
    if (err == CRYPT_OK) { /* SubjectPublicKeyInfo format */
 
@@ -68,9 +67,10 @@ int rsa_import(const unsigned char *in, unsigned long inlen, rsa_key *key)
    }
 
    /* not SSL public key, try to match against PKCS #1 standards */
-   if ((err = der_decode_sequence_multi(in, inlen,
-                                  LTC_ASN1_INTEGER, 1UL, key->N,
-                                  LTC_ASN1_EOL,     0UL, NULL)) != CRYPT_OK) {
+   err = der_decode_sequence_multi(in, inlen, LTC_ASN1_INTEGER, 1UL, key->N,
+                                              LTC_ASN1_EOL,     0UL, NULL);
+
+   if (err != CRYPT_OK && err != CRYPT_INPUT_TOO_LONG) {
       goto LBL_ERR;
    }
 
@@ -125,6 +125,6 @@ LBL_FREE:
 #endif /* LTC_MRSA */
 
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

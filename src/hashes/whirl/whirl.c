@@ -5,8 +5,6 @@
  *
  * The library is free for all purposes without any express
  * guarantee it works.
- *
- * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 
 /**
@@ -45,14 +43,14 @@ const struct ltc_hash_descriptor whirlpool_desc =
 
 /* shortcut macro to perform three functions at once */
 #define theta_pi_gamma(a, i)             \
-    SB0(GB(a, i-0, 7)) ^                 \
+   (SB0(GB(a, i-0, 7)) ^                 \
     SB1(GB(a, i-1, 6)) ^                 \
     SB2(GB(a, i-2, 5)) ^                 \
     SB3(GB(a, i-3, 4)) ^                 \
     SB4(GB(a, i-4, 3)) ^                 \
     SB5(GB(a, i-5, 2)) ^                 \
     SB6(GB(a, i-6, 1)) ^                 \
-    SB7(GB(a, i-7, 0))
+    SB7(GB(a, i-7, 0)))
 
 #ifdef LTC_CLEAN_STACK
 static int _whirlpool_compress(hash_state *md, unsigned char *buf)
@@ -291,14 +289,7 @@ int  whirlpool_test(void)
       whirlpool_init(&md);
       whirlpool_process(&md, (unsigned char *)tests[i].msg, tests[i].len);
       whirlpool_done(&md, tmp);
-      if (XMEMCMP(tmp, tests[i].hash, 64) != 0) {
-#if 0
-         printf("\nFailed test %d\n", i);
-         for (i = 0; i < 64; ) {
-            printf("%02x ", tmp[i]);
-            if (!(++i & 15)) printf("\n");
-         }
-#endif
+      if (compare_testvector(tmp, sizeof(tmp), tests[i].hash, sizeof(tests[i].hash), "WHIRLPOOL", i)) {
          return CRYPT_FAIL_TESTVECTOR;
       }
   }
@@ -310,6 +301,6 @@ int  whirlpool_test(void)
 #endif
 
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

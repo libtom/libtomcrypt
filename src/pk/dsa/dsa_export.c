@@ -5,8 +5,6 @@
  *
  * The library is free for all purposes without any express
  * guarantee it works.
- *
- * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 #include "tomcrypt.h"
 
@@ -88,7 +86,7 @@ int dsa_export(unsigned char *out, unsigned long *outlen, int type, dsa_key *key
           LTC_SET_ASN1(int_list, 1, LTC_ASN1_INTEGER, key->q, 1UL);
           LTC_SET_ASN1(int_list, 2, LTC_ASN1_INTEGER, key->g, 1UL);
 
-          err = der_encode_subject_public_key_info(out, outlen, PKA_DSA, tmp,
+          err = x509_encode_subject_public_key_info(out, outlen, PKA_DSA, tmp,
               tmplen, LTC_ASN1_SEQUENCE, int_list,
               sizeof(int_list) / sizeof(int_list[0]));
 
@@ -113,6 +111,6 @@ error:
 #endif
 
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

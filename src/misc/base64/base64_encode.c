@@ -5,8 +5,6 @@
  *
  * The library is free for all purposes without any express
  * guarantee it works.
- *
- * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 #include "tomcrypt.h"
 
@@ -20,21 +18,21 @@
 #if defined(LTC_BASE64) || defined (LTC_BASE64_URL)
 
 #if defined(LTC_BASE64)
-static const char *codes_base64 =
+static const char * const codes_base64 =
 "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 #endif /* LTC_BASE64 */
 
 #if defined(LTC_BASE64_URL)
-static const char *codes_base64url =
+static const char * const codes_base64url =
 "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
 #endif /* LTC_BASE64_URL */
 
 static int _base64_encode_internal(const unsigned char *in,  unsigned long inlen,
-                                 unsigned char *out, unsigned long *outlen,
+                                 char *out, unsigned long *outlen,
                                  const char *codes, int pad)
 {
    unsigned long i, len2, leven;
-   unsigned char *p;
+   char *p;
 
    LTC_ARGCHK(in     != NULL);
    LTC_ARGCHK(out    != NULL);
@@ -75,7 +73,7 @@ static int _base64_encode_internal(const unsigned char *in,  unsigned long inlen
    *p = '\0';
 
    /* return ok */
-   *outlen = p - out;
+   *outlen = (unsigned long)(p - out);
    return CRYPT_OK;
 }
 
@@ -89,7 +87,7 @@ static int _base64_encode_internal(const unsigned char *in,  unsigned long inlen
    @return CRYPT_OK if successful
 */
 int base64_encode(const unsigned char *in,  unsigned long inlen,
-                        unsigned char *out, unsigned long *outlen)
+                                 char *out, unsigned long *outlen)
 {
     return _base64_encode_internal(in, inlen, out, outlen, codes_base64, 1);
 }
@@ -106,15 +104,21 @@ int base64_encode(const unsigned char *in,  unsigned long inlen,
    @return CRYPT_OK if successful
 */
 int base64url_encode(const unsigned char *in,  unsigned long inlen,
-                           unsigned char *out, unsigned long *outlen)
+                                    char *out, unsigned long *outlen)
 {
     return _base64_encode_internal(in, inlen, out, outlen, codes_base64url, 0);
+}
+
+int base64url_strict_encode(const unsigned char *in,  unsigned long inlen,
+                                           char *out, unsigned long *outlen)
+{
+    return _base64_encode_internal(in, inlen, out, outlen, codes_base64url, 1);
 }
 #endif /* LTC_BASE64_URL */
 
 #endif
 
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

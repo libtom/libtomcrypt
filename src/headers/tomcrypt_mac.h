@@ -1,9 +1,18 @@
+/* LibTomCrypt, modular cryptographic library -- Tom St Denis
+ *
+ * LibTomCrypt is a library that provides various cryptographic
+ * algorithms in a highly modular and flexible manner.
+ *
+ * The library is free for all purposes without any express
+ * guarantee it works.
+ */
+
 #ifdef LTC_HMAC
 typedef struct Hmac_state {
      hash_state     md;
      int            hash;
      hash_state     hashstate;
-     unsigned char  *key;
+     unsigned char  key[MAXBLOCKSIZE];
 } hmac_state;
 
 int hmac_init(hmac_state *hmac, int hash, const unsigned char *key, unsigned long keylen);
@@ -95,6 +104,140 @@ int pmac_ntz(unsigned long x);
 void pmac_shift_xor(pmac_state *pmac);
 
 #endif /* PMAC */
+
+#ifdef LTC_POLY1305
+typedef struct {
+   ulong32 r[5];
+   ulong32 h[5];
+   ulong32 pad[4];
+   unsigned long leftover;
+   unsigned char buffer[16];
+   int final;
+} poly1305_state;
+
+int poly1305_init(poly1305_state *st, const unsigned char *key, unsigned long keylen);
+int poly1305_process(poly1305_state *st, const unsigned char *in, unsigned long inlen);
+int poly1305_done(poly1305_state *st, unsigned char *mac, unsigned long *maclen);
+int poly1305_memory(const unsigned char *key, unsigned long keylen, const unsigned char *in, unsigned long inlen, unsigned char *mac, unsigned long *maclen);
+int poly1305_memory_multi(const unsigned char *key, unsigned long keylen, unsigned char *mac, unsigned long *maclen, const unsigned char *in,  unsigned long inlen, ...);
+int poly1305_file(const char *fname, const unsigned char *key, unsigned long keylen, unsigned char *mac, unsigned long *maclen);
+int poly1305_test(void);
+#endif /* LTC_POLY1305 */
+
+#ifdef LTC_BLAKE2SMAC
+typedef hash_state blake2smac_state;
+int blake2smac_init(blake2smac_state *st, unsigned long outlen, const unsigned char *key, unsigned long keylen);
+int blake2smac_process(blake2smac_state *st, const unsigned char *in, unsigned long inlen);
+int blake2smac_done(blake2smac_state *st, unsigned char *mac, unsigned long *maclen);
+int blake2smac_memory(const unsigned char *key, unsigned long keylen, const unsigned char *in, unsigned long inlen, unsigned char *mac, unsigned long *maclen);
+int blake2smac_memory_multi(const unsigned char *key, unsigned long keylen, unsigned char *mac, unsigned long *maclen, const unsigned char *in,  unsigned long inlen, ...);
+int blake2smac_file(const char *fname, const unsigned char *key, unsigned long keylen, unsigned char *mac, unsigned long *maclen);
+int blake2smac_test(void);
+#endif /* LTC_BLAKE2SMAC */
+
+#ifdef LTC_BLAKE2BMAC
+typedef hash_state blake2bmac_state;
+int blake2bmac_init(blake2bmac_state *st, unsigned long outlen, const unsigned char *key, unsigned long keylen);
+int blake2bmac_process(blake2bmac_state *st, const unsigned char *in, unsigned long inlen);
+int blake2bmac_done(blake2bmac_state *st, unsigned char *mac, unsigned long *maclen);
+int blake2bmac_memory(const unsigned char *key, unsigned long keylen, const unsigned char *in, unsigned long inlen, unsigned char *mac, unsigned long *maclen);
+int blake2bmac_memory_multi(const unsigned char *key, unsigned long keylen, unsigned char *mac, unsigned long *maclen, const unsigned char *in,  unsigned long inlen, ...);
+int blake2bmac_file(const char *fname, const unsigned char *key, unsigned long keylen, unsigned char *mac, unsigned long *maclen);
+int blake2bmac_test(void);
+#endif /* LTC_BLAKE2BMAC */
+
+#ifdef LTC_PELICAN
+
+typedef struct pelican_state
+{
+    symmetric_key K;
+    unsigned char state[16];
+    int           buflen;
+} pelican_state;
+
+int pelican_init(pelican_state *pelmac, const unsigned char *key, unsigned long keylen);
+int pelican_process(pelican_state *pelmac, const unsigned char *in, unsigned long inlen);
+int pelican_done(pelican_state *pelmac, unsigned char *out);
+int pelican_test(void);
+
+int pelican_memory(const unsigned char *key, unsigned long keylen,
+                   const unsigned char *in, unsigned long inlen,
+                         unsigned char *out);
+
+#endif
+
+#ifdef LTC_XCBC
+
+/* add this to "keylen" to xcbc_init to use a pure three-key XCBC MAC */
+#define LTC_XCBC_PURE  0x8000UL
+
+typedef struct {
+   unsigned char K[3][MAXBLOCKSIZE],
+                 IV[MAXBLOCKSIZE];
+
+   symmetric_key key;
+
+             int cipher,
+                 buflen,
+                 blocksize;
+} xcbc_state;
+
+int xcbc_init(xcbc_state *xcbc, int cipher, const unsigned char *key, unsigned long keylen);
+int xcbc_process(xcbc_state *xcbc, const unsigned char *in, unsigned long inlen);
+int xcbc_done(xcbc_state *xcbc, unsigned char *out, unsigned long *outlen);
+int xcbc_memory(int cipher,
+               const unsigned char *key, unsigned long keylen,
+               const unsigned char *in,  unsigned long inlen,
+                     unsigned char *out, unsigned long *outlen);
+int xcbc_memory_multi(int cipher,
+                const unsigned char *key, unsigned long keylen,
+                      unsigned char *out, unsigned long *outlen,
+                const unsigned char *in,  unsigned long inlen, ...);
+int xcbc_file(int cipher,
+              const unsigned char *key, unsigned long keylen,
+              const          char *filename,
+                    unsigned char *out, unsigned long *outlen);
+int xcbc_test(void);
+
+#endif
+
+#ifdef LTC_F9_MODE
+
+typedef struct {
+   unsigned char akey[MAXBLOCKSIZE],
+                 ACC[MAXBLOCKSIZE],
+                 IV[MAXBLOCKSIZE];
+
+   symmetric_key key;
+
+             int cipher,
+                 buflen,
+                 keylen,
+                 blocksize;
+} f9_state;
+
+int f9_init(f9_state *f9, int cipher, const unsigned char *key, unsigned long keylen);
+int f9_process(f9_state *f9, const unsigned char *in, unsigned long inlen);
+int f9_done(f9_state *f9, unsigned char *out, unsigned long *outlen);
+int f9_memory(int cipher,
+               const unsigned char *key, unsigned long keylen,
+               const unsigned char *in,  unsigned long inlen,
+                     unsigned char *out, unsigned long *outlen);
+int f9_memory_multi(int cipher,
+                const unsigned char *key, unsigned long keylen,
+                      unsigned char *out, unsigned long *outlen,
+                const unsigned char *in,  unsigned long inlen, ...);
+int f9_file(int cipher,
+              const unsigned char *key, unsigned long keylen,
+              const          char *filename,
+                    unsigned char *out, unsigned long *outlen);
+int f9_test(void);
+
+#endif
+
+/*
+ * ENC+AUTH modes
+ */
 
 #ifdef LTC_EAX_MODE
 
@@ -213,12 +356,14 @@ typedef struct {
    symmetric_key     key;                     /* scheduled key for cipher */
    unsigned long     block_index;             /* index # for current data block */
    int               cipher,                  /* cipher idx */
+                     tag_len,                 /* length of tag */
                      block_len;               /* length of block */
 } ocb3_state;
 
 int ocb3_init(ocb3_state *ocb, int cipher,
              const unsigned char *key, unsigned long keylen,
-             const unsigned char *nonce, unsigned long noncelen);
+             const unsigned char *nonce, unsigned long noncelen,
+             unsigned long taglen);
 
 int ocb3_encrypt(ocb3_state *ocb, const unsigned char *pt, unsigned long ptlen, unsigned char *ct);
 int ocb3_decrypt(ocb3_state *ocb, const unsigned char *ct, unsigned long ctlen, unsigned char *pt);
@@ -246,18 +391,18 @@ int ocb3_decrypt_verify_memory(int cipher,
 
 int ocb3_test(void);
 
+#ifdef LTC_SOURCE
 /* internal helper functions */
-int ocb3_int_aad_add_block(ocb3_state *ocb, const unsigned char *aad_block);
-void ocb3_int_calc_offset_zero(ocb3_state *ocb, const unsigned char *nonce, unsigned long noncelen);
 int ocb3_int_ntz(unsigned long x);
 void ocb3_int_xor_blocks(unsigned char *out, const unsigned char *block_a, const unsigned char *block_b, unsigned long block_len);
+#endif /* LTC_SOURCE */
 
 #endif /* LTC_OCB3_MODE */
 
 #ifdef LTC_CCM_MODE
 
-#define CCM_ENCRYPT 0
-#define CCM_DECRYPT 1
+#define CCM_ENCRYPT LTC_ENCRYPT
+#define CCM_DECRYPT LTC_DECRYPT
 
 typedef struct {
    symmetric_key       K;
@@ -307,19 +452,6 @@ int ccm_memory(int cipher,
           unsigned char *tag,    unsigned long *taglen,
                     int  direction);
 
-int ccm_memory_ex(int cipher,
-    const unsigned char *key,    unsigned long keylen,
-    symmetric_key       *uskey,
-    const unsigned char *nonce,  unsigned long noncelen,
-    const unsigned char *header, unsigned long headerlen,
-          unsigned char *pt,     unsigned long ptlen,
-          unsigned char *ct,
-          unsigned char *tag,    unsigned long *taglen,
-                    int  direction,
-    const unsigned char *B_0,
-    const unsigned char *CTR,
-                    int  ctrwidth);
-
 int ccm_test(void);
 
 #endif /* LTC_CCM_MODE */
@@ -336,8 +468,8 @@ extern const unsigned char gcm_shift_table[];
 
 #ifdef LTC_GCM_MODE
 
-#define GCM_ENCRYPT 0
-#define GCM_DECRYPT 1
+#define GCM_ENCRYPT LTC_ENCRYPT
+#define GCM_DECRYPT LTC_DECRYPT
 
 #define LTC_GCM_MODE_IV    0
 #define LTC_GCM_MODE_AAD   1
@@ -401,96 +533,37 @@ int gcm_test(void);
 
 #endif /* LTC_GCM_MODE */
 
-#ifdef LTC_PELICAN
-
-typedef struct pelican_state
-{
-    symmetric_key K;
-    unsigned char state[16];
-    int           buflen;
-} pelican_state;
-
-int pelican_init(pelican_state *pelmac, const unsigned char *key, unsigned long keylen);
-int pelican_process(pelican_state *pelmac, const unsigned char *in, unsigned long inlen);
-int pelican_done(pelican_state *pelmac, unsigned char *out);
-int pelican_test(void);
-
-int pelican_memory(const unsigned char *key, unsigned long keylen,
-                   const unsigned char *in, unsigned long inlen,
-                         unsigned char *out);
-
-#endif
-
-#ifdef LTC_XCBC
-
-/* add this to "keylen" to xcbc_init to use a pure three-key XCBC MAC */
-#define LTC_XCBC_PURE  0x8000UL
+#ifdef LTC_CHACHA20POLY1305_MODE
 
 typedef struct {
-   unsigned char K[3][MAXBLOCKSIZE],
-                 IV[MAXBLOCKSIZE];
+   poly1305_state poly;
+   chacha_state chacha;
+   ulong64 aadlen;
+   ulong64 ctlen;
+   int aadflg;
+} chacha20poly1305_state;
 
-   symmetric_key key;
+#define CHACHA20POLY1305_ENCRYPT LTC_ENCRYPT
+#define CHACHA20POLY1305_DECRYPT LTC_DECRYPT
 
-             int cipher,
-                 buflen,
-                 blocksize;
-} xcbc_state;
+int chacha20poly1305_init(chacha20poly1305_state *st, const unsigned char *key, unsigned long keylen);
+int chacha20poly1305_setiv(chacha20poly1305_state *st, const unsigned char *iv, unsigned long ivlen);
+int chacha20poly1305_setiv_rfc7905(chacha20poly1305_state *st, const unsigned char *iv, unsigned long ivlen, ulong64 sequence_number);
+int chacha20poly1305_add_aad(chacha20poly1305_state *st, const unsigned char *in, unsigned long inlen);
+int chacha20poly1305_encrypt(chacha20poly1305_state *st, const unsigned char *in, unsigned long inlen, unsigned char *out);
+int chacha20poly1305_decrypt(chacha20poly1305_state *st, const unsigned char *in, unsigned long inlen, unsigned char *out);
+int chacha20poly1305_done(chacha20poly1305_state *st, unsigned char *tag, unsigned long *taglen);
+int chacha20poly1305_memory(const unsigned char *key, unsigned long keylen,
+                            const unsigned char *iv,  unsigned long ivlen,
+                            const unsigned char *aad, unsigned long aadlen,
+                            const unsigned char *in,  unsigned long inlen,
+                                  unsigned char *out,
+                                  unsigned char *tag, unsigned long *taglen,
+                            int direction);
+int chacha20poly1305_test(void);
 
-int xcbc_init(xcbc_state *xcbc, int cipher, const unsigned char *key, unsigned long keylen);
-int xcbc_process(xcbc_state *xcbc, const unsigned char *in, unsigned long inlen);
-int xcbc_done(xcbc_state *xcbc, unsigned char *out, unsigned long *outlen);
-int xcbc_memory(int cipher,
-               const unsigned char *key, unsigned long keylen,
-               const unsigned char *in,  unsigned long inlen,
-                     unsigned char *out, unsigned long *outlen);
-int xcbc_memory_multi(int cipher,
-                const unsigned char *key, unsigned long keylen,
-                      unsigned char *out, unsigned long *outlen,
-                const unsigned char *in,  unsigned long inlen, ...);
-int xcbc_file(int cipher,
-              const unsigned char *key, unsigned long keylen,
-              const          char *filename,
-                    unsigned char *out, unsigned long *outlen);
-int xcbc_test(void);
+#endif /* LTC_CHACHA20POLY1305_MODE */
 
-#endif
-
-#ifdef LTC_F9_MODE
-
-typedef struct {
-   unsigned char akey[MAXBLOCKSIZE],
-                 ACC[MAXBLOCKSIZE],
-                 IV[MAXBLOCKSIZE];
-
-   symmetric_key key;
-
-             int cipher,
-                 buflen,
-                 keylen,
-                 blocksize;
-} f9_state;
-
-int f9_init(f9_state *f9, int cipher, const unsigned char *key, unsigned long keylen);
-int f9_process(f9_state *f9, const unsigned char *in, unsigned long inlen);
-int f9_done(f9_state *f9, unsigned char *out, unsigned long *outlen);
-int f9_memory(int cipher,
-               const unsigned char *key, unsigned long keylen,
-               const unsigned char *in,  unsigned long inlen,
-                     unsigned char *out, unsigned long *outlen);
-int f9_memory_multi(int cipher,
-                const unsigned char *key, unsigned long keylen,
-                      unsigned char *out, unsigned long *outlen,
-                const unsigned char *in,  unsigned long inlen, ...);
-int f9_file(int cipher,
-              const unsigned char *key, unsigned long keylen,
-              const          char *filename,
-                    unsigned char *out, unsigned long *outlen);
-int f9_test(void);
-
-#endif
-
-
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

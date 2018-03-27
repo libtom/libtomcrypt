@@ -5,8 +5,6 @@
  *
  * The library is free for all purposes without any express
  * guarantee it works.
- *
- * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 
  /**
@@ -676,7 +674,8 @@ int cast5_test(void)
        }
        cast5_ecb_encrypt(tests[i].pt, tmp[0], &key);
        cast5_ecb_decrypt(tmp[0], tmp[1], &key);
-       if ((XMEMCMP(tmp[0], tests[i].ct, 8) != 0) || (XMEMCMP(tmp[1], tests[i].pt, 8) != 0)) {
+       if ((compare_testvector(tmp[0], 8, tests[i].ct, 8, "CAST5 Encrypt", i) != 0) ||
+             (compare_testvector(tmp[1], 8, tests[i].pt, 8, "CAST5 Decrypt", i) != 0)) {
           return CRYPT_FAIL_TESTVECTOR;
        }
       /* now see if we can encrypt all zero bytes 1000 times, decrypt and come back where we started */
@@ -716,6 +715,6 @@ int cast5_keysize(int *keysize)
 
 #endif
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

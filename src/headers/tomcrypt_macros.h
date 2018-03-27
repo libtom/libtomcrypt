@@ -1,3 +1,11 @@
+/* LibTomCrypt, modular cryptographic library -- Tom St Denis
+ *
+ * LibTomCrypt is a library that provides various cryptographic
+ * algorithms in a highly modular and flexible manner.
+ *
+ * The library is free for all purposes without any express
+ * guarantee it works.
+ */
 
 /* ---- HELPER MACROS ---- */
 #ifdef ENDIAN_NEUTRAL
@@ -46,9 +54,8 @@ do { x = (((ulong64)((y)[0] & 255))<<56)|(((ulong64)((y)[1] & 255))<<48) | \
          (((ulong64)((y)[4] & 255))<<24)|(((ulong64)((y)[5] & 255))<<16) | \
          (((ulong64)((y)[6] & 255))<<8)|(((ulong64)((y)[7] & 255))); } while(0)
 
-#endif /* ENDIAN_NEUTRAL */
 
-#ifdef ENDIAN_LITTLE
+#elif defined(ENDIAN_LITTLE)
 
 #ifdef LTC_HAVE_BSWAP_BUILTIN
 
@@ -167,9 +174,8 @@ do { x = (((ulong64)((y)[0] & 255))<<56)|(((ulong64)((y)[1] & 255))<<48) | \
 
 #endif /* ENDIAN_64BITWORD */
 
-#endif /* ENDIAN_LITTLE */
+#elif defined(ENDIAN_BIG)
 
-#ifdef ENDIAN_BIG
 #define STORE32L(x, y)                                                                     \
   do { (y)[3] = (unsigned char)(((x)>>24)&255); (y)[2] = (unsigned char)(((x)>>16)&255);   \
        (y)[1] = (unsigned char)(((x)>>8)&255); (y)[0] = (unsigned char)((x)&255); } while(0)
@@ -267,7 +273,7 @@ static inline ulong32 ROR(ulong32 word, int i)
 #ifndef LTC_NO_ROLC
 
 #define ROLc(word,i) ({ \
-   ulong32 __ROLc_tmp = word; \
+   ulong32 __ROLc_tmp = (word); \
    __asm__ ("roll %2, %0" : \
             "=r" (__ROLc_tmp) : \
             "0" (__ROLc_tmp), \
@@ -275,7 +281,7 @@ static inline ulong32 ROR(ulong32 word, int i)
             __ROLc_tmp; \
    })
 #define RORc(word,i) ({ \
-   ulong32 __RORc_tmp = word; \
+   ulong32 __RORc_tmp = (word); \
    __asm__ ("rorl %2, %0" : \
             "=r" (__RORc_tmp) : \
             "0" (__RORc_tmp), \
@@ -338,10 +344,10 @@ static inline ulong32 RORc(ulong32 word, const int i)
 #else
 
 /* rotates the hard way */
-#define ROL(x, y) ( (((ulong32)(x)<<(ulong32)((y)&31)) | (((ulong32)(x)&0xFFFFFFFFUL)>>(ulong32)(32-((y)&31)))) & 0xFFFFFFFFUL)
-#define ROR(x, y) ( ((((ulong32)(x)&0xFFFFFFFFUL)>>(ulong32)((y)&31)) | ((ulong32)(x)<<(ulong32)(32-((y)&31)))) & 0xFFFFFFFFUL)
-#define ROLc(x, y) ( (((ulong32)(x)<<(ulong32)((y)&31)) | (((ulong32)(x)&0xFFFFFFFFUL)>>(ulong32)(32-((y)&31)))) & 0xFFFFFFFFUL)
-#define RORc(x, y) ( ((((ulong32)(x)&0xFFFFFFFFUL)>>(ulong32)((y)&31)) | ((ulong32)(x)<<(ulong32)(32-((y)&31)))) & 0xFFFFFFFFUL)
+#define ROL(x, y) ( (((ulong32)(x)<<(ulong32)((y)&31)) | (((ulong32)(x)&0xFFFFFFFFUL)>>(ulong32)((32-((y)&31))&31))) & 0xFFFFFFFFUL)
+#define ROR(x, y) ( ((((ulong32)(x)&0xFFFFFFFFUL)>>(ulong32)((y)&31)) | ((ulong32)(x)<<(ulong32)((32-((y)&31))&31))) & 0xFFFFFFFFUL)
+#define ROLc(x, y) ( (((ulong32)(x)<<(ulong32)((y)&31)) | (((ulong32)(x)&0xFFFFFFFFUL)>>(ulong32)((32-((y)&31))&31))) & 0xFFFFFFFFUL)
+#define RORc(x, y) ( ((((ulong32)(x)&0xFFFFFFFFUL)>>(ulong32)((y)&31)) | ((ulong32)(x)<<(ulong32)((32-((y)&31))&31))) & 0xFFFFFFFFUL)
 
 #endif
 
@@ -395,19 +401,19 @@ static inline ulong64 ROR64(ulong64 word, int i)
 
 #define ROL64(x, y) \
     ( (((x)<<((ulong64)(y)&63)) | \
-      (((x)&CONST64(0xFFFFFFFFFFFFFFFF))>>((ulong64)64-((y)&63)))) & CONST64(0xFFFFFFFFFFFFFFFF))
+      (((x)&CONST64(0xFFFFFFFFFFFFFFFF))>>(((ulong64)64-((y)&63))&63))) & CONST64(0xFFFFFFFFFFFFFFFF))
 
 #define ROR64(x, y) \
     ( ((((x)&CONST64(0xFFFFFFFFFFFFFFFF))>>((ulong64)(y)&CONST64(63))) | \
-      ((x)<<((ulong64)(64-((y)&CONST64(63)))))) & CONST64(0xFFFFFFFFFFFFFFFF))
+      ((x)<<(((ulong64)64-((y)&63))&63))) & CONST64(0xFFFFFFFFFFFFFFFF))
 
 #define ROL64c(x, y) \
     ( (((x)<<((ulong64)(y)&63)) | \
-      (((x)&CONST64(0xFFFFFFFFFFFFFFFF))>>((ulong64)64-((y)&63)))) & CONST64(0xFFFFFFFFFFFFFFFF))
+      (((x)&CONST64(0xFFFFFFFFFFFFFFFF))>>(((ulong64)64-((y)&63))&63))) & CONST64(0xFFFFFFFFFFFFFFFF))
 
 #define ROR64c(x, y) \
     ( ((((x)&CONST64(0xFFFFFFFFFFFFFFFF))>>((ulong64)(y)&CONST64(63))) | \
-      ((x)<<((ulong64)(64-((y)&CONST64(63)))))) & CONST64(0xFFFFFFFFFFFFFFFF))
+      ((x)<<(((ulong64)64-((y)&63))&63))) & CONST64(0xFFFFFFFFFFFFFFFF))
 
 #endif
 
@@ -430,6 +436,11 @@ static inline ulong64 ROR64(ulong64 word, int i)
    #define byte(x, n) (((x) >> (8 * (n))) & 255)
 #endif
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* there is no snprintf before Visual C++ 2015 */
+#if defined(_MSC_VER) && _MSC_VER < 1900
+#define snprintf _snprintf
+#endif
+
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

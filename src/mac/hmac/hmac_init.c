@@ -5,8 +5,6 @@
  *
  * The library is free for all purposes without any express
  * guarantee it works.
- *
- * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 #include "tomcrypt.h"
 
@@ -55,11 +53,10 @@ int hmac_init(hmac_state *hmac, int hash, const unsigned char *key, unsigned lon
        return CRYPT_MEM;
     }
 
-    /* allocate memory for key */
-    hmac->key = XMALLOC(LTC_HMAC_BLOCKSIZE);
-    if (hmac->key == NULL) {
-       XFREE(buf);
-       return CRYPT_MEM;
+    /* check hash block fits */
+    if (sizeof(hmac->key) < LTC_HMAC_BLOCKSIZE) {
+        err = CRYPT_BUFFER_OVERFLOW;
+        goto LBL_ERR;
     }
 
     /* (1) make sure we have a large enough key */
@@ -77,7 +74,7 @@ int hmac_init(hmac_state *hmac, int hash, const unsigned char *key, unsigned lon
        zeromem((hmac->key) + keylen, (size_t)(LTC_HMAC_BLOCKSIZE - keylen));
     }
 
-    /* Create the initial vector for step (3) */
+    /* Create the initialization vector for step (3) */
     for(i=0; i < LTC_HMAC_BLOCKSIZE;   i++) {
        buf[i] = hmac->key[i] ^ 0x36;
     }
@@ -90,11 +87,8 @@ int hmac_init(hmac_state *hmac, int hash, const unsigned char *key, unsigned lon
     if ((err = hash_descriptor[hash].process(&hmac->md, buf, LTC_HMAC_BLOCKSIZE)) != CRYPT_OK) {
        goto LBL_ERR;
     }
-    goto done;
+
 LBL_ERR:
-    /* free the key since we failed */
-    XFREE(hmac->key);
-done:
 #ifdef LTC_CLEAN_STACK
    zeromem(buf, LTC_HMAC_BLOCKSIZE);
 #endif
@@ -105,6 +99,6 @@ done:
 
 #endif
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

@@ -5,8 +5,6 @@
  *
  * The library is free for all purposes without any express
  * guarantee it works.
- *
- * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 #include "tomcrypt.h"
 
@@ -42,8 +40,8 @@ int ccm_add_nonce(ccm_state *ccm,
    /* form B_0 == flags | Nonce N | l(m) */
    x = 0;
    ccm->PAD[x++] = (unsigned char)(((ccm->aadlen > 0) ? (1<<6) : 0) |
-		   (((ccm->taglen - 2)>>1)<<3)        |
-		   (ccm->L-1));
+                   (((ccm->taglen - 2)>>1)<<3)        |
+                   (ccm->L-1));
 
    /* nonce */
    for (y = 0; y < (16 - (ccm->L + 1)); y++) {
@@ -109,3 +107,7 @@ int ccm_add_nonce(ccm_state *ccm,
 }
 
 #endif
+
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

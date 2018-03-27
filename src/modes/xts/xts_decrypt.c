@@ -5,8 +5,6 @@
  *
  * The library is free for all purposes without any express
  * guarantee it works.
- *
- * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 #include "tomcrypt.h"
 
@@ -16,7 +14,7 @@
 
 #ifdef LTC_XTS_MODE
 
-static int tweak_uncrypt(const unsigned char *C, unsigned char *P, unsigned char *T, symmetric_xts *xts)
+static int _tweak_uncrypt(const unsigned char *C, unsigned char *P, unsigned char *T, symmetric_xts *xts)
 {
    unsigned long x;
    int err;
@@ -24,7 +22,7 @@ static int tweak_uncrypt(const unsigned char *C, unsigned char *P, unsigned char
    /* tweak encrypt block i */
 #ifdef LTC_FAST
    for (x = 0; x < 16; x += sizeof(LTC_FAST_TYPE)) {
-      *((LTC_FAST_TYPE *)&P[x]) = *((LTC_FAST_TYPE *)&C[x]) ^ *((LTC_FAST_TYPE *)&T[x]);
+      *(LTC_FAST_TYPE_PTR_CAST(&P[x])) = *(LTC_FAST_TYPE_PTR_CAST(&C[x])) ^ *(LTC_FAST_TYPE_PTR_CAST(&T[x]));
    }
 #else
    for (x = 0; x < 16; x++) {
@@ -36,7 +34,7 @@ static int tweak_uncrypt(const unsigned char *C, unsigned char *P, unsigned char
 
 #ifdef LTC_FAST
    for (x = 0; x < 16; x += sizeof(LTC_FAST_TYPE)) {
-      *((LTC_FAST_TYPE *)&P[x]) ^= *((LTC_FAST_TYPE *)&T[x]);
+      *(LTC_FAST_TYPE_PTR_CAST(&P[x])) ^= *(LTC_FAST_TYPE_PTR_CAST(&T[x]));
    }
 #else
    for (x = 0; x < 16; x++) {
@@ -94,8 +92,8 @@ int xts_decrypt(const unsigned char *ct, unsigned long ptlen, unsigned char *pt,
    if (cipher_descriptor[xts->cipher].accel_xts_decrypt && lim > 0) {
 
       /* use accelerated decryption for whole blocks */
-      if ((err = cipher_descriptor[xts->cipher].accel_xts_decrypt(ct, pt, lim, tweak, &xts->key1, &xts->key2) !=
-                 CRYPT_OK)) {
+      if ((err = cipher_descriptor[xts->cipher].accel_xts_decrypt(ct, pt, lim, tweak, &xts->key1, &xts->key2)) !=
+                 CRYPT_OK) {
          return err;
       }
       ct += lim * 16;
@@ -110,7 +108,7 @@ int xts_decrypt(const unsigned char *ct, unsigned long ptlen, unsigned char *pt,
       }
 
       for (i = 0; i < lim; i++) {
-         if ((err = tweak_uncrypt(ct, pt, T, xts)) != CRYPT_OK) {
+         if ((err = _tweak_uncrypt(ct, pt, T, xts)) != CRYPT_OK) {
             return err;
          }
          ct += 16;
@@ -124,7 +122,7 @@ int xts_decrypt(const unsigned char *ct, unsigned long ptlen, unsigned char *pt,
       xts_mult_x(CC);
 
       /* PP = tweak decrypt block m-1 */
-      if ((err = tweak_uncrypt(ct, PP, CC, xts)) != CRYPT_OK) {
+      if ((err = _tweak_uncrypt(ct, PP, CC, xts)) != CRYPT_OK) {
          return err;
       }
 
@@ -138,7 +136,7 @@ int xts_decrypt(const unsigned char *ct, unsigned long ptlen, unsigned char *pt,
       }
 
       /* Pm-1 = Tweak uncrypt CC */
-      if ((err = tweak_uncrypt(CC, pt, T, xts)) != CRYPT_OK) {
+      if ((err = _tweak_uncrypt(CC, pt, T, xts)) != CRYPT_OK) {
          return err;
       }
    }
@@ -153,6 +151,6 @@ int xts_decrypt(const unsigned char *ct, unsigned long ptlen, unsigned char *pt,
 
 #endif
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

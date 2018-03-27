@@ -5,8 +5,6 @@
  *
  * The library is free for all purposes without any express
  * guarantee it works.
- *
- * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 #include "tomcrypt.h"
 
@@ -31,6 +29,7 @@ int der_decode_utf8_string(const unsigned char *in,  unsigned long inlen,
 {
    wchar_t       tmp;
    unsigned long x, y, z, len;
+   int err;
 
    LTC_ARGCHK(in     != NULL);
    LTC_ARGCHK(out    != NULL);
@@ -47,25 +46,14 @@ int der_decode_utf8_string(const unsigned char *in,  unsigned long inlen,
    }
    x = 1;
 
-   /* decode the length */
-   if (in[x] & 0x80) {
-      /* valid # of bytes in length are 1,2,3 */
-      y = in[x] & 0x7F;
-      if ((y == 0) || (y > 3) || ((x + y) > inlen)) {
-         return CRYPT_INVALID_PACKET;
-      }
-
-      /* read the length in */
-      len = 0;
-      ++x;
-      while (y--) {
-         len = (len << 8) | in[x++];
-      }
-   } else {
-      len = in[x++] & 0x7F;
+   /* get the length of the data */
+   y = inlen - x;
+   if ((err = der_decode_asn1_length(in + x, &y, &len)) != CRYPT_OK) {
+      return err;
    }
+   x += y;
 
-   if (len + x > inlen) {
+   if (len > (inlen - x)) {
       return CRYPT_INVALID_PACKET;
    }
 
@@ -73,10 +61,10 @@ int der_decode_utf8_string(const unsigned char *in,  unsigned long inlen,
    for (y = 0; x < inlen; ) {
       /* get first byte */
       tmp = in[x++];
- 
+
       /* count number of bytes */
       for (z = 0; (tmp & 0x80) && (z <= 4); z++, tmp = (tmp << 1) & 0xFF);
-      
+
       if (z > 4 || (x + (z - 1) > inlen)) {
          return CRYPT_INVALID_PACKET;
       }
@@ -93,19 +81,23 @@ int der_decode_utf8_string(const unsigned char *in,  unsigned long inlen,
          tmp = (tmp << 6) | ((wchar_t)in[x++] & 0x3F);
       }
 
-      if (y > *outlen) {
-         *outlen = y;
-         return CRYPT_BUFFER_OVERFLOW;
+      if (y < *outlen) {
+         out[y] = tmp;
       }
-      out[y++] = tmp;
+      y++;
+   }
+   if (y > *outlen) {
+      err = CRYPT_BUFFER_OVERFLOW;
+   } else {
+      err = CRYPT_OK;
    }
    *outlen = y;
 
-   return CRYPT_OK;
+   return err;
 }
- 
+
 #endif
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

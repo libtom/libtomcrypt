@@ -5,8 +5,6 @@
  *
  * The library is free for all purposes without any express
  * guarantee it works.
- *
- * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 /**
   @file blowfish.c
@@ -548,7 +546,8 @@ int blowfish_test(void)
       blowfish_ecb_decrypt(tmp[0], tmp[1], &key);
 
       /* compare */
-      if ((XMEMCMP(tmp[0], tests[x].ct, 8) != 0) || (XMEMCMP(tmp[1], tests[x].pt, 8) != 0)) {
+      if ((compare_testvector(tmp[0], 8, tests[x].ct, 8, "Blowfish Encrypt", x) != 0) ||
+            (compare_testvector(tmp[1], 8, tests[x].pt, 8, "Blowfish Decrypt", x) != 0)) {
          return CRYPT_FAIL_TESTVECTOR;
       }
 
@@ -590,6 +589,6 @@ int blowfish_keysize(int *keysize)
 #endif
 
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

@@ -5,8 +5,6 @@
  *
  * The library is free for all purposes without any express
  * guarantee it works.
- *
- * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 #include "tomcrypt.h"
 
@@ -22,7 +20,7 @@ struct edge {
    unsigned long  size;
 };
 
-static int qsort_helper(const void *a, const void *b)
+static int _qsort_helper(const void *a, const void *b)
 {
    struct edge   *A = (struct edge *)a, *B = (struct edge *)b;
    int            r;
@@ -94,16 +92,16 @@ int der_encode_setof(ltc_asn1_list *list, unsigned long inlen,
    }
 
    /* skip header */
-      ptr = buf + 1;
+   ptr = buf + 1;
 
-      /* now skip length data */
-      x = *ptr++;
-      if (x >= 0x80) {
-         ptr += (x & 0x7F);
-      }
+   /* now skip length data */
+   x = *ptr++;
+   if (x >= 0x80) {
+      ptr += (x & 0x7F);
+   }
 
-      /* get the size of the static header */
-      hdrlen = ptr - buf;
+   /* get the size of the static header */
+   hdrlen = ptr - buf;
 
 
    /* scan for edges */
@@ -134,13 +132,13 @@ int der_encode_setof(ltc_asn1_list *list, unsigned long inlen,
    }
 
    /* sort based on contents (using edges) */
-   XQSORT(edges, inlen, sizeof(*edges), &qsort_helper);
+   XQSORT(edges, inlen, sizeof(*edges), &_qsort_helper);
 
    /* copy static header */
    XMEMCPY(out, buf, hdrlen);
 
    /* copy+sort using edges+indecies to output from buffer */
-   for (y = hdrlen, x = 0; x < inlen; x++) {
+   for (y = (unsigned long)hdrlen, x = 0; x < inlen; x++) {
       XMEMCPY(out+y, edges[x].start, edges[x].size);
       y += edges[x].size;
    }
@@ -158,6 +156,6 @@ int der_encode_setof(ltc_asn1_list *list, unsigned long inlen,
 
 #endif
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

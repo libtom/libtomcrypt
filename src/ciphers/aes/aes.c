@@ -5,8 +5,6 @@
  *
  * The library is free for all purposes without any express
  * guarantee it works.
- *
- * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 
 /* AES implementation by Tom St Denis
@@ -675,11 +673,11 @@ int ECB_TEST(void)
     }
  };
 
- symmetric_key key;
- unsigned char tmp[2][16];
- int i, y;
+  symmetric_key key;
+  unsigned char tmp[2][16];
+  int i, y;
 
- for (i = 0; i < (int)(sizeof(tests)/sizeof(tests[0])); i++) {
+  for (i = 0; i < (int)(sizeof(tests)/sizeof(tests[0])); i++) {
     zeromem(&key, sizeof(key));
     if ((err = rijndael_setup(tests[i].key, tests[i].keylen, 0, &key)) != CRYPT_OK) {
        return err;
@@ -687,33 +685,18 @@ int ECB_TEST(void)
 
     rijndael_ecb_encrypt(tests[i].pt, tmp[0], &key);
     rijndael_ecb_decrypt(tmp[0], tmp[1], &key);
-    if (XMEMCMP(tmp[0], tests[i].ct, 16) || XMEMCMP(tmp[1], tests[i].pt, 16)) {
-#if 0
-       printf("\n\nTest %d failed\n", i);
-       if (XMEMCMP(tmp[0], tests[i].ct, 16)) {
-          printf("CT: ");
-          for (i = 0; i < 16; i++) {
-             printf("%02x ", tmp[0][i]);
-          }
-          printf("\n");
-       } else {
-          printf("PT: ");
-          for (i = 0; i < 16; i++) {
-             printf("%02x ", tmp[1][i]);
-          }
-          printf("\n");
-       }
-#endif
+    if (compare_testvector(tmp[0], 16, tests[i].ct, 16, "AES Encrypt", i) ||
+          compare_testvector(tmp[1], 16, tests[i].pt, 16, "AES Decrypt", i)) {
         return CRYPT_FAIL_TESTVECTOR;
     }
 
-      /* now see if we can encrypt all zero bytes 1000 times, decrypt and come back where we started */
-      for (y = 0; y < 16; y++) tmp[0][y] = 0;
-      for (y = 0; y < 1000; y++) rijndael_ecb_encrypt(tmp[0], tmp[0], &key);
-      for (y = 0; y < 1000; y++) rijndael_ecb_decrypt(tmp[0], tmp[0], &key);
-      for (y = 0; y < 16; y++) if (tmp[0][y] != 0) return CRYPT_FAIL_TESTVECTOR;
- }
- return CRYPT_OK;
+    /* now see if we can encrypt all zero bytes 1000 times, decrypt and come back where we started */
+    for (y = 0; y < 16; y++) tmp[0][y] = 0;
+    for (y = 0; y < 1000; y++) rijndael_ecb_encrypt(tmp[0], tmp[0], &key);
+    for (y = 0; y < 1000; y++) rijndael_ecb_decrypt(tmp[0], tmp[0], &key);
+    for (y = 0; y < 16; y++) if (tmp[0][y] != 0) return CRYPT_FAIL_TESTVECTOR;
+  }
+  return CRYPT_OK;
  #endif
 }
 
@@ -755,6 +738,6 @@ int ECB_KS(int *keysize)
 #endif
 
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

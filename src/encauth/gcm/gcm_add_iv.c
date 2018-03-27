@@ -5,8 +5,6 @@
  *
  * The library is free for all purposes without any express
  * guarantee it works.
- *
- * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 
 /**
@@ -59,7 +57,7 @@ int gcm_add_iv(gcm_state *gcm,
    if (gcm->buflen == 0) {
       for (x = 0; x < (IVlen & ~15); x += 16) {
           for (y = 0; y < 16; y += sizeof(LTC_FAST_TYPE)) {
-              *((LTC_FAST_TYPE*)(&gcm->X[y])) ^= *((LTC_FAST_TYPE*)(&IV[x + y]));
+              *(LTC_FAST_TYPE_PTR_CAST(&gcm->X[y])) ^= *(LTC_FAST_TYPE_PTR_CAST(&IV[x + y]));
           }
           gcm_mult_h(gcm, gcm->X);
           gcm->totlen += 128;
@@ -72,7 +70,7 @@ int gcm_add_iv(gcm_state *gcm,
    for (; x < IVlen; x++) {
        gcm->buf[gcm->buflen++] = *IV++;
 
-       if (gcm->buflen == 16) {
+      if (gcm->buflen == 16) {
          /* GF mult it */
          for (y = 0; y < 16; y++) {
              gcm->X[y] ^= gcm->buf[y];
@@ -89,6 +87,6 @@ int gcm_add_iv(gcm_state *gcm,
 #endif
 
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

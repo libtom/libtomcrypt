@@ -5,16 +5,13 @@
  *
  * The library is free for all purposes without any express
  * guarantee it works.
- *
- * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
- *
- * Added RSA blinding --nmav
  */
 #include "tomcrypt.h"
 
 /**
   @file rsa_exptmod.c
   RSA PKCS exptmod, Tom St Denis
+  Added RSA blinding --nmav
 */
 
 #ifdef LTC_MRSA
@@ -38,7 +35,7 @@ int rsa_exptmod(const unsigned char *in,   unsigned long inlen,
    void        *rnd, *rndi /* inverse of rnd */;
    #endif
    unsigned long x;
-   int           err, no_crt;
+   int           err, has_crt_parameters;
 
    LTC_ARGCHK(in     != NULL);
    LTC_ARGCHK(out    != NULL);
@@ -100,9 +97,13 @@ int rsa_exptmod(const unsigned char *in,   unsigned long inlen,
       }
       #endif /* LTC_RSA_BLINDING */
 
-      no_crt = (key->dP == NULL) || (mp_get_digit_count(key->dP) == 0);
+      has_crt_parameters = (key->p != NULL) && (mp_get_digit_count(key->p) != 0) &&
+                              (key->q != NULL) && (mp_get_digit_count(key->q) != 0) &&
+                                 (key->dP != NULL) && (mp_get_digit_count(key->dP) != 0) &&
+                                    (key->dQ != NULL) && (mp_get_digit_count(key->dQ) != 0) &&
+                                       (key->qP != NULL) && (mp_get_digit_count(key->qP) != 0);
 
-      if (no_crt) {
+      if (!has_crt_parameters) {
          /*
           * In case CRT optimization parameters are not provided,
           * the private key is directly used to exptmod it
@@ -133,7 +134,7 @@ int rsa_exptmod(const unsigned char *in,   unsigned long inlen,
       #endif
 
       #ifdef LTC_RSA_CRT_HARDENING
-      if (!no_crt) {
+      if (has_crt_parameters) {
          if ((err = mp_exptmod(tmp, key->e, key->N, tmpa)) != CRYPT_OK)                              { goto error; }
          if ((err = mp_read_unsigned_bin(tmpb, (unsigned char *)in, (int)inlen)) != CRYPT_OK)        { goto error; }
          if (mp_cmp(tmpa, tmpb) != LTC_MP_EQ)                                     { err = CRYPT_ERROR; goto error; }
@@ -176,6 +177,6 @@ error:
 
 #endif
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

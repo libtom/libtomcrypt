@@ -5,8 +5,6 @@
  *
  * The library is free for all purposes without any express
  * guarantee it works.
- *
- * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 #include "tomcrypt.h"
 
@@ -29,26 +27,38 @@ typedef struct {
 #define _SZ_STRINGIFY_T(s) { #s, sizeof(s) }
 
 static const crypt_size _crypt_sizes[] = {
-    // hash state sizes
+    /* hash state sizes */
     _SZ_STRINGIFY_S(ltc_hash_descriptor),
     _SZ_STRINGIFY_T(hash_state),
-#ifdef LTC_SHA256
-    _SZ_STRINGIFY_S(sha256_state),
-#endif
-#ifdef LTC_SHA512
-    _SZ_STRINGIFY_S(sha512_state),
+#ifdef LTC_CHC_HASH
+    _SZ_STRINGIFY_S(chc_state),
 #endif
 #ifdef LTC_WHIRLPOOL
     _SZ_STRINGIFY_S(whirlpool_state),
 #endif
-#ifdef LTC_MD2
-    _SZ_STRINGIFY_S(md2_state),
+#ifdef LTC_SHA3
+    _SZ_STRINGIFY_S(sha3_state),
+#endif
+#ifdef LTC_SHA512
+    _SZ_STRINGIFY_S(sha512_state),
+#endif
+#ifdef LTC_SHA256
+    _SZ_STRINGIFY_S(sha256_state),
+#endif
+#ifdef LTC_SHA1
+    _SZ_STRINGIFY_S(sha1_state),
+#endif
+#ifdef LTC_MD5
+    _SZ_STRINGIFY_S(md5_state),
 #endif
 #ifdef LTC_MD4
     _SZ_STRINGIFY_S(md4_state),
 #endif
-#ifdef LTC_MD5
-    _SZ_STRINGIFY_S(md5_state),
+#ifdef LTC_MD2
+    _SZ_STRINGIFY_S(md2_state),
+#endif
+#ifdef LTC_TIGER
+    _SZ_STRINGIFY_S(tiger_state),
 #endif
 #ifdef LTC_RIPEMD128
     _SZ_STRINGIFY_S(rmd128_state),
@@ -62,17 +72,14 @@ static const crypt_size _crypt_sizes[] = {
 #ifdef LTC_RIPEMD320
     _SZ_STRINGIFY_S(rmd320_state),
 #endif
-#ifdef LTC_SHA1
-    _SZ_STRINGIFY_S(sha1_state),
+#ifdef LTC_BLAKE2S
+    _SZ_STRINGIFY_S(blake2s_state),
 #endif
-#ifdef LTC_TIGER
-    _SZ_STRINGIFY_S(tiger_state),
-#endif
-#ifdef LTC_CHC_HASH
-    _SZ_STRINGIFY_S(chc_state),
+#ifdef LTC_BLAKE2B
+    _SZ_STRINGIFY_S(blake2b_state),
 #endif
 
-    // block cipher key sizes
+    /* block cipher key sizes */
     _SZ_STRINGIFY_S(ltc_cipher_descriptor),
     _SZ_STRINGIFY_T(symmetric_key),
 #ifdef LTC_ANUBIS
@@ -90,6 +97,9 @@ static const crypt_size _crypt_sizes[] = {
 #ifdef LTC_DES
     _SZ_STRINGIFY_S(des_key),
     _SZ_STRINGIFY_S(des3_key),
+#endif
+#ifdef LTC_IDEA
+    _SZ_STRINGIFY_S(idea_key),
 #endif
 #ifdef LTC_KASUMI
     _SZ_STRINGIFY_S(kasumi_key),
@@ -115,6 +125,9 @@ static const crypt_size _crypt_sizes[] = {
 #ifdef LTC_RC6
     _SZ_STRINGIFY_S(rc6_key),
 #endif
+#ifdef LTC_SERPENT
+    _SZ_STRINGIFY_S(serpent_key),
+#endif
 #ifdef LTC_SKIPJACK
     _SZ_STRINGIFY_S(skipjack_key),
 #endif
@@ -134,47 +147,67 @@ static const crypt_size _crypt_sizes[] = {
     _SZ_STRINGIFY_S(twofish_key),
 #endif
 
-    // mode sizes
-#ifdef LTC_CBC_MODE
-    _SZ_STRINGIFY_T(symmetric_CBC),
+    /* mode sizes */
+#ifdef LTC_ECB_MODE
+    _SZ_STRINGIFY_T(symmetric_ECB),
 #endif
 #ifdef LTC_CFB_MODE
     _SZ_STRINGIFY_T(symmetric_CFB),
 #endif
+#ifdef LTC_OFB_MODE
+    _SZ_STRINGIFY_T(symmetric_OFB),
+#endif
+#ifdef LTC_CBC_MODE
+    _SZ_STRINGIFY_T(symmetric_CBC),
+#endif
 #ifdef LTC_CTR_MODE
     _SZ_STRINGIFY_T(symmetric_CTR),
-#endif
-#ifdef LTC_ECB_MODE
-    _SZ_STRINGIFY_T(symmetric_ECB),
-#endif
-#ifdef LTC_F8_MODE
-    _SZ_STRINGIFY_T(symmetric_F8),
 #endif
 #ifdef LTC_LRW_MODE
     _SZ_STRINGIFY_T(symmetric_LRW),
 #endif
-#ifdef LTC_OFB_MODE
-    _SZ_STRINGIFY_T(symmetric_OFB),
+#ifdef LTC_F8_MODE
+    _SZ_STRINGIFY_T(symmetric_F8),
+#endif
+#ifdef LTC_XTS_MODE
+    _SZ_STRINGIFY_T(symmetric_xts),
 #endif
 
-    // MAC sizes            -- no states for ccm, lrw
-#ifdef LTC_F9_MODE
-    _SZ_STRINGIFY_T(f9_state),
+    /* stream cipher sizes */
+#ifdef LTC_CHACHA
+    _SZ_STRINGIFY_T(chacha_state),
 #endif
+#ifdef LTC_SALSA20
+    _SZ_STRINGIFY_T(salsa20_state),
+#endif
+#ifdef LTC_SOSEMANUK
+    _SZ_STRINGIFY_T(sosemanuk_state),
+#endif
+#ifdef LTC_RABBIT
+    _SZ_STRINGIFY_T(rabbit_state),
+#endif
+#ifdef LTC_RC4_STREAM
+    _SZ_STRINGIFY_T(rc4_state),
+#endif
+#ifdef LTC_SOBER128_STREAM
+    _SZ_STRINGIFY_T(sober128_state),
+#endif
+
+    /* MAC sizes            -- no states for ccm, lrw */
 #ifdef LTC_HMAC
     _SZ_STRINGIFY_T(hmac_state),
 #endif
 #ifdef LTC_OMAC
     _SZ_STRINGIFY_T(omac_state),
 #endif
-#ifdef LTC_PELICAN
-    _SZ_STRINGIFY_T(pelican_state),
-#endif
 #ifdef LTC_PMAC
     _SZ_STRINGIFY_T(pmac_state),
 #endif
-#ifdef LTC_XCBC
-    _SZ_STRINGIFY_T(xcbc_state),
+#ifdef LTC_POLY1305
+    _SZ_STRINGIFY_T(poly1305_state),
+#endif
+#ifdef LTC_EAX_MODE
+    _SZ_STRINGIFY_T(eax_state),
 #endif
 #ifdef LTC_OCB_MODE
     _SZ_STRINGIFY_T(ocb_state),
@@ -182,20 +215,26 @@ static const crypt_size _crypt_sizes[] = {
 #ifdef LTC_OCB3_MODE
     _SZ_STRINGIFY_T(ocb3_state),
 #endif
+#ifdef LTC_CCM_MODE
+    _SZ_STRINGIFY_T(ccm_state),
+#endif
 #ifdef LTC_GCM_MODE
     _SZ_STRINGIFY_T(gcm_state),
 #endif
-#ifdef LTC_EAX_MODE
-    _SZ_STRINGIFY_T(eax_state),
+#ifdef LTC_PELICAN
+    _SZ_STRINGIFY_T(pelican_state),
 #endif
-#ifdef LTC_CCM_MODE
-// not defined
+#ifdef LTC_XCBC
+    _SZ_STRINGIFY_T(xcbc_state),
 #endif
-#ifdef LRW_MODE
-// not defined
+#ifdef LTC_F9_MODE
+    _SZ_STRINGIFY_T(f9_state),
+#endif
+#ifdef LTC_CHACHA20POLY1305_MODE
+    _SZ_STRINGIFY_T(chacha20poly1305_state),
 #endif
 
-    // asymmetric keys
+    /* asymmetric keys */
 #ifdef LTC_MRSA
     _SZ_STRINGIFY_T(rsa_key),
 #endif
@@ -207,18 +246,28 @@ static const crypt_size _crypt_sizes[] = {
 #endif
 #ifdef LTC_MECC
     _SZ_STRINGIFY_T(ltc_ecc_set_type),
-    _SZ_STRINGIFY_T(ecc_key),
     _SZ_STRINGIFY_T(ecc_point),
+    _SZ_STRINGIFY_T(ecc_key),
 #endif
 #ifdef LTC_MKAT
     _SZ_STRINGIFY_T(katja_key),
 #endif
 
-    // prng state sizes
+    /* DER handling */
+#ifdef LTC_DER
+    _SZ_STRINGIFY_T(ltc_asn1_list),  /* a list entry */
+    _SZ_STRINGIFY_T(ltc_utctime),
+    _SZ_STRINGIFY_T(ltc_generalizedtime),
+#endif
+
+    /* prng state sizes */
     _SZ_STRINGIFY_S(ltc_prng_descriptor),
     _SZ_STRINGIFY_T(prng_state),
 #ifdef LTC_FORTUNA
     _SZ_STRINGIFY_S(fortuna_prng),
+#endif
+#ifdef LTC_CHACHA20_PRNG
+    _SZ_STRINGIFY_S(chacha20_prng),
 #endif
 #ifdef LTC_RC4
     _SZ_STRINGIFY_S(rc4_prng),
@@ -229,8 +278,8 @@ static const crypt_size _crypt_sizes[] = {
 #ifdef LTC_YARROW
     _SZ_STRINGIFY_S(yarrow_prng),
 #endif
-    // sprng has no state as it uses other potentially available sources
-    // like /dev/random.  See Developers Guide for more info.
+    /* sprng has no state as it uses other potentially available sources */
+    /* like /dev/random.  See Developers Guide for more info. */
 
 #ifdef LTC_ADLER32
     _SZ_STRINGIFY_T(adler32_state),
@@ -238,6 +287,10 @@ static const crypt_size _crypt_sizes[] = {
 #ifdef LTC_CRC32
     _SZ_STRINGIFY_T(crc32_state),
 #endif
+
+    _SZ_STRINGIFY_T(ltc_mp_digit),
+    _SZ_STRINGIFY_T(ltc_math_descriptor)
+
 };
 
 /* crypt_get_size()
@@ -248,7 +301,7 @@ int crypt_get_size(const char* namein, unsigned int *sizeout) {
     int i;
     int count = sizeof(_crypt_sizes) / sizeof(_crypt_sizes[0]);
     for (i=0; i<count; i++) {
-        if (strcmp(_crypt_sizes[i].name, namein) == 0) {
+        if (XSTRCMP(_crypt_sizes[i].name, namein) == 0) {
             *sizeout = _crypt_sizes[i].size;
             return 0;
         }
@@ -269,19 +322,19 @@ int crypt_get_size(const char* namein, unsigned int *sizeout) {
 int crypt_list_all_sizes(char *names_list, unsigned int *names_list_size) {
     int i;
     unsigned int total_len = 0;
-    char number[32];
+    char number[32], *ptr;
     int number_len;
     int count = sizeof(_crypt_sizes) / sizeof(_crypt_sizes[0]);
 
     /* calculate amount of memory required for the list */
     for (i=0; i<count; i++) {
-        total_len += strlen(_crypt_sizes[i].name) + 1;
+        total_len += (unsigned int)strlen(_crypt_sizes[i].name) + 1;
         /* the above +1 is for the commas */
         number_len = snprintf(number, sizeof(number), "%u", _crypt_sizes[i].size);
         if ((number_len < 0) ||
             ((unsigned int)number_len >= sizeof(number)))
           return -1;
-        total_len += strlen(number) + 1;
+        total_len += (unsigned int)strlen(number) + 1;
         /* this last +1 is for newlines (and ending NULL) */
     }
 
@@ -292,7 +345,7 @@ int crypt_list_all_sizes(char *names_list, unsigned int *names_list_size) {
             return -1;
         }
         /* build the names list */
-        char *ptr = names_list;
+        ptr = names_list;
         for (i=0; i<count; i++) {
             strcpy(ptr, _crypt_sizes[i].name);
             ptr += strlen(_crypt_sizes[i].name);
@@ -313,6 +366,6 @@ int crypt_list_all_sizes(char *names_list, unsigned int *names_list_size) {
 }
 
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

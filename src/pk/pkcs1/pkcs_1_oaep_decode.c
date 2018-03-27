@@ -5,8 +5,6 @@
  *
  * The library is free for all purposes without any express
  * guarantee it works.
- *
- * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 #include "tomcrypt.h"
 
@@ -160,7 +158,6 @@ int pkcs_1_oaep_decode(const unsigned char *msg,    unsigned long msglen,
       /* copy message */
       *outlen = modulus_len - hLen - 1 - x;
       XMEMCPY(out, DB + x, modulus_len - hLen - 1 - x);
-      x += modulus_len - hLen - 1;
 
       /* valid packet */
       *res = 1;
@@ -183,6 +180,6 @@ LBL_ERR:
 
 #endif /* LTC_PKCS_1 */
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

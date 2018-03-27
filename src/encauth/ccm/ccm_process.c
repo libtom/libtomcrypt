@@ -5,8 +5,6 @@
  *
  * The library is free for all purposes without any express
  * guarantee it works.
- *
- * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 #include "tomcrypt.h"
 
@@ -26,7 +24,8 @@ int ccm_process(ccm_state *ccm,
                 unsigned char *ct,
                 int direction)
 {
-   unsigned char  y, z, b;
+   unsigned char z, b;
+   unsigned long y;
    int err;
 
    LTC_ARGCHK(ccm != NULL);
@@ -46,9 +45,8 @@ int ccm_process(ccm_state *ccm,
    if (ptlen > 0) {
       LTC_ARGCHK(pt != NULL);
       LTC_ARGCHK(ct != NULL);
-      y = 0;
 
-      for (; y < ptlen; y++) {
+      for (y = 0; y < ptlen; y++) {
          /* increment the ctr? */
          if (ccm->CTRlen == 16) {
             for (z = 15; z > 15-ccm->L; z--) {
@@ -84,3 +82,7 @@ int ccm_process(ccm_state *ccm,
 }
 
 #endif
+
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

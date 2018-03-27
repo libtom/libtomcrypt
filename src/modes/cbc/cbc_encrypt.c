@@ -5,8 +5,6 @@
  *
  * The library is free for all purposes without any express
  * guarantee it works.
- *
- * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 #include "tomcrypt.h"
 
@@ -58,13 +56,13 @@ int cbc_encrypt(const unsigned char *pt, unsigned char *ct, unsigned long len, s
       while (len) {
          /* xor IV against plaintext */
          #if defined(LTC_FAST)
-        for (x = 0; x < cbc->blocklen; x += sizeof(LTC_FAST_TYPE)) {
-            *((LTC_FAST_TYPE*)((unsigned char *)cbc->IV + x)) ^= *((LTC_FAST_TYPE*)((unsigned char *)pt + x));
-        }
+         for (x = 0; x < cbc->blocklen; x += sizeof(LTC_FAST_TYPE)) {
+            *(LTC_FAST_TYPE_PTR_CAST((unsigned char *)cbc->IV + x)) ^= *(LTC_FAST_TYPE_PTR_CAST((unsigned char *)pt + x));
+         }
     #else
-            for (x = 0; x < cbc->blocklen; x++) {
-               cbc->IV[x] ^= pt[x];
-            }
+         for (x = 0; x < cbc->blocklen; x++) {
+            cbc->IV[x] ^= pt[x];
+         }
     #endif
 
          /* encrypt */
@@ -72,27 +70,27 @@ int cbc_encrypt(const unsigned char *pt, unsigned char *ct, unsigned long len, s
             return err;
          }
 
-        /* store IV [ciphertext] for a future block */
+         /* store IV [ciphertext] for a future block */
          #if defined(LTC_FAST)
-        for (x = 0; x < cbc->blocklen; x += sizeof(LTC_FAST_TYPE)) {
-            *((LTC_FAST_TYPE*)((unsigned char *)cbc->IV + x)) = *((LTC_FAST_TYPE*)((unsigned char *)ct + x));
-        }
+         for (x = 0; x < cbc->blocklen; x += sizeof(LTC_FAST_TYPE)) {
+            *(LTC_FAST_TYPE_PTR_CAST((unsigned char *)cbc->IV + x)) = *(LTC_FAST_TYPE_PTR_CAST((unsigned char *)ct + x));
+         }
     #else
-             for (x = 0; x < cbc->blocklen; x++) {
-                cbc->IV[x] = ct[x];
-             }
+         for (x = 0; x < cbc->blocklen; x++) {
+            cbc->IV[x] = ct[x];
+         }
     #endif
 
-        ct  += cbc->blocklen;
-        pt  += cbc->blocklen;
-        len -= cbc->blocklen;
-     }
+         ct  += cbc->blocklen;
+         pt  += cbc->blocklen;
+         len -= cbc->blocklen;
+      }
    }
    return CRYPT_OK;
 }
 
 #endif
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

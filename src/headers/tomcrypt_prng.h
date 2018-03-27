@@ -1,17 +1,32 @@
+/* LibTomCrypt, modular cryptographic library -- Tom St Denis
+ *
+ * LibTomCrypt is a library that provides various cryptographic
+ * algorithms in a highly modular and flexible manner.
+ *
+ * The library is free for all purposes without any express
+ * guarantee it works.
+ */
+
 /* ---- PRNG Stuff ---- */
 #ifdef LTC_YARROW
 struct yarrow_prng {
     int                   cipher, hash;
     unsigned char         pool[MAXBLOCKSIZE];
     symmetric_CTR         ctr;
-    LTC_MUTEX_TYPE(prng_lock)
 };
 #endif
 
 #ifdef LTC_RC4
 struct rc4_prng {
-    int x, y;
-    unsigned char buf[256];
+    rc4_state s;
+};
+#endif
+
+#ifdef LTC_CHACHA20_PRNG
+struct chacha20_prng {
+    chacha_state s;        /* chacha state */
+    unsigned char ent[40]; /* entropy buffer */
+    unsigned long idx;     /* entropy counter */
 };
 #endif
 
@@ -29,44 +44,44 @@ struct fortuna_prng {
                   wd;
 
     ulong64       reset_cnt;  /* number of times we have reset */
-    LTC_MUTEX_TYPE(prng_lock)
 };
 #endif
 
 #ifdef LTC_SOBER128
 struct sober128_prng {
-    ulong32      R[17],          /* Working storage for the shift register */
-                 initR[17],      /* saved register contents */
-                 konst,          /* key dependent constant */
-                 sbuf;           /* partial word encryption buffer */
-
-    int          nbuf,           /* number of part-word stream bits buffered */
-                 flag,           /* first add_entropy call or not? */
-                 set;            /* did we call add_entropy to set key? */
-
+    sober128_state s;      /* sober128 state */
+    unsigned char ent[40]; /* entropy buffer */
+    unsigned long idx;     /* entropy counter */
 };
 #endif
 
-typedef union Prng_state {
-    char dummy[1];
+typedef struct {
+   union {
+      char dummy[1];
 #ifdef LTC_YARROW
-    struct yarrow_prng    yarrow;
+      struct yarrow_prng    yarrow;
 #endif
 #ifdef LTC_RC4
-    struct rc4_prng       rc4;
+      struct rc4_prng       rc4;
+#endif
+#ifdef LTC_CHACHA20_PRNG
+      struct chacha20_prng  chacha;
 #endif
 #ifdef LTC_FORTUNA
-    struct fortuna_prng   fortuna;
+      struct fortuna_prng   fortuna;
 #endif
 #ifdef LTC_SOBER128
-    struct sober128_prng  sober128;
+      struct sober128_prng  sober128;
 #endif
+   };
+   short ready;            /* ready flag 0-1 */
+   LTC_MUTEX_TYPE(lock)    /* lock */
 } prng_state;
 
 /** PRNG descriptor */
 extern struct ltc_prng_descriptor {
     /** Name of the PRNG */
-    char *name;
+    const char *name;
     /** size in bytes of exported state */
     int  export_size;
     /** Start a PRNG state
@@ -154,6 +169,18 @@ int  rc4_test(void);
 extern const struct ltc_prng_descriptor rc4_desc;
 #endif
 
+#ifdef LTC_CHACHA20_PRNG
+int chacha20_prng_start(prng_state *prng);
+int chacha20_prng_add_entropy(const unsigned char *in, unsigned long inlen, prng_state *prng);
+int chacha20_prng_ready(prng_state *prng);
+unsigned long chacha20_prng_read(unsigned char *out, unsigned long outlen, prng_state *prng);
+int  chacha20_prng_done(prng_state *prng);
+int  chacha20_prng_export(unsigned char *out, unsigned long *outlen, prng_state *prng);
+int  chacha20_prng_import(const unsigned char *in, unsigned long inlen, prng_state *prng);
+int  chacha20_prng_test(void);
+extern const struct ltc_prng_descriptor chacha20_prng_desc;
+#endif
+
 #ifdef LTC_SPRNG
 int sprng_start(prng_state *prng);
 int sprng_add_entropy(const unsigned char *in, unsigned long inlen, prng_state *prng);
@@ -181,8 +208,34 @@ extern const struct ltc_prng_descriptor sober128_desc;
 int find_prng(const char *name);
 int register_prng(const struct ltc_prng_descriptor *prng);
 int unregister_prng(const struct ltc_prng_descriptor *prng);
+int register_all_prngs(void);
 int prng_is_valid(int idx);
 LTC_MUTEX_PROTO(ltc_prng_mutex)
+
+#ifdef LTC_SOURCE
+/* internal helper functions */
+#define _LTC_PRNG_EXPORT(which) \
+int which ## _export(unsigned char *out, unsigned long *outlen, prng_state *prng)      \
+{                                                                                      \
+   unsigned long len = which ## _desc.export_size;                                     \
+                                                                                       \
+   LTC_ARGCHK(prng   != NULL);                                                         \
+   LTC_ARGCHK(out    != NULL);                                                         \
+   LTC_ARGCHK(outlen != NULL);                                                         \
+                                                                                       \
+   if (*outlen < len) {                                                                \
+      *outlen = len;                                                                   \
+      return CRYPT_BUFFER_OVERFLOW;                                                    \
+   }                                                                                   \
+                                                                                       \
+   if (which ## _read(out, len, prng) != len) {                                        \
+      return CRYPT_ERROR_READPRNG;                                                     \
+   }                                                                                   \
+                                                                                       \
+   *outlen = len;                                                                      \
+   return CRYPT_OK;                                                                    \
+}
+#endif
 
 /* Slow RNG you **might** be able to use to seed a PRNG with.  Be careful as this
  * might not work on all platforms as planned
@@ -193,7 +246,12 @@ unsigned long rng_get_bytes(unsigned char *out,
 
 int rng_make_prng(int bits, int wprng, prng_state *prng, void (*callback)(void));
 
+#ifdef LTC_PRNG_ENABLE_LTC_RNG
+extern unsigned long (*ltc_rng)(unsigned char *out, unsigned long outlen,
+      void (*callback)(void));
+#endif
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

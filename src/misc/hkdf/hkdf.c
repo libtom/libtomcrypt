@@ -1,14 +1,19 @@
+/* LibTomCrypt, modular cryptographic library -- Tom St Denis
+ *
+ * LibTomCrypt is a library that provides various cryptographic
+ * algorithms in a highly modular and flexible manner.
+ *
+ * The library is free for all purposes without any express
+ * guarantee it works.
+ */
+
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <tomcrypt.h>
+#include "tomcrypt.h"
 
 #ifdef LTC_HKDF
-
-#ifndef MIN
-#define MIN(a,b) ((a)<(b))?(a):(b)
-#endif
 
 /* This is mostly just a wrapper around hmac_memory */
 int hkdf_extract(int hash_idx, const unsigned char *salt, unsigned long  saltlen,
@@ -123,18 +128,6 @@ int hkdf(int hash_idx, const unsigned char *salt, unsigned long saltlen,
       XFREE(extracted);
       return err;
    }
-#if 0
-   {
-     int j;
-     printf("\nPRK: 0x");
-     for(j=0; j < hashsize; j++) {
-        printf("%02x ", extracted[j]);
-     }
-     for(j=0; j < hashsize; j++) {
-        printf("%02x ", extracted[j]);
-     }
-   }
-#endif
    err = hkdf_expand(hash_idx, info, infolen, extracted, hashsize, out, outlen);
    zeromem(extracted, hashsize);
    XFREE(extracted);
@@ -144,3 +137,7 @@ int hkdf(int hash_idx, const unsigned char *salt, unsigned long saltlen,
 
 
 /* vim: set ts=2 sw=2 et ai si: */
+
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

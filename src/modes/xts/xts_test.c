@@ -5,18 +5,20 @@
  *
  * The library is free for all purposes without any express
  * guarantee it works.
- *
- * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 #include "tomcrypt.h"
 
 #ifdef LTC_XTS_MODE
 
+#ifndef LTC_NO_TEST
 static int _xts_test_accel_xts_encrypt(const unsigned char *pt, unsigned char *ct, unsigned long blocks,
                                        unsigned char *tweak, symmetric_key *skey1, symmetric_key *skey2)
 {
    int ret;
    symmetric_xts xts;
+   int (*orig)(const unsigned char *, unsigned char *,
+               unsigned long , unsigned char *, symmetric_key *,
+               symmetric_key *);
 
    /* AES can be under rijndael or aes... try to find it */
    if ((xts.cipher = find_cipher("aes")) == -1) {
@@ -24,7 +26,7 @@ static int _xts_test_accel_xts_encrypt(const unsigned char *pt, unsigned char *c
          return CRYPT_NOP;
       }
    }
-   void *orig = cipher_descriptor[xts.cipher].accel_xts_encrypt;
+   orig = cipher_descriptor[xts.cipher].accel_xts_encrypt;
    cipher_descriptor[xts.cipher].accel_xts_encrypt = NULL;
 
    XMEMCPY(&xts.key1, skey1, sizeof(symmetric_key));
@@ -41,6 +43,9 @@ static int _xts_test_accel_xts_decrypt(const unsigned char *ct, unsigned char *p
 {
    int ret;
    symmetric_xts xts;
+   int (*orig)(const unsigned char *, unsigned char *,
+               unsigned long , unsigned char *, symmetric_key *,
+               symmetric_key *);
 
    /* AES can be under rijndael or aes... try to find it */
    if ((xts.cipher = find_cipher("aes")) == -1) {
@@ -48,7 +53,7 @@ static int _xts_test_accel_xts_decrypt(const unsigned char *ct, unsigned char *p
          return CRYPT_NOP;
       }
    }
-   void *orig = cipher_descriptor[xts.cipher].accel_xts_decrypt;
+   orig = cipher_descriptor[xts.cipher].accel_xts_decrypt;
    cipher_descriptor[xts.cipher].accel_xts_decrypt = NULL;
 
    XMEMCPY(&xts.key1, skey1, sizeof(symmetric_key));
@@ -59,6 +64,7 @@ static int _xts_test_accel_xts_decrypt(const unsigned char *ct, unsigned char *p
 
    return ret;
 }
+#endif
 
 /**
   Source donated by Elliptic Semiconductor Inc (www.ellipticsemi.com) to the LibTom Projects
@@ -256,15 +262,7 @@ int xts_test(void)
                }
             }
 
-            if (XMEMCMP(OUT, tests[i].CTX, tests[i].PTLEN)) {
-#ifdef LTC_TEST_DBG
-               printf("\nTestcase #%d with original length %lu and half of it "
-                      "%lu\n",
-                      i, tests[i].PTLEN, len);
-               printf("\nencrypt\n");
-               print_hex("should", tests[i].CTX, tests[i].PTLEN);
-               print_hex("is", OUT, tests[i].PTLEN);
-#endif
+            if (compare_testvector(OUT, tests[i].PTLEN, tests[i].CTX, tests[i].PTLEN, "XTS encrypt", i)) {
                xts_done(&xts);
                return CRYPT_FAIL_TESTVECTOR;
             }
@@ -289,12 +287,7 @@ int xts_test(void)
                }
             }
 
-            if (XMEMCMP(OUT, tests[i].PTX, tests[i].PTLEN)) {
-#ifdef LTC_TEST_DBG
-               printf("\ndecrypt\n");
-               print_hex("should", tests[i].PTX, tests[i].PTLEN);
-               print_hex("is", OUT, tests[i].PTLEN);
-#endif
+            if (compare_testvector(OUT, tests[i].PTLEN, tests[i].PTX, tests[i].PTLEN, "XTS decrypt", i)) {
                xts_done(&xts);
                return CRYPT_FAIL_TESTVECTOR;
             }
@@ -308,6 +301,6 @@ int xts_test(void)
 
 #endif
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

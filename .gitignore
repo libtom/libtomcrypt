@@ -4,7 +4,12 @@
 *.l[oa]
 [Dd]ebug/
 [Rr]elease/
+/MSVC_*
 .libs/
+
+# release files
+/libtomcrypt-*
+/crypt-*
 
 # suppress output of build process
 gcc_[12].txt
@@ -13,16 +18,22 @@ test_*.txt
 tv.txt
 *_tv.txt
 doxygen/
+doc/crypt.pdf
+doc/refman.pdf
 
 # *nix/windows test executables
+aesgcm
+aesgcm.exe
 constants
 constants.exe
-crypt
-crypt.exe
+ltcrypt
+ltcrypt.exe
 hashsum
 hashsum.exe
 multi
 multi.exe
+openssl-enc
+openssl-enc.exe
 sizes
 sizes.exe
 small
@@ -44,6 +55,17 @@ timing.exe
 *.idb
 *.pdb
 
+# Eclipse special files
+.project
+.cproject
+.settings/
+
+# macOS special files
+.DS_Store
+
+# other special files
+showlibs      # symlink to .libs
+
 # oops ;) but we don't want them to appear in the repository...
 *.stackdump
 *.core
@@ -58,6 +80,20 @@ timing.exe
 *.gcda
 *.gcno
 *.gcov
+libtomcrypt.pc
+
+# output from doc generation
+doxygen/
+*.dvi
+*.log
+*.aux
+*.toc
+*.idx
+*.ilg
+*.ind
+*.out
+*.lof
+*.bak
 
 coverage/
 coverage*.info

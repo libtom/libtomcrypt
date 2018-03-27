@@ -5,8 +5,6 @@
  *
  * The library is free for all purposes without any express
  * guarantee it works.
- *
- * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 #include "tomcrypt.h"
 
@@ -38,7 +36,7 @@ int ccm_add_aad(ccm_state *ccm,
       if (ccm->x == 16) {
          /* full block so let's encrypt it */
          if ((err = cipher_descriptor[ccm->cipher].ecb_encrypt(ccm->PAD, ccm->PAD, &ccm->K)) != CRYPT_OK) {
-            return CRYPT_ERROR;
+            return err;
          }
          ccm->x = 0;
       }
@@ -49,7 +47,7 @@ int ccm_add_aad(ccm_state *ccm,
    if (ccm->aadlen == ccm->current_aadlen) {
       if (ccm->x != 0) {
          if ((err = cipher_descriptor[ccm->cipher].ecb_encrypt(ccm->PAD, ccm->PAD, &ccm->K)) != CRYPT_OK) {
-            return CRYPT_ERROR;
+            return err;
          }
       }
       ccm->x = 0;
@@ -59,3 +57,7 @@ int ccm_add_aad(ccm_state *ccm,
 }
 
 #endif
+
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

@@ -5,8 +5,6 @@
  *
  * The library is free for all purposes without any express
  * guarantee it works.
- *
- * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 #include "tomcrypt.h"
 
@@ -27,6 +25,12 @@
 int der_length_sequence(ltc_asn1_list *list, unsigned long inlen,
                         unsigned long *outlen)
 {
+   return der_length_sequence_ex(list, inlen, outlen, NULL);
+}
+
+int der_length_sequence_ex(ltc_asn1_list *list, unsigned long inlen,
+                           unsigned long *outlen, unsigned long *payloadlen)
+{
    int           err;
    ltc_asn1_type type;
    unsigned long size, x, y, i;
@@ -45,6 +49,9 @@ int der_length_sequence(ltc_asn1_list *list, unsigned long inlen,
        if (type == LTC_ASN1_EOL) {
           break;
        }
+
+       /* some items may be optional during import */
+       if (!list[i].used && list[i].optional) continue;
 
        switch (type) {
            case LTC_ASN1_BOOLEAN:
@@ -122,8 +129,22 @@ int der_length_sequence(ltc_asn1_list *list, unsigned long inlen,
                y += x;
                break;
 
+           case LTC_ASN1_GENERALIZEDTIME:
+               if ((err = der_length_generalizedtime(data, &x)) != CRYPT_OK) {
+                  goto LBL_ERR;
+               }
+               y += x;
+               break;
+
            case LTC_ASN1_UTF8_STRING:
                if ((err = der_length_utf8_string(data, size, &x)) != CRYPT_OK) {
+                  goto LBL_ERR;
+               }
+               y += x;
+               break;
+
+           case LTC_ASN1_CUSTOM_TYPE:
+               if ((err = der_length_custom_type(&list[i], &x, NULL)) != CRYPT_OK) {
                   goto LBL_ERR;
                }
                y += x;
@@ -138,35 +159,23 @@ int der_length_sequence(ltc_asn1_list *list, unsigned long inlen,
                y += x;
                break;
 
-
            case LTC_ASN1_CHOICE:
-           case LTC_ASN1_CONSTRUCTED:
-           case LTC_ASN1_CONTEXT_SPECIFIC:
            case LTC_ASN1_EOL:
                err = CRYPT_INVALID_ARG;
                goto LBL_ERR;
        }
    }
 
-   /* calc header size */
-   if (y < 128) {
-      y += 2;
-   } else if (y < 256) {
-      /* 0x30 0x81 LL */
-      y += 3;
-   } else if (y < 65536UL) {
-      /* 0x30 0x82 LL LL */
-      y += 4;
-   } else if (y < 16777216UL) {
-      /* 0x30 0x83 LL LL LL */
-      y += 5;
-   } else {
-      err = CRYPT_INVALID_ARG;
+   if ((err = der_length_asn1_length(y, &x)) != CRYPT_OK) {
       goto LBL_ERR;
    }
 
+   if (payloadlen != NULL) {
+      *payloadlen = y;
+   }
+
    /* store size */
-   *outlen = y;
+   *outlen = y + x + 1;
    err     = CRYPT_OK;
 
 LBL_ERR:
@@ -175,6 +184,6 @@ LBL_ERR:
 
 #endif
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

@@ -5,8 +5,6 @@
  *
  * The library is free for all purposes without any express
  * guarantee it works.
- *
- * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 #include "tomcrypt.h"
 
@@ -18,14 +16,15 @@
 
 #ifdef LTC_DER
 /**
-  Gets length of DER encoding of num 
-  @param num    The integer to get the size of 
+  Gets length of DER encoding of num
+  @param num    The integer to get the size of
   @param outlen [out] The length of the DER encoding for the given integer
   @return CRYPT_OK if successful
 */
 int der_length_short_integer(unsigned long num, unsigned long *outlen)
 {
-   unsigned long z, y, len;
+   unsigned long z, y;
+   int err;
 
    LTC_ARGCHK(outlen  != NULL);
 
@@ -39,32 +38,25 @@ int der_length_short_integer(unsigned long num, unsigned long *outlen)
      ++z;
      y >>= 8;
    }
-   
+
    /* handle zero */
    if (z == 0) {
       z = 1;
+   } else if ((num&(1UL<<((z<<3) - 1))) != 0) {
+      /* in case msb is set */
+      ++z;
    }
 
-   /* we need a 0x02 to indicate it's INTEGER */
-   len = 1;
+   if ((err = der_length_asn1_length(z, &y)) != CRYPT_OK) {
+      return err;
+   }
+   *outlen = 1 + y + z;
 
-   /* length byte */
-   ++len;
-
-   /* bytes in value */
-   len += z;
-
-   /* see if msb is set */
-   len += (num&(1UL<<((z<<3) - 1))) ? 1 : 0;
-
-   /* return length */
-   *outlen = len; 
-   
    return CRYPT_OK;
 }
 
 #endif
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

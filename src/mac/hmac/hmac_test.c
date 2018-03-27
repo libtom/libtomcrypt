@@ -5,8 +5,6 @@
  *
  * The library is free for all purposes without any express
  * guarantee it works.
- *
- * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 #include "tomcrypt.h"
 
@@ -61,26 +59,26 @@ int hmac_test(void)
     int i;
 
     static const unsigned char hmac_test_case_keys[][136] = {
-        { // 1
+        { /* 1 */
             0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b,
             0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b,
             0x0b, 0x0b, 0x0b, 0x0b
         },
 #ifdef LTC_TEST_EXT
-        { // 2
+        { /* 2 */
             0x4a, 0x65, 0x66, 0x65
         },
-        { // 4
+        { /* 4 */
             0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a,
             0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10, 0x11, 0x12, 0x13, 0x14,
             0x15, 0x16, 0x17, 0x18, 0x19
         },
-        { // 5
+        { /* 5 */
             0x0c, 0x0c, 0x0c, 0x0c, 0x0c, 0x0c, 0x0c, 0x0c,
             0x0c, 0x0c, 0x0c, 0x0c, 0x0c, 0x0c, 0x0c, 0x0c,
             0x0c, 0x0c, 0x0c, 0x0c
         },
-        { // 3, 6, 7
+        { /* 3, 6, 7 */
             0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa,
             0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa,
             0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa,
@@ -144,8 +142,8 @@ int hmac_test(void)
     };
 
     static const struct hmac_test_case {
-        char *num;
-        char *algo;
+        const char *num;
+        const char *algo;
         const unsigned char *key;
         unsigned long keylen;
         const unsigned char *data;
@@ -609,20 +607,8 @@ int hmac_test(void)
             return err;
         }
 
-        if(XMEMCMP(digest, cases[i].digest, (size_t)hash_descriptor[hash].hashsize) != 0)  {
+        if(compare_testvector(digest, outlen, cases[i].digest, (size_t)hash_descriptor[hash].hashsize, cases[i].num, i)) {
             failed++;
-#ifdef LTC_TEST_DBG
-          {
-            printf("\nHMAC-%s test %s: Failed\n", cases[i].algo, cases[i].num);
-            print_hex("is", digest, hash_descriptor[hash].hashsize);
-            print_hex("should", cases[i].digest, hash_descriptor[hash].hashsize);
-            return CRYPT_FAIL_TESTVECTOR;
-          }
-#if LTC_TEST_DBG > 1
-        } else {
-            printf("HMAC-%s test %s: Passed\n", cases[i].algo, cases[i].num);
-#endif
-#endif
         }
     }
 
@@ -639,6 +625,6 @@ int hmac_test(void)
 #endif
 
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

@@ -5,8 +5,6 @@
  *
  * The library is free for all purposes without any express
  * guarantee it works.
- *
- * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 #include "tomcrypt.h"
 
@@ -89,7 +87,6 @@ int hmac_done(hmac_state *hmac, unsigned char *out, unsigned long *outlen)
 
     err = CRYPT_OK;
 LBL_ERR:
-    XFREE(hmac->key);
 #ifdef LTC_CLEAN_STACK
     zeromem(isha, hashsize);
     zeromem(buf,  hashsize);
@@ -104,6 +101,6 @@ LBL_ERR:
 
 #endif
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

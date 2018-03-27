@@ -5,8 +5,6 @@
  *
  * The library is free for all purposes without any express
  * guarantee it works.
- *
- * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 #include "tomcrypt.h"
 
@@ -19,9 +17,9 @@
 
 /**
    Perform PKCS #1 MGF1 (internal)
+   @param hash_idx    The index of the hash desired
    @param seed        The seed for MGF1
    @param seedlen     The length of the seed
-   @param hash_idx    The index of the hash desired
    @param mask        [out] The destination
    @param masklen     The length of the mask desired
    @return CRYPT_OK if successful
@@ -103,6 +101,6 @@ LBL_ERR:
 
 #endif /* LTC_PKCS_1 */
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

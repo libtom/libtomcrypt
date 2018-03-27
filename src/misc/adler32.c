@@ -5,8 +5,6 @@
  *
  * The library is free for all purposes without any express
  * guarantee it works.
- *
- * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 #include "tomcrypt.h"
 
@@ -29,10 +27,12 @@ void adler32_init(adler32_state *ctx)
 
 void adler32_update(adler32_state *ctx, const unsigned char *input, unsigned long length)
 {
+   unsigned long s1, s2;
+
    LTC_ARGCHKVD(ctx != NULL);
    LTC_ARGCHKVD(input != NULL);
-   unsigned long s1 = ctx->s[0];
-   unsigned long s2 = ctx->s[1];
+   s1 = ctx->s[0];
+   s2 = ctx->s[1];
 
    if (length % 8 != 0) {
       do {
@@ -81,24 +81,26 @@ void adler32_update(adler32_state *ctx, const unsigned char *input, unsigned lon
 
 void adler32_finish(adler32_state *ctx, void *hash, unsigned long size)
 {
+   unsigned char* h;
+
    LTC_ARGCHKVD(ctx != NULL);
    LTC_ARGCHKVD(hash != NULL);
 
-   unsigned char* h = hash;
+   h = hash;
 
    switch (size) {
       default:
          h[3] = ctx->s[0] & 0x0ff;
-         /* no break */
+         /* FALLTHROUGH */
       case 3:
          h[2] = (ctx->s[0] >> 8) & 0x0ff;
-         /* no break */
+         /* FALLTHROUGH */
       case 2:
          h[1] = ctx->s[1] & 0x0ff;
-         /* no break */
+         /* FALLTHROUGH */
       case 1:
          h[0] = (ctx->s[1] >> 8) & 0x0ff;
-         /* no break */
+         /* FALLTHROUGH */
       case 0:
          ;
    }
@@ -115,14 +117,8 @@ int adler32_test(void)
    adler32_state ctx;
    adler32_init(&ctx);
    adler32_update(&ctx, in, strlen(in));
-   adler32_finish(&ctx, &out, 4);
-   if (XMEMCMP(adler32, out, 4)) {
-#ifdef LTC_TEST_DBG
-      ulong32 _out, _adler32;
-      LOAD32H(_out, out);
-      LOAD32H(_adler32, adler32);
-      printf("adler32 fail! Is: 0x%x Should: 0x%x\n", _out, _adler32);
-#endif
+   adler32_finish(&ctx, out, 4);
+   if (compare_testvector(adler32, 4, out, 4, "adler32", 0)) {
       return CRYPT_FAIL_TESTVECTOR;
    }
    return CRYPT_OK;
@@ -130,6 +126,6 @@ int adler32_test(void)
 }
 #endif
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

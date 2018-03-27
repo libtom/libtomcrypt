@@ -5,8 +5,6 @@
  *
  * The library is free for all purposes without any express
  * guarantee it works.
- *
- * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 #include "tomcrypt.h"
 #include <stdarg.h>
@@ -42,7 +40,7 @@ int der_encode_sequence_multi(unsigned char *out, unsigned long *outlen, ...)
    va_start(args, outlen);
    x = 0;
    for (;;) {
-       type = va_arg(args, ltc_asn1_type);
+       type = (ltc_asn1_type)va_arg(args, int);
        size = va_arg(args, unsigned long);
        data = va_arg(args, void*);
        LTC_UNUSED_PARAM(size);
@@ -68,12 +66,12 @@ int der_encode_sequence_multi(unsigned char *out, unsigned long *outlen, ...)
            case LTC_ASN1_SET:
            case LTC_ASN1_SETOF:
            case LTC_ASN1_RAW_BIT_STRING:
+           case LTC_ASN1_GENERALIZEDTIME:
                 ++x;
                 break;
 
            case LTC_ASN1_CHOICE:
-           case LTC_ASN1_CONSTRUCTED:
-           case LTC_ASN1_CONTEXT_SPECIFIC:
+           case LTC_ASN1_CUSTOM_TYPE:
            case LTC_ASN1_EOL:
            case LTC_ASN1_TELETEX_STRING:
                va_end(args);
@@ -96,7 +94,7 @@ int der_encode_sequence_multi(unsigned char *out, unsigned long *outlen, ...)
    va_start(args, outlen);
    x = 0;
    for (;;) {
-       type = va_arg(args, ltc_asn1_type);
+       type = (ltc_asn1_type)va_arg(args, int);
        size = va_arg(args, unsigned long);
        data = va_arg(args, void*);
 
@@ -120,12 +118,12 @@ int der_encode_sequence_multi(unsigned char *out, unsigned long *outlen, ...)
            case LTC_ASN1_SET:
            case LTC_ASN1_SETOF:
            case LTC_ASN1_RAW_BIT_STRING:
+           case LTC_ASN1_GENERALIZEDTIME:
                 LTC_SET_ASN1(list, x++, type, data, size);
                 break;
 
            case LTC_ASN1_CHOICE:
-           case LTC_ASN1_CONSTRUCTED:
-           case LTC_ASN1_CONTEXT_SPECIFIC:
+           case LTC_ASN1_CUSTOM_TYPE:
            case LTC_ASN1_EOL:
            case LTC_ASN1_TELETEX_STRING:
                va_end(args);
@@ -144,6 +142,6 @@ LBL_ERR:
 #endif
 
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

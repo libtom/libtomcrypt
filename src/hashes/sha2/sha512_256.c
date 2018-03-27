@@ -5,8 +5,6 @@
  *
  * The library is free for all purposes without any express
  * guarantee it works.
- *
- * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 /**
    @param sha512_256.c
@@ -92,7 +90,7 @@ int  sha512_256_test(void)
     return CRYPT_NOP;
  #else
   static const struct {
-      char *msg;
+      const char *msg;
       unsigned char hash[32];
   } tests[] = {
     { "abc",
@@ -117,7 +115,7 @@ int  sha512_256_test(void)
       sha512_256_init(&md);
       sha512_256_process(&md, (unsigned char*)tests[i].msg, (unsigned long)strlen(tests[i].msg));
       sha512_256_done(&md, tmp);
-      if (XMEMCMP(tmp, tests[i].hash, 32) != 0) {
+      if (compare_testvector(tmp, sizeof(tmp), tests[i].hash, sizeof(tests[i].hash), "SHA512-265", i)) {
          return CRYPT_FAIL_TESTVECTOR;
       }
   }
@@ -127,6 +125,6 @@ int  sha512_256_test(void)
 
 #endif /* defined(LTC_SHA384) && defined(LTC_SHA512) */
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

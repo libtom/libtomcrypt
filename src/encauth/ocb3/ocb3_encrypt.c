@@ -5,8 +5,6 @@
  *
  * The library is free for all purposes without any express
  * guarantee it works.
- *
- * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 
 /**
@@ -32,8 +30,10 @@ int ocb3_encrypt(ocb3_state *ocb, const unsigned char *pt, unsigned long ptlen, 
    unsigned char *pt_b, *ct_b;
 
    LTC_ARGCHK(ocb != NULL);
-   LTC_ARGCHK(pt  != NULL);
-   LTC_ARGCHK(ct  != NULL);
+   if (ptlen == 0) return CRYPT_OK; /* no data, nothing to do */
+   LTC_ARGCHK(pt != NULL);
+   LTC_ARGCHK(ct != NULL);
+
    if ((err = cipher_is_valid(ocb->cipher)) != CRYPT_OK) {
       return err;
    }
@@ -81,6 +81,6 @@ LBL_ERR:
 
 #endif
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

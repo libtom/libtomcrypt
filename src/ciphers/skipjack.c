@@ -5,8 +5,6 @@
  *
  * The library is free for all purposes without any express
  * guarantee it works.
- *
- * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 
 /**
@@ -298,7 +296,8 @@ int skipjack_test(void)
       skipjack_ecb_decrypt(buf[0], buf[1], &key);
 
       /* compare */
-      if (XMEMCMP(buf[0], tests[x].ct, 8) != 0 || XMEMCMP(buf[1], tests[x].pt, 8) != 0) {
+      if (compare_testvector(buf[0], 8, tests[x].ct, 8, "Skipjack Encrypt", x) != 0 ||
+            compare_testvector(buf[1], 8, tests[x].pt, 8, "Skipjack Decrypt", x) != 0) {
          return CRYPT_FAIL_TESTVECTOR;
       }
 
@@ -339,6 +338,6 @@ int skipjack_keysize(int *keysize)
 
 #endif
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

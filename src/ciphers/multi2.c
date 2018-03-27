@@ -5,8 +5,6 @@
  *
  * The library is free for all purposes without any express
  * guarantee it works.
- *
- * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 
 /**
@@ -96,9 +94,9 @@ static void decrypt(ulong32 *p, int N, ulong32 *uk)
    int n, t;
    for (t = 4*(((N-1)>>2)&1), n = N; ;  ) {
       switch (n<=4 ? n : ((n-1)%4)+1) {
-         case 4: pi4(p, uk+t); --n;
-         case 3: pi3(p, uk+t); --n;
-         case 2: pi2(p, uk+t); --n;
+         case 4: pi4(p, uk+t); --n; /* FALLTHROUGH */
+         case 3: pi3(p, uk+t); --n; /* FALLTHROUGH */
+         case 2: pi2(p, uk+t); --n; /* FALLTHROUGH */
          case 1: pi1(p); --n; break;
          case 0: return;
       }
@@ -258,14 +256,14 @@ int multi2_test(void)
          return err;
       }
 
-      if (XMEMCMP(buf, tests[x].ct, 8)) {
+      if (compare_testvector(buf, 8, tests[x].ct, 8, "Multi2 Encrypt", x)) {
          return CRYPT_FAIL_TESTVECTOR;
       }
 
       if ((err = multi2_ecb_decrypt(buf, buf, &skey)) != CRYPT_OK) {
          return err;
       }
-      if (XMEMCMP(buf, tests[x].pt, 8)) {
+      if (compare_testvector(buf, 8, tests[x].pt, 8, "Multi2 Decrypt", x)) {
          return CRYPT_FAIL_TESTVECTOR;
       }
    }
@@ -282,7 +280,7 @@ int multi2_test(void)
         if ((err = multi2_ecb_decrypt(ct, buf, &skey)) != CRYPT_OK) {
                 return err;
         }
-        if (XMEMCMP(buf, tests[0].pt, 8)) {
+        if (compare_testvector(buf, 8, tests[0].pt, 8, "Multi2 Rounds", x)) {
                 return CRYPT_FAIL_TESTVECTOR;
         }
    }
@@ -316,6 +314,6 @@ int multi2_keysize(int *keysize)
 
 #endif
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

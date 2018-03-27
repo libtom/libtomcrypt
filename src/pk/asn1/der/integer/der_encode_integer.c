@@ -5,8 +5,6 @@
  *
  * The library is free for all purposes without any express
  * guarantee it works.
- *
- * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 #include "tomcrypt.h"
 
@@ -27,8 +25,8 @@
   @return CRYPT_OK if successful
 */
 int der_encode_integer(void *num, unsigned char *out, unsigned long *outlen)
-{  
-   unsigned long tmplen, y;
+{
+   unsigned long tmplen, y, len;
    int           err, leading_zero;
 
    LTC_ARGCHK(num    != NULL);
@@ -65,24 +63,11 @@ int der_encode_integer(void *num, unsigned char *out, unsigned long *outlen)
 
    /* now store initial data */
    *out++ = 0x02;
-   if (y < 128) {
-      /* short form */
-      *out++ = (unsigned char)y;
-   } else if (y < 256) {
-      *out++ = 0x81;
-      *out++ = (unsigned char)y;
-   } else if (y < 65536UL) {
-      *out++ = 0x82;
-      *out++ = (unsigned char)((y>>8)&255);
-      *out++ = (unsigned char)y;
-   } else if (y < 16777216UL) {
-      *out++ = 0x83;
-      *out++ = (unsigned char)((y>>16)&255);
-      *out++ = (unsigned char)((y>>8)&255);
-      *out++ = (unsigned char)y;
-   } else {
-      return CRYPT_INVALID_ARG;
+   len = *outlen - 1;
+   if ((err = der_encode_asn1_length(y, out, &len)) != CRYPT_OK) {
+      return err;
    }
+   out += len;
 
    /* now store msbyte of zero if num is non-zero */
    if (leading_zero) {
@@ -97,7 +82,7 @@ int der_encode_integer(void *num, unsigned char *out, unsigned long *outlen)
       }
    } else if (mp_iszero(num) != LTC_MP_YES) {
       void *tmp;
-         
+
       /* negative */
       if (mp_init(&tmp) != CRYPT_OK) {
          return CRYPT_MEM;
@@ -119,12 +104,12 @@ int der_encode_integer(void *num, unsigned char *out, unsigned long *outlen)
    }
 
    /* we good */
-   *outlen = tmplen; 
+   *outlen = tmplen;
    return CRYPT_OK;
 }
 
 #endif
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

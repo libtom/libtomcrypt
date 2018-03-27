@@ -5,8 +5,6 @@
  *
  * The library is free for all purposes without any express
  * guarantee it works.
- *
- * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 #include "tomcrypt.h"
 
@@ -17,7 +15,7 @@
 #ifdef LTC_XTS_MODE
 
 /** Terminate XTS state
-   @param XTS    The state to terminate
+   @param xts    The state to terminate
 */
 void xts_done(symmetric_xts *xts)
 {
@@ -28,6 +26,6 @@ void xts_done(symmetric_xts *xts)
 
 #endif
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

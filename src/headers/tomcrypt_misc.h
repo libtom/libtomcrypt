@@ -1,17 +1,57 @@
+/* LibTomCrypt, modular cryptographic library -- Tom St Denis
+ *
+ * LibTomCrypt is a library that provides various cryptographic
+ * algorithms in a highly modular and flexible manner.
+ *
+ * The library is free for all purposes without any express
+ * guarantee it works.
+ */
+
 /* ---- LTC_BASE64 Routines ---- */
 #ifdef LTC_BASE64
 int base64_encode(const unsigned char *in,  unsigned long len,
-                        unsigned char *out, unsigned long *outlen);
+                                 char *out, unsigned long *outlen);
 
-int base64_decode(const unsigned char *in,  unsigned long len,
+int base64_decode(const char *in,  unsigned long len,
+                        unsigned char *out, unsigned long *outlen);
+int base64_strict_decode(const char *in,  unsigned long len,
                         unsigned char *out, unsigned long *outlen);
 #endif
 
 #ifdef LTC_BASE64_URL
 int base64url_encode(const unsigned char *in,  unsigned long len,
-                        unsigned char *out, unsigned long *outlen);
+                                    char *out, unsigned long *outlen);
+int base64url_strict_encode(const unsigned char *in,  unsigned long inlen,
+                                           char *out, unsigned long *outlen);
 
-int base64url_decode(const unsigned char *in,  unsigned long len,
+int base64url_decode(const char *in,  unsigned long len,
+                        unsigned char *out, unsigned long *outlen);
+int base64url_strict_decode(const char *in,  unsigned long len,
+                        unsigned char *out, unsigned long *outlen);
+#endif
+
+/* ---- BASE32 Routines ---- */
+#ifdef LTC_BASE32
+typedef enum {
+   BASE32_RFC4648   = 0,
+   BASE32_BASE32HEX = 1,
+   BASE32_ZBASE32   = 2,
+   BASE32_CROCKFORD = 3
+} base32_alphabet;
+int base32_encode(const unsigned char *in,  unsigned long inlen,
+                                 char *out, unsigned long *outlen,
+                        base32_alphabet id);
+int base32_decode(const          char *in,  unsigned long inlen,
+                        unsigned char *out, unsigned long *outlen,
+                        base32_alphabet id);
+#endif
+
+/* ---- BASE16 Routines ---- */
+#ifdef LTC_BASE16
+int base16_encode(const unsigned char *in,  unsigned long  inlen,
+                                 char *out, unsigned long *outlen,
+                                 int  caps);
+int base16_decode(const          char *in,  unsigned long  inlen,
                         unsigned char *out, unsigned long *outlen);
 #endif
 
@@ -41,6 +81,9 @@ int hkdf(int hash_idx,
 /* ---- MEM routines ---- */
 int mem_neq(const void *a, const void *b, size_t len);
 void zeromem(volatile void *dst, size_t len);
+#ifdef LTC_SOURCE
+void copy_or_zeromem(const unsigned char* src, unsigned char* dest, unsigned long len, int coz);
+#endif
 void burn_stack(unsigned long len);
 
 const char *error_to_string(int err);
@@ -58,16 +101,15 @@ int crypt_get_size(const char* namein, unsigned int *sizeout);
 int crypt_list_all_sizes(char *names_list, unsigned int *names_list_size);
 
 #ifdef LTM_DESC
-void init_LTM(void);
+LTC_DEPRECATED void init_LTM(void);
 #endif
 #ifdef TFM_DESC
-void init_TFM(void);
+LTC_DEPRECATED void init_TFM(void);
 #endif
-/*                          *** use of GMP is untested ***
 #ifdef GMP_DESC
-void init_GMP(void);
+LTC_DEPRECATED void init_GMP(void);
 #endif
-*/
+int crypt_mp_init(const char* mpi);
 
 #ifdef LTC_ADLER32
 typedef struct adler32_state_s
@@ -93,11 +135,31 @@ void crc32_finish(crc32_state *ctx, void *hash, unsigned long size);
 int crc32_test(void);
 #endif
 
-/* yeah it's not exactly in misc in the library, but in testprof/x86_prof.c */
-#if defined(LTC_TEST) && defined(LTC_TEST_DBG)
-void print_hex(const char* what, const unsigned char* p, const unsigned long l);
-#endif
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+#ifdef LTC_PADDING
+
+enum padding_type {
+   LTC_PAD_PKCS7        = 0x0000U,
+#ifdef LTC_RNG_GET_BYTES
+   LTC_PAD_ISO_10126    = 0x1000U,
+#endif
+   LTC_PAD_ANSI_X923    = 0x2000U,
+   LTC_PAD_ONE_AND_ZERO = 0x8000U,
+   LTC_PAD_ZERO         = 0x9000U,
+   LTC_PAD_ZERO_ALWAYS  = 0xA000U,
+};
+
+int padding_pad(unsigned char *data, unsigned long length, unsigned long* padded_length, unsigned long mode);
+int padding_depad(unsigned char *data, unsigned long *length, unsigned long mode);
+
+#ifdef LTC_SOURCE
+/* internal helper functions */
+#define LTC_PAD_MASK       (0xF000U)
+#endif
+#endif  /* LTC_PADDING */
+
+int compare_testvector(const void* is, const unsigned long is_len, const void* should, const unsigned long should_len, const char* what, int which);
+
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

@@ -5,8 +5,6 @@
  *
  * The library is free for all purposes without any express
  * guarantee it works.
- *
- * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 
 #define DESC_DEF_ONLY
@@ -61,7 +59,7 @@ static int init_copy(void **a, void *b)
 }
 
 /* ---- trivial ---- */
-static int set_int(void *a, unsigned long b)
+static int set_int(void *a, ltc_mp_digit b)
 {
    LTC_ARGCHK(a != NULL);
    mpz_set_ui(((__mpz_struct *)a), b);
@@ -101,7 +99,7 @@ static int compare(void *a, void *b)
    }
 }
 
-static int compare_d(void *a, unsigned long b)
+static int compare_d(void *a, ltc_mp_digit b)
 {
    int ret;
    LTC_ARGCHK(a != NULL);
@@ -167,7 +165,7 @@ static int read_radix(void *a, const char *b, int radix)
          }
          if (i == 64) {
             XFREE (tmp);
-            // printf ("c = '%c'\n", c);
+            /* printf ("c = '%c'\n", c); */
             return CRYPT_ERROR;
          }
          *q++ = '0' + (i / 8);
@@ -175,7 +173,7 @@ static int read_radix(void *a, const char *b, int radix)
       }
       *q = 0;
       ret = mpz_set_str(a, tmp, 8);
-      // printf ("ret = %d for '%s'\n", ret, tmp);
+      /* printf ("ret = %d for '%s'\n", ret, tmp); */
       XFREE (tmp);
    } else {
       ret = mpz_set_str(a, b, radix);
@@ -235,7 +233,7 @@ static int add(void *a, void *b, void *c)
    return CRYPT_OK;
 }
 
-static int addi(void *a, unsigned long b, void *c)
+static int addi(void *a, ltc_mp_digit b, void *c)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(c != NULL);
@@ -253,7 +251,7 @@ static int sub(void *a, void *b, void *c)
    return CRYPT_OK;
 }
 
-static int subi(void *a, unsigned long b, void *c)
+static int subi(void *a, ltc_mp_digit b, void *c)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(c != NULL);
@@ -271,7 +269,7 @@ static int mul(void *a, void *b, void *c)
    return CRYPT_OK;
 }
 
-static int muli(void *a, unsigned long b, void *c)
+static int muli(void *a, ltc_mp_digit b, void *c)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(c != NULL);
@@ -317,7 +315,7 @@ static int div_2(void *a, void *b)
 }
 
 /* modi */
-static int modi(void *a, unsigned long b, unsigned long *c)
+static int modi(void *a, ltc_mp_digit b, ltc_mp_digit *c)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(c != NULL);
@@ -448,7 +446,7 @@ static int isprime(void *a, int b, int *c)
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(c != NULL);
    if (b == 0) {
-       b = 8;
+       b = LTC_MILLER_RABIN_REPS;
    } /* if */
    *c = mpz_probab_prime_p(a, b) > 0 ? LTC_MP_YES : LTC_MP_NO;
    return CRYPT_OK;
@@ -551,6 +549,6 @@ const ltc_math_descriptor gmp_desc = {
 
 #endif
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

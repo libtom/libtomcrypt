@@ -1,29 +1,16 @@
 #!/bin/bash
 
-bash genlist.sh > tmplist
+./helper.pl --update-makefiles || exit 1
 
-perl filter.pl makefile tmplist
-sed -e 's/ *$//' < tmp.delme > makefile
-rm -f tmp.delme
+makefiles=(makefile makefile_include.mk makefile.shared makefile.unix makefile.mingw makefile.msvc)
+vcproj=(libtomcrypt_VS2008.vcproj)
 
-perl filter.pl makefile.icc tmplist
-sed -e 's/ *$//' < tmp.delme > makefile.icc
-rm -f tmp.delme
+if [ $# -eq 1 ] && [ "$1" == "-c" ]; then
+  git add ${makefiles[@]} ${vcproj[@]} doc/Doxyfile && git commit -m 'Update makefiles'
+fi
 
-perl filter.pl makefile.shared tmplist
-sed -e 's/ *$//' < tmp.delme > makefile.shared
-rm -f tmp.delme
+exit 0
 
-perl filter.pl makefile.unix tmplist
-sed -e 's/ *$//' < tmp.delme > makefile.unix
-rm -f tmp.delme
-
-perl filter.pl makefile.mingw tmplist
-sed -e 's/ *$//' < tmp.delme > makefile.mingw
-rm -f tmp.delme
-
-perl filter.pl makefile.msvc tmplist
-sed -e 's/\.o /.obj /g' -e 's/ *$//' < tmp.delme > makefile.msvc
-rm -f tmp.delme
-
-rm -f tmplist
+# ref:         $Format:%D$
+# git commit:  $Format:%H$
+# commit time: $Format:%ai$

@@ -5,8 +5,6 @@
  *
  * The library is free for all purposes without any express
  * guarantee it works.
- *
- * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 #include "tomcrypt.h"
 
@@ -49,7 +47,7 @@ int omac_process(omac_state *omac, const unsigned char *in, unsigned long inlen)
         unsigned long y;
         for (x = 0; x < (inlen - blklen); x += blklen) {
             for (y = 0; y < blklen; y += sizeof(LTC_FAST_TYPE)) {
-                *((LTC_FAST_TYPE*)(&omac->prev[y])) ^= *((LTC_FAST_TYPE*)(&in[y]));
+                *(LTC_FAST_TYPE_PTR_CAST(&omac->prev[y])) ^= *(LTC_FAST_TYPE_PTR_CAST(&in[y]));
             }
             in += blklen;
             if ((err = cipher_descriptor[omac->cipher_idx].ecb_encrypt(omac->prev, omac->prev, &omac->key)) != CRYPT_OK) {
@@ -87,6 +85,6 @@ int omac_process(omac_state *omac, const unsigned char *in, unsigned long inlen)
 #endif
 
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

@@ -1,3 +1,12 @@
+/* LibTomCrypt, modular cryptographic library -- Tom St Denis
+ *
+ * LibTomCrypt is a library that provides various cryptographic
+ * algorithms in a highly modular and flexible manner.
+ *
+ * The library is free for all purposes without any express
+ * guarantee it works.
+ */
+
 #ifndef TOMCRYPT_H_
 #define TOMCRYPT_H_
 #include <assert.h>
@@ -17,14 +26,14 @@ extern "C" {
 #endif
 
 /* version */
-#define CRYPT   0x0117
-#define SCRYPT  "1.17"
+#define CRYPT   0x0118
+#define SCRYPT  "1.18.1-develop"
 
 /* max size of either a cipher/hash block or symmetric key [largest of the two] */
-#define MAXBLOCKSIZE  128
+#define MAXBLOCKSIZE  144
 
 /* descriptor table size */
-#define TAB_SIZE      32
+#define TAB_SIZE      34
 
 /* error codes [will be expanded in future releases] */
 enum {
@@ -55,9 +64,13 @@ enum {
    CRYPT_FILE_NOTFOUND,    /* File Not Found */
 
    CRYPT_PK_INVALID_TYPE,  /* Invalid type of PK key */
-   CRYPT_PK_INVALID_SYSTEM,/* Invalid PK system specified */
-   CRYPT_PK_DUP,           /* Duplicate key already in key ring */
-   CRYPT_PK_NOT_FOUND,     /* Key not found in keyring */
+
+   CRYPT_OVERFLOW,         /* An overflow of a value was detected/prevented */
+
+   CRYPT_PK_ASN1_ERROR,    /* An error occurred while en- or decoding ASN.1 data */
+
+   CRYPT_INPUT_TOO_LONG,   /* The input was longer than expected. */
+
    CRYPT_PK_INVALID_SIZE,  /* Invalid size input for PK parameters */
 
    CRYPT_INVALID_PRIME_SIZE,/* Invalid size of prime requested */
@@ -85,6 +98,6 @@ enum {
 #endif /* TOMCRYPT_H_ */
 
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

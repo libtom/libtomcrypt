@@ -5,8 +5,6 @@
  *
  * The library is free for all purposes without any express
  * guarantee it works.
- *
- * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 #include "tomcrypt.h"
 
@@ -186,6 +184,15 @@ int der_decode_choice(const unsigned char *in,   unsigned long *inlen,
                }
                break;
 
+           case LTC_ASN1_GENERALIZEDTIME:
+               z = *inlen;
+               if (der_decode_generalizedtime(in, &z, data) == CRYPT_OK) {
+                  list[x].used = 1;
+                  *inlen       = z;
+                  return CRYPT_OK;
+               }
+               break;
+
            case LTC_ASN1_SET:
            case LTC_ASN1_SETOF:
            case LTC_ASN1_SEQUENCE:
@@ -198,9 +205,17 @@ int der_decode_choice(const unsigned char *in,   unsigned long *inlen,
                }
                break;
 
+           case LTC_ASN1_CUSTOM_TYPE:
+               if (der_decode_custom_type(in, *inlen, &list[x]) == CRYPT_OK) {
+                  if (der_length_custom_type(&list[x], &z, NULL) == CRYPT_OK) {
+                     list[x].used = 1;
+                     *inlen       = z;
+                     return CRYPT_OK;
+                  }
+               }
+               break;
+
            case LTC_ASN1_CHOICE:
-           case LTC_ASN1_CONSTRUCTED:
-           case LTC_ASN1_CONTEXT_SPECIFIC:
            case LTC_ASN1_EOL:
                return CRYPT_INVALID_ARG;
        }
@@ -211,6 +226,6 @@ int der_decode_choice(const unsigned char *in,   unsigned long *inlen,
 
 #endif
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */

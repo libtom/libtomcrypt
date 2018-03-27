@@ -5,8 +5,6 @@
  *
  * The library is free for all purposes without any express
  * guarantee it works.
- *
- * Tom St Denis, tomstdenis@gmail.com, http://libtom.org
  */
 
 #include "tomcrypt.h"
@@ -147,17 +145,23 @@ static int chc_compress(hash_state *md, unsigned char *buf)
    for (x = 0; x < cipher_blocksize; x++) {
        md->chc.state[x] ^= T[0][x] ^ T[1][x];
    }
-   XFREE(key);
 #ifdef LTC_CLEAN_STACK
    zeromem(T, sizeof(T));
-   zeromem(&key, sizeof(key));
+   zeromem(key, sizeof(*key));
 #endif
+   XFREE(key);
    return CRYPT_OK;
 }
 
-/* function for processing blocks */
-int _chc_process(hash_state * md, const unsigned char *buf, unsigned long len);
-HASH_PROCESS(_chc_process, chc_compress, chc, (unsigned long)cipher_blocksize)
+/**
+   Function for processing blocks
+   @param md   The hash state
+   @param buf  The data to hash
+   @param len  The length of the data (octets)
+   @return CRYPT_OK if successful
+*/
+static int _chc_process(hash_state * md, const unsigned char *buf, unsigned long len);
+static HASH_PROCESS(_chc_process, chc_compress, chc, (unsigned long)cipher_blocksize)
 
 /**
    Process a block of memory though the hash
@@ -256,7 +260,7 @@ int chc_test(void)
 #else
    static const struct {
       unsigned char *msg,
-                     md[MAXBLOCKSIZE];
+                     hash[MAXBLOCKSIZE];
       int            len;
    } tests[] = {
 {
@@ -266,8 +270,8 @@ int chc_test(void)
    16
 }
 };
-   int x, oldhashidx, idx;
-   unsigned char out[MAXBLOCKSIZE];
+   int i, oldhashidx, idx;
+   unsigned char tmp[MAXBLOCKSIZE];
    hash_state md;
 
    /* AES can be under rijndael or aes... try to find it */
@@ -279,11 +283,11 @@ int chc_test(void)
    oldhashidx = cipher_idx;
    chc_register(idx);
 
-   for (x = 0; x < (int)(sizeof(tests)/sizeof(tests[0])); x++) {
+   for (i = 0; i < (int)(sizeof(tests)/sizeof(tests[0])); i++) {
        chc_init(&md);
-       chc_process(&md, tests[x].msg, strlen((char *)tests[x].msg));
-       chc_done(&md, out);
-       if (XMEMCMP(out, tests[x].md, tests[x].len)) {
+       chc_process(&md, tests[i].msg, strlen((char *)tests[i].msg));
+       chc_done(&md, tmp);
+       if (compare_testvector(tmp, tests[i].len, tests[i].hash, tests[i].len, "CHC", i)) {
           return CRYPT_FAIL_TESTVECTOR;
        }
    }
@@ -297,6 +301,6 @@ int chc_test(void)
 
 #endif
 
-/* $Source$ */
-/* $Revision$ */
-/* $Date$ */
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */
