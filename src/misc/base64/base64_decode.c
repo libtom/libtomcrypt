@@ -115,8 +115,8 @@ static int _base64_decode_internal(const char *in,  unsigned long inlen,
           else
              return CRYPT_INVALID_PACKET;
        }
-       if (g > 0) {
-          /* we only allow '=' to be at the end */
+       if ((g > 0) && (mode != insane)) {
+          /* we only allow '=' to be at the end (strict+relaxed) */
           return CRYPT_INVALID_PACKET;
        }
 
