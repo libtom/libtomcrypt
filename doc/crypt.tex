@@ -6549,9 +6549,8 @@ int base64_decode(   const char *in,
                   unsigned long *outlen);
 \end{verbatim}
 
-The function \textit{base64\_decode} works in a relaxed way which allows decoding some inputs that do not strictly follow the standard.
-The relaxed mode ignores white-spaces (\textit{CR}, \textit{LF}, \textit{TAB}, \textit{space}), does not care about trailing \textit{=}
-and also ignores the last input byte in case it is \textit{NUL}.
+The function \textit{base64\_decode} works in a dangerously relaxed way which allows decoding some inputs that do not strictly follow the standard.
+
 If you want to be strict during decoding you can use:
 \index{base64\_strict\_decode()}
 \begin{verbatim}
@@ -6559,6 +6558,16 @@ int base64_strict_decode(   const char *in,
                          unsigned long  len,
                          unsigned char *out,
                          unsigned long *outlen);
+\end{verbatim}
+
+There is also so called sane mode that ignores white-spaces (\textit{CR}, \textit{LF}, \textit{TAB}, \textit{space}),
+does not care about trailing \textit{=} and also ignores the last input byte in case it is \textit{NUL}.
+\index{base64\_sane\_decode()}
+\begin{verbatim}
+int base64_sane_decode(   const char *in,
+                       unsigned long  len,
+                       unsigned char *out,
+                       unsigned long *outlen);
 \end{verbatim}
 
 \subsection{URL--safe 'base64url' encoding}
@@ -6581,6 +6590,9 @@ int base64url_decode(   const char *in,  unsigned long len,
 
 int base64url_strict_decode(   const char *in,  unsigned long len,
                             unsigned char *out, unsigned long *outlen);
+
+int base64url_sane_decode(   const char *in,  unsigned long len,
+                          unsigned char *out, unsigned long *outlen);
 \end{verbatim}
 
 \mysection{Base32 Encoding and Decoding}
