@@ -70,7 +70,7 @@ static int _base64_encode_internal(const unsigned char *in,  unsigned long inlen
    }
 
    /* append a NULL byte */
-   *p = '\0';
+   *p++ = '\0';
 
    /* return ok */
    *outlen = (unsigned long)(p - out);
