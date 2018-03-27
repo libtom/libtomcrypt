@@ -5,9 +5,17 @@
       <Configuration>Debug</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
     <ProjectConfiguration Include="Release|Win32">
       <Configuration>Release</Configuration>
       <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -20,60 +28,85 @@
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <PlatformToolset>v120</PlatformToolset>
     <UseOfMfc>false</UseOfMfc>
-    <CharacterSet>MultiByte</CharacterSet>
+    <CharacterSet>NotSet</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <PlatformToolset>v120</PlatformToolset>
     <UseOfMfc>false</UseOfMfc>
-    <CharacterSet>MultiByte</CharacterSet>
+    <CharacterSet>NotSet</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>NotSet</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>NotSet</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC60.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC60.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <_ProjectFileVersion>12.0.30501.0</_ProjectFileVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>.\Debug\</OutDir>
-    <IntDir>.\Debug\</IntDir>
+    <OutDir>MSVC_$(Platform)_$(Configuration)\</OutDir>
+    <IntDir>MSVC_$(Platform)_$(Configuration)\Intermediate\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>.\Release\</OutDir>
-    <IntDir>.\Release\</IntDir>
+    <OutDir>MSVC_$(Platform)_$(Configuration)\</OutDir>
+    <IntDir>MSVC_$(Platform)_$(Configuration)\Intermediate\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>MSVC_$(Platform)_$(Configuration)\</OutDir>
+    <IntDir>MSVC_$(Platform)_$(Configuration)\Intermediate\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>MSVC_$(Platform)_$(Configuration)\</OutDir>
+    <IntDir>MSVC_$(Platform)_$(Configuration)\Intermediate\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>src\headers;..\libtommath;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_DEBUG;LTM_DESC;WIN32;_LIB;LTC_SOURCE;USE_LTM;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;LTM_DESC;LTC_SOURCE;LTC_NO_TEST;LTC_NO_PROTOTYPES;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
+      <ExceptionHandling />
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
-      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
-      <PrecompiledHeaderOutputFile>.\Debug/libtomcrypt.pch</PrecompiledHeaderOutputFile>
-      <AssemblerListingLocation>.\Debug/</AssemblerListingLocation>
-      <ObjectFileName>.\Debug/</ObjectFileName>
-      <ProgramDataBaseFileName>.\Debug/</ProgramDataBaseFileName>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <PrecompiledHeaderOutputFile>$(IntDir)libtomcrypt.pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
       <WarningLevel>Level3</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <CompileAs>CompileAsC</CompileAs>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <Culture>0x0409</Culture>
     </ResourceCompile>
     <Lib>
-      <OutputFile>Debug\tomcrypt.lib</OutputFile>
+      <OutputFile>$(OutDir)tomcryptd.lib</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
     </Lib>
     <Bscmake>
@@ -86,25 +119,93 @@
       <Optimization>MaxSpeed</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <AdditionalIncludeDirectories>src\headers;..\libtommath;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>NDEBUG;LTM_DESC;WIN32;_LIB;LTC_SOURCE;USE_LTM;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;LTM_DESC;LTC_SOURCE;LTC_NO_TEST;LTC_NO_PROTOTYPES;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
-      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <ExceptionHandling />
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
-      <PrecompiledHeaderOutputFile>.\Release/libtomcrypt.pch</PrecompiledHeaderOutputFile>
-      <AssemblerListingLocation>.\Release/</AssemblerListingLocation>
-      <ObjectFileName>.\Release/</ObjectFileName>
-      <ProgramDataBaseFileName>.\Release/</ProgramDataBaseFileName>
+      <PrecompiledHeaderOutputFile>$(IntDir)libtomcrypt.pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
       <WarningLevel>Level3</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <DebugInformationFormat>None</DebugInformationFormat>
-      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <CompileAs>CompileAsC</CompileAs>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <Culture>0x0409</Culture>
     </ResourceCompile>
     <Lib>
-      <OutputFile>Release\tomcrypt.lib</OutputFile>
+      <OutputFile>$(OutDir)tomcrypt.lib</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Lib>
+    <Bscmake>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <OutputFile>.\Release/libtomcrypt.bsc</OutputFile>
+    </Bscmake>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+    </Midl>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>src\headers;..\libtommath;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;LTM_DESC;LTC_SOURCE;LTC_NO_TEST;LTC_NO_PROTOTYPES;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <ExceptionHandling />
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <PrecompiledHeaderOutputFile>$(IntDir)libtomcrypt.pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <CompileAs>CompileAsC</CompileAs>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+    </ResourceCompile>
+    <Lib>
+      <OutputFile>$(OutDir)tomcryptd.lib</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Lib>
+    <Bscmake>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <OutputFile>.\Debug/libtomcrypt.bsc</OutputFile>
+    </Bscmake>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+    </Midl>
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <AdditionalIncludeDirectories>src\headers;..\libtommath;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;LTM_DESC;LTC_SOURCE;LTC_NO_TEST;LTC_NO_PROTOTYPES;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <ExceptionHandling />
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <PrecompiledHeaderOutputFile>$(IntDir)libtomcrypt.pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <CompileAs>CompileAsC</CompileAs>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+    </ResourceCompile>
+    <Lib>
+      <OutputFile>$(OutDir)tomcrypt.lib</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
     </Lib>
     <Bscmake>
@@ -113,25 +214,19 @@
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <CustomBuild Include="src\ciphers\aes\aes.c">
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">cl /nologo /MLd /W3 /Gm /GX /ZI /Od /I "src\headers" /I "..\libtommath" /D "_DEBUG" /D "LTM_DESC" /D "WIN32" /D "_MBCS" /D "_LIB" /D "LTC_SOURCE" /D "USE_LTM" /Fp"Debug/libtomcrypt.pch" /YX /Fo"Debug/" /Fd"Debug/" /FD /GZ /c %(FullPath)
-cl /nologo /DENCRYPT_ONLY /MLd /W3 /Gm /GX /ZI /Od /I "src\headers" /I "..\libtommath" /D "_DEBUG" /D "LTM_DESC" /D "WIN32" /D "_MBCS" /D "_LIB" /D "LTC_SOURCE" /D "USE_LTM" /Fp"Debug/libtomcrypt.pch" /YX /Fo"Debug/aes_enc.obj" /Fd"Debug/" /FD /GZ /c %(FullPath)
-</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Debug/aes.obj;Debug/aes_enc.obj;%(Outputs)</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cl /nologo /MLd /W3 /Gm /GX /ZI /Od /I "src\headers" /I "..\libtommath" /D "_DEBUG" /D "LTM_DESC" /D "WIN32" /D "_MBCS" /D "_LIB" /D "LTC_SOURCE" /D "USE_LTM" /Fp"Release/libtomcrypt.pch" /YX /Fo"Release/" /Fd"Release/" /FD /GZ /c %(FullPath)
-cl /nologo /DENCRYPT_ONLY /MLd /W3 /Gm /GX /ZI /Od /I "src\headers" /I "..\libtommath" /D "_DEBUG" /D "LTM_DESC" /D "WIN32" /D "_MBCS" /D "_LIB" /D "LTC_SOURCE" /D "USE_LTM" /Fp"Release/libtomcrypt.pch" /YX /Fo"Release/aes_enc.obj" /Fd"Release/" /FD /GZ /c %(FullPath)
-</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Release/aes.obj;Release/aes_enc.obj;%(Outputs)</Outputs>
-    </CustomBuild>
+    <ClCompile Include="src\ciphers\aes\aes.c" />
     <ClCompile Include="src\ciphers\aes\aes_tab.c">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="src\ciphers\anubis.c" />
     <ClCompile Include="src\ciphers\blowfish.c" />
     <ClCompile Include="src\ciphers\camellia.c" />
     <ClCompile Include="src\ciphers\cast5.c" />
     <ClCompile Include="src\ciphers\des.c" />
+    <ClCompile Include="src\ciphers\idea.c" />
     <ClCompile Include="src\ciphers\kasumi.c" />
     <ClCompile Include="src\ciphers\khazad.c" />
     <ClCompile Include="src\ciphers\kseed.c" />
@@ -144,18 +239,37 @@ cl /nologo /DENCRYPT_ONLY /MLd /W3 /Gm /GX /ZI /Od /I "src\headers" /I "..\libto
     <ClCompile Include="src\ciphers\safer\saferp.c" />
     <ClCompile Include="src\ciphers\safer\safer_tab.c">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="src\ciphers\serpent.c" />
     <ClCompile Include="src\ciphers\skipjack.c" />
     <ClCompile Include="src\ciphers\twofish\twofish.c" />
     <ClCompile Include="src\ciphers\twofish\twofish_tab.c">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="src\ciphers\xtea.c" />
+    <ClCompile Include="src\encauth\ccm\ccm_add_aad.c" />
+    <ClCompile Include="src\encauth\ccm\ccm_add_nonce.c" />
+    <ClCompile Include="src\encauth\ccm\ccm_done.c" />
+    <ClCompile Include="src\encauth\ccm\ccm_init.c" />
     <ClCompile Include="src\encauth\ccm\ccm_memory.c" />
-    <ClCompile Include="src\encauth\ccm\ccm_memory_ex.c" />
+    <ClCompile Include="src\encauth\ccm\ccm_process.c" />
+    <ClCompile Include="src\encauth\ccm\ccm_reset.c" />
     <ClCompile Include="src\encauth\ccm\ccm_test.c" />
+    <ClCompile Include="src\encauth\chachapoly\chacha20poly1305_add_aad.c" />
+    <ClCompile Include="src\encauth\chachapoly\chacha20poly1305_decrypt.c" />
+    <ClCompile Include="src\encauth\chachapoly\chacha20poly1305_done.c" />
+    <ClCompile Include="src\encauth\chachapoly\chacha20poly1305_encrypt.c" />
+    <ClCompile Include="src\encauth\chachapoly\chacha20poly1305_init.c" />
+    <ClCompile Include="src\encauth\chachapoly\chacha20poly1305_memory.c" />
+    <ClCompile Include="src\encauth\chachapoly\chacha20poly1305_setiv.c" />
+    <ClCompile Include="src\encauth\chachapoly\chacha20poly1305_setiv_rfc7905.c" />
+    <ClCompile Include="src\encauth\chachapoly\chacha20poly1305_test.c" />
     <ClCompile Include="src\encauth\eax\eax_addheader.c" />
     <ClCompile Include="src\encauth\eax\eax_decrypt.c" />
     <ClCompile Include="src\encauth\eax\eax_decrypt_verify_memory.c" />
@@ -174,6 +288,18 @@ cl /nologo /DENCRYPT_ONLY /MLd /W3 /Gm /GX /ZI /Od /I "src\headers" /I "..\libto
     <ClCompile Include="src\encauth\gcm\gcm_process.c" />
     <ClCompile Include="src\encauth\gcm\gcm_reset.c" />
     <ClCompile Include="src\encauth\gcm\gcm_test.c" />
+    <ClCompile Include="src\encauth\ocb3\ocb3_add_aad.c" />
+    <ClCompile Include="src\encauth\ocb3\ocb3_decrypt.c" />
+    <ClCompile Include="src\encauth\ocb3\ocb3_decrypt_last.c" />
+    <ClCompile Include="src\encauth\ocb3\ocb3_decrypt_verify_memory.c" />
+    <ClCompile Include="src\encauth\ocb3\ocb3_done.c" />
+    <ClCompile Include="src\encauth\ocb3\ocb3_encrypt.c" />
+    <ClCompile Include="src\encauth\ocb3\ocb3_encrypt_authenticate_memory.c" />
+    <ClCompile Include="src\encauth\ocb3\ocb3_encrypt_last.c" />
+    <ClCompile Include="src\encauth\ocb3\ocb3_init.c" />
+    <ClCompile Include="src\encauth\ocb3\ocb3_int_ntz.c" />
+    <ClCompile Include="src\encauth\ocb3\ocb3_int_xor_blocks.c" />
+    <ClCompile Include="src\encauth\ocb3\ocb3_test.c" />
     <ClCompile Include="src\encauth\ocb\ocb_decrypt.c" />
     <ClCompile Include="src\encauth\ocb\ocb_decrypt_verify_memory.c" />
     <ClCompile Include="src\encauth\ocb\ocb_done_decrypt.c" />
@@ -185,6 +311,8 @@ cl /nologo /DENCRYPT_ONLY /MLd /W3 /Gm /GX /ZI /Od /I "src\headers" /I "..\libto
     <ClCompile Include="src\encauth\ocb\ocb_shift_xor.c" />
     <ClCompile Include="src\encauth\ocb\ocb_test.c" />
     <ClCompile Include="src\encauth\ocb\s_ocb_done.c" />
+    <ClCompile Include="src\hashes\blake2b.c" />
+    <ClCompile Include="src\hashes\blake2s.c" />
     <ClCompile Include="src\hashes\chc\chc.c" />
     <ClCompile Include="src\hashes\helper\hash_file.c" />
     <ClCompile Include="src\hashes\helper\hash_filehandle.c" />
@@ -198,22 +326,32 @@ cl /nologo /DENCRYPT_ONLY /MLd /W3 /Gm /GX /ZI /Od /I "src\headers" /I "..\libto
     <ClCompile Include="src\hashes\rmd256.c" />
     <ClCompile Include="src\hashes\rmd320.c" />
     <ClCompile Include="src\hashes\sha1.c" />
-    <ClCompile Include="src\hashes\sha2\sha224.c">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
+    <ClCompile Include="src\hashes\sha2\sha224.c" />
     <ClCompile Include="src\hashes\sha2\sha256.c" />
-    <ClCompile Include="src\hashes\sha2\sha384.c">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
+    <ClCompile Include="src\hashes\sha2\sha384.c" />
     <ClCompile Include="src\hashes\sha2\sha512.c" />
+    <ClCompile Include="src\hashes\sha2\sha512_224.c" />
+    <ClCompile Include="src\hashes\sha2\sha512_256.c" />
+    <ClCompile Include="src\hashes\sha3.c" />
+    <ClCompile Include="src\hashes\sha3_test.c" />
     <ClCompile Include="src\hashes\tiger.c" />
     <ClCompile Include="src\hashes\whirl\whirl.c" />
     <ClCompile Include="src\hashes\whirl\whirltab.c">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="src\mac\blake2\blake2bmac.c" />
+    <ClCompile Include="src\mac\blake2\blake2bmac_file.c" />
+    <ClCompile Include="src\mac\blake2\blake2bmac_memory.c" />
+    <ClCompile Include="src\mac\blake2\blake2bmac_memory_multi.c" />
+    <ClCompile Include="src\mac\blake2\blake2bmac_test.c" />
+    <ClCompile Include="src\mac\blake2\blake2smac.c" />
+    <ClCompile Include="src\mac\blake2\blake2smac_file.c" />
+    <ClCompile Include="src\mac\blake2\blake2smac_memory.c" />
+    <ClCompile Include="src\mac\blake2\blake2smac_memory_multi.c" />
+    <ClCompile Include="src\mac\blake2\blake2smac_test.c" />
     <ClCompile Include="src\mac\f9\f9_done.c" />
     <ClCompile Include="src\mac\f9\f9_file.c" />
     <ClCompile Include="src\mac\f9\f9_init.c" />
@@ -247,6 +385,11 @@ cl /nologo /DENCRYPT_ONLY /MLd /W3 /Gm /GX /ZI /Od /I "src\headers" /I "..\libto
     <ClCompile Include="src\mac\pmac\pmac_process.c" />
     <ClCompile Include="src\mac\pmac\pmac_shift_xor.c" />
     <ClCompile Include="src\mac\pmac\pmac_test.c" />
+    <ClCompile Include="src\mac\poly1305\poly1305.c" />
+    <ClCompile Include="src\mac\poly1305\poly1305_file.c" />
+    <ClCompile Include="src\mac\poly1305\poly1305_memory.c" />
+    <ClCompile Include="src\mac\poly1305\poly1305_memory_multi.c" />
+    <ClCompile Include="src\mac\poly1305\poly1305_test.c" />
     <ClCompile Include="src\mac\xcbc\xcbc_done.c" />
     <ClCompile Include="src\mac\xcbc\xcbc_file.c" />
     <ClCompile Include="src\mac\xcbc\xcbc_init.c" />
@@ -258,15 +401,26 @@ cl /nologo /DENCRYPT_ONLY /MLd /W3 /Gm /GX /ZI /Od /I "src\headers" /I "..\libto
     <ClCompile Include="src\math\gmp_desc.c" />
     <ClCompile Include="src\math\ltm_desc.c" />
     <ClCompile Include="src\math\multi.c" />
+    <ClCompile Include="src\math\radix_to_bin.c" />
+    <ClCompile Include="src\math\rand_bn.c" />
     <ClCompile Include="src\math\rand_prime.c" />
     <ClCompile Include="src\math\tfm_desc.c" />
+    <ClCompile Include="src\misc\adler32.c" />
+    <ClCompile Include="src\misc\base16\base16_decode.c" />
+    <ClCompile Include="src\misc\base16\base16_encode.c" />
+    <ClCompile Include="src\misc\base32\base32_decode.c" />
+    <ClCompile Include="src\misc\base32\base32_encode.c" />
     <ClCompile Include="src\misc\base64\base64_decode.c" />
     <ClCompile Include="src\misc\base64\base64_encode.c" />
     <ClCompile Include="src\misc\burn_stack.c" />
+    <ClCompile Include="src\misc\compare_testvector.c" />
+    <ClCompile Include="src\misc\copy_or_zeromem.c" />
+    <ClCompile Include="src\misc\crc32.c" />
     <ClCompile Include="src\misc\crypt\crypt.c" />
     <ClCompile Include="src\misc\crypt\crypt_argchk.c" />
     <ClCompile Include="src\misc\crypt\crypt_cipher_descriptor.c" />
     <ClCompile Include="src\misc\crypt\crypt_cipher_is_valid.c" />
+    <ClCompile Include="src\misc\crypt\crypt_constants.c" />
     <ClCompile Include="src\misc\crypt\crypt_find_cipher.c" />
     <ClCompile Include="src\misc\crypt\crypt_find_cipher_any.c" />
     <ClCompile Include="src\misc\crypt\crypt_find_cipher_id.c" />
@@ -278,20 +432,30 @@ cl /nologo /DENCRYPT_ONLY /MLd /W3 /Gm /GX /ZI /Od /I "src\headers" /I "..\libto
     <ClCompile Include="src\misc\crypt\crypt_fsa.c" />
     <ClCompile Include="src\misc\crypt\crypt_hash_descriptor.c" />
     <ClCompile Include="src\misc\crypt\crypt_hash_is_valid.c" />
+    <ClCompile Include="src\misc\crypt\crypt_inits.c" />
     <ClCompile Include="src\misc\crypt\crypt_ltc_mp_descriptor.c" />
     <ClCompile Include="src\misc\crypt\crypt_prng_descriptor.c" />
     <ClCompile Include="src\misc\crypt\crypt_prng_is_valid.c" />
+    <ClCompile Include="src\misc\crypt\crypt_prng_rng_descriptor.c" />
+    <ClCompile Include="src\misc\crypt\crypt_register_all_ciphers.c" />
+    <ClCompile Include="src\misc\crypt\crypt_register_all_hashes.c" />
+    <ClCompile Include="src\misc\crypt\crypt_register_all_prngs.c" />
     <ClCompile Include="src\misc\crypt\crypt_register_cipher.c" />
     <ClCompile Include="src\misc\crypt\crypt_register_hash.c" />
     <ClCompile Include="src\misc\crypt\crypt_register_prng.c" />
+    <ClCompile Include="src\misc\crypt\crypt_sizes.c" />
     <ClCompile Include="src\misc\crypt\crypt_unregister_cipher.c" />
     <ClCompile Include="src\misc\crypt\crypt_unregister_hash.c" />
     <ClCompile Include="src\misc\crypt\crypt_unregister_prng.c" />
     <ClCompile Include="src\misc\error_to_string.c" />
     <ClCompile Include="src\misc\hkdf\hkdf.c" />
+    <ClCompile Include="src\misc\hkdf\hkdf_test.c" />
     <ClCompile Include="src\misc\mem_neq.c" />
+    <ClCompile Include="src\misc\padding\padding_depad.c" />
+    <ClCompile Include="src\misc\padding\padding_pad.c" />
     <ClCompile Include="src\misc\pkcs5\pkcs_5_1.c" />
     <ClCompile Include="src\misc\pkcs5\pkcs_5_2.c" />
+    <ClCompile Include="src\misc\pkcs5\pkcs_5_test.c" />
     <ClCompile Include="src\misc\pk_get_oid.c" />
     <ClCompile Include="src\misc\zeromem.c" />
     <ClCompile Include="src\modes\cbc\cbc_decrypt.c" />
@@ -353,6 +517,19 @@ cl /nologo /DENCRYPT_ONLY /MLd /W3 /Gm /GX /ZI /Od /I "src\headers" /I "..\libto
     <ClCompile Include="src\pk\asn1\der\boolean\der_encode_boolean.c" />
     <ClCompile Include="src\pk\asn1\der\boolean\der_length_boolean.c" />
     <ClCompile Include="src\pk\asn1\der\choice\der_decode_choice.c" />
+    <ClCompile Include="src\pk\asn1\der\custom_type\der_decode_custom_type.c" />
+    <ClCompile Include="src\pk\asn1\der\custom_type\der_encode_custom_type.c" />
+    <ClCompile Include="src\pk\asn1\der\custom_type\der_length_custom_type.c" />
+    <ClCompile Include="src\pk\asn1\der\generalizedtime\der_decode_generalizedtime.c" />
+    <ClCompile Include="src\pk\asn1\der\generalizedtime\der_encode_generalizedtime.c" />
+    <ClCompile Include="src\pk\asn1\der\generalizedtime\der_length_generalizedtime.c" />
+    <ClCompile Include="src\pk\asn1\der\general\der_asn1_maps.c" />
+    <ClCompile Include="src\pk\asn1\der\general\der_decode_asn1_identifier.c" />
+    <ClCompile Include="src\pk\asn1\der\general\der_decode_asn1_length.c" />
+    <ClCompile Include="src\pk\asn1\der\general\der_encode_asn1_identifier.c" />
+    <ClCompile Include="src\pk\asn1\der\general\der_encode_asn1_length.c" />
+    <ClCompile Include="src\pk\asn1\der\general\der_length_asn1_identifier.c" />
+    <ClCompile Include="src\pk\asn1\der\general\der_length_asn1_length.c" />
     <ClCompile Include="src\pk\asn1\der\ia5\der_decode_ia5_string.c" />
     <ClCompile Include="src\pk\asn1\der\ia5\der_encode_ia5_string.c" />
     <ClCompile Include="src\pk\asn1\der\ia5\der_length_ia5_string.c" />
@@ -371,12 +548,11 @@ cl /nologo /DENCRYPT_ONLY /MLd /W3 /Gm /GX /ZI /Od /I "src\headers" /I "..\libto
     <ClCompile Include="src\pk\asn1\der\sequence\der_decode_sequence_ex.c" />
     <ClCompile Include="src\pk\asn1\der\sequence\der_decode_sequence_flexi.c" />
     <ClCompile Include="src\pk\asn1\der\sequence\der_decode_sequence_multi.c" />
-    <ClCompile Include="src\pk\asn1\der\sequence\der_decode_subject_public_key_info.c" />
     <ClCompile Include="src\pk\asn1\der\sequence\der_encode_sequence_ex.c" />
     <ClCompile Include="src\pk\asn1\der\sequence\der_encode_sequence_multi.c" />
-    <ClCompile Include="src\pk\asn1\der\sequence\der_encode_subject_public_key_info.c" />
     <ClCompile Include="src\pk\asn1\der\sequence\der_length_sequence.c" />
     <ClCompile Include="src\pk\asn1\der\sequence\der_sequence_free.c" />
+    <ClCompile Include="src\pk\asn1\der\sequence\der_sequence_shrink.c" />
     <ClCompile Include="src\pk\asn1\der\set\der_encode_set.c" />
     <ClCompile Include="src\pk\asn1\der\set\der_encode_setof.c" />
     <ClCompile Include="src\pk\asn1\der\short_integer\der_decode_short_integer.c" />
@@ -390,13 +566,28 @@ cl /nologo /DENCRYPT_ONLY /MLd /W3 /Gm /GX /ZI /Od /I "src\headers" /I "..\libto
     <ClCompile Include="src\pk\asn1\der\utf8\der_decode_utf8_string.c" />
     <ClCompile Include="src\pk\asn1\der\utf8\der_encode_utf8_string.c" />
     <ClCompile Include="src\pk\asn1\der\utf8\der_length_utf8_string.c" />
+    <ClCompile Include="src\pk\asn1\x509\x509_decode_subject_public_key_info.c" />
+    <ClCompile Include="src\pk\asn1\x509\x509_encode_subject_public_key_info.c" />
     <ClCompile Include="src\pk\dh\dh.c" />
+    <ClCompile Include="src\pk\dh\dh_check_pubkey.c" />
+    <ClCompile Include="src\pk\dh\dh_export.c" />
+    <ClCompile Include="src\pk\dh\dh_export_key.c" />
+    <ClCompile Include="src\pk\dh\dh_free.c" />
+    <ClCompile Include="src\pk\dh\dh_generate_key.c" />
+    <ClCompile Include="src\pk\dh\dh_import.c" />
+    <ClCompile Include="src\pk\dh\dh_set.c" />
+    <ClCompile Include="src\pk\dh\dh_set_pg_dhparam.c" />
+    <ClCompile Include="src\pk\dh\dh_shared_secret.c" />
     <ClCompile Include="src\pk\dsa\dsa_decrypt_key.c" />
     <ClCompile Include="src\pk\dsa\dsa_encrypt_key.c" />
     <ClCompile Include="src\pk\dsa\dsa_export.c" />
     <ClCompile Include="src\pk\dsa\dsa_free.c" />
+    <ClCompile Include="src\pk\dsa\dsa_generate_key.c" />
+    <ClCompile Include="src\pk\dsa\dsa_generate_pqg.c" />
     <ClCompile Include="src\pk\dsa\dsa_import.c" />
     <ClCompile Include="src\pk\dsa\dsa_make_key.c" />
+    <ClCompile Include="src\pk\dsa\dsa_set.c" />
+    <ClCompile Include="src\pk\dsa\dsa_set_pqg_dsaparam.c" />
     <ClCompile Include="src\pk\dsa\dsa_shared_secret.c" />
     <ClCompile Include="src\pk\dsa\dsa_sign_hash.c" />
     <ClCompile Include="src\pk\dsa\dsa_verify_hash.c" />
@@ -445,21 +636,49 @@ cl /nologo /DENCRYPT_ONLY /MLd /W3 /Gm /GX /ZI /Od /I "src\headers" /I "..\libto
     <ClCompile Include="src\pk\rsa\rsa_export.c" />
     <ClCompile Include="src\pk\rsa\rsa_exptmod.c" />
     <ClCompile Include="src\pk\rsa\rsa_free.c" />
+    <ClCompile Include="src\pk\rsa\rsa_get_size.c" />
     <ClCompile Include="src\pk\rsa\rsa_import.c" />
+    <ClCompile Include="src\pk\rsa\rsa_import_pkcs8.c" />
+    <ClCompile Include="src\pk\rsa\rsa_import_x509.c" />
     <ClCompile Include="src\pk\rsa\rsa_make_key.c" />
+    <ClCompile Include="src\pk\rsa\rsa_set.c" />
     <ClCompile Include="src\pk\rsa\rsa_sign_hash.c" />
+    <ClCompile Include="src\pk\rsa\rsa_sign_saltlen_get.c" />
     <ClCompile Include="src\pk\rsa\rsa_verify_hash.c" />
+    <ClCompile Include="src\prngs\chacha20.c" />
     <ClCompile Include="src\prngs\fortuna.c" />
     <ClCompile Include="src\prngs\rc4.c" />
     <ClCompile Include="src\prngs\rng_get_bytes.c" />
     <ClCompile Include="src\prngs\rng_make_prng.c" />
     <ClCompile Include="src\prngs\sober128.c" />
-    <ClCompile Include="src\prngs\sober128tab.c">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
     <ClCompile Include="src\prngs\sprng.c" />
     <ClCompile Include="src\prngs\yarrow.c" />
+    <ClCompile Include="src\stream\chacha\chacha_crypt.c" />
+    <ClCompile Include="src\stream\chacha\chacha_done.c" />
+    <ClCompile Include="src\stream\chacha\chacha_ivctr32.c" />
+    <ClCompile Include="src\stream\chacha\chacha_ivctr64.c" />
+    <ClCompile Include="src\stream\chacha\chacha_keystream.c" />
+    <ClCompile Include="src\stream\chacha\chacha_setup.c" />
+    <ClCompile Include="src\stream\chacha\chacha_test.c" />
+    <ClCompile Include="src\stream\rabbit\rabbit.c" />
+    <ClCompile Include="src\stream\rc4\rc4_stream.c" />
+    <ClCompile Include="src\stream\rc4\rc4_test.c" />
+    <ClCompile Include="src\stream\salsa20\salsa20_crypt.c" />
+    <ClCompile Include="src\stream\salsa20\salsa20_done.c" />
+    <ClCompile Include="src\stream\salsa20\salsa20_ivctr64.c" />
+    <ClCompile Include="src\stream\salsa20\salsa20_keystream.c" />
+    <ClCompile Include="src\stream\salsa20\salsa20_setup.c" />
+    <ClCompile Include="src\stream\salsa20\salsa20_test.c" />
+    <ClCompile Include="src\stream\sober128\sober128tab.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="src\stream\sober128\sober128_stream.c" />
+    <ClCompile Include="src\stream\sober128\sober128_test.c" />
+    <ClCompile Include="src\stream\sosemanuk\sosemanuk.c" />
+    <ClCompile Include="src\stream\sosemanuk\sosemanuk_test.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\headers\tomcrypt.h" />
