@@ -45,7 +45,7 @@ int base32_encode(const unsigned char *in,  unsigned long inlen,
       *outlen = x;
       return CRYPT_BUFFER_OVERFLOW;
    }
-   *outlen = x;
+   *outlen = x - 1; /* returning the length without terminating NUL */
 
    /* no input, nothing to do */
    if (inlen == 0) {
