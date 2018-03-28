@@ -281,12 +281,13 @@ int SETUP(const unsigned char *key, int keylen, int num_rounds, symmetric_key *s
   @return CRYPT_OK if successful
 */
 #ifdef LTC_CLEAN_STACK
-static int _rijndael_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
+static int _rijndael_ecb_encrypt(const unsigned char *pt, unsigned char *ct, const symmetric_key *skey)
 #else
-int ECB_ENC(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
+int ECB_ENC(const unsigned char *pt, unsigned char *ct, const symmetric_key *skey)
 #endif
 {
-    ulong32 s0, s1, s2, s3, t0, t1, t2, t3, *rk;
+    ulong32 s0, s1, s2, s3, t0, t1, t2, t3;
+    const ulong32 *rk;
     int Nr, r;
 
     LTC_ARGCHK(pt != NULL);
@@ -442,7 +443,7 @@ int ECB_ENC(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
 }
 
 #ifdef LTC_CLEAN_STACK
-int ECB_ENC(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
+int ECB_ENC(const unsigned char *pt, unsigned char *ct, const symmetric_key *skey)
 {
    int err = _rijndael_ecb_encrypt(pt, ct, skey);
    burn_stack(sizeof(unsigned long)*8 + sizeof(unsigned long*) + sizeof(int)*2);
@@ -460,12 +461,13 @@ int ECB_ENC(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
   @return CRYPT_OK if successful
 */
 #ifdef LTC_CLEAN_STACK
-static int _rijndael_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey)
+static int _rijndael_ecb_decrypt(const unsigned char *ct, unsigned char *pt, const symmetric_key *skey)
 #else
-int ECB_DEC(const unsigned char *ct, unsigned char *pt, symmetric_key *skey)
+int ECB_DEC(const unsigned char *ct, unsigned char *pt, const symmetric_key *skey)
 #endif
 {
-    ulong32 s0, s1, s2, s3, t0, t1, t2, t3, *rk;
+    ulong32 s0, s1, s2, s3, t0, t1, t2, t3;
+    const ulong32 *rk;
     int Nr, r;
 
     LTC_ARGCHK(pt != NULL);
@@ -622,7 +624,7 @@ int ECB_DEC(const unsigned char *ct, unsigned char *pt, symmetric_key *skey)
 
 
 #ifdef LTC_CLEAN_STACK
-int ECB_DEC(const unsigned char *ct, unsigned char *pt, symmetric_key *skey)
+int ECB_DEC(const unsigned char *ct, unsigned char *pt, const symmetric_key *skey)
 {
    int err = _rijndael_ecb_decrypt(ct, pt, skey);
    burn_stack(sizeof(unsigned long)*8 + sizeof(unsigned long*) + sizeof(int)*2);

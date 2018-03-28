@@ -49,7 +49,7 @@ static void pi4(ulong32 *p, const ulong32 *k)
    p[0] ^= t;
 }
 
-static void setup(const ulong32 *dk, ulong32 *k, ulong32 *uk)
+static void setup(const ulong32 *dk, const ulong32 *k, ulong32 *uk)
 {
    int n, t;
    ulong32 p[2];
@@ -77,7 +77,7 @@ static void setup(const ulong32 *dk, ulong32 *k, ulong32 *uk)
       uk[n++] = p[1];
 }
 
-static void encrypt(ulong32 *p, int N, ulong32 *uk)
+static void encrypt(ulong32 *p, int N, const ulong32 *uk)
 {
    int n, t;
    for (t = n = 0; ; ) {
@@ -89,7 +89,7 @@ static void encrypt(ulong32 *p, int N, ulong32 *uk)
    }
 }
 
-static void decrypt(ulong32 *p, int N, ulong32 *uk)
+static void decrypt(ulong32 *p, int N, const ulong32 *uk)
 {
    int n, t;
    for (t = 4*(((N-1)>>2)&1), n = N; ;  ) {
@@ -148,7 +148,7 @@ int  multi2_setup(const unsigned char *key, int keylen, int num_rounds, symmetri
   @param skey The key as scheduled
   @return CRYPT_OK if successful
 */
-int multi2_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
+int multi2_ecb_encrypt(const unsigned char *pt, unsigned char *ct, const symmetric_key *skey)
 {
    ulong32 p[2];
    LTC_ARGCHK(pt   != NULL);
@@ -169,7 +169,7 @@ int multi2_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key
   @param skey The key as scheduled
   @return CRYPT_OK if successful
 */
-int multi2_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey)
+int multi2_ecb_decrypt(const unsigned char *ct, unsigned char *pt, const symmetric_key *skey)
 {
    ulong32 p[2];
    LTC_ARGCHK(pt   != NULL);

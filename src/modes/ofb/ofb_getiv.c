@@ -22,7 +22,7 @@
    @param ofb  The OFB state
    @return CRYPT_OK if successful
 */
-int ofb_getiv(unsigned char *IV, unsigned long *len, symmetric_OFB *ofb)
+int ofb_getiv(unsigned char *IV, unsigned long *len, const symmetric_OFB *ofb)
 {
    LTC_ARGCHK(IV  != NULL);
    LTC_ARGCHK(len != NULL);

@@ -23,7 +23,7 @@
   @param key    The key to export
   @return CRYPT_OK if successful
 */
-int dsa_export(unsigned char *out, unsigned long *outlen, int type, dsa_key *key)
+int dsa_export(unsigned char *out, unsigned long *outlen, int type, const dsa_key *key)
 {
    unsigned long zero=0;
    int err, std;

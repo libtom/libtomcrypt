@@ -274,7 +274,7 @@ int eax_decrypt_verify_memory(int cipher,
     const unsigned char *header, unsigned long headerlen,
     const unsigned char *ct,     unsigned long ctlen,
           unsigned char *pt,
-          unsigned char *tag,    unsigned long taglen,
+    const unsigned char *tag,    unsigned long taglen,
           int           *stat);
 
  int eax_test(void);
@@ -500,7 +500,7 @@ __attribute__ ((aligned (16)))
 #endif
 } gcm_state;
 
-void gcm_mult_h(gcm_state *gcm, unsigned char *I);
+void gcm_mult_h(const gcm_state *gcm, unsigned char *I);
 
 int gcm_init(gcm_state *gcm, int cipher,
              const unsigned char *key, int keylen);

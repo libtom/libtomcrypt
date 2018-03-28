@@ -741,7 +741,7 @@ static void khazad_crypt(const unsigned char *plaintext, unsigned char *cipherte
   @param skey The key as scheduled
   @return CRYPT_OK if successful
 */
-int khazad_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
+int khazad_ecb_encrypt(const unsigned char *pt, unsigned char *ct, const symmetric_key *skey)
 {
    LTC_ARGCHK(pt   != NULL);
    LTC_ARGCHK(ct   != NULL);
@@ -757,7 +757,7 @@ int khazad_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key
   @param skey The key as scheduled
   @return CRYPT_OK if successful
 */
-int khazad_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey)
+int khazad_ecb_decrypt(const unsigned char *ct, unsigned char *pt, const symmetric_key *skey)
 {
    LTC_ARGCHK(pt   != NULL);
    LTC_ARGCHK(ct   != NULL);

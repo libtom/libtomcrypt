@@ -124,12 +124,13 @@ int rc5_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_ke
   @return CRYPT_OK if successful
 */
 #ifdef LTC_CLEAN_STACK
-static int _rc5_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
+static int _rc5_ecb_encrypt(const unsigned char *pt, unsigned char *ct, const symmetric_key *skey)
 #else
-int rc5_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
+int rc5_ecb_encrypt(const unsigned char *pt, unsigned char *ct, const symmetric_key *skey)
 #endif
 {
-   ulong32 A, B, *K;
+   ulong32 A, B;
+   const ulong32 *K;
    int r;
    LTC_ARGCHK(skey != NULL);
    LTC_ARGCHK(pt   != NULL);
@@ -163,7 +164,7 @@ int rc5_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *s
 }
 
 #ifdef LTC_CLEAN_STACK
-int rc5_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
+int rc5_ecb_encrypt(const unsigned char *pt, unsigned char *ct, const symmetric_key *skey)
 {
    int err = _rc5_ecb_encrypt(pt, ct, skey);
    burn_stack(sizeof(ulong32) * 2 + sizeof(int));
@@ -179,12 +180,13 @@ int rc5_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *s
   @return CRYPT_OK if successful
 */
 #ifdef LTC_CLEAN_STACK
-static int _rc5_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey)
+static int _rc5_ecb_decrypt(const unsigned char *ct, unsigned char *pt, const symmetric_key *skey)
 #else
-int rc5_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey)
+int rc5_ecb_decrypt(const unsigned char *ct, unsigned char *pt, const symmetric_key *skey)
 #endif
 {
-   ulong32 A, B, *K;
+   ulong32 A, B;
+   const ulong32 *K;
    int r;
    LTC_ARGCHK(skey != NULL);
    LTC_ARGCHK(pt   != NULL);
@@ -219,7 +221,7 @@ int rc5_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *s
 }
 
 #ifdef LTC_CLEAN_STACK
-int rc5_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey)
+int rc5_ecb_decrypt(const unsigned char *ct, unsigned char *pt, const symmetric_key *skey)
 {
    int err = _rc5_ecb_decrypt(ct, pt, skey);
    burn_stack(sizeof(ulong32) * 2 + sizeof(int));

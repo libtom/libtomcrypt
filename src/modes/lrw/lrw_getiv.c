@@ -22,7 +22,7 @@
   @param lrw     The LRW state to read
   @return CRYPT_OK if successful
 */
-int lrw_getiv(unsigned char *IV, unsigned long *len, symmetric_LRW *lrw)
+int lrw_getiv(unsigned char *IV, unsigned long *len, const symmetric_LRW *lrw)
 {
    LTC_ARGCHK(IV != NULL);
    LTC_ARGCHK(len != NULL);

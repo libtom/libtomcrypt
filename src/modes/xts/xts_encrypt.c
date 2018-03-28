@@ -14,7 +14,7 @@
 
 #ifdef LTC_XTS_MODE
 
-static int _tweak_crypt(const unsigned char *P, unsigned char *C, unsigned char *T, symmetric_xts *xts)
+static int _tweak_crypt(const unsigned char *P, unsigned char *C, unsigned char *T, const symmetric_xts *xts)
 {
    unsigned long x;
    int err;
@@ -59,7 +59,7 @@ static int _tweak_crypt(const unsigned char *P, unsigned char *C, unsigned char 
  Returns CRYPT_OK upon success
  */
 int xts_encrypt(const unsigned char *pt, unsigned long ptlen, unsigned char *ct, unsigned char *tweak,
-                symmetric_xts *xts)
+                const symmetric_xts *xts)
 {
    unsigned char PP[16], CC[16], T[16];
    unsigned long i, m, mo, lim;

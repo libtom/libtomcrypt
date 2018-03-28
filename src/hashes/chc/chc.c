@@ -127,7 +127,7 @@ int chc_init(hash_state *md)
    T0     <= encrypt T0
    state  <= state xor T0 xor T1
 */
-static int chc_compress(hash_state *md, unsigned char *buf)
+static int chc_compress(hash_state *md, const unsigned char *buf)
 {
    unsigned char  T[2][MAXBLOCKSIZE];
    symmetric_key *key;

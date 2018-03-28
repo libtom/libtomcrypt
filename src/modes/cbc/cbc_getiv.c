@@ -22,7 +22,7 @@
    @param cbc  The CBC state
    @return CRYPT_OK if successful
 */
-int cbc_getiv(unsigned char *IV, unsigned long *len, symmetric_CBC *cbc)
+int cbc_getiv(unsigned char *IV, unsigned long *len, const symmetric_CBC *cbc)
 {
    LTC_ARGCHK(IV  != NULL);
    LTC_ARGCHK(len != NULL);

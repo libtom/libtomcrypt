@@ -588,7 +588,7 @@ int serpent_setup(const unsigned char *key, int keylen, int num_rounds, symmetri
    return err;
 }
 
-int serpent_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
+int serpent_ecb_encrypt(const unsigned char *pt, unsigned char *ct, const symmetric_key *skey)
 {
    int err = _enc_block(pt, ct, skey->serpent.k);
 #ifdef LTC_CLEAN_STACK
@@ -597,7 +597,7 @@ int serpent_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_ke
    return err;
 }
 
-int serpent_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey)
+int serpent_ecb_decrypt(const unsigned char *ct, unsigned char *pt, const symmetric_key *skey)
 {
    int err = _dec_block(ct, pt, skey->serpent.k);
 #ifdef LTC_CLEAN_STACK

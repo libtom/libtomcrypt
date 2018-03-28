@@ -436,7 +436,7 @@ int camellia_setup(const unsigned char *key, int keylen, int num_rounds, symmetr
    return CRYPT_OK;
 }
 
-int camellia_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
+int camellia_ecb_encrypt(const unsigned char *pt, unsigned char *ct, const symmetric_key *skey)
 {
    ulong64 L, R;
    ulong32 a, b;
@@ -530,7 +530,7 @@ int camellia_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_k
    return CRYPT_OK;
 }
 
-int camellia_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey)
+int camellia_ecb_decrypt(const unsigned char *ct, unsigned char *pt, const symmetric_key *skey)
 {
    ulong64 L, R;
    ulong32 a, b;

@@ -155,7 +155,7 @@ int idea_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_k
    return _setup_key(key, skey);
 }
 
-int idea_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
+int idea_ecb_encrypt(const unsigned char *pt, unsigned char *ct, const symmetric_key *skey)
 {
    int err = _process_block(pt, ct, skey->idea.ek);
 #ifdef LTC_CLEAN_STACK
@@ -164,7 +164,7 @@ int idea_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *
    return err;
 }
 
-int idea_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey)
+int idea_ecb_decrypt(const unsigned char *ct, unsigned char *pt, const symmetric_key *skey)
 {
    int err = _process_block(ct, pt, skey->idea.dk);
 #ifdef LTC_CLEAN_STACK

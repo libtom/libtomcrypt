@@ -254,7 +254,7 @@ static void rounds(ulong32 *P, const ulong32 *K)
   @param skey The key as scheduled
   @return CRYPT_OK if successful
 */
-int kseed_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
+int kseed_ecb_encrypt(const unsigned char *pt, unsigned char *ct, const symmetric_key *skey)
 {
    ulong32 P[4];
    LOAD32H(P[0], pt);
@@ -276,7 +276,7 @@ int kseed_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key 
   @param skey The key as scheduled
   @return CRYPT_OK if successful
 */
-int kseed_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey)
+int kseed_ecb_decrypt(const unsigned char *ct, unsigned char *pt, const symmetric_key *skey)
 {
    ulong32 P[4];
    LOAD32H(P[0], ct);

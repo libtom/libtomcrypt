@@ -71,7 +71,7 @@ int rsa_get_size(const rsa_key *key);
 
 int rsa_exptmod(const unsigned char *in,   unsigned long inlen,
                       unsigned char *out,  unsigned long *outlen, int which,
-                      rsa_key *key);
+                const rsa_key *key);
 
 void rsa_free(rsa_key *key);
 
@@ -92,31 +92,33 @@ void rsa_free(rsa_key *key);
   rsa_sign_saltlen_get_max_ex(LTC_PKCS_1_PSS, _hash_idx, _key)
 
 /* These can be switched between PKCS #1 v2.x and PKCS #1 v1.5 paddings */
-int rsa_encrypt_key_ex(const unsigned char *in,     unsigned long inlen,
-                             unsigned char *out,    unsigned long *outlen,
-                       const unsigned char *lparam, unsigned long lparamlen,
-                       prng_state *prng, int prng_idx, int hash_idx, int padding, rsa_key *key);
-
-int rsa_decrypt_key_ex(const unsigned char *in,       unsigned long  inlen,
+int rsa_encrypt_key_ex(const unsigned char *in,       unsigned long  inlen,
                              unsigned char *out,      unsigned long *outlen,
                        const unsigned char *lparam,   unsigned long  lparamlen,
+                             prng_state    *prng,     int            prng_idx,
                              int            hash_idx, int            padding,
-                             int           *stat,     rsa_key       *key);
+                       const rsa_key       *key);
+
+int rsa_decrypt_key_ex(const unsigned char *in,             unsigned long  inlen,
+                             unsigned char *out,            unsigned long *outlen,
+                       const unsigned char *lparam,         unsigned long  lparamlen,
+                             int            hash_idx,       int            padding,
+                             int           *stat,     const rsa_key       *key);
 
 int rsa_sign_hash_ex(const unsigned char *in,       unsigned long  inlen,
                            unsigned char *out,      unsigned long *outlen,
                            int            padding,
                            prng_state    *prng,     int            prng_idx,
                            int            hash_idx, unsigned long  saltlen,
-                           rsa_key *key);
+                     const rsa_key       *key);
 
-int rsa_verify_hash_ex(const unsigned char *sig,      unsigned long siglen,
-                       const unsigned char *hash,     unsigned long hashlen,
+int rsa_verify_hash_ex(const unsigned char *sig,            unsigned long  siglen,
+                       const unsigned char *hash,           unsigned long  hashlen,
                              int            padding,
-                             int            hash_idx, unsigned long saltlen,
-                             int           *stat,     rsa_key      *key);
+                             int            hash_idx,       unsigned long  saltlen,
+                             int           *stat,     const rsa_key       *key);
 
-int rsa_sign_saltlen_get_max_ex(int padding, int hash_idx, rsa_key *key);
+int rsa_sign_saltlen_get_max_ex(int padding, int hash_idx, const rsa_key *key);
 
 /* PKCS #1 import/export */
 int rsa_export(unsigned char *out, unsigned long *outlen, int type, const rsa_key *key);
@@ -452,40 +454,40 @@ void dsa_free(dsa_key *key);
 
 int dsa_sign_hash_raw(const unsigned char *in,  unsigned long inlen,
                                    void *r,   void *s,
-                               prng_state *prng, int wprng, dsa_key *key);
+                               prng_state *prng, int wprng, const dsa_key *key);
 
 int dsa_sign_hash(const unsigned char *in,  unsigned long inlen,
                         unsigned char *out, unsigned long *outlen,
-                        prng_state *prng, int wprng, dsa_key *key);
+                        prng_state *prng, int wprng, const dsa_key *key);
 
 int dsa_verify_hash_raw(         void *r,          void *s,
                     const unsigned char *hash, unsigned long hashlen,
-                                    int *stat,      dsa_key *key);
+                                    int *stat, const dsa_key *key);
 
-int dsa_verify_hash(const unsigned char *sig,  unsigned long siglen,
-                    const unsigned char *hash, unsigned long hashlen,
-                          int           *stat, dsa_key       *key);
+int dsa_verify_hash(const unsigned char *sig,        unsigned long  siglen,
+                    const unsigned char *hash,       unsigned long  hashlen,
+                          int           *stat, const dsa_key       *key);
 
 int dsa_encrypt_key(const unsigned char *in,   unsigned long inlen,
                           unsigned char *out,  unsigned long *outlen,
-                          prng_state *prng, int wprng, int hash,
-                          dsa_key *key);
+                          prng_state    *prng, int wprng, int hash,
+                    const dsa_key       *key);
 
 int dsa_decrypt_key(const unsigned char *in,  unsigned long  inlen,
                           unsigned char *out, unsigned long *outlen,
-                          dsa_key *key);
+                    const dsa_key       *key);
 
 int dsa_import(const unsigned char *in, unsigned long inlen, dsa_key *key);
-int dsa_export(unsigned char *out, unsigned long *outlen, int type, dsa_key *key);
-int dsa_verify_key(dsa_key *key, int *stat);
+int dsa_export(unsigned char *out, unsigned long *outlen, int type, const dsa_key *key);
+int dsa_verify_key(const dsa_key *key, int *stat);
 #ifdef LTC_SOURCE
 /* internal helper functions */
-int dsa_int_validate_xy(dsa_key *key, int *stat);
-int dsa_int_validate_pqg(dsa_key *key, int *stat);
-int dsa_int_validate_primes(dsa_key *key, int *stat);
+int dsa_int_validate_xy(const dsa_key *key, int *stat);
+int dsa_int_validate_pqg(const dsa_key *key, int *stat);
+int dsa_int_validate_primes(const dsa_key *key, int *stat);
 #endif
 int dsa_shared_secret(void          *private_key, void *base,
-                      dsa_key       *public_key,
+                      const dsa_key *public_key,
                       unsigned char *out,         unsigned long *outlen);
 #endif
 
@@ -732,8 +734,8 @@ int der_decode_octet_string(const unsigned char *in, unsigned long inlen,
 int der_length_octet_string(unsigned long noctets, unsigned long *outlen);
 
 /* OBJECT IDENTIFIER */
-int der_encode_object_identifier(unsigned long *words, unsigned long  nwords,
-                                 unsigned char *out,   unsigned long *outlen);
+int der_encode_object_identifier(const unsigned long *words, unsigned long  nwords,
+                                       unsigned char *out,   unsigned long *outlen);
 int der_decode_object_identifier(const unsigned char *in,    unsigned long  inlen,
                                        unsigned long *words, unsigned long *outlen);
 int der_length_object_identifier(const unsigned long *words, unsigned long nwords, unsigned long *outlen);
@@ -815,8 +817,8 @@ typedef struct {
             off_mm; /* timezone offset minutes */
 } ltc_utctime;
 
-int der_encode_utctime(ltc_utctime *utctime,
-                       unsigned char *out,   unsigned long *outlen);
+int der_encode_utctime(const ltc_utctime   *utctime,
+                             unsigned char *out,   unsigned long *outlen);
 
 int der_decode_utctime(const unsigned char *in, unsigned long *inlen,
                              ltc_utctime   *out);
@@ -837,8 +839,8 @@ typedef struct {
             off_mm; /* timezone offset minutes */
 } ltc_generalizedtime;
 
-int der_encode_generalizedtime(ltc_generalizedtime *gtime,
-                               unsigned char       *out, unsigned long *outlen);
+int der_encode_generalizedtime(const ltc_generalizedtime *gtime,
+                                     unsigned char       *out, unsigned long *outlen);
 
 int der_decode_generalizedtime(const unsigned char *in, unsigned long *inlen,
                                ltc_generalizedtime *out);

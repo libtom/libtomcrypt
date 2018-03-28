@@ -12,13 +12,13 @@
 
 #ifndef LTC_NO_TEST
 static int _xts_test_accel_xts_encrypt(const unsigned char *pt, unsigned char *ct, unsigned long blocks,
-                                       unsigned char *tweak, symmetric_key *skey1, symmetric_key *skey2)
+                                       unsigned char *tweak, const symmetric_key *skey1, const symmetric_key *skey2)
 {
    int ret;
    symmetric_xts xts;
    int (*orig)(const unsigned char *, unsigned char *,
-               unsigned long , unsigned char *, symmetric_key *,
-               symmetric_key *);
+               unsigned long , unsigned char *,
+               const symmetric_key *, const symmetric_key *);
 
    /* AES can be under rijndael or aes... try to find it */
    if ((xts.cipher = find_cipher("aes")) == -1) {
@@ -39,13 +39,13 @@ static int _xts_test_accel_xts_encrypt(const unsigned char *pt, unsigned char *c
 }
 
 static int _xts_test_accel_xts_decrypt(const unsigned char *ct, unsigned char *pt, unsigned long blocks,
-                                       unsigned char *tweak, symmetric_key *skey1, symmetric_key *skey2)
+                                       unsigned char *tweak, const symmetric_key *skey1, const symmetric_key *skey2)
 {
    int ret;
    symmetric_xts xts;
    int (*orig)(const unsigned char *, unsigned char *,
-               unsigned long , unsigned char *, symmetric_key *,
-               symmetric_key *);
+               unsigned long , unsigned char *,
+               const symmetric_key *, const symmetric_key *);
 
    /* AES can be under rijndael or aes... try to find it */
    if ((xts.cipher = find_cipher("aes")) == -1) {

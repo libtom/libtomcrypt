@@ -22,8 +22,8 @@
   @param outlen  [in/out] The max and resulting size of the OID
   @return CRYPT_OK if successful
 */
-int der_encode_object_identifier(unsigned long *words, unsigned long  nwords,
-                                 unsigned char *out,   unsigned long *outlen)
+int der_encode_object_identifier(const unsigned long *words, unsigned long  nwords,
+                                       unsigned char *out,   unsigned long *outlen)
 {
    unsigned long i, x, y, z, t, mask, wordbuf;
    int           err;

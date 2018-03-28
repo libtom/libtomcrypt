@@ -96,7 +96,7 @@ static u16 FI( u16 in, u16 subkey )
   return (u16)(seven<<9) + nine;
 }
 
-static ulong32 FO( ulong32 in, int round_no, symmetric_key *key)
+static ulong32 FO( ulong32 in, int round_no, const symmetric_key *key)
 {
    u16 left, right;
 
@@ -120,7 +120,7 @@ static ulong32 FO( ulong32 in, int round_no, symmetric_key *key)
   return (((ulong32)right)<<16)+left;
 }
 
-static ulong32 FL( ulong32 in, int round_no, symmetric_key *key )
+static ulong32 FL( ulong32 in, int round_no, const symmetric_key *key )
 {
     u16 l, r, a, b;
     /* split out the left and right halves */
@@ -136,7 +136,7 @@ static ulong32 FL( ulong32 in, int round_no, symmetric_key *key )
     return (((ulong32)l)<<16) + r;
 }
 
-int kasumi_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
+int kasumi_ecb_encrypt(const unsigned char *pt, unsigned char *ct, const symmetric_key *skey)
 {
     ulong32 left, right, temp;
     int n;
@@ -163,7 +163,7 @@ int kasumi_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key
     return CRYPT_OK;
 }
 
-int kasumi_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey)
+int kasumi_ecb_decrypt(const unsigned char *ct, unsigned char *pt, const symmetric_key *skey)
 {
     ulong32 left, right, temp;
     int n;

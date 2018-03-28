@@ -25,7 +25,7 @@
   @return CRYPT_OK if successful
 */
 int dsa_shared_secret(void          *private_key, void *base,
-                      dsa_key       *public_key,
+                      const dsa_key *public_key,
                       unsigned char *out,         unsigned long *outlen)
 {
    unsigned long  x;

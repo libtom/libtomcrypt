@@ -20,7 +20,7 @@
    @param mode     One of the LTC_PAD_xx flags
    @return CRYPT_OK on success
 */
-int padding_depad(unsigned char *data, unsigned long *length, unsigned long mode)
+int padding_depad(const unsigned char *data, unsigned long *length, unsigned long mode)
 {
    unsigned long padded_length, unpadded_length, n;
    unsigned char pad;

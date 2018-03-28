@@ -574,7 +574,7 @@ INLINE static void tiger_round(ulong64 *a, ulong64 *b, ulong64 *c, ulong64 x, in
 }
 
 /* one complete pass */
-static void pass(ulong64 *a, ulong64 *b, ulong64 *c, ulong64 *x, int mul)
+static void pass(ulong64 *a, ulong64 *b, ulong64 *c, const ulong64 *x, int mul)
 {
    tiger_round(a,b,c,x[0],mul);
    tiger_round(b,c,a,x[1],mul);

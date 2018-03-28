@@ -29,8 +29,8 @@
 */
 int dsa_encrypt_key(const unsigned char *in,   unsigned long inlen,
                           unsigned char *out,  unsigned long *outlen,
-                          prng_state *prng, int wprng, int hash,
-                          dsa_key *key)
+                          prng_state    *prng, int wprng, int hash,
+                    const dsa_key       *key)
 {
     unsigned char *expt, *skey;
     void          *g_pub, *g_priv;

@@ -28,8 +28,8 @@ static const char * const baseten = "0123456789";
   @param outlen       [in/out] The length of the DER encoding
   @return CRYPT_OK if successful
 */
-int der_encode_utctime(ltc_utctime *utctime,
-                       unsigned char *out,   unsigned long *outlen)
+int der_encode_utctime(const ltc_utctime   *utctime,
+                             unsigned char *out,   unsigned long *outlen)
 {
     unsigned long x, tmplen;
     int           err;

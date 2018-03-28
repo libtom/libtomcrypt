@@ -79,7 +79,7 @@ void adler32_update(adler32_state *ctx, const unsigned char *input, unsigned lon
    ctx->s[1] = (unsigned short)s2;
 }
 
-void adler32_finish(adler32_state *ctx, void *hash, unsigned long size)
+void adler32_finish(const adler32_state *ctx, void *hash, unsigned long size)
 {
    unsigned char* h;
 
