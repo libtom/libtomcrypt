@@ -37,7 +37,7 @@ int base32_test(void)
          l1 = sizeof(out);
          DO(base32_encode(in, x, out, &l1, testid[idx]));
          l2 = sizeof(tmp);
-         DO(base32_decode(out, strlen(out), tmp, &l2, testid[idx]));
+         DO(base32_decode(out, l1, tmp, &l2, testid[idx]));
          DO(do_compare_testvector(tmp, l2, in, x, "random base32", idx * 100 + x));
       }
    }
@@ -45,9 +45,9 @@ int base32_test(void)
    for (idx = 0; idx < 4; idx++) {
       l1 = sizeof(out);
       DO(base32_encode(testin, sizeof(testin), out, &l1, testid[idx]));
-      DO(do_compare_testvector(out, strlen(out), testout[idx], strlen(testout[idx]), "testout base32", idx));
+      DO(do_compare_testvector(out, l1, testout[idx], strlen(testout[idx]), "testout base32", idx));
       l2 = sizeof(tmp);
-      DO(base32_decode(out, strlen(out), tmp, &l2, testid[idx]));
+      DO(base32_decode(out, l1, tmp, &l2, testid[idx]));
       DO(do_compare_testvector(tmp, l2, testin, sizeof(testin), "testin base32", idx));
    }
 
