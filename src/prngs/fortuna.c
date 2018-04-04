@@ -288,7 +288,7 @@ unsigned long fortuna_read(unsigned char *out, unsigned long outlen, prng_state 
    }
 
    /* do we have to reseed? */
-   if (++prng->fortuna.wd == LTC_FORTUNA_WD || prng->fortuna.pool0_len >= 64) {
+   if ((++prng->fortuna.wd == LTC_FORTUNA_WD) && (prng->fortuna.pool0_len >= 64)) {
       if (_fortuna_reseed(prng) != CRYPT_OK) {
          goto LBL_UNLOCK;
       }
