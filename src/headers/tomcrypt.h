@@ -32,8 +32,10 @@ extern "C" {
 /* max size of either a cipher/hash block or symmetric key [largest of the two] */
 #define MAXBLOCKSIZE  128
 
+#ifndef TAB_SIZE
 /* descriptor table size */
 #define TAB_SIZE      32
+#endif
 
 /* error codes [will be expanded in future releases] */
 enum {
