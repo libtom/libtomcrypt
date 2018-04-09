@@ -25,7 +25,7 @@ void copy_or_zeromem(const unsigned char* src, unsigned char* dest, unsigned lon
    unsigned long y;
 #ifdef LTC_FAST
    unsigned long z;
-   LTC_FAST_TYPE fastMask = ~0; /* initialize fastMask at all ones */
+   LTC_FAST_TYPE fastMask = ~(LTC_FAST_TYPE)0; /* initialize fastMask at all ones */
 #endif
    unsigned char mask = 0xff; /* initialize mask at all ones */
 
