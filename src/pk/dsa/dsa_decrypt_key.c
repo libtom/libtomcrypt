@@ -26,7 +26,7 @@
 */
 int dsa_decrypt_key(const unsigned char *in,  unsigned long  inlen,
                           unsigned char *out, unsigned long *outlen,
-                          dsa_key *key)
+                    const dsa_key       *key)
 {
    unsigned char  *skey, *expt;
    void           *g_pub;

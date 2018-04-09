@@ -364,7 +364,7 @@ int sha3_shake_done(hash_state *md, unsigned char *out, unsigned long outlen)
    return CRYPT_OK;
 }
 
-int sha3_shake_memory(int num, const unsigned char *in, unsigned long inlen, unsigned char *out, unsigned long *outlen)
+int sha3_shake_memory(int num, const unsigned char *in, unsigned long inlen, unsigned char *out, const unsigned long *outlen)
 {
    hash_state md;
    int err;

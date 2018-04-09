@@ -98,7 +98,7 @@ static const ulong32 Korder[64] = {
 #ifdef LTC_CLEAN_STACK
 static int _md5_compress(hash_state *md, unsigned char *buf)
 #else
-static int  md5_compress(hash_state *md, unsigned char *buf)
+static int  md5_compress(hash_state *md, const unsigned char *buf)
 #endif
 {
     ulong32 i, W[16], a, b, c, d;

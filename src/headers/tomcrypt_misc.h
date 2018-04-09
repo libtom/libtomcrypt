@@ -123,7 +123,7 @@ typedef struct adler32_state_s
 
 void adler32_init(adler32_state *ctx);
 void adler32_update(adler32_state *ctx, const unsigned char *input, unsigned long length);
-void adler32_finish(adler32_state *ctx, void *hash, unsigned long size);
+void adler32_finish(const adler32_state *ctx, void *hash, unsigned long size);
 int adler32_test(void);
 #endif
 
@@ -135,7 +135,7 @@ typedef struct crc32_state_s
 
 void crc32_init(crc32_state *ctx);
 void crc32_update(crc32_state *ctx, const unsigned char *input, unsigned long length);
-void crc32_finish(crc32_state *ctx, void *hash, unsigned long size);
+void crc32_finish(const crc32_state *ctx, void *hash, unsigned long size);
 int crc32_test(void);
 #endif
 
@@ -154,7 +154,7 @@ enum padding_type {
 };
 
 int padding_pad(unsigned char *data, unsigned long length, unsigned long* padded_length, unsigned long mode);
-int padding_depad(unsigned char *data, unsigned long *length, unsigned long mode);
+int padding_depad(const unsigned char *data, unsigned long *length, unsigned long mode);
 
 #ifdef LTC_SOURCE
 /* internal helper functions */

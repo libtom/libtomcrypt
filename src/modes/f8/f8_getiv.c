@@ -22,7 +22,7 @@
    @param f8   The F8 state
    @return CRYPT_OK if successful
 */
-int f8_getiv(unsigned char *IV, unsigned long *len, symmetric_F8 *f8)
+int f8_getiv(unsigned char *IV, unsigned long *len, const symmetric_F8 *f8)
 {
    LTC_ARGCHK(IV  != NULL);
    LTC_ARGCHK(len != NULL);

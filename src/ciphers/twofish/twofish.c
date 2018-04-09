@@ -237,7 +237,7 @@ static void rs_mult(const unsigned char *in, unsigned char *out)
 #endif
 
 /* computes h(x) */
-static void h_func(const unsigned char *in, unsigned char *out, unsigned char *M, int k, int offset)
+static void h_func(const unsigned char *in, unsigned char *out, const unsigned char *M, int k, int offset)
 {
   int x;
   unsigned char y[4];
@@ -284,9 +284,9 @@ static void h_func(const unsigned char *in, unsigned char *out, unsigned char *M
 #else
 
 #ifdef LTC_CLEAN_STACK
-static ulong32 _g_func(ulong32 x, symmetric_key *key)
+static ulong32 _g_func(ulong32 x, const symmetric_key *key)
 #else
-static ulong32 g_func(ulong32 x, symmetric_key *key)
+static ulong32 g_func(ulong32 x, const symmetric_key *key)
 #endif
 {
    unsigned char g, i, y, z;
@@ -317,7 +317,7 @@ static ulong32 g_func(ulong32 x, symmetric_key *key)
 #define g1_func(x, key) g_func(ROLc(x, 8), key)
 
 #ifdef LTC_CLEAN_STACK
-static ulong32 g_func(ulong32 x, symmetric_key *key)
+static ulong32 g_func(ulong32 x, const symmetric_key *key)
 {
     ulong32 y;
     y = _g_func(x, key);
@@ -464,12 +464,13 @@ int twofish_setup(const unsigned char *key, int keylen, int num_rounds, symmetri
   @return CRYPT_OK if successful
 */
 #ifdef LTC_CLEAN_STACK
-static int _twofish_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
+static int _twofish_ecb_encrypt(const unsigned char *pt, unsigned char *ct, const symmetric_key *skey)
 #else
-int twofish_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
+int twofish_ecb_encrypt(const unsigned char *pt, unsigned char *ct, const symmetric_key *skey)
 #endif
 {
-    ulong32 a,b,c,d,ta,tb,tc,td,t1,t2, *k;
+    ulong32 a,b,c,d,ta,tb,tc,td,t1,t2;
+    const ulong32 *k;
     int r;
 #if !defined(LTC_TWOFISH_SMALL) && !defined(__GNUC__)
     ulong32 *S1, *S2, *S3, *S4;
@@ -521,7 +522,7 @@ int twofish_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_ke
 }
 
 #ifdef LTC_CLEAN_STACK
-int twofish_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
+int twofish_ecb_encrypt(const unsigned char *pt, unsigned char *ct, const symmetric_key *skey)
 {
    int err = _twofish_ecb_encrypt(pt, ct, skey);
    burn_stack(sizeof(ulong32) * 10 + sizeof(int));
@@ -537,12 +538,13 @@ int twofish_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_ke
   @return CRYPT_OK if successful
 */
 #ifdef LTC_CLEAN_STACK
-static int _twofish_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey)
+static int _twofish_ecb_decrypt(const unsigned char *ct, unsigned char *pt, const symmetric_key *skey)
 #else
-int twofish_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey)
+int twofish_ecb_decrypt(const unsigned char *ct, unsigned char *pt, const symmetric_key *skey)
 #endif
 {
-    ulong32 a,b,c,d,ta,tb,tc,td,t1,t2, *k;
+    ulong32 a,b,c,d,ta,tb,tc,td,t1,t2;
+    const ulong32 *k;
     int r;
 #if !defined(LTC_TWOFISH_SMALL) && !defined(__GNUC__)
     ulong32 *S1, *S2, *S3, *S4;
@@ -596,7 +598,7 @@ int twofish_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_ke
 }
 
 #ifdef LTC_CLEAN_STACK
-int twofish_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey)
+int twofish_ecb_decrypt(const unsigned char *ct, unsigned char *pt, const symmetric_key *skey)
 {
    int err =_twofish_ecb_decrypt(ct, pt, skey);
    burn_stack(sizeof(ulong32) * 10 + sizeof(int));

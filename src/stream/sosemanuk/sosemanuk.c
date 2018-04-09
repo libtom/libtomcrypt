@@ -201,7 +201,7 @@
  * @param keylen   Length of key in bytes
  * @return CRYPT_OK on success
  */
-int sosemanuk_setup(sosemanuk_state *ss, unsigned char *key, unsigned long keylen)
+int sosemanuk_setup(sosemanuk_state *ss, const unsigned char *key, unsigned long keylen)
 {
     /*
      * This key schedule is actually a truncated Serpent key schedule.
@@ -341,7 +341,7 @@ int sosemanuk_setup(sosemanuk_state *ss, unsigned char *key, unsigned long keyle
  * @param ivlen    Length of iv in bytes
  * @return CRYPT_OK on success
  */
-int sosemanuk_setiv(sosemanuk_state *ss, unsigned char *iv, unsigned long ivlen)
+int sosemanuk_setiv(sosemanuk_state *ss, const unsigned char *iv, unsigned long ivlen)
 {
 
     /*

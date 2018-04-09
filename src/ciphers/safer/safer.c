@@ -247,15 +247,15 @@ int safer_sk128_setup(const unsigned char *key, int keylen, int numrounds, symme
 #ifdef LTC_CLEAN_STACK
 static int _safer_ecb_encrypt(const unsigned char *block_in,
                              unsigned char *block_out,
-                             symmetric_key *skey)
+                             const symmetric_key *skey)
 #else
 int safer_ecb_encrypt(const unsigned char *block_in,
                              unsigned char *block_out,
-                             symmetric_key *skey)
+                             const symmetric_key *skey)
 #endif
 {   unsigned char a, b, c, d, e, f, g, h, t;
     unsigned int round;
-    unsigned char *key;
+    const unsigned char *key;
 
     LTC_ARGCHK(block_in != NULL);
     LTC_ARGCHK(block_out != NULL);
@@ -290,7 +290,7 @@ int safer_ecb_encrypt(const unsigned char *block_in,
 #ifdef LTC_CLEAN_STACK
 int safer_ecb_encrypt(const unsigned char *block_in,
                              unsigned char *block_out,
-                             symmetric_key *skey)
+                             const symmetric_key *skey)
 {
     int err = _safer_ecb_encrypt(block_in, block_out, skey);
     burn_stack(sizeof(unsigned char) * 9 + sizeof(unsigned int) + sizeof(unsigned char *));
@@ -301,15 +301,15 @@ int safer_ecb_encrypt(const unsigned char *block_in,
 #ifdef LTC_CLEAN_STACK
 static int _safer_ecb_decrypt(const unsigned char *block_in,
                              unsigned char *block_out,
-                             symmetric_key *skey)
+                             const symmetric_key *skey)
 #else
 int safer_ecb_decrypt(const unsigned char *block_in,
                              unsigned char *block_out,
-                             symmetric_key *skey)
+                             const symmetric_key *skey)
 #endif
 {   unsigned char a, b, c, d, e, f, g, h, t;
     unsigned int round;
-    unsigned char *key;
+    const unsigned char *key;
 
     LTC_ARGCHK(block_in != NULL);
     LTC_ARGCHK(block_out != NULL);
@@ -345,7 +345,7 @@ int safer_ecb_decrypt(const unsigned char *block_in,
 #ifdef LTC_CLEAN_STACK
 int safer_ecb_decrypt(const unsigned char *block_in,
                              unsigned char *block_out,
-                             symmetric_key *skey)
+                             const symmetric_key *skey)
 {
     int err = _safer_ecb_decrypt(block_in, block_out, skey);
     burn_stack(sizeof(unsigned char) * 9 + sizeof(unsigned int) + sizeof(unsigned char *));

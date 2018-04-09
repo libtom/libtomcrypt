@@ -147,14 +147,14 @@ int rc2_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_ke
 #ifdef LTC_CLEAN_STACK
 static int _rc2_ecb_encrypt( const unsigned char *pt,
                             unsigned char *ct,
-                            symmetric_key *skey)
+                            const symmetric_key *skey)
 #else
 int rc2_ecb_encrypt( const unsigned char *pt,
                             unsigned char *ct,
-                            symmetric_key *skey)
+                            const symmetric_key *skey)
 #endif
 {
-    unsigned *xkey;
+    const unsigned *xkey;
     unsigned x76, x54, x32, x10, i;
 
     LTC_ARGCHK(pt  != NULL);
@@ -204,7 +204,7 @@ int rc2_ecb_encrypt( const unsigned char *pt,
 #ifdef LTC_CLEAN_STACK
 int rc2_ecb_encrypt( const unsigned char *pt,
                             unsigned char *ct,
-                            symmetric_key *skey)
+                            const symmetric_key *skey)
 {
     int err = _rc2_ecb_encrypt(pt, ct, skey);
     burn_stack(sizeof(unsigned *) + sizeof(unsigned) * 5);
@@ -225,15 +225,15 @@ int rc2_ecb_encrypt( const unsigned char *pt,
 #ifdef LTC_CLEAN_STACK
 static int _rc2_ecb_decrypt( const unsigned char *ct,
                             unsigned char *pt,
-                            symmetric_key *skey)
+                            const symmetric_key *skey)
 #else
 int rc2_ecb_decrypt( const unsigned char *ct,
                             unsigned char *pt,
-                            symmetric_key *skey)
+                            const symmetric_key *skey)
 #endif
 {
     unsigned x76, x54, x32, x10;
-    unsigned *xkey;
+    const unsigned *xkey;
     int i;
 
     LTC_ARGCHK(pt  != NULL);
@@ -283,7 +283,7 @@ int rc2_ecb_decrypt( const unsigned char *ct,
 #ifdef LTC_CLEAN_STACK
 int rc2_ecb_decrypt( const unsigned char *ct,
                             unsigned char *pt,
-                            symmetric_key *skey)
+                            const symmetric_key *skey)
 {
     int err = _rc2_ecb_decrypt(ct, pt, skey);
     burn_stack(sizeof(unsigned *) + sizeof(unsigned) * 4 + sizeof(int));

@@ -20,7 +20,7 @@
   @param key      The RSA key
   @return The size in bytes of the RSA key or INT_MAX on error.
 */
-int rsa_get_size(rsa_key *key)
+int rsa_get_size(const rsa_key *key)
 {
   int ret = INT_MAX;
   LTC_ARGCHK(key != NULL);

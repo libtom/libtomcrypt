@@ -458,7 +458,7 @@ typedef struct {
    */
    int (*rsa_me)(const unsigned char *in,   unsigned long inlen,
                        unsigned char *out,  unsigned long *outlen, int which,
-                       rsa_key *key);
+                 const rsa_key *key);
 
 /* ---- basic math continued ---- */
 

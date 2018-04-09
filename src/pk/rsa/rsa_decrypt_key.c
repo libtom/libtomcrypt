@@ -29,11 +29,11 @@
    @param key         The corresponding private RSA key
    @return CRYPT_OK if succcessul (even if invalid)
 */
-int rsa_decrypt_key_ex(const unsigned char *in,       unsigned long  inlen,
-                             unsigned char *out,      unsigned long *outlen,
-                       const unsigned char *lparam,   unsigned long  lparamlen,
-                             int            hash_idx, int            padding,
-                             int           *stat,     rsa_key       *key)
+int rsa_decrypt_key_ex(const unsigned char *in,             unsigned long  inlen,
+                             unsigned char *out,            unsigned long *outlen,
+                       const unsigned char *lparam,         unsigned long  lparamlen,
+                             int            hash_idx,       int            padding,
+                             int           *stat,     const rsa_key       *key)
 {
   unsigned long modulus_bitlen, modulus_bytelen, x;
   int           err;

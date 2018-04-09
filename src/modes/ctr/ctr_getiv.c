@@ -22,7 +22,7 @@
    @param ctr  The CTR state
    @return CRYPT_OK if successful
 */
-int ctr_getiv(unsigned char *IV, unsigned long *len, symmetric_CTR *ctr)
+int ctr_getiv(unsigned char *IV, unsigned long *len, const symmetric_CTR *ctr)
 {
    LTC_ARGCHK(IV  != NULL);
    LTC_ARGCHK(len != NULL);

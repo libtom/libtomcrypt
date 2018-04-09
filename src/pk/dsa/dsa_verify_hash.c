@@ -28,7 +28,7 @@
 */
 int dsa_verify_hash_raw(         void   *r,          void   *s,
                     const unsigned char *hash, unsigned long hashlen,
-                                    int *stat,      dsa_key *key)
+                                    int *stat, const dsa_key *key)
 {
    void          *w, *v, *u1, *u2;
    int           err;
@@ -92,9 +92,9 @@ error:
   @param key      The corresponding public DSA key
   @return CRYPT_OK if successful (even if the signature is invalid)
 */
-int dsa_verify_hash(const unsigned char *sig, unsigned long siglen,
-                    const unsigned char *hash, unsigned long hashlen,
-                    int *stat, dsa_key *key)
+int dsa_verify_hash(const unsigned char *sig,        unsigned long  siglen,
+                    const unsigned char *hash,       unsigned long  hashlen,
+                          int           *stat, const dsa_key       *key)
 {
    int    err;
    void   *r, *s;

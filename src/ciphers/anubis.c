@@ -1035,7 +1035,7 @@ int  anubis_setup(const unsigned char *key, int keylen, int num_rounds, symmetri
 
 
 static void anubis_crypt(const unsigned char *plaintext, unsigned char *ciphertext,
-                         ulong32 roundKey[18 + 1][4], int R) {
+                         const ulong32 roundKey[18 + 1][4], int R) {
    int i, pos, r;
    ulong32 state[4];
    ulong32 inter[4];
@@ -1134,7 +1134,7 @@ static void anubis_crypt(const unsigned char *plaintext, unsigned char *cipherte
   @param skey The key as scheduled
   @return CRYPT_OK if successful
 */
-int anubis_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
+int anubis_ecb_encrypt(const unsigned char *pt, unsigned char *ct, const symmetric_key *skey)
 {
    LTC_ARGCHK(pt   != NULL);
    LTC_ARGCHK(ct   != NULL);
@@ -1150,7 +1150,7 @@ int anubis_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key
   @param skey The key as scheduled
   @return CRYPT_OK if successful
 */
-int anubis_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey)
+int anubis_ecb_decrypt(const unsigned char *ct, unsigned char *pt, const symmetric_key *skey)
 {
    LTC_ARGCHK(pt   != NULL);
    LTC_ARGCHK(ct   != NULL);

@@ -56,8 +56,8 @@ static int _qsort_helper(const void *a, const void *b)
    @param outlen    [in/out] The size of the output
    @return CRYPT_OK on success
 */
-int der_encode_setof(ltc_asn1_list *list, unsigned long inlen,
-                     unsigned char *out,  unsigned long *outlen)
+int der_encode_setof(const ltc_asn1_list *list, unsigned long inlen,
+                     unsigned char *out,        unsigned long *outlen)
 {
    unsigned long  x, y, z;
    ptrdiff_t hdrlen;

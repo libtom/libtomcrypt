@@ -534,9 +534,9 @@ INLINE static ulong32 FIII(ulong32 R, ulong32 Km, ulong32 Kr)
   @param skey The key as scheduled
 */
 #ifdef LTC_CLEAN_STACK
-static int _cast5_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
+static int _cast5_ecb_encrypt(const unsigned char *pt, unsigned char *ct, const symmetric_key *skey)
 #else
-int cast5_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
+int cast5_ecb_encrypt(const unsigned char *pt, unsigned char *ct, const symmetric_key *skey)
 #endif
 {
    ulong32 R, L;
@@ -572,7 +572,7 @@ int cast5_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key 
 
 
 #ifdef LTC_CLEAN_STACK
-int cast5_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
+int cast5_ecb_encrypt(const unsigned char *pt, unsigned char *ct, const symmetric_key *skey)
 {
    int err =_cast5_ecb_encrypt(pt,ct,skey);
    burn_stack(sizeof(ulong32)*3);
@@ -587,9 +587,9 @@ int cast5_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key 
   @param skey The key as scheduled
 */
 #ifdef LTC_CLEAN_STACK
-static int _cast5_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey)
+static int _cast5_ecb_decrypt(const unsigned char *ct, unsigned char *pt, const symmetric_key *skey)
 #else
-int cast5_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey)
+int cast5_ecb_decrypt(const unsigned char *ct, unsigned char *pt, const symmetric_key *skey)
 #endif
 {
    ulong32 R, L;
@@ -625,7 +625,7 @@ int cast5_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key 
 }
 
 #ifdef LTC_CLEAN_STACK
-int cast5_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey)
+int cast5_ecb_decrypt(const unsigned char *ct, unsigned char *pt, const symmetric_key *skey)
 {
    int err = _cast5_ecb_decrypt(ct,pt,skey);
    burn_stack(sizeof(ulong32)*3);

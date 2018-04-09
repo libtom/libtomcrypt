@@ -574,7 +574,7 @@ INLINE static void tiger_round(ulong64 *a, ulong64 *b, ulong64 *c, ulong64 x, in
 }
 
 /* one complete pass */
-static void pass(ulong64 *a, ulong64 *b, ulong64 *c, ulong64 *x, int mul)
+static void pass(ulong64 *a, ulong64 *b, ulong64 *c, const ulong64 *x, int mul)
 {
    tiger_round(a,b,c,x[0],mul);
    tiger_round(b,c,a,x[1],mul);
@@ -608,9 +608,9 @@ static void key_schedule(ulong64 *x)
 }
 
 #ifdef LTC_CLEAN_STACK
-static int _tiger_compress(hash_state *md, unsigned char *buf)
+static int _tiger_compress(hash_state *md, const unsigned char *buf)
 #else
-static int  tiger_compress(hash_state *md, unsigned char *buf)
+static int  tiger_compress(hash_state *md, const unsigned char *buf)
 #endif
 {
     ulong64 a, b, c, x[8];

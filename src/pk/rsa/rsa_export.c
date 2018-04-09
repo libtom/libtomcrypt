@@ -23,7 +23,7 @@
     @param key       The RSA key to export
     @return CRYPT_OK if successful
 */
-int rsa_export(unsigned char *out, unsigned long *outlen, int type, rsa_key *key)
+int rsa_export(unsigned char *out, unsigned long *outlen, int type, const rsa_key *key)
 {
    unsigned long zero=0;
    int err;

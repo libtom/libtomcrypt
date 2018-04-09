@@ -28,7 +28,7 @@
 
 #define B(x,i) ((unsigned char)(((x) >> (8*i)) & 0xFF))
 
-static ulong32 BYTE2WORD(unsigned char *b)
+static ulong32 BYTE2WORD(const unsigned char *b)
 {
    ulong32 t;
    LOAD32L(t, b);
@@ -78,7 +78,7 @@ static void cycle(ulong32 *R)
     t = t + c->R[OFF(z,13)]; \
 }
 
-static ulong32 nltap(sober128_state *c)
+static ulong32 nltap(const sober128_state *c)
 {
     ulong32 t;
     NLFUNC(c, 0);

@@ -1592,7 +1592,7 @@ int des3_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_k
   @param skey The key as scheduled
   @return CRYPT_OK if successful
 */
-int des_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
+int des_ecb_encrypt(const unsigned char *pt, unsigned char *ct, const symmetric_key *skey)
 {
     ulong32 work[2];
     LTC_ARGCHK(pt   != NULL);
@@ -1613,7 +1613,7 @@ int des_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *s
   @param skey The key as scheduled
   @return CRYPT_OK if successful
 */
-int des_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey)
+int des_ecb_decrypt(const unsigned char *ct, unsigned char *pt, const symmetric_key *skey)
 {
     ulong32 work[2];
     LTC_ARGCHK(pt   != NULL);
@@ -1634,7 +1634,7 @@ int des_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *s
   @param skey The key as scheduled
   @return CRYPT_OK if successful
 */
-int des3_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
+int des3_ecb_encrypt(const unsigned char *pt, unsigned char *ct, const symmetric_key *skey)
 {
     ulong32 work[2];
 
@@ -1658,7 +1658,7 @@ int des3_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *
   @param skey The key as scheduled
   @return CRYPT_OK if successful
 */
-int des3_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey)
+int des3_ecb_decrypt(const unsigned char *ct, unsigned char *pt, const symmetric_key *skey)
 {
     ulong32 work[2];
     LTC_ARGCHK(pt   != NULL);

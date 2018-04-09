@@ -71,7 +71,7 @@ int xtea_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_k
   @param skey The key as scheduled
   @return CRYPT_OK if successful
 */
-int xtea_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
+int xtea_ecb_encrypt(const unsigned char *pt, unsigned char *ct, const symmetric_key *skey)
 {
    ulong32 y, z;
    int r;
@@ -107,7 +107,7 @@ int xtea_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *
   @param skey The key as scheduled
   @return CRYPT_OK if successful
 */
-int xtea_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey)
+int xtea_ecb_decrypt(const unsigned char *ct, unsigned char *pt, const symmetric_key *skey)
 {
    ulong32 y, z;
    int r;

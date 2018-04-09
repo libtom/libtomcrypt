@@ -22,7 +22,7 @@
   @param key        The RSA key
   @return The maximum salt length in bytes or INT_MAX on error.
 */
-int rsa_sign_saltlen_get_max_ex(int padding, int hash_idx, rsa_key *key)
+int rsa_sign_saltlen_get_max_ex(int padding, int hash_idx, const rsa_key *key)
 {
   int ret = INT_MAX;
   LTC_ARGCHK(key != NULL);

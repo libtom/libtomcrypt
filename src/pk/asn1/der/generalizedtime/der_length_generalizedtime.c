@@ -22,7 +22,7 @@
   @param outlen [out] The length of the DER encoding
   @return CRYPT_OK if successful
 */
-int der_length_generalizedtime(ltc_generalizedtime *gtime, unsigned long *outlen)
+int der_length_generalizedtime(const ltc_generalizedtime *gtime, unsigned long *outlen)
 {
    LTC_ARGCHK(outlen  != NULL);
    LTC_ARGCHK(gtime != NULL);

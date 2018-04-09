@@ -26,7 +26,7 @@
    @param stat  [out]  Result of test, 1==valid, 0==invalid
    @return CRYPT_OK if successful
 */
-int dsa_verify_key(dsa_key *key, int *stat)
+int dsa_verify_key(const dsa_key *key, int *stat)
 {
    int err;
 
@@ -47,7 +47,7 @@ int dsa_verify_key(dsa_key *key, int *stat)
    @param stat  [out]  Result of test, 1==valid, 0==invalid
    @return CRYPT_OK if successful
 */
-int dsa_int_validate_pqg(dsa_key *key, int *stat)
+int dsa_int_validate_pqg(const dsa_key *key, int *stat)
 {
    void *tmp1, *tmp2;
    int  err;
@@ -101,7 +101,7 @@ error:
    @param stat  [out]  Result of test, 1==valid, 0==invalid
    @return CRYPT_OK if successful
 */
-int dsa_int_validate_primes(dsa_key *key, int *stat)
+int dsa_int_validate_primes(const dsa_key *key, int *stat)
 {
    int err, res;
 
@@ -136,7 +136,7 @@ int dsa_int_validate_primes(dsa_key *key, int *stat)
    @param stat  [out]  Result of test, 1==valid, 0==invalid
    @return CRYPT_OK if successful
 */
-int dsa_int_validate_xy(dsa_key *key, int *stat)
+int dsa_int_validate_xy(const dsa_key *key, int *stat)
 {
    void *tmp;
    int  err;

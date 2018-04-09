@@ -21,7 +21,7 @@
   @param outlen [out] The length of the DER encoding
   @return CRYPT_OK if successful
 */
-int der_length_utctime(ltc_utctime *utctime, unsigned long *outlen)
+int der_length_utctime(const ltc_utctime *utctime, unsigned long *outlen)
 {
    LTC_ARGCHK(outlen  != NULL);
    LTC_ARGCHK(utctime != NULL);

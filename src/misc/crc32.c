@@ -159,7 +159,7 @@ void crc32_update(crc32_state *ctx, const unsigned char *input, unsigned long le
    ctx->crc = crc;
 }
 
-void crc32_finish(crc32_state *ctx, void *hash, unsigned long size)
+void crc32_finish(const crc32_state *ctx, void *hash, unsigned long size)
 {
    unsigned long i;
    unsigned char* h;

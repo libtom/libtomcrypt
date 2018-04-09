@@ -19,7 +19,7 @@
   @param gcm   The GCM state which holds the H value
   @param I     The value to multiply H by
  */
-void gcm_mult_h(gcm_state *gcm, unsigned char *I)
+void gcm_mult_h(const gcm_state *gcm, unsigned char *I)
 {
    unsigned char T[16];
 #ifdef LTC_GCM_TABLES
