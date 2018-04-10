@@ -313,7 +313,13 @@ const char *crypt_build_settings =
     "   ChaCha20\n"
 #endif
 #if defined(LTC_FORTUNA)
-    "   Fortuna (" NAME_VALUE(LTC_FORTUNA_POOLS) ", " NAME_VALUE(LTC_FORTUNA_WD) ")\n"
+    "   Fortuna (" NAME_VALUE(LTC_FORTUNA_POOLS) ", "
+#if defined(LTC_FORTUNA_RESEED_RATELIMIT_TIMED)
+    "LTC_FORTUNA_RESEED_RATELIMIT_TIMED, "
+#else
+    "LTC_FORTUNA_RESEED_RATELIMIT_STATIC, " NAME_VALUE(LTC_FORTUNA_WD)
+#endif
+    ")\n"
 #endif
 #if defined(LTC_SOBER128)
     "   SOBER128\n"

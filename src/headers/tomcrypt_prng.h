@@ -43,7 +43,7 @@ struct fortuna_prng {
                   pool0_len,  /* length of 0'th pool */
                   wd;
 
-    ulong64       reset_cnt;  /* number of times we have reset */
+    ulong64       reset_cnt;  /* number of times we have reseeded */
 };
 #endif
 
@@ -148,12 +148,14 @@ extern const struct ltc_prng_descriptor yarrow_desc;
 #ifdef LTC_FORTUNA
 int fortuna_start(prng_state *prng);
 int fortuna_add_entropy(const unsigned char *in, unsigned long inlen, prng_state *prng);
+int fortuna_add_random_event(unsigned long source, unsigned long pool, const unsigned char *in, unsigned long inlen, prng_state *prng);
 int fortuna_ready(prng_state *prng);
 unsigned long fortuna_read(unsigned char *out, unsigned long outlen, prng_state *prng);
 int fortuna_done(prng_state *prng);
-int  fortuna_export(unsigned char *out, unsigned long *outlen, prng_state *prng);
-int  fortuna_import(const unsigned char *in, unsigned long inlen, prng_state *prng);
-int  fortuna_test(void);
+int fortuna_export(unsigned char *out, unsigned long *outlen, prng_state *prng);
+int fortuna_import(const unsigned char *in, unsigned long inlen, prng_state *prng);
+int fortuna_update_seed(const unsigned char *in, unsigned long inlen, prng_state *prng);
+int fortuna_test(void);
 extern const struct ltc_prng_descriptor fortuna_desc;
 #endif
 

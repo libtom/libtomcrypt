@@ -3831,6 +3831,26 @@ For detailed information on how the algorithm works and what you have to do to m
 get a copy of the book\footnote{Niels Ferguson and Bruce Schneier, Practical Cryptography. ISBN 0-471-22357-3.} or
 read the paper online\footnote{\url{https://www.schneier.com/academic/paperfiles/fortuna.pdf} [Accessed on 7th Dec. 2017]}.
 
+Fortuna provides additional API functions to be able to implement some of the important steps proposed in the original algorithm specification.
+
+\index{fortuna\_add\_random\_event()}
+\begin{verbatim}
+int fortuna_add_random_event(      unsigned long  source, unsigned long pool,
+                             const unsigned char *in,     unsigned long inlen,
+                                      prng_state *prng);
+\end{verbatim}
+
+\textit{fortuna\_add\_random\_event()} can be used as a powerful alternative to the more general \textit{add\_entropy()}.
+
+\index{fortuna\_update\_seed()}
+\begin{verbatim}
+int fortuna_update_seed(const unsigned char *in, unsigned long inlen,
+                                 prng_state *prng);
+\end{verbatim}
+
+\textit{fortuna\_update\_seed()} can be used to implement the \textit{UpdateSeedFile} function from the original specification.
+
+
 \subsubsection{RC4}
 
 RC4 is an old stream cipher that can also double duty as a PRNG in a pinch.  You key RC4 by

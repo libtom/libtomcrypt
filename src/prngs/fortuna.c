@@ -61,6 +61,29 @@ static void _fortuna_update_iv(prng_state *prng)
    }
 }
 
+#ifdef LTC_FORTUNA_RESEED_RATELIMIT_TIMED
+/* get the current time in 100ms steps */
+static ulong64 _fortuna_current_time(void)
+{
+   ulong64 cur_time;
+#if defined(_POSIX_C_SOURCE) && _POSIX_C_SOURCE >= 200112L
+   struct timespec ts;
+   clock_gettime(CLOCK_MONOTONIC, &ts);
+   cur_time = (ulong64)(ts.tv_sec) * 1000000 + (ulong64)(ts.tv_nsec) / 1000; /* get microseconds */
+#elif defined(_WIN32)
+   FILETIME CurrentTime;
+   ULARGE_INTEGER ul;
+   GetSystemTimeAsFileTime(&CurrentTime);
+   ul.LowPart  = CurrentTime.dwLowDateTime;
+   ul.HighPart = CurrentTime.dwHighDateTime;
+   cur_time = ul.QuadPart;
+   cur_time -= CONST64(116444736000000000); /* subtract epoch in microseconds */
+   cur_time /= 1000; /* nanoseconds -> microseconds */
+#endif
+   return cur_time / 100;
+}
+#endif
+
 /* reseed the PRNG */
 static int _fortuna_reseed(prng_state *prng)
 {
@@ -69,6 +92,14 @@ static int _fortuna_reseed(prng_state *prng)
    ulong64       reset_cnt;
    int           err, x;
 
+#ifdef LTC_FORTUNA_RESEED_RATELIMIT_TIMED
+   unsigned long now = _fortuna_current_time();
+   if (now == prng->fortuna.wd)
+      return CRYPT_OK;
+#else
+   if (++prng->fortuna.wd < LTC_FORTUNA_WD)
+      return CRYPT_OK;
+#endif
 
    /* new K == LTC_SHA256(K || s) where s == LTC_SHA256(P0) || LTC_SHA256(P1) ... */
    sha256_init(&md);
@@ -112,7 +143,11 @@ static int _fortuna_reseed(prng_state *prng)
 
    /* reset/update internals */
    prng->fortuna.pool0_len = 0;
+#ifdef LTC_FORTUNA_RESEED_RATELIMIT_TIMED
+   prng->fortuna.wd        = now;
+#else
    prng->fortuna.wd        = 0;
+#endif
    prng->fortuna.reset_cnt = reset_cnt;
 
 
@@ -132,7 +167,7 @@ static int _fortuna_reseed(prng_state *prng)
   @param prng     The PRNG to import
   @return CRYPT_OK if successful
 */
-static int _fortuna_update_seed(const unsigned char *in, unsigned long inlen, prng_state *prng)
+int fortuna_update_seed(const unsigned char *in, unsigned long inlen, prng_state *prng)
 {
    int           err;
    unsigned char tmp[MAXBLOCKSIZE];
@@ -204,6 +239,60 @@ int fortuna_start(prng_state *prng)
    return CRYPT_OK;
 }
 
+static int _fortuna_add(unsigned long source, unsigned long pool, const unsigned char *in, unsigned long inlen, prng_state *prng)
+{
+   unsigned char tmp[2];
+   int err;
+
+   /* ensure inlen <= 32 */
+   if (inlen > 32) {
+      inlen = 32;
+   }
+
+   /* add s || length(in) || in to pool[pool_idx] */
+   tmp[0] = (unsigned char)source;
+   tmp[1] = (unsigned char)inlen;
+
+   if ((err = sha256_process(&prng->fortuna.pool[pool], tmp, 2)) != CRYPT_OK) {
+      return err;
+   }
+   if ((err = sha256_process(&prng->fortuna.pool[pool], in, inlen)) != CRYPT_OK) {
+      return err;
+   }
+   if (pool == 0) {
+      prng->fortuna.pool0_len += inlen;
+   }
+   return CRYPT_OK; /* success */
+}
+
+/**
+  Add random event to the PRNG state as proposed by the original paper.
+  @param source   The source this random event comes from (0 .. 255)
+  @param pool     The pool where to add the data to (0 .. LTC_FORTUNA_POOLS)
+  @param in       The data to add
+  @param inlen    Length of the data to add
+  @param prng     PRNG state to update
+  @return CRYPT_OK if successful
+*/
+int fortuna_add_random_event(unsigned long source, unsigned long pool, const unsigned char *in, unsigned long inlen, prng_state *prng)
+{
+   int           err;
+
+   LTC_ARGCHK(prng != NULL);
+   LTC_ARGCHK(in != NULL);
+   LTC_ARGCHK(inlen > 0);
+   LTC_ARGCHK(source <= 255);
+   LTC_ARGCHK(pool < LTC_FORTUNA_POOLS);
+
+   LTC_MUTEX_LOCK(&prng->lock);
+
+   err = _fortuna_add(source, pool, in, inlen, prng);
+
+   LTC_MUTEX_UNLOCK(&prng->lock);
+
+   return err;
+}
+
 /**
   Add entropy to the PRNG state
   @param in       The data to add
@@ -213,39 +302,23 @@ int fortuna_start(prng_state *prng)
 */
 int fortuna_add_entropy(const unsigned char *in, unsigned long inlen, prng_state *prng)
 {
-   unsigned char tmp[2];
-   int           err;
+   int err;
 
    LTC_ARGCHK(prng != NULL);
    LTC_ARGCHK(in != NULL);
    LTC_ARGCHK(inlen > 0);
 
-   /* ensure inlen <= 32 */
-   if (inlen > 32) {
-      inlen = 32;
-   }
-
-   /* add s || length(in) || in to pool[pool_idx] */
-   tmp[0] = 0;
-   tmp[1] = (unsigned char)inlen;
-
    LTC_MUTEX_LOCK(&prng->lock);
-   if ((err = sha256_process(&prng->fortuna.pool[prng->fortuna.pool_idx], tmp, 2)) != CRYPT_OK) {
-      goto LBL_UNLOCK;
-   }
-   if ((err = sha256_process(&prng->fortuna.pool[prng->fortuna.pool_idx], in, inlen)) != CRYPT_OK) {
-      goto LBL_UNLOCK;
-   }
-   if (prng->fortuna.pool_idx == 0) {
-      prng->fortuna.pool0_len += inlen;
-   }
-   if (++(prng->fortuna.pool_idx) == LTC_FORTUNA_POOLS) {
-      prng->fortuna.pool_idx = 0;
-   }
-   err = CRYPT_OK; /* success */
 
-LBL_UNLOCK:
+   err = _fortuna_add(0, prng->fortuna.pool_idx, in, inlen, prng);
+
+   if (err == CRYPT_OK) {
+      ++(prng->fortuna.pool_idx);
+      prng->fortuna.pool_idx %= LTC_FORTUNA_POOLS;
+   }
+
    LTC_MUTEX_UNLOCK(&prng->lock);
+
    return err;
 }
 
@@ -260,6 +333,13 @@ int fortuna_ready(prng_state *prng)
    LTC_ARGCHK(prng != NULL);
 
    LTC_MUTEX_LOCK(&prng->lock);
+   /* make sure the reseed doesn't fail because
+    * of the chosen rate limit */
+#ifdef LTC_FORTUNA_RESEED_RATELIMIT_TIMED
+   prng->fortuna.wd = _fortuna_current_time() - 1;
+#else
+   prng->fortuna.wd = LTC_FORTUNA_WD;
+#endif
    err = _fortuna_reseed(prng);
    prng->ready = (err == CRYPT_OK) ? 1 : 0;
 
@@ -288,7 +368,7 @@ unsigned long fortuna_read(unsigned char *out, unsigned long outlen, prng_state 
    }
 
    /* do we have to reseed? */
-   if (++prng->fortuna.wd == LTC_FORTUNA_WD || prng->fortuna.pool0_len >= 64) {
+   if (prng->fortuna.pool0_len >= 64) {
       if (_fortuna_reseed(prng) != CRYPT_OK) {
          goto LBL_UNLOCK;
       }
@@ -401,7 +481,7 @@ int fortuna_import(const unsigned char *in, unsigned long inlen, prng_state *prn
       return err;
    }
 
-   if ((err = _fortuna_update_seed(in, inlen, prng)) != CRYPT_OK) {
+   if ((err = fortuna_update_seed(in, inlen, prng)) != CRYPT_OK) {
       return err;
    }
 
