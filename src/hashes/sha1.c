@@ -40,9 +40,9 @@ const struct ltc_hash_descriptor sha1_desc =
 #define F3(x,y,z)  (x ^ y ^ z)
 
 #ifdef LTC_CLEAN_STACK
-static int _sha1_compress(hash_state *md, unsigned char *buf)
+static int _sha1_compress(hash_state *md, const unsigned char *buf)
 #else
-static int  sha1_compress(hash_state *md, unsigned char *buf)
+static int  sha1_compress(hash_state *md, const unsigned char *buf)
 #endif
 {
     ulong32 a,b,c,d,e,W[80],i;
@@ -146,7 +146,7 @@ static int  sha1_compress(hash_state *md, unsigned char *buf)
 }
 
 #ifdef LTC_CLEAN_STACK
-static int sha1_compress(hash_state *md, unsigned char *buf)
+static int sha1_compress(hash_state *md, const unsigned char *buf)
 {
    int err;
    err = _sha1_compress(md, buf);

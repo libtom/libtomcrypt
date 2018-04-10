@@ -73,9 +73,9 @@ const struct ltc_hash_descriptor rmd256_desc =
       (a) = ROLc((a), (s));
 
 #ifdef LTC_CLEAN_STACK
-static int _rmd256_compress(hash_state *md, unsigned char *buf)
+static int _rmd256_compress(hash_state *md, const unsigned char *buf)
 #else
-static int  rmd256_compress(hash_state *md, unsigned char *buf)
+static int  rmd256_compress(hash_state *md, const unsigned char *buf)
 #endif
 {
    ulong32 aa,bb,cc,dd,aaa,bbb,ccc,ddd,tmp,X[16];
@@ -262,7 +262,7 @@ static int  rmd256_compress(hash_state *md, unsigned char *buf)
 }
 
 #ifdef LTC_CLEAN_STACK
-static int rmd256_compress(hash_state *md, unsigned char *buf)
+static int rmd256_compress(hash_state *md, const unsigned char *buf)
 {
    int err;
    err = _rmd256_compress(md, buf);

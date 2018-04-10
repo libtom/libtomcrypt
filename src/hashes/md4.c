@@ -71,9 +71,9 @@ const struct ltc_hash_descriptor md4_desc =
   }
 
 #ifdef LTC_CLEAN_STACK
-static int _md4_compress(hash_state *md, unsigned char *buf)
+static int _md4_compress(hash_state *md, const unsigned char *buf)
 #else
-static int  md4_compress(hash_state *md, unsigned char *buf)
+static int  md4_compress(hash_state *md, const unsigned char *buf)
 #endif
 {
     ulong32 x[16], a, b, c, d;
@@ -155,7 +155,7 @@ static int  md4_compress(hash_state *md, unsigned char *buf)
 }
 
 #ifdef LTC_CLEAN_STACK
-static int md4_compress(hash_state *md, unsigned char *buf)
+static int md4_compress(hash_state *md, const unsigned char *buf)
 {
    int err;
    err = _md4_compress(md, buf);
