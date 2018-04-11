@@ -64,7 +64,7 @@ static const ulong32 K[64] = {
 
 /* compress 512-bits */
 #ifdef LTC_CLEAN_STACK
-static int _sha256_compress(hash_state * md, unsigned char *buf)
+static int _sha256_compress(hash_state * md, const unsigned char *buf)
 #else
 static int  sha256_compress(hash_state * md, const unsigned char *buf)
 #endif
@@ -187,7 +187,7 @@ static int  sha256_compress(hash_state * md, const unsigned char *buf)
 }
 
 #ifdef LTC_CLEAN_STACK
-static int sha256_compress(hash_state * md, unsigned char *buf)
+static int sha256_compress(hash_state * md, const unsigned char *buf)
 {
     int err;
     err = _sha256_compress(md, buf);

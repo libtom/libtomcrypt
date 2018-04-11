@@ -99,7 +99,7 @@ const struct ltc_hash_descriptor rmd160_desc =
 
 
 #ifdef LTC_CLEAN_STACK
-static int _rmd160_compress(hash_state *md, unsigned char *buf)
+static int _rmd160_compress(hash_state *md, const unsigned char *buf)
 #else
 static int  rmd160_compress(hash_state *md, const unsigned char *buf)
 #endif
@@ -311,7 +311,7 @@ static int  rmd160_compress(hash_state *md, const unsigned char *buf)
 }
 
 #ifdef LTC_CLEAN_STACK
-static int rmd160_compress(hash_state *md, unsigned char *buf)
+static int rmd160_compress(hash_state *md, const unsigned char *buf)
 {
    int err;
    err = _rmd160_compress(md, buf);

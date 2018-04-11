@@ -109,7 +109,7 @@ static int whirlpool_compress(hash_state *md, const unsigned char *buf)
 
 
 #ifdef LTC_CLEAN_STACK
-static int whirlpool_compress(hash_state *md, unsigned char *buf)
+static int whirlpool_compress(hash_state *md, const unsigned char *buf)
 {
    int err;
    err = _whirlpool_compress(md, buf);

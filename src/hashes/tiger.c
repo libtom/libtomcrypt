@@ -639,7 +639,7 @@ static int  tiger_compress(hash_state *md, const unsigned char *buf)
 }
 
 #ifdef LTC_CLEAN_STACK
-static int tiger_compress(hash_state *md, unsigned char *buf)
+static int tiger_compress(hash_state *md, const unsigned char *buf)
 {
    int err;
    err = _tiger_compress(md, buf);
