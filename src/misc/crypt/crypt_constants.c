@@ -126,6 +126,7 @@ static const crypt_constant _crypt_constants[] = {
 
 #ifdef LTC_DER
 /* DER handling */
+    {"LTC_DER", 1},
     _C_STRINGIFY(LTC_ASN1_EOL),
     _C_STRINGIFY(LTC_ASN1_BOOLEAN),
     _C_STRINGIFY(LTC_ASN1_INTEGER),
@@ -146,6 +147,9 @@ static const crypt_constant _crypt_constants[] = {
     _C_STRINGIFY(LTC_ASN1_TELETEX_STRING),
     _C_STRINGIFY(LTC_ASN1_GENERALIZEDTIME),
     _C_STRINGIFY(LTC_ASN1_CUSTOM_TYPE),
+    _C_STRINGIFY(LTC_DER_MAX_RECURSION),
+#else
+    {"LTC_DER", 0},
 #endif
 
 #ifdef LTC_CTR_MODE
