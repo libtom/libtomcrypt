@@ -334,10 +334,10 @@ static int _der_decode_pkcs8_flexi(const unsigned char *in,  unsigned long inlen
    if ((err = der_decode_sequence_flexi(in, &len, &l)) == CRYPT_OK) {
       /* the following "if" detects whether it is encrypted or not */
       if (l->type == LTC_ASN1_SEQUENCE &&
-          l->child && l->child->type == LTC_ASN1_SEQUENCE &&
-          l->child->child && l->child->child->type == LTC_ASN1_OBJECT_IDENTIFIER &&
-          l->child->child->next && l->child->child->next->type == LTC_ASN1_SEQUENCE &&
-          l->child->next && l->child->next->type == LTC_ASN1_OCTET_STRING) {
+          LTC_ASN1_IS_TYPE(l->child, LTC_ASN1_SEQUENCE) &&
+          LTC_ASN1_IS_TYPE(l->child->child, LTC_ASN1_OBJECT_IDENTIFIER) &&
+          LTC_ASN1_IS_TYPE(l->child->child->next, LTC_ASN1_SEQUENCE) &&
+          LTC_ASN1_IS_TYPE(l->child->next, LTC_ASN1_OCTET_STRING)) {
          ltc_asn1_list *lalgoid = l->child->child;
          ltc_asn1_list *lalgparam = l->child->child->next;
          unsigned char *enc_data = l->child->next->data;
@@ -347,8 +347,8 @@ static int _der_decode_pkcs8_flexi(const unsigned char *in,  unsigned long inlen
             err = CRYPT_MEM;
             goto LBL_DONE;
          }
-         if (lalgparam->child && lalgparam->child->type == LTC_ASN1_OCTET_STRING &&
-             lalgparam->child->next && lalgparam->child->next->type == LTC_ASN1_INTEGER) {
+         if (LTC_ASN1_IS_TYPE(lalgparam->child, LTC_ASN1_OCTET_STRING) &&
+             LTC_ASN1_IS_TYPE(lalgparam->child->next, LTC_ASN1_INTEGER)) {
             /* PBES1: encrypted pkcs8 - pbeWithMD5AndDES-CBC:
              *  0:d=0  hl=4 l= 329 cons: SEQUENCE
              *  4:d=1  hl=2 l=  27 cons:   SEQUENCE             (== *lalg)
@@ -365,11 +365,11 @@ static int _der_decode_pkcs8_flexi(const unsigned char *in,  unsigned long inlen
             if (err != CRYPT_OK) goto LBL_DONE;
          }
          else if (PBES2 == _oid_to_id(lalgoid->data, lalgoid->size) &&
-                  lalgparam->child && lalgparam->child->type == LTC_ASN1_SEQUENCE &&
-                  lalgparam->child->child && lalgparam->child->child->type == LTC_ASN1_OBJECT_IDENTIFIER &&
-                  lalgparam->child->child->next && lalgparam->child->child->next->type == LTC_ASN1_SEQUENCE &&
-                  lalgparam->child->next && lalgparam->child->next->type == LTC_ASN1_SEQUENCE &&
-                  lalgparam->child->next->child && lalgparam->child->next->child->type == LTC_ASN1_OBJECT_IDENTIFIER) {
+                  LTC_ASN1_IS_TYPE(lalgparam->child, LTC_ASN1_SEQUENCE) &&
+                  LTC_ASN1_IS_TYPE(lalgparam->child->child, LTC_ASN1_OBJECT_IDENTIFIER) &&
+                  LTC_ASN1_IS_TYPE(lalgparam->child->child->next, LTC_ASN1_SEQUENCE) &&
+                  LTC_ASN1_IS_TYPE(lalgparam->child->next, LTC_ASN1_SEQUENCE) &&
+                  LTC_ASN1_IS_TYPE(lalgparam->child->next->child, LTC_ASN1_OBJECT_IDENTIFIER)) {
             /* PBES2: encrypted pkcs8 - PBES2+PBKDF2+des-ede3-cbc:
              *  0:d=0  hl=4 l= 380 cons: SEQUENCE
              *  4:d=1  hl=2 l=  78 cons:   SEQUENCE             (== *lalg)
@@ -393,9 +393,9 @@ static int _der_decode_pkcs8_flexi(const unsigned char *in,  unsigned long inlen
             int kdfid = _oid_to_id(lkdf->data, lkdf->size);
             int encid = _oid_to_id(lenc->data, lenc->size);
             if (PBKDF2 == kdfid &&
-                lkdf->next && lkdf->next->type == LTC_ASN1_SEQUENCE &&
-                lkdf->next->child && lkdf->next->child->type == LTC_ASN1_OCTET_STRING &&
-                lkdf->next->child->next && lkdf->next->child->next->type == LTC_ASN1_INTEGER) {
+                LTC_ASN1_IS_TYPE(lkdf->next, LTC_ASN1_SEQUENCE) &&
+                LTC_ASN1_IS_TYPE(lkdf->next->child, LTC_ASN1_OCTET_STRING) &&
+                LTC_ASN1_IS_TYPE(lkdf->next->child->next, LTC_ASN1_INTEGER)) {
                unsigned long iter = mp_get_int(lkdf->next->child->next->data);
                unsigned long salt_size = lkdf->next->child->size;
                unsigned char *salt = lkdf->next->child->data;
@@ -404,19 +404,19 @@ static int _der_decode_pkcs8_flexi(const unsigned char *in,  unsigned long inlen
                unsigned long arg = 0;
                ltc_asn1_list *loptseq = lkdf->next->child->next->next;
                int hmacid = HMAC_WITH_SHA1; /* this is default */
-               if (loptseq && loptseq->type == LTC_ASN1_SEQUENCE &&
-                   loptseq->child && loptseq->child->type == LTC_ASN1_OBJECT_IDENTIFIER) {
+               if (LTC_ASN1_IS_TYPE(loptseq, LTC_ASN1_SEQUENCE) &&
+                   LTC_ASN1_IS_TYPE(loptseq->child, LTC_ASN1_OBJECT_IDENTIFIER)) {
                   /* this sequence is optional */
                   hmacid = _oid_to_id(loptseq->child->data, loptseq->child->size);
                }
-               if (lenc->next && lenc->next->type == LTC_ASN1_OCTET_STRING) {
+               if (LTC_ASN1_IS_TYPE(lenc->next, LTC_ASN1_OCTET_STRING)) {
                   /* DES-CBC + DES_EDE3_CBC */
                   iv = lenc->next->data;
                   iv_size = lenc->next->size;
                }
-               else if (lenc->next && lenc->next->type == LTC_ASN1_SEQUENCE &&
-                        lenc->next->child && lenc->next->child->type == LTC_ASN1_INTEGER &&
-                        lenc->next->child->next && lenc->next->child->next->type == LTC_ASN1_OCTET_STRING) {
+               else if (LTC_ASN1_IS_TYPE(lenc->next, LTC_ASN1_SEQUENCE) &&
+                        LTC_ASN1_IS_TYPE(lenc->next->child, LTC_ASN1_INTEGER) &&
+                        LTC_ASN1_IS_TYPE(lenc->next->child->next, LTC_ASN1_OCTET_STRING)) {
                   /* RC2-CBC is a bit special */
                   iv = lenc->next->child->next->data;
                   iv_size = lenc->next->child->next->size;
@@ -482,10 +482,10 @@ int ecc_import_pkcs8(const unsigned char *in, unsigned long inlen,
 
    if ((err = _der_decode_pkcs8_flexi(in, inlen, pwd, pwdlen, &l)) == CRYPT_OK) {
       if (l->type == LTC_ASN1_SEQUENCE &&
-          l->child && l->child->type == LTC_ASN1_INTEGER &&
-          l->child->next && l->child->next->type == LTC_ASN1_SEQUENCE &&
-          l->child->next->child && l->child->next->child->type == LTC_ASN1_OBJECT_IDENTIFIER &&
-          l->child->next->next && l->child->next->next->type == LTC_ASN1_OCTET_STRING) {
+          LTC_ASN1_IS_TYPE(l->child, LTC_ASN1_INTEGER) &&
+          LTC_ASN1_IS_TYPE(l->child->next, LTC_ASN1_SEQUENCE) &&
+          LTC_ASN1_IS_TYPE(l->child->next->child, LTC_ASN1_OBJECT_IDENTIFIER) &&
+          LTC_ASN1_IS_TYPE(l->child->next->next, LTC_ASN1_OCTET_STRING)) {
          ltc_asn1_list *lseq = l->child->next;
          ltc_asn1_list *lpri = l->child->next->next;
          ltc_asn1_list *lecoid = l->child->next->child;
@@ -496,7 +496,7 @@ int ecc_import_pkcs8(const unsigned char *in, unsigned long inlen,
             goto LBL_DONE;
          }
 
-         if (lseq->child->next && lseq->child->next->type == LTC_ASN1_OBJECT_IDENTIFIER) {
+         if (LTC_ASN1_IS_TYPE(lseq->child->next, LTC_ASN1_OBJECT_IDENTIFIER)) {
             /* CASE 1: curve by OID (AKA short variant):
              *  0:d=0  hl=2 l= 100 cons: SEQUENCE
              *  2:d=1  hl=2 l=   1 prim:   INTEGER        :00
@@ -511,7 +511,7 @@ int ecc_import_pkcs8(const unsigned char *in, unsigned long inlen,
             if ((err = ecc_get_curve(OID, &curve)) != CRYPT_OK)                           { goto LBL_DONE; }
             if ((err = ecc_set_dp(curve, key)) != CRYPT_OK)                               { goto LBL_DONE; }
          }
-         else if (lseq->child->next && lseq->child->next->type == LTC_ASN1_SEQUENCE) {
+         else if (LTC_ASN1_IS_TYPE(lseq->child->next, LTC_ASN1_SEQUENCE)) {
             /* CASE 2: explicit curve parameters (AKA long variant):
              *   0:d=0  hl=3 l= 227 cons: SEQUENCE
              *   3:d=1  hl=2 l=   1 prim:   INTEGER              :00
@@ -532,12 +532,12 @@ int ecc_import_pkcs8(const unsigned char *in, unsigned long inlen,
              */
             ltc_asn1_list *lcurve = lseq->child->next;
 
-            if (lcurve->child && lcurve->child->type == LTC_ASN1_INTEGER &&
-                lcurve->child->next && lcurve->child->next->type == LTC_ASN1_SEQUENCE &&
-                lcurve->child->next->next && lcurve->child->next->next->type == LTC_ASN1_SEQUENCE &&
-                lcurve->child->next->next->next && lcurve->child->next->next->next->type == LTC_ASN1_OCTET_STRING &&
-                lcurve->child->next->next->next->next && lcurve->child->next->next->next->next->type == LTC_ASN1_INTEGER &&
-                lcurve->child->next->next->next->next->next && lcurve->child->next->next->next->next->next->type == LTC_ASN1_INTEGER) {
+            if (LTC_ASN1_IS_TYPE(lcurve->child, LTC_ASN1_INTEGER) &&
+                LTC_ASN1_IS_TYPE(lcurve->child->next, LTC_ASN1_SEQUENCE) &&
+                LTC_ASN1_IS_TYPE(lcurve->child->next->next, LTC_ASN1_SEQUENCE) &&
+                LTC_ASN1_IS_TYPE(lcurve->child->next->next->next, LTC_ASN1_OCTET_STRING) &&
+                LTC_ASN1_IS_TYPE(lcurve->child->next->next->next->next, LTC_ASN1_INTEGER) &&
+                LTC_ASN1_IS_TYPE(lcurve->child->next->next->next->next->next, LTC_ASN1_INTEGER)) {
 
                ltc_asn1_list *lfield = lcurve->child->next;
                ltc_asn1_list *lpoint = lcurve->child->next->next;
@@ -545,10 +545,10 @@ int ecc_import_pkcs8(const unsigned char *in, unsigned long inlen,
                ltc_asn1_list *lorder = lcurve->child->next->next->next->next;
                cofactor = mp_get_int(lcurve->child->next->next->next->next->next->data);
 
-               if (lfield->child && lfield->child->type == LTC_ASN1_OBJECT_IDENTIFIER &&
-                   lfield->child->next && lfield->child->next->type == LTC_ASN1_INTEGER &&
-                   lpoint->child && lpoint->child->type == LTC_ASN1_OCTET_STRING &&
-                   lpoint->child->next && lpoint->child->next->type == LTC_ASN1_OCTET_STRING) {
+               if (LTC_ASN1_IS_TYPE(lfield->child, LTC_ASN1_OBJECT_IDENTIFIER) &&
+                   LTC_ASN1_IS_TYPE(lfield->child->next, LTC_ASN1_INTEGER) &&
+                   LTC_ASN1_IS_TYPE(lpoint->child, LTC_ASN1_OCTET_STRING) &&
+                   LTC_ASN1_IS_TYPE(lpoint->child->next, LTC_ASN1_OCTET_STRING)) {
 
                   ltc_asn1_list *lprime = lfield->child->next;
                   if ((err = mp_read_unsigned_bin(a, lpoint->child->data, lpoint->child->size)) != CRYPT_OK) {
@@ -575,8 +575,8 @@ int ecc_import_pkcs8(const unsigned char *in, unsigned long inlen,
          len = lpri->size;
          if ((err = der_decode_sequence_flexi(lpri->data, &len, &p)) == CRYPT_OK) {
             if (p->type == LTC_ASN1_SEQUENCE &&
-                p->child && p->child->type == LTC_ASN1_INTEGER &&
-                p->child->next && p->child->next->type == LTC_ASN1_OCTET_STRING) {
+                LTC_ASN1_IS_TYPE(p->child, LTC_ASN1_INTEGER) &&
+                LTC_ASN1_IS_TYPE(p->child->next, LTC_ASN1_OCTET_STRING)) {
                ltc_asn1_list *lk = p->child->next;
                if (mp_cmp_d(p->child->data, 1) != LTC_MP_EQ) {
                   err = CRYPT_INVALID_PACKET;

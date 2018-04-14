@@ -259,6 +259,9 @@ int dsa_int_validate_primes(const dsa_key *key, int *stat);
 #endif /* LTC_MDSA */
 
 #ifdef LTC_DER
+
+#define LTC_ASN1_IS_TYPE(e, t) (((e) != NULL) && ((e)->type == (t)))
+
 /* DER handling */
 int der_decode_custom_type_ex(const unsigned char *in, unsigned long  inlen,
                            ltc_asn1_list *root,
