@@ -11,209 +11,220 @@
 
 #ifdef LTC_MECC
 
-enum algorithm_oid {
-   PBE_MD2_DES,         /* 0 */
-   PBE_MD2_RC2,
-   PBE_MD5_DES,
-   PBE_MD5_RC2,
-   PBE_SHA1_DES,
-   PBE_SHA1_RC2,        /* 5 */
-   PBES2,
-   PBKDF2,
-   DES_CBC,
-   RC2_CBC,
-   DES_EDE3_CBC,        /* 10 */
-   HMAC_WITH_SHA1,
-   HMAC_WITH_SHA224,
-   HMAC_WITH_SHA256,
-   HMAC_WITH_SHA384,
-   HMAC_WITH_SHA512,    /* 15 */
-   PBE_SHA1_3DES
-};
-
-static const oid_st oid_list[] = {
-   { { 1,2,840,113549,1,5,1     }, 7 }, /* [0]  http://www.oid-info.com/get/1.2.840.113549.1.5.1    pbeWithMD2AndDES-CBC */
-   { { 1,2,840,113549,1,5,4     }, 7 }, /* [1]  http://www.oid-info.com/get/1.2.840.113549.1.5.4    pbeWithMD2AndRC2-CBC */
-   { { 1,2,840,113549,1,5,3     }, 7 }, /* [2]  http://www.oid-info.com/get/1.2.840.113549.1.5.3    pbeWithMD5AndDES-CBC */
-   { { 1,2,840,113549,1,5,6     }, 7 }, /* [3]  http://www.oid-info.com/get/1.2.840.113549.1.5.6    pbeWithMD5AndRC2-CBC */
-   { { 1,2,840,113549,1,5,10    }, 7 }, /* [4]  http://www.oid-info.com/get/1.2.840.113549.1.5.10   pbeWithSHA1AndDES-CBC */
-   { { 1,2,840,113549,1,5,11    }, 7 }, /* [5]  http://www.oid-info.com/get/1.2.840.113549.1.5.11   pbeWithSHA1AndRC2-CBC */
-   { { 1,2,840,113549,1,5,13    }, 7 }, /* [6]  http://www.oid-info.com/get/1.2.840.113549.1.5.13   pbes2 */
-   { { 1,2,840,113549,1,5,12    }, 7 }, /* [7]  http://www.oid-info.com/get/1.2.840.113549.1.5.12   pBKDF2 */
-   { { 1,3,14,3,2,7             }, 6 }, /* [8]  http://www.oid-info.com/get/1.3.14.3.2.7            desCBC */
-   { { 1,2,840,113549,3,2       }, 6 }, /* [9]  http://www.oid-info.com/get/1.2.840.113549.3.2      rc2CBC */
-   { { 1,2,840,113549,3,7       }, 6 }, /* [10] http://www.oid-info.com/get/1.2.840.113549.3.7      des-EDE3-CBC */
-   { { 1,2,840,113549,2,7       }, 6 }, /* [11] http://www.oid-info.com/get/1.2.840.113549.2.7      hmacWithSHA1 */
-   { { 1,2,840,113549,2,8       }, 6 }, /* [12] http://www.oid-info.com/get/1.2.840.113549.2.8      hmacWithSHA224 */
-   { { 1,2,840,113549,2,9       }, 6 }, /* [13] http://www.oid-info.com/get/1.2.840.113549.2.9      hmacWithSHA256 */
-   { { 1,2,840,113549,2,10      }, 6 }, /* [14] http://www.oid-info.com/get/1.2.840.113549.2.10     hmacWithSHA384 */
-   { { 1,2,840,113549,2,11      }, 6 }, /* [15] http://www.oid-info.com/get/1.2.840.113549.2.11     hmacWithSHA512 */
-   { { 1,2,840,113549,1,12,1,3  }, 8 }, /* [16] http://www.oid-info.com/get/1.2.840.113549.1.12.1.3 pbeWithSHAAnd3-KeyTripleDES-CBC */
-   { { 0 }, 0 },
-};
-
-static int _oid_to_id(const unsigned long *oid, unsigned long oid_size)
+static int _pkcs_5_alg1_wrap(const unsigned char *password, unsigned long password_len,
+                              const unsigned char *salt,     unsigned long salt_len,
+                              int iteration_count,  int hash_idx,
+                              unsigned char *out,   unsigned long *outlen)
 {
-   int i, j;
-   for (j = 0; oid_list[j].OIDlen > 0; j++) {
-     int match = 1;
-     if (oid_list[j].OIDlen != oid_size) continue;
-     for (i = 0; i < (int)oid_size && match; i++) if (oid_list[j].OID[i] != oid[i]) match = 0;
-     if (match) return j;
-   }
-   return -1;
+   LTC_UNUSED_PARAM(salt_len);
+   return pkcs_5_alg1(password, password_len, salt, iteration_count, hash_idx, out, outlen);
 }
 
-static int _pbes1_decrypt(const unsigned char *enc_data, unsigned long enc_size,
-                          const unsigned char *pass,     unsigned long pass_size,
-                          const unsigned char *salt,     unsigned long salt_size,
-                                unsigned long iterations,
-                          const unsigned long *oid,      unsigned long oid_size,
-                                unsigned char *dec_data, unsigned long *dec_size)
+static int _pkcs_12_wrap(const unsigned char *password, unsigned long password_len,
+                              const unsigned char *salt,     unsigned long salt_len,
+                              int iteration_count,  int hash_idx,
+                              unsigned char *out,   unsigned long *outlen)
 {
-   int id = _oid_to_id(oid, oid_size);
-   int err, hid = -1, cid = -1;
-   unsigned int keylen, blklen;
-   unsigned char key_iv[32] = { 0 }, pad;
-   unsigned long len = sizeof(key_iv), pwlen = pass_size;
-   symmetric_CBC cbc;
-   unsigned char *pw = NULL;
+   int err;
+   /* convert password to unicode/utf16-be */
+   unsigned long pwlen = password_len * 2;
+   unsigned char* pw;
+   if (*outlen < 32) return CRYPT_INVALID_ARG;
+   pw = XMALLOC(pwlen + 2);
+   if (pw == NULL) return CRYPT_MEM;
+   if ((err = pkcs12_utf8_to_utf16(password, password_len, pw, &pwlen) != CRYPT_OK)) goto LBL_ERROR;
+   pw[pwlen++] = 0;
+   pw[pwlen++] = 0;
+   /* derive KEY */
+   if ((err = pkcs12_kdf(hash_idx, pw, pwlen, salt, salt_len, iteration_count, 1, out, 24)) != CRYPT_OK) goto LBL_ERROR;
+   /* derive IV */
+   if ((err = pkcs12_kdf(hash_idx, pw, pwlen, salt, salt_len, iteration_count, 2, out+24, 8)) != CRYPT_OK) goto LBL_ERROR;
 
-   /* https://tools.ietf.org/html/rfc8018#section-6.1.2 */
-   if (id == PBE_MD2_DES  || id == PBE_MD2_RC2) hid = find_hash("md2");
-   if (id == PBE_MD5_DES  || id == PBE_MD5_RC2) hid = find_hash("md5");
-   if (id == PBE_SHA1_DES || id == PBE_SHA1_RC2 || id == PBE_SHA1_3DES) hid = find_hash("sha1");
-
-   if (id == PBE_MD2_RC2 || id == PBE_MD5_RC2 || id == PBE_SHA1_RC2) {
-      cid = find_cipher("rc2");
-      keylen = 8;
-      blklen = 8;
-   }
-   if (id == PBE_MD2_DES || id == PBE_MD5_DES || id == PBE_SHA1_DES) {
-      cid = find_cipher("des");
-      keylen = 8;
-      blklen = 8;
-   }
-   if (id == PBE_SHA1_3DES) {
-      cid = find_cipher("3des");
-      keylen = 24;
-      blklen = 8;
-   }
-
-   if (id == PBE_SHA1_3DES) {
-      /* convert password to unicode/utf16-be */
-      pwlen = pass_size * 2;
-      pw = XMALLOC(pwlen + 2);
-      if (pw == NULL) goto LBL_ERROR;
-      if ((err = pkcs12_utf8_to_utf16(pass, pass_size, pw, &pwlen) != CRYPT_OK)) goto LBL_ERROR;
-      pw[pwlen++] = 0;
-      pw[pwlen++] = 0;
-      /* derive KEY */
-      if ((err = pkcs12_kdf(hid, pw, pwlen, salt, salt_size, iterations, 1, key_iv, keylen)) != CRYPT_OK) goto LBL_ERROR;
-      /* derive IV */
-      if ((err = pkcs12_kdf(hid, pw, pwlen, salt, salt_size, iterations, 2, key_iv+24, blklen)) != CRYPT_OK) goto LBL_ERROR;
-   }
-   else {
-      if ((err = pkcs_5_alg1(pass, pass_size, salt, iterations, hid, key_iv, &len)) != CRYPT_OK) goto LBL_ERROR;
-      /* the output has 16 bytes: [KEY-8-bytes][IV-8-bytes] */
-   }
-
-   if (hid != -1 && cid != -1) {
-      if (salt_size != 8 || enc_size < blklen) goto LBL_ERROR;
-      if ((err = cbc_start(cid, key_iv + keylen, key_iv, keylen, 0, &cbc)) != CRYPT_OK) goto LBL_ERROR;
-      if ((err = cbc_decrypt(enc_data, dec_data, enc_size, &cbc)) != CRYPT_OK) goto LBL_ERROR;
-      if ((err = cbc_done(&cbc)) != CRYPT_OK) goto LBL_ERROR;
-      pad = dec_data[enc_size-1];
-      if (pad < 1 || pad > blklen) goto LBL_ERROR;
-      *dec_size = enc_size - pad;
-      err = CRYPT_OK;
-      goto LBL_DONE;
-   }
-
+   *outlen = 32;
 LBL_ERROR:
-   err = CRYPT_INVALID_ARG;
-LBL_DONE:
-   zeromem(key_iv, sizeof(key_iv));
-   if (pw) { zeromem(pw, pwlen); XFREE(pw); }
+   zeromem(pw, pwlen);
+   XFREE(pw);
    return err;
 }
 
-static int _pbes2_pbkdf2_decrypt(const unsigned char *enc_data, unsigned long enc_size,
-                                 const unsigned char *pass,     unsigned long pass_size,
-                                 const unsigned char *salt,     unsigned long salt_size,
-                                 const unsigned char *iv,       unsigned long iv_size,
-                                       unsigned long iterations,
-                                                 int hmacid,
-                                                 int encid,
-                                                 int extra_arg,
-                                       unsigned char *dec_data, unsigned long *dec_size)
+typedef int (*fn_kdf_t)(const unsigned char *password, unsigned long password_len,
+                              const unsigned char *salt,     unsigned long salt_len,
+                              int iteration_count,  int hash_idx,
+                              unsigned char *out,   unsigned long *outlen);
+
+typedef struct {
+   /* KDF */
+   fn_kdf_t kdf;
+   /* Hash or HMAC */
+   const char* h;
+   /* cipher */
+   const char* c;
+   unsigned long keylen;
+   /* not used for pbkdf2 */
+   unsigned long blocklen;
+} _pbes_type;
+
+typedef struct {
+   const _pbes_type *data;
+   const char *oid;
+} oid_pbes_type;
+
+/* PBES1-related structs */
+
+static const _pbes_type _pbes1_types[] = {
+   { _pkcs_5_alg1_wrap, "md2",   "des",   8, 8 },
+   { _pkcs_5_alg1_wrap, "md2",   "rc2",   8, 8 },
+   { _pkcs_5_alg1_wrap, "md5",   "des",   8, 8 },
+   { _pkcs_5_alg1_wrap, "md5",   "rc2",   8, 8 },
+   { _pkcs_5_alg1_wrap, "sha1",  "des",   8, 8 },
+   { _pkcs_5_alg1_wrap, "sha1",  "rc2",   8, 8 },
+   { _pkcs_12_wrap,     "sha1",  "3des", 24, 8 },
+};
+
+static const oid_pbes_type _pbes1_list[] = {
+   { &_pbes1_types[0], "1.2.840.113549.1.5.1"    },  /* http://www.oid-info.com/get/1.2.840.113549.1.5.1    pbeWithMD2AndDES-CBC */
+   { &_pbes1_types[1], "1.2.840.113549.1.5.4"    },  /* http://www.oid-info.com/get/1.2.840.113549.1.5.4    pbeWithMD2AndRC2-CBC */
+   { &_pbes1_types[2], "1.2.840.113549.1.5.3"    },  /* http://www.oid-info.com/get/1.2.840.113549.1.5.3    pbeWithMD5AndDES-CBC */
+   { &_pbes1_types[3], "1.2.840.113549.1.5.6"    },  /* http://www.oid-info.com/get/1.2.840.113549.1.5.6    pbeWithMD5AndRC2-CBC */
+   { &_pbes1_types[4], "1.2.840.113549.1.5.10"   },  /* http://www.oid-info.com/get/1.2.840.113549.1.5.10   pbeWithSHA1AndDES-CBC */
+   { &_pbes1_types[5], "1.2.840.113549.1.5.11"   },  /* http://www.oid-info.com/get/1.2.840.113549.1.5.11   pbeWithSHA1AndRC2-CBC */
+   { &_pbes1_types[6], "1.2.840.113549.1.12.1.3" },  /* http://www.oid-info.com/get/1.2.840.113549.1.12.1.3 pbeWithSHAAnd3-KeyTripleDES-CBC */
+   { 0 },
+};
+
+/* PBES2-related structs */
+
+typedef struct {
+   const char *oid;
+   const char *id;
+} oid_id_st;
+
+static const oid_id_st _hmac_oid_names[] = {
+   { "1.2.840.113549.2.7",  "sha1" },
+   { "1.2.840.113549.2.8",  "sha224" },
+   { "1.2.840.113549.2.9",  "sha256" },
+   { "1.2.840.113549.2.10", "sha384" },
+   { "1.2.840.113549.2.11", "sha512" },
+};
+
+static const _pbes_type _pbes2_default_types[] = {
+   { pkcs_5_alg2, "sha1",   "des",   8, 0 },
+   { pkcs_5_alg2, "sha1",   "rc2",   4, 0 },
+   { pkcs_5_alg2, "sha1",   "3des", 24, 0 },
+};
+
+typedef struct {
+   const _pbes_type *def;
+   const char* oid;
+} _pbes2_cipher_hmac_map;
+
+static const _pbes2_cipher_hmac_map _pbes2_ciphers[] = {
+   { &_pbes2_default_types[0], "1.3.14.3.2.7"            },  /* http://www.oid-info.com/get/1.3.14.3.2.7            desCBC */
+   { &_pbes2_default_types[1], "1.2.840.113549.3.2"      },  /* http://www.oid-info.com/get/1.2.840.113549.3.2      rc2CBC */
+   { &_pbes2_default_types[2], "1.2.840.113549.3.7"      },  /* http://www.oid-info.com/get/1.2.840.113549.3.7      des-EDE3-CBC */
+};
+
+static const char *_oid_pbkdf2 = "1.2.840.113549.1.5.12";
+static const char *_oid_pbes2 =  "1.2.840.113549.1.5.13";
+
+static int _oid_to_pbe(const ltc_asn1_list *oidA, const ltc_asn1_list *oidB, _pbes_type *res)
+{
+   unsigned int i;
+   if (oidB != NULL) {
+      for (i = 0; i < sizeof(_pbes2_ciphers)/sizeof(_pbes2_ciphers[0]); ++i) {
+         if (pk_oid_cmp_with_asn1(_pbes2_ciphers[i].oid, oidB) == CRYPT_OK) {
+            *res = *_pbes2_ciphers[i].def;
+            break;
+         }
+      }
+      if (res->c == NULL) return CRYPT_INVALID_CIPHER;
+      if (oidA != NULL) {
+         for (i = 0; i < sizeof(_hmac_oid_names)/sizeof(_hmac_oid_names[0]); ++i) {
+            if (pk_oid_cmp_with_asn1(_hmac_oid_names[i].oid, oidA) == CRYPT_OK) {
+               res->h = _hmac_oid_names[i].id;
+               return CRYPT_OK;
+            }
+         }
+         return CRYPT_INVALID_HASH;
+      }
+      return CRYPT_OK;
+   } else {
+      for (i = 0; _pbes1_list[i].data != NULL; ++i) {
+         if (pk_oid_cmp_with_asn1(_pbes1_list[i].oid, oidA) == CRYPT_OK) {
+            *res = *_pbes1_list[i].data;
+            return CRYPT_OK;
+         }
+      }
+   }
+   return CRYPT_INVALID_ARG;
+}
+
+typedef struct
+{
+   _pbes_type type;
+   const void *pwd;
+   unsigned long pwdlen;
+   ltc_asn1_list *enc_data;
+   ltc_asn1_list *salt;
+   ltc_asn1_list *iv;
+   unsigned long iterations;
+   int klen;
+} _pbesX_arg_t;
+
+static int _pbesX_decrypt(const _pbesX_arg_t  *arg,
+                                unsigned char *dec_data, unsigned long *dec_size)
 {
    int err, hid = -1, cid = -1;
-   unsigned char k[32], pad;
-   unsigned long klen = sizeof(k);
+   unsigned char k[32], *iv;
+   unsigned long klen, keylen, ivlen, dlen;
+   long diff;
    symmetric_CBC cbc;
 
-   /* https://tools.ietf.org/html/rfc8018#section-6.2.2 */
-
-   if (hmacid == HMAC_WITH_SHA1)   hid = find_hash("sha1");
-   if (hmacid == HMAC_WITH_SHA224) hid = find_hash("sha224");
-   if (hmacid == HMAC_WITH_SHA256) hid = find_hash("sha256");
-   if (hmacid == HMAC_WITH_SHA384) hid = find_hash("sha384");
-   if (hmacid == HMAC_WITH_SHA512) hid = find_hash("sha512");
+   hid = find_hash(arg->type.h);
    if (hid == -1) return CRYPT_INVALID_ARG;
+   cid = find_cipher(arg->type.c);
+   if (cid == -1) return CRYPT_INVALID_ARG;
 
-   if (encid == DES_EDE3_CBC) {
-      /* https://tools.ietf.org/html/rfc8018#appendix-B.2.2 */
-      cid = find_cipher("3des");
-      klen = 24;
-      if (klen > sizeof(k) || iv_size != 8 || iv == NULL || cid == -1) goto LBL_ERROR;
-      if ((err = pkcs_5_alg2(pass, pass_size, salt, salt_size, iterations, hid, k, &klen)) != CRYPT_OK) goto LBL_ERROR;
-      if ((err = cbc_start(cid, iv, k, klen, 0, &cbc)) != CRYPT_OK) goto LBL_ERROR;
-      if ((err = cbc_decrypt(enc_data, dec_data, enc_size, &cbc)) != CRYPT_OK) goto LBL_ERROR;
-      if ((err = cbc_done(&cbc)) != CRYPT_OK) goto LBL_ERROR;
-      pad = dec_data[enc_size-1];
-      if (pad < 1 || pad > 8) goto LBL_ERROR;
-      *dec_size = enc_size - pad;
-      return CRYPT_OK;
+   klen = arg->type.keylen;
+
+   /* rc2 special case */
+   if (arg->klen != 0) {
+      if (arg->klen == 160)  klen = 5;
+      if (arg->klen == 120)  klen = 8;
+      if (arg->klen == 58)   klen = 16;
+      if (arg->klen >= 256)  klen = arg->klen / 8;
+   }
+   keylen = klen;
+
+   if (arg->iv != NULL) {
+      iv = arg->iv->data;
+      ivlen = arg->iv->size;
+   } else {
+      iv = k + klen;
+      ivlen = arg->type.blocklen;
+      klen += ivlen;
    }
 
-   if (encid == DES_CBC) {
-      /* https://tools.ietf.org/html/rfc8018#appendix-B.2.1 */
-      cid = find_cipher("des");
-      klen = 8; /* 64 bits */
-      if (klen > sizeof(k) || iv_size != 8 || iv == NULL || cid == -1) goto LBL_ERROR;
-      if ((err = pkcs_5_alg2(pass, pass_size, salt, salt_size, iterations, hid, k, &klen)) != CRYPT_OK) goto LBL_ERROR;
-      if ((err = cbc_start(cid, iv, k, klen, 0, &cbc)) != CRYPT_OK) goto LBL_ERROR;
-      if ((err = cbc_decrypt(enc_data, dec_data, enc_size, &cbc)) != CRYPT_OK) goto LBL_ERROR;
-      if ((err = cbc_done(&cbc)) != CRYPT_OK) goto LBL_ERROR;
-      pad = dec_data[enc_size-1];
-      if (pad < 1 || pad > 8) goto LBL_ERROR;
-      *dec_size = enc_size - pad;
-      return CRYPT_OK;
-   }
+   if (klen > sizeof(k)) return CRYPT_INVALID_ARG;
 
-   if (encid == RC2_CBC) {
-     /* https://tools.ietf.org/html/rfc8018#appendix-B.2.3 */
-      cid = find_cipher("rc2");
-      klen = 4; /* default: 32 bits */
-      if (extra_arg == 160)  klen = 5;
-      if (extra_arg == 120)  klen = 8;
-      if (extra_arg == 58)   klen = 16;
-      if (extra_arg >= 256)  klen = extra_arg / 8;
-      if (klen > sizeof(k) || iv_size != 8 || iv == NULL || cid == -1) goto LBL_ERROR;
-      if ((err = pkcs_5_alg2(pass, pass_size, salt, salt_size, iterations, hid, k, &klen)) != CRYPT_OK) goto LBL_ERROR;
-      if ((err = cbc_start(cid, iv, k, klen, 0, &cbc)) != CRYPT_OK) goto LBL_ERROR;
-      if ((err = cbc_decrypt(enc_data, dec_data, enc_size, &cbc)) != CRYPT_OK) goto LBL_ERROR;
-      if ((err = cbc_done(&cbc)) != CRYPT_OK) goto LBL_ERROR;
-      pad = dec_data[enc_size-1];
-      if (pad < 1 || pad > 8) goto LBL_ERROR;
-      *dec_size = enc_size - pad;
-      return CRYPT_OK;
+   if ((err = arg->type.kdf(arg->pwd, arg->pwdlen, arg->salt->data, arg->salt->size, arg->iterations, hid, k, &klen)) != CRYPT_OK) goto LBL_ERROR;
+   if ((err = cbc_start(cid, iv, k, keylen, 0, &cbc)) != CRYPT_OK) goto LBL_ERROR;
+   if ((err = cbc_decrypt(arg->enc_data->data, dec_data, arg->enc_data->size, &cbc)) != CRYPT_OK) goto LBL_ERROR;
+   if ((err = cbc_done(&cbc)) != CRYPT_OK) goto LBL_ERROR;
+   dlen = arg->enc_data->size;
+   if ((err = padding_depad(dec_data, &dlen, LTC_PAD_PKCS7)) != CRYPT_OK) goto LBL_ERROR;
+   diff = (long)arg->enc_data->size - (long)dlen;
+   if ((diff <= 0) || (diff > cipher_descriptor[cid].block_length)) {
+      err = CRYPT_PK_INVALID_PADDING;
+      goto LBL_ERROR;
    }
+   *dec_size = dlen;
+   return CRYPT_OK;
 
 LBL_ERROR:
    zeromem(k, sizeof(k));
-   return CRYPT_INVALID_ARG;
+   zeromem(dec_data, *dec_size);
+   return err;
 }
 
 static int _der_decode_pkcs8_flexi(const unsigned char *in,  unsigned long inlen,
@@ -236,9 +247,11 @@ static int _der_decode_pkcs8_flexi(const unsigned char *in,  unsigned long inlen
           LTC_ASN1_IS_TYPE(l->child->next, LTC_ASN1_OCTET_STRING)) {
          ltc_asn1_list *lalgoid = l->child->child;
          ltc_asn1_list *lalgparam = l->child->child->next;
-         unsigned char *enc_data = l->child->next->data;
-         unsigned long enc_size = l->child->next->size;
-         dec_size = enc_size;
+         _pbesX_arg_t pbes_arg = {0};
+         pbes_arg.enc_data = l->child->next;
+         pbes_arg.pwd = pwd;
+         pbes_arg.pwdlen = pwdlen;
+         dec_size = pbes_arg.enc_data->size;
          if ((dec_data = XMALLOC(dec_size)) == NULL) {
             err = CRYPT_MEM;
             goto LBL_DONE;
@@ -254,13 +267,13 @@ static int _der_decode_pkcs8_flexi(const unsigned char *in,  unsigned long inlen
              * 29:d=3  hl=2 l=   2 prim:       INTEGER          :0800  (== iterations)
              * 33:d=1  hl=4 l= 296 prim:   OCTET STRING         :bytes (== encrypted data)
              */
-            unsigned long iter = mp_get_int(lalgparam->child->next->data);
-            unsigned long salt_size = lalgparam->child->size;
-            unsigned char *salt = lalgparam->child->data;
-            err = _pbes1_decrypt(enc_data, enc_size, pwd, pwdlen, salt, salt_size, iter, lalgoid->data, lalgoid->size, dec_data, &dec_size);
+            pbes_arg.iterations = mp_get_int(lalgparam->child->next->data);
+            pbes_arg.salt = lalgparam->child;
+            if ((err = _oid_to_pbe(lalgoid, NULL, &pbes_arg.type)) != CRYPT_OK) goto LBL_DONE;
+            err = _pbesX_decrypt(&pbes_arg, dec_data, &dec_size);
             if (err != CRYPT_OK) goto LBL_DONE;
          }
-         else if (PBES2 == _oid_to_id(lalgoid->data, lalgoid->size) &&
+         else if (pk_oid_cmp_with_asn1(_oid_pbes2, lalgoid) == CRYPT_OK &&
                   LTC_ASN1_IS_TYPE(lalgparam->child, LTC_ASN1_SEQUENCE) &&
                   LTC_ASN1_IS_TYPE(lalgparam->child->child, LTC_ASN1_OBJECT_IDENTIFIER) &&
                   LTC_ASN1_IS_TYPE(lalgparam->child->child->next, LTC_ASN1_SEQUENCE) &&
@@ -286,39 +299,32 @@ static int _der_decode_pkcs8_flexi(const unsigned char *in,  unsigned long inlen
              */
             ltc_asn1_list *lkdf = lalgparam->child->child;
             ltc_asn1_list *lenc = lalgparam->child->next->child;
-            int kdfid = _oid_to_id(lkdf->data, lkdf->size);
-            int encid = _oid_to_id(lenc->data, lenc->size);
-            if (PBKDF2 == kdfid &&
+            if (pk_oid_cmp_with_asn1(_oid_pbkdf2, lkdf) == CRYPT_OK &&
                 LTC_ASN1_IS_TYPE(lkdf->next, LTC_ASN1_SEQUENCE) &&
                 LTC_ASN1_IS_TYPE(lkdf->next->child, LTC_ASN1_OCTET_STRING) &&
                 LTC_ASN1_IS_TYPE(lkdf->next->child->next, LTC_ASN1_INTEGER)) {
-               unsigned long iter = mp_get_int(lkdf->next->child->next->data);
-               unsigned long salt_size = lkdf->next->child->size;
-               unsigned char *salt = lkdf->next->child->data;
-               unsigned char *iv = NULL;
-               unsigned long iv_size = 0;
-               unsigned long arg = 0;
                ltc_asn1_list *loptseq = lkdf->next->child->next->next;
-               int hmacid = HMAC_WITH_SHA1; /* this is default */
+               pbes_arg.iterations = mp_get_int(lkdf->next->child->next->data);
+               pbes_arg.salt = lkdf->next->child;
                if (LTC_ASN1_IS_TYPE(loptseq, LTC_ASN1_SEQUENCE) &&
                    LTC_ASN1_IS_TYPE(loptseq->child, LTC_ASN1_OBJECT_IDENTIFIER)) {
                   /* this sequence is optional */
-                  hmacid = _oid_to_id(loptseq->child->data, loptseq->child->size);
+                  if ((err = _oid_to_pbe(loptseq->child, lenc, &pbes_arg.type)) != CRYPT_OK) goto LBL_DONE;
+               } else {
+                  if ((err = _oid_to_pbe(NULL, lenc, &pbes_arg.type)) != CRYPT_OK) goto LBL_DONE;
                }
+
                if (LTC_ASN1_IS_TYPE(lenc->next, LTC_ASN1_OCTET_STRING)) {
                   /* DES-CBC + DES_EDE3_CBC */
-                  iv = lenc->next->data;
-                  iv_size = lenc->next->size;
-               }
-               else if (LTC_ASN1_IS_TYPE(lenc->next, LTC_ASN1_SEQUENCE) &&
+                  pbes_arg.iv = lenc->next;
+               } else if (LTC_ASN1_IS_TYPE(lenc->next, LTC_ASN1_SEQUENCE) &&
                         LTC_ASN1_IS_TYPE(lenc->next->child, LTC_ASN1_INTEGER) &&
                         LTC_ASN1_IS_TYPE(lenc->next->child->next, LTC_ASN1_OCTET_STRING)) {
                   /* RC2-CBC is a bit special */
-                  iv = lenc->next->child->next->data;
-                  iv_size = lenc->next->child->next->size;
-                  arg = mp_get_int(lenc->next->child->data);
+                  pbes_arg.iv = lenc->next->child->next;
+                  pbes_arg.klen = mp_get_int(lenc->next->child->data);
                }
-               err = _pbes2_pbkdf2_decrypt(enc_data, enc_size, pwd, pwdlen, salt, salt_size, iv, iv_size, iter, hmacid, encid, arg, dec_data, &dec_size);
+               err = _pbesX_decrypt(&pbes_arg, dec_data, &dec_size);
                if (err != CRYPT_OK) goto LBL_DONE;
             }
             else {
@@ -343,9 +349,11 @@ static int _der_decode_pkcs8_flexi(const unsigned char *in,  unsigned long inlen
          err = CRYPT_OK;
          *decoded_list = l;
       }
+      l = NULL;
    }
 
 LBL_DONE:
+   der_free_sequence_flexi(l);
    if (dec_data) XFREE(dec_data);
    return err;
 }
