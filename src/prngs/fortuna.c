@@ -93,7 +93,7 @@ static int _fortuna_reseed(prng_state *prng)
    int           err, x;
 
 #ifdef LTC_FORTUNA_RESEED_RATELIMIT_TIMED
-   unsigned long now = _fortuna_current_time();
+   ulong64 now = _fortuna_current_time();
    if (now == prng->fortuna.wd)
       return CRYPT_OK;
 #else
