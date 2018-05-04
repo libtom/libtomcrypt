@@ -394,7 +394,7 @@ int blowfish_ecb_encrypt(const unsigned char *pt, unsigned char *ct, const symme
    ulong32 L, R;
    int r;
 #ifndef __GNUC__
-   ulong32 *S1, *S2, *S3, *S4;
+   const ulong32 *S1, *S2, *S3, *S4;
 #endif
 
     LTC_ARGCHK(pt   != NULL);
@@ -456,7 +456,7 @@ int blowfish_ecb_decrypt(const unsigned char *ct, unsigned char *pt, const symme
    ulong32 L, R;
    int r;
 #ifndef __GNUC__
-   ulong32 *S1, *S2, *S3, *S4;
+   const ulong32 *S1, *S2, *S3, *S4;
 #endif
 
     LTC_ARGCHK(pt   != NULL);

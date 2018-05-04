@@ -473,7 +473,7 @@ int twofish_ecb_encrypt(const unsigned char *pt, unsigned char *ct, const symmet
     const ulong32 *k;
     int r;
 #if !defined(LTC_TWOFISH_SMALL) && !defined(__GNUC__)
-    ulong32 *S1, *S2, *S3, *S4;
+    const ulong32 *S1, *S2, *S3, *S4;
 #endif
 
     LTC_ARGCHK(pt   != NULL);
@@ -547,7 +547,7 @@ int twofish_ecb_decrypt(const unsigned char *ct, unsigned char *pt, const symmet
     const ulong32 *k;
     int r;
 #if !defined(LTC_TWOFISH_SMALL) && !defined(__GNUC__)
-    ulong32 *S1, *S2, *S3, *S4;
+    const ulong32 *S1, *S2, *S3, *S4;
 #endif
 
     LTC_ARGCHK(pt   != NULL);
