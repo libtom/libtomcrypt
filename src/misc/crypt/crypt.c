@@ -515,10 +515,13 @@ const char *crypt_build_settings =
     " LTC_MECC_ACCEL "
 #endif
 #if defined(LTC_MECC_FP)
-   " LTC_MECC_FP "
+    " LTC_MECC_FP "
 #endif
 #if defined(LTC_ECC_SHAMIR)
-   " LTC_ECC_SHAMIR "
+    " LTC_ECC_SHAMIR "
+#endif
+#if defined(LTC_CLOCK_GETTIME)
+    " LTC_CLOCK_GETTIME "
 #endif
     "\n"
     ;

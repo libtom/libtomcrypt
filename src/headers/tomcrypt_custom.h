@@ -364,6 +364,15 @@
 /* time-based rate limit of the reseeding */
 #define LTC_FORTUNA_RESEED_RATELIMIT_TIMED
 
+/* with non-glibc or glibc 2.17+ prefer clock_gettime over gettimeofday */
+#if defined(__GLIBC__) && defined(__GLIBC_PREREQ)
+#if __GLIBC_PREREQ(2, 17)
+  #define LTC_CLOCK_GETTIME
+#endif
+#elif defined(_POSIX_C_SOURCE) && _POSIX_C_SOURCE >= 200112L
+  #define LTC_CLOCK_GETTIME
+#endif
+
 #else
 
 #ifndef LTC_FORTUNA_WD
