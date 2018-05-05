@@ -67,14 +67,18 @@ static ulong64 epoch_usec(void)
   GetSystemTimeAsFileTime(&CurrentTime);
   ul.LowPart  = CurrentTime.dwLowDateTime;
   ul.HighPart = CurrentTime.dwHighDateTime;
-  cur_time = ul.QuadPart;
-  cur_time -= CONST64(116444736000000000); /* subtract epoch in microseconds */
-  cur_time /= 10; /* nanoseconds > microseconds */
+  cur_time = ul.QuadPart; /* now we have 100ns intervals since 1 January 1601 */
+  cur_time -= CONST64(116444736000000000); /* subtract 100ns intervals between 1601-1970 */
+  cur_time /= 10; /* 100ns intervals > microseconds */
   return cur_time;
-#else
+#elif defined(LTC_CLOCK_GETTIME)
   struct timespec ts;
   clock_gettime(CLOCK_MONOTONIC, &ts);
   return (ulong64)(ts.tv_sec) * 1000000 + (ulong64)(ts.tv_nsec) / 1000; /* get microseconds */
+#else
+  struct timeval tv;
+  gettimeofday(&tv, NULL);
+  return (ulong64)(tv.tv_sec) * 1000000 + (ulong64)(tv.tv_usec); /* get microseconds */
 #endif
 }
 

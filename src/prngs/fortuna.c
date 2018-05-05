@@ -8,6 +8,16 @@
  */
 #include "tomcrypt.h"
 
+#ifdef LTC_FORTUNA_RESEED_RATELIMIT_TIMED
+#if defined(_WIN32)
+  #include <windows.h>
+#elif defined(LTC_CLOCK_GETTIME)
+  #include <time.h> /* struct timespec + clock_gettime */
+#else
+  #include <sys/time.h> /* struct timeval + gettimeofday */
+#endif
+#endif
+
 /**
   @file fortuna.c
   Fortuna PRNG, Tom St Denis
@@ -66,19 +76,23 @@ static void _fortuna_update_iv(prng_state *prng)
 static ulong64 _fortuna_current_time(void)
 {
    ulong64 cur_time;
-#if defined(_POSIX_C_SOURCE) && _POSIX_C_SOURCE >= 200112L
-   struct timespec ts;
-   clock_gettime(CLOCK_MONOTONIC, &ts);
-   cur_time = (ulong64)(ts.tv_sec) * 1000000 + (ulong64)(ts.tv_nsec) / 1000; /* get microseconds */
-#elif defined(_WIN32)
+#if defined(_WIN32)
    FILETIME CurrentTime;
    ULARGE_INTEGER ul;
    GetSystemTimeAsFileTime(&CurrentTime);
    ul.LowPart  = CurrentTime.dwLowDateTime;
    ul.HighPart = CurrentTime.dwHighDateTime;
-   cur_time = ul.QuadPart;
-   cur_time -= CONST64(116444736000000000); /* subtract epoch in microseconds */
-   cur_time /= 1000; /* nanoseconds -> microseconds */
+   cur_time = ul.QuadPart; /* now we have 100ns intervals since 1 January 1601 */
+   cur_time -= CONST64(116444736000000000); /* subtract 100ns intervals between 1601-1970 */
+   cur_time /= 10; /* 100ns intervals > microseconds */
+#elif defined(LTC_CLOCK_GETTIME)
+  struct timespec ts;
+  clock_gettime(CLOCK_MONOTONIC, &ts);
+  cur_time = (ulong64)(ts.tv_sec) * 1000000 + (ulong64)(ts.tv_nsec) / 1000; /* get microseconds */
+#else
+  struct timeval tv;
+  gettimeofday(&tv, NULL);
+  cur_time = (ulong64)(tv.tv_sec) * 1000000 + (ulong64)(tv.tv_usec); /* get microseconds */
 #endif
    return cur_time / 100;
 }
@@ -93,7 +107,7 @@ static int _fortuna_reseed(prng_state *prng)
    int           err, x;
 
 #ifdef LTC_FORTUNA_RESEED_RATELIMIT_TIMED
-   unsigned long now = _fortuna_current_time();
+   ulong64 now = _fortuna_current_time();
    if (now == prng->fortuna.wd)
       return CRYPT_OK;
 #else

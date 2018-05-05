@@ -40,9 +40,8 @@ struct fortuna_prng {
                   IV[16];     /* IV for CTR mode */
 
     unsigned long pool_idx,   /* current pool we will add to */
-                  pool0_len,  /* length of 0'th pool */
-                  wd;
-
+                  pool0_len;  /* length of 0'th pool */
+    ulong64       wd;
     ulong64       reset_cnt;  /* number of times we have reseeded */
 };
 #endif
