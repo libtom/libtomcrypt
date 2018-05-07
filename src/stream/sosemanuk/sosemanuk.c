@@ -257,16 +257,12 @@ int sosemanuk_setup(sosemanuk_state *ss, const unsigned char *key, unsigned long
 
    LTC_ARGCHK(ss  != NULL);
    LTC_ARGCHK(key != NULL);
+   LTC_ARGCHK(keylen > 0 && keylen <= 32);
 
     /*
      * The key is copied into the wbuf[] buffer and padded to 256 bits
      * as described in the Serpent specification.
      */
-    if (keylen == 0 || keylen > 32) {
-        fprintf(stderr, "invalid key size: %lu\n",
-            (unsigned long)keylen);
-        exit(EXIT_FAILURE);
-    }
     XMEMCPY(wbuf, key, keylen);
     if (keylen < 32) {
         wbuf[keylen] = 0x01;
