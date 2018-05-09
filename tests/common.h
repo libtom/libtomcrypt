@@ -23,6 +23,16 @@ extern prng_state yarrow_prng;
 #define SHOULD_FAIL(x) do { run_cmd((x) != CRYPT_OK ? CRYPT_OK : CRYPT_FAIL_TESTVECTOR, __LINE__, __FILE__, #x, NULL); } while (0)
 #endif
 
+
+#if !((defined(_WIN32) || defined(_WIN32_WCE)) && !defined(__GNUC__))
+#define LTC_TEST_READDIR
+
+typedef int (*dir_iter_cb)(const void *d, unsigned long l, void* ctx);
+typedef void (*dir_cleanup_cb)(void* ctx);
+
+int test_process_dir(const char *path, void *ctx, dir_iter_cb iter, dir_cleanup_cb cleanup, const char *test);
+#endif
+
 void run_cmd(int res, int line, const char *file, const char *cmd, const char *algorithm);
 
 void print_hex(const char* what, const void* v, const unsigned long l);
