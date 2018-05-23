@@ -7,11 +7,6 @@
  * guarantee it works.
  */
 
-/* Implements ECC over Z/pZ for curve y^2 = x^3 - 3x + b
- *
- * All curves taken from NIST recommendation paper of July 1999
- * Available at http://csrc.nist.gov/cryptval/dss.htm
- */
 #include "tomcrypt.h"
 
 /**
@@ -32,7 +27,7 @@
 */
 int ecc_decrypt_key(const unsigned char *in,  unsigned long  inlen,
                           unsigned char *out, unsigned long *outlen,
-                          ecc_key *key)
+                          const ecc_key *key)
 {
    unsigned char *ecc_shared, *skey, *pub_expt;
    unsigned long  x, y;
@@ -90,9 +85,8 @@ int ecc_decrypt_key(const unsigned char *in,  unsigned long  inlen,
    }
 
    /* import ECC key from packet */
-   if ((err = ecc_import(decode[1].data, decode[1].size, &pubkey)) != CRYPT_OK) {
-      goto LBL_ERR;
-   }
+   if ((err = ecc_copy_dp(key, &pubkey)) != CRYPT_OK) { goto LBL_ERR; }
+   if ((err = ecc_set_key(decode[1].data, decode[1].size, PK_PUBLIC, &pubkey)) != CRYPT_OK) { goto LBL_ERR; }
 
    /* make shared key */
    x = ECC_BUF_SIZE;

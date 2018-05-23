@@ -286,6 +286,119 @@ static int sqr(void *a, void *b)
    return CRYPT_OK;
 }
 
+/* sqrtmod_prime */
+static int sqrtmod_prime(void *n, void *prime, void *ret)
+{
+   int res, legendre, i;
+   mpz_t t1, C, Q, S, Z, M, T, R, two;
+
+   LTC_ARGCHK(n     != NULL);
+   LTC_ARGCHK(prime != NULL);
+   LTC_ARGCHK(ret   != NULL);
+
+   /* first handle the simple cases */
+   if (mpz_cmp_ui(((__mpz_struct *)n), 0) == 0) {
+      mpz_set_ui(ret, 0);
+      return CRYPT_OK;
+   }
+   if (mpz_cmp_ui(((__mpz_struct *)prime), 2) == 0)     return CRYPT_ERROR; /* prime must be odd */
+   legendre = mpz_legendre(n, prime);
+   if (legendre == -1)                                  return CRYPT_ERROR; /* quadratic non-residue mod prime */
+
+   mpz_init(t1); mpz_init(C); mpz_init(Q);
+   mpz_init(S);  mpz_init(Z); mpz_init(M);
+   mpz_init(T);  mpz_init(R); mpz_init(two);
+
+   /* SPECIAL CASE: if prime mod 4 == 3
+    * compute directly: res = n^(prime+1)/4 mod prime
+    * Handbook of Applied Cryptography algorithm 3.36
+    */
+   i = mpz_mod_ui(t1, prime, 4); /* t1 is ignored here */
+   if (i == 3) {
+      mpz_add_ui(t1, prime, 1);
+      mpz_fdiv_q_2exp(t1, t1, 2);
+      mpz_powm(ret, n, t1, prime);
+      res = CRYPT_OK;
+      goto cleanup;
+   }
+
+   /* NOW: Tonelli-Shanks algorithm */
+
+   /* factor out powers of 2 from prime-1, defining Q and S as: prime-1 = Q*2^S */
+   mpz_set(Q, prime);
+   mpz_sub_ui(Q, Q, 1);
+   /* Q = prime - 1 */
+   mpz_set_ui(S, 0);
+   /* S = 0 */
+   while (mpz_even_p(Q)) {
+      mpz_fdiv_q_2exp(Q, Q, 1);
+      /* Q = Q / 2 */
+      mpz_add_ui(S, S, 1);
+      /* S = S + 1 */
+   }
+
+   /* find a Z such that the Legendre symbol (Z|prime) == -1 */
+   mpz_set_ui(Z, 2);
+   /* Z = 2 */
+   while(1) {
+      legendre = mpz_legendre(Z, prime);
+      if (legendre == -1) break;
+      mpz_add_ui(Z, Z, 1);
+      /* Z = Z + 1 */
+   }
+
+   mpz_powm(C, Z, Q, prime);
+   /* C = Z ^ Q mod prime */
+   mpz_add_ui(t1, Q, 1);
+   mpz_fdiv_q_2exp(t1, t1, 1);
+   /* t1 = (Q + 1) / 2 */
+   mpz_powm(R, n, t1, prime);
+   /* R = n ^ ((Q + 1) / 2) mod prime */
+   mpz_powm(T, n, Q, prime);
+   /* T = n ^ Q mod prime */
+   mpz_set(M, S);
+   /* M = S */
+   mpz_set_ui(two, 2);
+
+   while (1) {
+      mpz_set(t1, T);
+      i = 0;
+      while (1) {
+         if (mpz_cmp_ui(((__mpz_struct *)t1), 1) == 0) break;
+         mpz_powm(t1, t1, two, prime);
+         i++;
+      }
+      if (i == 0) {
+         mpz_set(ret, R);
+         res = CRYPT_OK;
+         goto cleanup;
+      }
+      mpz_sub_ui(t1, M, i);
+      mpz_sub_ui(t1, t1, 1);
+      mpz_powm(t1, two, t1, prime);
+      /* t1 = 2 ^ (M - i - 1) */
+      mpz_powm(t1, C, t1, prime);
+      /* t1 = C ^ (2 ^ (M - i - 1)) mod prime */
+      mpz_mul(C, t1, t1);
+      mpz_mod(C, C, prime);
+      /* C = (t1 * t1) mod prime */
+      mpz_mul(R, R, t1);
+      mpz_mod(R, R, prime);
+      /* R = (R * t1) mod prime */
+      mpz_mul(T, T, C);
+      mpz_mod(T, T, prime);
+      /* T = (T * C) mod prime */
+      mpz_set_ui(M, i);
+      /* M = i */
+   }
+
+cleanup:
+   mpz_clear(t1); mpz_clear(C); mpz_clear(Q);
+   mpz_clear(S);  mpz_clear(Z); mpz_clear(M);
+   mpz_clear(T);  mpz_clear(R); mpz_clear(two);
+   return res;
+}
+
 /* div */
 static int divide(void *a, void *b, void *c, void *d)
 {
@@ -493,6 +606,7 @@ const ltc_math_descriptor gmp_desc = {
    &mul,
    &muli,
    &sqr,
+   &sqrtmod_prime,
    &divide,
    &div_2,
    &modi,

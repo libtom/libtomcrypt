@@ -947,28 +947,28 @@ static void time_ecc(void)
    unsigned long i, w, x, y, z;
    int           err, stat;
    static unsigned long sizes[] = {
-#ifdef LTC_ECC112
+#ifdef LTC_ECC_SECP112R1
 112/8,
 #endif
-#ifdef LTC_ECC128
+#ifdef LTC_ECC_SECP128R1
 128/8,
 #endif
-#ifdef LTC_ECC160
+#ifdef LTC_ECC_SECP160R1
 160/8,
 #endif
-#ifdef LTC_ECC192
+#ifdef LTC_ECC_SECP192R1
 192/8,
 #endif
-#ifdef LTC_ECC224
+#ifdef LTC_ECC_SECP224R1
 224/8,
 #endif
-#ifdef LTC_ECC256
+#ifdef LTC_ECC_SECP256R1
 256/8,
 #endif
-#ifdef LTC_ECC384
+#ifdef LTC_ECC_SECP384R1
 384/8,
 #endif
-#ifdef LTC_ECC521
+#ifdef LTC_ECC_SECP512R1
 521/8,
 #endif
 100000};

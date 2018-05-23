@@ -306,21 +306,11 @@ static void _der_tests_print_flexi(ltc_asn1_list* l, unsigned int level)
   case LTC_ASN1_OBJECT_IDENTIFIER:
     name = "OBJECT IDENTIFIER";
     {
-      unsigned long i;
-      int r;
-      char* s = buf;
-      int sz = sizeof(buf);
-      for (i = 0; i < l->size; ++i) {
-        r = snprintf(s, sz, "%lu.", ((unsigned long*)l->data)[i]);
-        if (r < 0 || r >= sz) {
-            fprintf(stderr, "%s boom\n", name);
-            exit(EXIT_FAILURE);
-        }
-        s += r;
-        sz -= r;
+      unsigned long len = sizeof(buf);
+      if (pk_oid_num_to_str(l->data, l->size, buf, &len) != CRYPT_OK) {
+        fprintf(stderr, "%s boom\n", name);
+        exit(EXIT_FAILURE);
       }
-      /* replace the last . with a \0 */
-      *(s - 1) = '\0';
       text = buf;
     }
     break;

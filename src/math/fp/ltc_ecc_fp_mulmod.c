@@ -668,7 +668,7 @@ static int _add_entry(int idx, ecc_point *g)
  * The algorithm builds patterns in increasing bit order by first making all
  * single bit input patterns, then all two bit input patterns and so on
  */
-static int _build_lut(int idx, void *modulus, void *mp, void *mu)
+static int _build_lut(int idx, void *a, void *modulus, void *mp, void *mu)
 {
    unsigned x, y, err, bitlen, lut_gap;
    void    *tmp;
@@ -707,7 +707,7 @@ static int _build_lut(int idx, void *modulus, void *mp, void *mu)
 
       /* now double it bitlen/FP_LUT times */
       for (y = 0; y < lut_gap; y++) {
-          if ((err = ltc_mp.ecc_ptdbl(fp_cache[idx].LUT[1<<x], fp_cache[idx].LUT[1<<x], modulus, mp)) != CRYPT_OK) {
+          if ((err = ltc_mp.ecc_ptdbl(fp_cache[idx].LUT[1<<x], fp_cache[idx].LUT[1<<x], a, modulus, mp)) != CRYPT_OK) {
              goto ERR;
           }
       }
@@ -720,7 +720,7 @@ static int _build_lut(int idx, void *modulus, void *mp, void *mu)
 
            /* perform the add */
            if ((err = ltc_mp.ecc_ptadd(fp_cache[idx].LUT[lut_orders[y].terma], fp_cache[idx].LUT[lut_orders[y].termb],
-                                       fp_cache[idx].LUT[y], modulus, mp)) != CRYPT_OK) {
+                                       fp_cache[idx].LUT[y], a, modulus, mp)) != CRYPT_OK) {
               goto ERR;
            }
        }
@@ -775,7 +775,7 @@ DONE:
 }
 
 /* perform a fixed point ECC mulmod */
-static int _accel_fp_mul(int idx, void *k, ecc_point *R, void *modulus, void *mp, int map)
+static int _accel_fp_mul(int idx, void *k, ecc_point *R, void *a, void *modulus, void *mp, int map)
 {
    unsigned char kb[128];
    int      x;
@@ -868,14 +868,14 @@ static int _accel_fp_mul(int idx, void *k, ecc_point *R, void *modulus, void *mp
 
        /* double if not first */
        if (!first) {
-          if ((err = ltc_mp.ecc_ptdbl(R, R, modulus, mp)) != CRYPT_OK) {
+          if ((err = ltc_mp.ecc_ptdbl(R, R, a, modulus, mp)) != CRYPT_OK) {
              return err;
           }
        }
 
        /* add if not first, otherwise copy */
        if (!first && z) {
-          if ((err = ltc_mp.ecc_ptadd(R, fp_cache[idx].LUT[z], R, modulus, mp)) != CRYPT_OK) {
+          if ((err = ltc_mp.ecc_ptadd(R, fp_cache[idx].LUT[z], R, a, modulus, mp)) != CRYPT_OK) {
              return err;
           }
        } else if (z) {
@@ -900,7 +900,7 @@ static int _accel_fp_mul(int idx, void *k, ecc_point *R, void *modulus, void *mp
 /* perform a fixed point ECC mulmod */
 static int _accel_fp_mul2add(int idx1, int idx2,
                             void *kA, void *kB,
-                            ecc_point *R, void *modulus, void *mp)
+                            ecc_point *R, void *a, void *modulus, void *mp)
 {
    unsigned char kb[2][128];
    int      x;
@@ -1056,7 +1056,7 @@ static int _accel_fp_mul2add(int idx1, int idx2,
 
        /* double if not first */
        if (!first) {
-          if ((err = ltc_mp.ecc_ptdbl(R, R, modulus, mp)) != CRYPT_OK) {
+          if ((err = ltc_mp.ecc_ptdbl(R, R, a, modulus, mp)) != CRYPT_OK) {
              return err;
           }
        }
@@ -1064,12 +1064,12 @@ static int _accel_fp_mul2add(int idx1, int idx2,
        /* add if not first, otherwise copy */
        if (!first) {
           if (zA) {
-             if ((err = ltc_mp.ecc_ptadd(R, fp_cache[idx1].LUT[zA], R, modulus, mp)) != CRYPT_OK) {
+             if ((err = ltc_mp.ecc_ptadd(R, fp_cache[idx1].LUT[zA], R, a, modulus, mp)) != CRYPT_OK) {
                 return err;
              }
           }
           if (zB) {
-             if ((err = ltc_mp.ecc_ptadd(R, fp_cache[idx2].LUT[zB], R, modulus, mp)) != CRYPT_OK) {
+             if ((err = ltc_mp.ecc_ptadd(R, fp_cache[idx2].LUT[zB], R, a, modulus, mp)) != CRYPT_OK) {
                 return err;
              }
           }
@@ -1082,7 +1082,7 @@ static int _accel_fp_mul2add(int idx1, int idx2,
           }
           if (zB && first == 0) {
              if (zB) {
-                if ((err = ltc_mp.ecc_ptadd(R, fp_cache[idx2].LUT[zB], R, modulus, mp)) != CRYPT_OK) {
+                if ((err = ltc_mp.ecc_ptadd(R, fp_cache[idx2].LUT[zB], R, a, modulus, mp)) != CRYPT_OK) {
                    return err;
                 }
              }
@@ -1110,7 +1110,9 @@ static int _accel_fp_mul2add(int idx1, int idx2,
 */
 int ltc_ecc_fp_mul2add(ecc_point *A, void *kA,
                        ecc_point *B, void *kB,
-                       ecc_point *C, void *modulus)
+                       ecc_point *C,
+                            void *a,
+                            void *modulus)
 {
    int  idx1, idx2, err;
    void *mp, *mu;
@@ -1166,7 +1168,7 @@ int ltc_ecc_fp_mul2add(ecc_point *A, void *kA,
          }
 
          /* build the LUT */
-         if ((err = _build_lut(idx1, modulus, mp, mu)) != CRYPT_OK) {
+         if ((err = _build_lut(idx1, a, modulus, mp, mu)) != CRYPT_OK) {
              goto LBL_ERR;;
          }
       }
@@ -1187,7 +1189,7 @@ int ltc_ecc_fp_mul2add(ecc_point *A, void *kA,
          }
 
          /* build the LUT */
-         if ((err = _build_lut(idx2, modulus, mp, mu)) != CRYPT_OK) {
+         if ((err = _build_lut(idx2, a, modulus, mp, mu)) != CRYPT_OK) {
              goto LBL_ERR;;
          }
       }
@@ -1198,9 +1200,9 @@ int ltc_ecc_fp_mul2add(ecc_point *A, void *kA,
             /* compute mp */
             if ((err = mp_montgomery_setup(modulus, &mp)) != CRYPT_OK) { goto LBL_ERR; }
          }
-         err = _accel_fp_mul2add(idx1, idx2, kA, kB, C, modulus, mp);
+         err = _accel_fp_mul2add(idx1, idx2, kA, kB, C, a, modulus, mp);
       } else {
-         err = ltc_ecc_mul2add(A, kA, B, kB, C, modulus);
+         err = ltc_ecc_mul2add(A, kA, B, kB, C, a, modulus);
       }
 LBL_ERR:
     LTC_MUTEX_UNLOCK(&ltc_ecc_fp_lock);
@@ -1218,11 +1220,12 @@ LBL_ERR:
     @param k        The multiplicand
     @param G        Base point to multiply
     @param R        [out] Destination of product
+    @param a        ECC curve parameter a
     @param modulus  The modulus for the curve
     @param map      [boolean] If non-zero maps the point back to affine co-ordinates, otherwise it's left in jacobian-montgomery form
     @return CRYPT_OK if successful
 */
-int ltc_ecc_fp_mulmod(void *k, ecc_point *G, ecc_point *R, void *modulus, int map)
+int ltc_ecc_fp_mulmod(void *k, ecc_point *G, ecc_point *R, void *a, void *modulus, int map)
 {
    int   idx, err;
    void *mp, *mu;
@@ -1264,7 +1267,7 @@ int ltc_ecc_fp_mulmod(void *k, ecc_point *G, ecc_point *R, void *modulus, int ma
          }
 
          /* build the LUT */
-         if ((err = _build_lut(idx, modulus, mp, mu)) != CRYPT_OK) {
+         if ((err = _build_lut(idx, a, modulus, mp, mu)) != CRYPT_OK) {
              goto LBL_ERR;;
          }
       }
@@ -1274,9 +1277,9 @@ int ltc_ecc_fp_mulmod(void *k, ecc_point *G, ecc_point *R, void *modulus, int ma
             /* compute mp */
             if ((err = mp_montgomery_setup(modulus, &mp)) != CRYPT_OK) { goto LBL_ERR; }
          }
-         err = _accel_fp_mul(idx, k, R, modulus, mp, map);
+         err = _accel_fp_mul(idx, k, R, a, modulus, mp, map);
       } else {
-         err = ltc_ecc_mulmod(k, G, R, modulus, map);
+         err = ltc_ecc_mulmod(k, G, R, a, modulus, map);
       }
 LBL_ERR:
     LTC_MUTEX_UNLOCK(&ltc_ecc_fp_lock);
@@ -1363,7 +1366,7 @@ ltc_ecc_fp_add_point(ecc_point *g, void *modulus, int lock)
    }
 
    /* build the LUT */
-   if ((err = _build_lut(idx, modulus, mp, mu)) != CRYPT_OK) {
+   if ((err = _build_lut(idx, a, modulus, mp, mu)) != CRYPT_OK) {
        goto LBL_ERR;
    }
    fp_cache[idx].lru_count = 2;
