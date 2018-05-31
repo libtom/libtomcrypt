@@ -13,7 +13,7 @@
   Derived from the 3GPP standard source code
 */
 
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 #ifdef LTC_KASUMI
 

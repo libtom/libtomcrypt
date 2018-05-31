@@ -11,7 +11,7 @@
   @file xtea.c
   Implementation of LTC_XTEA, Tom St Denis
 */
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 #ifdef LTC_XTEA
 

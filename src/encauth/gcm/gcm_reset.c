@@ -11,7 +11,7 @@
    @file gcm_reset.c
    GCM implementation, reset a used state so it can accept IV data, by Tom St Denis
 */
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 #ifdef LTC_GCM_MODE
 

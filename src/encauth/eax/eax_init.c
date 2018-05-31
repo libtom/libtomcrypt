@@ -11,7 +11,7 @@
    @file eax_init.c
    EAX implementation, initialized EAX state, by Tom St Denis
 */
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 #ifdef LTC_EAX_MODE
 

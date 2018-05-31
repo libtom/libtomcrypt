@@ -11,7 +11,7 @@
    @file ocb_done_decrypt.c
    OCB implementation, terminate decryption, by Tom St Denis
 */
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 #ifdef LTC_OCB_MODE
 

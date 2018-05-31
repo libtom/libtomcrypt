@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  */
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 /* Initialize ltc_mp to nulls, to force allocation on all platforms, including macOS. */
 ltc_math_descriptor ltc_mp = { 0 };

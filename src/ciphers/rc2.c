@@ -16,7 +16,7 @@
 * Thanks to CodeView, SoftIce, and D86 for helping bring this code to  *
 * the public.                                                          *
 \**********************************************************************/
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 /**
   @file rc2.c

@@ -11,7 +11,7 @@
    @file rc6.c
    LTC_RC6 code by Tom St Denis
 */
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 #ifdef LTC_RC6
 

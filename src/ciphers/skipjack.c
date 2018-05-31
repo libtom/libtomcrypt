@@ -11,7 +11,7 @@
   @file skipjack.c
   Skipjack Implementation by Tom St Denis
 */
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 #ifdef LTC_SKIPJACK
 

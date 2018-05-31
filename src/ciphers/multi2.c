@@ -11,7 +11,7 @@
   @file multi2.c
   Multi-2 implementation (not public domain, hence the default disable)
 */
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 #ifdef LTC_MULTI2
 

@@ -11,7 +11,7 @@
    @file gcm_done.c
    GCM implementation, Terminate the stream, by Tom St Denis
 */
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 #ifdef LTC_GCM_MODE
 

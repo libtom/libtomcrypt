@@ -23,7 +23,7 @@
 */
 /* see also https://www.ietf.org/rfc/rfc7693.txt */
 
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 #ifdef LTC_BLAKE2S
 

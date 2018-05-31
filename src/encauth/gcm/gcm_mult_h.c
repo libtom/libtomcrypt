@@ -11,7 +11,7 @@
    @file gcm_mult_h.c
    GCM implementation, do the GF mult, by Tom St Denis
 */
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 #if defined(LTC_GCM_MODE)
 /**

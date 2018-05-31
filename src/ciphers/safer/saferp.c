@@ -11,7 +11,7 @@
    @file saferp.c
    LTC_SAFER+ Implementation by Tom St Denis
 */
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 #ifdef LTC_SAFERP
 

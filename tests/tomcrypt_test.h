@@ -10,7 +10,7 @@
 #ifndef __TEST_H_
 #define __TEST_H_
 
-#include <tomcrypt.h>
+#include "tomcrypt_private.h"
 
 #include "common.h"
 
