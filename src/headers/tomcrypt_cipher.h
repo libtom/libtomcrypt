@@ -1031,6 +1031,15 @@ int salsa20_test(void);
 
 #endif /* LTC_SALSA20 */
 
+#ifdef LTC_XSALSA20
+
+int xsalsa20_setup(salsa20_state *st, const unsigned char *key,   unsigned long keylen,
+                                      const unsigned char *nonce, unsigned long noncelen,
+                                      int rounds);
+int xsalsa20_test(void);
+
+#endif /* LTC_XSALSA20 */
+
 #ifdef LTC_SOSEMANUK
 
 typedef struct {

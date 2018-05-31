@@ -26,6 +26,9 @@ int cipher_hash_test(void)
 #ifdef LTC_SALSA20
    DO(salsa20_test());
 #endif
+#ifdef LTC_XSALSA20
+   DO(xsalsa20_test());
+#endif
 #ifdef LTC_SOSEMANUK
    DO(sosemanuk_test());
 #endif
