@@ -387,11 +387,13 @@ tests/pkcs_1_oaep_test.o tests/pkcs_1_pss_test.o tests/pkcs_1_test.o tests/prng_
 tests/rotate_test.o tests/rsa_test.o tests/store_test.o tests/test.o
 
 # The following headers will be installed by "make install"
-HEADERS=src/headers/tomcrypt.h src/headers/tomcrypt_argchk.h src/headers/tomcrypt_cfg.h \
+HEADERS_PUB=src/headers/tomcrypt.h src/headers/tomcrypt_argchk.h src/headers/tomcrypt_cfg.h \
 src/headers/tomcrypt_cipher.h src/headers/tomcrypt_custom.h src/headers/tomcrypt_hash.h \
 src/headers/tomcrypt_mac.h src/headers/tomcrypt_macros.h src/headers/tomcrypt_math.h \
 src/headers/tomcrypt_misc.h src/headers/tomcrypt_pk.h src/headers/tomcrypt_pkcs.h \
 src/headers/tomcrypt_prng.h
+
+HEADERS=$(HEADERS_PUB) src/headers/tomcrypt_private.h
 
 #These are the rules to make certain object files.
 src/ciphers/aes/aes.o: src/ciphers/aes/aes.c src/ciphers/aes/aes_tab.c
@@ -436,7 +438,7 @@ INSTALL_OPTS ?= -m 644
 	install -p -d $(DESTDIR)$(INCPATH)
 	install -p -d $(DESTDIR)$(LIBPATH)
 	$(INSTALL_CMD) -p $(INSTALL_OPTS) $(LIBNAME) $(DESTDIR)$(LIBPATH)/$(LIBNAME)
-	install -p -m 644 $(HEADERS) $(DESTDIR)$(INCPATH)
+	install -p -m 644 $(HEADERS_PUB) $(DESTDIR)$(INCPATH)
 
 $(DESTDIR)$(BINPATH):
 	install -p -d $(DESTDIR)$(BINPATH)
@@ -454,7 +456,7 @@ install_test: $(call print-help,install_test,Installs the self-test binary) test
 install_hooks: $(call print-help,install_hooks,Installs the git hooks)
 	for s in `ls hooks/`; do ln -s ../../hooks/$$s .git/hooks/$$s; done
 
-HEADER_FILES=$(notdir $(HEADERS))
+HEADER_FILES=$(notdir $(HEADERS_PUB))
 .common_uninstall:
 	$(UNINSTALL_CMD) $(DESTDIR)$(LIBPATH)/$(LIBNAME)
 	rm $(HEADER_FILES:%=$(DESTDIR)$(INCPATH)/%)

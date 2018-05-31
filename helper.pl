@@ -291,7 +291,7 @@ sub process_makefiles {
   my @c = ();
   find({ no_chdir => 1, wanted => sub { push @c, $_ if -f $_ && $_ =~ /\.c$/ && $_ !~ /tab.c$/ } }, 'src');
   my @h = ();
-  find({ no_chdir => 1, wanted => sub { push @h, $_ if -f $_ && $_ =~ /\.h$/ && $_ !~ /dh_static.h$/ } }, 'src');
+  find({ no_chdir => 1, wanted => sub { push @h, $_ if -f $_ && $_ =~ /\.h$/ && $_ !~ /dh_static.h$/ && $_ !~ /tomcrypt_private.h$/ } }, 'src');
   my @all = ();
   find({ no_chdir => 1, wanted => sub { push @all, $_ if -f $_ && $_ =~ /\.(c|h)$/  } }, 'src');
   my @t = qw();
@@ -299,7 +299,7 @@ sub process_makefiles {
 
   my @o = sort ('src/ciphers/aes/aes_enc.o', map { my $x = $_; $x =~ s/\.c$/.o/; $x } @c);
   my $var_o = prepare_variable("OBJECTS", @o);
-  my $var_h = prepare_variable("HEADERS", (sort @h));
+  my $var_h = prepare_variable("HEADERS_PUB", (sort @h));
   (my $var_obj = $var_o) =~ s/\.o\b/.obj/sg;
 
   my $var_to = prepare_variable("TOBJECTS", sort map { my $x = $_; $x =~ s/\.c$/.o/; $x } @t);
