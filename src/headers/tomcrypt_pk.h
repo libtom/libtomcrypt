@@ -25,27 +25,6 @@ enum public_key_type {
 
 int rand_prime(void *N, long len, prng_state *prng, int wprng);
 
-#ifdef LTC_SOURCE
-/* internal helper functions */
-int rand_bn_bits(void *N, int bits, prng_state *prng, int wprng);
-int rand_bn_upto(void *N, void *limit, prng_state *prng, int wprng);
-
-enum public_key_algorithms {
-   PKA_RSA,
-   PKA_DSA
-};
-
-typedef struct Oid {
-    unsigned long OID[16];
-    /** Number of OID digits in use */
-    unsigned long OIDlen;
-} oid_st;
-
-int pk_get_oid(int pk, oid_st *st);
-int pk_oid_str_to_num(const char *OID, unsigned long *oid, unsigned long *oidlen);
-int pk_oid_num_to_str(const unsigned long *oid, unsigned long oidlen, char *OID, unsigned long *outlen);
-#endif /* LTC_SOURCE */
-
 /* ---- RSA ---- */
 #ifdef LTC_MRSA
 
@@ -233,19 +212,6 @@ int dh_shared_secret(const dh_key  *private_key, const dh_key  *public_key,
 void dh_free(dh_key *key);
 
 int dh_export_key(void *out, unsigned long *outlen, int type, const dh_key *key);
-
-#ifdef LTC_SOURCE
-typedef struct {
-  int size;
-  const char *name, *base, *prime;
-} ltc_dh_set_type;
-
-extern const ltc_dh_set_type ltc_dh_sets[];
-
-/* internal helper functions */
-int dh_check_pubkey(const dh_key *key);
-#endif
-
 #endif /* LTC_MDH */
 
 
@@ -387,76 +353,6 @@ int  ecc_verify_hash(const unsigned char *sig,  unsigned long siglen,
                      const unsigned char *hash, unsigned long hashlen,
                      int *stat, const ecc_key *key);
 
-
-#ifdef LTC_SOURCE
-/* INTERNAL ONLY - it should be later moved to src/headers/tomcrypt_internal.h */
-
-int ecc_set_dp_from_mpis(void *a, void *b, void *prime, void *order, void *gx, void *gy, unsigned long cofactor, ecc_key *key);
-int ecc_copy_dp(const ecc_key *srckey, ecc_key *key);
-int ecc_set_dp_by_size(int size, ecc_key *key);
-
-/* low level functions */
-ecc_point *ltc_ecc_new_point(void);
-void       ltc_ecc_del_point(ecc_point *p);
-int        ltc_ecc_set_point_xyz(ltc_mp_digit x, ltc_mp_digit y, ltc_mp_digit z, ecc_point *p);
-int        ltc_ecc_copy_point(const ecc_point *src, ecc_point *dst);
-int        ltc_ecc_is_point(const ltc_ecc_dp *dp, void *x, void *y);
-int        ltc_ecc_is_point_at_infinity(const ecc_point *P, void *modulus, int *retval);
-int        ltc_ecc_import_point(const unsigned char *in, unsigned long inlen, void *prime, void *a, void *b, void *x, void *y);
-int        ltc_ecc_export_point(unsigned char *out, unsigned long *outlen, void *x, void *y, unsigned long size, int compressed);
-int        ltc_ecc_verify_key(const ecc_key *key);
-
-/* point ops (mp == montgomery digit) */
-#if !defined(LTC_MECC_ACCEL) || defined(LTM_DESC) || defined(GMP_DESC)
-/* R = 2P */
-int ltc_ecc_projective_dbl_point(const ecc_point *P, ecc_point *R, void *ma, void *modulus, void *mp);
-
-/* R = P + Q */
-int ltc_ecc_projective_add_point(const ecc_point *P, const ecc_point *Q, ecc_point *R, void *ma, void *modulus, void *mp);
-#endif
-
-#if defined(LTC_MECC_FP)
-/* optimized point multiplication using fixed point cache (HAC algorithm 14.117) */
-int ltc_ecc_fp_mulmod(void *k, ecc_point *G, ecc_point *R, void *a, void *modulus, int map);
-
-/* functions for saving/loading/freeing/adding to fixed point cache */
-int ltc_ecc_fp_save_state(unsigned char **out, unsigned long *outlen);
-int ltc_ecc_fp_restore_state(unsigned char *in, unsigned long inlen);
-void ltc_ecc_fp_free(void);
-int ltc_ecc_fp_add_point(ecc_point *g, void *modulus, int lock);
-
-/* lock/unlock all points currently in fixed point cache */
-void ltc_ecc_fp_tablelock(int lock);
-#endif
-
-/* R = kG */
-int ltc_ecc_mulmod(void *k, const ecc_point *G, ecc_point *R, void *a, void *modulus, int map);
-
-#ifdef LTC_ECC_SHAMIR
-/* kA*A + kB*B = C */
-int ltc_ecc_mul2add(const ecc_point *A, void *kA,
-                    const ecc_point *B, void *kB,
-                          ecc_point *C,
-                               void *ma,
-                               void *modulus);
-
-#ifdef LTC_MECC_FP
-/* Shamir's trick with optimized point multiplication using fixed point cache */
-int ltc_ecc_fp_mul2add(const ecc_point *A, void *kA,
-                       const ecc_point *B, void *kB,
-                             ecc_point *C,
-                                  void *ma,
-                                  void *modulus);
-#endif
-
-#endif
-
-
-/* map P to affine from projective */
-int ltc_ecc_map(ecc_point *P, void *modulus, void *mp);
-
-#endif /* LTC_SOURCE */
-
 #endif
 
 #ifdef LTC_MDSA
@@ -533,16 +429,10 @@ int dsa_decrypt_key(const unsigned char *in,  unsigned long  inlen,
 int dsa_import(const unsigned char *in, unsigned long inlen, dsa_key *key);
 int dsa_export(unsigned char *out, unsigned long *outlen, int type, const dsa_key *key);
 int dsa_verify_key(const dsa_key *key, int *stat);
-#ifdef LTC_SOURCE
-/* internal helper functions */
-int dsa_int_validate_xy(const dsa_key *key, int *stat);
-int dsa_int_validate_pqg(const dsa_key *key, int *stat);
-int dsa_int_validate_primes(const dsa_key *key, int *stat);
-#endif
 int dsa_shared_secret(void          *private_key, void *base,
                       const dsa_key *public_key,
                       unsigned char *out,         unsigned long *outlen);
-#endif
+#endif /* LTC_MDSA */
 
 #ifdef LTC_DER
 /* DER handling */
@@ -705,30 +595,6 @@ int der_length_custom_type(const ltc_asn1_list *root,
                                  unsigned long *outlen,
                                  unsigned long *payloadlen);
 
-#ifdef LTC_SOURCE
-/* internal helper functions */
-int der_decode_custom_type_ex(const unsigned char *in, unsigned long  inlen,
-                           ltc_asn1_list *root,
-                           ltc_asn1_list *list,     unsigned long  outlen, unsigned int flags);
-
-int der_encode_asn1_identifier(const ltc_asn1_list *id, unsigned char *out, unsigned long *outlen);
-int der_decode_asn1_identifier(const unsigned char *in, unsigned long *inlen, ltc_asn1_list *id);
-int der_length_asn1_identifier(const ltc_asn1_list *id, unsigned long *idlen);
-
-int der_encode_asn1_length(unsigned long len, unsigned char* out, unsigned long* outlen);
-int der_decode_asn1_length(const unsigned char* len, unsigned long* lenlen, unsigned long* outlen);
-int der_length_asn1_length(unsigned long len, unsigned long *outlen);
-
-int der_length_sequence_ex(const ltc_asn1_list *list, unsigned long inlen,
-                           unsigned long *outlen, unsigned long *payloadlen);
-
-extern const ltc_asn1_type  der_asn1_tag_to_type_map[];
-extern const unsigned long  der_asn1_tag_to_type_map_sz;
-
-extern const int der_asn1_type_to_identifier_map[];
-extern const unsigned long der_asn1_type_to_identifier_map_sz;
-#endif /* LTC_SOURCE */
-
 /* SET */
 #define der_decode_set(in, inlen, list, outlen) der_decode_sequence_ex(in, inlen, list, outlen, LTC_DER_SEQ_SET)
 #define der_length_set der_length_sequence
@@ -741,10 +607,6 @@ int der_encode_setof(const ltc_asn1_list *list, unsigned long inlen,
 /* VA list handy helpers with triplets of <type, size, data> */
 int der_encode_sequence_multi(unsigned char *out, unsigned long *outlen, ...);
 int der_decode_sequence_multi(const unsigned char *in, unsigned long inlen, ...);
-#ifdef LTC_SOURCE
-/* internal helper functions */
-int der_decode_sequence_multi_ex(const unsigned char *in, unsigned long inlen, unsigned int flags, ...);
-#endif /* LTC_SOURCE */
 
 /* FLEXI DECODER handle unknown list decoder */
 int  der_decode_sequence_flexi(const unsigned char *in, unsigned long *inlen, ltc_asn1_list **out);
@@ -809,13 +671,6 @@ int der_decode_teletex_string(const unsigned char *in, unsigned long inlen,
                                 unsigned char *out, unsigned long *outlen);
 int der_length_teletex_string(const unsigned char *octets, unsigned long noctets, unsigned long *outlen);
 
-#ifdef LTC_SOURCE
-/* internal helper functions */
-int der_teletex_char_encode(int c);
-int der_teletex_value_decode(int v);
-#endif /* LTC_SOURCE */
-
-
 /* PRINTABLE STRING */
 int der_encode_printable_string(const unsigned char *in, unsigned long inlen,
                                 unsigned char *out, unsigned long *outlen);
@@ -846,10 +701,6 @@ int der_encode_utf8_string(const wchar_t *in,  unsigned long inlen,
 int der_decode_utf8_string(const unsigned char *in,  unsigned long inlen,
                                        wchar_t *out, unsigned long *outlen);
 unsigned long der_utf8_charsize(const wchar_t c);
-#ifdef LTC_SOURCE
-/* internal helper functions */
-int der_utf8_valid_char(const wchar_t c);
-#endif /* LTC_SOURCE */
 int der_length_utf8_string(const wchar_t *in, unsigned long noctets, unsigned long *outlen);
 
 
@@ -899,18 +750,6 @@ int der_decode_generalizedtime(const unsigned char *in, unsigned long *inlen,
                                ltc_generalizedtime *out);
 
 int der_length_generalizedtime(const ltc_generalizedtime *gtime, unsigned long *outlen);
-
-#ifdef LTC_SOURCE
-/* internal helper functions */
-/* SUBJECT PUBLIC KEY INFO */
-int x509_encode_subject_public_key_info(unsigned char *out, unsigned long *outlen,
-        unsigned int algorithm, const void* public_key, unsigned long public_key_len,
-        ltc_asn1_type parameters_type, ltc_asn1_list* parameters, unsigned long parameters_len);
-
-int x509_decode_subject_public_key_info(const unsigned char *in, unsigned long inlen,
-        unsigned int algorithm, void* public_key, unsigned long* public_key_len,
-        ltc_asn1_type parameters_type, ltc_asn1_list* parameters, unsigned long *parameters_len);
-#endif /* LTC_SOURCE */
 
 #endif
 

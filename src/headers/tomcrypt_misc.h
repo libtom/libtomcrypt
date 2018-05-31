@@ -85,9 +85,6 @@ int hkdf(int hash_idx,
 /* ---- MEM routines ---- */
 int mem_neq(const void *a, const void *b, size_t len);
 void zeromem(volatile void *dst, size_t len);
-#ifdef LTC_SOURCE
-void copy_or_zeromem(const unsigned char* src, unsigned char* dest, unsigned long len, int coz);
-#endif
 void burn_stack(unsigned long len);
 
 const char *error_to_string(int err);
@@ -155,11 +152,6 @@ enum padding_type {
 
 int padding_pad(unsigned char *data, unsigned long length, unsigned long* padded_length, unsigned long mode);
 int padding_depad(const unsigned char *data, unsigned long *length, unsigned long mode);
-
-#ifdef LTC_SOURCE
-/* internal helper functions */
-#define LTC_PAD_MASK       (0xF000U)
-#endif
 #endif  /* LTC_PADDING */
 
 int compare_testvector(const void* is, const unsigned long is_len, const void* should, const unsigned long should_len, const char* what, int which);
