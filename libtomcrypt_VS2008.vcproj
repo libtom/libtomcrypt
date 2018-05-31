@@ -2634,6 +2634,14 @@
 					RelativePath="src\stream\salsa20\salsa20_test.c"
 					>
 				</File>
+				<File
+					RelativePath="src\stream\salsa20\xsalsa20_setup.c"
+					>
+				</File>
+				<File
+					RelativePath="src\stream\salsa20\xsalsa20_test.c"
+					>
+				</File>
 			</Filter>
 			<Filter
 				Name="sober128"

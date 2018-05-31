@@ -197,6 +197,7 @@ src/stream/rabbit/rabbit.obj src/stream/rc4/rc4_stream.obj src/stream/rc4/rc4_te
 src/stream/salsa20/salsa20_crypt.obj src/stream/salsa20/salsa20_done.obj \
 src/stream/salsa20/salsa20_ivctr64.obj src/stream/salsa20/salsa20_keystream.obj \
 src/stream/salsa20/salsa20_setup.obj src/stream/salsa20/salsa20_test.obj \
+src/stream/salsa20/xsalsa20_setup.obj src/stream/salsa20/xsalsa20_test.obj \
 src/stream/sober128/sober128_stream.obj src/stream/sober128/sober128_test.obj \
 src/stream/sosemanuk/sosemanuk.obj src/stream/sosemanuk/sosemanuk_test.obj
 
