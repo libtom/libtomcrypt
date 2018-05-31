@@ -1301,48 +1301,84 @@ At the end you have to terminate the state:
 err = chacha_done(&st);
 \end{verbatim}
 
-\mysection{Salsa20}
+\mysection{Salsa20 and XSalsa20}
 
-\textit{Salsa20} is the forerunner of the ChaCha stream cipher.  The ChaCha cipher is
-Salsa20 with a few minor tweaks to further improve its strength, and in so doing, increase its
-speed performance by about 5 percent.  Unless you need Salsa20 for some reason, you should
-probably choose ChaCha instead.
+\textit{Salsa20} was Daniel Bernstein's submission to the EU eSTREAM
+competition where a reduced-round version, \textit{Salsa20/12}, was named
+one of the winners.  A third version, \textit{Salsa20/8}, was also evaluated.
+\vspace{1mm}
 
-In April 2008 \textit{Salsa20/12} was named one of the winners in the EU eSTREAM competition.
-Salsa20 was originally submitted by Daniel Bernstein with 20 rounds of strength but the
-12-round reduced-round version was deemed to have sufficient strength and declared a winner.
-Even the 8-round reduced-round version, Salsa20/8, has withstood attack.
+While 20 rounds is the conservative default number of rounds, eSTREAM deemed
+12 rounds to be a decent balance between strength and better performance.
+The 8-round version, while still secure as of this writing, is faster but
+does not enjoy the same margin of safety.  Regardless of the number of rounds,
+\textit{Salsa20} accepts either a 128- or a 256-bit key, a 64-bit IV, and a
+64-bit counter.
+\vspace{1mm}
 
-For more information about Salsa20 see \url{https://en.wikipedia.org/wiki/Salsa20}.
+\textit{XSalsa20} is yet another variant of \textit{Salsa20} designed to accept
+only a 256-bit key and a longer 192-bit nonce, initialization being the only
+difference between \textit{XSalsa20} and \textit{Salsa20}.  Even the
+\textit{salsa20\_state} is the same.  Thereafter, salsa20\_crypt(),
+salsa20\_keystream(), and salsa20\_done() are used unaltered.
+salsa20\_ivctr64() is NOT used with xsalsa20\_setup().
+\vspace{1mm}
 
-Supported key size: 16 or 32 bytes (128 or 256 bits).
+To initialize \textit{Salsa20} for 8, 12, or 20 rounds with a 128- or a
+256-bit key (16 or 32 bytes), a 64-bit IV (8 bytes), and counter (typically
+zero), use:
 
-You can initialize Salsa20 with 64bit \textit{nonce} + 64bit \textit{counter}:
 \begin{verbatim}
 salsa20_state st;
+ulong64 counter = 0;
 err = salsa20_setup(&st, key, key_len, rounds);
-err = salsa20_ivctr64(&st, nonce, 8, initial_64bit_ctr);
+err = salsa20_ivctr64(&st, nonce, 8, counter);
 \end{verbatim}
 
-The \textit{salsa20\_setup} takes the number of rounds as a parameter -- choose 20 (the default)
-if you are not sure.  As always never ever use the same key + nonce pair more than once.
+To initialize \textit{XSalsa20} for the recommended 20 rounds with a 256-bit
+key (32 bytes) and a 192-bit nonce (24 bytes), use: 
 
-For the actual encryption or decryption you have to call:
+\begin{verbatim}
+salsa20_state st;
+err = xsalsa20_setup(&st, key, key_len, nonce, nonce_len, rounds);
+\end{verbatim}
+
+Both \textit{Salsa20} and \textit{XSalsa20} use the following functions.  To
+encrypt or decrypt call:
 \begin{verbatim}
 err = salsa20_crypt(&st, in_buffer, in_len, out_buffer);
 \end{verbatim}
 
-If you just want a random stream of bytes initialize the cipher with a truly random \textit{key}
-(32 bytes), a truly random \textit{nonce} (8 bytes) and zero initial counter. After that you can
-get a stream of pseudo--random bytes via:
+For a random keystream initialize the cipher with a truly random \textit{key}
+and random \textit{nonce} after which you can get a stream of
+pseudo--random bytes via:
 \begin{verbatim}
 err = salsa20_keystream(&st, out_buffer, out_len);
 \end{verbatim}
 
-When finished you should wipe the state:
+Finally, when finished you should wipe the state.
 \begin{verbatim}
 err = salsa20_done(&st);
 \end{verbatim}
+
+For both \textit{Salsa20} and \textit{XSalsa20} rounds must be an even number
+and if set to 0 the default number of rounds, 20, will be used.
+\vspace{1mm}
+
+If you define \textit{LTC_XSALSA20} to include \textit{XSalsa20} in a minimal
+\textit{libtomcrypt} library build, you must also define \textit{LTC_SALSA20}.
+\vspace{1mm}
+
+As always, never ever use the same key + nonce/IV pair more than once.
+\vspace{1mm}
+
+For more information about Salsa20 see
+\url{https://en.wikipedia.org/wiki/Salsa20}.
+\vspace{1mm}
+
+For more information about XSalsa20 see
+\url{https://cr.yp.to/snuffle/xsalsa-20081128.pdf}.
+\vspace{1mm}
 
 \mysection{Sosemanuk}
 
