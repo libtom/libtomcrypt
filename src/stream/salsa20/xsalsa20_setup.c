@@ -29,7 +29,7 @@ static const char * const constants = "expand 32-byte k";
 /* use modified salsa20 doubleround (no final addition as in salsa20) */
 static void _xsalsa20_doubleround(ulong32 *x, int rounds)
 {
-   int i = 0;
+   int i;
 
    for (i = rounds; i > 0; i -= 2) {
       /* columnround */
@@ -64,7 +64,7 @@ int xsalsa20_setup(salsa20_state *st, const unsigned char *key, unsigned long ke
    const int sti[] = {0, 5, 10, 15, 6, 7, 8, 9};  /* indices used to build subkey fm x */
    ulong32       x[64];                           /* input to & output fm doubleround */
    unsigned char subkey[32];
-   int i = 0;
+   int i;
 
    LTC_ARGCHK(st        != NULL);
    LTC_ARGCHK(key       != NULL);
