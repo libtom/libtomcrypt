@@ -19,7 +19,7 @@
 #ifdef LTC_XSALSA20
 
 #ifdef LTC_SHA256
-int _sha256(unsigned char *hash, const unsigned char *data, const int datalen) {
+static int _sha256(unsigned char *hash, const unsigned char *data, const int datalen) {
    hash_state md;
    sha256_init(&md);
    sha256_process(&md, data, datalen);
