@@ -80,9 +80,9 @@ int xsalsa20_test(void)
        if ((err = _sha256(hash, keystream, keystreamlen))            != CRYPT_OK)  return err;
        if (compare_testvector(hash, sizeof(hash), expecthash, sizeof(expecthash),   "XSALSA20-TV2", 1))  return CRYPT_FAIL_TESTVECTOR;
    }
+#endif
 
    return CRYPT_OK;
-#endif
 
 #endif
 }
