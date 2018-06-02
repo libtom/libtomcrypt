@@ -21,6 +21,7 @@
 /**
    Base16 decode a string
    @param in       The Base16 string to decode
+   @param inlen    The length of the Base16 data
    @param out      [out] The destination of the binary decoded data
    @param outlen   [in/out] The max size and resulting size of the decoded data
    @return CRYPT_OK if successful
