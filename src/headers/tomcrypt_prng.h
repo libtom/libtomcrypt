@@ -72,7 +72,7 @@ typedef struct {
 #ifdef LTC_SOBER128
       struct sober128_prng  sober128;
 #endif
-   };
+   } u;
    short ready;            /* ready flag 0-1 */
    LTC_MUTEX_TYPE(lock)    /* lock */
 } prng_state;
