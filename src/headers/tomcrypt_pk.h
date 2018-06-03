@@ -126,61 +126,6 @@ int rsa_set_crt_params(const unsigned char *dP, unsigned long dPlen,
                        rsa_key *key);
 #endif
 
-/* ---- Katja ---- */
-#ifdef LTC_MKAT
-
-/* Min and Max KAT key sizes (in bits) */
-#define MIN_KAT_SIZE 1024
-#define MAX_KAT_SIZE 4096
-
-/** Katja PKCS style key */
-typedef struct KAT_key {
-    /** Type of key, PK_PRIVATE or PK_PUBLIC */
-    int type;
-    /** The private exponent */
-    void *d;
-    /** The modulus */
-    void *N;
-    /** The p factor of N */
-    void *p;
-    /** The q factor of N */
-    void *q;
-    /** The 1/q mod p CRT param */
-    void *qP;
-    /** The d mod (p - 1) CRT param */
-    void *dP;
-    /** The d mod (q - 1) CRT param */
-    void *dQ;
-    /** The pq param */
-    void *pq;
-} katja_key;
-
-int katja_make_key(prng_state *prng, int wprng, int size, katja_key *key);
-
-int katja_exptmod(const unsigned char *in,   unsigned long inlen,
-                        unsigned char *out,  unsigned long *outlen, int which,
-                        katja_key *key);
-
-void katja_free(katja_key *key);
-
-/* These use PKCS #1 v2.0 padding */
-int katja_encrypt_key(const unsigned char *in,     unsigned long inlen,
-                            unsigned char *out,    unsigned long *outlen,
-                      const unsigned char *lparam, unsigned long lparamlen,
-                      prng_state *prng, int prng_idx, int hash_idx, katja_key *key);
-
-int katja_decrypt_key(const unsigned char *in,       unsigned long inlen,
-                            unsigned char *out,      unsigned long *outlen,
-                      const unsigned char *lparam,   unsigned long lparamlen,
-                            int            hash_idx, int *stat,
-                            katja_key       *key);
-
-/* PKCS #1 import/export */
-int katja_export(unsigned char *out, unsigned long *outlen, int type, katja_key *key);
-int katja_import(const unsigned char *in, unsigned long inlen, katja_key *key);
-
-#endif
-
 /* ---- DH Routines ---- */
 #ifdef LTC_MDH
 

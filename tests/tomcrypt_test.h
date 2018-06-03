@@ -32,7 +32,6 @@ int store_test(void);
 int rotate_test(void);
 int rsa_test(void);
 int dh_test(void);
-int katja_test(void);
 int ecc_tests(void);
 int dsa_test(void);
 int der_test(void);

@@ -96,14 +96,6 @@ static const crypt_constant _crypt_constants[] = {
     {"LTC_MRSA", 0},
 #endif
 
-#ifdef LTC_MKAT
-    {"LTC_MKAT", 1},
-    _C_STRINGIFY(MIN_KAT_SIZE),
-    _C_STRINGIFY(MAX_KAT_SIZE),
-#else
-    {"LTC_MKAT", 0},
-#endif
-
 #ifdef LTC_MECC
     {"LTC_MECC", 1},
     _C_STRINGIFY(ECC_BUF_SIZE),

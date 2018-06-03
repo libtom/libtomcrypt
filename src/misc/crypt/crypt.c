@@ -353,9 +353,6 @@ const char *crypt_build_settings =
 #if defined(LTC_MDSA)
     "   DSA\n"
 #endif
-#if defined(LTC_MKAT)
-    "   Katja\n"
-#endif
 #if defined(LTC_PK_MAX_RETRIES)
     "   "NAME_VALUE(LTC_PK_MAX_RETRIES)"\n"
 #endif
