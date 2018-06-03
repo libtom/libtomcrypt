@@ -249,9 +249,6 @@ static const crypt_size _crypt_sizes[] = {
     _SZ_STRINGIFY_T(ecc_point),
     _SZ_STRINGIFY_T(ecc_key),
 #endif
-#ifdef LTC_MKAT
-    _SZ_STRINGIFY_T(katja_key),
-#endif
 
     /* DER handling */
 #ifdef LTC_DER

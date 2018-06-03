@@ -38,7 +38,6 @@ static const test_function test_functions[] =
       LTC_TEST_FN(dh_test),
       LTC_TEST_FN(ecc_tests),
       LTC_TEST_FN(dsa_test),
-      LTC_TEST_FN(katja_test),
       LTC_TEST_FN(file_test),
       LTC_TEST_FN(multi_test),
       /* keep the prng_test always at the end as

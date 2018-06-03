@@ -2388,38 +2388,6 @@
 				</File>
 			</Filter>
 			<Filter
-				Name="katja"
-				>
-				<File
-					RelativePath="src\pk\katja\katja_decrypt_key.c"
-					>
-				</File>
-				<File
-					RelativePath="src\pk\katja\katja_encrypt_key.c"
-					>
-				</File>
-				<File
-					RelativePath="src\pk\katja\katja_export.c"
-					>
-				</File>
-				<File
-					RelativePath="src\pk\katja\katja_exptmod.c"
-					>
-				</File>
-				<File
-					RelativePath="src\pk\katja\katja_free.c"
-					>
-				</File>
-				<File
-					RelativePath="src\pk\katja\katja_import.c"
-					>
-				</File>
-				<File
-					RelativePath="src\pk\katja\katja_make_key.c"
-					>
-				</File>
-			</Filter>
-			<Filter
 				Name="pkcs1"
 				>
 				<File

@@ -425,9 +425,6 @@
 #define LTC_DH8192
 #endif
 
-/* Include Katja (a Rabin variant like RSA) */
-/* #define LTC_MKAT */
-
 /* Digital Signature Algorithm */
 #define LTC_MDSA
 
@@ -548,7 +545,7 @@
    #endif
 #endif
 
-#if defined(LTC_MECC) || defined(LTC_MRSA) || defined(LTC_MDSA) || defined(LTC_MKAT)
+#if defined(LTC_MECC) || defined(LTC_MRSA) || defined(LTC_MDSA)
    /* Include the MPI functionality?  (required by the PK algorithms) */
    #define LTC_MPI
 
@@ -578,7 +575,7 @@
    #error ASN.1 DER requires MPI functionality
 #endif
 
-#if (defined(LTC_MDSA) || defined(LTC_MRSA) || defined(LTC_MECC) || defined(LTC_MKAT)) && !defined(LTC_DER)
+#if (defined(LTC_MDSA) || defined(LTC_MRSA) || defined(LTC_MECC)) && !defined(LTC_DER)
    #error PK requires ASN.1 DER functionality, make sure LTC_DER is enabled
 #endif
 
