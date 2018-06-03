@@ -54,7 +54,7 @@ int base32_decode(const          char *in,  unsigned long inlen,
 #ifdef LTC_BASE16
 int base16_encode(const unsigned char *in,  unsigned long  inlen,
                                  char *out, unsigned long *outlen,
-                                 int  caps);
+                        unsigned int   options);
 int base16_decode(const          char *in,  unsigned long  inlen,
                         unsigned char *out, unsigned long *outlen);
 #endif
