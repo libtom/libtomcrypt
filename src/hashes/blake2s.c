@@ -193,6 +193,19 @@ static int blake2s_init_param(hash_state *md, const unsigned char *P)
    return CRYPT_OK;
 }
 
+/**
+   Initialize the hash/MAC state
+
+      Use this function to init for arbitrary sizes.
+
+      Give a key and keylen to init for MAC mode.
+
+   @param md      The hash state you wish to initialize
+   @param outlen  The desired output-length
+   @param key     The key of the MAC
+   @param keylen  The length of the key
+   @return CRYPT_OK if successful
+*/
 int blake2s_init(hash_state *md, unsigned long outlen, const unsigned char *key, unsigned long keylen)
 {
    unsigned char P[BLAKE2S_PARAM_SIZE];
@@ -230,12 +243,32 @@ int blake2s_init(hash_state *md, unsigned long outlen, const unsigned char *key,
    return CRYPT_OK;
 }
 
+/**
+   Initialize the hash state
+   @param md   The hash state you wish to initialize
+   @return CRYPT_OK if successful
+*/
 int blake2s_128_init(hash_state *md) { return blake2s_init(md, 16, NULL, 0); }
 
+/**
+   Initialize the hash state
+   @param md   The hash state you wish to initialize
+   @return CRYPT_OK if successful
+*/
 int blake2s_160_init(hash_state *md) { return blake2s_init(md, 20, NULL, 0); }
 
+/**
+   Initialize the hash state
+   @param md   The hash state you wish to initialize
+   @return CRYPT_OK if successful
+*/
 int blake2s_224_init(hash_state *md) { return blake2s_init(md, 28, NULL, 0); }
 
+/**
+   Initialize the hash state
+   @param md   The hash state you wish to initialize
+   @return CRYPT_OK if successful
+*/
 int blake2s_256_init(hash_state *md) { return blake2s_init(md, 32, NULL, 0); }
 
 #define G(r, i, a, b, c, d)                                                                                            \
@@ -316,6 +349,13 @@ static int blake2s_compress(hash_state *md, const unsigned char *buf)
 }
 #endif
 
+/**
+   Process a block of memory through the hash
+   @param md     The hash state
+   @param in     The data to hash
+   @param inlen  The length of the data (octets)
+   @return CRYPT_OK if successful
+*/
 int blake2s_process(hash_state *md, const unsigned char *in, unsigned long inlen)
 {
    LTC_ARGCHK(md != NULL);
@@ -348,6 +388,12 @@ int blake2s_process(hash_state *md, const unsigned char *in, unsigned long inlen
    return CRYPT_OK;
 }
 
+/**
+   Terminate the hash to get the digest
+   @param md  The hash state
+   @param out [out] The destination of the hash (size depending on the length used on init)
+   @return CRYPT_OK if successful
+*/
 int blake2s_done(hash_state *md, unsigned char *out)
 {
    unsigned char buffer[BLAKE2S_OUTBYTES] = { 0 };
