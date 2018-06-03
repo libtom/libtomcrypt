@@ -13,7 +13,7 @@
   Authors: Paulo S.L.M. Barreto and Vincent Rijmen.
 */
 
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 #ifdef LTC_ANUBIS
 

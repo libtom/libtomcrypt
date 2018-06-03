@@ -10,7 +10,7 @@
     @file eax_addheader.c
     EAX implementation, add meta-data, by Tom St Denis
 */
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 #ifdef LTC_EAX_MODE
 

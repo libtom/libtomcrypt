@@ -7,7 +7,7 @@
  * guarantee it works.
  */
 
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 int pk_oid_str_to_num(const char *OID, unsigned long *oid, unsigned long *oidlen)
 {

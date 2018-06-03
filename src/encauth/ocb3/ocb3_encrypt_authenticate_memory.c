@@ -11,7 +11,7 @@
   @file ocb3_encrypt_authenticate_memory.c
   OCB implementation, encrypt block of memory, by Tom St Denis
 */
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 #ifdef LTC_OCB3_MODE
 

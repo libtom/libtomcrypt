@@ -146,6 +146,7 @@ int blake2bmac_file(const char *fname, const unsigned char *key, unsigned long k
 int blake2bmac_test(void);
 #endif /* LTC_BLAKE2BMAC */
 
+
 #ifdef LTC_PELICAN
 
 typedef struct pelican_state
@@ -390,12 +391,6 @@ int ocb3_decrypt_verify_memory(int cipher,
           int           *stat);
 
 int ocb3_test(void);
-
-#ifdef LTC_SOURCE
-/* internal helper functions */
-int ocb3_int_ntz(unsigned long x);
-void ocb3_int_xor_blocks(unsigned char *out, const unsigned char *block_a, const unsigned char *block_b, unsigned long block_len);
-#endif /* LTC_SOURCE */
 
 #endif /* LTC_OCB3_MODE */
 

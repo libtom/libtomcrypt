@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  */
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 #ifdef LTC_PRNG_ENABLE_LTC_RNG
 unsigned long (*ltc_rng)(unsigned char *out, unsigned long outlen, void (*callback)(void));

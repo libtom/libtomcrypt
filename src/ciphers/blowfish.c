@@ -10,7 +10,7 @@
   @file blowfish.c
   Implementation of the Blowfish block cipher, Tom St Denis
 */
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 #ifdef LTC_BLOWFISH
 

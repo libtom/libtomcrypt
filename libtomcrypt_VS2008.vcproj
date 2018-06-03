@@ -1036,6 +1036,10 @@
 				>
 			</File>
 			<File
+				RelativePath="src\headers\tomcrypt_private.h"
+				>
+			</File>
+			<File
 				RelativePath="src\headers\tomcrypt_prng.h"
 				>
 			</File>

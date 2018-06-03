@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  */
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 /**
  Source donated by Elliptic Semiconductor Inc (www.ellipticsemi.com) to the LibTom Projects

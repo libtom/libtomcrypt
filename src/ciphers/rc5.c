@@ -12,7 +12,7 @@
    LTC_RC5 code by Tom St Denis
 */
 
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 #ifdef LTC_RC5
 

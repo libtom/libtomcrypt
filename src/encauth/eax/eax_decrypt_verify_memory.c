@@ -11,7 +11,7 @@
     @file eax_decrypt_verify_memory.c
     EAX implementation, decrypt block of memory, by Tom St Denis
 */
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 #ifdef LTC_EAX_MODE
 

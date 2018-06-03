@@ -210,11 +210,13 @@ tests/pkcs_1_oaep_test.obj tests/pkcs_1_pss_test.obj tests/pkcs_1_test.obj tests
 tests/rotate_test.obj tests/rsa_test.obj tests/store_test.obj tests/test.obj
 
 #The following headers will be installed by "make install"
-HEADERS=src/headers/tomcrypt.h src/headers/tomcrypt_argchk.h src/headers/tomcrypt_cfg.h \
+HEADERS_PUB=src/headers/tomcrypt.h src/headers/tomcrypt_argchk.h src/headers/tomcrypt_cfg.h \
 src/headers/tomcrypt_cipher.h src/headers/tomcrypt_custom.h src/headers/tomcrypt_hash.h \
 src/headers/tomcrypt_mac.h src/headers/tomcrypt_macros.h src/headers/tomcrypt_math.h \
 src/headers/tomcrypt_misc.h src/headers/tomcrypt_pk.h src/headers/tomcrypt_pkcs.h \
 src/headers/tomcrypt_prng.h
+
+HEADERS=$(HEADERS_PUB) src/headers/tomcrypt_private.h
 
 #The default rule for make builds the tomcrypt.lib library (static)
 default: $(LIBMAIN_S)

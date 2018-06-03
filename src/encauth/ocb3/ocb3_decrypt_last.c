@@ -11,7 +11,7 @@
    @file ocb3_decrypt_last.c
    OCB implementation, internal helper, by Karel Miko
 */
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 #ifdef LTC_OCB3_MODE
 

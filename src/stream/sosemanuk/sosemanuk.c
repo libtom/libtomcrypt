@@ -30,7 +30,7 @@
  * <thomas.pornin@cryptolog.com>
  */
 
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 #ifdef LTC_SOSEMANUK
 

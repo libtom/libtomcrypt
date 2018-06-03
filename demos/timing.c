@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  */
-#include <tomcrypt.h>
+#include "tomcrypt_private.h"
 
 #if defined(_WIN32)
    #define PRI64  "I64d"

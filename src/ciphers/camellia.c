@@ -12,7 +12,7 @@
   Implementation by Tom St Denis of Elliptic Semiconductor
 */
 
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 #ifdef LTC_CAMELLIA
 

@@ -28,7 +28,7 @@
   Implementation of AES
 */
 
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 #ifdef LTC_RIJNDAEL
 

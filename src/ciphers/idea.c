@@ -22,7 +22,7 @@
    and Japan (JP 3225440) (expired May 16, 2011).
  */
 
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 #ifdef LTC_IDEA
 

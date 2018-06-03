@@ -11,7 +11,7 @@
   * http://bxr.su/OpenBSD/lib/libc/crypt/arc4random.c
   */
 
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 #ifdef LTC_CHACHA20_PRNG
 

@@ -213,31 +213,6 @@ int register_all_prngs(void);
 int prng_is_valid(int idx);
 LTC_MUTEX_PROTO(ltc_prng_mutex)
 
-#ifdef LTC_SOURCE
-/* internal helper functions */
-#define _LTC_PRNG_EXPORT(which) \
-int which ## _export(unsigned char *out, unsigned long *outlen, prng_state *prng)      \
-{                                                                                      \
-   unsigned long len = which ## _desc.export_size;                                     \
-                                                                                       \
-   LTC_ARGCHK(prng   != NULL);                                                         \
-   LTC_ARGCHK(out    != NULL);                                                         \
-   LTC_ARGCHK(outlen != NULL);                                                         \
-                                                                                       \
-   if (*outlen < len) {                                                                \
-      *outlen = len;                                                                   \
-      return CRYPT_BUFFER_OVERFLOW;                                                    \
-   }                                                                                   \
-                                                                                       \
-   if (which ## _read(out, len, prng) != len) {                                        \
-      return CRYPT_ERROR_READPRNG;                                                     \
-   }                                                                                   \
-                                                                                       \
-   *outlen = len;                                                                      \
-   return CRYPT_OK;                                                                    \
-}
-#endif
-
 /* Slow RNG you **might** be able to use to seed a PRNG with.  Be careful as this
  * might not work on all platforms as planned
  */

@@ -10,7 +10,7 @@
    @file noekeon.c
    Implementation of the Noekeon block cipher by Tom St Denis
 */
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 #ifdef LTC_NOEKEON
 

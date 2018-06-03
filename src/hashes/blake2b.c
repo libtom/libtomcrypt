@@ -23,7 +23,7 @@
 */
 /* see also https://www.ietf.org/rfc/rfc7693.txt */
 
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 #ifdef LTC_BLAKE2B
 
@@ -199,6 +199,19 @@ static int blake2b_init_param(hash_state *md, const unsigned char *P)
    return CRYPT_OK;
 }
 
+/**
+   Initialize the hash/MAC state
+
+      Use this function to init for arbitrary sizes.
+
+      Give a key and keylen to init for MAC mode.
+
+   @param md      The hash state you wish to initialize
+   @param outlen  The desired output-length
+   @param key     The key of the MAC
+   @param keylen  The length of the key
+   @return CRYPT_OK if successful
+*/
 int blake2b_init(hash_state *md, unsigned long outlen, const unsigned char *key, unsigned long keylen)
 {
    unsigned char P[BLAKE2B_PARAM_SIZE];
@@ -237,12 +250,32 @@ int blake2b_init(hash_state *md, unsigned long outlen, const unsigned char *key,
    return CRYPT_OK;
 }
 
+/**
+   Initialize the hash state
+   @param md   The hash state you wish to initialize
+   @return CRYPT_OK if successful
+*/
 int blake2b_160_init(hash_state *md) { return blake2b_init(md, 20, NULL, 0); }
 
+/**
+   Initialize the hash state
+   @param md   The hash state you wish to initialize
+   @return CRYPT_OK if successful
+*/
 int blake2b_256_init(hash_state *md) { return blake2b_init(md, 32, NULL, 0); }
 
+/**
+   Initialize the hash state
+   @param md   The hash state you wish to initialize
+   @return CRYPT_OK if successful
+*/
 int blake2b_384_init(hash_state *md) { return blake2b_init(md, 48, NULL, 0); }
 
+/**
+   Initialize the hash state
+   @param md   The hash state you wish to initialize
+   @return CRYPT_OK if successful
+*/
 int blake2b_512_init(hash_state *md) { return blake2b_init(md, 64, NULL, 0); }
 
 #define G(r, i, a, b, c, d)                                                                                            \
@@ -328,6 +361,13 @@ static int blake2b_compress(hash_state *md, const unsigned char *buf)
 }
 #endif
 
+/**
+   Process a block of memory through the hash
+   @param md     The hash state
+   @param in     The data to hash
+   @param inlen  The length of the data (octets)
+   @return CRYPT_OK if successful
+*/
 int blake2b_process(hash_state *md, const unsigned char *in, unsigned long inlen)
 {
    LTC_ARGCHK(md != NULL);
@@ -360,6 +400,12 @@ int blake2b_process(hash_state *md, const unsigned char *in, unsigned long inlen
    return CRYPT_OK;
 }
 
+/**
+   Terminate the hash to get the digest
+   @param md  The hash state
+   @param out [out] The destination of the hash (size depending on the length used on init)
+   @return CRYPT_OK if successful
+*/
 int blake2b_done(hash_state *md, unsigned char *out)
 {
    unsigned char buffer[BLAKE2B_OUTBYTES] = { 0 };

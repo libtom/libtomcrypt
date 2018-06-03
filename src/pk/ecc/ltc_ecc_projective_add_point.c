@@ -7,7 +7,7 @@
  * guarantee it works.
  */
 
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 /**
   @file ltc_ecc_projective_add_point.c

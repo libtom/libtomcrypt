@@ -7,7 +7,7 @@
  * guarantee it works.
  */
 
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 /* origin of this code - OLPC */
 

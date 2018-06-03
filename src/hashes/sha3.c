@@ -9,7 +9,7 @@
 
 /* based on https://github.com/brainhub/SHA3IUF (public domain) */
 
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 #ifdef LTC_SHA3
 

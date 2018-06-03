@@ -8,7 +8,7 @@
  */
 
 #define DESC_DEF_ONLY
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 #ifdef LTM_DESC
 

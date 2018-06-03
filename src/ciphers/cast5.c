@@ -11,7 +11,7 @@
    @file cast5.c
    Implementation of LTC_CAST5 (RFC 2144) by Tom St Denis
  */
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 #ifdef LTC_CAST5
 
