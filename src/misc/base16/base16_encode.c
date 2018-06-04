@@ -22,12 +22,12 @@
    @param inlen    The length of the input buffer
    @param out      [out] The destination of the Base16 encoded data
    @param outlen   [in/out] The max size and resulting size of the encoded data
-   @param caps     Output 'a-f' on 0 and 'A-F' otherwise.
+   @param options  Output 'a-f' on 0 and 'A-F' otherwise.
    @return CRYPT_OK if successful
 */
 int base16_encode(const unsigned char *in,  unsigned long  inlen,
                                  char *out, unsigned long *outlen,
-                                  int  caps)
+                        unsigned int   options)
 {
    unsigned long i, x;
    const char *alphabet;
@@ -52,7 +52,7 @@ int base16_encode(const unsigned char *in,  unsigned long  inlen,
    x--;
    *outlen = x; /* returning the length without terminating NUL */
 
-   if (caps == 0) alphabet = alphabets[0];
+   if (options == 0) alphabet = alphabets[0];
    else alphabet = alphabets[1];
 
    for (i = 0; i < x; i += 2) {

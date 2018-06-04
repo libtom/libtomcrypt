@@ -6710,12 +6710,12 @@ To encode a binary string in base16 call:
 \begin{verbatim}
 int base16_encode(const unsigned char *in,  unsigned long  inlen,
                                  char *out, unsigned long *outlen,
-                                 int  caps);
+                        unsigned int   options);
 \end{verbatim}
 
 Where \textit{in} is the binary string,
 \textit{out} is where the ASCII output is placed
-and \textit{caps} is either $0$ to use lower-letter \textit{a..f} or else to use caps \textit{A..F}.
+and \textit{options} is either $0$ to use lower-letter \textit{a..f} or else to use caps \textit{A..F}.
 
 To decode a base16 string call:
 
