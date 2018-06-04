@@ -64,7 +64,7 @@ static void _fortuna_update_iv(prng_state *prng)
    int            x;
    unsigned char *IV;
    /* update IV */
-   IV = prng->fortuna.IV;
+   IV = prng->u.fortuna.IV;
    for (x = 0; x < 16; x++) {
       IV[x] = (IV[x] + 1) & 255;
       if (IV[x] != 0) break;
@@ -108,26 +108,26 @@ static int _fortuna_reseed(prng_state *prng)
 
 #ifdef LTC_FORTUNA_RESEED_RATELIMIT_TIMED
    ulong64 now = _fortuna_current_time();
-   if (now == prng->fortuna.wd)
+   if (now == prng->u.fortuna.wd)
       return CRYPT_OK;
 #else
-   if (++prng->fortuna.wd < LTC_FORTUNA_WD)
+   if (++prng->u.fortuna.wd < LTC_FORTUNA_WD)
       return CRYPT_OK;
 #endif
 
    /* new K == LTC_SHA256(K || s) where s == LTC_SHA256(P0) || LTC_SHA256(P1) ... */
    sha256_init(&md);
-   if ((err = sha256_process(&md, prng->fortuna.K, 32)) != CRYPT_OK) {
+   if ((err = sha256_process(&md, prng->u.fortuna.K, 32)) != CRYPT_OK) {
       sha256_done(&md, tmp);
       return err;
    }
 
-   reset_cnt = prng->fortuna.reset_cnt + 1;
+   reset_cnt = prng->u.fortuna.reset_cnt + 1;
 
    for (x = 0; x < LTC_FORTUNA_POOLS; x++) {
        if (x == 0 || ((reset_cnt >> (x-1)) & 1) == 0) {
           /* terminate this hash */
-          if ((err = sha256_done(&prng->fortuna.pool[x], tmp)) != CRYPT_OK) {
+          if ((err = sha256_done(&prng->u.fortuna.pool[x], tmp)) != CRYPT_OK) {
              sha256_done(&md, tmp);
              return err;
           }
@@ -137,7 +137,7 @@ static int _fortuna_reseed(prng_state *prng)
              return err;
           }
           /* reset this pool */
-          if ((err = sha256_init(&prng->fortuna.pool[x])) != CRYPT_OK) {
+          if ((err = sha256_init(&prng->u.fortuna.pool[x])) != CRYPT_OK) {
              sha256_done(&md, tmp);
              return err;
           }
@@ -147,22 +147,22 @@ static int _fortuna_reseed(prng_state *prng)
    }
 
    /* finish key */
-   if ((err = sha256_done(&md, prng->fortuna.K)) != CRYPT_OK) {
+   if ((err = sha256_done(&md, prng->u.fortuna.K)) != CRYPT_OK) {
       return err;
    }
-   if ((err = rijndael_setup(prng->fortuna.K, 32, 0, &prng->fortuna.skey)) != CRYPT_OK) {
+   if ((err = rijndael_setup(prng->u.fortuna.K, 32, 0, &prng->u.fortuna.skey)) != CRYPT_OK) {
       return err;
    }
    _fortuna_update_iv(prng);
 
    /* reset/update internals */
-   prng->fortuna.pool0_len = 0;
+   prng->u.fortuna.pool0_len = 0;
 #ifdef LTC_FORTUNA_RESEED_RATELIMIT_TIMED
-   prng->fortuna.wd        = now;
+   prng->u.fortuna.wd        = now;
 #else
-   prng->fortuna.wd        = 0;
+   prng->u.fortuna.wd        = 0;
 #endif
-   prng->fortuna.reset_cnt = reset_cnt;
+   prng->u.fortuna.reset_cnt = reset_cnt;
 
 
 #ifdef LTC_CLEAN_STACK
@@ -190,7 +190,7 @@ int fortuna_update_seed(const unsigned char *in, unsigned long inlen, prng_state
    LTC_MUTEX_LOCK(&prng->lock);
    /* new K = LTC_SHA256(K || in) */
    sha256_init(&md);
-   if ((err = sha256_process(&md, prng->fortuna.K, 32)) != CRYPT_OK) {
+   if ((err = sha256_process(&md, prng->u.fortuna.K, 32)) != CRYPT_OK) {
       sha256_done(&md, tmp);
       goto LBL_UNLOCK;
    }
@@ -199,7 +199,7 @@ int fortuna_update_seed(const unsigned char *in, unsigned long inlen, prng_state
       goto LBL_UNLOCK;
    }
    /* finish key */
-   if ((err = sha256_done(&md, prng->fortuna.K)) != CRYPT_OK) {
+   if ((err = sha256_done(&md, prng->u.fortuna.K)) != CRYPT_OK) {
       goto LBL_UNLOCK;
    }
    _fortuna_update_iv(prng);
@@ -228,25 +228,25 @@ int fortuna_start(prng_state *prng)
 
    /* initialize the pools */
    for (x = 0; x < LTC_FORTUNA_POOLS; x++) {
-       if ((err = sha256_init(&prng->fortuna.pool[x])) != CRYPT_OK) {
+       if ((err = sha256_init(&prng->u.fortuna.pool[x])) != CRYPT_OK) {
           for (y = 0; y < x; y++) {
-              sha256_done(&prng->fortuna.pool[y], tmp);
+              sha256_done(&prng->u.fortuna.pool[y], tmp);
           }
           return err;
        }
    }
-   prng->fortuna.pool_idx = prng->fortuna.pool0_len = prng->fortuna.wd = 0;
-   prng->fortuna.reset_cnt = 0;
+   prng->u.fortuna.pool_idx = prng->u.fortuna.pool0_len = prng->u.fortuna.wd = 0;
+   prng->u.fortuna.reset_cnt = 0;
 
    /* reset bufs */
-   zeromem(prng->fortuna.K, 32);
-   if ((err = rijndael_setup(prng->fortuna.K, 32, 0, &prng->fortuna.skey)) != CRYPT_OK) {
+   zeromem(prng->u.fortuna.K, 32);
+   if ((err = rijndael_setup(prng->u.fortuna.K, 32, 0, &prng->u.fortuna.skey)) != CRYPT_OK) {
       for (x = 0; x < LTC_FORTUNA_POOLS; x++) {
-          sha256_done(&prng->fortuna.pool[x], tmp);
+          sha256_done(&prng->u.fortuna.pool[x], tmp);
       }
       return err;
    }
-   zeromem(prng->fortuna.IV, 16);
+   zeromem(prng->u.fortuna.IV, 16);
 
    LTC_MUTEX_INIT(&prng->lock)
 
@@ -267,14 +267,14 @@ static int _fortuna_add(unsigned long source, unsigned long pool, const unsigned
    tmp[0] = (unsigned char)source;
    tmp[1] = (unsigned char)inlen;
 
-   if ((err = sha256_process(&prng->fortuna.pool[pool], tmp, 2)) != CRYPT_OK) {
+   if ((err = sha256_process(&prng->u.fortuna.pool[pool], tmp, 2)) != CRYPT_OK) {
       return err;
    }
-   if ((err = sha256_process(&prng->fortuna.pool[pool], in, inlen)) != CRYPT_OK) {
+   if ((err = sha256_process(&prng->u.fortuna.pool[pool], in, inlen)) != CRYPT_OK) {
       return err;
    }
    if (pool == 0) {
-      prng->fortuna.pool0_len += inlen;
+      prng->u.fortuna.pool0_len += inlen;
    }
    return CRYPT_OK; /* success */
 }
@@ -324,11 +324,11 @@ int fortuna_add_entropy(const unsigned char *in, unsigned long inlen, prng_state
 
    LTC_MUTEX_LOCK(&prng->lock);
 
-   err = _fortuna_add(0, prng->fortuna.pool_idx, in, inlen, prng);
+   err = _fortuna_add(0, prng->u.fortuna.pool_idx, in, inlen, prng);
 
    if (err == CRYPT_OK) {
-      ++(prng->fortuna.pool_idx);
-      prng->fortuna.pool_idx %= LTC_FORTUNA_POOLS;
+      ++(prng->u.fortuna.pool_idx);
+      prng->u.fortuna.pool_idx %= LTC_FORTUNA_POOLS;
    }
 
    LTC_MUTEX_UNLOCK(&prng->lock);
@@ -350,9 +350,9 @@ int fortuna_ready(prng_state *prng)
    /* make sure the reseed doesn't fail because
     * of the chosen rate limit */
 #ifdef LTC_FORTUNA_RESEED_RATELIMIT_TIMED
-   prng->fortuna.wd = _fortuna_current_time() - 1;
+   prng->u.fortuna.wd = _fortuna_current_time() - 1;
 #else
-   prng->fortuna.wd = LTC_FORTUNA_WD;
+   prng->u.fortuna.wd = LTC_FORTUNA_WD;
 #endif
    err = _fortuna_reseed(prng);
    prng->ready = (err == CRYPT_OK) ? 1 : 0;
@@ -382,14 +382,14 @@ unsigned long fortuna_read(unsigned char *out, unsigned long outlen, prng_state 
    }
 
    /* do we have to reseed? */
-   if (prng->fortuna.pool0_len >= 64) {
+   if (prng->u.fortuna.pool0_len >= 64) {
       if (_fortuna_reseed(prng) != CRYPT_OK) {
          goto LBL_UNLOCK;
       }
    }
 
    /* ensure that one reseed happened before allowing to read */
-   if (prng->fortuna.reset_cnt == 0) {
+   if (prng->u.fortuna.reset_cnt == 0) {
       goto LBL_UNLOCK;
    }
 
@@ -399,7 +399,7 @@ unsigned long fortuna_read(unsigned char *out, unsigned long outlen, prng_state 
    /* handle whole blocks without the extra XMEMCPY */
    while (outlen >= 16) {
       /* encrypt the IV and store it */
-      rijndael_ecb_encrypt(prng->fortuna.IV, out, &prng->fortuna.skey);
+      rijndael_ecb_encrypt(prng->u.fortuna.IV, out, &prng->u.fortuna.skey);
       out += 16;
       outlen -= 16;
       _fortuna_update_iv(prng);
@@ -407,19 +407,19 @@ unsigned long fortuna_read(unsigned char *out, unsigned long outlen, prng_state 
 
    /* left over bytes? */
    if (outlen > 0) {
-      rijndael_ecb_encrypt(prng->fortuna.IV, tmp, &prng->fortuna.skey);
+      rijndael_ecb_encrypt(prng->u.fortuna.IV, tmp, &prng->u.fortuna.skey);
       XMEMCPY(out, tmp, outlen);
       _fortuna_update_iv(prng);
    }
 
    /* generate new key */
-   rijndael_ecb_encrypt(prng->fortuna.IV, prng->fortuna.K   , &prng->fortuna.skey);
+   rijndael_ecb_encrypt(prng->u.fortuna.IV, prng->u.fortuna.K   , &prng->u.fortuna.skey);
    _fortuna_update_iv(prng);
 
-   rijndael_ecb_encrypt(prng->fortuna.IV, prng->fortuna.K+16, &prng->fortuna.skey);
+   rijndael_ecb_encrypt(prng->u.fortuna.IV, prng->u.fortuna.K+16, &prng->u.fortuna.skey);
    _fortuna_update_iv(prng);
 
-   if (rijndael_setup(prng->fortuna.K, 32, 0, &prng->fortuna.skey) != CRYPT_OK) {
+   if (rijndael_setup(prng->u.fortuna.K, 32, 0, &prng->u.fortuna.skey) != CRYPT_OK) {
       tlen = 0;
    }
 
@@ -448,7 +448,7 @@ int fortuna_done(prng_state *prng)
 
    /* terminate all the hashes */
    for (x = 0; x < LTC_FORTUNA_POOLS; x++) {
-       if ((err = sha256_done(&(prng->fortuna.pool[x]), tmp)) != CRYPT_OK) {
+       if ((err = sha256_done(&(prng->u.fortuna.pool[x]), tmp)) != CRYPT_OK) {
           goto LBL_UNLOCK;
        }
    }
