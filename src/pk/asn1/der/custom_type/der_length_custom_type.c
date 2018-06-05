@@ -190,7 +190,7 @@ int der_length_custom_type(const ltc_asn1_list *root, unsigned long *outlen, uns
       }
    } else {
       /* calc length of length */
-      if ((err = der_length_asn1_length(y, &x)) != CRYPT_OK) {
+      if ((err = der_length_asn1_length(y - id_len, &x)) != CRYPT_OK) {
          goto LBL_ERR;
       }
       if (payloadlen != NULL) {
