@@ -195,6 +195,7 @@ int dh_check_pubkey(const dh_key *key);
 int ecc_set_dp_from_mpis(void *a, void *b, void *prime, void *order, void *gx, void *gy, unsigned long cofactor, ecc_key *key);
 int ecc_copy_dp(const ecc_key *srckey, ecc_key *key);
 int ecc_set_dp_by_size(int size, ecc_key *key);
+int ecc_import_subject_public_key_info(const unsigned char *in, unsigned long inlen, ecc_key *key);
 
 /* low level functions */
 ecc_point *ltc_ecc_new_point(void);
