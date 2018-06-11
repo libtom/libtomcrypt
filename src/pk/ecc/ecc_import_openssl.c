@@ -24,7 +24,7 @@ static int _ecc_import_private_with_oid(const unsigned char *in, unsigned long i
 
    /* ECPrivateKey SEQUENCE */
    LTC_SET_ASN1(custom,   0, LTC_ASN1_OBJECT_IDENTIFIER, curveoid, 16UL);
-   LTC_SET_ASN1(custom,   1, LTC_ASN1_RAW_BIT_STRING,    bin_xy,   8u*sizeof(bin_xy));
+   LTC_SET_ASN1(custom,   1, LTC_ASN1_RAW_BIT_STRING,    bin_xy,   8UL*sizeof(bin_xy));
    LTC_SET_ASN1(seq_priv, 0, LTC_ASN1_SHORT_INTEGER,     &pkver,   1UL);
    LTC_SET_ASN1(seq_priv, 1, LTC_ASN1_OCTET_STRING,      bin_k,    sizeof(bin_k));
    LTC_SET_ASN1_CUSTOM_CONSTRUCTED(seq_priv, 2, LTC_ASN1_CL_CONTEXT_SPECIFIC, 0, custom);     /* context specific 0 */
@@ -63,7 +63,7 @@ static int _ecc_import_private_with_curve(const unsigned char *in, unsigned long
 
    /* ECPrivateKey SEQUENCE */
    LTC_SET_ASN1(custom,   0, LTC_ASN1_SEQUENCE,       seq_ecparams, 6UL);
-   LTC_SET_ASN1(custom,   1, LTC_ASN1_RAW_BIT_STRING, bin_xy,       8u*sizeof(bin_xy));
+   LTC_SET_ASN1(custom,   1, LTC_ASN1_RAW_BIT_STRING, bin_xy,       8UL*sizeof(bin_xy));
    LTC_SET_ASN1(seq_priv, 0, LTC_ASN1_SHORT_INTEGER,  &pkver,       1UL);
    LTC_SET_ASN1(seq_priv, 1, LTC_ASN1_OCTET_STRING,   bin_k,        sizeof(bin_k));
    LTC_SET_ASN1_CUSTOM_CONSTRUCTED(seq_priv, 2, LTC_ASN1_CL_CONTEXT_SPECIFIC, 0, custom);     /* context specific 0 */
@@ -82,7 +82,7 @@ static int _ecc_import_private_with_curve(const unsigned char *in, unsigned long
    /* Curve SEQUENCE */
    LTC_SET_ASN1(seq_curve,    0, LTC_ASN1_OCTET_STRING,      bin_a,    sizeof(bin_a));
    LTC_SET_ASN1(seq_curve,    1, LTC_ASN1_OCTET_STRING,      bin_b,    sizeof(bin_b));
-   LTC_SET_ASN1(seq_curve,    2, LTC_ASN1_RAW_BIT_STRING,    bin_seed, sizeof(bin_seed));
+   LTC_SET_ASN1(seq_curve,    2, LTC_ASN1_RAW_BIT_STRING,    bin_seed, 8UL*sizeof(bin_seed));
    seq_curve[2].optional = 1;
    /* try to load private key */
    err = der_decode_sequence(in, inlen, seq_priv, 4);
