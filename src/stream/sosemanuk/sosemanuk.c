@@ -318,11 +318,7 @@ int sosemanuk_setup(sosemanuk_state *ss, const unsigned char *key, unsigned long
 #undef WUP0
 #undef WUP1
 
-    /*
-     * Initialize with a zero-value iv to ensure state is correct in the
-     * event user fails to call setiv().
-     */
-    return sosemanuk_setiv(ss, NULL, 0);
+    return CRYPT_OK;
 }
 
 
