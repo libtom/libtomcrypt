@@ -80,7 +80,7 @@ static int _new_element(ltc_asn1_list **l)
 int der_decode_sequence_flexi(const unsigned char *in, unsigned long *inlen, ltc_asn1_list **out)
 {
    ltc_asn1_list *l, *t;
-   unsigned long err, type, len, totlen, data_offset;
+   unsigned long err, type, len, totlen, data_offset, len_len;
    void          *realloc_tmp;
 
    LTC_ARGCHK(in    != NULL);
@@ -414,7 +414,7 @@ int der_decode_sequence_flexi(const unsigned char *in, unsigned long *inlen, ltc
                 t = t->child;
              }
              if (len_len > LTC_DER_MAX_RECURSION) {
-                err = CRYPT_PK_ASN1_ERROR;
+                err = CRYPT_ERROR;
                 goto error;
              }
 
