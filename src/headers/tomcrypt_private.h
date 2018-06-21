@@ -219,13 +219,13 @@ int ltc_ecc_projective_add_point(const ecc_point *P, const ecc_point *Q, ecc_poi
 
 #if defined(LTC_MECC_FP)
 /* optimized point multiplication using fixed point cache (HAC algorithm 14.117) */
-int ltc_ecc_fp_mulmod(void *k, ecc_point *G, ecc_point *R, void *a, void *modulus, int map);
+int ltc_ecc_fp_mulmod(void *k, const ecc_point *G, ecc_point *R, void *ma, void *modulus, int map);
 
 /* functions for saving/loading/freeing/adding to fixed point cache */
 int ltc_ecc_fp_save_state(unsigned char **out, unsigned long *outlen);
 int ltc_ecc_fp_restore_state(unsigned char *in, unsigned long inlen);
 void ltc_ecc_fp_free(void);
-int ltc_ecc_fp_add_point(ecc_point *g, void *modulus, int lock);
+int ltc_ecc_fp_add_point(const ecc_point *g, void *ma, void *modulus, int lock);
 
 /* lock/unlock all points currently in fixed point cache */
 void ltc_ecc_fp_tablelock(int lock);
