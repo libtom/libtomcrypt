@@ -26,14 +26,16 @@
 int rsa_export(unsigned char *out, unsigned long *outlen, int type, const rsa_key *key)
 {
    unsigned long zero=0;
-   int err;
+   int err, std;
    LTC_ARGCHK(out    != NULL);
    LTC_ARGCHK(outlen != NULL);
    LTC_ARGCHK(key    != NULL);
 
-   /* type valid? */
-   if (!(key->type == PK_PRIVATE) && (type == PK_PRIVATE)) {
-      return CRYPT_PK_INVALID_TYPE;
+   std = type & PK_STD;
+   type &= ~PK_STD;
+
+   if (type == PK_PRIVATE && key->type != PK_PRIVATE) {
+      return CRYPT_PK_TYPE_MISMATCH;
    }
 
    if (type == PK_PRIVATE) {
@@ -52,12 +54,14 @@ int rsa_export(unsigned char *out, unsigned long *outlen, int type, const rsa_ke
                           LTC_ASN1_INTEGER, 1UL,  key->dQ,
                           LTC_ASN1_INTEGER, 1UL,  key->qP,
                           LTC_ASN1_EOL,     0UL, NULL);
-   } else {
+   }
+
+   if (type == PK_PUBLIC) {
       /* public key */
       unsigned long tmplen, *ptmplen;
       unsigned char* tmp = NULL;
 
-      if (type & PK_STD) {
+      if (std) {
           tmplen = (unsigned long)(mp_count_bits(key->N) / 8) * 2 + 8;
           tmp = XMALLOC(tmplen);
           ptmplen = &tmplen;
@@ -75,7 +79,7 @@ int rsa_export(unsigned char *out, unsigned long *outlen, int type, const rsa_ke
                                  LTC_ASN1_INTEGER, 1UL,  key->e,
                                  LTC_ASN1_EOL,     0UL, NULL);
 
-      if ((err != CRYPT_OK) || !(type & PK_STD)) {
+      if ((err != CRYPT_OK) || !std) {
           goto finish;
       }
 
@@ -86,8 +90,9 @@ finish:
       if (tmp != out)
         XFREE(tmp);
       return err;
-
    }
+
+   return CRYPT_INVALID_ARG;
 }
 
 #endif /* LTC_MRSA */

@@ -104,16 +104,16 @@ static int _base64_decode_internal(const char *in,  unsigned long inlen,
           continue;
        }
        if (c == 253) {
-          if (mode == strict)
+          if (mode == strict) {
              return CRYPT_INVALID_PACKET;
-          else
-             continue; /* allow to ignore white-spaces (relaxed+insane) */
+          }
+          continue; /* allow to ignore white-spaces (relaxed+insane) */
        }
        if (c == 255) {
-          if (mode == insane)
+          if (mode == insane) {
              continue; /* allow to ignore invalid garbage (insane) */
-          else
-             return CRYPT_INVALID_PACKET;
+          }
+          return CRYPT_INVALID_PACKET;
        }
        if ((g > 0) && (mode != insane)) {
           /* we only allow '=' to be at the end (strict+relaxed) */

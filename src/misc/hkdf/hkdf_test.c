@@ -278,11 +278,11 @@ int hkdf_test(void)
 
     if (failed != 0) {
         return CRYPT_FAIL_TESTVECTOR;
-    } else if (tested == 0) {
-        return CRYPT_NOP;
-    } else {
-        return CRYPT_OK;
     }
+    if (tested == 0) {
+        return CRYPT_NOP;
+    }
+    return CRYPT_OK;
  #endif
 }
 

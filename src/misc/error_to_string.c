@@ -68,9 +68,8 @@ const char *error_to_string(int err)
 {
    if (err < 0 || err >= (int)(sizeof(err_2_str)/sizeof(err_2_str[0]))) {
       return "Invalid error code.";
-   } else {
-      return err_2_str[err];
    }
+   return err_2_str[err];
 }
 
 
