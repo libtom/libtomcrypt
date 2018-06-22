@@ -252,20 +252,16 @@ int crypt_get_constant(const char* namein, int *valueout) {
 int crypt_list_all_constants(char *names_list, unsigned int *names_list_size) {
     int i;
     unsigned int total_len = 0;
-    char number[32], *ptr;
+    char *ptr;
     int number_len;
     int count = sizeof(_crypt_constants) / sizeof(_crypt_constants[0]);
 
     /* calculate amount of memory required for the list */
     for (i=0; i<count; i++) {
-        total_len += (unsigned int)strlen(_crypt_constants[i].name) + 1;
-        /* the above +1 is for the commas */
-        number_len = snprintf(number, sizeof(number), "%d", _crypt_constants[i].value);
-        if ((number_len < 0) ||
-            ((unsigned int)number_len >= sizeof(number)))
+        number_len = snprintf(NULL, 0, "%s,%d\n", _crypt_constants[i].name, _crypt_constants[i].value);
+        if (number_len < 0)
           return -1;
-        total_len += number_len + 1;
-        /* this last +1 is for newlines (and ending NULL) */
+        total_len += number_len;
     }
 
     if (names_list == NULL) {
@@ -277,16 +273,11 @@ int crypt_list_all_constants(char *names_list, unsigned int *names_list_size) {
         /* build the names list */
         ptr = names_list;
         for (i=0; i<count; i++) {
-            strcpy(ptr, _crypt_constants[i].name);
-            ptr += strlen(_crypt_constants[i].name);
-            strcpy(ptr, ",");
-            ptr += 1;
-
-            number_len = snprintf(number, sizeof(number), "%d", _crypt_constants[i].value);
-            strcpy(ptr, number);
+            number_len = snprintf(ptr, total_len, "%s,%d\n", _crypt_constants[i].name, _crypt_constants[i].value);
+            if (number_len < 0) return -1;
+            if ((unsigned int)number_len > total_len) return -1;
+            total_len -= number_len;
             ptr += number_len;
-            strcpy(ptr, "\n");
-            ptr += 1;
         }
         /* to remove the trailing new-line */
         ptr -= 1;
