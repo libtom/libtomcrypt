@@ -313,16 +313,16 @@ int sha3_process(hash_state *md, const unsigned char *in, unsigned long inlen)
 }
 
 #ifdef LTC_SHA3
-int sha3_done(hash_state *md, unsigned char *hash)
+int sha3_done(hash_state *md, unsigned char *out)
 {
-   return _done(md, hash, CONST64(0x06));
+   return _done(md, out, CONST64(0x06));
 }
 #endif
 
 #ifdef LTC_KECCAK
-int keccak_done(hash_state *md, unsigned char *hash)
+int keccak_done(hash_state *md, unsigned char *out)
 {
-   return _done(md, hash, CONST64(0x01));
+   return _done(md, out, CONST64(0x01));
 }
 #endif
 
