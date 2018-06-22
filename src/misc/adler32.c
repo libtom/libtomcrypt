@@ -41,8 +41,9 @@ void adler32_update(adler32_state *ctx, const unsigned char *input, unsigned lon
          length--;
       } while (length % 8 != 0);
 
-      if (s1 >= _adler32_base)
+      if (s1 >= _adler32_base) {
          s1 -= _adler32_base;
+      }
       s2 %= _adler32_base;
    }
 
@@ -67,8 +68,9 @@ void adler32_update(adler32_state *ctx, const unsigned char *input, unsigned lon
       length -= 8;
       input += 8;
 
-      if (s1 >= _adler32_base)
+      if (s1 >= _adler32_base) {
          s1 -= _adler32_base;
+      }
       s2 %= _adler32_base;
    }
 

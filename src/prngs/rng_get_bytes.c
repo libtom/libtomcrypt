@@ -30,9 +30,12 @@ static unsigned long _rng_nix(unsigned char *buf, unsigned long len,
     LTC_UNUSED_PARAM(callback);
 #ifdef LTC_TRY_URANDOM_FIRST
     f = fopen("/dev/urandom", "rb");
-    if (f == NULL)
-#endif /* LTC_TRY_URANDOM_FIRST */
+    if (f == NULL) {
        f = fopen("/dev/random", "rb");
+    }
+#else
+    f = fopen("/dev/random", "rb");
+#endif /* LTC_TRY_URANDOM_FIRST */
 
     if (f == NULL) {
        return 0;

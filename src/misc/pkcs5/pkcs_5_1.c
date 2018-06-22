@@ -109,19 +109,23 @@ static int _pkcs_5_alg1_common(const unsigned char *password,
          the output buffer (and how many bytes we have to copy) */
       outidx = block*hash_descriptor[hash_idx].hashsize;
       nb = hash_descriptor[hash_idx].hashsize;
-      if(outidx+nb > *outlen)
+      if(outidx+nb > *outlen) {
           nb = *outlen - outidx;
-      if(nb > 0)
+      }
+      if(nb > 0) {
           XMEMCPY(out+outidx, buf, nb);
+      }
 
       block++;
-      if (!openssl_compat)
+      if (!openssl_compat) {
           break;
+      }
    }
    /* In strict mode, we always return the hashsize, in compat we filled it
       as much as was requested, so we leave it alone. */
-   if(!openssl_compat)
+   if(!openssl_compat) {
       *outlen = hash_descriptor[hash_idx].hashsize;
+   }
 
    err = CRYPT_OK;
 LBL_ERR:

@@ -52,8 +52,11 @@ int base16_encode(const unsigned char *in,  unsigned long  inlen,
    x--;
    *outlen = x; /* returning the length without terminating NUL */
 
-   if (options == 0) alphabet = alphabets[0];
-   else alphabet = alphabets[1];
+   if (options == 0) {
+      alphabet = alphabets[0];
+   } else {
+      alphabet = alphabets[1];
+   }
 
    for (i = 0; i < x; i += 2) {
       out[i]   = alphabet[(in[i/2] >> 4) & 0x0f];
