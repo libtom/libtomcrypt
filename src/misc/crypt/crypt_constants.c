@@ -271,8 +271,9 @@ int crypt_list_all_constants(char *names_list, unsigned int *names_list_size) {
             ((unsigned int)number_len >= sizeof(number)))
           return -1;
         total_len += number_len + 1;
-        /* this last +1 is for newlines (and ending NULL) */
+        /* this last +1 is for newline */
     }
+    total_len++; /* for the ending NUL */
 
     if (names_list == NULL) {
         *names_list_size = total_len;
