@@ -119,7 +119,7 @@ int xsalsa20_setup(salsa20_state *st, const unsigned char *key, unsigned long ke
    st->input[ 9] = 0;
    st->rounds = rounds;
    st->ksleft = 0;
-   st->ivlen  = 24;           /* set switch to say nonce/IV has been loaded */
+   st->status = 3;
 
 #ifdef LTC_CLEAN_STACK
    zeromem(x, sizeof(x));

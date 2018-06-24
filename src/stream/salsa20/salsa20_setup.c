@@ -37,7 +37,7 @@ int salsa20_setup(salsa20_state *st, const unsigned char *key, unsigned long key
    LTC_ARGCHK(keylen == 32 || keylen == 16);
 
    if (rounds == 0) rounds = 20;
-   LTC_ARGCHK(rounds % 2 == 0); /* number of rounds must be evenly divisible by 2 */
+   LTC_ARGCHK(rounds % 2 == 0);       /* rounds must be evenly divisible by 2 */
 
    LOAD32L(st->input[1],  key + 0);
    LOAD32L(st->input[2],  key + 4);
@@ -58,7 +58,7 @@ int salsa20_setup(salsa20_state *st, const unsigned char *key, unsigned long key
    LOAD32L(st->input[10],  constants + 8);
    LOAD32L(st->input[15],  constants + 12);
    st->rounds = rounds;     /* default is 20 for salsa20 */
-   st->ivlen = 0;           /* will be set later by salsa20_ivctr(32|64) */
+   st->status = 1;
    return CRYPT_OK;
 }
 

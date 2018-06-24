@@ -1018,8 +1018,8 @@ typedef struct {
    ulong32 input[16];
    unsigned char kstream[64];
    unsigned long ksleft;
-   unsigned long ivlen;
-   int rounds;
+   int           rounds;
+   int           status;  /* 0=uninitialized, 1,3=finished setup(), 2=finished setiv() */
 } salsa20_state;
 
 int salsa20_setup(salsa20_state *st, const unsigned char *key, unsigned long keylen, int rounds);

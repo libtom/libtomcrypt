@@ -59,10 +59,10 @@ int salsa20_crypt(salsa20_state *st, const unsigned char *in, unsigned long inle
 
    if (inlen == 0) return CRYPT_OK; /* nothing to do */
 
-   LTC_ARGCHK(st        != NULL);
-   LTC_ARGCHK(in        != NULL);
-   LTC_ARGCHK(out       != NULL);
-   LTC_ARGCHK(st->ivlen == 8 || st->ivlen == 24);
+   LTC_ARGCHK(st  != NULL);
+   LTC_ARGCHK(in  != NULL);
+   LTC_ARGCHK(out != NULL);
+   LTC_ARGCHK(st->status == 2 || st->status == 3);
 
    if (st->ksleft > 0) {
       j = MIN(st->ksleft, inlen);

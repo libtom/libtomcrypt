@@ -29,7 +29,7 @@ int salsa20_ivctr64(salsa20_state *st, const unsigned char *iv, unsigned long iv
 {
    LTC_ARGCHK(st != NULL);
    LTC_ARGCHK(iv != NULL);
-   /* Salsa20: 64-bit IV (nonce) + 64-bit counter */
+   LTC_ARGCHK(st->status == 1 || st->status == 2);
    LTC_ARGCHK(ivlen == 8);
 
    LOAD32L(st->input[6], iv + 0);
@@ -37,7 +37,7 @@ int salsa20_ivctr64(salsa20_state *st, const unsigned char *iv, unsigned long iv
    st->input[8] = (ulong32)(counter & 0xFFFFFFFF);
    st->input[9] = (ulong32)(counter >> 32);
    st->ksleft = 0;
-   st->ivlen = ivlen;
+   st->status = 2;
    return CRYPT_OK;
 }
 
