@@ -1015,14 +1015,20 @@ int chacha_test(void);
 #ifdef LTC_SALSA20
 
 typedef struct {
-   ulong32 input[16];
+   ulong32       input[16];
    unsigned char kstream[64];
    unsigned long ksleft;
    int           rounds;
    int           status;  /* 0=uninitialized, 1,3=finished setup(), 2=finished setiv() */
 } salsa20_state;
 
-int salsa20_setup(salsa20_state *st, const unsigned char *key, unsigned long keylen, int rounds);
+int salsa20_onecall(const unsigned char *key,    unsigned long keylen,
+                    const unsigned char *iv,     unsigned long ivlen,
+                    const unsigned char *datain, unsigned long datalen,
+                    unsigned long rounds,
+                    unsigned char *dataout);
+
+int salsa20_setup(salsa20_state *st, const unsigned char *key, unsigned long keylen, unsigned long rounds);
 int salsa20_ivctr64(salsa20_state *st, const unsigned char *iv, unsigned long ivlen, ulong64 counter);
 int salsa20_crypt(salsa20_state *st, const unsigned char *in, unsigned long inlen, unsigned char *out);
 int salsa20_keystream(salsa20_state *st, unsigned char *out, unsigned long outlen);
@@ -1033,9 +1039,15 @@ int salsa20_test(void);
 
 #ifdef LTC_XSALSA20
 
+int xsalsa20_onecall(const unsigned char *key,    unsigned long keylen,
+                     const unsigned char *nonce,  unsigned long noncelen,
+                     const unsigned char *datain, unsigned long datalen,
+                     unsigned long rounds,
+                     unsigned char *dataout);
+
 int xsalsa20_setup(salsa20_state *st, const unsigned char *key,   unsigned long keylen,
                                       const unsigned char *nonce, unsigned long noncelen,
-                                      int rounds);
+                                      unsigned long rounds);
 int xsalsa20_test(void);
 
 #endif /* LTC_XSALSA20 */
@@ -1054,8 +1066,13 @@ typedef struct {
    unsigned char buf[80];
    unsigned      ptr;
    int           ivlen;
-   int           status;  /* 0=uninitialized, 1=finished setup(), 2=finished setiv() */
+   int           status;  /* 0=uninitialized, 1,3=finished setup(), 2=finished setiv() */
 } sosemanuk_state;
+
+int sosemanuk_onecall(const unsigned char *key,    unsigned long keylen,
+                      const unsigned char *iv,     unsigned long ivlen,
+                      const unsigned char *datain, unsigned long datalen,
+                      unsigned char *dataout);
 
 int sosemanuk_setup(sosemanuk_state *st, const unsigned char *key, unsigned long keylen);
 int sosemanuk_setiv(sosemanuk_state *st, const unsigned char *iv, unsigned long ivlen);

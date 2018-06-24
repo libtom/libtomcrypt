@@ -20,6 +20,26 @@
 static const char * const sigma = "expand 32-byte k";
 static const char * const tau   = "expand 16-byte k";
 
+/* ======================================================================== */
+
+int salsa20_onecall(const unsigned char *key,    unsigned long keylen,
+                    const unsigned char *iv,     unsigned long ivlen,
+                    const unsigned char *datain, unsigned long datalen,
+                    unsigned long rounds,
+                    unsigned char *dataout)
+{
+   salsa20_state state;
+   int err;
+
+   if ((err = salsa20_setup(&state, key, keylen, rounds))      != CRYPT_OK) return err;
+   if ((err = salsa20_ivctr64(&state, iv, ivlen, 0))           != CRYPT_OK) return err;
+   if ((err = salsa20_crypt(&state, datain, datalen, dataout)) != CRYPT_OK) return err;
+   if ((err = salsa20_done(&state))                            != CRYPT_OK) return err;
+
+   return CRYPT_OK;
+}
+
+/* ======================================================================== */
 /**
    Initialize an Salsa20 context (only the key)
    @param st        [out] The destination of the Salsa20 state
@@ -28,7 +48,7 @@ static const char * const tau   = "expand 16-byte k";
    @param rounds    Number of rounds (e.g. 20 for Salsa20)
    @return CRYPT_OK if successful
 */
-int salsa20_setup(salsa20_state *st, const unsigned char *key, unsigned long keylen, int rounds)
+int salsa20_setup(salsa20_state *st, const unsigned char *key, unsigned long keylen, unsigned long rounds)
 {
    const char *constants;
 

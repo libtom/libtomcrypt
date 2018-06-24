@@ -18,6 +18,26 @@
 
 #ifdef LTC_XSALSA20
 
+/* ======================================================================== */
+
+int xsalsa20_onecall(const unsigned char *key,    unsigned long keylen,
+                     const unsigned char *nonce,  unsigned long noncelen,
+                     const unsigned char *datain, unsigned long datalen,
+                     unsigned long rounds,
+                     unsigned char *dataout)
+{
+   salsa20_state state;
+   int err;
+
+   if ((err = xsalsa20_setup(&state, key, keylen, nonce, noncelen, rounds)) != CRYPT_OK) return err;
+   if ((err = salsa20_crypt(&state, datain, datalen, dataout))              != CRYPT_OK) return err;
+   if ((err = salsa20_done(&state))                                         != CRYPT_OK) return err;
+
+   return CRYPT_OK;
+}
+
+/* ======================================================================== */
+
 static const char * const constants = "expand 32-byte k";
 
 #define QUARTERROUND(a,b,c,d) \
@@ -59,7 +79,7 @@ static void _xsalsa20_doubleround(ulong32 *x, int rounds)
 */
 int xsalsa20_setup(salsa20_state *st, const unsigned char *key, unsigned long keylen,
                                       const unsigned char *nonce, unsigned long noncelen,
-                                      int rounds)
+                                      unsigned long rounds)
 {
    const int sti[] = {0, 5, 10, 15, 6, 7, 8, 9};  /* indices used to build subkey fm x */
    ulong32       x[64];                           /* input to & output fm doubleround */
@@ -72,7 +92,7 @@ int xsalsa20_setup(salsa20_state *st, const unsigned char *key, unsigned long ke
    LTC_ARGCHK(nonce     != NULL);
    LTC_ARGCHK(noncelen  == 24);
    if (rounds == 0) rounds = 20;
-   LTC_ARGCHK(rounds % 2 == 0);     /* number of rounds must be evenly divisible by 2 */
+   LTC_ARGCHK(rounds % 2 == 0);       /* rounds must be evenly divisible by 2 */
 
    /* load the state to "hash" the key */
    LOAD32L(x[ 0], constants +  0);
