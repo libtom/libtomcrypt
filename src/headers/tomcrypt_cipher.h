@@ -1043,23 +1043,25 @@ int xsalsa20_test(void);
 #ifdef LTC_SOSEMANUK
 
 typedef struct {
-    ulong32 kc[100];    /* key_context */
-    ulong32 s00, s01, s02, s03, s04, s05, s06, s07, s08, s09;
-    ulong32 r1, r2;
-    /*
-     * Buffering: the stream cipher produces output data by
-     * blocks of 640 bits. buf[] contains such a block, and
-     * "ptr" is the index of the next output byte.
-     */
-    unsigned char buf[80];
-    unsigned ptr;
+   ulong32 kc[100];    /* key_context */
+   ulong32 s00, s01, s02, s03, s04, s05, s06, s07, s08, s09;
+   ulong32 r1, r2;
+   /*
+    * Buffering: the stream cipher produces output data by
+    * blocks of 640 bits. buf[] contains such a block, and
+    * "ptr" is the index of the next output byte.
+    */
+   unsigned char buf[80];
+   unsigned      ptr;
+   int           ivlen;
+   int           status;  /* 0=uninitialized, 1=finished setup(), 2=finished setiv() */
 } sosemanuk_state;
 
-int sosemanuk_setup(sosemanuk_state *ss, const unsigned char *key, unsigned long keylen);
-int sosemanuk_setiv(sosemanuk_state *ss, const unsigned char *iv, unsigned long ivlen);
-int sosemanuk_crypt(sosemanuk_state *ss, const unsigned char *in, unsigned long datalen, unsigned char *out);
-int sosemanuk_keystream(sosemanuk_state *ss, unsigned char *out, unsigned long outlen);
-int sosemanuk_done(sosemanuk_state *ss);
+int sosemanuk_setup(sosemanuk_state *st, const unsigned char *key, unsigned long keylen);
+int sosemanuk_setiv(sosemanuk_state *st, const unsigned char *iv, unsigned long ivlen);
+int sosemanuk_crypt(sosemanuk_state *st, const unsigned char *in, unsigned long datalen, unsigned char *out);
+int sosemanuk_keystream(sosemanuk_state *st, unsigned char *out, unsigned long outlen);
+int sosemanuk_done(sosemanuk_state *st);
 int sosemanuk_test(void);
 
 #endif /* LTC_SOSEMANUK */
