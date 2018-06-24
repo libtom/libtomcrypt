@@ -22,6 +22,10 @@ static const char * const tau   = "expand 16-byte k";
 
 /* ======================================================================== */
 
+int salsa20_state_size(void) { return sizeof(salsa20_state); }
+
+/* ======================================================================== */
+
 int salsa20_onecall(const unsigned char *key,    unsigned long keylen,
                     const unsigned char *iv,     unsigned long ivlen,
                     const unsigned char *datain, unsigned long datalen,

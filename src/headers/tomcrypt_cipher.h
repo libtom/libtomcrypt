@@ -1022,6 +1022,8 @@ typedef struct {
    int           status;  /* 0=uninitialized, 1,3=finished setup(), 2=finished setiv() */
 } salsa20_state;
 
+int salsa20_state_size(void);
+
 int salsa20_onecall(const unsigned char *key,    unsigned long keylen,
                     const unsigned char *iv,     unsigned long ivlen,
                     const unsigned char *datain, unsigned long datalen,
@@ -1068,6 +1070,8 @@ typedef struct {
    int           ivlen;
    int           status;  /* 0=uninitialized, 1,3=finished setup(), 2=finished setiv() */
 } sosemanuk_state;
+
+int sosemanuk_state_size(void);
 
 int sosemanuk_onecall(const unsigned char *key,    unsigned long keylen,
                       const unsigned char *iv,     unsigned long ivlen,
