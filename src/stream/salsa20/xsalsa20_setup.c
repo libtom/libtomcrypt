@@ -20,24 +20,6 @@
 
 /* ======================================================================== */
 
-int xsalsa20_onecall(const unsigned char *key,    unsigned long keylen,
-                     const unsigned char *nonce,  unsigned long noncelen,
-                     const unsigned char *datain, unsigned long datalen,
-                     unsigned long rounds,
-                     unsigned char *dataout)
-{
-   salsa20_state state;
-   int err;
-
-   if ((err = xsalsa20_setup(&state, key, keylen, nonce, noncelen, rounds)) != CRYPT_OK) return err;
-   if ((err = salsa20_crypt(&state, datain, datalen, dataout))              != CRYPT_OK) return err;
-   if ((err = salsa20_done(&state))                                         != CRYPT_OK) return err;
-
-   return CRYPT_OK;
-}
-
-/* ======================================================================== */
-
 static const char * const constants = "expand 32-byte k";
 
 #define QUARTERROUND(a,b,c,d) \

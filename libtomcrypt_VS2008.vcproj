@@ -1487,6 +1487,10 @@
 					>
 				</File>
 				<File
+					RelativePath="src\misc\crypt\crypt_helper_functions.c"
+					>
+				</File>
+				<File
 					RelativePath="src\misc\crypt\crypt_inits.c"
 					>
 				</File>

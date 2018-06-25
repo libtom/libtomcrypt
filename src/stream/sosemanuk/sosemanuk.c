@@ -199,24 +199,6 @@
 
 /* ======================================================================== */
 
- int sosemanuk_onecall(const unsigned char *key,    unsigned long keylen,
-                       const unsigned char *iv,     unsigned long ivlen,
-                       const unsigned char *datain, unsigned long datalen,
-                       unsigned char *dataout)
-{
-   sosemanuk_state state;
-   int err;
-
-   if ((err = sosemanuk_setup(&state, key, keylen))              != CRYPT_OK) return err;
-   if ((err = sosemanuk_setiv(&state, iv, ivlen))                != CRYPT_OK) return err;
-   if ((err = sosemanuk_crypt(&state, datain, datalen, dataout)) != CRYPT_OK) return err;
-   if ((err = sosemanuk_done(&state))                            != CRYPT_OK) return err;
-
-   return CRYPT_OK;
-}
-
-/* ======================================================================== */
-
 /*
  * Initialize Sosemanuk's state by providing a key. The key is an array of
  * 16 to 32 bytes.
