@@ -347,7 +347,6 @@ int sosemanuk_setup(sosemanuk_state *st, const unsigned char *key, unsigned long
 #undef WUP1
 
     st->status = 1;  /* 0=uninitialized, 1=finished setup(), 2=finished setiv() */
-
     return CRYPT_OK;
 }
 
