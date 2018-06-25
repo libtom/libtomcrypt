@@ -1250,13 +1250,17 @@ Stream ciphers are symmetric key ciphers which operate on a stream of bytes (in 
 however LibTomCrypt's implementation works with bytes).
 
 The API for all stream ciphers operates in mode: \textit{setup} -- \textit{crypt} -- \textit{crypt} -- ... -- \textit{done}.
+The proper order of progression through these modes is enforced with a \textit{status} flag in the cipher's state.
+(An empty state has a \textit{status} of 0, a state after \textit{setup} has a \textit{status} of 1 or 3,
+and a state after \textit{setiv} has a \textit{status} of 2.)
+
 Please note that both encryption and decryption are implemented via \textit{crypt}.
 
 Another useful feature of the stream ciphers API is generation of a random stream of bytes which works like:
 \textit{setup} -- \textit{keystream} -- \textit{keystream} -- ... -- \textit{done}. The random stream generation is
 implemented like encryption of a stream of \textit{0x00} bytes.
 
-Note: You shouldn't use the keystream interface as a PRNG, as it doesn't allow to re-seed the internal state.
+Note: You shouldn't use the keystream interface as a PRNG, as it doesn't allow re-seeding the internal state.
 
 \mysection{ChaCha}
 
@@ -1336,7 +1340,7 @@ err = salsa20_ivctr64(&st, nonce, 8, counter);
 \end{verbatim}
 
 To initialize \textit{XSalsa20} for the recommended 20 rounds with a 256-bit
-key (32 bytes) and a 192-bit nonce (24 bytes), use: 
+key (32 bytes) and a 192-bit nonce (24 bytes), use:
 
 \begin{verbatim}
 salsa20_state st;
@@ -1359,6 +1363,21 @@ err = salsa20_keystream(&st, out_buffer, out_len);
 Finally, when finished you should wipe the state.
 \begin{verbatim}
 err = salsa20_done(&st);
+\end{verbatim}
+
+Many encryptions/decryptions are performed on small data.  To make this process easier,
+Salsa20 has a helper function \textit{salsa20\_onecall()} that with one function call,
+will instantiate a state, call \textit{salsa20\_setup()}, \textit{salsa20\_ivctr64()},
+\textit{salsa20\_crypt()}, and \textit{salsa20\_done()}, returning the crypted data.
+\begin{verbatim}
+int salsa20_onecall(key, keylen, iv ivlen, datain, datalen, rounds, dataout);
+\end{verbatim}
+
+XSalsa20 likewise has a helper function \textit{xsalsa20\_onecall()} that with one
+function call, will instantiate a state, call \textit{xsalsa20\_setup()},
+\textit{salsa20\_crypt()}, and \textit{salsa20\_done()}, returning the crypted data.
+\begin{verbatim}
+int xsalsa20_onecall(key, keylen, nonce, noncelen, datain, datalen, rounds, dataout);
 \end{verbatim}
 
 For both \textit{Salsa20} and \textit{XSalsa20} rounds must be an even number
@@ -1387,10 +1406,9 @@ the EU eSTREAM competition.  Sosemanuk is a stream cipher that borrows heavily f
 another stream cipher, and the block cipher Serpent.  (Sosemanuk means "snow snake" in the
 Cree Indian language.)
 
-Sosemanuk will accept a key between 1 and 256 bits, but Sosemanuk's security level of 128
-bits is achieved only if the key is between 128 and 256 bits.  Keys longer than 128 bits
-are not guaranteed to provided higher security.  The initialization vector is 128 bits.
-(All length arguments are expressed in bytes.)
+Sosemanuk will accept a key between 16 and 32 bytes (128 and 256 bits).  The initialization
+vector is 16 bytes (128 bits).  Keys longer than 128 bits are not guaranteed to increase
+Sosemanuk's security level of 128 bits.  All length arguments are expressed in bytes.
 
 See \url{http://www.ecrypt.eu.org/stream/p3ciphers/sosemanuk/sosemanuk_p3.pdf} for more
 information.
@@ -1426,6 +1444,14 @@ err = sosemanuk_done(&ss);
 To do multiple encryptions and decryptions with the same key, you will want to set the iv but
 you do not need to re-run \textit{sosemanuk\_setup()} again, unless of course, you called
 \textit{sosemanuk\_done()}.
+
+Many encryptions/decryptions are performed on small data.  To make this process easier,
+Sosemanuk has a helper function \textit{sosemanuk\_onecall()} that with one function call,
+will instantiate a state, call \textit{sosemanuk\_setup()}, \textit{sosemanuk\_setiv()},
+\textit{sosemanuk\_crypt()}, and \textit{sosemanuk\_done()}, returning the crypted data.
+\begin{verbatim}
+int sosemanuk_onecall(key, keylen, iv ivlen, datain, datalen, dataout);
+\end{verbatim}
 
 \mysection{Rabbit}
 
@@ -7057,6 +7083,43 @@ LIB.crypt_list_all_sizes(names_list, byref(list_size))
 
 print(names_list.value)
 \end{verbatim}
+
+For stream ciphers, currently only Salsa20/XSalsa20 and Sosemanuk,
+LTC now supports an alternate and arguably a preferred way to get
+state sizes.
+\begin{verbatim}
+size = salsa20_state_size();
+size = sosemanuk_state_size();
+\end{verbatim}
+
+These new functions greatly simplify the supporting code needed
+in the calling programs.  Using Python as an example, this new
+function instantiates \textit{sosemanuk\_state} with one line.
+\begin{verbatim}
+import ctypes
+...
+LTC = ctypes.CDLL('libtomcrypt.dylib')
+...
+state = ctypes.c_buffer(LTC.sosemanuk_state_size())
+\end{verbatim}
+replaces
+\begin{verbatim}
+import ctypes
+...
+LTC = ctypes.CDLL('libtomcrypt.dylib')
+...
+def _get_size(name):
+    size = ctypes.c_int(0)
+    rc = LTC.crypt_get_size(bytes(name), byref(size))
+    if rc != 0:
+        raise Exception('LTC.crypt_get_size(%s) rc = %d' % (name, rc))
+    return size.value
+...
+state = ctypes.c_buffer(_get_size(b'sosemanuk_state'))
+\end{verbatim}
+
+Over time this new alternate method will applied to all cipher and
+hash function state sizes.
 
 
 \chapter{Programming Guidelines}
