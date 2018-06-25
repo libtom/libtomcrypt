@@ -290,6 +290,22 @@ static const crypt_size _crypt_sizes[] = {
 
 };
 
+
+
+
+/* ======================================================================== */
+
+#ifdef LTC_SALSA20
+int salsa20_state_size(void) { return sizeof(salsa20_state); }
+#endif
+#ifdef LTC_XSALSA20
+int xsalsa20_state_size(void) { return sizeof(salsa20_state); }
+#endif
+#ifdef LTC_SOSEMANUK
+int sosemanuk_state_size(void) { return sizeof(sosemanuk_state); }
+#endif
+
+/* ======================================================================== */
 /* crypt_get_size()
  * sizeout will be the size (bytes) of the named struct or union
  * return -1 if named item not found
@@ -306,6 +322,7 @@ int crypt_get_size(const char* namein, unsigned int *sizeout) {
     return -1;
 }
 
+/* ======================================================================== */
 /* crypt_list_all_sizes()
  * if names_list is NULL, names_list_size will be the minimum
  *     size needed to receive the complete names_list

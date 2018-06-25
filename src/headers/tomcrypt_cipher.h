@@ -1041,6 +1041,8 @@ int salsa20_test(void);
 
 #ifdef LTC_XSALSA20
 
+int xsalsa20_state_size(void);
+
 int xsalsa20_onecall(const unsigned char *key,    unsigned long keylen,
                      const unsigned char *nonce,  unsigned long noncelen,
                      const unsigned char *datain, unsigned long datalen,

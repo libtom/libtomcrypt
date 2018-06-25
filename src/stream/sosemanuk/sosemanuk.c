@@ -199,10 +199,6 @@
 
 /* ======================================================================== */
 
-int sosemanuk_state_size(void) { return sizeof(sosemanuk_state); }
-
-/* ======================================================================== */
-
  int sosemanuk_onecall(const unsigned char *key,    unsigned long keylen,
                        const unsigned char *iv,     unsigned long ivlen,
                        const unsigned char *datain, unsigned long datalen,
