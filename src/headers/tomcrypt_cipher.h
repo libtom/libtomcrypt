@@ -995,11 +995,12 @@ LTC_MUTEX_PROTO(ltc_cipher_mutex)
 #ifdef LTC_CHACHA
 
 typedef struct {
-   ulong32 input[16];
+   ulong32       input[16];
    unsigned char kstream[64];
    unsigned long ksleft;
+   unsigned long rounds;
    unsigned long ivlen;
-   int rounds;
+   unsigned long status;  /* 0=uninitialized, 1=finished setup(), 2=finished ivctrXX() */
 } chacha_state;
 
 int chacha_setup(chacha_state *st, const unsigned char *key, unsigned long keylen, int rounds);
@@ -1024,11 +1025,11 @@ typedef struct {
 
 int salsa20_state_size(void);
 
-int salsa20_onecall(const unsigned char *key,    unsigned long keylen,
-                    const unsigned char *iv,     unsigned long ivlen,
-                    const unsigned char *datain, unsigned long datalen,
-                    unsigned long rounds,
-                    unsigned char *dataout);
+int salsa20_memory(const unsigned char *key,    unsigned long keylen,
+                   const unsigned char *iv,     unsigned long ivlen,
+                   const unsigned char *datain, unsigned long datalen,
+                   unsigned long rounds,
+                   unsigned char *dataout);
 
 int salsa20_setup(salsa20_state *st, const unsigned char *key, unsigned long keylen, unsigned long rounds);
 int salsa20_ivctr64(salsa20_state *st, const unsigned char *iv, unsigned long ivlen, ulong64 counter);
@@ -1043,11 +1044,11 @@ int salsa20_test(void);
 
 int xsalsa20_state_size(void);
 
-int xsalsa20_onecall(const unsigned char *key,    unsigned long keylen,
-                     const unsigned char *nonce,  unsigned long noncelen,
-                     const unsigned char *datain, unsigned long datalen,
-                     unsigned long rounds,
-                     unsigned char *dataout);
+int xsalsa20_memory(const unsigned char *key,    unsigned long keylen,
+                    const unsigned char *nonce,  unsigned long noncelen,
+                    const unsigned char *datain, unsigned long datalen,
+                    unsigned long rounds,
+                    unsigned char *dataout);
 
 int xsalsa20_setup(salsa20_state *st, const unsigned char *key,   unsigned long keylen,
                                       const unsigned char *nonce, unsigned long noncelen,
@@ -1070,15 +1071,15 @@ typedef struct {
    unsigned char buf[80];
    unsigned      ptr;
    unsigned long ivlen;
-   unsigned long status;  /* 0=uninitialized, 1,3=finished setup(), 2=finished setiv() */
+   unsigned long status;  /* 0=uninitialized, 1=finished setup(), 2=finished setiv() */
 } sosemanuk_state;
 
 int sosemanuk_state_size(void);
 
-int sosemanuk_onecall(const unsigned char *key,    unsigned long keylen,
-                      const unsigned char *iv,     unsigned long ivlen,
-                      const unsigned char *datain, unsigned long datalen,
-                      unsigned char *dataout);
+int sosemanuk_memory(const unsigned char *key,    unsigned long keylen,
+                     const unsigned char *iv,     unsigned long ivlen,
+                     const unsigned char *datain, unsigned long datalen,
+                     unsigned char *dataout);
 
 int sosemanuk_setup(sosemanuk_state *st, const unsigned char *key, unsigned long keylen);
 int sosemanuk_setiv(sosemanuk_state *st, const unsigned char *iv, unsigned long ivlen);
@@ -1100,8 +1101,9 @@ typedef struct {
 typedef struct {
    rabbit_ctx master_ctx;
    rabbit_ctx work_ctx;
-   unsigned char block[16];     /* last keystream block containing unused bytes */
-   ulong32       unused;        /* count fm right */
+   unsigned char block[16]; /* last keystream block containing unused bytes */
+   ulong32       unused;    /* count fm right */
+   ulong32       status;    /* 0=uninitialized, 1=finished setup(), 2=finished setiv() */
 } rabbit_state;
 
 int rabbit_setup(rabbit_state* st, const unsigned char *key, unsigned long keylen);
@@ -1118,6 +1120,7 @@ int rabbit_test(void);
 typedef struct {
    unsigned int x, y;
    unsigned char buf[256];
+   unsigned long status;  /* 0=uninitialized, 1=finished setup() */
 } rc4_state;
 
 int rc4_stream_setup(rc4_state *st, const unsigned char *key, unsigned long keylen);
@@ -1135,7 +1138,8 @@ typedef struct {
            initR[17],   /* saved register contents */
            konst,       /* key dependent constant */
            sbuf;        /* partial word encryption buffer */
-   int     nbuf;        /* number of part-word stream bits buffered */
+   ulong32 nbuf;        /* number of part-word stream bits buffered */
+   ulong32 status;      /* 0=uninitialized, 1=finished setup(), 2=finished setiv() */
 } sober128_state;
 
 int sober128_stream_setup(sober128_state *st, const unsigned char *key, unsigned long keylen);

@@ -19,6 +19,7 @@
 static const char * const sigma = "expand 32-byte k";
 static const char * const tau   = "expand 16-byte k";
 
+/* ======================================================================== */
 /**
    Initialize an ChaCha context (only the key)
    @param st        [out] The destination of the ChaCha state
@@ -56,7 +57,7 @@ int chacha_setup(chacha_state *st, const unsigned char *key, unsigned long keyle
    LOAD32L(st->input[2],  constants + 8);
    LOAD32L(st->input[3],  constants + 12);
    st->rounds = rounds; /* e.g. 20 for chacha20 */
-   st->ivlen = 0; /* will be set later by chacha_ivctr(32|64) */
+   st->ivlen = -1;      /* will be set later by chacha_ivctr(32|64) */
    return CRYPT_OK;
 }
 

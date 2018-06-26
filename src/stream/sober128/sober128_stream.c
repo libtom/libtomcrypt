@@ -152,6 +152,7 @@ static void s128_diffuse(sober128_state *c)
     DROUND(16);
 }
 
+/* ======================================================================== */
 /**
    Initialize an Sober128 context (only the key)
    @param c         [out] The destination of the Sober128 state
@@ -195,6 +196,7 @@ int sober128_stream_setup(sober128_state *c, const unsigned char *key, unsigned 
    s128_genkonst(c);
    s128_savestate(c);
    c->nbuf = 0;
+   c->status = 1;
 
    return CRYPT_OK;
 }
@@ -213,6 +215,7 @@ int sober128_stream_setiv(sober128_state *c, const unsigned char *iv, unsigned l
    LTC_ARGCHK(c  != NULL);
    LTC_ARGCHK(iv != NULL);
    LTC_ARGCHK(ivlen > 0);
+   LTC_ARGCHK(c->status != 0);
 
    /* ok we are adding an IV then... */
    s128_reloadstate(c);
@@ -235,6 +238,7 @@ int sober128_stream_setiv(sober128_state *c, const unsigned char *iv, unsigned l
    /* now diffuse */
    s128_diffuse(c);
    c->nbuf = 0;
+   c->status = 2;
 
    return CRYPT_OK;
 }
@@ -258,6 +262,7 @@ int sober128_stream_crypt(sober128_state *c, const unsigned char *in, unsigned l
    if (inlen == 0) return CRYPT_OK; /* nothing to do */
    LTC_ARGCHK(out != NULL);
    LTC_ARGCHK(c   != NULL);
+   LTC_ARGCHK(c->status == 2);
 
    /* handle any previously buffered bytes */
    while (c->nbuf != 0 && inlen != 0) {

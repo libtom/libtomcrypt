@@ -19,46 +19,50 @@
  * The eSTREAM submission was rather picky about the calling sequence of
  * ECRYPT_process_blocks() and ECRYPT_process_bytes().  That version allowed
  * calling ECRYPT_process_blocks() multiple times for a multiple of whole
- * 16-byte blocks, but once ECRYPT_process_bytes() was called. no more calls
+ * 16-byte blocks, but once ECRYPT_process_bytes() was called, no more calls
  * were supported correctly.  This implementation handles the keystream
  * differently and rabbit_crypt() may be called as many times as desired,
  * crypting any number of bytes each time.
  *
  *   http://www.ecrypt.eu.org/stream/e2-rabbit.html
+ *   https://www.ietf.org/rfc/rfc4503.txt
  *
  * NB: One of the test vectors distributed by the eSTREAM site in the file
  *     "rabbit_p3source.zip" is in error.  Referring to "test-vectors.txt"
  *     in that ZIP file, the 3rd line in "out1" should be
  *     "96 D6 73 16 88 D1 68 DA 51 D4 0C 70 C3 A1 16 F4".
  *
+ *---------------------------------------------------------------------------
  * Here is the original legal notice accompanying the Rabbit submission
  * to the EU eSTREAM competition.
- *---------------------------------------------------------------------------
- * Copyright (C) Cryptico A/S. All rights reserved.
  *
- * YOU SHOULD CAREFULLY READ THIS LEGAL NOTICE BEFORE USING THIS SOFTWARE.
+ *   Copyright (C) Cryptico A/S. All rights reserved.
  *
- * This software is developed by Cryptico A/S and/or its suppliers.
- * All title and intellectual property rights in and to the software,
- * including but not limited to patent rights and copyrights, are owned
- * by Cryptico A/S and/or its suppliers.
+ *   YOU SHOULD CAREFULLY READ THIS LEGAL NOTICE BEFORE USING THIS SOFTWARE.
  *
- * The software may be used solely for non-commercial purposes
- * without the prior written consent of Cryptico A/S. For further
- * information on licensing terms and conditions please contact
- * Cryptico A/S at info@cryptico.com
+ *   This software is developed by Cryptico A/S and/or its suppliers.
+ *   All title and intellectual property rights in and to the software,
+ *   including but not limited to patent rights and copyrights, are owned
+ *   by Cryptico A/S and/or its suppliers.
  *
- * Cryptico, CryptiCore, the Cryptico logo and "Re-thinking encryption"
- * are either trademarks or registered trademarks of Cryptico A/S.
+ *   The software may be used solely for non-commercial purposes
+ *   without the prior written consent of Cryptico A/S. For further
+ *   information on licensing terms and conditions please contact
+ *   Cryptico A/S at info@cryptico.com
  *
- * Cryptico A/S shall not in any way be liable for any use of this
- * software. The software is provided "as is" without any express or
- * implied warranty.
+ *   Cryptico, CryptiCore, the Cryptico logo and "Re-thinking encryption"
+ *   are either trademarks or registered trademarks of Cryptico A/S.
+ *
+ *   Cryptico A/S shall not in any way be liable for any use of this
+ *   software. The software is provided "as is" without any express or
+ *   implied warranty.
+ *
  *---------------------------------------------------------------------------
  * On October 6, 2008, Rabbit was "released into the public domain and
  * may be used freely for any purpose."
+ *
  *   http://www.ecrypt.eu.org/stream/rabbitpf.html
- *   https://web.archive.org/web/20090630021733/http://www.ecrypt.eu.org/stream/phorum/read.php?1,1244
+ *
  ******************************************************************************/
 
 
@@ -145,8 +149,7 @@ static LTC_INLINE void _rabbit_gen_1_block(rabbit_state* st, unsigned char *out)
     STORE32L((ptr[6] ^ (ptr[3]>>16) ^ (ulong32)(ptr[1]<<16)), out+12);
 }
 
-/* -------------------------------------------------------------------------- */
-
+/* ======================================================================== */
 /* Key setup */
 int rabbit_setup(rabbit_state* st, const unsigned char *key, unsigned long keylen)
 {
@@ -214,6 +217,7 @@ int rabbit_setup(rabbit_state* st, const unsigned char *key, unsigned long keyle
    /* ...and prepare block for crypt() */
    XMEMSET(&(st->block), 0, sizeof(st->block));
    st->unused = 0;
+   st->status = 1;
 
    return CRYPT_OK;
 }
@@ -229,6 +233,7 @@ int rabbit_setiv(rabbit_state* st, const unsigned char *iv, unsigned long ivlen)
    LTC_ARGCHK(st != NULL);
    LTC_ARGCHK(iv != NULL || ivlen == 0);
    LTC_ARGCHK(ivlen <= 8);
+   LTC_ARGCHK(st->status != 0);
 
    /* pad iv in tmpiv */
    if (iv && ivlen > 0) XMEMCPY(tmpiv, iv, ivlen);
@@ -261,6 +266,7 @@ int rabbit_setiv(rabbit_state* st, const unsigned char *iv, unsigned long ivlen)
    /* reset keystream buffer and unused count */
    XMEMSET(&(st->block), 0, sizeof(st->block));
    st->unused = 0;
+   st->status = 2;
 
    return CRYPT_OK;
 }
@@ -275,9 +281,10 @@ int rabbit_crypt(rabbit_state* st, const unsigned char *in, unsigned long inlen,
 
    if (inlen == 0) return CRYPT_OK; /* nothing to do */
 
-   LTC_ARGCHK(st        != NULL);
-   LTC_ARGCHK(in        != NULL);
-   LTC_ARGCHK(out       != NULL);
+   LTC_ARGCHK(st         != NULL);
+   LTC_ARGCHK(in         != NULL);
+   LTC_ARGCHK(out        != NULL);
+   LTC_ARGCHK(st->status == 2);
 
    if (st->unused > 0) {
       j = MIN(st->unused, inlen);

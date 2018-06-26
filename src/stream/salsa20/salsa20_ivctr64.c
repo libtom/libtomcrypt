@@ -29,8 +29,8 @@ int salsa20_ivctr64(salsa20_state *st, const unsigned char *iv, unsigned long iv
 {
    LTC_ARGCHK(st != NULL);
    LTC_ARGCHK(iv != NULL);
-   LTC_ARGCHK(st->status == 1 || st->status == 2);
    LTC_ARGCHK(ivlen == 8);
+   LTC_ARGCHK(st->status == 1 || st->status == 2);
 
    LOAD32L(st->input[6], iv + 0);
    LOAD32L(st->input[7], iv + 4);
