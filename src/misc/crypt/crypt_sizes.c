@@ -290,19 +290,28 @@ static const crypt_size _crypt_sizes[] = {
 
 };
 
-
-
-
 /* ======================================================================== */
 
+#ifdef LTC_CHACHA
+int chacha_state_size(void)    { return sizeof(chacha_state); }
+#endif
 #ifdef LTC_SALSA20
-int salsa20_state_size(void) { return sizeof(salsa20_state); }
+int salsa20_state_size(void)   { return sizeof(salsa20_state); }
 #endif
 #ifdef LTC_XSALSA20
-int xsalsa20_state_size(void) { return sizeof(salsa20_state); }
+int xsalsa20_state_size(void)  { return sizeof(salsa20_state); }
 #endif
 #ifdef LTC_SOSEMANUK
 int sosemanuk_state_size(void) { return sizeof(sosemanuk_state); }
+#endif
+#ifdef LTC_RABBIT
+int rabbit_state_size(void)    { return sizeof(rabbit_state); }
+#endif
+#ifdef LTC_RC4_STREAM
+int rc4_state_size(void)       { return sizeof(rc4_state); }
+#endif
+#ifdef LTC_SOBER128_STREAM
+int sober128_state_size(void)  { return sizeof(sober128_state); }
 #endif
 
 /* ======================================================================== */

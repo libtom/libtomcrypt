@@ -1003,6 +1003,8 @@ typedef struct {
    unsigned long status;  /* 0=uninitialized, 1=finished setup(), 2=finished ivctrXX() */
 } chacha_state;
 
+int chacha_state_size(void);
+
 int chacha_setup(chacha_state *st, const unsigned char *key, unsigned long keylen, int rounds);
 int chacha_ivctr32(chacha_state *st, const unsigned char *iv, unsigned long ivlen, ulong32 counter);
 int chacha_ivctr64(chacha_state *st, const unsigned char *iv, unsigned long ivlen, ulong64 counter);
@@ -1106,6 +1108,8 @@ typedef struct {
    ulong32       status;    /* 0=uninitialized, 1=finished setup(), 2=finished setiv() */
 } rabbit_state;
 
+int rabbit_state_size(void);
+
 int rabbit_setup(rabbit_state* st, const unsigned char *key, unsigned long keylen);
 int rabbit_setiv(rabbit_state* st, const unsigned char *iv, unsigned long ivlen);
 int rabbit_crypt(rabbit_state* st, const unsigned char *in, unsigned long inlen, unsigned char *out);
@@ -1122,6 +1126,8 @@ typedef struct {
    unsigned char buf[256];
    unsigned long status;  /* 0=uninitialized, 1=finished setup() */
 } rc4_state;
+
+int rc4_state_size(void);
 
 int rc4_stream_setup(rc4_state *st, const unsigned char *key, unsigned long keylen);
 int rc4_stream_crypt(rc4_state *st, const unsigned char *in, unsigned long inlen, unsigned char *out);
@@ -1141,6 +1147,8 @@ typedef struct {
    ulong32 nbuf;        /* number of part-word stream bits buffered */
    ulong32 status;      /* 0=uninitialized, 1=finished setup(), 2=finished setiv() */
 } sober128_state;
+
+int sober128_state_size(void);
 
 int sober128_stream_setup(sober128_state *st, const unsigned char *key, unsigned long keylen);
 int sober128_stream_setiv(sober128_state *st, const unsigned char *iv, unsigned long ivlen);
