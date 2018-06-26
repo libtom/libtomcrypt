@@ -29,9 +29,11 @@ int chacha_memory(const unsigned char *key,    unsigned long keylen,
    int err;
 
    if ((err = chacha_setup(&state, key, keylen, rounds)) != CRYPT_OK) goto WIPE_KEY;
-   if (ivlen == 12)
+   if (ivlen == 12) {
         if ((err = chacha_ivctr32(&state, iv, ivlen, 0)) != CRYPT_OK) goto WIPE_KEY;
-   else if ((err = chacha_ivctr64(&state, iv, ivlen, 0)) != CRYPT_OK) goto WIPE_KEY;
+   } else {
+        if ((err = chacha_ivctr64(&state, iv, ivlen, 0)) != CRYPT_OK) goto WIPE_KEY;
+   )
    err = chacha_crypt(&state, datain, datalen, dataout);
 WIPE_KEY:
    err = chacha_done(&state);

@@ -61,7 +61,7 @@ int chacha_crypt(chacha_state *st, const unsigned char *in, unsigned long inlen,
    LTC_ARGCHK(st         != NULL);
    LTC_ARGCHK(in         != NULL);
    LTC_ARGCHK(out        != NULL);
-   LTC_ARGCHK(st->status != -1);
+   LTC_ARGCHK(st->status == 2);
 
    if (st->ksleft > 0) {
       j = MIN(st->ksleft, inlen);
