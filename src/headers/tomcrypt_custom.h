@@ -641,6 +641,9 @@
 
 #endif
 
+/* helper functions for stream ciphers (disable to prevent building them) */
+#define LTC_HELPER_FUNCTIONS
+
 /* Debuggers */
 
 /* define this if you use Valgrind, note: it CHANGES the way SOBER-128 and RC4 work (see the code) */

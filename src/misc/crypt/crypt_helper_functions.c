@@ -8,6 +8,8 @@
  */
 #include "tomcrypt_private.h"
 
+#ifdef LTC_HELPER_FUNCTIONS
+
 /**
   @file crypt_helper_functions.c
 
@@ -33,10 +35,10 @@ int chacha_memory(const unsigned char *key,    unsigned long keylen,
         if ((err = chacha_ivctr32(&state, iv, ivlen, 0)) != CRYPT_OK) goto WIPE_KEY;
    } else {
         if ((err = chacha_ivctr64(&state, iv, ivlen, 0)) != CRYPT_OK) goto WIPE_KEY;
-   )
+   }
    err = chacha_crypt(&state, datain, datalen, dataout);
 WIPE_KEY:
-   err = chacha_done(&state);
+   chacha_done(&state);
    return err;
 }
 
@@ -59,7 +61,7 @@ int salsa20_onecall(const unsigned char *key,    unsigned long keylen,
    if ((err = salsa20_ivctr64(&state, iv, ivlen, 0))      != CRYPT_OK) goto WIPE_KEY;
    err = salsa20_crypt(&state, datain, datalen, dataout);
 WIPE_KEY:
-   err = salsa20_done(&state);
+   salsa20_done(&state);
    return err;
 }
 
@@ -81,7 +83,7 @@ int xsalsa20_onecall(const unsigned char *key,    unsigned long keylen,
    if ((err = xsalsa20_setup(&state, key, keylen, nonce, noncelen, rounds)) != CRYPT_OK) goto WIPE_KEY;
    err = salsa20_crypt(&state, datain, datalen, dataout);
 WIPE_KEY:
-   err = salsa20_done(&state);
+   salsa20_done(&state);
    return err;
 }
 
@@ -104,7 +106,7 @@ int sosemanuk_onecall(const unsigned char *key,    unsigned long keylen,
    if ((err = sosemanuk_setiv(&state, iv, ivlen))   != CRYPT_OK) goto WIPE_KEY;
    err = sosemanuk_crypt(&state, datain, datalen, dataout);
 WIPE_KEY:
-   err = sosemanuk_done(&state);
+   sosemanuk_done(&state);
    return err;
 }
 
@@ -126,7 +128,7 @@ int rabbit_onecall(const unsigned char *key,    unsigned long keylen,
    if ((err = rabbit_setiv(&state, iv, ivlen))   != CRYPT_OK) goto WIPE_KEY;
    err = rabbit_crypt(&state, datain, datalen, dataout);
 WIPE_KEY:
-   err = rabbit_done(&state);
+   rabbit_done(&state);
    return err;
 }
 
@@ -146,7 +148,7 @@ int rc4_stream_onecall(const unsigned char *key,    unsigned long keylen,
    if ((err = rc4_stream_setup(&state, key, keylen)) != CRYPT_OK) goto WIPE_KEY;
    err = rc4_stream_crypt(&state, datain, datalen, dataout);
 WIPE_KEY:
-   err = rc4_stream_done(&state);
+   rc4_stream_done(&state);
    return err;
 }
 
@@ -168,13 +170,15 @@ int sober128_stream_onecall(const unsigned char *key,    unsigned long keylen,
    if ((err = sober128_stream_setiv(&state, iv, ivlen))   != CRYPT_OK) goto WIPE_KEY;
    err = sober128_stream_crypt(&state, datain, datalen, dataout);
 WIPE_KEY:
-   err = sober128_stream_done(&state);
+   sober128_stream_done(&state);
    return err;
 }
 
 #endif /* LTC_SOBER128_STREAM */
 
 /* ======================================================================== */
+
+#endif /* LTC_HELPER_FUNCTIONS */
 
 /* ref:         $Format:%D$ */
 /* git commit:  $Format:%H$ */
