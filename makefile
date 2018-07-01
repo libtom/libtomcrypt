@@ -69,7 +69,7 @@ $(1): $(call print-help,$(1),Builds the library and the '$(1)' demo) demos/$(1).
 ifneq ($V,1)
 	@echo "   * $${CC} $$@"
 endif
-	$${silent} $$(CC) $$(LTC_CFLAGS) $$< $$(LIB_PRE) $$(LIBNAME) $$(LIB_POST) $$(EXTRALIBS) -o $(1)
+	$${silent} $$(CC) $$< $$(LIB_PRE) $$(LIBNAME) $$(LIB_POST) $$(EXTRALIBS) -o $(1)
 endef
 
 $(foreach demo, $(strip $(DEMOS)), $(eval $(call DEMO_template,$(demo))))
