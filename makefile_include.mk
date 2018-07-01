@@ -408,7 +408,7 @@ doc/crypt.pdf: $(call print-help,doc/crypt.pdf,Builds the Developer Manual)
 	$(MAKE) -C doc/ crypt.pdf V=$(V)
 
 
-install_all: $(call print-help,install_all,Install everything - library bins docs tests) install install_bins install_docs install_test
+install_all: $(call print-help,install_all,Install everything - library bins docs tests) install install_bins install_docs
 
 INSTALL_OPTS ?= -m 644
 
