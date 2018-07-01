@@ -307,6 +307,17 @@ sub process_makefiles {
 
   my @ver_version = version_from_tomcrypt_h("src/headers/tomcrypt.h");
 
+  # update Makefile.am
+  my $old = read_file('Makefile.am');
+  my $var_sources = prepare_variable("libtomcrypt_la_SOURCES", sort @c);
+  my $var_tsources = prepare_variable("TEST_SOURCES", sort @t);
+  my $new = patch_file($old, $var_sources, $var_tsources);
+  if ($old ne $new) {
+    write_file('Makefile.am', $new) if $write;
+    warn "changed: Makefile.am\n";
+    $changed_count++;
+  }
+
   # update MSVC project files
   my $msvc_files = prepare_msvc_files_xml(\@all, qr/tab\.c$/, ['Debug|Win32', 'Release|Win32', 'Debug|x64', 'Release|x64']);
   for my $m (qw/libtomcrypt_VS2008.vcproj/) {
@@ -321,7 +332,7 @@ sub process_makefiles {
   }
 
   # update OBJECTS + HEADERS in makefile*
-  for my $m (qw/ makefile makefile.shared makefile.unix makefile.mingw makefile.msvc makefile_include.mk doc\/Doxyfile /) {
+  for my $m (qw/ makefile.static makefile.shared makefile.unix makefile.mingw makefile.msvc makefile_include.mk doc\/Doxyfile /) {
     my $old = read_file($m);
     my $new = $m eq 'makefile.msvc' ? patch_file($old, $var_obj, $var_h, $var_tobj, @ver_version)
                                     : patch_file($old, $var_o, $var_h, $var_to, @ver_version);

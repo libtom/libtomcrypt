@@ -40,6 +40,7 @@ small
 small.exe
 test
 test.exe
+test_*
 tv_gen
 tv_gen.exe
 timing
@@ -102,3 +103,26 @@ coverage*.info
 cov-int/
 .coverity_*
 libtomcrypt.lzma
+
+# autotools related
+/autom4te.cache/
+/aux-dist/
+/m4/
+Makefile
+Makefile.in
+aclocal.m4
+config.h
+config.h.in
+config.log
+config.status
+configure
+configure.scan
+coverage_report
+depcomp
+missing
+libtool
+stamp-h1
+*.loT
+*~
+.deps
+.dirstamp
