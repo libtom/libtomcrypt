@@ -445,8 +445,6 @@ int _ecc_new_api(void)
    unsigned char data16[16] = { 0xd1, 0xd1, 0xd1, 0xd1, 0xd1, 0xd1, 0xd1, 0xd1, 0xd1, 0xd1, 0xd1, 0xd1, 0xd1, 0xd1, 0xd1, 0xd1 };
    unsigned long len16;
 
-   if (ltc_mp.name == NULL) return CRYPT_NOP;
-
    for (i = 0; i < (int)(sizeof(names)/sizeof(names[0])); i++) {
       DO(ecc_get_curve(names[i], &dp));
       /* make new key */
@@ -900,6 +898,8 @@ int _ecc_import_export(void) {
 
 int ecc_tests(void)
 {
+   if (ltc_mp.name == NULL) return CRYPT_NOP;
+
    DO(_ecc_old_api()); /* up to 1.18 */
    DO(_ecc_new_api());
    DO(_ecc_import_export());
