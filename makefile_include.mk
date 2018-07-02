@@ -3,8 +3,8 @@
 #  (GNU make only)
 
 # The version - BEWARE: VERSION, VERSION_PC and VERSION_LT are updated via ./updatemakes.sh
-VERSION=1.18.1-develop
-VERSION_PC=1.18.1
+VERSION=1.18.2
+VERSION_PC=1.18.2
 # http://www.gnu.org/software/libtool/manual/html_node/Updating-version-info.html
 VERSION_LT=1:1
 
@@ -429,7 +429,7 @@ doc/crypt.pdf: $(call print-help,doc/crypt.pdf,Builds the Developer Manual)
 	$(MAKE) -C doc/ crypt.pdf V=$(V)
 
 
-install_all: $(call print-help,install_all,Install everything - library bins docs tests) install install_bins install_docs install_test
+install_all: $(call print-help,install_all,Install everything - library bins docs tests) install install_bins install_docs
 
 INSTALL_OPTS ?= -m 644
 
