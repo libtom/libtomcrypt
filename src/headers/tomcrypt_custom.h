@@ -417,7 +417,7 @@
 #define LTC_DH1536
 #define LTC_DH2048
 
-#ifndef TFM_DESC
+#if defined(LTM_DESC) || defined(GMP_DESC)
 /* tfm has a problem in fp_isprime for larger key sizes */
 #define LTC_DH3072
 #define LTC_DH4096
