@@ -29,7 +29,7 @@ int hmac_memory_multi(int hash,
                 const unsigned char *in,   unsigned long inlen, ...);
 int hmac_file(int hash, const char *fname, const unsigned char *key,
               unsigned long keylen,
-              unsigned char *dst, unsigned long *dstlen);
+              unsigned char *out, unsigned long *outlen);
 #endif
 
 #ifdef LTC_OMAC
@@ -84,7 +84,7 @@ int pmac_done(pmac_state *pmac, unsigned char *out, unsigned long *outlen);
 
 int pmac_memory(int cipher,
                const unsigned char *key, unsigned long keylen,
-               const unsigned char *msg, unsigned long msglen,
+               const unsigned char *in, unsigned long inlen,
                      unsigned char *out, unsigned long *outlen);
 
 int pmac_memory_multi(int cipher,
@@ -230,7 +230,7 @@ int f9_memory_multi(int cipher,
                 const unsigned char *in,  unsigned long inlen, ...);
 int f9_file(int cipher,
               const unsigned char *key, unsigned long keylen,
-              const          char *filename,
+              const          char *fname,
                     unsigned char *out, unsigned long *outlen);
 int f9_test(void);
 
@@ -419,7 +419,7 @@ typedef struct {
 } ccm_state;
 
 int ccm_init(ccm_state *ccm, int cipher,
-             const unsigned char *key, int keylen, int ptlen, int taglen, int aad_len);
+             const unsigned char *key, int keylen, int ptlen, int taglen, int aadlen);
 
 int ccm_reset(ccm_state *ccm);
 

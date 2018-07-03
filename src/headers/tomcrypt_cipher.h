@@ -673,8 +673,8 @@ int safer_k64_setup(const unsigned char *key, int keylen, int num_rounds, symmet
 int safer_sk64_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_key *skey);
 int safer_k128_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_key *skey);
 int safer_sk128_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_key *skey);
-int safer_ecb_encrypt(const unsigned char *pt, unsigned char *ct, const symmetric_key *key);
-int safer_ecb_decrypt(const unsigned char *ct, unsigned char *pt, const symmetric_key *key);
+int safer_ecb_encrypt(const unsigned char *pt, unsigned char *ct, const symmetric_key *skey);
+int safer_ecb_decrypt(const unsigned char *ct, unsigned char *pt, const symmetric_key *skey);
 int safer_k64_test(void);
 int safer_sk64_test(void);
 int safer_sk128_test(void);
@@ -1057,7 +1057,7 @@ typedef struct {
 
 int sosemanuk_setup(sosemanuk_state *ss, const unsigned char *key, unsigned long keylen);
 int sosemanuk_setiv(sosemanuk_state *ss, const unsigned char *iv, unsigned long ivlen);
-int sosemanuk_crypt(sosemanuk_state *ss, const unsigned char *in, unsigned long datalen, unsigned char *out);
+int sosemanuk_crypt(sosemanuk_state *ss, const unsigned char *in, unsigned long inlen, unsigned char *out);
 int sosemanuk_keystream(sosemanuk_state *ss, unsigned char *out, unsigned long outlen);
 int sosemanuk_done(sosemanuk_state *ss);
 int sosemanuk_test(void);

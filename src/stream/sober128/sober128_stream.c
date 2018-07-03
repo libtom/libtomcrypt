@@ -68,68 +68,68 @@ static void cycle(ulong32 *R)
 
 /* Return a non-linear function of some parts of the register.
  */
-#define NLFUNC(c,z) \
+#define NLFUNC(st,z) \
 { \
-    t = c->R[OFF(z,0)] + c->R[OFF(z,16)]; \
+    t = st->R[OFF(z,0)] + st->R[OFF(z,16)]; \
     t ^= Sbox[(t >> 24) & 0xFF]; \
     t = RORc(t, 8); \
-    t = ((t + c->R[OFF(z,1)]) ^ c->konst) + c->R[OFF(z,6)]; \
+    t = ((t + st->R[OFF(z,1)]) ^ st->konst) + st->R[OFF(z,6)]; \
     t ^= Sbox[(t >> 24) & 0xFF]; \
-    t = t + c->R[OFF(z,13)]; \
+    t = t + st->R[OFF(z,13)]; \
 }
 
-static ulong32 nltap(const sober128_state *c)
+static ulong32 nltap(const sober128_state *st)
 {
     ulong32 t;
-    NLFUNC(c, 0);
+    NLFUNC(st, 0);
     return t;
 }
 
 /* Save the current register state
  */
-static void s128_savestate(sober128_state *c)
+static void s128_savestate(sober128_state *st)
 {
     int i;
     for (i = 0; i < N; ++i) {
-        c->initR[i] = c->R[i];
+        st->initR[i] = st->R[i];
     }
 }
 
 /* initialise to previously saved register state
  */
-static void s128_reloadstate(sober128_state *c)
+static void s128_reloadstate(sober128_state *st)
 {
     int i;
 
     for (i = 0; i < N; ++i) {
-        c->R[i] = c->initR[i];
+        st->R[i] = st->initR[i];
     }
 }
 
 /* Initialise "konst"
  */
-static void s128_genkonst(sober128_state *c)
+static void s128_genkonst(sober128_state *st)
 {
     ulong32 newkonst;
 
     do {
-       cycle(c->R);
-       newkonst = nltap(c);
+       cycle(st->R);
+       newkonst = nltap(st);
     } while ((newkonst & 0xFF000000) == 0);
-    c->konst = newkonst;
+    st->konst = newkonst;
 }
 
 /* Load key material into the register
  */
 #define ADDKEY(k) \
-   c->R[KEYP] += (k);
+   st->R[KEYP] += (k);
 
 #define XORNL(nl) \
-   c->R[FOLDP] ^= (nl);
+   st->R[FOLDP] ^= (nl);
 
 /* nonlinear diffusion of register for key */
-#define DROUND(z) STEP(c->R,z); NLFUNC(c,(z+1)); c->R[OFF((z+1),FOLDP)] ^= t;
-static void s128_diffuse(sober128_state *c)
+#define DROUND(z) STEP(st->R,z); NLFUNC(st,(z+1)); st->R[OFF((z+1),FOLDP)] ^= t;
+static void s128_diffuse(sober128_state *st)
 {
     ulong32 t;
     /* relies on FOLD == N == 17! */
@@ -154,16 +154,16 @@ static void s128_diffuse(sober128_state *c)
 
 /**
    Initialize an Sober128 context (only the key)
-   @param c         [out] The destination of the Sober128 state
+   @param st        [out] The destination of the Sober128 state
    @param key       The secret key
    @param keylen    The length of the secret key (octets)
    @return CRYPT_OK if successful
 */
-int sober128_stream_setup(sober128_state *c, const unsigned char *key, unsigned long keylen)
+int sober128_stream_setup(sober128_state *st, const unsigned char *key, unsigned long keylen)
 {
    ulong32 i, k;
 
-   LTC_ARGCHK(c   != NULL);
+   LTC_ARGCHK(st  != NULL);
    LTC_ARGCHK(key != NULL);
    LTC_ARGCHK(keylen > 0);
 
@@ -173,49 +173,49 @@ int sober128_stream_setup(sober128_state *c, const unsigned char *key, unsigned 
    }
 
    /* Register initialised to Fibonacci numbers */
-   c->R[0] = 1;
-   c->R[1] = 1;
+   st->R[0] = 1;
+   st->R[1] = 1;
    for (i = 2; i < N; ++i) {
-      c->R[i] = c->R[i-1] + c->R[i-2];
+      st->R[i] = st->R[i-1] + st->R[i-2];
    }
-   c->konst = INITKONST;
+   st->konst = INITKONST;
 
    for (i = 0; i < keylen; i += 4) {
       k = BYTE2WORD((unsigned char *)&key[i]);
       ADDKEY(k);
-      cycle(c->R);
-      XORNL(nltap(c));
+      cycle(st->R);
+      XORNL(nltap(st));
    }
 
    /* also fold in the length of the key */
    ADDKEY(keylen);
 
    /* now diffuse */
-   s128_diffuse(c);
-   s128_genkonst(c);
-   s128_savestate(c);
-   c->nbuf = 0;
+   s128_diffuse(st);
+   s128_genkonst(st);
+   s128_savestate(st);
+   st->nbuf = 0;
 
    return CRYPT_OK;
 }
 
 /**
   Set IV to the Sober128 state
-  @param c       The Sober12820 state
+  @param st      The Sober12820 state
   @param iv      The IV data to add
   @param ivlen   The length of the IV (must be 12)
   @return CRYPT_OK on success
  */
-int sober128_stream_setiv(sober128_state *c, const unsigned char *iv, unsigned long ivlen)
+int sober128_stream_setiv(sober128_state *st, const unsigned char *iv, unsigned long ivlen)
 {
    ulong32 i, k;
 
-   LTC_ARGCHK(c  != NULL);
+   LTC_ARGCHK(st != NULL);
    LTC_ARGCHK(iv != NULL);
    LTC_ARGCHK(ivlen > 0);
 
    /* ok we are adding an IV then... */
-   s128_reloadstate(c);
+   s128_reloadstate(st);
 
    /* ivlen must be multiple of 4 bytes */
    if ((ivlen & 3) != 0) {
@@ -225,45 +225,45 @@ int sober128_stream_setiv(sober128_state *c, const unsigned char *iv, unsigned l
    for (i = 0; i < ivlen; i += 4) {
       k = BYTE2WORD((unsigned char *)&iv[i]);
       ADDKEY(k);
-      cycle(c->R);
-      XORNL(nltap(c));
+      cycle(st->R);
+      XORNL(nltap(st));
    }
 
    /* also fold in the length of the key */
    ADDKEY(ivlen);
 
    /* now diffuse */
-   s128_diffuse(c);
-   c->nbuf = 0;
+   s128_diffuse(st);
+   st->nbuf = 0;
 
    return CRYPT_OK;
 }
 
 /* XOR pseudo-random bytes into buffer
  */
-#define SROUND(z) STEP(c->R,z); NLFUNC(c,(z+1)); XORWORD(t, in+(z*4), out+(z*4));
+#define SROUND(z) STEP(st->R,z); NLFUNC(st,(z+1)); XORWORD(t, in+(z*4), out+(z*4));
 
 /**
    Encrypt (or decrypt) bytes of ciphertext (or plaintext) with Sober128
-   @param c       The Sober128 state
+   @param st      The Sober128 state
    @param in      The plaintext (or ciphertext)
    @param inlen   The length of the input (octets)
    @param out     [out] The ciphertext (or plaintext), length inlen
    @return CRYPT_OK if successful
 */
-int sober128_stream_crypt(sober128_state *c, const unsigned char *in, unsigned long inlen, unsigned char *out)
+int sober128_stream_crypt(sober128_state *st, const unsigned char *in, unsigned long inlen, unsigned char *out)
 {
    ulong32 t;
 
    if (inlen == 0) return CRYPT_OK; /* nothing to do */
    LTC_ARGCHK(out != NULL);
-   LTC_ARGCHK(c   != NULL);
+   LTC_ARGCHK(st  != NULL);
 
    /* handle any previously buffered bytes */
-   while (c->nbuf != 0 && inlen != 0) {
-      *out++ = *in++ ^ (unsigned char)(c->sbuf & 0xFF);
-      c->sbuf >>= 8;
-      c->nbuf -= 8;
+   while (st->nbuf != 0 && inlen != 0) {
+      *out++ = *in++ ^ (unsigned char)(st->sbuf & 0xFF);
+      st->sbuf >>= 8;
+      st->nbuf -= 8;
       --inlen;
    }
 
@@ -295,8 +295,8 @@ int sober128_stream_crypt(sober128_state *c, const unsigned char *in, unsigned l
 
    /* do small or odd size buffers the slow way */
    while (4 <= inlen) {
-      cycle(c->R);
-      t = nltap(c);
+      cycle(st->R);
+      t = nltap(st);
       XORWORD(t, in, out);
       out    += 4;
       in     += 4;
@@ -305,13 +305,13 @@ int sober128_stream_crypt(sober128_state *c, const unsigned char *in, unsigned l
 
    /* handle any trailing bytes */
    if (inlen != 0) {
-      cycle(c->R);
-      c->sbuf = nltap(c);
-      c->nbuf = 32;
-      while (c->nbuf != 0 && inlen != 0) {
-          *out++ = *in++ ^ (unsigned char)(c->sbuf & 0xFF);
-          c->sbuf >>= 8;
-          c->nbuf -= 8;
+      cycle(st->R);
+      st->sbuf = nltap(st);
+      st->nbuf = 32;
+      while (st->nbuf != 0 && inlen != 0) {
+          *out++ = *in++ ^ (unsigned char)(st->sbuf & 0xFF);
+          st->sbuf >>= 8;
+          st->nbuf -= 8;
           --inlen;
       }
    }
@@ -319,23 +319,23 @@ int sober128_stream_crypt(sober128_state *c, const unsigned char *in, unsigned l
    return CRYPT_OK;
 }
 
-int sober128_stream_keystream(sober128_state *c, unsigned char *out, unsigned long outlen)
+int sober128_stream_keystream(sober128_state *st, unsigned char *out, unsigned long outlen)
 {
    if (outlen == 0) return CRYPT_OK; /* nothing to do */
    LTC_ARGCHK(out != NULL);
    XMEMSET(out, 0, outlen);
-   return sober128_stream_crypt(c, out, outlen, out);
+   return sober128_stream_crypt(st, out, outlen, out);
 }
 
 /**
   Terminate and clear Sober128 state
-  @param c       The Sober128 state
+  @param st      The Sober128 state
   @return CRYPT_OK on success
 */
-int sober128_stream_done(sober128_state *c)
+int sober128_stream_done(sober128_state *st)
 {
-   LTC_ARGCHK(c != NULL);
-   XMEMSET(c, 0, sizeof(sober128_state));
+   LTC_ARGCHK(st != NULL);
+   XMEMSET(st, 0, sizeof(sober128_state));
    return CRYPT_OK;
 }
 

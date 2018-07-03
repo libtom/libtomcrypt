@@ -572,7 +572,7 @@ int der_decode_boolean(const unsigned char *in, unsigned long inlen,
 /* INTEGER */
 int der_encode_integer(void *num, unsigned char *out, unsigned long *outlen);
 int der_decode_integer(const unsigned char *in, unsigned long inlen, void *num);
-int der_length_integer(void *num, unsigned long *len);
+int der_length_integer(void *num, unsigned long *outlen);
 
 /* INTEGER -- handy for 0..2^32-1 values */
 int der_decode_short_integer(const unsigned char *in, unsigned long inlen, unsigned long *num);
