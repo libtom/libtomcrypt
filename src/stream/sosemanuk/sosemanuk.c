@@ -10,6 +10,12 @@
 /*
  * This LTC implementation was adapted from:
  *    http://www.ecrypt.eu.org/stream/e2-sosemanuk.html
+ *
+ * Sosemanuk specifications require:
+ *    1- a key of at least 128 bits (16 bytes), not exceeding 256 bits (32 bytes).
+ *    2- keys < 32 bytes are terminated with 0x01 followed by NULLs as needed.
+ *    3- an iv of 128 bits (16 bytes).
+ * See http://www.ecrypt.eu.org/stream/p3ciphers/sosemanuk/sosemanuk_p3.pdf
  */
 
 /*
@@ -195,13 +201,13 @@
 
 /*
  * Initialize Sosemanuk's state by providing a key. The key is an array of
- * 1 to 32 bytes.
+ * 16 to 32 bytes.
  * @param ss       The Sosemanuk state
  * @param key      Key
  * @param keylen   Length of key in bytes
  * @return CRYPT_OK on success
  */
-int sosemanuk_setup(sosemanuk_state *ss, const unsigned char *key, unsigned long keylen)
+int sosemanuk_setup(sosemanuk_state *st, const unsigned char *key, unsigned long keylen)
 {
     /*
      * This key schedule is actually a truncated Serpent key schedule.
@@ -216,10 +222,10 @@ int sosemanuk_setup(sosemanuk_state *ss, const unsigned char *key, unsigned long
         r2 = w ## o2; \
         r3 = w ## o3; \
         S(r0, r1, r2, r3, r4); \
-        ss->kc[i ++] = r ## d0; \
-        ss->kc[i ++] = r ## d1; \
-        ss->kc[i ++] = r ## d2; \
-        ss->kc[i ++] = r ## d3; \
+        st->kc[i ++] = r ## d0; \
+        st->kc[i ++] = r ## d1; \
+        st->kc[i ++] = r ## d2; \
+        st->kc[i ++] = r ## d3; \
     } while (0)
 
 #define SKS0    SKS(S0, 4, 5, 6, 7, 1, 4, 2, 0)
@@ -255,9 +261,9 @@ int sosemanuk_setup(sosemanuk_state *ss, const unsigned char *key, unsigned long
     ulong32 w0, w1, w2, w3, w4, w5, w6, w7;
     int i = 0;
 
-   LTC_ARGCHK(ss  != NULL);
+   LTC_ARGCHK(st  != NULL);
    LTC_ARGCHK(key != NULL);
-   LTC_ARGCHK(keylen > 0 && keylen <= 32);
+   LTC_ARGCHK(keylen >= 16 && keylen <= 32);
 
     /*
      * The key is copied into the wbuf[] buffer and padded to 256 bits
@@ -318,32 +324,31 @@ int sosemanuk_setup(sosemanuk_state *ss, const unsigned char *key, unsigned long
 #undef WUP0
 #undef WUP1
 
+    st->status = 1;  /* 0=uninitialized, 1=finished setup(), 2=finished setiv() */
     return CRYPT_OK;
 }
 
 
 /*
- * Initialization continues by setting the IV. The IV length is up to 16 bytes.
- * If "ivlen" is 0 (no IV), then the "iv" parameter can be NULL.  If multiple
- * encryptions/decryptions are to be performed with the same key and
+ * Initialization continues by setting the IV.  The IV length is 16 bytes.  If
+ * multiple encryptions/decryptions are to be performed with the same key and
  * sosemanuk_done() has not been called, only sosemanuk_setiv() need be called
  * to set the state.
- * @param ss       The Sosemanuk state
+ * @param st       The Sosemanuk state
  * @param iv       Initialization vector
- * @param ivlen    Length of iv in bytes
  * @return CRYPT_OK on success
  */
-int sosemanuk_setiv(sosemanuk_state *ss, const unsigned char *iv, unsigned long ivlen)
+int sosemanuk_setiv(sosemanuk_state *st, const unsigned char *iv, unsigned long ivlen)
 {
 
     /*
      * The Serpent key addition step.
      */
 #define KA(zc, x0, x1, x2, x3)  do { \
-        x0 ^= ss->kc[(zc)]; \
-        x1 ^= ss->kc[(zc) + 1]; \
-        x2 ^= ss->kc[(zc) + 2]; \
-        x3 ^= ss->kc[(zc) + 3]; \
+        x0 ^= st->kc[(zc)]; \
+        x1 ^= st->kc[(zc) + 1]; \
+        x2 ^= st->kc[(zc) + 2]; \
+        x3 ^= st->kc[(zc) + 3]; \
     } while (0)
 
     /*
@@ -373,11 +378,12 @@ int sosemanuk_setiv(sosemanuk_state *ss, const unsigned char *iv, unsigned long 
     ulong32 r0, r1, r2, r3, r4;
     unsigned char ivtmp[16] = {0};
 
-    LTC_ARGCHK(ss != NULL);
-    LTC_ARGCHK(ivlen <= 16);
-    LTC_ARGCHK(iv != NULL || ivlen == 0);
+    LTC_ARGCHK(st != NULL);
+    LTC_ARGCHK(iv != NULL);
+    LTC_ARGCHK(ivlen == 16);
+    LTC_ARGCHK(st->status != 0);
 
-    if (ivlen > 0) XMEMCPY(ivtmp, iv, ivlen);
+    XMEMCPY(ivtmp, iv, ivlen);
 
     /*
      * Decode IV into four 32-bit words (little-endian).
@@ -403,10 +409,10 @@ int sosemanuk_setiv(sosemanuk_state *ss, const unsigned char *iv, unsigned long 
     FSS(36, S1, 1, 3, 2, 4, 0, 2, 1, 4, 3);
     FSS(40, S2, 2, 1, 4, 3, 0, 4, 3, 1, 0);
     FSS(44, S3, 4, 3, 1, 0, 2, 3, 1, 0, 2);
-    ss->s09 = r3;
-    ss->s08 = r1;
-    ss->s07 = r0;
-    ss->s06 = r2;
+    st->s09 = r3;
+    st->s08 = r1;
+    st->s07 = r0;
+    st->s06 = r2;
 
     FSS(48, S4, 3, 1, 0, 2, 4, 1, 4, 3, 2);
     FSS(52, S5, 1, 4, 3, 2, 0, 4, 2, 1, 3);
@@ -414,10 +420,10 @@ int sosemanuk_setiv(sosemanuk_state *ss, const unsigned char *iv, unsigned long 
     FSS(60, S7, 4, 2, 0, 1, 3, 3, 1, 2, 4);
     FSS(64, S0, 3, 1, 2, 4, 0, 1, 0, 2, 3);
     FSS(68, S1, 1, 0, 2, 3, 4, 2, 1, 3, 0);
-    ss->r1  = r2;
-    ss->s04 = r1;
-    ss->r2  = r3;
-    ss->s05 = r0;
+    st->r1  = r2;
+    st->s04 = r1;
+    st->r2  = r3;
+    st->s05 = r0;
 
     FSS(72, S2, 2, 1, 3, 0, 4, 3, 0, 1, 4);
     FSS(76, S3, 3, 0, 1, 4, 2, 0, 1, 4, 2);
@@ -425,17 +431,18 @@ int sosemanuk_setiv(sosemanuk_state *ss, const unsigned char *iv, unsigned long 
     FSS(84, S5, 1, 3, 0, 2, 4, 3, 2, 1, 0);
     FSS(88, S6, 3, 2, 1, 0, 4, 3, 2, 4, 1);
     FSF(92, S7, 3, 2, 4, 1, 0, 0, 1, 2, 3);
-    ss->s03 = r0;
-    ss->s02 = r1;
-    ss->s01 = r2;
-    ss->s00 = r3;
+    st->s03 = r0;
+    st->s02 = r1;
+    st->s01 = r2;
+    st->s00 = r3;
 
-    ss->ptr = sizeof(ss->buf);
+    st->ptr = sizeof(st->buf);
 
 #undef KA
 #undef FSS
 #undef FSF
 
+    st->status = 2;  /* 0=uninitialized, 1=finished setup(), 2=finished setiv() */
     return CRYPT_OK;
 }
 
@@ -584,7 +591,7 @@ static const ulong32 mul_ia[] = {
  * Compute the next block of bits of output stream. This is equivalent
  * to one full rotation of the shift register.
  */
-static LTC_INLINE void _sosemanuk_internal(sosemanuk_state *ss)
+static LTC_INLINE void _sosemanuk_internal(sosemanuk_state *st)
 {
     /*
      * MUL_A(x) computes alpha * x (in F_{2^32}).
@@ -655,24 +662,24 @@ static LTC_INLINE void _sosemanuk_internal(sosemanuk_state *ss)
      */
 #define SRD(S, x0, x1, x2, x3, ooff)   do { \
         S(u0, u1, u2, u3, u4); \
-        STORE32L(u ## x0 ^ v0, ss->buf + ooff); \
-        STORE32L(u ## x1 ^ v1, ss->buf + ooff +  4); \
-        STORE32L(u ## x2 ^ v2, ss->buf + ooff +  8); \
-        STORE32L(u ## x3 ^ v3, ss->buf + ooff + 12); \
+        STORE32L(u ## x0 ^ v0, st->buf + ooff); \
+        STORE32L(u ## x1 ^ v1, st->buf + ooff +  4); \
+        STORE32L(u ## x2 ^ v2, st->buf + ooff +  8); \
+        STORE32L(u ## x3 ^ v3, st->buf + ooff + 12); \
     } while (0)
 
-    ulong32 s00 = ss->s00;
-    ulong32 s01 = ss->s01;
-    ulong32 s02 = ss->s02;
-    ulong32 s03 = ss->s03;
-    ulong32 s04 = ss->s04;
-    ulong32 s05 = ss->s05;
-    ulong32 s06 = ss->s06;
-    ulong32 s07 = ss->s07;
-    ulong32 s08 = ss->s08;
-    ulong32 s09 = ss->s09;
-    ulong32 r1 = ss->r1;
-    ulong32 r2 = ss->r2;
+    ulong32 s00 = st->s00;
+    ulong32 s01 = st->s01;
+    ulong32 s02 = st->s02;
+    ulong32 s03 = st->s03;
+    ulong32 s04 = st->s04;
+    ulong32 s05 = st->s05;
+    ulong32 s06 = st->s06;
+    ulong32 s07 = st->s07;
+    ulong32 s08 = st->s08;
+    ulong32 s09 = st->s09;
+    ulong32 r1 = st->r1;
+    ulong32 r2 = st->r2;
     ulong32 u0, u1, u2, u3, u4;
     ulong32 v0, v1, v2, v3;
 
@@ -702,18 +709,18 @@ static LTC_INLINE void _sosemanuk_internal(sosemanuk_state *ss)
     STEP(09, 00, 01, 02, 03, 04, 05, 06, 07, 08, v3, u3);
     SRD(S2, 2, 3, 1, 4, 64);
 
-    ss->s00 = s00;
-    ss->s01 = s01;
-    ss->s02 = s02;
-    ss->s03 = s03;
-    ss->s04 = s04;
-    ss->s05 = s05;
-    ss->s06 = s06;
-    ss->s07 = s07;
-    ss->s08 = s08;
-    ss->s09 = s09;
-    ss->r1 = r1;
-    ss->r2 = r2;
+    st->s00 = s00;
+    st->s01 = s01;
+    st->s02 = s02;
+    st->s03 = s03;
+    st->s04 = s04;
+    st->s05 = s05;
+    st->s06 = s06;
+    st->s07 = s07;
+    st->s08 = s08;
+    st->s09 = s09;
+    st->r1 = r1;
+    st->r2 = r2;
 }
 
 /*
@@ -735,40 +742,41 @@ static LTC_INLINE void _xorbuf(const unsigned char *in1, const unsigned char *in
  * buffer, combined by XOR with the stream, and the result is written
  * in the "out" buffer. "in" and "out" must be either equal, or
  * reference distinct buffers (no partial overlap is allowed).
- * @param ss       The Sosemanuk state
+ * @param st       The Sosemanuk state
  * @param in       Data in
  * @param inlen    Length of data in bytes
  * @param out      Data out
  * @return CRYPT_OK on success
  */
-int sosemanuk_crypt(sosemanuk_state *ss,
+int sosemanuk_crypt(sosemanuk_state *st,
                         const unsigned char *in, unsigned long inlen, unsigned char *out)
 {
-    LTC_ARGCHK(ss  != NULL);
+    LTC_ARGCHK(st  != NULL);
     LTC_ARGCHK(in  != NULL);
     LTC_ARGCHK(out != NULL);
+    LTC_ARGCHK(st->status == 2);
 
-    if (ss->ptr < (sizeof(ss->buf))) {
-        unsigned long rlen = (sizeof(ss->buf)) - ss->ptr;
+    if (st->ptr < (sizeof(st->buf))) {
+        unsigned long rlen = (sizeof(st->buf)) - st->ptr;
 
         if (rlen > inlen)
             rlen = inlen;
-        _xorbuf(ss->buf + ss->ptr, in, out, rlen);
+        _xorbuf(st->buf + st->ptr, in, out, rlen);
         in += rlen;
         out += rlen;
         inlen -= rlen;
-        ss->ptr += rlen;
+        st->ptr += rlen;
     }
     while (inlen > 0) {
-        _sosemanuk_internal(ss);
-        if (inlen >= sizeof(ss->buf)) {
-            _xorbuf(ss->buf, in, out, sizeof(ss->buf));
-            in += sizeof(ss->buf);
-            out += sizeof(ss->buf);
-            inlen -= sizeof(ss->buf);
+        _sosemanuk_internal(st);
+        if (inlen >= sizeof(st->buf)) {
+            _xorbuf(st->buf, in, out, sizeof(st->buf));
+            in += sizeof(st->buf);
+            out += sizeof(st->buf);
+            inlen -= sizeof(st->buf);
         } else {
-            _xorbuf(ss->buf, in, out, inlen);
-            ss->ptr = inlen;
+            _xorbuf(st->buf, in, out, inlen);
+            st->ptr = inlen;
             inlen = 0;
         }
     }
@@ -780,29 +788,29 @@ int sosemanuk_crypt(sosemanuk_state *ss,
 /*
  * Cipher operation, as a PRNG: the provided output buffer is filled with
  * pseudo-random bytes as output from the stream cipher.
- * @param ss       The Sosemanuk state
+ * @param st       The Sosemanuk state
  * @param out      Data out
  * @param outlen   Length of output in bytes
  * @return CRYPT_OK on success
  */
-int sosemanuk_keystream(sosemanuk_state *ss, unsigned char *out, unsigned long outlen)
+int sosemanuk_keystream(sosemanuk_state *st, unsigned char *out, unsigned long outlen)
 {
    if (outlen == 0) return CRYPT_OK; /* nothing to do */
    LTC_ARGCHK(out != NULL);
    XMEMSET(out, 0, outlen);
-   return sosemanuk_crypt(ss, out, outlen, out);
+   return sosemanuk_crypt(st, out, outlen, out);
 }
 
 
 /*
  * Terminate and clear Sosemanuk key context
- * @param ss      The Sosemanuk state
+ * @param st      The Sosemanuk state
  * @return CRYPT_OK on success
  */
-int sosemanuk_done(sosemanuk_state *ss)
+int sosemanuk_done(sosemanuk_state *st)
 {
-   LTC_ARGCHK(ss != NULL);
-   XMEMSET(ss, 0, sizeof(sosemanuk_state));
+   LTC_ARGCHK(st != NULL);
+   XMEMSET(st, 0, sizeof(sosemanuk_state));
    return CRYPT_OK;
 }
 

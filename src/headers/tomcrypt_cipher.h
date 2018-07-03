@@ -995,12 +995,21 @@ LTC_MUTEX_PROTO(ltc_cipher_mutex)
 #ifdef LTC_CHACHA
 
 typedef struct {
-   ulong32 input[16];
+   ulong32       input[16];
    unsigned char kstream[64];
    unsigned long ksleft;
+   unsigned long rounds;
    unsigned long ivlen;
-   int rounds;
+   unsigned long status;  /* 0=uninitialized, 1=finished setup(), 2=finished ivctrXX() */
 } chacha_state;
+
+int chacha_state_size(void);
+
+int chacha_memory(const unsigned char *key,    unsigned long keylen,
+                  const unsigned char *iv,     unsigned long ivlen,
+                  const unsigned char *datain, unsigned long datalen,
+                  unsigned long rounds,
+                  unsigned char *dataout);
 
 int chacha_setup(chacha_state *st, const unsigned char *key, unsigned long keylen, int rounds);
 int chacha_ivctr32(chacha_state *st, const unsigned char *iv, unsigned long ivlen, ulong32 counter);
@@ -1015,14 +1024,22 @@ int chacha_test(void);
 #ifdef LTC_SALSA20
 
 typedef struct {
-   ulong32 input[16];
+   ulong32       input[16];
    unsigned char kstream[64];
    unsigned long ksleft;
-   unsigned long ivlen;
-   int rounds;
+   unsigned long rounds;
+   unsigned long status;  /* 0=uninitialized, 1,3=finished setup(), 2=finished setiv() */
 } salsa20_state;
 
-int salsa20_setup(salsa20_state *st, const unsigned char *key, unsigned long keylen, int rounds);
+int salsa20_state_size(void);
+
+int salsa20_memory(const unsigned char *key,    unsigned long keylen,
+                   const unsigned char *iv,     unsigned long ivlen,
+                   const unsigned char *datain, unsigned long datalen,
+                   unsigned long rounds,
+                   unsigned char *dataout);
+
+int salsa20_setup(salsa20_state *st, const unsigned char *key, unsigned long keylen, unsigned long rounds);
 int salsa20_ivctr64(salsa20_state *st, const unsigned char *iv, unsigned long ivlen, ulong64 counter);
 int salsa20_crypt(salsa20_state *st, const unsigned char *in, unsigned long inlen, unsigned char *out);
 int salsa20_keystream(salsa20_state *st, unsigned char *out, unsigned long outlen);
@@ -1033,9 +1050,17 @@ int salsa20_test(void);
 
 #ifdef LTC_XSALSA20
 
+int xsalsa20_state_size(void);
+
+int xsalsa20_memory(const unsigned char *key,    unsigned long keylen,
+                    const unsigned char *nonce,  unsigned long noncelen,
+                    const unsigned char *datain, unsigned long datalen,
+                    unsigned long rounds,
+                    unsigned char *dataout);
+
 int xsalsa20_setup(salsa20_state *st, const unsigned char *key,   unsigned long keylen,
                                       const unsigned char *nonce, unsigned long noncelen,
-                                      int rounds);
+                                      unsigned long rounds);
 int xsalsa20_test(void);
 
 #endif /* LTC_XSALSA20 */
@@ -1043,23 +1068,32 @@ int xsalsa20_test(void);
 #ifdef LTC_SOSEMANUK
 
 typedef struct {
-    ulong32 kc[100];    /* key_context */
-    ulong32 s00, s01, s02, s03, s04, s05, s06, s07, s08, s09;
-    ulong32 r1, r2;
-    /*
-     * Buffering: the stream cipher produces output data by
-     * blocks of 640 bits. buf[] contains such a block, and
-     * "ptr" is the index of the next output byte.
-     */
-    unsigned char buf[80];
-    unsigned ptr;
+   ulong32 kc[100];    /* key_context */
+   ulong32 s00, s01, s02, s03, s04, s05, s06, s07, s08, s09;
+   ulong32 r1, r2;
+   /*
+    * Buffering: the stream cipher produces output data by
+    * blocks of 640 bits. buf[] contains such a block, and
+    * "ptr" is the index of the next output byte.
+    */
+   unsigned char buf[80];
+   unsigned      ptr;
+   unsigned long ivlen;
+   unsigned long status;  /* 0=uninitialized, 1=finished setup(), 2=finished setiv() */
 } sosemanuk_state;
 
-int sosemanuk_setup(sosemanuk_state *ss, const unsigned char *key, unsigned long keylen);
-int sosemanuk_setiv(sosemanuk_state *ss, const unsigned char *iv, unsigned long ivlen);
-int sosemanuk_crypt(sosemanuk_state *ss, const unsigned char *in, unsigned long datalen, unsigned char *out);
-int sosemanuk_keystream(sosemanuk_state *ss, unsigned char *out, unsigned long outlen);
-int sosemanuk_done(sosemanuk_state *ss);
+int sosemanuk_state_size(void);
+
+int sosemanuk_memory(const unsigned char *key,    unsigned long keylen,
+                     const unsigned char *iv,     unsigned long ivlen,
+                     const unsigned char *datain, unsigned long datalen,
+                     unsigned char *dataout);
+
+int sosemanuk_setup(sosemanuk_state *st, const unsigned char *key, unsigned long keylen);
+int sosemanuk_setiv(sosemanuk_state *st, const unsigned char *iv, unsigned long ivlen);
+int sosemanuk_crypt(sosemanuk_state *st, const unsigned char *in, unsigned long datalen, unsigned char *out);
+int sosemanuk_keystream(sosemanuk_state *st, unsigned char *out, unsigned long outlen);
+int sosemanuk_done(sosemanuk_state *st);
 int sosemanuk_test(void);
 
 #endif /* LTC_SOSEMANUK */
@@ -1075,9 +1109,17 @@ typedef struct {
 typedef struct {
    rabbit_ctx master_ctx;
    rabbit_ctx work_ctx;
-   unsigned char block[16];     /* last keystream block containing unused bytes */
-   ulong32       unused;        /* count fm right */
+   unsigned char block[16]; /* last keystream block containing unused bytes */
+   ulong32       unused;    /* count fm right */
+   ulong32       status;    /* 0=uninitialized, 1=finished setup(), 2=finished setiv() */
 } rabbit_state;
+
+int rabbit_state_size(void);
+
+int rabbit_memory(const unsigned char *key,    unsigned long keylen,
+                  const unsigned char *iv,     unsigned long ivlen,
+                  const unsigned char *datain, unsigned long datalen,
+                  unsigned char *dataout);
 
 int rabbit_setup(rabbit_state* st, const unsigned char *key, unsigned long keylen);
 int rabbit_setiv(rabbit_state* st, const unsigned char *iv, unsigned long ivlen);
@@ -1093,7 +1135,14 @@ int rabbit_test(void);
 typedef struct {
    unsigned int x, y;
    unsigned char buf[256];
+   unsigned long status;  /* 0=uninitialized, 1=finished setup() */
 } rc4_state;
+
+int rc4_state_size(void);
+
+int rc4_memory(const unsigned char *key,    unsigned long keylen,
+               const unsigned char *datain, unsigned long datalen,
+               unsigned char *dataout);
 
 int rc4_stream_setup(rc4_state *st, const unsigned char *key, unsigned long keylen);
 int rc4_stream_crypt(rc4_state *st, const unsigned char *in, unsigned long inlen, unsigned char *out);
@@ -1110,8 +1159,16 @@ typedef struct {
            initR[17],   /* saved register contents */
            konst,       /* key dependent constant */
            sbuf;        /* partial word encryption buffer */
-   int     nbuf;        /* number of part-word stream bits buffered */
+   ulong32 nbuf;        /* number of part-word stream bits buffered */
+   ulong32 status;      /* 0=uninitialized, 1=finished setup(), 2=finished setiv() */
 } sober128_state;
+
+int sober128_state_size(void);
+
+int sober128_memory(const unsigned char *key,    unsigned long keylen,
+                    const unsigned char *iv,     unsigned long ivlen,
+                    const unsigned char *datain, unsigned long datalen,
+                    unsigned char *dataout);
 
 int sober128_stream_setup(sober128_state *st, const unsigned char *key, unsigned long keylen);
 int sober128_stream_setiv(sober128_state *st, const unsigned char *iv, unsigned long ivlen);

@@ -28,15 +28,16 @@ int chacha_ivctr64(chacha_state *st, const unsigned char *iv, unsigned long ivle
 {
    LTC_ARGCHK(st != NULL);
    LTC_ARGCHK(iv != NULL);
-   /* 64bit IV + 64bit counter */
-   LTC_ARGCHK(ivlen == 8);
+   LTC_ARGCHK(ivlen == 8);              /* 64bit IV + 64bit counter */
+   LTC_ARGCHK(st->status == 1 || st->status == 2);
 
    st->input[12] = (ulong32)(counter & 0xFFFFFFFF);
    st->input[13] = (ulong32)(counter >> 32);
    LOAD32L(st->input[14], iv + 0);
    LOAD32L(st->input[15], iv + 4);
    st->ksleft = 0;
-   st->ivlen = ivlen;
+   st->ivlen  = ivlen;
+   st->status = 2;
    return CRYPT_OK;
 }
 

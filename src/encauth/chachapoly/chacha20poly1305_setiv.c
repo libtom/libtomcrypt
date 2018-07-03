@@ -41,6 +41,7 @@ int chacha20poly1305_setiv(chacha20poly1305_state *st, const unsigned char *iv, 
    /* copy chacha20 key to temporary state */
    for(i = 0; i < 12; i++) tmp_st.input[i] = st->chacha.input[i];
    tmp_st.rounds = 20;
+   tmp_st.status = st->chacha.status;
    /* set IV */
    if (ivlen == 12) {
       /* IV 32bit */

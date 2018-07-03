@@ -38,7 +38,7 @@ int sosemanuk_test(void)
        if ((err = sosemanuk_crypt(&ss, (unsigned char*)pt + 40, len - 40, out + 40)) != CRYPT_OK) return err;
        if (compare_testvector(out, len, ct, sizeof(ct), "SOSEMANUK-TV1", 1))                      return CRYPT_FAIL_TESTVECTOR;
 
-       /* crypt in one go - using sosemanuk_ivctr64() */
+       /* crypt in one go - using sosemanuk_setiv() */
        if ((err = sosemanuk_setup(&ss, k, sizeof(k)))                 != CRYPT_OK) return err;
        if ((err = sosemanuk_setiv(&ss, n, sizeof(n)))                 != CRYPT_OK) return err;
        if ((err = sosemanuk_crypt(&ss, (unsigned char*)pt, len, out)) != CRYPT_OK) return err;

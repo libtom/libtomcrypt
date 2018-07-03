@@ -271,12 +271,12 @@ src/misc/crypt/crypt_find_cipher_id.o src/misc/crypt/crypt_find_hash.o \
 src/misc/crypt/crypt_find_hash_any.o src/misc/crypt/crypt_find_hash_id.o \
 src/misc/crypt/crypt_find_hash_oid.o src/misc/crypt/crypt_find_prng.o src/misc/crypt/crypt_fsa.o \
 src/misc/crypt/crypt_hash_descriptor.o src/misc/crypt/crypt_hash_is_valid.o \
-src/misc/crypt/crypt_inits.o src/misc/crypt/crypt_ltc_mp_descriptor.o \
-src/misc/crypt/crypt_prng_descriptor.o src/misc/crypt/crypt_prng_is_valid.o \
-src/misc/crypt/crypt_prng_rng_descriptor.o src/misc/crypt/crypt_register_all_ciphers.o \
-src/misc/crypt/crypt_register_all_hashes.o src/misc/crypt/crypt_register_all_prngs.o \
-src/misc/crypt/crypt_register_cipher.o src/misc/crypt/crypt_register_hash.o \
-src/misc/crypt/crypt_register_prng.o src/misc/crypt/crypt_sizes.o \
+src/misc/crypt/crypt_helper_functions.o src/misc/crypt/crypt_inits.o \
+src/misc/crypt/crypt_ltc_mp_descriptor.o src/misc/crypt/crypt_prng_descriptor.o \
+src/misc/crypt/crypt_prng_is_valid.o src/misc/crypt/crypt_prng_rng_descriptor.o \
+src/misc/crypt/crypt_register_all_ciphers.o src/misc/crypt/crypt_register_all_hashes.o \
+src/misc/crypt/crypt_register_all_prngs.o src/misc/crypt/crypt_register_cipher.o \
+src/misc/crypt/crypt_register_hash.o src/misc/crypt/crypt_register_prng.o src/misc/crypt/crypt_sizes.o \
 src/misc/crypt/crypt_unregister_cipher.o src/misc/crypt/crypt_unregister_hash.o \
 src/misc/crypt/crypt_unregister_prng.o src/misc/error_to_string.o src/misc/hkdf/hkdf.o \
 src/misc/hkdf/hkdf_test.o src/misc/mem_neq.o src/misc/padding/padding_depad.o \

@@ -42,6 +42,7 @@ int rc4_stream_setup(rc4_state *st, const unsigned char *key, unsigned long keyl
    }
    st->x = 0;
    st->y = 0;
+   st->status = 1;
 
    return CRYPT_OK;
 }
@@ -61,6 +62,7 @@ int rc4_stream_crypt(rc4_state *st, const unsigned char *in, unsigned long inlen
    LTC_ARGCHK(st  != NULL);
    LTC_ARGCHK(in  != NULL);
    LTC_ARGCHK(out != NULL);
+   LTC_ARGCHK(st->status == 1);
 
    x = st->x;
    y = st->y;
