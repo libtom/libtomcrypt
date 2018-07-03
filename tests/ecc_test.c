@@ -464,14 +464,14 @@ int _ecc_new_api(void)
       ecc_free(&pubkey);
 
       /* generate new key */
-      DO(ecc_set_dp(dp, &key));
+      DO(ecc_set_curve(dp, &key));
       DO(ecc_generate_key(&yarrow_prng, find_prng ("yarrow"), &key));
       len = sizeof(buf);
       DO(ecc_get_key(buf, &len, PK_PRIVATE, &key));
       ecc_free(&key);
 
       /* load exported private key */
-      DO(ecc_set_dp(dp, &privkey));
+      DO(ecc_set_curve(dp, &privkey));
       DO(ecc_set_key(buf, len, PK_PRIVATE, &privkey));
 
 #ifndef USE_TFM
@@ -481,7 +481,7 @@ int _ecc_new_api(void)
       DO(ecc_get_key(buf, &len, PK_PUBLIC|PK_COMPRESSED, &privkey));
       if (len != 1 + (unsigned)ecc_get_size(&privkey)) return CRYPT_FAIL_TESTVECTOR;
       /* load exported public+compressed key */
-      DO(ecc_set_dp(dp, &pubkey));
+      DO(ecc_set_curve(dp, &pubkey));
       DO(ecc_set_key(buf, len, PK_PUBLIC, &pubkey));
       ecc_free(&pubkey);
 #endif
@@ -491,7 +491,7 @@ int _ecc_new_api(void)
       DO(ecc_get_key(buf, &len, PK_PUBLIC, &privkey));
       if (len != 1 + 2 * (unsigned)ecc_get_size(&privkey)) return CRYPT_FAIL_TESTVECTOR;
       /* load exported public key */
-      DO(ecc_set_dp(dp, &pubkey));
+      DO(ecc_set_curve(dp, &pubkey));
       DO(ecc_set_key(buf, len, PK_PUBLIC, &pubkey));
 
       /* test signature */
@@ -801,15 +801,15 @@ int _ecc_import_export(void) {
    DO(ecc_get_curve("SECP256K1", &cu));
 
    /* import - raw keys */
-   DO(ecc_set_dp(cu, &key));
+   DO(ecc_set_curve(cu, &key));
    DO(ecc_set_key(raw_pri, sizeof(raw_pri),  PK_PRIVATE, &key));
    DO(_ecc_key_cmp(PK_PRIVATE, &pri, &key));
    ecc_free(&key);
-   DO(ecc_set_dp(cu, &key));
+   DO(ecc_set_curve(cu, &key));
    DO(ecc_set_key(raw_pub, sizeof(raw_pub),  PK_PUBLIC,  &key));
    DO(_ecc_key_cmp(PK_PUBLIC, &pub, &key));
    ecc_free(&key);
-   DO(ecc_set_dp(cu, &key));
+   DO(ecc_set_curve(cu, &key));
    DO(ecc_set_key(raw_pubc, sizeof(raw_pubc), PK_PUBLIC,  &key));
    DO(_ecc_key_cmp(PK_PUBLIC, &pub, &key));
    ecc_free(&key);

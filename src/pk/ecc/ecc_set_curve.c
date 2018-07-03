@@ -11,7 +11,7 @@
 
 #ifdef LTC_MECC
 
-int ecc_set_dp(const ltc_ecc_curve *cu, ecc_key *key)
+int ecc_set_curve(const ltc_ecc_curve *cu, ecc_key *key)
 {
    int err;
 
@@ -47,7 +47,7 @@ error:
    return err;
 }
 
-int ecc_set_dp_by_size(int size, ecc_key *key)
+int ecc_set_curve_by_size(int size, ecc_key *key)
 {
    const ltc_ecc_curve *cu = NULL;
    int err = CRYPT_ERROR;
@@ -78,7 +78,7 @@ int ecc_set_dp_by_size(int size, ecc_key *key)
       err = ecc_get_curve("SECP521R1", &cu);
    }
 
-   if (err == CRYPT_OK && cu != NULL) return ecc_set_dp(cu, key);
+   if (err == CRYPT_OK && cu != NULL) return ecc_set_curve(cu, key);
 
    return CRYPT_INVALID_ARG;
 }

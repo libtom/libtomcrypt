@@ -85,7 +85,7 @@ int ecc_decrypt_key(const unsigned char *in,  unsigned long  inlen,
    }
 
    /* import ECC key from packet */
-   if ((err = ecc_copy_dp(key, &pubkey)) != CRYPT_OK) { goto LBL_ERR; }
+   if ((err = ecc_copy_curve(key, &pubkey)) != CRYPT_OK) { goto LBL_ERR; }
    if ((err = ecc_set_key(decode[1].data, decode[1].size, PK_PUBLIC, &pubkey)) != CRYPT_OK) { goto LBL_ERR; }
 
    /* make shared key */

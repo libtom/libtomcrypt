@@ -41,11 +41,11 @@ int ecc_ansi_x963_import_ex(const unsigned char *in, unsigned long inlen, ecc_ke
    /* initialize key->dp */
    if (cu == NULL) {
       /* this case works only for uncompressed public keys  */
-      if ((err = ecc_set_dp_by_size((inlen-1)>>1, key)) != CRYPT_OK)                { return err; }
+      if ((err = ecc_set_curve_by_size((inlen-1)>>1, key)) != CRYPT_OK)             { return err; }
    }
    else {
       /* this one works for both compressed / uncompressed pubkeys */
-      if ((err = ecc_set_dp(cu, key)) != CRYPT_OK)                                  { return err; }
+      if ((err = ecc_set_curve(cu, key)) != CRYPT_OK)                               { return err; }
    }
 
    /* load public key */
