@@ -19,27 +19,25 @@ static int _dh_groupsize_to_keysize(int groupsize)
    if (groupsize <= 0) {
       return 0;
    }
-   else if (groupsize <= 192) {
+   if (groupsize <= 192) {
       return 30;     /* 1536-bit => key size 240-bit */
    }
-   else if (groupsize <= 256) {
+   if (groupsize <= 256) {
       return 40;     /* 2048-bit => key size 320-bit */
    }
-   else if (groupsize <= 384) {
+   if (groupsize <= 384) {
       return 52;     /* 3072-bit => key size 416-bit */
    }
-   else if (groupsize <= 512) {
+   if (groupsize <= 512) {
       return 60;     /* 4096-bit => key size 480-bit */
    }
-   else if (groupsize <= 768) {
+   if (groupsize <= 768) {
       return 67;     /* 6144-bit => key size 536-bit */
    }
-   else if (groupsize <= 1024) {
+   if (groupsize <= 1024) {
       return 77;     /* 8192-bit => key size 616-bit */
    }
-   else {
-      return 0;
-   }
+   return 0;
 }
 
 int dh_generate_key(prng_state *prng, int wprng, dh_key *key)

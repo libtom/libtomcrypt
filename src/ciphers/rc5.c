@@ -308,7 +308,8 @@ int rc5_keysize(int *keysize)
    LTC_ARGCHK(keysize != NULL);
    if (*keysize < 8) {
       return CRYPT_INVALID_KEYSIZE;
-   } else if (*keysize > 128) {
+   }
+   if (*keysize > 128) {
       *keysize = 128;
    }
    return CRYPT_OK;

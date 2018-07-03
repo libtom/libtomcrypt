@@ -95,7 +95,8 @@ YYMMDDhhmmss-hh'mm'
     /* now is it Z, +, - or 0-9 */
     if (buf[x] == 'Z') {
        return CRYPT_OK;
-    } else if (buf[x] == '+' || buf[x] == '-') {
+    }
+    if (buf[x] == '+' || buf[x] == '-') {
        out->off_dir = (buf[x++] == '+') ? 0 : 1;
        DECODE_V(out->off_hh, 24);
        DECODE_V(out->off_mm, 60);
@@ -108,14 +109,14 @@ YYMMDDhhmmss-hh'mm'
     /* now is it Z, +, - */
     if (buf[x] == 'Z') {
        return CRYPT_OK;
-    } else if (buf[x] == '+' || buf[x] == '-') {
+    }
+    if (buf[x] == '+' || buf[x] == '-') {
        out->off_dir = (buf[x++] == '+') ? 0 : 1;
        DECODE_V(out->off_hh, 24);
        DECODE_V(out->off_mm, 60);
        return CRYPT_OK;
-    } else {
-       return CRYPT_INVALID_PACKET;
     }
+    return CRYPT_INVALID_PACKET;
 }
 
 #endif

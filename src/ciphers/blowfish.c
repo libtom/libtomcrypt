@@ -580,7 +580,8 @@ int blowfish_keysize(int *keysize)
 
    if (*keysize < 8) {
       return CRYPT_INVALID_KEYSIZE;
-   } else if (*keysize > 56) {
+   }
+   if (*keysize > 56) {
       *keysize = 56;
    }
    return CRYPT_OK;

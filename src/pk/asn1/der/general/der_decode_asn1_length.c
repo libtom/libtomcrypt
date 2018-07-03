@@ -41,9 +41,11 @@ int der_decode_asn1_length(const unsigned char *in, unsigned long *inlen, unsign
       real_len &= 0x7F;
       if (real_len == 0) {
          return CRYPT_PK_ASN1_ERROR;
-      } else if (real_len > sizeof(decoded_len)) {
+      }
+      if (real_len > sizeof(decoded_len)) {
          return CRYPT_OVERFLOW;
-      } else if (real_len > (*inlen - 1)) {
+      }
+      if (real_len > (*inlen - 1)) {
          return CRYPT_BUFFER_OVERFLOW;
       }
       decoded_len = 0;

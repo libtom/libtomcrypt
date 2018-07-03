@@ -208,10 +208,8 @@ static int _name_match(const char *left, const char *right)
       right++;
    }
 
-   if ((*left == '\0') && (*right == '\0'))
-      return 1;
-   else
-      return 0;
+   if ((*left == '\0') && (*right == '\0')) return 1;
+   return 0;
 }
 
 int ecc_get_curve(const char *name_or_oid, const ltc_ecc_curve **cu)

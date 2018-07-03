@@ -297,13 +297,12 @@ int rabbit_crypt(rabbit_state* st, const unsigned char *in, unsigned long inlen,
        /* copy remainder to block */
        for (i = inlen; i < 16; ++i) st->block[i] = buf[i];
        return CRYPT_OK;
-     } else {
-       /* XOR entire buf and send to out */
-       for (i = 0; i < 16; ++i) out[i] = in[i] ^ buf[i];
-       inlen -= 16;
-       out += 16;
-       in  += 16;
      }
+     /* XOR entire buf and send to out */
+     for (i = 0; i < 16; ++i) out[i] = in[i] ^ buf[i];
+     inlen -= 16;
+     out += 16;
+     in  += 16;
    }
 }
 

@@ -243,9 +243,8 @@ int kasumi_keysize(int *keysize)
    if (*keysize >= 16) {
       *keysize = 16;
       return CRYPT_OK;
-   } else {
-      return CRYPT_INVALID_KEYSIZE;
    }
+   return CRYPT_INVALID_KEYSIZE;
 }
 
 int kasumi_test(void)

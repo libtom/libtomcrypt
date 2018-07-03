@@ -23,18 +23,17 @@ unsigned long der_utf8_charsize(const wchar_t c)
 {
    if (c <= 0x7F) {
       return 1;
-   } else if (c <= 0x7FF) {
+   }
+   if (c <= 0x7FF) {
       return 2;
+   }
 #if LTC_WCHAR_MAX == 0xFFFF
-   } else {
-      return 3;
-   }
+   return 3;
 #else
-   } else if (c <= 0xFFFF) {
+   if (c <= 0xFFFF) {
       return 3;
-   } else {
-      return 4;
    }
+   return 4;
 #endif
 }
 

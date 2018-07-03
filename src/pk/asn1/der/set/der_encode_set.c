@@ -33,9 +33,8 @@ static int _qsort_helper(const void *a, const void *b)
    if (r == 0) {
       /* their order in the original list now determines the position */
       return A->used - B->used;
-   } else {
-      return r;
    }
+   return r;
 }
 
 /*

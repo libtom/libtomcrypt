@@ -358,10 +358,9 @@ int safer_64_keysize(int *keysize)
    LTC_ARGCHK(keysize != NULL);
    if (*keysize < 8) {
       return CRYPT_INVALID_KEYSIZE;
-   } else {
-      *keysize = 8;
-      return CRYPT_OK;
    }
+   *keysize = 8;
+   return CRYPT_OK;
 }
 
 int safer_128_keysize(int *keysize)
@@ -369,10 +368,9 @@ int safer_128_keysize(int *keysize)
    LTC_ARGCHK(keysize != NULL);
    if (*keysize < 16) {
       return CRYPT_INVALID_KEYSIZE;
-   } else {
-      *keysize = 16;
-      return CRYPT_OK;
    }
+   *keysize = 16;
+   return CRYPT_OK;
 }
 
 int safer_k64_test(void)

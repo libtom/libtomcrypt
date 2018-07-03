@@ -30,9 +30,8 @@ int hkdf_extract(int hash_idx, const unsigned char *salt, unsigned long  saltlen
       valid results for HKDF. */
    if (salt == NULL || saltlen == 0) {
       return hmac_memory(hash_idx, (const unsigned char *)"",   1,       in, inlen, out, outlen);
-   } else {
-      return hmac_memory(hash_idx, salt, saltlen, in, inlen, out, outlen);
    }
+   return hmac_memory(hash_idx, salt, saltlen, in, inlen, out, outlen);
 }
 
 int hkdf_expand(int hash_idx, const unsigned char *info, unsigned long infolen,
