@@ -123,7 +123,7 @@ Canada
 \mysection{What is the LibTomCrypt?}
 LibTomCrypt is a portable ISO C cryptographic library meant to be a tool set for cryptographers who are
 designing cryptosystems.  It supports symmetric ciphers, one-way hashes, pseudo-random number generators,
-public key cryptography (via PKCS \#1 RSA, DH or ECCDH), and a plethora of support routines.
+public key cryptography (via PKCS \#1 RSA, DH or ECDH), and a plethora of support routines.
 
 The library was designed such that new ciphers/hashes/PRNGs can be added at run-time and the existing API
 (and helper API functions) are able to use the new designs automatically.  There exists self-check functions for each
@@ -4951,89 +4951,92 @@ passed to ``establish\_secure\_socket()''.
 
 \mysection{Introduction}
 
-The library provides a public-key cryptography based on the elliptic curves over finite fields \textit{GF(p)}.
-They are all curves over the integers modulo a prime. The curves have the basic equation that is:
+The library provides public-key cryptography based on elliptic curves over finite fields \textit{GF(p)}.
+They are all curves over the integers modulo a prime. The curves have the basic equation:
 
 \begin{equation}
 y^2 = x^3 + a \cdot x + b\mbox{ }(\mbox{mod }p)
 \end{equation}
+\label{ecc-gf-p-equation}
 
-The curves range in order from $\approx 2^{112}$ points to $\approx 2^{521}$.
+The built--in curves range in order from $\approx 2^{112}$ points to $\approx 2^{521}$.
 
 The advantage of ECC is the fact that it requires smaller keys than RSA or DSA to provide equivalent level of security.
-The cryptographic foundation of ECC is \textit{"elliptic curve discrete logarithm problem"} (ECDLP).
+The cryptographic foundation of ECC is the \textit{"elliptic curve discrete logarithm problem"} (ECDLP).
 
 The library provides a set of core ECC functions as well as functions that are designed to be the Elliptic Curve
-analogy for deriving a shared between a pair of keys (also known as \textit{ECDH}) and functions implementing DSA
+analogy for deriving a shared secret between a pair of keys (also known as \textit{ECDH}) and functions implementing the
 analogy for digital signatures (also known as \textit{ECDSA}).
 
 \mysection{Supported Curves}
 
-The following table shows all built--in curves supported by the library. On top of that you also use a custom curve
-defined by your own parameters (the only limitation is that the curve should be based on the equation from the
-previous chapter).
+The following table \ref{fig:builtincurves} shows all built--in curves supported by the library. On top of that one can also use a custom curve
+defined by own parameters (the only limitation is that the curve must be based on equation \ref{ecc-gf-p-equation}).
 
-\begin{figure}[H]
+\begin{table}[H]
 \begin{center}
 \begin{tabular}{|l|l|l|l|}
       \hline \textbf{Curve Name} & \textbf{Alternative Names}  & \textbf{OID}          \\
-      \hline SECP112R1           &                             & 1.3.132.0.6           \\
-      \hline SECP112R2           &                             & 1.3.132.0.7           \\
-      \hline SECP128R1           &                             & 1.3.132.0.28          \\
-      \hline SECP128R2           &                             & 1.3.132.0.29          \\
-      \hline SECP160R1           &                             & 1.3.132.0.8           \\
-      \hline SECP160R2           &                             & 1.3.132.0.30          \\
-      \hline SECP160K1           &                             & 1.3.132.0.9           \\
-      \hline SECP192R1           & NISTP192, PRIME192V1, P-192 & 1.2.840.10045.3.1.1   \\
-      \hline PRIME192V2          &                             & 1.2.840.10045.3.1.2   \\
-      \hline PRIME192V3          &                             & 1.2.840.10045.3.1.3   \\
-      \hline SECP192K1           &                             & 1.3.132.0.31          \\
-      \hline SECP224R1           & NISTP224, P-224             & 1.3.132.0.33          \\
-      \hline SECP224K1           &                             & 1.3.132.0.32          \\
-      \hline SECP256R1           & NISTP256, PRIME256V1, P-256 & 1.2.840.10045.3.1.7   \\
-      \hline SECP256K1           &                             & 1.3.132.0.10          \\
-      \hline SECP384R1           & NISTP384, P-384             & 1.3.132.0.34          \\
-      \hline SECP521R1           & NISTP521, P-521             & 1.3.132.0.35          \\
-      \hline PRIME239V1          &                             & 1.2.840.10045.3.1.4   \\
-      \hline PRIME239V2          &                             & 1.2.840.10045.3.1.5   \\
-      \hline PRIME239V3          &                             & 1.2.840.10045.3.1.6   \\
-      \hline BRAINPOOLP160R1     &                             & 1.3.36.3.3.2.8.1.1.1  \\
-      \hline BRAINPOOLP192R1     &                             & 1.3.36.3.3.2.8.1.1.3  \\
-      \hline BRAINPOOLP224R1     &                             & 1.3.36.3.3.2.8.1.1.5  \\
-      \hline BRAINPOOLP256R1     &                             & 1.3.36.3.3.2.8.1.1.7  \\
-      \hline BRAINPOOLP320R1     &                             & 1.3.36.3.3.2.8.1.1.9  \\
-      \hline BRAINPOOLP384R1     &                             & 1.3.36.3.3.2.8.1.1.11 \\
-      \hline BRAINPOOLP512R1     &                             & 1.3.36.3.3.2.8.1.1.13 \\
-      \hline BRAINPOOLP160T1     &                             & 1.3.36.3.3.2.8.1.1.2  \\
-      \hline BRAINPOOLP192T1     &                             & 1.3.36.3.3.2.8.1.1.4  \\
-      \hline BRAINPOOLP224T1     &                             & 1.3.36.3.3.2.8.1.1.6  \\
-      \hline BRAINPOOLP256T1     &                             & 1.3.36.3.3.2.8.1.1.8  \\
-      \hline BRAINPOOLP320T1     &                             & 1.3.36.3.3.2.8.1.1.10 \\
-      \hline BRAINPOOLP384T1     &                             & 1.3.36.3.3.2.8.1.1.12 \\
-      \hline BRAINPOOLP512T1     &                             & 1.3.36.3.3.2.8.1.1.14 \\
+      \hline secp112r1           &                             & 1.3.132.0.6           \\
+      \hline secp112r2           &                             & 1.3.132.0.7           \\
+      \hline secp128r1           &                             & 1.3.132.0.28          \\
+      \hline secp128r2           &                             & 1.3.132.0.29          \\
+      \hline secp160r1           &                             & 1.3.132.0.8           \\
+      \hline secp160r2           &                             & 1.3.132.0.30          \\
+      \hline secp160k1           &                             & 1.3.132.0.9           \\
+      \hline secp192r1           & nistp192, prime192v1, P-192 & 1.2.840.10045.3.1.1   \\
+      \hline prime192v2          &                             & 1.2.840.10045.3.1.2   \\
+      \hline prime192v3          &                             & 1.2.840.10045.3.1.3   \\
+      \hline secp192k1           &                             & 1.3.132.0.31          \\
+      \hline secp224r1           & nistp224, P-224             & 1.3.132.0.33          \\
+      \hline secp224k1           &                             & 1.3.132.0.32          \\
+      \hline secp256r1           & nistp256, prime256v1, P-256 & 1.2.840.10045.3.1.7   \\
+      \hline secp256k1           &                             & 1.3.132.0.10          \\
+      \hline secp384r1           & nistp384, P-384             & 1.3.132.0.34          \\
+      \hline secp521r1           & nistp521, P-521             & 1.3.132.0.35          \\
+      \hline prime239v1          &                             & 1.2.840.10045.3.1.4   \\
+      \hline prime239v2          &                             & 1.2.840.10045.3.1.5   \\
+      \hline prime239v3          &                             & 1.2.840.10045.3.1.6   \\
+      \hline brainpoolP160r1     &                             & 1.3.36.3.3.2.8.1.1.1  \\
+      \hline brainpoolP192r1     &                             & 1.3.36.3.3.2.8.1.1.3  \\
+      \hline brainpoolP224r1     &                             & 1.3.36.3.3.2.8.1.1.5  \\
+      \hline brainpoolP256r1     &                             & 1.3.36.3.3.2.8.1.1.7  \\
+      \hline brainpoolP320r1     &                             & 1.3.36.3.3.2.8.1.1.9  \\
+      \hline brainpoolP384r1     &                             & 1.3.36.3.3.2.8.1.1.11 \\
+      \hline brainpoolP512r1     &                             & 1.3.36.3.3.2.8.1.1.13 \\
+      \hline brainpoolP160t1     &                             & 1.3.36.3.3.2.8.1.1.2  \\
+      \hline brainpoolP192t1     &                             & 1.3.36.3.3.2.8.1.1.4  \\
+      \hline brainpoolP224t1     &                             & 1.3.36.3.3.2.8.1.1.6  \\
+      \hline brainpoolP256t1     &                             & 1.3.36.3.3.2.8.1.1.8  \\
+      \hline brainpoolP320t1     &                             & 1.3.36.3.3.2.8.1.1.10 \\
+      \hline brainpoolP384t1     &                             & 1.3.36.3.3.2.8.1.1.12 \\
+      \hline brainpoolP512t1     &                             & 1.3.36.3.3.2.8.1.1.14 \\
       \hline
 \end{tabular}
-\end{center}
 \caption{Built--In Elliptic Curves over GF(p)}
+\end{center}
 \label{fig:builtincurves}
-\end{figure}
+\end{table}
 
 \mysection{Key Generation}
 
-There is a key structure called \textit{ecc\_key} used by all the ECC functions.
+There is a key structure called \textit{ecc\_key} which is used by all ECC functions.
+
+To generate a new private \textit{ecc\_key} there are basically two ways provided.
+The first is via using one of the built--in curves and the second way is via using a user--supplied curve.
 
 \subsection{Using Built--in Curves}
 
-Firstly we will need a function that looks up for the curve name or OID in build--in curves:
+First a function is provided to look up curve name or OID of built--in curves:
 \index{ecc\_get\_curve()}
 \begin{verbatim}
 int ecc_get_curve(const char  *name_or_oid,
          const ltc_ecc_curve **cu);
 \end{verbatim}
 
-The \textit{name\_or\_oid} is the name, alternative name or OID mentioned in the Figure \ref{fig:builtincurves}.
+The \textit{name\_or\_oid} argument will search by name, alternative name or OID as mentioned in Table \ref{fig:builtincurves}.
 
-Next we need a function that generates the key:
+Next a function is provided to generate the key:
 \index{ecc\_make\_key\_ex()}
 \begin{verbatim}
 int  ecc_make_key_ex(prng_state *prng,
@@ -5042,7 +5045,7 @@ int  ecc_make_key_ex(prng_state *prng,
             const ltc_ecc_curve *cu);
 \end{verbatim}
 
-This function generates a random ECC key over the curve specified by the parameters by \textit{cu}.
+This function generates a random ECC key over the curve specified by the parameters in \textit{cu}.
 The function will free any internally allocated resources if there is an error.
 
 Example of creating an ECC key:
@@ -5051,20 +5054,20 @@ Example of creating an ECC key:
    prng_state prng;
    int wprng;
    ecc_key key;
-   const ltc_ecc_curve* dp;
+   const ltc_ecc_curve* cu;
 
    if (register_all_prngs() != CRYPT_OK) return -1;
    wprng = find_prng("yarrow");
    if (rng_make_prng(128, wprng, &prng, NULL) != CRYPT_OK) return -1;
-   if (ecc_get_curve("NISTP256", &dp) != CRYPT_OK) return -1;
-   if (ecc_make_key_ex(&prng, wprng, &key, dp) != CRYPT_OK) return -1;
+   if (ecc_get_curve("nistp256", &cu) != CRYPT_OK) return -1;
+   if (ecc_make_key_ex(&prng, wprng, &key, cu) != CRYPT_OK) return -1;
 \end{verbatim}
 \end{small}
 
 \subsection{Extended Key Generation}
 
-The library uses the following structure to describe an elliptic curve. This structure can be used for defining
-a custom curve based on user supplied parameters.
+The library uses the following structure to describe an elliptic curve.
+This structure can also be used for defining a custom curve based on user--supplied parameters.
 
 \index{ltc\_ecc\_curve}
 \begin{verbatim}
@@ -5096,15 +5099,16 @@ typedef struct {
 } ltc_ecc_curve;
 \end{verbatim}
 
-The curve must be of the form $y^2 = x^3 - a \cdot x + b$, and all of the integer parameters are encoded in hexadecimal format.
+The curve must be of the form $y^2 = x^3 - a \cdot x + b$, and all of the \textit{const char*} parameters have to be encoded in hexadecimal format.
 
+% FIXME/XXX: shouldn't this be called ecc_set_curve()?
 \index{ecc\_set\_dp()}
 \begin{verbatim}
 int ecc_set_dp(const ltc_ecc_curve *cu,
                            ecc_key *key);
 \end{verbatim}
 
-The function \textit{ecc\_set\_dp} initialize \textit{key} structure with curve parameters passed via \textit{cu}.
+The function \textit{ecc\_set\_dp} initializes the \textit{key} structure with the curve parameters passed via \textit{cu}.
 
 \index{ecc\_generate\_key()}
 \begin{verbatim}
@@ -5114,7 +5118,11 @@ int ecc_generate_key(prng_state *prng,
 \end{verbatim}
 
 The function \textit{ecc\_generate\_key} does the actual key generation. The function will free any internally
-allocated resources if there is an error. Note that \textit{ecc\_make\_key\_ex} is just a simple wrapper
+allocated resources if there is an error.
+
+% FIXME/XXX: I'd say either we leave ecc_make_key_ex() in and don't tell about its origin or we remove it if we already
+% say that it's just a wrapper and only there for backwards compat...
+For backwards compatibility the function \textit{ecc\_make\_key\_ex} is provided, which is just a wrapper
 around \textit{ecc\_set\_dp} and \textit{ecc\_generate\_key}.
 
 Advanced example of creating an ECC key:
@@ -5143,7 +5151,7 @@ Advanced example of creating an ECC key:
 \end{small}
 
 \subsection{Legacy Key Generation}
-To generate a new key in a way compatible with libtomcrypt 1.18 and earlier call:
+To generate a new key in a way compatible with libtomcrypt 1.18 and earlier the following function is provided:
 
 \index{ecc\_make\_key()}
 \begin{verbatim}
@@ -5155,22 +5163,26 @@ int ecc_make_key(prng_state *prng,
 
 Where \textit{keysize} maps to the specific curve as follows:
 
+\begin{table}[H]
 \begin{center}
 \begin{tabular}{|c|l|}
       \hline \textbf{keysize} & \textbf{curve name}                    \\
-      \hline 14               & SECP112R1                              \\
-      \hline 16               & SECP128R1                              \\
-      \hline 20               & SECP160R1                              \\
-      \hline 24               & SECP192R1, NISTP192, PRIME192V1, P-192 \\
-      \hline 28               & SECP224R1, NISTP224, P-224             \\
-      \hline 32               & SECP256R1, NISTP256, PRIME256V1, P-256 \\
-      \hline 48               & SECP384R1, NISTP384, P-384             \\
-      \hline 66               & SECP521R1, NISTP521, P-521             \\
+      \hline 14               & secp112r1                              \\
+      \hline 16               & secp128r1                              \\
+      \hline 20               & secp160r1                              \\
+      \hline 24               & secp192r1, nistp192, prime192v1, P-192 \\
+      \hline 28               & secp224r1, nistp224, P-224             \\
+      \hline 32               & secp256r1, nistp256, prime256v1, P-256 \\
+      \hline 48               & secp384r1, nistp384, P-384             \\
+      \hline 66               & secp521r1, nistp521, P-521             \\
       \hline
 \end{tabular}
+\caption{Mapping of ecc\_make\_key() keysizes to curves}
 \end{center}
+\label{fig:legacy-curve-names}
+\end{table}
 
-You can also use a combination of \textit{ecc\_set\_dp\_by\_size} (similar to \textit{ecc\_set\_dp}) and \textit{ecc\_generate\_key}.
+It is also possible to use a combination of \textit{ecc\_set\_dp\_by\_size} (similar to \textit{ecc\_set\_dp}) and \textit{ecc\_generate\_key}.
 
 \index{ecc\_set\_dp\_by\_size}
 \begin{verbatim}
@@ -5178,12 +5190,12 @@ int ecc_set_dp_by_size(    int  keysize,
                        ecc_key *key);
 \end{verbatim}
 
-The \textit{keysize} maps to the specific curve according the above mentioned table.
+The \textit{keysize} maps to the specific curve according to table \ref{fig:legacy-curve-names}.
 
 \subsection{Key Free}
-To free the memory allocated by a ecc\_generate\_key(), ecc\_make\_key(), ecc\_make\_key\_ex(), ecc\_import(),
-ecc\_import\_openssl(), ecc\_import\_x509(), ecc\_import\_pkcs8(), ecc\_ansi\_x963\_import(),
-ecc\_ansi\_x963\_import\_ex(), or ecc\_set\_key() call use the following function:
+To free the memory allocated by one of \textit{ecc\_generate\_key()}, \textit{ecc\_make\_key()}, \textit{ecc\_make\_key\_ex()}, \textit{ecc\_import()},
+\textit{ecc\_import\_openssl()}, \textit{ecc\_import\_x509()}, \textit{ecc\_import\_pkcs8()}, \textit{ecc\_ansi\_x963\_import()},
+\textit{ecc\_ansi\_x963\_import\_ex()}, or \textit{ecc\_set\_key()} the following function is provided:
 
 \index{ecc\_free()}
 \begin{verbatim}
@@ -5191,7 +5203,7 @@ void ecc_free(ecc_key *key);
 \end{verbatim}
 
 \subsection{Key Helper Functions}
-To get the curve OID as a NUL--terminated string call:
+To get the curve OID as a NUL--terminated string the following function is provided:
 
 \index{ecc\_get\_oid\_str()}
 \begin{verbatim}
@@ -5207,7 +5219,7 @@ parameter is updated to hold the output OID size (including NUL byte).
 \mysection{Key Export and Import}
 
 \subsection{Export Raw Key}
-To export the raw value of the key (private or public) call:
+To export the raw value of the key (private or public) the following function is provided:
 
 \index{ecc\_get\_key()}
 \begin{verbatim}
@@ -5217,10 +5229,11 @@ int ecc_get_key(unsigned char *out,
                 const ecc_key *key);
 \end{verbatim}
 
-Where \textit{key} is the key we want to export, \textit{out} is where the output is placed,
+Where \textit{key} is the key to export, \textit{out} is where the output is placed,
 the \textit{outlen} parameter is updated to hold the output, and the \textit{type} indicates
-what kind of export we want to do (see table below).
+what kind of export should be done (see table \ref{fig:ecc-get-key-type}).
 
+\begin{table}[H]
 \begin{center}
 \begin{tabular}{|l|l|l|}
       \hline \textbf{type}                               & \textbf{description}               & \textbf{NIST-256 example} \\
@@ -5229,14 +5242,17 @@ what kind of export we want to do (see table below).
       \hline \textit{PK\_PUBLIC \textbar PK\_COMPRESSED} & export the public key (short form) & output: 33 bytes \\
       \hline
 \end{tabular}
+\caption{Possible types of ecc\_get\_key()}
+\label{fig:ecc-get-key-type}
 \end{center}
+\end{table}
 
 Please note that the output data does not contain the information about the elliptic curve of the exported key
-(you can just assume the size of the curve which is unambiguous). You have to keep the information about curve
-separately to able to later import the key.
+(one can just assume the size of the curve which is unambiguous). The information about the curve has to be kept
+separately to be able to re-use the key after importing.
 
 \subsection{Import Raw Key}
-To import the raw value of the key (private or public) call:
+To import the raw value of the key (private or public) the following function is provided:
 
 \index{ecc\_set\_key()}
 \begin{verbatim}
@@ -5248,7 +5264,7 @@ int ecc_set_key(const unsigned char *in,
 
 Where \textit{key} is the key structure with properly initialized curve parameters (see below),
 \textit{inlen} bytes of \textit{in} buffer is imported, and the \textit{type} indicates
-key type -- either \textit{PK\_PUBLIC} or \textit{PK\_PRIVATE}.
+the key type -- either \textit{PK\_PUBLIC} or \textit{PK\_PRIVATE}.
 
 For the actual import you need to know the curve of the imported key and load the key like this:
 
@@ -5257,14 +5273,14 @@ For the actual import you need to know the curve of the imported key and load th
    ecc_key key;
    const ltc_ecc_curve* dp;
 
-   if (ecc_get_curve("NISTP256", &dp) != CRYPT_OK) return -1;
+   if (ecc_get_curve("nistp256", &dp) != CRYPT_OK) return -1;
    if (ecc_set_dp(dp, &key) != CRYPT_OK) return -1;
    if (ecc_set_key(keybuf, keylen, PK_PRIVATE, &key) != CRYPT_OK) return -1;
 \end{verbatim}
 \end{small}
 
 \subsection{Key Export -- OpenSSL compatible}
-To export the key (private or public) in DER format compatible with OpenSSL library call:
+To export the key (private or public) in DER format compatible with OpenSSL the following function is provided:
 
 \index{ecc\_export\_openssl()}
 \begin{verbatim}
@@ -5275,10 +5291,11 @@ int ecc_export_openssl(unsigned char *out,
 \end{verbatim}
 
 
-Where \textit{key} is the key we want to export, \textit{out} is where the output is placed,
+Where \textit{key} is the key to export, \textit{out} is where the output is placed,
 the \textit{outlen} parameter is updated to hold the output, and the \textit{type} indicates
-what kind of export we want to do (see table below).
+what kind of export should be done (see table \ref{fig:ecc-export-openssl-type}).
 
+\begin{table}[H]
 \begin{center}
 \begin{tabular}{|l|l|l|}
       \hline \textbf{type}                                                     & \textbf{note} \\
@@ -5290,10 +5307,13 @@ what kind of export we want to do (see table below).
       \hline \textit{PK\_PUBLIC \textbar PK\_COMPRESSED \textbar PK\_CURVEOID} & only curve OID + using point compression \\
       \hline
 \end{tabular}
+\caption{Possible types of ecc\_export\_openssl()}
+\label{fig:ecc-export-openssl-type}
 \end{center}
+\end{table}
 
 \subsection{Key Import -- OpenSSL compatible}
-To import the key (private or public) in DER format compatible with OpenSSL library call:
+To import the key (private or public) in DER format compatible with OpenSSL the following function is provided:
 
 \index{ecc\_import\_openssl()}
 \begin{verbatim}
@@ -5305,7 +5325,7 @@ int ecc_import_openssl(const unsigned char *in,
 Where \textit{key} is the ECC key structure (uninitialized), \textit{inlen} bytes of \textit{in} buffer is the DER encoded key.
 
 \subsection{Public Key Import -- X.509 certificates}
-To import the public key from X.509 certificate (DER encoded) call:
+To import the public key from a X.509 certificate (DER encoded) the following function is provided:
 
 \index{ecc\_import\_x509()}
 \begin{verbatim}
@@ -5317,7 +5337,7 @@ int ecc_import_x509(const unsigned char *in,
 Where \textit{key} is the ECC key structure (uninitialized), \textit{inlen} bytes of \textit{in} buffer is the DER encoded certificate.
 
 \subsection{Private Key Import -- PKCS\#8}
-To import the private key (optionally password protected/encrypted) in PKCS\#8 (DER encoded) format call:
+To import the private key (optionally password protected/encrypted) in PKCS\#8 (DER encoded) format the following function is provided:
 
 \index{ecc\_import\_pkcs8()}
 \begin{verbatim}
@@ -5333,6 +5353,7 @@ and \textit{pwdlen} bytes of \textit{pwd} is optional password/secret (use \text
 
 The library supports the following encryption algorithms:
 
+\begin{table}[H]
 \begin{center}
 \begin{tabular}{|l|l|}
       \hline \textbf{Scheme} & \textbf{Algorithm}              \\
@@ -5351,7 +5372,9 @@ The library supports the following encryption algorithms:
       \hline PBES2 + PBKDF2  & aes256-CBC                      \\
       \hline
 \end{tabular}
+\caption{Supported PKCS\#8 encryption algorithms of ecc\_import\_pkcs8()}
 \end{center}
+\end{table}
 
 \subsection{Key Export -- LTC proprietary (deprecated)}
 
@@ -5380,7 +5403,7 @@ ECCPrivateKey ::= SEQUENCE {
 
 The first flags bit denotes whether the key is public (zero) or private (one).
 
-To export an ECC key using the LibTomCrypt format call the following function:
+To export an ECC key using the LibTomCrypt format the following function is provided:
 \index{ecc\_export()}
 \begin{verbatim}
 int ecc_export(unsigned char *out,
@@ -5453,7 +5476,7 @@ The imported key is stored in the ECC key pointed to by \textit{key}.  The funct
 
 
 \mysection{Signatures (ECDSA)}
-There are also functions to sign and verify messages. They use the ANSI X9.62 EC-DSA algorithm to generate and verify signatures in the
+There are also functions to sign and verify messages. They use the ANSI X9.62 ECDSA algorithm to generate and verify signatures in the
 ANSI X9.62 format.
 
 \subsection{Signature Generation}
@@ -5470,7 +5493,7 @@ int ecc_sign_hash(const unsigned char *in,
                               ecc_key *key);
 \end{verbatim}
 
-This function will EC--DSA sign the message digest stored in the array pointed to by \textit{in} of length \textit{inlen} octets.  The signature
+This function will ECDSA sign the message digest stored in the array pointed to by \textit{in} of length \textit{inlen} octets.  The signature
 will be stored in the array pointed to by \textit{out} of length \textit{outlen} octets.  The function requires a properly seeded PRNG, and
 the ECC \textit{key} provided must be a private key.
 
@@ -5485,7 +5508,7 @@ int ecc_sign_hash_rfc7518(const unsigned char *in,
                                       ecc_key *key);
 \end{verbatim}
 
-This function creates the same EC--DSA signature as \textit{ecc\_sign\_hash} only the output format is different.
+This function creates the same ECDSA signature as \textit{ecc\_sign\_hash} only the output format is different.
 The format follows \url{https://tools.ietf.org/html/rfc7518#section-3.4}, sometimes it is also called plain signature.
 
 \subsection{Signature Verification}
@@ -5499,11 +5522,11 @@ int ecc_verify_hash(const unsigned char *sig,
                                 ecc_key *key);
 \end{verbatim}
 
-This function will verify the EC-DSA signature in the array pointed to by \textit{sig} of length \textit{siglen} octets, against the message digest
+This function will verify the ECDSA signature in the array pointed to by \textit{sig} of length \textit{siglen} octets, against the message digest
 pointed to by the array \textit{hash} of length \textit{hashlen}. It will store a non--zero value in \textit{stat} if the signature is valid.  Note:
 the function will not return an error if the signature is invalid. It will return an error, if the actual signature payload is an invalid format.
 The ECC \textit{key} must be the public (or private) ECC key corresponding to the key that performed the signature.
-The function \textit{ecc\_verify\_hash} implements signature format according to X9.62 EC--DSA, and the output is compliant for GF(p) curves.
+The function \textit{ecc\_verify\_hash} implements signature format according to X9.62 ECDSA, and the output is compliant for GF(p) curves.
 
 \index{ecc\_verify\_hash\_rfc7518()}
 \begin{verbatim}
@@ -5515,13 +5538,13 @@ int ecc_verify_hash_rfc7518(const unsigned char *sig,
                                         ecc_key *key);
 \end{verbatim}
 
-This function validate the EC--DSA signature as \textit{ecc\_verify\_hash} only the signature input format
+This function validate the ECDSA signature as \textit{ecc\_verify\_hash} only the signature input format
 follows \url{https://tools.ietf.org/html/rfc7518#section-3.4}.
 
 {\bf BEWARE:} With ECC if you try to sign a hash that is bigger than your ECC key you can run into problems. The math
 will still work, and in effect the signature will still work.  With ECC keys the strength of the signature is limited
-by the size of the hash, or the size of they key, whichever is smaller.  For example, if you sign with SHA256 and an
-P--192 key, you in effect have 96--bits of security. The library will not warn you if you make this mistake, so it
+by the size of the hash, or the size of the key, whichever is smaller.  For example, if you sign with SHA256 and a
+P--192 key, you have in effect 96--bits of security. The library will not warn you if you make this mistake, so it
 is important to check yourself before using the signatures.
 
 \mysection{Shared Secret (ECDH)}
@@ -5534,10 +5557,10 @@ int ecc_shared_secret(      ecc_key *private_key,
                       unsigned long *outlen);
 \end{verbatim}
 The \textit{private\_key} is typically the local private key, and \textit{public\_key} is the key the remote party has shared.
-Note: this function stores only the $x$ co-ordinate of the shared elliptic point as described in ANSI X9.63 ECC--DH.
+Note: this function stores only the $x$ co-ordinate of the shared elliptic point as described in ANSI X9.63 ECDH.
 
 \mysection{Encrypt and Decrypt (ECDH--based)}
-ECC--DH Encryption is performed by producing a random key, hashing it, and XOR'ing the digest against the plaintext.  It is not strictly ANSI X9.63 compliant
+ECDH Encryption is performed by producing a random key, hashing it, and XOR'ing the digest against the plaintext.  It is not strictly ANSI X9.63 compliant
 but it is very similar.  It has been extended by using an ASN.1 sequence and hash object identifiers to allow portable usage.  The following function
 encrypts a short string (no longer than the message digest) using this technique:
 
@@ -5554,13 +5577,14 @@ int ecc_encrypt_key(const unsigned char *in,
                                 ecc_key *key);
 \end{verbatim}
 
-As the name implies this function encrypts a (symmetric) key, and is not intended for encrypting long messages directly.  It will encrypt the
+As the name implies this function can be used to encrypt a (symmetric) key, and is not intended for encrypting long messages directly.  It will encrypt the
 plaintext in the array pointed to by \textit{in} of length \textit{inlen} octets.  It uses the public ECC key pointed to by \textit{key}, and
 hash algorithm indexed by \textit{hash} to construct a shared secret which may be XOR'ed against the plaintext.  The ciphertext is stored in
 the output buffer pointed to by \textit{out} of length \textit{outlen} octets.
 
-The data is encrypted to the public ECC \textit{key} such that only the holder of the private key can decrypt the payload.  To have multiple
-recipients multiple call to this function for each public ECC key is required.
+The data is encrypted through the public ECC \textit{key} such that only the holder of the private key can decrypt the payload.
+% This sounds to me like multi-party encryption, but that's not true, isn't it?
+To have multiple recipients multiple calls to this function for each public ECC key are required.
 
 \subsection{Decryption}
 \index{ecc\_decrypt\_key()}
@@ -8883,8 +8907,8 @@ then partition your digits.  Note that if your digit is smaller than an \textit{
 Depending on the archtitecture \textit{ltc\_mp\_digit} is either a $32$- or $64$-bit long \textit{unsigned} data type.
 
 \subsection{ECC Functions}
-The ECC system in LibTomCrypt is based off of the NIST recommended curves over $GF(p)$ and is used to implement EC-DSA and EC-DH.   The ECC functions work with
-the \textbf{ecc\_point} structure and assume the points are stored in Jacobian projective format.
+The ECC system in LibTomCrypt is based off the NIST recommended curves over $GF(p)$ and is used to implement ECDSA and ECDH.   The ECC functions work with
+the \textbf{ecc\_point} structure and assumes the points are stored in Jacobian projective format.
 
 \begin{verbatim}
 /** A point on a ECC curve, stored in Jacobian format such
@@ -8900,8 +8924,8 @@ typedef struct {
 \end{verbatim}
 
 All ECC functions must use this mapping system.  The only exception is when you remap all ECC callbacks which will allow you to have more control
-over how the ECC math will be implemented.  Out of the box you only have three parameters per point to use $(x, y, z)$ however, these are just void pointers.  They
-could point to anything you want.  The only further exception is the export functions which expects the values to be in affine format.
+over how the ECC math will be implemented.  Out of the box you only have three parameters per point to use $(x, y, z)$ however, these are just void pointers.
+They could point to anything you want.  The only further exception is the export functions which expects the values to be in affine format.
 
 \subsubsection{Point Multiply}
 This will multiply the point $G$ by the scalar $k$ and store the result in the point $R$.  The value should be mapped to affine only if $map$ is set to one.
@@ -8916,7 +8940,7 @@ This will map the point $P$ back from projective to affine.  The output point $P
 \subsubsection{Shamir's Trick}
 \index{Shamir's Trick}
 \index{ltc\_ecc\_mul2add()}
-To accelerate EC--DSA verification the library provides a built--in function called ltc\_ecc\_mul2add().  This performs two point multiplications and an addition in
+To accelerate ECDSA verification the library provides a built--in function called ltc\_ecc\_mul2add().  This performs two point multiplications and an addition in
 roughly the time of one point multiplication.  It is called from ecc\_verify\_hash() if an accelerator is not present.  The acclerator function must allow the points to
 overlap (e.g., $A \leftarrow k_1A + k_2B$) and must return the final point in affine format.
 
