@@ -5028,10 +5028,10 @@ The first is via using one of the built--in curves and the second way is via usi
 \subsection{Using Built--in Curves}
 
 First a function is provided to look up curve name or OID of built--in curves:
-\index{ecc\_get\_curve()}
+\index{ecc\_find\_curve()}
 \begin{verbatim}
-int ecc_get_curve(const char  *name_or_oid,
-         const ltc_ecc_curve **cu);
+int ecc_find_curve(const char  *name_or_oid,
+          const ltc_ecc_curve **cu);
 \end{verbatim}
 
 The \textit{name\_or\_oid} argument will search by name, alternative name or OID as mentioned in Table \ref{fig:builtincurves}.
@@ -5059,7 +5059,7 @@ Example of creating an ECC key:
    if (register_all_prngs() != CRYPT_OK) return -1;
    wprng = find_prng("yarrow");
    if (rng_make_prng(128, wprng, &prng, NULL) != CRYPT_OK) return -1;
-   if (ecc_get_curve("nistp256", &cu) != CRYPT_OK) return -1;
+   if (ecc_find_curve("nistp256", &cu) != CRYPT_OK) return -1;
    if (ecc_make_key_ex(&prng, wprng, &key, cu) != CRYPT_OK) return -1;
 \end{verbatim}
 \end{small}
@@ -5101,14 +5101,13 @@ typedef struct {
 
 The curve must be of the form $y^2 = x^3 - a \cdot x + b$, and all of the \textit{const char*} parameters have to be encoded in hexadecimal format.
 
-% FIXME/XXX: shouldn't this be called ecc_set_curve()?
-\index{ecc\_set\_dp()}
+\index{ecc\_set\_curve()}
 \begin{verbatim}
-int ecc_set_dp(const ltc_ecc_curve *cu,
-                           ecc_key *key);
+int ecc_set_curve(const ltc_ecc_curve *cu,
+                              ecc_key *key);
 \end{verbatim}
 
-The function \textit{ecc\_set\_dp} initializes the \textit{key} structure with the curve parameters passed via \textit{cu}.
+The function \textit{ecc\_set\_curve} initializes the \textit{key} structure with the curve parameters passed via \textit{cu}.
 
 \index{ecc\_generate\_key()}
 \begin{verbatim}
@@ -5123,7 +5122,7 @@ allocated resources if there is an error.
 % FIXME/XXX: I'd say either we leave ecc_make_key_ex() in and don't tell about its origin or we remove it if we already
 % say that it's just a wrapper and only there for backwards compat...
 For backwards compatibility the function \textit{ecc\_make\_key\_ex} is provided, which is just a wrapper
-around \textit{ecc\_set\_dp} and \textit{ecc\_generate\_key}.
+around \textit{ecc\_set\_curve} and \textit{ecc\_generate\_key}.
 
 Advanced example of creating an ECC key:
 \begin{small}
@@ -5131,7 +5130,7 @@ Advanced example of creating an ECC key:
    prng_state prng;
    int wprng;
    ecc_key key;
-   const ltc_ecc_curve custom_dp = {
+   const ltc_ecc_curve custom_curve = {
       "FFFFFFFFFFFFFFFFFFFFFFFFFDE7",   /* prime    */
       "0000000000000000000000000000",   /* A        */
       "0000000000000000000000000003",   /* B        */
@@ -5145,7 +5144,7 @@ Advanced example of creating an ECC key:
    if (register_all_prngs() != CRYPT_OK) return -1;
    wprng = find_prng("yarrow");
    if (rng_make_prng(128, wprng, &prng, NULL) != CRYPT_OK) return -1;
-   if (ecc_set_dp(&custom_dp, &key) != CRYPT_OK) return -1;
+   if (ecc_set_curve(&custom_curve, &key) != CRYPT_OK) return -1;
    if (ecc_generate_key(&prng, wprng, &key) != CRYPT_OK) return -1;
 \end{verbatim}
 \end{small}
@@ -5182,12 +5181,12 @@ Where \textit{keysize} maps to the specific curve as follows:
 \label{fig:legacy-curve-names}
 \end{table}
 
-It is also possible to use a combination of \textit{ecc\_set\_dp\_by\_size} (similar to \textit{ecc\_set\_dp}) and \textit{ecc\_generate\_key}.
+It is also possible to use a combination of \textit{ecc\_set\_curve\_by\_size} (similar to \textit{ecc\_set\_curve}) and \textit{ecc\_generate\_key}.
 
-\index{ecc\_set\_dp\_by\_size}
+\index{ecc\_set\_curve\_by\_size}
 \begin{verbatim}
-int ecc_set_dp_by_size(    int  keysize,
-                       ecc_key *key);
+int ecc_set_curve_by_size(    int  keysize,
+                          ecc_key *key);
 \end{verbatim}
 
 The \textit{keysize} maps to the specific curve according to table \ref{fig:legacy-curve-names}.
@@ -5271,10 +5270,10 @@ For the actual import you need to know the curve of the imported key and load th
 \begin{small}
 \begin{verbatim}
    ecc_key key;
-   const ltc_ecc_curve* dp;
+   const ltc_ecc_curve* cu;
 
-   if (ecc_get_curve("nistp256", &dp) != CRYPT_OK) return -1;
-   if (ecc_set_dp(dp, &key) != CRYPT_OK) return -1;
+   if (ecc_find_curve("nistp256", &cu) != CRYPT_OK) return -1;
+   if (ecc_set_curve(cu, &key) != CRYPT_OK) return -1;
    if (ecc_set_key(keybuf, keylen, PK_PRIVATE, &key) != CRYPT_OK) return -1;
 \end{verbatim}
 \end{small}
