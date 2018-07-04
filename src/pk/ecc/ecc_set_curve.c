@@ -54,28 +54,28 @@ int ecc_set_curve_by_size(int size, ecc_key *key)
 
    /* for compatibility with libtomcrypt-1.17 the sizes below must match the specific curves */
    if (size <= 14) {
-      err = ecc_get_curve("SECP112R1", &cu);
+      err = ecc_find_curve("SECP112R1", &cu);
    }
    else if (size <= 16) {
-      err = ecc_get_curve("SECP128R1", &cu);
+      err = ecc_find_curve("SECP128R1", &cu);
    }
    else if (size <= 20) {
-      err = ecc_get_curve("SECP160R1", &cu);
+      err = ecc_find_curve("SECP160R1", &cu);
    }
    else if (size <= 24) {
-      err = ecc_get_curve("SECP192R1", &cu);
+      err = ecc_find_curve("SECP192R1", &cu);
    }
    else if (size <= 28) {
-      err = ecc_get_curve("SECP224R1", &cu);
+      err = ecc_find_curve("SECP224R1", &cu);
    }
    else if (size <= 32) {
-      err = ecc_get_curve("SECP256R1", &cu);
+      err = ecc_find_curve("SECP256R1", &cu);
    }
    else if (size <= 48) {
-      err = ecc_get_curve("SECP384R1", &cu);
+      err = ecc_find_curve("SECP384R1", &cu);
    }
    else if (size <= 66) {
-      err = ecc_get_curve("SECP521R1", &cu);
+      err = ecc_find_curve("SECP521R1", &cu);
    }
 
    if (err == CRYPT_OK && cu != NULL) return ecc_set_curve(cu, key);

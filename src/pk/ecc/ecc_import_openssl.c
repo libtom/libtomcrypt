@@ -36,7 +36,7 @@ static int _ecc_import_private_with_oid(const unsigned char *in, unsigned long i
       /* load curve parameters for given curve OID */
       len = sizeof(OID);
       if ((err = pk_oid_num_to_str(curveoid, custom[0].size, OID, &len)) != CRYPT_OK) { goto error; }
-      if ((err = ecc_get_curve(OID, &curve)) != CRYPT_OK)                             { goto error; }
+      if ((err = ecc_find_curve(OID, &curve)) != CRYPT_OK)                            { goto error; }
       if ((err = ecc_set_curve(curve, key)) != CRYPT_OK)                              { goto error; }
       /* load private+public key */
       err = ecc_set_key(bin_k, seq_priv[1].size, PK_PRIVATE, key);
