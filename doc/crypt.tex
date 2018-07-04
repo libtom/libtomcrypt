@@ -5036,17 +5036,23 @@ int ecc_find_curve(const char  *name_or_oid,
 
 The \textit{name\_or\_oid} argument will search by name, alternative name or OID as mentioned in Table \ref{fig:builtincurves}.
 
-Next a function is provided to generate the key:
-\index{ecc\_make\_key\_ex()}
+\index{ecc\_set\_curve()}
 \begin{verbatim}
-int  ecc_make_key_ex(prng_state *prng,
-                            int  wprng,
-                        ecc_key *key,
-            const ltc_ecc_curve *cu);
+int ecc_set_curve(const ltc_ecc_curve *cu,
+                              ecc_key *key);
 \end{verbatim}
 
-This function generates a random ECC key over the curve specified by the parameters in \textit{cu}.
-The function will free any internally allocated resources if there is an error.
+The function \textit{ecc\_set\_curve} initializes the \textit{key} structure with the curve parameters passed via \textit{cu}.
+
+\index{ecc\_generate\_key()}
+\begin{verbatim}
+int ecc_generate_key(prng_state *prng,
+                            int  wprng,
+                        ecc_key *key);
+\end{verbatim}
+
+The function \textit{ecc\_generate\_key} does the actual key generation. The function will free any internally
+allocated resources if there is an error.
 
 Example of creating an ECC key:
 \begin{small}
@@ -5060,7 +5066,8 @@ Example of creating an ECC key:
    wprng = find_prng("yarrow");
    if (rng_make_prng(128, wprng, &prng, NULL) != CRYPT_OK) return -1;
    if (ecc_find_curve("nistp256", &cu) != CRYPT_OK) return -1;
-   if (ecc_make_key_ex(&prng, wprng, &key, cu) != CRYPT_OK) return -1;
+   if (ecc_set_curve(cu, &key) != CRYPT_OK) return -1;
+   if (ecc_generate_key(&prng, wprng, &key) != CRYPT_OK) return -1;
 \end{verbatim}
 \end{small}
 
@@ -5100,29 +5107,6 @@ typedef struct {
 \end{verbatim}
 
 The curve must be of the form $y^2 = x^3 - a \cdot x + b$, and all of the \textit{const char*} parameters have to be encoded in hexadecimal format.
-
-\index{ecc\_set\_curve()}
-\begin{verbatim}
-int ecc_set_curve(const ltc_ecc_curve *cu,
-                              ecc_key *key);
-\end{verbatim}
-
-The function \textit{ecc\_set\_curve} initializes the \textit{key} structure with the curve parameters passed via \textit{cu}.
-
-\index{ecc\_generate\_key()}
-\begin{verbatim}
-int ecc_generate_key(prng_state *prng,
-                            int  wprng,
-                        ecc_key *key);
-\end{verbatim}
-
-The function \textit{ecc\_generate\_key} does the actual key generation. The function will free any internally
-allocated resources if there is an error.
-
-% FIXME/XXX: I'd say either we leave ecc_make_key_ex() in and don't tell about its origin or we remove it if we already
-% say that it's just a wrapper and only there for backwards compat...
-For backwards compatibility the function \textit{ecc\_make\_key\_ex} is provided, which is just a wrapper
-around \textit{ecc\_set\_curve} and \textit{ecc\_generate\_key}.
 
 Advanced example of creating an ECC key:
 \begin{small}
@@ -5180,6 +5164,19 @@ Where \textit{keysize} maps to the specific curve as follows:
 \end{center}
 \label{fig:legacy-curve-names}
 \end{table}
+
+For backwards compatibility the function \textit{ecc\_make\_key\_ex} is provided, which is just a wrapper
+around \textit{ecc\_set\_curve} and \textit{ecc\_generate\_key}.
+
+\index{ecc\_make\_key\_ex()}
+\begin{verbatim}
+int  ecc_make_key_ex(prng_state *prng,
+                            int  wprng,
+                        ecc_key *key,
+            const ltc_ecc_curve *cu);
+\end{verbatim}
+
+This function generates a random ECC key over the curve specified by the parameters in \textit{cu}.
 
 It is also possible to use a combination of \textit{ecc\_set\_curve\_by\_size} (similar to \textit{ecc\_set\_curve}) and \textit{ecc\_generate\_key}.
 
