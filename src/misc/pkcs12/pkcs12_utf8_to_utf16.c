@@ -21,6 +21,10 @@ int pkcs12_utf8_to_utf16(const unsigned char *in,  unsigned long  inlen,
    };
    int err = CRYPT_ERROR;
 
+   LTC_ARGCHK(in     != NULL);
+   LTC_ARGCHK(out    != NULL);
+   LTC_ARGCHK(outlen != NULL);
+
    while (in < in_end) {
       ulong32 ch = 0;
       unsigned short extra = 0; /* 0 */
@@ -32,10 +36,15 @@ int pkcs12_utf8_to_utf16(const unsigned char *in,  unsigned long  inlen,
       if (in + extra >= in_end) goto ERROR;
       switch (extra) {
          case 5: ch += *in++; ch <<= 6;
+         /* FALLTHROUGH */
          case 4: ch += *in++; ch <<= 6;
+         /* FALLTHROUGH */
          case 3: ch += *in++; ch <<= 6;
+         /* FALLTHROUGH */
          case 2: ch += *in++; ch <<= 6;
+         /* FALLTHROUGH */
          case 1: ch += *in++; ch <<= 6;
+         /* FALLTHROUGH */
          case 0: ch += *in++;
       }
       ch -= offset[extra];

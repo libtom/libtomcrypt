@@ -30,6 +30,10 @@ int pkcs12_kdf(               int   hash_id,
    unsigned char *I = NULL, *key = NULL;
    int err = CRYPT_ERROR;
 
+   LTC_ARGCHK(pw   != NULL);
+   LTC_ARGCHK(salt != NULL);
+   LTC_ARGCHK(out  != NULL);
+
    key = XMALLOC(u * c);
    I   = XMALLOC(Plen + Slen);
    if (key == NULL || I == NULL) goto DONE;
@@ -40,7 +44,7 @@ int pkcs12_kdf(               int   hash_id,
    for (i = 0; i < Plen; i++) I[Slen + i] = pw[i % pwlen]; /* I = Salt || Pass */
 
    for (i = 0; i < c; i++) {
-      Alen = u; /* hash size */
+      Alen = sizeof(A);
       err = hash_memory_multi(hash_id, A, &Alen, D, v, I, Slen + Plen, NULL); /* A = HASH(D || I) */
       if (err != CRYPT_OK) goto DONE;
       for (j = 1; j < iterations; j++) {
@@ -63,14 +67,21 @@ int pkcs12_kdf(               int   hash_id,
          }
       }
       /* store derived key block */
-      for (j = 0; j < Alen; j++) key[keylen++] = A[j];
+      XMEMCPY(&key[keylen], A, Alen);
+      keylen += Alen;
    }
 
-   for (i = 0; i < outlen; i++) out[i] = key[i];
+   XMEMCPY(out, key, outlen);
    err = CRYPT_OK;
 DONE:
-   if (I) XFREE(I);
-   if (key) XFREE(key);
+   if (I) {
+      zeromem(I, Plen + Slen);
+      XFREE(I);
+   }
+   if (key) {
+      zeromem(key, u * c);
+      XFREE(key);
+   }
    return err;
 }
 
