@@ -251,8 +251,8 @@ int  ecc_test(void);
 void ecc_sizes(int *low, int *high);
 int  ecc_get_size(const ecc_key *key);
 
-int  ecc_get_curve(const char* name_or_oid, const ltc_ecc_curve** cu);
-int  ecc_set_dp(const ltc_ecc_curve *cu, ecc_key *key);
+int  ecc_find_curve(const char* name_or_oid, const ltc_ecc_curve** cu);
+int  ecc_set_curve(const ltc_ecc_curve *cu, ecc_key *key);
 int  ecc_generate_key(prng_state *prng, int wprng, ecc_key *key);
 int  ecc_set_key(const unsigned char *in, unsigned long inlen, int type, ecc_key *key);
 int  ecc_get_key(unsigned char *out, unsigned long *outlen, int type, const ecc_key *key);

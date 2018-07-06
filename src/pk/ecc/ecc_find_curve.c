@@ -212,7 +212,7 @@ static int _name_match(const char *left, const char *right)
    return 0;
 }
 
-int ecc_get_curve(const char *name_or_oid, const ltc_ecc_curve **cu)
+int ecc_find_curve(const char *name_or_oid, const ltc_ecc_curve **cu)
 {
    int i, j;
    const char *OID = NULL;

@@ -2283,11 +2283,11 @@
 					>
 				</File>
 				<File
-					RelativePath="src\pk\ecc\ecc_free.c"
+					RelativePath="src\pk\ecc\ecc_find_curve.c"
 					>
 				</File>
 				<File
-					RelativePath="src\pk\ecc\ecc_get_curve.c"
+					RelativePath="src\pk\ecc\ecc_free.c"
 					>
 				</File>
 				<File
@@ -2319,11 +2319,11 @@
 					>
 				</File>
 				<File
-					RelativePath="src\pk\ecc\ecc_set_dp.c"
+					RelativePath="src\pk\ecc\ecc_set_curve.c"
 					>
 				</File>
 				<File
-					RelativePath="src\pk\ecc\ecc_set_dp_internal.c"
+					RelativePath="src\pk\ecc\ecc_set_curve_internal.c"
 					>
 				</File>
 				<File

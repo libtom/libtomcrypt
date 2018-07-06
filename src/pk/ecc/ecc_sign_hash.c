@@ -63,7 +63,7 @@ static int _ecc_sign_hash(const unsigned char *in,  unsigned long inlen,
 
    /* make up a key and export the public copy */
    do {
-      if ((err = ecc_copy_dp(key, &pubkey)) != CRYPT_OK)                   { goto errnokey; }
+      if ((err = ecc_copy_curve(key, &pubkey)) != CRYPT_OK)                { goto errnokey; }
       if ((err = ecc_generate_key(prng, wprng, &pubkey)) != CRYPT_OK)      { goto errnokey; }
 
       /* find r = x1 mod n */

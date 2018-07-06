@@ -56,9 +56,9 @@ int ecc_import_ex(const unsigned char *in, unsigned long inlen, ecc_key *key, co
 
    /* allocate & initialize the key */
    if (cu == NULL) {
-      if ((err = ecc_set_dp_by_size(key_size, key)) != CRYPT_OK) { goto done; }
+      if ((err = ecc_set_curve_by_size(key_size, key)) != CRYPT_OK) { goto done; }
    } else {
-      if ((err = ecc_set_dp(cu, key)) != CRYPT_OK)               { goto done; }
+      if ((err = ecc_set_curve(cu, key)) != CRYPT_OK)               { goto done; }
    }
 
    if (flags[0] == 1) {
