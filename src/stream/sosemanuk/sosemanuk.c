@@ -755,6 +755,7 @@ int sosemanuk_crypt(sosemanuk_state *st,
 
         if (rlen > inlen) {
             rlen = inlen;
+        )
         _xorbuf(st->buf + st->ptr, in, out, rlen);
         in += rlen;
         out += rlen;
