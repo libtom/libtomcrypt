@@ -387,7 +387,7 @@ int ecc_import_pkcs8(const unsigned char *in, unsigned long inlen,
          ltc_asn1_list *lecoid = l->child->next->child;
 
          if ((lecoid->size != ecoid.OIDlen) ||
-            XMEMCMP(ecoid.OID, lecoid->data, ecoid.OIDlen * sizeof(ecoid.OID[0]))) {
+             (XMEMCMP(ecoid.OID, lecoid->data, ecoid.OIDlen * sizeof(ecoid.OID[0])) != 0)) {
             err = CRYPT_PK_INVALID_TYPE;
             goto LBL_DONE;
          }
