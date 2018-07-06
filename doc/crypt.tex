@@ -1336,7 +1336,7 @@ err = salsa20_ivctr64(&st, nonce, 8, counter);
 \end{verbatim}
 
 To initialize \textit{XSalsa20} for the recommended 20 rounds with a 256-bit
-key (32 bytes) and a 192-bit nonce (24 bytes), use: 
+key (32 bytes) and a 192-bit nonce (24 bytes), use:
 
 \begin{verbatim}
 salsa20_state st;
@@ -1397,30 +1397,30 @@ information.
 
 Initialize by creating a Sosemanuk state and provide a 128- to 256-bit key to \textit{sosemanuk\_setup()}.
 \begin{verbatim}
-sosemanuk_state ss;
-err = sosemanuk_setup(&ss, key, keylen);
+sosemanuk_state st;
+err = sosemanuk_setup(&st, key, keylen);
 \end{verbatim}
 
 Finish initializing with an iv of up to 128 bits.
 \begin{verbatim}
-err = sosemanuk_setiv(&ss, iv, ivlen);
+err = sosemanuk_setiv(&st, iv, ivlen);
 \end{verbatim}
 
 For the actual encryption or decryption, call:
 \begin{verbatim}
-err = sosemanuk_crypt(&ss, in, inlen, out);
+err = sosemanuk_crypt(&st, in, inlen, out);
 \end{verbatim}
 
 If you just want a random stream of bytes initialize the cipher with a truly random
 \textit{key} (256 bits) and a truly random \textit{iv} (128 bits). After that you can
 get a stream of pseudo--random bytes via:
 \begin{verbatim}
-err = sosemanuk_keystream(&ss, out, outlen);
+err = sosemanuk_keystream(&st, out, outlen);
 \end{verbatim}
 
 When finished you should wipe the key by running \textit{sosemanuk\_done()}.
 \begin{verbatim}
-err = sosemanuk_done(&ss);
+err = sosemanuk_done(&st);
 \end{verbatim}
 
 To do multiple encryptions and decryptions with the same key, you will want to set the iv but
