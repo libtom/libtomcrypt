@@ -52,115 +52,6 @@ static const oid_st oid_list[] = {
    { { 0 }, 0 },
 };
 
-static int _simple_utf8_to_utf16(const unsigned char *in, unsigned long inlen,
-                                 unsigned char *out, unsigned long *outlen) {
-   unsigned long len = 0;
-   const unsigned char* in_end = in + inlen;
-   const ulong32 offset[6] = {
-      0x00000000UL, 0x00003080UL, 0x000E2080UL,
-      0x03C82080UL, 0xFA082080UL, 0x82082080UL
-   };
-   int err = CRYPT_ERROR;
-
-   while (in < in_end) {
-      ulong32 ch = 0;
-      unsigned short extra = 0; /* 0 */
-      if (*in >= 192) extra++;  /* 1 */
-      if (*in >= 224) extra++;  /* 2 */
-      if (*in >= 240) extra++;  /* 3 */
-      if (*in >= 248) extra++;  /* 4 */
-      if (*in >= 252) extra++;  /* 5 */
-      if (in + extra >= in_end) goto ERROR;
-      switch (extra) {
-         case 5: ch += *in++; ch <<= 6;
-         /* FALLTHROUGH */
-         case 4: ch += *in++; ch <<= 6;
-         /* FALLTHROUGH */
-         case 3: ch += *in++; ch <<= 6;
-         /* FALLTHROUGH */
-         case 2: ch += *in++; ch <<= 6;
-         /* FALLTHROUGH */
-         case 1: ch += *in++; ch <<= 6;
-         /* FALLTHROUGH */
-         case 0: ch += *in++;
-      }
-      ch -= offset[extra];
-      if (ch > 0xFFFF) goto ERROR;
-      if (*outlen >= len + 2) {
-         out[len] = (unsigned short)((ch >> 8) & 0xFF);
-         out[len + 1] = (unsigned char)(ch & 0xFF);
-      }
-      len += 2;
-   }
-
-   err = len > *outlen ? CRYPT_BUFFER_OVERFLOW : CRYPT_OK;
-   *outlen = len;
-ERROR:
-   return err;
-}
-
-static int _kdf_pkcs12(int hash_id, const unsigned char *pw, unsigned long pwlen,
-                                    const unsigned char *salt, unsigned long saltlen,
-                                    unsigned int iterations, unsigned char purpose,
-                                    unsigned char *out, unsigned long outlen)
-{
-   unsigned long u = hash_descriptor[hash_id].hashsize;
-   unsigned long v = hash_descriptor[hash_id].blocksize;
-   unsigned long c = (outlen + u - 1) / u;
-   unsigned long Slen = ((saltlen + v - 1) / v) * v;
-   unsigned long Plen = ((pwlen + v - 1) / v) * v;
-   unsigned long k = (Plen + Slen) / v;
-   unsigned long Alen, keylen = 0;
-   unsigned int tmp, i, j, n;
-   unsigned char ch;
-   unsigned char D[MAXBLOCKSIZE], A[MAXBLOCKSIZE], B[MAXBLOCKSIZE];
-   unsigned char *I = NULL, *key = NULL;
-   int err = CRYPT_ERROR;
-
-   key = XMALLOC(u * c);
-   I   = XMALLOC(Plen + Slen);
-   if (key == NULL || I == NULL) goto DONE;
-   zeromem(key, u * c);
-
-   for (i = 0; i < v;    i++) D[i] = purpose;              /* D - diversifier */
-   for (i = 0; i < Slen; i++) I[i] = salt[i % saltlen];
-   for (i = 0; i < Plen; i++) I[Slen + i] = pw[i % pwlen]; /* I = Salt || Pass */
-
-   for (i = 0; i < c; i++) {
-      Alen = u; /* hash size */
-      err = hash_memory_multi(hash_id, A, &Alen, D, v, I, Slen + Plen, NULL); /* A = HASH(D || I) */
-      if (err != CRYPT_OK) goto DONE;
-      for (j = 1; j < iterations; j++) {
-         err = hash_memory(hash_id, A, Alen, A, &Alen); /* A = HASH(A) */
-         if (err != CRYPT_OK) goto DONE;
-      }
-      /* fill buffer B with A */
-      for (j = 0; j < v; j++) B[j] = A[j % Alen];
-      /* B += 1 */
-      for (j = v; j > 0; j--) {
-         if (++B[j - 1] != 0) break;
-      }
-      /* I_n += B */
-      for (n = 0; n < k; n++) {
-         ch = 0;
-         for (j = v; j > 0; j--) {
-            tmp = I[n * v + j - 1] + B[j - 1] + ch;
-            ch = (unsigned char)((tmp >> 8) & 0xFF);
-            I[n * v + j - 1] = (unsigned char)(tmp & 0xFF);
-         }
-      }
-      /* store derived key block */
-      for (j = 0; j < Alen; j++) key[keylen++] = A[j];
-   }
-
-   for (i = 0; i < outlen; i++) out[i] = key[i];
-   err = CRYPT_OK;
-DONE:
-   if (I) XFREE(I);
-   if (key) XFREE(key);
-   return err;
-}
-
 static int _oid_to_id(const unsigned long *oid, unsigned long oid_size)
 {
    int i, j;
@@ -214,13 +105,13 @@ static int _pbes1_decrypt(const unsigned char *enc_data, unsigned long enc_size,
       pwlen = pass_size * 2;
       pw = XMALLOC(pwlen + 2);
       if (pw == NULL) goto LBL_ERROR;
-      if ((err = _simple_utf8_to_utf16(pass, pass_size, pw, &pwlen) != CRYPT_OK)) goto LBL_ERROR;
+      if ((err = pkcs12_utf8_to_utf16(pass, pass_size, pw, &pwlen) != CRYPT_OK)) goto LBL_ERROR;
       pw[pwlen++] = 0;
       pw[pwlen++] = 0;
       /* derive KEY */
-      if ((err = _kdf_pkcs12(hid, pw, pwlen, salt, salt_size, iterations, 1, key_iv, keylen)) != CRYPT_OK) goto LBL_ERROR;
+      if ((err = pkcs12_kdf(hid, pw, pwlen, salt, salt_size, iterations, 1, key_iv, keylen)) != CRYPT_OK) goto LBL_ERROR;
       /* derive IV */
-      if ((err = _kdf_pkcs12(hid, pw, pwlen, salt, salt_size, iterations, 2, key_iv+24, blklen)) != CRYPT_OK) goto LBL_ERROR;
+      if ((err = pkcs12_kdf(hid, pw, pwlen, salt, salt_size, iterations, 2, key_iv+24, blklen)) != CRYPT_OK) goto LBL_ERROR;
    }
    else {
       if ((err = pkcs_5_alg1(pass, pass_size, salt, iterations, hid, key_iv, &len)) != CRYPT_OK) goto LBL_ERROR;
