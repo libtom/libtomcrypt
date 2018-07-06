@@ -266,8 +266,9 @@ int sosemanuk_setup(sosemanuk_state *st, const unsigned char *key, unsigned long
     XMEMCPY(wbuf, key, keylen);
     if (keylen < 32) {
         wbuf[keylen] = 0x01;
-        if (keylen < 31)
+        if (keylen < 31) {
             XMEMSET(wbuf + keylen + 1, 0, 31 - keylen);
+        }
     }
 
     LOAD32L(w0, wbuf);
@@ -725,8 +726,9 @@ static LTC_INLINE void _sosemanuk_internal(sosemanuk_state *st)
 static LTC_INLINE void _xorbuf(const unsigned char *in1, const unsigned char *in2,
     unsigned char *out, unsigned long datalen)
 {
-    while (datalen -- > 0)
+    while (datalen -- > 0) {
         *out ++ = *in1 ++ ^ *in2 ++;
+    }
 }
 
 
@@ -751,10 +753,10 @@ int sosemanuk_crypt(sosemanuk_state *st,
     if (st->ptr < (sizeof(st->buf))) {
         unsigned long rlen = (sizeof(st->buf)) - st->ptr;
 
-        if (rlen > inlen)
+        if (rlen > inlen) {
             rlen = inlen;
         _xorbuf(st->buf + st->ptr, in, out, rlen);
-        in += rlen;
+       in += rlen;
         out += rlen;
         inlen -= rlen;
         st->ptr += rlen;

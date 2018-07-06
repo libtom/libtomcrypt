@@ -99,8 +99,9 @@ static LTC_INLINE void _rabbit_next_state(rabbit_ctx *p_instance)
    ulong32 g[8], c_old[8], i;
 
    /* Save old counter values */
-   for (i=0; i<8; i++)
+   for (i=0; i<8; i++) {
       c_old[i] = p_instance->c[i];
+   }
 
    /* Calculate new counter values */
    p_instance->c[0] = (ulong32)(p_instance->c[0] + 0x4D34D34D + p_instance->carry);
@@ -114,8 +115,9 @@ static LTC_INLINE void _rabbit_next_state(rabbit_ctx *p_instance)
    p_instance->carry = (p_instance->c[7] < c_old[7]);
 
    /* Calculate the g-values */
-   for (i=0;i<8;i++)
+   for (i=0;i<8;i++) {
       g[i] = _rabbit_g_func((ulong32)(p_instance->x[i] + p_instance->c[i]));
+   }
 
    /* Calculate new state values */
    p_instance->x[0] = (ulong32)(g[0] + ROLc(g[7],16) + ROLc(g[6], 16));
@@ -198,12 +200,14 @@ int rabbit_setup(rabbit_state* st, const unsigned char *key, unsigned long keyle
    st->master_ctx.carry = 0;
 
    /* Iterate the master context four times */
-   for (i=0; i<4; i++)
+   for (i=0; i<4; i++) {
       _rabbit_next_state(&(st->master_ctx));
+   }
 
    /* Modify the counters */
-   for (i=0; i<8; i++)
+   for (i=0; i<8; i++) {
       st->master_ctx.c[i] ^= st->master_ctx.x[(i+4)&0x7];
+   }
 
    /* Copy master instance to work instance */
    for (i=0; i<8; i++) {
@@ -250,13 +254,15 @@ int rabbit_setiv(rabbit_state* st, const unsigned char *iv, unsigned long ivlen)
    st->work_ctx.c[7] = st->master_ctx.c[7] ^ i3;
 
    /* Copy state variables */
-   for (i=0; i<8; i++)
+   for (i=0; i<8; i++) {
       st->work_ctx.x[i] = st->master_ctx.x[i];
+   }
    st->work_ctx.carry = st->master_ctx.carry;
 
    /* Iterate the work context four times */
-   for (i=0; i<4; i++)
+   for (i=0; i<4; i++) {
       _rabbit_next_state(&(st->work_ctx));
+   }
 
    /* reset keystream buffer and unused count */
    XMEMSET(&(st->block), 0, sizeof(st->block));

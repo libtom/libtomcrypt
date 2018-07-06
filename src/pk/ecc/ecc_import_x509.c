@@ -27,8 +27,8 @@ static int _ecc_import_x509_with_oid(const unsigned char *in, unsigned long inle
       /* load curve parameters for given curve OID */
       len = sizeof(OID);
       if ((err = pk_oid_num_to_str(curveoid, len_oid, OID, &len)) != CRYPT_OK) { goto error; }
-      if ((err = ecc_get_curve(OID, &curve)) != CRYPT_OK)                      { goto error; }
-      if ((err = ecc_set_dp(curve, key)) != CRYPT_OK)                          { goto error; }
+      if ((err = ecc_find_curve(OID, &curve)) != CRYPT_OK)                     { goto error; }
+      if ((err = ecc_set_curve(curve, key)) != CRYPT_OK)                       { goto error; }
       /* load public key */
       err = ecc_set_key(bin_xy, len_xy, PK_PUBLIC, key);
    }
@@ -80,7 +80,7 @@ static int _ecc_import_x509_with_curve(const unsigned char *in, unsigned long in
       if ((err = mp_read_unsigned_bin(b, bin_b, len_b)) != CRYPT_OK)                           { goto error; }
       if ((err = ltc_ecc_import_point(bin_g, len_g, prime, a, b, gx, gy)) != CRYPT_OK)         { goto error; }
       /* load curve parameters */
-      if ((err = ecc_set_dp_from_mpis(a, b, prime, order, gx, gy, cofactor, key)) != CRYPT_OK) { goto error; }
+      if ((err = ecc_set_curve_from_mpis(a, b, prime, order, gx, gy, cofactor, key)) != CRYPT_OK) { goto error; }
       /* load public key */
       err = ecc_set_key(bin_xy, len_xy, PK_PUBLIC, key);
    }

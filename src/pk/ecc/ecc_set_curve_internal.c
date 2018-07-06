@@ -42,7 +42,7 @@ static void _ecc_oid_lookup(ecc_key *key)
    }
 }
 
-int ecc_copy_dp(const ecc_key *srckey, ecc_key *key)
+int ecc_copy_curve(const ecc_key *srckey, ecc_key *key)
 {
    unsigned long i;
    int err;
@@ -82,7 +82,7 @@ error:
    return err;
 }
 
-int ecc_set_dp_from_mpis(void *a, void *b, void *prime, void *order, void *gx, void *gy, unsigned long cofactor, ecc_key *key)
+int ecc_set_curve_from_mpis(void *a, void *b, void *prime, void *order, void *gx, void *gy, unsigned long cofactor, ecc_key *key)
 {
    int err;
 

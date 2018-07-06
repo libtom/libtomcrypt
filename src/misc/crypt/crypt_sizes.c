@@ -326,8 +326,9 @@ int crypt_list_all_sizes(char *names_list, unsigned int *names_list_size) {
     /* calculate amount of memory required for the list */
     for (i=0; i<count; i++) {
         number_len = snprintf(NULL, 0, "%s,%u\n", _crypt_sizes[i].name, _crypt_sizes[i].size);
-        if (number_len < 0)
+        if (number_len < 0) {
           return -1;
+        }
         total_len += number_len;
         /* this last +1 is for newlines (and ending NULL) */
     }

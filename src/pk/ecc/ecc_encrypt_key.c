@@ -52,7 +52,7 @@ int ecc_encrypt_key(const unsigned char *in,   unsigned long inlen,
     }
 
     /* make a random key and export the public copy */
-    if ((err = ecc_copy_dp(key, &pubkey)) != CRYPT_OK) { return err; }
+    if ((err = ecc_copy_curve(key, &pubkey)) != CRYPT_OK) { return err; }
     if ((err = ecc_generate_key(prng, wprng, &pubkey)) != CRYPT_OK) { return err; }
 
     pub_expt   = XMALLOC(ECC_BUF_SIZE);

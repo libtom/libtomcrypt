@@ -116,9 +116,9 @@ LBL_ERR:
    mp_clear_multi(key->d,  key->e, key->N, key->dQ, key->dP, key->qP, key->p, key->q, NULL);
 
 LBL_FREE:
-   if (tmpbuf != NULL)
-     XFREE(tmpbuf);
-
+   if (tmpbuf != NULL) {
+      XFREE(tmpbuf);
+   }
    return err;
 }
 

@@ -160,9 +160,9 @@ static int blake2b_is_lastblock(const hash_state *md) { return md->blake2b.f[0] 
 
 static void blake2b_set_lastblock(hash_state *md)
 {
-   if (md->blake2b.last_node)
+   if (md->blake2b.last_node) {
       blake2b_set_lastnode(md);
-
+   }
    md->blake2b.f[0] = CONST64(0xffffffffffffffff);
 }
 
@@ -177,8 +177,9 @@ static void blake2b_init0(hash_state *md)
    unsigned long i;
    XMEMSET(&md->blake2b, 0, sizeof(md->blake2b));
 
-   for (i = 0; i < 8; ++i)
+   for (i = 0; i < 8; ++i) {
       md->blake2b.h[i] = blake2b_IV[i];
+   }
 }
 
 /* init xors IV with input parameter block */
@@ -219,11 +220,12 @@ int blake2b_init(hash_state *md, unsigned long outlen, const unsigned char *key,
 
    LTC_ARGCHK(md != NULL);
 
-   if ((!outlen) || (outlen > BLAKE2B_OUTBYTES))
+   if ((!outlen) || (outlen > BLAKE2B_OUTBYTES)) {
       return CRYPT_INVALID_ARG;
-
-   if ((key && !keylen) || (keylen && !key) || (keylen > BLAKE2B_KEYBYTES))
+   }
+   if ((key && !keylen) || (keylen && !key) || (keylen > BLAKE2B_KEYBYTES)) {
       return CRYPT_INVALID_ARG;
+   }
 
    XMEMSET(P, 0, sizeof(P));
 
@@ -416,16 +418,18 @@ int blake2b_done(hash_state *md, unsigned char *out)
 
    /* if(md->blakebs.outlen != outlen) return CRYPT_INVALID_ARG; */
 
-   if (blake2b_is_lastblock(md))
+   if (blake2b_is_lastblock(md)) {
       return CRYPT_ERROR;
+   }
 
    blake2b_increment_counter(md, md->blake2b.curlen);
    blake2b_set_lastblock(md);
    XMEMSET(md->blake2b.buf + md->blake2b.curlen, 0, BLAKE2B_BLOCKBYTES - md->blake2b.curlen); /* Padding */
    blake2b_compress(md, md->blake2b.buf);
 
-   for (i = 0; i < 8; ++i) /* Output full hash to temp buffer */
+   for (i = 0; i < 8; ++i) { /* Output full hash to temp buffer */
       STORE64L(md->blake2b.h[i], buffer + i * 8);
+   }
 
    XMEMCPY(out, buffer, md->blake2b.outlen);
    zeromem(md, sizeof(hash_state));

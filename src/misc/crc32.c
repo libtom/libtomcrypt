@@ -153,8 +153,9 @@ void crc32_update(crc32_state *ctx, const unsigned char *input, unsigned long le
    LTC_ARGCHKVD(input != NULL);
    crc = ctx->crc;
 
-   while (length--)
+   while (length--) {
       crc = crc32_m_tab[CRC32_INDEX(crc) ^ *input++] ^ CRC32_SHIFTED(crc);
+   }
 
    ctx->crc = crc;
 }

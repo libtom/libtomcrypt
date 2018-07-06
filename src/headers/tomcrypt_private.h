@@ -192,9 +192,9 @@ int dh_check_pubkey(const dh_key *key);
 
 /* ---- ECC Routines ---- */
 #ifdef LTC_MECC
-int ecc_set_dp_from_mpis(void *a, void *b, void *prime, void *order, void *gx, void *gy, unsigned long cofactor, ecc_key *key);
-int ecc_copy_dp(const ecc_key *srckey, ecc_key *key);
-int ecc_set_dp_by_size(int size, ecc_key *key);
+int ecc_set_curve_from_mpis(void *a, void *b, void *prime, void *order, void *gx, void *gy, unsigned long cofactor, ecc_key *key);
+int ecc_copy_curve(const ecc_key *srckey, ecc_key *key);
+int ecc_set_curve_by_size(int size, ecc_key *key);
 int ecc_import_subject_public_key_info(const unsigned char *in, unsigned long inlen, ecc_key *key);
 
 /* low level functions */
@@ -304,6 +304,21 @@ int x509_decode_subject_public_key_info(const unsigned char *in, unsigned long i
         ltc_asn1_type parameters_type, ltc_asn1_list* parameters, unsigned long *parameters_len);
 
 #endif /* LTC_DER */
+
+/* tomcrypt_pkcs.h */
+
+#ifdef LTC_PKCS_12
+
+int pkcs12_utf8_to_utf16(const unsigned char *in,  unsigned long  inlen,
+                               unsigned char *out, unsigned long *outlen);
+
+int pkcs12_kdf(               int   hash_id,
+               const unsigned char *pw,         unsigned long pwlen,
+               const unsigned char *salt,       unsigned long saltlen,
+                     unsigned int   iterations, unsigned char purpose,
+                     unsigned char *out,        unsigned long outlen);
+
+#endif  /* LTC_PKCS_12 */
 
 /* tomcrypt_prng.h */
 

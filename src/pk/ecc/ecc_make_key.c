@@ -28,15 +28,15 @@ int ecc_make_key(prng_state *prng, int wprng, int keysize, ecc_key *key)
 {
    int err;
 
-   if ((err = ecc_set_dp_by_size(keysize, key)) != CRYPT_OK)   { return err; }
-   if ((err = ecc_generate_key(prng, wprng, key)) != CRYPT_OK) { return err; }
+   if ((err = ecc_set_curve_by_size(keysize, key)) != CRYPT_OK) { return err; }
+   if ((err = ecc_generate_key(prng, wprng, key)) != CRYPT_OK)  { return err; }
    return CRYPT_OK;
 }
 
 int ecc_make_key_ex(prng_state *prng, int wprng, ecc_key *key, const ltc_ecc_curve *cu)
 {
    int err;
-   if ((err = ecc_set_dp(cu, key)) != CRYPT_OK)                { return err; }
+   if ((err = ecc_set_curve(cu, key)) != CRYPT_OK)             { return err; }
    if ((err = ecc_generate_key(prng, wprng, key)) != CRYPT_OK) { return err; }
    return CRYPT_OK;
 }

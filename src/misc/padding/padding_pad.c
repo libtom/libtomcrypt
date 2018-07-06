@@ -99,8 +99,11 @@ int padding_pad(unsigned char *data, unsigned long length, unsigned long* padded
    type = mode & LTC_PAD_MASK;
 
    if (*padded_length < l) {
-      if (type != LTC_PAD_ISO_10126) *padded_length = l;
-      else *padded_length = length + 256;
+      if (type != LTC_PAD_ISO_10126) {
+         *padded_length = l;
+      } else {
+         *padded_length = length + 256;
+      }
       return CRYPT_BUFFER_OVERFLOW;
    }
 
