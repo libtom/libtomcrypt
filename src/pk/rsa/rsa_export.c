@@ -87,8 +87,7 @@ int rsa_export(unsigned char *out, unsigned long *outlen, int type, const rsa_ke
         PKA_RSA, tmp, tmplen, LTC_ASN1_NULL, NULL, 0);
 
 finish:
-      if (tmp != out)
-        XFREE(tmp);
+      if (tmp != out) XFREE(tmp);
       return err;
    }
 

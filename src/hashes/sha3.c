@@ -167,13 +167,14 @@ static void keccakf(ulong64 s[25])
 
    for(round = 0; round < SHA3_KECCAK_ROUNDS; round++) {
       /* Theta */
-      for(i = 0; i < 5; i++)
+      for(i = 0; i < 5; i++) {
          bc[i] = s[i] ^ s[i + 5] ^ s[i + 10] ^ s[i + 15] ^ s[i + 20];
-
+      }
       for(i = 0; i < 5; i++) {
          t = bc[(i + 4) % 5] ^ ROL64(bc[(i + 1) % 5], 1);
-         for(j = 0; j < 25; j += 5)
+         for(j = 0; j < 25; j += 5) {
             s[j + i] ^= t;
+         }
       }
       /* Rho Pi */
       t = s[1];
@@ -185,10 +186,12 @@ static void keccakf(ulong64 s[25])
       }
       /* Chi */
       for(j = 0; j < 25; j += 5) {
-         for(i = 0; i < 5; i++)
+         for(i = 0; i < 5; i++) {
             bc[i] = s[j + i];
-         for(i = 0; i < 5; i++)
+         }
+         for(i = 0; i < 5; i++) {
             s[j + i] ^= (~bc[(i + 1) % 5]) & bc[(i + 2) % 5];
+         }
       }
       /* Iota */
       s[0] ^= keccakf_rndc[round];

@@ -2068,8 +2068,9 @@ int des_keysize(int *keysize)
 int des3_keysize(int *keysize)
 {
     LTC_ARGCHK(keysize != NULL);
-    if (*keysize < 16)
+    if (*keysize < 16) {
        return CRYPT_INVALID_KEYSIZE;
+    }
     if (*keysize < 24) {
        *keysize = 16;
        return CRYPT_OK;

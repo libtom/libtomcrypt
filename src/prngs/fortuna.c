@@ -108,11 +108,13 @@ static int _fortuna_reseed(prng_state *prng)
 
 #ifdef LTC_FORTUNA_RESEED_RATELIMIT_TIMED
    ulong64 now = _fortuna_current_time();
-   if (now == prng->u.fortuna.wd)
+   if (now == prng->u.fortuna.wd) {
       return CRYPT_OK;
+   }
 #else
-   if (++prng->u.fortuna.wd < LTC_FORTUNA_WD)
+   if (++prng->u.fortuna.wd < LTC_FORTUNA_WD) {
       return CRYPT_OK;
+   }
 #endif
 
    /* new K == LTC_SHA256(K || s) where s == LTC_SHA256(P0) || LTC_SHA256(P1) ... */

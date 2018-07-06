@@ -113,8 +113,9 @@ static void Safer_Expand_Userkey(const unsigned char *userkey_1,
     unsigned char ka[LTC_SAFER_BLOCK_LEN + 1];
     unsigned char kb[LTC_SAFER_BLOCK_LEN + 1];
 
-    if (LTC_SAFER_MAX_NOF_ROUNDS < nof_rounds)
+    if (LTC_SAFER_MAX_NOF_ROUNDS < nof_rounds) {
         nof_rounds = LTC_SAFER_MAX_NOF_ROUNDS;
+    }
     *key++ = (unsigned char)nof_rounds;
     ka[LTC_SAFER_BLOCK_LEN] = (unsigned char)0;
     kb[LTC_SAFER_BLOCK_LEN] = (unsigned char)0;

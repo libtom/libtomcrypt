@@ -44,10 +44,11 @@ int ltc_ecc_is_point_at_infinity(const ecc_point *P, void *modulus, int *retval)
 
    /* test y^2 == x^3 */
    err = CRYPT_OK;
-   if ((mp_cmp(x3, y2) == LTC_MP_EQ) && !mp_iszero(y2))
+   if ((mp_cmp(x3, y2) == LTC_MP_EQ) && !mp_iszero(y2)) {
       *retval = 1;
-   else
+   } else {
       *retval = 0;
+   }
 
 cleanup:
    mp_clear_multi(x3, y2, NULL);
