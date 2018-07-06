@@ -463,6 +463,7 @@
 
 #define LTC_PKCS_1
 #define LTC_PKCS_5
+#define LTC_PKCS_12
 
 /* Include ASN.1 DER (required by DSA/RSA) */
 #define LTC_DER

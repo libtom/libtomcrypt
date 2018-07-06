@@ -305,6 +305,21 @@ int x509_decode_subject_public_key_info(const unsigned char *in, unsigned long i
 
 #endif /* LTC_DER */
 
+/* tomcrypt_pkcs.h */
+
+#ifdef LTC_PKCS_12
+
+int pkcs12_utf8_to_utf16(const unsigned char *in,  unsigned long  inlen,
+                               unsigned char *out, unsigned long *outlen);
+
+int pkcs12_kdf(               int   hash_id,
+               const unsigned char *pw,         unsigned long pwlen,
+               const unsigned char *salt,       unsigned long saltlen,
+                     unsigned int   iterations, unsigned char purpose,
+                     unsigned char *out,        unsigned long outlen);
+
+#endif  /* LTC_PKCS_12 */
+
 /* tomcrypt_prng.h */
 
 #define _LTC_PRNG_EXPORT(which) \

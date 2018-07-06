@@ -1572,6 +1572,18 @@
 				</File>
 			</Filter>
 			<Filter
+				Name="pkcs12"
+				>
+				<File
+					RelativePath="src\misc\pkcs12\pkcs12_kdf.c"
+					>
+				</File>
+				<File
+					RelativePath="src\misc\pkcs12\pkcs12_utf8_to_utf16.c"
+					>
+				</File>
+			</Filter>
+			<Filter
 				Name="pkcs5"
 				>
 				<File
