@@ -404,8 +404,8 @@ int ecc_import_pkcs8(const unsigned char *in, unsigned long inlen,
             ltc_asn1_list *loid = lseq->child->next;
             len = sizeof(OID);
             if ((err = pk_oid_num_to_str(loid->data, loid->size, OID, &len)) != CRYPT_OK) { goto LBL_DONE; }
-            if ((err = ecc_get_curve(OID, &curve)) != CRYPT_OK)                           { goto LBL_DONE; }
-            if ((err = ecc_set_dp(curve, key)) != CRYPT_OK)                               { goto LBL_DONE; }
+            if ((err = ecc_find_curve(OID, &curve)) != CRYPT_OK)                          { goto LBL_DONE; }
+            if ((err = ecc_set_curve(curve, key)) != CRYPT_OK)                            { goto LBL_DONE; }
          }
          else if (LTC_ASN1_IS_TYPE(lseq->child->next, LTC_ASN1_SEQUENCE)) {
             /* CASE 2: explicit curve parameters (AKA long variant):
@@ -456,7 +456,7 @@ int ecc_import_pkcs8(const unsigned char *in, unsigned long inlen,
                   if ((err = ltc_ecc_import_point(lg->data, lg->size, lprime->data, a, b, gx, gy)) != CRYPT_OK) {
                      goto LBL_DONE;
                   }
-                  if ((err = ecc_set_dp_from_mpis(a, b, lprime->data, lorder->data, gx, gy, cofactor, key)) != CRYPT_OK) {
+                  if ((err = ecc_set_curve_from_mpis(a, b, lprime->data, lorder->data, gx, gy, cofactor, key)) != CRYPT_OK) {
                      goto LBL_DONE;
                   }
                }
