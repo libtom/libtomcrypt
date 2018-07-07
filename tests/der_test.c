@@ -1301,7 +1301,7 @@ static void der_Xcode_test(void)
 }
 
 #ifdef LTC_TEST_READDIR
-int _der_decode_sequence_flexi(const void *in, unsigned long inlen, void* ctx)
+static int _der_decode_sequence_flexi(const void *in, unsigned long inlen, void* ctx)
 {
    ltc_asn1_list** list = ctx;
    if (der_decode_sequence_flexi(in, &inlen, list) == CRYPT_OK) {

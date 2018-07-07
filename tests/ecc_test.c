@@ -209,7 +209,7 @@ done:
    return err;
 }
 
-int _ecc_old_api(void)
+static int _ecc_old_api(void)
 {
    unsigned char buf[4][4096], ch;
    unsigned long x, y, z, s;
@@ -350,7 +350,7 @@ int _ecc_old_api(void)
    return CRYPT_OK;
 }
 
-int _ecc_new_api(void)
+static int _ecc_new_api(void)
 {
    const char* names[] = {
 #ifdef LTC_ECC_SECP112R1
@@ -517,7 +517,7 @@ int _ecc_new_api(void)
    return CRYPT_OK;
 }
 
-int _ecc_key_cmp(const int should_type, const ecc_key *should, const ecc_key *is)
+static int _ecc_key_cmp(const int should_type, const ecc_key *should, const ecc_key *is)
 {
    if (should_type != is->type)                               return CRYPT_ERROR;
    if (should_type == PK_PRIVATE) {
@@ -536,7 +536,7 @@ int _ecc_key_cmp(const int should_type, const ecc_key *should, const ecc_key *is
    return CRYPT_OK;
 }
 
-int _ecc_import_export(void) {
+static int _ecc_import_export(void) {
    const ltc_ecc_curve *cu;
    ecc_key key, pri, pub;
    unsigned char out[300];

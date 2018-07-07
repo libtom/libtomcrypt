@@ -8,7 +8,7 @@
  */
 #include "tomcrypt_private.h"
 
-void hash_gen(void)
+static void hash_gen(void)
 {
    unsigned char md[MAXBLOCKSIZE], *buf;
    unsigned long outlen, x, y, z;
@@ -49,7 +49,7 @@ void hash_gen(void)
    fclose(out);
 }
 
-void cipher_gen(void)
+static void cipher_gen(void)
 {
    unsigned char *key, pt[MAXBLOCKSIZE];
    unsigned long x, y, z, w;
@@ -124,7 +124,7 @@ void cipher_gen(void)
   fclose(out);
 }
 
-void hmac_gen(void)
+static void hmac_gen(void)
 {
    unsigned char key[MAXBLOCKSIZE], output[MAXBLOCKSIZE], *input;
    int x, y, z, err;
@@ -176,7 +176,7 @@ void hmac_gen(void)
    fclose(out);
 }
 
-void omac_gen(void)
+static void omac_gen(void)
 {
 #ifdef LTC_OMAC
    unsigned char key[MAXBLOCKSIZE], output[MAXBLOCKSIZE], input[MAXBLOCKSIZE*2+2];
@@ -237,7 +237,7 @@ void omac_gen(void)
 #endif
 }
 
-void pmac_gen(void)
+static void pmac_gen(void)
 {
 #ifdef LTC_PMAC
    unsigned char key[MAXBLOCKSIZE], output[MAXBLOCKSIZE], input[MAXBLOCKSIZE*2+2];
@@ -298,7 +298,7 @@ void pmac_gen(void)
 #endif
 }
 
-void eax_gen(void)
+static void eax_gen(void)
 {
 #ifdef LTC_EAX_MODE
    int err, kl, x, y1, z;
@@ -364,7 +364,7 @@ void eax_gen(void)
 #endif
 }
 
-void ocb_gen(void)
+static void ocb_gen(void)
 {
 #ifdef LTC_OCB_MODE
    int err, kl, x, y1, z;
@@ -433,7 +433,7 @@ void ocb_gen(void)
 #endif
 }
 
-void ocb3_gen(void)
+static void ocb3_gen(void)
 {
 #ifdef LTC_OCB3_MODE
    int err, kl, x, y1, z, noncelen;
@@ -503,7 +503,7 @@ void ocb3_gen(void)
 #endif
 }
 
-void ccm_gen(void)
+static void ccm_gen(void)
 {
 #ifdef LTC_CCM_MODE
    int err, kl, x, y1, z;
@@ -572,7 +572,7 @@ void ccm_gen(void)
 #endif
 }
 
-void gcm_gen(void)
+static void gcm_gen(void)
 {
 #ifdef LTC_GCM_MODE
    int err, kl, x, y1, z;
@@ -635,7 +635,7 @@ void gcm_gen(void)
 #endif
 }
 
-void base64_gen(void)
+static void base64_gen(void)
 {
    FILE *out;
    unsigned char src[32], ch;
@@ -655,11 +655,11 @@ void base64_gen(void)
    fclose(out);
 }
 
-void math_gen(void)
+static void math_gen(void)
 {
 }
 
-void ecc_gen(void)
+static void ecc_gen(void)
 {
    FILE         *out;
    unsigned char str[512];
@@ -701,7 +701,7 @@ void ecc_gen(void)
    fclose(out);
 }
 
-void lrw_gen(void)
+static void lrw_gen(void)
 {
 #ifdef LTC_LRW_MODE
    FILE *out;
