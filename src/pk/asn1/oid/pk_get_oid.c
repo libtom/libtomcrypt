@@ -9,49 +9,34 @@
 #include "tomcrypt_private.h"
 
 #ifdef LTC_DER
-static const oid_st rsa_oid = {
-   { 1, 2, 840, 113549, 1, 1, 1  },
-   7,
-};
 
-static const oid_st dsa_oid = {
-   { 1, 2, 840, 10040, 4, 1  },
-   6,
-};
+typedef struct {
+   int pka;
+   const char* oid;
+} pka_oid;
 
-static const oid_st ec_oid = {
-   { 1, 2, 840, 10045, 2, 1 },
-   6,
-};
-
-static const oid_st ec_primef = {
-   { 1, 2, 840, 10045, 1, 1 },
-   6,
+static const pka_oid oids[] = {
+                               { PKA_RSA, "1.2.840.113549.1.1.1" },
+                               { PKA_DSA, "1.2.840.10040.4.1" },
+                               { PKA_EC, "1.2.840.10045.2.1" },
+                               { PKA_EC_PRIMEF, "1.2.840.10045.1.1" },
 };
 
 /*
    Returns the OID of the public key algorithm.
    @return CRYPT_OK if valid
 */
-int pk_get_oid(int pk, oid_st *st)
+int pk_get_oid(int pk, const char **st)
 {
-   switch (pk) {
-      case PKA_RSA:
-         XMEMCPY(st, &rsa_oid, sizeof(*st));
-         break;
-      case PKA_DSA:
-         XMEMCPY(st, &dsa_oid, sizeof(*st));
-         break;
-      case PKA_EC:
-         XMEMCPY(st, &ec_oid, sizeof(*st));
-         break;
-      case PKA_EC_PRIMEF:
-         XMEMCPY(st, &ec_primef, sizeof(*st));
-         break;
-      default:
-         return CRYPT_INVALID_ARG;
+   unsigned int i;
+   LTC_ARGCHK(st != NULL);
+   for (i = 0; i < sizeof(oids)/sizeof(oids[0]); ++i) {
+      if (oids[i].pka == pk) {
+         *st = oids[i].oid;
+         return CRYPT_OK;
+      }
    }
-   return CRYPT_OK;
+   return CRYPT_INVALID_ARG;
 }
 #endif
 
