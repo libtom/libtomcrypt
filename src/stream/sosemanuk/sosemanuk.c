@@ -783,29 +783,29 @@ int sosemanuk_crypt(sosemanuk_state *st,
 /*
  * Cipher operation, as a PRNG: the provided output buffer is filled with
  * pseudo-random bytes as output from the stream cipher.
- * @param ss       The Sosemanuk state
+ * @param st       The Sosemanuk state
  * @param out      Data out
  * @param outlen   Length of output in bytes
  * @return CRYPT_OK on success
  */
-int sosemanuk_keystream(sosemanuk_state *ss, unsigned char *out, unsigned long outlen)
+int sosemanuk_keystream(sosemanuk_state *st, unsigned char *out, unsigned long outlen)
 {
    if (outlen == 0) return CRYPT_OK; /* nothing to do */
    LTC_ARGCHK(out != NULL);
    XMEMSET(out, 0, outlen);
-   return sosemanuk_crypt(ss, out, outlen, out);
+   return sosemanuk_crypt(st, out, outlen, out);
 }
 
 
 /*
  * Terminate and clear Sosemanuk key context
- * @param ss      The Sosemanuk state
+ * @param st      The Sosemanuk state
  * @return CRYPT_OK on success
  */
-int sosemanuk_done(sosemanuk_state *ss)
+int sosemanuk_done(sosemanuk_state *st)
 {
-   LTC_ARGCHK(ss != NULL);
-   XMEMSET(ss, 0, sizeof(sosemanuk_state));
+   LTC_ARGCHK(st != NULL);
+   XMEMSET(st, 0, sizeof(sosemanuk_state));
    return CRYPT_OK;
 }
 
