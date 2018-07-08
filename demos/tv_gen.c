@@ -176,9 +176,9 @@ static void hmac_gen(void)
    fclose(out);
 }
 
+#ifdef LTC_OMAC
 static void omac_gen(void)
 {
-#ifdef LTC_OMAC
    unsigned char key[MAXBLOCKSIZE], output[MAXBLOCKSIZE], input[MAXBLOCKSIZE*2+2];
    int err, x, y, z, kl;
    FILE *out;
@@ -234,12 +234,12 @@ static void omac_gen(void)
       fprintf(out, "\n");
    }
    fclose(out);
-#endif
 }
+#endif
 
+#ifdef LTC_PMAC
 static void pmac_gen(void)
 {
-#ifdef LTC_PMAC
    unsigned char key[MAXBLOCKSIZE], output[MAXBLOCKSIZE], input[MAXBLOCKSIZE*2+2];
    int err, x, y, z, kl;
    FILE *out;
@@ -295,12 +295,12 @@ static void pmac_gen(void)
       fprintf(out, "\n");
    }
    fclose(out);
-#endif
 }
+#endif
 
+#ifdef LTC_EAX_MODE
 static void eax_gen(void)
 {
-#ifdef LTC_EAX_MODE
    int err, kl, x, y1, z;
    FILE *out;
    unsigned char key[MAXBLOCKSIZE], nonce[MAXBLOCKSIZE*2], header[MAXBLOCKSIZE*2],
@@ -361,12 +361,12 @@ static void eax_gen(void)
       fprintf(out, "\n");
    }
    fclose(out);
-#endif
 }
+#endif
 
+#ifdef LTC_OCB_MODE
 static void ocb_gen(void)
 {
-#ifdef LTC_OCB_MODE
    int err, kl, x, y1, z;
    FILE *out;
    unsigned char key[MAXBLOCKSIZE], nonce[MAXBLOCKSIZE*2],
@@ -430,12 +430,12 @@ static void ocb_gen(void)
       fprintf(out, "\n");
    }
    fclose(out);
-#endif
 }
+#endif
 
+#ifdef LTC_OCB3_MODE
 static void ocb3_gen(void)
 {
-#ifdef LTC_OCB3_MODE
    int err, kl, x, y1, z, noncelen;
    FILE *out;
    unsigned char key[MAXBLOCKSIZE], nonce[MAXBLOCKSIZE*2],
@@ -500,12 +500,12 @@ static void ocb3_gen(void)
       fprintf(out, "\n");
    }
    fclose(out);
-#endif
 }
+#endif
 
+#ifdef LTC_CCM_MODE
 static void ccm_gen(void)
 {
-#ifdef LTC_CCM_MODE
    int err, kl, x, y1, z;
    FILE *out;
    unsigned char key[MAXBLOCKSIZE], nonce[MAXBLOCKSIZE*2],
@@ -569,12 +569,12 @@ static void ccm_gen(void)
       fprintf(out, "\n");
    }
    fclose(out);
-#endif
 }
+#endif
 
+#ifdef LTC_GCM_MODE
 static void gcm_gen(void)
 {
-#ifdef LTC_GCM_MODE
    int err, kl, x, y1, z;
    FILE *out;
    unsigned char key[MAXBLOCKSIZE], plaintext[MAXBLOCKSIZE*2], tag[MAXBLOCKSIZE];
@@ -632,8 +632,8 @@ static void gcm_gen(void)
       fprintf(out, "\n");
    }
    fclose(out);
-#endif
 }
+#endif
 
 static void base64_gen(void)
 {
@@ -701,9 +701,9 @@ static void ecc_gen(void)
    fclose(out);
 }
 
+#ifdef LTC_LRW_MODE
 static void lrw_gen(void)
 {
-#ifdef LTC_LRW_MODE
    FILE *out;
    unsigned char tweak[16], key[16], iv[16], buf[1024];
    int x, y, err;
@@ -765,8 +765,8 @@ static void lrw_gen(void)
        lrw_done(&lrw);
    }
    fclose(out);
-#endif
 }
+#endif
 
 int main(void)
 {
