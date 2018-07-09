@@ -337,7 +337,7 @@ src/pk/asn1/der/teletex_string/der_length_teletex_string.o \
 src/pk/asn1/der/utctime/der_decode_utctime.o src/pk/asn1/der/utctime/der_encode_utctime.o \
 src/pk/asn1/der/utctime/der_length_utctime.o src/pk/asn1/der/utf8/der_decode_utf8_string.o \
 src/pk/asn1/der/utf8/der_encode_utf8_string.o src/pk/asn1/der/utf8/der_length_utf8_string.o \
-src/pk/asn1/oid/pk_get_oid.o src/pk/asn1/oid/pk_oid_str.o \
+src/pk/asn1/oid/pk_get_oid.o src/pk/asn1/oid/pk_oid_asn1.o src/pk/asn1/oid/pk_oid_str.o \
 src/pk/asn1/x509/x509_decode_subject_public_key_info.o \
 src/pk/asn1/x509/x509_encode_subject_public_key_info.o src/pk/dh/dh.o src/pk/dh/dh_check_pubkey.o \
 src/pk/dh/dh_export.o src/pk/dh/dh_export_key.o src/pk/dh/dh_free.o src/pk/dh/dh_generate_key.o \

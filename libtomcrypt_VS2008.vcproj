@@ -2146,6 +2146,10 @@
 						>
 					</File>
 					<File
+						RelativePath="src\pk\asn1\oid\pk_oid_asn1.c"
+						>
+					</File>
+					<File
 						RelativePath="src\pk\asn1\oid\pk_oid_str.c"
 						>
 					</File>
