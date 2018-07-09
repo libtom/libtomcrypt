@@ -8,7 +8,7 @@
  */
 #include "tomcrypt_private.h"
 
-void hash_gen(void)
+static void hash_gen(void)
 {
    unsigned char md[MAXBLOCKSIZE], *buf;
    unsigned long outlen, x, y, z;
@@ -49,7 +49,7 @@ void hash_gen(void)
    fclose(out);
 }
 
-void cipher_gen(void)
+static void cipher_gen(void)
 {
    unsigned char *key, pt[MAXBLOCKSIZE];
    unsigned long x, y, z, w;
@@ -124,7 +124,7 @@ void cipher_gen(void)
   fclose(out);
 }
 
-void hmac_gen(void)
+static void hmac_gen(void)
 {
    unsigned char key[MAXBLOCKSIZE], output[MAXBLOCKSIZE], *input;
    int x, y, z, err;
@@ -176,9 +176,9 @@ void hmac_gen(void)
    fclose(out);
 }
 
-void omac_gen(void)
-{
 #ifdef LTC_OMAC
+static void omac_gen(void)
+{
    unsigned char key[MAXBLOCKSIZE], output[MAXBLOCKSIZE], input[MAXBLOCKSIZE*2+2];
    int err, x, y, z, kl;
    FILE *out;
@@ -234,12 +234,12 @@ void omac_gen(void)
       fprintf(out, "\n");
    }
    fclose(out);
-#endif
 }
+#endif
 
-void pmac_gen(void)
-{
 #ifdef LTC_PMAC
+static void pmac_gen(void)
+{
    unsigned char key[MAXBLOCKSIZE], output[MAXBLOCKSIZE], input[MAXBLOCKSIZE*2+2];
    int err, x, y, z, kl;
    FILE *out;
@@ -295,12 +295,12 @@ void pmac_gen(void)
       fprintf(out, "\n");
    }
    fclose(out);
-#endif
 }
+#endif
 
-void eax_gen(void)
-{
 #ifdef LTC_EAX_MODE
+static void eax_gen(void)
+{
    int err, kl, x, y1, z;
    FILE *out;
    unsigned char key[MAXBLOCKSIZE], nonce[MAXBLOCKSIZE*2], header[MAXBLOCKSIZE*2],
@@ -361,12 +361,12 @@ void eax_gen(void)
       fprintf(out, "\n");
    }
    fclose(out);
-#endif
 }
+#endif
 
-void ocb_gen(void)
-{
 #ifdef LTC_OCB_MODE
+static void ocb_gen(void)
+{
    int err, kl, x, y1, z;
    FILE *out;
    unsigned char key[MAXBLOCKSIZE], nonce[MAXBLOCKSIZE*2],
@@ -430,12 +430,12 @@ void ocb_gen(void)
       fprintf(out, "\n");
    }
    fclose(out);
-#endif
 }
+#endif
 
-void ocb3_gen(void)
-{
 #ifdef LTC_OCB3_MODE
+static void ocb3_gen(void)
+{
    int err, kl, x, y1, z, noncelen;
    FILE *out;
    unsigned char key[MAXBLOCKSIZE], nonce[MAXBLOCKSIZE*2],
@@ -500,12 +500,12 @@ void ocb3_gen(void)
       fprintf(out, "\n");
    }
    fclose(out);
-#endif
 }
+#endif
 
-void ccm_gen(void)
-{
 #ifdef LTC_CCM_MODE
+static void ccm_gen(void)
+{
    int err, kl, x, y1, z;
    FILE *out;
    unsigned char key[MAXBLOCKSIZE], nonce[MAXBLOCKSIZE*2],
@@ -569,12 +569,12 @@ void ccm_gen(void)
       fprintf(out, "\n");
    }
    fclose(out);
-#endif
 }
+#endif
 
-void gcm_gen(void)
-{
 #ifdef LTC_GCM_MODE
+static void gcm_gen(void)
+{
    int err, kl, x, y1, z;
    FILE *out;
    unsigned char key[MAXBLOCKSIZE], plaintext[MAXBLOCKSIZE*2], tag[MAXBLOCKSIZE];
@@ -632,10 +632,10 @@ void gcm_gen(void)
       fprintf(out, "\n");
    }
    fclose(out);
-#endif
 }
+#endif
 
-void base64_gen(void)
+static void base64_gen(void)
 {
    FILE *out;
    unsigned char src[32], ch;
@@ -655,11 +655,11 @@ void base64_gen(void)
    fclose(out);
 }
 
-void math_gen(void)
+static void math_gen(void)
 {
 }
 
-void ecc_gen(void)
+static void ecc_gen(void)
 {
    FILE         *out;
    unsigned char str[512];
@@ -701,9 +701,9 @@ void ecc_gen(void)
    fclose(out);
 }
 
-void lrw_gen(void)
-{
 #ifdef LTC_LRW_MODE
+static void lrw_gen(void)
+{
    FILE *out;
    unsigned char tweak[16], key[16], iv[16], buf[1024];
    int x, y, err;
@@ -765,8 +765,8 @@ void lrw_gen(void)
        lrw_done(&lrw);
    }
    fclose(out);
-#endif
 }
+#endif
 
 int main(void)
 {
