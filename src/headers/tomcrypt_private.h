@@ -30,12 +30,6 @@ enum public_key_algorithms {
  * Internal Types
  */
 
-typedef struct Oid {
-    unsigned long OID[16];
-    /** Number of OID digits in use */
-    unsigned long OIDlen;
-} oid_st;
-
 typedef struct {
   int size;
   const char *name, *base, *prime;
