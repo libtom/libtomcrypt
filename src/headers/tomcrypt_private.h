@@ -303,6 +303,8 @@ int x509_decode_subject_public_key_info(const unsigned char *in, unsigned long i
         unsigned int algorithm, void* public_key, unsigned long* public_key_len,
         ltc_asn1_type parameters_type, ltc_asn1_list* parameters, unsigned long *parameters_len);
 
+int pk_oid_cmp_with_asn1(const char *o1, const ltc_asn1_list *o2);
+
 #endif /* LTC_DER */
 
 /* tomcrypt_pkcs.h */
