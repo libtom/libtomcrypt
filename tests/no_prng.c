@@ -6,7 +6,9 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  */
+
 #include "tomcrypt.h"
+#include "tomcrypt_test.h"
 
 /**
   @file no_prng.c
@@ -29,7 +31,7 @@ typedef struct
   @param prng     [out] The PRNG state to initialize
   @return CRYPT_OK if successful
 */
-int no_prng_start(prng_state *prng)
+static int no_prng_start(prng_state *prng)
 {
    no_prng_desc_t *no_prng = (no_prng_desc_t*) prng;
    LTC_ARGCHK(no_prng != NULL);
@@ -47,7 +49,7 @@ int no_prng_start(prng_state *prng)
   @param prng     PRNG state to update
   @return CRYPT_OK if successful
 */
-int no_prng_add_entropy(const unsigned char *in, unsigned long inlen, prng_state *prng)
+static int no_prng_add_entropy(const unsigned char *in, unsigned long inlen, prng_state *prng)
 {
    no_prng_desc_t *no_prng = (no_prng_desc_t*) prng;
    LTC_ARGCHK(no_prng != NULL);
@@ -68,7 +70,7 @@ int no_prng_add_entropy(const unsigned char *in, unsigned long inlen, prng_state
   @param prng   The PRNG to make active
   @return CRYPT_OK if successful
 */
-int no_prng_ready(prng_state *prng)
+static int no_prng_ready(prng_state *prng)
 {
     LTC_ARGCHK(prng != NULL);
 
@@ -82,7 +84,7 @@ int no_prng_ready(prng_state *prng)
   @param prng     The active PRNG to read from
   @return Number of octets read
 */
-unsigned long no_prng_read(unsigned char *out, unsigned long outlen, prng_state *prng)
+static unsigned long no_prng_read(unsigned char *out, unsigned long outlen, prng_state *prng)
 {
    no_prng_desc_t *no_prng = (no_prng_desc_t*) prng;
    LTC_ARGCHK(no_prng != NULL);
@@ -101,7 +103,7 @@ unsigned long no_prng_read(unsigned char *out, unsigned long outlen, prng_state 
   @param prng   The PRNG to terminate
   @return CRYPT_OK if successful
 */
-int no_prng_done(prng_state *prng)
+static int no_prng_done(prng_state *prng)
 {
    LTC_UNUSED_PARAM(prng);
    return CRYPT_OK;
@@ -114,7 +116,7 @@ int no_prng_done(prng_state *prng)
   @param prng      The PRNG to export
   @return CRYPT_OK if successful
 */
-int no_prng_export(unsigned char *out, unsigned long *outlen, prng_state *prng)
+static int no_prng_export(unsigned char *out, unsigned long *outlen, prng_state *prng)
 {
    LTC_UNUSED_PARAM(out);
    LTC_UNUSED_PARAM(outlen);
@@ -129,7 +131,7 @@ int no_prng_export(unsigned char *out, unsigned long *outlen, prng_state *prng)
   @param prng     The PRNG to import
   @return CRYPT_OK if successful
 */
-int no_prng_import(const unsigned char *in, unsigned long inlen, prng_state *prng)
+static int no_prng_import(const unsigned char *in, unsigned long inlen, prng_state *prng)
 {
    LTC_UNUSED_PARAM(in);
    LTC_UNUSED_PARAM(inlen);
@@ -141,7 +143,7 @@ int no_prng_import(const unsigned char *in, unsigned long inlen, prng_state *prn
   PRNG self-test
   @return CRYPT_OK if successful, CRYPT_NOP if self-testing has been disabled
 */
-int no_prng_test(void)
+static int no_prng_test(void)
 {
    return CRYPT_OK;
 }

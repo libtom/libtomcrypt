@@ -1055,11 +1055,11 @@ typedef struct {
     unsigned ptr;
 } sosemanuk_state;
 
-int sosemanuk_setup(sosemanuk_state *ss, const unsigned char *key, unsigned long keylen);
-int sosemanuk_setiv(sosemanuk_state *ss, const unsigned char *iv, unsigned long ivlen);
-int sosemanuk_crypt(sosemanuk_state *ss, const unsigned char *in, unsigned long inlen, unsigned char *out);
-int sosemanuk_keystream(sosemanuk_state *ss, unsigned char *out, unsigned long outlen);
-int sosemanuk_done(sosemanuk_state *ss);
+int sosemanuk_setup(sosemanuk_state *st, const unsigned char *key, unsigned long keylen);
+int sosemanuk_setiv(sosemanuk_state *st, const unsigned char *iv, unsigned long ivlen);
+int sosemanuk_crypt(sosemanuk_state *st, const unsigned char *in, unsigned long inlen, unsigned char *out);
+int sosemanuk_keystream(sosemanuk_state *st, unsigned char *out, unsigned long outlen);
+int sosemanuk_done(sosemanuk_state *st);
 int sosemanuk_test(void);
 
 #endif /* LTC_SOSEMANUK */
