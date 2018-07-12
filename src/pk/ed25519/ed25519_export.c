@@ -28,7 +28,8 @@ int ed25519_export(       unsigned char *out, unsigned long *outlen,
                    const curve25519_key *key)
 {
    int err, std;
-   oid_st oid;
+   const char* OID;
+   unsigned long oid[16], oidlen;
    ltc_asn1_list alg_id[1];
    unsigned char private_key[34];
    unsigned long version, private_key_len = sizeof(private_key);
@@ -45,11 +46,15 @@ int ed25519_export(       unsigned char *out, unsigned long *outlen,
    if (which == PK_PRIVATE) {
       if(key->type != PK_PRIVATE) return CRYPT_PK_INVALID_TYPE;
 
-      if ((err = pk_get_oid(PKA_ED25519, &oid)) != CRYPT_OK) {
+      if ((err = pk_get_oid(PKA_ED25519, &OID)) != CRYPT_OK) {
+         return err;
+      }
+      oidlen = sizeof(oid)/sizeof(oid[0]);
+      if ((err = pk_oid_str_to_num(OID, oid, &oidlen)) != CRYPT_OK) {
          return err;
       }
 
-      LTC_SET_ASN1(alg_id, 0, LTC_ASN1_OBJECT_IDENTIFIER, oid.OID,   oid.OIDlen);
+      LTC_SET_ASN1(alg_id, 0, LTC_ASN1_OBJECT_IDENTIFIER, oid, oidlen);
 
       /* encode private key as PKCS#8 */
       if ((err = der_encode_octet_string(key->priv, 32uL, private_key, &private_key_len)) != CRYPT_OK) {

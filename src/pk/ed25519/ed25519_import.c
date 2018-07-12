@@ -25,7 +25,7 @@
 int ed25519_import(const unsigned char *in, unsigned long inlen, curve25519_key *key)
 {
    int err;
-   oid_st oid;
+   const char* oid;
    ltc_asn1_list alg_id[1];
    unsigned char private_key[34];
    unsigned long version, key_len;
@@ -70,10 +70,7 @@ int ed25519_import(const unsigned char *in, unsigned long inlen, curve25519_key 
    if ((err = pk_get_oid(PKA_ED25519, &oid)) != CRYPT_OK) {
       goto out;
    }
-   if ((alg_id[0].size != oid.OIDlen) ||
-         XMEMCMP(oid.OID, alg_id[0].data, oid.OIDlen * sizeof(oid.OID[0]))) {
-      /* OID mismatch */
-      err = CRYPT_PK_INVALID_TYPE;
+   if ((err = pk_oid_cmp_with_asn1(oid, &alg_id[0])) != CRYPT_OK) {
       goto out;
    }
 
