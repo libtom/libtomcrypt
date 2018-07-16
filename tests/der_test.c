@@ -676,7 +676,7 @@ static void der_set_test(void)
 static void _der_oid_test(void)
 {
    static const unsigned char oid_x690_8_19_5_example[] = { 0x06, 0x03, 0x88, 0x37, 0x03 };
-   unsigned long len;
+   unsigned long len, oid[3];
    unsigned char buf[64];
 
    ltc_asn1_list *decoded_list, static_list[1];
@@ -691,6 +691,14 @@ static void _der_oid_test(void)
 
    DO(do_compare_testvector(buf, len, oid_x690_8_19_5_example, sizeof(oid_x690_8_19_5_example), "OID X6.90 Ch. 8.19.5 Example", 0));
 
+   oid[0] = 3;
+   oid[1] = 4;
+   oid[2] = 5;
+
+   len = sizeof(buf);
+   SHOULD_FAIL(der_encode_object_identifier(oid, 3, buf, &len));
+   len = sizeof(buf);
+   SHOULD_FAIL(der_length_object_identifier(oid, 3, &len));
 }
 
 static void der_flexi_test(void)
