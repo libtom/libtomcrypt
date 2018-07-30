@@ -1301,6 +1301,12 @@ At the end you have to terminate the state:
 err = chacha_done(&st);
 \end{verbatim}
 
+To encrypt plaintext (or decrypt ciphertext) using ChaCha for data already in
+memory with a single function call, the following function may be used.
+\begin{verbatim}
+err = chacha_memory(key, keylen, iv, ivlen, datain, datalen, rounds, dataout);
+\end{verbatim}
+
 \mysection{Salsa20 and XSalsa20}
 
 \textit{Salsa20} was Daniel Bernstein's submission to the EU eSTREAM
@@ -1359,6 +1365,18 @@ err = salsa20_keystream(&st, out_buffer, out_len);
 Finally, when finished you should wipe the state.
 \begin{verbatim}
 err = salsa20_done(&st);
+\end{verbatim}
+
+To encrypt plaintext (or decrypt ciphertext) using Salsa20 for data already in
+memory with a single function call, the following function may be used.
+\begin{verbatim}
+err = salsa20_memory(key, keylen, iv, ivlen, datain, datalen, rounds, dataout);
+\end{verbatim}
+
+To encrypt plaintext (or decrypt ciphertext) using XSalsa20 for data already in
+memory with a single function call, the following function may be used.
+\begin{verbatim}
+err = xsalsa20_memory(key, keylen, nonce, nonce_len, datain, datalen, rounds, dataout);
 \end{verbatim}
 
 For both \textit{Salsa20} and \textit{XSalsa20} rounds must be an even number
@@ -1427,6 +1445,12 @@ To do multiple encryptions and decryptions with the same key, you will want to s
 you do not need to re-run \textit{sosemanuk\_setup()} again, unless of course, you called
 \textit{sosemanuk\_done()}.
 
+To encrypt plaintext (or decrypt ciphertext) using Sosemanuk for data already in
+memory with a single function call, the following function may be used.
+\begin{verbatim}
+err = sosemanuk_memory(key, keylen, iv, ivlen, datain, datalen, dataout);
+\end{verbatim}
+
 \mysection{Rabbit}
 
 \textit{Rabbit}, along with Salsa20, Sosemanuk, and HC-128, was named one of the winners
@@ -1482,6 +1506,12 @@ using \textit{rabbit\_setiv()} if you saved the state and did not wipe it with \
 You will want to use a different IV but you do not need to call \textit{rabbit\_setup()} a 2nd time,
 unless of course, you skipped calling \textit{rabbit\_setiv()}.
 
+To encrypt plaintext (or decrypt ciphertext) using Rabbit for data already in
+memory with a single function call, the following function may be used.
+\begin{verbatim}
+err = rabbit_memory(key, keylen, iv, ivlen, datain, datalen, dataout);
+\end{verbatim}
+
 For more information, see: \newline
 \hspace{4em}- \url{http://www.ecrypt.eu.org/stream/p3ciphers/rabbit/rabbit_p3.pdf} \newline
 \hspace{4em}- \url{https://tools.ietf.org/html/rfc4503}
@@ -1515,6 +1545,12 @@ At the end you have to terminate the state:
 err = rc4_stream_done(&st);
 \end{verbatim}
 
+To encrypt plaintext (or decrypt ciphertext) using RC6 for data already in
+memory with a single function call, the following function may be used.
+\begin{verbatim}
+err = rc4_stream_memory(key, keylen, datain, datalen, dataout);
+\end{verbatim}
+
 \mysection{Sober128}
 
 Supported key size: must be multiple of 4 bytes
@@ -1540,6 +1576,12 @@ err = sober128_stream_keystream(&st, out_buffer, out_len);
 At the end you have to terminate the state:
 \begin{verbatim}
 err = sober128_stream_done(&st);
+\end{verbatim}
+
+To encrypt plaintext (or decrypt ciphertext) using Sober128 for data already in
+memory with a single function call, the following function may be used.
+\begin{verbatim}
+err = sober128_stream_memory(key, keylen, iv, ivlen, datain, datalen, dataout);
 \end{verbatim}
 
 \chapter{Authenticated Encryption}
