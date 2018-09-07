@@ -11,28 +11,28 @@
 #ifdef LTC_DER
 
 typedef struct {
-   int pka;
+   enum ltc_oid_id id;
    const char* oid;
-} pka_oid;
+} oid_table_entry;
 
-static const pka_oid oids[] = {
-                               { PKA_RSA, "1.2.840.113549.1.1.1" },
-                               { PKA_DSA, "1.2.840.10040.4.1" },
-                               { PKA_EC, "1.2.840.10045.2.1" },
-                               { PKA_EC_PRIMEF, "1.2.840.10045.1.1" },
+static const oid_table_entry pka_oids[] = {
+                                              { PKA_RSA,       "1.2.840.113549.1.1.1" },
+                                              { PKA_DSA,       "1.2.840.10040.4.1" },
+                                              { PKA_EC,        "1.2.840.10045.2.1" },
+                                              { PKA_EC_PRIMEF, "1.2.840.10045.1.1" },
 };
 
 /*
-   Returns the OID of the public key algorithm.
+   Returns the OID requested.
    @return CRYPT_OK if valid
 */
-int pk_get_oid(int pk, const char **st)
+int pk_get_oid(enum ltc_oid_id id, const char **st)
 {
    unsigned int i;
    LTC_ARGCHK(st != NULL);
-   for (i = 0; i < sizeof(oids)/sizeof(oids[0]); ++i) {
-      if (oids[i].pka == pk) {
-         *st = oids[i].oid;
+   for (i = 0; i < sizeof(pka_oids)/sizeof(pka_oids[0]); ++i) {
+      if (pka_oids[i].id == id) {
+         *st = pka_oids[i].oid;
          return CRYPT_OK;
       }
    }
