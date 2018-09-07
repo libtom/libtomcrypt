@@ -113,7 +113,7 @@ int rsa_import_pkcs8(const unsigned char *in, unsigned long inlen,
    if (err != CRYPT_OK) { goto LBL_ERR; }
 
    /* check alg oid */
-   if ((err = pk_oid_cmp_with_asn1(rsaoid, &alg_seq[0]))) {
+   if ((err = pk_oid_cmp_with_asn1(rsaoid, &alg_seq[0])) != CRYPT_OK) {
       goto LBL_ERR;
    }
 
