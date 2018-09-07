@@ -1372,14 +1372,6 @@
 				>
 			</File>
 			<File
-				RelativePath="src\misc\pk_get_oid.c"
-				>
-			</File>
-			<File
-				RelativePath="src\misc\pk_oid_str.c"
-				>
-			</File>
-			<File
 				RelativePath="src\misc\zeromem.c"
 				>
 			</File>
@@ -2145,6 +2137,22 @@
 							>
 						</File>
 					</Filter>
+				</Filter>
+				<Filter
+					Name="oid"
+					>
+					<File
+						RelativePath="src\pk\asn1\oid\pk_get_oid.c"
+						>
+					</File>
+					<File
+						RelativePath="src\pk\asn1\oid\pk_oid_asn1.c"
+						>
+					</File>
+					<File
+						RelativePath="src\pk\asn1\oid\pk_oid_str.c"
+						>
+					</File>
 				</Filter>
 				<Filter
 					Name="x509"

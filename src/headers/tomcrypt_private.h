@@ -19,7 +19,7 @@
  * Internal Enums
  */
 
-enum public_key_algorithms {
+enum ltc_oid_id {
    PKA_RSA,
    PKA_DSA,
    PKA_EC,
@@ -29,12 +29,6 @@ enum public_key_algorithms {
 /*
  * Internal Types
  */
-
-typedef struct Oid {
-    unsigned long OID[16];
-    /** Number of OID digits in use */
-    unsigned long OIDlen;
-} oid_st;
 
 typedef struct {
   int size;
@@ -179,7 +173,7 @@ void copy_or_zeromem(const unsigned char* src, unsigned char* dest, unsigned lon
 int rand_bn_bits(void *N, int bits, prng_state *prng, int wprng);
 int rand_bn_upto(void *N, void *limit, prng_state *prng, int wprng);
 
-int pk_get_oid(int pk, oid_st *st);
+int pk_get_oid(enum ltc_oid_id id, const char **st);
 int pk_oid_str_to_num(const char *OID, unsigned long *oid, unsigned long *oidlen);
 int pk_oid_num_to_str(const unsigned long *oid, unsigned long oidlen, char *OID, unsigned long *outlen);
 
@@ -302,6 +296,8 @@ int x509_encode_subject_public_key_info(unsigned char *out, unsigned long *outle
 int x509_decode_subject_public_key_info(const unsigned char *in, unsigned long inlen,
         unsigned int algorithm, void* public_key, unsigned long* public_key_len,
         ltc_asn1_type parameters_type, ltc_asn1_list* parameters, unsigned long *parameters_len);
+
+int pk_oid_cmp_with_asn1(const char *o1, const ltc_asn1_list *o2);
 
 #endif /* LTC_DER */
 

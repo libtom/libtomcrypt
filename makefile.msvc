@@ -103,29 +103,29 @@ src/misc/crypt/crypt_register_prng.obj src/misc/crypt/crypt_sizes.obj \
 src/misc/crypt/crypt_unregister_cipher.obj src/misc/crypt/crypt_unregister_hash.obj \
 src/misc/crypt/crypt_unregister_prng.obj src/misc/error_to_string.obj src/misc/hkdf/hkdf.obj \
 src/misc/hkdf/hkdf_test.obj src/misc/mem_neq.obj src/misc/padding/padding_depad.obj \
-src/misc/padding/padding_pad.obj src/misc/pk_get_oid.obj src/misc/pk_oid_str.obj src/misc/pkcs12/pkcs12_kdf.obj \
-src/misc/pkcs12/pkcs12_utf8_to_utf16.obj src/misc/pkcs5/pkcs_5_1.obj src/misc/pkcs5/pkcs_5_2.obj \
-src/misc/pkcs5/pkcs_5_test.obj src/misc/zeromem.obj src/modes/cbc/cbc_decrypt.obj src/modes/cbc/cbc_done.obj \
-src/modes/cbc/cbc_encrypt.obj src/modes/cbc/cbc_getiv.obj src/modes/cbc/cbc_setiv.obj \
-src/modes/cbc/cbc_start.obj src/modes/cfb/cfb_decrypt.obj src/modes/cfb/cfb_done.obj \
-src/modes/cfb/cfb_encrypt.obj src/modes/cfb/cfb_getiv.obj src/modes/cfb/cfb_setiv.obj \
-src/modes/cfb/cfb_start.obj src/modes/ctr/ctr_decrypt.obj src/modes/ctr/ctr_done.obj \
-src/modes/ctr/ctr_encrypt.obj src/modes/ctr/ctr_getiv.obj src/modes/ctr/ctr_setiv.obj \
-src/modes/ctr/ctr_start.obj src/modes/ctr/ctr_test.obj src/modes/ecb/ecb_decrypt.obj src/modes/ecb/ecb_done.obj \
-src/modes/ecb/ecb_encrypt.obj src/modes/ecb/ecb_start.obj src/modes/f8/f8_decrypt.obj src/modes/f8/f8_done.obj \
-src/modes/f8/f8_encrypt.obj src/modes/f8/f8_getiv.obj src/modes/f8/f8_setiv.obj src/modes/f8/f8_start.obj \
-src/modes/f8/f8_test_mode.obj src/modes/lrw/lrw_decrypt.obj src/modes/lrw/lrw_done.obj \
-src/modes/lrw/lrw_encrypt.obj src/modes/lrw/lrw_getiv.obj src/modes/lrw/lrw_process.obj \
-src/modes/lrw/lrw_setiv.obj src/modes/lrw/lrw_start.obj src/modes/lrw/lrw_test.obj \
-src/modes/ofb/ofb_decrypt.obj src/modes/ofb/ofb_done.obj src/modes/ofb/ofb_encrypt.obj \
-src/modes/ofb/ofb_getiv.obj src/modes/ofb/ofb_setiv.obj src/modes/ofb/ofb_start.obj \
-src/modes/xts/xts_decrypt.obj src/modes/xts/xts_done.obj src/modes/xts/xts_encrypt.obj \
-src/modes/xts/xts_init.obj src/modes/xts/xts_mult_x.obj src/modes/xts/xts_test.obj \
-src/pk/asn1/der/bit/der_decode_bit_string.obj src/pk/asn1/der/bit/der_decode_raw_bit_string.obj \
-src/pk/asn1/der/bit/der_encode_bit_string.obj src/pk/asn1/der/bit/der_encode_raw_bit_string.obj \
-src/pk/asn1/der/bit/der_length_bit_string.obj src/pk/asn1/der/boolean/der_decode_boolean.obj \
-src/pk/asn1/der/boolean/der_encode_boolean.obj src/pk/asn1/der/boolean/der_length_boolean.obj \
-src/pk/asn1/der/choice/der_decode_choice.obj src/pk/asn1/der/custom_type/der_decode_custom_type.obj \
+src/misc/padding/padding_pad.obj src/misc/pkcs12/pkcs12_kdf.obj src/misc/pkcs12/pkcs12_utf8_to_utf16.obj \
+src/misc/pkcs5/pkcs_5_1.obj src/misc/pkcs5/pkcs_5_2.obj src/misc/pkcs5/pkcs_5_test.obj src/misc/zeromem.obj \
+src/modes/cbc/cbc_decrypt.obj src/modes/cbc/cbc_done.obj src/modes/cbc/cbc_encrypt.obj \
+src/modes/cbc/cbc_getiv.obj src/modes/cbc/cbc_setiv.obj src/modes/cbc/cbc_start.obj \
+src/modes/cfb/cfb_decrypt.obj src/modes/cfb/cfb_done.obj src/modes/cfb/cfb_encrypt.obj \
+src/modes/cfb/cfb_getiv.obj src/modes/cfb/cfb_setiv.obj src/modes/cfb/cfb_start.obj \
+src/modes/ctr/ctr_decrypt.obj src/modes/ctr/ctr_done.obj src/modes/ctr/ctr_encrypt.obj \
+src/modes/ctr/ctr_getiv.obj src/modes/ctr/ctr_setiv.obj src/modes/ctr/ctr_start.obj src/modes/ctr/ctr_test.obj \
+src/modes/ecb/ecb_decrypt.obj src/modes/ecb/ecb_done.obj src/modes/ecb/ecb_encrypt.obj \
+src/modes/ecb/ecb_start.obj src/modes/f8/f8_decrypt.obj src/modes/f8/f8_done.obj src/modes/f8/f8_encrypt.obj \
+src/modes/f8/f8_getiv.obj src/modes/f8/f8_setiv.obj src/modes/f8/f8_start.obj src/modes/f8/f8_test_mode.obj \
+src/modes/lrw/lrw_decrypt.obj src/modes/lrw/lrw_done.obj src/modes/lrw/lrw_encrypt.obj \
+src/modes/lrw/lrw_getiv.obj src/modes/lrw/lrw_process.obj src/modes/lrw/lrw_setiv.obj \
+src/modes/lrw/lrw_start.obj src/modes/lrw/lrw_test.obj src/modes/ofb/ofb_decrypt.obj src/modes/ofb/ofb_done.obj \
+src/modes/ofb/ofb_encrypt.obj src/modes/ofb/ofb_getiv.obj src/modes/ofb/ofb_setiv.obj \
+src/modes/ofb/ofb_start.obj src/modes/xts/xts_decrypt.obj src/modes/xts/xts_done.obj \
+src/modes/xts/xts_encrypt.obj src/modes/xts/xts_init.obj src/modes/xts/xts_mult_x.obj \
+src/modes/xts/xts_test.obj src/pk/asn1/der/bit/der_decode_bit_string.obj \
+src/pk/asn1/der/bit/der_decode_raw_bit_string.obj src/pk/asn1/der/bit/der_encode_bit_string.obj \
+src/pk/asn1/der/bit/der_encode_raw_bit_string.obj src/pk/asn1/der/bit/der_length_bit_string.obj \
+src/pk/asn1/der/boolean/der_decode_boolean.obj src/pk/asn1/der/boolean/der_encode_boolean.obj \
+src/pk/asn1/der/boolean/der_length_boolean.obj src/pk/asn1/der/choice/der_decode_choice.obj \
+src/pk/asn1/der/custom_type/der_decode_custom_type.obj \
 src/pk/asn1/der/custom_type/der_encode_custom_type.obj \
 src/pk/asn1/der/custom_type/der_length_custom_type.obj src/pk/asn1/der/general/der_asn1_maps.obj \
 src/pk/asn1/der/general/der_decode_asn1_identifier.obj src/pk/asn1/der/general/der_decode_asn1_length.obj \
@@ -160,6 +160,7 @@ src/pk/asn1/der/teletex_string/der_length_teletex_string.obj \
 src/pk/asn1/der/utctime/der_decode_utctime.obj src/pk/asn1/der/utctime/der_encode_utctime.obj \
 src/pk/asn1/der/utctime/der_length_utctime.obj src/pk/asn1/der/utf8/der_decode_utf8_string.obj \
 src/pk/asn1/der/utf8/der_encode_utf8_string.obj src/pk/asn1/der/utf8/der_length_utf8_string.obj \
+src/pk/asn1/oid/pk_get_oid.obj src/pk/asn1/oid/pk_oid_asn1.obj src/pk/asn1/oid/pk_oid_str.obj \
 src/pk/asn1/x509/x509_decode_subject_public_key_info.obj \
 src/pk/asn1/x509/x509_encode_subject_public_key_info.obj src/pk/dh/dh.obj src/pk/dh/dh_check_pubkey.obj \
 src/pk/dh/dh_export.obj src/pk/dh/dh_export_key.obj src/pk/dh/dh_free.obj src/pk/dh/dh_generate_key.obj \

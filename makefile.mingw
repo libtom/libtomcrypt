@@ -110,29 +110,29 @@ src/misc/crypt/crypt_register_prng.o src/misc/crypt/crypt_sizes.o \
 src/misc/crypt/crypt_unregister_cipher.o src/misc/crypt/crypt_unregister_hash.o \
 src/misc/crypt/crypt_unregister_prng.o src/misc/error_to_string.o src/misc/hkdf/hkdf.o \
 src/misc/hkdf/hkdf_test.o src/misc/mem_neq.o src/misc/padding/padding_depad.o \
-src/misc/padding/padding_pad.o src/misc/pk_get_oid.o src/misc/pk_oid_str.o src/misc/pkcs12/pkcs12_kdf.o \
-src/misc/pkcs12/pkcs12_utf8_to_utf16.o src/misc/pkcs5/pkcs_5_1.o src/misc/pkcs5/pkcs_5_2.o \
-src/misc/pkcs5/pkcs_5_test.o src/misc/zeromem.o src/modes/cbc/cbc_decrypt.o src/modes/cbc/cbc_done.o \
-src/modes/cbc/cbc_encrypt.o src/modes/cbc/cbc_getiv.o src/modes/cbc/cbc_setiv.o \
-src/modes/cbc/cbc_start.o src/modes/cfb/cfb_decrypt.o src/modes/cfb/cfb_done.o \
-src/modes/cfb/cfb_encrypt.o src/modes/cfb/cfb_getiv.o src/modes/cfb/cfb_setiv.o \
-src/modes/cfb/cfb_start.o src/modes/ctr/ctr_decrypt.o src/modes/ctr/ctr_done.o \
-src/modes/ctr/ctr_encrypt.o src/modes/ctr/ctr_getiv.o src/modes/ctr/ctr_setiv.o \
-src/modes/ctr/ctr_start.o src/modes/ctr/ctr_test.o src/modes/ecb/ecb_decrypt.o src/modes/ecb/ecb_done.o \
-src/modes/ecb/ecb_encrypt.o src/modes/ecb/ecb_start.o src/modes/f8/f8_decrypt.o src/modes/f8/f8_done.o \
-src/modes/f8/f8_encrypt.o src/modes/f8/f8_getiv.o src/modes/f8/f8_setiv.o src/modes/f8/f8_start.o \
-src/modes/f8/f8_test_mode.o src/modes/lrw/lrw_decrypt.o src/modes/lrw/lrw_done.o \
-src/modes/lrw/lrw_encrypt.o src/modes/lrw/lrw_getiv.o src/modes/lrw/lrw_process.o \
-src/modes/lrw/lrw_setiv.o src/modes/lrw/lrw_start.o src/modes/lrw/lrw_test.o \
-src/modes/ofb/ofb_decrypt.o src/modes/ofb/ofb_done.o src/modes/ofb/ofb_encrypt.o \
-src/modes/ofb/ofb_getiv.o src/modes/ofb/ofb_setiv.o src/modes/ofb/ofb_start.o \
-src/modes/xts/xts_decrypt.o src/modes/xts/xts_done.o src/modes/xts/xts_encrypt.o \
-src/modes/xts/xts_init.o src/modes/xts/xts_mult_x.o src/modes/xts/xts_test.o \
-src/pk/asn1/der/bit/der_decode_bit_string.o src/pk/asn1/der/bit/der_decode_raw_bit_string.o \
-src/pk/asn1/der/bit/der_encode_bit_string.o src/pk/asn1/der/bit/der_encode_raw_bit_string.o \
-src/pk/asn1/der/bit/der_length_bit_string.o src/pk/asn1/der/boolean/der_decode_boolean.o \
-src/pk/asn1/der/boolean/der_encode_boolean.o src/pk/asn1/der/boolean/der_length_boolean.o \
-src/pk/asn1/der/choice/der_decode_choice.o src/pk/asn1/der/custom_type/der_decode_custom_type.o \
+src/misc/padding/padding_pad.o src/misc/pkcs12/pkcs12_kdf.o src/misc/pkcs12/pkcs12_utf8_to_utf16.o \
+src/misc/pkcs5/pkcs_5_1.o src/misc/pkcs5/pkcs_5_2.o src/misc/pkcs5/pkcs_5_test.o src/misc/zeromem.o \
+src/modes/cbc/cbc_decrypt.o src/modes/cbc/cbc_done.o src/modes/cbc/cbc_encrypt.o \
+src/modes/cbc/cbc_getiv.o src/modes/cbc/cbc_setiv.o src/modes/cbc/cbc_start.o \
+src/modes/cfb/cfb_decrypt.o src/modes/cfb/cfb_done.o src/modes/cfb/cfb_encrypt.o \
+src/modes/cfb/cfb_getiv.o src/modes/cfb/cfb_setiv.o src/modes/cfb/cfb_start.o \
+src/modes/ctr/ctr_decrypt.o src/modes/ctr/ctr_done.o src/modes/ctr/ctr_encrypt.o \
+src/modes/ctr/ctr_getiv.o src/modes/ctr/ctr_setiv.o src/modes/ctr/ctr_start.o src/modes/ctr/ctr_test.o \
+src/modes/ecb/ecb_decrypt.o src/modes/ecb/ecb_done.o src/modes/ecb/ecb_encrypt.o \
+src/modes/ecb/ecb_start.o src/modes/f8/f8_decrypt.o src/modes/f8/f8_done.o src/modes/f8/f8_encrypt.o \
+src/modes/f8/f8_getiv.o src/modes/f8/f8_setiv.o src/modes/f8/f8_start.o src/modes/f8/f8_test_mode.o \
+src/modes/lrw/lrw_decrypt.o src/modes/lrw/lrw_done.o src/modes/lrw/lrw_encrypt.o \
+src/modes/lrw/lrw_getiv.o src/modes/lrw/lrw_process.o src/modes/lrw/lrw_setiv.o \
+src/modes/lrw/lrw_start.o src/modes/lrw/lrw_test.o src/modes/ofb/ofb_decrypt.o src/modes/ofb/ofb_done.o \
+src/modes/ofb/ofb_encrypt.o src/modes/ofb/ofb_getiv.o src/modes/ofb/ofb_setiv.o \
+src/modes/ofb/ofb_start.o src/modes/xts/xts_decrypt.o src/modes/xts/xts_done.o \
+src/modes/xts/xts_encrypt.o src/modes/xts/xts_init.o src/modes/xts/xts_mult_x.o \
+src/modes/xts/xts_test.o src/pk/asn1/der/bit/der_decode_bit_string.o \
+src/pk/asn1/der/bit/der_decode_raw_bit_string.o src/pk/asn1/der/bit/der_encode_bit_string.o \
+src/pk/asn1/der/bit/der_encode_raw_bit_string.o src/pk/asn1/der/bit/der_length_bit_string.o \
+src/pk/asn1/der/boolean/der_decode_boolean.o src/pk/asn1/der/boolean/der_encode_boolean.o \
+src/pk/asn1/der/boolean/der_length_boolean.o src/pk/asn1/der/choice/der_decode_choice.o \
+src/pk/asn1/der/custom_type/der_decode_custom_type.o \
 src/pk/asn1/der/custom_type/der_encode_custom_type.o \
 src/pk/asn1/der/custom_type/der_length_custom_type.o src/pk/asn1/der/general/der_asn1_maps.o \
 src/pk/asn1/der/general/der_decode_asn1_identifier.o src/pk/asn1/der/general/der_decode_asn1_length.o \
@@ -167,6 +167,7 @@ src/pk/asn1/der/teletex_string/der_length_teletex_string.o \
 src/pk/asn1/der/utctime/der_decode_utctime.o src/pk/asn1/der/utctime/der_encode_utctime.o \
 src/pk/asn1/der/utctime/der_length_utctime.o src/pk/asn1/der/utf8/der_decode_utf8_string.o \
 src/pk/asn1/der/utf8/der_encode_utf8_string.o src/pk/asn1/der/utf8/der_length_utf8_string.o \
+src/pk/asn1/oid/pk_get_oid.o src/pk/asn1/oid/pk_oid_asn1.o src/pk/asn1/oid/pk_oid_str.o \
 src/pk/asn1/x509/x509_decode_subject_public_key_info.o \
 src/pk/asn1/x509/x509_encode_subject_public_key_info.o src/pk/dh/dh.o src/pk/dh/dh_check_pubkey.o \
 src/pk/dh/dh_export.o src/pk/dh/dh_export_key.o src/pk/dh/dh_free.o src/pk/dh/dh_generate_key.o \

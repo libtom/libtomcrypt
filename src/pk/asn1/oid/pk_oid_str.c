@@ -11,29 +11,38 @@
 
 int pk_oid_str_to_num(const char *OID, unsigned long *oid, unsigned long *oidlen)
 {
-   unsigned long i, j, limit;
+   unsigned long i, j, limit, OID_len, oid_j;
 
-   LTC_ARGCHK(oid != NULL);
    LTC_ARGCHK(oidlen != NULL);
 
    limit = *oidlen;
    *oidlen = 0; /* make sure that we return zero oidlen on error */
    for (i = 0; i < limit; i++) oid[i] = 0;
 
-   if ((OID == NULL) || (strlen(OID) == 0)) return CRYPT_OK;
+   if (OID == NULL) return CRYPT_OK;
 
-   for (i = 0, j = 0; i < strlen(OID); i++) {
+   OID_len = strlen(OID);
+   if (OID_len == 0) return CRYPT_OK;
+
+   for (i = 0, j = 0; i < OID_len; i++) {
       if (OID[i] == '.') {
-         if (++j >= limit) return CRYPT_ERROR;
+         if (++j >= limit) continue;
       }
       else if ((OID[i] >= '0') && (OID[i] <= '9')) {
+         if ((j >= limit) || (oid == NULL)) continue;
+         oid_j = oid[j];
          oid[j] = oid[j] * 10 + (OID[i] - '0');
+         if (oid[j] < oid_j) return CRYPT_OVERFLOW;
       }
       else {
          return CRYPT_ERROR;
       }
    }
    if (j == 0) return CRYPT_ERROR;
+   if (j >= limit) {
+      *oidlen = j;
+      return CRYPT_BUFFER_OVERFLOW;
+   }
    *oidlen = j + 1;
    return CRYPT_OK;
 }
@@ -43,7 +52,6 @@ int pk_oid_num_to_str(const unsigned long *oid, unsigned long oidlen, char *OID,
    int i;
    unsigned long j, k;
    char tmp[256] = { 0 };
-   unsigned long tmpsz = sizeof(tmp);
 
    LTC_ARGCHK(oid != NULL);
    LTC_ARGCHK(OID != NULL);
@@ -53,18 +61,18 @@ int pk_oid_num_to_str(const unsigned long *oid, unsigned long oidlen, char *OID,
       j = oid[i];
       if (j == 0) {
          tmp[k] = '0';
-         if (++k >= tmpsz) return CRYPT_ERROR;
+         if (++k >= sizeof(tmp)) return CRYPT_ERROR;
       }
       else {
          while (j > 0) {
             tmp[k] = '0' + (j % 10);
-            if (++k >= tmpsz) return CRYPT_ERROR;
+            if (++k >= sizeof(tmp)) return CRYPT_ERROR;
             j /= 10;
          }
       }
       if (i > 0) {
         tmp[k] = '.';
-        if (++k >= tmpsz) return CRYPT_ERROR;
+        if (++k >= sizeof(tmp)) return CRYPT_ERROR;
       }
    }
    if (*outlen < k + 1) {

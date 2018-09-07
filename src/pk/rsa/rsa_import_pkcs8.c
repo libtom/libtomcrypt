@@ -56,7 +56,7 @@ int rsa_import_pkcs8(const unsigned char *in, unsigned long inlen,
    unsigned char *buf1 = NULL, *buf2 = NULL;
    unsigned long buf1len, buf2len;
    unsigned long oid[16];
-   oid_st        rsaoid;
+   const char    *rsaoid;
    ltc_asn1_list alg_seq[2], top_seq[3];
    ltc_asn1_list alg_seq_e[2], key_seq_e[2], top_seq_e[2];
    unsigned char *decrypted = NULL;
@@ -113,9 +113,7 @@ int rsa_import_pkcs8(const unsigned char *in, unsigned long inlen,
    if (err != CRYPT_OK) { goto LBL_ERR; }
 
    /* check alg oid */
-   if ((alg_seq[0].size != rsaoid.OIDlen) ||
-      XMEMCMP(rsaoid.OID, alg_seq[0].data, rsaoid.OIDlen * sizeof(rsaoid.OID[0])) != 0) {
-      err = CRYPT_PK_INVALID_TYPE;
+   if ((err = pk_oid_cmp_with_asn1(rsaoid, &alg_seq[0]))) {
       goto LBL_ERR;
    }
 

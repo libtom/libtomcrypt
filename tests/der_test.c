@@ -17,7 +17,7 @@ int der_test(void)
 
 #else
 
-#if defined(LTC_TEST_DBG) && LTC_TEST_DBG > 1
+#if defined(LTC_TEST_DBG) && LTC_TEST_DBG > 2
 #define LTC_DER_TESTS_PRINT_FLEXI
 #endif
 

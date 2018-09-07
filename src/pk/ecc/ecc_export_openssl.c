@@ -27,7 +27,8 @@ int ecc_export_openssl(unsigned char *out, unsigned long *outlen, int type, cons
    unsigned char bin_a[256], bin_b[256], bin_k[256], bin_g[512], bin_xy[512];
    unsigned long len_a, len_b, len_k, len_g, len_xy;
    unsigned long cofactor, one = 1;
-   oid_st oid;
+   const char *OID;
+   unsigned long oid[16], oidlen;
    ltc_asn1_list seq_fieldid[2], seq_curve[2], seq_ecparams[6], seq_priv[4], pub_xy, ecparams;
    int flag_oid = type & PK_CURVEOID ? 1 : 0;
    int flag_com = type & PK_COMPRESSED ? 1 : 0;
@@ -72,7 +73,7 @@ int ecc_export_openssl(unsigned char *out, unsigned long *outlen, int type, cons
    cofactor = key->dp.cofactor;
 
    /* we support only prime-field EC */
-   if ((err = pk_get_oid(PKA_EC_PRIMEF, &oid)) != CRYPT_OK)     { goto error; }
+   if ((err = pk_get_oid(PKA_EC_PRIMEF, &OID)) != CRYPT_OK)     { goto error; }
 
    if (flag_oid) {
       /* http://tools.ietf.org/html/rfc5912
@@ -102,8 +103,13 @@ int ecc_export_openssl(unsigned char *out, unsigned long *outlen, int type, cons
          }
       */
 
+      oidlen = sizeof(oid)/sizeof(oid[0]);
+      if ((err = pk_oid_str_to_num(OID, oid, &oidlen)) != CRYPT_OK) {
+         goto error;
+      }
+
       /* FieldID SEQUENCE */
-      LTC_SET_ASN1(seq_fieldid,  0, LTC_ASN1_OBJECT_IDENTIFIER, oid.OID,     oid.OIDlen);
+      LTC_SET_ASN1(seq_fieldid,  0, LTC_ASN1_OBJECT_IDENTIFIER, oid,         oidlen);
       LTC_SET_ASN1(seq_fieldid,  1, LTC_ASN1_INTEGER,           prime,       1UL);
 
       /* Curve SEQUENCE */
