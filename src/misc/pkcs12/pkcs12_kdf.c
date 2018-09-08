@@ -27,7 +27,7 @@ int pkcs12_kdf(               int   hash_id,
    unsigned int tmp, i, j, n;
    unsigned char ch;
    unsigned char D[MAXBLOCKSIZE], A[MAXBLOCKSIZE], B[MAXBLOCKSIZE];
-   unsigned char *I = NULL, *key = NULL;
+   unsigned char *I, *key;
    int err = CRYPT_ERROR;
 
    LTC_ARGCHK(pw   != NULL);
