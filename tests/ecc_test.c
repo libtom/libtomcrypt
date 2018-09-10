@@ -350,6 +350,25 @@ static int _ecc_old_api(void)
    return CRYPT_OK;
 }
 
+static int _ecc_key_cmp(const int should_type, const ecc_key *should, const ecc_key *is)
+{
+   if (should_type != is->type)                               return CRYPT_ERROR;
+   if (should_type == PK_PRIVATE) {
+      if (mp_cmp(should->k, is->k) != LTC_MP_EQ)              return CRYPT_ERROR;
+   }
+   if (mp_cmp(should->dp.prime,  is->dp.prime)  != LTC_MP_EQ) return CRYPT_ERROR;
+   if (mp_cmp(should->dp.A,      is->dp.A)      != LTC_MP_EQ) return CRYPT_ERROR;
+   if (mp_cmp(should->dp.B,      is->dp.B)      != LTC_MP_EQ) return CRYPT_ERROR;
+   if (mp_cmp(should->dp.order,  is->dp.order)  != LTC_MP_EQ) return CRYPT_ERROR;
+   if (mp_cmp(should->dp.base.x, is->dp.base.x) != LTC_MP_EQ) return CRYPT_ERROR;
+   if (mp_cmp(should->dp.base.y, is->dp.base.y) != LTC_MP_EQ) return CRYPT_ERROR;
+   if (mp_cmp(should->pubkey.x,  is->pubkey.x)  != LTC_MP_EQ) return CRYPT_ERROR;
+   if (mp_cmp(should->pubkey.y,  is->pubkey.y)  != LTC_MP_EQ) return CRYPT_ERROR;
+   if (should->dp.size != is->dp.size)                        return CRYPT_ERROR;
+   if (should->dp.cofactor != is->dp.cofactor)                return CRYPT_ERROR;
+   return CRYPT_OK;
+}
+
 static int _ecc_new_api(void)
 {
    const char* names[] = {
@@ -474,17 +493,17 @@ static int _ecc_new_api(void)
       DO(ecc_set_curve(dp, &privkey));
       DO(ecc_set_key(buf, len, PK_PRIVATE, &privkey));
 
-#ifndef USE_TFM
-      /* XXX-FIXME: TFM does not support sqrtmod_prime */
-      /* export compressed public key */
-      len = sizeof(buf);
-      DO(ecc_get_key(buf, &len, PK_PUBLIC|PK_COMPRESSED, &privkey));
-      if (len != 1 + (unsigned)ecc_get_size(&privkey)) return CRYPT_FAIL_TESTVECTOR;
-      /* load exported public+compressed key */
-      DO(ecc_set_curve(dp, &pubkey));
-      DO(ecc_set_key(buf, len, PK_PUBLIC, &pubkey));
-      ecc_free(&pubkey);
-#endif
+      if (strcmp(ltc_mp.name, "TomsFastMath") != 0) {
+         /* XXX-FIXME: TFM does not support sqrtmod_prime */
+         /* export compressed public key */
+         len = sizeof(buf);
+         DO(ecc_get_key(buf, &len, PK_PUBLIC|PK_COMPRESSED, &privkey));
+         if (len != 1 + (unsigned)ecc_get_size(&privkey)) return CRYPT_FAIL_TESTVECTOR;
+         /* load exported public+compressed key */
+         DO(ecc_set_curve(dp, &pubkey));
+         DO(ecc_set_key(buf, len, PK_PUBLIC, &pubkey));
+         ecc_free(&pubkey);
+      }
 
       /* export long public key */
       len = sizeof(buf);
@@ -501,6 +520,27 @@ static int _ecc_new_api(void)
       DO(ecc_verify_hash(buf, len, data16, 16, &stat, &pubkey));
       if (stat != 1) return CRYPT_FAIL_TESTVECTOR;
 
+#ifdef LTC_ECC_SHAMIR
+      /* XXX-FIXME: ecc_recover_key currently requires mul2add */
+      if (strcmp(ltc_mp.name, "TomsFastMath") != 0) {
+         /* XXX-FIXME: TFM does not support sqrtmod_prime */
+         int found = 0;
+         ecc_key reckey;
+         /* test recovery */
+         len = sizeof(buf);
+         DO(ecc_sign_hash(data16, 16, buf, &len, &yarrow_prng, find_prng ("yarrow"), &privkey));
+         DO(ecc_set_curve(dp, &reckey));
+         for (j = 0; j < 2*(1+(int)privkey.dp.cofactor); j++) {
+            stat = ecc_recover_key(buf, len, data16, 16, j, &reckey);
+            if (stat != CRYPT_OK) continue; /* last two will almost always fail, only possible if x<(prime mod order) */
+            stat = _ecc_key_cmp(PK_PUBLIC, &pubkey, &reckey);
+            if (stat == CRYPT_OK) found++;
+         }
+         if (found != 1) return CRYPT_FAIL_TESTVECTOR; /* unique match */
+         ecc_free(&reckey);
+      }
+#endif
+
       /* test encryption */
       len = sizeof(buf);
       DO(ecc_encrypt_key(data16, 16, buf, &len, &yarrow_prng, find_prng("yarrow"), find_hash("sha256"), &pubkey));
@@ -514,25 +554,6 @@ static int _ecc_new_api(void)
       ecc_free(&privkey);
       ecc_free(&pubkey);
    }
-   return CRYPT_OK;
-}
-
-static int _ecc_key_cmp(const int should_type, const ecc_key *should, const ecc_key *is)
-{
-   if (should_type != is->type)                               return CRYPT_ERROR;
-   if (should_type == PK_PRIVATE) {
-      if (mp_cmp(should->k, is->k) != LTC_MP_EQ)              return CRYPT_ERROR;
-   }
-   if (mp_cmp(should->dp.prime,  is->dp.prime)  != LTC_MP_EQ) return CRYPT_ERROR;
-   if (mp_cmp(should->dp.A,      is->dp.A)      != LTC_MP_EQ) return CRYPT_ERROR;
-   if (mp_cmp(should->dp.B,      is->dp.B)      != LTC_MP_EQ) return CRYPT_ERROR;
-   if (mp_cmp(should->dp.order,  is->dp.order)  != LTC_MP_EQ) return CRYPT_ERROR;
-   if (mp_cmp(should->dp.base.x, is->dp.base.x) != LTC_MP_EQ) return CRYPT_ERROR;
-   if (mp_cmp(should->dp.base.y, is->dp.base.y) != LTC_MP_EQ) return CRYPT_ERROR;
-   if (mp_cmp(should->pubkey.x,  is->pubkey.x)  != LTC_MP_EQ) return CRYPT_ERROR;
-   if (mp_cmp(should->pubkey.y,  is->pubkey.y)  != LTC_MP_EQ) return CRYPT_ERROR;
-   if (should->dp.size != is->dp.size)                        return CRYPT_ERROR;
-   if (should->dp.cofactor != is->dp.cofactor)                return CRYPT_ERROR;
    return CRYPT_OK;
 }
 

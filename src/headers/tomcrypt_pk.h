@@ -302,6 +302,10 @@ int  ecc_verify_hash(const unsigned char *sig,  unsigned long siglen,
                      const unsigned char *hash, unsigned long hashlen,
                      int *stat, const ecc_key *key);
 
+int  ecc_recover_key(const unsigned char *sig,  unsigned long siglen,
+                     const unsigned char *hash, unsigned long hashlen,
+                     int recid, ecc_key *key);
+
 #endif
 
 #ifdef LTC_MDSA

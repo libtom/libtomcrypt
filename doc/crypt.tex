@@ -5585,6 +5585,28 @@ by the size of the hash, or the size of the key, whichever is smaller.  For exam
 P--192 key, you have in effect 96--bits of security. The library will not warn you if you make this mistake, so it
 is important to check yourself before using the signatures.
 
+\subsection{Public Key Recovery}
+\index{ecc\_recover\_key()}
+\begin{verbatim}
+int ecc_recover_key(const unsigned char *sig,
+                          unsigned long  siglen,
+                    const unsigned char *hash,
+                          unsigned long  hashlen,
+                                    int  recid,
+                                ecc_key *key);
+\end{verbatim}
+
+This function will recover (a) public key from the ECDSA signature in the array pointed to by \textit{sig} of length \textit{siglen} octets, the message digest
+pointed to by the array \textit{hash} of length \textit{hashlen}, and the recovery id \textit{recid}. It will store the recovered
+key into \textit{key} and return CRYPT_OK if recovery succeeds, or an error if recovery fails.
+This is for compatibility with the (v,r,s) signatures used in Bitcoin/Ethereum, where public keys are not explicitly
+shared, only the parity of the public key. For curves like secp256k1, recid will take values of 0 or 1, corresponding to
+the parity of the public key's y coordinate. For curves like secp112r2, with a cofactor of 4, values 0..7 are possible,
+with the low bit corresponding to the parity and the higher bits specifying the public key's x coordinate's  multiple
+of the curve's order.
+The function \textit{ecc\_recover\_key} implements signature format according to X9.62 ECDSA, and the output is compliant for GF(p) curves.
+
+
 \mysection{Shared Secret (ECDH)}
 To construct a Diffie-Hellman shared secret with a private and public ECC key, use the following function:
 \index{ecc\_shared\_secret()}
