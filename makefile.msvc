@@ -174,9 +174,9 @@ src/pk/ecc/ecc_ansi_x963_import.obj src/pk/ecc/ecc_decrypt_key.obj src/pk/ecc/ec
 src/pk/ecc/ecc_export.obj src/pk/ecc/ecc_export_openssl.obj src/pk/ecc/ecc_find_curve.obj \
 src/pk/ecc/ecc_free.obj src/pk/ecc/ecc_get_key.obj src/pk/ecc/ecc_get_oid_str.obj src/pk/ecc/ecc_get_size.obj \
 src/pk/ecc/ecc_import.obj src/pk/ecc/ecc_import_openssl.obj src/pk/ecc/ecc_import_x509.obj \
-src/pk/ecc/ecc_make_key.obj src/pk/ecc/ecc_set_curve.obj src/pk/ecc/ecc_set_curve_internal.obj \
-src/pk/ecc/ecc_set_key.obj src/pk/ecc/ecc_shared_secret.obj src/pk/ecc/ecc_sign_hash.obj \
-src/pk/ecc/ecc_sizes.obj src/pk/ecc/ecc_test.obj src/pk/ecc/ecc_verify_hash.obj \
+src/pk/ecc/ecc_make_key.obj src/pk/ecc/ecc_recover_key.obj src/pk/ecc/ecc_set_curve.obj \
+src/pk/ecc/ecc_set_curve_internal.obj src/pk/ecc/ecc_set_key.obj src/pk/ecc/ecc_shared_secret.obj \
+src/pk/ecc/ecc_sign_hash.obj src/pk/ecc/ecc_sizes.obj src/pk/ecc/ecc_test.obj src/pk/ecc/ecc_verify_hash.obj \
 src/pk/ecc/ltc_ecc_export_point.obj src/pk/ecc/ltc_ecc_import_point.obj src/pk/ecc/ltc_ecc_is_point.obj \
 src/pk/ecc/ltc_ecc_is_point_at_infinity.obj src/pk/ecc/ltc_ecc_map.obj src/pk/ecc/ltc_ecc_mul2add.obj \
 src/pk/ecc/ltc_ecc_mulmod.obj src/pk/ecc/ltc_ecc_mulmod_timing.obj src/pk/ecc/ltc_ecc_points.obj \
