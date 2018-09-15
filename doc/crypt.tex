@@ -5549,6 +5549,22 @@ int ecc_sign_hash_rfc7518(const unsigned char *in,
 This function creates the same ECDSA signature as \textit{ecc\_sign\_hash} only the output format is different.
 The format follows \url{https://tools.ietf.org/html/rfc7518#section-3.4}, sometimes it is also called plain signature.
 
+\index{ecc\_sign\_hash_ex()}
+\begin{verbatim}
+int ecc_sign_hash_ex(const unsigned char *in,
+                           unsigned long  inlen,
+                           unsigned char *out,
+                           unsigned long *outlen,
+                              prng_state *prng,
+                                     int  wprng,
+                      ecc_signature_type  sigformat,
+                                     int *recid,
+                                 ecc_key *key);
+\end{verbatim}
+
+This function is an extended version of the ECDSA signature in \textit{ecc\_sign\_hash}, but with a choice of output formats
+and an optional output of the recovery ID for use with \textit{ecc\_recover\_key}.
+
 \subsection{Signature Verification}
 \index{ecc\_verify\_hash()}
 \begin{verbatim}
@@ -5579,6 +5595,19 @@ int ecc_verify_hash_rfc7518(const unsigned char *sig,
 This function validate the ECDSA signature as \textit{ecc\_verify\_hash} only the signature input format
 follows \url{https://tools.ietf.org/html/rfc7518#section-3.4}.
 
+\index{ecc\_verify\_hash_ex()}
+\begin{verbatim}
+int ecc_verify_hash_ex(const unsigned char *sig,
+                             unsigned long  siglen,
+                       const unsigned char *hash,
+                             unsigned long  hashlen,
+                        ecc_signature_type  sigformat,
+                                       int *stat,
+                                   ecc_key *key);
+\end{verbatim}
+
+This function validates an ECDSA signature as \textit{ecc\_verify\_hash} but with a choice of signature formats.
+
 {\bf BEWARE:} With ECC if you try to sign a hash that is bigger than your ECC key you can run into problems. The math
 will still work, and in effect the signature will still work.  With ECC keys the strength of the signature is limited
 by the size of the hash, or the size of the key, whichever is smaller.  For example, if you sign with SHA256 and a
@@ -5593,19 +5622,46 @@ int ecc_recover_key(const unsigned char *sig,
                     const unsigned char *hash,
                           unsigned long  hashlen,
                                     int  recid,
+                     ecc_signature_type  sigformat,
                                 ecc_key *key);
 \end{verbatim}
 
 This function will recover (a) public key from the ECDSA signature in the array pointed to by \textit{sig} of length \textit{siglen} octets, the message digest
 pointed to by the array \textit{hash} of length \textit{hashlen}, and the recovery id \textit{recid}. It will store the recovered
-key into \textit{key} and return CRYPT_OK if recovery succeeds, or an error if recovery fails.
-This is for compatibility with the (v,r,s) signatures used in Bitcoin/Ethereum, where public keys are not explicitly
-shared, only the parity of the public key. For curves like secp256k1, recid will take values of 0 or 1, corresponding to
-the parity of the public key's y coordinate. For curves like secp112r2, with a cofactor of 4, values 0..7 are possible,
-with the low bit corresponding to the parity and the higher bits specifying the public key's x coordinate's  multiple
+key into \textit{key} and return CRYPT\_OK if recovery succeeds, or an error if recovery fails.
+This is for compatibility with the (v,r,s) signatures used in Ethereum, where public keys are not explicitly shared,
+only the parity of the public key. For curves like secp256k1, recid will take values of 0 or 1, corresponding to the
+parity of the public key's y coordinate. For curves like secp112r2, with a cofactor of 4, values 0..7 are possible,
+with the low bit corresponding to the parity and the higher bits specifying the public key's x coordinate's multiple
 of the curve's order.
-The function \textit{ecc\_recover\_key} implements signature format according to X9.62 ECDSA, and the output is compliant for GF(p) curves.
+If the signature format contains the recovery id (currently only \textit{LTC\_ECCSIG\_ETH27}), \textit{recid} can be -1
+which signals that the recovery id from the signature blob should be used. This means an application does not need to
+extract the recovery id from such a signature in order to use this function.
+The function \textit{ecc\_recover\_key} implements multiple signature formats, and the output is compliant for GF(p) curves.
 
+\subsection{Signature Formats}
+The following signature formats are suported:
+
+\begin{figure}[hpbt]
+\index{Signature Formats}
+\begin{small}
+\begin{center}
+\begin{tabular}{|l|l|}
+\hline \textbf{sigformat} & \textbf{description} \\
+\hline LTC\_ECCSIG\_ANSIX962 & ASN.1 encoded, ANSI X9.62 \\
+\hline LTC\_ECCSIG\_RFC7518 & raw R, S values as defined in RFC7518 \\
+\hline LTC\_ECCSIG\_ETH27 & raw R, S, V values (V has 27 added) \\
+\hline
+\end{tabular}
+\end{center}
+\end{small}
+\caption{Signature Formats}
+\label{fig:sigformat}
+\end{figure}
+
+The \textit{LTC\_ECCSIG\_ETH27} format is based on the Ethereum Yellow Paper, see \url{https://github.com/ethereum/yellowpaper}
+(Appendix F). However, convention allows the use of v=0,1 as equivalent to v=27,28 and both are accepted by
+\textit{ecc\_recover\_key}.
 
 \mysection{Shared Secret (ECDH)}
 To construct a Diffie-Hellman shared secret with a private and public ECC key, use the following function:

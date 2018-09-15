@@ -18,9 +18,20 @@
   ECC Crypto, Russ Williams
 */
 
-static int _ecc_recover_key(const unsigned char *sig,  unsigned long siglen,
-                            const unsigned char *hash, unsigned long hashlen,
-                            int recid, ecc_key *key)
+/**
+   Recover ECC public key from signature and hash
+   @param sig         The signature to verify
+   @param siglen      The length of the signature (octets)
+   @param hash        The hash (message digest) that was signed
+   @param hashlen     The length of the hash (octets)
+   @param recid       The recovery ID ("v"), can be -1 if signature contains it
+   @param sigformat   The format of the signature (ecc_signature_type)
+   @param key         The recovered public ECC key
+   @return CRYPT_OK if successful (even if the signature is not valid)
+*/
+int ecc_recover_key(const unsigned char *sig,  unsigned long siglen,
+                    const unsigned char *hash, unsigned long hashlen,
+                    int recid, ecc_signature_type sigformat, ecc_key *key)
 {
    ecc_point     *mG = NULL, *mQ = NULL, *mR = NULL;
    void          *p, *m, *a, *b;
@@ -62,11 +73,56 @@ static int _ecc_recover_key(const unsigned char *sig,  unsigned long siglen,
       goto error;
    }
 
-   /* Only ASN.1 format signatures supported for now */
-   if ((err = der_decode_sequence_multi_ex(sig, siglen, LTC_DER_SEQ_SEQUENCE | LTC_DER_SEQ_STRICT,
+   if (sigformat == LTC_ECCSIG_ANSIX962) {
+      /* ANSI X9.62 format - ASN.1 encoded SEQUENCE{ INTEGER(r), INTEGER(s) }  */
+      if ((err = der_decode_sequence_multi_ex(sig, siglen, LTC_DER_SEQ_SEQUENCE | LTC_DER_SEQ_STRICT,
                                      LTC_ASN1_INTEGER, 1UL, r,
                                      LTC_ASN1_INTEGER, 1UL, s,
                                      LTC_ASN1_EOL, 0UL, NULL)) != CRYPT_OK)                             { goto error; }
+   }
+   else if (sigformat == LTC_ECCSIG_RFC7518) {
+      /* RFC7518 format - raw (r,s) */
+      i = mp_unsigned_bin_size(key->dp.order);
+      if (siglen != (2*i)) {
+         err = CRYPT_INVALID_PACKET;
+         goto error;
+      }
+      if ((err = mp_read_unsigned_bin(r, (unsigned char *)sig,   i)) != CRYPT_OK)                       { goto error; }
+      if ((err = mp_read_unsigned_bin(s, (unsigned char *)sig+i, i)) != CRYPT_OK)                       { goto error; }
+   }
+   else if (sigformat == LTC_ECCSIG_ETH27) {
+      /* Ethereum (v,r,s) format */
+      if (key->dp.oidlen != 5   || key->dp.oid[0] != 1 || key->dp.oid[1] != 3 ||
+          key->dp.oid[2] != 132 || key->dp.oid[3] != 0 || key->dp.oid[4] != 10) {
+         /* Only valid for secp256k1 - OID 1.3.132.0.10 */
+         err = CRYPT_ERROR; goto error;
+      }
+      if (siglen != 65) { /* Only secp256k1 curves use this format, so must be 65 bytes long */
+         err = CRYPT_INVALID_PACKET;
+         goto error;
+      }
+      i = (unsigned long)sig[64];
+      if ((i>=27) && (i<31)) i -= 27; /* Ethereum adds 27 to recovery ID */
+      if (recid >= 0 && ((unsigned long)recid != i)) {
+         /* Recovery ID specified, but doesn't match signature */
+         err = CRYPT_INVALID_PACKET;
+         goto error;
+      }
+      recid = i;
+      if ((err = mp_read_unsigned_bin(r, (unsigned char *)sig,  32)) != CRYPT_OK)                       { goto error; }
+      if ((err = mp_read_unsigned_bin(s, (unsigned char *)sig+32, 32)) != CRYPT_OK)                     { goto error; }
+   }
+   else {
+      /* Unknown signature format */
+      err = CRYPT_ERROR;
+      goto error;
+   }
+
+   if (recid < 0 || (unsigned long)recid >= 2*(key->dp.cofactor+1)) {
+      /* Recovery ID is out of range, reject it */
+      err = CRYPT_INVALID_ARG;
+      goto error;
+   }
 
    /* check for zero */
    if (mp_cmp_d(r, 0) != LTC_MP_GT || mp_cmp_d(s, 0) != LTC_MP_GT ||
@@ -181,25 +237,8 @@ error:
    if (mR != NULL) ltc_ecc_del_point(mR);
    if (mQ != NULL) ltc_ecc_del_point(mQ);
    if (mG != NULL) ltc_ecc_del_point(mG);
-   mp_clear_multi(r, s, v, w, t1, t2, u1, u2, v1, v2, e, x, y, a_plus3, NULL);
+   mp_clear_multi(a_plus3, y, x, e, v2, v1, u2, u1, t2, t1, w, v, s, r, NULL);
    return err;
-}
-
-/**
-   Recover ECC public key from signature and hash
-   @param sig         The signature to verify
-   @param siglen      The length of the signature (octets)
-   @param hash        The hash (message digest) that was signed
-   @param hashlen     The length of the hash (octets)
-   @param recid       0 or 1 to select parity ("v")
-   @param key         The recovered public ECC key
-   @return CRYPT_OK if successful (even if the signature is not valid)
-*/
-int ecc_recover_key(const unsigned char *sig,  unsigned long siglen,
-                    const unsigned char *hash, unsigned long hashlen,
-                    int recid, ecc_key *key)
-{
-   return _ecc_recover_key(sig, siglen, hash, hashlen, recid, key);
 }
 
 #endif
