@@ -57,6 +57,12 @@ int xsalsa20_test(void)
         if ((err = salsa20_done(&st))                               != CRYPT_OK)  return err;
 
         if (compare_testvector(msg, msglen, msg2, msglen, "XSALSA20-TV1", 1))  return CRYPT_FAIL_TESTVECTOR;
+
+
+        /* round trip with two single function calls */
+        if ((err = xsalsa20_memory(key, sizeof(key), 20, nonce, sizeof(nonce), msg, msglen, ciphertext))  != CRYPT_OK)                return err;
+        if ((err = xsalsa20_memory(key, sizeof(key), 20, nonce, sizeof(nonce), ciphertext, msglen, msg2)) != CRYPT_OK)                return err;
+        if (compare_testvector(msg, msglen, msg2, msglen, "XSALSA20-TV2", 1))  return CRYPT_FAIL_TESTVECTOR;
     }
 
 #ifdef LTC_SHA256
@@ -78,7 +84,7 @@ int xsalsa20_test(void)
        if ((err = salsa20_keystream(&st, keystream, keystreamlen))   != CRYPT_OK)  return err;
        if ((err = salsa20_done(&st))                                 != CRYPT_OK)  return err;
        if ((err = _sha256(hash, keystream, keystreamlen))            != CRYPT_OK)  return err;
-       if (compare_testvector(hash, sizeof(hash), expecthash, sizeof(expecthash),   "XSALSA20-TV2", 1))  return CRYPT_FAIL_TESTVECTOR;
+       if (compare_testvector(hash, sizeof(hash), expecthash, sizeof(expecthash),   "XSALSA20-TV3", 1))  return CRYPT_FAIL_TESTVECTOR;
    }
 #endif
 

@@ -43,21 +43,26 @@ int salsa20_test(void)
    /* crypt piece by piece */
    counter = 0;
    rounds  = 12;
-   if ((err = salsa20_setup(&st, k, sizeof(k), rounds)) != CRYPT_OK)                        return err;
-   if ((err = salsa20_ivctr64(&st, n, sizeof(n), counter)) != CRYPT_OK)                     return err;
-   if ((err = salsa20_crypt(&st, (unsigned char*)pt,       5,       out)) != CRYPT_OK)      return err;
+   if ((err = salsa20_setup(&st, k, sizeof(k), rounds))                        != CRYPT_OK) return err;
+   if ((err = salsa20_ivctr64(&st, n, sizeof(n), counter))                     != CRYPT_OK) return err;
+   if ((err = salsa20_crypt(&st, (unsigned char*)pt,       5,       out))      != CRYPT_OK) return err;
    if ((err = salsa20_crypt(&st, (unsigned char*)pt +  5, 25,       out +  5)) != CRYPT_OK) return err;
    if ((err = salsa20_crypt(&st, (unsigned char*)pt + 30, 10,       out + 30)) != CRYPT_OK) return err;
    if ((err = salsa20_crypt(&st, (unsigned char*)pt + 40, len - 40, out + 40)) != CRYPT_OK) return err;
-   if (compare_testvector(out, len, ct, sizeof(ct), "SALSA20-TV1", 1))                      return CRYPT_FAIL_TESTVECTOR;
+   if (compare_testvector(out, len, ct, sizeof(ct), "SALSA20-TV1", 1))        return CRYPT_FAIL_TESTVECTOR;
 
    /* crypt in one go - using salsa20_ivctr64() */
    counter = 0;
    rounds  = 20;
-   if ((err = salsa20_setup(&st, k, sizeof(k), rounds)) != CRYPT_OK)                        return err;
-   if ((err = salsa20_ivctr64(&st, n, sizeof(n), counter)) != CRYPT_OK)                     return err;
-   if ((err = salsa20_crypt(&st, (unsigned char*)pt, len, out)) != CRYPT_OK)                return err;
-   if (compare_testvector(out, len, ct2, sizeof(ct), "SALSA20-TV2", 1))                     return CRYPT_FAIL_TESTVECTOR;
+   if ((err = salsa20_setup(&st, k, sizeof(k), rounds))         != CRYPT_OK)  return err;
+   if ((err = salsa20_ivctr64(&st, n, sizeof(n), counter))      != CRYPT_OK)  return err;
+   if ((err = salsa20_crypt(&st, (unsigned char*)pt, len, out)) != CRYPT_OK)  return err;
+   if (compare_testvector(out, len, ct2, sizeof(ct2), "SALSA20-TV2", 1))      return CRYPT_FAIL_TESTVECTOR;
+
+   /* crypt in a single call */
+   if ((err = salsa20_memory(k, sizeof(k), rounds, n, sizeof(n), counter,
+                                 (unsigned char*)pt, len, out)) != CRYPT_OK)  return err;
+   if (compare_testvector(out, len, ct2, sizeof(ct2), "SALSA20-TV3", 1))      return CRYPT_FAIL_TESTVECTOR;
 
    {
        /* keystream
@@ -77,7 +82,7 @@ int salsa20_test(void)
        if ((err = salsa20_ivctr64(&st, n3, sizeof(n3), counter3)) != CRYPT_OK)     return err;
        if ((err = salsa20_keystream(&st, out, 64))                != CRYPT_OK)     return err;
        if ((err = salsa20_done(&st))                              != CRYPT_OK)     return err;
-       if (compare_testvector(out, 64, ct3, sizeof(ct3), "SALSA20-TV3", 1))        return CRYPT_FAIL_TESTVECTOR;
+       if (compare_testvector(out, 64, ct3, sizeof(ct3), "SALSA20-TV4", 1))        return CRYPT_FAIL_TESTVECTOR;
    }
 
    return CRYPT_OK;

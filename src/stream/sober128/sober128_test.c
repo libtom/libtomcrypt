@@ -31,9 +31,17 @@ int sober128_stream_test(void)
    if ((err = sober128_stream_setiv(&st, iv, sizeof(iv))) != CRYPT_OK)   return err;
    if ((err = sober128_stream_crypt(&st, src, len, dst)) != CRYPT_OK)    return err;
    if ((err = sober128_stream_done(&st)) != CRYPT_OK)                    return err;
-   if (compare_testvector(dst, len, out, len, "SOBER-128", 0)) {
+   if (compare_testvector(dst, len, out, len, "SOBER-128-TV1", 0)) {
       return CRYPT_FAIL_TESTVECTOR;
    }
+
+   /* crypt in a single call */
+   if ((err = sober128_stream_memory(key, sizeof(key), iv, sizeof(iv),
+                                            src, len, dst)) != CRYPT_OK) return err;
+   if (compare_testvector(dst, len, out, len, "SOBER-128-TV2", 0)) {
+      return CRYPT_FAIL_TESTVECTOR;
+   }
+
    return CRYPT_OK;
 #endif
 }

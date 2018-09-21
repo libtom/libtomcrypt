@@ -1009,6 +1009,9 @@ int chacha_crypt(chacha_state *st, const unsigned char *in, unsigned long inlen,
 int chacha_keystream(chacha_state *st, unsigned char *out, unsigned long outlen);
 int chacha_done(chacha_state *st);
 int chacha_test(void);
+int chacha_memory(const unsigned char *key,    unsigned long keylen,  unsigned long rounds,
+                  const unsigned char *iv,     unsigned long ivlen,   ulong64 counter,
+                  const unsigned char *datain, unsigned long datalen, unsigned char *dataout);
 
 #endif /* LTC_CHACHA */
 
@@ -1028,6 +1031,9 @@ int salsa20_crypt(salsa20_state *st, const unsigned char *in, unsigned long inle
 int salsa20_keystream(salsa20_state *st, unsigned char *out, unsigned long outlen);
 int salsa20_done(salsa20_state *st);
 int salsa20_test(void);
+int salsa20_memory(const unsigned char *key,    unsigned long keylen,  unsigned long rounds,
+                   const unsigned char *iv,     unsigned long ivlen,   ulong64 counter,
+                   const unsigned char *datain, unsigned long datalen, unsigned char *dataout);
 
 #endif /* LTC_SALSA20 */
 
@@ -1037,6 +1043,9 @@ int xsalsa20_setup(salsa20_state *st, const unsigned char *key,   unsigned long 
                                       const unsigned char *nonce, unsigned long noncelen,
                                       int rounds);
 int xsalsa20_test(void);
+int xsalsa20_memory(const unsigned char *key,    unsigned long keylen,   unsigned long rounds,
+                    const unsigned char *nonce,  unsigned long noncelen,
+                    const unsigned char *datain, unsigned long datalen,  unsigned char *dataout);
 
 #endif /* LTC_XSALSA20 */
 
@@ -1061,6 +1070,10 @@ int sosemanuk_crypt(sosemanuk_state *st, const unsigned char *in, unsigned long 
 int sosemanuk_keystream(sosemanuk_state *st, unsigned char *out, unsigned long outlen);
 int sosemanuk_done(sosemanuk_state *st);
 int sosemanuk_test(void);
+int sosemanuk_memory(const unsigned char *key,    unsigned long keylen,
+                     const unsigned char *iv,     unsigned long ivlen,
+                     const unsigned char *datain, unsigned long datalen,
+                     unsigned char *dataout);
 
 #endif /* LTC_SOSEMANUK */
 
@@ -1085,6 +1098,10 @@ int rabbit_crypt(rabbit_state* st, const unsigned char *in, unsigned long inlen,
 int rabbit_keystream(rabbit_state* st, unsigned char *out, unsigned long outlen);
 int rabbit_done(rabbit_state *st);
 int rabbit_test(void);
+int rabbit_memory(const unsigned char *key,    unsigned long keylen,
+                  const unsigned char *iv,     unsigned long ivlen,
+                  const unsigned char *datain, unsigned long datalen,
+                  unsigned char *dataout);
 
 #endif /* LTC_RABBIT */
 
@@ -1100,6 +1117,9 @@ int rc4_stream_crypt(rc4_state *st, const unsigned char *in, unsigned long inlen
 int rc4_stream_keystream(rc4_state *st, unsigned char *out, unsigned long outlen);
 int rc4_stream_done(rc4_state *st);
 int rc4_stream_test(void);
+int rc4_stream_memory(const unsigned char *key,    unsigned long keylen,
+                      const unsigned char *datain, unsigned long datalen,
+                      unsigned char *dataout);
 
 #endif /* LTC_RC4_STREAM */
 
@@ -1119,6 +1139,10 @@ int sober128_stream_crypt(sober128_state *st, const unsigned char *in, unsigned 
 int sober128_stream_keystream(sober128_state *st, unsigned char *out, unsigned long outlen);
 int sober128_stream_done(sober128_state *st);
 int sober128_stream_test(void);
+int sober128_stream_memory(const unsigned char *key,    unsigned long keylen,
+                           const unsigned char *iv,     unsigned long ivlen,
+                           const unsigned char *datain, unsigned long datalen,
+                           unsigned char *dataout);
 
 #endif /* LTC_SOBER128_STREAM */
 

@@ -44,6 +44,11 @@ int sosemanuk_test(void)
        if ((err = sosemanuk_crypt(&st, (unsigned char*)pt, len, out)) != CRYPT_OK) return err;
        if (compare_testvector(out, len, ct, sizeof(ct), "SOSEMANUK-TV2", 1))       return CRYPT_FAIL_TESTVECTOR;
 
+       /* crypt in a single call */
+       if ((err = sosemanuk_memory(k, sizeof(k), n, sizeof(n),
+                                       (unsigned char*)pt, len, out)) != CRYPT_OK) return err;
+       if (compare_testvector(out, len, ct, sizeof(ct), "SOSEMANUK-TV3", 1))       return CRYPT_FAIL_TESTVECTOR;
+
    }
    {
        /* keystream
@@ -70,7 +75,7 @@ int sosemanuk_test(void)
        if ((err = sosemanuk_setiv(&st, n3, sizeof(n3)))      != CRYPT_OK)     return err;
        if ((err = sosemanuk_keystream(&st, out, 64))         != CRYPT_OK)     return err;
        if ((err = sosemanuk_done(&st))                       != CRYPT_OK)     return err;
-       if (compare_testvector(out, 64, ct3, sizeof(ct3), "SOSEMANUK-TV3", 1)) return CRYPT_FAIL_TESTVECTOR;
+       if (compare_testvector(out, 64, ct3, sizeof(ct3), "SOSEMANUK-TV4", 1)) return CRYPT_FAIL_TESTVECTOR;
    }
 
    return CRYPT_OK;
