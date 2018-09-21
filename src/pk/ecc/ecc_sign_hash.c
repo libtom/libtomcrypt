@@ -141,8 +141,7 @@ int ecc_sign_hash_ex(const unsigned char *in,  unsigned long inlen,
    }
    else if (sigformat == LTC_ECCSIG_ETH27) {
       /* Ethereum (v,r,s) format */
-      if (key->dp.oidlen != 5   || key->dp.oid[0] != 1 || key->dp.oid[1] != 3 ||
-          key->dp.oid[2] != 132 || key->dp.oid[3] != 0 || key->dp.oid[4] != 10) {
+      if (pk_oid_cmp_with_ulong("1.3.132.0.10", key->dp.oid, key->dp.oidlen) != CRYPT_OK) {
          /* Only valid for secp256k1 - OID 1.3.132.0.10 */
          err = CRYPT_ERROR; goto errnokey;
       }
@@ -156,6 +155,21 @@ int ecc_sign_hash_ex(const unsigned char *in,  unsigned long inlen,
       *outlen = 65;
       err = CRYPT_OK;
    }
+#ifdef LTC_SSH
+   else if (sigformat == LTC_ECCSIG_RFC5656) {
+      /* Get identifier string */
+      char name[64];
+      unsigned long namelen = sizeof(name);
+      if ((err = ecc_ssh_ecdsa_encode_name(name, &namelen, key)) != CRYPT_OK) { goto errnokey; }
+
+      /* Store as SSH data sequence, per RFC4251 */
+      err = ssh_encode_sequence_multi(out, outlen,
+                                      LTC_SSHDATA_STRING, name,
+                                      LTC_SSHDATA_MPINT,  r,
+                                      LTC_SSHDATA_MPINT,  s,
+                                      LTC_SSHDATA_EOL,    NULL);
+   }
+#endif
    else {
       /* Unknown signature format */
       err = CRYPT_ERROR;

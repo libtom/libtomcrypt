@@ -251,7 +251,9 @@ typedef enum ecc_signature_type_ {
    /* raw R, S values */
    LTC_ECCSIG_RFC7518    = 0x1,
    /* raw R, S, V (+27) values */
-   LTC_ECCSIG_ETH27      = 0x2
+   LTC_ECCSIG_ETH27      = 0x2,
+   /* SSH + ECDSA signature format defined by RFC5656 */
+   LTC_ECCSIG_RFC5656    = 0x3,
 } ecc_signature_type;
 
 /** the ECC params provided */

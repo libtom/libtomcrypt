@@ -452,6 +452,9 @@ const char *crypt_build_settings =
     " PBES1 "
     " PBES2 "
 #endif
+#if defined(LTC_SSH)
+    " SSH "
+#endif
 #if defined(LTC_DEVRANDOM)
     " LTC_DEVRANDOM "
 #endif

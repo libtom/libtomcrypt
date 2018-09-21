@@ -37,6 +37,93 @@ static unsigned int sizes[] = {
 #endif
 };
 
+static const char* curvenames[] = {
+#ifdef LTC_ECC_SECP112R1
+   "SECP112R1", "ECC-112",
+   "secp112r1",              /* name is case-insensitive */
+   "S E C-P-1_1_2r1",        /* should pass fuzzy matching */
+#endif
+#ifdef LTC_ECC_SECP112R2
+   "SECP112R2",
+#endif
+#ifdef LTC_ECC_SECP128R1
+   "SECP128R1", "ECC-128",
+#endif
+#ifdef LTC_ECC_SECP128R2
+   "SECP128R2",
+#endif
+#ifdef LTC_ECC_SECP160R1
+   "SECP160R1", "ECC-160",
+#endif
+#ifdef LTC_ECC_SECP160R2
+   "SECP160R2",
+#endif
+#ifdef LTC_ECC_SECP160K1
+   "SECP160K1",
+#endif
+#ifdef LTC_ECC_BRAINPOOLP160R1
+   "BRAINPOOLP160R1",
+#endif
+#ifdef LTC_ECC_SECP192R1
+   "SECP192R1", "NISTP192", "PRIME192V1", "ECC-192", "P-192",
+#endif
+#ifdef LTC_ECC_PRIME192V2
+   "PRIME192V2",
+#endif
+#ifdef LTC_ECC_PRIME192V3
+   "PRIME192V3",
+#endif
+#ifdef LTC_ECC_SECP192K1
+   "SECP192K1",
+#endif
+#ifdef LTC_ECC_BRAINPOOLP192R1
+   "BRAINPOOLP192R1",
+#endif
+#ifdef LTC_ECC_SECP224R1
+   "SECP224R1", "NISTP224", "ECC-224", "P-224",
+#endif
+#ifdef LTC_ECC_SECP224K1
+   "SECP224K1",
+#endif
+#ifdef LTC_ECC_BRAINPOOLP224R1
+   "BRAINPOOLP224R1",
+#endif
+#ifdef LTC_ECC_PRIME239V1
+   "PRIME239V1",
+#endif
+#ifdef LTC_ECC_PRIME239V2
+   "PRIME239V2",
+#endif
+#ifdef LTC_ECC_PRIME239V3
+   "PRIME239V3",
+#endif
+#ifdef LTC_ECC_SECP256R1
+   "SECP256R1", "NISTP256", "PRIME256V1", "ECC-256", "P-256",
+#endif
+#ifdef LTC_ECC_SECP256K1
+   "SECP256K1",
+#endif
+#ifdef LTC_ECC_BRAINPOOLP256R1
+   "BRAINPOOLP256R1",
+#endif
+#ifdef LTC_ECC_BRAINPOOLP320R1
+   "BRAINPOOLP320R1",
+#endif
+#ifdef LTC_ECC_SECP384R1
+   "SECP384R1", "NISTP384", "ECC-384", "P-384",
+#endif
+#ifdef LTC_ECC_BRAINPOOLP384R1
+   "BRAINPOOLP384R1",
+#endif
+#ifdef LTC_ECC_BRAINPOOLP512R1
+   "BRAINPOOLP512R1",
+#endif
+#ifdef LTC_ECC_SECP521R1
+   "SECP521R1", "NISTP521", "ECC-521", "P-521",
+#endif
+};
+
+
 #ifdef LTC_ECC_SHAMIR
 static int _ecc_test_shamir(void)
 {
@@ -423,91 +510,6 @@ static int _ecc_key_cmp(const int should_type, const ecc_key *should, const ecc_
 
 static int _ecc_new_api(void)
 {
-   const char* names[] = {
-#ifdef LTC_ECC_SECP112R1
-      "SECP112R1", "ECC-112",
-      "secp112r1",              /* name is case-insensitive */
-      "S E C-P-1_1_2r1",        /* should pass fuzzy matching */
-#endif
-#ifdef LTC_ECC_SECP112R2
-      "SECP112R2",
-#endif
-#ifdef LTC_ECC_SECP128R1
-      "SECP128R1", "ECC-128",
-#endif
-#ifdef LTC_ECC_SECP128R2
-      "SECP128R2",
-#endif
-#ifdef LTC_ECC_SECP160R1
-      "SECP160R1", "ECC-160",
-#endif
-#ifdef LTC_ECC_SECP160R2
-      "SECP160R2",
-#endif
-#ifdef LTC_ECC_SECP160K1
-      "SECP160K1",
-#endif
-#ifdef LTC_ECC_BRAINPOOLP160R1
-      "BRAINPOOLP160R1",
-#endif
-#ifdef LTC_ECC_SECP192R1
-      "SECP192R1", "NISTP192", "PRIME192V1", "ECC-192", "P-192",
-#endif
-#ifdef LTC_ECC_PRIME192V2
-      "PRIME192V2",
-#endif
-#ifdef LTC_ECC_PRIME192V3
-      "PRIME192V3",
-#endif
-#ifdef LTC_ECC_SECP192K1
-      "SECP192K1",
-#endif
-#ifdef LTC_ECC_BRAINPOOLP192R1
-      "BRAINPOOLP192R1",
-#endif
-#ifdef LTC_ECC_SECP224R1
-      "SECP224R1", "NISTP224", "ECC-224", "P-224",
-#endif
-#ifdef LTC_ECC_SECP224K1
-      "SECP224K1",
-#endif
-#ifdef LTC_ECC_BRAINPOOLP224R1
-      "BRAINPOOLP224R1",
-#endif
-#ifdef LTC_ECC_PRIME239V1
-      "PRIME239V1",
-#endif
-#ifdef LTC_ECC_PRIME239V2
-      "PRIME239V2",
-#endif
-#ifdef LTC_ECC_PRIME239V3
-      "PRIME239V3",
-#endif
-#ifdef LTC_ECC_SECP256R1
-      "SECP256R1", "NISTP256", "PRIME256V1", "ECC-256", "P-256",
-#endif
-#ifdef LTC_ECC_SECP256K1
-      "SECP256K1",
-#endif
-#ifdef LTC_ECC_BRAINPOOLP256R1
-      "BRAINPOOLP256R1",
-#endif
-#ifdef LTC_ECC_BRAINPOOLP320R1
-      "BRAINPOOLP320R1",
-#endif
-#ifdef LTC_ECC_SECP384R1
-      "SECP384R1", "NISTP384", "ECC-384", "P-384",
-#endif
-#ifdef LTC_ECC_BRAINPOOLP384R1
-      "BRAINPOOLP384R1",
-#endif
-#ifdef LTC_ECC_BRAINPOOLP512R1
-      "BRAINPOOLP512R1",
-#endif
-#ifdef LTC_ECC_SECP521R1
-      "SECP521R1", "NISTP521", "ECC-521", "P-521",
-#endif
-   };
    int i, j, stat;
    const ltc_ecc_curve* dp;
    ecc_key key, privkey, pubkey;
@@ -516,8 +518,8 @@ static int _ecc_new_api(void)
    unsigned char data16[16] = { 0xd1, 0xd1, 0xd1, 0xd1, 0xd1, 0xd1, 0xd1, 0xd1, 0xd1, 0xd1, 0xd1, 0xd1, 0xd1, 0xd1, 0xd1, 0xd1 };
    unsigned long len16;
 
-   for (i = 0; i < (int)(sizeof(names)/sizeof(names[0])); i++) {
-      DO(ecc_find_curve(names[i], &dp));
+   for (i = 0; i < (int)(sizeof(curvenames)/sizeof(curvenames[0])); i++) {
+      DO(ecc_find_curve(curvenames[i], &dp));
       /* make new key */
       DO(ecc_make_key_ex(&yarrow_prng, find_prng ("yarrow"), &key, dp));
       len = sizeof(buf);
@@ -571,6 +573,16 @@ static int _ecc_new_api(void)
       stat = 0;
       DO(ecc_verify_hash(buf, len, data16, 16, &stat, &pubkey));
       if (stat != 1) return CRYPT_FAIL_TESTVECTOR;
+
+#ifdef LTC_SSH
+      /* test SSH+ECDSA/RFC5656 signature */
+      len = sizeof(buf);
+      DO(ecc_sign_hash_ex(data16, 16, buf, &len, &yarrow_prng, find_prng ("yarrow"),
+                          LTC_ECCSIG_RFC5656, NULL, &privkey));
+      stat = 0;
+      DO(ecc_verify_hash_ex(buf, len, data16, 16, LTC_ECCSIG_RFC5656, &stat, &pubkey));
+      if (stat != 1) return CRYPT_FAIL_TESTVECTOR;
+#endif
 
 #ifdef LTC_ECC_SHAMIR
       if (strcmp(ltc_mp.name, "TomsFastMath") != 0) {
@@ -1477,91 +1489,6 @@ static int _ecc_import_export(void) {
 #ifdef LTC_ECC_SHAMIR
 static int _ecc_test_recovery(void)
 {
-   const char* names[] = {
-#ifdef LTC_ECC_SECP112R1
-      "SECP112R1", "ECC-112",
-      "secp112r1",              /* name is case-insensitive */
-      "S E C-P-1_1_2r1",        /* should pass fuzzy matching */
-#endif
-#ifdef LTC_ECC_SECP112R2
-      "SECP112R2",
-#endif
-#ifdef LTC_ECC_SECP128R1
-      "SECP128R1", "ECC-128",
-#endif
-#ifdef LTC_ECC_SECP128R2
-      "SECP128R2",
-#endif
-#ifdef LTC_ECC_SECP160R1
-      "SECP160R1", "ECC-160",
-#endif
-#ifdef LTC_ECC_SECP160R2
-      "SECP160R2",
-#endif
-#ifdef LTC_ECC_SECP160K1
-      "SECP160K1",
-#endif
-#ifdef LTC_ECC_BRAINPOOLP160R1
-      "BRAINPOOLP160R1",
-#endif
-#ifdef LTC_ECC_SECP192R1
-      "SECP192R1", "NISTP192", "PRIME192V1", "ECC-192", "P-192",
-#endif
-#ifdef LTC_ECC_PRIME192V2
-      "PRIME192V2",
-#endif
-#ifdef LTC_ECC_PRIME192V3
-      "PRIME192V3",
-#endif
-#ifdef LTC_ECC_SECP192K1
-      "SECP192K1",
-#endif
-#ifdef LTC_ECC_BRAINPOOLP192R1
-      "BRAINPOOLP192R1",
-#endif
-#ifdef LTC_ECC_SECP224R1
-      "SECP224R1", "NISTP224", "ECC-224", "P-224",
-#endif
-#ifdef LTC_ECC_SECP224K1
-      "SECP224K1",
-#endif
-#ifdef LTC_ECC_BRAINPOOLP224R1
-      "BRAINPOOLP224R1",
-#endif
-#ifdef LTC_ECC_PRIME239V1
-      "PRIME239V1",
-#endif
-#ifdef LTC_ECC_PRIME239V2
-      "PRIME239V2",
-#endif
-#ifdef LTC_ECC_PRIME239V3
-      "PRIME239V3",
-#endif
-#ifdef LTC_ECC_SECP256R1
-      "SECP256R1", "NISTP256", "PRIME256V1", "ECC-256", "P-256",
-#endif
-#ifdef LTC_ECC_SECP256K1
-      "SECP256K1",
-#endif
-#ifdef LTC_ECC_BRAINPOOLP256R1
-      "BRAINPOOLP256R1",
-#endif
-#ifdef LTC_ECC_BRAINPOOLP320R1
-      "BRAINPOOLP320R1",
-#endif
-#ifdef LTC_ECC_SECP384R1
-      "SECP384R1", "NISTP384", "ECC-384", "P-384",
-#endif
-#ifdef LTC_ECC_BRAINPOOLP384R1
-      "BRAINPOOLP384R1",
-#endif
-#ifdef LTC_ECC_BRAINPOOLP512R1
-      "BRAINPOOLP512R1",
-#endif
-#ifdef LTC_ECC_SECP521R1
-      "SECP521R1", "NISTP521", "ECC-521", "P-521",
-#endif
-   };
    int i, recid, stat;
    const ltc_ecc_curve* dp;
    ecc_key key, privkey, pubkey, reckey;
@@ -1611,8 +1538,8 @@ static int _ecc_test_recovery(void)
    ecc_free(&pubkey);
 #endif
 
-   for (i = 0; i < (int)(sizeof(names)/sizeof(names[0])); i++) {
-      DO(ecc_find_curve(names[i], &dp));
+   for (i = 0; i < (int)(sizeof(curvenames)/sizeof(curvenames[0])); i++) {
+      DO(ecc_find_curve(curvenames[i], &dp));
 
       /* generate new key */
       DO(ecc_set_curve(dp, &key));

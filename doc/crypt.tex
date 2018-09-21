@@ -5631,6 +5631,7 @@ The following signature formats are suported:
 \hline LTC\_ECCSIG\_ANSIX962 & ASN.1 encoded, ANSI X9.62 \\
 \hline LTC\_ECCSIG\_RFC7518 & raw R, S values as defined in RFC7518 \\
 \hline LTC\_ECCSIG\_ETH27 & raw R, S, V values (V has 27 added) \\
+\hline LTC\_ECCSIG\_RFC5656 & SSH+ECDSA format as defined in RFC5656 \\
 \hline
 \end{tabular}
 \end{center}
@@ -7792,7 +7793,7 @@ Currently LibTomCrypt will detect x86-32, x86-64, MIPS R5900, SPARC and SPARC64 
 There are also options you can specify from the \textit{tomcrypt\_custom.h} header file.
 
 \subsection{X memory routines}
-\index{XMALLOC}\index{XREALLOC}\index{XCALLOC}\index{XFREE}\index{XMEMSET}\index{XMEMCPY}\index{XMEMMOVE}\index{XMEMCMP}\index{XSTRCMP}
+\index{XMALLOC}\index{XREALLOC}\index{XCALLOC}\index{XFREE}\index{XMEMSET}\index{XMEMCPY}\index{XMEMMOVE}\index{XMEMCMP}\index{XSTRCMP}\index{XSTRNCPY}
 At the top of tomcrypt\_custom.h are a series of macros denoted as XMALLOC, XCALLOC, XREALLOC, XFREE, and so on.  They resolve to
 the name of the respective functions from the standard C library by default.  This lets you substitute in your own memory routines.
 If you substitute in your own functions they must behave like the standard C library functions in terms of what they expect as input and
