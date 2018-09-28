@@ -353,7 +353,7 @@ static inline ulong32 RORc(ulong32 word, const int i)
 
 
 /* 64-bit Rotates */
-#if !defined(__STRICT_ANSI__) && defined(__GNUC__) && defined(__x86_64__) && !defined(_WIN64) && !defined(LTC_NO_ASM)
+#if !defined(__STRICT_ANSI__) && defined(__GNUC__) && defined(__x86_64__) && !defined(_WIN64) && !defined(LTC_NO_ASM) && !defined(__ANDROID__)
 
 static inline ulong64 ROL64(ulong64 word, int i)
 {
