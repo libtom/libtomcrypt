@@ -350,6 +350,25 @@ static int _ecc_old_api(void)
    return CRYPT_OK;
 }
 
+static int _ecc_key_cmp(const int should_type, const ecc_key *should, const ecc_key *is)
+{
+   if (should_type != is->type)                               return CRYPT_ERROR;
+   if (should_type == PK_PRIVATE) {
+      if (mp_cmp(should->k, is->k) != LTC_MP_EQ)              return CRYPT_ERROR;
+   }
+   if (mp_cmp(should->dp.prime,  is->dp.prime)  != LTC_MP_EQ) return CRYPT_ERROR;
+   if (mp_cmp(should->dp.A,      is->dp.A)      != LTC_MP_EQ) return CRYPT_ERROR;
+   if (mp_cmp(should->dp.B,      is->dp.B)      != LTC_MP_EQ) return CRYPT_ERROR;
+   if (mp_cmp(should->dp.order,  is->dp.order)  != LTC_MP_EQ) return CRYPT_ERROR;
+   if (mp_cmp(should->dp.base.x, is->dp.base.x) != LTC_MP_EQ) return CRYPT_ERROR;
+   if (mp_cmp(should->dp.base.y, is->dp.base.y) != LTC_MP_EQ) return CRYPT_ERROR;
+   if (mp_cmp(should->pubkey.x,  is->pubkey.x)  != LTC_MP_EQ) return CRYPT_ERROR;
+   if (mp_cmp(should->pubkey.y,  is->pubkey.y)  != LTC_MP_EQ) return CRYPT_ERROR;
+   if (should->dp.size != is->dp.size)                        return CRYPT_ERROR;
+   if (should->dp.cofactor != is->dp.cofactor)                return CRYPT_ERROR;
+   return CRYPT_OK;
+}
+
 static int _ecc_new_api(void)
 {
    const char* names[] = {
@@ -474,17 +493,17 @@ static int _ecc_new_api(void)
       DO(ecc_set_curve(dp, &privkey));
       DO(ecc_set_key(buf, len, PK_PRIVATE, &privkey));
 
-#ifndef USE_TFM
-      /* XXX-FIXME: TFM does not support sqrtmod_prime */
-      /* export compressed public key */
-      len = sizeof(buf);
-      DO(ecc_get_key(buf, &len, PK_PUBLIC|PK_COMPRESSED, &privkey));
-      if (len != 1 + (unsigned)ecc_get_size(&privkey)) return CRYPT_FAIL_TESTVECTOR;
-      /* load exported public+compressed key */
-      DO(ecc_set_curve(dp, &pubkey));
-      DO(ecc_set_key(buf, len, PK_PUBLIC, &pubkey));
-      ecc_free(&pubkey);
-#endif
+      if (strcmp(ltc_mp.name, "TomsFastMath") != 0) {
+         /* XXX-FIXME: TFM does not support sqrtmod_prime */
+         /* export compressed public key */
+         len = sizeof(buf);
+         DO(ecc_get_key(buf, &len, PK_PUBLIC|PK_COMPRESSED, &privkey));
+         if (len != 1 + (unsigned)ecc_get_size(&privkey)) return CRYPT_FAIL_TESTVECTOR;
+         /* load exported public+compressed key */
+         DO(ecc_set_curve(dp, &pubkey));
+         DO(ecc_set_key(buf, len, PK_PUBLIC, &pubkey));
+         ecc_free(&pubkey);
+      }
 
       /* export long public key */
       len = sizeof(buf);
@@ -501,6 +520,26 @@ static int _ecc_new_api(void)
       DO(ecc_verify_hash(buf, len, data16, 16, &stat, &pubkey));
       if (stat != 1) return CRYPT_FAIL_TESTVECTOR;
 
+#ifdef LTC_ECC_SHAMIR
+      if (strcmp(ltc_mp.name, "TomsFastMath") != 0) {
+         /* XXX-FIXME: TFM does not support sqrtmod_prime */
+         int found = 0;
+         ecc_key reckey;
+         /* test recovery */
+         len = sizeof(buf);
+         DO(ecc_sign_hash(data16, 16, buf, &len, &yarrow_prng, find_prng ("yarrow"), &privkey));
+         DO(ecc_set_curve(dp, &reckey));
+         for (j = 0; j < 2*(1+(int)privkey.dp.cofactor); j++) {
+            stat = ecc_recover_key(buf, len, data16, 16, j, LTC_ECCSIG_ANSIX962, &reckey);
+            if (stat != CRYPT_OK) continue; /* last two will almost always fail, only possible if x<(prime mod order) */
+            stat = _ecc_key_cmp(PK_PUBLIC, &pubkey, &reckey);
+            if (stat == CRYPT_OK) found++;
+         }
+         if (found != 1) return CRYPT_FAIL_TESTVECTOR; /* unique match */
+         ecc_free(&reckey);
+      }
+#endif
+
       /* test encryption */
       len = sizeof(buf);
       DO(ecc_encrypt_key(data16, 16, buf, &len, &yarrow_prng, find_prng("yarrow"), find_hash("sha256"), &pubkey));
@@ -514,25 +553,6 @@ static int _ecc_new_api(void)
       ecc_free(&privkey);
       ecc_free(&pubkey);
    }
-   return CRYPT_OK;
-}
-
-static int _ecc_key_cmp(const int should_type, const ecc_key *should, const ecc_key *is)
-{
-   if (should_type != is->type)                               return CRYPT_ERROR;
-   if (should_type == PK_PRIVATE) {
-      if (mp_cmp(should->k, is->k) != LTC_MP_EQ)              return CRYPT_ERROR;
-   }
-   if (mp_cmp(should->dp.prime,  is->dp.prime)  != LTC_MP_EQ) return CRYPT_ERROR;
-   if (mp_cmp(should->dp.A,      is->dp.A)      != LTC_MP_EQ) return CRYPT_ERROR;
-   if (mp_cmp(should->dp.B,      is->dp.B)      != LTC_MP_EQ) return CRYPT_ERROR;
-   if (mp_cmp(should->dp.order,  is->dp.order)  != LTC_MP_EQ) return CRYPT_ERROR;
-   if (mp_cmp(should->dp.base.x, is->dp.base.x) != LTC_MP_EQ) return CRYPT_ERROR;
-   if (mp_cmp(should->dp.base.y, is->dp.base.y) != LTC_MP_EQ) return CRYPT_ERROR;
-   if (mp_cmp(should->pubkey.x,  is->pubkey.x)  != LTC_MP_EQ) return CRYPT_ERROR;
-   if (mp_cmp(should->pubkey.y,  is->pubkey.y)  != LTC_MP_EQ) return CRYPT_ERROR;
-   if (should->dp.size != is->dp.size)                        return CRYPT_ERROR;
-   if (should->dp.cofactor != is->dp.cofactor)                return CRYPT_ERROR;
    return CRYPT_OK;
 }
 
@@ -896,6 +916,194 @@ static int _ecc_import_export(void) {
    return CRYPT_OK;
 }
 
+#ifdef LTC_ECC_SHAMIR
+static int _ecc_test_recovery(void)
+{
+   const char* names[] = {
+#ifdef LTC_ECC_SECP112R1
+      "SECP112R1", "ECC-112",
+      "secp112r1",              /* name is case-insensitive */
+      "S E C-P-1_1_2r1",        /* should pass fuzzy matching */
+#endif
+#ifdef LTC_ECC_SECP112R2
+      "SECP112R2",
+#endif
+#ifdef LTC_ECC_SECP128R1
+      "SECP128R1", "ECC-128",
+#endif
+#ifdef LTC_ECC_SECP128R2
+      "SECP128R2",
+#endif
+#ifdef LTC_ECC_SECP160R1
+      "SECP160R1", "ECC-160",
+#endif
+#ifdef LTC_ECC_SECP160R2
+      "SECP160R2",
+#endif
+#ifdef LTC_ECC_SECP160K1
+      "SECP160K1",
+#endif
+#ifdef LTC_ECC_BRAINPOOLP160R1
+      "BRAINPOOLP160R1",
+#endif
+#ifdef LTC_ECC_SECP192R1
+      "SECP192R1", "NISTP192", "PRIME192V1", "ECC-192", "P-192",
+#endif
+#ifdef LTC_ECC_PRIME192V2
+      "PRIME192V2",
+#endif
+#ifdef LTC_ECC_PRIME192V3
+      "PRIME192V3",
+#endif
+#ifdef LTC_ECC_SECP192K1
+      "SECP192K1",
+#endif
+#ifdef LTC_ECC_BRAINPOOLP192R1
+      "BRAINPOOLP192R1",
+#endif
+#ifdef LTC_ECC_SECP224R1
+      "SECP224R1", "NISTP224", "ECC-224", "P-224",
+#endif
+#ifdef LTC_ECC_SECP224K1
+      "SECP224K1",
+#endif
+#ifdef LTC_ECC_BRAINPOOLP224R1
+      "BRAINPOOLP224R1",
+#endif
+#ifdef LTC_ECC_PRIME239V1
+      "PRIME239V1",
+#endif
+#ifdef LTC_ECC_PRIME239V2
+      "PRIME239V2",
+#endif
+#ifdef LTC_ECC_PRIME239V3
+      "PRIME239V3",
+#endif
+#ifdef LTC_ECC_SECP256R1
+      "SECP256R1", "NISTP256", "PRIME256V1", "ECC-256", "P-256",
+#endif
+#ifdef LTC_ECC_SECP256K1
+      "SECP256K1",
+#endif
+#ifdef LTC_ECC_BRAINPOOLP256R1
+      "BRAINPOOLP256R1",
+#endif
+#ifdef LTC_ECC_BRAINPOOLP320R1
+      "BRAINPOOLP320R1",
+#endif
+#ifdef LTC_ECC_SECP384R1
+      "SECP384R1", "NISTP384", "ECC-384", "P-384",
+#endif
+#ifdef LTC_ECC_BRAINPOOLP384R1
+      "BRAINPOOLP384R1",
+#endif
+#ifdef LTC_ECC_BRAINPOOLP512R1
+      "BRAINPOOLP512R1",
+#endif
+#ifdef LTC_ECC_SECP521R1
+      "SECP521R1", "NISTP521", "ECC-521", "P-521",
+#endif
+   };
+   int i, recid, stat;
+   const ltc_ecc_curve* dp;
+   ecc_key key, privkey, pubkey, reckey;
+   unsigned char buf[1000];
+   unsigned long len;
+   unsigned char data16[16] = { 0xd1, 0xd1, 0xd1, 0xd1, 0xd1, 0xd1, 0xd1, 0xd1, 0xd1, 0xd1, 0xd1, 0xd1, 0xd1, 0xd1, 0xd1, 0xd1 };
+   unsigned char eth_hash[] = { /* Keccak-256 hash of "Hello World" */
+      0x59, 0x2f, 0xa7, 0x43, 0x88, 0x9f, 0xc7, 0xf9, 0x2a, 0xc2, 0xa3, 0x7b, 0xb1, 0xf5, 0xba, 0x1d,
+      0xaf, 0x2a, 0x5c, 0x84, 0x74, 0x1c, 0xa0, 0xe0, 0x06, 0x1d, 0x24, 0x3a, 0x2e, 0x67, 0x07, 0xba
+   };
+   unsigned char eth_pubkey[] = { /* Public part of randomly-generated key pair */
+      0x04,
+      0xc6, 0x99, 0x5f, 0xdc, 0xf4, 0xf2, 0xda, 0x6e, 0x79, 0xe0, 0x47, 0x12, 0xd3, 0xbe, 0x22, 0xe7,
+      0x65, 0xc6, 0xa3, 0x32, 0x89, 0x1b, 0x34, 0xba, 0xc1, 0xb7, 0x01, 0x83, 0xed, 0xdd, 0xf1, 0xcc,
+      0xbf, 0x20, 0xdd, 0xcd, 0x05, 0x4e, 0x49, 0xc8, 0xcb, 0x66, 0x6c, 0xb7, 0x71, 0x2f, 0x7e, 0xc1,
+      0xd6, 0x1a, 0x4a, 0x42, 0x3d, 0xe5, 0xc2, 0x8d, 0x74, 0x03, 0x81, 0xe7, 0xea, 0xc5, 0x3c, 0x10
+   };
+   unsigned char eth_sig[] = { /* Signature of eth_hash to be verified against eth_pubkey */
+      0xbd, 0x6d, 0xbb, 0xbe, 0x2d, 0xe7, 0x1d, 0x00, 0xae, 0x18, 0x57, 0x12, 0x1d, 0x63, 0xa5, 0x1b,
+      0x0b, 0x42, 0x71, 0xa2, 0x80, 0x49, 0xe0, 0x5c, 0xfa, 0xc8, 0x1a, 0x0d, 0x8a, 0x88, 0x67, 0x56,
+      0xf6, 0x67, 0x1b, 0x41, 0x46, 0x09, 0x4e, 0xd0, 0x44, 0x25, 0x18, 0xfd, 0xf4, 0xcd, 0x62, 0xa3,
+      0xb7, 0x3c, 0x97, 0x55, 0xfa, 0x69, 0xf8, 0xef, 0xe9, 0xcf, 0x12, 0xaf, 0x48, 0x25, 0xe3, 0xe0,
+      0x1b
+   };
+
+   /* XXX-FIXME: TFM does not support sqrtmod_prime */
+   if (strcmp(ltc_mp.name, "TomsFastMath") == 0) return CRYPT_NOP;
+
+#ifdef LTC_ECC_SECP256K1
+   DO(ecc_find_curve("SECP256K1", &dp));
+
+   DO(ecc_set_curve(dp, &pubkey));
+   DO(ecc_set_key(eth_pubkey, sizeof(eth_pubkey), PK_PUBLIC, &pubkey));
+
+   DO(ecc_set_curve(dp, &reckey));
+   stat = ecc_recover_key(eth_sig, sizeof(eth_sig)-1, eth_hash, sizeof(eth_hash), 0, LTC_ECCSIG_RFC7518, &reckey);
+   if (stat != CRYPT_OK) return CRYPT_FAIL_TESTVECTOR;
+   DO(_ecc_key_cmp(PK_PUBLIC, &pubkey, &reckey));
+   ecc_free(&reckey);
+
+   DO(ecc_set_curve(dp, &reckey));
+   stat = ecc_recover_key(eth_sig, sizeof(eth_sig), eth_hash, sizeof(eth_hash), -1, LTC_ECCSIG_ETH27, &reckey);
+   if (stat != CRYPT_OK) return CRYPT_FAIL_TESTVECTOR;
+   DO(_ecc_key_cmp(PK_PUBLIC, &pubkey, &reckey));
+   ecc_free(&reckey);
+
+   ecc_free(&pubkey);
+#endif
+
+   for (i = 0; i < (int)(sizeof(names)/sizeof(names[0])); i++) {
+      DO(ecc_find_curve(names[i], &dp));
+
+      /* generate new key */
+      DO(ecc_set_curve(dp, &key));
+      DO(ecc_generate_key(&yarrow_prng, find_prng ("yarrow"), &key));
+
+      /* export private key */
+      len = sizeof(buf);
+      DO(ecc_get_key(buf, &len, PK_PRIVATE, &key));
+      ecc_free(&key);
+
+      /* load exported private key */
+      DO(ecc_set_curve(dp, &privkey));
+      DO(ecc_set_key(buf, len, PK_PRIVATE, &privkey));
+
+      /* export long public key */
+      len = sizeof(buf);
+      DO(ecc_get_key(buf, &len, PK_PUBLIC, &privkey));
+      if (len != 1 + 2 * (unsigned)ecc_get_size(&privkey)) return CRYPT_FAIL_TESTVECTOR;
+
+      /* load exported public key */
+      DO(ecc_set_curve(dp, &pubkey));
+      DO(ecc_set_key(buf, len, PK_PUBLIC, &pubkey));
+
+      /* test signature */
+      len = sizeof(buf);
+      recid = 0;
+      DO(ecc_sign_hash_ex(data16, 16, buf, &len, &yarrow_prng, find_prng ("yarrow"), LTC_ECCSIG_RFC7518, &recid, &privkey));
+
+      /* test verification */
+      stat = 0;
+      DO(ecc_verify_hash_ex(buf, len, data16, 16, LTC_ECCSIG_RFC7518, &stat, &pubkey));
+      if (stat != 1) return CRYPT_FAIL_TESTVECTOR;
+
+      /* test recovery */
+      DO(ecc_set_curve(dp, &reckey));
+      stat = ecc_recover_key(buf, len, data16, 16, recid, LTC_ECCSIG_RFC7518, &reckey);
+      if (stat != CRYPT_OK) return CRYPT_FAIL_TESTVECTOR;
+      DO(_ecc_key_cmp(PK_PUBLIC, &pubkey, &reckey));
+
+      /* cleanup */
+      ecc_free(&reckey);
+      ecc_free(&privkey);
+      ecc_free(&pubkey);
+   }
+
+  return CRYPT_OK;
+}
+#endif
+
 int ecc_tests(void)
 {
    if (ltc_mp.name == NULL) return CRYPT_NOP;
@@ -907,6 +1115,7 @@ int ecc_tests(void)
    DO(_ecc_issue108());
 #ifdef LTC_ECC_SHAMIR
    DO(_ecc_test_shamir());
+   DO(_ecc_test_recovery());
 #endif
    return CRYPT_OK;
 }

@@ -2339,6 +2339,10 @@
 					>
 				</File>
 				<File
+					RelativePath="src\pk\ecc\ecc_recover_key.c"
+					>
+				</File>
+				<File
 					RelativePath="src\pk\ecc\ecc_set_curve.c"
 					>
 				</File>
