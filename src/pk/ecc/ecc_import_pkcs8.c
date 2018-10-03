@@ -366,6 +366,34 @@ LBL_DONE:
    return err;
 }
 
+typedef struct {
+   ltc_asn1_type t;
+   ltc_asn1_list **pp;
+} der_flexi_check;
+
+#define LTC_SET_DER_FLEXI_CHECK(list, index, Type, P)    \
+   do {                                         \
+      int LTC_SDFC_temp##__LINE__ = (index);   \
+      list[LTC_SDFC_temp##__LINE__].t = Type;  \
+      list[LTC_SDFC_temp##__LINE__].pp = P;    \
+   } while (0)
+
+static int _der_flexi_sequence_cmp(const ltc_asn1_list *flexi, der_flexi_check *check)
+{
+   const ltc_asn1_list *cur;
+   if (flexi->type != LTC_ASN1_SEQUENCE)
+      return CRYPT_INVALID_PACKET;
+   cur = flexi->child;
+   while(check->t != LTC_ASN1_EOL) {
+      if (!LTC_ASN1_IS_TYPE(cur, check->t))
+         return CRYPT_INVALID_PACKET;
+      if (check->pp != NULL) *check->pp = (ltc_asn1_list*)cur;
+      cur = cur->next;
+      check++;
+   }
+   return CRYPT_OK;
+}
+
 /* NOTE: _der_decode_pkcs8_flexi & related stuff can be shared with rsa_import_pkcs8() */
 
 int ecc_import_pkcs8(const unsigned char *in, unsigned long inlen,
@@ -373,108 +401,110 @@ int ecc_import_pkcs8(const unsigned char *in, unsigned long inlen,
                      ecc_key *key)
 {
    void          *a, *b, *gx, *gy;
-   unsigned long len, cofactor;
-   oid_st        ecoid;
+   unsigned long len, cofactor, n;
+   const char    *pka_ec_oid;
    int           err;
    char          OID[256];
    const ltc_ecc_curve *curve;
    ltc_asn1_list *p = NULL, *l = NULL;
+   der_flexi_check flexi_should[7];
+   ltc_asn1_list *seq, *priv_key;
 
    LTC_ARGCHK(in          != NULL);
    LTC_ARGCHK(key         != NULL);
    LTC_ARGCHK(ltc_mp.name != NULL);
 
    /* get EC alg oid */
-   err = pk_get_oid(PKA_EC, &ecoid);
+   err = pk_get_oid(PKA_EC, &pka_ec_oid);
    if (err != CRYPT_OK) return err;
 
    /* init key */
    err = mp_init_multi(&a, &b, &gx, &gy, NULL);
    if (err != CRYPT_OK) return err;
 
+
    if ((err = _der_decode_pkcs8_flexi(in, inlen, pwd, pwdlen, &l)) == CRYPT_OK) {
-      if (l->type == LTC_ASN1_SEQUENCE &&
-          LTC_ASN1_IS_TYPE(l->child, LTC_ASN1_INTEGER) &&
-          LTC_ASN1_IS_TYPE(l->child->next, LTC_ASN1_SEQUENCE) &&
-          LTC_ASN1_IS_TYPE(l->child->next->child, LTC_ASN1_OBJECT_IDENTIFIER) &&
-          LTC_ASN1_IS_TYPE(l->child->next->next, LTC_ASN1_OCTET_STRING)) {
-         ltc_asn1_list *lseq = l->child->next;
-         ltc_asn1_list *lpri = l->child->next->next;
-         ltc_asn1_list *lecoid = l->child->next->child;
 
-         if ((lecoid->size != ecoid.OIDlen) ||
-             (XMEMCMP(ecoid.OID, lecoid->data, ecoid.OIDlen * sizeof(ecoid.OID[0])) != 0)) {
-            err = CRYPT_PK_INVALID_TYPE;
-            goto LBL_DONE;
-         }
+      /* Setup for basic structure */
+      n=0;
+      LTC_SET_DER_FLEXI_CHECK(flexi_should, n++, LTC_ASN1_INTEGER, NULL);
+      LTC_SET_DER_FLEXI_CHECK(flexi_should, n++, LTC_ASN1_SEQUENCE, &seq);
+      LTC_SET_DER_FLEXI_CHECK(flexi_should, n++, LTC_ASN1_OCTET_STRING, &priv_key);
+      LTC_SET_DER_FLEXI_CHECK(flexi_should, n, LTC_ASN1_EOL, NULL);
 
-         if (LTC_ASN1_IS_TYPE(lseq->child->next, LTC_ASN1_OBJECT_IDENTIFIER)) {
+      if (((err = _der_flexi_sequence_cmp(l, flexi_should)) == CRYPT_OK) &&
+            (pk_oid_cmp_with_asn1(pka_ec_oid, seq->child) == CRYPT_OK)) {
+         ltc_asn1_list *version, *field, *point, *point_g, *order, *p_cofactor;
+
+         err = CRYPT_INVALID_PACKET;
+
+         /* Setup for CASE 2 */
+         n=0;
+         LTC_SET_DER_FLEXI_CHECK(flexi_should, n++, LTC_ASN1_INTEGER, &version);
+         LTC_SET_DER_FLEXI_CHECK(flexi_should, n++, LTC_ASN1_SEQUENCE, &field);
+         LTC_SET_DER_FLEXI_CHECK(flexi_should, n++, LTC_ASN1_SEQUENCE, &point);
+         LTC_SET_DER_FLEXI_CHECK(flexi_should, n++, LTC_ASN1_OCTET_STRING, &point_g);
+         LTC_SET_DER_FLEXI_CHECK(flexi_should, n++, LTC_ASN1_INTEGER, &order);
+         LTC_SET_DER_FLEXI_CHECK(flexi_should, n++, LTC_ASN1_INTEGER, &p_cofactor);
+         LTC_SET_DER_FLEXI_CHECK(flexi_should, n, LTC_ASN1_EOL, NULL);
+
+         if (LTC_ASN1_IS_TYPE(seq->child->next, LTC_ASN1_OBJECT_IDENTIFIER)) {
             /* CASE 1: curve by OID (AKA short variant):
-             *  0:d=0  hl=2 l= 100 cons: SEQUENCE
-             *  2:d=1  hl=2 l=   1 prim:   INTEGER        :00
-             *  5:d=1  hl=2 l=  16 cons:   SEQUENCE       (== *lseq)
-             *  7:d=2  hl=2 l=   7 prim:     OBJECT       :id-ecPublicKey
-             * 16:d=2  hl=2 l=   5 prim:     OBJECT       :secp256k1 (== 1.3.132.0.10)
-             * 23:d=1  hl=2 l=  77 prim:   OCTET STRING   :bytes (== privatekey)
+             *   0:d=0  hl=2 l= 100 cons: SEQUENCE
+             *   2:d=1  hl=2 l=   1 prim:   INTEGER        :00
+             *   5:d=1  hl=2 l=  16 cons:   SEQUENCE       (== *seq)
+             *   7:d=2  hl=2 l=   7 prim:     OBJECT       :id-ecPublicKey
+             *  16:d=2  hl=2 l=   5 prim:     OBJECT       :(== *curve_oid (e.g. secp256k1 (== 1.3.132.0.10)))
+             *  23:d=1  hl=2 l=  77 prim:   OCTET STRING   :bytes (== *priv_key)
              */
-            ltc_asn1_list *loid = lseq->child->next;
+            ltc_asn1_list *curve_oid = seq->child->next;
             len = sizeof(OID);
-            if ((err = pk_oid_num_to_str(loid->data, loid->size, OID, &len)) != CRYPT_OK) { goto LBL_DONE; }
+            if ((err = pk_oid_num_to_str(curve_oid->data, curve_oid->size, OID, &len)) != CRYPT_OK) { goto LBL_DONE; }
             if ((err = ecc_find_curve(OID, &curve)) != CRYPT_OK)                          { goto LBL_DONE; }
             if ((err = ecc_set_curve(curve, key)) != CRYPT_OK)                            { goto LBL_DONE; }
          }
-         else if (LTC_ASN1_IS_TYPE(lseq->child->next, LTC_ASN1_SEQUENCE)) {
+         else if ((err = _der_flexi_sequence_cmp(seq->child->next, flexi_should)) == CRYPT_OK) {
             /* CASE 2: explicit curve parameters (AKA long variant):
              *   0:d=0  hl=3 l= 227 cons: SEQUENCE
              *   3:d=1  hl=2 l=   1 prim:   INTEGER              :00
-             *   6:d=1  hl=3 l= 142 cons:   SEQUENCE             (== *lseq)
+             *   6:d=1  hl=3 l= 142 cons:   SEQUENCE             (== *seq)
              *   9:d=2  hl=2 l=   7 prim:     OBJECT             :id-ecPublicKey
-             *  18:d=2  hl=3 l= 130 cons:     SEQUENCE           (== *lcurve)
+             *  18:d=2  hl=3 l= 130 cons:     SEQUENCE
              *  21:d=3  hl=2 l=   1 prim:       INTEGER          :01
-             *  24:d=3  hl=2 l=  44 cons:       SEQUENCE         (== *lfield)
+             *  24:d=3  hl=2 l=  44 cons:       SEQUENCE         (== *field)
              *  26:d=4  hl=2 l=   7 prim:         OBJECT         :prime-field
-             *  35:d=4  hl=2 l=  33 prim:         INTEGER        :(== curve.prime)
-             *  70:d=3  hl=2 l=   6 cons:       SEQUENCE         (== *lpoint)
+             *  35:d=4  hl=2 l=  33 prim:         INTEGER        :(== *prime / curve.prime)
+             *  70:d=3  hl=2 l=   6 cons:       SEQUENCE         (== *point)
              *  72:d=4  hl=2 l=   1 prim:         OCTET STRING   :bytes (== curve.A)
              *  75:d=4  hl=2 l=   1 prim:         OCTET STRING   :bytes (== curve.B)
-             *  78:d=3  hl=2 l=  33 prim:       OCTET STRING     :bytes (== curve.G-point)
-             * 113:d=3  hl=2 l=  33 prim:       INTEGER          :(== curve.order)
+             *  78:d=3  hl=2 l=  33 prim:       OCTET STRING     :bytes (== *g_point / curve.G-point)
+             * 113:d=3  hl=2 l=  33 prim:       INTEGER          :(== *order / curve.order)
              * 148:d=3  hl=2 l=   1 prim:       INTEGER          :(== curve.cofactor)
-             * 151:d=1  hl=2 l=  77 prim:   OCTET STRING         :bytes (== privatekey)
+             * 151:d=1  hl=2 l=  77 prim:   OCTET STRING         :bytes (== *priv_key)
              */
-            ltc_asn1_list *lcurve = lseq->child->next;
 
-            if (LTC_ASN1_IS_TYPE(lcurve->child, LTC_ASN1_INTEGER) &&
-                LTC_ASN1_IS_TYPE(lcurve->child->next, LTC_ASN1_SEQUENCE) &&
-                LTC_ASN1_IS_TYPE(lcurve->child->next->next, LTC_ASN1_SEQUENCE) &&
-                LTC_ASN1_IS_TYPE(lcurve->child->next->next->next, LTC_ASN1_OCTET_STRING) &&
-                LTC_ASN1_IS_TYPE(lcurve->child->next->next->next->next, LTC_ASN1_INTEGER) &&
-                LTC_ASN1_IS_TYPE(lcurve->child->next->next->next->next->next, LTC_ASN1_INTEGER)) {
+            if (mp_get_int(version->data) != 1) {
+               goto LBL_DONE;
+            }
+            cofactor = mp_get_int(p_cofactor->data);
 
-               ltc_asn1_list *lfield = lcurve->child->next;
-               ltc_asn1_list *lpoint = lcurve->child->next->next;
-               ltc_asn1_list *lg     = lcurve->child->next->next->next;
-               ltc_asn1_list *lorder = lcurve->child->next->next->next->next;
-               cofactor = mp_get_int(lcurve->child->next->next->next->next->next->data);
+            if (LTC_ASN1_IS_TYPE(field->child, LTC_ASN1_OBJECT_IDENTIFIER) &&
+                LTC_ASN1_IS_TYPE(field->child->next, LTC_ASN1_INTEGER) &&
+                LTC_ASN1_IS_TYPE(point->child, LTC_ASN1_OCTET_STRING) &&
+                LTC_ASN1_IS_TYPE(point->child->next, LTC_ASN1_OCTET_STRING)) {
 
-               if (LTC_ASN1_IS_TYPE(lfield->child, LTC_ASN1_OBJECT_IDENTIFIER) &&
-                   LTC_ASN1_IS_TYPE(lfield->child->next, LTC_ASN1_INTEGER) &&
-                   LTC_ASN1_IS_TYPE(lpoint->child, LTC_ASN1_OCTET_STRING) &&
-                   LTC_ASN1_IS_TYPE(lpoint->child->next, LTC_ASN1_OCTET_STRING)) {
-
-                  ltc_asn1_list *lprime = lfield->child->next;
-                  if ((err = mp_read_unsigned_bin(a, lpoint->child->data, lpoint->child->size)) != CRYPT_OK) {
-                     goto LBL_DONE;
-                  }
-                  if ((err = mp_read_unsigned_bin(b, lpoint->child->next->data, lpoint->child->next->size)) != CRYPT_OK) {
-                     goto LBL_DONE;
-                  }
-                  if ((err = ltc_ecc_import_point(lg->data, lg->size, lprime->data, a, b, gx, gy)) != CRYPT_OK) {
-                     goto LBL_DONE;
-                  }
-                  if ((err = ecc_set_curve_from_mpis(a, b, lprime->data, lorder->data, gx, gy, cofactor, key)) != CRYPT_OK) {
-                     goto LBL_DONE;
-                  }
+               ltc_asn1_list *prime = field->child->next;
+               if ((err = mp_read_unsigned_bin(a, point->child->data, point->child->size)) != CRYPT_OK) {
+                  goto LBL_DONE;
+               }
+               if ((err = mp_read_unsigned_bin(b, point->child->next->data, point->child->next->size)) != CRYPT_OK) {
+                  goto LBL_DONE;
+               }
+               if ((err = ltc_ecc_import_point(point_g->data, point_g->size, prime->data, a, b, gx, gy)) != CRYPT_OK) {
+                  goto LBL_DONE;
+               }
+               if ((err = ecc_set_curve_from_mpis(a, b, prime->data, order->data, gx, gy, cofactor, key)) != CRYPT_OK) {
+                  goto LBL_DONE;
                }
             }
          }
@@ -484,8 +514,8 @@ int ecc_import_pkcs8(const unsigned char *in, unsigned long inlen,
          }
 
          /* load private key value 'k' */
-         len = lpri->size;
-         if ((err = der_decode_sequence_flexi(lpri->data, &len, &p)) == CRYPT_OK) {
+         len = priv_key->size;
+         if ((err = der_decode_sequence_flexi(priv_key->data, &len, &p)) == CRYPT_OK) {
             if (p->type == LTC_ASN1_SEQUENCE &&
                 LTC_ASN1_IS_TYPE(p->child, LTC_ASN1_INTEGER) &&
                 LTC_ASN1_IS_TYPE(p->child->next, LTC_ASN1_OCTET_STRING)) {
