@@ -62,25 +62,25 @@ static void _four_rounds(pelican_state *pelmac)
     LOAD32H(s3, pelmac->state  + 12);
     for (r = 0; r < 4; r++) {
         t0 =
-            Te0(byte(s0, 3)) ^
-            Te1(byte(s1, 2)) ^
-            Te2(byte(s2, 1)) ^
-            Te3(byte(s3, 0));
+            Te0(LTC_BYTE(s0, 3)) ^
+            Te1(LTC_BYTE(s1, 2)) ^
+            Te2(LTC_BYTE(s2, 1)) ^
+            Te3(LTC_BYTE(s3, 0));
         t1 =
-            Te0(byte(s1, 3)) ^
-            Te1(byte(s2, 2)) ^
-            Te2(byte(s3, 1)) ^
-            Te3(byte(s0, 0));
+            Te0(LTC_BYTE(s1, 3)) ^
+            Te1(LTC_BYTE(s2, 2)) ^
+            Te2(LTC_BYTE(s3, 1)) ^
+            Te3(LTC_BYTE(s0, 0));
         t2 =
-            Te0(byte(s2, 3)) ^
-            Te1(byte(s3, 2)) ^
-            Te2(byte(s0, 1)) ^
-            Te3(byte(s1, 0));
+            Te0(LTC_BYTE(s2, 3)) ^
+            Te1(LTC_BYTE(s3, 2)) ^
+            Te2(LTC_BYTE(s0, 1)) ^
+            Te3(LTC_BYTE(s1, 0));
         t3 =
-            Te0(byte(s3, 3)) ^
-            Te1(byte(s0, 2)) ^
-            Te2(byte(s1, 1)) ^
-            Te3(byte(s2, 0));
+            Te0(LTC_BYTE(s3, 3)) ^
+            Te1(LTC_BYTE(s0, 2)) ^
+            Te2(LTC_BYTE(s1, 1)) ^
+            Te3(LTC_BYTE(s2, 0));
         s0 = t0; s1 = t1; s2 = t2; s3 = t3;
     }
     STORE32H(s0, pelmac->state      );

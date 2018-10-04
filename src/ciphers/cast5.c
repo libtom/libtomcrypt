@@ -508,7 +508,7 @@ INLINE static ulong32 FI(ulong32 R, ulong32 Km, ulong32 Kr)
    ulong32 I;
    I = (Km + R);
    I = ROL(I, Kr);
-   return ((S1[byte(I, 3)] ^ S2[byte(I,2)]) - S3[byte(I,1)]) + S4[byte(I,0)];
+   return ((S1[LTC_BYTE(I, 3)] ^ S2[LTC_BYTE(I,2)]) - S3[LTC_BYTE(I,1)]) + S4[LTC_BYTE(I,0)];
 }
 
 INLINE static ulong32 FII(ulong32 R, ulong32 Km, ulong32 Kr)
@@ -516,7 +516,7 @@ INLINE static ulong32 FII(ulong32 R, ulong32 Km, ulong32 Kr)
    ulong32 I;
    I = (Km ^ R);
    I = ROL(I, Kr);
-   return ((S1[byte(I, 3)] - S2[byte(I,2)]) + S3[byte(I,1)]) ^ S4[byte(I,0)];
+   return ((S1[LTC_BYTE(I, 3)] - S2[LTC_BYTE(I,2)]) + S3[LTC_BYTE(I,1)]) ^ S4[LTC_BYTE(I,0)];
 }
 
 INLINE static ulong32 FIII(ulong32 R, ulong32 Km, ulong32 Kr)
@@ -524,7 +524,7 @@ INLINE static ulong32 FIII(ulong32 R, ulong32 Km, ulong32 Kr)
    ulong32 I;
    I = (Km - R);
    I = ROL(I, Kr);
-   return ((S1[byte(I, 3)] + S2[byte(I,2)]) ^ S3[byte(I,1)]) - S4[byte(I,0)];
+   return ((S1[LTC_BYTE(I, 3)] + S2[LTC_BYTE(I,2)]) ^ S3[LTC_BYTE(I,1)]) - S4[LTC_BYTE(I,0)];
 }
 
 /**

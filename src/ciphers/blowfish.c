@@ -373,9 +373,9 @@ int blowfish_setup(const unsigned char *key, int keylen, int num_rounds,
 }
 
 #ifndef __GNUC__
-#define F(x) ((S1[byte(x,3)] + S2[byte(x,2)]) ^ S3[byte(x,1)]) + S4[byte(x,0)]
+#define F(x) ((S1[LTC_BYTE(x,3)] + S2[LTC_BYTE(x,2)]) ^ S3[LTC_BYTE(x,1)]) + S4[LTC_BYTE(x,0)]
 #else
-#define F(x) ((skey->blowfish.S[0][byte(x,3)] + skey->blowfish.S[1][byte(x,2)]) ^ skey->blowfish.S[2][byte(x,1)]) + skey->blowfish.S[3][byte(x,0)]
+#define F(x) ((skey->blowfish.S[0][LTC_BYTE(x,3)] + skey->blowfish.S[1][LTC_BYTE(x,2)]) ^ skey->blowfish.S[2][LTC_BYTE(x,1)]) + skey->blowfish.S[3][LTC_BYTE(x,0)]
 #endif
 
 /**
