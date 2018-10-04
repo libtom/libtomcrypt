@@ -30,15 +30,7 @@ const struct ltc_cipher_descriptor anubis_desc = {
    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
 };
 
-#define MIN_N           4
 #define MAX_N           10
-#define MIN_ROUNDS      (8 + MIN_N)
-#define MAX_ROUNDS      (8 + MAX_N)
-#define MIN_KEYSIZEB    (4*MIN_N)
-#define MAX_KEYSIZEB    (4*MAX_N)
-#define BLOCKSIZE       128
-#define BLOCKSIZEB      (BLOCKSIZE/8)
-
 
 /*
  * Though Anubis is endianness-neutral, the encryption tables are listed

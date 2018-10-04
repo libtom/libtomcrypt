@@ -30,10 +30,6 @@ const struct ltc_cipher_descriptor khazad_desc = {
 };
 
 #define R      8
-#define KEYSIZE      128
-#define KEYSIZEB   (KEYSIZE/8)
-#define BLOCKSIZE   64
-#define BLOCKSIZEB   (BLOCKSIZE/8)
 
 static const ulong64 T0[256] = {
     CONST64(0xbad3d268bbb96a01), CONST64(0x54fc4d19e59a66b1), CONST64(0x2f71bc93e26514cd), CONST64(0x749ccdb925871b51),

@@ -21,12 +21,9 @@
 
 /* don't change these... */
 #define N                        17
-#define FOLD                      N /* how many iterations of folding to do */
 #define INITKONST        0x6996c53a /* value of KONST to use during key loading */
 #define KEYP                     15 /* where to insert key words */
 #define FOLDP                     4 /* where to insert non-linear feedback */
-
-#define B(x,i) ((unsigned char)(((x) >> (8*i)) & 0xFF))
 
 static ulong32 BYTE2WORD(const unsigned char *b)
 {
