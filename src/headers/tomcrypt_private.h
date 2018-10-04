@@ -342,6 +342,15 @@ int pk_oid_cmp_with_asn1(const char *o1, const ltc_asn1_list *o2);
 
 /* tomcrypt_pkcs.h */
 
+#ifdef LTC_PKCS_8
+
+int pkcs8_decode_flexi(const unsigned char  *in,  unsigned long inlen,
+                                    const void  *pwd, unsigned long pwdlen,
+                                 ltc_asn1_list **decoded_list);
+
+#endif  /* LTC_PKCS_8 */
+
+
 #ifdef LTC_PKCS_12
 
 int pkcs12_utf8_to_utf16(const unsigned char *in,  unsigned long  inlen,

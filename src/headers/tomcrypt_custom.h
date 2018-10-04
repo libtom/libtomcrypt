@@ -567,6 +567,11 @@
    #define LTC_PKCS_8
 #endif
 
+#ifdef LTC_PKCS_8
+   #define LTC_PADDING
+   #define LTC_PBES
+#endif
+
 #if defined(LTC_PELICAN) && !defined(LTC_RIJNDAEL)
    #error Pelican-MAC requires LTC_RIJNDAEL
 #endif
