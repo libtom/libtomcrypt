@@ -2171,6 +2171,14 @@
 					</File>
 				</Filter>
 				<Filter
+					Name="pkcs8"
+					>
+					<File
+						RelativePath="src\pk\asn1\pkcs8\pkcs8_decode_flexi.c"
+						>
+					</File>
+				</Filter>
+				<Filter
 					Name="x509"
 					>
 					<File
