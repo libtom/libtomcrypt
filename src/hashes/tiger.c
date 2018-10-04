@@ -564,8 +564,8 @@ INLINE static void tiger_round(ulong64 *a, ulong64 *b, ulong64 *c, ulong64 x, in
 {
     ulong64 tmp;
     tmp = (*c ^= x);
-           *a -= t1[byte(tmp, 0)] ^ t2[byte(tmp, 2)] ^ t3[byte(tmp, 4)] ^ t4[byte(tmp, 6)];
-    tmp = (*b += t4[byte(tmp, 1)] ^ t3[byte(tmp, 3)] ^ t2[byte(tmp,5)] ^ t1[byte(tmp,7)]);
+           *a -= t1[LTC_BYTE(tmp, 0)] ^ t2[LTC_BYTE(tmp, 2)] ^ t3[LTC_BYTE(tmp, 4)] ^ t4[LTC_BYTE(tmp, 6)];
+    tmp = (*b += t4[LTC_BYTE(tmp, 1)] ^ t3[LTC_BYTE(tmp, 3)] ^ t2[LTC_BYTE(tmp,5)] ^ t1[LTC_BYTE(tmp,7)]);
     switch (mul) {
         case 5:  *b = (tmp << 2) + tmp; break;
         case 7:  *b = (tmp << 3) - tmp; break;

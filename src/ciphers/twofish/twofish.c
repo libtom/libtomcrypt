@@ -278,8 +278,8 @@ static void h_func(const unsigned char *in, unsigned char *out, const unsigned c
 #endif
 
 /* the G function */
-#define g_func(x, dum)  (S1[byte(x,0)] ^ S2[byte(x,1)] ^ S3[byte(x,2)] ^ S4[byte(x,3)])
-#define g1_func(x, dum) (S2[byte(x,0)] ^ S3[byte(x,1)] ^ S4[byte(x,2)] ^ S1[byte(x,3)])
+#define g_func(x, dum)  (S1[LTC_BYTE(x,0)] ^ S2[LTC_BYTE(x,1)] ^ S3[LTC_BYTE(x,2)] ^ S4[LTC_BYTE(x,3)])
+#define g1_func(x, dum) (S2[LTC_BYTE(x,0)] ^ S3[LTC_BYTE(x,1)] ^ S4[LTC_BYTE(x,2)] ^ S1[LTC_BYTE(x,3)])
 
 #else
 

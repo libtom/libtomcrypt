@@ -1432,14 +1432,14 @@ static void _desfunc(ulong32 *block, const ulong32 *keys)
 #else
    {
       ulong64 tmp;
-      tmp = des_ip[0][byte(leftt, 0)] ^
-            des_ip[1][byte(leftt, 1)] ^
-            des_ip[2][byte(leftt, 2)] ^
-            des_ip[3][byte(leftt, 3)] ^
-            des_ip[4][byte(right, 0)] ^
-            des_ip[5][byte(right, 1)] ^
-            des_ip[6][byte(right, 2)] ^
-            des_ip[7][byte(right, 3)];
+      tmp = des_ip[0][LTC_BYTE(leftt, 0)] ^
+            des_ip[1][LTC_BYTE(leftt, 1)] ^
+            des_ip[2][LTC_BYTE(leftt, 2)] ^
+            des_ip[3][LTC_BYTE(leftt, 3)] ^
+            des_ip[4][LTC_BYTE(right, 0)] ^
+            des_ip[5][LTC_BYTE(right, 1)] ^
+            des_ip[6][LTC_BYTE(right, 2)] ^
+            des_ip[7][LTC_BYTE(right, 3)];
       leftt = (ulong32)(tmp >> 32);
       right = (ulong32)(tmp & 0xFFFFFFFFUL);
    }
@@ -1491,14 +1491,14 @@ static void _desfunc(ulong32 *block, const ulong32 *keys)
 #else
    {
       ulong64 tmp;
-      tmp = des_fp[0][byte(leftt, 0)] ^
-            des_fp[1][byte(leftt, 1)] ^
-            des_fp[2][byte(leftt, 2)] ^
-            des_fp[3][byte(leftt, 3)] ^
-            des_fp[4][byte(right, 0)] ^
-            des_fp[5][byte(right, 1)] ^
-            des_fp[6][byte(right, 2)] ^
-            des_fp[7][byte(right, 3)];
+      tmp = des_fp[0][LTC_BYTE(leftt, 0)] ^
+            des_fp[1][LTC_BYTE(leftt, 1)] ^
+            des_fp[2][LTC_BYTE(leftt, 2)] ^
+            des_fp[3][LTC_BYTE(leftt, 3)] ^
+            des_fp[4][LTC_BYTE(right, 0)] ^
+            des_fp[5][LTC_BYTE(right, 1)] ^
+            des_fp[6][LTC_BYTE(right, 2)] ^
+            des_fp[7][LTC_BYTE(right, 3)];
       leftt = (ulong32)(tmp >> 32);
       right = (ulong32)(tmp & 0xFFFFFFFFUL);
    }
