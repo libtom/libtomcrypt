@@ -120,14 +120,15 @@ src/misc/crypt/crypt_register_prng.o src/misc/crypt/crypt_sizes.o \
 src/misc/crypt/crypt_unregister_cipher.o src/misc/crypt/crypt_unregister_hash.o \
 src/misc/crypt/crypt_unregister_prng.o src/misc/error_to_string.o src/misc/hkdf/hkdf.o \
 src/misc/hkdf/hkdf_test.o src/misc/mem_neq.o src/misc/padding/padding_depad.o \
-src/misc/padding/padding_pad.o src/misc/pkcs12/pkcs12_kdf.o src/misc/pkcs12/pkcs12_utf8_to_utf16.o \
-src/misc/pkcs5/pkcs_5_1.o src/misc/pkcs5/pkcs_5_2.o src/misc/pkcs5/pkcs_5_test.o src/misc/zeromem.o \
-src/modes/cbc/cbc_decrypt.o src/modes/cbc/cbc_done.o src/modes/cbc/cbc_encrypt.o \
-src/modes/cbc/cbc_getiv.o src/modes/cbc/cbc_setiv.o src/modes/cbc/cbc_start.o \
-src/modes/cfb/cfb_decrypt.o src/modes/cfb/cfb_done.o src/modes/cfb/cfb_encrypt.o \
-src/modes/cfb/cfb_getiv.o src/modes/cfb/cfb_setiv.o src/modes/cfb/cfb_start.o \
-src/modes/ctr/ctr_decrypt.o src/modes/ctr/ctr_done.o src/modes/ctr/ctr_encrypt.o \
-src/modes/ctr/ctr_getiv.o src/modes/ctr/ctr_setiv.o src/modes/ctr/ctr_start.o src/modes/ctr/ctr_test.o \
+src/misc/padding/padding_pad.o src/misc/pbes/pbes.o src/misc/pbes/pbes1.o src/misc/pbes/pbes2.o \
+src/misc/pkcs12/pkcs12_kdf.o src/misc/pkcs12/pkcs12_utf8_to_utf16.o src/misc/pkcs5/pkcs_5_1.o \
+src/misc/pkcs5/pkcs_5_2.o src/misc/pkcs5/pkcs_5_test.o src/misc/zeromem.o src/modes/cbc/cbc_decrypt.o \
+src/modes/cbc/cbc_done.o src/modes/cbc/cbc_encrypt.o src/modes/cbc/cbc_getiv.o \
+src/modes/cbc/cbc_setiv.o src/modes/cbc/cbc_start.o src/modes/cfb/cfb_decrypt.o \
+src/modes/cfb/cfb_done.o src/modes/cfb/cfb_encrypt.o src/modes/cfb/cfb_getiv.o \
+src/modes/cfb/cfb_setiv.o src/modes/cfb/cfb_start.o src/modes/ctr/ctr_decrypt.o \
+src/modes/ctr/ctr_done.o src/modes/ctr/ctr_encrypt.o src/modes/ctr/ctr_getiv.o \
+src/modes/ctr/ctr_setiv.o src/modes/ctr/ctr_start.o src/modes/ctr/ctr_test.o \
 src/modes/ecb/ecb_decrypt.o src/modes/ecb/ecb_done.o src/modes/ecb/ecb_encrypt.o \
 src/modes/ecb/ecb_start.o src/modes/f8/f8_decrypt.o src/modes/f8/f8_done.o src/modes/f8/f8_encrypt.o \
 src/modes/f8/f8_getiv.o src/modes/f8/f8_setiv.o src/modes/f8/f8_start.o src/modes/f8/f8_test_mode.o \

@@ -103,14 +103,15 @@ src/misc/crypt/crypt_register_prng.obj src/misc/crypt/crypt_sizes.obj \
 src/misc/crypt/crypt_unregister_cipher.obj src/misc/crypt/crypt_unregister_hash.obj \
 src/misc/crypt/crypt_unregister_prng.obj src/misc/error_to_string.obj src/misc/hkdf/hkdf.obj \
 src/misc/hkdf/hkdf_test.obj src/misc/mem_neq.obj src/misc/padding/padding_depad.obj \
-src/misc/padding/padding_pad.obj src/misc/pkcs12/pkcs12_kdf.obj src/misc/pkcs12/pkcs12_utf8_to_utf16.obj \
-src/misc/pkcs5/pkcs_5_1.obj src/misc/pkcs5/pkcs_5_2.obj src/misc/pkcs5/pkcs_5_test.obj src/misc/zeromem.obj \
-src/modes/cbc/cbc_decrypt.obj src/modes/cbc/cbc_done.obj src/modes/cbc/cbc_encrypt.obj \
-src/modes/cbc/cbc_getiv.obj src/modes/cbc/cbc_setiv.obj src/modes/cbc/cbc_start.obj \
-src/modes/cfb/cfb_decrypt.obj src/modes/cfb/cfb_done.obj src/modes/cfb/cfb_encrypt.obj \
-src/modes/cfb/cfb_getiv.obj src/modes/cfb/cfb_setiv.obj src/modes/cfb/cfb_start.obj \
-src/modes/ctr/ctr_decrypt.obj src/modes/ctr/ctr_done.obj src/modes/ctr/ctr_encrypt.obj \
-src/modes/ctr/ctr_getiv.obj src/modes/ctr/ctr_setiv.obj src/modes/ctr/ctr_start.obj src/modes/ctr/ctr_test.obj \
+src/misc/padding/padding_pad.obj src/misc/pbes/pbes.obj src/misc/pbes/pbes1.obj src/misc/pbes/pbes2.obj \
+src/misc/pkcs12/pkcs12_kdf.obj src/misc/pkcs12/pkcs12_utf8_to_utf16.obj src/misc/pkcs5/pkcs_5_1.obj \
+src/misc/pkcs5/pkcs_5_2.obj src/misc/pkcs5/pkcs_5_test.obj src/misc/zeromem.obj src/modes/cbc/cbc_decrypt.obj \
+src/modes/cbc/cbc_done.obj src/modes/cbc/cbc_encrypt.obj src/modes/cbc/cbc_getiv.obj \
+src/modes/cbc/cbc_setiv.obj src/modes/cbc/cbc_start.obj src/modes/cfb/cfb_decrypt.obj \
+src/modes/cfb/cfb_done.obj src/modes/cfb/cfb_encrypt.obj src/modes/cfb/cfb_getiv.obj \
+src/modes/cfb/cfb_setiv.obj src/modes/cfb/cfb_start.obj src/modes/ctr/ctr_decrypt.obj \
+src/modes/ctr/ctr_done.obj src/modes/ctr/ctr_encrypt.obj src/modes/ctr/ctr_getiv.obj \
+src/modes/ctr/ctr_setiv.obj src/modes/ctr/ctr_start.obj src/modes/ctr/ctr_test.obj \
 src/modes/ecb/ecb_decrypt.obj src/modes/ecb/ecb_done.obj src/modes/ecb/ecb_encrypt.obj \
 src/modes/ecb/ecb_start.obj src/modes/f8/f8_decrypt.obj src/modes/f8/f8_done.obj src/modes/f8/f8_encrypt.obj \
 src/modes/f8/f8_getiv.obj src/modes/f8/f8_setiv.obj src/modes/f8/f8_start.obj src/modes/f8/f8_test_mode.obj \

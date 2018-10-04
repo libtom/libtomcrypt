@@ -1564,6 +1564,22 @@
 				</File>
 			</Filter>
 			<Filter
+				Name="pbes"
+				>
+				<File
+					RelativePath="src\misc\pbes\pbes.c"
+					>
+				</File>
+				<File
+					RelativePath="src\misc\pbes\pbes1.c"
+					>
+				</File>
+				<File
+					RelativePath="src\misc\pbes\pbes2.c"
+					>
+				</File>
+			</Filter>
+			<Filter
 				Name="pkcs12"
 				>
 				<File
