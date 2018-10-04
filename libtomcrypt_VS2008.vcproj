@@ -2162,7 +2162,7 @@
 						>
 					</File>
 					<File
-						RelativePath="src\pk\asn1\oid\pk_oid_asn1.c"
+						RelativePath="src\pk\asn1\oid\pk_oid_cmp.c"
 						>
 					</File>
 					<File
