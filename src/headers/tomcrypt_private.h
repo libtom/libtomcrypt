@@ -340,6 +340,12 @@ int which ## _export(unsigned char *out, unsigned long *outlen, prng_state *prng
    return CRYPT_OK;                                                                    \
 }
 
+/* extract a byte portably */
+#ifdef _MSC_VER
+   #define LTC_BYTE(x, n) ((unsigned char)((x) >> (8 * (n))))
+#else
+   #define LTC_BYTE(x, n) (((x) >> (8 * (n))) & 255)
+#endif
 
 /* ref:         $Format:%D$ */
 /* git commit:  $Format:%H$ */

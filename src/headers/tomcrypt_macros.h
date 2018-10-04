@@ -429,13 +429,6 @@ static inline ulong64 ROR64(ulong64 word, int i)
    #define LTC_UNUSED_PARAM(x) (void)(x)
 #endif
 
-/* extract a byte portably */
-#ifdef _MSC_VER
-   #define LTC_BYTE(x, n) ((unsigned char)((x) >> (8 * (n))))
-#else
-   #define LTC_BYTE(x, n) (((x) >> (8 * (n))) & 255)
-#endif
-
 /* there is no snprintf before Visual C++ 2015 */
 #if defined(_MSC_VER) && _MSC_VER < 1900
 #define snprintf _snprintf
