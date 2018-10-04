@@ -463,6 +463,7 @@
 
 #define LTC_PKCS_1
 #define LTC_PKCS_5
+#define LTC_PKCS_8
 #define LTC_PKCS_12
 
 /* Include ASN.1 DER (required by DSA/RSA) */
@@ -560,6 +561,10 @@
 
 #ifdef LTC_MRSA
    #define LTC_PKCS_1
+#endif
+
+#if defined(LTC_MRSA) || defined(LTC_MECC)
+   #define LTC_PKCS_8
 #endif
 
 #if defined(LTC_PELICAN) && !defined(LTC_RIJNDAEL)
