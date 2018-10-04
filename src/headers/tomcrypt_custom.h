@@ -495,6 +495,8 @@
 
 #define LTC_PADDING
 
+#define LTC_PBES
+
 #endif /* LTC_NO_MISC */
 
 /* cleanup */
