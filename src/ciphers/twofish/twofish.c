@@ -37,8 +37,12 @@ const struct ltc_cipher_descriptor twofish_desc =
 };
 
 /* the two polynomials */
+#ifndef LTC_TWOFISH_TABLES
 #define MDS_POLY          0x169
+#endif
+#ifndef LTC_TWOFISH_ALL_TABLES
 #define RS_POLY           0x14D
+#endif
 
 /* The 4x8 RS Linear Transform */
 static const unsigned char RS[4][8] = {

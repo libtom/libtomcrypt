@@ -15,8 +15,6 @@
 
 #ifdef LTC_HMAC
 
-#define LTC_HMAC_BLOCKSIZE hash_descriptor[hash].blocksize
-
 /*
     TEST CASES SOURCE:
 
