@@ -341,6 +341,11 @@ static int _rsa_import_x509(const void *in, unsigned long inlen, void *key)
    }
    return rsa_import_x509(in, inlen, key);
 }
+
+static int _rsa_import_pkcs8(const void *in, unsigned long inlen, void *key)
+{
+   return rsa_import_pkcs8(in, inlen, "secret", 6, key);
+}
 #endif
 
 int rsa_test(void)
@@ -370,6 +375,7 @@ int rsa_test(void)
 
 #ifdef LTC_TEST_READDIR
    DO(test_process_dir("tests/rsa", &key, _rsa_import_x509, (dir_cleanup_cb)rsa_free, "rsa_test"));
+   DO(test_process_dir("tests/rsa-pkcs8", &key, _rsa_import_pkcs8, (dir_cleanup_cb)rsa_free, "rsa_pkcs8_test"));
 #endif
 
    DO(_rsa_issue_301(prng_idx));

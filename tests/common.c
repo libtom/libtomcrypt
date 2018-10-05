@@ -100,7 +100,7 @@ int test_process_dir(const char *path, void *ctx, dir_iter_cb process, dir_clean
       return CRYPT_FILE_NOTFOUND;
    while((de = readdir(d)) != NULL) {
       fname[0] = '\0';
-      if (strcmp(de->d_name, ".") == 0 || strcmp(de->d_name, "..") == 0)
+      if (strcmp(de->d_name, ".") == 0 || strcmp(de->d_name, "..") == 0 || strcmp(de->d_name, "README.txt") == 0)
          continue;
       strcat(fname, path);
       strcat(fname, "/");
