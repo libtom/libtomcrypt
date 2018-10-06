@@ -18,3 +18,8 @@ openssl pkcs8 -topk8 -inform PEM -outform DER -passout pass:secret -in ../test.k
 openssl pkcs8 -topk8 -inform PEM -outform DER -passout pass:secret -in ../test.key -v2 des3 -v2prf hmacWithSHA256 -out key_pkcs8_pbkdf2_sha256_des_ede3_cbc.der
 openssl pkcs8 -topk8 -inform PEM -outform DER -passout pass:secret -in ../test.key -v2 des3 -v2prf hmacWithSHA384 -out key_pkcs8_pbkdf2_sha384_des_ede3_cbc.der
 openssl pkcs8 -topk8 -inform PEM -outform DER -passout pass:secret -in ../test.key -v2 des3 -v2prf hmacWithSHA512 -out key_pkcs8_pbkdf2_sha512_des_ede3_cbc.der
+openssl pkcs8 -topk8 -inform PEM -outform DER -passout pass:secret -in ../test.key -v2 aes128 -v2prf hmacWithSHA512 -out key_pkcs8_pbkdf2_sha512_aes128_cbc.der
+openssl pkcs8 -topk8 -inform PEM -outform DER -passout pass:secret -in ../test.key -v2 aes192 -v2prf hmacWithSHA512 -out key_pkcs8_pbkdf2_sha512_aes192_cbc.der
+openssl pkcs8 -topk8 -inform PEM -outform DER -passout pass:secret -in ../test.key -v2 aes256 -v2prf hmacWithSHA512 -out key_pkcs8_pbkdf2_sha512_aes256_cbc.der
+openssl pkcs8 -topk8 -inform PEM -outform DER -passout pass:secret -in ../test.key -v2 aes256 -v2prf hmacWithSHA512-224 -out key_pkcs8_pbkdf2_sha512_224_aes256_cbc.der
+openssl pkcs8 -topk8 -inform PEM -outform DER -passout pass:secret -in ../test.key -v2 aes256 -v2prf hmacWithSHA512-256 -out key_pkcs8_pbkdf2_sha512_256_aes256_cbc.der
