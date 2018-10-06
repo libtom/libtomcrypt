@@ -4710,7 +4710,33 @@ int rsa_import_pkcs8(const unsigned char *in,
 
 This function can import RSA private keys serialized in PKCS\#8 format.
 
-It provides a \textit{password} parameter for the encrypted PKCS\#8 format, but this functionality is currently NOT implemented.
+Where \textit{key} is the RSA key structure (uninitialized), \textit{inlen} bytes of \textit{in} buffer is the DER encoded key,
+and \textit{pwdlen} bytes of \textit{pwd} is optional password/secret (use \textit{pwd = NULL} for keys without password protection).
+
+The library supports the following encryption algorithms:
+
+\begin{table}[H]
+\begin{center}
+\begin{tabular}{|l|l|}
+      \hline \textbf{Scheme} & \textbf{Algorithm}              \\
+      \hline PBES1           & pbeWithMD2AndDES-CBC            \\
+      \hline PBES1           & pbeWithMD2AndRC2-CBC            \\
+      \hline PBES1           & pbeWithMD5AndDES-CBC            \\
+      \hline PBES1           & pbeWithMD5AndRC2-CBC            \\
+      \hline PBES1           & pbeWithSHA1AndDES-CBC           \\
+      \hline PBES1           & pbeWithSHA1AndRC2-CBC           \\
+      \hline PBES1           & pbeWithSHAAnd3-KeyTripleDES-CBC \\
+      \hline PBES2 + PBKDF2  & desCBC                          \\
+      \hline PBES2 + PBKDF2  & rc2CBC                          \\
+      \hline PBES2 + PBKDF2  & des-EDE3-CBC                    \\
+      \hline PBES2 + PBKDF2  & aes128-CBC                      \\
+      \hline PBES2 + PBKDF2  & aes192-CBC                      \\
+      \hline PBES2 + PBKDF2  & aes256-CBC                      \\
+      \hline
+\end{tabular}
+\caption{Supported PKCS\#8 encryption algorithms of rsa\_import\_pkcs8()}
+\end{center}
+\end{table}
 
 \index{rsa\_import\_x509()}
 \begin{verbatim}
@@ -5549,7 +5575,7 @@ int ecc_sign_hash_rfc7518(const unsigned char *in,
 This function creates the same ECDSA signature as \textit{ecc\_sign\_hash} only the output format is different.
 The format follows \url{https://tools.ietf.org/html/rfc7518#section-3.4}, sometimes it is also called plain signature.
 
-\index{ecc\_sign\_hash_ex()}
+\index{ecc\_sign\_hash\_ex()}
 \begin{verbatim}
 int ecc_sign_hash_ex(const unsigned char *in,
                            unsigned long  inlen,
@@ -5595,7 +5621,7 @@ int ecc_verify_hash_rfc7518(const unsigned char *sig,
 This function validate the ECDSA signature as \textit{ecc\_verify\_hash} only the signature input format
 follows \url{https://tools.ietf.org/html/rfc7518#section-3.4}.
 
-\index{ecc\_verify\_hash_ex()}
+\index{ecc\_verify\_hash\_ex()}
 \begin{verbatim}
 int ecc_verify_hash_ex(const unsigned char *sig,
                              unsigned long  siglen,
