@@ -84,7 +84,7 @@ static int _pbes2_from_oid(const ltc_asn1_list *cipher_oid, const ltc_asn1_list 
 int pbes2_extract(const ltc_asn1_list *s, pbes_arg *res)
 {
    unsigned long klen;
-   ltc_asn1_list *lkdf, *lenc, *loptseq, *lhmac;
+   ltc_asn1_list *lkdf, *lenc, *loptseq, *liter, *lhmac;
    int err;
 
    LTC_ARGCHK(s   != NULL);
@@ -109,7 +109,7 @@ int pbes2_extract(const ltc_asn1_list *s, pbes_arg *res)
     * 21:d=4  hl=2 l=   9 prim:         OBJECT         :PBKDF2 (== *lkdf)
     * 32:d=4  hl=2 l=  28 cons:         SEQUENCE
     * 34:d=5  hl=2 l=   8 prim:           OCTET STRING [HEX DUMP]:28BA4ABF6AA76A3D (== res->salt)
-    * 44:d=5  hl=2 l=   2 prim:           INTEGER      :0800 (== res->iterations)
+    * 44:d=5  hl=2 l=   2 prim:           INTEGER      :0800 (== res->iterations, *liter)
     * 48:d=5  hl=2 l=  12 cons:           SEQUENCE     (== *loptseq   - this sequence is optional, may be missing)
     * 50:d=6  hl=2 l=   8 prim:             OBJECT     :hmacWithSHA256 (== *lhmac)
     * 60:d=6  hl=2 l=   0 prim:             NULL
@@ -129,9 +129,16 @@ int pbes2_extract(const ltc_asn1_list *s, pbes_arg *res)
       return CRYPT_INVALID_PACKET;
    }
 
-   loptseq = lkdf->next->child->next->next;
+   liter = lkdf->next->child->next;
+   loptseq = liter->next;
    res->salt = lkdf->next->child;
-   res->iterations = mp_get_int(lkdf->next->child->next->data);
+   res->iterations = mp_get_int(liter->data);
+
+   /* There's an optional INTEGER keyLength after the iterations, skip that if it's there.
+    * c.f. RFC 2898 A.2 PBKDF2 */
+   if(LTC_ASN1_IS_TYPE(loptseq, LTC_ASN1_INTEGER)) {
+      loptseq = loptseq->next;
+   }
 
    /* this sequence is optional */
    lhmac = NULL;
