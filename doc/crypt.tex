@@ -4713,30 +4713,7 @@ This function can import RSA private keys serialized in PKCS\#8 format.
 Where \textit{key} is the RSA key structure (uninitialized), \textit{inlen} bytes of \textit{in} buffer is the DER encoded key,
 and \textit{pwdlen} bytes of \textit{pwd} is optional password/secret (use \textit{pwd = NULL} for keys without password protection).
 
-The library supports the following encryption algorithms:
-
-\begin{table}[H]
-\begin{center}
-\begin{tabular}{|l|l|}
-      \hline \textbf{Scheme} & \textbf{Algorithm}              \\
-      \hline PBES1           & pbeWithMD2AndDES-CBC            \\
-      \hline PBES1           & pbeWithMD2AndRC2-CBC            \\
-      \hline PBES1           & pbeWithMD5AndDES-CBC            \\
-      \hline PBES1           & pbeWithMD5AndRC2-CBC            \\
-      \hline PBES1           & pbeWithSHA1AndDES-CBC           \\
-      \hline PBES1           & pbeWithSHA1AndRC2-CBC           \\
-      \hline PBES1           & pbeWithSHAAnd3-KeyTripleDES-CBC \\
-      \hline PBES2 + PBKDF2  & desCBC                          \\
-      \hline PBES2 + PBKDF2  & rc2CBC                          \\
-      \hline PBES2 + PBKDF2  & des-EDE3-CBC                    \\
-      \hline PBES2 + PBKDF2  & aes128-CBC                      \\
-      \hline PBES2 + PBKDF2  & aes192-CBC                      \\
-      \hline PBES2 + PBKDF2  & aes256-CBC                      \\
-      \hline
-\end{tabular}
-\caption{Supported PKCS\#8 encryption algorithms of rsa\_import\_pkcs8()}
-\end{center}
-\end{table}
+For password-protected files all supported encryption algorithms are listed in \ref{fig:pkcs8}.
 
 \index{rsa\_import\_x509()}
 \begin{verbatim}
@@ -5415,30 +5392,7 @@ int ecc_import_pkcs8(const unsigned char *in,
 Where \textit{key} is the ECC key structure (uninitialized), \textit{inlen} bytes of \textit{in} buffer is the DER encoded key,
 and \textit{pwdlen} bytes of \textit{pwd} is optional password/secret (use \textit{pwd = NULL} for keys without password protection).
 
-The library supports the following encryption algorithms:
-
-\begin{table}[H]
-\begin{center}
-\begin{tabular}{|l|l|}
-      \hline \textbf{Scheme} & \textbf{Algorithm}              \\
-      \hline PBES1           & pbeWithMD2AndDES-CBC            \\
-      \hline PBES1           & pbeWithMD2AndRC2-CBC            \\
-      \hline PBES1           & pbeWithMD5AndDES-CBC            \\
-      \hline PBES1           & pbeWithMD5AndRC2-CBC            \\
-      \hline PBES1           & pbeWithSHA1AndDES-CBC           \\
-      \hline PBES1           & pbeWithSHA1AndRC2-CBC           \\
-      \hline PBES1           & pbeWithSHAAnd3-KeyTripleDES-CBC \\
-      \hline PBES2 + PBKDF2  & desCBC                          \\
-      \hline PBES2 + PBKDF2  & rc2CBC                          \\
-      \hline PBES2 + PBKDF2  & des-EDE3-CBC                    \\
-      \hline PBES2 + PBKDF2  & aes128-CBC                      \\
-      \hline PBES2 + PBKDF2  & aes192-CBC                      \\
-      \hline PBES2 + PBKDF2  & aes256-CBC                      \\
-      \hline
-\end{tabular}
-\caption{Supported PKCS\#8 encryption algorithms of ecc\_import\_pkcs8()}
-\end{center}
-\end{table}
+For password-protected files all supported encryption algorithms are listed in \ref{fig:pkcs8}.
 
 \subsection{Key Export -- LTC proprietary (deprecated)}
 
@@ -6922,6 +6876,42 @@ int main(void)
     /* use material (recall to store the salt in the output) */
 }
 \end{verbatim}
+
+\mysection{PKCS \#8}
+\index{PKCS \#8}
+
+The library has built-in support for PKCS \#8 decoding as specified in RFC 5208.
+
+Encoding of private keys into PKCS \#8 is not supported.
+
+The library supports the following encryption algorithms:
+
+\begin{table}[H]
+\begin{center}
+\begin{tabular}{|l|l|}
+      \hline \textbf{Scheme} & \textbf{Algorithm}              \\
+      \hline PBES1           & pbeWithMD2AndDES-CBC            \\
+      \hline PBES1           & pbeWithMD2AndRC2-CBC            \\
+      \hline PBES1           & pbeWithMD5AndDES-CBC            \\
+      \hline PBES1           & pbeWithMD5AndRC2-CBC            \\
+      \hline PBES1           & pbeWithSHA1AndDES-CBC           \\
+      \hline PBES1           & pbeWithSHA1AndRC2-CBC           \\
+      \hline PBES1           & pbeWithSHAAnd3-KeyTripleDES-CBC \\
+      \hline PBES2 + PBKDF2  & desCBC                          \\
+      \hline PBES2 + PBKDF2  & rc2CBC                          \\
+      \hline PBES2 + PBKDF2  & des-EDE3-CBC                    \\
+      \hline PBES2 + PBKDF2  & aes128-CBC                      \\
+      \hline PBES2 + PBKDF2  & aes192-CBC                      \\
+      \hline PBES2 + PBKDF2  & aes256-CBC                      \\
+      \hline
+\end{tabular}
+\caption{Supported PKCS\#8 encryption algorithms}
+\end{center}
+\label{fig:pkcs8}
+\end{table}
+
+The PKCS \#8 import has no direct API endpoints, but it is available through Public Key Algorithm-specific
+\textit{pkaX\_import\_pkcs8()} functions.
 
 \mysection{Key Derviation Functions}
 \subsection{HKDF}
