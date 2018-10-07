@@ -76,11 +76,11 @@ int ecc_verify_hash_ex(const unsigned char *sig,  unsigned long siglen,
    }
    else if (sigformat == LTC_ECCSIG_RFC7518) {
       /* RFC7518 format - raw (r,s) */
-      if ((siglen % 2) == 1) {
+      i = mp_unsigned_bin_size(key->dp.order);
+      if (siglen != (2 * i)) {
          err = CRYPT_INVALID_PACKET;
          goto error;
       }
-      i = siglen / 2;
       if ((err = mp_read_unsigned_bin(r, (unsigned char *)sig,   i)) != CRYPT_OK)                       { goto error; }
       if ((err = mp_read_unsigned_bin(s, (unsigned char *)sig+i, i)) != CRYPT_OK)                       { goto error; }
    }

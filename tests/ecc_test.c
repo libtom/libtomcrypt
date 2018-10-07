@@ -240,11 +240,12 @@ done:
 }
 
 /* https://github.com/libtom/libtomcrypt/issues/443 */
-static int _ecc_issue443(void)
+/* https://github.com/libtom/libtomcrypt/issues/447 */
+static int _ecc_issue443_447(void)
 {
    const ltc_ecc_curve* cu;
    ecc_key key;
-   int stat = 0;
+   int err, stat = 0;
    unsigned char hash[64];
    unsigned long hashlen;
    const unsigned char msg[] = { 0x54,0x65,0x73,0x74 };
@@ -274,18 +275,18 @@ static int _ecc_issue443(void)
    DO(ecc_find_curve("secp256r1", &cu));
    DO(ecc_set_curve(cu, &key));
    DO(ecc_set_key(pub1, sizeof(pub1), PK_PUBLIC, &key));
-   DO(ecc_verify_hash_rfc7518(sig1, sizeof(sig1), hash, hashlen, &stat, &key));
+   err = ecc_verify_hash_rfc7518(sig1, sizeof(sig1), hash, hashlen, &stat, &key); /* should fail */
    ecc_free(&key);
-   if (stat != 1) return CRYPT_FAIL_TESTVECTOR;
+   if (err != CRYPT_INVALID_PACKET) return CRYPT_FAIL_TESTVECTOR;
 
    hashlen = sizeof(hash);
    DO(hash_memory(find_hash("sha512"), msg, sizeof(msg), hash, &hashlen));
    DO(ecc_find_curve("secp521r1", &cu));
    DO(ecc_set_curve(cu, &key));
    DO(ecc_set_key(pub2, sizeof(pub2), PK_PUBLIC, &key));
-   DO(ecc_verify_hash_rfc7518(sig2, sizeof(sig2), hash, hashlen, &stat, &key));
+   err = ecc_verify_hash_rfc7518(sig2, sizeof(sig2), hash, hashlen, &stat, &key); /* should fail */
    ecc_free(&key);
-   if (stat != 1) return CRYPT_FAIL_TESTVECTOR;
+   if (err != CRYPT_INVALID_PACKET) return CRYPT_FAIL_TESTVECTOR;
 
    return CRYPT_OK;
 }
@@ -1598,7 +1599,7 @@ int ecc_tests(void)
    DO(_ecc_import_export());
    DO(_ecc_test_mp());
    DO(_ecc_issue108());
-   DO(_ecc_issue443());
+   DO(_ecc_issue443_447());
 #ifdef LTC_ECC_SHAMIR
    DO(_ecc_test_shamir());
    DO(_ecc_test_recovery());
