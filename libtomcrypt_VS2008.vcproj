@@ -1564,6 +1564,22 @@
 				</File>
 			</Filter>
 			<Filter
+				Name="pbes"
+				>
+				<File
+					RelativePath="src\misc\pbes\pbes.c"
+					>
+				</File>
+				<File
+					RelativePath="src\misc\pbes\pbes1.c"
+					>
+				</File>
+				<File
+					RelativePath="src\misc\pbes\pbes2.c"
+					>
+				</File>
+			</Filter>
+			<Filter
 				Name="pkcs12"
 				>
 				<File
@@ -2146,11 +2162,19 @@
 						>
 					</File>
 					<File
-						RelativePath="src\pk\asn1\oid\pk_oid_asn1.c"
+						RelativePath="src\pk\asn1\oid\pk_oid_cmp.c"
 						>
 					</File>
 					<File
 						RelativePath="src\pk\asn1\oid\pk_oid_str.c"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="pkcs8"
+					>
+					<File
+						RelativePath="src\pk\asn1\pkcs8\pkcs8_decode_flexi.c"
 						>
 					</File>
 				</Filter>
@@ -2328,6 +2352,10 @@
 				</File>
 				<File
 					RelativePath="src\pk\ecc\ecc_import_openssl.c"
+					>
+				</File>
+				<File
+					RelativePath="src\pk\ecc\ecc_import_pkcs8.c"
 					>
 				</File>
 				<File

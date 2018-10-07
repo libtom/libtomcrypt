@@ -103,14 +103,15 @@ src/misc/crypt/crypt_register_prng.obj src/misc/crypt/crypt_sizes.obj \
 src/misc/crypt/crypt_unregister_cipher.obj src/misc/crypt/crypt_unregister_hash.obj \
 src/misc/crypt/crypt_unregister_prng.obj src/misc/error_to_string.obj src/misc/hkdf/hkdf.obj \
 src/misc/hkdf/hkdf_test.obj src/misc/mem_neq.obj src/misc/padding/padding_depad.obj \
-src/misc/padding/padding_pad.obj src/misc/pkcs12/pkcs12_kdf.obj src/misc/pkcs12/pkcs12_utf8_to_utf16.obj \
-src/misc/pkcs5/pkcs_5_1.obj src/misc/pkcs5/pkcs_5_2.obj src/misc/pkcs5/pkcs_5_test.obj src/misc/zeromem.obj \
-src/modes/cbc/cbc_decrypt.obj src/modes/cbc/cbc_done.obj src/modes/cbc/cbc_encrypt.obj \
-src/modes/cbc/cbc_getiv.obj src/modes/cbc/cbc_setiv.obj src/modes/cbc/cbc_start.obj \
-src/modes/cfb/cfb_decrypt.obj src/modes/cfb/cfb_done.obj src/modes/cfb/cfb_encrypt.obj \
-src/modes/cfb/cfb_getiv.obj src/modes/cfb/cfb_setiv.obj src/modes/cfb/cfb_start.obj \
-src/modes/ctr/ctr_decrypt.obj src/modes/ctr/ctr_done.obj src/modes/ctr/ctr_encrypt.obj \
-src/modes/ctr/ctr_getiv.obj src/modes/ctr/ctr_setiv.obj src/modes/ctr/ctr_start.obj src/modes/ctr/ctr_test.obj \
+src/misc/padding/padding_pad.obj src/misc/pbes/pbes.obj src/misc/pbes/pbes1.obj src/misc/pbes/pbes2.obj \
+src/misc/pkcs12/pkcs12_kdf.obj src/misc/pkcs12/pkcs12_utf8_to_utf16.obj src/misc/pkcs5/pkcs_5_1.obj \
+src/misc/pkcs5/pkcs_5_2.obj src/misc/pkcs5/pkcs_5_test.obj src/misc/zeromem.obj src/modes/cbc/cbc_decrypt.obj \
+src/modes/cbc/cbc_done.obj src/modes/cbc/cbc_encrypt.obj src/modes/cbc/cbc_getiv.obj \
+src/modes/cbc/cbc_setiv.obj src/modes/cbc/cbc_start.obj src/modes/cfb/cfb_decrypt.obj \
+src/modes/cfb/cfb_done.obj src/modes/cfb/cfb_encrypt.obj src/modes/cfb/cfb_getiv.obj \
+src/modes/cfb/cfb_setiv.obj src/modes/cfb/cfb_start.obj src/modes/ctr/ctr_decrypt.obj \
+src/modes/ctr/ctr_done.obj src/modes/ctr/ctr_encrypt.obj src/modes/ctr/ctr_getiv.obj \
+src/modes/ctr/ctr_setiv.obj src/modes/ctr/ctr_start.obj src/modes/ctr/ctr_test.obj \
 src/modes/ecb/ecb_decrypt.obj src/modes/ecb/ecb_done.obj src/modes/ecb/ecb_encrypt.obj \
 src/modes/ecb/ecb_start.obj src/modes/f8/f8_decrypt.obj src/modes/f8/f8_done.obj src/modes/f8/f8_encrypt.obj \
 src/modes/f8/f8_getiv.obj src/modes/f8/f8_setiv.obj src/modes/f8/f8_start.obj src/modes/f8/f8_test_mode.obj \
@@ -160,8 +161,8 @@ src/pk/asn1/der/teletex_string/der_length_teletex_string.obj \
 src/pk/asn1/der/utctime/der_decode_utctime.obj src/pk/asn1/der/utctime/der_encode_utctime.obj \
 src/pk/asn1/der/utctime/der_length_utctime.obj src/pk/asn1/der/utf8/der_decode_utf8_string.obj \
 src/pk/asn1/der/utf8/der_encode_utf8_string.obj src/pk/asn1/der/utf8/der_length_utf8_string.obj \
-src/pk/asn1/oid/pk_get_oid.obj src/pk/asn1/oid/pk_oid_asn1.obj src/pk/asn1/oid/pk_oid_str.obj \
-src/pk/asn1/x509/x509_decode_subject_public_key_info.obj \
+src/pk/asn1/oid/pk_get_oid.obj src/pk/asn1/oid/pk_oid_cmp.obj src/pk/asn1/oid/pk_oid_str.obj \
+src/pk/asn1/pkcs8/pkcs8_decode_flexi.obj src/pk/asn1/x509/x509_decode_subject_public_key_info.obj \
 src/pk/asn1/x509/x509_encode_subject_public_key_info.obj src/pk/dh/dh.obj src/pk/dh/dh_check_pubkey.obj \
 src/pk/dh/dh_export.obj src/pk/dh/dh_export_key.obj src/pk/dh/dh_free.obj src/pk/dh/dh_generate_key.obj \
 src/pk/dh/dh_import.obj src/pk/dh/dh_set.obj src/pk/dh/dh_set_pg_dhparam.obj src/pk/dh/dh_shared_secret.obj \
@@ -173,21 +174,21 @@ src/pk/dsa/dsa_verify_key.obj src/pk/ecc/ecc.obj src/pk/ecc/ecc_ansi_x963_export
 src/pk/ecc/ecc_ansi_x963_import.obj src/pk/ecc/ecc_decrypt_key.obj src/pk/ecc/ecc_encrypt_key.obj \
 src/pk/ecc/ecc_export.obj src/pk/ecc/ecc_export_openssl.obj src/pk/ecc/ecc_find_curve.obj \
 src/pk/ecc/ecc_free.obj src/pk/ecc/ecc_get_key.obj src/pk/ecc/ecc_get_oid_str.obj src/pk/ecc/ecc_get_size.obj \
-src/pk/ecc/ecc_import.obj src/pk/ecc/ecc_import_openssl.obj src/pk/ecc/ecc_import_x509.obj \
-src/pk/ecc/ecc_make_key.obj src/pk/ecc/ecc_recover_key.obj src/pk/ecc/ecc_set_curve.obj \
-src/pk/ecc/ecc_set_curve_internal.obj src/pk/ecc/ecc_set_key.obj src/pk/ecc/ecc_shared_secret.obj \
-src/pk/ecc/ecc_sign_hash.obj src/pk/ecc/ecc_sizes.obj src/pk/ecc/ecc_test.obj src/pk/ecc/ecc_verify_hash.obj \
-src/pk/ecc/ltc_ecc_export_point.obj src/pk/ecc/ltc_ecc_import_point.obj src/pk/ecc/ltc_ecc_is_point.obj \
-src/pk/ecc/ltc_ecc_is_point_at_infinity.obj src/pk/ecc/ltc_ecc_map.obj src/pk/ecc/ltc_ecc_mul2add.obj \
-src/pk/ecc/ltc_ecc_mulmod.obj src/pk/ecc/ltc_ecc_mulmod_timing.obj src/pk/ecc/ltc_ecc_points.obj \
-src/pk/ecc/ltc_ecc_projective_add_point.obj src/pk/ecc/ltc_ecc_projective_dbl_point.obj \
-src/pk/ecc/ltc_ecc_verify_key.obj src/pk/pkcs1/pkcs_1_i2osp.obj src/pk/pkcs1/pkcs_1_mgf1.obj \
-src/pk/pkcs1/pkcs_1_oaep_decode.obj src/pk/pkcs1/pkcs_1_oaep_encode.obj src/pk/pkcs1/pkcs_1_os2ip.obj \
-src/pk/pkcs1/pkcs_1_pss_decode.obj src/pk/pkcs1/pkcs_1_pss_encode.obj src/pk/pkcs1/pkcs_1_v1_5_decode.obj \
-src/pk/pkcs1/pkcs_1_v1_5_encode.obj src/pk/rsa/rsa_decrypt_key.obj src/pk/rsa/rsa_encrypt_key.obj \
-src/pk/rsa/rsa_export.obj src/pk/rsa/rsa_exptmod.obj src/pk/rsa/rsa_free.obj src/pk/rsa/rsa_get_size.obj \
-src/pk/rsa/rsa_import.obj src/pk/rsa/rsa_import_pkcs8.obj src/pk/rsa/rsa_import_x509.obj \
-src/pk/rsa/rsa_make_key.obj src/pk/rsa/rsa_set.obj src/pk/rsa/rsa_sign_hash.obj \
+src/pk/ecc/ecc_import.obj src/pk/ecc/ecc_import_openssl.obj src/pk/ecc/ecc_import_pkcs8.obj \
+src/pk/ecc/ecc_import_x509.obj src/pk/ecc/ecc_make_key.obj src/pk/ecc/ecc_recover_key.obj \
+src/pk/ecc/ecc_set_curve.obj src/pk/ecc/ecc_set_curve_internal.obj src/pk/ecc/ecc_set_key.obj \
+src/pk/ecc/ecc_shared_secret.obj src/pk/ecc/ecc_sign_hash.obj src/pk/ecc/ecc_sizes.obj src/pk/ecc/ecc_test.obj \
+src/pk/ecc/ecc_verify_hash.obj src/pk/ecc/ltc_ecc_export_point.obj src/pk/ecc/ltc_ecc_import_point.obj \
+src/pk/ecc/ltc_ecc_is_point.obj src/pk/ecc/ltc_ecc_is_point_at_infinity.obj src/pk/ecc/ltc_ecc_map.obj \
+src/pk/ecc/ltc_ecc_mul2add.obj src/pk/ecc/ltc_ecc_mulmod.obj src/pk/ecc/ltc_ecc_mulmod_timing.obj \
+src/pk/ecc/ltc_ecc_points.obj src/pk/ecc/ltc_ecc_projective_add_point.obj \
+src/pk/ecc/ltc_ecc_projective_dbl_point.obj src/pk/ecc/ltc_ecc_verify_key.obj src/pk/pkcs1/pkcs_1_i2osp.obj \
+src/pk/pkcs1/pkcs_1_mgf1.obj src/pk/pkcs1/pkcs_1_oaep_decode.obj src/pk/pkcs1/pkcs_1_oaep_encode.obj \
+src/pk/pkcs1/pkcs_1_os2ip.obj src/pk/pkcs1/pkcs_1_pss_decode.obj src/pk/pkcs1/pkcs_1_pss_encode.obj \
+src/pk/pkcs1/pkcs_1_v1_5_decode.obj src/pk/pkcs1/pkcs_1_v1_5_encode.obj src/pk/rsa/rsa_decrypt_key.obj \
+src/pk/rsa/rsa_encrypt_key.obj src/pk/rsa/rsa_export.obj src/pk/rsa/rsa_exptmod.obj src/pk/rsa/rsa_free.obj \
+src/pk/rsa/rsa_get_size.obj src/pk/rsa/rsa_import.obj src/pk/rsa/rsa_import_pkcs8.obj \
+src/pk/rsa/rsa_import_x509.obj src/pk/rsa/rsa_make_key.obj src/pk/rsa/rsa_set.obj src/pk/rsa/rsa_sign_hash.obj \
 src/pk/rsa/rsa_sign_saltlen_get.obj src/pk/rsa/rsa_verify_hash.obj src/prngs/chacha20.obj src/prngs/fortuna.obj \
 src/prngs/rc4.obj src/prngs/rng_get_bytes.obj src/prngs/rng_make_prng.obj src/prngs/sober128.obj \
 src/prngs/sprng.obj src/prngs/yarrow.obj src/stream/chacha/chacha_crypt.obj src/stream/chacha/chacha_done.obj \

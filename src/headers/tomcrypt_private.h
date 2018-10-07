@@ -36,6 +36,36 @@ typedef struct {
 } ltc_dh_set_type;
 
 
+typedef int (*fn_kdf_t)(const unsigned char *password, unsigned long password_len,
+                              const unsigned char *salt,     unsigned long salt_len,
+                              int iteration_count,  int hash_idx,
+                              unsigned char *out,   unsigned long *outlen);
+
+typedef struct {
+   /* KDF */
+   fn_kdf_t kdf;
+   /* Hash or HMAC */
+   const char* h;
+   /* cipher */
+   const char* c;
+   unsigned long keylen;
+   /* not used for pbkdf2 */
+   unsigned long blocklen;
+} pbes_properties;
+
+typedef struct
+{
+   pbes_properties type;
+   const void *pwd;
+   unsigned long pwdlen;
+   ltc_asn1_list *enc_data;
+   ltc_asn1_list *salt;
+   ltc_asn1_list *iv;
+   unsigned long iterations;
+   /* only used for RC2 */
+   unsigned long key_bits;
+} pbes_arg;
+
 /*
  * Internal functions
  */
@@ -167,6 +197,11 @@ void ocb3_int_xor_blocks(unsigned char *out, const unsigned char *block_a, const
 
 void copy_or_zeromem(const unsigned char* src, unsigned char* dest, unsigned long len, int coz);
 
+int pbes_decrypt(const pbes_arg  *arg, unsigned char *dec_data, unsigned long *dec_size);
+
+int pbes1_extract(const ltc_asn1_list *s, pbes_arg *res);
+int pbes2_extract(const ltc_asn1_list *s, pbes_arg *res);
+
 
 /* tomcrypt_pk.h */
 
@@ -259,6 +294,9 @@ int dsa_int_validate_primes(const dsa_key *key, int *stat);
 #endif /* LTC_MDSA */
 
 #ifdef LTC_DER
+
+#define LTC_ASN1_IS_TYPE(e, t) (((e) != NULL) && ((e)->type == (t)))
+
 /* DER handling */
 int der_decode_custom_type_ex(const unsigned char *in, unsigned long  inlen,
                            ltc_asn1_list *root,
@@ -297,11 +335,21 @@ int x509_decode_subject_public_key_info(const unsigned char *in, unsigned long i
         unsigned int algorithm, void* public_key, unsigned long* public_key_len,
         ltc_asn1_type parameters_type, ltc_asn1_list* parameters, unsigned long *parameters_len);
 
+int pk_oid_cmp_with_ulong(const char *o1, const unsigned long *o2, unsigned long o2size);
 int pk_oid_cmp_with_asn1(const char *o1, const ltc_asn1_list *o2);
 
 #endif /* LTC_DER */
 
 /* tomcrypt_pkcs.h */
+
+#ifdef LTC_PKCS_8
+
+int pkcs8_decode_flexi(const unsigned char  *in,  unsigned long inlen,
+                                    const void  *pwd, unsigned long pwdlen,
+                                 ltc_asn1_list **decoded_list);
+
+#endif  /* LTC_PKCS_8 */
+
 
 #ifdef LTC_PKCS_12
 

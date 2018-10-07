@@ -436,6 +436,9 @@ const char *crypt_build_settings =
 #if defined(LTC_PKCS_5)
     " PKCS#5 "
 #endif
+#if defined(LTC_PKCS_8)
+    " PKCS#8 "
+#endif
 #if defined(LTC_PKCS_12)
     " PKCS#12 "
 #endif
@@ -444,6 +447,10 @@ const char *crypt_build_settings =
 #endif
 #if defined(LTC_HKDF)
     " HKDF "
+#endif
+#if defined(LTC_PBES)
+    " PBES1 "
+    " PBES2 "
 #endif
 #if defined(LTC_DEVRANDOM)
     " LTC_DEVRANDOM "
