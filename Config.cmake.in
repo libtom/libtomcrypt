@@ -1,0 +1,7 @@
+include("${CMAKE_CURRENT_LIST_DIR}/@targets_export_name@.cmake")
+
+include(CMakeFindDependencyMacro)
+
+if("@tommath_FOUND@")
+    find_dependency(tommath CONFIG)
+endif()
