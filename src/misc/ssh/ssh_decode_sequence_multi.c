@@ -74,6 +74,7 @@ int ssh_decode_sequence_multi(const unsigned char *in, unsigned long inlen, ...)
 
          case LTC_SSHDATA_EOL:
             /* Should never get here */
+            size = (unsigned long)-1;
             err = CRYPT_INVALID_ARG;
             goto error;
       }
@@ -114,11 +115,11 @@ int ssh_decode_sequence_multi(const unsigned char *in, unsigned long inlen, ...)
          case LTC_SSHDATA_NAMELIST:
             sdata = va_arg(args, char*);
             bufsize = va_arg(args, unsigned long);
+            if (size >= bufsize) {
+               err = CRYPT_BUFFER_OVERFLOW;
+               goto error;
+            }
             if (size > 0) {
-               if (size >= bufsize) {
-                  err = CRYPT_BUFFER_OVERFLOW;
-                  goto error;
-               }
                XSTRNCPY(sdata, (const char *)in, size);
                sdata[size] = '\0'; /* strncpy doesn't NUL-terminate */
             } else {
@@ -130,6 +131,10 @@ int ssh_decode_sequence_multi(const unsigned char *in, unsigned long inlen, ...)
             vdata = va_arg(args, void*);
             if (size == 0) {
                if ((err = mp_set(vdata, 0)) != CRYPT_OK)                                                { goto error; }
+            } else if ((in[0] & 0x80) != 0) {
+               /* Negative number - not supported */
+               err = CRYPT_INVALID_PACKET;
+               goto error;
             } else {
                if ((err = mp_read_unsigned_bin(vdata, (unsigned char *)in, size)) != CRYPT_OK)          { goto error; }
             }
