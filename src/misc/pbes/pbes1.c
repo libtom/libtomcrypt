@@ -31,7 +31,7 @@ static int _pkcs_12_wrap(const unsigned char *password, unsigned long password_l
    if (*outlen < 32) return CRYPT_INVALID_ARG;
    pw = XMALLOC(pwlen + 2);
    if (pw == NULL) return CRYPT_MEM;
-   if ((err = pkcs12_utf8_to_utf16(password, password_len, pw, &pwlen) != CRYPT_OK)) goto LBL_ERROR;
+   if ((err = pkcs12_utf8_to_utf16(password, password_len, pw, &pwlen)) != CRYPT_OK) goto LBL_ERROR;
    pw[pwlen++] = 0;
    pw[pwlen++] = 0;
    /* derive KEY */

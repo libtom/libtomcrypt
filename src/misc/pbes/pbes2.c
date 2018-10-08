@@ -10,8 +10,8 @@
 
 #ifdef LTC_PBES
 
-static const char *_oid_pbes2 =  "1.2.840.113549.1.5.13";
-static const char *_oid_pbkdf2 = "1.2.840.113549.1.5.12";
+static const char * const _oid_pbes2 =  "1.2.840.113549.1.5.13";
+static const char * const _oid_pbkdf2 = "1.2.840.113549.1.5.12";
 
 typedef struct {
    const char *oid;

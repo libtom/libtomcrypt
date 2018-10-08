@@ -20,7 +20,7 @@
 */
 int pbes_decrypt(const pbes_arg  *arg, unsigned char *dec_data, unsigned long *dec_size)
 {
-   int err, hid = -1, cid = -1;
+   int err, hid, cid;
    unsigned char k[32], *iv;
    unsigned long klen, keylen, dlen;
    long diff;
