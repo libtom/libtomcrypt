@@ -53,6 +53,7 @@ int ssh_decode_sequence_multi(const unsigned char *in, unsigned long inlen, ...)
       }
 
       /* Calculate (or read) length of data */
+      size = (unsigned long)-1;
       switch (type) {
          case LTC_SSHDATA_BYTE:
          case LTC_SSHDATA_BOOLEAN:
@@ -74,7 +75,6 @@ int ssh_decode_sequence_multi(const unsigned char *in, unsigned long inlen, ...)
 
          case LTC_SSHDATA_EOL:
             /* Should never get here */
-            size = (unsigned long)-1;
             err = CRYPT_INVALID_ARG;
             goto error;
       }
