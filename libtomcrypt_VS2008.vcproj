@@ -1607,6 +1607,18 @@
 					>
 				</File>
 			</Filter>
+			<Filter
+				Name="ssh"
+				>
+				<File
+					RelativePath="src\misc\ssh\ssh_decode_sequence_multi.c"
+					>
+				</File>
+				<File
+					RelativePath="src\misc\ssh\ssh_encode_sequence_multi.c"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="modes"
@@ -2392,6 +2404,10 @@
 				</File>
 				<File
 					RelativePath="src\pk\ecc\ecc_sizes.c"
+					>
+				</File>
+				<File
+					RelativePath="src\pk\ecc\ecc_ssh_ecdsa_encode_name.c"
 					>
 				</File>
 				<File

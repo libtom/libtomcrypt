@@ -23,6 +23,7 @@ extern prng_state yarrow_prng;
 #define SHOULD_FAIL(x) do { run_cmd((x) != CRYPT_OK ? CRYPT_OK : CRYPT_FAIL_TESTVECTOR, __LINE__, __FILE__, #x, NULL); } while (0)
 #endif
 
+#define COMPARE_TESTVECTOR(i, il, s, sl, wa, wi) do { DO(do_compare_testvector((i), (il), (s), (sl), (wa), (wi))); } while(0)
 
 #if !((defined(_WIN32) || defined(_WIN32_WCE)) && !defined(__GNUC__))
 #define LTC_TEST_READDIR

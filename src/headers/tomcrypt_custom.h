@@ -43,7 +43,10 @@
 #define XMEM_NEQ  mem_neq
 #endif
 #ifndef XSTRCMP
-#define XSTRCMP strcmp
+#define XSTRCMP  strcmp
+#endif
+#ifndef XSTRNCPY
+#define XSTRNCPY strncpy
 #endif
 
 #ifndef XCLOCK
@@ -56,7 +59,7 @@
 
 #if ( defined(malloc) || defined(realloc) || defined(calloc) || defined(free) || \
       defined(memset) || defined(memcpy) || defined(memcmp) || defined(strcmp) || \
-      defined(clock) || defined(qsort) ) && !defined(LTC_NO_PROTOTYPES)
+      defined(strncpy) || defined(clock) || defined(qsort) ) && !defined(LTC_NO_PROTOTYPES)
 #define LTC_NO_PROTOTYPES
 #endif
 
@@ -493,6 +496,8 @@
 #define LTC_ADLER32
 
 #define LTC_CRC32
+
+#define LTC_SSH
 
 #define LTC_PADDING
 

@@ -154,6 +154,23 @@ int padding_pad(unsigned char *data, unsigned long length, unsigned long* padded
 int padding_depad(const unsigned char *data, unsigned long *length, unsigned long mode);
 #endif  /* LTC_PADDING */
 
+#ifdef LTC_SSH
+typedef enum ssh_data_type_ {
+   LTC_SSHDATA_BYTE,
+   LTC_SSHDATA_BOOLEAN,
+   LTC_SSHDATA_UINT32,
+   LTC_SSHDATA_UINT64,
+   LTC_SSHDATA_STRING,
+   LTC_SSHDATA_MPINT,
+   LTC_SSHDATA_NAMELIST,
+   LTC_SSHDATA_EOL
+} ssh_data_type;
+
+/* VA list handy helpers with tuples of <type, data> */
+int ssh_encode_sequence_multi(unsigned char *out, unsigned long *outlen, ...);
+int ssh_decode_sequence_multi(const unsigned char *in, unsigned long inlen, ...);
+#endif /* LTC_SSH */
+
 int compare_testvector(const void* is, const unsigned long is_len, const void* should, const unsigned long should_len, const char* what, int which);
 
 /* ref:         $Format:%D$ */
