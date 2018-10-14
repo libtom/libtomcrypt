@@ -246,6 +246,34 @@ int ccm_test(void)
     }
   }
 
+   /* wycheproof failing test - https://github.com/libtom/libtomcrypt/pull/452 */
+   {
+      unsigned char key[] = { 0x00,0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,0x0a,0x0b,0x0c,0x0d,0x0e,0x0f };
+      unsigned char iv[]  = { 0x46,0x47,0x48,0x49,0x4a,0x4b,0x4c,0x4d,0x4e,0x4f,0x50,0x51 };
+      unsigned char valid_tag[]   = { 0x23,0x1a,0x2d,0x8f };
+      unsigned char invalid_tag[] = { 0x23,0x1a,0x2d,0x8f,0x6a };
+      unsigned char msg[] = { 0x20,0x21,0x22,0x23,0x24,0x25,0x26,0x27,0x28,0x29,0x2a,0x2b,0x2c,0x2d,0x2e,0x2f };
+      unsigned char ct[]  = { 0xd3,0xda,0xb1,0xee,0x49,0x4c,0xc2,0x29,0x09,0x9d,0x6c,0xac,0x7d,0xf1,0x4a,0xdd };
+      unsigned char pt[20] = { 0 };
+
+      /* VALID tag */
+      taglen = sizeof(valid_tag);
+      err = ccm_memory(idx, key, sizeof(key), NULL, iv, sizeof(iv), NULL, 0,
+                       pt, sizeof(ct), ct, invalid_tag, &taglen, CCM_DECRYPT);
+      if ((err != CRYPT_OK) || (XMEMCMP(msg, pt, sizeof(msg)) != 0)) {
+         return CRYPT_FAIL_TESTVECTOR;
+      }
+
+      /* INVALID tag */
+      taglen = sizeof(invalid_tag);
+      err = ccm_memory(idx, key, sizeof(key), NULL, iv, sizeof(iv), NULL, 0,
+                       pt, sizeof(ct), ct, invalid_tag, &taglen, CCM_DECRYPT);
+      if (err == CRYPT_OK) {
+         fprintf(stderr, "XXX-FIXME ccm_memory should reject invalid tag\n");
+         /* return CRYPT_FAIL_TESTVECTOR; */
+      }
+   }
+
   return CRYPT_OK;
 #endif
 }
