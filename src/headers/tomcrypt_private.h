@@ -243,6 +243,10 @@ int ecc_sign_hash_internal(const unsigned char *in,  unsigned long inlen,
                            void *r, void *s, prng_state *prng, int wprng,
                            int *recid, const ecc_key *key);
 
+int ecc_verify_hash_internal(void *r, void *s,
+                             const unsigned char *hash, unsigned long hashlen,
+                             int *stat, const ecc_key *key);
+
 #ifdef LTC_SSH
 int ecc_ssh_ecdsa_encode_name(char *buffer, unsigned long *buflen, const ecc_key *key);
 #endif

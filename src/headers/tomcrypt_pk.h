@@ -313,15 +313,21 @@ int ecc_sign_hash_eth27(const unsigned char *in,  unsigned long inlen,
                         unsigned char *out, unsigned long *outlen,
                         prng_state *prng, int wprng, const ecc_key *key);
 
-#define ecc_verify_hash_rfc7518(sig_, siglen_, hash_, hashlen_, stat_, key_) \
-   ecc_verify_hash_ex(sig_, siglen_, hash_, hashlen_, LTC_ECCSIG_RFC7518, stat_, key_)
+int ecc_verify_hash(const unsigned char *sig,  unsigned long siglen,
+                    const unsigned char *hash, unsigned long hashlen,
+                    int *stat, const ecc_key *key);
 
-#define ecc_verify_hash(sig_, siglen_, hash_, hashlen_, stat_, key_) \
-   ecc_verify_hash_ex(sig_, siglen_, hash_, hashlen_, LTC_ECCSIG_ANSIX962, stat_, key_)
+int ecc_verify_hash_rfc7518(const unsigned char *sig,  unsigned long siglen,
+                            const unsigned char *hash, unsigned long hashlen,
+                            int *stat, const ecc_key *key);
 
-int  ecc_verify_hash_ex(const unsigned char *sig,  unsigned long siglen,
-                        const unsigned char *hash, unsigned long hashlen,
-                        ecc_signature_type sigformat, int *stat, const ecc_key *key);
+int ecc_verify_hash_rfc5656(const unsigned char *sig,  unsigned long siglen,
+                            const unsigned char *hash, unsigned long hashlen,
+                            int *stat, const ecc_key *key);
+
+int ecc_verify_hash_eth27(const unsigned char *sig,  unsigned long siglen,
+                          const unsigned char *hash, unsigned long hashlen,
+                          int *stat, const ecc_key *key);
 
 int  ecc_recover_key(const unsigned char *sig,  unsigned long siglen,
                      const unsigned char *hash, unsigned long hashlen,
