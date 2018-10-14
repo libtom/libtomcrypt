@@ -569,8 +569,7 @@ static int s_ecc_new_api(void)
 #ifdef LTC_SSH
       /* test SSH+ECDSA/RFC5656 signature */
       len = sizeof(buf);
-      DO(ecc_sign_hash_ex(data16, 16, buf, &len, &yarrow_prng, find_prng ("yarrow"),
-                          LTC_ECCSIG_RFC5656, NULL, &privkey));
+      DO(ecc_sign_hash_rfc5656(data16, 16, buf, &len, &yarrow_prng, find_prng ("yarrow"), &privkey));
       stat = 0;
       DO(ecc_verify_hash_ex(buf, len, data16, 16, LTC_ECCSIG_RFC5656, &stat, &pubkey));
       if (stat != 1) return CRYPT_FAIL_TESTVECTOR;
@@ -1558,7 +1557,7 @@ static int s_ecc_test_recovery(void)
       /* test signature */
       len = sizeof(buf);
       recid = 0;
-      DO(ecc_sign_hash_ex(data16, 16, buf, &len, &yarrow_prng, find_prng ("yarrow"), LTC_ECCSIG_RFC7518, &recid, &privkey));
+      DO(ecc_sign_hash_rfc7518_ex(data16, 16, buf, &len, &yarrow_prng, find_prng ("yarrow"), &recid, &privkey));
 
       /* test verification */
       stat = 0;
