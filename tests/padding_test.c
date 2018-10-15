@@ -194,6 +194,18 @@ int padding_test(void)
       }
    }
 
+   /* wycheproof failing test - https://github.com/libtom/libtomcrypt/pull/454 */
+   {
+      unsigned char data[] = { 0x47,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00 };
+      unsigned long len = sizeof(data);
+      int err;
+
+      err = padding_depad(data, &len, (LTC_PAD_PKCS7 | 16));
+      if (err == CRYPT_OK) {
+         fprintf(stderr, "XXX-FIXME padding_depad should fail (err=%d len=%lu)\n", err, len);
+         /* return CRYPT_FAIL_TESTVECTOR; */
+      }
+   }
 
    return CRYPT_OK;
 }
