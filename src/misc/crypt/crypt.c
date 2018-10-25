@@ -91,6 +91,9 @@ const char *crypt_build_settings =
 #if defined(LTC_DES)
    "   DES\n"
 #endif
+#if defined(LTC_SM4)
+   "   SM4\n"
+#endif
 #if defined(LTC_CAST5)
    "   CAST5\n"
 #endif
