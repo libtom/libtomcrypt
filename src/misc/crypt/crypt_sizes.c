@@ -92,6 +92,9 @@ static const crypt_size s_crypt_sizes[] = {
     SZ_STRINGIFY_S(des_key),
     SZ_STRINGIFY_S(des3_key),
 #endif
+#ifdef LTC_SM4
+    SZ_STRINGIFY_S(sm4_key),
+#endif
 #ifdef LTC_IDEA
     SZ_STRINGIFY_S(idea_key),
 #endif

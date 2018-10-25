@@ -396,6 +396,10 @@
 				>
 			</File>
 			<File
+				RelativePath="src\ciphers\sm4.c"
+				>
+			</File>
+			<File
 				RelativePath="src\ciphers\tea.c"
 				>
 			</File>

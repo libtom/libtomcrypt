@@ -22,6 +22,7 @@ src/ciphers/safer/safer_tab.c
 src/ciphers/safer/saferp.c
 src/ciphers/serpent.c
 src/ciphers/skipjack.c
+src/ciphers/sm4.c
 src/ciphers/tea.c
 src/ciphers/twofish/twofish.c
 src/ciphers/twofish/twofish_tab.c
