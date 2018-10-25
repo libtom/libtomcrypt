@@ -153,6 +153,9 @@ static void _unregister_all(void)
   unregister_cipher(&des_desc);
   unregister_cipher(&des3_desc);
 #endif
+#ifdef LTC_SM4
+  unregister_cipher(&sm4_desc);
+#endif
 #ifdef LTC_CAST5
   unregister_cipher(&cast5_desc);
 #endif
