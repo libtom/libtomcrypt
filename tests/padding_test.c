@@ -201,10 +201,7 @@ int padding_test(void)
       int err;
 
       err = padding_depad(data, &len, (LTC_PAD_PKCS7 | 16));
-      if (err == CRYPT_OK) {
-         fprintf(stderr, "XXX-FIXME padding_depad should fail (err=%d len=%lu)\n", err, len);
-         /* return CRYPT_FAIL_TESTVECTOR; */
-      }
+      if (err == CRYPT_OK) return CRYPT_FAIL_TESTVECTOR; /* should fail */
    }
 
    return CRYPT_OK;

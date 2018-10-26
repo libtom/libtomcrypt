@@ -36,7 +36,7 @@ int padding_depad(const unsigned char *data, unsigned long *length, unsigned lon
    if (type < LTC_PAD_ONE_AND_ZERO) {
       pad = data[padded_length - 1];
 
-      if (pad > padded_length) return CRYPT_INVALID_ARG;
+      if (pad > padded_length || pad == 0) return CRYPT_INVALID_ARG;
 
       unpadded_length = padded_length - pad;
    } else {
