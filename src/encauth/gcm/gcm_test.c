@@ -363,6 +363,7 @@ int gcm_test(void)
        }
 
        y = sizeof(T[1]);
+       XMEMCPY(T[1], tests[x].T, 16);
        if ((err = gcm_memory(idx, tests[x].K, tests[x].keylen,
                              tests[x].IV, tests[x].IVlen,
                              tests[x].A, tests[x].alen,
@@ -374,11 +375,6 @@ int gcm_test(void)
        if (compare_testvector(out[1], tests[x].ptlen, tests[x].P, tests[x].ptlen, "GCM PT", x)) {
           return CRYPT_FAIL_TESTVECTOR;
        }
-
-       if (compare_testvector(T[1], y, tests[x].T, 16, "GCM Decrypt Tag", x)) {
-          return CRYPT_FAIL_TESTVECTOR;
-       }
-
    }
 
    /* wycheproof failing test - https://github.com/libtom/libtomcrypt/pull/451 */
@@ -395,7 +391,7 @@ int gcm_test(void)
       /* VALID tag */
       taglen = sizeof(valid_tag);
       err = gcm_memory(idx, key, sizeof(key), iv, sizeof(iv), NULL, 0,
-                       pt, sizeof(ct), ct, invalid_tag, &taglen, GCM_DECRYPT);
+                       pt, sizeof(ct), ct, valid_tag, &taglen, GCM_DECRYPT);
       if ((err != CRYPT_OK) || (XMEMCMP(msg, pt, sizeof(msg)) != 0)) {
          return CRYPT_FAIL_TESTVECTOR;
       }
@@ -405,8 +401,7 @@ int gcm_test(void)
       err = gcm_memory(idx, key, sizeof(key), iv, sizeof(iv), NULL, 0,
                        pt, sizeof(ct), ct, invalid_tag, &taglen, GCM_DECRYPT);
       if (err == CRYPT_OK) {
-         fprintf(stderr, "XXX-FIXME gcm_memory should reject invalid tag\n");
-         /* return CRYPT_FAIL_TESTVECTOR; */
+         return CRYPT_FAIL_TESTVECTOR; /* should fail */
       }
    }
 
