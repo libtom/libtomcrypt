@@ -259,7 +259,7 @@ int ccm_test(void)
       /* VALID tag */
       taglen = sizeof(valid_tag);
       err = ccm_memory(idx, key, sizeof(key), NULL, iv, sizeof(iv), NULL, 0,
-                       pt, sizeof(ct), ct, invalid_tag, &taglen, CCM_DECRYPT);
+                       pt, sizeof(ct), ct, valid_tag, &taglen, CCM_DECRYPT);
       if ((err != CRYPT_OK) || (XMEMCMP(msg, pt, sizeof(msg)) != 0)) {
          return CRYPT_FAIL_TESTVECTOR;
       }
