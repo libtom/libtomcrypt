@@ -269,8 +269,7 @@ int ccm_test(void)
       err = ccm_memory(idx, key, sizeof(key), NULL, iv, sizeof(iv), NULL, 0,
                        pt, sizeof(ct), ct, invalid_tag, &taglen, CCM_DECRYPT);
       if (err == CRYPT_OK) {
-         fprintf(stderr, "XXX-FIXME ccm_memory should reject invalid tag\n");
-         /* return CRYPT_FAIL_TESTVECTOR; */
+         return CRYPT_FAIL_TESTVECTOR; /* should fail */
       }
    }
 

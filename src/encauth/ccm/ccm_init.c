@@ -29,7 +29,6 @@ int ccm_init(ccm_state *ccm, int cipher,
 
    LTC_ARGCHK(ccm    != NULL);
    LTC_ARGCHK(key    != NULL);
-   LTC_ARGCHK(taglen != 0);
 
    XMEMSET(ccm, 0, sizeof(ccm_state));
 
@@ -41,17 +40,11 @@ int ccm_init(ccm_state *ccm, int cipher,
       return CRYPT_INVALID_CIPHER;
    }
 
-   /* make sure the taglen is even and <= 16 */
-   ccm->taglen = taglen;
-   ccm->taglen &= ~1;
-   if (ccm->taglen > 16) {
-      ccm->taglen = 16;
-   }
-
-   /* can't use < 4 */
-   if (ccm->taglen < 4) {
+   /* make sure the taglen is valid */
+   if (taglen < 4 || taglen > 16 || (taglen % 2) == 1) {
       return CRYPT_INVALID_ARG;
    }
+   ccm->taglen = taglen;
 
    /* schedule key */
    if ((err = cipher_descriptor[cipher].setup(key, keylen, 0, &ccm->K)) != CRYPT_OK) {
