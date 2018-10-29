@@ -363,6 +363,7 @@ int gcm_test(void)
        }
 
        y = sizeof(T[1]);
+       XMEMCPY(T[1], tests[x].T, 16);
        if ((err = gcm_memory(idx, tests[x].K, tests[x].keylen,
                              tests[x].IV, tests[x].IVlen,
                              tests[x].A, tests[x].alen,
@@ -374,12 +375,36 @@ int gcm_test(void)
        if (compare_testvector(out[1], tests[x].ptlen, tests[x].P, tests[x].ptlen, "GCM PT", x)) {
           return CRYPT_FAIL_TESTVECTOR;
        }
-
-       if (compare_testvector(T[1], y, tests[x].T, 16, "GCM Decrypt Tag", x)) {
-          return CRYPT_FAIL_TESTVECTOR;
-       }
-
    }
+
+   /* wycheproof failing test - https://github.com/libtom/libtomcrypt/pull/451 */
+   {
+      unsigned char key[] = { 0x00,0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,0x0a,0x0b,0x0c,0x0d,0x0e,0x0f };
+      unsigned char iv[]  = { 0x50,0x51,0x52,0x53,0x54,0x55,0x56,0x57,0x58,0x59,0x5a,0x5b };
+      unsigned char valid_tag[]   = { 0xd8,0x84,0x7d,0xbc,0x32,0x6a,0x06,0xe9,0x88,0xc7,0x7a,0xd3,0x86,0x3e,0x60,0x83 };
+      unsigned char invalid_tag[] = { 0xd9,0x84,0x7d,0xbc,0x32,0x6a,0x06,0xe9,0x88,0xc7,0x7a,0xd3,0x86,0x3e,0x60,0x83 };
+      unsigned char msg[] = { 0x20,0x21,0x22,0x23,0x24,0x25,0x26,0x27,0x28,0x29,0x2a,0x2b,0x2c,0x2d,0x2e,0x2f };
+      unsigned char ct[]  = { 0xeb,0x15,0x6d,0x08,0x1e,0xd6,0xb6,0xb5,0x5f,0x46,0x12,0xf0,0x21,0xd8,0x7b,0x39 };
+      unsigned char pt[20] = { 0 };
+      unsigned long taglen;
+
+      /* VALID tag */
+      taglen = sizeof(valid_tag);
+      err = gcm_memory(idx, key, sizeof(key), iv, sizeof(iv), NULL, 0,
+                       pt, sizeof(ct), ct, valid_tag, &taglen, GCM_DECRYPT);
+      if ((err != CRYPT_OK) || (XMEMCMP(msg, pt, sizeof(msg)) != 0)) {
+         return CRYPT_FAIL_TESTVECTOR;
+      }
+
+      /* INVALID tag */
+      taglen = sizeof(invalid_tag);
+      err = gcm_memory(idx, key, sizeof(key), iv, sizeof(iv), NULL, 0,
+                       pt, sizeof(ct), ct, invalid_tag, &taglen, GCM_DECRYPT);
+      if (err == CRYPT_OK) {
+         return CRYPT_FAIL_TESTVECTOR; /* should fail */
+      }
+   }
+
    return CRYPT_OK;
 #endif
 }

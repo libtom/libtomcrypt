@@ -25,7 +25,6 @@ int chacha20poly1305_decrypt(chacha20poly1305_state *st, const unsigned char *in
    unsigned long padlen;
    int err;
 
-   if (inlen == 0) return CRYPT_OK; /* nothing to do */
    LTC_ARGCHK(st != NULL);
 
    if (st->aadflg) {

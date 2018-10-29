@@ -2305,6 +2305,9 @@ int gcm_memory(
 This will initialize the GCM state with the given key, IV and AAD value then proceed to encrypt or decrypt the message text and store the final
 message tag.  The definition of the variables is the same as it is for all the manual functions.
 
+IMPORTANT NOTICE: for \textit{direction == GCM\_DECRYPT} the caller has to fill \textit{tag} and \textit{taglen} with expected
+tag value. The \textit{gcm\_memory} in decrypt mode validates the \textit{tag} value and returns \textit{CRYPT\_ERROR} on mismatch.
+
 If you are processing many packets under the same key you shouldn't use this function as it invokes the pre--computation with each call.
 
 \subsection{Example Usage}
@@ -2514,6 +2517,9 @@ This will initialize the ChaCha20--Poly1305 state with the given key, IV and AAD
 encrypt (\textit{direction} equals \textbf{CHACHA20POLY1305\_ENCRYPT}) or decrypt (\textit{direction} equals
 \textbf{CHACHA20POLY1305\_DECRYPT}) the message text and store the final message tag. The definition of the
 variables is the same as it is for all the manual functions.
+
+IMPORTANT NOTICE: for \textit{direction == CHACHA20POLY1305\_DECRYPT} the caller has to fill \textit{tag} and \textit{taglen} with expected
+tag value. The \textit{chacha20poly1305\_memory} in decrypt mode validates the \textit{tag} value and returns \textit{CRYPT\_ERROR} on mismatch.
 
 \chapter{One-Way Cryptographic Hash Functions}
 \mysection{Core Functions}
