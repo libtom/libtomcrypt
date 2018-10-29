@@ -27,7 +27,7 @@ int ssh_encode_sequence_multi(unsigned char *out, unsigned long *outlen, ...)
 {
    int           err;
    va_list       args;
-   unsigned long size;
+   ulong32       size;
    ssh_data_type type;
    void         *vdata;
    const char   *sdata;

@@ -33,7 +33,8 @@ int ssh_decode_sequence_multi(const unsigned char *in, unsigned long inlen, ...)
    char          *sdata;
    ulong32       *u32data;
    ulong64       *u64data;
-   unsigned long size, bufsize;
+   unsigned long bufsize;
+   ulong32       size;
 
    LTC_ARGCHK(in    != NULL);
 
@@ -53,7 +54,7 @@ int ssh_decode_sequence_multi(const unsigned char *in, unsigned long inlen, ...)
       }
 
       /* Calculate (or read) length of data */
-      size = (unsigned long)-1;
+      size = 0xFFFFFFFFU;
       switch (type) {
          case LTC_SSHDATA_BYTE:
          case LTC_SSHDATA_BOOLEAN:
