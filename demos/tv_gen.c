@@ -507,10 +507,12 @@ static void ocb3_gen(void)
 static void ccm_gen(void)
 {
    int err, kl, x, y1, z;
+   unsigned int t;
    FILE *out;
    unsigned char key[MAXBLOCKSIZE], nonce[MAXBLOCKSIZE*2],
-                 plaintext[MAXBLOCKSIZE*2], tag[MAXBLOCKSIZE];
+                 plaintext[MAXBLOCKSIZE*2], tag[16];
    unsigned long len;
+   const unsigned int taglen[] = {4, 6, 8, 10, 12, 14, 16};
 
    out = fopen("ccm_tv.txt", "w");
    fprintf(out, "CCM Test Vectors.  Uses the 00010203...NN-1 pattern for nonce/header/plaintext/key.  The outputs\n"
@@ -538,32 +540,34 @@ static void ccm_gen(void)
           nonce[z] = z;
       }
 
-      for (y1 = 0; y1 <= (int)(cipher_descriptor[x].block_length*2); y1++){
-         for (z = 0; z < y1; z++) {
-            plaintext[z] = (unsigned char)(z & 255);
-         }
-         len = sizeof(tag);
-         if ((err = ccm_memory(x, key, kl, NULL, nonce, 13, plaintext, y1, plaintext, y1, plaintext, tag, &len, CCM_ENCRYPT)) != CRYPT_OK) {
-            printf("Error CCM'ing: %s\n", error_to_string(err));
-            exit(EXIT_FAILURE);
-         }
-         if (len == 0) {
-            printf("Error CCM'ing: zero length\n");
-            exit(EXIT_FAILURE);
-         }
-         fprintf(out, "%3d: ", y1);
-         for (z = 0; z < y1; z++) {
-            fprintf(out, "%02X", plaintext[z]);
-         }
-         fprintf(out, ", ");
-         for (z = 0; z <(int)len; z++) {
-            fprintf(out, "%02X", tag[z]);
-         }
-         fprintf(out, "\n");
+      for (t = 0; t < sizeof(taglen)/sizeof(taglen[0]); ++t) {
+         for (y1 = 0; y1 <= (int)(cipher_descriptor[x].block_length*2); y1++){
+            for (z = 0; z < y1; z++) {
+               plaintext[z] = (unsigned char)(z & 255);
+            }
+            len = taglen[t];
+            if ((err = ccm_memory(x, key, kl, NULL, nonce, 13, plaintext, y1, plaintext, y1, plaintext, tag, &len, CCM_ENCRYPT)) != CRYPT_OK) {
+               printf("Error CCM'ing: %s\n", error_to_string(err));
+               exit(EXIT_FAILURE);
+            }
+            if (len == 0) {
+               printf("Error CCM'ing: zero length\n");
+               exit(EXIT_FAILURE);
+            }
+            fprintf(out, "%3d: ", y1);
+            for (z = 0; z < y1; z++) {
+               fprintf(out, "%02X", plaintext[z]);
+            }
+            fprintf(out, ", ");
+            for (z = 0; z <(int)len; z++) {
+               fprintf(out, "%02X", tag[z]);
+            }
+            fprintf(out, "\n");
 
-         /* forward the key */
-         for (z = 0; z < kl; z++) {
-             key[z] = tag[z % len];
+            /* forward the key */
+            for (z = 0; z < kl; z++) {
+                key[z] = tag[z % len];
+            }
          }
       }
       fprintf(out, "\n");

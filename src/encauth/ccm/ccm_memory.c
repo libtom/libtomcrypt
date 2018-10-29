@@ -80,14 +80,8 @@ int ccm_memory(int cipher,
       return CRYPT_INVALID_CIPHER;
    }
 
-   /* make sure the taglen is even and <= 16 */
-   *taglen &= ~1;
-   if (*taglen > 16) {
-      *taglen = 16;
-   }
-
-   /* can't use < 4 */
-   if (*taglen < 4) {
+   /* make sure the taglen is valid */
+   if (*taglen < 4 || *taglen > 16 || (*taglen % 2) == 1) {
       return CRYPT_INVALID_ARG;
    }
 
