@@ -15,7 +15,7 @@
    https://en.wikipedia.org/wiki/Serpent_(cipher)
  */
 
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 #ifdef LTC_SERPENT
 
@@ -488,7 +488,7 @@ static int _setup_key(const unsigned char *key, int keylen, int rounds, ulong32 
    return CRYPT_OK;
 }
 
-static int _enc_block(const unsigned char *in, unsigned char *out, ulong32 *k)
+static int _enc_block(const unsigned char *in, unsigned char *out, const ulong32 *k)
 {
    ulong32 a, b, c, d, e;
    unsigned int i = 1;
@@ -530,7 +530,7 @@ static int _enc_block(const unsigned char *in, unsigned char *out, ulong32 *k)
    return CRYPT_OK;
 }
 
-static int _dec_block(const unsigned char *in, unsigned char *out, ulong32 *k)
+static int _dec_block(const unsigned char *in, unsigned char *out, const ulong32 *k)
 {
    ulong32 a, b, c, d, e;
    unsigned int i;
@@ -588,7 +588,7 @@ int serpent_setup(const unsigned char *key, int keylen, int num_rounds, symmetri
    return err;
 }
 
-int serpent_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
+int serpent_ecb_encrypt(const unsigned char *pt, unsigned char *ct, const symmetric_key *skey)
 {
    int err = _enc_block(pt, ct, skey->serpent.k);
 #ifdef LTC_CLEAN_STACK
@@ -597,7 +597,7 @@ int serpent_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_ke
    return err;
 }
 
-int serpent_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey)
+int serpent_ecb_decrypt(const unsigned char *ct, unsigned char *pt, const symmetric_key *skey)
 {
    int err = _dec_block(ct, pt, skey->serpent.k);
 #ifdef LTC_CLEAN_STACK

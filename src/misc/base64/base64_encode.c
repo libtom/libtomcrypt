@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  */
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 /**
   @file base64_encode.c
@@ -73,7 +73,7 @@ static int _base64_encode_internal(const unsigned char *in,  unsigned long inlen
    *p = '\0';
 
    /* return ok */
-   *outlen = (unsigned long)(p - out);
+   *outlen = (unsigned long)(p - out); /* the length without terminating NUL */
    return CRYPT_OK;
 }
 

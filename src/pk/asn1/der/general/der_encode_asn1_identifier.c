@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  */
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 /**
   @file der_encode_asn1_identifier.c
@@ -41,16 +41,15 @@ int der_encode_asn1_identifier(const ltc_asn1_list *id, unsigned char *out, unsi
       }
       *outlen = 1;
       return CRYPT_OK;
-   } else {
-      if (id->klass < LTC_ASN1_CL_UNIVERSAL || id->klass > LTC_ASN1_CL_PRIVATE) {
-         return CRYPT_INVALID_ARG;
-      }
-      if (id->pc < LTC_ASN1_PC_PRIMITIVE || id->pc > LTC_ASN1_PC_CONSTRUCTED) {
-         return CRYPT_INVALID_ARG;
-      }
-      if (id->tag > (ULONG_MAX >> (8 + 7))) {
-         return CRYPT_INVALID_ARG;
-      }
+   }
+   if (id->klass < LTC_ASN1_CL_UNIVERSAL || id->klass > LTC_ASN1_CL_PRIVATE) {
+      return CRYPT_INVALID_ARG;
+   }
+   if (id->pc < LTC_ASN1_PC_PRIMITIVE || id->pc > LTC_ASN1_PC_CONSTRUCTED) {
+      return CRYPT_INVALID_ARG;
+   }
+   if (id->tag > (ULONG_MAX >> (8 + 7))) {
+      return CRYPT_INVALID_ARG;
    }
 
    if (out != NULL) {

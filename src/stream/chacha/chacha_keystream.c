@@ -12,7 +12,7 @@
  * Public domain from D. J. Bernstein
  */
 
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 #ifdef LTC_CHACHA
 

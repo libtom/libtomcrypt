@@ -11,7 +11,7 @@
    @file rc6.c
    LTC_RC6 code by Tom St Denis
 */
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 #ifdef LTC_RC6
 
@@ -118,12 +118,13 @@ int rc6_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_ke
   @param skey The key as scheduled
 */
 #ifdef LTC_CLEAN_STACK
-static int _rc6_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
+static int _rc6_ecb_encrypt(const unsigned char *pt, unsigned char *ct, const symmetric_key *skey)
 #else
-int rc6_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
+int rc6_ecb_encrypt(const unsigned char *pt, unsigned char *ct, const symmetric_key *skey)
 #endif
 {
-   ulong32 a,b,c,d,t,u, *K;
+   ulong32 a,b,c,d,t,u;
+   const ulong32 *K;
    int r;
 
    LTC_ARGCHK(skey != NULL);
@@ -157,7 +158,7 @@ int rc6_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *s
 }
 
 #ifdef LTC_CLEAN_STACK
-int rc6_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
+int rc6_ecb_encrypt(const unsigned char *pt, unsigned char *ct, const symmetric_key *skey)
 {
    int err = _rc6_ecb_encrypt(pt, ct, skey);
    burn_stack(sizeof(ulong32) * 6 + sizeof(int));
@@ -172,12 +173,13 @@ int rc6_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *s
   @param skey The key as scheduled
 */
 #ifdef LTC_CLEAN_STACK
-static int _rc6_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey)
+static int _rc6_ecb_decrypt(const unsigned char *ct, unsigned char *pt, const symmetric_key *skey)
 #else
-int rc6_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey)
+int rc6_ecb_decrypt(const unsigned char *ct, unsigned char *pt, const symmetric_key *skey)
 #endif
 {
-   ulong32 a,b,c,d,t,u, *K;
+   ulong32 a,b,c,d,t,u;
+   const ulong32 *K;
    int r;
 
    LTC_ARGCHK(skey != NULL);
@@ -213,7 +215,7 @@ int rc6_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *s
 }
 
 #ifdef LTC_CLEAN_STACK
-int rc6_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey)
+int rc6_ecb_decrypt(const unsigned char *ct, unsigned char *pt, const symmetric_key *skey)
 {
    int err = _rc6_ecb_decrypt(ct, pt, skey);
    burn_stack(sizeof(ulong32) * 6 + sizeof(int));
@@ -316,7 +318,8 @@ int rc6_keysize(int *keysize)
    LTC_ARGCHK(keysize != NULL);
    if (*keysize < 8) {
       return CRYPT_INVALID_KEYSIZE;
-   } else if (*keysize > 128) {
+   }
+   if (*keysize > 128) {
       *keysize = 128;
    }
    return CRYPT_OK;

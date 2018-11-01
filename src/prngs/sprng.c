@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  */
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 /**
    @file sprng.c
@@ -102,6 +102,7 @@ int sprng_done(prng_state *prng)
   @param prng      The PRNG to export
   @return CRYPT_OK if successful
 */
+/* NOLINTNEXTLINE(readability-non-const-parameter) - silence clang-tidy warning */
 int sprng_export(unsigned char *out, unsigned long *outlen, prng_state *prng)
 {
    LTC_ARGCHK(outlen != NULL);

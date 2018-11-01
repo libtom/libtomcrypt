@@ -29,7 +29,7 @@ int hmac_memory_multi(int hash,
                 const unsigned char *in,   unsigned long inlen, ...);
 int hmac_file(int hash, const char *fname, const unsigned char *key,
               unsigned long keylen,
-              unsigned char *dst, unsigned long *dstlen);
+              unsigned char *out, unsigned long *outlen);
 #endif
 
 #ifdef LTC_OMAC
@@ -84,7 +84,7 @@ int pmac_done(pmac_state *pmac, unsigned char *out, unsigned long *outlen);
 
 int pmac_memory(int cipher,
                const unsigned char *key, unsigned long keylen,
-               const unsigned char *msg, unsigned long msglen,
+               const unsigned char *in, unsigned long inlen,
                      unsigned char *out, unsigned long *outlen);
 
 int pmac_memory_multi(int cipher,
@@ -145,6 +145,7 @@ int blake2bmac_memory_multi(const unsigned char *key, unsigned long keylen, unsi
 int blake2bmac_file(const char *fname, const unsigned char *key, unsigned long keylen, unsigned char *mac, unsigned long *maclen);
 int blake2bmac_test(void);
 #endif /* LTC_BLAKE2BMAC */
+
 
 #ifdef LTC_PELICAN
 
@@ -229,7 +230,7 @@ int f9_memory_multi(int cipher,
                 const unsigned char *in,  unsigned long inlen, ...);
 int f9_file(int cipher,
               const unsigned char *key, unsigned long keylen,
-              const          char *filename,
+              const          char *fname,
                     unsigned char *out, unsigned long *outlen);
 int f9_test(void);
 
@@ -274,7 +275,7 @@ int eax_decrypt_verify_memory(int cipher,
     const unsigned char *header, unsigned long headerlen,
     const unsigned char *ct,     unsigned long ctlen,
           unsigned char *pt,
-          unsigned char *tag,    unsigned long taglen,
+    const unsigned char *tag,    unsigned long taglen,
           int           *stat);
 
  int eax_test(void);
@@ -391,12 +392,6 @@ int ocb3_decrypt_verify_memory(int cipher,
 
 int ocb3_test(void);
 
-#ifdef LTC_SOURCE
-/* internal helper functions */
-int ocb3_int_ntz(unsigned long x);
-void ocb3_int_xor_blocks(unsigned char *out, const unsigned char *block_a, const unsigned char *block_b, unsigned long block_len);
-#endif /* LTC_SOURCE */
-
 #endif /* LTC_OCB3_MODE */
 
 #ifdef LTC_CCM_MODE
@@ -424,7 +419,7 @@ typedef struct {
 } ccm_state;
 
 int ccm_init(ccm_state *ccm, int cipher,
-             const unsigned char *key, int keylen, int ptlen, int taglen, int aad_len);
+             const unsigned char *key, int keylen, int ptlen, int taglen, int aadlen);
 
 int ccm_reset(ccm_state *ccm);
 
@@ -500,7 +495,7 @@ __attribute__ ((aligned (16)))
 #endif
 } gcm_state;
 
-void gcm_mult_h(gcm_state *gcm, unsigned char *I);
+void gcm_mult_h(const gcm_state *gcm, unsigned char *I);
 
 int gcm_init(gcm_state *gcm, int cipher,
              const unsigned char *key, int keylen);

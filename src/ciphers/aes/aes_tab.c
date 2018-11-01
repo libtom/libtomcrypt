@@ -26,7 +26,12 @@ Td4[x] = Si[x].[01, 01, 01, 01];
 /**
   @file aes_tab.c
   AES tables
+
 */
+
+#include <tomcrypt_macros.h>
+
+
 static const ulong32 TE0[256] = {
     0xc66363a5UL, 0xf87c7c84UL, 0xee777799UL, 0xf67b7b8dUL,
     0xfff2f20dUL, 0xd66b6bbdUL, 0xde6f6fb1UL, 0x91c5c554UL,
@@ -94,7 +99,7 @@ static const ulong32 TE0[256] = {
     0x7bb0b0cbUL, 0xa85454fcUL, 0x6dbbbbd6UL, 0x2c16163aUL,
 };
 
-#ifndef PELI_TAB
+#if !defined(PELI_TAB) && defined(LTC_SMALL_CODE)
 static const ulong32 Te4[256] = {
     0x63636363UL, 0x7c7c7c7cUL, 0x77777777UL, 0x7b7b7b7bUL,
     0xf2f2f2f2UL, 0x6b6b6b6bUL, 0x6f6f6f6fUL, 0xc5c5c5c5UL,
@@ -1017,11 +1022,13 @@ static const ulong32 Tks3[] = {
 
 #endif /* SMALL CODE */
 
+#ifndef PELI_TAB
 static const ulong32 rcon[] = {
     0x01000000UL, 0x02000000UL, 0x04000000UL, 0x08000000UL,
     0x10000000UL, 0x20000000UL, 0x40000000UL, 0x80000000UL,
     0x1B000000UL, 0x36000000UL, /* for 128-bit blocks, Rijndael never uses more than 10 rcon values */
 };
+#endif
 
 #endif /* __LTC_AES_TAB_C__ */
 

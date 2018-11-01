@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  */
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 /**
    @file dsa_sign_hash.c
@@ -28,7 +28,7 @@
 */
 int dsa_sign_hash_raw(const unsigned char *in,  unsigned long inlen,
                                    void   *r,   void *s,
-                               prng_state *prng, int wprng, dsa_key *key)
+                               prng_state *prng, int wprng, const dsa_key *key)
 {
    void         *k, *kinv, *tmp;
    unsigned char *buf;
@@ -117,7 +117,7 @@ ERRBUF:
 */
 int dsa_sign_hash(const unsigned char *in,  unsigned long inlen,
                         unsigned char *out, unsigned long *outlen,
-                        prng_state *prng, int wprng, dsa_key *key)
+                        prng_state *prng, int wprng, const dsa_key *key)
 {
    void         *r, *s;
    int           err;

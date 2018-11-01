@@ -7,7 +7,7 @@
  * guarantee it works.
  */
 
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 /**
    @file tiger.c
@@ -564,8 +564,8 @@ INLINE static void tiger_round(ulong64 *a, ulong64 *b, ulong64 *c, ulong64 x, in
 {
     ulong64 tmp;
     tmp = (*c ^= x);
-           *a -= t1[byte(tmp, 0)] ^ t2[byte(tmp, 2)] ^ t3[byte(tmp, 4)] ^ t4[byte(tmp, 6)];
-    tmp = (*b += t4[byte(tmp, 1)] ^ t3[byte(tmp, 3)] ^ t2[byte(tmp,5)] ^ t1[byte(tmp,7)]);
+           *a -= t1[LTC_BYTE(tmp, 0)] ^ t2[LTC_BYTE(tmp, 2)] ^ t3[LTC_BYTE(tmp, 4)] ^ t4[LTC_BYTE(tmp, 6)];
+    tmp = (*b += t4[LTC_BYTE(tmp, 1)] ^ t3[LTC_BYTE(tmp, 3)] ^ t2[LTC_BYTE(tmp,5)] ^ t1[LTC_BYTE(tmp,7)]);
     switch (mul) {
         case 5:  *b = (tmp << 2) + tmp; break;
         case 7:  *b = (tmp << 3) - tmp; break;
@@ -574,7 +574,7 @@ INLINE static void tiger_round(ulong64 *a, ulong64 *b, ulong64 *c, ulong64 x, in
 }
 
 /* one complete pass */
-static void pass(ulong64 *a, ulong64 *b, ulong64 *c, ulong64 *x, int mul)
+static void pass(ulong64 *a, ulong64 *b, ulong64 *c, const ulong64 *x, int mul)
 {
    tiger_round(a,b,c,x[0],mul);
    tiger_round(b,c,a,x[1],mul);
@@ -608,9 +608,9 @@ static void key_schedule(ulong64 *x)
 }
 
 #ifdef LTC_CLEAN_STACK
-static int _tiger_compress(hash_state *md, unsigned char *buf)
+static int _tiger_compress(hash_state *md, const unsigned char *buf)
 #else
-static int  tiger_compress(hash_state *md, unsigned char *buf)
+static int  tiger_compress(hash_state *md, const unsigned char *buf)
 #endif
 {
     ulong64 a, b, c, x[8];
@@ -639,7 +639,7 @@ static int  tiger_compress(hash_state *md, unsigned char *buf)
 }
 
 #ifdef LTC_CLEAN_STACK
-static int tiger_compress(hash_state *md, unsigned char *buf)
+static int tiger_compress(hash_state *md, const unsigned char *buf)
 {
    int err;
    err = _tiger_compress(md, buf);

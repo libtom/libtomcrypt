@@ -7,12 +7,7 @@
  * guarantee it works.
  */
 
-/* Implements ECC over Z/pZ for curve y^2 = x^3 - 3x + b
- *
- * All curves taken from NIST recommendation paper of July 1999
- * Available at http://csrc.nist.gov/cryptval/dss.htm
- */
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 /**
   @file ecc_sizes.c
@@ -23,20 +18,25 @@
 
 void ecc_sizes(int *low, int *high)
 {
- int i;
- LTC_ARGCHKVD(low  != NULL);
- LTC_ARGCHKVD(high != NULL);
+  int i, size;
+  void *prime;
 
- *low = INT_MAX;
- *high = 0;
- for (i = 0; ltc_ecc_sets[i].size != 0; i++) {
-     if (ltc_ecc_sets[i].size < *low)  {
-        *low  = ltc_ecc_sets[i].size;
-     }
-     if (ltc_ecc_sets[i].size > *high) {
-        *high = ltc_ecc_sets[i].size;
-     }
- }
+  LTC_ARGCHKVD(low  != NULL);
+  LTC_ARGCHKVD(high != NULL);
+
+  *low = INT_MAX;
+  *high = 0;
+
+  if (mp_init(&prime) == CRYPT_OK) {
+    for (i = 0; ltc_ecc_curves[i].prime != NULL; i++) {
+       if (mp_read_radix(prime, ltc_ecc_curves[i].prime, 16) == CRYPT_OK) {
+         size = mp_unsigned_bin_size(prime);
+         if (size < *low)  *low  = size;
+         if (size > *high) *high = size;
+       }
+    }
+    mp_clear(prime);
+  }
 }
 
 #endif

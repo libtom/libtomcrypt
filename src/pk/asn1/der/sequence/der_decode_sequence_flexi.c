@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  */
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 /**
   @file der_decode_sequence_flexi.c
@@ -43,7 +43,7 @@ static int _new_element(ltc_asn1_list **l)
 */
 int der_decode_sequence_flexi(const unsigned char *in, unsigned long *inlen, ltc_asn1_list **out)
 {
-   ltc_asn1_list *l;
+   ltc_asn1_list *l, *t;
    unsigned long err, identifier, len, totlen, data_offset, id_len, len_len;
    void          *realloc_tmp;
 
@@ -461,6 +461,17 @@ int der_decode_sequence_flexi(const unsigned char *in, unsigned long *inlen, ltc
              if (l->child) {
                 /* link them up y0 */
                 l->child->parent = l;
+             }
+
+             t = l;
+             len_len = 0;
+             while((t != NULL) && (t->child != NULL)) {
+                len_len++;
+                t = t->child;
+             }
+             if (len_len > LTC_DER_MAX_RECURSION) {
+                err = CRYPT_PK_ASN1_ERROR;
+                goto error;
              }
 
              break;

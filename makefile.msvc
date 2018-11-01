@@ -22,7 +22,7 @@ EXTRALIBS = ../libtommath/tommath.lib
 #Compilation flags
 LTC_CFLAGS  = /nologo /Isrc/headers/ /Itests/ /D_CRT_SECURE_NO_WARNINGS /D_CRT_NONSTDC_NO_DEPRECATE /DLTC_SOURCE /W3 $(CFLAGS)
 LTC_LDFLAGS = advapi32.lib $(EXTRALIBS)
-VERSION=1.18.1-develop
+VERSION=1.18.2-develop
 
 #Libraries to be created (this makefile builds only static libraries)
 LIBMAIN_S =tomcrypt.lib
@@ -103,8 +103,10 @@ src/misc/crypt/crypt_register_prng.obj src/misc/crypt/crypt_sizes.obj \
 src/misc/crypt/crypt_unregister_cipher.obj src/misc/crypt/crypt_unregister_hash.obj \
 src/misc/crypt/crypt_unregister_prng.obj src/misc/error_to_string.obj src/misc/hkdf/hkdf.obj \
 src/misc/hkdf/hkdf_test.obj src/misc/mem_neq.obj src/misc/padding/padding_depad.obj \
-src/misc/padding/padding_pad.obj src/misc/pk_get_oid.obj src/misc/pkcs5/pkcs_5_1.obj \
-src/misc/pkcs5/pkcs_5_2.obj src/misc/pkcs5/pkcs_5_test.obj src/misc/zeromem.obj src/modes/cbc/cbc_decrypt.obj \
+src/misc/padding/padding_pad.obj src/misc/pbes/pbes.obj src/misc/pbes/pbes1.obj src/misc/pbes/pbes2.obj \
+src/misc/pkcs12/pkcs12_kdf.obj src/misc/pkcs12/pkcs12_utf8_to_utf16.obj src/misc/pkcs5/pkcs_5_1.obj \
+src/misc/pkcs5/pkcs_5_2.obj src/misc/pkcs5/pkcs_5_test.obj src/misc/ssh/ssh_decode_sequence_multi.obj \
+src/misc/ssh/ssh_encode_sequence_multi.obj src/misc/zeromem.obj src/modes/cbc/cbc_decrypt.obj \
 src/modes/cbc/cbc_done.obj src/modes/cbc/cbc_encrypt.obj src/modes/cbc/cbc_getiv.obj \
 src/modes/cbc/cbc_setiv.obj src/modes/cbc/cbc_start.obj src/modes/cfb/cfb_decrypt.obj \
 src/modes/cfb/cfb_done.obj src/modes/cfb/cfb_encrypt.obj src/modes/cfb/cfb_getiv.obj \
@@ -160,7 +162,8 @@ src/pk/asn1/der/teletex_string/der_length_teletex_string.obj \
 src/pk/asn1/der/utctime/der_decode_utctime.obj src/pk/asn1/der/utctime/der_encode_utctime.obj \
 src/pk/asn1/der/utctime/der_length_utctime.obj src/pk/asn1/der/utf8/der_decode_utf8_string.obj \
 src/pk/asn1/der/utf8/der_encode_utf8_string.obj src/pk/asn1/der/utf8/der_length_utf8_string.obj \
-src/pk/asn1/x509/x509_decode_subject_public_key_info.obj \
+src/pk/asn1/oid/pk_get_oid.obj src/pk/asn1/oid/pk_oid_cmp.obj src/pk/asn1/oid/pk_oid_str.obj \
+src/pk/asn1/pkcs8/pkcs8_decode_flexi.obj src/pk/asn1/x509/x509_decode_subject_public_key_info.obj \
 src/pk/asn1/x509/x509_encode_subject_public_key_info.obj src/pk/dh/dh.obj src/pk/dh/dh_check_pubkey.obj \
 src/pk/dh/dh_export.obj src/pk/dh/dh_export_key.obj src/pk/dh/dh_free.obj src/pk/dh/dh_generate_key.obj \
 src/pk/dh/dh_import.obj src/pk/dh/dh_set.obj src/pk/dh/dh_set_pg_dhparam.obj src/pk/dh/dh_shared_secret.obj \
@@ -170,15 +173,18 @@ src/pk/dsa/dsa_make_key.obj src/pk/dsa/dsa_set.obj src/pk/dsa/dsa_set_pqg_dsapar
 src/pk/dsa/dsa_shared_secret.obj src/pk/dsa/dsa_sign_hash.obj src/pk/dsa/dsa_verify_hash.obj \
 src/pk/dsa/dsa_verify_key.obj src/pk/ecc/ecc.obj src/pk/ecc/ecc_ansi_x963_export.obj \
 src/pk/ecc/ecc_ansi_x963_import.obj src/pk/ecc/ecc_decrypt_key.obj src/pk/ecc/ecc_encrypt_key.obj \
-src/pk/ecc/ecc_export.obj src/pk/ecc/ecc_free.obj src/pk/ecc/ecc_get_size.obj src/pk/ecc/ecc_import.obj \
-src/pk/ecc/ecc_make_key.obj src/pk/ecc/ecc_shared_secret.obj src/pk/ecc/ecc_sign_hash.obj \
-src/pk/ecc/ecc_sizes.obj src/pk/ecc/ecc_test.obj src/pk/ecc/ecc_verify_hash.obj \
-src/pk/ecc/ltc_ecc_is_valid_idx.obj src/pk/ecc/ltc_ecc_map.obj src/pk/ecc/ltc_ecc_mul2add.obj \
+src/pk/ecc/ecc_export.obj src/pk/ecc/ecc_export_openssl.obj src/pk/ecc/ecc_find_curve.obj \
+src/pk/ecc/ecc_free.obj src/pk/ecc/ecc_get_key.obj src/pk/ecc/ecc_get_oid_str.obj src/pk/ecc/ecc_get_size.obj \
+src/pk/ecc/ecc_import.obj src/pk/ecc/ecc_import_openssl.obj src/pk/ecc/ecc_import_pkcs8.obj \
+src/pk/ecc/ecc_import_x509.obj src/pk/ecc/ecc_make_key.obj src/pk/ecc/ecc_recover_key.obj \
+src/pk/ecc/ecc_set_curve.obj src/pk/ecc/ecc_set_curve_internal.obj src/pk/ecc/ecc_set_key.obj \
+src/pk/ecc/ecc_shared_secret.obj src/pk/ecc/ecc_sign_hash.obj src/pk/ecc/ecc_sizes.obj \
+src/pk/ecc/ecc_ssh_ecdsa_encode_name.obj src/pk/ecc/ecc_test.obj src/pk/ecc/ecc_verify_hash.obj \
+src/pk/ecc/ltc_ecc_export_point.obj src/pk/ecc/ltc_ecc_import_point.obj src/pk/ecc/ltc_ecc_is_point.obj \
+src/pk/ecc/ltc_ecc_is_point_at_infinity.obj src/pk/ecc/ltc_ecc_map.obj src/pk/ecc/ltc_ecc_mul2add.obj \
 src/pk/ecc/ltc_ecc_mulmod.obj src/pk/ecc/ltc_ecc_mulmod_timing.obj src/pk/ecc/ltc_ecc_points.obj \
 src/pk/ecc/ltc_ecc_projective_add_point.obj src/pk/ecc/ltc_ecc_projective_dbl_point.obj \
-src/pk/katja/katja_decrypt_key.obj src/pk/katja/katja_encrypt_key.obj src/pk/katja/katja_export.obj \
-src/pk/katja/katja_exptmod.obj src/pk/katja/katja_free.obj src/pk/katja/katja_import.obj \
-src/pk/katja/katja_make_key.obj src/pk/pkcs1/pkcs_1_i2osp.obj src/pk/pkcs1/pkcs_1_mgf1.obj \
+src/pk/ecc/ltc_ecc_verify_key.obj src/pk/pkcs1/pkcs_1_i2osp.obj src/pk/pkcs1/pkcs_1_mgf1.obj \
 src/pk/pkcs1/pkcs_1_oaep_decode.obj src/pk/pkcs1/pkcs_1_oaep_encode.obj src/pk/pkcs1/pkcs_1_os2ip.obj \
 src/pk/pkcs1/pkcs_1_pss_decode.obj src/pk/pkcs1/pkcs_1_pss_encode.obj src/pk/pkcs1/pkcs_1_v1_5_decode.obj \
 src/pk/pkcs1/pkcs_1_v1_5_encode.obj src/pk/rsa/rsa_decrypt_key.obj src/pk/rsa/rsa_encrypt_key.obj \
@@ -189,28 +195,34 @@ src/pk/rsa/rsa_sign_saltlen_get.obj src/pk/rsa/rsa_verify_hash.obj src/prngs/cha
 src/prngs/rc4.obj src/prngs/rng_get_bytes.obj src/prngs/rng_make_prng.obj src/prngs/sober128.obj \
 src/prngs/sprng.obj src/prngs/yarrow.obj src/stream/chacha/chacha_crypt.obj src/stream/chacha/chacha_done.obj \
 src/stream/chacha/chacha_ivctr32.obj src/stream/chacha/chacha_ivctr64.obj \
-src/stream/chacha/chacha_keystream.obj src/stream/chacha/chacha_setup.obj src/stream/chacha/chacha_test.obj \
-src/stream/rabbit/rabbit.obj src/stream/rc4/rc4_stream.obj src/stream/rc4/rc4_test.obj \
-src/stream/salsa20/salsa20_crypt.obj src/stream/salsa20/salsa20_done.obj \
+src/stream/chacha/chacha_keystream.obj src/stream/chacha/chacha_memory.obj \
+src/stream/chacha/chacha_setup.obj src/stream/chacha/chacha_test.obj src/stream/rabbit/rabbit.obj \
+src/stream/rabbit/rabbit_memory.obj src/stream/rc4/rc4_stream.obj src/stream/rc4/rc4_stream_memory.obj \
+src/stream/rc4/rc4_test.obj src/stream/salsa20/salsa20_crypt.obj src/stream/salsa20/salsa20_done.obj \
 src/stream/salsa20/salsa20_ivctr64.obj src/stream/salsa20/salsa20_keystream.obj \
-src/stream/salsa20/salsa20_setup.obj src/stream/salsa20/salsa20_test.obj \
-src/stream/sober128/sober128_stream.obj src/stream/sober128/sober128_test.obj \
-src/stream/sosemanuk/sosemanuk.obj src/stream/sosemanuk/sosemanuk_test.obj
+src/stream/salsa20/salsa20_memory.obj src/stream/salsa20/salsa20_setup.obj \
+src/stream/salsa20/salsa20_test.obj src/stream/salsa20/xsalsa20_memory.obj \
+src/stream/salsa20/xsalsa20_setup.obj src/stream/salsa20/xsalsa20_test.obj \
+src/stream/sober128/sober128_stream.obj src/stream/sober128/sober128_stream_memory.obj \
+src/stream/sober128/sober128_test.obj src/stream/sosemanuk/sosemanuk.obj \
+src/stream/sosemanuk/sosemanuk_memory.obj src/stream/sosemanuk/sosemanuk_test.obj
 
 #List of test objects to compile
 TOBJECTS=tests/base16_test.obj tests/base32_test.obj tests/base64_test.obj tests/cipher_hash_test.obj \
 tests/common.obj tests/der_test.obj tests/dh_test.obj tests/dsa_test.obj tests/ecc_test.obj tests/file_test.obj \
-tests/katja_test.obj tests/mac_test.obj tests/misc_test.obj tests/modes_test.obj tests/mpi_test.obj \
-tests/multi_test.obj tests/no_prng.obj tests/padding_test.obj tests/pkcs_1_eme_test.obj tests/pkcs_1_emsa_test.obj \
-tests/pkcs_1_oaep_test.obj tests/pkcs_1_pss_test.obj tests/pkcs_1_test.obj tests/prng_test.obj \
-tests/rotate_test.obj tests/rsa_test.obj tests/store_test.obj tests/test.obj
+tests/mac_test.obj tests/misc_test.obj tests/modes_test.obj tests/mpi_test.obj tests/multi_test.obj tests/no_prng.obj \
+tests/padding_test.obj tests/pkcs_1_eme_test.obj tests/pkcs_1_emsa_test.obj tests/pkcs_1_oaep_test.obj \
+tests/pkcs_1_pss_test.obj tests/pkcs_1_test.obj tests/prng_test.obj tests/rotate_test.obj tests/rsa_test.obj \
+tests/ssh_test.obj tests/store_test.obj tests/test.obj
 
 #The following headers will be installed by "make install"
-HEADERS=src/headers/tomcrypt.h src/headers/tomcrypt_argchk.h src/headers/tomcrypt_cfg.h \
+HEADERS_PUB=src/headers/tomcrypt.h src/headers/tomcrypt_argchk.h src/headers/tomcrypt_cfg.h \
 src/headers/tomcrypt_cipher.h src/headers/tomcrypt_custom.h src/headers/tomcrypt_hash.h \
 src/headers/tomcrypt_mac.h src/headers/tomcrypt_macros.h src/headers/tomcrypt_math.h \
 src/headers/tomcrypt_misc.h src/headers/tomcrypt_pk.h src/headers/tomcrypt_pkcs.h \
 src/headers/tomcrypt_prng.h
+
+HEADERS=$(HEADERS_PUB) src/headers/tomcrypt_private.h
 
 #The default rule for make builds the tomcrypt.lib library (static)
 default: $(LIBMAIN_S)

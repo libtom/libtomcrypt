@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  */
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 /**
   @file ccm_test.c
@@ -111,142 +111,169 @@ int ccm_test(void)
 },
 
 };
-  unsigned long taglen, x, y;
-  unsigned char buf[64], buf2[64], tag[16], tag2[16], tag3[16], zero[64];
-  int           err, idx;
-  symmetric_key skey;
-  ccm_state ccm;
+   unsigned long taglen, x, y;
+   unsigned char buf[64], buf2[64], tag[16], tag2[16], tag3[16], zero[64];
+   int           err, idx;
+   symmetric_key skey;
+   ccm_state ccm;
 
-  zeromem(zero, 64);
+   zeromem(zero, 64);
 
-  idx = find_cipher("aes");
-  if (idx == -1) {
-     idx = find_cipher("rijndael");
-     if (idx == -1) {
-        return CRYPT_NOP;
-     }
-  }
-
-  for (x = 0; x < (sizeof(tests)/sizeof(tests[0])); x++) {
-    for (y = 0; y < 2; y++) {
-      taglen = tests[x].taglen;
-      if (y == 0) {
-         if ((err = cipher_descriptor[idx].setup(tests[x].key, 16, 0, &skey)) != CRYPT_OK) {
-            return err;
-         }
-
-         if ((err = ccm_memory(idx,
-                               tests[x].key, 16,
-                               &skey,
-                               tests[x].nonce, tests[x].noncelen,
-                               tests[x].header, tests[x].headerlen,
-                               (unsigned char*)tests[x].pt, tests[x].ptlen,
-                               buf,
-                               tag, &taglen, 0)) != CRYPT_OK) {
-            return err;
-         }
-         /* run a second time to make sure skey is not touched */
-         if ((err = ccm_memory(idx,
-                               tests[x].key, 16,
-                               &skey,
-                               tests[x].nonce, tests[x].noncelen,
-                               tests[x].header, tests[x].headerlen,
-                               (unsigned char*)tests[x].pt, tests[x].ptlen,
-                               buf,
-                               tag, &taglen, 0)) != CRYPT_OK) {
-            return err;
-         }
-      } else {
-         if ((err = ccm_init(&ccm, idx, tests[x].key, 16, tests[x].ptlen, tests[x].taglen, tests[x].headerlen)) != CRYPT_OK) {
-            return err;
-         }
-         if ((err = ccm_add_nonce(&ccm, tests[x].nonce, tests[x].noncelen)) != CRYPT_OK) {
-            return err;
-         }
-         if ((err = ccm_add_aad(&ccm, tests[x].header, tests[x].headerlen)) != CRYPT_OK) {
-            return err;
-         }
-         if ((err = ccm_process(&ccm, (unsigned char*)tests[x].pt, tests[x].ptlen, buf, CCM_ENCRYPT)) != CRYPT_OK) {
-            return err;
-         }
-         if ((err = ccm_done(&ccm, tag, &taglen)) != CRYPT_OK) {
-            return err;
-         }
+   idx = find_cipher("aes");
+   if (idx == -1) {
+      idx = find_cipher("rijndael");
+      if (idx == -1) {
+         return CRYPT_NOP;
       }
+   }
 
-      if (compare_testvector(buf, tests[x].ptlen, tests[x].ct, tests[x].ptlen, "CCM encrypt data", x)) {
-         return CRYPT_FAIL_TESTVECTOR;
-      }
-      if (compare_testvector(tag, taglen, tests[x].tag, tests[x].taglen, "CCM encrypt tag", x)) {
-         return CRYPT_FAIL_TESTVECTOR;
-      }
-
-      if (y == 0) {
-         XMEMCPY(tag3, tests[x].tag, tests[x].taglen);
+   for (x = 0; x < (sizeof(tests)/sizeof(tests[0])); x++) {
+      for (y = 0; y < 2; y++) {
          taglen = tests[x].taglen;
-         if ((err = ccm_memory(idx,
-                               tests[x].key, 16,
-                               NULL,
-                               tests[x].nonce, tests[x].noncelen,
-                               tests[x].header, tests[x].headerlen,
-                               buf2, tests[x].ptlen,
-                               buf,
-                               tag3, &taglen, 1   )) != CRYPT_OK) {
-            return err;
+         if (y == 0) {
+            if ((err = cipher_descriptor[idx].setup(tests[x].key, 16, 0, &skey)) != CRYPT_OK) {
+               return err;
+            }
+
+            if ((err = ccm_memory(idx,
+                                  tests[x].key, 16,
+                                  &skey,
+                                  tests[x].nonce, tests[x].noncelen,
+                                  tests[x].header, tests[x].headerlen,
+                                  (unsigned char*)tests[x].pt, tests[x].ptlen,
+                                  buf,
+                                  tag, &taglen, 0)) != CRYPT_OK) {
+               return err;
+            }
+            /* run a second time to make sure skey is not touched */
+            if ((err = ccm_memory(idx,
+                                  tests[x].key, 16,
+                                  &skey,
+                                  tests[x].nonce, tests[x].noncelen,
+                                  tests[x].header, tests[x].headerlen,
+                                  (unsigned char*)tests[x].pt, tests[x].ptlen,
+                                  buf,
+                                  tag, &taglen, 0)) != CRYPT_OK) {
+               return err;
+            }
+         } else {
+            if ((err = ccm_init(&ccm, idx, tests[x].key, 16, tests[x].ptlen, tests[x].taglen, tests[x].headerlen)) != CRYPT_OK) {
+               return err;
+            }
+            if ((err = ccm_add_nonce(&ccm, tests[x].nonce, tests[x].noncelen)) != CRYPT_OK) {
+               return err;
+            }
+            if ((err = ccm_add_aad(&ccm, tests[x].header, tests[x].headerlen)) != CRYPT_OK) {
+               return err;
+            }
+            if ((err = ccm_process(&ccm, (unsigned char*)tests[x].pt, tests[x].ptlen, buf, CCM_ENCRYPT)) != CRYPT_OK) {
+               return err;
+            }
+            if ((err = ccm_done(&ccm, tag, &taglen)) != CRYPT_OK) {
+               return err;
+            }
          }
-      } else {
-         if ((err = ccm_init(&ccm, idx, tests[x].key, 16, tests[x].ptlen, tests[x].taglen, tests[x].headerlen)) != CRYPT_OK) {
-            return err;
+
+         if (compare_testvector(buf, tests[x].ptlen, tests[x].ct, tests[x].ptlen, "CCM encrypt data", x)) {
+            return CRYPT_FAIL_TESTVECTOR;
          }
-         if ((err = ccm_add_nonce(&ccm, tests[x].nonce, tests[x].noncelen)) != CRYPT_OK) {
-            return err;
+         if (compare_testvector(tag, taglen, tests[x].tag, tests[x].taglen, "CCM encrypt tag", x)) {
+            return CRYPT_FAIL_TESTVECTOR;
          }
-         if ((err = ccm_add_aad(&ccm, tests[x].header, tests[x].headerlen)) != CRYPT_OK) {
-            return err;
+
+         if (y == 0) {
+            XMEMCPY(tag3, tests[x].tag, tests[x].taglen);
+            taglen = tests[x].taglen;
+            if ((err = ccm_memory(idx,
+                                  tests[x].key, 16,
+                                  NULL,
+                                  tests[x].nonce, tests[x].noncelen,
+                                  tests[x].header, tests[x].headerlen,
+                                  buf2, tests[x].ptlen,
+                                  buf,
+                                  tag3, &taglen, 1   )) != CRYPT_OK) {
+               return err;
+            }
+         } else {
+            if ((err = ccm_init(&ccm, idx, tests[x].key, 16, tests[x].ptlen, tests[x].taglen, tests[x].headerlen)) != CRYPT_OK) {
+               return err;
+            }
+            if ((err = ccm_add_nonce(&ccm, tests[x].nonce, tests[x].noncelen)) != CRYPT_OK) {
+               return err;
+            }
+            if ((err = ccm_add_aad(&ccm, tests[x].header, tests[x].headerlen)) != CRYPT_OK) {
+               return err;
+            }
+            if ((err = ccm_process(&ccm, buf2, tests[x].ptlen, buf, CCM_DECRYPT)) != CRYPT_OK) {
+               return err;
+            }
+            if ((err = ccm_done(&ccm, tag2, &taglen)) != CRYPT_OK) {
+               return err;
+            }
          }
-         if ((err = ccm_process(&ccm, buf2, tests[x].ptlen, buf, CCM_DECRYPT)) != CRYPT_OK) {
-            return err;
+
+
+         if (compare_testvector(buf2, tests[x].ptlen, tests[x].pt, tests[x].ptlen, "CCM decrypt data", x)) {
+            return CRYPT_FAIL_TESTVECTOR;
          }
-         if ((err = ccm_done(&ccm, tag2, &taglen)) != CRYPT_OK) {
-            return err;
+         if (y == 0) {
+            /* check if decryption with the wrong tag does not reveal the plaintext */
+            XMEMCPY(tag3, tests[x].tag, tests[x].taglen);
+            tag3[0] ^= 0xff; /* set the tag to the wrong value */
+            taglen = tests[x].taglen;
+            if ((err = ccm_memory(idx,
+                                  tests[x].key, 16,
+                                  NULL,
+                                  tests[x].nonce, tests[x].noncelen,
+                                  tests[x].header, tests[x].headerlen,
+                                  buf2, tests[x].ptlen,
+                                  buf,
+                                  tag3, &taglen, 1   )) != CRYPT_ERROR) {
+               return CRYPT_FAIL_TESTVECTOR;
+            }
+            if (compare_testvector(buf2, tests[x].ptlen, zero, tests[x].ptlen, "CCM decrypt wrong tag", x)) {
+               return CRYPT_FAIL_TESTVECTOR;
+            }
+         } else {
+            if (compare_testvector(tag2, taglen, tests[x].tag, tests[x].taglen, "CCM decrypt tag", x)) {
+               return CRYPT_FAIL_TESTVECTOR;
+            }
+         }
+
+         if (y == 0) {
+            cipher_descriptor[idx].done(&skey);
          }
       }
+   }
 
+   /* wycheproof failing test - https://github.com/libtom/libtomcrypt/pull/452 */
+   {
+      unsigned char key[] = { 0x00,0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,0x0a,0x0b,0x0c,0x0d,0x0e,0x0f };
+      unsigned char iv[]  = { 0x46,0x47,0x48,0x49,0x4a,0x4b,0x4c,0x4d,0x4e,0x4f,0x50,0x51 };
+      unsigned char valid_tag[]   = { 0x23,0x1a,0x2d,0x8f };
+      unsigned char invalid_tag[] = { 0x23,0x1a,0x2d,0x8f,0x6a };
+      unsigned char msg[] = { 0x20,0x21,0x22,0x23,0x24,0x25,0x26,0x27,0x28,0x29,0x2a,0x2b,0x2c,0x2d,0x2e,0x2f };
+      unsigned char ct[]  = { 0xd3,0xda,0xb1,0xee,0x49,0x4c,0xc2,0x29,0x09,0x9d,0x6c,0xac,0x7d,0xf1,0x4a,0xdd };
+      unsigned char pt[20] = { 0 };
 
-      if (compare_testvector(buf2, tests[x].ptlen, tests[x].pt, tests[x].ptlen, "CCM decrypt data", x)) {
+      /* VALID tag */
+      taglen = sizeof(valid_tag);
+      err = ccm_memory(idx, key, sizeof(key), NULL, iv, sizeof(iv), NULL, 0,
+                       pt, sizeof(ct), ct, valid_tag, &taglen, CCM_DECRYPT);
+      if ((err != CRYPT_OK) || (XMEMCMP(msg, pt, sizeof(msg)) != 0)) {
          return CRYPT_FAIL_TESTVECTOR;
       }
-      if (y == 0) {
-        /* check if decryption with the wrong tag does not reveal the plaintext */
-        XMEMCPY(tag3, tests[x].tag, tests[x].taglen);
-        tag3[0] ^= 0xff; /* set the tag to the wrong value */
-        taglen = tests[x].taglen;
-        if ((err = ccm_memory(idx,
-                              tests[x].key, 16,
-                              NULL,
-                              tests[x].nonce, tests[x].noncelen,
-                              tests[x].header, tests[x].headerlen,
-                              buf2, tests[x].ptlen,
-                              buf,
-                              tag3, &taglen, 1   )) != CRYPT_ERROR) {
-          return CRYPT_FAIL_TESTVECTOR;
-        }
-        if (compare_testvector(buf2, tests[x].ptlen, zero, tests[x].ptlen, "CCM decrypt wrong tag", x)) {
-           return CRYPT_FAIL_TESTVECTOR;
-        }
-      } else {
-        if (compare_testvector(tag2, taglen, tests[x].tag, tests[x].taglen, "CCM decrypt tag", x)) {
-           return CRYPT_FAIL_TESTVECTOR;
-        }
-      }
 
-      if (y == 0) {
-         cipher_descriptor[idx].done(&skey);
+      /* INVALID tag */
+      taglen = sizeof(invalid_tag);
+      err = ccm_memory(idx, key, sizeof(key), NULL, iv, sizeof(iv), NULL, 0,
+                       pt, sizeof(ct), ct, invalid_tag, &taglen, CCM_DECRYPT);
+      if (err == CRYPT_OK) {
+         return CRYPT_FAIL_TESTVECTOR; /* should fail */
       }
-    }
-  }
+   }
 
-  return CRYPT_OK;
+   return CRYPT_OK;
 #endif
 }
 

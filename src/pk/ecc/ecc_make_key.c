@@ -7,12 +7,7 @@
  * guarantee it works.
  */
 
-/* Implements ECC over Z/pZ for curve y^2 = x^3 - 3x + b
- *
- * All curves taken from NIST recommendation paper of July 1999
- * Available at http://csrc.nist.gov/cryptval/dss.htm
- */
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 /**
   @file ecc_make_key.c
@@ -31,93 +26,53 @@
 */
 int ecc_make_key(prng_state *prng, int wprng, int keysize, ecc_key *key)
 {
-   int x, err;
+   int err;
 
-   /* find key size */
-   for (x = 0; (keysize > ltc_ecc_sets[x].size) && (ltc_ecc_sets[x].size != 0); x++);
-   keysize = ltc_ecc_sets[x].size;
-
-   if (keysize > ECC_MAXSIZE || ltc_ecc_sets[x].size == 0) {
-      return CRYPT_INVALID_KEYSIZE;
-   }
-   err = ecc_make_key_ex(prng, wprng, key, &ltc_ecc_sets[x]);
-   key->idx = x;
-   return err;
+   if ((err = ecc_set_curve_by_size(keysize, key)) != CRYPT_OK) { return err; }
+   if ((err = ecc_generate_key(prng, wprng, key)) != CRYPT_OK)  { return err; }
+   return CRYPT_OK;
 }
 
-int ecc_make_key_ex(prng_state *prng, int wprng, ecc_key *key, const ltc_ecc_set_type *dp)
+int ecc_make_key_ex(prng_state *prng, int wprng, ecc_key *key, const ltc_ecc_curve *cu)
+{
+   int err;
+   if ((err = ecc_set_curve(cu, key)) != CRYPT_OK)             { return err; }
+   if ((err = ecc_generate_key(prng, wprng, key)) != CRYPT_OK) { return err; }
+   return CRYPT_OK;
+}
+
+int ecc_generate_key(prng_state *prng, int wprng, ecc_key *key)
 {
    int            err;
-   ecc_point     *base;
-   void          *prime, *order;
-   unsigned char *buf;
-   int            keysize;
 
-   LTC_ARGCHK(key         != NULL);
    LTC_ARGCHK(ltc_mp.name != NULL);
-   LTC_ARGCHK(dp          != NULL);
+   LTC_ARGCHK(key         != NULL);
+   LTC_ARGCHK(key->dp.size > 0);
 
-   /* good prng? */
-   if ((err = prng_is_valid(wprng)) != CRYPT_OK) {
-      return err;
+   /* ECC key pair generation according to FIPS-186-4 (B.4.2 Key Pair Generation by Testing Candidates):
+    * the generated private key k should be the range [1, order-1]
+    *  a/ N = bitlen(order)
+    *  b/ generate N random bits and convert them into big integer k
+    *  c/ if k not in [1, order-1] go to b/
+    *  e/ Q = k*G
+    */
+   if ((err = rand_bn_upto(key->k, key->dp.order, prng, wprng)) != CRYPT_OK) {
+      goto error;
    }
 
-   key->idx = -1;
-   key->dp  = dp;
-   keysize  = dp->size;
-
-   /* allocate ram */
-   base = NULL;
-   buf  = XMALLOC(ECC_MAXSIZE);
-   if (buf == NULL) {
-      return CRYPT_MEM;
-   }
-
-   /* make up random string */
-   if (prng_descriptor[wprng].read(buf, (unsigned long)keysize, prng) != (unsigned long)keysize) {
-      err = CRYPT_ERROR_READPRNG;
-      goto ERR_BUF;
-   }
-
-   /* setup the key variables */
-   if ((err = mp_init_multi(&key->pubkey.x, &key->pubkey.y, &key->pubkey.z, &key->k, &prime, &order, NULL)) != CRYPT_OK) {
-      goto ERR_BUF;
-   }
-   base = ltc_ecc_new_point();
-   if (base == NULL) {
-      err = CRYPT_MEM;
-      goto errkey;
-   }
-
-   /* read in the specs for this key */
-   if ((err = mp_read_radix(prime,   (char *)key->dp->prime, 16)) != CRYPT_OK)                  { goto errkey; }
-   if ((err = mp_read_radix(order,   (char *)key->dp->order, 16)) != CRYPT_OK)                  { goto errkey; }
-   if ((err = mp_read_radix(base->x, (char *)key->dp->Gx, 16)) != CRYPT_OK)                     { goto errkey; }
-   if ((err = mp_read_radix(base->y, (char *)key->dp->Gy, 16)) != CRYPT_OK)                     { goto errkey; }
-   if ((err = mp_set(base->z, 1)) != CRYPT_OK)                                                  { goto errkey; }
-   if ((err = mp_read_unsigned_bin(key->k, (unsigned char *)buf, keysize)) != CRYPT_OK)         { goto errkey; }
-
-   /* the key should be smaller than the order of base point */
-   if (mp_cmp(key->k, order) != LTC_MP_LT) {
-       if((err = mp_mod(key->k, order, key->k)) != CRYPT_OK)                                    { goto errkey; }
-   }
    /* make the public key */
-   if ((err = ltc_mp.ecc_ptmul(key->k, base, &key->pubkey, prime, 1)) != CRYPT_OK)              { goto errkey; }
+   if ((err = ltc_mp.ecc_ptmul(key->k, &key->dp.base, &key->pubkey, key->dp.A, key->dp.prime, 1)) != CRYPT_OK) {
+      goto error;
+   }
    key->type = PK_PRIVATE;
 
-   /* free up ram */
+   /* success */
    err = CRYPT_OK;
    goto cleanup;
-errkey:
-   mp_clear_multi(key->pubkey.x, key->pubkey.y, key->pubkey.z, key->k, NULL);
+
+error:
+   ecc_free(key);
 cleanup:
-   ltc_ecc_del_point(base);
-   mp_clear_multi(prime, order, NULL);
-ERR_BUF:
-#ifdef LTC_CLEAN_STACK
-   zeromem(buf, ECC_MAXSIZE);
-#endif
-   XFREE(buf);
    return err;
 }
 

@@ -7,7 +7,7 @@
  * guarantee it works.
  */
 
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 /**
   @file chc.c
@@ -127,7 +127,7 @@ int chc_init(hash_state *md)
    T0     <= encrypt T0
    state  <= state xor T0 xor T1
 */
-static int chc_compress(hash_state *md, unsigned char *buf)
+static int chc_compress(hash_state *md, const unsigned char *buf)
 {
    unsigned char  T[2][MAXBLOCKSIZE];
    symmetric_key *key;
@@ -160,7 +160,7 @@ static int chc_compress(hash_state *md, unsigned char *buf)
    @param len  The length of the data (octets)
    @return CRYPT_OK if successful
 */
-static int _chc_process(hash_state * md, const unsigned char *buf, unsigned long len);
+static int _chc_process(hash_state * md, const unsigned char *in, unsigned long inlen);
 static HASH_PROCESS(_chc_process, chc_compress, chc, (unsigned long)cipher_blocksize)
 
 /**

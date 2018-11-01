@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  */
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 /**
    @file ctr_getiv.c
@@ -22,7 +22,7 @@
    @param ctr  The CTR state
    @return CRYPT_OK if successful
 */
-int ctr_getiv(unsigned char *IV, unsigned long *len, symmetric_CTR *ctr)
+int ctr_getiv(unsigned char *IV, unsigned long *len, const symmetric_CTR *ctr)
 {
    LTC_ARGCHK(IV  != NULL);
    LTC_ARGCHK(len != NULL);

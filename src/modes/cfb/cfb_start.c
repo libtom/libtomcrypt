@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  */
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 /**
    @file cfb_start.c
@@ -43,8 +43,9 @@ int cfb_start(int cipher, const unsigned char *IV, const unsigned char *key,
    /* copy data */
    cfb->cipher = cipher;
    cfb->blocklen = cipher_descriptor[cipher].block_length;
-   for (x = 0; x < cfb->blocklen; x++)
+   for (x = 0; x < cfb->blocklen; x++) {
        cfb->IV[x] = IV[x];
+   }
 
    /* init the cipher */
    if ((err = cipher_descriptor[cipher].setup(key, keylen, num_rounds, &cfb->key)) != CRYPT_OK) {

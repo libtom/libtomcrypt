@@ -7,7 +7,7 @@
  * guarantee it works.
  */
 
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 #ifdef LTC_MDH
 
@@ -19,7 +19,7 @@
    @param outlen          [in/out] The max size and resulting size of the shared data.
    @return CRYPT_OK if successful
 */
-int dh_shared_secret(dh_key *private_key, dh_key *public_key,
+int dh_shared_secret(const dh_key *private_key, const dh_key *public_key,
                      unsigned char *out, unsigned long *outlen)
 {
    void *tmp;

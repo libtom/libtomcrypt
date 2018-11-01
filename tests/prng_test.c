@@ -74,7 +74,7 @@ int prng_test(void)
       DOX(prng_descriptor[x].pexport(buf, &n, &nprng), prng_descriptor[x].name);
       prng_descriptor[x].done(&nprng);
       DOX(prng_descriptor[x].pimport(buf, n, &nprng), prng_descriptor[x].name);
-      DOX(prng_descriptor[x].pimport(buf, 4096, &nprng), prng_descriptor[x].name); /* try to import larger data */
+      DOX(prng_descriptor[x].pimport(buf, sizeof(buf), &nprng), prng_descriptor[x].name); /* try to import larger data */
       DOX(prng_descriptor[x].ready(&nprng), prng_descriptor[x].name);
       if (prng_descriptor[x].read(buf, 100, &nprng) != 100) {
          fprintf(stderr, "Error reading from imported PRNG (%s)!\n", prng_descriptor[x].name);
@@ -87,6 +87,30 @@ int prng_test(void)
       fprintf(stderr, "rng_make_prng(-1,..) with 'yarrow' failed: %s\n", error_to_string(err));
    }
    DO(yarrow_done(&nprng));
+
+#ifdef LTC_FORTUNA
+   DO(fortuna_start(&nprng));
+   DO(fortuna_add_entropy(buf, 32, &nprng));
+   DO(fortuna_ready(&nprng));
+   if (fortuna_read(buf + 32, 32, &nprng) != 32) {
+      fprintf(stderr, "Error reading from Fortuna after fortuna_add_entropy()!\n");
+      return CRYPT_ERROR;
+   }
+   DO(fortuna_done(&nprng));
+
+   DO(fortuna_start(&nprng));
+   DO(fortuna_add_random_event(0, 0, buf, 32, &nprng));
+   DO(fortuna_ready(&nprng));
+   if (fortuna_read(buf + 64, 32, &nprng) != 32) {
+      fprintf(stderr, "Error reading from Fortuna after fortuna_add_random_event()!\n");
+      return CRYPT_ERROR;
+   }
+   DO(fortuna_done(&nprng));
+
+   if (compare_testvector(buf + 64, 32, buf + 32, 32, "fortuna_add_entropy() vs. fortuna_add_random_event()", 0) != 0) {
+      err = CRYPT_FAIL_TESTVECTOR;
+   }
+#endif
    return err;
 }
 

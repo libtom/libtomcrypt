@@ -7,7 +7,7 @@
  * guarantee it works.
  */
 
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 #ifdef LTC_CHACHA20POLY1305_MODE
 
@@ -25,7 +25,6 @@ int chacha20poly1305_encrypt(chacha20poly1305_state *st, const unsigned char *in
    unsigned long padlen;
    int err;
 
-   if (inlen == 0) return CRYPT_OK; /* nothing to do */
    LTC_ARGCHK(st != NULL);
 
    if ((err = chacha_crypt(&st->chacha, in, inlen, out)) != CRYPT_OK)         return err;

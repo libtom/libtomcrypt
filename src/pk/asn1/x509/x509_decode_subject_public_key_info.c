@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  */
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 /**
   @file x509_decode_subject_public_key_info.c
@@ -43,7 +43,7 @@ int x509_decode_subject_public_key_info(const unsigned char *in, unsigned long i
 {
    int err;
    unsigned long len, alg_id_num;
-   oid_st oid;
+   const char* oid;
    unsigned char *tmpbuf;
    unsigned long  tmpoid[16];
    ltc_asn1_list alg_id[2];
@@ -92,11 +92,9 @@ int x509_decode_subject_public_key_info(const unsigned char *in, unsigned long i
       *parameters_len = alg_id[1].size;
    }
 
-   if ((alg_id[0].size != oid.OIDlen) ||
-        XMEMCMP(oid.OID, alg_id[0].data, oid.OIDlen * sizeof(oid.OID[0]))) {
-        /* OID mismatch */
-        err = CRYPT_PK_INVALID_TYPE;
-        goto LBL_ERR;
+   if ((err = pk_oid_cmp_with_asn1(oid, &alg_id[0])) != CRYPT_OK) {
+      /* OID mismatch */
+      goto LBL_ERR;
    }
 
    len = subject_pubkey[1].size/8;

@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  */
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 /**
    @file adler32.c
@@ -41,8 +41,9 @@ void adler32_update(adler32_state *ctx, const unsigned char *input, unsigned lon
          length--;
       } while (length % 8 != 0);
 
-      if (s1 >= _adler32_base)
+      if (s1 >= _adler32_base) {
          s1 -= _adler32_base;
+      }
       s2 %= _adler32_base;
    }
 
@@ -67,8 +68,9 @@ void adler32_update(adler32_state *ctx, const unsigned char *input, unsigned lon
       length -= 8;
       input += 8;
 
-      if (s1 >= _adler32_base)
+      if (s1 >= _adler32_base) {
          s1 -= _adler32_base;
+      }
       s2 %= _adler32_base;
    }
 
@@ -79,7 +81,7 @@ void adler32_update(adler32_state *ctx, const unsigned char *input, unsigned lon
    ctx->s[1] = (unsigned short)s2;
 }
 
-void adler32_finish(adler32_state *ctx, void *hash, unsigned long size)
+void adler32_finish(const adler32_state *ctx, void *hash, unsigned long size)
 {
    unsigned char* h;
 

@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  */
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 /**
    @param sha512.c
@@ -89,9 +89,9 @@ CONST64(0x5fcb6fab3ad6faec), CONST64(0x6c44198c4a475817)
 
 /* compress 1024-bits */
 #ifdef LTC_CLEAN_STACK
-static int _sha512_compress(hash_state * md, unsigned char *buf)
+static int _sha512_compress(hash_state * md, const unsigned char *buf)
 #else
-static int  sha512_compress(hash_state * md, unsigned char *buf)
+static int  sha512_compress(hash_state * md, const unsigned char *buf)
 #endif
 {
     ulong64 S[8], W[80], t0, t1;
@@ -156,7 +156,7 @@ static int  sha512_compress(hash_state * md, unsigned char *buf)
 
 /* compress 1024-bits */
 #ifdef LTC_CLEAN_STACK
-static int sha512_compress(hash_state * md, unsigned char *buf)
+static int sha512_compress(hash_state * md, const unsigned char *buf)
 {
     int err;
     err = _sha512_compress(md, buf);

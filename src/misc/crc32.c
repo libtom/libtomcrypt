@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  */
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 /**
    @file crc32.c
@@ -153,13 +153,14 @@ void crc32_update(crc32_state *ctx, const unsigned char *input, unsigned long le
    LTC_ARGCHKVD(input != NULL);
    crc = ctx->crc;
 
-   while (length--)
+   while (length--) {
       crc = crc32_m_tab[CRC32_INDEX(crc) ^ *input++] ^ CRC32_SHIFTED(crc);
+   }
 
    ctx->crc = crc;
 }
 
-void crc32_finish(crc32_state *ctx, void *hash, unsigned long size)
+void crc32_finish(const crc32_state *ctx, void *hash, unsigned long size)
 {
    unsigned long i;
    unsigned char* h;

@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  */
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 /**
    @file cfb_getiv.c
@@ -22,7 +22,7 @@
    @param cfb  The CFB state
    @return CRYPT_OK if successful
 */
-int cfb_getiv(unsigned char *IV, unsigned long *len, symmetric_CFB *cfb)
+int cfb_getiv(unsigned char *IV, unsigned long *len, const symmetric_CFB *cfb)
 {
    LTC_ARGCHK(IV  != NULL);
    LTC_ARGCHK(len != NULL);

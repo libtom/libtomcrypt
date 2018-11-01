@@ -9,7 +9,7 @@
 
 /* based on https://github.com/brainhub/SHA3IUF (public domain) */
 
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 #ifdef LTC_SHA3
 
@@ -167,13 +167,14 @@ static void keccakf(ulong64 s[25])
 
    for(round = 0; round < SHA3_KECCAK_ROUNDS; round++) {
       /* Theta */
-      for(i = 0; i < 5; i++)
+      for(i = 0; i < 5; i++) {
          bc[i] = s[i] ^ s[i + 5] ^ s[i + 10] ^ s[i + 15] ^ s[i + 20];
-
+      }
       for(i = 0; i < 5; i++) {
          t = bc[(i + 4) % 5] ^ ROL64(bc[(i + 1) % 5], 1);
-         for(j = 0; j < 25; j += 5)
+         for(j = 0; j < 25; j += 5) {
             s[j + i] ^= t;
+         }
       }
       /* Rho Pi */
       t = s[1];
@@ -185,10 +186,12 @@ static void keccakf(ulong64 s[25])
       }
       /* Chi */
       for(j = 0; j < 25; j += 5) {
-         for(i = 0; i < 5; i++)
+         for(i = 0; i < 5; i++) {
             bc[i] = s[j + i];
-         for(i = 0; i < 5; i++)
+         }
+         for(i = 0; i < 5; i++) {
             s[j + i] ^= (~bc[(i + 1) % 5]) & bc[(i + 2) % 5];
+         }
       }
       /* Iota */
       s[0] ^= keccakf_rndc[round];
@@ -313,16 +316,16 @@ int sha3_process(hash_state *md, const unsigned char *in, unsigned long inlen)
 }
 
 #ifdef LTC_SHA3
-int sha3_done(hash_state *md, unsigned char *hash)
+int sha3_done(hash_state *md, unsigned char *out)
 {
-   return _done(md, hash, CONST64(0x06));
+   return _done(md, out, CONST64(0x06));
 }
 #endif
 
 #ifdef LTC_KECCAK
-int keccak_done(hash_state *md, unsigned char *hash)
+int keccak_done(hash_state *md, unsigned char *out)
 {
-   return _done(md, hash, CONST64(0x01));
+   return _done(md, out, CONST64(0x01));
 }
 #endif
 
@@ -364,7 +367,7 @@ int sha3_shake_done(hash_state *md, unsigned char *out, unsigned long outlen)
    return CRYPT_OK;
 }
 
-int sha3_shake_memory(int num, const unsigned char *in, unsigned long inlen, unsigned char *out, unsigned long *outlen)
+int sha3_shake_memory(int num, const unsigned char *in, unsigned long inlen, unsigned char *out, const unsigned long *outlen)
 {
    hash_state md;
    int err;

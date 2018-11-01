@@ -27,13 +27,15 @@ extern "C" {
 
 /* version */
 #define CRYPT   0x0118
-#define SCRYPT  "1.18.1-develop"
+#define SCRYPT  "1.18.2-develop"
 
 /* max size of either a cipher/hash block or symmetric key [largest of the two] */
 #define MAXBLOCKSIZE  144
 
+#ifndef TAB_SIZE
 /* descriptor table size */
 #define TAB_SIZE      34
+#endif
 
 /* error codes [will be expanded in future releases] */
 enum {

@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  */
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 /**
   @file khazad.c
@@ -30,10 +30,6 @@ const struct ltc_cipher_descriptor khazad_desc = {
 };
 
 #define R      8
-#define KEYSIZE      128
-#define KEYSIZEB   (KEYSIZE/8)
-#define BLOCKSIZE   64
-#define BLOCKSIZEB   (BLOCKSIZE/8)
 
 static const ulong64 T0[256] = {
     CONST64(0xbad3d268bbb96a01), CONST64(0x54fc4d19e59a66b1), CONST64(0x2f71bc93e26514cd), CONST64(0x749ccdb925871b51),
@@ -741,7 +737,7 @@ static void khazad_crypt(const unsigned char *plaintext, unsigned char *cipherte
   @param skey The key as scheduled
   @return CRYPT_OK if successful
 */
-int khazad_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
+int khazad_ecb_encrypt(const unsigned char *pt, unsigned char *ct, const symmetric_key *skey)
 {
    LTC_ARGCHK(pt   != NULL);
    LTC_ARGCHK(ct   != NULL);
@@ -757,7 +753,7 @@ int khazad_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key
   @param skey The key as scheduled
   @return CRYPT_OK if successful
 */
-int khazad_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey)
+int khazad_ecb_decrypt(const unsigned char *ct, unsigned char *pt, const symmetric_key *skey)
 {
    LTC_ARGCHK(pt   != NULL);
    LTC_ARGCHK(ct   != NULL);
@@ -843,9 +839,8 @@ int khazad_keysize(int *keysize)
    if (*keysize >= 16) {
       *keysize = 16;
       return CRYPT_OK;
-   } else {
-      return CRYPT_INVALID_KEYSIZE;
    }
+   return CRYPT_INVALID_KEYSIZE;
 }
 
 #endif

@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  */
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 /**
   @file der_length_object_identifier.c
@@ -35,7 +35,7 @@ unsigned long der_object_identifier_bits(unsigned long x)
   @param outlen   [out] The length of the DER encoding for the given string
   @return CRYPT_OK if successful
 */
-int der_length_object_identifier(unsigned long *words, unsigned long nwords, unsigned long *outlen)
+int der_length_object_identifier(const unsigned long *words, unsigned long nwords, unsigned long *outlen)
 {
    unsigned long y, z, t, wordbuf;
 
@@ -48,8 +48,8 @@ int der_length_object_identifier(unsigned long *words, unsigned long nwords, uns
       return CRYPT_INVALID_ARG;
    }
 
-   /* word1 = 0,1,2,3 and word2 0..39 */
-   if (words[0] > 3 || (words[0] < 2 && words[1] > 39)) {
+   /* word1 = 0,1,2 and word2 0..39 */
+   if (words[0] > 2 || (words[0] < 2 && words[1] > 39)) {
       return CRYPT_INVALID_ARG;
    }
 

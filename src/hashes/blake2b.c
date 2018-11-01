@@ -23,7 +23,7 @@
 */
 /* see also https://www.ietf.org/rfc/rfc7693.txt */
 
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 #ifdef LTC_BLAKE2B
 
@@ -160,9 +160,9 @@ static int blake2b_is_lastblock(const hash_state *md) { return md->blake2b.f[0] 
 
 static void blake2b_set_lastblock(hash_state *md)
 {
-   if (md->blake2b.last_node)
+   if (md->blake2b.last_node) {
       blake2b_set_lastnode(md);
-
+   }
    md->blake2b.f[0] = CONST64(0xffffffffffffffff);
 }
 
@@ -177,8 +177,9 @@ static void blake2b_init0(hash_state *md)
    unsigned long i;
    XMEMSET(&md->blake2b, 0, sizeof(md->blake2b));
 
-   for (i = 0; i < 8; ++i)
+   for (i = 0; i < 8; ++i) {
       md->blake2b.h[i] = blake2b_IV[i];
+   }
 }
 
 /* init xors IV with input parameter block */
@@ -199,6 +200,19 @@ static int blake2b_init_param(hash_state *md, const unsigned char *P)
    return CRYPT_OK;
 }
 
+/**
+   Initialize the hash/MAC state
+
+      Use this function to init for arbitrary sizes.
+
+      Give a key and keylen to init for MAC mode.
+
+   @param md      The hash state you wish to initialize
+   @param outlen  The desired output-length
+   @param key     The key of the MAC
+   @param keylen  The length of the key
+   @return CRYPT_OK if successful
+*/
 int blake2b_init(hash_state *md, unsigned long outlen, const unsigned char *key, unsigned long keylen)
 {
    unsigned char P[BLAKE2B_PARAM_SIZE];
@@ -206,11 +220,12 @@ int blake2b_init(hash_state *md, unsigned long outlen, const unsigned char *key,
 
    LTC_ARGCHK(md != NULL);
 
-   if ((!outlen) || (outlen > BLAKE2B_OUTBYTES))
+   if ((!outlen) || (outlen > BLAKE2B_OUTBYTES)) {
       return CRYPT_INVALID_ARG;
-
-   if ((key && !keylen) || (keylen && !key) || (keylen > BLAKE2B_KEYBYTES))
+   }
+   if ((key && !keylen) || (keylen && !key) || (keylen > BLAKE2B_KEYBYTES)) {
       return CRYPT_INVALID_ARG;
+   }
 
    XMEMSET(P, 0, sizeof(P));
 
@@ -237,12 +252,32 @@ int blake2b_init(hash_state *md, unsigned long outlen, const unsigned char *key,
    return CRYPT_OK;
 }
 
+/**
+   Initialize the hash state
+   @param md   The hash state you wish to initialize
+   @return CRYPT_OK if successful
+*/
 int blake2b_160_init(hash_state *md) { return blake2b_init(md, 20, NULL, 0); }
 
+/**
+   Initialize the hash state
+   @param md   The hash state you wish to initialize
+   @return CRYPT_OK if successful
+*/
 int blake2b_256_init(hash_state *md) { return blake2b_init(md, 32, NULL, 0); }
 
+/**
+   Initialize the hash state
+   @param md   The hash state you wish to initialize
+   @return CRYPT_OK if successful
+*/
 int blake2b_384_init(hash_state *md) { return blake2b_init(md, 48, NULL, 0); }
 
+/**
+   Initialize the hash state
+   @param md   The hash state you wish to initialize
+   @return CRYPT_OK if successful
+*/
 int blake2b_512_init(hash_state *md) { return blake2b_init(md, 64, NULL, 0); }
 
 #define G(r, i, a, b, c, d)                                                                                            \
@@ -328,6 +363,13 @@ static int blake2b_compress(hash_state *md, const unsigned char *buf)
 }
 #endif
 
+/**
+   Process a block of memory through the hash
+   @param md     The hash state
+   @param in     The data to hash
+   @param inlen  The length of the data (octets)
+   @return CRYPT_OK if successful
+*/
 int blake2b_process(hash_state *md, const unsigned char *in, unsigned long inlen)
 {
    LTC_ARGCHK(md != NULL);
@@ -360,6 +402,12 @@ int blake2b_process(hash_state *md, const unsigned char *in, unsigned long inlen
    return CRYPT_OK;
 }
 
+/**
+   Terminate the hash to get the digest
+   @param md  The hash state
+   @param out [out] The destination of the hash (size depending on the length used on init)
+   @return CRYPT_OK if successful
+*/
 int blake2b_done(hash_state *md, unsigned char *out)
 {
    unsigned char buffer[BLAKE2B_OUTBYTES] = { 0 };
@@ -370,16 +418,18 @@ int blake2b_done(hash_state *md, unsigned char *out)
 
    /* if(md->blakebs.outlen != outlen) return CRYPT_INVALID_ARG; */
 
-   if (blake2b_is_lastblock(md))
+   if (blake2b_is_lastblock(md)) {
       return CRYPT_ERROR;
+   }
 
    blake2b_increment_counter(md, md->blake2b.curlen);
    blake2b_set_lastblock(md);
    XMEMSET(md->blake2b.buf + md->blake2b.curlen, 0, BLAKE2B_BLOCKBYTES - md->blake2b.curlen); /* Padding */
    blake2b_compress(md, md->blake2b.buf);
 
-   for (i = 0; i < 8; ++i) /* Output full hash to temp buffer */
+   for (i = 0; i < 8; ++i) { /* Output full hash to temp buffer */
       STORE64L(md->blake2b.h[i], buffer + i * 8);
+   }
 
    XMEMCPY(out, buffer, md->blake2b.outlen);
    zeromem(md, sizeof(hash_state));

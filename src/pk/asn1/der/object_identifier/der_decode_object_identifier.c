@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  */
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 /**
   @file der_decode_object_identifier.c
@@ -71,8 +71,13 @@ int der_decode_object_identifier(const unsigned char *in,    unsigned long  inle
             y++;
          } else {
             if (y == 0) {
-               words[0] = t / 40;
-               words[1] = t % 40;
+               if (t <= 79) {
+                  words[0] = t / 40;
+                  words[1] = t % 40;
+               } else {
+                  words[0] = 2;
+                  words[1] = t - 80;
+               }
                y = 2;
             } else {
                words[y++] = t;
