@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  */
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 /**
   @file des.c
@@ -36,7 +36,7 @@ const struct ltc_cipher_descriptor des3_desc =
 {
     "3des",
     14,
-    24, 24, 8, 16,
+    16, 24, 8, 16,
     &des3_setup,
     &des3_ecb_encrypt,
     &des3_ecb_decrypt,
@@ -1432,14 +1432,14 @@ static void _desfunc(ulong32 *block, const ulong32 *keys)
 #else
    {
       ulong64 tmp;
-      tmp = des_ip[0][byte(leftt, 0)] ^
-            des_ip[1][byte(leftt, 1)] ^
-            des_ip[2][byte(leftt, 2)] ^
-            des_ip[3][byte(leftt, 3)] ^
-            des_ip[4][byte(right, 0)] ^
-            des_ip[5][byte(right, 1)] ^
-            des_ip[6][byte(right, 2)] ^
-            des_ip[7][byte(right, 3)];
+      tmp = des_ip[0][LTC_BYTE(leftt, 0)] ^
+            des_ip[1][LTC_BYTE(leftt, 1)] ^
+            des_ip[2][LTC_BYTE(leftt, 2)] ^
+            des_ip[3][LTC_BYTE(leftt, 3)] ^
+            des_ip[4][LTC_BYTE(right, 0)] ^
+            des_ip[5][LTC_BYTE(right, 1)] ^
+            des_ip[6][LTC_BYTE(right, 2)] ^
+            des_ip[7][LTC_BYTE(right, 3)];
       leftt = (ulong32)(tmp >> 32);
       right = (ulong32)(tmp & 0xFFFFFFFFUL);
    }
@@ -1491,14 +1491,14 @@ static void _desfunc(ulong32 *block, const ulong32 *keys)
 #else
    {
       ulong64 tmp;
-      tmp = des_fp[0][byte(leftt, 0)] ^
-            des_fp[1][byte(leftt, 1)] ^
-            des_fp[2][byte(leftt, 2)] ^
-            des_fp[3][byte(leftt, 3)] ^
-            des_fp[4][byte(right, 0)] ^
-            des_fp[5][byte(right, 1)] ^
-            des_fp[6][byte(right, 2)] ^
-            des_fp[7][byte(right, 3)];
+      tmp = des_fp[0][LTC_BYTE(leftt, 0)] ^
+            des_fp[1][LTC_BYTE(leftt, 1)] ^
+            des_fp[2][LTC_BYTE(leftt, 2)] ^
+            des_fp[3][LTC_BYTE(leftt, 3)] ^
+            des_fp[4][LTC_BYTE(right, 0)] ^
+            des_fp[5][LTC_BYTE(right, 1)] ^
+            des_fp[6][LTC_BYTE(right, 2)] ^
+            des_fp[7][LTC_BYTE(right, 3)];
       leftt = (ulong32)(tmp >> 32);
       right = (ulong32)(tmp & 0xFFFFFFFFUL);
    }
@@ -1592,7 +1592,7 @@ int des3_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_k
   @param skey The key as scheduled
   @return CRYPT_OK if successful
 */
-int des_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
+int des_ecb_encrypt(const unsigned char *pt, unsigned char *ct, const symmetric_key *skey)
 {
     ulong32 work[2];
     LTC_ARGCHK(pt   != NULL);
@@ -1613,7 +1613,7 @@ int des_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *s
   @param skey The key as scheduled
   @return CRYPT_OK if successful
 */
-int des_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey)
+int des_ecb_decrypt(const unsigned char *ct, unsigned char *pt, const symmetric_key *skey)
 {
     ulong32 work[2];
     LTC_ARGCHK(pt   != NULL);
@@ -1634,7 +1634,7 @@ int des_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *s
   @param skey The key as scheduled
   @return CRYPT_OK if successful
 */
-int des3_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
+int des3_ecb_encrypt(const unsigned char *pt, unsigned char *ct, const symmetric_key *skey)
 {
     ulong32 work[2];
 
@@ -1658,7 +1658,7 @@ int des3_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *
   @param skey The key as scheduled
   @return CRYPT_OK if successful
 */
-int des3_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey)
+int des3_ecb_decrypt(const unsigned char *ct, unsigned char *pt, const symmetric_key *skey)
 {
     ulong32 work[2];
     LTC_ARGCHK(pt   != NULL);
@@ -2068,8 +2068,12 @@ int des_keysize(int *keysize)
 int des3_keysize(int *keysize)
 {
     LTC_ARGCHK(keysize != NULL);
-    if(*keysize < 24) {
-        return CRYPT_INVALID_KEYSIZE;
+    if (*keysize < 16) {
+       return CRYPT_INVALID_KEYSIZE;
+    }
+    if (*keysize < 24) {
+       *keysize = 16;
+       return CRYPT_OK;
     }
     *keysize = 24;
     return CRYPT_OK;

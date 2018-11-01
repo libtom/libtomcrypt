@@ -62,7 +62,7 @@
  ******************************************************************************/
 
 
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 #ifdef LTC_RABBIT
 
@@ -99,8 +99,9 @@ static LTC_INLINE void _rabbit_next_state(rabbit_ctx *p_instance)
    ulong32 g[8], c_old[8], i;
 
    /* Save old counter values */
-   for (i=0; i<8; i++)
+   for (i=0; i<8; i++) {
       c_old[i] = p_instance->c[i];
+   }
 
    /* Calculate new counter values */
    p_instance->c[0] = (ulong32)(p_instance->c[0] + 0x4D34D34D + p_instance->carry);
@@ -114,8 +115,9 @@ static LTC_INLINE void _rabbit_next_state(rabbit_ctx *p_instance)
    p_instance->carry = (p_instance->c[7] < c_old[7]);
 
    /* Calculate the g-values */
-   for (i=0;i<8;i++)
+   for (i=0;i<8;i++) {
       g[i] = _rabbit_g_func((ulong32)(p_instance->x[i] + p_instance->c[i]));
+   }
 
    /* Calculate new state values */
    p_instance->x[0] = (ulong32)(g[0] + ROLc(g[7],16) + ROLc(g[6], 16));
@@ -198,12 +200,14 @@ int rabbit_setup(rabbit_state* st, const unsigned char *key, unsigned long keyle
    st->master_ctx.carry = 0;
 
    /* Iterate the master context four times */
-   for (i=0; i<4; i++)
+   for (i=0; i<4; i++) {
       _rabbit_next_state(&(st->master_ctx));
+   }
 
    /* Modify the counters */
-   for (i=0; i<8; i++)
+   for (i=0; i<8; i++) {
       st->master_ctx.c[i] ^= st->master_ctx.x[(i+4)&0x7];
+   }
 
    /* Copy master instance to work instance */
    for (i=0; i<8; i++) {
@@ -250,13 +254,15 @@ int rabbit_setiv(rabbit_state* st, const unsigned char *iv, unsigned long ivlen)
    st->work_ctx.c[7] = st->master_ctx.c[7] ^ i3;
 
    /* Copy state variables */
-   for (i=0; i<8; i++)
+   for (i=0; i<8; i++) {
       st->work_ctx.x[i] = st->master_ctx.x[i];
+   }
    st->work_ctx.carry = st->master_ctx.carry;
 
    /* Iterate the work context four times */
-   for (i=0; i<4; i++)
+   for (i=0; i<4; i++) {
       _rabbit_next_state(&(st->work_ctx));
+   }
 
    /* reset keystream buffer and unused count */
    XMEMSET(&(st->block), 0, sizeof(st->block));
@@ -297,13 +303,12 @@ int rabbit_crypt(rabbit_state* st, const unsigned char *in, unsigned long inlen,
        /* copy remainder to block */
        for (i = inlen; i < 16; ++i) st->block[i] = buf[i];
        return CRYPT_OK;
-     } else {
-       /* XOR entire buf and send to out */
-       for (i = 0; i < 16; ++i) out[i] = in[i] ^ buf[i];
-       inlen -= 16;
-       out += 16;
-       in  += 16;
      }
+     /* XOR entire buf and send to out */
+     for (i = 0; i < 16; ++i) out[i] = in[i] ^ buf[i];
+     inlen -= 16;
+     out += 16;
+     in  += 16;
    }
 }
 
@@ -416,19 +421,25 @@ int rabbit_test(void)
          if ((err = rabbit_crypt(&st, (unsigned char*)pt +  5, 29, out +  5)) != CRYPT_OK) return err;
          if ((err = rabbit_crypt(&st, (unsigned char*)pt + 34,  5, out + 34)) != CRYPT_OK) return err;
          if (compare_testvector(out, ptlen, ct, ptlen, "RABBIT-TV3", 1))   return CRYPT_FAIL_TESTVECTOR;
+
+      /* --- Test 4 (crypt in a single call) ------------------------------------ */
+
+         if ((err = rabbit_memory(k, sizeof(k), iv, sizeof(iv),
+                                   (unsigned char*)pt, sizeof(pt), out))      != CRYPT_OK) return err;
+         if (compare_testvector(out, ptlen, ct, ptlen, "RABBIT-TV4", 1))   return CRYPT_FAIL_TESTVECTOR;
          /* use 'out' (ciphertext) in the next decryption test */
 
-      /* --- Test 4 (decrypt ciphertext) ------------------------------------ */
+      /* --- Test 5 (decrypt ciphertext) ------------------------------------ */
 
          /* decrypt ct (out) and compare with pt (start with only setiv() to reset) */
          if ((err = rabbit_setiv(&st, iv, sizeof(iv)))                        != CRYPT_OK) return err;
          if ((err = rabbit_crypt(&st, out, ptlen, out2))                      != CRYPT_OK) return err;
-         if (compare_testvector(out2, ptlen, pt, ptlen, "RABBIT-TV4", 1))  return CRYPT_FAIL_TESTVECTOR;
+         if (compare_testvector(out2, ptlen, pt, ptlen, "RABBIT-TV5", 1))  return CRYPT_FAIL_TESTVECTOR;
 
-      /* --- Test 5 (wipe state, incl key) ---------------------------------- */
+      /* --- Test 6 (wipe state, incl key) ---------------------------------- */
 
          if ((err = rabbit_done(&st))                      != CRYPT_OK) return err;
-         if (compare_testvector(&st, sizeof(st), nulls, sizeof(st), "RABBIT-TV5", 1))  return CRYPT_FAIL_TESTVECTOR;
+         if (compare_testvector(&st, sizeof(st), nulls, sizeof(st), "RABBIT-TV6", 1))  return CRYPT_FAIL_TESTVECTOR;
 
       }
 

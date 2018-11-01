@@ -7,7 +7,7 @@
  * guarantee it works.
  */
 
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 #ifdef LTC_CHACHA20POLY1305_MODE
 
@@ -77,10 +77,10 @@ int chacha20poly1305_test(void)
 
    /* chacha20poly1305_memory - decrypt */
    len = sizeof(dmac);
+   XMEMCPY(dmac, tag, sizeof(tag));
    if ((err = chacha20poly1305_memory(k, sizeof(k), i12, sizeof(i12), aad, sizeof(aad),
                                       ct, mlen, pt, dmac, &len, CHACHA20POLY1305_DECRYPT)) != CRYPT_OK) return err;
    if (compare_testvector(pt, mlen, m, mlen, "DEC-PT2", 3) != 0) return CRYPT_FAIL_TESTVECTOR;
-   if (compare_testvector(dmac, len, tag, sizeof(tag), "DEC-TAG2", 4) != 0) return CRYPT_FAIL_TESTVECTOR;
 
    /* encrypt - rfc7905 */
    if ((err = chacha20poly1305_init(&st1, k, sizeof(k))) != CRYPT_OK) return err;
@@ -122,6 +122,41 @@ int chacha20poly1305_test(void)
 
    if (compare_testvector(pt, mlen, m, mlen, "DEC-PT4", 1) != 0) return CRYPT_FAIL_TESTVECTOR;
    if (compare_testvector(dmac, len, emac, len, "DEC-TAG4", 2) != 0) return CRYPT_FAIL_TESTVECTOR;
+
+   /* wycheproof failing test - https://github.com/libtom/libtomcrypt/pull/451 */
+   {
+      unsigned char key[] = { 0x00,0x11,0x22,0x33,0x44,0x55,0x66,0x77,0x88,0x99,0xaa,0xbb,0xcc,0xdd,0xee,0xff,
+                              0x00,0x11,0x22,0x33,0x44,0x55,0x66,0x77,0x88,0x99,0xaa,0xbb,0xcc,0xdd,0xee,0xff };
+      unsigned char iv[]  = { 0x00,0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,0x0a,0x0b };
+      unsigned char valid_tag[]   = { 0xa3,0xe3,0xfd,0xf9,0xfb,0xa6,0x86,0x1b,0x5a,0xd2,0x60,0x7f,0x40,0xb7,0xf4,0x47 };
+      unsigned char invalid_tag[] = { 0xa2,0xe3,0xfd,0xf9,0xfb,0xa6,0x86,0x1b,0x5a,0xd2,0x60,0x7f,0x40,0xb7,0xf4,0x47 };
+      unsigned char waad[] = { 0x61,0x61,0x64 };
+      unsigned char wct[]  = { 0x00 };
+      unsigned char wpt[20] = { 0 };
+      unsigned char wtag[20] = { 0 };
+      unsigned long taglen;
+
+      /* encrypt */
+      taglen = sizeof(wtag);
+      err = chacha20poly1305_memory(key, sizeof(key), iv, sizeof(iv), waad, sizeof(waad),
+                                    wpt, 0, wct, wtag, &taglen, CHACHA20POLY1305_ENCRYPT);
+      if (err != CRYPT_OK) return CRYPT_FAIL_TESTVECTOR;
+      if (compare_testvector(wtag, taglen, valid_tag, sizeof(valid_tag), "WYCH", 1) != 0) return CRYPT_FAIL_TESTVECTOR;
+
+      /* VALID tag */
+      taglen = sizeof(valid_tag);
+      err = chacha20poly1305_memory(key, sizeof(key), iv, sizeof(iv), waad, sizeof(waad),
+                                    wpt, 0, wct, valid_tag, &taglen, CHACHA20POLY1305_DECRYPT);
+      if (err != CRYPT_OK) return CRYPT_FAIL_TESTVECTOR;
+
+      /* INVALID tag */
+      taglen = sizeof(invalid_tag);
+      err = chacha20poly1305_memory(key, sizeof(key), iv, sizeof(iv), waad, sizeof(waad),
+                                    wpt, 0, wct, invalid_tag, &taglen, CHACHA20POLY1305_DECRYPT);
+      if (err == CRYPT_OK) {
+         return CRYPT_FAIL_TESTVECTOR; /* should fail */
+      }
+   }
 
    return CRYPT_OK;
 #endif

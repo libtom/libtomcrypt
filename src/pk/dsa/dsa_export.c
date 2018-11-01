@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  */
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 /**
    @file dsa_export.c
@@ -23,9 +23,10 @@
   @param key    The key to export
   @return CRYPT_OK if successful
 */
-int dsa_export(unsigned char *out, unsigned long *outlen, int type, dsa_key *key)
+int dsa_export(unsigned char *out, unsigned long *outlen, int type, const dsa_key *key)
 {
    unsigned long zero=0;
+   unsigned char flags[1];
    int err, std;
 
    LTC_ARGCHK(out    != NULL);
@@ -35,13 +36,8 @@ int dsa_export(unsigned char *out, unsigned long *outlen, int type, dsa_key *key
    std = type & PK_STD;
    type &= ~PK_STD;
 
-   /* can we store the static header?  */
    if (type == PK_PRIVATE && key->type != PK_PRIVATE) {
       return CRYPT_PK_TYPE_MISMATCH;
-   }
-
-   if (type != PK_PUBLIC && type != PK_PRIVATE) {
-      return CRYPT_INVALID_ARG;
    }
 
    if (type == PK_PRIVATE) {
@@ -55,10 +51,8 @@ int dsa_export(unsigned char *out, unsigned long *outlen, int type, dsa_key *key
                                          LTC_ASN1_INTEGER,      1UL, key->x,
                                          LTC_ASN1_EOL,          0UL, NULL);
       }
-      else {
-          unsigned char flags[1];
-          flags[0] = 1;
-          return der_encode_sequence_multi(out, outlen,
+      flags[0] = 1;
+      return der_encode_sequence_multi(out, outlen,
                                          LTC_ASN1_BIT_STRING,   1UL, flags,
                                          LTC_ASN1_INTEGER,      1UL, key->g,
                                          LTC_ASN1_INTEGER,      1UL, key->p,
@@ -66,10 +60,11 @@ int dsa_export(unsigned char *out, unsigned long *outlen, int type, dsa_key *key
                                          LTC_ASN1_INTEGER,      1UL, key->y,
                                          LTC_ASN1_INTEGER,      1UL, key->x,
                                          LTC_ASN1_EOL,          0UL, NULL);
-      }
-   } else {
+   }
+
+   if (type == PK_PUBLIC) {
       if (std) {
-          unsigned long tmplen = (mp_count_bits(key->y) / 8) + 8;
+          unsigned long tmplen = (unsigned long)(mp_count_bits(key->y) / 8) + 8;
           unsigned char* tmp = XMALLOC(tmplen);
           ltc_asn1_list int_list[3];
 
@@ -94,18 +89,17 @@ error:
           XFREE(tmp);
           return err;
       }
-      else {
-          unsigned char flags[1];
-          flags[0] = 0;
-          return der_encode_sequence_multi(out, outlen,
+      flags[0] = 0;
+      return der_encode_sequence_multi(out, outlen,
                                      LTC_ASN1_BIT_STRING,   1UL, flags,
                                      LTC_ASN1_INTEGER,      1UL, key->g,
                                      LTC_ASN1_INTEGER,      1UL, key->p,
                                      LTC_ASN1_INTEGER,      1UL, key->q,
                                      LTC_ASN1_INTEGER,      1UL, key->y,
                                      LTC_ASN1_EOL,          0UL, NULL);
-      }
    }
+
+   return CRYPT_INVALID_ARG;
 }
 
 #endif

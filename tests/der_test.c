@@ -17,7 +17,7 @@ int der_test(void)
 
 #else
 
-#if defined(LTC_TEST_DBG) && LTC_TEST_DBG > 1
+#if defined(LTC_TEST_DBG) && LTC_TEST_DBG > 2
 #define LTC_DER_TESTS_PRINT_FLEXI
 #endif
 
@@ -306,21 +306,11 @@ static void _der_tests_print_flexi(ltc_asn1_list* l, unsigned int level)
   case LTC_ASN1_OBJECT_IDENTIFIER:
     name = "OBJECT IDENTIFIER";
     {
-      unsigned long i;
-      int r;
-      char* s = buf;
-      int sz = sizeof(buf);
-      for (i = 0; i < l->size; ++i) {
-        r = snprintf(s, sz, "%lu.", ((unsigned long*)l->data)[i]);
-        if (r < 0 || r >= sz) {
-            fprintf(stderr, "%s boom\n", name);
-            exit(EXIT_FAILURE);
-        }
-        s += r;
-        sz -= r;
+      unsigned long len = sizeof(buf);
+      if (pk_oid_num_to_str(l->data, l->size, buf, &len) != CRYPT_OK) {
+        fprintf(stderr, "%s boom\n", name);
+        exit(EXIT_FAILURE);
       }
-      /* replace the last . with a \0 */
-      *(s - 1) = '\0';
       text = buf;
     }
     break;
@@ -682,6 +672,34 @@ static void der_set_test(void)
   }
 
 */
+
+static void _der_oid_test(void)
+{
+   static const unsigned char oid_x690_8_19_5_example[] = { 0x06, 0x03, 0x88, 0x37, 0x03 };
+   unsigned long len, oid[3];
+   unsigned char buf[64];
+
+   ltc_asn1_list *decoded_list, static_list[1];
+
+   len = sizeof(oid_x690_8_19_5_example);
+   DO(der_decode_sequence_flexi(oid_x690_8_19_5_example, &len, &decoded_list));
+
+   LTC_SET_ASN1(static_list, 0, LTC_ASN1_OBJECT_IDENTIFIER, (void *)decoded_list->data, decoded_list->size);
+   len = sizeof(buf);
+   DO(der_encode_object_identifier(decoded_list->data, decoded_list->size, buf, &len));
+   der_sequence_free(decoded_list);
+
+   DO(do_compare_testvector(buf, len, oid_x690_8_19_5_example, sizeof(oid_x690_8_19_5_example), "OID X6.90 Ch. 8.19.5 Example", 0));
+
+   oid[0] = 3;
+   oid[1] = 4;
+   oid[2] = 5;
+
+   len = sizeof(buf);
+   SHOULD_FAIL(der_encode_object_identifier(oid, 3, buf, &len));
+   len = sizeof(buf);
+   SHOULD_FAIL(der_length_object_identifier(oid, 3, &len));
+}
 
 static void der_flexi_test(void)
 {
@@ -1310,72 +1328,19 @@ static void der_Xcode_test(void)
    mp_clear(mpinteger);
 }
 
-#if !((defined(_WIN32) || defined(_WIN32_WCE)) && !defined(__GNUC__))
-
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <dirent.h>
-
-static off_t fsize(const char *filename)
+#ifdef LTC_TEST_READDIR
+static int _der_decode_sequence_flexi(const void *in, unsigned long inlen, void* ctx)
 {
-   struct stat st;
-
-   if (stat(filename, &st) == 0) return st.st_size;
-
-   return -1;
-}
-
-static void der_asn1_test(void)
-{
-   DIR *d = opendir("tests/asn1");
-   struct dirent *de;
-   char fname[PATH_MAX];
-   void* buf = NULL;
-   FILE *f = NULL;
-   off_t fsz;
-   unsigned long sz;
-   ltc_asn1_list *list;
-   int err;
-   if (d == NULL)
-      return;
-   while((de = readdir(d)) != NULL) {
-      fname[0] = '\0';
-      if (strcmp(de->d_name, ".") == 0 || strcmp(de->d_name, "..") == 0)
-         continue;
-      strcat(fname, "tests/asn1/");
-      strcat(fname, de->d_name);
-      fsz = fsize(fname);
-      if (fsz == -1)
-         break;
-#if defined(LTC_TEST_DBG) && LTC_TEST_DBG > 1
-      fprintf(stderr, "Try to decode %s\n", fname);
-#endif
-      f = fopen(fname, "rb");
-      sz = fsz;
-      buf = XMALLOC(fsz);
-      if (fread(buf, 1, sz, f) != sz)
-         break;
-
-      if ((err = der_decode_sequence_flexi(buf, &sz, &list)) == CRYPT_OK) {
+   ltc_asn1_list** list = ctx;
+   if (der_decode_sequence_flexi(in, &inlen, list) == CRYPT_OK) {
 #ifdef LTC_DER_TESTS_PRINT_FLEXI
-         fprintf(stderr, "\n\n");
-         _der_tests_print_flexi(list, 0);
-         fprintf(stderr, "\n\n");
+      fprintf(stderr, "\n\n");
+      _der_tests_print_flexi(*list, 0);
+      fprintf(stderr, "\n\n");
 #endif
-         der_sequence_free(list);
-      } else {
-#if defined(LTC_TEST_DBG)
-         fprintf(stderr, "Could not decode %s: %s\n\n", fname, error_to_string(err));
-#endif
-      }
-      XFREE(buf);
-      buf = NULL;
-      fclose(f);
-      f = NULL;
+      der_sequence_free(*list);
    }
-   if (buf != NULL) XFREE(buf);
-   if (f != NULL) fclose(f);
-   closedir(d);
+   return CRYPT_OK;
 }
 #endif
 
@@ -1580,6 +1545,25 @@ static void der_toolong_test(void)
    if (failed) exit(EXIT_FAILURE);
 }
 
+static void _der_recursion_limit(void)
+{
+   int failed = 0;
+   unsigned int n;
+   unsigned long integer = 123, s;
+   ltc_asn1_list seqs[LTC_DER_MAX_RECURSION + 2], dummy[1], *flexi;
+   unsigned char buf[2048];
+   LTC_SET_ASN1(dummy, 0, LTC_ASN1_SHORT_INTEGER, &integer, 1);
+   LTC_SET_ASN1(seqs, LTC_DER_MAX_RECURSION + 1, LTC_ASN1_SEQUENCE, dummy, 1);
+   for (n = 0; n < LTC_DER_MAX_RECURSION + 1; ++n) {
+      LTC_SET_ASN1(seqs, LTC_DER_MAX_RECURSION - n, LTC_ASN1_SEQUENCE, &seqs[LTC_DER_MAX_RECURSION - n + 1], 1);
+   }
+   s = sizeof(buf);
+   DO(der_encode_sequence(seqs, 1, buf, &s));
+   DO(der_decode_sequence(buf, s, seqs, 1));
+   SHOULD_FAIL(der_decode_sequence_flexi(buf, &s, &flexi));
+   if (failed) exit(EXIT_FAILURE);
+}
+
 int der_test(void)
 {
    unsigned long x, y, z, zz, oid[2][32];
@@ -1611,13 +1595,18 @@ int der_test(void)
 
    unsigned char utf8_buf[32];
    wchar_t utf8_out[32];
+#ifdef LTC_TEST_READDIR
+   ltc_asn1_list *list;
+#endif
 
    if (ltc_mp.name == NULL) return CRYPT_NOP;
 
+   _der_recursion_limit();
+
    der_Xcode_test();
 
-#if !((defined(_WIN32) || defined(_WIN32_WCE)) && !defined(__GNUC__))
-   der_asn1_test();
+#ifdef LTC_TEST_READDIR
+   DO(test_process_dir("tests/asn1", &list, _der_decode_sequence_flexi, NULL, "DER ASN.1 special cases"));
 #endif
 
    der_custom_test();
@@ -1627,6 +1616,8 @@ int der_test(void)
    der_toolong_test();
 
    der_cacert_test();
+
+   _der_oid_test();
 
    y = 0xffffff00;
 #if ULONG_MAX == ULLONG_MAX

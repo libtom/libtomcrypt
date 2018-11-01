@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  */
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 #ifdef LTC_PADDING
 
@@ -20,7 +20,7 @@
    @param mode     One of the LTC_PAD_xx flags
    @return CRYPT_OK on success
 */
-int padding_depad(unsigned char *data, unsigned long *length, unsigned long mode)
+int padding_depad(const unsigned char *data, unsigned long *length, unsigned long mode)
 {
    unsigned long padded_length, unpadded_length, n;
    unsigned char pad;
@@ -36,7 +36,7 @@ int padding_depad(unsigned char *data, unsigned long *length, unsigned long mode
    if (type < LTC_PAD_ONE_AND_ZERO) {
       pad = data[padded_length - 1];
 
-      if (pad > padded_length) return CRYPT_INVALID_ARG;
+      if (pad > padded_length || pad == 0) return CRYPT_INVALID_ARG;
 
       unpadded_length = padded_length - pad;
    } else {

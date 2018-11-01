@@ -11,7 +11,7 @@
    @file eax_done.c
    EAX implementation, terminate session, by Tom St Denis
 */
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 #ifdef LTC_EAX_MODE
 

@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  */
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 /**
   @file base64_decode.c
@@ -17,11 +17,16 @@
 
 #if defined(LTC_BASE64) || defined (LTC_BASE64_URL)
 
+/* 253 - ignored in "relaxed" + "insane" mode: TAB(9), CR(13), LF(10), space(32)
+ * 254 - padding character '=' (allowed only at the end)
+ * 255 - ignored in "insane" mode, but not allowed in "relaxed" + "strict" mode
+ */
+
 #if defined(LTC_BASE64)
 static const unsigned char map_base64[256] = {
-255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+255, 255, 255, 255, 255, 255, 255, 255, 255, 253, 253, 255,
+255, 253, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+255, 255, 255, 255, 255, 255, 255, 255, 253, 255, 255, 255,
 255, 255, 255, 255, 255, 255, 255,  62, 255, 255, 255,  63,
  52,  53,  54,  55,  56,  57,  58,  59,  60,  61, 255, 255,
 255, 254, 255, 255, 255,   0,   1,   2,   3,   4,   5,   6,
@@ -45,9 +50,9 @@ static const unsigned char map_base64[256] = {
 
 static const unsigned char map_base64url[] = {
 #if defined(LTC_BASE64_URL)
-255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+255, 255, 255, 255, 255, 255, 255, 255, 255, 253, 253, 255,
+255, 253, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+255, 255, 255, 255, 255, 255, 255, 255, 253, 255, 255, 255,
 255, 255, 255, 255, 255, 255, 255, 255, 255,  62, 255, 255,
  52,  53,  54,  55,  56,  57,  58,  59,  60,  61, 255, 255,
 255, 254, 255, 255, 255,   0,   1,   2,   3,   4,   5,   6,
@@ -71,13 +76,14 @@ static const unsigned char map_base64url[] = {
 };
 
 enum {
-   relaxed = 0,
-   strict = 1
+   insane = 0,
+   strict = 1,
+   relaxed = 2
 };
 
 static int _base64_decode_internal(const char *in,  unsigned long inlen,
                                  unsigned char *out, unsigned long *outlen,
-                           const unsigned char *map, int is_strict)
+                           const unsigned char *map, int mode)
 {
    unsigned long t, x, y, z;
    unsigned char c;
@@ -89,20 +95,29 @@ static int _base64_decode_internal(const char *in,  unsigned long inlen,
 
    g = 0; /* '=' counter */
    for (x = y = z = t = 0; x < inlen; x++) {
+       if ((in[x] == 0) && (x == (inlen - 1)) && (mode != strict)) {
+          continue; /* allow the last byte to be NUL (relaxed+insane) */
+       }
        c = map[(unsigned char)in[x]&0xFF];
        if (c == 254) {
           g++;
           continue;
        }
-       else if (is_strict && g > 0) {
-          /* we only allow '=' to be at the end */
-          return CRYPT_INVALID_PACKET;
+       if (c == 253) {
+          if (mode == strict) {
+             return CRYPT_INVALID_PACKET;
+          }
+          continue; /* allow to ignore white-spaces (relaxed+insane) */
        }
        if (c == 255) {
-          if (is_strict)
-             return CRYPT_INVALID_PACKET;
-          else
-             continue;
+          if (mode == insane) {
+             continue; /* allow to ignore invalid garbage (insane) */
+          }
+          return CRYPT_INVALID_PACKET;
+       }
+       if ((g > 0) && (mode != insane)) {
+          /* we only allow '=' to be at the end (strict+relaxed) */
+          return CRYPT_INVALID_PACKET;
        }
 
        t = (t<<6)|c;
@@ -118,7 +133,7 @@ static int _base64_decode_internal(const char *in,  unsigned long inlen,
 
    if (y != 0) {
       if (y == 1) return CRYPT_INVALID_PACKET;
-      if ((y + g) != 4 && is_strict && map != map_base64url) return CRYPT_INVALID_PACKET;
+      if (((y + g) != 4) && (mode == strict) && (map != map_base64url)) return CRYPT_INVALID_PACKET;
       t = t << (6 * (4 - y));
       if (z + y - 1 > *outlen) return CRYPT_BUFFER_OVERFLOW;
       if (y >= 2) out[z++] = (unsigned char) ((t >> 16) & 255);
@@ -130,7 +145,7 @@ static int _base64_decode_internal(const char *in,  unsigned long inlen,
 
 #if defined(LTC_BASE64)
 /**
-   Relaxed base64 decode a block of memory
+   Dangerously relaxed base64 decode a block of memory
    @param in       The base64 data to decode
    @param inlen    The length of the base64 data
    @param out      [out] The destination of the binary decoded data
@@ -140,7 +155,7 @@ static int _base64_decode_internal(const char *in,  unsigned long inlen,
 int base64_decode(const char *in,  unsigned long inlen,
                         unsigned char *out, unsigned long *outlen)
 {
-    return _base64_decode_internal(in, inlen, out, outlen, map_base64, relaxed);
+    return _base64_decode_internal(in, inlen, out, outlen, map_base64, insane);
 }
 
 /**
@@ -156,11 +171,25 @@ int base64_strict_decode(const char *in,  unsigned long inlen,
 {
    return _base64_decode_internal(in, inlen, out, outlen, map_base64, strict);
 }
+
+/**
+   Sane base64 decode a block of memory
+   @param in       The base64 data to decode
+   @param inlen    The length of the base64 data
+   @param out      [out] The destination of the binary decoded data
+   @param outlen   [in/out] The max size and resulting size of the decoded data
+   @return CRYPT_OK if successful
+*/
+int base64_sane_decode(const char *in,  unsigned long inlen,
+                        unsigned char *out, unsigned long *outlen)
+{
+   return _base64_decode_internal(in, inlen, out, outlen, map_base64, relaxed);
+}
 #endif /* LTC_BASE64 */
 
 #if defined(LTC_BASE64_URL)
 /**
-   Relaxed base64 (URL Safe, RFC 4648 section 5) decode a block of memory
+   Dangerously relaxed base64 (URL Safe, RFC 4648 section 5) decode a block of memory
    @param in       The base64 data to decode
    @param inlen    The length of the base64 data
    @param out      [out] The destination of the binary decoded data
@@ -170,7 +199,7 @@ int base64_strict_decode(const char *in,  unsigned long inlen,
 int base64url_decode(const char *in,  unsigned long inlen,
                            unsigned char *out, unsigned long *outlen)
 {
-    return _base64_decode_internal(in, inlen, out, outlen, map_base64url, relaxed);
+    return _base64_decode_internal(in, inlen, out, outlen, map_base64url, insane);
 }
 
 /**
@@ -185,6 +214,20 @@ int base64url_strict_decode(const char *in,  unsigned long inlen,
                            unsigned char *out, unsigned long *outlen)
 {
     return _base64_decode_internal(in, inlen, out, outlen, map_base64url, strict);
+}
+
+/**
+   Sane base64 (URL Safe, RFC 4648 section 5) decode a block of memory
+   @param in       The base64 data to decode
+   @param inlen    The length of the base64 data
+   @param out      [out] The destination of the binary decoded data
+   @param outlen   [in/out] The max size and resulting size of the decoded data
+   @return CRYPT_OK if successful
+*/
+int base64url_sane_decode(const char *in,  unsigned long inlen,
+                           unsigned char *out, unsigned long *outlen)
+{
+    return _base64_decode_internal(in, inlen, out, outlen, map_base64url, relaxed);
 }
 #endif /* LTC_BASE64_URL */
 

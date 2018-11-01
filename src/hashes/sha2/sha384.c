@@ -11,7 +11,7 @@
    LTC_SHA384 hash included in sha512.c, Tom St Denis
 */
 
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 #if defined(LTC_SHA384) && defined(LTC_SHA512)
 

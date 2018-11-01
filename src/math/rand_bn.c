@@ -6,9 +6,9 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  */
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
-#ifdef LTC_MDSA
+#if defined(LTC_MDSA) || defined(LTC_MECC)
 /**
   Generate a random number N with given bitlength (note: MSB can be 0)
 */

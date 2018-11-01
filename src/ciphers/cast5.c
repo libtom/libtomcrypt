@@ -11,7 +11,7 @@
    @file cast5.c
    Implementation of LTC_CAST5 (RFC 2144) by Tom St Denis
  */
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 #ifdef LTC_CAST5
 
@@ -508,7 +508,7 @@ INLINE static ulong32 FI(ulong32 R, ulong32 Km, ulong32 Kr)
    ulong32 I;
    I = (Km + R);
    I = ROL(I, Kr);
-   return ((S1[byte(I, 3)] ^ S2[byte(I,2)]) - S3[byte(I,1)]) + S4[byte(I,0)];
+   return ((S1[LTC_BYTE(I, 3)] ^ S2[LTC_BYTE(I,2)]) - S3[LTC_BYTE(I,1)]) + S4[LTC_BYTE(I,0)];
 }
 
 INLINE static ulong32 FII(ulong32 R, ulong32 Km, ulong32 Kr)
@@ -516,7 +516,7 @@ INLINE static ulong32 FII(ulong32 R, ulong32 Km, ulong32 Kr)
    ulong32 I;
    I = (Km ^ R);
    I = ROL(I, Kr);
-   return ((S1[byte(I, 3)] - S2[byte(I,2)]) + S3[byte(I,1)]) ^ S4[byte(I,0)];
+   return ((S1[LTC_BYTE(I, 3)] - S2[LTC_BYTE(I,2)]) + S3[LTC_BYTE(I,1)]) ^ S4[LTC_BYTE(I,0)];
 }
 
 INLINE static ulong32 FIII(ulong32 R, ulong32 Km, ulong32 Kr)
@@ -524,7 +524,7 @@ INLINE static ulong32 FIII(ulong32 R, ulong32 Km, ulong32 Kr)
    ulong32 I;
    I = (Km - R);
    I = ROL(I, Kr);
-   return ((S1[byte(I, 3)] + S2[byte(I,2)]) ^ S3[byte(I,1)]) - S4[byte(I,0)];
+   return ((S1[LTC_BYTE(I, 3)] + S2[LTC_BYTE(I,2)]) ^ S3[LTC_BYTE(I,1)]) - S4[LTC_BYTE(I,0)];
 }
 
 /**
@@ -534,9 +534,9 @@ INLINE static ulong32 FIII(ulong32 R, ulong32 Km, ulong32 Kr)
   @param skey The key as scheduled
 */
 #ifdef LTC_CLEAN_STACK
-static int _cast5_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
+static int _cast5_ecb_encrypt(const unsigned char *pt, unsigned char *ct, const symmetric_key *skey)
 #else
-int cast5_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
+int cast5_ecb_encrypt(const unsigned char *pt, unsigned char *ct, const symmetric_key *skey)
 #endif
 {
    ulong32 R, L;
@@ -572,7 +572,7 @@ int cast5_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key 
 
 
 #ifdef LTC_CLEAN_STACK
-int cast5_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
+int cast5_ecb_encrypt(const unsigned char *pt, unsigned char *ct, const symmetric_key *skey)
 {
    int err =_cast5_ecb_encrypt(pt,ct,skey);
    burn_stack(sizeof(ulong32)*3);
@@ -587,9 +587,9 @@ int cast5_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key 
   @param skey The key as scheduled
 */
 #ifdef LTC_CLEAN_STACK
-static int _cast5_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey)
+static int _cast5_ecb_decrypt(const unsigned char *ct, unsigned char *pt, const symmetric_key *skey)
 #else
-int cast5_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey)
+int cast5_ecb_decrypt(const unsigned char *ct, unsigned char *pt, const symmetric_key *skey)
 #endif
 {
    ulong32 R, L;
@@ -625,7 +625,7 @@ int cast5_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key 
 }
 
 #ifdef LTC_CLEAN_STACK
-int cast5_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey)
+int cast5_ecb_decrypt(const unsigned char *ct, unsigned char *pt, const symmetric_key *skey)
 {
    int err = _cast5_ecb_decrypt(ct,pt,skey);
    burn_stack(sizeof(ulong32)*3);
@@ -707,7 +707,8 @@ int cast5_keysize(int *keysize)
    LTC_ARGCHK(keysize != NULL);
    if (*keysize < 5) {
       return CRYPT_INVALID_KEYSIZE;
-   } else if (*keysize > 16) {
+   }
+   if (*keysize > 16) {
       *keysize = 16;
    }
    return CRYPT_OK;

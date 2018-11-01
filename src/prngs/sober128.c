@@ -7,7 +7,7 @@
  * guarantee it works.
  */
 
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 /**
  @file prngs/sober128.c
@@ -40,8 +40,8 @@ int sober128_start(prng_state *prng)
 {
    LTC_ARGCHK(prng != NULL);
    prng->ready = 0;
-   XMEMSET(&prng->sober128.ent, 0, sizeof(prng->sober128.ent));
-   prng->sober128.idx = 0;
+   XMEMSET(&prng->u.sober128.ent, 0, sizeof(prng->u.sober128.ent));
+   prng->u.sober128.idx = 0;
    LTC_MUTEX_INIT(&prng->lock)
    return CRYPT_OK;
 }
@@ -66,18 +66,18 @@ int sober128_add_entropy(const unsigned char *in, unsigned long inlen, prng_stat
    LTC_MUTEX_LOCK(&prng->lock);
    if (prng->ready) {
       /* sober128_ready() was already called, do "rekey" operation */
-      if ((err = sober128_stream_keystream(&prng->sober128.s, buf, sizeof(buf))) != CRYPT_OK) goto LBL_UNLOCK;
+      if ((err = sober128_stream_keystream(&prng->u.sober128.s, buf, sizeof(buf))) != CRYPT_OK) goto LBL_UNLOCK;
       for(i = 0; i < inlen; i++) buf[i % sizeof(buf)] ^= in[i];
       /* key 32 bytes, 20 rounds */
-      if ((err = sober128_stream_setup(&prng->sober128.s, buf, 32)) != CRYPT_OK)     goto LBL_UNLOCK;
+      if ((err = sober128_stream_setup(&prng->u.sober128.s, buf, 32)) != CRYPT_OK)     goto LBL_UNLOCK;
       /* iv 8 bytes */
-      if ((err = sober128_stream_setiv(&prng->sober128.s, buf + 32, 8)) != CRYPT_OK) goto LBL_UNLOCK;
+      if ((err = sober128_stream_setiv(&prng->u.sober128.s, buf + 32, 8)) != CRYPT_OK) goto LBL_UNLOCK;
       /* clear KEY + IV */
       zeromem(buf, sizeof(buf));
    }
    else {
       /* sober128_ready() was not called yet, add entropy to ent buffer */
-      while (inlen--) prng->sober128.ent[prng->sober128.idx++ % sizeof(prng->sober128.ent)] ^= *in++;
+      while (inlen--) prng->u.sober128.ent[prng->u.sober128.idx++ % sizeof(prng->u.sober128.ent)] ^= *in++;
    }
    err = CRYPT_OK;
 LBL_UNLOCK:
@@ -99,11 +99,11 @@ int sober128_ready(prng_state *prng)
    LTC_MUTEX_LOCK(&prng->lock);
    if (prng->ready)                                                            { err = CRYPT_OK; goto LBL_UNLOCK; }
    /* key 32 bytes, 20 rounds */
-   if ((err = sober128_stream_setup(&prng->sober128.s, prng->sober128.ent, 32)) != CRYPT_OK)     goto LBL_UNLOCK;
+   if ((err = sober128_stream_setup(&prng->u.sober128.s, prng->u.sober128.ent, 32)) != CRYPT_OK)     goto LBL_UNLOCK;
    /* iv 8 bytes */
-   if ((err = sober128_stream_setiv(&prng->sober128.s, prng->sober128.ent + 32, 8)) != CRYPT_OK) goto LBL_UNLOCK;
-   XMEMSET(&prng->sober128.ent, 0, sizeof(prng->sober128.ent));
-   prng->sober128.idx = 0;
+   if ((err = sober128_stream_setiv(&prng->u.sober128.s, prng->u.sober128.ent + 32, 8)) != CRYPT_OK) goto LBL_UNLOCK;
+   XMEMSET(&prng->u.sober128.ent, 0, sizeof(prng->u.sober128.ent));
+   prng->u.sober128.idx = 0;
    prng->ready = 1;
 LBL_UNLOCK:
    LTC_MUTEX_UNLOCK(&prng->lock);
@@ -122,7 +122,7 @@ unsigned long sober128_read(unsigned char *out, unsigned long outlen, prng_state
    if (outlen == 0 || prng == NULL || out == NULL) return 0;
    LTC_MUTEX_LOCK(&prng->lock);
    if (!prng->ready) { outlen = 0; goto LBL_UNLOCK; }
-   if (sober128_stream_keystream(&prng->sober128.s, out, outlen) != CRYPT_OK) outlen = 0;
+   if (sober128_stream_keystream(&prng->u.sober128.s, out, outlen) != CRYPT_OK) outlen = 0;
 LBL_UNLOCK:
    LTC_MUTEX_UNLOCK(&prng->lock);
    return outlen;
@@ -139,7 +139,7 @@ int sober128_done(prng_state *prng)
    LTC_ARGCHK(prng != NULL);
    LTC_MUTEX_LOCK(&prng->lock);
    prng->ready = 0;
-   err = sober128_stream_done(&prng->sober128.s);
+   err = sober128_stream_done(&prng->u.sober128.s);
    LTC_MUTEX_UNLOCK(&prng->lock);
    LTC_MUTEX_DESTROY(&prng->lock);
    return err;

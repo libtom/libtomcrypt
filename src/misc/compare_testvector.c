@@ -7,7 +7,7 @@
  * guarantee it works.
  */
 
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 /**
   @file compare_testvector.c
@@ -63,11 +63,11 @@ static void _print_hex(const char* what, const void* v, const unsigned long l)
 int compare_testvector(const void* is, const unsigned long is_len, const void* should, const unsigned long should_len, const char* what, int which)
 {
    int res = 0;
-   if(is_len != should_len)
+   if(is_len != should_len) {
       res = is_len > should_len ? -1 : 1;
-   else
+   } else {
       res = XMEMCMP(is, should, is_len);
-
+   }
 #if defined(LTC_TEST) && defined(LTC_TEST_DBG)
    if (res != 0) {
       fprintf(stderr, "Testvector #%i of %s failed:\n", which, what);

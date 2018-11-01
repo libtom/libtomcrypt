@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  */
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 
 /**
@@ -25,8 +25,8 @@
    @param type_of   LTC_ASN1_SEQUENCE or LTC_ASN1_SET/LTC_ASN1_SETOF
    @return CRYPT_OK on success
 */
-int der_encode_sequence_ex(ltc_asn1_list *list, unsigned long inlen,
-                           unsigned char *out,  unsigned long *outlen, int type_of)
+int der_encode_sequence_ex(const ltc_asn1_list *list, unsigned long inlen,
+                           unsigned char *out,        unsigned long *outlen, int type_of)
 {
    int           err;
    ltc_asn1_type type;

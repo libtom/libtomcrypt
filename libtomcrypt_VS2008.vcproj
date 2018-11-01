@@ -1036,6 +1036,10 @@
 				>
 			</File>
 			<File
+				RelativePath="src\headers\tomcrypt_private.h"
+				>
+			</File>
+			<File
 				RelativePath="src\headers\tomcrypt_prng.h"
 				>
 			</File>
@@ -1368,10 +1372,6 @@
 				>
 			</File>
 			<File
-				RelativePath="src\misc\pk_get_oid.c"
-				>
-			</File>
-			<File
 				RelativePath="src\misc\zeromem.c"
 				>
 			</File>
@@ -1564,6 +1564,34 @@
 				</File>
 			</Filter>
 			<Filter
+				Name="pbes"
+				>
+				<File
+					RelativePath="src\misc\pbes\pbes.c"
+					>
+				</File>
+				<File
+					RelativePath="src\misc\pbes\pbes1.c"
+					>
+				</File>
+				<File
+					RelativePath="src\misc\pbes\pbes2.c"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="pkcs12"
+				>
+				<File
+					RelativePath="src\misc\pkcs12\pkcs12_kdf.c"
+					>
+				</File>
+				<File
+					RelativePath="src\misc\pkcs12\pkcs12_utf8_to_utf16.c"
+					>
+				</File>
+			</Filter>
+			<Filter
 				Name="pkcs5"
 				>
 				<File
@@ -1576,6 +1604,18 @@
 				</File>
 				<File
 					RelativePath="src\misc\pkcs5\pkcs_5_test.c"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="ssh"
+				>
+				<File
+					RelativePath="src\misc\ssh\ssh_decode_sequence_multi.c"
+					>
+				</File>
+				<File
+					RelativePath="src\misc\ssh\ssh_encode_sequence_multi.c"
 					>
 				</File>
 			</Filter>
@@ -2127,6 +2167,30 @@
 					</Filter>
 				</Filter>
 				<Filter
+					Name="oid"
+					>
+					<File
+						RelativePath="src\pk\asn1\oid\pk_get_oid.c"
+						>
+					</File>
+					<File
+						RelativePath="src\pk\asn1\oid\pk_oid_cmp.c"
+						>
+					</File>
+					<File
+						RelativePath="src\pk\asn1\oid\pk_oid_str.c"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="pkcs8"
+					>
+					<File
+						RelativePath="src\pk\asn1\pkcs8\pkcs8_decode_flexi.c"
+						>
+					</File>
+				</Filter>
+				<Filter
 					Name="x509"
 					>
 					<File
@@ -2271,7 +2335,23 @@
 					>
 				</File>
 				<File
+					RelativePath="src\pk\ecc\ecc_export_openssl.c"
+					>
+				</File>
+				<File
+					RelativePath="src\pk\ecc\ecc_find_curve.c"
+					>
+				</File>
+				<File
 					RelativePath="src\pk\ecc\ecc_free.c"
+					>
+				</File>
+				<File
+					RelativePath="src\pk\ecc\ecc_get_key.c"
+					>
+				</File>
+				<File
+					RelativePath="src\pk\ecc\ecc_get_oid_str.c"
 					>
 				</File>
 				<File
@@ -2283,7 +2363,35 @@
 					>
 				</File>
 				<File
+					RelativePath="src\pk\ecc\ecc_import_openssl.c"
+					>
+				</File>
+				<File
+					RelativePath="src\pk\ecc\ecc_import_pkcs8.c"
+					>
+				</File>
+				<File
+					RelativePath="src\pk\ecc\ecc_import_x509.c"
+					>
+				</File>
+				<File
 					RelativePath="src\pk\ecc\ecc_make_key.c"
+					>
+				</File>
+				<File
+					RelativePath="src\pk\ecc\ecc_recover_key.c"
+					>
+				</File>
+				<File
+					RelativePath="src\pk\ecc\ecc_set_curve.c"
+					>
+				</File>
+				<File
+					RelativePath="src\pk\ecc\ecc_set_curve_internal.c"
+					>
+				</File>
+				<File
+					RelativePath="src\pk\ecc\ecc_set_key.c"
 					>
 				</File>
 				<File
@@ -2299,6 +2407,10 @@
 					>
 				</File>
 				<File
+					RelativePath="src\pk\ecc\ecc_ssh_ecdsa_encode_name.c"
+					>
+				</File>
+				<File
 					RelativePath="src\pk\ecc\ecc_test.c"
 					>
 				</File>
@@ -2307,7 +2419,19 @@
 					>
 				</File>
 				<File
-					RelativePath="src\pk\ecc\ltc_ecc_is_valid_idx.c"
+					RelativePath="src\pk\ecc\ltc_ecc_export_point.c"
+					>
+				</File>
+				<File
+					RelativePath="src\pk\ecc\ltc_ecc_import_point.c"
+					>
+				</File>
+				<File
+					RelativePath="src\pk\ecc\ltc_ecc_is_point.c"
+					>
+				</File>
+				<File
+					RelativePath="src\pk\ecc\ltc_ecc_is_point_at_infinity.c"
 					>
 				</File>
 				<File
@@ -2338,36 +2462,8 @@
 					RelativePath="src\pk\ecc\ltc_ecc_projective_dbl_point.c"
 					>
 				</File>
-			</Filter>
-			<Filter
-				Name="katja"
-				>
 				<File
-					RelativePath="src\pk\katja\katja_decrypt_key.c"
-					>
-				</File>
-				<File
-					RelativePath="src\pk\katja\katja_encrypt_key.c"
-					>
-				</File>
-				<File
-					RelativePath="src\pk\katja\katja_export.c"
-					>
-				</File>
-				<File
-					RelativePath="src\pk\katja\katja_exptmod.c"
-					>
-				</File>
-				<File
-					RelativePath="src\pk\katja\katja_free.c"
-					>
-				</File>
-				<File
-					RelativePath="src\pk\katja\katja_import.c"
-					>
-				</File>
-				<File
-					RelativePath="src\pk\katja\katja_make_key.c"
+					RelativePath="src\pk\ecc\ltc_ecc_verify_key.c"
 					>
 				</File>
 			</Filter>
@@ -2535,6 +2631,10 @@
 					>
 				</File>
 				<File
+					RelativePath="src\stream\chacha\chacha_memory.c"
+					>
+				</File>
+				<File
 					RelativePath="src\stream\chacha\chacha_setup.c"
 					>
 				</File>
@@ -2550,12 +2650,20 @@
 					RelativePath="src\stream\rabbit\rabbit.c"
 					>
 				</File>
+				<File
+					RelativePath="src\stream\rabbit\rabbit_memory.c"
+					>
+				</File>
 			</Filter>
 			<Filter
 				Name="rc4"
 				>
 				<File
 					RelativePath="src\stream\rc4\rc4_stream.c"
+					>
+				</File>
+				<File
+					RelativePath="src\stream\rc4\rc4_stream_memory.c"
 					>
 				</File>
 				<File
@@ -2583,11 +2691,27 @@
 					>
 				</File>
 				<File
+					RelativePath="src\stream\salsa20\salsa20_memory.c"
+					>
+				</File>
+				<File
 					RelativePath="src\stream\salsa20\salsa20_setup.c"
 					>
 				</File>
 				<File
 					RelativePath="src\stream\salsa20\salsa20_test.c"
+					>
+				</File>
+				<File
+					RelativePath="src\stream\salsa20\xsalsa20_memory.c"
+					>
+				</File>
+				<File
+					RelativePath="src\stream\salsa20\xsalsa20_setup.c"
+					>
+				</File>
+				<File
+					RelativePath="src\stream\salsa20\xsalsa20_test.c"
 					>
 				</File>
 			</Filter>
@@ -2596,6 +2720,10 @@
 				>
 				<File
 					RelativePath="src\stream\sober128\sober128_stream.c"
+					>
+				</File>
+				<File
+					RelativePath="src\stream\sober128\sober128_stream_memory.c"
 					>
 				</File>
 				<File
@@ -2652,6 +2780,10 @@
 				>
 				<File
 					RelativePath="src\stream\sosemanuk\sosemanuk.c"
+					>
+				</File>
+				<File
+					RelativePath="src\stream\sosemanuk\sosemanuk_memory.c"
 					>
 				</File>
 				<File

@@ -11,7 +11,7 @@
    @file ocb3_int_xor_blocks.c
    OCB implementation, INTERNAL ONLY helper, by Karel Miko
 */
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 #ifdef LTC_OCB3_MODE
 

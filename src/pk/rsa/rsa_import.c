@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  */
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 /**
   @file rsa_import.c
@@ -116,9 +116,9 @@ LBL_ERR:
    mp_clear_multi(key->d,  key->e, key->N, key->dQ, key->dP, key->qP, key->p, key->q, NULL);
 
 LBL_FREE:
-   if (tmpbuf != NULL)
-     XFREE(tmpbuf);
-
+   if (tmpbuf != NULL) {
+      XFREE(tmpbuf);
+   }
    return err;
 }
 

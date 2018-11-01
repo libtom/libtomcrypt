@@ -6,7 +6,7 @@ bash .ci/printinfo.sh
 make clean > /dev/null
 
 echo "checking..."
-./helper.pl --check-source --check-makefiles --check-defines|| exit 1
+./helper.pl --check-all || exit 1
 
 exit 0
 

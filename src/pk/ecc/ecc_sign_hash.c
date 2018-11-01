@@ -7,7 +7,7 @@
  * guarantee it works.
  */
 
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 #ifdef LTC_MECC
 
@@ -16,12 +16,27 @@
   ECC Crypto, Tom St Denis
 */
 
-static int _ecc_sign_hash(const unsigned char *in,  unsigned long inlen,
-                                unsigned char *out, unsigned long *outlen,
-                                prng_state *prng, int wprng, ecc_key *key, int sigformat)
+/**
+  Sign a message digest
+  @param in        The message digest to sign
+  @param inlen     The length of the digest
+  @param out       [out] The destination for the signature
+  @param outlen    [in/out] The max size and resulting size of the signature
+  @param prng      An active PRNG state
+  @param wprng     The index of the PRNG you wish to use
+  @param sigformat The format of the signature to generate (ecc_signature_type)
+  @param recid     [out] The recovery ID for this signature (optional)
+  @param key       A private ECC key
+  @return CRYPT_OK if successful
+*/
+int ecc_sign_hash_ex(const unsigned char *in,  unsigned long inlen,
+                     unsigned char *out, unsigned long *outlen,
+                     prng_state *prng, int wprng, ecc_signature_type sigformat,
+                     int *recid, const ecc_key *key)
 {
    ecc_key       pubkey;
-   void          *r, *s, *e, *p;
+   void          *r, *s, *e, *p, *b;
+   int           v = 0;
    int           err, max_iterations = LTC_PK_MAX_RETRIES;
    unsigned long pbits, pbytes, i, shift_right;
    unsigned char ch, buf[MAXBLOCKSIZE];
@@ -36,22 +51,13 @@ static int _ecc_sign_hash(const unsigned char *in,  unsigned long inlen,
       return CRYPT_PK_NOT_PRIVATE;
    }
 
-   /* is the IDX valid ?  */
-   if (ltc_ecc_is_valid_idx(key->idx) != 1) {
-      return CRYPT_PK_INVALID_TYPE;
-   }
-
-   if ((err = prng_is_valid(wprng)) != CRYPT_OK) {
-      return err;
-   }
-
    /* init the bignums */
-   if ((err = mp_init_multi(&r, &s, &p, &e, NULL)) != CRYPT_OK) {
+   if ((err = mp_init_multi(&r, &s, &e, &b, NULL)) != CRYPT_OK) {
       return err;
    }
-   if ((err = mp_read_radix(p, (char *)key->dp->order, 16)) != CRYPT_OK)              { goto errnokey; }
 
    /* get the hash and load it as a bignum into 'e' */
+   p = key->dp.order;
    pbits = mp_count_bits(p);
    pbytes = (pbits+7) >> 3;
    if (pbits > inlen*8) {
@@ -72,22 +78,36 @@ static int _ecc_sign_hash(const unsigned char *in,  unsigned long inlen,
 
    /* make up a key and export the public copy */
    do {
-      if ((err = ecc_make_key_ex(prng, wprng, &pubkey, key->dp)) != CRYPT_OK) {
-         goto errnokey;
-      }
+      if ((err = ecc_copy_curve(key, &pubkey)) != CRYPT_OK)                { goto errnokey; }
+      if ((err = ecc_generate_key(prng, wprng, &pubkey)) != CRYPT_OK)      { goto errnokey; }
 
       /* find r = x1 mod n */
-      if ((err = mp_mod(pubkey.pubkey.x, p, r)) != CRYPT_OK)                          { goto error; }
+      if ((err = mp_mod(pubkey.pubkey.x, p, r)) != CRYPT_OK)               { goto error; }
+
+      if (recid || sigformat==LTC_ECCSIG_ETH27) {
+         /* find recovery ID (if needed) */
+         v = 0;
+         if (mp_copy(pubkey.pubkey.x, s) != CRYPT_OK)                      { goto error; }
+         while (mp_cmp_d(s, 0) == LTC_MP_GT && mp_cmp(s, p) != LTC_MP_LT) {
+            /* Compute x1 div n... this will almost never be reached for curves with order 1 */
+            v += 2;
+            if ((err = mp_sub(s, p, s)) != CRYPT_OK)                       { goto error; }
+         }
+         if (mp_isodd(pubkey.pubkey.y)) v += 1;
+      }
 
       if (mp_iszero(r) == LTC_MP_YES) {
          ecc_free(&pubkey);
       } else {
+         if ((err = rand_bn_upto(b, p, prng, wprng)) != CRYPT_OK)          { goto error; } /* b = blinding value */
          /* find s = (e + xr)/k */
-         if ((err = mp_invmod(pubkey.k, p, pubkey.k)) != CRYPT_OK)         { goto error; } /* k = 1/k */
+         if ((err = mp_mulmod(pubkey.k, b, p, pubkey.k)) != CRYPT_OK)      { goto error; } /* k = kb */
+         if ((err = mp_invmod(pubkey.k, p, pubkey.k)) != CRYPT_OK)         { goto error; } /* k = 1/kb */
          if ((err = mp_mulmod(key->k, r, p, s)) != CRYPT_OK)               { goto error; } /* s = xr */
-         if ((err = mp_add(e, s, s)) != CRYPT_OK)                          { goto error; } /* s = e +  xr */
-         if ((err = mp_mod(s, p, s)) != CRYPT_OK)                          { goto error; } /* s = e +  xr */
-         if ((err = mp_mulmod(s, pubkey.k, p, s)) != CRYPT_OK)             { goto error; } /* s = (e + xr)/k */
+         if ((err = mp_mulmod(pubkey.k, s, p, s)) != CRYPT_OK)             { goto error; } /* s = xr/kb */
+         if ((err = mp_mulmod(pubkey.k, e, p, e)) != CRYPT_OK)             { goto error; } /* e = e/kb */
+         if ((err = mp_add(e, s, s)) != CRYPT_OK)                          { goto error; } /* s = e/kb + xr/kb */
+         if ((err = mp_mulmod(s, b, p, s)) != CRYPT_OK)                    { goto error; } /* s = b(e/kb + xr/kb) = (e + xr)/k */
          ecc_free(&pubkey);
          if (mp_iszero(s) == LTC_MP_NO) {
             break;
@@ -99,8 +119,17 @@ static int _ecc_sign_hash(const unsigned char *in,  unsigned long inlen,
       goto errnokey;
    }
 
-   if (sigformat == 1) {
-      /* RFC7518 format */
+   if (recid) *recid = v;
+
+   if (sigformat == LTC_ECCSIG_ANSIX962) {
+      /* store as ASN.1 SEQUENCE { r, s -- integer } */
+      err = der_encode_sequence_multi(out, outlen,
+                               LTC_ASN1_INTEGER, 1UL, r,
+                               LTC_ASN1_INTEGER, 1UL, s,
+                               LTC_ASN1_EOL, 0UL, NULL);
+   }
+   else if (sigformat == LTC_ECCSIG_RFC7518) {
+      /* RFC7518 format - raw (r,s) */
       if (*outlen < 2*pbytes) { err = CRYPT_MEM; goto errnokey; }
       zeromem(out, 2*pbytes);
       i = mp_unsigned_bin_size(r);
@@ -110,55 +139,49 @@ static int _ecc_sign_hash(const unsigned char *in,  unsigned long inlen,
       *outlen = 2*pbytes;
       err = CRYPT_OK;
    }
-   else {
-      /* store as ASN.1 SEQUENCE { r, s -- integer } */
-      err = der_encode_sequence_multi(out, outlen,
-                               LTC_ASN1_INTEGER, 1UL, r,
-                               LTC_ASN1_INTEGER, 1UL, s,
-                               LTC_ASN1_EOL, 0UL, NULL);
+   else if (sigformat == LTC_ECCSIG_ETH27) {
+      /* Ethereum (v,r,s) format */
+      if (pk_oid_cmp_with_ulong("1.3.132.0.10", key->dp.oid, key->dp.oidlen) != CRYPT_OK) {
+         /* Only valid for secp256k1 - OID 1.3.132.0.10 */
+         err = CRYPT_ERROR; goto errnokey;
+      }
+      if (*outlen < 65) { err = CRYPT_MEM; goto errnokey; }
+      zeromem(out, 65);
+      i = mp_unsigned_bin_size(r);
+      if ((err = mp_to_unsigned_bin(r, out + 32 - i)) != CRYPT_OK) { goto errnokey; }
+      i = mp_unsigned_bin_size(s);
+      if ((err = mp_to_unsigned_bin(s, out + 64 - i)) != CRYPT_OK) { goto errnokey; }
+      out[64] = (unsigned char)(v + 27); /* Recovery ID is 27/28 for Ethereum */
+      *outlen = 65;
+      err = CRYPT_OK;
    }
+#ifdef LTC_SSH
+   else if (sigformat == LTC_ECCSIG_RFC5656) {
+      /* Get identifier string */
+      char name[64];
+      unsigned long namelen = sizeof(name);
+      if ((err = ecc_ssh_ecdsa_encode_name(name, &namelen, key)) != CRYPT_OK) { goto errnokey; }
+
+      /* Store as SSH data sequence, per RFC4251 */
+      err = ssh_encode_sequence_multi(out, outlen,
+                                      LTC_SSHDATA_STRING, name,
+                                      LTC_SSHDATA_MPINT,  r,
+                                      LTC_SSHDATA_MPINT,  s,
+                                      LTC_SSHDATA_EOL,    NULL);
+   }
+#endif
+   else {
+      /* Unknown signature format */
+      err = CRYPT_ERROR;
+      goto error;
+   }
+
    goto errnokey;
 error:
    ecc_free(&pubkey);
 errnokey:
-   mp_clear_multi(r, s, p, e, NULL);
+   mp_clear_multi(r, s, e, b, NULL);
    return err;
-}
-
-/**
-  Sign a message digest
-  @param in        The message digest to sign
-  @param inlen     The length of the digest
-  @param out       [out] The destination for the signature
-  @param outlen    [in/out] The max size and resulting size of the signature
-  @param prng      An active PRNG state
-  @param wprng     The index of the PRNG you wish to use
-  @param key       A private ECC key
-  @return CRYPT_OK if successful
-*/
-int ecc_sign_hash(const unsigned char *in,  unsigned long inlen,
-                        unsigned char *out, unsigned long *outlen,
-                        prng_state *prng, int wprng, ecc_key *key)
-{
-   return _ecc_sign_hash(in, inlen, out, outlen, prng, wprng, key, 0);
-}
-
-/**
-  Sign a message digest in RFC7518 format
-  @param in        The message digest to sign
-  @param inlen     The length of the digest
-  @param out       [out] The destination for the signature
-  @param outlen    [in/out] The max size and resulting size of the signature
-  @param prng      An active PRNG state
-  @param wprng     The index of the PRNG you wish to use
-  @param key       A private ECC key
-  @return CRYPT_OK if successful
-*/
-int ecc_sign_hash_rfc7518(const unsigned char *in,  unsigned long inlen,
-                                unsigned char *out, unsigned long *outlen,
-                                prng_state *prng, int wprng, ecc_key *key)
-{
-   return _ecc_sign_hash(in, inlen, out, outlen, prng, wprng, key, 1);
 }
 
 #endif

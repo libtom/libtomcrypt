@@ -11,7 +11,7 @@
    @file gcm_add_iv.c
    GCM implementation, add IV data to the state, by Tom St Denis
 */
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 #ifdef LTC_GCM_MODE
 

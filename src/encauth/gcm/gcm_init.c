@@ -11,7 +11,7 @@
    @file gcm_init.c
    GCM implementation, initialize state, by Tom St Denis
 */
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 #ifdef LTC_GCM_MODE
 

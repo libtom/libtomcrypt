@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  */
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 /**
   @file rsa_encrypt_key.c
@@ -30,10 +30,12 @@
     @param key         The RSA key to encrypt to
     @return CRYPT_OK if successful
 */
-int rsa_encrypt_key_ex(const unsigned char *in,     unsigned long inlen,
-                             unsigned char *out,    unsigned long *outlen,
-                       const unsigned char *lparam, unsigned long lparamlen,
-                       prng_state *prng, int prng_idx, int hash_idx, int padding, rsa_key *key)
+int rsa_encrypt_key_ex(const unsigned char *in,       unsigned long  inlen,
+                             unsigned char *out,      unsigned long *outlen,
+                       const unsigned char *lparam,   unsigned long  lparamlen,
+                             prng_state    *prng,     int            prng_idx,
+                             int            hash_idx, int            padding,
+                       const rsa_key       *key)
 {
   unsigned long modulus_bitlen, modulus_bytelen, x;
   int           err;

@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  */
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 /**
   @file rsa_sign_hash.c
@@ -34,7 +34,7 @@ int rsa_sign_hash_ex(const unsigned char *in,       unsigned long  inlen,
                            int            padding,
                            prng_state    *prng,     int            prng_idx,
                            int            hash_idx, unsigned long  saltlen,
-                           rsa_key *key)
+                     const rsa_key *key)
 {
    unsigned long modulus_bitlen, modulus_bytelen, x, y;
    int           err;

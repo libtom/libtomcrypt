@@ -11,7 +11,7 @@
    @file saferp.c
    LTC_SAFER+ Implementation by Tom St Denis
 */
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 #ifdef LTC_SAFERP
 
@@ -143,12 +143,12 @@ const struct ltc_cipher_descriptor saferp_desc =
 
 #ifdef LTC_SMALL_CODE
 
-static void _round(unsigned char *b, int i, symmetric_key *skey)
+static void _round(unsigned char *b, int i, const symmetric_key *skey)
 {
    ROUND(b, i);
 }
 
-static void _iround(unsigned char *b, int i, symmetric_key *skey)
+static void _iround(unsigned char *b, int i, const symmetric_key *skey)
 {
    iROUND(b, i);
 }
@@ -338,7 +338,7 @@ int saferp_setup(const unsigned char *key, int keylen, int num_rounds, symmetric
   @param skey The key as scheduled
   @return CRYPT_OK if successful
 */
-int saferp_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
+int saferp_ecb_encrypt(const unsigned char *pt, unsigned char *ct, const symmetric_key *skey)
 {
    unsigned char b[16];
    int x;
@@ -402,7 +402,7 @@ int saferp_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key
   @param skey The key as scheduled
   @return CRYPT_OK if successful
 */
-int saferp_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey)
+int saferp_ecb_decrypt(const unsigned char *ct, unsigned char *pt, const symmetric_key *skey)
 {
    unsigned char b[16];
    int x;
@@ -547,8 +547,9 @@ int saferp_keysize(int *keysize)
 {
    LTC_ARGCHK(keysize != NULL);
 
-   if (*keysize < 16)
+   if (*keysize < 16) {
       return CRYPT_INVALID_KEYSIZE;
+   }
    if (*keysize < 24) {
       *keysize = 16;
    } else if (*keysize < 32) {

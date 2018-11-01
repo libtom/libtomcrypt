@@ -11,7 +11,7 @@
    @file gcm_mult_h.c
    GCM implementation, do the GF mult, by Tom St Denis
 */
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 #if defined(LTC_GCM_MODE)
 /**
@@ -19,7 +19,7 @@
   @param gcm   The GCM state which holds the H value
   @param I     The value to multiply H by
  */
-void gcm_mult_h(gcm_state *gcm, unsigned char *I)
+void gcm_mult_h(const gcm_state *gcm, unsigned char *I)
 {
    unsigned char T[16];
 #ifdef LTC_GCM_TABLES

@@ -7,12 +7,7 @@
  * guarantee it works.
  */
 
-/* Implements ECC over Z/pZ for curve y^2 = x^3 - 3x + b
- *
- * All curves taken from NIST recommendation paper of July 1999
- * Available at http://csrc.nist.gov/cryptval/dss.htm
- */
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 /**
   @file ltc_ecc_mul2add.c
@@ -28,17 +23,20 @@
   @param kA       What to multiple A by
   @param B        Second point to multiply
   @param kB       What to multiple B by
-  @param C        [out] Destination point (can overlap with A or B
+  @param C        [out] Destination point (can overlap with A or B)
+  @param ma       ECC curve parameter a in montgomery form
   @param modulus  Modulus for curve
   @return CRYPT_OK on success
 */
-int ltc_ecc_mul2add(ecc_point *A, void *kA,
-                    ecc_point *B, void *kB,
-                    ecc_point *C,
-                         void *modulus)
+int ltc_ecc_mul2add(const ecc_point *A, void *kA,
+                    const ecc_point *B, void *kB,
+                          ecc_point *C,
+                               void *ma,
+                               void *modulus)
 {
   ecc_point     *precomp[16];
-  unsigned       bitbufA, bitbufB, lenA, lenB, len, x, y, nA, nB, nibble;
+  unsigned       bitbufA, bitbufB, lenA, lenB, len, nA, nB, nibble;
+  unsigned       x, y;
   unsigned char *tA, *tB;
   int            err, first;
   void          *mp, *mu;
@@ -112,17 +110,17 @@ int ltc_ecc_mul2add(ecc_point *A, void *kA,
   if ((err = mp_mulmod(B->z, mu, modulus, precomp[1<<2]->z)) != CRYPT_OK)                                      { goto ERR_MU; }
 
   /* precomp [i,0](A + B) table */
-  if ((err = ltc_mp.ecc_ptdbl(precomp[1], precomp[2], modulus, mp)) != CRYPT_OK)                               { goto ERR_MU; }
-  if ((err = ltc_mp.ecc_ptadd(precomp[1], precomp[2], precomp[3], modulus, mp)) != CRYPT_OK)                   { goto ERR_MU; }
+  if ((err = ltc_mp.ecc_ptdbl(precomp[1], precomp[2], ma, modulus, mp)) != CRYPT_OK)                           { goto ERR_MU; }
+  if ((err = ltc_mp.ecc_ptadd(precomp[1], precomp[2], precomp[3], ma, modulus, mp)) != CRYPT_OK)               { goto ERR_MU; }
 
   /* precomp [0,i](A + B) table */
-  if ((err = ltc_mp.ecc_ptdbl(precomp[1<<2], precomp[2<<2], modulus, mp)) != CRYPT_OK)                         { goto ERR_MU; }
-  if ((err = ltc_mp.ecc_ptadd(precomp[1<<2], precomp[2<<2], precomp[3<<2], modulus, mp)) != CRYPT_OK)          { goto ERR_MU; }
+  if ((err = ltc_mp.ecc_ptdbl(precomp[1<<2], precomp[2<<2], ma, modulus, mp)) != CRYPT_OK)                     { goto ERR_MU; }
+  if ((err = ltc_mp.ecc_ptadd(precomp[1<<2], precomp[2<<2], precomp[3<<2], ma, modulus, mp)) != CRYPT_OK)      { goto ERR_MU; }
 
   /* precomp [i,j](A + B) table (i != 0, j != 0) */
   for (x = 1; x < 4; x++) {
      for (y = 1; y < 4; y++) {
-        if ((err = ltc_mp.ecc_ptadd(precomp[x], precomp[(y<<2)], precomp[x+(y<<2)], modulus, mp)) != CRYPT_OK) { goto ERR_MU; }
+        if ((err = ltc_mp.ecc_ptadd(precomp[x], precomp[(y<<2)], precomp[x+(y<<2)], ma, modulus, mp)) != CRYPT_OK) { goto ERR_MU; }
      }
   }
 
@@ -156,8 +154,8 @@ int ltc_ecc_mul2add(ecc_point *A, void *kA,
      /* double twice, only if this isn't the first */
      if (first == 0) {
         /* double twice */
-        if ((err = ltc_mp.ecc_ptdbl(C, C, modulus, mp)) != CRYPT_OK)                  { goto ERR_MU; }
-        if ((err = ltc_mp.ecc_ptdbl(C, C, modulus, mp)) != CRYPT_OK)                  { goto ERR_MU; }
+        if ((err = ltc_mp.ecc_ptdbl(C, C, ma, modulus, mp)) != CRYPT_OK)              { goto ERR_MU; }
+        if ((err = ltc_mp.ecc_ptdbl(C, C, ma, modulus, mp)) != CRYPT_OK)              { goto ERR_MU; }
      }
 
      /* if not both zero */
@@ -165,12 +163,10 @@ int ltc_ecc_mul2add(ecc_point *A, void *kA,
         if (first == 1) {
            /* if first, copy from table */
            first = 0;
-           if ((err = mp_copy(precomp[nA + (nB<<2)]->x, C->x)) != CRYPT_OK)           { goto ERR_MU; }
-           if ((err = mp_copy(precomp[nA + (nB<<2)]->y, C->y)) != CRYPT_OK)           { goto ERR_MU; }
-           if ((err = mp_copy(precomp[nA + (nB<<2)]->z, C->z)) != CRYPT_OK)           { goto ERR_MU; }
+           if ((err = ltc_ecc_copy_point(precomp[nA + (nB<<2)], C)) != CRYPT_OK)      { goto ERR_MU; }
         } else {
            /* if not first, add from table */
-           if ((err = ltc_mp.ecc_ptadd(C, precomp[nA + (nB<<2)], C, modulus, mp)) != CRYPT_OK) { goto ERR_MU; }
+           if ((err = ltc_mp.ecc_ptadd(C, precomp[nA + (nB<<2)], C, ma, modulus, mp)) != CRYPT_OK) { goto ERR_MU; }
         }
      }
   }

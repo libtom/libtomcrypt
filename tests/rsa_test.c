@@ -10,8 +10,6 @@
 
 #if defined(LTC_MRSA)
 
-#define RSA_MSGSIZE 78
-
 /* These are test keys [see file test.key] that I use to test my import/export against */
 static const unsigned char openssl_private_rsa[] = {
    0x30, 0x82, 0x02, 0x5e, 0x02, 0x01, 0x00, 0x02, 0x81, 0x81, 0x00, 0xcf, 0x9a, 0xde, 0x64, 0x8a,
@@ -329,81 +327,27 @@ static int _rsa_issue_301(int prng_idx)
    return CRYPT_OK;
 }
 
-#if !((defined(_WIN32) || defined(_WIN32_WCE)) && !defined(__GNUC__))
-
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <dirent.h>
-
-static off_t fsize(const char *filename)
+#ifdef LTC_TEST_READDIR
+static int _rsa_import_x509(const void *in, unsigned long inlen, void *key)
 {
-   struct stat st;
-
-   if (stat(filename, &st) == 0) return st.st_size;
-
-   return -1;
-}
-
-static int _rsa_size_test(void)
-{
-   DIR *d = opendir("tests/rsa");
-   struct dirent *de;
-   char fname[PATH_MAX];
-   void* buf = NULL;
-   FILE *f = NULL;
-   off_t fsz;
-   unsigned long sz;
-   int err = CRYPT_FILE_NOTFOUND;
-   rsa_key k;
-   if (d == NULL)
-      return CRYPT_FILE_NOTFOUND;
-   while((de = readdir(d)) != NULL) {
-      fname[0] = '\0';
-      if (strcmp(de->d_name, ".") == 0 || strcmp(de->d_name, "..") == 0)
-         continue;
-      strcat(fname, "tests/rsa/");
-      strcat(fname, de->d_name);
-      fsz = fsize(fname);
-      if (fsz == -1)
-         break;
-      /* here we use the filesize as indicator for the rsa size
-       * that would fail to import for tfm because it's fixed-size
-       */
-      if ((strcmp(ltc_mp.name, "TomsFastMath") == 0) && (fsz > 2048)) {
+   /* here we use the filesize as indicator for the rsa size
+    * that would fail to import for tfm because it's fixed-size
+    */
+   if ((strcmp(ltc_mp.name, "TomsFastMath") == 0) && (inlen > 2048)) {
 #if defined(LTC_TEST_DBG) && LTC_TEST_DBG > 1
-         fprintf(stderr, "TomsFastMath skip: %s\n", fname);
+      fprintf(stderr, "Skipping testcase because of TomsFastMath\n");
 #endif
-         continue;
-      }
-#if defined(LTC_TEST_DBG) && LTC_TEST_DBG > 1
-      fprintf(stderr, "Try to import %s\n", fname);
-#endif
-      f = fopen(fname, "rb");
-      sz = fsz;
-      buf = XMALLOC(fsz);
-      if (fread(buf, 1, sz, f) != sz) {
-         err = CRYPT_ERROR;
-         break;
-      }
-
-      if ((err = rsa_import_x509(buf, sz, &k)) == CRYPT_OK) {
-         rsa_free(&k);
-      } else {
-#if defined(LTC_TEST_DBG)
-         fprintf(stderr, "Could not import RSA key of %s: %s\n\n", fname, error_to_string(err));
-#endif
-         break;
-      }
-      XFREE(buf);
-      buf = NULL;
-      fclose(f);
-      f = NULL;
+      return CRYPT_NOP;
    }
-   if (buf != NULL) XFREE(buf);
-   if (f != NULL) fclose(f);
-   closedir(d);
-   return err;
+   return rsa_import_x509(in, inlen, key);
 }
+
+#if defined(LTC_MD2) && defined(LTC_MD5) && defined(LTC_RC2)
+static int _rsa_import_pkcs8(const void *in, unsigned long inlen, void *key)
+{
+   return rsa_import_pkcs8(in, inlen, "secret", 6, key);
+}
+#endif
 #endif
 
 int rsa_test(void)
@@ -431,8 +375,11 @@ int rsa_test(void)
       return 1;
    }
 
-#if !((defined(_WIN32) || defined(_WIN32_WCE)) && !defined(__GNUC__))
-   DO(_rsa_size_test());
+#ifdef LTC_TEST_READDIR
+   DO(test_process_dir("tests/rsa", &key, _rsa_import_x509, (dir_cleanup_cb)rsa_free, "rsa_test"));
+#if defined(LTC_MD2) && defined(LTC_MD5) && defined(LTC_RC2)
+   DO(test_process_dir("tests/rsa-pkcs8", &key, _rsa_import_pkcs8, (dir_cleanup_cb)rsa_free, "rsa_pkcs8_test"));
+#endif
 #endif
 
    DO(_rsa_issue_301(prng_idx));

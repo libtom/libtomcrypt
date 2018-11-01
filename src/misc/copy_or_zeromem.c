@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  */
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 /**
    @file copy_or_zeromem.c
@@ -25,12 +25,12 @@ void copy_or_zeromem(const unsigned char* src, unsigned char* dest, unsigned lon
    unsigned long y;
 #ifdef LTC_FAST
    unsigned long z;
-   LTC_FAST_TYPE fastMask = ~0; /* initialize fastMask at all ones */
+   LTC_FAST_TYPE fastMask = ~(LTC_FAST_TYPE)0; /* initialize fastMask at all ones */
 #endif
    unsigned char mask = 0xff; /* initialize mask at all ones */
 
-   LTC_ARGCHK(src  != NULL);
-   LTC_ARGCHK(dest != NULL);
+   LTC_ARGCHKVD(src  != NULL);
+   LTC_ARGCHKVD(dest != NULL);
 
    if (coz != 0) coz = 1;
    y = 0;

@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  */
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 #ifdef LTC_MPI
 #include <stdarg.h>
@@ -67,7 +67,6 @@ void ltc_cleanup_multi(void **a, ...)
       cur = va_arg(args, void**);
    }
    va_end(args);
-   return;
 }
 
 #endif

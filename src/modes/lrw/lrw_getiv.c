@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  */
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 /**
    @file lrw_getiv.c
@@ -22,7 +22,7 @@
   @param lrw     The LRW state to read
   @return CRYPT_OK if successful
 */
-int lrw_getiv(unsigned char *IV, unsigned long *len, symmetric_LRW *lrw)
+int lrw_getiv(unsigned char *IV, unsigned long *len, const symmetric_LRW *lrw)
 {
    LTC_ARGCHK(IV != NULL);
    LTC_ARGCHK(len != NULL);

@@ -7,12 +7,7 @@
  * guarantee it works.
  */
 
-/* Implements ECC over Z/pZ for curve y^2 = x^3 - 3x + b
- *
- * All curves taken from NIST recommendation paper of July 1999
- * Available at http://csrc.nist.gov/cryptval/dss.htm
- */
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 /**
   @file ltc_ecc_projective_add_point.c
@@ -26,14 +21,15 @@
    @param P        The point to add
    @param Q        The point to add
    @param R        [out] The destination of the double
+   @param ma       ECC curve parameter a in montgomery form
    @param modulus  The modulus of the field the ECC curve is in
    @param mp       The "b" value from montgomery_setup()
    @return CRYPT_OK on success
 */
-int ltc_ecc_projective_add_point(ecc_point *P, ecc_point *Q, ecc_point *R, void *modulus, void *mp)
+int ltc_ecc_projective_add_point(const ecc_point *P, const ecc_point *Q, ecc_point *R, void *ma, void *modulus, void *mp)
 {
    void  *t1, *t2, *x, *y, *z;
-   int    err;
+   int    err, inf;
 
    LTC_ARGCHK(P       != NULL);
    LTC_ARGCHK(Q       != NULL);
@@ -45,14 +41,32 @@ int ltc_ecc_projective_add_point(ecc_point *P, ecc_point *Q, ecc_point *R, void 
       return err;
    }
 
-   /* should we dbl instead? */
-   if ((err = mp_sub(modulus, Q->y, t1)) != CRYPT_OK)                          { goto done; }
+   if ((err = ltc_ecc_is_point_at_infinity(P, modulus, &inf)) != CRYPT_OK) return err;
+   if (inf) {
+      /* P is point at infinity >> Result = Q */
+      err = ltc_ecc_copy_point(Q, R);
+      goto done;
+   }
 
-   if ( (mp_cmp(P->x, Q->x) == LTC_MP_EQ) &&
-        (Q->z != NULL && mp_cmp(P->z, Q->z) == LTC_MP_EQ) &&
-        (mp_cmp(P->y, Q->y) == LTC_MP_EQ || mp_cmp(P->y, t1) == LTC_MP_EQ)) {
-        mp_clear_multi(t1, t2, x, y, z, NULL);
-        return ltc_ecc_projective_dbl_point(P, R, modulus, mp);
+   if ((err = ltc_ecc_is_point_at_infinity(Q, modulus, &inf)) != CRYPT_OK) return err;
+   if (inf) {
+      /* Q is point at infinity >> Result = P */
+      err = ltc_ecc_copy_point(P, R);
+      goto done;
+   }
+
+   if ((mp_cmp(P->x, Q->x) == LTC_MP_EQ) && (mp_cmp(P->z, Q->z) == LTC_MP_EQ)) {
+      if (mp_cmp(P->y, Q->y) == LTC_MP_EQ) {
+         /* here P = Q >> Result = 2 * P (use doubling) */
+         mp_clear_multi(t1, t2, x, y, z, NULL);
+         return ltc_ecc_projective_dbl_point(P, R, ma, modulus, mp);
+      }
+      if ((err = mp_sub(modulus, Q->y, t1)) != CRYPT_OK)                       { goto done; }
+      if (mp_cmp(P->y, t1) == LTC_MP_EQ) {
+         /* here Q = -P >>> Result = the point at infinity */
+         err = ltc_ecc_set_point_xyz(1, 1, 0, R);
+         goto done;
+      }
    }
 
    if ((err = mp_copy(P->x, x)) != CRYPT_OK)                                   { goto done; }

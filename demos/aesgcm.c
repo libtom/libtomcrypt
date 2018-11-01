@@ -39,15 +39,27 @@ static off_t fsize(const char *filename)
    return -1;
 }
 
+#if defined(__linux__) && defined(__GLIBC_PREREQ)
+#if __GLIBC_PREREQ(2, 14)
+#define HAS_SYNCFS
+#endif
+#endif
+
 static int mv(const char *old_name, const char *new_name)
 {
    int fd;
    if (rename(old_name, new_name) == -1) return -1;
    fd = open(new_name, 0);
    if (fd == -1) return -1;
+#if !defined(_WIN32)
    if (fsync(fd) != 0) goto OUT;
+#if defined(HAS_SYNCFS)
    syncfs(fd);
+#else
+   sync();
+#endif
 OUT:
+#endif
    close(fd);
    return 0;
 }

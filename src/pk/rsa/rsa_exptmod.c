@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  */
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 /**
   @file rsa_exptmod.c
@@ -28,7 +28,7 @@
 */
 int rsa_exptmod(const unsigned char *in,   unsigned long inlen,
                       unsigned char *out,  unsigned long *outlen, int which,
-                      rsa_key *key)
+                const rsa_key *key)
 {
    void        *tmp, *tmpa, *tmpb;
    #ifdef LTC_RSA_BLINDING

@@ -12,7 +12,7 @@
  * Public domain from D. J. Bernstein
  */
 
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 #ifdef LTC_CHACHA
 
@@ -40,25 +40,38 @@ int chacha_test(void)
    int err;
 
    len = strlen(pt);
-   /* crypt piece by piece */
+
+   /* crypt piece by piece - using chacha_ivctr32() */
    if ((err = chacha_setup(&st, k, sizeof(k), 20)) != CRYPT_OK)                            return err;
    if ((err = chacha_ivctr32(&st, n, sizeof(n), 1)) != CRYPT_OK)                           return err;
-   if ((err = chacha_crypt(&st, (unsigned char*)pt,      35,       out)) != CRYPT_OK)      return err;
+   if ((err = chacha_crypt(&st, (unsigned char*)pt,      35,       out     )) != CRYPT_OK) return err;
    if ((err = chacha_crypt(&st, (unsigned char*)pt + 35, 35,       out + 35)) != CRYPT_OK) return err;
    if ((err = chacha_crypt(&st, (unsigned char*)pt + 70,  5,       out + 70)) != CRYPT_OK) return err;
    if ((err = chacha_crypt(&st, (unsigned char*)pt + 75,  5,       out + 75)) != CRYPT_OK) return err;
    if ((err = chacha_crypt(&st, (unsigned char*)pt + 80, len - 80, out + 80)) != CRYPT_OK) return err;
    if (compare_testvector(out, len, ct, sizeof(ct), "CHACHA-TV1", 1))                      return CRYPT_FAIL_TESTVECTOR;
-   /* crypt in one go */
+
+   /* crypt in one go - using chacha_ivctr32() */
    if ((err = chacha_setup(&st, k, sizeof(k), 20)) != CRYPT_OK)                            return err;
    if ((err = chacha_ivctr32(&st, n, sizeof(n), 1)) != CRYPT_OK)                           return err;
    if ((err = chacha_crypt(&st, (unsigned char*)pt, len, out)) != CRYPT_OK)                return err;
    if (compare_testvector(out, len, ct, sizeof(ct), "CHACHA-TV2", 1))                      return CRYPT_FAIL_TESTVECTOR;
+
    /* crypt in one go - using chacha_ivctr64() */
    if ((err = chacha_setup(&st, k, sizeof(k), 20)) != CRYPT_OK)                            return err;
    if ((err = chacha_ivctr64(&st, n + 4, sizeof(n) - 4, 1)) != CRYPT_OK)                   return err;
    if ((err = chacha_crypt(&st, (unsigned char*)pt, len, out)) != CRYPT_OK)                return err;
    if (compare_testvector(out, len, ct, sizeof(ct), "CHACHA-TV3", 1))                      return CRYPT_FAIL_TESTVECTOR;
+
+   /* crypt in a single call using 32-bit counter with a value of 1 */
+   if ((err = chacha_memory(k, sizeof(k), 20,
+                            n, sizeof(n), 1, (unsigned char*)pt, len, out)) != CRYPT_OK)   return err;
+   if (compare_testvector(out, len, ct, sizeof(ct), "CHACHA-TV4", 1))                      return CRYPT_FAIL_TESTVECTOR;
+
+   /* crypt in a single call using 64-bit counter with a value of 1 */
+   if ((err = chacha_memory(k, sizeof(k), 20,
+                            n + 4, sizeof(n) - 4, 1, (unsigned char*)pt, len, out)) != CRYPT_OK)  return err;
+   if (compare_testvector(out, len, ct, sizeof(ct), "CHACHA-TV5", 1))                      return CRYPT_FAIL_TESTVECTOR;
 
    return CRYPT_OK;
 #endif

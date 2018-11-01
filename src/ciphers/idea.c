@@ -22,7 +22,7 @@
    and Japan (JP 3225440) (expired May 16, 2011).
  */
 
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 #ifdef LTC_IDEA
 
@@ -104,7 +104,7 @@ static int _setup_key(const unsigned char *key, symmetric_key *skey)
    return CRYPT_OK;
 }
 
-static int _process_block(const unsigned char *in, unsigned char *out, ushort16 *m_key)
+static int _process_block(const unsigned char *in, unsigned char *out, const ushort16 *m_key)
 {
    int i;
    ushort16 x0, x1, x2, x3, t0, t1;
@@ -155,7 +155,7 @@ int idea_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_k
    return _setup_key(key, skey);
 }
 
-int idea_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
+int idea_ecb_encrypt(const unsigned char *pt, unsigned char *ct, const symmetric_key *skey)
 {
    int err = _process_block(pt, ct, skey->idea.ek);
 #ifdef LTC_CLEAN_STACK
@@ -164,7 +164,7 @@ int idea_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *
    return err;
 }
 
-int idea_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey)
+int idea_ecb_decrypt(const unsigned char *ct, unsigned char *pt, const symmetric_key *skey)
 {
    int err = _process_block(ct, pt, skey->idea.dk);
 #ifdef LTC_CLEAN_STACK

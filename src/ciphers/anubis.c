@@ -13,7 +13,7 @@
   Authors: Paulo S.L.M. Barreto and Vincent Rijmen.
 */
 
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 #ifdef LTC_ANUBIS
 
@@ -30,15 +30,7 @@ const struct ltc_cipher_descriptor anubis_desc = {
    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
 };
 
-#define MIN_N           4
 #define MAX_N           10
-#define MIN_ROUNDS      (8 + MIN_N)
-#define MAX_ROUNDS      (8 + MAX_N)
-#define MIN_KEYSIZEB    (4*MIN_N)
-#define MAX_KEYSIZEB    (4*MAX_N)
-#define BLOCKSIZE       128
-#define BLOCKSIZEB      (BLOCKSIZE/8)
-
 
 /*
  * Though Anubis is endianness-neutral, the encryption tables are listed
@@ -1035,7 +1027,7 @@ int  anubis_setup(const unsigned char *key, int keylen, int num_rounds, symmetri
 
 
 static void anubis_crypt(const unsigned char *plaintext, unsigned char *ciphertext,
-                         ulong32 roundKey[18 + 1][4], int R) {
+                         const ulong32 roundKey[18 + 1][4], int R) {
    int i, pos, r;
    ulong32 state[4];
    ulong32 inter[4];
@@ -1134,7 +1126,7 @@ static void anubis_crypt(const unsigned char *plaintext, unsigned char *cipherte
   @param skey The key as scheduled
   @return CRYPT_OK if successful
 */
-int anubis_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
+int anubis_ecb_encrypt(const unsigned char *pt, unsigned char *ct, const symmetric_key *skey)
 {
    LTC_ARGCHK(pt   != NULL);
    LTC_ARGCHK(ct   != NULL);
@@ -1150,7 +1142,7 @@ int anubis_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key
   @param skey The key as scheduled
   @return CRYPT_OK if successful
 */
-int anubis_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey)
+int anubis_ecb_decrypt(const unsigned char *ct, unsigned char *pt, const symmetric_key *skey)
 {
    LTC_ARGCHK(pt   != NULL);
    LTC_ARGCHK(ct   != NULL);
