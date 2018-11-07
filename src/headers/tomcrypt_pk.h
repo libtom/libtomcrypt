@@ -259,7 +259,6 @@ typedef enum ecc_signature_type_ {
 /** the ECC params provided */
 extern const ltc_ecc_curve ltc_ecc_curves[];
 
-int  ecc_test(void);
 void ecc_sizes(int *low, int *high);
 int  ecc_get_size(const ecc_key *key);
 

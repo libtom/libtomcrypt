@@ -1590,7 +1590,7 @@ static int _ecc_test_recovery(void)
 }
 #endif
 
-int ecc_tests(void)
+int ecc_test(void)
 {
    if (ltc_mp.name == NULL) return CRYPT_NOP;
 
