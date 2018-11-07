@@ -68,6 +68,12 @@ sub check_source {
           $l =~ /^static(\s+[a-zA-Z0-9_]+)+\s+([^_][a-zA-Z0-9_]+)\s*\(/) {
         push @{$troubles->{staticfunc_name}}, "$lineno($2)";
       }
+      if ($file =~ m|src/.*\.[ch]$| && $l =~ /^\s*#\s*define\s+(_[A-Z_][a-zA-Z0-9_]*)\b/) {
+        my $n = $1;
+        push @{$troubles->{invalid_macro_name}}, "$lineno($n)"
+                unless ($file eq 'src/headers/tomcrypt_cfg.h' &&  $n eq '__has_builtin') ||
+                       ($file eq 'src/prngs/rng_get_bytes.c' &&  $n eq '_WIN32_WINNT');
+      }
       $lineno++;
     }
     for my $k (sort keys %$troubles) {
