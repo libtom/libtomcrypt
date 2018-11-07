@@ -27,7 +27,7 @@ const struct ltc_cipher_descriptor serpent_desc = {
 };
 
 /* linear transformation */
-#define _LT(i,a,b,c,d,e)  {                                 \
+#define _lt(i,a,b,c,d,e)  {                                 \
                             a = ROLc(a, 13);                \
                             c = ROLc(c, 3);                 \
                             d = ROLc(d ^ c ^ (a << 3), 7);  \
@@ -37,7 +37,7 @@ const struct ltc_cipher_descriptor serpent_desc = {
                           }
 
 /* inverse linear transformation */
-#define _ILT(i,a,b,c,d,e) {                                 \
+#define _ilt(i,a,b,c,d,e) {                                 \
                             c = RORc(c, 22);                \
                             a = RORc(a, 5);                 \
                             c ^= d ^ (b << 7);              \
@@ -75,7 +75,7 @@ const struct ltc_cipher_descriptor serpent_desc = {
  * come from Dag Arne Osvik's paper "Speeding up Serpent".
  */
 
-#define _S0(i, r0, r1, r2, r3, r4) { \
+#define _s0(i, r0, r1, r2, r3, r4) { \
    r3 ^= r0;   \
    r4 = r1;    \
    r1 &= r3;   \
@@ -96,7 +96,7 @@ const struct ltc_cipher_descriptor serpent_desc = {
    r4 ^= r3;   \
 }
 
-#define _I0(i, r0, r1, r2, r3, r4) { \
+#define _i0(i, r0, r1, r2, r3, r4) { \
    r2 = ~r2;   \
    r4 = r1;    \
    r1 |= r0;   \
@@ -118,7 +118,7 @@ const struct ltc_cipher_descriptor serpent_desc = {
    r4 ^= r2;   \
 }
 
-#define _S1(i, r0, r1, r2, r3, r4) { \
+#define _s1(i, r0, r1, r2, r3, r4) { \
    r0 = ~r0;   \
    r2 = ~r2;   \
    r4 = r0;    \
@@ -139,7 +139,7 @@ const struct ltc_cipher_descriptor serpent_desc = {
    r0 ^= r4;   \
 }
 
-#define _I1(i, r0, r1, r2, r3, r4) { \
+#define _i1(i, r0, r1, r2, r3, r4) { \
    r4 = r1;    \
    r1 ^= r3;   \
    r3 &= r1;   \
@@ -161,7 +161,7 @@ const struct ltc_cipher_descriptor serpent_desc = {
    r3 ^= r1;   \
 }
 
-#define _S2(i, r0, r1, r2, r3, r4) { \
+#define _s2(i, r0, r1, r2, r3, r4) { \
    r4 = r0;    \
    r0 &= r2;   \
    r0 ^= r3;   \
@@ -180,7 +180,7 @@ const struct ltc_cipher_descriptor serpent_desc = {
    r4 = ~r4;   \
 }
 
-#define _I2(i, r0, r1, r2, r3, r4) { \
+#define _i2(i, r0, r1, r2, r3, r4) { \
    r2 ^= r3;   \
    r3 ^= r0;   \
    r4 = r3;    \
@@ -202,7 +202,7 @@ const struct ltc_cipher_descriptor serpent_desc = {
    r3 ^= r0;   \
 }
 
-#define _S3(i, r0, r1, r2, r3, r4) { \
+#define _s3(i, r0, r1, r2, r3, r4) { \
    r4 = r0;    \
    r0 |= r3;   \
    r3 ^= r1;   \
@@ -224,7 +224,7 @@ const struct ltc_cipher_descriptor serpent_desc = {
    r1 ^= r0;   \
 }
 
-#define _I3(i, r0, r1, r2, r3, r4) { \
+#define _i3(i, r0, r1, r2, r3, r4) { \
    r4 = r2;    \
    r2 ^= r1;   \
    r1 &= r2;   \
@@ -245,7 +245,7 @@ const struct ltc_cipher_descriptor serpent_desc = {
    r2 ^= r4;   \
 }
 
-#define _S4(i, r0, r1, r2, r3, r4) { \
+#define _s4(i, r0, r1, r2, r3, r4) { \
    r1 ^= r3;   \
    r3 = ~r3;   \
    r2 ^= r3;   \
@@ -268,7 +268,7 @@ const struct ltc_cipher_descriptor serpent_desc = {
    r4 ^= r2;   \
 }
 
-#define _I4(i, r0, r1, r2, r3, r4) { \
+#define _i4(i, r0, r1, r2, r3, r4) { \
    r4 = r2;    \
    r2 &= r3;   \
    r2 ^= r1;   \
@@ -291,7 +291,7 @@ const struct ltc_cipher_descriptor serpent_desc = {
    r2 ^= r1;   \
 }
 
-#define _S5(i, r0, r1, r2, r3, r4) { \
+#define _s5(i, r0, r1, r2, r3, r4) { \
    r0 ^= r1;   \
    r1 ^= r3;   \
    r3 = ~r3;   \
@@ -313,7 +313,7 @@ const struct ltc_cipher_descriptor serpent_desc = {
    r2 ^= r4;   \
 }
 
-#define _I5(i, r0, r1, r2, r3, r4) { \
+#define _i5(i, r0, r1, r2, r3, r4) { \
    r1 = ~r1;   \
    r4 = r3;    \
    r2 ^= r1;   \
@@ -335,7 +335,7 @@ const struct ltc_cipher_descriptor serpent_desc = {
    r4 = ~r4;   \
 }
 
-#define _S6(i, r0, r1, r2, r3, r4) { \
+#define _s6(i, r0, r1, r2, r3, r4) { \
    r2 = ~r2;   \
    r4 = r3;    \
    r3 &= r0;   \
@@ -356,7 +356,7 @@ const struct ltc_cipher_descriptor serpent_desc = {
    r2 ^= r3;   \
 }
 
-#define _I6(i, r0, r1, r2, r3, r4) { \
+#define _i6(i, r0, r1, r2, r3, r4) { \
    r0 ^= r2;   \
    r4 = r2;    \
    r2 &= r0;   \
@@ -376,7 +376,7 @@ const struct ltc_cipher_descriptor serpent_desc = {
    r4 ^= r0;   \
 }
 
-#define _S7(i, r0, r1, r2, r3, r4) { \
+#define _s7(i, r0, r1, r2, r3, r4) { \
    r4 = r2;    \
    r2 &= r1;   \
    r2 ^= r3;   \
@@ -399,7 +399,7 @@ const struct ltc_cipher_descriptor serpent_desc = {
    r4 ^= r1;   \
 }
 
-#define _I7(i, r0, r1, r2, r3, r4) { \
+#define _i7(i, r0, r1, r2, r3, r4) { \
    r4 = r2;    \
    r2 ^= r0;   \
    r0 &= r3;   \
@@ -422,21 +422,21 @@ const struct ltc_cipher_descriptor serpent_desc = {
 }
 
 /* key xor */
-#define _KX(r, a, b, c, d, e) { \
+#define _kx(r, a, b, c, d, e) { \
    a ^= k[4 * r + 0];   \
    b ^= k[4 * r + 1];   \
    c ^= k[4 * r + 2];   \
    d ^= k[4 * r + 3];   \
 }
 
-#define _LK(r, a, b, c, d, e) { \
+#define _lk(r, a, b, c, d, e) { \
    a = k[(8-r)*4 + 0];  \
    b = k[(8-r)*4 + 1];  \
    c = k[(8-r)*4 + 2];  \
    d = k[(8-r)*4 + 3];  \
 }
 
-#define _SK(r, a, b, c, d, e) { \
+#define _sk(r, a, b, c, d, e) { \
    k[(8-r)*4 + 4] = a;  \
    k[(8-r)*4 + 5] = b;  \
    k[(8-r)*4 + 6] = c;  \
@@ -467,17 +467,17 @@ static int _setup_key(const unsigned char *key, int keylen, int rounds, ulong32 
    k -= 20;
 
    for (i = 0; i < rounds/8; i++) {
-      _afterS2(_LK);  _afterS2(_S3);  _afterS3(_SK);
-      _afterS1(_LK);  _afterS1(_S2);  _afterS2(_SK);
-      _afterS0(_LK);  _afterS0(_S1);  _afterS1(_SK);
-      _beforeS0(_LK); _beforeS0(_S0); _afterS0(_SK);
+      _afterS2(_lk);  _afterS2(_s3);  _afterS3(_sk);
+      _afterS1(_lk);  _afterS1(_s2);  _afterS2(_sk);
+      _afterS0(_lk);  _afterS0(_s1);  _afterS1(_sk);
+      _beforeS0(_lk); _beforeS0(_s0); _afterS0(_sk);
       k += 8*4;
-      _afterS6(_LK); _afterS6(_S7); _afterS7(_SK);
-      _afterS5(_LK); _afterS5(_S6); _afterS6(_SK);
-      _afterS4(_LK); _afterS4(_S5); _afterS5(_SK);
-      _afterS3(_LK); _afterS3(_S4); _afterS4(_SK);
+      _afterS6(_lk); _afterS6(_s7); _afterS7(_sk);
+      _afterS5(_lk); _afterS5(_s6); _afterS6(_sk);
+      _afterS4(_lk); _afterS4(_s5); _afterS5(_sk);
+      _afterS3(_lk); _afterS3(_s4); _afterS4(_sk);
    }
-   _afterS2(_LK); _afterS2(_S3); _afterS3(_SK);
+   _afterS2(_lk); _afterS2(_s3); _afterS3(_sk);
 
    return CRYPT_OK;
 }
@@ -493,14 +493,14 @@ static int _enc_block(const unsigned char *in, unsigned char *out, const ulong32
    LOAD32L(d, in + 12);
 
    do {
-      _beforeS0(_KX); _beforeS0(_S0); _afterS0(_LT);
-      _afterS0(_KX);  _afterS0(_S1);  _afterS1(_LT);
-      _afterS1(_KX);  _afterS1(_S2);  _afterS2(_LT);
-      _afterS2(_KX);  _afterS2(_S3);  _afterS3(_LT);
-      _afterS3(_KX);  _afterS3(_S4);  _afterS4(_LT);
-      _afterS4(_KX);  _afterS4(_S5);  _afterS5(_LT);
-      _afterS5(_KX);  _afterS5(_S6);  _afterS6(_LT);
-      _afterS6(_KX);  _afterS6(_S7);
+      _beforeS0(_kx); _beforeS0(_s0); _afterS0(_lt);
+      _afterS0(_kx);  _afterS0(_s1);  _afterS1(_lt);
+      _afterS1(_kx);  _afterS1(_s2);  _afterS2(_lt);
+      _afterS2(_kx);  _afterS2(_s3);  _afterS3(_lt);
+      _afterS3(_kx);  _afterS3(_s4);  _afterS4(_lt);
+      _afterS4(_kx);  _afterS4(_s5);  _afterS5(_lt);
+      _afterS5(_kx);  _afterS5(_s6);  _afterS6(_lt);
+      _afterS6(_kx);  _afterS6(_s7);
 
       if (i == 4) break;
 
@@ -511,10 +511,10 @@ static int _enc_block(const unsigned char *in, unsigned char *out, const ulong32
       d = a;
       a = e;
       k += 32;
-      _beforeS0(_LT);
+      _beforeS0(_lt);
    } while (1);
 
-   _afterS7(_KX);
+   _afterS7(_kx);
 
    STORE32L(d, out + 0);
    STORE32L(e, out + 4);
@@ -537,7 +537,7 @@ static int _dec_block(const unsigned char *in, unsigned char *out, const ulong32
    i = 4;
    k += 96;
 
-   _beforeI7(_KX);
+   _beforeI7(_kx);
    goto start;
 
    do {
@@ -545,16 +545,16 @@ static int _dec_block(const unsigned char *in, unsigned char *out, const ulong32
       b = d;
       d = e;
       k -= 32;
-      _beforeI7(_ILT);
+      _beforeI7(_ilt);
 start:
-                      _beforeI7(_I7); _afterI7(_KX);
-      _afterI7(_ILT); _afterI7(_I6);  _afterI6(_KX);
-      _afterI6(_ILT); _afterI6(_I5);  _afterI5(_KX);
-      _afterI5(_ILT); _afterI5(_I4);  _afterI4(_KX);
-      _afterI4(_ILT); _afterI4(_I3);  _afterI3(_KX);
-      _afterI3(_ILT); _afterI3(_I2);  _afterI2(_KX);
-      _afterI2(_ILT); _afterI2(_I1);  _afterI1(_KX);
-      _afterI1(_ILT); _afterI1(_I0);  _afterI0(_KX);
+                      _beforeI7(_i7); _afterI7(_kx);
+      _afterI7(_ilt); _afterI7(_i6);  _afterI6(_kx);
+      _afterI6(_ilt); _afterI6(_i5);  _afterI5(_kx);
+      _afterI5(_ilt); _afterI5(_i4);  _afterI4(_kx);
+      _afterI4(_ilt); _afterI4(_i3);  _afterI3(_kx);
+      _afterI3(_ilt); _afterI3(_i2);  _afterI2(_kx);
+      _afterI2(_ilt); _afterI2(_i1);  _afterI1(_kx);
+      _afterI1(_ilt); _afterI1(_i0);  _afterI0(_kx);
    } while (--i != 0);
 
    STORE32L(a, out + 0);

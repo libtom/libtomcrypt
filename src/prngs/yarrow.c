@@ -267,7 +267,7 @@ int yarrow_done(prng_state *prng)
   @param prng      The PRNG to export
   @return CRYPT_OK if successful
 */
-_LTC_PRNG_EXPORT(yarrow)
+LTC_PRNG_EXPORT(yarrow)
 
 /**
   Import a PRNG state

@@ -9,7 +9,7 @@
 
 #ifdef LTC_SAFERP
 
-#define __LTC_SAFER_TAB_C__
+#define LTC_SAFER_TAB_C
 #include "safer_tab.c"
 
 const struct ltc_cipher_descriptor saferp_desc =

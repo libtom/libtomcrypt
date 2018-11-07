@@ -144,7 +144,7 @@ int chacha20_prng_done(prng_state *prng)
   @param prng      The PRNG to export
   @return CRYPT_OK if successful
 */
-_LTC_PRNG_EXPORT(chacha20_prng)
+LTC_PRNG_EXPORT(chacha20_prng)
 
 /**
   Import a PRNG state

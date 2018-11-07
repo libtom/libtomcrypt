@@ -147,7 +147,7 @@ int rc4_done(prng_state *prng)
   @param prng      The PRNG to export
   @return CRYPT_OK if successful
 */
-_LTC_PRNG_EXPORT(rc4)
+LTC_PRNG_EXPORT(rc4)
 
 /**
   Import a PRNG state

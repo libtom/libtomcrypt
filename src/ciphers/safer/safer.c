@@ -24,7 +24,7 @@
 
 #ifdef LTC_SAFER
 
-#define __LTC_SAFER_TAB_C__
+#define LTC_SAFER_TAB_C
 #include "safer_tab.c"
 
 const struct ltc_cipher_descriptor safer_k64_desc = {
@@ -91,13 +91,13 @@ const struct ltc_cipher_descriptor safer_k64_desc = {
 /******************* Types ****************************************************/
 
 #ifdef LTC_CLEAN_STACK
-static void _Safer_Expand_Userkey(const unsigned char *userkey_1,
+static void _safer_expand_userkey(const unsigned char *userkey_1,
                                  const unsigned char *userkey_2,
                                  unsigned int nof_rounds,
                                  int strengthened,
                                  safer_key_t key)
 #else
-static void Safer_Expand_Userkey(const unsigned char *userkey_1,
+static void safer_expand_userkey(const unsigned char *userkey_1,
                                  const unsigned char *userkey_2,
                                  unsigned int nof_rounds,
                                  int strengthened,
@@ -160,13 +160,13 @@ static void Safer_Expand_Userkey(const unsigned char *userkey_1,
 }
 
 #ifdef LTC_CLEAN_STACK
-static void Safer_Expand_Userkey(const unsigned char *userkey_1,
+static void safer_expand_userkey(const unsigned char *userkey_1,
                                  const unsigned char *userkey_2,
                                  unsigned int nof_rounds,
                                  int strengthened,
                                  safer_key_t key)
 {
-   _Safer_Expand_Userkey(userkey_1, userkey_2, nof_rounds, strengthened, key);
+   _safer_expand_userkey(userkey_1, userkey_2, nof_rounds, strengthened, key);
    burn_stack(sizeof(unsigned char) * (2 * (LTC_SAFER_BLOCK_LEN + 1)) + sizeof(unsigned int)*2);
 }
 #endif
@@ -184,7 +184,7 @@ int safer_k64_setup(const unsigned char *key, int keylen, int num_rounds, symmet
       return CRYPT_INVALID_KEYSIZE;
    }
 
-   Safer_Expand_Userkey(key, key, (unsigned int)(num_rounds != 0 ?num_rounds:LTC_SAFER_K64_DEFAULT_NOF_ROUNDS), 0, skey->safer.key);
+   safer_expand_userkey(key, key, (unsigned int)(num_rounds != 0 ?num_rounds:LTC_SAFER_K64_DEFAULT_NOF_ROUNDS), 0, skey->safer.key);
    return CRYPT_OK;
 }
 
@@ -201,7 +201,7 @@ int safer_sk64_setup(const unsigned char *key, int keylen, int num_rounds, symme
       return CRYPT_INVALID_KEYSIZE;
    }
 
-   Safer_Expand_Userkey(key, key, (unsigned int)(num_rounds != 0 ?num_rounds:LTC_SAFER_SK64_DEFAULT_NOF_ROUNDS), 1, skey->safer.key);
+   safer_expand_userkey(key, key, (unsigned int)(num_rounds != 0 ?num_rounds:LTC_SAFER_SK64_DEFAULT_NOF_ROUNDS), 1, skey->safer.key);
    return CRYPT_OK;
 }
 
@@ -218,7 +218,7 @@ int safer_k128_setup(const unsigned char *key, int keylen, int num_rounds, symme
       return CRYPT_INVALID_KEYSIZE;
    }
 
-   Safer_Expand_Userkey(key, key+8, (unsigned int)(num_rounds != 0 ?num_rounds:LTC_SAFER_K128_DEFAULT_NOF_ROUNDS), 0, skey->safer.key);
+   safer_expand_userkey(key, key+8, (unsigned int)(num_rounds != 0 ?num_rounds:LTC_SAFER_K128_DEFAULT_NOF_ROUNDS), 0, skey->safer.key);
    return CRYPT_OK;
 }
 
@@ -235,7 +235,7 @@ int safer_sk128_setup(const unsigned char *key, int keylen, int num_rounds, symm
       return CRYPT_INVALID_KEYSIZE;
    }
 
-   Safer_Expand_Userkey(key, key+8, (unsigned int)(num_rounds != 0?num_rounds:LTC_SAFER_SK128_DEFAULT_NOF_ROUNDS), 1, skey->safer.key);
+   safer_expand_userkey(key, key+8, (unsigned int)(num_rounds != 0?num_rounds:LTC_SAFER_SK128_DEFAULT_NOF_ROUNDS), 1, skey->safer.key);
    return CRYPT_OK;
 }
 

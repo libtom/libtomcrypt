@@ -35,19 +35,19 @@ const struct ltc_cipher_descriptor idea_desc = {
 
 typedef unsigned short int ushort16;
 
-#define _LOW16(x)     ((x)&0xffff)  /* compiler should be able to optimize this away if x is 16 bits */
-#define _HIGH16(x)    ((x)>>16)
-#define _MUL(a,b)     {                                               \
-                         ulong32 p = (ulong32)_LOW16(a) * b;          \
+#define LOW16(x)     ((x)&0xffff)  /* compiler should be able to optimize this away if x is 16 bits */
+#define HIGH16(x)    ((x)>>16)
+#define MUL(a,b)     {                                               \
+                         ulong32 p = (ulong32)LOW16(a) * b;          \
                          if (p) {                                     \
-                            p = _LOW16(p) - _HIGH16(p);               \
-                            a = (ushort16)p - (ushort16)_HIGH16(p);   \
+                            p = LOW16(p) - HIGH16(p);               \
+                            a = (ushort16)p - (ushort16)HIGH16(p);   \
                          }                                            \
                          else                                         \
                             a = 1 - a - b;                            \
                       }
-#define _STORE16(x,y) { (y)[0] = (unsigned char)(((x)>>8)&255); (y)[1] = (unsigned char)((x)&255); }
-#define _LOAD16(x,y)  { x = ((ushort16)((y)[0] & 255)<<8) | ((ushort16)((y)[1] & 255)); }
+#define STORE16(x,y) { (y)[0] = (unsigned char)(((x)>>8)&255); (y)[1] = (unsigned char)((x)&255); }
+#define LOAD16(x,y)  { x = ((ushort16)((y)[0] & 255)<<8) | ((ushort16)((y)[1] & 255)); }
 
 static ushort16 _mul_inv(ushort16 x)
 {
@@ -55,15 +55,15 @@ static ushort16 _mul_inv(ushort16 x)
    unsigned i;
 
    for (i = 0; i < 15; i++) {
-      _MUL(y, _LOW16(y));
-      _MUL(y, x);
+      MUL(y, LOW16(y));
+      MUL(y, x);
    }
-   return _LOW16(y);
+   return LOW16(y);
 }
 
 static ushort16 _add_inv(ushort16 x)
 {
-   return _LOW16(0 - x);
+   return LOW16(0 - x);
 }
 
 static int _setup_key(const unsigned char *key, symmetric_key *skey)
@@ -74,11 +74,11 @@ static int _setup_key(const unsigned char *key, symmetric_key *skey)
 
    /* prepare enc key */
    for (i = 0; i < 8; i++) {
-      _LOAD16(e_key[i], key + 2 * i);
+      LOAD16(e_key[i], key + 2 * i);
    }
    for (; i < LTC_IDEA_KEYLEN; i++) {
       j = (i - i % 8) - 8;
-      e_key[i] = _LOW16((e_key[j+(i+1)%8] << 9) | (e_key[j+(i+2)%8] >> 7));
+      e_key[i] = LOW16((e_key[j+(i+1)%8] << 9) | (e_key[j+(i+2)%8] >> 7));
    }
 
    /* prepare dec key */
@@ -103,20 +103,20 @@ static int _process_block(const unsigned char *in, unsigned char *out, const ush
    int i;
    ushort16 x0, x1, x2, x3, t0, t1;
 
-   _LOAD16(x0, in + 0);
-   _LOAD16(x1, in + 2);
-   _LOAD16(x2, in + 4);
-   _LOAD16(x3, in + 6);
+   LOAD16(x0, in + 0);
+   LOAD16(x1, in + 2);
+   LOAD16(x2, in + 4);
+   LOAD16(x3, in + 6);
 
    for (i = 0; i < LTC_IDEA_ROUNDS; i++) {
-      _MUL(x0, m_key[i*6+0]);
+      MUL(x0, m_key[i*6+0]);
       x1 += m_key[i*6+1];
       x2 += m_key[i*6+2];
-      _MUL(x3, m_key[i*6+3]);
+      MUL(x3, m_key[i*6+3]);
       t0 = x0^x2;
-      _MUL(t0, m_key[i*6+4]);
+      MUL(t0, m_key[i*6+4]);
       t1 = t0 + (x1^x3);
-      _MUL(t1, m_key[i*6+5]);
+      MUL(t1, m_key[i*6+5]);
       t0 += t1;
       x0 ^= t1;
       x3 ^= t0;
@@ -125,15 +125,15 @@ static int _process_block(const unsigned char *in, unsigned char *out, const ush
       x2 = t0;
    }
 
-   _MUL(x0, m_key[LTC_IDEA_ROUNDS*6+0]);
+   MUL(x0, m_key[LTC_IDEA_ROUNDS*6+0]);
    x2 += m_key[LTC_IDEA_ROUNDS*6+1];
    x1 += m_key[LTC_IDEA_ROUNDS*6+2];
-   _MUL(x3, m_key[LTC_IDEA_ROUNDS*6+3]);
+   MUL(x3, m_key[LTC_IDEA_ROUNDS*6+3]);
 
-   _STORE16(x0, out + 0);
-   _STORE16(x2, out + 2);
-   _STORE16(x1, out + 4);
-   _STORE16(x3, out + 6);
+   STORE16(x0, out + 0);
+   STORE16(x2, out + 2);
+   STORE16(x1, out + 4);
+   STORE16(x3, out + 6);
 
    return CRYPT_OK;
 }

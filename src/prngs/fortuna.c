@@ -467,7 +467,7 @@ LBL_UNLOCK:
   @param prng      The PRNG to export
   @return CRYPT_OK if successful
 */
-_LTC_PRNG_EXPORT(fortuna)
+LTC_PRNG_EXPORT(fortuna)
 
 /**
   Import a PRNG state

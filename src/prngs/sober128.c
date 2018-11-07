@@ -146,7 +146,7 @@ int sober128_done(prng_state *prng)
   @param prng      The PRNG to export
   @return CRYPT_OK if successful
 */
-_LTC_PRNG_EXPORT(sober128)
+LTC_PRNG_EXPORT(sober128)
 
 /**
   Import a PRNG state
