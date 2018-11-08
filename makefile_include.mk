@@ -30,8 +30,12 @@ endif # Clang
 endif # cc is Make's default
 endif # CROSS_COMPILE non-empty
 
-LD:=$(CROSS_COMPILE)ld
-AR:=$(CROSS_COMPILE)ar
+ifndef LD
+  LD := $(CROSS_COMPILE)ld
+endif
+ifndef AR
+  AR := $(CROSS_COMPILE)ar
+endif
 
 # Archiver [makes .a files]
 #AR=ar
