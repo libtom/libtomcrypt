@@ -33,7 +33,7 @@ int pkcs12_utf8_to_utf16(const unsigned char *in,  unsigned long  inlen,
       if (*in >= 240) extra++;  /* 3 */
       if (*in >= 248) extra++;  /* 4 */
       if (*in >= 252) extra++;  /* 5 */
-      if (in + extra >= in_end) goto ERROR;
+      if (in + extra >= in_end) return err;
       switch (extra) {
          case 5: ch += *in++; ch <<= 6;
          /* FALLTHROUGH */
@@ -48,7 +48,7 @@ int pkcs12_utf8_to_utf16(const unsigned char *in,  unsigned long  inlen,
          case 0: ch += *in++;
       }
       ch -= offset[extra];
-      if (ch > 0xFFFF) goto ERROR;
+      if (ch > 0xFFFF) return err;
       if (*outlen >= len + 2) {
          out[len] = (unsigned short)((ch >> 8) & 0xFF);
          out[len + 1] = (unsigned char)(ch & 0xFF);
@@ -58,7 +58,6 @@ int pkcs12_utf8_to_utf16(const unsigned char *in,  unsigned long  inlen,
 
    err = len > *outlen ? CRYPT_BUFFER_OVERFLOW : CRYPT_OK;
    *outlen = len;
-ERROR:
    return err;
 }
 
