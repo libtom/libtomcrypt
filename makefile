@@ -74,7 +74,8 @@ endif
 	$${silent} $$(CC) $$< $$(LIB_PRE) $$(LIBNAME) $$(LIB_POST) $$(LTC_EXTRALIBS) -o $(1)
 endef
 
-	$(foreach demo, $(strip $(DEMOS)), $(eval $(call DEMO_template,$(demo))))
+demo:
+$(foreach demo, $(strip $(DEMOS)), $(eval $(call DEMO_template,$(demo))))
 
 
 #This rule installs the library and the header files. This must be run
