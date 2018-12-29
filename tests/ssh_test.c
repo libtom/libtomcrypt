@@ -302,7 +302,12 @@ int ssh_test(void)
    return CRYPT_OK;
 }
 
+#else
 
+int ssh_test(void)
+{
+   return CRYPT_NOP;
+}
 
 #endif
 
