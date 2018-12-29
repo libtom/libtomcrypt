@@ -34,8 +34,8 @@ compiler:
   - gcc
   - clang
 script:
-  - bash "${BUILDSCRIPT}" "${BUILDNAME}" "${BUILDOPTIONS}" "makefile V=1"        "-DUSE_LTM -DLTM_DESC" "-ltommath"
-  - bash "${BUILDSCRIPT}" "${BUILDNAME}" "${BUILDOPTIONS}" "makefile.shared V=1" "-DUSE_TFM -DTFM_DESC" "-ltfm"
+  - bash "${BUILDSCRIPT}" "${BUILDNAME}" "-DUSE_LTM -DLTM_DESC" "makefile V=1"        "${BUILDOPTIONS}" "-ltommath"
+  - bash "${BUILDSCRIPT}" "${BUILDNAME}" "-DUSE_TFM -DTFM_DESC" "makefile.shared V=1" "${BUILDOPTIONS}" "-ltfm"
 env:
   - |
     BUILDSCRIPT=".ci/meta_builds.sh"
