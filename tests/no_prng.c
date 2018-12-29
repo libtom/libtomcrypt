@@ -163,10 +163,15 @@ static const struct ltc_prng_descriptor no_prng_desc =
 
 struct ltc_prng_descriptor* no_prng_desc_get(void)
 {
+   int ret;
    no_prng_desc_t* no_prng = XMALLOC(sizeof(*no_prng));
-   LTC_ARGCHK(no_prng != NULL);
+   if (no_prng == NULL) return NULL;
    XMEMCPY(&no_prng->desc, &no_prng_desc, sizeof(no_prng_desc));
-   LTC_ARGCHK(snprintf(no_prng->name, sizeof(no_prng->name), "no_prng@%p", no_prng) < (int)sizeof(no_prng->name));
+   ret = snprintf(no_prng->name, sizeof(no_prng->name), "no_prng@%p", no_prng);
+   if((ret >= (int)sizeof(no_prng->name)) || (ret == -1)) {
+      XFREE(no_prng);
+      return NULL;
+   }
    no_prng->desc.name = no_prng->name;
    return &no_prng->desc;
 }
@@ -174,8 +179,8 @@ struct ltc_prng_descriptor* no_prng_desc_get(void)
 void no_prng_desc_free(struct ltc_prng_descriptor* prng)
 {
    no_prng_desc_t *no_prng = (no_prng_desc_t*) prng;
-   LTC_ARGCHK(no_prng != NULL);
-   LTC_ARGCHK(no_prng->name == (char*)no_prng + offsetof(no_prng_desc_t, name));
+   LTC_ARGCHKVD(no_prng != NULL);
+   LTC_ARGCHKVD(no_prng->name == (char*)no_prng + offsetof(no_prng_desc_t, name));
    XFREE(no_prng);
 }
 
