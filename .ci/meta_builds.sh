@@ -80,7 +80,7 @@ make clean &>/dev/null
 
 EXTRALIBS="$5"
 
-echo $2 | grep -q GMP && EXTRALIBS="$EXTRALIBS -lgmp"
+echo $* | grep -q GMP && EXTRALIBS="$EXTRALIBS -lgmp"
 
 if [ -z "$(echo $CC | grep "clang")" ]; then
    run_gcc "$1" "$2" "$3" "$4" "$EXTRALIBS"
