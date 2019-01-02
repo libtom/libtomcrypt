@@ -9,18 +9,13 @@
 
 /* Defines the LTC_ARGCHK macro used within the library */
 /* ARGTYPE is defined in tomcrypt_cfg.h */
+
+/* ARGTYPE is per default defined to 0  */
 #if ARGTYPE == 0
 
 #include <signal.h>
 
-/* this is the default LibTomCrypt macro  */
-#if defined(__clang__) || defined(__GNUC_MINOR__)
-#define NORETURN __attribute__ ((noreturn))
-#else
-#define NORETURN
-#endif
-
-void crypt_argchk(const char *v, const char *s, int d) NORETURN;
+void crypt_argchk(const char *v, const char *s, int d) LTC_NORETURN;
 #define LTC_ARGCHK(x) do { if (!(x)) { crypt_argchk(#x, __FILE__, __LINE__); } }while(0)
 #define LTC_ARGCHKVD(x) do { if (!(x)) { crypt_argchk(#x, __FILE__, __LINE__); } }while(0)
 
