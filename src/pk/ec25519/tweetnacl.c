@@ -18,10 +18,8 @@ typedef unsigned long u32;
 typedef unsigned long long u64;
 typedef long long i64;
 typedef i64 gf[16];
-extern void randombytes(u8 *,u64);
 
 static const u8
-  _0[16],
   _9[32] = {9};
 static const gf
   gf0,
@@ -43,23 +41,10 @@ static u32 ld32(const u8 *x)
   return (u<<8)|x[0];
 }
 
-static u64 dl64(const u8 *x)
-{
-  u64 i,u=0;
-  FOR(i,8) u=(u<<8)|x[i];
-  return u;
-}
-
 sv st32(u8 *x,u32 u)
 {
   int i;
   FOR(i,4) { x[i] = u; u >>= 8; }
-}
-
-sv ts64(u8 *x,u64 u)
-{
-  int i;
-  for (i = 7;i >= 0;--i) { x[i] = u; u >>= 8; }
 }
 
 static int vn(const u8 *x,const u8 *y,int n)
@@ -177,102 +162,6 @@ int crypto_stream_xor(u8 *c,const u8 *m,u64 d,const u8 *n,const u8 *k)
   u8 s[32];
   crypto_core_hsalsa20(s,n,k,sigma);
   return crypto_stream_salsa20_xor(c,m,d,n+16,s);
-}
-
-sv add1305(u32 *h,const u32 *c)
-{
-  u32 j,u = 0;
-  FOR(j,17) {
-    u += h[j] + c[j];
-    h[j] = u & 255;
-    u >>= 8;
-  }
-}
-
-static const u32 minusp[17] = {
-  5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 252
-} ;
-
-int crypto_onetimeauth(u8 *out,const u8 *m,u64 n,const u8 *k)
-{
-  u32 s,i,j,u,x[17],r[17],h[17],c[17],g[17];
-
-  FOR(j,17) r[j]=h[j]=0;
-  FOR(j,16) r[j]=k[j];
-  r[3]&=15;
-  r[4]&=252;
-  r[7]&=15;
-  r[8]&=252;
-  r[11]&=15;
-  r[12]&=252;
-  r[15]&=15;
-
-  while (n > 0) {
-    FOR(j,17) c[j] = 0;
-    for (j = 0;(j < 16) && (j < n);++j) c[j] = m[j];
-    c[j] = 1;
-    m += j; n -= j;
-    add1305(h,c);
-    FOR(i,17) {
-      x[i] = 0;
-      FOR(j,17) x[i] += h[j] * ((j <= i) ? r[i - j] : 320 * r[i + 17 - j]);
-    }
-    FOR(i,17) h[i] = x[i];
-    u = 0;
-    FOR(j,16) {
-      u += h[j];
-      h[j] = u & 255;
-      u >>= 8;
-    }
-    u += h[16]; h[16] = u & 3;
-    u = 5 * (u >> 2);
-    FOR(j,16) {
-      u += h[j];
-      h[j] = u & 255;
-      u >>= 8;
-    }
-    u += h[16]; h[16] = u;
-  }
-
-  FOR(j,17) g[j] = h[j];
-  add1305(h,minusp);
-  s = -(h[16] >> 7);
-  FOR(j,17) h[j] ^= s & (g[j] ^ h[j]);
-
-  FOR(j,16) c[j] = k[j + 16];
-  c[16] = 0;
-  add1305(h,c);
-  FOR(j,16) out[j] = h[j];
-  return 0;
-}
-
-int crypto_onetimeauth_verify(const u8 *h,const u8 *m,u64 n,const u8 *k)
-{
-  u8 x[16];
-  crypto_onetimeauth(x,m,n,k);
-  return crypto_verify_16(h,x);
-}
-
-int crypto_secretbox(u8 *c,const u8 *m,u64 d,const u8 *n,const u8 *k)
-{
-  int i;
-  if (d < 32) return -1;
-  crypto_stream_xor(c,m,d,n,k);
-  crypto_onetimeauth(c + 16,c + 32,d - 32,c);
-  FOR(i,16) c[i] = 0;
-  return 0;
-}
-
-int crypto_secretbox_open(u8 *m,const u8 *c,u64 d,const u8 *n,const u8 *k)
-{
-  int i;
-  u8 x[32];
-  if (d < 32) return -1;
-  crypto_stream(x,32,n,k);
-  if (crypto_onetimeauth_verify(c + 16,c + 32,d - 32,x) != 0) return -1;
-  crypto_stream_xor(m,c,d,n,k);
-  FOR(i,32) m[i] = 0;
-  return 0;
 }
 
 sv set25519(gf r, const gf a)
@@ -458,140 +347,16 @@ int crypto_scalarmult_base(u8 *q,const u8 *n)
   return crypto_scalarmult(q,n,_9);
 }
 
-int crypto_box_keypair(u8 *y,u8 *x)
+static int crypto_hash(u8 *out,const u8 *m,u64 n)
 {
-  randombytes(x,32);
-  return crypto_scalarmult_base(y,x);
-}
+  unsigned long len;
+  int err, hash_idx;
 
-int crypto_box_beforenm(u8 *k,const u8 *y,const u8 *x)
-{
-  u8 s[32];
-  crypto_scalarmult(s,x,y);
-  return crypto_core_hsalsa20(k,_0,s,sigma);
-}
+  if (n > ULONG_MAX) return CRYPT_OVERFLOW;
 
-int crypto_box_afternm(u8 *c,const u8 *m,u64 d,const u8 *n,const u8 *k)
-{
-  return crypto_secretbox(c,m,d,n,k);
-}
-
-int crypto_box_open_afternm(u8 *m,const u8 *c,u64 d,const u8 *n,const u8 *k)
-{
-  return crypto_secretbox_open(m,c,d,n,k);
-}
-
-int crypto_box(u8 *c,const u8 *m,u64 d,const u8 *n,const u8 *y,const u8 *x)
-{
-  u8 k[32];
-  crypto_box_beforenm(k,y,x);
-  return crypto_box_afternm(c,m,d,n,k);
-}
-
-int crypto_box_open(u8 *m,const u8 *c,u64 d,const u8 *n,const u8 *y,const u8 *x)
-{
-  u8 k[32];
-  crypto_box_beforenm(k,y,x);
-  return crypto_box_open_afternm(m,c,d,n,k);
-}
-
-static u64 R(u64 x,int c) { return (x >> c) | (x << (64 - c)); }
-static u64 Ch(u64 x,u64 y,u64 z) { return (x & y) ^ (~x & z); }
-static u64 Maj(u64 x,u64 y,u64 z) { return (x & y) ^ (x & z) ^ (y & z); }
-static u64 Sigma0(u64 x) { return R(x,28) ^ R(x,34) ^ R(x,39); }
-static u64 Sigma1(u64 x) { return R(x,14) ^ R(x,18) ^ R(x,41); }
-static u64 sigma0(u64 x) { return R(x, 1) ^ R(x, 8) ^ (x >> 7); }
-static u64 sigma1(u64 x) { return R(x,19) ^ R(x,61) ^ (x >> 6); }
-
-static const u64 K[80] =
-{
-  0x428a2f98d728ae22ULL, 0x7137449123ef65cdULL, 0xb5c0fbcfec4d3b2fULL, 0xe9b5dba58189dbbcULL,
-  0x3956c25bf348b538ULL, 0x59f111f1b605d019ULL, 0x923f82a4af194f9bULL, 0xab1c5ed5da6d8118ULL,
-  0xd807aa98a3030242ULL, 0x12835b0145706fbeULL, 0x243185be4ee4b28cULL, 0x550c7dc3d5ffb4e2ULL,
-  0x72be5d74f27b896fULL, 0x80deb1fe3b1696b1ULL, 0x9bdc06a725c71235ULL, 0xc19bf174cf692694ULL,
-  0xe49b69c19ef14ad2ULL, 0xefbe4786384f25e3ULL, 0x0fc19dc68b8cd5b5ULL, 0x240ca1cc77ac9c65ULL,
-  0x2de92c6f592b0275ULL, 0x4a7484aa6ea6e483ULL, 0x5cb0a9dcbd41fbd4ULL, 0x76f988da831153b5ULL,
-  0x983e5152ee66dfabULL, 0xa831c66d2db43210ULL, 0xb00327c898fb213fULL, 0xbf597fc7beef0ee4ULL,
-  0xc6e00bf33da88fc2ULL, 0xd5a79147930aa725ULL, 0x06ca6351e003826fULL, 0x142929670a0e6e70ULL,
-  0x27b70a8546d22ffcULL, 0x2e1b21385c26c926ULL, 0x4d2c6dfc5ac42aedULL, 0x53380d139d95b3dfULL,
-  0x650a73548baf63deULL, 0x766a0abb3c77b2a8ULL, 0x81c2c92e47edaee6ULL, 0x92722c851482353bULL,
-  0xa2bfe8a14cf10364ULL, 0xa81a664bbc423001ULL, 0xc24b8b70d0f89791ULL, 0xc76c51a30654be30ULL,
-  0xd192e819d6ef5218ULL, 0xd69906245565a910ULL, 0xf40e35855771202aULL, 0x106aa07032bbd1b8ULL,
-  0x19a4c116b8d2d0c8ULL, 0x1e376c085141ab53ULL, 0x2748774cdf8eeb99ULL, 0x34b0bcb5e19b48a8ULL,
-  0x391c0cb3c5c95a63ULL, 0x4ed8aa4ae3418acbULL, 0x5b9cca4f7763e373ULL, 0x682e6ff3d6b2b8a3ULL,
-  0x748f82ee5defb2fcULL, 0x78a5636f43172f60ULL, 0x84c87814a1f0ab72ULL, 0x8cc702081a6439ecULL,
-  0x90befffa23631e28ULL, 0xa4506cebde82bde9ULL, 0xbef9a3f7b2c67915ULL, 0xc67178f2e372532bULL,
-  0xca273eceea26619cULL, 0xd186b8c721c0c207ULL, 0xeada7dd6cde0eb1eULL, 0xf57d4f7fee6ed178ULL,
-  0x06f067aa72176fbaULL, 0x0a637dc5a2c898a6ULL, 0x113f9804bef90daeULL, 0x1b710b35131c471bULL,
-  0x28db77f523047d84ULL, 0x32caab7b40c72493ULL, 0x3c9ebe0a15c9bebcULL, 0x431d67c49c100d4cULL,
-  0x4cc5d4becb3e42b6ULL, 0x597f299cfc657e2aULL, 0x5fcb6fab3ad6faecULL, 0x6c44198c4a475817ULL
-};
-
-int crypto_hashblocks(u8 *x,const u8 *m,u64 n)
-{
-  u64 z[8],b[8],a[8],w[16],t;
-  int i,j;
-
-  FOR(i,8) z[i] = a[i] = dl64(x + 8 * i);
-
-  while (n >= 128) {
-    FOR(i,16) w[i] = dl64(m + 8 * i);
-
-    FOR(i,80) {
-      FOR(j,8) b[j] = a[j];
-      t = a[7] + Sigma1(a[4]) + Ch(a[4],a[5],a[6]) + K[i] + w[i%16];
-      b[7] = t + Sigma0(a[0]) + Maj(a[0],a[1],a[2]);
-      b[3] += t;
-      FOR(j,8) a[(j+1)%8] = b[j];
-      if (i%16 == 15)
-    FOR(j,16)
-      w[j] += w[(j+9)%16] + sigma0(w[(j+1)%16]) + sigma1(w[(j+14)%16]);
-    }
-
-    FOR(i,8) { a[i] += z[i]; z[i] = a[i]; }
-
-    m += 128;
-    n -= 128;
-  }
-
-  FOR(i,8) ts64(x+8*i,z[i]);
-
-  return n;
-}
-
-static const u8 iv[64] = {
-  0x6a,0x09,0xe6,0x67,0xf3,0xbc,0xc9,0x08,
-  0xbb,0x67,0xae,0x85,0x84,0xca,0xa7,0x3b,
-  0x3c,0x6e,0xf3,0x72,0xfe,0x94,0xf8,0x2b,
-  0xa5,0x4f,0xf5,0x3a,0x5f,0x1d,0x36,0xf1,
-  0x51,0x0e,0x52,0x7f,0xad,0xe6,0x82,0xd1,
-  0x9b,0x05,0x68,0x8c,0x2b,0x3e,0x6c,0x1f,
-  0x1f,0x83,0xd9,0xab,0xfb,0x41,0xbd,0x6b,
-  0x5b,0xe0,0xcd,0x19,0x13,0x7e,0x21,0x79
-} ;
-
-int crypto_hash(u8 *out,const u8 *m,u64 n)
-{
-  u8 h[64],x[256];
-  u64 i,b = n;
-
-  FOR(i,64) h[i] = iv[i];
-
-  crypto_hashblocks(h,m,n);
-  m += n;
-  n &= 127;
-  m -= n;
-
-  FOR(i,256) x[i] = 0;
-  FOR(i,n) x[i] = m[i];
-  x[n] = 128;
-
-  n = 256-128*(n<112);
-  x[n-9] = b >> 61;
-  ts64(x+n-8,b<<3);
-  crypto_hashblocks(h,x,n);
-
-  FOR(i,64) out[i] = h[i];
+  hash_idx = find_hash("sha512");
+  len = 64;
+  if ((err = hash_memory(hash_idx, m, n, out, &len)) != CRYPT_OK) return err;
 
   return 0;
 }
