@@ -786,9 +786,6 @@ int main(void)
 #elif defined(EXT_MATH_LIB)
    extern ltc_math_descriptor EXT_MATH_LIB;
    ltc_mp = EXT_MATH_LIB;
-#else
-   fprintf(stderr, "No MPI provider available\n");
-   exit(EXIT_FAILURE);
 #endif
 
    printf("Generating hash   vectors..."); fflush(stdout); hash_gen();   printf("done\n");
@@ -816,8 +813,10 @@ int main(void)
    printf("Generating GCM    vectors..."); fflush(stdout); gcm_gen();    printf("done\n");
 #endif
    printf("Generating BASE64 vectors..."); fflush(stdout); base64_gen(); printf("done\n");
-   printf("Generating MATH   vectors..."); fflush(stdout); math_gen();   printf("done\n");
-   printf("Generating ECC    vectors..."); fflush(stdout); ecc_gen();    printf("done\n");
+   if (ltc_mp.name != NULL) {
+      printf("Generating MATH   vectors..."); fflush(stdout); math_gen();   printf("done\n");
+      printf("Generating ECC    vectors..."); fflush(stdout); ecc_gen();    printf("done\n");
+   }
 #ifdef LTC_LRW_MODE
    printf("Generating LRW    vectors..."); fflush(stdout); lrw_gen();    printf("done\n");
 #endif
