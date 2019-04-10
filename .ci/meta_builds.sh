@@ -90,11 +90,11 @@ fi
 
 make clean &>/dev/null
 
-bash .ci/testbuild.sh "NOTEST" "-DLTC_NO_TEST" "$3" "$4" "$5"
+bash .ci/testbuild.sh "NOTEST" "-DLTC_NO_TEST" "$3" "$4" "$EXTRALIBS"
 
 make clean &>/dev/null
 
-bash .ci/testbuild.sh "NOFILE" "-DLTC_NO_FILE" "$3" "$4" "$5"
+bash .ci/testbuild.sh "NOFILE" "-DLTC_NO_FILE" "$3" "$4" "$EXTRALIBS"
 
 make clean &>/dev/null
 
