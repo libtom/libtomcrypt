@@ -14,9 +14,9 @@
 #define sv static void
 
 typedef unsigned char u8;
-typedef unsigned long u32;
-typedef unsigned long long u64;
-typedef long long i64;
+typedef ulong32 u32;
+typedef ulong64 u64;
+typedef long64 i64;
 typedef i64 gf[16];
 
 static const u8
@@ -49,7 +49,8 @@ sv st32(u8 *x,u32 u)
 
 static int vn(const u8 *x,const u8 *y,int n)
 {
-  u32 i,d = 0;
+  int i;
+  u32 d = 0;
   FOR(i,n) d |= x[i]^y[i];
   return (1 & ((d - 1) >> 8)) - 1;
 }
@@ -429,13 +430,10 @@ sv scalarbase(gf p[4],const u8 *s)
   scalarmult(p,q,s);
 }
 
-int crypto_sign_keypair(u8 *pk, u8 *sk)
+int crypto_sk_to_pk(u8 *pk, const u8 *sk)
 {
   u8 d[64];
   gf p[4];
-  int i;
-
-  randombytes(sk, 32);
   crypto_hash(d, sk, 32);
   d[0] &= 248;
   d[31] &= 127;
@@ -444,8 +442,29 @@ int crypto_sign_keypair(u8 *pk, u8 *sk)
   scalarbase(p,d);
   pack(pk,p);
 
-  FOR(i,32) sk[32 + i] = pk[i];
   return 0;
+}
+
+int crypto_sign_keypair(prng_state *prng, int wprng, u8 *pk, u8 *sk)
+{
+  int err;
+
+  /* randombytes(sk,32); */
+  if ((err = prng_is_valid(wprng)) != CRYPT_OK) {
+     return err;
+  }
+
+  if (prng_descriptor[wprng].read(sk,32, prng) != 32) {
+     return CRYPT_ERROR_READPRNG;
+  }
+
+  if ((err = crypto_sk_to_pk(pk, sk)) != CRYPT_OK) {
+     return err;
+  }
+
+  /* FOR(i,32) sk[32 + i] = pk[i];
+   * we don't copy the pk in the sk */
+  return CRYPT_OK;
 }
 
 static const u64 L[32] = {0xed, 0xd3, 0xf5, 0x5c, 0x1a, 0x63, 0x12, 0x58, 0xd6, 0x9c, 0xf7, 0xa2, 0xde, 0xf9, 0xde, 0x14, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x10};
@@ -484,7 +503,7 @@ sv reduce(u8 *r)
   modL(r,x);
 }
 
-int crypto_sign(u8 *sm,u64 *smlen,const u8 *m,u64 n,const u8 *sk)
+int crypto_sign(u8 *sm,u64 *smlen,const u8 *m,u64 n,const u8 *sk,const u8 *pk)
 {
   u8 d[64],h[64],r[64];
   i64 i,j,x[64];
@@ -496,7 +515,7 @@ int crypto_sign(u8 *sm,u64 *smlen,const u8 *m,u64 n,const u8 *sk)
   d[31] |= 64;
 
   *smlen = n+64;
-  FOR(i,n) sm[64 + i] = m[i];
+  FOR(i,(i64)n) sm[64 + i] = m[i];
   FOR(i,32) sm[32 + i] = d[32 + i];
 
   crypto_hash(r, sm+32, n+32);
@@ -504,7 +523,7 @@ int crypto_sign(u8 *sm,u64 *smlen,const u8 *m,u64 n,const u8 *sk)
   scalarbase(p,r);
   pack(sm,p);
 
-  FOR(i,32) sm[i+32] = sk[i+32];
+  FOR(i,32) sm[i+32] = pk[i];
   crypto_hash(h,sm,n + 64);
   reduce(h);
 
@@ -554,34 +573,37 @@ static int unpackneg(gf r[4],const u8 p[32])
 
 int crypto_sign_open(u8 *m,u64 *mlen,const u8 *sm,u64 n,const u8 *pk)
 {
-  int i;
-  u8 t[32],h[64];
+  u64 i;
+  u8 s[32],t[32],h[64];
   gf p[4],q[4];
 
+  if (*mlen < n) return CRYPT_BUFFER_OVERFLOW;
   *mlen = -1;
-  if (n < 64) return -1;
+  if (n < 64) return CRYPT_INVALID_ARG;
 
-  if (unpackneg(q,pk)) return -1;
+  if (unpackneg(q,pk)) return CRYPT_ERROR;
 
-  FOR(i,n) m[i] = sm[i];
-  FOR(i,32) m[i+32] = pk[i];
+  XMEMMOVE(m,sm,n);
+  XMEMMOVE(s,m + 32,32);
+  XMEMMOVE(m + 32,pk,32);
   crypto_hash(h,m,n);
   reduce(h);
   scalarmult(p,q,h);
 
-  scalarbase(q,sm + 32);
+  scalarbase(q,s);
   add(p,q);
   pack(t,p);
 
   n -= 64;
   if (crypto_verify_32(sm, t)) {
     FOR(i,n) m[i] = 0;
-    return -1;
+    zeromem(m, n);
+    return CRYPT_INVALID_PACKET;
   }
 
-  FOR(i,n) m[i] = sm[i + 64];
+  XMEMMOVE(m,m + 64,n);
   *mlen = n;
-  return 0;
+  return CRYPT_OK;
 }
 
 /* ref:         $Format:%D$ */
