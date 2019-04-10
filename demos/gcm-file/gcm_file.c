@@ -37,6 +37,7 @@
   @param out               The output file
   @param taglen            The MAC tag length
   @param direction         Encrypt or Decrypt mode (GCM_ENCRYPT or GCM_DECRYPT)
+  @param res               [out] Result of the operation, 1==valid, 0==invalid
   @return CRYPT_OK on success
  */
 int gcm_file(      int           cipher,
@@ -55,6 +56,8 @@ int gcm_file(      int           cipher,
     LTC_ARGCHK(in  != NULL);
     LTC_ARGCHK(out != NULL);
     LTC_ARGCHK(res != NULL);
+
+    *res = 0;
 
     f_in = fopen(in, "rb");
     if (f_in == NULL) {

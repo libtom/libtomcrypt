@@ -61,6 +61,14 @@ LTC_EXPORT int   LTC_CALL XSTRCMP(const char *s1, const char *s2);
    #define LTC_INLINE
 #endif
 
+#if defined(__clang__) || defined(__GNUC_MINOR__)
+#define LTC_NORETURN __attribute__ ((noreturn))
+#elif defined(_MSC_VER)
+#define LTC_NORETURN __declspec(noreturn)
+#else
+#define LTC_NORETURN
+#endif
+
 /* type of argument checking, 0=default, 1=fatal and 2=error+continue, 3=nothing */
 #ifndef ARGTYPE
    #define ARGTYPE  0

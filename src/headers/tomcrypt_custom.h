@@ -554,7 +554,7 @@
    #endif
 #endif
 
-#if defined(LTC_MECC) || defined(LTC_MRSA) || defined(LTC_MDSA)
+#if defined(LTC_MECC) || defined(LTC_MRSA) || defined(LTC_MDSA) || defined(LTC_SSH)
    /* Include the MPI functionality?  (required by the PK algorithms) */
    #define LTC_MPI
 
