@@ -15,12 +15,12 @@
 
 #ifdef LTC_ED25519
 
-static int _draft_ietf_curdle_pkix_07_10_test(void)
+static int _rfc_8410_10_test(void)
 {
    const struct {
       const char* b64;
       int type;
-   } draft_ietf_curdle_pkix_07_10[] = {
+   } rfc_8410_10[] = {
                        { "MCowBQYDK2VwAyEAGb9ECWmEzf6FQbrBZ9w7lshQhqowtrbLDFw4rXAxZuE=", PK_PUBLIC | PK_STD },
 #if 0
                        { "MIIBLDCB36ADAgECAghWAUdKKo3DMDAFBgMrZXAwGTEXMBUGA1UEAwwOSUVURiBUZX"
@@ -41,17 +41,17 @@ static int _draft_ietf_curdle_pkix_07_10_test(void)
    unsigned char buf[512];
    char tmp[512];
    unsigned long buflen, tmplen;
-   for (n = 0; n < sizeof(draft_ietf_curdle_pkix_07_10)/sizeof(draft_ietf_curdle_pkix_07_10[0]); ++n) {
+   for (n = 0; n < sizeof(rfc_8410_10)/sizeof(rfc_8410_10[0]); ++n) {
       buflen = sizeof(buf);
-      DO(base64_decode(draft_ietf_curdle_pkix_07_10[n].b64, strlen(draft_ietf_curdle_pkix_07_10[n].b64), buf, &buflen));
+      DO(base64_decode(rfc_8410_10[n].b64, strlen(rfc_8410_10[n].b64), buf, &buflen));
       DO(ed25519_import(buf, buflen, &key));
       zeromem(buf, sizeof(buf));
-      if (draft_ietf_curdle_pkix_07_10[n].type != -1) {
+      if (rfc_8410_10[n].type != -1) {
          buflen = sizeof(buf);
-         DO(ed25519_export(buf, &buflen, draft_ietf_curdle_pkix_07_10[n].type, &key));
+         DO(ed25519_export(buf, &buflen, rfc_8410_10[n].type, &key));
          tmplen = sizeof(tmp);
          DO(base64_encode(buf, buflen, tmp, &tmplen));
-         DO(do_compare_testvector(tmp, tmplen, draft_ietf_curdle_pkix_07_10[n].b64, strlen(draft_ietf_curdle_pkix_07_10[n].b64), "Ed25519 export-import", n));
+         DO(do_compare_testvector(tmp, tmplen, rfc_8410_10[n].b64, strlen(rfc_8410_10[n].b64), "Ed25519 export-import", n));
       }
    }
    return CRYPT_OK;
