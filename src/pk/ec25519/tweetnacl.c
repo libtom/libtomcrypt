@@ -1,4 +1,15 @@
-#include "tweetnacl.h"
+/* LibTomCrypt, modular cryptographic library -- Tom St Denis
+ *
+ * LibTomCrypt is a library that provides various cryptographic
+ * algorithms in a highly modular and flexible manner.
+ *
+ * The library is free for all purposes without any express
+ * guarantee it works.
+ */
+#include "tomcrypt_private.h"
+
+/* automatically generated file, do not edit */
+
 #define FOR(i,n) for (i = 0;i < n;++i)
 #define sv static void
 
@@ -533,8 +544,8 @@ int crypto_hashblocks(u8 *x,const u8 *m,u64 n)
       b[3] += t;
       FOR(j,8) a[(j+1)%8] = b[j];
       if (i%16 == 15)
-	FOR(j,16)
-	  w[j] += w[(j+9)%16] + sigma0(w[(j+1)%16]) + sigma1(w[(j+14)%16]);
+    FOR(j,16)
+      w[j] += w[(j+9)%16] + sigma0(w[(j+1)%16]) + sigma1(w[(j+14)%16]);
     }
 
     FOR(i,8) { a[i] += z[i]; z[i] = a[i]; }
@@ -807,3 +818,7 @@ int crypto_sign_open(u8 *m,u64 *mlen,const u8 *sm,u64 n,const u8 *pk)
   *mlen = n;
   return 0;
 }
+
+/* ref:         $Format:%D$ */
+/* git commit:  $Format:%H$ */
+/* commit time: $Format:%ai$ */
