@@ -296,10 +296,9 @@ static int _ecc_test_mp(void)
    void       *a, *modulus, *order;
    ecc_point  *G, *GG;
    int        i, err, primality;
+   char buf[4096];
 
-   if ((err = mp_init_multi(&modulus, &order, &a, NULL)) != CRYPT_OK) {
-      return err;
-   }
+   DO(mp_init_multi(&modulus, &order, &a, NULL));
 
    G   = ltc_ecc_new_point();
    GG  = ltc_ecc_new_point();
@@ -310,34 +309,40 @@ static int _ecc_test_mp(void)
       return CRYPT_MEM;
    }
 
+   err = CRYPT_OK;
+
    for (i = 0; ltc_ecc_curves[i].prime != NULL; i++) {
-      if ((err = mp_read_radix(a, (char *)ltc_ecc_curves[i].A,  16)) != CRYPT_OK)            { goto done; }
-      if ((err = mp_read_radix(modulus, (char *)ltc_ecc_curves[i].prime, 16)) != CRYPT_OK)   { goto done; }
-      if ((err = mp_read_radix(order, (char *)ltc_ecc_curves[i].order, 16)) != CRYPT_OK)     { goto done; }
+      DO(mp_read_radix(a, (char *)ltc_ecc_curves[i].A,  16));
+      DO(mp_read_radix(modulus, (char *)ltc_ecc_curves[i].prime, 16));
+      DO(mp_read_radix(order, (char *)ltc_ecc_curves[i].order, 16));
 
       /* is prime actually prime? */
-      if ((err = mp_prime_is_prime(modulus, 8, &primality)) != CRYPT_OK)                   { goto done; }
+      DO(mp_prime_is_prime(modulus, 8, &primality));
       if (primality == 0) {
          err = CRYPT_FAIL_TESTVECTOR;
-         goto done;
+         mp_tohex(modulus, buf);
+         printf("Modulus failed prime check: %s\n", buf);
       }
 
       /* is order prime ? */
-      if ((err = mp_prime_is_prime(order, 8, &primality)) != CRYPT_OK)                     { goto done; }
+      DO(mp_prime_is_prime(order, 8, &primality));
       if (primality == 0) {
          err = CRYPT_FAIL_TESTVECTOR;
-         goto done;
+         mp_tohex(order, buf);
+         printf("Order failed prime check: %s\n", buf);
       }
 
-      if ((err = mp_read_radix(G->x, (char *)ltc_ecc_curves[i].Gx, 16)) != CRYPT_OK)       { goto done; }
-      if ((err = mp_read_radix(G->y, (char *)ltc_ecc_curves[i].Gy, 16)) != CRYPT_OK)       { goto done; }
+      DO(mp_read_radix(G->x, (char *)ltc_ecc_curves[i].Gx, 16));
+      DO(mp_read_radix(G->y, (char *)ltc_ecc_curves[i].Gy, 16));
       mp_set(G->z, 1);
 
       /* then we should have G == (order + 1)G */
-      if ((err = mp_add_d(order, 1, order)) != CRYPT_OK)                                   { goto done; }
-      if ((err = ltc_mp.ecc_ptmul(order, G, GG, a, modulus, 1)) != CRYPT_OK)               { goto done; }
+      DO(mp_add_d(order, 1, order));
+      DO(ltc_mp.ecc_ptmul(order, G, GG, a, modulus, 1));
       if (mp_cmp(G->x, GG->x) != LTC_MP_EQ || mp_cmp(G->y, GG->y) != LTC_MP_EQ) {
          err = CRYPT_FAIL_TESTVECTOR;
+      }
+      if (err != CRYPT_OK) {
          goto done;
       }
    }
