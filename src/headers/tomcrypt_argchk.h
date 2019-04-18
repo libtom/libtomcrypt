@@ -15,7 +15,7 @@
 
 #include <signal.h>
 
-void crypt_argchk(const char *v, const char *s, int d) LTC_NORETURN;
+LTC_NORETURN void crypt_argchk(const char *v, const char *s, int d);
 #define LTC_ARGCHK(x) do { if (!(x)) { crypt_argchk(#x, __FILE__, __LINE__); } }while(0)
 #define LTC_ARGCHKVD(x) do { if (!(x)) { crypt_argchk(#x, __FILE__, __LINE__); } }while(0)
 
