@@ -373,16 +373,24 @@ src/prngs/rc4.o src/prngs/rng_get_bytes.o src/prngs/rng_make_prng.o src/prngs/so
 src/prngs/sprng.o src/prngs/yarrow.o src/stream/chacha/chacha_crypt.o src/stream/chacha/chacha_done.o \
 src/stream/chacha/chacha_ivctr32.o src/stream/chacha/chacha_ivctr64.o \
 src/stream/chacha/chacha_keystream.o src/stream/chacha/chacha_memory.o \
-src/stream/chacha/chacha_setup.o src/stream/chacha/chacha_test.o src/stream/rabbit/rabbit.o \
-src/stream/rabbit/rabbit_memory.o src/stream/rc4/rc4_stream.o src/stream/rc4/rc4_stream_memory.o \
-src/stream/rc4/rc4_test.o src/stream/salsa20/salsa20_crypt.o src/stream/salsa20/salsa20_done.o \
-src/stream/salsa20/salsa20_ivctr64.o src/stream/salsa20/salsa20_keystream.o \
-src/stream/salsa20/salsa20_memory.o src/stream/salsa20/salsa20_setup.o \
-src/stream/salsa20/salsa20_test.o src/stream/salsa20/xsalsa20_memory.o \
-src/stream/salsa20/xsalsa20_setup.o src/stream/salsa20/xsalsa20_test.o \
-src/stream/sober128/sober128_stream.o src/stream/sober128/sober128_stream_memory.o \
-src/stream/sober128/sober128_test.o src/stream/sosemanuk/sosemanuk.o \
-src/stream/sosemanuk/sosemanuk_memory.o src/stream/sosemanuk/sosemanuk_test.o
+src/stream/chacha/chacha_setup.o src/stream/chacha/chacha_test.o src/stream/rabbit/rabbit_crypt.o \
+src/stream/rabbit/rabbit_done.o src/stream/rabbit/rabbit_keystream.o src/stream/rabbit/rabbit_memory.o \
+src/stream/rabbit/rabbit_setiv.o src/stream/rabbit/rabbit_setup.o src/stream/rabbit/rabbit_test.o \
+src/stream/rc4/rc4_stream_crypt.o src/stream/rc4/rc4_stream_done.o \
+src/stream/rc4/rc4_stream_keystream.o src/stream/rc4/rc4_stream_memory.o \
+src/stream/rc4/rc4_stream_setup.o src/stream/rc4/rc4_test.o src/stream/salsa20/salsa20_crypt.o \
+src/stream/salsa20/salsa20_done.o src/stream/salsa20/salsa20_ivctr64.o \
+src/stream/salsa20/salsa20_keystream.o src/stream/salsa20/salsa20_memory.o \
+src/stream/salsa20/salsa20_setup.o src/stream/salsa20/salsa20_test.o \
+src/stream/salsa20/xsalsa20_memory.o src/stream/salsa20/xsalsa20_setup.o \
+src/stream/salsa20/xsalsa20_test.o src/stream/sober128/sober128_stream_crypt.o \
+src/stream/sober128/sober128_stream_done.o src/stream/sober128/sober128_stream_keystream.o \
+src/stream/sober128/sober128_stream_memory.o src/stream/sober128/sober128_stream_setiv.o \
+src/stream/sober128/sober128_stream_setup.o src/stream/sober128/sober128_test.o \
+src/stream/sosemanuk/sosemanuk_crypt.o src/stream/sosemanuk/sosemanuk_done.o \
+src/stream/sosemanuk/sosemanuk_keystream.o src/stream/sosemanuk/sosemanuk_memory.o \
+src/stream/sosemanuk/sosemanuk_setiv.o src/stream/sosemanuk/sosemanuk_setup.o \
+src/stream/sosemanuk/sosemanuk_test.o
 
 # List of test objects to compile (all goes to libtomcrypt_prof.a)
 TOBJECTS=tests/base16_test.o tests/base32_test.o tests/base64_test.o tests/cipher_hash_test.o \
@@ -397,7 +405,8 @@ HEADERS_PUB=src/headers/tomcrypt.h src/headers/tomcrypt_argchk.h src/headers/tom
 src/headers/tomcrypt_cipher.h src/headers/tomcrypt_custom.h src/headers/tomcrypt_hash.h \
 src/headers/tomcrypt_mac.h src/headers/tomcrypt_macros.h src/headers/tomcrypt_math.h \
 src/headers/tomcrypt_misc.h src/headers/tomcrypt_pk.h src/headers/tomcrypt_pkcs.h \
-src/headers/tomcrypt_prng.h
+src/headers/tomcrypt_prng.h src/stream/rabbit/rabbit_common.h \
+src/stream/sober128/sober128_stream_common.h src/stream/sosemanuk/sosemanuk_common.h
 
 HEADERS=$(HEADERS_PUB) src/headers/tomcrypt_private.h
 

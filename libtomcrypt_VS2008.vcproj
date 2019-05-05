@@ -2643,11 +2643,35 @@
 				Name="rabbit"
 				>
 				<File
-					RelativePath="src\stream\rabbit\rabbit.c"
+					RelativePath="src\stream\rabbit\rabbit_common.h"
+					>
+				</File>
+				<File
+					RelativePath="src\stream\rabbit\rabbit_crypt.c"
+					>
+				</File>
+				<File
+					RelativePath="src\stream\rabbit\rabbit_done.c"
+					>
+				</File>
+				<File
+					RelativePath="src\stream\rabbit\rabbit_keystream.c"
 					>
 				</File>
 				<File
 					RelativePath="src\stream\rabbit\rabbit_memory.c"
+					>
+				</File>
+				<File
+					RelativePath="src\stream\rabbit\rabbit_setiv.c"
+					>
+				</File>
+				<File
+					RelativePath="src\stream\rabbit\rabbit_setup.c"
+					>
+				</File>
+				<File
+					RelativePath="src\stream\rabbit\rabbit_test.c"
 					>
 				</File>
 			</Filter>
@@ -2655,11 +2679,23 @@
 				Name="rc4"
 				>
 				<File
-					RelativePath="src\stream\rc4\rc4_stream.c"
+					RelativePath="src\stream\rc4\rc4_stream_crypt.c"
+					>
+				</File>
+				<File
+					RelativePath="src\stream\rc4\rc4_stream_done.c"
+					>
+				</File>
+				<File
+					RelativePath="src\stream\rc4\rc4_stream_keystream.c"
 					>
 				</File>
 				<File
 					RelativePath="src\stream\rc4\rc4_stream_memory.c"
+					>
+				</File>
+				<File
+					RelativePath="src\stream\rc4\rc4_stream_setup.c"
 					>
 				</File>
 				<File
@@ -2715,11 +2751,31 @@
 				Name="sober128"
 				>
 				<File
-					RelativePath="src\stream\sober128\sober128_stream.c"
+					RelativePath="src\stream\sober128\sober128_stream_common.h"
+					>
+				</File>
+				<File
+					RelativePath="src\stream\sober128\sober128_stream_crypt.c"
+					>
+				</File>
+				<File
+					RelativePath="src\stream\sober128\sober128_stream_done.c"
+					>
+				</File>
+				<File
+					RelativePath="src\stream\sober128\sober128_stream_keystream.c"
 					>
 				</File>
 				<File
 					RelativePath="src\stream\sober128\sober128_stream_memory.c"
+					>
+				</File>
+				<File
+					RelativePath="src\stream\sober128\sober128_stream_setiv.c"
+					>
+				</File>
+				<File
+					RelativePath="src\stream\sober128\sober128_stream_setup.c"
 					>
 				</File>
 				<File
@@ -2775,11 +2831,31 @@
 				Name="sosemanuk"
 				>
 				<File
-					RelativePath="src\stream\sosemanuk\sosemanuk.c"
+					RelativePath="src\stream\sosemanuk\sosemanuk_common.h"
+					>
+				</File>
+				<File
+					RelativePath="src\stream\sosemanuk\sosemanuk_crypt.c"
+					>
+				</File>
+				<File
+					RelativePath="src\stream\sosemanuk\sosemanuk_done.c"
+					>
+				</File>
+				<File
+					RelativePath="src\stream\sosemanuk\sosemanuk_keystream.c"
 					>
 				</File>
 				<File
 					RelativePath="src\stream\sosemanuk\sosemanuk_memory.c"
+					>
+				</File>
+				<File
+					RelativePath="src\stream\sosemanuk\sosemanuk_setiv.c"
+					>
+				</File>
+				<File
+					RelativePath="src\stream\sosemanuk\sosemanuk_setup.c"
 					>
 				</File>
 				<File
