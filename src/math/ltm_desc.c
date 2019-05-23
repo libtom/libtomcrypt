@@ -424,10 +424,14 @@ static int set_rand(void *a, int size)
    return mpi_to_ltc_error(mp_rand(a, size));
 }
 
+#ifndef MP_DIGIT_BIT
+#define MP_DIGIT_BIT DIGIT_BIT
+#endif
+
 const ltc_math_descriptor ltm_desc = {
 
    "LibTomMath",
-   (int)DIGIT_BIT,
+   (int)MP_DIGIT_BIT,
 
    &init,
    &init_copy,
