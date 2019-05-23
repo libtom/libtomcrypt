@@ -13,7 +13,7 @@
   Import a Ed25519 key from a binary packet, Steffen Jaeckel
 */
 
-#ifdef LTC_ED25519
+#ifdef LTC_CURVE25519
 
 /**
   Import a Ed25519 key from a binary packet

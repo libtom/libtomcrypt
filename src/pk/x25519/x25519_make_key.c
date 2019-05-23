@@ -13,7 +13,7 @@
   Create a X25519 key, Steffen Jaeckel
 */
 
-#ifdef LTC_X25519
+#ifdef LTC_CURVE25519
 
 /**
    Create a X25519 key

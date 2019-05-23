@@ -300,7 +300,7 @@ int dsa_int_validate_primes(const dsa_key *key, int *stat);
 #endif /* LTC_MDSA */
 
 
-#ifdef LTC_ED25519
+#ifdef LTC_CURVE25519
 
 int crypto_sign(
   unsigned char *sm,unsigned long long *smlen,
@@ -312,15 +312,10 @@ int crypto_sign_open(
   const unsigned char *pk);
 int crypto_sign_keypair(prng_state *prng, int wprng, unsigned char *pk,unsigned char *sk);
 int crypto_sk_to_pk(unsigned char *pk, const unsigned char *sk);
-
-#endif /* LTC_ED25519 */
-
-#ifdef LTC_X25519
-
 int crypto_scalarmult(unsigned char *q, const unsigned char *n, const unsigned char *p);
 int crypto_scalarmult_base(unsigned char *q,const unsigned char *n);
 
-#endif /* LTC_X25519 */
+#endif /* LTC_CURVE25519 */
 
 #ifdef LTC_DER
 

@@ -13,7 +13,7 @@
   Ed25519 tests, Steffen Jaeckel
 */
 
-#ifdef LTC_ED25519
+#ifdef LTC_CURVE25519
 
 static int _rfc_8410_10_test(void)
 {

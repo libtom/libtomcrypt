@@ -13,7 +13,7 @@
   Export a Ed25519 key to a binary packet, Steffen Jaeckel
 */
 
-#ifdef LTC_ED25519
+#ifdef LTC_CURVE25519
 
 /**
    Export a Ed25519 key to a binary packet

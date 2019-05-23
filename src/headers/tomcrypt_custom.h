@@ -431,11 +431,8 @@
 /* Digital Signature Algorithm */
 #define LTC_MDSA
 
-/* Ed25519 */
-#define LTC_ED25519
-
-/* X25519 */
-#define LTC_X25519
+/* Ed25519 & X25519 */
+#define LTC_CURVE25519
 
 /* ECC */
 #define LTC_MECC
@@ -465,11 +462,6 @@
 #if defined(LTC_MECC) && !defined(LTC_NO_ECC_TIMING_RESISTANT)
 /* Enable ECC timing resistant version by default */
 #define LTC_ECC_TIMING_RESISTANT
-#endif
-
-#if defined(LTC_X25519) || defined(LTC_ED25519)
-/* Enable curve25519 shared functionality */
-#define LTC_CURVE25519
 #endif
 
 /* PKCS #1 (RSA) and #5 (Password Handling) stuff */

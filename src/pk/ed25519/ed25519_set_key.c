@@ -13,7 +13,7 @@
   Set the parameters of a Ed25519 key, Steffen Jaeckel
 */
 
-#ifdef LTC_ED25519
+#ifdef LTC_CURVE25519
 
 /**
    Set the parameters of a Ed25519 key

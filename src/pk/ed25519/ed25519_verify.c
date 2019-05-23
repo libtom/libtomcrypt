@@ -13,7 +13,7 @@
   Verify a Ed25519 signature, Steffen Jaeckel
 */
 
-#ifdef LTC_ED25519
+#ifdef LTC_CURVE25519
 
 /**
    Verify a Ed25519 signature.

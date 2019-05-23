@@ -13,7 +13,7 @@
   Set the parameters of a X25519 key, Steffen Jaeckel
 */
 
-#ifdef LTC_X25519
+#ifdef LTC_CURVE25519
 
 /**
    Set the parameters of a X25519 key

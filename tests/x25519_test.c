@@ -13,7 +13,7 @@
   x25519 tests, Steffen Jaeckel
 */
 
-#ifdef LTC_X25519
+#ifdef LTC_CURVE25519
 
 static int _rfc_7748_5_2_test(void)
 {

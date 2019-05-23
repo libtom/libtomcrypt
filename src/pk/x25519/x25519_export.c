@@ -13,7 +13,7 @@
   Export a X25519 key to a binary packet, Steffen Jaeckel
 */
 
-#ifdef LTC_X25519
+#ifdef LTC_CURVE25519
 
 /**
    Export a X25519 key to a binary packet

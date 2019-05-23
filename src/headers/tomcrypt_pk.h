@@ -345,10 +345,9 @@ typedef struct {
    unsigned char pub[32];
 } curve25519_key;
 
-#endif /* LTC_CURVE25519 */
 
-#ifdef LTC_ED25519
 
+/* Ed25519 Signature API */
 int ed25519_make_key(prng_state *prng, int wprng, curve25519_key *key);
 
 int ed25519_export(       unsigned char *out, unsigned long *outlen,
@@ -369,10 +368,7 @@ int ed25519_verify(const  unsigned char *msg, unsigned long msglen,
                    const  unsigned char *sig, unsigned long siglen,
                    int *stat, const curve25519_key *public_key);
 
-#endif /* LTC_ED25519 */
-
-#ifdef LTC_X25519
-
+/* X25519 Key-Exchange API */
 int x25519_make_key(prng_state *prng, int wprng, curve25519_key *key);
 
 int x25519_export(       unsigned char *out, unsigned long *outlen,
@@ -389,7 +385,7 @@ int x25519_shared_secret(const curve25519_key *private_key,
                          const curve25519_key *public_key,
                                 unsigned char *out, unsigned long *outlen);
 
-#endif /* LTC_X25519 */
+#endif /* LTC_CURVE25519 */
 
 #ifdef LTC_MDSA
 

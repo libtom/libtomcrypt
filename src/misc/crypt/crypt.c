@@ -354,10 +354,10 @@ const char *crypt_build_settings =
     "   DSA\n"
 #endif
 #if defined(LTC_CURVE25519)
-#if defined(LTC_ED25519)
+#if defined(LTC_CURVE25519)
     "   Ed25519\n"
 #endif
-#if defined(LTC_X25519)
+#if defined(LTC_CURVE25519)
     "   X25519\n"
 #endif
 #endif
