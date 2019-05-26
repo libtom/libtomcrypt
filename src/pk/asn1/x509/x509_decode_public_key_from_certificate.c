@@ -33,7 +33,7 @@
    @param parameters_len   [in/out] The number of parameters to include
    @param callback         The callback
    @param ctx              The context passed to the callback
-   @return CRYPT_OK on success
+   @return CRYPT_OK on success, CRYPT_NOP if no SubjectPublicKeyInfo was found
 */
 int x509_decode_public_key_from_certificate(const unsigned char *in, unsigned long inlen,
                                             enum ltc_oid_id algorithm, ltc_asn1_type param_type,
@@ -59,7 +59,7 @@ int x509_decode_public_key_from_certificate(const unsigned char *in, unsigned lo
    if ((err = der_decode_sequence_flexi(in, &tmp_inlen, &decoded_list)) == CRYPT_OK) {
       l = decoded_list;
 
-      err = CRYPT_INVALID_ARG;
+      err = CRYPT_NOP;
 
       /* Move 2 levels up in the tree
          SEQUENCE
@@ -86,12 +86,16 @@ int x509_decode_public_key_from_certificate(const unsigned char *in, unsigned lo
                if ((l->type == LTC_ASN1_SEQUENCE)
                      && (l->data != NULL)
                      && LOOKS_LIKE_SPKI(l->child)) {
-                  err = x509_decode_subject_public_key_info(l->data, l->size,
-                                                            algorithm, tmpbuf, &tmpbuf_len,
-                                                            param_type, parameters, parameters_len);
-                  if (err == CRYPT_OK) {
-                     err = callback(tmpbuf, tmpbuf_len, ctx);
-                     goto LBL_OUT;
+                  if (algorithm == PKA_EC) {
+                     err = ecc_import_subject_public_key_info(l->data, l->size, ctx);
+                  } else {
+                     err = x509_decode_subject_public_key_info(l->data, l->size,
+                                                               algorithm, tmpbuf, &tmpbuf_len,
+                                                               param_type, parameters, parameters_len);
+                     if (err == CRYPT_OK) {
+                        err = callback(tmpbuf, tmpbuf_len, ctx);
+                        goto LBL_OUT;
+                  }
                   }
                }
                l = l->next;
