@@ -117,6 +117,33 @@ static int _rfc_7748_6_test(void)
    return CRYPT_OK;
 }
 
+static int _rfc_8410_10_test(void)
+{
+   const struct {
+      const char* b64;
+   } rfc_8410_10[] = {
+                         /* RFC 8410 - 10.2.  Example X25519 Certificate */
+                       { "MIIBLDCB36ADAgECAghWAUdKKo3DMDAFBgMrZXAwGTEXMBUGA1UEAwwOSUVURiBUZX"
+                         "N0IERlbW8wHhcNMTYwODAxMTIxOTI0WhcNNDAxMjMxMjM1OTU5WjAZMRcwFQYDVQQD"
+                         "DA5JRVRGIFRlc3QgRGVtbzAqMAUGAytlbgMhAIUg8AmJMKdUdIt93LQ+91oNvzoNJj"
+                         "ga9OukqY6qm05qo0UwQzAPBgNVHRMBAf8EBTADAQEAMA4GA1UdDwEBAAQEAwIDCDAg"
+                         "BgNVHQ4BAQAEFgQUmx9e7e0EM4Xk97xiPFl1uQvIuzswBQYDK2VwA0EAryMB/t3J5v"
+                         "/BzKc9dNZIpDmAgs3babFOTQbs+BolzlDUwsPrdGxO3YNGhW7Ibz3OGhhlxXrCe1Cg"
+                         "w1AH9efZBw==" },
+   };
+   unsigned n;
+   curve25519_key key;
+   unsigned char buf[1024];
+   unsigned long buflen;
+   for (n = 0; n < sizeof(rfc_8410_10)/sizeof(rfc_8410_10[0]); ++n) {
+      buflen = sizeof(buf);
+      DO(base64_decode(rfc_8410_10[n].b64, strlen(rfc_8410_10[n].b64), buf, &buflen));
+      DO(x25519_import_x509(buf, buflen, &key));
+      zeromem(buf, sizeof(buf));
+   }
+   return CRYPT_OK;
+}
+
 static int _x25519_compat_test(void)
 {
    curve25519_key priv, pub, imported;
@@ -169,6 +196,9 @@ int x25519_test(void)
       return ret;
    }
    if ((ret = _rfc_7748_6_test()) != CRYPT_OK) {
+      return ret;
+   }
+   if ((ret = _rfc_8410_10_test()) != CRYPT_OK) {
       return ret;
    }
    if ((ret = _x25519_compat_test()) != CRYPT_OK) {

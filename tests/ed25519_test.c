@@ -21,32 +21,44 @@ static int _rfc_8410_10_test(void)
       const char* b64;
       int type;
    } rfc_8410_10[] = {
+                         /* RFC 8410 - 10.1.  Example Ed25519 Public Key */
                        { "MCowBQYDK2VwAyEAGb9ECWmEzf6FQbrBZ9w7lshQhqowtrbLDFw4rXAxZuE=", PK_PUBLIC | PK_STD },
-#if 0
-                       { "MIIBLDCB36ADAgECAghWAUdKKo3DMDAFBgMrZXAwGTEXMBUGA1UEAwwOSUVURiBUZX"
-                         "N0IERlbW8wHhcNMTYwODAxMTIxOTI0WhcNNDAxMjMxMjM1OTU5WjAZMRcwFQYDVQQD"
-                         "DA5JRVRGIFRlc3QgRGVtbzAqMAUGAytlbgMhAIUg8AmJMKdUdIt93LQ+91oNvzoNJj"
-                         "ga9OukqY6qm05qo0UwQzAPBgNVHRMBAf8EBTADAQEAMA4GA1UdDwEBAAQEAwIDCDAg"
-                         "BgNVHQ4BAQAEFgQUmx9e7e0EM4Xk97xiPFl1uQvIuzswBQYDK2VwA0EAryMB/t3J5v"
-                         "/BzKc9dNZIpDmAgs3babFOTQbs+BolzlDUwsPrdGxO3YNGhW7Ibz3OGhhlxXrCe1Cg"
-                         "w1AH9efZBw==", -1 },
-#endif
+                         /* Okay this is not from RFC 8410, but a custom generated certificate with Ed25519 Public Key.
+                          * Since RFC 8410 has no testvector for that case, one had to be created.
+                          * ( openssl req -verbose -new -x509 -subj "/CN=Public domain ed25519 self-signed certificate" -days 36525 -key <( openssl genpkey -algorithm ed25519 2>/dev/null | tee /dev/fd/3) | openssl x509  ) 3>&1
+                          * Thx @vdukhovni
+                          */
+                       { "MIIBhDCCATagAwIBAgIUHDa8kJUZeCuIhknPJ/wDeBW6gZgwBQYDK2VwMDgxNjA0"
+                         "BgNVBAMMLVB1YmxpYyBkb21haW4gZWQyNTUxOSBzZWxmLXNpZ25lZCBjZXJ0aWZp"
+                         "Y2F0ZTAgFw0xOTA1MjMyMTAxMTZaGA8yMTE5MDUyNDIxMDExNlowODE2MDQGA1UE"
+                         "AwwtUHVibGljIGRvbWFpbiBlZDI1NTE5IHNlbGYtc2lnbmVkIGNlcnRpZmljYXRl"
+                         "MCowBQYDK2VwAyEAUEiKvHT0KHXOtNjIhaImokxbiog+Ki6lcgce05tf9UKjUDBO"
+                         "MB0GA1UdDgQWBBS3fmpWaPK2fNpblEmg4tG4ZHO2BDAfBgNVHSMEGDAWgBS3fmpW"
+                         "aPK2fNpblEmg4tG4ZHO2BDAMBgNVHRMEBTADAQH/MAUGAytlcANBADOnwkj8etmx"
+                         "mTaXUP29RaenxpN8dQoQ4wnnIJwxQxTcVWOt2PlUxCFoB9gs0+YZOzhXnQg4hfqk"
+                         "t/HPExwoZQg=", -2 },
+                         /* RFC 8410 - 10.3.  Examples of Ed25519 Private Key */
                        { "MC4CAQAwBQYDK2VwBCIEINTuctv5E1hK1bbY8fdp+K06/nwoy/HU++CXqI9EdVhC", PK_PRIVATE | PK_STD },
+                         /* RFC 8410 - 10.3.  Examples of Ed25519 Private Key with attribute */
                        { "MHICAQEwBQYDK2VwBCIEINTuctv5E1hK1bbY8fdp+K06/nwoy/HU++CXqI9EdVhC"
                          "oB8wHQYKKoZIhvcNAQkJFDEPDA1DdXJkbGUgQ2hhaXJzgSEAGb9ECWmEzf6FQbrB"
                          "Z9w7lshQhqowtrbLDFw4rXAxZuE=", -1 },
    };
    unsigned n;
    curve25519_key key;
-   unsigned char buf[512];
+   unsigned char buf[1024];
    char tmp[512];
    unsigned long buflen, tmplen;
    for (n = 0; n < sizeof(rfc_8410_10)/sizeof(rfc_8410_10[0]); ++n) {
       buflen = sizeof(buf);
       DO(base64_decode(rfc_8410_10[n].b64, strlen(rfc_8410_10[n].b64), buf, &buflen));
-      DO(ed25519_import(buf, buflen, &key));
+      if (rfc_8410_10[n].type == -2) {
+         DO(ed25519_import_x509(buf, buflen, &key));
+      } else {
+         DO(ed25519_import(buf, buflen, &key));
+      }
       zeromem(buf, sizeof(buf));
-      if (rfc_8410_10[n].type != -1) {
+      if (rfc_8410_10[n].type > 0) {
          buflen = sizeof(buf);
          DO(ed25519_export(buf, &buflen, rfc_8410_10[n].type, &key));
          tmplen = sizeof(tmp);
