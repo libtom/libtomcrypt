@@ -346,7 +346,6 @@ typedef struct {
 } curve25519_key;
 
 
-
 /* Ed25519 Signature API */
 int ed25519_make_key(prng_state *prng, int wprng, curve25519_key *key);
 
@@ -355,6 +354,8 @@ int ed25519_export(       unsigned char *out, unsigned long *outlen,
                    const curve25519_key *key);
 
 int ed25519_import(const unsigned char *in, unsigned long inlen, curve25519_key *key);
+
+int ed25519_import_x509(const unsigned char *in, unsigned long inlen, curve25519_key *key);
 
 int ed25519_set_key(const unsigned char *sk, unsigned long sklen,
                     const unsigned char *pk, unsigned long pklen,
@@ -376,6 +377,8 @@ int x25519_export(       unsigned char *out, unsigned long *outlen,
                   const curve25519_key *key);
 
 int x25519_import(const unsigned char *in, unsigned long inlen, curve25519_key *key);
+
+int x25519_import_x509(const unsigned char *in, unsigned long inlen, curve25519_key *key);
 
 int x25519_set_ku(const unsigned char *k,  unsigned long klen,
                   const unsigned char *u,  unsigned long ulen,
