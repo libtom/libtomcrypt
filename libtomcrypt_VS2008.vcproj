@@ -2194,6 +2194,10 @@
 					Name="x509"
 					>
 					<File
+						RelativePath="src\pk\asn1\x509\x509_decode_public_key_from_certificate.c"
+						>
+					</File>
+					<File
 						RelativePath="src\pk\asn1\x509\x509_decode_subject_public_key_info.c"
 						>
 					</File>

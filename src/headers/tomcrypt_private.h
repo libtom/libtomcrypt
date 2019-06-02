@@ -330,6 +330,13 @@ int der_teletex_value_decode(int v);
 
 int der_utf8_valid_char(const wchar_t c);
 
+typedef int (*public_key_decode_cb)(const unsigned char *in, unsigned long inlen, void *ctx);
+
+int x509_decode_public_key_from_certificate(const unsigned char *in, unsigned long inlen,
+                                            enum ltc_oid_id algorithm, ltc_asn1_type param_type,
+                                            ltc_asn1_list* parameters, unsigned long *parameters_len,
+                                            public_key_decode_cb callback, void *ctx);
+
 /* SUBJECT PUBLIC KEY INFO */
 int x509_encode_subject_public_key_info(unsigned char *out, unsigned long *outlen,
         unsigned int algorithm, const void* public_key, unsigned long public_key_len,

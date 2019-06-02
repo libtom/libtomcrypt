@@ -34,7 +34,7 @@
    @param public_key_len        [in/out] The length of the public key buffer and the written length
    @param parameters_type       The parameters' type out of the enum ltc_asn1_type
    @param parameters            The parameters to include
-   @param parameters_len        [in/out]The number of parameters to include
+   @param parameters_len        [in/out] The number of parameters to include
    @return CRYPT_OK on success
 */
 int x509_decode_subject_public_key_info(const unsigned char *in, unsigned long inlen,
@@ -42,18 +42,25 @@ int x509_decode_subject_public_key_info(const unsigned char *in, unsigned long i
         ltc_asn1_type parameters_type, ltc_asn1_list* parameters, unsigned long *parameters_len)
 {
    int err;
-   unsigned long len, alg_id_num;
+   unsigned long len, alg_id_num, tmplen;
    const char* oid;
    unsigned char *tmpbuf;
    unsigned long  tmpoid[16];
+   unsigned long *_parameters_len;
    ltc_asn1_list alg_id[2];
    ltc_asn1_list subject_pubkey[2];
 
    LTC_ARGCHK(in    != NULL);
    LTC_ARGCHK(inlen != 0);
    LTC_ARGCHK(public_key_len != NULL);
+
    if (parameters_type != LTC_ASN1_EOL) {
-      LTC_ARGCHK(parameters_len != NULL);
+      if ((parameters == NULL) || (parameters_len == NULL)) {
+         tmplen = 0;
+         _parameters_len = &tmplen;
+      } else {
+         _parameters_len = parameters_len;
+      }
    }
 
    err = pk_get_oid(algorithm, &oid);
@@ -72,9 +79,8 @@ int x509_decode_subject_public_key_info(const unsigned char *in, unsigned long i
    LTC_SET_ASN1(alg_id, 0, LTC_ASN1_OBJECT_IDENTIFIER, tmpoid, sizeof(tmpoid)/sizeof(tmpoid[0]));
    if (parameters_type == LTC_ASN1_EOL) {
       alg_id_num = 1;
-   }
-   else {
-      LTC_SET_ASN1(alg_id, 1, parameters_type, parameters, *parameters_len);
+   } else {
+      LTC_SET_ASN1(alg_id, 1, parameters_type, parameters, *_parameters_len);
       alg_id_num = 2;
    }
 
@@ -89,7 +95,7 @@ int x509_decode_subject_public_key_info(const unsigned char *in, unsigned long i
            goto LBL_ERR;
    }
    if (parameters_type != LTC_ASN1_EOL) {
-      *parameters_len = alg_id[1].size;
+      *_parameters_len = alg_id[1].size;
    }
 
    if ((err = pk_oid_cmp_with_asn1(oid, &alg_id[0])) != CRYPT_OK) {

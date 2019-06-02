@@ -112,36 +112,7 @@ success:
 */
 int ecc_import_x509(const unsigned char *in, unsigned long inlen, ecc_key *key)
 {
-   int           err;
-   unsigned long len;
-   ltc_asn1_list *decoded_list = NULL, *l;
-
-   LTC_ARGCHK(in  != NULL);
-   LTC_ARGCHK(key != NULL);
-
-   len = inlen;
-   if ((err = der_decode_sequence_flexi(in, &len, &decoded_list)) == CRYPT_OK) {
-      err = CRYPT_ERROR;
-      l = decoded_list;
-      if (l->type == LTC_ASN1_SEQUENCE &&
-          l->child && l->child->type == LTC_ASN1_SEQUENCE) {
-         l = l->child->child;
-         while (l) {
-            if (l->type == LTC_ASN1_SEQUENCE && l->data &&
-                l->child && l->child->type == LTC_ASN1_SEQUENCE &&
-                l->child->child && l->child->child->type == LTC_ASN1_OBJECT_IDENTIFIER &&
-                l->child->next && l->child->next->type == LTC_ASN1_BIT_STRING) {
-               err = ecc_import_subject_public_key_info(l->data, l->size, key);
-               goto LBL_DONE;
-            }
-            l = l->next;
-         }
-      }
-   }
-
-LBL_DONE:
-   if (decoded_list) der_free_sequence_flexi(decoded_list);
-   return err;
+   return x509_decode_public_key_from_certificate(in, inlen, PKA_EC, LTC_ASN1_EOL, NULL, NULL, NULL, key);
 }
 
 #endif /* LTC_MECC */
