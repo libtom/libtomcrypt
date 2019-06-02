@@ -15,7 +15,7 @@
   @param outlen   [out] The decoded ASN.1 length
   @return CRYPT_OK if successful
 */
-int der_decode_asn1_length(const unsigned char *in, unsigned long *inlen, unsigned long *outlen)
+int der_decode_asn1_length_ex(const unsigned char *in, unsigned long *inlen, unsigned long *outlen, unsigned int flags)
 {
    unsigned long real_len, decoded_len, offset, i;
 
@@ -42,10 +42,17 @@ int der_decode_asn1_length(const unsigned char *in, unsigned long *inlen, unsign
       if (real_len > (*inlen - 1)) {
          return CRYPT_BUFFER_OVERFLOW;
       }
+      flags &= LTC_DER_SEQ_LEN_STRICT;
       decoded_len = 0;
       offset = 1 + real_len;
       for (i = 0; i < real_len; i++) {
          decoded_len = (decoded_len << 8) | in[1 + i];
+         if ((flags == LTC_DER_SEQ_LEN_STRICT) && (decoded_len == 0)) {
+            return CRYPT_PK_ASN1_ERROR;
+         }
+      }
+      if ((flags == LTC_DER_SEQ_LEN_STRICT) && (real_len == 1) && (decoded_len < 128)) {
+         return CRYPT_PK_ASN1_ERROR;
       }
    }
 
