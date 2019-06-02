@@ -596,9 +596,17 @@ enum ltc_der_seq {
    LTC_DER_SEQ_RELAXED = LTC_DER_SEQ_ZERO,
    LTC_DER_SEQ_STRICT = 0x2u,
 
+   /** Bit2  - [0]=Relaxed Length Check
+    *          [1]=Strict Length Check */
+   LTC_DER_SEQ_LEN_RELAXED = LTC_DER_SEQ_ZERO,
+   LTC_DER_SEQ_LEN_STRICT = 0x4u,
+
    /** Alternative naming */
    LTC_DER_SEQ_SET = LTC_DER_SEQ_UNORDERED,
    LTC_DER_SEQ_SEQUENCE = LTC_DER_SEQ_ORDERED,
+
+   LTC_DER_SEQ_ALL_STRICT = LTC_DER_SEQ_STRICT | LTC_DER_SEQ_LEN_STRICT,
+
 };
 
 int der_decode_sequence_ex(const unsigned char *in, unsigned long  inlen,

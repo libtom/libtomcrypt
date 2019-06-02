@@ -47,6 +47,7 @@ int der_decode_custom_type_ex(const unsigned char *in,   unsigned long  inlen,
    int           err, seq_err, i, ordered;
    ltc_asn1_type type;
    ltc_asn1_list ident;
+   unsigned int f;
    unsigned long size, x, y, z, blksize;
    unsigned char* in_new = NULL;
    void          *data;
@@ -63,7 +64,8 @@ int der_decode_custom_type_ex(const unsigned char *in,   unsigned long  inlen,
       LTC_ARGCHK(list != NULL);
 
       /* sequence type? We allow 0x30 SEQUENCE and 0x31 SET since fundamentally they're the same structure */
-      if (in[x] != 0x30 && in[x] != 0x31) {
+      f = flags & ~(LTC_DER_SEQ_ALL_STRICT);
+      if (((f == LTC_DER_SEQ_SEQUENCE) && (in[x] != 0x30)) || (((f == LTC_DER_SEQ_SET) && (in[x] != 0x31)))) {
          return CRYPT_INVALID_PACKET;
       }
       ++x;
@@ -116,7 +118,7 @@ int der_decode_custom_type_ex(const unsigned char *in,   unsigned long  inlen,
    } else {
 
       y = inlen - x;
-      if ((err = der_decode_asn1_length(&in[x], &y, &blksize)) != CRYPT_OK) {
+      if ((err = der_decode_asn1_length_ex(&in[x], &y, &blksize, flags)) != CRYPT_OK) {
          goto LBL_ERR;
       }
       x += y;

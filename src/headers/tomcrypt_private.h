@@ -351,7 +351,8 @@ int der_decode_asn1_identifier(const unsigned char *in, unsigned long *inlen, lt
 int der_length_asn1_identifier(const ltc_asn1_list *id, unsigned long *idlen);
 
 int der_encode_asn1_length(unsigned long len, unsigned char* out, unsigned long* outlen);
-int der_decode_asn1_length(const unsigned char *in, unsigned long *inlen, unsigned long *outlen);
+int der_decode_asn1_length_ex(const unsigned char *in, unsigned long *inlen, unsigned long *outlen, unsigned int flags);
+#define der_decode_asn1_length(i, il, ol) der_decode_asn1_length_ex(i, il, ol, 0)
 int der_length_asn1_length(unsigned long len, unsigned long *outlen);
 
 int der_length_sequence_ex(const ltc_asn1_list *list, unsigned long inlen,
