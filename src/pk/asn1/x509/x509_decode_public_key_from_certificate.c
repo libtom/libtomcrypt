@@ -95,7 +95,7 @@ int x509_decode_public_key_from_certificate(const unsigned char *in, unsigned lo
                      if (err == CRYPT_OK) {
                         err = callback(tmpbuf, tmpbuf_len, ctx);
                         goto LBL_OUT;
-                  }
+                     }
                   }
                }
                l = l->next;
