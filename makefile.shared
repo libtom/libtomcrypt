@@ -18,19 +18,22 @@ PLATFORM := $(shell uname | sed -e 's/_.*//')
 
 ifeq ($(LIBTOOL),rlibtool)
   TGTLIBTOOL:=slibtool-shared
+else
+  ifndef LIBTOOL
+    ifeq ($(PLATFORM), Darwin)
+      TGTLIBTOOL:=glibtool
+    else
+      TGTLIBTOOL:=libtool
+    endif
+  else
+    TGTLIBTOOL=$(LIBTOOL)
+  endif
 endif
 
-ifndef LIBTOOL
-  ifeq ($(PLATFORM), Darwin)
-    LIBTOOL:=glibtool
-  else
-    LIBTOOL:=libtool
-  endif
-  TGTLIBTOOL=$(LIBTOOL)
-endif
 ifeq ($(PLATFORM), CYGWIN)
   NO_UNDEFINED:=-no-undefined
 endif
+
 LTCOMPILE = $(TGTLIBTOOL) --mode=compile --tag=CC $(CC)
 INSTALL_CMD = $(TGTLIBTOOL) --mode=install install
 UNINSTALL_CMD = $(TGTLIBTOOL) --mode=uninstall rm
