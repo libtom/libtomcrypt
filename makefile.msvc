@@ -235,11 +235,12 @@ src/ciphers/aes/aes_enc.obj: src/ciphers/aes/aes.c src/ciphers/aes/aes_tab.c
 #SPECIAL: these are the rules to make certain object files
 src/ciphers/aes/aes.obj: src/ciphers/aes/aes.c src/ciphers/aes/aes_tab.c
 src/ciphers/twofish/twofish.obj: src/ciphers/twofish/twofish.c src/ciphers/twofish/twofish_tab.c
-src/hashes/whirl/whirl.obj: src/hashes/whirl/whirl.c src/hashes/whirl/whirltab.c
+src/hashes/sha2/sha256.obj: src/hashes/sha2/sha256.c src/hashes/sha2/sha224.c
+src/hashes/sha2/sha384.obj: src/hashes/sha2/sha384.c src/hashes/sha2/sha512.c
 src/hashes/sha2/sha512.obj: src/hashes/sha2/sha512.c src/hashes/sha2/sha384.c
 src/hashes/sha2/sha512_224.obj: src/hashes/sha2/sha512.c src/hashes/sha2/sha512_224.c
 src/hashes/sha2/sha512_256.obj: src/hashes/sha2/sha512.c src/hashes/sha2/sha512_256.c
-src/hashes/sha2/sha256.obj: src/hashes/sha2/sha256.c src/hashes/sha2/sha224.c
+src/hashes/whirl/whirl.obj: src/hashes/whirl/whirl.c src/hashes/whirl/whirltab.c
 
 #Dependencies on *.h
 $(OBJECTS): $(HEADERS)
