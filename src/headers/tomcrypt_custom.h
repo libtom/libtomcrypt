@@ -431,6 +431,9 @@
 /* Digital Signature Algorithm */
 #define LTC_MDSA
 
+/* Ed25519 & X25519 */
+#define LTC_CURVE25519
+
 /* ECC */
 #define LTC_MECC
 

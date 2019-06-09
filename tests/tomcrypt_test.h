@@ -44,6 +44,8 @@ int multi_test(void);
 int prng_test(void);
 int mpi_test(void);
 int padding_test(void);
+int x25519_test(void);
+int ed25519_test(void);
 int ssh_test(void);
 
 #ifdef LTC_PKCS_1
