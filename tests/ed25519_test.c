@@ -231,6 +231,11 @@ static int _rfc_8032_7_1_test(void)
 int ed25519_test(void)
 {
    int ret;
+   curve25519_key key;
+
+   if ((ret = ed25519_make_key(&yarrow_prng, find_prng("yarrow"), &key)) != CRYPT_OK) {
+      return ret;
+   }
 
    if (ltc_mp.name == NULL) return CRYPT_NOP;
 
