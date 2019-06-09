@@ -121,7 +121,7 @@ int ssh_encode_sequence_multi(unsigned char *out, unsigned long *outlen, ...)
             size = strlen(sdata);
             STORE32H(size, out);
             out += 4;
-            XSTRNCPY((char *)out, sdata, size);
+            XMEMCPY(out, sdata, size);
             out += size;
             break;
          case LTC_SSHDATA_MPINT:
