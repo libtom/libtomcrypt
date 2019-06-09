@@ -4998,7 +4998,7 @@ done2:
 When the above code snippet is done (assuming all went well) there will be a shared 128-bit key in the ``key'' array
 passed to ``establish\_secure\_socket()''.
 
-\chapter{Elliptic Curve Cryptography}
+\chapter{Elliptic Curve Cryptography - $GF(p)$}
 
 \mysection{Introduction}
 
@@ -5714,6 +5714,208 @@ ECCEncrypt ::= SEQUENCE {
                                     --"hash of shared secret"
 }
 \end{verbatim}
+
+\chapter{Elliptic Curve Cryptography - $Montgomery/Twisted Edwards$}
+\mysection{Introduction}
+
+The library provides functionality for \textit{Curve25519}-based \textit{X25519} Diffie-Hellman shared secrets
+and \textit{EdDSA} a.k.a \textit{Ed25519} signature schemes.
+
+The implementation is based on the \textit{tweetnacl}\footnote{\url{https://tweetnacl.cr.yp.to/}} reference implementation
+as provided by Daniel J. Bernstein et.al. and only slightly modified to better fit in the library.
+
+Both algorithms share the key structure called \textit{curve25519\_key} which is used by all Curve25519 functions.
+
+As Curve25519 and Ed25519 are based on the same elliptic curve, but use different mathematics, the keys are not
+compatible to each other.
+
+It is possible to convert a Curve-Key to an Ed-Key and vice-versa, but this is not provided (yet).
+
+
+\mysection{Curve25519 Diffie-Hellman Key Exchange - X25519}
+
+\subsection{X25519 Key Operations}
+
+The \textit{X25519} algorithm API provides the following set of functions to create, import and export keys.
+
+\index{x25519\_make\_key}
+\begin{verbatim}
+int x25519_make_key(prng_state *prng, int wprng, curve25519_key *key);
+\end{verbatim}
+
+To generate a fresh X25529 key, one can use \textit{x25519\_make\_key} which will create a private\&public key-pair.
+
+\index{x25519\_set\_key}
+\begin{verbatim}
+int x25519_set_key(const unsigned char *k,  unsigned long klen,
+                   const unsigned char *u,  unsigned long ulen,
+                        curve25519_key *key);
+\end{verbatim}
+
+To import a public or private key in raw format, one can use the function \textit{x25519\_set\_key}.
+In case both, the secret part \textit{k} and the public part \textit{u} are given, the operation validates that the given 
+public part fits to the secret part.
+
+\index{x25519\_import}
+\begin{verbatim}
+int x25519_import(const unsigned char *in, unsigned long inlen, curve25519_key *key);
+\end{verbatim}
+
+The \textit{x25519\_import} function can be used to import a public key in DER-encoded \textit{SubjectPublicKeyInfo} format.
+
+\index{x25519\_import\_x509}
+\begin{verbatim}
+int x25519_import_x509(const unsigned char *in, unsigned long inlen, curve25519_key *key);
+\end{verbatim}
+
+To import a public key from a DER-encoded \textit{X.509} certificate, one can use the function \textit{x25519\_import\_x509}.
+
+\index{x25519\_import\_pkcs8}
+\begin{verbatim}
+int x25519_import_pkcs8(const unsigned char *in, unsigned long inlen,
+                                 const void *pwd, unsigned long pwdlen,
+                             curve25519_key *key);
+\end{verbatim}
+
+To import a private key in the \textit{OneAsymmetricKey} a.k.a \textit{PKCS \#8} format, either plain or PBES encrypted,
+one can use the function \textit{x25519\_import\_pkcs8}.
+
+\index{x25519\_export}
+\begin{verbatim}
+int x25519_export(       unsigned char *out, unsigned long *outlen,
+                                   int  which,
+                  const curve25519_key *key);
+\end{verbatim}
+
+To export a key, the function \textit{x25519\_export} is provided.
+
+It has support for the following output formats:
+
+\begin{figure}[H]
+\begin{center}
+\begin{tabular}{|c|c|}
+\hline \textbf{which} & \textbf{output format} \\
+\hline PK\_PRIVATE & Raw \\
+\hline PK\_PRIVATE \& PK\_STD & PKCS \#8 \\
+\hline PK\_PUBLIC & Raw \\
+\hline PK\_PUBLIC \& PK\_STD & SubjectPublicKeyInfo \\
+\hline
+\end{tabular}
+\end{center}
+\caption{Possible x25519\_export() output formats}
+\end{figure}
+
+\subsection{X25519 Cryptographic Operations}
+
+To construct a Diffie-Hellman shared secret with a private and a public X25519 key, use the following function:
+
+\index{x25519\_shared\_secret}
+\begin{verbatim}
+int x25519_shared_secret(const curve25519_key *private_key,
+                         const curve25519_key *public_key,
+                                unsigned char *out, unsigned long *outlen);
+\end{verbatim}
+
+This will construct the shared secret between the private and the public key and store the result in \textit{out} of length \textit{outlen}.
+
+\mysection{Curve25519 Signature Scheme - EdDSA}
+
+\subsection{EdDSA Key Operations}
+
+The \textit{Ed25519} algorithm API provides the following set of functions to create, import and export keys.
+
+\index{ed25519\_make\_key}
+\begin{verbatim}
+int ed25519_make_key(prng_state *prng, int wprng, curve25519_key *key);
+\end{verbatim}
+
+To generate a fresh Ed25529 key, one can use \textit{ed25519\_make\_key} which will create a private\&public key-pair.
+
+\index{ed25519\_set\_key}
+\begin{verbatim}
+int ed25519_set_key(const unsigned char *sk, unsigned long sklen,
+                    const unsigned char *pk, unsigned long pklen,
+                         curve25519_key *key);
+\end{verbatim}
+
+To import a public or private key in raw format, one can use the function \textit{ed25519\_set\_key}.
+In case both, the secret part \textit{sk} and the public part \textit{pk} are given, the operation validates that the given 
+public part fits to the secret part.
+
+\index{ed25519\_import}
+\begin{verbatim}
+int ed25519_import(const unsigned char *in, unsigned long inlen, curve25519_key *key);
+\end{verbatim}
+
+The \textit{ed25519\_import} function can be used to import a public key in DER-encoded \textit{SubjectPublicKeyInfo} format.
+
+\index{ed25519\_import\_x509}
+\begin{verbatim}
+int ed25519_import_x509(const unsigned char *in, unsigned long inlen, curve25519_key *key);
+\end{verbatim}
+
+To import a public key from a DER-encoded \textit{X.509} certificate, one can use the function \textit{ed25519\_import\_x509}.
+
+\index{ed25519\_import\_pkcs8}
+\begin{verbatim}
+int ed25519_import_pkcs8(const unsigned char *in, unsigned long inlen,
+                                  const void *pwd, unsigned long pwdlen,
+                              curve25519_key *key);
+\end{verbatim}
+
+To import a private key in the \textit{OneAsymmetricKey} a.k.a \textit{PKCS \#8} format, either plain or PBES encrypted,
+one can use the function \textit{ed25519\_import\_pkcs8}.
+
+\index{ed25519\_export}
+\begin{verbatim}
+int ed25519_export(       unsigned char *out, unsigned long *outlen,
+                                    int  which,
+                   const curve25519_key *key);
+\end{verbatim}
+
+To export a key, the function \textit{ed25519\_export} is provided.
+
+It has support for the following output formats:
+
+\begin{figure}[H]
+\begin{center}
+\begin{tabular}{|c|c|}
+\hline \textbf{which} & \textbf{output format} \\
+\hline PK\_PRIVATE & Raw \\
+\hline PK\_PRIVATE \& PK\_STD & PKCS \#8 \\
+\hline PK\_PUBLIC & Raw \\
+\hline PK\_PUBLIC \& PK\_STD & SubjectPublicKeyInfo \\
+\hline
+\end{tabular}
+\end{center}
+\caption{Possible ed25519\_export() output formats}
+\end{figure}
+
+\subsection{EdDSA Cryptographic Operations}
+
+To sign and/or verify a message use the following functions:
+
+\index{ed25519\_sign}
+\begin{verbatim}
+int ed25519_sign(const unsigned char  *msg, unsigned long msglen,
+                       unsigned char  *sig, unsigned long *siglen,
+                 const curve25519_key *private_key);
+\end{verbatim}
+
+This function will EdDSA sign the message stored in the array pointed to by \textit{msg} of length \textit{msglen} octets.  The signature
+will be stored in the array pointed to by \textit{sig} of length \textit{siglen} octets.
+
+\index{ed25519\_verify}
+\begin{verbatim}
+int ed25519_verify(const  unsigned char *msg, unsigned long msglen,
+                   const  unsigned char *sig, unsigned long siglen,
+                   int *stat, const curve25519_key *public_key);
+\end{verbatim}
+
+This function will verify the EdDSA signature in the array pointed to by \textit{sig} of length \textit{siglen} octets, against the message
+pointed to by the array \textit{msg} of length \textit{msglen}. It will store a non--zero value in \textit{stat} if the signature is valid.  Note:
+the function will not return an error if the signature is invalid. It will return an error, if the actual signature payload is an invalid format.
+
 
 \chapter{Digital Signature Algorithm}
 \mysection{Introduction}
