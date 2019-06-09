@@ -2312,6 +2312,14 @@
 				</File>
 			</Filter>
 			<Filter
+				Name="ec25519"
+				>
+				<File
+					RelativePath="src\pk\ec25519\tweetnacl.c"
+					>
+				</File>
+			</Filter>
+			<Filter
 				Name="ecc"
 				>
 				<File
@@ -2468,6 +2476,38 @@
 				</File>
 			</Filter>
 			<Filter
+				Name="ed25519"
+				>
+				<File
+					RelativePath="src\pk\ed25519\ed25519_export.c"
+					>
+				</File>
+				<File
+					RelativePath="src\pk\ed25519\ed25519_import.c"
+					>
+				</File>
+				<File
+					RelativePath="src\pk\ed25519\ed25519_import_x509.c"
+					>
+				</File>
+				<File
+					RelativePath="src\pk\ed25519\ed25519_make_key.c"
+					>
+				</File>
+				<File
+					RelativePath="src\pk\ed25519\ed25519_set_key.c"
+					>
+				</File>
+				<File
+					RelativePath="src\pk\ed25519\ed25519_sign.c"
+					>
+				</File>
+				<File
+					RelativePath="src\pk\ed25519\ed25519_verify.c"
+					>
+				</File>
+			</Filter>
+			<Filter
 				Name="pkcs1"
 				>
 				<File
@@ -2564,6 +2604,34 @@
 				</File>
 				<File
 					RelativePath="src\pk\rsa\rsa_verify_hash.c"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="x25519"
+				>
+				<File
+					RelativePath="src\pk\x25519\x25519_export.c"
+					>
+				</File>
+				<File
+					RelativePath="src\pk\x25519\x25519_import.c"
+					>
+				</File>
+				<File
+					RelativePath="src\pk\x25519\x25519_import_x509.c"
+					>
+				</File>
+				<File
+					RelativePath="src\pk\x25519\x25519_make_key.c"
+					>
+				</File>
+				<File
+					RelativePath="src\pk\x25519\x25519_set_ku.c"
+					>
+				</File>
+				<File
+					RelativePath="src\pk\x25519\x25519_shared_secret.c"
 					>
 				</File>
 			</Filter>
