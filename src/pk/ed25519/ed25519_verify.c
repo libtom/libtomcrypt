@@ -51,7 +51,8 @@ int ed25519_verify(const  unsigned char *msg, unsigned long msglen,
    XMEMCPY(m, sig, siglen);
    XMEMCPY(m + siglen, msg, msglen);
 
-   err = crypto_sign_open(m, &mlen,
+   err = crypto_sign_open(stat,
+                          m, &mlen,
                           m, mlen,
                           public_key->pub);
 
@@ -59,10 +60,6 @@ int ed25519_verify(const  unsigned char *msg, unsigned long msglen,
    zeromem(m, mlen);
 #endif
    XFREE(m);
-
-   if (err == CRYPT_OK) {
-      *stat = 1;
-   }
 
    return err;
 }

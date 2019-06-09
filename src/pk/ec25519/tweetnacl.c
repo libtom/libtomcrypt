@@ -450,12 +450,13 @@ static int unpackneg(gf r[4],const u8 p[32])
   return 0;
 }
 
-int crypto_sign_open(u8 *m,u64 *mlen,const u8 *sm,u64 n,const u8 *pk)
+int crypto_sign_open(int *stat, u8 *m,u64 *mlen,const u8 *sm,u64 n,const u8 *pk)
 {
   u64 i;
   u8 s[32],t[32],h[64];
   gf p[4],q[4];
 
+  *stat = 0;
   if (*mlen < n) return CRYPT_BUFFER_OVERFLOW;
   *mlen = -1;
   if (n < 64) return CRYPT_INVALID_ARG;
@@ -477,9 +478,10 @@ int crypto_sign_open(u8 *m,u64 *mlen,const u8 *sm,u64 n,const u8 *pk)
   if (crypto_verify_32(sm, t)) {
     FOR(i,n) m[i] = 0;
     zeromem(m, n);
-    return CRYPT_INVALID_PACKET;
+    return CRYPT_OK;
   }
 
+  *stat = 1;
   XMEMMOVE(m,m + 64,n);
   *mlen = n;
   return CRYPT_OK;
