@@ -192,7 +192,7 @@ static int _x25519_compat_test(void)
 
    DO(x25519_make_key(&yarrow_prng, prng_idx, &priv));
 
-   DO(x25519_export(buf, &buflen, PK_PRIVATE, &priv));
+   DO(x25519_export(buf, &buflen, PK_PRIVATE | PK_STD, &priv));
    DO(x25519_import_pkcs8(buf, buflen, NULL, 0, &imported));
    DO(do_compare_testvector(&priv, sizeof(priv), &imported, sizeof(imported), "priv after ex-&import", __LINE__));
    XMEMSET(&imported, 0, sizeof(imported));
