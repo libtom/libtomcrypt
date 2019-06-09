@@ -346,20 +346,19 @@ typedef struct {
 } curve25519_key;
 
 
-/* Ed25519 Signature API */
+/** Ed25519 Signature API */
 int ed25519_make_key(prng_state *prng, int wprng, curve25519_key *key);
+
+int ed25519_set_key(const unsigned char *sk, unsigned long sklen,
+                    const unsigned char *pk, unsigned long pklen,
+                         curve25519_key *key);
 
 int ed25519_export(       unsigned char *out, unsigned long *outlen,
                                     int  which,
                    const curve25519_key *key);
 
 int ed25519_import(const unsigned char *in, unsigned long inlen, curve25519_key *key);
-
 int ed25519_import_x509(const unsigned char *in, unsigned long inlen, curve25519_key *key);
-
-int ed25519_set_key(const unsigned char *sk, unsigned long sklen,
-                    const unsigned char *pk, unsigned long pklen,
-                         curve25519_key *key);
 
 int ed25519_sign(const unsigned char  *msg, unsigned long msglen,
                        unsigned char  *sig, unsigned long *siglen,
@@ -369,20 +368,19 @@ int ed25519_verify(const  unsigned char *msg, unsigned long msglen,
                    const  unsigned char *sig, unsigned long siglen,
                    int *stat, const curve25519_key *public_key);
 
-/* X25519 Key-Exchange API */
+/** X25519 Key-Exchange API */
 int x25519_make_key(prng_state *prng, int wprng, curve25519_key *key);
+
+int x25519_set_key(const unsigned char *k,  unsigned long klen,
+                   const unsigned char *u,  unsigned long ulen,
+                        curve25519_key *key);
 
 int x25519_export(       unsigned char *out, unsigned long *outlen,
                                    int  which,
                   const curve25519_key *key);
 
 int x25519_import(const unsigned char *in, unsigned long inlen, curve25519_key *key);
-
 int x25519_import_x509(const unsigned char *in, unsigned long inlen, curve25519_key *key);
-
-int x25519_set_ku(const unsigned char *k,  unsigned long klen,
-                  const unsigned char *u,  unsigned long ulen,
-                       curve25519_key *key);
 
 int x25519_shared_secret(const curve25519_key *private_key,
                          const curve25519_key *public_key,

@@ -28,9 +28,9 @@
    @param key      [out] Destination of the key
    @return CRYPT_OK if successful
 */
-int x25519_set_ku(const unsigned char *k, unsigned long klen,
-                  const unsigned char *u, unsigned long ulen,
-                           curve25519_key *key)
+int x25519_set_key(const unsigned char *k, unsigned long klen,
+                   const unsigned char *u, unsigned long ulen,
+                        curve25519_key *key)
 {
    LTC_ARGCHK(key != NULL);
 

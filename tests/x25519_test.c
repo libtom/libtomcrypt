@@ -101,10 +101,10 @@ static int _rfc_7748_6_test(void)
    unsigned char buf[32];
    unsigned long buflen = sizeof(buf);
 
-   DO(x25519_set_ku(alice_private, sizeof(alice_private), alice_public, sizeof(alice_public), &alice_priv));
-   DO(x25519_set_ku(bob_private, sizeof(bob_private), bob_public, sizeof(bob_public), &bob_priv));
-   DO(x25519_set_ku(NULL, 0, alice_public, sizeof(alice_public), &alice_pub));
-   DO(x25519_set_ku(NULL, 0, bob_public, sizeof(bob_public), &bob_pub));
+   DO(x25519_set_key(alice_private, sizeof(alice_private), alice_public, sizeof(alice_public), &alice_priv));
+   DO(x25519_set_key(bob_private, sizeof(bob_private), bob_public, sizeof(bob_public), &bob_priv));
+   DO(x25519_set_key(NULL, 0, alice_public, sizeof(alice_public), &alice_pub));
+   DO(x25519_set_key(NULL, 0, bob_public, sizeof(bob_public), &bob_pub));
 
    DO(x25519_shared_secret(&alice_priv, &bob_pub, buf, &buflen));
    DO(compare_testvector(buf, buflen, shared_secret, sizeof(shared_secret), "x25519 - RFC 7748 Ch. 6", 0));
