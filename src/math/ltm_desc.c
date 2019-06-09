@@ -89,13 +89,22 @@ static int init_copy(void **a, void *b)
 static int set_int(void *a, ltc_mp_digit b)
 {
    LTC_ARGCHK(a != NULL);
+#ifdef BN_MP_SET_INT_C
    return mpi_to_ltc_error(mp_set_int(a, b));
+#else
+   mp_set_u32(a, b);
+   return CRYPT_OK;
+#endif
 }
 
 static unsigned long get_int(void *a)
 {
    LTC_ARGCHK(a != NULL);
+#ifdef BN_MP_GET_INT_C
    return mp_get_int(a);
+#else
+   return mp_get_ul(a);
+#endif
 }
 
 static ltc_mp_digit get_digit(void *a, int n)
@@ -424,10 +433,14 @@ static int set_rand(void *a, int size)
    return mpi_to_ltc_error(mp_rand(a, size));
 }
 
+#ifndef MP_DIGIT_BIT
+#define MP_DIGIT_BIT DIGIT_BIT
+#endif
+
 const ltc_math_descriptor ltm_desc = {
 
    "LibTomMath",
-   (int)DIGIT_BIT,
+   (int)MP_DIGIT_BIT,
 
    &init,
    &init_copy,
