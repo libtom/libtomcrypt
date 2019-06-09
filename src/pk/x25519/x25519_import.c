@@ -25,11 +25,7 @@
 int x25519_import(const unsigned char *in, unsigned long inlen, curve25519_key *key)
 {
    int err;
-   const char *oid;
-   ltc_asn1_list alg_id[1];
-   unsigned char private_key[34];
-   unsigned long version, key_len;
-   unsigned long tmpoid[16];
+   unsigned long key_len;
 
    LTC_ARGCHK(in  != NULL);
    LTC_ARGCHK(key != NULL);
@@ -49,43 +45,9 @@ int x25519_import(const unsigned char *in, unsigned long inlen, curve25519_key *
       key->type = PK_PUBLIC;
       key->algo = PKA_X25519;
       return CRYPT_OK;
-   }
-
-   LTC_SET_ASN1(alg_id, 0, LTC_ASN1_OBJECT_IDENTIFIER, tmpoid, sizeof(tmpoid)/sizeof(tmpoid[0]));
-
-   key_len = sizeof(private_key);
-   if ((err = der_decode_sequence_multi(in, inlen,
-                             LTC_ASN1_SHORT_INTEGER,    1uL, &version,
-                             LTC_ASN1_SEQUENCE,         1uL, alg_id,
-                             LTC_ASN1_OCTET_STRING, key_len, private_key,
-                             LTC_ASN1_EOL,              0uL, NULL)) != CRYPT_OK) {
-      goto out;
-   }
-
-   if ((err = pk_get_oid(PKA_X25519, &oid)) != CRYPT_OK) {
-      goto out;
-   }
-   if ((err = pk_oid_cmp_with_asn1(oid, &alg_id[0])) != CRYPT_OK) {
-      goto out;
-   }
-
-   if (version == 0) {
-      key_len = sizeof(key->priv);
-      if ((err = der_decode_octet_string(private_key, sizeof(private_key), key->priv, &key_len)) == CRYPT_OK) {
-         crypto_scalarmult_base(key->pub, key->priv);
-         key->type = PK_PRIVATE;
-         key->algo = PKA_X25519;
-      }
    } else {
-      err = CRYPT_PK_INVALID_TYPE;
+      return err;
    }
-
-out:
-#ifdef LTC_CLEAN_STACK
-   zeromem(private_key, sizeof(private_key));
-#endif
-
-   return err;
 }
 
 #endif

@@ -315,6 +315,12 @@ int crypto_sk_to_pk(unsigned char *pk, const unsigned char *sk);
 int crypto_scalarmult(unsigned char *q, const unsigned char *n, const unsigned char *p);
 int crypto_scalarmult_base(unsigned char *q,const unsigned char *n);
 
+typedef int (*sk_to_pk)(unsigned char *pk ,const unsigned char *sk);
+int ec25519_import_pkcs8(const unsigned char *in, unsigned long inlen,
+                       const void *pwd, unsigned long pwdlen,
+                       enum ltc_oid_id id, sk_to_pk fp,
+                       curve25519_key *key);
+
 #endif /* LTC_CURVE25519 */
 
 #ifdef LTC_DER

@@ -120,7 +120,7 @@ static int _rfc_7748_6_test(void)
 static int _rfc_8410_10_test(void)
 {
    const struct {
-      const char* b64;
+      const char *b64;
    } rfc_8410_10[] = {
                          /* RFC 8410 - 10.2.  Example X25519 Certificate */
                        { "MIIBLDCB36ADAgECAghWAUdKKo3DMDAFBgMrZXAwGTEXMBUGA1UEAwwOSUVURiBUZX"
@@ -129,7 +129,8 @@ static int _rfc_8410_10_test(void)
                          "ga9OukqY6qm05qo0UwQzAPBgNVHRMBAf8EBTADAQEAMA4GA1UdDwEBAAQEAwIDCDAg"
                          "BgNVHQ4BAQAEFgQUmx9e7e0EM4Xk97xiPFl1uQvIuzswBQYDK2VwA0EAryMB/t3J5v"
                          "/BzKc9dNZIpDmAgs3babFOTQbs+BolzlDUwsPrdGxO3YNGhW7Ibz3OGhhlxXrCe1Cg"
-                         "w1AH9efZBw==" },
+                         "w1AH9efZBw=="
+                       },
    };
    unsigned n;
    curve25519_key key;
@@ -139,6 +140,40 @@ static int _rfc_8410_10_test(void)
       buflen = sizeof(buf);
       DO(base64_decode(rfc_8410_10[n].b64, strlen(rfc_8410_10[n].b64), buf, &buflen));
       DO(x25519_import_x509(buf, buflen, &key));
+      zeromem(buf, sizeof(buf));
+   }
+   return CRYPT_OK;
+}
+
+static int _x25519_pkcs8_test(void)
+{
+   const struct {
+      const char *b64, *pass;
+   } _x25519_pkcs8[] = {
+                          /* `openssl genpkey -algorithm x25519 -pass stdin -aes128` */
+                          {
+                            "MIGbMFcGCSqGSIb3DQEFDTBKMCkGCSqGSIb3DQEFDDAcBAjG5kRkEihOvQICCAAw"
+                            "DAYIKoZIhvcNAgkFADAdBglghkgBZQMEAQIEEHPLHLoCvesRyeToyMtGHWcEQM1+"
+                            "FMpSO5DplX3d+YGTAvf0WxWaBff1q4bfKDn/7IoWQT1e4Fe6Psj62Vy9T69o3+Uy"
+                            "VM6mdIOXGOkAtaMSsSk=",
+                            "123456"
+                          },
+                          /* `openssl genpkey -algorithm x25519 -pass stdin` */
+                          {
+                            "MC4CAQAwBQYDK2VuBCIEIEAInaUdx+fQFfghpCzw/WdItRT3+FnPSkrU9TcIZTZW",
+                            NULL
+                          },
+   };
+   unsigned n;
+   curve25519_key key;
+   unsigned char buf[1024];
+   unsigned long buflen, passlen;
+   for (n = 0; n < sizeof(_x25519_pkcs8)/sizeof(_x25519_pkcs8[0]); ++n) {
+      buflen = sizeof(buf);
+      DO(base64_decode(_x25519_pkcs8[n].b64, strlen(_x25519_pkcs8[n].b64), buf, &buflen));
+      if (_x25519_pkcs8[n].pass != NULL) passlen = strlen(_x25519_pkcs8[n].pass);
+      else passlen = 0;
+      DO(x25519_import_pkcs8(buf, buflen, _x25519_pkcs8[n].pass, passlen, &key));
       zeromem(buf, sizeof(buf));
    }
    return CRYPT_OK;
@@ -158,7 +193,7 @@ static int _x25519_compat_test(void)
    DO(x25519_make_key(&yarrow_prng, prng_idx, &priv));
 
    DO(x25519_export(buf, &buflen, PK_PRIVATE, &priv));
-   DO(x25519_import(buf, buflen, &imported));
+   DO(x25519_import_pkcs8(buf, buflen, NULL, 0, &imported));
    DO(do_compare_testvector(&priv, sizeof(priv), &imported, sizeof(imported), "priv after ex-&import", __LINE__));
    XMEMSET(&imported, 0, sizeof(imported));
 
@@ -199,6 +234,9 @@ int x25519_test(void)
       return ret;
    }
    if ((ret = _rfc_8410_10_test()) != CRYPT_OK) {
+      return ret;
+   }
+   if ((ret = _x25519_pkcs8_test()) != CRYPT_OK) {
       return ret;
    }
    if ((ret = _x25519_compat_test()) != CRYPT_OK) {

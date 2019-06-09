@@ -359,6 +359,9 @@ int ed25519_export(       unsigned char *out, unsigned long *outlen,
 
 int ed25519_import(const unsigned char *in, unsigned long inlen, curve25519_key *key);
 int ed25519_import_x509(const unsigned char *in, unsigned long inlen, curve25519_key *key);
+int ed25519_import_pkcs8(const unsigned char *in, unsigned long inlen,
+                                  const void *pwd, unsigned long pwdlen,
+                              curve25519_key *key);
 
 int ed25519_sign(const unsigned char  *msg, unsigned long msglen,
                        unsigned char  *sig, unsigned long *siglen,
@@ -381,6 +384,9 @@ int x25519_export(       unsigned char *out, unsigned long *outlen,
 
 int x25519_import(const unsigned char *in, unsigned long inlen, curve25519_key *key);
 int x25519_import_x509(const unsigned char *in, unsigned long inlen, curve25519_key *key);
+int x25519_import_pkcs8(const unsigned char *in, unsigned long inlen,
+                                 const void *pwd, unsigned long pwdlen,
+                             curve25519_key *key);
 
 int x25519_shared_secret(const curve25519_key *private_key,
                          const curve25519_key *public_key,
