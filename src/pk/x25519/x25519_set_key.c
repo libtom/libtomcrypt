@@ -28,16 +28,16 @@
    @param key      [out] Destination of the key
    @return CRYPT_OK if successful
 */
-int x25519_set_ku(const unsigned char *k, unsigned long klen,
-                  const unsigned char *u, unsigned long ulen,
-                           curve25519_key *key)
+int x25519_set_key(const unsigned char *k, unsigned long klen,
+                   const unsigned char *u, unsigned long ulen,
+                        curve25519_key *key)
 {
    LTC_ARGCHK(key != NULL);
 
    if (k != NULL) {
       LTC_ARGCHK(klen == 32uL);
       XMEMCPY(key->priv, k, sizeof(key->priv));
-      crypto_scalarmult_base(key->pub, key->priv);
+      tweetnacl_crypto_scalarmult_base(key->pub, key->priv);
       if (u != NULL) {
          LTC_ARGCHK(ulen == 32uL);
          if (XMEM_NEQ(u, key->pub, sizeof(key->pub)) != 0) {

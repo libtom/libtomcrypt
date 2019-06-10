@@ -10,15 +10,15 @@
 
 /**
   @file ed25519_verify.c
-  Verify a Ed25519 signature, Steffen Jaeckel
+  Verify an Ed25519 signature, Steffen Jaeckel
 */
 
 #ifdef LTC_CURVE25519
 
 /**
-   Verify a Ed25519 signature.
-   @param private_key     The private curve25519 key in the pair
-   @param public_key      The public curve25519 key in the pair
+   Verify an Ed25519 signature.
+   @param private_key     The private Ed25519 key in the pair
+   @param public_key      The public Ed25519 key in the pair
    @param out             [out] The destination of the shared data
    @param outlen          [in/out] The max size and resulting size of the shared data.
    @param stat            [out] The result of the signature verification, 1==valid, 0==invalid
@@ -51,18 +51,15 @@ int ed25519_verify(const  unsigned char *msg, unsigned long msglen,
    XMEMCPY(m, sig, siglen);
    XMEMCPY(m + siglen, msg, msglen);
 
-   err = crypto_sign_open(m, &mlen,
-                          m, mlen,
-                          public_key->pub);
+   err = tweetnacl_crypto_sign_open(stat,
+                                    m, &mlen,
+                                    m, mlen,
+                                    public_key->pub);
 
 #ifdef LTC_CLEAN_STACK
    zeromem(m, mlen);
 #endif
    XFREE(m);
-
-   if (err == CRYPT_OK) {
-      *stat = 1;
-   }
 
    return err;
 }

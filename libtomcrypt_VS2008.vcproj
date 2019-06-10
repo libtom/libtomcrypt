@@ -2315,6 +2315,14 @@
 				Name="ec25519"
 				>
 				<File
+					RelativePath="src\pk\ec25519\ec25519_export.c"
+					>
+				</File>
+				<File
+					RelativePath="src\pk\ec25519\ec25519_import_pkcs8.c"
+					>
+				</File>
+				<File
 					RelativePath="src\pk\ec25519\tweetnacl.c"
 					>
 				</File>
@@ -2487,6 +2495,10 @@
 					>
 				</File>
 				<File
+					RelativePath="src\pk\ed25519\ed25519_import_pkcs8.c"
+					>
+				</File>
+				<File
 					RelativePath="src\pk\ed25519\ed25519_import_x509.c"
 					>
 				</File>
@@ -2619,6 +2631,10 @@
 					>
 				</File>
 				<File
+					RelativePath="src\pk\x25519\x25519_import_pkcs8.c"
+					>
+				</File>
+				<File
 					RelativePath="src\pk\x25519\x25519_import_x509.c"
 					>
 				</File>
@@ -2627,7 +2643,7 @@
 					>
 				</File>
 				<File
-					RelativePath="src\pk\x25519\x25519_set_ku.c"
+					RelativePath="src\pk\x25519\x25519_set_key.c"
 					>
 				</File>
 				<File

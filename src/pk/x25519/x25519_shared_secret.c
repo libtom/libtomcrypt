@@ -17,8 +17,8 @@
 
 /**
    Create a X25519 shared secret.
-   @param private_key     The private Curve25519 key in the pair
-   @param public_key      The public Curve25519 key in the pair
+   @param private_key     The private X25519 key in the pair
+   @param public_key      The public X25519 key in the pair
    @param out             [out] The destination of the shared data
    @param outlen          [in/out] The max size and resulting size of the shared data.
    @return CRYPT_OK if successful
@@ -39,7 +39,7 @@ int x25519_shared_secret(const    curve25519_key *private_key,
       return CRYPT_BUFFER_OVERFLOW;
    }
 
-   crypto_scalarmult(out, private_key->priv, public_key->pub);
+   tweetnacl_crypto_scalarmult(out, private_key->priv, public_key->pub);
    *outlen = 32uL;
 
    return CRYPT_OK;

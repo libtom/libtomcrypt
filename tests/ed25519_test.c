@@ -43,6 +43,13 @@ static int _rfc_8410_10_test(void)
                        { "MHICAQEwBQYDK2VwBCIEINTuctv5E1hK1bbY8fdp+K06/nwoy/HU++CXqI9EdVhC"
                          "oB8wHQYKKoZIhvcNAQkJFDEPDA1DdXJkbGUgQ2hhaXJzgSEAGb9ECWmEzf6FQbrB"
                          "Z9w7lshQhqowtrbLDFw4rXAxZuE=", -1 },
+                         /* Another self-created testvector.
+                          * `openssl genpkey -algorithm ed25519 -pass stdin -aes128`
+                          */
+                       { "MIGbMFcGCSqGSIb3DQEFDTBKMCkGCSqGSIb3DQEFDDAcBAiFflnrBOdwjwICCAAw"
+                         "DAYIKoZIhvcNAgkFADAdBglghkgBZQMEAQIEEMzFYoqiT6gxwFx2EA55MUYEQFD1"
+                         "ZLxPNhm4YAsMZaxu5qpLjiZbkWsTHxURb6WhSW8GAbNbTwxeOaA02sUhJg8rx44/"
+                         "N9PzN2QGzIQ1Yv/vHqQ=", -1 },
    };
    unsigned n;
    curve25519_key key;
@@ -52,10 +59,22 @@ static int _rfc_8410_10_test(void)
    for (n = 0; n < sizeof(rfc_8410_10)/sizeof(rfc_8410_10[0]); ++n) {
       buflen = sizeof(buf);
       DO(base64_decode(rfc_8410_10[n].b64, strlen(rfc_8410_10[n].b64), buf, &buflen));
-      if (rfc_8410_10[n].type == -2) {
-         DO(ed25519_import_x509(buf, buflen, &key));
-      } else {
-         DO(ed25519_import(buf, buflen, &key));
+      switch (n) {
+         case 0:
+            DO(ed25519_import(buf, buflen, &key));
+            break;
+         case 1:
+            DO(ed25519_import_x509(buf, buflen, &key));
+            break;
+         case 2:
+         case 3:
+            DO(ed25519_import_pkcs8(buf, buflen, NULL, 0, &key));
+            break;
+         case 4:
+            DO(ed25519_import_pkcs8(buf, buflen, "123456", 6, &key));
+            break;
+         default:
+            return CRYPT_FAIL_TESTVECTOR;
       }
       zeromem(buf, sizeof(buf));
       if (rfc_8410_10[n].type > 0) {
@@ -212,6 +231,11 @@ static int _rfc_8032_7_1_test(void)
 int ed25519_test(void)
 {
    int ret;
+   curve25519_key key;
+
+   if ((ret = ed25519_make_key(&yarrow_prng, find_prng("yarrow"), &key)) != CRYPT_OK) {
+      return ret;
+   }
 
    if (ltc_mp.name == NULL) return CRYPT_NOP;
 

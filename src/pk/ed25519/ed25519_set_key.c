@@ -10,13 +10,13 @@
 
 /**
   @file ed25519_set_ku.c
-  Set the parameters of a Ed25519 key, Steffen Jaeckel
+  Set the parameters of an Ed25519 key, Steffen Jaeckel
 */
 
 #ifdef LTC_CURVE25519
 
 /**
-   Set the parameters of a Ed25519 key
+   Set the parameters of an Ed25519 key
 
    In case sk and pk are given it is validated that pk is really the
    corresponding public part of the key pair.
@@ -37,7 +37,7 @@ int ed25519_set_key(const unsigned char *sk, unsigned long sklen,
    if (sk != NULL) {
       LTC_ARGCHK(sklen == 32uL);
       XMEMCPY(key->priv, sk, sizeof(key->priv));
-      crypto_sk_to_pk(key->pub, key->priv);
+      tweetnacl_crypto_sk_to_pk(key->pub, key->priv);
       if (pk != NULL) {
          LTC_ARGCHK(pklen == 32uL);
          if (XMEM_NEQ(pk, key->pub, sizeof(key->pub)) != 0) {
