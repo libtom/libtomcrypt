@@ -39,7 +39,7 @@ static int vn(const u8 *x,const u8 *y,int n)
   return (1 & ((d - 1) >> 8)) - 1;
 }
 
-int crypto_verify_32(const u8 *x,const u8 *y)
+static int crypto_verify_32(const u8 *x,const u8 *y)
 {
   return vn(x,y,32);
 }
