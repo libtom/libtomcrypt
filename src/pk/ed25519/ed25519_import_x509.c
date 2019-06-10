@@ -31,7 +31,7 @@ static int _ed25519_decode(const unsigned char *in, unsigned long inlen, curve25
 */
 int ed25519_import_x509(const unsigned char *in, unsigned long inlen, curve25519_key *key)
 {
-   int err = CRYPT_INVALID_ARG;
+   int err;
 
    LTC_ARGCHK(in  != NULL);
    LTC_ARGCHK(key != NULL);
