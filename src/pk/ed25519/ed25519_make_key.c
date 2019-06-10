@@ -10,13 +10,13 @@
 
 /**
   @file ed25519_make_key.c
-  Create a Ed25519 key, Steffen Jaeckel
+  Create an Ed25519 key, Steffen Jaeckel
 */
 
 #ifdef LTC_CURVE25519
 
 /**
-   Create a Ed25519 key
+   Create an Ed25519 key
    @param prng     An active PRNG state
    @param wprng    The index of the PRNG desired
    @param key      [out] Destination of a newly created private key pair

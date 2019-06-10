@@ -9,8 +9,8 @@
 #include "tomcrypt_private.h"
 
 /**
-  @file ed25519_export.c
-  Export a Ed25519 key to a binary packet, Steffen Jaeckel
+  @file ec25519_export.c
+  Generic export of a Curve/Ed25519 key to a binary packet, Steffen Jaeckel
 */
 
 #ifdef LTC_CURVE25519

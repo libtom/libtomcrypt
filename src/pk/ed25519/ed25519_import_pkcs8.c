@@ -10,13 +10,13 @@
 
 /**
   @file ed25519_import_pkcs8.c
-  Import a Ed25519 key in PKCS#8 format, Steffen Jaeckel
+  Import an Ed25519 key in PKCS#8 format, Steffen Jaeckel
 */
 
 #ifdef LTC_CURVE25519
 
 /**
-  Import a Ed25519 private key in PKCS#8 format
+  Import an Ed25519 private key in PKCS#8 format
   @param in        The DER-encoded PKCS#8-formatted private key
   @param inlen     The length of the input data
   @param passwd    The password to decrypt the private key

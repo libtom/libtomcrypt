@@ -10,13 +10,13 @@
 
 /**
   @file ed25519_set_ku.c
-  Set the parameters of a Ed25519 key, Steffen Jaeckel
+  Set the parameters of an Ed25519 key, Steffen Jaeckel
 */
 
 #ifdef LTC_CURVE25519
 
 /**
-   Set the parameters of a Ed25519 key
+   Set the parameters of an Ed25519 key
 
    In case sk and pk are given it is validated that pk is really the
    corresponding public part of the key pair.

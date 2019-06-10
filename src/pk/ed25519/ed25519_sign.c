@@ -10,15 +10,15 @@
 
 /**
   @file ed25519_shared_secret.c
-  Create a Ed25519 signature, Steffen Jaeckel
+  Create an Ed25519 signature, Steffen Jaeckel
 */
 
 #ifdef LTC_CURVE25519
 
 /**
-   Create a Ed25519 signature.
-   @param private_key     The private ed25519 key in the pair
-   @param public_key      The public ed25519 key in the pair
+   Create an Ed25519 signature.
+   @param private_key     The private Ed25519 key in the pair
+   @param public_key      The public Ed25519 key in the pair
    @param out             [out] The destination of the shared data
    @param outlen          [in/out] The max size and resulting size of the shared data.
    @return CRYPT_OK if successful

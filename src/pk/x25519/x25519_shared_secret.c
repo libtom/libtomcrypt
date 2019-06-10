@@ -17,8 +17,8 @@
 
 /**
    Create a X25519 shared secret.
-   @param private_key     The private Curve25519 key in the pair
-   @param public_key      The public Curve25519 key in the pair
+   @param private_key     The private X25519 key in the pair
+   @param public_key      The public X25519 key in the pair
    @param out             [out] The destination of the shared data
    @param outlen          [in/out] The max size and resulting size of the shared data.
    @return CRYPT_OK if successful

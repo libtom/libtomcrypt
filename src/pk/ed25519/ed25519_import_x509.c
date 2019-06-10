@@ -10,7 +10,7 @@
 
 /**
   @file ed25519_import_x509.c
-  Import a Ed25519 key from a X.509 certificate, Steffen Jaeckel
+  Import an Ed25519 key from a X.509 certificate, Steffen Jaeckel
 */
 
 #ifdef LTC_CURVE25519
@@ -23,7 +23,7 @@ static int _ed25519_decode(const unsigned char *in, unsigned long inlen, curve25
 }
 
 /**
-  Import a Ed25519 public key from a X.509 certificate
+  Import an Ed25519 public key from a X.509 certificate
   @param in     The DER encoded X.509 certificate
   @param inlen  The length of the certificate
   @param key    [out] Where to import the key to

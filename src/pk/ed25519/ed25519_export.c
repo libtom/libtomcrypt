@@ -10,13 +10,13 @@
 
 /**
   @file ed25519_export.c
-  Export a Ed25519 key to a binary packet, Steffen Jaeckel
+  Export an Ed25519 key to a binary packet, Steffen Jaeckel
 */
 
 #ifdef LTC_CURVE25519
 
 /**
-   Export a Ed25519 key to a binary packet
+   Export an Ed25519 key to a binary packet
    @param out    [out] The destination for the key
    @param outlen [in/out] The max size and resulting size of the Ed25519 key
    @param type   Which type of key (PK_PRIVATE, PK_PUBLIC|PK_STD or PK_PUBLIC)

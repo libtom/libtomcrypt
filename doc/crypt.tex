@@ -5732,7 +5732,9 @@ compatible to each other.
 It is possible to convert a Curve-Key to an Ed-Key and vice-versa, but this is not provided (yet).
 
 
-\mysection{Curve25519 Diffie-Hellman Key Exchange - X25519}
+\mysection{Curve25519-based Diffie-Hellman Key Exchange - X25519}
+
+The library provides the Diffie-Hellman Key Exchange algorithm \textit{X25519} for curve25519 as specified in RFC 7748.
 
 \subsection{X25519 Key Operations}
 
@@ -5816,9 +5818,11 @@ int x25519_shared_secret(const curve25519_key *private_key,
                                 unsigned char *out, unsigned long *outlen);
 \end{verbatim}
 
-This will construct the shared secret between the private and the public key and store the result in \textit{out} of length \textit{outlen}.
+This will construct the shared secret between the private- and the public-key and store the result in \textit{out} of length \textit{outlen}.
 
-\mysection{Curve25519 Signature Scheme - EdDSA}
+\mysection{Curve25519-based EdDSA Signature Scheme - Ed25519}
+
+The library provides the EdDSA algorithm for the edwards25519 curve in the PureEdDSA variant as specified in RFC 8032.
 
 \subsection{EdDSA Key Operations}
 
