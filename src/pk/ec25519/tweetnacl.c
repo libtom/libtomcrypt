@@ -382,7 +382,7 @@ sv reduce(u8 *r)
   modL(r,x);
 }
 
-int tweetnacl_crypto_sign(u8 *sm,u64 *smlen,const u8 *m,u64 n,const u8 *sk,const u8 *pk)
+int tweetnacl_crypto_sign(u8 *sm,u64 *smlen,const u8 *m,u64 mlen,const u8 *sk,const u8 *pk)
 {
   u8 d[64],h[64],r[64];
   i64 i,j,x[64];
@@ -393,17 +393,17 @@ int tweetnacl_crypto_sign(u8 *sm,u64 *smlen,const u8 *m,u64 n,const u8 *sk,const
   d[31] &= 127;
   d[31] |= 64;
 
-  *smlen = n+64;
-  FOR(i,(i64)n) sm[64 + i] = m[i];
+  *smlen = mlen+64;
+  FOR(i,(i64)mlen) sm[64 + i] = m[i];
   FOR(i,32) sm[32 + i] = d[32 + i];
 
-  tweetnacl_crypto_hash(r, sm+32, n+32);
+  tweetnacl_crypto_hash(r, sm+32, mlen+32);
   reduce(r);
   scalarbase(p,r);
   pack(sm,p);
 
   FOR(i,32) sm[i+32] = pk[i];
-  tweetnacl_crypto_hash(h,sm,n + 64);
+  tweetnacl_crypto_hash(h,sm,mlen + 64);
   reduce(h);
 
   FOR(i,64) x[i] = 0;
@@ -450,23 +450,23 @@ static int unpackneg(gf r[4],const u8 p[32])
   return 0;
 }
 
-int tweetnacl_crypto_sign_open(int *stat, u8 *m,u64 *mlen,const u8 *sm,u64 n,const u8 *pk)
+int tweetnacl_crypto_sign_open(int *stat, u8 *m,u64 *mlen,const u8 *sm,u64 smlen,const u8 *pk)
 {
   u64 i;
   u8 s[32],t[32],h[64];
   gf p[4],q[4];
 
   *stat = 0;
-  if (*mlen < n) return CRYPT_BUFFER_OVERFLOW;
+  if (*mlen < smlen) return CRYPT_BUFFER_OVERFLOW;
   *mlen = -1;
-  if (n < 64) return CRYPT_INVALID_ARG;
+  if (smlen < 64) return CRYPT_INVALID_ARG;
 
   if (unpackneg(q,pk)) return CRYPT_ERROR;
 
-  XMEMMOVE(m,sm,n);
+  XMEMMOVE(m,sm,smlen);
   XMEMMOVE(s,m + 32,32);
   XMEMMOVE(m + 32,pk,32);
-  tweetnacl_crypto_hash(h,m,n);
+  tweetnacl_crypto_hash(h,m,smlen);
   reduce(h);
   scalarmult(p,q,h);
 
@@ -474,16 +474,16 @@ int tweetnacl_crypto_sign_open(int *stat, u8 *m,u64 *mlen,const u8 *sm,u64 n,con
   add(p,q);
   pack(t,p);
 
-  n -= 64;
+  smlen -= 64;
   if (tweetnacl_crypto_verify_32(sm, t)) {
-    FOR(i,n) m[i] = 0;
-    zeromem(m, n);
+    FOR(i,smlen) m[i] = 0;
+    zeromem(m, smlen);
     return CRYPT_OK;
   }
 
   *stat = 1;
-  XMEMMOVE(m,m + 64,n);
-  *mlen = n;
+  XMEMMOVE(m,m + 64,smlen);
+  *mlen = smlen;
   return CRYPT_OK;
 }
 
