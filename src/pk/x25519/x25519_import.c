@@ -45,9 +45,8 @@ int x25519_import(const unsigned char *in, unsigned long inlen, curve25519_key *
       key->type = PK_PUBLIC;
       key->algo = PKA_X25519;
       return CRYPT_OK;
-   } else {
-      return err;
    }
+   return err;
 }
 
 #endif
