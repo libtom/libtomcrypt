@@ -44,7 +44,6 @@ int x25519_import(const unsigned char *in, unsigned long inlen, curve25519_key *
    if ((err = x509_decode_subject_public_key_info(in, inlen, PKA_X25519, key->pub, &key_len, LTC_ASN1_EOL, NULL, 0uL)) == CRYPT_OK) {
       key->type = PK_PUBLIC;
       key->algo = PKA_X25519;
-      return CRYPT_OK;
    }
    return err;
 }
