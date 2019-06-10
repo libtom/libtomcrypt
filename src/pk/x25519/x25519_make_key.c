@@ -37,7 +37,7 @@ int x25519_make_key(prng_state *prng, int wprng, curve25519_key *key)
       return CRYPT_ERROR_READPRNG;
    }
 
-   crypto_scalarmult_base(key->pub, key->priv);
+   tweetnacl_crypto_scalarmult_base(key->pub, key->priv);
 
    key->type = PK_PRIVATE;
    key->algo = PKA_X25519;

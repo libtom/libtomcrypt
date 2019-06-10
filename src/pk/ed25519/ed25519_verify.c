@@ -51,10 +51,10 @@ int ed25519_verify(const  unsigned char *msg, unsigned long msglen,
    XMEMCPY(m, sig, siglen);
    XMEMCPY(m + siglen, msg, msglen);
 
-   err = crypto_sign_open(stat,
-                          m, &mlen,
-                          m, mlen,
-                          public_key->pub);
+   err = tweetnacl_crypto_sign_open(stat,
+                                    m, &mlen,
+                                    m, mlen,
+                                    public_key->pub);
 
 #ifdef LTC_CLEAN_STACK
    zeromem(m, mlen);

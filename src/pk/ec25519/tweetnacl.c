@@ -39,7 +39,7 @@ static int vn(const u8 *x,const u8 *y,int n)
   return (1 & ((d - 1) >> 8)) - 1;
 }
 
-static int crypto_verify_32(const u8 *x,const u8 *y)
+static int tweetnacl_crypto_verify_32(const u8 *x,const u8 *y)
 {
   return vn(x,y,32);
 }
@@ -102,7 +102,7 @@ static int neq25519(const gf a, const gf b)
   u8 c[32],d[32];
   pack25519(c,a);
   pack25519(d,b);
-  return crypto_verify_32(c,d);
+  return tweetnacl_crypto_verify_32(c,d);
 }
 
 static u8 par25519(const gf a)
@@ -171,7 +171,7 @@ sv pow2523(gf o,const gf i)
   FOR(a,16) o[a]=c[a];
 }
 
-int crypto_scalarmult(u8 *q,const u8 *n,const u8 *p)
+int tweetnacl_crypto_scalarmult(u8 *q,const u8 *n,const u8 *p)
 {
   u8 z[32];
   i64 x[80],r,i;
@@ -222,12 +222,12 @@ int crypto_scalarmult(u8 *q,const u8 *n,const u8 *p)
   return 0;
 }
 
-int crypto_scalarmult_base(u8 *q,const u8 *n)
+int tweetnacl_crypto_scalarmult_base(u8 *q,const u8 *n)
 {
-  return crypto_scalarmult(q,n,_9);
+  return tweetnacl_crypto_scalarmult(q,n,_9);
 }
 
-static int crypto_hash(u8 *out,const u8 *m,u64 n)
+static int tweetnacl_crypto_hash(u8 *out,const u8 *m,u64 n)
 {
   unsigned long len;
   int err, hash_idx;
@@ -309,11 +309,11 @@ sv scalarbase(gf p[4],const u8 *s)
   scalarmult(p,q,s);
 }
 
-int crypto_sk_to_pk(u8 *pk, const u8 *sk)
+int tweetnacl_crypto_sk_to_pk(u8 *pk, const u8 *sk)
 {
   u8 d[64];
   gf p[4];
-  crypto_hash(d, sk, 32);
+  tweetnacl_crypto_hash(d, sk, 32);
   d[0] &= 248;
   d[31] &= 127;
   d[31] |= 64;
@@ -324,7 +324,7 @@ int crypto_sk_to_pk(u8 *pk, const u8 *sk)
   return 0;
 }
 
-int crypto_sign_keypair(prng_state *prng, int wprng, u8 *pk, u8 *sk)
+int tweetnacl_crypto_sign_keypair(prng_state *prng, int wprng, u8 *pk, u8 *sk)
 {
   int err;
 
@@ -337,7 +337,7 @@ int crypto_sign_keypair(prng_state *prng, int wprng, u8 *pk, u8 *sk)
      return CRYPT_ERROR_READPRNG;
   }
 
-  if ((err = crypto_sk_to_pk(pk, sk)) != CRYPT_OK) {
+  if ((err = tweetnacl_crypto_sk_to_pk(pk, sk)) != CRYPT_OK) {
      return err;
   }
 
@@ -382,13 +382,13 @@ sv reduce(u8 *r)
   modL(r,x);
 }
 
-int crypto_sign(u8 *sm,u64 *smlen,const u8 *m,u64 n,const u8 *sk,const u8 *pk)
+int tweetnacl_crypto_sign(u8 *sm,u64 *smlen,const u8 *m,u64 n,const u8 *sk,const u8 *pk)
 {
   u8 d[64],h[64],r[64];
   i64 i,j,x[64];
   gf p[4];
 
-  crypto_hash(d, sk, 32);
+  tweetnacl_crypto_hash(d, sk, 32);
   d[0] &= 248;
   d[31] &= 127;
   d[31] |= 64;
@@ -397,13 +397,13 @@ int crypto_sign(u8 *sm,u64 *smlen,const u8 *m,u64 n,const u8 *sk,const u8 *pk)
   FOR(i,(i64)n) sm[64 + i] = m[i];
   FOR(i,32) sm[32 + i] = d[32 + i];
 
-  crypto_hash(r, sm+32, n+32);
+  tweetnacl_crypto_hash(r, sm+32, n+32);
   reduce(r);
   scalarbase(p,r);
   pack(sm,p);
 
   FOR(i,32) sm[i+32] = pk[i];
-  crypto_hash(h,sm,n + 64);
+  tweetnacl_crypto_hash(h,sm,n + 64);
   reduce(h);
 
   FOR(i,64) x[i] = 0;
@@ -450,7 +450,7 @@ static int unpackneg(gf r[4],const u8 p[32])
   return 0;
 }
 
-int crypto_sign_open(int *stat, u8 *m,u64 *mlen,const u8 *sm,u64 n,const u8 *pk)
+int tweetnacl_crypto_sign_open(int *stat, u8 *m,u64 *mlen,const u8 *sm,u64 n,const u8 *pk)
 {
   u64 i;
   u8 s[32],t[32],h[64];
@@ -466,7 +466,7 @@ int crypto_sign_open(int *stat, u8 *m,u64 *mlen,const u8 *sm,u64 n,const u8 *pk)
   XMEMMOVE(m,sm,n);
   XMEMMOVE(s,m + 32,32);
   XMEMMOVE(m + 32,pk,32);
-  crypto_hash(h,m,n);
+  tweetnacl_crypto_hash(h,m,n);
   reduce(h);
   scalarmult(p,q,h);
 
@@ -475,7 +475,7 @@ int crypto_sign_open(int *stat, u8 *m,u64 *mlen,const u8 *sm,u64 n,const u8 *pk)
   pack(t,p);
 
   n -= 64;
-  if (crypto_verify_32(sm, t)) {
+  if (tweetnacl_crypto_verify_32(sm, t)) {
     FOR(i,n) m[i] = 0;
     zeromem(m, n);
     return CRYPT_OK;

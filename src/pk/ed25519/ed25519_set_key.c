@@ -37,7 +37,7 @@ int ed25519_set_key(const unsigned char *sk, unsigned long sklen,
    if (sk != NULL) {
       LTC_ARGCHK(sklen == 32uL);
       XMEMCPY(key->priv, sk, sizeof(key->priv));
-      crypto_sk_to_pk(key->pub, key->priv);
+      tweetnacl_crypto_sk_to_pk(key->pub, key->priv);
       if (pk != NULL) {
          LTC_ARGCHK(pklen == 32uL);
          if (XMEM_NEQ(pk, key->pub, sizeof(key->pub)) != 0) {

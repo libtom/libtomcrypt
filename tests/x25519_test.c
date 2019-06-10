@@ -56,7 +56,7 @@ static int _rfc_7748_5_2_test(void)
    unsigned long n;
 
    for (n = 0; n < sizeof(rfc_7748_5_2)/sizeof(rfc_7748_5_2[0]); ++n) {
-      crypto_scalarmult(out, rfc_7748_5_2[n].scalar, rfc_7748_5_2[n].u_in);
+      tweetnacl_crypto_scalarmult(out, rfc_7748_5_2[n].scalar, rfc_7748_5_2[n].u_in);
       if (compare_testvector(out, sizeof(out), rfc_7748_5_2[n].u_out, sizeof(rfc_7748_5_2[n].u_out), "x25519 RFC 7748 Ch. 5.2", n) != 0) {
          return CRYPT_FAIL_TESTVECTOR;
       }

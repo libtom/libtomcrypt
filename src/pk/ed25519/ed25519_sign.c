@@ -48,9 +48,9 @@ int ed25519_sign(const unsigned char  *msg, unsigned long msglen,
    s = XMALLOC(smlen);
    if (s == NULL) return CRYPT_MEM;
 
-   err = crypto_sign(s, &smlen,
-                     msg, msglen,
-                     private_key->priv, private_key->pub);
+   err = tweetnacl_crypto_sign(s, &smlen,
+                               msg, msglen,
+                               private_key->priv, private_key->pub);
 
    XMEMCPY(sig, s, 64uL);
    *siglen = 64uL;

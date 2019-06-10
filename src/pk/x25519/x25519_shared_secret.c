@@ -39,7 +39,7 @@ int x25519_shared_secret(const    curve25519_key *private_key,
       return CRYPT_BUFFER_OVERFLOW;
    }
 
-   crypto_scalarmult(out, private_key->priv, public_key->pub);
+   tweetnacl_crypto_scalarmult(out, private_key->priv, public_key->pub);
    *outlen = 32uL;
 
    return CRYPT_OK;
