@@ -29,7 +29,7 @@ int ec25519_import_pkcs8(const unsigned char *in, unsigned long inlen,
                        enum ltc_oid_id id, sk_to_pk fp,
                        curve25519_key *key)
 {
-   int err = CRYPT_INVALID_ARG;
+   int err;
    ltc_asn1_list *l = NULL;
    const char *oid;
    ltc_asn1_list alg_id[1];
