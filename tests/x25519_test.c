@@ -199,7 +199,7 @@ static int _x25519_compat_test(void)
 
    buflen = sizeof(buf);
    DO(x25519_export(buf, &buflen, PK_PUBLIC, &priv));
-   DO(x25519_import(buf, buflen, &pub));
+   DO(x25519_set_key(NULL, 0, buf, buflen, &pub));
 
    buflen = sizeof(buf);
    DO(x25519_export(buf, &buflen, PK_PUBLIC | PK_STD, &priv));
