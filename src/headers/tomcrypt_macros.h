@@ -6,6 +6,9 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  */
+ 
+#ifndef TOMCRYPT_MACROS_H
+#define TOMCRYPT_MACROS_H
 
 /* ---- HELPER MACROS ---- */
 #ifdef ENDIAN_NEUTRAL
@@ -437,3 +440,5 @@ static inline ulong64 ROR64(ulong64 word, int i)
 /* ref:         $Format:%D$ */
 /* git commit:  $Format:%H$ */
 /* commit time: $Format:%ai$ */
+
+#endif // TOMCRYPT_MACROS_H
