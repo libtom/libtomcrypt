@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  */
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 /**
  Source donated by Elliptic Semiconductor Inc (www.ellipticsemi.com) to the LibTom Projects
@@ -14,7 +14,7 @@
 
 #ifdef LTC_XTS_MODE
 
-static int _tweak_uncrypt(const unsigned char *C, unsigned char *P, unsigned char *T, symmetric_xts *xts)
+static int _tweak_uncrypt(const unsigned char *C, unsigned char *P, unsigned char *T, const symmetric_xts *xts)
 {
    unsigned long x;
    int err;
@@ -57,7 +57,7 @@ static int _tweak_uncrypt(const unsigned char *C, unsigned char *P, unsigned cha
  Returns CRYPT_OK upon success
  */
 int xts_decrypt(const unsigned char *ct, unsigned long ptlen, unsigned char *pt, unsigned char *tweak,
-                symmetric_xts *xts)
+                const symmetric_xts *xts)
 {
    unsigned char PP[16], CC[16], T[16];
    unsigned long i, m, mo, lim;

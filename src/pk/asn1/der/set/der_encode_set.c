@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  */
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 /**
   @file der_encode_set.c
@@ -33,9 +33,8 @@ static int _qsort_helper(const void *a, const void *b)
    if (r == 0) {
       /* their order in the original list now determines the position */
       return A->used - B->used;
-   } else {
-      return r;
    }
+   return r;
 }
 
 /*
@@ -46,8 +45,8 @@ static int _qsort_helper(const void *a, const void *b)
    @param outlen    [in/out] The size of the output
    @return CRYPT_OK on success
 */
-int der_encode_set(ltc_asn1_list *list, unsigned long inlen,
-                   unsigned char *out,  unsigned long *outlen)
+int der_encode_set(const ltc_asn1_list *list, unsigned long inlen,
+                   unsigned char *out,        unsigned long *outlen)
 {
    ltc_asn1_list  *copy;
    unsigned long   x;

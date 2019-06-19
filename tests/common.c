@@ -70,6 +70,88 @@ int do_compare_testvector(const void* is, const unsigned long is_len, const void
    }
 }
 
+
+#ifdef LTC_TEST_READDIR
+
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <dirent.h>
+
+static off_t fsize(const char *filename)
+{
+   struct stat st;
+
+   if (stat(filename, &st) == 0) return st.st_size;
+
+   return -1;
+}
+
+int test_process_dir(const char *path, void *ctx, dir_iter_cb process, dir_cleanup_cb cleanup, const char *test)
+{
+   DIR *d = opendir(path);
+   struct dirent *de;
+   char fname[PATH_MAX];
+   void* buf = NULL;
+   FILE *f = NULL;
+   off_t fsz;
+   unsigned long sz;
+   int err = CRYPT_FILE_NOTFOUND;
+   if (d == NULL)
+      return CRYPT_FILE_NOTFOUND;
+   while((de = readdir(d)) != NULL) {
+      fname[0] = '\0';
+      if (strcmp(de->d_name, ".") == 0 || strcmp(de->d_name, "..") == 0 || strcmp(de->d_name, "README.txt") == 0)
+         continue;
+      strcat(fname, path);
+      strcat(fname, "/");
+      strcat(fname, de->d_name);
+      fsz = fsize(fname);
+      if (fsz == -1) {
+         err = CRYPT_FILE_NOTFOUND;
+         break;
+      }
+#if defined(LTC_TEST_DBG) && LTC_TEST_DBG > 1
+      fprintf(stderr, "%s: Try to process %s\n", test, fname);
+#endif
+      f = fopen(fname, "rb");
+      sz = fsz;
+      buf = XMALLOC(fsz);
+      if (fread(buf, 1, sz, f) != sz) {
+         err = CRYPT_ERROR;
+         break;
+      }
+
+      err = process(buf, sz, ctx);
+      if (err == CRYPT_NOP) {
+#if defined(LTC_TEST_DBG) && LTC_TEST_DBG > 1
+         fprintf(stderr, "%s: Skip: %s\n", test, fname);
+#endif
+         break;
+      } else if (err != CRYPT_OK) {
+#if defined(LTC_TEST_DBG)
+         fprintf(stderr, "%s: Test %s failed (cause: %s).\n\n", test, fname, error_to_string(err));
+#else
+         LTC_UNUSED_PARAM(test);
+#endif
+         break;
+      }
+      if ((err != CRYPT_NOP) && (cleanup != NULL)) {
+         cleanup(ctx);
+      }
+
+      XFREE(buf);
+      buf = NULL;
+      fclose(f);
+      f = NULL;
+   }
+   if (buf != NULL) XFREE(buf);
+   if (f != NULL) fclose(f);
+   closedir(d);
+   return err;
+}
+#endif
+
+
 prng_state yarrow_prng;
 
 /* ref:         $Format:%D$ */

@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  */
-#include <tomcrypt.h>
+#include "tomcrypt_private.h"
 
 #if defined(_WIN32)
    #define PRI64  "I64d"
@@ -821,78 +821,6 @@ static void time_rsa(void)
 static void time_rsa(void) { fprintf(stderr, "NO RSA\n"); }
 #endif
 
-#if defined(LTC_MKAT)
-/* time various KAT operations */
-static void time_katja(void)
-{
-   katja_key key;
-   ulong64 t1, t2;
-   unsigned char buf[2][4096];
-   unsigned long x, y, z, zzz;
-   int           err, zz;
-
-   if (ltc_mp.name == NULL) return;
-
-   for (x = 1024; x <= 2048; x += 256) {
-       t2 = 0;
-       for (y = 0; y < 4; y++) {
-           t_start();
-           t1 = t_read();
-           if ((err = katja_make_key(&yarrow_prng, find_prng("yarrow"), x/8, &key)) != CRYPT_OK) {
-              fprintf(stderr, "\n\nkatja_make_key says %s, wait...no it should say %s...damn you!\n", error_to_string(err), error_to_string(CRYPT_OK));
-              exit(EXIT_FAILURE);
-           }
-           t1 = t_read() - t1;
-           t2 += t1;
-
-           if (y < 3) {
-              katja_free(&key);
-           }
-       }
-       t2 >>= 2;
-       fprintf(stderr, "Katja-%lu make_key    took %15"PRI64"u cycles\n", x, t2);
-
-       t2 = 0;
-       for (y = 0; y < 16; y++) {
-           t_start();
-           t1 = t_read();
-           z = sizeof(buf[1]);
-           if ((err = katja_encrypt_key(buf[0], 32, buf[1], &z, "testprog", 8, &yarrow_prng,
-                                      find_prng("yarrow"), find_hash("sha1"),
-                                      &key)) != CRYPT_OK) {
-              fprintf(stderr, "\n\nkatja_encrypt_key says %s, wait...no it should say %s...damn you!\n", error_to_string(err), error_to_string(CRYPT_OK));
-              exit(EXIT_FAILURE);
-           }
-           t1 = t_read() - t1;
-           t2 += t1;
-       }
-       t2 >>= 4;
-       fprintf(stderr, "Katja-%lu encrypt_key took %15"PRI64"u cycles\n", x, t2);
-
-       t2 = 0;
-       for (y = 0; y < 2048; y++) {
-           t_start();
-           t1 = t_read();
-           zzz = sizeof(buf[0]);
-           if ((err = katja_decrypt_key(buf[1], z, buf[0], &zzz, "testprog", 8,  find_hash("sha1"),
-                                      &zz, &key)) != CRYPT_OK) {
-              fprintf(stderr, "\n\nkatja_decrypt_key says %s, wait...no it should say %s...damn you!\n", error_to_string(err), error_to_string(CRYPT_OK));
-              exit(EXIT_FAILURE);
-           }
-           t1 = t_read() - t1;
-           t2 += t1;
-       }
-       t2 >>= 11;
-       fprintf(stderr, "Katja-%lu decrypt_key took %15"PRI64"u cycles\n", x, t2);
-
-
-       katja_free(&key);
-  }
-}
-#else
-static void time_katja(void) { fprintf(stderr, "NO Katja\n"); }
-#endif
-
 #if defined(LTC_MDH)
 /* time various DH operations */
 static void time_dh(void)
@@ -947,28 +875,28 @@ static void time_ecc(void)
    unsigned long i, w, x, y, z;
    int           err, stat;
    static unsigned long sizes[] = {
-#ifdef LTC_ECC112
+#ifdef LTC_ECC_SECP112R1
 112/8,
 #endif
-#ifdef LTC_ECC128
+#ifdef LTC_ECC_SECP128R1
 128/8,
 #endif
-#ifdef LTC_ECC160
+#ifdef LTC_ECC_SECP160R1
 160/8,
 #endif
-#ifdef LTC_ECC192
+#ifdef LTC_ECC_SECP192R1
 192/8,
 #endif
-#ifdef LTC_ECC224
+#ifdef LTC_ECC_SECP224R1
 224/8,
 #endif
-#ifdef LTC_ECC256
+#ifdef LTC_ECC_SECP256R1
 256/8,
 #endif
-#ifdef LTC_ECC384
+#ifdef LTC_ECC_SECP384R1
 384/8,
 #endif
-#ifdef LTC_ECC521
+#ifdef LTC_ECC_SECP512R1
 521/8,
 #endif
 100000};
@@ -1424,7 +1352,6 @@ const struct
    LTC_TEST_FN(time_dsa),
    LTC_TEST_FN(time_ecc),
    LTC_TEST_FN(time_dh),
-   LTC_TEST_FN(time_katja)
 };
 char *single_test = NULL;
 unsigned int i;

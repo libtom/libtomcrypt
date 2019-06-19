@@ -11,7 +11,7 @@
     @file eax_decrypt_verify_memory.c
     EAX implementation, decrypt block of memory, by Tom St Denis
 */
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 #ifdef LTC_EAX_MODE
 
@@ -38,7 +38,7 @@ int eax_decrypt_verify_memory(int cipher,
     const unsigned char *header, unsigned long headerlen,
     const unsigned char *ct,     unsigned long ctlen,
           unsigned char *pt,
-          unsigned char *tag,    unsigned long taglen,
+    const unsigned char *tag,    unsigned long taglen,
           int           *stat)
 {
    int            err;

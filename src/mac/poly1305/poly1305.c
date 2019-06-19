@@ -12,7 +12,7 @@
  * https://github.com/floodyberry/poly1305-donna
  */
 
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 #ifdef LTC_POLY1305
 

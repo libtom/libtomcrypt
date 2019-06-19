@@ -11,7 +11,7 @@
   * http://bxr.su/OpenBSD/lib/libc/crypt/arc4random.c
   */
 
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 #ifdef LTC_CHACHA20_PRNG
 
@@ -38,8 +38,8 @@ int chacha20_prng_start(prng_state *prng)
 {
    LTC_ARGCHK(prng != NULL);
    prng->ready = 0;
-   XMEMSET(&prng->chacha.ent, 0, sizeof(prng->chacha.ent));
-   prng->chacha.idx = 0;
+   XMEMSET(&prng->u.chacha.ent, 0, sizeof(prng->u.chacha.ent));
+   prng->u.chacha.idx = 0;
    LTC_MUTEX_INIT(&prng->lock)
    return CRYPT_OK;
 }
@@ -64,18 +64,18 @@ int chacha20_prng_add_entropy(const unsigned char *in, unsigned long inlen, prng
    LTC_MUTEX_LOCK(&prng->lock);
    if (prng->ready) {
       /* chacha20_prng_ready() was already called, do "rekey" operation */
-      if ((err = chacha_keystream(&prng->chacha.s, buf, sizeof(buf))) != CRYPT_OK) goto LBL_UNLOCK;
+      if ((err = chacha_keystream(&prng->u.chacha.s, buf, sizeof(buf))) != CRYPT_OK) goto LBL_UNLOCK;
       for(i = 0; i < inlen; i++) buf[i % sizeof(buf)] ^= in[i];
       /* key 32 bytes, 20 rounds */
-      if ((err = chacha_setup(&prng->chacha.s, buf, 32, 20)) != CRYPT_OK)      goto LBL_UNLOCK;
+      if ((err = chacha_setup(&prng->u.chacha.s, buf, 32, 20)) != CRYPT_OK)      goto LBL_UNLOCK;
       /* iv 8 bytes */
-      if ((err = chacha_ivctr64(&prng->chacha.s, buf + 32, 8, 0)) != CRYPT_OK) goto LBL_UNLOCK;
+      if ((err = chacha_ivctr64(&prng->u.chacha.s, buf + 32, 8, 0)) != CRYPT_OK) goto LBL_UNLOCK;
       /* clear KEY + IV */
       zeromem(buf, sizeof(buf));
    }
    else {
       /* chacha20_prng_ready() was not called yet, add entropy to ent buffer */
-      while (inlen--) prng->chacha.ent[prng->chacha.idx++ % sizeof(prng->chacha.ent)] ^= *in++;
+      while (inlen--) prng->u.chacha.ent[prng->u.chacha.idx++ % sizeof(prng->u.chacha.ent)] ^= *in++;
    }
    err = CRYPT_OK;
 LBL_UNLOCK:
@@ -97,11 +97,11 @@ int chacha20_prng_ready(prng_state *prng)
    LTC_MUTEX_LOCK(&prng->lock);
    if (prng->ready)                                                    { err = CRYPT_OK; goto LBL_UNLOCK; }
    /* key 32 bytes, 20 rounds */
-   if ((err = chacha_setup(&prng->chacha.s, prng->chacha.ent, 32, 20)) != CRYPT_OK)      goto LBL_UNLOCK;
+   if ((err = chacha_setup(&prng->u.chacha.s, prng->u.chacha.ent, 32, 20)) != CRYPT_OK)      goto LBL_UNLOCK;
    /* iv 8 bytes */
-   if ((err = chacha_ivctr64(&prng->chacha.s, prng->chacha.ent + 32, 8, 0)) != CRYPT_OK) goto LBL_UNLOCK;
-   XMEMSET(&prng->chacha.ent, 0, sizeof(prng->chacha.ent));
-   prng->chacha.idx = 0;
+   if ((err = chacha_ivctr64(&prng->u.chacha.s, prng->u.chacha.ent + 32, 8, 0)) != CRYPT_OK) goto LBL_UNLOCK;
+   XMEMSET(&prng->u.chacha.ent, 0, sizeof(prng->u.chacha.ent));
+   prng->u.chacha.idx = 0;
    prng->ready = 1;
 LBL_UNLOCK:
    LTC_MUTEX_UNLOCK(&prng->lock);
@@ -120,7 +120,7 @@ unsigned long chacha20_prng_read(unsigned char *out, unsigned long outlen, prng_
    if (outlen == 0 || prng == NULL || out == NULL) return 0;
    LTC_MUTEX_LOCK(&prng->lock);
    if (!prng->ready) { outlen = 0; goto LBL_UNLOCK; }
-   if (chacha_keystream(&prng->chacha.s, out, outlen) != CRYPT_OK) outlen = 0;
+   if (chacha_keystream(&prng->u.chacha.s, out, outlen) != CRYPT_OK) outlen = 0;
 LBL_UNLOCK:
    LTC_MUTEX_UNLOCK(&prng->lock);
    return outlen;
@@ -137,7 +137,7 @@ int chacha20_prng_done(prng_state *prng)
    LTC_ARGCHK(prng != NULL);
    LTC_MUTEX_LOCK(&prng->lock);
    prng->ready = 0;
-   err = chacha_done(&prng->chacha.s);
+   err = chacha_done(&prng->u.chacha.s);
    LTC_MUTEX_UNLOCK(&prng->lock);
    LTC_MUTEX_DESTROY(&prng->lock);
    return err;

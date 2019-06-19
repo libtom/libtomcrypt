@@ -7,12 +7,7 @@
  * guarantee it works.
  */
 
-/* Implements ECC over Z/pZ for curve y^2 = x^3 - 3x + b
- *
- * All curves taken from NIST recommendation paper of July 1999
- * Available at http://csrc.nist.gov/cryptval/dss.htm
- */
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 /**
   @file ltc_ecc_map.c
@@ -36,6 +31,10 @@ int ltc_ecc_map(ecc_point *P, void *modulus, void *mp)
    LTC_ARGCHK(P       != NULL);
    LTC_ARGCHK(modulus != NULL);
    LTC_ARGCHK(mp      != NULL);
+
+   if (mp_iszero(P->z)) {
+      return ltc_ecc_set_point_xyz(0, 0, 1, P);
+   }
 
    if ((err = mp_init_multi(&t1, &t2, NULL)) != CRYPT_OK) {
       return err;

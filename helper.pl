@@ -53,6 +53,8 @@ sub check_source {
       push @{$troubles->{unwanted_memmove}}, $lineno if $file =~ /^src\/.*\.c$/ && $l =~ /\bmemmove\s*\(/;
       push @{$troubles->{unwanted_memcmp}},  $lineno if $file =~ /^src\/.*\.c$/ && $l =~ /\bmemcmp\s*\(/;
       push @{$troubles->{unwanted_strcmp}},  $lineno if $file =~ /^src\/.*\.c$/ && $l =~ /\bstrcmp\s*\(/;
+      push @{$troubles->{unwanted_strcpy}},  $lineno if $file =~ /^src\/.*\.c$/ && $l =~ /\bstrcpy\s*\(/;
+      push @{$troubles->{unwanted_strncpy}}, $lineno if $file =~ /^src\/.*\.c$/ && $l =~ /\bstrncpy\s*\(/;
       push @{$troubles->{unwanted_clock}},   $lineno if $file =~ /^src\/.*\.c$/ && $l =~ /\bclock\s*\(/;
       push @{$troubles->{unwanted_qsort}},   $lineno if $file =~ /^src\/.*\.c$/ && $l =~ /\bqsort\s*\(/;
       push @{$troubles->{sizeof_no_brackets}}, $lineno if $file =~ /^src\/.*\.c$/ && $l =~ /\bsizeof\s*[^\(]/;
@@ -60,6 +62,7 @@ sub check_source {
           $file !~ m|src/ciphers/.*\.c$| &&
           $file !~ m|src/hashes/.*\.c$| &&
           $file !~ m|src/math/.+_desc.c$| &&
+          $file !~ m|src/pk/ec25519/tweetnacl.c$| &&
           $file !~ m|src/stream/sober128/sober128_stream.c$| &&
           $l =~ /^static(\s+[a-zA-Z0-9_]+)+\s+([^_][a-zA-Z0-9_]+)\s*\(/) {
         push @{$troubles->{staticfunc_name}}, "$lineno($2)";
@@ -291,7 +294,7 @@ sub process_makefiles {
   my @c = ();
   find({ no_chdir => 1, wanted => sub { push @c, $_ if -f $_ && $_ =~ /\.c$/ && $_ !~ /tab.c$/ } }, 'src');
   my @h = ();
-  find({ no_chdir => 1, wanted => sub { push @h, $_ if -f $_ && $_ =~ /\.h$/ && $_ !~ /dh_static.h$/ } }, 'src');
+  find({ no_chdir => 1, wanted => sub { push @h, $_ if -f $_ && $_ =~ /\.h$/ && $_ !~ /dh_static.h$/ && $_ !~ /tomcrypt_private.h$/ } }, 'src');
   my @all = ();
   find({ no_chdir => 1, wanted => sub { push @all, $_ if -f $_ && $_ =~ /\.(c|h)$/  } }, 'src');
   my @t = qw();
@@ -299,7 +302,7 @@ sub process_makefiles {
 
   my @o = sort ('src/ciphers/aes/aes_enc.o', map { my $x = $_; $x =~ s/\.c$/.o/; $x } @c);
   my $var_o = prepare_variable("OBJECTS", @o);
-  my $var_h = prepare_variable("HEADERS", (sort @h));
+  my $var_h = prepare_variable("HEADERS_PUB", (sort @h));
   (my $var_obj = $var_o) =~ s/\.o\b/.obj/sg;
 
   my $var_to = prepare_variable("TOBJECTS", sort map { my $x = $_; $x =~ s/\.c$/.o/; $x } @t);

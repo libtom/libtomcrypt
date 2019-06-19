@@ -8,7 +8,7 @@
  */
 
 #define DESC_DEF_ONLY
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 #ifdef LTM_DESC
 
@@ -89,13 +89,22 @@ static int init_copy(void **a, void *b)
 static int set_int(void *a, ltc_mp_digit b)
 {
    LTC_ARGCHK(a != NULL);
+#ifdef BN_MP_SET_INT_C
    return mpi_to_ltc_error(mp_set_int(a, b));
+#else
+   mp_set_u32(a, b);
+   return CRYPT_OK;
+#endif
 }
 
 static unsigned long get_int(void *a)
 {
    LTC_ARGCHK(a != NULL);
+#ifdef BN_MP_GET_INT_C
    return mp_get_int(a);
+#else
+   return mp_get_ul(a);
+#endif
 }
 
 static ltc_mp_digit get_digit(void *a, int n)
@@ -257,6 +266,15 @@ static int sqr(void *a, void *b)
    return mpi_to_ltc_error(mp_sqr(a, b));
 }
 
+/* sqrtmod_prime */
+static int sqrtmod_prime(void *a, void *b, void *c)
+{
+   LTC_ARGCHK(a != NULL);
+   LTC_ARGCHK(b != NULL);
+   LTC_ARGCHK(c != NULL);
+   return mpi_to_ltc_error(mp_sqrtmod_prime(a, b, c));
+}
+
 /* div */
 static int divide(void *a, void *b, void *c, void *d)
 {
@@ -403,9 +421,7 @@ static int isprime(void *a, int b, int *c)
    int err;
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(c != NULL);
-   if (b == 0) {
-       b = LTC_MILLER_RABIN_REPS;
-   } /* if */
+   b = mp_prime_rabin_miller_trials(mp_count_bits(a));
    err = mpi_to_ltc_error(mp_prime_is_prime(a, b, c));
    *c = (*c == MP_YES) ? LTC_MP_YES : LTC_MP_NO;
    return err;
@@ -417,10 +433,14 @@ static int set_rand(void *a, int size)
    return mpi_to_ltc_error(mp_rand(a, size));
 }
 
+#ifndef MP_DIGIT_BIT
+#define MP_DIGIT_BIT DIGIT_BIT
+#endif
+
 const ltc_math_descriptor ltm_desc = {
 
    "LibTomMath",
-   (int)DIGIT_BIT,
+   (int)MP_DIGIT_BIT,
 
    &init,
    &init_copy,
@@ -452,6 +472,7 @@ const ltc_math_descriptor ltm_desc = {
    &mul,
    &muli,
    &sqr,
+   &sqrtmod_prime,
    &divide,
    &div_2,
    &modi,

@@ -11,7 +11,7 @@
    @file gcm_memory.c
    GCM implementation, process a packet, by Tom St Denis
 */
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 #ifdef LTC_GCM_MODE
 
@@ -93,7 +93,24 @@ int gcm_memory(      int           cipher,
     if ((err = gcm_process(gcm, pt, ptlen, ct, direction)) != CRYPT_OK) {
        goto LTC_ERR;
     }
-    err = gcm_done(gcm, tag, taglen);
+    if (direction == GCM_ENCRYPT) {
+      if ((err = gcm_done(gcm, tag, taglen)) != CRYPT_OK) {
+         goto LTC_ERR;
+      }
+    }
+    else if (direction == GCM_DECRYPT) {
+       unsigned char buf[MAXBLOCKSIZE];
+       unsigned long buflen = sizeof(buf);
+       if ((err = gcm_done(gcm, buf, &buflen)) != CRYPT_OK) {
+          goto LTC_ERR;
+       }
+       if (buflen != *taglen || XMEM_NEQ(buf, tag, buflen) != 0) {
+          err = CRYPT_ERROR;
+       }
+    }
+    else {
+       err = CRYPT_INVALID_ARG;
+    }
 LTC_ERR:
     XFREE(orig);
     return err;

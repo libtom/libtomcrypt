@@ -11,7 +11,7 @@
    @file ocb3_decrypt_last.c
    OCB implementation, internal helper, by Karel Miko
 */
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 #ifdef LTC_OCB3_MODE
 
@@ -66,10 +66,11 @@ int ocb3_decrypt_last(ocb3_state *ocb, const unsigned char *ct, unsigned long ct
      /* Checksum_* = Checksum_m xor (P_* || 1 || zeros(127-bitlen(P_*))) */
      ocb3_int_xor_blocks(ocb->checksum, ocb->checksum, pt+full_blocks_len, last_block_len);
      for(x=last_block_len; x<ocb->block_len; x++) {
-       if (x == last_block_len)
+       if (x == last_block_len) {
          ocb->checksum[x] ^= 0x80;
-       else
+       } else {
          ocb->checksum[x] ^= 0x00;
+       }
      }
 
      /* Tag = ENCIPHER(K, Checksum_* xor Offset_* xor L_$) xor HASH(K,A) */

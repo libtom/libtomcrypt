@@ -55,6 +55,7 @@
   @param out               The output file
   @param taglen            The MAC tag length
   @param direction         Encrypt or Decrypt mode (GCM_ENCRYPT or GCM_DECRYPT)
+  @param res               [out] Result of the operation, 1==valid, 0==invalid
   @return CRYPT_OK on success
  */
 int gcm_filehandle(      int           cipher,

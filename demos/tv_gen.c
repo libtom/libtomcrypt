@@ -6,9 +6,9 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  */
-#include <tomcrypt.h>
+#include "tomcrypt_private.h"
 
-void hash_gen(void)
+static void hash_gen(void)
 {
    unsigned char md[MAXBLOCKSIZE], *buf;
    unsigned long outlen, x, y, z;
@@ -49,7 +49,7 @@ void hash_gen(void)
    fclose(out);
 }
 
-void cipher_gen(void)
+static void cipher_gen(void)
 {
    unsigned char *key, pt[MAXBLOCKSIZE];
    unsigned long x, y, z, w;
@@ -78,7 +78,7 @@ void cipher_gen(void)
             printf("keysize error: %s\n", error_to_string(err));
             exit(EXIT_FAILURE);
          }
-         if (kl == lastkl) break;
+         if (kl == lastkl) continue;
          lastkl = kl;
          fprintf(out, "Key Size: %d bytes\n", kl);
 
@@ -124,7 +124,7 @@ void cipher_gen(void)
   fclose(out);
 }
 
-void hmac_gen(void)
+static void hmac_gen(void)
 {
    unsigned char key[MAXBLOCKSIZE], output[MAXBLOCKSIZE], *input;
    int x, y, z, err;
@@ -176,9 +176,9 @@ void hmac_gen(void)
    fclose(out);
 }
 
-void omac_gen(void)
-{
 #ifdef LTC_OMAC
+static void omac_gen(void)
+{
    unsigned char key[MAXBLOCKSIZE], output[MAXBLOCKSIZE], input[MAXBLOCKSIZE*2+2];
    int err, x, y, z, kl;
    FILE *out;
@@ -234,12 +234,12 @@ void omac_gen(void)
       fprintf(out, "\n");
    }
    fclose(out);
-#endif
 }
+#endif
 
-void pmac_gen(void)
-{
 #ifdef LTC_PMAC
+static void pmac_gen(void)
+{
    unsigned char key[MAXBLOCKSIZE], output[MAXBLOCKSIZE], input[MAXBLOCKSIZE*2+2];
    int err, x, y, z, kl;
    FILE *out;
@@ -295,12 +295,12 @@ void pmac_gen(void)
       fprintf(out, "\n");
    }
    fclose(out);
-#endif
 }
+#endif
 
-void eax_gen(void)
-{
 #ifdef LTC_EAX_MODE
+static void eax_gen(void)
+{
    int err, kl, x, y1, z;
    FILE *out;
    unsigned char key[MAXBLOCKSIZE], nonce[MAXBLOCKSIZE*2], header[MAXBLOCKSIZE*2],
@@ -361,12 +361,12 @@ void eax_gen(void)
       fprintf(out, "\n");
    }
    fclose(out);
-#endif
 }
+#endif
 
-void ocb_gen(void)
-{
 #ifdef LTC_OCB_MODE
+static void ocb_gen(void)
+{
    int err, kl, x, y1, z;
    FILE *out;
    unsigned char key[MAXBLOCKSIZE], nonce[MAXBLOCKSIZE*2],
@@ -430,12 +430,12 @@ void ocb_gen(void)
       fprintf(out, "\n");
    }
    fclose(out);
-#endif
 }
+#endif
 
-void ocb3_gen(void)
-{
 #ifdef LTC_OCB3_MODE
+static void ocb3_gen(void)
+{
    int err, kl, x, y1, z, noncelen;
    FILE *out;
    unsigned char key[MAXBLOCKSIZE], nonce[MAXBLOCKSIZE*2],
@@ -500,17 +500,19 @@ void ocb3_gen(void)
       fprintf(out, "\n");
    }
    fclose(out);
-#endif
 }
+#endif
 
-void ccm_gen(void)
-{
 #ifdef LTC_CCM_MODE
+static void ccm_gen(void)
+{
    int err, kl, x, y1, z;
+   unsigned int t;
    FILE *out;
    unsigned char key[MAXBLOCKSIZE], nonce[MAXBLOCKSIZE*2],
-                 plaintext[MAXBLOCKSIZE*2], tag[MAXBLOCKSIZE];
+                 plaintext[MAXBLOCKSIZE*2], tag[16];
    unsigned long len;
+   const unsigned int taglen[] = {4, 6, 8, 10, 12, 14, 16};
 
    out = fopen("ccm_tv.txt", "w");
    fprintf(out, "CCM Test Vectors.  Uses the 00010203...NN-1 pattern for nonce/header/plaintext/key.  The outputs\n"
@@ -538,43 +540,45 @@ void ccm_gen(void)
           nonce[z] = z;
       }
 
-      for (y1 = 0; y1 <= (int)(cipher_descriptor[x].block_length*2); y1++){
-         for (z = 0; z < y1; z++) {
-            plaintext[z] = (unsigned char)(z & 255);
-         }
-         len = sizeof(tag);
-         if ((err = ccm_memory(x, key, kl, NULL, nonce, 13, plaintext, y1, plaintext, y1, plaintext, tag, &len, CCM_ENCRYPT)) != CRYPT_OK) {
-            printf("Error CCM'ing: %s\n", error_to_string(err));
-            exit(EXIT_FAILURE);
-         }
-         if (len == 0) {
-            printf("Error CCM'ing: zero length\n");
-            exit(EXIT_FAILURE);
-         }
-         fprintf(out, "%3d: ", y1);
-         for (z = 0; z < y1; z++) {
-            fprintf(out, "%02X", plaintext[z]);
-         }
-         fprintf(out, ", ");
-         for (z = 0; z <(int)len; z++) {
-            fprintf(out, "%02X", tag[z]);
-         }
-         fprintf(out, "\n");
+      for (t = 0; t < sizeof(taglen)/sizeof(taglen[0]); ++t) {
+         for (y1 = 0; y1 <= (int)(cipher_descriptor[x].block_length*2); y1++){
+            for (z = 0; z < y1; z++) {
+               plaintext[z] = (unsigned char)(z & 255);
+            }
+            len = taglen[t];
+            if ((err = ccm_memory(x, key, kl, NULL, nonce, 13, plaintext, y1, plaintext, y1, plaintext, tag, &len, CCM_ENCRYPT)) != CRYPT_OK) {
+               printf("Error CCM'ing: %s\n", error_to_string(err));
+               exit(EXIT_FAILURE);
+            }
+            if (len == 0) {
+               printf("Error CCM'ing: zero length\n");
+               exit(EXIT_FAILURE);
+            }
+            fprintf(out, "%3d: ", y1);
+            for (z = 0; z < y1; z++) {
+               fprintf(out, "%02X", plaintext[z]);
+            }
+            fprintf(out, ", ");
+            for (z = 0; z <(int)len; z++) {
+               fprintf(out, "%02X", tag[z]);
+            }
+            fprintf(out, "\n");
 
-         /* forward the key */
-         for (z = 0; z < kl; z++) {
-             key[z] = tag[z % len];
+            /* forward the key */
+            for (z = 0; z < kl; z++) {
+                key[z] = tag[z % len];
+            }
          }
       }
       fprintf(out, "\n");
    }
    fclose(out);
-#endif
 }
+#endif
 
-void gcm_gen(void)
-{
 #ifdef LTC_GCM_MODE
+static void gcm_gen(void)
+{
    int err, kl, x, y1, z;
    FILE *out;
    unsigned char key[MAXBLOCKSIZE], plaintext[MAXBLOCKSIZE*2], tag[MAXBLOCKSIZE];
@@ -632,10 +636,10 @@ void gcm_gen(void)
       fprintf(out, "\n");
    }
    fclose(out);
-#endif
 }
+#endif
 
-void base64_gen(void)
+static void base64_gen(void)
 {
    FILE *out;
    unsigned char src[32], ch;
@@ -655,15 +659,15 @@ void base64_gen(void)
    fclose(out);
 }
 
-void math_gen(void)
+static void math_gen(void)
 {
 }
 
-void ecc_gen(void)
+static void ecc_gen(void)
 {
    FILE         *out;
    unsigned char str[512];
-   void          *k, *order, *modulus;
+   void          *k, *order, *modulus, *a;
    ecc_point    *G, *R;
    int           x;
 
@@ -674,34 +678,36 @@ void ecc_gen(void)
    mp_init(&k);
    mp_init(&order);
    mp_init(&modulus);
+   mp_init(&a);
 
-   for (x = 0; ltc_ecc_sets[x].size != 0; x++) {
-        fprintf(out, "ECC-%d\n", ltc_ecc_sets[x].size*8);
+   for (x = 0; ltc_ecc_curves[x].prime != NULL; x++) {
+        fprintf(out, "%s\n", ltc_ecc_curves[x].OID);
         mp_set(k, 1);
 
-        mp_read_radix(order,   (char *)ltc_ecc_sets[x].order, 16);
-        mp_read_radix(modulus, (char *)ltc_ecc_sets[x].prime, 16);
-        mp_read_radix(G->x,    (char *)ltc_ecc_sets[x].Gx,    16);
-        mp_read_radix(G->y,    (char *)ltc_ecc_sets[x].Gy,    16);
+        mp_read_radix(order,   (char *)ltc_ecc_curves[x].order, 16);
+        mp_read_radix(modulus, (char *)ltc_ecc_curves[x].prime, 16);
+        mp_read_radix(a,       (char *)ltc_ecc_curves[x].A,     16);
+        mp_read_radix(G->x,    (char *)ltc_ecc_curves[x].Gx,    16);
+        mp_read_radix(G->y,    (char *)ltc_ecc_curves[x].Gy,    16);
         mp_set(G->z, 1);
 
         while (mp_cmp(k, order) == LTC_MP_LT) {
-            ltc_mp.ecc_ptmul(k, G, R, modulus, 1);
+            ltc_mp.ecc_ptmul(k, G, R, a, modulus, 1);
             mp_tohex(k,    (char*)str); fprintf(out, "%s, ", (char*)str);
             mp_tohex(R->x, (char*)str); fprintf(out, "%s, ", (char*)str);
             mp_tohex(R->y, (char*)str); fprintf(out, "%s\n", (char*)str);
             mp_mul_d(k, 3, k);
         }
    }
-   mp_clear_multi(k, order, modulus, NULL);
+   mp_clear_multi(k, order, modulus, a, NULL);
    ltc_ecc_del_point(G);
    ltc_ecc_del_point(R);
    fclose(out);
 }
 
-void lrw_gen(void)
-{
 #ifdef LTC_LRW_MODE
+static void lrw_gen(void)
+{
    FILE *out;
    unsigned char tweak[16], key[16], iv[16], buf[1024];
    int x, y, err;
@@ -763,8 +769,8 @@ void lrw_gen(void)
        lrw_done(&lrw);
    }
    fclose(out);
-#endif
 }
+#endif
 
 int main(void)
 {
@@ -780,9 +786,6 @@ int main(void)
 #elif defined(EXT_MATH_LIB)
    extern ltc_math_descriptor EXT_MATH_LIB;
    ltc_mp = EXT_MATH_LIB;
-#else
-   fprintf(stderr, "No MPI provider available\n");
-   exit(EXIT_FAILURE);
 #endif
 
    printf("Generating hash   vectors..."); fflush(stdout); hash_gen();   printf("done\n");
@@ -810,8 +813,10 @@ int main(void)
    printf("Generating GCM    vectors..."); fflush(stdout); gcm_gen();    printf("done\n");
 #endif
    printf("Generating BASE64 vectors..."); fflush(stdout); base64_gen(); printf("done\n");
-   printf("Generating MATH   vectors..."); fflush(stdout); math_gen();   printf("done\n");
-   printf("Generating ECC    vectors..."); fflush(stdout); ecc_gen();    printf("done\n");
+   if (ltc_mp.name != NULL) {
+      printf("Generating MATH   vectors..."); fflush(stdout); math_gen();   printf("done\n");
+      printf("Generating ECC    vectors..."); fflush(stdout); ecc_gen();    printf("done\n");
+   }
 #ifdef LTC_LRW_MODE
    printf("Generating LRW    vectors..."); fflush(stdout); lrw_gen();    printf("done\n");
 #endif

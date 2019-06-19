@@ -12,7 +12,7 @@
   Implementation by Tom St Denis of Elliptic Semiconductor
 */
 
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 #ifdef LTC_CAMELLIA
 
@@ -193,7 +193,7 @@ static ulong64 F(ulong64 x)
    return ((ulong64)U) | (((ulong64)D) << CONST64(32));
 }
 
-static void rot_128(unsigned char *in, unsigned count, unsigned char *out)
+static void rot_128(const unsigned char *in, unsigned count, unsigned char *out)
 {
    unsigned x, w, b;
 
@@ -436,7 +436,7 @@ int camellia_setup(const unsigned char *key, int keylen, int num_rounds, symmetr
    return CRYPT_OK;
 }
 
-int camellia_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
+int camellia_ecb_encrypt(const unsigned char *pt, unsigned char *ct, const symmetric_key *skey)
 {
    ulong64 L, R;
    ulong32 a, b;
@@ -530,7 +530,7 @@ int camellia_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_k
    return CRYPT_OK;
 }
 
-int camellia_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey)
+int camellia_ecb_decrypt(const unsigned char *ct, unsigned char *pt, const symmetric_key *skey)
 {
    ulong64 L, R;
    ulong32 a, b;

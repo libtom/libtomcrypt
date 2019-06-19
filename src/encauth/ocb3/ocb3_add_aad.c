@@ -11,7 +11,7 @@
    @file ocb3_add_aad.c
    OCB implementation, add AAD data, by Karel Miko
 */
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 #ifdef LTC_OCB3_MODE
 

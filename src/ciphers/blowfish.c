@@ -10,7 +10,7 @@
   @file blowfish.c
   Implementation of the Blowfish block cipher, Tom St Denis
 */
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 #ifdef LTC_BLOWFISH
 
@@ -373,9 +373,9 @@ int blowfish_setup(const unsigned char *key, int keylen, int num_rounds,
 }
 
 #ifndef __GNUC__
-#define F(x) ((S1[byte(x,3)] + S2[byte(x,2)]) ^ S3[byte(x,1)]) + S4[byte(x,0)]
+#define F(x) ((S1[LTC_BYTE(x,3)] + S2[LTC_BYTE(x,2)]) ^ S3[LTC_BYTE(x,1)]) + S4[LTC_BYTE(x,0)]
 #else
-#define F(x) ((skey->blowfish.S[0][byte(x,3)] + skey->blowfish.S[1][byte(x,2)]) ^ skey->blowfish.S[2][byte(x,1)]) + skey->blowfish.S[3][byte(x,0)]
+#define F(x) ((skey->blowfish.S[0][LTC_BYTE(x,3)] + skey->blowfish.S[1][LTC_BYTE(x,2)]) ^ skey->blowfish.S[2][LTC_BYTE(x,1)]) + skey->blowfish.S[3][LTC_BYTE(x,0)]
 #endif
 
 /**
@@ -386,15 +386,15 @@ int blowfish_setup(const unsigned char *key, int keylen, int num_rounds,
   @return CRYPT_OK if successful
 */
 #ifdef LTC_CLEAN_STACK
-static int _blowfish_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
+static int _blowfish_ecb_encrypt(const unsigned char *pt, unsigned char *ct, const symmetric_key *skey)
 #else
-int blowfish_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
+int blowfish_ecb_encrypt(const unsigned char *pt, unsigned char *ct, const symmetric_key *skey)
 #endif
 {
    ulong32 L, R;
    int r;
 #ifndef __GNUC__
-   ulong32 *S1, *S2, *S3, *S4;
+   const ulong32 *S1, *S2, *S3, *S4;
 #endif
 
     LTC_ARGCHK(pt   != NULL);
@@ -432,7 +432,7 @@ int blowfish_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_k
 }
 
 #ifdef LTC_CLEAN_STACK
-int blowfish_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
+int blowfish_ecb_encrypt(const unsigned char *pt, unsigned char *ct, const symmetric_key *skey)
 {
     int err = _blowfish_ecb_encrypt(pt, ct, skey);
     burn_stack(sizeof(ulong32) * 2 + sizeof(int));
@@ -448,15 +448,15 @@ int blowfish_ecb_encrypt(const unsigned char *pt, unsigned char *ct, symmetric_k
   @return CRYPT_OK if successful
 */
 #ifdef LTC_CLEAN_STACK
-static int _blowfish_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey)
+static int _blowfish_ecb_decrypt(const unsigned char *ct, unsigned char *pt, const symmetric_key *skey)
 #else
-int blowfish_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey)
+int blowfish_ecb_decrypt(const unsigned char *ct, unsigned char *pt, const symmetric_key *skey)
 #endif
 {
    ulong32 L, R;
    int r;
 #ifndef __GNUC__
-   ulong32 *S1, *S2, *S3, *S4;
+   const ulong32 *S1, *S2, *S3, *S4;
 #endif
 
     LTC_ARGCHK(pt   != NULL);
@@ -493,7 +493,7 @@ int blowfish_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_k
 }
 
 #ifdef LTC_CLEAN_STACK
-int blowfish_ecb_decrypt(const unsigned char *ct, unsigned char *pt, symmetric_key *skey)
+int blowfish_ecb_decrypt(const unsigned char *ct, unsigned char *pt, const symmetric_key *skey)
 {
     int err = _blowfish_ecb_decrypt(ct, pt, skey);
     burn_stack(sizeof(ulong32) * 2 + sizeof(int));
@@ -580,7 +580,8 @@ int blowfish_keysize(int *keysize)
 
    if (*keysize < 8) {
       return CRYPT_INVALID_KEYSIZE;
-   } else if (*keysize > 56) {
+   }
+   if (*keysize > 56) {
       *keysize = 56;
    }
    return CRYPT_OK;

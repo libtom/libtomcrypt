@@ -34,6 +34,9 @@ int misc_test(void)
 #ifdef LTC_CRC32
    DO(crc32_test());
 #endif
+#ifdef LTC_SSH
+   ssh_test();
+#endif
    return 0;
 }
 

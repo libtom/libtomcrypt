@@ -7,12 +7,7 @@
  * guarantee it works.
  */
 
-/* Implements ECC over Z/pZ for curve y^2 = x^3 - 3x + b
- *
- * All curves taken from NIST recommendation paper of July 1999
- * Available at http://csrc.nist.gov/cryptval/dss.htm
- */
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 /**
   @file ecc_free.c
@@ -28,7 +23,12 @@
 void ecc_free(ecc_key *key)
 {
    LTC_ARGCHKVD(key != NULL);
-   mp_clear_multi(key->pubkey.x, key->pubkey.y, key->pubkey.z, key->k, NULL);
+
+   mp_cleanup_multi(&key->dp.prime, &key->dp.order,
+                    &key->dp.A, &key->dp.B,
+                    &key->dp.base.x, &key->dp.base.y, &key->dp.base.z,
+                    &key->pubkey.x, &key->pubkey.y, &key->pubkey.z,
+                    &key->k, NULL);
 }
 
 #endif

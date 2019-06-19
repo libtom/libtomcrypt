@@ -11,7 +11,7 @@
    @file ocb3_done.c
    OCB implementation, INTERNAL ONLY helper, by Tom St Denis
 */
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 #ifdef LTC_OCB3_MODE
 

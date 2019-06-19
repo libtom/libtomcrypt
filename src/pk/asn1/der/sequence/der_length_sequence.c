@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  */
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 /**
   @file der_length_sequence.c
@@ -22,13 +22,13 @@
    @param outlen [out] The length required in octets to store it
    @return CRYPT_OK on success
 */
-int der_length_sequence(ltc_asn1_list *list, unsigned long inlen,
+int der_length_sequence(const ltc_asn1_list *list, unsigned long inlen,
                         unsigned long *outlen)
 {
    return der_length_sequence_ex(list, inlen, outlen, NULL);
 }
 
-int der_length_sequence_ex(ltc_asn1_list *list, unsigned long inlen,
+int der_length_sequence_ex(const ltc_asn1_list *list, unsigned long inlen,
                            unsigned long *outlen, unsigned long *payloadlen)
 {
    int           err;

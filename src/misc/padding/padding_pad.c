@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  */
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 #ifdef LTC_PADDING
 
@@ -99,8 +99,15 @@ int padding_pad(unsigned char *data, unsigned long length, unsigned long* padded
    type = mode & LTC_PAD_MASK;
 
    if (*padded_length < l) {
-      if (type != LTC_PAD_ISO_10126) *padded_length = l;
-      else *padded_length = length + 256;
+#ifdef LTC_RNG_GET_BYTES
+      if (type != LTC_PAD_ISO_10126) {
+         *padded_length = l;
+      } else {
+         *padded_length = length + 256;
+      }
+#else
+      *padded_length = l;
+#endif
       return CRYPT_BUFFER_OVERFLOW;
    }
 

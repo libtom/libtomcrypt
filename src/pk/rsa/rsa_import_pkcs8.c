@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  */
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 /**
   @file rsa_import_pkcs8.c
@@ -39,10 +39,10 @@
  */
 
 /**
-  Import an RSAPublicKey or RSAPrivateKey in PKCS#8 format
+  Import an RSAPrivateKey in PKCS#8 format
   @param in        The packet to import from
   @param inlen     It's length (octets)
-  @param passwd    The password for decrypting privkey (NOT SUPPORTED YET)
+  @param passwd    The password for decrypting privkey
   @param passwdlen Password's length (octets)
   @param key       [out] Destination for newly imported key
   @return CRYPT_OK if successful, upon error allocated memory is freed
@@ -56,9 +56,9 @@ int rsa_import_pkcs8(const unsigned char *in, unsigned long inlen,
    unsigned char *buf1 = NULL, *buf2 = NULL;
    unsigned long buf1len, buf2len;
    unsigned long oid[16];
-   oid_st        rsaoid;
+   const char    *rsaoid;
    ltc_asn1_list alg_seq[2], top_seq[3];
-   ltc_asn1_list alg_seq_e[2], key_seq_e[2], top_seq_e[2];
+   ltc_asn1_list *l = NULL;
    unsigned char *decrypted = NULL;
    unsigned long decryptedlen;
 
@@ -83,25 +83,11 @@ int rsa_import_pkcs8(const unsigned char *in, unsigned long inlen,
    if (err != CRYPT_OK) { goto LBL_FREE2; }
 
    /* try to decode encrypted priv key */
-   LTC_SET_ASN1(key_seq_e, 0, LTC_ASN1_OCTET_STRING, buf1, buf1len);
-   LTC_SET_ASN1(key_seq_e, 1, LTC_ASN1_INTEGER, iter, 1UL);
-   LTC_SET_ASN1(alg_seq_e, 0, LTC_ASN1_OBJECT_IDENTIFIER, oid, 16UL);
-   LTC_SET_ASN1(alg_seq_e, 1, LTC_ASN1_SEQUENCE, key_seq_e, 2UL);
-   LTC_SET_ASN1(top_seq_e, 0, LTC_ASN1_SEQUENCE, alg_seq_e, 2UL);
-   LTC_SET_ASN1(top_seq_e, 1, LTC_ASN1_OCTET_STRING, buf2, buf2len);
-   err=der_decode_sequence(in, inlen, top_seq_e, 2UL);
-   if (err == CRYPT_OK) {
-      LTC_UNUSED_PARAM(passwd);
-      LTC_UNUSED_PARAM(passwdlen);
-      /* XXX: TODO encrypted pkcs8 not implemented yet */
-      /* fprintf(stderr, "decrypt: iter=%ld salt.len=%ld encdata.len=%ld\n", mp_get_int(iter), key_seq_e[0].size, top_seq_e[1].size); */
-      err = CRYPT_PK_INVALID_TYPE;
+   if ((err = pkcs8_decode_flexi(in, inlen, passwd, passwdlen, &l)) != CRYPT_OK) {
       goto LBL_ERR;
    }
-   else {
-      decrypted    = (unsigned char *)in;
-      decryptedlen = inlen;
-   }
+   decrypted    = l->data;
+   decryptedlen = l->size;
 
    /* try to decode unencrypted priv key */
    LTC_SET_ASN1(alg_seq, 0, LTC_ASN1_OBJECT_IDENTIFIER, oid, 16UL);
@@ -113,9 +99,7 @@ int rsa_import_pkcs8(const unsigned char *in, unsigned long inlen,
    if (err != CRYPT_OK) { goto LBL_ERR; }
 
    /* check alg oid */
-   if ((alg_seq[0].size != rsaoid.OIDlen) ||
-      XMEMCMP(rsaoid.OID, alg_seq[0].data, rsaoid.OIDlen * sizeof(rsaoid.OID[0]))) {
-      err = CRYPT_PK_INVALID_TYPE;
+   if ((err = pk_oid_cmp_with_asn1(rsaoid, &alg_seq[0])) != CRYPT_OK) {
       goto LBL_ERR;
    }
 
@@ -138,6 +122,7 @@ int rsa_import_pkcs8(const unsigned char *in, unsigned long inlen,
 LBL_ERR:
    rsa_free(key);
 LBL_FREE2:
+   if (l) der_free_sequence_flexi(l);
    mp_clear_multi(iter, zero, NULL);
    XFREE(buf2);
 LBL_FREE1:

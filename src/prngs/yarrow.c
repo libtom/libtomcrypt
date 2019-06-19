@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  */
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 /**
   @file yarrow.c
@@ -43,82 +43,82 @@ int yarrow_start(prng_state *prng)
    /* these are the default hash/cipher combo used */
 #ifdef LTC_RIJNDAEL
 #if    LTC_YARROW_AES==0
-   prng->yarrow.cipher = register_cipher(&rijndael_enc_desc);
+   prng->u.yarrow.cipher = register_cipher(&rijndael_enc_desc);
 #elif  LTC_YARROW_AES==1
-   prng->yarrow.cipher = register_cipher(&aes_enc_desc);
+   prng->u.yarrow.cipher = register_cipher(&aes_enc_desc);
 #elif  LTC_YARROW_AES==2
-   prng->yarrow.cipher = register_cipher(&rijndael_desc);
+   prng->u.yarrow.cipher = register_cipher(&rijndael_desc);
 #elif  LTC_YARROW_AES==3
-   prng->yarrow.cipher = register_cipher(&aes_desc);
+   prng->u.yarrow.cipher = register_cipher(&aes_desc);
 #endif
 #elif defined(LTC_BLOWFISH)
-   prng->yarrow.cipher = register_cipher(&blowfish_desc);
+   prng->u.yarrow.cipher = register_cipher(&blowfish_desc);
 #elif defined(LTC_TWOFISH)
-   prng->yarrow.cipher = register_cipher(&twofish_desc);
+   prng->u.yarrow.cipher = register_cipher(&twofish_desc);
 #elif defined(LTC_RC6)
-   prng->yarrow.cipher = register_cipher(&rc6_desc);
+   prng->u.yarrow.cipher = register_cipher(&rc6_desc);
 #elif defined(LTC_RC5)
-   prng->yarrow.cipher = register_cipher(&rc5_desc);
+   prng->u.yarrow.cipher = register_cipher(&rc5_desc);
 #elif defined(LTC_SAFERP)
-   prng->yarrow.cipher = register_cipher(&saferp_desc);
+   prng->u.yarrow.cipher = register_cipher(&saferp_desc);
 #elif defined(LTC_RC2)
-   prng->yarrow.cipher = register_cipher(&rc2_desc);
+   prng->u.yarrow.cipher = register_cipher(&rc2_desc);
 #elif defined(LTC_NOEKEON)
-   prng->yarrow.cipher = register_cipher(&noekeon_desc);
+   prng->u.yarrow.cipher = register_cipher(&noekeon_desc);
 #elif defined(LTC_ANUBIS)
-   prng->yarrow.cipher = register_cipher(&anubis_desc);
+   prng->u.yarrow.cipher = register_cipher(&anubis_desc);
 #elif defined(LTC_KSEED)
-   prng->yarrow.cipher = register_cipher(&kseed_desc);
+   prng->u.yarrow.cipher = register_cipher(&kseed_desc);
 #elif defined(LTC_KHAZAD)
-   prng->yarrow.cipher = register_cipher(&khazad_desc);
+   prng->u.yarrow.cipher = register_cipher(&khazad_desc);
 #elif defined(LTC_CAST5)
-   prng->yarrow.cipher = register_cipher(&cast5_desc);
+   prng->u.yarrow.cipher = register_cipher(&cast5_desc);
 #elif defined(LTC_XTEA)
-   prng->yarrow.cipher = register_cipher(&xtea_desc);
+   prng->u.yarrow.cipher = register_cipher(&xtea_desc);
 #elif defined(LTC_SAFER)
-   prng->yarrow.cipher = register_cipher(&safer_sk128_desc);
+   prng->u.yarrow.cipher = register_cipher(&safer_sk128_desc);
 #elif defined(LTC_DES)
-   prng->yarrow.cipher = register_cipher(&des3_desc);
+   prng->u.yarrow.cipher = register_cipher(&des3_desc);
 #else
    #error LTC_YARROW needs at least one CIPHER
 #endif
-   if ((err = cipher_is_valid(prng->yarrow.cipher)) != CRYPT_OK) {
+   if ((err = cipher_is_valid(prng->u.yarrow.cipher)) != CRYPT_OK) {
       return err;
    }
 
 #ifdef LTC_SHA256
-   prng->yarrow.hash   = register_hash(&sha256_desc);
+   prng->u.yarrow.hash   = register_hash(&sha256_desc);
 #elif defined(LTC_SHA512)
-   prng->yarrow.hash   = register_hash(&sha512_desc);
+   prng->u.yarrow.hash   = register_hash(&sha512_desc);
 #elif defined(LTC_TIGER)
-   prng->yarrow.hash   = register_hash(&tiger_desc);
+   prng->u.yarrow.hash   = register_hash(&tiger_desc);
 #elif defined(LTC_SHA1)
-   prng->yarrow.hash   = register_hash(&sha1_desc);
+   prng->u.yarrow.hash   = register_hash(&sha1_desc);
 #elif defined(LTC_RIPEMD320)
-   prng->yarrow.hash   = register_hash(&rmd320_desc);
+   prng->u.yarrow.hash   = register_hash(&rmd320_desc);
 #elif defined(LTC_RIPEMD256)
-   prng->yarrow.hash   = register_hash(&rmd256_desc);
+   prng->u.yarrow.hash   = register_hash(&rmd256_desc);
 #elif defined(LTC_RIPEMD160)
-   prng->yarrow.hash   = register_hash(&rmd160_desc);
+   prng->u.yarrow.hash   = register_hash(&rmd160_desc);
 #elif defined(LTC_RIPEMD128)
-   prng->yarrow.hash   = register_hash(&rmd128_desc);
+   prng->u.yarrow.hash   = register_hash(&rmd128_desc);
 #elif defined(LTC_MD5)
-   prng->yarrow.hash   = register_hash(&md5_desc);
+   prng->u.yarrow.hash   = register_hash(&md5_desc);
 #elif defined(LTC_MD4)
-   prng->yarrow.hash   = register_hash(&md4_desc);
+   prng->u.yarrow.hash   = register_hash(&md4_desc);
 #elif defined(LTC_MD2)
-   prng->yarrow.hash   = register_hash(&md2_desc);
+   prng->u.yarrow.hash   = register_hash(&md2_desc);
 #elif defined(LTC_WHIRLPOOL)
-   prng->yarrow.hash   = register_hash(&whirlpool_desc);
+   prng->u.yarrow.hash   = register_hash(&whirlpool_desc);
 #else
    #error LTC_YARROW needs at least one HASH
 #endif
-   if ((err = hash_is_valid(prng->yarrow.hash)) != CRYPT_OK) {
+   if ((err = hash_is_valid(prng->u.yarrow.hash)) != CRYPT_OK) {
       return err;
    }
 
    /* zero the memory used */
-   zeromem(prng->yarrow.pool, sizeof(prng->yarrow.pool));
+   zeromem(prng->u.yarrow.pool, sizeof(prng->u.yarrow.pool));
    LTC_MUTEX_INIT(&prng->lock)
 
    return CRYPT_OK;
@@ -142,28 +142,28 @@ int yarrow_add_entropy(const unsigned char *in, unsigned long inlen, prng_state 
 
    LTC_MUTEX_LOCK(&prng->lock);
 
-   if ((err = hash_is_valid(prng->yarrow.hash)) != CRYPT_OK) {
+   if ((err = hash_is_valid(prng->u.yarrow.hash)) != CRYPT_OK) {
       goto LBL_UNLOCK;
    }
 
    /* start the hash */
-   if ((err = hash_descriptor[prng->yarrow.hash].init(&md)) != CRYPT_OK) {
+   if ((err = hash_descriptor[prng->u.yarrow.hash].init(&md)) != CRYPT_OK) {
       goto LBL_UNLOCK;
    }
 
    /* hash the current pool */
-   if ((err = hash_descriptor[prng->yarrow.hash].process(&md, prng->yarrow.pool,
-                                                        hash_descriptor[prng->yarrow.hash].hashsize)) != CRYPT_OK) {
+   if ((err = hash_descriptor[prng->u.yarrow.hash].process(&md, prng->u.yarrow.pool,
+                                                        hash_descriptor[prng->u.yarrow.hash].hashsize)) != CRYPT_OK) {
       goto LBL_UNLOCK;
    }
 
    /* add the new entropy */
-   if ((err = hash_descriptor[prng->yarrow.hash].process(&md, in, inlen)) != CRYPT_OK) {
+   if ((err = hash_descriptor[prng->u.yarrow.hash].process(&md, in, inlen)) != CRYPT_OK) {
       goto LBL_UNLOCK;
    }
 
    /* store result */
-   err = hash_descriptor[prng->yarrow.hash].done(&md, prng->yarrow.pool);
+   err = hash_descriptor[prng->u.yarrow.hash].done(&md, prng->u.yarrow.pool);
 
 LBL_UNLOCK:
    LTC_MUTEX_UNLOCK(&prng->lock);
@@ -183,26 +183,26 @@ int yarrow_ready(prng_state *prng)
 
    LTC_MUTEX_LOCK(&prng->lock);
 
-   if ((err = hash_is_valid(prng->yarrow.hash)) != CRYPT_OK) {
+   if ((err = hash_is_valid(prng->u.yarrow.hash)) != CRYPT_OK) {
       goto LBL_UNLOCK;
    }
 
-   if ((err = cipher_is_valid(prng->yarrow.cipher)) != CRYPT_OK) {
+   if ((err = cipher_is_valid(prng->u.yarrow.cipher)) != CRYPT_OK) {
       goto LBL_UNLOCK;
    }
 
    /* setup CTR mode using the "pool" as the key */
-   ks = (int)hash_descriptor[prng->yarrow.hash].hashsize;
-   if ((err = cipher_descriptor[prng->yarrow.cipher].keysize(&ks)) != CRYPT_OK) {
+   ks = (int)hash_descriptor[prng->u.yarrow.hash].hashsize;
+   if ((err = cipher_descriptor[prng->u.yarrow.cipher].keysize(&ks)) != CRYPT_OK) {
       goto LBL_UNLOCK;
    }
 
-   if ((err = ctr_start(prng->yarrow.cipher,     /* what cipher to use */
-                        prng->yarrow.pool,       /* IV */
-                        prng->yarrow.pool, ks,   /* KEY and key size */
+   if ((err = ctr_start(prng->u.yarrow.cipher,     /* what cipher to use */
+                        prng->u.yarrow.pool,       /* IV */
+                        prng->u.yarrow.pool, ks,   /* KEY and key size */
                         0,                       /* number of rounds */
                         CTR_COUNTER_LITTLE_ENDIAN, /* little endian counter */
-                        &prng->yarrow.ctr)) != CRYPT_OK) {
+                        &prng->u.yarrow.ctr)) != CRYPT_OK) {
       goto LBL_UNLOCK;
    }
    prng->ready = 1;
@@ -234,7 +234,7 @@ unsigned long yarrow_read(unsigned char *out, unsigned long outlen, prng_state *
    zeromem(out, outlen);
 
    /* now randomize it */
-   if (ctr_encrypt(out, out, outlen, &prng->yarrow.ctr) != CRYPT_OK) {
+   if (ctr_encrypt(out, out, outlen, &prng->u.yarrow.ctr) != CRYPT_OK) {
       outlen = 0;
    }
 
@@ -259,7 +259,7 @@ int yarrow_done(prng_state *prng)
    /* call cipher done when we invent one ;-) */
 
    /* we invented one */
-   err = ctr_done(&prng->yarrow.ctr);
+   err = ctr_done(&prng->u.yarrow.ctr);
 
    LTC_MUTEX_UNLOCK(&prng->lock);
    LTC_MUTEX_DESTROY(&prng->lock);
@@ -312,12 +312,12 @@ int yarrow_test(void)
    }
 
    /* now let's test the hash/cipher that was chosen */
-   if (cipher_descriptor[prng.yarrow.cipher].test &&
-       ((err = cipher_descriptor[prng.yarrow.cipher].test()) != CRYPT_OK)) {
+   if (cipher_descriptor[prng.u.yarrow.cipher].test &&
+       ((err = cipher_descriptor[prng.u.yarrow.cipher].test()) != CRYPT_OK)) {
       return err;
    }
-   if (hash_descriptor[prng.yarrow.hash].test &&
-       ((err = hash_descriptor[prng.yarrow.hash].test()) != CRYPT_OK)) {
+   if (hash_descriptor[prng.u.yarrow.hash].test &&
+       ((err = hash_descriptor[prng.u.yarrow.hash].test()) != CRYPT_OK)) {
       return err;
    }
 

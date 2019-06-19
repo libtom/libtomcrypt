@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  */
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 /**
    @file burn_stack.c
@@ -21,8 +21,9 @@ void burn_stack(unsigned long len)
 {
    unsigned char buf[32];
    zeromem(buf, sizeof(buf));
-   if (len > (unsigned long)sizeof(buf))
+   if (len > (unsigned long)sizeof(buf)) {
       burn_stack(len - sizeof(buf));
+   }
 }
 
 

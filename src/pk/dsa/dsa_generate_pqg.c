@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  */
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 /**
    @file dsa_generate_pqg.c
@@ -72,8 +72,8 @@ static int _dsa_make_params(prng_state *prng, int wprng, int group_size, int mod
   */
 
   seedbytes = group_size;
-  L = modulus_size * 8;
-  N = group_size * 8;
+  L = (unsigned long)modulus_size * 8;
+  N = (unsigned long)group_size * 8;
 
   /* XXX-TODO no Lucas test */
 #ifdef LTC_MPI_HAS_LUCAS_TEST

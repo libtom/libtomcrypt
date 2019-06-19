@@ -6,7 +6,9 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  */
+
 #include "tomcrypt.h"
+#include "tomcrypt_test.h"
 
 /**
   @file no_prng.c
@@ -29,7 +31,7 @@ typedef struct
   @param prng     [out] The PRNG state to initialize
   @return CRYPT_OK if successful
 */
-int no_prng_start(prng_state *prng)
+static int no_prng_start(prng_state *prng)
 {
    no_prng_desc_t *no_prng = (no_prng_desc_t*) prng;
    LTC_ARGCHK(no_prng != NULL);
@@ -47,7 +49,7 @@ int no_prng_start(prng_state *prng)
   @param prng     PRNG state to update
   @return CRYPT_OK if successful
 */
-int no_prng_add_entropy(const unsigned char *in, unsigned long inlen, prng_state *prng)
+static int no_prng_add_entropy(const unsigned char *in, unsigned long inlen, prng_state *prng)
 {
    no_prng_desc_t *no_prng = (no_prng_desc_t*) prng;
    LTC_ARGCHK(no_prng != NULL);
@@ -68,7 +70,7 @@ int no_prng_add_entropy(const unsigned char *in, unsigned long inlen, prng_state
   @param prng   The PRNG to make active
   @return CRYPT_OK if successful
 */
-int no_prng_ready(prng_state *prng)
+static int no_prng_ready(prng_state *prng)
 {
     LTC_ARGCHK(prng != NULL);
 
@@ -82,7 +84,7 @@ int no_prng_ready(prng_state *prng)
   @param prng     The active PRNG to read from
   @return Number of octets read
 */
-unsigned long no_prng_read(unsigned char *out, unsigned long outlen, prng_state *prng)
+static unsigned long no_prng_read(unsigned char *out, unsigned long outlen, prng_state *prng)
 {
    no_prng_desc_t *no_prng = (no_prng_desc_t*) prng;
    LTC_ARGCHK(no_prng != NULL);
@@ -101,7 +103,7 @@ unsigned long no_prng_read(unsigned char *out, unsigned long outlen, prng_state 
   @param prng   The PRNG to terminate
   @return CRYPT_OK if successful
 */
-int no_prng_done(prng_state *prng)
+static int no_prng_done(prng_state *prng)
 {
    LTC_UNUSED_PARAM(prng);
    return CRYPT_OK;
@@ -114,7 +116,7 @@ int no_prng_done(prng_state *prng)
   @param prng      The PRNG to export
   @return CRYPT_OK if successful
 */
-int no_prng_export(unsigned char *out, unsigned long *outlen, prng_state *prng)
+static int no_prng_export(unsigned char *out, unsigned long *outlen, prng_state *prng)
 {
    LTC_UNUSED_PARAM(out);
    LTC_UNUSED_PARAM(outlen);
@@ -129,7 +131,7 @@ int no_prng_export(unsigned char *out, unsigned long *outlen, prng_state *prng)
   @param prng     The PRNG to import
   @return CRYPT_OK if successful
 */
-int no_prng_import(const unsigned char *in, unsigned long inlen, prng_state *prng)
+static int no_prng_import(const unsigned char *in, unsigned long inlen, prng_state *prng)
 {
    LTC_UNUSED_PARAM(in);
    LTC_UNUSED_PARAM(inlen);
@@ -141,7 +143,7 @@ int no_prng_import(const unsigned char *in, unsigned long inlen, prng_state *prn
   PRNG self-test
   @return CRYPT_OK if successful, CRYPT_NOP if self-testing has been disabled
 */
-int no_prng_test(void)
+static int no_prng_test(void)
 {
    return CRYPT_OK;
 }
@@ -161,10 +163,15 @@ static const struct ltc_prng_descriptor no_prng_desc =
 
 struct ltc_prng_descriptor* no_prng_desc_get(void)
 {
+   int ret;
    no_prng_desc_t* no_prng = XMALLOC(sizeof(*no_prng));
-   LTC_ARGCHK(no_prng != NULL);
+   if (no_prng == NULL) return NULL;
    XMEMCPY(&no_prng->desc, &no_prng_desc, sizeof(no_prng_desc));
-   LTC_ARGCHK(snprintf(no_prng->name, sizeof(no_prng->name), "no_prng@%p", no_prng) < (int)sizeof(no_prng->name));
+   ret = snprintf(no_prng->name, sizeof(no_prng->name), "no_prng@%p", no_prng);
+   if((ret >= (int)sizeof(no_prng->name)) || (ret == -1)) {
+      XFREE(no_prng);
+      return NULL;
+   }
    no_prng->desc.name = no_prng->name;
    return &no_prng->desc;
 }
@@ -172,8 +179,8 @@ struct ltc_prng_descriptor* no_prng_desc_get(void)
 void no_prng_desc_free(struct ltc_prng_descriptor* prng)
 {
    no_prng_desc_t *no_prng = (no_prng_desc_t*) prng;
-   LTC_ARGCHK(no_prng != NULL);
-   LTC_ARGCHK(no_prng->name == (char*)no_prng + offsetof(no_prng_desc_t, name));
+   LTC_ARGCHKVD(no_prng != NULL);
+   LTC_ARGCHKVD(no_prng->name == (char*)no_prng + offsetof(no_prng_desc_t, name));
    XFREE(no_prng);
 }
 

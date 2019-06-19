@@ -7,7 +7,7 @@
  * guarantee it works.
  */
 
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 #ifdef LTC_MDH
 
@@ -16,7 +16,7 @@
   @param key    The key you wish to test
   @return CRYPT_OK if successful
 */
-int dh_check_pubkey(dh_key *key)
+int dh_check_pubkey(const dh_key *key)
 {
    void *p_minus1;
    ltc_mp_digit digit;

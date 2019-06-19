@@ -18,7 +18,7 @@
 
 #include <tomcrypt.h>
 
-int usage(char *name)
+static int LTC_NORETURN usage(char *name)
 {
    int x;
 

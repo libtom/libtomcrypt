@@ -6,7 +6,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  */
-#include "tomcrypt.h"
+#include "tomcrypt_private.h"
 
 /**
   @file crypt.c
@@ -134,6 +134,9 @@ const char *crypt_build_settings =
 #endif
 #if defined(LTC_SALSA20)
    "   Salsa20\n"
+#endif
+#if defined(LTC_XSALSA20)
+   "   XSalsa20\n"
 #endif
 #if defined(LTC_SOSEMANUK)
    "   Sosemanuk\n"
@@ -313,7 +316,13 @@ const char *crypt_build_settings =
     "   ChaCha20\n"
 #endif
 #if defined(LTC_FORTUNA)
-    "   Fortuna (" NAME_VALUE(LTC_FORTUNA_POOLS) ", " NAME_VALUE(LTC_FORTUNA_WD) ")\n"
+    "   Fortuna (" NAME_VALUE(LTC_FORTUNA_POOLS) ", "
+#if defined(LTC_FORTUNA_RESEED_RATELIMIT_TIMED)
+    "LTC_FORTUNA_RESEED_RATELIMIT_TIMED, "
+#else
+    "LTC_FORTUNA_RESEED_RATELIMIT_STATIC, " NAME_VALUE(LTC_FORTUNA_WD)
+#endif
+    ")\n"
 #endif
 #if defined(LTC_SOBER128)
     "   SOBER128\n"
@@ -344,8 +353,13 @@ const char *crypt_build_settings =
 #if defined(LTC_MDSA)
     "   DSA\n"
 #endif
-#if defined(LTC_MKAT)
-    "   Katja\n"
+#if defined(LTC_CURVE25519)
+#if defined(LTC_CURVE25519)
+    "   Ed25519\n"
+#endif
+#if defined(LTC_CURVE25519)
+    "   X25519\n"
+#endif
 #endif
 #if defined(LTC_PK_MAX_RETRIES)
     "   "NAME_VALUE(LTC_PK_MAX_RETRIES)"\n"
@@ -422,6 +436,7 @@ const char *crypt_build_settings =
 #endif
 #if defined(LTC_DER)
     " DER "
+    " " NAME_VALUE(LTC_DER_MAX_RECURSION) " "
 #endif
 #if defined(LTC_PKCS_1)
     " PKCS#1 "
@@ -429,11 +444,24 @@ const char *crypt_build_settings =
 #if defined(LTC_PKCS_5)
     " PKCS#5 "
 #endif
+#if defined(LTC_PKCS_8)
+    " PKCS#8 "
+#endif
+#if defined(LTC_PKCS_12)
+    " PKCS#12 "
+#endif
 #if defined(LTC_PADDING)
     " PADDING "
 #endif
 #if defined(LTC_HKDF)
     " HKDF "
+#endif
+#if defined(LTC_PBES)
+    " PBES1 "
+    " PBES2 "
+#endif
+#if defined(LTC_SSH)
+    " SSH "
 #endif
 #if defined(LTC_DEVRANDOM)
     " LTC_DEVRANDOM "
@@ -508,10 +536,13 @@ const char *crypt_build_settings =
     " LTC_MECC_ACCEL "
 #endif
 #if defined(LTC_MECC_FP)
-   " LTC_MECC_FP "
+    " LTC_MECC_FP "
 #endif
 #if defined(LTC_ECC_SHAMIR)
-   " LTC_ECC_SHAMIR "
+    " LTC_ECC_SHAMIR "
+#endif
+#if defined(LTC_CLOCK_GETTIME)
+    " LTC_CLOCK_GETTIME "
 #endif
     "\n"
     ;

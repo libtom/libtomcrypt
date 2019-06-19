@@ -80,7 +80,7 @@ make clean &>/dev/null
 
 EXTRALIBS="$5"
 
-echo $2 | grep -q GMP && EXTRALIBS="$EXTRALIBS -lgmp"
+echo $* | grep -q GMP && EXTRALIBS="$EXTRALIBS -lgmp"
 
 if [ -z "$(echo $CC | grep "clang")" ]; then
    run_gcc "$1" "$2" "$3" "$4" "$EXTRALIBS"
@@ -90,11 +90,11 @@ fi
 
 make clean &>/dev/null
 
-bash .ci/testbuild.sh "NOTEST" "-DLTC_NO_TEST" "$3" "$4" "$5"
+bash .ci/testbuild.sh "NOTEST" "-DLTC_NO_TEST" "$3" "$4" "$EXTRALIBS"
 
 make clean &>/dev/null
 
-bash .ci/testbuild.sh "NOFILE" "-DLTC_NO_FILE" "$3" "$4" "$5"
+bash .ci/testbuild.sh "NOFILE" "-DLTC_NO_FILE" "$3" "$4" "$EXTRALIBS"
 
 make clean &>/dev/null
 
