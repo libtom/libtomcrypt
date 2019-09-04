@@ -136,6 +136,10 @@ int rc5_ecb_encrypt(const unsigned char *pt, unsigned char *ct, const symmetric_
    LTC_ARGCHK(pt   != NULL);
    LTC_ARGCHK(ct   != NULL);
 
+   if (skey->rc5.rounds < 12 || skey->rc5.rounds > 24) {
+      return CRYPT_INVALID_ROUNDS;
+   }
+
    LOAD32L(A, &pt[0]);
    LOAD32L(B, &pt[4]);
    A += skey->rc5.K[0];
@@ -191,6 +195,10 @@ int rc5_ecb_decrypt(const unsigned char *ct, unsigned char *pt, const symmetric_
    LTC_ARGCHK(skey != NULL);
    LTC_ARGCHK(pt   != NULL);
    LTC_ARGCHK(ct   != NULL);
+
+   if (skey->rc5.rounds < 12 || skey->rc5.rounds > 24) {
+      return CRYPT_INVALID_ROUNDS;
+   }
 
    LOAD32L(A, &ct[0]);
    LOAD32L(B, &ct[4]);

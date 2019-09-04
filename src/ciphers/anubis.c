@@ -1131,6 +1131,11 @@ int anubis_ecb_encrypt(const unsigned char *pt, unsigned char *ct, const symmetr
    LTC_ARGCHK(pt   != NULL);
    LTC_ARGCHK(ct   != NULL);
    LTC_ARGCHK(skey != NULL);
+
+   if (skey->anubis.R < 12 || skey->anubis.R > 18) {
+       return CRYPT_INVALID_ROUNDS;
+   }
+
    anubis_crypt(pt, ct, skey->anubis.roundKeyEnc, skey->anubis.R);
    return CRYPT_OK;
 }
@@ -1147,6 +1152,11 @@ int anubis_ecb_decrypt(const unsigned char *ct, unsigned char *pt, const symmetr
    LTC_ARGCHK(pt   != NULL);
    LTC_ARGCHK(ct   != NULL);
    LTC_ARGCHK(skey != NULL);
+
+   if (skey->anubis.R < 12 || skey->anubis.R > 18) {
+       return CRYPT_INVALID_ROUNDS;
+   }
+
    anubis_crypt(ct, pt, skey->anubis.roundKeyDec, skey->anubis.R);
    return CRYPT_OK;
 }
