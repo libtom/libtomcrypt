@@ -295,6 +295,62 @@ static const ulong32 ORIG_S[4][256] = {
         0xB74E6132UL, 0xCE77E25BUL, 0x578FDFE3UL, 0x3AC372E6UL  }
 };
 
+#ifndef __GNUC__
+#define F(x) ((S1[LTC_BYTE(x,3)] + S2[LTC_BYTE(x,2)]) ^ S3[LTC_BYTE(x,1)]) + S4[LTC_BYTE(x,0)]
+#else
+#define F(x) ((skey->blowfish.S[0][LTC_BYTE(x,3)] + skey->blowfish.S[1][LTC_BYTE(x,2)]) ^ skey->blowfish.S[2][LTC_BYTE(x,1)]) + skey->blowfish.S[3][LTC_BYTE(x,0)]
+#endif
+
+static void s_blowfish_encipher(ulong32 *L, ulong32 *R, const symmetric_key *skey)
+{
+   int r;
+
+   ulong32 _L, _R;
+#ifndef __GNUC__
+   const ulong32 *S1, *S2, *S3, *S4;
+
+   S1 = skey->blowfish.S[0];
+   S2 = skey->blowfish.S[1];
+   S3 = skey->blowfish.S[2];
+   S4 = skey->blowfish.S[3];
+#endif
+
+   _L = *L;
+   _R = *R;
+
+   /* do 16 rounds */
+   for (r = 0; r < 16; ) {
+      _L ^= skey->blowfish.K[r++];  _R ^= F(_L);
+      _R ^= skey->blowfish.K[r++];  _L ^= F(_R);
+      _L ^= skey->blowfish.K[r++];  _R ^= F(_L);
+      _R ^= skey->blowfish.K[r++];  _L ^= F(_R);
+   }
+
+   /* last keying */
+   _R ^= skey->blowfish.K[17];
+   _L ^= skey->blowfish.K[16];
+
+   *L = _L;
+   *R = _R;
+}
+
+static ulong32 s_blowfish_stream2word(const unsigned char *d, int dlen, int *cur)
+{
+   unsigned int z;
+   int y = *cur;
+   ulong32 ret = 0;
+
+   for (z = 0; z < 4; z++) {
+       ret = (ret << 8) | ((ulong32)d[y++] & 255);
+       if (y == dlen) {
+          y = 0;
+       }
+   }
+
+   *cur = y;
+   return ret;
+}
+
  /**
     Initialize the Blowfish block cipher
     @param key The symmetric key you wish to pass
@@ -306,8 +362,8 @@ static const ulong32 ORIG_S[4][256] = {
 int blowfish_setup(const unsigned char *key, int keylen, int num_rounds,
                    symmetric_key *skey)
 {
-   ulong32 x, y, z, A;
-   unsigned char B[8];
+   ulong32 x, z, A, B[2];
+   int y;
 
    LTC_ARGCHK(key != NULL);
    LTC_ARGCHK(skey != NULL);
@@ -323,14 +379,9 @@ int blowfish_setup(const unsigned char *key, int keylen, int num_rounds,
    }
 
    /* load in key bytes (Supplied by David Hopwood) */
+   y = 0;
    for (x = y = 0; x < 18; x++) {
-       A = 0;
-       for (z = 0; z < 4; z++) {
-           A = (A << 8) | ((ulong32)key[y++] & 255);
-           if (y == (ulong32)keylen) {
-              y = 0;
-           }
-       }
+       A = s_blowfish_stream2word(key, keylen, &y);
        skey->blowfish.K[x] = ORIG_P[x] ^ A;
    }
 
@@ -342,26 +393,29 @@ int blowfish_setup(const unsigned char *key, int keylen, int num_rounds,
    }
 
    /* encrypt K array */
-   for (x = 0; x < 8; x++) {
+   for (x = 0; x < 2; x++) {
        B[x] = 0;
    }
 
    for (x = 0; x < 18; x += 2) {
-       /* encrypt it */
-       blowfish_ecb_encrypt(B, B, skey);
-       /* copy it */
-       LOAD32H(skey->blowfish.K[x], &B[0]);
-       LOAD32H(skey->blowfish.K[x+1], &B[4]);
+
+      /* encrypt it */
+      s_blowfish_encipher(&B[0], &B[1], skey);
+      /* copy it */
+      skey->blowfish.K[x] = B[1];
+      skey->blowfish.K[x+1] = B[1] = B[0];
+      B[0] = skey->blowfish.K[x];
    }
 
    /* encrypt S array */
    for (x = 0; x < 4; x++) {
        for (y = 0; y < 256; y += 2) {
           /* encrypt it */
-          blowfish_ecb_encrypt(B, B, skey);
+          s_blowfish_encipher(&B[0], &B[1], skey);
           /* copy it */
-          LOAD32H(skey->blowfish.S[x][y], &B[0]);
-          LOAD32H(skey->blowfish.S[x][y+1], &B[4]);
+          skey->blowfish.S[x][y] = B[1];
+          skey->blowfish.S[x][y+1] = B[1] = B[0];
+          B[0] = skey->blowfish.S[x][y];
        }
    }
 
@@ -371,12 +425,6 @@ int blowfish_setup(const unsigned char *key, int keylen, int num_rounds,
 
    return CRYPT_OK;
 }
-
-#ifndef __GNUC__
-#define F(x) ((S1[LTC_BYTE(x,3)] + S2[LTC_BYTE(x,2)]) ^ S3[LTC_BYTE(x,1)]) + S4[LTC_BYTE(x,0)]
-#else
-#define F(x) ((skey->blowfish.S[0][LTC_BYTE(x,3)] + skey->blowfish.S[1][LTC_BYTE(x,2)]) ^ skey->blowfish.S[2][LTC_BYTE(x,1)]) + skey->blowfish.S[3][LTC_BYTE(x,0)]
-#endif
 
 /**
   Encrypts a block of text with Blowfish
@@ -392,37 +440,16 @@ int blowfish_ecb_encrypt(const unsigned char *pt, unsigned char *ct, const symme
 #endif
 {
    ulong32 L, R;
-   int r;
-#ifndef __GNUC__
-   const ulong32 *S1, *S2, *S3, *S4;
-#endif
 
-    LTC_ARGCHK(pt   != NULL);
-    LTC_ARGCHK(ct   != NULL);
-    LTC_ARGCHK(skey != NULL);
-
-#ifndef __GNUC__
-    S1 = skey->blowfish.S[0];
-    S2 = skey->blowfish.S[1];
-    S3 = skey->blowfish.S[2];
-    S4 = skey->blowfish.S[3];
-#endif
+   LTC_ARGCHK(pt   != NULL);
+   LTC_ARGCHK(ct   != NULL);
+   LTC_ARGCHK(skey != NULL);
 
    /* load it */
    LOAD32H(L, &pt[0]);
    LOAD32H(R, &pt[4]);
 
-   /* do 16 rounds */
-   for (r = 0; r < 16; ) {
-      L ^= skey->blowfish.K[r++];  R ^= F(L);
-      R ^= skey->blowfish.K[r++];  L ^= F(R);
-      L ^= skey->blowfish.K[r++];  R ^= F(L);
-      R ^= skey->blowfish.K[r++];  L ^= F(R);
-   }
-
-   /* last keying */
-   R ^= skey->blowfish.K[17];
-   L ^= skey->blowfish.K[16];
+   s_blowfish_encipher(&L, &R, skey);
 
    /* store */
    STORE32H(R, &ct[0]);
