@@ -59,6 +59,13 @@ int base16_decode(const          char *in,  unsigned long  inlen,
                         unsigned char *out, unsigned long *outlen);
 #endif
 
+#ifdef LTC_BCRYPT
+int bcrypt_pbkdf_openbsd(const          char *password, unsigned long password_len,
+                         const unsigned char *salt,     unsigned long salt_len,
+                               unsigned int  rounds,              int hash_idx,
+                               unsigned char *out,      unsigned long *outlen);
+#endif
+
 /* ===> LTC_HKDF -- RFC5869 HMAC-based Key Derivation Function <=== */
 #ifdef LTC_HKDF
 

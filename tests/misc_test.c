@@ -10,6 +10,9 @@
 
 int misc_test(void)
 {
+#ifdef LTC_BCRYPT
+   DO(bcrypt_test());
+#endif
 #ifdef LTC_HKDF
    DO(hkdf_test());
 #endif

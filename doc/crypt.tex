@@ -7002,7 +7002,7 @@ for completeness.  Algorithm Two is a bit more modern and more flexible to work 
 
 The OpenSSL project implemented an extension to Algorithm One that allows for arbitrary keylengths; we have a compatible implementation described below.
 
-\subsection{Algorithm One}
+\subsubsection{Algorithm One}
 Algorithm One accepts as input a password, an 8--byte salt, and an iteration counter.  The iteration counter is meant to act as delay for
 people trying to brute force guess the password.  The higher the iteration counter the longer the delay.  This algorithm also requires a hash
 algorithm and produces an output no longer than the output of the hash.
@@ -7035,7 +7035,7 @@ int pkcs_5_alg1_openssl(const unsigned char *password,
                       unsigned long *outlen)
 \end{alltt}
 As above, but we generate as many bytes as requested in outlen per the OpenSSL extension to Algorithm One.  If you are trying to be compatible with OpenSSL's EVP\_BytesToKey() or the "openssl enc" command line (or variants such as perl's Crypt::CBC), then use this function with MD5 as your hash (ick!) and iteration\_count=1 (double-ick!!).
-\subsection{Algorithm Two}
+\subsubsection{Algorithm Two}
 
 Algorithm Two is the recommended algorithm for this task.  It allows variable length salts, and can produce outputs larger than the
 hash functions output.  As such, it can easily be used to derive session keys for ciphers and MACs as well initialization vectors as required
@@ -7091,6 +7091,35 @@ int main(void)
 }
 \end{verbatim}
 
+
+\subsection{bcrypt}
+\index{bcrypt}
+
+bcrypt is a password hashing function, similar to PKCS \#5, but it is based on the blowfish symmetric cipher.
+It is widely used in e.g. OpenBSD as default password hash algorithm, or in encrypted OpenSSH key files.
+
+This implementation provides the PBKDF version as used in OpenSSH key files.
+
+The OpenBSD implementation is fixed to SHA512 as hashing algorithm, but this generalized implementation works with any hashing algorithm.
+
+To hash a password with the bcrypt PBKDF algorithm, the following API function is provided.
+
+\index{bcrypt()}
+\begin{alltt}
+int bcrypt_pbkdf_openbsd(const          char *password, unsigned long password_len,
+                         const unsigned char *salt,     unsigned long salt_len,
+                               unsigned int  rounds,              int hash_idx,
+                               unsigned char *out,      unsigned long *outlen);
+\end{alltt}
+
+The \textit{password} parameter is the utf-8 encoded user password of length \textit{password\_len}.
+The \textit{salt} parameter is a pointer to the array of octets of length \textit{salt\_len} containing the salt.
+The \textit{rounds} parameter defines the number of iterations of the expensive key setup that shall be executed.
+The \textit{hash\_idx} parameter defines the hash algorithm that shall be used. 
+The \textit{out} parameter shall be a pointer to a buffer of at least 32 octets,
+where \textit{outlen} contains the available buffer size on input and the written size after the invocation.
+
+
 \mysection{PKCS \#8}
 \index{PKCS \#8}
 
@@ -7126,6 +7155,7 @@ The library supports the following encryption algorithms:
 
 The PKCS \#8 import has no direct API endpoints, but it is available through Public Key Algorithm-specific
 \textit{pkaX\_import\_pkcs8()} functions.
+
 
 \mysection{Key Derviation Functions}
 \subsection{HKDF}

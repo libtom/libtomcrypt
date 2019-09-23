@@ -47,6 +47,7 @@ int padding_test(void);
 int x25519_test(void);
 int ed25519_test(void);
 int ssh_test(void);
+int bcrypt_test(void);
 
 #ifdef LTC_PKCS_1
 struct ltc_prng_descriptor* no_prng_desc_get(void);
