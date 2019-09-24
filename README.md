@@ -6,11 +6,23 @@ or from the page https://github.com/libtom/libtomcrypt/releases .
 
 ## Project Status
 
+### Travis CI
+
 master: [![Build Status](https://api.travis-ci.org/libtom/libtomcrypt.png?branch=master)](https://travis-ci.org/libtom/libtomcrypt) [![Coverage Status](https://coveralls.io/repos/libtom/libtomcrypt/badge.png?branch=master)](https://coveralls.io/r/libtom/libtomcrypt)
 
 develop: [![Build Status](https://api.travis-ci.org/libtom/libtomcrypt.png?branch=develop)](https://travis-ci.org/libtom/libtomcrypt) [![Coverage Status](https://coveralls.io/repos/libtom/libtomcrypt/badge.png?branch=develop)](https://coveralls.io/r/libtom/libtomcrypt)
 
+### AppVeyor
+
+master: [![Build status](https://ci.appveyor.com/api/projects/status/xyl2nbdsyp1tj9ye/branch/master?svg=true)](https://ci.appveyor.com/project/libtom/libtomcrypt/branch/master)
+
+develop: [![Build status](https://ci.appveyor.com/api/projects/status/xyl2nbdsyp1tj9ye/branch/develop?svg=true)](https://ci.appveyor.com/project/libtom/libtomcrypt/branch/develop)
+
+### Coverity
+
 [![Coverity Scan Build Status](https://scan.coverity.com/projects/487/badge.svg)](https://scan.coverity.com/projects/487)
+
+### ABI Laboratory
 
 API/ABI changes: [check here](https://abi-laboratory.pro/tracker/timeline/libtomcrypt/)
 
