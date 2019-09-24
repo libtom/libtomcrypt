@@ -41,6 +41,9 @@ LTC_EXTRALIBS += $(EXTRALIBS)
 
 #AES comes in two flavours... enc+dec and enc
 src/ciphers/aes/aes_enc.o: src/ciphers/aes/aes.c src/ciphers/aes/aes_tab.c
+ifneq ($V,1)
+	@echo "   * ${CC} $@"
+endif
 	${silent} ${CC} ${LTC_CFLAGS} -DENCRYPT_ONLY -c $< -o $@
 
 .c.o:

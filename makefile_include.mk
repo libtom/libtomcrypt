@@ -76,7 +76,7 @@ endef
 # by giving them as a parameter to make:
 #  make CFLAGS="-I./src/headers/ -DLTC_SOURCE ..." ...
 #
-LTC_CFLAGS += -I./src/headers/ -Wall -Wsign-compare -Wshadow -DLTC_SOURCE
+LTC_CFLAGS += -I./src/headers/ -DLTC_SOURCE -Wall -Wsign-compare -Wshadow
 
 ifdef OLD_GCC
 LTC_CFLAGS += -W
@@ -91,8 +91,6 @@ LTC_CFLAGS += -Wstrict-prototypes -Wpointer-arith
 LTC_CFLAGS += -Wdeclaration-after-statement
 LTC_CFLAGS += -Wwrite-strings
 endif
-
-LTC_CFLAGS += -Wno-type-limits
 
 ifdef LTC_DEBUG
 $(info Debug build)
@@ -146,6 +144,11 @@ LTC_LDFLAGS += -pthread
 endif
 
 LTC_LDFLAGS := $(LTC_LDFLAGS) $(LDFLAGS)
+
+ifeq ($(V)$(filter clean,$(MAKECMDGOALS)),0)
+$(warning CFLAGS=$(LTC_CFLAGS))
+$(warning LDFLAGS=$(LTC_LDFLAGS))
+endif
 
 #List of demo objects
 DSOURCES = $(wildcard demos/*.c)
