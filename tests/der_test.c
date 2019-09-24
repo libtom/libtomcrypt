@@ -1261,6 +1261,10 @@ static void der_Xcode_run(const der_Xcode_t* x)
    XFREE(d1);
 }
 
+#if defined(_MSC_VER)
+#define typeof(x) x
+#endif
+
 #define DER_XCODE_X(n, b, x) {  \
       (_der_Xcode)der_encode_ ## n,    \
       (_der_Xcode)der_decode_ ## n,    \
