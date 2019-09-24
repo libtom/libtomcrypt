@@ -23,6 +23,22 @@ if [[ $mret -ne 0 ]] || [[ $cnt -gt 1 ]]; then
    exit 1
 fi
 
+# remove the standard arguments from the make options
+opts=${3//makefile.shared/}
+opts=${opts//makefile/}
+opts=${opts//V=1/}
+opts=${opts//COVERAGE=1/}
+opts=$(echo $opts | tr -d '[:space:]')
+
+# if there's something else than the standard arguments we check if we're currently
+# building a Travis PR and if it's like that, we skip those tests
+if [ ! -z "$opts" ]; then
+  if [ ! -z "$TRAVIS_PULL_REQUEST" ] && [ "$TRAVIS_PULL_REQUEST" != "false" ]; then
+    echo "PR Tests skipped" | tee testok.txt
+    exit 0
+  fi
+fi
+
 echo -n "testing..."
 
 if [ -a test ] && [ -f test ] && [ -x test ]; then
