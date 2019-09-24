@@ -514,7 +514,9 @@ const char *crypt_build_settings =
 #if defined(LTC_NO_ASM)
     " LTC_NO_ASM "
 #endif
-#if defined(LTC_ROx_ASM)
+#if defined(LTC_ROx_BUILTIN)
+    " LTC_ROx_BUILTIN "
+#elif defined(LTC_ROx_ASM)
     " LTC_ROx_ASM "
 #if defined(LTC_NO_ROLC)
     " LTC_NO_ROLC "
