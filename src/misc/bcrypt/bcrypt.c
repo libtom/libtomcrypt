@@ -144,7 +144,7 @@ int bcrypt_pbkdf_openbsd(const          char *password, unsigned long password_l
        x = MAXBLOCKSIZE;
        if ((err = hash_memory_multi(hash_idx, buf[0], &x,
                                     salt, salt_len,
-                                    blkbuf, 4,
+                                    blkbuf, 4uL,
                                     NULL, 0)) != CRYPT_OK) {
           goto LBL_ERR;
        }
