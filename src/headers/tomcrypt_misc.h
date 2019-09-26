@@ -163,6 +163,7 @@ int padding_depad(const unsigned char *data, unsigned long *length, unsigned lon
 
 #ifdef LTC_SSH
 typedef enum ssh_data_type_ {
+   LTC_SSHDATA_EOL,
    LTC_SSHDATA_BYTE,
    LTC_SSHDATA_BOOLEAN,
    LTC_SSHDATA_UINT32,
@@ -170,7 +171,6 @@ typedef enum ssh_data_type_ {
    LTC_SSHDATA_STRING,
    LTC_SSHDATA_MPINT,
    LTC_SSHDATA_NAMELIST,
-   LTC_SSHDATA_EOL
 } ssh_data_type;
 
 /* VA list handy helpers with tuples of <type, data> */
