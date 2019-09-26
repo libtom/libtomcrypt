@@ -61,6 +61,7 @@ static int _ssh_encoding_test(void)
 {
    unsigned char buffer[BUFSIZE];
    unsigned long buflen;
+   ulong32 len;
    void *v, *zero;
    int err;
 
@@ -124,8 +125,9 @@ static int _ssh_encoding_test(void)
    /* string */
    buflen = BUFSIZE;
    zeromem(buffer, BUFSIZE);
+   len = strlen("testing");
    DO(ssh_encode_sequence_multi(buffer, &buflen,
-                                LTC_SSHDATA_STRING, "testing",
+                                LTC_SSHDATA_STRING, "testing", len,
                                 LTC_SSHDATA_EOL,    NULL));
    COMPARE_TESTVECTOR(buffer, buflen, string, sizeof(string), "enc-string", 1);
 
@@ -165,22 +167,25 @@ static int _ssh_encoding_test(void)
    /* name-list */
    buflen = BUFSIZE;
    zeromem(buffer, BUFSIZE);
+   len = strlen("");
    DO(ssh_encode_sequence_multi(buffer, &buflen,
-                                LTC_SSHDATA_NAMELIST, "",
+                                LTC_SSHDATA_NAMELIST, "", len,
                                 LTC_SSHDATA_EOL,      NULL));
    COMPARE_TESTVECTOR(buffer, buflen, nlist1, sizeof(nlist1), "enc-nlist", 1);
 
    buflen = BUFSIZE;
    zeromem(buffer, BUFSIZE);
+   len = strlen("zlib");
    DO(ssh_encode_sequence_multi(buffer, &buflen,
-                                LTC_SSHDATA_NAMELIST, "zlib",
+                                LTC_SSHDATA_NAMELIST, "zlib", len,
                                 LTC_SSHDATA_EOL,      NULL));
    COMPARE_TESTVECTOR(buffer, buflen, nlist2, sizeof(nlist2), "enc-nlist", 2);
 
    buflen = BUFSIZE;
    zeromem(buffer, BUFSIZE);
+   len = strlen("zlib,none");
    DO(ssh_encode_sequence_multi(buffer, &buflen,
-                                LTC_SSHDATA_NAMELIST, "zlib,none",
+                                LTC_SSHDATA_NAMELIST, "zlib,none", len,
                                 LTC_SSHDATA_EOL,      NULL));
    COMPARE_TESTVECTOR(buffer, buflen, nlist3, sizeof(nlist3), "enc-nlist", 3);
 
@@ -195,6 +200,7 @@ static int _ssh_decoding_test(void)
 {
    char strbuf[BUFSIZE];
    void *u, *v;
+   ulong32 size;
    ulong32 tmp32;
    ulong64 tmp64;
    unsigned char tmp8;
@@ -236,9 +242,11 @@ static int _ssh_decoding_test(void)
 
    /* string */
    zeromem(strbuf, BUFSIZE);
+   size = BUFSIZE;
    DO(ssh_decode_sequence_multi(string, sizeof(string),
-                                LTC_SSHDATA_STRING, strbuf, BUFSIZE,
+                                LTC_SSHDATA_STRING, strbuf, &size,
                                 LTC_SSHDATA_EOL,    NULL));
+   ENSURE(strlen("testing") == size);
    ENSURE(XSTRCMP(strbuf, "testing") == 0);
 
    /* mpint */
@@ -266,21 +274,27 @@ static int _ssh_decoding_test(void)
 
    /* name-list */
    zeromem(strbuf, BUFSIZE);
+   size = BUFSIZE;
    DO(ssh_decode_sequence_multi(nlist1, sizeof(nlist1),
-                                LTC_SSHDATA_NAMELIST, strbuf, BUFSIZE,
+                                LTC_SSHDATA_NAMELIST, strbuf, &size,
                                 LTC_SSHDATA_EOL,      NULL));
+   ENSURE(strlen("") == size);
    ENSURE(XSTRCMP(strbuf, "") == 0);
 
    zeromem(strbuf, BUFSIZE);
+   size = BUFSIZE;
    DO(ssh_decode_sequence_multi(nlist2, sizeof(nlist2),
-                                LTC_SSHDATA_NAMELIST, strbuf, BUFSIZE,
+                                LTC_SSHDATA_NAMELIST, strbuf, &size,
                                 LTC_SSHDATA_EOL,      NULL));
+   ENSURE(strlen("zlib") == size);
    ENSURE(XSTRCMP(strbuf, "zlib") == 0);
 
    zeromem(strbuf, BUFSIZE);
+   size = BUFSIZE;
    DO(ssh_decode_sequence_multi(nlist3, sizeof(nlist3),
-                                LTC_SSHDATA_NAMELIST, strbuf, BUFSIZE,
+                                LTC_SSHDATA_NAMELIST, strbuf, &size,
                                 LTC_SSHDATA_EOL,      NULL));
+   ENSURE(strlen("zlib,none") == size);
    ENSURE(XSTRCMP(strbuf, "zlib,none") == 0);
 
 

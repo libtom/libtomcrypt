@@ -20,7 +20,7 @@
   Decode a SSH sequence using a VA list
   @param in     Data to decode
   @param inlen  Length of buffer to decode
-  @remark <...> is of the form <type, data> (int, void*) except for string <type, data, size>
+  @remark <...> is of the form <type, data> (int, void*) except for string <type, data, size> (int, void*, ulong32*)
   @return CRYPT_OK on success
 */
 int ssh_decode_sequence_multi(const unsigned char *in, unsigned long inlen, ...)
@@ -33,7 +33,7 @@ int ssh_decode_sequence_multi(const unsigned char *in, unsigned long inlen, ...)
    char          *sdata;
    ulong32       *u32data;
    ulong64       *u64data;
-   unsigned long bufsize;
+   ulong32       *bufsize;
    ulong32       size;
 
    LTC_ARGCHK(in    != NULL);
@@ -115,17 +115,20 @@ int ssh_decode_sequence_multi(const unsigned char *in, unsigned long inlen, ...)
          case LTC_SSHDATA_STRING:
          case LTC_SSHDATA_NAMELIST:
             sdata = va_arg(args, char*);
-            bufsize = va_arg(args, unsigned long);
-            if (size >= bufsize) {
+            bufsize = va_arg(args, ulong32*);
+            if (bufsize == NULL) {
+               err = CRYPT_INVALID_ARG;
+               goto error;
+            }
+            if (size + 1 >= *bufsize) {
                err = CRYPT_BUFFER_OVERFLOW;
                goto error;
             }
             if (size > 0) {
-               XSTRNCPY(sdata, (const char *)in, size);
-               sdata[size] = '\0'; /* strncpy doesn't NUL-terminate */
-            } else {
-               *sdata = '\0';
+               XMEMCPY(sdata, (const char *)in, size);
             }
+            sdata[size] = '\0';
+            *bufsize = size;
             in += size;
             break;
          case LTC_SSHDATA_MPINT:

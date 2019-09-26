@@ -21,12 +21,11 @@
   @param key       A public or private ECC key
   @return CRYPT_OK if successful
 */
-int ecc_ssh_ecdsa_encode_name(char *buffer, unsigned long *buflen, const ecc_key *key)
+int ecc_ssh_ecdsa_encode_name(char *buffer, ulong32 *buflen, const ecc_key *key)
 {
    char oidstr[64];
    unsigned long oidlen = sizeof(oidstr);
-   unsigned long size = 0;
-   int err;
+   int err, size = 0;
 
    LTC_ARGCHK(buffer != NULL);
    LTC_ARGCHK(buflen != NULL);
@@ -52,8 +51,11 @@ int ecc_ssh_ecdsa_encode_name(char *buffer, unsigned long *buflen, const ecc_key
       size = snprintf(buffer, *buflen, "ecdsa-sha2-%s", oidstr);
    }
 
-   /* snprintf returns size that would have been written, but limits to buflen-1 chars plus terminator */
-   if (size >= *buflen) {
+   /* snprintf returns a negative value on error
+    * or the size that would have been written, but limits to buflen-1 chars plus terminator */
+   if (size < 0) {
+      err = CRYPT_ERROR;
+   } else if ((unsigned)size >= *buflen) {
       err = CRYPT_BUFFER_OVERFLOW;
    } else {
       err = CRYPT_OK;

@@ -20,7 +20,7 @@
   Encode a SSH sequence using a VA list
   @param out    [out] Destination for data
   @param outlen [in/out] Length of buffer and resulting length of output
-  @remark <...> is of the form <type, data> (int, void*)
+  @remark <...> is of the form <type, data> (int, void*) except for string <type, data, size> (int, void*, ulong32)
   @return CRYPT_OK on success
 */
 int ssh_encode_sequence_multi(unsigned char *out, unsigned long *outlen, ...)
@@ -29,9 +29,10 @@ int ssh_encode_sequence_multi(unsigned char *out, unsigned long *outlen, ...)
    va_list       args;
    ulong32       size;
    ssh_data_type type;
-   void         *vdata;
-   const char   *sdata;
+   void          *vdata;
+   const char    *sdata;
    int           idata;
+   ulong32       *psize;
    ulong32       u32data;
    ulong64       u64data;
 
@@ -58,9 +59,9 @@ int ssh_encode_sequence_multi(unsigned char *out, unsigned long *outlen, ...)
             break;
          case LTC_SSHDATA_STRING:
          case LTC_SSHDATA_NAMELIST:
-            sdata = va_arg(args, char*);
+            LTC_UNUSED_PARAM( va_arg(args, char*) );
+            size += va_arg(args, ulong32);
             size += 4;
-            size += strlen(sdata);
             break;
          case LTC_SSHDATA_MPINT:
             vdata = va_arg(args, void*);
@@ -118,7 +119,7 @@ int ssh_encode_sequence_multi(unsigned char *out, unsigned long *outlen, ...)
          case LTC_SSHDATA_STRING:
          case LTC_SSHDATA_NAMELIST:
             sdata = va_arg(args, char*);
-            size = strlen(sdata);
+            size = va_arg(args, ulong32);
             STORE32H(size, out);
             out += 4;
             XMEMCPY(out, sdata, size);

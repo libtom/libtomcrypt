@@ -159,12 +159,12 @@ int ecc_sign_hash_ex(const unsigned char *in,  unsigned long inlen,
    else if (sigformat == LTC_ECCSIG_RFC5656) {
       /* Get identifier string */
       char name[64];
-      unsigned long namelen = sizeof(name);
+      ulong32 namelen = sizeof(name);
       if ((err = ecc_ssh_ecdsa_encode_name(name, &namelen, key)) != CRYPT_OK) { goto errnokey; }
 
       /* Store as SSH data sequence, per RFC4251 */
       err = ssh_encode_sequence_multi(out, outlen,
-                                      LTC_SSHDATA_STRING, name,
+                                      LTC_SSHDATA_STRING, name, namelen,
                                       LTC_SSHDATA_MPINT,  r,
                                       LTC_SSHDATA_MPINT,  s,
                                       LTC_SSHDATA_EOL,    NULL);

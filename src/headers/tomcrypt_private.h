@@ -240,7 +240,7 @@ int ecc_set_curve_by_size(int size, ecc_key *key);
 int ecc_import_subject_public_key_info(const unsigned char *in, unsigned long inlen, ecc_key *key);
 
 #ifdef LTC_SSH
-int ecc_ssh_ecdsa_encode_name(char *buffer, unsigned long *buflen, const ecc_key *key);
+int ecc_ssh_ecdsa_encode_name(char *buffer, ulong32 *buflen, const ecc_key *key);
 #endif
 
 /* low level functions */
