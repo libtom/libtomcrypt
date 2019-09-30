@@ -88,14 +88,20 @@ int ssh_decode_sequence_multi(const unsigned char *in, unsigned long inlen, ...)
          inlen -= size;
       }
 
+      vdata = va_arg(args, void*);
+      if (vdata == NULL) {
+         err = CRYPT_INVALID_ARG;
+         goto error;
+      }
+
       /* Read data */
       switch (type) {
          case LTC_SSHDATA_BYTE:
-            cdata = va_arg(args, unsigned char*);
+            cdata = vdata;
             *cdata = *in++;
             break;
          case LTC_SSHDATA_BOOLEAN:
-            cdata = va_arg(args, unsigned char*);
+            cdata = vdata;
             /*
                The value 0 represents FALSE, and the value 1 represents TRUE.  All non-zero values MUST be
                interpreted as TRUE; however, applications MUST NOT store values other than 0 and 1.
@@ -103,18 +109,18 @@ int ssh_decode_sequence_multi(const unsigned char *in, unsigned long inlen, ...)
             *cdata = (*in++)?1:0;
             break;
          case LTC_SSHDATA_UINT32:
-            u32data = va_arg(args, ulong32*);
+            u32data = vdata;
             LOAD32H(*u32data, in);
             in += 4;
             break;
          case LTC_SSHDATA_UINT64:
-            u64data = va_arg(args, ulong64*);
+            u64data = vdata;
             LOAD64H(*u64data, in);
             in += 8;
             break;
          case LTC_SSHDATA_STRING:
          case LTC_SSHDATA_NAMELIST:
-            sdata = va_arg(args, char*);
+            sdata = vdata;
             bufsize = va_arg(args, ulong32*);
             if (bufsize == NULL) {
                err = CRYPT_INVALID_ARG;
@@ -132,7 +138,6 @@ int ssh_decode_sequence_multi(const unsigned char *in, unsigned long inlen, ...)
             in += size;
             break;
          case LTC_SSHDATA_MPINT:
-            vdata = va_arg(args, void*);
             if (size == 0) {
                if ((err = mp_set(vdata, 0)) != CRYPT_OK)                                                { goto error; }
             } else if ((in[0] & 0x80) != 0) {
