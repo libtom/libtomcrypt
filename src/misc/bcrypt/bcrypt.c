@@ -78,10 +78,10 @@ static int _bcrypt_pbkdf_hash(const unsigned char *pass, unsigned long passlen,
    @param outlen            [in/out] The desired size of the algorithm output
    @return CRYPT_OK if successful
 */
-int bcrypt_pbkdf_openbsd(const          char *password, unsigned long password_len,
-                         const unsigned char *salt,     unsigned long salt_len,
-                               unsigned int  rounds,              int hash_idx,
-                               unsigned char *out,      unsigned long *outlen)
+int bcrypt_pbkdf_openbsd(const          void *secret, unsigned long secret_len,
+                         const unsigned char *salt,   unsigned long salt_len,
+                               unsigned int  rounds,            int hash_idx,
+                               unsigned char *out,    unsigned long *outlen)
 {
    int err;
    ulong32 blkno;
@@ -89,12 +89,12 @@ int bcrypt_pbkdf_openbsd(const          char *password, unsigned long password_l
    unsigned char *buf[3], blkbuf[4];
    unsigned char *hashed_pass;
 
-   LTC_ARGCHK(password != NULL);
-   LTC_ARGCHK(salt     != NULL);
-   LTC_ARGCHK(out      != NULL);
-   LTC_ARGCHK(outlen   != NULL);
+   LTC_ARGCHK(secret != NULL);
+   LTC_ARGCHK(salt   != NULL);
+   LTC_ARGCHK(out    != NULL);
+   LTC_ARGCHK(outlen != NULL);
 
-   if ((password_len == 0) || (salt_len == 0) || (*outlen == 0)) {
+   if ((secret_len == 0) || (salt_len == 0) || (*outlen == 0)) {
       return CRYPT_INVALID_ARG;
    }
    /* test hash IDX */
@@ -127,7 +127,7 @@ int bcrypt_pbkdf_openbsd(const          char *password, unsigned long password_l
    steps = (*outlen + step_size - 1) / step_size;
 
    hashed_pass_len = MAXBLOCKSIZE;
-   if ((err = hash_memory(hash_idx, (unsigned char*)password, password_len, hashed_pass, &hashed_pass_len)) != CRYPT_OK) {
+   if ((err = hash_memory(hash_idx, (unsigned char*)secret, secret_len, hashed_pass, &hashed_pass_len)) != CRYPT_OK) {
       goto LBL_ERR;
    }
 

@@ -7106,13 +7106,13 @@ To hash a password with the bcrypt PBKDF algorithm, the following API function i
 
 \index{bcrypt()}
 \begin{alltt}
-int bcrypt_pbkdf_openbsd(const          char *password, unsigned long password_len,
-                         const unsigned char *salt,     unsigned long salt_len,
-                               unsigned int  rounds,              int hash_idx,
-                               unsigned char *out,      unsigned long *outlen);
+int bcrypt_pbkdf_openbsd(const          void *secret, unsigned long secret_len,
+                         const unsigned char *salt,   unsigned long salt_len,
+                               unsigned int  rounds,            int hash_idx,
+                               unsigned char *out,    unsigned long *outlen);
 \end{alltt}
 
-The \textit{password} parameter is the utf-8 encoded user password of length \textit{password\_len}.
+The \textit{secret} parameter is the secret of length \textit{secret\_len} (most of the time a utf-8 encoded user password).
 The \textit{salt} parameter is a pointer to the array of octets of length \textit{salt\_len} containing the salt.
 The \textit{rounds} parameter defines the number of iterations of the expensive key setup that shall be executed.
 The \textit{hash\_idx} parameter defines the hash algorithm that shall be used. 
