@@ -241,15 +241,23 @@ do { x = (((ulong64)((y)[7] & 255))<<56)|(((ulong64)((y)[6] & 255))<<48) | \
 
 /* 32-bit Rotates */
 #if defined(_MSC_VER)
-#define LTC_ROx_ASM
+#define LTC_ROx_BUILTIN
 
 /* instrinsic rotate */
 #include <stdlib.h>
-#pragma intrinsic(_lrotr,_lrotl)
-#define ROR(x,n) _lrotr(x,n)
-#define ROL(x,n) _lrotl(x,n)
-#define RORc(x,n) _lrotr(x,n)
-#define ROLc(x,n) _lrotl(x,n)
+#pragma intrinsic(_rotr,_rotl)
+#define ROR(x,n) _rotr(x,n)
+#define ROL(x,n) _rotl(x,n)
+#define RORc(x,n) ROR(x,n)
+#define ROLc(x,n) ROL(x,n)
+
+#elif defined(LTC_HAVE_ROTATE_BUILTIN)
+#define LTC_ROx_BUILTIN
+
+#define ROR(x,n) __builtin_rotateright32(x,n)
+#define ROL(x,n) __builtin_rotateleft32(x,n)
+#define ROLc(x,n) ROL(x,n)
+#define RORc(x,n) ROR(x,n)
 
 #elif !defined(__STRICT_ANSI__) && defined(__GNUC__) && (defined(__i386__) || defined(__x86_64__)) && !defined(INTEL_CC) && !defined(LTC_NO_ASM)
 #define LTC_ROx_ASM
@@ -353,7 +361,24 @@ static inline ulong32 RORc(ulong32 word, const int i)
 
 
 /* 64-bit Rotates */
-#if !defined(__STRICT_ANSI__) && defined(__GNUC__) && defined(__x86_64__) && !defined(_WIN64) && !defined(LTC_NO_ASM)
+#if defined(_MSC_VER)
+
+/* instrinsic rotate */
+#include <stdlib.h>
+#pragma intrinsic(_rotr64,_rotr64)
+#define ROR64(x,n) _rotr64(x,n)
+#define ROL64(x,n) _rotl64(x,n)
+#define ROR64c(x,n) ROR64(x,n)
+#define ROL64c(x,n) ROL64(x,n)
+
+#elif defined(LTC_HAVE_ROTATE_BUILTIN)
+
+#define ROR64(x,n) __builtin_rotateright64(x,n)
+#define ROL64(x,n) __builtin_rotateleft64(x,n)
+#define ROR64c(x,n) ROR64(x,n)
+#define ROL64c(x,n) ROL64(x,n)
+
+#elif !defined(__STRICT_ANSI__) && defined(__GNUC__) && (defined(__i386__) || defined(__x86_64__)) && !defined(INTEL_CC) && !defined(LTC_NO_ASM)
 
 static inline ulong64 ROL64(ulong64 word, int i)
 {

@@ -76,7 +76,7 @@ endef
 # by giving them as a parameter to make:
 #  make CFLAGS="-I./src/headers/ -DLTC_SOURCE ..." ...
 #
-LTC_CFLAGS += -I./src/headers/ -Wall -Wsign-compare -Wshadow -DLTC_SOURCE
+LTC_CFLAGS += -I./src/headers/ -DLTC_SOURCE -Wall -Wsign-compare -Wshadow
 
 ifdef OLD_GCC
 LTC_CFLAGS += -W
@@ -92,23 +92,17 @@ LTC_CFLAGS += -Wdeclaration-after-statement
 LTC_CFLAGS += -Wwrite-strings
 endif
 
-LTC_CFLAGS += -Wno-type-limits
-
 ifdef LTC_DEBUG
 $(info Debug build)
 # compile for DEBUGGING (required for ccmalloc checking!!!)
 LTC_CFLAGS += -g3 -DLTC_NO_ASM
+
 ifneq (,$(strip $(LTC_DEBUG)))
 LTC_CFLAGS += -DLTC_TEST_DBG=$(LTC_DEBUG)
 else
 LTC_CFLAGS += -DLTC_TEST_DBG
 endif
-else
-
-ifdef LTC_SMALL
-# optimize for SIZE
-LTC_CFLAGS += -Os -DLTC_SMALL_CODE
-else
+endif # LTC_DEBUG
 
 ifndef IGNORE_SPEED
 # optimize for SPEED
@@ -116,10 +110,12 @@ LTC_CFLAGS += -O3 -funroll-loops
 
 # add -fomit-frame-pointer.  hinders debugging!
 LTC_CFLAGS += -fomit-frame-pointer
-endif
+endif # IGNORE_SPEED
 
-endif # COMPILE_SMALL
-endif # COMPILE_DEBUG
+ifdef LTC_SMALL
+# optimize for SIZE
+LTC_CFLAGS += -Os -DLTC_SMALL_CODE
+endif # LTC_SMALL
 
 
 ifneq ($(findstring clang,$(CC)),)
@@ -146,6 +142,11 @@ LTC_LDFLAGS += -pthread
 endif
 
 LTC_LDFLAGS := $(LTC_LDFLAGS) $(LDFLAGS)
+
+ifeq ($(V)$(filter clean,$(MAKECMDGOALS)),0)
+$(warning CFLAGS=$(LTC_CFLAGS))
+$(warning LDFLAGS=$(LTC_LDFLAGS))
+endif
 
 #List of demo objects
 DSOURCES = $(wildcard demos/*.c)

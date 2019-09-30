@@ -270,7 +270,7 @@ int chc_test(void)
    16
 }
 };
-   int i, oldhashidx, idx;
+   int i, oldhashidx, idx, err;
    unsigned char tmp[MAXBLOCKSIZE];
    hash_state md;
 
@@ -284,9 +284,15 @@ int chc_test(void)
    chc_register(idx);
 
    for (i = 0; i < (int)(sizeof(tests)/sizeof(tests[0])); i++) {
-       chc_init(&md);
-       chc_process(&md, tests[i].msg, strlen((char *)tests[i].msg));
-       chc_done(&md, tmp);
+       if ((err = chc_init(&md)) != CRYPT_OK) {
+          return err;
+       }
+       if ((err = chc_process(&md, tests[i].msg, strlen((char *)tests[i].msg))) != CRYPT_OK) {
+          return err;
+       }
+       if ((err = chc_done(&md, tmp)) != CRYPT_OK) {
+          return err;
+       }
        if (compare_testvector(tmp, tests[i].len, tests[i].hash, tests[i].len, "CHC", i)) {
           return CRYPT_FAIL_TESTVECTOR;
        }

@@ -243,8 +243,9 @@ typedef unsigned long ltc_mp_digit;
    #undef ENDIAN_32BITWORD
    #undef ENDIAN_64BITWORD
    #undef LTC_FAST
-   #define LTC_NO_ROLC
    #define LTC_NO_BSWAP
+   #define LTC_NO_ROLC
+   #define LTC_NO_ROTATE
 #endif
 
 /* No LTC_FAST if: explicitly disabled OR non-gcc/non-clang compiler OR old gcc OR using -ansi -std=c99 */
@@ -287,6 +288,10 @@ typedef unsigned long ltc_mp_digit;
    ((__GNUC__ * 100 + __GNUC_MINOR__ >= 403) ||                         \
     (__has_builtin(__builtin_bswap32) && __has_builtin(__builtin_bswap64)))
    #define LTC_HAVE_BSWAP_BUILTIN
+#endif
+
+#if !defined(LTC_NO_ROTATE) && (__has_builtin(__builtin_rotateleft32) && __has_builtin(__builtin_rotateright32))
+   #define LTC_HAVE_ROTATE_BUILTIN
 #endif
 
 #if defined(__GNUC__) && (__GNUC__ * 100 + __GNUC_MINOR__ >= 301)
