@@ -20,6 +20,9 @@ static const struct {
    { MP_OKAY ,  CRYPT_OK},
    { MP_MEM  ,  CRYPT_MEM},
    { MP_VAL  ,  CRYPT_INVALID_ARG},
+#if defined(MP_ITER) || defined(MP_USE_ENUMS)
+   { MP_ITER ,  CRYPT_INVALID_PACKET},
+#endif
 };
 
 /**
@@ -184,7 +187,11 @@ static int write_radix(void *a, char *b, int radix)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
+#ifdef BN_MP_TORADIX_C
    return mpi_to_ltc_error(mp_toradix(a, b, radix));
+#else
+   return mpi_to_ltc_error(mp_to_radix(a, b, SIZE_MAX, radix));
+#endif
 }
 
 /* get size as unsigned char string */
