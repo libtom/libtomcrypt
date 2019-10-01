@@ -68,7 +68,7 @@ int rsa_make_key(prng_state *prng, int wprng, int size, long e, rsa_key *key)
    if ((err = mp_lcm( tmp1,  tmp2,  tmp1)) != CRYPT_OK)              { goto cleanup; } /* tmp1 = lcm(p-1, q-1) */
 
    /* make key */
-   if ((err = mp_init_multi(&key->e, &key->d, &key->N, &key->dQ, &key->dP, &key->qP, &key->p, &key->q, NULL)) != CRYPT_OK) {
+   if ((err = rsa_init(key)) != CRYPT_OK) {
       goto errkey;
    }
 

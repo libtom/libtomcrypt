@@ -40,8 +40,7 @@ int rsa_import_x509(const unsigned char *in, unsigned long inlen, rsa_key *key)
    LTC_ARGCHK(ltc_mp.name != NULL);
 
    /* init key */
-   if ((err = mp_init_multi(&key->e, &key->d, &key->N, &key->dQ,
-                            &key->dP, &key->qP, &key->p, &key->q, NULL)) != CRYPT_OK) {
+   if ((err = rsa_init(key)) != CRYPT_OK) {
       return err;
    }
 
