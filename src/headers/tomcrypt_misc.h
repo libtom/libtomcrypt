@@ -102,13 +102,13 @@ int crypt_get_size(const char* namein, unsigned int *sizeout);
 int crypt_list_all_sizes(char *names_list, unsigned int *names_list_size);
 
 #ifdef LTM_DESC
-LTC_DEPRECATED void init_LTM(void);
+LTC_DEPRECATED(crypt_mp_init) void init_LTM(void);
 #endif
 #ifdef TFM_DESC
-LTC_DEPRECATED void init_TFM(void);
+LTC_DEPRECATED(crypt_mp_init) void init_TFM(void);
 #endif
 #ifdef GMP_DESC
-LTC_DEPRECATED void init_GMP(void);
+LTC_DEPRECATED(crypt_mp_init) void init_GMP(void);
 #endif
 int crypt_mp_init(const char* mpi);
 
