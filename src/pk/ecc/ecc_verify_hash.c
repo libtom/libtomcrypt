@@ -104,7 +104,7 @@ int ecc_verify_hash_ex(const unsigned char *sig,  unsigned long siglen,
       ulong32 name2len = sizeof(name2);
 
       /* Decode as SSH data sequence, per RFC4251 */
-      if ((err = ssh_decode_sequence_multi(sig, siglen,
+      if ((err = ssh_decode_sequence_multi(sig, &siglen,
                                            LTC_SSHDATA_STRING, name, &namelen,
                                            LTC_SSHDATA_MPINT,  r,
                                            LTC_SSHDATA_MPINT,  s,

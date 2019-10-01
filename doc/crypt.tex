@@ -7233,6 +7233,71 @@ int hkdf(           int  hash_idx,
 
 Parameters are as in \textit{hkdf\_extract()} and \textit{hkdf\_expand()}.
 
+
+\mysection{SSH}
+
+The library provides functions to encode and decode SSH data as specified in RFC4251 Ch. 5.
+
+\subsection{Data types}
+
+The following enum is used to indicate a specific SSH data type
+(besides EOL which is an internal one that indicates the end of a sequence).
+
+\begin{figure}[h]
+\begin{center}
+\begin{small}
+\begin{tabular}{|l|l|l|}
+\hline \textbf{Definition}    & \textbf{arg data Type}      & \textbf{SSH Type} \\
+\hline LTC\_SSHDATA\_EOL      & -                      & End of SSH data sequence. \\
+\hline LTC\_SSHDATA\_BYTE     & \texttt{unsigned char} & \texttt{byte} type \\
+\hline LTC\_SSHDATA\_BOOLEAN  & \texttt{unsigned char} & \texttt{boolean} type \\
+\hline LTC\_SSHDATA\_UINT32   & \texttt{ulong32}       & \texttt{uint32} \\
+\hline LTC\_SSHDATA\_UINT64   & \texttt{ulong64}       & \texttt{uint64} \\
+\hline LTC\_SSHDATA\_STRING   & \texttt{char*}         & \texttt{string} (one octet per char) \\
+\hline LTC\_SSHDATA\_MPINT    & \texttt{mp\_int}       & \texttt{mpint} \\
+\hline LTC\_SSHDATA\_NAMELIST & \texttt{char*}         & \texttt{name-list} (which works exactly like a \texttt{string}) \\
+\hline
+\end{tabular}
+\caption{List of SSH Supported Types}
+\index{ssh\_data\_type}
+\end{small}
+\end{center}
+\end{figure}
+
+\subsection{De- and Encoding with Multiple Argument Lists}
+
+\index{ssh\_encode\_sequence\_multi()}
+\index{ssh\_decode\_sequence\_multi()}
+
+
+The API works similar to the ASN.1 SEQUENCE multi en- and decoders.
+
+They either encode or decode a sequence of the supported SSH types where the items are specified after the length parameter.
+
+
+\begin{verbatim}
+int ssh_encode_sequence_multi(unsigned char *out, unsigned long *outlen, ...);
+\end{verbatim}
+
+Where \texttt{out} points to the destination buffer and  \texttt{outlen} points 
+on function invocation to the length of the destination buffer 
+and after returning it will be filled with the number of octets written to the buffer.
+
+The encoding function \texttt{ssh\_encode\_sequence\_multi()} expects its items to be a pair of \texttt{(type, data)},
+except for the \texttt{string} resp. \texttt{name-list} type, which expects the triple \texttt{(type, data, size)}.
+
+
+\begin{verbatim}
+int ssh_decode_sequence_multi(const unsigned char *in, unsigned long *inlen, ...);
+\end{verbatim}
+
+Where \texttt{in} points to the buffer with the sequence to decode and \texttt{inlen} points 
+on function invocation to the length of the sequence
+and after returning it will be filled with the decoded number of octets.
+
+The decoding function \texttt{ssh\_decode\_sequence\_multi()} expects its items to be a pair of \texttt{(type, data*)},
+except for the \texttt{string} resp. \texttt{name-list} type, which expects the triple \texttt{(type, data, size*)}.
+
 \chapter{Miscellaneous}
 \mysection{Base64 Encoding and Decoding}
 The library provides functions to encode and decode a RFC 4648 Base64 coding scheme.

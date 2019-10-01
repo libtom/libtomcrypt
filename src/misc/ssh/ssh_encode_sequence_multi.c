@@ -20,7 +20,7 @@
   Encode a SSH sequence using a VA list
   @param out    [out] Destination for data
   @param outlen [in/out] Length of buffer and resulting length of output
-  @remark <...> is of the form <type, data> (int, void*) except for string <type, data, size> (int, void*, ulong32)
+  @remark <...> is of the form <type, data> (int, <int,ulong32,ulong64>) except for string&name-list <type, data, size> (int, void*, ulong32)
   @return CRYPT_OK on success
 */
 int ssh_encode_sequence_multi(unsigned char *out, unsigned long *outlen, ...)
@@ -32,7 +32,6 @@ int ssh_encode_sequence_multi(unsigned char *out, unsigned long *outlen, ...)
    void          *vdata;
    const char    *sdata;
    int           idata;
-   ulong32       *psize;
    ulong32       u32data;
    ulong64       u64data;
 
@@ -103,7 +102,7 @@ int ssh_encode_sequence_multi(unsigned char *out, unsigned long *outlen, ...)
             /*
                The value 0 represents FALSE, and the value 1 represents TRUE.  All non-zero values MUST be
                interpreted as TRUE; however, applications MUST NOT store values other than 0 and 1.
-            */
+             */
             *out++ = (idata)?1:0;
             break;
          case LTC_SSHDATA_UINT32:

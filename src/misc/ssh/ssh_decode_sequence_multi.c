@@ -18,12 +18,12 @@
 
 /**
   Decode a SSH sequence using a VA list
-  @param in     Data to decode
-  @param inlen  Length of buffer to decode
-  @remark <...> is of the form <type, data> (int, void*) except for string <type, data, size> (int, void*, ulong32*)
+  @param in     The input buffer
+  @param inlen  [in/out] The length of the input buffer and on output the amount of decoded data
+  @remark <...> is of the form <type, data*> (int, <unsigned char*,ulong32*,ulong64*>) except for string&name-list <type, data, size*> (int, void*, ulong32*)
   @return CRYPT_OK on success
 */
-int ssh_decode_sequence_multi(const unsigned char *in, unsigned long inlen, ...)
+int ssh_decode_sequence_multi(const unsigned char *in, unsigned long *inlen, ...)
 {
    int           err;
    va_list       args;
@@ -35,9 +35,12 @@ int ssh_decode_sequence_multi(const unsigned char *in, unsigned long inlen, ...)
    ulong64       *u64data;
    ulong32       *bufsize;
    ulong32       size;
+   unsigned long remaining;
 
    LTC_ARGCHK(in    != NULL);
+   LTC_ARGCHK(inlen != NULL);
 
+   remaining = *inlen;
    /* Decode values from buffer */
    va_start(args, inlen);
    while ((type = (ssh_data_type)va_arg(args, int)) != LTC_SSHDATA_EOL) {
@@ -47,7 +50,7 @@ int ssh_decode_sequence_multi(const unsigned char *in, unsigned long inlen, ...)
           type == LTC_SSHDATA_MPINT)
       {
          /* Check we'll not read too far */
-         if (inlen < 4) {
+         if (remaining < 4) {
             err = CRYPT_BUFFER_OVERFLOW;
             goto error;
          }
@@ -71,7 +74,7 @@ int ssh_decode_sequence_multi(const unsigned char *in, unsigned long inlen, ...)
          case LTC_SSHDATA_MPINT:
             LOAD32H(size, in);
             in += 4;
-            inlen -= 4;
+            remaining -= 4;
             break;
 
          case LTC_SSHDATA_EOL:
@@ -81,11 +84,11 @@ int ssh_decode_sequence_multi(const unsigned char *in, unsigned long inlen, ...)
       }
 
       /* Check we'll not read too far */
-      if (inlen < size) {
+      if (remaining < size) {
          err = CRYPT_BUFFER_OVERFLOW;
          goto error;
       } else {
-         inlen -= size;
+         remaining -= size;
       }
 
       vdata = va_arg(args, void*);
@@ -105,7 +108,7 @@ int ssh_decode_sequence_multi(const unsigned char *in, unsigned long inlen, ...)
             /*
                The value 0 represents FALSE, and the value 1 represents TRUE.  All non-zero values MUST be
                interpreted as TRUE; however, applications MUST NOT store values other than 0 and 1.
-            */
+             */
             *cdata = (*in++)?1:0;
             break;
          case LTC_SSHDATA_UINT32:
@@ -157,6 +160,8 @@ int ssh_decode_sequence_multi(const unsigned char *in, unsigned long inlen, ...)
       }
    }
    err = CRYPT_OK;
+
+   *inlen -= remaining;
 
 error:
    va_end(args);

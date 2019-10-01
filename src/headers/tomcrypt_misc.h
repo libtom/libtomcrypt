@@ -175,7 +175,7 @@ typedef enum ssh_data_type_ {
 
 /* VA list handy helpers with tuples of <type, data> */
 int ssh_encode_sequence_multi(unsigned char *out, unsigned long *outlen, ...);
-int ssh_decode_sequence_multi(const unsigned char *in, unsigned long inlen, ...);
+int ssh_decode_sequence_multi(const unsigned char *in, unsigned long *inlen, ...);
 #endif /* LTC_SSH */
 
 int compare_testvector(const void* is, const unsigned long is_len, const void* should, const unsigned long should_len, const char* what, int which);
