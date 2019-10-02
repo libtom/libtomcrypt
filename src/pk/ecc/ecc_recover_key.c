@@ -114,8 +114,8 @@ int ecc_recover_key(const unsigned char *sig,  unsigned long siglen,
 #ifdef LTC_SSH
    else if (sigformat == LTC_ECCSIG_RFC5656) {
       char name[64], name2[64];
-      ulong32 namelen = sizeof(name);
-      ulong32 name2len = sizeof(name2);
+      unsigned long namelen = sizeof(name);
+      unsigned long name2len = sizeof(name2);
 
       /* Decode as SSH data sequence, per RFC4251 */
       if ((err = ssh_decode_sequence_multi(sig, &siglen,

@@ -61,7 +61,7 @@ static int _ssh_encoding_test(void)
 {
    unsigned char buffer[BUFSIZE];
    unsigned long buflen;
-   ulong32 len;
+   unsigned long len;
    void *v, *zero;
    int err;
 
@@ -200,7 +200,7 @@ static int _ssh_decoding_test(void)
 {
    char strbuf[BUFSIZE];
    void *u, *v;
-   ulong32 size;
+   unsigned long size;
    ulong32 tmp32;
    ulong64 tmp64;
    unsigned char tmp8;

@@ -21,7 +21,7 @@
   @param key       A public or private ECC key
   @return CRYPT_OK if successful
 */
-int ecc_ssh_ecdsa_encode_name(char *buffer, ulong32 *buflen, const ecc_key *key)
+int ecc_ssh_ecdsa_encode_name(char *buffer, unsigned long *buflen, const ecc_key *key)
 {
    char oidstr[64];
    unsigned long oidlen = sizeof(oidstr);

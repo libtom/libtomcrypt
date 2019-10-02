@@ -7247,7 +7247,7 @@ The following enum is used to indicate a specific SSH data type
 \begin{center}
 \begin{small}
 \begin{tabular}{|l|l|l|}
-\hline \textbf{Definition}    & \textbf{arg data Type}      & \textbf{SSH Type} \\
+\hline \textbf{Definition}    & \textbf{arg data Type} & \textbf{SSH Type} \\
 \hline LTC\_SSHDATA\_EOL      & -                      & End of SSH data sequence. \\
 \hline LTC\_SSHDATA\_BYTE     & \texttt{unsigned char} & \texttt{byte} type \\
 \hline LTC\_SSHDATA\_BOOLEAN  & \texttt{unsigned char} & \texttt{boolean} type \\
@@ -7284,7 +7284,8 @@ on function invocation to the length of the destination buffer
 and after returning it will be filled with the number of octets written to the buffer.
 
 The encoding function \texttt{ssh\_encode\_sequence\_multi()} expects its items to be a pair of \texttt{(type, data)},
-except for the \texttt{string} resp. \texttt{name-list} type, which expects the triple \texttt{(type, data, size)}.
+except for the \texttt{string} resp. \texttt{name-list} type, which expects the triple \texttt{(type, data, size)}
+with \texttt{size} being of type \texttt{unsigned long}.
 
 
 \begin{verbatim}
@@ -7296,7 +7297,8 @@ on function invocation to the length of the sequence
 and after returning it will be filled with the decoded number of octets.
 
 The decoding function \texttt{ssh\_decode\_sequence\_multi()} expects its items to be a pair of \texttt{(type, data*)},
-except for the \texttt{string} resp. \texttt{name-list} type, which expects the triple \texttt{(type, data, size*)}.
+except for the \texttt{string} resp. \texttt{name-list} type, which expects the triple \texttt{(type, data, size*)}
+with \texttt{size*} being of type \texttt{unsigned long*}.
 
 \chapter{Miscellaneous}
 \mysection{Base64 Encoding and Decoding}

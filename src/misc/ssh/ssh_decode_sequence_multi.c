@@ -20,7 +20,7 @@
   Decode a SSH sequence using a VA list
   @param in     The input buffer
   @param inlen  [in/out] The length of the input buffer and on output the amount of decoded data
-  @remark <...> is of the form <type, data*> (int, <unsigned char*,ulong32*,ulong64*>) except for string&name-list <type, data, size*> (int, void*, ulong32*)
+  @remark <...> is of the form <type, data*> (int, <unsigned char*,ulong32*,ulong64*>) except for string&name-list <type, data, size*> (int, void*, unsigned long*)
   @return CRYPT_OK on success
 */
 int ssh_decode_sequence_multi(const unsigned char *in, unsigned long *inlen, ...)
@@ -33,7 +33,7 @@ int ssh_decode_sequence_multi(const unsigned char *in, unsigned long *inlen, ...
    char          *sdata;
    ulong32       *u32data;
    ulong64       *u64data;
-   ulong32       *bufsize;
+   unsigned long *bufsize;
    ulong32       size;
    unsigned long remaining;
 
@@ -124,7 +124,7 @@ int ssh_decode_sequence_multi(const unsigned char *in, unsigned long *inlen, ...
          case LTC_SSHDATA_STRING:
          case LTC_SSHDATA_NAMELIST:
             sdata = vdata;
-            bufsize = va_arg(args, ulong32*);
+            bufsize = va_arg(args, unsigned long*);
             if (bufsize == NULL) {
                err = CRYPT_INVALID_ARG;
                goto error;
