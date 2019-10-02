@@ -4362,6 +4362,15 @@ int rsa_get_size(rsa_key *key);
 \end{verbatim}
 This can be used to determine the modulus size of an RSA key.
 
+\subsection{RSA Key Shrinking}
+To shrink an RSA key, use the following function:
+\index{rsa\_shrink\_key()}
+\begin{verbatim}
+void rsa_shrink_key(rsa_key *key);
+\end{verbatim}
+This can be used to shrink a key to its minimal memory requirements
+e.g. in cases where you have a long-lived RSA key in a memory-constrained system.
+
 \mysection{RSA Key Encryption}
 Normally RSA is used to encrypt short symmetric keys which are then used in block ciphers to encrypt a message.
 To facilitate encrypting short keys the following functions have been provided.

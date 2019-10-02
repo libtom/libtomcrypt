@@ -9,6 +9,12 @@
 #include <tomcrypt_test.h>
 
 #if defined(LTC_MRSA)
+#if defined(LTC_TEST_DBG) && LTC_TEST_DBG > 1
+#include <malloc.h>
+#define dbg_malloc_stats() do{ malloc_stats(); }while(0)
+#else
+#define dbg_malloc_stats() do{ }while(0)
+#endif
 
 /* These are test keys [see file test.key] that I use to test my import/export against */
 static const unsigned char openssl_private_rsa[] = {
@@ -511,6 +517,14 @@ print_hex("q", tmp, len);
    len2 = sizeof(tmp);
    DO(rsa_export(tmp, &len2, PK_PUBLIC, &key));
    DO(rsa_import(tmp, len2, &pubKey));
+
+   dbg_malloc_stats();
+   rsa_shrink_key(&key);
+   dbg_malloc_stats();
+   rsa_shrink_key(&pubKey);
+   dbg_malloc_stats();
+   rsa_shrink_key(&privKey);
+   dbg_malloc_stats();
 
    /* verify with original */
    DO(rsa_verify_hash(out, len, in, 20, hash_idx, 0, &stat, &key));

@@ -60,6 +60,8 @@ int rsa_exptmod(const unsigned char *in,   unsigned long inlen,
 
 void rsa_free(rsa_key *key);
 
+void rsa_shrink_key(rsa_key *key);
+
 /* These use PKCS #1 v2.0 padding */
 #define rsa_encrypt_key(_in, _inlen, _out, _outlen, _lparam, _lparamlen, _prng, _prng_idx, _hash_idx, _key) \
   rsa_encrypt_key_ex(_in, _inlen, _out, _outlen, _lparam, _lparamlen, _prng, _prng_idx, _hash_idx, LTC_PKCS_1_OAEP, _key)
