@@ -10,6 +10,9 @@
 /**
   @file openssh-privkey.c
   OpenSSH Private Key decryption demo, Steffen Jaeckel
+
+  The basic format of the key is described here:
+  https://github.com/openssh/openssh-portable/blob/master/PROTOCOL.key
 */
 
 #define _GNU_SOURCE
@@ -77,7 +80,7 @@ static void die_(int err, int line)
 #define DIE(s, ...) do { verbose = 1; print_err("%3d: " s "\n", __LINE__, ##__VA_ARGS__); exit(EXIT_FAILURE); } while(0)
 
 
-static void check_padding(unsigned char *p, unsigned long len)
+static void check_padding(const unsigned char *p, unsigned long len)
 {
    unsigned char pad = 0x1u;
    while (len != 0) {
@@ -117,24 +120,14 @@ const struct ssh_blockcipher ssh_ciphers[] =
    { 0 },
 };
 
-struct ssh_kdf {
-   const char *name;
-};
-
 struct kdf_options {
-   struct ssh_blockcipher *cipher;
+   const char *name;
+   const struct ssh_blockcipher *cipher;
    unsigned char salt[64];
    ulong32 saltlen;
    ulong32 num_rounds;
    const char *pass;
    unsigned long passlen;
-};
-
-const struct ssh_kdf ssh_kdfs[] =
-{
-   { "bcrypt" },
-   { "none" },
-   { 0 },
 };
 
 int ssh_find_init_ecc(const char *pka, pka_key *key)
@@ -152,10 +145,10 @@ int ssh_decode_ecdsa(const unsigned char *in, unsigned long *inlen, pka_key *key
 {
    int err;
    unsigned char groupname[64], group[512], privkey[512];
-   ulong32 groupnamelen = sizeof(groupname), grouplen = sizeof(group), privkeylen = sizeof(privkey);
+   unsigned long groupnamelen = sizeof(groupname), grouplen = sizeof(group), privkeylen = sizeof(privkey);
 
    if ((err = ssh_decode_sequence_multi(in, inlen,
-                                        LTC_SSHDATA_STRING, group, &groupnamelen,
+                                        LTC_SSHDATA_STRING, groupname, &groupnamelen,
                                         LTC_SSHDATA_STRING, group, &grouplen,
                                         LTC_SSHDATA_STRING, privkey, &privkeylen,
                                         LTC_SSHDATA_EOL)) != CRYPT_OK) {
@@ -179,7 +172,7 @@ int ssh_decode_ed25519(const unsigned char *in, unsigned long *inlen, pka_key *k
 {
    int err;
    unsigned char pubkey[2048], privkey[2048];
-   ulong32 pubkeylen = sizeof(pubkey), privkeylen = sizeof(privkey);
+   unsigned long pubkeylen = sizeof(pubkey), privkeylen = sizeof(privkey);
 
    if ((err = ssh_decode_sequence_multi(in, inlen,
                                         LTC_SSHDATA_STRING, pubkey, &pubkeylen,
@@ -250,9 +243,8 @@ int ssh_decode_private_key(const unsigned char *in, unsigned long *inlen, pka_ke
 {
    int err;
    ulong32 check1, check2;
-   unsigned char pka[64], pubkey[2048], privkey[2048], comment[256];
-   ulong32 pkalen = sizeof(pka), pubkeylen = sizeof(pubkey);
-   ulong32 privkeylen = sizeof(privkey), commentlen = sizeof(comment);
+   unsigned char pka[64], comment[256];
+   unsigned long pkalen = sizeof(pka), commentlen = sizeof(comment);
    unsigned long remaining, cur_len;
    const unsigned char *p;
    size_t n;
@@ -279,7 +271,7 @@ int ssh_decode_private_key(const unsigned char *in, unsigned long *inlen, pka_ke
 
    for (n = 0; n < sizeof(ssh_pkas)/sizeof(ssh_pkas[0]); ++n) {
       if (ssh_pkas[n].name != NULL) {
-         if (XSTRCMP(pka, ssh_pkas[n].name) != 0) continue;
+         if (XSTRCMP((char*)pka, ssh_pkas[n].name) != 0) continue;
       } else {
          if ((ssh_pkas[n].init == NULL) ||
                (ssh_pkas[n].init((char*)pka, key) != CRYPT_OK)) continue;
@@ -315,7 +307,8 @@ int ssh_decrypt_private_keys(unsigned char *in, unsigned long *inlen, struct kdf
 {
    int err, cipher;
    unsigned char symkey[128];
-   unsigned long cur_len, symkey_len;
+   unsigned long symkey_len;
+   symmetric_CBC cbc_ctx;
 
    LTC_ARGCHK(in    != NULL);
    LTC_ARGCHK(inlen != NULL);
@@ -330,7 +323,6 @@ int ssh_decrypt_private_keys(unsigned char *in, unsigned long *inlen, struct kdf
       die(err);
    }
 
-   symmetric_CBC cbc_ctx;
    if ((err = cbc_start(cipher, symkey + opts->cipher->len, symkey, opts->cipher->len, 0, &cbc_ctx)) != CRYPT_OK) {
       die(err);
    }
@@ -339,86 +331,30 @@ int ssh_decrypt_private_keys(unsigned char *in, unsigned long *inlen, struct kdf
    }
    print_hex("decrypted", in, *inlen);
 
+   zeromem(symkey, sizeof(symkey));
+   zeromem(&cbc_ctx, sizeof(cbc_ctx));
+
    return err;
 }
 
-/* The basic format of the key is described here:
- * https://github.com/openssh/openssh-portable/blob/master/PROTOCOL.key
- */
-
-int main(int argc, char **argv)
+int ssh_decode_header(unsigned char *in, unsigned long *inlen, struct kdf_options *opts)
 {
    int err;
-   if ((err = register_all_ciphers()) != CRYPT_OK) {
-      die(err);
-   }
-   if ((err = register_all_hashes()) != CRYPT_OK) {
-      die(err);
-   }
-   if ((err = crypt_mp_init("ltm")) != CRYPT_OK) {
-      die(err);
-   }
-
-   char pem[100 * 72];
-   size_t w = 0;
-   const char *openssh_privkey_start = "-----BEGIN OPENSSH PRIVATE KEY-----";
-   const char *openssh_privkey_end = "-----END OPENSSH PRIVATE KEY-----";
-   char buf[72];
-   FILE *f = NULL;
-
-   if (argc > 1) f = fopen(argv[1], "r");
-   else f = stdin;
-   if (f == NULL) DIE("fopen sez no");
-
-   while (fgets(buf, sizeof(buf), f)) {
-      const char *start = strstr(buf, openssh_privkey_start);
-      if (start != NULL) {
-         start += strlen(openssh_privkey_start);
-         size_t l = strlcpy(pem + w, start, sizeof(pem) - w);
-         w += l;
-         break;
-      }
-   }
-   while (fgets(buf, sizeof(buf), f)) {
-      size_t l = strlcpy(pem + w, buf, sizeof(pem) - w);
-      if (l == 0) {
-         DIE("strlcpy sez no");
-      }
-      w += l;
-   }
-   char *end = strstr(pem, openssh_privkey_end);
-   if (end == NULL) DIE("could not find PEM end-tag");
-   *end = '\0';
-   w = end - pem;
-
-   unsigned char b64_decoded[sizeof(pem)];
-   unsigned long b64_decoded_len = sizeof(pem);
-   if ((err = base64_sane_decode(pem, w, b64_decoded, &b64_decoded_len)) != CRYPT_OK) {
-      die(err);
-   }
-   print_hex("decoded", b64_decoded, b64_decoded_len);
-
-   void *magic = strstr((const char*)b64_decoded, "openssh-key-v1");
-   if (magic == NULL) DIE("magic not found");
-   if (magic != b64_decoded) DIE("magic not at the beginning");
-
-   size_t nlen = strlen("openssh-key-v1");
-   unsigned char *start = &b64_decoded[nlen + 1];
-   unsigned long tot_len = b64_decoded_len - nlen - 1;
-
-   unsigned char ciphername[64];
-   ulong32 ciphernamelen = sizeof(ciphername);
-   unsigned char kdfname[64];
-   ulong32 kdfnamelen = sizeof(kdfname);
-   unsigned char kdfoptions[128];
-   ulong32 kdfoptionslen = sizeof(kdfoptions);
+   unsigned char ciphername[64], kdfname[64], kdfoptions[128], pubkey1[2048];
+   unsigned long ciphernamelen = sizeof(ciphername), kdfnamelen = sizeof(kdfname);
+   unsigned long kdfoptionslen = sizeof(kdfoptions), pubkey1len = sizeof(pubkey1);
    ulong32 num_keys;
-   unsigned char pubkey1[2048];
-   ulong32 pubkey1len = sizeof(pubkey1);
+   size_t i;
 
-   unsigned long cur_len = tot_len;
+   void *magic = strstr((const char*)in, "openssh-key-v1");
+   size_t slen = strlen("openssh-key-v1");
+   unsigned char *start = &in[slen + 1];
+   unsigned long len = *inlen - slen - 1;
 
-   if ((err = ssh_decode_sequence_multi(start, &cur_len,
+   if (magic == NULL) DIE("magic not found");
+   if (magic != in) DIE("magic not at the beginning");
+
+   if ((err = ssh_decode_sequence_multi(start, &len,
                                         LTC_SSHDATA_STRING, ciphername, &ciphernamelen,
                                         LTC_SSHDATA_STRING, kdfname, &kdfnamelen,
                                         LTC_SSHDATA_STRING, kdfoptions, &kdfoptionslen,
@@ -431,60 +367,138 @@ int main(int argc, char **argv)
 
    print_hex("public key", pubkey1, pubkey1len);
 
-   start += cur_len;
-   tot_len -= cur_len;
-   cur_len = tot_len;
+   *inlen = len + slen + 1;
 
-   const struct ssh_blockcipher *c = NULL;
-   for (size_t i = 0; i < sizeof(ssh_ciphers)/sizeof(ssh_ciphers[0]); ++i) {
-      nlen = strlen(ssh_ciphers[i].name);
-      if ((nlen == ciphernamelen) && (XMEMCMP(ciphername, ssh_ciphers[i].name, nlen) == 0)) {
-         c = &ssh_ciphers[i];
+   for (i = 0; i < sizeof(ssh_ciphers)/sizeof(ssh_ciphers[0]); ++i) {
+      if (XSTRCMP((char*)ciphername, ssh_ciphers[i].name) == 0) {
+         opts->cipher = &ssh_ciphers[i];
          break;
       }
    }
-   if (c == NULL) DIE("can't find algo");
+   if (opts->cipher == NULL) DIE("can't find algo");
 
-   struct kdf_options opts;
-   opts.saltlen = sizeof(opts.salt);
-   opts.cipher = c;
-   opts.pass = "abc123";
-   opts.passlen = 6;
-
-   unsigned char privkey[sizeof(pem)];
-   ulong32 privkey_len = sizeof(privkey);
-
-   cur_len = tot_len;
-   if ((err = ssh_decode_sequence_multi(start, &cur_len,
-                                        LTC_SSHDATA_STRING, privkey, &privkey_len,
-                                        LTC_SSHDATA_EOL)) != CRYPT_OK) {
-      die(err);
-   }
-
-   if (XSTRCMP(kdfname, "none") == 0) {
+   if (XSTRCMP((char*)kdfname, "none") == 0) {
       /* NOP */
-   } else if (XSTRCMP(kdfname, "bcrypt") == 0) {
-      cur_len = kdfoptionslen;
-      if ((err = ssh_decode_sequence_multi(kdfoptions, &cur_len,
-                                           LTC_SSHDATA_STRING, opts.salt, &opts.saltlen,
-                                           LTC_SSHDATA_UINT32, &opts.num_rounds,
+      opts->name = "none";
+   } else if (XSTRCMP((char*)kdfname, "bcrypt") == 0) {
+      opts->name = "bcrypt";
+      opts->saltlen = sizeof(opts->salt);
+      len = kdfoptionslen;
+      if ((err = ssh_decode_sequence_multi(kdfoptions, &len,
+                                           LTC_SSHDATA_STRING, opts->salt, &opts->saltlen,
+                                           LTC_SSHDATA_UINT32, &opts->num_rounds,
                                            LTC_SSHDATA_EOL)) != CRYPT_OK) {
          die(err);
       }
-      if (cur_len != kdfoptionslen) DIE("unused data %lu", kdfoptionslen-cur_len);
-
-      cur_len = privkey_len;
-      if ((err = ssh_decrypt_private_keys(privkey, &cur_len, &opts)) != CRYPT_OK) {
-         die(err);
-      }
+      if (len != kdfoptionslen) DIE("unused data %lu", kdfoptionslen-len);
    } else {
       DIE("unsupported kdf %s", kdfname);
    }
 
+   return err;
+}
+
+
+void read_openssh_private_key(FILE *f, char *pem, size_t *w)
+{
+   const char *openssh_privkey_start = "-----BEGIN OPENSSH PRIVATE KEY-----";
+   const char *openssh_privkey_end = "-----END OPENSSH PRIVATE KEY-----";
+   char buf[81];
+   char *end;
+   size_t n = 0;
+
+   while (fgets(buf, sizeof(buf), f)) {
+      const char *start = strstr(buf, openssh_privkey_start);
+      if (start != NULL) {
+         size_t l;
+         start += strlen(openssh_privkey_start);
+         l = strlcpy(pem + n, start, *w - n);
+         n += l;
+         break;
+      }
+   }
+   while (fgets(buf, sizeof(buf), f)) {
+      size_t l = strlcpy(pem + n, buf, *w - n);
+      if (l == 0) {
+         DIE("strlcpy sez no");
+      }
+      n += l;
+   }
+   end = strstr(pem, openssh_privkey_end);
+   if (end == NULL) DIE("could not find PEM end-tag");
+   *end = '\0';
+   *w = end - pem;
+}
+
+int main(int argc, char **argv)
+{
+   int err;
+
+   char pem[100 * 72];
+   size_t plen = sizeof(pem);
+   FILE *f = NULL;
+   unsigned char b64_decoded[sizeof(pem)], privkey[sizeof(pem)];
+   unsigned long b64_decoded_len = sizeof(pem), privkey_len = sizeof(privkey);
+   struct kdf_options opts;
+   unsigned char *p;
+   unsigned long len;
    pka_key k;
 
-   cur_len = privkey_len;
-   if ((err = ssh_decode_private_key(privkey, &cur_len, &k)) != CRYPT_OK) {
+   if ((err = register_all_ciphers()) != CRYPT_OK) {
+      die(err);
+   }
+   if ((err = register_all_hashes()) != CRYPT_OK) {
+      die(err);
+   }
+   if ((err = crypt_mp_init("ltm")) != CRYPT_OK) {
+      die(err);
+   }
+
+   if (argc > 1) f = fopen(argv[1], "r");
+   else f = stdin;
+   if (f == NULL) DIE("fopen sez no");
+
+   read_openssh_private_key(f, pem, &plen);
+
+   if ((err = base64_sane_decode(pem, plen, b64_decoded, &b64_decoded_len)) != CRYPT_OK) {
+      die(err);
+   }
+
+   p = b64_decoded;
+   plen = b64_decoded_len;
+   len = plen;
+
+   print_hex("decoded", p, plen);
+
+   if ((err = ssh_decode_header(p, &len, &opts)) != CRYPT_OK) {
+      die(err);
+   }
+   p += len;
+   plen -= len;
+   len = plen;
+
+   print_hex("remaining", p, plen);
+
+   if ((err = ssh_decode_sequence_multi(p, &len,
+                                        LTC_SSHDATA_STRING, privkey, &privkey_len,
+                                        LTC_SSHDATA_EOL)) != CRYPT_OK) {
+      die(err);
+   }
+   p += len;
+   plen -= len;
+
+   opts.pass = "abc123";
+   opts.passlen = 6;
+
+   if (XSTRCMP(opts.name, "none") != 0) {
+      len = privkey_len;
+      if ((err = ssh_decrypt_private_keys(privkey, &len, &opts)) != CRYPT_OK) {
+         die(err);
+      }
+   }
+
+   len = privkey_len;
+   if ((err = ssh_decode_private_key(privkey, &len, &k)) != CRYPT_OK) {
       die(err);
    }
 
