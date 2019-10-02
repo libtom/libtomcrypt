@@ -42,17 +42,27 @@ static int mpi_to_ltc_error(int err)
    return CRYPT_ERROR;
 }
 
+static int init_mpi(void **a)
+{
+   LTC_ARGCHK(a != NULL);
+
+   *a = XCALLOC(1, sizeof(mp_int));
+   if (*a == NULL) {
+      return CRYPT_MEM;
+   } else {
+      return CRYPT_OK;
+   }
+}
+
 static int init(void **a)
 {
    int err;
 
    LTC_ARGCHK(a != NULL);
 
-   *a = XCALLOC(1, sizeof(mp_int));
-   if (*a == NULL) {
-      return CRYPT_MEM;
+   if ((err = init_mpi(a)) != CRYPT_OK) {
+      return err;
    }
-
    if ((err = mpi_to_ltc_error(mp_init(*a))) != CRYPT_OK) {
       XFREE(*a);
    }
@@ -82,10 +92,11 @@ static int copy(void *a, void *b)
 
 static int init_copy(void **a, void *b)
 {
-   if (init(a) != CRYPT_OK) {
-      return CRYPT_MEM;
-   }
-   return copy(b, *a);
+   int err;
+   LTC_ARGCHK(a  != NULL);
+   LTC_ARGCHK(b  != NULL);
+   if ((err = init_mpi(a)) != CRYPT_OK) return err;
+   return mpi_to_ltc_error(mp_init_copy(*a, b));
 }
 
 /* ---- trivial ---- */
