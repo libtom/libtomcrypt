@@ -201,7 +201,7 @@ static int _rfc_8032_7_1_test(void)
       DO(base16_decode(rfc_8032_7_1[n].message, XSTRLEN(rfc_8032_7_1[n].message), msg, &mlen));
       siglen = sizeof(sig);
       DO(base16_decode(rfc_8032_7_1[n].signature, XSTRLEN(rfc_8032_7_1[n].signature), sig, &siglen));
-      DO(ed25519_set_key(sec, slen, pub, plen, &key));
+      DO(ed25519_import_raw(sec, slen, PK_PRIVATE, &key));
       buflen = sizeof(buf);
       DO(ed25519_sign(msg, mlen, buf, &buflen, &key));
       DO(do_compare_testvector(buf, buflen, sig, siglen, "Ed25519 RFC8032 7.1 - sign", n));
@@ -214,7 +214,7 @@ static int _rfc_8032_7_1_test(void)
       DO(base16_decode(rfc_8032_7_1[n].message, XSTRLEN(rfc_8032_7_1[n].message), msg, &mlen));
       siglen = sizeof(sig);
       DO(base16_decode(rfc_8032_7_1[n].signature, XSTRLEN(rfc_8032_7_1[n].signature), sig, &siglen));
-      DO(ed25519_set_key(NULL, 0, pub, plen, &key2));
+      DO(ed25519_import_raw(pub, plen, PK_PUBLIC, &key2));
       DO(ed25519_verify(msg, mlen, sig, siglen, &ret, &key2));
       DO(do_compare_testvector(&ret, sizeof(ret), &should, sizeof(should), "Ed25519 RFC8032 7.1 - verify w/ pubkey", n));
 
