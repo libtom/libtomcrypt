@@ -18,7 +18,7 @@
 #include <tomcrypt_private.h>
 #include <stdarg.h>
 
-static int verbose = 1;
+static int verbose = 0;
 
 static void print_hex(const char* what, const void* v, const unsigned long l)
 {
@@ -68,12 +68,13 @@ static void print_err(const char *fmt, ...)
 
 static void die_(int err, int line)
 {
+   verbose = 1;
    print_err("%3d: LTC sez %s\n", line, error_to_string(err));
    exit(EXIT_FAILURE);
 }
 
 #define die(i) do { die_(i, __LINE__); } while(0)
-#define DIE(s, ...) do { print_err("%3d: " s "\n", __LINE__, ##__VA_ARGS__); exit(EXIT_FAILURE); } while(0)
+#define DIE(s, ...) do { verbose = 1; print_err("%3d: " s "\n", __LINE__, ##__VA_ARGS__); exit(EXIT_FAILURE); } while(0)
 
 
 static void check_padding(unsigned char *p, unsigned long len)
@@ -91,6 +92,7 @@ typedef struct pka_key_ {
    enum ltc_oid_id id;
    union {
       curve25519_key ed25519;
+      ecc_key ecdsa;
       rsa_key rsa;
    } u;
 } pka_key;
@@ -135,6 +137,115 @@ const struct ssh_kdf ssh_kdfs[] =
    { 0 },
 };
 
+int ssh_find_init_ecc(const char *pka, pka_key *key)
+{
+   int err;
+   const char* prefix = "ecdsa-sha2-";
+   size_t prefixlen = strlen(prefix);
+   const ltc_ecc_curve *cu;
+   if (strstr(pka, prefix) == NULL) return CRYPT_PK_INVALID_TYPE;
+   if ((err = ecc_find_curve(pka + prefixlen, &cu)) != CRYPT_OK) return err;
+   return ecc_set_curve(cu, &key->u.ecdsa);
+}
+
+int ssh_decode_ecdsa(const unsigned char *in, unsigned long *inlen, pka_key *key)
+{
+   int err;
+   unsigned char groupname[64], group[512], privkey[512];
+   ulong32 groupnamelen = sizeof(groupname), grouplen = sizeof(group), privkeylen = sizeof(privkey);
+
+   if ((err = ssh_decode_sequence_multi(in, inlen,
+                                        LTC_SSHDATA_STRING, group, &groupnamelen,
+                                        LTC_SSHDATA_STRING, group, &grouplen,
+                                        LTC_SSHDATA_STRING, privkey, &privkeylen,
+                                        LTC_SSHDATA_EOL)) != CRYPT_OK) {
+      die(err);
+   }
+
+   if ((err = ecc_set_key(privkey, privkeylen, PK_PRIVATE, &key->u.ecdsa)) != CRYPT_OK) {
+      die(err);
+   }
+
+   key->id = PKA_EC;
+
+   zeromem(groupname, sizeof(groupname));
+   zeromem(group, sizeof(group));
+   zeromem(privkey, sizeof(privkey));
+
+   return err;
+}
+
+int ssh_decode_ed25519(const unsigned char *in, unsigned long *inlen, pka_key *key)
+{
+   int err;
+   unsigned char pubkey[2048], privkey[2048];
+   ulong32 pubkeylen = sizeof(pubkey), privkeylen = sizeof(privkey);
+
+   if ((err = ssh_decode_sequence_multi(in, inlen,
+                                        LTC_SSHDATA_STRING, pubkey, &pubkeylen,
+                                        LTC_SSHDATA_STRING, privkey, &privkeylen,
+                                        LTC_SSHDATA_EOL)) != CRYPT_OK) {
+      die(err);
+   }
+
+   if ((err = ed25519_set_key(privkey, 32, &privkey[32], 32, &key->u.ed25519)) != CRYPT_OK) {
+      die(err);
+   }
+
+   key->id = PKA_ED25519;
+
+   zeromem(pubkey, sizeof(pubkey));
+   zeromem(privkey, sizeof(privkey));
+
+   return err;
+}
+
+int ssh_decode_rsa(const unsigned char *in, unsigned long *inlen, pka_key *key)
+{
+   int err;
+   void *tmp1, *tmp2;
+   if ((err = mp_init_multi(&tmp1, &tmp2, NULL)) != CRYPT_OK) {
+      die(err);
+   }
+   if ((err = rsa_init(&key->u.rsa)) != CRYPT_OK) {
+      die(err);
+   }
+
+   if ((err = ssh_decode_sequence_multi(in, inlen,
+                                        LTC_SSHDATA_MPINT, key->u.rsa.N,
+                                        LTC_SSHDATA_MPINT, key->u.rsa.e,
+                                        LTC_SSHDATA_MPINT, key->u.rsa.d,
+                                        LTC_SSHDATA_MPINT, key->u.rsa.qP,
+                                        LTC_SSHDATA_MPINT, key->u.rsa.q,
+                                        LTC_SSHDATA_MPINT, key->u.rsa.p,
+                                        LTC_SSHDATA_EOL)) != CRYPT_OK) {
+      die(err);
+   }
+
+   if ((err = mp_sub_d(key->u.rsa.p, 1,  tmp1)) != CRYPT_OK)                     { die(err); } /* tmp1 = q-1 */
+   if ((err = mp_sub_d(key->u.rsa.q, 1,  tmp2)) != CRYPT_OK)                     { die(err); } /* tmp2 = p-1 */
+   if ((err = mp_mod( key->u.rsa.d,  tmp1,  key->u.rsa.dP)) != CRYPT_OK)         { die(err); } /* dP = d mod p-1 */
+   if ((err = mp_mod( key->u.rsa.d,  tmp2,  key->u.rsa.dQ)) != CRYPT_OK)         { die(err); } /* dQ = d mod q-1 */
+
+   key->id = PKA_RSA;
+
+   mp_clear_multi(tmp2, tmp1, NULL);
+
+   return err;
+}
+
+struct ssh_pka {
+   const char *name;
+   int (*init)(const char*, pka_key*);
+   int (*decode)(const unsigned char*, unsigned long*, pka_key*);
+};
+
+struct ssh_pka ssh_pkas[] = {
+                             { "ssh-ed25519", NULL,              ssh_decode_ed25519 },
+                             { "ssh-rsa",     NULL,              ssh_decode_rsa },
+                             { NULL,          ssh_find_init_ecc, ssh_decode_ecdsa },
+};
+
 int ssh_decode_private_key(const unsigned char *in, unsigned long *inlen, pka_key *key)
 {
    int err;
@@ -143,7 +254,8 @@ int ssh_decode_private_key(const unsigned char *in, unsigned long *inlen, pka_ke
    ulong32 pkalen = sizeof(pka), pubkeylen = sizeof(pubkey);
    ulong32 privkeylen = sizeof(privkey), commentlen = sizeof(comment);
    unsigned long remaining, cur_len;
-   unsigned char *p;
+   const unsigned char *p;
+   size_t n;
 
    LTC_ARGCHK(in    != NULL);
    LTC_ARGCHK(inlen != NULL);
@@ -163,55 +275,26 @@ int ssh_decode_private_key(const unsigned char *in, unsigned long *inlen, pka_ke
 
    p += cur_len;
    remaining = *inlen - cur_len;
+   cur_len = remaining;
 
-   if (XSTRCMP(pka, "ssh-ed25519") == 0) {
-      cur_len = remaining;
-      if ((err = ssh_decode_sequence_multi(p, &cur_len,
-                                           LTC_SSHDATA_STRING, pubkey, &pubkeylen,
-                                           LTC_SSHDATA_STRING, privkey, &privkeylen,
-                                           LTC_SSHDATA_EOL)) != CRYPT_OK) {
+   for (n = 0; n < sizeof(ssh_pkas)/sizeof(ssh_pkas[0]); ++n) {
+      if (ssh_pkas[n].name != NULL) {
+         if (XSTRCMP(pka, ssh_pkas[n].name) != 0) continue;
+      } else {
+         if ((ssh_pkas[n].init == NULL) ||
+               (ssh_pkas[n].init((char*)pka, key) != CRYPT_OK)) continue;
+      }
+      if ((err = ssh_pkas[n].decode(p, &cur_len, key)) != CRYPT_OK) {
          die(err);
       }
-
-      if ((err = ed25519_set_key(privkey, 32, &privkey[32], 32, &key->u.ed25519)) != CRYPT_OK) {
-         die(err);
-      }
-
-      key->id = PKA_ED25519;
-   } else if (XSTRCMP(pka, "ssh-rsa") == 0) {
-      void *tmp1, *tmp2;
-      if ((err = mp_init_multi(&tmp1, &tmp2, NULL)) != CRYPT_OK) {
-         die(err);
-      }
-      if ((err = rsa_init(&key->u.rsa)) != CRYPT_OK) {
-         die(err);
-      }
-
-      cur_len = remaining;
-      if ((err = ssh_decode_sequence_multi(p, &cur_len,
-                                           LTC_SSHDATA_MPINT, key->u.rsa.N,
-                                           LTC_SSHDATA_MPINT, key->u.rsa.e,
-                                           LTC_SSHDATA_MPINT, key->u.rsa.d,
-                                           LTC_SSHDATA_MPINT, key->u.rsa.qP,
-                                           LTC_SSHDATA_MPINT, key->u.rsa.q,
-                                           LTC_SSHDATA_MPINT, key->u.rsa.p,
-                                           LTC_SSHDATA_EOL)) != CRYPT_OK) {
-         die(err);
-      }
-
-      if ((err = mp_sub_d(key->u.rsa.p, 1,  tmp1)) != CRYPT_OK)                     { die(err); } /* tmp1 = q-1 */
-      if ((err = mp_sub_d(key->u.rsa.q, 1,  tmp2)) != CRYPT_OK)                     { die(err); } /* tmp2 = p-1 */
-      if ((err = mp_mod( key->u.rsa.d,  tmp1,  key->u.rsa.dP)) != CRYPT_OK)         { die(err); } /* dP = d mod p-1 */
-      if ((err = mp_mod( key->u.rsa.d,  tmp2,  key->u.rsa.dQ)) != CRYPT_OK)         { die(err); } /* dQ = d mod q-1 */
-
-      mp_clear_multi(tmp2, tmp1, NULL);
-   } else {
-      DIE("unsupported pka");
+      break;
    }
+   if (n == sizeof(ssh_pkas)/sizeof(ssh_pkas[0])) DIE("unsupported pka %s", pka);
+
    p += cur_len;
    remaining -= cur_len;
-
    cur_len = remaining;
+
    if ((err = ssh_decode_sequence_multi(p, &cur_len,
                                         LTC_SSHDATA_STRING, comment, &commentlen,
                                         LTC_SSHDATA_EOL)) != CRYPT_OK) {
