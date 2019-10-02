@@ -200,8 +200,8 @@ src/pk/ed25519/ed25519_verify.o src/pk/pkcs1/pkcs_1_i2osp.o src/pk/pkcs1/pkcs_1_
 src/pk/pkcs1/pkcs_1_oaep_decode.o src/pk/pkcs1/pkcs_1_oaep_encode.o src/pk/pkcs1/pkcs_1_os2ip.o \
 src/pk/pkcs1/pkcs_1_pss_decode.o src/pk/pkcs1/pkcs_1_pss_encode.o src/pk/pkcs1/pkcs_1_v1_5_decode.o \
 src/pk/pkcs1/pkcs_1_v1_5_encode.o src/pk/rsa/rsa_decrypt_key.o src/pk/rsa/rsa_encrypt_key.o \
-src/pk/rsa/rsa_export.o src/pk/rsa/rsa_exptmod.o src/pk/rsa/rsa_free.o src/pk/rsa/rsa_get_size.o \
-src/pk/rsa/rsa_import.o src/pk/rsa/rsa_import_pkcs8.o src/pk/rsa/rsa_import_x509.o \
+src/pk/rsa/rsa_export.o src/pk/rsa/rsa_exptmod.o src/pk/rsa/rsa_get_size.o src/pk/rsa/rsa_import.o \
+src/pk/rsa/rsa_import_pkcs8.o src/pk/rsa/rsa_import_x509.o src/pk/rsa/rsa_key.o \
 src/pk/rsa/rsa_make_key.o src/pk/rsa/rsa_set.o src/pk/rsa/rsa_sign_hash.o \
 src/pk/rsa/rsa_sign_saltlen_get.o src/pk/rsa/rsa_verify_hash.o src/pk/x25519/x25519_export.o \
 src/pk/x25519/x25519_import.o src/pk/x25519/x25519_import_pkcs8.o src/pk/x25519/x25519_import_x509.o \
