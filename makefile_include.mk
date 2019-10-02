@@ -365,8 +365,8 @@ src/pk/ecc/ltc_ecc_is_point_at_infinity.o src/pk/ecc/ltc_ecc_map.o src/pk/ecc/lt
 src/pk/ecc/ltc_ecc_mulmod.o src/pk/ecc/ltc_ecc_mulmod_timing.o src/pk/ecc/ltc_ecc_points.o \
 src/pk/ecc/ltc_ecc_projective_add_point.o src/pk/ecc/ltc_ecc_projective_dbl_point.o \
 src/pk/ecc/ltc_ecc_verify_key.o src/pk/ed25519/ed25519_export.o src/pk/ed25519/ed25519_import.o \
-src/pk/ed25519/ed25519_import_pkcs8.o src/pk/ed25519/ed25519_import_x509.o \
-src/pk/ed25519/ed25519_make_key.o src/pk/ed25519/ed25519_set_key.o src/pk/ed25519/ed25519_sign.o \
+src/pk/ed25519/ed25519_import_pkcs8.o src/pk/ed25519/ed25519_import_raw.o \
+src/pk/ed25519/ed25519_import_x509.o src/pk/ed25519/ed25519_make_key.o src/pk/ed25519/ed25519_sign.o \
 src/pk/ed25519/ed25519_verify.o src/pk/pkcs1/pkcs_1_i2osp.o src/pk/pkcs1/pkcs_1_mgf1.o \
 src/pk/pkcs1/pkcs_1_oaep_decode.o src/pk/pkcs1/pkcs_1_oaep_encode.o src/pk/pkcs1/pkcs_1_os2ip.o \
 src/pk/pkcs1/pkcs_1_pss_decode.o src/pk/pkcs1/pkcs_1_pss_encode.o src/pk/pkcs1/pkcs_1_v1_5_decode.o \
@@ -375,23 +375,23 @@ src/pk/rsa/rsa_export.o src/pk/rsa/rsa_exptmod.o src/pk/rsa/rsa_get_size.o src/p
 src/pk/rsa/rsa_import_pkcs8.o src/pk/rsa/rsa_import_x509.o src/pk/rsa/rsa_key.o \
 src/pk/rsa/rsa_make_key.o src/pk/rsa/rsa_set.o src/pk/rsa/rsa_sign_hash.o \
 src/pk/rsa/rsa_sign_saltlen_get.o src/pk/rsa/rsa_verify_hash.o src/pk/x25519/x25519_export.o \
-src/pk/x25519/x25519_import.o src/pk/x25519/x25519_import_pkcs8.o src/pk/x25519/x25519_import_x509.o \
-src/pk/x25519/x25519_make_key.o src/pk/x25519/x25519_set_key.o src/pk/x25519/x25519_shared_secret.o \
-src/prngs/chacha20.o src/prngs/fortuna.o src/prngs/rc4.o src/prngs/rng_get_bytes.o \
-src/prngs/rng_make_prng.o src/prngs/sober128.o src/prngs/sprng.o src/prngs/yarrow.o \
-src/stream/chacha/chacha_crypt.o src/stream/chacha/chacha_done.o src/stream/chacha/chacha_ivctr32.o \
-src/stream/chacha/chacha_ivctr64.o src/stream/chacha/chacha_keystream.o \
-src/stream/chacha/chacha_memory.o src/stream/chacha/chacha_setup.o src/stream/chacha/chacha_test.o \
-src/stream/rabbit/rabbit.o src/stream/rabbit/rabbit_memory.o src/stream/rc4/rc4_stream.o \
-src/stream/rc4/rc4_stream_memory.o src/stream/rc4/rc4_test.o src/stream/salsa20/salsa20_crypt.o \
-src/stream/salsa20/salsa20_done.o src/stream/salsa20/salsa20_ivctr64.o \
-src/stream/salsa20/salsa20_keystream.o src/stream/salsa20/salsa20_memory.o \
-src/stream/salsa20/salsa20_setup.o src/stream/salsa20/salsa20_test.o \
-src/stream/salsa20/xsalsa20_memory.o src/stream/salsa20/xsalsa20_setup.o \
-src/stream/salsa20/xsalsa20_test.o src/stream/sober128/sober128_stream.o \
-src/stream/sober128/sober128_stream_memory.o src/stream/sober128/sober128_test.o \
-src/stream/sosemanuk/sosemanuk.o src/stream/sosemanuk/sosemanuk_memory.o \
-src/stream/sosemanuk/sosemanuk_test.o
+src/pk/x25519/x25519_import.o src/pk/x25519/x25519_import_pkcs8.o src/pk/x25519/x25519_import_raw.o \
+src/pk/x25519/x25519_import_x509.o src/pk/x25519/x25519_make_key.o \
+src/pk/x25519/x25519_shared_secret.o src/prngs/chacha20.o src/prngs/fortuna.o src/prngs/rc4.o \
+src/prngs/rng_get_bytes.o src/prngs/rng_make_prng.o src/prngs/sober128.o src/prngs/sprng.o \
+src/prngs/yarrow.o src/stream/chacha/chacha_crypt.o src/stream/chacha/chacha_done.o \
+src/stream/chacha/chacha_ivctr32.o src/stream/chacha/chacha_ivctr64.o \
+src/stream/chacha/chacha_keystream.o src/stream/chacha/chacha_memory.o \
+src/stream/chacha/chacha_setup.o src/stream/chacha/chacha_test.o src/stream/rabbit/rabbit.o \
+src/stream/rabbit/rabbit_memory.o src/stream/rc4/rc4_stream.o src/stream/rc4/rc4_stream_memory.o \
+src/stream/rc4/rc4_test.o src/stream/salsa20/salsa20_crypt.o src/stream/salsa20/salsa20_done.o \
+src/stream/salsa20/salsa20_ivctr64.o src/stream/salsa20/salsa20_keystream.o \
+src/stream/salsa20/salsa20_memory.o src/stream/salsa20/salsa20_setup.o \
+src/stream/salsa20/salsa20_test.o src/stream/salsa20/xsalsa20_memory.o \
+src/stream/salsa20/xsalsa20_setup.o src/stream/salsa20/xsalsa20_test.o \
+src/stream/sober128/sober128_stream.o src/stream/sober128/sober128_stream_memory.o \
+src/stream/sober128/sober128_test.o src/stream/sosemanuk/sosemanuk.o \
+src/stream/sosemanuk/sosemanuk_memory.o src/stream/sosemanuk/sosemanuk_test.o
 
 # List of test objects to compile (all goes to libtomcrypt_prof.a)
 TOBJECTS=tests/base16_test.o tests/base32_test.o tests/base64_test.o tests/bcrypt_test.o \
