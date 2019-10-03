@@ -34,7 +34,7 @@ int chacha_memory(const unsigned char *key,    unsigned long keylen,  unsigned l
 
    if ((err = chacha_setup(&st, key, keylen, rounds))       != CRYPT_OK) goto WIPE_KEY;
    if (ivlen > 8) {
-        if ((err = chacha_ivctr32(&st, iv, ivlen, counter)) != CRYPT_OK) goto WIPE_KEY;
+        if ((err = chacha_ivctr32(&st, iv, ivlen, (ulong32)counter)) != CRYPT_OK) goto WIPE_KEY;
    } else {
         if ((err = chacha_ivctr64(&st, iv, ivlen, counter)) != CRYPT_OK) goto WIPE_KEY;
    }

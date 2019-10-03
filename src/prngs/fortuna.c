@@ -237,8 +237,8 @@ int fortuna_start(prng_state *prng)
           return err;
        }
    }
-   prng->u.fortuna.pool_idx = prng->u.fortuna.pool0_len = prng->u.fortuna.wd = 0;
-   prng->u.fortuna.reset_cnt = 0;
+   prng->u.fortuna.pool_idx = prng->u.fortuna.pool0_len = 0;
+   prng->u.fortuna.reset_cnt = prng->u.fortuna.wd = 0;
 
    /* reset bufs */
    zeromem(prng->u.fortuna.K, 32);

@@ -1099,9 +1099,9 @@ static int der_choice_n_custom_test(void)
        /* custom encode */
        child[0] = types[x % n];
        if (x < n) {
-          LTC_SET_ASN1_CUSTOM_CONSTRUCTED(root, 0, LTC_ASN1_CL_CONTEXT_SPECIFIC, 1U << (x % n), child);
+          LTC_SET_ASN1_CUSTOM_CONSTRUCTED(root, 0, LTC_ASN1_CL_CONTEXT_SPECIFIC, 1uLL << (x % n), child);
        } else {
-          LTC_SET_ASN1_CUSTOM_PRIMITIVE(root, 0, LTC_ASN1_CL_CONTEXT_SPECIFIC, 1U << (x % n), child->type, child->data, child->size);
+          LTC_SET_ASN1_CUSTOM_PRIMITIVE(root, 0, LTC_ASN1_CL_CONTEXT_SPECIFIC, 1uLL << (x % n), child->type, child->data, child->size);
        }
        custlen = sizeof(custbuf);
        /* don't try to custom-encode a primitive custom-type */

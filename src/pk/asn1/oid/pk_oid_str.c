@@ -11,7 +11,8 @@
 
 int pk_oid_str_to_num(const char *OID, unsigned long *oid, unsigned long *oidlen)
 {
-   unsigned long i, j, limit, OID_len, oid_j;
+   unsigned long i, j, limit, oid_j;
+   size_t OID_len;
 
    LTC_ARGCHK(oidlen != NULL);
 
