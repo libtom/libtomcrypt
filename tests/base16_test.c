@@ -38,7 +38,7 @@ int base16_test(void)
    for (idx = 0; idx < 2; idx++) {
       l1 = sizeof(out);
       DO(base16_encode(testin, sizeof(testin), out, &l1, idx));
-      DO(do_compare_testvector(out, strlen(out), testout[idx], strlen(testout[idx]), "testout base16", idx));
+      DO(do_compare_testvector(out, XSTRLEN(out), testout[idx], XSTRLEN(testout[idx]), "testout base16", idx));
       l2 = sizeof(tmp);
       DO(base16_decode(out, l1, tmp, &l2));
       DO(do_compare_testvector(tmp, l2, testin, sizeof(testin), "testin base16", idx));

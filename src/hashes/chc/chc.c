@@ -287,7 +287,7 @@ int chc_test(void)
        if ((err = chc_init(&md)) != CRYPT_OK) {
           return err;
        }
-       if ((err = chc_process(&md, tests[i].msg, strlen((char *)tests[i].msg))) != CRYPT_OK) {
+       if ((err = chc_process(&md, tests[i].msg, XSTRLEN((char *)tests[i].msg))) != CRYPT_OK) {
           return err;
        }
        if ((err = chc_done(&md, tmp)) != CRYPT_OK) {

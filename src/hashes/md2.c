@@ -232,7 +232,7 @@ int md2_test(void)
 
    for (i = 0; i < (int)(sizeof(tests) / sizeof(tests[0])); i++) {
        md2_init(&md);
-       md2_process(&md, (unsigned char*)tests[i].msg, (unsigned long)strlen(tests[i].msg));
+       md2_process(&md, (unsigned char*)tests[i].msg, (unsigned long)XSTRLEN(tests[i].msg));
        md2_done(&md, tmp);
        if (compare_testvector(tmp, sizeof(tmp), tests[i].hash, sizeof(tests[i].hash), "MD2", i)) {
           return CRYPT_FAIL_TESTVECTOR;

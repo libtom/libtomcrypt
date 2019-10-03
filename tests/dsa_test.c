@@ -271,7 +271,7 @@ static int _dsa_wycheproof_test(void)
    dsa_key key;
    int stat;
 
-   DO(base64_decode(b64key, strlen(b64key), derkey, &derlen));
+   DO(base64_decode(b64key, XSTRLEN(b64key), derkey, &derlen));
    if (derlen != 838) {
       fprintf(stderr, "base64_decode failed, derlen=%lu (expected 838)\n", derlen);
       return CRYPT_FAIL_TESTVECTOR;

@@ -21,7 +21,7 @@ int pk_oid_str_to_num(const char *OID, unsigned long *oid, unsigned long *oidlen
 
    if (OID == NULL) return CRYPT_OK;
 
-   OID_len = strlen(OID);
+   OID_len = XSTRLEN(OID);
    if (OID_len == 0) return CRYPT_OK;
 
    for (i = 0, j = 0; i < OID_len; i++) {

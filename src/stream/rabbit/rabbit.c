@@ -410,7 +410,7 @@ int rabbit_test(void)
                                 0xea, 0xec, 0x34, 0x9d,   0x8f, 0xb4, 0x6b, 0x60,
                                 0x79, 0x1b, 0xea, 0x16,   0xcb, 0xef, 0x46, 0x87,
                                 0x60, 0xa6, 0x55, 0x14,   0xff, 0xca, 0xac };
-         unsigned long ptlen = strlen(pt);
+         unsigned long ptlen = XSTRLEN(pt);
          unsigned char out2[1000] = { 0 };
          unsigned char nulls[1000] = { 0 };
 

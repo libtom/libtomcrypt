@@ -38,7 +38,7 @@ int salsa20_test(void)
    int counter;
    int rounds;
    int err;
-   len = strlen(pt);
+   len = XSTRLEN(pt);
 
    /* crypt piece by piece */
    counter = 0;

@@ -152,7 +152,7 @@ static int read_radix(void *a, const char *b, int radix)
       char c, *tmp, *q;
       const char *p;
       int i;
-      tmp = XMALLOC (1 + 2 * strlen (b));
+      tmp = XMALLOC (1 + 2 * XSTRLEN (b));
       if (tmp == NULL) {
          return CRYPT_MEM;
       }
