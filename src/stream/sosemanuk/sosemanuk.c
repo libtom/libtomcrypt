@@ -805,7 +805,7 @@ int sosemanuk_keystream(sosemanuk_state *st, unsigned char *out, unsigned long o
 int sosemanuk_done(sosemanuk_state *st)
 {
    LTC_ARGCHK(st != NULL);
-   XMEMSET(st, 0, sizeof(sosemanuk_state));
+   zeromem(st, sizeof(sosemanuk_state));
    return CRYPT_OK;
 }
 
