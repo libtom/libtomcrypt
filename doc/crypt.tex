@@ -5747,24 +5747,19 @@ int x25519_make_key(prng_state *prng, int wprng, curve25519_key *key);
 \end{verbatim}
 
 To generate a fresh X25529 key, one can use \textit{x25519\_make\_key} which will create a private\&public key-pair.
-
-\index{x25519\_set\_key}
-\begin{verbatim}
-int x25519_set_key(const unsigned char *k,  unsigned long klen,
-                   const unsigned char *u,  unsigned long ulen,
-                        curve25519_key *key);
-\end{verbatim}
-
-To import a public or private key in raw format, one can use the function \textit{x25519\_set\_key}.
-In case both, the secret part \textit{k} and the public part \textit{u} are given, the operation validates that the given 
-public part fits to the secret part.
-
 \index{x25519\_import}
 \begin{verbatim}
 int x25519_import(const unsigned char *in, unsigned long inlen, curve25519_key *key);
 \end{verbatim}
 
 The \textit{x25519\_import} function can be used to import a public key in DER-encoded \textit{SubjectPublicKeyInfo} format.
+
+\index{x25519\_import\_raw}
+\begin{verbatim}
+int x25519_import_raw(const unsigned char *in, unsigned long inlen, int which, curve25519_key *key);
+\end{verbatim}
+
+To import a public or private key in raw format, one can use the function \textit{x25519\_import\_raw}.
 
 \index{x25519\_import\_x509}
 \begin{verbatim}
@@ -5836,23 +5831,19 @@ int ed25519_make_key(prng_state *prng, int wprng, curve25519_key *key);
 
 To generate a fresh Ed25529 key, one can use \textit{ed25519\_make\_key} which will create a private\&public key-pair.
 
-\index{ed25519\_set\_key}
-\begin{verbatim}
-int ed25519_set_key(const unsigned char *sk, unsigned long sklen,
-                    const unsigned char *pk, unsigned long pklen,
-                         curve25519_key *key);
-\end{verbatim}
-
-To import a public or private key in raw format, one can use the function \textit{ed25519\_set\_key}.
-In case both, the secret part \textit{sk} and the public part \textit{pk} are given, the operation validates that the given 
-public part fits to the secret part.
-
 \index{ed25519\_import}
 \begin{verbatim}
 int ed25519_import(const unsigned char *in, unsigned long inlen, curve25519_key *key);
 \end{verbatim}
 
 The \textit{ed25519\_import} function can be used to import a public key in DER-encoded \textit{SubjectPublicKeyInfo} format.
+
+\index{ed25519\_import\_raw}
+\begin{verbatim}
+int ed25519_import_raw(const unsigned char *in, unsigned long inlen, int which, curve25519_key *key);
+\end{verbatim}
+
+To import a public or private key in raw format, one can use the function \textit{ed25519\_import\_raw}.
 
 \index{ed25519\_import\_x509}
 \begin{verbatim}
