@@ -9,7 +9,7 @@
 
 /**
   @file xtea.c
-  Implementation of LTC_XTEA, Tom St Denis
+  Implementation of eXtended TEA, Tom St Denis
 */
 #include "tomcrypt_private.h"
 
