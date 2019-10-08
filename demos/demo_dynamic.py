@@ -245,6 +245,20 @@ class SHA256(object):
         LTC.sha256_done(byref(self.state), byref(md))
         return md.raw
 
+# - - - - - - - - - - - - -
+# a SHA256 app fragment
+
+if SHOW_SHA256_EXAMPLE:
+    print('-'*60)
+    data = b'hello world'               # we want bytes, not Unicode
+
+    sha256 = SHA256()
+    sha256.update(data)
+    md = sha256.digest()
+
+    template = '\n  the SHA256 digest for "%s" is %s \n'
+    print(template % (data, hexlify(md)))
+
 class ChaCha(object):
     def __init__(self, key, rounds):
         self.state   = c_buffer(_get_size(b'chacha_state'))
@@ -262,20 +276,6 @@ class ChaCha(object):
         if err != CRYPT_OK:
             raise Exception('LTC.chacha_crypt(), err = %d, "%s"' % (err, _err2str(err)))
         return dataout.raw
-
-# - - - - - - - - - - - - -
-# a SHA256 app fragment
-
-if SHOW_SHA256_EXAMPLE:
-    print('-'*60)
-    data = b'hello world'               # we want bytes, not Unicode
-
-    sha256 = SHA256()
-    sha256.update(data)
-    md = sha256.digest()
-
-    template = '\n  the SHA256 digest for "%s" is %s \n'
-    print(template % (data, hexlify(md)))
 
 # - - - - - - - - - - - - -
 # a ChaCha app fragment
