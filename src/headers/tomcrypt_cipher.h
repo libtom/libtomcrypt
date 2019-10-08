@@ -106,6 +106,12 @@ struct des3_key {
 };
 #endif
 
+#ifdef LTC_SM4
+struct sm4_key {
+    ulong32 ek[32], dk[32];
+};
+#endif
+
 #ifdef LTC_CAST5
 struct cast5_key {
     ulong32 K[32], keylen;
@@ -175,6 +181,9 @@ typedef union Symmetric_key {
 #ifdef LTC_DES
    struct des_key des;
    struct des3_key des3;
+#endif
+#ifdef LTC_SM4
+   struct sm4_key sm4;
 #endif
 #ifdef LTC_RC2
    struct rc2_key rc2;
@@ -746,6 +755,16 @@ int des3_test(void);
 void des3_done(symmetric_key *skey);
 int des3_keysize(int *keysize);
 extern const struct ltc_cipher_descriptor des_desc, des3_desc;
+#endif
+
+#ifdef LTC_SM4
+int sm4_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_key *skey);
+int sm4_ecb_encrypt(const unsigned char *pt, unsigned char *ct, const symmetric_key *skey);
+int sm4_ecb_decrypt(const unsigned char *ct, unsigned char *pt, const symmetric_key *skey);
+int sm4_test(void);
+void sm4_done(symmetric_key *skey);
+int sm4_keysize(int *keysize);
+extern const struct ltc_cipher_descriptor sm4_desc;
 #endif
 
 #ifdef LTC_CAST5

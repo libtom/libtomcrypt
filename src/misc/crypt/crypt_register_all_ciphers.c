@@ -65,6 +65,9 @@ int register_all_ciphers(void)
    REGISTER_CIPHER(&des_desc);
    REGISTER_CIPHER(&des3_desc);
 #endif
+#ifdef LTC_SM4
+   REGISTER_CIPHER(&sm4_desc);
+#endif
 #ifdef LTC_CAST5
    REGISTER_CIPHER(&cast5_desc);
 #endif
