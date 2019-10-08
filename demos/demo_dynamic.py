@@ -262,12 +262,12 @@ if SHOW_SHA256_EXAMPLE:
 class ChaCha(object):
     def __init__(self, key, rounds):
         self.state   = c_buffer(_get_size(b'chacha_state'))
-        self.counter = c_int(1)
+        self.counter = c_uint(1)
         err = LTC.chacha_setup(byref(self.state), key, len(key), rounds)
         if err != CRYPT_OK:
             raise Exception('LTC.chacha_setup(), err = %d, "%s"' % (err, _err2str(err)))
     def set_iv32(self, iv):
-        err = LTC.chacha_ivctr32(byref(self.state), iv, len(iv), byref(self.counter))
+        err = LTC.chacha_ivctr32(byref(self.state), iv, len(iv), self.counter)
         if err != CRYPT_OK:
             raise Exception('LTC.chacha_ivctr32(), err = %d, "%s"' % (err, _err2str(err)))
     def crypt(self, datain):
