@@ -4,6 +4,7 @@ sudo: required
 language: c
 
 before_install:
+    - cat /etc/apt/apt.conf.d/99-travis-apt-proxy
     - sudo apt-get update -qq
     - sudo apt-get install -y libtommath-dev libgmp-dev libtfm-dev valgrind libtool-bin
 
@@ -21,6 +22,7 @@ branches:
     - master
     - develop
     - /^release\/.*$/
+    - /^travis/
 
 compiler:
   - gcc
