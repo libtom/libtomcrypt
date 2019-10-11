@@ -171,6 +171,12 @@ struct serpent_key {
 };
 #endif
 
+#ifdef LTC_TEA
+struct tea_key {
+   ulong32 k[4];
+};
+#endif
+
 typedef union Symmetric_key {
 #ifdef LTC_DES
    struct des_key des;
@@ -235,6 +241,9 @@ typedef union Symmetric_key {
 #endif
 #ifdef LTC_SERPENT
    struct serpent_key  serpent;
+#endif
+#ifdef LTC_TEA
+   struct tea_key      tea;
 #endif
    void   *data;
 } symmetric_key;
@@ -857,6 +866,16 @@ int serpent_test(void);
 void serpent_done(symmetric_key *skey);
 int serpent_keysize(int *keysize);
 extern const struct ltc_cipher_descriptor serpent_desc;
+#endif
+
+#ifdef LTC_TEA
+int tea_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_key *skey);
+int tea_ecb_encrypt(const unsigned char *pt, unsigned char *ct, const symmetric_key *skey);
+int tea_ecb_decrypt(const unsigned char *ct, unsigned char *pt, const symmetric_key *skey);
+int tea_test(void);
+void tea_done(symmetric_key *skey);
+int tea_keysize(int *keysize);
+extern const struct ltc_cipher_descriptor tea_desc;
 #endif
 
 #ifdef LTC_ECB_MODE
