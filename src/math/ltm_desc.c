@@ -20,6 +20,9 @@ static const struct {
    { MP_OKAY ,  CRYPT_OK},
    { MP_MEM  ,  CRYPT_MEM},
    { MP_VAL  ,  CRYPT_INVALID_ARG},
+#if defined(MP_ITER) || defined(MP_USE_ENUMS)
+   { MP_ITER ,  CRYPT_INVALID_PACKET},
+#endif
 };
 
 /**
@@ -39,17 +42,27 @@ static int mpi_to_ltc_error(int err)
    return CRYPT_ERROR;
 }
 
+static int init_mpi(void **a)
+{
+   LTC_ARGCHK(a != NULL);
+
+   *a = XCALLOC(1, sizeof(mp_int));
+   if (*a == NULL) {
+      return CRYPT_MEM;
+   } else {
+      return CRYPT_OK;
+   }
+}
+
 static int init(void **a)
 {
    int err;
 
    LTC_ARGCHK(a != NULL);
 
-   *a = XCALLOC(1, sizeof(mp_int));
-   if (*a == NULL) {
-      return CRYPT_MEM;
+   if ((err = init_mpi(a)) != CRYPT_OK) {
+      return err;
    }
-
    if ((err = mpi_to_ltc_error(mp_init(*a))) != CRYPT_OK) {
       XFREE(*a);
    }
@@ -79,10 +92,11 @@ static int copy(void *a, void *b)
 
 static int init_copy(void **a, void *b)
 {
-   if (init(a) != CRYPT_OK) {
-      return CRYPT_MEM;
-   }
-   return copy(b, *a);
+   int err;
+   LTC_ARGCHK(a  != NULL);
+   LTC_ARGCHK(b  != NULL);
+   if ((err = init_mpi(a)) != CRYPT_OK) return err;
+   return mpi_to_ltc_error(mp_init_copy(*a, b));
 }
 
 /* ---- trivial ---- */
@@ -184,7 +198,11 @@ static int write_radix(void *a, char *b, int radix)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
+#ifdef BN_MP_TORADIX_C
    return mpi_to_ltc_error(mp_toradix(a, b, radix));
+#else
+   return mpi_to_ltc_error(mp_to_radix(a, b, SIZE_MAX, radix));
+#endif
 }
 
 /* get size as unsigned char string */

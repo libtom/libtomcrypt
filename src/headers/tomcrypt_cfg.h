@@ -294,15 +294,21 @@ typedef unsigned long ltc_mp_digit;
    #define LTC_HAVE_ROTATE_BUILTIN
 #endif
 
-#if defined(__GNUC__) && (__GNUC__ * 100 + __GNUC_MINOR__ >= 301)
-   #define LTC_DEPRECATED __attribute__((deprecated))
+#if defined(__GNUC__) && (__GNUC__ * 100 + __GNUC_MINOR__ >= 405)
+#  define LTC_DEPRECATED(s) __attribute__((deprecated("replaced by " #s)))
+#  define PRIVATE_LTC_DEPRECATED_PRAGMA(s) _Pragma(#s)
+#  define LTC_DEPRECATED_PRAGMA(s) PRIVATE_LTC_DEPRECATED_PRAGMA(GCC warning s)
+#elif defined(__GNUC__) && (__GNUC__ * 100 + __GNUC_MINOR__ >= 301)
+#  define LTC_DEPRECATED(s) __attribute__((deprecated))
+#  define LTC_DEPRECATED_PRAGMA(s)
 #elif defined(_MSC_VER) && _MSC_VER >= 1500
    /* supported since Visual Studio 2008 */
-   #define LTC_DEPRECATED __declspec(deprecated)
+#  define LTC_DEPRECATED(s) __declspec(deprecated("replaced by " #s))
+#  define LTC_DEPRECATED_PRAGMA(s) __pragma(message(s))
 #else
-   #define LTC_DEPRECATED
+#  define LTC_DEPRECATED(s)
+#  define LTC_DEPRECATED_PRAGMA(s)
 #endif
-
 /* ref:         $Format:%D$ */
 /* git commit:  $Format:%H$ */
 /* commit time: $Format:%ai$ */

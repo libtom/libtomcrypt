@@ -347,6 +347,10 @@ int saferp_ecb_encrypt(const unsigned char *pt, unsigned char *ct, const symmetr
    LTC_ARGCHK(ct   != NULL);
    LTC_ARGCHK(skey != NULL);
 
+   if (skey->saferp.rounds < 8 || skey->saferp.rounds > 16) {
+       return CRYPT_INVALID_ROUNDS;
+   }
+
    /* do eight rounds */
    for (x = 0; x < 16; x++) {
        b[x] = pt[x];
@@ -410,6 +414,10 @@ int saferp_ecb_decrypt(const unsigned char *ct, unsigned char *pt, const symmetr
    LTC_ARGCHK(pt   != NULL);
    LTC_ARGCHK(ct   != NULL);
    LTC_ARGCHK(skey != NULL);
+
+   if (skey->saferp.rounds < 8 || skey->saferp.rounds > 16) {
+       return CRYPT_INVALID_ROUNDS;
+   }
 
    /* do eight rounds */
    b[0] = ct[0] ^ skey->saferp.K[skey->saferp.rounds*2][0];

@@ -13,7 +13,7 @@
 */
 #include "tomcrypt_private.h"
 
-#if defined(LTC_GCM_TABLES) || defined(LTC_LRW_TABLES) || ((defined(LTC_GCM_MODE) || defined(LTC_GCM_MODE)) && defined(LTC_FAST))
+#if defined(LTC_GCM_TABLES) || defined(LTC_LRW_TABLES) || (defined(LTC_GCM_MODE) && defined(LTC_FAST))
 
 /* this is x*2^128 mod p(x) ... the results are 16 bytes each stored in a packed format.  Since only the
  * lower 16 bits are not zero'ed I removed the upper 14 bytes */

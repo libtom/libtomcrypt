@@ -1364,9 +1364,15 @@ static void _der_regression_test(void)
      0x20,0x74,0x72,0x91,0xdd,0x2f,0x3f,0x44,0xaf,0x7a,0xce,0x68,0xea,0x33,0x43,0x1d,0x6f,0x94,0xe4,
      0x18,0xc1,0x06,0xa6,0xe7,0x62,0x85,0xcd,0x59,0xf4,0x32,0x60,0xec,0xce,0x00,0x00
    };
+   static const unsigned char issue_507[] = "\x30\x04"           /* Start DER-sequence of length 4 */
+                                            "\x0c\x02\xbf\xbf"   /* Start UTF8 string of actual length 2 and evaluated length 3 */
+                                            "\xaa"               /* One byte padding */
+                                            "\x04\x82\xff\xff";  /* Start OCTET sequence of length 0xffff */
+                                                                 /* (this will include the adjacent data into the decoded certificate) */
    unsigned long len;
    void *x, *y;
    ltc_asn1_list seq[2];
+   ltc_asn1_list *l;
    mp_init_multi(&x, &y, NULL);
    LTC_SET_ASN1(seq, 0, LTC_ASN1_INTEGER, x, 1UL);
    LTC_SET_ASN1(seq, 1, LTC_ASN1_INTEGER, y, 1UL);
@@ -1381,6 +1387,9 @@ static void _der_regression_test(void)
    mp_cleanup_multi(&y, &x, NULL);
    len = sizeof(_addtl_bytes);
    _der_decode_print(_addtl_bytes, &len);
+
+   len = sizeof(issue_507);
+   SHOULD_FAIL(der_decode_sequence_flexi(issue_507, &len, &l));
 }
 
 static void der_toolong_test(void)

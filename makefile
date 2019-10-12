@@ -5,6 +5,11 @@
 #
 #  (GNU make only)
 
+ifeq ($V,0)
+silent_echo= > /dev/null
+else
+silent_echo=
+endif
 ifeq ($V,1)
 silent=
 silent_stdout=
@@ -42,29 +47,29 @@ LTC_EXTRALIBS += $(EXTRALIBS)
 #AES comes in two flavours... enc+dec and enc
 src/ciphers/aes/aes_enc.o: src/ciphers/aes/aes.c src/ciphers/aes/aes_tab.c
 ifneq ($V,1)
-	@echo "   * ${CC} $@"
+	@echo "   * ${CC} $@" ${silent_echo}
 endif
 	${silent} ${CC} ${LTC_CFLAGS} -DENCRYPT_ONLY -c $< -o $@
 
 .c.o:
 ifneq ($V,1)
-	@echo "   * ${CC} $@"
+	@echo "   * ${CC} $@" ${silent_echo}
 endif
 	${silent} ${CC} ${LTC_CFLAGS} -c $< -o $@
 
 $(LIBNAME): $(OBJECTS)
 ifneq ($V,1)
-	@echo "   * ${AR} $@"
+	@echo "   * ${AR} $@" ${silent_echo}
 endif
 	${silent} $(AR) $(ARFLAGS) $@ $(OBJECTS)
 ifneq ($V,1)
-	@echo "   * ${RANLIB} $@"
+	@echo "   * ${RANLIB} $@" ${silent_echo}
 endif
 	${silent} $(RANLIB) $@
 
 test: $(call print-help,test,Builds the library and the 'test' application to run all self-tests) $(LIBNAME) $(TOBJECTS)
 ifneq ($V,1)
-	@echo "   * ${CC} $@"
+	@echo "   * ${CC} $@" ${silent_echo}
 endif
 	${silent} $(CC) $(LTC_LDFLAGS) $(TOBJECTS) $(LIB_PRE) $(LIBNAME) $(LIB_POST) $(LTC_EXTRALIBS) -o $(TEST)
 
@@ -72,7 +77,7 @@ endif
 define DEMO_template
 $(1): $(call print-help,$(1),Builds the library and the '$(1)' demo) demos/$(1).o $$(LIBNAME)
 ifneq ($V,1)
-	@echo "   * $${CC} $$@"
+	@echo "   * $${CC} $$@" ${silent_echo}
 endif
 	$${silent} $$(CC) $$(LTC_LDFLAGS) $$< $$(LIB_PRE) $$(LIBNAME) $$(LIB_POST) $$(LTC_EXTRALIBS) -o $(1)
 endef

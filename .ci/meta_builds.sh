@@ -34,7 +34,7 @@ function run_gcc() {
 
    ASAN_OPTIONS=verbosity=1 ./test t ltm 1>test_std.txt 2> test_err.txt || exit 1
 
-   if echo $2 | grep -q GMP ; then
+   if echo $* | grep -q GMP ; then
       echo
       echo "Run ASAN tests with GMP..."
 
@@ -68,7 +68,7 @@ function run_clang() {
    echo "Run UBSAN tests with LTM..."
    UBSAN_OPTIONS=verbosity=1 ./test t ltm 1>test_std.txt 2> test_err.txt || exit 1
 
-   if echo $2 | grep -q GMP ; then
+   if echo $* | grep -q GMP ; then
       echo
       echo "Run UBSAN tests with GMP..."
 
