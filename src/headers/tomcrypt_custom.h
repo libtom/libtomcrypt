@@ -490,6 +490,12 @@
 /* Base16/hex encoding/decoding */
 #define LTC_BASE16
 
+#define LTC_BCRYPT
+
+#ifndef LTC_BCRYPT_DEFAULT_ROUNDS
+#define LTC_BCRYPT_DEFAULT_ROUNDS 10
+#endif
+
 /* Keep LTC_NO_HKDF for compatibility reasons
  * superseeded by LTC_NO_MISC*/
 #ifndef LTC_NO_HKDF
@@ -599,6 +605,10 @@
 
 #if (defined(LTC_MDSA) || defined(LTC_MRSA) || defined(LTC_MECC)) && !defined(LTC_DER)
    #error PK requires ASN.1 DER functionality, make sure LTC_DER is enabled
+#endif
+
+#if defined(LTC_BCRYPT) && !defined(LTC_BLOWFISH)
+   #error LTC_BCRYPT requires LTC_BLOWFISH
 #endif
 
 #if defined(LTC_CHACHA20POLY1305_MODE) && (!defined(LTC_CHACHA) || !defined(LTC_POLY1305))

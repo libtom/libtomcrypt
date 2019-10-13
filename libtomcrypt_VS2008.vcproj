@@ -1416,6 +1416,14 @@
 				</File>
 			</Filter>
 			<Filter
+				Name="bcrypt"
+				>
+				<File
+					RelativePath="src\misc\bcrypt\bcrypt.c"
+					>
+				</File>
+			</Filter>
+			<Filter
 				Name="crypt"
 				>
 				<File

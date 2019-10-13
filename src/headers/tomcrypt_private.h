@@ -72,6 +72,17 @@ typedef struct
  * Internal functions
  */
 
+
+/* tomcrypt_cipher.h */
+
+void blowfish_enc(ulong32 *data, unsigned long blocks, const symmetric_key *skey);
+int blowfish_expand(const unsigned char *key, int keylen,
+                    const unsigned char *data, int datalen,
+                    symmetric_key *skey);
+int blowfish_setup_with_data(const unsigned char *key, int keylen,
+                             const unsigned char *data, int datalen,
+                             symmetric_key *skey);
+
 /* tomcrypt_hash.h */
 
 /* a simple macro for making hash "process" functions */

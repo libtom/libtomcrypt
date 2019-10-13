@@ -295,73 +295,128 @@ static const ulong32 ORIG_S[4][256] = {
         0xB74E6132UL, 0xCE77E25BUL, 0x578FDFE3UL, 0x3AC372E6UL  }
 };
 
+#ifndef __GNUC__
+#define F(x) ((S1[LTC_BYTE(x,3)] + S2[LTC_BYTE(x,2)]) ^ S3[LTC_BYTE(x,1)]) + S4[LTC_BYTE(x,0)]
+#else
+#define F(x) ((skey->blowfish.S[0][LTC_BYTE(x,3)] + skey->blowfish.S[1][LTC_BYTE(x,2)]) ^ skey->blowfish.S[2][LTC_BYTE(x,1)]) + skey->blowfish.S[3][LTC_BYTE(x,0)]
+#endif
+
+static void s_blowfish_encipher(ulong32 *L, ulong32 *R, const symmetric_key *skey)
+{
+   int rounds;
+
+   ulong32 l, r;
+#ifndef __GNUC__
+   const ulong32 *S1, *S2, *S3, *S4;
+
+   S1 = skey->blowfish.S[0];
+   S2 = skey->blowfish.S[1];
+   S3 = skey->blowfish.S[2];
+   S4 = skey->blowfish.S[3];
+#endif
+
+   l = *L;
+   r = *R;
+
+   /* do 16 rounds */
+   for (rounds = 0; rounds < 16; ) {
+      l ^= skey->blowfish.K[rounds++];  r ^= F(l);
+      r ^= skey->blowfish.K[rounds++];  l ^= F(r);
+      l ^= skey->blowfish.K[rounds++];  r ^= F(l);
+      r ^= skey->blowfish.K[rounds++];  l ^= F(r);
+   }
+
+   /* last keying */
+   l ^= skey->blowfish.K[16];
+   r ^= skey->blowfish.K[17];
+
+   *L = r;
+   *R = l;
+}
+
+void blowfish_enc(ulong32 *data, unsigned long blocks, const symmetric_key *skey)
+{
+   unsigned long i;
+   ulong32 *d = data;
+
+   for (i = 0; i < blocks; ++i) {
+      s_blowfish_encipher(d, d + 1, skey);
+      d += 2;
+   }
+}
+
+static ulong32 s_blowfish_stream2word(const unsigned char *d, int dlen, int *cur)
+{
+   unsigned int z;
+   int y = *cur;
+   ulong32 ret = 0;
+
+   for (z = 0; z < 4; z++) {
+       ret = (ret << 8) | ((ulong32)d[y++] & 255);
+       if (y == dlen) {
+          y = 0;
+       }
+   }
+
+   *cur = y;
+   return ret;
+}
+
  /**
-    Initialize the Blowfish block cipher
+    Expand the Blowfish internal state
     @param key The symmetric key you wish to pass
     @param keylen The key length in bytes
+    @param data The additional data you wish to pass (can be NULL)
+    @param datalen The additional data length in bytes
     @param num_rounds The number of rounds desired (0 for default)
     @param skey The key in as scheduled by this function.
     @return CRYPT_OK if successful
  */
-int blowfish_setup(const unsigned char *key, int keylen, int num_rounds,
-                   symmetric_key *skey)
+int blowfish_expand(const unsigned char *key, int keylen,
+                    const unsigned char *data, int datalen,
+                    symmetric_key *skey)
 {
-   ulong32 x, y, z, A;
-   unsigned char B[8];
+   ulong32 x, y, A, B[2];
+   int i;
 
    LTC_ARGCHK(key != NULL);
    LTC_ARGCHK(skey != NULL);
 
-   /* check key length */
-   if (keylen < 8 || keylen > 56) {
-      return CRYPT_INVALID_KEYSIZE;
-   }
-
-   /* check rounds */
-   if (num_rounds != 0 && num_rounds != 16) {
-      return CRYPT_INVALID_ROUNDS;
-   }
-
    /* load in key bytes (Supplied by David Hopwood) */
-   for (x = y = 0; x < 18; x++) {
-       A = 0;
-       for (z = 0; z < 4; z++) {
-           A = (A << 8) | ((ulong32)key[y++] & 255);
-           if (y == (ulong32)keylen) {
-              y = 0;
-           }
-       }
-       skey->blowfish.K[x] = ORIG_P[x] ^ A;
+   i = 0;
+   for (x = 0; x < 18; x++) {
+       A = s_blowfish_stream2word(key, keylen, &i);
+       skey->blowfish.K[x] ^= A;
    }
 
-   /* copy sboxes */
-   for (x = 0; x < 4; x++) {
-       for (y = 0; y < 256; y++) {
-           skey->blowfish.S[x][y] = ORIG_S[x][y];
-       }
-   }
 
-   /* encrypt K array */
-   for (x = 0; x < 8; x++) {
-       B[x] = 0;
-   }
-
+   i = 0;
+   B[0] = 0;
+   B[1] = 0;
    for (x = 0; x < 18; x += 2) {
-       /* encrypt it */
-       blowfish_ecb_encrypt(B, B, skey);
-       /* copy it */
-       LOAD32H(skey->blowfish.K[x], &B[0]);
-       LOAD32H(skey->blowfish.K[x+1], &B[4]);
+      if (data != NULL) {
+         B[0] ^= s_blowfish_stream2word(data, datalen, &i);
+         B[1] ^= s_blowfish_stream2word(data, datalen, &i);
+      }
+      /* encrypt it */
+      s_blowfish_encipher(&B[0], &B[1], skey);
+      /* copy it */
+      skey->blowfish.K[x] = B[0];
+      skey->blowfish.K[x+1] = B[1];
    }
 
    /* encrypt S array */
    for (x = 0; x < 4; x++) {
        for (y = 0; y < 256; y += 2) {
+          if (data != NULL) {
+             B[0] ^= s_blowfish_stream2word(data, datalen, &i);
+             B[1] ^= s_blowfish_stream2word(data, datalen, &i);
+          }
           /* encrypt it */
-          blowfish_ecb_encrypt(B, B, skey);
+          s_blowfish_encipher(&B[0], &B[1], skey);
           /* copy it */
-          LOAD32H(skey->blowfish.S[x][y], &B[0]);
-          LOAD32H(skey->blowfish.S[x][y+1], &B[4]);
+          skey->blowfish.S[x][y] = B[0];
+          skey->blowfish.S[x][y+1] = B[1];
        }
    }
 
@@ -372,11 +427,48 @@ int blowfish_setup(const unsigned char *key, int keylen, int num_rounds,
    return CRYPT_OK;
 }
 
-#ifndef __GNUC__
-#define F(x) ((S1[LTC_BYTE(x,3)] + S2[LTC_BYTE(x,2)]) ^ S3[LTC_BYTE(x,1)]) + S4[LTC_BYTE(x,0)]
-#else
-#define F(x) ((skey->blowfish.S[0][LTC_BYTE(x,3)] + skey->blowfish.S[1][LTC_BYTE(x,2)]) ^ skey->blowfish.S[2][LTC_BYTE(x,1)]) + skey->blowfish.S[3][LTC_BYTE(x,0)]
-#endif
+/**
+   Initialize the Blowfish block cipher
+   @param key The symmetric key you wish to pass
+   @param keylen The key length in bytes
+   @param num_rounds The number of rounds desired (0 for default)
+   @param skey The key in as scheduled by this function.
+   @return CRYPT_OK if successful
+*/
+int blowfish_setup(const unsigned char *key, int keylen, int num_rounds,
+                  symmetric_key *skey)
+{
+   /* check key length */
+   if (keylen < 8 || keylen > 56) {
+      return CRYPT_INVALID_KEYSIZE;
+   }
+   /* check rounds */
+   if (num_rounds != 0 && num_rounds != 16) {
+      return CRYPT_INVALID_ROUNDS;
+   }
+
+   return blowfish_setup_with_data(key, keylen, NULL, 0, skey);
+}
+
+/**
+   Alternative initialize of the Blowfish block cipher
+   @param key The symmetric key you wish to pass
+   @param keylen The key length in bytes
+   @param data The additional data you wish to pass (can be NULL)
+   @param datalen The additional data length in bytes
+   @param num_rounds The number of rounds desired (0 for default)
+   @param skey The key in as scheduled by this function.
+   @return CRYPT_OK if successful
+*/
+
+int blowfish_setup_with_data(const unsigned char *key, int keylen,
+                             const unsigned char *data, int datalen,
+                             symmetric_key *skey)
+{
+   XMEMCPY(skey->blowfish.K, ORIG_P, sizeof(ORIG_P));
+   XMEMCPY(skey->blowfish.S, ORIG_S, sizeof(ORIG_S));
+   return blowfish_expand(key, keylen, data, datalen, skey);
+}
 
 /**
   Encrypts a block of text with Blowfish
@@ -392,41 +484,20 @@ int blowfish_ecb_encrypt(const unsigned char *pt, unsigned char *ct, const symme
 #endif
 {
    ulong32 L, R;
-   int r;
-#ifndef __GNUC__
-   const ulong32 *S1, *S2, *S3, *S4;
-#endif
 
-    LTC_ARGCHK(pt   != NULL);
-    LTC_ARGCHK(ct   != NULL);
-    LTC_ARGCHK(skey != NULL);
-
-#ifndef __GNUC__
-    S1 = skey->blowfish.S[0];
-    S2 = skey->blowfish.S[1];
-    S3 = skey->blowfish.S[2];
-    S4 = skey->blowfish.S[3];
-#endif
+   LTC_ARGCHK(pt   != NULL);
+   LTC_ARGCHK(ct   != NULL);
+   LTC_ARGCHK(skey != NULL);
 
    /* load it */
    LOAD32H(L, &pt[0]);
    LOAD32H(R, &pt[4]);
 
-   /* do 16 rounds */
-   for (r = 0; r < 16; ) {
-      L ^= skey->blowfish.K[r++];  R ^= F(L);
-      R ^= skey->blowfish.K[r++];  L ^= F(R);
-      L ^= skey->blowfish.K[r++];  R ^= F(L);
-      R ^= skey->blowfish.K[r++];  L ^= F(R);
-   }
-
-   /* last keying */
-   R ^= skey->blowfish.K[17];
-   L ^= skey->blowfish.K[16];
+   s_blowfish_encipher(&L, &R, skey);
 
    /* store */
-   STORE32H(R, &ct[0]);
-   STORE32H(L, &ct[4]);
+   STORE32H(L, &ct[0]);
+   STORE32H(R, &ct[4]);
 
    return CRYPT_OK;
 }
@@ -557,6 +628,8 @@ int blowfish_test(void)
       for (y = 0; y < 1000; y++) blowfish_ecb_decrypt(tmp[0], tmp[0], &key);
       for (y = 0; y < 8; y++) if (tmp[0][y] != 0) return CRYPT_FAIL_TESTVECTOR;
    }
+
+
    return CRYPT_OK;
  #endif
 }
