@@ -46,7 +46,7 @@ int base16_test(void)
 
    l1 = 4;
    l2 = sizeof(tmp);
-   DO(base16_decode(failing_decode, l1, tmp, &l2) == CRYPT_OK ? CRYPT_FAIL_TESTVECTOR : CRYPT_OK);
+   SHOULD_FAIL(base16_decode(failing_decode, l1, tmp, &l2));
 
    return CRYPT_OK;
 }

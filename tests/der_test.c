@@ -1376,14 +1376,14 @@ static void _der_regression_test(void)
    mp_init_multi(&x, &y, NULL);
    LTC_SET_ASN1(seq, 0, LTC_ASN1_INTEGER, x, 1UL);
    LTC_SET_ASN1(seq, 1, LTC_ASN1_INTEGER, y, 1UL);
-   DO(der_decode_sequence(_broken_sequence, sizeof(_broken_sequence), seq, 2) != CRYPT_OK ? CRYPT_OK : CRYPT_FAIL_TESTVECTOR);
+   SHOULD_FAIL(der_decode_sequence(_broken_sequence, sizeof(_broken_sequence), seq, 2));
    mp_cleanup_multi(&y, &x, NULL);
    len = sizeof(_broken_sequence);
 
    mp_init_multi(&x, &y, NULL);
    LTC_SET_ASN1(seq, 0, LTC_ASN1_INTEGER, x, 1UL);
    LTC_SET_ASN1(seq, 1, LTC_ASN1_INTEGER, y, 1UL);
-   DO(der_decode_sequence(_addtl_bytes, sizeof(_addtl_bytes), seq, 2) == CRYPT_INPUT_TOO_LONG ? CRYPT_OK : CRYPT_FAIL_TESTVECTOR);
+   SHOULD_FAIL_WITH(der_decode_sequence(_addtl_bytes, sizeof(_addtl_bytes), seq, 2), CRYPT_INPUT_TOO_LONG);
    mp_cleanup_multi(&y, &x, NULL);
    len = sizeof(_addtl_bytes);
    _der_decode_print(_addtl_bytes, &len);

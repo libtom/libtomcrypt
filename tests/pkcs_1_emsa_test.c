@@ -47,8 +47,7 @@ int pkcs_1_emsa_test(void)
         int stat;
         DOX(hash_memory(hash_idx, s->o1, s->o1_l, buf, &buflen), s->name);
         DOX(rsa_sign_hash_ex(buf, buflen, obuf, &obuflen, LTC_PKCS_1_V1_5, NULL, -1, hash_idx, 0, key), s->name);
-        DOX(obuflen == (unsigned long)s->o2_l?CRYPT_OK:CRYPT_FAIL_TESTVECTOR, s->name);
-        DOX(memcmp(s->o2, obuf, s->o2_l)==0?CRYPT_OK:CRYPT_FAIL_TESTVECTOR, s->name);
+        COMPARE_TESTVECTOR(obuf, obuflen, s->o2, s->o2_l,s->name, j);
         DOX(rsa_verify_hash_ex(obuf, obuflen, buf, buflen, LTC_PKCS_1_V1_5, hash_idx, 0, &stat, key), s->name);
         DOX(stat == 1?CRYPT_OK:CRYPT_FAIL_TESTVECTOR, s->name);
     } /* for */

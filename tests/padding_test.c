@@ -190,7 +190,7 @@ int padding_test(void)
       if ((tv[i].mode & LTC_PAD_MASK) != LTC_PAD_ISO_10126)
 #endif
       {
-         DO(compare_testvector(tv[i].data, sizeof(tv[i].data), buf, l, "padding fixed TV", i) == 0 ? CRYPT_OK : CRYPT_FAIL_TESTVECTOR);
+         COMPARE_TESTVECTOR(tv[i].data, sizeof(tv[i].data), buf, l, "padding fixed TV", i);
       }
    }
 
@@ -198,10 +198,8 @@ int padding_test(void)
    {
       unsigned char data[] = { 0x47,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00 };
       unsigned long len = sizeof(data);
-      int err;
 
-      err = padding_depad(data, &len, (LTC_PAD_PKCS7 | 16));
-      if (err == CRYPT_OK) return CRYPT_FAIL_TESTVECTOR; /* should fail */
+      SHOULD_FAIL(padding_depad(data, &len, (LTC_PAD_PKCS7 | 16)));
    }
 
    return CRYPT_OK;
