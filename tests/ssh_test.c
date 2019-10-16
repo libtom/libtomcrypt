@@ -61,16 +61,16 @@ static int _ssh_encoding_test(void)
 {
    unsigned char buffer[BUFSIZE];
    unsigned long buflen;
+   unsigned long len;
    void *v, *zero;
    int err;
 
    /* Buffer too short */
    buflen = 3;
    zeromem(buffer, BUFSIZE);
-   err = ssh_encode_sequence_multi(buffer, &buflen,
-                                   LTC_SSHDATA_UINT32, 0x29b7f4aa,
-                                   LTC_SSHDATA_EOL,    NULL);
-   if (err != CRYPT_BUFFER_OVERFLOW) return CRYPT_FAIL_TESTVECTOR;
+   SHOULD_FAIL(ssh_encode_sequence_multi(buffer, &buflen,
+                                         LTC_SSHDATA_UINT32, 0x29b7f4aa,
+                                         LTC_SSHDATA_EOL,    NULL));
 
 
    /* byte */
@@ -125,8 +125,9 @@ static int _ssh_encoding_test(void)
    /* string */
    buflen = BUFSIZE;
    zeromem(buffer, BUFSIZE);
+   len = strlen("testing");
    DO(ssh_encode_sequence_multi(buffer, &buflen,
-                                LTC_SSHDATA_STRING, "testing",
+                                LTC_SSHDATA_STRING, "testing", len,
                                 LTC_SSHDATA_EOL,    NULL));
    COMPARE_TESTVECTOR(buffer, buflen, string, sizeof(string), "enc-string", 1);
 
@@ -166,22 +167,25 @@ static int _ssh_encoding_test(void)
    /* name-list */
    buflen = BUFSIZE;
    zeromem(buffer, BUFSIZE);
+   len = strlen("");
    DO(ssh_encode_sequence_multi(buffer, &buflen,
-                                LTC_SSHDATA_NAMELIST, "",
+                                LTC_SSHDATA_NAMELIST, "", len,
                                 LTC_SSHDATA_EOL,      NULL));
    COMPARE_TESTVECTOR(buffer, buflen, nlist1, sizeof(nlist1), "enc-nlist", 1);
 
    buflen = BUFSIZE;
    zeromem(buffer, BUFSIZE);
+   len = strlen("zlib");
    DO(ssh_encode_sequence_multi(buffer, &buflen,
-                                LTC_SSHDATA_NAMELIST, "zlib",
+                                LTC_SSHDATA_NAMELIST, "zlib", len,
                                 LTC_SSHDATA_EOL,      NULL));
    COMPARE_TESTVECTOR(buffer, buflen, nlist2, sizeof(nlist2), "enc-nlist", 2);
 
    buflen = BUFSIZE;
    zeromem(buffer, BUFSIZE);
+   len = strlen("zlib,none");
    DO(ssh_encode_sequence_multi(buffer, &buflen,
-                                LTC_SSHDATA_NAMELIST, "zlib,none",
+                                LTC_SSHDATA_NAMELIST, "zlib,none", len,
                                 LTC_SSHDATA_EOL,      NULL));
    COMPARE_TESTVECTOR(buffer, buflen, nlist3, sizeof(nlist3), "enc-nlist", 3);
 
@@ -196,93 +200,138 @@ static int _ssh_decoding_test(void)
 {
    char strbuf[BUFSIZE];
    void *u, *v;
+   unsigned long size;
    ulong32 tmp32;
    ulong64 tmp64;
    unsigned char tmp8;
+   unsigned long len;
    int err;
 
-   /* byte */
-   DO(ssh_decode_sequence_multi(byte1, sizeof(byte1),
+   /* Buffer longer */
+   len = sizeof(strbuf);
+   strbuf[0] = 0;
+   DO(ssh_decode_sequence_multi((unsigned char*)strbuf, &len,
                                 LTC_SSHDATA_BYTE, &tmp8,
                                 LTC_SSHDATA_EOL,  NULL));
-   if (tmp8 != 0x01) return CRYPT_FAIL_TESTVECTOR;
+   ENSURE(tmp8 == 0x00);
+   ENSURE(len == 1);
 
-   DO(ssh_decode_sequence_multi(byte2, sizeof(byte2),
+
+   /* byte */
+   len = sizeof(byte1);
+   DO(ssh_decode_sequence_multi(byte1, &len,
                                 LTC_SSHDATA_BYTE, &tmp8,
                                 LTC_SSHDATA_EOL,  NULL));
-   if (tmp8 != 0x71) return CRYPT_FAIL_TESTVECTOR;
+   ENSURE(tmp8 == 0x01);
+   ENSURE(len == 1);
+
+   len = sizeof(byte2);
+   DO(ssh_decode_sequence_multi(byte2, &len,
+                                LTC_SSHDATA_BYTE, &tmp8,
+                                LTC_SSHDATA_EOL,  NULL));
+   ENSURE(tmp8 == 0x71);
+   ENSURE(len == 1);
 
    /* boolean */
-   DO(ssh_decode_sequence_multi(byte1, sizeof(byte1),
+   len = sizeof(byte1);
+   DO(ssh_decode_sequence_multi(byte1, &len,
                                 LTC_SSHDATA_BOOLEAN, &tmp8,
                                 LTC_SSHDATA_EOL,     NULL));
-   if (tmp8 != 0x01) return CRYPT_FAIL_TESTVECTOR;
+   ENSURE(tmp8 == 0x01);
+   ENSURE(len == 1);
 
-   DO(ssh_decode_sequence_multi(byte2, sizeof(byte2),
+   len = sizeof(byte2);
+   DO(ssh_decode_sequence_multi(byte2, &len,
                                 LTC_SSHDATA_BOOLEAN, &tmp8,
                                 LTC_SSHDATA_EOL,     NULL));
-   if (tmp8 != 0x01) return CRYPT_FAIL_TESTVECTOR;
+   ENSURE(tmp8 == 0x01);
+   ENSURE(len == 1);
 
    /* uint32 */
-   DO(ssh_decode_sequence_multi(uint32, sizeof(uint32),
+   len = sizeof(uint32);
+   DO(ssh_decode_sequence_multi(uint32, &len,
                                 LTC_SSHDATA_UINT32, &tmp32,
                                 LTC_SSHDATA_EOL,    NULL));
-   if (tmp32 != 0x29b7f4aa) return CRYPT_FAIL_TESTVECTOR;
+   ENSURE(tmp32 == 0x29b7f4aa);
+   ENSURE(len == 4);
 
    /* uint64 */
-   DO(ssh_decode_sequence_multi(uint64, sizeof(uint64),
+   len = sizeof(uint64);
+   DO(ssh_decode_sequence_multi(uint64, &len,
                                 LTC_SSHDATA_UINT64, &tmp64,
                                 LTC_SSHDATA_EOL,    NULL));
    if (tmp64 != CONST64(0x09a378f9b2e332a7)) return CRYPT_FAIL_TESTVECTOR;
+   ENSURE(len == 8);
 
    /* string */
    zeromem(strbuf, BUFSIZE);
-   DO(ssh_decode_sequence_multi(string, sizeof(string),
-                                LTC_SSHDATA_STRING, strbuf, BUFSIZE,
+   size = BUFSIZE;
+   len = sizeof(string);
+   DO(ssh_decode_sequence_multi(string, &len,
+                                LTC_SSHDATA_STRING, strbuf, &size,
                                 LTC_SSHDATA_EOL,    NULL));
-   if (XSTRCMP(strbuf, "testing") != 0) return CRYPT_FAIL_TESTVECTOR;
+   ENSURE(strlen("testing") == size);
+   ENSURE(XSTRCMP(strbuf, "testing") == 0);
+   ENSURE(strlen("testing") + 4 == len);
 
    /* mpint */
    if ((err = mp_init_multi(&u, &v, NULL)) != CRYPT_OK) {
       return err;
    }
 
-   DO(ssh_decode_sequence_multi(mpint1, sizeof(mpint1),
+   len = sizeof(mpint1);
+   DO(ssh_decode_sequence_multi(mpint1, &len,
                                 LTC_SSHDATA_MPINT, v,
                                 LTC_SSHDATA_EOL,   NULL));
-   if (mp_cmp_d(v, 0) != LTC_MP_EQ) return CRYPT_FAIL_TESTVECTOR;
+   ENSURE(mp_cmp_d(v, 0) == LTC_MP_EQ);
+   ENSURE(sizeof(mpint1) == len);
 
+   len = sizeof(mpint2);
+   DO(ssh_decode_sequence_multi(mpint2, &len,
+                                LTC_SSHDATA_MPINT, v,
+                                LTC_SSHDATA_EOL,   NULL));
    DO(mp_read_radix(u, "9a378f9b2e332a7", 16));
-   DO(ssh_decode_sequence_multi(mpint2, sizeof(mpint2),
-                                LTC_SSHDATA_MPINT, v,
-                                LTC_SSHDATA_EOL,   NULL));
-   if (mp_cmp(u, v) != LTC_MP_EQ) return CRYPT_FAIL_TESTVECTOR;
+   ENSURE(mp_cmp(u, v) == LTC_MP_EQ);
+   ENSURE(sizeof(mpint2) == len);
 
-   DO(ssh_decode_sequence_multi(mpint3, sizeof(mpint3),
+   len = sizeof(mpint3);
+   DO(ssh_decode_sequence_multi(mpint3, &len,
                                 LTC_SSHDATA_MPINT, v,
                                 LTC_SSHDATA_EOL,   NULL));
-   if (mp_cmp_d(v, 0x80) != LTC_MP_EQ) return CRYPT_FAIL_TESTVECTOR;
+   ENSURE(mp_cmp_d(v, 0x80) == LTC_MP_EQ);
+   ENSURE(sizeof(mpint3) == len);
 
    mp_clear_multi(v, u, NULL);
 
    /* name-list */
    zeromem(strbuf, BUFSIZE);
-   DO(ssh_decode_sequence_multi(nlist1, sizeof(nlist1),
-                                LTC_SSHDATA_NAMELIST, strbuf, BUFSIZE,
+   size = BUFSIZE;
+   len = sizeof(nlist1);
+   DO(ssh_decode_sequence_multi(nlist1, &len,
+                                LTC_SSHDATA_NAMELIST, strbuf, &size,
                                 LTC_SSHDATA_EOL,      NULL));
-   if (XSTRCMP(strbuf, "") != 0) return CRYPT_FAIL_TESTVECTOR;
+   ENSURE(strlen("") == size);
+   ENSURE(XSTRCMP(strbuf, "") == 0);
 
    zeromem(strbuf, BUFSIZE);
-   DO(ssh_decode_sequence_multi(nlist2, sizeof(nlist2),
-                                LTC_SSHDATA_NAMELIST, strbuf, BUFSIZE,
+   size = BUFSIZE;
+   len = sizeof(nlist2);
+   DO(ssh_decode_sequence_multi(nlist2, &len,
+                                LTC_SSHDATA_NAMELIST, strbuf, &size,
                                 LTC_SSHDATA_EOL,      NULL));
-   if (XSTRCMP(strbuf, "zlib") != 0) return CRYPT_FAIL_TESTVECTOR;
+   ENSURE(strlen("zlib") == size);
+   ENSURE(XSTRCMP(strbuf, "zlib") == 0);
+   ENSURE(strlen("zlib") + 4 == len);
 
    zeromem(strbuf, BUFSIZE);
-   DO(ssh_decode_sequence_multi(nlist3, sizeof(nlist3),
-                                LTC_SSHDATA_NAMELIST, strbuf, BUFSIZE,
+   size = BUFSIZE;
+   len = sizeof(nlist3);
+   DO(ssh_decode_sequence_multi(nlist3, &len,
+                                LTC_SSHDATA_NAMELIST, strbuf, &size,
                                 LTC_SSHDATA_EOL,      NULL));
-   if (XSTRCMP(strbuf, "zlib,none") != 0) return CRYPT_FAIL_TESTVECTOR;
+   ENSURE(strlen("zlib,none") == size);
+   ENSURE(XSTRCMP(strbuf, "zlib,none") == 0);
+   ENSURE(strlen("zlib,none") + 4 == len);
 
 
    return CRYPT_OK;

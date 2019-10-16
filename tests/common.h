@@ -17,10 +17,12 @@ extern prng_state yarrow_prng;
 #define DO(x) do { fprintf(stderr, "%s:\n", #x); run_cmd((x), __LINE__, __FILE__, #x, NULL); } while (0)
 #define DOX(x, str) do { fprintf(stderr, "%s - %s:\n", #x, (str)); run_cmd((x), __LINE__, __FILE__, #x, (str)); } while (0)
 #define SHOULD_FAIL(x) do { fprintf(stderr, "%s:\n", #x); run_cmd((x) != CRYPT_OK ? CRYPT_OK : CRYPT_FAIL_TESTVECTOR, __LINE__, __FILE__, #x, NULL); } while (0)
+#define ENSURE(x) do { fprintf(stderr, "%s:\n", #x); run_cmd(((x)) ? CRYPT_OK : CRYPT_FAIL_TESTVECTOR, __LINE__, __FILE__, #x, NULL); } while (0)
 #else
 #define DO(x) do { run_cmd((x), __LINE__, __FILE__, #x, NULL); } while (0)
 #define DOX(x, str) do { run_cmd((x), __LINE__, __FILE__, #x, (str)); } while (0)
 #define SHOULD_FAIL(x) do { run_cmd((x) != CRYPT_OK ? CRYPT_OK : CRYPT_FAIL_TESTVECTOR, __LINE__, __FILE__, #x, NULL); } while (0)
+#define ENSURE(x) do { run_cmd(((x)) ? CRYPT_OK : CRYPT_FAIL_TESTVECTOR, __LINE__, __FILE__, #x, NULL); } while (0)
 #endif
 
 #define COMPARE_TESTVECTOR(i, il, s, sl, wa, wi) do { DO(do_compare_testvector((i), (il), (s), (sl), (wa), (wi))); } while(0)

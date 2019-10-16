@@ -164,7 +164,7 @@ int ecc_sign_hash_ex(const unsigned char *in,  unsigned long inlen,
 
       /* Store as SSH data sequence, per RFC4251 */
       err = ssh_encode_sequence_multi(out, outlen,
-                                      LTC_SSHDATA_STRING, name,
+                                      LTC_SSHDATA_STRING, name, namelen,
                                       LTC_SSHDATA_MPINT,  r,
                                       LTC_SSHDATA_MPINT,  s,
                                       LTC_SSHDATA_EOL,    NULL);

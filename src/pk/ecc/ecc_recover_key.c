@@ -114,19 +114,20 @@ int ecc_recover_key(const unsigned char *sig,  unsigned long siglen,
 #ifdef LTC_SSH
    else if (sigformat == LTC_ECCSIG_RFC5656) {
       char name[64], name2[64];
-      unsigned long namelen = sizeof(name2);
+      unsigned long namelen = sizeof(name);
+      unsigned long name2len = sizeof(name2);
 
       /* Decode as SSH data sequence, per RFC4251 */
-      if ((err = ssh_decode_sequence_multi(sig, siglen,
-                                           LTC_SSHDATA_STRING, name, 64,
+      if ((err = ssh_decode_sequence_multi(sig, &siglen,
+                                           LTC_SSHDATA_STRING, name, &namelen,
                                            LTC_SSHDATA_MPINT,  r,
                                            LTC_SSHDATA_MPINT,  s,
                                            LTC_SSHDATA_EOL,    NULL)) != CRYPT_OK)                      { goto error; }
 
 
       /* Check curve matches identifier string */
-      if ((err = ecc_ssh_ecdsa_encode_name(name2, &namelen, key)) != CRYPT_OK)                                { goto error; }
-      if (XSTRCMP(name,name2) != 0) {
+      if ((err = ecc_ssh_ecdsa_encode_name(name2, &name2len, key)) != CRYPT_OK)                                { goto error; }
+      if ((namelen != name2len) || (XSTRCMP(name, name2) != 0)) {
          err = CRYPT_INVALID_ARG;
          goto error;
       }
