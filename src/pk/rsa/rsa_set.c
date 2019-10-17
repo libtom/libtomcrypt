@@ -35,8 +35,7 @@ int rsa_set_key(const unsigned char *N,  unsigned long Nlen,
    LTC_ARGCHK(e           != NULL);
    LTC_ARGCHK(ltc_mp.name != NULL);
 
-   err = mp_init_multi(&key->e, &key->d, &key->N, &key->dQ, &key->dP, &key->qP, &key->p, &key->q, NULL);
-   if (err != CRYPT_OK) return err;
+   if ((err = rsa_init(key)) != CRYPT_OK) return err;
 
    if ((err = mp_read_unsigned_bin(key->N , (unsigned char *)N , Nlen)) != CRYPT_OK)    { goto LBL_ERR; }
    if ((err = mp_read_unsigned_bin(key->e , (unsigned char *)e , elen)) != CRYPT_OK)    { goto LBL_ERR; }

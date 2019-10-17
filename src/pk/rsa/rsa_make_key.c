@@ -68,7 +68,7 @@ int rsa_make_key(prng_state *prng, int wprng, int size, long e, rsa_key *key)
    if ((err = mp_lcm( tmp1,  tmp2,  tmp1)) != CRYPT_OK)              { goto cleanup; } /* tmp1 = lcm(p-1, q-1) */
 
    /* make key */
-   if ((err = mp_init_multi(&key->e, &key->d, &key->N, &key->dQ, &key->dP, &key->qP, &key->p, &key->q, NULL)) != CRYPT_OK) {
+   if ((err = rsa_init(key)) != CRYPT_OK) {
       goto errkey;
    }
 
@@ -78,8 +78,8 @@ int rsa_make_key(prng_state *prng, int wprng, int size, long e, rsa_key *key)
 
    /* optimize for CRT now */
    /* find d mod q-1 and d mod p-1 */
-   if ((err = mp_sub_d( p, 1,  tmp1)) != CRYPT_OK)                     { goto errkey; } /* tmp1 = q-1 */
-   if ((err = mp_sub_d( q, 1,  tmp2)) != CRYPT_OK)                     { goto errkey; } /* tmp2 = p-1 */
+   if ((err = mp_sub_d( p, 1,  tmp1)) != CRYPT_OK)                     { goto errkey; } /* tmp1 = p-1 */
+   if ((err = mp_sub_d( q, 1,  tmp2)) != CRYPT_OK)                     { goto errkey; } /* tmp2 = q-1 */
    if ((err = mp_mod( key->d,  tmp1,  key->dP)) != CRYPT_OK)           { goto errkey; } /* dP = d mod p-1 */
    if ((err = mp_mod( key->d,  tmp2,  key->dQ)) != CRYPT_OK)           { goto errkey; } /* dQ = d mod q-1 */
    if ((err = mp_invmod( q,  p,  key->qP)) != CRYPT_OK)                { goto errkey; } /* qP = 1/q mod p */

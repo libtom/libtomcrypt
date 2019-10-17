@@ -707,7 +707,7 @@ static void time_rsa(void)
 
    if (ltc_mp.name == NULL) return;
 
-   for (x = 1024; x <= 2048; x += 256) {
+   for (x = 2048; x <= 8192; x <<= 1) {
        t2 = 0;
        for (y = 0; y < 4; y++) {
            t_start();

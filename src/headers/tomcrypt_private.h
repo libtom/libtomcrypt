@@ -226,6 +226,12 @@ int pk_oid_str_to_num(const char *OID, unsigned long *oid, unsigned long *oidlen
 int pk_oid_num_to_str(const unsigned long *oid, unsigned long oidlen, char *OID, unsigned long *outlen);
 
 /* ---- DH Routines ---- */
+#ifdef LTC_MRSA
+int rsa_init(rsa_key *key);
+void rsa_shrink_key(rsa_key *key);
+#endif /* LTC_MRSA */
+
+/* ---- DH Routines ---- */
 #ifdef LTC_MDH
 extern const ltc_dh_set_type ltc_dh_sets[];
 

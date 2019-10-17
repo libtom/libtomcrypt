@@ -2591,10 +2591,6 @@
 					>
 				</File>
 				<File
-					RelativePath="src\pk\rsa\rsa_free.c"
-					>
-				</File>
-				<File
 					RelativePath="src\pk\rsa\rsa_get_size.c"
 					>
 				</File>
@@ -2608,6 +2604,10 @@
 				</File>
 				<File
 					RelativePath="src\pk\rsa\rsa_import_x509.c"
+					>
+				</File>
+				<File
+					RelativePath="src\pk\rsa\rsa_key.c"
 					>
 				</File>
 				<File

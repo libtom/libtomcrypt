@@ -34,8 +34,7 @@ int rsa_import(const unsigned char *in, unsigned long inlen, rsa_key *key)
    LTC_ARGCHK(ltc_mp.name != NULL);
 
    /* init key */
-   if ((err = mp_init_multi(&key->e, &key->d, &key->N, &key->dQ,
-                            &key->dP, &key->qP, &key->p, &key->q, NULL)) != CRYPT_OK) {
+   if ((err = rsa_init(key)) != CRYPT_OK) {
       return err;
    }
 
@@ -113,7 +112,7 @@ int rsa_import(const unsigned char *in, unsigned long inlen, rsa_key *key)
    goto LBL_FREE;
 
 LBL_ERR:
-   mp_clear_multi(key->d,  key->e, key->N, key->dQ, key->dP, key->qP, key->p, key->q, NULL);
+   rsa_free(key);
 
 LBL_FREE:
    if (tmpbuf != NULL) {
