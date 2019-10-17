@@ -447,7 +447,7 @@ int rmd160_test(void)
 
    for (i = 0; i < (int)(sizeof(tests)/sizeof(tests[0])); i++) {
        rmd160_init(&md);
-       rmd160_process(&md, (unsigned char *)tests[i].msg, strlen(tests[i].msg));
+       rmd160_process(&md, (unsigned char *)tests[i].msg, XSTRLEN(tests[i].msg));
        rmd160_done(&md, tmp);
        if (compare_testvector(tmp, sizeof(tmp), tests[i].hash, sizeof(tests[i].hash), "RIPEMD160", i)) {
           return CRYPT_FAIL_TESTVECTOR;

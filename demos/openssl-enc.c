@@ -332,7 +332,7 @@ int main(int argc, char *argv[]) {
 
    /* Run the key derivation from the provided passphrase.  This gets us
       the key and iv. */
-   ret = pkcs_5_alg1_openssl((unsigned char*)argv[4], strlen(argv[4]), salt,
+   ret = pkcs_5_alg1_openssl((unsigned char*)argv[4], XSTRLEN(argv[4]), salt,
                              OPENSSL_ITERATIONS, hash, keyiv, &keyivlen );
    if(ret != CRYPT_OK)
       BARF("Could not derive key/iv from passphrase");

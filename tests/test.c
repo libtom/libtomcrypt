@@ -364,7 +364,7 @@ int main(int argc, char **argv)
 
    fn_len = 0;
    for (i = 0; i < sizeof(test_functions) / sizeof(test_functions[0]); ++i) {
-      size_t len = strlen(test_functions[i].name);
+      size_t len = XSTRLEN(test_functions[i].name);
       if (fn_len < len) fn_len = len;
 
 #ifdef LTC_PTHREAD
@@ -388,7 +388,7 @@ int main(int argc, char **argv)
       if (single_test && strstr(test_functions[i].name, single_test) == NULL) {
         continue;
       }
-      dots = fn_len - strlen(test_functions[i].name);
+      dots = fn_len - XSTRLEN(test_functions[i].name);
 
       printf("\n%s", test_functions[i].name);
       while(dots--) printf(".");

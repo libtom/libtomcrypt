@@ -354,7 +354,7 @@ int rsa_test(void)
 {
    unsigned char in[1024], out[1024], tmp[3072];
    rsa_key       key, privKey, pubKey;
-   int           hash_idx, prng_idx, stat, stat2, i, err;
+   int           hash_idx, prng_idx, stat, stat2, i;
    unsigned long rsa_msgsize, len, len2, len3, cnt, cnt2;
    static unsigned char lparam[] = { 0x01, 0x02, 0x03, 0x04 };
    void* dP;
@@ -421,8 +421,7 @@ print_hex("q", tmp, len);
       DO(rsa_encrypt_key(in, rsa_msgsize, out, &len, NULL, 0, &yarrow_prng, prng_idx, hash_idx, &key));
       /* change a byte */
       out[8] ^= 1;
-      DOX((err = rsa_decrypt_key(out, len, tmp, &len2, NULL, 0, hash_idx, &stat2, &key))
-          == CRYPT_INVALID_PACKET ? CRYPT_OK:err, "should fail");
+      SHOULD_FAIL(rsa_decrypt_key(out, len, tmp, &len2, NULL, 0, hash_idx, &stat2, &key));
       /* change a byte back */
       out[8] ^= 1;
       if (len2 != rsa_msgsize) {
@@ -453,8 +452,7 @@ print_hex("q", tmp, len);
       DO(rsa_encrypt_key(in, rsa_msgsize, out, &len, lparam, sizeof(lparam), &yarrow_prng, prng_idx, hash_idx, &key));
       /* change a byte */
       out[8] ^= 1;
-      DOX((err = rsa_decrypt_key(out, len, tmp, &len2, lparam, sizeof(lparam), hash_idx, &stat2, &key))
-          == CRYPT_INVALID_PACKET ? CRYPT_OK:err, "should fail");
+      SHOULD_FAIL(rsa_decrypt_key(out, len, tmp, &len2, lparam, sizeof(lparam), hash_idx, &stat2, &key));
       if (len2 != rsa_msgsize) {
          fprintf(stderr, "\n%i:rsa_decrypt_key mismatch len %lu (first decrypt)", __LINE__, len2);
          return 1;
@@ -671,8 +669,7 @@ print_hex("q", tmp, len);
 
      len3 = sizeof(tmp);
      /* (6) */
-     DOX(rsa_verify_hash_ex(p2, len2, p, 20, LTC_PKCS_1_V1_5, hash_idx, -1, &stat, &pubKey)
-           == CRYPT_INVALID_PACKET ? CRYPT_OK:CRYPT_INVALID_PACKET, "should fail");
+     SHOULD_FAIL(rsa_verify_hash_ex(p2, len2, p, 20, LTC_PKCS_1_V1_5, hash_idx, -1, &stat, &pubKey));
      DOX(stat == 0?CRYPT_OK:CRYPT_FAIL_TESTVECTOR, "should fail");
    }
    rsa_free(&key);

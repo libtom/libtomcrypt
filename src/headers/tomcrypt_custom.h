@@ -45,6 +45,9 @@
 #ifndef XSTRCMP
 #define XSTRCMP  strcmp
 #endif
+#ifndef XSTRLEN
+#define XSTRLEN  strlen
+#endif
 #ifndef XSTRNCPY
 #define XSTRNCPY strncpy
 #endif
@@ -59,7 +62,8 @@
 
 #if ( defined(malloc) || defined(realloc) || defined(calloc) || defined(free) || \
       defined(memset) || defined(memcpy) || defined(memcmp) || defined(strcmp) || \
-      defined(strncpy) || defined(clock) || defined(qsort) ) && !defined(LTC_NO_PROTOTYPES)
+      defined(strlen) || defined(strncpy) || defined(clock) || defined(qsort) ) \
+      && !defined(LTC_NO_PROTOTYPES)
 #define LTC_NO_PROTOTYPES
 #endif
 

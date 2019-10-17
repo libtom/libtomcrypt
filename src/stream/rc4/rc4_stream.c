@@ -100,7 +100,7 @@ int rc4_stream_keystream(rc4_state *st, unsigned char *out, unsigned long outlen
 int rc4_stream_done(rc4_state *st)
 {
    LTC_ARGCHK(st != NULL);
-   XMEMSET(st, 0, sizeof(rc4_state));
+   zeromem(st, sizeof(rc4_state));
    return CRYPT_OK;
 }
 

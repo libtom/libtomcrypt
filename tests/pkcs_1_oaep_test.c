@@ -50,8 +50,7 @@ int pkcs_1_oaep_test(void)
         int stat;
         prng_descriptor[prng_idx].add_entropy(s->o2, s->o2_l, (prng_state*)no_prng_desc);
         DOX(rsa_encrypt_key(s->o1, s->o1_l, obuf, &obuflen, NULL, 0, (prng_state*)no_prng_desc, prng_idx, hash_idx, key), s->name);
-        DOX(obuflen == (unsigned long)s->o3_l?CRYPT_OK:CRYPT_FAIL_TESTVECTOR, s->name);
-        DOX(memcmp(s->o3, obuf, s->o3_l)==0?CRYPT_OK:CRYPT_FAIL_TESTVECTOR, s->name);
+        COMPARE_TESTVECTOR(obuf, obuflen, s->o3, s->o3_l,s->name, j);
         DOX(rsa_decrypt_key(obuf, obuflen, buf, &buflen, NULL, 0, hash_idx, &stat, key), s->name);
         DOX(stat == 1?CRYPT_OK:CRYPT_FAIL_TESTVECTOR, s->name);
     } /* for */

@@ -624,7 +624,7 @@ static void der_set_test(void)
    strcpy((char*)strs[9], "bbbb");
 
    for (x = 0; x < 10; x++) {
-       LTC_SET_ASN1(list, x, LTC_ASN1_PRINTABLE_STRING, strs[x], strlen((char*)strs[x]));
+       LTC_SET_ASN1(list, x, LTC_ASN1_PRINTABLE_STRING, strs[x], XSTRLEN((char*)strs[x]));
    }
 
    outlen = sizeof(outbuf);
@@ -639,7 +639,7 @@ static void der_set_test(void)
 
    /* now compare */
    for (x = 1; x < 10; x++) {
-      if (!(strlen((char*)strs[x-1]) <= strlen((char*)strs[x])) && strcmp((char*)strs[x-1], (char*)strs[x]) >= 0) {
+      if (!(XSTRLEN((char*)strs[x-1]) <= XSTRLEN((char*)strs[x])) && strcmp((char*)strs[x-1], (char*)strs[x]) >= 0) {
          fprintf(stderr, "error SET OF order at %lu is wrong\n", x);
          exit(EXIT_FAILURE);
       }
@@ -720,8 +720,8 @@ static void der_flexi_test(void)
    ltc_asn1_list static_list[5][4], *decoded_list, *l;
 
    /* build list */
-   LTC_SET_ASN1(static_list[0], 0, LTC_ASN1_PRINTABLE_STRING, (void *)printable_str, strlen(printable_str));
-   LTC_SET_ASN1(static_list[0], 1, LTC_ASN1_IA5_STRING,       (void *)ia5_str,       strlen(ia5_str));
+   LTC_SET_ASN1(static_list[0], 0, LTC_ASN1_PRINTABLE_STRING, (void *)printable_str, XSTRLEN(printable_str));
+   LTC_SET_ASN1(static_list[0], 1, LTC_ASN1_IA5_STRING,       (void *)ia5_str,       XSTRLEN(ia5_str));
    LTC_SET_ASN1(static_list[0], 2, LTC_ASN1_SEQUENCE,         static_list[1],   4);
 
    LTC_SET_ASN1(static_list[1], 0, LTC_ASN1_SHORT_INTEGER,    (void *)&int_val,         1);
@@ -737,8 +737,8 @@ static void der_flexi_test(void)
    LTC_SET_ASN1(static_list[3], 1, LTC_ASN1_NULL,             NULL,             0);
    LTC_SET_ASN1(static_list[3], 2, LTC_ASN1_SETOF,            static_list[4],   2);
 
-   LTC_SET_ASN1(static_list[4], 0, LTC_ASN1_PRINTABLE_STRING, set1_str, strlen(set1_str));
-   LTC_SET_ASN1(static_list[4], 1, LTC_ASN1_PRINTABLE_STRING, set2_str, strlen(set2_str));
+   LTC_SET_ASN1(static_list[4], 0, LTC_ASN1_PRINTABLE_STRING, set1_str, XSTRLEN(set1_str));
+   LTC_SET_ASN1(static_list[4], 1, LTC_ASN1_PRINTABLE_STRING, set2_str, XSTRLEN(set2_str));
 
    /* encode it */
    encode_buf_len = sizeof(encode_buf);
@@ -788,7 +788,7 @@ static void der_flexi_test(void)
          exit(EXIT_FAILURE);
       }
 
-      if (l->size != strlen(printable_str) || memcmp(printable_str, l->data, l->size)) {
+      if (l->size != XSTRLEN(printable_str) || memcmp(printable_str, l->data, l->size)) {
          fprintf(stderr, "(%d), %d, %lu, next=%p, prev=%p, parent=%p, child=%p\n", __LINE__, l->type, l->size, l->next, l->prev, l->parent, l->child);
          exit(EXIT_FAILURE);
       }
@@ -808,7 +808,7 @@ static void der_flexi_test(void)
          exit(EXIT_FAILURE);
       }
 
-      if (l->size != strlen(ia5_str) || memcmp(ia5_str, l->data, l->size)) {
+      if (l->size != XSTRLEN(ia5_str) || memcmp(ia5_str, l->data, l->size)) {
          fprintf(stderr, "(%d), %d, %lu, next=%p, prev=%p, parent=%p, child=%p\n", __LINE__, l->type, l->size, l->next, l->prev, l->parent, l->child);
          exit(EXIT_FAILURE);
       }
@@ -1012,7 +1012,7 @@ static void der_flexi_test(void)
       }
 
 /* note we compare set2_str FIRST because the SET OF is sorted and "222" comes before "333" */
-      if (l->size != strlen(set2_str) || memcmp(set2_str, l->data, l->size)) {
+      if (l->size != XSTRLEN(set2_str) || memcmp(set2_str, l->data, l->size)) {
          fprintf(stderr, "(%d), %d, %lu, next=%p, prev=%p, parent=%p, child=%p\n", __LINE__, l->type, l->size, l->next, l->prev, l->parent, l->child);
          exit(EXIT_FAILURE);
       }
@@ -1027,7 +1027,7 @@ static void der_flexi_test(void)
          exit(EXIT_FAILURE);
       }
 
-      if (l->size != strlen(set1_str) || memcmp(set1_str, l->data, l->size)) {
+      if (l->size != XSTRLEN(set1_str) || memcmp(set1_str, l->data, l->size)) {
          fprintf(stderr, "(%d), %d, %lu, next=%p, prev=%p, parent=%p, child=%p\n", __LINE__, l->type, l->size, l->next, l->prev, l->parent, l->child);
          exit(EXIT_FAILURE);
       }
@@ -1099,9 +1099,9 @@ static int der_choice_n_custom_test(void)
        /* custom encode */
        child[0] = types[x % n];
        if (x < n) {
-          LTC_SET_ASN1_CUSTOM_CONSTRUCTED(root, 0, LTC_ASN1_CL_CONTEXT_SPECIFIC, 1U << (x % n), child);
+          LTC_SET_ASN1_CUSTOM_CONSTRUCTED(root, 0, LTC_ASN1_CL_CONTEXT_SPECIFIC, 1uLL << (x % n), child);
        } else {
-          LTC_SET_ASN1_CUSTOM_PRIMITIVE(root, 0, LTC_ASN1_CL_CONTEXT_SPECIFIC, 1U << (x % n), child->type, child->data, child->size);
+          LTC_SET_ASN1_CUSTOM_PRIMITIVE(root, 0, LTC_ASN1_CL_CONTEXT_SPECIFIC, 1uLL << (x % n), child->type, child->data, child->size);
        }
        custlen = sizeof(custbuf);
        /* don't try to custom-encode a primitive custom-type */
@@ -1376,14 +1376,14 @@ static void _der_regression_test(void)
    mp_init_multi(&x, &y, NULL);
    LTC_SET_ASN1(seq, 0, LTC_ASN1_INTEGER, x, 1UL);
    LTC_SET_ASN1(seq, 1, LTC_ASN1_INTEGER, y, 1UL);
-   DO(der_decode_sequence(_broken_sequence, sizeof(_broken_sequence), seq, 2) != CRYPT_OK ? CRYPT_OK : CRYPT_FAIL_TESTVECTOR);
+   SHOULD_FAIL(der_decode_sequence(_broken_sequence, sizeof(_broken_sequence), seq, 2));
    mp_cleanup_multi(&y, &x, NULL);
    len = sizeof(_broken_sequence);
 
    mp_init_multi(&x, &y, NULL);
    LTC_SET_ASN1(seq, 0, LTC_ASN1_INTEGER, x, 1UL);
    LTC_SET_ASN1(seq, 1, LTC_ASN1_INTEGER, y, 1UL);
-   DO(der_decode_sequence(_addtl_bytes, sizeof(_addtl_bytes), seq, 2) == CRYPT_INPUT_TOO_LONG ? CRYPT_OK : CRYPT_FAIL_TESTVECTOR);
+   SHOULD_FAIL_WITH(der_decode_sequence(_addtl_bytes, sizeof(_addtl_bytes), seq, 2), CRYPT_INPUT_TOO_LONG);
    mp_cleanup_multi(&y, &x, NULL);
    len = sizeof(_addtl_bytes);
    _der_decode_print(_addtl_bytes, &len);
@@ -1824,38 +1824,38 @@ int der_test(void)
 
 /* IA5 string */
    x = sizeof(buf[0]);
-   DO(der_encode_ia5_string(rsa_ia5, strlen((char*)rsa_ia5), buf[0], &x));
+   DO(der_encode_ia5_string(rsa_ia5, XSTRLEN((char*)rsa_ia5), buf[0], &x));
    if (x != sizeof(rsa_ia5_der) || memcmp(buf[0], rsa_ia5_der, x)) {
       fprintf(stderr, "IA5 encode failed: %lu, %lu\n", x, (unsigned long)sizeof(rsa_ia5_der));
       return 1;
    }
-   DO(der_length_ia5_string(rsa_ia5, strlen((char*)rsa_ia5), &y));
+   DO(der_length_ia5_string(rsa_ia5, XSTRLEN((char*)rsa_ia5), &y));
    if (y != x) {
       fprintf(stderr, "IA5 length failed to match: %lu, %lu\n", x, y);
       return 1;
    }
    y = sizeof(buf[1]);
    DO(der_decode_ia5_string(buf[0], x, buf[1], &y));
-   if (y != strlen((char*)rsa_ia5) || memcmp(buf[1], rsa_ia5, strlen((char*)rsa_ia5))) {
+   if (y != XSTRLEN((char*)rsa_ia5) || memcmp(buf[1], rsa_ia5, XSTRLEN((char*)rsa_ia5))) {
        fprintf(stderr, "DER IA5 failed test vector\n");
        return 1;
    }
 
 /* Printable string */
    x = sizeof(buf[0]);
-   DO(der_encode_printable_string(rsa_printable, strlen((char*)rsa_printable), buf[0], &x));
+   DO(der_encode_printable_string(rsa_printable, XSTRLEN((char*)rsa_printable), buf[0], &x));
    if (x != sizeof(rsa_printable_der) || memcmp(buf[0], rsa_printable_der, x)) {
       fprintf(stderr, "PRINTABLE encode failed: %lu, %lu\n", x, (unsigned long)sizeof(rsa_printable_der));
       return 1;
    }
-   DO(der_length_printable_string(rsa_printable, strlen((char*)rsa_printable), &y));
+   DO(der_length_printable_string(rsa_printable, XSTRLEN((char*)rsa_printable), &y));
    if (y != x) {
       fprintf(stderr, "printable length failed to match: %lu, %lu\n", x, y);
       return 1;
    }
    y = sizeof(buf[1]);
    DO(der_decode_printable_string(buf[0], x, buf[1], &y));
-   if (y != strlen((char*)rsa_printable) || memcmp(buf[1], rsa_printable, strlen((char*)rsa_printable))) {
+   if (y != XSTRLEN((char*)rsa_printable) || memcmp(buf[1], rsa_printable, XSTRLEN((char*)rsa_printable))) {
        fprintf(stderr, "DER printable failed test vector\n");
        return 1;
    }

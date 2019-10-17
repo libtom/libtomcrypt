@@ -58,7 +58,7 @@ static int _rfc_8410_10_test(void)
    unsigned long buflen, tmplen;
    for (n = 0; n < sizeof(rfc_8410_10)/sizeof(rfc_8410_10[0]); ++n) {
       buflen = sizeof(buf);
-      DO(base64_decode(rfc_8410_10[n].b64, strlen(rfc_8410_10[n].b64), buf, &buflen));
+      DO(base64_decode(rfc_8410_10[n].b64, XSTRLEN(rfc_8410_10[n].b64), buf, &buflen));
       switch (n) {
          case 0:
             DO(ed25519_import(buf, buflen, &key));
@@ -82,7 +82,7 @@ static int _rfc_8410_10_test(void)
          DO(ed25519_export(buf, &buflen, rfc_8410_10[n].type, &key));
          tmplen = sizeof(tmp);
          DO(base64_encode(buf, buflen, tmp, &tmplen));
-         DO(do_compare_testvector(tmp, tmplen, rfc_8410_10[n].b64, strlen(rfc_8410_10[n].b64), "Ed25519 export-import", n));
+         DO(do_compare_testvector(tmp, tmplen, rfc_8410_10[n].b64, XSTRLEN(rfc_8410_10[n].b64), "Ed25519 export-import", n));
       }
    }
    return CRYPT_OK;
@@ -194,13 +194,13 @@ static int _rfc_8032_7_1_test(void)
    const int should = 1;
    for (n = 0; n < sizeof(rfc_8032_7_1)/sizeof(rfc_8032_7_1[0]); ++n) {
       slen = sizeof(sec);
-      DO(base16_decode(rfc_8032_7_1[n].secret_key, strlen(rfc_8032_7_1[n].secret_key), sec, &slen));
+      DO(base16_decode(rfc_8032_7_1[n].secret_key, XSTRLEN(rfc_8032_7_1[n].secret_key), sec, &slen));
       plen = sizeof(pub);
-      DO(base16_decode(rfc_8032_7_1[n].public_key, strlen(rfc_8032_7_1[n].public_key), pub, &plen));
+      DO(base16_decode(rfc_8032_7_1[n].public_key, XSTRLEN(rfc_8032_7_1[n].public_key), pub, &plen));
       mlen = sizeof(msg);
-      DO(base16_decode(rfc_8032_7_1[n].message, strlen(rfc_8032_7_1[n].message), msg, &mlen));
+      DO(base16_decode(rfc_8032_7_1[n].message, XSTRLEN(rfc_8032_7_1[n].message), msg, &mlen));
       siglen = sizeof(sig);
-      DO(base16_decode(rfc_8032_7_1[n].signature, strlen(rfc_8032_7_1[n].signature), sig, &siglen));
+      DO(base16_decode(rfc_8032_7_1[n].signature, XSTRLEN(rfc_8032_7_1[n].signature), sig, &siglen));
       DO(ed25519_set_key(sec, slen, pub, plen, &key));
       buflen = sizeof(buf);
       DO(ed25519_sign(msg, mlen, buf, &buflen, &key));
@@ -209,11 +209,11 @@ static int _rfc_8032_7_1_test(void)
       DO(do_compare_testvector(&ret, sizeof(ret), &should, sizeof(should), "Ed25519 RFC8032 7.1 - verify w/ privkey", n));
 
       plen = sizeof(pub);
-      DO(base16_decode(rfc_8032_7_1[n].public_key, strlen(rfc_8032_7_1[n].public_key), pub, &plen));
+      DO(base16_decode(rfc_8032_7_1[n].public_key, XSTRLEN(rfc_8032_7_1[n].public_key), pub, &plen));
       mlen = sizeof(msg);
-      DO(base16_decode(rfc_8032_7_1[n].message, strlen(rfc_8032_7_1[n].message), msg, &mlen));
+      DO(base16_decode(rfc_8032_7_1[n].message, XSTRLEN(rfc_8032_7_1[n].message), msg, &mlen));
       siglen = sizeof(sig);
-      DO(base16_decode(rfc_8032_7_1[n].signature, strlen(rfc_8032_7_1[n].signature), sig, &siglen));
+      DO(base16_decode(rfc_8032_7_1[n].signature, XSTRLEN(rfc_8032_7_1[n].signature), sig, &siglen));
       DO(ed25519_set_key(NULL, 0, pub, plen, &key2));
       DO(ed25519_verify(msg, mlen, sig, siglen, &ret, &key2));
       DO(do_compare_testvector(&ret, sizeof(ret), &should, sizeof(should), "Ed25519 RFC8032 7.1 - verify w/ pubkey", n));

@@ -19,7 +19,7 @@
 int salsa20_done(salsa20_state *st)
 {
    LTC_ARGCHK(st != NULL);
-   XMEMSET(st, 0, sizeof(salsa20_state));
+   zeromem(st, sizeof(salsa20_state));
    return CRYPT_OK;
 }
 

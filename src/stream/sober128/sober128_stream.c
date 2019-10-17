@@ -332,7 +332,7 @@ int sober128_stream_keystream(sober128_state *st, unsigned char *out, unsigned l
 int sober128_stream_done(sober128_state *st)
 {
    LTC_ARGCHK(st != NULL);
-   XMEMSET(st, 0, sizeof(sober128_state));
+   zeromem(st, sizeof(sober128_state));
    return CRYPT_OK;
 }
 

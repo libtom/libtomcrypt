@@ -106,9 +106,9 @@ static int _radix_to_bin_test(void)
      const void* y; int ylen;
    } test[4] = {
       { 256, gbin, sizeof(gbin),   pbin, sizeof(pbin),   xbin, sizeof(xbin),   ybin, sizeof(ybin)   },
-      { 16,  ghex, strlen(ghex)+1, phex, strlen(phex)+1, xhex, strlen(xhex)+1, yhex, strlen(yhex)+1 },
-      { 47,  gr47, strlen(gr47)+1, pr47, strlen(pr47)+1, xr47, strlen(xr47)+1, yr47, strlen(yr47)+1 },
-      { 64,  gr64, strlen(gr64)+1, pr64, strlen(pr64)+1, xr64, strlen(xr64)+1, yr64, strlen(yr64)+1 },
+      { 16,  ghex, XSTRLEN(ghex)+1, phex, XSTRLEN(phex)+1, xhex, XSTRLEN(xhex)+1, yhex, XSTRLEN(yhex)+1 },
+      { 47,  gr47, XSTRLEN(gr47)+1, pr47, XSTRLEN(pr47)+1, xr47, XSTRLEN(xr47)+1, yr47, XSTRLEN(yr47)+1 },
+      { 64,  gr64, XSTRLEN(gr64)+1, pr64, XSTRLEN(pr64)+1, xr64, XSTRLEN(xr64)+1, yr64, XSTRLEN(yr64)+1 },
    };
    int i, j;
    unsigned char key_parts[4][256];

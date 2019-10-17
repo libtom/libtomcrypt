@@ -118,7 +118,7 @@ int adler32_test(void)
    unsigned char out[4];
    adler32_state ctx;
    adler32_init(&ctx);
-   adler32_update(&ctx, in, strlen(in));
+   adler32_update(&ctx, in, XSTRLEN(in));
    adler32_finish(&ctx, out, 4);
    if (compare_testvector(adler32, 4, out, 4, "adler32", 0)) {
       return CRYPT_FAIL_TESTVECTOR;

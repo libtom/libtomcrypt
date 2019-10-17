@@ -138,7 +138,7 @@ static int _rfc_8410_10_test(void)
    unsigned long buflen;
    for (n = 0; n < sizeof(rfc_8410_10)/sizeof(rfc_8410_10[0]); ++n) {
       buflen = sizeof(buf);
-      DO(base64_decode(rfc_8410_10[n].b64, strlen(rfc_8410_10[n].b64), buf, &buflen));
+      DO(base64_decode(rfc_8410_10[n].b64, XSTRLEN(rfc_8410_10[n].b64), buf, &buflen));
       DO(x25519_import_x509(buf, buflen, &key));
       zeromem(buf, sizeof(buf));
    }
@@ -170,8 +170,8 @@ static int _x25519_pkcs8_test(void)
    unsigned long buflen, passlen;
    for (n = 0; n < sizeof(_x25519_pkcs8)/sizeof(_x25519_pkcs8[0]); ++n) {
       buflen = sizeof(buf);
-      DO(base64_decode(_x25519_pkcs8[n].b64, strlen(_x25519_pkcs8[n].b64), buf, &buflen));
-      if (_x25519_pkcs8[n].pass != NULL) passlen = strlen(_x25519_pkcs8[n].pass);
+      DO(base64_decode(_x25519_pkcs8[n].b64, XSTRLEN(_x25519_pkcs8[n].b64), buf, &buflen));
+      if (_x25519_pkcs8[n].pass != NULL) passlen = XSTRLEN(_x25519_pkcs8[n].pass);
       else passlen = 0;
       DO(x25519_import_pkcs8(buf, buflen, _x25519_pkcs8[n].pass, passlen, &key));
       zeromem(buf, sizeof(buf));

@@ -122,7 +122,7 @@ int main(int argc, char *argv[])
    if(fgets((char *)tmpkey,sizeof(tmpkey), stdin) == NULL)
       exit(-1);
    outlen = sizeof(key);
-   if ((err = hash_memory(hash_idx,tmpkey,strlen((char *)tmpkey),key,&outlen)) != CRYPT_OK) {
+   if ((err = hash_memory(hash_idx,tmpkey,XSTRLEN((char *)tmpkey),key,&outlen)) != CRYPT_OK) {
       printf("Error hashing key: %s\n", error_to_string(err));
       exit(-1);
    }

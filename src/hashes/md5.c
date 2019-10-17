@@ -347,7 +347,7 @@ int  md5_test(void)
 
   for (i = 0; tests[i].msg != NULL; i++) {
       md5_init(&md);
-      md5_process(&md, (unsigned char *)tests[i].msg, (unsigned long)strlen(tests[i].msg));
+      md5_process(&md, (unsigned char *)tests[i].msg, (unsigned long)XSTRLEN(tests[i].msg));
       md5_done(&md, tmp);
       if (compare_testvector(tmp, sizeof(tmp), tests[i].hash, sizeof(tests[i].hash), "MD5", i)) {
          return CRYPT_FAIL_TESTVECTOR;

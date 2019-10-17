@@ -470,7 +470,7 @@ int blake2s_256_test(void)
 
    for (i = 0; tests[i].msg != NULL; i++) {
       blake2s_256_init(&md);
-      blake2s_process(&md, (unsigned char *)tests[i].msg, (unsigned long)strlen(tests[i].msg));
+      blake2s_process(&md, (unsigned char *)tests[i].msg, (unsigned long)XSTRLEN(tests[i].msg));
       blake2s_done(&md, tmp);
       if (compare_testvector(tmp, sizeof(tmp), tests[i].hash, sizeof(tests[i].hash), "BLAKE2S_256", i)) {
          return CRYPT_FAIL_TESTVECTOR;
@@ -514,7 +514,7 @@ int blake2s_224_test(void)
 
    for (i = 0; tests[i].msg != NULL; i++) {
       blake2s_224_init(&md);
-      blake2s_process(&md, (unsigned char *)tests[i].msg, (unsigned long)strlen(tests[i].msg));
+      blake2s_process(&md, (unsigned char *)tests[i].msg, (unsigned long)XSTRLEN(tests[i].msg));
       blake2s_done(&md, tmp);
       if (compare_testvector(tmp, sizeof(tmp), tests[i].hash, sizeof(tests[i].hash), "BLAKE2S_224", i)) {
          return CRYPT_FAIL_TESTVECTOR;
@@ -556,7 +556,7 @@ int blake2s_160_test(void)
 
    for (i = 0; tests[i].msg != NULL; i++) {
       blake2s_160_init(&md);
-      blake2s_process(&md, (unsigned char *)tests[i].msg, (unsigned long)strlen(tests[i].msg));
+      blake2s_process(&md, (unsigned char *)tests[i].msg, (unsigned long)XSTRLEN(tests[i].msg));
       blake2s_done(&md, tmp);
       if (compare_testvector(tmp, sizeof(tmp), tests[i].hash, sizeof(tests[i].hash), "BLAKE2S_160", i)) {
          return CRYPT_FAIL_TESTVECTOR;
@@ -596,7 +596,7 @@ int blake2s_128_test(void)
 
    for (i = 0; tests[i].msg != NULL; i++) {
       blake2s_128_init(&md);
-      blake2s_process(&md, (unsigned char *)tests[i].msg, (unsigned long)strlen(tests[i].msg));
+      blake2s_process(&md, (unsigned char *)tests[i].msg, (unsigned long)XSTRLEN(tests[i].msg));
       blake2s_done(&md, tmp);
       if (compare_testvector(tmp, sizeof(tmp), tests[i].hash, sizeof(tests[i].hash), "BLAKE2S_128", i)) {
          return CRYPT_FAIL_TESTVECTOR;

@@ -82,7 +82,7 @@ static void scan_hex(const char* str, uint8_t* bytes, size_t blen)
      0x00, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x00, /* `abcdefg */
    };
 
-   for (pos = 0; ((pos < (blen*2)) && (pos < strlen(str))); pos += 2)
+   for (pos = 0; ((pos < (blen*2)) && (pos < XSTRLEN(str))); pos += 2)
    {
       idx0 = (uint8_t)(str[pos+0] & 0x1F) ^ 0x10;
       idx1 = (uint8_t)(str[pos+1] & 0x1F) ^ 0x10;
@@ -118,7 +118,7 @@ int main(int argc, char **argv)
 
    if (fsize(in_file) <= 0) die(__LINE__);
 
-   keylen = strlen(key_string);
+   keylen = XSTRLEN(key_string);
    if (keylen != 96) die(__LINE__);
 
    scan_hex(key_string, keybuf, sizeof(keybuf));

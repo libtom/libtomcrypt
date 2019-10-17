@@ -84,9 +84,10 @@ static int _padding_padded_length(unsigned long *length, unsigned long mode)
 */
 int padding_pad(unsigned char *data, unsigned long length, unsigned long* padded_length, unsigned long mode)
 {
-   unsigned long diff, l;
+   unsigned long l;
    enum padding_type type;
    int err;
+   unsigned char diff;
 
    LTC_ARGCHK(data          != NULL);
    LTC_ARGCHK(padded_length != NULL);
@@ -111,8 +112,8 @@ int padding_pad(unsigned char *data, unsigned long length, unsigned long* padded
       return CRYPT_BUFFER_OVERFLOW;
    }
 
-   diff = l - length;
-   if (diff > 255) return CRYPT_INVALID_ARG;
+   if (l - length > 255) return CRYPT_INVALID_ARG;
+   diff = (unsigned char)(l - length);
 
    switch (type) {
       case LTC_PAD_PKCS7:
@@ -120,7 +121,7 @@ int padding_pad(unsigned char *data, unsigned long length, unsigned long* padded
          break;
 #ifdef LTC_RNG_GET_BYTES
       case LTC_PAD_ISO_10126:
-         if (rng_get_bytes(&data[length], diff-1, NULL) != diff-1) {
+         if (rng_get_bytes(&data[length], diff-1u, NULL) != diff-1u) {
             return CRYPT_ERROR_READPRNG;
          }
          data[l-1] =  diff;

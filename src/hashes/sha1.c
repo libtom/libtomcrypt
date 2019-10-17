@@ -267,7 +267,7 @@ int  sha1_test(void)
 
   for (i = 0; i < (int)(sizeof(tests) / sizeof(tests[0]));  i++) {
       sha1_init(&md);
-      sha1_process(&md, (unsigned char*)tests[i].msg, (unsigned long)strlen(tests[i].msg));
+      sha1_process(&md, (unsigned char*)tests[i].msg, (unsigned long)XSTRLEN(tests[i].msg));
       sha1_done(&md, tmp);
       if (compare_testvector(tmp, sizeof(tmp), tests[i].hash, sizeof(tests[i].hash), "SHA1", i)) {
          return CRYPT_FAIL_TESTVECTOR;

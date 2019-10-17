@@ -160,11 +160,11 @@ int tea_test(void)
        zeromem(&skey, sizeof(skey));
 
        l = sizeof(key);
-       if ((err = base16_decode(tests[i].key, strlen(tests[i].key), key, &l)) != CRYPT) return err;
+       if ((err = base16_decode(tests[i].key, XSTRLEN(tests[i].key), key, &l)) != CRYPT) return err;
        l = sizeof(ptct[0]);
-       if ((err = base16_decode(tests[i].pt, strlen(tests[i].pt), ptct[0], &l)) != CRYPT) return err;
+       if ((err = base16_decode(tests[i].pt, XSTRLEN(tests[i].pt), ptct[0], &l)) != CRYPT) return err;
        l = sizeof(ptct[1]);
-       if ((err = base16_decode(tests[i].ct, strlen(tests[i].ct), ptct[1], &l)) != CRYPT) return err;
+       if ((err = base16_decode(tests[i].ct, XSTRLEN(tests[i].ct), ptct[1], &l)) != CRYPT) return err;
 
        if ((err = tea_setup(key, 16, 0, &skey)) != CRYPT_OK)  {
           return err;
