@@ -164,9 +164,9 @@ int bcrypt_pbkdf_openbsd(const          void *secret, unsigned long secret_len,
           if ((err = _bcrypt_pbkdf_hash(hashed_pass, hashed_pass_len, buf[0], x, buf[1], &y)) != CRYPT_OK) {
              goto LBL_ERR;
           }
-           for (x = 0; x < y; x++) {
-               buf[2][x] ^= buf[1][x];
-           }
+          for (x = 0; x < y; x++) {
+             buf[2][x] ^= buf[1][x];
+          }
        }
 
        /* now emit upto `steps` bytes of buf[2] to output */
