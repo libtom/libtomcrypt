@@ -21,7 +21,7 @@
   @param callback A pointer to a void function for when the RNG is slow, this can be NULL
   @return CRYPT_OK if successful
 */
-int rng_make_prng(int bits, int wprng, prng_state *prng,
+int rng_make_prng(int bits, prng_state *prng,
                   void (*callback)(void))
 {
    unsigned char* buf;
@@ -30,20 +30,15 @@ int rng_make_prng(int bits, int wprng, prng_state *prng,
 
    LTC_ARGCHK(prng != NULL);
 
-   /* check parameter */
-   if ((err = prng_is_valid(wprng)) != CRYPT_OK) {
-      return err;
-   }
-
    if (bits == -1) {
-      bytes = prng_descriptor[wprng].export_size;
+      bytes = prng->desc.export_size;
    } else if (bits < 64 || bits > 1024) {
       return CRYPT_INVALID_PRNGSIZE;
    } else {
       bytes = (unsigned long)((bits+7)/8) * 2;
    }
 
-   if ((err = prng_descriptor[wprng].start(prng)) != CRYPT_OK) {
+   if ((err = prng->desc.start(prng)) != CRYPT_OK) {
       return err;
    }
 
@@ -58,15 +53,15 @@ int rng_make_prng(int bits, int wprng, prng_state *prng,
    }
 
    if (bits == -1) {
-      if ((err = prng_descriptor[wprng].pimport(buf, bytes, prng)) != CRYPT_OK) {
+      if ((err = prng->desc.pimport(buf, bytes, prng)) != CRYPT_OK) {
          goto LBL_ERR;
       }
    } else {
-      if ((err = prng_descriptor[wprng].add_entropy(buf, bytes, prng)) != CRYPT_OK) {
+      if ((err = prng->desc.add_entropy(buf, bytes, prng)) != CRYPT_OK) {
          goto LBL_ERR;
       }
    }
-   if ((err = prng_descriptor[wprng].ready(prng)) != CRYPT_OK) {
+   if ((err = prng->desc.ready(prng)) != CRYPT_OK) {
       goto LBL_ERR;
    }
 

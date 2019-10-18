@@ -9,7 +9,7 @@
 
 #ifdef LTC_YARROW
 
-const struct ltc_prng_descriptor yarrow_desc =
+static const struct ltc_prng_descriptor yarrow_desc =
 {
     "yarrow", 64,
     &yarrow_start,
@@ -110,6 +110,8 @@ int yarrow_start(prng_state *prng)
    if ((err = hash_is_valid(prng->u.yarrow.hash)) != CRYPT_OK) {
       return err;
    }
+
+   prng->desc = yarrow_desc;
 
    /* zero the memory used */
    zeromem(prng->u.yarrow.pool, sizeof(prng->u.yarrow.pool));
