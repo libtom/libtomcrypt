@@ -207,7 +207,7 @@ static int s_dsa_compat_test(void)
 
   /* try import dsaparam */
   DO(dsa_set_pqg_dsaparam(dsaparam_der, sizeof(dsaparam_der), &key));
-  DO(dsa_generate_key(&yarrow_prng, find_prng("yarrow"), &key));
+  DO(dsa_generate_key(&yarrow_prng, &key));
   /* verify it */
   DO(dsa_verify_key(&key, &stat));
   if (stat == 0) {
@@ -326,8 +326,8 @@ int dsa_test(void)
    DO(s_dsa_wycheproof_test());
 
    /* make a random key */
-   DO(dsa_generate_pqg(&yarrow_prng, find_prng("yarrow"), 20, 128, &key));
-   DO(dsa_generate_key(&yarrow_prng, find_prng("yarrow"), &key));
+   DO(dsa_generate_pqg(&yarrow_prng, 20, 128, &key));
+   DO(dsa_generate_key(&yarrow_prng, &key));
 
    /* verify it */
    DO(dsa_verify_key(&key, &stat1));
@@ -336,7 +336,7 @@ int dsa_test(void)
    /* encrypt a message */
    for (ch = 0; ch < 16; ch++) { msg[ch] = ch; }
    x = sizeof(out);
-   DO(dsa_encrypt_key(msg, 16, out, &x, &yarrow_prng, find_prng("yarrow"), find_hash("sha1"), &key));
+   DO(dsa_encrypt_key(msg, 16, out, &x, &yarrow_prng, find_hash("sha1"), &key));
 
    /* decrypt */
    y = sizeof(out2);
@@ -349,7 +349,7 @@ int dsa_test(void)
 
    /* sign the message */
    x = sizeof(out);
-   DO(dsa_sign_hash(msg, sizeof(msg), out, &x, &yarrow_prng, find_prng("yarrow"), &key));
+   DO(dsa_sign_hash(msg, sizeof(msg), out, &x, &yarrow_prng, &key));
 
    /* verify it once */
    DO(dsa_verify_hash(out, x, msg, sizeof(msg), &stat1, &key));

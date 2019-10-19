@@ -13,29 +13,28 @@
 /**
   Make a new ECC key
   @param prng         An active PRNG state
-  @param wprng        The index of the PRNG you wish to use
   @param keysize      The keysize for the new key (in octets from 20 to 65 bytes)
   @param key          [out] Destination of the newly created key
   @return CRYPT_OK if successful, upon error all allocated memory will be freed
 */
-int ecc_make_key(prng_state *prng, int wprng, int keysize, ecc_key *key)
+int ecc_make_key(prng_state *prng, int keysize, ecc_key *key)
 {
    int err;
 
    if ((err = ecc_set_curve_by_size(keysize, key)) != CRYPT_OK) { return err; }
-   if ((err = ecc_generate_key(prng, wprng, key)) != CRYPT_OK)  { return err; }
+   if ((err = ecc_generate_key(prng, key)) != CRYPT_OK)  { return err; }
    return CRYPT_OK;
 }
 
-int ecc_make_key_ex(prng_state *prng, int wprng, ecc_key *key, const ltc_ecc_curve *cu)
+int ecc_make_key_ex(prng_state *prng, ecc_key *key, const ltc_ecc_curve *cu)
 {
    int err;
    if ((err = ecc_set_curve(cu, key)) != CRYPT_OK)             { return err; }
-   if ((err = ecc_generate_key(prng, wprng, key)) != CRYPT_OK) { return err; }
+   if ((err = ecc_generate_key(prng, key)) != CRYPT_OK) { return err; }
    return CRYPT_OK;
 }
 
-int ecc_generate_key(prng_state *prng, int wprng, ecc_key *key)
+int ecc_generate_key(prng_state *prng, ecc_key *key)
 {
    int            err;
 
@@ -50,7 +49,7 @@ int ecc_generate_key(prng_state *prng, int wprng, ecc_key *key)
     *  c/ if k not in [1, order-1] go to b/
     *  e/ Q = k*G
     */
-   if ((err = rand_bn_upto(key->k, key->dp.order, prng, wprng)) != CRYPT_OK) {
+   if ((err = rand_bn_upto(key->k, key->dp.order, prng)) != CRYPT_OK) {
       goto error;
    }
 

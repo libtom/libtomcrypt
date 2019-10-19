@@ -34,19 +34,15 @@ static int s_dh_groupsize_to_keysize(int groupsize)
    return 0;
 }
 
-int dh_generate_key(prng_state *prng, int wprng, dh_key *key)
+int dh_generate_key(prng_state *prng, dh_key *key)
 {
    unsigned char *buf;
    unsigned long keysize;
    int err, max_iterations = LTC_PK_MAX_RETRIES;
 
+   LTC_ARGCHK(prng        != NULL);
    LTC_ARGCHK(key         != NULL);
    LTC_ARGCHK(ltc_mp.name != NULL);
-
-   /* good prng? */
-   if ((err = prng_is_valid(wprng)) != CRYPT_OK) {
-      return err;
-   }
 
    keysize = s_dh_groupsize_to_keysize(mp_unsigned_bin_size(key->prime));
    if (keysize == 0) {
@@ -64,7 +60,7 @@ int dh_generate_key(prng_state *prng, int wprng, dh_key *key)
    key->type = PK_PRIVATE;
    do {
       /* make up random buf */
-      if (prng_descriptor[wprng].read(buf, keysize, prng) != keysize) {
+      if (prng->desc.read(buf, keysize, prng) != keysize) {
          err = CRYPT_ERROR_READPRNG;
          goto freebuf;
       }

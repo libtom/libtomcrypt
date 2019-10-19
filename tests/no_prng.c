@@ -13,7 +13,7 @@
 
 typedef struct
 {
-   struct ltc_prng_descriptor desc;
+   prng_state state;
    char name[64];
    unsigned char entropy[1024];
    unsigned long len;
@@ -32,7 +32,6 @@ static int no_prng_start(prng_state *prng)
    LTC_ARGCHK(no_prng->name == (char*)no_prng + offsetof(no_prng_desc_t, name));
    no_prng->len = 0;
    no_prng->offset = 0;
-
    return CRYPT_OK;
 }
 
@@ -155,26 +154,26 @@ static const struct ltc_prng_descriptor no_prng_desc =
     &no_prng_test
 };
 
-struct ltc_prng_descriptor* no_prng_desc_get(void)
+prng_state* no_prng_desc_get(void)
 {
    int ret;
    no_prng_desc_t* no_prng = XMALLOC(sizeof(*no_prng));
    if (no_prng == NULL) return NULL;
-   XMEMCPY(&no_prng->desc, &no_prng_desc, sizeof(no_prng_desc));
+   XMEMCPY(&no_prng->state.desc, &no_prng_desc, sizeof(no_prng_desc));
    ret = snprintf(no_prng->name, sizeof(no_prng->name), "no_prng@%p", no_prng);
    if((ret >= (int)sizeof(no_prng->name)) || (ret == -1)) {
       XFREE(no_prng);
       return NULL;
    }
-   no_prng->desc.name = no_prng->name;
-   return &no_prng->desc;
+   no_prng->state.desc.name = no_prng->name;
+   return &no_prng->state;
 }
 
-void no_prng_desc_free(struct ltc_prng_descriptor* prng)
+void no_prng_desc_free(prng_state* prng)
 {
    no_prng_desc_t *no_prng = (no_prng_desc_t*) prng;
    LTC_ARGCHKVD(no_prng != NULL);
-   LTC_ARGCHKVD(no_prng->name == (char*)no_prng + offsetof(no_prng_desc_t, name));
+   LTC_ARGCHKVD(no_prng->state.desc.name == (char*)no_prng + offsetof(no_prng_desc_t, name));
    XFREE(no_prng);
 }
 
