@@ -378,7 +378,7 @@ static inline ulong32 RORc(ulong32 word, const int i)
 #define ROR64c(x,n) ROR64(x,n)
 #define ROL64c(x,n) ROL64(x,n)
 
-#elif !defined(__STRICT_ANSI__) && defined(__GNUC__) && (defined(__i386__) || defined(__x86_64__)) && !defined(INTEL_CC) && !defined(LTC_NO_ASM)
+#elif !defined(__STRICT_ANSI__) && defined(__GNUC__) && defined(__x86_64__) && !defined(INTEL_CC) && !defined(LTC_NO_ASM)
 
 static inline ulong64 ROL64(ulong64 word, int i)
 {
