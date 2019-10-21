@@ -17,7 +17,6 @@
 static const struct ltc_prng_descriptor sprng_desc =
 {
     "sprng", 0,
-    &sprng_start,
     &sprng_add_entropy,
     &sprng_ready,
     &sprng_read,

@@ -56,11 +56,6 @@ struct ltc_prng_descriptor {
     const char *name;
     /** size in bytes of exported state */
     int  export_size;
-    /** Start a PRNG state
-        @param prng   [out] The state to initialize
-        @return CRYPT_OK if successful
-    */
-    int (*start)(prng_state *prng);
     /** Add entropy to the PRNG
         @param in         The entropy
         @param inlen      Length of the entropy (octets)\

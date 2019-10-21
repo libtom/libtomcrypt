@@ -13,7 +13,6 @@ static const struct ltc_prng_descriptor rc4_desc =
 {
    "rc4",
    32,
-   &rc4_start,
    &rc4_add_entropy,
    &rc4_ready,
    &rc4_read,

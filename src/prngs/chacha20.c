@@ -13,7 +13,6 @@ static const struct ltc_prng_descriptor chacha20_prng_desc =
 {
    "chacha20",
    40,
-   &chacha20_prng_start,
    &chacha20_prng_add_entropy,
    &chacha20_prng_ready,
    &chacha20_prng_read,

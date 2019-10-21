@@ -647,7 +647,7 @@ static void time_prng(void)
 #undef DO2
 #undef DO1
 
-#define DO1 tprng.desc.start(&tprng); tprng.desc.add_entropy(buf, 32, &tprng); tprng.desc.ready(&tprng); tprng.desc.done(&tprng);
+#define DO1 prng_start[x](&tprng); tprng.desc.add_entropy(buf, 32, &tprng); tprng.desc.ready(&tprng); tprng.desc.done(&tprng);
 #define DO2 DO1 DO1
       for (y = 0; y < 10000; y++) {
          t_start();

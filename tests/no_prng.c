@@ -144,7 +144,6 @@ static int no_prng_test(void)
 static const struct ltc_prng_descriptor no_prng_desc =
 {
     NULL, 0,
-    &no_prng_start,
     &no_prng_add_entropy,
     &no_prng_ready,
     &no_prng_read,
@@ -166,6 +165,7 @@ prng_state* no_prng_desc_get(void)
       return NULL;
    }
    no_prng->state.desc.name = no_prng->name;
+   no_prng_start(&no_prng->state);
    return &no_prng->state;
 }
 

@@ -54,7 +54,6 @@ we reseed automatically when len(pool0) >= 64 or every LTC_FORTUNA_WD calls to t
 static const struct ltc_prng_descriptor fortuna_desc = {
     "fortuna",
     64,
-    &fortuna_start,
     &fortuna_add_entropy,
     &fortuna_ready,
     &fortuna_read,

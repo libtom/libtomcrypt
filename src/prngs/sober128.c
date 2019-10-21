@@ -15,7 +15,6 @@ static const struct ltc_prng_descriptor sober128_desc =
 {
    "sober128",
    40,
-   &sober128_start,
    &sober128_add_entropy,
    &sober128_ready,
    &sober128_read,

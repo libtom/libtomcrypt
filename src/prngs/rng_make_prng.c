@@ -40,10 +40,6 @@ int rng_make_prng(int bits, prng_state *prng,
       import_entropy = prng->desc.add_entropy;
    }
 
-   if ((err = prng->desc.start(prng)) != CRYPT_OK) {
-      return err;
-   }
-
    buf = XMALLOC(bytes);
    if (buf == NULL) {
       return CRYPT_MEM;
