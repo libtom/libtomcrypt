@@ -10,13 +10,13 @@
 
 /**
   @file x25519_import.c
-  Import a X25519 key from a binary packet, Steffen Jaeckel
+  Import a X25519 key from a SubjectPublicKeyInfo, Steffen Jaeckel
 */
 
 #ifdef LTC_CURVE25519
 
 /**
-  Import a X25519 key from a binary packet
+  Import a X25519 key
   @param in     The packet to read
   @param inlen  The length of the input packet
   @param key    [out] Where to import the key to
@@ -29,16 +29,6 @@ int x25519_import(const unsigned char *in, unsigned long inlen, curve25519_key *
 
    LTC_ARGCHK(in  != NULL);
    LTC_ARGCHK(key != NULL);
-
-   /* There's only one case where the inlen is equal to the pubkey-size
-    * and that's a raw pubkey, so let's just do a raw import.
-    */
-   if (inlen == sizeof(key->pub)) {
-      XMEMCPY(key->pub, in, sizeof(key->pub));
-      key->type = PK_PUBLIC;
-      key->algo = PKA_X25519;
-      return CRYPT_OK;
-   }
 
    key_len = sizeof(key->pub);
    if ((err = x509_decode_subject_public_key_info(in, inlen, PKA_X25519, key->pub, &key_len, LTC_ASN1_EOL, NULL, 0uL)) == CRYPT_OK) {

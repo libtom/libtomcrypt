@@ -10,7 +10,7 @@
 
 /**
   @file ed25519_import.c
-  Import a Ed25519 key from a binary packet, Steffen Jaeckel
+  Import a Ed25519 key from a SubjectPublicKeyInfo, Steffen Jaeckel
 */
 
 #ifdef LTC_CURVE25519
