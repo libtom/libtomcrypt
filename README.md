@@ -88,7 +88,7 @@ There are several `makefile`s provided. Please choose the one that fits best for
 | `makefile.unix` | for unusual UNIX platforms, or if you do not have GNU Make |
 | `makefile.mingw` | for usage with the mingw compiler on MS Windows |
 | `makefile.msvc` | for usage with the MSVC compiler on MS Windows |
-| `libtomcrypt_VS2008.sln` | A VisualStudio 2008 project for MS Windows |
+| `libtomcrypt.sln` | A VisualStudio 2015 project for MS Windows |
 
 ### Make targets
 
