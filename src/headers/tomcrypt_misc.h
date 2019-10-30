@@ -7,6 +7,10 @@
  * guarantee it works.
  */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* ---- LTC_BASE64 Routines ---- */
 #ifdef LTC_BASE64
 int base64_encode(const unsigned char *in,  unsigned long inlen,
@@ -179,6 +183,10 @@ int ssh_decode_sequence_multi(const unsigned char *in, unsigned long *inlen, ...
 #endif /* LTC_SSH */
 
 int compare_testvector(const void* is, const unsigned long is_len, const void* should, const unsigned long should_len, const char* what, int which);
+
+#ifdef __cplusplus
+}
+#endif
 
 /* ref:         $Format:%D$ */
 /* git commit:  $Format:%H$ */

@@ -7,6 +7,10 @@
  * guarantee it works.
  */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Defines the LTC_ARGCHK macro used within the library */
 /* ARGTYPE is defined in tomcrypt_cfg.h */
 
@@ -14,6 +18,7 @@
 #if ARGTYPE == 0
 
 #include <signal.h>
+
 
 LTC_NORETURN void crypt_argchk(const char *v, const char *s, int d);
 #define LTC_ARGCHK(x) do { if (!(x)) { crypt_argchk(#x, __FILE__, __LINE__); } }while(0)
@@ -42,6 +47,9 @@ LTC_NORETURN void crypt_argchk(const char *v, const char *s, int d);
 
 #endif
 
+#ifdef __cplusplus
+}
+#endif
 
 /* ref:         $Format:%D$ */
 /* git commit:  $Format:%H$ */

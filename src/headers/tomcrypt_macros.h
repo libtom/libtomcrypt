@@ -7,6 +7,10 @@
  * guarantee it works.
  */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* ---- HELPER MACROS ---- */
 #ifdef ENDIAN_NEUTRAL
 
@@ -457,6 +461,10 @@ static inline ulong64 ROR64(ulong64 word, int i)
 /* there is no snprintf before Visual C++ 2015 */
 #if defined(_MSC_VER) && _MSC_VER < 1900
 #define snprintf _snprintf
+#endif
+
+#ifdef __cplusplus
+}
 #endif
 
 /* ref:         $Format:%D$ */

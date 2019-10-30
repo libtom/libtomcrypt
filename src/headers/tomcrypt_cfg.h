@@ -16,6 +16,10 @@
 #ifndef TOMCRYPT_CFG_H
 #define TOMCRYPT_CFG_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #if defined(_WIN32) || defined(_MSC_VER)
    #define LTC_CALL __cdecl
 #elif !defined(LTC_CALL)
@@ -309,6 +313,11 @@ typedef unsigned long ltc_mp_digit;
 #  define LTC_DEPRECATED(s)
 #  define LTC_DEPRECATED_PRAGMA(s)
 #endif
+
+#ifdef __cplusplus
+}
+#endif
+
 /* ref:         $Format:%D$ */
 /* git commit:  $Format:%H$ */
 /* commit time: $Format:%ai$ */

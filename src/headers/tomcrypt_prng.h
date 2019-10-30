@@ -7,6 +7,10 @@
  * guarantee it works.
  */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* ---- PRNG Stuff ---- */
 #ifdef LTC_YARROW
 struct yarrow_prng {
@@ -227,6 +231,9 @@ extern unsigned long (*ltc_rng)(unsigned char *out, unsigned long outlen,
       void (*callback)(void));
 #endif
 
+#ifdef __cplusplus
+}
+#endif
 
 /* ref:         $Format:%D$ */
 /* git commit:  $Format:%H$ */

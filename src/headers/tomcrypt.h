@@ -81,6 +81,10 @@ enum {
    CRYPT_HASH_OVERFLOW      /* Hash applied to too many bits */
 };
 
+#ifdef __cplusplus
+   }
+#endif
+
 #include "tomcrypt_cfg.h"
 #include "tomcrypt_macros.h"
 #include "tomcrypt_cipher.h"
@@ -92,10 +96,6 @@ enum {
 #include "tomcrypt_misc.h"
 #include "tomcrypt_argchk.h"
 #include "tomcrypt_pkcs.h"
-
-#ifdef __cplusplus
-   }
-#endif
 
 #endif /* TOMCRYPT_H_ */
 

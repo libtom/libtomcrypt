@@ -7,6 +7,10 @@
  * guarantee it works.
  */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* ---- NUMBER THEORY ---- */
 
 enum public_key_type {
@@ -784,6 +788,10 @@ int der_decode_generalizedtime(const unsigned char *in, unsigned long *inlen,
 
 int der_length_generalizedtime(const ltc_generalizedtime *gtime, unsigned long *outlen);
 
+#endif
+
+#ifdef __cplusplus
+}
 #endif
 
 /* ref:         $Format:%D$ */

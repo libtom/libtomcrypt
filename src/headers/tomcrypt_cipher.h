@@ -7,6 +7,10 @@
  * guarantee it works.
  */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* ---- SYMMETRIC KEY STUFF -----
  *
  * We put each of the ciphers scheduled keys in their own structs then we put all of
@@ -1164,6 +1168,10 @@ int sober128_stream_memory(const unsigned char *key,    unsigned long keylen,
                            unsigned char *dataout);
 
 #endif /* LTC_SOBER128_STREAM */
+
+#ifdef __cplusplus
+}
+#endif
 
 /* ref:         $Format:%D$ */
 /* git commit:  $Format:%H$ */

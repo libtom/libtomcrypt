@@ -7,6 +7,10 @@
  * guarantee it works.
  */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* ---- HASH FUNCTIONS ---- */
 #if defined(LTC_SHA3) || defined(LTC_KECCAK)
 struct sha3_state {
@@ -505,6 +509,10 @@ int hash_memory_multi(int hash, unsigned char *out, unsigned long *outlen,
 #ifndef LTC_NO_FILE
 int hash_filehandle(int hash, FILE *in, unsigned char *out, unsigned long *outlen);
 int hash_file(int hash, const char *fname, unsigned char *out, unsigned long *outlen);
+#endif
+
+#ifdef __cplusplus
+}
 #endif
 
 /* ref:         $Format:%D$ */

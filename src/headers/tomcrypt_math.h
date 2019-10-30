@@ -7,6 +7,10 @@
  * guarantee it works.
  */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /** math functions **/
 
 #define LTC_MP_LT   -1
@@ -522,6 +526,10 @@ extern const ltc_math_descriptor tfm_desc;
 
 #ifdef GMP_DESC
 extern const ltc_math_descriptor gmp_desc;
+#endif
+
+#ifdef __cplusplus
+}
 #endif
 
 /* ref:         $Format:%D$ */
