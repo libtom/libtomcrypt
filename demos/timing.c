@@ -67,6 +67,9 @@ static void tally_results(int type)
       }
    }
 }
+#if defined(LTC_MRSA) || defined(LTC_MECC)
+static void read_key(const char *alg, unsigned long sz, void *buf, unsigned long *l);
+#endif
 
 #define CSV_SEP ","
 #define OUTFILE stdout
@@ -737,25 +740,22 @@ static void time_rsa(void)
 {
    rsa_key key;
    ulong64 t1, t2;
-   unsigned char buf[2][2048] =
+   unsigned char buf[2][4096] =
       { 0 };
    unsigned long x, y, z, zzz;
-   int err, zz;
+   int zz;
 
    if (ltc_mp.name == NULL) return;
 
    print_csv_header("keysize", NULL);
    for (x = 2048; x <= 8192; x <<= 1) {
 
+#ifndef TIMING_DONT_MAKE_KEY
       t2 = 0;
       for (y = 0; y < 4; y++) {
          t_start();
          t1 = t_read();
-         if ((err = rsa_make_key(&yarrow_prng, find_prng("yarrow"), x / 8, 65537, &key)) != CRYPT_OK) {
-            fprintf(stderr, "\n\nrsa_make_key says %s, wait...no it should say %s...damn you!\n", error_to_string(err),
-                    error_to_string(CRYPT_OK));
-            exit(EXIT_FAILURE);
-         }
+         DO(rsa_make_key(&yarrow_prng, find_prng("yarrow"), x / 8, 65537, &key));
          t1 = t_read() - t1;
          t2 += t1;
 
@@ -768,19 +768,20 @@ static void time_rsa(void)
       }
       t2 >>= 2;
       print_csv("RSA", "make_key", x, t2);
+#endif
+
+      zzz = sizeof(buf);
+      read_key("RSA", x, buf, &zzz);
+
+      DO(rsa_import((void*)buf, zzz, &key));
 
       t2 = 0;
       for (y = 0; y < 256; y++) {
          t_start();
          t1 = t_read();
          z = sizeof(buf[1]);
-         if ((err = rsa_encrypt_key(buf[0], 32, buf[1], &z, (const unsigned char * )"testprog", 8, &yarrow_prng,
-                                    find_prng("yarrow"), find_hash("sha1"), &key))
-             != CRYPT_OK) {
-            fprintf(stderr, "\n\nrsa_encrypt_key says %s, wait...no it should say %s...damn you!\n",
-                    error_to_string(err), error_to_string(CRYPT_OK));
-            exit(EXIT_FAILURE);
-         }
+         DO(rsa_encrypt_key(buf[0], 32, buf[1], &z, (const unsigned char * )"testprog", 8, &yarrow_prng,
+                                    find_prng("yarrow"), find_hash("sha1"), &key));
          t1 = t_read() - t1;
          t2 += t1;
 #ifdef LTC_PROFILE
@@ -796,13 +797,8 @@ static void time_rsa(void)
          t_start();
          t1 = t_read();
          zzz = sizeof(buf[0]);
-         if ((err = rsa_decrypt_key(buf[1], z, buf[0], &zzz, (const unsigned char * )"testprog", 8, find_hash("sha1"),
-                                    &zz, &key))
-             != CRYPT_OK) {
-            fprintf(stderr, "\n\nrsa_decrypt_key says %s, wait...no it should say %s...damn you!\n",
-                    error_to_string(err), error_to_string(CRYPT_OK));
-            exit(EXIT_FAILURE);
-         }
+         DO(rsa_decrypt_key(buf[1], z, buf[0], &zzz, (const unsigned char * )"testprog", 8, find_hash("sha1"),
+                                    &zz, &key));
          t1 = t_read() - t1;
          t2 += t1;
 #ifdef LTC_PROFILE
@@ -818,11 +814,7 @@ static void time_rsa(void)
          t_start();
          t1 = t_read();
          z = sizeof(buf[1]);
-         if ((err = rsa_sign_hash(buf[0], 20, buf[1], &z, &yarrow_prng, find_prng("yarrow"), find_hash("sha1"), 8, &key)) != CRYPT_OK) {
-            fprintf(stderr, "\n\nrsa_sign_hash says %s, wait...no it should say %s...damn you!\n", error_to_string(err),
-                    error_to_string(CRYPT_OK));
-            exit(EXIT_FAILURE);
-         }
+         DO(rsa_sign_hash(buf[0], 20, buf[1], &z, &yarrow_prng, find_prng("yarrow"), find_hash("sha1"), 8, &key));
          t1 = t_read() - t1;
          t2 += t1;
 #ifdef LTC_PROFILE
@@ -838,11 +830,7 @@ static void time_rsa(void)
          int stat;
          t_start();
          t1 = t_read();
-         if ((err = rsa_verify_hash(buf[1], z, buf[0], 20, find_hash("sha1"), 8, &stat, &key)) != CRYPT_OK) {
-            fprintf(stderr, "\n\nrsa_verify_hash says %s, wait...no it should say %s...damn you!\n",
-                    error_to_string(err), error_to_string(CRYPT_OK));
-            exit(EXIT_FAILURE);
-         }
+         DO(rsa_verify_hash(buf[1], z, buf[0], 20, find_hash("sha1"), 8, &stat, &key));
          if (stat == 0) {
             fprintf(stderr, "\n\nrsa_verify_hash for RSA-%lu failed to verify signature(%lu)\n", x, y);
             exit(EXIT_FAILURE);
@@ -870,7 +858,6 @@ static void time_dh(void)
    dh_key key;
    ulong64 t1, t2;
    unsigned long i, x, y;
-   int           err;
    static unsigned long sizes[] = {768/8, 1024/8, 1536/8, 2048/8,
 #ifndef TFM_DESC
                                    3072/8, 4096/8, 6144/8, 8192/8,
@@ -884,17 +871,11 @@ static void time_dh(void)
    for (x = sizes[i=0]; x < 100000; x = sizes[++i]) {
        t2 = 0;
        for (y = 0; y < 16; y++) {
-           if((err = dh_set_pg_groupsize(x, &key)) != CRYPT_OK) {
-              fprintf(stderr, "\n\ndh_set_pg_groupsize says %s, wait...no it should say %s...damn you!\n", error_to_string(err), error_to_string(CRYPT_OK));
-              exit(EXIT_FAILURE);
-           }
+           DO(dh_set_pg_groupsize(x, &key));
 
            t_start();
            t1 = t_read();
-           if ((err = dh_generate_key(&yarrow_prng, find_prng("yarrow"), &key)) != CRYPT_OK) {
-              fprintf(stderr, "\n\ndh_make_key says %s, wait...no it should say %s...damn you!\n", error_to_string(err), error_to_string(CRYPT_OK));
-              exit(EXIT_FAILURE);
-           }
+           DO(dh_generate_key(&yarrow_prng, find_prng("yarrow"), &key));
            t1 = t_read() - t1;
            t2 += t1;
 
@@ -943,20 +924,19 @@ static void time_ecc(void)
    ulong64 t1, t2;
    unsigned char buf[2][256] = { 0 };
    unsigned long i, w, x, y, z;
-   int           err, stat;
+   int           stat;
 
    if (ltc_mp.name == NULL) return;
 
    print_csv_header("keysize", NULL);
    for (x = ecc_key_sizes[i=0]; x < 100000; x = ecc_key_sizes[++i]) {
+
+#ifndef TIMING_DONT_MAKE_KEY
        t2 = 0;
        for (y = 0; y < 256; y++) {
            t_start();
            t1 = t_read();
-           if ((err = ecc_make_key(&yarrow_prng, find_prng("yarrow"), x/8, &key)) != CRYPT_OK) {
-              fprintf(stderr, "\n\necc_make_key says %s, wait...no it should say %s...damn you!\n", error_to_string(err), error_to_string(CRYPT_OK));
-              exit(EXIT_FAILURE);
-           }
+           DO(ecc_make_key(&yarrow_prng, find_prng("yarrow"), x/8, &key));
            t1 = t_read() - t1;
            t2 += t1;
 
@@ -971,17 +951,20 @@ static void time_ecc(void)
        }
        t2 >>= 8;
        print_csv("ECC", "make_key", x, t2);
+#endif
+
+       w = sizeof(buf[0]);
+       read_key("ECC", x, buf[0], &w);
+
+       DO(ecc_import(buf[0], w, &key));
 
        t2 = 0;
        for (y = 0; y < 256; y++) {
            t_start();
            t1 = t_read();
            z = sizeof(buf[1]);
-           if ((err = ecc_encrypt_key(buf[0], 20, buf[1], &z, &yarrow_prng, find_prng("yarrow"), find_hash("sha1"),
-                                      &key)) != CRYPT_OK) {
-              fprintf(stderr, "\n\necc_encrypt_key says %s, wait...no it should say %s...damn you!\n", error_to_string(err), error_to_string(CRYPT_OK));
-              exit(EXIT_FAILURE);
-           }
+           DO(ecc_encrypt_key(buf[0], 20, buf[1], &z, &yarrow_prng, find_prng("yarrow"), find_hash("sha1"),
+                                      &key));
            t1 = t_read() - t1;
            t2 += t1;
 #ifdef LTC_PROFILE
@@ -997,10 +980,7 @@ static void time_ecc(void)
            t_start();
            t1 = t_read();
            w = 20;
-           if ((err = ecc_decrypt_key(buf[1], z, buf[0], &w, &key)) != CRYPT_OK) {
-              fprintf(stderr, "\n\necc_decrypt_key says %s, wait...no it should say %s...damn you!\n", error_to_string(err), error_to_string(CRYPT_OK));
-              exit(EXIT_FAILURE);
-           }
+           DO(ecc_decrypt_key(buf[1], z, buf[0], &w, &key));
            t1 = t_read() - t1;
            t2 += t1;
 #ifdef LTC_PROFILE
@@ -1016,11 +996,8 @@ static void time_ecc(void)
           t_start();
           t1 = t_read();
           z = sizeof(buf[1]);
-          if ((err = ecc_sign_hash(buf[0], 20, buf[1], &z, &yarrow_prng,
-                                   find_prng("yarrow"), &key)) != CRYPT_OK) {
-              fprintf(stderr, "\n\necc_sign_hash says %s, wait...no it should say %s...damn you!\n", error_to_string(err), error_to_string(CRYPT_OK));
-              exit(EXIT_FAILURE);
-           }
+          DO(ecc_sign_hash(buf[0], 20, buf[1], &z, &yarrow_prng,
+                                   find_prng("yarrow"), &key));
            t1 = t_read() - t1;
            t2 += t1;
 #ifdef LTC_PROFILE
@@ -1035,10 +1012,7 @@ static void time_ecc(void)
        for (y = 0; y < 256; y++) {
           t_start();
           t1 = t_read();
-          if ((err = ecc_verify_hash(buf[1], z, buf[0], 20, &stat, &key)) != CRYPT_OK) {
-              fprintf(stderr, "\n\necc_verify_hash says %s, wait...no it should say %s...damn you!\n", error_to_string(err), error_to_string(CRYPT_OK));
-              exit(EXIT_FAILURE);
-          }
+          DO(ecc_verify_hash(buf[1], z, buf[0], 20, &stat, &key));
           if (stat == 0) {
              fprintf(stderr, "\n\necc_verify_hash for ECC-%lu failed to verify signature(%lu)\n", x, y);
              exit(EXIT_FAILURE);
@@ -1063,6 +1037,28 @@ static void time_ecc(void) { fprintf(stderr, "NO ECC\n"); }
 
 /* generate fresh PKA keys for the timing operations */
 #if defined(LTC_MRSA) || defined(LTC_MECC)
+
+static void read_key(const char *alg, unsigned long sz, void *buf, unsigned long *l)
+{
+   char name[PATH_MAX];
+   FILE *f;
+   size_t n;
+
+   snprintf(name, sizeof(name) - 1, "demos/keys/%s-%lu.privkey", alg, sz);
+   f = fopen(name, "rb");
+   if (f == NULL) {
+      fprintf(stderr, "can't open %s", name);
+      exit(EXIT_FAILURE);
+   }
+   n = fread(buf, 1, *l, f);
+   if (feof(f)) {
+      *l = n;
+   } else if (ferror(f)) {
+      fprintf(stderr, "reading of %s errored", name);
+      exit(EXIT_FAILURE);
+   }
+   fclose(f);
+}
 
 static void write_key(const char *alg, unsigned long sz, struct list *elmnt, void *buf, unsigned long l)
 {
