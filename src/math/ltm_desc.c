@@ -13,6 +13,9 @@
 #ifdef LTM_DESC
 
 #include <tommath.h>
+#if !defined(PRIVATE_MP_WARRAY) && !defined(BN_MP_PRIME_IS_PRIME_C)
+#include <stdbool.h>
+#endif
 
 static const struct {
     mp_err mpi_code;
@@ -447,11 +450,16 @@ static int exptmod(void *a, void *b, void *c, void *d)
 static int isprime(void *a, int b, int *c)
 {
    int err;
+#if defined(PRIVATE_MP_WARRAY) || defined(BN_MP_PRIME_IS_PRIME_C)
+   int res;
+#else
+   bool res;
+#endif
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(c != NULL);
    b = mp_prime_rabin_miller_trials(mp_count_bits(a));
-   err = mpi_to_ltc_error(mp_prime_is_prime(a, b, c));
-   *c = (*c == MP_YES) ? LTC_MP_YES : LTC_MP_NO;
+   err = mpi_to_ltc_error(mp_prime_is_prime(a, b, &res));
+   *c = res ? LTC_MP_YES : LTC_MP_NO;
    return err;
 }
 
