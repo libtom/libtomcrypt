@@ -4,9 +4,22 @@
 
 #if defined(_WIN32)
    #define PRI64  "I64d"
+   #include <windows.h>
+   #ifndef PATH_MAX
+   #define PATH_MAX MAX_PATH
+   #endif
 #else
    #define PRI64  "ll"
 #endif
+
+
+#define DO(x) do{ \
+   int err; \
+   if ((err = (x)) != CRYPT_OK) { \
+      fprintf(stderr, "\n\n " #x " says %s!\n", error_to_string(err)); \
+      exit(EXIT_FAILURE); \
+   } \
+} while(0)
 
 static prng_state yarrow_prng;
 
@@ -896,6 +909,33 @@ static void time_dh(void) { fprintf(stderr, "NO DH\n"); }
 #endif
 
 #if defined(LTC_MECC)
+static unsigned long ecc_key_sizes[] = {
+#ifdef LTC_ECC_SECP112R1
+112,
+#endif
+#ifdef LTC_ECC_SECP128R1
+128,
+#endif
+#ifdef LTC_ECC_SECP160R1
+160,
+#endif
+#ifdef LTC_ECC_SECP192R1
+192,
+#endif
+#ifdef LTC_ECC_SECP224R1
+224,
+#endif
+#ifdef LTC_ECC_SECP256R1
+256,
+#endif
+#ifdef LTC_ECC_SECP384R1
+384,
+#endif
+#ifdef LTC_ECC_SECP512R1
+521,
+#endif
+100000};
+
 /* time various ECC operations */
 static void time_ecc(void)
 {
@@ -904,42 +944,16 @@ static void time_ecc(void)
    unsigned char buf[2][256] = { 0 };
    unsigned long i, w, x, y, z;
    int           err, stat;
-   static unsigned long sizes[] = {
-#ifdef LTC_ECC_SECP112R1
-112/8,
-#endif
-#ifdef LTC_ECC_SECP128R1
-128/8,
-#endif
-#ifdef LTC_ECC_SECP160R1
-160/8,
-#endif
-#ifdef LTC_ECC_SECP192R1
-192/8,
-#endif
-#ifdef LTC_ECC_SECP224R1
-224/8,
-#endif
-#ifdef LTC_ECC_SECP256R1
-256/8,
-#endif
-#ifdef LTC_ECC_SECP384R1
-384/8,
-#endif
-#ifdef LTC_ECC_SECP512R1
-521/8,
-#endif
-100000};
 
    if (ltc_mp.name == NULL) return;
 
    print_csv_header("keysize", NULL);
-   for (x = sizes[i=0]; x < 100000; x = sizes[++i]) {
+   for (x = ecc_key_sizes[i=0]; x < 100000; x = ecc_key_sizes[++i]) {
        t2 = 0;
        for (y = 0; y < 256; y++) {
            t_start();
            t1 = t_read();
-           if ((err = ecc_make_key(&yarrow_prng, find_prng("yarrow"), x, &key)) != CRYPT_OK) {
+           if ((err = ecc_make_key(&yarrow_prng, find_prng("yarrow"), x/8, &key)) != CRYPT_OK) {
               fprintf(stderr, "\n\necc_make_key says %s, wait...no it should say %s...damn you!\n", error_to_string(err), error_to_string(CRYPT_OK));
               exit(EXIT_FAILURE);
            }
@@ -956,7 +970,7 @@ static void time_ecc(void)
            }
        }
        t2 >>= 8;
-       print_csv("ECC", "make_key", x*8, t2);
+       print_csv("ECC", "make_key", x, t2);
 
        t2 = 0;
        for (y = 0; y < 256; y++) {
@@ -976,7 +990,7 @@ static void time_ecc(void)
 #endif
        }
        t2 >>= 8;
-       print_csv("ECC", "encrypt_key", x*8, t2);
+       print_csv("ECC", "encrypt_key", x, t2);
 
        t2 = 0;
        for (y = 0; y < 256; y++) {
@@ -995,7 +1009,7 @@ static void time_ecc(void)
 #endif
        }
        t2 >>= 8;
-       print_csv("ECC", "decrypt_key", x*8, t2);
+       print_csv("ECC", "decrypt_key", x, t2);
 
        t2 = 0;
        for (y = 0; y < 256; y++) {
@@ -1015,7 +1029,7 @@ static void time_ecc(void)
 #endif
         }
         t2 >>= 8;
-        print_csv("ECC", "sign_hash", x*8, t2);
+        print_csv("ECC", "sign_hash", x, t2);
 
        t2 = 0;
        for (y = 0; y < 256; y++) {
@@ -1026,7 +1040,7 @@ static void time_ecc(void)
               exit(EXIT_FAILURE);
           }
           if (stat == 0) {
-             fprintf(stderr, "\n\necc_verify_hash for ECC-%lu failed to verify signature(%lu)\n", x*8, y);
+             fprintf(stderr, "\n\necc_verify_hash for ECC-%lu failed to verify signature(%lu)\n", x, y);
              exit(EXIT_FAILURE);
           }
           t1 = t_read() - t1;
@@ -1037,7 +1051,7 @@ static void time_ecc(void)
 #endif
         }
         t2 >>= 8;
-        print_csv("ECC", "verify_hash", x*8, t2);
+        print_csv("ECC", "verify_hash", x, t2);
 
        ecc_free(&key);
   }
@@ -1045,6 +1059,117 @@ static void time_ecc(void)
 #else
 static void time_ecc(void) { fprintf(stderr, "NO ECC\n"); }
 #endif
+
+
+/* generate fresh PKA keys for the timing operations */
+#if defined(LTC_MRSA) || defined(LTC_MECC)
+
+static void write_key(const char *alg, unsigned long sz, struct list *elmnt, void *buf, unsigned long l)
+{
+   char name[PATH_MAX];
+   FILE *f;
+
+   snprintf(name, sizeof(name) - 1, "demos/keys/%s-%lu.privkey", alg, sz);
+   fprintf(stderr, "%s: Writing key %d which required %"PRI64"u ticks to %s\n", alg, elmnt->id, elmnt->avg, name);
+   f = fopen(name, "wb+");
+   if (f == NULL) {
+      fprintf(stderr, "can't open %s", name);
+      exit(EXIT_FAILURE);
+   }
+   if (fwrite(buf, l, 1, f) != 1) {
+      fprintf(stderr, "can't write to %s", name);
+      exit(EXIT_FAILURE);
+   }
+   fclose(f);
+}
+
+static void time_generate_keys(void)
+{
+   union
+   {
+#if defined(LTC_MRSA)
+      rsa_key rsa;
+#endif
+#if defined(LTC_MECC)
+      ecc_key ecc;
+#endif
+   } key[25];
+   ulong64 t1 = 0;
+   unsigned char buf[8192] = { 0 }, op_buf[8192 / 8];
+   unsigned long n, x, y, z, l;
+   const unsigned median = ((sizeof(key) / sizeof(key[0])) / 2);
+
+   if (ltc_mp.name == NULL) return;
+
+   print_csv_header("keysize", NULL);
+#if defined(LTC_MRSA)
+   for (x = 2048; x <= 8192; x <<= 1) {
+
+      for (y = 0; y < sizeof(key) / sizeof(key[0]); y++) {
+         DO(rsa_make_key(&yarrow_prng, find_prng("yarrow"), x / 8, 65537, &key[y].rsa));
+         t_start();
+         for (z = 0; z < 512 / (x / 1024); ++z) {
+            if (z == 8) {
+               t_start();
+               t1 = t_read();
+            }
+            l = sizeof(op_buf);
+            op_buf[0] = 0;
+            op_buf[1] = 1;
+            op_buf[2] = 0;
+            DO(rsa_exptmod(op_buf, x / 8, op_buf, &l, PK_PUBLIC, &key[y].rsa));
+         }
+         t1 = t_read() - t1;
+         results[y].id = y;
+         results[y].avg = t1;
+         print_csv("RSA", "exptmod", x, t1);
+      }
+
+      qsort(results, sizeof(key) / sizeof(key[0]), sizeof(struct list), &sorter);
+
+      l = sizeof(buf);
+      DO(rsa_export(buf, &l, PK_PRIVATE, &key[results[median].id].rsa));
+
+      write_key("RSA", x, &results[median], buf, l);
+
+      for (y = 0; y < sizeof(key) / sizeof(key[0]); y++) {
+         rsa_free(&key[y].rsa);
+      }
+   }
+#endif
+#if defined(LTC_MECC)
+   for (x = ecc_key_sizes[n = 0]; x < 100000; x = ecc_key_sizes[++n]) {
+      for (y = 0; y < sizeof(key) / sizeof(key[0]); y++) {
+         DO(ecc_make_key(&yarrow_prng, find_prng("yarrow"), x/8, &key[y].ecc));
+         for (z = 0; z < 256; z++) {
+            if (z == 8) {
+               t_start();
+               t1 = t_read();
+            }
+            l = sizeof(op_buf);
+            DO(ecc_shared_secret(&key[y].ecc, &key[y].ecc, op_buf, &l));
+         }
+         t1 = t_read() - t1;
+         results[y].id = y;
+         results[y].avg = t1;
+         print_csv("ECC", "shared_secret", x, t1);
+      }
+
+      qsort(results, sizeof(key) / sizeof(key[0]), sizeof(struct list), &sorter);
+
+      l = sizeof(buf);
+      DO(ecc_export(buf, &l, PK_PRIVATE, &key[results[median].id].ecc));
+
+      write_key("ECC", x, &results[median], buf, l);
+
+      for (y = 0; y < sizeof(key) / sizeof(key[0]); y++) {
+         ecc_free(&key[y].ecc);
+      }
+   }
+#endif
+}
+#endif
+
 
 static void time_macs_(unsigned long MAC_SIZE)
 {
@@ -1382,6 +1507,7 @@ const struct
    LTC_TEST_FN(time_dsa),
    LTC_TEST_FN(time_ecc),
    LTC_TEST_FN(time_dh),
+   LTC_TEST_FN(time_generate_keys),
 };
 char *single_test = NULL;
 unsigned int i;

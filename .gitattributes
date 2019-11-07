@@ -5,3 +5,4 @@
 /**             export-subst
 
 /tests/test.key -text
+*.privkey       binary
