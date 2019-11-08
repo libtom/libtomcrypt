@@ -12,6 +12,9 @@
    #define PRI64  "ll"
 #endif
 
+#ifdef TFM_DESC
+#include <tfm.h>
+#endif
 
 #define DO(x) do{ \
    int err; \
@@ -672,6 +675,18 @@ static void time_prng(void)
    }
 }
 
+static int check_tfm_limit(unsigned long x)
+{
+#ifdef TFM_DESC
+   if (strcasecmp(ltc_mp.name, "tomsfastmath") == 0) {
+      if (x * 2 > FP_MAX_SIZE) return 1;
+   }
+#else
+   LTC_UNUSED_PARAM(x);
+#endif
+   return 0;
+}
+
 #if defined(LTC_MDSA)
 /* time various DSA operations */
 static void time_dsa(void)
@@ -689,15 +704,14 @@ static void time_dsa(void)
          { 20, 128 },
          { 24, 192 },
          { 28, 256 },
-#ifndef TFM_DESC
          { 32, 512 },
-#endif
       };
 
    if (ltc_mp.name == NULL) return;
 
    print_csv_header("group", "modulus");
    for (x = 0; x < (sizeof(groups) / sizeof(groups[0])); x++) {
+      if (check_tfm_limit(groups[x].modulus * 8)) break;
       t2 = 0;
       for (y = 0; y < 4; y++) {
          t_start();
@@ -733,7 +747,6 @@ static void time_dsa(void)
 static void time_dsa(void) { fprintf(stderr, "NO DSA\n"); }
 #endif
 
-
 #if defined(LTC_MRSA)
 /* time various RSA operations */
 static void time_rsa(void)
@@ -749,6 +762,7 @@ static void time_rsa(void)
 
    print_csv_header("keysize", NULL);
    for (x = 2048; x <= 8192; x <<= 1) {
+      if (check_tfm_limit(x)) break;
 
 #ifndef TIMING_DONT_MAKE_KEY
       t2 = 0;
@@ -859,9 +873,7 @@ static void time_dh(void)
    ulong64 t1, t2;
    unsigned long i, x, y;
    static unsigned long sizes[] = {768/8, 1024/8, 1536/8, 2048/8,
-#ifndef TFM_DESC
                                    3072/8, 4096/8, 6144/8, 8192/8,
-#endif
                                    100000
    };
 
@@ -869,6 +881,7 @@ static void time_dh(void)
 
    print_csv_header("keysize", NULL);
    for (x = sizes[i=0]; x < 100000; x = sizes[++i]) {
+      if (check_tfm_limit(x)) break;
        t2 = 0;
        for (y = 0; y < 16; y++) {
            DO(dh_set_pg_groupsize(x, &key));
@@ -930,6 +943,7 @@ static void time_ecc(void)
 
    print_csv_header("keysize", NULL);
    for (x = ecc_key_sizes[i=0]; x < 100000; x = ecc_key_sizes[++i]) {
+      if (check_tfm_limit(x)) break;
 
 #ifndef TIMING_DONT_MAKE_KEY
        t2 = 0;
