@@ -11,7 +11,6 @@
 typedef struct Hmac_state {
      hash_state     md;
      int            hash;
-     hash_state     hashstate;
      unsigned char  key[MAXBLOCKSIZE];
 } hmac_state;
 
