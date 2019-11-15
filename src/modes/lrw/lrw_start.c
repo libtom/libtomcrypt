@@ -53,10 +53,10 @@ int lrw_start(               int   cipher,
    }
 
    /* schedule key */
-   if ((err = cipher_descriptor[cipher].setup(key, keylen, num_rounds, &lrw->key)) != CRYPT_OK) {
+   if ((err = ecb_start(cipher, key, keylen, num_rounds, &lrw->ecb)) != CRYPT_OK) {
       return err;
    }
-   lrw->cipher = cipher;
+   lrw->ecb.cipher = cipher;
 
    /* copy the IV and tweak */
    XMEMCPY(lrw->tweak, tweak, 16);

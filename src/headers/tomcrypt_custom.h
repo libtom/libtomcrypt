@@ -645,6 +645,14 @@
    #error LTC_NO_MATH defined, but also a math descriptor
 #endif
 
+#if !defined(LTC_ECB_MODE)
+#if defined(LTC_CFB_MODE) || defined(LTC_OFB_MODE) || defined(LTC_CBC_MODE) || defined(LTC_CTR_MODE) || \
+    defined(LTC_F8_MODE) || defined(LTC_LRW_MODE) || defined(LTC_XTS_MODE) )
+   #error LTC_ECB_MODE not defined, but all other modes depend on it
+#endif
+#endif
+
+
 /* THREAD management */
 #ifdef LTC_PTHREAD
 

@@ -23,19 +23,19 @@ int ofb_encrypt(const unsigned char *pt, unsigned char *ct, unsigned long len, s
    LTC_ARGCHK(pt != NULL);
    LTC_ARGCHK(ct != NULL);
    LTC_ARGCHK(ofb != NULL);
-   if ((err = cipher_is_valid(ofb->cipher)) != CRYPT_OK) {
+   if ((err = cipher_is_valid(ofb->ecb.cipher)) != CRYPT_OK) {
        return err;
    }
 
    /* is blocklen/padlen valid? */
-   if (ofb->blocklen < 0 || ofb->blocklen > (int)sizeof(ofb->IV) ||
+   if (ofb->ecb.blocklen < 0 || ofb->ecb.blocklen > (int)sizeof(ofb->IV) ||
        ofb->padlen   < 0 || ofb->padlen   > (int)sizeof(ofb->IV)) {
       return CRYPT_INVALID_ARG;
    }
 
    while (len-- > 0) {
-       if (ofb->padlen == ofb->blocklen) {
-          if ((err = cipher_descriptor[ofb->cipher].ecb_encrypt(ofb->IV, ofb->IV, &ofb->key)) != CRYPT_OK) {
+       if (ofb->padlen == ofb->ecb.blocklen) {
+          if ((err = ecb_encrypt_block(ofb->IV, ofb->IV, &ofb->ecb)) != CRYPT_OK) {
              return err;
           }
           ofb->padlen = 0;

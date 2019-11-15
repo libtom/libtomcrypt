@@ -26,58 +26,58 @@ int cbc_encrypt(const unsigned char *pt, unsigned char *ct, unsigned long len, s
    LTC_ARGCHK(ct != NULL);
    LTC_ARGCHK(cbc != NULL);
 
-   if ((err = cipher_is_valid(cbc->cipher)) != CRYPT_OK) {
+   if ((err = cipher_is_valid(cbc->ecb.cipher)) != CRYPT_OK) {
        return err;
    }
 
    /* is blocklen valid? */
-   if (cbc->blocklen < 1 || cbc->blocklen > (int)sizeof(cbc->IV)) {
+   if (cbc->ecb.blocklen < 1 || cbc->ecb.blocklen > (int)sizeof(cbc->IV)) {
       return CRYPT_INVALID_ARG;
    }
 
-   if (len % cbc->blocklen) {
+   if (len % cbc->ecb.blocklen) {
       return CRYPT_INVALID_ARG;
    }
 #ifdef LTC_FAST
-   if (cbc->blocklen % sizeof(LTC_FAST_TYPE)) {
+   if (cbc->ecb.blocklen % sizeof(LTC_FAST_TYPE)) {
       return CRYPT_INVALID_ARG;
    }
 #endif
 
-   if (cipher_descriptor[cbc->cipher].accel_cbc_encrypt != NULL) {
-      return cipher_descriptor[cbc->cipher].accel_cbc_encrypt(pt, ct, len / cbc->blocklen, cbc->IV, &cbc->key);
+   if (cipher_descriptor[cbc->ecb.cipher].accel_cbc_encrypt != NULL) {
+      return cipher_descriptor[cbc->ecb.cipher].accel_cbc_encrypt(pt, ct, len / cbc->ecb.blocklen, cbc->IV, &cbc->ecb.key);
    }
    while (len) {
       /* xor IV against plaintext */
 #if defined(LTC_FAST)
-      for (x = 0; x < cbc->blocklen; x += sizeof(LTC_FAST_TYPE)) {
+      for (x = 0; x < cbc->ecb.blocklen; x += sizeof(LTC_FAST_TYPE)) {
          *(LTC_FAST_TYPE_PTR_CAST((unsigned char *)cbc->IV + x)) ^= *(LTC_FAST_TYPE_PTR_CAST((unsigned char *)pt + x));
       }
 #else
-      for (x = 0; x < cbc->blocklen; x++) {
+      for (x = 0; x < cbc->ecb.blocklen; x++) {
          cbc->IV[x] ^= pt[x];
       }
 #endif
 
       /* encrypt */
-      if ((err = cipher_descriptor[cbc->cipher].ecb_encrypt(cbc->IV, ct, &cbc->key)) != CRYPT_OK) {
+      if ((err = ecb_encrypt_block(cbc->IV, ct, &cbc->ecb)) != CRYPT_OK) {
          return err;
       }
 
       /* store IV [ciphertext] for a future block */
 #if defined(LTC_FAST)
-      for (x = 0; x < cbc->blocklen; x += sizeof(LTC_FAST_TYPE)) {
+      for (x = 0; x < cbc->ecb.blocklen; x += sizeof(LTC_FAST_TYPE)) {
          *(LTC_FAST_TYPE_PTR_CAST((unsigned char *)cbc->IV + x)) = *(LTC_FAST_TYPE_PTR_CAST((unsigned char *)ct + x));
       }
 #else
-      for (x = 0; x < cbc->blocklen; x++) {
+      for (x = 0; x < cbc->ecb.blocklen; x++) {
          cbc->IV[x] = ct[x];
       }
 #endif
 
-      ct  += cbc->blocklen;
-      pt  += cbc->blocklen;
-      len -= cbc->blocklen;
+      ct  += cbc->ecb.blocklen;
+      pt  += cbc->ecb.blocklen;
+      len -= cbc->ecb.blocklen;
    }
    return CRYPT_OK;
 }

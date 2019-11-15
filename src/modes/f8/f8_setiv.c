@@ -23,17 +23,17 @@ int f8_setiv(const unsigned char *IV, unsigned long len, symmetric_F8 *f8)
    LTC_ARGCHK(IV != NULL);
    LTC_ARGCHK(f8 != NULL);
 
-   if ((err = cipher_is_valid(f8->cipher)) != CRYPT_OK) {
+   if ((err = cipher_is_valid(f8->ecb.cipher)) != CRYPT_OK) {
        return err;
    }
 
-   if (len != (unsigned long)f8->blocklen) {
+   if (len != (unsigned long)f8->ecb.blocklen) {
       return CRYPT_INVALID_ARG;
    }
 
    /* force next block */
    f8->padlen = 0;
-   return cipher_descriptor[f8->cipher].ecb_encrypt(IV, f8->IV, &f8->key);
+   return ecb_encrypt_block(IV, f8->IV, &f8->ecb);
 }
 
 #endif

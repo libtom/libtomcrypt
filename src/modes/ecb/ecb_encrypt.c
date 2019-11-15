@@ -8,6 +8,14 @@
 */
 
 #ifdef LTC_ECB_MODE
+int ecb_encrypt_block(const unsigned char *pt, unsigned char *ct, const symmetric_ECB *ecb)
+{
+   /* check for accel */
+   if (cipher_descriptor[ecb->cipher].accel_ecb_encrypt != NULL) {
+      return cipher_descriptor[ecb->cipher].accel_ecb_encrypt(pt, ct, 1, &ecb->key);
+   }
+   return cipher_descriptor[ecb->cipher].ecb_encrypt(pt, ct, &ecb->key);
+}
 
 /**
   ECB encrypt
@@ -17,7 +25,7 @@
   @param ecb    ECB state
   @return CRYPT_OK if successful
 */
-int ecb_encrypt(const unsigned char *pt, unsigned char *ct, unsigned long len, symmetric_ECB *ecb)
+int ecb_encrypt(const unsigned char *pt, unsigned char *ct, unsigned long len, const symmetric_ECB *ecb)
 {
    int err;
    LTC_ARGCHK(pt != NULL);

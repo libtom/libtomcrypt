@@ -23,17 +23,17 @@ int ofb_setiv(const unsigned char *IV, unsigned long len, symmetric_OFB *ofb)
    LTC_ARGCHK(IV  != NULL);
    LTC_ARGCHK(ofb != NULL);
 
-   if ((err = cipher_is_valid(ofb->cipher)) != CRYPT_OK) {
+   if ((err = cipher_is_valid(ofb->ecb.cipher)) != CRYPT_OK) {
        return err;
    }
 
-   if (len != (unsigned long)ofb->blocklen) {
+   if (len != (unsigned long)ofb->ecb.blocklen) {
       return CRYPT_INVALID_ARG;
    }
 
    /* force next block */
    ofb->padlen = 0;
-   return cipher_descriptor[ofb->cipher].ecb_encrypt(IV, ofb->IV, &ofb->key);
+   return ecb_encrypt_block(IV, ofb->IV, &ofb->ecb);
 }
 
 #endif

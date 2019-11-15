@@ -69,6 +69,10 @@ typedef struct
 
 /* tomcrypt_cipher.h */
 
+int ecb_encrypt_block(const unsigned char *pt, unsigned char *ct, const symmetric_ECB *ecb);
+int ecb_decrypt_block(const unsigned char *ct, unsigned char *pt, const symmetric_ECB *ecb);
+
+
 void blowfish_enc(ulong32 *data, unsigned long blocks, const symmetric_key *skey);
 int blowfish_expand(const unsigned char *key, int keylen,
                     const unsigned char *data, int datalen,

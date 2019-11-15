@@ -33,16 +33,18 @@ int ofb_start(int cipher, const unsigned char *IV, const unsigned char *key,
       return err;
    }
 
+   /* init the cipher */
+   if ((err = ecb_start(cipher, key, keylen, num_rounds, &ofb->ecb)) != CRYPT_OK) {
+      return err;
+   }
+   ofb->padlen = cipher_descriptor[cipher].block_length;
+
    /* copy details */
-   ofb->cipher = cipher;
-   ofb->blocklen = cipher_descriptor[cipher].block_length;
-   for (x = 0; x < ofb->blocklen; x++) {
+   for (x = 0; x < ofb->ecb.blocklen; x++) {
        ofb->IV[x] = IV[x];
    }
 
-   /* init the cipher */
-   ofb->padlen = ofb->blocklen;
-   return cipher_descriptor[cipher].setup(key, keylen, num_rounds, &ofb->key);
+   return CRYPT_OK;
 }
 
 #endif
