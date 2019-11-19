@@ -24,9 +24,6 @@ int omac_process(omac_state *omac, const unsigned char *in, unsigned long inlen)
 
    LTC_ARGCHK(omac  != NULL);
    LTC_ARGCHK(in    != NULL);
-   if ((err = cipher_is_valid(omac->cipher_idx)) != CRYPT_OK) {
-      return err;
-   }
 
    if ((omac->buflen > (int)sizeof(omac->block)) || (omac->buflen < 0) ||
        (omac->blklen > (int)sizeof(omac->block)) || (omac->buflen > omac->blklen)) {
@@ -34,22 +31,17 @@ int omac_process(omac_state *omac, const unsigned char *in, unsigned long inlen)
    }
 
 #ifdef LTC_FAST
-   {
-     unsigned long blklen = cipher_descriptor[omac->cipher_idx].block_length;
-
-     if (omac->buflen == 0 && inlen > blklen) {
-        unsigned long y;
-        for (x = 0; x < (inlen - blklen); x += blklen) {
-            for (y = 0; y < blklen; y += sizeof(LTC_FAST_TYPE)) {
-                *(LTC_FAST_TYPE_PTR_CAST(&omac->prev[y])) ^= *(LTC_FAST_TYPE_PTR_CAST(&in[y]));
-            }
-            in += blklen;
-            if ((err = cipher_descriptor[omac->cipher_idx].ecb_encrypt(omac->prev, omac->prev, &omac->key)) != CRYPT_OK) {
-               return err;
-            }
-        }
-        inlen -= x;
-     }
+   if (omac->buflen == 0 && inlen > (unsigned long)omac->blklen) {
+      for (x = 0; x < (inlen - omac->blklen); x += omac->blklen) {
+          for (n = 0; n < (unsigned long)omac->blklen; n += sizeof(LTC_FAST_TYPE)) {
+              *(LTC_FAST_TYPE_PTR_CAST(&omac->prev[n])) ^= *(LTC_FAST_TYPE_PTR_CAST(&in[n]));
+          }
+          in += omac->blklen;
+          if ((err = ecb_encrypt_block(omac->prev, omac->prev, &omac->key)) != CRYPT_OK) {
+             return err;
+          }
+      }
+      inlen -= x;
    }
 #endif
 
@@ -59,7 +51,7 @@ int omac_process(omac_state *omac, const unsigned char *in, unsigned long inlen)
           for (x = 0; x < (unsigned long)omac->blklen; x++) {
               omac->block[x] ^= omac->prev[x];
           }
-          if ((err = cipher_descriptor[omac->cipher_idx].ecb_encrypt(omac->block, omac->prev, &omac->key)) != CRYPT_OK) {
+          if ((err = ecb_encrypt_block(omac->block, omac->prev, &omac->key)) != CRYPT_OK) {
              return err;
           }
           omac->buflen = 0;

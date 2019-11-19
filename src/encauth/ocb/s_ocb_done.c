@@ -40,11 +40,7 @@ int s_ocb_done(ocb_state *ocb, const unsigned char *pt, unsigned long ptlen,
    LTC_ARGCHK(ct     != NULL);
    LTC_ARGCHK(tag    != NULL);
    LTC_ARGCHK(taglen != NULL);
-   if ((err = cipher_is_valid(ocb->cipher)) != CRYPT_OK) {
-      return err;
-   }
-   if (ocb->block_len != cipher_descriptor[ocb->cipher].block_length ||
-       (int)ptlen > ocb->block_len || (int)ptlen < 0) {
+   if ((int)ptlen > ocb->block_len || (int)ptlen < 0) {
       return CRYPT_INVALID_ARG;
    }
 
@@ -76,7 +72,7 @@ int s_ocb_done(ocb_state *ocb, const unsigned char *pt, unsigned long ptlen,
    }
 
    /* Y[m] = E(X[m])) */
-   if ((err = cipher_descriptor[ocb->cipher].ecb_encrypt(X, Y, &ocb->key)) != CRYPT_OK) {
+   if ((err = ecb_encrypt_block(X, Y, &ocb->key)) != CRYPT_OK) {
       goto error;
    }
 
@@ -107,10 +103,10 @@ int s_ocb_done(ocb_state *ocb, const unsigned char *pt, unsigned long ptlen,
    }
 
    /* encrypt checksum, er... tag!! */
-   if ((err = cipher_descriptor[ocb->cipher].ecb_encrypt(ocb->checksum, X, &ocb->key)) != CRYPT_OK) {
+   if ((err = ecb_encrypt_block(ocb->checksum, X, &ocb->key)) != CRYPT_OK) {
       goto error;
    }
-   cipher_descriptor[ocb->cipher].done(&ocb->key);
+   ecb_done(&ocb->key);
 
    /* now store it */
    for (x = 0; x < ocb->block_len && x < (int)*taglen; x++) {

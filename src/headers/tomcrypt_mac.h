@@ -28,13 +28,12 @@ int hmac_file(int hash, const char *fname, const unsigned char *key,
 #ifdef LTC_OMAC
 
 typedef struct {
-   int             cipher_idx,
-                   buflen,
+   int             buflen,
                    blklen;
    unsigned char   block[MAXBLOCKSIZE],
                    prev[MAXBLOCKSIZE],
                    Lu[2][MAXBLOCKSIZE];
-   symmetric_key   key;
+   symmetric_ECB   key;
 } omac_state;
 
 int omac_init(omac_state *omac, int cipher, const unsigned char *key, unsigned long keylen);
@@ -64,10 +63,9 @@ typedef struct {
                      block[MAXBLOCKSIZE],     /* currently accumulated block */
                      checksum[MAXBLOCKSIZE];  /* current checksum */
 
-   symmetric_key     key;                     /* scheduled key for cipher */
+   symmetric_ECB     key;                     /* scheduled key for cipher */
    unsigned long     block_index;             /* index # for current block */
-   int               cipher_idx,              /* cipher idx */
-                     block_len,               /* length of block */
+   int               block_len,               /* length of block */
                      buflen;                  /* number of bytes in the buffer */
 } pmac_state;
 
@@ -169,10 +167,9 @@ typedef struct {
    unsigned char K[3][MAXBLOCKSIZE],
                  IV[MAXBLOCKSIZE];
 
-   symmetric_key key;
+   symmetric_ECB key;
 
-             int cipher,
-                 buflen,
+             int buflen,
                  blocksize;
 } xcbc_state;
 
@@ -202,7 +199,7 @@ typedef struct {
                  ACC[MAXBLOCKSIZE],
                  IV[MAXBLOCKSIZE];
 
-   symmetric_key key;
+   symmetric_ECB key;
 
              int cipher,
                  buflen,
@@ -283,10 +280,9 @@ typedef struct {
                      R[MAXBLOCKSIZE],         /* R value */
                      checksum[MAXBLOCKSIZE];  /* current checksum */
 
-   symmetric_key     key;                     /* scheduled key for cipher */
+   symmetric_ECB     key;                     /* scheduled key for cipher */
    unsigned long     block_index;             /* index # for current block */
-   int               cipher,                  /* cipher idx */
-                     block_len;               /* length of block */
+   int               block_len;               /* length of block */
 } ocb_state;
 
 int ocb_init(ocb_state *ocb, int cipher,
@@ -347,10 +343,9 @@ typedef struct {
    int               adata_buffer_bytes;            /* bytes in AAD buffer */
    unsigned long     ablock_index;                  /* index # for current adata (AAD) block */
 
-   symmetric_key     key;                     /* scheduled key for cipher */
+   symmetric_ECB     key;                     /* scheduled key for cipher */
    unsigned long     block_index;             /* index # for current data block */
-   int               cipher,                  /* cipher idx */
-                     tag_len,                 /* length of tag */
+   int               tag_len,                 /* length of tag */
                      block_len;               /* length of block */
 } ocb3_state;
 
@@ -393,9 +388,8 @@ int ocb3_test(void);
 #define CCM_DECRYPT LTC_DECRYPT
 
 typedef struct {
-   symmetric_key       K;
-   int                 cipher,               /* which cipher */
-                       taglen,               /* length of the tag */
+   symmetric_ECB       K;
+   int                 taglen,               /* length of the tag */
                        x;                    /* index in PAD */
 
    unsigned long       L,                    /* L value */
@@ -432,7 +426,7 @@ int ccm_done(ccm_state *ccm,
 
 int ccm_memory(int cipher,
     const unsigned char *key,    unsigned long keylen,
-    symmetric_key       *uskey,
+    symmetric_ECB       *uskey,
     const unsigned char *nonce,  unsigned long noncelen,
     const unsigned char *header, unsigned long headerlen,
           unsigned char *pt,     unsigned long ptlen,
@@ -464,15 +458,14 @@ extern const unsigned char gcm_shift_table[];
 #define LTC_GCM_MODE_TEXT  2
 
 typedef struct {
-   symmetric_key       K;
+   symmetric_ECB       K;
    unsigned char       H[16],        /* multiplier */
                        X[16],        /* accumulator */
                        Y[16],        /* counter */
                        Y_0[16],      /* initial counter */
                        buf[16];      /* buffer for stuff */
 
-   int                 cipher,       /* which cipher */
-                       ivmode,       /* Which mode is the IV in? */
+   int                 ivmode,       /* Which mode is the IV in? */
                        mode,         /* mode the GCM code is in */
                        buflen;       /* length of data in buf */
 

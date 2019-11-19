@@ -44,20 +44,19 @@ int gcm_init(gcm_state *gcm, int cipher,
    }
 
    /* schedule key */
-   if ((err = cipher_descriptor[cipher].setup(key, keylen, 0, &gcm->K)) != CRYPT_OK) {
+   if ((err = ecb_start(cipher, key, keylen, 0, &gcm->K)) != CRYPT_OK) {
       return err;
    }
 
    /* H = E(0) */
    zeromem(B, 16);
-   if ((err = cipher_descriptor[cipher].ecb_encrypt(B, gcm->H, &gcm->K)) != CRYPT_OK) {
+   if ((err = ecb_encrypt_block(B, gcm->H, &gcm->K)) != CRYPT_OK) {
       return err;
    }
 
    /* setup state */
    zeromem(gcm->buf, sizeof(gcm->buf));
    zeromem(gcm->X,   sizeof(gcm->X));
-   gcm->cipher   = cipher;
    gcm->mode     = LTC_GCM_MODE_IV;
    gcm->ivmode   = 0;
    gcm->buflen   = 0;

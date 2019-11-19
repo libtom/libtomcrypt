@@ -24,9 +24,6 @@ int ocb3_done(ocb3_state *ocb, unsigned char *tag, unsigned long *taglen)
    LTC_ARGCHK(ocb    != NULL);
    LTC_ARGCHK(tag    != NULL);
    LTC_ARGCHK(taglen != NULL);
-   if ((err = cipher_is_valid(ocb->cipher)) != CRYPT_OK) {
-      goto LBL_ERR;
-   }
 
    /* check taglen */
    if ((int)*taglen < ocb->tag_len) {
@@ -52,7 +49,7 @@ int ocb3_done(ocb3_state *ocb, unsigned char *tag, unsigned long *taglen)
      }
 
      /* Sum = Sum_m xor ENCIPHER(K, CipherInput) */
-     if ((err = cipher_descriptor[ocb->cipher].ecb_encrypt(tmp, tmp, &ocb->key)) != CRYPT_OK) {
+     if ((err = ecb_encrypt_block(tmp, tmp, &ocb->key)) != CRYPT_OK) {
        goto LBL_ERR;
      }
      ocb3_int_xor_blocks(ocb->aSum_current, ocb->aSum_current, tmp, ocb->block_len);

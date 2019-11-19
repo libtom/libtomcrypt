@@ -28,14 +28,7 @@ int ocb3_encrypt(ocb3_state *ocb, const unsigned char *pt, unsigned long ptlen, 
    LTC_ARGCHK(pt != NULL);
    LTC_ARGCHK(ct != NULL);
 
-   if ((err = cipher_is_valid(ocb->cipher)) != CRYPT_OK) {
-      return err;
-   }
-   if (ocb->block_len != cipher_descriptor[ocb->cipher].block_length) {
-      return CRYPT_INVALID_ARG;
-   }
-
-   if (ptlen % ocb->block_len) { /* ptlen has to bu multiple of block_len */
+   if (ptlen % ocb->block_len) { /* ptlen has to be multiple of block_len */
       return CRYPT_INVALID_ARG;
    }
 
@@ -51,7 +44,7 @@ int ocb3_encrypt(ocb3_state *ocb, const unsigned char *pt, unsigned long ptlen, 
      ocb3_int_xor_blocks(tmp, pt_b, ocb->Offset_current, ocb->block_len);
 
      /* encrypt */
-     if ((err = cipher_descriptor[ocb->cipher].ecb_encrypt(tmp, tmp, &ocb->key)) != CRYPT_OK) {
+     if ((err = ecb_encrypt_block(tmp, tmp, &ocb->key)) != CRYPT_OK) {
         goto LBL_ERR;
      }
 

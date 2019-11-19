@@ -34,7 +34,7 @@ int f9_init(f9_state *f9, int cipher, const unsigned char *key, unsigned long ke
    }
 #endif
 
-   if ((err = cipher_descriptor[cipher].setup(key, keylen, 0, &f9->key)) != CRYPT_OK) {
+   if ((err = ecb_start(cipher, key, keylen, 0, &f9->key)) != CRYPT_OK) {
       goto done;
    }
 
