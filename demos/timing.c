@@ -1154,7 +1154,7 @@ static void time_encmacs_(unsigned long MAC_SIZE)
    ulong64 t1, t2;
    unsigned long x, z;
    int err, cipher_idx;
-   symmetric_key skey;
+   symmetric_ECB skey;
 
    fprintf(stderr, "\nENC+MAC Timings (zero byte AAD, 16 byte IV, cycles/byte on %luKB blocks):\n", MAC_SIZE);
 
@@ -1233,7 +1233,7 @@ static void time_encmacs_(unsigned long MAC_SIZE)
    }
    fprintf(stderr, "CCM (no-precomp) \t%9"PRI64"u\n", t2/(ulong64)(MAC_SIZE*1024));
 
-   cipher_descriptor[cipher_idx].setup(key, 16, 0, &skey);
+   ecb_start(cipher_idx, key, 16, 0, &skey);
    t2 = -1;
    for (x = 0; x < 10000; x++) {
         t_start();
@@ -1247,7 +1247,7 @@ static void time_encmacs_(unsigned long MAC_SIZE)
         if (t1 < t2) t2 = t1;
    }
    fprintf(stderr, "CCM (precomp) \t\t%9"PRI64"u\n", t2/(ulong64)(MAC_SIZE*1024));
-   cipher_descriptor[cipher_idx].done(&skey);
+   ecb_done(&skey);
 #endif
 
 #ifdef LTC_GCM_MODE
