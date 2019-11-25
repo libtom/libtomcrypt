@@ -78,6 +78,9 @@ int ccm_memory(int cipher,
    if (*taglen < 4 || *taglen > 16 || (*taglen % 2) == 1) {
       return CRYPT_INVALID_ARG;
    }
+   if (noncelen < 7) {
+      return CRYPT_INVALID_ARG;
+   }
 
    /* is there an accelerator? */
    if (cipher_descriptor[cipher].accel_ccm_memory != NULL) {
@@ -141,7 +144,7 @@ int ccm_memory(int cipher,
             (L-1));
 
    /* nonce */
-   for (y = 0; y < (16 - (L + 1)); y++) {
+   for (y = 0; y < noncelen; y++) {
        PAD[x++] = nonce[y];
    }
 
