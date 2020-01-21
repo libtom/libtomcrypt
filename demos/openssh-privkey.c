@@ -181,7 +181,7 @@ int ssh_decode_ed25519(const unsigned char *in, unsigned long *inlen, pka_key *k
       die(err);
    }
 
-   if ((err = ed25519_set_key(privkey, 32, &privkey[32], 32, &key->u.ed25519)) != CRYPT_OK) {
+   if ((err = ed25519_import_raw(&privkey[32], 32, PK_PRIVATE, &key->u.ed25519)) != CRYPT_OK) {
       die(err);
    }
 
