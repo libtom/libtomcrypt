@@ -37,6 +37,7 @@ typedef int (*fn_kdf_t)(const unsigned char *password, unsigned long password_le
                               int iteration_count,  int hash_idx,
                               unsigned char *out,   unsigned long *outlen);
 
+#if defined(LTC_PBES)
 typedef struct {
    /* KDF */
    fn_kdf_t kdf;
@@ -61,6 +62,7 @@ typedef struct
    /* only used for RC2 */
    unsigned long key_bits;
 } pbes_arg;
+#endif
 
 /*
  * Internal functions
@@ -204,10 +206,12 @@ void ocb3_int_xor_blocks(unsigned char *out, const unsigned char *block_a, const
 
 void copy_or_zeromem(const unsigned char* src, unsigned char* dest, unsigned long len, int coz);
 
+#if defined(LTC_PBES)
 int pbes_decrypt(const pbes_arg  *arg, unsigned char *dec_data, unsigned long *dec_size);
 
 int pbes1_extract(const ltc_asn1_list *s, pbes_arg *res);
 int pbes2_extract(const ltc_asn1_list *s, pbes_arg *res);
+#endif
 
 
 /* tomcrypt_pk.h */
@@ -218,6 +222,8 @@ int rand_bn_upto(void *N, void *limit, prng_state *prng, int wprng);
 int pk_get_oid(enum ltc_oid_id id, const char **st);
 int pk_oid_str_to_num(const char *OID, unsigned long *oid, unsigned long *oidlen);
 int pk_oid_num_to_str(const unsigned long *oid, unsigned long oidlen, char *OID, unsigned long *outlen);
+
+int pk_oid_cmp_with_ulong(const char *o1, const unsigned long *o2, unsigned long o2size);
 
 /* ---- DH Routines ---- */
 #ifdef LTC_MRSA
@@ -394,7 +400,6 @@ int x509_decode_subject_public_key_info(const unsigned char *in, unsigned long i
         unsigned int algorithm, void* public_key, unsigned long* public_key_len,
         ltc_asn1_type parameters_type, ltc_asn1_list* parameters, unsigned long *parameters_len);
 
-int pk_oid_cmp_with_ulong(const char *o1, const unsigned long *o2, unsigned long o2size);
 int pk_oid_cmp_with_asn1(const char *o1, const ltc_asn1_list *o2);
 
 #endif /* LTC_DER */

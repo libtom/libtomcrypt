@@ -3,7 +3,7 @@
 
 #include "tomcrypt_private.h"
 
-#ifdef LTC_MECC
+#if defined(LTC_MECC) && defined(LTC_DER)
 
 /**
   Export an ECC key as a binary packet

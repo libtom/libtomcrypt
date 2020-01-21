@@ -3,7 +3,7 @@
 
 #include "tomcrypt_private.h"
 
-#ifdef LTC_MECC
+#if defined(LTC_MECC) && defined(LTC_DER)
 
 /**
   Sign a message digest (ANSI X9.62 format)

@@ -3,7 +3,7 @@
 
 #include "tomcrypt_private.h"
 
-#ifdef LTC_MECC
+#if defined(LTC_MECC) && defined(LTC_DER)
 
 /**
   @file ecc_verify_hash.c

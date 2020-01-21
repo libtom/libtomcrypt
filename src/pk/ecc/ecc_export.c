@@ -8,7 +8,7 @@
   ECC Crypto, Tom St Denis
 */
 
-#ifdef LTC_MECC
+#if defined(LTC_MECC) && defined(LTC_DER)
 
 /**
   Export an ECC key as a binary packet

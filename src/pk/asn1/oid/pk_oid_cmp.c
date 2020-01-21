@@ -2,8 +2,6 @@
 /* SPDX-License-Identifier: Unlicense */
 #include "tomcrypt_private.h"
 
-#ifdef LTC_DER
-
 /*
    Compare an OID string to an array of `unsigned long`.
    @return CRYPT_OK if equal
@@ -27,6 +25,8 @@ int pk_oid_cmp_with_ulong(const char *o1, const unsigned long *o2, unsigned long
 
    return CRYPT_OK;
 }
+
+#ifdef LTC_DER
 
 /*
    Compare an OID string to an OID element decoded from ASN.1.

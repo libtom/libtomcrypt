@@ -3,7 +3,7 @@
 
 #include "tomcrypt_private.h"
 
-#ifdef LTC_MECC
+#if defined(LTC_MECC) && defined(LTC_DER)
 
 static int s_ecc_import_private_with_oid(const unsigned char *in, unsigned long inlen, ecc_key *key)
 {
