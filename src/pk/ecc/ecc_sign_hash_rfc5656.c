@@ -41,7 +41,7 @@ int ecc_sign_hash_rfc5656(const unsigned char *in,  unsigned long inlen,
    if ((err = ecc_ssh_ecdsa_encode_name(name, &namelen, key)) != CRYPT_OK) goto error;
    /* Store as SSH data sequence, per RFC4251 */
    err = ssh_encode_sequence_multi(out, outlen,
-                                   LTC_SSHDATA_STRING, name,
+                                   LTC_SSHDATA_STRING, name, namelen,
                                    LTC_SSHDATA_MPINT,  r,
                                    LTC_SSHDATA_MPINT,  s,
                                    LTC_SSHDATA_EOL,    NULL);

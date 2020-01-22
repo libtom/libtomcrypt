@@ -33,7 +33,9 @@ int ecc_verify_hash_rfc5656(const unsigned char *sig,  unsigned long siglen,
    void *r, *s;
    int err;
    char name[64], name2[64];
-   unsigned long namelen = sizeof(name2);
+   unsigned long namelen = sizeof(name);
+   unsigned long name2len = sizeof(name2);
+   unsigned long slen = siglen;
 
    LTC_ARGCHK(sig != NULL);
    LTC_ARGCHK(key != NULL);
@@ -41,14 +43,14 @@ int ecc_verify_hash_rfc5656(const unsigned char *sig,  unsigned long siglen,
    if ((err = mp_init_multi(&r, &s, NULL)) != CRYPT_OK) return err;
 
    /* Decode as SSH data sequence, per RFC4251 */
-   if ((err = ssh_decode_sequence_multi(sig, siglen,
-                                        LTC_SSHDATA_STRING, name, 64,
+   if ((err = ssh_decode_sequence_multi(sig, &slen,
+                                        LTC_SSHDATA_STRING, name, &namelen,
                                         LTC_SSHDATA_MPINT,  r,
                                         LTC_SSHDATA_MPINT,  s,
                                         LTC_SSHDATA_EOL,    NULL)) != CRYPT_OK) goto error;
 
    /* Check curve matches identifier string */
-   if ((err = ecc_ssh_ecdsa_encode_name(name2, &namelen, key)) != CRYPT_OK) goto error;
+   if ((err = ecc_ssh_ecdsa_encode_name(name2, &name2len, key)) != CRYPT_OK) goto error;
    if (XSTRCMP(name,name2) != 0) {
       err = CRYPT_INVALID_ARG;
       goto error;
