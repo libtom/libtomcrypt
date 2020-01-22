@@ -36,16 +36,16 @@ int ecc_sign_hash_rfc7518_ex(const unsigned char *in,  unsigned long inlen,
    LTC_ARGCHK(outlen != NULL);
    LTC_ARGCHK(key    != NULL);
 
-   if ((err = mp_init_multi(&r, &s, NULL)) != CRYPT_OK) return err;
-   if ((err = ecc_sign_hash_internal(in, inlen, r, s, prng, wprng, recid, key)) != CRYPT_OK) goto error;
-
    /* RFC7518 format - raw (r,s) */
    pbytes = mp_unsigned_bin_size(key->dp.order);
    if (*outlen < 2 * pbytes) {
-      err = CRYPT_BUFFER_OVERFLOW;
       *outlen = 2 * pbytes;
-      goto error;
+      return CRYPT_BUFFER_OVERFLOW;
    }
+
+   if ((err = mp_init_multi(&r, &s, NULL)) != CRYPT_OK) return err;
+   if ((err = ecc_sign_hash_internal(in, inlen, r, s, prng, wprng, recid, key)) != CRYPT_OK) goto error;
+
    zeromem(out, 2 * pbytes);
    *outlen = 2 * pbytes;
    i = mp_unsigned_bin_size(r);

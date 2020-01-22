@@ -34,11 +34,12 @@ int ecc_sign_hash_rfc5656(const unsigned char *in,  unsigned long inlen,
    LTC_ARGCHK(out    != NULL);
    LTC_ARGCHK(outlen != NULL);
 
+   /* Get identifier string */
+   if ((err = ecc_ssh_ecdsa_encode_name(name, &namelen, key)) != CRYPT_OK) return err;
+
    if ((err = mp_init_multi(&r, &s, NULL)) != CRYPT_OK) return err;
    if ((err = ecc_sign_hash_internal(in, inlen, r, s, prng, wprng, NULL, key)) != CRYPT_OK) goto error;
 
-   /* Get identifier string */
-   if ((err = ecc_ssh_ecdsa_encode_name(name, &namelen, key)) != CRYPT_OK) goto error;
    /* Store as SSH data sequence, per RFC4251 */
    err = ssh_encode_sequence_multi(out, outlen,
                                    LTC_SSHDATA_STRING, name, namelen,

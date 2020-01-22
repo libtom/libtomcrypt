@@ -34,19 +34,18 @@ int ecc_sign_hash_eth27(const unsigned char *in,  unsigned long inlen,
    LTC_ARGCHK(outlen != NULL);
    LTC_ARGCHK(key    != NULL);
 
+   /* Only valid for secp256k1 - OID 1.3.132.0.10 */
+   if (pk_oid_cmp_with_ulong("1.3.132.0.10", key->dp.oid, key->dp.oidlen) != CRYPT_OK) {
+      return CRYPT_ERROR;
+   }
+   if (*outlen < 65) {
+      *outlen = 65;
+      return CRYPT_BUFFER_OVERFLOW;
+   }
+
    if ((err = mp_init_multi(&r, &s, NULL)) != CRYPT_OK) return err;
    if ((err = ecc_sign_hash_internal(in, inlen, r, s, prng, wprng, &recid, key)) != CRYPT_OK) goto error;
 
-   /* Only valid for secp256k1 - OID 1.3.132.0.10 */
-   if (pk_oid_cmp_with_ulong("1.3.132.0.10", key->dp.oid, key->dp.oidlen) != CRYPT_OK) {
-      err = CRYPT_ERROR;
-      goto error;
-   }
-   if (*outlen < 65) {
-      err = CRYPT_BUFFER_OVERFLOW;
-      *outlen = 65;
-      goto error;
-   }
    zeromem(out, 65);
    *outlen = 65;
    i = mp_unsigned_bin_size(r);

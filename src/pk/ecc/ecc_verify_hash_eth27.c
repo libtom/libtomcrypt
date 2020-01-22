@@ -36,17 +36,16 @@ int ecc_verify_hash_eth27(const unsigned char *sig,  unsigned long siglen,
    LTC_ARGCHK(sig != NULL);
    LTC_ARGCHK(key != NULL);
 
-   if ((err = mp_init_multi(&r, &s, NULL)) != CRYPT_OK) return err;
-
    /* Only valid for secp256k1 - OID 1.3.132.0.10 */
    if (pk_oid_cmp_with_ulong("1.3.132.0.10", key->dp.oid, key->dp.oidlen) != CRYPT_OK) {
-      err = CRYPT_ERROR;
-      goto error;
+      return CRYPT_ERROR;
    }
-   if (siglen != 65) { /* Only secp256k1 curves use this format, so must be 65 bytes long */
-      err = CRYPT_INVALID_PACKET;
-      goto error;
+   /* Only secp256k1 curves uses this format, so must be 65 bytes long */
+   if (siglen != 65) {
+      return CRYPT_INVALID_PACKET;
    }
+
+   if ((err = mp_init_multi(&r, &s, NULL)) != CRYPT_OK) return err;
    if ((err = mp_read_unsigned_bin(r, (unsigned char *)sig, 32)) != CRYPT_OK) goto error;
    if ((err = mp_read_unsigned_bin(s, (unsigned char *)sig + 32, 32)) != CRYPT_OK) goto error;
 
