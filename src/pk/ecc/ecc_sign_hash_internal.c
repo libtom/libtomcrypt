@@ -48,6 +48,10 @@ int ecc_sign_hash_internal(const unsigned char *in,  unsigned long inlen,
       if ((err = mp_read_unsigned_bin(e, (unsigned char *)in, pbytes)) != CRYPT_OK)   { goto errnokey; }
    }
    else {
+      if (pbytes >= MAXBLOCKSIZE) {
+         err = CRYPT_BUFFER_OVERFLOW;
+         goto error;
+      }
       shift_right = 8 - pbits % 8;
       for (i=0, ch=0; i<pbytes; i++) {
         buf[i] = ch;

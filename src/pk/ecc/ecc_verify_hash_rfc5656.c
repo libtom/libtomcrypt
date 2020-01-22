@@ -49,6 +49,11 @@ int ecc_verify_hash_rfc5656(const unsigned char *sig,  unsigned long siglen,
                                         LTC_SSHDATA_MPINT,  s,
                                         LTC_SSHDATA_EOL,    NULL)) != CRYPT_OK) goto error;
 
+   if (slen != siglen) {
+      err = CRYPT_INVALID_PACKET;
+      goto error;
+   }
+
    /* Check curve matches identifier string */
    if ((err = ecc_ssh_ecdsa_encode_name(name2, &name2len, key)) != CRYPT_OK) goto error;
    if (XSTRCMP(name,name2) != 0) {
