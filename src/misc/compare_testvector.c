@@ -64,12 +64,12 @@ int compare_testvector(const void* is, const unsigned long is_len, const void* s
    }
 #if defined(LTC_TEST) && defined(LTC_TEST_DBG)
    if (res != 0) {
-      fprintf(stderr, "Testvector #%i of %s failed:\n", which, what);
+      fprintf(stderr, "Testvector #%i(0x%x) of %s failed:\n", which, which, what);
       s_print_hex("SHOULD", should, should_len);
       s_print_hex("IS    ", is, is_len);
 #if LTC_TEST_DBG > 1
    } else {
-      fprintf(stderr, "Testvector #%i of %s passed!\n", which, what);
+      fprintf(stderr, "Testvector #%i(0x%x) of %s passed!\n", which, which, what);
 #endif
    }
 #else

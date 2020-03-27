@@ -258,12 +258,7 @@ static int rsa_compat_test(void)
    DO(rsa_import(openssl_public_rsa, sizeof(openssl_public_rsa), &key));
    len = sizeof(buf);
    DO(rsa_export(buf, &len, PK_PUBLIC | PK_STD, &key));
-   if (len != sizeof(openssl_public_rsa) || memcmp(buf, openssl_public_rsa, len)) {
-      fprintf(stderr, "RSA(public) SSL public X.509 export failed to match OpenSSL output\n");
-      print_hex("should", openssl_public_rsa, sizeof(openssl_public_rsa));
-      print_hex("is", buf, len);
-      return 1;
-   }
+   DO(do_compare_testvector(buf, len, openssl_public_rsa, sizeof(openssl_public_rsa),  "RSA public export (X.509)", 0));
    rsa_free(&key);
 
    return 0;
@@ -472,24 +467,12 @@ print_hex("q", tmp, len);
       SHOULD_FAIL(rsa_decrypt_key(out, len, tmp, &len2, NULL, 0, hash_idx, &stat2, &key));
       /* change a byte back */
       out[8] ^= 1;
-      if (len2 != rsa_msgsize) {
-         fprintf(stderr, "\n%i:rsa_decrypt_key mismatch len %lu (first decrypt)", __LINE__, len2);
-         return 1;
-      }
+      ENSURE(len2 == rsa_msgsize);
 
       len2 = rsa_msgsize;
       DO(rsa_decrypt_key(out, len, tmp, &len2, NULL, 0, hash_idx, &stat, &key));
-      if (!(stat == 1 && stat2 == 0)) {
-         fprintf(stderr, "rsa_decrypt_key (without lparam) failed (rsa_msgsize = %lu)", rsa_msgsize);
-         fprintf(stderr, "\n stat: %i   stat2: %i", stat, stat2);
-         return 1;
-      }
-      if (len2 != rsa_msgsize || memcmp(tmp, in, rsa_msgsize)) {
-         fprintf(stderr, "\nrsa_decrypt_key mismatch, len %lu (second decrypt)\n", len2);
-         print_hex("Original", in, rsa_msgsize);
-         print_hex("Output", tmp, len2);
-         return 1;
-      }
+      ENSUREX(stat == 1 && stat2 == 0, "rsa_decrypt_key (without lparam)");
+      DO(do_compare_testvector(tmp, len2, in, rsa_msgsize,  "rsa_decrypt_key (without lparam)", cnt << 8 | rsa_msgsize));
    }
    }
 
@@ -501,25 +484,15 @@ print_hex("q", tmp, len);
       /* change a byte */
       out[8] ^= 1;
       SHOULD_FAIL(rsa_decrypt_key(out, len, tmp, &len2, lparam, sizeof(lparam), hash_idx, &stat2, &key));
-      if (len2 != rsa_msgsize) {
-         fprintf(stderr, "\n%i:rsa_decrypt_key mismatch len %lu (first decrypt)", __LINE__, len2);
-         return 1;
-      }
+      ENSURE(len2 == rsa_msgsize);
+
       /* change a byte back */
       out[8] ^= 1;
 
       len2 = rsa_msgsize;
       DO(rsa_decrypt_key(out, len, tmp, &len2, lparam, sizeof(lparam), hash_idx, &stat, &key));
-      if (!(stat == 1 && stat2 == 0)) {
-         fprintf(stderr, "rsa_decrypt_key (with lparam) failed (rsa_msgsize = %lu)", rsa_msgsize);
-         return 1;
-      }
-      if (len2 != rsa_msgsize || memcmp(tmp, in, rsa_msgsize)) {
-         fprintf(stderr, "rsa_decrypt_key mismatch len %lu", len2);
-         print_hex("Original", in, rsa_msgsize);
-         print_hex("Output", tmp, len2);
-         return 1;
-      }
+      ENSURE(stat == 1 && stat2 == 0);
+      DO(do_compare_testvector(tmp, len2, in, rsa_msgsize,  "rsa_decrypt_key (with lparam)", rsa_msgsize));
    }
 
    /* encrypt the key PKCS #1 v1.5 (payload from 1 to 117 bytes) */
@@ -532,20 +505,8 @@ print_hex("q", tmp, len);
 
       len2 = rsa_msgsize;
       DO(rsa_decrypt_key_ex(out, len, tmp, &len2, NULL, 0, 0, LTC_PKCS_1_V1_5, &stat, &key));
-      if (stat != 1) {
-         fprintf(stderr, "rsa_decrypt_key_ex failed, %d, %d", stat, stat2);
-         return 1;
-      }
-      if (len2 != rsa_msgsize) {
-         fprintf(stderr, "rsa_decrypt_key_ex mismatch len %lu", len2);
-         return 1;
-      }
-      if (memcmp(tmp, in, rsa_msgsize)) {
-         fprintf(stderr, "rsa_decrypt_key_ex mismatch data");
-         print_hex("Original", in, rsa_msgsize);
-         print_hex("Output", tmp, rsa_msgsize);
-         return 1;
-      }
+      ENSURE(stat == 1);
+      DO(do_compare_testvector(tmp, len2, in, rsa_msgsize,  "rsa_decrypt_key_ex", rsa_msgsize));
    }
 
    /* sign a message (unsalted, lower cholestorol and Atkins approved) now */
@@ -574,13 +535,7 @@ print_hex("q", tmp, len);
    in[0] ^= 1;
    DO(rsa_verify_hash(out, len, in, 20, hash_idx, 0, &stat2, &key));
 
-   if (!(stat == 1 && stat2 == 0)) {
-      fprintf(stderr, "rsa_verify_hash (unsalted, origKey) failed, %d, %d", stat, stat2);
-      rsa_free(&key);
-      rsa_free(&pubKey);
-      rsa_free(&privKey);
-      return 1;
-   }
+   ENSUREX(stat == 1 && stat2 == 0, "rsa_verify_hash (unsalted, origKey) failed");
 
    /* verify with privKey */
    /* change byte back to original */
@@ -736,10 +691,7 @@ print_hex("q", tmp, len);
    DO(rsa_import_x509(tmp, len3, &key));
    len = sizeof(tmp);
    DO(rsa_export(tmp, &len, PK_PUBLIC, &key));
-   if (len != sizeof(openssl_public_rsa_stripped) || memcmp(tmp, openssl_public_rsa_stripped, len)) {
-      fprintf(stderr, "RSA public export failed to match rsa_import_x509\n");
-      return 1;
-   }
+   DO(do_compare_testvector(tmp, len, openssl_public_rsa_stripped, sizeof(openssl_public_rsa_stripped),  "RSA public export failed to match rsa_import_x509", 0));
    rsa_free(&key);
 
    len3 = sizeof(tmp);
