@@ -1560,21 +1560,27 @@ static void der_toolong_test(void)
 
 static void _der_recursion_limit(void)
 {
-   int failed = 0;
-   unsigned int n;
+   unsigned int n, m;
    unsigned long integer = 123, s;
    ltc_asn1_list seqs[LTC_DER_MAX_RECURSION + 2], dummy[1], *flexi;
    unsigned char buf[2048];
-   LTC_SET_ASN1(dummy, 0, LTC_ASN1_SHORT_INTEGER, &integer, 1);
-   LTC_SET_ASN1(seqs, LTC_DER_MAX_RECURSION + 1, LTC_ASN1_SEQUENCE, dummy, 1);
-   for (n = 0; n < LTC_DER_MAX_RECURSION + 1; ++n) {
-      LTC_SET_ASN1(seqs, LTC_DER_MAX_RECURSION - n, LTC_ASN1_SEQUENCE, &seqs[LTC_DER_MAX_RECURSION - n + 1], 1);
+   for (m = 0; m < 3; ++m) {
+      LTC_SET_ASN1(dummy, 0, LTC_ASN1_SHORT_INTEGER, &integer, 1);
+      LTC_SET_ASN1(seqs, LTC_DER_MAX_RECURSION + 1, LTC_ASN1_SEQUENCE, dummy, 1);
+      for (n = m; n < LTC_DER_MAX_RECURSION + 1; ++n) {
+         LTC_SET_ASN1(seqs, LTC_DER_MAX_RECURSION - n, LTC_ASN1_SEQUENCE, &seqs[LTC_DER_MAX_RECURSION - n + 1], 1);
+      }
+      s = sizeof(buf);
+      DO(der_encode_sequence(&seqs[m], 1, buf, &s));
+      DO(der_decode_sequence(buf, s, &seqs[m], 1));
+      if (m < 2) {
+         SHOULD_FAIL(der_decode_sequence_flexi(buf, &s, &flexi));
+      }
+      else {
+         DO(der_decode_sequence_flexi(buf, &s, &flexi));
+         der_free_sequence_flexi(flexi);
+      }
    }
-   s = sizeof(buf);
-   DO(der_encode_sequence(seqs, 1, buf, &s));
-   DO(der_decode_sequence(buf, s, seqs, 1));
-   SHOULD_FAIL(der_decode_sequence_flexi(buf, &s, &flexi));
-   if (failed) exit(EXIT_FAILURE);
 }
 
 int der_test(void)

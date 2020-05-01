@@ -39,11 +39,12 @@ static int _new_element(ltc_asn1_list **l)
    @param in      The input buffer
    @param inlen   [in/out] The length of the input buffer and on output the amount of decoded data
    @param out     [out] A pointer to the linked list
+   @param depth   The depth/level of decoding recursion we've already reached
    @return CRYPT_OK on success.
 */
-int der_decode_sequence_flexi(const unsigned char *in, unsigned long *inlen, ltc_asn1_list **out)
+static int s_der_decode_sequence_flexi(const unsigned char *in, unsigned long *inlen, ltc_asn1_list **out, unsigned long depth)
 {
-   ltc_asn1_list *l, *t;
+   ltc_asn1_list *l;
    unsigned long err, identifier, len, totlen, data_offset, id_len, len_len;
    void          *realloc_tmp;
 
@@ -428,6 +429,12 @@ int der_decode_sequence_flexi(const unsigned char *in, unsigned long *inlen, ltc
                }
              }
 
+             /* check that we don't go over the recursion limit */
+             if (depth > LTC_DER_MAX_RECURSION) {
+                err = CRYPT_PK_ASN1_ERROR;
+                goto error;
+             }
+
              if ((l->data = XMALLOC(len)) == NULL) {
                 err = CRYPT_MEM;
                 goto error;
@@ -446,7 +453,7 @@ int der_decode_sequence_flexi(const unsigned char *in, unsigned long *inlen, ltc
              len_len = len;
 
              /* Sequence elements go as child */
-             if ((err = der_decode_sequence_flexi(in, &len, &(l->child))) != CRYPT_OK) {
+             if ((err = s_der_decode_sequence_flexi(in, &len, &(l->child), depth+1)) != CRYPT_OK) {
                 goto error;
              }
              if (len_len != len) {
@@ -461,17 +468,6 @@ int der_decode_sequence_flexi(const unsigned char *in, unsigned long *inlen, ltc
              if (l->child) {
                 /* link them up y0 */
                 l->child->parent = l;
-             }
-
-             t = l;
-             len_len = 0;
-             while((t != NULL) && (t->child != NULL)) {
-                len_len++;
-                t = t->child;
-             }
-             if (len_len > LTC_DER_MAX_RECURSION) {
-                err = CRYPT_PK_ASN1_ERROR;
-                goto error;
              }
 
              break;
@@ -533,6 +529,18 @@ error:
    der_sequence_free(l);
 
    return err;
+}
+
+/**
+   ASN.1 DER Flexi(ble) decoder will decode arbitrary DER packets and create a linked list of the decoded elements.
+   @param in      The input buffer
+   @param inlen   [in/out] The length of the input buffer and on output the amount of decoded data
+   @param out     [out] A pointer to the linked list
+   @return CRYPT_OK on success.
+*/
+int der_decode_sequence_flexi(const unsigned char *in, unsigned long *inlen, ltc_asn1_list **out)
+{
+   return s_der_decode_sequence_flexi(in, inlen, out, 0);
 }
 
 #endif
