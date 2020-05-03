@@ -52,7 +52,7 @@ const unsigned char gcm_shift_table[256*2] = {
 
 #ifndef LTC_FAST
 /* right shift */
-static void _gcm_rightshift(unsigned char *a)
+static void s_gcm_rightshift(unsigned char *a)
 {
    int x;
    for (x = 15; x > 0; x--) {
@@ -86,7 +86,7 @@ void gcm_gf_mult(const unsigned char *a, const unsigned char *b, unsigned char *
           }
        }
        z     = V[15] & 0x01;
-       _gcm_rightshift(V);
+       s_gcm_rightshift(V);
        V[0] ^= poly[z];
    }
    XMEMCPY(c, Z, 16);

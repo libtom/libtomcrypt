@@ -53,7 +53,7 @@ const struct ltc_prng_descriptor fortuna_desc = {
 };
 
 /* update the IV */
-static void _fortuna_update_iv(prng_state *prng)
+static void s_fortuna_update_iv(prng_state *prng)
 {
    int            x;
    unsigned char *IV;
@@ -67,7 +67,7 @@ static void _fortuna_update_iv(prng_state *prng)
 
 #ifdef LTC_FORTUNA_RESEED_RATELIMIT_TIMED
 /* get the current time in 100ms steps */
-static ulong64 _fortuna_current_time(void)
+static ulong64 s_fortuna_current_time(void)
 {
    ulong64 cur_time;
 #if defined(_WIN32)
@@ -93,7 +93,7 @@ static ulong64 _fortuna_current_time(void)
 #endif
 
 /* reseed the PRNG */
-static int _fortuna_reseed(prng_state *prng)
+static int s_fortuna_reseed(prng_state *prng)
 {
    unsigned char tmp[MAXBLOCKSIZE];
    hash_state    md;
@@ -101,7 +101,7 @@ static int _fortuna_reseed(prng_state *prng)
    int           err, x;
 
 #ifdef LTC_FORTUNA_RESEED_RATELIMIT_TIMED
-   ulong64 now = _fortuna_current_time();
+   ulong64 now = s_fortuna_current_time();
    if (now == prng->u.fortuna.wd) {
       return CRYPT_OK;
    }
@@ -149,7 +149,7 @@ static int _fortuna_reseed(prng_state *prng)
    if ((err = rijndael_setup(prng->u.fortuna.K, 32, 0, &prng->u.fortuna.skey)) != CRYPT_OK) {
       return err;
    }
-   _fortuna_update_iv(prng);
+   s_fortuna_update_iv(prng);
 
    /* reset/update internals */
    prng->u.fortuna.pool0_len = 0;
@@ -198,7 +198,7 @@ int fortuna_update_seed(const unsigned char *in, unsigned long inlen, prng_state
    if ((err = sha256_done(&md, prng->u.fortuna.K)) != CRYPT_OK) {
       goto LBL_UNLOCK;
    }
-   _fortuna_update_iv(prng);
+   s_fortuna_update_iv(prng);
 
 LBL_UNLOCK:
    LTC_MUTEX_UNLOCK(&prng->lock);
@@ -249,7 +249,7 @@ int fortuna_start(prng_state *prng)
    return CRYPT_OK;
 }
 
-static int _fortuna_add(unsigned long source, unsigned long pool, const unsigned char *in, unsigned long inlen, prng_state *prng)
+static int s_fortuna_add(unsigned long source, unsigned long pool, const unsigned char *in, unsigned long inlen, prng_state *prng)
 {
    unsigned char tmp[2];
    int err;
@@ -296,7 +296,7 @@ int fortuna_add_random_event(unsigned long source, unsigned long pool, const uns
 
    LTC_MUTEX_LOCK(&prng->lock);
 
-   err = _fortuna_add(source, pool, in, inlen, prng);
+   err = s_fortuna_add(source, pool, in, inlen, prng);
 
    LTC_MUTEX_UNLOCK(&prng->lock);
 
@@ -320,7 +320,7 @@ int fortuna_add_entropy(const unsigned char *in, unsigned long inlen, prng_state
 
    LTC_MUTEX_LOCK(&prng->lock);
 
-   err = _fortuna_add(0, prng->u.fortuna.pool_idx, in, inlen, prng);
+   err = s_fortuna_add(0, prng->u.fortuna.pool_idx, in, inlen, prng);
 
    if (err == CRYPT_OK) {
       ++(prng->u.fortuna.pool_idx);
@@ -346,11 +346,11 @@ int fortuna_ready(prng_state *prng)
    /* make sure the reseed doesn't fail because
     * of the chosen rate limit */
 #ifdef LTC_FORTUNA_RESEED_RATELIMIT_TIMED
-   prng->u.fortuna.wd = _fortuna_current_time() - 1;
+   prng->u.fortuna.wd = s_fortuna_current_time() - 1;
 #else
    prng->u.fortuna.wd = LTC_FORTUNA_WD;
 #endif
-   err = _fortuna_reseed(prng);
+   err = s_fortuna_reseed(prng);
    prng->ready = (err == CRYPT_OK) ? 1 : 0;
 
    LTC_MUTEX_UNLOCK(&prng->lock);
@@ -379,7 +379,7 @@ unsigned long fortuna_read(unsigned char *out, unsigned long outlen, prng_state 
 
    /* do we have to reseed? */
    if (prng->u.fortuna.pool0_len >= 64) {
-      if (_fortuna_reseed(prng) != CRYPT_OK) {
+      if (s_fortuna_reseed(prng) != CRYPT_OK) {
          goto LBL_UNLOCK;
       }
    }
@@ -398,22 +398,22 @@ unsigned long fortuna_read(unsigned char *out, unsigned long outlen, prng_state 
       rijndael_ecb_encrypt(prng->u.fortuna.IV, out, &prng->u.fortuna.skey);
       out += 16;
       outlen -= 16;
-      _fortuna_update_iv(prng);
+      s_fortuna_update_iv(prng);
    }
 
    /* left over bytes? */
    if (outlen > 0) {
       rijndael_ecb_encrypt(prng->u.fortuna.IV, tmp, &prng->u.fortuna.skey);
       XMEMCPY(out, tmp, outlen);
-      _fortuna_update_iv(prng);
+      s_fortuna_update_iv(prng);
    }
 
    /* generate new key */
    rijndael_ecb_encrypt(prng->u.fortuna.IV, prng->u.fortuna.K   , &prng->u.fortuna.skey);
-   _fortuna_update_iv(prng);
+   s_fortuna_update_iv(prng);
 
    rijndael_ecb_encrypt(prng->u.fortuna.IV, prng->u.fortuna.K+16, &prng->u.fortuna.skey);
-   _fortuna_update_iv(prng);
+   s_fortuna_update_iv(prng);
 
    if (rijndael_setup(prng->u.fortuna.K, 32, 0, &prng->u.fortuna.skey) != CRYPT_OK) {
       tlen = 0;

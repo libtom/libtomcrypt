@@ -21,7 +21,7 @@ static const char * const constants = "expand 32-byte k";
     x[a] ^= (ROL((x[d] + x[c]), 18));
 
 /* use modified salsa20 doubleround (no final addition as in salsa20) */
-static void _xsalsa20_doubleround(ulong32 *x, int rounds)
+static void s_xsalsa20_doubleround(ulong32 *x, int rounds)
 {
    int i;
 
@@ -87,7 +87,7 @@ int xsalsa20_setup(salsa20_state *st, const unsigned char *key, unsigned long ke
    LOAD32L(x[ 9], nonce + 12);
 
    /* use modified salsa20 doubleround (no final addition) */
-   _xsalsa20_doubleround(x, rounds);
+   s_xsalsa20_doubleround(x, rounds);
 
    /* extract the subkey */
    for (i = 0; i < 8; ++i) {

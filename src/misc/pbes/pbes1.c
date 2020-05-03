@@ -4,7 +4,7 @@
 
 #ifdef LTC_PBES
 
-static int _pkcs_5_alg1_wrap(const unsigned char *password, unsigned long password_len,
+static int s_pkcs_5_alg1_wrap(const unsigned char *password, unsigned long password_len,
                               const unsigned char *salt,     unsigned long salt_len,
                               int iteration_count,  int hash_idx,
                               unsigned char *out,   unsigned long *outlen)
@@ -13,7 +13,7 @@ static int _pkcs_5_alg1_wrap(const unsigned char *password, unsigned long passwo
    return pkcs_5_alg1(password, password_len, salt, iteration_count, hash_idx, out, outlen);
 }
 
-static int _pkcs_12_wrap(const unsigned char *password, unsigned long password_len,
+static int s_pkcs_12_wrap(const unsigned char *password, unsigned long password_len,
                               const unsigned char *salt,     unsigned long salt_len,
                               int iteration_count,  int hash_idx,
                               unsigned char *out,   unsigned long *outlen)
@@ -41,13 +41,13 @@ LBL_ERROR:
 }
 
 static const pbes_properties _pbes1_types[] = {
-   { _pkcs_5_alg1_wrap, "md2",   "des",   8, 8 },
-   { _pkcs_5_alg1_wrap, "md2",   "rc2",   8, 8 },
-   { _pkcs_5_alg1_wrap, "md5",   "des",   8, 8 },
-   { _pkcs_5_alg1_wrap, "md5",   "rc2",   8, 8 },
-   { _pkcs_5_alg1_wrap, "sha1",  "des",   8, 8 },
-   { _pkcs_5_alg1_wrap, "sha1",  "rc2",   8, 8 },
-   { _pkcs_12_wrap,     "sha1",  "3des", 24, 8 },
+   { s_pkcs_5_alg1_wrap, "md2",   "des",   8, 8 },
+   { s_pkcs_5_alg1_wrap, "md2",   "rc2",   8, 8 },
+   { s_pkcs_5_alg1_wrap, "md5",   "des",   8, 8 },
+   { s_pkcs_5_alg1_wrap, "md5",   "rc2",   8, 8 },
+   { s_pkcs_5_alg1_wrap, "sha1",  "des",   8, 8 },
+   { s_pkcs_5_alg1_wrap, "sha1",  "rc2",   8, 8 },
+   { s_pkcs_12_wrap,     "sha1",  "3des", 24, 8 },
 };
 
 typedef struct {
@@ -66,7 +66,7 @@ static const oid_to_pbes _pbes1_list[] = {
    { 0 },
 };
 
-static int _pbes1_from_oid(const ltc_asn1_list *oid, pbes_properties *res)
+static int s_pbes1_from_oid(const ltc_asn1_list *oid, pbes_properties *res)
 {
    unsigned int i;
    for (i = 0; _pbes1_list[i].data != NULL; ++i) {
@@ -92,7 +92,7 @@ int pbes1_extract(const ltc_asn1_list *s, pbes_arg *res)
    LTC_ARGCHK(s   != NULL);
    LTC_ARGCHK(res != NULL);
 
-   if ((err = _pbes1_from_oid(s, &res->type)) != CRYPT_OK) return err;
+   if ((err = s_pbes1_from_oid(s, &res->type)) != CRYPT_OK) return err;
 
    if (!LTC_ASN1_IS_TYPE(s->next, LTC_ASN1_SEQUENCE) ||
        !LTC_ASN1_IS_TYPE(s->next->child, LTC_ASN1_OCTET_STRING) ||

@@ -9,7 +9,7 @@
 
 #ifdef LTC_DER
 
-static int _char_to_int(unsigned char x)
+static int s_char_to_int(unsigned char x)
 {
    switch (x)  {
       case '0': return 0;
@@ -27,7 +27,7 @@ static int _char_to_int(unsigned char x)
 }
 
 #define DECODE_V(y, max) \
-   y  = _char_to_int(buf[x])*10 + _char_to_int(buf[x+1]); \
+   y  = s_char_to_int(buf[x])*10 + s_char_to_int(buf[x+1]); \
    if (y >= max) return CRYPT_INVALID_PACKET;           \
    x += 2;
 

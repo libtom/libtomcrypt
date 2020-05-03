@@ -4,7 +4,7 @@
 
 #ifdef LTC_MECC
 
-static int _ecc_import_x509_with_oid(const unsigned char *in, unsigned long inlen, ecc_key *key)
+static int s_ecc_import_x509_with_oid(const unsigned char *in, unsigned long inlen, ecc_key *key)
 {
    unsigned char bin_xy[2*ECC_MAXSIZE+2];
    unsigned long curveoid[16];
@@ -30,7 +30,7 @@ error:
    return err;
 }
 
-static int _ecc_import_x509_with_curve(const unsigned char *in, unsigned long inlen, ecc_key *key)
+static int s_ecc_import_x509_with_curve(const unsigned char *in, unsigned long inlen, ecc_key *key)
 {
    void *prime, *order, *a, *b, *gx, *gy;
    ltc_asn1_list seq_fieldid[2], seq_curve[3], seq_ecparams[6];
@@ -87,11 +87,11 @@ int ecc_import_subject_public_key_info(const unsigned char *in, unsigned long in
 {
    int err;
 
-   if ((err = _ecc_import_x509_with_oid(in, inlen, key)) == CRYPT_OK) {
+   if ((err = s_ecc_import_x509_with_oid(in, inlen, key)) == CRYPT_OK) {
       goto success;
    }
 
-   err = _ecc_import_x509_with_curve(in, inlen, key);
+   err = s_ecc_import_x509_with_curve(in, inlen, key);
 
 success:
    return err;

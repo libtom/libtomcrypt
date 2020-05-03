@@ -45,7 +45,7 @@ static const oid_to_pbes _pbes2_list[] = {
    { &_pbes2_default_types[5], "2.16.840.1.101.3.4.1.42" },  /* http://www.oid-info.com/get/2.16.840.1.101.3.4.1.42 aes256-CBC */
 };
 
-static int _pbes2_from_oid(const ltc_asn1_list *cipher_oid, const ltc_asn1_list *hmac_oid, pbes_properties *res)
+static int s_pbes2_from_oid(const ltc_asn1_list *cipher_oid, const ltc_asn1_list *hmac_oid, pbes_properties *res)
 {
    unsigned int i;
    for (i = 0; i < sizeof(_pbes2_list)/sizeof(_pbes2_list[0]); ++i) {
@@ -140,7 +140,7 @@ int pbes2_extract(const ltc_asn1_list *s, pbes_arg *res)
        LTC_ASN1_IS_TYPE(loptseq->child, LTC_ASN1_OBJECT_IDENTIFIER)) {
       lhmac = loptseq->child;
    }
-   if ((err = _pbes2_from_oid(lenc, lhmac, &res->type)) != CRYPT_OK) return err;
+   if ((err = s_pbes2_from_oid(lenc, lhmac, &res->type)) != CRYPT_OK) return err;
 
    if (LTC_ASN1_IS_TYPE(lenc->next, LTC_ASN1_OCTET_STRING)) {
       /* 'NON-RC2'-CBC */

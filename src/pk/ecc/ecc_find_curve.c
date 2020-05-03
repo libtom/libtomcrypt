@@ -185,7 +185,7 @@ static const struct {
 };
 
 /* case-insensitive match + ignore '-', '_', ' ' */
-static int _name_match(const char *left, const char *right)
+static int s_name_match(const char *left, const char *right)
 {
    char lc_r, lc_l;
 
@@ -221,7 +221,7 @@ int ecc_find_curve(const char *name_or_oid, const ltc_ecc_curve **cu)
          OID = _curve_names[i].OID;
       }
       for (j = 0; _curve_names[i].names[j] != NULL && !OID; j++) {
-         if (_name_match(_curve_names[i].names[j], name_or_oid)) {
+         if (s_name_match(_curve_names[i].names[j], name_or_oid)) {
             OID = _curve_names[i].OID;
          }
       }

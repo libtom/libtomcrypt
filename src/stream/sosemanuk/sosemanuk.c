@@ -579,7 +579,7 @@ static const ulong32 mul_ia[] = {
  * Compute the next block of bits of output stream. This is equivalent
  * to one full rotation of the shift register.
  */
-static LTC_INLINE void _sosemanuk_internal(sosemanuk_state *st)
+static LTC_INLINE void s_sosemanuk_internal(sosemanuk_state *st)
 {
     /*
      * MUL_A(x) computes alpha * x (in F_{2^32}).
@@ -717,7 +717,7 @@ static LTC_INLINE void _sosemanuk_internal(sosemanuk_state *st)
  * or in2[] is not allowed. Total overlap (out == in1 and/or out == in2)
  * is allowed.
  */
-static LTC_INLINE void _xorbuf(const unsigned char *in1, const unsigned char *in2,
+static LTC_INLINE void s_xorbuf(const unsigned char *in1, const unsigned char *in2,
     unsigned char *out, unsigned long datalen)
 {
     while (datalen -- > 0) {
@@ -750,21 +750,21 @@ int sosemanuk_crypt(sosemanuk_state *st,
         if (rlen > inlen) {
             rlen = inlen;
         }
-        _xorbuf(st->buf + st->ptr, in, out, rlen);
+        s_xorbuf(st->buf + st->ptr, in, out, rlen);
         in += rlen;
         out += rlen;
         inlen -= rlen;
         st->ptr += rlen;
     }
     while (inlen > 0) {
-        _sosemanuk_internal(st);
+        s_sosemanuk_internal(st);
         if (inlen >= sizeof(st->buf)) {
-            _xorbuf(st->buf, in, out, sizeof(st->buf));
+            s_xorbuf(st->buf, in, out, sizeof(st->buf));
             in += sizeof(st->buf);
             out += sizeof(st->buf);
             inlen -= sizeof(st->buf);
         } else {
-            _xorbuf(st->buf, in, out, inlen);
+            s_xorbuf(st->buf, in, out, inlen);
             st->ptr = inlen;
             inlen = 0;
         }

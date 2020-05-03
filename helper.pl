@@ -65,8 +65,8 @@ sub check_source {
           $file !~ m|src/math/.+_desc.c$| &&
           $file !~ m|src/pk/ec25519/tweetnacl.c$| &&
           $file !~ m|src/stream/sober128/sober128_stream.c$| &&
-          $l =~ /^static(\s+[a-zA-Z0-9_]+)+\s+([^_][a-zA-Z0-9_]+)\s*\(/) {
-        push @{$troubles->{staticfunc_name}}, "$lineno($2)";
+          $l =~ /^static(\s+[a-zA-Z0-9_]+)+\s+([^s][a-zA-Z0-9_]+)\s*\(/) {
+        push @{$troubles->{staticfunc_name}}, "$2";
       }
       if ($file =~ m|src/.*\.[ch]$| && $l =~ /^\s*#\s*define\s+(_[A-Z_][a-zA-Z0-9_]*)\b/) {
         my $n = $1;

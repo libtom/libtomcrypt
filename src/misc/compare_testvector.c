@@ -9,7 +9,7 @@
 */
 
 #if defined(LTC_TEST) && defined(LTC_TEST_DBG)
-static void _print_hex(const char* what, const void* v, const unsigned long l)
+static void s_print_hex(const char* what, const void* v, const unsigned long l)
 {
   const unsigned char* p = v;
   unsigned long x, y = 0, z;
@@ -65,8 +65,8 @@ int compare_testvector(const void* is, const unsigned long is_len, const void* s
 #if defined(LTC_TEST) && defined(LTC_TEST_DBG)
    if (res != 0) {
       fprintf(stderr, "Testvector #%i of %s failed:\n", which, what);
-      _print_hex("SHOULD", should, should_len);
-      _print_hex("IS    ", is, is_len);
+      s_print_hex("SHOULD", should, should_len);
+      s_print_hex("IS    ", is, is_len);
 #if LTC_TEST_DBG > 1
    } else {
       fprintf(stderr, "Testvector #%i of %s passed!\n", which, what);

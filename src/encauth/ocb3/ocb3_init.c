@@ -9,7 +9,7 @@
 
 #ifdef LTC_OCB3_MODE
 
-static void _ocb3_int_calc_offset_zero(ocb3_state *ocb, const unsigned char *nonce, unsigned long noncelen, unsigned long taglen)
+static void s_ocb3_int_calc_offset_zero(ocb3_state *ocb, const unsigned char *nonce, unsigned long noncelen, unsigned long taglen)
 {
    int x, y, bottom;
    int idx, shift;
@@ -166,7 +166,7 @@ int ocb3_init(ocb3_state *ocb, int cipher,
    }
 
    /* initialize ocb->Offset_current = Offset_0 */
-   _ocb3_int_calc_offset_zero(ocb, nonce, noncelen, taglen);
+   s_ocb3_int_calc_offset_zero(ocb, nonce, noncelen, taglen);
 
    /* initialize checksum to all zeros */
    zeromem(ocb->checksum, ocb->block_len);
