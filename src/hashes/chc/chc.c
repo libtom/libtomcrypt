@@ -121,7 +121,7 @@ int chc_init(hash_state *md)
    T0     <= encrypt T0
    state  <= state xor T0 xor T1
 */
-static int chc_compress(hash_state *md, const unsigned char *buf)
+static int s_chc_compress(hash_state *md, const unsigned char *buf)
 {
    unsigned char  T[2][MAXBLOCKSIZE];
    symmetric_key *key;
@@ -154,8 +154,8 @@ static int chc_compress(hash_state *md, const unsigned char *buf)
    @param len  The length of the data (octets)
    @return CRYPT_OK if successful
 */
-static int _chc_process(hash_state * md, const unsigned char *in, unsigned long inlen);
-static HASH_PROCESS(_chc_process, chc_compress, chc, (unsigned long)cipher_blocksize)
+static int ss_chc_process(hash_state * md, const unsigned char *in, unsigned long inlen);
+static HASH_PROCESS(ss_chc_process, s_chc_compress, chc, (unsigned long)cipher_blocksize)
 
 /**
    Process a block of memory though the hash
@@ -179,7 +179,7 @@ int chc_process(hash_state * md, const unsigned char *in, unsigned long inlen)
       return CRYPT_INVALID_CIPHER;
    }
 
-   return _chc_process(md, in, inlen);
+   return ss_chc_process(md, in, inlen);
 }
 
 /**
@@ -221,7 +221,7 @@ int chc_done(hash_state *md, unsigned char *out)
         while (md->chc.curlen < (unsigned long)cipher_blocksize) {
             md->chc.buf[md->chc.curlen++] = (unsigned char)0;
         }
-        chc_compress(md, md->chc.buf);
+        s_chc_compress(md, md->chc.buf);
         md->chc.curlen = 0;
     }
 
@@ -232,7 +232,7 @@ int chc_done(hash_state *md, unsigned char *out)
 
     /* store length */
     STORE64L(md->chc.length, md->chc.buf+(cipher_blocksize-8));
-    chc_compress(md, md->chc.buf);
+    s_chc_compress(md, md->chc.buf);
 
     /* copy output */
     XMEMCPY(out, md->chc.state, cipher_blocksize);

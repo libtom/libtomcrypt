@@ -49,7 +49,7 @@ static const unsigned char PI_SUBST[256] = {
 };
 
 /* adds 16 bytes to the checksum */
-static void md2_update_chksum(hash_state *md)
+static void s_md2_update_chksum(hash_state *md)
 {
    int j;
    unsigned char L;
@@ -63,7 +63,7 @@ static void md2_update_chksum(hash_state *md)
    }
 }
 
-static void md2_compress(hash_state *md)
+static void s_md2_compress(hash_state *md)
 {
    int j, k;
    unsigned char t;
@@ -126,8 +126,8 @@ int md2_process(hash_state *md, const unsigned char *in, unsigned long inlen)
 
         /* is 16 bytes full? */
         if (md->md2.curlen == 16) {
-            md2_compress(md);
-            md2_update_chksum(md);
+            s_md2_compress(md);
+            s_md2_update_chksum(md);
             md->md2.curlen = 0;
         }
     }
@@ -159,12 +159,12 @@ int md2_done(hash_state * md, unsigned char *out)
     }
 
     /* hash and update */
-    md2_compress(md);
-    md2_update_chksum(md);
+    s_md2_compress(md);
+    s_md2_update_chksum(md);
 
     /* hash checksum */
     XMEMCPY(md->md2.buf, md->md2.chksum, 16);
-    md2_compress(md);
+    s_md2_compress(md);
 
     /* output is lower 16 bytes of X */
     XMEMCPY(out, md->md2.X, 16);
