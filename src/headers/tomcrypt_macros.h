@@ -74,13 +74,13 @@ asm __volatile__ (               \
    "bswapl %0     \n\t"          \
    "movl   %0,(%1)\n\t"          \
    "bswapl %0     \n\t"          \
-      ::"r"(x), "r"(y));
+      ::"r"(x), "r"(y): "memory");
 
 #define LOAD32H(x, y)          \
 asm __volatile__ (             \
    "movl (%1),%0\n\t"          \
    "bswapl %0\n\t"             \
-   :"=r"(x): "r"(y));
+   :"=r"(x): "r"(y): "memory");
 
 #else
 
