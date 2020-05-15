@@ -127,7 +127,6 @@ sub check_descriptors {
   my $fails = 0;
   $fails = $fails + check_descriptor("ciphers", "cipher");
   $fails = $fails + check_descriptor("hashes", "hash");
-  $fails = $fails + check_descriptor("prngs", "prng");
   return $fails;
 }
 

@@ -23,7 +23,7 @@ enum public_key_type {
    PK_CURVEOID    = 0x4000
 };
 
-int rand_prime(void *N, long len, prng_state *prng, int wprng);
+int rand_prime(void *N, long len, prng_state *prng);
 
 /* ---- RSA ---- */
 #ifdef LTC_MRSA
@@ -50,7 +50,7 @@ typedef struct Rsa_key {
     void *dQ;
 } rsa_key;
 
-int rsa_make_key(prng_state *prng, int wprng, int size, long e, rsa_key *key);
+int rsa_make_key(prng_state *prng, int size, long e, rsa_key *key);
 
 int rsa_get_size(const rsa_key *key);
 
@@ -61,14 +61,14 @@ int rsa_exptmod(const unsigned char *in,   unsigned long inlen,
 void rsa_free(rsa_key *key);
 
 /* These use PKCS #1 v2.0 padding */
-#define rsa_encrypt_key(_in, _inlen, _out, _outlen, _lparam, _lparamlen, _prng, _prng_idx, _hash_idx, _key) \
-  rsa_encrypt_key_ex(_in, _inlen, _out, _outlen, _lparam, _lparamlen, _prng, _prng_idx, _hash_idx, LTC_PKCS_1_OAEP, _key)
+#define rsa_encrypt_key(_in, _inlen, _out, _outlen, _lparam, _lparamlen, _prng, _hash_idx, _key) \
+  rsa_encrypt_key_ex(_in, _inlen, _out, _outlen, _lparam, _lparamlen, _prng, _hash_idx, LTC_PKCS_1_OAEP, _key)
 
 #define rsa_decrypt_key(_in, _inlen, _out, _outlen, _lparam, _lparamlen, _hash_idx, _stat, _key) \
   rsa_decrypt_key_ex(_in, _inlen, _out, _outlen, _lparam, _lparamlen, _hash_idx, LTC_PKCS_1_OAEP, _stat, _key)
 
-#define rsa_sign_hash(_in, _inlen, _out, _outlen, _prng, _prng_idx, _hash_idx, _saltlen, _key) \
-  rsa_sign_hash_ex(_in, _inlen, _out, _outlen, LTC_PKCS_1_PSS, _prng, _prng_idx, _hash_idx, _saltlen, _key)
+#define rsa_sign_hash(_in, _inlen, _out, _outlen, _prng, _hash_idx, _saltlen, _key) \
+  rsa_sign_hash_ex(_in, _inlen, _out, _outlen, LTC_PKCS_1_PSS, _prng, _hash_idx, _saltlen, _key)
 
 #define rsa_verify_hash(_sig, _siglen, _hash, _hashlen, _hash_idx, _saltlen, _stat, _key) \
   rsa_verify_hash_ex(_sig, _siglen, _hash, _hashlen, LTC_PKCS_1_PSS, _hash_idx, _saltlen, _stat, _key)
@@ -80,7 +80,7 @@ void rsa_free(rsa_key *key);
 int rsa_encrypt_key_ex(const unsigned char *in,       unsigned long  inlen,
                              unsigned char *out,      unsigned long *outlen,
                        const unsigned char *lparam,   unsigned long  lparamlen,
-                             prng_state    *prng,     int            prng_idx,
+                             prng_state    *prng,
                              int            hash_idx, int            padding,
                        const rsa_key       *key);
 
@@ -93,7 +93,7 @@ int rsa_decrypt_key_ex(const unsigned char *in,             unsigned long  inlen
 int rsa_sign_hash_ex(const unsigned char *in,       unsigned long  inlen,
                            unsigned char *out,      unsigned long *outlen,
                            int            padding,
-                           prng_state    *prng,     int            prng_idx,
+                           prng_state    *prng,
                            int            hash_idx, unsigned long  saltlen,
                      const rsa_key       *key);
 
@@ -149,7 +149,7 @@ int dh_set_pg_dhparam(const unsigned char *dhparam, unsigned long dhparamlen, dh
 int dh_set_pg_groupsize(int groupsize, dh_key *key);
 
 int dh_set_key(const unsigned char *in, unsigned long inlen, int type, dh_key *key);
-int dh_generate_key(prng_state *prng, int wprng, dh_key *key);
+int dh_generate_key(prng_state *prng, dh_key *key);
 
 int dh_shared_secret(const dh_key  *private_key, const dh_key  *public_key,
                      unsigned char *out,         unsigned long *outlen);
@@ -264,13 +264,13 @@ int  ecc_get_size(const ecc_key *key);
 
 int  ecc_find_curve(const char* name_or_oid, const ltc_ecc_curve** cu);
 int  ecc_set_curve(const ltc_ecc_curve *cu, ecc_key *key);
-int  ecc_generate_key(prng_state *prng, int wprng, ecc_key *key);
+int  ecc_generate_key(prng_state *prng, ecc_key *key);
 int  ecc_set_key(const unsigned char *in, unsigned long inlen, int type, ecc_key *key);
 int  ecc_get_key(unsigned char *out, unsigned long *outlen, int type, const ecc_key *key);
 int  ecc_get_oid_str(char *out, unsigned long *outlen, const ecc_key *key);
 
-int  ecc_make_key(prng_state *prng, int wprng, int keysize, ecc_key *key);
-int  ecc_make_key_ex(prng_state *prng, int wprng, ecc_key *key, const ltc_ecc_curve *cu);
+int  ecc_make_key(prng_state *prng, int keysize, ecc_key *key);
+int  ecc_make_key_ex(prng_state *prng, ecc_key *key, const ltc_ecc_curve *cu);
 void ecc_free(ecc_key *key);
 
 int  ecc_export(unsigned char *out, unsigned long *outlen, int type, const ecc_key *key);
@@ -291,18 +291,18 @@ int  ecc_shared_secret(const ecc_key *private_key, const ecc_key *public_key,
 
 int  ecc_encrypt_key(const unsigned char *in,   unsigned long inlen,
                            unsigned char *out,  unsigned long *outlen,
-                           prng_state *prng, int wprng, int hash,
+                           prng_state *prng, int hash,
                            const ecc_key *key);
 
 int  ecc_decrypt_key(const unsigned char *in,  unsigned long  inlen,
                            unsigned char *out, unsigned long *outlen,
                            const ecc_key *key);
 
-#define ecc_sign_hash_rfc7518(in_, inlen_, out_, outlen_, prng_, wprng_, key_) \
-   ecc_sign_hash_ex(in_, inlen_, out_, outlen_, prng_, wprng_, LTC_ECCSIG_RFC7518, NULL, key_)
+#define ecc_sign_hash_rfc7518(in_, inlen_, out_, outlen_, prng_, key_) \
+   ecc_sign_hash_ex(in_, inlen_, out_, outlen_, prng_, LTC_ECCSIG_RFC7518, NULL, key_)
 
-#define ecc_sign_hash(in_, inlen_, out_, outlen_, prng_, wprng_, key_) \
-   ecc_sign_hash_ex(in_, inlen_, out_, outlen_, prng_, wprng_, LTC_ECCSIG_ANSIX962, NULL, key_)
+#define ecc_sign_hash(in_, inlen_, out_, outlen_, prng_, key_) \
+   ecc_sign_hash_ex(in_, inlen_, out_, outlen_, prng_, LTC_ECCSIG_ANSIX962, NULL, key_)
 
 #define ecc_verify_hash_rfc7518(sig_, siglen_, hash_, hashlen_, stat_, key_) \
    ecc_verify_hash_ex(sig_, siglen_, hash_, hashlen_, LTC_ECCSIG_RFC7518, stat_, key_)
@@ -312,7 +312,7 @@ int  ecc_decrypt_key(const unsigned char *in,  unsigned long  inlen,
 
 int  ecc_sign_hash_ex(const unsigned char *in,  unsigned long inlen,
                             unsigned char *out, unsigned long *outlen,
-                            prng_state *prng, int wprng, ecc_signature_type sigformat,
+                            prng_state *prng, ecc_signature_type sigformat,
                             int *recid, const ecc_key *key);
 
 int  ecc_verify_hash_ex(const unsigned char *sig,  unsigned long siglen,
@@ -347,7 +347,7 @@ typedef struct {
 
 
 /** Ed25519 Signature API */
-int ed25519_make_key(prng_state *prng, int wprng, curve25519_key *key);
+int ed25519_make_key(prng_state *prng, curve25519_key *key);
 
 int ed25519_export(       unsigned char *out, unsigned long *outlen,
                                     int  which,
@@ -369,7 +369,7 @@ int ed25519_verify(const  unsigned char *msg, unsigned long msglen,
                    int *stat, const curve25519_key *public_key);
 
 /** X25519 Key-Exchange API */
-int x25519_make_key(prng_state *prng, int wprng, curve25519_key *key);
+int x25519_make_key(prng_state *prng, curve25519_key *key);
 
 int x25519_export(       unsigned char *out, unsigned long *outlen,
                                    int  which,
@@ -420,27 +420,27 @@ typedef struct {
    void *y;
 } dsa_key;
 
-int dsa_make_key(prng_state *prng, int wprng, int group_size, int modulus_size, dsa_key *key);
+int dsa_make_key(prng_state *prng, int group_size, int modulus_size, dsa_key *key);
 
 int dsa_set_pqg(const unsigned char *p,  unsigned long plen,
                 const unsigned char *q,  unsigned long qlen,
                 const unsigned char *g,  unsigned long glen,
                 dsa_key *key);
 int dsa_set_pqg_dsaparam(const unsigned char *dsaparam, unsigned long dsaparamlen, dsa_key *key);
-int dsa_generate_pqg(prng_state *prng, int wprng, int group_size, int modulus_size, dsa_key *key);
+int dsa_generate_pqg(prng_state *prng, int group_size, int modulus_size, dsa_key *key);
 
 int dsa_set_key(const unsigned char *in, unsigned long inlen, int type, dsa_key *key);
-int dsa_generate_key(prng_state *prng, int wprng, dsa_key *key);
+int dsa_generate_key(prng_state *prng, dsa_key *key);
 
 void dsa_free(dsa_key *key);
 
 int dsa_sign_hash_raw(const unsigned char *in,  unsigned long inlen,
-                                   void *r,   void *s,
-                               prng_state *prng, int wprng, const dsa_key *key);
+                                     void *r,   void *s,
+                               prng_state *prng, const dsa_key *key);
 
 int dsa_sign_hash(const unsigned char *in,  unsigned long inlen,
                         unsigned char *out, unsigned long *outlen,
-                        prng_state *prng, int wprng, const dsa_key *key);
+                        prng_state *prng, const dsa_key *key);
 
 int dsa_verify_hash_raw(         void *r,          void *s,
                     const unsigned char *hash, unsigned long hashlen,
@@ -452,7 +452,7 @@ int dsa_verify_hash(const unsigned char *sig,        unsigned long  siglen,
 
 int dsa_encrypt_key(const unsigned char *in,   unsigned long inlen,
                           unsigned char *out,  unsigned long *outlen,
-                          prng_state    *prng, int wprng, int hash,
+                          prng_state    *prng, int hash,
                     const dsa_key       *key);
 
 int dsa_decrypt_key(const unsigned char *in,  unsigned long  inlen,

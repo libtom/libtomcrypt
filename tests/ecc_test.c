@@ -367,8 +367,8 @@ static int _ecc_old_api(void)
 
    for (s = 0; s < (sizeof(sizes)/sizeof(sizes[0])); s++) {
       /* make up two keys */
-      DO(ecc_make_key (&yarrow_prng, find_prng ("yarrow"), sizes[s], &usera));
-      DO(ecc_make_key (&yarrow_prng, find_prng ("yarrow"), sizes[s], &userb));
+      DO(ecc_make_key (&yarrow_prng, sizes[s], &usera));
+      DO(ecc_make_key (&yarrow_prng, sizes[s], &userb));
       if (ecc_get_size(&usera) != (int)sizes[s]) return CRYPT_FAIL_TESTVECTOR;
       if (ecc_get_size(&userb) != (int)sizes[s]) return CRYPT_FAIL_TESTVECTOR;
 
@@ -434,7 +434,7 @@ static int _ecc_old_api(void)
       ecc_free (&userb);
 
       /* test encrypt_key */
-      DO(ecc_make_key (&yarrow_prng, find_prng ("yarrow"), sizes[s], &usera));
+      DO(ecc_make_key (&yarrow_prng, sizes[s], &usera));
 
       /* export key */
       x = sizeof(buf[0]);
@@ -448,7 +448,7 @@ static int _ecc_old_api(void)
          buf[0][ch] = ch;
       }
       y = sizeof (buf[1]);
-      DO(ecc_encrypt_key (buf[0], 32, buf[1], &y, &yarrow_prng, find_prng ("yarrow"), find_hash ("sha256"), &pubKey));
+      DO(ecc_encrypt_key (buf[0], 32, buf[1], &y, &yarrow_prng, find_hash ("sha256"), &pubKey));
       zeromem (buf[0], sizeof (buf[0]));
       x = sizeof (buf[0]);
       DO(ecc_decrypt_key (buf[1], y, buf[0], &x, &privKey));
@@ -467,7 +467,7 @@ static int _ecc_old_api(void)
          buf[0][ch] = ch;
       }
       x = sizeof (buf[1]);
-      DO(ecc_sign_hash (buf[0], 16, buf[1], &x, &yarrow_prng, find_prng ("yarrow"), &privKey));
+      DO(ecc_sign_hash (buf[0], 16, buf[1], &x, &yarrow_prng, &privKey));
       DO(ecc_verify_hash (buf[1], x, buf[0], 16, &stat, &pubKey));
       buf[0][0] ^= 1;
       DO(ecc_verify_hash (buf[1], x, buf[0], 16, &stat2, &privKey));
@@ -480,7 +480,7 @@ static int _ecc_old_api(void)
          buf[0][ch] = ch;
       }
       x = sizeof (buf[1]);
-      DO(ecc_sign_hash_rfc7518(buf[0], 16, buf[1], &x, &yarrow_prng, find_prng ("yarrow"), &privKey));
+      DO(ecc_sign_hash_rfc7518(buf[0], 16, buf[1], &x, &yarrow_prng, &privKey));
       DO(ecc_verify_hash_rfc7518(buf[1], x, buf[0], 16, &stat, &pubKey));
       buf[0][0] ^= 1;
       DO(ecc_verify_hash_rfc7518(buf[1], x, buf[0], 16, &stat2, &privKey));
@@ -527,7 +527,7 @@ static int _ecc_new_api(void)
    for (i = 0; i < (int)(sizeof(curvenames)/sizeof(curvenames[0])); i++) {
       DO(ecc_find_curve(curvenames[i], &dp));
       /* make new key */
-      DO(ecc_make_key_ex(&yarrow_prng, find_prng ("yarrow"), &key, dp));
+      DO(ecc_make_key_ex(&yarrow_prng, &key, dp));
       len = sizeof(buf);
       DO(ecc_export(buf, &len, PK_PRIVATE, &key));
       DO(ecc_import_ex(buf, len, &privkey, dp));
@@ -544,7 +544,7 @@ static int _ecc_new_api(void)
 
       /* generate new key */
       DO(ecc_set_curve(dp, &key));
-      DO(ecc_generate_key(&yarrow_prng, find_prng ("yarrow"), &key));
+      DO(ecc_generate_key(&yarrow_prng, &key));
       len = sizeof(buf);
       DO(ecc_get_key(buf, &len, PK_PRIVATE, &key));
       ecc_free(&key);
@@ -575,7 +575,7 @@ static int _ecc_new_api(void)
 
       /* test signature */
       len = sizeof(buf);
-      DO(ecc_sign_hash(data16, 16, buf, &len, &yarrow_prng, find_prng ("yarrow"), &privkey));
+      DO(ecc_sign_hash(data16, 16, buf, &len, &yarrow_prng, &privkey));
       stat = 0;
       DO(ecc_verify_hash(buf, len, data16, 16, &stat, &pubkey));
       if (stat != 1) return CRYPT_FAIL_TESTVECTOR;
@@ -583,7 +583,7 @@ static int _ecc_new_api(void)
 #ifdef LTC_SSH
       /* test SSH+ECDSA/RFC5656 signature */
       len = sizeof(buf);
-      DO(ecc_sign_hash_ex(data16, 16, buf, &len, &yarrow_prng, find_prng ("yarrow"),
+      DO(ecc_sign_hash_ex(data16, 16, buf, &len, &yarrow_prng,
                           LTC_ECCSIG_RFC5656, NULL, &privkey));
       stat = 0;
       DO(ecc_verify_hash_ex(buf, len, data16, 16, LTC_ECCSIG_RFC5656, &stat, &pubkey));
@@ -597,7 +597,7 @@ static int _ecc_new_api(void)
          ecc_key reckey;
          /* test recovery */
          len = sizeof(buf);
-         DO(ecc_sign_hash(data16, 16, buf, &len, &yarrow_prng, find_prng ("yarrow"), &privkey));
+         DO(ecc_sign_hash(data16, 16, buf, &len, &yarrow_prng, &privkey));
          DO(ecc_set_curve(dp, &reckey));
          for (j = 0; j < 2*(1+(int)privkey.dp.cofactor); j++) {
             stat = ecc_recover_key(buf, len, data16, 16, j, LTC_ECCSIG_ANSIX962, &reckey);
@@ -612,7 +612,7 @@ static int _ecc_new_api(void)
 
       /* test encryption */
       len = sizeof(buf);
-      DO(ecc_encrypt_key(data16, 16, buf, &len, &yarrow_prng, find_prng("yarrow"), find_hash("sha256"), &pubkey));
+      DO(ecc_encrypt_key(data16, 16, buf, &len, &yarrow_prng, find_hash("sha256"), &pubkey));
       zeromem(data16, 16);
       len16 = 16;
       DO(ecc_decrypt_key(buf, len, data16, &len16, &privkey));
@@ -1549,7 +1549,7 @@ static int _ecc_test_recovery(void)
 
       /* generate new key */
       DO(ecc_set_curve(dp, &key));
-      DO(ecc_generate_key(&yarrow_prng, find_prng ("yarrow"), &key));
+      DO(ecc_generate_key(&yarrow_prng, &key));
 
       /* export private key */
       len = sizeof(buf);
@@ -1572,7 +1572,7 @@ static int _ecc_test_recovery(void)
       /* test signature */
       len = sizeof(buf);
       recid = 0;
-      DO(ecc_sign_hash_ex(data16, 16, buf, &len, &yarrow_prng, find_prng ("yarrow"), LTC_ECCSIG_RFC7518, &recid, &privkey));
+      DO(ecc_sign_hash_ex(data16, 16, buf, &len, &yarrow_prng, LTC_ECCSIG_RFC7518, &recid, &privkey));
 
       /* test verification */
       stat = 0;

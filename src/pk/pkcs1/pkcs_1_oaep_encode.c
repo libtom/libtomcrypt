@@ -23,7 +23,6 @@
   @param lparamlen       The length of the lparam data
   @param modulus_bitlen  The bit length of the RSA modulus
   @param prng            An active PRNG state
-  @param prng_idx        The index of the PRNG desired
   @param hash_idx        The index of the hash desired
   @param out             [out] The destination for the encoded data
   @param outlen          [in/out] The max size and resulting size of the encoded data
@@ -32,7 +31,7 @@
 int pkcs_1_oaep_encode(const unsigned char *msg,    unsigned long msglen,
                        const unsigned char *lparam, unsigned long lparamlen,
                              unsigned long modulus_bitlen, prng_state *prng,
-                             int           prng_idx,         int  hash_idx,
+                             int           hash_idx,
                              unsigned char *out,    unsigned long *outlen)
 {
    unsigned char *DB, *seed, *mask;
@@ -45,11 +44,6 @@ int pkcs_1_oaep_encode(const unsigned char *msg,    unsigned long msglen,
 
    /* test valid hash */
    if ((err = hash_is_valid(hash_idx)) != CRYPT_OK) {
-      return err;
-   }
-
-   /* valid prng */
-   if ((err = prng_is_valid(prng_idx)) != CRYPT_OK) {
       return err;
    }
 
@@ -106,7 +100,7 @@ int pkcs_1_oaep_encode(const unsigned char *msg,    unsigned long msglen,
    x += msglen;
 
    /* now choose a random seed */
-   if (prng_descriptor[prng_idx].read(seed, hLen, prng) != hLen) {
+   if (prng->desc.read(seed, hLen, prng) != hLen) {
       err = CRYPT_ERROR_READPRNG;
       goto LBL_ERR;
    }

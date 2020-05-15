@@ -33,7 +33,7 @@
 int rsa_encrypt_key_ex(const unsigned char *in,       unsigned long  inlen,
                              unsigned char *out,      unsigned long *outlen,
                        const unsigned char *lparam,   unsigned long  lparamlen,
-                             prng_state    *prng,     int            prng_idx,
+                             prng_state    *prng,
                              int            hash_idx, int            padding,
                        const rsa_key       *key)
 {
@@ -49,11 +49,6 @@ int rsa_encrypt_key_ex(const unsigned char *in,       unsigned long  inlen,
   if ((padding != LTC_PKCS_1_V1_5) &&
       (padding != LTC_PKCS_1_OAEP)) {
     return CRYPT_PK_INVALID_PADDING;
-  }
-
-  /* valid prng? */
-  if ((err = prng_is_valid(prng_idx)) != CRYPT_OK) {
-     return err;
   }
 
   if (padding == LTC_PKCS_1_OAEP) {
@@ -77,7 +72,7 @@ int rsa_encrypt_key_ex(const unsigned char *in,       unsigned long  inlen,
     /* OAEP pad the key */
     x = *outlen;
     if ((err = pkcs_1_oaep_encode(in, inlen, lparam,
-                                  lparamlen, modulus_bitlen, prng, prng_idx, hash_idx,
+                                  lparamlen, modulus_bitlen, prng, hash_idx,
                                   out, &x)) != CRYPT_OK) {
        return err;
     }
@@ -85,7 +80,7 @@ int rsa_encrypt_key_ex(const unsigned char *in,       unsigned long  inlen,
     /* PKCS #1 v1.5 pad the key */
     x = *outlen;
     if ((err = pkcs_1_v1_5_encode(in, inlen, LTC_PKCS_1_EME,
-                                  modulus_bitlen, prng, prng_idx,
+                                  modulus_bitlen, prng,
                                   out, &x)) != CRYPT_OK) {
       return err;
     }

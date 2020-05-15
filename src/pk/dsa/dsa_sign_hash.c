@@ -22,13 +22,12 @@
   @param r        The "r" integer of the signature (caller must initialize with mp_init() first)
   @param s        The "s" integer of the signature (caller must initialize with mp_init() first)
   @param prng     An active PRNG state
-  @param wprng    The index of the PRNG desired
   @param key      A private DSA key
   @return CRYPT_OK if successful
 */
 int dsa_sign_hash_raw(const unsigned char *in,  unsigned long inlen,
                                    void   *r,   void *s,
-                               prng_state *prng, int wprng, const dsa_key *key)
+                               prng_state *prng, const dsa_key *key)
 {
    void         *k, *kinv, *tmp;
    unsigned char *buf;
@@ -39,9 +38,6 @@ int dsa_sign_hash_raw(const unsigned char *in,  unsigned long inlen,
    LTC_ARGCHK(s   != NULL);
    LTC_ARGCHK(key != NULL);
 
-   if ((err = prng_is_valid(wprng)) != CRYPT_OK) {
-      return err;
-   }
    if (key->type != PK_PRIVATE) {
       return CRYPT_PK_NOT_PRIVATE;
    }
@@ -64,7 +60,7 @@ retry:
 
    do {
       /* gen random k */
-      if ((err = rand_bn_bits(k, qbits, prng, wprng)) != CRYPT_OK)                     { goto error; }
+      if ((err = rand_bn_bits(k, qbits, prng)) != CRYPT_OK)                     { goto error; }
 
       /* k should be from range: 1 <= k <= q-1 (see FIPS 186-4 B.2.2) */
       if (mp_cmp_d(k, 0) != LTC_MP_GT || mp_cmp(k, key->q) != LTC_MP_LT)               { goto retry; }
@@ -111,13 +107,12 @@ ERRBUF:
   @param out      [out] Where to store the signature
   @param outlen   [in/out] The max size and resulting size of the signature
   @param prng     An active PRNG state
-  @param wprng    The index of the PRNG desired
   @param key      A private DSA key
   @return CRYPT_OK if successful
 */
 int dsa_sign_hash(const unsigned char *in,  unsigned long inlen,
                         unsigned char *out, unsigned long *outlen,
-                        prng_state *prng, int wprng, const dsa_key *key)
+                        prng_state *prng, const dsa_key *key)
 {
    void         *r, *s;
    int           err;
@@ -131,7 +126,7 @@ int dsa_sign_hash(const unsigned char *in,  unsigned long inlen,
       return CRYPT_MEM;
    }
 
-   if ((err = dsa_sign_hash_raw(in, inlen, r, s, prng, wprng, key)) != CRYPT_OK) {
+   if ((err = dsa_sign_hash_raw(in, inlen, r, s, prng, key)) != CRYPT_OK) {
       goto error;
    }
 

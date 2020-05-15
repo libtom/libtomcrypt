@@ -218,8 +218,8 @@ int pbes2_extract(const ltc_asn1_list *s, pbes_arg *res);
 
 /* tomcrypt_pk.h */
 
-int rand_bn_bits(void *N, int bits, prng_state *prng, int wprng);
-int rand_bn_upto(void *N, void *limit, prng_state *prng, int wprng);
+int rand_bn_bits(void *N, int bits, prng_state *prng);
+int rand_bn_upto(void *N, void *limit, prng_state *prng);
 
 int pk_get_oid(enum ltc_oid_id id, const char **st);
 int pk_oid_str_to_num(const char *OID, unsigned long *oid, unsigned long *oidlen);
@@ -328,7 +328,7 @@ int tweetnacl_crypto_sign_open(
   unsigned char *m,unsigned long long *mlen,
   const unsigned char *sm,unsigned long long smlen,
   const unsigned char *pk);
-int tweetnacl_crypto_sign_keypair(prng_state *prng, int wprng, unsigned char *pk,unsigned char *sk);
+int tweetnacl_crypto_sign_keypair(prng_state *prng, unsigned char *pk,unsigned char *sk);
 int tweetnacl_crypto_sk_to_pk(unsigned char *pk, const unsigned char *sk);
 int tweetnacl_crypto_scalarmult(unsigned char *q, const unsigned char *n, const unsigned char *p);
 int tweetnacl_crypto_scalarmult_base(unsigned char *q,const unsigned char *n);

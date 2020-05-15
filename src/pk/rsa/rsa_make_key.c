@@ -18,13 +18,12 @@
 /**
    Create an RSA key
    @param prng     An active PRNG state
-   @param wprng    The index of the PRNG desired
    @param size     The size of the modulus (key size) desired (octets)
    @param e        The "e" value (public key).  e==65537 is a good choice
    @param key      [out] Destination of a newly created private key pair
    @return CRYPT_OK if successful, upon error all allocated ram is freed
 */
-int rsa_make_key(prng_state *prng, int wprng, int size, long e, rsa_key *key)
+int rsa_make_key(prng_state *prng, int size, long e, rsa_key *key)
 {
    void *p, *q, *tmp1, *tmp2, *tmp3;
    int    err;
@@ -37,10 +36,6 @@ int rsa_make_key(prng_state *prng, int wprng, int size, long e, rsa_key *key)
       return CRYPT_INVALID_ARG;
    }
 
-   if ((err = prng_is_valid(wprng)) != CRYPT_OK) {
-      return err;
-   }
-
    if ((err = mp_init_multi(&p, &q, &tmp1, &tmp2, &tmp3, NULL)) != CRYPT_OK) {
       return err;
    }
@@ -50,14 +45,14 @@ int rsa_make_key(prng_state *prng, int wprng, int size, long e, rsa_key *key)
 
    /* make prime "p" */
    do {
-       if ((err = rand_prime( p, size/2, prng, wprng)) != CRYPT_OK)  { goto cleanup; }
+       if ((err = rand_prime( p, size/2, prng)) != CRYPT_OK)  { goto cleanup; }
        if ((err = mp_sub_d( p, 1,  tmp1)) != CRYPT_OK)               { goto cleanup; }  /* tmp1 = p-1 */
        if ((err = mp_gcd( tmp1,  tmp3,  tmp2)) != CRYPT_OK)          { goto cleanup; }  /* tmp2 = gcd(p-1, e) */
    } while (mp_cmp_d( tmp2, 1) != 0);                                                  /* while e divides p-1 */
 
    /* make prime "q" */
    do {
-       if ((err = rand_prime( q, size/2, prng, wprng)) != CRYPT_OK)  { goto cleanup; }
+       if ((err = rand_prime( q, size/2, prng)) != CRYPT_OK)  { goto cleanup; }
        if ((err = mp_sub_d( q, 1,  tmp1)) != CRYPT_OK)               { goto cleanup; } /* tmp1 = q-1 */
        if ((err = mp_gcd( tmp1,  tmp3,  tmp2)) != CRYPT_OK)          { goto cleanup; } /* tmp2 = gcd(q-1, e) */
    } while (mp_cmp_d( tmp2, 1) != 0);                                                 /* while e divides q-1 */
