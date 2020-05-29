@@ -21,10 +21,10 @@
            ((ulong32)((y)[0] & 255)); } while(0)
 
 #define STORE64L(x, y)                                                                     \
-  do { (y)[7] = (unsigned char)(((x)>>56)&255); (y)[6] = (unsigned char)(((x)>>48)&255);   \
-       (y)[5] = (unsigned char)(((x)>>40)&255); (y)[4] = (unsigned char)(((x)>>32)&255);   \
-       (y)[3] = (unsigned char)(((x)>>24)&255); (y)[2] = (unsigned char)(((x)>>16)&255);   \
-       (y)[1] = (unsigned char)(((x)>>8)&255); (y)[0] = (unsigned char)((x)&255); } while(0)
+  do { (y)[7] = (unsigned char)(((ulong64)(x)>>56)&255); (y)[6] = (unsigned char)(((ulong64)(x)>>48)&255);   \
+       (y)[5] = (unsigned char)(((ulong64)(x)>>40)&255); (y)[4] = (unsigned char)(((ulong64)(x)>>32)&255);   \
+       (y)[3] = (unsigned char)(((ulong64)(x)>>24)&255); (y)[2] = (unsigned char)(((ulong64)(x)>>16)&255);   \
+       (y)[1] = (unsigned char)(((ulong64)(x)>>8)&255); (y)[0] = (unsigned char)((ulong64)(x)&255); } while(0)
 
 #define LOAD64L(x, y)                                                       \
   do { x = (((ulong64)((y)[7] & 255))<<56)|(((ulong64)((y)[6] & 255))<<48)| \
@@ -43,10 +43,10 @@
            ((ulong32)((y)[3] & 255)); } while(0)
 
 #define STORE64H(x, y)                                                                     \
-do { (y)[0] = (unsigned char)(((x)>>56)&255); (y)[1] = (unsigned char)(((x)>>48)&255);     \
-     (y)[2] = (unsigned char)(((x)>>40)&255); (y)[3] = (unsigned char)(((x)>>32)&255);     \
-     (y)[4] = (unsigned char)(((x)>>24)&255); (y)[5] = (unsigned char)(((x)>>16)&255);     \
-     (y)[6] = (unsigned char)(((x)>>8)&255); (y)[7] = (unsigned char)((x)&255); } while(0)
+do { (y)[0] = (unsigned char)(((ulong64)(x)>>56)&255); (y)[1] = (unsigned char)(((ulong64)(x)>>48)&255);     \
+     (y)[2] = (unsigned char)(((ulong64)(x)>>40)&255); (y)[3] = (unsigned char)(((ulong64)(x)>>32)&255);     \
+     (y)[4] = (unsigned char)(((ulong64)(x)>>24)&255); (y)[5] = (unsigned char)(((ulong64)(x)>>16)&255);     \
+     (y)[6] = (unsigned char)(((ulong64)(x)>>8)&255); (y)[7] = (unsigned char)((ulong64)(x)&255); } while(0)
 
 #define LOAD64H(x, y)                                                      \
 do { x = (((ulong64)((y)[0] & 255))<<56)|(((ulong64)((y)[1] & 255))<<48) | \
@@ -125,10 +125,10 @@ asm __volatile__ (             \
 #else
 
 #define STORE64H(x, y)                                                                     \
-do { (y)[0] = (unsigned char)(((x)>>56)&255); (y)[1] = (unsigned char)(((x)>>48)&255);     \
-     (y)[2] = (unsigned char)(((x)>>40)&255); (y)[3] = (unsigned char)(((x)>>32)&255);     \
-     (y)[4] = (unsigned char)(((x)>>24)&255); (y)[5] = (unsigned char)(((x)>>16)&255);     \
-     (y)[6] = (unsigned char)(((x)>>8)&255); (y)[7] = (unsigned char)((x)&255); } while(0)
+do { (y)[0] = (unsigned char)(((ulong64)(x)>>56)&255); (y)[1] = (unsigned char)(((ulong64)(x)>>48)&255);     \
+     (y)[2] = (unsigned char)(((ulong64)(x)>>40)&255); (y)[3] = (unsigned char)(((ulong64)(x)>>32)&255);     \
+     (y)[4] = (unsigned char)(((ulong64)(x)>>24)&255); (y)[5] = (unsigned char)(((ulong64)(x)>>16)&255);     \
+     (y)[6] = (unsigned char)(((ulong64)(x)>>8)&255); (y)[7] = (unsigned char)((ulong64)(x)&255); } while(0)
 
 #define LOAD64H(x, y)                                                      \
 do { x = (((ulong64)((y)[0] & 255))<<56)|(((ulong64)((y)[1] & 255))<<48) | \
@@ -147,10 +147,10 @@ do { x = (((ulong64)((y)[0] & 255))<<56)|(((ulong64)((y)[1] & 255))<<48) | \
   do { XMEMCPY(&(x), y, 4); } while(0)
 
 #define STORE64L(x, y)                                                                     \
-  do { (y)[7] = (unsigned char)(((x)>>56)&255); (y)[6] = (unsigned char)(((x)>>48)&255);   \
-       (y)[5] = (unsigned char)(((x)>>40)&255); (y)[4] = (unsigned char)(((x)>>32)&255);   \
-       (y)[3] = (unsigned char)(((x)>>24)&255); (y)[2] = (unsigned char)(((x)>>16)&255);   \
-       (y)[1] = (unsigned char)(((x)>>8)&255); (y)[0] = (unsigned char)((x)&255); } while(0)
+  do { (y)[7] = (unsigned char)(((ulong64)(x))>>56)&255); (y)[6] = (unsigned char)((((ulong64)(x))>>48)&255);   \
+       (y)[5] = (unsigned char)(((ulong64)(x))>>40)&255); (y)[4] = (unsigned char)((((ulong64)(x))>>32)&255);   \
+       (y)[3] = (unsigned char)(((ulong64)(x))>>24)&255); (y)[2] = (unsigned char)((((ulong64)(x))>>16)&255);   \
+       (y)[1] = (unsigned char)(((ulong64)(x))>>8)&255); (y)[0] = (unsigned char)(((ulong64)(x))&255); } while(0)
 
 #define LOAD64L(x, y)                                                       \
   do { x = (((ulong64)((y)[7] & 255))<<56)|(((ulong64)((y)[6] & 255))<<48)| \
@@ -187,10 +187,10 @@ do { x = (((ulong64)((y)[0] & 255))<<56)|(((ulong64)((y)[1] & 255))<<48) | \
            ((ulong32)((y)[0] & 255)); } while(0)
 
 #define STORE64L(x, y)                                                                     \
-do { (y)[7] = (unsigned char)(((x)>>56)&255); (y)[6] = (unsigned char)(((x)>>48)&255);     \
-     (y)[5] = (unsigned char)(((x)>>40)&255); (y)[4] = (unsigned char)(((x)>>32)&255);     \
-     (y)[3] = (unsigned char)(((x)>>24)&255); (y)[2] = (unsigned char)(((x)>>16)&255);     \
-     (y)[1] = (unsigned char)(((x)>>8)&255); (y)[0] = (unsigned char)((x)&255); } while(0)
+do { (y)[7] = (unsigned char)((((ulong64)(x))>>56)&255); (y)[6] = (unsigned char)((((ulong64)(x))>>48)&255);     \
+     (y)[5] = (unsigned char)((((ulong64)(x))>>40)&255); (y)[4] = (unsigned char)((((ulong64)(x))>>32)&255);     \
+     (y)[3] = (unsigned char)((((ulong64)(x))>>24)&255); (y)[2] = (unsigned char)((((ulong64)(x))>>16)&255);     \
+     (y)[1] = (unsigned char)((((ulong64)(x))>>8)&255); (y)[0] = (unsigned char)(((ulong64)(x))&255); } while(0)
 
 #define LOAD64L(x, y)                                                      \
 do { x = (((ulong64)((y)[7] & 255))<<56)|(((ulong64)((y)[6] & 255))<<48) | \
@@ -207,10 +207,10 @@ do { x = (((ulong64)((y)[7] & 255))<<56)|(((ulong64)((y)[6] & 255))<<48) | \
   do { XMEMCPY(&(x), y, 4); } while(0)
 
 #define STORE64H(x, y)                                                                     \
-  do { (y)[0] = (unsigned char)(((x)>>56)&255); (y)[1] = (unsigned char)(((x)>>48)&255);   \
-       (y)[2] = (unsigned char)(((x)>>40)&255); (y)[3] = (unsigned char)(((x)>>32)&255);   \
-       (y)[4] = (unsigned char)(((x)>>24)&255); (y)[5] = (unsigned char)(((x)>>16)&255);   \
-       (y)[6] = (unsigned char)(((x)>>8)&255);  (y)[7] = (unsigned char)((x)&255); } while(0)
+  do { (y)[0] = (unsigned char)(((ulong64)(x)>>56)&255); (y)[1] = (unsigned char)(((ulong64)(x)>>48)&255);   \
+       (y)[2] = (unsigned char)(((ulong64)(x)>>40)&255); (y)[3] = (unsigned char)(((ulong64)(x)>>32)&255);   \
+       (y)[4] = (unsigned char)(((ulong64)(x)>>24)&255); (y)[5] = (unsigned char)(((ulong64)(x)>>16)&255);   \
+       (y)[6] = (unsigned char)(((ulong64)(x)>>8)&255);  (y)[7] = (unsigned char)((ulong64)(x)&255); } while(0)
 
 #define LOAD64H(x, y)                                                       \
   do { x = (((ulong64)((y)[0] & 255))<<56)|(((ulong64)((y)[1] & 255))<<48)| \
