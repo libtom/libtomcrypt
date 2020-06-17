@@ -710,7 +710,3 @@ int twofish_keysize(int *keysize)
 
 #endif
 
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

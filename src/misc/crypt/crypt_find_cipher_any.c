@@ -42,7 +42,3 @@ int find_cipher_any(const char *name, int blocklen, int keylen)
    LTC_MUTEX_UNLOCK(&ltc_cipher_mutex);
    return -1;
 }
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

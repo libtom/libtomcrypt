@@ -66,7 +66,3 @@ int der_encode_octet_string(const unsigned char *in, unsigned long inlen,
 }
 
 #endif
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

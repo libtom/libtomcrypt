@@ -118,7 +118,3 @@ int gcm_add_aad(gcm_state *gcm,
 }
 #endif
 
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

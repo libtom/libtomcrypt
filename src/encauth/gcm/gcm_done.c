@@ -84,7 +84,3 @@ int gcm_done(gcm_state *gcm,
 
 #endif
 
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

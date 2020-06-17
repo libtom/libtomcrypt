@@ -28,7 +28,3 @@ int ecc_ansi_x963_export(const ecc_key *key, unsigned char *out, unsigned long *
 }
 
 #endif
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

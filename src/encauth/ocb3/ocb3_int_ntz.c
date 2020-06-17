@@ -33,7 +33,3 @@ int ocb3_int_ntz(unsigned long x)
 }
 
 #endif
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

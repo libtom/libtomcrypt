@@ -88,7 +88,3 @@ int padding_depad(const unsigned char *data, unsigned long *length, unsigned lon
 }
 
 #endif
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

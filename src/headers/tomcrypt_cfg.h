@@ -309,6 +309,3 @@ typedef unsigned long ltc_mp_digit;
 #  define LTC_DEPRECATED(s)
 #  define LTC_DEPRECATED_PRAGMA(s)
 #endif
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

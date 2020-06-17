@@ -190,7 +190,3 @@ int ocb3_init(ocb3_state *ocb, int cipher,
 }
 
 #endif
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

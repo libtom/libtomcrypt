@@ -170,7 +170,3 @@ static const ulong32 Sbox[256] = {
 };
 
 #endif /* __LTC_SOBER128TAB_C__ */
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

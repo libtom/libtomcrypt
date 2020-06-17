@@ -38,7 +38,3 @@ int cbc_getiv(unsigned char *IV, unsigned long *len, const symmetric_CBC *cbc)
 }
 
 #endif
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

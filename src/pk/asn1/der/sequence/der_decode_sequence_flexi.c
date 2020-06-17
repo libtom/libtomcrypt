@@ -545,7 +545,3 @@ int der_decode_sequence_flexi(const unsigned char *in, unsigned long *inlen, ltc
 
 #endif
 
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

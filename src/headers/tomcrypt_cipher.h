@@ -1164,7 +1164,3 @@ int sober128_stream_memory(const unsigned char *key,    unsigned long keylen,
                            unsigned char *dataout);
 
 #endif /* LTC_SOBER128_STREAM */
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

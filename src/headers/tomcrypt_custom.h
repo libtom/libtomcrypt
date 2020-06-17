@@ -724,7 +724,3 @@
 #define LTC_ECC_SECP521R1
 #undef LTC_ECC521
 #endif
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

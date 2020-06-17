@@ -65,7 +65,3 @@ int ed25519_verify(const  unsigned char *msg, unsigned long msglen,
 }
 
 #endif
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

@@ -26,7 +26,3 @@ int der_length_asn1_length(unsigned long len, unsigned long *outlen)
 }
 
 #endif
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

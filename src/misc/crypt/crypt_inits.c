@@ -85,7 +85,3 @@ int crypt_mp_init(const char* mpi)
    }
 }
 
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

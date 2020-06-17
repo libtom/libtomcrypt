@@ -523,7 +523,3 @@ extern const ltc_math_descriptor tfm_desc;
 #ifdef GMP_DESC
 extern const ltc_math_descriptor gmp_desc;
 #endif
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

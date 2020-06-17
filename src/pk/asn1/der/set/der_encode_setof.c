@@ -155,7 +155,3 @@ int der_encode_setof(const ltc_asn1_list *list, unsigned long inlen,
 }
 
 #endif
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

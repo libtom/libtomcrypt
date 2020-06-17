@@ -113,6 +113,3 @@ int lrw_process(const unsigned char *pt, unsigned char *ct, unsigned long len, i
 }
 
 #endif
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

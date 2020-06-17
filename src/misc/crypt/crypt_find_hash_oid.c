@@ -27,7 +27,3 @@ int find_hash_oid(const unsigned long *ID, unsigned long IDlen)
    LTC_MUTEX_UNLOCK(&ltc_hash_mutex);
    return -1;
 }
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

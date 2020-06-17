@@ -38,7 +38,3 @@ int ctr_getiv(unsigned char *IV, unsigned long *len, const symmetric_CTR *ctr)
 }
 
 #endif
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

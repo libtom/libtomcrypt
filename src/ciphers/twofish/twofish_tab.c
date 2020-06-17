@@ -490,7 +490,3 @@ static const ulong32 rs_tab7[256] = {
 
 #endif /* __LTC_TWOFISH_TAB_C__ */
 #endif
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

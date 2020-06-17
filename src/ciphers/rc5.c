@@ -327,7 +327,3 @@ int rc5_keysize(int *keysize)
 
 
 
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

@@ -41,7 +41,3 @@ int dh_export_key(void *out, unsigned long *outlen, int type, const dh_key *key)
 }
 
 #endif /* LTC_MDH */
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

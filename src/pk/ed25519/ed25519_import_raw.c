@@ -45,7 +45,3 @@ int ed25519_import_raw(const unsigned char *in, unsigned long inlen, int which, 
 }
 
 #endif
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

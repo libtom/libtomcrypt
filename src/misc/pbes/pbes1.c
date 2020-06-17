@@ -121,7 +121,3 @@ int pbes1_extract(const ltc_asn1_list *s, pbes_arg *res)
 }
 
 #endif
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

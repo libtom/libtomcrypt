@@ -26,7 +26,3 @@ int ecc_get_oid_str(char *out, unsigned long *outlen, const ecc_key *key)
 }
 
 #endif
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

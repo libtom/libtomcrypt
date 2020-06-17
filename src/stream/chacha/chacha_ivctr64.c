@@ -41,7 +41,3 @@ int chacha_ivctr64(chacha_state *st, const unsigned char *iv, unsigned long ivle
 }
 
 #endif
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

@@ -28,7 +28,3 @@ int pkcs_1_os2ip(void *n, unsigned char *in, unsigned long inlen)
 
 #endif /* LTC_PKCS_1 */
 
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

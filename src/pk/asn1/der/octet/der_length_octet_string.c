@@ -37,7 +37,3 @@ int der_length_octet_string(unsigned long noctets, unsigned long *outlen)
 
 #endif
 
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

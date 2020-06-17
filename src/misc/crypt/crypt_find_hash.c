@@ -32,7 +32,3 @@ int find_hash(const char *name)
    LTC_MUTEX_UNLOCK(&ltc_hash_mutex);
    return -1;
 }
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

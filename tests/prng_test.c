@@ -113,7 +113,3 @@ int prng_test(void)
 #endif
    return err;
 }
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

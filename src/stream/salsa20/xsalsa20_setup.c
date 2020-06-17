@@ -131,7 +131,3 @@ int xsalsa20_setup(salsa20_state *st, const unsigned char *key, unsigned long ke
 
 
 #endif
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

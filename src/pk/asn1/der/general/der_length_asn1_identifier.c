@@ -27,7 +27,3 @@ int der_length_asn1_identifier(const ltc_asn1_list *id, unsigned long *idlen)
 }
 
 #endif
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

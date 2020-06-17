@@ -100,7 +100,3 @@ int ocb3_add_aad(ocb3_state *ocb, const unsigned char *aad, unsigned long aadlen
 }
 
 #endif
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

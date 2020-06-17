@@ -186,7 +186,3 @@ void no_prng_desc_free(struct ltc_prng_descriptor* prng)
 
 #endif
 
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

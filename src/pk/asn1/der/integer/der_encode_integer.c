@@ -109,7 +109,3 @@ int der_encode_integer(void *num, unsigned char *out, unsigned long *outlen)
 }
 
 #endif
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

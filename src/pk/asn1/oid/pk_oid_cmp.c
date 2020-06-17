@@ -48,7 +48,3 @@ int pk_oid_cmp_with_asn1(const char *o1, const ltc_asn1_list *o2)
 }
 
 #endif
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

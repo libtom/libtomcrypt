@@ -55,7 +55,3 @@ void copy_or_zeromem(const unsigned char* src, unsigned char* dest, unsigned lon
    mask = 0;
 #endif
 }
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

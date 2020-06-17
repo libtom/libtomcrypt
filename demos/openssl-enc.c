@@ -362,7 +362,3 @@ int main(int argc, char *argv[]) {
    fclose(infd); fclose(outfd);
    return 0;
 }
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

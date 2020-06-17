@@ -63,7 +63,3 @@ int der_decode_asn1_length(const unsigned char *in, unsigned long *inlen, unsign
 }
 
 #endif
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

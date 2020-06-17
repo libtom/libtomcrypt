@@ -293,7 +293,3 @@ int crypt_list_all_constants(char *names_list, unsigned int *names_list_size) {
     return 0;
 }
 
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

@@ -231,7 +231,3 @@ int multi_test(void)
 
    return CRYPT_OK;
 }
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

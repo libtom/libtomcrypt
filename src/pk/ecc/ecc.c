@@ -439,7 +439,3 @@ const ltc_ecc_curve ltc_ecc_curves[] = {
 
 #endif
 
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */
-

@@ -117,7 +117,3 @@ int ecc_import_x509(const unsigned char *in, unsigned long inlen, ecc_key *key)
 
 #endif /* LTC_MECC */
 
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

@@ -34,7 +34,3 @@ int cfb_done(symmetric_CFB *cfb)
 
 
 #endif
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

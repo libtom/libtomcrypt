@@ -85,7 +85,3 @@ int compare_testvector(const void* is, const unsigned long is_len, const void* s
 
    return res;
 }
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

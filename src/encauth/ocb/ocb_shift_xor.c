@@ -31,7 +31,3 @@ void ocb_shift_xor(ocb_state *ocb, unsigned char *Z)
 }
 
 #endif
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

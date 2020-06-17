@@ -69,7 +69,3 @@ int f9_done(f9_state *f9, unsigned char *out, unsigned long *outlen)
 
 #endif
 
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */
-

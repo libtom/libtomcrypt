@@ -231,7 +231,3 @@ int dh_get_groupsize(const dh_key *key)
 }
 
 #endif /* LTC_MDH */
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

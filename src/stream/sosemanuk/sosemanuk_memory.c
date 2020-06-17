@@ -39,7 +39,3 @@ WIPE_KEY:
 }
 
 #endif /* LTC_SOSEMANUK */
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

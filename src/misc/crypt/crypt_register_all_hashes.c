@@ -99,7 +99,3 @@ int register_all_hashes(void)
 #endif
    return CRYPT_OK;
 }
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

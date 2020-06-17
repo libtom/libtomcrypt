@@ -64,7 +64,3 @@ int ocb_encrypt(ocb_state *ocb, const unsigned char *pt, unsigned char *ct)
 }
 
 #endif
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

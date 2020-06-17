@@ -69,7 +69,3 @@ int base16_decode(const          char *in,  unsigned long  inlen,
 }
 
 #endif
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

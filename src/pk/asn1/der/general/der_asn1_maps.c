@@ -161,7 +161,3 @@ const ltc_asn1_type der_asn1_tag_to_type_map[] =
 const unsigned long der_asn1_tag_to_type_map_sz = sizeof(der_asn1_tag_to_type_map)/sizeof(der_asn1_tag_to_type_map[0]);
 
 #endif
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

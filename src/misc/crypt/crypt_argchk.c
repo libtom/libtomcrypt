@@ -21,7 +21,3 @@ void crypt_argchk(const char *v, const char *s, int d)
  abort();
 }
 #endif
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

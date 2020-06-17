@@ -54,7 +54,3 @@ int ecc_get_key(unsigned char *out, unsigned long *outlen, int type, const ecc_k
 }
 
 #endif
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

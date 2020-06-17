@@ -34,7 +34,3 @@ int f8_done(symmetric_F8 *f8)
 
 
 #endif
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

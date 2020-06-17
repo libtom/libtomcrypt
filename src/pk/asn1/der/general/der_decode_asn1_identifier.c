@@ -127,7 +127,3 @@ int der_decode_asn1_identifier(const unsigned char *in, unsigned long *inlen, lt
 }
 
 #endif
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

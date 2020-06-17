@@ -58,7 +58,3 @@ static const unsigned char safer_lbox[256] = {
 #endif /* __LTC_SAFER_TAB_C__ */
 
 
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

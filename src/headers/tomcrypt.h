@@ -99,7 +99,3 @@ enum {
 
 #endif /* TOMCRYPT_H_ */
 
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

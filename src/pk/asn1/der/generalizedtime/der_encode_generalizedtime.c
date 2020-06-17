@@ -102,7 +102,3 @@ int der_encode_generalizedtime(const ltc_generalizedtime *gtime,
 }
 
 #endif
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

@@ -61,7 +61,3 @@ int chacha_setup(chacha_state *st, const unsigned char *key, unsigned long keyle
 }
 
 #endif
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

@@ -30,7 +30,3 @@ int eax_addheader(eax_state *eax, const unsigned char *header,
 }
 
 #endif
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

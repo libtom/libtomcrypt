@@ -88,7 +88,3 @@ int cbc_decrypt(const unsigned char *ct, unsigned char *pt, unsigned long len, s
 }
 
 #endif
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

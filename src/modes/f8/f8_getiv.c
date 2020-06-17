@@ -38,7 +38,3 @@ int f8_getiv(unsigned char *IV, unsigned long *len, const symmetric_F8 *f8)
 }
 
 #endif
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

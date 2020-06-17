@@ -44,7 +44,3 @@ void der_sequence_shrink(ltc_asn1_list *in)
 }
 
 #endif
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

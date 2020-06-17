@@ -55,7 +55,3 @@ int xts_start(int cipher, const unsigned char *key1, const unsigned char *key2, 
 }
 
 #endif
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

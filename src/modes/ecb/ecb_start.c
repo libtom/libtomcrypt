@@ -40,7 +40,3 @@ int ecb_start(int cipher, const unsigned char *key, int keylen, int num_rounds, 
 }
 
 #endif
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

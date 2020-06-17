@@ -58,7 +58,3 @@ int cfb_start(int cipher, const unsigned char *IV, const unsigned char *key,
 }
 
 #endif
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

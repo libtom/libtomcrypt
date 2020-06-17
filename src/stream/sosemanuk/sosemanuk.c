@@ -811,7 +811,3 @@ int sosemanuk_done(sosemanuk_state *st)
 
 
 #endif
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

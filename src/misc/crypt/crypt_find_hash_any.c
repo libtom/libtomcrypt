@@ -41,7 +41,3 @@
    LTC_MUTEX_UNLOCK(&ltc_hash_mutex);
    return z;
 }
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

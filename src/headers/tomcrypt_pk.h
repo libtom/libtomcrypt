@@ -785,7 +785,3 @@ int der_decode_generalizedtime(const unsigned char *in, unsigned long *inlen,
 int der_length_generalizedtime(const ltc_generalizedtime *gtime, unsigned long *outlen);
 
 #endif
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

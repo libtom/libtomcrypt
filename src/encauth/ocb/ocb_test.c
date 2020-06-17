@@ -209,7 +209,3 @@ int ocb_test(void)
    -- hard to stream [you can't emit ciphertext until full block]
    -- The setup is somewhat complicated...
 */
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

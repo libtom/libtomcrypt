@@ -35,7 +35,3 @@ int dsa_make_key(prng_state *prng, int wprng, int group_size, int modulus_size, 
 }
 
 #endif
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

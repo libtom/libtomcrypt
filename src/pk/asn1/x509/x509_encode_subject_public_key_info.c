@@ -70,7 +70,3 @@ int x509_encode_subject_public_key_info(unsigned char *out, unsigned long *outle
 
 #endif
 
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */
-

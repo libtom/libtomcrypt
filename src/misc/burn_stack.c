@@ -27,7 +27,3 @@ void burn_stack(unsigned long len)
 }
 
 
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

@@ -170,7 +170,3 @@ LBL_ERR:
 }
 
 #endif /* LTC_PKCS_1 */
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

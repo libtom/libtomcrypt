@@ -590,7 +590,3 @@ CONST64(0x6302aa71c81949d9),
 };
 
 #endif /* __LTC_WHIRLTAB_C__ */
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

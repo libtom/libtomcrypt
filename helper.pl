@@ -143,21 +143,12 @@ sub check_comments {
  * guarantee it works.
  */
 MARKER
-  my $last_comment = <<'MARKER';
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */
-MARKER
   my @all_files;
   find({ wanted=> sub { push @all_files, $_ if $_ =~ /\.(c|h)$/ }, no_chdir=>1 }, 'demos', 'src', 'tests');
   for my $f (@all_files) {
     my $txt = read_file($f);
     if ($txt !~ /^\Q$first_comment\E/s) {
       warn "[first_comment] $f\n";
-      $fails++;
-    }
-    if ($txt !~ /\Q$last_comment\E\s*$/s) {
-      warn "[last_comment] $f\n";
       $fails++;
     }
   }

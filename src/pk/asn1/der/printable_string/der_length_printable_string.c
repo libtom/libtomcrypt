@@ -148,7 +148,3 @@ int der_length_printable_string(const unsigned char *octets, unsigned long nocte
 
 #endif
 
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

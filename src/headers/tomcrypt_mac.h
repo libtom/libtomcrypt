@@ -557,7 +557,3 @@ int chacha20poly1305_memory(const unsigned char *key, unsigned long keylen,
 int chacha20poly1305_test(void);
 
 #endif /* LTC_CHACHA20POLY1305_MODE */
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

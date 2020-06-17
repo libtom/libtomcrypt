@@ -56,7 +56,3 @@ int der_length_short_integer(unsigned long num, unsigned long *outlen)
 }
 
 #endif
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

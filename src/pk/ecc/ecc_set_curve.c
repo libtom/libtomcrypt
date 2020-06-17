@@ -84,7 +84,3 @@ int ecc_set_curve_by_size(int size, ecc_key *key)
 }
 
 #endif
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

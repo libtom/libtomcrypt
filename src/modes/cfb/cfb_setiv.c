@@ -44,7 +44,3 @@ int cfb_setiv(const unsigned char *IV, unsigned long len, symmetric_CFB *cfb)
 
 #endif
 
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

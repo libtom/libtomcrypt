@@ -90,7 +90,3 @@ int salsa20_crypt(salsa20_state *st, const unsigned char *in, unsigned long inle
 }
 
 #endif
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

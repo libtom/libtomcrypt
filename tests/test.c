@@ -439,7 +439,3 @@ int main(int argc, char **argv)
    printf("\n\n%s: passed=%d failed=%d nop=%d duration=%.1fsec real=%.1fsec\n", x ? "FAILURE" : "SUCCESS", pass, fail, nop, (double)(dur)/(1000*1000), (double)(real)/(1000*1000));
    return x;
 }
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

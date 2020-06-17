@@ -78,7 +78,3 @@ int omac_done(omac_state *omac, unsigned char *out, unsigned long *outlen)
 
 #endif
 
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

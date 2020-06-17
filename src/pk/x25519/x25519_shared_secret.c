@@ -46,7 +46,3 @@ int x25519_shared_secret(const    curve25519_key *private_key,
 }
 
 #endif
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

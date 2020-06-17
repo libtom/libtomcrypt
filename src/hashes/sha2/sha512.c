@@ -307,7 +307,3 @@ int  sha512_test(void)
 
 
 
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

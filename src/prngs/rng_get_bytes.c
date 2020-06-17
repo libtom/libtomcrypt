@@ -156,7 +156,3 @@ unsigned long rng_get_bytes(unsigned char *out, unsigned long outlen,
    return 0;
 }
 #endif /* #ifdef LTC_RNG_GET_BYTES */
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

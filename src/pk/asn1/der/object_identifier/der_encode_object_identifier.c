@@ -96,7 +96,3 @@ int der_encode_object_identifier(const unsigned long *words, unsigned long  nwor
 }
 
 #endif
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

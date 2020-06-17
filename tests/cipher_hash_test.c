@@ -54,7 +54,3 @@ int cipher_hash_test(void)
 
    return 0;
 }
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

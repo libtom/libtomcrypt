@@ -51,7 +51,3 @@ void gcm_mult_h(const gcm_state *gcm, unsigned char *I)
    XMEMCPY(I, T, 16);
 }
 #endif
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

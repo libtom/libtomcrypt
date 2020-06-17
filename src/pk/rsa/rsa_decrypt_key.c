@@ -97,7 +97,3 @@ int rsa_decrypt_key_ex(const unsigned char *in,             unsigned long  inlen
 }
 
 #endif /* LTC_MRSA */
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

@@ -52,7 +52,3 @@ int der_length_generalizedtime(const ltc_generalizedtime *gtime, unsigned long *
 }
 
 #endif
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

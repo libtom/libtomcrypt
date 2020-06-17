@@ -176,7 +176,3 @@ int der_length_ia5_string(const unsigned char *octets, unsigned long noctets, un
 
 #endif
 
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

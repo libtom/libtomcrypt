@@ -56,7 +56,3 @@ LBL_ERR:
    mp_clear(mpi);
    return err;
 }
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

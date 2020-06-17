@@ -1026,7 +1026,3 @@ static const ulong32 rcon[] = {
 #endif
 
 #endif /* __LTC_AES_TAB_C__ */
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

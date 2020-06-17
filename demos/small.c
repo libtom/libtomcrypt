@@ -16,7 +16,3 @@ int main(void)
    register_hash(&sha256_desc);
    return 0;
 }
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

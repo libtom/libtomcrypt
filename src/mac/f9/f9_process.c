@@ -70,7 +70,3 @@ int f9_process(f9_state *f9, const unsigned char *in, unsigned long inlen)
 
 #endif
 
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */
-

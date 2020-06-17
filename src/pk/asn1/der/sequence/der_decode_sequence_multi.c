@@ -184,7 +184,3 @@ int der_decode_sequence_multi_ex(const unsigned char *in, unsigned long inlen, u
 
 #endif
 
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

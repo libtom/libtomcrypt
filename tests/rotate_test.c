@@ -410,7 +410,3 @@ int rotate_test(void)
 
    return err;
 }
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

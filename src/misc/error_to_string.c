@@ -72,7 +72,3 @@ const char *error_to_string(int err)
    return err_2_str[err];
 }
 
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

@@ -81,7 +81,3 @@ int der_length_object_identifier(const unsigned long *words, unsigned long nword
 }
 
 #endif
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

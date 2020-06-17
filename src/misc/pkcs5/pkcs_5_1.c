@@ -185,7 +185,3 @@ int pkcs_5_alg1_openssl(const unsigned char *password,
 }
 
 #endif
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

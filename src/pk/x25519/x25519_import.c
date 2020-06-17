@@ -39,7 +39,3 @@ int x25519_import(const unsigned char *in, unsigned long inlen, curve25519_key *
 }
 
 #endif
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

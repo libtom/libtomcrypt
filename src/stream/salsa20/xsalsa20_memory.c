@@ -38,7 +38,3 @@ WIPE_KEY:
 }
 
 #endif /* LTC_XSALSA20 */
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

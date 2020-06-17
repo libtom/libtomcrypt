@@ -68,7 +68,3 @@ int base16_encode(const unsigned char *in,  unsigned long  inlen,
 }
 
 #endif
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

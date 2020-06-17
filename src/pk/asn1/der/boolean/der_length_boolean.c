@@ -27,7 +27,3 @@ int der_length_boolean(unsigned long *outlen)
 }
 
 #endif
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

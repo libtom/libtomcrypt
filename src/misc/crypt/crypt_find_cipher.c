@@ -33,7 +33,3 @@ int find_cipher(const char *name)
    return -1;
 }
 
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

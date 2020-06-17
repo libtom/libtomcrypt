@@ -328,7 +328,3 @@ int rc6_keysize(int *keysize)
 #endif /*LTC_RC6*/
 
 
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

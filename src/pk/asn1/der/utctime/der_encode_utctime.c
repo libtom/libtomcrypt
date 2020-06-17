@@ -75,7 +75,3 @@ int der_encode_utctime(const ltc_utctime   *utctime,
 }
 
 #endif
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

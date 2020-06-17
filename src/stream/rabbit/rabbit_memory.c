@@ -44,7 +44,3 @@ WIPE_KEY:
 }
 
 #endif /* LTC_RABBIT */
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

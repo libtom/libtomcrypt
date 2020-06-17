@@ -41,7 +41,3 @@ int pk_get_oid(enum ltc_oid_id id, const char **st)
    return CRYPT_INVALID_ARG;
 }
 #endif
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

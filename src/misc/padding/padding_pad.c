@@ -148,7 +148,3 @@ int padding_pad(unsigned char *data, unsigned long length, unsigned long* padded
 }
 
 #endif
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

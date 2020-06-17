@@ -24,7 +24,3 @@ int salsa20_done(salsa20_state *st)
 }
 
 #endif
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

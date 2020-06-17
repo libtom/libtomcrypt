@@ -65,7 +65,3 @@ int ltc_ecc_copy_point(const ecc_point *src, ecc_point *dst)
 }
 
 #endif
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */
-

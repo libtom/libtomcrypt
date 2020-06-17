@@ -90,7 +90,3 @@ int der_encode_asn1_identifier(const ltc_asn1_list *id, unsigned char *out, unsi
 }
 
 #endif
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

@@ -1396,7 +1396,3 @@ for (i = 0; i < sizeof(test_functions)/sizeof(test_functions[0]); ++i) {
 return EXIT_SUCCESS;
 
 }
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

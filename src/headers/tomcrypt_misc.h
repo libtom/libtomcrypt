@@ -179,7 +179,3 @@ int ssh_decode_sequence_multi(const unsigned char *in, unsigned long *inlen, ...
 #endif /* LTC_SSH */
 
 int compare_testvector(const void* is, const unsigned long is_len, const void* should, const unsigned long should_len, const char* what, int which);
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

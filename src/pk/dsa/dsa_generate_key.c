@@ -41,7 +41,3 @@ int dsa_generate_key(prng_state *prng, int wprng, dsa_key *key)
 }
 
 #endif
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

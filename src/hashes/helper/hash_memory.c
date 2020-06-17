@@ -63,7 +63,3 @@ LBL_ERR:
     return err;
 }
 #endif /* #ifdef LTC_HASH_HELPERS */
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

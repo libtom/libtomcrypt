@@ -40,7 +40,3 @@ int ed25519_make_key(prng_state *prng, int wprng, curve25519_key *key)
 }
 
 #endif
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

@@ -43,7 +43,3 @@ int pkcs_1_i2osp(void *n, unsigned long modulus_len, unsigned char *out)
 
 #endif /* LTC_PKCS_1 */
 
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

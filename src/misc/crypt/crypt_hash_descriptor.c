@@ -19,7 +19,3 @@ struct ltc_hash_descriptor hash_descriptor[TAB_SIZE] = {
 
 LTC_MUTEX_GLOBAL(ltc_hash_mutex)
 
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

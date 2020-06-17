@@ -133,7 +133,3 @@ LBL_NOFREE:
 }
 
 #endif /* LTC_MRSA */
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

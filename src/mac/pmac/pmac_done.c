@@ -66,7 +66,3 @@ int pmac_done(pmac_state *pmac, unsigned char *out, unsigned long *outlen)
 
 #endif
 
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

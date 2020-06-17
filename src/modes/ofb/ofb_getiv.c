@@ -38,7 +38,3 @@ int ofb_getiv(unsigned char *IV, unsigned long *len, const symmetric_OFB *ofb)
 }
 
 #endif
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

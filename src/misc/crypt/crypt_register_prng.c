@@ -46,7 +46,3 @@ int register_prng(const struct ltc_prng_descriptor *prng)
    LTC_MUTEX_UNLOCK(&ltc_prng_mutex);
    return -1;
 }
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

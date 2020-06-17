@@ -28,7 +28,3 @@ int hash_is_valid(int idx)
    LTC_MUTEX_UNLOCK(&ltc_hash_mutex);
    return CRYPT_OK;
 }
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

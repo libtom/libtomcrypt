@@ -85,7 +85,3 @@ int der_length_utf8_string(const wchar_t *in, unsigned long noctets, unsigned lo
 
 #endif
 
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

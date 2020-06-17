@@ -71,7 +71,3 @@ int ocb_decrypt(ocb_state *ocb, const unsigned char *ct, unsigned char *pt)
 
 #endif
 
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

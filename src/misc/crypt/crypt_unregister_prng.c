@@ -36,7 +36,3 @@ int unregister_prng(const struct ltc_prng_descriptor *prng)
    LTC_MUTEX_UNLOCK(&ltc_prng_mutex);
    return CRYPT_ERROR;
 }
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

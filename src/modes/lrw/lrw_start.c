@@ -96,6 +96,3 @@ int lrw_start(               int   cipher,
 
 
 #endif
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

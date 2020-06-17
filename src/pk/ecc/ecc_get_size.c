@@ -30,7 +30,3 @@ int ecc_get_size(const ecc_key *key)
 }
 
 #endif
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */
-

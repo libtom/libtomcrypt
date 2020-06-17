@@ -246,7 +246,3 @@ int ecc_find_curve(const char *name_or_oid, const ltc_ecc_curve **cu)
 }
 
 #endif
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

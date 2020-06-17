@@ -303,7 +303,3 @@ int ocb3_test(void)
 }
 
 #endif /* LTC_OCB3_MODE */
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

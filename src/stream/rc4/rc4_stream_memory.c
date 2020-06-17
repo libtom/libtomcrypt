@@ -35,7 +35,3 @@ WIPE_KEY:
 }
 
 #endif /* LTC_RC4_STREAM */
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

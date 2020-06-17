@@ -33,7 +33,3 @@ void xts_mult_x(unsigned char *I)
 }
 
 #endif
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

@@ -150,7 +150,3 @@ int xts_decrypt(const unsigned char *ct, unsigned long ptlen, unsigned char *pt,
 }
 
 #endif
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

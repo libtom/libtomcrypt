@@ -99,7 +99,3 @@ int gcm_init(gcm_state *gcm, int cipher,
 }
 
 #endif
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

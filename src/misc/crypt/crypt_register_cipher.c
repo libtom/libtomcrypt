@@ -46,7 +46,3 @@ int register_cipher(const struct ltc_cipher_descriptor *cipher)
    LTC_MUTEX_UNLOCK(&ltc_cipher_mutex);
    return -1;
 }
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

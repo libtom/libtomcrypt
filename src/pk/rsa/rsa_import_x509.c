@@ -58,7 +58,3 @@ int rsa_import_x509(const unsigned char *in, unsigned long inlen, rsa_key *key)
 
 #endif /* LTC_MRSA */
 
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

@@ -253,7 +253,3 @@ int eax_test(void)
 }
 
 #endif /* LTC_EAX_MODE */
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

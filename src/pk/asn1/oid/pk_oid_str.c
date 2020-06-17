@@ -85,7 +85,3 @@ int pk_oid_num_to_str(const unsigned long *oid, unsigned long oidlen, char *OID,
    *outlen = k; /* the length without terminating NUL byte */
    return CRYPT_OK;
 }
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

@@ -42,7 +42,3 @@ LTC_NORETURN void crypt_argchk(const char *v, const char *s, int d);
 
 #endif
 
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

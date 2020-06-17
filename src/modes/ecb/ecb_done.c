@@ -34,7 +34,3 @@ int ecb_done(symmetric_ECB *ecb)
 
 
 #endif
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

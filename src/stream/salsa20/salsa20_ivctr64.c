@@ -42,7 +42,3 @@ int salsa20_ivctr64(salsa20_state *st, const unsigned char *iv, unsigned long iv
 }
 
 #endif
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

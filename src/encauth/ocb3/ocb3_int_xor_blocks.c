@@ -34,7 +34,3 @@ void ocb3_int_xor_blocks(unsigned char *out, const unsigned char *block_a, const
 }
 
 #endif
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

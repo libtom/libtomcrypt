@@ -142,7 +142,3 @@ int mpi_test(void)
    return CRYPT_NOP;
 }
 #endif
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */

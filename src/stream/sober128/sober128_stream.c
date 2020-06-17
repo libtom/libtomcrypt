@@ -337,7 +337,3 @@ int sober128_stream_done(sober128_state *st)
 }
 
 #endif
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */
