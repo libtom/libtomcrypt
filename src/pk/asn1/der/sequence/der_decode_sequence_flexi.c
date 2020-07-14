@@ -36,7 +36,7 @@ static int s_new_element(ltc_asn1_list **l)
    @param depth   The depth/level of decoding recursion we've already reached
    @return CRYPT_OK on success.
 */
-static int _der_decode_sequence_flexi(const unsigned char *in, unsigned long *inlen, ltc_asn1_list **out, unsigned long depth)
+static int s_der_decode_sequence_flexi(const unsigned char *in, unsigned long *inlen, ltc_asn1_list **out, unsigned long depth)
 {
    ltc_asn1_list *l;
    unsigned long err, identifier, len, totlen, data_offset, id_len, len_len;
@@ -447,7 +447,7 @@ static int _der_decode_sequence_flexi(const unsigned char *in, unsigned long *in
              len_len = len;
 
              /* Sequence elements go as child */
-             if ((err = _der_decode_sequence_flexi(in, &len, &(l->child), depth+1)) != CRYPT_OK) {
+             if ((err = s_der_decode_sequence_flexi(in, &len, &(l->child), depth+1)) != CRYPT_OK) {
                 goto error;
              }
              if (len_len != len) {
@@ -534,7 +534,7 @@ error:
 */
 int der_decode_sequence_flexi(const unsigned char *in, unsigned long *inlen, ltc_asn1_list **out)
 {
-   return _der_decode_sequence_flexi(in, inlen, out, 0);
+   return s_der_decode_sequence_flexi(in, inlen, out, 0);
 }
 
 #endif
