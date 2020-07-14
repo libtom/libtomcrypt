@@ -103,7 +103,7 @@ static void *run(void *arg)
 /*
  * unregister ciphers, hashes & prngs
  */
-static void _unregister_all(void)
+static void s_unregister_all(void)
 {
 #ifdef LTC_RIJNDAEL
 #ifdef ENCRYPT_ONLY
@@ -275,13 +275,13 @@ static void _unregister_all(void)
 #ifdef LTC_SPRNG
   unregister_prng(&sprng_desc);
 #endif
-} /* _cleanup() */
+} /* s_cleanup() */
 
 static void register_algs(void)
 {
   int err;
 
-  atexit(_unregister_all);
+  atexit(s_unregister_all);
 
 #ifndef LTC_YARROW
    #error This demo requires Yarrow.

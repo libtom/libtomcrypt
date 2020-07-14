@@ -119,7 +119,7 @@ static const char* curvenames[] = {
 
 
 #ifdef LTC_ECC_SHAMIR
-static int _ecc_test_shamir(void)
+static int s_ecc_test_shamir(void)
 {
    void *a, *modulus, *mp, *kA, *kB, *rA, *rB;
    void *mu, *ma;
@@ -199,7 +199,7 @@ static int _ecc_test_shamir(void)
 #endif
 
 /* https://github.com/libtom/libtomcrypt/issues/108 */
-static int _ecc_issue108(void)
+static int s_ecc_issue108(void)
 {
    void      *a, *modulus, *order;
    ecc_point *Q, *Result;
@@ -235,7 +235,7 @@ done:
 
 /* https://github.com/libtom/libtomcrypt/issues/443 */
 /* https://github.com/libtom/libtomcrypt/issues/447 */
-static int _ecc_issue443_447(void)
+static int s_ecc_issue443_447(void)
 {
    const ltc_ecc_curve* cu;
    ecc_key key;
@@ -285,7 +285,7 @@ static int _ecc_issue443_447(void)
    return CRYPT_OK;
 }
 
-static int _ecc_test_mp(void)
+static int s_ecc_test_mp(void)
 {
    void       *a, *modulus, *order;
    ecc_point  *G, *GG;
@@ -348,7 +348,7 @@ done:
    return err;
 }
 
-static int _ecc_old_api(void)
+static int s_ecc_old_api(void)
 {
    unsigned char buf[4][4096], ch;
    unsigned long x, y, z, s;
@@ -489,7 +489,7 @@ static int _ecc_old_api(void)
    return CRYPT_OK;
 }
 
-static int _ecc_key_cmp(const int should_type, const ecc_key *should, const ecc_key *is)
+static int s_ecc_key_cmp(const int should_type, const ecc_key *should, const ecc_key *is)
 {
    if (should_type != is->type)                               return CRYPT_ERROR;
    if (should_type == PK_PRIVATE) {
@@ -508,7 +508,7 @@ static int _ecc_key_cmp(const int should_type, const ecc_key *should, const ecc_
    return CRYPT_OK;
 }
 
-static int _ecc_new_api(void)
+static int s_ecc_new_api(void)
 {
    int i, j, stat;
    const ltc_ecc_curve* dp;
@@ -596,7 +596,7 @@ static int _ecc_new_api(void)
          for (j = 0; j < 2*(1+(int)privkey.dp.cofactor); j++) {
             stat = ecc_recover_key(buf, len, data16, 16, j, LTC_ECCSIG_ANSIX962, &reckey);
             if (stat != CRYPT_OK) continue; /* last two will almost always fail, only possible if x<(prime mod order) */
-            stat = _ecc_key_cmp(PK_PUBLIC, &pubkey, &reckey);
+            stat = s_ecc_key_cmp(PK_PUBLIC, &pubkey, &reckey);
             if (stat == CRYPT_OK) found++;
          }
          if (found != 1) return CRYPT_FAIL_TESTVECTOR; /* unique match */
@@ -620,7 +620,7 @@ static int _ecc_new_api(void)
    return CRYPT_OK;
 }
 
-static int _ecc_import_export(void) {
+static int s_ecc_import_export(void) {
    const ltc_ecc_curve *cu;
    ecc_key key, pri, pub;
    unsigned char out[300];
@@ -1310,138 +1310,138 @@ static int _ecc_import_export(void) {
    /* import - raw keys */
    DO(ecc_set_curve(cu, &key));
    DO(ecc_set_key(raw_pri, sizeof(raw_pri),  PK_PRIVATE, &key));
-   DO(_ecc_key_cmp(PK_PRIVATE, &pri, &key));
+   DO(s_ecc_key_cmp(PK_PRIVATE, &pri, &key));
    ecc_free(&key);
    DO(ecc_set_curve(cu, &key));
    DO(ecc_set_key(raw_pub, sizeof(raw_pub),  PK_PUBLIC,  &key));
-   DO(_ecc_key_cmp(PK_PUBLIC, &pub, &key));
+   DO(s_ecc_key_cmp(PK_PUBLIC, &pub, &key));
    ecc_free(&key);
    DO(ecc_set_curve(cu, &key));
    DO(ecc_set_key(raw_pubc, sizeof(raw_pubc), PK_PUBLIC,  &key));
-   DO(_ecc_key_cmp(PK_PUBLIC, &pub, &key));
+   DO(s_ecc_key_cmp(PK_PUBLIC, &pub, &key));
    ecc_free(&key);
 
    /* import - openssl compatible DER format */
    DO(ecc_import_openssl(long_pri, sizeof(long_pri),   &key));
-   DO(_ecc_key_cmp(PK_PRIVATE, &pri, &key));
+   DO(s_ecc_key_cmp(PK_PRIVATE, &pri, &key));
    ecc_free(&key);
    DO(ecc_import_openssl(long_pric, sizeof(long_pric),  &key));
-   DO(_ecc_key_cmp(PK_PRIVATE, &pri, &key));
+   DO(s_ecc_key_cmp(PK_PRIVATE, &pri, &key));
    ecc_free(&key);
    DO(ecc_import_openssl(long_pub, sizeof(long_pub),   &key));
-   DO(_ecc_key_cmp(PK_PUBLIC, &pub, &key));
+   DO(s_ecc_key_cmp(PK_PUBLIC, &pub, &key));
    ecc_free(&key);
    DO(ecc_import_openssl(long_pubc, sizeof(long_pubc),  &key));
-   DO(_ecc_key_cmp(PK_PUBLIC, &pub, &key));
+   DO(s_ecc_key_cmp(PK_PUBLIC, &pub, &key));
    ecc_free(&key);
    DO(ecc_import_openssl(short_pri, sizeof(short_pri),  &key));
-   DO(_ecc_key_cmp(PK_PRIVATE, &pri, &key));
+   DO(s_ecc_key_cmp(PK_PRIVATE, &pri, &key));
    ecc_free(&key);
    DO(ecc_import_openssl(short_pric, sizeof(short_pric), &key));
-   DO(_ecc_key_cmp(PK_PRIVATE, &pri, &key));
+   DO(s_ecc_key_cmp(PK_PRIVATE, &pri, &key));
    ecc_free(&key);
    DO(ecc_import_openssl(short_pub, sizeof(short_pub),  &key));
-   DO(_ecc_key_cmp(PK_PUBLIC, &pub, &key));
+   DO(s_ecc_key_cmp(PK_PUBLIC, &pub, &key));
    ecc_free(&key);
    DO(ecc_import_openssl(short_pubc, sizeof(short_pubc), &key));
-   DO(_ecc_key_cmp(PK_PUBLIC, &pub, &key));
+   DO(s_ecc_key_cmp(PK_PUBLIC, &pub, &key));
    ecc_free(&key);
 
    /* import - private PKCS8 format - no password */
    DO(ecc_import_pkcs8(long_pri_pkcs8, sizeof(long_pri_pkcs8),   NULL, 0, &key));
-   DO(_ecc_key_cmp(PK_PRIVATE, &pri, &key));
+   DO(s_ecc_key_cmp(PK_PRIVATE, &pri, &key));
    ecc_free(&key);
    DO(ecc_import_pkcs8(long_pric_pkcs8, sizeof(long_pric_pkcs8),  NULL, 0, &key));
-   DO(_ecc_key_cmp(PK_PRIVATE, &pri, &key));
+   DO(s_ecc_key_cmp(PK_PRIVATE, &pri, &key));
    ecc_free(&key);
    DO(ecc_import_pkcs8(short_pri_pkcs8, sizeof(short_pri_pkcs8),  NULL, 0, &key));
-   DO(_ecc_key_cmp(PK_PRIVATE, &pri, &key));
+   DO(s_ecc_key_cmp(PK_PRIVATE, &pri, &key));
    ecc_free(&key);
    DO(ecc_import_pkcs8(short_pric_pkcs8, sizeof(short_pric_pkcs8), NULL, 0, &key));
-   DO(_ecc_key_cmp(PK_PRIVATE, &pri, &key));
+   DO(s_ecc_key_cmp(PK_PRIVATE, &pri, &key));
    ecc_free(&key);
 
    /* import - private PKCS8 format - password protected (PBES1 algorithms) */
 #ifdef LTC_MD2
    DO(ecc_import_pkcs8(long_pri_pkcs8_pbe_md2_des, sizeof(long_pri_pkcs8_pbe_md2_des), "secret", 6, &key));
-   DO(_ecc_key_cmp(PK_PRIVATE, &pri, &key));
+   DO(s_ecc_key_cmp(PK_PRIVATE, &pri, &key));
    ecc_free(&key);
 #endif
 #ifdef LTC_MD5
    DO(ecc_import_pkcs8(long_pri_pkcs8_pbe_md5_des, sizeof(long_pri_pkcs8_pbe_md5_des), "secret", 6, &key));
-   DO(_ecc_key_cmp(PK_PRIVATE, &pri, &key));
+   DO(s_ecc_key_cmp(PK_PRIVATE, &pri, &key));
    ecc_free(&key);
 #endif
 #ifdef LTC_SHA1
    DO(ecc_import_pkcs8(long_pri_pkcs8_pbe_sha1_des, sizeof(long_pri_pkcs8_pbe_sha1_des), "secret", 6, &key));
-   DO(_ecc_key_cmp(PK_PRIVATE, &pri, &key));
+   DO(s_ecc_key_cmp(PK_PRIVATE, &pri, &key));
    ecc_free(&key);
 #endif
 #if defined(LTC_RC2) && defined(LTC_MD2)
    DO(ecc_import_pkcs8(long_pri_pkcs8_pbe_md2_rc2_64, sizeof(long_pri_pkcs8_pbe_md2_rc2_64), "secret", 6, &key));
-   DO(_ecc_key_cmp(PK_PRIVATE, &pri, &key));
+   DO(s_ecc_key_cmp(PK_PRIVATE, &pri, &key));
    ecc_free(&key);
 #endif
 #if defined(LTC_RC2) && defined(LTC_MD5)
    DO(ecc_import_pkcs8(long_pri_pkcs8_pbe_md5_rc2_64, sizeof(long_pri_pkcs8_pbe_md5_rc2_64), "secret", 6, &key));
-   DO(_ecc_key_cmp(PK_PRIVATE, &pri, &key));
+   DO(s_ecc_key_cmp(PK_PRIVATE, &pri, &key));
    ecc_free(&key);
 #endif
 #if defined(LTC_RC2) && defined(LTC_SHA1)
    DO(ecc_import_pkcs8(long_pri_pkcs8_pbe_sha1_rc2_64, sizeof(long_pri_pkcs8_pbe_sha1_rc2_64), "secret", 6, &key));
-   DO(_ecc_key_cmp(PK_PRIVATE, &pri, &key));
+   DO(s_ecc_key_cmp(PK_PRIVATE, &pri, &key));
    ecc_free(&key);
 #endif
 
    /* import - private PKCS8 format - password protected (PBES2 algorithms) */
 #if defined(LTC_RC2)
    DO(ecc_import_pkcs8(long_pri_pkcs8_pbkdf2_rc2_cbc, sizeof(long_pri_pkcs8_pbkdf2_rc2_cbc), "secret", 6, &key));
-   DO(_ecc_key_cmp(PK_PRIVATE, &pri, &key));
+   DO(s_ecc_key_cmp(PK_PRIVATE, &pri, &key));
    ecc_free(&key);
 #endif
 #if defined(LTC_DES)
    DO(ecc_import_pkcs8(long_pri_pkcs8_pbkdf2_des_cbc, sizeof(long_pri_pkcs8_pbkdf2_des_cbc), "secret", 6, &key));
-   DO(_ecc_key_cmp(PK_PRIVATE, &pri, &key));
+   DO(s_ecc_key_cmp(PK_PRIVATE, &pri, &key));
    ecc_free(&key);
 #endif
 #if defined(LTC_DES)
    DO(ecc_import_pkcs8(long_pri_pkcs8_pbkdf2_des_ede3_cbc, sizeof(long_pri_pkcs8_pbkdf2_des_ede3_cbc), "secret", 6, &key));
-   DO(_ecc_key_cmp(PK_PRIVATE, &pri, &key));
+   DO(s_ecc_key_cmp(PK_PRIVATE, &pri, &key));
    ecc_free(&key);
 #endif
 #if defined(LTC_SHA224) && defined(LTC_DES)
    DO(ecc_import_pkcs8(long_pri_pkcs8_pbkdf2_sha224_des_ede3_cbc, sizeof(long_pri_pkcs8_pbkdf2_sha224_des_ede3_cbc), "secret", 6, &key));
-   DO(_ecc_key_cmp(PK_PRIVATE, &pri, &key));
+   DO(s_ecc_key_cmp(PK_PRIVATE, &pri, &key));
    ecc_free(&key);
 #endif
 #if defined(LTC_SHA256) && defined(LTC_DES)
    DO(ecc_import_pkcs8(long_pri_pkcs8_pbkdf2_sha256_des_ede3_cbc, sizeof(long_pri_pkcs8_pbkdf2_sha256_des_ede3_cbc), "secret", 6, &key));
-   DO(_ecc_key_cmp(PK_PRIVATE, &pri, &key));
+   DO(s_ecc_key_cmp(PK_PRIVATE, &pri, &key));
    ecc_free(&key);
 #endif
 #if defined(LTC_SHA384) && defined(LTC_DES)
    DO(ecc_import_pkcs8(long_pri_pkcs8_pbkdf2_sha384_des_ede3_cbc, sizeof(long_pri_pkcs8_pbkdf2_sha384_des_ede3_cbc), "secret", 6, &key));
-   DO(_ecc_key_cmp(PK_PRIVATE, &pri, &key));
+   DO(s_ecc_key_cmp(PK_PRIVATE, &pri, &key));
    ecc_free(&key);
 #endif
 #if defined(LTC_SHA512) && defined(LTC_DES)
    DO(ecc_import_pkcs8(long_pri_pkcs8_pbkdf2_sha512_des_ede3_cbc, sizeof(long_pri_pkcs8_pbkdf2_sha512_des_ede3_cbc), "secret", 6, &key));
-   DO(_ecc_key_cmp(PK_PRIVATE, &pri, &key));
+   DO(s_ecc_key_cmp(PK_PRIVATE, &pri, &key));
    ecc_free(&key);
 #endif
 
    /* import - X.509 EC certificates */
    DO(ecc_import_x509(x509_cert_long,   sizeof(x509_cert_long),   &key));
-   DO(_ecc_key_cmp(PK_PUBLIC, &pub, &key));
+   DO(s_ecc_key_cmp(PK_PUBLIC, &pub, &key));
    ecc_free(&key);
    DO(ecc_import_x509(x509_cert_longc,  sizeof(x509_cert_longc),  &key));
-   DO(_ecc_key_cmp(PK_PUBLIC, &pub, &key));
+   DO(s_ecc_key_cmp(PK_PUBLIC, &pub, &key));
    ecc_free(&key);
    DO(ecc_import_x509(x509_cert_short,  sizeof(x509_cert_short),  &key));
-   DO(_ecc_key_cmp(PK_PUBLIC, &pub, &key));
+   DO(s_ecc_key_cmp(PK_PUBLIC, &pub, &key));
    ecc_free(&key);
    DO(ecc_import_x509(x509_cert_shortc, sizeof(x509_cert_shortc), &key));
-   DO(_ecc_key_cmp(PK_PUBLIC, &pub, &key));
+   DO(s_ecc_key_cmp(PK_PUBLIC, &pub, &key));
    ecc_free(&key);
 
    /* export - openssl compatible DER format */
@@ -1487,7 +1487,7 @@ static int _ecc_import_export(void) {
 }
 
 #ifdef LTC_ECC_SHAMIR
-static int _ecc_test_recovery(void)
+static int s_ecc_test_recovery(void)
 {
    int i, recid, stat;
    const ltc_ecc_curve* dp;
@@ -1526,13 +1526,13 @@ static int _ecc_test_recovery(void)
    DO(ecc_set_curve(dp, &reckey));
    stat = ecc_recover_key(eth_sig, sizeof(eth_sig)-1, eth_hash, sizeof(eth_hash), 0, LTC_ECCSIG_RFC7518, &reckey);
    if (stat != CRYPT_OK) return CRYPT_FAIL_TESTVECTOR;
-   DO(_ecc_key_cmp(PK_PUBLIC, &pubkey, &reckey));
+   DO(s_ecc_key_cmp(PK_PUBLIC, &pubkey, &reckey));
    ecc_free(&reckey);
 
    DO(ecc_set_curve(dp, &reckey));
    stat = ecc_recover_key(eth_sig, sizeof(eth_sig), eth_hash, sizeof(eth_hash), -1, LTC_ECCSIG_ETH27, &reckey);
    if (stat != CRYPT_OK) return CRYPT_FAIL_TESTVECTOR;
-   DO(_ecc_key_cmp(PK_PUBLIC, &pubkey, &reckey));
+   DO(s_ecc_key_cmp(PK_PUBLIC, &pubkey, &reckey));
    ecc_free(&reckey);
 
    ecc_free(&pubkey);
@@ -1577,7 +1577,7 @@ static int _ecc_test_recovery(void)
       DO(ecc_set_curve(dp, &reckey));
       stat = ecc_recover_key(buf, len, data16, 16, recid, LTC_ECCSIG_RFC7518, &reckey);
       if (stat != CRYPT_OK) return CRYPT_FAIL_TESTVECTOR;
-      DO(_ecc_key_cmp(PK_PUBLIC, &pubkey, &reckey));
+      DO(s_ecc_key_cmp(PK_PUBLIC, &pubkey, &reckey));
 
       /* cleanup */
       ecc_free(&reckey);
@@ -1593,15 +1593,15 @@ int ecc_test(void)
 {
    if (ltc_mp.name == NULL) return CRYPT_NOP;
 
-   DO(_ecc_old_api()); /* up to 1.18 */
-   DO(_ecc_new_api());
-   DO(_ecc_import_export());
-   DO(_ecc_test_mp());
-   DO(_ecc_issue108());
-   DO(_ecc_issue443_447());
+   DO(s_ecc_old_api()); /* up to 1.18 */
+   DO(s_ecc_new_api());
+   DO(s_ecc_import_export());
+   DO(s_ecc_test_mp());
+   DO(s_ecc_issue108());
+   DO(s_ecc_issue443_447());
 #ifdef LTC_ECC_SHAMIR
-   DO(_ecc_test_shamir());
-   DO(_ecc_test_recovery());
+   DO(s_ecc_test_shamir());
+   DO(s_ecc_test_recovery());
 #endif
    return CRYPT_OK;
 }

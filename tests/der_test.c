@@ -15,7 +15,7 @@ int der_test(void)
 #define LTC_DER_TESTS_PRINT_FLEXI
 #endif
 
-static const char _der_tests_stinky_root_cert[] =
+static const char s_der_tests_stinky_root_cert[] =
    "MIIFETCCA/mgAwIBAgIQbv53JNmv518t5lkCHE272jANBgkqhkiG9w0BAQUFADCB"
    "lTELMAkGA1UEBhMCVVMxCzAJBgNVBAgTAlVUMRcwFQYDVQQHEw5TYWx0IExha2Ug"
    "Q2l0eTEeMBwGA1UEChMVVGhlIFVTRVJUUlVTVCBOZXR3b3JrMSEwHwYDVQQLExho"
@@ -44,7 +44,7 @@ static const char _der_tests_stinky_root_cert[] =
    "JeXwdFaRjbamiz3Irl+u7x/mhxdza6RvgBYylXRFMudANpeGsV7gDXlnfzpFDKHQ"
    "niVwB7P5sbPFIlmIc+4/xRItkLIRjCVXaepgN9KYu3VOgiSDI6wXiTwP44/LUXQM"
    "hetwa7s=";
-const char _der_tests_cacert_root_cert[] =
+const char ltc_der_tests_cacert_root_cert[] =
    "MIIHPTCCBSWgAwIBAgIBADANBgkqhkiG9w0BAQQFADB5MRAwDgYDVQQKEwdSb290"
    "IENBMR4wHAYDVQQLExVodHRwOi8vd3d3LmNhY2VydC5vcmcxIjAgBgNVBAMTGUNB"
    "IENlcnQgU2lnbmluZyBBdXRob3JpdHkxITAfBgkqhkiG9w0BCQEWEnN1cHBvcnRA"
@@ -84,7 +84,7 @@ const char _der_tests_cacert_root_cert[] =
    "GCSNe9FINSkYQKyTYOGWhlC0elnYjyELn8+CkcY7v2vcB5G5l1YjqrZslMZIBjzk"
    "zk6q5PYvCdxTby78dOs6Y5nCpqyJvKeyRKANihDjbPIky/qbn3BHLt4Ui9SyIAmW"
    "omTxJBzcoTWcFbLUvFUufQb1nA5V9FrWk9p2rSVzTMVD";
-const unsigned long _der_tests_cacert_root_cert_size = sizeof(_der_tests_cacert_root_cert);
+const unsigned long ltc_der_tests_cacert_root_cert_size = sizeof(ltc_der_tests_cacert_root_cert);
 
 /*
 SEQUENCE(3 elem)
@@ -203,35 +203,33 @@ SEQUENCE(3 elem)
     BIT STRING(4096 bit)
  */
 
-#define __ASN1_FMTSTRING_FMT "line: %d, type=%d, size=%lu, data=%p, self=%p, next=%p, prev=%p, parent=%p, child=%p"
-#define __ASN1_FMTSTRING_VAL(l)  __LINE__, (l)->type, (l)->size, (l)->data, (l), (l)->next, (l)->prev, (l)->parent, (l)->child
+#define ASN1_FMTSTRING_FMT "line: %d, type=%d, size=%lu, data=%p, self=%p, next=%p, prev=%p, parent=%p, child=%p"
+#define ASN1_FMTSTRING_VAL(l)  __LINE__, (l)->type, (l)->size, (l)->data, (l), (l)->next, (l)->prev, (l)->parent, (l)->child
 
-#define __ASN1_ERR(l) fprintf(stderr, __ASN1_FMTSTRING_FMT "\n", __ASN1_FMTSTRING_VAL(l)); \
+#define ASN1_ERR(l) fprintf(stderr, ASN1_FMTSTRING_FMT "\n", ASN1_FMTSTRING_VAL(l)); \
     exit(EXIT_FAILURE)
 
-#define __CHECK_ASN1_HAS(l, w) do { if ((l)->w == NULL) { \
-    __ASN1_ERR(l);\
+#define CHECK_ASN1_HAS(l, w) do { if ((l)->w == NULL) { \
+    ASN1_ERR(l);\
 } } while(0)
 
-#define __CHECK_ASN1_HAS_NO(l, w) do { if ((l)->w != NULL) { \
-    __ASN1_ERR(l);\
+#define CHECK_ASN1_HAS_NO(l, w) do { if ((l)->w != NULL) { \
+    ASN1_ERR(l);\
 } } while(0)
-
-
 
 #define CHECK_ASN1_TYPE(l, t) do { if ((l)->type != (t)) { \
-    __ASN1_ERR(l);\
+    ASN1_ERR(l);\
 } } while(0)
 
-#define CHECK_ASN1_HAS_CHILD(l) __CHECK_ASN1_HAS(l, child)
-#define CHECK_ASN1_HAS_NO_CHILD(l) __CHECK_ASN1_HAS_NO(l, child)
-#define CHECK_ASN1_HAS_NEXT(l) __CHECK_ASN1_HAS(l, next)
-#define CHECK_ASN1_HAS_NO_NEXT(l) __CHECK_ASN1_HAS_NO(l, next)
-#define CHECK_ASN1_HAS_DATA(l) __CHECK_ASN1_HAS(l, data)
-#define CHECK_ASN1_HAS_NO_DATA(l) __CHECK_ASN1_HAS_NO(l, data)
+#define CHECK_ASN1_HAS_CHILD(l) CHECK_ASN1_HAS(l, child)
+#define CHECK_ASN1_HAS_NO_CHILD(l) CHECK_ASN1_HAS_NO(l, child)
+#define CHECK_ASN1_HAS_NEXT(l) CHECK_ASN1_HAS(l, next)
+#define CHECK_ASN1_HAS_NO_NEXT(l) CHECK_ASN1_HAS_NO(l, next)
+#define CHECK_ASN1_HAS_DATA(l) CHECK_ASN1_HAS(l, data)
+#define CHECK_ASN1_HAS_NO_DATA(l) CHECK_ASN1_HAS_NO(l, data)
 
 #ifdef LTC_DER_TESTS_PRINT_FLEXI
-static void _der_tests_print_flexi(ltc_asn1_list* l, unsigned int level)
+static void s_der_tests_print_flexi(ltc_asn1_list* l, unsigned int level)
 {
   char buf[1024];
   const char* name = NULL;
@@ -243,7 +241,7 @@ static void _der_tests_print_flexi(ltc_asn1_list* l, unsigned int level)
     {
   case LTC_ASN1_EOL:
     name = "EOL";
-    snprintf(buf, sizeof(buf),__ASN1_FMTSTRING_FMT "\n", __ASN1_FMTSTRING_VAL(l));
+    snprintf(buf, sizeof(buf),__ASN1_FMTSTRING_FMT "\n", ASN1_FMTSTRING_VAL(l));
     text = buf;
     break;
   case LTC_ASN1_BOOLEAN:
@@ -397,32 +395,32 @@ static void _der_tests_print_flexi(ltc_asn1_list* l, unsigned int level)
      fprintf(stderr, "WTF type=%i\n", l->type);
 
   if (ostring) {
-      _der_tests_print_flexi(ostring, level + 1);
+      s_der_tests_print_flexi(ostring, level + 1);
       der_free_sequence_flexi(ostring);
   }
 
   if (l->child)
-    _der_tests_print_flexi(l->child, level + 1);
+    s_der_tests_print_flexi(l->child, level + 1);
 
   if (l->next)
-    _der_tests_print_flexi(l->next, level);
+    s_der_tests_print_flexi(l->next, level);
 }
 #endif
 
 static void der_cacert_test(void)
 {
-  unsigned char buf[sizeof(_der_tests_cacert_root_cert)];
+  unsigned char buf[sizeof(ltc_der_tests_cacert_root_cert)];
   unsigned long len1 = sizeof(buf), len2;
 
   ltc_asn1_list *decoded_list, *l, *l1, *l2;
 
-  DO(base64_decode(_der_tests_stinky_root_cert, sizeof(_der_tests_stinky_root_cert), buf, &len1));
+  DO(base64_decode(s_der_tests_stinky_root_cert, sizeof(s_der_tests_stinky_root_cert), buf, &len1));
   len2 = len1;
   DO(der_decode_sequence_flexi(buf, &len2, &decoded_list));
   der_free_sequence_flexi(decoded_list);
 
   len1 = sizeof(buf);
-  DO(base64_decode(_der_tests_cacert_root_cert, sizeof(_der_tests_cacert_root_cert), buf, &len1));
+  DO(base64_decode(ltc_der_tests_cacert_root_cert, sizeof(ltc_der_tests_cacert_root_cert), buf, &len1));
   len2 = len1;
   DO(der_decode_sequence_flexi(buf, &len2, &decoded_list));
   CHECK_ASN1_TYPE(decoded_list, LTC_ASN1_SEQUENCE);
@@ -435,7 +433,7 @@ static void der_cacert_test(void)
 
 #ifdef LTC_DER_TESTS_PRINT_FLEXI
   printf("\n\n--- test print start ---\n\n");
-  _der_tests_print_flexi(decoded_list, 0);
+  s_der_tests_print_flexi(decoded_list, 0);
   printf("\n\n--- test print end ---\n\n");
 #endif
 
@@ -667,7 +665,7 @@ static void der_set_test(void)
 
 */
 
-static void _der_oid_test(void)
+static void s_der_oid_test(void)
 {
    static const unsigned char oid_x690_8_19_5_example[] = { 0x06, 0x03, 0x88, 0x37, 0x03 };
    unsigned long len, oid[3];
@@ -1127,13 +1125,13 @@ static int der_choice_n_custom_test(void)
   return 0;
 }
 
-static void _der_decode_print(const void* p, unsigned long* plen)
+static void s_der_decode_print(const void* p, unsigned long* plen)
 {
    ltc_asn1_list *list;
    DO(der_decode_sequence_flexi(p, plen, &list));
 #ifdef LTC_DER_TESTS_PRINT_FLEXI
    fprintf(stderr, "\n\n");
-   _der_tests_print_flexi(list, 0);
+   s_der_tests_print_flexi(list, 0);
    fprintf(stderr, "\n\n");
 #endif
    der_sequence_free(list);
@@ -1183,7 +1181,7 @@ static void der_custom_test(void)
    DO(der_length_custom_type(custom, &len, NULL));
    len = sizeof(buf);
    DO(der_encode_custom_type(custom, buf, &len));
-   _der_decode_print(buf, &len);
+   s_der_decode_print(buf, &len);
 
    boolean = 0x0;
    DO(der_decode_custom_type(buf, len, custom));
@@ -1191,7 +1189,7 @@ static void der_custom_test(void)
    DO(der_length_sequence(custom, 1, &len));
    len = sizeof(buf);
    DO(der_encode_sequence(custom, 1, buf, &len));
-   _der_decode_print(buf, &len);
+   s_der_decode_print(buf, &len);
 
    boolean = 0x0;
    DO(der_decode_sequence(buf, len, custom, 1));
@@ -1200,29 +1198,29 @@ static void der_custom_test(void)
    DO(der_length_custom_type(bool_ean, &len, NULL));
    len = sizeof(buf);
    DO(der_encode_custom_type(bool_ean, buf, &len));
-   _der_decode_print(buf, &len);
+   s_der_decode_print(buf, &len);
 
    LTC_SET_ASN1_CUSTOM_PRIMITIVE(bool_ean, 0, LTC_ASN1_CL_CONTEXT_SPECIFIC, 0x8000, LTC_ASN1_BOOLEAN, &boolean, 1);
    DO(der_decode_custom_type(buf, len, bool_ean));
 
    len = sizeof(buf1);
-   _der_decode_print(buf1, &len);
+   s_der_decode_print(buf1, &len);
 
    len = sizeof(buf2);
-   _der_decode_print(buf2, &len);
+   s_der_decode_print(buf2, &len);
 
    len = sizeof(eckey_privc_der);
-   _der_decode_print(eckey_privc_der, &len);
+   s_der_decode_print(eckey_privc_der, &len);
 
    len = sizeof(eckey_privs_der);
-   _der_decode_print(eckey_privs_der, &len);
+   s_der_decode_print(eckey_privs_der, &len);
 }
 
-typedef int (*_der_Xcode)(const void*, unsigned long, void*, unsigned long*);
+typedef int (*s_der_Xcode)(const void*, unsigned long, void*, unsigned long*);
 
 typedef struct {
-   _der_Xcode encode;
-   _der_Xcode decode;
+   s_der_Xcode encode;
+   s_der_Xcode decode;
    const void* in;
    size_t in_sz;
    size_t factor;
@@ -1260,8 +1258,8 @@ static void der_Xcode_run(const der_Xcode_t* x)
 #endif
 
 #define DER_XCODE_X(n, b, x) {  \
-      (_der_Xcode)der_encode_ ## n,    \
-      (_der_Xcode)der_decode_ ## n,    \
+      (s_der_Xcode)der_encode_ ## n,    \
+      (s_der_Xcode)der_decode_ ## n,    \
       b,                   \
       sizeof(b),           \
       x,                   \
@@ -1307,7 +1305,7 @@ static void der_Xcode_test(void)
    DO(der_decode_sequence_flexi(teletex_neg_int, &i, &list));
 #ifdef LTC_DER_TESTS_PRINT_FLEXI
    fprintf(stderr, "\n\n");
-   _der_tests_print_flexi(list, 0);
+   s_der_tests_print_flexi(list, 0);
    fprintf(stderr, "\n\n");
 #endif
    if (list->child == NULL || list->child->next == NULL)
@@ -1327,13 +1325,13 @@ static void der_Xcode_test(void)
 }
 
 #ifdef LTC_TEST_READDIR
-static int _der_decode_sequence_flexi(const void *in, unsigned long inlen, void* ctx)
+static int s_der_decode_sequence_flexi(const void *in, unsigned long inlen, void* ctx)
 {
    ltc_asn1_list** list = ctx;
    if (der_decode_sequence_flexi(in, &inlen, list) == CRYPT_OK) {
 #ifdef LTC_DER_TESTS_PRINT_FLEXI
       fprintf(stderr, "\n\n");
-      _der_tests_print_flexi(*list, 0);
+      s_der_tests_print_flexi(*list, 0);
       fprintf(stderr, "\n\n");
 #endif
       der_sequence_free(*list);
@@ -1343,16 +1341,16 @@ static int _der_decode_sequence_flexi(const void *in, unsigned long inlen, void*
 #endif
 
 
-static void _der_regression_test(void)
+static void s_der_regression_test(void)
 {
-   static const unsigned char _broken_sequence[] = {
+   static const unsigned char s_broken_sequence[] = {
      0x30,0x41,0x02,0x84,0x7f,0xff,0xff,0xff,0x1e,0x41,0xb4,0x79,0xad,0x57,0x69,
      0x05,0xb9,0x60,0xfe,0x14,0xea,0xdb,0x91,0xb0,0xcc,0xf3,0x48,0x43,0xda,0xb9,
      0x16,0x17,0x3b,0xb8,0xc9,0xcd,0x02,0x1d,0x00,0xad,0xe6,0x59,0x88,0xd2,0x37,
      0xd3,0x0f,0x9e,0xf4,0x1d,0xd4,0x24,0xa4,0xe1,0xc8,0xf1,0x69,0x67,0xcf,0x33,
      0x65,0x81,0x3f,0xe8,0x78,0x62,0x36
    };
-   static const unsigned char _addtl_bytes[] = {
+   static const unsigned char s_addtl_bytes[] = {
      0x30,0x45,0x02,0x21,0x00,0xb7,0xba,0xba,0xe9,0x33,0x2b,0x54,0xb8,0xa3,0xa0,0x5b,0x70,0x04,0x57,
      0x98,0x21,0xa8,0x87,0xa1,0xb2,0x14,0x65,0xf7,0xdb,0x8a,0x3d,0x49,0x1b,0x39,0xfd,0x2c,0x3f,0x02,
      0x20,0x74,0x72,0x91,0xdd,0x2f,0x3f,0x44,0xaf,0x7a,0xce,0x68,0xea,0x33,0x43,0x1d,0x6f,0x94,0xe4,
@@ -1370,17 +1368,17 @@ static void _der_regression_test(void)
    mp_init_multi(&x, &y, NULL);
    LTC_SET_ASN1(seq, 0, LTC_ASN1_INTEGER, x, 1UL);
    LTC_SET_ASN1(seq, 1, LTC_ASN1_INTEGER, y, 1UL);
-   SHOULD_FAIL(der_decode_sequence(_broken_sequence, sizeof(_broken_sequence), seq, 2));
+   SHOULD_FAIL(der_decode_sequence(s_broken_sequence, sizeof(s_broken_sequence), seq, 2));
    mp_cleanup_multi(&y, &x, NULL);
-   len = sizeof(_broken_sequence);
+   len = sizeof(s_broken_sequence);
 
    mp_init_multi(&x, &y, NULL);
    LTC_SET_ASN1(seq, 0, LTC_ASN1_INTEGER, x, 1UL);
    LTC_SET_ASN1(seq, 1, LTC_ASN1_INTEGER, y, 1UL);
-   SHOULD_FAIL_WITH(der_decode_sequence(_addtl_bytes, sizeof(_addtl_bytes), seq, 2), CRYPT_INPUT_TOO_LONG);
+   SHOULD_FAIL_WITH(der_decode_sequence(s_addtl_bytes, sizeof(s_addtl_bytes), seq, 2), CRYPT_INPUT_TOO_LONG);
    mp_cleanup_multi(&y, &x, NULL);
-   len = sizeof(_addtl_bytes);
-   _der_decode_print(_addtl_bytes, &len);
+   len = sizeof(s_addtl_bytes);
+   s_der_decode_print(s_addtl_bytes, &len);
 
    len = sizeof(issue_507);
    SHOULD_FAIL(der_decode_sequence_flexi(issue_507, &len, &l));
@@ -1552,7 +1550,7 @@ static void der_toolong_test(void)
    if (failed) exit(EXIT_FAILURE);
 }
 
-static void _der_recursion_limit(void)
+static void s_der_recursion_limit(void)
 {
    unsigned int n, m;
    unsigned long integer = 123, s;
@@ -1614,23 +1612,23 @@ int der_test(void)
 
    if (ltc_mp.name == NULL) return CRYPT_NOP;
 
-   _der_recursion_limit();
+   s_der_recursion_limit();
 
    der_Xcode_test();
 
 #ifdef LTC_TEST_READDIR
-   DO(test_process_dir("tests/asn1", &list, _der_decode_sequence_flexi, NULL, "DER ASN.1 special cases"));
+   DO(test_process_dir("tests/asn1", &list, s_der_decode_sequence_flexi, NULL, "DER ASN.1 special cases"));
 #endif
 
    der_custom_test();
 
-   _der_regression_test();
+   s_der_regression_test();
 
    der_toolong_test();
 
    der_cacert_test();
 
-   _der_oid_test();
+   s_der_oid_test();
 
    y = 0xffffff00;
 #if ULONG_MAX == ULLONG_MAX

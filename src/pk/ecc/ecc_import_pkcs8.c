@@ -35,7 +35,7 @@ static int s_der_flexi_sequence_cmp(const ltc_asn1_list *flexi, der_flexi_check 
    return CRYPT_OK;
 }
 
-/* NOTE: _der_decode_pkcs8_flexi & related stuff can be shared with rsa_import_pkcs8() */
+/* NOTE: s_der_decode_pkcs8_flexi & related stuff can be shared with rsa_import_pkcs8() */
 
 int ecc_import_pkcs8(const unsigned char *in, unsigned long inlen,
                      const void *pwd, unsigned long pwdlen,

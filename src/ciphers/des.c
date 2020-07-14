@@ -1293,7 +1293,7 @@ static const ulong64 des_fp[8][256] = {
 static void cookey(const ulong32 *raw1, ulong32 *keyout);
 
 #ifdef LTC_CLEAN_STACK
-static void _deskey(const unsigned char *key, short edf, ulong32 *keyout)
+static void s_deskey(const unsigned char *key, short edf, ulong32 *keyout)
 #else
 static void deskey(const unsigned char *key, short edf, ulong32 *keyout)
 #endif
@@ -1347,13 +1347,13 @@ static void deskey(const unsigned char *key, short edf, ulong32 *keyout)
 #ifdef LTC_CLEAN_STACK
 static void deskey(const unsigned char *key, short edf, ulong32 *keyout)
 {
-   _deskey(key, edf, keyout);
+   s_deskey(key, edf, keyout);
    burn_stack(sizeof(int)*5 + sizeof(ulong32)*32 + sizeof(unsigned char)*112);
 }
 #endif
 
 #ifdef LTC_CLEAN_STACK
-static void _cookey(const ulong32 *raw1, ulong32 *keyout)
+static void s_cookey(const ulong32 *raw1, ulong32 *keyout)
 #else
 static void cookey(const ulong32 *raw1, ulong32 *keyout)
 #endif
@@ -1383,7 +1383,7 @@ static void cookey(const ulong32 *raw1, ulong32 *keyout)
 #ifdef LTC_CLEAN_STACK
 static void cookey(const ulong32 *raw1, ulong32 *keyout)
 {
-   _cookey(raw1, keyout);
+   s_cookey(raw1, keyout);
    burn_stack(sizeof(ulong32 *) * 2 + sizeof(ulong32)*32 + sizeof(int));
 }
 #endif
@@ -1391,7 +1391,7 @@ static void cookey(const ulong32 *raw1, ulong32 *keyout)
 #ifndef LTC_CLEAN_STACK
 static void desfunc(ulong32 *block, const ulong32 *keys)
 #else
-static void _desfunc(ulong32 *block, const ulong32 *keys)
+static void s_desfunc(ulong32 *block, const ulong32 *keys)
 #endif
 {
     ulong32 work, right, leftt;
@@ -1505,7 +1505,7 @@ static void _desfunc(ulong32 *block, const ulong32 *keys)
 #ifdef LTC_CLEAN_STACK
 static void desfunc(ulong32 *block, const ulong32 *keys)
 {
-   _desfunc(block, keys);
+   s_desfunc(block, keys);
    burn_stack(sizeof(ulong32) * 4 + sizeof(int));
 }
 #endif

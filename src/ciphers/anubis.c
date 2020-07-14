@@ -876,7 +876,7 @@ static const ulong32 rc[] = {
     @return CRYPT_OK if successful
  */
 #ifdef LTC_CLEAN_STACK
-static int _anubis_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_key *skey)
+static int s_anubis_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_key *skey)
 #else
 int  anubis_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_key *skey)
 #endif
@@ -1013,7 +1013,7 @@ int  anubis_setup(const unsigned char *key, int keylen, int num_rounds, symmetri
 int  anubis_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_key *skey)
 {
   int err;
-  err = _anubis_setup(key, keylen, num_rounds, skey);
+  err = s_anubis_setup(key, keylen, num_rounds, skey);
   burn_stack(sizeof(int) * 5 + sizeof(ulong32) * (MAX_N + MAX_N + 5));
   return err;
 }

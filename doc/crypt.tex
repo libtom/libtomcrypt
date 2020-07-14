@@ -560,7 +560,7 @@ of this array has the following (partial) format (See Section \ref{sec:cipherdes
 
 \begin{small}
 \begin{verbatim}
-struct _cipher_descriptor {
+struct ltc_cipher_descriptor {
    /** name of cipher */
    char *name;
 
@@ -745,14 +745,14 @@ A good safety would be to check the return value of \textit{find\_cipher()} befo
 to use a cipher with the descriptor table you must register it first using:
 \index{register\_cipher()}
 \begin{verbatim}
-int register_cipher(const struct _cipher_descriptor *cipher);
+int register_cipher(const struct ltc_cipher_descriptor *cipher);
 \end{verbatim}
 Which accepts a pointer to a descriptor and returns the index into the global descriptor table.  If an error occurs such
 as there is no more room (it can have 32 ciphers at most) it will return {\bf{-1}}.  If you try to add the same cipher more
 than once it will just return the index of the first copy.  To remove a cipher call:
 \index{unregister\_cipher()}
 \begin{verbatim}
-int unregister_cipher(const struct _cipher_descriptor *cipher);
+int unregister_cipher(const struct ltc_cipher_descriptor *cipher);
 \end{verbatim}
 Which returns {\bf CRYPT\_OK} if it removes the cipher, otherwise it returns {\bf CRYPT\_ERROR}.
 \begin{small}
@@ -2594,7 +2594,7 @@ int main(void)
 Like the set of ciphers, the set of hashes have descriptors as well.  They are stored in an array called \textit{hash\_descriptor} and
 are defined by:
 \begin{verbatim}
-struct _hash_descriptor {
+struct ltc_hash_descriptor {
     char *name;
 
     unsigned long hashsize;    /* digest output size in bytes  */
@@ -2753,9 +2753,9 @@ Similar to the cipher descriptor table you must register your hash algorithms be
 work exactly like those of the cipher registration code.  The functions are:
 \index{register\_hash()} \index{unregister\_hash()}
 \begin{verbatim}
-int register_hash(const struct _hash_descriptor *hash);
+int register_hash(const struct ltc_hash_descriptor *hash);
 
-int unregister_hash(const struct _hash_descriptor *hash);
+int unregister_hash(const struct ltc_hash_descriptor *hash);
 \end{verbatim}
 
 The following hashes are provided as of this release within the LibTomCrypt library:
@@ -3824,7 +3824,7 @@ int main(void)
 PRNGs have descriptors that allow plugin driven functions to be created using PRNGs. The plugin descriptors are stored in the structure \textit{prng\_descriptor}.  The
 format of an element is:
 \begin{verbatim}
-struct _prng_descriptor {
+struct ltc_prng_descriptor {
     char *name;
     int  export_size;    /* size in bytes of exported state */
 
@@ -3860,8 +3860,8 @@ Just like the ciphers and hashes, you must register your prng before you can use
 They are the following:
 \index{register\_prng()} \index{unregister\_prng()}
 \begin{verbatim}
-int register_prng(const struct _prng_descriptor *prng);
-int unregister_prng(const struct _prng_descriptor *prng);
+int register_prng(const struct ltc_prng_descriptor *prng);
+int unregister_prng(const struct ltc_prng_descriptor *prng);
 \end{verbatim}
 
 The register function will register the PRNG, and return the index into the table where it was placed (or -1 for error).  It will avoid registering the same

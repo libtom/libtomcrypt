@@ -123,7 +123,7 @@ static unsigned char dsaparam_der[] = {
  };
 
 
-static int _dsa_compat_test(void)
+static int s_dsa_compat_test(void)
 {
   dsa_key key;
   unsigned char tmp[1024], buf[1024];
@@ -226,7 +226,7 @@ static int _dsa_compat_test(void)
   return CRYPT_OK;
 }
 
-static int _dsa_wycheproof_test(void)
+static int s_dsa_wycheproof_test(void)
 {
    /* test case from https://github.com/google/wycheproof/blob/master/testvectors/dsa_test.json
     *
@@ -307,8 +307,8 @@ int dsa_test(void)
 
    if (ltc_mp.name == NULL) return CRYPT_NOP;
 
-   DO(_dsa_compat_test());
-   DO(_dsa_wycheproof_test());
+   DO(s_dsa_compat_test());
+   DO(s_dsa_wycheproof_test());
 
    /* make a random key */
    DO(dsa_generate_pqg(&yarrow_prng, find_prng("yarrow"), 20, 128, &key));

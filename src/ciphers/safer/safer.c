@@ -91,7 +91,7 @@ const struct ltc_cipher_descriptor safer_k64_desc = {
 /******************* Types ****************************************************/
 
 #ifdef LTC_CLEAN_STACK
-static void _safer_expand_userkey(const unsigned char *userkey_1,
+static void s_safer_expand_userkey(const unsigned char *userkey_1,
                                  const unsigned char *userkey_2,
                                  unsigned int nof_rounds,
                                  int strengthened,
@@ -166,7 +166,7 @@ static void safer_expand_userkey(const unsigned char *userkey_1,
                                  int strengthened,
                                  safer_key_t key)
 {
-   _safer_expand_userkey(userkey_1, userkey_2, nof_rounds, strengthened, key);
+   s_safer_expand_userkey(userkey_1, userkey_2, nof_rounds, strengthened, key);
    burn_stack(sizeof(unsigned char) * (2 * (LTC_SAFER_BLOCK_LEN + 1)) + sizeof(unsigned int)*2);
 }
 #endif
@@ -240,7 +240,7 @@ int safer_sk128_setup(const unsigned char *key, int keylen, int num_rounds, symm
 }
 
 #ifdef LTC_CLEAN_STACK
-static int _safer_ecb_encrypt(const unsigned char *pt,
+static int s_safer_ecb_encrypt(const unsigned char *pt,
                              unsigned char *ct,
                              const symmetric_key *skey)
 #else
@@ -287,14 +287,14 @@ int safer_ecb_encrypt(const unsigned char *pt,
                              unsigned char *ct,
                              const symmetric_key *skey)
 {
-    int err = _safer_ecb_encrypt(pt, ct, skey);
+    int err = s_safer_ecb_encrypt(pt, ct, skey);
     burn_stack(sizeof(unsigned char) * 9 + sizeof(unsigned int) + sizeof(unsigned char *));
     return err;
 }
 #endif
 
 #ifdef LTC_CLEAN_STACK
-static int _safer_ecb_decrypt(const unsigned char *ct,
+static int s_safer_ecb_decrypt(const unsigned char *ct,
                              unsigned char *pt,
                              const symmetric_key *skey)
 #else
@@ -342,7 +342,7 @@ int safer_ecb_decrypt(const unsigned char *ct,
                              unsigned char *pt,
                              const symmetric_key *skey)
 {
-    int err = _safer_ecb_decrypt(ct, pt, skey);
+    int err = s_safer_ecb_decrypt(ct, pt, skey);
     burn_stack(sizeof(unsigned char) * 9 + sizeof(unsigned int) + sizeof(unsigned char *));
     return err;
 }

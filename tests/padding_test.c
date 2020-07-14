@@ -15,21 +15,21 @@ struct padding_testcase_ {
    cmp_padding_testcase cmp;
 };
 
-#define EQ(a, b) _eq((a), (b), #a, #b)
+#define EQ(a, b) s_eq((a), (b), #a, #b)
 
-static int _eq(unsigned long a, unsigned long b, const char* _a, const char* _b)
+static int s_eq(unsigned long a, unsigned long b, const char* s_a, const char* s_b)
 {
    if (a == b) return CRYPT_OK;
 #if defined(LTC_TEST) && defined(LTC_TEST_DBG)
-   else fprintf(stderr, "'%s == %s' failed, %lu is not equal to %lu\n", _a, _b, a, b);
+   else fprintf(stderr, "'%s == %s' failed, %lu is not equal to %lu\n", s_a, s_b, a, b);
 #else
-   LTC_UNUSED_PARAM(_a);
-   LTC_UNUSED_PARAM(_b);
+   LTC_UNUSED_PARAM(s_a);
+   LTC_UNUSED_PARAM(s_b);
 #endif
    return CRYPT_FAIL_TESTVECTOR;
 }
 
-static int _cmp_pkcs7(const padding_testcase* t, const unsigned char* p, unsigned long len)
+static int s_cmp_pkcs7(const padding_testcase* t, const unsigned char* p, unsigned long len)
 {
    unsigned long n, diff = len - t->is;
    DOX(EQ(len, t->should), t->name);
@@ -40,7 +40,7 @@ static int _cmp_pkcs7(const padding_testcase* t, const unsigned char* p, unsigne
 }
 
 #ifdef LTC_RNG_GET_BYTES
-static int _cmp_iso_10126(const padding_testcase* t, const unsigned char* p, unsigned long len)
+static int s_cmp_iso_10126(const padding_testcase* t, const unsigned char* p, unsigned long len)
 {
    LTC_UNUSED_PARAM(p);
    if (len < t->should || len > t->max) {
@@ -54,7 +54,7 @@ static int _cmp_iso_10126(const padding_testcase* t, const unsigned char* p, uns
 }
 #endif
 
-static int _cmp_x923(const padding_testcase* t, const unsigned char* p, unsigned long len)
+static int s_cmp_x923(const padding_testcase* t, const unsigned char* p, unsigned long len)
 {
    unsigned long n, diff = len - t->is;
    DOX(EQ(len, t->should), t->name);
@@ -65,7 +65,7 @@ static int _cmp_x923(const padding_testcase* t, const unsigned char* p, unsigned
    return CRYPT_OK;
 }
 
-static int _cmp_oaz(const padding_testcase* t, const unsigned char* p, unsigned long len)
+static int s_cmp_oaz(const padding_testcase* t, const unsigned char* p, unsigned long len)
 {
    unsigned long n, diff = len - t->is;
    DOX(EQ(len, t->should), t->name);
@@ -78,7 +78,7 @@ static int _cmp_oaz(const padding_testcase* t, const unsigned char* p, unsigned 
    return CRYPT_OK;
 }
 
-static int _cmp_zero(const padding_testcase* t, const unsigned char* p, unsigned long len)
+static int s_cmp_zero(const padding_testcase* t, const unsigned char* p, unsigned long len)
 {
    unsigned long n, diff = len - t->is;
    DOX(EQ(len, t->should), t->name);
@@ -88,7 +88,7 @@ static int _cmp_zero(const padding_testcase* t, const unsigned char* p, unsigned
    return CRYPT_OK;
 }
 
-static int _padding_testrun(const padding_testcase* t)
+static int s_padding_testrun(const padding_testcase* t)
 {
    unsigned long len;
    unsigned char buf[1024];
@@ -105,47 +105,47 @@ static int _padding_testrun(const padding_testcase* t)
 int padding_test(void)
 {
    const padding_testcase cases[] = {
-                             {   0,  16,   0, LTC_PAD_PKCS7 | 16, "0-pkcs7",     _cmp_pkcs7 },
-                             {   1,  16,   0, LTC_PAD_PKCS7 | 16, "1-pkcs7",     _cmp_pkcs7 },
-                             {  15,  16,   0, LTC_PAD_PKCS7 | 16, "15-pkcs7",    _cmp_pkcs7 },
-                             {  16,  32,   0, LTC_PAD_PKCS7 | 16, "16-pkcs7",    _cmp_pkcs7 },
-                             { 255, 256,   0, LTC_PAD_PKCS7 | 16, "255-pkcs7",   _cmp_pkcs7 },
-                             { 256, 272,   0, LTC_PAD_PKCS7 | 16, "256-pkcs7",   _cmp_pkcs7 },
+                             {   0,  16,   0, LTC_PAD_PKCS7 | 16, "0-pkcs7",     s_cmp_pkcs7 },
+                             {   1,  16,   0, LTC_PAD_PKCS7 | 16, "1-pkcs7",     s_cmp_pkcs7 },
+                             {  15,  16,   0, LTC_PAD_PKCS7 | 16, "15-pkcs7",    s_cmp_pkcs7 },
+                             {  16,  32,   0, LTC_PAD_PKCS7 | 16, "16-pkcs7",    s_cmp_pkcs7 },
+                             { 255, 256,   0, LTC_PAD_PKCS7 | 16, "255-pkcs7",   s_cmp_pkcs7 },
+                             { 256, 272,   0, LTC_PAD_PKCS7 | 16, "256-pkcs7",   s_cmp_pkcs7 },
 #ifdef LTC_RNG_GET_BYTES
-                             {   0,  16, 256, LTC_PAD_ISO_10126 | 16, "0-rand",     _cmp_iso_10126 },
-                             {   1,  16, 272, LTC_PAD_ISO_10126 | 16, "1-rand",     _cmp_iso_10126 },
-                             {  15,  16, 272, LTC_PAD_ISO_10126 | 16, "15-rand",    _cmp_iso_10126 },
-                             {  16,  32, 288, LTC_PAD_ISO_10126 | 16, "16-rand",    _cmp_iso_10126 },
-                             { 255, 256, 512, LTC_PAD_ISO_10126 | 16, "255-rand",   _cmp_iso_10126 },
-                             { 256, 272, 528, LTC_PAD_ISO_10126 | 16, "256-rand",   _cmp_iso_10126 },
+                             {   0,  16, 256, LTC_PAD_ISO_10126 | 16, "0-rand",     s_cmp_iso_10126 },
+                             {   1,  16, 272, LTC_PAD_ISO_10126 | 16, "1-rand",     s_cmp_iso_10126 },
+                             {  15,  16, 272, LTC_PAD_ISO_10126 | 16, "15-rand",    s_cmp_iso_10126 },
+                             {  16,  32, 288, LTC_PAD_ISO_10126 | 16, "16-rand",    s_cmp_iso_10126 },
+                             { 255, 256, 512, LTC_PAD_ISO_10126 | 16, "255-rand",   s_cmp_iso_10126 },
+                             { 256, 272, 528, LTC_PAD_ISO_10126 | 16, "256-rand",   s_cmp_iso_10126 },
 #endif
-                             {   0,  16,   0, LTC_PAD_ANSI_X923 | 16, "0-x923",   _cmp_x923 },
-                             {   1,  16,   0, LTC_PAD_ANSI_X923 | 16, "1-x923",   _cmp_x923 },
-                             {  15,  16,   0, LTC_PAD_ANSI_X923 | 16, "15-x923",  _cmp_x923 },
-                             {  16,  32,   0, LTC_PAD_ANSI_X923 | 16, "16-x923",  _cmp_x923 },
-                             { 255, 256,   0, LTC_PAD_ANSI_X923 | 16, "255-x923", _cmp_x923 },
-                             { 256, 272,   0, LTC_PAD_ANSI_X923 | 16, "256-x923", _cmp_x923 },
+                             {   0,  16,   0, LTC_PAD_ANSI_X923 | 16, "0-x923",   s_cmp_x923 },
+                             {   1,  16,   0, LTC_PAD_ANSI_X923 | 16, "1-x923",   s_cmp_x923 },
+                             {  15,  16,   0, LTC_PAD_ANSI_X923 | 16, "15-x923",  s_cmp_x923 },
+                             {  16,  32,   0, LTC_PAD_ANSI_X923 | 16, "16-x923",  s_cmp_x923 },
+                             { 255, 256,   0, LTC_PAD_ANSI_X923 | 16, "255-x923", s_cmp_x923 },
+                             { 256, 272,   0, LTC_PAD_ANSI_X923 | 16, "256-x923", s_cmp_x923 },
 
-                             {   0,  16,   0, LTC_PAD_ONE_AND_ZERO | 16, "0-one-and-zero",   _cmp_oaz },
-                             {   1,  16,   0, LTC_PAD_ONE_AND_ZERO | 16, "1-one-and-zero",   _cmp_oaz },
-                             {  15,  16,   0, LTC_PAD_ONE_AND_ZERO | 16, "15-one-and-zero",  _cmp_oaz },
-                             {  16,  32,   0, LTC_PAD_ONE_AND_ZERO | 16, "16-one-and-zero",  _cmp_oaz },
-                             { 255, 256,   0, LTC_PAD_ONE_AND_ZERO | 16, "255-one-and-zero", _cmp_oaz },
-                             { 256, 272,   0, LTC_PAD_ONE_AND_ZERO | 16, "256-one-and-zero", _cmp_oaz },
+                             {   0,  16,   0, LTC_PAD_ONE_AND_ZERO | 16, "0-one-and-zero",   s_cmp_oaz },
+                             {   1,  16,   0, LTC_PAD_ONE_AND_ZERO | 16, "1-one-and-zero",   s_cmp_oaz },
+                             {  15,  16,   0, LTC_PAD_ONE_AND_ZERO | 16, "15-one-and-zero",  s_cmp_oaz },
+                             {  16,  32,   0, LTC_PAD_ONE_AND_ZERO | 16, "16-one-and-zero",  s_cmp_oaz },
+                             { 255, 256,   0, LTC_PAD_ONE_AND_ZERO | 16, "255-one-and-zero", s_cmp_oaz },
+                             { 256, 272,   0, LTC_PAD_ONE_AND_ZERO | 16, "256-one-and-zero", s_cmp_oaz },
 
-                             {   0,   0,   0, LTC_PAD_ZERO | 16, "0-zero",   _cmp_zero },
-                             {   1,  16,   0, LTC_PAD_ZERO | 16, "1-zero",   _cmp_zero },
-                             {  15,  16,   0, LTC_PAD_ZERO | 16, "15-zero",  _cmp_zero },
-                             {  16,  16,   0, LTC_PAD_ZERO | 16, "16-zero",  _cmp_zero },
-                             { 255, 256,   0, LTC_PAD_ZERO | 16, "255-zero", _cmp_zero },
-                             { 256, 256,   0, LTC_PAD_ZERO | 16, "256-zero", _cmp_zero },
+                             {   0,   0,   0, LTC_PAD_ZERO | 16, "0-zero",   s_cmp_zero },
+                             {   1,  16,   0, LTC_PAD_ZERO | 16, "1-zero",   s_cmp_zero },
+                             {  15,  16,   0, LTC_PAD_ZERO | 16, "15-zero",  s_cmp_zero },
+                             {  16,  16,   0, LTC_PAD_ZERO | 16, "16-zero",  s_cmp_zero },
+                             { 255, 256,   0, LTC_PAD_ZERO | 16, "255-zero", s_cmp_zero },
+                             { 256, 256,   0, LTC_PAD_ZERO | 16, "256-zero", s_cmp_zero },
 
-                             {   0,  16,   0, LTC_PAD_ZERO_ALWAYS | 16, "0-zero-always",   _cmp_zero },
-                             {   1,  16,   0, LTC_PAD_ZERO_ALWAYS | 16, "1-zero-always",   _cmp_zero },
-                             {  15,  16,   0, LTC_PAD_ZERO_ALWAYS | 16, "15-zero-always",  _cmp_zero },
-                             {  16,  32,   0, LTC_PAD_ZERO_ALWAYS | 16, "16-zero-always",  _cmp_zero },
-                             { 255, 256,   0, LTC_PAD_ZERO_ALWAYS | 16, "255-zero-always", _cmp_zero },
-                             { 256, 272,   0, LTC_PAD_ZERO_ALWAYS | 16, "256-zero-always", _cmp_zero },
+                             {   0,  16,   0, LTC_PAD_ZERO_ALWAYS | 16, "0-zero-always",   s_cmp_zero },
+                             {   1,  16,   0, LTC_PAD_ZERO_ALWAYS | 16, "1-zero-always",   s_cmp_zero },
+                             {  15,  16,   0, LTC_PAD_ZERO_ALWAYS | 16, "15-zero-always",  s_cmp_zero },
+                             {  16,  32,   0, LTC_PAD_ZERO_ALWAYS | 16, "16-zero-always",  s_cmp_zero },
+                             { 255, 256,   0, LTC_PAD_ZERO_ALWAYS | 16, "255-zero-always", s_cmp_zero },
+                             { 256, 272,   0, LTC_PAD_ZERO_ALWAYS | 16, "256-zero-always", s_cmp_zero },
    };
    unsigned i;
    /* Examples from https://en.wikipedia.org/w/index.php?title=Padding_(cryptography)&oldid=823057951#Byte_padding */
@@ -170,7 +170,7 @@ int padding_test(void)
    unsigned long l;
 
    for (i = 0; i < sizeof(cases)/sizeof(cases[0]); ++i) {
-      DOX(_padding_testrun(&cases[i]), cases[i].name);
+      DOX(s_padding_testrun(&cases[i]), cases[i].name);
    }
 
    for (i = 0; i < sizeof(tv)/sizeof(tv[0]); ++i) {

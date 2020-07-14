@@ -20,7 +20,7 @@ typedef struct {
 #define SZ_STRINGIFY_S(s) { #s, sizeof(struct s) }
 #define SZ_STRINGIFY_T(s) { #s, sizeof(s) }
 
-static const crypt_size _crypt_sizes[] = {
+static const crypt_size s_crypt_sizes[] = {
     /* hash state sizes */
     SZ_STRINGIFY_S(ltc_hash_descriptor),
     SZ_STRINGIFY_T(hash_state),
@@ -290,10 +290,10 @@ static const crypt_size _crypt_sizes[] = {
  */
 int crypt_get_size(const char* namein, unsigned int *sizeout) {
     int i;
-    int count = sizeof(_crypt_sizes) / sizeof(_crypt_sizes[0]);
+    int count = sizeof(s_crypt_sizes) / sizeof(s_crypt_sizes[0]);
     for (i=0; i<count; i++) {
-        if (XSTRCMP(_crypt_sizes[i].name, namein) == 0) {
-            *sizeout = _crypt_sizes[i].size;
+        if (XSTRCMP(s_crypt_sizes[i].name, namein) == 0) {
+            *sizeout = s_crypt_sizes[i].size;
             return 0;
         }
     }
@@ -315,11 +315,11 @@ int crypt_list_all_sizes(char *names_list, unsigned int *names_list_size) {
     unsigned int total_len = 0;
     char *ptr;
     int number_len;
-    int count = sizeof(_crypt_sizes) / sizeof(_crypt_sizes[0]);
+    int count = sizeof(s_crypt_sizes) / sizeof(s_crypt_sizes[0]);
 
     /* calculate amount of memory required for the list */
     for (i=0; i<count; i++) {
-        number_len = snprintf(NULL, 0, "%s,%u\n", _crypt_sizes[i].name, _crypt_sizes[i].size);
+        number_len = snprintf(NULL, 0, "%s,%u\n", s_crypt_sizes[i].name, s_crypt_sizes[i].size);
         if (number_len < 0) {
           return -1;
         }
@@ -336,7 +336,7 @@ int crypt_list_all_sizes(char *names_list, unsigned int *names_list_size) {
         /* build the names list */
         ptr = names_list;
         for (i=0; i<count; i++) {
-            number_len = snprintf(ptr, total_len, "%s,%u\n", _crypt_sizes[i].name, _crypt_sizes[i].size);
+            number_len = snprintf(ptr, total_len, "%s,%u\n", s_crypt_sizes[i].name, s_crypt_sizes[i].size);
             if (number_len < 0) return -1;
             if ((unsigned int)number_len > total_len) return -1;
             total_len -= number_len;

@@ -4,7 +4,7 @@
 
 #if defined(LTC_MDH)
 
-static int _prime_test(void)
+static int s_prime_test(void)
 {
    void *p, *g, *tmp;
    int x, err, primality;
@@ -49,7 +49,7 @@ done:
    return err;
 }
 
-static int _dhparam_test(void)
+static int s_dhparam_test(void)
 {
    dh_key k;
    unsigned char buf[1024];
@@ -135,7 +135,7 @@ static int _dhparam_test(void)
    return CRYPT_OK;
 }
 
-static int _set_test(void)
+static int s_set_test(void)
 {
    dh_key k1, k2, k3;
    unsigned char buf[4096];
@@ -308,7 +308,7 @@ static int _set_test(void)
    return CRYPT_OK;
 }
 
-static int _basic_test(void)
+static int s_basic_test(void)
 {
    unsigned char buf[3][4096];
    unsigned long x, y, z;
@@ -389,10 +389,10 @@ int dh_test(void)
 
    if (ltc_mp.name == NULL) return CRYPT_NOP;
 
-   if (_prime_test() != CRYPT_OK) fails++;
-   if (_basic_test() != CRYPT_OK) fails++;
-   if (_dhparam_test() != CRYPT_OK) fails++;
-   if (_set_test() != CRYPT_OK) fails++;
+   if (s_prime_test() != CRYPT_OK) fails++;
+   if (s_basic_test() != CRYPT_OK) fails++;
+   if (s_dhparam_test() != CRYPT_OK) fails++;
+   if (s_set_test() != CRYPT_OK) fails++;
    return fails > 0 ? CRYPT_FAIL_TESTVECTOR : CRYPT_OK;
 }
 

@@ -40,7 +40,7 @@ static const ulong32 stab[44] = {
     @return CRYPT_OK if successful
  */
 #ifdef LTC_CLEAN_STACK
-static int _rc6_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_key *skey)
+static int s_rc6_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_key *skey)
 #else
 int rc6_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_key *skey)
 #endif
@@ -99,7 +99,7 @@ int rc6_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_ke
 int rc6_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_key *skey)
 {
    int x;
-   x = _rc6_setup(key, keylen, num_rounds, skey);
+   x = s_rc6_setup(key, keylen, num_rounds, skey);
    burn_stack(sizeof(ulong32) * 122);
    return x;
 }
@@ -112,7 +112,7 @@ int rc6_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_ke
   @param skey The key as scheduled
 */
 #ifdef LTC_CLEAN_STACK
-static int _rc6_ecb_encrypt(const unsigned char *pt, unsigned char *ct, const symmetric_key *skey)
+static int s_rc6_ecb_encrypt(const unsigned char *pt, unsigned char *ct, const symmetric_key *skey)
 #else
 int rc6_ecb_encrypt(const unsigned char *pt, unsigned char *ct, const symmetric_key *skey)
 #endif
@@ -154,7 +154,7 @@ int rc6_ecb_encrypt(const unsigned char *pt, unsigned char *ct, const symmetric_
 #ifdef LTC_CLEAN_STACK
 int rc6_ecb_encrypt(const unsigned char *pt, unsigned char *ct, const symmetric_key *skey)
 {
-   int err = _rc6_ecb_encrypt(pt, ct, skey);
+   int err = s_rc6_ecb_encrypt(pt, ct, skey);
    burn_stack(sizeof(ulong32) * 6 + sizeof(int));
    return err;
 }
@@ -167,7 +167,7 @@ int rc6_ecb_encrypt(const unsigned char *pt, unsigned char *ct, const symmetric_
   @param skey The key as scheduled
 */
 #ifdef LTC_CLEAN_STACK
-static int _rc6_ecb_decrypt(const unsigned char *ct, unsigned char *pt, const symmetric_key *skey)
+static int s_rc6_ecb_decrypt(const unsigned char *ct, unsigned char *pt, const symmetric_key *skey)
 #else
 int rc6_ecb_decrypt(const unsigned char *ct, unsigned char *pt, const symmetric_key *skey)
 #endif
@@ -211,7 +211,7 @@ int rc6_ecb_decrypt(const unsigned char *ct, unsigned char *pt, const symmetric_
 #ifdef LTC_CLEAN_STACK
 int rc6_ecb_decrypt(const unsigned char *ct, unsigned char *pt, const symmetric_key *skey)
 {
-   int err = _rc6_ecb_decrypt(ct, pt, skey);
+   int err = s_rc6_ecb_decrypt(ct, pt, skey);
    burn_stack(sizeof(ulong32) * 6 + sizeof(int));
    return err;
 }

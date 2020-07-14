@@ -49,7 +49,7 @@ typedef unsigned short int ushort16;
 #define STORE16(x,y) { (y)[0] = (unsigned char)(((x)>>8)&255); (y)[1] = (unsigned char)((x)&255); }
 #define LOAD16(x,y)  { x = ((ushort16)((y)[0] & 255)<<8) | ((ushort16)((y)[1] & 255)); }
 
-static ushort16 _mul_inv(ushort16 x)
+static ushort16 s_mul_inv(ushort16 x)
 {
    ushort16 y = x;
    unsigned i;
@@ -61,12 +61,12 @@ static ushort16 _mul_inv(ushort16 x)
    return LOW16(y);
 }
 
-static ushort16 _add_inv(ushort16 x)
+static ushort16 s_add_inv(ushort16 x)
 {
    return LOW16(0 - x);
 }
 
-static int _setup_key(const unsigned char *key, symmetric_key *skey)
+static int s_setup_key(const unsigned char *key, symmetric_key *skey)
 {
    int i, j;
    ushort16 *e_key = skey->idea.ek;
@@ -83,22 +83,22 @@ static int _setup_key(const unsigned char *key, symmetric_key *skey)
 
    /* prepare dec key */
    for (i = 0; i < LTC_IDEA_ROUNDS; i++) {
-      d_key[i*6+0] = _mul_inv(e_key[(LTC_IDEA_ROUNDS-i)*6+0]);
-      d_key[i*6+1] = _add_inv(e_key[(LTC_IDEA_ROUNDS-i)*6+1+(i>0 ? 1 : 0)]);
-      d_key[i*6+2] = _add_inv(e_key[(LTC_IDEA_ROUNDS-i)*6+2-(i>0 ? 1 : 0)]);
-      d_key[i*6+3] = _mul_inv(e_key[(LTC_IDEA_ROUNDS-i)*6+3]);
-      d_key[i*6+4] =          e_key[(LTC_IDEA_ROUNDS-1-i)*6+4];
-      d_key[i*6+5] =          e_key[(LTC_IDEA_ROUNDS-1-i)*6+5];
+      d_key[i*6+0] = s_mul_inv(e_key[(LTC_IDEA_ROUNDS-i)*6+0]);
+      d_key[i*6+1] = s_add_inv(e_key[(LTC_IDEA_ROUNDS-i)*6+1+(i>0 ? 1 : 0)]);
+      d_key[i*6+2] = s_add_inv(e_key[(LTC_IDEA_ROUNDS-i)*6+2-(i>0 ? 1 : 0)]);
+      d_key[i*6+3] = s_mul_inv(e_key[(LTC_IDEA_ROUNDS-i)*6+3]);
+      d_key[i*6+4] =           e_key[(LTC_IDEA_ROUNDS-1-i)*6+4];
+      d_key[i*6+5] =           e_key[(LTC_IDEA_ROUNDS-1-i)*6+5];
    }
-   d_key[i*6+0] = _mul_inv(e_key[(LTC_IDEA_ROUNDS-i)*6+0]);
-   d_key[i*6+1] = _add_inv(e_key[(LTC_IDEA_ROUNDS-i)*6+1]);
-   d_key[i*6+2] = _add_inv(e_key[(LTC_IDEA_ROUNDS-i)*6+2]);
-   d_key[i*6+3] = _mul_inv(e_key[(LTC_IDEA_ROUNDS-i)*6+3]);
+   d_key[i*6+0] = s_mul_inv(e_key[(LTC_IDEA_ROUNDS-i)*6+0]);
+   d_key[i*6+1] = s_add_inv(e_key[(LTC_IDEA_ROUNDS-i)*6+1]);
+   d_key[i*6+2] = s_add_inv(e_key[(LTC_IDEA_ROUNDS-i)*6+2]);
+   d_key[i*6+3] = s_mul_inv(e_key[(LTC_IDEA_ROUNDS-i)*6+3]);
 
    return CRYPT_OK;
 }
 
-static int _process_block(const unsigned char *in, unsigned char *out, const ushort16 *m_key)
+static int s_process_block(const unsigned char *in, unsigned char *out, const ushort16 *m_key)
 {
    int i;
    ushort16 x0, x1, x2, x3, t0, t1;
@@ -146,12 +146,12 @@ int idea_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_k
    if (num_rounds != 0 && num_rounds != 8) return CRYPT_INVALID_ROUNDS;
    if (keylen != 16) return CRYPT_INVALID_KEYSIZE;
 
-   return _setup_key(key, skey);
+   return s_setup_key(key, skey);
 }
 
 int idea_ecb_encrypt(const unsigned char *pt, unsigned char *ct, const symmetric_key *skey)
 {
-   int err = _process_block(pt, ct, skey->idea.ek);
+   int err = s_process_block(pt, ct, skey->idea.ek);
 #ifdef LTC_CLEAN_STACK
    burn_stack(sizeof(ushort16) * 6 + sizeof(int));
 #endif
@@ -160,7 +160,7 @@ int idea_ecb_encrypt(const unsigned char *pt, unsigned char *ct, const symmetric
 
 int idea_ecb_decrypt(const unsigned char *ct, unsigned char *pt, const symmetric_key *skey)
 {
-   int err = _process_block(ct, pt, skey->idea.dk);
+   int err = s_process_block(ct, pt, skey->idea.dk);
 #ifdef LTC_CLEAN_STACK
    burn_stack(sizeof(ushort16) * 6 + sizeof(int));
 #endif

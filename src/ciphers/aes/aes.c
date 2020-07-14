@@ -275,7 +275,7 @@ int SETUP(const unsigned char *key, int keylen, int num_rounds, symmetric_key *s
   @return CRYPT_OK if successful
 */
 #ifdef LTC_CLEAN_STACK
-static int _rijndael_ecb_encrypt(const unsigned char *pt, unsigned char *ct, const symmetric_key *skey)
+static int s_rijndael_ecb_encrypt(const unsigned char *pt, unsigned char *ct, const symmetric_key *skey)
 #else
 int ECB_ENC(const unsigned char *pt, unsigned char *ct, const symmetric_key *skey)
 #endif
@@ -443,7 +443,7 @@ int ECB_ENC(const unsigned char *pt, unsigned char *ct, const symmetric_key *ske
 #ifdef LTC_CLEAN_STACK
 int ECB_ENC(const unsigned char *pt, unsigned char *ct, const symmetric_key *skey)
 {
-   int err = _rijndael_ecb_encrypt(pt, ct, skey);
+   int err = s_rijndael_ecb_encrypt(pt, ct, skey);
    burn_stack(sizeof(unsigned long)*8 + sizeof(unsigned long*) + sizeof(int)*2);
    return err;
 }
@@ -459,7 +459,7 @@ int ECB_ENC(const unsigned char *pt, unsigned char *ct, const symmetric_key *ske
   @return CRYPT_OK if successful
 */
 #ifdef LTC_CLEAN_STACK
-static int _rijndael_ecb_decrypt(const unsigned char *ct, unsigned char *pt, const symmetric_key *skey)
+static int s_rijndael_ecb_decrypt(const unsigned char *ct, unsigned char *pt, const symmetric_key *skey)
 #else
 int ECB_DEC(const unsigned char *ct, unsigned char *pt, const symmetric_key *skey)
 #endif
@@ -628,7 +628,7 @@ int ECB_DEC(const unsigned char *ct, unsigned char *pt, const symmetric_key *ske
 #ifdef LTC_CLEAN_STACK
 int ECB_DEC(const unsigned char *ct, unsigned char *pt, const symmetric_key *skey)
 {
-   int err = _rijndael_ecb_decrypt(ct, pt, skey);
+   int err = s_rijndael_ecb_decrypt(ct, pt, skey);
    burn_stack(sizeof(unsigned long)*8 + sizeof(unsigned long*) + sizeof(int)*2);
    return err;
 }

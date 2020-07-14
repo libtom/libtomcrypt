@@ -19,7 +19,7 @@ typedef struct {
 
 #define C_STRINGIFY(s) { #s, s }
 
-static const crypt_constant _crypt_constants[] = {
+static const crypt_constant s_crypt_constants[] = {
 
     C_STRINGIFY(CRYPT_OK),
     C_STRINGIFY(CRYPT_ERROR),
@@ -229,10 +229,10 @@ static const crypt_constant _crypt_constants[] = {
  */
 int crypt_get_constant(const char* namein, int *valueout) {
     int i;
-    int _crypt_constants_len = sizeof(_crypt_constants) / sizeof(_crypt_constants[0]);
-    for (i=0; i<_crypt_constants_len; i++) {
-        if (XSTRCMP(_crypt_constants[i].name, namein) == 0) {
-            *valueout = _crypt_constants[i].value;
+    int count = sizeof(s_crypt_constants) / sizeof(s_crypt_constants[0]);
+    for (i=0; i<count; i++) {
+        if (XSTRCMP(s_crypt_constants[i].name, namein) == 0) {
+            *valueout = s_crypt_constants[i].value;
             return 0;
         }
     }
@@ -254,11 +254,11 @@ int crypt_list_all_constants(char *names_list, unsigned int *names_list_size) {
     unsigned int total_len = 0;
     char *ptr;
     int number_len;
-    int count = sizeof(_crypt_constants) / sizeof(_crypt_constants[0]);
+    int count = sizeof(s_crypt_constants) / sizeof(s_crypt_constants[0]);
 
     /* calculate amount of memory required for the list */
     for (i=0; i<count; i++) {
-        number_len = snprintf(NULL, 0, "%s,%d\n", _crypt_constants[i].name, _crypt_constants[i].value);
+        number_len = snprintf(NULL, 0, "%s,%d\n", s_crypt_constants[i].name, s_crypt_constants[i].value);
         if (number_len < 0) {
           return -1;
         }
@@ -274,7 +274,7 @@ int crypt_list_all_constants(char *names_list, unsigned int *names_list_size) {
         /* build the names list */
         ptr = names_list;
         for (i=0; i<count; i++) {
-            number_len = snprintf(ptr, total_len, "%s,%d\n", _crypt_constants[i].name, _crypt_constants[i].value);
+            number_len = snprintf(ptr, total_len, "%s,%d\n", s_crypt_constants[i].name, s_crypt_constants[i].value);
             if (number_len < 0) return -1;
             if ((unsigned int)number_len > total_len) return -1;
             total_len -= number_len;

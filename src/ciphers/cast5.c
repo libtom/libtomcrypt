@@ -398,7 +398,7 @@ static const ulong32 S8[256] = {
     @return CRYPT_OK if successful
  */
 #ifdef LTC_CLEAN_STACK
-static int _cast5_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_key *skey)
+static int s_cast5_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_key *skey)
 #else
 int cast5_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_key *skey)
 #endif
@@ -485,7 +485,7 @@ int cast5_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_
 int cast5_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_key *skey)
 {
    int z;
-   z = _cast5_setup(key, keylen, num_rounds, skey);
+   z = s_cast5_setup(key, keylen, num_rounds, skey);
    burn_stack(sizeof(ulong32)*8 + 16 + sizeof(int)*2);
    return z;
 }
@@ -522,7 +522,7 @@ LTC_INLINE static ulong32 FIII(ulong32 R, ulong32 Km, ulong32 Kr)
   @param skey The key as scheduled
 */
 #ifdef LTC_CLEAN_STACK
-static int _cast5_ecb_encrypt(const unsigned char *pt, unsigned char *ct, const symmetric_key *skey)
+static int s_cast5_ecb_encrypt(const unsigned char *pt, unsigned char *ct, const symmetric_key *skey)
 #else
 int cast5_ecb_encrypt(const unsigned char *pt, unsigned char *ct, const symmetric_key *skey)
 #endif
@@ -562,7 +562,7 @@ int cast5_ecb_encrypt(const unsigned char *pt, unsigned char *ct, const symmetri
 #ifdef LTC_CLEAN_STACK
 int cast5_ecb_encrypt(const unsigned char *pt, unsigned char *ct, const symmetric_key *skey)
 {
-   int err =_cast5_ecb_encrypt(pt,ct,skey);
+   int err = s_cast5_ecb_encrypt(pt,ct,skey);
    burn_stack(sizeof(ulong32)*3);
    return err;
 }
@@ -575,7 +575,7 @@ int cast5_ecb_encrypt(const unsigned char *pt, unsigned char *ct, const symmetri
   @param skey The key as scheduled
 */
 #ifdef LTC_CLEAN_STACK
-static int _cast5_ecb_decrypt(const unsigned char *ct, unsigned char *pt, const symmetric_key *skey)
+static int s_cast5_ecb_decrypt(const unsigned char *ct, unsigned char *pt, const symmetric_key *skey)
 #else
 int cast5_ecb_decrypt(const unsigned char *ct, unsigned char *pt, const symmetric_key *skey)
 #endif
@@ -615,7 +615,7 @@ int cast5_ecb_decrypt(const unsigned char *ct, unsigned char *pt, const symmetri
 #ifdef LTC_CLEAN_STACK
 int cast5_ecb_decrypt(const unsigned char *ct, unsigned char *pt, const symmetric_key *skey)
 {
-   int err = _cast5_ecb_decrypt(ct,pt,skey);
+   int err = s_cast5_ecb_decrypt(ct,pt,skey);
    burn_stack(sizeof(ulong32)*3);
    return err;
 }
