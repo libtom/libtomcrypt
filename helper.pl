@@ -134,19 +134,8 @@ sub check_descriptors {
 sub check_comments {
   my $fails = 0;
   my $first_comment = <<'MARKER';
-/* LibTomCrypt, modular cryptographic library -- Tom St Denis
- *
- * LibTomCrypt is a library that provides various cryptographic
- * algorithms in a highly modular and flexible manner.
- *
- * The library is free for all purposes without any express
- * guarantee it works.
- */
-MARKER
-  my $last_comment = <<'MARKER';
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */
+/* LibTomCrypt, modular cryptographic library -- Tom St Denis */
+/* SPDX-License-Identifier: Unlicense */
 MARKER
   my @all_files;
   find({ wanted=> sub { push @all_files, $_ if $_ =~ /\.(c|h)$/ }, no_chdir=>1 }, 'demos', 'src', 'tests');
@@ -154,10 +143,6 @@ MARKER
     my $txt = read_file($f);
     if ($txt !~ /^\Q$first_comment\E/s) {
       warn "[first_comment] $f\n";
-      $fails++;
-    }
-    if ($txt !~ /\Q$last_comment\E\s*$/s) {
-      warn "[last_comment] $f\n";
       $fails++;
     }
   }

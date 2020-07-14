@@ -1,11 +1,5 @@
-/* LibTomCrypt, modular cryptographic library -- Tom St Denis
- *
- * LibTomCrypt is a library that provides various cryptographic
- * algorithms in a highly modular and flexible manner.
- *
- * The library is free for all purposes without any express
- * guarantee it works.
- */
+/* LibTomCrypt, modular cryptographic library -- Tom St Denis */
+/* SPDX-License-Identifier: Unlicense */
 
 /* ---- SYMMETRIC KEY STUFF -----
  *
@@ -1164,7 +1158,3 @@ int sober128_stream_memory(const unsigned char *key,    unsigned long keylen,
                            unsigned char *dataout);
 
 #endif /* LTC_SOBER128_STREAM */
-
-/* ref:         $Format:%D$ */
-/* git commit:  $Format:%H$ */
-/* commit time: $Format:%ai$ */
