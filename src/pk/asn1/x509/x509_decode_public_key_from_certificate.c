@@ -81,7 +81,11 @@ int x509_decode_public_key_from_certificate(const unsigned char *in, unsigned lo
                      && (l->data != NULL)
                      && LOOKS_LIKE_SPKI(l->child)) {
                   if (algorithm == PKA_EC) {
+#ifdef LTC_MECC
                      err = ecc_import_subject_public_key_info(l->data, l->size, ctx);
+#else
+                     err = CRYPT_ERROR;
+#endif
                   } else {
                      err = x509_decode_subject_public_key_info(l->data, l->size,
                                                                algorithm, tmpbuf, &tmpbuf_len,
