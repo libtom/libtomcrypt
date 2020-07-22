@@ -8,6 +8,8 @@
    Russ Williams
 */
 
+#ifdef LTC_SSH
+
 /**
   Curve/OID to SSH+ECDSA name string mapping
   @param buffer    [out] The destination for the name
@@ -60,3 +62,4 @@ error:
    return err;
 }
 
+#endif
