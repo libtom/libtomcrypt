@@ -701,7 +701,7 @@ static int _build_lut(int idx, void *a, void *modulus, void *mp, void *mu)
 
       /* now double it bitlen/FP_LUT times */
       for (y = 0; y < lut_gap; y++) {
-          if ((err = ltc_mp.ecc_ptdbl(fp_cache[idx].LUT[1<<x], fp_cache[idx].LUT[1<<x], a, modulus, mp)) != CRYPT_OK) {
+          if ((err = mp_ecc_ptdbl(fp_cache[idx].LUT[1<<x], fp_cache[idx].LUT[1<<x], a, modulus, mp)) != CRYPT_OK) {
              goto ERR;
           }
       }
@@ -713,7 +713,7 @@ static int _build_lut(int idx, void *a, void *modulus, void *mp, void *mu)
            if (lut_orders[y].ham != (int)x) continue;
 
            /* perform the add */
-           if ((err = ltc_mp.ecc_ptadd(fp_cache[idx].LUT[lut_orders[y].terma], fp_cache[idx].LUT[lut_orders[y].termb],
+           if ((err = mp_ecc_ptadd(fp_cache[idx].LUT[lut_orders[y].terma], fp_cache[idx].LUT[lut_orders[y].termb],
                                        fp_cache[idx].LUT[y], a, modulus, mp)) != CRYPT_OK) {
               goto ERR;
            }
@@ -862,14 +862,14 @@ static int _accel_fp_mul(int idx, void *k, ecc_point *R, void *a, void *modulus,
 
        /* double if not first */
        if (!first) {
-          if ((err = ltc_mp.ecc_ptdbl(R, R, a, modulus, mp)) != CRYPT_OK) {
+          if ((err = mp_ecc_ptdbl(R, R, a, modulus, mp)) != CRYPT_OK) {
              return err;
           }
        }
 
        /* add if not first, otherwise copy */
        if (!first && z) {
-          if ((err = ltc_mp.ecc_ptadd(R, fp_cache[idx].LUT[z], R, a, modulus, mp)) != CRYPT_OK) {
+          if ((err = mp_ecc_ptadd(R, fp_cache[idx].LUT[z], R, a, modulus, mp)) != CRYPT_OK) {
              return err;
           }
        } else if (z) {
@@ -1050,7 +1050,7 @@ static int _accel_fp_mul2add(int idx1, int idx2,
 
        /* double if not first */
        if (!first) {
-          if ((err = ltc_mp.ecc_ptdbl(R, R, a, modulus, mp)) != CRYPT_OK) {
+          if ((err = mp_ecc_ptdbl(R, R, a, modulus, mp)) != CRYPT_OK) {
              return err;
           }
        }
@@ -1058,12 +1058,12 @@ static int _accel_fp_mul2add(int idx1, int idx2,
        /* add if not first, otherwise copy */
        if (!first) {
           if (zA) {
-             if ((err = ltc_mp.ecc_ptadd(R, fp_cache[idx1].LUT[zA], R, a, modulus, mp)) != CRYPT_OK) {
+             if ((err = mp_ecc_ptadd(R, fp_cache[idx1].LUT[zA], R, a, modulus, mp)) != CRYPT_OK) {
                 return err;
              }
           }
           if (zB) {
-             if ((err = ltc_mp.ecc_ptadd(R, fp_cache[idx2].LUT[zB], R, a, modulus, mp)) != CRYPT_OK) {
+             if ((err = mp_ecc_ptadd(R, fp_cache[idx2].LUT[zB], R, a, modulus, mp)) != CRYPT_OK) {
                 return err;
              }
           }
@@ -1076,7 +1076,7 @@ static int _accel_fp_mul2add(int idx1, int idx2,
           }
           if (zB && first == 0) {
              if (zB) {
-                if ((err = ltc_mp.ecc_ptadd(R, fp_cache[idx2].LUT[zB], R, a, modulus, mp)) != CRYPT_OK) {
+                if ((err = mp_ecc_ptadd(R, fp_cache[idx2].LUT[zB], R, a, modulus, mp)) != CRYPT_OK) {
                    return err;
                 }
              }

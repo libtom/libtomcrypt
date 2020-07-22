@@ -1612,7 +1612,7 @@ int der_test(void)
    ltc_asn1_list *list;
 #endif
 
-   if (ltc_mp.name == NULL) return CRYPT_NOP;
+   if (mp_name() == NULL) return CRYPT_NOP;
 
    _der_recursion_limit();
 

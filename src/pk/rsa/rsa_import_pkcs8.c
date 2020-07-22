@@ -58,7 +58,7 @@ int rsa_import_pkcs8(const unsigned char *in, unsigned long inlen,
 
    LTC_ARGCHK(in          != NULL);
    LTC_ARGCHK(key         != NULL);
-   LTC_ARGCHK(ltc_mp.name != NULL);
+   LTC_ARGCHK(mp_name()   != NULL);
 
    /* get RSA alg oid */
    err = pk_get_oid(PKA_RSA, &rsaoid);

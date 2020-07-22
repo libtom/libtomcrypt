@@ -25,7 +25,7 @@ int rsa_import(const unsigned char *in, unsigned long inlen, rsa_key *key)
 
    LTC_ARGCHK(in          != NULL);
    LTC_ARGCHK(key         != NULL);
-   LTC_ARGCHK(ltc_mp.name != NULL);
+   LTC_ARGCHK(mp_name()   != NULL);
 
    /* init key */
    if ((err = rsa_init(key)) != CRYPT_OK) {

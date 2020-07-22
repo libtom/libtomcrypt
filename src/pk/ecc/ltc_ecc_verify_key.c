@@ -22,11 +22,11 @@ int ltc_ecc_verify_key(const ecc_key *key)
    void *a     = key->dp.A;
 
    /* Test 1: Are the x and y points of the public key in the field? */
-   if (ltc_mp.compare_d(key->pubkey.z, 1) == LTC_MP_EQ) {
-      if ((ltc_mp.compare(key->pubkey.x, prime) != LTC_MP_LT) ||
-          (ltc_mp.compare(key->pubkey.y, prime) != LTC_MP_LT) ||
-          (ltc_mp.compare_d(key->pubkey.x, 0) == LTC_MP_LT) ||
-          (ltc_mp.compare_d(key->pubkey.y, 0) == LTC_MP_LT) ||
+   if (mp_cmp_d(key->pubkey.z, 1) == LTC_MP_EQ) {
+      if ((mp_cmp(key->pubkey.x, prime) != LTC_MP_LT) ||
+          (mp_cmp(key->pubkey.y, prime) != LTC_MP_LT) ||
+          (mp_cmp_d(key->pubkey.x, 0) == LTC_MP_LT) ||
+          (mp_cmp_d(key->pubkey.y, 0) == LTC_MP_LT) ||
           (mp_iszero(key->pubkey.x) && mp_iszero(key->pubkey.y))
          )
       {

@@ -14,7 +14,7 @@ int pkcs_1_emsa_test(void)
   unsigned int i;
   unsigned int j;
 
-  if (ltc_mp.name == NULL) return CRYPT_NOP;
+  if (mp_name() == NULL) return CRYPT_NOP;
 
   DO(hash_is_valid(hash_idx));
 

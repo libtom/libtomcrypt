@@ -22,7 +22,7 @@ int dsa_set_pqg_dsaparam(const unsigned char *dsaparam, unsigned long dsaparamle
 
    LTC_ARGCHK(dsaparam    != NULL);
    LTC_ARGCHK(key         != NULL);
-   LTC_ARGCHK(ltc_mp.name != NULL);
+   LTC_ARGCHK(mp_name()   != NULL);
 
    /* init key */
    err = mp_init_multi(&key->p, &key->g, &key->q, &key->x, &key->y, NULL);

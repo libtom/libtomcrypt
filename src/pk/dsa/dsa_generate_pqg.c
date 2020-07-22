@@ -210,7 +210,7 @@ int dsa_generate_pqg(prng_state *prng, int wprng, int group_size, int modulus_si
    int err;
 
    LTC_ARGCHK(key         != NULL);
-   LTC_ARGCHK(ltc_mp.name != NULL);
+   LTC_ARGCHK(mp_name()   != NULL);
 
    /* init mp_ints */
    if ((err = mp_init_multi(&key->p, &key->g, &key->q, &key->x, &key->y, NULL)) != CRYPT_OK) {

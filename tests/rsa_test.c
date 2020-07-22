@@ -333,7 +333,7 @@ static int _rsa_import_x509(const void *in, unsigned long inlen, void *key)
    /* here we use the filesize as indicator for the rsa size
     * that would fail to import for tfm because it's fixed-size
     */
-   if ((strcmp(ltc_mp.name, "TomsFastMath") == 0) && (inlen > 2048)) {
+   if ((strcmp(mp_name(), "TomsFastMath") == 0) && (inlen > 2048)) {
 #if defined(LTC_TEST_DBG) && LTC_TEST_DBG > 1
       fprintf(stderr, "Skipping testcase because of TomsFastMath\n");
 #endif
@@ -362,7 +362,7 @@ int rsa_test(void)
    unsigned char* p2;
    unsigned char* p3;
 
-   if (ltc_mp.name == NULL) return CRYPT_NOP;
+   if (mp_name() == NULL) return CRYPT_NOP;
 
    if (rsa_compat_test() != 0) {
       return 1;
@@ -647,7 +647,7 @@ print_hex("q", tmp, len);
      DOX(stat == 1?CRYPT_OK:CRYPT_FAIL_TESTVECTOR, "should succeed");
      len3 = sizeof(tmp);
      /* (3) */
-     DO(ltc_mp.rsa_me(p2, len2, p3, &len3, PK_PUBLIC, &key));
+     DO(mp_rsa_me(p2, len2, p3, &len3, PK_PUBLIC, &key));
      /* (4) */
 #if defined(LTC_TEST_DBG) && LTC_TEST_DBG > 1
      print_hex("Original signature", p3, len3);
@@ -673,7 +673,7 @@ print_hex("q", tmp, len);
 
      len2 = sizeof(out);
      /* (5) */
-     DO(ltc_mp.rsa_me(p3, len3, p2, &len2, PK_PRIVATE, &key));
+     DO(mp_rsa_me(p3, len3, p2, &len2, PK_PRIVATE, &key));
 
      len3 = sizeof(tmp);
      /* (6) */

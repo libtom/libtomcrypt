@@ -45,7 +45,7 @@ int ecc_shared_secret(const ecc_key *private_key, const ecc_key *public_key,
    prime = private_key->dp.prime;
    a     = private_key->dp.A;
 
-   if ((err = ltc_mp.ecc_ptmul(private_key->k, &public_key->pubkey, result, a, prime, 1)) != CRYPT_OK)   { goto done; }
+   if ((err = mp_ecc_ptmul(private_key->k, &public_key->pubkey, result, a, prime, 1)) != CRYPT_OK)   { goto done; }
 
    x = (unsigned long)mp_unsigned_bin_size(prime);
    if (*outlen < x) {

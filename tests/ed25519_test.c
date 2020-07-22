@@ -231,7 +231,7 @@ int ed25519_test(void)
       return ret;
    }
 
-   if (ltc_mp.name == NULL) return CRYPT_NOP;
+   if (mp_name() == NULL) return CRYPT_NOP;
 
    if ((ret = _rfc_8410_10_test()) != CRYPT_OK) {
       return ret;

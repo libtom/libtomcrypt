@@ -160,10 +160,10 @@ static int _ecc_test_shamir(void)
           DO(mp_read_unsigned_bin(rB, buf, sizes[x]));
 
           /* compute rA * G = A */
-          DO(ltc_mp.ecc_ptmul(rA, G, A, a, modulus, 1));
+          DO(mp_ecc_ptmul(rA, G, A, a, modulus, 1));
 
           /* compute rB * G = B */
-          DO(ltc_mp.ecc_ptmul(rB, G, B, a, modulus, 1));
+          DO(mp_ecc_ptmul(rB, G, B, a, modulus, 1));
 
           /* pick a random kA, kB */
           LTC_ARGCHK(yarrow_read(buf, sizes[x], &yarrow_prng) == sizes[x]);
@@ -172,13 +172,13 @@ static int _ecc_test_shamir(void)
           DO(mp_read_unsigned_bin(kB, buf, sizes[x]));
 
           /* now, compute kA*A + kB*B = C1 using the older method */
-          DO(ltc_mp.ecc_ptmul(kA, A, C1, a, modulus, 0));
-          DO(ltc_mp.ecc_ptmul(kB, B, C2, a, modulus, 0));
-          DO(ltc_mp.ecc_ptadd(C1, C2, C1, a, modulus, mp));
-          DO(ltc_mp.ecc_map(C1, modulus, mp));
+          DO(mp_ecc_ptmul(kA, A, C1, a, modulus, 0));
+          DO(mp_ecc_ptmul(kB, B, C2, a, modulus, 0));
+          DO(mp_ecc_ptadd(C1, C2, C1, a, modulus, mp));
+          DO(mp_ecc_map(C1, modulus, mp));
 
           /* now compute using mul2add */
-          DO(ltc_mp.ecc_mul2add(A, kA, B, kB, C2, ma, modulus));
+          DO(mp_ecc_mul2add(A, kA, B, kB, C2, ma, modulus));
 
           /* is they the sames?  */
           if ((mp_cmp(C1->x, C2->x) != LTC_MP_EQ) || (mp_cmp(C1->y, C2->y) != LTC_MP_EQ) || (mp_cmp(C1->z, C2->z) != LTC_MP_EQ)) {
@@ -224,7 +224,7 @@ static int _ecc_issue108(void)
    if ((err = mp_read_radix(Q->y, (char *)"6C9CB8E68AABFEC989CAC5E2326E0448B7E69C3E56039BA21A44FDAC", 16)) != CRYPT_OK) { goto done; }
    mp_set(Q->z, 1);
    /* calculate nQ */
-   if ((err = ltc_mp.ecc_ptmul(order, Q, Result, a, modulus, 1)) != CRYPT_OK)  { goto done; }
+   if ((err = mp_ecc_ptmul(order, Q, Result, a, modulus, 1)) != CRYPT_OK)  { goto done; }
 
 done:
    ltc_ecc_del_point(Result);
@@ -332,7 +332,7 @@ static int _ecc_test_mp(void)
 
       /* then we should have G == (order + 1)G */
       DO(mp_add_d(order, 1, order));
-      DO(ltc_mp.ecc_ptmul(order, G, GG, a, modulus, 1));
+      DO(mp_ecc_ptmul(order, G, GG, a, modulus, 1));
       if (mp_cmp(G->x, GG->x) != LTC_MP_EQ || mp_cmp(G->y, GG->y) != LTC_MP_EQ) {
          err = CRYPT_FAIL_TESTVECTOR;
       }
@@ -547,7 +547,7 @@ static int _ecc_new_api(void)
       DO(ecc_set_curve(dp, &privkey));
       DO(ecc_set_key(buf, len, PK_PRIVATE, &privkey));
 
-      if (strcmp(ltc_mp.name, "TomsFastMath") != 0) {
+      if (strcmp(mp_name(), "TomsFastMath") != 0) {
          /* XXX-FIXME: TFM does not support sqrtmod_prime */
          /* export compressed public key */
          len = sizeof(buf);
@@ -585,7 +585,7 @@ static int _ecc_new_api(void)
 #endif
 
 #ifdef LTC_ECC_SHAMIR
-      if (strcmp(ltc_mp.name, "TomsFastMath") != 0) {
+      if (strcmp(mp_name(), "TomsFastMath") != 0) {
          /* XXX-FIXME: TFM does not support sqrtmod_prime */
          int found = 0;
          ecc_key reckey;
@@ -1301,7 +1301,7 @@ static int _ecc_import_export(void) {
       0xae, 0x97, 0xaf, 0x64, 0x64, 0xf9, 0x69, 0xd8
    };
 
-   if (ltc_mp.sqrtmod_prime == NULL) return CRYPT_NOP; /* we need compressed points which requires sqrtmod_prime */
+   if (!mp_sqrtmod_prime_support()) return CRYPT_NOP; /* we need compressed points which requires sqrtmod_prime */
 
    DO(ecc_import_openssl(short_pub, sizeof(short_pub), &pub));
    DO(ecc_import_openssl(short_pri, sizeof(short_pri), &pri));
@@ -1515,7 +1515,7 @@ static int _ecc_test_recovery(void)
    };
 
    /* XXX-FIXME: TFM does not support sqrtmod_prime */
-   if (strcmp(ltc_mp.name, "TomsFastMath") == 0) return CRYPT_NOP;
+   if (strcmp(mp_name(), "TomsFastMath") == 0) return CRYPT_NOP;
 
 #ifdef LTC_ECC_SECP256K1
    DO(ecc_find_curve("SECP256K1", &dp));
@@ -1591,7 +1591,7 @@ static int _ecc_test_recovery(void)
 
 int ecc_test(void)
 {
-   if (ltc_mp.name == NULL) return CRYPT_NOP;
+   if (mp_name() == NULL) return CRYPT_NOP;
 
    DO(_ecc_old_api()); /* up to 1.18 */
    DO(_ecc_new_api());

@@ -20,7 +20,7 @@ int dh_set_pg_dhparam(const unsigned char *dhparam, unsigned long dhparamlen, dh
    int err;
 
    LTC_ARGCHK(key         != NULL);
-   LTC_ARGCHK(ltc_mp.name != NULL);
+   LTC_ARGCHK(mp_name()   != NULL);
    LTC_ARGCHK(dhparam     != NULL);
    LTC_ARGCHK(dhparamlen  > 0);
 

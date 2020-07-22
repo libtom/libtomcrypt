@@ -27,7 +27,7 @@ int rsa_set_key(const unsigned char *N,  unsigned long Nlen,
    LTC_ARGCHK(key         != NULL);
    LTC_ARGCHK(N           != NULL);
    LTC_ARGCHK(e           != NULL);
-   LTC_ARGCHK(ltc_mp.name != NULL);
+   LTC_ARGCHK(mp_name()   != NULL);
 
    if ((err = rsa_init(key)) != CRYPT_OK) return err;
 
@@ -68,7 +68,7 @@ int rsa_set_factors(const unsigned char *p,  unsigned long plen,
    LTC_ARGCHK(key         != NULL);
    LTC_ARGCHK(p           != NULL);
    LTC_ARGCHK(q           != NULL);
-   LTC_ARGCHK(ltc_mp.name != NULL);
+   LTC_ARGCHK(mp_name()   != NULL);
 
    if (key->type != PK_PRIVATE) return CRYPT_PK_TYPE_MISMATCH;
 
@@ -106,7 +106,7 @@ int rsa_set_crt_params(const unsigned char *dP, unsigned long dPlen,
    LTC_ARGCHK(dP          != NULL);
    LTC_ARGCHK(dQ          != NULL);
    LTC_ARGCHK(qP          != NULL);
-   LTC_ARGCHK(ltc_mp.name != NULL);
+   LTC_ARGCHK(mp_name()   != NULL);
 
    if (key->type != PK_PRIVATE) return CRYPT_PK_TYPE_MISMATCH;
 

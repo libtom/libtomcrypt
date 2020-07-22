@@ -84,13 +84,13 @@ int ltc_ecc_mulmod(void *k, const ecc_point *G, ecc_point *R, void *a, void *mod
 
    /* calc the M tab, which holds kG for k==8..15 */
    /* M[0] == 8G */
-   if ((err = ltc_mp.ecc_ptdbl(tG, M[0], ma, modulus, mp)) != CRYPT_OK)              { goto done; }
-   if ((err = ltc_mp.ecc_ptdbl(M[0], M[0], ma, modulus, mp)) != CRYPT_OK)            { goto done; }
-   if ((err = ltc_mp.ecc_ptdbl(M[0], M[0], ma, modulus, mp)) != CRYPT_OK)            { goto done; }
+   if ((err = mp_ecc_ptdbl(tG, M[0], ma, modulus, mp)) != CRYPT_OK)              { goto done; }
+   if ((err = mp_ecc_ptdbl(M[0], M[0], ma, modulus, mp)) != CRYPT_OK)            { goto done; }
+   if ((err = mp_ecc_ptdbl(M[0], M[0], ma, modulus, mp)) != CRYPT_OK)            { goto done; }
 
    /* now find (8+k)G for k=1..7 */
    for (j = 9; j < 16; j++) {
-       if ((err = ltc_mp.ecc_ptadd(M[j-9], tG, M[j-8], ma, modulus, mp)) != CRYPT_OK) { goto done; }
+       if ((err = mp_ecc_ptadd(M[j-9], tG, M[j-8], ma, modulus, mp)) != CRYPT_OK) { goto done; }
    }
 
    /* setup sliding window */
@@ -109,12 +109,12 @@ int ltc_ecc_mulmod(void *k, const ecc_point *G, ecc_point *R, void *a, void *mod
           break;
        }
        buf    = mp_get_digit(k, digidx);
-       bitcnt = (int) ltc_mp.bits_per_digit;
+       bitcnt = (int) mp_bits_per_digit;
        --digidx;
      }
 
      /* grab the next msb from the ltiplicand */
-     i = (buf >> (ltc_mp.bits_per_digit - 1)) & 1;
+     i = (buf >> (mp_bits_per_digit - 1)) & 1;
      buf <<= 1;
 
      /* skip leading zero bits */
@@ -124,7 +124,7 @@ int ltc_ecc_mulmod(void *k, const ecc_point *G, ecc_point *R, void *a, void *mod
 
      /* if the bit is zero and mode == 1 then we double */
      if (mode == 1 && i == 0) {
-        if ((err = ltc_mp.ecc_ptdbl(R, R, ma, modulus, mp)) != CRYPT_OK)             { goto done; }
+        if ((err = mp_ecc_ptdbl(R, R, ma, modulus, mp)) != CRYPT_OK)             { goto done; }
         continue;
      }
 
@@ -143,11 +143,11 @@ int ltc_ecc_mulmod(void *k, const ecc_point *G, ecc_point *R, void *a, void *mod
          /* ok window is filled so double as required and add  */
          /* double first */
          for (j = 0; j < WINSIZE; j++) {
-           if ((err = ltc_mp.ecc_ptdbl(R, R, ma, modulus, mp)) != CRYPT_OK)          { goto done; }
+           if ((err = mp_ecc_ptdbl(R, R, ma, modulus, mp)) != CRYPT_OK)          { goto done; }
          }
 
          /* then add, bitbuf will be 8..15 [8..2^WINSIZE] guaranteed */
-         if ((err = ltc_mp.ecc_ptadd(R, M[bitbuf-8], R, ma, modulus, mp)) != CRYPT_OK) { goto done; }
+         if ((err = mp_ecc_ptadd(R, M[bitbuf-8], R, ma, modulus, mp)) != CRYPT_OK) { goto done; }
        }
        /* empty window and reset */
        bitcpy = bitbuf = 0;
@@ -161,7 +161,7 @@ int ltc_ecc_mulmod(void *k, const ecc_point *G, ecc_point *R, void *a, void *mod
      for (j = 0; j < bitcpy; j++) {
        /* only double if we have had at least one add first */
        if (first == 0) {
-          if ((err = ltc_mp.ecc_ptdbl(R, R, ma, modulus, mp)) != CRYPT_OK)           { goto done; }
+          if ((err = mp_ecc_ptdbl(R, R, ma, modulus, mp)) != CRYPT_OK)           { goto done; }
        }
 
        bitbuf <<= 1;
@@ -172,7 +172,7 @@ int ltc_ecc_mulmod(void *k, const ecc_point *G, ecc_point *R, void *a, void *mod
             first = 0;
          } else {
             /* then add */
-            if ((err = ltc_mp.ecc_ptadd(R, tG, R, ma, modulus, mp)) != CRYPT_OK)     { goto done; }
+            if ((err = mp_ecc_ptadd(R, tG, R, ma, modulus, mp)) != CRYPT_OK)     { goto done; }
          }
        }
      }

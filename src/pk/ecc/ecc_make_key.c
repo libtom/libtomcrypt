@@ -39,7 +39,7 @@ int ecc_generate_key(prng_state *prng, int wprng, ecc_key *key)
 {
    int            err;
 
-   LTC_ARGCHK(ltc_mp.name != NULL);
+   LTC_ARGCHK(mp_name()   != NULL);
    LTC_ARGCHK(key         != NULL);
    LTC_ARGCHK(key->dp.size > 0);
 
@@ -55,7 +55,7 @@ int ecc_generate_key(prng_state *prng, int wprng, ecc_key *key)
    }
 
    /* make the public key */
-   if ((err = ltc_mp.ecc_ptmul(key->k, &key->dp.base, &key->pubkey, key->dp.A, key->dp.prime, 1)) != CRYPT_OK) {
+   if ((err = mp_ecc_ptmul(key->k, &key->dp.base, &key->pubkey, key->dp.A, key->dp.prime, 1)) != CRYPT_OK) {
       goto error;
    }
    key->type = PK_PRIVATE;

@@ -521,7 +521,7 @@ static void time_mult(void)
    unsigned long x, y;
    void  *a, *b, *c;
 
-   if (ltc_mp.name == NULL) return;
+   if (mp_name() == NULL) return;
 
    fprintf(stderr, "Timing Multiplying:\n");
    mp_init_multi(&a,&b,&c,NULL);
@@ -554,7 +554,7 @@ static void time_sqr(void)
    unsigned long x, y;
    void *a, *b;
 
-   if (ltc_mp.name == NULL) return;
+   if (mp_name() == NULL) return;
 
    fprintf(stderr, "Timing Squaring:\n");
    mp_init_multi(&a,&b,NULL);
@@ -652,7 +652,7 @@ static const struct {
 #endif
 };
 
-   if (ltc_mp.name == NULL) return;
+   if (mp_name() == NULL) return;
 
    for (x = 0; x < (sizeof(groups)/sizeof(groups[0])); x++) {
        t2 = 0;
@@ -699,7 +699,7 @@ static void time_rsa(void)
    unsigned long x, y, z, zzz;
    int           err, zz, stat;
 
-   if (ltc_mp.name == NULL) return;
+   if (mp_name() == NULL) return;
 
    for (x = 2048; x <= 8192; x <<= 1) {
        t2 = 0;
@@ -830,7 +830,7 @@ static void time_dh(void)
                                    100000
    };
 
-   if (ltc_mp.name == NULL) return;
+   if (mp_name() == NULL) return;
 
    for (x = sizes[i=0]; x < 100000; x = sizes[++i]) {
        t2 = 0;
@@ -895,7 +895,7 @@ static void time_ecc(void)
 #endif
 100000};
 
-   if (ltc_mp.name == NULL) return;
+   if (mp_name() == NULL) return;
 
    for (x = sizes[i=0]; x < 100000; x = sizes[++i]) {
        t2 = 0;

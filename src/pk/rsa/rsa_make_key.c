@@ -23,7 +23,7 @@ int rsa_make_key(prng_state *prng, int wprng, int size, long e, rsa_key *key)
    void *p, *q, *tmp1, *tmp2, *tmp3;
    int    err;
 
-   LTC_ARGCHK(ltc_mp.name != NULL);
+   LTC_ARGCHK(mp_name()   != NULL);
    LTC_ARGCHK(key         != NULL);
    LTC_ARGCHK(size        > 0);
 

@@ -219,7 +219,7 @@ int x25519_test(void)
 {
    int ret;
 
-   if (ltc_mp.name == NULL) return CRYPT_NOP;
+   if (mp_name() == NULL) return CRYPT_NOP;
 
    if ((ret = _rfc_7748_5_2_test()) != CRYPT_OK) {
       return ret;

@@ -337,7 +337,7 @@ static int _ssh_decoding_test(void)
 */
 int ssh_test(void)
 {
-   if (ltc_mp.name == NULL) return CRYPT_NOP;
+   if (mp_name() == NULL) return CRYPT_NOP;
 
    DO(_ssh_encoding_test());
    DO(_ssh_decoding_test());

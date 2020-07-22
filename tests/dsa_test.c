@@ -305,7 +305,7 @@ int dsa_test(void)
    int stat1, stat2;
    dsa_key key, key2;
 
-   if (ltc_mp.name == NULL) return CRYPT_NOP;
+   if (mp_name() == NULL) return CRYPT_NOP;
 
    DO(_dsa_compat_test());
    DO(_dsa_wycheproof_test());
