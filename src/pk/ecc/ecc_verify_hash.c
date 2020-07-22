@@ -169,18 +169,18 @@ int ecc_verify_hash_ex(const unsigned char *sig,  unsigned long siglen,
    }
 
    /* compute u1*mG + u2*mQ = mG */
-   if (ltc_mp.ecc_mul2add == NULL) {
-      if ((err = ltc_mp.ecc_ptmul(u1, mG, mG, a, m, 0)) != CRYPT_OK)                                    { goto error; }
-      if ((err = ltc_mp.ecc_ptmul(u2, mQ, mQ, a, m, 0)) != CRYPT_OK)                                    { goto error; }
+   if (mp_ecc_mul2add_support()) {
+      if ((err = mp_ecc_ptmul(u1, mG, mG, a, m, 0)) != CRYPT_OK)                                        { goto error; }
+      if ((err = mp_ecc_ptmul(u2, mQ, mQ, a, m, 0)) != CRYPT_OK)                                        { goto error; }
 
       /* add them */
-      if ((err = ltc_mp.ecc_ptadd(mQ, mG, mG, ma, m, mp)) != CRYPT_OK)                                  { goto error; }
+      if ((err = mp_ecc_ptadd(mQ, mG, mG, ma, m, mp)) != CRYPT_OK)                                      { goto error; }
 
       /* reduce */
-      if ((err = ltc_mp.ecc_map(mG, m, mp)) != CRYPT_OK)                                                { goto error; }
+      if ((err = mp_ecc_map(mG, m, mp)) != CRYPT_OK)                                                    { goto error; }
    } else {
       /* use Shamir's trick to compute u1*mG + u2*mQ using half of the doubles */
-      if ((err = ltc_mp.ecc_mul2add(mG, u1, mQ, u2, mG, ma, m)) != CRYPT_OK)                            { goto error; }
+      if ((err = mp_ecc_mul2add(mG, u1, mQ, u2, mG, ma, m)) != CRYPT_OK)                                { goto error; }
    }
 
    /* v = X_x1 mod n */

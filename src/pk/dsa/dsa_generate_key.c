@@ -21,7 +21,7 @@ int dsa_generate_key(prng_state *prng, int wprng, dsa_key *key)
   int err;
 
   LTC_ARGCHK(key         != NULL);
-  LTC_ARGCHK(ltc_mp.name != NULL);
+  LTC_ARGCHK(mp_name()   != NULL);
 
   /* so now we have our DH structure, generator g, order q, modulus p
      Now we need a random exponent [mod q] and it's power g^x mod p

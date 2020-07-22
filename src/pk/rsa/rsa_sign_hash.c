@@ -130,7 +130,7 @@ int rsa_sign_hash_ex(const unsigned char *in,       unsigned long  inlen,
   }
 
   /* RSA encode it */
-  return ltc_mp.rsa_me(out, x, out, outlen, PK_PRIVATE, key);
+  return mp_rsa_me(out, x, out, outlen, PK_PRIVATE, key);
 }
 
 #endif /* LTC_MRSA */

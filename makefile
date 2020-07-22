@@ -32,6 +32,18 @@ ifndef LIBNAME
    LIBNAME=libtomcrypt.a
 endif
 
+ifndef LIBNAME_LTM
+   LIBNAME_LTM=libtomcrypt_ltm.a
+endif
+
+ifndef LIBNAME_TFM
+   LIBNAME_TFM=libtomcrypt_tfm.a
+endif
+
+ifndef LIBNAME_GMP
+   LIBNAME_GMP=libtomcrypt_gmp.a
+endif
+
 
 include makefile_include.mk
 
@@ -57,21 +69,55 @@ ifneq ($V,1)
 endif
 	${silent} ${CC} ${LTC_CFLAGS} -c $< -o $@
 
-$(LIBNAME): $(OBJECTS)
+$(LIBNAME): $(OBJECTS) $(MOBJECTS)
+ifneq ($V,1)
+	@echo "   * ${AR} $@"
+endif
+	${silent} $(AR) $(ARFLAGS) $@ $^
+ifneq ($V,1)
+	@echo "   * ${RANLIB} $@"
+endif
+	${silent} $(RANLIB) $@
+
+$(LIBNAME_LTM): $(OBJECTS) src/math/ltm_static.o
 ifneq ($V,1)
 	@echo "   * ${AR} $@" ${silent_echo}
 endif
-	${silent} $(AR) $(ARFLAGS) $@ $(OBJECTS)
+	${silent} $(AR) $(ARFLAGS) $@ $^
 ifneq ($V,1)
 	@echo "   * ${RANLIB} $@" ${silent_echo}
 endif
 	${silent} $(RANLIB) $@
+
+$(LIBNAME_TFM): $(OBJECTS) src/math/tfm_static.o
+ifneq ($V,1)
+	@echo "   * ${AR} $@"
+endif
+	${silent} $(AR) $(ARFLAGS) $@ $^
+ifneq ($V,1)
+	@echo "   * ${RANLIB} $@"
+endif
+	${silent} $(RANLIB) $@
+
+$(LIBNAME_GMP): $(OBJECTS) src/math/gmp_static.o
+ifneq ($V,1)
+	@echo "   * ${AR} $@"
+endif
+	${silent} $(AR) $(ARFLAGS) $@ $^
+ifneq ($V,1)
+	@echo "   * ${RANLIB} $@"
+endif
+	${silent} $(RANLIB) $@
+
 
 test: $(call print-help,test,Builds the library and the 'test' application to run all self-tests) $(LIBNAME) $(TOBJECTS)
 ifneq ($V,1)
 	@echo "   * ${CC} $@" ${silent_echo}
 endif
 	${silent} $(CC) $(LTC_LDFLAGS) $(TOBJECTS) $(LIB_PRE) $(LIBNAME) $(LIB_POST) $(LTC_EXTRALIBS) -o $(TEST)
+	${silent} $(CC) $(LTC_LDFLAGS) $(TOBJECTS) $(LIB_PRE) $(LIBNAME_LTM) $(LIB_POST) $(LTC_EXTRALIBS) -ltommath -o $(TEST)_ltm
+	${silent} $(CC) $(LTC_LDFLAGS) $(TOBJECTS) $(LIB_PRE) $(LIBNAME_TFM) $(LIB_POST) $(LTC_EXTRALIBS) -o $(TEST)_tfm
+	${silent} $(CC) $(LTC_LDFLAGS) $(TOBJECTS) $(LIB_PRE) $(LIBNAME_GMP) $(LIB_POST) $(LTC_EXTRALIBS) -o $(TEST)_gmp
 
 # build the demos from a template
 define DEMO_template

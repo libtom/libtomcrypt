@@ -506,6 +506,77 @@ int ltc_init_multi(void **a, ...);
 void ltc_deinit_multi(void *a, ...);
 void ltc_cleanup_multi(void **a, ...);
 
+const char *ltc_mp_name(void);
+int ltc_mp_bits_per_digit(void);
+int ltc_mp_init(void *a);
+void ltc_mp_deinit(void *a);
+int ltc_mp_init_copy(void **dst, void *src);
+
+int ltc_mp_neg(void *src, void *dst);
+int ltc_mp_copy(void *src, void *dst);
+
+int ltc_mp_set_int(void *a, ltc_mp_digit n);
+unsigned long ltc_mp_get_int(void *a);
+ltc_mp_digit ltc_mp_get_digit(void *a, int n);
+int ltc_mp_get_digit_count(void *a);
+int ltc_mp_compare(void *a, void *b);
+int ltc_mp_compare_d(void *a, ltc_mp_digit n);
+int ltc_mp_count_bits(void *a);
+int ltc_mp_count_lsb_bits(void *a);
+int ltc_mp_twoexpt(void *a , int n);
+
+int ltc_mp_read_radix(void *a, const char *str, int radix);
+int ltc_mp_write_radix(void *a, char *str, int radix);
+unsigned long ltc_mp_unsigned_size(void *a);
+int ltc_mp_unsigned_write(void *src, unsigned char *dst);
+int ltc_mp_unsigned_read(void *dst, unsigned char *src, unsigned long len);
+
+int ltc_mp_add(void *a, void *b, void *c);
+int ltc_mp_addi(void *a, ltc_mp_digit b, void *c);
+int ltc_mp_sub(void *a, void *b, void *c);
+int ltc_mp_subi(void *a, ltc_mp_digit b, void *c);
+int ltc_mp_mul(void *a, void *b, void *c);
+int ltc_mp_muli(void *a, ltc_mp_digit b, void *c);
+int ltc_mp_sqr(void *a, void *b);
+int ltc_mp_sqrtmod_prime_support(void);
+int ltc_mp_sqrtmod_prime(void *a, void *b, void *c);
+int ltc_mp_mpdiv(void *a, void *b, void *c, void *d);
+int ltc_mp_div_2(void *a, void *b);
+int ltc_mp_modi(void *a, ltc_mp_digit b, ltc_mp_digit *c);
+int ltc_mp_gcd(void *a, void *b, void *c);
+int ltc_mp_lcm(void *a, void *b, void *c);
+
+int ltc_mp_rsa_me(const unsigned char *in, unsigned long inlen,
+                  unsigned char *out, unsigned long *outlen, int which,
+                  const rsa_key *key);
+
+int ltc_mp_addmod(void *a, void *b, void *c, void *d);
+int ltc_mp_submod(void *a, void *b, void *c, void *d);
+int ltc_mp_mulmod(void *a, void *b, void *c, void *d);
+int ltc_mp_sqrmod(void *a, void *b, void *c);
+int ltc_mp_invmod(void *a, void *b, void *c);
+
+int ltc_mp_montgomery_setup(void *a, void **b);
+int ltc_mp_montgomery_normalization(void *a, void *b);
+int ltc_mp_montgomery_reduce(void *a, void *b, void *c);
+void ltc_mp_montgomery_deinit(void *a);
+
+int ltc_mp_exptmod(void *a, void *b, void *c, void *d);
+int ltc_mp_isprime(void *a, int b, int *c);
+
+int ltc_mp_ecc_ptmul(void *k, const ecc_point *G, ecc_point *R, void *a,
+                     void *modulus, int map);
+int ltc_mp_ecc_ptadd(const ecc_point *P, const ecc_point *Q, ecc_point *R,
+                     void *ma, void *modulus, void *mp);
+int ltc_mp_ecc_ptdbl(const ecc_point *P, ecc_point *R, void *ma, void *modulus,
+                     void *mp);
+int ltc_mp_ecc_map(ecc_point *P, void *modulus, void *mp);
+int ltc_mp_ecc_mul2add_support(void);
+int ltc_mp_ecc_mul2add(const ecc_point *A, void *kA, const ecc_point *B,
+                       void *kB, ecc_point *C, void *ma, void *modulus);
+
+int ltc_mp_rand(void *a, int size);
+
 #ifdef LTM_DESC
 extern const ltc_math_descriptor ltm_desc;
 #endif

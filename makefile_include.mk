@@ -202,7 +202,7 @@ endif
 
 
 #The first rule is also the default rule and builds the libtomcrypt library.
-library: $(call print-help,library,Builds the library) $(LIBNAME)
+library: $(call print-help,library,Builds the library) $(LIBNAME) $(LIBNAME_LTM) $(LIBNAME_TFM) $(LIBNAME_GMP)
 
 
 # List of objects to compile (all goes to libtomcrypt.a)
@@ -260,8 +260,8 @@ src/mac/poly1305/poly1305_file.o src/mac/poly1305/poly1305_memory.o \
 src/mac/poly1305/poly1305_memory_multi.o src/mac/poly1305/poly1305_test.o src/mac/xcbc/xcbc_done.o \
 src/mac/xcbc/xcbc_file.o src/mac/xcbc/xcbc_init.o src/mac/xcbc/xcbc_memory.o \
 src/mac/xcbc/xcbc_memory_multi.o src/mac/xcbc/xcbc_process.o src/mac/xcbc/xcbc_test.o \
-src/math/fp/ltc_ecc_fp_mulmod.o src/math/gmp_desc.o src/math/ltm_desc.o src/math/multi.o \
-src/math/radix_to_bin.o src/math/rand_bn.o src/math/rand_prime.o src/math/tfm_desc.o src/misc/adler32.o \
+src/math/fp/ltc_ecc_fp_mulmod.o src/math/multi.o \
+src/math/radix_to_bin.o src/math/rand_bn.o src/math/rand_prime.o src/misc/adler32.o \
 src/misc/base16/base16_decode.o src/misc/base16/base16_encode.o src/misc/base32/base32_decode.o \
 src/misc/base32/base32_encode.o src/misc/base64/base64_decode.o src/misc/base64/base64_encode.o \
 src/misc/bcrypt/bcrypt.o src/misc/burn_stack.o src/misc/compare_testvector.o src/misc/copy_or_zeromem.o \
@@ -393,6 +393,12 @@ src/stream/sober128/sober128_stream.o src/stream/sober128/sober128_stream_memory
 src/stream/sober128/sober128_test.o src/stream/sosemanuk/sosemanuk.o \
 src/stream/sosemanuk/sosemanuk_memory.o src/stream/sosemanuk/sosemanuk_test.o
 
+# List of dynamic math objects to compile (all goes to libtomcrypt.a)
+MOBJECTS=src/math/gmp_desc.o src/math/ltm_desc.o src/math/tfm_desc.o src/math/dynamic.o
+
+# List of static math objects
+SOBJECTS=src/math/gmp_static.o src/math/ltm_static.o src/math/tfm_static.o
+
 # List of test objects to compile (all goes to libtomcrypt_prof.a)
 TOBJECTS=tests/base16_test.o tests/base32_test.o tests/base64_test.o tests/bcrypt_test.o \
 tests/cipher_hash_test.o tests/common.o tests/der_test.o tests/dh_test.o tests/dsa_test.o \
@@ -424,7 +430,7 @@ $(DOBJECTS): LTC_CFLAGS := -Itests $(LTC_CFLAGS)
 $(TOBJECTS): LTC_CFLAGS := -Itests $(LTC_CFLAGS)
 
 #Dependencies on *.h
-$(OBJECTS): $(HEADERS)
+$(OBJECTS) $(MOBJECTS) $(SOBJECTS): $(HEADERS)
 $(DOBJECTS): $(HEADERS) $(THEADERS)
 $(TOBJECTS): $(HEADERS) $(THEADERS)
 

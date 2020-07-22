@@ -686,7 +686,7 @@ static void ecc_gen(void)
         mp_set(G->z, 1);
 
         while (mp_cmp(k, order) == LTC_MP_LT) {
-            ltc_mp.ecc_ptmul(k, G, R, a, modulus, 1);
+            mp_ecc_ptmul(k, G, R, a, modulus, 1);
             mp_tohex(k,    (char*)str); fprintf(out, "%s, ", (char*)str);
             mp_tohex(R->x, (char*)str); fprintf(out, "%s, ", (char*)str);
             mp_tohex(R->y, (char*)str); fprintf(out, "%s\n", (char*)str);
@@ -807,7 +807,7 @@ int main(void)
    printf("Generating GCM    vectors..."); fflush(stdout); gcm_gen();    printf("done\n");
 #endif
    printf("Generating BASE64 vectors..."); fflush(stdout); base64_gen(); printf("done\n");
-   if (ltc_mp.name != NULL) {
+   if (mp_name() != NULL) {
       printf("Generating MATH   vectors..."); fflush(stdout); math_gen();   printf("done\n");
       printf("Generating ECC    vectors..."); fflush(stdout); ecc_gen();    printf("done\n");
    }

@@ -38,7 +38,7 @@ int ecc_import_ex(const unsigned char *in, unsigned long inlen, ecc_key *key, co
 
    LTC_ARGCHK(in  != NULL);
    LTC_ARGCHK(key != NULL);
-   LTC_ARGCHK(ltc_mp.name != NULL);
+   LTC_ARGCHK(mp_name() != NULL);
 
    /* find out what type of key it is */
    err = der_decode_sequence_multi(in, inlen, LTC_ASN1_BIT_STRING,    1UL, flags,

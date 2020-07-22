@@ -25,7 +25,7 @@ int ltc_ecc_import_point(const unsigned char *in, unsigned long inlen, void *pri
       /* load y */
       if ((err = mp_read_unsigned_bin(y, (unsigned char *)in+1+size, size)) != CRYPT_OK) { goto cleanup; }
    }
-   else if ((in[0] == 0x02 || in[0] == 0x03) && (inlen-1) == size && ltc_mp.sqrtmod_prime != NULL) {
+   else if ((in[0] == 0x02 || in[0] == 0x03) && (inlen-1) == size && mp_sqrtmod_prime_support()) {
       /* read compressed point - BEWARE: requires sqrtmod_prime */
       /* load x */
       if ((err = mp_read_unsigned_bin(x, (unsigned char *)in+1, size)) != CRYPT_OK)      { goto cleanup; }

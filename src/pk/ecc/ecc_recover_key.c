@@ -41,7 +41,7 @@ int ecc_recover_key(const unsigned char *sig,  unsigned long siglen,
    LTC_ARGCHK(key  != NULL);
 
    /* BEWARE: requires sqrtmod_prime */
-   if (ltc_mp.sqrtmod_prime == NULL) {
+   if (!mp_sqrtmod_prime_support()) {
       return CRYPT_ERROR;
    }
 
@@ -221,10 +221,10 @@ int ecc_recover_key(const unsigned char *sig,  unsigned long siglen,
 
    /* recover mQ from mR */
    /* compute v1*mR + v2*mG = mQ using Shamir's trick */
-   if ((err = ltc_mp.ecc_mul2add(mR, v1, mG, v2, mQ, ma, m)) != CRYPT_OK)                               { goto error; }
+   if ((err = mp_ecc_mul2add(mR, v1, mG, v2, mQ, ma, m)) != CRYPT_OK)                                   { goto error; }
 
    /* compute u1*mG + u2*mQ = mG using Shamir's trick */
-   if ((err = ltc_mp.ecc_mul2add(mG, u1, mQ, u2, mG, ma, m)) != CRYPT_OK)                               { goto error; }
+   if ((err = mp_ecc_mul2add(mG, u1, mQ, u2, mG, ma, m)) != CRYPT_OK)                                   { goto error; }
 
    /* v = X_x1 mod n */
    if ((err = mp_mod(mG->x, p, v)) != CRYPT_OK)                                                         { goto error; }

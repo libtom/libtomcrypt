@@ -72,7 +72,7 @@ int rsa_decrypt_key_ex(const unsigned char *in,             unsigned long  inlen
 
   /* rsa decode the packet */
   x = inlen;
-  if ((err = ltc_mp.rsa_me(in, inlen, tmp, &x, PK_PRIVATE, key)) != CRYPT_OK) {
+  if ((err = mp_rsa_me(in, inlen, tmp, &x, PK_PRIVATE, key)) != CRYPT_OK) {
      XFREE(tmp);
      return err;
   }

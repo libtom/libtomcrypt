@@ -13,7 +13,7 @@ static int _prime_test(void)
 
    for (x = 0; ltc_dh_sets[x].size != 0; x++) {
       /* tfm has a problem with larger sizes */
-      if ((strcmp(ltc_mp.name, "TomsFastMath") == 0) && (ltc_dh_sets[x].size > 256)) break;
+      if ((strcmp(mp_name(), "TomsFastMath") == 0) && (ltc_dh_sets[x].size > 256)) break;
 
       if ((err = mp_read_radix(g, ltc_dh_sets[x].base, 16)) != CRYPT_OK)    { goto error; }
       if ((err = mp_read_radix(p, ltc_dh_sets[x].prime, 16)) != CRYPT_OK)   { goto error; }
@@ -316,7 +316,7 @@ static int _basic_test(void)
    dh_key        usera, userb;
 
    /* tfm has a problem with larger sizes */
-   KEYSIZE = (strcmp(ltc_mp.name, "TomsFastMath") == 0) ? 2048 : 4096;
+   KEYSIZE = (strcmp(mp_name(), "TomsFastMath") == 0) ? 2048 : 4096;
 
    /* make up two keys */
    DO(dh_set_pg_groupsize(KEYSIZE/8, &usera));
@@ -367,7 +367,7 @@ static int _basic_test(void)
 
    for (x = 0; ltc_dh_sets[x].size != 0; x++) {
       /* tfm has a problem with larger sizes */
-      if ((strcmp(ltc_mp.name, "TomsFastMath") == 0) && (ltc_dh_sets[x].size > 256)) break;
+      if ((strcmp(mp_name(), "TomsFastMath") == 0) && (ltc_dh_sets[x].size > 256)) break;
 
       DO(dh_set_pg_groupsize(ltc_dh_sets[x].size, &usera));
       DO(dh_generate_key(&yarrow_prng, find_prng ("yarrow"), &usera));
@@ -387,7 +387,7 @@ int dh_test(void)
 {
    int fails = 0;
 
-   if (ltc_mp.name == NULL) return CRYPT_NOP;
+   if (mp_name() == NULL) return CRYPT_NOP;
 
    if (_prime_test() != CRYPT_OK) fails++;
    if (_basic_test() != CRYPT_OK) fails++;

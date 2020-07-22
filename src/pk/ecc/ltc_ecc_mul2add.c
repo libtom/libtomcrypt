@@ -104,17 +104,17 @@ int ltc_ecc_mul2add(const ecc_point *A, void *kA,
   if ((err = mp_mulmod(B->z, mu, modulus, precomp[1<<2]->z)) != CRYPT_OK)                                      { goto ERR_MU; }
 
   /* precomp [i,0](A + B) table */
-  if ((err = ltc_mp.ecc_ptdbl(precomp[1], precomp[2], ma, modulus, mp)) != CRYPT_OK)                           { goto ERR_MU; }
-  if ((err = ltc_mp.ecc_ptadd(precomp[1], precomp[2], precomp[3], ma, modulus, mp)) != CRYPT_OK)               { goto ERR_MU; }
+  if ((err = mp_ecc_ptdbl(precomp[1], precomp[2], ma, modulus, mp)) != CRYPT_OK)                           { goto ERR_MU; }
+  if ((err = mp_ecc_ptadd(precomp[1], precomp[2], precomp[3], ma, modulus, mp)) != CRYPT_OK)               { goto ERR_MU; }
 
   /* precomp [0,i](A + B) table */
-  if ((err = ltc_mp.ecc_ptdbl(precomp[1<<2], precomp[2<<2], ma, modulus, mp)) != CRYPT_OK)                     { goto ERR_MU; }
-  if ((err = ltc_mp.ecc_ptadd(precomp[1<<2], precomp[2<<2], precomp[3<<2], ma, modulus, mp)) != CRYPT_OK)      { goto ERR_MU; }
+  if ((err = mp_ecc_ptdbl(precomp[1<<2], precomp[2<<2], ma, modulus, mp)) != CRYPT_OK)                     { goto ERR_MU; }
+  if ((err = mp_ecc_ptadd(precomp[1<<2], precomp[2<<2], precomp[3<<2], ma, modulus, mp)) != CRYPT_OK)      { goto ERR_MU; }
 
   /* precomp [i,j](A + B) table (i != 0, j != 0) */
   for (x = 1; x < 4; x++) {
      for (y = 1; y < 4; y++) {
-        if ((err = ltc_mp.ecc_ptadd(precomp[x], precomp[(y<<2)], precomp[x+(y<<2)], ma, modulus, mp)) != CRYPT_OK) { goto ERR_MU; }
+        if ((err = mp_ecc_ptadd(precomp[x], precomp[(y<<2)], precomp[x+(y<<2)], ma, modulus, mp)) != CRYPT_OK) { goto ERR_MU; }
      }
   }
 
@@ -148,8 +148,8 @@ int ltc_ecc_mul2add(const ecc_point *A, void *kA,
      /* double twice, only if this isn't the first */
      if (first == 0) {
         /* double twice */
-        if ((err = ltc_mp.ecc_ptdbl(C, C, ma, modulus, mp)) != CRYPT_OK)              { goto ERR_MU; }
-        if ((err = ltc_mp.ecc_ptdbl(C, C, ma, modulus, mp)) != CRYPT_OK)              { goto ERR_MU; }
+        if ((err = mp_ecc_ptdbl(C, C, ma, modulus, mp)) != CRYPT_OK)              { goto ERR_MU; }
+        if ((err = mp_ecc_ptdbl(C, C, ma, modulus, mp)) != CRYPT_OK)              { goto ERR_MU; }
      }
 
      /* if not both zero */
@@ -160,7 +160,7 @@ int ltc_ecc_mul2add(const ecc_point *A, void *kA,
            if ((err = ltc_ecc_copy_point(precomp[nA + (nB<<2)], C)) != CRYPT_OK)      { goto ERR_MU; }
         } else {
            /* if not first, add from table */
-           if ((err = ltc_mp.ecc_ptadd(C, precomp[nA + (nB<<2)], C, ma, modulus, mp)) != CRYPT_OK) { goto ERR_MU; }
+           if ((err = mp_ecc_ptadd(C, precomp[nA + (nB<<2)], C, ma, modulus, mp)) != CRYPT_OK) { goto ERR_MU; }
         }
      }
   }

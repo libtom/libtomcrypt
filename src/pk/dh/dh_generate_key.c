@@ -41,7 +41,7 @@ int dh_generate_key(prng_state *prng, int wprng, dh_key *key)
    int err, max_iterations = LTC_PK_MAX_RETRIES;
 
    LTC_ARGCHK(key         != NULL);
-   LTC_ARGCHK(ltc_mp.name != NULL);
+   LTC_ARGCHK(mp_name()   != NULL);
 
    /* good prng? */
    if ((err = prng_is_valid(wprng)) != CRYPT_OK) {

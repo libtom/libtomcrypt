@@ -340,8 +340,8 @@ int main(int argc, char **argv)
 
    crypt_mp_init(mpi_provider);
 
-   if (ltc_mp.name != NULL) {
-      printf("MP_PROVIDER  = %s\n", ltc_mp.name);
+   if (mp_name() != NULL) {
+      printf("MP_PROVIDER  = %s\n", mp_name());
       printf("MP_DIGIT_BIT = %d\n", MP_DIGIT_BIT);
       printf("sizeof(ltc_mp_digit) = %d\n", (int)sizeof(ltc_mp_digit));
    } else {

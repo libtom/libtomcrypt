@@ -27,7 +27,7 @@ int dsa_set_pqg(const unsigned char *p,  unsigned long plen,
    LTC_ARGCHK(q           != NULL);
    LTC_ARGCHK(g           != NULL);
    LTC_ARGCHK(key         != NULL);
-   LTC_ARGCHK(ltc_mp.name != NULL);
+   LTC_ARGCHK(mp_name()   != NULL);
 
    /* init key */
    err = mp_init_multi(&key->p, &key->g, &key->q, &key->x, &key->y, NULL);
@@ -74,7 +74,7 @@ int dsa_set_key(const unsigned char *in, unsigned long inlen, int type, dsa_key 
    LTC_ARGCHK(key->p      != NULL);
    LTC_ARGCHK(key->g      != NULL);
    LTC_ARGCHK(key->q      != NULL);
-   LTC_ARGCHK(ltc_mp.name != NULL);
+   LTC_ARGCHK(mp_name()   != NULL);
 
    if (type == PK_PRIVATE) {
       key->type = PK_PRIVATE;

@@ -28,7 +28,7 @@ int ecc_set_key(const unsigned char *in, unsigned long inlen, int type, ecc_key 
          goto error;
       }
       /* compute public key */
-      if ((err = ltc_mp.ecc_ptmul(key->k, &key->dp.base, &key->pubkey, a, prime, 1)) != CRYPT_OK)         { goto error; }
+      if ((err = mp_ecc_ptmul(key->k, &key->dp.base, &key->pubkey, a, prime, 1)) != CRYPT_OK)         { goto error; }
    }
    else if (type == PK_PUBLIC) {
       /* load public key */

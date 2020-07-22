@@ -67,7 +67,7 @@ int ecc_encrypt_key(const unsigned char *in,   unsigned long inlen,
     }
 
     pubkeysize = ECC_BUF_SIZE;
-    if (ltc_mp.sqrtmod_prime != NULL) {
+    if (mp_sqrtmod_prime_support()) {
        /* PK_COMPRESSED requires sqrtmod_prime */
        err = ecc_get_key(pub_expt, &pubkeysize, PK_PUBLIC|PK_COMPRESSED, &pubkey);
     }

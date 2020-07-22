@@ -24,7 +24,7 @@ int dh_set_pg(const unsigned char *p, unsigned long plen,
    LTC_ARGCHK(key         != NULL);
    LTC_ARGCHK(p           != NULL);
    LTC_ARGCHK(g           != NULL);
-   LTC_ARGCHK(ltc_mp.name != NULL);
+   LTC_ARGCHK(mp_name()   != NULL);
 
    if ((err = mp_init_multi(&key->x, &key->y, &key->base, &key->prime, NULL)) != CRYPT_OK) {
       return err;
@@ -52,7 +52,7 @@ int dh_set_pg_groupsize(int groupsize, dh_key *key)
    int err, i;
 
    LTC_ARGCHK(key         != NULL);
-   LTC_ARGCHK(ltc_mp.name != NULL);
+   LTC_ARGCHK(mp_name()   != NULL);
    LTC_ARGCHK(groupsize   > 0);
 
    for (i = 0; (groupsize > ltc_dh_sets[i].size) && (ltc_dh_sets[i].size != 0); i++);
@@ -87,7 +87,7 @@ int dh_set_key(const unsigned char *in, unsigned long inlen, int type, dh_key *k
    int err;
 
    LTC_ARGCHK(key         != NULL);
-   LTC_ARGCHK(ltc_mp.name != NULL);
+   LTC_ARGCHK(mp_name()   != NULL);
 
    if (type == PK_PRIVATE) {
       key->type = PK_PRIVATE;

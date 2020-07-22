@@ -86,7 +86,7 @@ int rsa_encrypt_key_ex(const unsigned char *in,       unsigned long  inlen,
   }
 
   /* rsa exptmod the OAEP or PKCS #1 v1.5 pad */
-  return ltc_mp.rsa_me(out, x, out, outlen, PK_PUBLIC, key);
+  return mp_rsa_me(out, x, out, outlen, PK_PUBLIC, key);
 }
 
 #endif /* LTC_MRSA */

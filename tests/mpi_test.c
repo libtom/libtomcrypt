@@ -127,7 +127,7 @@ static int _radix_to_bin_test(void)
 
 int mpi_test(void)
 {
-   if (ltc_mp.name == NULL) return CRYPT_NOP;
+   if (mp_name() == NULL) return CRYPT_NOP;
    return _radix_to_bin_test();
 }
 #else

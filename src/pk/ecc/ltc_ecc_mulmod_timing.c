@@ -82,7 +82,7 @@ int ltc_ecc_mulmod(void *k, const ecc_point *G, ecc_point *R, void *a, void *mod
    /* M[0] == G */
    if ((err = ltc_ecc_copy_point(tG, M[0])) != CRYPT_OK)                             { goto done; }
    /* M[1] == 2G */
-   if ((err = ltc_mp.ecc_ptdbl(tG, M[1], ma, modulus, mp)) != CRYPT_OK)              { goto done; }
+   if ((err = mp_ecc_ptdbl(tG, M[1], ma, modulus, mp)) != CRYPT_OK)              { goto done; }
 
    /* setup sliding window */
    mode   = 0;
@@ -108,21 +108,21 @@ int ltc_ecc_mulmod(void *k, const ecc_point *G, ecc_point *R, void *a, void *mod
 
       if (mode == 0 && i == 0) {
          /* dummy operations */
-         if ((err = ltc_mp.ecc_ptadd(M[0], M[1], M[2], ma, modulus, mp)) != CRYPT_OK) { goto done; }
-         if ((err = ltc_mp.ecc_ptdbl(M[1], M[2], ma, modulus, mp)) != CRYPT_OK)       { goto done; }
+         if ((err = mp_ecc_ptadd(M[0], M[1], M[2], ma, modulus, mp)) != CRYPT_OK) { goto done; }
+         if ((err = mp_ecc_ptdbl(M[1], M[2], ma, modulus, mp)) != CRYPT_OK)       { goto done; }
          continue;
       }
 
       if (mode == 0 && i == 1) {
          mode = 1;
          /* dummy operations */
-         if ((err = ltc_mp.ecc_ptadd(M[0], M[1], M[2], ma, modulus, mp)) != CRYPT_OK) { goto done; }
-         if ((err = ltc_mp.ecc_ptdbl(M[1], M[2], ma, modulus, mp)) != CRYPT_OK)       { goto done; }
+         if ((err = mp_ecc_ptadd(M[0], M[1], M[2], ma, modulus, mp)) != CRYPT_OK) { goto done; }
+         if ((err = mp_ecc_ptdbl(M[1], M[2], ma, modulus, mp)) != CRYPT_OK)       { goto done; }
          continue;
       }
 
-      if ((err = ltc_mp.ecc_ptadd(M[0], M[1], M[i^1], ma, modulus, mp)) != CRYPT_OK)  { goto done; }
-      if ((err = ltc_mp.ecc_ptdbl(M[i], M[i], ma, modulus, mp)) != CRYPT_OK)          { goto done; }
+      if ((err = mp_ecc_ptadd(M[0], M[1], M[i^1], ma, modulus, mp)) != CRYPT_OK)  { goto done; }
+      if ((err = mp_ecc_ptdbl(M[i], M[i], ma, modulus, mp)) != CRYPT_OK)          { goto done; }
    }
 
    /* copy result out */

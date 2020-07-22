@@ -467,6 +467,7 @@ static int set_rand(void *a, int size)
 #define MP_DIGIT_BIT DIGIT_BIT
 #endif
 
+#ifndef STATIC
 const ltc_math_descriptor ltm_desc = {
 
    "LibTomMath",
@@ -555,6 +556,7 @@ const ltc_math_descriptor ltm_desc = {
    &set_rand,
 
 };
+#endif
 
 
 #endif
