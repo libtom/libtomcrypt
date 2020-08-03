@@ -10,7 +10,7 @@
 */
 #ifdef LTC_CRC32
 
-static const ulong32 _CRC32_NEGL = 0xffffffffUL;
+static const ulong32 CRC32_NEGL = 0xffffffffUL;
 
 #if defined(ENDIAN_LITTLE)
 #define CRC32_INDEX(c) (c & 0xff)
@@ -137,7 +137,7 @@ static const ulong32 crc32_m_tab[] =
 void crc32_init(crc32_state *ctx)
 {
    LTC_ARGCHKVD(ctx != NULL);
-   ctx->crc = _CRC32_NEGL;
+   ctx->crc = CRC32_NEGL;
 }
 
 void crc32_update(crc32_state *ctx, const unsigned char *input, unsigned long length)
@@ -164,7 +164,7 @@ void crc32_finish(const crc32_state *ctx, void *hash, unsigned long size)
 
    h = hash;
    crc = ctx->crc;
-   crc ^= _CRC32_NEGL;
+   crc ^= CRC32_NEGL;
 
    if (size > 4) size = 4;
    for (i = 0; i < size; i++) {

@@ -13,7 +13,7 @@
 #ifdef LTC_XSALSA20
 
 #if defined(LTC_SHA256) && defined(LTC_TEST)
-static int _sha256(unsigned char *hash, const unsigned char *data, const int datalen) {
+static int s_sha256(unsigned char *hash, const unsigned char *data, const int datalen) {
    hash_state md;
    sha256_init(&md);
    sha256_process(&md, data, datalen);
@@ -77,7 +77,7 @@ int xsalsa20_test(void)
        if ((err = xsalsa20_setup(&st, key, 32, nonce, 24, rounds))   != CRYPT_OK)  return err;
        if ((err = salsa20_keystream(&st, keystream, keystreamlen))   != CRYPT_OK)  return err;
        if ((err = salsa20_done(&st))                                 != CRYPT_OK)  return err;
-       if ((err = _sha256(hash, keystream, keystreamlen))            != CRYPT_OK)  return err;
+       if ((err = s_sha256(hash, keystream, keystreamlen))            != CRYPT_OK)  return err;
        if (compare_testvector(hash, sizeof(hash), expecthash, sizeof(expecthash),   "XSALSA20-TV3", 1))  return CRYPT_FAIL_TESTVECTOR;
    }
 #endif

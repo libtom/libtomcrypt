@@ -139,26 +139,26 @@ static const unsigned char blake2s_sigma[10][16] = {
     { 10, 2, 8, 4, 7, 6, 1, 5, 15, 11, 9, 14, 3, 12, 13, 0 },
 };
 
-static void blake2s_set_lastnode(hash_state *md) { md->blake2s.f[1] = 0xffffffffUL; }
+static void s_blake2s_set_lastnode(hash_state *md) { md->blake2s.f[1] = 0xffffffffUL; }
 
 /* Some helper functions, not necessarily useful */
-static int blake2s_is_lastblock(const hash_state *md) { return md->blake2s.f[0] != 0; }
+static int s_blake2s_is_lastblock(const hash_state *md) { return md->blake2s.f[0] != 0; }
 
-static void blake2s_set_lastblock(hash_state *md)
+static void s_blake2s_set_lastblock(hash_state *md)
 {
    if (md->blake2s.last_node) {
-      blake2s_set_lastnode(md);
+      s_blake2s_set_lastnode(md);
    }
    md->blake2s.f[0] = 0xffffffffUL;
 }
 
-static void blake2s_increment_counter(hash_state *md, const ulong32 inc)
+static void s_blake2s_increment_counter(hash_state *md, const ulong32 inc)
 {
    md->blake2s.t[0] += inc;
    if (md->blake2s.t[0] < inc) md->blake2s.t[1]++;
 }
 
-static int blake2s_init0(hash_state *md)
+static int s_blake2s_init0(hash_state *md)
 {
    int i;
    XMEMSET(&md->blake2s, 0, sizeof(struct blake2s_state));
@@ -171,11 +171,11 @@ static int blake2s_init0(hash_state *md)
 }
 
 /* init2 xors IV with input parameter block */
-static int blake2s_init_param(hash_state *md, const unsigned char *P)
+static int s_blake2s_init_param(hash_state *md, const unsigned char *P)
 {
    unsigned long i;
 
-   blake2s_init0(md);
+   s_blake2s_init0(md);
 
    /* IV XOR ParamBlock */
    for (i = 0; i < 8; ++i) {
@@ -222,7 +222,7 @@ int blake2s_init(hash_state *md, unsigned long outlen, const unsigned char *key,
    P[O_FANOUT] = 1;
    P[O_DEPTH] = 1;
 
-   err = blake2s_init_param(md, P);
+   err = s_blake2s_init_param(md, P);
    if (err != CRYPT_OK) return err;
 
    if (key) {
@@ -291,9 +291,9 @@ int blake2s_256_init(hash_state *md) { return blake2s_init(md, 32, NULL, 0); }
    } while (0)
 
 #ifdef LTC_CLEAN_STACK
-static int _blake2s_compress(hash_state *md, const unsigned char *buf)
+static int ss_blake2s_compress(hash_state *md, const unsigned char *buf)
 #else
-static int blake2s_compress(hash_state *md, const unsigned char *buf)
+static int s_blake2s_compress(hash_state *md, const unsigned char *buf)
 #endif
 {
    unsigned long i;
@@ -337,10 +337,10 @@ static int blake2s_compress(hash_state *md, const unsigned char *buf)
 #undef ROUND
 
 #ifdef LTC_CLEAN_STACK
-static int blake2s_compress(hash_state *md, const unsigned char *buf)
+static int s_blake2s_compress(hash_state *md, const unsigned char *buf)
 {
    int err;
-   err = _blake2s_compress(md, buf);
+   err = ss_blake2s_compress(md, buf);
    burn_stack(sizeof(ulong32) * (32) + sizeof(unsigned long));
    return err;
 }
@@ -368,13 +368,13 @@ int blake2s_process(hash_state *md, const unsigned char *in, unsigned long inlen
       if (inlen > fill) {
          md->blake2s.curlen = 0;
          XMEMCPY(md->blake2s.buf + (left % sizeof(md->blake2s.buf)), in, fill); /* Fill buffer */
-         blake2s_increment_counter(md, BLAKE2S_BLOCKBYTES);
-         blake2s_compress(md, md->blake2s.buf); /* Compress */
+         s_blake2s_increment_counter(md, BLAKE2S_BLOCKBYTES);
+         s_blake2s_compress(md, md->blake2s.buf); /* Compress */
          in += fill;
          inlen -= fill;
          while (inlen > BLAKE2S_BLOCKBYTES) {
-            blake2s_increment_counter(md, BLAKE2S_BLOCKBYTES);
-            blake2s_compress(md, in);
+            s_blake2s_increment_counter(md, BLAKE2S_BLOCKBYTES);
+            s_blake2s_compress(md, in);
             in += BLAKE2S_BLOCKBYTES;
             inlen -= BLAKE2S_BLOCKBYTES;
          }
@@ -401,13 +401,13 @@ int blake2s_done(hash_state *md, unsigned char *out)
 
    /* if(md->blake2s.outlen != outlen) return CRYPT_INVALID_ARG; */
 
-   if (blake2s_is_lastblock(md)) {
+   if (s_blake2s_is_lastblock(md)) {
       return CRYPT_ERROR;
    }
-   blake2s_increment_counter(md, md->blake2s.curlen);
-   blake2s_set_lastblock(md);
+   s_blake2s_increment_counter(md, md->blake2s.curlen);
+   s_blake2s_set_lastblock(md);
    XMEMSET(md->blake2s.buf + md->blake2s.curlen, 0, BLAKE2S_BLOCKBYTES - md->blake2s.curlen); /* Padding */
-   blake2s_compress(md, md->blake2s.buf);
+   s_blake2s_compress(md, md->blake2s.buf);
 
    for (i = 0; i < 8; ++i) { /* Output full hash to temp buffer */
       STORE32L(md->blake2s.h[i], buffer + i * 4);

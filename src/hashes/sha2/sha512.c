@@ -83,9 +83,9 @@ CONST64(0x5fcb6fab3ad6faec), CONST64(0x6c44198c4a475817)
 
 /* compress 1024-bits */
 #ifdef LTC_CLEAN_STACK
-static int _sha512_compress(hash_state * md, const unsigned char *buf)
+static int ss_sha512_compress(hash_state * md, const unsigned char *buf)
 #else
-static int  sha512_compress(hash_state * md, const unsigned char *buf)
+static int  s_sha512_compress(hash_state * md, const unsigned char *buf)
 #endif
 {
     ulong64 S[8], W[80], t0, t1;
@@ -150,10 +150,10 @@ static int  sha512_compress(hash_state * md, const unsigned char *buf)
 
 /* compress 1024-bits */
 #ifdef LTC_CLEAN_STACK
-static int sha512_compress(hash_state * md, const unsigned char *buf)
+static int s_sha512_compress(hash_state * md, const unsigned char *buf)
 {
     int err;
-    err = _sha512_compress(md, buf);
+    err = ss_sha512_compress(md, buf);
     burn_stack(sizeof(ulong64) * 90 + sizeof(int));
     return err;
 }
@@ -187,7 +187,7 @@ int sha512_init(hash_state * md)
    @param inlen  The length of the data (octets)
    @return CRYPT_OK if successful
 */
-HASH_PROCESS(sha512_process, sha512_compress, sha512, 128)
+HASH_PROCESS(sha512_process, s_sha512_compress, sha512, 128)
 
 /**
    Terminate the hash to get the digest
@@ -220,7 +220,7 @@ int sha512_done(hash_state * md, unsigned char *out)
         while (md->sha512.curlen < 128) {
             md->sha512.buf[md->sha512.curlen++] = (unsigned char)0;
         }
-        sha512_compress(md, md->sha512.buf);
+        s_sha512_compress(md, md->sha512.buf);
         md->sha512.curlen = 0;
     }
 
@@ -234,7 +234,7 @@ int sha512_done(hash_state * md, unsigned char *out)
 
     /* store length */
     STORE64H(md->sha512.length, md->sha512.buf+120);
-    sha512_compress(md, md->sha512.buf);
+    s_sha512_compress(md, md->sha512.buf);
 
     /* copy output */
     for (i = 0; i < 8; i++) {

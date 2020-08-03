@@ -65,9 +65,9 @@ const struct ltc_hash_descriptor md4_desc =
   }
 
 #ifdef LTC_CLEAN_STACK
-static int _md4_compress(hash_state *md, const unsigned char *buf)
+static int ss_md4_compress(hash_state *md, const unsigned char *buf)
 #else
-static int  md4_compress(hash_state *md, const unsigned char *buf)
+static int  s_md4_compress(hash_state *md, const unsigned char *buf)
 #endif
 {
     ulong32 x[16], a, b, c, d;
@@ -149,10 +149,10 @@ static int  md4_compress(hash_state *md, const unsigned char *buf)
 }
 
 #ifdef LTC_CLEAN_STACK
-static int md4_compress(hash_state *md, const unsigned char *buf)
+static int s_md4_compress(hash_state *md, const unsigned char *buf)
 {
    int err;
-   err = _md4_compress(md, buf);
+   err = ss_md4_compress(md, buf);
    burn_stack(sizeof(ulong32) * 20 + sizeof(int));
    return err;
 }
@@ -182,7 +182,7 @@ int md4_init(hash_state * md)
    @param inlen  The length of the data (octets)
    @return CRYPT_OK if successful
 */
-HASH_PROCESS(md4_process, md4_compress, md4, 64)
+HASH_PROCESS(md4_process, s_md4_compress, md4, 64)
 
 /**
    Terminate the hash to get the digest
@@ -215,7 +215,7 @@ int md4_done(hash_state * md, unsigned char *out)
         while (md->md4.curlen < 64) {
             md->md4.buf[md->md4.curlen++] = (unsigned char)0;
         }
-        md4_compress(md, md->md4.buf);
+        s_md4_compress(md, md->md4.buf);
         md->md4.curlen = 0;
     }
 
@@ -226,7 +226,7 @@ int md4_done(hash_state * md, unsigned char *out)
 
     /* store length */
     STORE64L(md->md4.length, md->md4.buf+56);
-    md4_compress(md, md->md4.buf);
+    s_md4_compress(md, md->md4.buf);
 
     /* copy output */
     for (i = 0; i < 4; i++) {

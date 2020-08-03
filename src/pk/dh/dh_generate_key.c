@@ -5,7 +5,7 @@
 
 #ifdef LTC_MDH
 
-static int _dh_groupsize_to_keysize(int groupsize)
+static int s_dh_groupsize_to_keysize(int groupsize)
 {
    /* The strength estimates from https://tools.ietf.org/html/rfc3526#section-8
     * We use "Estimate 2" to get an appropriate private key (exponent) size.
@@ -48,7 +48,7 @@ int dh_generate_key(prng_state *prng, int wprng, dh_key *key)
       return err;
    }
 
-   keysize = _dh_groupsize_to_keysize(mp_unsigned_bin_size(key->prime));
+   keysize = s_dh_groupsize_to_keysize(mp_unsigned_bin_size(key->prime));
    if (keysize == 0) {
       err = CRYPT_INVALID_KEYSIZE;
       goto freemp;

@@ -61,15 +61,15 @@
 #ifdef LTC_RABBIT
 
 /* local/private prototypes  (NB: rabbit_ctx and rabbit_state are different)  */
-static LTC_INLINE ulong32 _rabbit_g_func(ulong32 x);
-static LTC_INLINE void _rabbit_next_state(rabbit_ctx *p_instance);
-static LTC_INLINE void _rabbit_gen_1_block(rabbit_state* st, unsigned char *out);
+static LTC_INLINE ulong32 ss_rabbit_g_func(ulong32 x);
+static LTC_INLINE void ss_rabbit_next_state(rabbit_ctx *p_instance);
+static LTC_INLINE void ss_rabbit_gen_1_block(rabbit_state* st, unsigned char *out);
 
 /* -------------------------------------------------------------------------- */
 
 /* Square a 32-bit unsigned integer to obtain the 64-bit result and return */
 /* the upper 32 bits XOR the lower 32 bits */
-static LTC_INLINE ulong32 _rabbit_g_func(ulong32 x)
+static LTC_INLINE ulong32 ss_rabbit_g_func(ulong32 x)
 {
    ulong32 a, b, h, l;
 
@@ -88,7 +88,7 @@ static LTC_INLINE ulong32 _rabbit_g_func(ulong32 x)
 /* -------------------------------------------------------------------------- */
 
 /* Calculate the next internal state */
-static LTC_INLINE void _rabbit_next_state(rabbit_ctx *p_instance)
+static LTC_INLINE void ss_rabbit_next_state(rabbit_ctx *p_instance)
 {
    ulong32 g[8], c_old[8], i;
 
@@ -110,7 +110,7 @@ static LTC_INLINE void _rabbit_next_state(rabbit_ctx *p_instance)
 
    /* Calculate the g-values */
    for (i=0;i<8;i++) {
-      g[i] = _rabbit_g_func((ulong32)(p_instance->x[i] + p_instance->c[i]));
+      g[i] = ss_rabbit_g_func((ulong32)(p_instance->x[i] + p_instance->c[i]));
    }
 
    /* Calculate new state values */
@@ -126,12 +126,12 @@ static LTC_INLINE void _rabbit_next_state(rabbit_ctx *p_instance)
 
 /* ------------------------------------------------------------------------- */
 
-static LTC_INLINE void _rabbit_gen_1_block(rabbit_state* st, unsigned char *out)
+static LTC_INLINE void ss_rabbit_gen_1_block(rabbit_state* st, unsigned char *out)
 {
     ulong32 *ptr;
 
     /* Iterate the work context once */
-    _rabbit_next_state(&(st->work_ctx));
+    ss_rabbit_next_state(&(st->work_ctx));
 
     /* Generate 16 bytes of pseudo-random data */
     ptr = (ulong32*)&(st->work_ctx.x);
@@ -195,7 +195,7 @@ int rabbit_setup(rabbit_state* st, const unsigned char *key, unsigned long keyle
 
    /* Iterate the master context four times */
    for (i=0; i<4; i++) {
-      _rabbit_next_state(&(st->master_ctx));
+      ss_rabbit_next_state(&(st->master_ctx));
    }
 
    /* Modify the counters */
@@ -255,7 +255,7 @@ int rabbit_setiv(rabbit_state* st, const unsigned char *iv, unsigned long ivlen)
 
    /* Iterate the work context four times */
    for (i=0; i<4; i++) {
-      _rabbit_next_state(&(st->work_ctx));
+      ss_rabbit_next_state(&(st->work_ctx));
    }
 
    /* reset keystream buffer and unused count */
@@ -289,7 +289,7 @@ int rabbit_crypt(rabbit_state* st, const unsigned char *in, unsigned long inlen,
    }
    for (;;) {
      /* gen a block for buf */
-     _rabbit_gen_1_block(st, buf);
+     ss_rabbit_gen_1_block(st, buf);
      if (inlen <= 16) {
        /* XOR and send to out */
        for (i = 0; i < inlen; ++i) out[i] = in[i] ^ buf[i];

@@ -10,7 +10,7 @@
 
 #ifdef LTC_SOBER128
 
-#define __LTC_SOBER128TAB_C__
+#define LTC_SOBER128TAB_C
 #include "sober128tab.c"
 
 /* don't change these... */

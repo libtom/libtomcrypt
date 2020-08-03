@@ -5,7 +5,7 @@
 #ifdef LTC_XTS_MODE
 
 #ifndef LTC_NO_TEST
-static int _xts_test_accel_xts_encrypt(const unsigned char *pt, unsigned char *ct, unsigned long blocks,
+static int s_xts_test_accel_xts_encrypt(const unsigned char *pt, unsigned char *ct, unsigned long blocks,
                                        unsigned char *tweak, const symmetric_key *skey1, const symmetric_key *skey2)
 {
    int ret;
@@ -32,7 +32,7 @@ static int _xts_test_accel_xts_encrypt(const unsigned char *pt, unsigned char *c
    return ret;
 }
 
-static int _xts_test_accel_xts_decrypt(const unsigned char *ct, unsigned char *pt, unsigned long blocks,
+static int s_xts_test_accel_xts_decrypt(const unsigned char *ct, unsigned char *pt, unsigned long blocks,
                                        unsigned char *tweak, const symmetric_key *skey1, const symmetric_key *skey2)
 {
    int ret;
@@ -208,10 +208,10 @@ int xts_test(void)
       cipher_descriptor[idx].accel_xts_encrypt = NULL;
       cipher_descriptor[idx].accel_xts_decrypt = NULL;
       if (k & 0x1) {
-         cipher_descriptor[idx].accel_xts_encrypt = _xts_test_accel_xts_encrypt;
+         cipher_descriptor[idx].accel_xts_encrypt = s_xts_test_accel_xts_encrypt;
       }
       if (k & 0x2) {
-         cipher_descriptor[idx].accel_xts_decrypt = _xts_test_accel_xts_decrypt;
+         cipher_descriptor[idx].accel_xts_decrypt = s_xts_test_accel_xts_decrypt;
       }
       for (j = 0; j < 2; j++) {
          for (i = 0; i < (int)(sizeof(tests) / sizeof(tests[0])); i++) {

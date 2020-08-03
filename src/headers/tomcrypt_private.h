@@ -417,7 +417,7 @@ int pkcs12_kdf(               int   hash_id,
 
 /* tomcrypt_prng.h */
 
-#define _LTC_PRNG_EXPORT(which) \
+#define LTC_PRNG_EXPORT(which) \
 int which ## _export(unsigned char *out, unsigned long *outlen, prng_state *prng)      \
 {                                                                                      \
    unsigned long len = which ## _desc.export_size;                                     \

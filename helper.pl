@@ -61,12 +61,17 @@ sub check_source {
       push @{$troubles->{sizeof_no_brackets}}, $lineno if $file =~ /^src\/.*\.c$/ && $l =~ /\bsizeof\s*[^\(]/;
       if ($file =~ m|src/.*\.c$| &&
           $file !~ m|src/ciphers/.*\.c$| &&
-          $file !~ m|src/hashes/.*\.c$| &&
           $file !~ m|src/math/.+_desc.c$| &&
           $file !~ m|src/pk/ec25519/tweetnacl.c$| &&
           $file !~ m|src/stream/sober128/sober128_stream.c$| &&
-          $l =~ /^static(\s+[a-zA-Z0-9_]+)+\s+([^_][a-zA-Z0-9_]+)\s*\(/) {
-        push @{$troubles->{staticfunc_name}}, "$lineno($2)";
+          $l =~ /^static(\s+[a-zA-Z0-9_]+)+\s++([^s][a-zA-Z0-9_]+)\s*\(/) {
+        push @{$troubles->{staticfunc_name}}, "$2";
+      }
+      if ($file =~ m|src/.*\.[ch]$| && $l =~ /^\s*#\s*define\s+(_[A-Z_][a-zA-Z0-9_]*)\b/) {
+        my $n = $1;
+        push @{$troubles->{invalid_macro_name}}, "$lineno($n)"
+                unless ($file eq 'src/headers/tomcrypt_cfg.h' &&  $n eq '__has_builtin') ||
+                       ($file eq 'src/prngs/rng_get_bytes.c' &&  $n eq '_WIN32_WINNT');
       }
       $lineno++;
     }

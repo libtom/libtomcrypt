@@ -9,7 +9,7 @@
 
 #ifdef LTC_CURVE25519
 
-static int _rfc_8410_10_test(void)
+static int s_rfc_8410_10_test(void)
 {
    const struct {
       const char* b64;
@@ -89,7 +89,7 @@ typedef struct {
    const char* signature;
 } rfc_8032_7_1_t;
 
-static int _rfc_8032_7_1_test(void)
+static int s_rfc_8032_7_1_test(void)
 {
    const rfc_8032_7_1_t rfc_8032_7_1[] = {
       {
@@ -233,10 +233,10 @@ int ed25519_test(void)
 
    if (ltc_mp.name == NULL) return CRYPT_NOP;
 
-   if ((ret = _rfc_8410_10_test()) != CRYPT_OK) {
+   if ((ret = s_rfc_8410_10_test()) != CRYPT_OK) {
       return ret;
    }
-   if ((ret = _rfc_8032_7_1_test()) != CRYPT_OK) {
+   if ((ret = s_rfc_8032_7_1_test()) != CRYPT_OK) {
       return ret;
    }
 

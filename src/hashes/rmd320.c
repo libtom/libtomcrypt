@@ -88,9 +88,9 @@ const struct ltc_hash_descriptor rmd320_desc =
 
 
 #ifdef LTC_CLEAN_STACK
-static int _rmd320_compress(hash_state *md, const unsigned char *buf)
+static int ss_rmd320_compress(hash_state *md, const unsigned char *buf)
 #else
-static int  rmd320_compress(hash_state *md, const unsigned char *buf)
+static int  s_rmd320_compress(hash_state *md, const unsigned char *buf)
 #endif
 {
    ulong32 aa,bb,cc,dd,ee,aaa,bbb,ccc,ddd,eee,tmp,X[16];
@@ -319,10 +319,10 @@ static int  rmd320_compress(hash_state *md, const unsigned char *buf)
 }
 
 #ifdef LTC_CLEAN_STACK
-static int rmd320_compress(hash_state *md, const unsigned char *buf)
+static int s_rmd320_compress(hash_state *md, const unsigned char *buf)
 {
    int err;
-   err = _rmd320_compress(md, buf);
+   err = ss_rmd320_compress(md, buf);
    burn_stack(sizeof(ulong32) * 27 + sizeof(int));
    return err;
 }
@@ -358,7 +358,7 @@ int rmd320_init(hash_state * md)
    @param inlen  The length of the data (octets)
    @return CRYPT_OK if successful
 */
-HASH_PROCESS(rmd320_process, rmd320_compress, rmd320, 64)
+HASH_PROCESS(rmd320_process, s_rmd320_compress, rmd320, 64)
 
 /**
    Terminate the hash to get the digest
@@ -392,7 +392,7 @@ int rmd320_done(hash_state * md, unsigned char *out)
         while (md->rmd320.curlen < 64) {
             md->rmd320.buf[md->rmd320.curlen++] = (unsigned char)0;
         }
-        rmd320_compress(md, md->rmd320.buf);
+        s_rmd320_compress(md, md->rmd320.buf);
         md->rmd320.curlen = 0;
     }
 
@@ -403,7 +403,7 @@ int rmd320_done(hash_state * md, unsigned char *out)
 
     /* store length */
     STORE64L(md->rmd320.length, md->rmd320.buf+56);
-    rmd320_compress(md, md->rmd320.buf);
+    s_rmd320_compress(md, md->rmd320.buf);
 
     /* copy output */
     for (i = 0; i < 10; i++) {

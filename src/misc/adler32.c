@@ -10,7 +10,7 @@
 */
 #ifdef LTC_ADLER32
 
-static const unsigned long _adler32_base = 65521;
+static const unsigned long s_adler32_base = 65521;
 
 void adler32_init(adler32_state *ctx)
 {
@@ -35,10 +35,10 @@ void adler32_update(adler32_state *ctx, const unsigned char *input, unsigned lon
          length--;
       } while (length % 8 != 0);
 
-      if (s1 >= _adler32_base) {
-         s1 -= _adler32_base;
+      if (s1 >= s_adler32_base) {
+         s1 -= s_adler32_base;
       }
-      s2 %= _adler32_base;
+      s2 %= s_adler32_base;
    }
 
    while (length > 0) {
@@ -62,14 +62,14 @@ void adler32_update(adler32_state *ctx, const unsigned char *input, unsigned lon
       length -= 8;
       input += 8;
 
-      if (s1 >= _adler32_base) {
-         s1 -= _adler32_base;
+      if (s1 >= s_adler32_base) {
+         s1 -= s_adler32_base;
       }
-      s2 %= _adler32_base;
+      s2 %= s_adler32_base;
    }
 
-   LTC_ARGCHKVD(s1 < _adler32_base);
-   LTC_ARGCHKVD(s2 < _adler32_base);
+   LTC_ARGCHKVD(s1 < s_adler32_base);
+   LTC_ARGCHKVD(s2 < s_adler32_base);
 
    ctx->s[0] = (unsigned short)s1;
    ctx->s[1] = (unsigned short)s2;

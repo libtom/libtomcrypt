@@ -14,11 +14,11 @@ typedef long64 i64;
 typedef i64 gf[16];
 
 static const u8
-  _9[32] = {9};
+  nine[32] = {9};
 static const gf
   gf0,
   gf1 = {1},
-  _121665 = {0xDB41,1},
+  gf121665 = {0xDB41,1},
   D = {0x78a3, 0x1359, 0x4dca, 0x75eb, 0xd8ab, 0x4141, 0x0a4d, 0x0070, 0xe898, 0x7779, 0x4079, 0x8cc7, 0xfe73, 0x2b6f, 0x6cee, 0x5203},
   D2 = {0xf159, 0x26b2, 0x9b94, 0xebd6, 0xb156, 0x8283, 0x149a, 0x00e0, 0xd130, 0xeef3, 0x80f2, 0x198e, 0xfce7, 0x56df, 0xd9dc, 0x2406},
   X = {0xd51a, 0x8f25, 0x2d60, 0xc956, 0xa7b2, 0x9525, 0xc760, 0x692c, 0xdc5c, 0xfdd6, 0xe231, 0xc0a4, 0x53fe, 0xcd6e, 0x36d3, 0x2169},
@@ -195,7 +195,7 @@ int tweetnacl_crypto_scalarmult(u8 *q,const u8 *n,const u8 *p)
     Z(a,a,c);
     S(b,a);
     Z(c,d,f);
-    M(a,c,_121665);
+    M(a,c,gf121665);
     A(a,a,d);
     M(c,c,a);
     M(a,d,f);
@@ -218,7 +218,7 @@ int tweetnacl_crypto_scalarmult(u8 *q,const u8 *n,const u8 *p)
 
 int tweetnacl_crypto_scalarmult_base(u8 *q,const u8 *n)
 {
-  return tweetnacl_crypto_scalarmult(q,n,_9);
+  return tweetnacl_crypto_scalarmult(q,n,nine);
 }
 
 static int tweetnacl_crypto_hash(u8 *out,const u8 *m,u64 n)

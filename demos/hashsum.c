@@ -24,11 +24,11 @@
 #endif
 
 /* thanks http://stackoverflow.com/a/8198009 */
-#define _base(x) ((x >= '0' && x <= '9') ? '0' : \
+#define s_base(x) ((x >= '0' && x <= '9') ? '0' : \
          (x >= 'a' && x <= 'f') ? 'a' - 10 : \
          (x >= 'A' && x <= 'F') ? 'A' - 10 : \
             '\255')
-#define HEXOF(x) (x - _base(x))
+#define HEXOF(x) (x - s_base(x))
 
 static char* hashsum;
 

@@ -17,7 +17,7 @@
     x[d] ^= (ROL((x[c] + x[b]), 13)); \
     x[a] ^= (ROL((x[d] + x[c]), 18));
 
-static void _salsa20_block(unsigned char *output, const ulong32 *input, int rounds)
+static void s_salsa20_block(unsigned char *output, const ulong32 *input, int rounds)
 {
    ulong32 x[16];
    int i;
@@ -67,7 +67,7 @@ int salsa20_crypt(salsa20_state *st, const unsigned char *in, unsigned long inle
       in  += j;
    }
    for (;;) {
-     _salsa20_block(buf, st->input, st->rounds);
+     s_salsa20_block(buf, st->input, st->rounds);
      /* Salsa20: 64-bit IV, increment 64-bit counter */
      if (0 == ++st->input[8] && 0 == ++st->input[9]) return CRYPT_OVERFLOW;
      if (inlen <= 64) {

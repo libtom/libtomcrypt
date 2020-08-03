@@ -16,7 +16,7 @@
   x[a] += x[b]; x[d] = ROL(x[d] ^ x[a],  8); \
   x[c] += x[d]; x[b] = ROL(x[b] ^ x[c],  7);
 
-static void _chacha_block(unsigned char *output, const ulong32 *input, int rounds)
+static void s_chacha_block(unsigned char *output, const ulong32 *input, int rounds)
 {
    ulong32 x[16];
    int i;
@@ -66,7 +66,7 @@ int chacha_crypt(chacha_state *st, const unsigned char *in, unsigned long inlen,
       in  += j;
    }
    for (;;) {
-     _chacha_block(buf, st->input, st->rounds);
+     s_chacha_block(buf, st->input, st->rounds);
      if (st->ivlen == 8) {
        /* IV-64bit, increment 64bit counter */
        if (0 == ++st->input[12] && 0 == ++st->input[13]) return CRYPT_OVERFLOW;

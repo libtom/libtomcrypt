@@ -34,9 +34,9 @@ const struct ltc_hash_descriptor sha1_desc =
 #define F3(x,y,z)  (x ^ y ^ z)
 
 #ifdef LTC_CLEAN_STACK
-static int _sha1_compress(hash_state *md, const unsigned char *buf)
+static int ss_sha1_compress(hash_state *md, const unsigned char *buf)
 #else
-static int  sha1_compress(hash_state *md, const unsigned char *buf)
+static int  s_sha1_compress(hash_state *md, const unsigned char *buf)
 #endif
 {
     ulong32 a,b,c,d,e,W[80],i;
@@ -140,10 +140,10 @@ static int  sha1_compress(hash_state *md, const unsigned char *buf)
 }
 
 #ifdef LTC_CLEAN_STACK
-static int sha1_compress(hash_state *md, const unsigned char *buf)
+static int s_sha1_compress(hash_state *md, const unsigned char *buf)
 {
    int err;
-   err = _sha1_compress(md, buf);
+   err = ss_sha1_compress(md, buf);
    burn_stack(sizeof(ulong32) * 87);
    return err;
 }
@@ -174,7 +174,7 @@ int sha1_init(hash_state * md)
    @param inlen  The length of the data (octets)
    @return CRYPT_OK if successful
 */
-HASH_PROCESS(sha1_process, sha1_compress, sha1, 64)
+HASH_PROCESS(sha1_process, s_sha1_compress, sha1, 64)
 
 /**
    Terminate the hash to get the digest
@@ -207,7 +207,7 @@ int sha1_done(hash_state * md, unsigned char *out)
         while (md->sha1.curlen < 64) {
             md->sha1.buf[md->sha1.curlen++] = (unsigned char)0;
         }
-        sha1_compress(md, md->sha1.buf);
+        s_sha1_compress(md, md->sha1.buf);
         md->sha1.curlen = 0;
     }
 
@@ -218,7 +218,7 @@ int sha1_done(hash_state * md, unsigned char *out)
 
     /* store length */
     STORE64H(md->sha1.length, md->sha1.buf+56);
-    sha1_compress(md, md->sha1.buf);
+    s_sha1_compress(md, md->sha1.buf);
 
     /* copy output */
     for (i = 0; i < 5; i++) {

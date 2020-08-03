@@ -9,7 +9,7 @@
 
 #ifdef LTC_PELICAN
 
-#define __LTC_AES_TAB_C__
+#define LTC_AES_TAB_C
 #define ENCRYPT_ONLY
 #define PELI_TAB
 #include "../../ciphers/aes/aes_tab.c"
@@ -45,7 +45,7 @@ int pelican_init(pelican_state *pelmac, const unsigned char *key, unsigned long 
     return CRYPT_OK;
 }
 
-static void _four_rounds(pelican_state *pelmac)
+static void s_four_rounds(pelican_state *pelmac)
 {
     ulong32 s0, s1, s2, s3, t0, t1, t2, t3;
     int r;
@@ -108,7 +108,7 @@ int pelican_process(pelican_state *pelmac, const unsigned char *in, unsigned lon
          for (x = 0; x < 16; x += sizeof(LTC_FAST_TYPE)) {
             *(LTC_FAST_TYPE_PTR_CAST((unsigned char *)pelmac->state + x)) ^= *(LTC_FAST_TYPE_PTR_CAST((unsigned char *)in + x));
          }
-         _four_rounds(pelmac);
+         s_four_rounds(pelmac);
          in    += 16;
          inlen -= 16;
       }
@@ -118,7 +118,7 @@ int pelican_process(pelican_state *pelmac, const unsigned char *in, unsigned lon
    while (inlen--) {
        pelmac->state[pelmac->buflen++] ^= *in++;
        if (pelmac->buflen == 16) {
-          _four_rounds(pelmac);
+          s_four_rounds(pelmac);
           pelmac->buflen = 0;
        }
    }
@@ -142,7 +142,7 @@ int pelican_done(pelican_state *pelmac, unsigned char *out)
    }
 
    if  (pelmac->buflen == 16) {
-       _four_rounds(pelmac);
+       s_four_rounds(pelmac);
        pelmac->buflen = 0;
    }
    pelmac->state[pelmac->buflen++] ^= 0x80;

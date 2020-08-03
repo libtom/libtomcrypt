@@ -17,7 +17,7 @@
   Larry Bugbee, February 2013
 */
 
-static void _print_line(const char* cmd, const char* desc)
+static void s_print_line(const char* cmd, const char* desc)
 {
    printf("  %-16s - %s\n", cmd, desc);
 }
@@ -48,10 +48,10 @@ int main(int argc, char **argv)
       if (strcmp(argv[1], "-h") == 0 || strcmp(argv[1], "--help") == 0) {
          char* base = strdup(basename(argv[0]));
          printf("Usage: %s [-a] [-s name]\n\n", base);
-         _print_line("<no argument>", "The old behavior of the demo");
-         _print_line("-a", "Only lists all constants");
-         _print_line("-s name", "List a single constant given as argument");
-         _print_line("-h", "The help you're looking at");
+         s_print_line("<no argument>", "The old behavior of the demo");
+         s_print_line("-a", "Only lists all constants");
+         s_print_line("-s name", "List a single constant given as argument");
+         s_print_line("-h", "The help you're looking at");
          free(base);
       } else if (strcmp(argv[1], "-a") == 0) {
          char *names_list;

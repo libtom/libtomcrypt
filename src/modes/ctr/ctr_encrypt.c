@@ -18,7 +18,7 @@
   @param ctr    CTR state
   @return CRYPT_OK if successful
 */
-static int _ctr_encrypt(const unsigned char *pt, unsigned char *ct, unsigned long len, symmetric_CTR *ctr)
+static int s_ctr_encrypt(const unsigned char *pt, unsigned char *ct, unsigned long len, symmetric_CTR *ctr)
 {
    int x, err;
 
@@ -105,7 +105,7 @@ int ctr_encrypt(const unsigned char *pt, unsigned char *ct, unsigned long len, s
    if ((cipher_descriptor[ctr->cipher].accel_ctr_encrypt != NULL) && (len >= (unsigned long)ctr->blocklen)) {
      if (ctr->padlen < ctr->blocklen) {
        fr = ctr->blocklen - ctr->padlen;
-       if ((err = _ctr_encrypt(pt, ct, fr, ctr)) != CRYPT_OK) {
+       if ((err = s_ctr_encrypt(pt, ct, fr, ctr)) != CRYPT_OK) {
           return err;
        }
        pt += fr;
@@ -123,7 +123,7 @@ int ctr_encrypt(const unsigned char *pt, unsigned char *ct, unsigned long len, s
      }
    }
 
-   return _ctr_encrypt(pt, ct, len, ctr);
+   return s_ctr_encrypt(pt, ct, len, ctr);
 }
 
 #endif

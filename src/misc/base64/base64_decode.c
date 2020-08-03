@@ -75,7 +75,7 @@ enum {
    relaxed = 2
 };
 
-static int _base64_decode_internal(const char *in,  unsigned long inlen,
+static int s_base64_decode_internal(const char *in,  unsigned long inlen,
                                  unsigned char *out, unsigned long *outlen,
                            const unsigned char *map, int mode)
 {
@@ -149,7 +149,7 @@ static int _base64_decode_internal(const char *in,  unsigned long inlen,
 int base64_decode(const char *in,  unsigned long inlen,
                         unsigned char *out, unsigned long *outlen)
 {
-    return _base64_decode_internal(in, inlen, out, outlen, map_base64, insane);
+    return s_base64_decode_internal(in, inlen, out, outlen, map_base64, insane);
 }
 
 /**
@@ -163,7 +163,7 @@ int base64_decode(const char *in,  unsigned long inlen,
 int base64_strict_decode(const char *in,  unsigned long inlen,
                         unsigned char *out, unsigned long *outlen)
 {
-   return _base64_decode_internal(in, inlen, out, outlen, map_base64, strict);
+   return s_base64_decode_internal(in, inlen, out, outlen, map_base64, strict);
 }
 
 /**
@@ -177,7 +177,7 @@ int base64_strict_decode(const char *in,  unsigned long inlen,
 int base64_sane_decode(const char *in,  unsigned long inlen,
                         unsigned char *out, unsigned long *outlen)
 {
-   return _base64_decode_internal(in, inlen, out, outlen, map_base64, relaxed);
+   return s_base64_decode_internal(in, inlen, out, outlen, map_base64, relaxed);
 }
 #endif /* LTC_BASE64 */
 
@@ -193,7 +193,7 @@ int base64_sane_decode(const char *in,  unsigned long inlen,
 int base64url_decode(const char *in,  unsigned long inlen,
                            unsigned char *out, unsigned long *outlen)
 {
-    return _base64_decode_internal(in, inlen, out, outlen, map_base64url, insane);
+    return s_base64_decode_internal(in, inlen, out, outlen, map_base64url, insane);
 }
 
 /**
@@ -207,7 +207,7 @@ int base64url_decode(const char *in,  unsigned long inlen,
 int base64url_strict_decode(const char *in,  unsigned long inlen,
                            unsigned char *out, unsigned long *outlen)
 {
-    return _base64_decode_internal(in, inlen, out, outlen, map_base64url, strict);
+    return s_base64_decode_internal(in, inlen, out, outlen, map_base64url, strict);
 }
 
 /**
@@ -221,7 +221,7 @@ int base64url_strict_decode(const char *in,  unsigned long inlen,
 int base64url_sane_decode(const char *in,  unsigned long inlen,
                            unsigned char *out, unsigned long *outlen)
 {
-    return _base64_decode_internal(in, inlen, out, outlen, map_base64url, relaxed);
+    return s_base64_decode_internal(in, inlen, out, outlen, map_base64url, relaxed);
 }
 #endif /* LTC_BASE64_URL */
 

@@ -11,7 +11,7 @@
    @param mode       Mask of (LTC_PAD_xxx | block_length)
    @return CRYPT_OK on success
 */
-static int _padding_padded_length(unsigned long *length, unsigned long mode)
+static int s_padding_padded_length(unsigned long *length, unsigned long mode)
 {
    enum padding_type padding;
    unsigned char pad, block_length, r, t;
@@ -87,7 +87,7 @@ int padding_pad(unsigned char *data, unsigned long length, unsigned long* padded
    LTC_ARGCHK(padded_length != NULL);
 
    l = length;
-   if ((err = _padding_padded_length(&l, mode)) != CRYPT_OK) {
+   if ((err = s_padding_padded_length(&l, mode)) != CRYPT_OK) {
       return err;
    }
 

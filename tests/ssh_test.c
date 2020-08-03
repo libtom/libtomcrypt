@@ -51,7 +51,7 @@ static const unsigned char nlist3[] = {0x00, 0x00, 0x00, 0x09, 0x7a, 0x6c, 0x69,
   LTC_SSH encoding test
   @return CRYPT_OK if successful
 */
-static int _ssh_encoding_test(void)
+static int s_ssh_encoding_test(void)
 {
    unsigned char buffer[BUFSIZE];
    unsigned long buflen;
@@ -190,7 +190,7 @@ static int _ssh_encoding_test(void)
   LTC_SSH decoding test
   @return CRYPT_OK if successful
 */
-static int _ssh_decoding_test(void)
+static int s_ssh_decoding_test(void)
 {
    char strbuf[BUFSIZE];
    void *u, *v;
@@ -339,8 +339,8 @@ int ssh_test(void)
 {
    if (ltc_mp.name == NULL) return CRYPT_NOP;
 
-   DO(_ssh_encoding_test());
-   DO(_ssh_decoding_test());
+   DO(s_ssh_encoding_test());
+   DO(s_ssh_decoding_test());
 
    return CRYPT_OK;
 }

@@ -11,7 +11,7 @@
 #ifdef LTC_POLY1305
 
 /* internal only */
-static void _poly1305_block(poly1305_state *st, const unsigned char *in, unsigned long inlen)
+static void s_poly1305_block(poly1305_state *st, const unsigned char *in, unsigned long inlen)
 {
    const unsigned long hibit = (st->final) ? 0 : (1UL << 24); /* 1 << 128 */
    ulong32 r0,r1,r2,r3,r4;
@@ -135,14 +135,14 @@ int poly1305_process(poly1305_state *st, const unsigned char *in, unsigned long 
       in += want;
       st->leftover += want;
       if (st->leftover < 16) return CRYPT_OK;
-      _poly1305_block(st, st->buffer, 16);
+      s_poly1305_block(st, st->buffer, 16);
       st->leftover = 0;
    }
 
    /* process full blocks */
    if (inlen >= 16) {
       unsigned long want = (inlen & ~(16 - 1));
-      _poly1305_block(st, in, want);
+      s_poly1305_block(st, in, want);
       in += want;
       inlen -= want;
    }
@@ -180,7 +180,7 @@ int poly1305_done(poly1305_state *st, unsigned char *mac, unsigned long *maclen)
       st->buffer[i++] = 1;
       for (; i < 16; i++) st->buffer[i] = 0;
       st->final = 1;
-      _poly1305_block(st, st->buffer, 16);
+      s_poly1305_block(st, st->buffer, 16);
    }
 
    /* fully carry h */

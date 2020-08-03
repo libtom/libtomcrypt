@@ -472,7 +472,7 @@ int blowfish_setup_with_data(const unsigned char *key, int keylen,
   @return CRYPT_OK if successful
 */
 #ifdef LTC_CLEAN_STACK
-static int _blowfish_ecb_encrypt(const unsigned char *pt, unsigned char *ct, const symmetric_key *skey)
+static int s_blowfish_ecb_encrypt(const unsigned char *pt, unsigned char *ct, const symmetric_key *skey)
 #else
 int blowfish_ecb_encrypt(const unsigned char *pt, unsigned char *ct, const symmetric_key *skey)
 #endif
@@ -499,7 +499,7 @@ int blowfish_ecb_encrypt(const unsigned char *pt, unsigned char *ct, const symme
 #ifdef LTC_CLEAN_STACK
 int blowfish_ecb_encrypt(const unsigned char *pt, unsigned char *ct, const symmetric_key *skey)
 {
-    int err = _blowfish_ecb_encrypt(pt, ct, skey);
+    int err = s_blowfish_ecb_encrypt(pt, ct, skey);
     burn_stack(sizeof(ulong32) * 2 + sizeof(int));
     return err;
 }
@@ -513,7 +513,7 @@ int blowfish_ecb_encrypt(const unsigned char *pt, unsigned char *ct, const symme
   @return CRYPT_OK if successful
 */
 #ifdef LTC_CLEAN_STACK
-static int _blowfish_ecb_decrypt(const unsigned char *ct, unsigned char *pt, const symmetric_key *skey)
+static int s_blowfish_ecb_decrypt(const unsigned char *ct, unsigned char *pt, const symmetric_key *skey)
 #else
 int blowfish_ecb_decrypt(const unsigned char *ct, unsigned char *pt, const symmetric_key *skey)
 #endif
@@ -560,7 +560,7 @@ int blowfish_ecb_decrypt(const unsigned char *ct, unsigned char *pt, const symme
 #ifdef LTC_CLEAN_STACK
 int blowfish_ecb_decrypt(const unsigned char *ct, unsigned char *pt, const symmetric_key *skey)
 {
-    int err = _blowfish_ecb_decrypt(ct, pt, skey);
+    int err = s_blowfish_ecb_decrypt(ct, pt, skey);
     burn_stack(sizeof(ulong32) * 2 + sizeof(int));
     return err;
 }

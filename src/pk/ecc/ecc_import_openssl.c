@@ -5,7 +5,7 @@
 
 #ifdef LTC_MECC
 
-static int _ecc_import_private_with_oid(const unsigned char *in, unsigned long inlen, ecc_key *key)
+static int s_ecc_import_private_with_oid(const unsigned char *in, unsigned long inlen, ecc_key *key)
 {
    ltc_asn1_list seq_priv[4], custom[2];
    unsigned char bin_xy[2*ECC_MAXSIZE+2], bin_k[ECC_MAXSIZE];
@@ -39,7 +39,7 @@ error:
    return err;
 }
 
-static int _ecc_import_private_with_curve(const unsigned char *in, unsigned long inlen, ecc_key *key)
+static int s_ecc_import_private_with_curve(const unsigned char *in, unsigned long inlen, ecc_key *key)
 {
    void *prime, *order, *a, *b, *gx, *gy;
    ltc_asn1_list seq_fieldid[2], seq_curve[3], seq_ecparams[6], seq_priv[4], custom[2];
@@ -107,11 +107,11 @@ int ecc_import_openssl(const unsigned char *in, unsigned long inlen, ecc_key *ke
       goto success;
    }
 
-   if ((err = _ecc_import_private_with_oid(in, inlen, key)) == CRYPT_OK) {
+   if ((err = s_ecc_import_private_with_oid(in, inlen, key)) == CRYPT_OK) {
       goto success;
    }
 
-   err = _ecc_import_private_with_curve(in, inlen, key);
+   err = s_ecc_import_private_with_curve(in, inlen, key);
 
 success:
    return err;

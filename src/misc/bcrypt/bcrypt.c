@@ -11,7 +11,7 @@
 #define BCRYPT_WORDS 8
 #define BCRYPT_HASHSIZE (BCRYPT_WORDS * 4)
 
-static int _bcrypt_hash(const unsigned char *pt,
+static int s_bcrypt_hash(const unsigned char *pt,
                         const unsigned char *pass, unsigned long passlen,
                         const unsigned char *salt, unsigned long saltlen,
                               unsigned char *out,  unsigned long *outlen)
@@ -52,12 +52,12 @@ static int _bcrypt_hash(const unsigned char *pt,
    return CRYPT_OK;
 }
 
-static int _bcrypt_pbkdf_hash(const unsigned char *pass, unsigned long passlen,
+static int s_bcrypt_pbkdf_hash(const unsigned char *pass, unsigned long passlen,
                          const unsigned char *salt, unsigned long saltlen,
                                unsigned char *out,  unsigned long *outlen)
 {
    const unsigned char pt[] = "OxychromaticBlowfishSwatDynamite";
-   return _bcrypt_hash(pt, pass, passlen, salt, saltlen, out, outlen);
+   return s_bcrypt_hash(pt, pass, passlen, salt, saltlen, out, outlen);
 }
 
 /**
@@ -143,7 +143,7 @@ int bcrypt_pbkdf_openbsd(const          void *secret, unsigned long secret_len,
           goto LBL_ERR;
        }
        y = MAXBLOCKSIZE;
-       if ((err = _bcrypt_pbkdf_hash(hashed_pass, hashed_pass_len, buf[0], x, buf[1], &y)) != CRYPT_OK) {
+       if ((err = s_bcrypt_pbkdf_hash(hashed_pass, hashed_pass_len, buf[0], x, buf[1], &y)) != CRYPT_OK) {
           goto LBL_ERR;
        }
        XMEMCPY(buf[2], buf[1], y);
@@ -155,7 +155,7 @@ int bcrypt_pbkdf_openbsd(const          void *secret, unsigned long secret_len,
              goto LBL_ERR;
           }
           y = MAXBLOCKSIZE;
-          if ((err = _bcrypt_pbkdf_hash(hashed_pass, hashed_pass_len, buf[0], x, buf[1], &y)) != CRYPT_OK) {
+          if ((err = s_bcrypt_pbkdf_hash(hashed_pass, hashed_pass_len, buf[0], x, buf[1], &y)) != CRYPT_OK) {
              goto LBL_ERR;
           }
           for (x = 0; x < y; x++) {

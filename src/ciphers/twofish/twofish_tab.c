@@ -6,7 +6,7 @@
     Twofish tables, Tom St Denis
  */
 #ifdef LTC_TWOFISH_TABLES
-#ifdef __LTC_TWOFISH_TAB_C__
+#ifdef LTC_TWOFISH_TAB_C
 
 /* pre generated 8x8 tables from the four 4x4s */
 static const unsigned char SBOX[2][256] = {
@@ -482,5 +482,5 @@ static const ulong32 rs_tab7[256] = {
 
 #endif /* LTC_TWOFISH_ALL_TABLES */
 
-#endif /* __LTC_TWOFISH_TAB_C__ */
+#endif /* LTC_TWOFISH_TAB_C */
 #endif

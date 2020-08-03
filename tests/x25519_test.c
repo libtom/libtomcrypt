@@ -9,7 +9,7 @@
 
 #ifdef LTC_CURVE25519
 
-static int _rfc_7748_5_2_test(void)
+static int s_rfc_7748_5_2_test(void)
 {
    /* RFC 7748 Ch. 5.2 */
    const struct {
@@ -58,7 +58,7 @@ static int _rfc_7748_5_2_test(void)
    return CRYPT_OK;
 }
 
-static int _rfc_7748_6_test(void)
+static int s_rfc_7748_6_test(void)
 {
    /* RFC 7748 Ch. 6 */
    const unsigned char alice_private[] = {
@@ -111,7 +111,7 @@ static int _rfc_7748_6_test(void)
    return CRYPT_OK;
 }
 
-static int _rfc_8410_10_test(void)
+static int s_rfc_8410_10_test(void)
 {
    const struct {
       const char *b64;
@@ -139,11 +139,11 @@ static int _rfc_8410_10_test(void)
    return CRYPT_OK;
 }
 
-static int _x25519_pkcs8_test(void)
+static int s_x25519_pkcs8_test(void)
 {
    const struct {
       const char *b64, *pass;
-   } _x25519_pkcs8[] = {
+   } s_x25519_pkcs8[] = {
                           /* `openssl genpkey -algorithm x25519 -pass stdin -aes128` */
                           {
                             "MIGbMFcGCSqGSIb3DQEFDTBKMCkGCSqGSIb3DQEFDDAcBAjG5kRkEihOvQICCAAw"
@@ -162,18 +162,18 @@ static int _x25519_pkcs8_test(void)
    curve25519_key key;
    unsigned char buf[1024];
    unsigned long buflen, passlen;
-   for (n = 0; n < sizeof(_x25519_pkcs8)/sizeof(_x25519_pkcs8[0]); ++n) {
+   for (n = 0; n < sizeof(s_x25519_pkcs8)/sizeof(s_x25519_pkcs8[0]); ++n) {
       buflen = sizeof(buf);
-      DO(base64_decode(_x25519_pkcs8[n].b64, XSTRLEN(_x25519_pkcs8[n].b64), buf, &buflen));
-      if (_x25519_pkcs8[n].pass != NULL) passlen = XSTRLEN(_x25519_pkcs8[n].pass);
+      DO(base64_decode(s_x25519_pkcs8[n].b64, XSTRLEN(s_x25519_pkcs8[n].b64), buf, &buflen));
+      if (s_x25519_pkcs8[n].pass != NULL) passlen = XSTRLEN(s_x25519_pkcs8[n].pass);
       else passlen = 0;
-      DO(x25519_import_pkcs8(buf, buflen, _x25519_pkcs8[n].pass, passlen, &key));
+      DO(x25519_import_pkcs8(buf, buflen, s_x25519_pkcs8[n].pass, passlen, &key));
       zeromem(buf, sizeof(buf));
    }
    return CRYPT_OK;
 }
 
-static int _x25519_compat_test(void)
+static int s_x25519_compat_test(void)
 {
    curve25519_key priv, pub, imported;
    unsigned char buf[1024];
@@ -221,19 +221,19 @@ int x25519_test(void)
 
    if (ltc_mp.name == NULL) return CRYPT_NOP;
 
-   if ((ret = _rfc_7748_5_2_test()) != CRYPT_OK) {
+   if ((ret = s_rfc_7748_5_2_test()) != CRYPT_OK) {
       return ret;
    }
-   if ((ret = _rfc_7748_6_test()) != CRYPT_OK) {
+   if ((ret = s_rfc_7748_6_test()) != CRYPT_OK) {
       return ret;
    }
-   if ((ret = _rfc_8410_10_test()) != CRYPT_OK) {
+   if ((ret = s_rfc_8410_10_test()) != CRYPT_OK) {
       return ret;
    }
-   if ((ret = _x25519_pkcs8_test()) != CRYPT_OK) {
+   if ((ret = s_x25519_pkcs8_test()) != CRYPT_OK) {
       return ret;
    }
-   if ((ret = _x25519_compat_test()) != CRYPT_OK) {
+   if ((ret = s_x25519_compat_test()) != CRYPT_OK) {
       return ret;
    }
 

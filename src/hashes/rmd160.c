@@ -93,9 +93,9 @@ const struct ltc_hash_descriptor rmd160_desc =
 
 
 #ifdef LTC_CLEAN_STACK
-static int _rmd160_compress(hash_state *md, const unsigned char *buf)
+static int ss_rmd160_compress(hash_state *md, const unsigned char *buf)
 #else
-static int  rmd160_compress(hash_state *md, const unsigned char *buf)
+static int  s_rmd160_compress(hash_state *md, const unsigned char *buf)
 #endif
 {
    ulong32 aa,bb,cc,dd,ee,aaa,bbb,ccc,ddd,eee,X[16];
@@ -305,10 +305,10 @@ static int  rmd160_compress(hash_state *md, const unsigned char *buf)
 }
 
 #ifdef LTC_CLEAN_STACK
-static int rmd160_compress(hash_state *md, const unsigned char *buf)
+static int s_rmd160_compress(hash_state *md, const unsigned char *buf)
 {
    int err;
-   err = _rmd160_compress(md, buf);
+   err = ss_rmd160_compress(md, buf);
    burn_stack(sizeof(ulong32) * 26 + sizeof(int));
    return err;
 }
@@ -339,7 +339,7 @@ int rmd160_init(hash_state * md)
    @param inlen  The length of the data (octets)
    @return CRYPT_OK if successful
 */
-HASH_PROCESS(rmd160_process, rmd160_compress, rmd160, 64)
+HASH_PROCESS(rmd160_process, s_rmd160_compress, rmd160, 64)
 
 /**
    Terminate the hash to get the digest
@@ -373,7 +373,7 @@ int rmd160_done(hash_state * md, unsigned char *out)
         while (md->rmd160.curlen < 64) {
             md->rmd160.buf[md->rmd160.curlen++] = (unsigned char)0;
         }
-        rmd160_compress(md, md->rmd160.buf);
+        s_rmd160_compress(md, md->rmd160.buf);
         md->rmd160.curlen = 0;
     }
 
@@ -384,7 +384,7 @@ int rmd160_done(hash_state * md, unsigned char *out)
 
     /* store length */
     STORE64L(md->rmd160.length, md->rmd160.buf+56);
-    rmd160_compress(md, md->rmd160.buf);
+    s_rmd160_compress(md, md->rmd160.buf);
 
     /* copy output */
     for (i = 0; i < 5; i++) {

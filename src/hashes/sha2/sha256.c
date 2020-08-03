@@ -58,9 +58,9 @@ static const ulong32 K[64] = {
 
 /* compress 512-bits */
 #ifdef LTC_CLEAN_STACK
-static int _sha256_compress(hash_state * md, const unsigned char *buf)
+static int ss_sha256_compress(hash_state * md, const unsigned char *buf)
 #else
-static int  sha256_compress(hash_state * md, const unsigned char *buf)
+static int s_sha256_compress(hash_state * md, const unsigned char *buf)
 #endif
 {
     ulong32 S[8], W[64], t0, t1;
@@ -181,10 +181,10 @@ static int  sha256_compress(hash_state * md, const unsigned char *buf)
 }
 
 #ifdef LTC_CLEAN_STACK
-static int sha256_compress(hash_state * md, const unsigned char *buf)
+static int s_sha256_compress(hash_state * md, const unsigned char *buf)
 {
     int err;
-    err = _sha256_compress(md, buf);
+    err = ss_sha256_compress(md, buf);
     burn_stack(sizeof(ulong32) * 74);
     return err;
 }
@@ -219,7 +219,7 @@ int sha256_init(hash_state * md)
    @param inlen  The length of the data (octets)
    @return CRYPT_OK if successful
 */
-HASH_PROCESS(sha256_process, sha256_compress, sha256, 64)
+HASH_PROCESS(sha256_process,s_sha256_compress, sha256, 64)
 
 /**
    Terminate the hash to get the digest
@@ -253,7 +253,7 @@ int sha256_done(hash_state * md, unsigned char *out)
         while (md->sha256.curlen < 64) {
             md->sha256.buf[md->sha256.curlen++] = (unsigned char)0;
         }
-        sha256_compress(md, md->sha256.buf);
+        s_sha256_compress(md, md->sha256.buf);
         md->sha256.curlen = 0;
     }
 
@@ -264,7 +264,7 @@ int sha256_done(hash_state * md, unsigned char *out)
 
     /* store length */
     STORE64H(md->sha256.length, md->sha256.buf+56);
-    sha256_compress(md, md->sha256.buf);
+    s_sha256_compress(md, md->sha256.buf);
 
     /* copy output */
     for (i = 0; i < 8; i++) {

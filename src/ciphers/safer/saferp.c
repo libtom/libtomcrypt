@@ -9,7 +9,7 @@
 
 #ifdef LTC_SAFERP
 
-#define __LTC_SAFER_TAB_C__
+#define LTC_SAFER_TAB_C
 #include "safer_tab.c"
 
 const struct ltc_cipher_descriptor saferp_desc =
@@ -137,37 +137,37 @@ const struct ltc_cipher_descriptor saferp_desc =
 
 #ifdef LTC_SMALL_CODE
 
-static void _round(unsigned char *b, int i, const symmetric_key *skey)
+static void s_round(unsigned char *b, int i, const symmetric_key *skey)
 {
    ROUND(b, i);
 }
 
-static void _iround(unsigned char *b, int i, const symmetric_key *skey)
+static void s_iround(unsigned char *b, int i, const symmetric_key *skey)
 {
    iROUND(b, i);
 }
 
-static void _lt(unsigned char *b, unsigned char *b2)
+static void s_lt(unsigned char *b, unsigned char *b2)
 {
    LT(b, b2);
 }
 
-static void _ilt(unsigned char *b, unsigned char *b2)
+static void s_ilt(unsigned char *b, unsigned char *b2)
 {
    iLT(b, b2);
 }
 
 #undef ROUND
-#define ROUND(b, i) _round(b, i, skey)
+#define ROUND(b, i) s_round(b, i, skey)
 
 #undef iROUND
-#define iROUND(b, i) _iround(b, i, skey)
+#define iROUND(b, i) s_iround(b, i, skey)
 
 #undef LT
-#define LT(b, b2) _lt(b, b2)
+#define LT(b, b2) s_lt(b, b2)
 
 #undef iLT
-#define iLT(b, b2) _ilt(b, b2)
+#define iLT(b, b2) s_ilt(b, b2)
 
 #endif
 

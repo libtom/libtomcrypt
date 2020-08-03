@@ -90,9 +90,9 @@ static const ulong32 Korder[64] = {
 #endif
 
 #ifdef LTC_CLEAN_STACK
-static int _md5_compress(hash_state *md, const unsigned char *buf)
+static int ss_md5_compress(hash_state *md, const unsigned char *buf)
 #else
-static int  md5_compress(hash_state *md, const unsigned char *buf)
+static int  s_md5_compress(hash_state *md, const unsigned char *buf)
 #endif
 {
     ulong32 i, W[16], a, b, c, d;
@@ -208,10 +208,10 @@ static int  md5_compress(hash_state *md, const unsigned char *buf)
 }
 
 #ifdef LTC_CLEAN_STACK
-static int md5_compress(hash_state *md, const unsigned char *buf)
+static int s_md5_compress(hash_state *md, const unsigned char *buf)
 {
    int err;
-   err = _md5_compress(md, buf);
+   err = ss_md5_compress(md, buf);
    burn_stack(sizeof(ulong32) * 21);
    return err;
 }
@@ -241,7 +241,7 @@ int md5_init(hash_state * md)
    @param inlen  The length of the data (octets)
    @return CRYPT_OK if successful
 */
-HASH_PROCESS(md5_process, md5_compress, md5, 64)
+HASH_PROCESS(md5_process, s_md5_compress, md5, 64)
 
 /**
    Terminate the hash to get the digest
@@ -275,7 +275,7 @@ int md5_done(hash_state * md, unsigned char *out)
         while (md->md5.curlen < 64) {
             md->md5.buf[md->md5.curlen++] = (unsigned char)0;
         }
-        md5_compress(md, md->md5.buf);
+        s_md5_compress(md, md->md5.buf);
         md->md5.curlen = 0;
     }
 
@@ -286,7 +286,7 @@ int md5_done(hash_state * md, unsigned char *out)
 
     /* store length */
     STORE64L(md->md5.length, md->md5.buf+56);
-    md5_compress(md, md->md5.buf);
+    s_md5_compress(md, md->md5.buf);
 
     /* copy output */
     for (i = 0; i < 4; i++) {

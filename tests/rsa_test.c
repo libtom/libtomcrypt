@@ -173,8 +173,8 @@ static const unsigned char openssl_rsautl_pkcs[] = {
    0xef, 0x57, 0x23, 0x4b, 0x3a, 0xa3, 0x24, 0x91, 0x4d, 0xfb, 0xb2, 0xd4, 0xe7, 0x5e, 0x41, 0x7e,
 };
 
-extern const char _der_tests_cacert_root_cert[];
-extern const unsigned long _der_tests_cacert_root_cert_size;
+extern const char ltc_der_tests_cacert_root_cert[];
+extern const unsigned long ltc_der_tests_cacert_root_cert_size;
 
 static int rsa_compat_test(void)
 {
@@ -269,7 +269,7 @@ static int rsa_compat_test(void)
    return 0;
 }
 
-static int _rsa_key_cmp(const int should_type, const rsa_key *should, const rsa_key *is)
+static int s_rsa_key_cmp(const int should_type, const rsa_key *should, const rsa_key *is)
 {
    if(should_type != is->type)
       return CRYPT_ERROR;
@@ -294,7 +294,7 @@ static int _rsa_key_cmp(const int should_type, const rsa_key *should, const rsa_
    return CRYPT_OK;
 }
 
-static int _rsa_issue_301(int prng_idx)
+static int s_rsa_issue_301(int prng_idx)
 {
    rsa_key       key, key_in;
    unsigned char buf[4096];
@@ -306,21 +306,21 @@ static int _rsa_issue_301(int prng_idx)
    DO(rsa_export(buf, &len, PK_PRIVATE, &key));
    DO(rsa_import(buf, len, &key_in));
 
-   DO(_rsa_key_cmp(PK_PRIVATE, &key, &key_in));
+   DO(s_rsa_key_cmp(PK_PRIVATE, &key, &key_in));
    rsa_free(&key_in);
 
    len = sizeof(buf);
    DO(rsa_export(buf, &len, PK_PUBLIC, &key));
    DO(rsa_import(buf, len, &key_in));
 
-   DO(_rsa_key_cmp(PK_PUBLIC, &key, &key_in));
+   DO(s_rsa_key_cmp(PK_PUBLIC, &key, &key_in));
    rsa_free(&key_in);
 
    len = sizeof(buf);
    DO(rsa_export(buf, &len, PK_PUBLIC | PK_STD, &key));
    DO(rsa_import(buf, len, &key_in));
 
-   DO(_rsa_key_cmp(PK_PUBLIC, &key, &key_in));
+   DO(s_rsa_key_cmp(PK_PUBLIC, &key, &key_in));
    rsa_free(&key_in);
 
    rsa_free(&key);
@@ -328,7 +328,7 @@ static int _rsa_issue_301(int prng_idx)
 }
 
 #ifdef LTC_TEST_READDIR
-static int _rsa_import_x509(const void *in, unsigned long inlen, void *key)
+static int s_rsa_import_x509(const void *in, unsigned long inlen, void *key)
 {
    /* here we use the filesize as indicator for the rsa size
     * that would fail to import for tfm because it's fixed-size
@@ -343,7 +343,7 @@ static int _rsa_import_x509(const void *in, unsigned long inlen, void *key)
 }
 
 #if defined(LTC_MD2) && defined(LTC_MD5) && defined(LTC_RC2)
-static int _rsa_import_pkcs8(const void *in, unsigned long inlen, void *key)
+static int s_rsa_import_pkcs8(const void *in, unsigned long inlen, void *key)
 {
    return rsa_import_pkcs8(in, inlen, "secret", 6, key);
 }
@@ -376,13 +376,13 @@ int rsa_test(void)
    }
 
 #ifdef LTC_TEST_READDIR
-   DO(test_process_dir("tests/rsa", &key, _rsa_import_x509, (dir_cleanup_cb)rsa_free, "rsa_test"));
+   DO(test_process_dir("tests/rsa", &key, s_rsa_import_x509, (dir_cleanup_cb)rsa_free, "rsa_test"));
 #if defined(LTC_MD2) && defined(LTC_MD5) && defined(LTC_RC2)
-   DO(test_process_dir("tests/rsa-pkcs8", &key, _rsa_import_pkcs8, (dir_cleanup_cb)rsa_free, "rsa_pkcs8_test"));
+   DO(test_process_dir("tests/rsa-pkcs8", &key, s_rsa_import_pkcs8, (dir_cleanup_cb)rsa_free, "rsa_pkcs8_test"));
 #endif
 #endif
 
-   DO(_rsa_issue_301(prng_idx));
+   DO(s_rsa_issue_301(prng_idx));
 
    /* make 10 random key */
    for (cnt = 0; cnt < 10; cnt++) {
@@ -695,7 +695,7 @@ print_hex("q", tmp, len);
    rsa_free(&key);
 
    len3 = sizeof(tmp);
-   DO(base64_decode(_der_tests_cacert_root_cert, _der_tests_cacert_root_cert_size, tmp, &len3));
+   DO(base64_decode(ltc_der_tests_cacert_root_cert, ltc_der_tests_cacert_root_cert_size, tmp, &len3));
 
    DO(rsa_import_x509(tmp, len3, &key));
 

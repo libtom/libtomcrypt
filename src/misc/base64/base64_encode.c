@@ -21,7 +21,7 @@ static const char * const codes_base64url =
 "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
 #endif /* LTC_BASE64_URL */
 
-static int _base64_encode_internal(const unsigned char *in,  unsigned long inlen,
+static int s_base64_encode_internal(const unsigned char *in,  unsigned long inlen,
                                  char *out, unsigned long *outlen,
                                  const char *codes, int pad)
 {
@@ -83,7 +83,7 @@ static int _base64_encode_internal(const unsigned char *in,  unsigned long inlen
 int base64_encode(const unsigned char *in,  unsigned long inlen,
                                  char *out, unsigned long *outlen)
 {
-    return _base64_encode_internal(in, inlen, out, outlen, codes_base64, 1);
+    return s_base64_encode_internal(in, inlen, out, outlen, codes_base64, 1);
 }
 #endif /* LTC_BASE64 */
 
@@ -100,13 +100,13 @@ int base64_encode(const unsigned char *in,  unsigned long inlen,
 int base64url_encode(const unsigned char *in,  unsigned long inlen,
                                     char *out, unsigned long *outlen)
 {
-    return _base64_encode_internal(in, inlen, out, outlen, codes_base64url, 0);
+    return s_base64_encode_internal(in, inlen, out, outlen, codes_base64url, 0);
 }
 
 int base64url_strict_encode(const unsigned char *in,  unsigned long inlen,
                                            char *out, unsigned long *outlen)
 {
-    return _base64_encode_internal(in, inlen, out, outlen, codes_base64url, 1);
+    return s_base64_encode_internal(in, inlen, out, outlen, codes_base64url, 1);
 }
 #endif /* LTC_BASE64_URL */
 

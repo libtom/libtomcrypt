@@ -9,7 +9,7 @@
 
 #ifdef LTC_MRSA
 
-static int _rsa_decode(const unsigned char *in, unsigned long inlen, rsa_key *key)
+static int s_rsa_decode(const unsigned char *in, unsigned long inlen, rsa_key *key)
 {
    /* now it should be SEQUENCE { INTEGER, INTEGER } */
    return der_decode_sequence_multi(in, inlen,
@@ -41,7 +41,7 @@ int rsa_import_x509(const unsigned char *in, unsigned long inlen, rsa_key *key)
    if ((err = x509_decode_public_key_from_certificate(in, inlen,
                                                       PKA_RSA, LTC_ASN1_NULL,
                                                       NULL, NULL,
-                                                      (public_key_decode_cb)_rsa_decode, key)) != CRYPT_OK) {
+                                                      (public_key_decode_cb)s_rsa_decode, key)) != CRYPT_OK) {
       rsa_free(key);
    } else {
       key->type = PK_PUBLIC;
