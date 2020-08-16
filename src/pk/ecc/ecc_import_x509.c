@@ -106,7 +106,10 @@ success:
 */
 int ecc_import_x509(const unsigned char *in, unsigned long inlen, ecc_key *key)
 {
-   return x509_decode_public_key_from_certificate(in, inlen, PKA_EC, LTC_ASN1_EOL, NULL, NULL, NULL, key);
+   return x509_decode_public_key_from_certificate(in, inlen,
+                                                  PKA_EC,
+                                                  LTC_ASN1_EOL, NULL, NULL,
+                                                  (public_key_decode_cb)ecc_import_subject_public_key_info, key);
 }
 
 #endif /* LTC_MECC */

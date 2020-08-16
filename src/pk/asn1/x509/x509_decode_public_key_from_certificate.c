@@ -39,8 +39,9 @@ int x509_decode_public_key_from_certificate(const unsigned char *in, unsigned lo
    unsigned long tmpbuf_len, tmp_inlen;
    ltc_asn1_list *decoded_list = NULL, *l;
 
-   LTC_ARGCHK(in    != NULL);
-   LTC_ARGCHK(inlen != 0);
+   LTC_ARGCHK(in       != NULL);
+   LTC_ARGCHK(inlen    != 0);
+   LTC_ARGCHK(callback != NULL);
 
    tmpbuf_len = inlen;
    tmpbuf = XCALLOC(1, tmpbuf_len);
@@ -81,7 +82,7 @@ int x509_decode_public_key_from_certificate(const unsigned char *in, unsigned lo
                      && (l->data != NULL)
                      && LOOKS_LIKE_SPKI(l->child)) {
                   if (algorithm == PKA_EC) {
-                     err = ecc_import_subject_public_key_info(l->data, l->size, ctx);
+                     err = callback(l->data, l->size, ctx);
                   } else {
                      err = x509_decode_subject_public_key_info(l->data, l->size,
                                                                algorithm, tmpbuf, &tmpbuf_len,
