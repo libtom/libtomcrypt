@@ -168,10 +168,8 @@ static int s_sha256_compress(hash_state * md, const unsigned char *buf)
     RND(S[3],S[4],S[5],S[6],S[7],S[0],S[1],S[2],61,0xa4506ceb);
     RND(S[2],S[3],S[4],S[5],S[6],S[7],S[0],S[1],62,0xbef9a3f7);
     RND(S[1],S[2],S[3],S[4],S[5],S[6],S[7],S[0],63,0xc67178f2);
-
-#undef RND
-
 #endif
+#undef RND
 
     /* feedback */
     for (i = 0; i < 8; i++) {
