@@ -87,17 +87,24 @@ static int s_dsa_make_params(prng_state *prng, int wprng, int group_size, int mo
   else                { mr_tests_q = 64; }
 #endif
 
+  hash = -1;
+#ifdef LTC_SHA256
   if (N <= 256) {
     hash = register_hash(&sha256_desc);
   }
-  else if (N <= 384) {
+#endif
+#ifdef LTC_SHA384
+  if ((N <= 384) && (hash == -1)) {
     hash = register_hash(&sha384_desc);
   }
-  else if (N <= 512) {
+#endif
+#ifdef LTC_SHA512
+  if ((N <= 512) && (hash == -1)) {
     hash = register_hash(&sha512_desc);
   }
-  else {
-    return CRYPT_INVALID_ARG; /* group_size too big */
+#endif
+  if (hash == -1) {
+    return CRYPT_INVALID_ARG; /* group_size too big or no appropriate hash function found */
   }
 
   if ((err = hash_is_valid(hash)) != CRYPT_OK)                                   { return err; }
