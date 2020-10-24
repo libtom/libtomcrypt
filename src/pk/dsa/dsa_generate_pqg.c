@@ -26,6 +26,7 @@ static int s_dsa_make_params(prng_state *prng, int wprng, int group_size, int mo
   int err, res, mr_tests_q, mr_tests_p, found_p, found_q, hash;
   unsigned char *wbuf, *sbuf, digest[MAXBLOCKSIZE];
   void *t2L1, *t2N1, *t2q, *t2seedlen, *U, *W, *X, *c, *h, *e, *seedinc;
+  const char *accepted_hashes[] = { "sha3-512", "sha512", "sha3-384", "sha384", "sha3-256", "sha256" };
 
   /* check size */
   if (group_size >= LTC_MDSA_MAX_GROUP || group_size < 1 || group_size >= modulus_size) {
@@ -88,15 +89,10 @@ static int s_dsa_make_params(prng_state *prng, int wprng, int group_size, int mo
 #endif
 
   hash = -1;
-#if defined(LTC_SHA3)
-  hash = register_hash(&sha3_512_desc);
-#elif defined(LTC_SHA512)
-  hash = register_hash(&sha512_desc);
-#elif defined(LTC_SHA384)
-  hash = register_hash(&sha384_desc);
-#elif defined(LTC_SHA256)
-  hash = register_hash(&sha256_desc);
-#endif
+  for (i = 0; i < sizeof(accepted_hashes)/sizeof(accepted_hashes[0]); ++i) {
+    hash = find_hash(accepted_hashes[i]);
+    if (hash != -1) break;
+  }
   if (hash == -1) {
     return CRYPT_INVALID_ARG; /* no appropriate hash function found */
   }
