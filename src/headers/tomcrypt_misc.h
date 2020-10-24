@@ -146,6 +146,9 @@ enum padding_type {
    LTC_PAD_ISO_10126    = 0x1000U,
 #endif
    LTC_PAD_ANSI_X923    = 0x2000U,
+   /* The following padding modes don't contain the padding
+    * length as last byte of the padding.
+    */
    LTC_PAD_ONE_AND_ZERO = 0x8000U,
    LTC_PAD_ZERO         = 0x9000U,
    LTC_PAD_ZERO_ALWAYS  = 0xA000U,
