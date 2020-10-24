@@ -97,6 +97,7 @@ int main(int argc, char **argv)
    uint8_t keybuf[48] = {0};
    char *out = NULL;
    const char *mode, *in_file, *out_file, *key_string;
+   unsigned long ivlen;
 
    if (argc < 5) die(__LINE__);
 
@@ -113,9 +114,9 @@ int main(int argc, char **argv)
    if (fsize(in_file) <= 0) die(__LINE__);
 
    keylen = XSTRLEN(key_string);
-   if (keylen != 96) die(__LINE__);
+   if (keylen != 88 && keylen != 96) die(__LINE__);
 
-   scan_hex(key_string, keybuf, sizeof(keybuf));
+   scan_hex(key_string, keybuf, keylen/2);
 
    register_all_ciphers();
 
@@ -125,7 +126,8 @@ int main(int argc, char **argv)
       goto cleanup;
    }
    close(tmp);
-   if((err = gcm_file(find_cipher("aes"), &keybuf[16], 32, keybuf, 16, NULL, 0, in_file, out, 16, direction, &res)) != CRYPT_OK) {
+   ivlen = keylen/2 - 32;
+   if((err = gcm_file(find_cipher("aes"), &keybuf[ivlen], 32, keybuf, ivlen, NULL, 0, in_file, out, 16, direction, &res)) != CRYPT_OK) {
       fprintf(stderr, "boooh %s\n", error_to_string(err));
       ret = __LINE__;
       goto cleanup;
