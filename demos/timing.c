@@ -86,6 +86,10 @@ static ulong64 rdtsc (void)
            __asm__ __volatile__ ("rd %%tick, %0; clruw %0, %1; srlx %0, 32, %0" : "=r" (x), "=r" (y) : "0" (x), "1" (y));
            return ((unsigned long long) x << 32) | y;
          #endif
+      #elif defined(__aarch64__)
+         ulong64 CNTVCT_EL0;
+         __asm__ __volatile__ ("mrs %0, cntvct_el0" : "=r"(CNTVCT_EL0));
+         return CNTVCT_EL0;
       #else
          return XCLOCK();
       #endif
