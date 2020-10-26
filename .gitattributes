@@ -3,3 +3,5 @@
 /.travis.yml    export-ignore
 
 /**             export-subst
+
+/tests/test.key -text
