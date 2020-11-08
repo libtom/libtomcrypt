@@ -50,6 +50,10 @@ static int s_pkcs_5_alg1_common(const unsigned char *password,
    LTC_ARGCHK(out      != NULL);
    LTC_ARGCHK(outlen   != NULL);
 
+   if (iteration_count <= 0) {
+      return CRYPT_INVALID_ARG;
+   }
+
    /* test hash IDX */
    if ((err = hash_is_valid(hash_idx)) != CRYPT_OK) {
       return err;
