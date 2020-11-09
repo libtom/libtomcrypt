@@ -68,7 +68,7 @@ int tea_ecb_encrypt(const unsigned char *pt, unsigned char *ct, const symmetric_
 
    LOAD32H(y, &pt[0]);
    LOAD32H(z, &pt[4]);
-   for (r = 0; r < 32; r += 4) {
+   for (r = 0; r < 32; r++) {
       sum += delta;
       y += ((z<<4) + skey->tea.k[0]) ^ (z + sum) ^ ((z>>5) + skey->tea.k[1]);
       z += ((y<<4) + skey->tea.k[2]) ^ (y + sum) ^ ((y>>5) + skey->tea.k[3]);
