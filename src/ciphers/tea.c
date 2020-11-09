@@ -154,11 +154,11 @@ int tea_test(void)
        zeromem(&skey, sizeof(skey));
 
        l = sizeof(key);
-       if ((err = base16_decode(tests[i].key, XSTRLEN(tests[i].key), key, &l)) != CRYPT) return err;
+       if ((err = base16_decode(tests[i].key, XSTRLEN(tests[i].key), key, &l)) != CRYPT_OK) return err;
        l = sizeof(ptct[0]);
-       if ((err = base16_decode(tests[i].pt, XSTRLEN(tests[i].pt), ptct[0], &l)) != CRYPT) return err;
+       if ((err = base16_decode(tests[i].pt, XSTRLEN(tests[i].pt), ptct[0], &l)) != CRYPT_OK) return err;
        l = sizeof(ptct[1]);
-       if ((err = base16_decode(tests[i].ct, XSTRLEN(tests[i].ct), ptct[1], &l)) != CRYPT) return err;
+       if ((err = base16_decode(tests[i].ct, XSTRLEN(tests[i].ct), ptct[1], &l)) != CRYPT_OK) return err;
 
        if ((err = tea_setup(key, 16, 0, &skey)) != CRYPT_OK)  {
           return err;
@@ -166,8 +166,8 @@ int tea_test(void)
        tea_ecb_encrypt(ptct[0], tmp[0], &skey);
        tea_ecb_decrypt(tmp[0], tmp[1], &skey);
 
-       if (compare_testvector(tmp[0], 8, ptct[0], 8, "TEA Encrypt", i) != 0 ||
-             compare_testvector(tmp[1], 8, ptct[1], 8, "TEA Decrypt", i) != 0) {
+       if (compare_testvector(tmp[0], 8, ptct[1], 8, "TEA Encrypt", i) != 0 ||
+             compare_testvector(tmp[1], 8, ptct[0], 8, "TEA Decrypt", i) != 0) {
           return CRYPT_FAIL_TESTVECTOR;
        }
 
