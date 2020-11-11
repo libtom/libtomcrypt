@@ -585,6 +585,11 @@
    #define LTC_PBES
 #endif
 
+#if defined(LTC_CLEAN_STACK)
+/* if you're sure that you want to use it, remove the line below */
+   #error LTC_CLEAN_STACK is considered as broken
+#endif
+
 #if defined(LTC_PBES) && !defined(LTC_PKCS_5)
    #error LTC_PBES requires LTC_PKCS_5
 #endif
