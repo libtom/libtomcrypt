@@ -1,6 +1,8 @@
 /* LibTomCrypt, modular cryptographic library -- Tom St Denis */
 /* SPDX-License-Identifier: Unlicense */
 
+LIBTOM_EXTERN_C_BEGIN
+
 /* ---- PRNG Stuff ---- */
 #ifdef LTC_YARROW
 struct yarrow_prng {
@@ -221,3 +223,4 @@ extern unsigned long (*ltc_rng)(unsigned char *out, unsigned long outlen,
       void (*callback)(void));
 #endif
 
+LIBTOM_EXTERN_C_END

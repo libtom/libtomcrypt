@@ -15,10 +15,6 @@
 /* use configuration data */
 #include "tomcrypt_custom.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /* version */
 #define CRYPT   0x0118
 #define SCRYPT  "1.18.2-develop"
@@ -86,10 +82,6 @@ enum {
 #include "tomcrypt_misc.h"
 #include "tomcrypt_argchk.h"
 #include "tomcrypt_pkcs.h"
-
-#ifdef __cplusplus
-   }
-#endif
 
 #endif /* TOMCRYPT_H_ */
 

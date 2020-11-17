@@ -1,6 +1,8 @@
 /* LibTomCrypt, modular cryptographic library -- Tom St Denis */
 /* SPDX-License-Identifier: Unlicense */
 
+LIBTOM_EXTERN_C_BEGIN
+
 /* ---- NUMBER THEORY ---- */
 
 enum public_key_type {
@@ -779,3 +781,5 @@ int der_decode_generalizedtime(const unsigned char *in, unsigned long *inlen,
 int der_length_generalizedtime(const ltc_generalizedtime *gtime, unsigned long *outlen);
 
 #endif
+
+LIBTOM_EXTERN_C_END

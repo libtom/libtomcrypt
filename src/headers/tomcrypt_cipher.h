@@ -1,6 +1,8 @@
 /* LibTomCrypt, modular cryptographic library -- Tom St Denis */
 /* SPDX-License-Identifier: Unlicense */
 
+LIBTOM_EXTERN_C_BEGIN
+
 /* ---- SYMMETRIC KEY STUFF -----
  *
  * We put each of the ciphers scheduled keys in their own structs then we put all of
@@ -1158,3 +1160,5 @@ int sober128_stream_memory(const unsigned char *key,    unsigned long keylen,
                            unsigned char *dataout);
 
 #endif /* LTC_SOBER128_STREAM */
+
+LIBTOM_EXTERN_C_END

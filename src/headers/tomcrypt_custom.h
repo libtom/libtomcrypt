@@ -4,6 +4,14 @@
 #ifndef TOMCRYPT_CUSTOM_H_
 #define TOMCRYPT_CUSTOM_H_
 
+#ifdef __cplusplus
+#define LIBTOM_EXTERN_C_BEGIN extern "C" {
+#define LIBTOM_EXTERN_C_END }
+#else
+#define LIBTOM_EXTERN_C_BEGIN
+#define LIBTOM_EXTERN_C_END
+#endif
+
 /* macros for various libc functions you can change for embedded targets */
 #ifndef XMALLOC
 #define XMALLOC  malloc
