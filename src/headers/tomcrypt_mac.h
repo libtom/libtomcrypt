@@ -482,7 +482,7 @@ typedef struct {
 #ifdef LTC_GCM_TABLES
    unsigned char       PC[16][256][16]  /* 16 tables of 8x128 */
 #ifdef LTC_GCM_TABLES_SSE2
-__attribute__ ((aligned (16)))
+LTC_ALIGN(16)
 #endif
 ;
 #endif
