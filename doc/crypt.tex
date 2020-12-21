@@ -604,30 +604,30 @@ As of this release the current cipher\_descriptors elements are the following:
 \begin{figure}[hpbt]
 \begin{small}
 \begin{center}
-\begin{tabular}{|c|c|c|c|c|c|}
-     \hline \textbf{Name} & \textbf{Descriptor Name} & \textbf{Block Size} & \textbf{Key Range} & \textbf{Rounds} \\
-     \hline Blowfish & blowfish\_desc & 8 & 8 $\ldots$ 56 & 16 \\
-     \hline X-Tea & xtea\_desc & 8 & 16 & 32 \\
-     \hline RC2 & rc2\_desc & 8 & 5 $\ldots$ 128 & 16 \\
-     \hline RC5-32/12/b & rc5\_desc & 8 & 8 $\ldots$ 128 & 12 $\ldots$ 24 \\
-     \hline RC6-32/20/b & rc6\_desc & 16 & 8 $\ldots$ 128 & 20 \\
-     \hline SAFER+ & saferp\_desc &16 & 16, 24, 32 & 8, 12, 16 \\
-     \hline AES & aes\_desc & 16 & 16, 24, 32 & 10, 12, 14 \\
-                & aes\_enc\_desc & 16 & 16, 24, 32 & 10, 12, 14 \\
-     \hline Twofish & twofish\_desc & 16 & 16, 24, 32 & 16 \\
-     \hline DES & des\_desc & 8 & 8 & 16 \\
-     \hline 3DES (EDE mode) & des3\_desc & 8 & 16, 24 & 16 \\
-     \hline CAST5 (CAST-128) & cast5\_desc & 8 & 5 $\ldots$ 16 & 12, 16 \\
-     \hline Noekeon & noekeon\_desc & 16 & 16 & 16 \\
-     \hline Skipjack & skipjack\_desc & 8 & 10 & 32 \\
-     \hline Anubis & anubis\_desc & 16 & 16 $\ldots$ 40 & 12 $\ldots$ 18 \\
-     \hline Khazad & khazad\_desc & 8 & 16 & 8 \\
-     \hline SEED   & kseed\_desc & 16 & 16 & 16 \\
-     \hline KASUMI & kasumi\_desc & 8 & 16 & 8 \\
-     \hline Camellia & camellia\_desc & 16 & 16, 24, 32 & 18, 24 \\
-     \hline IDEA & idea\_desc & 8 & 16 & 8 \\
-     \hline Serpent & serpent\_desc & 16 & 16, 24, 32 & 32 \\
-     \hline TEA & tea\_desc & 8 & 16 & 32 \\
+\begin{tabular}{|c|c|c|c|c|c|c|}
+     \hline \textbf{Name} & \textbf{Descriptor Name} & \textbf{Block Size} & \textbf{Key Range} & \textbf{Rounds} & \textbf{Id} \\
+     \hline Blowfish & blowfish\_desc & 8 & 8 $\ldots$ 56 & 16 & 0 \\
+     \hline X-Tea & xtea\_desc & 8 & 16 & 32 & 1 \\
+     \hline RC2 & rc2\_desc & 8 & 5 $\ldots$ 128 & 16 & 12 \\
+     \hline RC5-32/12/b & rc5\_desc & 8 & 8 $\ldots$ 128 & 12 $\ldots$ 24 & 2 \\
+     \hline RC6-32/20/b & rc6\_desc & 16 & 8 $\ldots$ 128 & 20 & 3 \\
+     \hline SAFER+ & saferp\_desc &16 & 16, 24, 32 & 8, 12, 16 & 4 \\
+     \hline AES & aes\_desc & 16 & 16, 24, 32 & 10, 12, 14 & 6 \\
+                & aes\_enc\_desc & 16 & 16, 24, 32 & 10, 12, 14 & 6 \\
+     \hline Twofish & twofish\_desc & 16 & 16, 24, 32 & 16 & 7 \\
+     \hline DES & des\_desc & 8 & 8 & 16 & 13 \\
+     \hline 3DES (EDE mode) & des3\_desc & 8 & 16, 24 & 16 & 14 \\
+     \hline CAST5 (CAST-128) & cast5\_desc & 8 & 5 $\ldots$ 16 & 12, 16 & 15 \\
+     \hline Noekeon & noekeon\_desc & 16 & 16 & 16 & 16 \\
+     \hline Skipjack & skipjack\_desc & 8 & 10 & 32 & 17 \\
+     \hline Anubis & anubis\_desc & 16 & 16 $\ldots$ 40 & 12 $\ldots$ 18 & 19 \\
+     \hline Khazad & khazad\_desc & 8 & 16 & 8 & 18 \\
+     \hline SEED   & kseed\_desc & 16 & 16 & 16 & 20 \\
+     \hline KASUMI & kasumi\_desc & 8 & 16 & 8 & 21 \\
+     \hline Camellia & camellia\_desc & 16 & 16, 24, 32 & 18, 24 & 23 \\
+     \hline IDEA & idea\_desc & 8 & 16 & 8 & 24 \\
+     \hline Serpent & serpent\_desc & 16 & 16, 24, 32 & 32 & 25 \\
+     \hline TEA & tea\_desc & 8 & 16 & 32 & 26 \\
      \hline
 \end{tabular}
 \end{center}
