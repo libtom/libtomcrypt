@@ -36,6 +36,10 @@ int pkcs_5_alg2(const unsigned char *password, unsigned long password_len,
    LTC_ARGCHK(out      != NULL);
    LTC_ARGCHK(outlen   != NULL);
 
+   if (iteration_count <= 0) {
+      return CRYPT_INVALID_ARG;
+   }
+
    /* test hash IDX */
    if ((err = hash_is_valid(hash_idx)) != CRYPT_OK) {
       return err;

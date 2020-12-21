@@ -434,6 +434,9 @@ all_test: $(call print-help,all_test,Builds the library and all unbroken demos a
 
 bins: $(call print-help,bins,Builds the library and all useful demos) $(USEFUL_DEMOS)
 
+check: test
+	./test
+
 #build the doxy files (requires Doxygen, tetex and patience)
 doxygen: $(call print-help,doxygen,Builds the doxygen html documentation)
 	$(MAKE) -C doc/ $@ V=$(V)
