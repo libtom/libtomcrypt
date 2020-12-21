@@ -416,6 +416,9 @@ const char *crypt_build_settings =
 #if defined(LTC_ADLER32)
     " ADLER32 "
 #endif
+#if defined(LTC_AES_NI) && defined(LTC_AMD64_SSE4_1)
+    " AES-NI "
+#endif
 #if defined(LTC_BASE64)
     " BASE64 "
 #endif

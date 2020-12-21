@@ -112,10 +112,14 @@ static void s_unregister_all(void)
     */
    unregister_cipher(&aes_enc_desc);
 #else
+#if defined(LTC_AES_NI) && defined(LTC_AMD64_SSE4_1)
+   unregister_cipher(&aesni_desc);
+#else
    /* alternative would be
     * unregister_cipher(&rijndael_desc);
     */
    unregister_cipher(&aes_desc);
+#endif /* AES-NI */
 #endif
 #endif
 #ifdef LTC_BLOWFISH

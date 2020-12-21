@@ -22,10 +22,14 @@ int register_all_ciphers(void)
     */
    REGISTER_CIPHER(&aes_enc_desc);
 #else
+#if defined(LTC_AES_NI) && defined(LTC_AMD64_SSE4_1)
+   REGISTER_CIPHER(&aesni_desc);
+#else
    /* alternative would be
     * register_cipher(&rijndael_desc);
     */
    REGISTER_CIPHER(&aes_desc);
+#endif /* AES-NI */
 #endif
 #endif
 #ifdef LTC_BLOWFISH
