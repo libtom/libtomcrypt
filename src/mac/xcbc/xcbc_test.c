@@ -10,7 +10,7 @@
 #ifdef LTC_XCBC
 
 /** Test XCBC-MAC mode
-  Return CRYPT_OK on succes
+  Return CRYPT_OK on success
 */
 int xcbc_test(void)
 {

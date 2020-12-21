@@ -10,7 +10,7 @@
 #ifdef LTC_F9_MODE
 
 /** Test f9-MAC mode
-  Return CRYPT_OK on succes
+  Return CRYPT_OK on success
 */
 int f9_test(void)
 {
