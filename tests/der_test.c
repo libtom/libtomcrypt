@@ -1603,6 +1603,8 @@ int der_test(void)
    static const unsigned char utf8_1_der[] = { 0x0C, 0x07, 0x41, 0xE2, 0x89, 0xA2, 0xCE, 0x91, 0x2E };
    static const wchar_t utf8_2[]           = { 0xD55C, 0xAD6D, 0xC5B4 };
    static const unsigned char utf8_2_der[] = { 0x0C, 0x09, 0xED, 0x95, 0x9C, 0xEA, 0xB5, 0xAD, 0xEC, 0x96, 0xB4 };
+   static const wchar_t utf8_3[]           = { 0x05E9, 0x05DC, 0x05D5, 0x05DD };
+   static const unsigned char utf8_3_der[] = { 0x0C, 0x08, 0xD7, 0xA9, 0xD7, 0x9C, 0xD7, 0x95, 0xD7, 0x9D };
 
    unsigned char utf8_buf[32];
    wchar_t utf8_out[32];
@@ -1961,6 +1963,24 @@ tmp_time.off_hh);
         return 1;
      }
 
+     /* encode it */
+     x = sizeof(utf8_buf);
+     DO(der_encode_utf8_string(utf8_3, sizeof(utf8_3) / sizeof(utf8_3[0]), utf8_buf, &x));
+     if (x != sizeof(utf8_3_der) || memcmp(utf8_buf, utf8_3_der, x)) {
+        fprintf(stderr, "DER UTF8_3 encoded to %lu bytes\n", x);
+        for (y = 0; y < x; y++) fprintf(stderr, "%02x ", (unsigned)utf8_buf[y]);
+        fprintf(stderr, "\n");
+        return 1;
+     }
+     /* decode it */
+     y = sizeof(utf8_out) / sizeof(utf8_out[0]);
+     DO(der_decode_utf8_string(utf8_buf, x, utf8_out, &y));
+     if (y != (sizeof(utf8_3) / sizeof(utf8_3[0])) || memcmp(utf8_3, utf8_out, y * sizeof(wchar_t))) {
+        fprintf(stderr, "DER UTF8_3 decoded to %lu wchar_t\n", y);
+        for (x = 0; x < y; x++) fprintf(stderr, "%04lx ", (unsigned long)utf8_out[x]);
+        fprintf(stderr, "\n");
+        return 1;
+     }
 
    der_set_test();
    der_flexi_test();
