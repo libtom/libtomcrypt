@@ -395,7 +395,7 @@ int ocb3_test(void);
 typedef struct {
    symmetric_key       K;
    int                 cipher,               /* which cipher */
-                       taglen,               /* length of the tag */
+                       taglen,               /* length of the tag (encoded in M value) */
                        x;                    /* index in PAD */
 
    unsigned long       L,                    /* L value */
@@ -405,7 +405,7 @@ typedef struct {
                        current_aadlen,       /* length of the currently provided add */
                        noncelen;             /* length of the nonce */
 
-   unsigned char       PAD[16],
+   unsigned char       PAD[16],              /* flags | Nonce N | l(m) */
                        ctr[16],
                        CTRPAD[16],
                        CTRlen;
