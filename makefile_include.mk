@@ -210,7 +210,9 @@ OBJECTS=src/ciphers/aes/aes.o src/ciphers/aes/aes_enc.o src/ciphers/anubis.o src
 src/ciphers/camellia.o src/ciphers/cast5.o src/ciphers/des.o src/ciphers/idea.o src/ciphers/kasumi.o \
 src/ciphers/khazad.o src/ciphers/kseed.o src/ciphers/multi2.o src/ciphers/noekeon.o src/ciphers/rc2.o \
 src/ciphers/rc5.o src/ciphers/rc6.o src/ciphers/safer/safer.o src/ciphers/safer/saferp.o \
-src/ciphers/serpent.o src/ciphers/skipjack.o src/ciphers/tea.o src/ciphers/twofish/twofish.o \
+src/ciphers/serpent.o src/ciphers/skipjack.o \
+src/ciphers/sm4/sm4.o src/ciphers/sm4/sms4_common.o src/ciphers/sm4/sms4_enc.o src/ciphers/sm4/sms4_setkey.o \
+src/ciphers/tea.o src/ciphers/twofish/twofish.o \
 src/ciphers/xtea.o src/encauth/ccm/ccm_add_aad.o src/encauth/ccm/ccm_add_nonce.o \
 src/encauth/ccm/ccm_done.o src/encauth/ccm/ccm_init.o src/encauth/ccm/ccm_memory.o \
 src/encauth/ccm/ccm_process.o src/encauth/ccm/ccm_reset.o src/encauth/ccm/ccm_test.o \

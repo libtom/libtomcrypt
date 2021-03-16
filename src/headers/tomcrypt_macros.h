@@ -48,6 +48,9 @@ do { x = (((ulong64)((y)[0] & 255))<<56)|(((ulong64)((y)[1] & 255))<<48) | \
          (((ulong64)((y)[4] & 255))<<24)|(((ulong64)((y)[5] & 255))<<16) | \
          (((ulong64)((y)[6] & 255))<<8)|(((ulong64)((y)[7] & 255))); } while(0)
 
+/* add for chinese standard GM */
+#define GETU32(p)       ((ulong32)(p)[0]<<24|(ulong32)(p)[1]<<16|(ulong32)(p)[2]<<8|(ulong32)(p)[3])
+#define PUTU32(p,v)     ((p)[0]=(unsigned char)((v)>>24),(p)[1]=(unsigned char)((v)>>16),(p)[2]=(unsigned char)((v)>>8),(p)[3]=(unsigned char)(v))
 
 #elif defined(ENDIAN_LITTLE)
 
@@ -60,6 +63,10 @@ do { ulong32 ttt = __builtin_bswap32 ((x));     \
 #define LOAD32H(x, y)                           \
 do { XMEMCPY (&(x), (y), 4);                    \
       (x) = __builtin_bswap32 ((x)); } while(0)
+
+/* add for chinese standard GM standard */
+#define GETU32(p)       __builtin_bswap32(*(const ulong32 *)(p))
+#define PUTU32(p, v)    *(ulong32 *)(p) = __builtin_bswap32(v)
 
 #elif !defined(LTC_NO_BSWAP) && (defined(INTEL_CC) || (defined(__GNUC__) && (defined(__DJGPP__) || defined(__CYGWIN__) || defined(__MINGW32__) || defined(__i386__) || defined(__x86_64__))))
 

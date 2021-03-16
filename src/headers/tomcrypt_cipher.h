@@ -171,6 +171,21 @@ struct tea_key {
 };
 #endif
 
+#ifdef LTC_SM4
+
+# define SMS4_KEY_LENGTH		16
+# define SMS4_BLOCK_SIZE		16
+# define SMS4_IV_LENGTH		(SMS4_BLOCK_SIZE)
+# define SMS4_NUM_ROUNDS		32
+
+struct sm4_key {
+   ulong32 rk[SMS4_NUM_ROUNDS];    /* preprocess for encryption */
+   ulong32 rk_d[SMS4_NUM_ROUNDS];  /* preprocess for decryption */
+};
+
+typedef struct sm4_key sms4_key_t;
+#endif
+
 typedef union Symmetric_key {
 #ifdef LTC_DES
    struct des_key des;
@@ -238,6 +253,9 @@ typedef union Symmetric_key {
 #endif
 #ifdef LTC_TEA
    struct tea_key      tea;
+#endif
+#ifdef LTC_SM4
+   struct sm4_key      sm4;
 #endif
    void   *data;
 } symmetric_key;
@@ -870,6 +888,16 @@ int tea_test(void);
 void tea_done(symmetric_key *skey);
 int tea_keysize(int *keysize);
 extern const struct ltc_cipher_descriptor tea_desc;
+#endif
+
+#ifdef LTC_SM4
+int sm4_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_key *skey);
+int sm4_ecb_encrypt(const unsigned char *pt, unsigned char *ct, const symmetric_key *skey);
+int sm4_ecb_decrypt(const unsigned char *ct, unsigned char *pt, const symmetric_key *skey);
+int sm4_test(void);
+void sm4_done(symmetric_key *skey);
+int sm4_keysize(int *keysize);
+extern const struct ltc_cipher_descriptor sm4_desc;
 #endif
 
 #ifdef LTC_ECB_MODE
