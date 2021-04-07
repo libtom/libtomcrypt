@@ -294,6 +294,53 @@ static int s_rsa_key_cmp(const int should_type, const rsa_key *should, const rsa
    return CRYPT_OK;
 }
 
+/* https://github.com/DCIT/perl-CryptX/issues/69 */
+static int s_rsa_cryptx_issue_69(void)
+{
+   static const char *e = "03";
+   static const char *N = "E932AC92252F585B3A80A4DD76A897C8B7652952FE788F6EC8DD640587A1EE5647670A8AD4C2BE0F9FA6E49C605ADF77B5174230"
+         "AF7BD50E5D6D6D6D28CCF0A886A514CC72E51D209CC772A52EF419F6A953F3135929588EBE9B351FCA61CED78F346FE00DBB6306"
+         "E5C2A4C6DFC3779AF85AB417371CF34D8387B9B30AE46D7A5FF5A655B8D8455F1B94AE736989D60A6F2FD5CADBFFBD504C5A756A"
+         "2E6BB5CECC13BCA7503F6DF8B52ACE5C410997E98809DB4DC30D943DE4E812A47553DCE54844A78E36401D13F77DC650619FED88"
+         "D8B3926E3D8E319C80C744779AC5D6ABE252896950917476ECE5E8FC27D5F053D6018D91B502C4787558A002B9283DA7";
+
+   static const char *sig1 = "8df69d774c6ac8b5f8aa16576ca37a4f948706c5daecb3c15cfd247a7657616b2bbb786b50158cac8c23e3"
+         "289d300d3fbb82380b8746d929df36bdaf43a5fc5d1d04c61c98d47c22de02d051be3ba9e42b1c47aa5192"
+         "66d4cae244e5ce99b24771a13a7c8c7b08868a3eccf70b4bc7570d5131a1ac8943d91b0151c39da2ad75cd"
+         "1b9a697d100eef6747217df581b272cfd1f549a901ff4951036a4eb28fd2ea1e9df3fa9fa457663f4259be"
+         "8e5f2f2fb84f831a0ca5320e2b79f04a17830f43062c4c8fc0d0b1ff90567f3342d524f682ca26661caadf"
+         "4272f2585e6013a92bfa68de72fe6174096890e4296aedd72da43aa508007df53fb852bd7162ab635b";
+   static const char *sig2 = "1ee08947536e6b11d8923c3b00061d26a6933b5345077ea0214fdcbcc1ad68395008ff709117047e6b01dd"
+         "2a371dfa032c0732abc86ab2e0273bbd0dfe6b1c769e21bb9079982801d8f72e01be3244959312ab09bb8f"
+         "88572dc23216719b9810c73edf826749604feb8da1345f83f0209271aca462c1235b4cb4ba538f85a9c03d"
+         "d1dde1856fe73fd86b95566df2dfe8b0895c34489b97e02c8e48dabad7067619edec6267a776fa416fbcac"
+         "0fcacf3efa7852ce33ed63a9149c685c303d98c3dc37ee87521bc5b130377345fc95c87aa48505470deaf6"
+         "fb1064df041e3f03322b1ec90d3608deb17bf77f47066ecc6c511bfba69eed6da42881dcce603fcb2a";
+
+   static const char *hash = "7509e5bda0c762d2bac7f90d758b5b2263fa01ccbc542ab5e3df163be08e6ca9";
+   rsa_key       key;
+   unsigned char buf0[512], buf1[512];
+   unsigned long l0, l1;
+   int stat;
+
+   l0 = sizeof(buf0);
+   l1 = sizeof(buf1);
+   DO(radix_to_bin(e, 16, buf0, &l0));
+   DO(radix_to_bin(N, 16, buf1, &l1));
+
+   DO(rsa_set_key(buf1, l1, buf0, l0, NULL, 0, &key));
+
+   l0 = sizeof(buf0);
+   l1 = sizeof(buf1);
+   DO(radix_to_bin(sig1, 16, buf0, &l0));
+   DO(radix_to_bin(hash, 16, buf1, &l1));
+   SHOULD_FAIL(rsa_verify_hash_ex(buf0, l0, buf1, l1, LTC_PKCS_1_V1_5, 0, 0, &stat, &key));
+   DO(radix_to_bin(sig2, 16, buf0, &l0));
+   SHOULD_FAIL(rsa_verify_hash_ex(buf0, l0, buf1, l1, LTC_PKCS_1_V1_5, 0, 0, &stat, &key));
+   rsa_free(&key);
+   return CRYPT_OK;
+}
+
 static int s_rsa_issue_301(int prng_idx)
 {
    rsa_key       key, key_in;
@@ -382,6 +429,7 @@ int rsa_test(void)
 #endif
 #endif
 
+   DO(s_rsa_cryptx_issue_69());
    DO(s_rsa_issue_301(prng_idx));
 
    /* make 10 random key */
