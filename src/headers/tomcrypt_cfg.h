@@ -105,7 +105,7 @@ LTC_EXPORT int   LTC_CALL XSTRCMP(const char *s1, const char *s2);
    #define ENDIAN_64BITWORD
    #if defined(_MIPSEB) || defined(__MIPSEB) || defined(__MIPSEB__)
      #define ENDIAN_BIG
-   #endif
+   #else
      #define ENDIAN_LITTLE
    #endif
 #endif
