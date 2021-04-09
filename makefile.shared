@@ -30,7 +30,7 @@ else
   endif
 endif
 
-ifeq ($(PLATFORM), CYGWIN)
+ifneq ($(findstring $(PLATFORM),CYGWIN MINGW32 MINGW64 MSYS),)
   NO_UNDEFINED:=-no-undefined
 endif
 
