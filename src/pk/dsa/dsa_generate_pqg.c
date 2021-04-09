@@ -29,7 +29,7 @@ static int s_dsa_make_params(prng_state *prng, int wprng, int group_size, int mo
   const char *accepted_hashes[] = { "sha3-512", "sha512", "sha3-384", "sha384", "sha3-256", "sha256" };
 
   /* check size */
-  if (group_size >= LTC_MDSA_MAX_GROUP || group_size < 1 || group_size >= modulus_size) {
+  if (group_size > LTC_MDSA_MAX_GROUP || group_size < 1 || group_size >= modulus_size || modulus_size > LTC_MDSA_MAX_MODULUS) {
     return CRYPT_INVALID_ARG;
   }
 
