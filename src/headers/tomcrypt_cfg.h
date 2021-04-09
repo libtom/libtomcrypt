@@ -309,3 +309,5 @@ typedef unsigned long ltc_mp_digit;
 #  define LTC_DEPRECATED(s)
 #  define LTC_DEPRECATED_PRAGMA(s)
 #endif
+
+#endif /* TOMCRYPT_CFG_H */
