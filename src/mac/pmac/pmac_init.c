@@ -70,7 +70,7 @@ int pmac_init(pmac_state *pmac, int cipher, const unsigned char *key, unsigned l
 
 
    /* schedule the key */
-   if ((err = cipher_descriptor[cipher].setup(key, keylen, 0, &pmac->key)) != CRYPT_OK) {
+   if ((err = ecb_start(cipher, key, keylen, 0, &pmac->key)) != CRYPT_OK) {
       return err;
    }
 
@@ -82,7 +82,7 @@ int pmac_init(pmac_state *pmac, int cipher, const unsigned char *key, unsigned l
 
    /* find L = E[0] */
    zeromem(L, pmac->block_len);
-   if ((err = cipher_descriptor[cipher].ecb_encrypt(L, L, &pmac->key)) != CRYPT_OK) {
+   if ((err = ecb_encrypt_block(L, L, &pmac->key)) != CRYPT_OK) {
       goto error;
    }
 
@@ -119,7 +119,6 @@ int pmac_init(pmac_state *pmac, int cipher, const unsigned char *key, unsigned l
 
    /* zero buffer, counters, etc... */
    pmac->block_index = 1;
-   pmac->cipher_idx  = cipher;
    pmac->buflen      = 0;
    zeromem(pmac->block,    sizeof(pmac->block));
    zeromem(pmac->Li,       sizeof(pmac->Li));

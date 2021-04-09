@@ -17,17 +17,11 @@
 */
 int xcbc_done(xcbc_state *xcbc, unsigned char *out, unsigned long *outlen)
 {
-   int err, x;
+   int x;
    LTC_ARGCHK(xcbc != NULL);
    LTC_ARGCHK(out  != NULL);
 
-   /* check structure */
-   if ((err = cipher_is_valid(xcbc->cipher)) != CRYPT_OK) {
-      return err;
-   }
-
-   if ((xcbc->blocksize > cipher_descriptor[xcbc->cipher].block_length) || (xcbc->blocksize < 0) ||
-       (xcbc->buflen > xcbc->blocksize) || (xcbc->buflen < 0)) {
+   if ((xcbc->blocksize < 0) || (xcbc->buflen > xcbc->blocksize) || (xcbc->buflen < 0)) {
       return CRYPT_INVALID_ARG;
    }
 
@@ -46,8 +40,8 @@ int xcbc_done(xcbc_state *xcbc, unsigned char *out, unsigned long *outlen)
    }
 
    /* encrypt */
-   cipher_descriptor[xcbc->cipher].ecb_encrypt(xcbc->IV, xcbc->IV, &xcbc->key);
-   cipher_descriptor[xcbc->cipher].done(&xcbc->key);
+   ecb_encrypt_block(xcbc->IV, xcbc->IV, &xcbc->key);
+   ecb_done(&xcbc->key);
 
    /* extract tag */
    for (x = 0; x < xcbc->blocksize && (unsigned long)x < *outlen; x++) {

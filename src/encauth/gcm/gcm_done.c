@@ -30,10 +30,6 @@ int gcm_done(gcm_state *gcm,
       return CRYPT_INVALID_ARG;
    }
 
-   if ((err = cipher_is_valid(gcm->cipher)) != CRYPT_OK) {
-      return err;
-   }
-
    if (gcm->mode == LTC_GCM_MODE_IV) {
       /* let's process the IV */
       if ((err = gcm_add_aad(gcm, NULL, 0)) != CRYPT_OK) return err;
@@ -63,7 +59,7 @@ int gcm_done(gcm_state *gcm,
    gcm_mult_h(gcm, gcm->X);
 
    /* encrypt original counter */
-   if ((err = cipher_descriptor[gcm->cipher].ecb_encrypt(gcm->Y_0, gcm->buf, &gcm->K)) != CRYPT_OK) {
+   if ((err = ecb_encrypt_block(gcm->Y_0, gcm->buf, &gcm->K)) != CRYPT_OK) {
       return err;
    }
    for (x = 0; x < 16 && x < *taglen; x++) {
@@ -71,7 +67,7 @@ int gcm_done(gcm_state *gcm,
    }
    *taglen = x;
 
-   cipher_descriptor[gcm->cipher].done(&gcm->K);
+   ecb_done(&gcm->K);
 
    return CRYPT_OK;
 }

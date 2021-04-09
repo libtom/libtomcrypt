@@ -108,7 +108,7 @@ int ccm_test(void)
    unsigned long taglen, x, y;
    unsigned char buf[64], buf2[64], tag[16], tag2[16], tag3[16], zero[64];
    int           err, idx;
-   symmetric_key skey;
+   symmetric_ECB skey;
    ccm_state ccm;
 
    zeromem(zero, 64);
@@ -125,7 +125,7 @@ int ccm_test(void)
       for (y = 0; y < 2; y++) {
          taglen = tests[x].taglen;
          if (y == 0) {
-            if ((err = cipher_descriptor[idx].setup(tests[x].key, 16, 0, &skey)) != CRYPT_OK) {
+            if ((err = ecb_start(idx, tests[x].key, 16, 0, &skey)) != CRYPT_OK) {
                return err;
             }
 
@@ -235,7 +235,7 @@ int ccm_test(void)
          }
 
          if (y == 0) {
-            cipher_descriptor[idx].done(&skey);
+            ecb_done(&skey);
          }
       }
    }

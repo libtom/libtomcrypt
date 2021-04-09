@@ -15,9 +15,6 @@ int pmac_done(pmac_state *pmac, unsigned char *out, unsigned long *outlen)
 
    LTC_ARGCHK(pmac != NULL);
    LTC_ARGCHK(out  != NULL);
-   if ((err = cipher_is_valid(pmac->cipher_idx)) != CRYPT_OK) {
-      return err;
-   }
 
    if ((pmac->buflen > (int)sizeof(pmac->block)) || (pmac->buflen < 0) ||
        (pmac->block_len > (int)sizeof(pmac->block)) || (pmac->buflen > pmac->block_len)) {
@@ -41,10 +38,10 @@ int pmac_done(pmac_state *pmac, unsigned char *out, unsigned long *outlen)
    }
 
    /* encrypt it */
-   if ((err = cipher_descriptor[pmac->cipher_idx].ecb_encrypt(pmac->checksum, pmac->checksum, &pmac->key)) != CRYPT_OK) {
+   if ((err = ecb_encrypt_block(pmac->checksum, pmac->checksum, &pmac->key)) != CRYPT_OK) {
       return err;
    }
-   cipher_descriptor[pmac->cipher_idx].done(&pmac->key);
+   ecb_done(&pmac->key);
 
    /* store it */
    for (x = 0; x < pmac->block_len && x < (int)*outlen; x++) {

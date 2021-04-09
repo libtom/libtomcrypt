@@ -38,7 +38,7 @@ int f9_process(f9_state *f9, const unsigned char *in, unsigned long inlen)
            for (x = 0; x < f9->blocksize; x += sizeof(LTC_FAST_TYPE)) {
               *(LTC_FAST_TYPE_PTR_CAST(&(f9->IV[x]))) ^= *(LTC_FAST_TYPE_PTR_CAST(&(in[x])));
            }
-           cipher_descriptor[f9->cipher].ecb_encrypt(f9->IV, f9->IV, &f9->key);
+           ecb_encrypt_block(f9->IV, f9->IV, &f9->key);
            for (x = 0; x < f9->blocksize; x += sizeof(LTC_FAST_TYPE)) {
               *(LTC_FAST_TYPE_PTR_CAST(&(f9->ACC[x]))) ^= *(LTC_FAST_TYPE_PTR_CAST(&(f9->IV[x])));
            }
@@ -50,7 +50,7 @@ int f9_process(f9_state *f9, const unsigned char *in, unsigned long inlen)
 
    while (inlen) {
       if (f9->buflen == f9->blocksize) {
-         cipher_descriptor[f9->cipher].ecb_encrypt(f9->IV, f9->IV, &f9->key);
+         ecb_encrypt_block(f9->IV, f9->IV, &f9->key);
          for (x = 0; x < f9->blocksize; x++) {
             f9->ACC[x] ^= f9->IV[x];
          }

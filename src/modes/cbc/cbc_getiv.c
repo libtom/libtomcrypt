@@ -21,12 +21,12 @@ int cbc_getiv(unsigned char *IV, unsigned long *len, const symmetric_CBC *cbc)
    LTC_ARGCHK(IV  != NULL);
    LTC_ARGCHK(len != NULL);
    LTC_ARGCHK(cbc != NULL);
-   if ((unsigned long)cbc->blocklen > *len) {
-      *len = cbc->blocklen;
+   if ((unsigned long)cbc->ecb.blocklen > *len) {
+      *len = cbc->ecb.blocklen;
       return CRYPT_BUFFER_OVERFLOW;
    }
-   XMEMCPY(IV, cbc->IV, cbc->blocklen);
-   *len = cbc->blocklen;
+   XMEMCPY(IV, cbc->IV, cbc->ecb.blocklen);
+   *len = cbc->ecb.blocklen;
 
    return CRYPT_OK;
 }

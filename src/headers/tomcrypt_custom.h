@@ -666,6 +666,18 @@
    #error LTC_NO_MATH defined, but also a math descriptor
 #endif
 
+#if !defined(LTC_ECB_MODE)
+#if defined(LTC_CFB_MODE) || defined(LTC_OFB_MODE) || defined(LTC_CBC_MODE) || defined(LTC_CTR_MODE) || \
+    defined(LTC_F8_MODE) || defined(LTC_LRW_MODE) || defined(LTC_XTS_MODE) )
+   #error LTC_ECB_MODE not defined, but all other modes depend on it
+#endif
+#if defined(LTC_OMAC) || defined(LTC_PMAC) || defined(LTC_XCBC) || defined(LTC_F9_MODE) || defined(LTC_EAX_MODE) || \
+    defined(LTC_OCB_MODE) || defined(LTC_OCB3_MODE) || defined(LTC_CCM_MODE) || defined(LTC_GCM_MODE) )
+   #error LTC_ECB_MODE not defined, but most MAC and AEAD modes depend on it
+#endif
+#endif
+
+
 /* THREAD management */
 #ifdef LTC_PTHREAD
 

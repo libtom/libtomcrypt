@@ -23,8 +23,10 @@ static int s_xts_test_accel_xts_encrypt(const unsigned char *pt, unsigned char *
    orig = cipher_descriptor[xts.cipher].accel_xts_encrypt;
    cipher_descriptor[xts.cipher].accel_xts_encrypt = NULL;
 
-   XMEMCPY(&xts.key1, skey1, sizeof(symmetric_key));
-   XMEMCPY(&xts.key2, skey2, sizeof(symmetric_key));
+   XMEMCPY(&xts.key1.key, skey1, sizeof(xts.key1));
+   XMEMCPY(&xts.key2.key, skey2, sizeof(xts.key2));
+   xts.key1.cipher = xts.key2.cipher = xts.cipher;
+   xts.key1.blocklen = xts.key2.blocklen = cipher_descriptor[xts.cipher].block_length;
 
    ret = xts_encrypt(pt, blocks << 4, ct, tweak, &xts);
    cipher_descriptor[xts.cipher].accel_xts_encrypt = orig;
@@ -50,8 +52,10 @@ static int s_xts_test_accel_xts_decrypt(const unsigned char *ct, unsigned char *
    orig = cipher_descriptor[xts.cipher].accel_xts_decrypt;
    cipher_descriptor[xts.cipher].accel_xts_decrypt = NULL;
 
-   XMEMCPY(&xts.key1, skey1, sizeof(symmetric_key));
-   XMEMCPY(&xts.key2, skey2, sizeof(symmetric_key));
+   XMEMCPY(&xts.key1.key, skey1, sizeof(xts.key1));
+   XMEMCPY(&xts.key2.key, skey2, sizeof(xts.key2));
+   xts.key1.cipher = xts.key2.cipher = xts.cipher;
+   xts.key1.blocklen = xts.key2.blocklen = cipher_descriptor[xts.cipher].block_length;
 
    ret = xts_decrypt(ct, blocks << 4, pt, tweak, &xts);
    cipher_descriptor[xts.cipher].accel_xts_decrypt = orig;

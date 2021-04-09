@@ -24,7 +24,7 @@ static int s_ctr_encrypt(const unsigned char *pt, unsigned char *ct, unsigned lo
 
    while (len) {
       /* is the pad empty? */
-      if (ctr->padlen == ctr->blocklen) {
+      if (ctr->padlen == ctr->ecb.blocklen) {
          /* increment counter */
          if (ctr->mode == CTR_COUNTER_LITTLE_ENDIAN) {
             /* little-endian */
@@ -36,7 +36,7 @@ static int s_ctr_encrypt(const unsigned char *pt, unsigned char *ct, unsigned lo
             }
          } else {
             /* big-endian */
-            for (x = ctr->blocklen-1; x >= ctr->ctrlen; x--) {
+            for (x = ctr->ecb.blocklen-1; x >= ctr->ctrlen; x--) {
                ctr->ctr[x] = (ctr->ctr[x] + (unsigned char)1) & (unsigned char)255;
                if (ctr->ctr[x] != (unsigned char)0) {
                   break;
@@ -45,21 +45,21 @@ static int s_ctr_encrypt(const unsigned char *pt, unsigned char *ct, unsigned lo
          }
 
          /* encrypt it */
-         if ((err = cipher_descriptor[ctr->cipher].ecb_encrypt(ctr->ctr, ctr->pad, &ctr->key)) != CRYPT_OK) {
+         if ((err = ecb_encrypt_block(ctr->ctr, ctr->pad, &ctr->ecb)) != CRYPT_OK) {
             return err;
          }
          ctr->padlen = 0;
       }
 #ifdef LTC_FAST
-      if ((ctr->padlen == 0) && (len >= (unsigned long)ctr->blocklen)) {
-         for (x = 0; x < ctr->blocklen; x += sizeof(LTC_FAST_TYPE)) {
+      if ((ctr->padlen == 0) && (len >= (unsigned long)ctr->ecb.blocklen)) {
+         for (x = 0; x < ctr->ecb.blocklen; x += sizeof(LTC_FAST_TYPE)) {
             *(LTC_FAST_TYPE_PTR_CAST((unsigned char *)ct + x)) = *(LTC_FAST_TYPE_PTR_CAST((unsigned char *)pt + x)) ^
                                                            *(LTC_FAST_TYPE_PTR_CAST((unsigned char *)ctr->pad + x));
          }
-       pt         += ctr->blocklen;
-       ct         += ctr->blocklen;
-       len        -= ctr->blocklen;
-       ctr->padlen = ctr->blocklen;
+       pt         += ctr->ecb.blocklen;
+       ct         += ctr->ecb.blocklen;
+       len        -= ctr->ecb.blocklen;
+       ctr->padlen = ctr->ecb.blocklen;
        continue;
       }
 #endif
@@ -85,26 +85,26 @@ int ctr_encrypt(const unsigned char *pt, unsigned char *ct, unsigned long len, s
    LTC_ARGCHK(ct != NULL);
    LTC_ARGCHK(ctr != NULL);
 
-   if ((err = cipher_is_valid(ctr->cipher)) != CRYPT_OK) {
+   if ((err = cipher_is_valid(ctr->ecb.cipher)) != CRYPT_OK) {
        return err;
    }
 
    /* is blocklen/padlen valid? */
-   if ((ctr->blocklen < 1) || (ctr->blocklen > (int)sizeof(ctr->ctr)) ||
+   if ((ctr->ecb.blocklen < 1) || (ctr->ecb.blocklen > (int)sizeof(ctr->ctr)) ||
        (ctr->padlen   < 0) || (ctr->padlen   > (int)sizeof(ctr->pad))) {
       return CRYPT_INVALID_ARG;
    }
 
 #ifdef LTC_FAST
-   if (ctr->blocklen % sizeof(LTC_FAST_TYPE)) {
+   if (ctr->ecb.blocklen % sizeof(LTC_FAST_TYPE)) {
       return CRYPT_INVALID_ARG;
    }
 #endif
 
    /* handle acceleration only if pad is empty, accelerator is present and length is >= a block size */
-   if ((cipher_descriptor[ctr->cipher].accel_ctr_encrypt != NULL) && (len >= (unsigned long)ctr->blocklen)) {
-     if (ctr->padlen < ctr->blocklen) {
-       fr = ctr->blocklen - ctr->padlen;
+   if ((cipher_descriptor[ctr->ecb.cipher].accel_ctr_encrypt != NULL) && (len >= (unsigned long)ctr->ecb.blocklen)) {
+     if (ctr->padlen < ctr->ecb.blocklen) {
+       fr = ctr->ecb.blocklen - ctr->padlen;
        if ((err = s_ctr_encrypt(pt, ct, fr, ctr)) != CRYPT_OK) {
           return err;
        }
@@ -113,13 +113,13 @@ int ctr_encrypt(const unsigned char *pt, unsigned char *ct, unsigned long len, s
        len -= fr;
      }
 
-     if (len >= (unsigned long)ctr->blocklen) {
-       if ((err = cipher_descriptor[ctr->cipher].accel_ctr_encrypt(pt, ct, len/ctr->blocklen, ctr->ctr, ctr->mode, &ctr->key)) != CRYPT_OK) {
+     if (len >= (unsigned long)ctr->ecb.blocklen) {
+       if ((err = cipher_descriptor[ctr->ecb.cipher].accel_ctr_encrypt(pt, ct, len/ctr->ecb.blocklen, ctr->ctr, ctr->mode, &ctr->ecb.key)) != CRYPT_OK) {
           return err;
        }
-       pt += (len / ctr->blocklen) * ctr->blocklen;
-       ct += (len / ctr->blocklen) * ctr->blocklen;
-       len %= ctr->blocklen;
+       pt += (len / ctr->ecb.blocklen) * ctr->ecb.blocklen;
+       ct += (len / ctr->ecb.blocklen) * ctr->ecb.blocklen;
+       len %= ctr->ecb.blocklen;
      }
    }
 

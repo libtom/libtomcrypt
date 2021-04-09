@@ -60,7 +60,7 @@ int ccm_add_nonce(ccm_state *ccm,
    }
 
    /* encrypt PAD */
-   if ((err = cipher_descriptor[ccm->cipher].ecb_encrypt(ccm->PAD, ccm->PAD, &ccm->K)) != CRYPT_OK) {
+   if ((err = ecb_encrypt_block(ccm->PAD, ccm->PAD, &ccm->K)) != CRYPT_OK) {
       return err;
    }
 

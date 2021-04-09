@@ -47,9 +47,7 @@ int f8_start(                int  cipher, const unsigned char *IV,
 
    /* copy details */
    f8->blockcnt = 0;
-   f8->cipher   = cipher;
-   f8->blocklen = cipher_descriptor[cipher].block_length;
-   f8->padlen   = f8->blocklen;
+   f8->padlen   = cipher_descriptor[cipher].block_length;
 
    /* now get key ^ salt_key [extend salt_ket with 0x55 as required to match length] */
    zeromem(tkey, sizeof(tkey));
@@ -64,23 +62,22 @@ int f8_start(                int  cipher, const unsigned char *IV,
    }
 
    /* now encrypt with tkey[0..keylen-1] the IV and use that as the IV */
-   if ((err = cipher_descriptor[cipher].setup(tkey, keylen, num_rounds, &f8->key)) != CRYPT_OK) {
+   if ((err = ecb_start(cipher, tkey, keylen, num_rounds, &f8->ecb)) != CRYPT_OK) {
       return err;
    }
 
    /* encrypt IV */
-   if ((err = cipher_descriptor[f8->cipher].ecb_encrypt(IV, f8->MIV, &f8->key)) != CRYPT_OK) {
-      cipher_descriptor[f8->cipher].done(&f8->key);
-      return err;
+   if ((err = ecb_encrypt_block(IV, f8->MIV, &f8->ecb)) != CRYPT_OK) {
+      return ecb_done(&f8->ecb);
    }
    zeromem(tkey, sizeof(tkey));
    zeromem(f8->IV, sizeof(f8->IV));
 
    /* terminate this cipher */
-   cipher_descriptor[f8->cipher].done(&f8->key);
+   ecb_done(&f8->ecb);
 
    /* init the cipher */
-   return cipher_descriptor[cipher].setup(key, keylen, num_rounds, &f8->key);
+   return ecb_start(cipher, key, keylen, num_rounds, &f8->ecb);
 }
 
 #endif

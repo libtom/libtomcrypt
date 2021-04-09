@@ -19,7 +19,7 @@
 int xcbc_init(xcbc_state *xcbc, int cipher, const unsigned char *key, unsigned long keylen)
 {
    int            x, y, err;
-   symmetric_key *skey;
+   symmetric_ECB *skey;
    unsigned long  k1;
 
    LTC_ARGCHK(xcbc != NULL);
@@ -60,7 +60,7 @@ int xcbc_init(xcbc_state *xcbc, int cipher, const unsigned char *key, unsigned l
          return CRYPT_MEM;
       }
 
-      if ((err = cipher_descriptor[cipher].setup(key, keylen, 0, skey)) != CRYPT_OK) {
+      if ((err = ecb_start(cipher, key, keylen, 0, skey)) != CRYPT_OK) {
          goto done;
       }
 
@@ -69,20 +69,19 @@ int xcbc_init(xcbc_state *xcbc, int cipher, const unsigned char *key, unsigned l
         for (x = 0; x < cipher_descriptor[cipher].block_length; x++) {
            xcbc->K[y][x] = y + 1;
         }
-        cipher_descriptor[cipher].ecb_encrypt(xcbc->K[y], xcbc->K[y], skey);
+        ecb_encrypt_block(xcbc->K[y], xcbc->K[y], skey);
       }
    }
 
    /* setup K1 */
-   err = cipher_descriptor[cipher].setup(xcbc->K[0], k1, 0, &xcbc->key);
+   err = ecb_start(cipher, xcbc->K[0], k1, 0, &xcbc->key);
 
    /* setup struct */
    zeromem(xcbc->IV, cipher_descriptor[cipher].block_length);
    xcbc->blocksize = cipher_descriptor[cipher].block_length;
-   xcbc->cipher    = cipher;
    xcbc->buflen    = 0;
 done:
-   cipher_descriptor[cipher].done(skey);
+   ecb_done(skey);
    if (skey != NULL) {
 #ifdef LTC_CLEAN_STACK
       zeromem(skey, sizeof(*skey));

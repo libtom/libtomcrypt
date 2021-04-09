@@ -25,19 +25,19 @@ int cfb_decrypt(const unsigned char *ct, unsigned char *pt, unsigned long len, s
    LTC_ARGCHK(ct != NULL);
    LTC_ARGCHK(cfb != NULL);
 
-   if ((err = cipher_is_valid(cfb->cipher)) != CRYPT_OK) {
+   if ((err = cipher_is_valid(cfb->ecb.cipher)) != CRYPT_OK) {
        return err;
    }
 
    /* is blocklen/padlen valid? */
-   if (cfb->blocklen < 0 || cfb->blocklen > (int)sizeof(cfb->IV) ||
+   if (cfb->ecb.blocklen < 0 || cfb->ecb.blocklen > (int)sizeof(cfb->IV) ||
        cfb->padlen   < 0 || cfb->padlen   > (int)sizeof(cfb->pad)) {
       return CRYPT_INVALID_ARG;
    }
 
    while (len-- > 0) {
-       if (cfb->padlen == cfb->blocklen) {
-          if ((err = cipher_descriptor[cfb->cipher].ecb_encrypt(cfb->pad, cfb->IV, &cfb->key)) != CRYPT_OK) {
+       if (cfb->padlen == cfb->ecb.blocklen) {
+          if ((err = ecb_encrypt_block(cfb->pad, cfb->IV, &cfb->ecb)) != CRYPT_OK) {
              return err;
           }
           cfb->padlen = 0;

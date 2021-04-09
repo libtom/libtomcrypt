@@ -23,17 +23,17 @@ int cfb_setiv(const unsigned char *IV, unsigned long len, symmetric_CFB *cfb)
    LTC_ARGCHK(IV  != NULL);
    LTC_ARGCHK(cfb != NULL);
 
-   if ((err = cipher_is_valid(cfb->cipher)) != CRYPT_OK) {
+   if ((err = cipher_is_valid(cfb->ecb.cipher)) != CRYPT_OK) {
        return err;
    }
 
-   if (len != (unsigned long)cfb->blocklen) {
+   if (len != (unsigned long)cfb->ecb.blocklen) {
       return CRYPT_INVALID_ARG;
    }
 
    /* force next block */
    cfb->padlen = 0;
-   return cipher_descriptor[cfb->cipher].ecb_encrypt(IV, cfb->IV, &cfb->key);
+   return ecb_encrypt_block(IV, cfb->IV, &cfb->ecb);
 }
 
 #endif

@@ -20,7 +20,6 @@ int gcm_add_iv(gcm_state *gcm,
                const unsigned char *IV,     unsigned long IVlen)
 {
    unsigned long x, y;
-   int           err;
 
    LTC_ARGCHK(gcm != NULL);
    if (IVlen > 0) {
@@ -35,11 +34,6 @@ int gcm_add_iv(gcm_state *gcm,
    if (gcm->buflen >= 16 || gcm->buflen < 0) {
       return CRYPT_INVALID_ARG;
    }
-
-   if ((err = cipher_is_valid(gcm->cipher)) != CRYPT_OK) {
-      return err;
-   }
-
 
    /* trip the ivmode flag */
    if (IVlen + gcm->buflen > 12) {

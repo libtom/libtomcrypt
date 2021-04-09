@@ -25,16 +25,8 @@ int ocb_decrypt(ocb_state *ocb, const unsigned char *ct, unsigned char *pt)
    LTC_ARGCHK(pt  != NULL);
    LTC_ARGCHK(ct  != NULL);
 
-   /* check if valid cipher */
-   if ((err = cipher_is_valid(ocb->cipher)) != CRYPT_OK) {
-      return err;
-   }
-   LTC_ARGCHK(cipher_descriptor[ocb->cipher].ecb_decrypt != NULL);
-
-   /* check length */
-   if (ocb->block_len != cipher_descriptor[ocb->cipher].block_length) {
-      return CRYPT_INVALID_ARG;
-   }
+   /* can't use a encrypt-only descriptor */
+   LTC_ARGCHK(cipher_descriptor[ocb->key.cipher].ecb_decrypt != NULL);
 
    /* Get Z[i] value */
    ocb_shift_xor(ocb, Z);
@@ -43,7 +35,7 @@ int ocb_decrypt(ocb_state *ocb, const unsigned char *ct, unsigned char *pt)
    for (x = 0; x < ocb->block_len; x++) {
        tmp[x] = ct[x] ^ Z[x];
    }
-   if ((err = cipher_descriptor[ocb->cipher].ecb_decrypt(tmp, pt, &ocb->key)) != CRYPT_OK) {
+   if ((err = ecb_decrypt_block(tmp, pt, &ocb->key)) != CRYPT_OK) {
       return err;
    }
    for (x = 0; x < ocb->block_len; x++) {

@@ -21,7 +21,7 @@ int cbc_setiv(const unsigned char *IV, unsigned long len, symmetric_CBC *cbc)
 {
    LTC_ARGCHK(IV  != NULL);
    LTC_ARGCHK(cbc != NULL);
-   if (len != (unsigned long)cbc->blocklen) {
+   if (len != (unsigned long)cbc->ecb.blocklen) {
       return CRYPT_INVALID_ARG;
    }
    XMEMCPY(cbc->IV, IV, len);

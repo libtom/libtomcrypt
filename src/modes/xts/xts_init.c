@@ -37,10 +37,10 @@ int xts_start(int cipher, const unsigned char *key1, const unsigned char *key2, 
    }
 
    /* schedule the two ciphers */
-   if ((err = cipher_descriptor[cipher].setup(key1, keylen, num_rounds, &xts->key1)) != CRYPT_OK) {
+   if ((err = ecb_start(cipher, key1, keylen, num_rounds, &xts->key1)) != CRYPT_OK) {
       return err;
    }
-   if ((err = cipher_descriptor[cipher].setup(key2, keylen, num_rounds, &xts->key2)) != CRYPT_OK) {
+   if ((err = ecb_start(cipher, key2, keylen, num_rounds, &xts->key2)) != CRYPT_OK) {
       return err;
    }
    xts->cipher = cipher;

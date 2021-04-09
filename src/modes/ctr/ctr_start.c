@@ -49,16 +49,14 @@ int ctr_start(               int   cipher,
    }
 
    /* setup cipher */
-   if ((err = cipher_descriptor[cipher].setup(key, keylen, num_rounds, &ctr->key)) != CRYPT_OK) {
+   if ((err = ecb_start(cipher, key, keylen, num_rounds, &ctr->ecb)) != CRYPT_OK) {
       return err;
    }
 
    /* copy ctr */
-   ctr->blocklen = cipher_descriptor[cipher].block_length;
-   ctr->cipher   = cipher;
    ctr->padlen   = 0;
    ctr->mode     = ctr_mode & 0x1000;
-   for (x = 0; x < ctr->blocklen; x++) {
+   for (x = 0; x < ctr->ecb.blocklen; x++) {
        ctr->ctr[x] = IV[x];
    }
 
@@ -74,7 +72,7 @@ int ctr_start(               int   cipher,
          }
       } else {
          /* big-endian */
-         for (x = ctr->blocklen-1; x >= ctr->ctrlen; x--) {
+         for (x = ctr->ecb.blocklen-1; x >= ctr->ctrlen; x--) {
              ctr->ctr[x] = (ctr->ctr[x] + (unsigned char)1) & (unsigned char)255;
              if (ctr->ctr[x] != (unsigned char)0) {
                 break;
@@ -83,7 +81,7 @@ int ctr_start(               int   cipher,
       }
    }
 
-   return cipher_descriptor[ctr->cipher].ecb_encrypt(ctr->ctr, ctr->pad, &ctr->key);
+   return ecb_encrypt_block(ctr->ctr, ctr->pad, &ctr->ecb);
 }
 
 #endif

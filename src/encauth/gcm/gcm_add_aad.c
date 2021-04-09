@@ -20,7 +20,6 @@ int gcm_add_aad(gcm_state *gcm,
                const unsigned char *adata,  unsigned long adatalen)
 {
    unsigned long x;
-   int           err;
 #ifdef LTC_FAST
    unsigned long y;
 #endif
@@ -32,10 +31,6 @@ int gcm_add_aad(gcm_state *gcm,
 
    if (gcm->buflen > 16 || gcm->buflen < 0) {
       return CRYPT_INVALID_ARG;
-   }
-
-   if ((err = cipher_is_valid(gcm->cipher)) != CRYPT_OK) {
-      return err;
    }
 
    /* in IV mode? */

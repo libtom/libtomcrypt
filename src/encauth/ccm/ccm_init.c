@@ -41,10 +41,9 @@ int ccm_init(ccm_state *ccm, int cipher,
    ccm->taglen = taglen;
 
    /* schedule key */
-   if ((err = cipher_descriptor[cipher].setup(key, keylen, 0, &ccm->K)) != CRYPT_OK) {
+   if ((err = ecb_start(cipher, key, keylen, 0, &ccm->K)) != CRYPT_OK) {
       return err;
    }
-   ccm->cipher = cipher;
 
    /* let's get the L value */
    ccm->ptlen = ptlen;
