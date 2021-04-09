@@ -15,6 +15,14 @@
 #
 
 PLATFORM := $(shell uname | sed -e 's/_.*//')
+### Observed uname outputs:
+# MINGW32_NT-6.2          (on MSYS/MINGW old)
+# MINGW64_NT-10.0-14393   (on MSYS new)
+# MSYS_NT-10.0-19042      (on MSYS2)
+# CYGWIN_NT-10.0          (on Cygwin 64bit)
+# CYGWIN_NT-6.2-WOW64     (on Cygwin 32bit)
+# Linux                   (on all Linux distros)
+# Darwin                  (on macOS, OS X)
 
 ifeq ($(LIBTOOL),rlibtool)
   TGTLIBTOOL:=slibtool-shared
