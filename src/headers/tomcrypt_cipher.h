@@ -318,9 +318,9 @@ typedef struct {
                        ctrlen;
 
    /** The counter */
-   unsigned char       ctr[MAXBLOCKSIZE],
+   unsigned char       ctr[MAXBLOCKSIZE];
    /** The pad used to encrypt/decrypt */
-                       pad[MAXBLOCKSIZE];
+   unsigned char       pad[MAXBLOCKSIZE] LTC_ALIGN(16);
    /** The scheduled key */
    symmetric_key       key;
 } symmetric_CTR;

@@ -105,7 +105,7 @@ LTC_EXPORT int   LTC_CALL XSTRCMP(const char *s1, const char *s2);
    #define ENDIAN_64BITWORD
    #if defined(_MIPSEB) || defined(__MIPSEB) || defined(__MIPSEB__)
      #define ENDIAN_BIG
-   #endif
+   #else
      #define ENDIAN_LITTLE
    #endif
 #endif
@@ -288,6 +288,12 @@ typedef unsigned long ltc_mp_digit;
    #define LTC_HAVE_ROTATE_BUILTIN
 #endif
 
+#if defined(__GNUC__)
+   #define LTC_ALIGN(n) __attribute__((aligned(n)))
+#else
+   #define LTC_ALIGN(n)
+#endif
+
 #if defined(__GNUC__) && (__GNUC__ * 100 + __GNUC_MINOR__ >= 405)
 #  define LTC_DEPRECATED(s) __attribute__((deprecated("replaced by " #s)))
 #  define PRIVATE_LTC_DEPRECATED_PRAGMA(s) _Pragma(#s)
@@ -303,3 +309,5 @@ typedef unsigned long ltc_mp_digit;
 #  define LTC_DEPRECATED(s)
 #  define LTC_DEPRECATED_PRAGMA(s)
 #endif
+
+#endif /* TOMCRYPT_CFG_H */

@@ -35,7 +35,7 @@ int ccm_init(ccm_state *ccm, int cipher,
    }
 
    /* make sure the taglen is valid */
-   if (taglen < 4 || taglen > 16 || (taglen % 2) == 1) {
+   if (taglen < 4 || taglen > 16 || (taglen % 2) == 1 || aadlen < 0 || ptlen < 0) {
       return CRYPT_INVALID_ARG;
    }
    ccm->taglen = taglen;

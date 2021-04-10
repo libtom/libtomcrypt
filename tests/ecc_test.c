@@ -373,15 +373,7 @@ static int s_ecc_old_api(void)
       y = sizeof(buf[1]);
       DO(ecc_shared_secret (&userb, &usera, buf[1], &y));
 
-      if (y != x) {
-        fprintf(stderr, "ecc Shared keys are not same size.");
-        return 1;
-      }
-
-      if (memcmp (buf[0], buf[1], x)) {
-        fprintf(stderr, "ecc Shared keys not same contents.");
-        return 1;
-      }
+      DO(do_compare_testvector(buf[0], x, buf[1], y, "ecc Shared keys", s));
 
       /* now export userb */
       y = sizeof(buf[0]);

@@ -25,6 +25,9 @@ int ccm_add_nonce(ccm_state *ccm,
    if ((15 - ccm->noncelen) > ccm->L) {
       ccm->L = 15 - ccm->noncelen;
    }
+   if (ccm->L > 8) {
+      return CRYPT_INVALID_ARG;
+   }
 
    /* decrease noncelen to match L */
    if ((ccm->noncelen + ccm->L) > 15) {
@@ -38,7 +41,7 @@ int ccm_add_nonce(ccm_state *ccm,
                    (ccm->L-1));
 
    /* nonce */
-   for (y = 0; y < (16 - (ccm->L + 1)); y++) {
+   for (y = 0; y < 15 - ccm->L; y++) {
       ccm->PAD[x++] = nonce[y];
    }
 

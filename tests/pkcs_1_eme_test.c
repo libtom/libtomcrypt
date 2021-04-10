@@ -42,8 +42,8 @@ int pkcs_1_eme_test(void)
         unsigned char buf[256], obuf[256];
         unsigned long buflen = sizeof(buf), obuflen = sizeof(obuf);
         int stat;
-        prng_descriptor[prng_idx].add_entropy(s->o2, s->o2_l, (prng_state*)no_prng_desc);
-        DOX(rsa_encrypt_key_ex(s->o1, s->o1_l, obuf, &obuflen, NULL, 0, (prng_state*)no_prng_desc, prng_idx, -1, LTC_PKCS_1_V1_5, key), s->name);
+        prng_descriptor[prng_idx].add_entropy(s->o2, s->o2_l, (void*)no_prng_desc);
+        DOX(rsa_encrypt_key_ex(s->o1, s->o1_l, obuf, &obuflen, NULL, 0, (void*)no_prng_desc, prng_idx, -1, LTC_PKCS_1_V1_5, key), s->name);
         COMPARE_TESTVECTOR(obuf, obuflen, s->o3, s->o3_l,s->name, j);
         DOX(rsa_decrypt_key_ex(obuf, obuflen, buf, &buflen, NULL, 0, -1, LTC_PKCS_1_V1_5, &stat, key), s->name);
         DOX(stat == 1?CRYPT_OK:CRYPT_FAIL_TESTVECTOR, s->name);

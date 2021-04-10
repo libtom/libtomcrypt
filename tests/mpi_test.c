@@ -6,16 +6,16 @@
 static int s_radix_to_bin_test(void)
 {
    /* RADIX 16 */
-   const char *ghex = "2";
-   const char *phex = "FFFFFFFFFFFFFFFFC90FDAA22168C234C4C6628B80DC1CD129024E088A67CC74020BBEA63B139B22"
+   const char ghex[] = "2";
+   const char phex[] = "FFFFFFFFFFFFFFFFC90FDAA22168C234C4C6628B80DC1CD129024E088A67CC74020BBEA63B139B22"
                       "514A08798E3404DDEF9519B3CD3A431B302B0A6DF25F14374FE1356D6D51C245E485B576625E7EC6"
                       "F44C42E9A637ED6B0BFF5CB6F406B7EDEE386BFB5A899FA5AE9F24117C4B1FE649286651ECE45B3D"
                       "C2007CB8A163BF0598DA48361C55D39A69163FA8FD24CF5F83655D23DCA3AD961C62F356208552BB"
                       "9ED529077096966D670C354E4ABC9804F1746C08CA18217C32905E462E36CE3BE39E772C180E8603"
                       "9B2783A2EC07A28FB5C55DF06F4C52C9DE2BCBF6955817183995497CEA956AE515D2261898FA0510"
                       "15728E5A8AACAA68FFFFFFFFFFFFFFFF";
-   const char *xhex = "A6681ADC386CE944C3DED9A7301DCC9C518250E3EDB62F959198F8DC0057DD6FB57ABAFD788198B1";
-   const char *yhex = "39046632C834418DFA07B3091538B614D1FB5DBB785C0FBEA3B98B295BC0CD076A88D9452141A269"
+   const char xhex[] = "A6681ADC386CE944C3DED9A7301DCC9C518250E3EDB62F959198F8DC0057DD6FB57ABAFD788198B1";
+   const char yhex[] = "39046632C834418DFA07B3091538B614D1FB5DBB785C0FBEA3B98B295BC0CD076A88D9452141A269"
                       "E8BAEB1DD654EBA03A5705318D129754CDF4003A8C399240FBB8F162490F6F0DC70E414B6FEE8808"
                       "6AFAA48E9F3A248EDC093452663D34E0E809D4F6BADBB36F80B6813EBF7C3281B862209E5604BDEA"
                       "8B8F5F7BFDC3EEB7ADB73048289BCEA0F5A5CDEE7DF91CD1F0BA632F06DBE9BA7EF014B84B02D497"
@@ -23,34 +23,34 @@ static int s_radix_to_bin_test(void)
                       "32A5A2495EACBA99620ACD03A38345EBB6735E62330A8EE9AA6C8370410F5CD45AF37EE90A0DA95B"
                       "E96FC939E88FE0BD2CD09FC8F524208C";
    /* RADIX 47 */
-   const char *gr47 = "2";
-   const char *pr47 = "F27Mg1SadOFIRbDOJ5dHgHiVF02Z1LHHQ6G5SLG2U8aTdfH1ETk4GARRE7WW99dBUBLb9e2OHFIaSM1A"
+   const char gr47[] = "2";
+   const char pr47[] = "F27Mg1SadOFIRbDOJ5dHgHiVF02Z1LHHQ6G5SLG2U8aTdfH1ETk4GARRE7WW99dBUBLb9e2OHFIaSM1A"
                       "ag2LNNjgYa9I9CjQGJihL3J7A2SGQe8j5Ch8EHMj5jVbAYDiQKhhPhM6Hc56fKS40GUfJkGO7KJ6EXZQ"
                       "VgbSa2AkPC65F91g0PaYie8AGNVaFKaV9HOQf3ia1iW4i6eCOB9CcBbH7TbQij8AEgjZ0VRBcLKc6UYO"
                       "1Zc3I2Jc0h1H2HBEH8ONI3OYBbaPV6XhAd8WCc60D0RDBU3H9U7cWL28a0c90XNO0dh5RXEFBbUCE2ZG"
                       "gh9XQSVIHkVbFIS5F5IGVOkiWAVc9i8BHB2V0UbGW6UdRTZVV";
-   const char *xr47 = "6bhO7O9NWFRgEMjdU0Y5POj3c1JP15MYEdIg3FO1PEjUY2aGYNSXcaF01R";
-   const char *yr47 = "3GNPNWEYfKML1cIbI7Cc1Z0O7aQLJgB734dO2i56LLYDdI4gHYk2GAbQH2WI97hNeC7dj3fPEH8I9gV9"
+   const char xr47[] = "6bhO7O9NWFRgEMjdU0Y5POj3c1JP15MYEdIg3FO1PEjUY2aGYNSXcaF01R";
+   const char yr47[] = "3GNPNWEYfKML1cIbI7Cc1Z0O7aQLJgB734dO2i56LLYDdI4gHYk2GAbQH2WI97hNeC7dj3fPEH8I9gV9"
                       "U323AXj1AJXbFPFIHGOTdC29QUUeH2SSc6NWhfQDDXd5Q5iXCKEAUGX3SKcNFIfVOYJgZCLjfHYQdgOQ"
                       "GCjKNgbEV7Hj34MU3b79iANX2DbMYfb9iGi78BWH2HYAd7IAhk7U0OYGHKJX1bIUUj1KBLhAUg46GaER"
                       "G9W3ARMfBCj6kSdDF9TdkWAjWTDj722IeVJERC4bKU2VDFG20kDhCMF985efD1SS8DfXcdCHF1kDUkSA"
                       "884FHYiFEPkaagQOBQaN9BNaEHNbbd002DCIIX5eMP4HgPJPF";
    /* RADIX 64 */
-   const char *gr64 = "2";
-   const char *pr64 = "3//////////yaFsg8XQC8qnCPYYu3S7D4f0au8YcVCT08BlgOx4viYKKe8UOuq1DtlbHcppJf36p0h2c"
+   const char gr64[] = "2";
+   const char pr64[] = "3//////////yaFsg8XQC8qnCPYYu3S7D4f0au8YcVCT08BlgOx4viYKKe8UOuq1DtlbHcppJf36p0h2c"
                       "toNnGtJ+4rRMrHmaNaXRLsObv+nlHCGkccD+rh2/zSjlG6j+tkE6lxMecVfQwV915yIn/cIIXcKUpaMp"
                       "t207oueME/1PZQI3OSLTEQQHO/gFqapr+3PLqZtAEjbXnYyrOWXLAxdjKf1t2Mbcrd33LEIhoO1F5qR0"
                       "ZA625yCf1UHYuspZlZddSi60w60vidWwBi1wAFjSLTy6zCKidUAylsbLWN63cLINpgbMhb5T8c69Zw1H"
                       "0LSevQYgogQF//////////";
-   const char *xr64 = "2cQ1hSE6pfHCFUsQSm7SoSKO9Gu+ssBvMHcFZS05VTRxLwklruWPYn";
-   const char *yr64 = "v16Ooo3H1ZVe7imaLEBOKqVjTktXS3xwZkOifMy3D1sg8sKKXGQ9fwBhh7TPKww0wLmKnZHANLCtq03g"
+   const char xr64[] = "2cQ1hSE6pfHCFUsQSm7SoSKO9Gu+ssBvMHcFZS05VTRxLwklruWPYn";
+   const char yr64[] = "v16Ooo3H1ZVe7imaLEBOKqVjTktXS3xwZkOifMy3D1sg8sKKXGQ9fwBhh7TPKww0wLmKnZHANLCtq03g"
                       "CEP90+xZnOaaFRmt73a5BR+w826hwf8wVEYIEt0aqKcOzDE3e2TJskjkpRu2sWJw/V3A1k68WdbO4lUg"
                       "BZrzx/SFkjwstC4WecywWzQNDxdtv7D7mkcCl1jlfkdxm5BXB0jINodqCOFSqTIfadQIMb6jEKnimsVW"
                       "ktOLMDi2myguZBa66HKw8Xxj2FZAbeabUhBgPOWhD0wE3HUksSrvYCmgEwQfiWt113rpKMlD+wGeDgLl"
                       "fRyavw8/WlIpGdyZr922C";
    /* RADIX 256 */
-   unsigned char gbin[] = { 0x02 };
-   unsigned char pbin[] = {
+   const unsigned char gbin[] = { 0x02 };
+   const unsigned char pbin[] = {
       0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xC9, 0x0F, 0xDA, 0xA2, 0x21, 0x68, 0xC2, 0x34,
       0xC4, 0xC6, 0x62, 0x8B, 0x80, 0xDC, 0x1C, 0xD1, 0x29, 0x02, 0x4E, 0x08, 0x8A, 0x67, 0xCC, 0x74,
       0x02, 0x0B, 0xBE, 0xA6, 0x3B, 0x13, 0x9B, 0x22, 0x51, 0x4A, 0x08, 0x79, 0x8E, 0x34, 0x04, 0xDD,
@@ -68,12 +68,12 @@ static int s_radix_to_bin_test(void)
       0x39, 0x95, 0x49, 0x7C, 0xEA, 0x95, 0x6A, 0xE5, 0x15, 0xD2, 0x26, 0x18, 0x98, 0xFA, 0x05, 0x10,
       0x15, 0x72, 0x8E, 0x5A, 0x8A, 0xAC, 0xAA, 0x68, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
    };
-   unsigned char xbin[] = {
+   const unsigned char xbin[] = {
       0xA6, 0x68, 0x1A, 0xDC, 0x38, 0x6C, 0xE9, 0x44, 0xC3, 0xDE, 0xD9, 0xA7, 0x30, 0x1D, 0xCC, 0x9C,
       0x51, 0x82, 0x50, 0xE3, 0xED, 0xB6, 0x2F, 0x95, 0x91, 0x98, 0xF8, 0xDC, 0x00, 0x57, 0xDD, 0x6F,
       0xB5, 0x7A, 0xBA, 0xFD, 0x78, 0x81, 0x98, 0xB1
    };
-   unsigned char ybin[] = {
+   const unsigned char ybin[] = {
       0x39, 0x04, 0x66, 0x32, 0xC8, 0x34, 0x41, 0x8D, 0xFA, 0x07, 0xB3, 0x09, 0x15, 0x38, 0xB6, 0x14,
       0xD1, 0xFB, 0x5D, 0xBB, 0x78, 0x5C, 0x0F, 0xBE, 0xA3, 0xB9, 0x8B, 0x29, 0x5B, 0xC0, 0xCD, 0x07,
       0x6A, 0x88, 0xD9, 0x45, 0x21, 0x41, 0xA2, 0x69, 0xE8, 0xBA, 0xEB, 0x1D, 0xD6, 0x54, 0xEB, 0xA0,
@@ -92,6 +92,8 @@ static int s_radix_to_bin_test(void)
       0xE9, 0x6F, 0xC9, 0x39, 0xE8, 0x8F, 0xE0, 0xBD, 0x2C, 0xD0, 0x9F, 0xC8, 0xF5, 0x24, 0x20, 0x8C
    };
 
+#define MPI_TEST(n) (n), sizeof(n)
+#define MPI_TESTSET(t) MPI_TEST(g ## t), MPI_TEST(p ## t), MPI_TEST(x ## t), MPI_TEST(y ## t)
    struct {
      int radix;
      const void* g; int glen;
@@ -99,11 +101,15 @@ static int s_radix_to_bin_test(void)
      const void* x; int xlen;
      const void* y; int ylen;
    } test[4] = {
-      { 256, gbin, sizeof(gbin),   pbin, sizeof(pbin),   xbin, sizeof(xbin),   ybin, sizeof(ybin)   },
-      { 16,  ghex, XSTRLEN(ghex)+1, phex, XSTRLEN(phex)+1, xhex, XSTRLEN(xhex)+1, yhex, XSTRLEN(yhex)+1 },
-      { 47,  gr47, XSTRLEN(gr47)+1, pr47, XSTRLEN(pr47)+1, xr47, XSTRLEN(xr47)+1, yr47, XSTRLEN(yr47)+1 },
-      { 64,  gr64, XSTRLEN(gr64)+1, pr64, XSTRLEN(pr64)+1, xr64, XSTRLEN(xr64)+1, yr64, XSTRLEN(yr64)+1 },
+      /* ground-truth values in binary format */
+      { 256, MPI_TESTSET(bin) },
+      /* test-cases in different radices */
+      { 16,  MPI_TESTSET(hex) },
+      { 47,  MPI_TESTSET(r47) },
+      { 64,  MPI_TESTSET(r64) },
    };
+#undef MPI_TESTSET
+#undef MPI_TEST
    int i, j;
    unsigned char key_parts[4][256];
    unsigned long key_lens[4];
