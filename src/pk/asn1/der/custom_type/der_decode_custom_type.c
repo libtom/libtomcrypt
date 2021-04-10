@@ -155,6 +155,22 @@ int der_decode_custom_type_ex(const unsigned char *in,   unsigned long  inlen,
        }
 
        switch (type) {
+          case LTC_ASN1_CUSTOM_TYPE:
+          case LTC_ASN1_SET:
+          case LTC_ASN1_SETOF:
+          case LTC_ASN1_SEQUENCE:
+             break;
+          default:
+             /* Verify that all basic types are indeed UNIVERSAL&PRIMITIVE */
+             if (((flags & LTC_DER_SEQ_STRICT) == LTC_DER_SEQ_STRICT) && (inlen > 0)) {
+                if (in[x] & 0xE0u) {
+                   err = CRYPT_PK_ASN1_ERROR;
+                   goto LBL_ERR;
+                }
+             }
+       }
+
+       switch (type) {
            case LTC_ASN1_BOOLEAN:
                z = inlen;
                if ((err = der_decode_boolean(in + x, z, ((int *)data))) != CRYPT_OK) {
