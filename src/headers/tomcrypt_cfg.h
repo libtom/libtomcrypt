@@ -182,7 +182,8 @@ LTC_EXPORT int   LTC_CALL XSTRCMP(const char *s1, const char *s2);
       defined(__BYTE_ORDER__) && __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__ || \
       defined(__BIG_ENDIAN__) || \
       defined(__ARMEB__) || defined(__THUMBEB__) || defined(__AARCH64EB__) || \
-      defined(_MIPSEB) || defined(__MIPSEB) || defined(__MIPSEB__)
+      defined(_MIPSEB) || defined(__MIPSEB) || defined(__MIPSEB__) || \
+      defined(__m68k__)
     #define ENDIAN_BIG
   #elif defined(_BYTE_ORDER) && _BYTE_ORDER == _LITTLE_ENDIAN || \
       defined(__BYTE_ORDER) && __BYTE_ORDER == __LITTLE_ENDIAN || \
