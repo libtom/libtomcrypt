@@ -384,11 +384,14 @@ int x25519_shared_secret(const curve25519_key *private_key,
 
 #ifdef LTC_MDSA
 
-/* Max diff between group and modulus size in bytes */
-#define LTC_MDSA_DELTA     512
+/* Max diff between group and modulus size in bytes (max case: L=8192bits, N=256bits) */
+#define LTC_MDSA_DELTA 992
 
-/* Max DSA group size in bytes (default allows 4k-bit groups) */
-#define LTC_MDSA_MAX_GROUP 512
+/* Max DSA group size in bytes */
+#define LTC_MDSA_MAX_GROUP 64
+
+/* Max DSA modulus size in bytes (the actual DSA size, max 8192 bits) */
+#define LTC_MDSA_MAX_MODULUS 1024
 
 /** DSA key structure */
 typedef struct {

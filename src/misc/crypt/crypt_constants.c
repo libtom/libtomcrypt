@@ -102,6 +102,7 @@ static const crypt_constant s_crypt_constants[] = {
     {"LTC_MDSA", 1},
     C_STRINGIFY(LTC_MDSA_DELTA),
     C_STRINGIFY(LTC_MDSA_MAX_GROUP),
+    C_STRINGIFY(LTC_MDSA_MAX_MODULUS),
 #else
     {"LTC_MDSA", 0},
 #endif
