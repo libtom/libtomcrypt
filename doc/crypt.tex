@@ -4326,10 +4326,27 @@ The \textit{e} parameter is the encryption exponent desired, typical values are 
 trivial math attacks, and not super slow.  The \textit{key} parameter is where the constructed key is placed.  All keys must be at
 least 128 bytes, and no more than 512 bytes in size (\textit{that is from 1024 to 4096 bits}).
 
+\index{rsa\_make\_key\_ubin\_e()}
+\begin{verbatim}
+int rsa_make_key_ubin_e(
+             prng_state *prng,
+                    int  wprng,
+                    int  size,
+    const unsigned char *e,
+           unsigned long elen,
+                rsa_key *key);
+\end{verbatim}
+
+Where \textit{wprng} is the index into the PRNG descriptor array.  The \textit{size} parameter is the size in bytes of the RSA modulus desired.
+The \textit{e} parameter is the hexadecimal buffer of the encryption exponent desired, from 3 upto 255 bits value.  Stick with 65537 since it is big enough
+to prevent trivial math attacks, and not super slow.  The \textit{elen} parameter is the size in bytes of the encryption exponent \textit{e}.
+The \textit{key} parameter is where the constructed key is placed.  All keys must be at
+least 128 bytes, and no more than 512 bytes in size (\textit{that is from 1024 to 4096 bits}).
+
 \index{rsa\_free()}
-Note: the \textit{rsa\_make\_key()} function allocates memory at run--time when you make the key.  Make sure to call
-\textit{rsa\_free()} (see below) when you are finished with the key.  If \textit{rsa\_make\_key()} fails it will automatically
-free the memory allocated.
+Note: the \textit{rsa\_make\_key()} and \textit{rsa\_make\_key\_ubin\_e()} functions allocates memory at run--time when you make the key.
+Make sure to call \textit{rsa\_free()} (see below) when you are finished with the key.  If \textit{rsa\_make\_key()} or \textit{rsa\_make\_key\_ubin\_e()} 
+fails it will automatically free the memory allocated.
 
 \index{PK\_PRIVATE} \index{PK\_PUBLIC}
 There are two types of RSA keys.  The types are {\bf PK\_PRIVATE} and {\bf PK\_PUBLIC}.  The first type is a private
