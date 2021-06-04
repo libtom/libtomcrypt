@@ -223,6 +223,8 @@ int pk_oid_num_to_str(const unsigned long *oid, unsigned long oidlen, char *OID,
 #ifdef LTC_MRSA
 int rsa_init(rsa_key *key);
 void rsa_shrink_key(rsa_key *key);
+int rsa_make_key_bn_e(prng_state *prng, int wprng, int size, void *e,
+                      rsa_key *key); /* used by op-tee */
 #endif /* LTC_MRSA */
 
 /* ---- DH Routines ---- */

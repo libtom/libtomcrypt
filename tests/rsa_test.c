@@ -369,6 +369,52 @@ static int s_rsa_issue_301(int prng_idx)
    return CRYPT_OK;
 }
 
+static int s_rsa_public_ubin_e(int prng_idx)
+{
+   rsa_key       key;
+   unsigned char e[32] = {0};
+   unsigned long elen = sizeof(e);
+
+   /* Check public exponent too small */
+   e[elen - 1] = 1;
+   SHOULD_FAIL_WITH(rsa_make_key_ubin_e(&yarrow_prng, prng_idx, 128, e, elen, &key),
+                    CRYPT_INVALID_ARG);
+
+   /*
+    * Generate about 256 bits to check error when public exponent
+    * overflow.
+    */
+   DO(rng_make_prng(elen * 8, prng_idx, &yarrow_prng, NULL));
+   LTC_ARGCHK(yarrow_read(e, elen, &yarrow_prng) == elen);
+
+   /* Ensure that public exponent is:
+    *  - odd value
+    *  - MSB is even
+    */
+   e[elen - 1] |= 0x1;
+   e[0] &= ~0x1;
+
+   /* Check public exponent overflow */
+   /* Set high bit of MSB set to get 256 bits, to get e overflow */
+   e[0] |= 0x80;
+   SHOULD_FAIL_WITH(rsa_make_key_ubin_e(&yarrow_prng, prng_idx, 128, e, elen, &key),
+                    CRYPT_INVALID_ARG);
+
+
+  /* Check public exponent not odd but e value < 256 bits */
+   e[elen - 1] &= ~0x1;
+   e[0] &= ~0x80;
+   SHOULD_FAIL_WITH(rsa_make_key_ubin_e(&yarrow_prng, prng_idx, 128, e, elen, &key),
+                    CRYPT_INVALID_ARG);
+
+   /* Ensure that public exponent is odd value and e value < 256 bits */
+   e[elen - 1] |= 0x1;
+   DO(rsa_make_key_ubin_e(&yarrow_prng, prng_idx, 128, e, elen, &key));
+   rsa_free(&key);
+
+   return CRYPT_OK;
+}
+
 #ifdef LTC_TEST_READDIR
 static int s_rsa_import_x509(const void *in, unsigned long inlen, void *key)
 {
@@ -426,6 +472,7 @@ int rsa_test(void)
 
    DO(s_rsa_cryptx_issue_69());
    DO(s_rsa_issue_301(prng_idx));
+   DO(s_rsa_public_ubin_e(prng_idx));
 
    /* make 10 random key */
    for (cnt = 0; cnt < 10; cnt++) {
