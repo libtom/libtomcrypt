@@ -427,6 +427,7 @@ src/hashes/sha2/sha512_224.o: src/hashes/sha2/sha512.c src/hashes/sha2/sha512_22
 src/hashes/sha2/sha512_256.o: src/hashes/sha2/sha512.c src/hashes/sha2/sha512_256.c
 src/hashes/whirl/whirl.o: src/hashes/whirl/whirl.c src/hashes/whirl/whirltab.c
 
+
 $(DOBJECTS): LTC_CFLAGS := -Itests $(LTC_CFLAGS)
 $(TOBJECTS): LTC_CFLAGS := -Itests $(LTC_CFLAGS)
 

@@ -16,20 +16,17 @@
 int register_all_ciphers(void)
 {
 #ifdef LTC_RIJNDAEL
+   /* `aesni_desc` is explicitely not registered, since it's handled from within the `aes_desc` */
 #ifdef ENCRYPT_ONLY
    /* alternative would be
     * register_cipher(&rijndael_enc_desc);
     */
    REGISTER_CIPHER(&aes_enc_desc);
 #else
-#if defined(LTC_AES_NI) && defined(LTC_AMD64_SSE4_1)
-   REGISTER_CIPHER(&aesni_desc);
-#else
    /* alternative would be
     * register_cipher(&rijndael_desc);
     */
    REGISTER_CIPHER(&aes_desc);
-#endif /* AES-NI */
 #endif
 #endif
 #ifdef LTC_BLOWFISH

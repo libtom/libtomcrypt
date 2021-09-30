@@ -9,8 +9,7 @@
 
 #include "tomcrypt_private.h"
 
-#if defined(LTC_AES_NI) && defined(LTC_AMD64_SSE4_1)
-
+#if defined(LTC_HAS_AES_NI)
 
 const struct ltc_cipher_descriptor aesni_desc =
 {
@@ -35,32 +34,6 @@ static const ulong32 rcon[] = {
     0x01UL, 0x02UL, 0x04UL, 0x08UL, 0x10UL, 0x20UL, 0x40UL, 0x80UL, 0x1BUL, 0x36UL
 };
 
-/* Code partially borrowed from https://software.intel.com/content/www/us/en/develop/articles/intel-sha-extensions.html */
-static int s_aesni_is_supported(void)
-{
-   static int initialized = 0, is_supported = 0;
-
-   if (initialized == 0) {
-      int a, b, c, d;
-
-      /* Look for CPUID.1.0.ECX[25]
-       * EAX = 1, ECX = 0
-       */
-      a = 1;
-      c = 0;
-
-      asm volatile ("cpuid"
-           :"=a"(a), "=b"(b), "=c"(c), "=d"(d)
-           :"a"(a), "c"(c)
-          );
-
-      is_supported = ((c >> 25) & 1);
-      initialized = 1;
-   }
-
-   return is_supported;
-}
-
  /**
     Initialize the AES (Rijndael) block cipher
     @param key The symmetric key you wish to pass
@@ -77,14 +50,6 @@ int aesni_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_
    ulong32 *rrk;
    LTC_ARGCHK(key != NULL);
    LTC_ARGCHK(skey != NULL);
-
-   if (s_aesni_is_supported() == 0) {
-#ifdef LTC_RIJNDAEL
-      return rijndael_setup(key, keylen, num_rounds, skey);
-#else
-      return CRYPT_INVALID_CIPHER;
-#endif
-   }
 
    if (keylen != 16 && keylen != 24 && keylen != 32) {
       return CRYPT_INVALID_KEYSIZE;
@@ -213,14 +178,6 @@ int aesni_ecb_encrypt(const unsigned char *pt, unsigned char *ct, const symmetri
    LTC_ARGCHK(ct != NULL);
    LTC_ARGCHK(skey != NULL);
 
-   if (s_aesni_is_supported() == 0) {
-#ifdef LTC_RIJNDAEL
-      return rijndael_ecb_encrypt(pt, ct, skey);
-#else
-      return CRYPT_INVALID_CIPHER;
-#endif
-   }
-
    Nr = skey->rijndael.Nr;
 
    if (Nr < 2 || Nr > 16) return CRYPT_INVALID_ROUNDS;
@@ -271,14 +228,6 @@ int aesni_ecb_decrypt(const unsigned char *ct, unsigned char *pt, const symmetri
    LTC_ARGCHK(pt != NULL);
    LTC_ARGCHK(ct != NULL);
    LTC_ARGCHK(skey != NULL);
-
-   if (s_aesni_is_supported() == 0) {
-#ifdef LTC_RIJNDAEL
-      return rijndael_ecb_decrypt(ct, pt, skey);
-#else
-      return CRYPT_INVALID_CIPHER;
-#endif
-   }
 
    Nr = skey->rijndael.Nr;
 

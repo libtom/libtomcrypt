@@ -13,6 +13,14 @@ int cipher_hash_test(void)
       DOX(cipher_descriptor[x].test(), cipher_descriptor[x].name);
    }
 
+   /* explicit AES-NI test */
+#if defined(LTC_HAS_AES_NI)
+   if (aesni_is_supported()) {
+      DO(aesni_test());
+   }
+   DO(rijndael_test());
+#endif
+
    /* test stream ciphers */
 #ifdef LTC_CHACHA
    DO(chacha_test());

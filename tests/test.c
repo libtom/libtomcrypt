@@ -106,20 +106,17 @@ static void *run(void *arg)
 static void s_unregister_all(void)
 {
 #ifdef LTC_RIJNDAEL
+   /* `aesni_desc` is not registered, i.e. also shouldn't be unregistered */
 #ifdef ENCRYPT_ONLY
    /* alternative would be
     * unregister_cipher(&rijndael_enc_desc);
     */
    unregister_cipher(&aes_enc_desc);
 #else
-#if defined(LTC_AES_NI) && defined(LTC_AMD64_SSE4_1)
-   unregister_cipher(&aesni_desc);
-#else
    /* alternative would be
     * unregister_cipher(&rijndael_desc);
     */
    unregister_cipher(&aes_desc);
-#endif /* AES-NI */
 #endif
 #endif
 #ifdef LTC_BLOWFISH

@@ -239,6 +239,8 @@ default: $(LIBMAIN_S)
 #SPECIAL: AES comes in two flavours - enc+dec and enc-only
 src/ciphers/aes/aes_enc.obj: src/ciphers/aes/aes.c src/ciphers/aes/aes_tab.c
 	$(CC) $(LTC_CFLAGS) /DENCRYPT_ONLY /c src/ciphers/aes/aes.c /Fosrc/ciphers/aes/aes_enc.obj
+src/ciphers/aes/aes_enc_desc.obj: src/ciphers/aes/aes_desc.c
+	$(CC) $(LTC_CFLAGS) /DENCRYPT_ONLY /c src/ciphers/aes/aes_desc.c /Fosrc/ciphers/aes/aes_enc_desc.obj
 
 #SPECIAL: these are the rules to make certain object files
 src/ciphers/aes/aes.obj: src/ciphers/aes/aes.c src/ciphers/aes/aes_tab.c
