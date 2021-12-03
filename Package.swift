@@ -30,8 +30,13 @@ let package = Package(
             cSettings: [
                 .headerSearchPath("src/headers"),
                 .define("USE_LTM"),
+                .define("LTM_DESC"),
                 .define("LTC_NO_TEST")
-            ])
+            ]),
+        .testTarget(name: "TomCryptTests",
+                    dependencies: ["libtomcrypt"],
+                    path: "demos",
+                    sources: ["tomcrypt_tests.swift"])
     ],
     cLanguageStandard: .gnu11,
     cxxLanguageStandard: .gnucxx14
