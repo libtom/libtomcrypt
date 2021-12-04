@@ -4,15 +4,15 @@
 import PackageDescription
 
 let package = Package(
-    name: "tomcrypt",
+    name: "TomCrypt",
     platforms: [
         .macOS(.v10_10), .iOS(.v9), .tvOS(.v9)
     ],
     products: [
         // Products define the executables and libraries a package produces, and make them visible to other packages.
         .library(
-            name: "libtomcrypt",
-            targets: ["libtomcrypt"])
+            name: "TomCrypt",
+            targets: ["TomCrypt"])
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
@@ -22,8 +22,8 @@ let package = Package(
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
         // Targets can depend on other targets in this package, and on products in packages this package depends on.
         .target(
-            name: "libtomcrypt",
-            dependencies: ["libtommath"],
+            name: "TomCrypt",
+            dependencies: ["TomMath"],
             path: ".",
             sources: ["src"],
             publicHeadersPath: "modulemap",
@@ -34,7 +34,7 @@ let package = Package(
                 .define("LTC_NO_TEST")
             ]),
         .testTarget(name: "TomCryptTests",
-                    dependencies: ["libtomcrypt"],
+                    dependencies: ["TomCrypt"],
                     path: "demos",
                     sources: ["tomcrypt_tests.swift"])
     ],

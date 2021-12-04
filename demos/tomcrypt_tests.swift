@@ -1,5 +1,5 @@
 import XCTest
-import libtomcrypt
+import TomCrypt
 
 /* These are test keys [see file test.key] that I use to test my import/export against */
 var openssl_private_rsa: [UInt8] = [
@@ -161,7 +161,7 @@ func register_algs() {
     crypt_mp_init(&mpi)
 }
 
-class LibTommathTests: XCTestCase {
+class TomCryptTests: XCTestCase {
 
     override func setUpWithError() throws {
         // Put setup code here. This method is called before the invocation of each test method in the class.
