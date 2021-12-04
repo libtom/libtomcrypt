@@ -241,9 +241,7 @@ class TomCryptTests: XCTestCase {
             let p = hex_key[i].cString(using: .utf8)  // NUL-terminated char buffer
             var q = key_parts[i]
             var len = UInt(q.count)
-            if radix_to_bin(p, 16, &q, &len) != CRYPT_OK {
-                continue
-            }
+            XCTAssertEqual(radix_to_bin(p, 16, &q, &len), Int32(CRYPT_OK))
             key_parts[i] = q.dropLast(key_buf_len - Int(len))
             key_lens[i] = len
         }
