@@ -202,6 +202,17 @@ void ocb3_int_xor_blocks(unsigned char *out, const unsigned char *block_a, const
 
 /* tomcrypt_misc.h */
 
+typedef enum {
+   /** Use `\r\n` as line separator */
+   BASE64_PEM_CRLF = 1,
+   /** Create output with 72 chars line length */
+   BASE64_PEM_SSH = 2,
+} base64_pem_flags;
+
+int base64_encode_pem(const unsigned char *in,  unsigned long inlen,
+                                     char *out, unsigned long *outlen,
+                            unsigned int  flags);
+
 void copy_or_zeromem(const unsigned char* src, unsigned char* dest, unsigned long len, int coz);
 
 int pbes_decrypt(const pbes_arg  *arg, unsigned char *dec_data, unsigned long *dec_size);
