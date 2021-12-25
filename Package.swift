@@ -11,8 +11,8 @@ let package = Package(
     products: [
         // Products define the executables and libraries a package produces, and make them visible to other packages.
         .library(
-            name: "TomCrypt",
-            targets: ["TomCrypt"])
+            name: "libtomcrypt",
+            targets: [ "libtomcrypt" ])
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
@@ -22,8 +22,8 @@ let package = Package(
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
         // Targets can depend on other targets in this package, and on products in packages this package depends on.
         .target(
-            name: "TomCrypt",
-            dependencies: ["TomMath"],
+            name: "libtomcrypt",
+            dependencies: [ .product(name: "libtommath", package: "TomMath") ],
             path: ".",
             sources: ["src"],
             publicHeadersPath: "modulemap",
@@ -34,9 +34,9 @@ let package = Package(
                 .define("LTC_NO_TEST")
             ]),
         .testTarget(name: "TomCryptTests",
-                    dependencies: ["TomCrypt"],
+                    dependencies: [ "libtomcrypt" ],
                     path: "demos",
-                    sources: ["tomcrypt_tests.swift"])
+                    sources: [ "tomcrypt_tests.swift" ])
     ],
     cLanguageStandard: .gnu11,
     cxxLanguageStandard: .gnucxx14
