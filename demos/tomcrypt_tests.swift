@@ -1,5 +1,5 @@
 import XCTest
-import TomCrypt
+import libtomcrypt
 
 /* These are test keys [see file test.key] that I use to test my import/export against */
 var openssl_private_rsa: [UInt8] = [
