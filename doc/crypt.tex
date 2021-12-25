@@ -1546,7 +1546,7 @@ At the end you have to terminate the state:
 err = rc4_stream_done(&st);
 \end{verbatim}
 
-To encrypt plaintext (or decrypt ciphertext) using RC6 for data already in
+To encrypt plaintext (or decrypt ciphertext) using RC4 for data already in
 memory with a single function call, the following function may be used.
 \begin{verbatim}
 err = rc4_stream_memory(key, keylen, datain, datalen, dataout);
