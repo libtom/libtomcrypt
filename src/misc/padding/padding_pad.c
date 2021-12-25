@@ -32,6 +32,7 @@ static int s_padding_padded_length(unsigned long *length, unsigned long mode)
       case LTC_PAD_PKCS7:
       case LTC_PAD_ONE_AND_ZERO:
       case LTC_PAD_ZERO_ALWAYS:
+      case LTC_PAD_SSH:
          t = 1;
          break;
 #ifdef LTC_RNG_GET_BYTES
@@ -78,10 +79,10 @@ static int s_padding_padded_length(unsigned long *length, unsigned long mode)
 */
 int padding_pad(unsigned char *data, unsigned long length, unsigned long* padded_length, unsigned long mode)
 {
-   unsigned long l;
+   unsigned long l, n;
    enum padding_type type;
    int err;
-   unsigned char diff;
+   unsigned char diff, pad;
 
    LTC_ARGCHK(data          != NULL);
    LTC_ARGCHK(padded_length != NULL);
@@ -124,6 +125,12 @@ int padding_pad(unsigned char *data, unsigned long length, unsigned long* padded
       case LTC_PAD_ANSI_X923:
          XMEMSET(&data[length], 0, diff-1);
          data[l-1] =  diff;
+         break;
+      case LTC_PAD_SSH:
+         pad = 0x1;
+         for (n = length; n < l; ++n) {
+            data[n] = pad++;
+         }
          break;
       case LTC_PAD_ONE_AND_ZERO:
          XMEMSET(&data[length + 1], 0, diff);

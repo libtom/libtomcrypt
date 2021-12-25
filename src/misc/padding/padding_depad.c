@@ -53,6 +53,12 @@ int padding_depad(const unsigned char *data, unsigned long *length, unsigned lon
          /* nop */
          break;
 #endif
+      case LTC_PAD_SSH:
+         pad = 0x1;
+         for (n = unpadded_length; n < padded_length; ++n) {
+            if (data[n] != pad++) return CRYPT_INVALID_PACKET;
+         }
+         break;
       case LTC_PAD_ONE_AND_ZERO:
          while (unpadded_length > 0 && data[unpadded_length - 1] != 0x80) {
             if (data[unpadded_length - 1] != 0x0) return CRYPT_INVALID_PACKET;
