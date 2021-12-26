@@ -485,6 +485,38 @@ int dsa_shared_secret(void          *private_key, void *base,
                       unsigned char *out,         unsigned long *outlen);
 #endif /* LTC_MDSA */
 
+
+enum ltc_pka_id {
+   LTC_PKA_UNDEF = 0,
+   LTC_PKA_RSA,
+   LTC_PKA_DSA,
+   LTC_PKA_EC,
+   LTC_PKA_CURVE25519,
+   LTC_PKA_DH,
+};
+
+typedef struct {
+   union {
+#ifdef LTC_CURVE25519
+      curve25519_key curve25519;
+#endif
+#ifdef LTC_MDH
+      dh_key dh;
+#endif
+#ifdef LTC_MDSA
+      dsa_key dsa;
+#endif
+#ifdef LTC_MECC
+      ecc_key ecc;
+#endif
+#ifdef LTC_MRSA
+      rsa_key rsa;
+#endif
+   } u;
+   enum ltc_pka_id id;
+} ltc_pka_key;
+
+
 #ifdef LTC_DER
 /* DER handling */
 

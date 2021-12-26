@@ -522,6 +522,8 @@
 
 #define LTC_PBES
 
+#define LTC_PEM
+
 #endif /* LTC_NO_MISC */
 
 /* cleanup */
@@ -565,6 +567,27 @@
    #define LTC_ECC_SECP521R1
 #endif
 #endif /* LTC_MECC */
+
+#ifndef LTC_NO_FILE
+   /* buffer size for reading from a file via fread(..) */
+   #ifndef LTC_FILE_READ_BUFSIZE
+   #define LTC_FILE_READ_BUFSIZE 8192
+   #endif
+#endif
+
+#if defined(LTC_PEM)
+   /* Size of the decoded data buffer */
+   #ifndef LTC_PEM_READ_BUFSIZE
+      #ifdef LTC_FILE_READ_BUFSIZE
+         #define LTC_PEM_READ_BUFSIZE LTC_FILE_READ_BUFSIZE
+      #else
+         #define LTC_PEM_READ_BUFSIZE 4096
+      #endif
+   #endif
+   #if defined(LTC_SSH)
+      #define LTC_PEM_SSH
+   #endif
+#endif
 
 #if defined(LTC_DER)
    #ifndef LTC_DER_MAX_RECURSION
@@ -707,13 +730,6 @@
 
 /* define this if you use Valgrind, note: it CHANGES the way SOBER-128 and RC4 work (see the code) */
 /* #define LTC_VALGRIND */
-
-#ifndef LTC_NO_FILE
-   /* buffer size for reading from a file via fread(..) */
-   #ifndef LTC_FILE_READ_BUFSIZE
-   #define LTC_FILE_READ_BUFSIZE 8192
-   #endif
-#endif
 
 /* ECC backwards compatibility */
 #if !defined(LTC_ECC_SECP112R1) && defined(LTC_ECC112)

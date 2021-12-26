@@ -247,6 +247,56 @@ int base64_encode_pem(const unsigned char *in,  unsigned long inlen,
                                      char *out, unsigned long *outlen,
                             unsigned int  flags);
 
+/* PEM related */
+
+struct password {
+   /* usually a `char*` but could also contain binary data
+    * so use a `void*` + length to be on the safe side.
+    */
+   void *pw;
+   unsigned long l;
+};
+
+struct str {
+   char *p;
+   unsigned long len;
+};
+
+#define SET_STR(n, s) n.p = s, n.len = XSTRLEN(s)
+#define SET_CSTR(n, s) n.p = (char*)s, n.len = XSTRLEN(s)
+
+enum more_headers {
+   no,
+   yes,
+   maybe
+};
+
+struct pem_headers {
+   const struct {
+      struct str start, end;
+      enum more_headers has_more_headers;
+   };
+};
+
+struct bufp {
+   /* `end` points to one byte after the last
+    * element of the allocated buffer
+    */
+   char *p, *r, *end;
+};
+
+#define SET_BUFP(n, d, l) n.p = d, n.r = d, n.end = (char*)d + l + 1
+
+struct get_char {
+   int (*get)(struct get_char*);
+   union {
+      FILE *f;
+      struct bufp buf;
+   };
+};
+
+/* others */
+
 void copy_or_zeromem(const unsigned char* src, unsigned char* dest, unsigned long len, int coz);
 
 int pbes_decrypt(const pbes_arg  *arg, unsigned char *dec_data, unsigned long *dec_size);
@@ -254,6 +304,9 @@ int pbes_decrypt(const pbes_arg  *arg, unsigned char *dec_data, unsigned long *d
 int pbes1_extract(const ltc_asn1_list *s, pbes_arg *res);
 int pbes2_extract(const ltc_asn1_list *s, pbes_arg *res);
 
+int pem_get_char_from_file(struct get_char *g);
+int pem_get_char_from_buf(struct get_char *g);
+int pem_read(void *pem, unsigned long *w, struct pem_headers *hdr, struct get_char *g);
 
 /* tomcrypt_pk.h */
 
