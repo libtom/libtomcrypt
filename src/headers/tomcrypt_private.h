@@ -14,12 +14,12 @@
  */
 
 enum ltc_oid_id {
-   PKA_RSA,
-   PKA_DSA,
-   PKA_EC,
-   PKA_EC_PRIMEF,
-   PKA_X25519,
-   PKA_ED25519,
+   LTC_OID_RSA,
+   LTC_OID_DSA,
+   LTC_OID_EC,
+   LTC_OID_EC_PRIMEF,
+   LTC_OID_X25519,
+   LTC_OID_ED25519,
 };
 
 /*

@@ -70,7 +70,7 @@ int ecc_export_openssl(unsigned char *out, unsigned long *outlen, int type, cons
       if (err != CRYPT_OK)                                         { goto error; }
 
       /* we support only prime-field EC */
-      if ((err = pk_get_oid(PKA_EC_PRIMEF, &OID)) != CRYPT_OK)     { goto error; }
+      if ((err = pk_get_oid(LTC_OID_EC_PRIMEF, &OID)) != CRYPT_OK) { goto error; }
 
       /* http://tools.ietf.org/html/rfc3279
          ECParameters ::= SEQUENCE {                              # SEQUENCE
@@ -156,7 +156,7 @@ int ecc_export_openssl(unsigned char *out, unsigned long *outlen, int type, cons
            subjectPublicKey  BIT STRING                                 # BIT STRING
          }
       */
-      err = x509_encode_subject_public_key_info( out, outlen, PKA_EC, bin_xy, len_xy,
+      err = x509_encode_subject_public_key_info( out, outlen, LTC_OID_EC, bin_xy, len_xy,
                                                  ecparams.type, ecparams.data, ecparams.size );
    }
 

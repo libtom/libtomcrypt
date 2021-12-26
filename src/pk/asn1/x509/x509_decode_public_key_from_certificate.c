@@ -81,7 +81,7 @@ int x509_decode_public_key_from_certificate(const unsigned char *in, unsigned lo
                if ((l->type == LTC_ASN1_SEQUENCE)
                      && (l->data != NULL)
                      && LOOKS_LIKE_SPKI(l->child)) {
-                  if (algorithm == PKA_EC) {
+                  if (algorithm == LTC_OID_EC) {
                      err = callback(l->data, l->size, ctx);
                   } else {
                      err = x509_decode_subject_public_key_info(l->data, l->size,

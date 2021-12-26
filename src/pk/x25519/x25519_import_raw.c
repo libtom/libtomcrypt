@@ -32,7 +32,7 @@ int x25519_import_raw(const unsigned char *in, unsigned long inlen, int which, c
    } else {
       return CRYPT_INVALID_ARG;
    }
-   key->algo = PKA_X25519;
+   key->algo = LTC_OID_X25519;
    key->type = which;
 
    return CRYPT_OK;

@@ -31,13 +31,13 @@ int ed25519_import_x509(const unsigned char *in, unsigned long inlen, curve25519
    LTC_ARGCHK(key != NULL);
 
    if ((err = x509_decode_public_key_from_certificate(in, inlen,
-                                                      PKA_ED25519,
+                                                      LTC_OID_ED25519,
                                                       LTC_ASN1_EOL, NULL, NULL,
                                                       (public_key_decode_cb)s_ed25519_decode, key)) != CRYPT_OK) {
       return err;
    }
    key->type = PK_PUBLIC;
-   key->algo = PKA_ED25519;
+   key->algo = LTC_OID_ED25519;
 
    return err;
 }

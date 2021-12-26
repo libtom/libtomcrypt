@@ -42,7 +42,7 @@ int rsa_import(const unsigned char *in, unsigned long inlen, rsa_key *key)
 
    len = 0;
    err = x509_decode_subject_public_key_info(in, inlen,
-        PKA_RSA, tmpbuf, &tmpbuf_len,
+        LTC_OID_RSA, tmpbuf, &tmpbuf_len,
         LTC_ASN1_NULL, NULL, &len);
 
    if (err == CRYPT_OK) { /* SubjectPublicKeyInfo format */

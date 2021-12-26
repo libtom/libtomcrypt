@@ -61,7 +61,7 @@ int rsa_import_pkcs8(const unsigned char *in, unsigned long inlen,
    LTC_ARGCHK(ltc_mp.name != NULL);
 
    /* get RSA alg oid */
-   err = pk_get_oid(PKA_RSA, &rsaoid);
+   err = pk_get_oid(LTC_OID_RSA, &rsaoid);
    if (err != CRYPT_OK) { goto LBL_NOFREE; }
 
    /* alloc buffers */
