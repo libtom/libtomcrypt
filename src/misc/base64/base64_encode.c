@@ -37,8 +37,6 @@ static int s_base64_encode_internal(const unsigned char *in,    unsigned long in
    unsigned long i, len2, leven, linelen;
    char *p;
 
-   LTC_ARGCHK(in     != NULL);
-   LTC_ARGCHK(out    != NULL);
    LTC_ARGCHK(outlen != NULL);
 
    linelen = (mode & ssh) ? 72 : 64;
@@ -54,6 +52,14 @@ static int s_base64_encode_internal(const unsigned char *in,    unsigned long in
       *outlen = len2 + 1;
       return CRYPT_BUFFER_OVERFLOW;
    }
+
+   LTC_ARGCHK(in  != NULL);
+   LTC_ARGCHK(out != NULL);
+
+   if ((void*)in == out) {
+      return CRYPT_INVALID_ARG;
+   }
+
    p = out;
    leven = 3*(inlen / 3);
    for (i = 0; i < leven; i += 3) {
