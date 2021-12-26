@@ -120,7 +120,7 @@ int test_process_dir(const char *path, void *ctx, dir_iter_cb process, dir_clean
 #if defined(LTC_TEST_DBG) && LTC_TEST_DBG > 1
          fprintf(stderr, "%s: Skip: %s\n", test, fname);
 #endif
-         break;
+         goto continue_loop;
       } else if (err != CRYPT_OK) {
 #if defined(LTC_TEST_DBG)
          fprintf(stderr, "%s: Test %s failed (cause: %s).\n\n", test, fname, error_to_string(err));
@@ -133,6 +133,7 @@ int test_process_dir(const char *path, void *ctx, dir_iter_cb process, dir_clean
          cleanup(ctx);
       }
 
+continue_loop:
       XFREE(buf);
       buf = NULL;
       fclose(f);
