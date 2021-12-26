@@ -461,6 +461,10 @@ const char *crypt_build_settings =
     " PBES1 "
     " PBES2 "
 #endif
+#if defined(LTC_PEM)
+    " PEM "
+    " " NAME_VALUE(LTC_PEM_READ_BUFSIZE) " "
+#endif
 #if defined(LTC_SSH)
     " SSH "
 #endif
