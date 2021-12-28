@@ -42,6 +42,10 @@ int der_decode_short_integer(const unsigned char *in, unsigned long inlen, unsig
       return CRYPT_INVALID_PACKET;
    }
 
+   if (len > sizeof(unsigned long)) {
+      return CRYPT_OVERFLOW;
+   }
+
    /* read number */
    y = 0;
    while (len--) {
