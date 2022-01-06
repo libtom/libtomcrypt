@@ -526,6 +526,9 @@ int pkcs8_decode_flexi(const unsigned char  *in,  unsigned long inlen,
                                     const void  *pwd, unsigned long pwdlen,
                                  ltc_asn1_list **decoded_list);
 
+int pkcs8_get_children(const ltc_asn1_list *decoded_list, enum ltc_oid_id *pka,
+                        ltc_asn1_list **seq, ltc_asn1_list **priv_key);
+
 #endif  /* LTC_PKCS_8 */
 
 
