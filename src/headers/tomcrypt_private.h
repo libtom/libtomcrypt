@@ -426,11 +426,26 @@ int der_length_asn1_length(unsigned long len, unsigned long *outlen);
 int der_length_sequence_ex(const ltc_asn1_list *list, unsigned long inlen,
                            unsigned long *outlen, unsigned long *payloadlen);
 
+typedef struct {
+   ltc_asn1_type t;
+   ltc_asn1_list **pp;
+} der_flexi_check;
+
+#define LTC_SET_DER_FLEXI_CHECK(list, index, Type, P)    \
+   do {                                         \
+      int LTC_SDFC_temp##__LINE__ = (index);   \
+      list[LTC_SDFC_temp##__LINE__].t = Type;  \
+      list[LTC_SDFC_temp##__LINE__].pp = P;    \
+   } while (0)
+
+
 extern const ltc_asn1_type  der_asn1_tag_to_type_map[];
 extern const unsigned long  der_asn1_tag_to_type_map_sz;
 
 extern const int der_asn1_type_to_identifier_map[];
 extern const unsigned long der_asn1_type_to_identifier_map_sz;
+
+int der_flexi_sequence_cmp(const ltc_asn1_list *flexi, der_flexi_check *check);
 
 int der_decode_sequence_multi_ex(const unsigned char *in, unsigned long inlen, unsigned int flags, ...);
 

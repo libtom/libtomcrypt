@@ -5,36 +5,6 @@
 
 #ifdef LTC_MECC
 
-typedef struct {
-   ltc_asn1_type t;
-   ltc_asn1_list **pp;
-} der_flexi_check;
-
-#define LTC_SET_DER_FLEXI_CHECK(list, index, Type, P)    \
-   do {                                         \
-      int LTC_SDFC_temp##__LINE__ = (index);   \
-      list[LTC_SDFC_temp##__LINE__].t = Type;  \
-      list[LTC_SDFC_temp##__LINE__].pp = P;    \
-   } while (0)
-
-static int s_der_flexi_sequence_cmp(const ltc_asn1_list *flexi, der_flexi_check *check)
-{
-   const ltc_asn1_list *cur;
-   if (flexi->type != LTC_ASN1_SEQUENCE) {
-      return CRYPT_INVALID_PACKET;
-   }
-   cur = flexi->child;
-   while(check->t != LTC_ASN1_EOL) {
-      if (!LTC_ASN1_IS_TYPE(cur, check->t)) {
-         return CRYPT_INVALID_PACKET;
-      }
-      if (check->pp != NULL) *check->pp = (ltc_asn1_list*)cur;
-      cur = cur->next;
-      check++;
-   }
-   return CRYPT_OK;
-}
-
 /* NOTE: s_der_decode_pkcs8_flexi & related stuff can be shared with rsa_import_pkcs8() */
 
 int ecc_import_pkcs8(const unsigned char *in, unsigned long inlen,
@@ -73,7 +43,7 @@ int ecc_import_pkcs8(const unsigned char *in, unsigned long inlen,
       LTC_SET_DER_FLEXI_CHECK(flexi_should, n++, LTC_ASN1_OCTET_STRING, &priv_key);
       LTC_SET_DER_FLEXI_CHECK(flexi_should, n, LTC_ASN1_EOL, NULL);
 
-      if (((err = s_der_flexi_sequence_cmp(l, flexi_should)) == CRYPT_OK) &&
+      if (((err = der_flexi_sequence_cmp(l, flexi_should)) == CRYPT_OK) &&
             (pk_oid_cmp_with_asn1(pka_ec_oid, seq->child) == CRYPT_OK)) {
          ltc_asn1_list *version, *field, *point, *point_g, *order, *p_cofactor;
 
@@ -102,7 +72,7 @@ int ecc_import_pkcs8(const unsigned char *in, unsigned long inlen,
             if ((err = ecc_find_curve(OID, &curve)) != CRYPT_OK)                          { goto LBL_DONE; }
             if ((err = ecc_set_curve(curve, key)) != CRYPT_OK)                            { goto LBL_DONE; }
          }
-         else if ((err = s_der_flexi_sequence_cmp(seq->child->next, flexi_should)) == CRYPT_OK) {
+         else if ((err = der_flexi_sequence_cmp(seq->child->next, flexi_should)) == CRYPT_OK) {
             /* CASE 2: explicit curve parameters (AKA long variant):
              *   0:d=0  hl=3 l= 227 cons: SEQUENCE
              *   3:d=1  hl=2 l=   1 prim:   INTEGER              :00
