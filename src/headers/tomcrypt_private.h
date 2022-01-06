@@ -30,6 +30,8 @@ LTC_STATIC_ASSERT(correct_ltc_uintptr_size, sizeof(ltc_uintptr) == sizeof(void*)
  */
 #define LTC_ALIGN_BUF(buf, n) ((void*)((ltc_uintptr)&((unsigned char*)(buf))[n - 1] & (~(CONSTPTR(n) - CONSTPTR(1)))))
 
+#define LTC_OID_MAX_STRLEN 256
+
 /* `NULL` as defined by the standard is not guaranteed to be of a pointer
  * type. In order to make sure that in vararg API's a pointer type is used,
  * define our own version and use that one internally.
@@ -43,6 +45,7 @@ LTC_STATIC_ASSERT(correct_ltc_uintptr_size, sizeof(ltc_uintptr) == sizeof(void*)
  */
 
 enum ltc_oid_id {
+   LTC_OID_UNDEF,
    LTC_OID_RSA,
    LTC_OID_DSA,
    LTC_OID_EC,
