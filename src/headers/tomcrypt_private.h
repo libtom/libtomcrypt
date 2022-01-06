@@ -9,11 +9,14 @@
 
 #define LTC_PAD_MASK       (0xF000U)
 
+#define LTC_OID_MAX_STRLEN 256
+
 /*
  * Internal Enums
  */
 
 enum ltc_oid_id {
+   LTC_OID_UNDEF,
    LTC_OID_RSA,
    LTC_OID_DSA,
    LTC_OID_EC,
