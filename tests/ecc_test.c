@@ -612,6 +612,15 @@ static int s_ecc_new_api(void)
    return CRYPT_OK;
 }
 
+
+static int password_get(void **p, unsigned long *l, void *u)
+{
+   LTC_UNUSED_PARAM(u);
+   *p = strdup("secret");
+   *l = 6;
+   return 0;
+}
+
 static int s_ecc_import_export(void) {
    const ltc_ecc_curve *cu;
    ecc_key key, pri, pub;
@@ -1292,6 +1301,8 @@ static int s_ecc_import_export(void) {
       0x9d, 0x7b, 0x70, 0x3e, 0xf5, 0x7d, 0xa4, 0xfd, 0x3c, 0xc6, 0x49, 0x93, 0xd3, 0x5b, 0xef, 0xc9,
       0xae, 0x97, 0xaf, 0x64, 0x64, 0xf9, 0x69, 0xd8
    };
+   password_ctx pw_ctx;
+   pw_ctx.callback = password_get;
 
    if (ltc_mp.sqrtmod_prime == NULL) return CRYPT_NOP; /* we need compressed points which requires sqrtmod_prime */
 
@@ -1340,84 +1351,84 @@ static int s_ecc_import_export(void) {
    ecc_free(&key);
 
    /* import - private PKCS8 format - no password */
-   DO(ecc_import_pkcs8(long_pri_pkcs8, sizeof(long_pri_pkcs8),   NULL, 0, &key));
+   DO(ecc_import_pkcs8(long_pri_pkcs8, sizeof(long_pri_pkcs8),   NULL, &key));
    DO(s_ecc_key_cmp(PK_PRIVATE, &pri, &key));
    ecc_free(&key);
-   DO(ecc_import_pkcs8(long_pric_pkcs8, sizeof(long_pric_pkcs8),  NULL, 0, &key));
+   DO(ecc_import_pkcs8(long_pric_pkcs8, sizeof(long_pric_pkcs8),  NULL, &key));
    DO(s_ecc_key_cmp(PK_PRIVATE, &pri, &key));
    ecc_free(&key);
-   DO(ecc_import_pkcs8(short_pri_pkcs8, sizeof(short_pri_pkcs8),  NULL, 0, &key));
+   DO(ecc_import_pkcs8(short_pri_pkcs8, sizeof(short_pri_pkcs8),  NULL, &key));
    DO(s_ecc_key_cmp(PK_PRIVATE, &pri, &key));
    ecc_free(&key);
-   DO(ecc_import_pkcs8(short_pric_pkcs8, sizeof(short_pric_pkcs8), NULL, 0, &key));
+   DO(ecc_import_pkcs8(short_pric_pkcs8, sizeof(short_pric_pkcs8), NULL, &key));
    DO(s_ecc_key_cmp(PK_PRIVATE, &pri, &key));
    ecc_free(&key);
 
    /* import - private PKCS8 format - password protected (PBES1 algorithms) */
 #ifdef LTC_MD2
-   DO(ecc_import_pkcs8(long_pri_pkcs8_pbe_md2_des, sizeof(long_pri_pkcs8_pbe_md2_des), "secret", 6, &key));
+   DO(ecc_import_pkcs8(long_pri_pkcs8_pbe_md2_des, sizeof(long_pri_pkcs8_pbe_md2_des), &pw_ctx, &key));
    DO(s_ecc_key_cmp(PK_PRIVATE, &pri, &key));
    ecc_free(&key);
 #endif
 #ifdef LTC_MD5
-   DO(ecc_import_pkcs8(long_pri_pkcs8_pbe_md5_des, sizeof(long_pri_pkcs8_pbe_md5_des), "secret", 6, &key));
+   DO(ecc_import_pkcs8(long_pri_pkcs8_pbe_md5_des, sizeof(long_pri_pkcs8_pbe_md5_des), &pw_ctx, &key));
    DO(s_ecc_key_cmp(PK_PRIVATE, &pri, &key));
    ecc_free(&key);
 #endif
 #ifdef LTC_SHA1
-   DO(ecc_import_pkcs8(long_pri_pkcs8_pbe_sha1_des, sizeof(long_pri_pkcs8_pbe_sha1_des), "secret", 6, &key));
+   DO(ecc_import_pkcs8(long_pri_pkcs8_pbe_sha1_des, sizeof(long_pri_pkcs8_pbe_sha1_des), &pw_ctx, &key));
    DO(s_ecc_key_cmp(PK_PRIVATE, &pri, &key));
    ecc_free(&key);
 #endif
 #if defined(LTC_RC2) && defined(LTC_MD2)
-   DO(ecc_import_pkcs8(long_pri_pkcs8_pbe_md2_rc2_64, sizeof(long_pri_pkcs8_pbe_md2_rc2_64), "secret", 6, &key));
+   DO(ecc_import_pkcs8(long_pri_pkcs8_pbe_md2_rc2_64, sizeof(long_pri_pkcs8_pbe_md2_rc2_64), &pw_ctx, &key));
    DO(s_ecc_key_cmp(PK_PRIVATE, &pri, &key));
    ecc_free(&key);
 #endif
 #if defined(LTC_RC2) && defined(LTC_MD5)
-   DO(ecc_import_pkcs8(long_pri_pkcs8_pbe_md5_rc2_64, sizeof(long_pri_pkcs8_pbe_md5_rc2_64), "secret", 6, &key));
+   DO(ecc_import_pkcs8(long_pri_pkcs8_pbe_md5_rc2_64, sizeof(long_pri_pkcs8_pbe_md5_rc2_64), &pw_ctx, &key));
    DO(s_ecc_key_cmp(PK_PRIVATE, &pri, &key));
    ecc_free(&key);
 #endif
 #if defined(LTC_RC2) && defined(LTC_SHA1)
-   DO(ecc_import_pkcs8(long_pri_pkcs8_pbe_sha1_rc2_64, sizeof(long_pri_pkcs8_pbe_sha1_rc2_64), "secret", 6, &key));
+   DO(ecc_import_pkcs8(long_pri_pkcs8_pbe_sha1_rc2_64, sizeof(long_pri_pkcs8_pbe_sha1_rc2_64), &pw_ctx, &key));
    DO(s_ecc_key_cmp(PK_PRIVATE, &pri, &key));
    ecc_free(&key);
 #endif
 
    /* import - private PKCS8 format - password protected (PBES2 algorithms) */
 #if defined(LTC_RC2)
-   DO(ecc_import_pkcs8(long_pri_pkcs8_pbkdf2_rc2_cbc, sizeof(long_pri_pkcs8_pbkdf2_rc2_cbc), "secret", 6, &key));
+   DO(ecc_import_pkcs8(long_pri_pkcs8_pbkdf2_rc2_cbc, sizeof(long_pri_pkcs8_pbkdf2_rc2_cbc), &pw_ctx, &key));
    DO(s_ecc_key_cmp(PK_PRIVATE, &pri, &key));
    ecc_free(&key);
 #endif
 #if defined(LTC_DES)
-   DO(ecc_import_pkcs8(long_pri_pkcs8_pbkdf2_des_cbc, sizeof(long_pri_pkcs8_pbkdf2_des_cbc), "secret", 6, &key));
+   DO(ecc_import_pkcs8(long_pri_pkcs8_pbkdf2_des_cbc, sizeof(long_pri_pkcs8_pbkdf2_des_cbc), &pw_ctx, &key));
    DO(s_ecc_key_cmp(PK_PRIVATE, &pri, &key));
    ecc_free(&key);
 #endif
 #if defined(LTC_DES)
-   DO(ecc_import_pkcs8(long_pri_pkcs8_pbkdf2_des_ede3_cbc, sizeof(long_pri_pkcs8_pbkdf2_des_ede3_cbc), "secret", 6, &key));
+   DO(ecc_import_pkcs8(long_pri_pkcs8_pbkdf2_des_ede3_cbc, sizeof(long_pri_pkcs8_pbkdf2_des_ede3_cbc), &pw_ctx, &key));
    DO(s_ecc_key_cmp(PK_PRIVATE, &pri, &key));
    ecc_free(&key);
 #endif
 #if defined(LTC_SHA224) && defined(LTC_DES)
-   DO(ecc_import_pkcs8(long_pri_pkcs8_pbkdf2_sha224_des_ede3_cbc, sizeof(long_pri_pkcs8_pbkdf2_sha224_des_ede3_cbc), "secret", 6, &key));
+   DO(ecc_import_pkcs8(long_pri_pkcs8_pbkdf2_sha224_des_ede3_cbc, sizeof(long_pri_pkcs8_pbkdf2_sha224_des_ede3_cbc), &pw_ctx, &key));
    DO(s_ecc_key_cmp(PK_PRIVATE, &pri, &key));
    ecc_free(&key);
 #endif
 #if defined(LTC_SHA256) && defined(LTC_DES)
-   DO(ecc_import_pkcs8(long_pri_pkcs8_pbkdf2_sha256_des_ede3_cbc, sizeof(long_pri_pkcs8_pbkdf2_sha256_des_ede3_cbc), "secret", 6, &key));
+   DO(ecc_import_pkcs8(long_pri_pkcs8_pbkdf2_sha256_des_ede3_cbc, sizeof(long_pri_pkcs8_pbkdf2_sha256_des_ede3_cbc), &pw_ctx, &key));
    DO(s_ecc_key_cmp(PK_PRIVATE, &pri, &key));
    ecc_free(&key);
 #endif
 #if defined(LTC_SHA384) && defined(LTC_DES)
-   DO(ecc_import_pkcs8(long_pri_pkcs8_pbkdf2_sha384_des_ede3_cbc, sizeof(long_pri_pkcs8_pbkdf2_sha384_des_ede3_cbc), "secret", 6, &key));
+   DO(ecc_import_pkcs8(long_pri_pkcs8_pbkdf2_sha384_des_ede3_cbc, sizeof(long_pri_pkcs8_pbkdf2_sha384_des_ede3_cbc), &pw_ctx, &key));
    DO(s_ecc_key_cmp(PK_PRIVATE, &pri, &key));
    ecc_free(&key);
 #endif
 #if defined(LTC_SHA512) && defined(LTC_DES)
-   DO(ecc_import_pkcs8(long_pri_pkcs8_pbkdf2_sha512_des_ede3_cbc, sizeof(long_pri_pkcs8_pbkdf2_sha512_des_ede3_cbc), "secret", 6, &key));
+   DO(ecc_import_pkcs8(long_pri_pkcs8_pbkdf2_sha512_des_ede3_cbc, sizeof(long_pri_pkcs8_pbkdf2_sha512_des_ede3_cbc), &pw_ctx, &key));
    DO(s_ecc_key_cmp(PK_PRIVATE, &pri, &key));
    ecc_free(&key);
 #endif

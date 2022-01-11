@@ -160,10 +160,6 @@ int padding_depad(const unsigned char *data, unsigned long *length, unsigned lon
 #endif  /* LTC_PADDING */
 
 #ifdef LTC_PEM
-typedef struct {
-   int (*callback)(void **, unsigned long *, void *);
-   void *userdata;
-} password_ctx;
 
 #ifdef LTC_SSH
 int pem_decode_openssh_filehandle(FILE *f, ltc_pka_key *k, password_ctx *pw_ctx);
