@@ -227,7 +227,7 @@ static int rsa_compat_test(void)
    rsa_free(&key);
 
    /* try import private key in pkcs8 format */
-   DO(rsa_import_pkcs8(pkcs8_private_rsa, sizeof(pkcs8_private_rsa), NULL, 0, &key));
+   DO(rsa_import_pkcs8(pkcs8_private_rsa, sizeof(pkcs8_private_rsa), NULL, &key));
    len = sizeof(buf);
    DO(rsa_export(buf, &len, PK_PRIVATE, &key));
    DO(do_compare_testvector(buf, len, openssl_private_rsa, sizeof(openssl_private_rsa), "RSA private export (from PKCS#8)", 0));
@@ -430,9 +430,19 @@ static int s_rsa_import_x509(const void *in, unsigned long inlen, void *key)
 }
 
 #if defined(LTC_MD2) && defined(LTC_MD5) && defined(LTC_RC2)
+static int password_get(void **p, unsigned long *l, void *u)
+{
+   LTC_UNUSED_PARAM(u);
+   *p = strdup("secret");
+   *l = 6;
+   return 0;
+}
+
 static int s_rsa_import_pkcs8(const void *in, unsigned long inlen, void *key)
 {
-   return rsa_import_pkcs8(in, inlen, "secret", 6, key);
+   password_ctx pw_ctx;
+   pw_ctx.callback = password_get;
+   return rsa_import_pkcs8(in, inlen, &pw_ctx, key);
 }
 #endif
 #endif

@@ -84,7 +84,7 @@ typedef struct {
 typedef struct
 {
    pbes_properties type;
-   const void *pwd;
+   void *pwd;
    unsigned long pwdlen;
    ltc_asn1_list *enc_data;
    ltc_asn1_list *salt;
@@ -343,6 +343,7 @@ int ecc_set_curve_from_mpis(void *a, void *b, void *prime, void *order, void *gx
 int ecc_copy_curve(const ecc_key *srckey, ecc_key *key);
 int ecc_set_curve_by_size(int size, ecc_key *key);
 int ecc_import_subject_public_key_info(const unsigned char *in, unsigned long inlen, ecc_key *key);
+int ecc_import_pkcs8_asn1(ltc_asn1_list *alg_id, ltc_asn1_list *priv_key, ecc_key *key);
 
 #ifdef LTC_SSH
 int ecc_ssh_ecdsa_encode_name(char *buffer, unsigned long *buflen, const ecc_key *key);
@@ -435,11 +436,18 @@ int tweetnacl_crypto_scalarmult(unsigned char *q, const unsigned char *n, const 
 int tweetnacl_crypto_scalarmult_base(unsigned char *q,const unsigned char *n);
 int tweetnacl_crypto_ph(unsigned char *out, const unsigned char *msg, unsigned long long msglen);
 
-typedef int (*sk_to_pk)(unsigned char *pk ,const unsigned char *sk);
+int ed25519_import_pkcs8_asn1(ltc_asn1_list  *alg_id, ltc_asn1_list *priv_key,
+                              curve25519_key *key);
+int x25519_import_pkcs8_asn1(ltc_asn1_list  *alg_id, ltc_asn1_list *priv_key,
+                             curve25519_key *key);
+
+int ec25519_import_pkcs8_asn1(ltc_asn1_list *alg_id, ltc_asn1_list *priv_key,
+                              enum ltc_oid_id id,
+                              curve25519_key *key);
 int ec25519_import_pkcs8(const unsigned char *in, unsigned long inlen,
-                       const void *pwd, unsigned long pwdlen,
-                       enum ltc_oid_id id, sk_to_pk fp,
-                       curve25519_key *key);
+                         const password_ctx  *pw_ctx,
+                         enum ltc_oid_id id,
+                         curve25519_key *key);
 int ec25519_export(       unsigned char *out, unsigned long *outlen,
                                     int  which,
                    const curve25519_key *key);
@@ -522,12 +530,35 @@ int pk_oid_cmp_with_asn1(const char *o1, const ltc_asn1_list *o2);
 
 #ifdef LTC_PKCS_8
 
+/* Public-Key Cryptography Standards (PKCS) #8:
+ * Private-Key Information Syntax Specification Version 1.2
+ * https://tools.ietf.org/html/rfc5208
+ *
+ * PrivateKeyInfo ::= SEQUENCE {
+ *      version                   Version,
+ *      privateKeyAlgorithm       PrivateKeyAlgorithmIdentifier,
+ *      privateKey                PrivateKey,
+ *      attributes           [0]  IMPLICIT Attributes OPTIONAL }
+ * where:
+ * - Version ::= INTEGER
+ * - PrivateKeyAlgorithmIdentifier ::= AlgorithmIdentifier
+ * - PrivateKey ::= OCTET STRING
+ * - Attributes ::= SET OF Attribute
+ *
+ * EncryptedPrivateKeyInfo ::= SEQUENCE {
+ *        encryptionAlgorithm  EncryptionAlgorithmIdentifier,
+ *        encryptedData        EncryptedData }
+ * where:
+ * - EncryptionAlgorithmIdentifier ::= AlgorithmIdentifier
+ * - EncryptedData ::= OCTET STRING
+ */
+
 int pkcs8_decode_flexi(const unsigned char  *in,  unsigned long inlen,
-                                    const void  *pwd, unsigned long pwdlen,
-                                 ltc_asn1_list **decoded_list);
+                       const password_ctx   *pw_ctx,
+                             ltc_asn1_list **decoded_list);
 
 int pkcs8_get_children(const ltc_asn1_list *decoded_list, enum ltc_oid_id *pka,
-                        ltc_asn1_list **seq, ltc_asn1_list **priv_key);
+                        ltc_asn1_list **alg_id, ltc_asn1_list **priv_key);
 
 #endif  /* LTC_PKCS_8 */
 

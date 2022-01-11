@@ -16,6 +16,14 @@ static void xor_shuffle(unsigned char *buf, unsigned long size, unsigned char ch
       buf[i] ^= change;
 }
 
+static int password_get(void **p, unsigned long *l, void *u)
+{
+   LTC_UNUSED_PARAM(u);
+   *p = strdup("123456");
+   *l = 6;
+   return 0;
+}
+
 static int s_rfc_8410_10_test(void)
 {
    const struct {
@@ -57,6 +65,8 @@ static int s_rfc_8410_10_test(void)
    unsigned char buf[1024];
    char tmp[512];
    unsigned long buflen, tmplen;
+   password_ctx pw_ctx;
+   pw_ctx.callback = password_get;
    for (n = 0; n < sizeof(rfc_8410_10)/sizeof(rfc_8410_10[0]); ++n) {
       buflen = sizeof(buf);
       DO(base64_decode(rfc_8410_10[n].b64, XSTRLEN(rfc_8410_10[n].b64), buf, &buflen));
@@ -69,10 +79,10 @@ static int s_rfc_8410_10_test(void)
             break;
          case 2:
          case 3:
-            DO(ed25519_import_pkcs8(buf, buflen, NULL, 0, &key));
+            DO(ed25519_import_pkcs8(buf, buflen, NULL, &key));
             break;
          case 4:
-            DO(ed25519_import_pkcs8(buf, buflen, "123456", 6, &key));
+            DO(ed25519_import_pkcs8(buf, buflen, &pw_ctx, &key));
             break;
          default:
             return CRYPT_FAIL_TESTVECTOR;

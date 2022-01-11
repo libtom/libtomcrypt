@@ -9,78 +9,77 @@
 
 #ifdef LTC_CURVE25519
 
+typedef int (*sk_to_pk)(unsigned char *pk , const unsigned char *sk);
+
+int ec25519_import_pkcs8_asn1(ltc_asn1_list *alg_id, ltc_asn1_list *priv_key,
+                              enum ltc_oid_id id,
+                              curve25519_key *key)
+{
+   int err;
+   unsigned long key_len;
+   sk_to_pk fp;
+
+   LTC_ARGCHK(key         != NULL);
+   LTC_ARGCHK(ltc_mp.name != NULL);
+
+   LTC_UNUSED_PARAM(alg_id);
+
+   switch (id) {
+      case LTC_OID_ED25519:
+         fp = tweetnacl_crypto_sk_to_pk;
+         break;
+      case LTC_OID_X25519:
+         fp = tweetnacl_crypto_scalarmult_base;
+         break;
+      default:
+         return CRYPT_PK_INVALID_TYPE;
+   }
+
+   key_len = sizeof(key->priv);
+   if ((err = der_decode_octet_string(priv_key->data, priv_key->size, key->priv, &key_len)) == CRYPT_OK) {
+      fp(key->pub, key->priv);
+      key->type = PK_PRIVATE;
+      key->algo = id;
+   }
+   return err;
+}
+
 /**
   Generic import of a Curve/Ed25519 private key in PKCS#8 format
-  @param in        The DER-encoded PKCS#8-formatted private key
-  @param inlen     The length of the input data
-  @param passwd    The password to decrypt the private key
-  @param passwdlen Password's length (octets)
-  @param key       [out] Where to import the key to
+  @param in        The packet to import from
+  @param inlen     It's length (octets)
+  @param pw_ctx    The password context when decrypting the private key
+  @param id        The type of the private key
+  @param key       [out] Destination for newly imported key
   @return CRYPT_OK if successful, on error all allocated memory is freed automatically
 */
 int ec25519_import_pkcs8(const unsigned char *in, unsigned long inlen,
-                       const void *pwd, unsigned long pwdlen,
-                       enum ltc_oid_id id, sk_to_pk fp,
-                       curve25519_key *key)
+                         const password_ctx   *pw_ctx,
+                         enum ltc_oid_id id,
+                         curve25519_key *key)
 {
-   int err;
+   int           err;
    ltc_asn1_list *l = NULL;
-   const char *oid;
-   ltc_asn1_list alg_id[1];
-   unsigned char private_key[34];
-   unsigned long version, key_len;
-   unsigned long tmpoid[16];
+   ltc_asn1_list *alg_id, *priv_key;
+   enum ltc_oid_id pka;
 
-   LTC_ARGCHK(in  != NULL);
-   LTC_ARGCHK(key != NULL);
-   LTC_ARGCHK(fp != NULL);
+   LTC_ARGCHK(in != NULL);
 
-   if ((err = pkcs8_decode_flexi(in, inlen, pwd, pwdlen, &l)) == CRYPT_OK) {
+   err = pkcs8_decode_flexi(in, inlen, pw_ctx, &l);
+   if (err != CRYPT_OK) return err;
 
-      LTC_SET_ASN1(alg_id, 0, LTC_ASN1_OBJECT_IDENTIFIER, tmpoid, sizeof(tmpoid) / sizeof(tmpoid[0]));
-
-      key_len = sizeof(private_key);
-      if ((err = der_decode_sequence_multi(l->data, l->size,
-                                           LTC_ASN1_SHORT_INTEGER,      1uL, &version,
-                                           LTC_ASN1_SEQUENCE,           1uL, alg_id,
-                                           LTC_ASN1_OCTET_STRING,   key_len, private_key,
-                                           LTC_ASN1_EOL,                0uL, NULL))
-          != CRYPT_OK) {
-         /* If there are attributes added after the private_key it is tagged with version 1 and
-          * we get an 'input too long' error but the rest is already decoded and can be
-          * handled the same as for version 0
-          */
-         if ((err == CRYPT_INPUT_TOO_LONG) && (version == 1)) {
-            version = 0;
-         } else {
-            goto out;
-         }
-      }
-
-      if ((err = pk_get_oid(id, &oid)) != CRYPT_OK) {
-         goto out;
-      }
-      if ((err = pk_oid_cmp_with_asn1(oid, &alg_id[0])) != CRYPT_OK) {
-         goto out;
-      }
-
-      if (version == 0) {
-         key_len = sizeof(key->priv);
-         if ((err = der_decode_octet_string(private_key, sizeof(private_key), key->priv, &key_len)) == CRYPT_OK) {
-            fp(key->pub, key->priv);
-            key->type = PK_PRIVATE;
-            key->algo = id;
-         }
-      } else {
-         err = CRYPT_PK_INVALID_TYPE;
-      }
+   if ((err = pkcs8_get_children(l, &pka, &alg_id, &priv_key)) != CRYPT_OK) {
+      goto LBL_DER_FREE;
    }
-out:
-   if (l) der_free_sequence_flexi(l);
-#ifdef LTC_CLEAN_STACK
-   zeromem(private_key, sizeof(private_key));
-#endif
+   if (pka != id) {
+      err = CRYPT_INVALID_PACKET;
+      goto LBL_DER_FREE;
+   }
 
+   err = ec25519_import_pkcs8_asn1(alg_id, priv_key, id, key);
+
+LBL_DER_FREE:
+   der_free_sequence_flexi(l);
    return err;
 }
 

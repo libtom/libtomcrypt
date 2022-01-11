@@ -9,20 +9,25 @@
 
 #ifdef LTC_CURVE25519
 
-/**
-  Import an Ed25519 private key in PKCS#8 format
-  @param in        The DER-encoded PKCS#8-formatted private key
-  @param inlen     The length of the input data
-  @param passwd    The password to decrypt the private key
-  @param passwdlen Password's length (octets)
-  @param key       [out] Where to import the key to
-  @return CRYPT_OK if successful, on error all allocated memory is freed automatically
-*/
-int ed25519_import_pkcs8(const unsigned char *in, unsigned long inlen,
-                                  const void *pwd, unsigned long pwdlen,
+int ed25519_import_pkcs8_asn1(ltc_asn1_list  *alg_id, ltc_asn1_list *priv_key,
                               curve25519_key *key)
 {
-   return ec25519_import_pkcs8(in, inlen, pwd, pwdlen, LTC_OID_ED25519, tweetnacl_crypto_sk_to_pk, key);
+   return ec25519_import_pkcs8_asn1(alg_id, priv_key, LTC_OID_ED25519, key);
+}
+
+/**
+  Import an Ed25519 private key in PKCS#8 format
+  @param in        The packet to import from
+  @param inlen     It's length (octets)
+  @param pw_ctx    The password context when decrypting the private key
+  @param key       [out] Destination for newly imported key
+  @return CRYPT_OK if successful, on error all allocated memory is freed automatically
+*/
+int ed25519_import_pkcs8(const unsigned char  *in, unsigned long inlen,
+                         const password_ctx   *pw_ctx,
+                               curve25519_key *key)
+{
+   return ec25519_import_pkcs8(in, inlen, pw_ctx, LTC_OID_ED25519, key);
 }
 
 #endif

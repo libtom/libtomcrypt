@@ -1,6 +1,11 @@
 /* LibTomCrypt, modular cryptographic library -- Tom St Denis */
 /* SPDX-License-Identifier: Unlicense */
 
+typedef struct {
+   int (*callback)(void **, unsigned long *, void *);
+   void *userdata;
+} password_ctx;
+
 /* ---- NUMBER THEORY ---- */
 
 enum public_key_type {
@@ -108,7 +113,7 @@ int rsa_import(const unsigned char *in, unsigned long inlen, rsa_key *key);
 
 int rsa_import_x509(const unsigned char *in, unsigned long inlen, rsa_key *key);
 int rsa_import_pkcs8(const unsigned char *in, unsigned long inlen,
-                     const void *passwd, unsigned long passwdlen, rsa_key *key);
+                     const password_ctx  *pw_ctx, rsa_key *key);
 
 int rsa_set_key(const unsigned char *N,  unsigned long Nlen,
                 const unsigned char *e,  unsigned long elen,
@@ -280,7 +285,7 @@ int ecc_ansi_x963_import_ex(const unsigned char *in, unsigned long inlen, ecc_ke
 
 int ecc_export_openssl(unsigned char *out, unsigned long *outlen, int type, const ecc_key *key);
 int ecc_import_openssl(const unsigned char *in, unsigned long inlen, ecc_key *key);
-int ecc_import_pkcs8(const unsigned char *in, unsigned long inlen, const void *pwd, unsigned long pwdlen, ecc_key *key);
+int ecc_import_pkcs8(const unsigned char *in, unsigned long inlen, const password_ctx *pw_ctx, ecc_key *key);
 int ecc_import_x509(const unsigned char *in, unsigned long inlen, ecc_key *key);
 
 int  ecc_shared_secret(const ecc_key *private_key, const ecc_key *public_key,
@@ -353,9 +358,9 @@ int ed25519_export(       unsigned char *out, unsigned long *outlen,
 int ed25519_import(const unsigned char *in, unsigned long inlen, curve25519_key *key);
 int ed25519_import_raw(const unsigned char *in, unsigned long inlen, int which, curve25519_key *key);
 int ed25519_import_x509(const unsigned char *in, unsigned long inlen, curve25519_key *key);
-int ed25519_import_pkcs8(const unsigned char *in, unsigned long inlen,
-                                  const void *pwd, unsigned long pwdlen,
-                              curve25519_key *key);
+int ed25519_import_pkcs8(const unsigned char  *in, unsigned long inlen,
+                         const password_ctx   *pw_ctx,
+                               curve25519_key *key);
 
 int ed25519_sign(const  unsigned char *msg, unsigned long msglen,
                         unsigned char *sig, unsigned long *siglen,
@@ -393,9 +398,9 @@ int x25519_export(       unsigned char *out, unsigned long *outlen,
 int x25519_import(const unsigned char *in, unsigned long inlen, curve25519_key *key);
 int x25519_import_raw(const unsigned char *in, unsigned long inlen, int which, curve25519_key *key);
 int x25519_import_x509(const unsigned char *in, unsigned long inlen, curve25519_key *key);
-int x25519_import_pkcs8(const unsigned char *in, unsigned long inlen,
-                                 const void *pwd, unsigned long pwdlen,
-                             curve25519_key *key);
+int x25519_import_pkcs8(const unsigned char  *in, unsigned long inlen,
+                        const password_ctx   *pw_ctx,
+                              curve25519_key *key);
 
 int x25519_shared_secret(const curve25519_key *private_key,
                          const curve25519_key *public_key,
