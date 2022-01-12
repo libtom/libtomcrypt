@@ -259,6 +259,13 @@ struct password {
    void *pw;
    unsigned long l;
 };
+struct dek_info {
+   const char *alg;
+   unsigned long keylen;
+   /* should use `MAXBLOCKSIZE` here, but all supported
+    * blockciphers require max 16 bytes IV */
+   char iv[16 * 2 + 1];
+};
 
 struct str {
    char *p;
@@ -267,6 +274,8 @@ struct str {
 
 #define SET_STR(n, s) n.p = s, n.len = XSTRLEN(s)
 #define SET_CSTR(n, s) n.p = (char*)s, n.len = XSTRLEN(s)
+#define COPY_STR(n, s, l) do { XMEMCPY(n.p, s, l); n.len = l; } while(0)
+#define FREE_STR(n) do { n.p = NULL; n.len = 0; } while(0)
 
 enum more_headers {
    no,
@@ -274,11 +283,20 @@ enum more_headers {
    maybe
 };
 
+struct pem_header_id {
+   struct str start, end;
+   enum more_headers has_more_headers;
+   int encrypted;
+   enum ltc_pka_id pka;
+   int pkcs8;
+   int (*decrypt)(void *, unsigned long *, void *);
+};
+
 struct pem_headers {
-   const struct {
-      struct str start, end;
-      enum more_headers has_more_headers;
-   };
+   const struct pem_header_id *id;
+   int encrypted;
+   struct dek_info info;
+   struct password *pw;
 };
 
 struct bufp {
@@ -288,7 +306,7 @@ struct bufp {
    char *p, *r, *end;
 };
 
-#define SET_BUFP(n, d, l) n.p = d, n.r = d, n.end = (char*)d + l + 1
+#define SET_BUFP(n, d, l) n.p = (char*)d, n.r = (char*)d, n.end = (char*)d + l + 1
 
 struct get_char {
    int (*get)(struct get_char*);
@@ -296,6 +314,8 @@ struct get_char {
       FILE *f;
       struct bufp buf;
    };
+   struct str unget_buf;
+   char unget_buf_[LTC_PEM_DECODE_BUFSZ];
 };
 
 /* others */
@@ -328,6 +348,7 @@ void rsa_shrink_key(rsa_key *key);
 int rsa_make_key_bn_e(prng_state *prng, int wprng, int size, void *e,
                       rsa_key *key); /* used by op-tee */
 int rsa_import_pkcs1(const unsigned char *in, unsigned long inlen, rsa_key *key);
+int rsa_import_pkcs8_asn1(ltc_asn1_list *alg_id, ltc_asn1_list *priv_key, rsa_key *key);
 #endif /* LTC_MRSA */
 
 /* ---- DH Routines ---- */

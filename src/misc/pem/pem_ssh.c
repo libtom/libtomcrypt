@@ -337,7 +337,7 @@ static int s_decode_header(unsigned char *in, unsigned long *inlen, struct kdf_o
    return err;
 }
 
-static const struct pem_headers pem_openssh =
+static const struct pem_header_id pem_openssh =
    {
      SET_CSTR(.start, "-----BEGIN OPENSSH PRIVATE KEY-----"),
      SET_CSTR(.end, "-----END OPENSSH PRIVATE KEY-----"),
@@ -349,7 +349,7 @@ static int s_decode_openssh(struct get_char *g, ltc_pka_key *k, password_ctx *pw
    unsigned char *pem = NULL, *p, *privkey = NULL;
    unsigned long w, l, privkey_len;
    int err;
-   struct pem_headers hdr = pem_openssh;
+   struct pem_headers hdr = { .id = &pem_openssh };
    struct kdf_options opts = { 0 };
    w = LTC_PEM_READ_BUFSIZE * 2;
 retry:
@@ -391,6 +391,7 @@ retry:
       if ((err = s_decrypt_private_keys(privkey, &privkey_len, &opts)) != CRYPT_OK) {
          goto cleanup;
       }
+      zeromem(opts.pw.pw, opts.pw.l);
    }
 
    w = privkey_len;
@@ -400,7 +401,6 @@ retry:
 
 cleanup:
    if (opts.pw.pw) {
-      zeromem(opts.pw.pw, opts.pw.l);
       XFREE(opts.pw.pw);
    }
    if (privkey) {
@@ -417,7 +417,7 @@ int pem_decode_openssh_filehandle(FILE *f, ltc_pka_key *k, password_ctx *pw_ctx)
    return s_decode_openssh(&g, k, pw_ctx);
 }
 
-int pem_decode_openssh(void *buf, unsigned long len, ltc_pka_key *k, password_ctx *pw_ctx)
+int pem_decode_openssh(const void *buf, unsigned long len, ltc_pka_key *k, password_ctx *pw_ctx)
 {
    struct get_char g = { .get = pem_get_char_from_buf, SET_BUFP(.buf, buf, len) };
    return s_decode_openssh(&g, k, pw_ctx);
