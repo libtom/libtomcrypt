@@ -114,6 +114,8 @@
 
    #define LTC_NO_MISC
    #define LTC_BASE64
+   #define LTC_BASE16
+   #define LTC_PEM
 #endif /* LTC_EASY */
 
 /* The minimal set of functionality to run the tests */
@@ -565,6 +567,12 @@
 #endif
 
 #if defined(LTC_PEM)
+   /* Size of the line-buffer */
+   #ifndef LTC_PEM_DECODE_BUFSZ
+      #define LTC_PEM_DECODE_BUFSZ 72
+   #elif LTC_PEM_DECODE_BUFSZ < 72
+      #error "LTC_PEM_DECODE_BUFSZ shall not be < 72 bytes"
+   #endif
    /* Size of the decoded data buffer */
    #ifndef LTC_PEM_READ_BUFSIZE
       #ifdef LTC_FILE_READ_BUFSIZE
