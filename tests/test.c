@@ -36,6 +36,7 @@ static const test_function test_functions[] =
       LTC_TEST_FN(x25519_test),
       LTC_TEST_FN(file_test),
       LTC_TEST_FN(multi_test),
+      LTC_TEST_FN(pem_test),
       /* keep the prng_test always at the end as
        * it has to be handled specially when
        * testing with LTC_PTHREAD enabled
