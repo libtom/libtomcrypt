@@ -83,7 +83,7 @@ int gcm_add_aad(gcm_state *gcm,
 
    x = 0;
 #ifdef LTC_FAST
-   if (gcm->buflen == 0) {
+   if (gcm->buflen == 0 && adatalen > 15) {
       for (x = 0; x < (adatalen & ~15); x += 16) {
           for (y = 0; y < 16; y += sizeof(LTC_FAST_TYPE)) {
               *(LTC_FAST_TYPE_PTR_CAST(&gcm->X[y])) ^= *(LTC_FAST_TYPE_PTR_CAST(&adata[x + y]));
