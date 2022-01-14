@@ -336,6 +336,10 @@ retry:
          goto cleanup;
       }
       switch (pka) {
+         case LTC_OID_DSA:
+            err = dsa_import_pkcs8_asn1(alg_id, priv_key, &k->u.dsa);
+            k->id = LTC_PKA_DSA;
+            break;
          case LTC_OID_RSA:
             err = rsa_import_pkcs8_asn1(alg_id, priv_key, &k->u.rsa);
             k->id = LTC_PKA_RSA;
@@ -371,6 +375,10 @@ retry:
       }
    }
    switch (hdr.id->pka) {
+      case LTC_OID_DSA:
+         err = dsa_import(pem, l, &k->u.dsa);
+         k->id = LTC_PKA_DSA;
+         break;
       case LTC_OID_RSA:
          err = rsa_import(pem, l, &k->u.rsa);
          k->id = LTC_PKA_RSA;
