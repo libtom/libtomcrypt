@@ -463,6 +463,9 @@ int dsa_decrypt_key(const unsigned char *in,  unsigned long  inlen,
                     const dsa_key       *key);
 
 int dsa_import(const unsigned char *in, unsigned long inlen, dsa_key *key);
+int dsa_import_pkcs8(const unsigned char *in, unsigned long inlen,
+                     const password_ctx  *pw_ctx,
+                     dsa_key *key);
 int dsa_export(unsigned char *out, unsigned long *outlen, int type, const dsa_key *key);
 int dsa_verify_key(const dsa_key *key, int *stat);
 int dsa_shared_secret(void          *private_key, void *base,

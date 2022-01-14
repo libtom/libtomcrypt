@@ -209,13 +209,8 @@ int dsa_generate_pqg(prng_state *prng, int wprng, int group_size, int modulus_si
 {
    int err;
 
-   LTC_ARGCHK(key         != NULL);
-   LTC_ARGCHK(ltc_mp.name != NULL);
-
-   /* init mp_ints */
-   if ((err = mp_init_multi(&key->p, &key->g, &key->q, &key->x, &key->y, NULL)) != CRYPT_OK) {
-      return err;
-   }
+   /* init key */
+   if ((err = dsa_int_init(key)) != CRYPT_OK) return err;
    /* generate params */
    err = s_dsa_make_params(prng, wprng, group_size, modulus_size, key->p, key->q, key->g);
    if (err != CRYPT_OK) {

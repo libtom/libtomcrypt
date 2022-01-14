@@ -399,9 +399,13 @@ int ltc_ecc_map(ecc_point *P, void *modulus, void *mp);
 #endif /* LTC_MECC */
 
 #ifdef LTC_MDSA
+int dsa_int_init(dsa_key *key);
+int dsa_int_validate(const dsa_key *key, int *stat);
 int dsa_int_validate_xy(const dsa_key *key, int *stat);
 int dsa_int_validate_pqg(const dsa_key *key, int *stat);
 int dsa_int_validate_primes(const dsa_key *key, int *stat);
+int dsa_import_pkcs1(const unsigned char *in, unsigned long inlen, dsa_key *key);
+int dsa_import_pkcs8_asn1(ltc_asn1_list *alg_id, ltc_asn1_list *priv_key, dsa_key *key);
 #endif /* LTC_MDSA */
 
 

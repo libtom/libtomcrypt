@@ -26,12 +26,9 @@ int dsa_set_pqg(const unsigned char *p,  unsigned long plen,
    LTC_ARGCHK(p           != NULL);
    LTC_ARGCHK(q           != NULL);
    LTC_ARGCHK(g           != NULL);
-   LTC_ARGCHK(key         != NULL);
-   LTC_ARGCHK(ltc_mp.name != NULL);
 
    /* init key */
-   err = mp_init_multi(&key->p, &key->g, &key->q, &key->x, &key->y, NULL);
-   if (err != CRYPT_OK) return err;
+   if ((err = dsa_int_init(key)) != CRYPT_OK) return err;
 
    if ((err = mp_read_unsigned_bin(key->p, (unsigned char *)p , plen)) != CRYPT_OK) { goto LBL_ERR; }
    if ((err = mp_read_unsigned_bin(key->g, (unsigned char *)g , glen)) != CRYPT_OK) { goto LBL_ERR; }
