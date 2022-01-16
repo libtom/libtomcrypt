@@ -6,6 +6,21 @@
 #include <tomcrypt.h>
 
 extern prng_state yarrow_prng;
+#if defined(LTC_MDSA)
+extern const unsigned char ltc_dsa_private_test_key[];
+extern const unsigned long ltc_dsa_private_test_key_sz;
+int dsa_key_cmp(const int should_type, const dsa_key *should, const dsa_key *is);
+#endif
+#if defined(LTC_MRSA)
+extern const unsigned char ltc_rsa_private_test_key[];
+extern const unsigned long ltc_rsa_private_test_key_sz;
+int rsa_key_cmp(const int should_type, const rsa_key *should, const rsa_key *is);
+#endif
+#if defined(LTC_MECC)
+extern const unsigned char ltc_ecc_long_pri_test_key[];
+extern const unsigned long ltc_ecc_long_pri_test_key_sz;
+int ecc_key_cmp(const int should_type, const ecc_key *should, const ecc_key *is);
+#endif
 
 #ifdef LTC_VERBOSE
 #define DO(x) do { fprintf(stderr, "%s:\n", #x); run_cmd((x), __LINE__, __FILE__, #x, NULL); } while (0)

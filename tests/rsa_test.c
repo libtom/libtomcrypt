@@ -11,7 +11,7 @@
 #endif
 
 /* These are test keys [see file test.key] that I use to test my import/export against */
-static const unsigned char openssl_private_rsa[] = {
+const unsigned char ltc_rsa_private_test_key[] = {
    0x30, 0x82, 0x02, 0x5e, 0x02, 0x01, 0x00, 0x02, 0x81, 0x81, 0x00, 0xcf, 0x9a, 0xde, 0x64, 0x8a,
    0xda, 0xc8, 0x33, 0x20, 0xa9, 0xd7, 0x83, 0x31, 0x19, 0x54, 0xb2, 0x9a, 0x85, 0xa7, 0xa1, 0xb7,
    0x75, 0x33, 0xb6, 0xa9, 0xac, 0x84, 0x24, 0xb3, 0xde, 0xdb, 0x7d, 0x85, 0x2d, 0x96, 0x65, 0xe5,
@@ -51,6 +51,8 @@ static const unsigned char openssl_private_rsa[] = {
    0x5d, 0x04, 0x58, 0x3a, 0x5a, 0x39, 0xf1, 0x4a, 0x21, 0x56, 0x67, 0xfd, 0xcc, 0x20, 0xa3, 0x8f,
    0x78, 0x18, 0x5a, 0x79, 0x3d, 0x2e, 0x8e, 0x7e, 0x86, 0x0a, 0xe6, 0xa8, 0x33, 0xc1, 0x04, 0x17,
    0x4a, 0x9f,  };
+
+const unsigned long ltc_rsa_private_test_key_sz = sizeof(ltc_rsa_private_test_key);
 
 static const char x509_public_rsa[] =
     "MIICdTCCAd4CCQCYjCwz0l9JpjANBgkqhkiG9w0BAQsFADB+MQswCQYDVQQGEwJD\
@@ -184,7 +186,7 @@ static int rsa_compat_test(void)
    unsigned long len, key_lens[8];
 
    /* try reading the key */
-   DO(rsa_import(openssl_private_rsa, sizeof(openssl_private_rsa), &key));
+   DO(rsa_import(ltc_rsa_private_test_key, sizeof(ltc_rsa_private_test_key), &key));
    DO(rsa_import(openssl_public_rsa, sizeof(openssl_public_rsa), &pubkey));
 
    /* sign-verify a message with PKCS #1 v1.5 no ASN.1 */
@@ -205,7 +207,7 @@ static int rsa_compat_test(void)
    /* now try to export private/public and compare */
    len = sizeof(buf);
    DO(rsa_export(buf, &len, PK_PRIVATE, &key));
-   DO(do_compare_testvector(buf, len, openssl_private_rsa, sizeof(openssl_private_rsa), "RSA private export (from OpenSSL)", 0));
+   DO(do_compare_testvector(buf, len, ltc_rsa_private_test_key, sizeof(ltc_rsa_private_test_key), "RSA private export (from OpenSSL)", 0));
 
    len = sizeof(buf);
    DO(rsa_export(buf, &len, PK_PUBLIC, &key));
@@ -230,7 +232,7 @@ static int rsa_compat_test(void)
    DO(rsa_import_pkcs8(pkcs8_private_rsa, sizeof(pkcs8_private_rsa), NULL, &key));
    len = sizeof(buf);
    DO(rsa_export(buf, &len, PK_PRIVATE, &key));
-   DO(do_compare_testvector(buf, len, openssl_private_rsa, sizeof(openssl_private_rsa), "RSA private export (from PKCS#8)", 0));
+   DO(do_compare_testvector(buf, len, ltc_rsa_private_test_key, sizeof(ltc_rsa_private_test_key), "RSA private export (from PKCS#8)", 0));
    rsa_free(&key);
 
    /* convert raw hexadecimal numbers to binary */
@@ -244,7 +246,7 @@ static int rsa_compat_test(void)
    DO(rsa_set_crt_params(key_parts[pk_dP], key_lens[pk_dP], key_parts[pk_dQ], key_lens[pk_dQ], key_parts[pk_qP], key_lens[pk_qP], &key));
    len = sizeof(buf);
    DO(rsa_export(buf, &len, PK_PRIVATE, &key));
-   DO(do_compare_testvector(buf, len, openssl_private_rsa, sizeof(openssl_private_rsa), "RSA private export (from hex)", 0));
+   DO(do_compare_testvector(buf, len, ltc_rsa_private_test_key, sizeof(ltc_rsa_private_test_key), "RSA private export (from hex)", 0));
    rsa_free(&key);
 
    /* try import public key from converted raw hexadecimal numbers */
@@ -264,7 +266,7 @@ static int rsa_compat_test(void)
    return 0;
 }
 
-static int s_rsa_key_cmp(const int should_type, const rsa_key *should, const rsa_key *is)
+int rsa_key_cmp(const int should_type, const rsa_key *should, const rsa_key *is)
 {
    if(should_type != is->type)
       return CRYPT_ERROR;
@@ -348,21 +350,21 @@ static int s_rsa_issue_301(int prng_idx)
    DO(rsa_export(buf, &len, PK_PRIVATE, &key));
    DO(rsa_import(buf, len, &key_in));
 
-   DO(s_rsa_key_cmp(PK_PRIVATE, &key, &key_in));
+   DO(rsa_key_cmp(PK_PRIVATE, &key, &key_in));
    rsa_free(&key_in);
 
    len = sizeof(buf);
    DO(rsa_export(buf, &len, PK_PUBLIC, &key));
    DO(rsa_import(buf, len, &key_in));
 
-   DO(s_rsa_key_cmp(PK_PUBLIC, &key, &key_in));
+   DO(rsa_key_cmp(PK_PUBLIC, &key, &key_in));
    rsa_free(&key_in);
 
    len = sizeof(buf);
    DO(rsa_export(buf, &len, PK_PUBLIC | PK_STD, &key));
    DO(rsa_import(buf, len, &key_in));
 
-   DO(s_rsa_key_cmp(PK_PUBLIC, &key, &key_in));
+   DO(rsa_key_cmp(PK_PUBLIC, &key, &key_in));
    rsa_free(&key_in);
 
    rsa_free(&key);
