@@ -5,7 +5,7 @@
 #if defined(LTC_MDSA)
 
 /* This is the private key from test_dsa.key */
-static const unsigned char openssl_priv_dsa[] = {
+const unsigned char ltc_dsa_private_test_key[] = {
   0x30, 0x82, 0x01, 0xbb, 0x02, 0x01, 0x00, 0x02, 0x81, 0x81, 0x00, 0xc5,
   0x0a, 0x37, 0x51, 0x5c, 0xab, 0xd6, 0x18, 0xd5, 0xa2, 0x70, 0xbd, 0x4a,
   0x6f, 0x6b, 0x4a, 0xf9, 0xe1, 0x39, 0x95, 0x0f, 0x2b, 0x99, 0x38, 0x7d,
@@ -45,6 +45,7 @@ static const unsigned char openssl_priv_dsa[] = {
   0xfb, 0x28, 0xbe, 0x91, 0xf5, 0x06, 0x5f, 0xe8, 0xc9, 0x35, 0xb3, 0xf5,
   0xd8, 0x1f, 0xc5
 };
+const unsigned long ltc_dsa_private_test_key_sz = sizeof(ltc_dsa_private_test_key);
 
 /* private key - raw hexadecimal numbers */
 static const char *hex_g = "3B92E4FF5929150B08995A7BF2AD1440556FA047FF9099B344B3D4FC451505AE6722439CBA3710A5894737ECCCF5AEADA8B47A35CB9D935CEDE6B07E9694C4A60C7DD6708A094F814A0EC213FBEB16BFEAA4F456FF723005DE8A443FBEC6852655D62D1D1EDB15DAA445833C1797980B8D87F3490D90BDA9AB676E87687223DC";
@@ -123,6 +124,20 @@ static unsigned char dsaparam_der[] = {
  };
 
 
+int dsa_key_cmp(const int should_type, const dsa_key *should, const dsa_key *is)
+{
+   if (should_type != is->type)                               return CRYPT_ERROR;
+   if (should_type == PK_PRIVATE) {
+      if (mp_cmp(should->x, is->x) != LTC_MP_EQ)              return CRYPT_ERROR;
+   }
+   if (mp_cmp(should->y, is->y) != LTC_MP_EQ)                 return CRYPT_ERROR;
+   if (mp_cmp(should->g, is->g) != LTC_MP_EQ)                 return CRYPT_ERROR;
+   if (mp_cmp(should->p, is->p) != LTC_MP_EQ)                 return CRYPT_ERROR;
+   if (mp_cmp(should->q, is->q) != LTC_MP_EQ)                 return CRYPT_ERROR;
+   if (should->qord != is->qord)                              return CRYPT_ERROR;
+   return CRYPT_OK;
+}
+
 static int s_dsa_compat_test(void)
 {
   dsa_key key;
@@ -132,11 +147,11 @@ static int s_dsa_compat_test(void)
   unsigned long key_lens[5];
   int stat;
 
-  DO(dsa_import(openssl_priv_dsa, sizeof(openssl_priv_dsa), &key));
+  DO(dsa_import(ltc_dsa_private_test_key, sizeof(ltc_dsa_private_test_key), &key));
 
   x = sizeof(tmp);
   DO(dsa_export(tmp, &x, PK_PRIVATE | PK_STD, &key));
-  DO(do_compare_testvector(tmp, x, openssl_priv_dsa, sizeof(openssl_priv_dsa),
+  DO(do_compare_testvector(tmp, x, ltc_dsa_private_test_key, sizeof(ltc_dsa_private_test_key),
                          "DSA private export failed from dsa_import(priv_key)\n", __LINE__));
 
   x = sizeof(tmp);
@@ -172,7 +187,7 @@ static int s_dsa_compat_test(void)
                  &key));
   len = sizeof(buf);
   DO(dsa_export(buf, &len, PK_PRIVATE | PK_STD, &key));
-  DO(do_compare_testvector(buf, len, openssl_priv_dsa, sizeof(openssl_priv_dsa),
+  DO(do_compare_testvector(buf, len, ltc_dsa_private_test_key, sizeof(ltc_dsa_private_test_key),
                          "DSA private export failed from dsa_set_pqg() & dsa_set_key()\n", __LINE__));
   dsa_free(&key);
 
@@ -219,7 +234,7 @@ static int s_dsa_compat_test(void)
                  &key));
   len = sizeof(buf);
   DO(dsa_export(buf, &len, PK_PRIVATE | PK_STD, &key));
-  DO(do_compare_testvector(buf, len, openssl_priv_dsa, sizeof(openssl_priv_dsa),
+  DO(do_compare_testvector(buf, len, ltc_dsa_private_test_key, sizeof(ltc_dsa_private_test_key),
                          "DSA private export failed from dsa_set_pqg_dsaparam()\n", __LINE__));
   dsa_free(&key);
 
