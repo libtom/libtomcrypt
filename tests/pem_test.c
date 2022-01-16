@@ -4,6 +4,30 @@
 
 #if defined(LTC_PEM) && defined(LTC_TEST_READDIR) && !defined(LTC_EASY)
 
+#ifdef LTC_SSH
+
+static int password_get_ssh(void **p, unsigned long *l, void *u)
+{
+   LTC_UNUSED_PARAM(u);
+   *p = strdup("abc123");
+   *l = 6;
+   return 0;
+}
+static int s_pem_decode_ssh(const void *in, unsigned long inlen, void *key)
+{
+   password_ctx pw_ctx;
+   pw_ctx.callback = password_get_ssh;
+   return pem_decode_openssh(in, inlen, key, &pw_ctx);
+}
+static int s_pem_decode_ssh_f(FILE *f, void *key)
+{
+   password_ctx pw_ctx;
+   pw_ctx.callback = password_get_ssh;
+   return pem_decode_openssh_filehandle(f, key, &pw_ctx);
+}
+
+#endif
+
 static int password_get(void **p, unsigned long *l, void *u)
 {
    LTC_UNUSED_PARAM(u);
@@ -59,6 +83,17 @@ static int s_pem_decode(const void *in, unsigned long inlen, void *key)
    return s_key_cmp(key);
 }
 
+static int s_pem_decode_f(FILE *f, void *key)
+{
+   password_ctx pw_ctx;
+   int err;
+   pw_ctx.callback = password_get;
+   if ((err = pem_decode_filehandle(f, key, &pw_ctx)) != CRYPT_OK) {
+      return err;
+   }
+   return s_key_cmp(key);
+}
+
 static void s_pem_free_key(ltc_pka_key *key)
 {
    switch (key->id) {
@@ -100,8 +135,13 @@ int pem_test(void)
 
 
    DO(test_process_dir("tests/pem", &key, s_pem_decode, NULL, (dir_cleanup_cb)s_pem_free_key, "pem_test"));
+   DO(test_process_dir("tests/pem", &key, NULL, s_pem_decode_f, (dir_cleanup_cb)s_pem_free_key, "pem_test_filehandle"));
    DO(test_process_dir("tests/pem-ecc-pkcs8", &key, s_pem_decode, NULL, (dir_cleanup_cb)s_pem_free_key, "pem_test+ecc"));
+   DO(test_process_dir("tests/pem-ecc-pkcs8", &key, NULL, s_pem_decode_f, (dir_cleanup_cb)s_pem_free_key, "pem_test_filehandle+ecc"));
+#ifdef LTC_SSH
    DO(test_process_dir("tests/ssh", &key, s_pem_decode_ssh, NULL, (dir_cleanup_cb)s_pem_free_key, "pem_test+ssh"));
+   DO(test_process_dir("tests/ssh", &key, NULL, s_pem_decode_ssh_f, (dir_cleanup_cb)s_pem_free_key, "pem_test_filehandle+ssh"));
+#endif
 
 #if defined(LTC_MDSA)
    dsa_free(&s_dsa_key_should);
