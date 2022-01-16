@@ -22,29 +22,22 @@ static rsa_key s_rsa_key_should;
 static ecc_key s_ecc_key_should;
 #endif
 
-static int s_pem_decode_filehandle(const void *in, unsigned long inlen, void *key)
+static int s_key_cmp(ltc_pka_key *key)
 {
-   password_ctx pw_ctx;
-   ltc_pka_key *key_ = key;
-   int err;
-   pw_ctx.callback = password_get;
-   if ((err = pem_decode(in, inlen, key_, &pw_ctx)) != CRYPT_OK) {
-      return err;
-   }
-   switch (key_->id) {
+   switch (key->id) {
       case LTC_PKA_DSA:
 #if defined(LTC_MDSA)
-         return dsa_key_cmp(PK_PRIVATE, &s_dsa_key_should, &key_->u.dsa);
+         return dsa_key_cmp(PK_PRIVATE, &s_dsa_key_should, &key->u.dsa);
 #endif
          break;
       case LTC_PKA_RSA:
 #if defined(LTC_MRSA)
-         return rsa_key_cmp(PK_PRIVATE, &s_rsa_key_should, &key_->u.rsa);
+         return rsa_key_cmp(PK_PRIVATE, &s_rsa_key_should, &key->u.rsa);
 #endif
          break;
       case LTC_PKA_EC:
 #if defined(LTC_MECC)
-         return ecc_key_cmp(PK_PRIVATE, &s_ecc_key_should, &key_->u.ecc);
+         return ecc_key_cmp(PK_PRIVATE, &s_ecc_key_should, &key->u.ecc);
 #endif
          break;
       case LTC_PKA_CURVE25519:
@@ -53,6 +46,17 @@ static int s_pem_decode_filehandle(const void *in, unsigned long inlen, void *ke
          return CRYPT_INVALID_ARG;
    }
    return CRYPT_INVALID_ARG;
+}
+
+static int s_pem_decode(const void *in, unsigned long inlen, void *key)
+{
+   password_ctx pw_ctx;
+   int err;
+   pw_ctx.callback = password_get;
+   if ((err = pem_decode(in, inlen, key, &pw_ctx)) != CRYPT_OK) {
+      return err;
+   }
+   return s_key_cmp(key);
 }
 
 static void s_pem_free_key(ltc_pka_key *key)
@@ -95,8 +99,9 @@ int pem_test(void)
 #endif
 
 
-   DO(test_process_dir("tests/pem", &key, s_pem_decode_filehandle, (dir_cleanup_cb)s_pem_free_key, "pem_test"));
-   DO(test_process_dir("tests/pem-ecc-pkcs8", &key, s_pem_decode_filehandle, (dir_cleanup_cb)s_pem_free_key, "pem_test+ecc"));
+   DO(test_process_dir("tests/pem", &key, s_pem_decode, NULL, (dir_cleanup_cb)s_pem_free_key, "pem_test"));
+   DO(test_process_dir("tests/pem-ecc-pkcs8", &key, s_pem_decode, NULL, (dir_cleanup_cb)s_pem_free_key, "pem_test+ecc"));
+   DO(test_process_dir("tests/ssh", &key, s_pem_decode_ssh, NULL, (dir_cleanup_cb)s_pem_free_key, "pem_test+ssh"));
 
 #if defined(LTC_MDSA)
    dsa_free(&s_dsa_key_should);

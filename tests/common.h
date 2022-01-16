@@ -40,13 +40,14 @@ int ecc_key_cmp(const int should_type, const ecc_key *should, const ecc_key *is)
 
 #define COMPARE_TESTVECTOR(i, il, s, sl, wa, wi) do { DO(do_compare_testvector((i), (il), (s), (sl), (wa), (wi))); } while(0)
 
-#if !((defined(_WIN32) || defined(_WIN32_WCE)) && !defined(__GNUC__))
+#if !((defined(_WIN32) || defined(_WIN32_WCE)) && !defined(__GNUC__)) && !defined(LTC_NO_FILE)
 #define LTC_TEST_READDIR
 
 typedef int (*dir_iter_cb)(const void *d, unsigned long l, void* ctx);
+typedef int (*dir_fiter_cb)(FILE *f, void* ctx);
 typedef void (*dir_cleanup_cb)(void* ctx);
 
-int test_process_dir(const char *path, void *ctx, dir_iter_cb iter, dir_cleanup_cb cleanup, const char *test);
+int test_process_dir(const char *path, void *ctx, dir_iter_cb iter, dir_fiter_cb fiter, dir_cleanup_cb cleanup, const char *test);
 #endif
 
 void run_cmd(int res, int line, const char *file, const char *cmd, const char *algorithm);

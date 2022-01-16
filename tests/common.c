@@ -80,15 +80,29 @@ static off_t fsize(const char *filename)
    return -1;
 }
 
-int test_process_dir(const char *path, void *ctx, dir_iter_cb process, dir_cleanup_cb cleanup, const char *test)
+static int s_read_and_process(FILE *f, unsigned long sz, void *ctx, dir_iter_cb process)
+{
+   int err = CRYPT_OK;
+   void* buf = XMALLOC(sz);
+   if (buf == NULL)
+      return CRYPT_MEM;
+   if (fread(buf, 1, sz, f) != sz) {
+      err = CRYPT_ERROR;
+      goto out;
+   }
+   err = process(buf, sz, ctx);
+out:
+   XFREE(buf);
+   return err;
+}
+
+int test_process_dir(const char *path, void *ctx, dir_iter_cb iter, dir_fiter_cb fiter, dir_cleanup_cb cleanup, const char *test)
 {
    DIR *d = opendir(path);
    struct dirent *de;
    char fname[PATH_MAX];
-   void* buf = NULL;
    FILE *f = NULL;
    off_t fsz;
-   unsigned long sz;
    int err = CRYPT_FILE_NOTFOUND;
    if (d == NULL)
       return CRYPT_FILE_NOTFOUND;
@@ -108,14 +122,18 @@ int test_process_dir(const char *path, void *ctx, dir_iter_cb process, dir_clean
       fprintf(stderr, "%s: Try to process %s\n", test, fname);
 #endif
       f = fopen(fname, "rb");
-      sz = fsz;
-      buf = XMALLOC(fsz);
-      if (fread(buf, 1, sz, f) != sz) {
-         err = CRYPT_ERROR;
-         break;
+
+      if (iter) {
+         err = s_read_and_process(f, fsz, ctx, iter);
+      } else if (fiter) {
+         err = fiter(f, ctx);
+      } else {
+         err = CRYPT_NOP;
+#if defined(LTC_TEST_DBG) && LTC_TEST_DBG > 1
+         fprintf(stderr, "%s: No call-back set for %s\n", test, fname);
+#endif
       }
 
-      err = process(buf, sz, ctx);
       if (err == CRYPT_NOP) {
 #if defined(LTC_TEST_DBG) && LTC_TEST_DBG > 1
          fprintf(stderr, "%s: Skip: %s\n", test, fname);
@@ -134,12 +152,9 @@ int test_process_dir(const char *path, void *ctx, dir_iter_cb process, dir_clean
       }
 
 continue_loop:
-      XFREE(buf);
-      buf = NULL;
       fclose(f);
       f = NULL;
    }
-   if (buf != NULL) XFREE(buf);
    if (f != NULL) fclose(f);
    closedir(d);
    return err;
