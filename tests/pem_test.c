@@ -77,7 +77,7 @@ static int s_pem_decode(const void *in, unsigned long inlen, void *key)
    password_ctx pw_ctx;
    int err;
    pw_ctx.callback = password_get;
-   if ((err = pem_decode(in, inlen, key, &pw_ctx)) != CRYPT_OK) {
+   if ((err = pem_decode_pkcs(in, inlen, key, &pw_ctx)) != CRYPT_OK) {
       return err;
    }
    return s_key_cmp(key);
@@ -88,7 +88,7 @@ static int s_pem_decode_f(FILE *f, void *key)
    password_ctx pw_ctx;
    int err;
    pw_ctx.callback = password_get;
-   if ((err = pem_decode_filehandle(f, key, &pw_ctx)) != CRYPT_OK) {
+   if ((err = pem_decode_pkcs_filehandle(f, key, &pw_ctx)) != CRYPT_OK) {
       return err;
    }
    return s_key_cmp(key);
