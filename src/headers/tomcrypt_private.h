@@ -252,6 +252,7 @@ int base64_encode_pem(const unsigned char *in,  unsigned long inlen,
 
 /* PEM related */
 
+#ifdef LTC_PEM
 struct password {
    /* usually a `char*` but could also contain binary data
     * so use a `void*` + length to be on the safe side.
@@ -275,7 +276,12 @@ struct str {
 #define SET_STR(n, s) n.p = s, n.len = XSTRLEN(s)
 #define SET_CSTR(n, s) n.p = (char*)s, n.len = XSTRLEN(s)
 #define COPY_STR(n, s, l) do { XMEMCPY(n.p, s, l); n.len = l; } while(0)
-#define FREE_STR(n) do { n.p = NULL; n.len = 0; } while(0)
+#define RESET_STR(n) do { n.p = NULL; n.len = 0; } while(0)
+
+struct dek_info_from_str {
+   const struct str id;
+   struct dek_info info;
+};
 
 enum more_headers {
    no,
@@ -299,14 +305,21 @@ struct pem_headers {
    struct password *pw;
 };
 
+extern const struct pem_header_id pem_std_headers[];
+extern const unsigned long pem_std_headers_num;
+extern const struct str pem_proc_type_encrypted;
+extern const struct str pem_dek_info_start;
+extern const struct dek_info_from_str pem_dek_infos[];
+extern const unsigned long pem_dek_infos_num;
+
 struct bufp {
    /* `end` points to one byte after the last
     * element of the allocated buffer
     */
-   char *p, *r, *end;
+   char *start, *work, *end;
 };
 
-#define SET_BUFP(n, d, l) n.p = (char*)d, n.r = (char*)d, n.end = (char*)d + l + 1
+#define SET_BUFP(n, d, l) n.start = (char*)d, n.work = (char*)d, n.end = (char*)d + l + 1
 
 struct get_char {
    int (*get)(struct get_char*);
@@ -317,6 +330,7 @@ struct get_char {
    struct str unget_buf;
    char unget_buf_[LTC_PEM_DECODE_BUFSZ];
 };
+#endif
 
 /* others */
 
