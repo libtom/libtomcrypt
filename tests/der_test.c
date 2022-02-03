@@ -1701,7 +1701,7 @@ int der_test(void)
       for (z = 0; z < 1024; z++) {
 #endif
          if (yarrow_read(buf[0], z, &yarrow_prng) != z) {
-            fprintf(stderr, "Failed to read %lu bytes from yarrow\n", z);
+            fprintf(stderr, "%d: Failed to read %lu bytes from yarrow\n", __LINE__, z);
             return 1;
          }
          DO(mp_read_unsigned_bin(a, buf[0], z));
@@ -1724,7 +1724,7 @@ int der_test(void)
    for (zz = 0; zz < 256; zz++) {
       for (z = 1; z < 4; z++) {
          if (yarrow_read(buf[2], z, &yarrow_prng) != z) {
-            fprintf(stderr, "Failed to read %lu bytes from yarrow\n", z);
+            fprintf(stderr, "%d: Failed to read %lu bytes from yarrow\n", __LINE__, z);
             return 1;
          }
          /* encode with normal */
@@ -1763,7 +1763,10 @@ int der_test(void)
 
 /* Test bit string */
    for (zz = 1; zz < 1536; zz++) {
-       yarrow_read(buf[0], zz, &yarrow_prng);
+       if (yarrow_read(buf[0], zz, &yarrow_prng) != zz) {
+          fprintf(stderr, "%d: Failed to read %lu bytes from yarrow\n", __LINE__, zz);
+          return 1;
+       }
        for (z = 0; z < zz; z++) {
            buf[0][z] &= 0x01;
        }
@@ -1785,7 +1788,10 @@ int der_test(void)
 
 /* Test octet string */
    for (zz = 1; zz < 1536; zz++) {
-       yarrow_read(buf[0], zz, &yarrow_prng);
+       if (yarrow_read(buf[0], zz, &yarrow_prng) != zz) {
+          fprintf(stderr, "%d: Failed to read %lu bytes from yarrow\n", __LINE__, zz);
+          return 1;
+       }
        x = sizeof(buf[1]);
        DO(der_encode_octet_string(buf[0], zz, buf[1], &x));
        DO(der_length_octet_string(zz, &y));
@@ -1823,7 +1829,10 @@ int der_test(void)
    /* do random strings */
    for (zz = 0; zz < 5000; zz++) {
        /* pick a random number of words */
-       yarrow_read(buf[0], 4, &yarrow_prng);
+       if (yarrow_read(buf[0], 4, &yarrow_prng) != 4) {
+          fprintf(stderr, "%d: Failed to read %d bytes from yarrow\n", __LINE__, 4);
+          return 1;
+       }
        LOAD32L(z, buf[0]);
        z = 2 + (z % ((sizeof(oid[0])/sizeof(oid[0][0])) - 2));
 
@@ -1832,7 +1841,10 @@ int der_test(void)
        oid[0][1] = buf[0][1] % 40;
 
        for (y = 2; y < z; y++) {
-          yarrow_read(buf[0], 4, &yarrow_prng);
+          if (yarrow_read(buf[0], 4, &yarrow_prng) != 4) {
+             fprintf(stderr, "%d: Failed to read %d bytes from yarrow\n", __LINE__, 4);
+             return 1;
+          }
           LOAD32L(oid[0][y], buf[0]);
        }
 
