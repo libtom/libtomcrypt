@@ -26,7 +26,7 @@ int dh_set_pg(const unsigned char *p, unsigned long plen,
    LTC_ARGCHK(g           != NULL);
    LTC_ARGCHK(ltc_mp.name != NULL);
 
-   if ((err = mp_init_multi(&key->x, &key->y, &key->base, &key->prime, NULL)) != CRYPT_OK) {
+   if ((err = dh_init(key)) != CRYPT_OK) {
       return err;
    }
 
@@ -58,9 +58,10 @@ int dh_set_pg_groupsize(int groupsize, dh_key *key)
    for (i = 0; (groupsize > ltc_dh_sets[i].size) && (ltc_dh_sets[i].size != 0); i++);
    if (ltc_dh_sets[i].size == 0) return CRYPT_INVALID_KEYSIZE;
 
-   if ((err = mp_init_multi(&key->x, &key->y, &key->base, &key->prime, NULL)) != CRYPT_OK) {
+   if ((err = dh_init(key)) != CRYPT_OK) {
       return err;
    }
+
    if ((err = mp_read_radix(key->base, ltc_dh_sets[i].base, 16)) != CRYPT_OK)  { goto LBL_ERR; }
    if ((err = mp_read_radix(key->prime, ltc_dh_sets[i].prime, 16)) != CRYPT_OK) { goto LBL_ERR; }
 

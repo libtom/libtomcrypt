@@ -93,6 +93,12 @@ retry:
          goto cleanup;
       }
       switch (pka) {
+#ifdef LTC_MDH
+         case LTC_OID_DH:
+            err = dh_import_pkcs8_asn1(alg_id, priv_key, &k->u.dh);
+            k->id = LTC_PKA_DH;
+            break;
+#endif
 #ifdef LTC_MDSA
          case LTC_OID_DSA:
             err = dsa_import_pkcs8_asn1(alg_id, priv_key, &k->u.dsa);

@@ -22,7 +22,7 @@ int dh_import(const unsigned char *in, unsigned long inlen, dh_key *key)
    LTC_ARGCHK(key != NULL);
 
    /* init */
-   if ((err = mp_init_multi(&key->x, &key->y, &key->base, &key->prime, NULL)) != CRYPT_OK) {
+   if ((err = dh_init(key)) != CRYPT_OK) {
       return err;
    }
 

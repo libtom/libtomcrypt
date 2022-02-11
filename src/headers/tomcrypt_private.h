@@ -23,6 +23,7 @@ enum ltc_oid_id {
    LTC_OID_EC_PRIMEF,
    LTC_OID_X25519,
    LTC_OID_ED25519,
+   LTC_OID_DH,
 };
 
 /*
@@ -336,7 +337,9 @@ int rsa_import_pkcs8_asn1(ltc_asn1_list *alg_id, ltc_asn1_list *priv_key, rsa_ke
 #ifdef LTC_MDH
 extern const ltc_dh_set_type ltc_dh_sets[];
 
+int dh_init(dh_key *key);
 int dh_check_pubkey(const dh_key *key);
+int dh_import_pkcs8_asn1(ltc_asn1_list *alg_id, ltc_asn1_list *priv_key, dh_key *key);
 #endif /* LTC_MDH */
 
 /* ---- ECC Routines ---- */
