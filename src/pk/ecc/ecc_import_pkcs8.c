@@ -56,7 +56,7 @@ int ecc_import_pkcs8(const unsigned char *in, unsigned long inlen,
    LTC_ARGCHK(ltc_mp.name != NULL);
 
    /* get EC alg oid */
-   err = pk_get_oid(PKA_EC, &pka_ec_oid);
+   err = pk_get_oid(LTC_OID_EC, &pka_ec_oid);
    if (err != CRYPT_OK) return err;
 
    /* init key */

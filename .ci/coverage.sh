@@ -37,11 +37,11 @@ fi
 bash .ci/coverage_more.sh "$5" > test_coverage_more.txt || { rm -f testok.txt && exit 1 ; }
 
 make lcov-single
-# if this isn't run on Travis CI create coverage locally
-if [ "$TRAVIS" == "" ]; then
+# if this isn't run on CI create coverage locally
+if [ "$CI" == "" ]; then
    make lcov-html
 else
-   coveralls-lcov coverage.info
+   coveralls-lcov coverage.info --service-job-id="$GITHUB_RUN_ID" --service-name="github" --repo-token="$REPO_TOKEN" --branch="$GITHUB_REF_NAME" --service-pull-request="$PR_NUMBER"
 fi
 
 exit 0

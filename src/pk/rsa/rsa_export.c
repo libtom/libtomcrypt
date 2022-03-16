@@ -78,7 +78,7 @@ int rsa_export(unsigned char *out, unsigned long *outlen, int type, const rsa_ke
       }
 
       err = x509_encode_subject_public_key_info(out, outlen,
-        PKA_RSA, tmp, tmplen, LTC_ASN1_NULL, NULL, 0);
+        LTC_OID_RSA, tmp, tmplen, LTC_ASN1_NULL, NULL, 0);
 
 finish:
       if (tmp != out) XFREE(tmp);

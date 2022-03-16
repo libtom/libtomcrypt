@@ -23,7 +23,7 @@ int x25519_export(      unsigned char *out, unsigned long *outlen,
 {
    LTC_ARGCHK(key != NULL);
 
-   if (key->algo != PKA_X25519) return CRYPT_PK_INVALID_TYPE;
+   if (key->algo != LTC_OID_X25519) return CRYPT_PK_INVALID_TYPE;
 
    return ec25519_export(out, outlen, which, key);
 }

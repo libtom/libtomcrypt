@@ -14,12 +14,12 @@
  */
 
 enum ltc_oid_id {
-   PKA_RSA,
-   PKA_DSA,
-   PKA_EC,
-   PKA_EC_PRIMEF,
-   PKA_X25519,
-   PKA_ED25519,
+   LTC_OID_RSA,
+   LTC_OID_DSA,
+   LTC_OID_EC,
+   LTC_OID_EC_PRIMEF,
+   LTC_OID_X25519,
+   LTC_OID_ED25519,
 };
 
 /*
@@ -202,6 +202,17 @@ void ocb3_int_xor_blocks(unsigned char *out, const unsigned char *block_a, const
 
 /* tomcrypt_misc.h */
 
+typedef enum {
+   /** Use `\r\n` as line separator */
+   BASE64_PEM_CRLF = 1,
+   /** Create output with 72 chars line length */
+   BASE64_PEM_SSH = 2,
+} base64_pem_flags;
+
+int base64_encode_pem(const unsigned char *in,  unsigned long inlen,
+                                     char *out, unsigned long *outlen,
+                            unsigned int  flags);
+
 void copy_or_zeromem(const unsigned char* src, unsigned char* dest, unsigned long len, int coz);
 
 int pbes_decrypt(const pbes_arg  *arg, unsigned char *dec_data, unsigned long *dec_size);
@@ -225,6 +236,7 @@ int rsa_init(rsa_key *key);
 void rsa_shrink_key(rsa_key *key);
 int rsa_make_key_bn_e(prng_state *prng, int wprng, int size, void *e,
                       rsa_key *key); /* used by op-tee */
+int rsa_import_pkcs1(const unsigned char *in, unsigned long inlen, rsa_key *key);
 #endif /* LTC_MRSA */
 
 /* ---- DH Routines ---- */

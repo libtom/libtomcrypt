@@ -34,7 +34,7 @@ int ed25519_verify(const  unsigned char *msg, unsigned long msglen,
    *stat = 0;
 
    if (siglen != 64uL) return CRYPT_INVALID_ARG;
-   if (public_key->algo != PKA_ED25519) return CRYPT_PK_INVALID_TYPE;
+   if (public_key->algo != LTC_OID_ED25519) return CRYPT_PK_INVALID_TYPE;
 
    mlen = msglen + siglen;
    if ((mlen < msglen) || (mlen < siglen)) return CRYPT_OVERFLOW;

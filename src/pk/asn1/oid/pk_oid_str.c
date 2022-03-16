@@ -49,7 +49,7 @@ int pk_oid_num_to_str(const unsigned long *oid, unsigned long oidlen, char *OID,
    char tmp[256] = { 0 };
 
    LTC_ARGCHK(oid != NULL);
-   LTC_ARGCHK(OID != NULL);
+   LTC_ARGCHK(oidlen < INT_MAX);
    LTC_ARGCHK(outlen != NULL);
 
    for (i = oidlen - 1, k = 0; i >= 0; i--) {
@@ -74,6 +74,7 @@ int pk_oid_num_to_str(const unsigned long *oid, unsigned long oidlen, char *OID,
       *outlen = k + 1;
       return CRYPT_BUFFER_OVERFLOW;
    }
+   LTC_ARGCHK(OID != NULL);
    for (j = 0; j < k; j++) OID[j] = tmp[k - j - 1];
    OID[k] = '\0';
    *outlen = k; /* the length without terminating NUL byte */

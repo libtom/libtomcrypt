@@ -88,6 +88,18 @@ static int s_cmp_zero(const padding_testcase* t, const unsigned char* p, unsigne
    return CRYPT_OK;
 }
 
+static int s_cmp_ssh(const padding_testcase* t, const unsigned char* p, unsigned long len)
+{
+   unsigned long n, diff = len - t->is;
+   unsigned char pad = 0x1;
+   DOX(EQ(len, t->should), t->name);
+   for (n = len - diff; n < len; ++n) {
+      DOX(EQ(p[n], pad), t->name);
+      pad++;
+   }
+   return CRYPT_OK;
+}
+
 static int s_padding_testrun(const padding_testcase* t)
 {
    unsigned long len;
@@ -125,6 +137,13 @@ int padding_test(void)
                              {  16,  32,   0, LTC_PAD_ANSI_X923 | 16, "16-x923",  s_cmp_x923 },
                              { 255, 256,   0, LTC_PAD_ANSI_X923 | 16, "255-x923", s_cmp_x923 },
                              { 256, 272,   0, LTC_PAD_ANSI_X923 | 16, "256-x923", s_cmp_x923 },
+
+                             {   0,  16,   0, LTC_PAD_SSH | 16, "0-ssh",   s_cmp_ssh },
+                             {   1,  16,   0, LTC_PAD_SSH | 16, "1-ssh",   s_cmp_ssh },
+                             {  15,  16,   0, LTC_PAD_SSH | 16, "15-ssh",  s_cmp_ssh },
+                             {  16,  32,   0, LTC_PAD_SSH | 16, "16-ssh",  s_cmp_ssh },
+                             { 255, 256,   0, LTC_PAD_SSH | 16, "255-ssh", s_cmp_ssh },
+                             { 256, 272,   0, LTC_PAD_SSH | 16, "256-ssh", s_cmp_ssh },
 
                              {   0,  16,   0, LTC_PAD_ONE_AND_ZERO | 16, "0-one-and-zero",   s_cmp_oaz },
                              {   1,  16,   0, LTC_PAD_ONE_AND_ZERO | 16, "1-one-and-zero",   s_cmp_oaz },

@@ -10,12 +10,12 @@ typedef struct {
 } oid_table_entry;
 
 static const oid_table_entry pka_oids[] = {
-                                              { PKA_RSA,       "1.2.840.113549.1.1.1" },
-                                              { PKA_DSA,       "1.2.840.10040.4.1" },
-                                              { PKA_EC,        "1.2.840.10045.2.1" },
-                                              { PKA_EC_PRIMEF, "1.2.840.10045.1.1" },
-                                              { PKA_X25519,    "1.3.101.110" },
-                                              { PKA_ED25519,   "1.3.101.112" },
+                                              { LTC_OID_RSA,       "1.2.840.113549.1.1.1" },
+                                              { LTC_OID_DSA,       "1.2.840.10040.4.1" },
+                                              { LTC_OID_EC,        "1.2.840.10045.2.1" },
+                                              { LTC_OID_EC_PRIMEF, "1.2.840.10045.1.1" },
+                                              { LTC_OID_X25519,    "1.3.101.110" },
+                                              { LTC_OID_ED25519,   "1.3.101.112" },
 };
 
 /*

@@ -34,7 +34,7 @@ int x25519_make_key(prng_state *prng, int wprng, curve25519_key *key)
    tweetnacl_crypto_scalarmult_base(key->pub, key->priv);
 
    key->type = PK_PRIVATE;
-   key->algo = PKA_X25519;
+   key->algo = LTC_OID_X25519;
 
    return err;
 }

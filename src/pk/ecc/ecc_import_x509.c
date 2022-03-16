@@ -15,7 +15,7 @@ static int s_ecc_import_x509_with_oid(const unsigned char *in, unsigned long inl
 
    len_xy = sizeof(bin_xy);
    len_oid = 16;
-   err = x509_decode_subject_public_key_info(in, inlen, PKA_EC, bin_xy, &len_xy,
+   err = x509_decode_subject_public_key_info(in, inlen, LTC_OID_EC, bin_xy, &len_xy,
                                              LTC_ASN1_OBJECT_IDENTIFIER, (void *)curveoid, &len_oid);
    if (err == CRYPT_OK) {
       /* load curve parameters for given curve OID */
@@ -63,7 +63,7 @@ static int s_ecc_import_x509_with_curve(const unsigned char *in, unsigned long i
    /* try to load public key */
    len_xy = sizeof(bin_xy);
    len = 6;
-   err = x509_decode_subject_public_key_info(in, inlen, PKA_EC, bin_xy, &len_xy, LTC_ASN1_SEQUENCE, seq_ecparams, &len);
+   err = x509_decode_subject_public_key_info(in, inlen, LTC_OID_EC, bin_xy, &len_xy, LTC_ASN1_SEQUENCE, seq_ecparams, &len);
 
    if (err == CRYPT_OK) {
       len_a = seq_curve[0].size;
@@ -107,7 +107,7 @@ success:
 int ecc_import_x509(const unsigned char *in, unsigned long inlen, ecc_key *key)
 {
    return x509_decode_public_key_from_certificate(in, inlen,
-                                                  PKA_EC,
+                                                  LTC_OID_EC,
                                                   LTC_ASN1_EOL, NULL, NULL,
                                                   (public_key_decode_cb)ecc_import_subject_public_key_info, key);
 }

@@ -120,7 +120,7 @@ endif # LTC_SMALL
 
 ifneq ($(findstring clang,$(CC)),)
 LTC_CFLAGS += -Wno-typedef-redefinition -Wno-tautological-compare -Wno-builtin-requires-header
-LTC_CFLAGS += -Wno-missing-field-initializers -Wno-missing-braces
+LTC_CFLAGS += -Wno-missing-field-initializers -Wno-missing-braces -Wno-incomplete-setjmp-declaration
 endif
 ifneq ($(findstring mingw,$(CC)),)
 LTC_CFLAGS += -Wno-shadow -Wno-attributes

@@ -229,19 +229,45 @@ SEQUENCE(3 elem)
 #define CHECK_ASN1_HAS_NO_DATA(l) CHECK_ASN1_HAS_NO(l, data)
 
 #ifdef LTC_DER_TESTS_PRINT_FLEXI
+
+static void* s_xmalloc(int l)
+{
+   void *r = XMALLOC(l);
+
+#if defined(LTC_TEST_DBG) && LTC_TEST_DBG > 3
+   fprintf(stderr, "ALLOC %9d to %p\n", l, r);
+#endif
+   if (!r) {
+      fprintf(stderr, "Could not allocate %d bytes of memory\n", l);
+      exit(EXIT_FAILURE);
+   }
+   return r;
+}
+
+static void s_free(void *p)
+{
+#if defined(LTC_TEST_DBG) && LTC_TEST_DBG > 3
+   fprintf(stderr, "FREE %p\n", p);
+#endif
+   XFREE(p);
+}
+
 static void s_der_tests_print_flexi(ltc_asn1_list* l, unsigned int level)
 {
-  char buf[1024];
+  char *buf = NULL;
   const char* name = NULL;
   const char* text = NULL;
   ltc_asn1_list* ostring = NULL;
   unsigned int n;
+  int slen;
 
   switch (l->type)
     {
   case LTC_ASN1_EOL:
     name = "EOL";
-    snprintf(buf, sizeof(buf),__ASN1_FMTSTRING_FMT "\n", ASN1_FMTSTRING_VAL(l));
+    slen = snprintf(NULL, 0, ASN1_FMTSTRING_FMT "\n", ASN1_FMTSTRING_VAL(l));
+    buf = s_xmalloc(slen);
+    slen = snprintf(buf, slen, ASN1_FMTSTRING_FMT "\n", ASN1_FMTSTRING_VAL(l));
     text = buf;
     break;
   case LTC_ASN1_BOOLEAN:
@@ -255,6 +281,7 @@ static void s_der_tests_print_flexi(ltc_asn1_list* l, unsigned int level)
     break;
   case LTC_ASN1_INTEGER:
     name = "INTEGER";
+    buf = s_xmalloc(((mp_get_digit_count(l->data) + 1) * ltc_mp.bits_per_digit) / 3);
     mp_toradix(l->data, buf, 10);
     text = buf;
     break;
@@ -273,11 +300,10 @@ static void s_der_tests_print_flexi(ltc_asn1_list* l, unsigned int level)
        */
       if (der_decode_sequence_flexi(l->data, &ostring_l, &ostring) == CRYPT_OK) {
           text = "";
-      }
-      else {
+      } else {
           int r;
-          char* s = buf;
-          int sz = sizeof(buf);
+          int sz = l->size * 2 + 1;
+          char* s = buf = s_xmalloc(sz);
           for (n = 0; n < l->size; ++n) {
               r = snprintf(s, sz, "%02X", ((unsigned char*)l->data)[n]);
               if (r < 0 || r >= sz) {
@@ -298,7 +324,12 @@ static void s_der_tests_print_flexi(ltc_asn1_list* l, unsigned int level)
   case LTC_ASN1_OBJECT_IDENTIFIER:
     name = "OBJECT IDENTIFIER";
     {
-      unsigned long len = sizeof(buf);
+      unsigned long len = 0;
+      if (pk_oid_num_to_str(l->data, l->size, buf, &len) != CRYPT_BUFFER_OVERFLOW) {
+        fprintf(stderr, "%s WTF\n", name);
+        exit(EXIT_FAILURE);
+      }
+      buf = s_xmalloc(len);
       if (pk_oid_num_to_str(l->data, l->size, buf, &len) != CRYPT_OK) {
         fprintf(stderr, "%s boom\n", name);
         exit(EXIT_FAILURE);
@@ -321,7 +352,9 @@ static void s_der_tests_print_flexi(ltc_asn1_list* l, unsigned int level)
     name = "UTCTIME";
     {
       ltc_utctime* ut = l->data;
-      snprintf(buf, sizeof(buf), "%02d-%02d-%02d %02d:%02d:%02d %c%02d:%02d",
+      slen = 32;
+      buf = s_xmalloc(slen);
+      snprintf(buf, slen, "%02d-%02d-%02d %02d:%02d:%02d %c%02d:%02d",
           ut->YY, ut->MM, ut->DD, ut->hh, ut->mm, ut->ss,
           ut->off_dir ? '-' : '+', ut->off_hh, ut->off_mm);
       text = buf;
@@ -331,11 +364,13 @@ static void s_der_tests_print_flexi(ltc_asn1_list* l, unsigned int level)
     name = "GENERALIZED TIME";
     {
       ltc_generalizedtime* gt = l->data;
+      slen = 32;
+      buf = s_xmalloc(slen);
       if(gt->fs)
-         snprintf(buf, sizeof(buf), "%04d-%02d-%02d %02d:%02d:%02d.%02dZ",
+         snprintf(buf, slen, "%04d-%02d-%02d %02d:%02d:%02d.%02dZ",
           gt->YYYY, gt->MM, gt->DD, gt->hh, gt->mm, gt->ss, gt->fs);
       else
-         snprintf(buf, sizeof(buf), "%04d-%02d-%02d %02d:%02d:%02dZ",
+         snprintf(buf, slen, "%04d-%02d-%02d %02d:%02d:%02dZ",
           gt->YYYY, gt->MM, gt->DD, gt->hh, gt->mm, gt->ss);
       text = buf;
     }
@@ -366,8 +401,8 @@ static void s_der_tests_print_flexi(ltc_asn1_list* l, unsigned int level)
     name = "NON STANDARD";
     {
        int r;
-       char* s = buf;
-       int sz = sizeof(buf);
+       int sz = 128;
+       char* s = buf = s_xmalloc(sz);
 
        r = snprintf(s, sz, "[%s %s %llu]", der_asn1_class_to_string_map[l->klass], der_asn1_pc_to_string_map[l->pc], l->tag);
        if (r < 0 || r >= sz) {
@@ -393,6 +428,11 @@ static void s_der_tests_print_flexi(ltc_asn1_list* l, unsigned int level)
   }
   else
      fprintf(stderr, "WTF type=%i\n", l->type);
+
+  if (buf) {
+     s_free(buf);
+     buf = NULL;
+  }
 
   if (ostring) {
       s_der_tests_print_flexi(ostring, level + 1);
@@ -1661,7 +1701,7 @@ int der_test(void)
       for (z = 0; z < 1024; z++) {
 #endif
          if (yarrow_read(buf[0], z, &yarrow_prng) != z) {
-            fprintf(stderr, "Failed to read %lu bytes from yarrow\n", z);
+            fprintf(stderr, "%d: Failed to read %lu bytes from yarrow\n", __LINE__, z);
             return 1;
          }
          DO(mp_read_unsigned_bin(a, buf[0], z));
@@ -1684,7 +1724,7 @@ int der_test(void)
    for (zz = 0; zz < 256; zz++) {
       for (z = 1; z < 4; z++) {
          if (yarrow_read(buf[2], z, &yarrow_prng) != z) {
-            fprintf(stderr, "Failed to read %lu bytes from yarrow\n", z);
+            fprintf(stderr, "%d: Failed to read %lu bytes from yarrow\n", __LINE__, z);
             return 1;
          }
          /* encode with normal */
@@ -1723,7 +1763,10 @@ int der_test(void)
 
 /* Test bit string */
    for (zz = 1; zz < 1536; zz++) {
-       yarrow_read(buf[0], zz, &yarrow_prng);
+       if (yarrow_read(buf[0], zz, &yarrow_prng) != zz) {
+          fprintf(stderr, "%d: Failed to read %lu bytes from yarrow\n", __LINE__, zz);
+          return 1;
+       }
        for (z = 0; z < zz; z++) {
            buf[0][z] &= 0x01;
        }
@@ -1745,7 +1788,10 @@ int der_test(void)
 
 /* Test octet string */
    for (zz = 1; zz < 1536; zz++) {
-       yarrow_read(buf[0], zz, &yarrow_prng);
+       if (yarrow_read(buf[0], zz, &yarrow_prng) != zz) {
+          fprintf(stderr, "%d: Failed to read %lu bytes from yarrow\n", __LINE__, zz);
+          return 1;
+       }
        x = sizeof(buf[1]);
        DO(der_encode_octet_string(buf[0], zz, buf[1], &x));
        DO(der_length_octet_string(zz, &y));
@@ -1783,7 +1829,10 @@ int der_test(void)
    /* do random strings */
    for (zz = 0; zz < 5000; zz++) {
        /* pick a random number of words */
-       yarrow_read(buf[0], 4, &yarrow_prng);
+       if (yarrow_read(buf[0], 4, &yarrow_prng) != 4) {
+          fprintf(stderr, "%d: Failed to read %d bytes from yarrow\n", __LINE__, 4);
+          return 1;
+       }
        LOAD32L(z, buf[0]);
        z = 2 + (z % ((sizeof(oid[0])/sizeof(oid[0][0])) - 2));
 
@@ -1792,7 +1841,10 @@ int der_test(void)
        oid[0][1] = buf[0][1] % 40;
 
        for (y = 2; y < z; y++) {
-          yarrow_read(buf[0], 4, &yarrow_prng);
+          if (yarrow_read(buf[0], 4, &yarrow_prng) != 4) {
+             fprintf(stderr, "%d: Failed to read %d bytes from yarrow\n", __LINE__, 4);
+             return 1;
+          }
           LOAD32L(oid[0][y], buf[0]);
        }
 
