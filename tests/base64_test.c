@@ -130,7 +130,7 @@ int base64_test(void)
    }
 
    for  (x = 0; x < 64; x++) {
-       yarrow_read(in, x, &yarrow_prng);
+       ENSURE(yarrow_read(in, x, &yarrow_prng) == x);
        l1 = sizeof(out);
        DO(base64_encode(in, x, out, &l1));
        l2 = sizeof(tmp);

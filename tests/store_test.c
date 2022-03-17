@@ -6,11 +6,11 @@
 int store_test(void)
 {
   unsigned char buf[256];
-  int y;
+  unsigned long y;
   ulong32 L, L1;
   ulong64 LL, LL1;
 #ifdef LTC_FAST
-  int x, z;
+  unsigned long x, z;
 #endif
 
   for (y = 0; y < 4; y++) {
@@ -19,13 +19,13 @@ int store_test(void)
       STORE32L(L, buf + y);
       LOAD32L(L1, buf + y);
       if (L1 != L) {
-         fprintf(stderr, "\n32L failed at offset %d\n", y);
+         fprintf(stderr, "\n32L failed at offset %lu\n", y);
          return 1;
       }
       STORE32H(L, buf + y);
       LOAD32H(L1, buf + y);
       if (L1 != L) {
-         fprintf(stderr, "\n32H failed at offset %d\n", y);
+         fprintf(stderr, "\n32H failed at offset %lu\n", y);
          return 1;
       }
   }
@@ -36,13 +36,13 @@ int store_test(void)
       STORE64L(LL, buf + y);
       LOAD64L(LL1, buf + y);
       if (LL1 != LL) {
-         fprintf(stderr, "\n64L failed at offset %d\n", y);
+         fprintf(stderr, "\n64L failed at offset %lu\n", y);
          return 1;
       }
       STORE64H(LL, buf + y);
       LOAD64H(LL1, buf + y);
       if (LL1 != LL) {
-         fprintf(stderr, "\n64H failed at offset %d\n", y);
+         fprintf(stderr, "\n64H failed at offset %lu\n", y);
          return 1;
       }
   }
@@ -53,8 +53,8 @@ int store_test(void)
 
   for (z = 0; z < y; z++) {
      /* fill y bytes with random */
-     yarrow_read(buf+z,   y, &yarrow_prng);
-     yarrow_read(buf+z+y, y, &yarrow_prng);
+     ENSURE(yarrow_read(buf+z,   y, &yarrow_prng) == y);
+     ENSURE(yarrow_read(buf+z+y, y, &yarrow_prng) == y);
 
      /* now XOR it byte for byte */
      for (x = 0; x < y; x++) {
@@ -67,7 +67,7 @@ int store_test(void)
      }
 
      if (memcmp(&buf[2*y+z], &buf[3*y+z], y)) {
-        fprintf(stderr, "\nLTC_FAST failed at offset %d\n", z);
+        fprintf(stderr, "\nLTC_FAST failed at offset %lu\n", z);
         return 1;
      }
   }

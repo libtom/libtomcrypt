@@ -154,9 +154,9 @@ static int s_ecc_test_shamir(void)
        /* do 100 random tests */
        for (y = 0; y < 100; y++) {
           /* pick a random r1, r2 */
-          LTC_ARGCHK(yarrow_read(buf, sizes[x], &yarrow_prng) == sizes[x]);
+          ENSURE(yarrow_read(buf, sizes[x], &yarrow_prng) == sizes[x]);
           DO(mp_read_unsigned_bin(rA, buf, sizes[x]));
-          LTC_ARGCHK(yarrow_read(buf, sizes[x], &yarrow_prng) == sizes[x]);
+          ENSURE(yarrow_read(buf, sizes[x], &yarrow_prng) == sizes[x]);
           DO(mp_read_unsigned_bin(rB, buf, sizes[x]));
 
           /* compute rA * G = A */
@@ -166,9 +166,9 @@ static int s_ecc_test_shamir(void)
           DO(ltc_mp.ecc_ptmul(rB, G, B, a, modulus, 1));
 
           /* pick a random kA, kB */
-          LTC_ARGCHK(yarrow_read(buf, sizes[x], &yarrow_prng) == sizes[x]);
+          ENSURE(yarrow_read(buf, sizes[x], &yarrow_prng) == sizes[x]);
           DO(mp_read_unsigned_bin(kA, buf, sizes[x]));
-          LTC_ARGCHK(yarrow_read(buf, sizes[x], &yarrow_prng) == sizes[x]);
+          ENSURE(yarrow_read(buf, sizes[x], &yarrow_prng) == sizes[x]);
           DO(mp_read_unsigned_bin(kB, buf, sizes[x]));
 
           /* now, compute kA*A + kB*B = C1 using the older method */

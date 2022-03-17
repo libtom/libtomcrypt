@@ -385,7 +385,7 @@ static int s_rsa_public_ubin_e(int prng_idx)
     * overflow.
     */
    DO(rng_make_prng(elen * 8, prng_idx, &yarrow_prng, NULL));
-   LTC_ARGCHK(yarrow_read(e, elen, &yarrow_prng) == elen);
+   ENSURE(yarrow_read(e, elen, &yarrow_prng) == elen);
 
    /* Ensure that public exponent is:
     *  - odd value
@@ -503,7 +503,7 @@ print_hex("q", tmp, len);
    for (cnt = 0; cnt < 4; cnt++) {
    for (rsa_msgsize = 1; rsa_msgsize <= 86; rsa_msgsize++) {
       /* make a random key/msg */
-      yarrow_read(in, rsa_msgsize, &yarrow_prng);
+      ENSURE(yarrow_read(in, rsa_msgsize, &yarrow_prng) == rsa_msgsize);
 
       len  = sizeof(out);
       len2 = rsa_msgsize;
@@ -547,7 +547,7 @@ print_hex("q", tmp, len);
       len  = sizeof(out);
       len2 = rsa_msgsize;
       /* make a random key/msg */
-      yarrow_read(in, rsa_msgsize, &yarrow_prng);
+      ENSURE(yarrow_read(in, rsa_msgsize, &yarrow_prng) == rsa_msgsize);
       DO(rsa_encrypt_key_ex(in, rsa_msgsize, out, &len, NULL, 0, &yarrow_prng, prng_idx, 0, LTC_PKCS_1_V1_5, &key));
 
       len2 = rsa_msgsize;
