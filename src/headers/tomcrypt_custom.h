@@ -773,4 +773,11 @@
 #undef LTC_ECC521
 #endif
 
+/* MSVC can't build PEM */
+#if defined(LTC_PEM) && defined(_MSC_VER)
+#undef LTC_PEM
+#undef LTC_PEM_DECODE_BUFSZ
+#undef LTC_PEM_READ_BUFSIZE
+#endif
+
 #endif /* TOMCRYPT_CUSTOM_H_ */
