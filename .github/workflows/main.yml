@@ -65,3 +65,14 @@ jobs:
           cat test_std.txt
           cat test_err.txt
           cat tv.txt
+      - name: pack build directory
+        if: ${{ failure() }}
+        run: |
+          tar cJf build-${{ github.run_id }}.tar.xz --exclude ./build-${{ github.run_id }}.tar.xz .
+      - name: upload Artifact
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-${{ github.run_id }}.tar.xz
+          path: build-${{ github.run_id }}.tar.xz
+          retention-days: 1
