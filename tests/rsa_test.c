@@ -384,7 +384,6 @@ static int s_rsa_public_ubin_e(int prng_idx)
     * Generate about 256 bits to check error when public exponent
     * overflow.
     */
-   DO(rng_make_prng(elen * 8, prng_idx, &yarrow_prng, NULL));
    ENSURE(yarrow_read(e, elen, &yarrow_prng) == elen);
 
    /* Ensure that public exponent is:
