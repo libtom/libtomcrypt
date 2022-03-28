@@ -4,9 +4,25 @@
 
 #if defined(_WIN32)
    #define PRI64  "I64d"
+   #include <windows.h>
+   #ifndef PATH_MAX
+   #define PATH_MAX MAX_PATH
+   #endif
 #else
    #define PRI64  "ll"
 #endif
+
+#ifdef TFM_DESC
+#include <tfm.h>
+#endif
+
+#define DO(x) do{ \
+   int err; \
+   if ((err = (x)) != CRYPT_OK) { \
+      fprintf(stderr, "\n\n " #x " says %s!\n", error_to_string(err)); \
+      exit(EXIT_FAILURE); \
+   } \
+} while(0)
 
 static prng_state yarrow_prng;
 
@@ -53,6 +69,29 @@ static void tally_results(int type)
           ("%-20s: Process at %5"PRI64"u\n", hash_descriptor[results[x].id].name, results[x].spd1 / 1000);
       }
    }
+}
+#if defined(LTC_MRSA) || defined(LTC_MECC)
+static void read_key(const char *alg, unsigned long sz, void *buf, unsigned long *l);
+#endif
+
+#define CSV_SEP ","
+#define OUTFILE stdout
+static void print_csv(const char *alg, const char *op, unsigned long sz, ulong64 t)
+{
+   fprintf(OUTFILE, "%s" CSV_SEP "%s" CSV_SEP "%lu" CSV_SEP "%" PRI64 "u\n", alg, op, sz, t);
+   fflush(OUTFILE);
+}
+static void print_csv_dsa(const char *op, unsigned long sz1, unsigned long sz2, ulong64 t)
+{
+   fprintf(OUTFILE, "DSA" CSV_SEP "%s" CSV_SEP "%lu" CSV_SEP "%lu" CSV_SEP "%" PRI64 "u\n", op, sz1, sz2, t);
+   fflush(OUTFILE);
+}
+static void print_csv_header(const char *sz1, const char *sz2)
+{
+   fprintf(OUTFILE, "algo" CSV_SEP "operation" CSV_SEP "%s", sz1);
+   if (sz2) fprintf(OUTFILE, CSV_SEP "%s", sz2);
+   fprintf(OUTFILE, CSV_SEP "ticks\n");
+   fflush(OUTFILE);
 }
 
 /* RDTSC from Scott Duplichan */
@@ -636,55 +675,71 @@ static void time_prng(void)
    }
 }
 
+static int check_tfm_limit(unsigned long x)
+{
+#ifdef TFM_DESC
+   if (strcasecmp(ltc_mp.name, "tomsfastmath") == 0) {
+      if (x * 2 > FP_MAX_SIZE) return 1;
+   }
+#else
+   LTC_UNUSED_PARAM(x);
+#endif
+   return 0;
+}
+
 #if defined(LTC_MDSA)
 /* time various DSA operations */
 static void time_dsa(void)
 {
-   dsa_key       key;
-   ulong64       t1, t2;
+   dsa_key key;
+   ulong64 t1, t2;
    unsigned long x, y;
-   int           err;
-static const struct {
-   int group, modulus;
-} groups[] = {
-{ 20, 96  },
-{ 20, 128 },
-{ 24, 192 },
-{ 28, 256 },
-#ifndef TFM_DESC
-{ 32, 512 },
-#endif
-};
+   int err;
+   static const struct
+   {
+      int group, modulus;
+   } groups[] =
+      {
+         { 20, 96 },
+         { 20, 128 },
+         { 24, 192 },
+         { 28, 256 },
+         { 32, 512 },
+      };
 
    if (ltc_mp.name == NULL) return;
 
-   for (x = 0; x < (sizeof(groups)/sizeof(groups[0])); x++) {
-       t2 = 0;
-       for (y = 0; y < 4; y++) {
-           t_start();
-           t1 = t_read();
-           if ((err = dsa_generate_pqg(&yarrow_prng, find_prng("yarrow"), groups[x].group, groups[x].modulus, &key)) != CRYPT_OK) {
-              fprintf(stderr, "\n\ndsa_generate_pqg says %s, wait...no it should say %s...damn you!\n", error_to_string(err), error_to_string(CRYPT_OK));
-              exit(EXIT_FAILURE);
-           }
-           if ((err = dsa_generate_key(&yarrow_prng, find_prng("yarrow"), &key)) != CRYPT_OK) {
-              fprintf(stderr, "\n\ndsa_make_key says %s, wait...no it should say %s...damn you!\n", error_to_string(err), error_to_string(CRYPT_OK));
-              exit(EXIT_FAILURE);
-           }
-           t1 = t_read() - t1;
-           t2 += t1;
+   print_csv_header("group", "modulus");
+   for (x = 0; x < (sizeof(groups) / sizeof(groups[0])); x++) {
+      if (check_tfm_limit(groups[x].modulus * 8)) break;
+      t2 = 0;
+      for (y = 0; y < 4; y++) {
+         t_start();
+         t1 = t_read();
+         if ((err = dsa_generate_pqg(&yarrow_prng, find_prng("yarrow"), groups[x].group, groups[x].modulus, &key)) != CRYPT_OK) {
+            fprintf(stderr, "\n\ndsa_generate_pqg says %s, wait...no it should say %s...damn you!\n",
+                    error_to_string(err), error_to_string(CRYPT_OK));
+            exit(EXIT_FAILURE);
+         }
+         if ((err = dsa_generate_key(&yarrow_prng, find_prng("yarrow"), &key)) != CRYPT_OK) {
+            fprintf(stderr, "\n\ndsa_make_key says %s, wait...no it should say %s...damn you!\n", error_to_string(err),
+                    error_to_string(CRYPT_OK));
+            exit(EXIT_FAILURE);
+         }
+         t1 = t_read() - t1;
+         t2 += t1;
 
 #ifdef LTC_PROFILE
-       t2 <<= 2;
-       break;
+         t2 <<= 2;
+         break;
 #endif
-           if (y < 3) {
-              dsa_free(&key);
-           }
-       }
-       t2 >>= 2;
-       fprintf(stderr, "DSA-(%lu, %lu) make_key    took %15"PRI64"u cycles\n", (unsigned long)groups[x].group*8, (unsigned long)groups[x].modulus*8, t2);
-       dsa_free(&key);
+         if (y < 3) {
+            dsa_free(&key);
+         }
+      }
+      t2 >>= 2;
+      print_csv_dsa("make_key", (unsigned long) groups[x].group * 8, (unsigned long) groups[x].modulus * 8, t2);
+      dsa_free(&key);
    }
    fprintf(stderr, "\n\n");
 }
@@ -692,128 +747,119 @@ static const struct {
 static void time_dsa(void) { fprintf(stderr, "NO DSA\n"); }
 #endif
 
-
 #if defined(LTC_MRSA)
 /* time various RSA operations */
 static void time_rsa(void)
 {
-   rsa_key       key;
-   ulong64       t1, t2;
-   unsigned char buf[2][2048] = { 0 };
+   rsa_key key;
+   ulong64 t1, t2;
+   unsigned char buf[2][4096] =
+      { 0 };
    unsigned long x, y, z, zzz;
-   int           err, zz, stat;
+   int zz;
 
    if (ltc_mp.name == NULL) return;
 
+   print_csv_header("keysize", NULL);
    for (x = 2048; x <= 8192; x <<= 1) {
-       t2 = 0;
-       for (y = 0; y < 4; y++) {
-           t_start();
-           t1 = t_read();
-           if ((err = rsa_make_key(&yarrow_prng, find_prng("yarrow"), x/8, 65537, &key)) != CRYPT_OK) {
-              fprintf(stderr, "\n\nrsa_make_key says %s, wait...no it should say %s...damn you!\n", error_to_string(err), error_to_string(CRYPT_OK));
-              exit(EXIT_FAILURE);
-           }
-           t1 = t_read() - t1;
-           t2 += t1;
+      if (check_tfm_limit(x)) break;
+
+#ifndef TIMING_DONT_MAKE_KEY
+      t2 = 0;
+      for (y = 0; y < 4; y++) {
+         t_start();
+         t1 = t_read();
+         DO(rsa_make_key(&yarrow_prng, find_prng("yarrow"), x / 8, 65537, &key));
+         t1 = t_read() - t1;
+         t2 += t1;
 
 #ifdef LTC_PROFILE
-       t2 <<= 2;
-       break;
+         t2 <<= 2;
+         break;
 #endif
 
-           if (y < 3) {
-              rsa_free(&key);
-           }
-       }
-       t2 >>= 2;
-       fprintf(stderr, "RSA-%lu make_key    took %15"PRI64"u cycles\n", x, t2);
+         rsa_free(&key);
+      }
+      t2 >>= 2;
+      print_csv("RSA", "make_key", x, t2);
+#endif
 
-       t2 = 0;
-       for (y = 0; y < 16; y++) {
-           t_start();
-           t1 = t_read();
-           z = sizeof(buf[1]);
-           if ((err = rsa_encrypt_key(buf[0], 32, buf[1], &z, (const unsigned char *)"testprog", 8, &yarrow_prng,
-                                      find_prng("yarrow"), find_hash("sha1"),
-                                      &key)) != CRYPT_OK) {
-              fprintf(stderr, "\n\nrsa_encrypt_key says %s, wait...no it should say %s...damn you!\n", error_to_string(err), error_to_string(CRYPT_OK));
-              exit(EXIT_FAILURE);
-           }
-           t1 = t_read() - t1;
-           t2 += t1;
+      zzz = sizeof(buf);
+      read_key("RSA", x, buf, &zzz);
+
+      DO(rsa_import((void*)buf, zzz, &key));
+
+      t2 = 0;
+      for (y = 0; y < 256; y++) {
+         t_start();
+         t1 = t_read();
+         z = sizeof(buf[1]);
+         DO(rsa_encrypt_key(buf[0], 32, buf[1], &z, (const unsigned char * )"testprog", 8, &yarrow_prng,
+                                    find_prng("yarrow"), find_hash("sha1"), &key));
+         t1 = t_read() - t1;
+         t2 += t1;
 #ifdef LTC_PROFILE
-       t2 <<= 4;
-       break;
+         t2 <<= 4;
+         break;
 #endif
-       }
-       t2 >>= 4;
-       fprintf(stderr, "RSA-%lu encrypt_key took %15"PRI64"u cycles\n", x, t2);
+      }
+      t2 >>= 4;
+      print_csv("RSA", "encrypt_key", x, t2);
 
-       t2 = 0;
-       for (y = 0; y < 2048; y++) {
-           t_start();
-           t1 = t_read();
-           zzz = sizeof(buf[0]);
-           if ((err = rsa_decrypt_key(buf[1], z, buf[0], &zzz, (const unsigned char *)"testprog", 8,  find_hash("sha1"),
-                                      &zz, &key)) != CRYPT_OK) {
-              fprintf(stderr, "\n\nrsa_decrypt_key says %s, wait...no it should say %s...damn you!\n", error_to_string(err), error_to_string(CRYPT_OK));
-              exit(EXIT_FAILURE);
-           }
-           t1 = t_read() - t1;
-           t2 += t1;
+      t2 = 0;
+      for (y = 0; y < 2048; y++) {
+         t_start();
+         t1 = t_read();
+         zzz = sizeof(buf[0]);
+         DO(rsa_decrypt_key(buf[1], z, buf[0], &zzz, (const unsigned char * )"testprog", 8, find_hash("sha1"),
+                                    &zz, &key));
+         t1 = t_read() - t1;
+         t2 += t1;
 #ifdef LTC_PROFILE
-       t2 <<= 11;
-       break;
+         t2 <<= 11;
+         break;
 #endif
-       }
-       t2 >>= 11;
-       fprintf(stderr, "RSA-%lu decrypt_key took %15"PRI64"u cycles\n", x, t2);
+      }
+      t2 >>= 11;
+      print_csv("RSA", "decrypt_key", x, t2);
 
-       t2 = 0;
-       for (y = 0; y < 256; y++) {
-          t_start();
-          t1 = t_read();
-          z = sizeof(buf[1]);
-          if ((err = rsa_sign_hash(buf[0], 20, buf[1], &z, &yarrow_prng,
-                                   find_prng("yarrow"), find_hash("sha1"), 8, &key)) != CRYPT_OK) {
-              fprintf(stderr, "\n\nrsa_sign_hash says %s, wait...no it should say %s...damn you!\n", error_to_string(err), error_to_string(CRYPT_OK));
-              exit(EXIT_FAILURE);
-           }
-           t1 = t_read() - t1;
-           t2 += t1;
+      t2 = 0;
+      for (y = 0; y < 256; y++) {
+         t_start();
+         t1 = t_read();
+         z = sizeof(buf[1]);
+         DO(rsa_sign_hash(buf[0], 20, buf[1], &z, &yarrow_prng, find_prng("yarrow"), find_hash("sha1"), 8, &key));
+         t1 = t_read() - t1;
+         t2 += t1;
 #ifdef LTC_PROFILE
-       t2 <<= 8;
-       break;
+         t2 <<= 8;
+         break;
 #endif
-        }
-        t2 >>= 8;
-        fprintf(stderr, "RSA-%lu sign_hash took   %15"PRI64"u cycles\n", x, t2);
+      }
+      t2 >>= 8;
+      print_csv("RSA", "sign_hash", x, t2);
 
-       t2 = 0;
-       for (y = 0; y < 2048; y++) {
-          t_start();
-          t1 = t_read();
-          if ((err = rsa_verify_hash(buf[1], z, buf[0], 20, find_hash("sha1"), 8, &stat, &key)) != CRYPT_OK) {
-              fprintf(stderr, "\n\nrsa_verify_hash says %s, wait...no it should say %s...damn you!\n", error_to_string(err), error_to_string(CRYPT_OK));
-              exit(EXIT_FAILURE);
-          }
-          if (stat == 0) {
-             fprintf(stderr, "\n\nrsa_verify_hash for RSA-%lu failed to verify signature(%lu)\n", x, y);
-             exit(EXIT_FAILURE);
-          }
-          t1 = t_read() - t1;
-          t2 += t1;
+      t2 = 0;
+      for (y = 0; y < 2048; y++) {
+         int stat;
+         t_start();
+         t1 = t_read();
+         DO(rsa_verify_hash(buf[1], z, buf[0], 20, find_hash("sha1"), 8, &stat, &key));
+         if (stat == 0) {
+            fprintf(stderr, "\n\nrsa_verify_hash for RSA-%lu failed to verify signature(%lu)\n", x, y);
+            exit(EXIT_FAILURE);
+         }
+         t1 = t_read() - t1;
+         t2 += t1;
 #ifdef LTC_PROFILE
-       t2 <<= 11;
-       break;
+         t2 <<= 11;
+         break;
 #endif
-        }
-        t2 >>= 11;
-        fprintf(stderr, "RSA-%lu verify_hash took %15"PRI64"u cycles\n", x, t2);
-       fprintf(stderr, "\n\n");
-       rsa_free(&key);
-  }
+      }
+      t2 >>= 11;
+      print_csv("RSA", "verify_hash", x, t2);
+      rsa_free(&key);
+   }
 }
 #else
 static void time_rsa(void) { fprintf(stderr, "NO RSA\n"); }
@@ -826,37 +872,30 @@ static void time_dh(void)
    dh_key key;
    ulong64 t1, t2;
    unsigned long i, x, y;
-   int           err;
    static unsigned long sizes[] = {768/8, 1024/8, 1536/8, 2048/8,
-#ifndef TFM_DESC
                                    3072/8, 4096/8, 6144/8, 8192/8,
-#endif
                                    100000
    };
 
    if (ltc_mp.name == NULL) return;
 
+   print_csv_header("keysize", NULL);
    for (x = sizes[i=0]; x < 100000; x = sizes[++i]) {
+      if (check_tfm_limit(x)) break;
        t2 = 0;
        for (y = 0; y < 16; y++) {
-           if((err = dh_set_pg_groupsize(x, &key)) != CRYPT_OK) {
-              fprintf(stderr, "\n\ndh_set_pg_groupsize says %s, wait...no it should say %s...damn you!\n", error_to_string(err), error_to_string(CRYPT_OK));
-              exit(EXIT_FAILURE);
-           }
+           DO(dh_set_pg_groupsize(x, &key));
 
            t_start();
            t1 = t_read();
-           if ((err = dh_generate_key(&yarrow_prng, find_prng("yarrow"), &key)) != CRYPT_OK) {
-              fprintf(stderr, "\n\ndh_make_key says %s, wait...no it should say %s...damn you!\n", error_to_string(err), error_to_string(CRYPT_OK));
-              exit(EXIT_FAILURE);
-           }
+           DO(dh_generate_key(&yarrow_prng, find_prng("yarrow"), &key));
            t1 = t_read() - t1;
            t2 += t1;
 
            dh_free(&key);
        }
        t2 >>= 4;
-       fprintf(stderr, "DH-%4lu make_key    took %15"PRI64"u cycles\n", x*8, t2);
+       print_csv("DH", "make_key", x, t2);
   }
 }
 #else
@@ -864,6 +903,33 @@ static void time_dh(void) { fprintf(stderr, "NO DH\n"); }
 #endif
 
 #if defined(LTC_MECC)
+static unsigned long ecc_key_sizes[] = {
+#ifdef LTC_ECC_SECP112R1
+112,
+#endif
+#ifdef LTC_ECC_SECP128R1
+128,
+#endif
+#ifdef LTC_ECC_SECP160R1
+160,
+#endif
+#ifdef LTC_ECC_SECP192R1
+192,
+#endif
+#ifdef LTC_ECC_SECP224R1
+224,
+#endif
+#ifdef LTC_ECC_SECP256R1
+256,
+#endif
+#ifdef LTC_ECC_SECP384R1
+384,
+#endif
+#ifdef LTC_ECC_SECP512R1
+521,
+#endif
+100000};
+
 /* time various ECC operations */
 static void time_ecc(void)
 {
@@ -871,45 +937,20 @@ static void time_ecc(void)
    ulong64 t1, t2;
    unsigned char buf[2][256] = { 0 };
    unsigned long i, w, x, y, z;
-   int           err, stat;
-   static unsigned long sizes[] = {
-#ifdef LTC_ECC_SECP112R1
-112/8,
-#endif
-#ifdef LTC_ECC_SECP128R1
-128/8,
-#endif
-#ifdef LTC_ECC_SECP160R1
-160/8,
-#endif
-#ifdef LTC_ECC_SECP192R1
-192/8,
-#endif
-#ifdef LTC_ECC_SECP224R1
-224/8,
-#endif
-#ifdef LTC_ECC_SECP256R1
-256/8,
-#endif
-#ifdef LTC_ECC_SECP384R1
-384/8,
-#endif
-#ifdef LTC_ECC_SECP512R1
-521/8,
-#endif
-100000};
+   int           stat;
 
    if (ltc_mp.name == NULL) return;
 
-   for (x = sizes[i=0]; x < 100000; x = sizes[++i]) {
+   print_csv_header("keysize", NULL);
+   for (x = ecc_key_sizes[i=0]; x < 100000; x = ecc_key_sizes[++i]) {
+      if (check_tfm_limit(x)) break;
+
+#ifndef TIMING_DONT_MAKE_KEY
        t2 = 0;
        for (y = 0; y < 256; y++) {
            t_start();
            t1 = t_read();
-           if ((err = ecc_make_key(&yarrow_prng, find_prng("yarrow"), x, &key)) != CRYPT_OK) {
-              fprintf(stderr, "\n\necc_make_key says %s, wait...no it should say %s...damn you!\n", error_to_string(err), error_to_string(CRYPT_OK));
-              exit(EXIT_FAILURE);
-           }
+           DO(ecc_make_key(&yarrow_prng, find_prng("yarrow"), x/8, &key));
            t1 = t_read() - t1;
            t2 += t1;
 
@@ -923,18 +964,21 @@ static void time_ecc(void)
            }
        }
        t2 >>= 8;
-       fprintf(stderr, "ECC-%lu make_key    took %15"PRI64"u cycles\n", x*8, t2);
+       print_csv("ECC", "make_key", x, t2);
+#endif
+
+       w = sizeof(buf[0]);
+       read_key("ECC", x, buf[0], &w);
+
+       DO(ecc_import(buf[0], w, &key));
 
        t2 = 0;
        for (y = 0; y < 256; y++) {
            t_start();
            t1 = t_read();
            z = sizeof(buf[1]);
-           if ((err = ecc_encrypt_key(buf[0], 20, buf[1], &z, &yarrow_prng, find_prng("yarrow"), find_hash("sha1"),
-                                      &key)) != CRYPT_OK) {
-              fprintf(stderr, "\n\necc_encrypt_key says %s, wait...no it should say %s...damn you!\n", error_to_string(err), error_to_string(CRYPT_OK));
-              exit(EXIT_FAILURE);
-           }
+           DO(ecc_encrypt_key(buf[0], 20, buf[1], &z, &yarrow_prng, find_prng("yarrow"), find_hash("sha1"),
+                                      &key));
            t1 = t_read() - t1;
            t2 += t1;
 #ifdef LTC_PROFILE
@@ -943,17 +987,14 @@ static void time_ecc(void)
 #endif
        }
        t2 >>= 8;
-       fprintf(stderr, "ECC-%lu encrypt_key took %15"PRI64"u cycles\n", x*8, t2);
+       print_csv("ECC", "encrypt_key", x, t2);
 
        t2 = 0;
        for (y = 0; y < 256; y++) {
            t_start();
            t1 = t_read();
            w = 20;
-           if ((err = ecc_decrypt_key(buf[1], z, buf[0], &w, &key)) != CRYPT_OK) {
-              fprintf(stderr, "\n\necc_decrypt_key says %s, wait...no it should say %s...damn you!\n", error_to_string(err), error_to_string(CRYPT_OK));
-              exit(EXIT_FAILURE);
-           }
+           DO(ecc_decrypt_key(buf[1], z, buf[0], &w, &key));
            t1 = t_read() - t1;
            t2 += t1;
 #ifdef LTC_PROFILE
@@ -962,18 +1003,15 @@ static void time_ecc(void)
 #endif
        }
        t2 >>= 8;
-       fprintf(stderr, "ECC-%lu decrypt_key took %15"PRI64"u cycles\n", x*8, t2);
+       print_csv("ECC", "decrypt_key", x, t2);
 
        t2 = 0;
        for (y = 0; y < 256; y++) {
           t_start();
           t1 = t_read();
           z = sizeof(buf[1]);
-          if ((err = ecc_sign_hash(buf[0], 20, buf[1], &z, &yarrow_prng,
-                                   find_prng("yarrow"), &key)) != CRYPT_OK) {
-              fprintf(stderr, "\n\necc_sign_hash says %s, wait...no it should say %s...damn you!\n", error_to_string(err), error_to_string(CRYPT_OK));
-              exit(EXIT_FAILURE);
-           }
+          DO(ecc_sign_hash(buf[0], 20, buf[1], &z, &yarrow_prng,
+                                   find_prng("yarrow"), &key));
            t1 = t_read() - t1;
            t2 += t1;
 #ifdef LTC_PROFILE
@@ -982,18 +1020,15 @@ static void time_ecc(void)
 #endif
         }
         t2 >>= 8;
-        fprintf(stderr, "ECC-%lu sign_hash took   %15"PRI64"u cycles\n", x*8, t2);
+        print_csv("ECC", "sign_hash", x, t2);
 
        t2 = 0;
        for (y = 0; y < 256; y++) {
           t_start();
           t1 = t_read();
-          if ((err = ecc_verify_hash(buf[1], z, buf[0], 20, &stat, &key)) != CRYPT_OK) {
-              fprintf(stderr, "\n\necc_verify_hash says %s, wait...no it should say %s...damn you!\n", error_to_string(err), error_to_string(CRYPT_OK));
-              exit(EXIT_FAILURE);
-          }
+          DO(ecc_verify_hash(buf[1], z, buf[0], 20, &stat, &key));
           if (stat == 0) {
-             fprintf(stderr, "\n\necc_verify_hash for ECC-%lu failed to verify signature(%lu)\n", x*8, y);
+             fprintf(stderr, "\n\necc_verify_hash for ECC-%lu failed to verify signature(%lu)\n", x, y);
              exit(EXIT_FAILURE);
           }
           t1 = t_read() - t1;
@@ -1004,15 +1039,147 @@ static void time_ecc(void)
 #endif
         }
         t2 >>= 8;
-        fprintf(stderr, "ECC-%lu verify_hash took %15"PRI64"u cycles\n", x*8, t2);
+        print_csv("ECC", "verify_hash", x, t2);
 
-       fprintf(stderr, "\n\n");
        ecc_free(&key);
   }
 }
 #else
 static void time_ecc(void) { fprintf(stderr, "NO ECC\n"); }
 #endif
+
+
+/* generate fresh PKA keys for the timing operations */
+#if defined(LTC_MRSA) || defined(LTC_MECC)
+
+static void read_key(const char *alg, unsigned long sz, void *buf, unsigned long *l)
+{
+   char name[PATH_MAX];
+   FILE *f;
+   size_t n;
+
+   snprintf(name, sizeof(name) - 1, "demos/keys/%s-%lu.privkey", alg, sz);
+   f = fopen(name, "rb");
+   if (f == NULL) {
+      fprintf(stderr, "can't open %s", name);
+      exit(EXIT_FAILURE);
+   }
+   n = fread(buf, 1, *l, f);
+   if (feof(f)) {
+      *l = n;
+   } else if (ferror(f)) {
+      fprintf(stderr, "reading of %s errored", name);
+      exit(EXIT_FAILURE);
+   }
+   fclose(f);
+}
+
+static void write_key(const char *alg, unsigned long sz, struct list *elmnt, void *buf, unsigned long l)
+{
+   char name[PATH_MAX];
+   FILE *f;
+
+   snprintf(name, sizeof(name) - 1, "demos/keys/%s-%lu.privkey", alg, sz);
+   fprintf(stderr, "%s: Writing key %d which required %"PRI64"u ticks to %s\n", alg, elmnt->id, elmnt->avg, name);
+   f = fopen(name, "wb+");
+   if (f == NULL) {
+      fprintf(stderr, "can't open %s", name);
+      exit(EXIT_FAILURE);
+   }
+   if (fwrite(buf, l, 1, f) != 1) {
+      fprintf(stderr, "can't write to %s", name);
+      exit(EXIT_FAILURE);
+   }
+   fclose(f);
+}
+
+static void time_generate_keys(void)
+{
+   union
+   {
+#if defined(LTC_MRSA)
+      rsa_key rsa;
+#endif
+#if defined(LTC_MECC)
+      ecc_key ecc;
+#endif
+   } key[25];
+   ulong64 t1 = 0;
+   unsigned char buf[8192] = { 0 }, op_buf[8192 / 8];
+   unsigned long n, x, y, z, l;
+   const unsigned median = ((sizeof(key) / sizeof(key[0])) / 2);
+
+   if (ltc_mp.name == NULL) return;
+
+   print_csv_header("keysize", NULL);
+#if defined(LTC_MRSA)
+   for (x = 2048; x <= 8192; x <<= 1) {
+
+      for (y = 0; y < sizeof(key) / sizeof(key[0]); y++) {
+         DO(rsa_make_key(&yarrow_prng, find_prng("yarrow"), x / 8, 65537, &key[y].rsa));
+         t_start();
+         for (z = 0; z < 512 / (x / 1024); ++z) {
+            if (z == 8) {
+               t_start();
+               t1 = t_read();
+            }
+            l = sizeof(op_buf);
+            op_buf[0] = 0;
+            op_buf[1] = 1;
+            op_buf[2] = 0;
+            DO(rsa_exptmod(op_buf, x / 8, op_buf, &l, PK_PUBLIC, &key[y].rsa));
+         }
+         t1 = t_read() - t1;
+         results[y].id = y;
+         results[y].avg = t1;
+         print_csv("RSA", "exptmod", x, t1);
+      }
+
+      qsort(results, sizeof(key) / sizeof(key[0]), sizeof(struct list), &sorter);
+
+      l = sizeof(buf);
+      DO(rsa_export(buf, &l, PK_PRIVATE, &key[results[median].id].rsa));
+
+      write_key("RSA", x, &results[median], buf, l);
+
+      for (y = 0; y < sizeof(key) / sizeof(key[0]); y++) {
+         rsa_free(&key[y].rsa);
+      }
+   }
+#endif
+#if defined(LTC_MECC)
+   for (x = ecc_key_sizes[n = 0]; x < 100000; x = ecc_key_sizes[++n]) {
+      for (y = 0; y < sizeof(key) / sizeof(key[0]); y++) {
+         DO(ecc_make_key(&yarrow_prng, find_prng("yarrow"), x/8, &key[y].ecc));
+         for (z = 0; z < 256; z++) {
+            if (z == 8) {
+               t_start();
+               t1 = t_read();
+            }
+            l = sizeof(op_buf);
+            DO(ecc_shared_secret(&key[y].ecc, &key[y].ecc, op_buf, &l));
+         }
+         t1 = t_read() - t1;
+         results[y].id = y;
+         results[y].avg = t1;
+         print_csv("ECC", "shared_secret", x, t1);
+      }
+
+      qsort(results, sizeof(key) / sizeof(key[0]), sizeof(struct list), &sorter);
+
+      l = sizeof(buf);
+      DO(ecc_export(buf, &l, PK_PRIVATE, &key[results[median].id].ecc));
+
+      write_key("ECC", x, &results[median], buf, l);
+
+      for (y = 0; y < sizeof(key) / sizeof(key[0]); y++) {
+         ecc_free(&key[y].ecc);
+      }
+   }
+#endif
+}
+#endif
+
 
 static void time_macs_(unsigned long MAC_SIZE)
 {
@@ -1350,6 +1517,7 @@ const struct
    LTC_TEST_FN(time_dsa),
    LTC_TEST_FN(time_ecc),
    LTC_TEST_FN(time_dh),
+   LTC_TEST_FN(time_generate_keys),
 };
 char *single_test = NULL;
 unsigned int i;
