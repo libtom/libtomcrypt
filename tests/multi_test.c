@@ -15,6 +15,15 @@ int multi_test(void)
 
 /* HASH testing */
    len = sizeof(buf[0]);
+#if defined(ENDIAN_32BITWORD) || defined(_MSC_VER)
+   len2 = 0x80000000UL;
+#else
+   /* Check against the max. input limit of SHA-1 as of RFC8017 */
+   len2 = 0x1ULL << 61;
+#endif
+   SHOULD_FAIL_WITH(hash_memory(find_hash("sha256"), buf[0], len2, buf[0], &len), CRYPT_HASH_OVERFLOW);
+
+   len = sizeof(buf[0]);
    hash_memory(find_hash("sha256"), (unsigned char*)"hello", 5, buf[0], &len);
    len2 = sizeof(buf[0]);
    hash_memory_multi(find_hash("sha256"), buf[1], &len2, (unsigned char*)"hello", 5, NULL);
