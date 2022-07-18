@@ -21,9 +21,9 @@ int modes_test(void)
    unsigned long l;
 
    /* make a random pt, key and iv */
-   yarrow_read(pt,  64, &yarrow_prng);
-   yarrow_read(key, 16, &yarrow_prng);
-   yarrow_read(iv,  16, &yarrow_prng);
+   ENSURE(yarrow_read(pt,  64, &yarrow_prng) == 64);
+   ENSURE(yarrow_read(key, 16, &yarrow_prng) == 16);
+   ENSURE(yarrow_read(iv,  16, &yarrow_prng) == 16);
 
    /* get idx of AES handy */
    cipher_idx = find_cipher("aes");

@@ -20,7 +20,7 @@ int base16_test(void)
 
    for (idx = 0; idx < 2; idx++) {
       for (x = 0; x < 100; x++) {
-         yarrow_read(in, x, &yarrow_prng);
+         ENSURE(yarrow_read(in, x, &yarrow_prng) == x);
          l1 = sizeof(out);
          DO(base16_encode(in, x, out, &l1, idx));
          l2 = sizeof(tmp);
