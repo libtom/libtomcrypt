@@ -596,6 +596,15 @@ static int s_ecc_new_api(void)
       }
 #endif
 
+#ifdef LTC_SHA256
+      /* test RFC6979 signature */
+      len = sizeof(buf);
+      DO(ecc_sign_hash(data16, 16, buf, &len, NULL, -1, &privkey));
+      stat = 0;
+      DO(ecc_verify_hash(buf, len, data16, 16, &stat, &pubkey));
+      if (stat != 1) return CRYPT_FAIL_TESTVECTOR;
+#endif
+
       /* test encryption */
       len = sizeof(buf);
       DO(ecc_encrypt_key(data16, 16, buf, &len, &yarrow_prng, find_prng("yarrow"), find_hash("sha256"), &pubkey));

@@ -16,8 +16,8 @@
   @param inlen     The length of the digest
   @param out       [out] The destination for the signature
   @param outlen    [in/out] The max size and resulting size of the signature
-  @param prng      An active PRNG state
-  @param wprng     The index of the PRNG you wish to use
+  @param prng      An active PRNG state, NULL for RFC6979 deterministic signatures
+  @param wprng     The index of the PRNG you wish to use, -1 for RFC6979 deterministic signatures
   @param sigformat The format of the signature to generate (ecc_signature_type)
   @param recid     [out] The recovery ID for this signature (optional)
   @param key       A private ECC key
@@ -31,6 +31,7 @@ int ecc_sign_hash_ex(const unsigned char *in,  unsigned long inlen,
    ecc_key       pubkey;
    void          *r, *s, *e, *p, *b;
    int           v = 0;
+   int           blinding = 1;
    int           err, max_iterations = LTC_PK_MAX_RETRIES;
    unsigned long pbits, pbytes, i, shift_right;
    unsigned char ch, buf[MAXBLOCKSIZE];
@@ -73,7 +74,13 @@ int ecc_sign_hash_ex(const unsigned char *in,  unsigned long inlen,
    /* make up a key and export the public copy */
    do {
       if ((err = ecc_copy_curve(key, &pubkey)) != CRYPT_OK)                { goto errnokey; }
-      if ((err = ecc_generate_key(prng, wprng, &pubkey)) != CRYPT_OK)      { goto errnokey; }
+
+      if (wprng < 0 || prng == NULL) {
+         blinding = 0;
+         if ((err = ecc_rfc6979_key(key, in, inlen, &pubkey)) != CRYPT_OK) { goto errnokey; }
+      } else {
+         if ((err = ecc_generate_key(prng, wprng, &pubkey)) != CRYPT_OK)   { goto errnokey; }
+      }
 
       /* find r = x1 mod n */
       if ((err = mp_mod(pubkey.pubkey.x, p, r)) != CRYPT_OK)               { goto error; }
@@ -93,15 +100,23 @@ int ecc_sign_hash_ex(const unsigned char *in,  unsigned long inlen,
       if (mp_iszero(r) == LTC_MP_YES) {
          ecc_free(&pubkey);
       } else {
-         if ((err = rand_bn_upto(b, p, prng, wprng)) != CRYPT_OK)          { goto error; } /* b = blinding value */
          /* find s = (e + xr)/k */
-         if ((err = mp_mulmod(pubkey.k, b, p, pubkey.k)) != CRYPT_OK)      { goto error; } /* k = kb */
-         if ((err = mp_invmod(pubkey.k, p, pubkey.k)) != CRYPT_OK)         { goto error; } /* k = 1/kb */
-         if ((err = mp_mulmod(key->k, r, p, s)) != CRYPT_OK)               { goto error; } /* s = xr */
-         if ((err = mp_mulmod(pubkey.k, s, p, s)) != CRYPT_OK)             { goto error; } /* s = xr/kb */
-         if ((err = mp_mulmod(pubkey.k, e, p, e)) != CRYPT_OK)             { goto error; } /* e = e/kb */
-         if ((err = mp_add(e, s, s)) != CRYPT_OK)                          { goto error; } /* s = e/kb + xr/kb */
-         if ((err = mp_mulmod(s, b, p, s)) != CRYPT_OK)                    { goto error; } /* s = b(e/kb + xr/kb) = (e + xr)/k */
+         if (blinding) {
+            if ((err = rand_bn_upto(b, p, prng, wprng)) != CRYPT_OK)       { goto error; } /* b = blinding value */
+            if ((err = mp_mulmod(pubkey.k, b, p, pubkey.k)) != CRYPT_OK)   { goto error; } /* k = kb */
+            if ((err = mp_invmod(pubkey.k, p, pubkey.k)) != CRYPT_OK)      { goto error; } /* k = 1/kb */
+            if ((err = mp_mulmod(key->k, r, p, s)) != CRYPT_OK)            { goto error; } /* s = xr */
+            if ((err = mp_mulmod(pubkey.k, s, p, s)) != CRYPT_OK)          { goto error; } /* s = xr/kb */
+            if ((err = mp_mulmod(pubkey.k, e, p, e)) != CRYPT_OK)          { goto error; } /* e = e/kb */
+            if ((err = mp_add(e, s, s)) != CRYPT_OK)                       { goto error; } /* s = e/kb + xr/kb */
+            if ((err = mp_mulmod(s, b, p, s)) != CRYPT_OK)                 { goto error; } /* s = b(e/kb + xr/kb) = (e + xr)/k */
+         } else {
+            if ((err = mp_invmod(pubkey.k, p, pubkey.k)) != CRYPT_OK)      { goto error; } /* k = 1/k */
+            if ((err = mp_mulmod(key->k, r, p, s)) != CRYPT_OK)            { goto error; } /* s = xr */
+            if ((err = mp_mulmod(pubkey.k, s, p, s)) != CRYPT_OK)          { goto error; } /* s = xr/k */
+            if ((err = mp_mulmod(pubkey.k, e, p, e)) != CRYPT_OK)          { goto error; } /* e = e/k */
+            if ((err = mp_add(e, s, s)) != CRYPT_OK)                       { goto error; } /* s = (e + xr)/k */
+         }
          ecc_free(&pubkey);
          if (mp_iszero(s) == LTC_MP_NO) {
             break;
