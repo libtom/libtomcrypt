@@ -303,7 +303,7 @@ sub process_makefiles {
 
   # update MSVC project files
   my $msvc_files = prepare_msvc_files_xml(\@all, qr/tab\.c$/, ['Debug|Win32', 'Release|Win32', 'Debug|x64', 'Release|x64']);
-  for my $m (qw/libtomcrypt_VS2008.vcproj/) {
+  for my $m (qw/libtomcrypt.vcxproj/) {
     my $old = read_file($m);
     my $new = $old;
     $new =~ s|<Files>.*</Files>|$msvc_files|s;
