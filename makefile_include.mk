@@ -358,9 +358,12 @@ src/pk/ecc/ecc_free.o src/pk/ecc/ecc_get_key.o src/pk/ecc/ecc_get_oid_str.o src/
 src/pk/ecc/ecc_import.o src/pk/ecc/ecc_import_openssl.o src/pk/ecc/ecc_import_pkcs8.o \
 src/pk/ecc/ecc_import_x509.o src/pk/ecc/ecc_make_key.o src/pk/ecc/ecc_recover_key.o \
 src/pk/ecc/ecc_set_curve.o src/pk/ecc/ecc_set_curve_internal.o src/pk/ecc/ecc_set_key.o \
-src/pk/ecc/ecc_shared_secret.o src/pk/ecc/ecc_sign_hash.o src/pk/ecc/ecc_sizes.o \
-src/pk/ecc/ecc_ssh_ecdsa_encode_name.o src/pk/ecc/ecc_verify_hash.o src/pk/ecc/ltc_ecc_export_point.o \
-src/pk/ecc/ltc_ecc_import_point.o src/pk/ecc/ltc_ecc_is_point.o \
+src/pk/ecc/ecc_shared_secret.o src/pk/ecc/ecc_sign_hash.o src/pk/ecc/ecc_sign_hash_eth27.o \
+src/pk/ecc/ecc_sign_hash_internal.o src/pk/ecc/ecc_sign_hash_rfc5656.o \
+src/pk/ecc/ecc_sign_hash_rfc7518.o src/pk/ecc/ecc_sizes.o src/pk/ecc/ecc_ssh_ecdsa_encode_name.o \
+src/pk/ecc/ecc_verify_hash.o src/pk/ecc/ecc_verify_hash_eth27.o src/pk/ecc/ecc_verify_hash_internal.o \
+src/pk/ecc/ecc_verify_hash_rfc5656.o src/pk/ecc/ecc_verify_hash_rfc7518.o \
+src/pk/ecc/ltc_ecc_export_point.o src/pk/ecc/ltc_ecc_import_point.o src/pk/ecc/ltc_ecc_is_point.o \
 src/pk/ecc/ltc_ecc_is_point_at_infinity.o src/pk/ecc/ltc_ecc_map.o src/pk/ecc/ltc_ecc_mul2add.o \
 src/pk/ecc/ltc_ecc_mulmod.o src/pk/ecc/ltc_ecc_mulmod_timing.o src/pk/ecc/ltc_ecc_points.o \
 src/pk/ecc/ltc_ecc_projective_add_point.o src/pk/ecc/ltc_ecc_projective_dbl_point.o \

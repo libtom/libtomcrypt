@@ -268,22 +268,27 @@ int  ecc_make_key(prng_state *prng, int wprng, int keysize, ecc_key *key);
 int  ecc_make_key_ex(prng_state *prng, int wprng, ecc_key *key, const ltc_ecc_curve *cu);
 void ecc_free(ecc_key *key);
 
+#if defined(LTC_DER)
 int  ecc_export(unsigned char *out, unsigned long *outlen, int type, const ecc_key *key);
 int  ecc_import(const unsigned char *in, unsigned long inlen, ecc_key *key);
 int  ecc_import_ex(const unsigned char *in, unsigned long inlen, ecc_key *key, const ltc_ecc_curve *cu);
+#endif
 
 int ecc_ansi_x963_export(const ecc_key *key, unsigned char *out, unsigned long *outlen);
 int ecc_ansi_x963_import(const unsigned char *in, unsigned long inlen, ecc_key *key);
 int ecc_ansi_x963_import_ex(const unsigned char *in, unsigned long inlen, ecc_key *key, const ltc_ecc_curve *cu);
 
+#if defined(LTC_DER)
 int ecc_export_openssl(unsigned char *out, unsigned long *outlen, int type, const ecc_key *key);
 int ecc_import_openssl(const unsigned char *in, unsigned long inlen, ecc_key *key);
 int ecc_import_pkcs8(const unsigned char *in, unsigned long inlen, const void *pwd, unsigned long pwdlen, ecc_key *key);
 int ecc_import_x509(const unsigned char *in, unsigned long inlen, ecc_key *key);
+#endif
 
 int  ecc_shared_secret(const ecc_key *private_key, const ecc_key *public_key,
                        unsigned char *out, unsigned long *outlen);
 
+#if defined(LTC_DER)
 int  ecc_encrypt_key(const unsigned char *in,   unsigned long inlen,
                            unsigned char *out,  unsigned long *outlen,
                            prng_state *prng, int wprng, int hash,
@@ -293,26 +298,49 @@ int  ecc_decrypt_key(const unsigned char *in,  unsigned long  inlen,
                            unsigned char *out, unsigned long *outlen,
                            const ecc_key *key);
 
-#define ecc_sign_hash_rfc7518(in_, inlen_, out_, outlen_, prng_, wprng_, key_) \
-   ecc_sign_hash_ex(in_, inlen_, out_, outlen_, prng_, wprng_, LTC_ECCSIG_RFC7518, NULL, key_)
+int ecc_sign_hash(const unsigned char *in,  unsigned long inlen,
+                  unsigned char *out, unsigned long *outlen,
+                  prng_state *prng, int wprng, const ecc_key *key);
+#endif
 
-#define ecc_sign_hash(in_, inlen_, out_, outlen_, prng_, wprng_, key_) \
-   ecc_sign_hash_ex(in_, inlen_, out_, outlen_, prng_, wprng_, LTC_ECCSIG_ANSIX962, NULL, key_)
+int ecc_sign_hash_rfc7518(const unsigned char *in,  unsigned long inlen,
+                          unsigned char *out, unsigned long *outlen,
+                          prng_state *prng, int wprng, const ecc_key *key);
 
-#define ecc_verify_hash_rfc7518(sig_, siglen_, hash_, hashlen_, stat_, key_) \
-   ecc_verify_hash_ex(sig_, siglen_, hash_, hashlen_, LTC_ECCSIG_RFC7518, stat_, key_)
+int ecc_sign_hash_rfc7518_ex(const unsigned char *in,  unsigned long inlen,
+                             unsigned char *out, unsigned long *outlen,
+                             prng_state *prng, int wprng,
+                             int *recid, const ecc_key *key);
 
-#define ecc_verify_hash(sig_, siglen_, hash_, hashlen_, stat_, key_) \
-   ecc_verify_hash_ex(sig_, siglen_, hash_, hashlen_, LTC_ECCSIG_ANSIX962, stat_, key_)
+#if defined(LTC_SSH)
+int ecc_sign_hash_rfc5656(const unsigned char *in,  unsigned long inlen,
+                          unsigned char *out, unsigned long *outlen,
+                          prng_state *prng, int wprng, const ecc_key *key);
+#endif
 
-int  ecc_sign_hash_ex(const unsigned char *in,  unsigned long inlen,
-                            unsigned char *out, unsigned long *outlen,
-                            prng_state *prng, int wprng, ecc_signature_type sigformat,
-                            int *recid, const ecc_key *key);
+int ecc_sign_hash_eth27(const unsigned char *in,  unsigned long inlen,
+                        unsigned char *out, unsigned long *outlen,
+                        prng_state *prng, int wprng, const ecc_key *key);
 
-int  ecc_verify_hash_ex(const unsigned char *sig,  unsigned long siglen,
-                        const unsigned char *hash, unsigned long hashlen,
-                        ecc_signature_type sigformat, int *stat, const ecc_key *key);
+#if defined(LTC_DER)
+int ecc_verify_hash(const unsigned char *sig,  unsigned long siglen,
+                    const unsigned char *hash, unsigned long hashlen,
+                    int *stat, const ecc_key *key);
+#endif
+
+int ecc_verify_hash_rfc7518(const unsigned char *sig,  unsigned long siglen,
+                            const unsigned char *hash, unsigned long hashlen,
+                            int *stat, const ecc_key *key);
+
+#if defined(LTC_SSH)
+int ecc_verify_hash_rfc5656(const unsigned char *sig,  unsigned long siglen,
+                            const unsigned char *hash, unsigned long hashlen,
+                            int *stat, const ecc_key *key);
+#endif
+
+int ecc_verify_hash_eth27(const unsigned char *sig,  unsigned long siglen,
+                          const unsigned char *hash, unsigned long hashlen,
+                          int *stat, const ecc_key *key);
 
 int  ecc_recover_key(const unsigned char *sig,  unsigned long siglen,
                      const unsigned char *hash, unsigned long hashlen,

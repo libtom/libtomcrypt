@@ -2435,6 +2435,22 @@
 					>
 				</File>
 				<File
+					RelativePath="src\pk\ecc\ecc_sign_hash_eth27.c"
+					>
+				</File>
+				<File
+					RelativePath="src\pk\ecc\ecc_sign_hash_internal.c"
+					>
+				</File>
+				<File
+					RelativePath="src\pk\ecc\ecc_sign_hash_rfc5656.c"
+					>
+				</File>
+				<File
+					RelativePath="src\pk\ecc\ecc_sign_hash_rfc7518.c"
+					>
+				</File>
+				<File
 					RelativePath="src\pk\ecc\ecc_sizes.c"
 					>
 				</File>
@@ -2444,6 +2460,22 @@
 				</File>
 				<File
 					RelativePath="src\pk\ecc\ecc_verify_hash.c"
+					>
+				</File>
+				<File
+					RelativePath="src\pk\ecc\ecc_verify_hash_eth27.c"
+					>
+				</File>
+				<File
+					RelativePath="src\pk\ecc\ecc_verify_hash_internal.c"
+					>
+				</File>
+				<File
+					RelativePath="src\pk\ecc\ecc_verify_hash_rfc5656.c"
+					>
+				</File>
+				<File
+					RelativePath="src\pk\ecc\ecc_verify_hash_rfc7518.c"
 					>
 				</File>
 				<File

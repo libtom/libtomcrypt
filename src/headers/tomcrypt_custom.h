@@ -580,9 +580,11 @@
    #define LTC_PKCS_8
 #endif
 
-#ifdef LTC_PKCS_8
+#if defined(LTC_PKCS_8) && defined(LTC_DER)
    #define LTC_PADDING
    #define LTC_PBES
+#else
+   #undef LTC_PKCS_8
 #endif
 
 #if defined(LTC_CLEAN_STACK)
@@ -622,7 +624,7 @@
    #error ASN.1 DER requires MPI functionality
 #endif
 
-#if (defined(LTC_MDSA) || defined(LTC_MRSA) || defined(LTC_MECC)) && !defined(LTC_DER)
+#if (defined(LTC_MDSA) || defined(LTC_MRSA)) && !defined(LTC_DER)
    #error PK requires ASN.1 DER functionality, make sure LTC_DER is enabled
 #endif
 
