@@ -344,13 +344,14 @@ static const struct pem_header_id pem_openssh =
      .has_more_headers = 0
    };
 
-static int s_decode_openssh(struct get_char *g, ltc_pka_key *k, password_ctx *pw_ctx)
+static int s_decode_openssh(struct get_char *g, ltc_pka_key *k, const password_ctx *pw_ctx)
 {
    unsigned char *pem = NULL, *p, *privkey = NULL;
    unsigned long w, l, privkey_len;
    int err;
    struct pem_headers hdr = { .id = &pem_openssh };
    struct kdf_options opts = { 0 };
+   XMEMSET(k, 0, sizeof(*k));
    w = LTC_PEM_READ_BUFSIZE * 2;
 retry:
    pem = XREALLOC(pem, w);
@@ -378,9 +379,8 @@ retry:
    }
 
    if (XSTRCMP(opts.name, "none") != 0) {
-      /* hard-coded pass for demo keys */
-      if (!pw_ctx || !pw_ctx->callback) {
-         err = CRYPT_INVALID_ARG;
+      if ((pw_ctx == NULL) || (pw_ctx->callback == NULL)) {
+         err = CRYPT_PW_CTX_MISSING;
          goto cleanup;
       }
       if (pw_ctx->callback(&opts.pw.pw, &opts.pw.l, pw_ctx->userdata)) {
@@ -411,16 +411,27 @@ cleanup:
    return err;
 }
 
-int pem_decode_openssh_filehandle(FILE *f, ltc_pka_key *k, password_ctx *pw_ctx)
+#ifndef LTC_NO_FILE
+int pem_decode_openssh_filehandle(FILE *f, ltc_pka_key *k, const password_ctx *pw_ctx)
 {
-   struct get_char g = { .get = pem_get_char_from_file, .f = f };
-   return s_decode_openssh(&g, k, pw_ctx);
+   LTC_ARGCHK(f != NULL);
+   LTC_ARGCHK(k != NULL);
+   {
+      struct get_char g = { .get = pem_get_char_from_file, .f = f };
+      return s_decode_openssh(&g, k, pw_ctx);
+   }
 }
+#endif /* LTC_NO_FILE */
 
-int pem_decode_openssh(const void *buf, unsigned long len, ltc_pka_key *k, password_ctx *pw_ctx)
+int pem_decode_openssh(const void *buf, unsigned long len, ltc_pka_key *k, const password_ctx *pw_ctx)
 {
-   struct get_char g = { .get = pem_get_char_from_buf, SET_BUFP(.buf, buf, len) };
-   return s_decode_openssh(&g, k, pw_ctx);
+   LTC_ARGCHK(buf != NULL);
+   LTC_ARGCHK(len != 0);
+   LTC_ARGCHK(k != NULL);
+   {
+      struct get_char g = { .get = pem_get_char_from_buf, SET_BUFP(.buf, buf, len) };
+      return s_decode_openssh(&g, k, pw_ctx);
+   }
 }
 
 #endif /* defined(LTC_PEM) && defined(LTC_SSH) */

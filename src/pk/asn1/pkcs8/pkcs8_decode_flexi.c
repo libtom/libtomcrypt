@@ -48,8 +48,10 @@ int pkcs8_decode_flexi(const unsigned char  *in,  unsigned long inlen,
           LTC_ASN1_IS_TYPE(l->child->next, LTC_ASN1_OCTET_STRING)) {
          ltc_asn1_list *lalgoid = l->child->child;
 
-         LTC_ARGCHK(pw_ctx           != NULL);
-         LTC_ARGCHK(pw_ctx->callback != NULL);
+         if ((pw_ctx == NULL) || (pw_ctx->callback == NULL)) {
+            err = CRYPT_PW_CTX_MISSING;
+            goto LBL_DONE;
+         }
 
          if (pbes1_extract(lalgoid, &pbes) == CRYPT_OK) {
             /* Successfully extracted PBES1 parameters */
