@@ -4345,7 +4345,7 @@ least 128 bytes, and no more than 512 bytes in size (\textit{that is from 1024 t
 
 \index{rsa\_free()}
 Note: the \textit{rsa\_make\_key()} and \textit{rsa\_make\_key\_ubin\_e()} functions allocates memory at run--time when you make the key.
-Make sure to call \textit{rsa\_free()} (see below) when you are finished with the key.  If \textit{rsa\_make\_key()} or \textit{rsa\_make\_key\_ubin\_e()} 
+Make sure to call \textit{rsa\_free()} (see below) when you are finished with the key.  If \textit{rsa\_make\_key()} or \textit{rsa\_make\_key\_ubin\_e()}
 fails it will automatically free the memory allocated.
 
 \index{PK\_PRIVATE} \index{PK\_PUBLIC}
@@ -4726,16 +4726,15 @@ import the key, strip off the additional data and fill in the \textit{rsa\_key} 
 \index{rsa\_import\_pkcs8()}
 \begin{verbatim}
 int rsa_import_pkcs8(const unsigned char *in,
-                           unsigned long inlen,
-                              const void *passwd,
-                           unsigned long passwdlen,
-                                rsa_key *key);
+                           unsigned long  inlen,
+                     const  password_ctx *pw_ctx,
+                                 rsa_key *key);
 \end{verbatim}
 
 This function can import RSA private keys serialized in PKCS\#8 format.
 
 Where \textit{key} is the RSA key structure (uninitialized), \textit{inlen} bytes of \textit{in} buffer is the DER encoded key,
-and \textit{pwdlen} bytes of \textit{pwd} is optional password/secret (use \textit{pwd = NULL} for keys without password protection).
+and \textit{pw\_ctx} optionally points to a password-retrieval context, c.f. Ch. \ref{password-retrieval} for details.
 
 For password-protected files all supported encryption algorithms are listed in \ref{fig:pkcs8}.
 
@@ -5038,6 +5037,7 @@ analogy for deriving a shared secret between a pair of keys (also known as \text
 analogy for digital signatures (also known as \textit{ECDSA}).
 
 \mysection{Supported Curves}
+\label{supported-curvers}
 
 The following table \ref{fig:builtincurves} shows all built--in curves supported by the library. On top of that one can also use a custom curve
 defined by own parameters (the only limitation is that the curve must be based on equation \ref{ecc-gf-p-equation}).
@@ -5407,14 +5407,13 @@ To import the private key (optionally password protected/encrypted) in PKCS\#8 (
 \index{ecc\_import\_pkcs8()}
 \begin{verbatim}
 int ecc_import_pkcs8(const unsigned char *in,
-                                unsigned  long inlen,
-                              const void *pwd,
-                           unsigned long  pwdlen,
+                           unsigned long  inlen,
+                     const  password_ctx *pw_ctx,
                                  ecc_key *key);
 \end{verbatim}
 
 Where \textit{key} is the ECC key structure (uninitialized), \textit{inlen} bytes of \textit{in} buffer is the DER encoded key,
-and \textit{pwdlen} bytes of \textit{pwd} is optional password/secret (use \textit{pwd = NULL} for keys without password protection).
+and \textit{pw\_ctx} optionally points to a password-retrieval context, c.f. Ch. \ref{password-retrieval} for details.
 
 For password-protected files all supported encryption algorithms are listed in \ref{fig:pkcs8}.
 
@@ -5760,36 +5759,46 @@ The \textit{X25519} algorithm API provides the following set of functions to cre
 
 \index{x25519\_make\_key}
 \begin{verbatim}
-int x25519_make_key(prng_state *prng, int wprng, curve25519_key *key);
+int x25519_make_key(    prng_state *prng,
+                               int  wprng,
+                    curve25519_key *key);
 \end{verbatim}
 
 To generate a fresh X25529 key, one can use \textit{x25519\_make\_key} which will create a private\&public key-pair.
 \index{x25519\_import}
 \begin{verbatim}
-int x25519_import(const unsigned char *in, unsigned long inlen, curve25519_key *key);
+int x25519_import(const  unsigned char *in,
+                         unsigned long  inlen,
+                        curve25519_key *key);
 \end{verbatim}
 
 The \textit{x25519\_import} function can be used to import a public key in DER-encoded \textit{SubjectPublicKeyInfo} format.
 
 \index{x25519\_import\_raw}
 \begin{verbatim}
-int x25519_import_raw(const unsigned char *in, unsigned long inlen, int which, curve25519_key *key);
+int x25519_import_raw(const  unsigned char *in,
+                             unsigned long  inlen,
+                                       int  which,
+                            curve25519_key *key);
 \end{verbatim}
 
 To import a public or private key in raw format, one can use the function \textit{x25519\_import\_raw}.
 
 \index{x25519\_import\_x509}
 \begin{verbatim}
-int x25519_import_x509(const unsigned char *in, unsigned long inlen, curve25519_key *key);
+int x25519_import_x509(const  unsigned char *in,
+                              unsigned long  inlen,
+                             curve25519_key *key);
 \end{verbatim}
 
 To import a public key from a DER-encoded \textit{X.509} certificate, one can use the function \textit{x25519\_import\_x509}.
 
 \index{x25519\_import\_pkcs8}
 \begin{verbatim}
-int x25519_import_pkcs8(const unsigned char *in, unsigned long inlen,
-                                 const void *pwd, unsigned long pwdlen,
-                             curve25519_key *key);
+int x25519_import_pkcs8(const  unsigned char *in,
+                               unsigned long  inlen,
+                        const   password_ctx *pw_ctx,
+                              curve25519_key *key);
 \end{verbatim}
 
 To import a private key in the \textit{OneAsymmetricKey} a.k.a \textit{PKCS \#8} format, either plain or PBES encrypted,
@@ -5797,7 +5806,8 @@ one can use the function \textit{x25519\_import\_pkcs8}.
 
 \index{x25519\_export}
 \begin{verbatim}
-int x25519_export(       unsigned char *out, unsigned long *outlen,
+int x25519_export(       unsigned char *out,
+                         unsigned long *outlen,
                                    int  which,
                   const curve25519_key *key);
 \end{verbatim}
@@ -5828,7 +5838,8 @@ To construct a Diffie-Hellman shared secret with a private and a public X25519 k
 \begin{verbatim}
 int x25519_shared_secret(const curve25519_key *private_key,
                          const curve25519_key *public_key,
-                                unsigned char *out, unsigned long *outlen);
+                                unsigned char *out,
+                                unsigned long *outlen);
 \end{verbatim}
 
 This will construct the shared secret between the private- and the public-key and store the result in \textit{out} of length \textit{outlen}.
@@ -5843,37 +5854,47 @@ The \textit{Ed25519} algorithm API provides the following set of functions to cr
 
 \index{ed25519\_make\_key}
 \begin{verbatim}
-int ed25519_make_key(prng_state *prng, int wprng, curve25519_key *key);
+int ed25519_make_key(    prng_state *prng,
+                                int  wprng,
+                     curve25519_key *key);
 \end{verbatim}
 
 To generate a fresh Ed25529 key, one can use \textit{ed25519\_make\_key} which will create a private\&public key-pair.
 
 \index{ed25519\_import}
 \begin{verbatim}
-int ed25519_import(const unsigned char *in, unsigned long inlen, curve25519_key *key);
+int ed25519_import(const  unsigned char *in,
+                          unsigned long  inlen,
+                         curve25519_key *key);
 \end{verbatim}
 
 The \textit{ed25519\_import} function can be used to import a public key in DER-encoded \textit{SubjectPublicKeyInfo} format.
 
 \index{ed25519\_import\_raw}
 \begin{verbatim}
-int ed25519_import_raw(const unsigned char *in, unsigned long inlen, int which, curve25519_key *key);
+int ed25519_import_raw(const  unsigned char *in,
+                              unsigned long  inlen,
+                                        int  which,
+                             curve25519_key *key);
 \end{verbatim}
 
 To import a public or private key in raw format, one can use the function \textit{ed25519\_import\_raw}.
 
 \index{ed25519\_import\_x509}
 \begin{verbatim}
-int ed25519_import_x509(const unsigned char *in, unsigned long inlen, curve25519_key *key);
+int ed25519_import_x509(const  unsigned char *in,
+                               unsigned long inlen,
+                              curve25519_key *key);
 \end{verbatim}
 
 To import a public key from a DER-encoded \textit{X.509} certificate, one can use the function \textit{ed25519\_import\_x509}.
 
 \index{ed25519\_import\_pkcs8}
 \begin{verbatim}
-int ed25519_import_pkcs8(const unsigned char *in, unsigned long inlen,
-                                  const void *pwd, unsigned long pwdlen,
-                              curve25519_key *key);
+int ed25519_import_pkcs8(const  unsigned char *in,
+                                unsigned long  inlen,
+                         const   password_ctx *pw_ctx,
+                               curve25519_key *key);
 \end{verbatim}
 
 To import a private key in the \textit{OneAsymmetricKey} a.k.a \textit{PKCS \#8} format, either plain or PBES encrypted,
@@ -5881,7 +5902,8 @@ one can use the function \textit{ed25519\_import\_pkcs8}.
 
 \index{ed25519\_export}
 \begin{verbatim}
-int ed25519_export(       unsigned char *out, unsigned long *outlen,
+int ed25519_export(       unsigned char *out,
+                          unsigned long *outlen,
                                     int  which,
                    const curve25519_key *key);
 \end{verbatim}
@@ -5910,8 +5932,10 @@ To sign and/or verify a message use the following functions:
 
 \index{ed25519\_sign}
 \begin{verbatim}
-int ed25519_sign(const unsigned char  *msg, unsigned long msglen,
-                       unsigned char  *sig, unsigned long *siglen,
+int ed25519_sign(const  unsigned char *msg,
+                        unsigned long  msglen,
+                        unsigned char *sig,
+                        unsigned long *siglen,
                  const curve25519_key *private_key);
 \end{verbatim}
 
@@ -5920,9 +5944,12 @@ will be stored in the array pointed to by \textit{sig} of length \textit{siglen}
 
 \index{ed25519\_verify}
 \begin{verbatim}
-int ed25519_verify(const  unsigned char *msg, unsigned long msglen,
-                   const  unsigned char *sig, unsigned long siglen,
-                   int *stat, const curve25519_key *public_key);
+int ed25519_verify(const  unsigned char *msg,
+                          unsigned long  msglen,
+                   const  unsigned char *sig,
+                          unsigned long  siglen,
+                                    int *stat,
+                   const curve25519_key *public_key);
 \end{verbatim}
 
 This function will verify the EdDSA signature in the array pointed to by \textit{sig} of length \textit{siglen} octets, against the message
@@ -7102,6 +7129,7 @@ int main(void)
 
 \subsection{bcrypt}
 \index{bcrypt}
+\label{bcrypt}
 
 bcrypt is a password hashing function, similar to PKCS \#5, but it is based on the blowfish symmetric cipher.
 It is widely used in e.g. OpenBSD as default password hash algorithm, or in encrypted OpenSSH key files.
@@ -7123,15 +7151,16 @@ int bcrypt_pbkdf_openbsd(const          void *secret, unsigned long secret_len,
 The \textit{secret} parameter is the secret of length \textit{secret\_len} (most of the time a utf-8 encoded user password).
 The \textit{salt} parameter is a pointer to the array of octets of length \textit{salt\_len} containing the salt.
 The \textit{rounds} parameter defines the number of iterations of the expensive key setup that shall be executed.
-The \textit{hash\_idx} parameter defines the hash algorithm that shall be used. 
+The \textit{hash\_idx} parameter defines the hash algorithm that shall be used.
 The \textit{out} parameter shall be a pointer to a buffer of at least 32 octets,
 where \textit{outlen} contains the available buffer size on input and the written size after the invocation.
 
 
 \mysection{PKCS \#8}
 \index{PKCS \#8}
+\label{pkcs8}
 
-The library has built-in support for PKCS \#8 decoding as specified in RFC 5208.
+The library has built-in support for PKCS \#8 decoding as specified in \href{https://datatracker.ietf.org/doc/html/rfc5208}{\texttt{RFC 5208}}.
 
 Encoding of private keys into PKCS \#8 is not supported.
 
@@ -7161,8 +7190,8 @@ The library supports the following encryption algorithms:
 \label{fig:pkcs8}
 \end{table}
 
-The PKCS \#8 import has no direct API endpoints, but it is available through Public Key Algorithm-specific
-\textit{pkaX\_import\_pkcs8()} functions.
+The PKCS \#8 import has no direct API endpoints, but it is available either through Public Key Algorithm-specific
+\textit{pkaX\_import\_pkcs8()} functions or the PEM decoding API (c.f. Ch. \ref{pem-files}).
 
 
 \mysection{Key Derviation Functions}
@@ -7287,8 +7316,8 @@ They either encode or decode a sequence of the supported SSH types where the ite
 int ssh_encode_sequence_multi(unsigned char *out, unsigned long *outlen, ...);
 \end{verbatim}
 
-Where \texttt{out} points to the destination buffer and  \texttt{outlen} points 
-on function invocation to the length of the destination buffer 
+Where \texttt{out} points to the destination buffer and  \texttt{outlen} points
+on function invocation to the length of the destination buffer
 and after returning it will be filled with the number of octets written to the buffer.
 
 The encoding function \texttt{ssh\_encode\_sequence\_multi()} expects its items to be a pair of \texttt{(type, data)},
@@ -7300,13 +7329,173 @@ with \texttt{size} being of type \texttt{unsigned long}.
 int ssh_decode_sequence_multi(const unsigned char *in, unsigned long *inlen, ...);
 \end{verbatim}
 
-Where \texttt{in} points to the buffer with the sequence to decode and \texttt{inlen} points 
+Where \texttt{in} points to the buffer with the sequence to decode and \texttt{inlen} points
 on function invocation to the length of the sequence
 and after returning it will be filled with the decoded number of octets.
 
 The decoding function \texttt{ssh\_decode\_sequence\_multi()} expects its items to be a pair of \texttt{(type, data*)},
 except for the \texttt{string} resp. \texttt{name-list} type, which expects the triple \texttt{(type, data, size*)}
 with \texttt{size*} being of type \texttt{unsigned long*}.
+
+
+
+
+\mysection{PEM Files}
+\label{pem-files}
+\subsection{Introduction}
+LibTomCrypt supports reading of asymmetric cryptography private keys out of
+PEM files in multiple formats.
+
+The library provides support for:
+\begin{itemize}
+   \item OpenSSH - encrypted and plain files (if SSH support is enabled).
+   \item PEM - encrypted and plain files.
+   \item PKCS \#8 - encrypted and plain files.
+\end{itemize}
+
+There is no support for PKCS \#12 containers/PFX files implemented.
+
+\subsection{The PKA Union}
+
+To be able to return all the potential public key algorithms via a central API,
+a tagged union \texttt{ltc\_pka\_key} is used.
+
+\begin{verbatim}
+enum ltc_pka_id {
+   LTC_PKA_UNDEF = 0,
+   LTC_PKA_RSA,
+   LTC_PKA_DSA,
+   LTC_PKA_EC,
+   LTC_PKA_CURVE25519,
+   LTC_PKA_DH,
+};
+
+typedef struct {
+   union {
+#ifdef LTC_CURVE25519
+      curve25519_key curve25519;
+#endif
+#ifdef LTC_MDH
+      dh_key dh;
+#endif
+#ifdef LTC_MDSA
+      dsa_key dsa;
+#endif
+#ifdef LTC_MECC
+      ecc_key ecc;
+#endif
+#ifdef LTC_MRSA
+      rsa_key rsa;
+#endif
+   } u;
+   enum ltc_pka_id id;
+} ltc_pka_key;
+\end{verbatim}
+
+To free such a union the following API function is provided:
+
+\begin{verbatim}
+void pka_key_free(ltc_pka_key *key);
+\end{verbatim}
+
+\subsection{PKCS PEM files}
+
+The library supports the following types of PKCS PEM files:
+
+\begin{itemize}
+\item PKCS \#8 private keys, c.f. Ch. \ref{pkcs8} for details.
+\item PEM formatted private keys according to
+\href{https://datatracker.ietf.org/doc/html/rfc1421}{\texttt{RFC 1421}}/
+\href{https://datatracker.ietf.org/doc/html/rfc1422}{\texttt{RFC 1422}}/
+\href{https://datatracker.ietf.org/doc/html/rfc1423}{\texttt{RFC 1423}}.
+\end{itemize}
+
+The identifiers in the PEM headers recognized are as follows:
+
+\begin{table}[H]
+\begin{center}
+\begin{small}
+\begin{tabular}{|l|l|l|l|}
+\hline \textbf{Identifier}                   & \textbf{Encrypted} & \textbf{Standard} & \textbf{Type}                  \\
+\hline \texttt{BEGIN ENCRYPTED PRIVATE KEY}  & Yes                & \texttt{PKCS \#8} & DSA, ECC, Ed25519, RSA, X25519 \\
+\hline \texttt{BEGIN PRIVATE KEY}            & No                 & \texttt{PKCS \#8} & DSA, ECC, Ed25519, RSA, X25519 \\
+\hline \texttt{BEGIN DSA PRIVATE KEY}        & Maybe              & \texttt{PKCS \#1} & DSA \\
+\hline \texttt{BEGIN EC PRIVATE KEY}         & Maybe              & \texttt{RFC 5915} & ECC \\
+\hline \texttt{BEGIN RSA PRIVATE KEY}        & Maybe              & \texttt{PKCS \#1} & RSA \\
+\hline
+\end{tabular}
+\end{small}
+\end{center}
+\caption{List of supported PKCS private key types}
+\label{supported-pkcs-private-key-types}
+\end{table}
+
+When dealing with PEM formatted private keys the following encryption algorithms are supported:
+
+\begin{table}[H]
+\begin{center}
+\begin{small}
+\begin{tabular}{|l|l|l|l|}
+\hline \textbf{Identifier}        & \textbf{Cipher} & \textbf{Key size in bits} & \textbf{Mode} \\
+\hline \texttt{AES-128-CBC}       & AES             & 128                       & CBC \\
+\hline \texttt{AES-192-CBC}       & AES             & 192                       & CBC \\
+\hline \texttt{AES-256-CBC}       & AES             & 256                       & CBC \\
+\hline \texttt{CAMELLIA-128-CBC}  & Camellia        & 128                       & CBC \\
+\hline \texttt{CAMELLIA-192-CBC}  & Camellia        & 192                       & CBC \\
+\hline \texttt{CAMELLIA-256-CBC}  & Camellia        & 256                       & CBC \\
+\hline \texttt{DES-EDE3-CBC}      & 3DES (EDE)      & 192                       & CBC \\
+\hline \texttt{DES-CBC}           & DES             & 64                       & CBC \\
+\hline
+\end{tabular}
+\end{small}
+\end{center}
+\caption{List of supported PEM DEK algorithms}
+\label{supported-pem-dek-algorithms}
+\end{table}
+
+The API functions provided to decode a PEM file into the \texttt{ltc\_pka\_key} union are:
+
+\begin{verbatim}
+int pem_decode_pkcs_filehandle(FILE *f, ltc_pka_key *k, const password_ctx *pw_ctx);
+int pem_decode_pkcs(const void *buf, unsigned long len, ltc_pka_key *k, const password_ctx *pw_ctx);
+\end{verbatim}
+
+\subsection{OpenSSH PEM files}
+
+OpenSSH PEM files can contain private keys of the following types:
+
+\begin{table}[H]
+\begin{center}
+\begin{small}
+\begin{tabular}{|l|l|}
+\hline \textbf{Identifier}    & \textbf{Type} \\
+\hline \texttt{ecdsa-sha2-*}  & ECC keys \\
+\hline \texttt{ssh-ed25519}   & Curve25519 \\
+\hline \texttt{ssh-rsa}       & RSA \\
+\hline
+\end{tabular}
+\end{small}
+\end{center}
+\caption{List of supported OpenSSH private key types}
+\label{supported-openssh-private-key-types}
+\end{table}
+
+C.f. \href{https://datatracker.ietf.org/doc/html/rfc5656}{\texttt{RFC 5656}} for details on ECC keys
+in OpenSSH.  LibTomCrypt should be able to handle all the ECC curves supported by the library,
+c.f. Ch. \ref{supported-curvers} for details.
+
+OpenSSH PEM files can either not be encrypted, or the encryption is done via \texttt{aes256-cbc}
+and key derivation via \texttt{bcrypt}, c.f. Ch. \ref{bcrypt}.
+
+The API functions provided to decode an OpenSSH PEM file into the \texttt{ltc\_pka\_key} union are:
+
+\begin{verbatim}
+int pem_decode_openssh_filehandle(FILE *f, ltc_pka_key *k, const password_ctx *pw_ctx);
+int pem_decode_openssh(const void *buf, unsigned long len, ltc_pka_key *k, const password_ctx *pw_ctx);
+\end{verbatim}
+
+
+
 
 \chapter{Miscellaneous}
 \mysection{Base64 Encoding and Decoding}
@@ -7530,6 +7719,100 @@ int padding_depad(unsigned char *data,
 Where \textit{data} is a pointer to the data to depad,
 \textit{length} is a pointer that should contain the length of the padded data and will be updated to contain the length of the data after depadding.
 
+
+\mysection{Password retrieval}
+\label{password-retrieval}
+
+The following struct is used in various parts of the library that deals with user-passwords.
+
+\begin{verbatim}
+typedef struct {
+   /**
+      Callback function that is called when a password is required.
+
+      @param str        Pointer to pointer where the password will be stored.
+      @param len        Pointer to the length of the password.
+      @param userdata   `userdata` that was passed in the `password_ctx` struct.
+      @return CRYPT_OK on success
+   */
+   int (*callback)(void **str, unsigned long *len, void *userdata);
+   /** Opaque `userdata` pointer passed when the callback is called */
+   void *userdata;
+} password_ctx;
+\end{verbatim}
+
+Always when this struct is used as input argument to an API function it can be treated as optional.
+The library will return the error \texttt{CRYPT\_PW\_CTX\_MISSING} in case a user-password is expected
+to be provided but this context is not given (passed a \textit{NULL} pointer instead) or
+the \textit{callback} pointer inside is \textit{NULL}.
+
+The \textit{str} pointer is declared as a \textit{void} pointer, since passwords are not necessarily
+always representable as a NUL-terminated C string. Therefor the user also has to provide the length of the
+password via \textit{len}.
+
+In order to prevent arbitrary limitations of the length of a password, the user is responsible for the
+dynamic allocation of the buffer that holds the password. The library takes ownership of said buffer
+and will zeroize it and call \texttt{XFREE} on it as soon as it doesn't require it anymore.
+
+An example usage is as follows:
+
+\begin{small}
+\begin{verbatim}
+#include <tomcrypt.h>
+#include <unistd.h>
+
+static const char *pka_algos[] = {
+   "Undefined",
+   "RSA",
+   "DSA",
+   "ECC",
+   "Curve25519",
+   "DH",
+};
+
+static int password_get(void **p, unsigned long *l, void *u)
+{
+   char *pass;
+   (void)u;
+   /* In reality you should never use `getpass`.
+    * 1. it's insecure, 2. it's obsolete
+    */
+   pass = getpass("Please enter password: ");
+   if (!pass)
+      return -1;
+   *p = strdup(pass);
+   *l = strlen(*p);
+   zeromem(pass, *l);
+   return 0;
+}
+
+int main(int argc, char **argv)
+{
+   FILE *pem;
+   ltc_pka_key key;
+   password_ctx pw_ctx = { .callback = password_get };
+   if (argc < 2)
+      return EXIT_FAILURE;
+   pem = fopen(argv[1], "rb");
+   if (!pem)
+      return EXIT_FAILURE;
+
+   if (register_all_ciphers() != CRYPT_OK)
+      return EXIT_FAILURE;
+   if (register_all_hashes() != CRYPT_OK)
+      return EXIT_FAILURE;
+   if (crypt_mp_init("ltm") != CRYPT_OK)
+      return EXIT_FAILURE;
+   if (pem_decode_pkcs_filehandle(pem, &key, &pw_ctx) != CRYPT_OK)
+      return EXIT_FAILURE;
+   if (key.id < sizeof(pka_algos)/sizeof(pka_algos[0]))
+      printf("key type: %s\n", pka_algos[key.id]);
+   pka_key_free(&key);
+   return EXIT_SUCCESS;
+}
+
+\end{verbatim}
+\end{small}
 
 \mysection{Primality Testing}
 \index{Primality Testing}
