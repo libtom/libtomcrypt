@@ -9,10 +9,17 @@
 
 #ifdef LTC_PEM
 
+extern const struct str pem_proc_type_encrypted;
+extern const struct str pem_dek_info_start;
+extern const struct dek_info_from_str pem_dek_infos[];
+extern const unsigned long pem_dek_infos_num;
+
+#ifndef LTC_NO_FILE
 int pem_get_char_from_file(struct get_char *g)
 {
    return getc(g->f);
 }
+#endif /* LTC_NO_FILE */
 
 int pem_get_char_from_buf(struct get_char *g)
 {

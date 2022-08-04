@@ -306,13 +306,6 @@ struct pem_headers {
    struct password *pw;
 };
 
-extern const struct pem_header_id pem_std_headers[];
-extern const unsigned long pem_std_headers_num;
-extern const struct str pem_proc_type_encrypted;
-extern const struct str pem_dek_info_start;
-extern const struct dek_info_from_str pem_dek_infos[];
-extern const unsigned long pem_dek_infos_num;
-
 struct bufp {
    /* `end` points to one byte after the last
     * element of the allocated buffer
@@ -325,7 +318,9 @@ struct bufp {
 struct get_char {
    int (*get)(struct get_char*);
    union {
+#ifndef LTC_NO_FILE
       FILE *f;
+#endif /* LTC_NO_FILE */
       struct bufp buf;
    };
    struct str unget_buf;
@@ -342,7 +337,9 @@ int pbes_decrypt(const pbes_arg  *arg, unsigned char *dec_data, unsigned long *d
 int pbes1_extract(const ltc_asn1_list *s, pbes_arg *res);
 int pbes2_extract(const ltc_asn1_list *s, pbes_arg *res);
 
+#ifndef LTC_NO_FILE
 int pem_get_char_from_file(struct get_char *g);
+#endif /* LTC_NO_FILE */
 int pem_get_char_from_buf(struct get_char *g);
 int pem_read(void *pem, unsigned long *w, struct pem_headers *hdr, struct get_char *g);
 

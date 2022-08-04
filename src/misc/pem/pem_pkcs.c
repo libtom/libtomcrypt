@@ -9,6 +9,9 @@
 
 #ifdef LTC_PEM
 
+extern const struct pem_header_id pem_std_headers[];
+extern const unsigned long pem_std_headers_num;
+
 static int s_decrypt_pem(unsigned char *pem, unsigned long *l, const struct pem_headers *hdr)
 {
    unsigned char iv[MAXBLOCKSIZE], key[MAXBLOCKSIZE];
@@ -58,7 +61,7 @@ typedef struct {
    pkcs8_import fn;
 } p8_import_st;
 
-static int s_decode(struct get_char *g, ltc_pka_key *k, password_ctx *pw_ctx)
+static int s_decode(struct get_char *g, ltc_pka_key *k, const password_ctx *pw_ctx)
 {
    unsigned char *pem = NULL;
    unsigned long w, l, n;
@@ -66,6 +69,7 @@ static int s_decode(struct get_char *g, ltc_pka_key *k, password_ctx *pw_ctx)
    struct pem_headers hdr = { 0 };
    struct password pw;
    ltc_asn1_list *p8_asn1 = NULL;
+   XMEMSET(k, 0, sizeof(*k));
    w = LTC_PEM_READ_BUFSIZE * 2;
 retry:
    pem = XREALLOC(pem, w);
@@ -132,8 +136,10 @@ retry:
       }
       goto cleanup;
    } else if (hdr.encrypted) {
-      LTC_ARGCHK(pw_ctx           != NULL);
-      LTC_ARGCHK(pw_ctx->callback != NULL);
+      if ((pw_ctx == NULL) || (pw_ctx->callback == NULL)) {
+         err = CRYPT_PW_CTX_MISSING;
+         goto cleanup;
+      }
 
       hdr.pw = &pw;
       if (pw_ctx->callback(&hdr.pw->pw, &hdr.pw->l, pw_ctx->userdata)) {
@@ -181,7 +187,8 @@ cleanup:
    return err;
 }
 
-int pem_decode_pkcs_filehandle(FILE *f, ltc_pka_key *k, password_ctx *pw_ctx)
+#ifndef LTC_NO_FILE
+int pem_decode_pkcs_filehandle(FILE *f, ltc_pka_key *k, const password_ctx *pw_ctx)
 {
    LTC_ARGCHK(f != NULL);
    LTC_ARGCHK(k != NULL);
@@ -190,10 +197,12 @@ int pem_decode_pkcs_filehandle(FILE *f, ltc_pka_key *k, password_ctx *pw_ctx)
       return s_decode(&g, k, pw_ctx);
    }
 }
+#endif /* LTC_NO_FILE */
 
-int pem_decode_pkcs(const void *buf, unsigned long len, ltc_pka_key *k, password_ctx *pw_ctx)
+int pem_decode_pkcs(const void *buf, unsigned long len, ltc_pka_key *k, const password_ctx *pw_ctx)
 {
    LTC_ARGCHK(buf != NULL);
+   LTC_ARGCHK(len != 0);
    LTC_ARGCHK(k != NULL);
    {
       struct get_char g = { .get = pem_get_char_from_buf, SET_BUFP(.buf, buf, len) };

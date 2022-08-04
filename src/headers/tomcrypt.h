@@ -72,7 +72,8 @@ enum {
    CRYPT_INVALID_PRIME_SIZE,/* Invalid size of prime requested */
    CRYPT_PK_INVALID_PADDING, /* Invalid padding on input */
 
-   CRYPT_HASH_OVERFLOW      /* Hash applied to too many bits */
+   CRYPT_HASH_OVERFLOW,     /* Hash applied to too many bits */
+   CRYPT_PW_CTX_MISSING,    /* Password context to decrypt key file is missing */
 };
 
 #include "tomcrypt_cfg.h"
