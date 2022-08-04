@@ -506,6 +506,7 @@ typedef struct {
    enum ltc_pka_id id;
 } ltc_pka_key;
 
+void pka_key_free(ltc_pka_key *key);
 
 #ifdef LTC_DER
 /* DER handling */

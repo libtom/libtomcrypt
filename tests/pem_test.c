@@ -95,34 +95,6 @@ static int s_pem_decode_f(FILE *f, void *key)
    return s_key_cmp(key);
 }
 
-static void s_pem_free_key(ltc_pka_key *key)
-{
-   switch (key->id) {
-      case LTC_PKA_DH:
-#if defined(LTC_MDH)
-         dh_free(&key->u.dh);
-#endif
-         break;
-      case LTC_PKA_DSA:
-#if defined(LTC_MDSA)
-         dsa_free(&key->u.dsa);
-#endif
-         break;
-      case LTC_PKA_RSA:
-#if defined(LTC_MRSA)
-         rsa_free(&key->u.rsa);
-#endif
-         break;
-      case LTC_PKA_EC:
-#if defined(LTC_MECC)
-         ecc_free(&key->u.ecc);
-#endif
-         break;
-      default:
-         break;
-   }
-}
-
 int pem_test(void)
 {
    ltc_pka_key key;
@@ -140,13 +112,13 @@ int pem_test(void)
 #endif
 
 
-   DO(test_process_dir("tests/pem", &key, s_pem_decode, NULL, (dir_cleanup_cb)s_pem_free_key, "pem_test"));
-   DO(test_process_dir("tests/pem", &key, NULL, s_pem_decode_f, (dir_cleanup_cb)s_pem_free_key, "pem_test_filehandle"));
-   DO(test_process_dir("tests/pem-ecc-pkcs8", &key, s_pem_decode, NULL, (dir_cleanup_cb)s_pem_free_key, "pem_test+ecc"));
-   DO(test_process_dir("tests/pem-ecc-pkcs8", &key, NULL, s_pem_decode_f, (dir_cleanup_cb)s_pem_free_key, "pem_test_filehandle+ecc"));
+   DO(test_process_dir("tests/pem", &key, s_pem_decode, NULL, (dir_cleanup_cb)pka_key_free, "pem_test"));
+   DO(test_process_dir("tests/pem", &key, NULL, s_pem_decode_f, (dir_cleanup_cb)pka_key_free, "pem_test_filehandle"));
+   DO(test_process_dir("tests/pem-ecc-pkcs8", &key, s_pem_decode, NULL, (dir_cleanup_cb)pka_key_free, "pem_test+ecc"));
+   DO(test_process_dir("tests/pem-ecc-pkcs8", &key, NULL, s_pem_decode_f, (dir_cleanup_cb)pka_key_free, "pem_test_filehandle+ecc"));
 #ifdef LTC_SSH
-   DO(test_process_dir("tests/ssh", &key, s_pem_decode_ssh, NULL, (dir_cleanup_cb)s_pem_free_key, "pem_test+ssh"));
-   DO(test_process_dir("tests/ssh", &key, NULL, s_pem_decode_ssh_f, (dir_cleanup_cb)s_pem_free_key, "pem_test_filehandle+ssh"));
+   DO(test_process_dir("tests/ssh", &key, s_pem_decode_ssh, NULL, (dir_cleanup_cb)pka_key_free, "pem_test+ssh"));
+   DO(test_process_dir("tests/ssh", &key, NULL, s_pem_decode_ssh_f, (dir_cleanup_cb)pka_key_free, "pem_test_filehandle+ssh"));
 #endif
 
 #if defined(LTC_MDSA)
