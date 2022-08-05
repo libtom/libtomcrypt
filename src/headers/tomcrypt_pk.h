@@ -22,6 +22,16 @@ typedef struct {
 
 /* ---- NUMBER THEORY ---- */
 
+enum ltc_pka_id {
+   LTC_PKA_UNDEF = 0,
+   LTC_PKA_RSA,
+   LTC_PKA_DSA,
+   LTC_PKA_EC,
+   LTC_PKA_X25519,
+   LTC_PKA_ED25519,
+   LTC_PKA_DH,
+};
+
 enum public_key_type {
    /* Refers to the public key */
    PK_PUBLIC      = 0x0000,
@@ -349,12 +359,8 @@ typedef struct {
    /** The key type, PK_PRIVATE or PK_PUBLIC */
    enum public_key_type type;
 
-   /** The PK-algorithm, PKA_ED25519 or PKA_X25519 */
-   /** This was supposed to be:
-    * enum public_key_algorithms algo;
-    * but that enum is now in tomcrypt_private.h
-    */
-   int algo;
+   /** The PK-algorithm, LTC_PKA_ED25519 or LTC_PKA_X25519 */
+   enum ltc_pka_id pka;
 
    /** The private key */
    unsigned char priv[32];
@@ -513,19 +519,11 @@ int dsa_shared_secret(void          *private_key, void *base,
  * LibTomCrypt Public Key Algorithm descriptor
  */
 
-enum ltc_pka_id {
-   LTC_PKA_UNDEF = 0,
-   LTC_PKA_RSA,
-   LTC_PKA_DSA,
-   LTC_PKA_EC,
-   LTC_PKA_CURVE25519,
-   LTC_PKA_DH,
-};
-
 typedef struct {
    union {
 #ifdef LTC_CURVE25519
-      curve25519_key curve25519;
+      curve25519_key x25519;
+      curve25519_key ed25519;
 #endif
 #ifdef LTC_MDH
       dh_key dh;

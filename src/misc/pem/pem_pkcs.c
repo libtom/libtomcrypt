@@ -122,13 +122,13 @@ retry:
             break;
 #endif
 #ifdef LTC_CURVE25519
-         case LTC_OID_ED25519:
-            err = ed25519_import_pkcs8_asn1(alg_id, priv_key, &k->u.curve25519);
-            k->id = LTC_PKA_CURVE25519;
-            break;
          case LTC_OID_X25519:
-            err = x25519_import_pkcs8_asn1(alg_id, priv_key, &k->u.curve25519);
-            k->id = LTC_PKA_CURVE25519;
+            err = x25519_import_pkcs8_asn1(alg_id, priv_key, &k->u.x25519);
+            k->id = LTC_PKA_X25519;
+            break;
+         case LTC_OID_ED25519:
+            err = ed25519_import_pkcs8_asn1(alg_id, priv_key, &k->u.ed25519);
+            k->id = LTC_PKA_ED25519;
             break;
 #endif
          default:

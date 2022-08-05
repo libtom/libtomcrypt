@@ -26,9 +26,10 @@ int x25519_shared_secret(const    curve25519_key *private_key,
    LTC_ARGCHK(out                != NULL);
    LTC_ARGCHK(outlen             != NULL);
 
-   if(private_key->type != PK_PRIVATE) return CRYPT_PK_INVALID_TYPE;
+   if (public_key->pka != LTC_PKA_X25519) return CRYPT_PK_INVALID_TYPE;
+   if (private_key->type != PK_PRIVATE) return CRYPT_PK_INVALID_TYPE;
 
-   if(*outlen < 32uL) {
+   if (*outlen < 32uL) {
       *outlen = 32uL;
       return CRYPT_BUFFER_OVERFLOW;
    }

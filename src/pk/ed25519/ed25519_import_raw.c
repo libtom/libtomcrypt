@@ -32,7 +32,7 @@ int ed25519_import_raw(const unsigned char *in, unsigned long inlen, int which, 
    } else {
       return CRYPT_INVALID_ARG;
    }
-   key->algo = LTC_OID_ED25519;
+   key->pka = LTC_PKA_ED25519;
    key->type = which;
 
    return CRYPT_OK;

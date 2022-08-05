@@ -23,7 +23,7 @@ static int s_ed25519_sign(const unsigned char  *msg, unsigned long  msglen,
    LTC_ARGCHK(siglen      != NULL);
    LTC_ARGCHK(private_key != NULL);
 
-   if (private_key->algo != LTC_OID_ED25519) return CRYPT_PK_INVALID_TYPE;
+   if (private_key->pka != LTC_PKA_ED25519) return CRYPT_PK_INVALID_TYPE;
    if (private_key->type != PK_PRIVATE) return CRYPT_PK_INVALID_TYPE;
 
    if (*siglen < 64uL) {

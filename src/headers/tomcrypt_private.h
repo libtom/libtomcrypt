@@ -53,6 +53,7 @@ enum ltc_oid_id {
    LTC_OID_X25519,
    LTC_OID_ED25519,
    LTC_OID_DH,
+   LTC_OID_NUM
 };
 
 /*
@@ -349,6 +350,8 @@ int rand_bn_bits(void *N, int bits, prng_state *prng, int wprng);
 int rand_bn_upto(void *N, void *limit, prng_state *prng, int wprng);
 
 int pk_get_oid(enum ltc_oid_id id, const char **st);
+int pk_get_pka_id(enum ltc_oid_id id, enum ltc_pka_id *pka);
+int pk_get_oid_id(enum ltc_pka_id pka, enum ltc_oid_id *oid);
 int pk_get_oid_from_asn1(const ltc_asn1_list *oid, enum ltc_oid_id *id);
 int pk_oid_str_to_num(const char *OID, unsigned long *oid, unsigned long *oidlen);
 int pk_oid_num_to_str(const unsigned long *oid, unsigned long oidlen, char *OID, unsigned long *outlen);
