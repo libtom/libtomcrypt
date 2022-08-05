@@ -54,6 +54,7 @@ static void s_ocb3_int_calc_offset_zero(ocb3_state *ocb, const unsigned char *no
    }
 }
 
+#define polys ocb3_polys
 static const struct {
     int           len;
     unsigned char poly_mul[MAXBLOCKSIZE];
@@ -182,5 +183,7 @@ int ocb3_init(ocb3_state *ocb, int cipher,
 
    return CRYPT_OK;
 }
+
+#undef polys
 
 #endif

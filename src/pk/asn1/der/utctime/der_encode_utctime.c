@@ -9,8 +9,6 @@
 
 #ifdef LTC_DER
 
-static const char * const baseten = "0123456789";
-
 #define STORE_V(y) \
     out[x++] = der_ia5_char_encode(baseten[(y/10) % 10]); \
     out[x++] = der_ia5_char_encode(baseten[y % 10]);
@@ -25,6 +23,7 @@ static const char * const baseten = "0123456789";
 int der_encode_utctime(const ltc_utctime   *utctime,
                              unsigned char *out,   unsigned long *outlen)
 {
+    const char * const baseten = "0123456789";
     unsigned long x, tmplen;
     int           err;
 
@@ -67,5 +66,7 @@ int der_encode_utctime(const ltc_utctime   *utctime,
     *outlen = x;
     return CRYPT_OK;
 }
+
+#undef STORE_V
 
 #endif

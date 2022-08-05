@@ -702,5 +702,16 @@ int twofish_keysize(int *keysize)
    return CRYPT_OK;
 }
 
+#undef MDS_POLY
+#undef RS_POLY
+#undef sbox
+#undef mds_column_mult
+#undef S1
+#undef S2
+#undef S3
+#undef S4
+#undef g_func
+#undef g1_func
+
 #endif
 

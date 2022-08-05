@@ -83,4 +83,6 @@ int salsa20_crypt(salsa20_state *st, const unsigned char *in, unsigned long inle
    }
 }
 
+#undef QUARTERROUND
+
 #endif

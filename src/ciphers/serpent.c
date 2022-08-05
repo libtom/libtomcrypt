@@ -443,6 +443,7 @@ const struct ltc_cipher_descriptor serpent_desc = {
    k[(8-r)*4 + 7] = d;  \
 }
 
+#define s_setup_key s_serpent_setup_key
 static int s_setup_key(const unsigned char *key, int keylen, int rounds, ulong32 *k)
 {
    int i;
@@ -713,5 +714,46 @@ int serpent_test(void)
    return CRYPT_OK;
 #endif
 }
+
+#undef s_lt
+#undef s_ilt
+#undef s_beforeS0
+#undef s_afterS0
+#undef s_afterS1
+#undef s_afterS2
+#undef s_afterS3
+#undef s_afterS4
+#undef s_afterS5
+#undef s_afterS6
+#undef s_afterS7
+#undef s_beforeI7
+#undef s_afterI7
+#undef s_afterI6
+#undef s_afterI5
+#undef s_afterI4
+#undef s_afterI3
+#undef s_afterI2
+#undef s_afterI1
+#undef s_afterI0
+#undef s_s0
+#undef s_i0
+#undef s_s1
+#undef s_i1
+#undef s_s2
+#undef s_i2
+#undef s_s3
+#undef s_i3
+#undef s_s4
+#undef s_i4
+#undef s_s5
+#undef s_i5
+#undef s_s6
+#undef s_i6
+#undef s_s7
+#undef s_i7
+#undef s_kx
+#undef s_lk
+#undef s_sk
+#undef s_setup_key
 
 #endif

@@ -9,6 +9,7 @@
 
 #ifdef LTC_OCB_MODE
 
+#define polys ocb_polys
 static const struct {
     int           len;
     unsigned char poly_div[MAXBLOCKSIZE],
@@ -125,5 +126,7 @@ int ocb_init(ocb_state *ocb, int cipher,
 
    return CRYPT_OK;
 }
+
+#undef polys
 
 #endif

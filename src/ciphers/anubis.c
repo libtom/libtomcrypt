@@ -26,6 +26,14 @@ const struct ltc_cipher_descriptor anubis_desc = {
 
 #define MAX_N           10
 
+
+#define T0 anubis_T0
+#define T1 anubis_T1
+#define T2 anubis_T2
+#define T3 anubis_T3
+#define T4 anubis_T4
+#define T5 anubis_T5
+#define rc anubis_rc
 /*
  * Though Anubis is endianness-neutral, the encryption tables are listed
  * in BIG-ENDIAN format, which is adopted throughout this implementation
@@ -1545,6 +1553,15 @@ int anubis_keysize(int *keysize)
    }
    return CRYPT_OK;
 }
+
+#undef MAX_N
+#undef T0
+#undef T1
+#undef T2
+#undef T3
+#undef T4
+#undef T5
+#undef rc
 
 #endif
 

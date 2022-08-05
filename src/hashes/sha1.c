@@ -271,6 +271,15 @@ int  sha1_test(void)
   #endif
 }
 
+#undef F0
+#undef F1
+#undef F2
+#undef F3
+#undef FF0
+#undef FF1
+#undef FF2
+#undef FF3
+
 #endif
 
 

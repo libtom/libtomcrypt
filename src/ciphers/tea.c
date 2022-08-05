@@ -205,5 +205,8 @@ int tea_keysize(int *keysize)
    return CRYPT_OK;
 }
 
+#undef DELTA
+#undef SUM
+
 #endif
 

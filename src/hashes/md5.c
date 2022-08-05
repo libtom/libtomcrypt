@@ -351,6 +351,13 @@ int  md5_test(void)
  #endif
 }
 
+#undef F
+#undef G
+#undef H
+#undef I
+#undef FF
+#undef GG
+#undef HH
+#undef II
+
 #endif
-
-

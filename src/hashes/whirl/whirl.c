@@ -291,6 +291,8 @@ int  whirlpool_test(void)
  #endif
 }
 
+#undef GB
+#undef theta_pi_gamma
 
 #endif
 

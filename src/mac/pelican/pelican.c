@@ -9,10 +9,12 @@
 
 #ifdef LTC_PELICAN
 
+#ifndef LTC_AES_TAB_C
 #define LTC_AES_TAB_C
 #define ENCRYPT_ONLY
 #define PELI_TAB
 #include "../../ciphers/aes/aes_tab.c"
+#endif
 
 /**
    Initialize a Pelican state

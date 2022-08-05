@@ -317,6 +317,15 @@ int  sha256_test(void)
  #endif
 }
 
+#undef Ch
+#undef Maj
+#undef S
+#undef R
+#undef Sigma0
+#undef Sigma1
+#undef Gamma0
+#undef Gamma1
+
 #endif
 
 

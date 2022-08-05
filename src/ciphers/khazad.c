@@ -837,4 +837,6 @@ int khazad_keysize(int *keysize)
    return CRYPT_INVALID_KEYSIZE;
 }
 
+#undef R
+
 #endif

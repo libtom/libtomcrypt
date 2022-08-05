@@ -9,6 +9,7 @@
 
 #ifdef LTC_PMAC
 
+#define polys pmac_polys
 static const struct {
     int           len;
     unsigned char poly_div[MAXBLOCKSIZE],
@@ -134,5 +135,7 @@ error:
 
    return err;
 }
+
+#undef polys
 
 #endif

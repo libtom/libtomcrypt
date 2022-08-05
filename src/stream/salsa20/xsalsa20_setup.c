@@ -12,8 +12,6 @@
 
 #ifdef LTC_XSALSA20
 
-static const char * const constants = "expand 32-byte k";
-
 #define QUARTERROUND(a,b,c,d) \
     x[b] ^= (ROL((x[a] + x[d]),  7)); \
     x[c] ^= (ROL((x[b] + x[a]),  9)); \
@@ -55,6 +53,7 @@ int xsalsa20_setup(salsa20_state *st, const unsigned char *key, unsigned long ke
                                       const unsigned char *nonce, unsigned long noncelen,
                                       int rounds)
 {
+   const char * const constants = "expand 32-byte k";
    const int sti[] = {0, 5, 10, 15, 6, 7, 8, 9};  /* indices used to build subkey fm x */
    ulong32       x[64];                           /* input to & output fm doubleround */
    unsigned char subkey[32];

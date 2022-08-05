@@ -203,6 +203,10 @@ void gcm_gf_mult(const unsigned char *a, const unsigned char *b, unsigned char *
 
 }
 
+#undef M
+#undef BPD
+#undef WPV
+
 #endif
 
 #endif

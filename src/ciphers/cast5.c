@@ -491,6 +491,7 @@ int cast5_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_
 }
 #endif
 
+#define FI cast5_FI
 LTC_INLINE static ulong32 FI(ulong32 R, ulong32 Km, ulong32 Kr)
 {
    ulong32 I;
@@ -701,5 +702,8 @@ int cast5_keysize(int *keysize)
    }
    return CRYPT_OK;
 }
+
+#undef GB
+#undef FI
 
 #endif

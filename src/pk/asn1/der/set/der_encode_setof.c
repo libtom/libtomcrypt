@@ -14,6 +14,7 @@ struct edge {
    unsigned long  size;
 };
 
+#define s_qsort_helper s_setof_qsort_helper
 static int s_qsort_helper(const void *a, const void *b)
 {
    struct edge   *A = (struct edge *)a, *B = (struct edge *)b;
@@ -147,5 +148,7 @@ int der_encode_setof(const ltc_asn1_list *list, unsigned long inlen,
 
    return CRYPT_OK;
 }
+
+#undef s_qsort_helper
 
 #endif

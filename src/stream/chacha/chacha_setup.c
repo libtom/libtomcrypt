@@ -10,9 +10,6 @@
 
 #ifdef LTC_CHACHA
 
-static const char * const sigma = "expand 32-byte k";
-static const char * const tau   = "expand 16-byte k";
-
 /**
    Initialize an ChaCha context (only the key)
    @param st        [out] The destination of the ChaCha state
@@ -23,6 +20,8 @@ static const char * const tau   = "expand 16-byte k";
 */
 int chacha_setup(chacha_state *st, const unsigned char *key, unsigned long keylen, int rounds)
 {
+   const char * const sigma = "expand 32-byte k";
+   const char * const tau   = "expand 16-byte k";
    const char *constants;
 
    LTC_ARGCHK(st  != NULL);

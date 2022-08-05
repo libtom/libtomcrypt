@@ -331,4 +331,9 @@ int skipjack_keysize(int *keysize)
    return CRYPT_OK;
 }
 
+#undef RULE_A
+#undef RULE_B
+#undef RULE_A1
+#undef RULE_B1
+
 #endif

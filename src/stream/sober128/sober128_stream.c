@@ -330,4 +330,16 @@ int sober128_stream_done(sober128_state *st)
    return CRYPT_OK;
 }
 
+#undef N
+#undef INITKONST
+#undef KEYP
+#undef FOLDP
+#undef OFF
+#undef STEP
+#undef NLFUNC
+#undef ADDKEY
+#undef XORNL
+#undef DROUND
+#undef SROUND
+
 #endif

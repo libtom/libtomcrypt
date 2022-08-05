@@ -88,4 +88,6 @@ int chacha_crypt(chacha_state *st, const unsigned char *in, unsigned long inlen,
    }
 }
 
+#undef QUARTERROUND
+
 #endif

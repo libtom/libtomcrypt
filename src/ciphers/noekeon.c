@@ -313,5 +313,12 @@ int noekeon_keysize(int *keysize)
    return CRYPT_OK;
 }
 
+#undef kTHETA
+#undef THETA
+#undef GAMMA
+#undef PI1
+#undef PI2
+#undef ROUND
+
 #endif
 

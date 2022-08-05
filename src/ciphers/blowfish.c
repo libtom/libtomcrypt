@@ -654,5 +654,7 @@ int blowfish_keysize(int *keysize)
    return CRYPT_OK;
 }
 
+#undef F
+
 #endif
 

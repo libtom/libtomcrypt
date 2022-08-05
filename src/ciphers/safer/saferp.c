@@ -9,8 +9,10 @@
 
 #ifdef LTC_SAFERP
 
+#ifndef LTC_SAFER_TAB_C
 #define LTC_SAFER_TAB_C
 #include "safer_tab.c"
+#endif
 
 const struct ltc_cipher_descriptor saferp_desc =
 {
@@ -562,6 +564,13 @@ int saferp_keysize(int *keysize)
    return CRYPT_OK;
 }
 
+#undef ROUND
+#undef iROUND
+#undef PHT
+#undef iPHT
+#undef SHUF
+#undef iSHUF
+#undef LT
+#undef iLT
+
 #endif
-
-

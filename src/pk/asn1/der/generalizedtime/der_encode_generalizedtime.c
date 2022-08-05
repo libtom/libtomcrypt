@@ -10,8 +10,6 @@
 
 #ifdef LTC_DER
 
-static const char * const baseten = "0123456789";
-
 #define STORE_V(y) do {\
     out[x++] = der_ia5_char_encode(baseten[(y/10) % 10]); \
     out[x++] = der_ia5_char_encode(baseten[y % 10]); \
@@ -34,6 +32,7 @@ static const char * const baseten = "0123456789";
 int der_encode_generalizedtime(const ltc_generalizedtime *gtime,
                                      unsigned char       *out, unsigned long *outlen)
 {
+    const char * const baseten = "0123456789";
     unsigned long x, tmplen;
     int           err;
 
@@ -94,5 +93,8 @@ int der_encode_generalizedtime(const ltc_generalizedtime *gtime,
     *outlen = x;
     return CRYPT_OK;
 }
+
+#undef STORE_V
+#undef STORE_V4
 
 #endif

@@ -363,4 +363,7 @@ int kseed_keysize(int *keysize)
    return CRYPT_OK;
 }
 
+#undef G
+#undef F
+
 #endif
