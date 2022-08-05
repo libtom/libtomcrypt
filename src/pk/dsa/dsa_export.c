@@ -58,7 +58,7 @@ int dsa_export(unsigned char *out, unsigned long *outlen, int type, const dsa_ke
 
    if (type == PK_PUBLIC) {
       if (std) {
-          unsigned long tmplen = (unsigned long)(mp_count_bits(key->y) / 8) + 8;
+          unsigned long tmplen = (unsigned long)(ltc_mp_count_bits(key->y) / 8) + 8;
           unsigned char* tmp = XMALLOC(tmplen);
           ltc_asn1_list int_list[3];
 

@@ -16,7 +16,7 @@ int dsa_int_init(dsa_key *key)
    LTC_ARGCHK(ltc_mp.name != NULL);
 
    /* init key */
-   return mp_init_multi(&key->p, &key->g, &key->q, &key->x, &key->y, NULL);
+   return ltc_mp_init_multi(&key->p, &key->g, &key->q, &key->x, &key->y, NULL);
 }
 
 #endif

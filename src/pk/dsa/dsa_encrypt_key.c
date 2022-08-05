@@ -50,11 +50,11 @@ int dsa_encrypt_key(const unsigned char *in,   unsigned long inlen,
     }
 
     /* make a random key and export the public copy */
-    if ((err = mp_init_multi(&g_pub, &g_priv, NULL)) != CRYPT_OK) {
+    if ((err = ltc_mp_init_multi(&g_pub, &g_priv, NULL)) != CRYPT_OK) {
        return err;
     }
 
-    expt       = XMALLOC(mp_unsigned_bin_size(key->p) + 1);
+    expt       = XMALLOC(ltc_mp_unsigned_bin_size(key->p) + 1);
     skey       = XMALLOC(MAXBLOCKSIZE);
     if (expt == NULL  || skey == NULL) {
        if (expt != NULL) {
@@ -63,7 +63,7 @@ int dsa_encrypt_key(const unsigned char *in,   unsigned long inlen,
        if (skey != NULL) {
           XFREE(skey);
        }
-       mp_clear_multi(g_pub, g_priv, NULL);
+       ltc_mp_deinit_multi(g_pub, g_priv, NULL);
        return CRYPT_MEM;
     }
 
@@ -75,12 +75,12 @@ int dsa_encrypt_key(const unsigned char *in,   unsigned long inlen,
     }
 
     /* compute y */
-    if ((err = mp_exptmod(key->g, g_priv, key->p, g_pub)) != CRYPT_OK) {
+    if ((err = ltc_mp_exptmod(key->g, g_priv, key->p, g_pub)) != CRYPT_OK) {
        goto LBL_ERR;
     }
 
     /* make random key */
-    x        = mp_unsigned_bin_size(key->p) + 1;
+    x        = ltc_mp_unsigned_bin_size(key->p) + 1;
     if ((err = dsa_shared_secret(g_priv, key->y, key, expt, &x)) != CRYPT_OK) {
        goto LBL_ERR;
     }
@@ -104,14 +104,14 @@ int dsa_encrypt_key(const unsigned char *in,   unsigned long inlen,
 LBL_ERR:
 #ifdef LTC_CLEAN_STACK
     /* clean up */
-    zeromem(expt,   mp_unsigned_bin_size(key->p) + 1);
+    zeromem(expt,   ltc_mp_unsigned_bin_size(key->p) + 1);
     zeromem(skey,   MAXBLOCKSIZE);
 #endif
 
     XFREE(skey);
     XFREE(expt);
 
-    mp_clear_multi(g_pub, g_priv, NULL);
+    ltc_mp_deinit_multi(g_pub, g_priv, NULL);
     return err;
 }
 

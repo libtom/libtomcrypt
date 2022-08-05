@@ -109,7 +109,7 @@ int pbes1_extract(const ltc_asn1_list *s, pbes_arg *res)
     * 33:d=1  hl=4 l= 296 prim:   OCTET STRING         :bytes (== encrypted data)
     */
    res->salt = s->next->child;
-   res->iterations = mp_get_int(s->next->child->next->data);
+   res->iterations = ltc_mp_get_int(s->next->child->next->data);
 
    return CRYPT_OK;
 }

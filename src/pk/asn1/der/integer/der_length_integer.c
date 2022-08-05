@@ -23,24 +23,24 @@ int der_length_integer(void *num, unsigned long *outlen)
    LTC_ARGCHK(num     != NULL);
    LTC_ARGCHK(outlen  != NULL);
 
-   if (mp_cmp_d(num, 0) != LTC_MP_LT) {
+   if (ltc_mp_cmp_d(num, 0) != LTC_MP_LT) {
       /* positive */
 
       /* we only need a leading zero if the msb of the first byte is one */
-      if ((mp_count_bits(num) & 7) == 0 || mp_iszero(num) == LTC_MP_YES) {
+      if ((ltc_mp_count_bits(num) & 7) == 0 || ltc_mp_iszero(num) == LTC_MP_YES) {
          leading_zero = 1;
       } else {
          leading_zero = 0;
       }
 
       /* size for bignum */
-      len = leading_zero + mp_unsigned_bin_size(num);
+      len = leading_zero + ltc_mp_unsigned_bin_size(num);
    } else {
       /* it's negative */
       /* find power of 2 that is a multiple of eight and greater than count bits */
-      z = mp_count_bits(num);
+      z = ltc_mp_count_bits(num);
       z = z + (8 - (z & 7));
-      if (((mp_cnt_lsb(num)+1)==mp_count_bits(num)) && ((mp_count_bits(num)&7)==0)) --z;
+      if (((ltc_mp_cnt_lsb(num)+1)==ltc_mp_count_bits(num)) && ((ltc_mp_count_bits(num)&7)==0)) --z;
       len = z >> 3;
    }
 

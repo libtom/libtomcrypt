@@ -30,8 +30,8 @@ int dh_set_pg(const unsigned char *p, unsigned long plen,
       return err;
    }
 
-   if ((err = mp_read_unsigned_bin(key->base, (unsigned char*)g, glen)) != CRYPT_OK)     { goto LBL_ERR; }
-   if ((err = mp_read_unsigned_bin(key->prime, (unsigned char*)p, plen)) != CRYPT_OK)  { goto LBL_ERR; }
+   if ((err = ltc_mp_read_unsigned_bin(key->base, (unsigned char*)g, glen)) != CRYPT_OK)     { goto LBL_ERR; }
+   if ((err = ltc_mp_read_unsigned_bin(key->prime, (unsigned char*)p, plen)) != CRYPT_OK)  { goto LBL_ERR; }
 
    return CRYPT_OK;
 
@@ -62,8 +62,8 @@ int dh_set_pg_groupsize(int groupsize, dh_key *key)
       return err;
    }
 
-   if ((err = mp_read_radix(key->base, ltc_dh_sets[i].base, 16)) != CRYPT_OK)  { goto LBL_ERR; }
-   if ((err = mp_read_radix(key->prime, ltc_dh_sets[i].prime, 16)) != CRYPT_OK) { goto LBL_ERR; }
+   if ((err = ltc_mp_read_radix(key->base, ltc_dh_sets[i].base, 16)) != CRYPT_OK)  { goto LBL_ERR; }
+   if ((err = ltc_mp_read_radix(key->prime, ltc_dh_sets[i].prime, 16)) != CRYPT_OK) { goto LBL_ERR; }
 
    return CRYPT_OK;
 
@@ -92,12 +92,12 @@ int dh_set_key(const unsigned char *in, unsigned long inlen, int type, dh_key *k
 
    if (type == PK_PRIVATE) {
       key->type = PK_PRIVATE;
-      if ((err = mp_read_unsigned_bin(key->x, (unsigned char*)in, inlen)) != CRYPT_OK) { goto LBL_ERR; }
-      if ((err = mp_exptmod(key->base, key->x, key->prime, key->y)) != CRYPT_OK)       { goto LBL_ERR; }
+      if ((err = ltc_mp_read_unsigned_bin(key->x, (unsigned char*)in, inlen)) != CRYPT_OK) { goto LBL_ERR; }
+      if ((err = ltc_mp_exptmod(key->base, key->x, key->prime, key->y)) != CRYPT_OK)       { goto LBL_ERR; }
    }
    else {
       key->type = PK_PUBLIC;
-      if ((err = mp_read_unsigned_bin(key->y, (unsigned char*)in, inlen)) != CRYPT_OK) { goto LBL_ERR; }
+      if ((err = ltc_mp_read_unsigned_bin(key->y, (unsigned char*)in, inlen)) != CRYPT_OK) { goto LBL_ERR; }
    }
 
    /* check public key */

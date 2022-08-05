@@ -60,10 +60,10 @@ int rsa_sign_hash_ex(const unsigned char *in,       unsigned long  inlen,
    }
 
    /* get modulus len in bits */
-   modulus_bitlen = mp_count_bits((key->N));
+   modulus_bitlen = ltc_mp_count_bits((key->N));
 
   /* outlen must be at least the size of the modulus */
-  modulus_bytelen = mp_unsigned_bin_size((key->N));
+  modulus_bytelen = ltc_mp_unsigned_bin_size((key->N));
   if (modulus_bytelen > *outlen) {
      *outlen = modulus_bytelen;
      return CRYPT_BUFFER_OVERFLOW;
@@ -101,7 +101,7 @@ int rsa_sign_hash_ex(const unsigned char *in,       unsigned long  inlen,
       LTC_SET_ASN1(siginfo,    1, LTC_ASN1_OCTET_STRING,      in,                            inlen);
 
       /* allocate memory for the encoding */
-      y = mp_unsigned_bin_size(key->N);
+      y = ltc_mp_unsigned_bin_size(key->N);
       tmpin = XMALLOC(y);
       if (tmpin == NULL) {
          return CRYPT_MEM;

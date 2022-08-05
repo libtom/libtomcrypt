@@ -32,7 +32,7 @@ int rand_bn_bits(void *N, int bits, prng_state *prng, int wprng)
    /* mask bits */
    buf[0] &= mask;
    /* load value */
-   if ((res = mp_read_unsigned_bin(N, buf, bytes)) != CRYPT_OK) goto cleanup;
+   if ((res = ltc_mp_read_unsigned_bin(N, buf, bytes)) != CRYPT_OK) goto cleanup;
 
    res = CRYPT_OK;
 
@@ -54,11 +54,11 @@ int rand_bn_upto(void *N, void *limit, prng_state *prng, int wprng)
    LTC_ARGCHK(N != NULL);
    LTC_ARGCHK(limit != NULL);
 
-   bits = mp_count_bits(limit);
+   bits = ltc_mp_count_bits(limit);
    do {
      res = rand_bn_bits(N, bits, prng, wprng);
      if (res != CRYPT_OK) return res;
-   } while (mp_cmp_d(N, 0) != LTC_MP_GT || mp_cmp(N, limit) != LTC_MP_LT);
+   } while (ltc_mp_cmp_d(N, 0) != LTC_MP_GT || ltc_mp_cmp(N, limit) != LTC_MP_LT);
 
    return CRYPT_OK;
 }

@@ -21,15 +21,15 @@ void ecc_sizes(int *low, int *high)
   *low = INT_MAX;
   *high = 0;
 
-  if (mp_init(&prime) == CRYPT_OK) {
+  if (ltc_mp_init(&prime) == CRYPT_OK) {
     for (i = 0; ltc_ecc_curves[i].prime != NULL; i++) {
-       if (mp_read_radix(prime, ltc_ecc_curves[i].prime, 16) == CRYPT_OK) {
-         size = mp_unsigned_bin_size(prime);
+       if (ltc_mp_read_radix(prime, ltc_ecc_curves[i].prime, 16) == CRYPT_OK) {
+         size = ltc_mp_unsigned_bin_size(prime);
          if (size < *low)  *low  = size;
          if (size > *high) *high = size;
        }
     }
-    mp_clear(prime);
+    ltc_mp_clear(prime);
   }
 }
 

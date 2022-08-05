@@ -21,7 +21,7 @@ ecc_point *ltc_ecc_new_point(void)
    if (p == NULL) {
       return NULL;
    }
-   if (mp_init_multi(&p->x, &p->y, &p->z, NULL) != CRYPT_OK) {
+   if (ltc_mp_init_multi(&p->x, &p->y, &p->z, NULL) != CRYPT_OK) {
       XFREE(p);
       return NULL;
    }
@@ -35,7 +35,7 @@ void ltc_ecc_del_point(ecc_point *p)
 {
    /* prevents free'ing null arguments */
    if (p != NULL) {
-      mp_clear_multi(p->x, p->y, p->z, NULL); /* note: p->z may be NULL but that's ok with this function anyways */
+      ltc_mp_deinit_multi(p->x, p->y, p->z, NULL); /* note: p->z may be NULL but that's ok with this function anyways */
       XFREE(p);
    }
 }

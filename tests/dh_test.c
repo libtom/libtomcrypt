@@ -9,35 +9,35 @@ static int s_prime_test(void)
    void *p, *g, *tmp;
    int x, err, primality;
 
-   if ((err = mp_init_multi(&p, &g, &tmp, NULL)) != CRYPT_OK)               { goto error; }
+   if ((err = ltc_mp_init_multi(&p, &g, &tmp, NULL)) != CRYPT_OK)               { goto error; }
 
    for (x = 0; ltc_dh_sets[x].size != 0; x++) {
       /* tfm has a problem with larger sizes */
       if ((strcmp(ltc_mp.name, "TomsFastMath") == 0) && (ltc_dh_sets[x].size > 256)) break;
 
-      if ((err = mp_read_radix(g, ltc_dh_sets[x].base, 16)) != CRYPT_OK)    { goto error; }
-      if ((err = mp_read_radix(p, ltc_dh_sets[x].prime, 16)) != CRYPT_OK)   { goto error; }
+      if ((err = ltc_mp_read_radix(g, ltc_dh_sets[x].base, 16)) != CRYPT_OK)    { goto error; }
+      if ((err = ltc_mp_read_radix(p, ltc_dh_sets[x].prime, 16)) != CRYPT_OK)   { goto error; }
 
       /* ensure p is prime */
-      if ((err = mp_prime_is_prime(p, 8, &primality)) != CRYPT_OK)          { goto done; }
+      if ((err = ltc_mp_prime_is_prime(p, 8, &primality)) != CRYPT_OK)          { goto done; }
       if (primality != LTC_MP_YES ) {
          err = CRYPT_FAIL_TESTVECTOR;
          goto done;
       }
 
-      if ((err = mp_sub_d(p, 1, tmp)) != CRYPT_OK)                          { goto error; }
-      if ((err = mp_div_2(tmp, tmp)) != CRYPT_OK)                           { goto error; }
+      if ((err = ltc_mp_sub_d(p, 1, tmp)) != CRYPT_OK)                          { goto error; }
+      if ((err = ltc_mp_div_2(tmp, tmp)) != CRYPT_OK)                           { goto error; }
 
       /* ensure (p-1)/2 is prime */
-      if ((err = mp_prime_is_prime(tmp, 8, &primality)) != CRYPT_OK)        { goto done; }
+      if ((err = ltc_mp_prime_is_prime(tmp, 8, &primality)) != CRYPT_OK)        { goto done; }
       if (primality == 0) {
          err = CRYPT_FAIL_TESTVECTOR;
          goto done;
       }
 
       /* now see if g^((p-1)/2) mod p is in fact 1 */
-      if ((err = mp_exptmod(g, tmp, p, tmp)) != CRYPT_OK)                   { goto error; }
-      if (mp_cmp_d(tmp, 1)) {
+      if ((err = ltc_mp_exptmod(g, tmp, p, tmp)) != CRYPT_OK)                   { goto error; }
+      if (ltc_mp_cmp_d(tmp, 1)) {
          err = CRYPT_FAIL_TESTVECTOR;
          goto done;
       }
@@ -45,7 +45,7 @@ static int s_prime_test(void)
    err = CRYPT_OK;
 error:
 done:
-   mp_clear_multi(tmp, g, p, NULL);
+   ltc_mp_deinit_multi(tmp, g, p, NULL);
    return err;
 }
 
@@ -119,14 +119,14 @@ static int s_dhparam_test(void)
 
    DO(dh_set_pg_dhparam(dhparam_der, sizeof(dhparam_der), &k));
    DO(dh_generate_key(&yarrow_prng, find_prng ("yarrow"), &k));
-   if (mp_unsigned_bin_size(k.prime) > sizeof(buf)) {
+   if (ltc_mp_unsigned_bin_size(k.prime) > sizeof(buf)) {
       printf("dhparam_test: short buf\n");
       dh_free(&k);
       return CRYPT_ERROR;
    }
-   DO(mp_to_unsigned_bin(k.prime, buf));
+   DO(ltc_mp_to_unsigned_bin(k.prime, buf));
    DO(do_compare_testvector(buf, sizeof(prime), prime, sizeof(prime), "dhparam_test: prime mismatch", 1));
-   if (mp_cmp_d(k.base, 2) != LTC_MP_EQ) {
+   if (ltc_mp_cmp_d(k.base, 2) != LTC_MP_EQ) {
       printf("dhparam_test: base mismatch\n");
       dh_free(&k);
       return CRYPT_ERROR;
@@ -296,11 +296,11 @@ static int s_set_test(void)
       DO(dh_set_pg(test[i].p, test[i].plen, test[i].g, test[i].glen, &k3));
       DO(dh_generate_key(&yarrow_prng, find_prng("yarrow"), &k3));
 
-      len = mp_unsigned_bin_size(k3.prime);
-      DO(mp_to_unsigned_bin(k3.prime, buf));
+      len = ltc_mp_unsigned_bin_size(k3.prime);
+      DO(ltc_mp_to_unsigned_bin(k3.prime, buf));
       DO(do_compare_testvector(buf, len, pbin, sizeof(pbin), "radix_test: dh_make_key_ex prime mismatch", i*10 + 8));
-      len = mp_unsigned_bin_size(k3.base);
-      DO(mp_to_unsigned_bin(k3.base, buf));
+      len = ltc_mp_unsigned_bin_size(k3.base);
+      DO(ltc_mp_to_unsigned_bin(k3.base, buf));
       DO(do_compare_testvector(buf, len, gbin, sizeof(gbin), "radix_test: dh_make_key_ex base mismatch", i*10 + 9));
       dh_free(&k3);
    }

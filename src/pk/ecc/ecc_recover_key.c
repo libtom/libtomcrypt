@@ -46,7 +46,7 @@ int ecc_recover_key(const unsigned char *sig,  unsigned long siglen,
    }
 
    /* allocate ints */
-   if ((err = mp_init_multi(&r, &s, &v, &w, &t1, &t2, &u1, &u2, &v1, &v2, &e, &x, &y, &a_plus3, NULL)) != CRYPT_OK) {
+   if ((err = ltc_mp_init_multi(&r, &s, &v, &w, &t1, &t2, &u1, &u2, &v1, &v2, &e, &x, &y, &a_plus3, NULL)) != CRYPT_OK) {
       return err;
    }
 
@@ -54,7 +54,7 @@ int ecc_recover_key(const unsigned char *sig,  unsigned long siglen,
    m = key->dp.prime;
    a = key->dp.A;
    b = key->dp.B;
-   if ((err = mp_add_d(a, 3, a_plus3)) != CRYPT_OK) {
+   if ((err = ltc_mp_add_d(a, 3, a_plus3)) != CRYPT_OK) {
       goto error;
    }
 
@@ -76,13 +76,13 @@ int ecc_recover_key(const unsigned char *sig,  unsigned long siglen,
    }
    else if (sigformat == LTC_ECCSIG_RFC7518) {
       /* RFC7518 format - raw (r,s) */
-      i = mp_unsigned_bin_size(key->dp.order);
+      i = ltc_mp_unsigned_bin_size(key->dp.order);
       if (siglen != (2*i)) {
          err = CRYPT_INVALID_PACKET;
          goto error;
       }
-      if ((err = mp_read_unsigned_bin(r, (unsigned char *)sig,   i)) != CRYPT_OK)                       { goto error; }
-      if ((err = mp_read_unsigned_bin(s, (unsigned char *)sig+i, i)) != CRYPT_OK)                       { goto error; }
+      if ((err = ltc_mp_read_unsigned_bin(r, (unsigned char *)sig,   i)) != CRYPT_OK)                       { goto error; }
+      if ((err = ltc_mp_read_unsigned_bin(s, (unsigned char *)sig+i, i)) != CRYPT_OK)                       { goto error; }
    }
    else if (sigformat == LTC_ECCSIG_ETH27) {
       /* Ethereum (v,r,s) format */
@@ -102,8 +102,8 @@ int ecc_recover_key(const unsigned char *sig,  unsigned long siglen,
          goto error;
       }
       recid = i;
-      if ((err = mp_read_unsigned_bin(r, (unsigned char *)sig,  32)) != CRYPT_OK)                       { goto error; }
-      if ((err = mp_read_unsigned_bin(s, (unsigned char *)sig+32, 32)) != CRYPT_OK)                     { goto error; }
+      if ((err = ltc_mp_read_unsigned_bin(r, (unsigned char *)sig,  32)) != CRYPT_OK)                       { goto error; }
+      if ((err = ltc_mp_read_unsigned_bin(s, (unsigned char *)sig+32, 32)) != CRYPT_OK)                     { goto error; }
    }
 #ifdef LTC_SSH
    else if (sigformat == LTC_ECCSIG_RFC5656) {
@@ -140,20 +140,20 @@ int ecc_recover_key(const unsigned char *sig,  unsigned long siglen,
    }
 
    /* check for zero */
-   if (mp_cmp_d(r, 0) != LTC_MP_GT || mp_cmp_d(s, 0) != LTC_MP_GT ||
-       mp_cmp(r, p) != LTC_MP_LT || mp_cmp(s, p) != LTC_MP_LT) {
+   if (ltc_mp_cmp_d(r, 0) != LTC_MP_GT || ltc_mp_cmp_d(s, 0) != LTC_MP_GT ||
+       ltc_mp_cmp(r, p) != LTC_MP_LT || ltc_mp_cmp(s, p) != LTC_MP_LT) {
       err = CRYPT_INVALID_PACKET;
       goto error;
    }
 
    /* read hash - truncate if needed */
-   pbits = mp_count_bits(p);
+   pbits = ltc_mp_count_bits(p);
    pbytes = (pbits+7) >> 3;
    if (pbits > hashlen*8) {
-      if ((err = mp_read_unsigned_bin(e, (unsigned char *)hash, hashlen)) != CRYPT_OK)                  { goto error; }
+      if ((err = ltc_mp_read_unsigned_bin(e, (unsigned char *)hash, hashlen)) != CRYPT_OK)                  { goto error; }
    }
    else if (pbits % 8 == 0) {
-      if ((err = mp_read_unsigned_bin(e, (unsigned char *)hash, pbytes)) != CRYPT_OK)                   { goto error; }
+      if ((err = ltc_mp_read_unsigned_bin(e, (unsigned char *)hash, pbytes)) != CRYPT_OK)                   { goto error; }
    }
    else {
       shift_right = 8 - pbits % 8;
@@ -162,61 +162,61 @@ int ecc_recover_key(const unsigned char *sig,  unsigned long siglen,
         ch = (hash[i] << (8-shift_right));
         buf[i] = buf[i] ^ (hash[i] >> shift_right);
       }
-      if ((err = mp_read_unsigned_bin(e, (unsigned char *)buf, pbytes)) != CRYPT_OK)                    { goto error; }
+      if ((err = ltc_mp_read_unsigned_bin(e, (unsigned char *)buf, pbytes)) != CRYPT_OK)                    { goto error; }
    }
 
    /* decompress point from r=(x mod p) - BEWARE: requires sqrtmod_prime */
    /* x = r + p*(recid/2) */
-   if ((err = mp_set(x, recid/2)) != CRYPT_OK)                                                          { goto error; }
-   if ((err = mp_mulmod(p, x, m, x)) != CRYPT_OK)                                                       { goto error; }
-   if ((err = mp_add(x, r, x)) != CRYPT_OK)                                                             { goto error; }
+   if ((err = ltc_mp_set(x, recid/2)) != CRYPT_OK)                                                          { goto error; }
+   if ((err = ltc_mp_mulmod(p, x, m, x)) != CRYPT_OK)                                                       { goto error; }
+   if ((err = ltc_mp_add(x, r, x)) != CRYPT_OK)                                                             { goto error; }
    /* compute x^3 */
-   if ((err = mp_sqr(x, t1)) != CRYPT_OK)                                                               { goto error; }
-   if ((err = mp_mulmod(t1, x, m, t1)) != CRYPT_OK)                                                     { goto error; }
+   if ((err = ltc_mp_sqr(x, t1)) != CRYPT_OK)                                                               { goto error; }
+   if ((err = ltc_mp_mulmod(t1, x, m, t1)) != CRYPT_OK)                                                     { goto error; }
    /* compute x^3 + a*x */
-   if ((err = mp_mulmod(a, x, m, t2)) != CRYPT_OK)                                                      { goto error; }
-   if ((err = mp_add(t1, t2, t1)) != CRYPT_OK)                                                          { goto error; }
+   if ((err = ltc_mp_mulmod(a, x, m, t2)) != CRYPT_OK)                                                      { goto error; }
+   if ((err = ltc_mp_add(t1, t2, t1)) != CRYPT_OK)                                                          { goto error; }
    /* compute x^3 + a*x + b */
-   if ((err = mp_add(t1, b, t1)) != CRYPT_OK)                                                           { goto error; }
+   if ((err = ltc_mp_add(t1, b, t1)) != CRYPT_OK)                                                           { goto error; }
    /* compute sqrt(x^3 + a*x + b) */
-   if ((err = mp_sqrtmod_prime(t1, m, t2)) != CRYPT_OK)                                                 { goto error; }
+   if ((err = ltc_mp_sqrtmod_prime(t1, m, t2)) != CRYPT_OK)                                                 { goto error; }
 
    /* fill in mR */
-   if ((err = mp_copy(x, mR->x)) != CRYPT_OK)                                                           { goto error; }
-   if ((mp_isodd(t2) && (recid%2)) || (!mp_isodd(t2) && !(recid%2))) {
-      if ((err = mp_mod(t2, m, mR->y)) != CRYPT_OK)                                                     { goto error; }
+   if ((err = ltc_mp_copy(x, mR->x)) != CRYPT_OK)                                                           { goto error; }
+   if ((ltc_mp_isodd(t2) && (recid%2)) || (!ltc_mp_isodd(t2) && !(recid%2))) {
+      if ((err = ltc_mp_mod(t2, m, mR->y)) != CRYPT_OK)                                                     { goto error; }
    }
    else {
-      if ((err = mp_submod(m, t2, m, mR->y)) != CRYPT_OK)                                               { goto error; }
+      if ((err = ltc_mp_submod(m, t2, m, mR->y)) != CRYPT_OK)                                               { goto error; }
    }
-   if ((err = mp_set(mR->z, 1)) != CRYPT_OK)                                                            { goto error; }
+   if ((err = ltc_mp_set(mR->z, 1)) != CRYPT_OK)                                                            { goto error; }
 
    /*  w  = r^-1 mod n */
-   if ((err = mp_invmod(r, p, w)) != CRYPT_OK)                                                          { goto error; }
+   if ((err = ltc_mp_invmod(r, p, w)) != CRYPT_OK)                                                          { goto error; }
    /* v1 = sw */
-   if ((err = mp_mulmod(s, w, p, v1)) != CRYPT_OK)                                                      { goto error; }
+   if ((err = ltc_mp_mulmod(s, w, p, v1)) != CRYPT_OK)                                                      { goto error; }
    /* v2 = -ew */
-   if ((err = mp_mulmod(e, w, p, v2)) != CRYPT_OK)                                                      { goto error; }
-   if ((err = mp_submod(p, v2, p, v2)) != CRYPT_OK)                                                     { goto error; }
+   if ((err = ltc_mp_mulmod(e, w, p, v2)) != CRYPT_OK)                                                      { goto error; }
+   if ((err = ltc_mp_submod(p, v2, p, v2)) != CRYPT_OK)                                                     { goto error; }
 
    /*  w  = s^-1 mod n */
-   if ((err = mp_invmod(s, p, w)) != CRYPT_OK)                                                          { goto error; }
+   if ((err = ltc_mp_invmod(s, p, w)) != CRYPT_OK)                                                          { goto error; }
    /* u1 = ew */
-   if ((err = mp_mulmod(e, w, p, u1)) != CRYPT_OK)                                                      { goto error; }
+   if ((err = ltc_mp_mulmod(e, w, p, u1)) != CRYPT_OK)                                                      { goto error; }
    /* u2 = rw */
-   if ((err = mp_mulmod(r, w, p, u2)) != CRYPT_OK)                                                      { goto error; }
+   if ((err = ltc_mp_mulmod(r, w, p, u2)) != CRYPT_OK)                                                      { goto error; }
 
    /* find mG */
    if ((err = ltc_ecc_copy_point(&key->dp.base, mG)) != CRYPT_OK)                                       { goto error; }
 
    /* find the montgomery mp */
-   if ((err = mp_montgomery_setup(m, &mp)) != CRYPT_OK)                                                 { goto error; }
+   if ((err = ltc_mp_montgomery_setup(m, &mp)) != CRYPT_OK)                                                 { goto error; }
 
    /* for curves with a == -3 keep ma == NULL */
-   if (mp_cmp(a_plus3, m) != LTC_MP_EQ) {
-      if ((err = mp_init_multi(&mu, &ma, NULL)) != CRYPT_OK)                                            { goto error; }
-      if ((err = mp_montgomery_normalization(mu, m)) != CRYPT_OK)                                       { goto error; }
-      if ((err = mp_mulmod(a, mu, m, ma)) != CRYPT_OK)                                                  { goto error; }
+   if (ltc_mp_cmp(a_plus3, m) != LTC_MP_EQ) {
+      if ((err = ltc_mp_init_multi(&mu, &ma, NULL)) != CRYPT_OK)                                            { goto error; }
+      if ((err = ltc_mp_montgomery_normalization(mu, m)) != CRYPT_OK)                                       { goto error; }
+      if ((err = ltc_mp_mulmod(a, mu, m, ma)) != CRYPT_OK)                                                  { goto error; }
    }
 
    /* recover mQ from mR */
@@ -227,10 +227,10 @@ int ecc_recover_key(const unsigned char *sig,  unsigned long siglen,
    if ((err = ltc_mp.ecc_mul2add(mG, u1, mQ, u2, mG, ma, m)) != CRYPT_OK)                               { goto error; }
 
    /* v = X_x1 mod n */
-   if ((err = mp_mod(mG->x, p, v)) != CRYPT_OK)                                                         { goto error; }
+   if ((err = ltc_mp_mod(mG->x, p, v)) != CRYPT_OK)                                                         { goto error; }
 
    /* does v == r */
-   if (mp_cmp(v, r) == LTC_MP_EQ) {
+   if (ltc_mp_cmp(v, r) == LTC_MP_EQ) {
       /* found public key which verifies signature */
       if ((err = ltc_ecc_copy_point(mQ, &key->pubkey)) != CRYPT_OK)                                     { goto error; }
       /* point on the curve + other checks */
@@ -246,13 +246,13 @@ int ecc_recover_key(const unsigned char *sig,  unsigned long siglen,
    }
 
 error:
-   if (ma != NULL) mp_clear(ma);
-   if (mu != NULL) mp_clear(mu);
-   if (mp != NULL) mp_montgomery_free(mp);
+   if (ma != NULL) ltc_mp_clear(ma);
+   if (mu != NULL) ltc_mp_clear(mu);
+   if (mp != NULL) ltc_mp_montgomery_free(mp);
    if (mR != NULL) ltc_ecc_del_point(mR);
    if (mQ != NULL) ltc_ecc_del_point(mQ);
    if (mG != NULL) ltc_ecc_del_point(mG);
-   mp_clear_multi(a_plus3, y, x, e, v2, v1, u2, u1, t2, t1, w, v, s, r, NULL);
+   ltc_mp_deinit_multi(a_plus3, y, x, e, v2, v1, u2, u1, t2, t1, w, v, s, r, NULL);
    return err;
 }
 

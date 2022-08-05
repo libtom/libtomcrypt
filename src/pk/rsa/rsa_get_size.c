@@ -21,7 +21,7 @@ int rsa_get_size(const rsa_key *key)
 
   if (key)
   {
-    ret = mp_unsigned_bin_size(key->N);
+    ret = ltc_mp_unsigned_bin_size(key->N);
   } /* if */
 
   return ret;

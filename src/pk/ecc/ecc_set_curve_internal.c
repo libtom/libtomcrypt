@@ -7,8 +7,8 @@
 
 static int s_ecc_cmp_hex_bn(const char *left_hex, void *right_bn, void *tmp_bn)
 {
-   if (mp_read_radix(tmp_bn, left_hex, 16) != CRYPT_OK) return 0;
-   if (mp_cmp(tmp_bn, right_bn) != LTC_MP_EQ)           return 0;
+   if (ltc_mp_read_radix(tmp_bn, left_hex, 16) != CRYPT_OK) return 0;
+   if (ltc_mp_cmp(tmp_bn, right_bn) != LTC_MP_EQ)           return 0;
    return 1;
 }
 
@@ -18,7 +18,7 @@ static void s_ecc_oid_lookup(ecc_key *key)
    const ltc_ecc_curve *curve;
 
    key->dp.oidlen = 0;
-   if (mp_init(&bn) != CRYPT_OK) return;
+   if (ltc_mp_init(&bn) != CRYPT_OK) return;
    for (curve = ltc_ecc_curves; curve->prime != NULL; curve++) {
       if (s_ecc_cmp_hex_bn(curve->prime, key->dp.prime,  bn) != 1) continue;
       if (s_ecc_cmp_hex_bn(curve->order, key->dp.order,  bn) != 1) continue;
@@ -29,7 +29,7 @@ static void s_ecc_oid_lookup(ecc_key *key)
       if (key->dp.cofactor != curve->cofactor)                    continue;
       break; /* found */
    }
-   mp_clear(bn);
+   ltc_mp_clear(bn);
    if (curve->prime && curve->OID) {
       key->dp.oidlen = 16; /* size of key->dp.oid */
       pk_oid_str_to_num(curve->OID, key->dp.oid, &key->dp.oidlen);
@@ -44,7 +44,7 @@ int ecc_copy_curve(const ecc_key *srckey, ecc_key *key)
    LTC_ARGCHK(key != NULL);
    LTC_ARGCHK(srckey != NULL);
 
-   if ((err = mp_init_multi(&key->dp.prime, &key->dp.order, &key->dp.A, &key->dp.B,
+   if ((err = ltc_mp_init_multi(&key->dp.prime, &key->dp.order, &key->dp.A, &key->dp.B,
                             &key->dp.base.x, &key->dp.base.y, &key->dp.base.z,
                             &key->pubkey.x, &key->pubkey.y, &key->pubkey.z, &key->k,
                             NULL)) != CRYPT_OK) {
@@ -52,10 +52,10 @@ int ecc_copy_curve(const ecc_key *srckey, ecc_key *key)
    }
 
    /* A, B, order, prime, Gx, Gy */
-   if ((err = mp_copy(srckey->dp.prime,  key->dp.prime )) != CRYPT_OK) { goto error; }
-   if ((err = mp_copy(srckey->dp.order,  key->dp.order )) != CRYPT_OK) { goto error; }
-   if ((err = mp_copy(srckey->dp.A,      key->dp.A     )) != CRYPT_OK) { goto error; }
-   if ((err = mp_copy(srckey->dp.B,      key->dp.B     )) != CRYPT_OK) { goto error; }
+   if ((err = ltc_mp_copy(srckey->dp.prime,  key->dp.prime )) != CRYPT_OK) { goto error; }
+   if ((err = ltc_mp_copy(srckey->dp.order,  key->dp.order )) != CRYPT_OK) { goto error; }
+   if ((err = ltc_mp_copy(srckey->dp.A,      key->dp.A     )) != CRYPT_OK) { goto error; }
+   if ((err = ltc_mp_copy(srckey->dp.B,      key->dp.B     )) != CRYPT_OK) { goto error; }
    if ((err = ltc_ecc_copy_point(&srckey->dp.base, &key->dp.base)) != CRYPT_OK) { goto error; }
    /* cofactor & size */
    key->dp.cofactor = srckey->dp.cofactor;
@@ -88,7 +88,7 @@ int ecc_set_curve_from_mpis(void *a, void *b, void *prime, void *order, void *gx
    LTC_ARGCHK(gx    != NULL);
    LTC_ARGCHK(gy    != NULL);
 
-   if ((err = mp_init_multi(&key->dp.prime, &key->dp.order, &key->dp.A, &key->dp.B,
+   if ((err = ltc_mp_init_multi(&key->dp.prime, &key->dp.order, &key->dp.A, &key->dp.B,
                             &key->dp.base.x, &key->dp.base.y, &key->dp.base.z,
                             &key->pubkey.x, &key->pubkey.y, &key->pubkey.z, &key->k,
                             NULL)) != CRYPT_OK) {
@@ -96,16 +96,16 @@ int ecc_set_curve_from_mpis(void *a, void *b, void *prime, void *order, void *gx
    }
 
    /* A, B, order, prime, Gx, Gy */
-   if ((err = mp_copy(prime, key->dp.prime )) != CRYPT_OK) { goto error; }
-   if ((err = mp_copy(order, key->dp.order )) != CRYPT_OK) { goto error; }
-   if ((err = mp_copy(a,     key->dp.A     )) != CRYPT_OK) { goto error; }
-   if ((err = mp_copy(b,     key->dp.B     )) != CRYPT_OK) { goto error; }
-   if ((err = mp_copy(gx,    key->dp.base.x)) != CRYPT_OK) { goto error; }
-   if ((err = mp_copy(gy,    key->dp.base.y)) != CRYPT_OK) { goto error; }
-   if ((err = mp_set(key->dp.base.z, 1)) != CRYPT_OK)      { goto error; }
+   if ((err = ltc_mp_copy(prime, key->dp.prime )) != CRYPT_OK) { goto error; }
+   if ((err = ltc_mp_copy(order, key->dp.order )) != CRYPT_OK) { goto error; }
+   if ((err = ltc_mp_copy(a,     key->dp.A     )) != CRYPT_OK) { goto error; }
+   if ((err = ltc_mp_copy(b,     key->dp.B     )) != CRYPT_OK) { goto error; }
+   if ((err = ltc_mp_copy(gx,    key->dp.base.x)) != CRYPT_OK) { goto error; }
+   if ((err = ltc_mp_copy(gy,    key->dp.base.y)) != CRYPT_OK) { goto error; }
+   if ((err = ltc_mp_set(key->dp.base.z, 1)) != CRYPT_OK)      { goto error; }
    /* cofactor & size */
    key->dp.cofactor = cofactor;
-   key->dp.size = mp_unsigned_bin_size(prime);
+   key->dp.size = ltc_mp_unsigned_bin_size(prime);
    /* try to find OID in ltc_ecc_curves */
    s_ecc_oid_lookup(key);
    /* success */

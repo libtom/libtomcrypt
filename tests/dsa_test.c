@@ -128,12 +128,12 @@ int dsa_key_cmp(const int should_type, const dsa_key *should, const dsa_key *is)
 {
    if (should_type != is->type)                               return CRYPT_ERROR;
    if (should_type == PK_PRIVATE) {
-      if (mp_cmp(should->x, is->x) != LTC_MP_EQ)              return CRYPT_ERROR;
+      if (ltc_mp_cmp(should->x, is->x) != LTC_MP_EQ)              return CRYPT_ERROR;
    }
-   if (mp_cmp(should->y, is->y) != LTC_MP_EQ)                 return CRYPT_ERROR;
-   if (mp_cmp(should->g, is->g) != LTC_MP_EQ)                 return CRYPT_ERROR;
-   if (mp_cmp(should->p, is->p) != LTC_MP_EQ)                 return CRYPT_ERROR;
-   if (mp_cmp(should->q, is->q) != LTC_MP_EQ)                 return CRYPT_ERROR;
+   if (ltc_mp_cmp(should->y, is->y) != LTC_MP_EQ)                 return CRYPT_ERROR;
+   if (ltc_mp_cmp(should->g, is->g) != LTC_MP_EQ)                 return CRYPT_ERROR;
+   if (ltc_mp_cmp(should->p, is->p) != LTC_MP_EQ)                 return CRYPT_ERROR;
+   if (ltc_mp_cmp(should->q, is->q) != LTC_MP_EQ)                 return CRYPT_ERROR;
    if (should->qord != is->qord)                              return CRYPT_ERROR;
    return CRYPT_OK;
 }

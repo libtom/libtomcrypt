@@ -149,7 +149,7 @@ static int s_der_decode_sequence_flexi(const unsigned char *in, unsigned long *i
 
              /* init field */
              l->size = 1;
-             if ((err = mp_init(&l->data)) != CRYPT_OK) {
+             if ((err = ltc_mp_init(&l->data)) != CRYPT_OK) {
                  goto error;
              }
 

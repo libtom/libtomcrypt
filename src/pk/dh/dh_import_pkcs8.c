@@ -22,10 +22,10 @@ int dh_import_pkcs8_asn1(ltc_asn1_list *alg_id, ltc_asn1_list *priv_key, dh_key 
       return err;
    }
 
-   if ((err = mp_copy(alg_id->child->next->child->data, key->prime)) != CRYPT_OK) {
+   if ((err = ltc_mp_copy(alg_id->child->next->child->data, key->prime)) != CRYPT_OK) {
       goto error;
    }
-   if ((err = mp_copy(alg_id->child->next->child->next->data, key->base)) != CRYPT_OK) {
+   if ((err = ltc_mp_copy(alg_id->child->next->child->next->data, key->base)) != CRYPT_OK) {
       goto error;
    }
 
@@ -33,7 +33,7 @@ int dh_import_pkcs8_asn1(ltc_asn1_list *alg_id, ltc_asn1_list *priv_key, dh_key 
       goto error;
    }
    /* compute public key: y = (base ^ x) mod prime */
-   if ((err = mp_exptmod(key->base, key->x, key->prime, key->y)) != CRYPT_OK) {
+   if ((err = ltc_mp_exptmod(key->base, key->x, key->prime, key->y)) != CRYPT_OK) {
       goto error;
    }
    /* check public key */

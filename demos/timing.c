@@ -528,12 +528,12 @@ static void time_mult(void)
    if (ltc_mp.name == NULL) return;
 
    fprintf(stderr, "Timing Multiplying:\n");
-   mp_init_multi(&a,&b,&c,NULL);
-   for (x = 128/MP_DIGIT_BIT; x <= (unsigned long)1536/MP_DIGIT_BIT; x += 128/MP_DIGIT_BIT) {
-       mp_rand(a, x);
-       mp_rand(b, x);
+   ltc_mp_init_multi(&a,&b,&c,NULL);
+   for (x = 128/LTC_MP_DIGIT_BIT; x <= (unsigned long)1536/LTC_MP_DIGIT_BIT; x += 128/LTC_MP_DIGIT_BIT) {
+       ltc_mp_rand(a, x);
+       ltc_mp_rand(b, x);
 
-#define DO1 mp_mul(a, b, c);
+#define DO1 ltc_mp_mul(a, b, c);
 #define DO2 DO1; DO1;
 
        t2 = -1;
@@ -544,9 +544,9 @@ static void time_mult(void)
            t1 = (t_read() - t1)>>1;
            if (t1 < t2) t2 = t1;
        }
-       fprintf(stderr, "%4lu bits: %9"PRI64"u cycles\n", x*MP_DIGIT_BIT, t2);
+       fprintf(stderr, "%4lu bits: %9"PRI64"u cycles\n", x*LTC_MP_DIGIT_BIT, t2);
    }
-   mp_clear_multi(a,b,c,NULL);
+   ltc_mp_deinit_multi(a,b,c,NULL);
 
 #undef DO1
 #undef DO2
@@ -561,11 +561,11 @@ static void time_sqr(void)
    if (ltc_mp.name == NULL) return;
 
    fprintf(stderr, "Timing Squaring:\n");
-   mp_init_multi(&a,&b,NULL);
-   for (x = 128/MP_DIGIT_BIT; x <= (unsigned long)1536/MP_DIGIT_BIT; x += 128/MP_DIGIT_BIT) {
-       mp_rand(a, x);
+   ltc_mp_init_multi(&a,&b,NULL);
+   for (x = 128/LTC_MP_DIGIT_BIT; x <= (unsigned long)1536/LTC_MP_DIGIT_BIT; x += 128/LTC_MP_DIGIT_BIT) {
+       ltc_mp_rand(a, x);
 
-#define DO1 mp_sqr(a, b);
+#define DO1 ltc_mp_sqr(a, b);
 #define DO2 DO1; DO1;
 
        t2 = -1;
@@ -576,9 +576,9 @@ static void time_sqr(void)
            t1 = (t_read() - t1)>>1;
            if (t1 < t2) t2 = t1;
        }
-       fprintf(stderr, "%4lu bits: %9"PRI64"u cycles\n", x*MP_DIGIT_BIT, t2);
+       fprintf(stderr, "%4lu bits: %9"PRI64"u cycles\n", x*LTC_MP_DIGIT_BIT, t2);
    }
-   mp_clear_multi(a,b,NULL);
+   ltc_mp_deinit_multi(a,b,NULL);
 
 #undef DO1
 #undef DO2

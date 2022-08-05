@@ -32,28 +32,28 @@ int dsa_shared_secret(void          *private_key, void *base,
    LTC_ARGCHK(outlen      != NULL);
 
    /* make new point */
-   if ((err = mp_init(&res)) != CRYPT_OK) {
+   if ((err = ltc_mp_init(&res)) != CRYPT_OK) {
       return err;
    }
 
-   if ((err = mp_exptmod(base, private_key, public_key->p, res)) != CRYPT_OK) {
-      mp_clear(res);
+   if ((err = ltc_mp_exptmod(base, private_key, public_key->p, res)) != CRYPT_OK) {
+      ltc_mp_clear(res);
       return err;
    }
 
-   x = (unsigned long)mp_unsigned_bin_size(res);
+   x = (unsigned long)ltc_mp_unsigned_bin_size(res);
    if (*outlen < x) {
       *outlen = x;
       err = CRYPT_BUFFER_OVERFLOW;
       goto done;
    }
    zeromem(out, x);
-   if ((err = mp_to_unsigned_bin(res, out + (x - mp_unsigned_bin_size(res))))   != CRYPT_OK)          { goto done; }
+   if ((err = ltc_mp_to_unsigned_bin(res, out + (x - ltc_mp_unsigned_bin_size(res))))   != CRYPT_OK)          { goto done; }
 
    err     = CRYPT_OK;
    *outlen = x;
 done:
-   mp_clear(res);
+   ltc_mp_clear(res);
    return err;
 }
 
