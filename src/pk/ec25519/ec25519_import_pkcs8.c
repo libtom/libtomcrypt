@@ -39,7 +39,7 @@ int ec25519_import_pkcs8_asn1(ltc_asn1_list *alg_id, ltc_asn1_list *priv_key,
    if ((err = der_decode_octet_string(priv_key->data, priv_key->size, key->priv, &key_len)) == CRYPT_OK) {
       fp(key->pub, key->priv);
       key->type = PK_PRIVATE;
-      key->algo = id;
+      err = pk_get_pka_id(id, &key->pka);
    }
    return err;
 }

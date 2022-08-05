@@ -28,7 +28,7 @@ int ed25519_make_key(prng_state *prng, int wprng, curve25519_key *key)
    }
 
    key->type = PK_PRIVATE;
-   key->algo = LTC_OID_ED25519;
+   key->pka = LTC_PKA_ED25519;
 
    return err;
 }

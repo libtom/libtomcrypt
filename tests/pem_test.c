@@ -64,7 +64,8 @@ static int s_key_cmp(ltc_pka_key *key)
          return ecc_key_cmp(PK_PRIVATE, &s_ecc_key_should, &key->u.ecc);
 #endif
          break;
-      case LTC_PKA_CURVE25519:
+      case LTC_PKA_ED25519:
+      case LTC_PKA_X25519:
       case LTC_PKA_DH:
          return CRYPT_OK;
       default:

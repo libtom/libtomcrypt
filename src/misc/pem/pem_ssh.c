@@ -96,11 +96,11 @@ int ssh_decode_ed25519(const unsigned char *in, unsigned long *inlen, ltc_pka_ke
       goto cleanup;
    }
 
-   if ((err = ed25519_import_raw(&privkey[32], 32, PK_PRIVATE, &key->u.curve25519)) != CRYPT_OK) {
+   if ((err = ed25519_import_raw(&privkey[32], 32, PK_PRIVATE, &key->u.ed25519)) != CRYPT_OK) {
       goto cleanup;
    }
 
-   key->id = LTC_PKA_CURVE25519;
+   key->id = LTC_PKA_ED25519;
 
 cleanup:
    zeromem(pubkey, sizeof(pubkey));

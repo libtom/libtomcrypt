@@ -7366,14 +7366,16 @@ enum ltc_pka_id {
    LTC_PKA_RSA,
    LTC_PKA_DSA,
    LTC_PKA_EC,
-   LTC_PKA_CURVE25519,
+   LTC_PKA_X25519,
+   LTC_PKA_ED25519,
    LTC_PKA_DH,
 };
 
 typedef struct {
    union {
 #ifdef LTC_CURVE25519
-      curve25519_key curve25519;
+      curve25519_key x25519;
+      curve25519_key ed25519;
 #endif
 #ifdef LTC_MDH
       dh_key dh;
