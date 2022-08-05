@@ -3,6 +3,9 @@
 
 #include "tomcrypt.h"
 
+#ifndef TOMCRYPT_PRIVATE_H_
+#define TOMCRYPT_PRIVATE_H_
+
 /*
  * Internal Macros
  */
@@ -65,6 +68,11 @@ typedef struct
    /* only used for RC2 */
    unsigned long key_bits;
 } pbes_arg;
+
+typedef struct {
+   const pbes_properties *data;
+   const char *oid;
+} oid_to_pbes;
 
 /*
  * Internal functions
@@ -602,3 +610,5 @@ int which ## _export(unsigned char *out, unsigned long *outlen, prng_state *prng
 #else
    #define LTC_BYTE(x, n) (((x) >> (8 * (n))) & 255)
 #endif
+
+#endif /* TOMCRYPT_PRIVATE_H_ */

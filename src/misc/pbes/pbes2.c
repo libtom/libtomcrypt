@@ -31,11 +31,6 @@ static const pbes_properties s_pbes2_default_types[] = {
    { pkcs_5_alg2, "sha1",   "aes",  32, 0 },
 };
 
-typedef struct {
-   const pbes_properties *data;
-   const char* oid;
-} oid_to_pbes;
-
 static const oid_to_pbes s_pbes2_list[] = {
    { &s_pbes2_default_types[0], "1.3.14.3.2.7"            },  /* http://www.oid-info.com/get/1.3.14.3.2.7            desCBC */
    { &s_pbes2_default_types[1], "1.2.840.113549.3.2"      },  /* http://www.oid-info.com/get/1.2.840.113549.3.2      rc2CBC */

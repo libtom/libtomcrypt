@@ -50,11 +50,6 @@ static const pbes_properties s_pbes1_types[] = {
    { s_pkcs_12_wrap,     "sha1",  "3des", 24, 8 },
 };
 
-typedef struct {
-   const pbes_properties *data;
-   const char *oid;
-} oid_to_pbes;
-
 static const oid_to_pbes s_pbes1_list[] = {
    { &s_pbes1_types[0], "1.2.840.113549.1.5.1"    },  /* http://www.oid-info.com/get/1.2.840.113549.1.5.1    pbeWithMD2AndDES-CBC */
    { &s_pbes1_types[1], "1.2.840.113549.1.5.4"    },  /* http://www.oid-info.com/get/1.2.840.113549.1.5.4    pbeWithMD2AndRC2-CBC */
