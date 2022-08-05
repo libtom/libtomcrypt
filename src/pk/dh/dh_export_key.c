@@ -23,7 +23,7 @@ int dh_export_key(void *out, unsigned long *outlen, int type, const dh_key *key)
    LTC_ARGCHK(key    != NULL);
 
    k = (type == PK_PRIVATE) ? key->x : key->y;
-   len = mp_unsigned_bin_size(k);
+   len = ltc_mp_unsigned_bin_size(k);
 
    if (*outlen < len) {
       *outlen = len;
@@ -31,7 +31,7 @@ int dh_export_key(void *out, unsigned long *outlen, int type, const dh_key *key)
    }
    *outlen = len;
 
-   return mp_to_unsigned_bin(k, out);
+   return ltc_mp_to_unsigned_bin(k, out);
 }
 
 #endif /* LTC_MDH */

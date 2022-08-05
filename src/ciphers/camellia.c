@@ -713,4 +713,6 @@ int camellia_keysize(int *keysize)
    return CRYPT_OK;
 }
 
+#undef loc
+
 #endif

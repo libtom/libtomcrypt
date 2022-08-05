@@ -48,7 +48,7 @@ int dh_generate_key(prng_state *prng, int wprng, dh_key *key)
       return err;
    }
 
-   keysize = s_dh_groupsize_to_keysize(mp_unsigned_bin_size(key->prime));
+   keysize = s_dh_groupsize_to_keysize(ltc_mp_unsigned_bin_size(key->prime));
    if (keysize == 0) {
       err = CRYPT_INVALID_KEYSIZE;
       goto freemp;
@@ -69,11 +69,11 @@ int dh_generate_key(prng_state *prng, int wprng, dh_key *key)
          goto freebuf;
       }
       /* load the x value - private key */
-      if ((err = mp_read_unsigned_bin(key->x, buf, keysize)) != CRYPT_OK) {
+      if ((err = ltc_mp_read_unsigned_bin(key->x, buf, keysize)) != CRYPT_OK) {
          goto freebuf;
       }
       /* compute the y value - public key */
-      if ((err = mp_exptmod(key->base, key->x, key->prime, key->y)) != CRYPT_OK) {
+      if ((err = ltc_mp_exptmod(key->base, key->x, key->prime, key->y)) != CRYPT_OK) {
          goto freebuf;
       }
       err = dh_check_pubkey(key);

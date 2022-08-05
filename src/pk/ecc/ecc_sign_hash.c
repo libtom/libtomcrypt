@@ -46,19 +46,19 @@ int ecc_sign_hash_ex(const unsigned char *in,  unsigned long inlen,
    }
 
    /* init the bignums */
-   if ((err = mp_init_multi(&r, &s, &e, &b, NULL)) != CRYPT_OK) {
+   if ((err = ltc_mp_init_multi(&r, &s, &e, &b, NULL)) != CRYPT_OK) {
       return err;
    }
 
    /* get the hash and load it as a bignum into 'e' */
    p = key->dp.order;
-   pbits = mp_count_bits(p);
+   pbits = ltc_mp_count_bits(p);
    pbytes = (pbits+7) >> 3;
    if (pbits > inlen*8) {
-      if ((err = mp_read_unsigned_bin(e, (unsigned char *)in, inlen)) != CRYPT_OK)    { goto errnokey; }
+      if ((err = ltc_mp_read_unsigned_bin(e, (unsigned char *)in, inlen)) != CRYPT_OK)    { goto errnokey; }
    }
    else if (pbits % 8 == 0) {
-      if ((err = mp_read_unsigned_bin(e, (unsigned char *)in, pbytes)) != CRYPT_OK)   { goto errnokey; }
+      if ((err = ltc_mp_read_unsigned_bin(e, (unsigned char *)in, pbytes)) != CRYPT_OK)   { goto errnokey; }
    }
    else {
       shift_right = 8 - pbits % 8;
@@ -67,7 +67,7 @@ int ecc_sign_hash_ex(const unsigned char *in,  unsigned long inlen,
         ch = (in[i] << (8-shift_right));
         buf[i] = buf[i] ^ (in[i] >> shift_right);
       }
-      if ((err = mp_read_unsigned_bin(e, (unsigned char *)buf, pbytes)) != CRYPT_OK)  { goto errnokey; }
+      if ((err = ltc_mp_read_unsigned_bin(e, (unsigned char *)buf, pbytes)) != CRYPT_OK)  { goto errnokey; }
    }
 
    /* make up a key and export the public copy */
@@ -76,34 +76,34 @@ int ecc_sign_hash_ex(const unsigned char *in,  unsigned long inlen,
       if ((err = ecc_generate_key(prng, wprng, &pubkey)) != CRYPT_OK)      { goto errnokey; }
 
       /* find r = x1 mod n */
-      if ((err = mp_mod(pubkey.pubkey.x, p, r)) != CRYPT_OK)               { goto error; }
+      if ((err = ltc_mp_mod(pubkey.pubkey.x, p, r)) != CRYPT_OK)               { goto error; }
 
       if (recid || sigformat==LTC_ECCSIG_ETH27) {
          /* find recovery ID (if needed) */
          v = 0;
-         if (mp_copy(pubkey.pubkey.x, s) != CRYPT_OK)                      { goto error; }
-         while (mp_cmp_d(s, 0) == LTC_MP_GT && mp_cmp(s, p) != LTC_MP_LT) {
+         if (ltc_mp_copy(pubkey.pubkey.x, s) != CRYPT_OK)                      { goto error; }
+         while (ltc_mp_cmp_d(s, 0) == LTC_MP_GT && ltc_mp_cmp(s, p) != LTC_MP_LT) {
             /* Compute x1 div n... this will almost never be reached for curves with order 1 */
             v += 2;
-            if ((err = mp_sub(s, p, s)) != CRYPT_OK)                       { goto error; }
+            if ((err = ltc_mp_sub(s, p, s)) != CRYPT_OK)                       { goto error; }
          }
-         if (mp_isodd(pubkey.pubkey.y)) v += 1;
+         if (ltc_mp_isodd(pubkey.pubkey.y)) v += 1;
       }
 
-      if (mp_iszero(r) == LTC_MP_YES) {
+      if (ltc_mp_iszero(r) == LTC_MP_YES) {
          ecc_free(&pubkey);
       } else {
          if ((err = rand_bn_upto(b, p, prng, wprng)) != CRYPT_OK)          { goto error; } /* b = blinding value */
          /* find s = (e + xr)/k */
-         if ((err = mp_mulmod(pubkey.k, b, p, pubkey.k)) != CRYPT_OK)      { goto error; } /* k = kb */
-         if ((err = mp_invmod(pubkey.k, p, pubkey.k)) != CRYPT_OK)         { goto error; } /* k = 1/kb */
-         if ((err = mp_mulmod(key->k, r, p, s)) != CRYPT_OK)               { goto error; } /* s = xr */
-         if ((err = mp_mulmod(pubkey.k, s, p, s)) != CRYPT_OK)             { goto error; } /* s = xr/kb */
-         if ((err = mp_mulmod(pubkey.k, e, p, e)) != CRYPT_OK)             { goto error; } /* e = e/kb */
-         if ((err = mp_add(e, s, s)) != CRYPT_OK)                          { goto error; } /* s = e/kb + xr/kb */
-         if ((err = mp_mulmod(s, b, p, s)) != CRYPT_OK)                    { goto error; } /* s = b(e/kb + xr/kb) = (e + xr)/k */
+         if ((err = ltc_mp_mulmod(pubkey.k, b, p, pubkey.k)) != CRYPT_OK)      { goto error; } /* k = kb */
+         if ((err = ltc_mp_invmod(pubkey.k, p, pubkey.k)) != CRYPT_OK)         { goto error; } /* k = 1/kb */
+         if ((err = ltc_mp_mulmod(key->k, r, p, s)) != CRYPT_OK)               { goto error; } /* s = xr */
+         if ((err = ltc_mp_mulmod(pubkey.k, s, p, s)) != CRYPT_OK)             { goto error; } /* s = xr/kb */
+         if ((err = ltc_mp_mulmod(pubkey.k, e, p, e)) != CRYPT_OK)             { goto error; } /* e = e/kb */
+         if ((err = ltc_mp_add(e, s, s)) != CRYPT_OK)                          { goto error; } /* s = e/kb + xr/kb */
+         if ((err = ltc_mp_mulmod(s, b, p, s)) != CRYPT_OK)                    { goto error; } /* s = b(e/kb + xr/kb) = (e + xr)/k */
          ecc_free(&pubkey);
-         if (mp_iszero(s) == LTC_MP_NO) {
+         if (ltc_mp_iszero(s) == LTC_MP_NO) {
             break;
          }
       }
@@ -126,10 +126,10 @@ int ecc_sign_hash_ex(const unsigned char *in,  unsigned long inlen,
       /* RFC7518 format - raw (r,s) */
       if (*outlen < 2*pbytes) { err = CRYPT_MEM; goto errnokey; }
       zeromem(out, 2*pbytes);
-      i = mp_unsigned_bin_size(r);
-      if ((err = mp_to_unsigned_bin(r, out + (pbytes - i)))   != CRYPT_OK) { goto errnokey; }
-      i = mp_unsigned_bin_size(s);
-      if ((err = mp_to_unsigned_bin(s, out + (2*pbytes - i))) != CRYPT_OK) { goto errnokey; }
+      i = ltc_mp_unsigned_bin_size(r);
+      if ((err = ltc_mp_to_unsigned_bin(r, out + (pbytes - i)))   != CRYPT_OK) { goto errnokey; }
+      i = ltc_mp_unsigned_bin_size(s);
+      if ((err = ltc_mp_to_unsigned_bin(s, out + (2*pbytes - i))) != CRYPT_OK) { goto errnokey; }
       *outlen = 2*pbytes;
       err = CRYPT_OK;
    }
@@ -141,10 +141,10 @@ int ecc_sign_hash_ex(const unsigned char *in,  unsigned long inlen,
       }
       if (*outlen < 65) { err = CRYPT_MEM; goto errnokey; }
       zeromem(out, 65);
-      i = mp_unsigned_bin_size(r);
-      if ((err = mp_to_unsigned_bin(r, out + 32 - i)) != CRYPT_OK) { goto errnokey; }
-      i = mp_unsigned_bin_size(s);
-      if ((err = mp_to_unsigned_bin(s, out + 64 - i)) != CRYPT_OK) { goto errnokey; }
+      i = ltc_mp_unsigned_bin_size(r);
+      if ((err = ltc_mp_to_unsigned_bin(r, out + 32 - i)) != CRYPT_OK) { goto errnokey; }
+      i = ltc_mp_unsigned_bin_size(s);
+      if ((err = ltc_mp_to_unsigned_bin(s, out + 64 - i)) != CRYPT_OK) { goto errnokey; }
       out[64] = (unsigned char)(v + 27); /* Recovery ID is 27/28 for Ethereum */
       *outlen = 65;
       err = CRYPT_OK;
@@ -174,7 +174,7 @@ int ecc_sign_hash_ex(const unsigned char *in,  unsigned long inlen,
 error:
    ecc_free(&pubkey);
 errnokey:
-   mp_clear_multi(r, s, e, b, NULL);
+   ltc_mp_deinit_multi(r, s, e, b, NULL);
    return err;
 }
 

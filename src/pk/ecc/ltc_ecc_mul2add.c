@@ -55,8 +55,8 @@ int ltc_ecc_mul2add(const ecc_point *A, void *kA,
   }
 
   /* get sizes */
-  lenA = mp_unsigned_bin_size(kA);
-  lenB = mp_unsigned_bin_size(kB);
+  lenA = ltc_mp_unsigned_bin_size(kA);
+  lenB = ltc_mp_unsigned_bin_size(kB);
   len  = MAX(lenA, lenB);
 
   /* sanity check */
@@ -66,10 +66,10 @@ int ltc_ecc_mul2add(const ecc_point *A, void *kA,
   }
 
   /* extract and justify kA */
-  mp_to_unsigned_bin(kA, (len - lenA) + tA);
+  ltc_mp_to_unsigned_bin(kA, (len - lenA) + tA);
 
   /* extract and justify kB */
-  mp_to_unsigned_bin(kB, (len - lenB) + tB);
+  ltc_mp_to_unsigned_bin(kB, (len - lenB) + tB);
 
   /* allocate the table */
   for (x = 0; x < 16; x++) {
@@ -84,24 +84,24 @@ int ltc_ecc_mul2add(const ecc_point *A, void *kA,
   }
 
   /* init montgomery reduction */
-  if ((err = mp_montgomery_setup(modulus, &mp)) != CRYPT_OK) {
+  if ((err = ltc_mp_montgomery_setup(modulus, &mp)) != CRYPT_OK) {
       goto ERR_P;
   }
-  if ((err = mp_init(&mu)) != CRYPT_OK) {
+  if ((err = ltc_mp_init(&mu)) != CRYPT_OK) {
       goto ERR_MP;
   }
-  if ((err = mp_montgomery_normalization(mu, modulus)) != CRYPT_OK) {
+  if ((err = ltc_mp_montgomery_normalization(mu, modulus)) != CRYPT_OK) {
       goto ERR_MU;
   }
 
   /* copy ones ... */
-  if ((err = mp_mulmod(A->x, mu, modulus, precomp[1]->x)) != CRYPT_OK)                                         { goto ERR_MU; }
-  if ((err = mp_mulmod(A->y, mu, modulus, precomp[1]->y)) != CRYPT_OK)                                         { goto ERR_MU; }
-  if ((err = mp_mulmod(A->z, mu, modulus, precomp[1]->z)) != CRYPT_OK)                                         { goto ERR_MU; }
+  if ((err = ltc_mp_mulmod(A->x, mu, modulus, precomp[1]->x)) != CRYPT_OK)                                         { goto ERR_MU; }
+  if ((err = ltc_mp_mulmod(A->y, mu, modulus, precomp[1]->y)) != CRYPT_OK)                                         { goto ERR_MU; }
+  if ((err = ltc_mp_mulmod(A->z, mu, modulus, precomp[1]->z)) != CRYPT_OK)                                         { goto ERR_MU; }
 
-  if ((err = mp_mulmod(B->x, mu, modulus, precomp[1<<2]->x)) != CRYPT_OK)                                      { goto ERR_MU; }
-  if ((err = mp_mulmod(B->y, mu, modulus, precomp[1<<2]->y)) != CRYPT_OK)                                      { goto ERR_MU; }
-  if ((err = mp_mulmod(B->z, mu, modulus, precomp[1<<2]->z)) != CRYPT_OK)                                      { goto ERR_MU; }
+  if ((err = ltc_mp_mulmod(B->x, mu, modulus, precomp[1<<2]->x)) != CRYPT_OK)                                      { goto ERR_MU; }
+  if ((err = ltc_mp_mulmod(B->y, mu, modulus, precomp[1<<2]->y)) != CRYPT_OK)                                      { goto ERR_MU; }
+  if ((err = ltc_mp_mulmod(B->z, mu, modulus, precomp[1<<2]->z)) != CRYPT_OK)                                      { goto ERR_MU; }
 
   /* precomp [i,0](A + B) table */
   if ((err = ltc_mp.ecc_ptdbl(precomp[1], precomp[2], ma, modulus, mp)) != CRYPT_OK)                           { goto ERR_MU; }
@@ -170,9 +170,9 @@ int ltc_ecc_mul2add(const ecc_point *A, void *kA,
 
   /* clean up */
 ERR_MU:
-   mp_clear(mu);
+   ltc_mp_clear(mu);
 ERR_MP:
-   mp_montgomery_free(mp);
+   ltc_mp_montgomery_free(mp);
 ERR_P:
    for (x = 0; x < 16; x++) {
        ltc_ecc_del_point(precomp[x]);

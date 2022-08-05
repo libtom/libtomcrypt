@@ -53,15 +53,15 @@ int ecc_export_openssl(unsigned char *out, unsigned long *outlen, int type, cons
       cofactor = key->dp.cofactor;
 
       /* curve param a */
-      len_a = mp_unsigned_bin_size(a);
+      len_a = ltc_mp_unsigned_bin_size(a);
       if (len_a > sizeof(bin_a))                                   { err = CRYPT_BUFFER_OVERFLOW; goto error; }
-      if ((err = mp_to_unsigned_bin(a, bin_a)) != CRYPT_OK)        { goto error; }
+      if ((err = ltc_mp_to_unsigned_bin(a, bin_a)) != CRYPT_OK)        { goto error; }
       if (len_a == 0) { len_a = 1; bin_a[0] = 0; } /* handle case a == 0 */
 
       /* curve param b */
-      len_b = mp_unsigned_bin_size(b);
+      len_b = ltc_mp_unsigned_bin_size(b);
       if (len_b > sizeof(bin_b))                                   { err = CRYPT_BUFFER_OVERFLOW; goto error; }
-      if ((err = mp_to_unsigned_bin(b, bin_b)) != CRYPT_OK)        { goto error; }
+      if ((err = ltc_mp_to_unsigned_bin(b, bin_b)) != CRYPT_OK)        { goto error; }
       if (len_b == 0) { len_b = 1; bin_b[0] = 0; } /* handle case b == 0 */
 
       /* base point - (un)compressed based on flag_com */
@@ -134,9 +134,9 @@ int ecc_export_openssl(unsigned char *out, unsigned long *outlen, int type, cons
       */
 
       /* private key */
-      len_k = mp_unsigned_bin_size(key->k);
+      len_k = ltc_mp_unsigned_bin_size(key->k);
       if (len_k > sizeof(bin_k))                                        { err = CRYPT_BUFFER_OVERFLOW; goto error; }
-      if ((err = mp_to_unsigned_bin(key->k, bin_k)) != CRYPT_OK)        { goto error; }
+      if ((err = ltc_mp_to_unsigned_bin(key->k, bin_k)) != CRYPT_OK)        { goto error; }
 
       LTC_SET_ASN1(&pub_xy,  0, LTC_ASN1_RAW_BIT_STRING, bin_xy, 8*len_xy);
       LTC_SET_ASN1(seq_priv, 0, LTC_ASN1_SHORT_INTEGER,  &one,   1);

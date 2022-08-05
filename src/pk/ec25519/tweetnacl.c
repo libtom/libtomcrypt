@@ -4,6 +4,7 @@
 
 /* automatically generated file, do not edit */
 
+#define add tnacl_add
 #define FOR(i,n) for (i = 0;i < n;++i)
 #define sv static void
 
@@ -480,3 +481,7 @@ int tweetnacl_crypto_sign_open(int *stat, u8 *m,u64 *mlen,const u8 *sm,u64 smlen
   *mlen = smlen;
   return CRYPT_OK;
 }
+
+#undef add
+#undef FOR
+#undef sv

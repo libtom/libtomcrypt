@@ -24,8 +24,10 @@
 
 #ifdef LTC_SAFER
 
+#ifndef LTC_SAFER_TAB_C
 #define LTC_SAFER_TAB_C
 #include "safer_tab.c"
+#endif
 
 const struct ltc_cipher_descriptor safer_k64_desc = {
    "safer-k64",
@@ -478,7 +480,10 @@ int safer_sk128_test(void)
  #endif
 }
 
+#undef ROL8
+#undef EXP
+#undef LOG
+#undef PHT
+#undef IPHT
+
 #endif
-
-
-

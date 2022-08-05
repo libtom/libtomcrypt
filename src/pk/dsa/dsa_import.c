@@ -118,7 +118,7 @@ int dsa_import(const unsigned char *in, unsigned long inlen, dsa_key *key)
    }
 
 LBL_OK:
-   key->qord = mp_unsigned_bin_size(key->q);
+   key->qord = ltc_mp_unsigned_bin_size(key->q);
 
    /* quick p, q, g validation, without primality testing
     * + x, y validation */

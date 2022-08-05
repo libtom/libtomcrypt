@@ -27,7 +27,7 @@ int ltc_ecc_verify_key(const ecc_key *key)
           (ltc_mp.compare(key->pubkey.y, prime) != LTC_MP_LT) ||
           (ltc_mp.compare_d(key->pubkey.x, 0) == LTC_MP_LT) ||
           (ltc_mp.compare_d(key->pubkey.y, 0) == LTC_MP_LT) ||
-          (mp_iszero(key->pubkey.x) && mp_iszero(key->pubkey.y))
+          (ltc_mp_iszero(key->pubkey.x) && ltc_mp_iszero(key->pubkey.y))
          )
       {
          err = CRYPT_INVALID_PACKET;

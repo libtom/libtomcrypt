@@ -108,14 +108,14 @@ static int s_dsa_make_params(prng_state *prng, int wprng, int group_size, int mo
   if ((wbuf = XMALLOC((n+1)*outbytes)) == NULL)                                  { err = CRYPT_MEM; goto cleanup3; }
   if ((sbuf = XMALLOC(seedbytes)) == NULL)                                       { err = CRYPT_MEM; goto cleanup2; }
 
-  err = mp_init_multi(&t2L1, &t2N1, &t2q, &t2seedlen, &U, &W, &X, &c, &h, &e, &seedinc, NULL);
+  err = ltc_mp_init_multi(&t2L1, &t2N1, &t2q, &t2seedlen, &U, &W, &X, &c, &h, &e, &seedinc, NULL);
   if (err != CRYPT_OK)                                                           { goto cleanup1; }
 
-  if ((err = mp_2expt(t2L1, L-1)) != CRYPT_OK)                                   { goto cleanup; }
+  if ((err = ltc_mp_2expt(t2L1, L-1)) != CRYPT_OK)                                   { goto cleanup; }
   /* t2L1 = 2^(L-1) */
-  if ((err = mp_2expt(t2N1, N-1)) != CRYPT_OK)                                   { goto cleanup; }
+  if ((err = ltc_mp_2expt(t2N1, N-1)) != CRYPT_OK)                                   { goto cleanup; }
   /* t2N1 = 2^(N-1) */
-  if ((err = mp_2expt(t2seedlen, seedbytes*8)) != CRYPT_OK)                      { goto cleanup; }
+  if ((err = ltc_mp_2expt(t2seedlen, seedbytes*8)) != CRYPT_OK)                      { goto cleanup; }
   /* t2seedlen = 2^seedlen */
 
   for(found_p=0; !found_p;) {
@@ -124,38 +124,38 @@ static int s_dsa_make_params(prng_state *prng, int wprng, int group_size, int mo
       if (prng_descriptor[wprng].read(sbuf, seedbytes, prng) != seedbytes)       { err = CRYPT_ERROR_READPRNG; goto cleanup; }
       i = outbytes;
       if ((err = hash_memory(hash, sbuf, seedbytes, digest, &i)) != CRYPT_OK)    { goto cleanup; }
-      if ((err = mp_read_unsigned_bin(U, digest, outbytes)) != CRYPT_OK)         { goto cleanup; }
-      if ((err = mp_mod(U, t2N1, U)) != CRYPT_OK)                                { goto cleanup; }
-      if ((err = mp_add(t2N1, U, q)) != CRYPT_OK)                                { goto cleanup; }
-      if (!mp_isodd(q)) mp_add_d(q, 1, q);
-      if ((err = mp_prime_is_prime(q, mr_tests_q, &res)) != CRYPT_OK)            { goto cleanup; }
+      if ((err = ltc_mp_read_unsigned_bin(U, digest, outbytes)) != CRYPT_OK)         { goto cleanup; }
+      if ((err = ltc_mp_mod(U, t2N1, U)) != CRYPT_OK)                                { goto cleanup; }
+      if ((err = ltc_mp_add(t2N1, U, q)) != CRYPT_OK)                                { goto cleanup; }
+      if (!ltc_mp_isodd(q)) ltc_mp_add_d(q, 1, q);
+      if ((err = ltc_mp_prime_is_prime(q, mr_tests_q, &res)) != CRYPT_OK)            { goto cleanup; }
       if (res == LTC_MP_YES) found_q = 1;
     }
 
     /* p */
-    if ((err = mp_read_unsigned_bin(seedinc, sbuf, seedbytes)) != CRYPT_OK)      { goto cleanup; }
-    if ((err = mp_add(q, q, t2q)) != CRYPT_OK)                                   { goto cleanup; }
+    if ((err = ltc_mp_read_unsigned_bin(seedinc, sbuf, seedbytes)) != CRYPT_OK)      { goto cleanup; }
+    if ((err = ltc_mp_add(q, q, t2q)) != CRYPT_OK)                                   { goto cleanup; }
     for(counter=0; counter < 4*L && !found_p; counter++) {
       for(j=0; j<=n; j++) {
-        if ((err = mp_add_d(seedinc, 1, seedinc)) != CRYPT_OK)                   { goto cleanup; }
-        if ((err = mp_mod(seedinc, t2seedlen, seedinc)) != CRYPT_OK)             { goto cleanup; }
+        if ((err = ltc_mp_add_d(seedinc, 1, seedinc)) != CRYPT_OK)                   { goto cleanup; }
+        if ((err = ltc_mp_mod(seedinc, t2seedlen, seedinc)) != CRYPT_OK)             { goto cleanup; }
         /* seedinc = (seedinc+1) % 2^seed_bitlen */
-        if ((i = mp_unsigned_bin_size(seedinc)) > seedbytes)                     { err = CRYPT_INVALID_ARG; goto cleanup; }
+        if ((i = ltc_mp_unsigned_bin_size(seedinc)) > seedbytes)                     { err = CRYPT_INVALID_ARG; goto cleanup; }
         zeromem(sbuf, seedbytes);
-        if ((err = mp_to_unsigned_bin(seedinc, sbuf + seedbytes-i)) != CRYPT_OK) { goto cleanup; }
+        if ((err = ltc_mp_to_unsigned_bin(seedinc, sbuf + seedbytes-i)) != CRYPT_OK) { goto cleanup; }
         i = outbytes;
         err = hash_memory(hash, sbuf, seedbytes, wbuf+(n-j)*outbytes, &i);
         if (err != CRYPT_OK)                                                     { goto cleanup; }
       }
-      if ((err = mp_read_unsigned_bin(W, wbuf, (n+1)*outbytes)) != CRYPT_OK)     { goto cleanup; }
-      if ((err = mp_mod(W, t2L1, W)) != CRYPT_OK)                                { goto cleanup; }
-      if ((err = mp_add(W, t2L1, X)) != CRYPT_OK)                                { goto cleanup; }
-      if ((err = mp_mod(X, t2q, c))  != CRYPT_OK)                                { goto cleanup; }
-      if ((err = mp_sub_d(c, 1, p))  != CRYPT_OK)                                { goto cleanup; }
-      if ((err = mp_sub(X, p, p))    != CRYPT_OK)                                { goto cleanup; }
-      if (mp_cmp(p, t2L1) != LTC_MP_LT) {
+      if ((err = ltc_mp_read_unsigned_bin(W, wbuf, (n+1)*outbytes)) != CRYPT_OK)     { goto cleanup; }
+      if ((err = ltc_mp_mod(W, t2L1, W)) != CRYPT_OK)                                { goto cleanup; }
+      if ((err = ltc_mp_add(W, t2L1, X)) != CRYPT_OK)                                { goto cleanup; }
+      if ((err = ltc_mp_mod(X, t2q, c))  != CRYPT_OK)                                { goto cleanup; }
+      if ((err = ltc_mp_sub_d(c, 1, p))  != CRYPT_OK)                                { goto cleanup; }
+      if ((err = ltc_mp_sub(X, p, p))    != CRYPT_OK)                                { goto cleanup; }
+      if (ltc_mp_cmp(p, t2L1) != LTC_MP_LT) {
         /* p >= 2^(L-1) */
-        if ((err = mp_prime_is_prime(p, mr_tests_p, &res)) != CRYPT_OK)          { goto cleanup; }
+        if ((err = ltc_mp_prime_is_prime(p, mr_tests_p, &res)) != CRYPT_OK)          { goto cleanup; }
         if (res == LTC_MP_YES) {
           found_p = 1;
         }
@@ -172,22 +172,22 @@ static int s_dsa_make_params(prng_state *prng, int wprng, int group_size, int mo
   *
   */
 
-  if ((err = mp_sub_d(p, 1, e)) != CRYPT_OK)                                     { goto cleanup; }
-  if ((err = mp_div(e, q, e, c)) != CRYPT_OK)                                    { goto cleanup; }
+  if ((err = ltc_mp_sub_d(p, 1, e)) != CRYPT_OK)                                     { goto cleanup; }
+  if ((err = ltc_mp_div(e, q, e, c)) != CRYPT_OK)                                    { goto cleanup; }
   /* e = (p - 1)/q */
-  i = mp_count_bits(p);
+  i = ltc_mp_count_bits(p);
   do {
     do {
       if ((err = rand_bn_bits(h, i, prng, wprng)) != CRYPT_OK)                   { goto cleanup; }
-    } while (mp_cmp(h, p) != LTC_MP_LT || mp_cmp_d(h, 2) != LTC_MP_GT);
-    if ((err = mp_sub_d(h, 1, h)) != CRYPT_OK)                                   { goto cleanup; }
+    } while (ltc_mp_cmp(h, p) != LTC_MP_LT || ltc_mp_cmp_d(h, 2) != LTC_MP_GT);
+    if ((err = ltc_mp_sub_d(h, 1, h)) != CRYPT_OK)                                   { goto cleanup; }
     /* h is randon and 1 < h < (p-1) */
-    if ((err = mp_exptmod(h, e, p, g)) != CRYPT_OK)                              { goto cleanup; }
-  } while (mp_cmp_d(g, 1) == LTC_MP_EQ);
+    if ((err = ltc_mp_exptmod(h, e, p, g)) != CRYPT_OK)                              { goto cleanup; }
+  } while (ltc_mp_cmp_d(g, 1) == LTC_MP_EQ);
 
   err = CRYPT_OK;
 cleanup:
-  mp_clear_multi(t2L1, t2N1, t2q, t2seedlen, U, W, X, c, h, e, seedinc, NULL);
+  ltc_mp_deinit_multi(t2L1, t2N1, t2q, t2seedlen, U, W, X, c, h, e, seedinc, NULL);
 cleanup1:
   XFREE(sbuf);
 cleanup2:

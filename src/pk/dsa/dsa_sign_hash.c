@@ -13,8 +13,8 @@
   Sign a hash with DSA
   @param in       The hash to sign
   @param inlen    The length of the hash to sign
-  @param r        The "r" integer of the signature (caller must initialize with mp_init() first)
-  @param s        The "s" integer of the signature (caller must initialize with mp_init() first)
+  @param r        The "r" integer of the signature (caller must initialize with ltc_mp_init() first)
+  @param s        The "s" integer of the signature (caller must initialize with ltc_mp_init() first)
   @param prng     An active PRNG state
   @param wprng    The index of the PRNG desired
   @param key      A private DSA key
@@ -51,9 +51,9 @@ int dsa_sign_hash_raw(const unsigned char *in,  unsigned long inlen,
    }
 
    /* Init our temps */
-   if ((err = mp_init_multi(&k, &kinv, &tmp, NULL)) != CRYPT_OK)                       { goto ERRBUF; }
+   if ((err = ltc_mp_init_multi(&k, &kinv, &tmp, NULL)) != CRYPT_OK)                       { goto ERRBUF; }
 
-   qbits = mp_count_bits(key->q);
+   qbits = ltc_mp_count_bits(key->q);
 retry:
 
    do {
@@ -61,35 +61,35 @@ retry:
       if ((err = rand_bn_bits(k, qbits, prng, wprng)) != CRYPT_OK)                     { goto error; }
 
       /* k should be from range: 1 <= k <= q-1 (see FIPS 186-4 B.2.2) */
-      if (mp_cmp_d(k, 0) != LTC_MP_GT || mp_cmp(k, key->q) != LTC_MP_LT)               { goto retry; }
+      if (ltc_mp_cmp_d(k, 0) != LTC_MP_GT || ltc_mp_cmp(k, key->q) != LTC_MP_LT)               { goto retry; }
 
       /* test gcd */
-      if ((err = mp_gcd(k, key->q, tmp)) != CRYPT_OK)                                  { goto error; }
-   } while (mp_cmp_d(tmp, 1) != LTC_MP_EQ);
+      if ((err = ltc_mp_gcd(k, key->q, tmp)) != CRYPT_OK)                                  { goto error; }
+   } while (ltc_mp_cmp_d(tmp, 1) != LTC_MP_EQ);
 
    /* now find 1/k mod q */
-   if ((err = mp_invmod(k, key->q, kinv)) != CRYPT_OK)                                 { goto error; }
+   if ((err = ltc_mp_invmod(k, key->q, kinv)) != CRYPT_OK)                                 { goto error; }
 
    /* now find r = g^k mod p mod q */
-   if ((err = mp_exptmod(key->g, k, key->p, r)) != CRYPT_OK)                           { goto error; }
-   if ((err = mp_mod(r, key->q, r)) != CRYPT_OK)                                       { goto error; }
+   if ((err = ltc_mp_exptmod(key->g, k, key->p, r)) != CRYPT_OK)                           { goto error; }
+   if ((err = ltc_mp_mod(r, key->q, r)) != CRYPT_OK)                                       { goto error; }
 
-   if (mp_iszero(r) == LTC_MP_YES)                                                     { goto retry; }
+   if (ltc_mp_iszero(r) == LTC_MP_YES)                                                     { goto retry; }
 
    /* FIPS 186-4 4.6: use leftmost min(bitlen(q), bitlen(hash)) bits of 'hash'*/
    inlen = MIN(inlen, (unsigned long)(key->qord));
 
    /* now find s = (in + xr)/k mod q */
-   if ((err = mp_read_unsigned_bin(tmp, (unsigned char *)in, inlen)) != CRYPT_OK)      { goto error; }
-   if ((err = mp_mul(key->x, r, s)) != CRYPT_OK)                                       { goto error; }
-   if ((err = mp_add(s, tmp, s)) != CRYPT_OK)                                          { goto error; }
-   if ((err = mp_mulmod(s, kinv, key->q, s)) != CRYPT_OK)                              { goto error; }
+   if ((err = ltc_mp_read_unsigned_bin(tmp, (unsigned char *)in, inlen)) != CRYPT_OK)      { goto error; }
+   if ((err = ltc_mp_mul(key->x, r, s)) != CRYPT_OK)                                       { goto error; }
+   if ((err = ltc_mp_add(s, tmp, s)) != CRYPT_OK)                                          { goto error; }
+   if ((err = ltc_mp_mulmod(s, kinv, key->q, s)) != CRYPT_OK)                              { goto error; }
 
-   if (mp_iszero(s) == LTC_MP_YES)                                                     { goto retry; }
+   if (ltc_mp_iszero(s) == LTC_MP_YES)                                                     { goto retry; }
 
    err = CRYPT_OK;
 error:
-   mp_clear_multi(k, kinv, tmp, NULL);
+   ltc_mp_deinit_multi(k, kinv, tmp, NULL);
 ERRBUF:
 #ifdef LTC_CLEAN_STACK
    zeromem(buf, LTC_MDSA_MAX_GROUP);
@@ -121,7 +121,7 @@ int dsa_sign_hash(const unsigned char *in,  unsigned long inlen,
    LTC_ARGCHK(outlen  != NULL);
    LTC_ARGCHK(key     != NULL);
 
-   if (mp_init_multi(&r, &s, NULL) != CRYPT_OK) {
+   if (ltc_mp_init_multi(&r, &s, NULL) != CRYPT_OK) {
       return CRYPT_MEM;
    }
 
@@ -135,7 +135,7 @@ int dsa_sign_hash(const unsigned char *in,  unsigned long inlen,
                              LTC_ASN1_EOL,     0UL, NULL);
 
 error:
-   mp_clear_multi(r, s, NULL);
+   ltc_mp_deinit_multi(r, s, NULL);
    return err;
 }
 

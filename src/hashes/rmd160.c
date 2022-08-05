@@ -451,5 +451,20 @@ int rmd160_test(void)
 #endif
 }
 
-#endif
+#undef F
+#undef G
+#undef H
+#undef I
+#undef J
+#undef FF
+#undef GG
+#undef HH
+#undef II
+#undef JJ
+#undef FFF
+#undef GGG
+#undef HHH
+#undef III
+#undef JJJ
 
+#endif

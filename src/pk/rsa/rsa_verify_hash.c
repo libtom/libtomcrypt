@@ -56,10 +56,10 @@ int rsa_verify_hash_ex(const unsigned char *sig,            unsigned long  sigle
   }
 
   /* get modulus len in bits */
-  modulus_bitlen = mp_count_bits( (key->N));
+  modulus_bitlen = ltc_mp_count_bits( (key->N));
 
   /* outlen must be at least the size of the modulus */
-  modulus_bytelen = mp_unsigned_bin_size( (key->N));
+  modulus_bytelen = ltc_mp_unsigned_bin_size( (key->N));
   if (modulus_bytelen != siglen) {
      return CRYPT_INVALID_PACKET;
   }

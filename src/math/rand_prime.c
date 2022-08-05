@@ -54,13 +54,13 @@ int rand_prime(void *N, long len, prng_state *prng, int wprng)
       buf[len-1] |= 0x01 | ((type & USE_BBS) ? 0x02 : 0x00);
 
       /* load value */
-      if ((err = mp_read_unsigned_bin(N, buf, len)) != CRYPT_OK) {
+      if ((err = ltc_mp_read_unsigned_bin(N, buf, len)) != CRYPT_OK) {
          XFREE(buf);
          return err;
       }
 
       /* test */
-      if ((err = mp_prime_is_prime(N, LTC_MILLER_RABIN_REPS, &res)) != CRYPT_OK) {
+      if ((err = ltc_mp_prime_is_prime(N, LTC_MILLER_RABIN_REPS, &res)) != CRYPT_OK) {
          XFREE(buf);
          return err;
       }

@@ -343,7 +343,7 @@ int main(int argc, char **argv)
 
    if (ltc_mp.name != NULL) {
       printf("MP_PROVIDER  = %s\n", ltc_mp.name);
-      printf("MP_DIGIT_BIT = %d\n", MP_DIGIT_BIT);
+      printf("MP_DIGIT_BIT = %d\n", LTC_MP_DIGIT_BIT);
       printf("sizeof(ltc_mp_digit) = %d\n", (int)sizeof(ltc_mp_digit));
    } else {
       printf("NO math provider selected, all tests requiring MPI will 'nop'\n");

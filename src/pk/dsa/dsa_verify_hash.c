@@ -36,12 +36,12 @@ int dsa_verify_hash_raw(         void   *r,          void   *s,
    *stat = 0;
 
    /* init our variables */
-   if ((err = mp_init_multi(&w, &v, &u1, &u2, NULL)) != CRYPT_OK) {
+   if ((err = ltc_mp_init_multi(&w, &v, &u1, &u2, NULL)) != CRYPT_OK) {
       return err;
    }
 
    /* neither r or s can be null or >q*/
-   if (mp_cmp_d(r, 0) != LTC_MP_GT || mp_cmp_d(s, 0) != LTC_MP_GT || mp_cmp(r, key->q) != LTC_MP_LT || mp_cmp(s, key->q) != LTC_MP_LT) {
+   if (ltc_mp_cmp_d(r, 0) != LTC_MP_GT || ltc_mp_cmp_d(s, 0) != LTC_MP_GT || ltc_mp_cmp(r, key->q) != LTC_MP_LT || ltc_mp_cmp(s, key->q) != LTC_MP_LT) {
       err = CRYPT_INVALID_PACKET;
       goto error;
    }
@@ -50,29 +50,29 @@ int dsa_verify_hash_raw(         void   *r,          void   *s,
    hashlen = MIN(hashlen, (unsigned long)(key->qord));
 
    /* w = 1/s mod q */
-   if ((err = mp_invmod(s, key->q, w)) != CRYPT_OK)                                       { goto error; }
+   if ((err = ltc_mp_invmod(s, key->q, w)) != CRYPT_OK)                                       { goto error; }
 
    /* u1 = m * w mod q */
-   if ((err = mp_read_unsigned_bin(u1, (unsigned char *)hash, hashlen)) != CRYPT_OK)      { goto error; }
-   if ((err = mp_mulmod(u1, w, key->q, u1)) != CRYPT_OK)                                  { goto error; }
+   if ((err = ltc_mp_read_unsigned_bin(u1, (unsigned char *)hash, hashlen)) != CRYPT_OK)      { goto error; }
+   if ((err = ltc_mp_mulmod(u1, w, key->q, u1)) != CRYPT_OK)                                  { goto error; }
 
    /* u2 = r*w mod q */
-   if ((err = mp_mulmod(r, w, key->q, u2)) != CRYPT_OK)                                   { goto error; }
+   if ((err = ltc_mp_mulmod(r, w, key->q, u2)) != CRYPT_OK)                                   { goto error; }
 
    /* v = g^u1 * y^u2 mod p mod q */
-   if ((err = mp_exptmod(key->g, u1, key->p, u1)) != CRYPT_OK)                            { goto error; }
-   if ((err = mp_exptmod(key->y, u2, key->p, u2)) != CRYPT_OK)                            { goto error; }
-   if ((err = mp_mulmod(u1, u2, key->p, v)) != CRYPT_OK)                                  { goto error; }
-   if ((err = mp_mod(v, key->q, v)) != CRYPT_OK)                                          { goto error; }
+   if ((err = ltc_mp_exptmod(key->g, u1, key->p, u1)) != CRYPT_OK)                            { goto error; }
+   if ((err = ltc_mp_exptmod(key->y, u2, key->p, u2)) != CRYPT_OK)                            { goto error; }
+   if ((err = ltc_mp_mulmod(u1, u2, key->p, v)) != CRYPT_OK)                                  { goto error; }
+   if ((err = ltc_mp_mod(v, key->q, v)) != CRYPT_OK)                                          { goto error; }
 
    /* if r = v then we're set */
-   if (mp_cmp(r, v) == LTC_MP_EQ) {
+   if (ltc_mp_cmp(r, v) == LTC_MP_EQ) {
       *stat = 1;
    }
 
    err = CRYPT_OK;
 error:
-   mp_clear_multi(w, v, u1, u2, NULL);
+   ltc_mp_deinit_multi(w, v, u1, u2, NULL);
    return err;
 }
 
@@ -98,7 +98,7 @@ int dsa_verify_hash(const unsigned char *sig,        unsigned long  siglen,
    LTC_ARGCHK(stat != NULL);
    *stat = 0; /* must be set before the first return */
 
-   if ((err = mp_init_multi(&r, &s, NULL)) != CRYPT_OK) {
+   if ((err = ltc_mp_init_multi(&r, &s, NULL)) != CRYPT_OK) {
       return err;
    }
 
@@ -119,7 +119,7 @@ int dsa_verify_hash(const unsigned char *sig,        unsigned long  siglen,
    err = dsa_verify_hash_raw(r, s, hash, hashlen, stat, key);
 
 LBL_ERR:
-   mp_clear_multi(r, s, NULL);
+   ltc_mp_deinit_multi(r, s, NULL);
    return err;
 }
 

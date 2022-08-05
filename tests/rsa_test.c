@@ -271,22 +271,22 @@ int rsa_key_cmp(const int should_type, const rsa_key *should, const rsa_key *is)
    if(should_type != is->type)
       return CRYPT_ERROR;
    if(should_type == PK_PRIVATE) {
-      if(mp_cmp(should->q, is->q) != LTC_MP_EQ)
+      if(ltc_mp_cmp(should->q, is->q) != LTC_MP_EQ)
          return CRYPT_ERROR;
-      if(mp_cmp(should->p, is->p) != LTC_MP_EQ)
+      if(ltc_mp_cmp(should->p, is->p) != LTC_MP_EQ)
          return CRYPT_ERROR;
-      if(mp_cmp(should->qP, is->qP) != LTC_MP_EQ)
+      if(ltc_mp_cmp(should->qP, is->qP) != LTC_MP_EQ)
          return CRYPT_ERROR;
-      if(mp_cmp(should->dP, is->dP) != LTC_MP_EQ)
+      if(ltc_mp_cmp(should->dP, is->dP) != LTC_MP_EQ)
          return CRYPT_ERROR;
-      if(mp_cmp(should->dQ, is->dQ) != LTC_MP_EQ)
+      if(ltc_mp_cmp(should->dQ, is->dQ) != LTC_MP_EQ)
          return CRYPT_ERROR;
-      if(mp_cmp(should->d, is->d) != LTC_MP_EQ)
+      if(ltc_mp_cmp(should->d, is->d) != LTC_MP_EQ)
          return CRYPT_ERROR;
    }
-   if(mp_cmp(should->N, is->N) != LTC_MP_EQ)
+   if(ltc_mp_cmp(should->N, is->N) != LTC_MP_EQ)
       return CRYPT_ERROR;
-   if(mp_cmp(should->e, is->e) != LTC_MP_EQ)
+   if(ltc_mp_cmp(should->e, is->e) != LTC_MP_EQ)
       return CRYPT_ERROR;
    return CRYPT_OK;
 }
@@ -488,19 +488,19 @@ int rsa_test(void)
    /* make 10 random key */
    for (cnt = 0; cnt < 10; cnt++) {
       DO(rsa_make_key(&yarrow_prng, prng_idx, 1024/8, 65537, &key));
-      if (mp_count_bits(key.N) != 1024) {
-         fprintf(stderr, "rsa_1024 key modulus has %d bits\n", mp_count_bits(key.N));
+      if (ltc_mp_count_bits(key.N) != 1024) {
+         fprintf(stderr, "rsa_1024 key modulus has %d bits\n", ltc_mp_count_bits(key.N));
 
-len = mp_unsigned_bin_size(key.N);
-mp_to_unsigned_bin(key.N, tmp);
+len = ltc_mp_unsigned_bin_size(key.N);
+ltc_mp_to_unsigned_bin(key.N, tmp);
 print_hex("N", tmp, len);
 
-len = mp_unsigned_bin_size(key.p);
-mp_to_unsigned_bin(key.p, tmp);
+len = ltc_mp_unsigned_bin_size(key.p);
+ltc_mp_to_unsigned_bin(key.p, tmp);
 print_hex("p", tmp, len);
 
-len = mp_unsigned_bin_size(key.q);
-mp_to_unsigned_bin(key.q, tmp);
+len = ltc_mp_unsigned_bin_size(key.q);
+ltc_mp_to_unsigned_bin(key.q, tmp);
 print_hex("q", tmp, len);
 
          return 1;

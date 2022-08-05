@@ -18,23 +18,23 @@ int dh_check_pubkey(const dh_key *key)
 
    LTC_ARGCHK(key != NULL);
 
-   if ((err = mp_init(&p_minus1)) != CRYPT_OK) {
+   if ((err = ltc_mp_init(&p_minus1)) != CRYPT_OK) {
       return err;
    }
 
    /* avoid: y <= 1 OR y >= p-1 */
-   if ((err = mp_sub_d(key->prime, 1, p_minus1)) != CRYPT_OK) {
+   if ((err = ltc_mp_sub_d(key->prime, 1, p_minus1)) != CRYPT_OK) {
       goto error;
    }
-   if (mp_cmp(key->y, p_minus1) != LTC_MP_LT || mp_cmp_d(key->y, 1) != LTC_MP_GT) {
+   if (ltc_mp_cmp(key->y, p_minus1) != LTC_MP_LT || ltc_mp_cmp_d(key->y, 1) != LTC_MP_GT) {
       err = CRYPT_INVALID_ARG;
       goto error;
    }
 
    /* public key must have more than one bit set */
-   digit_count = mp_get_digit_count(key->y);
+   digit_count = ltc_mp_get_digit_count(key->y);
    for (i = 0; i < digit_count && bits_set < 2; i++) {
-      digit = mp_get_digit(key->y, i);
+      digit = ltc_mp_get_digit(key->y, i);
       while (digit > 0) {
          if (digit & 1) bits_set++;
          digit >>= 1;
@@ -48,7 +48,7 @@ int dh_check_pubkey(const dh_key *key)
    }
 
 error:
-   mp_clear(p_minus1);
+   ltc_mp_clear(p_minus1);
    return err;
 }
 

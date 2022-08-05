@@ -291,6 +291,26 @@ int md4_test(void)
   #endif
 }
 
+#undef F
+#undef G
+#undef H
+#undef FF
+#undef GG
+#undef HH
+#undef S11
+#undef S12
+#undef S13
+#undef S14
+#undef S21
+#undef S22
+#undef S23
+#undef S24
+#undef S31
+#undef S32
+#undef S33
+#undef S34
+#undef ROTATE_LEFT
+
 #endif
 
 

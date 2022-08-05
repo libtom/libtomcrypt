@@ -127,13 +127,13 @@ static int s_ssh_encoding_test(void)
 
 
    /* mpint */
-   if ((err = mp_init_multi(&zero, &v, NULL)) != CRYPT_OK) {
+   if ((err = ltc_mp_init_multi(&zero, &v, NULL)) != CRYPT_OK) {
       return err;
    }
 
    buflen = BUFSIZE;
    zeromem(buffer, BUFSIZE);
-   DO(mp_set(zero, 0));
+   DO(ltc_mp_set(zero, 0));
    DO(ssh_encode_sequence_multi(buffer, &buflen,
                                 LTC_SSHDATA_MPINT, zero,
                                 LTC_SSHDATA_EOL,   NULL));
@@ -141,7 +141,7 @@ static int s_ssh_encoding_test(void)
 
    buflen = BUFSIZE;
    zeromem(buffer, BUFSIZE);
-   DO(mp_read_radix(v, "9a378f9b2e332a7", 16));
+   DO(ltc_mp_read_radix(v, "9a378f9b2e332a7", 16));
    DO(ssh_encode_sequence_multi(buffer, &buflen,
                                 LTC_SSHDATA_MPINT, v,
                                 LTC_SSHDATA_EOL,   NULL));
@@ -149,13 +149,13 @@ static int s_ssh_encoding_test(void)
 
    buflen = BUFSIZE;
    zeromem(buffer, BUFSIZE);
-   DO(mp_set(v, 0x80));
+   DO(ltc_mp_set(v, 0x80));
    DO(ssh_encode_sequence_multi(buffer, &buflen,
                                 LTC_SSHDATA_MPINT, v,
                                 LTC_SSHDATA_EOL,   NULL));
    COMPARE_TESTVECTOR(buffer, buflen, mpint3, sizeof(mpint3), "enc-mpint",  3);
 
-   mp_clear_multi(v, zero, NULL);
+   ltc_mp_deinit_multi(v, zero, NULL);
 
 
    /* name-list */
@@ -269,7 +269,7 @@ static int s_ssh_decoding_test(void)
    ENSURE(strlen("testing") + 4 == len);
 
    /* mpint */
-   if ((err = mp_init_multi(&u, &v, NULL)) != CRYPT_OK) {
+   if ((err = ltc_mp_init_multi(&u, &v, NULL)) != CRYPT_OK) {
       return err;
    }
 
@@ -277,25 +277,25 @@ static int s_ssh_decoding_test(void)
    DO(ssh_decode_sequence_multi(mpint1, &len,
                                 LTC_SSHDATA_MPINT, v,
                                 LTC_SSHDATA_EOL,   NULL));
-   ENSURE(mp_cmp_d(v, 0) == LTC_MP_EQ);
+   ENSURE(ltc_mp_cmp_d(v, 0) == LTC_MP_EQ);
    ENSURE(sizeof(mpint1) == len);
 
    len = sizeof(mpint2);
    DO(ssh_decode_sequence_multi(mpint2, &len,
                                 LTC_SSHDATA_MPINT, v,
                                 LTC_SSHDATA_EOL,   NULL));
-   DO(mp_read_radix(u, "9a378f9b2e332a7", 16));
-   ENSURE(mp_cmp(u, v) == LTC_MP_EQ);
+   DO(ltc_mp_read_radix(u, "9a378f9b2e332a7", 16));
+   ENSURE(ltc_mp_cmp(u, v) == LTC_MP_EQ);
    ENSURE(sizeof(mpint2) == len);
 
    len = sizeof(mpint3);
    DO(ssh_decode_sequence_multi(mpint3, &len,
                                 LTC_SSHDATA_MPINT, v,
                                 LTC_SSHDATA_EOL,   NULL));
-   ENSURE(mp_cmp_d(v, 0x80) == LTC_MP_EQ);
+   ENSURE(ltc_mp_cmp_d(v, 0x80) == LTC_MP_EQ);
    ENSURE(sizeof(mpint3) == len);
 
-   mp_clear_multi(v, u, NULL);
+   ltc_mp_deinit_multi(v, u, NULL);
 
    /* name-list */
    zeromem(strbuf, BUFSIZE);

@@ -24,7 +24,7 @@ int pkcs_1_i2osp(void *n, unsigned long modulus_len, unsigned char *out)
 {
    unsigned long size;
 
-   size = mp_unsigned_bin_size(n);
+   size = ltc_mp_unsigned_bin_size(n);
 
    if (size > modulus_len) {
       return CRYPT_BUFFER_OVERFLOW;
@@ -32,7 +32,7 @@ int pkcs_1_i2osp(void *n, unsigned long modulus_len, unsigned char *out)
 
    /* store it */
    zeromem(out, modulus_len);
-   return mp_to_unsigned_bin(n, out+(modulus_len-size));
+   return ltc_mp_to_unsigned_bin(n, out+(modulus_len-size));
 }
 
 #endif /* LTC_PKCS_1 */

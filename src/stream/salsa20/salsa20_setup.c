@@ -11,9 +11,6 @@
 
 #ifdef LTC_SALSA20
 
-static const char * const sigma = "expand 32-byte k";
-static const char * const tau   = "expand 16-byte k";
-
 /**
    Initialize an Salsa20 context (only the key)
    @param st        [out] The destination of the Salsa20 state
@@ -24,6 +21,8 @@ static const char * const tau   = "expand 16-byte k";
 */
 int salsa20_setup(salsa20_state *st, const unsigned char *key, unsigned long keylen, int rounds)
 {
+   const char * const sigma = "expand 32-byte k";
+   const char * const tau   = "expand 16-byte k";
    const char *constants;
 
    LTC_ARGCHK(st  != NULL);

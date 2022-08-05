@@ -58,10 +58,10 @@ int rsa_encrypt_key_ex(const unsigned char *in,       unsigned long  inlen,
   }
 
   /* get modulus len in bits */
-  modulus_bitlen = mp_count_bits( (key->N));
+  modulus_bitlen = ltc_mp_count_bits( (key->N));
 
   /* outlen must be at least the size of the modulus */
-  modulus_bytelen = mp_unsigned_bin_size( (key->N));
+  modulus_bytelen = ltc_mp_unsigned_bin_size( (key->N));
   if (modulus_bytelen > *outlen) {
      *outlen = modulus_bytelen;
      return CRYPT_BUFFER_OVERFLOW;

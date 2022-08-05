@@ -48,7 +48,7 @@ int dh_import(const unsigned char *in, unsigned long inlen, dh_key *key)
             goto error;
          }
          /* compute public key: y = (base ^ x) mod prime */
-         if ((err = mp_exptmod(key->base, key->x, key->prime, key->y)) != CRYPT_OK) {
+         if ((err = ltc_mp_exptmod(key->base, key->x, key->prime, key->y)) != CRYPT_OK) {
             goto error;
          }
       }

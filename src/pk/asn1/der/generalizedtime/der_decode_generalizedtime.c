@@ -10,7 +10,9 @@
 
 #ifdef LTC_DER
 
-static int s_char_to_int(unsigned char x)
+#ifndef LTC_DER_CHAR_TO_INT
+#define LTC_DER_CHAR_TO_INT
+static LTC_INLINE int s_char_to_int(unsigned char x)
 {
    switch (x)  {
       case '0': return 0;
@@ -26,6 +28,7 @@ static int s_char_to_int(unsigned char x)
       default:  return 100;
    }
 }
+#endif
 
 #define DECODE_V(y, max) do {\
    y  = s_char_to_int(buf[x])*10 + s_char_to_int(buf[x+1]); \
@@ -131,5 +134,8 @@ YYYYMMDDhhmmss.fs-hh'mm'
     }
     return CRYPT_INVALID_PACKET;
 }
+
+#undef DECODE_V
+#undef DECODE_V4
 
 #endif

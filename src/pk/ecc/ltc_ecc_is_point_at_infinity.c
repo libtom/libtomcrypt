@@ -15,37 +15,37 @@ int ltc_ecc_is_point_at_infinity(const ecc_point *P, void *modulus, int *retval)
    void  *x3, *y2;
 
    /* trivial case */
-   if (!mp_iszero(P->z)) {
+   if (!ltc_mp_iszero(P->z)) {
       *retval = 0;
       return CRYPT_OK;
    }
 
    /* point (0,0,0) is not at infinity */
-   if (mp_iszero(P->x) && mp_iszero(P->y)) {
+   if (ltc_mp_iszero(P->x) && ltc_mp_iszero(P->y)) {
       *retval = 0;
       return CRYPT_OK;
    }
 
    /* initialize */
-   if ((err = mp_init_multi(&x3, &y2, NULL))      != CRYPT_OK)   goto done;
+   if ((err = ltc_mp_init_multi(&x3, &y2, NULL))      != CRYPT_OK)   goto done;
 
    /* compute y^2 */
-   if ((err = mp_mulmod(P->y, P->y, modulus, y2)) != CRYPT_OK)   goto cleanup;
+   if ((err = ltc_mp_mulmod(P->y, P->y, modulus, y2)) != CRYPT_OK)   goto cleanup;
 
    /* compute x^3 */
-   if ((err = mp_mulmod(P->x, P->x, modulus, x3)) != CRYPT_OK)   goto cleanup;
-   if ((err = mp_mulmod(P->x, x3, modulus, x3))   != CRYPT_OK)   goto cleanup;
+   if ((err = ltc_mp_mulmod(P->x, P->x, modulus, x3)) != CRYPT_OK)   goto cleanup;
+   if ((err = ltc_mp_mulmod(P->x, x3, modulus, x3))   != CRYPT_OK)   goto cleanup;
 
    /* test y^2 == x^3 */
    err = CRYPT_OK;
-   if ((mp_cmp(x3, y2) == LTC_MP_EQ) && !mp_iszero(y2)) {
+   if ((ltc_mp_cmp(x3, y2) == LTC_MP_EQ) && !ltc_mp_iszero(y2)) {
       *retval = 1;
    } else {
       *retval = 0;
    }
 
 cleanup:
-   mp_clear_multi(x3, y2, NULL);
+   ltc_mp_deinit_multi(x3, y2, NULL);
 done:
    return err;
 }

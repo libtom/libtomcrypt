@@ -20,7 +20,7 @@ int ecc_import_pkcs8_asn1(ltc_asn1_list *alg_id, ltc_asn1_list *priv_key, ecc_ke
    LTC_ARGCHK(ltc_mp.name != NULL);
 
    /* init key */
-   err = mp_init_multi(&a, &b, &gx, &gy, NULL);
+   err = ltc_mp_init_multi(&a, &b, &gx, &gy, NULL);
    if (err != CRYPT_OK) goto LBL_DER_FREE;
 
    /* Setup for CASE 2 */
@@ -68,10 +68,10 @@ int ecc_import_pkcs8_asn1(ltc_asn1_list *alg_id, ltc_asn1_list *priv_key, ecc_ke
        * 151:d=1  hl=2 l=  77 prim:   OCTET STRING         :bytes (== *priv_key)
        */
 
-      if (mp_cmp_d(version->data, 1) != LTC_MP_EQ) {
+      if (ltc_mp_cmp_d(version->data, 1) != LTC_MP_EQ) {
          goto LBL_DONE;
       }
-      cofactor = mp_get_int(p_cofactor->data);
+      cofactor = ltc_mp_get_int(p_cofactor->data);
 
       if (LTC_ASN1_IS_TYPE(field->child, LTC_ASN1_OBJECT_IDENTIFIER) &&
           LTC_ASN1_IS_TYPE(field->child->next, LTC_ASN1_INTEGER) &&
@@ -79,10 +79,10 @@ int ecc_import_pkcs8_asn1(ltc_asn1_list *alg_id, ltc_asn1_list *priv_key, ecc_ke
           LTC_ASN1_IS_TYPE(point->child->next, LTC_ASN1_OCTET_STRING)) {
 
          ltc_asn1_list *prime = field->child->next;
-         if ((err = mp_read_unsigned_bin(a, point->child->data, point->child->size)) != CRYPT_OK) {
+         if ((err = ltc_mp_read_unsigned_bin(a, point->child->data, point->child->size)) != CRYPT_OK) {
             goto LBL_DONE;
          }
-         if ((err = mp_read_unsigned_bin(b, point->child->next->data, point->child->next->size)) != CRYPT_OK) {
+         if ((err = ltc_mp_read_unsigned_bin(b, point->child->next->data, point->child->next->size)) != CRYPT_OK) {
             goto LBL_DONE;
          }
          if ((err = ltc_ecc_import_point(point_g->data, point_g->size, prime->data, a, b, gx, gy)) != CRYPT_OK) {
@@ -104,7 +104,7 @@ int ecc_import_pkcs8_asn1(ltc_asn1_list *alg_id, ltc_asn1_list *priv_key, ecc_ke
           LTC_ASN1_IS_TYPE(p->child, LTC_ASN1_INTEGER) &&
           LTC_ASN1_IS_TYPE(p->child->next, LTC_ASN1_OCTET_STRING)) {
          ltc_asn1_list *lk = p->child->next;
-         if (mp_cmp_d(p->child->data, 1) != LTC_MP_EQ) {
+         if (ltc_mp_cmp_d(p->child->data, 1) != LTC_MP_EQ) {
             err = CRYPT_INVALID_PACKET;
             goto LBL_ECCFREE;
          }
@@ -120,7 +120,7 @@ int ecc_import_pkcs8_asn1(ltc_asn1_list *alg_id, ltc_asn1_list *priv_key, ecc_ke
 LBL_ECCFREE:
    ecc_free(key);
 LBL_DONE:
-   mp_clear_multi(a, b, gx, gy, NULL);
+   ltc_mp_deinit_multi(a, b, gx, gy, NULL);
 LBL_DER_FREE:
    if (p) der_free_sequence_flexi(p);
    return err;

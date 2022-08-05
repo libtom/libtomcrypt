@@ -136,13 +136,13 @@ int ssh_decode_sequence_multi(const unsigned char *in, unsigned long *inlen, ...
             break;
          case LTC_SSHDATA_MPINT:
             if (size == 0) {
-               if ((err = mp_set(vdata, 0)) != CRYPT_OK)                                                { goto error; }
+               if ((err = ltc_mp_set(vdata, 0)) != CRYPT_OK)                                                { goto error; }
             } else if ((in[0] & 0x80) != 0) {
                /* Negative number - not supported */
                err = CRYPT_INVALID_PACKET;
                goto error;
             } else {
-               if ((err = mp_read_unsigned_bin(vdata, (unsigned char *)in, size)) != CRYPT_OK)          { goto error; }
+               if ((err = ltc_mp_read_unsigned_bin(vdata, (unsigned char *)in, size)) != CRYPT_OK)          { goto error; }
             }
             in += size;
             break;

@@ -26,7 +26,7 @@ int dsa_import_pkcs8_asn1(ltc_asn1_list *alg_id, ltc_asn1_list *priv_key, dsa_ke
    if ((err = der_decode_integer(priv_key->data, priv_key->size, key->x)) != CRYPT_OK) {
       goto LBL_ERR;
    }
-   if ((err = mp_exptmod(key->g, key->x, key->p, key->y)) != CRYPT_OK) {
+   if ((err = ltc_mp_exptmod(key->g, key->x, key->p, key->y)) != CRYPT_OK) {
       goto LBL_ERR;
    }
 
@@ -40,7 +40,7 @@ int dsa_import_pkcs8_asn1(ltc_asn1_list *alg_id, ltc_asn1_list *priv_key, dsa_ke
       goto LBL_ERR;
    }
 
-   key->qord = mp_unsigned_bin_size(key->q);
+   key->qord = ltc_mp_unsigned_bin_size(key->q);
    key->type = PK_PRIVATE;
 
    return err;

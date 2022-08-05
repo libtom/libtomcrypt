@@ -43,22 +43,22 @@ int der_decode_integer(const unsigned char *in, unsigned long inlen, void *num)
    }
    x += inlen;
 
-   if ((err = mp_read_unsigned_bin(num, (unsigned char *)in + x, y)) != CRYPT_OK) {
+   if ((err = ltc_mp_read_unsigned_bin(num, (unsigned char *)in + x, y)) != CRYPT_OK) {
       return err;
    }
 
    /* see if it's negative */
    if (in[x] & 0x80) {
       void *tmp;
-      if (mp_init(&tmp) != CRYPT_OK) {
+      if (ltc_mp_init(&tmp) != CRYPT_OK) {
          return CRYPT_MEM;
       }
 
-      if (mp_2expt(tmp, mp_count_bits(num)) != CRYPT_OK || mp_sub(num, tmp, num) != CRYPT_OK) {
-         mp_clear(tmp);
+      if (ltc_mp_2expt(tmp, ltc_mp_count_bits(num)) != CRYPT_OK || ltc_mp_sub(num, tmp, num) != CRYPT_OK) {
+         ltc_mp_clear(tmp);
          return CRYPT_MEM;
       }
-      mp_clear(tmp);
+      ltc_mp_clear(tmp);
    }
 
    return CRYPT_OK;

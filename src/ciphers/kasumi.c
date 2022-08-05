@@ -28,6 +28,7 @@ const struct ltc_cipher_descriptor kasumi_desc = {
    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
 };
 
+#define FI kasumi_FI
 static u16 FI( u16 in, u16 subkey )
 {
    u16 nine, seven;
@@ -303,5 +304,8 @@ int kasumi_test(void)
    return CRYPT_OK;
 #endif
 }
+
+#undef ROL16
+#undef FI
 
 #endif

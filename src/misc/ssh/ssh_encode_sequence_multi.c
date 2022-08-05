@@ -60,9 +60,9 @@ int ssh_encode_sequence_multi(unsigned char *out, unsigned long *outlen, ...)
             vdata = va_arg(args, void*);
             /* Calculate size */
             size += 4;
-            if (mp_iszero(vdata) != LTC_MP_YES) {
-               size += mp_unsigned_bin_size(vdata);
-               if ((mp_count_bits(vdata) & 7) == 0) size++; /* Zero padding if high bit set */
+            if (ltc_mp_iszero(vdata) != LTC_MP_YES) {
+               size += ltc_mp_unsigned_bin_size(vdata);
+               if ((ltc_mp_count_bits(vdata) & 7) == 0) size++; /* Zero padding if high bit set */
             }
             break;
 
@@ -120,12 +120,12 @@ int ssh_encode_sequence_multi(unsigned char *out, unsigned long *outlen, ...)
             break;
          case LTC_SSHDATA_MPINT:
             vdata = va_arg(args, void*);
-            if (mp_iszero(vdata) == LTC_MP_YES) {
+            if (ltc_mp_iszero(vdata) == LTC_MP_YES) {
                STORE32H(0, out);
                out += 4;
             } else {
-               size = mp_unsigned_bin_size(vdata);
-               if ((mp_count_bits(vdata) & 7) == 0) {
+               size = ltc_mp_unsigned_bin_size(vdata);
+               if ((ltc_mp_count_bits(vdata) & 7) == 0) {
                   /* Zero padding if high bit set */
                   STORE32H(size+1, out);
                   out += 4;
@@ -134,7 +134,7 @@ int ssh_encode_sequence_multi(unsigned char *out, unsigned long *outlen, ...)
                   STORE32H(size, out);
                   out += 4;
                }
-               if ((err = mp_to_unsigned_bin(vdata, out)) != CRYPT_OK) {
+               if ((err = ltc_mp_to_unsigned_bin(vdata, out)) != CRYPT_OK) {
                   err = CRYPT_ERROR;
                   goto error;
                }

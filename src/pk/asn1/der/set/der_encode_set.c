@@ -15,7 +15,7 @@ static int s_ltc_to_asn1(ltc_asn1_type v)
    return der_asn1_type_to_identifier_map[v];
 }
 
-
+#define s_qsort_helper s_set_qsort_helper
 static int s_qsort_helper(const void *a, const void *b)
 {
    ltc_asn1_list *A = (ltc_asn1_list *)a, *B = (ltc_asn1_list *)b;
@@ -70,5 +70,6 @@ int der_encode_set(const ltc_asn1_list *list, unsigned long inlen,
    return err;
 }
 
+#undef s_qsort_helper
 
 #endif

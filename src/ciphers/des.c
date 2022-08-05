@@ -2089,5 +2089,8 @@ int des3_keysize(int *keysize)
     return CRYPT_OK;
 }
 
+#undef EN0
+#undef DE1
+
 #endif
 

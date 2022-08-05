@@ -47,14 +47,14 @@ int ecc_shared_secret(const ecc_key *private_key, const ecc_key *public_key,
 
    if ((err = ltc_mp.ecc_ptmul(private_key->k, &public_key->pubkey, result, a, prime, 1)) != CRYPT_OK)   { goto done; }
 
-   x = (unsigned long)mp_unsigned_bin_size(prime);
+   x = (unsigned long)ltc_mp_unsigned_bin_size(prime);
    if (*outlen < x) {
       *outlen = x;
       err = CRYPT_BUFFER_OVERFLOW;
       goto done;
    }
    zeromem(out, x);
-   if ((err = mp_to_unsigned_bin(result->x, out + (x - mp_unsigned_bin_size(result->x))))   != CRYPT_OK) { goto done; }
+   if ((err = ltc_mp_to_unsigned_bin(result->x, out + (x - ltc_mp_unsigned_bin_size(result->x))))   != CRYPT_OK) { goto done; }
 
    err     = CRYPT_OK;
    *outlen = x;

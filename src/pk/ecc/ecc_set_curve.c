@@ -12,7 +12,7 @@ int ecc_set_curve(const ltc_ecc_curve *cu, ecc_key *key)
    LTC_ARGCHK(key != NULL);
    LTC_ARGCHK(cu != NULL);
 
-   if ((err = mp_init_multi(&key->dp.prime, &key->dp.order, &key->dp.A, &key->dp.B,
+   if ((err = ltc_mp_init_multi(&key->dp.prime, &key->dp.order, &key->dp.A, &key->dp.B,
                             &key->dp.base.x, &key->dp.base.y, &key->dp.base.z,
                             &key->pubkey.x, &key->pubkey.y, &key->pubkey.z, &key->k,
                             NULL)) != CRYPT_OK) {
@@ -20,16 +20,16 @@ int ecc_set_curve(const ltc_ecc_curve *cu, ecc_key *key)
    }
 
    /* A, B, order, prime, Gx, Gy */
-   if ((err = mp_read_radix(key->dp.prime, cu->prime, 16)) != CRYPT_OK) { goto error; }
-   if ((err = mp_read_radix(key->dp.order, cu->order, 16)) != CRYPT_OK) { goto error; }
-   if ((err = mp_read_radix(key->dp.A, cu->A, 16)) != CRYPT_OK)         { goto error; }
-   if ((err = mp_read_radix(key->dp.B, cu->B, 16)) != CRYPT_OK)         { goto error; }
-   if ((err = mp_read_radix(key->dp.base.x, cu->Gx, 16)) != CRYPT_OK)   { goto error; }
-   if ((err = mp_read_radix(key->dp.base.y, cu->Gy, 16)) != CRYPT_OK)   { goto error; }
-   if ((err = mp_set(key->dp.base.z, 1)) != CRYPT_OK)                   { goto error; }
+   if ((err = ltc_mp_read_radix(key->dp.prime, cu->prime, 16)) != CRYPT_OK) { goto error; }
+   if ((err = ltc_mp_read_radix(key->dp.order, cu->order, 16)) != CRYPT_OK) { goto error; }
+   if ((err = ltc_mp_read_radix(key->dp.A, cu->A, 16)) != CRYPT_OK)         { goto error; }
+   if ((err = ltc_mp_read_radix(key->dp.B, cu->B, 16)) != CRYPT_OK)         { goto error; }
+   if ((err = ltc_mp_read_radix(key->dp.base.x, cu->Gx, 16)) != CRYPT_OK)   { goto error; }
+   if ((err = ltc_mp_read_radix(key->dp.base.y, cu->Gy, 16)) != CRYPT_OK)   { goto error; }
+   if ((err = ltc_mp_set(key->dp.base.z, 1)) != CRYPT_OK)                   { goto error; }
    /* cofactor & size */
    key->dp.cofactor = cu->cofactor;
-   key->dp.size = mp_unsigned_bin_size(key->dp.prime);
+   key->dp.size = ltc_mp_unsigned_bin_size(key->dp.prime);
    /* OID string >> unsigned long oid[16] + oidlen */
    key->dp.oidlen = 16;
    if ((err = pk_oid_str_to_num(cu->OID, key->dp.oid, &key->dp.oidlen)) != CRYPT_OK) { goto error; }

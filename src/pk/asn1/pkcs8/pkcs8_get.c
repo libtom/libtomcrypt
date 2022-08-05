@@ -35,7 +35,7 @@ int pkcs8_get_children(const ltc_asn1_list *decoded_list, enum ltc_oid_id *pka, 
           * we get an 'input too long' error but the rest is already decoded and can be
           * handled the same as for version 0
           */
-         if (mp_cmp_d(version->data, 0) != LTC_MP_EQ && mp_cmp_d(version->data, 1) != LTC_MP_EQ) {
+         if (ltc_mp_cmp_d(version->data, 0) != LTC_MP_EQ && ltc_mp_cmp_d(version->data, 1) != LTC_MP_EQ) {
             return CRYPT_INVALID_PACKET;
          }
          break;

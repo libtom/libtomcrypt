@@ -32,18 +32,18 @@ enum blake2b_constant {
 
 /* param offsets */
 enum {
-   O_DIGEST_LENGTH = 0,
-   O_KEY_LENGTH = 1,
-   O_FANOUT = 2,
-   O_DEPTH = 3,
-   O_LEAF_LENGTH = 4,
-   O_NODE_OFFSET = 8,
-   O_XOF_LENGTH = 12,
-   O_NODE_DEPTH = 16,
-   O_INNER_LENGTH = 17,
-   O_RESERVED = 18,
-   O_SALT = 32,
-   O_PERSONAL = 48
+   BLAKE2B_O_DIGEST_LENGTH = 0,
+   BLAKE2B_O_KEY_LENGTH = 1,
+   BLAKE2B_O_FANOUT = 2,
+   BLAKE2B_O_DEPTH = 3,
+   BLAKE2B_O_LEAF_LENGTH = 4,
+   BLAKE2B_O_NODE_OFFSET = 8,
+   BLAKE2B_O_XOF_LENGTH = 12,
+   BLAKE2B_O_NODE_DEPTH = 16,
+   BLAKE2B_O_INNER_LENGTH = 17,
+   BLAKE2B_O_RESERVED = 18,
+   BLAKE2B_O_SALT = 32,
+   BLAKE2B_O_PERSONAL = 48
 };
 
 /*
@@ -190,7 +190,7 @@ static int s_blake2b_init_param(hash_state *md, const unsigned char *P)
       md->blake2b.h[i] ^= tmp;
    }
 
-   md->blake2b.outlen = P[O_DIGEST_LENGTH];
+   md->blake2b.outlen = P[BLAKE2B_O_DIGEST_LENGTH];
    return CRYPT_OK;
 }
 
@@ -223,10 +223,10 @@ int blake2b_init(hash_state *md, unsigned long outlen, const unsigned char *key,
 
    XMEMSET(P, 0, sizeof(P));
 
-   P[O_DIGEST_LENGTH] = (unsigned char)outlen;
-   P[O_KEY_LENGTH] = (unsigned char)keylen;
-   P[O_FANOUT] = 1;
-   P[O_DEPTH] = 1;
+   P[BLAKE2B_O_DIGEST_LENGTH] = (unsigned char)outlen;
+   P[BLAKE2B_O_KEY_LENGTH] = (unsigned char)keylen;
+   P[BLAKE2B_O_FANOUT] = 1;
+   P[BLAKE2B_O_DEPTH] = 1;
 
    err = s_blake2b_init_param(md, P);
    if (err != CRYPT_OK) return err;

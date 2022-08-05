@@ -31,11 +31,6 @@ static const pbes_properties s_pbes2_default_types[] = {
    { pkcs_5_alg2, "sha1",   "aes",  32, 0 },
 };
 
-typedef struct {
-   const pbes_properties *data;
-   const char* oid;
-} oid_to_pbes;
-
 static const oid_to_pbes s_pbes2_list[] = {
    { &s_pbes2_default_types[0], "1.3.14.3.2.7"            },  /* http://www.oid-info.com/get/1.3.14.3.2.7            desCBC */
    { &s_pbes2_default_types[1], "1.2.840.113549.3.2"      },  /* http://www.oid-info.com/get/1.2.840.113549.3.2      rc2CBC */
@@ -126,7 +121,7 @@ int pbes2_extract(const ltc_asn1_list *s, pbes_arg *res)
    liter = lkdf->next->child->next;
    loptseq = liter->next;
    res->salt = lkdf->next->child;
-   res->iterations = mp_get_int(liter->data);
+   res->iterations = ltc_mp_get_int(liter->data);
 
    /* There's an optional INTEGER keyLength after the iterations, skip that if it's there.
     * c.f. RFC 2898 A.2 PBKDF2 */
@@ -154,7 +149,7 @@ int pbes2_extract(const ltc_asn1_list *s, pbes_arg *res)
        */
       if (LTC_ASN1_IS_TYPE(lenc->next->child, LTC_ASN1_INTEGER) &&
           LTC_ASN1_IS_TYPE(lenc->next->child->next, LTC_ASN1_OCTET_STRING)) {
-         klen = mp_get_int(lenc->next->child->data);
+         klen = ltc_mp_get_int(lenc->next->child->data);
          res->iv   = lenc->next->child->next;
          /*
           * Effective Key Bits         Encoding

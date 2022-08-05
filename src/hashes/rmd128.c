@@ -392,5 +392,17 @@ int rmd128_test(void)
 #endif
 }
 
-#endif
+#undef F
+#undef G
+#undef H
+#undef I
+#undef FF
+#undef GG
+#undef HH
+#undef II
+#undef FFF
+#undef GGG
+#undef HHH
+#undef III
 
+#endif

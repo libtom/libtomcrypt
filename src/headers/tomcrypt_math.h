@@ -502,9 +502,9 @@ typedef struct {
 
 extern ltc_math_descriptor ltc_mp;
 
-int ltc_init_multi(void **a, ...);
-void ltc_deinit_multi(void *a, ...);
-void ltc_cleanup_multi(void **a, ...);
+int ltc_mp_init_multi(void **a, ...);
+void ltc_mp_deinit_multi(void *a, ...);
+void ltc_mp_cleanup_multi(void **a, ...);
 
 #ifdef LTM_DESC
 extern const ltc_math_descriptor ltm_desc;

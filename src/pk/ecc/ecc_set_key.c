@@ -20,10 +20,10 @@ int ecc_set_key(const unsigned char *in, unsigned long inlen, int type, ecc_key 
 
    if (type == PK_PRIVATE) {
       /* load private key */
-      if ((err = mp_read_unsigned_bin(key->k, (unsigned char *)in, inlen)) != CRYPT_OK) {
+      if ((err = ltc_mp_read_unsigned_bin(key->k, (unsigned char *)in, inlen)) != CRYPT_OK) {
          goto error;
       }
-      if (mp_iszero(key->k) || (mp_cmp(key->k, key->dp.order) != LTC_MP_LT)) {
+      if (ltc_mp_iszero(key->k) || (ltc_mp_cmp(key->k, key->dp.order) != LTC_MP_LT)) {
          err = CRYPT_INVALID_PACKET;
          goto error;
       }
@@ -33,7 +33,7 @@ int ecc_set_key(const unsigned char *in, unsigned long inlen, int type, ecc_key 
    else if (type == PK_PUBLIC) {
       /* load public key */
       if ((err = ltc_ecc_import_point(in, inlen, prime, a, b, key->pubkey.x, key->pubkey.y)) != CRYPT_OK) { goto error; }
-      if ((err = mp_set(key->pubkey.z, 1)) != CRYPT_OK)                                                   { goto error; }
+      if ((err = ltc_mp_set(key->pubkey.z, 1)) != CRYPT_OK)                                                   { goto error; }
    }
    else {
       err = CRYPT_INVALID_PACKET;

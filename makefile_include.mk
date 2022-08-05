@@ -207,6 +207,7 @@ library: $(call print-help,library,Builds the library) $(LIBNAME)
 
 
 # List of objects to compile (all goes to libtomcrypt.a)
+ifndef AMALGAM
 OBJECTS=src/ciphers/aes/aes.o src/ciphers/aes/aes_enc.o src/ciphers/anubis.o src/ciphers/blowfish.o \
 src/ciphers/camellia.o src/ciphers/cast5.o src/ciphers/des.o src/ciphers/idea.o src/ciphers/kasumi.o \
 src/ciphers/khazad.o src/ciphers/kseed.o src/ciphers/multi2.o src/ciphers/noekeon.o src/ciphers/rc2.o \
@@ -397,6 +398,11 @@ src/stream/salsa20/xsalsa20_setup.o src/stream/salsa20/xsalsa20_test.o \
 src/stream/sober128/sober128_stream.o src/stream/sober128/sober128_stream_memory.o \
 src/stream/sober128/sober128_test.o src/stream/sosemanuk/sosemanuk.o \
 src/stream/sosemanuk/sosemanuk_memory.o src/stream/sosemanuk/sosemanuk_test.o
+else
+OBJECTS=pre_gen/tomcrypt_amalgam.o
+
+LTC_CFLAGS := $(LTC_CFLAGS) -Wno-shadow -Isrc/ciphers/aes -Isrc/ciphers/safer -Isrc/ciphers/twofish -Isrc/hashes/whirl -Isrc/stream/sober128
+endif
 
 # List of test objects to compile (all goes to libtomcrypt_prof.a)
 TOBJECTS=tests/base16_test.o tests/base32_test.o tests/base64_test.o tests/bcrypt_test.o \
@@ -523,6 +529,7 @@ zipup: $(call print-help,zipup,Prepare the archives for a release) doc/crypt.pdf
 	-@(find libtomcrypt-$(VERSION)/ -type f | xargs grep 'FIXM[E]') && echo '############## BEWARE: the "fixme" marker was found !!! ##############' || true
 	mkdir -p libtomcrypt-$(VERSION)/doc
 	cp doc/crypt.pdf libtomcrypt-$(VERSION)/doc/crypt.pdf
+	$(MAKE) -C libtomcrypt-$(VERSION)/ pre_gen
 	tar -c libtomcrypt-$(VERSION)/ | xz -6e -c - > crypt-$(VERSION).tar.xz
 	zip -9rq crypt-$(VERSION).zip libtomcrypt-$(VERSION)
 	rm -rf libtomcrypt-$(VERSION)

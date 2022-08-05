@@ -24,17 +24,17 @@ int pkcs_1_eme_test(void)
   for (i = 0; i < sizeof(testcases_eme)/sizeof(testcases_eme[0]); ++i) {
     testcase_t* t = &testcases_eme[i];
     rsa_key k, *key = &k;
-    DOX(mp_init_multi(&key->e, &key->d, &key->N, &key->dQ,
+    DOX(ltc_mp_init_multi(&key->e, &key->d, &key->N, &key->dQ,
                        &key->dP, &key->qP, &key->p, &key->q, NULL), t->name);
 
-    DOX(mp_read_unsigned_bin(key->e, t->rsa.e, t->rsa.e_l), t->name);
-    DOX(mp_read_unsigned_bin(key->d, t->rsa.d, t->rsa.d_l), t->name);
-    DOX(mp_read_unsigned_bin(key->N, t->rsa.n, t->rsa.n_l), t->name);
-    DOX(mp_read_unsigned_bin(key->dQ, t->rsa.dQ, t->rsa.dQ_l), t->name);
-    DOX(mp_read_unsigned_bin(key->dP, t->rsa.dP, t->rsa.dP_l), t->name);
-    DOX(mp_read_unsigned_bin(key->qP, t->rsa.qInv, t->rsa.qInv_l), t->name);
-    DOX(mp_read_unsigned_bin(key->q, t->rsa.q, t->rsa.q_l), t->name);
-    DOX(mp_read_unsigned_bin(key->p, t->rsa.p, t->rsa.p_l), t->name);
+    DOX(ltc_mp_read_unsigned_bin(key->e, t->rsa.e, t->rsa.e_l), t->name);
+    DOX(ltc_mp_read_unsigned_bin(key->d, t->rsa.d, t->rsa.d_l), t->name);
+    DOX(ltc_mp_read_unsigned_bin(key->N, t->rsa.n, t->rsa.n_l), t->name);
+    DOX(ltc_mp_read_unsigned_bin(key->dQ, t->rsa.dQ, t->rsa.dQ_l), t->name);
+    DOX(ltc_mp_read_unsigned_bin(key->dP, t->rsa.dP, t->rsa.dP_l), t->name);
+    DOX(ltc_mp_read_unsigned_bin(key->qP, t->rsa.qInv, t->rsa.qInv_l), t->name);
+    DOX(ltc_mp_read_unsigned_bin(key->q, t->rsa.q, t->rsa.q_l), t->name);
+    DOX(ltc_mp_read_unsigned_bin(key->p, t->rsa.p, t->rsa.p_l), t->name);
     key->type = PK_PRIVATE;
 
     for (j = 0; j < sizeof(t->data)/sizeof(t->data[0]); ++j) {
@@ -49,7 +49,7 @@ int pkcs_1_eme_test(void)
         DOX(stat == 1?CRYPT_OK:CRYPT_FAIL_TESTVECTOR, s->name);
     } /* for */
 
-    mp_clear_multi(key->d,  key->e, key->N, key->dQ, key->dP, key->qP, key->p, key->q, NULL);
+    ltc_mp_deinit_multi(key->d,  key->e, key->N, key->dQ, key->dP, key->qP, key->p, key->q, NULL);
   } /* for */
 
   unregister_prng(no_prng_desc);

@@ -3,6 +3,9 @@
 
 #include "tomcrypt.h"
 
+#ifndef TOMCRYPT_PRIVATE_H_
+#define TOMCRYPT_PRIVATE_H_
+
 /*
  * Internal Macros
  */
@@ -66,6 +69,11 @@ typedef struct
    /* only used for RC2 */
    unsigned long key_bits;
 } pbes_arg;
+
+typedef struct {
+   const pbes_properties *data;
+   const char *oid;
+} oid_to_pbes;
 
 /*
  * Internal functions
@@ -136,72 +144,69 @@ void ocb3_int_xor_blocks(unsigned char *out, const unsigned char *block_a, const
 
 #if !defined(DESC_DEF_ONLY)
 
-#define MP_DIGIT_BIT                 ltc_mp.bits_per_digit
+#define LTC_MP_DIGIT_BIT                 ltc_mp.bits_per_digit
 
 /* some handy macros */
-#define mp_init(a)                   ltc_mp.init(a)
-#define mp_init_multi                ltc_init_multi
-#define mp_clear(a)                  ltc_mp.deinit(a)
-#define mp_clear_multi               ltc_deinit_multi
-#define mp_cleanup_multi             ltc_cleanup_multi
-#define mp_init_copy(a, b)           ltc_mp.init_copy(a, b)
+#define ltc_mp_init(a)                   ltc_mp.init(a)
+#define ltc_mp_clear(a)                  ltc_mp.deinit(a)
+#define ltc_mp_init_copy(a, b)           ltc_mp.init_copy(a, b)
 
-#define mp_neg(a, b)                 ltc_mp.neg(a, b)
-#define mp_copy(a, b)                ltc_mp.copy(a, b)
+#define ltc_mp_neg(a, b)                 ltc_mp.neg(a, b)
+#define ltc_mp_copy(a, b)                ltc_mp.copy(a, b)
 
-#define mp_set(a, b)                 ltc_mp.set_int(a, b)
-#define mp_set_int(a, b)             ltc_mp.set_int(a, b)
-#define mp_get_int(a)                ltc_mp.get_int(a)
-#define mp_get_digit(a, n)           ltc_mp.get_digit(a, n)
-#define mp_get_digit_count(a)        ltc_mp.get_digit_count(a)
-#define mp_cmp(a, b)                 ltc_mp.compare(a, b)
-#define mp_cmp_d(a, b)               ltc_mp.compare_d(a, b)
-#define mp_count_bits(a)             ltc_mp.count_bits(a)
-#define mp_cnt_lsb(a)                ltc_mp.count_lsb_bits(a)
-#define mp_2expt(a, b)               ltc_mp.twoexpt(a, b)
+#define ltc_mp_set(a, b)                 ltc_mp.set_int(a, b)
+#define ltc_mp_set_int(a, b)             ltc_mp.set_int(a, b)
+#define ltc_mp_get_int(a)                ltc_mp.get_int(a)
+#define ltc_mp_get_digit(a, n)           ltc_mp.get_digit(a, n)
+#define ltc_mp_get_digit_count(a)        ltc_mp.get_digit_count(a)
+#define ltc_mp_cmp(a, b)                 ltc_mp.compare(a, b)
+#define ltc_mp_cmp_d(a, b)               ltc_mp.compare_d(a, b)
+#define ltc_mp_count_bits(a)             ltc_mp.count_bits(a)
+#define ltc_mp_cnt_lsb(a)                ltc_mp.count_lsb_bits(a)
+#define ltc_mp_2expt(a, b)               ltc_mp.twoexpt(a, b)
 
-#define mp_read_radix(a, b, c)       ltc_mp.read_radix(a, b, c)
-#define mp_toradix(a, b, c)          ltc_mp.write_radix(a, b, c)
-#define mp_unsigned_bin_size(a)      ltc_mp.unsigned_size(a)
-#define mp_to_unsigned_bin(a, b)     ltc_mp.unsigned_write(a, b)
-#define mp_read_unsigned_bin(a, b, c) ltc_mp.unsigned_read(a, b, c)
+#define ltc_mp_read_radix(a, b, c)       ltc_mp.read_radix(a, b, c)
+#define ltc_mp_toradix(a, b, c)          ltc_mp.write_radix(a, b, c)
+#define ltc_mp_unsigned_bin_size(a)      ltc_mp.unsigned_size(a)
+#define ltc_mp_to_unsigned_bin(a, b)     ltc_mp.unsigned_write(a, b)
+#define ltc_mp_read_unsigned_bin(a, b, c) ltc_mp.unsigned_read(a, b, c)
 
-#define mp_add(a, b, c)              ltc_mp.add(a, b, c)
-#define mp_add_d(a, b, c)            ltc_mp.addi(a, b, c)
-#define mp_sub(a, b, c)              ltc_mp.sub(a, b, c)
-#define mp_sub_d(a, b, c)            ltc_mp.subi(a, b, c)
-#define mp_mul(a, b, c)              ltc_mp.mul(a, b, c)
-#define mp_mul_d(a, b, c)            ltc_mp.muli(a, b, c)
-#define mp_sqr(a, b)                 ltc_mp.sqr(a, b)
-#define mp_sqrtmod_prime(a, b, c)    ltc_mp.sqrtmod_prime(a, b, c)
-#define mp_div(a, b, c, d)           ltc_mp.mpdiv(a, b, c, d)
-#define mp_div_2(a, b)               ltc_mp.div_2(a, b)
-#define mp_mod(a, b, c)              ltc_mp.mpdiv(a, b, NULL, c)
-#define mp_mod_d(a, b, c)            ltc_mp.modi(a, b, c)
-#define mp_gcd(a, b, c)              ltc_mp.gcd(a, b, c)
-#define mp_lcm(a, b, c)              ltc_mp.lcm(a, b, c)
+#define ltc_mp_add(a, b, c)              ltc_mp.add(a, b, c)
+#define ltc_mp_add_d(a, b, c)            ltc_mp.addi(a, b, c)
+#define ltc_mp_sub(a, b, c)              ltc_mp.sub(a, b, c)
+#define ltc_mp_sub_d(a, b, c)            ltc_mp.subi(a, b, c)
+#define ltc_mp_mul(a, b, c)              ltc_mp.mul(a, b, c)
+#define ltc_mp_mul_d(a, b, c)            ltc_mp.muli(a, b, c)
+#define ltc_mp_sqr(a, b)                 ltc_mp.sqr(a, b)
+#define ltc_mp_sqrtmod_prime(a, b, c)    ltc_mp.sqrtmod_prime(a, b, c)
+#define ltc_mp_div(a, b, c, d)           ltc_mp.mpdiv(a, b, c, d)
+#define ltc_mp_div_2(a, b)               ltc_mp.div_2(a, b)
+#define ltc_mp_mod(a, b, c)              ltc_mp.mpdiv(a, b, NULL, c)
+#define ltc_mp_mod_d(a, b, c)            ltc_mp.modi(a, b, c)
+#define ltc_mp_gcd(a, b, c)              ltc_mp.gcd(a, b, c)
+#define ltc_mp_lcm(a, b, c)              ltc_mp.lcm(a, b, c)
 
-#define mp_addmod(a, b, c, d)        ltc_mp.addmod(a, b, c, d)
-#define mp_submod(a, b, c, d)        ltc_mp.submod(a, b, c, d)
-#define mp_mulmod(a, b, c, d)        ltc_mp.mulmod(a, b, c, d)
-#define mp_sqrmod(a, b, c)           ltc_mp.sqrmod(a, b, c)
-#define mp_invmod(a, b, c)           ltc_mp.invmod(a, b, c)
+#define ltc_mp_addmod(a, b, c, d)        ltc_mp.addmod(a, b, c, d)
+#define ltc_mp_submod(a, b, c, d)        ltc_mp.submod(a, b, c, d)
+#define ltc_mp_mulmod(a, b, c, d)        ltc_mp.mulmod(a, b, c, d)
+#define ltc_mp_sqrmod(a, b, c)           ltc_mp.sqrmod(a, b, c)
+#define ltc_mp_invmod(a, b, c)           ltc_mp.invmod(a, b, c)
 
-#define mp_montgomery_setup(a, b)    ltc_mp.montgomery_setup(a, b)
-#define mp_montgomery_normalization(a, b) ltc_mp.montgomery_normalization(a, b)
-#define mp_montgomery_reduce(a, b, c)   ltc_mp.montgomery_reduce(a, b, c)
-#define mp_montgomery_free(a)        ltc_mp.montgomery_deinit(a)
+#define ltc_mp_montgomery_setup(a, b)    ltc_mp.montgomery_setup(a, b)
+#define ltc_mp_montgomery_normalization(a, b) ltc_mp.montgomery_normalization(a, b)
+#define ltc_mp_montgomery_reduce(a, b, c)   ltc_mp.montgomery_reduce(a, b, c)
+#define ltc_mp_montgomery_free(a)        ltc_mp.montgomery_deinit(a)
 
-#define mp_exptmod(a,b,c,d)          ltc_mp.exptmod(a,b,c,d)
-#define mp_prime_is_prime(a, b, c)   ltc_mp.isprime(a, b, c)
+#define ltc_mp_exptmod(a,b,c,d)          ltc_mp.exptmod(a,b,c,d)
+#define ltc_mp_prime_is_prime(a, b, c)   ltc_mp.isprime(a, b, c)
 
-#define mp_iszero(a)                 (mp_cmp_d(a, 0) == LTC_MP_EQ ? LTC_MP_YES : LTC_MP_NO)
-#define mp_isodd(a)                  (mp_get_digit_count(a) > 0 ? (mp_get_digit(a, 0) & 1 ? LTC_MP_YES : LTC_MP_NO) : LTC_MP_NO)
-#define mp_exch(a, b)                do { void *ABC__tmp = a; a = b; b = ABC__tmp; } while(0)
+#define ltc_mp_iszero(a)                 (ltc_mp_cmp_d(a, 0) == LTC_MP_EQ ? LTC_MP_YES : LTC_MP_NO)
+#define ltc_mp_isodd(a)                  (ltc_mp_get_digit_count(a) > 0 ? (ltc_mp_get_digit(a, 0) & 1 ? LTC_MP_YES : LTC_MP_NO) : LTC_MP_NO)
+#define ltc_mp_exch(a, b)                do { void *ABC__tmp = a; a = b; b = ABC__tmp; } while(0)
 
-#define mp_tohex(a, b)               mp_toradix(a, b, 16)
+#define ltc_mp_tohex(a, b)               ltc_mp_toradix(a, b, 16)
 
-#define mp_rand(a, b)                ltc_mp.rand(a, b)
+#define ltc_mp_rand(a, b)                ltc_mp.rand(a, b)
 
 #endif
 
@@ -608,3 +613,5 @@ int which ## _export(unsigned char *out, unsigned long *outlen, prng_state *prng
 #else
    #define LTC_BYTE(x, n) (((x) >> (8 * (n))) & 255)
 #endif
+
+#endif /* TOMCRYPT_PRIVATE_H_ */

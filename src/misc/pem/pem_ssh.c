@@ -115,7 +115,7 @@ int ssh_decode_rsa(const unsigned char *in, unsigned long *inlen, ltc_pka_key *k
 {
    int err;
    void *tmp1, *tmp2;
-   if ((err = mp_init_multi(&tmp1, &tmp2, NULL)) != CRYPT_OK) {
+   if ((err = ltc_mp_init_multi(&tmp1, &tmp2, NULL)) != CRYPT_OK) {
       goto cleanup;
    }
    if ((err = rsa_init(&key->u.rsa)) != CRYPT_OK) {
@@ -133,15 +133,15 @@ int ssh_decode_rsa(const unsigned char *in, unsigned long *inlen, ltc_pka_key *k
       goto cleanup;
    }
 
-   if ((err = mp_sub_d(key->u.rsa.p, 1,  tmp1)) != CRYPT_OK)                     { goto cleanup; } /* tmp1 = q-1 */
-   if ((err = mp_sub_d(key->u.rsa.q, 1,  tmp2)) != CRYPT_OK)                     { goto cleanup; } /* tmp2 = p-1 */
-   if ((err = mp_mod( key->u.rsa.d,  tmp1,  key->u.rsa.dP)) != CRYPT_OK)         { goto cleanup; } /* dP = d mod p-1 */
-   if ((err = mp_mod( key->u.rsa.d,  tmp2,  key->u.rsa.dQ)) != CRYPT_OK)         { goto cleanup; } /* dQ = d mod q-1 */
+   if ((err = ltc_mp_sub_d(key->u.rsa.p, 1,  tmp1)) != CRYPT_OK)                     { goto cleanup; } /* tmp1 = q-1 */
+   if ((err = ltc_mp_sub_d(key->u.rsa.q, 1,  tmp2)) != CRYPT_OK)                     { goto cleanup; } /* tmp2 = p-1 */
+   if ((err = ltc_mp_mod( key->u.rsa.d,  tmp1,  key->u.rsa.dP)) != CRYPT_OK)         { goto cleanup; } /* dP = d mod p-1 */
+   if ((err = ltc_mp_mod( key->u.rsa.d,  tmp2,  key->u.rsa.dQ)) != CRYPT_OK)         { goto cleanup; } /* dQ = d mod q-1 */
 
    key->id = LTC_PKA_RSA;
 
 cleanup:
-   mp_clear_multi(tmp2, tmp1, NULL);
+   ltc_mp_deinit_multi(tmp2, tmp1, NULL);
 
    return err;
 }

@@ -31,11 +31,11 @@ int dh_shared_secret(const dh_key *private_key, const dh_key *public_key,
    }
 
    /* same DH group? */
-   if (mp_cmp(private_key->prime, public_key->prime) != LTC_MP_EQ) { return CRYPT_PK_TYPE_MISMATCH; }
-   if (mp_cmp(private_key->base, public_key->base) != LTC_MP_EQ)   { return CRYPT_PK_TYPE_MISMATCH; }
+   if (ltc_mp_cmp(private_key->prime, public_key->prime) != LTC_MP_EQ) { return CRYPT_PK_TYPE_MISMATCH; }
+   if (ltc_mp_cmp(private_key->base, public_key->base) != LTC_MP_EQ)   { return CRYPT_PK_TYPE_MISMATCH; }
 
    /* init big numbers */
-   if ((err = mp_init(&tmp)) != CRYPT_OK) {
+   if ((err = ltc_mp_init(&tmp)) != CRYPT_OK) {
       return err;
    }
 
@@ -45,25 +45,25 @@ int dh_shared_secret(const dh_key *private_key, const dh_key *public_key,
    }
 
    /* compute tmp = y^x mod p */
-   if ((err = mp_exptmod(public_key->y, private_key->x, private_key->prime, tmp)) != CRYPT_OK)  {
+   if ((err = ltc_mp_exptmod(public_key->y, private_key->x, private_key->prime, tmp)) != CRYPT_OK)  {
       goto error;
    }
 
    /* enough space for output? */
-   x = (unsigned long)mp_unsigned_bin_size(tmp);
+   x = (unsigned long)ltc_mp_unsigned_bin_size(tmp);
    if (*outlen < x) {
       *outlen = x;
       err = CRYPT_BUFFER_OVERFLOW;
       goto error;
    }
-   if ((err = mp_to_unsigned_bin(tmp, out)) != CRYPT_OK) {
+   if ((err = ltc_mp_to_unsigned_bin(tmp, out)) != CRYPT_OK) {
       goto error;
    }
    *outlen = x;
    err = CRYPT_OK;
 
 error:
-   mp_clear(tmp);
+   ltc_mp_clear(tmp);
    return err;
 }
 

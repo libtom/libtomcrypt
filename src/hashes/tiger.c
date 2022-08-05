@@ -769,6 +769,11 @@ int  tiger_test(void)
   #endif
 }
 
+#undef t1
+#undef t2
+#undef t3
+#undef t4
+
 #endif
 
 /*

@@ -149,7 +149,7 @@ static int s_ecc_test_shamir(void)
    int x, y, z;
    unsigned char buf[ECC_BUF_SIZE];
 
-   DO(mp_init_multi(&kA, &kB, &rA, &rB, &modulus, &a, &mu, &ma, NULL));
+   DO(ltc_mp_init_multi(&kA, &kB, &rA, &rB, &modulus, &a, &mu, &ma, NULL));
    LTC_ARGCHK((G  = ltc_ecc_new_point()) != NULL);
    LTC_ARGCHK((A  = ltc_ecc_new_point()) != NULL);
    LTC_ARGCHK((B  = ltc_ecc_new_point()) != NULL);
@@ -159,27 +159,27 @@ static int s_ecc_test_shamir(void)
    for (x = 0; x < (int)(sizeof(sizes)/sizeof(sizes[0])); x++) {
        /* get the base point */
        for (z = 0; ltc_ecc_curves[z].prime != NULL; z++) {
-           DO(mp_read_radix(modulus, ltc_ecc_curves[z].prime, 16));
-           if (sizes[x] <= mp_unsigned_bin_size(modulus)) break;
+           DO(ltc_mp_read_radix(modulus, ltc_ecc_curves[z].prime, 16));
+           if (sizes[x] <= ltc_mp_unsigned_bin_size(modulus)) break;
        }
        LTC_ARGCHK(ltc_ecc_curves[z].prime != NULL);
 
        /* load it */
-       DO(mp_read_radix(G->x, ltc_ecc_curves[z].Gx, 16));
-       DO(mp_read_radix(G->y, ltc_ecc_curves[z].Gy, 16));
-       DO(mp_set(G->z, 1));
-       DO(mp_read_radix(a, ltc_ecc_curves[z].A, 16));
-       DO(mp_montgomery_setup(modulus, &mp));
-       DO(mp_montgomery_normalization(mu, modulus));
-       DO(mp_mulmod(a, mu, modulus, ma));
+       DO(ltc_mp_read_radix(G->x, ltc_ecc_curves[z].Gx, 16));
+       DO(ltc_mp_read_radix(G->y, ltc_ecc_curves[z].Gy, 16));
+       DO(ltc_mp_set(G->z, 1));
+       DO(ltc_mp_read_radix(a, ltc_ecc_curves[z].A, 16));
+       DO(ltc_mp_montgomery_setup(modulus, &mp));
+       DO(ltc_mp_montgomery_normalization(mu, modulus));
+       DO(ltc_mp_mulmod(a, mu, modulus, ma));
 
        /* do 100 random tests */
        for (y = 0; y < 100; y++) {
           /* pick a random r1, r2 */
           ENSURE(yarrow_read(buf, sizes[x], &yarrow_prng) == sizes[x]);
-          DO(mp_read_unsigned_bin(rA, buf, sizes[x]));
+          DO(ltc_mp_read_unsigned_bin(rA, buf, sizes[x]));
           ENSURE(yarrow_read(buf, sizes[x], &yarrow_prng) == sizes[x]);
-          DO(mp_read_unsigned_bin(rB, buf, sizes[x]));
+          DO(ltc_mp_read_unsigned_bin(rB, buf, sizes[x]));
 
           /* compute rA * G = A */
           DO(ltc_mp.ecc_ptmul(rA, G, A, a, modulus, 1));
@@ -189,9 +189,9 @@ static int s_ecc_test_shamir(void)
 
           /* pick a random kA, kB */
           ENSURE(yarrow_read(buf, sizes[x], &yarrow_prng) == sizes[x]);
-          DO(mp_read_unsigned_bin(kA, buf, sizes[x]));
+          DO(ltc_mp_read_unsigned_bin(kA, buf, sizes[x]));
           ENSURE(yarrow_read(buf, sizes[x], &yarrow_prng) == sizes[x]);
-          DO(mp_read_unsigned_bin(kB, buf, sizes[x]));
+          DO(ltc_mp_read_unsigned_bin(kB, buf, sizes[x]));
 
           /* now, compute kA*A + kB*B = C1 using the older method */
           DO(ltc_mp.ecc_ptmul(kA, A, C1, a, modulus, 0));
@@ -203,19 +203,19 @@ static int s_ecc_test_shamir(void)
           DO(ltc_mp.ecc_mul2add(A, kA, B, kB, C2, ma, modulus));
 
           /* is they the sames?  */
-          if ((mp_cmp(C1->x, C2->x) != LTC_MP_EQ) || (mp_cmp(C1->y, C2->y) != LTC_MP_EQ) || (mp_cmp(C1->z, C2->z) != LTC_MP_EQ)) {
+          if ((ltc_mp_cmp(C1->x, C2->x) != LTC_MP_EQ) || (ltc_mp_cmp(C1->y, C2->y) != LTC_MP_EQ) || (ltc_mp_cmp(C1->z, C2->z) != LTC_MP_EQ)) {
              fprintf(stderr, "ECC failed shamir test: size=%d, testno=%d\n", sizes[x], y);
              return 1;
           }
       }
-      mp_montgomery_free(mp);
+      ltc_mp_montgomery_free(mp);
   }
   ltc_ecc_del_point(C2);
   ltc_ecc_del_point(C1);
   ltc_ecc_del_point(B);
   ltc_ecc_del_point(A);
   ltc_ecc_del_point(G);
-  mp_clear_multi(kA, kB, rA, rB, modulus, a, mu, ma, NULL);
+  ltc_mp_deinit_multi(kA, kB, rA, rB, modulus, a, mu, ma, NULL);
   return 0;
 }
 #endif
@@ -229,29 +229,29 @@ static int s_ecc_issue108(void)
    const ltc_ecc_curve* dp;
 
    /* init */
-   if ((err = mp_init_multi(&modulus, &order, &a, NULL)) != CRYPT_OK) { return err; }
+   if ((err = ltc_mp_init_multi(&modulus, &order, &a, NULL)) != CRYPT_OK) { return err; }
    Q      = ltc_ecc_new_point();
    Result = ltc_ecc_new_point();
 
    /* ECC-224 AKA SECP224R1 */
    if ((err = ecc_find_curve("SECP224R1", &dp)) != CRYPT_OK)              { goto done; }
    /* read A */
-   if ((err = mp_read_radix(a, (char *)dp->A,  16)) != CRYPT_OK)          { goto done; }
+   if ((err = ltc_mp_read_radix(a, (char *)dp->A,  16)) != CRYPT_OK)          { goto done; }
    /* read modulus */
-   if ((err = mp_read_radix(modulus, (char *)dp->prime, 16)) != CRYPT_OK) { goto done; }
+   if ((err = ltc_mp_read_radix(modulus, (char *)dp->prime, 16)) != CRYPT_OK) { goto done; }
    /* read order */
-   if ((err = mp_read_radix(order, (char *)dp->order, 16)) != CRYPT_OK)   { goto done; }
+   if ((err = ltc_mp_read_radix(order, (char *)dp->order, 16)) != CRYPT_OK)   { goto done; }
    /* read Q */
-   if ((err = mp_read_radix(Q->x, (char *)"EA3745501BBC6A70BBFDD8AEEDB18CF5073C6DC9AA7CBB5915170D60", 16)) != CRYPT_OK) { goto done; }
-   if ((err = mp_read_radix(Q->y, (char *)"6C9CB8E68AABFEC989CAC5E2326E0448B7E69C3E56039BA21A44FDAC", 16)) != CRYPT_OK) { goto done; }
-   mp_set(Q->z, 1);
+   if ((err = ltc_mp_read_radix(Q->x, (char *)"EA3745501BBC6A70BBFDD8AEEDB18CF5073C6DC9AA7CBB5915170D60", 16)) != CRYPT_OK) { goto done; }
+   if ((err = ltc_mp_read_radix(Q->y, (char *)"6C9CB8E68AABFEC989CAC5E2326E0448B7E69C3E56039BA21A44FDAC", 16)) != CRYPT_OK) { goto done; }
+   ltc_mp_set(Q->z, 1);
    /* calculate nQ */
    if ((err = ltc_mp.ecc_ptmul(order, Q, Result, a, modulus, 1)) != CRYPT_OK)  { goto done; }
 
 done:
    ltc_ecc_del_point(Result);
    ltc_ecc_del_point(Q);
-   mp_clear_multi(modulus, order, a, NULL);
+   ltc_mp_deinit_multi(modulus, order, a, NULL);
    return err;
 }
 
@@ -314,12 +314,12 @@ static int s_ecc_test_mp(void)
    int        i, err, primality;
    char buf[4096];
 
-   DO(mp_init_multi(&modulus, &order, &a, NULL));
+   DO(ltc_mp_init_multi(&modulus, &order, &a, NULL));
 
    G   = ltc_ecc_new_point();
    GG  = ltc_ecc_new_point();
    if (G == NULL || GG == NULL) {
-      mp_clear_multi(modulus, order, NULL);
+      ltc_mp_deinit_multi(modulus, order, NULL);
       ltc_ecc_del_point(G);
       ltc_ecc_del_point(GG);
       return CRYPT_MEM;
@@ -328,34 +328,34 @@ static int s_ecc_test_mp(void)
    err = CRYPT_OK;
 
    for (i = 0; ltc_ecc_curves[i].prime != NULL; i++) {
-      DO(mp_read_radix(a, (char *)ltc_ecc_curves[i].A,  16));
-      DO(mp_read_radix(modulus, (char *)ltc_ecc_curves[i].prime, 16));
-      DO(mp_read_radix(order, (char *)ltc_ecc_curves[i].order, 16));
+      DO(ltc_mp_read_radix(a, (char *)ltc_ecc_curves[i].A,  16));
+      DO(ltc_mp_read_radix(modulus, (char *)ltc_ecc_curves[i].prime, 16));
+      DO(ltc_mp_read_radix(order, (char *)ltc_ecc_curves[i].order, 16));
 
       /* is prime actually prime? */
-      DO(mp_prime_is_prime(modulus, 8, &primality));
+      DO(ltc_mp_prime_is_prime(modulus, 8, &primality));
       if (primality == 0) {
          err = CRYPT_FAIL_TESTVECTOR;
-         mp_tohex(modulus, buf);
+         ltc_mp_tohex(modulus, buf);
          printf("Modulus failed prime check: %s\n", buf);
       }
 
       /* is order prime ? */
-      DO(mp_prime_is_prime(order, 8, &primality));
+      DO(ltc_mp_prime_is_prime(order, 8, &primality));
       if (primality == 0) {
          err = CRYPT_FAIL_TESTVECTOR;
-         mp_tohex(order, buf);
+         ltc_mp_tohex(order, buf);
          printf("Order failed prime check: %s\n", buf);
       }
 
-      DO(mp_read_radix(G->x, (char *)ltc_ecc_curves[i].Gx, 16));
-      DO(mp_read_radix(G->y, (char *)ltc_ecc_curves[i].Gy, 16));
-      mp_set(G->z, 1);
+      DO(ltc_mp_read_radix(G->x, (char *)ltc_ecc_curves[i].Gx, 16));
+      DO(ltc_mp_read_radix(G->y, (char *)ltc_ecc_curves[i].Gy, 16));
+      ltc_mp_set(G->z, 1);
 
       /* then we should have G == (order + 1)G */
-      DO(mp_add_d(order, 1, order));
+      DO(ltc_mp_add_d(order, 1, order));
       DO(ltc_mp.ecc_ptmul(order, G, GG, a, modulus, 1));
-      if (mp_cmp(G->x, GG->x) != LTC_MP_EQ || mp_cmp(G->y, GG->y) != LTC_MP_EQ) {
+      if (ltc_mp_cmp(G->x, GG->x) != LTC_MP_EQ || ltc_mp_cmp(G->y, GG->y) != LTC_MP_EQ) {
          err = CRYPT_FAIL_TESTVECTOR;
       }
       if (err != CRYPT_OK) {
@@ -366,7 +366,7 @@ static int s_ecc_test_mp(void)
 done:
    ltc_ecc_del_point(GG);
    ltc_ecc_del_point(G);
-   mp_clear_multi(order, modulus, a, NULL);
+   ltc_mp_deinit_multi(order, modulus, a, NULL);
    return err;
 }
 
@@ -507,16 +507,16 @@ int ecc_key_cmp(const int should_type, const ecc_key *should, const ecc_key *is)
 {
    if (should_type != is->type)                               return CRYPT_ERROR;
    if (should_type == PK_PRIVATE) {
-      if (mp_cmp(should->k, is->k) != LTC_MP_EQ)              return CRYPT_ERROR;
+      if (ltc_mp_cmp(should->k, is->k) != LTC_MP_EQ)              return CRYPT_ERROR;
    }
-   if (mp_cmp(should->dp.prime,  is->dp.prime)  != LTC_MP_EQ) return CRYPT_ERROR;
-   if (mp_cmp(should->dp.A,      is->dp.A)      != LTC_MP_EQ) return CRYPT_ERROR;
-   if (mp_cmp(should->dp.B,      is->dp.B)      != LTC_MP_EQ) return CRYPT_ERROR;
-   if (mp_cmp(should->dp.order,  is->dp.order)  != LTC_MP_EQ) return CRYPT_ERROR;
-   if (mp_cmp(should->dp.base.x, is->dp.base.x) != LTC_MP_EQ) return CRYPT_ERROR;
-   if (mp_cmp(should->dp.base.y, is->dp.base.y) != LTC_MP_EQ) return CRYPT_ERROR;
-   if (mp_cmp(should->pubkey.x,  is->pubkey.x)  != LTC_MP_EQ) return CRYPT_ERROR;
-   if (mp_cmp(should->pubkey.y,  is->pubkey.y)  != LTC_MP_EQ) return CRYPT_ERROR;
+   if (ltc_mp_cmp(should->dp.prime,  is->dp.prime)  != LTC_MP_EQ) return CRYPT_ERROR;
+   if (ltc_mp_cmp(should->dp.A,      is->dp.A)      != LTC_MP_EQ) return CRYPT_ERROR;
+   if (ltc_mp_cmp(should->dp.B,      is->dp.B)      != LTC_MP_EQ) return CRYPT_ERROR;
+   if (ltc_mp_cmp(should->dp.order,  is->dp.order)  != LTC_MP_EQ) return CRYPT_ERROR;
+   if (ltc_mp_cmp(should->dp.base.x, is->dp.base.x) != LTC_MP_EQ) return CRYPT_ERROR;
+   if (ltc_mp_cmp(should->dp.base.y, is->dp.base.y) != LTC_MP_EQ) return CRYPT_ERROR;
+   if (ltc_mp_cmp(should->pubkey.x,  is->pubkey.x)  != LTC_MP_EQ) return CRYPT_ERROR;
+   if (ltc_mp_cmp(should->pubkey.y,  is->pubkey.y)  != LTC_MP_EQ) return CRYPT_ERROR;
    if (should->dp.size != is->dp.size)                        return CRYPT_ERROR;
    if (should->dp.cofactor != is->dp.cofactor)                return CRYPT_ERROR;
    return CRYPT_OK;

@@ -740,5 +740,11 @@ int ECB_KS(int *keysize)
    return CRYPT_OK;
 }
 
-#endif
+#undef SETUP
+#undef ECB_ENC
+#undef ECB_DEC
+#undef ECB_DONE
+#undef ECB_TEST
+#undef ECB_KS
 
+#endif

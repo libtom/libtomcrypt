@@ -23,6 +23,7 @@ const struct ltc_cipher_descriptor rc6_desc =
     NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
 };
 
+#define stab rc6_stab
 static const ulong32 stab[44] = {
 0xb7e15163UL, 0x5618cb1cUL, 0xf45044d5UL, 0x9287be8eUL, 0x30bf3847UL, 0xcef6b200UL, 0x6d2e2bb9UL, 0x0b65a572UL,
 0xa99d1f2bUL, 0x47d498e4UL, 0xe60c129dUL, 0x84438c56UL, 0x227b060fUL, 0xc0b27fc8UL, 0x5ee9f981UL, 0xfd21733aUL,
@@ -319,6 +320,7 @@ int rc6_keysize(int *keysize)
    return CRYPT_OK;
 }
 
+#undef RND
+#undef stab
+
 #endif /*LTC_RC6*/
-
-

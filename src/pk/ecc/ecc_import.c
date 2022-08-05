@@ -85,7 +85,7 @@ int ecc_import_ex(const unsigned char *in, unsigned long inlen, ecc_key *key, co
    }
 
    /* set z */
-   if ((err = mp_set(key->pubkey.z, 1)) != CRYPT_OK) { goto done; }
+   if ((err = ltc_mp_set(key->pubkey.z, 1)) != CRYPT_OK) { goto done; }
 
    /* point on the curve + other checks */
    if ((err = ltc_ecc_verify_key(key)) != CRYPT_OK)  { goto done; }

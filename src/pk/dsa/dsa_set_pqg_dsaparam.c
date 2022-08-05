@@ -35,7 +35,7 @@ int dsa_set_pqg_dsaparam(const unsigned char *dsaparam, unsigned long dsaparamle
       goto LBL_ERR;
    }
 
-   key->qord = mp_unsigned_bin_size(key->q);
+   key->qord = ltc_mp_unsigned_bin_size(key->q);
 
    /* quick p, q, g validation, without primality testing */
    if ((err = dsa_int_validate_pqg(key, &stat)) != CRYPT_OK) {

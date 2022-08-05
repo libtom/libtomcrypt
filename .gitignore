@@ -10,6 +10,7 @@
 # release files
 /libtomcrypt-*
 /crypt-*
+pre_gen/
 
 # suppress output of build process
 gcc_[12].txt
