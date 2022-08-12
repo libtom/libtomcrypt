@@ -9,6 +9,12 @@
 
 #ifdef LTC_CURVE25519
 
+static void xor_shuffle(char *buf, int size, int change)
+{
+   for(int i = 0; i < size; i++)
+      buf[i] ^= change;
+}
+
 static int s_rfc_8410_10_test(void)
 {
    const struct {
@@ -201,6 +207,13 @@ static int s_rfc_8032_7_1_test(void)
       DO(do_compare_testvector(buf, buflen, sig, siglen, "Ed25519 RFC8032 7.1 - sign", n));
       DO(ed25519_verify(msg, mlen, sig, siglen, &ret, &key));
       DO(do_compare_testvector(&ret, sizeof(ret), &should, sizeof(should), "Ed25519 RFC8032 7.1 - verify w/ privkey", n));
+
+      xor_shuffle(sig, siglen, 0x8);
+      DO( ed25519_verify(msg, mlen, sig, siglen, &ret, &key));
+      ENSUREX(ret != 1, "ed25519_verify is expected to fail on the modified signature");
+      xor_shuffle(msg, mlen, 0xf);
+      DO( ed25519_verify(msg, mlen, sig, siglen, &ret, &key));
+      ENSUREX(ret != 1, "ed25519_verify is expected to fail on the modified message");
 
       plen = sizeof(pub);
       DO(base16_decode(rfc_8032_7_1[n].public_key, XSTRLEN(rfc_8032_7_1[n].public_key), pub, &plen));
