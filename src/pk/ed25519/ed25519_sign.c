@@ -9,9 +9,9 @@
 
 #ifdef LTC_CURVE25519
 
-static int ed25519_sign_private(const unsigned char *msg, unsigned long msglen,
-                       unsigned char *sig, unsigned long *siglen,
-                          const char* ctx, unsigned long ctxlen,
+static int s_ed25519_sign(const unsigned char  *msg, unsigned long  msglen,
+                                unsigned char  *sig, unsigned long *siglen,
+                          const unsigned char  *ctx, unsigned long  ctxlen,
                           const curve25519_key *private_key)
 {
    unsigned char *s;
@@ -61,21 +61,21 @@ static int ed25519_sign_private(const unsigned char *msg, unsigned long msglen,
    @param private_key     The private Ed25519 key in the pair
    @return CRYPT_OK if successful
 */
-int ed25519ctx_sign(const unsigned char *msg, unsigned long msglen,
-                          unsigned char *sig, unsigned long *siglen,
-                    const char* ctx, const curve25519_key *private_key)
+int ed25519ctx_sign(const  unsigned char *msg, unsigned long  msglen,
+                           unsigned char *sig, unsigned long *siglen,
+                    const  unsigned char *ctx, unsigned long  ctxlen,
+                    const curve25519_key *private_key)
 {
+   int err;
    unsigned char ctx_prefix[512] = {0};
-   unsigned long ctx_prefix_size = 0;
+   unsigned long ctx_prefix_size = sizeof(ctx_prefix);
 
    LTC_ARGCHK(ctx != NULL);
 
-   if(tweetnacl_crypto_ctx(ctx_prefix, &ctx_prefix_size, 0,
-                           ED25519_CONTEXT_PREFIX, ctx) != CRYPT_OK)
-      return CRYPT_INVALID_ARG;
+   if ((err = ec25519_crypto_ctx(ctx_prefix, &ctx_prefix_size, 0, ctx, ctxlen)) != CRYPT_OK)
+      return err;
 
-   return ed25519_sign_private(msg, msglen, sig, siglen, ctx_prefix,
-                               ctx_prefix_size, private_key);
+   return s_ed25519_sign(msg, msglen, sig, siglen, ctx_prefix, ctx_prefix_size, private_key);
 }
 
 /**
@@ -88,26 +88,26 @@ int ed25519ctx_sign(const unsigned char *msg, unsigned long msglen,
    @param private_key     The private Ed25519 key in the pair
    @return CRYPT_OK if successful
 */
-int ed25519ph_sign(const unsigned char *msg, unsigned long msglen,
-                         unsigned char *sig, unsigned long *siglen,
-                   const char *ctx, const curve25519_key *private_key)
+int ed25519ph_sign(const  unsigned char *msg, unsigned long  msglen,
+                          unsigned char *sig, unsigned long *siglen,
+                   const  unsigned char *ctx, unsigned long  ctxlen,
+                   const curve25519_key *private_key)
 {
+   int err;
    unsigned char ctx_prefix[512] = {0};
    unsigned char msg_hash[64] = {0};
-   unsigned long ctx_prefix_size = 0;
+   unsigned long ctx_prefix_size = sizeof(ctx_prefix);
 
-   if (tweetnacl_crypto_ctx(ctx_prefix, &ctx_prefix_size, 1,
-                            ED25519_CONTEXT_PREFIX, ctx) != CRYPT_OK)
-      return CRYPT_INVALID_ARG;
+   if ((err = ec25519_crypto_ctx(ctx_prefix, &ctx_prefix_size, 1, ctx, ctxlen)) != CRYPT_OK)
+      return err;
 
-   if (tweetnacl_crypto_ph(msg_hash, msg, msglen) != CRYPT_OK)
-      return CRYPT_INVALID_ARG;
+   if ((err = tweetnacl_crypto_ph(msg_hash, msg, msglen)) != CRYPT_OK)
+      return err;
 
    msg = msg_hash;
    msglen = 64;
 
-   return ed25519_sign_private(msg, msglen, sig, siglen, ctx_prefix,
-                               ctx_prefix_size, private_key);
+   return s_ed25519_sign(msg, msglen, sig, siglen, ctx_prefix, ctx_prefix_size, private_key);
 }
 
 /**
@@ -119,11 +119,11 @@ int ed25519ph_sign(const unsigned char *msg, unsigned long msglen,
    @param private_key     The private Ed25519 key in the pair
    @return CRYPT_OK if successful
 */
-int ed25519_sign(const unsigned char *msg, unsigned long msglen,
-                       unsigned char *sig, unsigned long *siglen,
+int ed25519_sign(const  unsigned char *msg, unsigned long msglen,
+                        unsigned char *sig, unsigned long *siglen,
                  const curve25519_key *private_key)
 {
-   return ed25519_sign_private(msg, msglen, sig, siglen, 0, 0, private_key);
+   return s_ed25519_sign(msg, msglen, sig, siglen, NULL, 0, private_key);
 }
 
 #endif

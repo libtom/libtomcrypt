@@ -9,8 +9,6 @@
 
 #define LTC_PAD_MASK       (0xF000U)
 
-#define ED25519_CONTEXT_PREFIX "SigEd25519 no Ed25519 collisions"
-
 /*
  * Internal Enums
  */
@@ -346,8 +344,6 @@ int tweetnacl_crypto_sk_to_pk(unsigned char *pk, const unsigned char *sk);
 int tweetnacl_crypto_scalarmult(unsigned char *q, const unsigned char *n, const unsigned char *p);
 int tweetnacl_crypto_scalarmult_base(unsigned char *q,const unsigned char *n);
 int tweetnacl_crypto_ph(unsigned char *out, const unsigned char *msg, unsigned long msglen);
-int tweetnacl_crypto_ctx(unsigned char *out, unsigned long *outlen,
-                       unsigned char flag, const char *pr, const char* ctx);
 
 typedef int (*sk_to_pk)(unsigned char *pk ,const unsigned char *sk);
 int ec25519_import_pkcs8(const unsigned char *in, unsigned long inlen,
@@ -357,6 +353,9 @@ int ec25519_import_pkcs8(const unsigned char *in, unsigned long inlen,
 int ec25519_export(       unsigned char *out, unsigned long *outlen,
                                     int  which,
                    const curve25519_key *key);
+int ec25519_crypto_ctx(      unsigned char *out, unsigned long *outlen,
+                             unsigned char flag,
+                       const unsigned char *ctx, unsigned long  ctxlen);
 #endif /* LTC_CURVE25519 */
 
 #ifdef LTC_DER

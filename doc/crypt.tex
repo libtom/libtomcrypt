@@ -5909,25 +5909,49 @@ It has support for the following output formats:
 To sign and/or verify a message use the following functions:
 
 \index{ed25519\_sign}
+\index{ed25519ctx\_sign}
+\index{ed25519ph\_sign}
 \begin{verbatim}
-int ed25519_sign(const unsigned char  *msg, unsigned long msglen,
-                       unsigned char  *sig, unsigned long *siglen,
+int ed25519_sign(const  unsigned char *msg, unsigned long msglen,
+                        unsigned char *sig, unsigned long *siglen,
                  const curve25519_key *private_key);
+int ed25519ctx_sign(const  unsigned char *msg, unsigned long  msglen,
+                           unsigned char *sig, unsigned long *siglen,
+                    const  unsigned char *ctx, unsigned long  ctxlen,
+                    const curve25519_key *private_key);
+int ed25519ph_sign(const  unsigned char *msg, unsigned long  msglen,
+                          unsigned char *sig, unsigned long *siglen,
+                   const  unsigned char *ctx, unsigned long  ctxlen,
+                   const curve25519_key *private_key);
 \end{verbatim}
 
-This function will EdDSA sign the message stored in the array pointed to by \textit{msg} of length \textit{msglen} octets.  The signature
-will be stored in the array pointed to by \textit{sig} of length \textit{siglen} octets.
+These functions will EdDSA sign the message stored in the array pointed to by \textit{msg} of length \textit{msglen} octets.  The signature
+will be stored in the array pointed to by \textit{sig} of length \textit{siglen} octets.  The \texttt{ctx} and \texttt{ph} variants also
+allow passing a context \textit{ctx} of length \textit{ctxlen} octets.  This context is allowed to be max. 255 octets long.
 
 \index{ed25519\_verify}
+\index{ed25519ctx\_verify}
+\index{ed25519ph\_verify}
 \begin{verbatim}
 int ed25519_verify(const  unsigned char *msg, unsigned long msglen,
                    const  unsigned char *sig, unsigned long siglen,
-                   int *stat, const curve25519_key *public_key);
+                                    int *stat,
+                   const curve25519_key *public_key);
+int ed25519ctx_verify(const  unsigned char *msg, unsigned long msglen,
+                      const  unsigned char *sig, unsigned long siglen,
+                      const  unsigned char *ctx, unsigned long ctxlen,
+                                       int *stat,
+                      const curve25519_key *public_key);
+int ed25519ph_verify(const  unsigned char *msg, unsigned long msglen,
+                     const  unsigned char *sig, unsigned long siglen,
+                     const  unsigned char *ctx, unsigned long ctxlen,
+                                      int *stat,
+                     const curve25519_key *public_key);
 \end{verbatim}
 
-This function will verify the EdDSA signature in the array pointed to by \textit{sig} of length \textit{siglen} octets, against the message
+These functions will verify the EdDSA signature in the array pointed to by \textit{sig} of length \textit{siglen} octets, against the message
 pointed to by the array \textit{msg} of length \textit{msglen}. It will store a non--zero value in \textit{stat} if the signature is valid.  Note:
-the function will not return an error if the signature is invalid. It will return an error, if the actual signature payload is an invalid format.
+the function will not return an error if the signature is invalid. It will only return an error if the actual signature payload is an invalid format.
 
 
 \chapter{Digital Signature Algorithm}

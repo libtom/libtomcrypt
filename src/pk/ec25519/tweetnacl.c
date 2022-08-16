@@ -504,40 +504,5 @@ int tweetnacl_crypto_sign_open(int *stat, u8 *m,u64 *mlen,const u8 *sm,u64 smlen
 
 int tweetnacl_crypto_ph(u8 *out,const u8 *msg,size_t msglen)
 {
-  hash_state md;
-
-  sha512_init(&md);
-
-  if(sha512_process(&md, msg, msglen) != CRYPT_OK)
-    return CRYPT_INVALID_ARG;
-
-  if(sha512_done(&md, out) != CRYPT_OK)
-    return CRYPT_INVALID_ARG;
-
-  return CRYPT_OK;
-}
-
-int tweetnacl_crypto_ctx(u8 *out,size_t *outlen,u8 flag,const char *pr, const char *ctx)
-{
-  u8 *buf = out;
-  const int ctx_prefix_len = strlen(pr);
-  const int ctxlen = ctx ? strlen(ctx) : 0;
-
-  if(ctxlen > 255) return CRYPT_INPUT_TOO_LONG;
-
-  XMEMCPY(buf, pr, ctx_prefix_len);
-  buf += ctx_prefix_len;
-  XMEMCPY(buf, &flag, 1);
-  buf++;
-  XMEMCPY(buf, &ctxlen, 1);
-  buf++;
-
-  if(ctxlen > 0) {
-    XMEMCPY(buf, ctx, ctxlen);
-    buf += ctxlen;
-  }
-
-  *outlen = buf-out;
-
-  return CRYPT_OK;
+  return tweetnacl_crypto_hash(out, msg, msglen);
 }

@@ -9,9 +9,10 @@
 
 #ifdef LTC_CURVE25519
 
-static void xor_shuffle(char *buf, int size, int change)
+static void xor_shuffle(unsigned char *buf, unsigned long size, unsigned char change)
 {
-   for(int i = 0; i < size; i++)
+   unsigned long i;
+   for(i = 0; i < size; i++)
       buf[i] ^= change;
 }
 
@@ -108,7 +109,9 @@ static int s_rfc_8032_7_1_test(void)
          "",
          /* SIGNATURE */
          "e5564300c360ac729086e2cc806e828a84877f1eb8e5d974d873e06522490155"
-         "5fb8821590a33bacc61e39701cf9b46bd25bf5f0595bbe24655141438e7a100b"
+         "5fb8821590a33bacc61e39701cf9b46bd25bf5f0595bbe24655141438e7a100b",
+         /* CONTEXT */
+         NULL
       },
       {
          /* SECRET KEY */
@@ -119,7 +122,9 @@ static int s_rfc_8032_7_1_test(void)
          "72",
          /* SIGNATURE */
          "92a009a9f0d4cab8720e820b5f642540a2b27b5416503f8fb3762223ebdb69da"
-         "085ac1e43e15996e458f3613d0f11d8c387b2eaeb4302aeeb00d291612bb0c00"
+         "085ac1e43e15996e458f3613d0f11d8c387b2eaeb4302aeeb00d291612bb0c00",
+         /* CONTEXT */
+         NULL
       },
       {
          /* SECRET KEY */
@@ -130,7 +135,9 @@ static int s_rfc_8032_7_1_test(void)
          "af82",
          /* SIGNATURE */
          "6291d657deec24024827e69c3abe01a30ce548a284743a445e3680d7db5ac3ac"
-         "18ff9b538d16f290ae67f760984dc6594a7c15e9716ed28dc027beceea1ec40a"
+         "18ff9b538d16f290ae67f760984dc6594a7c15e9716ed28dc027beceea1ec40a",
+         /* CONTEXT */
+         NULL
       },
       {
          /* SECRET KEY */
@@ -172,7 +179,9 @@ static int s_rfc_8032_7_1_test(void)
          "0618983f8741c5ef68d3a101e8a3b8cac60c905c15fc910840b94c00a0b9d0",
          /* SIGNATURE */
          "0aab4c900501b3e24d7cdf4663326a3a87df5e4843b2cbdb67cbf6e460fec350"
-         "aa5371b1508f9f4528ecea23c436d94b5e8fcd4f681e30a6ac00a9704a188a03"
+         "aa5371b1508f9f4528ecea23c436d94b5e8fcd4f681e30a6ac00a9704a188a03",
+         /* CONTEXT */
+         NULL
       },
       {
          /* SECRET KEY */
@@ -184,7 +193,9 @@ static int s_rfc_8032_7_1_test(void)
          "2192992a274fc1a836ba3c23a3feebbd454d4423643ce80e2a9ac94fa54ca49f",
          /* SIGNATURE */
          "dc2a4459e7369633a52b1bf277839a00201009a3efbf3ecb69bea2186c26b589"
-         "09351fc9ac90b3ecfdfbc7c66431e0303dca179c138ac17ad9bef1177331a704"
+         "09351fc9ac90b3ecfdfbc7c66431e0303dca179c138ac17ad9bef1177331a704",
+         /* CONTEXT */
+         NULL
       }
    };
    unsigned int n;
@@ -209,10 +220,10 @@ static int s_rfc_8032_7_1_test(void)
       DO(ed25519_verify(msg, mlen, sig, siglen, &ret, &key));
       DO(do_compare_testvector(&ret, sizeof(ret), &should, sizeof(should), "Ed25519 RFC8032 7.1 - verify w/ privkey", n));
 
-      xor_shuffle(sig, siglen, 0x8);
+      xor_shuffle(sig, siglen, 0x8u);
       DO( ed25519_verify(msg, mlen, sig, siglen, &ret, &key));
       ENSUREX(ret != 1, "ed25519_verify is expected to fail on the modified signature");
-      xor_shuffle(msg, mlen, 0xf);
+      xor_shuffle(msg, mlen, 0xfu);
       DO( ed25519_verify(msg, mlen, sig, siglen, &ret, &key));
       ENSUREX(ret != 1, "ed25519_verify is expected to fail on the modified message");
 
@@ -305,26 +316,26 @@ static int s_rfc_8032_7_2_test(void)
       DO(base16_decode(rfc_8032_7_2[n].message, XSTRLEN(rfc_8032_7_2[n].message), msg, &mlen));
       siglen = sizeof(sig);
       DO(base16_decode(rfc_8032_7_2[n].signature, XSTRLEN(rfc_8032_7_2[n].signature), sig, &siglen));
+      ctxlen = sizeof(ctx);
       DO(base16_decode(rfc_8032_7_2[n].context, XSTRLEN(rfc_8032_7_2[n].context), ctx, &ctxlen));
-      ctx[ctxlen] = 0;
       buflen = sizeof(buf);
 
       DO(ed25519_import_raw(sec, slen, PK_PRIVATE, &key));
-      DO(ed25519ctx_sign(msg, mlen, buf, &buflen, ctx, &key));
+      DO(ed25519ctx_sign(msg, mlen, buf, &buflen, ctx, ctxlen, &key));
       DO(do_compare_testvector(buf, buflen, sig, siglen, "Ed25519 RFC8032 7.2 - sign", n));
-      DO(ed25519ctx_verify(msg, mlen, buf, buflen, &ret, ctx, &key));
+      DO(ed25519ctx_verify(msg, mlen, buf, buflen, ctx, ctxlen, &ret, &key));
       ENSUREX(ret == should, "Ed25519 RFC8032 7.2 - verify w/ privkey");
 
       DO(ed25519_import_raw(pub, plen, PK_PUBLIC, &key2));
-      DO(ed25519ctx_verify(msg, mlen, sig, siglen, &ret, ctx, &key2));
+      DO(ed25519ctx_verify(msg, mlen, sig, siglen, ctx, ctxlen, &ret, &key2));
       ENSUREX(ret == should, "Ed25519 RFC8032 7.2 - verify w/ pubkey");
 
-      xor_shuffle(buf, buflen, 0x4);
-      DO( ed25519ctx_verify(msg, mlen, buf, buflen, &ret, ctx, &key));
-      ENSUREX(ret != 1, "ed25519_verify is expected to fail on the modified signature");
-      xor_shuffle(msg, mlen, 0x8);
-      DO( ed25519ctx_verify(msg, mlen, buf, buflen, &ret, ctx, &key));
-      ENSUREX(ret != 1, "ed25519_verify is expected to fail on the modified message");
+      xor_shuffle(buf, buflen, 0x4u);
+      DO(ed25519ctx_verify(msg, mlen, buf, buflen, ctx, ctxlen, &ret, &key));
+      ENSUREX(ret != 1, "ed25519ctx_verify is expected to fail on the modified signature");
+      xor_shuffle(msg, mlen, 0x8u);
+      DO(ed25519ctx_verify(msg, mlen, buf, buflen, ctx, ctxlen, &ret, &key));
+      ENSUREX(ret != 1, "ed25519ctx_verify is expected to fail on the modified message");
 
       zeromem(&key, sizeof(key));
       zeromem(&key2, sizeof(key2));
@@ -346,15 +357,18 @@ static int s_rfc_8032_7_3_test(void)
          /* SIGNATURE */
          "98a70222f0b8121aa9d30f813d683f809e462b469c7ff87639499bb94e6dae41"
          "31f85042463c2a355a2003d062adf5aaa10b8c61e636062aaad11c2a26083406",
+         /* CONTEXT */
+         NULL
       },
    };
 
-   unsigned long mlen, slen, plen, siglen, buflen, ctxlen;
+   unsigned long mlen, slen, plen, siglen, buflen;
    unsigned char msg[1024], sec[32], pub[32], sig[64], buf[64];
-   curve25519_key key, key2;
+   curve25519_key key;
    int ret;
    const int should = 1;
 
+   buflen = sizeof(buf);
    slen = sizeof(sec);
    DO(base16_decode(rfc_8032_7_3[0].secret_key, XSTRLEN(rfc_8032_7_3[0].secret_key), sec, &slen));
    plen = sizeof(pub);
@@ -365,9 +379,9 @@ static int s_rfc_8032_7_3_test(void)
    DO(base16_decode(rfc_8032_7_3[0].signature, XSTRLEN(rfc_8032_7_3[0].signature), sig, &siglen));
 
    DO(ed25519_import_raw(sec, slen, PK_PRIVATE, &key));
-   DO(ed25519ph_sign(msg, mlen, buf, &buflen, 0, &key));
+   DO(ed25519ph_sign(msg, mlen, buf, &buflen, NULL, 0, &key));
    DO(do_compare_testvector(buf, buflen, sig, siglen, "Ed25519 RFC8032 7.3 - sign", 0));
-   DO(ed25519ph_verify(msg, mlen, buf, buflen, &ret, 0, &key));
+   DO(ed25519ph_verify(msg, mlen, buf, buflen, NULL, 0, &ret, &key));
    ENSUREX(ret == should, "Ed25519 RFC8032 7.3 - verify w/ privkey");
 
    return CRYPT_OK;
