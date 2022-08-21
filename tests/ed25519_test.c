@@ -9,6 +9,13 @@
 
 #ifdef LTC_CURVE25519
 
+static void xor_shuffle(unsigned char *buf, unsigned long size, unsigned char change)
+{
+   unsigned long i;
+   for(i = 0; i < size; i++)
+      buf[i] ^= change;
+}
+
 static int s_rfc_8410_10_test(void)
 {
    const struct {
@@ -87,11 +94,12 @@ typedef struct {
    const char* public_key;
    const char* message;
    const char* signature;
-} rfc_8032_7_1_t;
+   const char* context;
+} rfc_8032_7_t;
 
 static int s_rfc_8032_7_1_test(void)
 {
-   const rfc_8032_7_1_t rfc_8032_7_1[] = {
+   const rfc_8032_7_t rfc_8032_7_1[] = {
       {
          /* SECRET KEY */
          "9d61b19deffd5a60ba844af492ec2cc44449c5697b326919703bac031cae7f60",
@@ -101,7 +109,9 @@ static int s_rfc_8032_7_1_test(void)
          "",
          /* SIGNATURE */
          "e5564300c360ac729086e2cc806e828a84877f1eb8e5d974d873e06522490155"
-         "5fb8821590a33bacc61e39701cf9b46bd25bf5f0595bbe24655141438e7a100b"
+         "5fb8821590a33bacc61e39701cf9b46bd25bf5f0595bbe24655141438e7a100b",
+         /* CONTEXT */
+         NULL
       },
       {
          /* SECRET KEY */
@@ -112,7 +122,9 @@ static int s_rfc_8032_7_1_test(void)
          "72",
          /* SIGNATURE */
          "92a009a9f0d4cab8720e820b5f642540a2b27b5416503f8fb3762223ebdb69da"
-         "085ac1e43e15996e458f3613d0f11d8c387b2eaeb4302aeeb00d291612bb0c00"
+         "085ac1e43e15996e458f3613d0f11d8c387b2eaeb4302aeeb00d291612bb0c00",
+         /* CONTEXT */
+         NULL
       },
       {
          /* SECRET KEY */
@@ -123,7 +135,9 @@ static int s_rfc_8032_7_1_test(void)
          "af82",
          /* SIGNATURE */
          "6291d657deec24024827e69c3abe01a30ce548a284743a445e3680d7db5ac3ac"
-         "18ff9b538d16f290ae67f760984dc6594a7c15e9716ed28dc027beceea1ec40a"
+         "18ff9b538d16f290ae67f760984dc6594a7c15e9716ed28dc027beceea1ec40a",
+         /* CONTEXT */
+         NULL
       },
       {
          /* SECRET KEY */
@@ -165,7 +179,9 @@ static int s_rfc_8032_7_1_test(void)
          "0618983f8741c5ef68d3a101e8a3b8cac60c905c15fc910840b94c00a0b9d0",
          /* SIGNATURE */
          "0aab4c900501b3e24d7cdf4663326a3a87df5e4843b2cbdb67cbf6e460fec350"
-         "aa5371b1508f9f4528ecea23c436d94b5e8fcd4f681e30a6ac00a9704a188a03"
+         "aa5371b1508f9f4528ecea23c436d94b5e8fcd4f681e30a6ac00a9704a188a03",
+         /* CONTEXT */
+         NULL
       },
       {
          /* SECRET KEY */
@@ -177,7 +193,9 @@ static int s_rfc_8032_7_1_test(void)
          "2192992a274fc1a836ba3c23a3feebbd454d4423643ce80e2a9ac94fa54ca49f",
          /* SIGNATURE */
          "dc2a4459e7369633a52b1bf277839a00201009a3efbf3ecb69bea2186c26b589"
-         "09351fc9ac90b3ecfdfbc7c66431e0303dca179c138ac17ad9bef1177331a704"
+         "09351fc9ac90b3ecfdfbc7c66431e0303dca179c138ac17ad9bef1177331a704",
+         /* CONTEXT */
+         NULL
       }
    };
    unsigned int n;
@@ -202,6 +220,13 @@ static int s_rfc_8032_7_1_test(void)
       DO(ed25519_verify(msg, mlen, sig, siglen, &ret, &key));
       DO(do_compare_testvector(&ret, sizeof(ret), &should, sizeof(should), "Ed25519 RFC8032 7.1 - verify w/ privkey", n));
 
+      xor_shuffle(sig, siglen, 0x8u);
+      DO( ed25519_verify(msg, mlen, sig, siglen, &ret, &key));
+      ENSUREX(ret != 1, "ed25519_verify is expected to fail on the modified signature");
+      xor_shuffle(msg, mlen, 0xfu);
+      DO( ed25519_verify(msg, mlen, sig, siglen, &ret, &key));
+      ENSUREX(ret != 1, "ed25519_verify is expected to fail on the modified message");
+
       plen = sizeof(pub);
       DO(base16_decode(rfc_8032_7_1[n].public_key, XSTRLEN(rfc_8032_7_1[n].public_key), pub, &plen));
       mlen = sizeof(msg);
@@ -215,6 +240,150 @@ static int s_rfc_8032_7_1_test(void)
       zeromem(&key, sizeof(key));
       zeromem(&key2, sizeof(key2));
    }
+   return CRYPT_OK;
+}
+
+static int s_rfc_8032_7_2_test(void)
+{
+   const rfc_8032_7_t rfc_8032_7_2[] = {
+       {
+         /* SECRET KEY */
+         "0305334e381af78f141cb666f6199f57bc3495335a256a95bd2a55bf546663f6",
+         /* PUBLIC KEY */
+         "dfc9425e4f968f7f0c29f0259cf5f9aed6851c2bb4ad8bfb860cfee0ab248292",
+         /* MESSAGE (length 16 bytes) */
+         "f726936d19c800494e3fdaff20b276a8",
+         /* SIGNATURE */
+         "55a4cc2f70a54e04288c5f4cd1e45a7bb520b36292911876cada7323198dd87a"
+         "8b36950b95130022907a7fb7c4e9b2d5f6cca685a587b4b21f4b888e4e7edb0d",
+         /* CONTEXT */
+         "666f6f",
+      },
+      {
+         /* SECRET KEY */
+         "0305334e381af78f141cb666f6199f57bc3495335a256a95bd2a55bf546663f6",
+         /* PUBLIC KEY */
+         "dfc9425e4f968f7f0c29f0259cf5f9aed6851c2bb4ad8bfb860cfee0ab248292",
+         /* MESSAGE (length 16 bytes) */
+         "f726936d19c800494e3fdaff20b276a8",
+         /* SIGNATURE */
+         "fc60d5872fc46b3aa69f8b5b4351d5808f92bcc044606db097abab6dbcb1aee3"
+         "216c48e8b3b66431b5b186d1d28f8ee15a5ca2df6668346291c2043d4eb3e90d",
+         /* CONTEXT */
+         "626172",
+      },
+      {
+         /* SECRET KEY */
+         "0305334e381af78f141cb666f6199f57bc3495335a256a95bd2a55bf546663f6",
+         /* PUBLIC KEY */
+         "dfc9425e4f968f7f0c29f0259cf5f9aed6851c2bb4ad8bfb860cfee0ab248292",
+         /* MESSAGE (length 16 bytes) */
+         "508e9e6882b979fea900f62adceaca35",
+         /* SIGNATURE */
+         "8b70c1cc8310e1de20ac53ce28ae6e7207f33c3295e03bb5c0732a1d20dc6490"
+         "8922a8b052cf99b7c4fe107a5abb5b2c4085ae75890d02df26269d8945f84b0b",
+         /* CONTEXT */
+         "666f6f",
+      },
+      {
+         /* SECRET KEY */
+         "ab9c2853ce297ddab85c993b3ae14bcad39b2c682beabc27d6d4eb20711d6560",
+         /* PUBLIC KEY */
+         "0f1d1274943b91415889152e893d80e93275a1fc0b65fd71b4b0dda10ad7d772",
+         /* MESSAGE (length 16 bytes) */
+         "f726936d19c800494e3fdaff20b276a8",
+         /* SIGNATURE */
+         "21655b5f1aa965996b3f97b3c849eafba922a0a62992f73b3d1b73106a84ad85"
+         "e9b86a7b6005ea868337ff2d20a7f5fbd4cd10b0be49a68da2b2e0dc0ad8960f",
+         /* CONTEXT */
+         "666f6f",
+      }
+   };
+
+   unsigned int n;
+   unsigned long mlen, slen, plen, siglen, buflen, ctxlen;
+   unsigned char msg[1024], sec[32], pub[32], sig[64], buf[64], ctx[64];
+   curve25519_key key, key2;
+   int ret;
+   const int should = 1;
+
+   for (n = 0; n < sizeof(rfc_8032_7_2)/sizeof(rfc_8032_7_2[0]); ++n) {
+      slen = sizeof(sec);
+      DO(base16_decode(rfc_8032_7_2[n].secret_key, XSTRLEN(rfc_8032_7_2[n].secret_key), sec, &slen));
+      plen = sizeof(pub);
+      DO(base16_decode(rfc_8032_7_2[n].public_key, XSTRLEN(rfc_8032_7_2[n].public_key), pub, &plen));
+      mlen = sizeof(msg);
+      DO(base16_decode(rfc_8032_7_2[n].message, XSTRLEN(rfc_8032_7_2[n].message), msg, &mlen));
+      siglen = sizeof(sig);
+      DO(base16_decode(rfc_8032_7_2[n].signature, XSTRLEN(rfc_8032_7_2[n].signature), sig, &siglen));
+      ctxlen = sizeof(ctx);
+      DO(base16_decode(rfc_8032_7_2[n].context, XSTRLEN(rfc_8032_7_2[n].context), ctx, &ctxlen));
+      buflen = sizeof(buf);
+
+      DO(ed25519_import_raw(sec, slen, PK_PRIVATE, &key));
+      DO(ed25519ctx_sign(msg, mlen, buf, &buflen, ctx, ctxlen, &key));
+      DO(do_compare_testvector(buf, buflen, sig, siglen, "Ed25519 RFC8032 7.2 - sign", n));
+      DO(ed25519ctx_verify(msg, mlen, buf, buflen, ctx, ctxlen, &ret, &key));
+      ENSUREX(ret == should, "Ed25519 RFC8032 7.2 - verify w/ privkey");
+
+      DO(ed25519_import_raw(pub, plen, PK_PUBLIC, &key2));
+      DO(ed25519ctx_verify(msg, mlen, sig, siglen, ctx, ctxlen, &ret, &key2));
+      ENSUREX(ret == should, "Ed25519 RFC8032 7.2 - verify w/ pubkey");
+
+      xor_shuffle(buf, buflen, 0x4u);
+      DO(ed25519ctx_verify(msg, mlen, buf, buflen, ctx, ctxlen, &ret, &key));
+      ENSUREX(ret != 1, "ed25519ctx_verify is expected to fail on the modified signature");
+      xor_shuffle(msg, mlen, 0x8u);
+      DO(ed25519ctx_verify(msg, mlen, buf, buflen, ctx, ctxlen, &ret, &key));
+      ENSUREX(ret != 1, "ed25519ctx_verify is expected to fail on the modified message");
+
+      zeromem(&key, sizeof(key));
+      zeromem(&key2, sizeof(key2));
+   }
+
+   return CRYPT_OK;
+}
+
+static int s_rfc_8032_7_3_test(void)
+{
+   const rfc_8032_7_t rfc_8032_7_3[] = {
+      {
+         /* SECRET KEY */
+         "833fe62409237b9d62ec77587520911e9a759cec1d19755b7da901b96dca3d42",
+         /* PUBLIC KEY */
+         "ec172b93ad5e563bf4932c70e1245034c35467ef2efd4d64ebf819683467e2bf",
+         /* MESSAGE (length 16 bytes) */
+         "616263",
+         /* SIGNATURE */
+         "98a70222f0b8121aa9d30f813d683f809e462b469c7ff87639499bb94e6dae41"
+         "31f85042463c2a355a2003d062adf5aaa10b8c61e636062aaad11c2a26083406",
+         /* CONTEXT */
+         NULL
+      },
+   };
+
+   unsigned long mlen, slen, plen, siglen, buflen;
+   unsigned char msg[1024], sec[32], pub[32], sig[64], buf[64];
+   curve25519_key key;
+   int ret;
+   const int should = 1;
+
+   buflen = sizeof(buf);
+   slen = sizeof(sec);
+   DO(base16_decode(rfc_8032_7_3[0].secret_key, XSTRLEN(rfc_8032_7_3[0].secret_key), sec, &slen));
+   plen = sizeof(pub);
+   DO(base16_decode(rfc_8032_7_3[0].public_key, XSTRLEN(rfc_8032_7_3[0].public_key), pub, &plen));
+   mlen = sizeof(msg);
+   DO(base16_decode(rfc_8032_7_3[0].message, XSTRLEN(rfc_8032_7_3[0].message), msg, &mlen));
+   siglen = sizeof(sig);
+   DO(base16_decode(rfc_8032_7_3[0].signature, XSTRLEN(rfc_8032_7_3[0].signature), sig, &siglen));
+
+   DO(ed25519_import_raw(sec, slen, PK_PRIVATE, &key));
+   DO(ed25519ph_sign(msg, mlen, buf, &buflen, NULL, 0, &key));
+   DO(do_compare_testvector(buf, buflen, sig, siglen, "Ed25519 RFC8032 7.3 - sign", 0));
+   DO(ed25519ph_verify(msg, mlen, buf, buflen, NULL, 0, &ret, &key));
+   ENSUREX(ret == should, "Ed25519 RFC8032 7.3 - verify w/ privkey");
+
    return CRYPT_OK;
 }
 
@@ -237,6 +406,12 @@ int ed25519_test(void)
       return ret;
    }
    if ((ret = s_rfc_8032_7_1_test()) != CRYPT_OK) {
+      return ret;
+   }
+   if ((ret = s_rfc_8032_7_2_test()) != CRYPT_OK) {
+      return ret;
+   }
+   if ((ret = s_rfc_8032_7_3_test()) != CRYPT_OK) {
       return ret;
    }
 

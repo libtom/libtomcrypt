@@ -2327,6 +2327,10 @@
 				Name="ec25519"
 				>
 				<File
+					RelativePath="src\pk\ec25519\ec25519_crypto_ctx.c"
+					>
+				</File>
+				<File
 					RelativePath="src\pk\ec25519\ec25519_export.c"
 					>
 				</File>

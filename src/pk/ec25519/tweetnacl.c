@@ -235,6 +235,27 @@ static int tweetnacl_crypto_hash(u8 *out,const u8 *m,u64 n)
   return 0;
 }
 
+static int tweetnacl_crypto_hash_ctx(u8 *out,const u8 *m,u64 n,const u8 *ctx,u32 cs)
+{
+  unsigned long len;
+  int err;
+  u8 buf[512];
+
+  if(cs == 0)
+    return tweetnacl_crypto_hash(out,m,n);
+
+  len = n + cs;
+  if (len > 512) return CRYPT_HASH_OVERFLOW;
+
+  XMEMCPY(buf,ctx,cs);
+  XMEMCPY(buf+cs,m,n);
+
+  err = tweetnacl_crypto_hash(out,buf,len);
+  zeromem(buf, len);
+
+  return err;
+}
+
 sv add(gf p[4],gf q[4])
 {
   gf a,b,c,d,t,e,f,g,h;
@@ -376,7 +397,7 @@ sv reduce(u8 *r)
   modL(r,x);
 }
 
-int tweetnacl_crypto_sign(u8 *sm,u64 *smlen,const u8 *m,u64 mlen,const u8 *sk,const u8 *pk)
+int tweetnacl_crypto_sign(u8 *sm,u64 *smlen,const u8 *m,u64 mlen,const u8 *sk,const u8 *pk, const u8 *ctx, u64 cs)
 {
   u8 d[64],h[64],r[64];
   i64 i,j,x[64];
@@ -391,13 +412,13 @@ int tweetnacl_crypto_sign(u8 *sm,u64 *smlen,const u8 *m,u64 mlen,const u8 *sk,co
   FOR(i,(i64)mlen) sm[64 + i] = m[i];
   FOR(i,32) sm[32 + i] = d[32 + i];
 
-  tweetnacl_crypto_hash(r, sm+32, mlen+32);
+  tweetnacl_crypto_hash_ctx(r, sm+32, mlen+32,ctx,cs);
   reduce(r);
   scalarbase(p,r);
   pack(sm,p);
 
   FOR(i,32) sm[i+32] = pk[i];
-  tweetnacl_crypto_hash(h,sm,mlen + 64);
+  tweetnacl_crypto_hash_ctx(h,sm,mlen + 64,ctx,cs);
   reduce(h);
 
   FOR(i,64) x[i] = 0;
@@ -444,7 +465,7 @@ static int unpackneg(gf r[4],const u8 p[32])
   return 0;
 }
 
-int tweetnacl_crypto_sign_open(int *stat, u8 *m,u64 *mlen,const u8 *sm,u64 smlen,const u8 *pk)
+int tweetnacl_crypto_sign_open(int *stat, u8 *m,u64 *mlen,const u8 *sm,u64 smlen,const u8 *ctx,size_t cs,const u8 *pk)
 {
   u64 i;
   u8 s[32],t[32],h[64];
@@ -460,7 +481,7 @@ int tweetnacl_crypto_sign_open(int *stat, u8 *m,u64 *mlen,const u8 *sm,u64 smlen
   XMEMMOVE(m,sm,smlen);
   XMEMMOVE(s,m + 32,32);
   XMEMMOVE(m + 32,pk,32);
-  tweetnacl_crypto_hash(h,m,smlen);
+  tweetnacl_crypto_hash_ctx(h,m,smlen,ctx,cs);
   reduce(h);
   scalarmult(p,q,h);
 
@@ -479,4 +500,9 @@ int tweetnacl_crypto_sign_open(int *stat, u8 *m,u64 *mlen,const u8 *sm,u64 smlen
   XMEMMOVE(m,m + 64,smlen);
   *mlen = smlen;
   return CRYPT_OK;
+}
+
+int tweetnacl_crypto_ph(u8 *out,const u8 *msg,size_t msglen)
+{
+  return tweetnacl_crypto_hash(out, msg, msglen);
 }

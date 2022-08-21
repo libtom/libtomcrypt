@@ -355,13 +355,31 @@ int ed25519_import_pkcs8(const unsigned char *in, unsigned long inlen,
                                   const void *pwd, unsigned long pwdlen,
                               curve25519_key *key);
 
-int ed25519_sign(const unsigned char  *msg, unsigned long msglen,
-                       unsigned char  *sig, unsigned long *siglen,
+int ed25519_sign(const  unsigned char *msg, unsigned long msglen,
+                        unsigned char *sig, unsigned long *siglen,
                  const curve25519_key *private_key);
-
+int ed25519ctx_sign(const  unsigned char *msg, unsigned long  msglen,
+                           unsigned char *sig, unsigned long *siglen,
+                    const  unsigned char *ctx, unsigned long  ctxlen,
+                    const curve25519_key *private_key);
+int ed25519ph_sign(const  unsigned char *msg, unsigned long  msglen,
+                          unsigned char *sig, unsigned long *siglen,
+                   const  unsigned char *ctx, unsigned long  ctxlen,
+                   const curve25519_key *private_key);
 int ed25519_verify(const  unsigned char *msg, unsigned long msglen,
                    const  unsigned char *sig, unsigned long siglen,
-                   int *stat, const curve25519_key *public_key);
+                                    int *stat,
+                   const curve25519_key *public_key);
+int ed25519ctx_verify(const  unsigned char *msg, unsigned long msglen,
+                      const  unsigned char *sig, unsigned long siglen,
+                      const  unsigned char *ctx, unsigned long ctxlen,
+                                       int *stat,
+                      const curve25519_key *public_key);
+int ed25519ph_verify(const  unsigned char *msg, unsigned long msglen,
+                     const  unsigned char *sig, unsigned long siglen,
+                     const  unsigned char *ctx, unsigned long ctxlen,
+                                      int *stat,
+                     const curve25519_key *public_key);
 
 /** X25519 Key-Exchange API */
 int x25519_make_key(prng_state *prng, int wprng, curve25519_key *key);

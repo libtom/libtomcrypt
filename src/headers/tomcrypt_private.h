@@ -331,16 +331,19 @@ int dsa_int_validate_primes(const dsa_key *key, int *stat);
 int tweetnacl_crypto_sign(
   unsigned char *sm,unsigned long long *smlen,
   const unsigned char *m,unsigned long long mlen,
-  const unsigned char *sk, const unsigned char *pk);
+  const unsigned char *sk,const unsigned char *pk,
+  const unsigned char *ctx,unsigned long long cs);
 int tweetnacl_crypto_sign_open(
   int *stat,
   unsigned char *m,unsigned long long *mlen,
   const unsigned char *sm,unsigned long long smlen,
+  const unsigned char *ctx, unsigned long cs,
   const unsigned char *pk);
 int tweetnacl_crypto_sign_keypair(prng_state *prng, int wprng, unsigned char *pk,unsigned char *sk);
 int tweetnacl_crypto_sk_to_pk(unsigned char *pk, const unsigned char *sk);
 int tweetnacl_crypto_scalarmult(unsigned char *q, const unsigned char *n, const unsigned char *p);
 int tweetnacl_crypto_scalarmult_base(unsigned char *q,const unsigned char *n);
+int tweetnacl_crypto_ph(unsigned char *out, const unsigned char *msg, unsigned long msglen);
 
 typedef int (*sk_to_pk)(unsigned char *pk ,const unsigned char *sk);
 int ec25519_import_pkcs8(const unsigned char *in, unsigned long inlen,
@@ -350,6 +353,9 @@ int ec25519_import_pkcs8(const unsigned char *in, unsigned long inlen,
 int ec25519_export(       unsigned char *out, unsigned long *outlen,
                                     int  which,
                    const curve25519_key *key);
+int ec25519_crypto_ctx(      unsigned char *out, unsigned long *outlen,
+                             unsigned char flag,
+                       const unsigned char *ctx, unsigned long  ctxlen);
 #endif /* LTC_CURVE25519 */
 
 #ifdef LTC_DER
