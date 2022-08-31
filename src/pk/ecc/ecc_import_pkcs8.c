@@ -60,7 +60,7 @@ int ecc_import_pkcs8(const unsigned char *in, unsigned long inlen,
    if (err != CRYPT_OK) return err;
 
    /* init key */
-   err = mp_init_multi(&a, &b, &gx, &gy, NULL);
+   err = mp_init_multi(&a, &b, &gx, &gy, LTC_NULL);
    if (err != CRYPT_OK) return err;
 
 
@@ -177,7 +177,7 @@ int ecc_import_pkcs8(const unsigned char *in, unsigned long inlen,
 LBL_ECCFREE:
    ecc_free(key);
 LBL_DONE:
-   mp_clear_multi(a, b, gx, gy, NULL);
+   mp_clear_multi(a, b, gx, gy, LTC_NULL);
    if (l) der_free_sequence_flexi(l);
    if (p) der_free_sequence_flexi(p);
    return err;

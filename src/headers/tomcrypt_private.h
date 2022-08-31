@@ -9,6 +9,14 @@
 
 #define LTC_PAD_MASK       (0xF000U)
 
+/* `NULL` as defined by the standard is not guaranteed to be of a pointer
+ * type. In order to make sure that in vararg API's a pointer type is used,
+ * define our own version and use that one internally.
+ */
+#ifndef LTC_NULL
+   #define LTC_NULL ((void *)0)
+#endif
+
 /*
  * Internal Enums
  */

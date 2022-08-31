@@ -693,7 +693,7 @@ static void ecc_gen(void)
             mp_mul_d(k, 3, k);
         }
    }
-   mp_clear_multi(k, order, modulus, a, NULL);
+   mp_clear_multi(k, order, modulus, a, LTC_NULL);
    ltc_ecc_del_point(G);
    ltc_ecc_del_point(R);
    fclose(out);

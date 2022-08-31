@@ -1405,18 +1405,18 @@ static void s_der_regression_test(void)
    void *x, *y;
    ltc_asn1_list seq[2];
    ltc_asn1_list *l;
-   mp_init_multi(&x, &y, NULL);
+   mp_init_multi(&x, &y, LTC_NULL);
    LTC_SET_ASN1(seq, 0, LTC_ASN1_INTEGER, x, 1UL);
    LTC_SET_ASN1(seq, 1, LTC_ASN1_INTEGER, y, 1UL);
    SHOULD_FAIL(der_decode_sequence(s_broken_sequence, sizeof(s_broken_sequence), seq, 2));
-   mp_cleanup_multi(&y, &x, NULL);
+   mp_cleanup_multi(&y, &x, LTC_NULL);
    len = sizeof(s_broken_sequence);
 
-   mp_init_multi(&x, &y, NULL);
+   mp_init_multi(&x, &y, LTC_NULL);
    LTC_SET_ASN1(seq, 0, LTC_ASN1_INTEGER, x, 1UL);
    LTC_SET_ASN1(seq, 1, LTC_ASN1_INTEGER, y, 1UL);
    SHOULD_FAIL_WITH(der_decode_sequence(s_addtl_bytes, sizeof(s_addtl_bytes), seq, 2), CRYPT_INPUT_TOO_LONG);
-   mp_cleanup_multi(&y, &x, NULL);
+   mp_cleanup_multi(&y, &x, LTC_NULL);
    len = sizeof(s_addtl_bytes);
    s_der_decode_print(s_addtl_bytes, &len);
 
@@ -1500,7 +1500,7 @@ static void der_toolong_test(void)
       der_sequence_free(list);
    }
 
-   mp_init_multi(&int1, &int2, NULL);
+   mp_init_multi(&int1, &int2, LTC_NULL);
    LTC_SET_ASN1(seqint,  0, LTC_ASN1_INTEGER,      int1,   1);
    LTC_SET_ASN1(seqint,  1, LTC_ASN1_INTEGER,      int2,   1);
 
@@ -1536,7 +1536,7 @@ static void der_toolong_test(void)
       der_sequence_free(list);
    }
 
-   mp_clear_multi(int1, int2, NULL);
+   mp_clear_multi(int1, int2, LTC_NULL);
 
    LTC_SET_ASN1(seqoid,  0, LTC_ASN1_OBJECT_IDENTIFIER, oid, sizeof(oid)/sizeof(oid[0]));
    LTC_SET_ASN1(seqoid,  1, LTC_ASN1_NULL,              NULL,   0);
@@ -1693,7 +1693,7 @@ int der_test(void)
       y >>= 3;
    }
 
-   DO(mp_init_multi(&a, &b, &c, &d, &e, &f, &g, NULL));
+   DO(mp_init_multi(&a, &b, &c, &d, &e, &f, &g, LTC_NULL));
    for (zz = 0; zz < 16; zz++) {
 #ifdef USE_TFM
       for (z = 0; z < 256; z++) {
@@ -1711,7 +1711,7 @@ int der_test(void)
          DO(der_decode_integer(buf[0], y, b));
          if (y != x || mp_cmp(a, b) != LTC_MP_EQ) {
             fprintf(stderr, "%lu: %lu vs %lu\n", z, x, y);
-            mp_clear_multi(a, b, c, d, e, f, g, NULL);
+            mp_clear_multi(a, b, c, d, e, f, g, LTC_NULL);
             return 1;
          }
       }
@@ -1738,7 +1738,7 @@ int der_test(void)
             fprintf(stderr, "\n");
             for (z = 0; z < y; z++) fprintf(stderr, "%02x ", buf[1][z]);
             fprintf(stderr, "\n");
-            mp_clear_multi(a, b, c, d, e, f, g, NULL);
+            mp_clear_multi(a, b, c, d, e, f, g, LTC_NULL);
             return 1;
          }
 
@@ -1747,12 +1747,12 @@ int der_test(void)
          DO(der_decode_short_integer(buf[1], y, &x));
          if (x != mp_get_int(a)) {
             fprintf(stderr, "DER INTEGER short decoding failed, %lu, %lu\n", x, mp_get_int(a));
-            mp_clear_multi(a, b, c, d, e, f, g, NULL);
+            mp_clear_multi(a, b, c, d, e, f, g, LTC_NULL);
             return 1;
          }
       }
    }
-   mp_clear_multi(a, b, c, d, e, f, g, NULL);
+   mp_clear_multi(a, b, c, d, e, f, g, LTC_NULL);
 
 
 /* Test bit string */

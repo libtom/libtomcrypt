@@ -127,7 +127,7 @@ static int s_ecc_test_shamir(void)
    int x, y, z;
    unsigned char buf[ECC_BUF_SIZE];
 
-   DO(mp_init_multi(&kA, &kB, &rA, &rB, &modulus, &a, &mu, &ma, NULL));
+   DO(mp_init_multi(&kA, &kB, &rA, &rB, &modulus, &a, &mu, &ma, LTC_NULL));
    LTC_ARGCHK((G  = ltc_ecc_new_point()) != NULL);
    LTC_ARGCHK((A  = ltc_ecc_new_point()) != NULL);
    LTC_ARGCHK((B  = ltc_ecc_new_point()) != NULL);
@@ -193,7 +193,7 @@ static int s_ecc_test_shamir(void)
   ltc_ecc_del_point(B);
   ltc_ecc_del_point(A);
   ltc_ecc_del_point(G);
-  mp_clear_multi(kA, kB, rA, rB, modulus, a, mu, ma, NULL);
+  mp_clear_multi(kA, kB, rA, rB, modulus, a, mu, ma, LTC_NULL);
   return 0;
 }
 #endif
@@ -207,7 +207,7 @@ static int s_ecc_issue108(void)
    const ltc_ecc_curve* dp;
 
    /* init */
-   if ((err = mp_init_multi(&modulus, &order, &a, NULL)) != CRYPT_OK) { return err; }
+   if ((err = mp_init_multi(&modulus, &order, &a, LTC_NULL)) != CRYPT_OK) { return err; }
    Q      = ltc_ecc_new_point();
    Result = ltc_ecc_new_point();
 
@@ -229,7 +229,7 @@ static int s_ecc_issue108(void)
 done:
    ltc_ecc_del_point(Result);
    ltc_ecc_del_point(Q);
-   mp_clear_multi(modulus, order, a, NULL);
+   mp_clear_multi(modulus, order, a, LTC_NULL);
    return err;
 }
 
@@ -292,12 +292,12 @@ static int s_ecc_test_mp(void)
    int        i, err, primality;
    char buf[4096];
 
-   DO(mp_init_multi(&modulus, &order, &a, NULL));
+   DO(mp_init_multi(&modulus, &order, &a, LTC_NULL));
 
    G   = ltc_ecc_new_point();
    GG  = ltc_ecc_new_point();
    if (G == NULL || GG == NULL) {
-      mp_clear_multi(modulus, order, NULL);
+      mp_clear_multi(modulus, order, LTC_NULL);
       ltc_ecc_del_point(G);
       ltc_ecc_del_point(GG);
       return CRYPT_MEM;
@@ -344,7 +344,7 @@ static int s_ecc_test_mp(void)
 done:
    ltc_ecc_del_point(GG);
    ltc_ecc_del_point(G);
-   mp_clear_multi(order, modulus, a, NULL);
+   mp_clear_multi(order, modulus, a, LTC_NULL);
    return err;
 }
 

@@ -1544,7 +1544,7 @@ int ltc_ecc_fp_restore_state(unsigned char *in, unsigned long inlen)
             goto ERR_OUT;
          }
          fp_cache[i].LUT[x] = p;
-         if ((err = mp_init_multi(&p->x, &p->y, NULL)) != CRYPT_OK) {
+         if ((err = mp_init_multi(&p->x, &p->y, LTC_NULL)) != CRYPT_OK) {
             goto ERR_OUT;
          }
          p->z = NULL;

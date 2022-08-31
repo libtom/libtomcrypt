@@ -30,7 +30,7 @@ int dsa_set_pqg(const unsigned char *p,  unsigned long plen,
    LTC_ARGCHK(ltc_mp.name != NULL);
 
    /* init key */
-   err = mp_init_multi(&key->p, &key->g, &key->q, &key->x, &key->y, NULL);
+   err = mp_init_multi(&key->p, &key->g, &key->q, &key->x, &key->y, LTC_NULL);
    if (err != CRYPT_OK) return err;
 
    if ((err = mp_read_unsigned_bin(key->p, (unsigned char *)p , plen)) != CRYPT_OK) { goto LBL_ERR; }

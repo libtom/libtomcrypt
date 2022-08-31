@@ -46,7 +46,7 @@ int ecc_sign_hash_ex(const unsigned char *in,  unsigned long inlen,
    }
 
    /* init the bignums */
-   if ((err = mp_init_multi(&r, &s, &e, &b, NULL)) != CRYPT_OK) {
+   if ((err = mp_init_multi(&r, &s, &e, &b, LTC_NULL)) != CRYPT_OK) {
       return err;
    }
 
@@ -174,7 +174,7 @@ int ecc_sign_hash_ex(const unsigned char *in,  unsigned long inlen,
 error:
    ecc_free(&pubkey);
 errnokey:
-   mp_clear_multi(r, s, e, b, NULL);
+   mp_clear_multi(r, s, e, b, LTC_NULL);
    return err;
 }
 

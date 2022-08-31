@@ -30,7 +30,7 @@ int ltc_ecc_map(ecc_point *P, void *modulus, void *mp)
       return ltc_ecc_set_point_xyz(0, 0, 1, P);
    }
 
-   if ((err = mp_init_multi(&t1, &t2, NULL)) != CRYPT_OK) {
+   if ((err = mp_init_multi(&t1, &t2, LTC_NULL)) != CRYPT_OK) {
       return err;
    }
 
@@ -55,7 +55,7 @@ int ltc_ecc_map(ecc_point *P, void *modulus, void *mp)
 
    err = CRYPT_OK;
 done:
-   mp_clear_multi(t1, t2, NULL);
+   mp_clear_multi(t1, t2, LTC_NULL);
    return err;
 }
 

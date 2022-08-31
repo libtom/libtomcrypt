@@ -127,7 +127,7 @@ static int s_ssh_encoding_test(void)
 
 
    /* mpint */
-   if ((err = mp_init_multi(&zero, &v, NULL)) != CRYPT_OK) {
+   if ((err = mp_init_multi(&zero, &v, LTC_NULL)) != CRYPT_OK) {
       return err;
    }
 
@@ -155,7 +155,7 @@ static int s_ssh_encoding_test(void)
                                 LTC_SSHDATA_EOL,   NULL));
    COMPARE_TESTVECTOR(buffer, buflen, mpint3, sizeof(mpint3), "enc-mpint",  3);
 
-   mp_clear_multi(v, zero, NULL);
+   mp_clear_multi(v, zero, LTC_NULL);
 
 
    /* name-list */
@@ -269,7 +269,7 @@ static int s_ssh_decoding_test(void)
    ENSURE(strlen("testing") + 4 == len);
 
    /* mpint */
-   if ((err = mp_init_multi(&u, &v, NULL)) != CRYPT_OK) {
+   if ((err = mp_init_multi(&u, &v, LTC_NULL)) != CRYPT_OK) {
       return err;
    }
 
@@ -295,7 +295,7 @@ static int s_ssh_decoding_test(void)
    ENSURE(mp_cmp_d(v, 0x80) == LTC_MP_EQ);
    ENSURE(sizeof(mpint3) == len);
 
-   mp_clear_multi(v, u, NULL);
+   mp_clear_multi(v, u, LTC_NULL);
 
    /* name-list */
    zeromem(strbuf, BUFSIZE);

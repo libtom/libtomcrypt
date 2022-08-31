@@ -28,7 +28,7 @@ int dsa_import(const unsigned char *in, unsigned long inlen, dsa_key *key)
    LTC_ARGCHK(ltc_mp.name != NULL);
 
    /* init key */
-   if (mp_init_multi(&key->p, &key->g, &key->q, &key->x, &key->y, NULL) != CRYPT_OK) {
+   if (mp_init_multi(&key->p, &key->g, &key->q, &key->x, &key->y, LTC_NULL) != CRYPT_OK) {
       return CRYPT_MEM;
    }
 
