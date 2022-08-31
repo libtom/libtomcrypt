@@ -34,14 +34,15 @@ static int s_der_decode_sequence_va(const unsigned char *in, unsigned long inlen
    x = 0;
    for (;;) {
        type = (ltc_asn1_type)va_arg(a1, int);
-       size = va_arg(a1, unsigned long);
-       data = va_arg(a1, void*);
-       LTC_UNUSED_PARAM(size);
-       LTC_UNUSED_PARAM(data);
 
        if (type == LTC_ASN1_EOL) {
           break;
        }
+
+       size = va_arg(a1, unsigned long);
+       data = va_arg(a1, void*);
+       LTC_UNUSED_PARAM(size);
+       LTC_UNUSED_PARAM(data);
 
        switch (type) {
            case LTC_ASN1_BOOLEAN:
