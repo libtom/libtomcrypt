@@ -295,6 +295,15 @@ typedef unsigned long ltc_mp_digit;
    #define LTC_ALIGN(n)
 #endif
 
+/* Define `LTC_NO_NULL_TERMINATION_CHECK` in the user code
+ * before including `tomcrypt.h` to disable this functionality.
+ */
+#if defined(__GNUC__) && __GNUC__ >= 4 && !defined(LTC_NO_NULL_TERMINATION_CHECK)
+#   define LTC_NULL_TERMINATED __attribute__((sentinel))
+#else
+#   define LTC_NULL_TERMINATED
+#endif
+
 #if defined(__GNUC__) && (__GNUC__ * 100 + __GNUC_MINOR__ >= 405)
 #  define LTC_DEPRECATED(s) __attribute__((deprecated("replaced by " #s)))
 #  define PRIVATE_LTC_DEPRECATED_PRAGMA(s) _Pragma(#s)
