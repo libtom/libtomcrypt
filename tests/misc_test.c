@@ -34,5 +34,6 @@ int misc_test(void)
 #ifdef LTC_SSH
    ssh_test();
 #endif
+   no_null_termination_check_test();
    return 0;
 }
