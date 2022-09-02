@@ -70,7 +70,7 @@ int ed25519ctx_verify(const  unsigned char *msg, unsigned long msglen,
                                        int *stat,
                       const curve25519_key *public_key)
 {
-   unsigned char ctx_prefix[512] = {0};
+   unsigned char ctx_prefix[292];
    unsigned long ctx_prefix_size = sizeof(ctx_prefix);
 
    LTC_ARGCHK(ctx != NULL);
@@ -100,8 +100,8 @@ int ed25519ph_verify(const  unsigned char *msg, unsigned long msglen,
                      const curve25519_key *public_key)
 {
    int err;
-   unsigned char ctx_prefix[512] = {0};
-   unsigned char msg_hash[64] = {0};
+   unsigned char msg_hash[64];
+   unsigned char ctx_prefix[292];
    unsigned long ctx_prefix_size = sizeof(ctx_prefix);
 
    if ((err = ec25519_crypto_ctx(ctx_prefix, &ctx_prefix_size, 1, ctx, ctxlen)) != CRYPT_OK)
