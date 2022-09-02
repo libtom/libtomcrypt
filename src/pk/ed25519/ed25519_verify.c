@@ -110,10 +110,7 @@ int ed25519ph_verify(const  unsigned char *msg, unsigned long msglen,
    if ((err = tweetnacl_crypto_ph(msg_hash, msg, msglen)) != CRYPT_OK)
       return err;
 
-   msg = msg_hash;
-   msglen = 64;
-
-   return s_ed25519_verify(msg, msglen, sig, siglen, ctx_prefix, ctx_prefix_size, stat, public_key);
+   return s_ed25519_verify(msg_hash, sizeof(msg_hash), sig, siglen, ctx_prefix, ctx_prefix_size, stat, public_key);
 }
 
 /**
