@@ -448,7 +448,7 @@ static int unpackneg(gf r[4],const u8 p[32])
   return 0;
 }
 
-int tweetnacl_crypto_sign_open(int *stat, u8 *m,u64 *mlen,const u8 *sm,u64 smlen,const u8 *ctx,size_t cs,const u8 *pk)
+int tweetnacl_crypto_sign_open(int *stat, u8 *m,u64 *mlen,const u8 *sm,u64 smlen,const u8 *ctx,u64 cs,const u8 *pk)
 {
   u64 i;
   u8 s[32],t[32],h[64];
@@ -485,7 +485,7 @@ int tweetnacl_crypto_sign_open(int *stat, u8 *m,u64 *mlen,const u8 *sm,u64 smlen
   return CRYPT_OK;
 }
 
-int tweetnacl_crypto_ph(u8 *out,const u8 *msg,size_t msglen)
+int tweetnacl_crypto_ph(u8 *out,const u8 *msg,u64 msglen)
 {
   return tweetnacl_crypto_hash(out, msg, msglen);
 }

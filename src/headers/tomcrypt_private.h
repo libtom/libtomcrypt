@@ -345,13 +345,13 @@ int tweetnacl_crypto_sign_open(
   int *stat,
   unsigned char *m,unsigned long long *mlen,
   const unsigned char *sm,unsigned long long smlen,
-  const unsigned char *ctx, unsigned long cs,
+  const unsigned char *ctx, unsigned long long cs,
   const unsigned char *pk);
 int tweetnacl_crypto_sign_keypair(prng_state *prng, int wprng, unsigned char *pk,unsigned char *sk);
 int tweetnacl_crypto_sk_to_pk(unsigned char *pk, const unsigned char *sk);
 int tweetnacl_crypto_scalarmult(unsigned char *q, const unsigned char *n, const unsigned char *p);
 int tweetnacl_crypto_scalarmult_base(unsigned char *q,const unsigned char *n);
-int tweetnacl_crypto_ph(unsigned char *out, const unsigned char *msg, unsigned long msglen);
+int tweetnacl_crypto_ph(unsigned char *out, const unsigned char *msg, unsigned long long msglen);
 
 typedef int (*sk_to_pk)(unsigned char *pk ,const unsigned char *sk);
 int ec25519_import_pkcs8(const unsigned char *in, unsigned long inlen,
