@@ -384,6 +384,7 @@ src/pk/dsa/dsa_shared_secret.c
 src/pk/dsa/dsa_sign_hash.c
 src/pk/dsa/dsa_verify_hash.c
 src/pk/dsa/dsa_verify_key.c
+src/pk/ec25519/ec25519_crypto_ctx.c
 src/pk/ec25519/ec25519_export.c
 src/pk/ec25519/ec25519_import_pkcs8.c
 src/pk/ec25519/tweetnacl.c
@@ -519,5 +520,6 @@ src/headers/tomcrypt_pkcs.h
 src/headers/tomcrypt_prng.h
 )
 
+set(PRIVATE_HEADERS src/headers/tomcrypt_private.h)
 set_property(GLOBAL PROPERTY PUBLIC_HEADERS ${PUBLIC_HEADERS})
 

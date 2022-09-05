@@ -286,14 +286,19 @@ sub make_sources_cmake {
   foreach my $obj (sort @$list) {
     $output .= $obj . "\n";
   }
+  $output .= ")\n\n";
 
-  $output .= ")\n\nset(PUBLIC_HEADERS\n";
+  if ($pub_headers eq "") {
+    return $output;
+  }
+
+  $output .= "set(PUBLIC_HEADERS\n";
 
   foreach my $obj (sort @$pub_headers) {
     $output .= $obj . "\n";
   }
 
-  $output .= ")\n\n";
+  $output .= ")\n\nset(PRIVATE_HEADERS src/headers/tomcrypt_private.h)\n";
   $output .= "set_property(GLOBAL PROPERTY PUBLIC_HEADERS \$\{PUBLIC_HEADERS\}\)\n\n";
 
   return $output;
@@ -316,6 +321,7 @@ sub process_makefiles {
   my $var_h = prepare_variable("HEADERS_PUB", (sort @h));
   (my $var_obj = $var_o) =~ s/\.o\b/.obj/sg;
 
+  my @t_srcs = sort (map { my $x = $_; $x =~ s/^tests\///; $x } @t);
   my $var_to = prepare_variable("TOBJECTS", sort map { my $x = $_; $x =~ s/\.c$/.o/; $x } @t);
   (my $var_tobj = $var_to) =~ s/\.o\b/.obj/sg;
 
@@ -335,10 +341,11 @@ sub process_makefiles {
   }
 
   # update OBJECTS + HEADERS in makefile*
-  for my $m (qw/ makefile makefile.shared makefile.unix makefile.mingw makefile.msvc makefile_include.mk doc\/Doxyfile sources.cmake /) {
+  for my $m (qw/ makefile makefile.shared makefile.unix makefile.mingw makefile.msvc makefile_include.mk doc\/Doxyfile sources.cmake tests\/sources.cmake /) {
     my $old = read_file($m);
     my $new = $m eq 'makefile.msvc' ? patch_file($old, $var_obj, $var_h, $var_tobj, @ver_version)
             : $m eq 'sources.cmake' ? make_sources_cmake(\@all, \@h)
+            : $m eq 'tests/sources.cmake' ? make_sources_cmake(\@t_srcs, "")
             :                         patch_file($old, $var_o, $var_h, $var_to, @ver_version);
 
     if ($old ne $new) {

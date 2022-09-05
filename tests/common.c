@@ -79,10 +79,26 @@ static off_t fsize(const char *filename)
 
    return -1;
 }
+static DIR *s_opendir(const char *path, char *mypath, unsigned long l)
+{
+#ifdef CMAKE_SOURCE_DIR
+#define SOURCE_PREFIX CMAKE_SOURCE_DIR "/"
+#else
+#define SOURCE_PREFIX ""
+#endif
+   DIR *d = NULL;
+   int r = snprintf(mypath, l, "%s%s", SOURCE_PREFIX, path);
+   if (r > 0 && (unsigned int)r < l) {
+      d = opendir(mypath);
+   }
+
+   return d;
+}
 
 int test_process_dir(const char *path, void *ctx, dir_iter_cb process, dir_cleanup_cb cleanup, const char *test)
 {
-   DIR *d = opendir(path);
+   char mypath[PATH_MAX];
+   DIR *d = s_opendir(path, mypath, sizeof(mypath));
    struct dirent *de;
    char fname[PATH_MAX];
    void* buf = NULL;
@@ -96,7 +112,7 @@ int test_process_dir(const char *path, void *ctx, dir_iter_cb process, dir_clean
       fname[0] = '\0';
       if (strcmp(de->d_name, ".") == 0 || strcmp(de->d_name, "..") == 0 || strcmp(de->d_name, "README.txt") == 0)
          continue;
-      strcat(fname, path);
+      strcat(fname, mypath);
       strcat(fname, "/");
       strcat(fname, de->d_name);
       fsz = fsize(fname);
