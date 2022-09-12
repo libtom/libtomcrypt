@@ -50,7 +50,7 @@ int dsa_encrypt_key(const unsigned char *in,   unsigned long inlen,
     }
 
     /* make a random key and export the public copy */
-    if ((err = mp_init_multi(&g_pub, &g_priv, NULL)) != CRYPT_OK) {
+    if ((err = mp_init_multi(&g_pub, &g_priv, LTC_NULL)) != CRYPT_OK) {
        return err;
     }
 
@@ -63,7 +63,7 @@ int dsa_encrypt_key(const unsigned char *in,   unsigned long inlen,
        if (skey != NULL) {
           XFREE(skey);
        }
-       mp_clear_multi(g_pub, g_priv, NULL);
+       mp_clear_multi(g_pub, g_priv, LTC_NULL);
        return CRYPT_MEM;
     }
 
@@ -111,7 +111,7 @@ LBL_ERR:
     XFREE(skey);
     XFREE(expt);
 
-    mp_clear_multi(g_pub, g_priv, NULL);
+    mp_clear_multi(g_pub, g_priv, LTC_NULL);
     return err;
 }
 

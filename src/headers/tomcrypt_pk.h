@@ -654,8 +654,8 @@ int der_encode_setof(const ltc_asn1_list *list, unsigned long inlen,
                      unsigned char *out,        unsigned long *outlen);
 
 /* VA list handy helpers with triplets of <type, size, data> */
-int der_encode_sequence_multi(unsigned char *out, unsigned long *outlen, ...);
-int der_decode_sequence_multi(const unsigned char *in, unsigned long inlen, ...);
+int der_encode_sequence_multi(unsigned char *out, unsigned long *outlen, ...) LTC_NULL_TERMINATED;
+int der_decode_sequence_multi(const unsigned char *in, unsigned long inlen, ...) LTC_NULL_TERMINATED;
 
 /* FLEXI DECODER handle unknown list decoder */
 int  der_decode_sequence_flexi(const unsigned char *in, unsigned long *inlen, ltc_asn1_list **out);

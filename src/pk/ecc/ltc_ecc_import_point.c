@@ -12,7 +12,7 @@ int ltc_ecc_import_point(const unsigned char *in, unsigned long inlen, void *pri
    void *t1, *t2;
 
    /* init key + temporary numbers */
-   if (mp_init_multi(&t1, &t2, NULL) != CRYPT_OK) {
+   if (mp_init_multi(&t1, &t2, LTC_NULL) != CRYPT_OK) {
       return CRYPT_MEM;
    }
 
@@ -54,7 +54,7 @@ int ltc_ecc_import_point(const unsigned char *in, unsigned long inlen, void *pri
 
    err = CRYPT_OK;
 cleanup:
-   mp_clear_multi(t1, t2, NULL);
+   mp_clear_multi(t1, t2, LTC_NULL);
    return err;
 }
 

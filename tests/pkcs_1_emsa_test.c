@@ -46,7 +46,7 @@ int pkcs_1_emsa_test(void)
         DOX(stat == 1?CRYPT_OK:CRYPT_FAIL_TESTVECTOR, s->name);
     } /* for */
 
-    mp_clear_multi(key->d,  key->e, key->N, key->dQ, key->dP, key->qP, key->p, key->q, NULL);
+    mp_clear_multi(key->d,  key->e, key->N, key->dQ, key->dP, key->qP, key->p, key->q, LTC_NULL);
   } /* for */
 
   return 0;

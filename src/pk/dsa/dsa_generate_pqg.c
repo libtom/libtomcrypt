@@ -108,7 +108,7 @@ static int s_dsa_make_params(prng_state *prng, int wprng, int group_size, int mo
   if ((wbuf = XMALLOC((n+1)*outbytes)) == NULL)                                  { err = CRYPT_MEM; goto cleanup3; }
   if ((sbuf = XMALLOC(seedbytes)) == NULL)                                       { err = CRYPT_MEM; goto cleanup2; }
 
-  err = mp_init_multi(&t2L1, &t2N1, &t2q, &t2seedlen, &U, &W, &X, &c, &h, &e, &seedinc, NULL);
+  err = mp_init_multi(&t2L1, &t2N1, &t2q, &t2seedlen, &U, &W, &X, &c, &h, &e, &seedinc, LTC_NULL);
   if (err != CRYPT_OK)                                                           { goto cleanup1; }
 
   if ((err = mp_2expt(t2L1, L-1)) != CRYPT_OK)                                   { goto cleanup; }
@@ -187,7 +187,7 @@ static int s_dsa_make_params(prng_state *prng, int wprng, int group_size, int mo
 
   err = CRYPT_OK;
 cleanup:
-  mp_clear_multi(t2L1, t2N1, t2q, t2seedlen, U, W, X, c, h, e, seedinc, NULL);
+  mp_clear_multi(t2L1, t2N1, t2q, t2seedlen, U, W, X, c, h, e, seedinc, LTC_NULL);
 cleanup1:
   XFREE(sbuf);
 cleanup2:
@@ -213,7 +213,7 @@ int dsa_generate_pqg(prng_state *prng, int wprng, int group_size, int modulus_si
    LTC_ARGCHK(ltc_mp.name != NULL);
 
    /* init mp_ints */
-   if ((err = mp_init_multi(&key->p, &key->g, &key->q, &key->x, &key->y, NULL)) != CRYPT_OK) {
+   if ((err = mp_init_multi(&key->p, &key->g, &key->q, &key->x, &key->y, LTC_NULL)) != CRYPT_OK) {
       return err;
    }
    /* generate params */

@@ -87,7 +87,7 @@ void rsa_shrink_key(rsa_key *key)
 int rsa_init(rsa_key *key)
 {
    LTC_ARGCHK(key != NULL);
-   return mp_init_multi(&key->e, &key->d, &key->N, &key->dQ, &key->dP, &key->qP, &key->p, &key->q, NULL);
+   return mp_init_multi(&key->e, &key->d, &key->N, &key->dQ, &key->dP, &key->qP, &key->p, &key->q, LTC_NULL);
 }
 
 /**
@@ -97,7 +97,7 @@ int rsa_init(rsa_key *key)
 void rsa_free(rsa_key *key)
 {
    LTC_ARGCHKVD(key != NULL);
-   mp_cleanup_multi(&key->q, &key->p, &key->qP, &key->dP, &key->dQ, &key->N, &key->d, &key->e, NULL);
+   mp_cleanup_multi(&key->q, &key->p, &key->qP, &key->dP, &key->dQ, &key->N, &key->d, &key->e, LTC_NULL);
 }
 
 #endif

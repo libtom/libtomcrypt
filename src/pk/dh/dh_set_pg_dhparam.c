@@ -24,7 +24,7 @@ int dh_set_pg_dhparam(const unsigned char *dhparam, unsigned long dhparamlen, dh
    LTC_ARGCHK(dhparam     != NULL);
    LTC_ARGCHK(dhparamlen  > 0);
 
-   if ((err = mp_init_multi(&key->x, &key->y, &key->base, &key->prime, NULL)) != CRYPT_OK) {
+   if ((err = mp_init_multi(&key->x, &key->y, &key->base, &key->prime, LTC_NULL)) != CRYPT_OK) {
       return err;
    }
    if ((err = der_decode_sequence_multi(dhparam, dhparamlen,

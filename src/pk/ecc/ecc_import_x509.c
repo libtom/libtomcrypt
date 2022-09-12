@@ -40,7 +40,7 @@ static int s_ecc_import_x509_with_curve(const unsigned char *in, unsigned long i
    unsigned long cofactor = 0, ecver = 0, tmpoid[16];
    int err;
 
-   if ((err = mp_init_multi(&prime, &order, &a, &b, &gx, &gy, NULL)) != CRYPT_OK) {
+   if ((err = mp_init_multi(&prime, &order, &a, &b, &gx, &gy, LTC_NULL)) != CRYPT_OK) {
       return err;
    }
 
@@ -79,7 +79,7 @@ static int s_ecc_import_x509_with_curve(const unsigned char *in, unsigned long i
       err = ecc_set_key(bin_xy, len_xy, PK_PUBLIC, key);
    }
 error:
-   mp_clear_multi(prime, order, a, b, gx, gy, NULL);
+   mp_clear_multi(prime, order, a, b, gx, gy, LTC_NULL);
    return err;
 }
 

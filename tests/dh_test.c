@@ -9,7 +9,7 @@ static int s_prime_test(void)
    void *p, *g, *tmp;
    int x, err, primality;
 
-   if ((err = mp_init_multi(&p, &g, &tmp, NULL)) != CRYPT_OK)               { goto error; }
+   if ((err = mp_init_multi(&p, &g, &tmp, LTC_NULL)) != CRYPT_OK)               { goto error; }
 
    for (x = 0; ltc_dh_sets[x].size != 0; x++) {
       /* tfm has a problem with larger sizes */
@@ -45,7 +45,7 @@ static int s_prime_test(void)
    err = CRYPT_OK;
 error:
 done:
-   mp_clear_multi(tmp, g, p, NULL);
+   mp_clear_multi(tmp, g, p, LTC_NULL);
    return err;
 }
 

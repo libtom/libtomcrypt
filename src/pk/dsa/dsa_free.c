@@ -16,7 +16,7 @@
 void dsa_free(dsa_key *key)
 {
    LTC_ARGCHKVD(key != NULL);
-   mp_cleanup_multi(&key->y, &key->x, &key->q, &key->g, &key->p, NULL);
+   mp_cleanup_multi(&key->y, &key->x, &key->q, &key->g, &key->p, LTC_NULL);
    key->type = key->qord = 0;
 }
 

@@ -22,7 +22,7 @@ static int s_rsa_make_key(prng_state *prng, int wprng, int size, void *e, rsa_ke
       return err;
    }
 
-   if ((err = mp_init_multi(&p, &q, &tmp1, &tmp2, NULL)) != CRYPT_OK) {
+   if ((err = mp_init_multi(&p, &q, &tmp1, &tmp2, LTC_NULL)) != CRYPT_OK) {
       return err;
    }
 
@@ -76,7 +76,7 @@ static int s_rsa_make_key(prng_state *prng, int wprng, int size, void *e, rsa_ke
 errkey:
    rsa_free(key);
 cleanup:
-   mp_clear_multi(tmp2, tmp1, q, p, NULL);
+   mp_clear_multi(tmp2, tmp1, q, p, LTC_NULL);
    return err;
 }
 

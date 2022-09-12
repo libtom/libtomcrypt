@@ -139,7 +139,7 @@ int bcrypt_pbkdf_openbsd(const          void *secret, unsigned long secret_len,
        if ((err = hash_memory_multi(hash_idx, buf[0], &x,
                                     salt, salt_len,
                                     blkbuf, 4uL,
-                                    NULL, 0)) != CRYPT_OK) {
+                                    LTC_NULL)) != CRYPT_OK) {
           goto LBL_ERR;
        }
        y = MAXBLOCKSIZE;

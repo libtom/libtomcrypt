@@ -9,6 +9,14 @@
 
 #define LTC_PAD_MASK       (0xF000U)
 
+/* `NULL` as defined by the standard is not guaranteed to be of a pointer
+ * type. In order to make sure that in vararg API's a pointer type is used,
+ * define our own version and use that one internally.
+ */
+#ifndef LTC_NULL
+   #define LTC_NULL ((void *)0)
+#endif
+
 /*
  * Internal Enums
  */
@@ -384,7 +392,8 @@ extern const unsigned long  der_asn1_tag_to_type_map_sz;
 extern const int der_asn1_type_to_identifier_map[];
 extern const unsigned long der_asn1_type_to_identifier_map_sz;
 
-int der_decode_sequence_multi_ex(const unsigned char *in, unsigned long inlen, unsigned int flags, ...);
+int der_decode_sequence_multi_ex(const unsigned char *in, unsigned long inlen, unsigned int flags, ...)
+                                 LTC_NULL_TERMINATED;
 
 int der_teletex_char_encode(int c);
 int der_teletex_value_decode(int v);

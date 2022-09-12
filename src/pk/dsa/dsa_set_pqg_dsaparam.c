@@ -25,7 +25,7 @@ int dsa_set_pqg_dsaparam(const unsigned char *dsaparam, unsigned long dsaparamle
    LTC_ARGCHK(ltc_mp.name != NULL);
 
    /* init key */
-   err = mp_init_multi(&key->p, &key->g, &key->q, &key->x, &key->y, NULL);
+   err = mp_init_multi(&key->p, &key->g, &key->q, &key->x, &key->y, LTC_NULL);
    if (err != CRYPT_OK) return err;
 
    if ((err = der_decode_sequence_multi(dsaparam, dsaparamlen,

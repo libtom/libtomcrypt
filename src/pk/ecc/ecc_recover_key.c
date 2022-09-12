@@ -46,7 +46,7 @@ int ecc_recover_key(const unsigned char *sig,  unsigned long siglen,
    }
 
    /* allocate ints */
-   if ((err = mp_init_multi(&r, &s, &v, &w, &t1, &t2, &u1, &u2, &v1, &v2, &e, &x, &y, &a_plus3, NULL)) != CRYPT_OK) {
+   if ((err = mp_init_multi(&r, &s, &v, &w, &t1, &t2, &u1, &u2, &v1, &v2, &e, &x, &y, &a_plus3, LTC_NULL)) != CRYPT_OK) {
       return err;
    }
 
@@ -72,7 +72,7 @@ int ecc_recover_key(const unsigned char *sig,  unsigned long siglen,
       if ((err = der_decode_sequence_multi_ex(sig, siglen, LTC_DER_SEQ_SEQUENCE | LTC_DER_SEQ_STRICT,
                                      LTC_ASN1_INTEGER, 1UL, r,
                                      LTC_ASN1_INTEGER, 1UL, s,
-                                     LTC_ASN1_EOL, 0UL, NULL)) != CRYPT_OK)                             { goto error; }
+                                     LTC_ASN1_EOL, 0UL, LTC_NULL)) != CRYPT_OK)                         { goto error; }
    }
    else if (sigformat == LTC_ECCSIG_RFC7518) {
       /* RFC7518 format - raw (r,s) */
@@ -120,7 +120,7 @@ int ecc_recover_key(const unsigned char *sig,  unsigned long siglen,
 
 
       /* Check curve matches identifier string */
-      if ((err = ecc_ssh_ecdsa_encode_name(name2, &name2len, key)) != CRYPT_OK)                                { goto error; }
+      if ((err = ecc_ssh_ecdsa_encode_name(name2, &name2len, key)) != CRYPT_OK)                         { goto error; }
       if ((namelen != name2len) || (XSTRCMP(name, name2) != 0)) {
          err = CRYPT_INVALID_ARG;
          goto error;
@@ -214,7 +214,7 @@ int ecc_recover_key(const unsigned char *sig,  unsigned long siglen,
 
    /* for curves with a == -3 keep ma == NULL */
    if (mp_cmp(a_plus3, m) != LTC_MP_EQ) {
-      if ((err = mp_init_multi(&mu, &ma, NULL)) != CRYPT_OK)                                            { goto error; }
+      if ((err = mp_init_multi(&mu, &ma, LTC_NULL)) != CRYPT_OK)                                        { goto error; }
       if ((err = mp_montgomery_normalization(mu, m)) != CRYPT_OK)                                       { goto error; }
       if ((err = mp_mulmod(a, mu, m, ma)) != CRYPT_OK)                                                  { goto error; }
    }
@@ -252,7 +252,7 @@ error:
    if (mR != NULL) ltc_ecc_del_point(mR);
    if (mQ != NULL) ltc_ecc_del_point(mQ);
    if (mG != NULL) ltc_ecc_del_point(mG);
-   mp_clear_multi(a_plus3, y, x, e, v2, v1, u2, u1, t2, t1, w, v, s, r, NULL);
+   mp_clear_multi(a_plus3, y, x, e, v2, v1, u2, u1, t2, t1, w, v, s, r, LTC_NULL);
    return err;
 }
 
