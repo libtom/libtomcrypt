@@ -65,6 +65,7 @@ static int s_key_cmp(ltc_pka_key *key)
 #endif
          break;
       case LTC_PKA_CURVE25519:
+      case LTC_PKA_DH:
          return CRYPT_OK;
       default:
          return CRYPT_INVALID_ARG;
@@ -97,6 +98,11 @@ static int s_pem_decode_f(FILE *f, void *key)
 static void s_pem_free_key(ltc_pka_key *key)
 {
    switch (key->id) {
+      case LTC_PKA_DH:
+#if defined(LTC_MDH)
+         dh_free(&key->u.dh);
+#endif
+         break;
       case LTC_PKA_DSA:
 #if defined(LTC_MDSA)
          dsa_free(&key->u.dsa);

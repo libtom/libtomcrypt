@@ -143,6 +143,8 @@ int dh_get_groupsize(const dh_key *key);
 
 int dh_export(unsigned char *out, unsigned long *outlen, int type, const dh_key *key);
 int dh_import(const unsigned char *in, unsigned long inlen, dh_key *key);
+int dh_import_pkcs8(const unsigned char *in, unsigned long inlen,
+                    const password_ctx  *pw_ctx, dh_key *key);
 
 int dh_set_pg(const unsigned char *p, unsigned long plen,
               const unsigned char *g, unsigned long glen,
