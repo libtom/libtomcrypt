@@ -621,6 +621,9 @@ int camellia_ecb_decrypt(const unsigned char *ct, unsigned char *pt, const symme
 
 int camellia_test(void)
 {
+#ifndef LTC_TEST
+   return CRYPT_NOP;
+#else
    static const struct {
       int keylen;
       unsigned char key[32], pt[16], ct[16];
@@ -697,6 +700,7 @@ int camellia_test(void)
       }
    }
    return CRYPT_OK;
+#endif
 }
 
 void camellia_done(symmetric_key *skey)
