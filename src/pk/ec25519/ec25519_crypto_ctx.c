@@ -28,6 +28,7 @@ int ec25519_crypto_ctx(unsigned char *out, unsigned long *outlen, unsigned char 
   buf++;
 
   if (ctxlen > 0u) {
+    LTC_ARGCHK(ctx != NULL);
     XMEMCPY(buf, ctx, ctxlen);
     buf += ctxlen;
   }

@@ -221,39 +221,22 @@ int tweetnacl_crypto_scalarmult_base(u8 *q,const u8 *n)
   return tweetnacl_crypto_scalarmult(q,n,nine);
 }
 
-static int tweetnacl_crypto_hash(u8 *out,const u8 *m,u64 n)
+static LTC_INLINE int tweetnacl_crypto_hash_ctx(u8 *out,const u8 *m,u64 n,const u8 *ctx,u32 cs)
 {
-  unsigned long len;
-  int err, hash_idx;
+  unsigned long len = 64;
+  int hash_idx = find_hash("sha512");
 
   if (n > ULONG_MAX) return CRYPT_OVERFLOW;
 
-  hash_idx = find_hash("sha512");
-  len = 64;
-  if ((err = hash_memory(hash_idx, m, n, out, &len)) != CRYPT_OK) return err;
+  if(cs == 0)
+    return hash_memory(hash_idx, m, n, out, &len);
 
-  return 0;
+  return hash_memory_multi(hash_idx, out, &len, ctx, cs, m, n, LTC_NULL);
 }
 
-static int tweetnacl_crypto_hash_ctx(u8 *out,const u8 *m,u64 n,const u8 *ctx,u32 cs)
+static LTC_INLINE int tweetnacl_crypto_hash(u8 *out,const u8 *m,u64 n)
 {
-  unsigned long len;
-  int err;
-  u8 buf[512];
-
-  if(cs == 0)
-    return tweetnacl_crypto_hash(out,m,n);
-
-  len = n + cs;
-  if (len > 512) return CRYPT_HASH_OVERFLOW;
-
-  XMEMCPY(buf,ctx,cs);
-  XMEMCPY(buf+cs,m,n);
-
-  err = tweetnacl_crypto_hash(out,buf,len);
-  zeromem(buf, len);
-
-  return err;
+  return tweetnacl_crypto_hash_ctx(out, m, n, NULL, 0);
 }
 
 sv add(gf p[4],gf q[4])
@@ -465,7 +448,7 @@ static int unpackneg(gf r[4],const u8 p[32])
   return 0;
 }
 
-int tweetnacl_crypto_sign_open(int *stat, u8 *m,u64 *mlen,const u8 *sm,u64 smlen,const u8 *ctx,size_t cs,const u8 *pk)
+int tweetnacl_crypto_sign_open(int *stat, u8 *m,u64 *mlen,const u8 *sm,u64 smlen,const u8 *ctx,u64 cs,const u8 *pk)
 {
   u64 i;
   u8 s[32],t[32],h[64];
@@ -502,7 +485,7 @@ int tweetnacl_crypto_sign_open(int *stat, u8 *m,u64 *mlen,const u8 *sm,u64 smlen
   return CRYPT_OK;
 }
 
-int tweetnacl_crypto_ph(u8 *out,const u8 *msg,size_t msglen)
+int tweetnacl_crypto_ph(u8 *out,const u8 *msg,u64 msglen)
 {
   return tweetnacl_crypto_hash(out, msg, msglen);
 }

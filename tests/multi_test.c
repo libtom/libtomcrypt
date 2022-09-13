@@ -15,7 +15,7 @@ int multi_test(void)
 
 /* HASH testing */
    len = sizeof(buf[0]);
-#if defined(ENDIAN_32BITWORD) || defined(_MSC_VER)
+#if defined(ENDIAN_32BITWORD) || defined(_WIN32)
    len2 = 0x80000000UL;
 #else
    /* Check against the max. input limit of SHA-1 as of RFC8017 */

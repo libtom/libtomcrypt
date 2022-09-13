@@ -67,7 +67,7 @@ int ed25519ctx_sign(const  unsigned char *msg, unsigned long  msglen,
                     const curve25519_key *private_key)
 {
    int err;
-   unsigned char ctx_prefix[512] = {0};
+   unsigned char ctx_prefix[292];
    unsigned long ctx_prefix_size = sizeof(ctx_prefix);
 
    LTC_ARGCHK(ctx != NULL);
@@ -94,8 +94,8 @@ int ed25519ph_sign(const  unsigned char *msg, unsigned long  msglen,
                    const curve25519_key *private_key)
 {
    int err;
-   unsigned char ctx_prefix[512] = {0};
-   unsigned char msg_hash[64] = {0};
+   unsigned char msg_hash[64];
+   unsigned char ctx_prefix[292];
    unsigned long ctx_prefix_size = sizeof(ctx_prefix);
 
    if ((err = ec25519_crypto_ctx(ctx_prefix, &ctx_prefix_size, 1, ctx, ctxlen)) != CRYPT_OK)
@@ -104,10 +104,7 @@ int ed25519ph_sign(const  unsigned char *msg, unsigned long  msglen,
    if ((err = tweetnacl_crypto_ph(msg_hash, msg, msglen)) != CRYPT_OK)
       return err;
 
-   msg = msg_hash;
-   msglen = 64;
-
-   return s_ed25519_sign(msg, msglen, sig, siglen, ctx_prefix, ctx_prefix_size, private_key);
+   return s_ed25519_sign(msg_hash, sizeof(msg_hash), sig, siglen, ctx_prefix, ctx_prefix_size, private_key);
 }
 
 /**
