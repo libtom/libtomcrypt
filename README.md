@@ -168,6 +168,18 @@ The entire set of the variables is only supported in `makefile`, `makefile.share
 
 In case you have to use one of the other makefiles, check in the file which variables are supported.
 
+## Installing libtomcrypt (vcpkg)
+
+Alternatively, you can build and install libtomcrypt using [vcpkg](https://github.com/Microsoft/vcpkg/) dependency manager:
+
+    git clone https://github.com/Microsoft/vcpkg.git
+    cd vcpkg
+    ./bootstrap-vcpkg.sh
+    ./vcpkg integrate install
+    ./vcpkg install libtomcrypt
+
+The libtomcrypt port in vcpkg is kept up to date by Microsoft team members and community contributors. If the version is out of date, please [create an issue or pull request](https://github.com/Microsoft/vcpkg) on the vcpkg repository.
+
 ### Examples
 
 You want to install the static library to the default paths
