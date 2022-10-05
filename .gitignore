@@ -60,6 +60,10 @@ timing.exe
 .cproject
 .settings/
 
+# KDevelop special files
+*.kdev4
+
+
 # macOS special files
 .DS_Store
 
@@ -102,3 +106,6 @@ coverage*.info
 cov-int/
 .coverity_*
 libtomcrypt.lzma
+
+# cmake build directories
+build*/

@@ -79,7 +79,8 @@ endef
 $(foreach demo, $(strip $(DEMOS)), $(eval $(call DEMO_template,$(demo))))
 
 install: $(call print-help,install,Installs the library + headers + pkg-config file) .common_install
-	sed -e 's,^prefix=.*,prefix=$(PREFIX),' -e 's,^Version:.*,Version: $(VERSION_PC),' libtomcrypt.pc.in > libtomcrypt.pc
+	sed -e 's,^prefix=.*,prefix=$(PREFIX),' -e 's,^Version:.*,Version: $(VERSION_PC),' -e 's,@CMAKE_INSTALL_LIBDIR@,lib,' \
+		-e 's,@CMAKE_INSTALL_INCLUDEDIR@/@PROJECT_NAME@,include/tomcrypt,' libtomcrypt.pc.in > libtomcrypt.pc
 	install -p -d $(DESTDIR)$(LIBPATH)/pkgconfig
 	install -p -m 644 libtomcrypt.pc $(DESTDIR)$(LIBPATH)/pkgconfig/
 

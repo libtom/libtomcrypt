@@ -180,6 +180,21 @@ You want to install the shared library to a special path and use it from this pa
 
 Have a look at the developer documentation, [[GNU]] or [[FreeBSD]] to get a detailed explanation of all the variables.
 
+## CMake support
+
+The project provides support for the CMake build system.
+
+```
+git clone https://github.com/libtom/libtomcrypt.git
+mkdir -p libtomcrypt/build
+cd libtomcrypt/build
+cmake ..
+make -j$(nproc)
+```
+
+More details around building with CMake can be found in the developer documentation.
+
+
 [GNU]: https://www.gnu.org/prep/standards/html_node/DESTDIR.html
 
 [FreeBSD]: https://www.freebsd.org/doc/en/books/porters-handbook/porting-prefix.html
