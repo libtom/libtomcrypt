@@ -7744,18 +7744,6 @@ The format of the $names\_list$ string is a series of $name,value$ pairs
 where each name and value is separated by a comma, the pairs are separated
 by newlines, and the list is null terminated.
 
-\index{crypt\_mp\_init()}
-\begin{verbatim}
-int crypt_mp_init(const char* mpi);
-\end{verbatim}
-
-To ease the setup of a specific math descriptor, in cases where the library was compiled with support for multiple MPI libraries,
-the function \textit{crypt\_mp\_init()} is provided.
-It takes a string to the desired MPI library to use as an argument.
-The three default MPI libraries are identified as follows, \textit{LibTomMath} as \texttt{"ltm"}, \textit{TomsFastmath} as \texttt{"tfm"}
-and the \textit{GNU Multi Precision Arithmetic Library} as \texttt{"gmp"}.
-The identification happens case-insensitive and only on the first character.
-
 Here is a Python program demonstrating how to call various LTC dynamic
 language support functions.
 
@@ -8292,6 +8280,40 @@ EXTRALIBS="-lgmp -ltommath -ltfm"
 \end{small}
 
 That will build and install the library with all descriptors (and link against all), but only use TomsFastMath in the timing demo.
+
+To avoid random crashes and run--time errors in the form \texttt{LTC\_ARGCHK 'ltc\_mp.name != NULL' failure ...}, one has to
+initialise the \texttt{ltc\_mp} struct. This can be done in multiple ways as shown below.
+
+\index{crypt\_mp\_init()}
+\begin{verbatim}
+int crypt_mp_init(const char* mpi);
+\end{verbatim}
+
+To ease the setup of a specific math descriptor, in cases where the library was compiled with support for multiple MPI libraries,
+the function \textit{crypt\_mp\_init()} is provided.
+It takes a string to the desired MPI library to use as an argument.
+The three default MPI libraries are identified as follows, \textit{LibTomMath} as \texttt{"ltm"}, \textit{TomsFastmath} as \texttt{"tfm"}
+and the \textit{GNU Multi Precision Arithmetic Library} as \texttt{"gmp"}.
+The identification happens case-insensitive and only on the first character.
+
+
+\begin{verbatim}
+#include <tomcrypt.h>
+
+int main(void)
+{
+   /* set it by hand */
+   ltc_mp = gmp_desc;
+   ltc_mp = ltm_desc;
+   ltc_mp = tfm_desc;
+
+   /* use the provided API */
+   crypt_mp_init("GMP");
+   crypt_mp_init("LibTomMath");
+   crypt_mp_init("TomsFastMath");
+}
+\end{verbatim}
+
 
 \chapter{Optimizations}
 \mysection{Introduction}

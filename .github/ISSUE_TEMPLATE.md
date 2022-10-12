@@ -10,6 +10,7 @@ This is a very generic template, remove items that do not apply. For completed i
 
 * [ ] Checked the developer manual
 * [ ] Checked that your issue isn't already filed: https://github.com/issues?utf8=✓&q=repo%3Alibtom%2Flibtomcrypt
+* [ ] Checked that your issue isn't due to the fact that you're using asymmetric cryptography and you forgot linking in and/or setting an MPI provider (usually this causes either random crashes or runtime errors like `LTC_ARGCHK 'ltc_mp.name != NULL' failure ...`). c.f. Ch. "Math Descriptors" of the developer manual.
 * [ ] Checked that your issue isn't related to TomsFastMath's limitation that PK operations can by default only be done with max. 2048bit keys
 
 ### Description
