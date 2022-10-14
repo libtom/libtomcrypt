@@ -8,9 +8,9 @@ or from the page https://github.com/libtom/libtomcrypt/releases .
 
 ### Travis CI
 
-master: [![Build Status](https://api.travis-ci.org/libtom/libtomcrypt.png?branch=master)](https://travis-ci.org/libtom/libtomcrypt) [![Coverage Status](https://coveralls.io/repos/libtom/libtomcrypt/badge.png?branch=master)](https://coveralls.io/r/libtom/libtomcrypt)
+master: [![Build Status](https://github.com/libtom/libtomcrypt/actions/workflows/main.yml/badge.svg?branch=master)](https://github.com/libtom/libtomcrypt/actions/workflows/main.yml?query=branch%3Amaster+++) [![Coverage Status](https://coveralls.io/repos/libtom/libtomcrypt/badge.png?branch=master)](https://coveralls.io/r/libtom/libtomcrypt)
 
-develop: [![Build Status](https://api.travis-ci.org/libtom/libtomcrypt.png?branch=develop)](https://travis-ci.org/libtom/libtomcrypt) [![Coverage Status](https://coveralls.io/repos/libtom/libtomcrypt/badge.png?branch=develop)](https://coveralls.io/r/libtom/libtomcrypt)
+develop: [![Build Status](https://github.com/libtom/libtomcrypt/actions/workflows/main.yml/badge.svg?branch=develop)](https://github.com/libtom/libtomcrypt/actions/workflows/main.yml?query=branch%3Adevelop+++) [![Coverage Status](https://coveralls.io/repos/libtom/libtomcrypt/badge.png?branch=develop)](https://coveralls.io/r/libtom/libtomcrypt)
 
 ### AppVeyor
 

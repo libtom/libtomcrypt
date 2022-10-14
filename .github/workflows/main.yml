@@ -13,6 +13,20 @@ on:
       - /^release\/.*$/
 
 jobs:
+  Docs:
+    runs-on: ubuntu-20.04
+    container: texlive/texlive:latest-medium
+    steps:
+      - uses: actions/checkout@v2
+      - name: generate PDF
+        run: |
+          make docs
+          cp doc/crypt.pdf crypt-${{ github.run_id }}.pdf
+      - name: upload PDF
+        uses: actions/upload-artifact@v3
+        with:
+          name: crypt-${{ github.run_id }}.pdf
+          path: crypt-${{ github.run_id }}.pdf
   Build:
     runs-on: ${{ matrix.os }}
     strategy:
