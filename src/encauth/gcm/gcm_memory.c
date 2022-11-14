@@ -106,6 +106,7 @@ int gcm_memory(      int           cipher,
        err = CRYPT_INVALID_ARG;
     }
 LTC_ERR:
+    gcm_reset(gcm);
     XFREE(orig);
     return err;
 }
