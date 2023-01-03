@@ -101,10 +101,10 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 )
 
 target_compile_options(${PROJECT_NAME} BEFORE PRIVATE
-    ${LTM_C_FLAGS}
+    ${LTC_C_FLAGS}
 )
 target_link_options(${PROJECT_NAME} BEFORE PRIVATE
-    ${LTM_LD_FLAGS}
+    ${LTC_LD_FLAGS}
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
