@@ -6,5 +6,5 @@ includedir=${prefix}/@CMAKE_INSTALL_INCLUDEDIR@/@PROJECT_NAME@
 Name: LibTomCrypt
 Description: public domain open source cryptographic toolkit
 Version: @PROJECT_VERSION@
-Libs: -L${libdir} -ltomcrypt
+Libs: -L${libdir} -ltomcrypt @MPI_PROVIDERS@
 Cflags: -I${includedir}
