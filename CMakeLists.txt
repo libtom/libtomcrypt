@@ -136,6 +136,7 @@ if(WITH_LTM)
         target_compile_definitions(${PROJECT_NAME} PUBLIC USE_LTM)
     endif()
     target_link_libraries(${PROJECT_NAME} PUBLIC libtommath)
+    list(APPEND MPI_PROVIDERS -ltommath)
 endif()
 # GNU MP
 if(WITH_GMP)
@@ -146,6 +147,7 @@ if(WITH_GMP)
         target_compile_definitions(${PROJECT_NAME} PUBLIC USE_GMP)
     endif()
     target_link_libraries(${PROJECT_NAME} PUBLIC ${GMP_LIBRARIES})
+    list(APPEND MPI_PROVIDERS -lgmp)
 endif()
 
 
