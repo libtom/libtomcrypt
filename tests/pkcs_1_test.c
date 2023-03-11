@@ -46,11 +46,11 @@ int pkcs_1_test(void)
 
       /* encode it */
       l1 = sizeof(buf[1]);
-      DO(pkcs_1_oaep_encode(buf[0], l3, lparam, lparamlen, modlen, &yarrow_prng, prng_idx, hash_idx, buf[1], &l1));
+      DO(pkcs_1_oaep_encode(buf[0], l3, lparam, lparamlen, modlen, &yarrow_prng, prng_idx, hash_idx, -1, buf[1], &l1));
 
       /* decode it */
       l2 = sizeof(buf[2]);
-      DO(pkcs_1_oaep_decode(buf[1], l1, lparam, lparamlen, modlen, hash_idx, buf[2], &l2, &res1));
+      DO(pkcs_1_oaep_decode(buf[1], l1, lparam, lparamlen, modlen, hash_idx, -1, buf[2], &l2, &res1));
 
       if (res1 != 1 || l2 != l3 || memcmp(buf[2], buf[0], l3) != 0) {
          fprintf(stderr, "Outsize == %lu, should have been %lu, res1 = %d, lparamlen = %lu, msg contents follow.\n", l2, l3, res1, lparamlen);

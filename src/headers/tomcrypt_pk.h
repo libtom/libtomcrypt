@@ -57,10 +57,10 @@ void rsa_free(rsa_key *key);
 
 /* These use PKCS #1 v2.0 padding */
 #define rsa_encrypt_key(in, inlen, out, outlen, lparam, lparamlen, prng, prng_idx, hash_idx, key) \
-  rsa_encrypt_key_ex(in, inlen, out, outlen, lparam, lparamlen, prng, prng_idx, hash_idx, LTC_PKCS_1_OAEP, key)
+  rsa_encrypt_key_ex(in, inlen, out, outlen, lparam, lparamlen, prng, prng_idx, hash_idx, -1, LTC_PKCS_1_OAEP, key)
 
 #define rsa_decrypt_key(in, inlen, out, outlen, lparam, lparamlen, hash_idx, stat, key) \
-  rsa_decrypt_key_ex(in, inlen, out, outlen, lparam, lparamlen, hash_idx, LTC_PKCS_1_OAEP, stat, key)
+  rsa_decrypt_key_ex(in, inlen, out, outlen, lparam, lparamlen, hash_idx, -1, LTC_PKCS_1_OAEP, stat, key)
 
 #define rsa_sign_hash(in, inlen, out, outlen, prng, prng_idx, hash_idx, saltlen, key) \
   rsa_sign_hash_ex(in, inlen, out, outlen, LTC_PKCS_1_PSS, prng, prng_idx, hash_idx, saltlen, key)
@@ -76,13 +76,15 @@ int rsa_encrypt_key_ex(const unsigned char *in,       unsigned long  inlen,
                              unsigned char *out,      unsigned long *outlen,
                        const unsigned char *lparam,   unsigned long  lparamlen,
                              prng_state    *prng,     int            prng_idx,
-                             int            hash_idx, int            padding,
+                             int            mgf_hash, int            lparam_hash,
+                             int            padding,
                        const rsa_key       *key);
 
 int rsa_decrypt_key_ex(const unsigned char *in,             unsigned long  inlen,
                              unsigned char *out,            unsigned long *outlen,
                        const unsigned char *lparam,         unsigned long  lparamlen,
-                             int            hash_idx,       int            padding,
+                             int            mgf_hash,       int            lparam_hash,
+                             int            padding,
                              int           *stat,     const rsa_key       *key);
 
 int rsa_sign_hash_ex(const unsigned char *in,       unsigned long  inlen,
