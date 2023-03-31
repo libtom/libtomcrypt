@@ -500,7 +500,7 @@ print_hex("q", tmp, len);
 
    /* encrypt the key (without lparam) */
    for (cnt = 0; cnt < 4; cnt++) {
-   for (rsa_msgsize = 1; rsa_msgsize <= 86; rsa_msgsize++) {
+   for (rsa_msgsize = 0; rsa_msgsize <= 86; rsa_msgsize++) {
       /* make a random key/msg */
       ENSURE(yarrow_read(in, rsa_msgsize, &yarrow_prng) == rsa_msgsize);
 
@@ -523,10 +523,10 @@ print_hex("q", tmp, len);
    }
 
    /* encrypt the key (with lparam) */
-   for (rsa_msgsize = 1; rsa_msgsize <= 86; rsa_msgsize++) {
+   for (rsa_msgsize = 0; rsa_msgsize <= 86; rsa_msgsize++) {
       len  = sizeof(out);
       len2 = rsa_msgsize;
-      DO(rsa_encrypt_key(in, rsa_msgsize, out, &len, lparam, sizeof(lparam), &yarrow_prng, prng_idx, hash_idx, &key));
+      DO(rsa_encrypt_key(rsa_msgsize ? in : NULL, rsa_msgsize, out, &len, lparam, sizeof(lparam), &yarrow_prng, prng_idx, hash_idx, &key));
       /* change a byte */
       out[8] ^= 1;
       SHOULD_FAIL(rsa_decrypt_key(out, len, tmp, &len2, lparam, sizeof(lparam), hash_idx, &stat2, &key));
@@ -542,7 +542,7 @@ print_hex("q", tmp, len);
    }
 
    /* encrypt the key PKCS #1 v1.5 (payload from 1 to 117 bytes) */
-   for (rsa_msgsize = 1; rsa_msgsize <= 117; rsa_msgsize++) {
+   for (rsa_msgsize = 0; rsa_msgsize <= 117; rsa_msgsize++) {
       len  = sizeof(out);
       len2 = rsa_msgsize;
       /* make a random key/msg */

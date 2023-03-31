@@ -33,7 +33,7 @@ int pkcs_1_oaep_encode(const unsigned char *msg,    unsigned long msglen,
    unsigned long hLen, x, y, modulus_len;
    int           err;
 
-   LTC_ARGCHK(msg    != NULL);
+   LTC_ARGCHK((msglen == 0) || (msg != NULL));
    LTC_ARGCHK(out    != NULL);
    LTC_ARGCHK(outlen != NULL);
 
@@ -95,9 +95,11 @@ int pkcs_1_oaep_encode(const unsigned char *msg,    unsigned long msglen,
    /* 0x01 byte */
    DB[x++] = 0x01;
 
-   /* message (length = msglen) */
-   XMEMCPY(DB+x, msg, msglen);
-   x += msglen;
+   if (msglen != 0) {
+      /* message (length = msglen) */
+      XMEMCPY(DB+x, msg, msglen);
+      x += msglen;
+   }
 
    /* now choose a random seed */
    if (prng_descriptor[prng_idx].read(seed, hLen, prng) != hLen) {
