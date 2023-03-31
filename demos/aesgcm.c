@@ -86,7 +86,7 @@ static void scan_hex(const char* str, uint8_t* bytes, size_t blen)
 
 static void die(int ret)
 {
-   fprintf(stderr, "Usage: aesgcm <-e|-d> <infile> <outfile> <96 char hex-string 'IV | key'>\n");
+   fprintf(stderr, "Usage: aesgcm <-e|-d> <infile> <outfile> <88|96 char hex-string 'IV | key'>\n");
    exit(ret);
 }
 
