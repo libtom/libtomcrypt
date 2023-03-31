@@ -34,7 +34,7 @@ int rsa_encrypt_key_ex(const unsigned char *in,       unsigned long  inlen,
   unsigned long modulus_bitlen, modulus_bytelen, x;
   int           err;
 
-  LTC_ARGCHK(in     != NULL);
+  LTC_ARGCHK((inlen == 0) || (in != NULL));
   LTC_ARGCHK(out    != NULL);
   LTC_ARGCHK(outlen != NULL);
   LTC_ARGCHK(key    != NULL);

@@ -33,6 +33,7 @@ int rsa_decrypt_key_ex(const unsigned char *in,             unsigned long  inlen
   int           err;
   unsigned char *tmp;
 
+  LTC_ARGCHK(in     != NULL);
   LTC_ARGCHK(out    != NULL);
   LTC_ARGCHK(outlen != NULL);
   LTC_ARGCHK(key    != NULL);
