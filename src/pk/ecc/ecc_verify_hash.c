@@ -63,7 +63,7 @@ int ecc_verify_hash_ex(const unsigned char *sig,  unsigned long siglen,
 
    if (sigformat == LTC_ECCSIG_ANSIX962) {
       /* ANSI X9.62 format - ASN.1 encoded SEQUENCE{ INTEGER(r), INTEGER(s) }  */
-      if ((err = der_decode_sequence_multi_ex(sig, siglen, LTC_DER_SEQ_SEQUENCE | LTC_DER_SEQ_STRICT,
+      if ((err = der_decode_sequence_multi_ex(sig, siglen, LTC_DER_SEQ_SEQUENCE | LTC_DER_SEQ_ALL_STRICT,
                                      LTC_ASN1_INTEGER, 1UL, r,
                                      LTC_ASN1_INTEGER, 1UL, s,
                                      LTC_ASN1_EOL, 0UL, LTC_NULL)) != CRYPT_OK)                         { goto error; }
