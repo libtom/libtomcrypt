@@ -32,7 +32,7 @@ jobs:
     strategy:
       matrix:
         cc: [ gcc, clang ]
-        os: [ ubuntu-18.04 ]
+        os: [ ubuntu-20.04, ubuntu-22.04 ]
         config:
           - { BUILDNAME: 'META_BUILDS',          BUILDOPTIONS: '-DGMP_DESC',                                          BUILDSCRIPT: '.ci/meta_builds.sh' }
           - { BUILDNAME: 'VALGRIND',             BUILDOPTIONS: '',                                                    BUILDSCRIPT: '.ci/valgrind.sh' }
@@ -56,10 +56,10 @@ jobs:
       - name: install dependencies
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y libtommath-dev libgmp-dev libtfm-dev valgrind libtool-bin clang-tools lcov
+          sudo apt-get install -y libgmp-dev valgrind libtool-bin clang-tools lcov ruby clang
           sudo gem install coveralls-lcov
           curl -s https://packagecloud.io/install/repositories/libtom/packages/script.deb.sh | sudo bash
-          sudo apt-get install libtfm1=0.13-5ubuntu1
+          sudo apt-get install libtfm-git-dev libtommath-git-dev
       - name: run tests
         env:
           CC: "${{ matrix.cc }}"
