@@ -1272,19 +1272,18 @@ static void der_Xcode_run(const der_Xcode_t* x)
 {
    unsigned long l1, l2, sz;
    void *d1, *d2;
-   int err;
 
    l1 = 1;
    d1 = XMALLOC(l1 * x->type_sz);
    sz = (x->in_sz * x->factor)/x->type_sz;
 
-   if ((err = x->encode(x->in, sz, d1, &l1)) == CRYPT_BUFFER_OVERFLOW) {
+   if (x->encode(x->in, sz, d1, &l1) == CRYPT_BUFFER_OVERFLOW) {
       d1 = XREALLOC(d1, l1 * x->type_sz);
    }
    DO(x->encode(x->in, sz, d1, &l1));
    l2 = 1;
    d2 = XMALLOC(l2 * x->type_sz);
-   while ((err = x->decode(d1, l1, d2, &l2)) == CRYPT_BUFFER_OVERFLOW) {
+   while (x->decode(d1, l1, d2, &l2) == CRYPT_BUFFER_OVERFLOW) {
       d2 = XREALLOC(d2, l2 * x->type_sz);
    }
    DO(x->decode(d1, l1, d2, &l2));
