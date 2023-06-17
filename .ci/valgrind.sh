@@ -21,7 +21,10 @@ make clean &>/dev/null
 
 echo "Build for valgrind..."
 
-make -j$MAKE_JOBS CFLAGS="$2 $CFLAGS $4" EXTRALIBS="$5" test LTC_DEBUG=1 1>gcc_1.txt 2>gcc_2.txt
+# set DWARFv4 as debug format for clang, since it creates DWARFv5 as default which isn't support in old valgrind
+[ -z "$(echo $CC | grep "clang")" ] || GFLAG="-gdwarf-4"
+
+make -j$MAKE_JOBS CFLAGS="$2 $CFLAGS $4 $GFLAG" EXTRALIBS="$5" test LTC_DEBUG=1 1>gcc_1.txt 2>gcc_2.txt
 
 echo "Run tests with valgrind..."
 
