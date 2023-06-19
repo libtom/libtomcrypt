@@ -137,7 +137,8 @@ if(WITH_LTM)
         target_compile_definitions(${PROJECT_NAME} PUBLIC USE_LTM)
     endif()
     target_link_libraries(${PROJECT_NAME} PUBLIC libtommath)
-    list(APPEND MPI_PROVIDERS -ltommath)
+    list(APPEND LTC_MPI_PROVIDERS_CFLAGS -DLTM_DESC)
+    list(APPEND LTC_MPI_PROVIDERS_LIBS -ltommath)
 endif()
 # tomsfastmath
 if(WITH_TFM)
@@ -148,7 +149,8 @@ if(WITH_TFM)
         target_compile_definitions(${PROJECT_NAME} PUBLIC USE_TFM)
     endif()
     target_link_libraries(${PROJECT_NAME} PUBLIC tomsfastmath)
-    list(APPEND MPI_PROVIDERS -ltfm)
+    list(APPEND LTC_MPI_PROVIDERS_CFLAGS -DTFM_DESC)
+    list(APPEND LTC_MPI_PROVIDERS_LIBS -ltfm)
 endif()
 # GNU MP
 if(WITH_GMP)
@@ -159,9 +161,12 @@ if(WITH_GMP)
         target_compile_definitions(${PROJECT_NAME} PUBLIC USE_GMP)
     endif()
     target_link_libraries(${PROJECT_NAME} PUBLIC ${GMP_LIBRARIES})
-    list(APPEND MPI_PROVIDERS -lgmp)
+    list(APPEND LTC_MPI_PROVIDERS_CFLAGS -DGMP_DESC)
+    list(APPEND LTC_MPI_PROVIDERS_LIBS -lgmp)
 endif()
 
+list(JOIN LTC_MPI_PROVIDERS_CFLAGS " " MPI_PROVIDERS_CFLAGS)
+list(JOIN LTC_MPI_PROVIDERS_LIBS " " MPI_PROVIDERS_LIBS)
 
 #-----------------------------------------------------------------------------
 # demos&test targets
