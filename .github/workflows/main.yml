@@ -57,6 +57,7 @@ jobs:
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y libgmp-dev valgrind libtool-bin clang-tools lcov ruby clang
+          sudo apt-get remove -y libtommath1
           sudo gem install coveralls-lcov
           curl -s https://packagecloud.io/install/repositories/libtom/packages/script.deb.sh | sudo bash
           sudo apt-get install libtfm-git-dev libtommath-git-dev
