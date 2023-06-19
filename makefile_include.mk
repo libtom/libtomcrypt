@@ -55,10 +55,10 @@ endif
 
 ifndef EXTRALIBS
 ifneq ($(shell echo $(CFLAGS) | grep USE_LTM),)
-EXTRALIBS=$(shell PKG_CONFIG_PATH=$(LIBPATH)/pkgconfig pkg-config libtommath --libs)
+EXTRALIBS=$(shell PKG_CONFIG_PATH=$(LIBPATH)/pkgconfig pkg-config --libs libtommath)
 else
 ifneq ($(shell echo $(CFLAGS) | grep USE_TFM),)
-EXTRALIBS=$(shell PKG_CONFIG_PATH=$(LIBPATH)/pkgconfig pkg-config tomsfastmath --libs)
+EXTRALIBS=$(shell PKG_CONFIG_PATH=$(LIBPATH)/pkgconfig pkg-config --libs tomsfastmath)
 endif
 endif
 endif
@@ -76,6 +76,12 @@ endef
 # by giving them as a parameter to make:
 #  make CFLAGS="-I./src/headers/ -DLTC_SOURCE ..." ...
 #
+ifneq ($(shell echo $(CFLAGS) | grep LTM_DESC),)
+LTC_CFLAGS+=$(shell PKG_CONFIG_PATH=$(LIBPATH)/pkgconfig pkg-config --cflags-only-I libtommath)
+endif
+ifneq ($(shell echo $(CFLAGS) | grep TFM_DESC),)
+LTC_CFLAGS+=$(shell PKG_CONFIG_PATH=$(LIBPATH)/pkgconfig pkg-config --cflags-only-I tomsfastmath)
+endif
 LTC_CFLAGS += -I./src/headers/ -DLTC_SOURCE -Wall -Wsign-compare -Wshadow
 
 ifdef OLD_GCC
