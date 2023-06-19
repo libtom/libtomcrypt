@@ -33,6 +33,7 @@ include(sources.cmake)
 # Options
 #-----------------------------------------------------------------------------
 option(WITH_LTM "Build with support for libtommath" TRUE)
+option(WITH_TFM "Build with support for tomsfastmath" FALSE)
 option(WITH_GMP "Build with support for GNU Multi Precision Arithmetic Library" FALSE)
 set(MPI_PROVIDER "LTM" CACHE STRING "Build tests and demos against 'LTM', 'TFM' or 'GMP', default is LTM")
 option(BUILD_SHARED_LIBS "Build shared library and only the shared library if \"ON\", default is static" OFF)
@@ -136,6 +137,20 @@ if(WITH_LTM)
         target_compile_definitions(${PROJECT_NAME} PUBLIC USE_LTM)
     endif()
     target_link_libraries(${PROJECT_NAME} PUBLIC libtommath)
+    list(APPEND LTC_MPI_PROVIDERS_CFLAGS -DLTM_DESC)
+    list(APPEND LTC_MPI_PROVIDERS_LIBS -ltommath)
+endif()
+# tomsfastmath
+if(WITH_TFM)
+    find_package(tomsfastmath 0.13.1 REQUIRED)
+
+    target_compile_definitions(${PROJECT_NAME} PUBLIC TFM_DESC)
+    if(MPI_PROVIDER MATCHES "TFM")
+        target_compile_definitions(${PROJECT_NAME} PUBLIC USE_TFM)
+    endif()
+    target_link_libraries(${PROJECT_NAME} PUBLIC tomsfastmath)
+    list(APPEND LTC_MPI_PROVIDERS_CFLAGS -DTFM_DESC)
+    list(APPEND LTC_MPI_PROVIDERS_LIBS -ltfm)
 endif()
 # GNU MP
 if(WITH_GMP)
@@ -146,8 +161,12 @@ if(WITH_GMP)
         target_compile_definitions(${PROJECT_NAME} PUBLIC USE_GMP)
     endif()
     target_link_libraries(${PROJECT_NAME} PUBLIC ${GMP_LIBRARIES})
+    list(APPEND LTC_MPI_PROVIDERS_CFLAGS -DGMP_DESC)
+    list(APPEND LTC_MPI_PROVIDERS_LIBS -lgmp)
 endif()
 
+list(JOIN LTC_MPI_PROVIDERS_CFLAGS " " MPI_PROVIDERS_CFLAGS)
+list(JOIN LTC_MPI_PROVIDERS_LIBS " " MPI_PROVIDERS_LIBS)
 
 #-----------------------------------------------------------------------------
 # demos&test targets

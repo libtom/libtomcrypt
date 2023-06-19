@@ -54,6 +54,18 @@ endif
 
 include makefile_include.mk
 
+ifneq ($(findstring -DLTM_DESC,$(LTC_CFLAGS)),)
+LTC_MPI_PROVIDERS_CFLAGS += -DLTM_DESC
+LTC_MPI_PROVIDERS_LIBS += -ltommath
+endif
+ifneq ($(findstring -DTFM_DESC,$(LTC_CFLAGS)),)
+LTC_MPI_PROVIDERS_CFLAGS += -DTFM_DESC
+LTC_MPI_PROVIDERS_LIBS += -ltfm
+endif
+ifneq ($(findstring -DGMP_DESC,$(LTC_CFLAGS)),)
+LTC_MPI_PROVIDERS_CFLAGS += -DGMP_DESC
+LTC_MPI_PROVIDERS_LIBS += -lgmp
+endif
 
 #ciphers come in two flavours... enc+dec and enc
 src/ciphers/aes/aes_enc.o: src/ciphers/aes/aes.c src/ciphers/aes/aes_tab.c
@@ -80,7 +92,9 @@ $(foreach demo, $(strip $(DEMOS)), $(eval $(call DEMO_template,$(demo))))
 
 install: $(call print-help,install,Installs the library + headers + pkg-config file) .common_install
 	sed -e 's,^prefix=.*,prefix=$(PREFIX),' -e 's,^Version:.*,Version: $(VERSION_PC),' -e 's,@CMAKE_INSTALL_LIBDIR@,lib,' \
-		-e 's,@CMAKE_INSTALL_INCLUDEDIR@/@PROJECT_NAME@,include/tomcrypt,' libtomcrypt.pc.in > libtomcrypt.pc
+		-e 's,@CMAKE_INSTALL_INCLUDEDIR@/@PROJECT_NAME@,include/tomcrypt,' \
+		-e 's,@MPI_PROVIDERS_LIBS@,$(LTC_MPI_PROVIDERS_LIBS),' \
+		-e 's,@MPI_PROVIDERS_CFLAGS@,$(LTC_MPI_PROVIDERS_CFLAGS),' libtomcrypt.pc.in > libtomcrypt.pc
 	install -p -d $(DESTDIR)$(LIBPATH)/pkgconfig
 	install -p -m 644 libtomcrypt.pc $(DESTDIR)$(LIBPATH)/pkgconfig/
 
