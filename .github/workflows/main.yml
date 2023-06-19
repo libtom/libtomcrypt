@@ -71,14 +71,16 @@ jobs:
       - name: regular logs
         if: ${{ !failure() }}
         run: |
-          cat gcc_1.txt
-          cat gcc_2.txt
+          cat gcc_1.txt || true
+          cat gcc_2.txt || true
       - name: error logs
         if: ${{ failure() }}
         run: |
-          cat test_std.txt
-          cat test_err.txt
-          cat tv.txt
+          cat gcc_1.txt || true
+          cat gcc_2.txt || true
+          cat test_std.txt || true
+          cat test_err.txt || true
+          cat tv.txt || true
       - name: pack build directory
         if: ${{ failure() }}
         run: |
