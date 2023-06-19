@@ -39,6 +39,20 @@ set(MPI_PROVIDER "LTM" CACHE STRING "Build tests and demos against 'LTM', 'TFM' 
 option(BUILD_SHARED_LIBS "Build shared library and only the shared library if \"ON\", default is static" OFF)
 
 #-----------------------------------------------------------------------------
+# Add support for ccache if desired
+#-----------------------------------------------------------------------------
+find_program(CCACHE ccache)
+
+if(CCACHE)
+    option(ENABLE_CCACHE "Enable ccache." ON)
+endif()
+
+# use ccache if installed
+if(CCACHE AND ENABLE_CCACHE)
+    set(CMAKE_C_COMPILER_LAUNCHER ${CCACHE})
+endif()
+
+#-----------------------------------------------------------------------------
 # Compose CFLAGS
 #-----------------------------------------------------------------------------
 
