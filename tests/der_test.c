@@ -11,6 +11,8 @@ int der_test(void)
 
 #else
 
+#include <wchar.h>
+
 #if defined(LTC_TEST_DBG) && LTC_TEST_DBG > 2
 #define LTC_DER_TESTS_PRINT_FLEXI
 #endif
@@ -252,7 +254,7 @@ static void s_free(void *p)
    XFREE(p);
 }
 
-static void s_der_tests_print_flexi(ltc_asn1_list* l, unsigned int level)
+static void s_der_tests_print_flexi_i(ltc_asn1_list* l, unsigned int level)
 {
   char *buf = NULL;
   const char* name = NULL;
@@ -435,15 +437,28 @@ static void s_der_tests_print_flexi(ltc_asn1_list* l, unsigned int level)
   }
 
   if (ostring) {
-      s_der_tests_print_flexi(ostring, level + 1);
+      s_der_tests_print_flexi_i(ostring, level + 1);
       der_free_sequence_flexi(ostring);
   }
 
   if (l->child)
-    s_der_tests_print_flexi(l->child, level + 1);
+    s_der_tests_print_flexi_i(l->child, level + 1);
 
   if (l->next)
-    s_der_tests_print_flexi(l->next, level);
+    s_der_tests_print_flexi_i(l->next, level);
+}
+
+static void s_der_tests_print_flexi(ltc_asn1_list* l)
+{
+   fprintf(stderr, "\n\n");
+   s_der_tests_print_flexi_i(l, 0);
+   fprintf(stderr, "\n\n");
+}
+
+#else
+static void s_der_tests_print_flexi(ltc_asn1_list* l)
+{
+   LTC_UNUSED_PARAM(l);
 }
 #endif
 
@@ -471,11 +486,7 @@ static void der_cacert_test(void)
   CHECK_ASN1_TYPE(decoded_list, LTC_ASN1_SEQUENCE);
   CHECK_ASN1_HAS_NO_DATA(decoded_list);
 
-#ifdef LTC_DER_TESTS_PRINT_FLEXI
-  printf("\n\n--- test print start ---\n\n");
-  s_der_tests_print_flexi(decoded_list, 0);
-  printf("\n\n--- test print end ---\n\n");
-#endif
+  s_der_tests_print_flexi(decoded_list);
 
   l = decoded_list;
 
@@ -1169,11 +1180,7 @@ static void s_der_decode_print(const void* p, unsigned long* plen)
 {
    ltc_asn1_list *list;
    DO(der_decode_sequence_flexi(p, plen, &list));
-#ifdef LTC_DER_TESTS_PRINT_FLEXI
-   fprintf(stderr, "\n\n");
-   s_der_tests_print_flexi(list, 0);
-   fprintf(stderr, "\n\n");
-#endif
+   s_der_tests_print_flexi(list);
    der_sequence_free(list);
 }
 
@@ -1342,11 +1349,7 @@ static void der_Xcode_test(void)
 
    i = sizeof(teletex_neg_int);
    DO(der_decode_sequence_flexi(teletex_neg_int, &i, &list));
-#ifdef LTC_DER_TESTS_PRINT_FLEXI
-   fprintf(stderr, "\n\n");
-   s_der_tests_print_flexi(list, 0);
-   fprintf(stderr, "\n\n");
-#endif
+   s_der_tests_print_flexi(list);
    if (list->child == NULL || list->child->next == NULL)
       exit(EXIT_FAILURE);
    ttex_neg_int[0] = *list->child->next;
@@ -1368,11 +1371,7 @@ static int s_der_decode_sequence_flexi(const void *in, unsigned long inlen, void
 {
    ltc_asn1_list** list = ctx;
    if (der_decode_sequence_flexi(in, &inlen, list) == CRYPT_OK) {
-#ifdef LTC_DER_TESTS_PRINT_FLEXI
-      fprintf(stderr, "\n\n");
-      s_der_tests_print_flexi(*list, 0);
-      fprintf(stderr, "\n\n");
-#endif
+      s_der_tests_print_flexi(*list);
       der_sequence_free(*list);
    }
    return CRYPT_OK;
