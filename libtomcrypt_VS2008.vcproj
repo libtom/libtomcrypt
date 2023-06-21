@@ -411,6 +411,10 @@
 					>
 				</File>
 				<File
+					RelativePath="src\ciphers\aes\aes_desc.c"
+					>
+				</File>
+				<File
 					RelativePath="src\ciphers\aes\aes_tab.c"
 					>
 					<FileConfiguration
@@ -453,6 +457,10 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="src\ciphers\aes\aesni.c"
+					>
 				</File>
 			</Filter>
 			<Filter

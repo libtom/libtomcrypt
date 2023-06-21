@@ -1,6 +1,8 @@
 set(SOURCES
 src/ciphers/aes/aes.c
+src/ciphers/aes/aes_desc.c
 src/ciphers/aes/aes_tab.c
+src/ciphers/aes/aesni.c
 src/ciphers/anubis.c
 src/ciphers/blowfish.c
 src/ciphers/camellia.c

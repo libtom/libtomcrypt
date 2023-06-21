@@ -45,7 +45,8 @@ VERSION=1.18.2-develop
 LIBMAIN_S =libtomcrypt.a
 
 #List of objects to compile (all goes to libtomcrypt.a)
-OBJECTS=src/ciphers/aes/aes.o src/ciphers/aes/aes_enc.o src/ciphers/anubis.o src/ciphers/blowfish.o \
+OBJECTS=src/ciphers/aes/aes.o src/ciphers/aes/aes_desc.o src/ciphers/aes/aes_enc.o \
+src/ciphers/aes/aes_enc_desc.o src/ciphers/aes/aesni.o src/ciphers/anubis.o src/ciphers/blowfish.o \
 src/ciphers/camellia.o src/ciphers/cast5.o src/ciphers/des.o src/ciphers/idea.o src/ciphers/kasumi.o \
 src/ciphers/khazad.o src/ciphers/kseed.o src/ciphers/multi2.o src/ciphers/noekeon.o src/ciphers/rc2.o \
 src/ciphers/rc5.o src/ciphers/rc6.o src/ciphers/safer/safer.o src/ciphers/safer/saferp.o \
