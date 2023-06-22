@@ -70,6 +70,8 @@ endif
 #ciphers come in two flavours... enc+dec and enc
 src/ciphers/aes/aes_enc.o: src/ciphers/aes/aes.c src/ciphers/aes/aes_tab.c
 	$(LTCOMPILE) $(LTC_CFLAGS) $(CPPFLAGS) $(LTC_LDFLAGS) -DENCRYPT_ONLY -c src/ciphers/aes/aes.c -o src/ciphers/aes/aes_enc.o
+src/ciphers/aes/aes_enc_desc.o: src/ciphers/aes/aes_desc.c
+	$(LTCOMPILE) $(LTC_CFLAGS) $(CPPFLAGS) $(LTC_LDFLAGS) -DENCRYPT_ONLY -c src/ciphers/aes/aes_desc.c -o src/ciphers/aes/aes_enc_desc.o
 
 .c.o:
 	$(LTCOMPILE) $(LTC_CFLAGS) $(CPPFLAGS) $(LTC_LDFLAGS) -o $@ -c $<

@@ -316,7 +316,7 @@ sub process_makefiles {
   my @t = qw();
   find({ no_chdir => 1, wanted => sub { push @t, $_ if $_ =~ /(common|no_prng|_tests?|test).c$/ } }, 'tests');
 
-  my @o = sort ('src/ciphers/aes/aes_enc.o', map { my $x = $_; $x =~ s/\.c$/.o/; $x } @c);
+  my @o = sort ('src/ciphers/aes/aes_enc.o', 'src/ciphers/aes/aes_enc_desc.o', map { my $x = $_; $x =~ s/\.c$/.o/; $x } @c);
   my $var_o = prepare_variable("OBJECTS", @o);
   my $var_h = prepare_variable("HEADERS_PUB", (sort @h));
   (my $var_obj = $var_o) =~ s/\.o\b/.obj/sg;

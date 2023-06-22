@@ -126,7 +126,8 @@ endif # LTC_SMALL
 
 ifneq ($(findstring clang,$(CC)),)
 LTC_CFLAGS += -Wno-typedef-redefinition -Wno-tautological-compare -Wno-builtin-requires-header
-LTC_CFLAGS += -Wno-missing-field-initializers -Wno-missing-braces -Wno-incomplete-setjmp-declaration
+LTC_CFLAGS += -Wno-missing-field-initializers -Wno-missing-braces -Wno-incomplete-setjmp-declaration -Wno-cast-align
+LTC_CFLAGS += -Wno-declaration-after-statement
 endif
 ifneq ($(findstring mingw,$(CC)),)
 LTC_CFLAGS += -Wno-shadow -Wno-attributes
@@ -212,7 +213,8 @@ library: $(call print-help,library,Builds the library) $(LIBNAME)
 
 
 # List of objects to compile (all goes to libtomcrypt.a)
-OBJECTS=src/ciphers/aes/aes.o src/ciphers/aes/aes_enc.o src/ciphers/anubis.o src/ciphers/blowfish.o \
+OBJECTS=src/ciphers/aes/aes.o src/ciphers/aes/aes_desc.o src/ciphers/aes/aes_enc.o \
+src/ciphers/aes/aes_enc_desc.o src/ciphers/aes/aesni.o src/ciphers/anubis.o src/ciphers/blowfish.o \
 src/ciphers/camellia.o src/ciphers/cast5.o src/ciphers/des.o src/ciphers/idea.o src/ciphers/kasumi.o \
 src/ciphers/khazad.o src/ciphers/kseed.o src/ciphers/multi2.o src/ciphers/noekeon.o src/ciphers/rc2.o \
 src/ciphers/rc5.o src/ciphers/rc6.o src/ciphers/safer/safer.o src/ciphers/safer/saferp.o \
@@ -425,6 +427,7 @@ src/hashes/sha2/sha384.o: src/hashes/sha2/sha384.c src/hashes/sha2/sha512.c
 src/hashes/sha2/sha512_224.o: src/hashes/sha2/sha512.c src/hashes/sha2/sha512_224.c
 src/hashes/sha2/sha512_256.o: src/hashes/sha2/sha512.c src/hashes/sha2/sha512_256.c
 src/hashes/whirl/whirl.o: src/hashes/whirl/whirl.c src/hashes/whirl/whirltab.c
+
 
 $(DOBJECTS): LTC_CFLAGS := -Itests $(LTC_CFLAGS)
 $(TOBJECTS): LTC_CFLAGS := -Itests $(LTC_CFLAGS)

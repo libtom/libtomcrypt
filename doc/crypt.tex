@@ -614,6 +614,10 @@ As of this release the current cipher\_descriptors elements are the following:
      \hline SAFER+ & saferp\_desc &16 & 16, 24, 32 & 8, 12, 16 & 4 \\
      \hline AES & aes\_desc & 16 & 16, 24, 32 & 10, 12, 14 & 6 \\
                 & aes\_enc\_desc & 16 & 16, 24, 32 & 10, 12, 14 & 6 \\
+                & rijndael\_desc & 16 & 16, 24, 32 & 10, 12, 14 & 6 \\
+                & rijndael\_enc\_desc & 16 & 16, 24, 32 & 10, 12, 14 & 6 \\
+     \hline AES & aesni\_desc & 16 & 16, 24, 32 & 10, 12, 14 & 6 \\
+            (only on x86 with SSE4.1) &&&&& \\
      \hline Twofish & twofish\_desc & 16 & 16, 24, 32 & 16 & 7 \\
      \hline DES & des\_desc & 8 & 8 & 16 & 13 \\
      \hline 3DES (EDE mode) & des3\_desc & 8 & 16, 24 & 16 & 14 \\
@@ -639,24 +643,30 @@ As of this release the current cipher\_descriptors elements are the following:
 \begin{small}
 \begin{enumerate}
 \item
-For AES, (also known as Rijndael) there are four descriptors which complicate issues a little.  The descriptors
-rijndael\_desc and rijndael\_enc\_desc provide the cipher named \textit{rijndael}.  The descriptors aes\_desc and
-aes\_enc\_desc provide the cipher name \textit{aes}.  Functionally both \textit{rijndael} and \textit{aes} are the same cipher.  The
+For AES, (also known as Rijndael) there are multiple descriptors which complicate issues a little.  As of FIXME-version-next
+the library also integrates hardware-accelerated AES operations (e.g. AES-NI on amd64 with SSE4.1).  Therefor the functionality of
+the descriptors for the AES algorithm has changed.  The rijndael\_desc and rijndael\_enc\_desc descriptors provide the cipher
+named \textit{rijndael} which contains the software implementation of the algorithm.  The descriptors aes\_desc and aes\_enc\_desc
+provide the cipher named \textit{aes} and implement an auto-detection mechanism that chooses between the software-only \textit{rijndael}
+and the hardware-accelerated implementation.
+
+Functionally both \textit{rijndael} and \textit{aes} are the same cipher.  The
 only difference is when you call find\_cipher() you have to pass the correct name.  The cipher descriptors with \textit{enc}
 in the middle (e.g. rijndael\_enc\_desc) are related to an implementation of Rijndael with only the encryption routine
 and tables.  The decryption and self--test function pointers of both \textit{encrypt only} descriptors are set to \textbf{NULL} and
 should not be called.
 
 The \textit{encrypt only} descriptors are useful for applications that only use the encryption function of the cipher.  Algorithms such
-as EAX, PMAC and OMAC only require the encryption function.  So far this \textit{encrypt only} functionality has only been implemented for
-Rijndael as it makes the most sense for this cipher.
+as EAX, PMAC and OMAC or the CTR mode only require the encryption function.  So far this \textit{encrypt only} functionality has only
+been implemented for Rijndael as it makes the most sense for this cipher.
 
 \item
 Note that for \textit{DES} and \textit{3DES} they use 8 and 24 byte keys but only 7 and 21 [respectively] bytes of the keys are in
 fact used for the purposes of encryption.  My suggestion is just to use random 8/24 byte keys instead of trying to make a 8/24
 byte string from the real 7/21 byte key.
 
-For \textit{3DES} exists a two-key mode, that can be initialized by calling the setup function with a \textit{keylen} of 16. This results in the re-usage of key \textit{K1} as key \textit{K3}. This mode has been specified as \textit{Keying Option 2} in FIPS 46-3.
+For \textit{3DES} exists a two-key mode, that can be initialized by calling the setup function with a \textit{keylen} of 16.
+This results in the re-usage of key \textit{K1} as key \textit{K3}. This mode has been specified as \textit{Keying Option 2} in FIPS 46-3.
 
 \item
 Note that \textit{Twofish} has additional configuration options (Figure \ref{fig:twofishopts}) that take place at build time.  These options are found in

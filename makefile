@@ -50,6 +50,11 @@ ifneq ($V,1)
 	@echo "   * ${CC} $@" ${silent_echo}
 endif
 	${silent} ${CC} ${LTC_CFLAGS} -DENCRYPT_ONLY -c $< -o $@
+src/ciphers/aes/aes_enc_desc.o: src/ciphers/aes/aes_desc.c
+ifneq ($V,1)
+	@echo "   * ${CC} $@" ${silent_echo}
+endif
+	${silent} ${CC} ${LTC_CFLAGS} -DENCRYPT_ONLY -c $< -o $@
 
 .c.o:
 ifneq ($V,1)
