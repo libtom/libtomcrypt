@@ -35,11 +35,15 @@ ARFLAGS   = r
 RANLIB    = ranlib
 CFLAGS    = -O2 -DUSE_LTM -DLTM_DESC -I../libtommath
 EXTRALIBS = ../libtommath/libtommath.a
+# pkg-config flags, added to libtomcrypt.pc on install time
+PC_CFLAGS = -DLTM_DESC
+PC_LIBS   = -ltommath
 
 #Compilation flags
 LTC_CFLAGS  = -Isrc/headers -Itests -DLTC_SOURCE $(CFLAGS)
 LTC_LDFLAGS = $(LDFLAGS) $(EXTRALIBS)
 VERSION=1.18.2-develop
+VERSION_PC=1.18.2
 
 #Libraries to be created (this makefile builds only static libraries)
 LIBMAIN_S =libtomcrypt.a
@@ -320,7 +324,10 @@ install: $(LIBMAIN_S)
 	@mkdir -p $(DESTDIR)$(INCPATH) $(DESTDIR)$(LIBPATH)/pkgconfig
 	@cp $(LIBMAIN_S) $(DESTDIR)$(LIBPATH)/
 	@cp $(HEADERS_PUB) $(DESTDIR)$(INCPATH)/
-	@sed -e 's,^prefix=.*,prefix=$(PREFIX),' -e 's,^Version:.*,Version: $(VERSION),' libtomcrypt.pc.in > $(DESTDIR)$(LIBPATH)/pkgconfig/libtomcrypt.pc
+	@sed -e 's,^prefix=.*,prefix=$(PREFIX),' -e 's,^Version:.*,Version: $(VERSION_PC),' -e 's,^libdir=.*,libdir=$(LIBPATH),' \
+		-e 's,^includedir=.*,includedir=$(INCPATH),' \
+		-e 's,@MPI_PROVIDERS_LIBS@,$(PC_LIBS),' \
+		-e 's,@MPI_PROVIDERS_CFLAGS@,$(PC_CFLAGS),' libtomcrypt.pc.in > $(DESTDIR)$(LIBPATH)/pkgconfig/libtomcrypt.pc
 
 #Install useful tools
 install_bins: hashsum
