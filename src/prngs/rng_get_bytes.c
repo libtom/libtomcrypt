@@ -82,6 +82,22 @@ static unsigned long s_rng_ansic(unsigned char *buf, unsigned long len,
 
 /* Try the Microsoft CSP */
 #if defined(_WIN32) || defined(_WIN32_WCE)
+#if defined(LTC_WIN32_BCRYPT)
+
+#include <windows.h>
+#include <bcrypt.h>
+#pragma comment(lib, "bcrypt.lib")
+
+static unsigned long s_rng_win32(unsigned char *buf, unsigned long len,
+                               void (*callback)(void))
+{
+   LTC_UNUSED_PARAM(callback);
+
+   return BCRYPT_SUCCESS(BCryptGenRandom(NULL, (PUCHAR)buf, (ULONG)len, BCRYPT_USE_SYSTEM_PREFERRED_RNG)) ? len : 0;
+}
+
+#else
+
 #ifndef _WIN32_WINNT
   #define _WIN32_WINNT 0x0501
 #endif
@@ -112,6 +128,7 @@ static unsigned long s_rng_win32(unsigned char *buf, unsigned long len,
 
    return CryptGenRandom(hProv, (DWORD)len, (BYTE *)buf) == TRUE ? len : 0;
 }
+#endif /* Old WIN32 versions */
 #endif /* WIN32 */
 
 /**

@@ -71,6 +71,7 @@ sub check_source {
         my $n = $1;
         push @{$troubles->{invalid_macro_name}}, "$lineno($n)"
                 unless ($file eq 'src/headers/tomcrypt_cfg.h' &&  $n eq '__has_builtin') ||
+                       ($file eq 'src/headers/tomcrypt_cfg.h' &&  $n eq '_WIN32_WINNT') ||
                        ($file eq 'src/prngs/rng_get_bytes.c' &&  $n eq '_WIN32_WINNT');
       }
       $lineno++;

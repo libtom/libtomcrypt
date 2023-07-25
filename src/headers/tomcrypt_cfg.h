@@ -300,6 +300,21 @@ typedef unsigned long ltc_mp_digit;
    #define LTC_ALIGN(n)
 #endif
 
+/* Choose Windows Vista as minimum Version if we're compiling with at least VS2019
+ * This is done in order to test the bcrypt RNG and can still be overridden by the user. */
+#if defined(_MSC_VER) && _MSC_VER >= 1920
+#   ifndef _WIN32_WINNT
+#      define _WIN32_WINNT 0x0600
+#   endif
+#   ifndef WINVER
+#      define WINVER 0x0600
+#   endif
+#endif
+
+#if defined(_MSC_VER) && defined(_WIN32_WINNT) && _WIN32_WINNT >= 0x0600 && !defined(LTC_WIN32_BCRYPT)
+#   define LTC_WIN32_BCRYPT
+#endif
+
 /* Define `LTC_NO_NULL_TERMINATION_CHECK` in the user code
  * before including `tomcrypt.h` to disable this functionality.
  */

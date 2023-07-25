@@ -324,6 +324,9 @@ const char *crypt_build_settings =
 #if defined(LTC_SOBER128)
     "   SOBER128\n"
 #endif
+#if defined(LTC_WIN32_BCRYPT)
+    "   WIN32_BCRYPT\n"
+#endif
 
     "\nPK Crypto:\n"
 #if defined(LTC_MRSA)
