@@ -198,6 +198,31 @@ static int s_ecc_test_shamir(void)
 }
 #endif
 
+/* https://github.com/libtom/libtomcrypt/issues/630 */
+static int s_ecc_issue630(void)
+{
+   unsigned char protected_buffer[30], protected_buffer_copy[30];
+   unsigned long keylen = 0;
+   ecc_key key;
+   int low, high;
+
+   ecc_sizes(&low, &high);
+
+   DO(ecc_make_key (&yarrow_prng, find_prng ("yarrow"), high, &key));
+   if (yarrow_read(protected_buffer, sizeof(protected_buffer), &yarrow_prng) != sizeof(protected_buffer)) {
+      return CRYPT_ERROR_READPRNG;
+   }
+   XMEMCPY(protected_buffer_copy, protected_buffer, sizeof(protected_buffer));
+   COMPARE_TESTVECTOR(protected_buffer, sizeof(protected_buffer), protected_buffer_copy, sizeof(protected_buffer), "Ensure copy is equal", 0);
+
+   keylen = 10;
+   SHOULD_FAIL(ecc_get_key(&protected_buffer[10], &keylen, PK_PRIVATE, &key));
+   COMPARE_TESTVECTOR(protected_buffer, 10, protected_buffer_copy, 10, "Start canary", 1);
+   COMPARE_TESTVECTOR(&protected_buffer[20], 10, &protected_buffer[20], 10, "End canary", 2);
+   ecc_free(&key);
+   return 0;
+}
+
 /* https://github.com/libtom/libtomcrypt/issues/108 */
 static int s_ecc_issue108(void)
 {
@@ -1591,6 +1616,7 @@ int ecc_test(void)
    DO(s_ecc_test_mp());
    DO(s_ecc_issue108());
    DO(s_ecc_issue443_447());
+   DO(s_ecc_issue630());
 #ifdef LTC_ECC_SHAMIR
    DO(s_ecc_test_shamir());
    DO(s_ecc_test_recovery());
