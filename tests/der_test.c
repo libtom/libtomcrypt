@@ -1400,7 +1400,9 @@ static void s_der_regression_test(void)
                                             "\xaa"               /* One byte padding */
                                             "\x04\x82\xff\xff";  /* Start OCTET sequence of length 0xffff */
                                                                  /* (this will include the adjacent data into the decoded certificate) */
-   unsigned long len;
+   static const unsigned char utf8_length[] = "\x0c\x02\x61\x61\x61";
+   wchar_t wtmp[4];
+   unsigned long len, outlen;
    void *x, *y;
    ltc_asn1_list seq[2];
    ltc_asn1_list *l;
@@ -1421,6 +1423,11 @@ static void s_der_regression_test(void)
 
    len = sizeof(issue_507);
    SHOULD_FAIL(der_decode_sequence_flexi(issue_507, &len, &l));
+
+   len = sizeof(utf8_length);
+   outlen = sizeof(wtmp)/sizeof(wtmp[0]);
+   DO(der_decode_utf8_string(utf8_length, len, wtmp, &outlen));
+   ENSURE(outlen == 2);
 }
 
 static void der_toolong_test(void)
