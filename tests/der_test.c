@@ -1097,7 +1097,7 @@ static int der_choice_n_custom_test(void)
    for (x = 0; x < sizeof(ia5buf); x++)   { ia5buf[x]   = 'a';   }
    for (x = 0; x < sizeof(printbuf); x++) { printbuf[x] = 'a';   }
    for (x = 0; x < sizeof(utf8buf)/sizeof(utf8buf[0]); x++) { utf8buf[x] = L'a';   }
-   integer = 1;
+   integer = 10000;
    boolean[0] = 1;
    for (x = 0; x < sizeof(oidbuf)/sizeof(oidbuf[0]); x++)   { oidbuf[x] = x + 1;   }
    DO(mp_init(&mpinteger));
