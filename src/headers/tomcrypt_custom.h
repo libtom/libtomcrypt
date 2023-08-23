@@ -333,11 +333,14 @@
 /* Greg's SOBER128 stream cipher based PRNG */
 #define LTC_SOBER128
 
+#if !defined(_WIN32) && !defined(_WIN32_WCE)
 /* the *nix style /dev/random device */
 #define LTC_DEVRANDOM
 /* try /dev/urandom before trying /dev/random
  * are you sure you want to disable this? http://www.2uo.de/myths-about-urandom/ */
 #define LTC_TRY_URANDOM_FIRST
+#endif /* not Windows */
+
 /* rng_get_bytes() */
 #define LTC_RNG_GET_BYTES
 /* rng_make_prng() */

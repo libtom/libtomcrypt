@@ -190,7 +190,7 @@ DEMOS          = $(UNBROKEN_DEMOS) $(BROKEN_DEMOS)
 DESTDIR  ?=
 PREFIX   ?= /usr/local
 LIBPATH  ?= $(PREFIX)/lib
-INCPATH  ?= $(PREFIX)/include
+INCPATH  ?= $(PREFIX)/include/libtomcrypt
 DATAPATH ?= $(PREFIX)/share/doc/libtomcrypt/pdf
 BINPATH  ?= $(PREFIX)/bin
 

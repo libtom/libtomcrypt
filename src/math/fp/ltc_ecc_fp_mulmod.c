@@ -1429,8 +1429,10 @@ int ltc_ecc_fp_save_state(unsigned char **out, unsigned long *outlen)
     * and the mu INTEGER
     */
    cache_entry = XCALLOC(FP_ENTRIES*(2*(1U<<FP_LUT)+4)+3, sizeof(ltc_asn1_list));
-   if (cache_entry == NULL)
+   if (cache_entry == NULL) {
+      LTC_MUTEX_UNLOCK(&ltc_ecc_fp_lock);
       return CRYPT_MEM;
+   }
    j = 1;   /* handle the zero'th element later */
 
    LTC_SET_ASN1(cache_entry, j++, LTC_ASN1_SHORT_INTEGER, &fp_entries, 1);
