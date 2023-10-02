@@ -96,7 +96,7 @@ static ulong32 setup_mix2(ulong32 temp)
 int SETUP(const unsigned char *key, int keylen, int num_rounds, symmetric_key *skey)
 {
     int i;
-    ulong32 temp, *rk;
+    ulong32 temp, *rk, *K;
 #ifndef ENCRYPT_ONLY
     ulong32 *rrk;
 #endif
@@ -112,6 +112,10 @@ int SETUP(const unsigned char *key, int keylen, int num_rounds, symmetric_key *s
     }
 
     skey->rijndael.Nr = 10 + ((keylen/8)-2)*2;
+    K = LTC_ALIGN_BUF(skey->rijndael.K, 16);
+    skey->rijndael.eK = K;
+    K += 60;
+    skey->rijndael.dK = K;
 
     /* setup the forward key */
     i                 = 0;

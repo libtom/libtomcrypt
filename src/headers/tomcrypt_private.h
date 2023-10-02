@@ -9,6 +9,21 @@
 
 #define LTC_PAD_MASK       (0xF000U)
 
+#if defined(ENDIAN_64BITWORD)
+   #define CONSTPTR(n) CONST64(n)
+#else
+   #define CONSTPTR(n) n ## uL
+#endif
+
+/* Poor-man's `uintptr_t` since we can't use stdint.h
+ * c.f. https://github.com/DCIT/perl-CryptX/issues/95#issuecomment-1745280962 */
+typedef size_t ltc_uintptr;
+
+/* Aligns a `unsigned char` buffer `buf` to `n` bytes and returns that aligned address.
+ * Make sure that the buffer that is passed is huge enough.
+ */
+#define LTC_ALIGN_BUF(buf, n) ((void*)((ltc_uintptr)&(buf)[n - 1] & (~(CONSTPTR(n) - CONSTPTR(1)))))
+
 /* `NULL` as defined by the standard is not guaranteed to be of a pointer
  * type. In order to make sure that in vararg API's a pointer type is used,
  * define our own version and use that one internally.

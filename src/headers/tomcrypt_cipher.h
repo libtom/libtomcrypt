@@ -35,9 +35,10 @@ struct saferp_key {
 
 #ifdef LTC_RIJNDAEL
 struct rijndael_key {
-   ulong32 eK[60] LTC_ALIGN(16);
-   ulong32 dK[60] LTC_ALIGN(16);
+   ulong32 *eK;
+   ulong32 *dK;
    int Nr;
+   unsigned char K[(60 + 60 + 4) * sizeof(ulong32)];
 };
 #endif
 
