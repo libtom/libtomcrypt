@@ -24,6 +24,9 @@ include(CheckIPOSupported)
 include(CMakePackageConfigHelpers)
 # for potential builds against gnump
 include(FindPkgConfig)
+# for potential builds with MSVC
+include(CMakePushCheckState)
+include(CheckSymbolExists)
 # default is "No tests"
 option(BUILD_TESTING "" OFF)
 include(CTest)
