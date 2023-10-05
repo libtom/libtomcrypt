@@ -13,7 +13,8 @@ ifndef CROSS_COMPILE
   CROSS_COMPILE:=
 endif
 
-ifneq (,$(shell printf "#ifdef __clang__\nCLANG\n#endif\n" | $(CC) -E - | grep CLANG))
+H := \#
+ifeq (CLANG,$(shell printf "$(H)ifdef __clang__\nCLANG\n$(H)endif\n" | $(CC) -E - | grep CLANG))
   CC_IS_CLANG := 1
 else
   CC_IS_CLANG := 0
