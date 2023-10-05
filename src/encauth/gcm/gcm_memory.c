@@ -70,9 +70,7 @@ int gcm_memory(      int           cipher,
     * but again it's only for SSE2 anyways, so who cares?
     */
 #ifdef LTC_GCM_TABLES_SSE2
-   if ((unsigned long)gcm & 15) {
-      gcm = (gcm_state *)((unsigned long)gcm + (16 - ((unsigned long)gcm & 15)));
-   }
+    gcm = LTC_ALIGN_BUF(gcm, 16);
 #endif
 
     if ((err = gcm_init(gcm, cipher, key, keylen)) != CRYPT_OK) {
