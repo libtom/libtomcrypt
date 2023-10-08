@@ -179,7 +179,9 @@
 #define LTC_RC6
 #define LTC_SAFERP
 #define LTC_RIJNDAEL
-#define LTC_AES_NI
+#ifndef LTC_NO_AES_NI
+   #define LTC_AES_NI
+#endif
 #define LTC_XTEA
 /* _TABLES tells it to use tables during setup, _SMALL means to use the smaller scheduled key format
  * (saves 4KB of ram), _ALL_TABLES enables all tables during setup */

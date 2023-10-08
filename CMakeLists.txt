@@ -24,6 +24,9 @@ include(CheckIPOSupported)
 include(CMakePackageConfigHelpers)
 # for potential builds against gnump
 include(FindPkgConfig)
+# for potential builds with MSVC
+include(CMakePushCheckState)
+include(CheckSymbolExists)
 # default is "No tests"
 option(BUILD_TESTING "" OFF)
 include(CTest)
@@ -295,6 +298,15 @@ if(LSB_RELEASE)
     endif()
 else()
     set(DISTRO_PACK_PATH ${CMAKE_SYSTEM_NAME}/)
+endif()
+
+# make sure untagged versions get a different package name
+execute_process(COMMAND git describe --exact-match --tags ERROR_QUIET RESULT_VARIABLE REPO_HAS_TAG)
+if(REPO_HAS_TAG EQUAL 0)
+    set(PACKAGE_NAME_SUFFIX "")
+else()
+    set(PACKAGE_NAME_SUFFIX "-git")
+    message(STATUS "Use -git suffix")
 endif()
 
 # default CPack generators

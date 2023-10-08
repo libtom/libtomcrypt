@@ -13,16 +13,16 @@ ifndef CROSS_COMPILE
   CROSS_COMPILE:=
 endif
 
-# We only need to go through this dance of determining the right compiler if we're using
-# cross compilation, otherwise $(CC) is fine as-is.
+H := \#
+ifeq (CLANG,$(shell printf "$(H)ifdef __clang__\nCLANG\n$(H)endif\n" | $(CC) -E - | grep CLANG))
+  CC_IS_CLANG := 1
+else
+  CC_IS_CLANG := 0
+endif # Clang
+
 ifneq (,$(CROSS_COMPILE))
 ifeq ($(origin CC),default)
-CSTR := "\#ifdef __clang__\nCLANG\n\#endif\n"
-ifeq ($(PLATFORM),FreeBSD)
-  # XXX: FreeBSD needs extra escaping for some reason
-  CSTR := $$$(CSTR)
-endif
-ifneq (,$(shell echo $(CSTR) | $(CC) -E - | grep CLANG))
+ifeq ($(CC_IS_CLANG), 1)
   CC := $(CROSS_COMPILE)clang
 else
   CC := $(CROSS_COMPILE)gcc
@@ -124,7 +124,7 @@ LTC_CFLAGS += -Os -DLTC_SMALL_CODE
 endif # LTC_SMALL
 
 
-ifneq ($(findstring clang,$(CC)),)
+ifeq ($(CC_IS_CLANG), 1)
 LTC_CFLAGS += -Wno-typedef-redefinition -Wno-tautological-compare -Wno-builtin-requires-header
 LTC_CFLAGS += -Wno-missing-field-initializers -Wno-missing-braces -Wno-incomplete-setjmp-declaration -Wno-cast-align
 LTC_CFLAGS += -Wno-declaration-after-statement

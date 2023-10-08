@@ -46,7 +46,7 @@ int aesni_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_
 {
    int i;
    __m128i temp;
-   ulong32 *rk;
+   ulong32 *rk, *K;
    ulong32 *rrk;
    LTC_ARGCHK(key != NULL);
    LTC_ARGCHK(skey != NULL);
@@ -60,6 +60,10 @@ int aesni_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_
    }
 
    skey->rijndael.Nr = keylen / 4 + 6;
+   K = LTC_ALIGN_BUF(skey->rijndael.K, 16);
+   skey->rijndael.eK = K;
+   K += 60;
+   skey->rijndael.dK = K;
 
    /* setup the forward key */
    i = 0;
