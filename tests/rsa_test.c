@@ -441,8 +441,8 @@ int rsa_test(void)
 {
    unsigned char in[1024], out[1024], tmp[3072];
    rsa_key       key, privKey, pubKey;
-   int           hash_idx, prng_idx, stat, stat2, i;
-   unsigned long rsa_msgsize, len, len2, len3, cnt, cnt2;
+   int           hash_idx, prng_idx, stat, stat2, i, mgf_hash, label_hash;
+   unsigned long rsa_msgsize, len, len2, len3, cnt, cnt2, max_msgsize;
    static unsigned char lparam[] = { 0x01, 0x02, 0x03, 0x04 };
    void* dP;
    unsigned char* p;
@@ -497,60 +497,79 @@ print_hex("q", tmp, len);
          rsa_free(&key);
       }
    }
+   /* make a random key/msg */
+   ENSURE(yarrow_read(in, 117, &yarrow_prng) == 117);
 
-   /* encrypt the key (without lparam) */
-   for (cnt = 0; cnt < 4; cnt++) {
-   for (rsa_msgsize = 0; rsa_msgsize <= 86; rsa_msgsize++) {
-      /* make a random key/msg */
-      ENSURE(yarrow_read(in, rsa_msgsize, &yarrow_prng) == rsa_msgsize);
+#ifdef LTC_TEST_EXT
+   for (mgf_hash = 0; mgf_hash < TAB_SIZE; ++mgf_hash) {
+      if (hash_is_valid(mgf_hash) != CRYPT_OK)
+         continue;
+#else
+   {
+      mgf_hash = hash_idx;
+#endif
+      for (label_hash = 0; label_hash < TAB_SIZE; ++label_hash) {
+         if (hash_is_valid(label_hash) != CRYPT_OK)
+            continue;
+         if (2 * hash_descriptor[label_hash].hashsize > 126)
+            continue;
+         max_msgsize = 128 - (2 * hash_descriptor[label_hash].hashsize) - 2;
 
-      len  = sizeof(out);
-      len2 = rsa_msgsize;
+#if defined(LTC_TEST_DBG) && LTC_TEST_DBG > 1
+         fprintf(stderr, "Test MGF(%s), Labelhash(%s) with max_msgsize %lu\n", hash_descriptor[mgf_hash].name, hash_descriptor[label_hash].name, max_msgsize);
+#endif
+         /* encrypt the key (without lparam) */
+         for (rsa_msgsize = 0; rsa_msgsize <= max_msgsize; rsa_msgsize++) {
 
-      DO(rsa_encrypt_key(in, rsa_msgsize, out, &len, NULL, 0, &yarrow_prng, prng_idx, hash_idx, &key));
-      /* change a byte */
-      out[8] ^= 1;
-      SHOULD_FAIL(rsa_decrypt_key(out, len, tmp, &len2, NULL, 0, hash_idx, &stat2, &key));
-      /* change a byte back */
-      out[8] ^= 1;
-      ENSURE(len2 == rsa_msgsize);
+            len  = sizeof(out);
+            len2 = rsa_msgsize;
 
-      len2 = rsa_msgsize;
-      DO(rsa_decrypt_key(out, len, tmp, &len2, NULL, 0, hash_idx, &stat, &key));
-      ENSUREX(stat == 1 && stat2 == 0, "rsa_decrypt_key (without lparam)");
-      DO(do_compare_testvector(tmp, len2, in, rsa_msgsize,  "rsa_decrypt_key (without lparam)", cnt << 8 | rsa_msgsize));
+            DO(rsa_encrypt_key_ex(in, rsa_msgsize, out, &len, NULL, 0, &yarrow_prng, prng_idx, mgf_hash, label_hash, LTC_PKCS_1_OAEP, &key));
+            /* change a byte */
+            out[8] ^= 1;
+            SHOULD_FAIL(rsa_decrypt_key_ex(out, len, tmp, &len2, NULL, 0, mgf_hash, label_hash, LTC_PKCS_1_OAEP, &stat2, &key));
+            /* change a byte back */
+            out[8] ^= 1;
+            ENSURE(len2 == rsa_msgsize);
+
+            len2 = rsa_msgsize;
+            DO(rsa_decrypt_key_ex(out, len, tmp, &len2, NULL, 0, mgf_hash, label_hash, LTC_PKCS_1_OAEP, &stat, &key));
+            ENSUREX(stat == 1 && stat2 == 0, "rsa_decrypt_key (without lparam)");
+            DO(do_compare_testvector(tmp, len2, in, rsa_msgsize,  "rsa_decrypt_key (without lparam)", cnt << 8 | rsa_msgsize));
+         }
+
+         /* encrypt the key (with lparam) */
+         for (rsa_msgsize = 0; rsa_msgsize <= max_msgsize; rsa_msgsize++) {
+            len  = sizeof(out);
+            len2 = rsa_msgsize;
+            DO(rsa_encrypt_key_ex(rsa_msgsize ? in : NULL, rsa_msgsize, out, &len, lparam, sizeof(lparam), &yarrow_prng, prng_idx, mgf_hash, label_hash, LTC_PKCS_1_OAEP, &key));
+            /* change a byte */
+            out[8] ^= 1;
+            SHOULD_FAIL(rsa_decrypt_key_ex(out, len, tmp, &len2, lparam, sizeof(lparam), mgf_hash, label_hash, LTC_PKCS_1_OAEP, &stat2, &key));
+            ENSURE(len2 == rsa_msgsize);
+
+            /* change a byte back */
+            out[8] ^= 1;
+
+            len2 = rsa_msgsize;
+            DO(rsa_decrypt_key_ex(out, len, tmp, &len2, lparam, sizeof(lparam), mgf_hash, label_hash, LTC_PKCS_1_OAEP, &stat, &key));
+            ENSURE(stat == 1 && stat2 == 0);
+            DO(do_compare_testvector(tmp, len2, in, rsa_msgsize,  "rsa_decrypt_key (with lparam)", rsa_msgsize));
+         }
+
+      }
    }
-   }
 
-   /* encrypt the key (with lparam) */
-   for (rsa_msgsize = 0; rsa_msgsize <= 86; rsa_msgsize++) {
-      len  = sizeof(out);
-      len2 = rsa_msgsize;
-      DO(rsa_encrypt_key(rsa_msgsize ? in : NULL, rsa_msgsize, out, &len, lparam, sizeof(lparam), &yarrow_prng, prng_idx, hash_idx, &key));
-      /* change a byte */
-      out[8] ^= 1;
-      SHOULD_FAIL(rsa_decrypt_key(out, len, tmp, &len2, lparam, sizeof(lparam), hash_idx, &stat2, &key));
-      ENSURE(len2 == rsa_msgsize);
 
-      /* change a byte back */
-      out[8] ^= 1;
-
-      len2 = rsa_msgsize;
-      DO(rsa_decrypt_key(out, len, tmp, &len2, lparam, sizeof(lparam), hash_idx, &stat, &key));
-      ENSURE(stat == 1 && stat2 == 0);
-      DO(do_compare_testvector(tmp, len2, in, rsa_msgsize,  "rsa_decrypt_key (with lparam)", rsa_msgsize));
-   }
 
    /* encrypt the key PKCS #1 v1.5 (payload from 1 to 117 bytes) */
    for (rsa_msgsize = 0; rsa_msgsize <= 117; rsa_msgsize++) {
       len  = sizeof(out);
       len2 = rsa_msgsize;
-      /* make a random key/msg */
-      ENSURE(yarrow_read(in, rsa_msgsize, &yarrow_prng) == rsa_msgsize);
-      DO(rsa_encrypt_key_ex(in, rsa_msgsize, out, &len, NULL, 0, &yarrow_prng, prng_idx, 0, LTC_PKCS_1_V1_5, &key));
+      DO(rsa_encrypt_key_ex(in, rsa_msgsize, out, &len, NULL, 0, &yarrow_prng, prng_idx, 0, -1, LTC_PKCS_1_V1_5, &key));
 
       len2 = rsa_msgsize;
-      DO(rsa_decrypt_key_ex(out, len, tmp, &len2, NULL, 0, 0, LTC_PKCS_1_V1_5, &stat, &key));
+      DO(rsa_decrypt_key_ex(out, len, tmp, &len2, NULL, 0, 0, -1, LTC_PKCS_1_V1_5, &stat, &key));
       ENSURE(stat == 1);
       DO(do_compare_testvector(tmp, len2, in, rsa_msgsize,  "rsa_decrypt_key_ex", rsa_msgsize));
    }

@@ -4190,7 +4190,8 @@ int pkcs_1_oaep_encode(
           unsigned long  modulus_bitlen,
              prng_state *prng,
                     int  prng_idx,
-                    int  hash_idx,
+                    int  mgf_hash,
+                    int  lparam_hash,
           unsigned char *out,
           unsigned long *outlen);
 \end{alltt}
@@ -4200,7 +4201,9 @@ tag that can be applied to the encoding.  This is useful to identify which syste
 \textit{lparam} can be set to \textbf{NULL}.
 
 OAEP encoding requires the length of the modulus in bits in order to calculate the size of the output.  This is passed as the parameter
-\textit{modulus\_bitlen}.  \textit{hash\_idx} is the index into the hash descriptor table of the hash desired.  PKCS \#1 allows any hash to be
+\textit{modulus\_bitlen}.  \textit{mgf\_hash} is the index into the hash descriptor table of the hash desired for the mask generation function (MGF).
+\textit{lparam\_hash} is the index into the hash descriptor table of the hash desired for the \textit{lparam}.  This value can also be set to $-1$
+to indicate usage of the same algorithm than for the MGF.  PKCS \#1 allows any hash to be
 used but both the encoder and decoder must use the same hash in order for this to succeed.  The size of hash output affects the maximum
  sized input message.  \textit{prng\_idx} and \textit{prng} are the random number generator arguments required to randomize the padding process.
 The padded message is stored in \textit{out} along with the length in \textit{outlen}.
@@ -4221,7 +4224,8 @@ int pkcs_1_oaep_decode(
     const unsigned char *lparam,
           unsigned long  lparamlen,
           unsigned long  modulus_bitlen,
-                    int  hash_idx,
+                    int  mgf_hash,
+                    int  lparam_hash,
           unsigned char *out,
           unsigned long *outlen,
                     int *res);
@@ -4230,8 +4234,8 @@ int pkcs_1_oaep_decode(
 This function decodes an OAEP encoded message and outputs the original message that was passed to the OAEP encoder.  \textit{msg} is the
 output of pkcs\_1\_oaep\_encode() of length \textit{msglen}.  \textit{lparam} is the same system variable passed to the OAEP encoder.  If it does not
 match what was used during encoding this function will not decode the packet.  \textit{modulus\_bitlen} is the size of the RSA modulus in bits
-and must match what was used during encoding.  Similarly the \textit{hash\_idx} index into the hash descriptor table must match what was used
-during encoding.
+and must match what was used during encoding.  Similarly the \textit{mgf\_hash} and \textit{lparam\_hash} indexes into the hash descriptor table must
+match what was used during encoding.
 
 If the function succeeds it decodes the OAEP encoded message into \textit{out} of length \textit{outlen} and stores a
 $1$ in \textit{res}.  If the packet is invalid it stores $0$ in \textit{res} and if the function fails for another reason
@@ -4426,7 +4430,8 @@ int rsa_encrypt_key_ex(
           unsigned long  lparamlen,
              prng_state *prng,
                     int  prng_idx,
-                    int  hash_idx,
+                    int  mgf_hash,
+                    int  lparam_hash,
                     int  padding,
                 rsa_key *key);
 \end{verbatim}
@@ -4447,7 +4452,8 @@ int rsa_decrypt_key(
           unsigned long *outlen,
     const unsigned char *lparam,
           unsigned long  lparamlen,
-                    int  hash_idx,
+                    int  mgf_hash,
+                    int  lparam_hash,
                     int *stat,
                 rsa_key *key);
 \end{verbatim}
