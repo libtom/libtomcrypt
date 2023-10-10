@@ -11,7 +11,7 @@
 
 extern const struct str pem_proc_type_encrypted;
 extern const struct str pem_dek_info_start;
-extern const struct dek_info_from_str pem_dek_infos[];
+extern const struct blockcipher_info pem_dek_infos[];
 extern const unsigned long pem_dek_infos_num;
 
 #ifndef LTC_NO_FILE
@@ -116,21 +116,23 @@ static int s_pem_decode_headers(struct pem_headers *hdr, struct get_char *g)
             hdr->encrypted = 1;
             break;
          case 2:
-            hdr->info.alg = NULL;
+            hdr->info.algo = NULL;
             if (XMEMCMP(buf, pem_dek_info_start.p, pem_dek_info_start.len))
                return CRYPT_INVALID_PACKET;
             alg_start = &buf[pem_dek_info_start.len];
             for (n = 0; n < pem_dek_infos_num; ++n) {
-               if (slen >= pem_dek_infos[n].id.len + pem_dek_info_start.len && !XMEMCMP(alg_start, pem_dek_infos[n].id.p, pem_dek_infos[n].id.len)) {
-                  hdr->info = pem_dek_infos[n].info;
-                  tmplen = XSTRLEN(alg_start + pem_dek_infos[n].id.len);
+               unsigned long namelen = XSTRLEN(pem_dek_infos[n].name);
+               if (slen >= namelen + pem_dek_info_start.len && !XMEMCMP(alg_start, pem_dek_infos[n].name, namelen)) {
+                  char *iv = alg_start + namelen;
+                  hdr->info = pem_dek_infos[n];
+                  tmplen = XSTRLEN(iv);
                   if (tmplen > sizeof(hdr->info.iv))
                      return CRYPT_INVALID_KEYSIZE;
-                  XMEMCPY(hdr->info.iv, alg_start + pem_dek_infos[n].id.len, tmplen);
+                  XMEMCPY(hdr->info.iv, iv, tmplen);
                   break;
                }
             }
-            if (hdr->info.alg == NULL) {
+            if (hdr->info.algo == NULL) {
                return CRYPT_INVALID_CIPHER;
             }
             break;

@@ -255,6 +255,10 @@ int base64_encode_pem(const unsigned char *in,  unsigned long inlen,
 /* PEM related */
 
 #ifdef LTC_PEM
+enum cipher_mode {
+   cm_none, cm_cbc, cm_cfb, cm_ctr, cm_ofb, cm_stream, cm_gcm
+};
+
 struct password {
    /* usually a `char*` but could also contain binary data
     * so use a `void*` + length to be on the safe side.
@@ -262,9 +266,12 @@ struct password {
    void *pw;
    unsigned long l;
 };
-struct dek_info {
-   const char *alg;
+
+struct blockcipher_info {
+   const char *name;
+   const char *algo;
    unsigned long keylen;
+   enum cipher_mode mode;
    /* should use `MAXBLOCKSIZE` here, but all supported
     * blockciphers require max 16 bytes IV */
    char iv[16 * 2 + 1];
@@ -279,11 +286,6 @@ struct str {
 #define SET_CSTR(n, s) n.p = (char*)s, n.len = XSTRLEN(s)
 #define COPY_STR(n, s, l) do { XMEMCPY(n.p, s, l); n.len = l; } while(0)
 #define RESET_STR(n) do { n.p = NULL; n.len = 0; } while(0)
-
-struct dek_info_from_str {
-   const struct str id;
-   struct dek_info info;
-};
 
 enum more_headers {
    no,
@@ -303,7 +305,7 @@ struct pem_header_id {
 struct pem_headers {
    const struct pem_header_id *id;
    int encrypted;
-   struct dek_info info;
+   struct blockcipher_info info;
    struct password *pw;
 };
 
@@ -338,6 +340,11 @@ int pbes_decrypt(const pbes_arg  *arg, unsigned char *dec_data, unsigned long *d
 int pbes1_extract(const ltc_asn1_list *s, pbes_arg *res);
 int pbes2_extract(const ltc_asn1_list *s, pbes_arg *res);
 
+int pem_decrypt(unsigned char *data, unsigned long *datalen,
+                unsigned char *key,  unsigned long keylen,
+                unsigned char *iv,   unsigned long ivlen,
+                const struct blockcipher_info *info,
+                enum padding_type padding);
 #ifndef LTC_NO_FILE
 int pem_get_char_from_file(struct get_char *g);
 #endif /* LTC_NO_FILE */

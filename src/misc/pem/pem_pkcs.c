@@ -16,9 +16,12 @@ static int s_decrypt_pem(unsigned char *pem, unsigned long *l, const struct pem_
 {
    unsigned char iv[MAXBLOCKSIZE], key[MAXBLOCKSIZE];
    unsigned long ivlen, klen;
-   int err;
-   symmetric_CBC cbc_ctx;
+   int err, cipher;
 
+   cipher = find_cipher(hdr->info.algo);
+   if (cipher == -1) {
+      return CRYPT_INVALID_CIPHER;
+   }
    if (hdr->info.keylen > sizeof(key)) {
       return CRYPT_BUFFER_OVERFLOW;
    }
@@ -35,20 +38,8 @@ static int s_decrypt_pem(unsigned char *pem, unsigned long *l, const struct pem_
       return err;
    }
 
-   if ((err = cbc_start(find_cipher(hdr->info.alg), iv, key, klen, 0, &cbc_ctx)) != CRYPT_OK) {
-      goto error_out;
-   }
-   if ((err = cbc_decrypt(pem, pem, *l, &cbc_ctx)) != CRYPT_OK) {
-      goto error_out;
-   }
-   if ((err = cbc_done(&cbc_ctx)) != CRYPT_OK) {
-      goto error_out;
-   }
-   if ((err = padding_depad(pem, l, LTC_PAD_PKCS7 | cbc_ctx.blocklen)) != CRYPT_OK) {
-      goto error_out;
-   }
+   err = pem_decrypt(pem, l, key, klen, iv, ivlen, &hdr->info, LTC_PAD_PKCS7);
 
-error_out:
    zeromem(key, sizeof(key));
    zeromem(iv, sizeof(iv));
    return err;

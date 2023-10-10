@@ -12,29 +12,41 @@
 
 #if defined(LTC_PEM_SSH)
 
-enum blockcipher_mode {
-   none, cbc, ctr, stream, gcm
-};
-struct ssh_blockcipher {
-   const char *name;
-   const char *algo;
-   int len;
-   enum blockcipher_mode mode;
-};
-
 /* Table as of
  * https://www.iana.org/assignments/ssh-parameters/ssh-parameters.xhtml#ssh-parameters-17
  */
-const struct ssh_blockcipher ssh_ciphers[] =
+const struct blockcipher_info ssh_ciphers[] =
 {
-   { "none", "", 0, none },
-   { "aes256-cbc", "aes", 256 / 8, cbc },
-   { "aes256-ctr", "aes", 256 / 8, ctr },
+   { .name = "none",            .algo = "",         .keylen = 0,       .mode = cm_none },
+   { .name = "aes128-cbc",      .algo = "aes",      .keylen = 128 / 8, .mode = cm_cbc  },
+   { .name = "aes128-ctr",      .algo = "aes",      .keylen = 128 / 8, .mode = cm_ctr  },
+   { .name = "aes192-cbc",      .algo = "aes",      .keylen = 192 / 8, .mode = cm_cbc  },
+   { .name = "aes192-ctr",      .algo = "aes",      .keylen = 192 / 8, .mode = cm_ctr  },
+   { .name = "aes256-cbc",      .algo = "aes",      .keylen = 256 / 8, .mode = cm_cbc  },
+   { .name = "aes256-ctr",      .algo = "aes",      .keylen = 256 / 8, .mode = cm_ctr  },
+   { .name = "blowfish128-cbc", .algo = "blowfish", .keylen = 128 / 8, .mode = cm_cbc  },
+   { .name = "blowfish128-ctr", .algo = "blowfish", .keylen = 128 / 8, .mode = cm_ctr  },
+   { .name = "des-cbc",         .algo = "des",      .keylen = 64 / 8,  .mode = cm_cbc  },
+   { .name = "3des-cbc",        .algo = "3des",     .keylen = 192 / 8, .mode = cm_cbc  },
+   { .name = "3des-ctr",        .algo = "3des",     .keylen = 192 / 8, .mode = cm_ctr  },
+   { .name = "serpent128-cbc",  .algo = "serpent",  .keylen = 128 / 8, .mode = cm_cbc  },
+   { .name = "serpent128-ctr",  .algo = "serpent",  .keylen = 128 / 8, .mode = cm_ctr  },
+   { .name = "serpent192-cbc",  .algo = "serpent",  .keylen = 192 / 8, .mode = cm_cbc  },
+   { .name = "serpent192-ctr",  .algo = "serpent",  .keylen = 192 / 8, .mode = cm_ctr  },
+   { .name = "serpent256-cbc",  .algo = "serpent",  .keylen = 256 / 8, .mode = cm_cbc  },
+   { .name = "serpent256-ctr",  .algo = "serpent",  .keylen = 256 / 8, .mode = cm_ctr  },
+   { .name = "twofish128-cbc",  .algo = "twofish",  .keylen = 128 / 8, .mode = cm_cbc  },
+   { .name = "twofish128-ctr",  .algo = "twofish",  .keylen = 128 / 8, .mode = cm_ctr  },
+   { .name = "twofish192-cbc",  .algo = "twofish",  .keylen = 192 / 8, .mode = cm_cbc  },
+   { .name = "twofish192-ctr",  .algo = "twofish",  .keylen = 192 / 8, .mode = cm_ctr  },
+   { .name = "twofish-cbc",     .algo = "twofish",  .keylen = 256 / 8, .mode = cm_cbc  },
+   { .name = "twofish256-cbc",  .algo = "twofish",  .keylen = 256 / 8, .mode = cm_cbc  },
+   { .name = "twofish256-ctr",  .algo = "twofish",  .keylen = 256 / 8, .mode = cm_ctr  },
 };
 
 struct kdf_options {
    const char *name;
-   const struct ssh_blockcipher *cipher;
+   const struct blockcipher_info *cipher;
    unsigned char salt[64];
    ulong32 saltlen;
    ulong32 num_rounds;
@@ -236,13 +248,7 @@ static int s_decrypt_private_keys(unsigned char *in, unsigned long *inlen, struc
 {
    int err, cipher;
    unsigned long symkey_len;
-   struct {
-      unsigned char symkey[128];
-      union {
-         symmetric_CBC cbc;
-         symmetric_CTR ctr;
-      } ctx;
-   } s;
+   unsigned char symkey[MAXBLOCKSIZE];
 
    LTC_ARGCHK(in    != NULL);
    LTC_ARGCHK(inlen != NULL);
@@ -252,43 +258,23 @@ static int s_decrypt_private_keys(unsigned char *in, unsigned long *inlen, struc
    if (cipher == -1) {
       return CRYPT_INVALID_CIPHER;
    }
-   symkey_len = opts->cipher->len + cipher_descriptor[cipher].block_length;
+   symkey_len = opts->cipher->keylen + cipher_descriptor[cipher].block_length;
 
-   if (sizeof(s.symkey) < symkey_len) {
+   if (sizeof(symkey) < symkey_len) {
       return CRYPT_OVERFLOW;
    }
 
    if ((err = bcrypt_pbkdf_openbsd(opts->pw.pw, opts->pw.l, opts->salt, opts->saltlen,
-                                   opts->num_rounds, find_hash("sha512"), s.symkey, &symkey_len)) != CRYPT_OK) {
+                                   opts->num_rounds, find_hash("sha512"), symkey, &symkey_len)) != CRYPT_OK) {
       return err;
    }
 
-   if (opts->cipher->mode == cbc) {
-      if ((err = cbc_start(cipher, s.symkey + opts->cipher->len, s.symkey, opts->cipher->len,
-                           0, &s.ctx.cbc)) != CRYPT_OK) {
-         goto cleanup;
-      }
-      if ((err = cbc_decrypt(in, in, *inlen, &s.ctx.cbc)) != CRYPT_OK) {
-         goto cleanup;
-      }
-      if ((err = cbc_done(&s.ctx.cbc)) != CRYPT_OK) {
-         goto cleanup;
-      }
-   } else if (opts->cipher->mode == ctr) {
-      if ((err = ctr_start(cipher, s.symkey + opts->cipher->len, s.symkey, opts->cipher->len,
-                           0, CTR_COUNTER_BIG_ENDIAN, &s.ctx.ctr)) != CRYPT_OK) {
-         goto cleanup;
-      }
-      if ((err = ctr_decrypt(in, in, *inlen, &s.ctx.ctr)) != CRYPT_OK) {
-         goto cleanup;
-      }
-      if ((err = ctr_done(&s.ctx.ctr)) != CRYPT_OK) {
-         goto cleanup;
-      }
-   }
+   err = pem_decrypt(in, inlen,
+                     symkey, opts->cipher->keylen,
+                     symkey + opts->cipher->keylen, cipher_descriptor[cipher].block_length,
+                     opts->cipher, LTC_PAD_SSH);
 
-cleanup:
-   zeromem(&s, sizeof(s));
+   zeromem(symkey, sizeof(symkey));
 
    return err;
 }
