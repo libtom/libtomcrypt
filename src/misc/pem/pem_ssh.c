@@ -99,6 +99,9 @@ int ssh_decode_ed25519(const unsigned char *in, unsigned long *inlen, ltc_pka_ke
    if ((err = ed25519_import_raw(&privkey[32], 32, PK_PRIVATE, &key->u.ed25519)) != CRYPT_OK) {
       goto cleanup;
    }
+   if (pubkeylen == sizeof(key->u.ed25519.pub)) {
+      XMEMCPY(key->u.ed25519.pub, pubkey, pubkeylen);
+   }
 
    key->id = LTC_PKA_ED25519;
 
