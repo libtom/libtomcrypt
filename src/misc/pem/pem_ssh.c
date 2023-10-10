@@ -29,7 +29,7 @@ const struct ssh_blockcipher ssh_ciphers[] =
 {
    { "none", "", 0, none },
    { "aes256-cbc", "aes", 256 / 8, cbc },
-   { 0 },
+   { "aes256-ctr", "aes", 256 / 8, ctr },
 };
 
 struct kdf_options {
@@ -232,9 +232,14 @@ static int s_decode_private_key(const unsigned char *in, unsigned long *inlen, l
 static int s_decrypt_private_keys(unsigned char *in, unsigned long *inlen, struct kdf_options *opts)
 {
    int err, cipher;
-   unsigned char symkey[128];
    unsigned long symkey_len;
-   symmetric_CBC cbc_ctx;
+   struct {
+      unsigned char symkey[128];
+      union {
+         symmetric_CBC cbc;
+         symmetric_CTR ctr;
+      } ctx;
+   } s;
 
    LTC_ARGCHK(in    != NULL);
    LTC_ARGCHK(inlen != NULL);
@@ -246,27 +251,41 @@ static int s_decrypt_private_keys(unsigned char *in, unsigned long *inlen, struc
    }
    symkey_len = opts->cipher->len + cipher_descriptor[cipher].block_length;
 
-   if (sizeof(symkey) < symkey_len) {
+   if (sizeof(s.symkey) < symkey_len) {
       return CRYPT_OVERFLOW;
    }
 
-   if ((err = bcrypt_pbkdf_openbsd(opts->pw.pw, opts->pw.l, opts->salt, opts->saltlen, opts->num_rounds, find_hash("sha512"), symkey, &symkey_len)) != CRYPT_OK) {
+   if ((err = bcrypt_pbkdf_openbsd(opts->pw.pw, opts->pw.l, opts->salt, opts->saltlen,
+                                   opts->num_rounds, find_hash("sha512"), s.symkey, &symkey_len)) != CRYPT_OK) {
       return err;
    }
 
-   if ((err = cbc_start(cipher, symkey + opts->cipher->len, symkey, opts->cipher->len, 0, &cbc_ctx)) != CRYPT_OK) {
-      goto cleanup;
-   }
-   if ((err = cbc_decrypt(in, in, *inlen, &cbc_ctx)) != CRYPT_OK) {
-      goto cleanup;
-   }
-   if ((err = cbc_done(&cbc_ctx)) != CRYPT_OK) {
-      goto cleanup;
+   if (opts->cipher->mode == cbc) {
+      if ((err = cbc_start(cipher, s.symkey + opts->cipher->len, s.symkey, opts->cipher->len,
+                           0, &s.ctx.cbc)) != CRYPT_OK) {
+         goto cleanup;
+      }
+      if ((err = cbc_decrypt(in, in, *inlen, &s.ctx.cbc)) != CRYPT_OK) {
+         goto cleanup;
+      }
+      if ((err = cbc_done(&s.ctx.cbc)) != CRYPT_OK) {
+         goto cleanup;
+      }
+   } else if (opts->cipher->mode == ctr) {
+      if ((err = ctr_start(cipher, s.symkey + opts->cipher->len, s.symkey, opts->cipher->len,
+                           0, CTR_COUNTER_BIG_ENDIAN, &s.ctx.ctr)) != CRYPT_OK) {
+         goto cleanup;
+      }
+      if ((err = ctr_decrypt(in, in, *inlen, &s.ctx.ctr)) != CRYPT_OK) {
+         goto cleanup;
+      }
+      if ((err = ctr_done(&s.ctx.ctr)) != CRYPT_OK) {
+         goto cleanup;
+      }
    }
 
 cleanup:
-   zeromem(symkey, sizeof(symkey));
-   zeromem(&cbc_ctx, sizeof(cbc_ctx));
+   zeromem(&s, sizeof(s));
 
    return err;
 }
