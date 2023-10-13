@@ -580,7 +580,7 @@
 #if defined(LTC_PEM)
    /* Size of the line-buffer */
    #ifndef LTC_PEM_DECODE_BUFSZ
-      #define LTC_PEM_DECODE_BUFSZ 72
+      #define LTC_PEM_DECODE_BUFSZ 80
    #elif LTC_PEM_DECODE_BUFSZ < 72
       #error "LTC_PEM_DECODE_BUFSZ shall not be < 72 bytes"
    #endif

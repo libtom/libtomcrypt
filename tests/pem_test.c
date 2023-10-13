@@ -74,12 +74,17 @@ static int s_key_cmp(ltc_pka_key *key)
    return CRYPT_INVALID_ARG;
 }
 
-static int s_pem_decode(const void *in, unsigned long inlen, void *key)
+static int s_pem_only_decode(const void *in, unsigned long inlen, void *key)
 {
    password_ctx pw_ctx;
-   int err;
    pw_ctx.callback = password_get;
-   if ((err = pem_decode_pkcs(in, inlen, key, &pw_ctx)) != CRYPT_OK) {
+   return pem_decode_pkcs(in, inlen, key, &pw_ctx);
+}
+
+static int s_pem_decode(const void *in, unsigned long inlen, void *key)
+{
+   int err;
+   if ((err = s_pem_only_decode(in, inlen, key)) != CRYPT_OK) {
       return err;
    }
    return s_key_cmp(key);
@@ -115,8 +120,9 @@ int pem_test(void)
 
    DO(test_process_dir("tests/pem", &key, s_pem_decode, NULL, (dir_cleanup_cb)pka_key_free, "pem_test"));
    DO(test_process_dir("tests/pem", &key, NULL, s_pem_decode_f, (dir_cleanup_cb)pka_key_free, "pem_test_filehandle"));
-   DO(test_process_dir("tests/pem-ecc-pkcs8", &key, s_pem_decode, NULL, (dir_cleanup_cb)pka_key_free, "pem_test+ecc"));
-   DO(test_process_dir("tests/pem-ecc-pkcs8", &key, NULL, s_pem_decode_f, (dir_cleanup_cb)pka_key_free, "pem_test_filehandle+ecc"));
+   DO(test_process_dir("tests/pem/ecc-pkcs8", &key, s_pem_decode, NULL, (dir_cleanup_cb)pka_key_free, "pem_test+ecc"));
+   DO(test_process_dir("tests/pem/ecc-pkcs8", &key, NULL, s_pem_decode_f, (dir_cleanup_cb)pka_key_free, "pem_test_filehandle+ecc"));
+   DO(test_process_dir("tests/pem/extra", &key, s_pem_only_decode, NULL, (dir_cleanup_cb)pka_key_free, "pem_test+extra"));
 #ifdef LTC_SSH
    DO(test_process_dir("tests/ssh", &key, s_pem_decode_ssh, NULL, (dir_cleanup_cb)pka_key_free, "pem_test+ssh"));
    DO(test_process_dir("tests/ssh", &key, NULL, s_pem_decode_ssh_f, (dir_cleanup_cb)pka_key_free, "pem_test_filehandle+ssh"));
