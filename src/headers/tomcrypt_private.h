@@ -293,12 +293,18 @@ enum more_headers {
    maybe
 };
 
+enum pem_flags {
+   pf_encrypted = 0x01u,
+   pf_pkcs8 = 0x02u,
+   pf_public = 0x04u,
+   pf_encrypted_pkcs8 = pf_encrypted | pf_pkcs8,
+};
+
 struct pem_header_id {
    struct str start, end;
    enum more_headers has_more_headers;
-   int encrypted;
+   enum pem_flags flags;
    enum ltc_pka_id pka;
-   int pkcs8;
    int (*decrypt)(void *, unsigned long *, void *);
 };
 

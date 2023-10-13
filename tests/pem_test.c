@@ -51,17 +51,17 @@ static int s_key_cmp(ltc_pka_key *key)
    switch (key->id) {
       case LTC_PKA_DSA:
 #if defined(LTC_MDSA)
-         return dsa_key_cmp(PK_PRIVATE, &s_dsa_key_should, &key->u.dsa);
+         return dsa_key_cmp(key->u.dsa.type, &s_dsa_key_should, &key->u.dsa);
 #endif
          break;
       case LTC_PKA_RSA:
 #if defined(LTC_MRSA)
-         return rsa_key_cmp(PK_PRIVATE, &s_rsa_key_should, &key->u.rsa);
+         return rsa_key_cmp(key->u.rsa.type, &s_rsa_key_should, &key->u.rsa);
 #endif
          break;
       case LTC_PKA_EC:
 #if defined(LTC_MECC)
-         return ecc_key_cmp(PK_PRIVATE, &s_ecc_key_should, &key->u.ecc);
+         return ecc_key_cmp(key->u.ecc.type, &s_ecc_key_should, &key->u.ecc);
 #endif
          break;
       case LTC_PKA_ED25519:

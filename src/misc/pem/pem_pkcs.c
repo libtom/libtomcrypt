@@ -44,13 +44,64 @@ static int s_decrypt_pem(unsigned char *pem, unsigned long *l, const struct pem_
    zeromem(iv, sizeof(iv));
    return err;
 }
-typedef int (*pkcs8_import)(const unsigned char *in, unsigned long inlen,
-                                   password_ctx *pw_ctx,
-                                           void *key);
-typedef struct {
-   enum ltc_oid_id id;
-   pkcs8_import fn;
-} p8_import_st;
+
+static int s_import_pkcs8(unsigned char *pem, unsigned long l, ltc_pka_key *k, const password_ctx *pw_ctx)
+{
+   int err;
+   enum ltc_oid_id pka;
+   ltc_asn1_list *alg_id, *priv_key;
+   ltc_asn1_list *p8_asn1 = NULL;
+   if ((err = pkcs8_decode_flexi(pem, l, pw_ctx, &p8_asn1)) != CRYPT_OK) {
+      goto cleanup;
+   }
+   if ((err = pkcs8_get_children(p8_asn1, &pka, &alg_id, &priv_key)) != CRYPT_OK) {
+      goto cleanup;
+   }
+   switch (pka) {
+#ifdef LTC_MDH
+      case LTC_OID_DH:
+         err = dh_import_pkcs8_asn1(alg_id, priv_key, &k->u.dh);
+         k->id = LTC_PKA_DH;
+         break;
+#endif
+#ifdef LTC_MDSA
+      case LTC_OID_DSA:
+         err = dsa_import_pkcs8_asn1(alg_id, priv_key, &k->u.dsa);
+         k->id = LTC_PKA_DSA;
+         break;
+#endif
+#ifdef LTC_MRSA
+      case LTC_OID_RSA:
+         err = rsa_import_pkcs8_asn1(alg_id, priv_key, &k->u.rsa);
+         k->id = LTC_PKA_RSA;
+         break;
+#endif
+#ifdef LTC_MECC
+      case LTC_OID_EC:
+         err = ecc_import_pkcs8_asn1(alg_id, priv_key, &k->u.ecc);
+         k->id = LTC_PKA_EC;
+         break;
+#endif
+#ifdef LTC_CURVE25519
+      case LTC_OID_X25519:
+         err = x25519_import_pkcs8_asn1(alg_id, priv_key, &k->u.x25519);
+         k->id = LTC_PKA_X25519;
+         break;
+      case LTC_OID_ED25519:
+         err = ed25519_import_pkcs8_asn1(alg_id, priv_key, &k->u.ed25519);
+         k->id = LTC_PKA_ED25519;
+         break;
+#endif
+      default:
+         err = CRYPT_PK_INVALID_TYPE;
+   }
+
+cleanup:
+   if (p8_asn1) {
+      der_sequence_free(p8_asn1);
+   }
+   return err;
+}
 
 static int s_decode(struct get_char *g, ltc_pka_key *k, const password_ctx *pw_ctx)
 {
@@ -59,7 +110,10 @@ static int s_decode(struct get_char *g, ltc_pka_key *k, const password_ctx *pw_c
    int err = CRYPT_ERROR;
    struct pem_headers hdr = { 0 };
    struct password pw;
-   ltc_asn1_list *p8_asn1 = NULL;
+   ltc_asn1_list *pub = NULL, *seqid, *id;
+   der_flexi_check flexi_should[4];
+   enum ltc_oid_id oid_id;
+   enum ltc_pka_id pka;
    XMEMSET(k, 0, sizeof(*k));
    w = LTC_PEM_READ_BUFSIZE * 2;
 retry:
@@ -78,54 +132,33 @@ retry:
    if (hdr.id == NULL)
       goto cleanup;
    l = w;
-   if (hdr.id->pkcs8) {
-      enum ltc_oid_id pka;
-      ltc_asn1_list *alg_id, *priv_key;
-      if ((err = pkcs8_decode_flexi(pem, l, pw_ctx, &p8_asn1)) != CRYPT_OK) {
-         goto cleanup;
-      }
-      if ((err = pkcs8_get_children(p8_asn1, &pka, &alg_id, &priv_key)) != CRYPT_OK) {
-         goto cleanup;
-      }
-      switch (pka) {
-#ifdef LTC_MDH
-         case LTC_OID_DH:
-            err = dh_import_pkcs8_asn1(alg_id, priv_key, &k->u.dh);
-            k->id = LTC_PKA_DH;
-            break;
-#endif
-#ifdef LTC_MDSA
-         case LTC_OID_DSA:
-            err = dsa_import_pkcs8_asn1(alg_id, priv_key, &k->u.dsa);
-            k->id = LTC_PKA_DSA;
-            break;
-#endif
-#ifdef LTC_MRSA
-         case LTC_OID_RSA:
-            err = rsa_import_pkcs8_asn1(alg_id, priv_key, &k->u.rsa);
-            k->id = LTC_PKA_RSA;
-            break;
-#endif
-#ifdef LTC_MECC
-         case LTC_OID_EC:
-            err = ecc_import_pkcs8_asn1(alg_id, priv_key, &k->u.ecc);
-            k->id = LTC_PKA_EC;
-            break;
-#endif
-#ifdef LTC_CURVE25519
-         case LTC_OID_X25519:
-            err = x25519_import_pkcs8_asn1(alg_id, priv_key, &k->u.x25519);
-            k->id = LTC_PKA_X25519;
-            break;
-         case LTC_OID_ED25519:
-            err = ed25519_import_pkcs8_asn1(alg_id, priv_key, &k->u.ed25519);
-            k->id = LTC_PKA_ED25519;
-            break;
-#endif
-         default:
-            err = CRYPT_PK_INVALID_TYPE;
-      }
+   if (hdr.id->flags & pf_pkcs8) {
+      err = s_import_pkcs8(pem, l, k, pw_ctx);
       goto cleanup;
+   } else if (hdr.id->flags & pf_public) {
+      if ((err = der_decode_sequence_flexi(pem, &w, &pub)) != CRYPT_OK) {
+         goto cleanup;
+      }
+      n = 0;
+      LTC_SET_DER_FLEXI_CHECK(flexi_should, n++, LTC_ASN1_SEQUENCE, &seqid);
+      LTC_SET_DER_FLEXI_CHECK(flexi_should, n++, LTC_ASN1_BIT_STRING, NULL);
+      LTC_SET_DER_FLEXI_CHECK(flexi_should, n, LTC_ASN1_EOL, NULL);
+      if ((err = der_flexi_sequence_cmp(pub, flexi_should)) != CRYPT_OK) {
+         goto cleanup;
+      }
+      n = 0;
+      LTC_SET_DER_FLEXI_CHECK(flexi_should, n++, LTC_ASN1_OBJECT_IDENTIFIER, &id);
+      LTC_SET_DER_FLEXI_CHECK(flexi_should, n, LTC_ASN1_EOL, NULL);
+      err = der_flexi_sequence_cmp(seqid, flexi_should);
+      if (err != CRYPT_OK && err != CRYPT_INPUT_TOO_LONG) {
+         goto cleanup;
+      }
+      if ((err = pk_get_oid_from_asn1(id, &oid_id)) != CRYPT_OK) {
+         goto cleanup;
+      }
+      if ((err = pk_get_pka_id(oid_id, &pka)) != CRYPT_OK) {
+         goto cleanup;
+      }
    } else if (hdr.encrypted) {
       if ((pw_ctx == NULL) || (pw_ctx->callback == NULL)) {
          err = CRYPT_PW_CTX_MISSING;
@@ -141,8 +174,11 @@ retry:
       if ((err = s_decrypt_pem(pem, &l, &hdr)) != CRYPT_OK) {
          goto cleanup;
       }
+      pka = hdr.id->pka;
+   } else {
+      pka = hdr.id->pka;
    }
-   switch (hdr.id->pka) {
+   switch (pka) {
 #ifdef LTC_MDSA
       case LTC_OID_DSA:
          err = dsa_import(pem, l, &k->u.dsa);
@@ -161,14 +197,24 @@ retry:
          k->id = LTC_PKA_EC;
          break;
 #endif
+#ifdef LTC_CURVE25519
+      case LTC_PKA_ED25519:
+         err = ed25519_import(pem, l, &k->u.ed25519);
+         k->id = LTC_PKA_ED25519;
+         break;
+      case LTC_PKA_X25519:
+         err = x25519_import(pem, l, &k->u.x25519);
+         k->id = LTC_PKA_X25519;
+         break;
+#endif
       default:
          err = CRYPT_PK_INVALID_TYPE;
          goto cleanup;
    }
 
 cleanup:
-   if (p8_asn1) {
-      der_sequence_free(p8_asn1);
+   if (pub) {
+      der_sequence_free(pub);
    }
    if (hdr.pw) {
       zeromem(hdr.pw->pw, hdr.pw->l);

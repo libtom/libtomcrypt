@@ -167,7 +167,7 @@ int pem_read(void *pem, unsigned long *w, struct pem_headers *hdr, struct get_ch
       return CRYPT_INVALID_PACKET;
    }
 
-   hdr->encrypted = hdr->id->encrypted;
+   hdr->encrypted = hdr->id->flags & pf_encrypted;
    if ((err = s_pem_decode_headers(hdr, g)) != CRYPT_OK)
       return err;
 

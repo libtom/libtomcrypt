@@ -15,15 +15,21 @@ const struct pem_header_id pem_std_headers[] = {
      SET_CSTR(.start, "-----BEGIN ENCRYPTED PRIVATE KEY-----"),
      SET_CSTR(.end, "-----END ENCRYPTED PRIVATE KEY-----"),
      .has_more_headers = no,
-     .encrypted = 1,
-     .pkcs8 = 1,
+     .flags = pf_encrypted_pkcs8,
    },
    {
      /* PKCS#8 plain */
      SET_CSTR(.start, "-----BEGIN PRIVATE KEY-----"),
      SET_CSTR(.end, "-----END PRIVATE KEY-----"),
      .has_more_headers = no,
-     .pkcs8 = 1,
+     .flags = pf_pkcs8,
+   },
+   {
+     /* Regular (plain) public keys */
+     SET_CSTR(.start, "-----BEGIN PUBLIC KEY-----"),
+     SET_CSTR(.end, "-----END PUBLIC KEY-----"),
+     .has_more_headers = no,
+     .flags = pf_public,
    },
    /* Regular plain or encrypted private keys */
    {
