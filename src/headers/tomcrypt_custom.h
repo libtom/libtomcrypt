@@ -114,7 +114,7 @@
 
    #define LTC_NO_MISC
    #define LTC_BASE64
-#endif /* LTC_EASY */
+#endif
 
 /* The minimal set of functionality to run the tests */
 #ifdef LTC_MINIMAL
@@ -129,7 +129,7 @@
    #define LTC_TRY_URANDOM_FIRST
 
    #undef LTC_NO_FILE
-#endif /* LTC_MINIMAL */
+#endif
 
 /* Enable self-test test vector checking */
 #ifndef LTC_NO_TEST
@@ -179,9 +179,6 @@
 #define LTC_RC6
 #define LTC_SAFERP
 #define LTC_RIJNDAEL
-#ifndef LTC_NO_AES_NI
-   #define LTC_AES_NI
-#endif
 #define LTC_XTEA
 /* _TABLES tells it to use tables during setup, _SMALL means to use the smaller scheduled key format
  * (saves 4KB of ram), _ALL_TABLES enables all tables during setup */
@@ -262,6 +259,7 @@
 #define LTC_SHA256
 #define LTC_SHA224
 #define LTC_TIGER
+#define LTC_TIGER2
 #define LTC_SHA1
 #define LTC_MD5
 #define LTC_MD4
@@ -335,14 +333,11 @@
 /* Greg's SOBER128 stream cipher based PRNG */
 #define LTC_SOBER128
 
-#if !defined(_WIN32) && !defined(_WIN32_WCE)
 /* the *nix style /dev/random device */
 #define LTC_DEVRANDOM
 /* try /dev/urandom before trying /dev/random
  * are you sure you want to disable this? http://www.2uo.de/myths-about-urandom/ */
 #define LTC_TRY_URANDOM_FIRST
-#endif /* not Windows */
-
 /* rng_get_bytes() */
 #define LTC_RNG_GET_BYTES
 /* rng_make_prng() */
@@ -363,7 +358,7 @@
   #define LTC_YARROW_AES 2
 #endif
 
-#endif /* LTC_YARROW */
+#endif
 
 #ifdef LTC_FORTUNA
 
@@ -559,7 +554,7 @@
    #define LTC_ECC_SECP384R1
    #define LTC_ECC_SECP521R1
 #endif
-#endif /* LTC_MECC */
+#endif
 
 #if defined(LTC_DER)
    #ifndef LTC_DER_MAX_RECURSION
@@ -696,12 +691,14 @@
 #define LTC_MUTEX_UNLOCK(x)
 #define LTC_MUTEX_DESTROY(x)
 
-#endif /* LTC_PTHREAD */
+#endif
 
 /* Debuggers */
 
 /* define this if you use Valgrind, note: it CHANGES the way SOBER-128 and RC4 work (see the code) */
 /* #define LTC_VALGRIND */
+
+#endif
 
 #ifndef LTC_NO_FILE
    /* buffer size for reading from a file via fread(..) */
@@ -743,5 +740,3 @@
 #define LTC_ECC_SECP521R1
 #undef LTC_ECC521
 #endif
-
-#endif /* TOMCRYPT_CUSTOM_H_ */
