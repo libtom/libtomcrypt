@@ -62,6 +62,14 @@ struct tiger_state {
 };
 #endif
 
+#ifdef LTC_TIGER2
+struct tiger2_state {
+	ulong64 state[3], length;
+	unsigned long curlen;
+	unsigned char buf[64];
+};
+#endif
+
 #ifdef LTC_MD2
 struct md2_state {
     unsigned char chksum[16], X[48], buf[16];
@@ -172,6 +180,9 @@ typedef union Hash_state {
 #endif
 #ifdef LTC_TIGER
     struct tiger_state  tiger;
+#endif
+#ifdef LTC_TIGER2
+	struct tiger2_state  tiger2;
 #endif
 #ifdef LTC_RIPEMD128
     struct rmd128_state rmd128;
@@ -446,6 +457,14 @@ int tiger_test(void);
 extern const struct ltc_hash_descriptor tiger_desc;
 #endif
 
+#ifdef LTC_TIGER2
+int tiger2_init(hash_state * md);
+int tiger2_process(hash_state * md, const unsigned char *in, unsigned long inlen);
+int tiger2_done(hash_state * md, unsigned char *out);
+int tiger2_test(void);
+extern const struct ltc_hash_descriptor tiger2_desc;
+#endif
+
 #ifdef LTC_RIPEMD128
 int rmd128_init(hash_state * md);
 int rmd128_process(hash_state * md, const unsigned char *in, unsigned long inlen);
@@ -494,8 +513,7 @@ int hash_memory(int hash,
                 const unsigned char *in,  unsigned long inlen,
                       unsigned char *out, unsigned long *outlen);
 int hash_memory_multi(int hash, unsigned char *out, unsigned long *outlen,
-                      const unsigned char *in, unsigned long inlen, ...)
-                      LTC_NULL_TERMINATED;
+                      const unsigned char *in, unsigned long inlen, ...);
 
 #ifndef LTC_NO_FILE
 int hash_filehandle(int hash, FILE *in, unsigned char *out, unsigned long *outlen);
