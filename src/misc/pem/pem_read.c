@@ -170,7 +170,7 @@ int pem_read(void *pem, unsigned long *w, struct pem_headers *hdr, struct get_ch
    }
    if (hdr->id->start.len != linelen || XMEMCMP(buf, hdr->id->start.p, hdr->id->start.len)) {
       s_unget_line(buf, linelen, g);
-      return CRYPT_INVALID_PACKET;
+      return CRYPT_UNKNOWN_PEM;
    }
 
    hdr->encrypted = hdr->id->flags & pf_encrypted;

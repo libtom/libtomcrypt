@@ -537,6 +537,8 @@ retry:
          goto retry;
       } else if (err == CRYPT_OK) {
          break;
+      } else if (err != CRYPT_UNKNOWN_PEM) {
+         goto cleanup;
       }
       hdr.id = NULL;
    }

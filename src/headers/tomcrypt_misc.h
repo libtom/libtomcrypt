@@ -160,6 +160,9 @@ int padding_depad(const unsigned char *data, unsigned long *length, unsigned lon
 #endif  /* LTC_PADDING */
 
 #ifdef LTC_PEM
+int pem_decode_filehandle(FILE *f, ltc_pka_key *k, const password_ctx *pw_ctx);
+int pem_decode(const void *buf, unsigned long len, ltc_pka_key *k, const password_ctx *pw_ctx);
+
 int pem_decode_pkcs_filehandle(FILE *f, ltc_pka_key *k, const password_ctx *pw_ctx);
 int pem_decode_pkcs(const void *buf, unsigned long len, ltc_pka_key *k, const password_ctx *pw_ctx);
 

@@ -74,23 +74,23 @@ static int s_key_cmp(ltc_pka_key *key)
    return CRYPT_INVALID_ARG;
 }
 
-static int s_pem_only_decode(const void *in, unsigned long inlen, void *key)
+static int s_pem_only_decode_pkcs(const void *in, unsigned long inlen, void *key)
 {
    password_ctx pw_ctx;
    pw_ctx.callback = password_get;
    return pem_decode_pkcs(in, inlen, key, &pw_ctx);
 }
 
-static int s_pem_decode(const void *in, unsigned long inlen, void *key)
+static int s_pem_decode_pkcs(const void *in, unsigned long inlen, void *key)
 {
    int err;
-   if ((err = s_pem_only_decode(in, inlen, key)) != CRYPT_OK) {
+   if ((err = s_pem_only_decode_pkcs(in, inlen, key)) != CRYPT_OK) {
       return err;
    }
    return s_key_cmp(key);
 }
 
-static int s_pem_decode_f(FILE *f, void *key)
+static int s_pem_decode_pkcs_f(FILE *f, void *key)
 {
    password_ctx pw_ctx;
    int err;
@@ -99,6 +99,26 @@ static int s_pem_decode_f(FILE *f, void *key)
       return err;
    }
    return s_key_cmp(key);
+}
+
+static int s_pem_only_decode(const void *in, unsigned long inlen, void *key)
+{
+   password_ctx pw_ctx;
+   pw_ctx.callback = password_get;
+   if ((strcmp(ltc_mp.name, "TomsFastMath") == 0) && (inlen > 2048)) {
+#if defined(LTC_TEST_DBG) && LTC_TEST_DBG > 1
+      fprintf(stderr, "Skipping testcase because of TomsFastMath\n");
+#endif
+      return CRYPT_NOP;
+   }
+   return pem_decode(in, inlen, key, &pw_ctx);
+}
+
+static int s_pem_only_decode_f(FILE *f, void *key)
+{
+   password_ctx pw_ctx;
+   pw_ctx.callback = password_get;
+   return pem_decode_filehandle(f, key, &pw_ctx);
 }
 
 int pem_test(void)
@@ -118,16 +138,22 @@ int pem_test(void)
 #endif
 
 
-   DO(test_process_dir("tests/pem", &key, s_pem_decode, NULL, (dir_cleanup_cb)pka_key_free, "pem_test"));
-   DO(test_process_dir("tests/pem", &key, NULL, s_pem_decode_f, (dir_cleanup_cb)pka_key_free, "pem_test_filehandle"));
-   DO(test_process_dir("tests/pem/ecc-pkcs8", &key, s_pem_decode, NULL, (dir_cleanup_cb)pka_key_free, "pem_test+ecc"));
-   DO(test_process_dir("tests/pem/ecc-pkcs8", &key, NULL, s_pem_decode_f, (dir_cleanup_cb)pka_key_free, "pem_test_filehandle+ecc"));
-   DO(test_process_dir("tests/pem/extra", &key, s_pem_only_decode, NULL, (dir_cleanup_cb)pka_key_free, "pem_test+extra"));
+   DO(test_process_dir("tests/pem/pkcs", &key, s_pem_decode_pkcs, NULL, (dir_cleanup_cb)pka_key_free, "pem_pkcs_test"));
+   DO(test_process_dir("tests/pem/pkcs", &key, NULL, s_pem_decode_pkcs_f, (dir_cleanup_cb)pka_key_free, "pem_pkcs_test_filehandle"));
+   DO(test_process_dir("tests/pem/pkcs/ecc-pkcs8", &key, s_pem_decode_pkcs, NULL, (dir_cleanup_cb)pka_key_free, "pem_pkcs_test+ecc"));
+   DO(test_process_dir("tests/pem/pkcs/ecc-pkcs8", &key, NULL, s_pem_decode_pkcs_f, (dir_cleanup_cb)pka_key_free, "pem_pkcs_test_filehandle+ecc"));
+   DO(test_process_dir("tests/pem/pkcs/extra", &key, s_pem_only_decode_pkcs, NULL, (dir_cleanup_cb)pka_key_free, "pem_pkcs_test+extra"));
 #ifdef LTC_SSH
-   DO(test_process_dir("tests/ssh", &key, s_pem_decode_ssh, NULL, (dir_cleanup_cb)pka_key_free, "pem_test+ssh"));
-   DO(test_process_dir("tests/ssh", &key, NULL, s_pem_decode_ssh_f, (dir_cleanup_cb)pka_key_free, "pem_test_filehandle+ssh"));
-   DO(test_process_dir("tests/ssh/extra", &key, s_pem_decode_ssh, NULL, (dir_cleanup_cb)pka_key_free, "pem_test+ssh+extra"));
+   DO(test_process_dir("tests/pem/ssh", &key, s_pem_decode_ssh, NULL, (dir_cleanup_cb)pka_key_free, "pem_ssh_test"));
+   DO(test_process_dir("tests/pem/ssh", &key, NULL, s_pem_decode_ssh_f, (dir_cleanup_cb)pka_key_free, "pem_ssh_test_filehandle"));
+   DO(test_process_dir("tests/pem/ssh/extra", &key, s_pem_decode_ssh, NULL, (dir_cleanup_cb)pka_key_free, "pem_ssh_test+extra"));
 #endif
+   DO(test_process_dir("tests/pem", &key, s_pem_only_decode, NULL, (dir_cleanup_cb)pka_key_free, "pem_test"));
+   DO(test_process_dir("tests/pem", &key, NULL, s_pem_only_decode_f, (dir_cleanup_cb)pka_key_free, "pem_test_filehandle"));
+   if (strcmp(ltc_mp.name, "TomsFastMath") != 0) {
+      DO(test_process_dir("tests/pem/non-tfm", &key, s_pem_only_decode, NULL, (dir_cleanup_cb)pka_key_free, "pem_test"));
+      DO(test_process_dir("tests/pem/non-tfm", &key, NULL, s_pem_only_decode_f, (dir_cleanup_cb)pka_key_free, "pem_test_filehandle"));
+   }
 
 #if defined(LTC_MDSA)
    dsa_free(&s_dsa_key_should);

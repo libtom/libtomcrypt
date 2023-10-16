@@ -233,4 +233,27 @@ error_out:
    return err;
 }
 
+int pem_decode_filehandle(FILE *f, ltc_pka_key *k, const password_ctx *pw_ctx)
+{
+   int err = pem_decode_pkcs_filehandle(f, k, pw_ctx);
+   if (err == CRYPT_OK || err != CRYPT_UNKNOWN_PEM)
+      return err;
+#if defined(LTC_SSH)
+   rewind(f);
+   err = pem_decode_openssh_filehandle(f, k, pw_ctx);
+#endif
+   return err;
+}
+
+int pem_decode(const void *buf, unsigned long len, ltc_pka_key *k, const password_ctx *pw_ctx)
+{
+   int err = pem_decode_pkcs(buf, len, k, pw_ctx);
+   if (err == CRYPT_OK || err != CRYPT_UNKNOWN_PEM)
+      return err;
+#if defined(LTC_SSH)
+   err = pem_decode_openssh(buf, len, k, pw_ctx);
+#endif
+   return err;
+}
+
 #endif /* LTC_PEM */
