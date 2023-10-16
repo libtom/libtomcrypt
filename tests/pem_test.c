@@ -126,6 +126,7 @@ int pem_test(void)
 #ifdef LTC_SSH
    DO(test_process_dir("tests/ssh", &key, s_pem_decode_ssh, NULL, (dir_cleanup_cb)pka_key_free, "pem_test+ssh"));
    DO(test_process_dir("tests/ssh", &key, NULL, s_pem_decode_ssh_f, (dir_cleanup_cb)pka_key_free, "pem_test_filehandle+ssh"));
+   DO(test_process_dir("tests/ssh/extra", &key, s_pem_decode_ssh, NULL, (dir_cleanup_cb)pka_key_free, "pem_test+ssh+extra"));
 #endif
 
 #if defined(LTC_MDSA)

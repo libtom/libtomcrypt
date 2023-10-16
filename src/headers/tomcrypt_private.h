@@ -297,6 +297,7 @@ enum pem_flags {
    pf_encrypted = 0x01u,
    pf_pkcs8 = 0x02u,
    pf_public = 0x04u,
+   pf_x509 = 0x08u,
    pf_encrypted_pkcs8 = pf_encrypted | pf_pkcs8,
 };
 
@@ -568,14 +569,15 @@ int x509_decode_public_key_from_certificate(const unsigned char *in, unsigned lo
                                             enum ltc_oid_id algorithm, ltc_asn1_type param_type,
                                             ltc_asn1_list* parameters, unsigned long *parameters_len,
                                             public_key_decode_cb callback, void *ctx);
+int x509_decode_spki(const unsigned char *in, unsigned long inlen, ltc_asn1_list **out, ltc_asn1_list **spki);
 
 /* SUBJECT PUBLIC KEY INFO */
 int x509_encode_subject_public_key_info(unsigned char *out, unsigned long *outlen,
-        unsigned int algorithm, const void* public_key, unsigned long public_key_len,
+        enum ltc_oid_id algorithm, const void* public_key, unsigned long public_key_len,
         ltc_asn1_type parameters_type, ltc_asn1_list* parameters, unsigned long parameters_len);
 
 int x509_decode_subject_public_key_info(const unsigned char *in, unsigned long inlen,
-        unsigned int algorithm, void* public_key, unsigned long* public_key_len,
+        enum ltc_oid_id algorithm, void *public_key, unsigned long *public_key_len,
         ltc_asn1_type parameters_type, ltc_asn1_list* parameters, unsigned long *parameters_len);
 
 int pk_oid_cmp_with_ulong(const char *o1, const unsigned long *o2, unsigned long o2size);

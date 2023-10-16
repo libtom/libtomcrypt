@@ -10,6 +10,9 @@
 #ifdef LTC_PEM
 
 extern const struct str pem_proc_type_encrypted;
+#ifdef LTC_SSH
+extern const struct str pem_ssh_comment;
+#endif
 extern const struct str pem_dek_info_start;
 extern const struct blockcipher_info pem_dek_infos[];
 extern const unsigned long pem_dek_infos_num;
@@ -107,7 +110,10 @@ static int s_pem_decode_headers(struct pem_headers *hdr, struct get_char *g)
       switch (has_more_headers) {
          case 3:
             if (XMEMCMP(buf, pem_proc_type_encrypted.p, pem_proc_type_encrypted.len)) {
-               s_unget_line(buf, slen, g);
+#ifdef LTC_SSH
+               if (XMEMCMP(buf, pem_ssh_comment.p, pem_ssh_comment.len))
+#endif
+                  s_unget_line(buf, slen, g);
                if (hdr->id->has_more_headers == maybe)
                   return CRYPT_OK;
                else

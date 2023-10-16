@@ -30,6 +30,7 @@ enum ltc_pka_id {
    LTC_PKA_X25519,
    LTC_PKA_ED25519,
    LTC_PKA_DH,
+   LTC_PKA_NUM
 };
 
 enum public_key_type {

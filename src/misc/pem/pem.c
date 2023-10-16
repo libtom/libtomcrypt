@@ -25,10 +25,24 @@ const struct pem_header_id pem_std_headers[] = {
      .flags = pf_pkcs8,
    },
    {
+     /* X.509 Certificates */
+     SET_CSTR(.start, "-----BEGIN CERTIFICATE-----"),
+     SET_CSTR(.end, "-----END CERTIFICATE-----"),
+     .has_more_headers = no,
+     .flags = pf_x509,
+   },
+   {
      /* Regular (plain) public keys */
      SET_CSTR(.start, "-----BEGIN PUBLIC KEY-----"),
      SET_CSTR(.end, "-----END PUBLIC KEY-----"),
      .has_more_headers = no,
+     .flags = pf_public,
+   },
+   {
+     SET_CSTR(.start, "-----BEGIN RSA PUBLIC KEY-----"),
+     SET_CSTR(.end, "-----END RSA PUBLIC KEY-----"),
+     .has_more_headers = no,
+     .pka = LTC_PKA_RSA,
      .flags = pf_public,
    },
    /* Regular plain or encrypted private keys */
@@ -55,6 +69,9 @@ const unsigned long pem_std_headers_num = sizeof(pem_std_headers)/sizeof(pem_std
 
 /* Encrypted PEM files */
 const struct str pem_proc_type_encrypted = { SET_CSTR(, "Proc-Type: 4,ENCRYPTED") };
+#if defined(LTC_SSH)
+const struct str pem_ssh_comment = { SET_CSTR(, "Comment: ") };
+#endif
 const struct str pem_dek_info_start = { SET_CSTR(, "DEK-Info: ") };
 const struct blockcipher_info pem_dek_infos[] =
    {
