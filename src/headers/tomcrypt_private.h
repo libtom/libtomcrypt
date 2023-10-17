@@ -282,7 +282,7 @@ struct str {
 };
 
 #define SET_STR(n, s) n.p = s, n.len = XSTRLEN(s)
-#define SET_CSTR(n, s) n.p = (char*)s, n.len = XSTRLEN(s)
+#define SET_CSTR(n, s) n.p = (char*)s, n.len = (sizeof s) - 1
 #define COPY_STR(n, s, l) do { XMEMCPY(n.p, s, l); n.len = l; } while(0)
 #define RESET_STR(n) do { n.p = NULL; n.len = 0; } while(0)
 
