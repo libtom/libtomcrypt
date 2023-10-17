@@ -6,12 +6,14 @@
 
 #ifdef LTC_SSH
 
-static int password_get_ssh(void **p, unsigned long *l, void *u)
+static int password_get_ssh(void *p, unsigned long *l, void *u)
 {
+   int ret = *l < 6;
    LTC_UNUSED_PARAM(u);
-   *p = strdup("abc123");
+   if (!ret)
+      XMEMCPY(p, "abc123", 6);
    *l = 6;
-   return 0;
+   return ret;
 }
 static int s_pem_decode_ssh(const void *in, unsigned long inlen, void *key)
 {
@@ -28,12 +30,14 @@ static int s_pem_decode_ssh_f(FILE *f, void *key)
 
 #endif
 
-static int password_get(void **p, unsigned long *l, void *u)
+static int password_get(void *p, unsigned long *l, void *u)
 {
+   int ret = *l < 6;
    LTC_UNUSED_PARAM(u);
-   *p = strdup("secret");
+   if (!ret)
+      XMEMCPY(p, "secret", 6);
    *l = 6;
-   return 0;
+   return ret;
 }
 
 #if defined(LTC_MDSA)

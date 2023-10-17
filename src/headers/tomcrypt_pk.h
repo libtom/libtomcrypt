@@ -5,17 +5,12 @@ typedef struct {
    /**
       Callback function that is called when a password is required.
 
-      Please be aware that the library takes ownership of the pointer that is
-      returned to the library via `str`.
-      `str` shall be allocated via the same function as `XMALLOC` points to.
-      The data will be zeroed and `XFREE`'d as soon as it isn't required anymore.
-
-      @param str        Pointer to pointer where the password will be stored.
-      @param len        Pointer to the length of the password.
+      @param str        Pointer to where the password shall be stored.
+      @param len        [in/out] The max length resp. resulting length of the password.
       @param userdata   `userdata` that was passed in the `password_ctx` struct.
       @return CRYPT_OK on success
    */
-   int (*callback)(void **str, unsigned long *len, void *userdata);
+   int (*callback)(void *str, unsigned long *len, void *userdata);
    /** Opaque `userdata` pointer passed when the callback is called */
    void *userdata;
 } password_ctx;

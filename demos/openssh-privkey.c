@@ -29,15 +29,11 @@ static void die_(int err, int line)
 #define die(i) do { die_(i, __LINE__); } while(0)
 #define DIE(s, ...) do { print_err("%3d: " s "\n", __LINE__, ##__VA_ARGS__); exit(EXIT_FAILURE); } while(0)
 
-static char* getpassword(const char *prompt, size_t maxlen)
+static int getpassword(const char *prompt, char *pass, unsigned long *len)
 {
-   char *wr, *end, *pass = XCALLOC(1, maxlen + 1);
    struct termios tio;
    tcflag_t c_lflag;
-   if (pass == NULL)
-      return NULL;
-   wr = pass;
-   end = pass + maxlen;
+   unsigned long maxlen = *len, wr = 0;
 
    tcgetattr(0, &tio);
    c_lflag = tio.c_lflag;
@@ -46,24 +42,25 @@ static char* getpassword(const char *prompt, size_t maxlen)
 
    printf("%s", prompt);
    fflush(stdout);
-   while (pass < end) {
+   while (1) {
       int c = getchar();
       if (c == '\r' || c == '\n' || c == -1)
          break;
-      *wr++ = c;
+      if (wr < maxlen)
+         pass[wr] = c;
+      wr++;
    }
+   *len = wr;
    tio.c_lflag = c_lflag;
    tcsetattr(0, TCSAFLUSH, &tio);
    printf("\n");
-   return pass;
+   return wr <= maxlen;
 }
 
-static int password_get(void **p, unsigned long *l, void *u)
+static int password_get(void *p, unsigned long *l, void *u)
 {
    (void)u;
-   *p = getpassword("Enter passphrase: ", 256);
-   *l = strlen(*p);
-   return 0;
+   return getpassword("Enter passphrase: ", p, l);
 }
 
 static void print(ltc_pka_key *k)

@@ -627,6 +627,10 @@
    #define LTC_PBES
 #endif
 
+#if defined(LTC_PEM) || defined(LTC_PKCS_8) && !defined(LTC_MAX_PASSWORD_LEN)
+   #define LTC_MAX_PASSWORD_LEN 256
+#endif
+
 #if defined(LTC_CLEAN_STACK)
 /* if you're sure that you want to use it, remove the line below */
    #error LTC_CLEAN_STACK is considered as broken
