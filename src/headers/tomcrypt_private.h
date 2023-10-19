@@ -83,18 +83,11 @@ typedef struct {
    unsigned long blocklen;
 } pbes_properties;
 
-struct password {
-   /* usually a `char*` but could also contain binary data
-    * so use a `void*` + length to be on the safe side.
-    */
-   unsigned char pw[LTC_MAX_PASSWORD_LEN];
-   unsigned long l;
-};
-
 typedef struct
 {
    pbes_properties type;
-   struct password pwd;
+   void *pwd;
+   unsigned long pwdlen;
    ltc_asn1_list *enc_data;
    ltc_asn1_list *salt;
    ltc_asn1_list *iv;
@@ -264,6 +257,14 @@ int base64_encode_pem(const unsigned char *in,  unsigned long inlen,
 #ifdef LTC_PEM
 enum cipher_mode {
    cm_none, cm_cbc, cm_cfb, cm_ctr, cm_ofb, cm_stream, cm_gcm
+};
+
+struct password {
+   /* usually a `char*` but could also contain binary data
+    * so use a `void*` + length to be on the safe side.
+    */
+   void *pw;
+   unsigned long l;
 };
 
 struct blockcipher_info {

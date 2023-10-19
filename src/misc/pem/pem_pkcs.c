@@ -25,6 +25,9 @@ static int s_decrypt_pem(unsigned char *pem, unsigned long *l, const struct pem_
    if (hdr->info.keylen > sizeof(key)) {
       return CRYPT_BUFFER_OVERFLOW;
    }
+   if (!hdr->pw->pw) {
+      return CRYPT_INVALID_ARG;
+   }
 
    ivlen = sizeof(iv);
    if ((err = base16_decode(hdr->info.iv, XSTRLEN(hdr->info.iv), iv, &ivlen)) != CRYPT_OK) {
@@ -199,7 +202,7 @@ static int s_decode(struct get_char *g, ltc_pka_key *k, const password_ctx *pw_c
    unsigned long w, l, n;
    int err = CRYPT_ERROR;
    struct pem_headers hdr = { 0 };
-   struct password pw = { 0 };
+   struct password pw;
    enum ltc_pka_id pka;
    XMEMSET(k, 0, sizeof(*k));
    w = LTC_PEM_READ_BUFSIZE * 2;
@@ -238,8 +241,7 @@ retry:
       }
 
       hdr.pw = &pw;
-      hdr.pw->l = LTC_MAX_PASSWORD_LEN;
-      if (pw_ctx->callback(hdr.pw->pw, &hdr.pw->l, pw_ctx->userdata)) {
+      if (pw_ctx->callback(&hdr.pw->pw, &hdr.pw->l, pw_ctx->userdata)) {
          err = CRYPT_ERROR;
          goto cleanup;
       }
@@ -264,7 +266,8 @@ retry:
 
 cleanup:
    if (hdr.pw) {
-      zeromem(hdr.pw->pw, sizeof(hdr.pw->pw));
+      zeromem(hdr.pw->pw, hdr.pw->l);
+      XFREE(hdr.pw->pw);
    }
    XFREE(pem);
    return err;

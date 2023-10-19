@@ -16,14 +16,12 @@ static void xor_shuffle(unsigned char *buf, unsigned long size, unsigned char ch
       buf[i] ^= change;
 }
 
-static int password_get(void *p, unsigned long *l, void *u)
+static int password_get(void **p, unsigned long *l, void *u)
 {
-   int ret = *l < 6;
    LTC_UNUSED_PARAM(u);
-   if (!ret)
-      XMEMCPY(p, "123456", 6);
+   *p = strdup("123456");
    *l = 6;
-   return ret;
+   return 0;
 }
 
 static int s_rfc_8410_10_test(void)

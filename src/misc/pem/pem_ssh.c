@@ -570,8 +570,7 @@ retry:
             err = CRYPT_PW_CTX_MISSING;
             goto cleanup;
          }
-         opts.pw.l = LTC_MAX_PASSWORD_LEN;
-         if (pw_ctx->callback(opts.pw.pw, &opts.pw.l, pw_ctx->userdata)) {
+         if (pw_ctx->callback(&opts.pw.pw, &opts.pw.l, pw_ctx->userdata)) {
             err = CRYPT_ERROR;
             goto cleanup;
          }
@@ -590,8 +589,8 @@ retry:
    }
 
 cleanup:
-   if (opts.pw.l) {
-      zeromem(&opts.pw, sizeof(opts.pw));
+   if (opts.pw.pw) {
+      XFREE(opts.pw.pw);
    }
    if (privkey) {
       zeromem(privkey, privkey_len);

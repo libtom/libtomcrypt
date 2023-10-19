@@ -139,14 +139,11 @@ static int s_rfc_8410_10_test(void)
    return CRYPT_OK;
 }
 
-static int password_get(void *p, unsigned long *l, void *u)
+static int password_get(void **p, unsigned long *l, void *u)
 {
-   unsigned long sl = strlen(u);
-   int ret = *l < sl;
-   if (!ret)
-      XMEMCPY(p, u, sl);
-   *l = sl;
-   return ret;
+   *p = strdup(u);
+   *l = strlen(*p);
+   return 0;
 }
 
 static int s_x25519_pkcs8_test(void)
@@ -165,7 +162,7 @@ static int s_x25519_pkcs8_test(void)
                           /* `openssl genpkey -algorithm x25519 -pass stdin` */
                           {
                             "MC4CAQAwBQYDK2VuBCIEIEAInaUdx+fQFfghpCzw/WdItRT3+FnPSkrU9TcIZTZW",
-                            ""
+                            NULL
                           },
    };
    unsigned n;

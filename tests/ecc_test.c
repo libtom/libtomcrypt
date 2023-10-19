@@ -660,14 +660,12 @@ static int s_ecc_new_api(void)
 }
 
 
-static int password_get(void *p, unsigned long *l, void *u)
+static int password_get(void **p, unsigned long *l, void *u)
 {
-   int ret = *l < 6;
    LTC_UNUSED_PARAM(u);
-   if (!ret)
-      XMEMCPY(p, "secret", 6);
+   *p = strdup("secret");
    *l = 6;
-   return ret;
+   return 0;
 }
 
 static int s_ecc_import_export(void) {

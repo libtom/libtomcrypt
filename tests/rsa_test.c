@@ -432,14 +432,12 @@ static int s_rsa_import_x509(const void *in, unsigned long inlen, void *key)
 }
 
 #if defined(LTC_MD2) && defined(LTC_MD5) && defined(LTC_RC2)
-static int password_get(void *p, unsigned long *l, void *u)
+static int password_get(void **p, unsigned long *l, void *u)
 {
-   int ret = *l < 6;
    LTC_UNUSED_PARAM(u);
-   if (!ret)
-      XMEMCPY(p, "secret", 6);
+   *p = strdup("secret");
    *l = 6;
-   return ret;
+   return 0;
 }
 
 static int s_rsa_import_pkcs8(const void *in, unsigned long inlen, void *key)

@@ -50,7 +50,7 @@ int pbes_decrypt(const pbes_arg  *arg, unsigned char *dec_data, unsigned long *d
 
    if (klen > sizeof(k)) return CRYPT_INVALID_ARG;
 
-   if ((err = arg->type.kdf(arg->pwd.pw, arg->pwd.l, arg->salt->data, arg->salt->size, arg->iterations, hid, k, &klen)) != CRYPT_OK) goto LBL_ERROR;
+   if ((err = arg->type.kdf(arg->pwd, arg->pwdlen, arg->salt->data, arg->salt->size, arg->iterations, hid, k, &klen)) != CRYPT_OK) goto LBL_ERROR;
    if ((err = cbc_start(cid, iv, k, keylen, 0, &cbc)) != CRYPT_OK) goto LBL_ERROR;
    if ((err = cbc_decrypt(arg->enc_data->data, dec_data, arg->enc_data->size, &cbc)) != CRYPT_OK) goto LBL_ERROR;
    if ((err = cbc_done(&cbc)) != CRYPT_OK) goto LBL_ERROR;
