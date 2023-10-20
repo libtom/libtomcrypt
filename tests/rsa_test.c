@@ -442,8 +442,7 @@ static int password_get(void **p, unsigned long *l, void *u)
 
 static int s_rsa_import_pkcs8(const void *in, unsigned long inlen, void *key)
 {
-   password_ctx pw_ctx;
-   pw_ctx.callback = password_get;
+   password_ctx pw_ctx = { .callback = password_get };
    return rsa_import_pkcs8(in, inlen, &pw_ctx, key);
 }
 #endif

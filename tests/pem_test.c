@@ -15,14 +15,12 @@ static int password_get_ssh(void **p, unsigned long *l, void *u)
 }
 static int s_pem_decode_ssh(const void *in, unsigned long inlen, void *key)
 {
-   password_ctx pw_ctx;
-   pw_ctx.callback = password_get_ssh;
+   password_ctx pw_ctx = { .callback = password_get_ssh };
    return pem_decode_openssh(in, inlen, key, &pw_ctx);
 }
 static int s_pem_decode_ssh_f(FILE *f, void *key)
 {
-   password_ctx pw_ctx;
-   pw_ctx.callback = password_get_ssh;
+   password_ctx pw_ctx = { .callback = password_get_ssh };
    return pem_decode_openssh_filehandle(f, key, &pw_ctx);
 }
 
@@ -76,8 +74,7 @@ static int s_key_cmp(ltc_pka_key *key)
 
 static int s_pem_only_decode_pkcs(const void *in, unsigned long inlen, void *key)
 {
-   password_ctx pw_ctx;
-   pw_ctx.callback = password_get;
+   password_ctx pw_ctx = { .callback = password_get };
    return pem_decode_pkcs(in, inlen, key, &pw_ctx);
 }
 
@@ -92,9 +89,8 @@ static int s_pem_decode_pkcs(const void *in, unsigned long inlen, void *key)
 
 static int s_pem_decode_pkcs_f(FILE *f, void *key)
 {
-   password_ctx pw_ctx;
    int err;
-   pw_ctx.callback = password_get;
+   password_ctx pw_ctx = { .callback = password_get };
    if ((err = pem_decode_pkcs_filehandle(f, key, &pw_ctx)) != CRYPT_OK) {
       return err;
    }
@@ -103,8 +99,7 @@ static int s_pem_decode_pkcs_f(FILE *f, void *key)
 
 static int s_pem_only_decode(const void *in, unsigned long inlen, void *key)
 {
-   password_ctx pw_ctx;
-   pw_ctx.callback = password_get;
+   password_ctx pw_ctx = { .callback = password_get };
    if ((strcmp(ltc_mp.name, "TomsFastMath") == 0) && (inlen > 2048)) {
 #if defined(LTC_TEST_DBG) && LTC_TEST_DBG > 1
       fprintf(stderr, "Skipping testcase because of TomsFastMath\n");
@@ -116,8 +111,7 @@ static int s_pem_only_decode(const void *in, unsigned long inlen, void *key)
 
 static int s_pem_only_decode_f(FILE *f, void *key)
 {
-   password_ctx pw_ctx;
-   pw_ctx.callback = password_get;
+   password_ctx pw_ctx = { .callback = password_get };
    return pem_decode_filehandle(f, key, &pw_ctx);
 }
 

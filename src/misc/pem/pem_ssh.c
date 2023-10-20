@@ -589,9 +589,7 @@ retry:
    }
 
 cleanup:
-   if (opts.pw.pw) {
-      XFREE(opts.pw.pw);
-   }
+   password_free(&opts.pw, pw_ctx);
    if (privkey) {
       zeromem(privkey, privkey_len);
       XFREE(privkey);

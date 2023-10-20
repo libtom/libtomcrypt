@@ -65,8 +65,7 @@ static int s_rfc_8410_10_test(void)
    unsigned char buf[1024];
    char tmp[512];
    unsigned long buflen, tmplen;
-   password_ctx pw_ctx;
-   pw_ctx.callback = password_get;
+   password_ctx pw_ctx = { .callback = password_get };
    for (n = 0; n < sizeof(rfc_8410_10)/sizeof(rfc_8410_10[0]); ++n) {
       buflen = sizeof(buf);
       DO(base64_decode(rfc_8410_10[n].b64, XSTRLEN(rfc_8410_10[n].b64), buf, &buflen));

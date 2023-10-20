@@ -47,7 +47,7 @@ sub check_source {
       push @{$troubles->{unwanted_malloc}},  $lineno if $file =~ /^src\/.*\.c$/ && $l =~ /\bmalloc\s*\(/;
       push @{$troubles->{unwanted_realloc}}, $lineno if $file =~ /^src\/.*\.c$/ && $l =~ /\brealloc\s*\(/;
       push @{$troubles->{unwanted_calloc}},  $lineno if $file =~ /^src\/.*\.c$/ && $l =~ /\bcalloc\s*\(/;
-      push @{$troubles->{unwanted_free}},    $lineno if $file =~ /^src\/.*\.c$/ && $l =~ /\bfree\s*\(/;
+      push @{$troubles->{unwanted_free}},    $lineno if $file =~ /^src\/.*\.c$/ && $l =~ /[^>.]\bfree\s*\(/;
       push @{$troubles->{unwanted_memset}},  $lineno if $file =~ /^src\/.*\.c$/ && $l =~ /\bmemset\s*\(/;
       push @{$troubles->{unwanted_memcpy}},  $lineno if $file =~ /^src\/.*\.c$/ && $l =~ /\bmemcpy\s*\(/;
       push @{$troubles->{unwanted_memmove}}, $lineno if $file =~ /^src\/.*\.c$/ && $l =~ /\bmemmove\s*\(/;

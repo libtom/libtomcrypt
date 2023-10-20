@@ -66,8 +66,16 @@ typedef struct {
 } ltc_dh_set_type;
 
 
-typedef int (*fn_kdf_t)(const unsigned char *password, unsigned long password_len,
-                              const unsigned char *salt,     unsigned long salt_len,
+struct password {
+   /* usually a `char*` but could also contain binary data
+    * so use a `void*` + length to be on the safe side.
+    */
+   void *pw;
+   unsigned long l;
+};
+
+typedef int (*fn_kdf_t)(const struct password *pwd,
+                        const unsigned char *salt,  unsigned long salt_len,
                               int iteration_count,  int hash_idx,
                               unsigned char *out,   unsigned long *outlen);
 
@@ -86,8 +94,7 @@ typedef struct {
 typedef struct
 {
    pbes_properties type;
-   void *pwd;
-   unsigned long pwdlen;
+   struct password pw;
    ltc_asn1_list *enc_data;
    ltc_asn1_list *salt;
    ltc_asn1_list *iv;
@@ -259,14 +266,6 @@ enum cipher_mode {
    cm_none, cm_cbc, cm_cfb, cm_ctr, cm_ofb, cm_stream, cm_gcm
 };
 
-struct password {
-   /* usually a `char*` but could also contain binary data
-    * so use a `void*` + length to be on the safe side.
-    */
-   void *pw;
-   unsigned long l;
-};
-
 struct blockcipher_info {
    const char *name;
    const char *algo;
@@ -341,6 +340,7 @@ struct get_char {
 /* others */
 
 void copy_or_zeromem(const unsigned char* src, unsigned char* dest, unsigned long len, int coz);
+void password_free(struct password *pw, const struct password_ctx *ctx);
 
 int pbes_decrypt(const pbes_arg  *arg, unsigned char *dec_data, unsigned long *dec_size);
 

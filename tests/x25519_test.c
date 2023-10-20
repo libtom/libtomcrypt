@@ -169,8 +169,7 @@ static int s_x25519_pkcs8_test(void)
    curve25519_key key;
    unsigned char buf[1024];
    unsigned long buflen;
-   password_ctx pw_ctx, *p_pw_ctx;
-   pw_ctx.callback = password_get;
+   password_ctx *p_pw_ctx, pw_ctx = { .callback = password_get };
    for (n = 0; n < sizeof(s_x25519_pkcs8)/sizeof(s_x25519_pkcs8[0]); ++n) {
       buflen = sizeof(buf);
       DO(base64_decode(s_x25519_pkcs8[n].b64, XSTRLEN(s_x25519_pkcs8[n].b64), buf, &buflen));

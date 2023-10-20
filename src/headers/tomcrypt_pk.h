@@ -1,14 +1,14 @@
 /* LibTomCrypt, modular cryptographic library -- Tom St Denis */
 /* SPDX-License-Identifier: Unlicense */
 
-typedef struct {
+typedef struct password_ctx {
    /**
       Callback function that is called when a password is required.
 
       Please be aware that the library takes ownership of the pointer that is
       returned to the library via `str`.
-      `str` shall be allocated via the same function as `XMALLOC` points to.
-      The data will be zeroed and `XFREE`'d as soon as it isn't required anymore.
+      The data will be zeroed and `free()`'d as soon as it isn't required anymore.
+      c.f. the documentation of the `free()` function pointer for details.
 
       @param str        Pointer to pointer where the password will be stored.
       @param len        Pointer to the length of the password.
@@ -16,6 +16,16 @@ typedef struct {
       @return CRYPT_OK on success
    */
    int (*callback)(void **str, unsigned long *len, void *userdata);
+   /**
+      Optional free function to free the allocated buffer.
+
+      At the point where the value returned by `callback()` is not required
+      anymore the library will free it by either calling this `free()` function
+      or `XFREE()` in case this `free()` function is set to `NULL`.
+
+      @param str        Pointer to the buffer to be free'd.
+   */
+   void (*free)(void *str);
    /** Opaque `userdata` pointer passed when the callback is called */
    void *userdata;
 } password_ctx;

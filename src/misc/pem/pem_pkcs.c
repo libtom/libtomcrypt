@@ -202,7 +202,7 @@ static int s_decode(struct get_char *g, ltc_pka_key *k, const password_ctx *pw_c
    unsigned long w, l, n;
    int err = CRYPT_ERROR;
    struct pem_headers hdr = { 0 };
-   struct password pw;
+   struct password pw = { 0 };
    enum ltc_pka_id pka;
    XMEMSET(k, 0, sizeof(*k));
    w = LTC_PEM_READ_BUFSIZE * 2;
@@ -265,10 +265,7 @@ retry:
    }
 
 cleanup:
-   if (hdr.pw) {
-      zeromem(hdr.pw->pw, hdr.pw->l);
-      XFREE(hdr.pw->pw);
-   }
+   password_free(hdr.pw, pw_ctx);
    XFREE(pem);
    return err;
 }

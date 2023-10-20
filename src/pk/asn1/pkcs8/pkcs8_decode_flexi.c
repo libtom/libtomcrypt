@@ -63,7 +63,7 @@ int pkcs8_decode_flexi(const unsigned char  *in,  unsigned long inlen,
             goto LBL_DONE;
          }
 
-         if (pw_ctx->callback(&pbes.pwd, &pbes.pwdlen, pw_ctx->userdata)) {
+         if (pw_ctx->callback(&pbes.pw.pw, &pbes.pw.l, pw_ctx->userdata)) {
             err = CRYPT_ERROR;
             goto LBL_DONE;
          }
@@ -94,15 +94,12 @@ int pkcs8_decode_flexi(const unsigned char  *in,  unsigned long inlen,
    }
 
 LBL_DONE:
-   if (l) der_free_sequence_flexi(l);
-   if (pbes.pwd) {
-      zeromem(pbes.pwd, pbes.pwdlen);
-      XFREE(pbes.pwd);
-   }
    if (dec_data) {
       zeromem(dec_data, dec_size);
       XFREE(dec_data);
    }
+   password_free(&pbes.pw, pw_ctx);
+   if (l) der_free_sequence_flexi(l);
    return err;
 }
 
