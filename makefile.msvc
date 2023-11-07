@@ -16,8 +16,8 @@
 
 #The following can be overridden from command line e.g. make -f makefile.msvc CC=gcc ARFLAGS=rcs
 PREFIX    = c:\devel
-CFLAGS    = /Ox /DUSE_LTM /DLTM_DESC /I../libtommath
-EXTRALIBS = ../libtommath/tommath.lib
+CFLAGS    = /Ox
+EXTRALIBS =
 
 #Compilation flags
 LTC_CFLAGS  = /nologo /Isrc/headers/ /Itests/ /D_CRT_SECURE_NO_WARNINGS /D_CRT_NONSTDC_NO_DEPRECATE /DLTC_SOURCE /W3 $(CFLAGS)

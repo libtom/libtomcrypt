@@ -112,9 +112,9 @@ static unsigned long s_rng_win32(unsigned char *buf, unsigned long len,
 static unsigned long s_rng_win32(unsigned char *buf, unsigned long len,
                                void (*callback)(void))
 {
+   static HCRYPTPROV hProv = 0;
    LTC_UNUSED_PARAM(callback);
 
-   static HCRYPTPROV hProv = 0;
    if (hProv == 0) {
       HCRYPTPROV h = 0;
       if (!CryptAcquireContextW(&h, NULL, MS_DEF_PROV_W, PROV_RSA_FULL,
