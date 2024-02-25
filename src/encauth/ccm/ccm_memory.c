@@ -162,7 +162,8 @@ int ccm_memory(int cipher,
    }
    for (; y < L; y++) {
        if (x >= sizeof(PAD)) {
-          return CRYPT_INVALID_ARG;
+          err = CRYPT_INVALID_ARG;
+          goto error;
        }
        PAD[x++] = (unsigned char)((len >> 24) & 255);
        len <<= 8;
