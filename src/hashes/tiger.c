@@ -601,7 +601,7 @@ static int ss_tiger_compress(hash_state *md, const unsigned char *buf)
 static int  s_tiger_compress(hash_state *md, const unsigned char *buf)
 #endif
 {
-    ulong64 a, b, c, x[8];
+    ulong64 a, b, c, x[8], t;
     unsigned long i;
 
     /* load words */
@@ -617,6 +617,11 @@ static int  s_tiger_compress(hash_state *md, const unsigned char *buf)
     s_pass(&c,&a,&b,x,7);
     s_key_schedule(x);
     s_pass(&b,&c,&a,x,9);
+    for (i = 3; i < md->tiger.passes; ++i) {
+       s_key_schedule(x);
+       s_pass(&a,&b,&c,x,9);
+       t = a; a = c; c = b; b = t;
+   }
 
     /* store state */
     md->tiger.state[0] = a ^ md->tiger.state[0];
@@ -649,6 +654,25 @@ int tiger_init(hash_state *md)
     md->tiger.state[2] = CONST64(0xF096A5B4C3B2E187);
     md->tiger.curlen = 0;
     md->tiger.length = 0;
+    md->tiger.passes = 3;
+    return CRYPT_OK;
+}
+
+/**
+   Initialize the hash state (extended version)
+   @param md       The hash state you wish to initialize
+   @param passes   The number of passes that should be executed
+                   when the compress function is called.
+   @return CRYPT_OK if successful
+*/
+int tiger_init_ex(hash_state *md, unsigned long passes)
+{
+    int err;
+    if ((err = tiger_init(md) != CRYPT_OK)) {
+        return err;
+    }
+    md->tiger.passes = passes;
+    return CRYPT_OK;
     return CRYPT_OK;
 }
 
