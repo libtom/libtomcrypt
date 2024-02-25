@@ -58,7 +58,7 @@ struct md4_state {
 struct tiger_state {
     ulong64 state[3], length;
     unsigned long curlen, passes;
-    unsigned char buf[64];
+    unsigned char buf[64], pad;
 };
 #endif
 
@@ -444,7 +444,12 @@ int tiger_init_ex(hash_state *md, unsigned long passes);
 int tiger_process(hash_state * md, const unsigned char *in, unsigned long inlen);
 int tiger_done(hash_state * md, unsigned char *out);
 int tiger_test(void);
-extern const struct ltc_hash_descriptor tiger_desc;
+int tiger2_init(hash_state *md);
+int tiger2_init_ex(hash_state *md, unsigned long passes);
+#define tiger2_process(m, i, l) tiger_process(m, i, l)
+#define tiger2_done(m, o)       tiger_done(m, o)
+int tiger2_test(void);
+extern const struct ltc_hash_descriptor tiger_desc, tiger2_desc;
 #endif
 
 #ifdef LTC_RIPEMD128
