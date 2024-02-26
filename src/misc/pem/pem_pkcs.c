@@ -168,7 +168,7 @@ cleanup:
    return err;
 }
 
-int s_extract_pka(unsigned char *pem, unsigned long w, enum ltc_pka_id *pka)
+static int s_extract_pka(unsigned char *pem, unsigned long w, enum ltc_pka_id *pka)
 {
    ltc_asn1_list *pub;
    int err = CRYPT_ERROR;

@@ -36,6 +36,8 @@ openssl-enc
 openssl-enc.exe
 openssh-privkey
 openssh-privkey.exe
+pem-info
+pem-info.exe
 sizes
 sizes.exe
 small

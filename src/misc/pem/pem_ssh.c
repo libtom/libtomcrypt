@@ -43,6 +43,7 @@ const struct blockcipher_info ssh_ciphers[] =
    { .name = "twofish256-cbc",  .algo = "twofish",  .keylen = 256 / 8, .mode = cm_cbc  },
    { .name = "twofish256-ctr",  .algo = "twofish",  .keylen = 256 / 8, .mode = cm_ctr  },
 };
+const unsigned long ssh_ciphers_num = sizeof(ssh_ciphers)/sizeof(ssh_ciphers[0]);
 
 struct kdf_options {
    const char *name;
@@ -470,7 +471,7 @@ static int s_decode_header(unsigned char *in, unsigned long *inlen, struct kdf_o
 
    *inlen = len + slen + 1;
 
-   for (i = 0; i < sizeof(ssh_ciphers)/sizeof(ssh_ciphers[0]); ++i) {
+   for (i = 0; i < ssh_ciphers_num; ++i) {
       if (XSTRCMP((char*)ciphername, ssh_ciphers[i].name) == 0) {
          opts->cipher = &ssh_ciphers[i];
          break;

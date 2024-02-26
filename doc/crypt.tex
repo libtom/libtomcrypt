@@ -5117,7 +5117,7 @@ analogy for deriving a shared secret between a pair of keys (also known as \text
 analogy for digital signatures (also known as \textit{ECDSA}).
 
 \mysection{Supported Curves}
-\label{supported-curvers}
+\label{supported-curves}
 
 The following table \ref{fig:builtincurves} shows all built--in curves supported by the library. On top of that one can also use a custom curve
 defined by own parameters (the only limitation is that the curve must be based on equation \ref{ecc-gf-p-equation}).
@@ -6344,6 +6344,62 @@ int dsa_generate_key(prng_state *prng,
 
 This function generates a private DSA key containing both \textit{x} and \textit{y} parts.
 
+\chapter{The PKA Union}
+\index{ltc\_pka\_key}
+
+To be able to refer to all the potential public key algorithms via a central API,
+a tagged union \texttt{ltc\_pka\_key} is used.
+
+\begin{small}
+\begin{verbatim}
+enum ltc_pka_id {
+   LTC_PKA_UNDEF = 0,
+   LTC_PKA_RSA,
+   LTC_PKA_DSA,
+   LTC_PKA_EC,
+   LTC_PKA_X25519,
+   LTC_PKA_ED25519,
+   LTC_PKA_DH,
+};
+
+typedef struct {
+   union {
+#ifdef LTC_CURVE25519
+      curve25519_key x25519;
+      curve25519_key ed25519;
+#endif
+#ifdef LTC_MDH
+      dh_key dh;
+#endif
+#ifdef LTC_MDSA
+      dsa_key dsa;
+#endif
+#ifdef LTC_MECC
+      ecc_key ecc;
+#endif
+#ifdef LTC_MRSA
+      rsa_key rsa;
+#endif
+   } u;
+   enum ltc_pka_id id;
+} ltc_pka_key;
+\end{verbatim}
+\end{small}
+
+\index{pka\_key\_free}
+To free such a union the following API function is provided:
+
+\begin{verbatim}
+void pka_key_free(ltc_pka_key *key);
+\end{verbatim}
+
+\index{pka\_key\_destroy}
+To free\&destroy a dynamically allocated instance of such a union the following API function is provided:
+
+\begin{verbatim}
+void pka_key_destroy(ltc_pka_key **key);
+\end{verbatim}
+
 \chapter{Standards Support}
 \mysection{ASN.1 Formats}
 LibTomCrypt supports a variety of ASN.1 data types encoded with the Distinguished Encoding Rules (DER) suitable for various cryptographic protocols.  The data types
@@ -7440,9 +7496,10 @@ with \texttt{size*} being of type \texttt{unsigned long*}.
 
 
 \mysection{PEM Files}
+\index{PEM}
 \label{pem-files}
 \subsection{Introduction}
-LibTomCrypt supports reading of asymmetric cryptography private keys out of
+LibTomCrypt supports reading of asymmetric cryptography keys out of
 PEM files in multiple formats.
 
 The library provides support for:
@@ -7454,50 +7511,18 @@ The library provides support for:
 
 There is no support for PKCS \#12 containers/PFX files implemented.
 
-\subsection{The PKA Union}
+\subsection{Generic PEM API}
 
-To be able to return all the potential public key algorithms via a central API,
-a tagged union \texttt{ltc\_pka\_key} is used.
-
-\begin{verbatim}
-enum ltc_pka_id {
-   LTC_PKA_UNDEF = 0,
-   LTC_PKA_RSA,
-   LTC_PKA_DSA,
-   LTC_PKA_EC,
-   LTC_PKA_X25519,
-   LTC_PKA_ED25519,
-   LTC_PKA_DH,
-};
-
-typedef struct {
-   union {
-#ifdef LTC_CURVE25519
-      curve25519_key x25519;
-      curve25519_key ed25519;
-#endif
-#ifdef LTC_MDH
-      dh_key dh;
-#endif
-#ifdef LTC_MDSA
-      dsa_key dsa;
-#endif
-#ifdef LTC_MECC
-      ecc_key ecc;
-#endif
-#ifdef LTC_MRSA
-      rsa_key rsa;
-#endif
-   } u;
-   enum ltc_pka_id id;
-} ltc_pka_key;
-\end{verbatim}
-
-To free such a union the following API function is provided:
+\index{pem\_decode\_filehandle}
+\index{pem\_decode}
+The generic API functions provided to decode a PEM file into the \texttt{ltc\_pka\_key} union are:
 
 \begin{verbatim}
-void pka_key_free(ltc_pka_key *key);
+int pem_decode_filehandle(FILE *f, ltc_pka_key *k, const password_ctx *pw_ctx);
+int pem_decode(const void *buf, unsigned long len, ltc_pka_key *k, const password_ctx *pw_ctx);
 \end{verbatim}
+
+Additional to that, there exist specific API functions for the two supported classes of PEM files.
 
 \subsection{PKCS PEM files}
 
@@ -7514,46 +7539,89 @@ The library supports the following types of PKCS PEM files:
 The identifiers in the PEM headers recognized are as follows:
 
 \begin{table}[H]
-\begin{center}
 \begin{small}
-\begin{tabular}{|l|l|l|l|}
-\hline \textbf{Identifier}                   & \textbf{Encrypted} & \textbf{Standard} & \textbf{Type}                  \\
-\hline \texttt{BEGIN ENCRYPTED PRIVATE KEY}  & Yes                & \texttt{PKCS \#8} & DSA, ECC, Ed25519, RSA, X25519 \\
-\hline \texttt{BEGIN PRIVATE KEY}            & No                 & \texttt{PKCS \#8} & DSA, ECC, Ed25519, RSA, X25519 \\
-\hline \texttt{BEGIN DSA PRIVATE KEY}        & Maybe              & \texttt{PKCS \#1} & DSA \\
-\hline \texttt{BEGIN EC PRIVATE KEY}         & Maybe              & \texttt{RFC 5915} & ECC \\
-\hline \texttt{BEGIN RSA PRIVATE KEY}        & Maybe              & \texttt{PKCS \#1} & RSA \\
+\begin{tabular}{|l|l|l|l|l|}
+\hline \textbf{Identifier}                   & \textbf{Key type} & \textbf{File content} & \textbf{Standard} & \textbf{Algorithm} \\
+\hline \texttt{BEGIN CERTIFICATE}            & Public            & Plain                 & \texttt{X.509}    & DH, DSA, ECC, Ed25519, RSA, X25519 \\
+\hline \texttt{BEGIN DSA PRIVATE KEY}        & Private           & Maybe encrypted       & \texttt{PKCS \#1} & DSA \\
+\hline \texttt{BEGIN EC PRIVATE KEY}         & Private           & Maybe encrypted       & \texttt{RFC 5915} & ECC \\
+\hline \texttt{BEGIN ENCRYPTED PRIVATE KEY}  & Private           & Encrypted             & \texttt{PKCS \#8} & DH, DSA, ECC, Ed25519, RSA, X25519 \\
+\hline \texttt{BEGIN PRIVATE KEY}            & Private           & Plain                 & \texttt{PKCS \#8} & DH, DSA, ECC, Ed25519, RSA, X25519 \\
+\hline \texttt{BEGIN PUBLIC KEY}             & Public            & Plain                 & \texttt{PKCS \#8} & DH, DSA, ECC, Ed25519, RSA, X25519 \\
+\hline \texttt{BEGIN RSA PRIVATE KEY}        & Private           & Maybe encrypted       & \texttt{PKCS \#1} & RSA \\
+\hline \texttt{BEGIN RSA PUBLIC KEY}         & Public            & Plain                 & \texttt{PKCS \#1} & RSA \\
 \hline
 \end{tabular}
 \end{small}
-\end{center}
-\caption{List of supported PKCS private key types}
-\label{supported-pkcs-private-key-types}
+\caption{List of supported PEM headers}
+\label{supported-PEM-headers}
 \end{table}
 
 When dealing with PEM formatted private keys the following encryption algorithms are supported:
 
 \begin{table}[H]
-\begin{center}
 \begin{small}
 \begin{tabular}{|l|l|l|l|}
 \hline \textbf{Identifier}        & \textbf{Cipher} & \textbf{Key size in bits} & \textbf{Mode} \\
 \hline \texttt{AES-128-CBC}       & AES             & 128                       & CBC \\
 \hline \texttt{AES-192-CBC}       & AES             & 192                       & CBC \\
 \hline \texttt{AES-256-CBC}       & AES             & 256                       & CBC \\
+\hline \texttt{AES-128-CFB}       & AES             & 128                       & CFB \\
+\hline \texttt{AES-192-CFB}       & AES             & 192                       & CFB \\
+\hline \texttt{AES-256-CFB}       & AES             & 256                       & CFB \\
+\hline \texttt{AES-128-CTR}       & AES             & 128                       & CTR \\
+\hline \texttt{AES-192-CTR}       & AES             & 192                       & CTR \\
+\hline \texttt{AES-256-CTR}       & AES             & 256                       & CTR \\
+\hline \texttt{AES-128-OFB}       & AES             & 128                       & OFB \\
+\hline \texttt{AES-192-OFB}       & AES             & 192                       & OFB \\
+\hline \texttt{AES-256-OFB}       & AES             & 256                       & OFB \\
+\hline \texttt{BF-CBC}            & Blowfish        & 128                       & CBC \\
+\hline \texttt{BF-CFB}            & Blowfish        & 128                       & CFB \\
+\hline \texttt{BF-OFB}            & Blowfish        & 128                       & OFB \\
 \hline \texttt{CAMELLIA-128-CBC}  & Camellia        & 128                       & CBC \\
 \hline \texttt{CAMELLIA-192-CBC}  & Camellia        & 192                       & CBC \\
 \hline \texttt{CAMELLIA-256-CBC}  & Camellia        & 256                       & CBC \\
+\hline \texttt{CAMELLIA-128-CFB}  & Camellia        & 128                       & CFB \\
+\hline \texttt{CAMELLIA-192-CFB}  & Camellia        & 192                       & CFB \\
+\hline \texttt{CAMELLIA-256-CFB}  & Camellia        & 256                       & CFB \\
+\hline \texttt{CAMELLIA-128-CTR}  & Camellia        & 128                       & CTR \\
+\hline \texttt{CAMELLIA-192-CTR}  & Camellia        & 192                       & CTR \\
+\hline \texttt{CAMELLIA-256-CTR}  & Camellia        & 256                       & CTR \\
+\hline \texttt{CAMELLIA-128-OFB}  & Camellia        & 128                       & OFB \\
+\hline \texttt{CAMELLIA-192-OFB}  & Camellia        & 192                       & OFB \\
+\hline \texttt{CAMELLIA-256-OFB}  & Camellia        & 256                       & OFB \\
+\hline \texttt{CAST5-CBC}         & CAST5           & 128                       & CBC \\
+\hline \texttt{CAST5-CFB}         & CAST5           & 128                       & CFB \\
+\hline \texttt{CAST5-OFB}         & CAST5           & 128                       & OFB \\
 \hline \texttt{DES-EDE3-CBC}      & 3DES (EDE)      & 192                       & CBC \\
-\hline \texttt{DES-CBC}           & DES             & 64                       & CBC \\
+\hline \texttt{DES-EDE3-CFB}      & 3DES (EDE)      & 192                       & CFB \\
+\hline \texttt{DES-EDE3-OFB}      & 3DES (EDE)      & 192                       & OFB \\
+\hline \texttt{DES-CBC}           & DES             & 64                        & CBC \\
+\hline \texttt{DES-CFB}           & DES             & 64                        & CFB \\
+\hline \texttt{DES-OFB}           & DES             & 64                        & OFB \\
+\hline \texttt{IDEA-CBC}          & IDEA            & 128                       & CBC \\
+\hline \texttt{IDEA-CFB}          & IDEA            & 128                       & CFB \\
+\hline \texttt{IDEA-OFB}          & IDEA            & 128                       & OFB \\
+\hline \texttt{RC5-CBC}           & RC5             & 128                       & CBC \\
+\hline \texttt{RC5-CFB}           & RC5             & 128                       & CFB \\
+\hline \texttt{RC5-OFB}           & RC5             & 128                       & OFB \\
+\hline \texttt{RC2-40-CBC}        & RC2             & 40                        & CBC \\
+\hline \texttt{RC2-64-CBC}        & RC2             & 64                        & CBC \\
+\hline \texttt{RC2-CBC}           & RC2             & 128                       & CBC \\
+\hline \texttt{RC2-CFB}           & RC2             & 128                       & CFB \\
+\hline \texttt{RC2-OFB}           & RC2             & 128                       & OFB \\
+\hline \texttt{SEED-CBC}          & SEED            & 128                       & CBC \\
+\hline \texttt{SEED-CFB}          & SEED            & 128                       & CFB \\
+\hline \texttt{SEED-OFB}          & SEED            & 128                       & OFB \\
 \hline
 \end{tabular}
 \end{small}
-\end{center}
 \caption{List of supported PEM DEK algorithms}
 \label{supported-pem-dek-algorithms}
 \end{table}
 
+\index{pem\_decode\_pkcs\_filehandle}
+\index{pem\_decode\_pkcs}
 The API functions provided to decode a PEM file into the \texttt{ltc\_pka\_key} union are:
 
 \begin{verbatim}
@@ -7566,36 +7634,70 @@ int pem_decode_pkcs(const void *buf, unsigned long len, ltc_pka_key *k, const pa
 OpenSSH PEM files can contain private keys of the following types:
 
 \begin{table}[H]
-\begin{center}
 \begin{small}
 \begin{tabular}{|l|l|}
 \hline \textbf{Identifier}    & \textbf{Type} \\
 \hline \texttt{ecdsa-sha2-*}  & ECC keys \\
+\hline \texttt{ssh-dss}       & DSA \\
 \hline \texttt{ssh-ed25519}   & Curve25519 \\
 \hline \texttt{ssh-rsa}       & RSA \\
 \hline
 \end{tabular}
 \end{small}
-\end{center}
 \caption{List of supported OpenSSH private key types}
 \label{supported-openssh-private-key-types}
 \end{table}
 
 C.f. \href{https://datatracker.ietf.org/doc/html/rfc5656}{\texttt{RFC 5656}} for details on ECC keys
 in OpenSSH.  LibTomCrypt should be able to handle all the ECC curves supported by the library,
-c.f. Ch. \ref{supported-curvers} for details.
+c.f. Ch. \ref{supported-curves} for details.
 
-OpenSSH PEM files can either not be encrypted, or the encryption is done via \texttt{aes256-cbc}
-and key derivation via \texttt{bcrypt}, c.f. Ch. \ref{bcrypt}.
+When dealing with SSH formatted private keys the following encryption algorithms are supported:
 
+\begin{table}[H]
+\begin{small}
+\begin{tabular}{|l|l|l|l|}
+\hline \textbf{Identifier}        & \textbf{Cipher} & \textbf{Key size in bits} & \textbf{Mode} \\
+\hline \texttt{none}              & none            & 0                         & none \\
+\hline \texttt{aes128-cbc}        & AES             & 128                       & CBC  \\
+\hline \texttt{aes128-ctr}        & AES             & 128                       & CTR  \\
+\hline \texttt{aes192-cbc}        & AES             & 192                       & CBC  \\
+\hline \texttt{aes192-ctr}        & AES             & 192                       & CTR  \\
+\hline \texttt{aes256-cbc}        & AES             & 256                       & CBC  \\
+\hline \texttt{aes256-ctr}        & AES             & 256                       & CTR  \\
+\hline \texttt{blowfish128-cbc}   & Blowfish        & 128                       & CBC  \\
+\hline \texttt{blowfish128-ctr}   & Blowfish        & 128                       & CTR  \\
+\hline \texttt{des-cbc}           & DES             & 64                        & CBC  \\
+\hline \texttt{3des-cbc}          & 3DES (EDE)      & 192                       & CBC  \\
+\hline \texttt{3des-ctr}          & 3DES (EDE)      & 192                       & CTR  \\
+\hline \texttt{serpent128-cbc}    & Serpent         & 128                       & CBC  \\
+\hline \texttt{serpent128-ctr}    & Serpent         & 128                       & CTR  \\
+\hline \texttt{serpent192-cbc}    & Serpent         & 192                       & CBC  \\
+\hline \texttt{serpent192-ctr}    & Serpent         & 192                       & CTR  \\
+\hline \texttt{serpent256-cbc}    & Serpent         & 256                       & CBC  \\
+\hline \texttt{serpent256-ctr}    & Serpent         & 256                       & CTR  \\
+\hline \texttt{twofish128-cbc}    & Twofish         & 128                       & CBC  \\
+\hline \texttt{twofish128-ctr}    & Twofish         & 128                       & CTR  \\
+\hline \texttt{twofish192-cbc}    & Twofish         & 192                       & CBC  \\
+\hline \texttt{twofish192-ctr}    & Twofish         & 192                       & CTR  \\
+\hline \texttt{twofish-cbc}       & Twofish         & 256                       & CBC  \\
+\hline \texttt{twofish256-cbc}    & Twofish         & 256                       & CBC  \\
+\hline \texttt{twofish256-ctr}    & Twofish         & 256                       & CTR  \\
+\hline
+\end{tabular}
+\end{small}
+\caption{List of supported SSH Encryption algorithms}
+\label{supported-ssh-encryption-algorithms}
+\end{table}
+
+\index{pem\_decode\_openssh\_filehandle}
+\index{pem\_decode\_openssh}
 The API functions provided to decode an OpenSSH PEM file into the \texttt{ltc\_pka\_key} union are:
 
 \begin{verbatim}
 int pem_decode_openssh_filehandle(FILE *f, ltc_pka_key *k, const password_ctx *pw_ctx);
 int pem_decode_openssh(const void *buf, unsigned long len, ltc_pka_key *k, const password_ctx *pw_ctx);
 \end{verbatim}
-
-
 
 
 \chapter{Miscellaneous}
@@ -9867,9 +9969,9 @@ void init_GMP(void);
 
 These three MPI init functions have been introduced in version 1.18.0 and have been deprecated in the same version in favor of \textit{crypt\_mp\_init()}.
 
-\newpage
-\markboth{Index}{Index}
-\input{crypt.ind}
+\clearpage
+\addcontentsline{toc}{chapter}{Index}
+\printindex
 
 \end{document}
 

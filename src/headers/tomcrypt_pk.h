@@ -527,7 +527,7 @@ int dsa_shared_secret(void          *private_key, void *base,
 #endif /* LTC_MDSA */
 
 /*
- * LibTomCrypt Public Key Algorithm descriptor
+ * LibTomCrypt tagged-union for holding a Public Key
  */
 
 typedef struct {
@@ -548,6 +548,7 @@ typedef struct {
 #ifdef LTC_MRSA
       rsa_key rsa;
 #endif
+      char dummy;
    } u;
    enum ltc_pka_id id;
 } ltc_pka_key;
