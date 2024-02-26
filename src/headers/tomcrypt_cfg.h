@@ -91,9 +91,9 @@ LTC_EXPORT int   LTC_CALL XSTRCMP(const char *s1, const char *s2);
    #define ENDIAN_LITTLE
    #define ENDIAN_64BITWORD
    #define LTC_FAST
-   #if defined(__SSE4_1__)
-      #if __SSE4_1__ == 1
-         #define LTC_AMD64_SSE4_1
+   #if defined(__SSE4_1__) && defined(__AES__) && defined(LTC_AES_NI)
+      #if (__SSE4_1__ == 1) && (__AES__ == 1)
+         #define LTC_HAS_AES_NI
       #endif
    #endif
 #endif
