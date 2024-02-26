@@ -2798,6 +2798,7 @@ The following hashes are provided as of this release within the LibTomCrypt libr
       \hline SHA-224 & sha224\_desc & 28 & 10 \\
       \hline BLAKE2S-224 & blake2s\_224\_desc & 28 & 23 \\
       \hline TIGER-192 & tiger\_desc & 24 & 1 \\
+      \hline TIGER2-192 & tiger2\_desc & 24 & 33 \\
       \hline SHA-1 & sha1\_desc & 20 & 2 \\
       \hline RIPEMD-160 & rmd160\_desc & 20 & 9 \\
       \hline BLAKE2S-160 & blake2s\_160\_desc & 20 & 22 \\
@@ -2876,6 +2877,7 @@ For further information see \url{https://en.wikipedia.org/wiki/SHA-3}
 
 Example of using SHAKE256 with an arbitrary length output.
 
+\begin{small}
 \begin{verbatim}
 #include <tomcrypt.h>
 int main(void)
@@ -2900,14 +2902,76 @@ int main(void)
    return EXIT_SUCCESS;
 }
 \end{verbatim}
+\end{small}
+
+\mysection{Extended Tiger API}
+
+The Tiger and Tiger2 hash algorithms \url{http://www.cs.technion.ac.il/~biham/Reports/Tiger/} specify the possibility to run the algorithm with
+a configurable number of passes.  The default and minimum is 3 passes, there is a second more or less widely used version with 4 passes,
+which has been introduced by PHP.  Its utilization is mostly limited to PHP, so we don't provide descriptors by default.
+
+An example of how to use the 4-pass version of Tiger in a libtomcrypt-style way is shown below.
+
+\index{tiger\_init\_ex()}
+\begin{small}
+\begin{verbatim}
+#include <tomcrypt.h>
+
+static const char *tiger_4passes_name = "tiger-4passes";
+
+static int tiger_4passes_init(hash_state *md)
+{
+   return tiger_init_ex(md, 4);
+}
+
+static struct ltc_hash_descriptor tiger_4passes_desc;
+
+int main(void)
+{
+   int err = 0;
+   unsigned char hash[MAXBLOCKSIZE], *p;
+   unsigned long hashlen = sizeof(hash);
+
+   memcpy(&tiger_4passes_desc, &tiger_desc, sizeof(tiger_4passes_desc));
+   tiger_4passes_desc.init = tiger_4passes_init;
+   /* Make sure to have a different name, ID and OID than standard Tiger */
+   tiger_4passes_desc.name = tiger_4passes_name;
+   tiger_4passes_desc.ID |= 0x80u;
+   memset(tiger_4passes_desc.OID, 0, sizeof(tiger_4passes_desc.OID));
+   tiger_4passes_desc.OIDlen = 0;
+
+   if ((err = register_hash(&tiger_4passes_desc)) == CRYPT_OK) {
+      err = hash_memory(find_hash(tiger_4passes_name), (unsigned char*)"abc", 3, hash, &hashlen);
+   }
+
+   if (err != 0) {
+      fprintf(stderr, "Error %s (%d)", error_to_string(err), err);
+   } else {
+      p = hash;
+      printf("Resulting hash: ");
+      while(hashlen--) {
+         printf("%02x", *p++);
+      }
+      printf("\n");
+   }
+   return err;
+}
+\end{verbatim}
+\end{small}
+
+When compiling and running this, the output should be:
+
+\begin{verbatim}
+Resulting hash: 538883c8fc5f28250299018e66bdf4fdb5ef7b65f2e91753
+\end{verbatim}
 
 \mysection{Notice}
 It is highly recommended that you \textbf{not} use the MD2, MD4, MD5, or SHA-1 hashes for the purposes of digital signatures or authentication codes.
 These hashes are provided for completeness and they still can be used for the purposes of password hashing or one-way accumulators
 (e.g. Yarrow).
 
-The other hashes such as the SHA-2 (that includes SHA-512, SHA-512/384, SHA-384, SHA-512/256, SHA-256 and SHA-224) and TIGER-192 are still considered secure
-for all purposes you would normally use a hash for.
+The other hashes such as the SHA-2 (that includes SHA-512, SHA-512/384, SHA-384, SHA-512/256, SHA-256 and SHA-224), TIGER-192 and TIGER2-192 are still
+considered secure for all purposes you would normally use a hash for.
 
 \chapter{Checksum Functions}
 

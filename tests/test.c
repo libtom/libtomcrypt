@@ -185,6 +185,7 @@ static void s_unregister_all(void)
 #endif
 
 #ifdef LTC_TIGER
+  unregister_hash(&tiger2_desc);
   unregister_hash(&tiger_desc);
 #endif
 #ifdef LTC_MD2

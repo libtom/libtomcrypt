@@ -446,6 +446,11 @@ bins: $(call print-help,bins,Builds the library and all useful demos) $(USEFUL_D
 check: test
 	./test
 
+tvs: sizes constants tv_gen
+	./tv_gen
+	./.ci/coverage_more.sh
+	mv *_tv.txt notes/
+
 #build the doxy files (requires Doxygen, tetex and patience)
 doxygen: $(call print-help,doxygen,Builds the doxygen html documentation)
 	$(MAKE) -C doc/ $@ V=$(V)
