@@ -179,7 +179,7 @@
 #define LTC_RC6
 #define LTC_SAFERP
 #define LTC_RIJNDAEL
-#ifndef LTC_NO_AES_NI
+#if !defined(LTC_NO_AES_NI)
    #define LTC_AES_NI
 #endif
 #define LTC_XTEA
