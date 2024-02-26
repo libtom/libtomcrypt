@@ -34,6 +34,7 @@ const struct ltc_cipher_descriptor aes_desc =
 #define AES_SETUP aes_enc_setup
 #define AES_ENC   aes_enc_ecb_encrypt
 #define AES_DONE  aes_enc_done
+#define AES_TEST  aes_enc_test
 #define AES_KS    aes_enc_keysize
 
 const struct ltc_cipher_descriptor aes_enc_desc =
@@ -119,6 +120,7 @@ int AES_ENC(const unsigned char *pt, unsigned char *ct, const symmetric_key *ske
 }
 
 
+#ifndef ENCRYPT_ONLY
 /**
   Decrypts a block of text with AES
   @param ct The input ciphertext (16 bytes)
@@ -135,6 +137,7 @@ int AES_DEC(const unsigned char *ct, unsigned char *pt, const symmetric_key *ske
 #endif
    return rijndael_ecb_decrypt(ct, pt, skey);
 }
+#endif /* ENCRYPT_ONLY */
 
 /**
   Performs a self-test of the AES block cipher
@@ -181,26 +184,33 @@ int AES_TEST(void)
 
   symmetric_key key;
   unsigned char tmp[2][16];
-  int i, y;
+  int i;
+#ifndef ENCRYPT_ONLY
+  int y;
+#endif
 
   for (i = 0; i < (int)(sizeof(tests)/sizeof(tests[0])); i++) {
     zeromem(&key, sizeof(key));
-    if ((err = aes_setup(tests[i].key, tests[i].keylen, 0, &key)) != CRYPT_OK) {
+    if ((err = AES_SETUP(tests[i].key, tests[i].keylen, 0, &key)) != CRYPT_OK) {
        return err;
     }
 
-    aes_ecb_encrypt(tests[i].pt, tmp[0], &key);
-    aes_ecb_decrypt(tmp[0], tmp[1], &key);
-    if (compare_testvector(tmp[0], 16, tests[i].ct, 16, "AES Encrypt", i) ||
-          compare_testvector(tmp[1], 16, tests[i].pt, 16, "AES Decrypt", i)) {
+    AES_ENC(tests[i].pt, tmp[0], &key);
+    if (compare_testvector(tmp[0], 16, tests[i].ct, 16, "AES Encrypt", i)) {
+        return CRYPT_FAIL_TESTVECTOR;
+    }
+#ifndef ENCRYPT_ONLY
+    AES_DEC(tmp[0], tmp[1], &key);
+    if (compare_testvector(tmp[1], 16, tests[i].pt, 16, "AES Decrypt", i)) {
         return CRYPT_FAIL_TESTVECTOR;
     }
 
     /* now see if we can encrypt all zero bytes 1000 times, decrypt and come back where we started */
     for (y = 0; y < 16; y++) tmp[0][y] = 0;
-    for (y = 0; y < 1000; y++) aes_ecb_encrypt(tmp[0], tmp[0], &key);
-    for (y = 0; y < 1000; y++) aes_ecb_decrypt(tmp[0], tmp[0], &key);
+    for (y = 0; y < 1000; y++) AES_ENC(tmp[0], tmp[0], &key);
+    for (y = 0; y < 1000; y++) AES_DEC(tmp[0], tmp[0], &key);
     for (y = 0; y < 16; y++) if (tmp[0][y] != 0) return CRYPT_FAIL_TESTVECTOR;
+#endif
   }
   return CRYPT_OK;
  #endif

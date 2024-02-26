@@ -699,6 +699,7 @@ void aes_done(symmetric_key *skey);
 int aes_keysize(int *keysize);
 int aes_enc_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_key *skey);
 int aes_enc_ecb_encrypt(const unsigned char *pt, unsigned char *ct, const symmetric_key *skey);
+int aes_enc_test(void);
 void aes_enc_done(symmetric_key *skey);
 int aes_enc_keysize(int *keysize);
 extern const struct ltc_cipher_descriptor aes_desc;
