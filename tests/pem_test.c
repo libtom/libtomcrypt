@@ -141,6 +141,8 @@ int pem_test(void)
    DO(test_process_dir("tests/pem/ssh", &key, s_pem_decode_ssh, NULL, (dir_cleanup_cb)pka_key_free, "pem_ssh_test"));
    DO(test_process_dir("tests/pem/ssh", &key, NULL, s_pem_decode_ssh_f, (dir_cleanup_cb)pka_key_free, "pem_ssh_test_filehandle"));
    DO(test_process_dir("tests/pem/ssh/extra", &key, s_pem_decode_ssh, NULL, (dir_cleanup_cb)pka_key_free, "pem_ssh_test+extra"));
+   DO(test_process_dir("tests/pem/pubkeys", &key, s_pem_only_decode, NULL, (dir_cleanup_cb)pka_key_free, "pem_pubkeys_test"));
+   DO(test_process_dir("tests/pem/pubkeys", &key, NULL, s_pem_only_decode_f, (dir_cleanup_cb)pka_key_free, "pem_pubkeys_test_filehandle"));
 #endif
    DO(test_process_dir("tests/pem", &key, s_pem_only_decode, NULL, (dir_cleanup_cb)pka_key_free, "pem_test"));
    DO(test_process_dir("tests/pem", &key, NULL, s_pem_only_decode_f, (dir_cleanup_cb)pka_key_free, "pem_test_filehandle"));

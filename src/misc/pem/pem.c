@@ -75,66 +75,72 @@ const struct str pem_ssh_comment = { SET_CSTR(, "Comment: ") };
 const struct str pem_dek_info_start = { SET_CSTR(, "DEK-Info: ") };
 const struct blockcipher_info pem_dek_infos[] =
    {
-      { .name = "AES-128-CBC,",      .algo = "aes",      .keylen = 128 / 8, .mode = cm_cbc, },
-      { .name = "AES-192-CBC,",      .algo = "aes",      .keylen = 192 / 8, .mode = cm_cbc, },
-      { .name = "AES-256-CBC,",      .algo = "aes",      .keylen = 256 / 8, .mode = cm_cbc, },
-      { .name = "AES-128-CFB,",      .algo = "aes",      .keylen = 128 / 8, .mode = cm_cfb, },
-      { .name = "AES-192-CFB,",      .algo = "aes",      .keylen = 192 / 8, .mode = cm_cfb, },
-      { .name = "AES-256-CFB,",      .algo = "aes",      .keylen = 256 / 8, .mode = cm_cfb, },
-      { .name = "AES-128-CTR,",      .algo = "aes",      .keylen = 128 / 8, .mode = cm_ctr, },
-      { .name = "AES-192-CTR,",      .algo = "aes",      .keylen = 192 / 8, .mode = cm_ctr, },
-      { .name = "AES-256-CTR,",      .algo = "aes",      .keylen = 256 / 8, .mode = cm_ctr, },
-      { .name = "AES-128-OFB,",      .algo = "aes",      .keylen = 128 / 8, .mode = cm_ofb, },
-      { .name = "AES-192-OFB,",      .algo = "aes",      .keylen = 192 / 8, .mode = cm_ofb, },
-      { .name = "AES-256-OFB,",      .algo = "aes",      .keylen = 256 / 8, .mode = cm_ofb, },
-      { .name = "BF-CBC,",           .algo = "blowfish", .keylen = 128 / 8, .mode = cm_cbc, },
-      { .name = "BF-CFB,",           .algo = "blowfish", .keylen = 128 / 8, .mode = cm_cfb, },
-      { .name = "BF-OFB,",           .algo = "blowfish", .keylen = 128 / 8, .mode = cm_ofb, },
-      { .name = "CAMELLIA-128-CBC,", .algo = "camellia", .keylen = 128 / 8, .mode = cm_cbc, },
-      { .name = "CAMELLIA-192-CBC,", .algo = "camellia", .keylen = 192 / 8, .mode = cm_cbc, },
-      { .name = "CAMELLIA-256-CBC,", .algo = "camellia", .keylen = 256 / 8, .mode = cm_cbc, },
-      { .name = "CAMELLIA-128-CFB,", .algo = "camellia", .keylen = 128 / 8, .mode = cm_cfb, },
-      { .name = "CAMELLIA-192-CFB,", .algo = "camellia", .keylen = 192 / 8, .mode = cm_cfb, },
-      { .name = "CAMELLIA-256-CFB,", .algo = "camellia", .keylen = 256 / 8, .mode = cm_cfb, },
-      { .name = "CAMELLIA-128-CTR,", .algo = "camellia", .keylen = 128 / 8, .mode = cm_ctr, },
-      { .name = "CAMELLIA-192-CTR,", .algo = "camellia", .keylen = 192 / 8, .mode = cm_ctr, },
-      { .name = "CAMELLIA-256-CTR,", .algo = "camellia", .keylen = 256 / 8, .mode = cm_ctr, },
-      { .name = "CAMELLIA-128-OFB,", .algo = "camellia", .keylen = 128 / 8, .mode = cm_ofb, },
-      { .name = "CAMELLIA-192-OFB,", .algo = "camellia", .keylen = 192 / 8, .mode = cm_ofb, },
-      { .name = "CAMELLIA-256-OFB,", .algo = "camellia", .keylen = 256 / 8, .mode = cm_ofb, },
-      { .name = "CAST5-CBC,",        .algo = "cast5",    .keylen = 128 / 8, .mode = cm_cbc, },
-      { .name = "CAST5-CFB,",        .algo = "cast5",    .keylen = 128 / 8, .mode = cm_cfb, },
-      { .name = "CAST5-OFB,",        .algo = "cast5",    .keylen = 128 / 8, .mode = cm_ofb, },
-      { .name = "DES-EDE3-CBC,",     .algo = "3des",     .keylen = 192 / 8, .mode = cm_cbc, },
-      { .name = "DES-EDE3-CFB,",     .algo = "3des",     .keylen = 192 / 8, .mode = cm_cfb, },
-      { .name = "DES-EDE3-OFB,",     .algo = "3des",     .keylen = 192 / 8, .mode = cm_ofb, },
-      { .name = "DES-CBC,",          .algo = "des",      .keylen =  64 / 8, .mode = cm_cbc, },
-      { .name = "DES-CFB,",          .algo = "des",      .keylen =  64 / 8, .mode = cm_cfb, },
-      { .name = "DES-OFB,",          .algo = "des",      .keylen =  64 / 8, .mode = cm_ofb, },
-      { .name = "IDEA-CBC,",         .algo = "idea",     .keylen = 128 / 8, .mode = cm_cbc, },
-      { .name = "IDEA-CFB,",         .algo = "idea",     .keylen = 128 / 8, .mode = cm_cfb, },
-      { .name = "IDEA-OFB,",         .algo = "idea",     .keylen = 128 / 8, .mode = cm_ofb, },
-      { .name = "RC5-CBC,",          .algo = "rc5",      .keylen = 128 / 8, .mode = cm_cbc, },
-      { .name = "RC5-CFB,",          .algo = "rc5",      .keylen = 128 / 8, .mode = cm_cfb, },
-      { .name = "RC5-OFB,",          .algo = "rc5",      .keylen = 128 / 8, .mode = cm_ofb, },
-      { .name = "RC2-40-CBC,",       .algo = "rc2",      .keylen =  40 / 8, .mode = cm_cbc, },
-      { .name = "RC2-64-CBC,",       .algo = "rc2",      .keylen =  64 / 8, .mode = cm_cbc, },
-      { .name = "RC2-CBC,",          .algo = "rc2",      .keylen = 128 / 8, .mode = cm_cbc, },
-      { .name = "RC2-CFB,",          .algo = "rc2",      .keylen = 128 / 8, .mode = cm_cfb, },
-      { .name = "RC2-OFB,",          .algo = "rc2",      .keylen = 128 / 8, .mode = cm_ofb, },
-      { .name = "SEED-CBC,",         .algo = "seed",     .keylen = 128 / 8, .mode = cm_cbc, },
-      { .name = "SEED-CFB,",         .algo = "seed",     .keylen = 128 / 8, .mode = cm_cfb, },
-      { .name = "SEED-OFB,",         .algo = "seed",     .keylen = 128 / 8, .mode = cm_ofb, },
+      { .name = "AES-128-CBC,",      .algo = "aes",      .keylen = 128 / 8, .mode = cm_cbc,    },
+      { .name = "AES-192-CBC,",      .algo = "aes",      .keylen = 192 / 8, .mode = cm_cbc,    },
+      { .name = "AES-256-CBC,",      .algo = "aes",      .keylen = 256 / 8, .mode = cm_cbc,    },
+      { .name = "AES-128-CFB,",      .algo = "aes",      .keylen = 128 / 8, .mode = cm_cfb,    },
+      { .name = "AES-192-CFB,",      .algo = "aes",      .keylen = 192 / 8, .mode = cm_cfb,    },
+      { .name = "AES-256-CFB,",      .algo = "aes",      .keylen = 256 / 8, .mode = cm_cfb,    },
+      { .name = "AES-128-CTR,",      .algo = "aes",      .keylen = 128 / 8, .mode = cm_ctr,    },
+      { .name = "AES-192-CTR,",      .algo = "aes",      .keylen = 192 / 8, .mode = cm_ctr,    },
+      { .name = "AES-256-CTR,",      .algo = "aes",      .keylen = 256 / 8, .mode = cm_ctr,    },
+      { .name = "AES-128-OFB,",      .algo = "aes",      .keylen = 128 / 8, .mode = cm_ofb,    },
+      { .name = "AES-192-OFB,",      .algo = "aes",      .keylen = 192 / 8, .mode = cm_ofb,    },
+      { .name = "AES-256-OFB,",      .algo = "aes",      .keylen = 256 / 8, .mode = cm_ofb,    },
+      { .name = "BF-CBC,",           .algo = "blowfish", .keylen = 128 / 8, .mode = cm_cbc,    },
+      { .name = "BF-CFB,",           .algo = "blowfish", .keylen = 128 / 8, .mode = cm_cfb,    },
+      { .name = "BF-OFB,",           .algo = "blowfish", .keylen = 128 / 8, .mode = cm_ofb,    },
+      { .name = "CAMELLIA-128-CBC,", .algo = "camellia", .keylen = 128 / 8, .mode = cm_cbc,    },
+      { .name = "CAMELLIA-192-CBC,", .algo = "camellia", .keylen = 192 / 8, .mode = cm_cbc,    },
+      { .name = "CAMELLIA-256-CBC,", .algo = "camellia", .keylen = 256 / 8, .mode = cm_cbc,    },
+      { .name = "CAMELLIA-128-CFB,", .algo = "camellia", .keylen = 128 / 8, .mode = cm_cfb,    },
+      { .name = "CAMELLIA-192-CFB,", .algo = "camellia", .keylen = 192 / 8, .mode = cm_cfb,    },
+      { .name = "CAMELLIA-256-CFB,", .algo = "camellia", .keylen = 256 / 8, .mode = cm_cfb,    },
+      { .name = "CAMELLIA-128-CTR,", .algo = "camellia", .keylen = 128 / 8, .mode = cm_ctr,    },
+      { .name = "CAMELLIA-192-CTR,", .algo = "camellia", .keylen = 192 / 8, .mode = cm_ctr,    },
+      { .name = "CAMELLIA-256-CTR,", .algo = "camellia", .keylen = 256 / 8, .mode = cm_ctr,    },
+      { .name = "CAMELLIA-128-OFB,", .algo = "camellia", .keylen = 128 / 8, .mode = cm_ofb,    },
+      { .name = "CAMELLIA-192-OFB,", .algo = "camellia", .keylen = 192 / 8, .mode = cm_ofb,    },
+      { .name = "CAMELLIA-256-OFB,", .algo = "camellia", .keylen = 256 / 8, .mode = cm_ofb,    },
+      { .name = "CAST5-CBC,",        .algo = "cast5",    .keylen = 128 / 8, .mode = cm_cbc,    },
+      { .name = "CAST5-CFB,",        .algo = "cast5",    .keylen = 128 / 8, .mode = cm_cfb,    },
+      { .name = "CAST5-OFB,",        .algo = "cast5",    .keylen = 128 / 8, .mode = cm_ofb,    },
+      { .name = "ChaCha20,",         .algo = "chacha20", .keylen = 256 / 8, .mode = cm_stream, },
+      { .name = "DES-EDE-CBC,",      .algo = "3des",     .keylen = 128 / 8, .mode = cm_cbc,    },
+      { .name = "DES-EDE-CFB,",      .algo = "3des",     .keylen = 128 / 8, .mode = cm_cfb,    },
+      { .name = "DES-EDE-OFB,",      .algo = "3des",     .keylen = 128 / 8, .mode = cm_ofb,    },
+      { .name = "DES-EDE3-CBC,",     .algo = "3des",     .keylen = 192 / 8, .mode = cm_cbc,    },
+      { .name = "DES-EDE3-CFB,",     .algo = "3des",     .keylen = 192 / 8, .mode = cm_cfb,    },
+      { .name = "DES-EDE3-OFB,",     .algo = "3des",     .keylen = 192 / 8, .mode = cm_ofb,    },
+      { .name = "DES-CBC,",          .algo = "des",      .keylen =  64 / 8, .mode = cm_cbc,    },
+      { .name = "DES-CFB,",          .algo = "des",      .keylen =  64 / 8, .mode = cm_cfb,    },
+      { .name = "DES-OFB,",          .algo = "des",      .keylen =  64 / 8, .mode = cm_ofb,    },
+      { .name = "DESX-CBC,",         .algo = "desx",     .keylen = 192 / 8, .mode = cm_cbc,    },
+      { .name = "IDEA-CBC,",         .algo = "idea",     .keylen = 128 / 8, .mode = cm_cbc,    },
+      { .name = "IDEA-CFB,",         .algo = "idea",     .keylen = 128 / 8, .mode = cm_cfb,    },
+      { .name = "IDEA-OFB,",         .algo = "idea",     .keylen = 128 / 8, .mode = cm_ofb,    },
+      { .name = "RC5-CBC,",          .algo = "rc5",      .keylen = 128 / 8, .mode = cm_cbc,    },
+      { .name = "RC5-CFB,",          .algo = "rc5",      .keylen = 128 / 8, .mode = cm_cfb,    },
+      { .name = "RC5-OFB,",          .algo = "rc5",      .keylen = 128 / 8, .mode = cm_ofb,    },
+      { .name = "RC2-40-CBC,",       .algo = "rc2",      .keylen =  40 / 8, .mode = cm_cbc,    },
+      { .name = "RC2-64-CBC,",       .algo = "rc2",      .keylen =  64 / 8, .mode = cm_cbc,    },
+      { .name = "RC2-CBC,",          .algo = "rc2",      .keylen = 128 / 8, .mode = cm_cbc,    },
+      { .name = "RC2-CFB,",          .algo = "rc2",      .keylen = 128 / 8, .mode = cm_cfb,    },
+      { .name = "RC2-OFB,",          .algo = "rc2",      .keylen = 128 / 8, .mode = cm_ofb,    },
+      { .name = "SEED-CBC,",         .algo = "seed",     .keylen = 128 / 8, .mode = cm_cbc,    },
+      { .name = "SEED-CFB,",         .algo = "seed",     .keylen = 128 / 8, .mode = cm_cfb,    },
+      { .name = "SEED-OFB,",         .algo = "seed",     .keylen = 128 / 8, .mode = cm_ofb,    },
    };
 const unsigned long pem_dek_infos_num = sizeof(pem_dek_infos)/sizeof(pem_dek_infos[0]);
 
 int pem_decrypt(unsigned char *data, unsigned long *datalen,
                 unsigned char *key,  unsigned long keylen,
                 unsigned char *iv,   unsigned long ivlen,
+                unsigned char *tag,  unsigned long taglen,
                 const struct blockcipher_info *info,
                 enum padding_type padding)
 {
-   int err, cipher;
+   int err, cipher = -1;
    struct {
       union {
 #ifdef LTC_CBC_MODE
@@ -151,10 +157,13 @@ int pem_decrypt(unsigned char *data, unsigned long *datalen,
 #endif
       } ctx;
    } s;
+   enum cipher_mode mode = info->mode & cm_modes;
 
-   cipher = find_cipher(info->algo);
-   if (cipher == -1) {
-      return CRYPT_INVALID_CIPHER;
+   if (mode != cm_stream) {
+      cipher = find_cipher(info->algo);
+      if (cipher == -1) {
+         return CRYPT_INVALID_CIPHER;
+      }
    }
 
    switch (info->mode) {
@@ -218,6 +227,50 @@ int pem_decrypt(unsigned char *data, unsigned long *datalen,
             goto error_out;
          }
          if ((err = ofb_done(&s.ctx.ofb)) != CRYPT_OK) {
+            goto error_out;
+         }
+#else
+         return CRYPT_INVALID_CIPHER;
+#endif
+         break;
+      case cm_gcm:
+#ifdef LTC_GCM_MODE
+         if ((err = gcm_memory(cipher,
+                               key, keylen,
+                               iv, ivlen,
+                               NULL, 0,
+                               data, *datalen, data,
+                               tag, &taglen,
+                               GCM_DECRYPT)) != CRYPT_OK) {
+            goto error_out;
+         }
+#else
+         LTC_UNUSED_PARAM(tag);
+         LTC_UNUSED_PARAM(taglen);
+         return CRYPT_INVALID_CIPHER;
+#endif
+         break;
+      case cm_stream:
+#ifdef LTC_CHACHA
+         LTC_ARGCHK(ivlen == 16);
+
+         if ((err = chacha_memory(key, keylen, 20,
+                                  iv, ivlen, 0,
+                                  data, *datalen, data)) != CRYPT_OK) {
+            goto error_out;
+         }
+#else
+         return CRYPT_INVALID_CIPHER;
+#endif
+         break;
+      case cm_stream_openssh:
+#ifdef LTC_CHACHA20POLY1305_MODE
+         if ((err = chacha20poly1305_memory(key, 32,
+                                            iv, ivlen,
+                                            NULL, 0,
+                                            data, *datalen, data,
+                                            tag, &taglen,
+                                            CHACHA20POLY1305_DECRYPT | CHACHA20POLY1305_OPENSSH_COMPAT)) != CRYPT_OK) {
             goto error_out;
          }
 #else

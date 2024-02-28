@@ -2422,9 +2422,15 @@ int main(void)
 \end{small}
 
 \mysection{ChaCha20--Poly1305}
+\label{chacha20poly1305}
 
-This authenticated encryption is based on ChaCha20 stream cipher and Poly1305 authenticator.
-It is defined by \url{https://tools.ietf.org/html/rfc7539}.
+This authenticated encryption is based on the ChaCha20 stream cipher and Poly1305 authenticator.
+It is defined by \url{https://tools.ietf.org/html/rfc8439}.
+
+IMPORTANT NOTICE: The Chacha20--Poly1305 implementation of LibTomCrypt is compliant to \textbf{RFC8439}, which differs slightly
+to what OpenSSH defined as \textbf{chacha20-poly1305@openssh.com}. The OpenSSH compatibility mode can be enabled
+by setting the \textit{openssh\_compat} element of \textit{chacha20poly1305\_state} to \textit{1},
+after calling \textit{chacha20poly1305\_init()}.
 
 \subsection{Initialization}
 To initialize the ChaCha20--Poly1305 context with a secret key call the following function.
@@ -2529,8 +2535,12 @@ encrypt (\textit{direction} equals \textbf{CHACHA20POLY1305\_ENCRYPT}) or decryp
 \textbf{CHACHA20POLY1305\_DECRYPT}) the message text and store the final message tag. The definition of the
 variables is the same as it is for all the manual functions.
 
-IMPORTANT NOTICE: for \textit{direction == CHACHA20POLY1305\_DECRYPT} the caller has to fill \textit{tag} and \textit{taglen} with expected
+IMPORTANT NOTICE 1: for \textit{direction == CHACHA20POLY1305\_DECRYPT} the caller has to fill \textit{tag} and \textit{taglen} with expected
 tag value. The \textit{chacha20poly1305\_memory} in decrypt mode validates the \textit{tag} value and returns \textit{CRYPT\_ERROR} on mismatch.
+
+IMPORTANT NOTICE 2: As mentioned in \ref{chacha20poly1305} there exists a discrepancy between the RFC and OpenSSH versions of the algorithm.
+In order to enable OpenSSH compatibility, the flag \textit{CHACHA20POLY1305\_OPENSSH\_COMPAT} has to be \textbf{OR}'ed into
+the \textit{direction} parameter.
 
 \chapter{One-Way Cryptographic Hash Functions}
 \mysection{Core Functions}
@@ -7563,56 +7573,61 @@ When dealing with PEM formatted private keys the following encryption algorithms
 \begin{small}
 \begin{tabular}{|l|l|l|l|}
 \hline \textbf{Identifier}        & \textbf{Cipher} & \textbf{Key size in bits} & \textbf{Mode} \\
-\hline \texttt{AES-128-CBC}       & AES             & 128                       & CBC \\
-\hline \texttt{AES-192-CBC}       & AES             & 192                       & CBC \\
-\hline \texttt{AES-256-CBC}       & AES             & 256                       & CBC \\
-\hline \texttt{AES-128-CFB}       & AES             & 128                       & CFB \\
-\hline \texttt{AES-192-CFB}       & AES             & 192                       & CFB \\
-\hline \texttt{AES-256-CFB}       & AES             & 256                       & CFB \\
-\hline \texttt{AES-128-CTR}       & AES             & 128                       & CTR \\
-\hline \texttt{AES-192-CTR}       & AES             & 192                       & CTR \\
-\hline \texttt{AES-256-CTR}       & AES             & 256                       & CTR \\
-\hline \texttt{AES-128-OFB}       & AES             & 128                       & OFB \\
-\hline \texttt{AES-192-OFB}       & AES             & 192                       & OFB \\
-\hline \texttt{AES-256-OFB}       & AES             & 256                       & OFB \\
-\hline \texttt{BF-CBC}            & Blowfish        & 128                       & CBC \\
-\hline \texttt{BF-CFB}            & Blowfish        & 128                       & CFB \\
-\hline \texttt{BF-OFB}            & Blowfish        & 128                       & OFB \\
-\hline \texttt{CAMELLIA-128-CBC}  & Camellia        & 128                       & CBC \\
-\hline \texttt{CAMELLIA-192-CBC}  & Camellia        & 192                       & CBC \\
-\hline \texttt{CAMELLIA-256-CBC}  & Camellia        & 256                       & CBC \\
-\hline \texttt{CAMELLIA-128-CFB}  & Camellia        & 128                       & CFB \\
-\hline \texttt{CAMELLIA-192-CFB}  & Camellia        & 192                       & CFB \\
-\hline \texttt{CAMELLIA-256-CFB}  & Camellia        & 256                       & CFB \\
-\hline \texttt{CAMELLIA-128-CTR}  & Camellia        & 128                       & CTR \\
-\hline \texttt{CAMELLIA-192-CTR}  & Camellia        & 192                       & CTR \\
-\hline \texttt{CAMELLIA-256-CTR}  & Camellia        & 256                       & CTR \\
-\hline \texttt{CAMELLIA-128-OFB}  & Camellia        & 128                       & OFB \\
-\hline \texttt{CAMELLIA-192-OFB}  & Camellia        & 192                       & OFB \\
-\hline \texttt{CAMELLIA-256-OFB}  & Camellia        & 256                       & OFB \\
-\hline \texttt{CAST5-CBC}         & CAST5           & 128                       & CBC \\
-\hline \texttt{CAST5-CFB}         & CAST5           & 128                       & CFB \\
-\hline \texttt{CAST5-OFB}         & CAST5           & 128                       & OFB \\
-\hline \texttt{DES-EDE3-CBC}      & 3DES (EDE)      & 192                       & CBC \\
-\hline \texttt{DES-EDE3-CFB}      & 3DES (EDE)      & 192                       & CFB \\
-\hline \texttt{DES-EDE3-OFB}      & 3DES (EDE)      & 192                       & OFB \\
-\hline \texttt{DES-CBC}           & DES             & 64                        & CBC \\
-\hline \texttt{DES-CFB}           & DES             & 64                        & CFB \\
-\hline \texttt{DES-OFB}           & DES             & 64                        & OFB \\
-\hline \texttt{IDEA-CBC}          & IDEA            & 128                       & CBC \\
-\hline \texttt{IDEA-CFB}          & IDEA            & 128                       & CFB \\
-\hline \texttt{IDEA-OFB}          & IDEA            & 128                       & OFB \\
-\hline \texttt{RC5-CBC}           & RC5             & 128                       & CBC \\
-\hline \texttt{RC5-CFB}           & RC5             & 128                       & CFB \\
-\hline \texttt{RC5-OFB}           & RC5             & 128                       & OFB \\
-\hline \texttt{RC2-40-CBC}        & RC2             & 40                        & CBC \\
-\hline \texttt{RC2-64-CBC}        & RC2             & 64                        & CBC \\
-\hline \texttt{RC2-CBC}           & RC2             & 128                       & CBC \\
-\hline \texttt{RC2-CFB}           & RC2             & 128                       & CFB \\
-\hline \texttt{RC2-OFB}           & RC2             & 128                       & OFB \\
-\hline \texttt{SEED-CBC}          & SEED            & 128                       & CBC \\
-\hline \texttt{SEED-CFB}          & SEED            & 128                       & CFB \\
-\hline \texttt{SEED-OFB}          & SEED            & 128                       & OFB \\
+\hline \texttt{AES-128-CBC}       & AES             & 128                       & CBC    \\
+\hline \texttt{AES-192-CBC}       & AES             & 192                       & CBC    \\
+\hline \texttt{AES-256-CBC}       & AES             & 256                       & CBC    \\
+\hline \texttt{AES-128-CFB}       & AES             & 128                       & CFB    \\
+\hline \texttt{AES-192-CFB}       & AES             & 192                       & CFB    \\
+\hline \texttt{AES-256-CFB}       & AES             & 256                       & CFB    \\
+\hline \texttt{AES-128-CTR}       & AES             & 128                       & CTR    \\
+\hline \texttt{AES-192-CTR}       & AES             & 192                       & CTR    \\
+\hline \texttt{AES-256-CTR}       & AES             & 256                       & CTR    \\
+\hline \texttt{AES-128-OFB}       & AES             & 128                       & OFB    \\
+\hline \texttt{AES-192-OFB}       & AES             & 192                       & OFB    \\
+\hline \texttt{AES-256-OFB}       & AES             & 256                       & OFB    \\
+\hline \texttt{BF-CBC}            & Blowfish        & 128                       & CBC    \\
+\hline \texttt{BF-CFB}            & Blowfish        & 128                       & CFB    \\
+\hline \texttt{BF-OFB}            & Blowfish        & 128                       & OFB    \\
+\hline \texttt{CAMELLIA-128-CBC}  & Camellia        & 128                       & CBC    \\
+\hline \texttt{CAMELLIA-192-CBC}  & Camellia        & 192                       & CBC    \\
+\hline \texttt{CAMELLIA-256-CBC}  & Camellia        & 256                       & CBC    \\
+\hline \texttt{CAMELLIA-128-CFB}  & Camellia        & 128                       & CFB    \\
+\hline \texttt{CAMELLIA-192-CFB}  & Camellia        & 192                       & CFB    \\
+\hline \texttt{CAMELLIA-256-CFB}  & Camellia        & 256                       & CFB    \\
+\hline \texttt{CAMELLIA-128-CTR}  & Camellia        & 128                       & CTR    \\
+\hline \texttt{CAMELLIA-192-CTR}  & Camellia        & 192                       & CTR    \\
+\hline \texttt{CAMELLIA-256-CTR}  & Camellia        & 256                       & CTR    \\
+\hline \texttt{CAMELLIA-128-OFB}  & Camellia        & 128                       & OFB    \\
+\hline \texttt{CAMELLIA-192-OFB}  & Camellia        & 192                       & OFB    \\
+\hline \texttt{CAMELLIA-256-OFB}  & Camellia        & 256                       & OFB    \\
+\hline \texttt{CAST5-CBC}         & CAST5           & 128                       & CBC    \\
+\hline \texttt{CAST5-CFB}         & CAST5           & 128                       & CFB    \\
+\hline \texttt{CAST5-OFB}         & CAST5           & 128                       & OFB    \\
+\hline \texttt{ChaCha20}          & ChaCha20        & 256                       & STREAM \\
+\hline \texttt{DES-EDE-CBC}       & 3DES (EDE)      & 128                       & CBC    \\
+\hline \texttt{DES-EDE-CFB}       & 3DES (EDE)      & 128                       & CFB    \\
+\hline \texttt{DES-EDE-OFB}       & 3DES (EDE)      & 128                       & OFB    \\
+\hline \texttt{DES-EDE3-CBC}      & 3DES (EDE)      & 192                       & CBC    \\
+\hline \texttt{DES-EDE3-CFB}      & 3DES (EDE)      & 192                       & CFB    \\
+\hline \texttt{DES-EDE3-OFB}      & 3DES (EDE)      & 192                       & OFB    \\
+\hline \texttt{DES-CBC}           & DES             & 64                        & CBC    \\
+\hline \texttt{DES-CFB}           & DES             & 64                        & CFB    \\
+\hline \texttt{DES-OFB}           & DES             & 64                        & OFB    \\
+\hline \texttt{DESX-CBC}          & DES-X           & 192                       & CBC    \\
+\hline \texttt{IDEA-CBC}          & IDEA            & 128                       & CBC    \\
+\hline \texttt{IDEA-CFB}          & IDEA            & 128                       & CFB    \\
+\hline \texttt{IDEA-OFB}          & IDEA            & 128                       & OFB    \\
+\hline \texttt{RC5-CBC}           & RC5             & 128                       & CBC    \\
+\hline \texttt{RC5-CFB}           & RC5             & 128                       & CFB    \\
+\hline \texttt{RC5-OFB}           & RC5             & 128                       & OFB    \\
+\hline \texttt{RC2-40-CBC}        & RC2             & 40                        & CBC    \\
+\hline \texttt{RC2-64-CBC}        & RC2             & 64                        & CBC    \\
+\hline \texttt{RC2-CBC}           & RC2             & 128                       & CBC    \\
+\hline \texttt{RC2-CFB}           & RC2             & 128                       & CFB    \\
+\hline \texttt{RC2-OFB}           & RC2             & 128                       & OFB    \\
+\hline \texttt{SEED-CBC}          & SEED            & 128                       & CBC    \\
+\hline \texttt{SEED-CFB}          & SEED            & 128                       & CFB    \\
+\hline \texttt{SEED-OFB}          & SEED            & 128                       & OFB    \\
 \hline
 \end{tabular}
 \end{small}
@@ -7657,32 +7672,35 @@ When dealing with SSH formatted private keys the following encryption algorithms
 \begin{table}[H]
 \begin{small}
 \begin{tabular}{|l|l|l|l|}
-\hline \textbf{Identifier}        & \textbf{Cipher} & \textbf{Key size in bits} & \textbf{Mode} \\
-\hline \texttt{none}              & none            & 0                         & none \\
-\hline \texttt{aes128-cbc}        & AES             & 128                       & CBC  \\
-\hline \texttt{aes128-ctr}        & AES             & 128                       & CTR  \\
-\hline \texttt{aes192-cbc}        & AES             & 192                       & CBC  \\
-\hline \texttt{aes192-ctr}        & AES             & 192                       & CTR  \\
-\hline \texttt{aes256-cbc}        & AES             & 256                       & CBC  \\
-\hline \texttt{aes256-ctr}        & AES             & 256                       & CTR  \\
-\hline \texttt{blowfish128-cbc}   & Blowfish        & 128                       & CBC  \\
-\hline \texttt{blowfish128-ctr}   & Blowfish        & 128                       & CTR  \\
-\hline \texttt{des-cbc}           & DES             & 64                        & CBC  \\
-\hline \texttt{3des-cbc}          & 3DES (EDE)      & 192                       & CBC  \\
-\hline \texttt{3des-ctr}          & 3DES (EDE)      & 192                       & CTR  \\
-\hline \texttt{serpent128-cbc}    & Serpent         & 128                       & CBC  \\
-\hline \texttt{serpent128-ctr}    & Serpent         & 128                       & CTR  \\
-\hline \texttt{serpent192-cbc}    & Serpent         & 192                       & CBC  \\
-\hline \texttt{serpent192-ctr}    & Serpent         & 192                       & CTR  \\
-\hline \texttt{serpent256-cbc}    & Serpent         & 256                       & CBC  \\
-\hline \texttt{serpent256-ctr}    & Serpent         & 256                       & CTR  \\
-\hline \texttt{twofish128-cbc}    & Twofish         & 128                       & CBC  \\
-\hline \texttt{twofish128-ctr}    & Twofish         & 128                       & CTR  \\
-\hline \texttt{twofish192-cbc}    & Twofish         & 192                       & CBC  \\
-\hline \texttt{twofish192-ctr}    & Twofish         & 192                       & CTR  \\
-\hline \texttt{twofish-cbc}       & Twofish         & 256                       & CBC  \\
-\hline \texttt{twofish256-cbc}    & Twofish         & 256                       & CBC  \\
-\hline \texttt{twofish256-ctr}    & Twofish         & 256                       & CTR  \\
+\hline \textbf{Identifier}                    & \textbf{Cipher} & \textbf{Key size in bits} & \textbf{Mode} \\
+\hline \texttt{none}                          & none             & 0                        & none   \\
+\hline \texttt{aes128-cbc}                    & AES              & 128                      & CBC    \\
+\hline \texttt{aes128-ctr}                    & AES              & 128                      & CTR    \\
+\hline \texttt{aes192-cbc}                    & AES              & 192                      & CBC    \\
+\hline \texttt{aes192-ctr}                    & AES              & 192                      & CTR    \\
+\hline \texttt{aes256-cbc}                    & AES              & 256                      & CBC    \\
+\hline \texttt{aes256-ctr}                    & AES              & 256                      & CTR    \\
+\hline \texttt{aes128-gcm@openssh.com}        & AES              & 128                      & GCM    \\
+\hline \texttt{aes256-gcm@openssh.com}        & AES              & 256                      & GCM    \\
+\hline \texttt{blowfish128-cbc}               & Blowfish         & 128                      & CBC    \\
+\hline \texttt{blowfish128-ctr}               & Blowfish         & 128                      & CTR    \\
+\hline \texttt{chacha20-poly1305@openssh.com} & ChaCha20Poly1305 & 256                      & STREAM \\
+\hline \texttt{des-cbc}                       & DES              & 64                       & CBC    \\
+\hline \texttt{3des-cbc}                      & 3DES (EDE)       & 192                      & CBC    \\
+\hline \texttt{3des-ctr}                      & 3DES (EDE)       & 192                      & CTR    \\
+\hline \texttt{serpent128-cbc}                & Serpent          & 128                      & CBC    \\
+\hline \texttt{serpent128-ctr}                & Serpent          & 128                      & CTR    \\
+\hline \texttt{serpent192-cbc}                & Serpent          & 192                      & CBC    \\
+\hline \texttt{serpent192-ctr}                & Serpent          & 192                      & CTR    \\
+\hline \texttt{serpent256-cbc}                & Serpent          & 256                      & CBC    \\
+\hline \texttt{serpent256-ctr}                & Serpent          & 256                      & CTR    \\
+\hline \texttt{twofish128-cbc}                & Twofish          & 128                      & CBC    \\
+\hline \texttt{twofish128-ctr}                & Twofish          & 128                      & CTR    \\
+\hline \texttt{twofish192-cbc}                & Twofish          & 192                      & CBC    \\
+\hline \texttt{twofish192-ctr}                & Twofish          & 192                      & CTR    \\
+\hline \texttt{twofish-cbc}                   & Twofish          & 256                      & CBC    \\
+\hline \texttt{twofish256-cbc}                & Twofish          & 256                      & CBC    \\
+\hline \texttt{twofish256-ctr}                & Twofish          & 256                      & CTR    \\
 \hline
 \end{tabular}
 \end{small}

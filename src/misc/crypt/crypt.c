@@ -84,6 +84,8 @@ const char *crypt_build_settings =
 #endif
 #if defined(LTC_DES)
    "   DES\n"
+   "   DES-X\n"
+   "   3DES\n"
 #endif
 #if defined(LTC_CAST5)
    "   CAST5\n"

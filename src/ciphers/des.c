@@ -40,6 +40,20 @@ const struct ltc_cipher_descriptor des3_desc =
     NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
 };
 
+const struct ltc_cipher_descriptor desx_desc =
+{
+    "desx",
+    27,
+    24, 24, 8, 16,
+    &desx_setup,
+    &desx_ecb_encrypt,
+    &desx_ecb_decrypt,
+    &desx_test,
+    &desx_done,
+    &desx_keysize,
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
+};
+
 static const ulong32 bytebit[8] =
 {
     0200, 0100, 040, 020, 010, 04, 02, 01
@@ -1511,7 +1525,7 @@ static void desfunc(ulong32 *block, const ulong32 *keys)
 #endif
 
  /**
-    Initialize the LTC_DES block cipher
+    Initialize the DES block cipher
     @param key The symmetric key you wish to pass
     @param keylen The key length in bytes
     @param num_rounds The number of rounds desired (0 for default)
@@ -1538,7 +1552,36 @@ int des_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_ke
 }
 
  /**
-    Initialize the 3LTC_DES-EDE block cipher
+    Initialize the DES-X block cipher
+    @param key The symmetric key you wish to pass
+    @param keylen The key length in bytes
+    @param num_rounds The number of rounds desired (0 for default)
+    @param skey The key in as scheduled by this function.
+    @return CRYPT_OK if successful
+ */
+int desx_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_key *skey)
+{
+   if(num_rounds != 0 && num_rounds != 16) {
+       return CRYPT_INVALID_ROUNDS;
+   }
+
+   if (keylen != 24) {
+       return CRYPT_INVALID_KEYSIZE;
+   }
+
+   deskey(key, EN0, skey->desx.ek);
+   deskey(key, DE1, skey->desx.dk);
+
+   LOAD32H(skey->desx.k[0][0], key + 8);
+   LOAD32H(skey->desx.k[0][1], key + 12);
+   LOAD32H(skey->desx.k[1][0], key + 16);
+   LOAD32H(skey->desx.k[1][1], key + 20);
+
+   return CRYPT_OK;
+}
+
+ /**
+    Initialize the 3DES-EDE block cipher
     @param key The symmetric key you wish to pass
     @param keylen The key length in bytes
     @param num_rounds The number of rounds desired (0 for default)
@@ -1580,7 +1623,7 @@ int des3_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_k
 }
 
 /**
-  Encrypts a block of text with LTC_DES
+  Encrypts a block of text with DES
   @param pt The input plaintext (8 bytes)
   @param ct The output ciphertext (8 bytes)
   @param skey The key as scheduled
@@ -1601,7 +1644,7 @@ int des_ecb_encrypt(const unsigned char *pt, unsigned char *ct, const symmetric_
 }
 
 /**
-  Decrypts a block of text with LTC_DES
+  Decrypts a block of text with DES
   @param ct The input ciphertext (8 bytes)
   @param pt The output plaintext (8 bytes)
   @param skey The key as scheduled
@@ -1622,7 +1665,57 @@ int des_ecb_decrypt(const unsigned char *ct, unsigned char *pt, const symmetric_
 }
 
 /**
-  Encrypts a block of text with 3LTC_DES-EDE
+  Encrypts a block of text with DES-X
+  @param pt The input plaintext (8 bytes)
+  @param ct The output ciphertext (8 bytes)
+  @param skey The key as scheduled
+  @return CRYPT_OK if successful
+*/
+int desx_ecb_encrypt(const unsigned char *pt, unsigned char *ct, const symmetric_key *skey)
+{
+    ulong32 work[2];
+    LTC_ARGCHK(pt   != NULL);
+    LTC_ARGCHK(ct   != NULL);
+    LTC_ARGCHK(skey != NULL);
+    LOAD32H(work[0], pt+0);
+    LOAD32H(work[1], pt+4);
+    work[0] ^= skey->desx.k[0][0];
+    work[1] ^= skey->desx.k[0][1];
+    desfunc(work, skey->desx.ek);
+    work[0] ^= skey->desx.k[1][0];
+    work[1] ^= skey->desx.k[1][1];
+    STORE32H(work[0],ct+0);
+    STORE32H(work[1],ct+4);
+    return CRYPT_OK;
+}
+
+/**
+  Decrypts a block of text with DES-X
+  @param ct The input ciphertext (8 bytes)
+  @param pt The output plaintext (8 bytes)
+  @param skey The key as scheduled
+  @return CRYPT_OK if successful
+*/
+int desx_ecb_decrypt(const unsigned char *ct, unsigned char *pt, const symmetric_key *skey)
+{
+    ulong32 work[2];
+    LTC_ARGCHK(pt   != NULL);
+    LTC_ARGCHK(ct   != NULL);
+    LTC_ARGCHK(skey != NULL);
+    LOAD32H(work[0], ct+0);
+    LOAD32H(work[1], ct+4);
+    work[0] ^= skey->desx.k[1][0];
+    work[1] ^= skey->desx.k[1][1];
+    desfunc(work, skey->des.dk);
+    work[0] ^= skey->desx.k[0][0];
+    work[1] ^= skey->desx.k[0][1];
+    STORE32H(work[0],pt+0);
+    STORE32H(work[1],pt+4);
+    return CRYPT_OK;
+}
+
+/**
+  Encrypts a block of text with 3DES-EDE
   @param pt The input plaintext (8 bytes)
   @param ct The output ciphertext (8 bytes)
   @param skey The key as scheduled
@@ -1646,7 +1739,7 @@ int des3_ecb_encrypt(const unsigned char *pt, unsigned char *ct, const symmetric
 }
 
 /**
-  Decrypts a block of text with 3LTC_DES-EDE
+  Decrypts a block of text with 3DES-EDE
   @param ct The input ciphertext (8 bytes)
   @param pt The output plaintext (8 bytes)
   @param skey The key as scheduled
@@ -1669,7 +1762,7 @@ int des3_ecb_decrypt(const unsigned char *ct, unsigned char *pt, const symmetric
 }
 
 /**
-  Performs a self-test of the LTC_DES block cipher
+  Performs a self-test of the DES block cipher
   @return CRYPT_OK if functional, CRYPT_NOP if self-test has been disabled
 */
 int des_test(void)
@@ -1964,6 +2057,39 @@ int des_test(void)
   #endif
 }
 
+int desx_test(void)
+{
+ #ifndef LTC_TEST
+    return CRYPT_NOP;
+ #else
+    unsigned char key[24], pt[8], tmp[8];
+    symmetric_key skey;
+    int i, err;
+
+    if ((err = des_test()) != CRYPT_OK) {
+        return err;
+    }
+
+    /* See if we can encrypt all zero bytes 1000 times, decrypt and come back to where we started */
+
+    for (i = 0; i < 24; i++) key[i] = i;
+
+    if ((err = desx_setup(key, 24, 0, &skey)) != CRYPT_OK) {
+        return err;
+    }
+
+    for (i = 0; i < 8; i++) pt[i] = tmp[i] = 0;
+    for (i = 0; i < 1000; i++) desx_ecb_encrypt(tmp, tmp, &skey);
+    for (i = 0; i < 1000; i++) desx_ecb_decrypt(tmp, tmp, &skey);
+
+    if (compare_testvector(tmp, 8, pt, 8, "DES-X", 0) != 0) {
+        return CRYPT_FAIL_TESTVECTOR;
+    }
+
+    return CRYPT_OK;
+ #endif
+}
+
 int des3_test(void)
 {
  #ifndef LTC_TEST
@@ -2049,6 +2175,14 @@ void des_done(symmetric_key *skey)
 /** Terminate the context
    @param skey    The scheduled key
 */
+void desx_done(symmetric_key *skey)
+{
+  LTC_UNUSED_PARAM(skey);
+}
+
+/** Terminate the context
+   @param skey    The scheduled key
+*/
 void des3_done(symmetric_key *skey)
 {
   LTC_UNUSED_PARAM(skey);
@@ -2067,6 +2201,21 @@ int des_keysize(int *keysize)
         return CRYPT_INVALID_KEYSIZE;
     }
     *keysize = 8;
+    return CRYPT_OK;
+}
+
+/**
+  Gets suitable key size
+  @param keysize [in/out] The length of the recommended key (in bytes).  This function will store the suitable size back in this variable.
+  @return CRYPT_OK if the input key size is acceptable.
+*/
+int desx_keysize(int *keysize)
+{
+    LTC_ARGCHK(keysize != NULL);
+    if(*keysize < 24) {
+        return CRYPT_INVALID_KEYSIZE;
+    }
+    *keysize = 24;
     return CRYPT_OK;
 }
 

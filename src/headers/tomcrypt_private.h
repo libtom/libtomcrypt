@@ -263,7 +263,19 @@ int base64_encode_pem(const unsigned char *in,  unsigned long inlen,
 
 #ifdef LTC_PEM
 enum cipher_mode {
-   cm_none, cm_cbc, cm_cfb, cm_ctr, cm_ofb, cm_stream, cm_gcm
+   cm_modes =           0x00ff,
+   cm_flags =           0xff00,
+   /* Flags */
+   cm_openssh =         0x0100,
+   /* Modes */
+   cm_none =            0x0000,
+   cm_cbc =             0x0001,
+   cm_cfb =             0x0002,
+   cm_ctr =             0x0003,
+   cm_ofb =             0x0004,
+   cm_stream =          0x0005,
+   cm_gcm =             0x0006,
+   cm_stream_openssh =  cm_stream | cm_openssh,
 };
 
 struct blockcipher_info {
@@ -350,6 +362,7 @@ int pbes2_extract(const ltc_asn1_list *s, pbes_arg *res);
 int pem_decrypt(unsigned char *data, unsigned long *datalen,
                 unsigned char *key,  unsigned long keylen,
                 unsigned char *iv,   unsigned long ivlen,
+                unsigned char *tag,  unsigned long taglen,
                 const struct blockcipher_info *info,
                 enum padding_type padding);
 #ifndef LTC_NO_FILE
