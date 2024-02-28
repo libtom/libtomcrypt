@@ -791,7 +791,7 @@ int tiger_done(hash_state * md, unsigned char *out)
   Self-test the hash
   @return CRYPT_OK if successful, CRYPT_NOP if self-tests have been disabled
 */
-int s_tiger_test(unsigned int idx)
+static int s_tiger_test(unsigned int idx)
 {
  #ifndef LTC_TEST
     LTC_UNUSED_PARAM(idx);
