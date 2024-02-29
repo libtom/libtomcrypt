@@ -59,14 +59,21 @@ struct kdf_options {
 };
 
 #ifdef LTC_MECC
-static int s_ssh_find_init_ecc(const char *pka, ltc_pka_key *key)
+static int s_ssh_find_ecc(const char *pka, const ltc_ecc_curve **curve)
 {
    int err;
    const char* prefix = "ecdsa-sha2-";
    unsigned long prefixlen = XSTRLEN(prefix);
-   const ltc_ecc_curve *cu;
    if (strstr(pka, prefix) == NULL) return CRYPT_PK_INVALID_TYPE;
-   if ((err = ecc_find_curve(pka + prefixlen, &cu)) != CRYPT_OK) return err;
+   if ((err = ecc_find_curve(pka + prefixlen, curve)) != CRYPT_OK) return err;
+   return CRYPT_OK;
+}
+
+static int s_ssh_find_init_ecc(const char *pka, ltc_pka_key *key)
+{
+   int err;
+   const ltc_ecc_curve *cu;
+   if ((err = s_ssh_find_ecc(pka, &cu)) != CRYPT_OK) return err;
    return ecc_set_curve(cu, &key->u.ecc);
 }
 
@@ -310,32 +317,50 @@ cleanup:
 #endif
 
 struct ssh_pka {
-   const char *name;
+   struct str name;
+   enum ltc_pka_id id;
+   int (*find)(const char*, const ltc_ecc_curve **);
    int (*init)(const char*, ltc_pka_key*);
    int (*decode)(const unsigned char*, unsigned long*, ltc_pka_key*, enum pem_flags);
 };
 
 struct ssh_pka ssh_pkas[] = {
 #ifdef LTC_CURVE25519
-                             { "ssh-ed25519", NULL,                s_ssh_decode_ed25519 },
+                             { SET_CSTR(.name, "ssh-ed25519"),
+                               LTC_PKA_ED25519,
+                               NULL,
+                               NULL,
+                               s_ssh_decode_ed25519 },
 #endif
 #ifdef LTC_MRSA
-                             { "ssh-rsa",     NULL,                s_ssh_decode_rsa },
+                             { SET_CSTR(.name, "ssh-rsa"),
+                               LTC_PKA_RSA,
+                               NULL,
+                               NULL,
+                               s_ssh_decode_rsa },
 #endif
 #ifdef LTC_MDSA
-                             { "ssh-dss",     NULL,                s_ssh_decode_dsa },
+                             { SET_CSTR(.name, "ssh-dss"),
+                               LTC_PKA_DSA,
+                               NULL,
+                               NULL,
+                               s_ssh_decode_dsa },
 #endif
 #ifdef LTC_MECC
-                             { NULL,          s_ssh_find_init_ecc, s_ssh_decode_ecdsa },
+                             { { NULL, 0 },
+                               LTC_PKA_EC,
+                               s_ssh_find_ecc,
+                               s_ssh_find_init_ecc,
+                               s_ssh_decode_ecdsa },
 #endif
 };
 
-static int s_decode_key(const unsigned char *in, unsigned long *inlen, ltc_pka_key *key, enum pem_flags type)
+static int s_decode_key(const unsigned char *in, unsigned long *inlen, ltc_pka_key *key, char **comment, enum pem_flags type)
 {
    int err;
    ulong32 check1, check2;
-   unsigned char pka[64], comment[256];
-   unsigned long pkalen = sizeof(pka), commentlen = sizeof(comment);
+   unsigned char pka[64];
+   unsigned long pkalen = sizeof(pka);
    unsigned long remaining, cur_len;
    const unsigned char *p;
    unsigned long n;
@@ -374,8 +399,9 @@ static int s_decode_key(const unsigned char *in, unsigned long *inlen, ltc_pka_k
    cur_len = remaining;
 
    for (n = 0; n < sizeof(ssh_pkas)/sizeof(ssh_pkas[0]); ++n) {
-      if (ssh_pkas[n].name != NULL) {
-         if (XSTRCMP((char*)pka, ssh_pkas[n].name) != 0) continue;
+      if (ssh_pkas[n].name.p != NULL) {
+         if (pkalen != ssh_pkas[n].name.len
+               || XMEMCMP(pka, ssh_pkas[n].name.p, ssh_pkas[n].name.len) != 0) continue;
       } else {
          if ((ssh_pkas[n].init == NULL) ||
                (ssh_pkas[n].init((char*)pka, key) != CRYPT_OK)) continue;
@@ -393,11 +419,21 @@ static int s_decode_key(const unsigned char *in, unsigned long *inlen, ltc_pka_k
    remaining -= cur_len;
    cur_len = remaining;
 
-   if (cur_len != 0) {
+   if (cur_len != 0 && comment) {
+      unsigned long commentlen = cur_len;
+      char *c = XMALLOC(commentlen);
+      if (c == NULL) {
+         return CRYPT_MEM;
+      }
       if ((err = ssh_decode_sequence_multi(p, &cur_len,
-                                           LTC_SSHDATA_STRING, comment, &commentlen,
+                                           LTC_SSHDATA_STRING, c, &commentlen,
                                            LTC_SSHDATA_EOL,    NULL)) != CRYPT_OK) {
          return err;
+      }
+      if (commentlen == 0) {
+         XFREE(c);
+      } else {
+         *comment = c;
       }
    }
 
@@ -405,6 +441,144 @@ static int s_decode_key(const unsigned char *in, unsigned long *inlen, ltc_pka_k
    remaining -= cur_len;
 
    return remaining ? padding_depad(p, &remaining, LTC_PAD_SSH) : CRYPT_OK;
+}
+
+static LTC_INLINE void skip_spaces(char **r, unsigned long *l)
+{
+   while(*l && (**r == ' ' || **r == '\t')) {
+      (*r)++;
+      (*l)--;
+   }
+}
+
+static LTC_INLINE void skip_chars(char **r, unsigned long *l)
+{
+   while(*l && (**r != ' ' && **r != '\t')) {
+      (*l)--;
+      if (**r == '\n' || **r == '\r') {
+         *l = 0;
+      } else {
+         (*r)++;
+      }
+   }
+}
+
+static LTC_INLINE void skip_to_eol(char **r, unsigned long *l)
+{
+   while(*l && (**r != '\n' && **r != '\r')) {
+      (*l)--;
+      (*r)++;
+   }
+}
+
+static int s_parse_line(char *line, unsigned long *len, ltc_pka_key *key, char **comment)
+{
+   int err;
+   unsigned long n, rlen, olen;
+   enum authorized_keys_elements {
+      ake_algo_name = 0,
+      ake_b64_encoded_key = 1,
+      ake_comment = 2
+   };
+   struct str elements[3] = { 0 };
+   char *r = line;
+   unsigned char *buf = NULL;
+
+   rlen = *len;
+   /* Chop up string into the three authorized_keys_elements */
+   for (n = 0; n < sizeof(elements)/sizeof(elements[0]) && rlen; ++n) {
+      skip_spaces(&r, &rlen);
+      elements[n].p = r;
+      if (n != 2)
+         skip_chars(&r, &rlen);
+      else
+         skip_to_eol(&r, &rlen);
+      elements[n].len = r - elements[n].p;
+      *r = '\0';
+      r++;
+   }
+
+   for (n = 0; n < sizeof(ssh_pkas)/sizeof(ssh_pkas[0]); ++n) {
+      if (ssh_pkas[n].name.p != NULL) {
+         if (elements[ake_algo_name].len != ssh_pkas[n].name.len
+               || XMEMCMP(elements[ake_algo_name].p, ssh_pkas[n].name.p, ssh_pkas[n].name.len) != 0) continue;
+      } else {
+         if ((ssh_pkas[n].find == NULL) ||
+               (ssh_pkas[n].find(elements[ake_algo_name].p, NULL) != CRYPT_OK)) continue;
+      }
+      olen = elements[ake_b64_encoded_key].len;
+      buf = XMALLOC(olen);
+      if (buf == NULL) {
+         return CRYPT_MEM;
+      }
+      if ((err = base64_strict_decode(elements[ake_b64_encoded_key].p, elements[ake_b64_encoded_key].len, buf, &olen)) == CRYPT_OK) {
+         err = s_decode_key(buf, &olen, key, comment, pf_public);
+         if (err == CRYPT_OK && key->id != ssh_pkas[n].id) {
+            err = CRYPT_PK_INVALID_TYPE;
+         }
+      }
+      XFREE(buf);
+
+      if (err == CRYPT_OK) {
+         /* Only use the comment that was maybe in the text we just processed, in case when
+          * there was no comment inside the SSH key.
+          */
+         if (*comment == NULL && elements[ake_comment].p) {
+            *comment = XMALLOC(elements[ake_comment].len + 1);
+            if (*comment == NULL) {
+               return CRYPT_MEM;
+            }
+            XMEMCPY(*comment, elements[ake_comment].p, elements[ake_comment].len);
+            (*comment)[elements[ake_comment].len] = '\0';
+         }
+         *len = r - line;
+         return CRYPT_OK;
+      }
+   }
+   return CRYPT_PK_INVALID_TYPE;
+}
+
+static int s_read_authorized_keys(const void *buf, unsigned long len, ssh_authorized_key_cb cb, void *ctx)
+{
+   char *s;
+   int err;
+   unsigned long clen = len;
+   ltc_pka_key *key = XCALLOC(1, sizeof(*key));
+   char *comment = NULL;
+   void *cpy = XMALLOC(len);
+   if (key == NULL || cpy == NULL) {
+      if (cpy)
+         XFREE(cpy);
+      if (key)
+         XFREE(key);
+      return CRYPT_MEM;
+   }
+   XMEMCPY(cpy, buf, len);
+   s = cpy;
+   while (clen && (err = s_parse_line(s, &clen, key, &comment)) == CRYPT_OK) {
+      if (cb(key, comment, ctx)) {
+         break;
+      }
+      s += clen;
+      len -= clen;
+      clen = len;
+      key = XCALLOC(1, sizeof(*key));
+      if (key == NULL) {
+         err = CRYPT_MEM;
+         break;
+      }
+      if (comment) {
+         XFREE(comment);
+         comment = NULL;
+      }
+   }
+   if (comment)
+      XFREE(comment);
+   if (cpy)
+      XFREE(cpy);
+   if (key)
+      XFREE(key);
+   return err;
 }
 
 static int s_decrypt_private_keys(unsigned char *in, unsigned long *inlen,
@@ -574,6 +748,9 @@ retry:
 
       privkey_len = l;
       privkey = XMALLOC(privkey_len);
+      if (privkey == NULL) {
+         return CRYPT_MEM;
+      }
 
       if ((err = ssh_decode_sequence_multi(p, &w,
                                            LTC_SSHDATA_STRING, privkey, &privkey_len,
@@ -604,7 +781,7 @@ retry:
       p = privkey;
       w = privkey_len;
    }
-   if ((err = s_decode_key(p, &w, k, hdr.id->flags)) != CRYPT_OK) {
+   if ((err = s_decode_key(p, &w, k, NULL, hdr.id->flags)) != CRYPT_OK) {
       goto cleanup;
    }
 
@@ -628,6 +805,32 @@ int pem_decode_openssh_filehandle(FILE *f, ltc_pka_key *k, const password_ctx *p
       return s_decode_openssh(&g, k, pw_ctx);
    }
 }
+
+int ssh_read_authorized_keys_filehandle(FILE *f, ssh_authorized_key_cb cb, void *ctx)
+{
+   size_t tot_data;
+   void *buf;
+   int err;
+
+   LTC_ARGCHK(f != NULL);
+   LTC_ARGCHK(cb != NULL);
+
+   fseek(f, 0, SEEK_END);
+   tot_data = ftell(f);
+   rewind(f);
+   buf = XMALLOC(tot_data);
+   if (buf == NULL) {
+      return CRYPT_MEM;
+   }
+   if (fread(buf, 1, tot_data, f) != tot_data) {
+      err = CRYPT_ERROR;
+   } else {
+      err = s_read_authorized_keys(buf, tot_data, cb, ctx);
+   }
+   XFREE(buf);
+
+   return err;
+}
 #endif /* LTC_NO_FILE */
 
 int pem_decode_openssh(const void *buf, unsigned long len, ltc_pka_key *k, const password_ctx *pw_ctx)
@@ -641,4 +844,12 @@ int pem_decode_openssh(const void *buf, unsigned long len, ltc_pka_key *k, const
    }
 }
 
+int ssh_read_authorized_keys(const void *buf, unsigned long len, ssh_authorized_key_cb cb, void *ctx)
+{
+   LTC_ARGCHK(buf != NULL);
+   LTC_ARGCHK(len != 0);
+   LTC_ARGCHK(cb != NULL);
+
+   return s_read_authorized_keys(buf, len, cb, ctx);
+}
 #endif /* defined(LTC_PEM_SSH) */

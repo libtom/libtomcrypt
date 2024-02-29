@@ -554,6 +554,7 @@ typedef struct {
 } ltc_pka_key;
 
 void pka_key_free(ltc_pka_key *key);
+void pka_key_destroy(ltc_pka_key **key);
 
 #ifdef LTC_DER
 /* DER handling */

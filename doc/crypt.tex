@@ -7504,6 +7504,39 @@ with \texttt{size*} being of type \texttt{unsigned long*}.
 
 
 
+\subsection{OpenSSH authorized\_keys files}
+
+\index{authorized\_keys}
+\index{ssh\_read\_authorized\_keys\_filehandle}
+\index{ssh\_read\_authorized\_keys}
+OpenSSH uses a simple storage format for public keys, which stores a public key per line in a regular text file.
+To process such a file the following API can be used.
+
+\begin{verbatim}
+int ssh_read_authorized_keys_filehandle(FILE *f,
+                                        ssh_authorized_key_cb cb, void *ctx);
+int ssh_read_authorized_keys(const void *buf, unsigned long len,
+                             ssh_authorized_key_cb cb, void *ctx);
+\end{verbatim}
+
+\index{ssh\_authorized\_key\_cb}
+For each key found in the file the callback as described below will be called.
+
+\begin{verbatim}
+/**
+   Callback function for each key in an `authorized_keys` file.
+
+   This function takes ownership of the `k` parameter passed.
+   `k` must be free'd by calling `pka_key_destroy(&k)`.
+
+   @param k        Pointer to the PKA key.
+   @param comment  Pointer to a string with the comment.
+   @param ctx      The `ctx` pointer as passed to the read function.
+*/
+typedef int (*ssh_authorized_key_cb)(ltc_pka_key *k, const char *comment, void *ctx);
+\end{verbatim}
+
+
 
 \mysection{PEM Files}
 \index{PEM}

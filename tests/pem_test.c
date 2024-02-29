@@ -24,6 +24,27 @@ static int s_pem_decode_ssh_f(FILE *f, void *key)
    return pem_decode_openssh_filehandle(f, key, &pw_ctx);
 }
 
+int s_authorized_key_cb(ltc_pka_key *k, const char *comment, void *ctx)
+{
+   LTC_UNUSED_PARAM(comment);
+   LTC_UNUSED_PARAM(ctx);
+   pka_key_destroy(&k);
+   return 0;
+}
+static int s_read_authorized_keys(const void *in, unsigned long inlen, void *ctx)
+{
+   return ssh_read_authorized_keys(in, inlen, s_authorized_key_cb, ctx);
+}
+static int s_read_authorized_keys_f(FILE *f, void *ctx)
+{
+   return ssh_read_authorized_keys_filehandle(f, s_authorized_key_cb, ctx);
+}
+static int s_read_invalid_authorized_keys(const void *in, unsigned long inlen, void *ctx)
+{
+   SHOULD_FAIL(ssh_read_authorized_keys(in, inlen, s_authorized_key_cb, ctx));
+   return CRYPT_OK;
+}
+
 #endif
 
 static int password_get(void **p, unsigned long *l, void *u)
@@ -140,9 +161,14 @@ int pem_test(void)
 #ifdef LTC_SSH
    DO(test_process_dir("tests/pem/ssh", &key, s_pem_decode_ssh, NULL, (dir_cleanup_cb)pka_key_free, "pem_ssh_test"));
    DO(test_process_dir("tests/pem/ssh", &key, NULL, s_pem_decode_ssh_f, (dir_cleanup_cb)pka_key_free, "pem_ssh_test_filehandle"));
+   DO(test_process_dir("tests/pem/ssh/authorized_keys", &key, s_read_authorized_keys, NULL, (dir_cleanup_cb)pka_key_free, "pem_ssh_authorized_keys_test"));
+   DO(test_process_dir("tests/pem/ssh/authorized_keys", &key, NULL, s_read_authorized_keys_f, (dir_cleanup_cb)pka_key_free, "pem_ssh_authorized_keys_test"));
+   DO(test_process_dir("tests/pem/ssh/authorized_keys-invalid", &key, s_read_invalid_authorized_keys, NULL, NULL, "pem_ssh_authorized_keys_invalid_test"));
    DO(test_process_dir("tests/pem/ssh/extra", &key, s_pem_decode_ssh, NULL, (dir_cleanup_cb)pka_key_free, "pem_ssh_test+extra"));
    DO(test_process_dir("tests/pem/pubkeys", &key, s_pem_only_decode, NULL, (dir_cleanup_cb)pka_key_free, "pem_pubkeys_test"));
    DO(test_process_dir("tests/pem/pubkeys", &key, NULL, s_pem_only_decode_f, (dir_cleanup_cb)pka_key_free, "pem_pubkeys_test_filehandle"));
+   DO(test_process_dir("tests/pem/pubkeys/authorized_keys", &key, s_read_authorized_keys, NULL, (dir_cleanup_cb)pka_key_free, "pem_pubkeys_authorized_keys_test"));
+   DO(test_process_dir("tests/pem/pubkeys/authorized_keys", &key, NULL, s_read_authorized_keys_f, (dir_cleanup_cb)pka_key_free, "pem_pubkeys_authorized_keys_test"));
 #endif
    DO(test_process_dir("tests/pem", &key, s_pem_only_decode, NULL, (dir_cleanup_cb)pka_key_free, "pem_test"));
    DO(test_process_dir("tests/pem", &key, NULL, s_pem_only_decode_f, (dir_cleanup_cb)pka_key_free, "pem_test_filehandle"));

@@ -2,6 +2,19 @@
 /* SPDX-License-Identifier: Unlicense */
 #include "tomcrypt_private.h"
 
+void pka_key_destroy(ltc_pka_key **key)
+{
+   LTC_ARGCHKVD(key != NULL);
+
+   if (!*key)
+      return;
+
+   pka_key_free(*key);
+   zeromem(*key, sizeof(**key));
+   XFREE(*key);
+   *key = NULL;
+}
+
 void pka_key_free(ltc_pka_key *key)
 {
    LTC_ARGCHKVD(key != NULL);
