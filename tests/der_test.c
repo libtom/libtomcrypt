@@ -1429,6 +1429,49 @@ static void s_der_regression_test(void)
    ENSURE(outlen == 2);
 }
 
+static void s_der_custom_setof(void)
+{
+   /*
+    * C.f. https://github.com/libtom/libtomcrypt/issues/622
+    *
+Toy ::= SEQUENCE {
+  hello        UTF8String,
+  numbers [0]  IMPLICIT SET OF Number  }
+
+Number ::= INTEGER { zero(0), one(1) }
+
+30 0F
+  0C 02 68 69
+  A0 09
+    02 01 00
+    02 01 00
+    02 01 01
+
+    *
+    */
+
+   ltc_asn1_list setof[3];
+   ltc_asn1_list seq[2];
+   const unsigned long zero = 0;
+   const unsigned long one = 1;
+   const wchar_t *hello = L"hi";
+   unsigned char buf[32];
+   unsigned long buflen = sizeof(buf);
+   ltc_asn1_list *flexi;
+
+   LTC_SET_ASN1(setof, 0, LTC_ASN1_SHORT_INTEGER, &one, 1);
+   LTC_SET_ASN1(setof, 1, LTC_ASN1_SHORT_INTEGER, &zero, 1);
+   LTC_SET_ASN1(setof, 2, LTC_ASN1_SHORT_INTEGER, &zero, 1);
+
+   LTC_SET_ASN1(seq, 0, LTC_ASN1_UTF8_STRING, hello, wcslen(hello));
+   LTC_SET_ASN1_CUSTOM(seq, 1, LTC_ASN1_CL_CONTEXT_SPECIFIC, LTC_ASN1_PC_CONSTRUCTED, 0, LTC_ASN1_SETOF, setof, 3);
+   DO(der_encode_sequence(seq, 2, buf, &buflen));
+
+   DO(der_decode_sequence_flexi(buf, &buflen, &flexi));
+   s_der_tests_print_flexi(flexi);
+   der_free_sequence_flexi(flexi);
+}
+
 static void der_toolong_test(void)
 {
    int n, err, failed = 0;
@@ -1658,6 +1701,8 @@ int der_test(void)
 #endif
 
    if (ltc_mp.name == NULL) return CRYPT_NOP;
+
+   s_der_custom_setof();
 
    s_der_recursion_limit();
 
