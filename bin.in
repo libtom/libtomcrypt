@@ -1,0 +1,19 @@
+#!/bin/sh
+# Shell wrapper script for the executables when built with the shared
+# libtomcrypt library.
+
+set -euf
+
+rootdir="$(cd -- "${0%/*}/" && pwd -P)"
+binpath="$rootdir/.bin/${0##*/}"
+
+[ -z "${LD_LIBRARY_PATH:=$rootdir}" ] ||
+	LD_LIBRARY_PATH="$rootdir:$LD_LIBRARY_PATH"
+
+export LD_LIBRARY_PATH
+
+if [ -n "${1+x}" ]; then
+	exec "$binpath" "${@:-}"
+else
+	exec "$binpath"
+fi
