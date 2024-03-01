@@ -267,6 +267,8 @@ enum cipher_mode {
    cm_flags =           0xff00,
    /* Flags */
    cm_openssh =         0x0100,
+   cm_1bit =            0x0200,
+   cm_8bit =            0x0400,
    /* Modes */
    cm_none =            0x0000,
    cm_cbc =             0x0001,
@@ -275,6 +277,8 @@ enum cipher_mode {
    cm_ofb =             0x0004,
    cm_stream =          0x0005,
    cm_gcm =             0x0006,
+   cm_cfb1 =            cm_cfb | cm_1bit,
+   cm_cfb8 =            cm_cfb | cm_8bit,
    cm_stream_openssh =  cm_stream | cm_openssh,
 };
 
