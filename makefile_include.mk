@@ -451,10 +451,13 @@ bins: $(call print-help,bins,Builds the library and all useful demos) $(USEFUL_D
 check: test
 	./test
 
-tvs: sizes constants tv_gen
+tvs: hashsum sizes constants tv_gen
 	./tv_gen
 	./.ci/coverage_more.sh
 	mv *_tv.txt notes/
+
+pr-check: tvs
+	./helper.pl -a -u
 
 #build the doxy files (requires Doxygen, tetex and patience)
 doxygen: $(call print-help,doxygen,Builds the doxygen html documentation)
