@@ -275,6 +275,8 @@ typedef struct {
    int                 cipher,
    /** The block size of the given cipher */
                        blocklen,
+   /** The width of the mode: 1, 8, 64, or 128 */
+                       width,
    /** The padding offset */
                        padlen;
 } symmetric_CFB;
@@ -910,6 +912,8 @@ int ecb_done(symmetric_ECB *ecb);
 #ifdef LTC_CFB_MODE
 int cfb_start(int cipher, const unsigned char *IV, const unsigned char *key,
               int keylen, int num_rounds, symmetric_CFB *cfb);
+int cfb_start_ex(int cipher, const unsigned char *IV, const unsigned char *key,
+                 int keylen, int num_rounds, int width, symmetric_CFB *cfb);
 int cfb_encrypt(const unsigned char *pt, unsigned char *ct, unsigned long len, symmetric_CFB *cfb);
 int cfb_decrypt(const unsigned char *ct, unsigned char *pt, unsigned long len, symmetric_CFB *cfb);
 int cfb_getiv(unsigned char *IV, unsigned long *len, const symmetric_CFB *cfb);

@@ -799,7 +799,7 @@ size of the cipher.  Given a key $k$, a plaintext $P$ and a cipher $E$ we shall 
 $P$ under the key $k$ as $E_k(P)$.  In some modes there exists an initialization vector denoted as $C_{-1}$.
 
 \subsubsection{ECB Mode}
-\index{ECB mode}
+\index{ECB Mode}
 ECB or Electronic Codebook Mode is the simplest method to use.  It is given as:
 \begin{equation}
 C_i = E_k(P_i)
@@ -808,7 +808,7 @@ This mode is very weak since it allows people to swap blocks and perform replay 
 than once.
 
 \subsubsection{CBC Mode}
-\index{CBC mode}
+\index{CBC Mode}
 CBC or Cipher Block Chaining mode is a simple mode designed to prevent trivial forms of replay and swap attacks on ciphers.
 It is given as:
 \begin{equation}
@@ -817,7 +817,7 @@ C_i = E_k(P_i \oplus C_{i - 1})
 It is important that the initialization vector be unique and preferably random for each message encrypted under the same key.
 
 \subsubsection{CTR Mode}
-\index{CTR mode}
+\index{CTR Mode}
 CTR or Counter Mode is a mode which only uses the encryption function of the cipher.  Given a initialization vector which is
 treated as a large binary counter the CTR mode is given as:
 \begin{eqnarray}
@@ -829,24 +829,24 @@ encrypted under the same key replay and swap attacks are infeasible.  CTR mode m
 as the block cipher is under a chosen plaintext attack (provided the initialization vector is unique).
 
 \subsubsection{CFB Mode}
-\index{CFB mode}
+\index{CFB Mode}
 CFB or Ciphertext Feedback Mode is a mode akin to CBC.  It is given as:
 \begin{eqnarray}
 C_i = P_i \oplus C_{-1} \nonumber \\
 C_{-1} = E_k(C_i)
 \end{eqnarray}
-Note that in this library the output feedback width is equal to the size of the block cipher.  That is this mode is used
-to encrypt whole blocks at a time.  However, the library will buffer data allowing the user to encrypt or decrypt partial
+The library supports all output feedback widths as specified in NIST SP 800-38A: CFB1, CFB8, and CFB64 resp. CFB128, i.e. equal
+to the size of the block cipher.  The library will buffer data allowing the user to encrypt or decrypt partial
 blocks without a delay.  When this mode is first setup it will initially encrypt the initialization vector as required.
 
 \subsubsection{OFB Mode}
-\index{OFB mode}
+\index{OFB Mode}
 OFB or Output Feedback Mode is a mode akin to CBC as well.  It is given as:
 \begin{eqnarray}
 C_{-1} = E_k(C_{-1}) \nonumber \\
 C_i = P_i \oplus C_{-1}
 \end{eqnarray}
-Like the CFB mode the output width in CFB mode is the same as the width of the block cipher.  OFB mode will also
+The output width in OFB mode is the same as the width of the block cipher.  OFB mode will also
 buffer the output which will allow you to encrypt or decrypt partial blocks without delay.
 
 \subsection{Choice of Mode}
@@ -874,8 +874,8 @@ support this mode directly but it is fairly easy to emulate with a call to the c
 The more sane way to deal with partial blocks is to pad them with zeroes, and then use CBC normally.
 
 \subsection{Initialization}
-\index{CBC Mode} \index{CTR Mode}
-\index{OFB Mode} \index{CFB Mode}
+\index{CBC Initialization} \index{CTR Initialization}
+\index{OFB Initialization} \index{CFB Initialization}
 The library provides simple support routines for handling CBC, CTR, CFB, OFB and ECB encoded messages.  Assuming the mode
 you want is XXX there is a structure called \textit{symmetric\_XXX} that will contain the information required to
 use that mode.  They have identical setup routines (except CTR and ECB mode):
@@ -913,6 +913,7 @@ is a pointer to the structure you want to hold the information for the mode of o
 The routines return {\bf CRYPT\_OK} if the cipher initialized correctly, otherwise, they return an error code.
 
 \subsubsection{CTR Mode}
+\index{CTR Initialization - specific}
 In the case of CTR mode there is an additional parameter \textit{ctr\_mode} which specifies the mode that the counter is to be used in.
 If \textbf{CTR\_COUNTER\_ LITTLE\_ENDIAN} was specified then the counter will be treated as a little endian value.  Otherwise, if
 \textbf{CTR\_COUNTER\_BIG\_ENDIAN} was specified the counter will be treated as a big endian value.  As of v1.15 the RFC 3686 style of
@@ -941,6 +942,37 @@ if ((err = ctr_start(find_cipher("aes"),
 
 Changing the counter size has little (really no) effect on the performance of the CTR chaining mode.  It is provided for compatibility
 with other software (and hardware) which have smaller fixed sized counters.
+
+\subsubsection{CFB Mode}
+\index{CFB Initialization - specific}
+
+In the case of the CFB mode there are multiple segment sizes possible.  The most common one, where each processed segment equals the
+block size of the underlying cipher, and two speciality modes. 1-bit CFB mode and 8-bit CFB mode, where each processed segment is
+either 1 or 8 bits wide.  Each segment denotes here one block cipher operation.
+To produce 16 bytes AES-CFB output, a single AES operation is required.
+To produce 16 bytes AES-CFB8 output, 16 AES operations are required.
+To produce 16 bytes AES-CFB1 output, 128 AES operations are required.
+
+The extended setup API looks as follows and accepts the values \textit{0, 1, 8 and 64 or 128}.  Whether \textit{64} or \textit{128} is
+accepted depends on the block size of the underlying cipher, \textit{0} will automatically select the block size as width.
+
+\begin{small}
+\begin{verbatim}
+/**
+   Extended initialization of a CFB context
+   @param cipher      The index of the cipher desired
+   @param IV          The initialization vector
+   @param key         The secret key
+   @param keylen      The length of the secret key (octets)
+   @param num_rounds  Number of rounds in the cipher desired (0 for default)
+   @param width       The width of the mode (0 for default)
+   @param cfb         The CFB state to initialize
+   @return CRYPT_OK if successful
+*/
+int cfb_start_ex(int cipher, const unsigned char *IV, const unsigned char *key,
+                 int keylen, int num_rounds, int width, symmetric_CFB *cfb);
+\end{verbatim}
+\end{small}
 
 \subsection{Encryption and Decryption}
 To actually encrypt or decrypt the following routines are provided:

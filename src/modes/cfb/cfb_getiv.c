@@ -25,7 +25,7 @@ int cfb_getiv(unsigned char *IV, unsigned long *len, const symmetric_CFB *cfb)
       *len = cfb->blocklen;
       return CRYPT_BUFFER_OVERFLOW;
    }
-   XMEMCPY(IV, cfb->IV, cfb->blocklen);
+   XMEMCPY(IV, cfb->pad, cfb->blocklen);
    *len = cfb->blocklen;
 
    return CRYPT_OK;
