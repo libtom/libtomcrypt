@@ -4,28 +4,28 @@
 
 #ifdef LTC_PBES
 
-static int s_pkcs_5_alg1_wrap(const unsigned char *password, unsigned long password_len,
-                              const unsigned char *salt,     unsigned long salt_len,
-                              int iteration_count,  int hash_idx,
-                              unsigned char *out,   unsigned long *outlen)
+static int s_pkcs_5_alg1_wrap(const struct password *pwd,
+                              const unsigned char *salt,  unsigned long salt_len,
+                                    int iteration_count,  int hash_idx,
+                                    unsigned char *out,   unsigned long *outlen)
 {
    LTC_UNUSED_PARAM(salt_len);
-   return pkcs_5_alg1(password, password_len, salt, iteration_count, hash_idx, out, outlen);
+   return pkcs_5_alg1(pwd->pw, pwd->l, salt, iteration_count, hash_idx, out, outlen);
 }
 
-static int s_pkcs_12_wrap(const unsigned char *password, unsigned long password_len,
-                              const unsigned char *salt,     unsigned long salt_len,
-                              int iteration_count,  int hash_idx,
-                              unsigned char *out,   unsigned long *outlen)
+static int s_pkcs_12_wrap(const struct password *pwd,
+                          const unsigned char *salt,  unsigned long salt_len,
+                                int iteration_count,  int hash_idx,
+                                unsigned char *out,   unsigned long *outlen)
 {
    int err;
    /* convert password to unicode/utf16-be */
-   unsigned long pwlen = password_len * 2;
+   unsigned long pwlen = pwd->l * 2;
    unsigned char* pw;
    if (*outlen < 32) return CRYPT_INVALID_ARG;
    pw = XMALLOC(pwlen + 2);
    if (pw == NULL) return CRYPT_MEM;
-   if ((err = pkcs12_utf8_to_utf16(password, password_len, pw, &pwlen)) != CRYPT_OK) goto LBL_ERROR;
+   if ((err = pkcs12_utf8_to_utf16(pwd->pw, pwd->l, pw, &pwlen)) != CRYPT_OK) goto LBL_ERROR;
    pw[pwlen++] = 0;
    pw[pwlen++] = 0;
    /* derive KEY */

@@ -40,6 +40,10 @@ int chacha20poly1305_memory(const unsigned char *key, unsigned long keylen,
    LTC_ARGCHK(taglen != NULL);
 
    if ((err = chacha20poly1305_init(&st, key, keylen)) != CRYPT_OK)          { goto LBL_ERR; }
+
+   st.openssh_compat = (direction & CHACHA20POLY1305_OPENSSH_COMPAT) ? 1 : 0;
+   direction &= ~(CHACHA20POLY1305_OPENSSH_COMPAT);
+
    if ((err = chacha20poly1305_setiv(&st, iv, ivlen)) != CRYPT_OK)           { goto LBL_ERR; }
    if (aad && aadlen > 0) {
       if ((err = chacha20poly1305_add_aad(&st, aad, aadlen)) != CRYPT_OK)    { goto LBL_ERR; }

@@ -22,13 +22,21 @@ static const oid_id_st s_hmac_oid_names[] = {
    { "1.2.840.113549.2.13", "sha512-256" },
 };
 
+static int s_pkcs_5_alg2_wrap(const struct password *pwd,
+                              const unsigned char *salt,  unsigned long salt_len,
+                                    int iteration_count,  int hash_idx,
+                                    unsigned char *out,   unsigned long *outlen)
+{
+   return pkcs_5_alg2(pwd->pw, pwd->l, salt, salt_len, iteration_count, hash_idx, out, outlen);
+}
+
 static const pbes_properties s_pbes2_default_types[] = {
-   { pkcs_5_alg2, "sha1",   "des",   8, 0 },
-   { pkcs_5_alg2, "sha1",   "rc2",   4, 0 },
-   { pkcs_5_alg2, "sha1",   "3des", 24, 0 },
-   { pkcs_5_alg2, "sha1",   "aes",  16, 0 },
-   { pkcs_5_alg2, "sha1",   "aes",  24, 0 },
-   { pkcs_5_alg2, "sha1",   "aes",  32, 0 },
+   { s_pkcs_5_alg2_wrap, "sha1",   "des",   8, 0 },
+   { s_pkcs_5_alg2_wrap, "sha1",   "rc2",   4, 0 },
+   { s_pkcs_5_alg2_wrap, "sha1",   "3des", 24, 0 },
+   { s_pkcs_5_alg2_wrap, "sha1",   "aes",  16, 0 },
+   { s_pkcs_5_alg2_wrap, "sha1",   "aes",  24, 0 },
+   { s_pkcs_5_alg2_wrap, "sha1",   "aes",  32, 0 },
 };
 
 typedef struct {

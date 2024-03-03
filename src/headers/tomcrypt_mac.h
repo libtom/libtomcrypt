@@ -541,11 +541,12 @@ typedef struct {
    chacha_state chacha;
    ulong64 aadlen;
    ulong64 ctlen;
-   int aadflg;
+   int aadflg, openssh_compat;
 } chacha20poly1305_state;
 
-#define CHACHA20POLY1305_ENCRYPT LTC_ENCRYPT
-#define CHACHA20POLY1305_DECRYPT LTC_DECRYPT
+#define CHACHA20POLY1305_ENCRYPT          LTC_ENCRYPT
+#define CHACHA20POLY1305_DECRYPT          LTC_DECRYPT
+#define CHACHA20POLY1305_OPENSSH_COMPAT   2
 
 int chacha20poly1305_init(chacha20poly1305_state *st, const unsigned char *key, unsigned long keylen);
 int chacha20poly1305_setiv(chacha20poly1305_state *st, const unsigned char *iv, unsigned long ivlen);

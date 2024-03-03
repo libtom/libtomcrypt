@@ -27,10 +27,7 @@ int dsa_verify_key(const dsa_key *key, int *stat)
    err = dsa_int_validate_primes(key, stat);
    if (err != CRYPT_OK || *stat == 0) return err;
 
-   err = dsa_int_validate_pqg(key, stat);
-   if (err != CRYPT_OK || *stat == 0) return err;
-
-   return dsa_int_validate_xy(key, stat);
+   return dsa_int_validate(key, stat);
 }
 
 /**
@@ -184,6 +181,24 @@ int dsa_int_validate_xy(const dsa_key *key, int *stat)
 error:
    mp_clear(tmp);
    return err;
+}
+
+/**
+   Validation of DSA params (p, q, g) and DSA key (x and y)
+
+   @param key   The key to validate
+   @param stat  [out]  Result of test, 1==valid, 0==invalid
+   @return CRYPT_OK if successful
+*/
+int dsa_int_validate(const dsa_key *key, int *stat)
+{
+   int err;
+
+   err = dsa_int_validate_pqg(key, stat);
+   if (err != CRYPT_OK || *stat == 0) return err;
+
+   return dsa_int_validate_xy(key, stat);
+
 }
 
 #endif

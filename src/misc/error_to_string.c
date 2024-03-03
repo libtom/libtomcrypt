@@ -51,6 +51,10 @@ static const char * const err_2_str[] =
    "Invalid padding.",
 
    "Hash applied to too many bits.",
+
+   "Password context to decrypt key file is missing.",
+
+   "The PEM header was not recognized",
 };
 
 /**

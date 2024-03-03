@@ -104,16 +104,17 @@ src/misc/crypt/crypt_register_hash.obj src/misc/crypt/crypt_register_prng.obj sr
 src/misc/crypt/crypt_unregister_cipher.obj src/misc/crypt/crypt_unregister_hash.obj \
 src/misc/crypt/crypt_unregister_prng.obj src/misc/error_to_string.obj src/misc/hkdf/hkdf.obj \
 src/misc/hkdf/hkdf_test.obj src/misc/mem_neq.obj src/misc/padding/padding_depad.obj \
-src/misc/padding/padding_pad.obj src/misc/pbes/pbes.obj src/misc/pbes/pbes1.obj src/misc/pbes/pbes2.obj \
-src/misc/pkcs12/pkcs12_kdf.obj src/misc/pkcs12/pkcs12_utf8_to_utf16.obj src/misc/pkcs5/pkcs_5_1.obj \
-src/misc/pkcs5/pkcs_5_2.obj src/misc/pkcs5/pkcs_5_test.obj src/misc/ssh/ssh_decode_sequence_multi.obj \
-src/misc/ssh/ssh_encode_sequence_multi.obj src/misc/zeromem.obj src/modes/cbc/cbc_decrypt.obj \
-src/modes/cbc/cbc_done.obj src/modes/cbc/cbc_encrypt.obj src/modes/cbc/cbc_getiv.obj \
-src/modes/cbc/cbc_setiv.obj src/modes/cbc/cbc_start.obj src/modes/cfb/cfb_decrypt.obj \
-src/modes/cfb/cfb_done.obj src/modes/cfb/cfb_encrypt.obj src/modes/cfb/cfb_getiv.obj \
-src/modes/cfb/cfb_setiv.obj src/modes/cfb/cfb_start.obj src/modes/ctr/ctr_decrypt.obj \
-src/modes/ctr/ctr_done.obj src/modes/ctr/ctr_encrypt.obj src/modes/ctr/ctr_getiv.obj \
-src/modes/ctr/ctr_setiv.obj src/modes/ctr/ctr_start.obj src/modes/ctr/ctr_test.obj \
+src/misc/padding/padding_pad.obj src/misc/password_free.obj src/misc/pbes/pbes.obj src/misc/pbes/pbes1.obj \
+src/misc/pbes/pbes2.obj src/misc/pem/pem.obj src/misc/pem/pem_pkcs.obj src/misc/pem/pem_read.obj \
+src/misc/pem/pem_ssh.obj src/misc/pkcs12/pkcs12_kdf.obj src/misc/pkcs12/pkcs12_utf8_to_utf16.obj \
+src/misc/pkcs5/pkcs_5_1.obj src/misc/pkcs5/pkcs_5_2.obj src/misc/pkcs5/pkcs_5_test.obj \
+src/misc/ssh/ssh_decode_sequence_multi.obj src/misc/ssh/ssh_encode_sequence_multi.obj src/misc/zeromem.obj \
+src/modes/cbc/cbc_decrypt.obj src/modes/cbc/cbc_done.obj src/modes/cbc/cbc_encrypt.obj \
+src/modes/cbc/cbc_getiv.obj src/modes/cbc/cbc_setiv.obj src/modes/cbc/cbc_start.obj \
+src/modes/cfb/cfb_decrypt.obj src/modes/cfb/cfb_done.obj src/modes/cfb/cfb_encrypt.obj \
+src/modes/cfb/cfb_getiv.obj src/modes/cfb/cfb_setiv.obj src/modes/cfb/cfb_start.obj \
+src/modes/ctr/ctr_decrypt.obj src/modes/ctr/ctr_done.obj src/modes/ctr/ctr_encrypt.obj \
+src/modes/ctr/ctr_getiv.obj src/modes/ctr/ctr_setiv.obj src/modes/ctr/ctr_start.obj src/modes/ctr/ctr_test.obj \
 src/modes/ecb/ecb_decrypt.obj src/modes/ecb/ecb_done.obj src/modes/ecb/ecb_encrypt.obj \
 src/modes/ecb/ecb_start.obj src/modes/f8/f8_decrypt.obj src/modes/f8/f8_done.obj src/modes/f8/f8_encrypt.obj \
 src/modes/f8/f8_getiv.obj src/modes/f8/f8_setiv.obj src/modes/f8/f8_start.obj src/modes/f8/f8_test_mode.obj \
@@ -152,7 +153,8 @@ src/pk/asn1/der/sequence/der_decode_sequence_ex.obj \
 src/pk/asn1/der/sequence/der_decode_sequence_flexi.obj \
 src/pk/asn1/der/sequence/der_decode_sequence_multi.obj \
 src/pk/asn1/der/sequence/der_encode_sequence_ex.obj \
-src/pk/asn1/der/sequence/der_encode_sequence_multi.obj src/pk/asn1/der/sequence/der_length_sequence.obj \
+src/pk/asn1/der/sequence/der_encode_sequence_multi.obj \
+src/pk/asn1/der/sequence/der_flexi_sequence_cmp.obj src/pk/asn1/der/sequence/der_length_sequence.obj \
 src/pk/asn1/der/sequence/der_sequence_free.obj src/pk/asn1/der/sequence/der_sequence_shrink.obj \
 src/pk/asn1/der/set/der_encode_set.obj src/pk/asn1/der/set/der_encode_setof.obj \
 src/pk/asn1/der/short_integer/der_decode_short_integer.obj \
@@ -163,15 +165,17 @@ src/pk/asn1/der/teletex_string/der_length_teletex_string.obj \
 src/pk/asn1/der/utctime/der_decode_utctime.obj src/pk/asn1/der/utctime/der_encode_utctime.obj \
 src/pk/asn1/der/utctime/der_length_utctime.obj src/pk/asn1/der/utf8/der_decode_utf8_string.obj \
 src/pk/asn1/der/utf8/der_encode_utf8_string.obj src/pk/asn1/der/utf8/der_length_utf8_string.obj \
-src/pk/asn1/oid/pk_get_oid.obj src/pk/asn1/oid/pk_oid_cmp.obj src/pk/asn1/oid/pk_oid_str.obj \
-src/pk/asn1/pkcs8/pkcs8_decode_flexi.obj src/pk/asn1/x509/x509_decode_public_key_from_certificate.obj \
+src/pk/asn1/oid/pk_get.obj src/pk/asn1/oid/pk_oid_cmp.obj src/pk/asn1/oid/pk_oid_str.obj \
+src/pk/asn1/pkcs8/pkcs8_decode_flexi.obj src/pk/asn1/pkcs8/pkcs8_get.obj \
+src/pk/asn1/x509/x509_decode_public_key_from_certificate.obj src/pk/asn1/x509/x509_decode_spki.obj \
 src/pk/asn1/x509/x509_decode_subject_public_key_info.obj \
 src/pk/asn1/x509/x509_encode_subject_public_key_info.obj src/pk/dh/dh.obj src/pk/dh/dh_check_pubkey.obj \
 src/pk/dh/dh_export.obj src/pk/dh/dh_export_key.obj src/pk/dh/dh_free.obj src/pk/dh/dh_generate_key.obj \
-src/pk/dh/dh_import.obj src/pk/dh/dh_set.obj src/pk/dh/dh_set_pg_dhparam.obj src/pk/dh/dh_shared_secret.obj \
-src/pk/dsa/dsa_decrypt_key.obj src/pk/dsa/dsa_encrypt_key.obj src/pk/dsa/dsa_export.obj src/pk/dsa/dsa_free.obj \
-src/pk/dsa/dsa_generate_key.obj src/pk/dsa/dsa_generate_pqg.obj src/pk/dsa/dsa_import.obj \
-src/pk/dsa/dsa_make_key.obj src/pk/dsa/dsa_set.obj src/pk/dsa/dsa_set_pqg_dsaparam.obj \
+src/pk/dh/dh_import.obj src/pk/dh/dh_import_pkcs8.obj src/pk/dh/dh_set.obj src/pk/dh/dh_set_pg_dhparam.obj \
+src/pk/dh/dh_shared_secret.obj src/pk/dsa/dsa_decrypt_key.obj src/pk/dsa/dsa_encrypt_key.obj \
+src/pk/dsa/dsa_export.obj src/pk/dsa/dsa_free.obj src/pk/dsa/dsa_generate_key.obj \
+src/pk/dsa/dsa_generate_pqg.obj src/pk/dsa/dsa_import.obj src/pk/dsa/dsa_import_pkcs8.obj \
+src/pk/dsa/dsa_init.obj src/pk/dsa/dsa_make_key.obj src/pk/dsa/dsa_set.obj src/pk/dsa/dsa_set_pqg_dsaparam.obj \
 src/pk/dsa/dsa_shared_secret.obj src/pk/dsa/dsa_sign_hash.obj src/pk/dsa/dsa_verify_hash.obj \
 src/pk/dsa/dsa_verify_key.obj src/pk/ec25519/ec25519_crypto_ctx.obj src/pk/ec25519/ec25519_export.obj \
 src/pk/ec25519/ec25519_import_pkcs8.obj src/pk/ec25519/tweetnacl.obj src/pk/ecc/ecc.obj \
@@ -190,7 +194,7 @@ src/pk/ecc/ltc_ecc_projective_add_point.obj src/pk/ecc/ltc_ecc_projective_dbl_po
 src/pk/ecc/ltc_ecc_verify_key.obj src/pk/ed25519/ed25519_export.obj src/pk/ed25519/ed25519_import.obj \
 src/pk/ed25519/ed25519_import_pkcs8.obj src/pk/ed25519/ed25519_import_raw.obj \
 src/pk/ed25519/ed25519_import_x509.obj src/pk/ed25519/ed25519_make_key.obj src/pk/ed25519/ed25519_sign.obj \
-src/pk/ed25519/ed25519_verify.obj src/pk/pkcs1/pkcs_1_i2osp.obj src/pk/pkcs1/pkcs_1_mgf1.obj \
+src/pk/ed25519/ed25519_verify.obj src/pk/pka_key.obj src/pk/pkcs1/pkcs_1_i2osp.obj src/pk/pkcs1/pkcs_1_mgf1.obj \
 src/pk/pkcs1/pkcs_1_oaep_decode.obj src/pk/pkcs1/pkcs_1_oaep_encode.obj src/pk/pkcs1/pkcs_1_os2ip.obj \
 src/pk/pkcs1/pkcs_1_pss_decode.obj src/pk/pkcs1/pkcs_1_pss_encode.obj src/pk/pkcs1/pkcs_1_v1_5_decode.obj \
 src/pk/pkcs1/pkcs_1_v1_5_encode.obj src/pk/rsa/rsa_decrypt_key.obj src/pk/rsa/rsa_encrypt_key.obj \
@@ -221,7 +225,7 @@ TOBJECTS=tests/base16_test.obj tests/base32_test.obj tests/base64_test.obj tests
 tests/cipher_hash_test.obj tests/common.obj tests/der_test.obj tests/dh_test.obj tests/dsa_test.obj \
 tests/ecc_test.obj tests/ed25519_test.obj tests/file_test.obj tests/mac_test.obj tests/misc_test.obj \
 tests/modes_test.obj tests/mpi_test.obj tests/multi_test.obj tests/no_null_termination_check_test.obj \
-tests/no_prng.obj tests/padding_test.obj tests/pkcs_1_eme_test.obj tests/pkcs_1_emsa_test.obj \
+tests/no_prng.obj tests/padding_test.obj tests/pem_test.obj tests/pkcs_1_eme_test.obj tests/pkcs_1_emsa_test.obj \
 tests/pkcs_1_oaep_test.obj tests/pkcs_1_pss_test.obj tests/pkcs_1_test.obj tests/prng_test.obj \
 tests/rotate_test.obj tests/rsa_test.obj tests/ssh_test.obj tests/store_test.obj tests/test.obj tests/x25519_test.obj
 

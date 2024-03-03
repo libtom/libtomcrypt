@@ -1384,6 +1384,10 @@
 				>
 			</File>
 			<File
+				RelativePath="src\misc\password_free.c"
+				>
+			</File>
+			<File
 				RelativePath="src\misc\zeromem.c"
 				>
 			</File>
@@ -1596,6 +1600,26 @@
 				</File>
 				<File
 					RelativePath="src\misc\pbes\pbes2.c"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="pem"
+				>
+				<File
+					RelativePath="src\misc\pem\pem.c"
+					>
+				</File>
+				<File
+					RelativePath="src\misc\pem\pem_pkcs.c"
+					>
+				</File>
+				<File
+					RelativePath="src\misc\pem\pem_read.c"
+					>
+				</File>
+				<File
+					RelativePath="src\misc\pem\pem_ssh.c"
 					>
 				</File>
 			</Filter>
@@ -1879,6 +1903,10 @@
 		<Filter
 			Name="pk"
 			>
+			<File
+				RelativePath="src\pk\pka_key.c"
+				>
+			</File>
 			<Filter
 				Name="asn1"
 				>
@@ -2101,6 +2129,10 @@
 							>
 						</File>
 						<File
+							RelativePath="src\pk\asn1\der\sequence\der_flexi_sequence_cmp.c"
+							>
+						</File>
+						<File
 							RelativePath="src\pk\asn1\der\sequence\der_length_sequence.c"
 							>
 						</File>
@@ -2190,7 +2222,7 @@
 					Name="oid"
 					>
 					<File
-						RelativePath="src\pk\asn1\oid\pk_get_oid.c"
+						RelativePath="src\pk\asn1\oid\pk_get.c"
 						>
 					</File>
 					<File
@@ -2209,12 +2241,20 @@
 						RelativePath="src\pk\asn1\pkcs8\pkcs8_decode_flexi.c"
 						>
 					</File>
+					<File
+						RelativePath="src\pk\asn1\pkcs8\pkcs8_get.c"
+						>
+					</File>
 				</Filter>
 				<Filter
 					Name="x509"
 					>
 					<File
 						RelativePath="src\pk\asn1\x509\x509_decode_public_key_from_certificate.c"
+						>
+					</File>
+					<File
+						RelativePath="src\pk\asn1\x509\x509_decode_spki.c"
 						>
 					</File>
 					<File
@@ -2259,6 +2299,10 @@
 					>
 				</File>
 				<File
+					RelativePath="src\pk\dh\dh_import_pkcs8.c"
+					>
+				</File>
+				<File
 					RelativePath="src\pk\dh\dh_set.c"
 					>
 				</File>
@@ -2300,6 +2344,14 @@
 				</File>
 				<File
 					RelativePath="src\pk\dsa\dsa_import.c"
+					>
+				</File>
+				<File
+					RelativePath="src\pk\dsa\dsa_import_pkcs8.c"
+					>
+				</File>
+				<File
+					RelativePath="src\pk\dsa\dsa_init.c"
 					>
 				</File>
 				<File

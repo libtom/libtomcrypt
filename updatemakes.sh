@@ -2,7 +2,7 @@
 
 ./helper.pl --update-makefiles || exit 1
 
-makefiles=(makefile makefile_include.mk makefile.shared makefile.unix makefile.mingw makefile.msvc)
+makefiles=(makefile makefile_include.mk makefile.shared makefile.unix makefile.mingw makefile.msvc sources.cmake tests/sources.cmake)
 vcproj=(libtomcrypt_VS2008.vcproj)
 
 if [ $# -eq 1 ] && [ "$1" == "-c" ]; then

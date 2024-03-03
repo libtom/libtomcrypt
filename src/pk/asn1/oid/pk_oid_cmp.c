@@ -11,7 +11,7 @@
 int pk_oid_cmp_with_ulong(const char *o1, const unsigned long *o2, unsigned long o2size)
 {
    unsigned long i;
-   char tmp[256] = { 0 };
+   char tmp[LTC_OID_MAX_STRLEN] = { 0 };
    int err;
 
    if (o1 == NULL || o2 == NULL) return CRYPT_ERROR;

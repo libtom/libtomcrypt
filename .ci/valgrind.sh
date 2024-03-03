@@ -31,7 +31,14 @@ echo "Run tests with valgrind..."
 for i in `seq 1 10` ; do sleep 300 && echo "Valgrind tests in Progress..."; done &
 alive_pid=$!
 
-valgrind --error-exitcode=666 --leak-check=full --show-leak-kinds=all --errors-for-leak-kinds=all ./test >test_std.txt 2> >(tee -a test_err.txt >&2) || { kill $alive_pid; echo "Valgrind failed"; exit 1; }
+readonly VALGRIND_OPTS="--error-exitcode=666 --leak-check=full --show-leak-kinds=all --errors-for-leak-kinds=all"
+
+readonly distro="$(lsb_release -si)_$(lsb_release -sc)"
+readonly suppfile=".ci/Valgrind-${distro}.supp"
+function get_suppfile() { [ -f "$suppfile" ] && echo "--suppressions=$suppfile" || echo ""; }
+readonly VALGRIND_EXTRA_OPTS=$(get_suppfile)
+
+valgrind $VALGRIND_OPTS $VALGRIND_EXTRA_OPTS ./test >test_std.txt 2> >(tee -a test_err.txt >&2) || { kill $alive_pid; echo "Valgrind failed"; exit 1; }
 
 kill $alive_pid
 

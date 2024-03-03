@@ -1664,7 +1664,7 @@ int der_test(void)
    der_Xcode_test();
 
 #ifdef LTC_TEST_READDIR
-   DO(test_process_dir("tests/asn1", &list, s_der_decode_sequence_flexi, NULL, "DER ASN.1 special cases"));
+   DO(test_process_dir("tests/asn1", &list, s_der_decode_sequence_flexi, NULL, NULL, "DER ASN.1 special cases"));
 #endif
 
    der_custom_test();

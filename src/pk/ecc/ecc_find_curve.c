@@ -211,10 +211,9 @@ int ecc_find_curve(const char *name_or_oid, const ltc_ecc_curve **cu)
    int i, j;
    const char *OID = NULL;
 
-   LTC_ARGCHK(cu != NULL);
    LTC_ARGCHK(name_or_oid != NULL);
 
-   *cu = NULL;
+   if (cu) *cu = NULL;
 
    for (i = 0; s_curve_names[i].OID != NULL && !OID; i++) {
       if (XSTRCMP(s_curve_names[i].OID, name_or_oid) == 0) {
@@ -230,7 +229,7 @@ int ecc_find_curve(const char *name_or_oid, const ltc_ecc_curve **cu)
    if (OID != NULL) {
       for (i = 0; ltc_ecc_curves[i].prime != NULL; i++) {
          if (XSTRCMP(ltc_ecc_curves[i].OID, OID) == 0) {
-            *cu = &ltc_ecc_curves[i];
+            if (cu) *cu = &ltc_ecc_curves[i];
             return CRYPT_OK;
          }
       }

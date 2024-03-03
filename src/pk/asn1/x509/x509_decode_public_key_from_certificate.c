@@ -9,14 +9,6 @@
 
 #ifdef LTC_DER
 
-/* Check if it looks like a SubjectPublicKeyInfo */
-#define LOOKS_LIKE_SPKI(l) ((l) != NULL)              \
-&& ((l)->type == LTC_ASN1_SEQUENCE)                   \
-&& ((l)->child != NULL)                               \
-&& ((l)->child->type == LTC_ASN1_OBJECT_IDENTIFIER)   \
-&& ((l)->next != NULL)                                \
-&& ((l)->next->type == LTC_ASN1_BIT_STRING)
-
 /**
   Try to decode the public key from a X.509 certificate
    @param in               The input buffer
@@ -27,7 +19,9 @@
    @param parameters_len   [in/out] The number of parameters to include
    @param callback         The callback
    @param ctx              The context passed to the callback
-   @return CRYPT_OK on success, CRYPT_NOP if no SubjectPublicKeyInfo was found
+   @return CRYPT_OK on success,
+            CRYPT_NOP if no SubjectPublicKeyInfo was found,
+            another error if decoding or memory allocation failed
 */
 int x509_decode_public_key_from_certificate(const unsigned char *in, unsigned long inlen,
                                             enum ltc_oid_id algorithm, ltc_asn1_type param_type,
@@ -35,67 +29,35 @@ int x509_decode_public_key_from_certificate(const unsigned char *in, unsigned lo
                                             public_key_decode_cb callback, void *ctx)
 {
    int err;
-   unsigned char *tmpbuf;
-   unsigned long tmpbuf_len, tmp_inlen;
-   ltc_asn1_list *decoded_list = NULL, *l;
+   unsigned char *tmpbuf = NULL;
+   unsigned long tmpbuf_len;
+   ltc_asn1_list *decoded_list = NULL, *spki;
 
    LTC_ARGCHK(in       != NULL);
    LTC_ARGCHK(inlen    != 0);
    LTC_ARGCHK(callback != NULL);
 
-   tmpbuf_len = inlen;
-   tmpbuf = XCALLOC(1, tmpbuf_len);
-   if (tmpbuf == NULL) {
-       err = CRYPT_MEM;
-       goto LBL_OUT;
+   if ((err = x509_decode_spki(in, inlen, &decoded_list, &spki)) != CRYPT_OK) {
+      return err;
    }
 
-   tmp_inlen = inlen;
-   if ((err = der_decode_sequence_flexi(in, &tmp_inlen, &decoded_list)) == CRYPT_OK) {
-      l = decoded_list;
+   if (algorithm == LTC_OID_EC) {
+      err = callback(spki->data, spki->size, ctx);
+   } else {
 
-      err = CRYPT_NOP;
+      tmpbuf_len = inlen;
+      tmpbuf = XCALLOC(1, tmpbuf_len);
+      if (tmpbuf == NULL) {
+          err = CRYPT_MEM;
+          goto LBL_OUT;
+      }
 
-      /* Move 2 levels up in the tree
-         SEQUENCE
-             SEQUENCE
-                 ...
-       */
-      if ((l->type == LTC_ASN1_SEQUENCE) && (l->child != NULL)) {
-         l = l->child;
-         if ((l->type == LTC_ASN1_SEQUENCE) && (l->child != NULL)) {
-            l = l->child;
-
-            /* Move forward in the tree until we find this combination
-                 ...
-                 SEQUENCE
-                     SEQUENCE
-                         OBJECT IDENTIFIER <some PKA OID, e.g. 1.2.840.113549.1.1.1>
-                         NULL
-                     BIT STRING
-             */
-            do {
-               /* The additional check for l->data is there to make sure
-                * we won't try to decode a list that has been 'shrunk'
-                */
-               if ((l->type == LTC_ASN1_SEQUENCE)
-                     && (l->data != NULL)
-                     && LOOKS_LIKE_SPKI(l->child)) {
-                  if (algorithm == LTC_OID_EC) {
-                     err = callback(l->data, l->size, ctx);
-                  } else {
-                     err = x509_decode_subject_public_key_info(l->data, l->size,
-                                                               algorithm, tmpbuf, &tmpbuf_len,
-                                                               param_type, parameters, parameters_len);
-                     if (err == CRYPT_OK) {
-                        err = callback(tmpbuf, tmpbuf_len, ctx);
-                        goto LBL_OUT;
-                     }
-                  }
-               }
-               l = l->next;
-            } while(l);
-         }
+      err = x509_decode_subject_public_key_info(spki->data, spki->size,
+                                                algorithm, tmpbuf, &tmpbuf_len,
+                                                param_type, parameters, parameters_len);
+      if (err == CRYPT_OK) {
+         err = callback(tmpbuf, tmpbuf_len, ctx);
+         goto LBL_OUT;
       }
    }
 

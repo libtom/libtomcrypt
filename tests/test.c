@@ -36,6 +36,7 @@ static const test_function test_functions[] =
       LTC_TEST_FN(x25519_test),
       LTC_TEST_FN(file_test),
       LTC_TEST_FN(multi_test),
+      LTC_TEST_FN(pem_test),
       /* keep the prng_test always at the end as
        * it has to be handled specially when
        * testing with LTC_PTHREAD enabled
@@ -148,6 +149,7 @@ static void s_unregister_all(void)
 #endif
 #ifdef LTC_DES
   unregister_cipher(&des_desc);
+  unregister_cipher(&desx_desc);
   unregister_cipher(&des3_desc);
 #endif
 #ifdef LTC_CAST5

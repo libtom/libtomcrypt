@@ -14,6 +14,7 @@
 */
 int chacha20poly1305_init(chacha20poly1305_state *st, const unsigned char *key, unsigned long keylen)
 {
+   XMEMSET(st, 0, sizeof(*st));
    return chacha_setup(&st->chacha, key, keylen, 20);
 }
 

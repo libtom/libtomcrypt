@@ -81,7 +81,7 @@ void rsa_shrink_key(rsa_key *key)
 
 /**
   Init an RSA key
-  @param key   The RSA key to free
+  @param key   The RSA key to initialize
   @return CRYPT_OK if successful
 */
 int rsa_init(rsa_key *key)

@@ -37,7 +37,7 @@ int x25519_import_x509(const unsigned char *in, unsigned long inlen, curve25519_
       return err;
    }
    key->type = PK_PUBLIC;
-   key->algo = LTC_OID_X25519;
+   key->pka = LTC_PKA_X25519;
 
    return err;
 }

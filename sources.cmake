@@ -236,9 +236,14 @@ src/misc/hkdf/hkdf_test.c
 src/misc/mem_neq.c
 src/misc/padding/padding_depad.c
 src/misc/padding/padding_pad.c
+src/misc/password_free.c
 src/misc/pbes/pbes.c
 src/misc/pbes/pbes1.c
 src/misc/pbes/pbes2.c
+src/misc/pem/pem.c
+src/misc/pem/pem_pkcs.c
+src/misc/pem/pem_read.c
+src/misc/pem/pem_ssh.c
 src/misc/pkcs12/pkcs12_kdf.c
 src/misc/pkcs12/pkcs12_utf8_to_utf16.c
 src/misc/pkcs5/pkcs_5_1.c
@@ -339,6 +344,7 @@ src/pk/asn1/der/sequence/der_decode_sequence_flexi.c
 src/pk/asn1/der/sequence/der_decode_sequence_multi.c
 src/pk/asn1/der/sequence/der_encode_sequence_ex.c
 src/pk/asn1/der/sequence/der_encode_sequence_multi.c
+src/pk/asn1/der/sequence/der_flexi_sequence_cmp.c
 src/pk/asn1/der/sequence/der_length_sequence.c
 src/pk/asn1/der/sequence/der_sequence_free.c
 src/pk/asn1/der/sequence/der_sequence_shrink.c
@@ -355,11 +361,13 @@ src/pk/asn1/der/utctime/der_length_utctime.c
 src/pk/asn1/der/utf8/der_decode_utf8_string.c
 src/pk/asn1/der/utf8/der_encode_utf8_string.c
 src/pk/asn1/der/utf8/der_length_utf8_string.c
-src/pk/asn1/oid/pk_get_oid.c
+src/pk/asn1/oid/pk_get.c
 src/pk/asn1/oid/pk_oid_cmp.c
 src/pk/asn1/oid/pk_oid_str.c
 src/pk/asn1/pkcs8/pkcs8_decode_flexi.c
+src/pk/asn1/pkcs8/pkcs8_get.c
 src/pk/asn1/x509/x509_decode_public_key_from_certificate.c
+src/pk/asn1/x509/x509_decode_spki.c
 src/pk/asn1/x509/x509_decode_subject_public_key_info.c
 src/pk/asn1/x509/x509_encode_subject_public_key_info.c
 src/pk/dh/dh.c
@@ -369,6 +377,7 @@ src/pk/dh/dh_export_key.c
 src/pk/dh/dh_free.c
 src/pk/dh/dh_generate_key.c
 src/pk/dh/dh_import.c
+src/pk/dh/dh_import_pkcs8.c
 src/pk/dh/dh_set.c
 src/pk/dh/dh_set_pg_dhparam.c
 src/pk/dh/dh_shared_secret.c
@@ -379,6 +388,8 @@ src/pk/dsa/dsa_free.c
 src/pk/dsa/dsa_generate_key.c
 src/pk/dsa/dsa_generate_pqg.c
 src/pk/dsa/dsa_import.c
+src/pk/dsa/dsa_import_pkcs8.c
+src/pk/dsa/dsa_init.c
 src/pk/dsa/dsa_make_key.c
 src/pk/dsa/dsa_set.c
 src/pk/dsa/dsa_set_pqg_dsaparam.c
@@ -436,6 +447,7 @@ src/pk/ed25519/ed25519_import_x509.c
 src/pk/ed25519/ed25519_make_key.c
 src/pk/ed25519/ed25519_sign.c
 src/pk/ed25519/ed25519_verify.c
+src/pk/pka_key.c
 src/pk/pkcs1/pkcs_1_i2osp.c
 src/pk/pkcs1/pkcs_1_mgf1.c
 src/pk/pkcs1/pkcs_1_oaep_decode.c

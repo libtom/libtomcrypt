@@ -22,6 +22,14 @@ fi
 function run_gcc() {
    bash .ci/check_source.sh "CHECK_SOURCES" "$2" "$3" "$4" "$5"
 
+   make -j$(nproc) pem-info V=0
+
+   echo "verify docs..."
+   while read -r line; do
+     grep -q -e "$line" doc/crypt.tex || { echo "Failed to find \"$line\" in doc/crypt.tex"; exit 1; }
+   done < <(./pem-info | grep '^\\' | sed 's@\\@\\\\@g')
+   echo "docs OK"
+
    make clean &>/dev/null
 
    echo
