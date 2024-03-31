@@ -91,11 +91,6 @@ LTC_EXPORT int   LTC_CALL XSTRCMP(const char *s1, const char *s2);
    #define ENDIAN_LITTLE
    #define ENDIAN_64BITWORD
    #define LTC_FAST
-   #if defined(__SSE4_1__)
-      #if __SSE4_1__ == 1
-         #define LTC_AMD64_SSE4_1
-      #endif
-   #endif
 #endif
 
 /* detect PPC32 */
@@ -335,6 +330,12 @@ typedef unsigned long ltc_mp_digit;
 #else
 #  define LTC_DEPRECATED(s)
 #  define LTC_DEPRECATED_PRAGMA(s)
+#endif
+
+#if defined(__GNUC__) || defined(__clang__)
+#  define LTC_ATTRIBUTE(x) __attribute__(x)
+#else
+#  define LTC_ATTRIBUTE(x)
 #endif
 
 #endif /* TOMCRYPT_CFG_H */

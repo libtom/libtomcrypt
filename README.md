@@ -150,6 +150,10 @@ If you have `libtommath` in a non-standard location:
 
     make CFLAGS="-DUSE_LTM -DLTM_DESC -I/opt/devel/ltm" EXTRALIBS="/opt/devel/ltm/libtommath.a" all
 
+You want to enable AES-NI support:
+
+    make CFLAGS=-DLTC_AES_NI
+
 ## Installation
 
 There exist several _install_ make-targets which are described in the table above.

@@ -14,7 +14,7 @@ int cipher_hash_test(void)
    }
 
    /* explicit AES-NI test */
-#if defined(LTC_HAS_AES_NI)
+#if defined(LTC_AES_NI)
    if (aesni_is_supported()) {
       DO(aesni_test());
    }

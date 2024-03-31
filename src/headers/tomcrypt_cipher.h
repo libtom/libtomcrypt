@@ -736,7 +736,7 @@ extern const struct ltc_cipher_descriptor rijndael_desc;
 extern const struct ltc_cipher_descriptor rijndael_enc_desc;
 #endif
 
-#if defined(LTC_AES_NI) && defined(LTC_AMD64_SSE4_1)
+#if defined(LTC_AES_NI)
 int aesni_is_supported(void);
 int aesni_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_key *skey);
 int aesni_ecb_encrypt(const unsigned char *pt, unsigned char *ct, const symmetric_key *skey);
