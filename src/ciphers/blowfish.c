@@ -12,7 +12,7 @@ const struct ltc_cipher_descriptor blowfish_desc =
 {
     "blowfish",
     0,
-    8, 56, 8, 16,
+    8, 72, 8, 16,
     &blowfish_setup,
     &blowfish_ecb_encrypt,
     &blowfish_ecb_decrypt,
@@ -433,7 +433,7 @@ int blowfish_setup(const unsigned char *key, int keylen, int num_rounds,
                   symmetric_key *skey)
 {
    /* check key length */
-   if (keylen < 8 || keylen > 56) {
+   if (keylen < 8 || keylen > 72) {
       return CRYPT_INVALID_KEYSIZE;
    }
    /* check rounds */
@@ -648,8 +648,8 @@ int blowfish_keysize(int *keysize)
    if (*keysize < 8) {
       return CRYPT_INVALID_KEYSIZE;
    }
-   if (*keysize > 56) {
-      *keysize = 56;
+   if (*keysize > 72) {
+      *keysize = 72;
    }
    return CRYPT_OK;
 }
