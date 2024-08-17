@@ -69,14 +69,14 @@ do { XMEMCPY (&(x), (y), 4);                    \
 #elif !defined(LTC_NO_BSWAP) && (defined(INTEL_CC) || (defined(__GNUC__) && (defined(__DJGPP__) || defined(__CYGWIN__) || defined(__MINGW32__) || defined(__i386__) || defined(__x86_64__))))
 
 #define STORE32H(x, y)           \
-asm __volatile__ (               \
+__asm__ volatile (               \
    "bswapl %0     \n\t"          \
    "movl   %0,(%1)\n\t"          \
    "bswapl %0     \n\t"          \
       ::"r"(x), "r"(y): "memory");
 
 #define LOAD32H(x, y)          \
-asm __volatile__ (             \
+__asm__ volatile (             \
    "movl (%1),%0\n\t"          \
    "bswapl %0\n\t"             \
    :"=r"(x): "r"(y): "memory");
@@ -109,14 +109,14 @@ do { XMEMCPY (&(x), (y), 8);                    \
 #elif !defined(LTC_NO_BSWAP) && (defined(__GNUC__) && defined(__x86_64__))
 
 #define STORE64H(x, y)           \
-asm __volatile__ (               \
+__asm__ volatile (               \
    "bswapq %0     \n\t"          \
    "movq   %0,(%1)\n\t"          \
    "bswapq %0     \n\t"          \
    ::"r"(x), "r"(y): "memory");
 
 #define LOAD64H(x, y)          \
-asm __volatile__ (             \
+__asm__ volatile (             \
    "movq (%1),%0\n\t"          \
    "bswapq %0\n\t"             \
    :"=r"(x): "r"(y): "memory");
@@ -263,7 +263,7 @@ do { x = (((ulong64)((y)[7] & 255))<<56)|(((ulong64)((y)[6] & 255))<<48) | \
 
 static inline ulong32 ROL(ulong32 word, int i)
 {
-   asm ("roll %%cl,%0"
+   __asm__ ("roll %%cl,%0"
       :"=r" (word)
       :"0" (word),"c" (i));
    return word;
@@ -271,7 +271,7 @@ static inline ulong32 ROL(ulong32 word, int i)
 
 static inline ulong32 ROR(ulong32 word, int i)
 {
-   asm ("rorl %%cl,%0"
+   __asm__ ("rorl %%cl,%0"
       :"=r" (word)
       :"0" (word),"c" (i));
    return word;
@@ -308,7 +308,7 @@ static inline ulong32 ROR(ulong32 word, int i)
 
 static inline ulong32 ROL(ulong32 word, int i)
 {
-   asm ("rotlw %0,%0,%2"
+   __asm__ ("rotlw %0,%0,%2"
       :"=r" (word)
       :"0" (word),"r" (i));
    return word;
@@ -316,7 +316,7 @@ static inline ulong32 ROL(ulong32 word, int i)
 
 static inline ulong32 ROR(ulong32 word, int i)
 {
-   asm ("rotlw %0,%0,%2"
+   __asm__ ("rotlw %0,%0,%2"
       :"=r" (word)
       :"0" (word),"r" (32-i));
    return word;
@@ -326,7 +326,7 @@ static inline ulong32 ROR(ulong32 word, int i)
 
 static inline ulong32 ROLc(ulong32 word, const int i)
 {
-   asm ("rotlwi %0,%0,%2"
+   __asm__ ("rotlwi %0,%0,%2"
       :"=r" (word)
       :"0" (word),"I" (i));
    return word;
@@ -334,7 +334,7 @@ static inline ulong32 ROLc(ulong32 word, const int i)
 
 static inline ulong32 RORc(ulong32 word, const int i)
 {
-   asm ("rotrwi %0,%0,%2"
+   __asm__ ("rotrwi %0,%0,%2"
       :"=r" (word)
       :"0" (word),"I" (i));
    return word;
@@ -381,7 +381,7 @@ static inline ulong32 RORc(ulong32 word, const int i)
 
 static inline ulong64 ROL64(ulong64 word, int i)
 {
-   asm("rolq %%cl,%0"
+   __asm__("rolq %%cl,%0"
       :"=r" (word)
       :"0" (word),"c" (i));
    return word;
@@ -389,7 +389,7 @@ static inline ulong64 ROL64(ulong64 word, int i)
 
 static inline ulong64 ROR64(ulong64 word, int i)
 {
-   asm("rorq %%cl,%0"
+   __asm__("rorq %%cl,%0"
       :"=r" (word)
       :"0" (word),"c" (i));
    return word;

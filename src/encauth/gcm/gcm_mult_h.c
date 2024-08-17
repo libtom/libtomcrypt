@@ -19,11 +19,11 @@ void gcm_mult_h(const gcm_state *gcm, unsigned char *I)
 #ifdef LTC_GCM_TABLES
    int x;
 #ifdef LTC_GCM_TABLES_SSE2
-   asm("movdqa (%0),%%xmm0"::"r"(&gcm->PC[0][I[0]][0]));
+   __asm__("movdqa (%0),%%xmm0"::"r"(&gcm->PC[0][I[0]][0]));
    for (x = 1; x < 16; x++) {
-      asm("pxor (%0),%%xmm0"::"r"(&gcm->PC[x][I[x]][0]));
+      __asm__("pxor (%0),%%xmm0"::"r"(&gcm->PC[x][I[x]][0]));
    }
-   asm("movdqa %%xmm0,(%0)"::"r"(&T));
+   __asm__("movdqa %%xmm0,(%0)"::"r"(&T));
 #else
    int y;
    XMEMCPY(T, &gcm->PC[0][I[0]][0], 16);
