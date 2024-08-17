@@ -794,6 +794,7 @@ int tiger_done(hash_state * md, unsigned char *out)
 int s_tiger_test(unsigned int idx)
 {
  #ifndef LTC_TEST
+    LTC_UNUSED_PARAM(idx);
     return CRYPT_NOP;
  #else
   static const struct {
