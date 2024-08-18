@@ -63,7 +63,7 @@ static LTC_INLINE int s_aesni_is_supported(void)
       a = 1;
       c = 0;
 
-      asm volatile ("cpuid"
+      __asm__ volatile ("cpuid"
            :"=a"(a), "=b"(b), "=c"(c), "=d"(d)
            :"a"(a), "c"(c)
           );
