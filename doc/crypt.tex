@@ -620,6 +620,7 @@ As of this release the current cipher\_descriptors elements are the following:
             (only on x86 with SSE4.1) &&&&& \\
      \hline Twofish & twofish\_desc & 16 & 16, 24, 32 & 16 & 7 \\
      \hline DES & des\_desc & 8 & 8 & 16 & 13 \\
+     \hline DES-X & desx\_desc & 8 & 24 & 24 & 27 \\
      \hline 3DES (EDE mode) & des3\_desc & 8 & 16, 24 & 16 & 14 \\
      \hline CAST5 (CAST-128) & cast5\_desc & 8 & 5 $\ldots$ 16 & 12, 16 & 15 \\
      \hline Noekeon & noekeon\_desc & 16 & 16 & 16 & 16 \\
@@ -8028,9 +8029,14 @@ Where \textit{data} is a pointer to the data to depad,
 The following struct is used in various parts of the library that deals with user-passwords.
 
 \begin{verbatim}
-typedef struct {
+typedef struct password_ctx {
    /**
       Callback function that is called when a password is required.
+
+      Please be aware that the library takes ownership of the pointer that is
+      returned to the library via `str`.
+      The data will be zeroed and `free()`'d as soon as it isn't required anymore.
+      c.f. the documentation of the `free()` function pointer for details.
 
       @param str        Pointer to pointer where the password will be stored.
       @param len        Pointer to the length of the password.
@@ -8038,6 +8044,16 @@ typedef struct {
       @return CRYPT_OK on success
    */
    int (*callback)(void **str, unsigned long *len, void *userdata);
+   /**
+      Optional free function to free the allocated buffer.
+
+      At the point where the value returned by `callback()` is not required
+      anymore the library will free it by either calling this `free()` function
+      or `XFREE()` in case this `free()` function is set to `NULL`.
+
+      @param str        Pointer to the buffer to be free'd.
+   */
+   void (*free)(void *str);
    /** Opaque `userdata` pointer passed when the callback is called */
    void *userdata;
 } password_ctx;
@@ -8049,12 +8065,17 @@ to be provided but this context is not given (passed a \textit{NULL} pointer ins
 the \textit{callback} pointer inside is \textit{NULL}.
 
 The \textit{str} pointer is declared as a \textit{void} pointer, since passwords are not necessarily
-always representable as a NUL-terminated C string. Therefor the user also has to provide the length of the
+always representable as a NUL-terminated C string. Therefore the user also has to provide the length of the
 password via \textit{len}.
 
 In order to prevent arbitrary limitations of the length of a password, the user is responsible for the
 dynamic allocation of the buffer that holds the password. The library takes ownership of said buffer
-and will zeroize it and call \texttt{XFREE} on it as soon as it doesn't require it anymore.
+and will zeroize it and will free it as soon as it doesn't require it anymore.
+Since the user can not necessarily ensure the usage of the same dynamic memory allocation API, as used
+within the library, the library provides a way to pass a custom `free()` function within the password context.
+In case the \textit{free} function pointer is set, the library will use said function to free
+the string \textit{str}. In case \textit{free} is NULL, the default `XFREE()` function will be used.
+
 
 An example usage is as follows:
 
