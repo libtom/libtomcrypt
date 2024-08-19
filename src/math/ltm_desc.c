@@ -224,7 +224,7 @@ static int unsigned_write(void *a, unsigned char *b)
 }
 
 /* read */
-static int unsigned_read(void *a, unsigned char *b, unsigned long len)
+static int unsigned_read(void *a, const unsigned char *b, unsigned long len)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);

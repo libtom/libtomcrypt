@@ -9671,9 +9671,9 @@ typedef struct {
      @param len   The number of octets
      @return CRYPT_OK on success
    */
-   int (*unsigned_read)(         void *dst,
-                        unsigned char *src,
-                        unsigned long  len);
+   int (*unsigned_read)(               void *dst,
+                        const unsigned char *src,
+                              unsigned long  len);
 
 /* ---- basic math ---- */
 

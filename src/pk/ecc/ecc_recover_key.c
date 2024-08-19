@@ -81,8 +81,8 @@ int ecc_recover_key(const unsigned char *sig,  unsigned long siglen,
          err = CRYPT_INVALID_PACKET;
          goto error;
       }
-      if ((err = mp_read_unsigned_bin(r, (unsigned char *)sig,   i)) != CRYPT_OK)                       { goto error; }
-      if ((err = mp_read_unsigned_bin(s, (unsigned char *)sig+i, i)) != CRYPT_OK)                       { goto error; }
+      if ((err = mp_read_unsigned_bin(r, sig,   i)) != CRYPT_OK)                                        { goto error; }
+      if ((err = mp_read_unsigned_bin(s, sig+i, i)) != CRYPT_OK)                                        { goto error; }
    }
    else if (sigformat == LTC_ECCSIG_ETH27) {
       /* Ethereum (v,r,s) format */
@@ -102,8 +102,8 @@ int ecc_recover_key(const unsigned char *sig,  unsigned long siglen,
          goto error;
       }
       recid = i;
-      if ((err = mp_read_unsigned_bin(r, (unsigned char *)sig,  32)) != CRYPT_OK)                       { goto error; }
-      if ((err = mp_read_unsigned_bin(s, (unsigned char *)sig+32, 32)) != CRYPT_OK)                     { goto error; }
+      if ((err = mp_read_unsigned_bin(r, sig,  32)) != CRYPT_OK)                                        { goto error; }
+      if ((err = mp_read_unsigned_bin(s, sig+32, 32)) != CRYPT_OK)                                      { goto error; }
    }
 #ifdef LTC_SSH
    else if (sigformat == LTC_ECCSIG_RFC5656) {
@@ -150,10 +150,10 @@ int ecc_recover_key(const unsigned char *sig,  unsigned long siglen,
    pbits = mp_count_bits(p);
    pbytes = (pbits+7) >> 3;
    if (pbits > hashlen*8) {
-      if ((err = mp_read_unsigned_bin(e, (unsigned char *)hash, hashlen)) != CRYPT_OK)                  { goto error; }
+      if ((err = mp_read_unsigned_bin(e, hash, hashlen)) != CRYPT_OK)                                   { goto error; }
    }
    else if (pbits % 8 == 0) {
-      if ((err = mp_read_unsigned_bin(e, (unsigned char *)hash, pbytes)) != CRYPT_OK)                   { goto error; }
+      if ((err = mp_read_unsigned_bin(e, hash, pbytes)) != CRYPT_OK)                                    { goto error; }
    }
    else {
       shift_right = 8 - pbits % 8;
@@ -162,7 +162,7 @@ int ecc_recover_key(const unsigned char *sig,  unsigned long siglen,
         ch = (hash[i] << (8-shift_right));
         buf[i] = buf[i] ^ (hash[i] >> shift_right);
       }
-      if ((err = mp_read_unsigned_bin(e, (unsigned char *)buf, pbytes)) != CRYPT_OK)                    { goto error; }
+      if ((err = mp_read_unsigned_bin(e, buf, pbytes)) != CRYPT_OK)                                     { goto error; }
    }
 
    /* decompress point from r=(x mod p) - BEWARE: requires sqrtmod_prime */
