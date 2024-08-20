@@ -10,7 +10,7 @@ option(BUILD_USABLE_DEMOS "Build usable demos (ltcrypt sizes constants)" FALSE)
 
 if(BUILD_USEFUL_DEMOS)
 
-    list(APPEND ALL_DEMOS_TARGETS hashsum)
+    list(APPEND ALL_DEMOS_TARGETS hashsum tv_gen)
 
     # hashsum
     add_executable(hashsum
@@ -18,6 +18,15 @@ if(BUILD_USEFUL_DEMOS)
     )
 
     target_link_libraries(hashsum PRIVATE
+        ${PROJECT_NAME}
+    )
+
+    # tv_gen
+    add_executable(tv_gen
+        ${CMAKE_CURRENT_SOURCE_DIR}/tv_gen.c
+    )
+
+    target_link_libraries(tv_gen PRIVATE
         ${PROJECT_NAME}
     )
 
