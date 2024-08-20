@@ -20,7 +20,13 @@ int cipher_hash_test(void)
    }
    DO(rijndael_test());
 #endif
+#if defined(LTC_RIJNDAEL)
+#ifndef ENCRYPT_ONLY
+   DO(aes_test());
+#else
    DO(aes_enc_test());
+#endif
+#endif
 
    /* test stream ciphers */
 #ifdef LTC_CHACHA
