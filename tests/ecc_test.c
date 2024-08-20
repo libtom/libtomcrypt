@@ -4,6 +4,28 @@
 
 #if defined(LTC_MECC)
 
+const unsigned char ltc_ecc_long_pri_test_key[] = { /* private + long public, explicit curve params */
+   0x30, 0x82, 0x01, 0x13, 0x02, 0x01, 0x01, 0x04, 0x20, 0x0c, 0xf1, 0xad, 0x2f, 0x03, 0xf7, 0x91,
+   0x1b, 0xba, 0x03, 0xcf, 0x23, 0x37, 0xc8, 0xf2, 0xf7, 0x36, 0xce, 0x65, 0xf1, 0x84, 0x2d, 0x7d,
+   0x9f, 0x5f, 0x9e, 0x21, 0xd9, 0x5e, 0x49, 0xbd, 0x23, 0xa0, 0x81, 0xa5, 0x30, 0x81, 0xa2, 0x02,
+   0x01, 0x01, 0x30, 0x2c, 0x06, 0x07, 0x2a, 0x86, 0x48, 0xce, 0x3d, 0x01, 0x01, 0x02, 0x21, 0x00,
+   0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+   0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xfe, 0xff, 0xff, 0xfc, 0x2f,
+   0x30, 0x06, 0x04, 0x01, 0x00, 0x04, 0x01, 0x07, 0x04, 0x41, 0x04, 0x79, 0xbe, 0x66, 0x7e, 0xf9,
+   0xdc, 0xbb, 0xac, 0x55, 0xa0, 0x62, 0x95, 0xce, 0x87, 0x0b, 0x07, 0x02, 0x9b, 0xfc, 0xdb, 0x2d,
+   0xce, 0x28, 0xd9, 0x59, 0xf2, 0x81, 0x5b, 0x16, 0xf8, 0x17, 0x98, 0x48, 0x3a, 0xda, 0x77, 0x26,
+   0xa3, 0xc4, 0x65, 0x5d, 0xa4, 0xfb, 0xfc, 0x0e, 0x11, 0x08, 0xa8, 0xfd, 0x17, 0xb4, 0x48, 0xa6,
+   0x85, 0x54, 0x19, 0x9c, 0x47, 0xd0, 0x8f, 0xfb, 0x10, 0xd4, 0xb8, 0x02, 0x21, 0x00, 0xff, 0xff,
+   0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xfe, 0xba, 0xae,
+   0xdc, 0xe6, 0xaf, 0x48, 0xa0, 0x3b, 0xbf, 0xd2, 0x5e, 0x8c, 0xd0, 0x36, 0x41, 0x41, 0x02, 0x01,
+   0x01, 0xa1, 0x44, 0x03, 0x42, 0x00, 0x04, 0x2a, 0xf9, 0x0b, 0xda, 0xbe, 0x71, 0x66, 0x9e, 0xd1,
+   0xcf, 0x12, 0xd0, 0x24, 0xaf, 0xba, 0xb6, 0x7f, 0xfb, 0x96, 0x27, 0x3e, 0x2f, 0xbd, 0x1e, 0xd5,
+   0xf9, 0x8d, 0x6c, 0x73, 0x9d, 0xc5, 0x16, 0x91, 0xbd, 0xb2, 0xb9, 0x1b, 0x40, 0x10, 0x5a, 0xb7,
+   0x6c, 0x6e, 0x32, 0x5b, 0xf7, 0x63, 0x62, 0x94, 0x24, 0x24, 0xdb, 0xec, 0x3f, 0x8b, 0xe5, 0x6e,
+   0x4b, 0x64, 0x37, 0x31, 0x24, 0x79, 0x4d
+};
+const unsigned long ltc_ecc_long_pri_test_key_sz = sizeof(ltc_ecc_long_pri_test_key);
+
 static unsigned int sizes[] = {
 #ifdef LTC_ECC_SECP112R1
 14,
@@ -506,7 +528,7 @@ static int s_ecc_old_api(void)
    return CRYPT_OK;
 }
 
-static int s_ecc_key_cmp(const int should_type, const ecc_key *should, const ecc_key *is)
+int ecc_key_cmp(const int should_type, const ecc_key *should, const ecc_key *is)
 {
    if (should_type != is->type)                               return CRYPT_ERROR;
    if (should_type == PK_PRIVATE) {
@@ -613,7 +635,7 @@ static int s_ecc_new_api(void)
          for (j = 0; j < 2*(1+(int)privkey.dp.cofactor); j++) {
             stat = ecc_recover_key(buf, len, data16, 16, j, LTC_ECCSIG_ANSIX962, &reckey);
             if (stat != CRYPT_OK) continue; /* last two will almost always fail, only possible if x<(prime mod order) */
-            stat = s_ecc_key_cmp(PK_PUBLIC, &pubkey, &reckey);
+            stat = ecc_key_cmp(PK_PUBLIC, &pubkey, &reckey);
             if (stat == CRYPT_OK) found++;
          }
          if (found != 1) return CRYPT_FAIL_TESTVECTOR; /* unique match */
@@ -635,6 +657,15 @@ static int s_ecc_new_api(void)
       ecc_free(&pubkey);
    }
    return CRYPT_OK;
+}
+
+
+static int password_get(void **p, unsigned long *l, void *u)
+{
+   LTC_UNUSED_PARAM(u);
+   *p = strdup("secret");
+   *l = 6;
+   return 0;
 }
 
 static int s_ecc_import_export(void) {
@@ -667,39 +698,20 @@ static int s_ecc_import_export(void) {
         # password protected - PBES1
         openssl pkcs8 -topk8 -inform DER -outform DER -passout pass:secret -in long_pri.der -v1 PBE-MD2-DES     -out long_pri_pkcs8_pbe_md2_des.der
         openssl pkcs8 -topk8 -inform DER -outform DER -passout pass:secret -in long_pri.der -v1 PBE-MD2-RC2-64  -out long_pri_pkcs8_pbe_md2_rc2_64.der
-        openssl pkcs8 -topk8 -inform DER -outform DER -passout pass:secret -in long_pri.der -v1 PBE-MD5-DES     -out long_pri_pkcs8_pbe_md5_des.der
-        openssl pkcs8 -topk8 -inform DER -outform DER -passout pass:secret -in long_pri.der -v1 PBE-SHA1-RC2-64 -out long_pri_pkcs8_pbe_sha1_rc2_64.der
-        openssl pkcs8 -topk8 -inform DER -outform DER -passout pass:secret -in long_pri.der -v1 PBE-MD5-RC2-64  -out long_pri_pkcs8_pbe_md5_rc2_64.der
-        openssl pkcs8 -topk8 -inform DER -outform DER -passout pass:secret -in long_pri.der -v1 PBE-SHA1-DES    -out long_pri_pkcs8_pbe_sha1_des.der
+        openssl pkcs8 -topk8 -inform DER -outform DER -passout pass:secret -in ltc_ecc_long_pri_test_key.der -v1 PBE-MD5-DES     -out long_pri_pkcs8_pbe_md5_des.der
+        openssl pkcs8 -topk8 -inform DER -outform DER -passout pass:secret -in ltc_ecc_long_pri_test_key.der -v1 PBE-SHA1-RC2-64 -out long_pri_pkcs8_pbe_sha1_rc2_64.der
+        openssl pkcs8 -topk8 -inform DER -outform DER -passout pass:secret -in ltc_ecc_long_pri_test_key.der -v1 PBE-MD5-RC2-64  -out long_pri_pkcs8_pbe_md5_rc2_64.der
+        openssl pkcs8 -topk8 -inform DER -outform DER -passout pass:secret -in ltc_ecc_long_pri_test_key.der -v1 PBE-SHA1-DES    -out long_pri_pkcs8_pbe_sha1_des.der
         # password protected - PBES2
-        openssl pkcs8 -topk8 -inform DER -outform DER -passout pass:secret -in long_pri.der -v2 rc2  -out long_pri_pkcs8_pbkdf2_rc2_cbc.der
-        openssl pkcs8 -topk8 -inform DER -outform DER -passout pass:secret -in long_pri.der -v2 des  -out long_pri_pkcs8_pbkdf2_des_cbc.der
-        openssl pkcs8 -topk8 -inform DER -outform DER -passout pass:secret -in long_pri.der -v2 des3 -out long_pri_pkcs8_pbkdf2_des_ede3_cbc.der
-        openssl pkcs8 -topk8 -inform DER -outform DER -passout pass:secret -in long_pri.der -v2 des3 -v2prf hmacWithSHA224 -out long_pri_pkcs8_pbkdf2_sha224_des_ede3_cbc.der
-        openssl pkcs8 -topk8 -inform DER -outform DER -passout pass:secret -in long_pri.der -v2 des3 -v2prf hmacWithSHA256 -out long_pri_pkcs8_pbkdf2_sha256_des_ede3_cbc.der
-        openssl pkcs8 -topk8 -inform DER -outform DER -passout pass:secret -in long_pri.der -v2 des3 -v2prf hmacWithSHA384 -out long_pri_pkcs8_pbkdf2_sha384_des_ede3_cbc.der
-        openssl pkcs8 -topk8 -inform DER -outform DER -passout pass:secret -in long_pri.der -v2 des3 -v2prf hmacWithSHA512 -out long_pri_pkcs8_pbkdf2_sha512_des_ede3_cbc.der
+        openssl pkcs8 -topk8 -inform DER -outform DER -passout pass:secret -in ltc_ecc_long_pri_test_key.der -v2 rc2  -out long_pri_pkcs8_pbkdf2_rc2_cbc.der
+        openssl pkcs8 -topk8 -inform DER -outform DER -passout pass:secret -in ltc_ecc_long_pri_test_key.der -v2 des  -out long_pri_pkcs8_pbkdf2_des_cbc.der
+        openssl pkcs8 -topk8 -inform DER -outform DER -passout pass:secret -in ltc_ecc_long_pri_test_key.der -v2 des3 -out long_pri_pkcs8_pbkdf2_des_ede3_cbc.der
+        openssl pkcs8 -topk8 -inform DER -outform DER -passout pass:secret -in ltc_ecc_long_pri_test_key.der -v2 des3 -v2prf hmacWithSHA224 -out long_pri_pkcs8_pbkdf2_sha224_des_ede3_cbc.der
+        openssl pkcs8 -topk8 -inform DER -outform DER -passout pass:secret -in ltc_ecc_long_pri_test_key.der -v2 des3 -v2prf hmacWithSHA256 -out long_pri_pkcs8_pbkdf2_sha256_des_ede3_cbc.der
+        openssl pkcs8 -topk8 -inform DER -outform DER -passout pass:secret -in ltc_ecc_long_pri_test_key.der -v2 des3 -v2prf hmacWithSHA384 -out long_pri_pkcs8_pbkdf2_sha384_des_ede3_cbc.der
+        openssl pkcs8 -topk8 -inform DER -outform DER -passout pass:secret -in ltc_ecc_long_pri_test_key.der -v2 des3 -v2prf hmacWithSHA512 -out long_pri_pkcs8_pbkdf2_sha512_des_ede3_cbc.der
     */
-   static const unsigned char long_pri[] = { /* private + long public, explicit curve params */
-      0x30, 0x82, 0x01, 0x13, 0x02, 0x01, 0x01, 0x04, 0x20, 0x0c, 0xf1, 0xad, 0x2f, 0x03, 0xf7, 0x91,
-      0x1b, 0xba, 0x03, 0xcf, 0x23, 0x37, 0xc8, 0xf2, 0xf7, 0x36, 0xce, 0x65, 0xf1, 0x84, 0x2d, 0x7d,
-      0x9f, 0x5f, 0x9e, 0x21, 0xd9, 0x5e, 0x49, 0xbd, 0x23, 0xa0, 0x81, 0xa5, 0x30, 0x81, 0xa2, 0x02,
-      0x01, 0x01, 0x30, 0x2c, 0x06, 0x07, 0x2a, 0x86, 0x48, 0xce, 0x3d, 0x01, 0x01, 0x02, 0x21, 0x00,
-      0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-      0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xfe, 0xff, 0xff, 0xfc, 0x2f,
-      0x30, 0x06, 0x04, 0x01, 0x00, 0x04, 0x01, 0x07, 0x04, 0x41, 0x04, 0x79, 0xbe, 0x66, 0x7e, 0xf9,
-      0xdc, 0xbb, 0xac, 0x55, 0xa0, 0x62, 0x95, 0xce, 0x87, 0x0b, 0x07, 0x02, 0x9b, 0xfc, 0xdb, 0x2d,
-      0xce, 0x28, 0xd9, 0x59, 0xf2, 0x81, 0x5b, 0x16, 0xf8, 0x17, 0x98, 0x48, 0x3a, 0xda, 0x77, 0x26,
-      0xa3, 0xc4, 0x65, 0x5d, 0xa4, 0xfb, 0xfc, 0x0e, 0x11, 0x08, 0xa8, 0xfd, 0x17, 0xb4, 0x48, 0xa6,
-      0x85, 0x54, 0x19, 0x9c, 0x47, 0xd0, 0x8f, 0xfb, 0x10, 0xd4, 0xb8, 0x02, 0x21, 0x00, 0xff, 0xff,
-      0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xfe, 0xba, 0xae,
-      0xdc, 0xe6, 0xaf, 0x48, 0xa0, 0x3b, 0xbf, 0xd2, 0x5e, 0x8c, 0xd0, 0x36, 0x41, 0x41, 0x02, 0x01,
-      0x01, 0xa1, 0x44, 0x03, 0x42, 0x00, 0x04, 0x2a, 0xf9, 0x0b, 0xda, 0xbe, 0x71, 0x66, 0x9e, 0xd1,
-      0xcf, 0x12, 0xd0, 0x24, 0xaf, 0xba, 0xb6, 0x7f, 0xfb, 0x96, 0x27, 0x3e, 0x2f, 0xbd, 0x1e, 0xd5,
-      0xf9, 0x8d, 0x6c, 0x73, 0x9d, 0xc5, 0x16, 0x91, 0xbd, 0xb2, 0xb9, 0x1b, 0x40, 0x10, 0x5a, 0xb7,
-      0x6c, 0x6e, 0x32, 0x5b, 0xf7, 0x63, 0x62, 0x94, 0x24, 0x24, 0xdb, 0xec, 0x3f, 0x8b, 0xe5, 0x6e,
-      0x4b, 0x64, 0x37, 0x31, 0x24, 0x79, 0x4d
-   };
+   /* static const unsigned char ltc_ecc_long_pri_test_key[] defined globally */
    static const unsigned char long_pri_pkcs8[] = { /* private + long public, explicit curve params, PKCS8 */
       0x30, 0x82, 0x01, 0x23, 0x02, 0x01, 0x00, 0x30, 0x81, 0xae, 0x06, 0x07, 0x2a, 0x86, 0x48, 0xce,
       0x3d, 0x02, 0x01, 0x30, 0x81, 0xa2, 0x02, 0x01, 0x01, 0x30, 0x2c, 0x06, 0x07, 0x2a, 0x86, 0x48,
@@ -1317,6 +1329,7 @@ static int s_ecc_import_export(void) {
       0x9d, 0x7b, 0x70, 0x3e, 0xf5, 0x7d, 0xa4, 0xfd, 0x3c, 0xc6, 0x49, 0x93, 0xd3, 0x5b, 0xef, 0xc9,
       0xae, 0x97, 0xaf, 0x64, 0x64, 0xf9, 0x69, 0xd8
    };
+   password_ctx pw_ctx = { .callback = password_get };
 
    if (ltc_mp.sqrtmod_prime == NULL) return CRYPT_NOP; /* we need compressed points which requires sqrtmod_prime */
 
@@ -1327,144 +1340,144 @@ static int s_ecc_import_export(void) {
    /* import - raw keys */
    DO(ecc_set_curve(cu, &key));
    DO(ecc_set_key(raw_pri, sizeof(raw_pri),  PK_PRIVATE, &key));
-   DO(s_ecc_key_cmp(PK_PRIVATE, &pri, &key));
+   DO(ecc_key_cmp(PK_PRIVATE, &pri, &key));
    ecc_free(&key);
    DO(ecc_set_curve(cu, &key));
    DO(ecc_set_key(raw_pub, sizeof(raw_pub),  PK_PUBLIC,  &key));
-   DO(s_ecc_key_cmp(PK_PUBLIC, &pub, &key));
+   DO(ecc_key_cmp(PK_PUBLIC, &pub, &key));
    ecc_free(&key);
    DO(ecc_set_curve(cu, &key));
    DO(ecc_set_key(raw_pubc, sizeof(raw_pubc), PK_PUBLIC,  &key));
-   DO(s_ecc_key_cmp(PK_PUBLIC, &pub, &key));
+   DO(ecc_key_cmp(PK_PUBLIC, &pub, &key));
    ecc_free(&key);
 
    /* import - openssl compatible DER format */
-   DO(ecc_import_openssl(long_pri, sizeof(long_pri),   &key));
-   DO(s_ecc_key_cmp(PK_PRIVATE, &pri, &key));
+   DO(ecc_import_openssl(ltc_ecc_long_pri_test_key, sizeof(ltc_ecc_long_pri_test_key),   &key));
+   DO(ecc_key_cmp(PK_PRIVATE, &pri, &key));
    ecc_free(&key);
    DO(ecc_import_openssl(long_pric, sizeof(long_pric),  &key));
-   DO(s_ecc_key_cmp(PK_PRIVATE, &pri, &key));
+   DO(ecc_key_cmp(PK_PRIVATE, &pri, &key));
    ecc_free(&key);
    DO(ecc_import_openssl(long_pub, sizeof(long_pub),   &key));
-   DO(s_ecc_key_cmp(PK_PUBLIC, &pub, &key));
+   DO(ecc_key_cmp(PK_PUBLIC, &pub, &key));
    ecc_free(&key);
    DO(ecc_import_openssl(long_pubc, sizeof(long_pubc),  &key));
-   DO(s_ecc_key_cmp(PK_PUBLIC, &pub, &key));
+   DO(ecc_key_cmp(PK_PUBLIC, &pub, &key));
    ecc_free(&key);
    DO(ecc_import_openssl(short_pri, sizeof(short_pri),  &key));
-   DO(s_ecc_key_cmp(PK_PRIVATE, &pri, &key));
+   DO(ecc_key_cmp(PK_PRIVATE, &pri, &key));
    ecc_free(&key);
    DO(ecc_import_openssl(short_pric, sizeof(short_pric), &key));
-   DO(s_ecc_key_cmp(PK_PRIVATE, &pri, &key));
+   DO(ecc_key_cmp(PK_PRIVATE, &pri, &key));
    ecc_free(&key);
    DO(ecc_import_openssl(short_pub, sizeof(short_pub),  &key));
-   DO(s_ecc_key_cmp(PK_PUBLIC, &pub, &key));
+   DO(ecc_key_cmp(PK_PUBLIC, &pub, &key));
    ecc_free(&key);
    DO(ecc_import_openssl(short_pubc, sizeof(short_pubc), &key));
-   DO(s_ecc_key_cmp(PK_PUBLIC, &pub, &key));
+   DO(ecc_key_cmp(PK_PUBLIC, &pub, &key));
    ecc_free(&key);
 
    /* import - private PKCS8 format - no password */
-   DO(ecc_import_pkcs8(long_pri_pkcs8, sizeof(long_pri_pkcs8),   NULL, 0, &key));
-   DO(s_ecc_key_cmp(PK_PRIVATE, &pri, &key));
+   DO(ecc_import_pkcs8(long_pri_pkcs8, sizeof(long_pri_pkcs8),   NULL, &key));
+   DO(ecc_key_cmp(PK_PRIVATE, &pri, &key));
    ecc_free(&key);
-   DO(ecc_import_pkcs8(long_pric_pkcs8, sizeof(long_pric_pkcs8),  NULL, 0, &key));
-   DO(s_ecc_key_cmp(PK_PRIVATE, &pri, &key));
+   DO(ecc_import_pkcs8(long_pric_pkcs8, sizeof(long_pric_pkcs8),  NULL, &key));
+   DO(ecc_key_cmp(PK_PRIVATE, &pri, &key));
    ecc_free(&key);
-   DO(ecc_import_pkcs8(short_pri_pkcs8, sizeof(short_pri_pkcs8),  NULL, 0, &key));
-   DO(s_ecc_key_cmp(PK_PRIVATE, &pri, &key));
+   DO(ecc_import_pkcs8(short_pri_pkcs8, sizeof(short_pri_pkcs8),  NULL, &key));
+   DO(ecc_key_cmp(PK_PRIVATE, &pri, &key));
    ecc_free(&key);
-   DO(ecc_import_pkcs8(short_pric_pkcs8, sizeof(short_pric_pkcs8), NULL, 0, &key));
-   DO(s_ecc_key_cmp(PK_PRIVATE, &pri, &key));
+   DO(ecc_import_pkcs8(short_pric_pkcs8, sizeof(short_pric_pkcs8), NULL, &key));
+   DO(ecc_key_cmp(PK_PRIVATE, &pri, &key));
    ecc_free(&key);
 
    /* import - private PKCS8 format - password protected (PBES1 algorithms) */
 #ifdef LTC_MD2
-   DO(ecc_import_pkcs8(long_pri_pkcs8_pbe_md2_des, sizeof(long_pri_pkcs8_pbe_md2_des), "secret", 6, &key));
-   DO(s_ecc_key_cmp(PK_PRIVATE, &pri, &key));
+   DO(ecc_import_pkcs8(long_pri_pkcs8_pbe_md2_des, sizeof(long_pri_pkcs8_pbe_md2_des), &pw_ctx, &key));
+   DO(ecc_key_cmp(PK_PRIVATE, &pri, &key));
    ecc_free(&key);
 #endif
 #ifdef LTC_MD5
-   DO(ecc_import_pkcs8(long_pri_pkcs8_pbe_md5_des, sizeof(long_pri_pkcs8_pbe_md5_des), "secret", 6, &key));
-   DO(s_ecc_key_cmp(PK_PRIVATE, &pri, &key));
+   DO(ecc_import_pkcs8(long_pri_pkcs8_pbe_md5_des, sizeof(long_pri_pkcs8_pbe_md5_des), &pw_ctx, &key));
+   DO(ecc_key_cmp(PK_PRIVATE, &pri, &key));
    ecc_free(&key);
 #endif
 #ifdef LTC_SHA1
-   DO(ecc_import_pkcs8(long_pri_pkcs8_pbe_sha1_des, sizeof(long_pri_pkcs8_pbe_sha1_des), "secret", 6, &key));
-   DO(s_ecc_key_cmp(PK_PRIVATE, &pri, &key));
+   DO(ecc_import_pkcs8(long_pri_pkcs8_pbe_sha1_des, sizeof(long_pri_pkcs8_pbe_sha1_des), &pw_ctx, &key));
+   DO(ecc_key_cmp(PK_PRIVATE, &pri, &key));
    ecc_free(&key);
 #endif
 #if defined(LTC_RC2) && defined(LTC_MD2)
-   DO(ecc_import_pkcs8(long_pri_pkcs8_pbe_md2_rc2_64, sizeof(long_pri_pkcs8_pbe_md2_rc2_64), "secret", 6, &key));
-   DO(s_ecc_key_cmp(PK_PRIVATE, &pri, &key));
+   DO(ecc_import_pkcs8(long_pri_pkcs8_pbe_md2_rc2_64, sizeof(long_pri_pkcs8_pbe_md2_rc2_64), &pw_ctx, &key));
+   DO(ecc_key_cmp(PK_PRIVATE, &pri, &key));
    ecc_free(&key);
 #endif
 #if defined(LTC_RC2) && defined(LTC_MD5)
-   DO(ecc_import_pkcs8(long_pri_pkcs8_pbe_md5_rc2_64, sizeof(long_pri_pkcs8_pbe_md5_rc2_64), "secret", 6, &key));
-   DO(s_ecc_key_cmp(PK_PRIVATE, &pri, &key));
+   DO(ecc_import_pkcs8(long_pri_pkcs8_pbe_md5_rc2_64, sizeof(long_pri_pkcs8_pbe_md5_rc2_64), &pw_ctx, &key));
+   DO(ecc_key_cmp(PK_PRIVATE, &pri, &key));
    ecc_free(&key);
 #endif
 #if defined(LTC_RC2) && defined(LTC_SHA1)
-   DO(ecc_import_pkcs8(long_pri_pkcs8_pbe_sha1_rc2_64, sizeof(long_pri_pkcs8_pbe_sha1_rc2_64), "secret", 6, &key));
-   DO(s_ecc_key_cmp(PK_PRIVATE, &pri, &key));
+   DO(ecc_import_pkcs8(long_pri_pkcs8_pbe_sha1_rc2_64, sizeof(long_pri_pkcs8_pbe_sha1_rc2_64), &pw_ctx, &key));
+   DO(ecc_key_cmp(PK_PRIVATE, &pri, &key));
    ecc_free(&key);
 #endif
 
    /* import - private PKCS8 format - password protected (PBES2 algorithms) */
 #if defined(LTC_RC2)
-   DO(ecc_import_pkcs8(long_pri_pkcs8_pbkdf2_rc2_cbc, sizeof(long_pri_pkcs8_pbkdf2_rc2_cbc), "secret", 6, &key));
-   DO(s_ecc_key_cmp(PK_PRIVATE, &pri, &key));
+   DO(ecc_import_pkcs8(long_pri_pkcs8_pbkdf2_rc2_cbc, sizeof(long_pri_pkcs8_pbkdf2_rc2_cbc), &pw_ctx, &key));
+   DO(ecc_key_cmp(PK_PRIVATE, &pri, &key));
    ecc_free(&key);
 #endif
 #if defined(LTC_DES)
-   DO(ecc_import_pkcs8(long_pri_pkcs8_pbkdf2_des_cbc, sizeof(long_pri_pkcs8_pbkdf2_des_cbc), "secret", 6, &key));
-   DO(s_ecc_key_cmp(PK_PRIVATE, &pri, &key));
+   DO(ecc_import_pkcs8(long_pri_pkcs8_pbkdf2_des_cbc, sizeof(long_pri_pkcs8_pbkdf2_des_cbc), &pw_ctx, &key));
+   DO(ecc_key_cmp(PK_PRIVATE, &pri, &key));
    ecc_free(&key);
 #endif
 #if defined(LTC_DES)
-   DO(ecc_import_pkcs8(long_pri_pkcs8_pbkdf2_des_ede3_cbc, sizeof(long_pri_pkcs8_pbkdf2_des_ede3_cbc), "secret", 6, &key));
-   DO(s_ecc_key_cmp(PK_PRIVATE, &pri, &key));
+   DO(ecc_import_pkcs8(long_pri_pkcs8_pbkdf2_des_ede3_cbc, sizeof(long_pri_pkcs8_pbkdf2_des_ede3_cbc), &pw_ctx, &key));
+   DO(ecc_key_cmp(PK_PRIVATE, &pri, &key));
    ecc_free(&key);
 #endif
 #if defined(LTC_SHA224) && defined(LTC_DES)
-   DO(ecc_import_pkcs8(long_pri_pkcs8_pbkdf2_sha224_des_ede3_cbc, sizeof(long_pri_pkcs8_pbkdf2_sha224_des_ede3_cbc), "secret", 6, &key));
-   DO(s_ecc_key_cmp(PK_PRIVATE, &pri, &key));
+   DO(ecc_import_pkcs8(long_pri_pkcs8_pbkdf2_sha224_des_ede3_cbc, sizeof(long_pri_pkcs8_pbkdf2_sha224_des_ede3_cbc), &pw_ctx, &key));
+   DO(ecc_key_cmp(PK_PRIVATE, &pri, &key));
    ecc_free(&key);
 #endif
 #if defined(LTC_SHA256) && defined(LTC_DES)
-   DO(ecc_import_pkcs8(long_pri_pkcs8_pbkdf2_sha256_des_ede3_cbc, sizeof(long_pri_pkcs8_pbkdf2_sha256_des_ede3_cbc), "secret", 6, &key));
-   DO(s_ecc_key_cmp(PK_PRIVATE, &pri, &key));
+   DO(ecc_import_pkcs8(long_pri_pkcs8_pbkdf2_sha256_des_ede3_cbc, sizeof(long_pri_pkcs8_pbkdf2_sha256_des_ede3_cbc), &pw_ctx, &key));
+   DO(ecc_key_cmp(PK_PRIVATE, &pri, &key));
    ecc_free(&key);
 #endif
 #if defined(LTC_SHA384) && defined(LTC_DES)
-   DO(ecc_import_pkcs8(long_pri_pkcs8_pbkdf2_sha384_des_ede3_cbc, sizeof(long_pri_pkcs8_pbkdf2_sha384_des_ede3_cbc), "secret", 6, &key));
-   DO(s_ecc_key_cmp(PK_PRIVATE, &pri, &key));
+   DO(ecc_import_pkcs8(long_pri_pkcs8_pbkdf2_sha384_des_ede3_cbc, sizeof(long_pri_pkcs8_pbkdf2_sha384_des_ede3_cbc), &pw_ctx, &key));
+   DO(ecc_key_cmp(PK_PRIVATE, &pri, &key));
    ecc_free(&key);
 #endif
 #if defined(LTC_SHA512) && defined(LTC_DES)
-   DO(ecc_import_pkcs8(long_pri_pkcs8_pbkdf2_sha512_des_ede3_cbc, sizeof(long_pri_pkcs8_pbkdf2_sha512_des_ede3_cbc), "secret", 6, &key));
-   DO(s_ecc_key_cmp(PK_PRIVATE, &pri, &key));
+   DO(ecc_import_pkcs8(long_pri_pkcs8_pbkdf2_sha512_des_ede3_cbc, sizeof(long_pri_pkcs8_pbkdf2_sha512_des_ede3_cbc), &pw_ctx, &key));
+   DO(ecc_key_cmp(PK_PRIVATE, &pri, &key));
    ecc_free(&key);
 #endif
 
    /* import - X.509 EC certificates */
    DO(ecc_import_x509(x509_cert_long,   sizeof(x509_cert_long),   &key));
-   DO(s_ecc_key_cmp(PK_PUBLIC, &pub, &key));
+   DO(ecc_key_cmp(PK_PUBLIC, &pub, &key));
    ecc_free(&key);
    DO(ecc_import_x509(x509_cert_longc,  sizeof(x509_cert_longc),  &key));
-   DO(s_ecc_key_cmp(PK_PUBLIC, &pub, &key));
+   DO(ecc_key_cmp(PK_PUBLIC, &pub, &key));
    ecc_free(&key);
    DO(ecc_import_x509(x509_cert_short,  sizeof(x509_cert_short),  &key));
-   DO(s_ecc_key_cmp(PK_PUBLIC, &pub, &key));
+   DO(ecc_key_cmp(PK_PUBLIC, &pub, &key));
    ecc_free(&key);
    DO(ecc_import_x509(x509_cert_shortc, sizeof(x509_cert_shortc), &key));
-   DO(s_ecc_key_cmp(PK_PUBLIC, &pub, &key));
+   DO(ecc_key_cmp(PK_PUBLIC, &pub, &key));
    ecc_free(&key);
 
    /* export - openssl compatible DER format */
    outlen = sizeof(out);
    DO(ecc_export_openssl(out, &outlen, PK_PRIVATE, &pri));
-   if (compare_testvector(out, outlen, long_pri, sizeof(long_pri),   "e-long_pri",   0)) return CRYPT_ERROR;
+   if (compare_testvector(out, outlen, ltc_ecc_long_pri_test_key, sizeof(ltc_ecc_long_pri_test_key),   "e-ltc_ecc_long_pri_test_key",   0)) return CRYPT_ERROR;
    outlen = sizeof(out);
    DO(ecc_export_openssl(out, &outlen, PK_PRIVATE|PK_COMPRESSED, &pri));
    if (compare_testvector(out, outlen, long_pric, sizeof(long_pric),  "e-long_pric",  0)) return CRYPT_ERROR;
@@ -1543,13 +1556,13 @@ static int s_ecc_test_recovery(void)
    DO(ecc_set_curve(dp, &reckey));
    stat = ecc_recover_key(eth_sig, sizeof(eth_sig)-1, eth_hash, sizeof(eth_hash), 0, LTC_ECCSIG_RFC7518, &reckey);
    if (stat != CRYPT_OK) return CRYPT_FAIL_TESTVECTOR;
-   DO(s_ecc_key_cmp(PK_PUBLIC, &pubkey, &reckey));
+   DO(ecc_key_cmp(PK_PUBLIC, &pubkey, &reckey));
    ecc_free(&reckey);
 
    DO(ecc_set_curve(dp, &reckey));
    stat = ecc_recover_key(eth_sig, sizeof(eth_sig), eth_hash, sizeof(eth_hash), -1, LTC_ECCSIG_ETH27, &reckey);
    if (stat != CRYPT_OK) return CRYPT_FAIL_TESTVECTOR;
-   DO(s_ecc_key_cmp(PK_PUBLIC, &pubkey, &reckey));
+   DO(ecc_key_cmp(PK_PUBLIC, &pubkey, &reckey));
    ecc_free(&reckey);
 
    ecc_free(&pubkey);
@@ -1594,7 +1607,7 @@ static int s_ecc_test_recovery(void)
       DO(ecc_set_curve(dp, &reckey));
       stat = ecc_recover_key(buf, len, data16, 16, recid, LTC_ECCSIG_RFC7518, &reckey);
       if (stat != CRYPT_OK) return CRYPT_FAIL_TESTVECTOR;
-      DO(s_ecc_key_cmp(PK_PUBLIC, &pubkey, &reckey));
+      DO(ecc_key_cmp(PK_PUBLIC, &pubkey, &reckey));
 
       /* cleanup */
       ecc_free(&reckey);

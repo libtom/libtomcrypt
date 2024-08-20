@@ -19,6 +19,7 @@ multi_test.c
 no_null_termination_check_test.c
 no_prng.c
 padding_test.c
+pem_test.c
 pkcs_1_eme_test.c
 pkcs_1_emsa_test.c
 pkcs_1_oaep_test.c

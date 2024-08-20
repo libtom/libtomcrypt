@@ -46,7 +46,7 @@ int pk_oid_num_to_str(const unsigned long *oid, unsigned long oidlen, char *OID,
 {
    int i;
    unsigned long j, k;
-   char tmp[256] = { 0 };
+   char tmp[LTC_OID_MAX_STRLEN] = { 0 };
 
    LTC_ARGCHK(oid != NULL);
    LTC_ARGCHK(oidlen < INT_MAX);

@@ -32,7 +32,7 @@
    @return CRYPT_OK on success
 */
 int x509_decode_subject_public_key_info(const unsigned char *in, unsigned long inlen,
-        unsigned int algorithm, void* public_key, unsigned long* public_key_len,
+        enum ltc_oid_id algorithm, void *public_key, unsigned long *public_key_len,
         ltc_asn1_type parameters_type, ltc_asn1_list* parameters, unsigned long *parameters_len)
 {
    int err;

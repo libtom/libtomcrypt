@@ -139,6 +139,13 @@ static int s_rfc_8410_10_test(void)
    return CRYPT_OK;
 }
 
+static int password_get(void **p, unsigned long *l, void *u)
+{
+   *p = strdup(u);
+   *l = strlen(*p);
+   return 0;
+}
+
 static int s_x25519_pkcs8_test(void)
 {
    const struct {
@@ -161,13 +168,15 @@ static int s_x25519_pkcs8_test(void)
    unsigned n;
    curve25519_key key;
    unsigned char buf[1024];
-   unsigned long buflen, passlen;
+   unsigned long buflen;
+   password_ctx *p_pw_ctx, pw_ctx = { .callback = password_get };
    for (n = 0; n < sizeof(s_x25519_pkcs8)/sizeof(s_x25519_pkcs8[0]); ++n) {
       buflen = sizeof(buf);
       DO(base64_decode(s_x25519_pkcs8[n].b64, XSTRLEN(s_x25519_pkcs8[n].b64), buf, &buflen));
-      if (s_x25519_pkcs8[n].pass != NULL) passlen = XSTRLEN(s_x25519_pkcs8[n].pass);
-      else passlen = 0;
-      DO(x25519_import_pkcs8(buf, buflen, s_x25519_pkcs8[n].pass, passlen, &key));
+      pw_ctx.userdata = (void*)s_x25519_pkcs8[n].pass;
+      if (s_x25519_pkcs8[n].pass != NULL) p_pw_ctx = &pw_ctx;
+      else p_pw_ctx = NULL;
+      DO(x25519_import_pkcs8(buf, buflen, p_pw_ctx, &key));
       zeromem(buf, sizeof(buf));
    }
    return CRYPT_OK;
@@ -187,7 +196,7 @@ static int s_x25519_compat_test(void)
    DO(x25519_make_key(&yarrow_prng, prng_idx, &priv));
 
    DO(x25519_export(buf, &buflen, PK_PRIVATE | PK_STD, &priv));
-   DO(x25519_import_pkcs8(buf, buflen, NULL, 0, &imported));
+   DO(x25519_import_pkcs8(buf, buflen, NULL, &imported));
    DO(do_compare_testvector(&priv, sizeof(priv), &imported, sizeof(imported), "priv after ex-&import", __LINE__));
    XMEMSET(&imported, 0, sizeof(imported));
 

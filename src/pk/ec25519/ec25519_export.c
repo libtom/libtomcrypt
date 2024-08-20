@@ -25,6 +25,7 @@ int ec25519_export(       unsigned char *out, unsigned long *outlen,
    const char* OID;
    unsigned long oid[16], oidlen;
    ltc_asn1_list alg_id[1];
+   enum ltc_oid_id oid_id;
    unsigned char private_key[34];
    unsigned long version, private_key_len = sizeof(private_key);
 
@@ -34,12 +35,15 @@ int ec25519_export(       unsigned char *out, unsigned long *outlen,
 
    std = which & PK_STD;
    which &= ~PK_STD;
+   if ((err = pk_get_oid_id(key->pka, &oid_id)) != CRYPT_OK) {
+      return err;
+   }
 
    if (which == PK_PRIVATE) {
       if(key->type != PK_PRIVATE) return CRYPT_PK_INVALID_TYPE;
 
       if (std == PK_STD) {
-         if ((err = pk_get_oid(key->algo, &OID)) != CRYPT_OK) {
+         if ((err = pk_get_oid(oid_id, &OID)) != CRYPT_OK) {
             return err;
          }
          oidlen = sizeof(oid)/sizeof(oid[0]);
@@ -72,7 +76,7 @@ int ec25519_export(       unsigned char *out, unsigned long *outlen,
    } else {
       if (std == PK_STD) {
          /* encode public key as SubjectPublicKeyInfo */
-         err = x509_encode_subject_public_key_info(out, outlen, key->algo, key->pub, 32uL, LTC_ASN1_EOL, NULL, 0);
+         err = x509_encode_subject_public_key_info(out, outlen, oid_id, key->pub, 32uL, LTC_ASN1_EOL, NULL, 0);
       } else {
          if (*outlen < sizeof(key->pub)) {
             err = CRYPT_BUFFER_OVERFLOW;

@@ -97,6 +97,11 @@ struct des_key {
     ulong32 ek[32], dk[32];
 };
 
+struct desx_key {
+    ulong32 ek[32], dk[32];
+    ulong32 k[2][2];
+};
+
 struct des3_key {
     ulong32 ek[3][32], dk[3][32];
 };
@@ -176,6 +181,7 @@ struct tea_key {
 typedef union Symmetric_key {
 #ifdef LTC_DES
    struct des_key des;
+   struct desx_key desx;
    struct des3_key des3;
 #endif
 #ifdef LTC_RC2
@@ -269,6 +275,8 @@ typedef struct {
    int                 cipher,
    /** The block size of the given cipher */
                        blocklen,
+   /** The width of the mode: 1, 8, 64, or 128 */
+                       width,
    /** The padding offset */
                        padlen;
 } symmetric_CFB;
@@ -757,13 +765,19 @@ int des_ecb_decrypt(const unsigned char *ct, unsigned char *pt, const symmetric_
 int des_test(void);
 void des_done(symmetric_key *skey);
 int des_keysize(int *keysize);
+int desx_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_key *skey);
+int desx_ecb_encrypt(const unsigned char *pt, unsigned char *ct, const symmetric_key *skey);
+int desx_ecb_decrypt(const unsigned char *ct, unsigned char *pt, const symmetric_key *skey);
+int desx_test(void);
+void desx_done(symmetric_key *skey);
+int desx_keysize(int *keysize);
 int des3_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_key *skey);
 int des3_ecb_encrypt(const unsigned char *pt, unsigned char *ct, const symmetric_key *skey);
 int des3_ecb_decrypt(const unsigned char *ct, unsigned char *pt, const symmetric_key *skey);
 int des3_test(void);
 void des3_done(symmetric_key *skey);
 int des3_keysize(int *keysize);
-extern const struct ltc_cipher_descriptor des_desc, des3_desc;
+extern const struct ltc_cipher_descriptor des_desc, desx_desc, des3_desc;
 #endif
 
 #ifdef LTC_CAST5
@@ -898,6 +912,8 @@ int ecb_done(symmetric_ECB *ecb);
 #ifdef LTC_CFB_MODE
 int cfb_start(int cipher, const unsigned char *IV, const unsigned char *key,
               int keylen, int num_rounds, symmetric_CFB *cfb);
+int cfb_start_ex(int cipher, const unsigned char *IV, const unsigned char *key,
+                 int keylen, int num_rounds, int width, symmetric_CFB *cfb);
 int cfb_encrypt(const unsigned char *pt, unsigned char *ct, unsigned long len, symmetric_CFB *cfb);
 int cfb_decrypt(const unsigned char *ct, unsigned char *pt, unsigned long len, symmetric_CFB *cfb);
 int cfb_getiv(unsigned char *IV, unsigned long *len, const symmetric_CFB *cfb);

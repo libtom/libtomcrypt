@@ -1,7 +1,47 @@
 /* LibTomCrypt, modular cryptographic library -- Tom St Denis */
 /* SPDX-License-Identifier: Unlicense */
 
+typedef struct password_ctx {
+   /**
+      Callback function that is called when a password is required.
+
+      Please be aware that the library takes ownership of the pointer that is
+      returned to the library via `str`.
+      The data will be zeroed and `free()`'d as soon as it isn't required anymore.
+      c.f. the documentation of the `free()` function pointer for details.
+
+      @param str        Pointer to pointer where the password will be stored.
+      @param len        Pointer to the length of the password.
+      @param userdata   `userdata` that was passed in the `password_ctx` struct.
+      @return CRYPT_OK on success
+   */
+   int (*callback)(void **str, unsigned long *len, void *userdata);
+   /**
+      Optional free function to free the allocated buffer.
+
+      At the point where the value returned by `callback()` is not required
+      anymore the library will free it by either calling this `free()` function
+      or `XFREE()` in case this `free()` function is set to `NULL`.
+
+      @param str        Pointer to the buffer to be free'd.
+   */
+   void (*free)(void *str);
+   /** Opaque `userdata` pointer passed when the callback is called */
+   void *userdata;
+} password_ctx;
+
 /* ---- NUMBER THEORY ---- */
+
+enum ltc_pka_id {
+   LTC_PKA_UNDEF = 0,
+   LTC_PKA_RSA,
+   LTC_PKA_DSA,
+   LTC_PKA_EC,
+   LTC_PKA_X25519,
+   LTC_PKA_ED25519,
+   LTC_PKA_DH,
+   LTC_PKA_NUM
+};
 
 enum public_key_type {
    /* Refers to the public key */
@@ -108,7 +148,7 @@ int rsa_import(const unsigned char *in, unsigned long inlen, rsa_key *key);
 
 int rsa_import_x509(const unsigned char *in, unsigned long inlen, rsa_key *key);
 int rsa_import_pkcs8(const unsigned char *in, unsigned long inlen,
-                     const void *passwd, unsigned long passwdlen, rsa_key *key);
+                     const password_ctx  *pw_ctx, rsa_key *key);
 
 int rsa_set_key(const unsigned char *N,  unsigned long Nlen,
                 const unsigned char *e,  unsigned long elen,
@@ -138,6 +178,8 @@ int dh_get_groupsize(const dh_key *key);
 
 int dh_export(unsigned char *out, unsigned long *outlen, int type, const dh_key *key);
 int dh_import(const unsigned char *in, unsigned long inlen, dh_key *key);
+int dh_import_pkcs8(const unsigned char *in, unsigned long inlen,
+                    const password_ctx  *pw_ctx, dh_key *key);
 
 int dh_set_pg(const unsigned char *p, unsigned long plen,
               const unsigned char *g, unsigned long glen,
@@ -280,7 +322,7 @@ int ecc_ansi_x963_import_ex(const unsigned char *in, unsigned long inlen, ecc_ke
 
 int ecc_export_openssl(unsigned char *out, unsigned long *outlen, int type, const ecc_key *key);
 int ecc_import_openssl(const unsigned char *in, unsigned long inlen, ecc_key *key);
-int ecc_import_pkcs8(const unsigned char *in, unsigned long inlen, const void *pwd, unsigned long pwdlen, ecc_key *key);
+int ecc_import_pkcs8(const unsigned char *in, unsigned long inlen, const password_ctx *pw_ctx, ecc_key *key);
 int ecc_import_x509(const unsigned char *in, unsigned long inlen, ecc_key *key);
 
 int  ecc_shared_secret(const ecc_key *private_key, const ecc_key *public_key,
@@ -328,12 +370,8 @@ typedef struct {
    /** The key type, PK_PRIVATE or PK_PUBLIC */
    enum public_key_type type;
 
-   /** The PK-algorithm, PKA_ED25519 or PKA_X25519 */
-   /** This was supposed to be:
-    * enum public_key_algorithms algo;
-    * but that enum is now in tomcrypt_private.h
-    */
-   int algo;
+   /** The PK-algorithm, LTC_PKA_ED25519 or LTC_PKA_X25519 */
+   enum ltc_pka_id pka;
 
    /** The private key */
    unsigned char priv[32];
@@ -353,9 +391,9 @@ int ed25519_export(       unsigned char *out, unsigned long *outlen,
 int ed25519_import(const unsigned char *in, unsigned long inlen, curve25519_key *key);
 int ed25519_import_raw(const unsigned char *in, unsigned long inlen, int which, curve25519_key *key);
 int ed25519_import_x509(const unsigned char *in, unsigned long inlen, curve25519_key *key);
-int ed25519_import_pkcs8(const unsigned char *in, unsigned long inlen,
-                                  const void *pwd, unsigned long pwdlen,
-                              curve25519_key *key);
+int ed25519_import_pkcs8(const unsigned char  *in, unsigned long inlen,
+                         const password_ctx   *pw_ctx,
+                               curve25519_key *key);
 
 int ed25519_sign(const  unsigned char *msg, unsigned long msglen,
                         unsigned char *sig, unsigned long *siglen,
@@ -393,9 +431,9 @@ int x25519_export(       unsigned char *out, unsigned long *outlen,
 int x25519_import(const unsigned char *in, unsigned long inlen, curve25519_key *key);
 int x25519_import_raw(const unsigned char *in, unsigned long inlen, int which, curve25519_key *key);
 int x25519_import_x509(const unsigned char *in, unsigned long inlen, curve25519_key *key);
-int x25519_import_pkcs8(const unsigned char *in, unsigned long inlen,
-                                 const void *pwd, unsigned long pwdlen,
-                             curve25519_key *key);
+int x25519_import_pkcs8(const unsigned char  *in, unsigned long inlen,
+                        const password_ctx   *pw_ctx,
+                              curve25519_key *key);
 
 int x25519_shared_secret(const curve25519_key *private_key,
                          const curve25519_key *public_key,
@@ -478,12 +516,45 @@ int dsa_decrypt_key(const unsigned char *in,  unsigned long  inlen,
                     const dsa_key       *key);
 
 int dsa_import(const unsigned char *in, unsigned long inlen, dsa_key *key);
+int dsa_import_pkcs8(const unsigned char *in, unsigned long inlen,
+                     const password_ctx  *pw_ctx,
+                     dsa_key *key);
 int dsa_export(unsigned char *out, unsigned long *outlen, int type, const dsa_key *key);
 int dsa_verify_key(const dsa_key *key, int *stat);
 int dsa_shared_secret(void          *private_key, void *base,
                       const dsa_key *public_key,
                       unsigned char *out,         unsigned long *outlen);
 #endif /* LTC_MDSA */
+
+/*
+ * LibTomCrypt tagged-union for holding a Public Key
+ */
+
+typedef struct {
+   union {
+#ifdef LTC_CURVE25519
+      curve25519_key x25519;
+      curve25519_key ed25519;
+#endif
+#ifdef LTC_MDH
+      dh_key dh;
+#endif
+#ifdef LTC_MDSA
+      dsa_key dsa;
+#endif
+#ifdef LTC_MECC
+      ecc_key ecc;
+#endif
+#ifdef LTC_MRSA
+      rsa_key rsa;
+#endif
+      char dummy;
+   } u;
+   enum ltc_pka_id id;
+} ltc_pka_key;
+
+void pka_key_free(ltc_pka_key *key);
+void pka_key_destroy(ltc_pka_key **key);
 
 #ifdef LTC_DER
 /* DER handling */
