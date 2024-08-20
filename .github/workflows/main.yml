@@ -17,13 +17,13 @@ jobs:
     runs-on: ubuntu-20.04
     container: texlive/texlive:latest-medium
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: generate PDF
         run: |
           make docs
           cp doc/crypt.pdf crypt-${{ github.run_id }}.pdf
       - name: upload PDF
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: crypt-${{ github.run_id }}.pdf
           path: crypt-${{ github.run_id }}.pdf
@@ -53,7 +53,7 @@ jobs:
           - { BUILDNAME: 'STOCK+ARGTYPE=3',         BUILDOPTIONS: '-DARGTYPE=3',                                                          BUILDSCRIPT: '.ci/run.sh' }
           - { BUILDNAME: 'STOCK+ARGTYPE=4',         BUILDOPTIONS: '-DARGTYPE=4',                                                          BUILDSCRIPT: '.ci/run.sh' }
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: install dependencies
         run: |
           sudo apt-get update -qq
@@ -89,7 +89,7 @@ jobs:
           tar cJf build-${{ github.run_id }}.tar.xz --exclude ./build-${{ github.run_id }}.tar.xz .
       - name: upload Artifact
         if: ${{ failure() }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: build-${{ github.run_id }}.tar.xz
           path: build-${{ github.run_id }}.tar.xz
