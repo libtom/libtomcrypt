@@ -682,3 +682,14 @@ int which ## _export(unsigned char *out, unsigned long *outlen, prng_state *prng
 #else
    #define LTC_BYTE(x, n) (((x) >> (8 * (n))) & 255)
 #endif
+
+/*
+ * On Windows, choose whether to use CryptGenRandom() [older Windows versions]
+ * or BCryptGenRandom() [newer Windows versions].
+ * If CryptGenRandom() is desired, define LTC_NO_WIN32_BCRYPT when building.
+ */
+#if defined(_MSC_VER) && defined(_WIN32_WINNT) && _WIN32_WINNT >= 0x0600
+   #if !defined(LTC_NO_WIN32_BCRYPT)
+      #define LTC_WIN32_BCRYPT
+   #endif
+#endif
