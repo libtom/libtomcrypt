@@ -33,14 +33,14 @@ src/ciphers/aes/aes_enc_desc.obj src/ciphers/aes/aesni.obj src/ciphers/anubis.ob
 src/ciphers/camellia.obj src/ciphers/cast5.obj src/ciphers/des.obj src/ciphers/idea.obj src/ciphers/kasumi.obj \
 src/ciphers/khazad.obj src/ciphers/kseed.obj src/ciphers/multi2.obj src/ciphers/noekeon.obj src/ciphers/rc2.obj \
 src/ciphers/rc5.obj src/ciphers/rc6.obj src/ciphers/safer/safer.obj src/ciphers/safer/saferp.obj \
-src/ciphers/serpent.obj src/ciphers/skipjack.obj src/ciphers/tea.obj src/ciphers/twofish/twofish.obj \
-src/ciphers/xtea.obj src/encauth/ccm/ccm_add_aad.obj src/encauth/ccm/ccm_add_nonce.obj \
-src/encauth/ccm/ccm_done.obj src/encauth/ccm/ccm_init.obj src/encauth/ccm/ccm_memory.obj \
-src/encauth/ccm/ccm_process.obj src/encauth/ccm/ccm_reset.obj src/encauth/ccm/ccm_test.obj \
-src/encauth/chachapoly/chacha20poly1305_add_aad.obj src/encauth/chachapoly/chacha20poly1305_decrypt.obj \
-src/encauth/chachapoly/chacha20poly1305_done.obj src/encauth/chachapoly/chacha20poly1305_encrypt.obj \
-src/encauth/chachapoly/chacha20poly1305_init.obj src/encauth/chachapoly/chacha20poly1305_memory.obj \
-src/encauth/chachapoly/chacha20poly1305_setiv.obj \
+src/ciphers/serpent.obj src/ciphers/skipjack.obj src/ciphers/sm4.obj src/ciphers/tea.obj \
+src/ciphers/twofish/twofish.obj src/ciphers/xtea.obj src/encauth/ccm/ccm_add_aad.obj \
+src/encauth/ccm/ccm_add_nonce.obj src/encauth/ccm/ccm_done.obj src/encauth/ccm/ccm_init.obj \
+src/encauth/ccm/ccm_memory.obj src/encauth/ccm/ccm_process.obj src/encauth/ccm/ccm_reset.obj \
+src/encauth/ccm/ccm_test.obj src/encauth/chachapoly/chacha20poly1305_add_aad.obj \
+src/encauth/chachapoly/chacha20poly1305_decrypt.obj src/encauth/chachapoly/chacha20poly1305_done.obj \
+src/encauth/chachapoly/chacha20poly1305_encrypt.obj src/encauth/chachapoly/chacha20poly1305_init.obj \
+src/encauth/chachapoly/chacha20poly1305_memory.obj src/encauth/chachapoly/chacha20poly1305_setiv.obj \
 src/encauth/chachapoly/chacha20poly1305_setiv_rfc7905.obj \
 src/encauth/chachapoly/chacha20poly1305_test.obj src/encauth/eax/eax_addheader.obj \
 src/encauth/eax/eax_decrypt.obj src/encauth/eax/eax_decrypt_verify_memory.obj src/encauth/eax/eax_done.obj \
