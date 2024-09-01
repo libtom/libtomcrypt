@@ -20,18 +20,18 @@ extern const unsigned long pem_dek_infos_num;
 #ifndef LTC_NO_FILE
 int pem_get_char_from_file(struct get_char *g)
 {
-   return getc(g->f);
+   return getc(g->data.f);
 }
 #endif /* LTC_NO_FILE */
 
 int pem_get_char_from_buf(struct get_char *g)
 {
    int ret;
-   if (g->buf.work == g->buf.end) {
+   if (g->data.buf.work == g->data.buf.end) {
       return -1;
    }
-   ret = *g->buf.work;
-   g->buf.work++;
+   ret = *g->data.buf.work;
+   g->data.buf.work++;
    return ret;
 }
 
