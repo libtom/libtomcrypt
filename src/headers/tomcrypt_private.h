@@ -347,7 +347,7 @@ struct get_char {
       FILE *f;
 #endif /* LTC_NO_FILE */
       struct bufp buf;
-   };
+   } data;
    struct str unget_buf;
    char unget_buf_[LTC_PEM_DECODE_BUFSZ];
 };

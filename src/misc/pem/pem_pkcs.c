@@ -272,7 +272,7 @@ int pem_decode_pkcs_filehandle(FILE *f, ltc_pka_key *k, const password_ctx *pw_c
    LTC_ARGCHK(f != NULL);
    LTC_ARGCHK(k != NULL);
    {
-      struct get_char g = { .get = pem_get_char_from_file, .f = f };
+      struct get_char g = { .get = pem_get_char_from_file, .data.f = f };
       return s_decode(&g, k, pw_ctx);
    }
 }
@@ -284,7 +284,7 @@ int pem_decode_pkcs(const void *buf, unsigned long len, ltc_pka_key *k, const pa
    LTC_ARGCHK(len != 0);
    LTC_ARGCHK(k != NULL);
    {
-      struct get_char g = { .get = pem_get_char_from_buf, SET_BUFP(.buf, buf, len) };
+      struct get_char g = { .get = pem_get_char_from_buf, SET_BUFP(.data.buf, buf, len) };
       return s_decode(&g, k, pw_ctx);
    }
 }
