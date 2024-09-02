@@ -49,7 +49,7 @@ const struct ltc_cipher_descriptor aes_enc_desc =
 #endif
 
 /* Code partially borrowed from https://software.intel.com/content/www/us/en/develop/articles/intel-sha-extensions.html */
-#if defined(LTC_HAS_AES_NI)
+#if defined(LTC_AES_NI)
 static LTC_INLINE int s_aesni_is_supported(void)
 {
    static int initialized = 0, is_supported = 0;
@@ -57,7 +57,7 @@ static LTC_INLINE int s_aesni_is_supported(void)
    if (initialized == 0) {
       int a, b, c, d;
 
-      /* Look for CPUID.1.0.ECX[25]
+      /* Look for CPUID.1.0.ECX[19] (SSE4.1) and CPUID.1.0.ECX[25] (AES-NI)
        * EAX = 1, ECX = 0
        */
       a = 1;
@@ -68,7 +68,7 @@ static LTC_INLINE int s_aesni_is_supported(void)
            :"a"(a), "c"(c)
           );
 
-      is_supported = ((c >> 25) & 1);
+      is_supported = ((c >> 19) & 1) && ((c >> 25) & 1);
       initialized = 1;
    }
 
@@ -93,7 +93,7 @@ int aesni_is_supported(void)
  */
 int AES_SETUP(const unsigned char *key, int keylen, int num_rounds, symmetric_key *skey)
 {
-#ifdef LTC_HAS_AES_NI
+#ifdef LTC_AES_NI
    if (s_aesni_is_supported()) {
       return aesni_setup(key, keylen, num_rounds, skey);
    }
@@ -111,7 +111,7 @@ int AES_SETUP(const unsigned char *key, int keylen, int num_rounds, symmetric_ke
 */
 int AES_ENC(const unsigned char *pt, unsigned char *ct, const symmetric_key *skey)
 {
-#ifdef LTC_HAS_AES_NI
+#ifdef LTC_AES_NI
    if (s_aesni_is_supported()) {
       return aesni_ecb_encrypt(pt, ct, skey);
    }
@@ -130,7 +130,7 @@ int AES_ENC(const unsigned char *pt, unsigned char *ct, const symmetric_key *ske
 */
 int AES_DEC(const unsigned char *ct, unsigned char *pt, const symmetric_key *skey)
 {
-#ifdef LTC_HAS_AES_NI
+#ifdef LTC_AES_NI
    if (s_aesni_is_supported()) {
       return aesni_ecb_decrypt(ct, pt, skey);
    }

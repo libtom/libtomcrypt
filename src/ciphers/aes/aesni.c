@@ -9,7 +9,7 @@
 
 #include "tomcrypt_private.h"
 
-#if defined(LTC_HAS_AES_NI)
+#if defined(LTC_AES_NI)
 
 const struct ltc_cipher_descriptor aesni_desc =
 {
@@ -42,6 +42,7 @@ static const ulong32 rcon[] = {
     @param skey The key in as scheduled by this function.
     @return CRYPT_OK if successful
  */
+LTC_ATTRIBUTE((__target__("aes,sse4.1")))
 int aesni_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_key *skey)
 {
    int i;
@@ -168,6 +169,7 @@ int aesni_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_
   @param skey The key as scheduled
   @return CRYPT_OK if successful
 */
+LTC_ATTRIBUTE((__target__("aes")))
 #ifdef LTC_CLEAN_STACK
 static int s_aesni_ecb_encrypt(const unsigned char *pt, unsigned char *ct, const symmetric_key *skey)
 #else
@@ -219,6 +221,7 @@ int aesni_ecb_encrypt(const unsigned char *pt, unsigned char *ct, const symmetri
   @param skey The key as scheduled
   @return CRYPT_OK if successful
 */
+LTC_ATTRIBUTE((__target__("aes")))
 #ifdef LTC_CLEAN_STACK
 static int s_aesni_ecb_decrypt(const unsigned char *ct, unsigned char *pt, const symmetric_key *skey)
 #else
