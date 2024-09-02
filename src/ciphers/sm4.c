@@ -28,7 +28,7 @@ typedef ulong32 sm4_u32_t;
  * S-box defined in section 6.2
  * (1) Nonlinear transformation
  */
-static const sm4_u8_t sbox_table[16][16] = {
+static const sm4_u8_t sm4_sbox_table[16][16] = {
     {0xd6, 0x90, 0xe9, 0xfe, 0xcc, 0xe1, 0x3d, 0xb7,
         0x16, 0xb6, 0x14, 0xc2, 0x28, 0xfb, 0x2c, 0x05},
     {0x2b, 0x67, 0x9a, 0x76, 0x2a, 0xbe, 0x04, 0xc3,
@@ -67,9 +67,9 @@ static const sm4_u8_t sbox_table[16][16] = {
  * S-box
  * defined in section 2.6 S-box
  */
-LTC_INLINE static sm4_u8_t sbox(sm4_u8_t a)
+LTC_INLINE static sm4_u8_t s_sm4_sbox(sm4_u8_t a)
 {
-    return sbox_table[(a >> 4) & 0x0f][a & 0x0f];
+    return sm4_sbox_table[(a >> 4) & 0x0f][a & 0x0f];
 }
 
 /*
@@ -80,17 +80,17 @@ LTC_INLINE static sm4_u8_t sbox(sm4_u8_t a)
  * But we just convert a 32bit word byte by byte.
  * So it's OK if we don't convert the endian order
  */
-LTC_INLINE static sm4_u32_t t(sm4_u32_t A)
+LTC_INLINE static sm4_u32_t s_sm4_t(sm4_u32_t A)
 {
     sm4_u8_t  a[4];
     sm4_u8_t  b[4];
     sm4_u32_t B;
 
     STORE32H(A, a);
-    b[0] = sbox(a[0]);
-    b[1] = sbox(a[1]);
-    b[2] = sbox(a[2]);
-    b[3] = sbox(a[3]);
+    b[0] = s_sm4_sbox(a[0]);
+    b[1] = s_sm4_sbox(a[1]);
+    b[2] = s_sm4_sbox(a[2]);
+    b[3] = s_sm4_sbox(a[3]);
     LOAD32H(B, b);
     return B;
 }
@@ -98,7 +98,7 @@ LTC_INLINE static sm4_u32_t t(sm4_u32_t A)
 /*
  * defined in section 6.2 (2) Linear transformation L
  */
-LTC_INLINE static sm4_u32_t L(sm4_u32_t B)
+LTC_INLINE static sm4_u32_t s_sm4_L62(sm4_u32_t B)
 {
     return B ^ ROLc(B, 2) ^ ROLc(B, 10) ^ ROLc(B, 18) ^ ROLc(B, 24);
 }
@@ -106,15 +106,15 @@ LTC_INLINE static sm4_u32_t L(sm4_u32_t B)
 /*
  * defined in section 6.2 Permutation T
  */
-LTC_INLINE static sm4_u32_t T(sm4_u32_t Z)
+LTC_INLINE static sm4_u32_t s_sm4_T62(sm4_u32_t Z)
 {
-    return L(t(Z));
+    return s_sm4_L62(s_sm4_t(Z));
 }
 
 /*
  * defined in section 7.3 (2) The system parameter FK
  */
-static const sm4_u32_t FK[4] = {
+static const sm4_u32_t sm4_FK[4] = {
     0xa3b1bac6, 0x56aa3350, 0x677d9197, 0xb27022dc
 };
 
@@ -122,7 +122,7 @@ static const sm4_u32_t FK[4] = {
  * defined in section 7.3 (3) The fixed parameter CK
  * The fixed parameter CK is used in the key expansion algorithm
  */
-static const sm4_u32_t CK[32] =
+static const sm4_u32_t sm4_CK[32] =
 {
     0x00070e15, 0x1c232a31, 0x383f464d, 0x545b6269,
     0x70777e85, 0x8c939aa1, 0xa8afb6bd, 0xc4cbd2d9,
@@ -137,7 +137,7 @@ static const sm4_u32_t CK[32] =
 /*
  * defined in section 7.3 (1) L'
  */
-LTC_INLINE static sm4_u32_t _L(sm4_u32_t B)
+LTC_INLINE static sm4_u32_t s_sm4_L73(sm4_u32_t B)
 {
     return B ^ ROLc(B, 13) ^ ROLc(B, 23);
 }
@@ -145,15 +145,15 @@ LTC_INLINE static sm4_u32_t _L(sm4_u32_t B)
 /*
  * defined in section 7.3 (1) T'
  */
-LTC_INLINE static sm4_u32_t _T(sm4_u32_t Z)
+LTC_INLINE static sm4_u32_t s_sm4_T73(sm4_u32_t Z)
 {
-    return _L(t(Z));
+    return s_sm4_L73(s_sm4_t(Z));
 }
 
 /*
  * defined in section 7.3 Key Expansion
  */
-LTC_INLINE static void mk2rk(sm4_u32_t rk[32], sm4_u8_t mk[16])
+LTC_INLINE static void s_sm4_mk2rk(sm4_u32_t rk[32], sm4_u8_t mk[16])
 {
     sm4_u32_t MK[4] = { 0 };
     sm4_u32_t K[4+32] = { 0 };
@@ -165,9 +165,9 @@ LTC_INLINE static void mk2rk(sm4_u32_t rk[32], sm4_u8_t mk[16])
     LOAD32H(MK[3], mk + 12);
 
     for (i = 0; i < 4; ++i)
-        K[i] = MK[i] ^ FK[i];
+        K[i] = MK[i] ^ sm4_FK[i];
     for (i = 0; i < 32; ++i)
-        K[i+4] = K[i] ^ _T(K[i+1] ^ K[i+2] ^ K[i+3] ^ CK[i]);
+        K[i+4] = K[i] ^ s_sm4_T73(K[i+1] ^ K[i+2] ^ K[i+3] ^ sm4_CK[i]);
     for (i = 0; i < 32; ++i)
         rk[i] = K[i+4];
 }
@@ -175,15 +175,15 @@ LTC_INLINE static void mk2rk(sm4_u32_t rk[32], sm4_u8_t mk[16])
 /*
  * defined in section 6 Round Function F
  */
-LTC_INLINE static sm4_u32_t F(sm4_u32_t X[4], sm4_u32_t rk)
+LTC_INLINE static sm4_u32_t s_sm4_F(sm4_u32_t X[4], sm4_u32_t rk)
 {
-    return X[0] ^ T(X[1] ^ X[2] ^ X[3] ^ rk);
+    return X[0] ^ s_sm4_T62(X[1] ^ X[2] ^ X[3] ^ rk);
 }
 
 /*
  * defined in section 7.1 (2) The reverse transformation
  */
-LTC_INLINE static void R(sm4_u32_t Y[4], sm4_u32_t X[32+4])
+LTC_INLINE static void s_sm4_R(sm4_u32_t Y[4], sm4_u32_t X[32+4])
 {
     Y[0] = X[35];
     Y[1] = X[34];
@@ -194,20 +194,20 @@ LTC_INLINE static void R(sm4_u32_t Y[4], sm4_u32_t X[32+4])
 /*
  * defined in section 7.1 (En)cryption
  */
-LTC_INLINE static void sm4_crypt(sm4_u32_t Y[4], sm4_u32_t X[4+32], const sm4_u32_t rk[32])
+LTC_INLINE static void s_sm4_crypt(sm4_u32_t Y[4], sm4_u32_t X[4+32], const sm4_u32_t rk[32])
 {
     int i;
 
     for (i = 0; i < 32; ++i)
-        X[i+4] = F(X+i, rk[i]);
-    R(Y, X);
+        X[i+4] = s_sm4_F(X+i, rk[i]);
+    s_sm4_R(Y, X);
 }
 
-LTC_INLINE static void sm4_setkey(struct sm4_key *sm4, const unsigned char *key)
+LTC_INLINE static void s_sm4_setkey(struct sm4_key *sm4, const unsigned char *key)
 {
     int i;
 
-    mk2rk(sm4->ek,(void*)key);
+    s_sm4_mk2rk(sm4->ek,(void*)key);
     /*swap key sequence when decrypt cipher*/
     for (i = 0; i < 32; ++i)
         sm4->dk[i] = sm4->ek[32 - 1 - i];
@@ -222,14 +222,14 @@ int sm4_setup(const unsigned char *key, int keylen,
         return CRYPT_INVALID_ROUNDS;
     if (keylen != 16)
         return CRYPT_INVALID_KEYSIZE;
-    sm4_setkey(&(skey->sm4), key);
+    s_sm4_setkey(&(skey->sm4), key);
     return CRYPT_OK;
 }
 
 /*
  * SM4 encryption.
  */
-LTC_INLINE static void sm4_do(void *output, const void *input, const sm4_u32_t rk[32])
+LTC_INLINE static void s_sm4_do(void *output, const void *input, const sm4_u32_t rk[32])
 {
     sm4_u32_t Y[4];
     sm4_u32_t X[32+4];
@@ -239,7 +239,7 @@ LTC_INLINE static void sm4_do(void *output, const void *input, const sm4_u32_t r
     LOAD32H(X[2], (sm4_u8_t *)input +  8);
     LOAD32H(X[3], (sm4_u8_t *)input + 12);
 
-    sm4_crypt(Y, X, rk);
+    s_sm4_crypt(Y, X, rk);
 
     STORE32H(Y[0], (sm4_u8_t *)output     );
     STORE32H(Y[1], (sm4_u8_t *)output +  4);
@@ -253,7 +253,7 @@ int sm4_ecb_encrypt(const unsigned char *pt, unsigned char *ct,
     LTC_ARGCHK(pt   != NULL);
     LTC_ARGCHK(ct   != NULL);
     LTC_ARGCHK(skey != NULL);
-    sm4_do(ct, pt, skey->sm4.ek);
+    s_sm4_do(ct, pt, skey->sm4.ek);
     return CRYPT_OK;
 }
 int sm4_ecb_decrypt(const unsigned char *ct, unsigned char *pt,
@@ -262,7 +262,7 @@ int sm4_ecb_decrypt(const unsigned char *ct, unsigned char *pt,
     LTC_ARGCHK(pt   != NULL);
     LTC_ARGCHK(ct   != NULL);
     LTC_ARGCHK(skey != NULL);
-    sm4_do(pt, ct, skey->sm4.dk);
+    s_sm4_do(pt, ct, skey->sm4.dk);
     return CRYPT_OK;
 }
 
@@ -284,6 +284,7 @@ int sm4_keysize(int *keysize)
  * libtomcrypt interface is used
  */
 
+#ifdef LTC_TEST
 static int sm4_self_test_ltc(void)
 {
     int result;
@@ -348,6 +349,7 @@ static int sm4_self_test_ltc(void)
 
     return result;
 }
+#endif
 
 int sm4_test(void)
 {
