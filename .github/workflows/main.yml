@@ -38,7 +38,7 @@ jobs:
           - { BUILDNAME: 'VALGRIND',                BUILDOPTIONS: '',                                                                     BUILDSCRIPT: '.ci/valgrind.sh' }
           - { BUILDNAME: 'STOCK',                   BUILDOPTIONS: '',                                                                     BUILDSCRIPT: '.ci/run.sh' }
           - { BUILDNAME: 'STOCK-MPI',               BUILDOPTIONS: '-ULTM_DESC -UTFM_DESC -UUSE_LTM -UUSE_TFM',                            BUILDSCRIPT: '.ci/run.sh' }
-          - { BUILDNAME: 'STOCK+AESNI',             BUILDOPTIONS: '-msse4.1 -maes',                                                       BUILDSCRIPT: '.ci/run.sh' }
+          - { BUILDNAME: 'STOCK+AESNI',             BUILDOPTIONS: '-DLTC_AES_NI',                                                         BUILDSCRIPT: '.ci/run.sh' }
           - { BUILDNAME: 'EASY',                    BUILDOPTIONS: '-DLTC_EASY',                                                           BUILDSCRIPT: '.ci/run.sh' }
           - { BUILDNAME: 'SMALL',                   BUILDOPTIONS: '-DLTC_SMALL_CODE',                                                     BUILDSCRIPT: '.ci/run.sh' }
           - { BUILDNAME: 'NO_TABLES',               BUILDOPTIONS: '-DLTC_NO_TABLES',                                                      BUILDSCRIPT: '.ci/run.sh' }
