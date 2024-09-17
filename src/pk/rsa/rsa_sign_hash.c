@@ -78,7 +78,8 @@ int rsa_sign_hash_ex(const unsigned char *in,       unsigned long  inlen,
     }
   } else {
     /* PKCS #1 v1.5 pad the hash */
-    unsigned char *tmpin;
+    unsigned char *tmpin = NULL;
+    const unsigned char *tmpin_ro;
 
     if (padding == LTC_PKCS_1_V1_5) {
       ltc_asn1_list digestinfo[2], siginfo[2];
@@ -111,14 +112,15 @@ int rsa_sign_hash_ex(const unsigned char *in,       unsigned long  inlen,
          XFREE(tmpin);
          return err;
       }
+      tmpin_ro = tmpin;
     } else {
       /* set the pointer and data-length to the input values */
-      tmpin = (unsigned char *)in;
+      tmpin_ro = in;
       y = inlen;
     }
 
     x = *outlen;
-    err = pkcs_1_v1_5_encode(tmpin, y, LTC_PKCS_1_EMSA, modulus_bitlen, NULL, 0, out, &x);
+    err = pkcs_1_v1_5_encode(tmpin_ro, y, LTC_PKCS_1_EMSA, modulus_bitlen, NULL, 0, out, &x);
 
     if (padding == LTC_PKCS_1_V1_5) {
       XFREE(tmpin);

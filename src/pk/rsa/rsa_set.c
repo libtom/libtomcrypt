@@ -31,10 +31,10 @@ int rsa_set_key(const unsigned char *N,  unsigned long Nlen,
 
    if ((err = rsa_init(key)) != CRYPT_OK) return err;
 
-   if ((err = mp_read_unsigned_bin(key->N , (unsigned char *)N , Nlen)) != CRYPT_OK)    { goto LBL_ERR; }
-   if ((err = mp_read_unsigned_bin(key->e , (unsigned char *)e , elen)) != CRYPT_OK)    { goto LBL_ERR; }
+   if ((err = mp_read_unsigned_bin(key->N , N , Nlen)) != CRYPT_OK)                     { goto LBL_ERR; }
+   if ((err = mp_read_unsigned_bin(key->e , e , elen)) != CRYPT_OK)                     { goto LBL_ERR; }
    if (d && dlen) {
-      if ((err = mp_read_unsigned_bin(key->d , (unsigned char *)d , dlen)) != CRYPT_OK) { goto LBL_ERR; }
+      if ((err = mp_read_unsigned_bin(key->d , d , dlen)) != CRYPT_OK)                  { goto LBL_ERR; }
       key->type = PK_PRIVATE;
    }
    else {
@@ -72,8 +72,8 @@ int rsa_set_factors(const unsigned char *p,  unsigned long plen,
 
    if (key->type != PK_PRIVATE) return CRYPT_PK_TYPE_MISMATCH;
 
-   if ((err = mp_read_unsigned_bin(key->p , (unsigned char *)p , plen)) != CRYPT_OK) { goto LBL_ERR; }
-   if ((err = mp_read_unsigned_bin(key->q , (unsigned char *)q , qlen)) != CRYPT_OK) { goto LBL_ERR; }
+   if ((err = mp_read_unsigned_bin(key->p , p , plen)) != CRYPT_OK)                  { goto LBL_ERR; }
+   if ((err = mp_read_unsigned_bin(key->q , q , qlen)) != CRYPT_OK)                  { goto LBL_ERR; }
    return CRYPT_OK;
 
 LBL_ERR:
@@ -110,9 +110,9 @@ int rsa_set_crt_params(const unsigned char *dP, unsigned long dPlen,
 
    if (key->type != PK_PRIVATE) return CRYPT_PK_TYPE_MISMATCH;
 
-   if ((err = mp_read_unsigned_bin(key->dP, (unsigned char *)dP, dPlen)) != CRYPT_OK) { goto LBL_ERR; }
-   if ((err = mp_read_unsigned_bin(key->dQ, (unsigned char *)dQ, dQlen)) != CRYPT_OK) { goto LBL_ERR; }
-   if ((err = mp_read_unsigned_bin(key->qP, (unsigned char *)qP, qPlen)) != CRYPT_OK) { goto LBL_ERR; }
+   if ((err = mp_read_unsigned_bin(key->dP, dP, dPlen)) != CRYPT_OK)                  { goto LBL_ERR; }
+   if ((err = mp_read_unsigned_bin(key->dQ, dQ, dQlen)) != CRYPT_OK)                  { goto LBL_ERR; }
+   if ((err = mp_read_unsigned_bin(key->qP, qP, qPlen)) != CRYPT_OK)                  { goto LBL_ERR; }
    return CRYPT_OK;
 
 LBL_ERR:
