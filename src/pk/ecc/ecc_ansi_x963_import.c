@@ -43,7 +43,7 @@ int ecc_ansi_x963_import_ex(const unsigned char *in, unsigned long inlen, ecc_ke
    }
 
    /* load public key */
-   if ((err = ecc_set_key((unsigned char *)in, inlen, PK_PUBLIC, key)) != CRYPT_OK) { return err; }
+   if ((err = ecc_set_key(in, inlen, PK_PUBLIC, key)) != CRYPT_OK)                  { return err; }
 
    /* we're done */
    return CRYPT_OK;

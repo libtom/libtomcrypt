@@ -21,14 +21,14 @@ int ltc_ecc_import_point(const unsigned char *in, unsigned long inlen, void *pri
    if (in[0] == 0x04 && (inlen&1) && ((inlen-1)>>1) == size) {
       /* read uncompressed point */
       /* load x */
-      if ((err = mp_read_unsigned_bin(x, (unsigned char *)in+1, size)) != CRYPT_OK)      { goto cleanup; }
+      if ((err = mp_read_unsigned_bin(x, in+1, size)) != CRYPT_OK)                       { goto cleanup; }
       /* load y */
-      if ((err = mp_read_unsigned_bin(y, (unsigned char *)in+1+size, size)) != CRYPT_OK) { goto cleanup; }
+      if ((err = mp_read_unsigned_bin(y, in+1+size, size)) != CRYPT_OK)                  { goto cleanup; }
    }
    else if ((in[0] == 0x02 || in[0] == 0x03) && (inlen-1) == size && ltc_mp.sqrtmod_prime != NULL) {
       /* read compressed point - BEWARE: requires sqrtmod_prime */
       /* load x */
-      if ((err = mp_read_unsigned_bin(x, (unsigned char *)in+1, size)) != CRYPT_OK)      { goto cleanup; }
+      if ((err = mp_read_unsigned_bin(x, in+1, size)) != CRYPT_OK)                       { goto cleanup; }
       /* compute x^3 */
       if ((err = mp_sqr(x, t1)) != CRYPT_OK)                                             { goto cleanup; }
       if ((err = mp_mulmod(t1, x, prime, t1)) != CRYPT_OK)                               { goto cleanup; }
