@@ -9,7 +9,7 @@
  * a point at infinity is any point (x,y,0) such that y^2 == x^3, except (0,0,0)
  */
 
-int ltc_ecc_is_point_at_infinity(const ecc_point *P, void *modulus, int *retval)
+int ltc_ecc_is_point_at_infinity(const ecc_point *P, const void *modulus, int *retval)
 {
    int err;
    void  *x3, *y2;

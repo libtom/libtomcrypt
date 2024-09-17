@@ -19,11 +19,12 @@
    @param k    The scalar to multiply by
    @param G    The base point
    @param R    [out] Destination for kG
+   @param a    ECC curve parameter a
    @param modulus  The modulus of the field the ECC curve is in
    @param map      Boolean whether to map back to affine or not (1==map, 0 == leave in projective)
    @return CRYPT_OK on success
 */
-int ltc_ecc_mulmod(void *k, const ecc_point *G, ecc_point *R, void *a, void *modulus, int map)
+int ltc_ecc_mulmod(const void *k, const ecc_point *G, ecc_point *R, const void *a, const void *modulus, int map)
 {
    ecc_point *tG, *M[8];
    int        i, j, err, inf;

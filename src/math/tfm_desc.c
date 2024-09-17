@@ -51,15 +51,18 @@ static void deinit(void *a)
    XFREE(a);
 }
 
-static int neg(void *a, void *b)
+static int neg(const void *a, void *b)
 {
+   /* fp_neg() is a macro that accesses the internals of the b */
+   fp_int *tmpb = b;
+
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
-   fp_neg(((fp_int*)a), ((fp_int*)b));
+   fp_neg(a, tmpb);
    return CRYPT_OK;
 }
 
-static int copy(void *a, void *b)
+static int copy(const void *a, void *b)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
@@ -67,7 +70,7 @@ static int copy(void *a, void *b)
    return CRYPT_OK;
 }
 
-static int init_copy(void **a, void *b)
+static int init_copy(void **a, const void *b)
 {
    if (init(a) != CRYPT_OK) {
       return CRYPT_MEM;
@@ -83,31 +86,31 @@ static int set_int(void *a, ltc_mp_digit b)
    return CRYPT_OK;
 }
 
-static unsigned long get_int(void *a)
+static unsigned long get_int(const void *a)
 {
-   fp_int *A;
+   const fp_int *A;
    LTC_ARGCHK(a != NULL);
    A = a;
    return A->used > 0 ? A->dp[0] : 0;
 }
 
-static ltc_mp_digit get_digit(void *a, int n)
+static ltc_mp_digit get_digit(const void *a, int n)
 {
-   fp_int *A;
+   const fp_int *A;
    LTC_ARGCHK(a != NULL);
    A = a;
    return (n >= A->used || n < 0) ? 0 : A->dp[n];
 }
 
-static int get_digit_count(void *a)
+static int get_digit_count(const void *a)
 {
-   fp_int *A;
+   const fp_int *A;
    LTC_ARGCHK(a != NULL);
    A = a;
    return A->used;
 }
 
-static int compare(void *a, void *b)
+static int compare(const void *a, const void *b)
 {
    int ret;
    LTC_ARGCHK(a != NULL);
@@ -121,7 +124,7 @@ static int compare(void *a, void *b)
    return 0;
 }
 
-static int compare_d(void *a, ltc_mp_digit b)
+static int compare_d(const void *a, ltc_mp_digit b)
 {
    int ret;
    LTC_ARGCHK(a != NULL);
@@ -134,13 +137,13 @@ static int compare_d(void *a, ltc_mp_digit b)
    return 0;
 }
 
-static int count_bits(void *a)
+static int count_bits(const void *a)
 {
    LTC_ARGCHK(a != NULL);
    return fp_count_bits(a);
 }
 
-static int count_lsb_bits(void *a)
+static int count_lsb_bits(const void *a)
 {
    LTC_ARGCHK(a != NULL);
    return fp_cnt_lsb(a);
@@ -160,11 +163,11 @@ static int read_radix(void *a, const char *b, int radix)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
-   return tfm_to_ltc_error(fp_read_radix(a, (char *)b, radix));
+   return tfm_to_ltc_error(fp_read_radix(a, b, radix));
 }
 
 /* write one */
-static int write_radix(void *a, char *b, int radix)
+static int write_radix(const void *a, char *b, int radix)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
@@ -172,14 +175,14 @@ static int write_radix(void *a, char *b, int radix)
 }
 
 /* get size as unsigned char string */
-static unsigned long unsigned_size(void *a)
+static unsigned long unsigned_size(const void *a)
 {
    LTC_ARGCHK(a != NULL);
    return fp_unsigned_bin_size(a);
 }
 
 /* store */
-static int unsigned_write(void *a, unsigned char *b)
+static int unsigned_write(const void *a, unsigned char *b)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
@@ -188,7 +191,7 @@ static int unsigned_write(void *a, unsigned char *b)
 }
 
 /* read */
-static int unsigned_read(void *a, unsigned char *b, unsigned long len)
+static int unsigned_read(void *a, const unsigned char *b, unsigned long len)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
@@ -197,7 +200,7 @@ static int unsigned_read(void *a, unsigned char *b, unsigned long len)
 }
 
 /* add */
-static int add(void *a, void *b, void *c)
+static int add(const void *a, const void *b, void *c)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
@@ -206,7 +209,7 @@ static int add(void *a, void *b, void *c)
    return CRYPT_OK;
 }
 
-static int addi(void *a, ltc_mp_digit b, void *c)
+static int addi(const void *a, ltc_mp_digit b, void *c)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(c != NULL);
@@ -215,7 +218,7 @@ static int addi(void *a, ltc_mp_digit b, void *c)
 }
 
 /* sub */
-static int sub(void *a, void *b, void *c)
+static int sub(const void *a, const void *b, void *c)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
@@ -224,7 +227,7 @@ static int sub(void *a, void *b, void *c)
    return CRYPT_OK;
 }
 
-static int subi(void *a, ltc_mp_digit b, void *c)
+static int subi(const void *a, ltc_mp_digit b, void *c)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(c != NULL);
@@ -233,7 +236,7 @@ static int subi(void *a, ltc_mp_digit b, void *c)
 }
 
 /* mul */
-static int mul(void *a, void *b, void *c)
+static int mul(const void *a, const void *b, void *c)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
@@ -242,7 +245,7 @@ static int mul(void *a, void *b, void *c)
    return CRYPT_OK;
 }
 
-static int muli(void *a, ltc_mp_digit b, void *c)
+static int muli(const void *a, ltc_mp_digit b, void *c)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(c != NULL);
@@ -251,7 +254,7 @@ static int muli(void *a, ltc_mp_digit b, void *c)
 }
 
 /* sqr */
-static int sqr(void *a, void *b)
+static int sqr(const void *a, void *b)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
@@ -262,14 +265,14 @@ static int sqr(void *a, void *b)
 /* sqrtmod_prime - NOT SUPPORTED */
 
 /* div */
-static int divide(void *a, void *b, void *c, void *d)
+static int divide(const void *a, const void *b, void *c, void *d)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
    return tfm_to_ltc_error(fp_div(a, b, c, d));
 }
 
-static int div_2(void *a, void *b)
+static int div_2(const void *a, void *b)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
@@ -278,7 +281,7 @@ static int div_2(void *a, void *b)
 }
 
 /* modi */
-static int modi(void *a, ltc_mp_digit b, ltc_mp_digit *c)
+static int modi(const void *a, ltc_mp_digit b, ltc_mp_digit *c)
 {
    fp_digit tmp;
    int      err;
@@ -294,7 +297,7 @@ static int modi(void *a, ltc_mp_digit b, ltc_mp_digit *c)
 }
 
 /* gcd */
-static int gcd(void *a, void *b, void *c)
+static int gcd(const void *a, const void *b, void *c)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
@@ -304,7 +307,7 @@ static int gcd(void *a, void *b, void *c)
 }
 
 /* lcm */
-static int lcm(void *a, void *b, void *c)
+static int lcm(const void *a, const void *b, void *c)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
@@ -313,7 +316,7 @@ static int lcm(void *a, void *b, void *c)
    return CRYPT_OK;
 }
 
-static int addmod(void *a, void *b, void *c, void *d)
+static int addmod(const void *a, const void *b, const void *c, void *d)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
@@ -322,7 +325,7 @@ static int addmod(void *a, void *b, void *c, void *d)
    return tfm_to_ltc_error(fp_addmod(a,b,c,d));
 }
 
-static int submod(void *a, void *b, void *c, void *d)
+static int submod(const void *a, const void *b, const void *c, void *d)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
@@ -331,7 +334,7 @@ static int submod(void *a, void *b, void *c, void *d)
    return tfm_to_ltc_error(fp_submod(a,b,c,d));
 }
 
-static int mulmod(void *a, void *b, void *c, void *d)
+static int mulmod(const void *a, const void *b, const void *c, void *d)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
@@ -340,7 +343,7 @@ static int mulmod(void *a, void *b, void *c, void *d)
    return tfm_to_ltc_error(fp_mulmod(a,b,c,d));
 }
 
-static int sqrmod(void *a, void *b, void *c)
+static int sqrmod(const void *a, const void *b, void *c)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
@@ -349,7 +352,7 @@ static int sqrmod(void *a, void *b, void *c)
 }
 
 /* invmod */
-static int invmod(void *a, void *b, void *c)
+static int invmod(const void *a, const void *b, void *c)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
@@ -358,7 +361,7 @@ static int invmod(void *a, void *b, void *c)
 }
 
 /* setup */
-static int montgomery_setup(void *a, void **b)
+static int montgomery_setup(const void *a, void **b)
 {
    int err;
    LTC_ARGCHK(a != NULL);
@@ -367,14 +370,14 @@ static int montgomery_setup(void *a, void **b)
    if (*b == NULL) {
       return CRYPT_MEM;
    }
-   if ((err = tfm_to_ltc_error(fp_montgomery_setup(a, (fp_digit *)*b))) != CRYPT_OK) {
+   if ((err = tfm_to_ltc_error(fp_montgomery_setup(a, *b))) != CRYPT_OK) {
       XFREE(*b);
    }
    return err;
 }
 
 /* get normalization value */
-static int montgomery_normalization(void *a, void *b)
+static int montgomery_normalization(void *a, const void *b)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
@@ -383,12 +386,13 @@ static int montgomery_normalization(void *a, void *b)
 }
 
 /* reduce */
-static int montgomery_reduce(void *a, void *b, void *c)
+static int montgomery_reduce(void *a, const void *b, void *c)
 {
+   fp_digit *tmpc = c;
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
    LTC_ARGCHK(c != NULL);
-   fp_montgomery_reduce(a, b, *((fp_digit *)c));
+   fp_montgomery_reduce(a, b, *tmpc);
    return CRYPT_OK;
 }
 
@@ -398,16 +402,16 @@ static void montgomery_deinit(void *a)
    XFREE(a);
 }
 
-static int exptmod(void *a, void *b, void *c, void *d)
+static int exptmod(const void *a, const void *b, const void *c, void *d)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
    LTC_ARGCHK(c != NULL);
    LTC_ARGCHK(d != NULL);
-   return tfm_to_ltc_error(fp_exptmod(a,b,c,d));
+   return tfm_to_ltc_error(fp_exptmod(a,(void *)b,c,d));
 }
 
-static int isprime(void *a, int b, int *c)
+static int isprime(const void *a, int b, int *c)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(c != NULL);
@@ -420,7 +424,7 @@ static int isprime(void *a, int b, int *c)
 
 #if defined(LTC_MECC) && defined(LTC_MECC_ACCEL)
 
-static int tfm_ecc_projective_dbl_point(const ecc_point *P, ecc_point *R, void *ma, void *modulus, void *Mp)
+static int tfm_ecc_projective_dbl_point(const ecc_point *P, ecc_point *R, const void *ma, const void *modulus, void *Mp)
 {
    fp_int t1, t2;
    fp_digit mp;
@@ -575,7 +579,7 @@ static int tfm_ecc_projective_dbl_point(const ecc_point *P, ecc_point *R, void *
    @param Mp       The "b" value from montgomery_setup()
    @return CRYPT_OK on success
 */
-static int tfm_ecc_projective_add_point(const ecc_point *P, const ecc_point *Q, ecc_point *R, void *ma, void *modulus, void *Mp)
+static int tfm_ecc_projective_add_point(const ecc_point *P, const ecc_point *Q, ecc_point *R, const void *ma, const void *modulus, void *Mp)
 {
    fp_int  t1, t2, x, y, z;
    fp_digit mp;

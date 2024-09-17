@@ -37,7 +37,7 @@
    @param mp       The "b" value from montgomery_setup()
    @return CRYPT_OK on success
 */
-int ltc_ecc_projective_dbl_point(const ecc_point *P, ecc_point *R, void *ma, void *modulus, void *mp)
+int ltc_ecc_projective_dbl_point(const ecc_point *P, ecc_point *R, const void *ma, const void *modulus, void *mp)
 {
    void *t1, *t2;
    int   err, inf;

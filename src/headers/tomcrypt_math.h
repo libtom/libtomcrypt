@@ -48,7 +48,7 @@ typedef struct {
      @param  src    The number to copy from
      @return CRYPT_OK on success
    */
-   int (*init_copy)(void **dst, void *src);
+   int (*init_copy)(void **dst, const void *src);
 
    /** deinit
       @param   a    The number to free
@@ -63,14 +63,14 @@ typedef struct {
       @param   dst   The destination
       @return CRYPT_OK on success
    */
-   int (*neg)(void *src, void *dst);
+   int (*neg)(const void *src, void *dst);
 
    /** copy
       @param   src   The number to copy from
       @param   dst   The number to write to
       @return CRYPT_OK on success
    */
-   int (*copy)(void *src, void *dst);
+   int (*copy)(const void *src, void *dst);
 
 /* ---- trivial low level functions ---- */
 
@@ -86,20 +86,20 @@ typedef struct {
                 only fetches up to bits_per_digit from the number
       @return   The lower bits_per_digit of the integer (unsigned)
    */
-   unsigned long (*get_int)(void *a);
+   unsigned long (*get_int)(const void *a);
 
    /** get digit n
      @param a  The number to read from
      @param n  The number of the digit to fetch
      @return  The bits_per_digit  sized n'th digit of a
    */
-   ltc_mp_digit (*get_digit)(void *a, int n);
+   ltc_mp_digit (*get_digit)(const void *a, int n);
 
    /** Get the number of digits that represent the number
      @param a   The number to count
      @return The number of digits used to represent the number
    */
-   int (*get_digit_count)(void *a);
+   int (*get_digit_count)(const void *a);
 
    /** compare two integers
      @param a   The left side integer
@@ -108,7 +108,7 @@ typedef struct {
              LTC_MP_GT if a > b and
              LTC_MP_EQ otherwise.  (signed comparison)
    */
-   int (*compare)(void *a, void *b);
+   int (*compare)(const void *a, const void *b);
 
    /** compare against int
      @param a   The left side integer
@@ -117,19 +117,19 @@ typedef struct {
              LTC_MP_GT if a > b and
              LTC_MP_EQ otherwise.  (signed comparison)
    */
-   int (*compare_d)(void *a, ltc_mp_digit n);
+   int (*compare_d)(const void *a, ltc_mp_digit n);
 
    /** Count the number of bits used to represent the integer
      @param a   The integer to count
      @return The number of bits required to represent the integer
    */
-   int (*count_bits)(void * a);
+   int (*count_bits)(const void * a);
 
    /** Count the number of LSB bits which are zero
      @param a   The integer to count
      @return The number of contiguous zero LSB bits
    */
-   int (*count_lsb_bits)(void *a);
+   int (*count_lsb_bits)(const void *a);
 
    /** Compute a power of two
      @param a  The integer to store the power in
@@ -154,20 +154,20 @@ typedef struct {
      @param radix The radix the integer is to be represented in (2-64)
      @return CRYPT_OK on success
    */
-   int (*write_radix)(void *a, char *str, int radix);
+   int (*write_radix)(const void *a, char *str, int radix);
 
    /** get size as unsigned char string
      @param a  The integer to get the size (when stored in array of octets)
      @return   The length of the integer in octets
    */
-   unsigned long (*unsigned_size)(void *a);
+   unsigned long (*unsigned_size)(const void *a);
 
    /** store an integer as an array of octets
      @param src   The integer to store
      @param dst   The buffer to store the integer in
      @return CRYPT_OK on success
    */
-   int (*unsigned_write)(void *src, unsigned char *dst);
+   int (*unsigned_write)(const void *src, unsigned char *dst);
 
    /** read an array of octets and store as integer
      @param dst   The integer to load
@@ -175,9 +175,9 @@ typedef struct {
      @param len   The number of octets
      @return CRYPT_OK on success
    */
-   int (*unsigned_read)(         void *dst,
-                        unsigned char *src,
-                        unsigned long  len);
+   int (*unsigned_read)(               void *dst,
+                        const unsigned char *src,
+                              unsigned long  len);
 
 /* ---- basic math ---- */
 
@@ -187,7 +187,7 @@ typedef struct {
      @param c   The destination of "a + b"
      @return CRYPT_OK on success
    */
-   int (*add)(void *a, void *b, void *c);
+   int (*add)(const void *a, const void *b, void *c);
 
    /** add two integers
      @param a   The first source integer
@@ -196,7 +196,7 @@ typedef struct {
      @param c   The destination of "a + b"
      @return CRYPT_OK on success
    */
-   int (*addi)(void *a, ltc_mp_digit b, void *c);
+   int (*addi)(const void *a, ltc_mp_digit b, void *c);
 
    /** subtract two integers
      @param a   The first source integer
@@ -204,7 +204,7 @@ typedef struct {
      @param c   The destination of "a - b"
      @return CRYPT_OK on success
    */
-   int (*sub)(void *a, void *b, void *c);
+   int (*sub)(const void *a, const void *b, void *c);
 
    /** subtract two integers
      @param a   The first source integer
@@ -213,7 +213,7 @@ typedef struct {
      @param c   The destination of "a - b"
      @return CRYPT_OK on success
    */
-   int (*subi)(void *a, ltc_mp_digit b, void *c);
+   int (*subi)(const void *a, ltc_mp_digit b, void *c);
 
    /** multiply two integers
      @param a   The first source integer
@@ -222,7 +222,7 @@ typedef struct {
      @param c   The destination of "a * b"
      @return CRYPT_OK on success
    */
-   int (*mul)(void *a, void *b, void *c);
+   int (*mul)(const void *a, const void *b, void *c);
 
    /** multiply two integers
      @param a   The first source integer
@@ -231,14 +231,14 @@ typedef struct {
      @param c   The destination of "a * b"
      @return CRYPT_OK on success
    */
-   int (*muli)(void *a, ltc_mp_digit b, void *c);
+   int (*muli)(const void *a, ltc_mp_digit b, void *c);
 
    /** Square an integer
      @param a    The integer to square
      @param b    The destination
      @return CRYPT_OK on success
    */
-   int (*sqr)(void *a, void *b);
+   int (*sqr)(const void *a, void *b);
 
    /** Square root (mod prime)
      @param a    The integer to compute square root mod prime from
@@ -246,7 +246,7 @@ typedef struct {
      @param c    The destination
      @return CRYPT_OK on success
    */
-   int (*sqrtmod_prime)(void *a, void *b, void *c);
+   int (*sqrtmod_prime)(const void *a, const void *b, void *c);
 
    /** Divide an integer
      @param a    The dividend
@@ -255,14 +255,14 @@ typedef struct {
      @param d    The remainder (can be NULL to signify don't care)
      @return CRYPT_OK on success
    */
-   int (*mpdiv)(void *a, void *b, void *c, void *d);
+   int (*mpdiv)(const void *a, const void *b, void *c, void *d);
 
    /** divide by two
       @param  a   The integer to divide (shift right)
       @param  b   The destination
       @return CRYPT_OK on success
    */
-   int (*div_2)(void *a, void *b);
+   int (*div_2)(const void *a, void *b);
 
    /** Get remainder (small value)
       @param  a    The integer to reduce
@@ -270,7 +270,7 @@ typedef struct {
       @param  c    The destination for the residue
       @return CRYPT_OK on success
    */
-   int (*modi)(void *a, ltc_mp_digit b, ltc_mp_digit *c);
+   int (*modi)(const void *a, ltc_mp_digit b, ltc_mp_digit *c);
 
    /** gcd
       @param  a     The first integer
@@ -278,7 +278,7 @@ typedef struct {
       @param  c     The destination for (a, b)
       @return CRYPT_OK on success
    */
-   int (*gcd)(void *a, void *b, void *c);
+   int (*gcd)(const void *a, const void *b, void *c);
 
    /** lcm
       @param  a     The first integer
@@ -286,7 +286,7 @@ typedef struct {
       @param  c     The destination for [a, b]
       @return CRYPT_OK on success
    */
-   int (*lcm)(void *a, void *b, void *c);
+   int (*lcm)(const void *a, const void *b, void *c);
 
    /** Modular multiplication
       @param  a     The first source
@@ -295,7 +295,7 @@ typedef struct {
       @param  d     The destination (a*b mod c)
       @return CRYPT_OK on success
    */
-   int (*mulmod)(void *a, void *b, void *c, void *d);
+   int (*mulmod)(const void *a, const void *b, const void *c, void *d);
 
    /** Modular squaring
       @param  a     The first source
@@ -303,7 +303,7 @@ typedef struct {
       @param  c     The destination (a*a mod b)
       @return CRYPT_OK on success
    */
-   int (*sqrmod)(void *a, void *b, void *c);
+   int (*sqrmod)(const void *a, const void *b, void *c);
 
    /** Modular inversion
       @param  a     The value to invert
@@ -311,7 +311,7 @@ typedef struct {
       @param  c     The destination (1/a mod b)
       @return CRYPT_OK on success
    */
-   int (*invmod)(void *, void *, void *);
+   int (*invmod)(const void *a, const void *b, void *c);
 
 /* ---- reduction ---- */
 
@@ -320,14 +320,14 @@ typedef struct {
        @param b  The destination for the reduction digit
        @return CRYPT_OK on success
    */
-   int (*montgomery_setup)(void *a, void **b);
+   int (*montgomery_setup)(const void *a, void **b);
 
    /** get normalization value
        @param a   The destination for the normalization value
        @param b   The modulus
        @return  CRYPT_OK on success
    */
-   int (*montgomery_normalization)(void *a, void *b);
+   int (*montgomery_normalization)(void *a, const void *b);
 
    /** reduce a number
        @param a   The number [and dest] to reduce
@@ -335,7 +335,7 @@ typedef struct {
        @param c   The value "b" from montgomery_setup()
        @return CRYPT_OK on success
    */
-   int (*montgomery_reduce)(void *a, void *b, void *c);
+   int (*montgomery_reduce)(void *a, const void *b, void *c);
 
    /** clean up  (frees memory)
        @param a   The value "b" from montgomery_setup()
@@ -352,7 +352,7 @@ typedef struct {
        @param d    The destination
        @return CRYPT_OK on success
    */
-   int (*exptmod)(void *a, void *b, void *c, void *d);
+   int (*exptmod)(const void *a, const void *b, const void *c, void *d);
 
    /** Primality testing
        @param a     The integer to test
@@ -360,7 +360,7 @@ typedef struct {
        @param c     The destination of the result (FP_YES if prime)
        @return CRYPT_OK on success
    */
-   int (*isprime)(void *a, int b, int *c);
+   int (*isprime)(const void *a, int b, int *c);
 
 /* ----  (optional) ecc point math ---- */
 
@@ -374,11 +374,11 @@ typedef struct {
                   (can be ignored if you work in affine only)
        @return CRYPT_OK on success
    */
-   int (*ecc_ptmul)(     void *k,
+   int (*ecc_ptmul)(     const void *k,
                     const ecc_point *G,
                           ecc_point *R,
-                               void *a,
-                               void *modulus,
+                         const void *a,
+                         const void *modulus,
                                 int  map);
 
    /** ECC GF(p) point addition
@@ -393,8 +393,8 @@ typedef struct {
    int (*ecc_ptadd)(const ecc_point *P,
                     const ecc_point *Q,
                           ecc_point *R,
-                               void *ma,
-                               void *modulus,
+                         const void *ma,
+                         const void *modulus,
                                void *mp);
 
    /** ECC GF(p) point double
@@ -407,8 +407,8 @@ typedef struct {
    */
    int (*ecc_ptdbl)(const ecc_point *P,
                           ecc_point *R,
-                               void *ma,
-                               void *modulus,
+                         const void *ma,
+                         const void *modulus,
                                void *mp);
 
    /** ECC mapping from projective to affine,
@@ -421,7 +421,7 @@ typedef struct {
                ecc_point only has three integers (x,y,z) so if
                you use a different mapping you have to make it fit.
    */
-   int (*ecc_map)(ecc_point *P, void *modulus, void *mp);
+   int (*ecc_map)(ecc_point *P, const void *modulus, void *mp);
 
    /** Computes kA*A + kB*B = C using Shamir's Trick
        @param A        First point to multiply
@@ -436,8 +436,8 @@ typedef struct {
    int (*ecc_mul2add)(const ecc_point *A, void *kA,
                       const ecc_point *B, void *kB,
                             ecc_point *C,
-                                 void *ma,
-                                 void *modulus);
+                           const void *ma,
+                           const void *modulus);
 
 /* ---- (optional) rsa optimized math (for internal CRT) ---- */
 
@@ -479,7 +479,7 @@ typedef struct {
       @param  d     The destination (a + b mod c)
       @return CRYPT_OK on success
    */
-   int (*addmod)(void *a, void *b, void *c, void *d);
+   int (*addmod)(const void *a, const void *b, const void *c, void *d);
 
    /** Modular substraction
       @param  a     The first source
@@ -488,7 +488,7 @@ typedef struct {
       @param  d     The destination (a - b mod c)
       @return CRYPT_OK on success
    */
-   int (*submod)(void *a, void *b, void *c, void *d);
+   int (*submod)(const void *a, const void *b, const void *c, void *d);
 
 /* ---- misc stuff ---- */
 
