@@ -7579,11 +7579,19 @@ typedef int (*ssh_authorized_key_cb)(ltc_pka_key *k, const char *comment, void *
 LibTomCrypt supports reading of asymmetric cryptography keys out of
 PEM files in multiple formats.
 
-The library provides support for:
+The library provides support for these PEM content structures:
 \begin{itemize}
-   \item OpenSSH - encrypted and plain files (if SSH support is enabled).
-   \item PEM - encrypted and plain files.
-   \item PKCS \#8 - encrypted and plain files.
+   \item Private keys:
+   \begin{itemize}
+      \item OpenSSH - encrypted and plain files (if SSH support is enabled).
+      \item PKCS \#8 - encrypted and plain files.
+      \item Algorithm specific - encrypted and plain files.
+   \end{itemize}
+   \item Public keys:
+   \begin{itemize}
+      \item X.509 certificates
+      \item SubjectPublicKeyInfo (defined by X.509)
+   \end{itemize}
 \end{itemize}
 
 There is no support for PKCS \#12 containers/PFX files implemented.
@@ -7616,20 +7624,22 @@ The library supports the following types of PKCS PEM files:
 The identifiers in the PEM headers recognized are as follows:
 
 \begin{table}[H]
+\begin{minipage}{\textwidth}
 \begin{small}
 \begin{tabular}{|l|l|l|l|l|}
 \hline \textbf{Identifier}                   & \textbf{Key type} & \textbf{File content} & \textbf{Standard} & \textbf{Algorithm} \\
 \hline \texttt{BEGIN CERTIFICATE}            & Public            & Plain                 & \texttt{X.509}    & DH, DSA, ECC, Ed25519, RSA, X25519 \\
-\hline \texttt{BEGIN DSA PRIVATE KEY}        & Private           & Maybe encrypted       & \texttt{PKCS \#1} & DSA \\
+\hline \texttt{BEGIN DSA PRIVATE KEY}        & Private           & Maybe encrypted       & \texttt{OpenSSL\footnote{There are two de-facto standard for DSA private key structures, LibTomCrypt implements OpenSSL's}} & DSA \\
 \hline \texttt{BEGIN EC PRIVATE KEY}         & Private           & Maybe encrypted       & \texttt{RFC 5915} & ECC \\
 \hline \texttt{BEGIN ENCRYPTED PRIVATE KEY}  & Private           & Encrypted             & \texttt{PKCS \#8} & DH, DSA, ECC, Ed25519, RSA, X25519 \\
 \hline \texttt{BEGIN PRIVATE KEY}            & Private           & Plain                 & \texttt{PKCS \#8} & DH, DSA, ECC, Ed25519, RSA, X25519 \\
-\hline \texttt{BEGIN PUBLIC KEY}             & Public            & Plain                 & \texttt{PKCS \#8} & DH, DSA, ECC, Ed25519, RSA, X25519 \\
+\hline \texttt{BEGIN PUBLIC KEY}             & Public            & Plain                 & \texttt{X.509\footnote{Specifically, SubjectPublicKeyInfo}} & DH, DSA, ECC, Ed25519, RSA, X25519 \\
 \hline \texttt{BEGIN RSA PRIVATE KEY}        & Private           & Maybe encrypted       & \texttt{PKCS \#1} & RSA \\
 \hline \texttt{BEGIN RSA PUBLIC KEY}         & Public            & Plain                 & \texttt{PKCS \#1} & RSA \\
 \hline
 \end{tabular}
 \end{small}
+\end{minipage}
 \caption{List of supported PEM headers}
 \label{supported-PEM-headers}
 \end{table}
@@ -7646,12 +7656,12 @@ When dealing with PEM formatted private keys the following encryption algorithms
 \hline \texttt{AES-128-CFB}       & AES             & 128                       & CFB    \\
 \hline \texttt{AES-192-CFB}       & AES             & 192                       & CFB    \\
 \hline \texttt{AES-256-CFB}       & AES             & 256                       & CFB    \\
-\hline \texttt{AES-128-CFB1}      & AES             & 128                       & CFB    \\
-\hline \texttt{AES-192-CFB1}      & AES             & 192                       & CFB    \\
-\hline \texttt{AES-256-CFB1}      & AES             & 256                       & CFB    \\
-\hline \texttt{AES-128-CFB8}      & AES             & 128                       & CFB    \\
-\hline \texttt{AES-192-CFB8}      & AES             & 192                       & CFB    \\
-\hline \texttt{AES-256-CFB8}      & AES             & 256                       & CFB    \\
+\hline \texttt{AES-128-CFB1}      & AES             & 128                       & CFB1   \\
+\hline \texttt{AES-192-CFB1}      & AES             & 192                       & CFB1   \\
+\hline \texttt{AES-256-CFB1}      & AES             & 256                       & CFB1   \\
+\hline \texttt{AES-128-CFB8}      & AES             & 128                       & CFB8   \\
+\hline \texttt{AES-192-CFB8}      & AES             & 192                       & CFB8   \\
+\hline \texttt{AES-256-CFB8}      & AES             & 256                       & CFB8   \\
 \hline \texttt{AES-128-CTR}       & AES             & 128                       & CTR    \\
 \hline \texttt{AES-192-CTR}       & AES             & 192                       & CTR    \\
 \hline \texttt{AES-256-CTR}       & AES             & 256                       & CTR    \\
@@ -7667,12 +7677,12 @@ When dealing with PEM formatted private keys the following encryption algorithms
 \hline \texttt{CAMELLIA-128-CFB}  & Camellia        & 128                       & CFB    \\
 \hline \texttt{CAMELLIA-192-CFB}  & Camellia        & 192                       & CFB    \\
 \hline \texttt{CAMELLIA-256-CFB}  & Camellia        & 256                       & CFB    \\
-\hline \texttt{CAMELLIA-128-CFB1} & Camellia        & 128                       & CFB    \\
-\hline \texttt{CAMELLIA-192-CFB1} & Camellia        & 192                       & CFB    \\
-\hline \texttt{CAMELLIA-256-CFB1} & Camellia        & 256                       & CFB    \\
-\hline \texttt{CAMELLIA-128-CFB8} & Camellia        & 128                       & CFB    \\
-\hline \texttt{CAMELLIA-192-CFB8} & Camellia        & 192                       & CFB    \\
-\hline \texttt{CAMELLIA-256-CFB8} & Camellia        & 256                       & CFB    \\
+\hline \texttt{CAMELLIA-128-CFB1} & Camellia        & 128                       & CFB1   \\
+\hline \texttt{CAMELLIA-192-CFB1} & Camellia        & 192                       & CFB1   \\
+\hline \texttt{CAMELLIA-256-CFB1} & Camellia        & 256                       & CFB1   \\
+\hline \texttt{CAMELLIA-128-CFB8} & Camellia        & 128                       & CFB8   \\
+\hline \texttt{CAMELLIA-192-CFB8} & Camellia        & 192                       & CFB8   \\
+\hline \texttt{CAMELLIA-256-CFB8} & Camellia        & 256                       & CFB8   \\
 \hline \texttt{CAMELLIA-128-CTR}  & Camellia        & 128                       & CTR    \\
 \hline \texttt{CAMELLIA-192-CTR}  & Camellia        & 192                       & CTR    \\
 \hline \texttt{CAMELLIA-256-CTR}  & Camellia        & 256                       & CTR    \\
@@ -7688,13 +7698,13 @@ When dealing with PEM formatted private keys the following encryption algorithms
 \hline \texttt{DES-EDE-OFB}       & 3DES (EDE)      & 128                       & OFB    \\
 \hline \texttt{DES-EDE3-CBC}      & 3DES (EDE)      & 192                       & CBC    \\
 \hline \texttt{DES-EDE3-CFB}      & 3DES (EDE)      & 192                       & CFB    \\
-\hline \texttt{DES-EDE3-CFB1}     & 3DES (EDE)      & 192                       & CFB    \\
-\hline \texttt{DES-EDE3-CFB8}     & 3DES (EDE)      & 192                       & CFB    \\
+\hline \texttt{DES-EDE3-CFB1}     & 3DES (EDE)      & 192                       & CFB1   \\
+\hline \texttt{DES-EDE3-CFB8}     & 3DES (EDE)      & 192                       & CFB8   \\
 \hline \texttt{DES-EDE3-OFB}      & 3DES (EDE)      & 192                       & OFB    \\
 \hline \texttt{DES-CBC}           & DES             & 64                        & CBC    \\
 \hline \texttt{DES-CFB}           & DES             & 64                        & CFB    \\
-\hline \texttt{DES-CFB1}          & DES             & 64                        & CFB    \\
-\hline \texttt{DES-CFB8}          & DES             & 64                        & CFB    \\
+\hline \texttt{DES-CFB1}          & DES             & 64                        & CFB1   \\
+\hline \texttt{DES-CFB8}          & DES             & 64                        & CFB8   \\
 \hline \texttt{DES-OFB}           & DES             & 64                        & OFB    \\
 \hline \texttt{DESX-CBC}          & DES-X           & 192                       & CBC    \\
 \hline \texttt{IDEA-CBC}          & IDEA            & 128                       & CBC    \\
