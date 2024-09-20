@@ -49,6 +49,8 @@ static const struct {
    { cm_none,   "none",   },
    { cm_cbc,    "CBC",    },
    { cm_cfb,    "CFB",    },
+   { cm_cfb1,   "CFB1",   },
+   { cm_cfb8,   "CFB8",   },
    { cm_ctr,    "CTR",    },
    { cm_ofb,    "OFB",    },
    { cm_stream, "STREAM", },
@@ -58,7 +60,7 @@ static const struct {
 static const char *s_map_mode(enum cipher_mode mode)
 {
    size_t n;
-   mode &= cm_modes;
+   mode &= cm_modes | cm_1bit | cm_8bit;
    for (n = 0; n < sizeof(cipher_mode_map)/sizeof(cipher_mode_map[0]); ++n) {
       if (cipher_mode_map[n].mode == mode)
          return cipher_mode_map[n].name;
