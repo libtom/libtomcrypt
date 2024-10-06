@@ -2,7 +2,7 @@
 # Options
 #-----------------------------------------------------------------------------
 option(BUILD_USEFUL_DEMOS "Build useful demos (hashsum)" FALSE)
-option(BUILD_USABLE_DEMOS "Build usable demos (ltcrypt sizes constants)" FALSE)
+option(BUILD_USABLE_DEMOS "Build usable demos (ltcrypt sizes constants pem-info)" FALSE)
 
 #-----------------------------------------------------------------------------
 # Useful demos
@@ -38,7 +38,7 @@ endif()
 
 if(BUILD_USABLE_DEMOS)
 
-    list(APPEND ALL_DEMOS_TARGETS ltcrypt sizes constants)
+    list(APPEND ALL_DEMOS_TARGETS ltcrypt sizes constants pem-info)
 
     # ltcrypt
     add_executable(ltcrypt
@@ -64,6 +64,15 @@ if(BUILD_USABLE_DEMOS)
     )
 
     target_link_libraries(constants PRIVATE
+        ${PROJECT_NAME}
+    )
+
+    # pem-info
+    add_executable(pem-info
+        ${CMAKE_CURRENT_SOURCE_DIR}/pem-info.c
+    )
+
+    target_link_libraries(pem-info PRIVATE
         ${PROJECT_NAME}
     )
 
