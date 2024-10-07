@@ -53,7 +53,7 @@ struct kdf_options {
    const char *name;
    const struct blockcipher_info *cipher;
    unsigned char salt[64];
-   ulong32 saltlen;
+   unsigned long saltlen;
    ulong32 num_rounds;
    struct password pw;
 };
