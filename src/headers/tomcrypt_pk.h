@@ -645,6 +645,14 @@ typedef struct ltc_asn1_list_ {
       LTC_TMPVAR(SAI_list)[LTC_TMPVAR(SAI)].tag = (Tag);                   \
    } while (0)
 
+#define LTC_SET_ASN1_CUSTOM(list, index, Class, Structure, Tag, Type, Data, Size)   \
+   do {                                                                             \
+      int LTC_TMPVAR(SAC) = (index);                                                \
+      LTC_SET_ASN1(list, LTC_TMPVAR(SAC), LTC_ASN1_CUSTOM_TYPE, Data, Size);        \
+      LTC_SET_ASN1_IDENTIFIER(list, LTC_TMPVAR(SAC), Class, Structure, Tag);        \
+      list[LTC_TMPVAR(SAC)].used = (int)(Type);                                     \
+   } while (0)
+
 #define LTC_SET_ASN1_CUSTOM_CONSTRUCTED(list, index, Class, Tag, Data)                       \
    do {                                                                                      \
       int LTC_TMPVAR(SACC) = (index);                                                        \
