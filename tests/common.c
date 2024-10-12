@@ -103,13 +103,14 @@ static DIR *s_opendir(const char *path, char *mypath, unsigned long l)
 static int s_read_and_process(FILE *f, unsigned long sz, void *ctx, dir_iter_cb process)
 {
    int err = CRYPT_OK;
-   void* buf = XMALLOC(sz);
+   void* buf = XMALLOC(sz + 1);
    if (buf == NULL)
       return CRYPT_MEM;
    if (fread(buf, 1, sz, f) != sz) {
       err = CRYPT_ERROR;
       goto out;
    }
+   ((unsigned char *)buf)[sz] = 0x0;
    err = process(buf, sz, ctx);
 out:
    XFREE(buf);
