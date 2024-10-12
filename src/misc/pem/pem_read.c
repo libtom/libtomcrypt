@@ -163,6 +163,7 @@ int pem_read(void *pem, unsigned long *w, struct pem_headers *hdr, struct get_ch
    unsigned long slen, linelen;
    int err, hdr_ok = 0;
    int would_overflow = 0;
+   unsigned char empty_lines = 0;
 
    linelen = sizeof(buf);
    if (s_get_line(buf, &linelen, g) == NULL) {
@@ -183,6 +184,11 @@ int pem_read(void *pem, unsigned long *w, struct pem_headers *hdr, struct get_ch
       if (slen == hdr->id->end.len && !XMEMCMP(buf, hdr->id->end.p, slen)) {
          hdr_ok = 1;
          break;
+      }
+      if (!slen) {
+         if (empty_lines)
+            break;
+         empty_lines++;
       }
       if (!would_overflow && s_fits_buf(wpem, slen, end)) {
          XMEMCPY(wpem, buf, slen);
