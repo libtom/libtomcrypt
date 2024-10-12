@@ -69,7 +69,7 @@ static int s_get_pka(ltc_asn1_list *pub, enum ltc_pka_id *pka)
 
 typedef int (*import_fn)(const unsigned char *, unsigned long, void*);
 
-static import_fn s_import_x509_fns[LTC_PKA_NUM] = {
+static const import_fn s_import_x509_fns[LTC_PKA_NUM] = {
 #ifdef LTC_MRSA
                                                 [LTC_PKA_RSA] = (import_fn)rsa_import_x509,
 #endif
@@ -176,7 +176,7 @@ static int s_extract_pka(unsigned char *pem, unsigned long w, enum ltc_pka_id *p
    return err;
 }
 
-static import_fn s_import_openssl_fns[LTC_PKA_NUM] = {
+static const import_fn s_import_openssl_fns[LTC_PKA_NUM] = {
 #ifdef LTC_MRSA
                                                 [LTC_PKA_RSA] = (import_fn)rsa_import,
 #endif
