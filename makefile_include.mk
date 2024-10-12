@@ -5,8 +5,11 @@
 # The version - BEWARE: VERSION, VERSION_PC and VERSION_LT are updated via ./updatemakes.sh
 VERSION=1.18.2-develop
 VERSION_PC=1.18.2
-# http://www.gnu.org/software/libtool/manual/html_node/Updating-version-info.html
-VERSION_LT=1:1
+# https://semver.org/
+VERSION_MAJOR=1
+VERSION_MINOR=0
+VERSION_PATCH=1
+VERSION_LT=$(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_PATCH)
 
 # Compiler and Linker Names
 ifndef CROSS_COMPILE
@@ -500,30 +503,30 @@ install_hooks: $(call print-help,install_hooks,Installs the git hooks)
 HEADER_FILES=$(notdir $(HEADERS_PUB))
 .common_uninstall:
 	$(UNINSTALL_CMD) $(DESTDIR)$(LIBPATH)/$(LIBNAME)
-	rm $(HEADER_FILES:%=$(DESTDIR)$(INCPATH)/%)
+	$(UNINSTALL_CMD) $(HEADER_FILES:%=$(DESTDIR)$(INCPATH)/%)
 
 #This rule cleans the source tree of all compiled code, not including the pdf
 #documentation.
 clean: $(call print-help,clean,Clean everything besides the pdf documentation)
 	find . -type f    -name "*.o"   \
-               -o -name "*.lo"  \
-               -o -name "*.a"   \
-               -o -name "*.la"  \
-               -o -name "*.obj" \
-               -o -name "*.lib" \
-               -o -name "*.exe" \
-               -o -name "*.dll" \
-               -o -name "*.so"  \
-               -o -name "*.gcov"\
-               -o -name "*.gcda"\
-               -o -name "*.gcno"\
-               -o -name "*.il"  \
-               -o -name "*.dyn" \
+               -o -name "*.a"     \
+               -o -name "*.obj"   \
+               -o -name "*.lib"   \
+               -o -name "*.exe"   \
+               -o -name "*.dll*"  \
+               -o -name "*.dylib*"\
+               -o -name "*.so*"   \
+               -o -name "*.out"   \
+               -o -name "*.gcov"  \
+               -o -name "*.gcda"  \
+               -o -name "*.gcno"  \
+               -o -name "*.il"    \
+               -o -name "*.dyn"   \
                -o -name "*.dpi"  | xargs rm -f
 	rm -f $(TIMING) $(TEST) $(DEMOS)
 	rm -f *_tv.txt
 	rm -f *.pc
-	rm -rf `find . -type d -name "*.libs" | xargs`
+	rm -rf `find . -type d -name "*.bin" | xargs`
 	$(MAKE) -C doc/ clean
 
 zipup: $(call print-help,zipup,Prepare the archives for a release) doc/crypt.pdf

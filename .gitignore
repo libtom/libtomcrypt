@@ -1,11 +1,13 @@
 # suppress compiler/linker output
 *.[oa]
 *.obj
-*.l[oa]
+*.dylib*
+*.dll*
+*.so*
 [Dd]ebug/
 [Rr]elease/
 /MSVC_*
-.libs/
+.bin/
 
 # release files
 /libtomcrypt-*
