@@ -43,6 +43,25 @@ static void s_unget_line(char *buf, unsigned long buflen, struct get_char *g)
    COPY_STR(g->unget_buf, buf, buflen);
 }
 
+static void s_tts(char *buf, unsigned long *buflen)
+{
+   while(1) {
+      unsigned long blen = *buflen;
+      if (blen < 2)
+         return;
+      blen--;
+      switch (buf[blen]) {
+         case ' ':
+         case '\t':
+            buf[blen] = '\0';
+            *buflen = blen;
+            break;
+         default:
+            return;
+      }
+   }
+}
+
 static char* s_get_line(char *buf, unsigned long *buflen, struct get_char *g)
 {
    unsigned long blen = 0;
@@ -64,11 +83,13 @@ static char* s_get_line(char *buf, unsigned long *buflen, struct get_char *g)
          if (c_ == '\r') {
             buf[--blen] = '\0';
          }
+         s_tts(buf, &blen);
          *buflen = blen;
          return buf;
       }
       if (c == -1 || c == '\0') {
          buf[blen] = '\0';
+         s_tts(buf, &blen);
          *buflen = blen;
          return buf;
       }
