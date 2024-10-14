@@ -43,6 +43,25 @@ static void s_unget_line(char *buf, unsigned long buflen, struct get_char *g)
    COPY_STR(g->unget_buf, buf, buflen);
 }
 
+static void s_tts(char *buf, unsigned long *buflen)
+{
+   while(1) {
+      unsigned long blen = *buflen;
+      if (blen < 2)
+         return;
+      blen--;
+      switch (buf[blen]) {
+         case ' ':
+         case '\t':
+            buf[blen] = '\0';
+            *buflen = blen;
+            break;
+         default:
+            return;
+      }
+   }
+}
+
 static char* s_get_line(char *buf, unsigned long *buflen, struct get_char *g)
 {
    unsigned long blen = 0;
@@ -64,11 +83,13 @@ static char* s_get_line(char *buf, unsigned long *buflen, struct get_char *g)
          if (c_ == '\r') {
             buf[--blen] = '\0';
          }
+         s_tts(buf, &blen);
          *buflen = blen;
          return buf;
       }
       if (c == -1 || c == '\0') {
          buf[blen] = '\0';
+         s_tts(buf, &blen);
          *buflen = blen;
          return buf;
       }
@@ -163,6 +184,7 @@ int pem_read(void *pem, unsigned long *w, struct pem_headers *hdr, struct get_ch
    unsigned long slen, linelen;
    int err, hdr_ok = 0;
    int would_overflow = 0;
+   unsigned char empty_lines = 0;
 
    linelen = sizeof(buf);
    if (s_get_line(buf, &linelen, g) == NULL) {
@@ -183,6 +205,11 @@ int pem_read(void *pem, unsigned long *w, struct pem_headers *hdr, struct get_ch
       if (slen == hdr->id->end.len && !XMEMCMP(buf, hdr->id->end.p, slen)) {
          hdr_ok = 1;
          break;
+      }
+      if (!slen) {
+         if (empty_lines)
+            break;
+         empty_lines++;
       }
       if (!would_overflow && s_fits_buf(wpem, slen, end)) {
          XMEMCPY(wpem, buf, slen);

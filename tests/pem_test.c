@@ -93,6 +93,13 @@ static int s_key_cmp(ltc_pka_key *key)
    return CRYPT_INVALID_ARG;
 }
 
+static int s_pem_decode_invalid_pkcs(const void *in, unsigned long inlen, void *key)
+{
+   password_ctx pw_ctx = { .callback = password_get };
+   SHOULD_FAIL(pem_decode_pkcs(in, inlen, key, &pw_ctx));
+   return CRYPT_OK;
+}
+
 static int s_pem_only_decode_pkcs(const void *in, unsigned long inlen, void *key)
 {
    password_ctx pw_ctx = { .callback = password_get };
@@ -158,6 +165,8 @@ int pem_test(void)
    DO(test_process_dir("tests/pem/pkcs/ecc-pkcs8", &key, s_pem_decode_pkcs, NULL, (dir_cleanup_cb)pka_key_free, "pem_pkcs_test+ecc"));
    DO(test_process_dir("tests/pem/pkcs/ecc-pkcs8", &key, NULL, s_pem_decode_pkcs_f, (dir_cleanup_cb)pka_key_free, "pem_pkcs_test_filehandle+ecc"));
    DO(test_process_dir("tests/pem/pkcs/extra", &key, s_pem_only_decode_pkcs, NULL, (dir_cleanup_cb)pka_key_free, "pem_pkcs_test+extra"));
+   DO(test_process_dir("tests/pem/pkcs/invalid", &key, s_pem_decode_invalid_pkcs, NULL, NULL, "pem_test_invalid"));
+   DO(test_process_dir("tests/pem/pkcs/invalid_but_supported", &key, s_pem_only_decode_pkcs, NULL, (dir_cleanup_cb)pka_key_free, "pem_pkcs_invalid_but_supported"));
 #ifdef LTC_SSH
    DO(test_process_dir("tests/pem/ssh", &key, s_pem_decode_ssh, NULL, (dir_cleanup_cb)pka_key_free, "pem_ssh_test"));
    DO(test_process_dir("tests/pem/ssh", &key, NULL, s_pem_decode_ssh_f, (dir_cleanup_cb)pka_key_free, "pem_ssh_test_filehandle"));
