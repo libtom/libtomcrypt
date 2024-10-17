@@ -16,7 +16,6 @@
  *  \param block_type       Block type to use in padding (\sa ltc_pkcs_1_v1_5_blocks)
  *  \param modulus_bitlen   The bit length of the RSA modulus
  *  \param prng             An active PRNG state (only for LTC_PKCS_1_EME)
- *  \param prng_idx         The index of the PRNG desired (only for LTC_PKCS_1_EME)
  *  \param out              [out] The destination for the encoded data
  *  \param outlen           [in/out] The max size and resulting size of the encoded data
  *
@@ -27,7 +26,6 @@ int pkcs_1_v1_5_encode(const unsigned char *msg,
                                        int  block_type,
                              unsigned long  modulus_bitlen,
                                 prng_state *prng,
-                                       int  prng_idx,
                              unsigned char *out,
                              unsigned long *outlen)
 {
@@ -46,9 +44,7 @@ int pkcs_1_v1_5_encode(const unsigned char *msg,
   }
 
   if (block_type == LTC_PKCS_1_EME) {    /* encryption padding, we need a valid PRNG */
-    if ((result = prng_is_valid(prng_idx)) != CRYPT_OK) {
-       return result;
-    }
+     LTC_ARGCHK(prng != NULL);
   }
 
   modulus_len = (modulus_bitlen >> 3) + (modulus_bitlen & 7 ? 1 : 0);
@@ -70,7 +66,7 @@ int pkcs_1_v1_5_encode(const unsigned char *msg,
 
   if (block_type == LTC_PKCS_1_EME) {
     /* now choose a random ps */
-    if (prng_descriptor[prng_idx].read(ps, ps_len, prng) != ps_len) {
+    if (prng->desc.read(ps, ps_len, prng) != ps_len) {
       result = CRYPT_ERROR_READPRNG;
       goto bail;
     }
@@ -78,7 +74,7 @@ int pkcs_1_v1_5_encode(const unsigned char *msg,
     /* transform zero bytes (if any) to non-zero random bytes */
     for (i = 0; i < ps_len; i++) {
       while (ps[i] == 0) {
-        if (prng_descriptor[prng_idx].read(&ps[i], 1, prng) != 1) {
+        if (prng->desc.read(&ps[i], 1, prng) != 1) {
           result = CRYPT_ERROR_READPRNG;
           goto bail;
         }

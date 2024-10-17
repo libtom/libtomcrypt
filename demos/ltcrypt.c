@@ -41,7 +41,6 @@ int main(int argc, char *argv[])
    /* register algs, so they can be printed */
    register_all_ciphers();
    register_all_hashes();
-   register_all_prngs();
 
    if (argc < 4) {
       if ((argc > 2) && (!strcmp(argv[1], "-t"))) {
@@ -153,7 +152,7 @@ int main(int argc, char *argv[])
    } else {  /* encrypt */
       /* Setup yarrow for random bytes for IV */
 
-      if ((err = rng_make_prng(128, find_prng("yarrow"), &prng, NULL)) != CRYPT_OK) {
+      if ((err = rng_make_prng(128, &prng, NULL)) != CRYPT_OK) {
          printf("Error setting up PRNG, %s\n", error_to_string(err));
       }
 

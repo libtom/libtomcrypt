@@ -9,11 +9,10 @@
 
 #ifdef LTC_CHACHA20_PRNG
 
-const struct ltc_prng_descriptor chacha20_prng_desc =
+static const struct ltc_prng_descriptor chacha20_prng_desc =
 {
    "chacha20",
    40,
-   &chacha20_prng_start,
    &chacha20_prng_add_entropy,
    &chacha20_prng_ready,
    &chacha20_prng_read,
@@ -34,6 +33,7 @@ int chacha20_prng_start(prng_state *prng)
    prng->ready = 0;
    XMEMSET(&prng->u.chacha.ent, 0, sizeof(prng->u.chacha.ent));
    prng->u.chacha.idx = 0;
+   prng->desc = chacha20_prng_desc;
    LTC_MUTEX_INIT(&prng->lock)
    return CRYPT_OK;
 }

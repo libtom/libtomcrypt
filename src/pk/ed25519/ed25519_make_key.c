@@ -12,18 +12,17 @@
 /**
    Create an Ed25519 key
    @param prng     An active PRNG state
-   @param wprng    The index of the PRNG desired
    @param key      [out] Destination of a newly created private key pair
    @return CRYPT_OK if successful
 */
-int ed25519_make_key(prng_state *prng, int wprng, curve25519_key *key)
+int ed25519_make_key(prng_state *prng, curve25519_key *key)
 {
    int err;
 
    LTC_ARGCHK(prng != NULL);
    LTC_ARGCHK(key  != NULL);
 
-   if ((err = tweetnacl_crypto_sign_keypair(prng, wprng, key->pub, key->priv)) != CRYPT_OK) {
+   if ((err = tweetnacl_crypto_sign_keypair(prng, key->pub, key->priv)) != CRYPT_OK) {
       return err;
    }
 

@@ -187,13 +187,12 @@ static int s_x25519_compat_test(void)
    curve25519_key priv, pub, imported;
    unsigned char buf[1024];
    unsigned long buflen = sizeof(buf);
-   int prng_idx = find_prng("yarrow");
 
    XMEMSET(&priv, 0, sizeof(priv));
    XMEMSET(&pub, 0, sizeof(pub));
    XMEMSET(&imported, 0, sizeof(imported));
 
-   DO(x25519_make_key(&yarrow_prng, prng_idx, &priv));
+   DO(x25519_make_key(&yarrow_prng, &priv));
 
    DO(x25519_export(buf, &buflen, PK_PRIVATE | PK_STD, &priv));
    DO(x25519_import_pkcs8(buf, buflen, NULL, &imported));

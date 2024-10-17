@@ -265,23 +265,6 @@ static void s_unregister_all(void)
 #ifdef LTC_CHC_HASH
   unregister_hash(&chc_desc);
 #endif
-
-  unregister_prng(&yarrow_desc);
-#ifdef LTC_FORTUNA
-  unregister_prng(&fortuna_desc);
-#endif
-#ifdef LTC_RC4
-  unregister_prng(&rc4_desc);
-#endif
-#ifdef LTC_CHACHA20_PRNG
-  unregister_prng(&chacha20_prng_desc);
-#endif
-#ifdef LTC_SOBER128
-  unregister_prng(&sober128_desc);
-#endif
-#ifdef LTC_SPRNG
-  unregister_prng(&sprng_desc);
-#endif
 } /* s_cleanup() */
 
 static void register_algs(void)
@@ -301,12 +284,12 @@ static void register_algs(void)
       fprintf(stderr, "register_all_hashes err=%s\n", error_to_string(err));
       exit(EXIT_FAILURE);
    }
-   if ((err = register_all_prngs()) != CRYPT_OK) {
-      fprintf(stderr, "register_all_prngs err=%s\n", error_to_string(err));
+
+   if ((err = yarrow_start(&yarrow_prng)) != CRYPT_OK) {
+      fprintf(stderr, "yarrow_start err=%s\n", error_to_string(err));
       exit(EXIT_FAILURE);
    }
-
-   if ((err = rng_make_prng(128, find_prng("yarrow"), &yarrow_prng, NULL)) != CRYPT_OK) {
+   if ((err = rng_make_prng(128, &yarrow_prng, NULL)) != CRYPT_OK) {
       fprintf(stderr, "rng_make_prng failed: %s\n", error_to_string(err));
       exit(EXIT_FAILURE);
    }

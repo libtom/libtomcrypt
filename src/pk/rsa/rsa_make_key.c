@@ -9,7 +9,7 @@
 
 #ifdef LTC_MRSA
 
-static int s_rsa_make_key(prng_state *prng, int wprng, int size, void *e, rsa_key *key)
+static int s_rsa_make_key(prng_state *prng, int size, void *e, rsa_key *key)
 {
    void *p, *q, *tmp1, *tmp2;
    int    err;
@@ -17,10 +17,6 @@ static int s_rsa_make_key(prng_state *prng, int wprng, int size, void *e, rsa_ke
    LTC_ARGCHK(ltc_mp.name != NULL);
    LTC_ARGCHK(key         != NULL);
    LTC_ARGCHK(size        > 0);
-
-   if ((err = prng_is_valid(wprng)) != CRYPT_OK) {
-      return err;
-   }
 
    if ((err = mp_init_multi(&p, &q, &tmp1, &tmp2, LTC_NULL)) != CRYPT_OK) {
       return err;
@@ -30,14 +26,14 @@ static int s_rsa_make_key(prng_state *prng, int wprng, int size, void *e, rsa_ke
 
    /* make prime "p" */
    do {
-       if ((err = rand_prime( p, size/2, prng, wprng)) != CRYPT_OK)  { goto cleanup; }
+       if ((err = rand_prime( p, size/2, prng)) != CRYPT_OK)  { goto cleanup; }
        if ((err = mp_sub_d( p, 1,  tmp1)) != CRYPT_OK)               { goto cleanup; }  /* tmp1 = p-1 */
        if ((err = mp_gcd( tmp1,  e,  tmp2)) != CRYPT_OK)             { goto cleanup; }  /* tmp2 = gcd(p-1, e) */
    } while (mp_cmp_d( tmp2, 1) != 0);                                                  /* while e divides p-1 */
 
    /* make prime "q" */
    do {
-       if ((err = rand_prime( q, size/2, prng, wprng)) != CRYPT_OK)  { goto cleanup; }
+       if ((err = rand_prime( q, size/2, prng)) != CRYPT_OK)  { goto cleanup; }
        if ((err = mp_sub_d( q, 1,  tmp1)) != CRYPT_OK)               { goto cleanup; } /* tmp1 = q-1 */
        if ((err = mp_gcd( tmp1,  e,  tmp2)) != CRYPT_OK)          { goto cleanup; } /* tmp2 = gcd(q-1, e) */
    } while (mp_cmp_d( tmp2, 1) != 0);                                                 /* while e divides q-1 */
@@ -89,7 +85,7 @@ cleanup:
    @param key      [out] Destination of a newly created private key pair
    @return CRYPT_OK if successful, upon error all allocated ram is freed
 */
-int rsa_make_key(prng_state *prng, int wprng, int size, long e, rsa_key *key)
+int rsa_make_key(prng_state *prng, int size, long e, rsa_key *key)
 {
    void *tmp_e;
    int err;
@@ -103,7 +99,7 @@ int rsa_make_key(prng_state *prng, int wprng, int size, long e, rsa_key *key)
    }
 
    if ((err = mp_set_int(tmp_e, e)) == CRYPT_OK)
-     err = s_rsa_make_key(prng, wprng, size, tmp_e, key);
+     err = s_rsa_make_key(prng, size, tmp_e, key);
 
    mp_clear(tmp_e);
 
@@ -120,7 +116,7 @@ int rsa_make_key(prng_state *prng, int wprng, int size, long e, rsa_key *key)
    @param key      [out] Destination of a newly created private key pair
    @return CRYPT_OK if successful, upon error all allocated ram is freed
 */
-int rsa_make_key_ubin_e(prng_state *prng, int wprng, int size,
+int rsa_make_key_ubin_e(prng_state *prng, int size,
                         const unsigned char *e, unsigned long elen, rsa_key *key)
 {
    int err;
@@ -131,7 +127,7 @@ int rsa_make_key_ubin_e(prng_state *prng, int wprng, int size,
    }
 
    if ((err = mp_read_unsigned_bin(tmp_e, (unsigned char *)e, elen)) == CRYPT_OK)
-     err = rsa_make_key_bn_e(prng, wprng, size, tmp_e, key);
+     err = rsa_make_key_bn_e(prng, size, tmp_e, key);
 
    mp_clear(tmp_e);
 
@@ -147,14 +143,14 @@ int rsa_make_key_ubin_e(prng_state *prng, int wprng, int size,
    @param key      [out] Destination of a newly created private key pair
    @return CRYPT_OK if successful, upon error all allocated ram is freed
 */
-int rsa_make_key_bn_e(prng_state *prng, int wprng, int size, void *e, rsa_key *key)
+int rsa_make_key_bn_e(prng_state *prng, int size, void *e, rsa_key *key)
 {
    int err;
    int e_bits;
 
    e_bits = mp_count_bits(e);
    if ((e_bits > 1 && e_bits < 256) && (mp_get_digit(e, 0) & 1)) {
-     err = s_rsa_make_key(prng, wprng, size, e, key);
+     err = s_rsa_make_key(prng, size, e, key);
    } else {
      err = CRYPT_INVALID_ARG;
    }

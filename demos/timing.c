@@ -592,22 +592,49 @@ static void time_prng(void)
    unsigned long x, y;
    int           err;
 
+
+
+   typedef int (*fp_prng_start)(prng_state*);
+
+   fp_prng_start prng_start[] = {
+#ifdef LTC_YARROW
+      yarrow_start,
+#endif
+#ifdef LTC_FORTUNA
+      fortuna_start,
+#endif
+#ifdef LTC_RC4
+      rc4_start,
+#endif
+#ifdef LTC_CHACHA20_PRNG
+      chacha20_prng_start,
+#endif
+#ifdef LTC_SOBER128
+      sober128_start,
+#endif
+#ifdef LTC_SPRNG
+      sprng_start,
+#endif
+      NULL
+   };
+
    fprintf(stderr, "Timing PRNGs (cycles/byte output, cycles add_entropy (32 bytes) :\n");
-   for (x = 0; prng_descriptor[x].name != NULL; x++) {
+   for (x = 0; prng_start[x] != NULL; x++) {
+
+      prng_start[x](&tprng);
 
       /* sanity check on prng */
-      if ((err = prng_descriptor[x].test()) != CRYPT_OK) {
-         fprintf(stderr, "\n\nERROR: PRNG %s failed self-test %s\n", prng_descriptor[x].name, error_to_string(err));
+      if ((err = tprng.desc.test()) != CRYPT_OK) {
+         fprintf(stderr, "\n\nERROR: PRNG %s failed self-test %s\n", tprng.desc.name, error_to_string(err));
          exit(EXIT_FAILURE);
       }
 
-      prng_descriptor[x].start(&tprng);
       zeromem(buf, 256);
-      prng_descriptor[x].add_entropy(buf, 256, &tprng);
-      prng_descriptor[x].ready(&tprng);
+      tprng.desc.add_entropy(buf, 256, &tprng);
+      tprng.desc.ready(&tprng);
       t2 = -1;
 
-#define DO1 if (prng_descriptor[x].read(buf, 4096, &tprng) != 4096) { fprintf(stderr, "\n\nERROR READ != 4096\n\n"); exit(EXIT_FAILURE); }
+#define DO1 if (tprng.desc.read(buf, 4096, &tprng) != 4096) { fprintf(stderr, "\n\nERROR READ != 4096\n\n"); exit(EXIT_FAILURE); }
 #define DO2 DO1 DO1
       for (y = 0; y < 10000; y++) {
          t_start();
@@ -616,11 +643,11 @@ static void time_prng(void)
          t1 = (t_read() - t1)>>1;
          if (t1 < t2) t2 = t1;
       }
-      fprintf(stderr, "%20s: %5"PRI64"u ", prng_descriptor[x].name, t2>>12);
+      fprintf(stderr, "%20s: %5"PRI64"u ", tprng.desc.name, t2>>12);
 #undef DO2
 #undef DO1
 
-#define DO1 prng_descriptor[x].start(&tprng); prng_descriptor[x].add_entropy(buf, 32, &tprng); prng_descriptor[x].ready(&tprng); prng_descriptor[x].done(&tprng);
+#define DO1 prng_start[x](&tprng); tprng.desc.add_entropy(buf, 32, &tprng); tprng.desc.ready(&tprng); tprng.desc.done(&tprng);
 #define DO2 DO1 DO1
       for (y = 0; y < 10000; y++) {
          t_start();
@@ -663,11 +690,11 @@ static const struct {
        for (y = 0; y < 4; y++) {
            t_start();
            t1 = t_read();
-           if ((err = dsa_generate_pqg(&yarrow_prng, find_prng("yarrow"), groups[x].group, groups[x].modulus, &key)) != CRYPT_OK) {
+           if ((err = dsa_generate_pqg(&yarrow_prng, groups[x].group, groups[x].modulus, &key)) != CRYPT_OK) {
               fprintf(stderr, "\n\ndsa_generate_pqg says %s, wait...no it should say %s...damn you!\n", error_to_string(err), error_to_string(CRYPT_OK));
               exit(EXIT_FAILURE);
            }
-           if ((err = dsa_generate_key(&yarrow_prng, find_prng("yarrow"), &key)) != CRYPT_OK) {
+           if ((err = dsa_generate_key(&yarrow_prng, &key)) != CRYPT_OK) {
               fprintf(stderr, "\n\ndsa_make_key says %s, wait...no it should say %s...damn you!\n", error_to_string(err), error_to_string(CRYPT_OK));
               exit(EXIT_FAILURE);
            }
@@ -710,7 +737,7 @@ static void time_rsa(void)
        for (y = 0; y < 4; y++) {
            t_start();
            t1 = t_read();
-           if ((err = rsa_make_key(&yarrow_prng, find_prng("yarrow"), x/8, 65537, &key)) != CRYPT_OK) {
+           if ((err = rsa_make_key(&yarrow_prng, x/8, 65537, &key)) != CRYPT_OK) {
               fprintf(stderr, "\n\nrsa_make_key says %s, wait...no it should say %s...damn you!\n", error_to_string(err), error_to_string(CRYPT_OK));
               exit(EXIT_FAILURE);
            }
@@ -735,7 +762,7 @@ static void time_rsa(void)
            t1 = t_read();
            z = sizeof(buf[1]);
            if ((err = rsa_encrypt_key(buf[0], 32, buf[1], &z, (const unsigned char *)"testprog", 8, &yarrow_prng,
-                                      find_prng("yarrow"), find_hash("sha1"),
+                                      find_hash("sha1"),
                                       &key)) != CRYPT_OK) {
               fprintf(stderr, "\n\nrsa_encrypt_key says %s, wait...no it should say %s...damn you!\n", error_to_string(err), error_to_string(CRYPT_OK));
               exit(EXIT_FAILURE);
@@ -776,7 +803,7 @@ static void time_rsa(void)
           t1 = t_read();
           z = sizeof(buf[1]);
           if ((err = rsa_sign_hash(buf[0], 20, buf[1], &z, &yarrow_prng,
-                                   find_prng("yarrow"), find_hash("sha1"), 8, &key)) != CRYPT_OK) {
+                                   find_hash("sha1"), 8, &key)) != CRYPT_OK) {
               fprintf(stderr, "\n\nrsa_sign_hash says %s, wait...no it should say %s...damn you!\n", error_to_string(err), error_to_string(CRYPT_OK));
               exit(EXIT_FAILURE);
            }
@@ -846,7 +873,7 @@ static void time_dh(void)
 
            t_start();
            t1 = t_read();
-           if ((err = dh_generate_key(&yarrow_prng, find_prng("yarrow"), &key)) != CRYPT_OK) {
+           if ((err = dh_generate_key(&yarrow_prng, &key)) != CRYPT_OK) {
               fprintf(stderr, "\n\ndh_make_key says %s, wait...no it should say %s...damn you!\n", error_to_string(err), error_to_string(CRYPT_OK));
               exit(EXIT_FAILURE);
            }
@@ -906,7 +933,7 @@ static void time_ecc(void)
        for (y = 0; y < 256; y++) {
            t_start();
            t1 = t_read();
-           if ((err = ecc_make_key(&yarrow_prng, find_prng("yarrow"), x, &key)) != CRYPT_OK) {
+           if ((err = ecc_make_key(&yarrow_prng, x, &key)) != CRYPT_OK) {
               fprintf(stderr, "\n\necc_make_key says %s, wait...no it should say %s...damn you!\n", error_to_string(err), error_to_string(CRYPT_OK));
               exit(EXIT_FAILURE);
            }
@@ -930,7 +957,7 @@ static void time_ecc(void)
            t_start();
            t1 = t_read();
            z = sizeof(buf[1]);
-           if ((err = ecc_encrypt_key(buf[0], 20, buf[1], &z, &yarrow_prng, find_prng("yarrow"), find_hash("sha1"),
+           if ((err = ecc_encrypt_key(buf[0], 20, buf[1], &z, &yarrow_prng, find_hash("sha1"),
                                       &key)) != CRYPT_OK) {
               fprintf(stderr, "\n\necc_encrypt_key says %s, wait...no it should say %s...damn you!\n", error_to_string(err), error_to_string(CRYPT_OK));
               exit(EXIT_FAILURE);
@@ -970,7 +997,7 @@ static void time_ecc(void)
           t1 = t_read();
           z = sizeof(buf[1]);
           if ((err = ecc_sign_hash(buf[0], 20, buf[1], &z, &yarrow_prng,
-                                   find_prng("yarrow"), &key)) != CRYPT_OK) {
+                                   &key)) != CRYPT_OK) {
               fprintf(stderr, "\n\necc_sign_hash says %s, wait...no it should say %s...damn you!\n", error_to_string(err), error_to_string(CRYPT_OK));
               exit(EXIT_FAILURE);
            }
@@ -1358,7 +1385,6 @@ const char* mpi_provider = NULL;
 init_timer();
 register_all_ciphers();
 register_all_hashes();
-register_all_prngs();
 
 #ifdef USE_LTM
    mpi_provider = "ltm";
@@ -1376,7 +1402,9 @@ register_all_prngs();
 
    crypt_mp_init(mpi_provider);
 
-if ((err = rng_make_prng(128, find_prng("yarrow"), &yarrow_prng, NULL)) != CRYPT_OK) {
+   yarrow_start(&yarrow_prng);
+
+if ((err = rng_make_prng(128, &yarrow_prng, NULL)) != CRYPT_OK) {
    fprintf(stderr, "rng_make_prng failed: %s\n", error_to_string(err));
    exit(EXIT_FAILURE);
 }

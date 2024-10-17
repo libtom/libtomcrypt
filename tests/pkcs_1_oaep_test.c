@@ -10,15 +10,13 @@
 
 int pkcs_1_oaep_test(void)
 {
-  struct ltc_prng_descriptor* no_prng_desc = no_prng_desc_get();
-  int prng_idx = register_prng(no_prng_desc);
+  prng_state* no_prng_desc = no_prng_desc_get();
   int hash_idx = find_hash("sha1");
   unsigned int i;
   unsigned int j;
 
   if (ltc_mp.name == NULL) return CRYPT_NOP;
 
-  DO(prng_is_valid(prng_idx));
   DO(hash_is_valid(hash_idx));
 
   for (i = 0; i < sizeof(testcases_oaep)/sizeof(testcases_oaep[0]); ++i) {
@@ -42,8 +40,8 @@ int pkcs_1_oaep_test(void)
         unsigned char buf[256], obuf[256];
         unsigned long buflen = sizeof(buf), obuflen = sizeof(obuf);
         int stat;
-        prng_descriptor[prng_idx].add_entropy(s->o2, s->o2_l, (void*)no_prng_desc);
-        DOX(rsa_encrypt_key(s->o1, s->o1_l, obuf, &obuflen, NULL, 0, (void*)no_prng_desc, prng_idx, hash_idx, key), s->name);
+        no_prng_desc->desc.add_entropy(s->o2, s->o2_l, no_prng_desc);
+        DOX(rsa_encrypt_key(s->o1, s->o1_l, obuf, &obuflen, NULL, 0, (void*)no_prng_desc, hash_idx, key), s->name);
         COMPARE_TESTVECTOR(obuf, obuflen, s->o3, s->o3_l,s->name, j);
         DOX(rsa_decrypt_key(obuf, obuflen, buf, &buflen, NULL, 0, hash_idx, &stat, key), s->name);
         DOX(stat == 1?CRYPT_OK:CRYPT_FAIL_TESTVECTOR, s->name);
@@ -52,7 +50,6 @@ int pkcs_1_oaep_test(void)
     mp_clear_multi(key->d,  key->e, key->N, key->dQ, key->dP, key->qP, key->p, key->q, LTC_NULL);
   } /* for */
 
-  unregister_prng(no_prng_desc);
   no_prng_desc_free(no_prng_desc);
 
   return 0;

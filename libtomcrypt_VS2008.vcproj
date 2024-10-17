@@ -1491,10 +1491,6 @@
 					>
 				</File>
 				<File
-					RelativePath="src\misc\crypt\crypt_find_prng.c"
-					>
-				</File>
-				<File
 					RelativePath="src\misc\crypt\crypt_fsa.c"
 					>
 				</File>
@@ -1515,18 +1511,6 @@
 					>
 				</File>
 				<File
-					RelativePath="src\misc\crypt\crypt_prng_descriptor.c"
-					>
-				</File>
-				<File
-					RelativePath="src\misc\crypt\crypt_prng_is_valid.c"
-					>
-				</File>
-				<File
-					RelativePath="src\misc\crypt\crypt_prng_rng_descriptor.c"
-					>
-				</File>
-				<File
 					RelativePath="src\misc\crypt\crypt_register_all_ciphers.c"
 					>
 				</File>
@@ -1535,19 +1519,11 @@
 					>
 				</File>
 				<File
-					RelativePath="src\misc\crypt\crypt_register_all_prngs.c"
-					>
-				</File>
-				<File
 					RelativePath="src\misc\crypt\crypt_register_cipher.c"
 					>
 				</File>
 				<File
 					RelativePath="src\misc\crypt\crypt_register_hash.c"
-					>
-				</File>
-				<File
-					RelativePath="src\misc\crypt\crypt_register_prng.c"
 					>
 				</File>
 				<File
@@ -1560,10 +1536,6 @@
 				</File>
 				<File
 					RelativePath="src\misc\crypt\crypt_unregister_hash.c"
-					>
-				</File>
-				<File
-					RelativePath="src\misc\crypt\crypt_unregister_prng.c"
 					>
 				</File>
 			</Filter>

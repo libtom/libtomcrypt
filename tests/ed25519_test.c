@@ -405,7 +405,7 @@ int ed25519_test(void)
    int ret;
    curve25519_key key;
 
-   if ((ret = ed25519_make_key(&yarrow_prng, find_prng("yarrow"), &key)) != CRYPT_OK) {
+   if ((ret = ed25519_make_key(&yarrow_prng, &key)) != CRYPT_OK) {
       return ret;
    }
 

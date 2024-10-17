@@ -11,7 +11,7 @@
 
 #define USE_BBS 1
 
-int rand_prime(void *N, long len, prng_state *prng, int wprng)
+int rand_prime(void *N, long len, prng_state *prng)
 {
    int            err, res, type;
    unsigned char *buf;
@@ -31,11 +31,6 @@ int rand_prime(void *N, long len, prng_state *prng, int wprng)
       return CRYPT_INVALID_PRIME_SIZE;
    }
 
-   /* valid PRNG? Better be! */
-   if ((err = prng_is_valid(wprng)) != CRYPT_OK) {
-      return err;
-   }
-
    /* allocate buffer to work with */
    buf = XCALLOC(1, len);
    if (buf == NULL) {
@@ -44,7 +39,7 @@ int rand_prime(void *N, long len, prng_state *prng, int wprng)
 
    do {
       /* generate value */
-      if (prng_descriptor[wprng].read(buf, len, prng) != (unsigned long)len) {
+      if (prng->desc.read(buf, len, prng) != (unsigned long)len) {
          XFREE(buf);
          return CRYPT_ERROR_READPRNG;
       }

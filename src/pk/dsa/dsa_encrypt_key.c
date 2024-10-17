@@ -16,14 +16,13 @@
   @param out        [out] The destination for the ciphertext
   @param outlen     [in/out] The max size and resulting size of the ciphertext
   @param prng       An active PRNG state
-  @param wprng      The index of the PRNG you wish to use
   @param hash       The index of the hash you want to use
   @param key        The DSA key you want to encrypt to
   @return CRYPT_OK if successful
 */
 int dsa_encrypt_key(const unsigned char *in,   unsigned long inlen,
                           unsigned char *out,  unsigned long *outlen,
-                          prng_state    *prng, int wprng, int hash,
+                          prng_state    *prng, int hash,
                     const dsa_key       *key)
 {
     unsigned char *expt, *skey;
@@ -36,11 +35,7 @@ int dsa_encrypt_key(const unsigned char *in,   unsigned long inlen,
     LTC_ARGCHK(outlen  != NULL);
     LTC_ARGCHK(key     != NULL);
 
-    /* check that wprng/cipher/hash are not invalid */
-    if ((err = prng_is_valid(wprng)) != CRYPT_OK) {
-       return err;
-    }
-
+    /* check that cipher/hash are not invalid */
     if ((err = hash_is_valid(hash)) != CRYPT_OK) {
        return err;
     }
@@ -70,7 +65,7 @@ int dsa_encrypt_key(const unsigned char *in,   unsigned long inlen,
     /* make a random g_priv, g_pub = g^x pair
        private key x should be in range: 1 <= x <= q-1 (see FIPS 186-4 B.1.2)
      */
-    if ((err = rand_bn_upto(g_priv, key->q, prng, wprng)) != CRYPT_OK) {
+    if ((err = rand_bn_upto(g_priv, key->q, prng)) != CRYPT_OK) {
       goto LBL_ERR;
     }
 

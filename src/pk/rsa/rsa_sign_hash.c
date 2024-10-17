@@ -17,7 +17,6 @@
   @param outlen    [in/out] The max size and resulting size of the signature
   @param padding   Type of padding (LTC_PKCS_1_PSS, LTC_PKCS_1_V1_5 or LTC_PKCS_1_V1_5_NA1)
   @param prng      An active PRNG state
-  @param prng_idx  The index of the PRNG desired
   @param hash_idx  The index of the hash desired
   @param saltlen   The length of the salt desired (octets)
   @param key       The private RSA key to use
@@ -26,7 +25,7 @@
 int rsa_sign_hash_ex(const unsigned char *in,       unsigned long  inlen,
                            unsigned char *out,      unsigned long *outlen,
                            int            padding,
-                           prng_state    *prng,     int            prng_idx,
+                           prng_state    *prng,
                            int            hash_idx, unsigned long  saltlen,
                      const rsa_key *key)
 {
@@ -46,10 +45,7 @@ int rsa_sign_hash_ex(const unsigned char *in,       unsigned long  inlen,
    }
 
    if (padding == LTC_PKCS_1_PSS) {
-     /* valid prng ? */
-     if ((err = prng_is_valid(prng_idx)) != CRYPT_OK) {
-        return err;
-     }
+      LTC_ARGCHK(prng != NULL);
    }
 
    if (padding != LTC_PKCS_1_V1_5_NA1) {
@@ -72,7 +68,7 @@ int rsa_sign_hash_ex(const unsigned char *in,       unsigned long  inlen,
   if (padding == LTC_PKCS_1_PSS) {
     /* PSS pad the key */
     x = *outlen;
-    if ((err = pkcs_1_pss_encode(in, inlen, saltlen, prng, prng_idx,
+    if ((err = pkcs_1_pss_encode(in, inlen, saltlen, prng,
                                  hash_idx, modulus_bitlen, out, &x)) != CRYPT_OK) {
        return err;
     }
@@ -118,7 +114,7 @@ int rsa_sign_hash_ex(const unsigned char *in,       unsigned long  inlen,
     }
 
     x = *outlen;
-    err = pkcs_1_v1_5_encode(tmpin, y, LTC_PKCS_1_EMSA, modulus_bitlen, NULL, 0, out, &x);
+    err = pkcs_1_v1_5_encode(tmpin, y, LTC_PKCS_1_EMSA, modulus_bitlen, NULL, out, &x);
 
     if (padding == LTC_PKCS_1_V1_5) {
       XFREE(tmpin);
