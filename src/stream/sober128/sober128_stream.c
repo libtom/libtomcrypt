@@ -172,7 +172,7 @@ int sober128_stream_setup(sober128_state *st, const unsigned char *key, unsigned
    st->konst = INITKONST;
 
    for (i = 0; i < keylen; i += 4) {
-      k = BYTE2WORD((unsigned char *)&key[i]);
+      k = BYTE2WORD(&key[i]);
       ADDKEY(k);
       cycle(st->R);
       XORNL(nltap(st));
@@ -214,7 +214,7 @@ int sober128_stream_setiv(sober128_state *st, const unsigned char *iv, unsigned 
    }
 
    for (i = 0; i < ivlen; i += 4) {
-      k = BYTE2WORD((unsigned char *)&iv[i]);
+      k = BYTE2WORD(&iv[i]);
       ADDKEY(k);
       cycle(st->R);
       XORNL(nltap(st));

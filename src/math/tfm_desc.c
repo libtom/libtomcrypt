@@ -8,6 +8,20 @@
 
 #include <tfm.h>
 
+#if !defined(TFM_VERSION_3)
+# if 0                          /* Enable if desirable */
+#  warning "pre-constification TFM used (TFM_VERSION_3 undefined)"
+# endif
+# define TFM_UNCONST(type) (type)
+#elif TFM_VERSION <= TFM_VERSION_3(0, 13, 89)
+# if 0                          /* Enable if desirable */
+#  warning "pre-constification TFM used (older version detected)"
+# endif
+# define TFM_UNCONST(type) (type)
+#else
+# define TFM_UNCONST(type)
+#endif
+
 static const struct {
     int tfm_code, ltc_code;
 } tfm_to_ltc_codes[] = {
@@ -51,15 +65,18 @@ static void deinit(void *a)
    XFREE(a);
 }
 
-static int neg(void *a, void *b)
+static int neg(const void *a, void *b)
 {
+   /* fp_neg() is a macro that accesses the internals of the b */
+   fp_int *tmpb = b;
+
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
-   fp_neg(((fp_int*)a), ((fp_int*)b));
+   fp_neg(a, tmpb);
    return CRYPT_OK;
 }
 
-static int copy(void *a, void *b)
+static int copy(const void *a, void *b)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
@@ -67,7 +84,7 @@ static int copy(void *a, void *b)
    return CRYPT_OK;
 }
 
-static int init_copy(void **a, void *b)
+static int init_copy(void **a, const void *b)
 {
    if (init(a) != CRYPT_OK) {
       return CRYPT_MEM;
@@ -83,36 +100,36 @@ static int set_int(void *a, ltc_mp_digit b)
    return CRYPT_OK;
 }
 
-static unsigned long get_int(void *a)
+static unsigned long get_int(const void *a)
 {
-   fp_int *A;
+   const fp_int *A;
    LTC_ARGCHK(a != NULL);
    A = a;
    return A->used > 0 ? A->dp[0] : 0;
 }
 
-static ltc_mp_digit get_digit(void *a, int n)
+static ltc_mp_digit get_digit(const void *a, int n)
 {
-   fp_int *A;
+   const fp_int *A;
    LTC_ARGCHK(a != NULL);
    A = a;
    return (n >= A->used || n < 0) ? 0 : A->dp[n];
 }
 
-static int get_digit_count(void *a)
+static int get_digit_count(const void *a)
 {
-   fp_int *A;
+   const fp_int *A;
    LTC_ARGCHK(a != NULL);
    A = a;
    return A->used;
 }
 
-static int compare(void *a, void *b)
+static int compare(const void *a, const void *b)
 {
    int ret;
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
-   ret = fp_cmp(a, b);
+   ret = fp_cmp(TFM_UNCONST(void *)a, TFM_UNCONST(void *)b);
    switch (ret) {
       case FP_LT: return LTC_MP_LT;
       case FP_EQ: return LTC_MP_EQ;
@@ -121,11 +138,11 @@ static int compare(void *a, void *b)
    return 0;
 }
 
-static int compare_d(void *a, ltc_mp_digit b)
+static int compare_d(const void *a, ltc_mp_digit b)
 {
    int ret;
    LTC_ARGCHK(a != NULL);
-   ret = fp_cmp_d(a, b);
+   ret = fp_cmp_d(TFM_UNCONST(void *)a, b);
    switch (ret) {
       case FP_LT: return LTC_MP_LT;
       case FP_EQ: return LTC_MP_EQ;
@@ -134,16 +151,16 @@ static int compare_d(void *a, ltc_mp_digit b)
    return 0;
 }
 
-static int count_bits(void *a)
+static int count_bits(const void *a)
 {
    LTC_ARGCHK(a != NULL);
-   return fp_count_bits(a);
+   return fp_count_bits(TFM_UNCONST(void *)a);
 }
 
-static int count_lsb_bits(void *a)
+static int count_lsb_bits(const void *a)
 {
    LTC_ARGCHK(a != NULL);
-   return fp_cnt_lsb(a);
+   return fp_cnt_lsb(TFM_UNCONST(void *)a);
 }
 
 static int twoexpt(void *a, int n)
@@ -160,35 +177,35 @@ static int read_radix(void *a, const char *b, int radix)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
-   return tfm_to_ltc_error(fp_read_radix(a, (char *)b, radix));
+   return tfm_to_ltc_error(fp_read_radix(a, b, radix));
 }
 
 /* write one */
-static int write_radix(void *a, char *b, int radix)
+static int write_radix(const void *a, char *b, int radix)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
-   return tfm_to_ltc_error(fp_toradix(a, b, radix));
+   return tfm_to_ltc_error(fp_toradix(TFM_UNCONST(void *)a, b, radix));
 }
 
 /* get size as unsigned char string */
-static unsigned long unsigned_size(void *a)
+static unsigned long unsigned_size(const void *a)
 {
    LTC_ARGCHK(a != NULL);
-   return fp_unsigned_bin_size(a);
+   return fp_unsigned_bin_size(TFM_UNCONST(void *)a);
 }
 
 /* store */
-static int unsigned_write(void *a, unsigned char *b)
+static int unsigned_write(const void *a, unsigned char *b)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
-   fp_to_unsigned_bin(a, b);
+   fp_to_unsigned_bin(TFM_UNCONST(void *)a, b);
    return CRYPT_OK;
 }
 
 /* read */
-static int unsigned_read(void *a, unsigned char *b, unsigned long len)
+static int unsigned_read(void *a, const unsigned char *b, unsigned long len)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
@@ -197,88 +214,88 @@ static int unsigned_read(void *a, unsigned char *b, unsigned long len)
 }
 
 /* add */
-static int add(void *a, void *b, void *c)
+static int add(const void *a, const void *b, void *c)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
    LTC_ARGCHK(c != NULL);
-   fp_add(a, b, c);
+   fp_add(TFM_UNCONST(void *)a, TFM_UNCONST(void *)b, c);
    return CRYPT_OK;
 }
 
-static int addi(void *a, ltc_mp_digit b, void *c)
+static int addi(const void *a, ltc_mp_digit b, void *c)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(c != NULL);
-   fp_add_d(a, b, c);
+   fp_add_d(TFM_UNCONST(void *)a, b, c);
    return CRYPT_OK;
 }
 
 /* sub */
-static int sub(void *a, void *b, void *c)
+static int sub(const void *a, const void *b, void *c)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
    LTC_ARGCHK(c != NULL);
-   fp_sub(a, b, c);
+   fp_sub(TFM_UNCONST(void *)a, TFM_UNCONST(void *)b, c);
    return CRYPT_OK;
 }
 
-static int subi(void *a, ltc_mp_digit b, void *c)
+static int subi(const void *a, ltc_mp_digit b, void *c)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(c != NULL);
-   fp_sub_d(a, b, c);
+   fp_sub_d(TFM_UNCONST(void *)a, b, c);
    return CRYPT_OK;
 }
 
 /* mul */
-static int mul(void *a, void *b, void *c)
+static int mul(const void *a, const void *b, void *c)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
    LTC_ARGCHK(c != NULL);
-   fp_mul(a, b, c);
+   fp_mul(TFM_UNCONST(void *)a, TFM_UNCONST(void *)b, c);
    return CRYPT_OK;
 }
 
-static int muli(void *a, ltc_mp_digit b, void *c)
+static int muli(const void *a, ltc_mp_digit b, void *c)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(c != NULL);
-   fp_mul_d(a, b, c);
+   fp_mul_d(TFM_UNCONST(void *)a, b, c);
    return CRYPT_OK;
 }
 
 /* sqr */
-static int sqr(void *a, void *b)
+static int sqr(const void *a, void *b)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
-   fp_sqr(a, b);
+   fp_sqr(TFM_UNCONST(void *)a, b);
    return CRYPT_OK;
 }
 
 /* sqrtmod_prime - NOT SUPPORTED */
 
 /* div */
-static int divide(void *a, void *b, void *c, void *d)
+static int divide(const void *a, const void *b, void *c, void *d)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
-   return tfm_to_ltc_error(fp_div(a, b, c, d));
+   return tfm_to_ltc_error(fp_div(TFM_UNCONST(void *)a, TFM_UNCONST(void *)b, c, d));
 }
 
-static int div_2(void *a, void *b)
+static int div_2(const void *a, void *b)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
-   fp_div_2(a, b);
+   fp_div_2(TFM_UNCONST(void *)a, b);
    return CRYPT_OK;
 }
 
 /* modi */
-static int modi(void *a, ltc_mp_digit b, ltc_mp_digit *c)
+static int modi(const void *a, ltc_mp_digit b, ltc_mp_digit *c)
 {
    fp_digit tmp;
    int      err;
@@ -286,7 +303,7 @@ static int modi(void *a, ltc_mp_digit b, ltc_mp_digit *c)
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(c != NULL);
 
-   if ((err = tfm_to_ltc_error(fp_mod_d(a, b, &tmp))) != CRYPT_OK) {
+   if ((err = tfm_to_ltc_error(fp_mod_d(TFM_UNCONST(void *)a, b, &tmp))) != CRYPT_OK) {
       return err;
    }
    *c = tmp;
@@ -294,71 +311,71 @@ static int modi(void *a, ltc_mp_digit b, ltc_mp_digit *c)
 }
 
 /* gcd */
-static int gcd(void *a, void *b, void *c)
+static int gcd(const void *a, const void *b, void *c)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
    LTC_ARGCHK(c != NULL);
-   fp_gcd(a, b, c);
+   fp_gcd(TFM_UNCONST(void *)a, TFM_UNCONST(void *)b, c);
    return CRYPT_OK;
 }
 
 /* lcm */
-static int lcm(void *a, void *b, void *c)
+static int lcm(const void *a, const void *b, void *c)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
    LTC_ARGCHK(c != NULL);
-   fp_lcm(a, b, c);
+   fp_lcm(TFM_UNCONST(void *)a, TFM_UNCONST(void *)b, c);
    return CRYPT_OK;
 }
 
-static int addmod(void *a, void *b, void *c, void *d)
+static int addmod(const void *a, const void *b, const void *c, void *d)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
    LTC_ARGCHK(c != NULL);
    LTC_ARGCHK(d != NULL);
-   return tfm_to_ltc_error(fp_addmod(a,b,c,d));
+   return tfm_to_ltc_error(fp_addmod(TFM_UNCONST(void *)a,TFM_UNCONST(void *)b,TFM_UNCONST(void *)c,d));
 }
 
-static int submod(void *a, void *b, void *c, void *d)
+static int submod(const void *a, const void *b, const void *c, void *d)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
    LTC_ARGCHK(c != NULL);
    LTC_ARGCHK(d != NULL);
-   return tfm_to_ltc_error(fp_submod(a,b,c,d));
+   return tfm_to_ltc_error(fp_submod(TFM_UNCONST(void *)a,TFM_UNCONST(void *)b,TFM_UNCONST(void *)c,d));
 }
 
-static int mulmod(void *a, void *b, void *c, void *d)
+static int mulmod(const void *a, const void *b, const void *c, void *d)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
    LTC_ARGCHK(c != NULL);
    LTC_ARGCHK(d != NULL);
-   return tfm_to_ltc_error(fp_mulmod(a,b,c,d));
+   return tfm_to_ltc_error(fp_mulmod(TFM_UNCONST(void *)a,TFM_UNCONST(void *)b,TFM_UNCONST(void *)c,d));
 }
 
-static int sqrmod(void *a, void *b, void *c)
+static int sqrmod(const void *a, const void *b, void *c)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
    LTC_ARGCHK(c != NULL);
-   return tfm_to_ltc_error(fp_sqrmod(a,b,c));
+   return tfm_to_ltc_error(fp_sqrmod(TFM_UNCONST(void *)a,TFM_UNCONST(void *)b,c));
 }
 
 /* invmod */
-static int invmod(void *a, void *b, void *c)
+static int invmod(const void *a, const void *b, void *c)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
    LTC_ARGCHK(c != NULL);
-   return tfm_to_ltc_error(fp_invmod(a, b, c));
+   return tfm_to_ltc_error(fp_invmod(TFM_UNCONST(void *)a, TFM_UNCONST(void *)b, c));
 }
 
 /* setup */
-static int montgomery_setup(void *a, void **b)
+static int montgomery_setup(const void *a, void **b)
 {
    int err;
    LTC_ARGCHK(a != NULL);
@@ -367,28 +384,29 @@ static int montgomery_setup(void *a, void **b)
    if (*b == NULL) {
       return CRYPT_MEM;
    }
-   if ((err = tfm_to_ltc_error(fp_montgomery_setup(a, (fp_digit *)*b))) != CRYPT_OK) {
+   if ((err = tfm_to_ltc_error(fp_montgomery_setup(TFM_UNCONST(void *)a, *b))) != CRYPT_OK) {
       XFREE(*b);
    }
    return err;
 }
 
 /* get normalization value */
-static int montgomery_normalization(void *a, void *b)
+static int montgomery_normalization(void *a, const void *b)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
-   fp_montgomery_calc_normalization(a, b);
+   fp_montgomery_calc_normalization(a, TFM_UNCONST(void *)b);
    return CRYPT_OK;
 }
 
 /* reduce */
-static int montgomery_reduce(void *a, void *b, void *c)
+static int montgomery_reduce(void *a, const void *b, void *c)
 {
+   fp_digit *tmpc = c;
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
    LTC_ARGCHK(c != NULL);
-   fp_montgomery_reduce(a, b, *((fp_digit *)c));
+   fp_montgomery_reduce(a, TFM_UNCONST(void *)b, *tmpc);
    return CRYPT_OK;
 }
 
@@ -398,29 +416,29 @@ static void montgomery_deinit(void *a)
    XFREE(a);
 }
 
-static int exptmod(void *a, void *b, void *c, void *d)
+static int exptmod(const void *a, const void *b, const void *c, void *d)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
    LTC_ARGCHK(c != NULL);
    LTC_ARGCHK(d != NULL);
-   return tfm_to_ltc_error(fp_exptmod(a,b,c,d));
+   return tfm_to_ltc_error(fp_exptmod(TFM_UNCONST(void *)a,TFM_UNCONST(void *)b,TFM_UNCONST(void *)c,d));
 }
 
-static int isprime(void *a, int b, int *c)
+static int isprime(const void *a, int b, int *c)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(c != NULL);
    if (b == 0) {
        b = LTC_MILLER_RABIN_REPS;
    } /* if */
-   *c = (fp_isprime_ex(a, b) == FP_YES) ? LTC_MP_YES : LTC_MP_NO;
+   *c = (fp_isprime_ex(TFM_UNCONST(void *)a, b) == FP_YES) ? LTC_MP_YES : LTC_MP_NO;
    return CRYPT_OK;
 }
 
 #if defined(LTC_MECC) && defined(LTC_MECC_ACCEL)
 
-static int tfm_ecc_projective_dbl_point(const ecc_point *P, ecc_point *R, void *ma, void *modulus, void *Mp)
+static int tfm_ecc_projective_dbl_point(const ecc_point *P, ecc_point *R, const void *ma, const void *modulus, void *Mp)
 {
    fp_int t1, t2;
    fp_digit mp;
@@ -453,114 +471,114 @@ static int tfm_ecc_projective_dbl_point(const ecc_point *P, ecc_point *R, void *
 
    /* t1 = Z * Z */
    fp_sqr(R->z, &t1);
-   fp_montgomery_reduce(&t1, modulus, mp);
+   fp_montgomery_reduce(&t1, TFM_UNCONST(void *)modulus, mp);
    /* Z = Y * Z */
    fp_mul(R->z, R->y, R->z);
-   fp_montgomery_reduce(R->z, modulus, mp);
+   fp_montgomery_reduce(R->z, TFM_UNCONST(void *)modulus, mp);
    /* Z = 2Z */
    fp_add(R->z, R->z, R->z);
-   if (fp_cmp(R->z, modulus) != FP_LT) {
-      fp_sub(R->z, modulus, R->z);
+   if (fp_cmp(R->z, TFM_UNCONST(void *)modulus) != FP_LT) {
+      fp_sub(R->z, TFM_UNCONST(void *)modulus, R->z);
    }
 
    if (ma == NULL) { /* special case for curves with a == -3 (10% faster than general case) */
       /* T2 = X - T1 */
       fp_sub(R->x, &t1, &t2);
       if (fp_cmp_d(&t2, 0) == LTC_MP_LT) {
-         fp_add(&t2, modulus, &t2);
+         fp_add(&t2, TFM_UNCONST(void *)modulus, &t2);
       }
       /* T1 = X + T1 */
       fp_add(&t1, R->x, &t1);
-      if (fp_cmp(&t1, modulus) != FP_LT) {
-         fp_sub(&t1, modulus, &t1);
+      if (fp_cmp(&t1, TFM_UNCONST(void *)modulus) != FP_LT) {
+         fp_sub(&t1, TFM_UNCONST(void *)modulus, &t1);
       }
       /* T2 = T1 * T2 */
       fp_mul(&t1, &t2, &t2);
-      fp_montgomery_reduce(&t2, modulus, mp);
+      fp_montgomery_reduce(&t2, TFM_UNCONST(void *)modulus, mp);
       /* T1 = 2T2 */
       fp_add(&t2, &t2, &t1);
-      if (fp_cmp(&t1, modulus) != FP_LT) {
-         fp_sub(&t1, modulus, &t1);
+      if (fp_cmp(&t1, TFM_UNCONST(void *)modulus) != FP_LT) {
+         fp_sub(&t1, TFM_UNCONST(void *)modulus, &t1);
       }
       /* T1 = T1 + T2 */
       fp_add(&t1, &t2, &t1);
-      if (fp_cmp(&t1, modulus) != FP_LT) {
-         fp_sub(&t1, modulus, &t1);
+      if (fp_cmp(&t1, TFM_UNCONST(void *)modulus) != FP_LT) {
+         fp_sub(&t1, TFM_UNCONST(void *)modulus, &t1);
       }
    }
    else {
       /* T2 = T1 * T1 */
       fp_sqr(&t1, &t2);
-      fp_montgomery_reduce(&t2, modulus, mp);
+      fp_montgomery_reduce(&t2, TFM_UNCONST(void *)modulus, mp);
       /* T1 = T2 * a */
-      fp_mul(&t2, ma, &t1);
-      fp_montgomery_reduce(&t1, modulus, mp);
+      fp_mul(&t2, TFM_UNCONST(void *)ma, &t1);
+      fp_montgomery_reduce(&t1, TFM_UNCONST(void *)modulus, mp);
       /* T2 = X * X */
       fp_sqr(R->x, &t2);
-      fp_montgomery_reduce(&t2, modulus, mp);
+      fp_montgomery_reduce(&t2, TFM_UNCONST(void *)modulus, mp);
       /* T1 = T1 + T2 */
       fp_add(&t1, &t2, &t1);
-      if (fp_cmp(&t1, modulus) != FP_LT) {
-         fp_sub(&t1, modulus, &t1);
+      if (fp_cmp(&t1, TFM_UNCONST(void *)modulus) != FP_LT) {
+         fp_sub(&t1, TFM_UNCONST(void *)modulus, &t1);
       }
       /* T1 = T1 + T2 */
       fp_add(&t1, &t2, &t1);
-      if (fp_cmp(&t1, modulus) != FP_LT) {
-         fp_sub(&t1, modulus, &t1);
+      if (fp_cmp(&t1, TFM_UNCONST(void *)modulus) != FP_LT) {
+         fp_sub(&t1, TFM_UNCONST(void *)modulus, &t1);
       }
       /* T1 = T1 + T2 */
       fp_add(&t1, &t2, &t1);
-      if (fp_cmp(&t1, modulus) != FP_LT) {
-         fp_sub(&t1, modulus, &t1);
+      if (fp_cmp(&t1, TFM_UNCONST(void *)modulus) != FP_LT) {
+         fp_sub(&t1, TFM_UNCONST(void *)modulus, &t1);
       }
    }
 
    /* Y = 2Y */
    fp_add(R->y, R->y, R->y);
-   if (fp_cmp(R->y, modulus) != FP_LT) {
-      fp_sub(R->y, modulus, R->y);
+   if (fp_cmp(R->y, TFM_UNCONST(void *)modulus) != FP_LT) {
+      fp_sub(R->y, TFM_UNCONST(void *)modulus, R->y);
    }
    /* Y = Y * Y */
    fp_sqr(R->y, R->y);
-   fp_montgomery_reduce(R->y, modulus, mp);
+   fp_montgomery_reduce(R->y, TFM_UNCONST(void *)modulus, mp);
    /* T2 = Y * Y */
    fp_sqr(R->y, &t2);
-   fp_montgomery_reduce(&t2, modulus, mp);
+   fp_montgomery_reduce(&t2, TFM_UNCONST(void *)modulus, mp);
    /* T2 = T2/2 */
    if (fp_isodd(&t2)) {
-      fp_add(&t2, modulus, &t2);
+      fp_add(&t2, TFM_UNCONST(void *)modulus, &t2);
    }
    fp_div_2(&t2, &t2);
    /* Y = Y * X */
    fp_mul(R->y, R->x, R->y);
-   fp_montgomery_reduce(R->y, modulus, mp);
+   fp_montgomery_reduce(R->y, TFM_UNCONST(void *)modulus, mp);
 
    /* X  = T1 * T1 */
    fp_sqr(&t1, R->x);
-   fp_montgomery_reduce(R->x, modulus, mp);
+   fp_montgomery_reduce(R->x, TFM_UNCONST(void *)modulus, mp);
    /* X = X - Y */
    fp_sub(R->x, R->y, R->x);
    if (fp_cmp_d(R->x, 0) == FP_LT) {
-      fp_add(R->x, modulus, R->x);
+      fp_add(R->x, TFM_UNCONST(void *)modulus, R->x);
    }
    /* X = X - Y */
    fp_sub(R->x, R->y, R->x);
    if (fp_cmp_d(R->x, 0) == FP_LT) {
-      fp_add(R->x, modulus, R->x);
+      fp_add(R->x, TFM_UNCONST(void *)modulus, R->x);
    }
 
    /* Y = Y - X */
    fp_sub(R->y, R->x, R->y);
    if (fp_cmp_d(R->y, 0) == FP_LT) {
-      fp_add(R->y, modulus, R->y);
+      fp_add(R->y, TFM_UNCONST(void *)modulus, R->y);
    }
    /* Y = Y * T1 */
    fp_mul(R->y, &t1, R->y);
-   fp_montgomery_reduce(R->y, modulus, mp);
+   fp_montgomery_reduce(R->y, TFM_UNCONST(void *)modulus, mp);
    /* Y = Y - T2 */
    fp_sub(R->y, &t2, R->y);
    if (fp_cmp_d(R->y, 0) == FP_LT) {
-      fp_add(R->y, modulus, R->y);
+      fp_add(R->y, TFM_UNCONST(void *)modulus, R->y);
    }
 
    return CRYPT_OK;
@@ -575,7 +593,7 @@ static int tfm_ecc_projective_dbl_point(const ecc_point *P, ecc_point *R, void *
    @param Mp       The "b" value from montgomery_setup()
    @return CRYPT_OK on success
 */
-static int tfm_ecc_projective_add_point(const ecc_point *P, const ecc_point *Q, ecc_point *R, void *ma, void *modulus, void *Mp)
+static int tfm_ecc_projective_add_point(const ecc_point *P, const ecc_point *Q, ecc_point *R, const void *ma, const void *modulus, void *Mp)
 {
    fp_int  t1, t2, x, y, z;
    fp_digit mp;
@@ -614,7 +632,7 @@ static int tfm_ecc_projective_add_point(const ecc_point *P, const ecc_point *Q, 
    }
 
    /* should we dbl instead? */
-   fp_sub(modulus, Q->y, &t1);
+   fp_sub(TFM_UNCONST(void *)modulus, Q->y, &t1);
    if ( (fp_cmp(P->x, Q->x) == FP_EQ) &&
         (Q->z != NULL && fp_cmp(P->z, Q->z) == FP_EQ) &&
         (fp_cmp(P->y, Q->y) == FP_EQ || fp_cmp(P->y, &t1) == FP_EQ)) {
@@ -629,116 +647,116 @@ static int tfm_ecc_projective_add_point(const ecc_point *P, const ecc_point *Q, 
    if (Q->z != NULL) {
       /* T1 = Z' * Z' */
       fp_sqr(Q->z, &t1);
-      fp_montgomery_reduce(&t1, modulus, mp);
+      fp_montgomery_reduce(&t1, TFM_UNCONST(void *)modulus, mp);
       /* X = X * T1 */
       fp_mul(&t1, &x, &x);
-      fp_montgomery_reduce(&x, modulus, mp);
+      fp_montgomery_reduce(&x, TFM_UNCONST(void *)modulus, mp);
       /* T1 = Z' * T1 */
       fp_mul(Q->z, &t1, &t1);
-      fp_montgomery_reduce(&t1, modulus, mp);
+      fp_montgomery_reduce(&t1, TFM_UNCONST(void *)modulus, mp);
       /* Y = Y * T1 */
       fp_mul(&t1, &y, &y);
-      fp_montgomery_reduce(&y, modulus, mp);
+      fp_montgomery_reduce(&y, TFM_UNCONST(void *)modulus, mp);
    }
 
    /* T1 = Z*Z */
    fp_sqr(&z, &t1);
-   fp_montgomery_reduce(&t1, modulus, mp);
+   fp_montgomery_reduce(&t1, TFM_UNCONST(void *)modulus, mp);
    /* T2 = X' * T1 */
    fp_mul(Q->x, &t1, &t2);
-   fp_montgomery_reduce(&t2, modulus, mp);
+   fp_montgomery_reduce(&t2, TFM_UNCONST(void *)modulus, mp);
    /* T1 = Z * T1 */
    fp_mul(&z, &t1, &t1);
-   fp_montgomery_reduce(&t1, modulus, mp);
+   fp_montgomery_reduce(&t1, TFM_UNCONST(void *)modulus, mp);
    /* T1 = Y' * T1 */
    fp_mul(Q->y, &t1, &t1);
-   fp_montgomery_reduce(&t1, modulus, mp);
+   fp_montgomery_reduce(&t1, TFM_UNCONST(void *)modulus, mp);
 
    /* Y = Y - T1 */
    fp_sub(&y, &t1, &y);
    if (fp_cmp_d(&y, 0) == FP_LT) {
-      fp_add(&y, modulus, &y);
+      fp_add(&y, TFM_UNCONST(void *)modulus, &y);
    }
    /* T1 = 2T1 */
    fp_add(&t1, &t1, &t1);
-   if (fp_cmp(&t1, modulus) != FP_LT) {
-      fp_sub(&t1, modulus, &t1);
+   if (fp_cmp(&t1, TFM_UNCONST(void *)modulus) != FP_LT) {
+      fp_sub(&t1, TFM_UNCONST(void *)modulus, &t1);
    }
    /* T1 = Y + T1 */
    fp_add(&t1, &y, &t1);
-   if (fp_cmp(&t1, modulus) != FP_LT) {
-      fp_sub(&t1, modulus, &t1);
+   if (fp_cmp(&t1, TFM_UNCONST(void *)modulus) != FP_LT) {
+      fp_sub(&t1, TFM_UNCONST(void *)modulus, &t1);
    }
    /* X = X - T2 */
    fp_sub(&x, &t2, &x);
    if (fp_cmp_d(&x, 0) == FP_LT) {
-      fp_add(&x, modulus, &x);
+      fp_add(&x, TFM_UNCONST(void *)modulus, &x);
    }
    /* T2 = 2T2 */
    fp_add(&t2, &t2, &t2);
-   if (fp_cmp(&t2, modulus) != FP_LT) {
-      fp_sub(&t2, modulus, &t2);
+   if (fp_cmp(&t2, TFM_UNCONST(void *)modulus) != FP_LT) {
+      fp_sub(&t2, TFM_UNCONST(void *)modulus, &t2);
    }
    /* T2 = X + T2 */
    fp_add(&t2, &x, &t2);
-   if (fp_cmp(&t2, modulus) != FP_LT) {
-      fp_sub(&t2, modulus, &t2);
+   if (fp_cmp(&t2, TFM_UNCONST(void *)modulus) != FP_LT) {
+      fp_sub(&t2, TFM_UNCONST(void *)modulus, &t2);
    }
 
    /* if Z' != 1 */
    if (Q->z != NULL) {
       /* Z = Z * Z' */
       fp_mul(&z, Q->z, &z);
-      fp_montgomery_reduce(&z, modulus, mp);
+      fp_montgomery_reduce(&z, TFM_UNCONST(void *)modulus, mp);
    }
 
    /* Z = Z * X */
    fp_mul(&z, &x, &z);
-   fp_montgomery_reduce(&z, modulus, mp);
+   fp_montgomery_reduce(&z, TFM_UNCONST(void *)modulus, mp);
 
    /* T1 = T1 * X  */
    fp_mul(&t1, &x, &t1);
-   fp_montgomery_reduce(&t1, modulus, mp);
+   fp_montgomery_reduce(&t1, TFM_UNCONST(void *)modulus, mp);
    /* X = X * X */
    fp_sqr(&x, &x);
-   fp_montgomery_reduce(&x, modulus, mp);
+   fp_montgomery_reduce(&x, TFM_UNCONST(void *)modulus, mp);
    /* T2 = T2 * x */
    fp_mul(&t2, &x, &t2);
-   fp_montgomery_reduce(&t2, modulus, mp);
+   fp_montgomery_reduce(&t2, TFM_UNCONST(void *)modulus, mp);
    /* T1 = T1 * X  */
    fp_mul(&t1, &x, &t1);
-   fp_montgomery_reduce(&t1, modulus, mp);
+   fp_montgomery_reduce(&t1, TFM_UNCONST(void *)modulus, mp);
 
    /* X = Y*Y */
    fp_sqr(&y, &x);
-   fp_montgomery_reduce(&x, modulus, mp);
+   fp_montgomery_reduce(&x, TFM_UNCONST(void *)modulus, mp);
    /* X = X - T2 */
    fp_sub(&x, &t2, &x);
    if (fp_cmp_d(&x, 0) == FP_LT) {
-      fp_add(&x, modulus, &x);
+      fp_add(&x, TFM_UNCONST(void *)modulus, &x);
    }
 
    /* T2 = T2 - X */
    fp_sub(&t2, &x, &t2);
    if (fp_cmp_d(&t2, 0) == FP_LT) {
-      fp_add(&t2, modulus, &t2);
+      fp_add(&t2, TFM_UNCONST(void *)modulus, &t2);
    }
    /* T2 = T2 - X */
    fp_sub(&t2, &x, &t2);
    if (fp_cmp_d(&t2, 0) == FP_LT) {
-      fp_add(&t2, modulus, &t2);
+      fp_add(&t2, TFM_UNCONST(void *)modulus, &t2);
    }
    /* T2 = T2 * Y */
    fp_mul(&t2, &y, &t2);
-   fp_montgomery_reduce(&t2, modulus, mp);
+   fp_montgomery_reduce(&t2, TFM_UNCONST(void *)modulus, mp);
    /* Y = T2 - T1 */
    fp_sub(&t2, &t1, &y);
    if (fp_cmp_d(&y, 0) == FP_LT) {
-      fp_add(&y, modulus, &y);
+      fp_add(&y, TFM_UNCONST(void *)modulus, &y);
    }
    /* Y = Y/2 */
    if (fp_isodd(&y)) {
-      fp_add(&y, modulus, &y);
+      fp_add(&y, TFM_UNCONST(void *)modulus, &y);
    }
    fp_div_2(&y, &y);
 

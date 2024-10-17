@@ -678,11 +678,11 @@ static void ecc_gen(void)
         fprintf(out, "%s\n", ltc_ecc_curves[x].OID);
         mp_set(k, 1);
 
-        mp_read_radix(order,   (char *)ltc_ecc_curves[x].order, 16);
-        mp_read_radix(modulus, (char *)ltc_ecc_curves[x].prime, 16);
-        mp_read_radix(a,       (char *)ltc_ecc_curves[x].A,     16);
-        mp_read_radix(G->x,    (char *)ltc_ecc_curves[x].Gx,    16);
-        mp_read_radix(G->y,    (char *)ltc_ecc_curves[x].Gy,    16);
+        mp_read_radix(order,   ltc_ecc_curves[x].order, 16);
+        mp_read_radix(modulus, ltc_ecc_curves[x].prime, 16);
+        mp_read_radix(a,       ltc_ecc_curves[x].A,     16);
+        mp_read_radix(G->x,    ltc_ecc_curves[x].Gx,    16);
+        mp_read_radix(G->y,    ltc_ecc_curves[x].Gy,    16);
         mp_set(G->z, 1);
 
         while (mp_cmp(k, order) == LTC_MP_LT) {

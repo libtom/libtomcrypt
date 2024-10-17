@@ -17,7 +17,7 @@
   @param mp       The "b" value from montgomery_setup()
   @return CRYPT_OK on success
 */
-int ltc_ecc_map(ecc_point *P, void *modulus, void *mp)
+int ltc_ecc_map(ecc_point *P, const void *modulus, void *mp)
 {
    void *t1, *t2;
    int   err;

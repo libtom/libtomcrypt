@@ -130,7 +130,7 @@ int rsa_make_key_ubin_e(prng_state *prng, int wprng, int size,
       return err;
    }
 
-   if ((err = mp_read_unsigned_bin(tmp_e, (unsigned char *)e, elen)) == CRYPT_OK)
+   if ((err = mp_read_unsigned_bin(tmp_e, e, elen)) == CRYPT_OK)
      err = rsa_make_key_bn_e(prng, wprng, size, tmp_e, key);
 
    mp_clear(tmp_e);

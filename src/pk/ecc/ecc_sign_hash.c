@@ -55,10 +55,10 @@ int ecc_sign_hash_ex(const unsigned char *in,  unsigned long inlen,
    pbits = mp_count_bits(p);
    pbytes = (pbits+7) >> 3;
    if (pbits > inlen*8) {
-      if ((err = mp_read_unsigned_bin(e, (unsigned char *)in, inlen)) != CRYPT_OK)    { goto errnokey; }
+      if ((err = mp_read_unsigned_bin(e, in, inlen)) != CRYPT_OK)    { goto errnokey; }
    }
    else if (pbits % 8 == 0) {
-      if ((err = mp_read_unsigned_bin(e, (unsigned char *)in, pbytes)) != CRYPT_OK)   { goto errnokey; }
+      if ((err = mp_read_unsigned_bin(e, in, pbytes)) != CRYPT_OK)   { goto errnokey; }
    }
    else {
       shift_right = 8 - pbits % 8;
@@ -67,7 +67,7 @@ int ecc_sign_hash_ex(const unsigned char *in,  unsigned long inlen,
         ch = (in[i] << (8-shift_right));
         buf[i] = buf[i] ^ (in[i] >> shift_right);
       }
-      if ((err = mp_read_unsigned_bin(e, (unsigned char *)buf, pbytes)) != CRYPT_OK)  { goto errnokey; }
+      if ((err = mp_read_unsigned_bin(e, buf, pbytes)) != CRYPT_OK)  { goto errnokey; }
    }
 
    /* make up a key and export the public copy */

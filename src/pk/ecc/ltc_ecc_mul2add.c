@@ -25,8 +25,8 @@
 int ltc_ecc_mul2add(const ecc_point *A, void *kA,
                     const ecc_point *B, void *kB,
                           ecc_point *C,
-                               void *ma,
-                               void *modulus)
+                         const void *ma,
+                         const void *modulus)
 {
   ecc_point     *precomp[16];
   unsigned       bitbufA, bitbufB, lenA, lenB, len, nA, nB, nibble;

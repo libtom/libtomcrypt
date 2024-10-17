@@ -80,7 +80,7 @@ retry:
    inlen = MIN(inlen, (unsigned long)(key->qord));
 
    /* now find s = (in + xr)/k mod q */
-   if ((err = mp_read_unsigned_bin(tmp, (unsigned char *)in, inlen)) != CRYPT_OK)      { goto error; }
+   if ((err = mp_read_unsigned_bin(tmp, in, inlen)) != CRYPT_OK)                       { goto error; }
    if ((err = mp_mul(key->x, r, s)) != CRYPT_OK)                                       { goto error; }
    if ((err = mp_add(s, tmp, s)) != CRYPT_OK)                                          { goto error; }
    if ((err = mp_mulmod(s, kinv, key->q, s)) != CRYPT_OK)                              { goto error; }

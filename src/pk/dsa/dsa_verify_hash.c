@@ -53,7 +53,7 @@ int dsa_verify_hash_raw(         void   *r,          void   *s,
    if ((err = mp_invmod(s, key->q, w)) != CRYPT_OK)                                       { goto error; }
 
    /* u1 = m * w mod q */
-   if ((err = mp_read_unsigned_bin(u1, (unsigned char *)hash, hashlen)) != CRYPT_OK)      { goto error; }
+   if ((err = mp_read_unsigned_bin(u1, hash, hashlen)) != CRYPT_OK)                       { goto error; }
    if ((err = mp_mulmod(u1, w, key->q, u1)) != CRYPT_OK)                                  { goto error; }
 
    /* u2 = r*w mod q */

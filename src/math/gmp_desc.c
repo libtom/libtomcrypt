@@ -17,7 +17,7 @@ static int init(void **a)
    if (*a == NULL) {
       return CRYPT_MEM;
    }
-   mpz_init(((__mpz_struct *)*a));
+   mpz_init(*a);
    return CRYPT_OK;
 }
 
@@ -28,7 +28,7 @@ static void deinit(void *a)
    XFREE(a);
 }
 
-static int neg(void *a, void *b)
+static int neg(const void *a, void *b)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
@@ -36,7 +36,7 @@ static int neg(void *a, void *b)
    return CRYPT_OK;
 }
 
-static int copy(void *a, void *b)
+static int copy(const void *a, void *b)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
@@ -44,7 +44,7 @@ static int copy(void *a, void *b)
    return CRYPT_OK;
 }
 
-static int init_copy(void **a, void *b)
+static int init_copy(void **a, const void *b)
 {
    if (init(a) != CRYPT_OK) {
       return CRYPT_MEM;
@@ -56,29 +56,29 @@ static int init_copy(void **a, void *b)
 static int set_int(void *a, ltc_mp_digit b)
 {
    LTC_ARGCHK(a != NULL);
-   mpz_set_ui(((__mpz_struct *)a), b);
+   mpz_set_ui(a, b);
    return CRYPT_OK;
 }
 
-static unsigned long get_int(void *a)
+static unsigned long get_int(const void *a)
 {
    LTC_ARGCHK(a != NULL);
    return mpz_get_ui(a);
 }
 
-static ltc_mp_digit get_digit(void *a, int n)
+static ltc_mp_digit get_digit(const void *a, int n)
 {
    LTC_ARGCHK(a != NULL);
    return mpz_getlimbn(a, n);
 }
 
-static int get_digit_count(void *a)
+static int get_digit_count(const void *a)
 {
    LTC_ARGCHK(a != NULL);
    return mpz_size(a);
 }
 
-static int compare(void *a, void *b)
+static int compare(const void *a, const void *b)
 {
    int ret;
    LTC_ARGCHK(a != NULL);
@@ -93,11 +93,11 @@ static int compare(void *a, void *b)
    }
 }
 
-static int compare_d(void *a, ltc_mp_digit b)
+static int compare_d(const void *a, ltc_mp_digit b)
 {
    int ret;
    LTC_ARGCHK(a != NULL);
-   ret = mpz_cmp_ui(((__mpz_struct *)a), b);
+   ret = mpz_cmp_ui((__mpz_struct *)a, b);
    if (ret < 0) {
       return LTC_MP_LT;
    } else if (ret > 0) {
@@ -107,13 +107,13 @@ static int compare_d(void *a, ltc_mp_digit b)
    }
 }
 
-static int count_bits(void *a)
+static int count_bits(const void *a)
 {
    LTC_ARGCHK(a != NULL);
    return mpz_sizeinbase(a, 2);
 }
 
-static int count_lsb_bits(void *a)
+static int count_lsb_bits(const void *a)
 {
    LTC_ARGCHK(a != NULL);
    return mpz_scan1(a, 0);
@@ -176,7 +176,7 @@ static int read_radix(void *a, const char *b, int radix)
 }
 
 /* write one */
-static int write_radix(void *a, char *b, int radix)
+static int write_radix(const void *a, char *b, int radix)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
@@ -190,26 +190,26 @@ static int write_radix(void *a, char *b, int radix)
 }
 
 /* get size as unsigned char string */
-static unsigned long unsigned_size(void *a)
+static unsigned long unsigned_size(const void *a)
 {
    unsigned long t;
    LTC_ARGCHK(a != NULL);
    t = mpz_sizeinbase(a, 2);
-   if (mpz_cmp_ui(((__mpz_struct *)a), 0) == 0) return 0;
+   if (mpz_cmp_ui((__mpz_struct *)a, 0) == 0) return 0;
    return (t>>3) + ((t&7)?1:0);
 }
 
 /* store */
-static int unsigned_write(void *a, unsigned char *b)
+static int unsigned_write(const void *a, unsigned char *b)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
-   mpz_export(b, NULL, 1, 1, 1, 0, ((__mpz_struct*)a));
+   mpz_export(b, NULL, 1, 1, 1, 0, a);
    return CRYPT_OK;
 }
 
 /* read */
-static int unsigned_read(void *a, unsigned char *b, unsigned long len)
+static int unsigned_read(void *a, const unsigned char *b, unsigned long len)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
@@ -218,7 +218,7 @@ static int unsigned_read(void *a, unsigned char *b, unsigned long len)
 }
 
 /* add */
-static int add(void *a, void *b, void *c)
+static int add(const void *a, const void *b, void *c)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
@@ -227,7 +227,7 @@ static int add(void *a, void *b, void *c)
    return CRYPT_OK;
 }
 
-static int addi(void *a, ltc_mp_digit b, void *c)
+static int addi(const void *a, ltc_mp_digit b, void *c)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(c != NULL);
@@ -236,7 +236,7 @@ static int addi(void *a, ltc_mp_digit b, void *c)
 }
 
 /* sub */
-static int sub(void *a, void *b, void *c)
+static int sub(const void *a, const void *b, void *c)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
@@ -245,7 +245,7 @@ static int sub(void *a, void *b, void *c)
    return CRYPT_OK;
 }
 
-static int subi(void *a, ltc_mp_digit b, void *c)
+static int subi(const void *a, ltc_mp_digit b, void *c)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(c != NULL);
@@ -254,7 +254,7 @@ static int subi(void *a, ltc_mp_digit b, void *c)
 }
 
 /* mul */
-static int mul(void *a, void *b, void *c)
+static int mul(const void *a, const void *b, void *c)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
@@ -263,7 +263,7 @@ static int mul(void *a, void *b, void *c)
    return CRYPT_OK;
 }
 
-static int muli(void *a, ltc_mp_digit b, void *c)
+static int muli(const void *a, ltc_mp_digit b, void *c)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(c != NULL);
@@ -272,7 +272,7 @@ static int muli(void *a, ltc_mp_digit b, void *c)
 }
 
 /* sqr */
-static int sqr(void *a, void *b)
+static int sqr(const void *a, void *b)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
@@ -281,7 +281,7 @@ static int sqr(void *a, void *b)
 }
 
 /* sqrtmod_prime */
-static int sqrtmod_prime(void *n, void *prime, void *ret)
+static int sqrtmod_prime(const void *n, const void *prime, void *ret)
 {
    int res, legendre, i;
    mpz_t t1, C, Q, S, Z, M, T, R, two;
@@ -291,11 +291,11 @@ static int sqrtmod_prime(void *n, void *prime, void *ret)
    LTC_ARGCHK(ret   != NULL);
 
    /* first handle the simple cases */
-   if (mpz_cmp_ui(((__mpz_struct *)n), 0) == 0) {
+   if (mpz_cmp_ui((__mpz_struct *)n, 0) == 0) {
       mpz_set_ui(ret, 0);
       return CRYPT_OK;
    }
-   if (mpz_cmp_ui(((__mpz_struct *)prime), 2) == 0)     return CRYPT_ERROR; /* prime must be odd */
+   if (mpz_cmp_ui((__mpz_struct *)prime, 2) == 0)       return CRYPT_ERROR; /* prime must be odd */
    legendre = mpz_legendre(n, prime);
    if (legendre == -1)                                  return CRYPT_ERROR; /* quadratic non-residue mod prime */
 
@@ -358,7 +358,7 @@ static int sqrtmod_prime(void *n, void *prime, void *ret)
       mpz_set(t1, T);
       i = 0;
       while (1) {
-         if (mpz_cmp_ui(((__mpz_struct *)t1), 1) == 0) break;
+         if (mpz_cmp_ui(t1, 1) == 0) break;
          mpz_powm(t1, t1, two, prime);
          i++;
       }
@@ -394,7 +394,7 @@ cleanup:
 }
 
 /* div */
-static int divide(void *a, void *b, void *c, void *d)
+static int divide(const void *a, const void *b, void *c, void *d)
 {
    mpz_t tmp;
    LTC_ARGCHK(a != NULL);
@@ -413,7 +413,7 @@ static int divide(void *a, void *b, void *c, void *d)
    return CRYPT_OK;
 }
 
-static int div_2(void *a, void *b)
+static int div_2(const void *a, void *b)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
@@ -422,7 +422,7 @@ static int div_2(void *a, void *b)
 }
 
 /* modi */
-static int modi(void *a, ltc_mp_digit b, ltc_mp_digit *c)
+static int modi(const void *a, ltc_mp_digit b, ltc_mp_digit *c)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(c != NULL);
@@ -432,7 +432,7 @@ static int modi(void *a, ltc_mp_digit b, ltc_mp_digit *c)
 }
 
 /* gcd */
-static int gcd(void *a, void *b, void *c)
+static int gcd(const void *a, const void *b, void *c)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
@@ -442,7 +442,7 @@ static int gcd(void *a, void *b, void *c)
 }
 
 /* lcm */
-static int lcm(void *a, void *b, void *c)
+static int lcm(const void *a, const void *b, void *c)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
@@ -451,7 +451,7 @@ static int lcm(void *a, void *b, void *c)
    return CRYPT_OK;
 }
 
-static int addmod(void *a, void *b, void *c, void *d)
+static int addmod(const void *a, const void *b, const void *c, void *d)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
@@ -462,7 +462,7 @@ static int addmod(void *a, void *b, void *c, void *d)
    return CRYPT_OK;
 }
 
-static int submod(void *a, void *b, void *c, void *d)
+static int submod(const void *a, const void *b, const void *c, void *d)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
@@ -473,7 +473,7 @@ static int submod(void *a, void *b, void *c, void *d)
    return CRYPT_OK;
 }
 
-static int mulmod(void *a, void *b, void *c, void *d)
+static int mulmod(const void *a, const void *b, const void *c, void *d)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
@@ -484,7 +484,7 @@ static int mulmod(void *a, void *b, void *c, void *d)
    return CRYPT_OK;
 }
 
-static int sqrmod(void *a, void *b, void *c)
+static int sqrmod(const void *a, const void *b, void *c)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
@@ -495,7 +495,7 @@ static int sqrmod(void *a, void *b, void *c)
 }
 
 /* invmod */
-static int invmod(void *a, void *b, void *c)
+static int invmod(const void *a, const void *b, void *c)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
@@ -505,7 +505,7 @@ static int invmod(void *a, void *b, void *c)
 }
 
 /* setup */
-static int montgomery_setup(void *a, void **b)
+static int montgomery_setup(const void *a, void **b)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
@@ -514,7 +514,7 @@ static int montgomery_setup(void *a, void **b)
 }
 
 /* get normalization value */
-static int montgomery_normalization(void *a, void *b)
+static int montgomery_normalization(void *a, const void *b)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
@@ -523,7 +523,7 @@ static int montgomery_normalization(void *a, void *b)
 }
 
 /* reduce */
-static int montgomery_reduce(void *a, void *b, void *c)
+static int montgomery_reduce(void *a, const void *b, void *c)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
@@ -538,7 +538,7 @@ static void montgomery_deinit(void *a)
   LTC_UNUSED_PARAM(a);
 }
 
-static int exptmod(void *a, void *b, void *c, void *d)
+static int exptmod(const void *a, const void *b, const void *c, void *d)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
@@ -548,7 +548,7 @@ static int exptmod(void *a, void *b, void *c, void *d)
    return CRYPT_OK;
 }
 
-static int isprime(void *a, int b, int *c)
+static int isprime(const void *a, int b, int *c)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(c != NULL);
