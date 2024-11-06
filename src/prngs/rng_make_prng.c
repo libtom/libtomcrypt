@@ -16,35 +16,28 @@
      but the imported data comes directly from the RNG.
 
   @param bits     Number of bits of entropy desired (-1 or 64 ... 1024)
-  @param wprng    Index of which PRNG to setup
   @param prng     [out] PRNG state to initialize
   @param callback A pointer to a void function for when the RNG is slow, this can be NULL
   @return CRYPT_OK if successful
 */
-int rng_make_prng(int bits, int wprng, prng_state *prng,
+int rng_make_prng(int bits, prng_state *prng,
                   void (*callback)(void))
 {
+   int (*import_entropy)(const unsigned char*, unsigned long, prng_state*);
    unsigned char* buf;
    unsigned long bytes;
    int err;
 
    LTC_ARGCHK(prng != NULL);
 
-   /* check parameter */
-   if ((err = prng_is_valid(wprng)) != CRYPT_OK) {
-      return err;
-   }
-
    if (bits == -1) {
-      bytes = prng_descriptor[wprng].export_size;
+      bytes = prng->desc.export_size;
+      import_entropy = prng->desc.pimport;
    } else if (bits < 64 || bits > 1024) {
       return CRYPT_INVALID_PRNGSIZE;
    } else {
       bytes = (unsigned long)((bits+7)/8) * 2;
-   }
-
-   if ((err = prng_descriptor[wprng].start(prng)) != CRYPT_OK) {
-      return err;
+      import_entropy = prng->desc.add_entropy;
    }
 
    buf = XMALLOC(bytes);
@@ -57,16 +50,10 @@ int rng_make_prng(int bits, int wprng, prng_state *prng,
       goto LBL_ERR;
    }
 
-   if (bits == -1) {
-      if ((err = prng_descriptor[wprng].pimport(buf, bytes, prng)) != CRYPT_OK) {
-         goto LBL_ERR;
-      }
-   } else {
-      if ((err = prng_descriptor[wprng].add_entropy(buf, bytes, prng)) != CRYPT_OK) {
-         goto LBL_ERR;
-      }
+   if ((err = import_entropy(buf, bytes, prng)) != CRYPT_OK) {
+      goto LBL_ERR;
    }
-   if ((err = prng_descriptor[wprng].ready(prng)) != CRYPT_OK) {
+   if ((err = prng->desc.ready(prng)) != CRYPT_OK) {
       goto LBL_ERR;
    }
 

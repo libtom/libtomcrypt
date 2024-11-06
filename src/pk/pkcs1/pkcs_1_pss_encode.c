@@ -15,7 +15,6 @@
    @param msghashlen       The length of the hash (octets)
    @param saltlen          The length of the salt desired (octets)
    @param prng             An active PRNG context
-   @param prng_idx         The index of the PRNG desired
    @param hash_idx         The index of the hash desired
    @param modulus_bitlen   The bit length of the RSA modulus
    @param out              [out] The destination of the encoding
@@ -24,7 +23,7 @@
 */
 int pkcs_1_pss_encode(const unsigned char *msghash, unsigned long msghashlen,
                             unsigned long saltlen,  prng_state   *prng,
-                            int           prng_idx, int           hash_idx,
+                            int           hash_idx,
                             unsigned long modulus_bitlen,
                             unsigned char *out,     unsigned long *outlen)
 {
@@ -37,11 +36,8 @@ int pkcs_1_pss_encode(const unsigned char *msghash, unsigned long msghashlen,
    LTC_ARGCHK(out     != NULL);
    LTC_ARGCHK(outlen  != NULL);
 
-   /* ensure hash and PRNG are valid */
+   /* ensure hash are valid */
    if ((err = hash_is_valid(hash_idx)) != CRYPT_OK) {
-      return err;
-   }
-   if ((err = prng_is_valid(prng_idx)) != CRYPT_OK) {
       return err;
    }
 
@@ -78,7 +74,8 @@ int pkcs_1_pss_encode(const unsigned char *msghash, unsigned long msghashlen,
 
    /* generate random salt */
    if (saltlen > 0) {
-      if (prng_descriptor[prng_idx].read(salt, saltlen, prng) != saltlen) {
+      LTC_ARGCHK(prng != NULL);
+      if (prng->desc.read(salt, saltlen, prng) != saltlen) {
          err = CRYPT_ERROR_READPRNG;
          goto LBL_ERR;
       }

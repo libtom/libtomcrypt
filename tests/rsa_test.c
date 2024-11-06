@@ -191,7 +191,7 @@ static int rsa_compat_test(void)
 
    /* sign-verify a message with PKCS #1 v1.5 no ASN.1 */
    len = sizeof(buf);
-   DO(rsa_sign_hash_ex((unsigned char*)"test", 4, buf, &len, LTC_PKCS_1_V1_5_NA1, NULL, 0, 0, 0, &key));
+   DO(rsa_sign_hash_ex((unsigned char*)"test", 4, buf, &len, LTC_PKCS_1_V1_5_NA1, NULL, 0, 0, &key));
    if (len != sizeof(openssl_rsautl_pkcs) || memcmp(buf, openssl_rsautl_pkcs, len)) {
       fprintf(stderr, "RSA rsa_sign_hash_ex + LTC_PKCS_1_V1_5_NA1 failed\n");
       return 1;
@@ -338,13 +338,13 @@ static int s_rsa_cryptx_issue_69(void)
    return CRYPT_OK;
 }
 
-static int s_rsa_issue_301(int prng_idx)
+static int s_rsa_issue_301(void)
 {
    rsa_key       key, key_in;
    unsigned char buf[4096];
    unsigned long len;
 
-   DO(rsa_make_key(&yarrow_prng, prng_idx, sizeof(buf)/8, 65537, &key));
+   DO(rsa_make_key(&yarrow_prng, sizeof(buf)/8, 65537, &key));
 
    len = sizeof(buf);
    DO(rsa_export(buf, &len, PK_PRIVATE, &key));
@@ -371,7 +371,7 @@ static int s_rsa_issue_301(int prng_idx)
    return CRYPT_OK;
 }
 
-static int s_rsa_public_ubin_e(int prng_idx)
+static int s_rsa_public_ubin_e(void)
 {
    rsa_key       key;
    unsigned char e[32] = {0};
@@ -379,7 +379,7 @@ static int s_rsa_public_ubin_e(int prng_idx)
 
    /* Check public exponent too small */
    e[elen - 1] = 1;
-   SHOULD_FAIL_WITH(rsa_make_key_ubin_e(&yarrow_prng, prng_idx, 128, e, elen, &key),
+   SHOULD_FAIL_WITH(rsa_make_key_ubin_e(&yarrow_prng, 128, e, elen, &key),
                     CRYPT_INVALID_ARG);
 
    /*
@@ -398,19 +398,19 @@ static int s_rsa_public_ubin_e(int prng_idx)
    /* Check public exponent overflow */
    /* Set high bit of MSB set to get 256 bits, to get e overflow */
    e[0] |= 0x80;
-   SHOULD_FAIL_WITH(rsa_make_key_ubin_e(&yarrow_prng, prng_idx, 128, e, elen, &key),
+   SHOULD_FAIL_WITH(rsa_make_key_ubin_e(&yarrow_prng, 128, e, elen, &key),
                     CRYPT_INVALID_ARG);
 
 
   /* Check public exponent not odd but e value < 256 bits */
    e[elen - 1] &= ~0x1;
    e[0] &= ~0x80;
-   SHOULD_FAIL_WITH(rsa_make_key_ubin_e(&yarrow_prng, prng_idx, 128, e, elen, &key),
+   SHOULD_FAIL_WITH(rsa_make_key_ubin_e(&yarrow_prng, 128, e, elen, &key),
                     CRYPT_INVALID_ARG);
 
    /* Ensure that public exponent is odd value and e value < 256 bits */
    e[elen - 1] |= 0x1;
-   DO(rsa_make_key_ubin_e(&yarrow_prng, prng_idx, 128, e, elen, &key));
+   DO(rsa_make_key_ubin_e(&yarrow_prng, 128, e, elen, &key));
    rsa_free(&key);
 
    return CRYPT_OK;
@@ -452,7 +452,7 @@ int rsa_test(void)
 {
    unsigned char in[1024], out[1024], tmp[3072];
    rsa_key       key, privKey, pubKey;
-   int           hash_idx, prng_idx, stat, stat2, i, mgf_hash, label_hash;
+   int           hash_idx, stat, stat2, i, mgf_hash, label_hash;
    unsigned long rsa_msgsize, len, len2, len3, cnt, cnt2, max_msgsize;
    static unsigned char lparam[] = { 0x01, 0x02, 0x03, 0x04 };
    void* dP;
@@ -467,9 +467,8 @@ int rsa_test(void)
    }
 
    hash_idx = find_hash("sha1");
-   prng_idx = find_prng("yarrow");
-   if (hash_idx == -1 || prng_idx == -1) {
-      fprintf(stderr, "rsa_test requires LTC_SHA1 and yarrow");
+   if (hash_idx == -1) {
+      fprintf(stderr, "rsa_test requires SHA1");
       return 1;
    }
 
@@ -481,12 +480,12 @@ int rsa_test(void)
 #endif
 
    DO(s_rsa_cryptx_issue_69());
-   DO(s_rsa_issue_301(prng_idx));
-   DO(s_rsa_public_ubin_e(prng_idx));
+   DO(s_rsa_issue_301());
+   DO(s_rsa_public_ubin_e());
 
    /* make 10 random key */
    for (cnt = 0; cnt < 10; cnt++) {
-      DO(rsa_make_key(&yarrow_prng, prng_idx, 1024/8, 65537, &key));
+      DO(rsa_make_key(&yarrow_prng, 1024/8, 65537, &key));
       if (mp_count_bits(key.N) != 1024) {
          fprintf(stderr, "rsa_1024 key modulus has %d bits\n", mp_count_bits(key.N));
 
@@ -535,7 +534,7 @@ print_hex("q", tmp, len);
             len  = sizeof(out);
             len2 = rsa_msgsize;
 
-            DO(rsa_encrypt_key_ex(in, rsa_msgsize, out, &len, NULL, 0, &yarrow_prng, prng_idx, mgf_hash, label_hash, LTC_PKCS_1_OAEP, &key));
+            DO(rsa_encrypt_key_ex(in, rsa_msgsize, out, &len, NULL, 0, &yarrow_prng, mgf_hash, label_hash, LTC_PKCS_1_OAEP, &key));
             /* change a byte */
             out[8] ^= 1;
             SHOULD_FAIL(rsa_decrypt_key_ex(out, len, tmp, &len2, NULL, 0, mgf_hash, label_hash, LTC_PKCS_1_OAEP, &stat2, &key));
@@ -553,7 +552,7 @@ print_hex("q", tmp, len);
          for (rsa_msgsize = 0; rsa_msgsize <= max_msgsize; rsa_msgsize++) {
             len  = sizeof(out);
             len2 = rsa_msgsize;
-            DO(rsa_encrypt_key_ex(rsa_msgsize ? in : NULL, rsa_msgsize, out, &len, lparam, sizeof(lparam), &yarrow_prng, prng_idx, mgf_hash, label_hash, LTC_PKCS_1_OAEP, &key));
+            DO(rsa_encrypt_key_ex(rsa_msgsize ? in : NULL, rsa_msgsize, out, &len, lparam, sizeof(lparam), &yarrow_prng, mgf_hash, label_hash, LTC_PKCS_1_OAEP, &key));
             /* change a byte */
             out[8] ^= 1;
             SHOULD_FAIL(rsa_decrypt_key_ex(out, len, tmp, &len2, lparam, sizeof(lparam), mgf_hash, label_hash, LTC_PKCS_1_OAEP, &stat2, &key));
@@ -577,7 +576,7 @@ print_hex("q", tmp, len);
    for (rsa_msgsize = 0; rsa_msgsize <= 117; rsa_msgsize++) {
       len  = sizeof(out);
       len2 = rsa_msgsize;
-      DO(rsa_encrypt_key_ex(in, rsa_msgsize, out, &len, NULL, 0, &yarrow_prng, prng_idx, 0, -1, LTC_PKCS_1_V1_5, &key));
+      DO(rsa_encrypt_key_ex(in, rsa_msgsize, out, &len, NULL, 0, &yarrow_prng, 0, -1, LTC_PKCS_1_V1_5, &key));
 
       len2 = rsa_msgsize;
       DO(rsa_decrypt_key_ex(out, len, tmp, &len2, NULL, 0, 0, -1, LTC_PKCS_1_V1_5, &stat, &key));
@@ -587,7 +586,7 @@ print_hex("q", tmp, len);
 
    /* sign a message (unsalted, lower cholestorol and Atkins approved) now */
    len = sizeof(out);
-   DO(rsa_sign_hash(in, 20, out, &len, &yarrow_prng, prng_idx, hash_idx, 0, &key));
+   DO(rsa_sign_hash(in, 20, out, &len, &yarrow_prng, hash_idx, 0, &key));
 
 /* export key and import as both private and public */
    len2 = sizeof(tmp);
@@ -667,7 +666,7 @@ print_hex("q", tmp, len);
 
    /* sign a message (salted) now (use privKey to make, pubKey to verify) */
    len = sizeof(out);
-   DO(rsa_sign_hash(in, 20, out, &len, &yarrow_prng, prng_idx, hash_idx, 8, &privKey));
+   DO(rsa_sign_hash(in, 20, out, &len, &yarrow_prng, hash_idx, 8, &privKey));
    DO(rsa_verify_hash(out, len, in, 20, hash_idx, 8, &stat, &pubKey));
    /* change a byte */
    in[0] ^= 1;
@@ -683,7 +682,7 @@ print_hex("q", tmp, len);
 
    /* sign a message with PKCS #1 v1.5 */
    len = sizeof(out);
-   DO(rsa_sign_hash_ex(in, 20, out, &len, LTC_PKCS_1_V1_5, &yarrow_prng, prng_idx, hash_idx, 8, &privKey));
+   DO(rsa_sign_hash_ex(in, 20, out, &len, LTC_PKCS_1_V1_5, &yarrow_prng, hash_idx, 8, &privKey));
    DO(rsa_verify_hash_ex(out, len, in, 20, LTC_PKCS_1_V1_5, hash_idx, 8, &stat, &pubKey));
    /* change a byte */
    in[0] ^= 1;
@@ -720,7 +719,7 @@ print_hex("q", tmp, len);
      len = sizeof(in);
      len2 = sizeof(out);
      /* (1) */
-     DO(rsa_sign_hash_ex(p, 20, p2, &len2, LTC_PKCS_1_V1_5, &yarrow_prng, prng_idx, hash_idx, 8, &privKey));
+     DO(rsa_sign_hash_ex(p, 20, p2, &len2, LTC_PKCS_1_V1_5, &yarrow_prng, hash_idx, 8, &privKey));
      /* (2) */
      DOX(rsa_verify_hash_ex(p2, len2, p, 20, LTC_PKCS_1_V1_5, hash_idx, -1, &stat, &pubKey), "should succeed");
      DOX(stat == 1?CRYPT_OK:CRYPT_FAIL_TESTVECTOR, "should succeed");

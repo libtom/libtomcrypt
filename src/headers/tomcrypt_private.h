@@ -373,8 +373,8 @@ int pem_read(void *pem, unsigned long *w, struct pem_headers *hdr, struct get_ch
 
 /* tomcrypt_pk.h */
 
-int rand_bn_bits(void *N, int bits, prng_state *prng, int wprng);
-int rand_bn_upto(void *N, void *limit, prng_state *prng, int wprng);
+int rand_bn_bits(void *N, int bits, prng_state *prng);
+int rand_bn_upto(void *N, void *limit, prng_state *prng);
 
 int pk_get_oid(enum ltc_oid_id id, const char **st);
 int pk_get_pka_id(enum ltc_oid_id id, enum ltc_pka_id *pka);
@@ -387,8 +387,7 @@ int pk_oid_num_to_str(const unsigned long *oid, unsigned long oidlen, char *OID,
 #ifdef LTC_MRSA
 int rsa_init(rsa_key *key);
 void rsa_shrink_key(rsa_key *key);
-int rsa_make_key_bn_e(prng_state *prng, int wprng, int size, void *e,
-                      rsa_key *key); /* used by op-tee */
+int rsa_make_key_bn_e(prng_state *prng, int size, void *e, rsa_key *key); /* used by op-tee */
 int rsa_import_pkcs1(const unsigned char *in, unsigned long inlen, rsa_key *key);
 int rsa_import_pkcs8_asn1(ltc_asn1_list *alg_id, ltc_asn1_list *priv_key, rsa_key *key);
 #endif /* LTC_MRSA */
@@ -501,7 +500,7 @@ int tweetnacl_crypto_sign_open(
   const unsigned char *sm,unsigned long long smlen,
   const unsigned char *ctx, unsigned long long cs,
   const unsigned char *pk);
-int tweetnacl_crypto_sign_keypair(prng_state *prng, int wprng, unsigned char *pk,unsigned char *sk);
+int tweetnacl_crypto_sign_keypair(prng_state *prng, unsigned char *pk,unsigned char *sk);
 int tweetnacl_crypto_sk_to_pk(unsigned char *pk, const unsigned char *sk);
 int tweetnacl_crypto_scalarmult(unsigned char *q, const unsigned char *n, const unsigned char *p);
 int tweetnacl_crypto_scalarmult_base(unsigned char *q,const unsigned char *n);

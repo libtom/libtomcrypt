@@ -28,6 +28,31 @@ int prng_test(void)
    unsigned long n, one;
    prng_state    nprng;
 
+   typedef int (*fp_prng_start)(prng_state*);
+   char name[2] = { 0 };
+
+   fp_prng_start prng_start[] = {
+#ifdef LTC_YARROW
+      yarrow_start,
+#endif
+#ifdef LTC_FORTUNA
+      fortuna_start,
+#endif
+#ifdef LTC_RC4
+      rc4_start,
+#endif
+#ifdef LTC_CHACHA20_PRNG
+      chacha20_prng_start,
+#endif
+#ifdef LTC_SOBER128
+      sober128_start,
+#endif
+#ifdef LTC_SPRNG
+      sprng_start,
+#endif
+      NULL
+   };
+
 #ifdef LTC_PRNG_ENABLE_LTC_RNG
    unsigned long before;
 
@@ -51,33 +76,34 @@ int prng_test(void)
 #endif
 
    /* test prngs (test, import/export) */
-   for (x = 0; prng_descriptor[x].name != NULL; x++) {
-      if(strstr(prng_descriptor[x].name, "no_prng") == prng_descriptor[x].name) continue;
-      DOX(prng_descriptor[x].test(), prng_descriptor[x].name);
-      DOX(prng_descriptor[x].start(&nprng), prng_descriptor[x].name);
-      DOX(prng_descriptor[x].add_entropy((unsigned char *)"helloworld12", 12, &nprng), prng_descriptor[x].name);
-      DOX(prng_descriptor[x].ready(&nprng), prng_descriptor[x].name);
+   for (x = 0; prng_start[x] != NULL; x++) {
+      name[0] = '0' + (unsigned)x;
+      DOX(prng_start[x](&nprng), name);
+      DOX(nprng.desc.test(), nprng.desc.name);
+      DOX(nprng.desc.add_entropy((unsigned char *)"helloworld12", 12, &nprng), nprng.desc.name);
+      DOX(nprng.desc.ready(&nprng), nprng.desc.name);
       n = sizeof(buf);
-      if (strcmp(prng_descriptor[x].name, "sprng")) {
+      if (strcmp(nprng.desc.name, "sprng")) {
          one = 1;
-         if (prng_descriptor[x].pexport(buf, &one, &nprng) != CRYPT_BUFFER_OVERFLOW) {
-            fprintf(stderr, "Error testing pexport with a short buffer (%s)\n", prng_descriptor[x].name);
+         if (nprng.desc.pexport(buf, &one, &nprng) != CRYPT_BUFFER_OVERFLOW) {
+            fprintf(stderr, "Error testing pexport with a short buffer (%s)\n", nprng.desc.name);
             return CRYPT_ERROR;
          }
       }
-      DOX(prng_descriptor[x].pexport(buf, &n, &nprng), prng_descriptor[x].name);
-      prng_descriptor[x].done(&nprng);
-      DOX(prng_descriptor[x].pimport(buf, n, &nprng), prng_descriptor[x].name);
-      DOX(prng_descriptor[x].pimport(buf, sizeof(buf), &nprng), prng_descriptor[x].name); /* try to import larger data */
-      DOX(prng_descriptor[x].ready(&nprng), prng_descriptor[x].name);
-      if (prng_descriptor[x].read(buf, 100, &nprng) != 100) {
-         fprintf(stderr, "Error reading from imported PRNG (%s)!\n", prng_descriptor[x].name);
+      DOX(nprng.desc.pexport(buf, &n, &nprng), nprng.desc.name);
+      nprng.desc.done(&nprng);
+      DOX(nprng.desc.pimport(buf, n, &nprng), nprng.desc.name);
+      DOX(nprng.desc.pimport(buf, sizeof(buf), &nprng), nprng.desc.name); /* try to import larger data */
+      DOX(nprng.desc.ready(&nprng), nprng.desc.name);
+      if (nprng.desc.read(buf, 100, &nprng) != 100) {
+         fprintf(stderr, "Error reading from imported PRNG (%s)!\n", nprng.desc.name);
          return CRYPT_ERROR;
       }
-      prng_descriptor[x].done(&nprng);
+      nprng.desc.done(&nprng);
    }
 
-   if ((err = rng_make_prng(-1, find_prng("yarrow"), &nprng, NULL)) != CRYPT_OK) {
+   DO(yarrow_start(&nprng));
+   if ((err = rng_make_prng(-1, &nprng, NULL)) != CRYPT_OK) {
       fprintf(stderr, "rng_make_prng(-1,..) with 'yarrow' failed: %s\n", error_to_string(err));
    }
    DO(yarrow_done(&nprng));

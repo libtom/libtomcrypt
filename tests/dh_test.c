@@ -118,7 +118,7 @@ static int s_dhparam_test(void)
    };
 
    DO(dh_set_pg_dhparam(dhparam_der, sizeof(dhparam_der), &k));
-   DO(dh_generate_key(&yarrow_prng, find_prng ("yarrow"), &k));
+   DO(dh_generate_key(&yarrow_prng, &k));
    if (mp_unsigned_bin_size(k.prime) > sizeof(buf)) {
       printf("dhparam_test: short buf\n");
       dh_free(&k);
@@ -294,7 +294,7 @@ static int s_set_test(void)
       dh_free(&k2);
 
       DO(dh_set_pg(test[i].p, test[i].plen, test[i].g, test[i].glen, &k3));
-      DO(dh_generate_key(&yarrow_prng, find_prng("yarrow"), &k3));
+      DO(dh_generate_key(&yarrow_prng, &k3));
 
       len = mp_unsigned_bin_size(k3.prime);
       DO(mp_to_unsigned_bin(k3.prime, buf));
@@ -320,9 +320,9 @@ static int s_basic_test(void)
 
    /* make up two keys */
    DO(dh_set_pg_groupsize(KEYSIZE/8, &usera));
-   DO(dh_generate_key(&yarrow_prng, find_prng ("yarrow"), &usera));
+   DO(dh_generate_key(&yarrow_prng, &usera));
    DO(dh_set_pg_groupsize(KEYSIZE/8, &userb));
-   DO(dh_generate_key(&yarrow_prng, find_prng ("yarrow"), &userb));
+   DO(dh_generate_key(&yarrow_prng, &userb));
 
    /* make the shared secret */
    x = KEYSIZE;
@@ -370,7 +370,7 @@ static int s_basic_test(void)
       if ((strcmp(ltc_mp.name, "TomsFastMath") == 0) && (ltc_dh_sets[x].size > 256)) break;
 
       DO(dh_set_pg_groupsize(ltc_dh_sets[x].size, &usera));
-      DO(dh_generate_key(&yarrow_prng, find_prng ("yarrow"), &usera));
+      DO(dh_generate_key(&yarrow_prng, &usera));
       size = dh_get_groupsize(&usera);
       dh_free(&usera);
       if (size != ltc_dh_sets[x].size) {

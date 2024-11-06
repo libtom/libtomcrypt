@@ -46,8 +46,8 @@ int bcrypt_test(void);
 int no_null_termination_check_test(void);
 
 #ifdef LTC_PKCS_1
-struct ltc_prng_descriptor* no_prng_desc_get(void);
-void no_prng_desc_free(struct ltc_prng_descriptor*);
+prng_state* no_prng_desc_get(void);
+void no_prng_desc_free(prng_state*);
 #endif
 
 #endif

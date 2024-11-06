@@ -12,7 +12,6 @@
 /**
   Create DSA parameters (INTERNAL ONLY, not part of public API)
   @param prng          An active PRNG state
-  @param wprng         The index of the PRNG desired
   @param group_size    Size of the multiplicative group (octets)
   @param modulus_size  Size of the modulus (octets)
   @param p             [out] bignum where generated 'p' is stored (must be initialized by caller)
@@ -20,7 +19,7 @@
   @param g             [out] bignum where generated 'g' is stored (must be initialized by caller)
   @return CRYPT_OK if successful, upon error this function will free all allocated memory
 */
-static int s_dsa_make_params(prng_state *prng, int wprng, int group_size, int modulus_size, void *p, void *q, void *g)
+static int s_dsa_make_params(prng_state *prng, int group_size, int modulus_size, void *p, void *q, void *g)
 {
   unsigned long L, N, n, outbytes, seedbytes, counter, j, i;
   int err, res, mr_tests_q, mr_tests_p, found_p, found_q, hash;
@@ -121,7 +120,7 @@ static int s_dsa_make_params(prng_state *prng, int wprng, int group_size, int mo
   for(found_p=0; !found_p;) {
     /* q */
     for(found_q=0; !found_q;) {
-      if (prng_descriptor[wprng].read(sbuf, seedbytes, prng) != seedbytes)       { err = CRYPT_ERROR_READPRNG; goto cleanup; }
+      if (prng->desc.read(sbuf, seedbytes, prng) != seedbytes)       { err = CRYPT_ERROR_READPRNG; goto cleanup; }
       i = outbytes;
       if ((err = hash_memory(hash, sbuf, seedbytes, digest, &i)) != CRYPT_OK)    { goto cleanup; }
       if ((err = mp_read_unsigned_bin(U, digest, outbytes)) != CRYPT_OK)         { goto cleanup; }
@@ -178,7 +177,7 @@ static int s_dsa_make_params(prng_state *prng, int wprng, int group_size, int mo
   i = mp_count_bits(p);
   do {
     do {
-      if ((err = rand_bn_bits(h, i, prng, wprng)) != CRYPT_OK)                   { goto cleanup; }
+      if ((err = rand_bn_bits(h, i, prng)) != CRYPT_OK)                   { goto cleanup; }
     } while (mp_cmp(h, p) != LTC_MP_LT || mp_cmp_d(h, 2) != LTC_MP_GT);
     if ((err = mp_sub_d(h, 1, h)) != CRYPT_OK)                                   { goto cleanup; }
     /* h is randon and 1 < h < (p-1) */
@@ -199,20 +198,19 @@ cleanup3:
 /**
   Generate DSA parameters p, q & g
   @param prng          An active PRNG state
-  @param wprng         The index of the PRNG desired
   @param group_size    Size of the multiplicative group (octets)
   @param modulus_size  Size of the modulus (octets)
   @param key           [out] Where to store the created key
   @return CRYPT_OK if successful.
 */
-int dsa_generate_pqg(prng_state *prng, int wprng, int group_size, int modulus_size, dsa_key *key)
+int dsa_generate_pqg(prng_state *prng, int group_size, int modulus_size, dsa_key *key)
 {
    int err;
 
    /* init key */
    if ((err = dsa_int_init(key)) != CRYPT_OK) return err;
    /* generate params */
-   err = s_dsa_make_params(prng, wprng, group_size, modulus_size, key->p, key->q, key->g);
+   err = s_dsa_make_params(prng, group_size, modulus_size, key->p, key->q, key->g);
    if (err != CRYPT_OK) {
       goto cleanup;
    }

@@ -322,16 +322,12 @@ int tweetnacl_crypto_sk_to_pk(u8 *pk, const u8 *sk)
   return 0;
 }
 
-int tweetnacl_crypto_sign_keypair(prng_state *prng, int wprng, u8 *pk, u8 *sk)
+int tweetnacl_crypto_sign_keypair(prng_state *prng, u8 *pk, u8 *sk)
 {
   int err;
 
   /* randombytes(sk,32); */
-  if ((err = prng_is_valid(wprng)) != CRYPT_OK) {
-     return err;
-  }
-
-  if (prng_descriptor[wprng].read(sk,32, prng) != 32) {
+  if (prng->desc.read(sk,32, prng) != 32) {
      return CRYPT_ERROR_READPRNG;
   }
 

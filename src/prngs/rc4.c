@@ -9,11 +9,10 @@
 
 #ifdef LTC_RC4
 
-const struct ltc_prng_descriptor rc4_desc =
+static const struct ltc_prng_descriptor rc4_desc =
 {
    "rc4",
    32,
-   &rc4_start,
    &rc4_add_entropy,
    &rc4_ready,
    &rc4_read,
@@ -36,6 +35,7 @@ int rc4_start(prng_state *prng)
    prng->u.rc4.s.x = 0;
    /* clear entropy (key) buffer */
    XMEMSET(&prng->u.rc4.s.buf, 0, sizeof(prng->u.rc4.s.buf));
+   prng->desc = rc4_desc;
    LTC_MUTEX_INIT(&prng->lock)
    return CRYPT_OK;
 }

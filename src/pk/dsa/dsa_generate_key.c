@@ -12,11 +12,10 @@
 /**
   Create a DSA key
   @param prng          An active PRNG state
-  @param wprng         The index of the PRNG desired
   @param key           [in/out] Where to store the created key
   @return CRYPT_OK if successful.
 */
-int dsa_generate_key(prng_state *prng, int wprng, dsa_key *key)
+int dsa_generate_key(prng_state *prng, dsa_key *key)
 {
   int err;
 
@@ -27,7 +26,7 @@ int dsa_generate_key(prng_state *prng, int wprng, dsa_key *key)
      Now we need a random exponent [mod q] and it's power g^x mod p
    */
   /* private key x should be from range: 1 <= x <= q-1 (see FIPS 186-4 B.1.2) */
-  if ((err = rand_bn_upto(key->x, key->q, prng, wprng)) != CRYPT_OK)          { return err; }
+  if ((err = rand_bn_upto(key->x, key->q, prng)) != CRYPT_OK)                    { return err; }
   if ((err = mp_exptmod(key->g, key->x, key->p, key->y)) != CRYPT_OK)            { return err; }
   key->type = PK_PRIVATE;
 

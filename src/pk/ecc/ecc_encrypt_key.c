@@ -17,14 +17,13 @@
   @param out        [out] The destination for the ciphertext
   @param outlen     [in/out] The max size and resulting size of the ciphertext
   @param prng       An active PRNG state
-  @param wprng      The index of the PRNG you wish to use
   @param hash       The index of the hash you want to use
   @param key        The ECC key you want to encrypt to
   @return CRYPT_OK if successful
 */
 int ecc_encrypt_key(const unsigned char *in,   unsigned long inlen,
                           unsigned char *out,  unsigned long *outlen,
-                          prng_state *prng, int wprng, int hash,
+                          prng_state *prng, int hash,
                           const ecc_key *key)
 {
     unsigned char *pub_expt, *ecc_shared, *skey;
@@ -47,7 +46,7 @@ int ecc_encrypt_key(const unsigned char *in,   unsigned long inlen,
 
     /* make a random key and export the public copy */
     if ((err = ecc_copy_curve(key, &pubkey)) != CRYPT_OK) { return err; }
-    if ((err = ecc_generate_key(prng, wprng, &pubkey)) != CRYPT_OK) { return err; }
+    if ((err = ecc_generate_key(prng, &pubkey)) != CRYPT_OK) { return err; }
 
     pub_expt   = XMALLOC(ECC_BUF_SIZE);
     ecc_shared = XMALLOC(ECC_BUF_SIZE);

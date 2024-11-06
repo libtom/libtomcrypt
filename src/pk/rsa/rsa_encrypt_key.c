@@ -18,7 +18,6 @@
     @param lparam      The system "lparam" for the encryption
     @param lparamlen   The length of lparam (octets)
     @param prng        An active PRNG
-    @param prng_idx    The index of the desired prng
     @param hash_idx    The index of the desired hash
     @param padding     Type of padding (LTC_PKCS_1_OAEP or LTC_PKCS_1_V1_5)
     @param key         The RSA key to encrypt to
@@ -27,7 +26,7 @@
 int rsa_encrypt_key_ex(const unsigned char *in,       unsigned long  inlen,
                              unsigned char *out,      unsigned long *outlen,
                        const unsigned char *lparam,   unsigned long  lparamlen,
-                             prng_state    *prng,     int            prng_idx,
+                             prng_state    *prng,
                              int            mgf_hash, int            lparam_hash,
                              int            padding,
                        const rsa_key       *key)
@@ -44,11 +43,6 @@ int rsa_encrypt_key_ex(const unsigned char *in,       unsigned long  inlen,
   if ((padding != LTC_PKCS_1_V1_5) &&
       (padding != LTC_PKCS_1_OAEP)) {
     return CRYPT_PK_INVALID_PADDING;
-  }
-
-  /* valid prng? */
-  if ((err = prng_is_valid(prng_idx)) != CRYPT_OK) {
-     return err;
   }
 
   if (padding == LTC_PKCS_1_OAEP) {
@@ -72,7 +66,7 @@ int rsa_encrypt_key_ex(const unsigned char *in,       unsigned long  inlen,
     /* OAEP pad the key */
     x = *outlen;
     if ((err = pkcs_1_oaep_encode(in, inlen, lparam,
-                                  lparamlen, modulus_bitlen, prng, prng_idx, mgf_hash,
+                                  lparamlen, modulus_bitlen, prng, mgf_hash,
                                   lparam_hash, out, &x)) != CRYPT_OK) {
        return err;
     }
@@ -80,7 +74,7 @@ int rsa_encrypt_key_ex(const unsigned char *in,       unsigned long  inlen,
     /* PKCS #1 v1.5 pad the key */
     x = *outlen;
     if ((err = pkcs_1_v1_5_encode(in, inlen, LTC_PKCS_1_EME,
-                                  modulus_bitlen, prng, prng_idx,
+                                  modulus_bitlen, prng,
                                   out, &x)) != CRYPT_OK) {
       return err;
     }

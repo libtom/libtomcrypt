@@ -443,7 +443,6 @@ typedef struct {
 
    /** RSA Key Generation
        @param prng     An active PRNG state
-       @param wprng    The index of the PRNG desired
        @param size     The size of the key in octets
        @param e        The "e" value (public key).
                        e==65537 is a good choice
@@ -451,7 +450,6 @@ typedef struct {
        @return CRYPT_OK if successful, upon error all allocated ram is freed
     */
     int (*rsa_keygen)(prng_state *prng,
-                             int  wprng,
                              int  size,
                             long  e,
                          rsa_key *key);

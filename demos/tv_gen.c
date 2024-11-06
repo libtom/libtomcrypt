@@ -770,7 +770,6 @@ int main(void)
 {
    register_all_ciphers();
    register_all_hashes();
-   register_all_prngs();
 #ifdef USE_LTM
    ltc_mp = ltm_desc;
 #elif defined(USE_TFM)

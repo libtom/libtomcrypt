@@ -11,11 +11,10 @@
 
 #ifdef LTC_SOBER128
 
-const struct ltc_prng_descriptor sober128_desc =
+static const struct ltc_prng_descriptor sober128_desc =
 {
    "sober128",
    40,
-   &sober128_start,
    &sober128_add_entropy,
    &sober128_ready,
    &sober128_read,
@@ -36,6 +35,7 @@ int sober128_start(prng_state *prng)
    prng->ready = 0;
    XMEMSET(&prng->u.sober128.ent, 0, sizeof(prng->u.sober128.ent));
    prng->u.sober128.idx = 0;
+   prng->desc = sober128_desc;
    LTC_MUTEX_INIT(&prng->lock)
    return CRYPT_OK;
 }
