@@ -41,32 +41,6 @@ static int s_decrypt_pem(unsigned char *asn1_cert, unsigned long *asn1_len, cons
    return err;
 }
 
-static int s_get_pka(ltc_asn1_list *pub, enum ltc_pka_id *pka)
-{
-   der_flexi_check flexi_should[4];
-   ltc_asn1_list *seqid, *id;
-   enum ltc_oid_id oid_id;
-   int err;
-   unsigned long n = 0;
-   LTC_SET_DER_FLEXI_CHECK(flexi_should, n++, LTC_ASN1_SEQUENCE, &seqid);
-   LTC_SET_DER_FLEXI_CHECK(flexi_should, n++, LTC_ASN1_BIT_STRING, NULL);
-   LTC_SET_DER_FLEXI_CHECK(flexi_should, n, LTC_ASN1_EOL, NULL);
-   if ((err = der_flexi_sequence_cmp(pub, flexi_should)) != CRYPT_OK) {
-      return err;
-   }
-   n = 0;
-   LTC_SET_DER_FLEXI_CHECK(flexi_should, n++, LTC_ASN1_OBJECT_IDENTIFIER, &id);
-   LTC_SET_DER_FLEXI_CHECK(flexi_should, n, LTC_ASN1_EOL, NULL);
-   err = der_flexi_sequence_cmp(seqid, flexi_should);
-   if (err != CRYPT_OK && err != CRYPT_INPUT_TOO_LONG) {
-      return err;
-   }
-   if ((err = pk_get_oid_from_asn1(id, &oid_id)) != CRYPT_OK) {
-      return err;
-   }
-   return pk_get_pka_id(oid_id, pka);
-}
-
 typedef int (*import_fn)(const unsigned char *, unsigned long, void*);
 
 static const import_fn s_import_x509_fns[LTC_PKA_NUM] = {
@@ -90,7 +64,7 @@ static int s_import_x509(unsigned char *asn1_cert, unsigned long asn1_len, ltc_p
    if ((err = x509_decode_spki(asn1_cert, asn1_len, &d, &spki)) != CRYPT_OK) {
       return err;
    }
-   err = s_get_pka(spki, &pka);
+   err = x509_get_pka(spki, &pka);
    der_free_sequence_flexi(d);
    if (err != CRYPT_OK) {
       return err;
@@ -171,7 +145,7 @@ static int s_extract_pka(unsigned char *asn1_cert, unsigned long asn1_len, enum 
    if ((err = der_decode_sequence_flexi(asn1_cert, &asn1_len, &pub)) != CRYPT_OK) {
       return err;
    }
-   err = s_get_pka(pub, pka);
+   err = x509_get_pka(pub, pka);
    der_sequence_free(pub);
    return err;
 }
