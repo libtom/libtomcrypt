@@ -41,45 +41,6 @@ static int s_decrypt_pem(unsigned char *asn1_cert, unsigned long *asn1_len, cons
    return err;
 }
 
-typedef int (*import_fn)(const unsigned char *, unsigned long, void*);
-
-static const import_fn s_import_x509_fns[LTC_PKA_NUM] = {
-#ifdef LTC_MRSA
-                                                [LTC_PKA_RSA] = (import_fn)rsa_import_x509,
-#endif
-#ifdef LTC_MECC
-                                                [LTC_PKA_EC] = (import_fn)ecc_import_x509,
-#endif
-#ifdef LTC_CURVE25519
-                                                [LTC_PKA_X25519] = (import_fn)x25519_import_x509,
-                                                [LTC_PKA_ED25519] = (import_fn)ed25519_import_x509,
-#endif
-};
-
-static int s_import_x509(unsigned char *asn1_cert, unsigned long asn1_len, ltc_pka_key *k)
-{
-   enum ltc_pka_id pka = LTC_PKA_UNDEF;
-   ltc_asn1_list *d, *spki;
-   int err;
-   if ((err = x509_decode_spki(asn1_cert, asn1_len, &d, &spki)) != CRYPT_OK) {
-      return err;
-   }
-   err = x509_get_pka(spki, &pka);
-   der_free_sequence_flexi(d);
-   if (err != CRYPT_OK) {
-      return err;
-   }
-   if (pka < 0
-         || pka > LTC_ARRAY_SIZE(s_import_x509_fns)
-         || s_import_x509_fns[pka] == NULL) {
-      return CRYPT_PK_INVALID_TYPE;
-   }
-   if ((err = s_import_x509_fns[pka](asn1_cert, asn1_len, &k->u)) == CRYPT_OK) {
-      k->id = pka;
-   }
-   return err;
-}
-
 static int s_import_pkcs8(unsigned char *asn1_cert, unsigned long asn1_len, ltc_pka_key *k, const password_ctx *pw_ctx)
 {
    int err;
@@ -198,7 +159,7 @@ retry:
       err = s_import_pkcs8(asn1_cert, asn1_len, k, pw_ctx);
       goto cleanup;
    } else if (hdr.id->flags == pf_x509) {
-      err = s_import_x509(asn1_cert, asn1_len, k);
+      err = x509_import_spki(asn1_cert, asn1_len, k, NULL);
       goto cleanup;
    } else if ((hdr.id->flags & pf_public) && hdr.id->pka == LTC_PKA_UNDEF) {
       if ((err = s_extract_pka(asn1_cert, asn1_len, &pka)) != CRYPT_OK) {

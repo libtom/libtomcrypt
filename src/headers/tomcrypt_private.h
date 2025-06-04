@@ -646,6 +646,7 @@ int x509_decode_subject_public_key_info(const unsigned char *in, unsigned long i
         ltc_asn1_type parameters_type, ltc_asn1_list* parameters, unsigned long *parameters_len);
 
 int x509_get_pka(ltc_asn1_list *pub, enum ltc_pka_id *pka);
+int x509_import_spki(const unsigned char *asn1_cert, unsigned long asn1_len, ltc_pka_key *k, ltc_asn1_list **root);
 
 int pk_oid_cmp_with_asn1(const char *o1, const ltc_asn1_list *o2);
 
