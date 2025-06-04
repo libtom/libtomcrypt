@@ -265,6 +265,7 @@ int sha3_256_init(hash_state * md);
 int sha3_224_init(hash_state * md);
 /* sha3_process is the same for all variants of SHA3 + KECCAK */
 int sha3_process(hash_state * md, const unsigned char *in, unsigned long inlen);
+int sha3_turbo_process(hash_state * md, const unsigned char *in, unsigned long inlen);
 #endif
 
 #ifdef LTC_SHA3
@@ -280,8 +281,11 @@ int sha3_done(hash_state *md, unsigned char *out);
 /* SHAKE128 + SHAKE256 */
 int sha3_shake_init(hash_state *md, int num);
 #define sha3_shake_process(a,b,c) sha3_process(a,b,c)
+#define sha3_shake_turbo_process(a,b,c) sha3_turbo_process(a,b,c)
 int sha3_shake_done(hash_state *md, unsigned char *out, unsigned long outlen);
+int sha3_shake_turbo_done(hash_state *md, unsigned char *out, unsigned long outlen);
 int sha3_shake_test(void);
+int sha3_turbo_shake_test(void);
 int sha3_shake_memory(int num, const unsigned char *in, unsigned long inlen, unsigned char *out, const unsigned long *outlen);
 #endif
 

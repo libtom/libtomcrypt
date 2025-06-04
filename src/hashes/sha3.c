@@ -130,6 +130,8 @@ const struct ltc_hash_descriptor keccak_512_desc =
 
 #define SHA3_KECCAK_SPONGE_WORDS 25 /* 1600 bits > 200 bytes > 25 x ulong64 */
 #define SHA3_KECCAK_ROUNDS 24
+#define SHA3_KECCAK_TURBO_ROUNDS 12
+#define SHA3_KECCAK_TURBO_RC_OFFSET 12
 
 static const ulong64 s_keccakf_rndc[24] = {
    CONST64(0x0000000000000001), CONST64(0x0000000000008082),
@@ -154,12 +156,12 @@ static const unsigned s_keccakf_piln[24] = {
    10, 7, 11, 17, 18, 3, 5, 16, 8, 21, 24, 4, 15, 23, 19, 13, 12, 2, 20, 14, 22, 9, 6, 1
 };
 
-static void s_keccakf(ulong64 s[25])
+static LTC_INLINE void s_keccak_f(ulong64 s[25], int max_rounds, int rc_offset)
 {
    int i, j, round;
    ulong64 t, bc[5];
 
-   for(round = 0; round < SHA3_KECCAK_ROUNDS; round++) {
+   for(round = 0; round < max_rounds; round++) {
       /* Theta */
       for(i = 0; i < 5; i++) {
          bc[i] = s[i] ^ s[i + 5] ^ s[i + 10] ^ s[i + 15] ^ s[i + 20];
@@ -188,9 +190,20 @@ static void s_keccakf(ulong64 s[25])
          }
       }
       /* Iota */
-      s[0] ^= s_keccakf_rndc[round];
+      s[0] ^= s_keccakf_rndc[rc_offset + round];
    }
 }
+
+static void s_keccakf(ulong64 s[25])
+{
+   s_keccak_f(s, SHA3_KECCAK_ROUNDS, 0);
+}
+
+static void s_keccak_turbo_f(ulong64 s[25])
+{
+   s_keccak_f(s, SHA3_KECCAK_TURBO_ROUNDS, SHA3_KECCAK_TURBO_RC_OFFSET);
+}
+
 
 static LTC_INLINE int ss_done(hash_state *md, unsigned char *hash, ulong64 pad)
 {
@@ -256,8 +269,8 @@ int sha3_shake_init(hash_state *md, int num)
    return CRYPT_OK;
 }
 #endif
-
-int sha3_process(hash_state *md, const unsigned char *in, unsigned long inlen)
+typedef void (*process_fn)(ulong64 s[25]);
+static LTC_INLINE int s_sha3_process(hash_state *md, const unsigned char *in, unsigned long inlen, process_fn proc_f)
 {
    /* 0...7 -- how much is needed to have a word */
    unsigned old_tail = (8 - md->sha3.byte_index) & 7;
@@ -283,7 +296,7 @@ int sha3_process(hash_state *md, const unsigned char *in, unsigned long inlen)
       md->sha3.byte_index = 0;
       md->sha3.saved = 0;
       if(++md->sha3.word_index == (SHA3_KECCAK_SPONGE_WORDS - md->sha3.capacity_words)) {
-         s_keccakf(md->sha3.s);
+         proc_f(md->sha3.s);
          md->sha3.word_index = 0;
       }
    }
@@ -297,7 +310,7 @@ int sha3_process(hash_state *md, const unsigned char *in, unsigned long inlen)
       LOAD64L(t, in);
       md->sha3.s[md->sha3.word_index] ^= t;
       if(++md->sha3.word_index == (SHA3_KECCAK_SPONGE_WORDS - md->sha3.capacity_words)) {
-         s_keccakf(md->sha3.s);
+         proc_f(md->sha3.s);
          md->sha3.word_index = 0;
       }
    }
@@ -307,6 +320,16 @@ int sha3_process(hash_state *md, const unsigned char *in, unsigned long inlen)
       md->sha3.saved |= (ulong64) (*(in++)) << ((md->sha3.byte_index++) * 8);
    }
    return CRYPT_OK;
+}
+
+int sha3_process(hash_state *md, const unsigned char *in, unsigned long inlen)
+{
+   return s_sha3_process(md, in, inlen, s_keccakf);
+}
+
+int sha3_turbo_process(hash_state *md, const unsigned char *in, unsigned long inlen)
+{
+   return s_sha3_process(md, in, inlen, s_keccak_turbo_f);
 }
 
 #ifdef LTC_SHA3
@@ -324,7 +347,7 @@ int keccak_done(hash_state *md, unsigned char *out)
 #endif
 
 #ifdef LTC_SHA3
-int sha3_shake_done(hash_state *md, unsigned char *out, unsigned long outlen)
+static LTC_INLINE int s_sha3_shake_done(hash_state *md, unsigned char *out, unsigned long outlen, process_fn proc_f)
 {
    /* IMPORTANT NOTE: sha3_shake_done can be called many times */
    unsigned long idx;
@@ -338,7 +361,7 @@ int sha3_shake_done(hash_state *md, unsigned char *out, unsigned long outlen)
       /* shake_xof operation must be done only once */
       md->sha3.s[md->sha3.word_index] ^= (md->sha3.saved ^ (CONST64(0x1F) << (md->sha3.byte_index * 8)));
       md->sha3.s[SHA3_KECCAK_SPONGE_WORDS - md->sha3.capacity_words - 1] ^= CONST64(0x8000000000000000);
-      s_keccakf(md->sha3.s);
+      proc_f(md->sha3.s);
       /* store sha3.s[] as little-endian bytes into sha3.sb */
       for(i = 0; i < SHA3_KECCAK_SPONGE_WORDS; i++) {
          STORE64L(md->sha3.s[i], md->sha3.sb + i * 8);
@@ -349,7 +372,7 @@ int sha3_shake_done(hash_state *md, unsigned char *out, unsigned long outlen)
 
    for (idx = 0; idx < outlen; idx++) {
       if(md->sha3.byte_index >= (SHA3_KECCAK_SPONGE_WORDS - md->sha3.capacity_words) * 8) {
-         s_keccakf(md->sha3.s);
+         proc_f(md->sha3.s);
          /* store sha3.s[] as little-endian bytes into sha3.sb */
          for(i = 0; i < SHA3_KECCAK_SPONGE_WORDS; i++) {
             STORE64L(md->sha3.s[i], md->sha3.sb + i * 8);
@@ -359,6 +382,16 @@ int sha3_shake_done(hash_state *md, unsigned char *out, unsigned long outlen)
       out[idx] = md->sha3.sb[md->sha3.byte_index++];
    }
    return CRYPT_OK;
+}
+
+int sha3_shake_done(hash_state *md, unsigned char *out, unsigned long outlen)
+{
+   return s_sha3_shake_done(md, out, outlen, s_keccakf);
+}
+
+int sha3_shake_turbo_done(hash_state *md, unsigned char *out, unsigned long outlen)
+{
+   return s_sha3_shake_done(md, out, outlen, s_keccak_turbo_f);
 }
 
 int sha3_shake_memory(int num, const unsigned char *in, unsigned long inlen, unsigned char *out, const unsigned long *outlen)

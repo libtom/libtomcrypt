@@ -59,6 +59,7 @@ int cipher_hash_test(void)
 #ifdef LTC_SHA3
    /* SHAKE128 + SHAKE256 tests are a bit special */
    DOX(sha3_shake_test(), "sha3_shake");
+   DO(sha3_turbo_shake_test());
 #endif
 
    return 0;
