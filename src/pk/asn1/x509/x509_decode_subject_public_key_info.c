@@ -75,6 +75,8 @@ int x509_decode_subject_public_key_info(const unsigned char *in, unsigned long i
       alg_id_num = 1;
    } else {
       LTC_SET_ASN1(alg_id, 1, parameters_type, parameters, *_parameters_len);
+      if (parameters_type == LTC_ASN1_NULL)
+         alg_id[1].optional = 1;
       alg_id_num = 2;
    }
 

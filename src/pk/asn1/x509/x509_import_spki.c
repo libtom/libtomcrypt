@@ -15,6 +15,9 @@ static const import_fn s_import_x509_fns[LTC_PKA_NUM] = {
 #ifdef LTC_MRSA
                                                 [LTC_PKA_RSA] = (import_fn)rsa_import_x509,
 #endif
+#ifdef LTC_MDSA
+                                                [LTC_PKA_DSA] = (import_fn)dsa_import,
+#endif
 #ifdef LTC_MECC
                                                 [LTC_PKA_EC] = (import_fn)ecc_import_x509,
 #endif

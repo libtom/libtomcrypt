@@ -455,6 +455,7 @@ const char *crypt_build_settings =
 #if defined(LTC_DER)
     " DER "
     " " NAME_VALUE(LTC_DER_MAX_RECURSION) " "
+    " " NAME_VALUE(LTC_DER_OID_DEFAULT_NODES) " "
 #endif
 #if defined(LTC_PKCS_1)
     " PKCS#1 "

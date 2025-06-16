@@ -11,6 +11,13 @@
 
 const struct pem_header_id pem_std_headers[] = {
    {
+     /* X.509 Certificates */
+     SET_CSTR(.start, "-----BEGIN CERTIFICATE-----"),
+     SET_CSTR(.end, "-----END CERTIFICATE-----"),
+     .has_more_headers = no,
+     .flags = pf_x509,
+   },
+   {
      /* PKCS#8 encrypted */
      SET_CSTR(.start, "-----BEGIN ENCRYPTED PRIVATE KEY-----"),
      SET_CSTR(.end, "-----END ENCRYPTED PRIVATE KEY-----"),
@@ -23,13 +30,6 @@ const struct pem_header_id pem_std_headers[] = {
      SET_CSTR(.end, "-----END PRIVATE KEY-----"),
      .has_more_headers = no,
      .flags = pf_pkcs8,
-   },
-   {
-     /* X.509 Certificates */
-     SET_CSTR(.start, "-----BEGIN CERTIFICATE-----"),
-     SET_CSTR(.end, "-----END CERTIFICATE-----"),
-     .has_more_headers = no,
-     .flags = pf_x509,
    },
    {
      /* Regular (plain) public keys */

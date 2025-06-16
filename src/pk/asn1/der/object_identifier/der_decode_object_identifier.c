@@ -8,6 +8,49 @@
 */
 
 #ifdef LTC_DER
+int der_decode_object_identifier_data(const unsigned char *in,    unsigned long  inlen,
+                                            unsigned long *words, unsigned long *outlen)
+{
+   unsigned long x, y, t, len;
+   int err;
+
+   /* decode words */
+   x = y = t = 0;
+   len = inlen;
+   while (len--) {
+      t = (t << 7) | (in[x] & 0x7F);
+      if (!(in[x++] & 0x80)) {
+         /* store t */
+         if (y >= *outlen) {
+            y++;
+         } else {
+            if (y == 0) {
+               if (t <= 79) {
+                  words[0] = t / 40;
+                  words[1] = t % 40;
+               } else {
+                  words[0] = 2;
+                  words[1] = t - 80;
+               }
+               y = 2;
+            } else {
+               words[y++] = t;
+            }
+         }
+         t = 0;
+      }
+   }
+
+   if (y > *outlen) {
+      err =  CRYPT_BUFFER_OVERFLOW;
+   } else {
+      err =  CRYPT_OK;
+   }
+
+   *outlen = y;
+   return err;
+}
+
 /**
   Decode OID data and store the array of integers in words
   @param in      The OID DER encoded data
@@ -19,7 +62,7 @@
 int der_decode_object_identifier(const unsigned char *in,    unsigned long  inlen,
                                        unsigned long *words, unsigned long *outlen)
 {
-   unsigned long x, y, t, len;
+   unsigned long x, y, len;
    int err;
 
    LTC_ARGCHK(in     != NULL);
@@ -54,41 +97,7 @@ int der_decode_object_identifier(const unsigned char *in,    unsigned long  inle
       return CRYPT_INVALID_PACKET;
    }
 
-   /* decode words */
-   y = 0;
-   t = 0;
-   while (len--) {
-      t = (t << 7) | (in[x] & 0x7F);
-      if (!(in[x++] & 0x80)) {
-         /* store t */
-         if (y >= *outlen) {
-            y++;
-         } else {
-            if (y == 0) {
-               if (t <= 79) {
-                  words[0] = t / 40;
-                  words[1] = t % 40;
-               } else {
-                  words[0] = 2;
-                  words[1] = t - 80;
-               }
-               y = 2;
-            } else {
-               words[y++] = t;
-            }
-         }
-         t = 0;
-      }
-   }
-
-   if (y > *outlen) {
-      err =  CRYPT_BUFFER_OVERFLOW;
-   } else {
-      err =  CRYPT_OK;
-   }
-
-   *outlen = y;
-   return err;
+   return der_decode_object_identifier_data(in + x, len, words, outlen);
 }
 
 #endif

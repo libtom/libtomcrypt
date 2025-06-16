@@ -602,6 +602,10 @@
       /* Maximum recursion limit when processing nested ASN.1 types. */
       #define LTC_DER_MAX_RECURSION 30
    #endif
+   #ifndef LTC_DER_OID_DEFAULT_NODES
+      /* Default number of nodes when decoding an OID. */
+      #define LTC_DER_OID_DEFAULT_NODES 12
+   #endif
 #endif
 
 #if defined(LTC_MECC) || defined(LTC_MRSA) || defined(LTC_MDSA) || defined(LTC_SSH)

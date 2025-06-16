@@ -6,6 +6,8 @@
 #define LTC_TMPVAR_(n, l) LTC_TMPVAR__(n, l)
 #define LTC_TMPVAR(n) LTC_TMPVAR_(LTC_ ## n ## _, __LINE__)
 
+#define LTC_BIT(n) (1u << (n))
+
 /* ---- HELPER MACROS ---- */
 #ifdef ENDIAN_NEUTRAL
 

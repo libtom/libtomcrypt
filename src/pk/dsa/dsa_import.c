@@ -28,6 +28,69 @@ int dsa_import_pkcs1(const unsigned char *in, unsigned long inlen, dsa_key *key)
    return err;
 }
 
+static int s_dsa_import_y(const unsigned char *in, unsigned long inlen, dsa_key *key)
+{
+   return der_decode_integer(in, inlen, key->y);
+}
+
+LTC_INLINE static int s_dsa_set_params(dsa_key *key, ltc_asn1_list *params)
+{
+   LTC_SET_ASN1(params, 0, LTC_ASN1_INTEGER, key->p, 1UL);
+   LTC_SET_ASN1(params, 1, LTC_ASN1_INTEGER, key->q, 1UL);
+   LTC_SET_ASN1(params, 2, LTC_ASN1_INTEGER, key->g, 1UL);
+   return 3;
+}
+
+static int s_dsa_import_spki(const unsigned char *in, unsigned long inlen, dsa_key *key)
+{
+   int err;
+   unsigned char* tmpbuf = NULL;
+   ltc_asn1_list params[3];
+   unsigned long tmpbuf_len = inlen, len;
+
+   len = s_dsa_set_params(key, params);
+
+   tmpbuf = XCALLOC(1, tmpbuf_len);
+   if (tmpbuf == NULL) {
+      return CRYPT_MEM;
+   }
+
+   err = x509_decode_subject_public_key_info(in, inlen,
+                                             LTC_OID_DSA,       tmpbuf, &tmpbuf_len,
+                                             LTC_ASN1_SEQUENCE, params, &len);
+   if (err != CRYPT_OK) {
+      goto LBL_ERR;
+   }
+
+   if ((err = s_dsa_import_y(tmpbuf, tmpbuf_len, key)) != CRYPT_OK) {
+      goto LBL_ERR;
+   }
+
+   key->type = PK_PUBLIC;
+LBL_ERR:
+   XFREE(tmpbuf);
+   return err;
+}
+
+static int s_dsa_import_x509(const unsigned char *in, unsigned long inlen, dsa_key *key)
+{
+   int err;
+   ltc_asn1_list params[3];
+   unsigned long len;
+
+   len = s_dsa_set_params(key, params);
+
+   if ((err = x509_decode_public_key_from_certificate(in, inlen,
+                                                      LTC_OID_DSA,
+                                                      LTC_ASN1_SEQUENCE, params, &len,
+                                                      (public_key_decode_cb)s_dsa_import_y, key)) == CRYPT_OK) {
+      key->type = PK_PUBLIC;
+      return CRYPT_OK;
+   }
+
+   return err;
+}
+
 /**
    Import a DSA key
    @param in       The binary packet to import from
@@ -38,7 +101,6 @@ int dsa_import_pkcs1(const unsigned char *in, unsigned long inlen, dsa_key *key)
 int dsa_import(const unsigned char *in, unsigned long inlen, dsa_key *key)
 {
    int           err, stat;
-   unsigned char* tmpbuf = NULL;
    unsigned char flags[1];
 
    LTC_ARGCHK(in  != NULL);
@@ -86,35 +148,14 @@ int dsa_import(const unsigned char *in, unsigned long inlen, dsa_key *key)
        }
    }
 
-   if (dsa_import_pkcs1(in, inlen, key) != CRYPT_OK) {
-      ltc_asn1_list params[3];
-      unsigned long tmpbuf_len = inlen, len;
-
-      LTC_SET_ASN1(params, 0, LTC_ASN1_INTEGER, key->p, 1UL);
-      LTC_SET_ASN1(params, 1, LTC_ASN1_INTEGER, key->q, 1UL);
-      LTC_SET_ASN1(params, 2, LTC_ASN1_INTEGER, key->g, 1UL);
-      len = 3;
-
-      tmpbuf = XCALLOC(1, tmpbuf_len);
-      if (tmpbuf == NULL) {
-         return CRYPT_MEM;
-      }
-
-      err = x509_decode_subject_public_key_info(in, inlen,
-                                                LTC_OID_DSA,       tmpbuf, &tmpbuf_len,
-                                                LTC_ASN1_SEQUENCE, params, &len);
-      if (err != CRYPT_OK) {
-         XFREE(tmpbuf);
-         goto LBL_ERR;
-      }
-
-      if ((err = der_decode_integer(tmpbuf, tmpbuf_len, key->y)) != CRYPT_OK) {
-         XFREE(tmpbuf);
-         goto LBL_ERR;
-      }
-
-      key->type = PK_PUBLIC;
-      XFREE(tmpbuf);
+   if (dsa_import_pkcs1(in, inlen, key) == CRYPT_OK) {
+      goto LBL_OK;
+   }
+   if ((err = s_dsa_import_spki(in, inlen, key)) == CRYPT_OK) {
+      goto LBL_OK;
+   }
+   if ((err = s_dsa_import_x509(in, inlen, key)) != CRYPT_OK) {
+      goto LBL_ERR;
    }
 
 LBL_OK:
