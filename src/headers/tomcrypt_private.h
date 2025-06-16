@@ -599,17 +599,29 @@ int der_printable_value_decode(int v);
 
 unsigned long der_utf8_charsize(const wchar_t c);
 
-typedef struct {
+typedef int (*der_flexi_handler)(const ltc_asn1_list*, void*);
+
+typedef struct der_flexi_check {
    ltc_asn1_type t;
+   int optional;
    ltc_asn1_list **pp;
+   der_flexi_handler handler;
+   void *userdata;
 } der_flexi_check;
 
-#define LTC_SET_DER_FLEXI_CHECK(list, index, Type, P)    \
-   do {                                         \
-      int LTC_SDFC_temp##__LINE__ = (index);   \
-      list[LTC_SDFC_temp##__LINE__].t = Type;  \
-      list[LTC_SDFC_temp##__LINE__].pp = P;    \
+#define LTC_PRIV_SET_DER_FLEXI_CHECK(list, index, Type, P, Opt, Hndl, Udata)    \
+   do {                                                                 \
+      int LTC_SDFC_temp##__LINE__ = (index);                            \
+      list[LTC_SDFC_temp##__LINE__].t = Type;                           \
+      list[LTC_SDFC_temp##__LINE__].pp = P;                             \
+      list[LTC_SDFC_temp##__LINE__].optional = Opt;                     \
+      list[LTC_SDFC_temp##__LINE__].handler = (der_flexi_handler)Hndl;  \
+      list[LTC_SDFC_temp##__LINE__].userdata = Udata;                   \
    } while (0)
+#define LTC_SET_DER_FLEXI_CHECK(list, index, Type, P) LTC_PRIV_SET_DER_FLEXI_CHECK(list, index, Type, P, 0, NULL, NULL)
+#define LTC_SET_DER_FLEXI_CHECK_OPT(list, index, Type, P) LTC_PRIV_SET_DER_FLEXI_CHECK(list, index, Type, P, 1, NULL, NULL)
+#define LTC_SET_DER_FLEXI_HANDLER(list, index, Type, Hndl, Udata) LTC_PRIV_SET_DER_FLEXI_CHECK(list, index, Type, NULL, 0, Hndl, Udata)
+#define LTC_SET_DER_FLEXI_HANDLER_OPT(list, index, Type, Hndl, Udata) LTC_PRIV_SET_DER_FLEXI_CHECK(list, index, Type, NULL, 1, Hndl, Udata)
 
 
 extern const ltc_asn1_type  der_asn1_tag_to_type_map[];

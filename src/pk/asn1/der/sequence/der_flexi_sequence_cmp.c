@@ -24,11 +24,20 @@ int der_flexi_sequence_cmp(const ltc_asn1_list *flexi, der_flexi_check *check)
       return CRYPT_INVALID_PACKET;
    }
    cur = flexi->child;
-   while(check->t != LTC_ASN1_EOL) {
+   while(check->t != LTC_ASN1_EOL && cur) {
       if (!LTC_ASN1_IS_TYPE(cur, check->t)) {
+         if (check->optional) {
+            check++;
+            continue;
+         }
          return CRYPT_INVALID_PACKET;
       }
       if (check->pp != NULL) *check->pp = cur;
+      else if (check->handler) {
+         int err = check->handler(cur, check->userdata);
+         if (err != CRYPT_OK)
+            return err;
+      }
       cur = cur->next;
       check++;
    }
