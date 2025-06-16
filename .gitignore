@@ -52,6 +52,8 @@ tv_gen
 tv_gen.exe
 timing
 timing.exe
+x509_verify
+x509_verify.exe
 
 # Visual Studio special files
 # ignore user specific settings

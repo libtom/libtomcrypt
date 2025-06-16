@@ -301,6 +301,8 @@ constants.exe: demos/constants.o $(LIBMAIN_S)
 	$(CC) demos/constants.o $(LIBMAIN_S) $(LTC_LDFLAGS) -o $@
 timing.exe: demos/timing.o $(LIBMAIN_S)
 	$(CC) demos/timing.o $(LIBMAIN_S) $(LTC_LDFLAGS) -o $@
+x509_verify.exe: demos/x509_verify.o $(LIBMAIN_S)
+	$(CC) demos/x509_verify.o $(LIBMAIN_S) $(LTC_LDFLAGS) -o $@
 
 #Tests
 test.exe: $(TOBJECTS) $(LIBMAIN_S)

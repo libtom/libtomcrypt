@@ -288,6 +288,8 @@ constants.exe: demos/constants.c $(LIBMAIN_S)
 	cl $(LTC_CFLAGS) demos/constants.c tests/common.c $(LIBMAIN_S) $(LTC_LDFLAGS) /Fe$@
 timing.exe: demos/timing.c $(LIBMAIN_S)
 	cl $(LTC_CFLAGS) demos/timing.c tests/common.c $(LIBMAIN_S) $(LTC_LDFLAGS) /Fe$@
+x509_verify.exe: demos/x509_verify.c $(LIBMAIN_S)
+	cl $(LTC_CFLAGS) demos/x509_verify.c tests/common.c $(LIBMAIN_S) $(LTC_LDFLAGS) /Fe$@
 
 #Tests
 test.exe: $(LIBMAIN_S) $(TOBJECTS)
