@@ -4,16 +4,15 @@
 
 /**
   @file x509_get_pka.c
-  Extract the PKA from an X.509 cert, Steffen Jaeckel
+  Extract details from an X.509 cert, Steffen Jaeckel
 */
 
 #ifdef LTC_DER
 
-int x509_get_pka(const ltc_asn1_list *pub, enum ltc_pka_id *pka)
+static LTC_INLINE int s_x509_get_oid(const ltc_asn1_list *pub, enum ltc_oid_id *oid_id)
 {
-   der_flexi_check flexi_should[4];
+   der_flexi_check flexi_should[3];
    ltc_asn1_list *seqid, *id = NULL;
-   enum ltc_oid_id oid_id;
    int err;
    unsigned long n = 0;
    LTC_SET_DER_FLEXI_CHECK(flexi_should, n++, LTC_ASN1_SEQUENCE, &seqid);
@@ -29,10 +28,27 @@ int x509_get_pka(const ltc_asn1_list *pub, enum ltc_pka_id *pka)
    if (err != CRYPT_OK && err != CRYPT_INPUT_TOO_LONG) {
       return err;
    }
-   if ((err = pk_get_oid_from_asn1(id, &oid_id)) != CRYPT_OK) {
+   return pk_get_oid_from_asn1(id, oid_id);
+}
+
+int x509_get_pka(const ltc_asn1_list *pub, enum ltc_pka_id *pka)
+{
+   int err;
+   enum ltc_oid_id oid_id;
+   if ((err = s_x509_get_oid(pub, &oid_id)) != CRYPT_OK) {
       return err;
    }
    return pk_get_pka_id(oid_id, pka);
+}
+
+int x509_get_sig_alg(const ltc_asn1_list *seq, ltc_x509_signature_algorithm *sig_alg)
+{
+   int err;
+   enum ltc_oid_id oid_id;
+   if ((err = s_x509_get_oid(seq, &oid_id)) != CRYPT_OK) {
+      return err;
+   }
+   return pk_get_sig_alg(oid_id, sig_alg);
 }
 
 #endif /* LTC_DER */

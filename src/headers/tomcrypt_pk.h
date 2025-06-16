@@ -1053,4 +1053,248 @@ int der_decode_generalizedtime(const unsigned char *in, unsigned long *inlen,
 
 int der_length_generalizedtime(const ltc_generalizedtime *gtime, unsigned long *outlen);
 
+/* X.509 specific enums, structs and APIs */
+
+typedef enum ltc_x509_details {
+   /* The Serial is an integer, but we provide it as a hex string. */
+   LTC_X509_SERIAL = 0,
+   /* The most commonly used elements in an X.509 Name.
+    * These ones will be converted to a UTF-8 String and
+    * stored inside the `str` pointer of the `ltc_x509_string`.
+    */
+   /* CommonName */
+   LTC_X509_CN,
+   /* Country Code */
+   LTC_X509_C,
+   /* Locality */
+   LTC_X509_L,
+   /* State or Province */
+   LTC_X509_ST,
+   /* Organisation */
+   LTC_X509_O,
+   /* OrganisationalUnit */
+   LTC_X509_OU,
+   /* EmailAddress */
+   LTC_X509_EMAIL,
+
+   /* GeneralName subtypes
+    *    GeneralName ::= CHOICE {
+    *         otherName                       [0]     OtherName,
+    *         rfc822Name                      [1]     IA5String,
+    *         dNSName                         [2]     IA5String,
+    *         x400Address                     [3]     ORAddress,
+    *         directoryName                   [4]     Name,
+    *         ediPartyName                    [5]     EDIPartyName,
+    *         uniformResourceIdentifier       [6]     IA5String,
+    *         iPAddress                       [7]     OCTET STRING,
+    *         registeredID                    [8]     OBJECT IDENTIFIER }
+    */
+   LTC_X509_OTHER_NAME = 30,
+   LTC_X509_RFC822_NAME,
+   LTC_X509_DNS_NAME,
+   LTC_X509_X400_ADDRESS,
+   LTC_X509_DIRECTORY_NAME,
+   LTC_X509_EDI_PARTY_NAME,
+   LTC_X509_UNIFORM_RESOURCE_IDENTIFIER,
+   LTC_X509_IP_ADDRESS,
+   LTC_X509_REGISTERED_ID,
+
+   /* Value was encoded as an OCTET STRING */
+   LTC_X509_OCTET_STRING,
+
+   /* The most commonly used X.509 Certificate Extension. */
+   /* AuthorityKeyIdentifier */
+   LTC_X509_CE_AUTHORITY_KEY_ID = 100,
+   /* SubjectKeyIdentifier */
+   LTC_X509_CE_SUBJECT_KEY_ID,
+   /* KeyUsage */
+   LTC_X509_CE_KEY_USAGE,
+   /* SubjectAltName */
+   LTC_X509_CE_SUBJECT_ALT_NAME,
+   /* BasicConstraints */
+   LTC_X509_CE_BASIC_CONSTRAINTS,
+   /* ExtendedKeyUsage */
+   LTC_X509_CE_EXT_KEY_USAGE,
+
+   /* The rest will not be decoded and has to be treated
+    * manually through the `asn1` pointer of the struct.
+    */
+   LTC_X509_UNKNOWN = 0x7fff,
+} ltc_x509_details;
+
+typedef struct ltc_x509_string {
+   ltc_x509_details type;
+   const char *str;
+   const ltc_asn1_list *asn1;
+} ltc_x509_string;
+
+typedef struct ltc_x509_name {
+   const ltc_x509_string *names;
+   unsigned long names_num;
+   const ltc_asn1_list *asn1;
+} ltc_x509_name;
+
+typedef struct ltc_x509_time {
+   union {
+      ltc_utctime *utc;
+      ltc_generalizedtime *generalized;
+   } u;
+   int utc;
+   const char *str;
+   const ltc_asn1_list *asn1;
+} ltc_x509_time;
+
+typedef struct ltc_x509_signature_algorithm {
+   enum ltc_pka_id pka;
+   union {
+      const char *hash;
+      ltc_rsa_parameters rsa_params;
+   } u;
+   const ltc_asn1_list *asn1;
+} ltc_x509_signature_algorithm;
+
+typedef struct ltc_x509_validity {
+   ltc_x509_time not_before, not_after;
+} ltc_x509_validity;
+
+/*
+ * Certificate Extensions
+ */
+
+/* KeyUsage ::= BIT STRING */
+typedef enum ltc_x509_ce_key_usage {
+   /* digitalSignature        (0) */
+   LTC_KU_DS   = LTC_BIT(0),
+   /* contentCommitment       (1) */
+   LTC_KU_CC   = LTC_BIT(1),
+   /* keyEncipherment         (2) */
+   LTC_KU_KE   = LTC_BIT(2),
+   /* dataEncipherment        (3) */
+   LTC_KU_DE   = LTC_BIT(3),
+   /* keyAgreement            (4) */
+   LTC_KU_KA   = LTC_BIT(4),
+   /* keyCertSign             (5) */
+   LTC_KU_KCS  = LTC_BIT(5),
+   /* cRLSign                 (6) */
+   LTC_KU_CRLS = LTC_BIT(6),
+   /* encipherOnly            (7) */
+   LTC_KU_EO   = LTC_BIT(7),
+   /* decipherOnly            (8) */
+   LTC_KU_DO   = LTC_BIT(8),
+} ltc_x509_ce_key_usage;
+
+/* ExtKeyUsageSyntax ::= SEQUENCE SIZE (1..MAX) OF KeyPurposeId
+ * KeyPurposeId ::= OBJECT IDENTIFIER
+ */
+typedef enum ltc_x509_ce_ext_key_usage {
+   /* anyExtendedKeyUsage */
+   LTC_EKU_ANY  = LTC_BIT(0),
+   /* serverAuth */
+   LTC_EKU_SA   = LTC_BIT(1),
+   /* clientAuth */
+   LTC_EKU_CA   = LTC_BIT(2),
+   /* codeSigning */
+   LTC_EKU_CS   = LTC_BIT(3),
+   /* emailProtection */
+   LTC_EKU_EP   = LTC_BIT(4),
+   /* timeStamping */
+   LTC_EKU_TS   = LTC_BIT(5),
+   /* OCSPSigning */
+   LTC_EKU_OS   = LTC_BIT(6),
+} ltc_x509_ce_ext_key_usage;
+
+typedef struct ltc_x509_extension {
+   ltc_x509_details type;
+   const ltc_asn1_list *oid;
+   int critical;
+   union {
+      /* .type = LTC_X509_AUTHORITY_KEY_ID */
+      struct {
+         ltc_x509_string key_identifier;
+         ltc_x509_string authority_cert_issuer;
+         ltc_x509_string authority_cert_serial_number;
+      } authority_key_id;
+      /* .type = LTC_X509_SUBJECT_KEY_ID */
+      ltc_x509_string subject_key_identifier;
+      /* .type = LTC_X509_KEY_USAGE
+       * Bitmask of `enum ltc_x509_ce_key_usage`
+       */
+      ulong32 key_usage;
+      /* .type = LTC_X509_SUBJECT_ALT_NAME */
+      ltc_x509_name subject_alt_name;
+      /* .type = LTC_X509_BASIC_CONSTRAINTS */
+      struct {
+         int ca;
+         /* pathLenConstraint is marked as OPTIONAL:
+          * -1 -> value missing
+          * 0..INT_MAX -> valid values
+          */
+         int path_len;
+      } basic_constraints;
+      /* .type = LTC_X509_EXT_KEY_USAGE
+       * Bitmask of `enum ltc_x509_ce_ext_key_usage`
+       */
+      ulong32 ext_key_usage;
+   } u;
+   const ltc_asn1_list *asn1;
+} ltc_x509_extension;
+
+typedef struct ltc_x509_extensions {
+   const ltc_x509_extension *extensions;
+   unsigned long extensions_num;
+   const ltc_asn1_list *asn1;
+
+   const ltc_x509_extension *authority_key_id;
+   const ltc_x509_extension *subject_key_identifier;
+   const ltc_x509_extension *key_usage;
+   const ltc_x509_extension *subject_alt_name;
+   const ltc_x509_extension *basic_constraints;
+   const ltc_x509_extension *ext_key_usage;
+   /* let's pre-reserve this for future extensions */
+   const ltc_x509_extension *more[7];
+} ltc_x509_extensions;
+
+typedef struct ltc_x509_tbs_certificate {
+   unsigned long version;
+   ltc_x509_string serial_number;
+   ltc_x509_signature_algorithm signature_algorithm;
+   ltc_x509_name issuer;
+   ltc_x509_validity validity;
+   ltc_x509_name subject;
+   ltc_pka_key subject_public_key_info;
+   const ltc_asn1_list *issuer_uid;
+   const ltc_asn1_list *subject_uid;
+   ltc_x509_extensions extensions;
+   const ltc_asn1_list *asn1;
+} ltc_x509_tbs_certificate;
+
+typedef struct ltc_x509_signature {
+   const unsigned char *signature;
+   /* The signature length is given in bits, but it is stored as bytes.
+    * I.e. a signature of 123 bits will be stored in 128bits resp. 16bytes.
+    */
+   unsigned long signature_len;
+   const ltc_asn1_list *asn1;
+} ltc_x509_signature;
+
+typedef struct ltc_x509_certificate {
+   ltc_x509_tbs_certificate tbs_certificate;
+   ltc_x509_signature_algorithm signature_algorithm;
+   ltc_x509_signature signature;
+   const ltc_asn1_list *asn1;
+} ltc_x509_certificate;
+
+int x509_import(const unsigned char *asn1_cert, unsigned long asn1_len, const ltc_x509_certificate **out);
+#ifdef LTC_PEM
+int x509_import_pem(const char *pem, unsigned long *pem_len, const ltc_x509_certificate **out);
+#ifndef LTC_NO_FILE
+int x509_import_pem_filehandle(FILE *f, const ltc_x509_certificate **out);
+#endif /* LTC_NO_FILE */
+#endif /* LTC_PEM */
+int x509_cert_is_signed_by(const ltc_x509_certificate *cert, const ltc_pka_key *key, int *stat);
+int x509_cmp_name(const ltc_x509_name *a, const ltc_x509_name *b);
+int x509_name_detail_get(const ltc_x509_name *name, ltc_x509_details type, const ltc_x509_string **str);
+const char *x509_name_detail_desc(ltc_x509_details type);
+void x509_free(const ltc_x509_certificate **cert);
+
 #endif
