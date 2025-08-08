@@ -6,6 +6,7 @@
 [Rr]elease/
 /MSVC_*
 .libs/
+.vs/
 
 # release files
 /libtomcrypt-*
