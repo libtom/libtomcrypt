@@ -17,7 +17,7 @@ static LTC_INLINE int s_pka_verify(const unsigned char *msg, unsigned long msgle
 #ifdef LTC_MRSA
       case LTC_PKA_RSA:
          /* Hard-code Padding to PSS and SaltLen to 20, as specified in RFC 4055 */
-         return rsa_verify_hash_ex(sig, siglen, msg, msglen, LTC_PKCS_1_PSS, hash_idx, 20, stat, &key->u.rsa);
+         return rsa_verify_hash_ex(sig, siglen, msg, msglen, LTC_PKCS_1_PSS, hash_idx, hash_idx, 20, stat, &key->u.rsa);
 #endif
 #ifdef LTC_MDSA
       case LTC_PKA_DSA:

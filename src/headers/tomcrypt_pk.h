@@ -103,10 +103,10 @@ void rsa_free(rsa_key *key);
   rsa_decrypt_key_ex(in, inlen, out, outlen, lparam, lparamlen, hash_idx, -1, LTC_PKCS_1_OAEP, stat, key)
 
 #define rsa_sign_hash(in, inlen, out, outlen, prng, prng_idx, hash_idx, saltlen, key) \
-  rsa_sign_hash_ex(in, inlen, out, outlen, LTC_PKCS_1_PSS, prng, prng_idx, hash_idx, saltlen, key)
+  rsa_sign_hash_ex(in, inlen, out, outlen, LTC_PKCS_1_PSS, prng, prng_idx, hash_idx, hash_idx, saltlen, key)
 
 #define rsa_verify_hash(sig, siglen, hash, hashlen, hash_idx, saltlen, stat, key) \
-  rsa_verify_hash_ex(sig, siglen, hash, hashlen, LTC_PKCS_1_PSS, hash_idx, saltlen, stat, key)
+  rsa_verify_hash_ex(sig, siglen, hash, hashlen, LTC_PKCS_1_PSS, hash_idx, hash_idx, saltlen, stat, key)
 
 #define rsa_sign_saltlen_get_max(hash_idx, key) \
   rsa_sign_saltlen_get_max_ex(LTC_PKCS_1_PSS, hash_idx, key)
@@ -130,14 +130,16 @@ int rsa_decrypt_key_ex(const unsigned char *in,             unsigned long  inlen
 int rsa_sign_hash_ex(const unsigned char *in,       unsigned long  inlen,
                            unsigned char *out,      unsigned long *outlen,
                            int            padding,
-                           prng_state    *prng,     int            prng_idx,
-                           int            hash_idx, unsigned long  saltlen,
+                           prng_state    *prng,               int  prng_idx,
+                           int            hash_idx,           int  mgf_hash_idx,
+                           unsigned long  saltlen,
                      const rsa_key       *key);
 
 int rsa_verify_hash_ex(const unsigned char *sig,            unsigned long  siglen,
                        const unsigned char *hash,           unsigned long  hashlen,
                              int            padding,
-                             int            hash_idx,       unsigned long  saltlen,
+                             int            hash_idx,                 int  mgf_hash_idx,
+                             unsigned long  saltlen,
                              int           *stat,     const rsa_key       *key);
 
 int rsa_sign_saltlen_get_max_ex(int padding, int hash_idx, const rsa_key *key);

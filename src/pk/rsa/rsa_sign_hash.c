@@ -26,9 +26,10 @@
 int rsa_sign_hash_ex(const unsigned char *in,       unsigned long  inlen,
                            unsigned char *out,      unsigned long *outlen,
                            int            padding,
-                           prng_state    *prng,     int            prng_idx,
-                           int            hash_idx, unsigned long  saltlen,
-                     const rsa_key *key)
+                           prng_state    *prng,               int  prng_idx,
+                           int            hash_idx,           int  mgf_hash_idx,
+                           unsigned long  saltlen,
+                     const rsa_key       *key)
 {
    unsigned long modulus_bitlen, modulus_bytelen, x, y;
    int           err;
@@ -72,8 +73,8 @@ int rsa_sign_hash_ex(const unsigned char *in,       unsigned long  inlen,
   if (padding == LTC_PKCS_1_PSS) {
     /* PSS pad the key */
     x = *outlen;
-    if ((err = pkcs_1_pss_encode(in, inlen, saltlen, prng, prng_idx,
-                                 hash_idx, modulus_bitlen, out, &x)) != CRYPT_OK) {
+    if ((err = pkcs_1_pss_encode_mgf1(in, inlen, saltlen, prng, prng_idx,
+                                      hash_idx, mgf_hash_idx, modulus_bitlen, out, &x)) != CRYPT_OK) {
        return err;
     }
   } else {

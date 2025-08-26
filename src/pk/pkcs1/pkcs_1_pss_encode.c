@@ -17,16 +17,18 @@
    @param prng             An active PRNG context
    @param prng_idx         The index of the PRNG desired
    @param hash_idx         The index of the hash desired
+   @param mgf_hash_idx     The index of the hash desired for MGF1
    @param modulus_bitlen   The bit length of the RSA modulus
    @param out              [out] The destination of the encoding
    @param outlen           [in/out] The max size and resulting size of the encoded data
    @return CRYPT_OK if successful
 */
-int pkcs_1_pss_encode(const unsigned char *msghash, unsigned long msghashlen,
-                            unsigned long saltlen,  prng_state   *prng,
-                            int           prng_idx, int           hash_idx,
-                            unsigned long modulus_bitlen,
-                            unsigned char *out,     unsigned long *outlen)
+int pkcs_1_pss_encode_mgf1(const unsigned char *msghash,       unsigned long  msghashlen,
+                                 unsigned long saltlen,
+                                 prng_state    *prng,                    int  prng_idx,
+                                 int           hash_idx,                 int  mgf_hash_idx,
+                                 unsigned long modulus_bitlen,
+                                 unsigned char *out,           unsigned long *outlen)
 {
    unsigned char *DB, *mask, *salt, *hash;
    unsigned long x, y, hLen, modulus_len;
@@ -37,9 +39,14 @@ int pkcs_1_pss_encode(const unsigned char *msghash, unsigned long msghashlen,
    LTC_ARGCHK(out     != NULL);
    LTC_ARGCHK(outlen  != NULL);
 
-   /* ensure hash and PRNG are valid */
+   /* ensure hashes and PRNG are valid */
    if ((err = hash_is_valid(hash_idx)) != CRYPT_OK) {
       return err;
+   }
+   if (hash_idx != mgf_hash_idx) {
+      if ((err = hash_is_valid(mgf_hash_idx)) != CRYPT_OK) {
+         return err;
+      }
    }
    if ((err = prng_is_valid(prng_idx)) != CRYPT_OK) {
       return err;
@@ -111,7 +118,7 @@ int pkcs_1_pss_encode(const unsigned char *msghash, unsigned long msghashlen,
    /* x += saltlen; */
 
    /* generate mask of length modulus_len - hLen - 1 from hash */
-   if ((err = pkcs_1_mgf1(hash_idx, hash, hLen, mask, modulus_len - hLen - 1)) != CRYPT_OK) {
+   if ((err = pkcs_1_mgf1(mgf_hash_idx, hash, hLen, mask, modulus_len - hLen - 1)) != CRYPT_OK) {
       goto LBL_ERR;
    }
 
@@ -159,6 +166,29 @@ LBL_ERR:
    XFREE(DB);
 
    return err;
+}
+
+
+/**
+   PKCS #1 v2.00 Signature Encoding using MGF1 and both hashes are the same
+   @param msghash          The hash to encode
+   @param msghashlen       The length of the hash (octets)
+   @param saltlen          The length of the salt desired (octets)
+   @param prng             An active PRNG context
+   @param prng_idx         The index of the PRNG desired
+   @param hash_idx         The index of the hash desired
+   @param modulus_bitlen   The bit length of the RSA modulus
+   @param out              [out] The destination of the encoding
+   @param outlen           [in/out] The max size and resulting size of the encoded data
+   @return CRYPT_OK if successful
+*/
+int pkcs_1_pss_encode(const unsigned char *msghash,  unsigned long msghashlen,
+                            unsigned long saltlen,   prng_state   *prng,
+                            int           prng_idx,  int           hash_idx,
+                            unsigned long modulus_bitlen,
+                            unsigned char *out,      unsigned long *outlen)
+{
+   return pkcs_1_pss_encode_mgf1(msghash, msghashlen, saltlen, prng, prng_idx, hash_idx, hash_idx, modulus_bitlen, out, outlen);
 }
 
 #endif /* LTC_PKCS_1 */

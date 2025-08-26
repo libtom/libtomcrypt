@@ -17,14 +17,16 @@
    @param  siglen          The length of the signature data (octets)
    @param  saltlen         The length of the salt used (octets)
    @param  hash_idx        The index of the hash desired
+   @param  mgf_hash_idx    The index of the hash desired for MGF1
    @param  modulus_bitlen  The bit length of the RSA modulus
    @param  res             [out] The result of the comparison, 1==valid, 0==invalid
    @return CRYPT_OK if successful (even if the comparison failed)
 */
-int pkcs_1_pss_decode(const unsigned char *msghash, unsigned long msghashlen,
-                      const unsigned char *sig,     unsigned long siglen,
-                            unsigned long saltlen,  int           hash_idx,
-                            unsigned long modulus_bitlen, int    *res)
+int pkcs_1_pss_decode_mgf1(const unsigned char *msghash, unsigned long msghashlen,
+                           const unsigned char *sig,     unsigned long siglen,
+                                 unsigned long saltlen,
+                                          int  hash_idx,           int mgf_hash_idx,
+                                 unsigned long modulus_bitlen,     int *res)
 {
    unsigned char *DB, *mask, *salt, *hash;
    unsigned long x, y, hLen, modulus_len;
@@ -40,6 +42,11 @@ int pkcs_1_pss_decode(const unsigned char *msghash, unsigned long msghashlen,
    /* ensure hash is valid */
    if ((err = hash_is_valid(hash_idx)) != CRYPT_OK) {
       return err;
+   }
+   if (hash_idx != mgf_hash_idx) {
+      if ((err = hash_is_valid(mgf_hash_idx)) != CRYPT_OK) {
+         return err;
+      }
    }
 
    hLen        = hash_descriptor[hash_idx].hashsize;
@@ -95,7 +102,7 @@ int pkcs_1_pss_decode(const unsigned char *msghash, unsigned long msghashlen,
    }
 
    /* generate mask of length modulus_len - hLen - 1 from hash */
-   if ((err = pkcs_1_mgf1(hash_idx, hash, hLen, mask, modulus_len - hLen - 1)) != CRYPT_OK) {
+   if ((err = pkcs_1_mgf1(mgf_hash_idx, hash, hLen, mask, modulus_len - hLen - 1)) != CRYPT_OK) {
       goto LBL_ERR;
    }
 
@@ -161,6 +168,27 @@ LBL_ERR:
    XFREE(DB);
 
    return err;
+}
+
+
+/**
+   PKCS #1 v2.00 PSS decode
+   @param  msghash         The hash to verify
+   @param  msghashlen      The length of the hash (octets)
+   @param  sig             The signature data (encoded data)
+   @param  siglen          The length of the signature data (octets)
+   @param  saltlen         The length of the salt used (octets)
+   @param  hash_idx        The index of the hash desired
+   @param  modulus_bitlen  The bit length of the RSA modulus
+   @param  res             [out] The result of the comparison, 1==valid, 0==invalid
+   @return CRYPT_OK if successful (even if the comparison failed)
+*/
+int pkcs_1_pss_decode(const unsigned char *msghash, unsigned long msghashlen,
+                      const unsigned char *sig,     unsigned long siglen,
+                            unsigned long saltlen,  int           hash_idx,
+                            unsigned long modulus_bitlen, int    *res)
+{
+   return pkcs_1_pss_decode_mgf1(msghash, msghashlen, sig, siglen, saltlen, hash_idx, hash_idx, modulus_bitlen, res);
 }
 
 #endif /* LTC_PKCS_1 */

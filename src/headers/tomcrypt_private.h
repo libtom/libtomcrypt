@@ -703,6 +703,18 @@ int x509_get_serial(const ltc_asn1_list *asn1, ltc_x509_string *serial);
 
 /* tomcrypt_pkcs.h */
 
+int pkcs_1_pss_encode_mgf1(const unsigned char *msghash,       unsigned long  msghashlen,
+                                 unsigned long saltlen,
+                                 prng_state    *prng,                    int  prng_idx,
+                                 int           hash_idx,                 int  mgf_hash_idx,
+                                 unsigned long modulus_bitlen,
+                                 unsigned char *out,           unsigned long *outlen);
+int pkcs_1_pss_decode_mgf1(const unsigned char *msghash, unsigned long msghashlen,
+                           const unsigned char *sig,     unsigned long siglen,
+                                 unsigned long saltlen,
+                                          int  hash_idx,           int mgf_hash_idx,
+                                 unsigned long modulus_bitlen,     int *res);
+
 #ifdef LTC_PKCS_8
 
 /* Public-Key Cryptography Standards (PKCS) #8:

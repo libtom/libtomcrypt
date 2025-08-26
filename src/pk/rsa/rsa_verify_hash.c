@@ -25,7 +25,8 @@
 int rsa_verify_hash_ex(const unsigned char *sig,            unsigned long  siglen,
                        const unsigned char *hash,           unsigned long  hashlen,
                              int            padding,
-                             int            hash_idx,       unsigned long  saltlen,
+                             int            hash_idx,                 int  mgf_hash_idx,
+                             unsigned long  saltlen,
                              int           *stat,     const rsa_key       *key)
 {
   unsigned long modulus_bitlen, modulus_bytelen, x;
@@ -87,10 +88,10 @@ int rsa_verify_hash_ex(const unsigned char *sig,            unsigned long  sigle
     /* PSS decode and verify it */
 
     if(modulus_bitlen%8 == 1){
-      err = pkcs_1_pss_decode(hash, hashlen, tmpbuf+1, x-1, saltlen, hash_idx, modulus_bitlen, stat);
+      err = pkcs_1_pss_decode_mgf1(hash, hashlen, tmpbuf+1, x-1, saltlen, hash_idx, mgf_hash_idx, modulus_bitlen, stat);
     }
     else{
-      err = pkcs_1_pss_decode(hash, hashlen, tmpbuf, x, saltlen, hash_idx, modulus_bitlen, stat);
+      err = pkcs_1_pss_decode_mgf1(hash, hashlen, tmpbuf, x, saltlen, hash_idx, mgf_hash_idx, modulus_bitlen, stat);
     }
 
   } else {

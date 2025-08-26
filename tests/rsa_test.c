@@ -191,13 +191,13 @@ static int rsa_compat_test(void)
 
    /* sign-verify a message with PKCS #1 v1.5 no ASN.1 */
    len = sizeof(buf);
-   DO(rsa_sign_hash_ex((unsigned char*)"test", 4, buf, &len, LTC_PKCS_1_V1_5_NA1, NULL, 0, 0, 0, &key));
+   DO(rsa_sign_hash_ex((unsigned char*)"test", 4, buf, &len, LTC_PKCS_1_V1_5_NA1, NULL, 0, 0, 0, 0, &key));
    if (len != sizeof(openssl_rsautl_pkcs) || memcmp(buf, openssl_rsautl_pkcs, len)) {
       fprintf(stderr, "RSA rsa_sign_hash_ex + LTC_PKCS_1_V1_5_NA1 failed\n");
       return 1;
    }
    stat = 0;
-   DO(rsa_verify_hash_ex(openssl_rsautl_pkcs, sizeof(openssl_rsautl_pkcs), (unsigned char*)"test", 4, LTC_PKCS_1_V1_5_NA1, 0, 0, &stat, &pubkey));
+   DO(rsa_verify_hash_ex(openssl_rsautl_pkcs, sizeof(openssl_rsautl_pkcs), (unsigned char*)"test", 4, LTC_PKCS_1_V1_5_NA1, 0, 0, 0, &stat, &pubkey));
    if (stat != 1) {
       fprintf(stderr, "RSA rsa_verify_hash_ex + LTC_PKCS_1_V1_5_NA1 failed\n");
       return 1;
@@ -331,9 +331,9 @@ static int s_rsa_cryptx_issue_69(void)
    l1 = sizeof(buf1);
    DO(radix_to_bin(sig1, 16, buf0, &l0));
    DO(radix_to_bin(hash, 16, buf1, &l1));
-   SHOULD_FAIL(rsa_verify_hash_ex(buf0, l0, buf1, l1, LTC_PKCS_1_V1_5, 0, 0, &stat, &key));
+   SHOULD_FAIL(rsa_verify_hash_ex(buf0, l0, buf1, l1, LTC_PKCS_1_V1_5, 0, 0, 0, &stat, &key));
    DO(radix_to_bin(sig2, 16, buf0, &l0));
-   SHOULD_FAIL(rsa_verify_hash_ex(buf0, l0, buf1, l1, LTC_PKCS_1_V1_5, 0, 0, &stat, &key));
+   SHOULD_FAIL(rsa_verify_hash_ex(buf0, l0, buf1, l1, LTC_PKCS_1_V1_5, 0, 0, 0, &stat, &key));
    rsa_free(&key);
    return CRYPT_OK;
 }
@@ -683,11 +683,11 @@ print_hex("q", tmp, len);
 
    /* sign a message with PKCS #1 v1.5 */
    len = sizeof(out);
-   DO(rsa_sign_hash_ex(in, 20, out, &len, LTC_PKCS_1_V1_5, &yarrow_prng, prng_idx, hash_idx, 8, &privKey));
-   DO(rsa_verify_hash_ex(out, len, in, 20, LTC_PKCS_1_V1_5, hash_idx, 8, &stat, &pubKey));
+   DO(rsa_sign_hash_ex(in, 20, out, &len, LTC_PKCS_1_V1_5, &yarrow_prng, prng_idx, hash_idx, 0, 8, &privKey));
+   DO(rsa_verify_hash_ex(out, len, in, 20, LTC_PKCS_1_V1_5, hash_idx, 0, 8, &stat, &pubKey));
    /* change a byte */
    in[0] ^= 1;
-   DO(rsa_verify_hash_ex(out, len, in, 20, LTC_PKCS_1_V1_5, hash_idx, 8, &stat2, &pubKey));
+   DO(rsa_verify_hash_ex(out, len, in, 20, LTC_PKCS_1_V1_5, hash_idx, 0, 8, &stat2, &pubKey));
 
    if (!(stat == 1 && stat2 == 0)) {
       fprintf(stderr, "rsa_verify_hash_ex failed, %d, %d", stat, stat2);
@@ -720,9 +720,9 @@ print_hex("q", tmp, len);
      len = sizeof(in);
      len2 = sizeof(out);
      /* (1) */
-     DO(rsa_sign_hash_ex(p, 20, p2, &len2, LTC_PKCS_1_V1_5, &yarrow_prng, prng_idx, hash_idx, 8, &privKey));
+     DO(rsa_sign_hash_ex(p, 20, p2, &len2, LTC_PKCS_1_V1_5, &yarrow_prng, prng_idx, hash_idx, 0, 8, &privKey));
      /* (2) */
-     DOX(rsa_verify_hash_ex(p2, len2, p, 20, LTC_PKCS_1_V1_5, hash_idx, -1, &stat, &pubKey), "should succeed");
+     DOX(rsa_verify_hash_ex(p2, len2, p, 20, LTC_PKCS_1_V1_5, hash_idx, 0, -1, &stat, &pubKey), "should succeed");
      DOX(stat == 1?CRYPT_OK:CRYPT_FAIL_TESTVECTOR, "should succeed");
      len3 = sizeof(tmp);
      /* (3) */
@@ -756,7 +756,7 @@ print_hex("q", tmp, len);
 
      len3 = sizeof(tmp);
      /* (6) */
-     SHOULD_FAIL(rsa_verify_hash_ex(p2, len2, p, 20, LTC_PKCS_1_V1_5, hash_idx, -1, &stat, &pubKey));
+     SHOULD_FAIL(rsa_verify_hash_ex(p2, len2, p, 20, LTC_PKCS_1_V1_5, hash_idx, -1, -1, &stat, &pubKey));
      DOX(stat == 0?CRYPT_OK:CRYPT_FAIL_TESTVECTOR, "should fail");
    }
    rsa_free(&key);
