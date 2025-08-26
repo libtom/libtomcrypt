@@ -9,6 +9,18 @@
 
 #ifdef LTC_MRSA
 
+#ifndef S_RSA_DECODE
+#define S_RSA_DECODE
+static int s_rsa_decode(const unsigned char *in, unsigned long inlen, rsa_key *key)
+{
+   /* now it should be SEQUENCE { INTEGER, INTEGER } */
+   return der_decode_sequence_multi(in, inlen,
+                                        LTC_ASN1_INTEGER, 1UL, key->N,
+                                        LTC_ASN1_INTEGER, 1UL, key->e,
+                                        LTC_ASN1_EOL,     0UL, NULL);
+}
+#endif
+
 
 /**
   Import an RSAPublicKey or RSAPrivateKey as defined in PKCS #1 v2.1 [two-prime only]
@@ -33,10 +45,7 @@ int rsa_import_pkcs1(const unsigned char *in, unsigned long inlen, rsa_key *key)
       /* the version would fit into an LTC_ASN1_SHORT_INTEGER
        * so we try to decode as a public key
        */
-      if ((err = der_decode_sequence_multi(in, inlen,
-                                     LTC_ASN1_INTEGER, 1UL, key->N,
-                                     LTC_ASN1_INTEGER, 1UL, key->e,
-                                     LTC_ASN1_EOL,     0UL, NULL)) == CRYPT_OK) {
+      if ((err = s_rsa_decode(in, inlen, key)) == CRYPT_OK) {
          key->type = PK_PUBLIC;
       }
       goto LBL_OUT;
@@ -85,57 +94,30 @@ LBL_OUT:
 int rsa_import(const unsigned char *in, unsigned long inlen, rsa_key *key)
 {
    int           err;
-   unsigned char *tmpbuf=NULL;
-   unsigned long tmpbuf_len, len;
 
    LTC_ARGCHK(in          != NULL);
    LTC_ARGCHK(key         != NULL);
    LTC_ARGCHK(ltc_mp.name != NULL);
+
+   if ((err = rsa_import_x509(in, inlen, key)) == CRYPT_OK) { /* SubjectPublicKeyInfo format */
+      return CRYPT_OK;
+   }
 
    /* init key */
    if ((err = rsa_init(key)) != CRYPT_OK) {
       return err;
    }
 
-   /* see if the OpenSSL DER format RSA public key will work */
-   tmpbuf_len = inlen;
-   tmpbuf = XCALLOC(1, tmpbuf_len);
-   if (tmpbuf == NULL) {
-       err = CRYPT_MEM;
-       goto LBL_ERR;
-   }
-
-   len = 0;
-   err = x509_decode_subject_public_key_info(in, inlen,
-        LTC_OID_RSA, tmpbuf, &tmpbuf_len,
-        LTC_ASN1_NULL, NULL, &len);
-
-   if (err == CRYPT_OK) { /* SubjectPublicKeyInfo format */
-
-      /* now it should be SEQUENCE { INTEGER, INTEGER } */
-      if ((err = der_decode_sequence_multi(tmpbuf, tmpbuf_len,
-                                           LTC_ASN1_INTEGER, 1UL, key->N,
-                                           LTC_ASN1_INTEGER, 1UL, key->e,
-                                           LTC_ASN1_EOL,     0UL, NULL)) != CRYPT_OK) {
-         goto LBL_ERR;
+   if ((err = x509_process_public_key_from_spki(in, inlen,
+                                                LTC_OID_RSA,
+                                                LTC_ASN1_NULL, NULL, NULL,
+                                                (public_key_decode_cb)s_rsa_decode, key)) != CRYPT_OK) {
+      /* not SSL public key, try to match against PKCS #1 standards */
+      if ((err = rsa_import_pkcs1(in, inlen, key)) != CRYPT_OK) {
+         rsa_free(key);
       }
-      key->type = PK_PUBLIC;
-      err = CRYPT_OK;
-      goto LBL_FREE;
    }
 
-   /* not SSL public key, try to match against PKCS #1 standards */
-   if ((err = rsa_import_pkcs1(in, inlen, key)) == CRYPT_OK) {
-      goto LBL_FREE;
-   }
-
-LBL_ERR:
-   rsa_free(key);
-
-LBL_FREE:
-   if (tmpbuf != NULL) {
-      XFREE(tmpbuf);
-   }
    return err;
 }
 

@@ -42,18 +42,8 @@ int rsa_verify_hash_ex(const unsigned char *sig,            unsigned long  sigle
   *stat = 0;
 
   /* valid padding? */
-
-  if ((padding != LTC_PKCS_1_V1_5) &&
-      (padding != LTC_PKCS_1_PSS) &&
-      (padding != LTC_PKCS_1_V1_5_NA1)) {
-    return CRYPT_PK_INVALID_PADDING;
-  }
-
-  if (padding != LTC_PKCS_1_V1_5_NA1) {
-    /* valid hash ? */
-    if ((err = hash_is_valid(hash_idx)) != CRYPT_OK) {
-       return err;
-    }
+  if ((err = rsa_key_valid_op(key, LTC_RSA_SIGN, padding, hash_idx)) != CRYPT_OK) {
+    return err;
   }
 
   /* get modulus len in bits */

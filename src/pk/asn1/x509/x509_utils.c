@@ -7,17 +7,31 @@
   More X.509 APIs, Steffen Jaeckel
 */
 
+typedef struct pka_sig_args {
+   int  hash_idx;
+   const ltc_rsa_parameters *rsa_params;
+} pka_sig_args;
+
 static LTC_INLINE int s_pka_verify(const unsigned char *msg, unsigned long msglen,
-               const unsigned char *sig, unsigned long siglen,
-                               int  hash_idx,
-                               int *stat,
-               const   ltc_pka_key *key)
+                                   const unsigned char *sig, unsigned long siglen,
+                                          pka_sig_args  *sig_args,
+                                                   int *stat,
+                                   const   ltc_pka_key *key)
 {
    switch (key->id) {
 #ifdef LTC_MRSA
       case LTC_PKA_RSA:
-         /* Hard-code Padding to PSS and SaltLen to 20, as specified in RFC 4055 */
-         return rsa_verify_hash_ex(sig, siglen, msg, msglen, LTC_PKCS_1_PSS, hash_idx, hash_idx, 20, stat, &key->u.rsa);
+         /* RSA Keys usually use PKCS#1 v1.5 padding */
+         return rsa_verify_hash_ex(sig, siglen, msg, msglen, LTC_PKCS_1_V1_5,
+                                   sig_args->hash_idx, sig_args->hash_idx,
+                                   -1, stat, &key->u.rsa);
+      case LTC_PKA_RSA_PSS:
+      {
+         const rsa_key *rsa = &key->u.rsa;
+         return rsa_verify_hash_ex(sig, siglen, msg, msglen, LTC_PKCS_1_PSS,
+                                   find_hash(sig_args->rsa_params->hash_alg), find_hash(sig_args->rsa_params->mgf1_hash_alg),
+                                   sig_args->rsa_params->saltlen, stat, rsa);
+      }
 #endif
 #ifdef LTC_MDSA
       case LTC_PKA_DSA:
@@ -36,25 +50,64 @@ static LTC_INLINE int s_pka_verify(const unsigned char *msg, unsigned long msgle
    }
 }
 
+/* RFC5280 Ch. 4.1.1.2.  signatureAlgorithm
+ * [...]
+ *    This field MUST contain the same algorithm identifier as the
+ *    signature field in the sequence tbsCertificate (Section 4.1.2.3).
+ */
+static LTC_INLINE int s_signature_algorithms_equal(const ltc_x509_signature_algorithm *a, const ltc_x509_signature_algorithm *b)
+{
+   if (a->pka != b->pka)
+      return 0;
+   if (a->pka == LTC_PKA_RSA_PSS) {
+      if (!rsa_params_equal(&a->u.rsa_params, &b->u.rsa_params))
+         return 0;
+   }
+   return 1;
+}
+
 int x509_cert_is_signed_by(const ltc_x509_certificate *cert, const ltc_pka_key *key, int *stat)
 {
    unsigned char buf[MAXBLOCKSIZE], *msg;
    unsigned long msglen = sizeof(buf);
-   int err, hash = -1;
+   const char *hashalg;
+   pka_sig_args sig_args = {0};
+   int err;
    *stat = 0;
+   /* Check that signatureAlgorithms match AND the key must be appropriate. */
+   if (!s_signature_algorithms_equal(&cert->signature_algorithm, &cert->tbs_certificate.signature_algorithm)
+         || (cert->signature_algorithm.pka != key->id)) {
+      return CRYPT_PK_TYPE_MISMATCH;
+   }
+   sig_args.hash_idx = -1;
    if (key->id == LTC_PKA_ED25519) {
       msg = cert->tbs_certificate.asn1->data;
       msglen = cert->tbs_certificate.asn1->size;
    } else {
-      if ((hash = find_hash(cert->signature_algorithm.hash)) == -1) {
+      if (key->id == LTC_PKA_RSA_PSS) {
+         if (cert->signature_algorithm.u.rsa_params.pss_oaep) {
+            sig_args.rsa_params = &cert->signature_algorithm.u.rsa_params;
+            if (key->u.rsa.params.pss_oaep && !rsa_params_equal(&key->u.rsa.params, sig_args.rsa_params)) {
+               return CRYPT_PK_TYPE_MISMATCH;
+            }
+         } else if (key->u.rsa.params.pss_oaep) {
+            sig_args.rsa_params = &key->u.rsa.params;
+         } else {
+            return CRYPT_PK_TYPE_MISMATCH;
+         }
+         hashalg = sig_args.rsa_params->hash_alg;
+      } else {
+         hashalg = cert->signature_algorithm.u.hash;
+      }
+      if ((sig_args.hash_idx = find_hash(hashalg)) == -1) {
          return CRYPT_INVALID_HASH;
       }
-      if ((err = hash_memory(hash, cert->tbs_certificate.asn1->data, cert->tbs_certificate.asn1->size, buf, &msglen)) != CRYPT_OK) {
+      if ((err = hash_memory(sig_args.hash_idx, cert->tbs_certificate.asn1->data, cert->tbs_certificate.asn1->size, buf, &msglen)) != CRYPT_OK) {
          return err;
       }
       msg = buf;
    }
-   if ((err = s_pka_verify(msg, msglen, cert->signature.signature, cert->signature.signature_len/8, hash, stat, key)) != CRYPT_OK) {
+   if ((err = s_pka_verify(msg, msglen, cert->signature.signature, cert->signature.signature_len/8, &sig_args, stat, key)) != CRYPT_OK) {
       return err;
    }
    return err;

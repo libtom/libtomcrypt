@@ -41,21 +41,13 @@ int rsa_encrypt_key_ex(const unsigned char *in,       unsigned long  inlen,
   LTC_ARGCHK(key    != NULL);
 
   /* valid padding? */
-  if ((padding != LTC_PKCS_1_V1_5) &&
-      (padding != LTC_PKCS_1_OAEP)) {
-    return CRYPT_PK_INVALID_PADDING;
+  if ((err = rsa_key_valid_op(key, LTC_RSA_CRYPT, padding, mgf_hash)) != CRYPT_OK) {
+    return err;
   }
 
   /* valid prng? */
   if ((err = prng_is_valid(prng_idx)) != CRYPT_OK) {
      return err;
-  }
-
-  if (padding == LTC_PKCS_1_OAEP) {
-    /* valid hash? */
-    if ((err = hash_is_valid(mgf_hash)) != CRYPT_OK) {
-       return err;
-    }
   }
 
   /* get modulus len in bits */

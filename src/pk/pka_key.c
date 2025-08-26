@@ -30,6 +30,7 @@ void pka_key_free(ltc_pka_key *key)
 #endif
          break;
       case LTC_PKA_RSA:
+      case LTC_PKA_RSA_PSS:
 #if defined(LTC_MRSA)
          rsa_free(&key->u.rsa);
 #endif

@@ -40,6 +40,7 @@ enum ltc_pka_id {
    LTC_PKA_X25519,
    LTC_PKA_ED25519,
    LTC_PKA_DH,
+   LTC_PKA_RSA_PSS,
    LTC_PKA_NUM
 };
 
@@ -62,7 +63,18 @@ int rand_prime(void *N, long len, prng_state *prng, int wprng);
 /* ---- RSA ---- */
 #ifdef LTC_MRSA
 
-/** RSA PKCS style key */
+typedef struct ltc_rsa_parameters {
+   /** PSS/OAEP or PKCS #1 v1.5 style
+    *  0 -> PKCS #1 v1.5, 1 -> PSS/OAEP */
+   int pss_oaep;
+   /** saltLength is only defined for PSS
+    * If saltLength == 0 -> OAEP, else -> PSS */
+   unsigned long saltlen;
+   /** hash and MGF hash algorithms */
+   const char *hash_alg, *mgf1_hash_alg;
+} ltc_rsa_parameters;
+
+/** RSA key */
 typedef struct Rsa_key {
     /** Type of key, PK_PRIVATE or PK_PUBLIC */
     int type;
@@ -82,6 +94,8 @@ typedef struct Rsa_key {
     void *dP;
     /** The d mod (q - 1) CRT param */
     void *dQ;
+    /** Further parameters of the RSA key */
+    ltc_rsa_parameters params;
 } rsa_key;
 
 int rsa_make_key(prng_state *prng, int wprng, int size, long e, rsa_key *key);
@@ -1029,7 +1043,11 @@ typedef struct ltc_x509_time {
 
 typedef struct ltc_x509_signature_algorithm {
    enum ltc_pka_id pka;
-   const char *hash;
+   union {
+      const char *hash;
+      ltc_rsa_parameters rsa_params;
+   } u;
+   const ltc_asn1_list *asn1;
 } ltc_x509_signature_algorithm;
 
 typedef struct ltc_x509_validity {

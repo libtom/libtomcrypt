@@ -40,22 +40,13 @@ int rsa_sign_hash_ex(const unsigned char *in,       unsigned long  inlen,
    LTC_ARGCHK(key      != NULL);
 
    /* valid padding? */
-   if ((padding != LTC_PKCS_1_V1_5) &&
-       (padding != LTC_PKCS_1_PSS) &&
-       (padding != LTC_PKCS_1_V1_5_NA1)) {
-     return CRYPT_PK_INVALID_PADDING;
+   if ((err = rsa_key_valid_op(key, LTC_RSA_SIGN, padding, hash_idx)) != CRYPT_OK) {
+     return err;
    }
 
    if (padding == LTC_PKCS_1_PSS) {
      /* valid prng ? */
      if ((err = prng_is_valid(prng_idx)) != CRYPT_OK) {
-        return err;
-     }
-   }
-
-   if (padding != LTC_PKCS_1_V1_5_NA1) {
-     /* valid hash ? */
-     if ((err = hash_is_valid(hash_idx)) != CRYPT_OK) {
         return err;
      }
    }

@@ -26,10 +26,10 @@
    @param spki             [out] A pointer to the SubjectPublicKeyInfo
    @return CRYPT_OK on success, CRYPT_NOP if no SubjectPublicKeyInfo was found, another error if decoding failed
 */
-int x509_decode_spki(const unsigned char *in, unsigned long inlen, ltc_asn1_list **out, ltc_asn1_list **spki)
+int x509_decode_spki(const unsigned char *in, unsigned long inlen, ltc_asn1_list **out, const ltc_asn1_list **spki)
 {
    int err;
-   unsigned long tmp_inlen;
+   unsigned long tmp_inlen, n, element_is_spki;
    ltc_asn1_list *decoded_list = NULL, *l;
 
    LTC_ARGCHK(in       != NULL);
@@ -49,29 +49,49 @@ int x509_decode_spki(const unsigned char *in, unsigned long inlen, ltc_asn1_list
       if ((l->type == LTC_ASN1_SEQUENCE) && (l->child != NULL)) {
          l = l->child;
          if ((l->type == LTC_ASN1_SEQUENCE) && (l->child != NULL)) {
+            /*    TBSCertificate  ::=  SEQUENCE  {
+             *         version         [0]  EXPLICIT Version DEFAULT v1,
+             *         serialNumber         CertificateSerialNumber,
+             *         signature            AlgorithmIdentifier,
+             *         issuer               Name,
+             *         validity             Validity,
+             *         subject              Name,
+             *         subjectPublicKeyInfo SubjectPublicKeyInfo,
+             *         issuerUniqueID  [1]  IMPLICIT UniqueIdentifier OPTIONAL,
+             *                              -- If present, version MUST be v2 or v3
+             *         subjectUniqueID [2]  IMPLICIT UniqueIdentifier OPTIONAL,
+             *                              -- If present, version MUST be v2 or v3
+             *         extensions      [3]  EXPLICIT Extensions OPTIONAL
+             *                              -- If present, version MUST be v3
+             *         }
+             */
             l = l->child;
 
-            /* Move forward in the tree until we find this combination
-                 ...
-                 SEQUENCE
-                     SEQUENCE
-                         OBJECT IDENTIFIER <some PKA OID, e.g. 1.2.840.113549.1.1.1>
-                         NULL
-                     BIT STRING
+            /* `l` points now either to 'version' or 'serialNumber', depending on
+             * whether 'version' is included or defaults to 'v1'.
+             * 'version' is represented as a LTC_ASN1_CUSTOM_TYPE
+             * 'serialNumber' is represented as an LTC_ASN1_INTEGER
+             * Decide now whether to move 5 or 6 elements forward until
+             * `l` should point to subjectPublicKeyInfo.
              */
-            do {
-               /* The additional check for l->data is there to make sure
-                * we won't try to decode a list that has been 'shrunk'
-                */
-               if ((l->type == LTC_ASN1_SEQUENCE)
-                     && (l->data != NULL)
-                     && LOOKS_LIKE_SPKI(l->child)) {
-                  *out = decoded_list;
-                  *spki = l;
-                  return CRYPT_OK;
-               }
+            if (l->type == LTC_ASN1_CUSTOM_TYPE)
+               element_is_spki = 6;
+            else
+               element_is_spki = 5;
+            for (n = 0; n < element_is_spki && l; ++n) {
                l = l->next;
-            } while(l);
+            }
+            /* The additional check for l->data is there to make sure
+             * we won't try to decode a list that has been 'shrunk'
+             */
+            if ((l != NULL)
+                  && (l->type == LTC_ASN1_SEQUENCE)
+                  && (l->data != NULL)
+                  && LOOKS_LIKE_SPKI(l->child)) {
+               *out = decoded_list;
+               *spki = l;
+               return CRYPT_OK;
+            }
          }
       }
    }

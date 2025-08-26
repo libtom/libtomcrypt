@@ -14,6 +14,7 @@ typedef int (*import_fn)(const unsigned char *, unsigned long, void*);
 static const import_fn s_import_x509_fns[LTC_PKA_NUM] = {
 #ifdef LTC_MRSA
                                                 [LTC_PKA_RSA] = (import_fn)rsa_import_x509,
+                                                [LTC_PKA_RSA_PSS] = (import_fn)rsa_import_x509,
 #endif
 #ifdef LTC_MDSA
                                                 [LTC_PKA_DSA] = (import_fn)dsa_import,
@@ -30,7 +31,8 @@ static const import_fn s_import_x509_fns[LTC_PKA_NUM] = {
 int x509_import_spki(const unsigned char *asn1_cert, unsigned long asn1_len, ltc_pka_key *k, ltc_asn1_list **root)
 {
    enum ltc_pka_id pka = LTC_PKA_UNDEF;
-   ltc_asn1_list *d, *spki;
+   ltc_asn1_list *d;
+   const ltc_asn1_list *spki;
    int err;
    if ((err = x509_decode_spki(asn1_cert, asn1_len, &d, &spki)) != CRYPT_OK) {
       return err;

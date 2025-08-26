@@ -60,6 +60,9 @@ enum ltc_oid_id {
    LTC_OID_X25519,
    LTC_OID_ED25519,
    LTC_OID_DH,
+   LTC_OID_RSA_OAEP,
+   LTC_OID_RSA_MGF1,
+   LTC_OID_RSA_PSS,
    LTC_OID_RSA_WITH_MD5,
    LTC_OID_RSA_WITH_SHA1,
    LTC_OID_RSA_WITH_SHA224,
@@ -439,8 +442,14 @@ int pk_oid_cmp_with_ulong(const char *o1, const unsigned long *o2, unsigned long
 
 /* ---- DH Routines ---- */
 #ifdef LTC_MRSA
+typedef enum ltc_rsa_op {
+   LTC_RSA_CRYPT,
+   LTC_RSA_SIGN
+} ltc_rsa_op;
 int rsa_init(rsa_key *key);
 void rsa_shrink_key(rsa_key *key);
+int rsa_key_valid_op(const rsa_key *key, ltc_rsa_op op, int padding, int hash_idx);
+int rsa_params_equal(const ltc_rsa_parameters *a, const ltc_rsa_parameters *b);
 int rsa_make_key_bn_e(prng_state *prng, int wprng, int size, void *e,
                       rsa_key *key); /* used by op-tee */
 int rsa_import_pkcs1(const unsigned char *in, unsigned long inlen, rsa_key *key);
@@ -681,7 +690,11 @@ int x509_decode_public_key_from_certificate(const unsigned char *in, unsigned lo
                                             enum ltc_oid_id algorithm, ltc_asn1_type param_type,
                                             ltc_asn1_list* parameters, unsigned long *parameters_len,
                                             public_key_decode_cb callback, void *ctx);
-int x509_decode_spki(const unsigned char *in, unsigned long inlen, ltc_asn1_list **out, ltc_asn1_list **spki);
+int x509_decode_spki(const unsigned char *in, unsigned long inlen, ltc_asn1_list **out, const ltc_asn1_list **spki);
+int x509_process_public_key_from_spki(const unsigned char *in, unsigned long inlen,
+                                      enum ltc_oid_id algorithm, ltc_asn1_type param_type,
+                                      ltc_asn1_list* parameters, unsigned long *parameters_len,
+                                      public_key_decode_cb callback, void *ctx);
 
 /* SUBJECT PUBLIC KEY INFO */
 int x509_encode_subject_public_key_info(unsigned char *out, unsigned long *outlen,

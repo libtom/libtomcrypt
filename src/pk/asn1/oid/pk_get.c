@@ -20,6 +20,9 @@ static const oid_table_entry pka_oids[] = {
                                               { LTC_OID_X25519,               LTC_PKA_X25519,  NULL,         "1.3.101.110" },
                                               { LTC_OID_ED25519,              LTC_PKA_ED25519, NULL,         "1.3.101.112" },
                                               { LTC_OID_DH,                   LTC_PKA_DH,      NULL,         "1.2.840.113549.1.3.1" },
+                                              { LTC_OID_RSA_OAEP,             LTC_PKA_RSA,     NULL,         "1.2.840.113549.1.1.7" },
+                                              { LTC_OID_RSA_MGF1,             LTC_PKA_RSA,     NULL,         "1.2.840.113549.1.1.8" },
+                                              { LTC_OID_RSA_PSS,              LTC_PKA_RSA_PSS, NULL,         "1.2.840.113549.1.1.10" },
                                               { LTC_OID_RSA_WITH_MD5,         LTC_PKA_RSA,     "md5",        "1.2.840.113549.1.1.4" },
                                               { LTC_OID_RSA_WITH_SHA1,        LTC_PKA_RSA,     "sha1",       "1.2.840.113549.1.1.5" },
                                               { LTC_OID_RSA_WITH_SHA224,      LTC_PKA_RSA,     "sha224",     "1.2.840.113549.1.1.14" },
@@ -106,7 +109,7 @@ int pk_get_pka_id(enum ltc_oid_id id, enum ltc_pka_id *pka)
 int pk_get_sig_alg(enum ltc_oid_id id, ltc_x509_signature_algorithm *sig_alg)
 {
    LTC_ARGCHK(sig_alg != NULL);
-   return s_get_values(id, &sig_alg->pka, &sig_alg->hash);
+   return s_get_values(id, &sig_alg->pka, &sig_alg->u.hash);
 }
 
 /*

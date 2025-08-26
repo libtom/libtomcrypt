@@ -85,6 +85,7 @@ void rsa_shrink_key(rsa_key *key)
 int rsa_init(rsa_key *key)
 {
    LTC_ARGCHK(key != NULL);
+   XMEMSET(&key->params, 0, sizeof(key->params));
    return ltc_mp_init_multi(&key->e, &key->d, &key->N, &key->dQ, &key->dP, &key->qP, &key->p, &key->q, LTC_NULL);
 }
 
@@ -96,6 +97,90 @@ void rsa_free(rsa_key *key)
 {
    LTC_ARGCHKVD(key != NULL);
    ltc_mp_cleanup_multi(&key->q, &key->p, &key->qP, &key->dP, &key->dQ, &key->N, &key->d, &key->e, LTC_NULL);
+   XMEMSET(&key->params, 0, sizeof(key->params));
+}
+
+static LTC_INLINE int s_rsa_key_valid_pss_algs(const rsa_key *key, int padding, int hash_idx)
+{
+   if (!key->params.pss_oaep) {
+      return CRYPT_OK;
+   }
+   if (padding != LTC_PKCS_1_PSS) {
+      return CRYPT_PK_TYPE_MISMATCH;
+   }
+   if (key->params.hash_alg == NULL || find_hash(key->params.hash_alg) != hash_idx) {
+      return CRYPT_INVALID_HASH;
+   }
+   if (key->params.mgf1_hash_alg == NULL) {
+      return CRYPT_INVALID_HASH;
+   }
+   return hash_is_valid(find_hash(key->params.mgf1_hash_alg));
+}
+
+static LTC_INLINE int s_rsa_key_valid_sign(const rsa_key *key, int padding, int hash_idx)
+{
+   if ((padding != LTC_PKCS_1_V1_5) &&
+       (padding != LTC_PKCS_1_PSS) &&
+       (padding != LTC_PKCS_1_V1_5_NA1)) {
+     return CRYPT_PK_INVALID_PADDING;
+   }
+
+   if (padding != LTC_PKCS_1_V1_5_NA1) {
+      int err;
+      /* valid hash ? */
+      if ((err = hash_is_valid(hash_idx)) != CRYPT_OK) {
+        return err;
+      }
+   }
+   return s_rsa_key_valid_pss_algs(key, padding, hash_idx);
+}
+
+static LTC_INLINE int s_rsa_key_valid_crypt(const rsa_key *key, int padding, int hash_idx)
+{
+   if ((padding != LTC_PKCS_1_V1_5) &&
+       (padding != LTC_PKCS_1_OAEP)) {
+     return CRYPT_PK_INVALID_PADDING;
+   }
+
+   if (padding == LTC_PKCS_1_OAEP) {
+      int err;
+      /* valid hash? */
+      if ((err = hash_is_valid(hash_idx)) != CRYPT_OK) {
+        return err;
+      }
+   }
+   return s_rsa_key_valid_pss_algs(key, padding, hash_idx);
+}
+
+int rsa_key_valid_op(const rsa_key *key, ltc_rsa_op op, int padding, int hash_idx)
+{
+   switch (op) {
+      case LTC_RSA_SIGN:
+         return s_rsa_key_valid_sign(key, padding, hash_idx);
+      case LTC_RSA_CRYPT:
+         return s_rsa_key_valid_crypt(key, padding, hash_idx);
+      default:
+         return CRYPT_ERROR;
+   }
+}
+
+int rsa_params_equal(const ltc_rsa_parameters *a, const ltc_rsa_parameters *b)
+{
+   if (!a->pss_oaep)
+      return 0;
+   if (a->pss_oaep != b->pss_oaep)
+      return 0;
+   if (a->saltlen != b->saltlen)
+      return 0;
+   if (!a->hash_alg || !b->hash_alg)
+      return 0;
+   if (XSTRCMP(a->hash_alg, b->hash_alg))
+      return 0;
+   if (!a->mgf1_hash_alg || !b->mgf1_hash_alg)
+      return 0;
+   if (XSTRCMP(a->mgf1_hash_alg, b->mgf1_hash_alg))
+      return 0;
+   return 1;
 }
 
 #endif
