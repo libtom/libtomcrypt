@@ -24,6 +24,22 @@ static void print_err(const char *fmt, ...)
 #define print_stderr(...) fprintf(stderr, ##__VA_ARGS__)
 #endif
 
+#if defined(LTC_TEST_DBG) && LTC_TEST_DBG > 1
+#define LTC_DER_PRINT_FLEXI_NO_MAIN
+#include "der_print_flexi.c"
+
+static void s_der_print_flexi(const ltc_asn1_list* l)
+{
+   print_stderr("\n\n");
+   s_der_print_flexi_i(l, 0);
+   print_stderr("\n\n");
+}
+#else
+static void s_der_print_flexi(const ltc_asn1_list* l)
+{
+   LTC_UNUSED_PARAM(l);
+}
+#endif
 
 static unsigned long num_certs;
 static const ltc_x509_certificate *cert[256] = {0};
@@ -68,7 +84,7 @@ next:
    if (f != stdin) {
       fseek(f, 0, SEEK_END);
       tot_data = ftell(f);
-      rewind(f);
+      fseek(f, 0, SEEK_SET);
       tell = 0;
    } else {
       tell = -1;
@@ -82,6 +98,8 @@ next:
          continue;
       else if (err != CRYPT_OK)
          break;
+      if (cert[n] && cert[n]->asn1)
+         s_der_print_flexi(cert[n]->asn1);
       if (f != stdin) {
          tell = ftell(f);
          print_stderr("%2lu len: %ld - tot: %ld - processed: %lu (%s)\n", n, tell, tot_data, processed, error_to_string(err));
