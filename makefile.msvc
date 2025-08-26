@@ -290,6 +290,8 @@ timing.exe: demos/timing.c $(LIBMAIN_S)
 	cl $(LTC_CFLAGS) demos/timing.c tests/common.c $(LIBMAIN_S) $(LTC_LDFLAGS) /Fe$@
 x509_verify.exe: demos/x509_verify.c $(LIBMAIN_S)
 	cl $(LTC_CFLAGS) demos/x509_verify.c tests/common.c $(LIBMAIN_S) $(LTC_LDFLAGS) /Fe$@
+der_print_flexi.exe: demos/der_print_flexi.c $(LIBMAIN_S)
+	cl $(LTC_CFLAGS) demos/der_print_flexi.c tests/common.c $(LIBMAIN_S) $(LTC_LDFLAGS) /Fe$@
 
 #Tests
 test.exe: $(LIBMAIN_S) $(TOBJECTS)

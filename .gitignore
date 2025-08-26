@@ -32,6 +32,8 @@ constants
 constants.exe
 crypt
 crypt.exe
+der_print_flexi
+der_print_flexi.exe
 hashsum
 hashsum.exe
 multi

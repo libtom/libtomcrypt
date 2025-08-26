@@ -174,7 +174,7 @@ TEST=test
 USEFUL_DEMOS   = hashsum
 
 # Demos that are usable but only rarely make sense to be installed
-USEABLE_DEMOS  = aesgcm constants crypt openssh-privkey openssl-enc pem-info sizes timing x509_verify
+USEABLE_DEMOS  = aesgcm constants crypt der_print_flexi openssh-privkey openssl-enc pem-info sizes timing x509_verify
 
 # Demos that are used for testing or measuring
 TEST_DEMOS     = small tv_gen

@@ -314,6 +314,8 @@ timing: demos/timing.o $(LIBMAIN_S)
 	$(CC) demos/timing.o $(LIBMAIN_S) $(LTC_LDFLAGS) -o $@
 x509_verify: demos/x509_verify.o $(LIBMAIN_S)
 	$(CC) demos/x509_verify.o $(LIBMAIN_S) $(LTC_LDFLAGS) -o $@
+der_print_flexi: demos/der_print_flexi.o $(LIBMAIN_S)
+	$(CC) demos/der_print_flexi.o $(LIBMAIN_S) $(LTC_LDFLAGS) -o $@
 
 #Tests
 test: $(TOBJECTS) $(LIBMAIN_S)
