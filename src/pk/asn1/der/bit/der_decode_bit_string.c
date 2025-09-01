@@ -28,8 +28,8 @@ int der_decode_bit_string(const unsigned char *in,  unsigned long inlen,
    LTC_ARGCHK(out    != NULL);
    LTC_ARGCHK(outlen != NULL);
 
-   /* packet must be at least 4 bytes */
-   if (inlen < 4) {
+   /* packet must be at least 3 bytes */
+   if (inlen < 3) {
        return CRYPT_INVALID_ARG;
    }
 
