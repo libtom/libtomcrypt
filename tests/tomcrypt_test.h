@@ -45,6 +45,7 @@ int ssh_test(void);
 int bcrypt_test(void);
 int no_null_termination_check_test(void);
 int pk_oid_test(void);
+int x509_test(void);
 
 #ifdef LTC_PKCS_1
 struct ltc_prng_descriptor* no_prng_desc_get(void);
