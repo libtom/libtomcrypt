@@ -24,8 +24,7 @@ int pkcs_1_pss_test(void)
   for (i = 0; i < LTC_ARRAY_SIZE(testcases_pss); ++i) {
     testcase_t* t = &testcases_pss[i];
     rsa_key k, *key = &k;
-    DOX(ltc_mp_init_multi(&key->e, &key->d, &key->N, &key->dQ,
-                       &key->dP, &key->qP, &key->p, &key->q, NULL), t->name);
+    DOX(rsa_init(key), t->name);
 
     DOX(ltc_mp_read_unsigned_bin(key->e, t->rsa.e, t->rsa.e_l), t->name);
     DOX(ltc_mp_read_unsigned_bin(key->d, t->rsa.d, t->rsa.d_l), t->name);
