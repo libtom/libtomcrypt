@@ -99,7 +99,8 @@ int rsa_import(const unsigned char *in, unsigned long inlen, rsa_key *key)
    LTC_ARGCHK(key         != NULL);
    LTC_ARGCHK(ltc_mp.name != NULL);
 
-   if ((err = rsa_import_x509(in, inlen, key)) == CRYPT_OK) { /* SubjectPublicKeyInfo format */
+   /* SubjectPublicKeyInfo or X.509 certificate format */
+   if (rsa_import_x509(in, inlen, key) == CRYPT_OK) {
       return CRYPT_OK;
    }
 
@@ -107,15 +108,9 @@ int rsa_import(const unsigned char *in, unsigned long inlen, rsa_key *key)
    if ((err = rsa_init(key)) != CRYPT_OK) {
       return err;
    }
-
-   if ((err = x509_process_public_key_from_spki(in, inlen,
-                                                LTC_OID_RSA,
-                                                LTC_ASN1_NULL, NULL, NULL,
-                                                (public_key_decode_cb)s_rsa_decode, key)) != CRYPT_OK) {
-      /* not SSL public key, try to match against PKCS #1 standards */
-      if ((err = rsa_import_pkcs1(in, inlen, key)) != CRYPT_OK) {
-         rsa_free(key);
-      }
+   /* Try to match against PKCS #1 standards */
+   if ((err = rsa_import_pkcs1(in, inlen, key)) != CRYPT_OK) {
+      rsa_free(key);
    }
 
    return err;

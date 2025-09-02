@@ -9,7 +9,7 @@
 
 #ifdef LTC_MDSA
 
-int dsa_import_pkcs1(const unsigned char *in, unsigned long inlen, dsa_key *key)
+static int s_dsa_import_pkcs1(const unsigned char *in, unsigned long inlen, dsa_key *key)
 {
    int           err;
    unsigned long zero = 0;
@@ -33,12 +33,30 @@ static int s_dsa_import_y(const unsigned char *in, unsigned long inlen, dsa_key 
    return der_decode_integer(in, inlen, key->y);
 }
 
-LTC_INLINE static int s_dsa_set_params(dsa_key *key, ltc_asn1_list *params)
+static LTC_INLINE int s_dsa_set_params(dsa_key *key, ltc_asn1_list *params)
 {
    LTC_SET_ASN1(params, 0, LTC_ASN1_INTEGER, key->p, 1UL);
    LTC_SET_ASN1(params, 1, LTC_ASN1_INTEGER, key->q, 1UL);
    LTC_SET_ASN1(params, 2, LTC_ASN1_INTEGER, key->g, 1UL);
    return 3;
+}
+
+static LTC_INLINE int s_dsa_validate(dsa_key *key)
+{
+   int           err, stat;
+   key->qord = ltc_mp_unsigned_bin_size(key->q);
+
+   /* quick p, q, g validation, without primality testing
+    * + x, y validation */
+   if ((err = dsa_int_validate(key, &stat)) != CRYPT_OK) {
+      return err;
+   }
+
+   if (stat == 0) {
+      return CRYPT_INVALID_PACKET;
+   }
+
+   return CRYPT_OK;
 }
 
 static int s_dsa_import_spki(const unsigned char *in, unsigned long inlen, dsa_key *key)
@@ -72,6 +90,28 @@ LBL_ERR:
    return err;
 }
 
+int dsa_import_spki(const unsigned char *in, unsigned long inlen, dsa_key *key)
+{
+   int           err;
+
+   LTC_ARGCHK(in  != NULL);
+
+   /* init key */
+   if ((err = dsa_int_init(key)) != CRYPT_OK) return err;
+
+   if ((err = s_dsa_import_spki(in, inlen, key)) != CRYPT_OK) {
+      goto LBL_ERR;
+   }
+   if ((err = s_dsa_validate(key)) != CRYPT_OK) {
+      goto LBL_ERR;
+   }
+
+   return CRYPT_OK;
+LBL_ERR:
+   dsa_free(key);
+   return err;
+}
+
 static int s_dsa_import_x509(const unsigned char *in, unsigned long inlen, dsa_key *key)
 {
    int err;
@@ -100,7 +140,7 @@ static int s_dsa_import_x509(const unsigned char *in, unsigned long inlen, dsa_k
 */
 int dsa_import(const unsigned char *in, unsigned long inlen, dsa_key *key)
 {
-   int           err, stat;
+   int           err;
    unsigned char flags[1];
 
    LTC_ARGCHK(in  != NULL);
@@ -148,10 +188,10 @@ int dsa_import(const unsigned char *in, unsigned long inlen, dsa_key *key)
        }
    }
 
-   if (dsa_import_pkcs1(in, inlen, key) == CRYPT_OK) {
+   if (s_dsa_import_pkcs1(in, inlen, key) == CRYPT_OK) {
       goto LBL_OK;
    }
-   if ((err = s_dsa_import_spki(in, inlen, key)) == CRYPT_OK) {
+   if (s_dsa_import_spki(in, inlen, key) == CRYPT_OK) {
       goto LBL_OK;
    }
    if ((err = s_dsa_import_x509(in, inlen, key)) != CRYPT_OK) {
@@ -159,15 +199,7 @@ int dsa_import(const unsigned char *in, unsigned long inlen, dsa_key *key)
    }
 
 LBL_OK:
-   key->qord = ltc_mp_unsigned_bin_size(key->q);
-
-   /* quick p, q, g validation, without primality testing
-    * + x, y validation */
-   if ((err = dsa_int_validate(key, &stat)) != CRYPT_OK) {
-      goto LBL_ERR;
-   }
-   if (stat == 0) {
-      err = CRYPT_INVALID_PACKET;
+   if ((err = s_dsa_validate(key)) != CRYPT_OK) {
       goto LBL_ERR;
    }
 

@@ -77,51 +77,44 @@ static LTC_INLINE void s_rsa_pss_parameters_data_setup(rsa_pss_parameters_data *
    }
 }
 
-int rsa_decode_parameters(const ltc_asn1_list *parameters, ltc_rsa_parameters *rsa_params)
+static int s_rsa_decode_parameters(const rsa_pss_parameters_data *d, ltc_rsa_parameters *rsa_params)
 {
-   rsa_pss_parameters_data d;
    unsigned long n;
    enum ltc_oid_id oid_id;
    int           err, idx;
-
-   s_rsa_pss_parameters_data_setup(&d);
-
-   if ((err = der_decode_sequence(parameters->data, parameters->size, d.params, 4)) != CRYPT_OK) {
-      return err;
-   }
 
    rsa_params->saltlen = 20;
    rsa_params->hash_alg = rsa_params->mgf1_hash_alg = "sha1";
 
    for (n = 0; n < 4; ++n) {
-      if (d.params[n].used == 0)
+      if (d->params[n].used == 0)
          continue;
       switch (n) {
          case 0:
-            idx = find_hash_oid(d.hash_alg->data, d.hash_alg->size);
+            idx = find_hash_oid(d->hash_alg->data, d->hash_alg->size);
             if (idx == -1) {
                return CRYPT_INVALID_HASH;
             }
             rsa_params->hash_alg = hash_descriptor[idx].name;
             break;
          case 1:
-            if ((err = pk_get_oid_from_asn1(&d.mgf[0], &oid_id)) != CRYPT_OK) {
+            if ((err = pk_get_oid_from_asn1(&d->mgf[0], &oid_id)) != CRYPT_OK) {
                return err;
             }
             if (oid_id != LTC_OID_RSA_MGF1) {
                return CRYPT_PK_ASN1_ERROR;
             }
-            idx = find_hash_oid(d.mgf_hash_alg->data, d.mgf_hash_alg->size);
+            idx = find_hash_oid(d->mgf_hash_alg->data, d->mgf_hash_alg->size);
             if (idx == -1) {
                return CRYPT_INVALID_HASH;
             }
             rsa_params->mgf1_hash_alg = hash_descriptor[idx].name;
             break;
          case 2:
-            rsa_params->saltlen = d.salt_length;
+            rsa_params->saltlen = d->salt_length;
             break;
          case 3:
-            if (d.trailer_field != 1) {
+            if (d->trailer_field != 1) {
                return CRYPT_PK_ASN1_ERROR;
             }
             break;
@@ -130,51 +123,76 @@ int rsa_decode_parameters(const ltc_asn1_list *parameters, ltc_rsa_parameters *r
       }
    }
 
-
    rsa_params->pss_oaep = 1;
 
    return CRYPT_OK;
 }
 
-static int s_rsa_import_pss(const unsigned char *in, unsigned long inlen, rsa_key *key)
+int rsa_decode_parameters(const ltc_asn1_list *parameters, ltc_rsa_parameters *rsa_params)
 {
-   rsa_pss_parameters_data d;
-   ltc_asn1_list *decoded_list;
-   const ltc_asn1_list *spki;
    int           err;
-   unsigned long n_params = LTC_ARRAY_SIZE(d.params);
+   rsa_pss_parameters_data d;
 
-   if ((err = x509_process_public_key_from_spki(in, inlen,
-                                                LTC_OID_RSA_PSS,
-                                                LTC_ASN1_NULL, NULL, NULL,
-                                                (public_key_decode_cb)s_rsa_decode, key)) != CRYPT_OK) {
-      if ((err = x509_decode_spki(in, inlen, &decoded_list, &spki)) != CRYPT_OK) {
-         return err;
-      }
-      if ((err = x509_process_public_key_from_spki(spki->data, spki->size,
-                                              LTC_OID_RSA_PSS,
-                                              LTC_ASN1_NULL, NULL, NULL,
-                                              (public_key_decode_cb)s_rsa_decode, key)) != CRYPT_OK) {
-         s_rsa_pss_parameters_data_setup(&d);
-         err = x509_process_public_key_from_spki(spki->data, spki->size,
-                                                 LTC_OID_RSA_PSS,
-                                                 LTC_ASN1_SEQUENCE, d.params, &n_params,
-                                                 (public_key_decode_cb)s_rsa_decode, key);
-      }
+   s_rsa_pss_parameters_data_setup(&d);
+
+   if ((err = der_decode_sequence(parameters->data, parameters->size, d.params, 4)) != CRYPT_OK) {
+      return err;
    }
 
-   der_free_sequence_flexi(decoded_list);
+   return s_rsa_decode_parameters(&d, rsa_params);
+}
+
+static LTC_INLINE int s_rsa_1_5_import_spki(const unsigned char *in, unsigned long inlen, rsa_key *key)
+{
+   return x509_process_public_key_from_spki(in, inlen,
+                                            LTC_OID_RSA,
+                                            LTC_ASN1_NULL, NULL, NULL,
+                                            (public_key_decode_cb)s_rsa_decode, key);
+}
+
+static LTC_INLINE int s_rsa_pss_import_spki(const unsigned char *in, unsigned long inlen, rsa_key *key)
+{
+   int err;
+   rsa_pss_parameters_data d;
+   unsigned long n_params = LTC_ARRAY_SIZE(d.params);
+
+   if (x509_process_public_key_from_spki(in, inlen,
+                                         LTC_OID_RSA_PSS,
+                                         LTC_ASN1_NULL, NULL, NULL,
+                                         (public_key_decode_cb)s_rsa_decode, key) == CRYPT_OK) {
+      return CRYPT_OK;
+   }
+   s_rsa_pss_parameters_data_setup(&d);
+   if ((err = x509_process_public_key_from_spki(in, inlen,
+                                            LTC_OID_RSA_PSS,
+                                            LTC_ASN1_SEQUENCE, d.params, &n_params,
+                                            (public_key_decode_cb)s_rsa_decode, key)) != CRYPT_OK) {
+      return err;
+   }
+   return s_rsa_decode_parameters(&d, &key->params);
+}
+
+static LTC_INLINE int s_rsa_import_spki(const unsigned char *in, unsigned long inlen, rsa_key *key)
+{
+   int err;
+   if (s_rsa_1_5_import_spki(in, inlen, key) == CRYPT_OK) {
+      return CRYPT_OK;
+   }
+
+   if ((err = s_rsa_pss_import_spki(in, inlen, key)) == CRYPT_OK) {
+      return CRYPT_OK;
+   }
    return err;
 }
 
 /**
-  Import an RSA key from a X.509 certificate
+  Import an RSA key from SubjectPublicKeyInfo
   @param in      The packet to import from
   @param inlen   It's length (octets)
   @param key     [out] Destination for newly imported key
   @return CRYPT_OK if successful, upon error allocated memory is freed
 */
-int rsa_import_x509(const unsigned char *in, unsigned long inlen, rsa_key *key)
+int rsa_import_spki(const unsigned char *in, unsigned long inlen, rsa_key *key)
 {
    int           err;
 
@@ -187,15 +205,7 @@ int rsa_import_x509(const unsigned char *in, unsigned long inlen, rsa_key *key)
       return err;
    }
 
-   if ((err = x509_decode_public_key_from_certificate(in, inlen,
-                                                      LTC_OID_RSA,
-                                                      LTC_ASN1_NULL, NULL, NULL,
-                                                      (public_key_decode_cb)s_rsa_decode, key)) == CRYPT_OK) {
-      key->type = PK_PUBLIC;
-      return CRYPT_OK;
-   }
-
-   if ((err = s_rsa_import_pss(in, inlen, key)) == CRYPT_OK) {
+   if ((err = s_rsa_import_spki(in, inlen, key)) == CRYPT_OK) {
       key->type = PK_PUBLIC;
       return CRYPT_OK;
    }
@@ -203,6 +213,50 @@ int rsa_import_x509(const unsigned char *in, unsigned long inlen, rsa_key *key)
    rsa_free(key);
 
    return err;
+}
+
+/**
+  Import an RSA key from a X.509 certificate
+  @param in      The packet to import from
+  @param inlen   It's length (octets)
+  @param key     [out] Destination for newly imported key
+  @return CRYPT_OK if successful, upon error allocated memory is freed
+*/
+int rsa_import_x509(const unsigned char *in, unsigned long inlen, rsa_key *key)
+{
+   ltc_asn1_list *decoded_list;
+   const ltc_asn1_list *spki;
+   int           err;
+
+   LTC_ARGCHK(in          != NULL);
+   LTC_ARGCHK(key         != NULL);
+   LTC_ARGCHK(ltc_mp.name != NULL);
+
+   /* init key */
+   if ((err = rsa_init(key)) != CRYPT_OK) {
+      return err;
+   }
+
+   /* First try to decode as SubjectPublicKeyInfo */
+   if (s_rsa_import_spki(in, inlen, key) == CRYPT_OK) {
+      key->type = PK_PUBLIC;
+      return CRYPT_OK;
+   }
+
+   /* Now try to extract the SubjectPublicKeyInfo from the Certificate */
+   if ((err = x509_decode_spki(in, inlen, &decoded_list, &spki)) != CRYPT_OK) {
+      rsa_free(key);
+      return err;
+   }
+   err = s_rsa_import_spki(spki->data, spki->size, key);
+
+   der_free_sequence_flexi(decoded_list);
+   if (err != CRYPT_OK) {
+      rsa_free(key);
+      return err;
+   }
+   key->type = PK_PUBLIC;
+   return CRYPT_OK;
 }
 
 #endif /* LTC_MRSA */

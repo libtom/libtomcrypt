@@ -454,6 +454,8 @@ int rsa_make_key_bn_e(prng_state *prng, int wprng, int size, void *e,
                       rsa_key *key); /* used by op-tee */
 int rsa_import_pkcs1(const unsigned char *in, unsigned long inlen, rsa_key *key);
 int rsa_import_pkcs8_asn1(ltc_asn1_list *alg_id, ltc_asn1_list *priv_key, rsa_key *key);
+int rsa_import_spki(const unsigned char *in, unsigned long inlen, rsa_key *key);
+int rsa_decode_parameters(const ltc_asn1_list *parameters, ltc_rsa_parameters *rsa_params);
 #endif /* LTC_MRSA */
 
 /* ---- DH Routines ---- */
@@ -561,8 +563,8 @@ int dsa_int_validate(const dsa_key *key, int *stat);
 int dsa_int_validate_xy(const dsa_key *key, int *stat);
 int dsa_int_validate_pqg(const dsa_key *key, int *stat);
 int dsa_int_validate_primes(const dsa_key *key, int *stat);
-int dsa_import_pkcs1(const unsigned char *in, unsigned long inlen, dsa_key *key);
 int dsa_import_pkcs8_asn1(ltc_asn1_list *alg_id, ltc_asn1_list *priv_key, dsa_key *key);
+int dsa_import_spki(const unsigned char *in, unsigned long inlen, dsa_key *key);
 #endif /* LTC_MDSA */
 
 
