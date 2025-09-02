@@ -272,6 +272,11 @@ static int s_x509_get_sig_alg(const ltc_asn1_list *seq, ltc_x509_signature_algor
    if ((err = x509_get_sig_alg(&fake_sig_parent, sig_alg)) != CRYPT_OK) {
       return err;
    }
+   if (sig_alg->pka == LTC_PKA_RSA_PSS && seq->child && seq->child->next) {
+      if ((err = rsa_decode_parameters(seq->child->next, &sig_alg->u.rsa_params)) != CRYPT_OK) {
+         return err;
+      }
+   }
    sig_alg->asn1 = seq;
    return err;
 }
