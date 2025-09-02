@@ -33,5 +33,6 @@ ssh_test.c
 store_test.c
 test.c
 x25519_test.c
+x509_test.c
 )
 

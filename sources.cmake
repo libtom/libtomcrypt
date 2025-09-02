@@ -372,6 +372,11 @@ src/pk/asn1/x509/x509_decode_public_key_from_certificate.c
 src/pk/asn1/x509/x509_decode_spki.c
 src/pk/asn1/x509/x509_decode_subject_public_key_info.c
 src/pk/asn1/x509/x509_encode_subject_public_key_info.c
+src/pk/asn1/x509/x509_extensions.c
+src/pk/asn1/x509/x509_get.c
+src/pk/asn1/x509/x509_import.c
+src/pk/asn1/x509/x509_import_spki.c
+src/pk/asn1/x509/x509_utils.c
 src/pk/dh/dh.c
 src/pk/dh/dh_check_pubkey.c
 src/pk/dh/dh_export.c

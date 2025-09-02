@@ -2277,6 +2277,26 @@
 						RelativePath="src\pk\asn1\x509\x509_encode_subject_public_key_info.c"
 						>
 					</File>
+					<File
+						RelativePath="src\pk\asn1\x509\x509_extensions.c"
+						>
+					</File>
+					<File
+						RelativePath="src\pk\asn1\x509\x509_get.c"
+						>
+					</File>
+					<File
+						RelativePath="src\pk\asn1\x509\x509_import.c"
+						>
+					</File>
+					<File
+						RelativePath="src\pk\asn1\x509\x509_import_spki.c"
+						>
+					</File>
+					<File
+						RelativePath="src\pk\asn1\x509\x509_utils.c"
+						>
+					</File>
 				</Filter>
 			</Filter>
 			<Filter
