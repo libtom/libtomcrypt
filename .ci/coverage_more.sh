@@ -16,6 +16,19 @@ pdiv "Sizes"
 pdiv "Constants"
 ./constants
 
+echo "" > x509_verify.log
+
+for n in tests/x509/*.pem; do
+  pdiv "X.509 verify $n"
+  ./x509_verify $n >>x509_verify.log 2>&1
+done
+
+pdiv "X.509 verify of all certs packaged"
+find tests/x509 -name '*.pem' -exec './x509_verify' {} \+ >>x509_verify.log 2>&1
+
+pdiv "X.509 verify of all certs packaged via STDIN"
+for f in $(find tests/x509 -maxdepth 2 -name '*.pem'); do echo "- - - - - - -"; echo $f; cat $f | ./x509_verify; done >>x509_verify.log 2>&1
+
 pdiv "Generate hashsum_tv.txt"
 for i in $(for j in $(echo $(./hashsum -h | awk '/Algorithms/,EOF' | tail -n +2)); do echo $j; done | sort); do
   echo -n "$i: " && ./hashsum -a $i tests/test.key
