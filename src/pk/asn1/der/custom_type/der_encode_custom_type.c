@@ -24,7 +24,7 @@
 int der_encode_custom_type(const ltc_asn1_list *root,
                                  unsigned char *out,  unsigned long *outlen)
 {
-   int           err;
+   int           err, use_root;
    ltc_asn1_type type;
    const ltc_asn1_list *list;
    unsigned long size, x, y, z, i, inlen, id_len;
@@ -49,8 +49,9 @@ int der_encode_custom_type(const ltc_asn1_list *root,
    if (der_length_asn1_identifier(root, &id_len) != CRYPT_OK) return CRYPT_INVALID_ARG;
    x = id_len;
 
-
-   if (root->pc == LTC_ASN1_PC_PRIMITIVE) {
+   use_root = root->pc == LTC_ASN1_PC_PRIMITIVE ||
+         (root->used >= LTC_ASN1_SEQUENCE && root->used <= LTC_ASN1_SETOF);
+   if (use_root) {
       list = root;
       inlen = 1;
       /* In case it's a PRIMITIVE type we encode directly to the output
@@ -72,7 +73,7 @@ int der_encode_custom_type(const ltc_asn1_list *root,
    /* store data */
    *outlen -= x;
    for (i = 0; i < inlen; i++) {
-       if (root->pc == LTC_ASN1_PC_PRIMITIVE) {
+       if (use_root) {
           type = (ltc_asn1_type)list[i].used;
        } else {
           type = list[i].type;
