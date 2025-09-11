@@ -712,20 +712,15 @@ static const unsigned long pem_openssh_num = LTC_ARRAY_SIZE(pem_openssh);
 static int s_decode_openssh(struct get_char *g, ltc_pka_key *k, const password_ctx *pw_ctx)
 {
    unsigned char *pem = NULL, *p, *privkey = NULL, *tag;
-   unsigned long n, w, l, privkey_len, taglen;
+   unsigned long n, w = 0, l, privkey_len, taglen;
    int err;
    struct pem_headers hdr;
    struct kdf_options opts = { 0 };
    XMEMSET(k, 0, sizeof(*k));
-   w = LTC_PEM_READ_BUFSIZE * 2;
-retry:
-   pem = XREALLOC(pem, w);
    for (n = 0; n < pem_openssh_num; ++n) {
       hdr.id = &pem_openssh[n];
-      err = pem_read(pem, &w, &hdr, g);
-      if (err == CRYPT_BUFFER_OVERFLOW) {
-         goto retry;
-      } else if (err == CRYPT_OK) {
+      err = pem_read((void**)&pem, &w, &hdr, g);
+      if (err == CRYPT_OK) {
          break;
       } else if (err != CRYPT_UNKNOWN_PEM) {
          goto cleanup;
@@ -791,7 +786,9 @@ cleanup:
       zeromem(privkey, privkey_len);
       XFREE(privkey);
    }
-   XFREE(pem);
+   if (pem) {
+      XFREE(pem);
+   }
    return err;
 }
 
@@ -801,7 +798,7 @@ int pem_decode_openssh_filehandle(FILE *f, ltc_pka_key *k, const password_ctx *p
    LTC_ARGCHK(f != NULL);
    LTC_ARGCHK(k != NULL);
    {
-      struct get_char g = { .get = pem_get_char_from_file, .data.f = f };
+      struct get_char g = pem_get_char_init_filehandle(f);
       return s_decode_openssh(&g, k, pw_ctx);
    }
 }
@@ -841,7 +838,7 @@ int pem_decode_openssh(const void *buf, unsigned long len, ltc_pka_key *k, const
    LTC_ARGCHK(len != 0);
    LTC_ARGCHK(k != NULL);
    {
-      struct get_char g = { .get = pem_get_char_from_buf, SET_BUFP(.data.buf, buf, len) };
+      struct get_char g = pem_get_char_init(buf, len);
       return s_decode_openssh(&g, k, pw_ctx);
    }
 }

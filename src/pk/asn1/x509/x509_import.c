@@ -592,35 +592,24 @@ static int s_x509_import_pem(struct get_char *g, unsigned long *pem_len, const l
 {
    int err;
    struct pem_headers hdr = { .id = &pem_std_headers[0] };
-   unsigned long alloc_len = *pem_len, len;
+   unsigned long len = 0;
    unsigned char *asn1_cert = NULL;
-   len = alloc_len;
-retry:
-   asn1_cert = XREALLOC(asn1_cert, alloc_len);
-   if (asn1_cert == NULL) {
-      err = CRYPT_MEM;
-      goto err_out;
-   }
-   if ((err = pem_read(asn1_cert, &len, &hdr, g)) != CRYPT_OK) {
-      if (err == CRYPT_BUFFER_OVERFLOW && alloc_len == *pem_len) {
-         alloc_len = len;
-         goto retry;
-      }
-      goto err_out;
+   if ((err = pem_read((void**)&asn1_cert, &len, &hdr, g)) != CRYPT_OK) {
+      return err;
    }
 
    err = x509_import(asn1_cert, len, out);
 
    *pem_len = len;
 
-err_out:
    XFREE(asn1_cert);
+
    return err;
 }
 
 int x509_import_pem(const char *pem, unsigned long *pem_len, const ltc_x509_certificate **out)
 {
-   struct get_char g = { .get = pem_get_char_from_buf, SET_BUFP(.data.buf, pem, *pem_len) };
+   struct get_char g = pem_get_char_init(pem, *pem_len);
    return s_x509_import_pem(&g, pem_len, out);
 }
 
@@ -628,17 +617,7 @@ int x509_import_pem(const char *pem, unsigned long *pem_len, const ltc_x509_cert
 int x509_import_pem_filehandle(FILE *f, const ltc_x509_certificate **out)
 {
    unsigned long pem_len;
-   long cur_pos;
-   struct get_char g = { .get = pem_get_char_from_file, .data.f = f };
-   cur_pos = ftell(f);
-   if (cur_pos != -1) {
-      fseek(f, 0, SEEK_END);
-      pem_len = ftell(f);
-      fseek(f, cur_pos, SEEK_SET);
-      pem_len -= cur_pos;
-   } else {
-      pem_len = LTC_PEM_READ_BUFSIZE;
-   }
+   struct get_char g = pem_get_char_init_filehandle(f);
    return s_x509_import_pem(&g, &pem_len, out);
 }
 #endif

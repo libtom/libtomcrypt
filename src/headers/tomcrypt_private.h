@@ -382,12 +382,23 @@ struct bufp {
 };
 
 #define SET_BUFP(n, d, l) n.start = (char*)d, n.work = (char*)d, n.end = (char*)d + l + 1
+#define UPDATE_BUFP(n, d, w, l) n.start = (char*)d, n.work = (char*)d + w, n.end = (char*)d + l + 1
+
+struct get_char;
+struct get_char_api {
+   int (*get)(struct get_char*);
+   int (*reset)(struct get_char*);
+   unsigned long (*len)(struct get_char*);
+};
 
 struct get_char {
-   int (*get)(struct get_char*);
+   struct get_char_api api;
    union {
 #ifndef LTC_NO_FILE
-      FILE *f;
+      struct {
+         FILE *f;
+         long original_pos;
+      } f;
 #endif /* LTC_NO_FILE */
       struct bufp buf;
    } data;
@@ -395,6 +406,17 @@ struct get_char {
    char unget_buf_[LTC_PEM_DECODE_BUFSZ];
    int prev_get;
 };
+
+#define pem_get_char_init(b, l)   { \
+   .api = get_char_buffer_api, \
+   SET_BUFP(.data.buf, (b), (l)) \
+}
+
+#define pem_get_char_init_filehandle(fi)    { \
+   .api = get_char_filehandle_api, \
+   .data.f.f = (fi), \
+   .data.f.original_pos = ftell(fi) \
+}
 #endif
 
 /* others */
@@ -417,10 +439,10 @@ int pem_decrypt(unsigned char *data, unsigned long *datalen,
                 const struct blockcipher_info *info,
                 enum padding_type padding);
 #ifndef LTC_NO_FILE
-int pem_get_char_from_file(struct get_char *g);
+extern const struct get_char_api get_char_filehandle_api;
 #endif /* LTC_NO_FILE */
-int pem_get_char_from_buf(struct get_char *g);
-int pem_read(void *asn1_cert, unsigned long *asn1_len, struct pem_headers *hdr, struct get_char *g);
+extern const struct get_char_api get_char_buffer_api;
+int pem_read(void **dest, unsigned long *len, struct pem_headers *hdr, struct get_char *g);
 #endif
 
 /* tomcrypt_pk.h */
@@ -709,7 +731,7 @@ int x509_decode_subject_public_key_info(const unsigned char *in, unsigned long i
 
 int x509_get_pka(const ltc_asn1_list *pub, enum ltc_pka_id *pka);
 int x509_get_sig_alg(const ltc_asn1_list *pub, ltc_x509_signature_algorithm *sig_alg);
-int x509_import_spki(const unsigned char *asn1_cert, unsigned long asn1_len, ltc_pka_key *k, ltc_asn1_list **root);
+int x509_import_spki(const unsigned char *buf, unsigned long len, ltc_pka_key *k, ltc_asn1_list **root);
 int x509_get_extensions(const ltc_asn1_list *seq, ltc_x509_extensions *extensions);
 void x509_free_extensions(const ltc_x509_extensions *extensions);
 int x509_get_serial(const ltc_asn1_list *asn1, ltc_x509_string *serial);

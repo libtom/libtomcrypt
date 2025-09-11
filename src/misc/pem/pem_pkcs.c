@@ -127,21 +127,16 @@ static const import_fn s_import_openssl_fns[LTC_PKA_NUM] = {
 static int s_decode(struct get_char *g, ltc_pka_key *k, const password_ctx *pw_ctx)
 {
    unsigned char *asn1_cert = NULL;
-   unsigned long w, asn1_len, n;
+   unsigned long w = 0, asn1_len, n;
    int err = CRYPT_ERROR;
    struct pem_headers hdr = { 0 };
    struct password pw = { 0 };
    enum ltc_pka_id pka;
    XMEMSET(k, 0, sizeof(*k));
-   w = LTC_PEM_READ_BUFSIZE * 2;
-retry:
-   asn1_cert = XREALLOC(asn1_cert, w);
    for (n = 0; n < pem_std_headers_num; ++n) {
       hdr.id = &pem_std_headers[n];
-      err = pem_read(asn1_cert, &w, &hdr, g);
-      if (err == CRYPT_BUFFER_OVERFLOW) {
-         goto retry;
-      } else if (err == CRYPT_OK) {
+      err = pem_read((void**)&asn1_cert, &w, &hdr, g);
+      if (err == CRYPT_OK) {
          break;
       } else if (err != CRYPT_UNKNOWN_PEM) {
          goto cleanup;
@@ -204,7 +199,7 @@ int pem_decode_pkcs_filehandle(FILE *f, ltc_pka_key *k, const password_ctx *pw_c
    LTC_ARGCHK(f != NULL);
    LTC_ARGCHK(k != NULL);
    {
-      struct get_char g = { .get = pem_get_char_from_file, .data.f = f };
+      struct get_char g = pem_get_char_init_filehandle(f);
       return s_decode(&g, k, pw_ctx);
    }
 }
@@ -216,7 +211,7 @@ int pem_decode_pkcs(const void *buf, unsigned long len, ltc_pka_key *k, const pa
    LTC_ARGCHK(len != 0);
    LTC_ARGCHK(k != NULL);
    {
-      struct get_char g = { .get = pem_get_char_from_buf, SET_BUFP(.data.buf, buf, len) };
+      struct get_char g = pem_get_char_init(buf, len);
       return s_decode(&g, k, pw_ctx);
    }
 }
