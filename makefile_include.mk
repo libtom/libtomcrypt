@@ -180,7 +180,7 @@ TEST=test
 USEFUL_DEMOS   = hashsum
 
 # Demos that are usable but only rarely make sense to be installed
-USEABLE_DEMOS  = aesgcm constants crypt der_print_flexi latex-tables openssh-privkey openssl-enc sizes timing x509_verify
+USEABLE_DEMOS  = aesgcm constants crypt der_print_flexi latex-tables openssh-privkey openssl-enc sizes timing
 
 # Demos that are used for testing or measuring
 TEST_DEMOS     = small tv_gen
@@ -365,8 +365,9 @@ src/pk/asn1/oid/pk_get.o src/pk/asn1/oid/pk_oid_cmp.o src/pk/asn1/oid/pk_oid_str
 src/pk/asn1/pkcs8/pkcs8_decode_flexi.o src/pk/asn1/pkcs8/pkcs8_get.o \
 src/pk/asn1/x509/x509_decode_public_key_from_certificate.o src/pk/asn1/x509/x509_decode_spki.o \
 src/pk/asn1/x509/x509_decode_subject_public_key_info.o \
-src/pk/asn1/x509/x509_encode_subject_public_key_info.o src/pk/asn1/x509/x509_get_pka.o \
-src/pk/asn1/x509/x509_import_spki.o src/pk/dh/dh.o src/pk/dh/dh_check_pubkey.o src/pk/dh/dh_export.o \
+src/pk/asn1/x509/x509_encode_subject_public_key_info.o src/pk/asn1/x509/x509_extensions.o \
+src/pk/asn1/x509/x509_get.o src/pk/asn1/x509/x509_import.o src/pk/asn1/x509/x509_import_spki.o \
+src/pk/asn1/x509/x509_utils.o src/pk/dh/dh.o src/pk/dh/dh_check_pubkey.o src/pk/dh/dh_export.o \
 src/pk/dh/dh_export_key.o src/pk/dh/dh_free.o src/pk/dh/dh_generate_key.o src/pk/dh/dh_import.o \
 src/pk/dh/dh_import_pkcs8.o src/pk/dh/dh_set.o src/pk/dh/dh_set_pg_dhparam.o \
 src/pk/dh/dh_shared_secret.o src/pk/dsa/dsa_decrypt_key.o src/pk/dsa/dsa_encrypt_key.o \
@@ -435,7 +436,8 @@ tests/misc_test.o tests/modes_test.o tests/mpi_test.o tests/multi_test.o \
 tests/no_null_termination_check_test.o tests/no_prng.o tests/padding_test.o tests/pem_test.o \
 tests/pk_oid_test.o tests/pkcs_1_eme_test.o tests/pkcs_1_emsa_test.o tests/pkcs_1_oaep_test.o \
 tests/pkcs_1_pss_test.o tests/pkcs_1_test.o tests/prng_test.o tests/rotate_test.o tests/rsa_test.o \
-tests/scrypt_test.o tests/ssh_test.o tests/store_test.o tests/test.o tests/x25519_test.o
+tests/scrypt_test.o tests/ssh_test.o tests/store_test.o tests/test.o tests/x25519_test.o \
+tests/x509_test.o
 
 # The following headers will be installed by "make install"
 HEADERS_PUB=src/headers/tomcrypt.h src/headers/tomcrypt_argchk.h src/headers/tomcrypt_cfg.h \

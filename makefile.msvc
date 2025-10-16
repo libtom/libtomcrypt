@@ -173,8 +173,9 @@ src/pk/asn1/oid/pk_get.obj src/pk/asn1/oid/pk_oid_cmp.obj src/pk/asn1/oid/pk_oid
 src/pk/asn1/pkcs8/pkcs8_decode_flexi.obj src/pk/asn1/pkcs8/pkcs8_get.obj \
 src/pk/asn1/x509/x509_decode_public_key_from_certificate.obj src/pk/asn1/x509/x509_decode_spki.obj \
 src/pk/asn1/x509/x509_decode_subject_public_key_info.obj \
-src/pk/asn1/x509/x509_encode_subject_public_key_info.obj src/pk/asn1/x509/x509_get_pka.obj \
-src/pk/asn1/x509/x509_import_spki.obj src/pk/dh/dh.obj src/pk/dh/dh_check_pubkey.obj src/pk/dh/dh_export.obj \
+src/pk/asn1/x509/x509_encode_subject_public_key_info.obj src/pk/asn1/x509/x509_extensions.obj \
+src/pk/asn1/x509/x509_get.obj src/pk/asn1/x509/x509_import.obj src/pk/asn1/x509/x509_import_spki.obj \
+src/pk/asn1/x509/x509_utils.obj src/pk/dh/dh.obj src/pk/dh/dh_check_pubkey.obj src/pk/dh/dh_export.obj \
 src/pk/dh/dh_export_key.obj src/pk/dh/dh_free.obj src/pk/dh/dh_generate_key.obj src/pk/dh/dh_import.obj \
 src/pk/dh/dh_import_pkcs8.obj src/pk/dh/dh_set.obj src/pk/dh/dh_set_pg_dhparam.obj \
 src/pk/dh/dh_shared_secret.obj src/pk/dsa/dsa_decrypt_key.obj src/pk/dsa/dsa_encrypt_key.obj \
@@ -238,7 +239,8 @@ tests/misc_test.obj tests/modes_test.obj tests/mpi_test.obj tests/multi_test.obj
 tests/no_null_termination_check_test.obj tests/no_prng.obj tests/padding_test.obj tests/pem_test.obj \
 tests/pk_oid_test.obj tests/pkcs_1_eme_test.obj tests/pkcs_1_emsa_test.obj tests/pkcs_1_oaep_test.obj \
 tests/pkcs_1_pss_test.obj tests/pkcs_1_test.obj tests/prng_test.obj tests/rotate_test.obj tests/rsa_test.obj \
-tests/scrypt_test.obj tests/ssh_test.obj tests/store_test.obj tests/test.obj tests/x25519_test.obj
+tests/scrypt_test.obj tests/ssh_test.obj tests/store_test.obj tests/test.obj tests/x25519_test.obj \
+tests/x509_test.obj
 
 #The following headers will be installed by "make install"
 HEADERS_PUB=src/headers/tomcrypt.h src/headers/tomcrypt_argchk.h src/headers/tomcrypt_cfg.h \
@@ -296,8 +298,6 @@ timing.exe: demos/timing.c $(LIBMAIN_S)
 	cl $(LTC_CFLAGS) demos/timing.c tests/common.c $(LIBMAIN_S) $(LTC_LDFLAGS) /Fe$@
 der_print_flexi.exe: demos/der_print_flexi.c $(LIBMAIN_S)
 	cl $(LTC_CFLAGS) demos/der_print_flexi.c tests/common.c $(LIBMAIN_S) $(LTC_LDFLAGS) /Fe$@
-x509_verify.exe: demos/x509_verify.c $(LIBMAIN_S)
-	cl $(LTC_CFLAGS) demos/x509_verify.c tests/common.c $(LIBMAIN_S) $(LTC_LDFLAGS) /Fe$@
 
 #Tests
 test.exe: $(LIBMAIN_S) $(TOBJECTS)
