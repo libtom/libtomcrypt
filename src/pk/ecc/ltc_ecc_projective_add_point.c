@@ -24,7 +24,7 @@ int ltc_ecc_projective_add_point(const ecc_point *P, const ecc_point *Q, ecc_poi
                                  const void *ma, const void *modulus, void *mp)
 {
    void  *t1, *t2, *x, *y, *z;
-   int    err, inf;
+   int    err, inf, x_or_y_is_zero;
 
    LTC_ARGCHK(P       != NULL);
    LTC_ARGCHK(Q       != NULL);
@@ -52,6 +52,7 @@ int ltc_ecc_projective_add_point(const ecc_point *P, const ecc_point *Q, ecc_poi
 
    if ((ltc_mp_cmp(P->x, Q->x) == LTC_MP_EQ) && (ltc_mp_cmp(P->z, Q->z) == LTC_MP_EQ)) {
       if (ltc_mp_cmp(P->y, Q->y) == LTC_MP_EQ) {
+dbl_point:
          /* here P = Q >> Result = 2 * P (use doubling) */
          ltc_mp_deinit_multi(t1, t2, x, y, z, LTC_NULL);
          return ltc_ecc_projective_dbl_point(P, R, ma, modulus, mp);
@@ -160,6 +161,7 @@ int ltc_ecc_projective_add_point(const ecc_point *P, const ecc_point *Q, ecc_poi
    if (ltc_mp_cmp_d(x, 0) == LTC_MP_LT) {
       if ((err = ltc_mp_add(x, modulus, x)) != CRYPT_OK)                           { goto done; }
    }
+   x_or_y_is_zero = ltc_mp_cmp_d(x, 0) == LTC_MP_EQ;
 
    /* T2 = T2 - X */
    if ((err = ltc_mp_sub(t2, x, t2)) != CRYPT_OK)                                  { goto done; }
@@ -184,6 +186,11 @@ int ltc_ecc_projective_add_point(const ecc_point *P, const ecc_point *Q, ecc_poi
       if ((err = ltc_mp_add(y, modulus, y)) != CRYPT_OK)                           { goto done; }
    }
    if ((err = ltc_mp_div_2(y, y)) != CRYPT_OK)                                     { goto done; }
+   x_or_y_is_zero |= ltc_mp_cmp_d(y, 0) == LTC_MP_EQ;
+
+   if (x_or_y_is_zero) {
+      goto dbl_point;
+   }
 
    if ((err = ltc_mp_copy(x, R->x)) != CRYPT_OK)                                   { goto done; }
    if ((err = ltc_mp_copy(y, R->y)) != CRYPT_OK)                                   { goto done; }

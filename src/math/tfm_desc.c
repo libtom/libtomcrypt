@@ -597,7 +597,7 @@ static int tfm_ecc_projective_add_point(const ecc_point *P, const ecc_point *Q, 
 {
    fp_int  t1, t2, x, y, z;
    fp_digit mp;
-   int err, inf;
+   int err, inf, x_or_y_is_zero;
 
    LTC_ARGCHK(P       != NULL);
    LTC_ARGCHK(Q       != NULL);
@@ -636,6 +636,7 @@ static int tfm_ecc_projective_add_point(const ecc_point *P, const ecc_point *Q, 
    if ( (fp_cmp(P->x, Q->x) == FP_EQ) &&
         (Q->z != NULL && fp_cmp(P->z, Q->z) == FP_EQ) &&
         (fp_cmp(P->y, Q->y) == FP_EQ || fp_cmp(P->y, &t1) == FP_EQ)) {
+dbl_point:
         return tfm_ecc_projective_dbl_point(P, R, ma, modulus, Mp);
    }
 
@@ -735,6 +736,7 @@ static int tfm_ecc_projective_add_point(const ecc_point *P, const ecc_point *Q, 
    if (fp_cmp_d(&x, 0) == FP_LT) {
       fp_add(&x, TFM_UNCONST(void *)modulus, &x);
    }
+   x_or_y_is_zero = fp_cmp_d(&x, 0) == FP_EQ;
 
    /* T2 = T2 - X */
    fp_sub(&t2, &x, &t2);
@@ -759,6 +761,11 @@ static int tfm_ecc_projective_add_point(const ecc_point *P, const ecc_point *Q, 
       fp_add(&y, TFM_UNCONST(void *)modulus, &y);
    }
    fp_div_2(&y, &y);
+   x_or_y_is_zero |= fp_cmp_d(&y, 0) == LTC_MP_EQ;
+
+   if (x_or_y_is_zero) {
+      goto dbl_point;
+   }
 
    fp_copy(&x, R->x);
    fp_copy(&y, R->y);
