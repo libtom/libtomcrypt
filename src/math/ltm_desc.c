@@ -403,10 +403,8 @@ static int montgomery_setup(const void *a, void **b)
    if (*b == NULL) {
       return CRYPT_MEM;
    }
-   if ((err = mpi_to_ltc_error(mp_montgomery_setup(a, *b))) != CRYPT_OK) {
-      XFREE(*b);
-   }
-   return err;
+   **(mp_digit**)b = 1;
+   return CRYPT_OK;
 }
 
 /* get normalization value */
@@ -414,7 +412,7 @@ static int montgomery_normalization(void *a, const void *b)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
-   return mpi_to_ltc_error(mp_montgomery_calc_normalization(a, b));
+   return set_int(a, 1);
 }
 
 /* reduce */
@@ -423,7 +421,7 @@ static int montgomery_reduce(void *a, const void *b, void *c)
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);
    LTC_ARGCHK(c != NULL);
-   return mpi_to_ltc_error(mp_montgomery_reduce(a, b, *((mp_digit *)c)));
+   return mpi_to_ltc_error(mp_mod(a, b, a));
 }
 
 /* clean up */
