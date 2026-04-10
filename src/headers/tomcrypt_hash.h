@@ -43,7 +43,7 @@ struct sha256_state {
 #endif
 
 #ifdef LTC_SHA1
-struct sha1_state {
+struct sha1_c_state {
     ulong64 length;
     ulong32 state[5], curlen;
     unsigned char buf[64];
@@ -174,7 +174,7 @@ typedef union Hash_state {
     struct sha256_state sha256;
 #endif
 #ifdef LTC_SHA1
-    struct sha1_state   sha1;
+    struct sha1_c_state sha1_c;
 #endif
 #ifdef LTC_MD5
     struct md5_state    md5;
@@ -393,11 +393,11 @@ extern const struct ltc_hash_descriptor sha224_desc;
 #endif
 
 #ifdef LTC_SHA1
-int sha1_init(hash_state * md);
-int sha1_process(hash_state * md, const unsigned char *in, unsigned long inlen);
-int sha1_done(hash_state * md, unsigned char *out);
-int sha1_test(void);
-extern const struct ltc_hash_descriptor sha1_desc;
+int sha1_c_init(hash_state * md);
+int sha1_c_process(hash_state * md, const unsigned char *in, unsigned long inlen);
+int sha1_c_done(hash_state * md, unsigned char *out);
+int sha1_c_test(void);
+extern const struct ltc_hash_descriptor sha1_portable_desc;
 #endif
 
 #ifdef LTC_BLAKE2S

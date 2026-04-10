@@ -18,9 +18,9 @@
 #define LTC_SMALL_STACK_SHA1
 #endif
 
-const struct ltc_hash_descriptor sha1_desc =
+const struct ltc_hash_descriptor sha1_portable_desc =
 {
-    "sha1",
+    "sha1_portable",
     2,
     20,
     64,
@@ -29,10 +29,10 @@ const struct ltc_hash_descriptor sha1_desc =
    { 1, 3, 14, 3, 2, 26,  },
    6,
 
-    &sha1_init,
-    &sha1_process,
-    &sha1_done,
-    &sha1_test,
+    &sha1_c_init,
+    &sha1_c_process,
+    &sha1_c_done,
+    &sha1_c_test,
     NULL
 };
 
@@ -42,9 +42,9 @@ const struct ltc_hash_descriptor sha1_desc =
 #define F3(x,y,z)  (x ^ y ^ z)
 
 #ifdef LTC_CLEAN_STACK
-static int ss_sha1_compress(hash_state *md, const unsigned char *buf)
+static int ss_sha1_c_compress(hash_state *md, const unsigned char *buf)
 #else
-static int  s_sha1_compress(hash_state *md, const unsigned char *buf)
+static int  s_sha1_c_compress(hash_state *md, const unsigned char *buf)
 #endif
 {
     ulong32 a,b,c,d,e,i;
@@ -63,11 +63,11 @@ static int  s_sha1_compress(hash_state *md, const unsigned char *buf)
     }
 
     /* copy state */
-    a = md->sha1.state[0];
-    b = md->sha1.state[1];
-    c = md->sha1.state[2];
-    d = md->sha1.state[3];
-    e = md->sha1.state[4];
+    a = md->sha1_c.state[0];
+    b = md->sha1_c.state[1];
+    c = md->sha1_c.state[2];
+    d = md->sha1_c.state[3];
+    e = md->sha1_c.state[4];
 
 #ifdef LTC_SMALL_STACK_SHA1
     #define Wi(i) do { W[(i) % 16] = ROL(W[((i) - 3) % 16] ^ W[((i) - 8) % 16] ^ W[((i) - 14) % 16] ^ W[((i) - 16) % 16], 1); } while(0)
@@ -160,20 +160,20 @@ static int  s_sha1_compress(hash_state *md, const unsigned char *buf)
     #undef Windex
 
     /* store */
-    md->sha1.state[0] = md->sha1.state[0] + a;
-    md->sha1.state[1] = md->sha1.state[1] + b;
-    md->sha1.state[2] = md->sha1.state[2] + c;
-    md->sha1.state[3] = md->sha1.state[3] + d;
-    md->sha1.state[4] = md->sha1.state[4] + e;
+    md->sha1_c.state[0] = md->sha1_c.state[0] + a;
+    md->sha1_c.state[1] = md->sha1_c.state[1] + b;
+    md->sha1_c.state[2] = md->sha1_c.state[2] + c;
+    md->sha1_c.state[3] = md->sha1_c.state[3] + d;
+    md->sha1_c.state[4] = md->sha1_c.state[4] + e;
 
     return CRYPT_OK;
 }
 
 #ifdef LTC_CLEAN_STACK
-static int s_sha1_compress(hash_state *md, const unsigned char *buf)
+static int s_sha1_c_compress(hash_state *md, const unsigned char *buf)
 {
    int err;
-   err = ss_sha1_compress(md, buf);
+   err = ss_sha1_c_compress(md, buf);
    burn_stack(sizeof(ulong32) * 87);
    return err;
 }
@@ -184,16 +184,16 @@ static int s_sha1_compress(hash_state *md, const unsigned char *buf)
    @param md   The hash state you wish to initialize
    @return CRYPT_OK if successful
 */
-int sha1_init(hash_state * md)
+int sha1_c_init(hash_state * md)
 {
    LTC_ARGCHK(md != NULL);
-   md->sha1.state[0] = 0x67452301UL;
-   md->sha1.state[1] = 0xefcdab89UL;
-   md->sha1.state[2] = 0x98badcfeUL;
-   md->sha1.state[3] = 0x10325476UL;
-   md->sha1.state[4] = 0xc3d2e1f0UL;
-   md->sha1.curlen = 0;
-   md->sha1.length = 0;
+   md->sha1_c.state[0] = 0x67452301UL;
+   md->sha1_c.state[1] = 0xefcdab89UL;
+   md->sha1_c.state[2] = 0x98badcfeUL;
+   md->sha1_c.state[3] = 0x10325476UL;
+   md->sha1_c.state[4] = 0xc3d2e1f0UL;
+   md->sha1_c.curlen = 0;
+   md->sha1_c.length = 0;
    return CRYPT_OK;
 }
 
@@ -204,7 +204,7 @@ int sha1_init(hash_state * md)
    @param inlen  The length of the data (octets)
    @return CRYPT_OK if successful
 */
-HASH_PROCESS(sha1_process, s_sha1_compress, sha1, 64)
+HASH_PROCESS(sha1_c_process, s_sha1_c_compress, sha1_c, 64)
 
 /**
    Terminate the hash to get the digest
@@ -212,47 +212,47 @@ HASH_PROCESS(sha1_process, s_sha1_compress, sha1, 64)
    @param out [out] The destination of the hash (20 bytes)
    @return CRYPT_OK if successful
 */
-int sha1_done(hash_state * md, unsigned char *out)
+int sha1_c_done(hash_state * md, unsigned char *out)
 {
     int i;
 
     LTC_ARGCHK(md  != NULL);
     LTC_ARGCHK(out != NULL);
 
-    if (md->sha1.curlen >= sizeof(md->sha1.buf)) {
+    if (md->sha1_c.curlen >= sizeof(md->sha1_c.buf)) {
        return CRYPT_INVALID_ARG;
     }
 
     /* increase the length of the message */
-    md->sha1.length += md->sha1.curlen * 8;
+    md->sha1_c.length += md->sha1_c.curlen * 8;
 
     /* append the '1' bit */
-    md->sha1.buf[md->sha1.curlen++] = (unsigned char)0x80;
+    md->sha1_c.buf[md->sha1_c.curlen++] = (unsigned char)0x80;
 
     /* if the length is currently above 56 bytes we append zeros
      * then compress.  Then we can fall back to padding zeros and length
      * encoding like normal.
      */
-    if (md->sha1.curlen > 56) {
-        while (md->sha1.curlen < 64) {
-            md->sha1.buf[md->sha1.curlen++] = (unsigned char)0;
+    if (md->sha1_c.curlen > 56) {
+        while (md->sha1_c.curlen < 64) {
+            md->sha1_c.buf[md->sha1_c.curlen++] = (unsigned char)0;
         }
-        s_sha1_compress(md, md->sha1.buf);
-        md->sha1.curlen = 0;
+        s_sha1_c_compress(md, md->sha1_c.buf);
+        md->sha1_c.curlen = 0;
     }
 
     /* pad upto 56 bytes of zeroes */
-    while (md->sha1.curlen < 56) {
-        md->sha1.buf[md->sha1.curlen++] = (unsigned char)0;
+    while (md->sha1_c.curlen < 56) {
+        md->sha1_c.buf[md->sha1_c.curlen++] = (unsigned char)0;
     }
 
     /* store length */
-    STORE64H(md->sha1.length, md->sha1.buf+56);
-    s_sha1_compress(md, md->sha1.buf);
+    STORE64H(md->sha1_c.length, md->sha1_c.buf+56);
+    s_sha1_c_compress(md, md->sha1_c.buf);
 
     /* copy output */
     for (i = 0; i < 5; i++) {
-        STORE32H(md->sha1.state[i], out+(4*i));
+        STORE32H(md->sha1_c.state[i], out+(4*i));
     }
 #ifdef LTC_CLEAN_STACK
     zeromem(md, sizeof(hash_state));
@@ -264,7 +264,7 @@ int sha1_done(hash_state * md, unsigned char *out)
   Self-test the hash
   @return CRYPT_OK if successful, CRYPT_NOP if self-tests have been disabled
 */
-int  sha1_test(void)
+int  sha1_c_test(void)
 {
  #ifndef LTC_TEST
     return CRYPT_NOP;
@@ -290,9 +290,9 @@ int  sha1_test(void)
   hash_state md;
 
   for (i = 0; i < (int)(sizeof(tests) / sizeof(tests[0]));  i++) {
-      sha1_init(&md);
-      sha1_process(&md, (unsigned char*)tests[i].msg, (unsigned long)XSTRLEN(tests[i].msg));
-      sha1_done(&md, tmp);
+      sha1_c_init(&md);
+      sha1_c_process(&md, (unsigned char*)tests[i].msg, (unsigned long)XSTRLEN(tests[i].msg));
+      sha1_c_done(&md, tmp);
       if (ltc_compare_testvector(tmp, sizeof(tmp), tests[i].hash, sizeof(tests[i].hash), "SHA1", i)) {
          return CRYPT_FAIL_TESTVECTOR;
       }

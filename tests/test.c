@@ -204,7 +204,7 @@ static void s_unregister_all(void)
   unregister_hash(&md5_desc);
 #endif
 #ifdef LTC_SHA1
-  unregister_hash(&sha1_desc);
+  unregister_hash(&sha1_portable_desc);
 #endif
 #ifdef LTC_SHA224
   unregister_hash(&sha224_desc);
