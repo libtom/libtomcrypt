@@ -50,6 +50,18 @@ struct sha1_c_state {
 };
 #endif
 
+#ifdef LTC_SHA1_X86
+#pragma pack(push)
+#pragma pack(16)
+struct sha1_x86_state {
+    ulong32 state[5];
+    unsigned curlen;
+    ulong64 length;
+    unsigned char buf[64];
+};
+#pragma pack(pop)
+#endif
+
 #ifdef LTC_MD5
 struct md5_state {
     ulong64 length;
@@ -175,6 +187,9 @@ typedef union Hash_state {
 #endif
 #ifdef LTC_SHA1
     struct sha1_c_state sha1_c;
+#endif
+#ifdef LTC_SHA1_X86
+    struct sha1_x86_state sha1_x86;
 #endif
 #ifdef LTC_MD5
     struct md5_state    md5;
@@ -404,6 +419,14 @@ int sha1_process(hash_state * md, const unsigned char *in, unsigned long inlen);
 int sha1_done(hash_state * md, unsigned char *out);
 int sha1_test(void);
 extern const struct ltc_hash_descriptor sha1_desc;
+#endif
+
+#ifdef LTC_SHA1_X86
+int sha1_x86_init(hash_state * md);
+int sha1_x86_process(hash_state * md, const unsigned char *in, unsigned long inlen);
+int sha1_x86_done(hash_state * md, unsigned char *out);
+int sha1_x86_test(void);
+extern const struct ltc_hash_descriptor sha1_x86_desc;
 #endif
 
 #ifdef LTC_BLAKE2S

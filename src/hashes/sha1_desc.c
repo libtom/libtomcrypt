@@ -22,6 +22,70 @@ const struct ltc_hash_descriptor sha1_desc =
     NULL
 };
 
+#if defined LTC_SHA1_X86
+#if !defined _MSC_VER
+static LTC_INLINE void s_sha1_cpuid(int* regs, int leaf)
+{
+    int a, b, c, d;
+
+    a = leaf;
+    b = 0;
+    c = 0;
+    d = 0;
+    asm volatile ("cpuid"
+        :"=a"(a), "=b"(b), "=c"(c), "=d"(d)
+        :"a"(a), "c"(c)
+    );
+    regs[0] = a;
+    regs[1] = b;
+    regs[2] = c;
+    regs[3] = d;
+}
+#endif
+static LTC_INLINE int s_sha1_is_supported(void)
+{
+    static int initialized = 0;
+    static int is_supported = 0;
+
+    if (initialized == 0) {
+        #if defined _MSC_VER
+        int regs[4];
+        int leafs;
+        int sse2, ssse3, sse41, sha;
+        __cpuid(&regs[0], 0); leafs = regs[0];
+        __cpuid(&regs[0], 1);
+        sse2  = ((((unsigned int)(regs[3])) >> 26) & 1u) != 0; /* SSE2,   leaf 1, edx, bit 26 */
+        ssse3 = ((((unsigned int)(regs[2])) >>  9) & 1u) != 0; /* SSES3,  leaf 1, ecx, bit  9 */
+        sse41 = ((((unsigned int)(regs[2])) >> 19) & 1u) != 0; /* SSE4.1, leaf 1, ecx, bit 19 */
+        sha = 0;
+        if(leafs >= 7) {
+            __cpuid(&regs[0], 7);
+            sha = ((((unsigned int)(regs[1])) >> 29) & 1u) != 0; /* SHA, leaf 7, ebx, bit 29 */
+        }
+        is_supported = sse2 && ssse3 && sse41 && sha;
+        initialized = 1;
+        #else
+        int regs[4];
+        int leafs;
+        int sse2, ssse3, sse41, sha;
+        s_sha1_cpuid(&regs[0], 0); leafs = regs[0];
+        s_sha1_cpuid(&regs[0], 1);
+        sse2  = ((((unsigned int)(regs[3])) >> 26) & 1u) != 0; /* SSE2,   leaf 1, edx, bit 26 */
+        ssse3 = ((((unsigned int)(regs[2])) >>  9) & 1u) != 0; /* SSES3,  leaf 1, ecx, bit  9 */
+        sse41 = ((((unsigned int)(regs[2])) >> 19) & 1u) != 0; /* SSE4.1, leaf 1, ecx, bit 19 */
+        sha = 0;
+        if(leafs >= 7) {
+            s_sha1_cpuid(&regs[0], 7);
+            sha = ((((unsigned int)(regs[1])) >> 29) & 1u) != 0; /* SHA, leaf 7, ebx, bit 29 */
+        }
+        is_supported = sse2 && ssse3 && sse41 && sha;
+        initialized = 1;
+        #endif
+    }
+    return is_supported;
+  }
+#endif
+
 /**
    Initialize the hash state
    @param md   The hash state you wish to initialize
@@ -32,7 +96,11 @@ int sha1_init(hash_state * md)
     int err;
 
     #if defined LTC_SHA1_X86
-    ~~~todo~~~
+    if(s_sha1_is_supported()) {
+        err = sha1_x86_init(md); if(err != CRYPT_OK){ return err; }
+    } else {
+        err = sha1_c_init(md); if(err != CRYPT_OK){ return err; }
+    }
     #else
     err = sha1_c_init(md); if(err != CRYPT_OK){ return err; }
     #endif
@@ -51,7 +119,11 @@ int sha1_process(hash_state * md, const unsigned char *in, unsigned long inlen)
     int err;
 
     #if defined LTC_SHA1_X86
-    ~~~todo~~~
+    if(s_sha1_is_supported()) {
+        err = sha1_x86_process(md, in, inlen); if(err != CRYPT_OK){ return err; }
+    } else {
+        err = sha1_c_process(md, in, inlen); if(err != CRYPT_OK){ return err; }
+    }
     #else
     err = sha1_c_process(md, in, inlen); if(err != CRYPT_OK){ return err; }
     #endif
@@ -69,7 +141,11 @@ int sha1_done(hash_state * md, unsigned char *out)
     int err;
 
     #if defined LTC_SHA1_X86
-    ~~~todo~~~
+    if(s_sha1_is_supported()) {
+        err = sha1_x86_done(md, out); if(err != CRYPT_OK){ return err; }
+    } else {
+        err = sha1_c_done(md, out); if(err != CRYPT_OK){ return err; }
+    }
     #else
     err = sha1_c_done(md, out); if(err != CRYPT_OK){ return err; }
     #endif

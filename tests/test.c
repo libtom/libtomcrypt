@@ -207,6 +207,9 @@ static void s_unregister_all(void)
   unregister_hash(&sha1_desc);
   unregister_hash(&sha1_portable_desc);
 #endif
+#ifdef LTC_SHA1_X86
+  unregister_hash(&sha1_x86_desc);
+#endif
 #ifdef LTC_SHA224
   unregister_hash(&sha224_desc);
 #endif

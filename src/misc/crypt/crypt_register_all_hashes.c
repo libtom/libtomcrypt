@@ -43,6 +43,9 @@ int register_all_hashes(void)
    REGISTER_HASH(&sha1_desc);
    REGISTER_HASH(&sha1_portable_desc);
 #endif
+#ifdef LTC_SHA1_X86
+   REGISTER_HASH(&sha1_x86_desc);
+#endif
 #ifdef LTC_MD5
    REGISTER_HASH(&md5_desc);
 #endif
