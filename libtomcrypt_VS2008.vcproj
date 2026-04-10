@@ -892,6 +892,10 @@
 				>
 			</File>
 			<File
+				RelativePath="src\hashes\sha1_x86.c"
+				>
+			</File>
+			<File
 				RelativePath="src\hashes\sha3.c"
 				>
 			</File>

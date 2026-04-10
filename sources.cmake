@@ -102,6 +102,7 @@ src/hashes/rmd256.c
 src/hashes/rmd320.c
 src/hashes/sha1.c
 src/hashes/sha1_desc.c
+src/hashes/sha1_x86.c
 src/hashes/sha2/sha224.c
 src/hashes/sha2/sha256.c
 src/hashes/sha2/sha384.c
