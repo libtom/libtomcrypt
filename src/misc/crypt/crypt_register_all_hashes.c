@@ -40,6 +40,7 @@ int register_all_hashes(void)
    REGISTER_HASH(&sha384_desc);
 #endif
 #ifdef LTC_SHA1
+   REGISTER_HASH(&sha1_desc);
    REGISTER_HASH(&sha1_portable_desc);
 #endif
 #ifdef LTC_MD5

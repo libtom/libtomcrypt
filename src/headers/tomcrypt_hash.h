@@ -398,6 +398,12 @@ int sha1_c_process(hash_state * md, const unsigned char *in, unsigned long inlen
 int sha1_c_done(hash_state * md, unsigned char *out);
 int sha1_c_test(void);
 extern const struct ltc_hash_descriptor sha1_portable_desc;
+
+int sha1_init(hash_state * md);
+int sha1_process(hash_state * md, const unsigned char *in, unsigned long inlen);
+int sha1_done(hash_state * md, unsigned char *out);
+int sha1_test(void);
+extern const struct ltc_hash_descriptor sha1_desc;
 #endif
 
 #ifdef LTC_BLAKE2S
