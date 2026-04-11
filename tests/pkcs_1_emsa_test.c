@@ -15,7 +15,6 @@ int pkcs_1_emsa_test(void)
                                       .padding = LTC_PKCS_1_V1_5
   };
   int hash_idx = find_hash("sha1");
-  rsa_params.params.hash_idx = hash_idx;
   unsigned int i, j;
   rsa_params.params.hash_idx = hash_idx;
 

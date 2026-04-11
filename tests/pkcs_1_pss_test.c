@@ -19,8 +19,6 @@ int pkcs_1_pss_test(void)
                                       .padding = LTC_PKCS_1_PSS
   };
   int hash_idx = find_hash("sha1");
-  rsa_params.params.hash_idx = hash_idx;
-  rsa_params.params.mgf1_hash_idx = hash_idx;
   unsigned int i, j;
   rsa_params.params.hash_idx = hash_idx;
   rsa_params.params.mgf1_hash_idx = hash_idx;
