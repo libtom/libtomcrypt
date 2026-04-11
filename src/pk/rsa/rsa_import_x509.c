@@ -127,7 +127,7 @@ static int s_rsa_decode_parameters(const rsa_pss_parameters_data *d, ltc_rsa_par
    return CRYPT_OK;
 }
 
-int rsa_decode_parameters(const ltc_asn1_list *parameters, rsa_key *key)
+int rsa_decode_pss_parameters(const ltc_asn1_list *parameters, ltc_rsa_parameters *rsa_params)
 {
    int           err;
    rsa_pss_parameters_data d;
@@ -138,7 +138,13 @@ int rsa_decode_parameters(const ltc_asn1_list *parameters, rsa_key *key)
       return err;
    }
 
-   if ((err = s_rsa_decode_parameters(&d, &key->params)) != CRYPT_OK) {
+   return s_rsa_decode_parameters(&d, rsa_params);
+}
+
+int rsa_decode_parameters(const ltc_asn1_list *parameters, rsa_key *key)
+{
+   int err;
+   if ((err = rsa_decode_pss_parameters(parameters, &key->params)) != CRYPT_OK) {
       return err;
    }
    key->pss_oaep = 1;

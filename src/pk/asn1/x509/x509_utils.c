@@ -25,7 +25,7 @@ static LTC_INLINE int s_pka_verify(const unsigned char *msg, unsigned long msgle
    switch (key->id) {
 #ifdef LTC_MRSA
       case LTC_PKA_RSA:
-         rsa_params.params.hash_alg = hash_descriptor[sig_args->hash_idx].name;
+         rsa_params.params.hash_idx = sig_args->hash_idx;
          rsa_params.padding = LTC_PKCS_1_V1_5;
          /* RSA Keys usually use PKCS#1 v1.5 padding */
          return rsa_verify_hash_v2(sig, siglen, msg, msglen, &rsa_params, stat, &key->u.rsa);
@@ -103,17 +103,17 @@ int x509_cert_is_signed_by(const ltc_x509_certificate *cert, const ltc_pka_key *
       msglen = cert->tbs_certificate.asn1->size;
    } else {
       if (key->id == LTC_PKA_RSA_PSS) {
-         if (cert->signature_algorithm.u.rsa_params.pss_oaep) {
+         if (cert->signature_algorithm.u.rsa_params.hash_idx >= 0) {
             sig_args.rsa_params = &cert->signature_algorithm.u.rsa_params;
-            if (key->u.rsa.params.pss_oaep && !rsa_params_equal(&key->u.rsa.params, sig_args.rsa_params)) {
+            if (key->u.rsa.pss_oaep && !rsa_params_equal(&key->u.rsa.params, sig_args.rsa_params)) {
                return CRYPT_PK_TYPE_MISMATCH;
             }
-         } else if (key->u.rsa.params.pss_oaep) {
+         } else if (key->u.rsa.pss_oaep) {
             sig_args.rsa_params = &key->u.rsa.params;
          } else {
             return CRYPT_PK_TYPE_MISMATCH;
          }
-         hashalg = sig_args.rsa_params->hash_alg;
+         hashalg = hash_descriptor[sig_args.rsa_params->hash_idx].name;
       } else {
          hashalg = cert->signature_algorithm.u.hash;
       }

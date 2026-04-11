@@ -535,6 +535,7 @@ int rsa_import_pkcs1(const unsigned char *in, unsigned long inlen, rsa_key *key)
 int rsa_import_pkcs8_asn1(ltc_asn1_list *alg_id, ltc_asn1_list *priv_key, rsa_key *key);
 int rsa_import_spki(const unsigned char *in, unsigned long inlen, rsa_key *key);
 int rsa_decode_parameters(const ltc_asn1_list *parameters, rsa_key *key);
+int rsa_decode_pss_parameters(const ltc_asn1_list *parameters, ltc_rsa_parameters *rsa_params);
 #endif /* LTC_MRSA */
 
 /* ---- DH Routines ---- */
