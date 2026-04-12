@@ -56,4 +56,38 @@ int pkcs8_get_children(const ltc_asn1_list *decoded_list, enum ltc_oid_id *pka, 
    return pk_get_oid_from_asn1((*alg_id)->child, pka);
 }
 
+/**
+   Cross-check the optional publicKey of a OneAsymmetricKey against the imported key
+
+   RFC 5958 4. requires publicKey, when present, to belong to the privateKey next to it.
+   It is encoded as [1] IMPLICIT BIT STRING, so the content is a zero unused-bits octet
+   followed by the key itself.
+
+   @param priv_key   The privateKey element, the optional fields follow it
+   @param pk         The public key derived from the privateKey
+   @param pklen      The length of the derived public key
+   @return CRYPT_OK if publicKey is absent or matches, CRYPT_INVALID_PACKET if it does not
+*/
+int pkcs8_check_public_key(const ltc_asn1_list *priv_key, const unsigned char *pk, unsigned long pklen)
+{
+   const ltc_asn1_list *l;
+   const unsigned char *p;
+
+   LTC_ARGCHK(priv_key != NULL);
+   LTC_ARGCHK(pk       != NULL);
+
+   for (l = priv_key->next; l != NULL; l = l->next) {
+      if ((l->type != LTC_ASN1_CUSTOM_TYPE) || (l->klass != LTC_ASN1_CL_CONTEXT_SPECIFIC) || (l->tag != 1)) {
+         continue;
+      }
+      p = l->data;
+      if ((p == NULL) || (l->size != pklen + 1) || (p[0] != 0) || (XMEMCMP(p + 1, pk, pklen) != 0)) {
+         return CRYPT_INVALID_PACKET;
+      }
+      break;
+   }
+
+   return CRYPT_OK;
+}
+
 #endif /* LTC_PKCS_8 */

@@ -400,6 +400,15 @@ const char *crypt_build_settings =
     "   Ed448\n"
     "   X448\n"
 #endif
+#if defined(LTC_MLKEM)
+    "   ML-KEM\n"
+#endif
+#if defined(LTC_MLDSA)
+    "   ML-DSA\n"
+#endif
+#if defined(LTC_SLHDSA)
+    "   SLH-DSA\n"
+#endif
 #if defined(LTC_PK_MAX_RETRIES)
     "   "NAME_VALUE(LTC_PK_MAX_RETRIES)"\n"
 #endif

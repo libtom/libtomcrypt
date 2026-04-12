@@ -149,6 +149,36 @@ enum ltc_oid_id {
    LTC_OID_RSA_OAEP,
    LTC_OID_RSA_MGF1,
    LTC_OID_RSA_PSS,
+   LTC_OID_MLKEM_512,
+   LTC_OID_MLKEM_768,
+   LTC_OID_MLKEM_1024,
+   LTC_OID_MLDSA_44,
+   LTC_OID_MLDSA_65,
+   LTC_OID_MLDSA_87,
+   LTC_OID_SLHDSA_SHA2_128S,
+   LTC_OID_SLHDSA_SHA2_128F,
+   LTC_OID_SLHDSA_SHA2_192S,
+   LTC_OID_SLHDSA_SHA2_192F,
+   LTC_OID_SLHDSA_SHA2_256S,
+   LTC_OID_SLHDSA_SHA2_256F,
+   LTC_OID_SLHDSA_SHAKE_128S,
+   LTC_OID_SLHDSA_SHAKE_128F,
+   LTC_OID_SLHDSA_SHAKE_192S,
+   LTC_OID_SLHDSA_SHAKE_192F,
+   LTC_OID_SLHDSA_SHAKE_256S,
+   LTC_OID_SLHDSA_SHAKE_256F,
+   LTC_OID_HASH_SLHDSA_SHA2_128S_WITH_SHA256,
+   LTC_OID_HASH_SLHDSA_SHA2_128F_WITH_SHA256,
+   LTC_OID_HASH_SLHDSA_SHA2_192S_WITH_SHA512,
+   LTC_OID_HASH_SLHDSA_SHA2_192F_WITH_SHA512,
+   LTC_OID_HASH_SLHDSA_SHA2_256S_WITH_SHA512,
+   LTC_OID_HASH_SLHDSA_SHA2_256F_WITH_SHA512,
+   LTC_OID_HASH_SLHDSA_SHAKE_128S_WITH_SHAKE128,
+   LTC_OID_HASH_SLHDSA_SHAKE_128F_WITH_SHAKE128,
+   LTC_OID_HASH_SLHDSA_SHAKE_192S_WITH_SHAKE256,
+   LTC_OID_HASH_SLHDSA_SHAKE_192F_WITH_SHAKE256,
+   LTC_OID_HASH_SLHDSA_SHAKE_256S_WITH_SHAKE256,
+   LTC_OID_HASH_SLHDSA_SHAKE_256F_WITH_SHAKE256,
    LTC_OID_NUM
 };
 
@@ -860,6 +890,34 @@ int ed448_import_pkcs8_asn1(ltc_asn1_list *alg_id, ltc_asn1_list *priv_key,
                             curve448_key *key);
 #endif /* LTC_CURVE448 */
 
+#if defined(LTC_SLHDSA) || defined(LTC_MLDSA)
+/* pre-hash functions of HashSLH-DSA (FIPS 205 10.3) and HashML-DSA (FIPS 204 5.4) */
+enum ltc_pqc_prehash {
+   LTC_PQC_PH_SHA256   = 1,
+   LTC_PQC_PH_SHA512   = 2,
+   LTC_PQC_PH_SHAKE128 = 3,
+   LTC_PQC_PH_SHAKE256 = 4
+};
+int pqc_prehash_oid_der(int ph, const unsigned char **oid, unsigned long *oidlen);
+int pqc_prehash(int ph, const unsigned char *msg, unsigned long msglen,
+                unsigned char *out, unsigned long *outlen);
+#endif
+#if (defined(LTC_MLKEM) || defined(LTC_MLDSA)) && defined(LTC_DER)
+int pqc_export_privkey(unsigned char *out, unsigned long *outlen,
+                       enum ltc_oid_id oid_id,
+                       const unsigned char *seed, unsigned long seedlen,
+                       const unsigned char *sk,   unsigned long sklen);
+#endif
+#if defined(LTC_MLKEM) && defined(LTC_PKCS_8)
+int mlkem_import_pkcs8_asn1(ltc_asn1_list *alg_id, ltc_asn1_list *priv_key, mlkem_key *key);
+#endif
+#if defined(LTC_MLDSA) && defined(LTC_PKCS_8)
+int mldsa_import_pkcs8_asn1(ltc_asn1_list *alg_id, ltc_asn1_list *priv_key, mldsa_key *key);
+#endif
+#if defined(LTC_SLHDSA) && defined(LTC_PKCS_8)
+int slhdsa_import_pkcs8_asn1(ltc_asn1_list *alg_id, ltc_asn1_list *priv_key, slhdsa_key *key);
+#endif
+
 #ifdef LTC_DER
 
 #define LTC_ASN1_IS_TYPE(e, t) (((e) != NULL) && ((e)->type == (t)))
@@ -1034,6 +1092,7 @@ int pkcs8_decode_flexi(const unsigned char  *in,  unsigned long inlen,
 
 int pkcs8_get_children(const ltc_asn1_list *decoded_list, enum ltc_oid_id *pka,
                         ltc_asn1_list **alg_id, ltc_asn1_list **priv_key);
+int pkcs8_check_public_key(const ltc_asn1_list *priv_key, const unsigned char *pk, unsigned long pklen);
 
 #endif  /* LTC_PKCS_8 */
 

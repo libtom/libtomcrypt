@@ -43,6 +43,9 @@ enum ltc_pka_id {
    LTC_PKA_RSA_PSS,
    LTC_PKA_X448,
    LTC_PKA_ED448,
+   LTC_PKA_MLDSA,
+   LTC_PKA_SLHDSA,
+   LTC_PKA_MLKEM,
    LTC_PKA_NUM
 };
 
@@ -815,6 +818,15 @@ typedef struct {
 #endif
 #ifdef LTC_MRSA
       rsa_key rsa;
+#endif
+#ifdef LTC_MLKEM
+      mlkem_key mlkem;
+#endif
+#ifdef LTC_MLDSA
+      mldsa_key mldsa;
+#endif
+#ifdef LTC_SLHDSA
+      slhdsa_key slhdsa;
 #endif
       char dummy;
    } u;
