@@ -82,6 +82,15 @@ static const import_fn s_import_spki_fns[LTC_PKA_NUM] = {
                                                 [LTC_PKA_X448] = (import_fn)s_x448_import_spki,
                                                 [LTC_PKA_ED448] = (import_fn)s_ed448_import_spki,
 #endif
+#ifdef LTC_MLKEM
+                                                [LTC_PKA_MLKEM] = (import_fn)mlkem_import,
+#endif
+#ifdef LTC_MLDSA
+                                                [LTC_PKA_MLDSA] = (import_fn)mldsa_import,
+#endif
+#ifdef LTC_SLHDSA
+                                                [LTC_PKA_SLHDSA] = (import_fn)slhdsa_import,
+#endif
 };
 
 int x509_import_spki(const unsigned char *asn1_cert, unsigned long asn1_len, ltc_pka_key *k, ltc_asn1_list **root)
@@ -97,7 +106,7 @@ int x509_import_spki(const unsigned char *asn1_cert, unsigned long asn1_len, ltc
       goto err_out;
    }
    if (pka < 0
-         || pka > LTC_ARRAY_SIZE(s_import_spki_fns)
+         || pka >= LTC_ARRAY_SIZE(s_import_spki_fns)
          || s_import_spki_fns[pka] == NULL) {
       err = CRYPT_PK_INVALID_TYPE;
       goto err_out;

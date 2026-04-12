@@ -7060,6 +7060,1090 @@ int dsa_generate_key(prng_state *prng,
 
 This function generates a private DSA key containing both \textit{x} and \textit{y} parts.
 
+
+\chapter{Post-Quantum Cryptography (PQC)}
+
+LibTomCrypt includes implementations of the three NIST post-quantum cryptographic standards:
+
+\begin{itemize}
+\item \textbf{ML-KEM} (FIPS 203) --- Module-Lattice-Based Key-Encapsulation Mechanism, formerly known as CRYSTALS-Kyber.
+\item \textbf{ML-DSA} (FIPS 204) --- Module-Lattice-Based Digital Signature Algorithm, formerly known as CRYSTALS-Dilithium.
+\item \textbf{SLH-DSA} (FIPS 205) --- Stateless Hash-Based Digital Signature Algorithm, formerly known as SPHINCS+.
+\end{itemize}
+
+These algorithms are designed to be secure against attacks by both classical and quantum computers.
+All three are enabled by defining \code{LTC\_MLKEM}, \code{LTC\_MLDSA}, and \code{LTC\_SLHDSA} respectively
+in \textit{tomcrypt\_custom.h}.
+ML-KEM and ML-DSA require \code{LTC\_SHA3} to be enabled.
+SLH-DSA requires \code{LTC\_SHA3} for the SHAKE parameter sets and \code{LTC\_SHA256} plus
+\code{LTC\_SHA512} for the SHA-2 ones.
+
+None of the PQC algorithms uses the hash registry: the parameter set fixes the hash, so ML-KEM, ML-DSA and
+the SLH-DSA SHAKE parameter sets call SHA-3 and SHAKE directly, and the SLH-DSA SHA-2 parameter sets use the
+\code{sha256\_desc} and \code{sha512\_desc} descriptors directly.  No \code{register\_hash()} or
+\code{register\_all\_hashes()} call is needed before a PQC key is generated, imported or used.
+
+In addition to the raw FIPS key formats, the library also provides DER import/export helpers for
+\textit{SubjectPublicKeyInfo}, \textit{X.509} certificates, and \textit{PKCS \#8} key containers.
+For ML-KEM and ML-DSA the PKCS \#8 private key is a CHOICE of the generation seed, the expanded private
+key, or both (RFC 9935 and RFC 9881). The importers accept all three forms, and
+\code{enum ltc\_pqc\_privkey\_format} selects which one \code{mlkem\_export\_ex()} and
+\code{mldsa\_export\_ex()} write. SLH-DSA has no such choice, because its raw private key already
+contains SK.seed, SK.prf and PK.seed, so storing it loses nothing.
+
+All PQC functions follow the same conventions as the rest of LibTomCrypt: they return \code{CRYPT\_OK} on success,
+use \code{unsigned char *} for byte buffers and \code{unsigned long} for lengths,
+and use the standard \code{prng\_state}/\code{wprng} interface for randomness.
+The macro \code{LTC\_PQC\_CTX\_MAX\_BYTES} (= 255) is the maximum length of the optional context string
+\textit{ctx} accepted by ML-DSA and SLH-DSA signing/verification (per FIPS 204 \S5.2 and FIPS 205 \S10.2).
+
+\mysection{ML-KEM (FIPS 203)}
+
+ML-KEM is a Key Encapsulation Mechanism (KEM). Unlike traditional public-key encryption, a KEM does not encrypt
+a message directly. Instead, it generates a random shared secret and a ciphertext. The shared secret can then be
+used as a symmetric key.
+
+\subsection{Parameter Sets}
+
+ML-KEM supports three parameter sets with increasing security levels:
+
+\begin{center}
+\begin{tabular}{|l|c|c|c|c|}
+\hline
+\textbf{Parameter Set (alg ID)} & \textbf{Public Key} & \textbf{Secret Key} & \textbf{Ciphertext} & \textbf{Shared Secret} \\
+\hline
+LTC\_MLKEM\_512  &  800 bytes & 1632 bytes &  768 bytes & 32 bytes \\
+LTC\_MLKEM\_768  & 1184 bytes & 2400 bytes & 1088 bytes & 32 bytes \\
+LTC\_MLKEM\_1024 & 1568 bytes & 3168 bytes & 1568 bytes & 32 bytes \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsection{Size Query}
+
+\index{mlkem\_get\_sizes()}
+\begin{verbatim}
+int mlkem_get_sizes(int alg,
+                    unsigned long *public_key_sz,
+                    unsigned long *secret_key_sz,
+                    unsigned long *ciphertext_sz,
+                    unsigned long *shared_secret_sz,
+                    unsigned long *keygen_seed_sz,
+                    unsigned long *encaps_entropy_sz);
+\end{verbatim}
+
+Returns the key, ciphertext, shared secret, key-generation seed and encapsulation entropy sizes in bytes
+for the parameter set specified by \textit{alg}.
+Any output pointer may be \code{NULL} if the caller does not need that particular size.
+Returns \code{CRYPT\_OK} on success, or \code{CRYPT\_INVALID\_ARG} if \textit{alg} is not a valid ML-KEM parameter set.
+
+The remaining ML-KEM byte-length constants are fixed across all parameter sets and are exposed as
+preprocessor macros in \texttt{tomcrypt\_pqc.h}:
+
+\begin{center}
+\begin{tabular}{|l|c|l|}
+\hline
+\textbf{Macro} & \textbf{Value} & \textbf{Meaning} \\
+\hline
+\code{LTC\_MLKEM\_M\_BYTES}             & 32 & Encaps entropy \textit{m} for \code{mlkem\_encaps\_ex()} \\
+\code{LTC\_MLKEM\_SHARED\_SECRET\_BYTES} & 32 & Output of \code{mlkem\_encaps()} / \code{mlkem\_decaps()} \\
+\code{LTC\_MLKEM\_KEYGEN\_SEED\_BYTES}   & 64 & Seed for \code{mlkem\_make\_key\_from\_seed()} ($d \,\|\, z$) \\
+\hline
+\end{tabular}
+\end{center}
+
+\index{mlkem\_find\_alg()}\index{mlkem\_alg\_name()}
+\begin{verbatim}
+int mlkem_find_alg(const char *name_or_oid, int *alg);
+int mlkem_alg_name(int alg, const char **name);
+\end{verbatim}
+
+\code{mlkem\_find\_alg()} resolves the canonical FIPS 203 name (e.g. \texttt{"ML-KEM-768"})
+or the dotted-decimal OID string (e.g. \texttt{"2.16.840.1.101.3.4.4.2"})
+to an \code{ltc\_mlkem\_id} value.  Name comparison is case-insensitive and
+ignores \texttt{'-'} and \texttt{'\_'}, so e.g. \texttt{"ML-KEM-768"},
+\texttt{"ml\_kem\_768"}, and \texttt{"mlkem768"} all resolve identically.
+\code{mlkem\_alg\_name()} performs the inverse lookup: given an \code{ltc\_mlkem\_id}, it returns a pointer
+to a static name string (the caller must not free it).
+Both return \code{CRYPT\_OK} on success and \code{CRYPT\_INVALID\_ARG} on miss.
+
+\subsection{Key Generation}
+
+\index{mlkem\_make\_key()}
+\begin{verbatim}
+int mlkem_make_key(prng_state *prng, int wprng,
+                   int alg, mlkem_key *key);
+\end{verbatim}
+
+Generates an ML-KEM key pair (both encapsulation and decapsulation keys).
+The \textit{prng} and \textit{wprng} parameters specify the PRNG to use for randomness.
+The \textit{alg} parameter selects the parameter set
+(\code{LTC\_MLKEM\_512}, \code{LTC\_MLKEM\_768}, or \code{LTC\_MLKEM\_1024}).
+The resulting key is stored in \textit{key} and has type \code{PK\_PRIVATE}.
+The caller must eventually call \code{mlkem\_free()} to release the key.
+
+\index{mlkem\_make\_key\_from\_seed()}
+\begin{verbatim}
+int mlkem_make_key_from_seed(int alg,
+                             const unsigned char *seed, unsigned long seedlen,
+                             mlkem_key *key);
+\end{verbatim}
+
+Creates an ML-KEM key pair deterministically from a seed.
+The \textit{seedlen} must be exactly 64 bytes; otherwise the function returns
+\code{CRYPT\_INVALID\_ARG}.
+The \textit{alg} parameter selects the parameter set
+(\code{LTC\_MLKEM\_512}, \code{LTC\_MLKEM\_768}, or \code{LTC\_MLKEM\_1024}).
+The resulting key is stored in \textit{key} and has type \code{PK\_PRIVATE}.
+This function is primarily useful for deterministic key reconstruction and for importing RFC 9935 seed-based private keys.
+
+\subsection{Generation Seed}
+
+ML-KEM key expansion is one way: the seed cannot be computed back from the expanded private key.
+A key object therefore stores the seed it was generated from, so that the compact RFC 9935
+private-key form stays available.
+
+\index{mlkem\_has\_seed()}
+\begin{verbatim}
+int mlkem_has_seed(const mlkem_key *key);
+\end{verbatim}
+
+Returns 1 if \textit{key} is a private key that still has its generation seed, 0 otherwise
+(a \code{NULL} pointer returns 0). Keys made by \code{mlkem\_make\_key()} or
+\code{mlkem\_make\_key\_from\_seed()} have one, and so do keys imported from the RFC 9935
+\textit{seed} or \textit{both} form. Keys imported from an expanded private key, raw or
+PKCS \#8, do not.
+
+\index{mlkem\_export\_seed()}
+\begin{verbatim}
+int mlkem_export_seed(unsigned char *out, unsigned long *outlen,
+                     const mlkem_key *key);
+\end{verbatim}
+
+Writes the 64-byte generation seed of a private key.
+Returns \code{CRYPT\_PK\_NOT\_PRIVATE} for a public key, \code{CRYPT\_PK\_INVALID\_TYPE} if the key
+has no seed, and \code{CRYPT\_BUFFER\_OVERFLOW} if the buffer is too small, with \textit{*outlen}
+set to the required size.
+The seed is private key material and needs the same protection as the expanded private key.
+\code{mlkem\_free()} wipes the copy inside the key object.
+
+\subsection{Key Validation}
+
+\index{mlkem\_check\_key()}
+\begin{verbatim}
+int mlkem_check_key(const mlkem_key *key);
+\end{verbatim}
+
+Checks that every coefficient of the encapsulation key is below $q$, that the copy of the
+encapsulation key inside the decapsulation key matches, that the stored $H(ek)$ matches, and, if the
+key has a generation seed, that expanding the seed again gives the same key pair.
+Since the key structure is public, this is how to check a key object that was built or changed
+by hand. The importers run the same checks, so calling it on a freshly imported key adds nothing.
+Returns \code{CRYPT\_OK} if the key is consistent, \code{CRYPT\_PK\_INVALID\_TYPE} if a key field
+is wrong, and \code{CRYPT\_INVALID\_PACKET} if the key material does not match.
+
+\subsection{Key Export and Import}
+
+\index{mlkem\_export()}
+\begin{verbatim}
+int mlkem_export(unsigned char *out, unsigned long *outlen,
+                 int which, const mlkem_key *key);
+\end{verbatim}
+
+To export a key, the function \textit{mlkem\_export} is provided.
+
+It has support for the following output formats:
+
+\begin{figure}[H]
+\begin{center}
+\begin{tabular}{|c|c|}
+\hline \textbf{which} & \textbf{output format} \\
+\hline PK\_PRIVATE & Raw decapsulation key \\
+\hline PK\_PRIVATE \& PK\_STD & PKCS \#8 \\
+\hline PK\_PUBLIC & Raw encapsulation key \\
+\hline PK\_PUBLIC \& PK\_STD & SubjectPublicKeyInfo \\
+\hline
+\end{tabular}
+\end{center}
+\caption{Possible mlkem\_export() output formats}
+\end{figure}
+
+The standard formats are DER encoded.
+For \code{PK\_PRIVATE \& PK\_STD} the PKCS \#8 \textit{privateKey} holds the RFC 9935 CHOICE. It is
+written as the seed if the key has one and as the expanded private key otherwise.
+Use \code{mlkem\_export\_ex()} to choose the form explicitly.
+
+\index{mlkem\_export\_ex()}
+\begin{verbatim}
+int mlkem_export_ex(unsigned char *out, unsigned long *outlen,
+                    int which, enum ltc_pqc_privkey_format format,
+                    const mlkem_key *key);
+\end{verbatim}
+
+Same as \code{mlkem\_export()}, with the private-key representation chosen by \textit{format}:
+
+\begin{figure}[H]
+\begin{center}
+\begin{tabular}{|l|l|}
+\hline \textbf{format} & \textbf{PK\_PRIVATE \& PK\_STD output} \\
+\hline LTC\_PQC\_PRIVKEY\_AUTO     & seed if the key has one, expandedKey otherwise \\
+\hline LTC\_PQC\_PRIVKEY\_SEED     & seed \\
+\hline LTC\_PQC\_PRIVKEY\_EXPANDED & expandedKey \\
+\hline LTC\_PQC\_PRIVKEY\_BOTH     & SEQUENCE \{ seed, expandedKey \} \\
+\hline
+\end{tabular}
+\end{center}
+\caption{Possible mlkem\_export\_ex() private-key representations}
+\end{figure}
+
+\code{LTC\_PQC\_PRIVKEY\_SEED} and \code{LTC\_PQC\_PRIVKEY\_BOTH} return
+\code{CRYPT\_PK\_INVALID\_TYPE} for a key without a seed. Before \code{LTC\_PQC\_PRIVKEY\_BOTH} is
+written, the seed is expanded again and compared with the key, so that the two parts of the
+encoding cannot disagree.
+All other values of \textit{which} need \textit{format} set to \code{LTC\_PQC\_PRIVKEY\_AUTO} and
+return \code{CRYPT\_INVALID\_ARG} otherwise. In particular \code{PK\_PRIVATE} without
+\code{PK\_STD} always writes the raw expanded private key.
+
+\index{mlkem\_export\_raw()}
+\begin{verbatim}
+int mlkem_export_raw(unsigned char *out, unsigned long *outlen,
+                     int which, const mlkem_key *key);
+\end{verbatim}
+
+Exports a key to a raw byte buffer in the format defined by FIPS 203.
+The \textit{out} buffer must be large enough to hold the key; on entry, \textit{*outlen} is the
+buffer size, and on exit it is set to the number of bytes written.
+Set \textit{which} to \code{PK\_PUBLIC} to export the encapsulation (public) key,
+or \code{PK\_PRIVATE} to export the decapsulation (secret) key.
+The required buffer sizes can be obtained from \code{mlkem\_get\_sizes()} or the parameter table above.
+Returns \code{CRYPT\_BUFFER\_OVERFLOW} if the buffer is too small (with \textit{*outlen} set to the required size).
+
+\index{mlkem\_import()}
+\begin{verbatim}
+int mlkem_import(const unsigned char *in, unsigned long inlen,
+                 mlkem_key *key);
+\end{verbatim}
+
+The \textit{mlkem\_import} function can be used to import a public key in DER-encoded
+\textit{SubjectPublicKeyInfo} format.
+
+\index{mlkem\_import\_raw()}
+\begin{verbatim}
+int mlkem_import_raw(const unsigned char *in, unsigned long inlen,
+                     int which, int alg, mlkem_key *key);
+\end{verbatim}
+
+Imports a key from a raw byte buffer.
+The \textit{inlen} must exactly match the expected key size for the given \textit{alg} and \textit{which}.
+Set \textit{which} to \code{PK\_PUBLIC} to import an encapsulation key, or \code{PK\_PRIVATE}
+to import a decapsulation key. When importing a private key, the embedded public key is automatically
+extracted so the key can also be used for encapsulation.
+The caller must eventually call \code{mlkem\_free()} to release the imported key.
+
+\index{mlkem\_import\_x509()}
+\begin{verbatim}
+int mlkem_import_x509(const unsigned char *in, unsigned long inlen,
+                      mlkem_key *key);
+\end{verbatim}
+
+To import a public key from a DER-encoded \textit{X.509} certificate, one can use the function
+\textit{mlkem\_import\_x509}.
+
+\index{mlkem\_import\_pkcs8()}
+\begin{verbatim}
+int mlkem_import_pkcs8(const unsigned char *in, unsigned long inlen,
+                       const password_ctx *pw_ctx, mlkem_key *key);
+\end{verbatim}
+
+To import a private key in the \textit{OneAsymmetricKey} a.k.a. \textit{PKCS \#8} format,
+either plain or PBES encrypted, one can use the function \textit{mlkem\_import\_pkcs8}.
+The importer accepts the raw expanded private key encoding as well as the RFC 9935 seed-based
+and combined encodings.
+
+\subsection{Encapsulation}
+
+\index{mlkem\_encaps()}
+\begin{verbatim}
+int mlkem_encaps(unsigned char   *ct,            unsigned long *ctlen,
+                 unsigned char   *shared_secret, unsigned long *sslen,
+                 prng_state      *prng,          int            wprng,
+                 const mlkem_key *key);
+\end{verbatim}
+
+Performs ML-KEM encapsulation: generates a random 32-byte shared secret and a ciphertext
+that encapsulates it under the given public key.
+The \textit{ct} buffer receives the ciphertext and \textit{shared\_secret} receives the shared secret.
+On entry, \textit{*ctlen} and \textit{*sslen} specify the buffer sizes; on exit they are set to the actual sizes.
+The \textit{key} must contain at least a public key (either \code{PK\_PUBLIC} or \code{PK\_PRIVATE}).
+Returns \code{CRYPT\_BUFFER\_OVERFLOW} if either buffer is too small.
+
+\index{mlkem\_encaps\_ex()}
+\begin{verbatim}
+int mlkem_encaps_ex(unsigned char       *ct,            unsigned long *ctlen,
+                    unsigned char       *shared_secret, unsigned long *sslen,
+                    const unsigned char *m,             unsigned long  mlen,
+                    const mlkem_key     *key);
+\end{verbatim}
+
+Deterministic variant of \code{mlkem\_encaps()} corresponding to the
+\textit{ML-KEM.Encaps\_internal} routine in FIPS 203 \S6.2.
+Instead of drawing the 32-byte encapsulation entropy from a PRNG,
+the caller supplies it as \textit{m} (\textit{mlen} must equal 32).
+This is intended for known-answer testing, deterministic protocol variants,
+and rerunning a failed encapsulation against the same input.
+For ordinary use, \code{mlkem\_encaps()} should be preferred.
+Returns \code{CRYPT\_INVALID\_ARG} if \textit{mlen} is not 32, or
+\code{CRYPT\_BUFFER\_OVERFLOW} if either output buffer is too small.
+
+\subsection{Decapsulation}
+
+\index{mlkem\_decaps()}
+\begin{verbatim}
+int mlkem_decaps(unsigned char       *shared_secret, unsigned long *sslen,
+                 const unsigned char *ct,            unsigned long  ctlen,
+                 const mlkem_key     *key);
+\end{verbatim}
+
+Performs ML-KEM decapsulation: recovers the shared secret from a ciphertext using a private key.
+The \textit{key} must be of type \code{PK\_PRIVATE}.
+On entry, \textit{*sslen} specifies the buffer size; on exit it is set to 32 (the shared secret size).
+If the ciphertext is invalid, a pseudorandom value is returned instead of an error code ---
+this is the ``implicit rejection'' behavior required by the ML-KEM specification to prevent
+chosen-ciphertext attacks. The function always returns \code{CRYPT\_OK} on successful decapsulation
+(regardless of whether the ciphertext was valid).
+Returns \code{CRYPT\_PK\_NOT\_PRIVATE} if the key is not a private key,
+or \code{CRYPT\_INVALID\_PACKET} if \textit{ctlen} does not match the expected ciphertext size.
+
+\subsection{Key Cleanup}
+
+\index{mlkem\_free()}
+\begin{verbatim}
+void mlkem_free(mlkem_key *key);
+\end{verbatim}
+
+Frees all memory associated with an ML-KEM key and zeros sensitive data.
+After this call the \textit{key} structure is zeroed and must not be used until re-initialized
+by \code{mlkem\_make\_key()} or \code{mlkem\_import\_raw()}.
+
+\subsection{Example}
+
+\begin{small}
+\begin{verbatim}
+mlkem_key key, pubkey;
+unsigned char ct[1568], ss1[32], ss2[32], pk[1568];
+unsigned long ctlen, sslen, pklen;
+int prng_idx = find_prng("yarrow");
+
+/* Generate key pair */
+mlkem_make_key(&yarrow_prng, prng_idx, LTC_MLKEM_768, &key);
+
+/* Export public key */
+pklen = sizeof(pk);
+mlkem_export_raw(pk, &pklen, PK_PUBLIC, &key);
+mlkem_import_raw(pk, pklen, PK_PUBLIC, LTC_MLKEM_768, &pubkey);
+
+/* Encapsulate */
+ctlen = sizeof(ct);
+sslen = sizeof(ss1);
+mlkem_encaps(ct, &ctlen, ss1, &sslen, &yarrow_prng, prng_idx, &pubkey);
+
+/* Decapsulate */
+sslen = sizeof(ss2);
+mlkem_decaps(ss2, &sslen, ct, ctlen, &key);
+/* ss1 and ss2 are now equal */
+
+mlkem_free(&key);
+mlkem_free(&pubkey);
+\end{verbatim}
+\end{small}
+
+
+\mysection{ML-DSA (FIPS 204)}
+
+ML-DSA is a digital signature algorithm based on module lattices. It supports hedged signing
+(using randomness to protect against side-channel attacks) and optional context strings.
+
+\subsection{Parameter Sets}
+
+\begin{center}
+\begin{tabular}{|l|c|c|c|}
+\hline
+\textbf{Parameter Set (alg ID)} & \textbf{Public Key} & \textbf{Secret Key} & \textbf{Signature} \\
+\hline
+LTC\_MLDSA\_44 & 1312 bytes & 2560 bytes & 2420 bytes \\
+LTC\_MLDSA\_65 & 1952 bytes & 4032 bytes & 3309 bytes \\
+LTC\_MLDSA\_87 & 2592 bytes & 4896 bytes & 4627 bytes \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsection{Size Query}
+
+\index{mldsa\_get\_sizes()}
+\begin{verbatim}
+int mldsa_get_sizes(int alg,
+                    unsigned long *public_key_sz,
+                    unsigned long *secret_key_sz,
+                    unsigned long *signature_sz,
+                    unsigned long *rnd_sz,
+                    unsigned long *mu_sz,
+                    unsigned long *keygen_seed_sz);
+\end{verbatim}
+
+Returns the public key, secret key, signature, per-signature \textit{rnd}, external \textit{mu} and
+key-generation seed sizes in bytes for the parameter set specified by \textit{alg}.
+Any output pointer may be \code{NULL} if the caller does not need that particular size.
+Returns \code{CRYPT\_OK} on success, or \code{CRYPT\_INVALID\_ARG} if \textit{alg} is not a valid ML-DSA parameter set.
+
+The remaining ML-DSA byte-length constants are fixed across all parameter sets and are exposed as
+preprocessor macros in \texttt{tomcrypt\_pqc.h}:
+
+\begin{center}
+\begin{tabular}{|l|c|l|}
+\hline
+\textbf{Macro} & \textbf{Value} & \textbf{Meaning} \\
+\hline
+\code{LTC\_MLDSA\_RND\_BYTES}         & 32 & Per-signature \textit{rnd} for \code{mldsa\_sign\_ex()} \\
+\code{LTC\_MLDSA\_MU\_BYTES}          & 64 & External \textit{mu} for \code{mldsa\_sign\_ex\_mu()} \\
+\code{LTC\_MLDSA\_KEYGEN\_SEED\_BYTES} & 32 & Seed for \code{mldsa\_make\_key\_from\_seed()} ($\xi$) \\
+\hline
+\end{tabular}
+\end{center}
+
+\index{mldsa\_find\_alg()}\index{mldsa\_alg\_name()}
+\begin{verbatim}
+int mldsa_find_alg(const char *name_or_oid, int *alg);
+int mldsa_alg_name(int alg, const char **name);
+\end{verbatim}
+
+\code{mldsa\_find\_alg()} resolves the canonical FIPS 204 name (e.g. \texttt{"ML-DSA-65"})
+or the dotted-decimal OID string (e.g. \texttt{"2.16.840.1.101.3.4.3.18"})
+to an \code{ltc\_mldsa\_id} value.  Name comparison is case-insensitive and
+ignores \texttt{'-'} and \texttt{'\_'}.
+\code{mldsa\_alg\_name()} performs the inverse lookup: given an \code{ltc\_mldsa\_id}, it returns a pointer
+to a static name string (the caller must not free it).
+Both return \code{CRYPT\_OK} on success and \code{CRYPT\_INVALID\_ARG} on miss.
+
+\subsection{Key Generation}
+
+\index{mldsa\_make\_key()}
+\begin{verbatim}
+int mldsa_make_key(prng_state *prng, int wprng,
+                   int alg, mldsa_key *key);
+\end{verbatim}
+
+Generates an ML-DSA key pair (both signing and verification keys).
+The \textit{prng} and \textit{wprng} parameters specify the PRNG to use for randomness.
+The \textit{alg} parameter selects the parameter set
+(\code{LTC\_MLDSA\_44}, \code{LTC\_MLDSA\_65}, or \code{LTC\_MLDSA\_87}).
+The resulting key is stored in \textit{key} and has type \code{PK\_PRIVATE}.
+The caller must eventually call \code{mldsa\_free()} to release the key.
+
+\index{mldsa\_make\_key\_from\_seed()}
+\begin{verbatim}
+int mldsa_make_key_from_seed(int alg,
+                             const unsigned char *seed, unsigned long seedlen,
+                             mldsa_key *key);
+\end{verbatim}
+
+Creates an ML-DSA key pair deterministically from a seed.
+The \textit{seedlen} must be exactly 32 bytes; otherwise the function returns
+\code{CRYPT\_INVALID\_ARG}.
+The \textit{alg} parameter selects the parameter set
+(\code{LTC\_MLDSA\_44}, \code{LTC\_MLDSA\_65}, or \code{LTC\_MLDSA\_87}).
+The resulting key is stored in \textit{key} and has type \code{PK\_PRIVATE}.
+This function is primarily useful for deterministic key reconstruction and for importing RFC 9881 seed-based private keys.
+
+\subsection{Generation Seed}
+
+ML-DSA key expansion is one way: the seed cannot be computed back from the expanded private key.
+A key object therefore stores the seed it was generated from, so that the compact RFC 9881
+private-key form stays available.
+
+\index{mldsa\_has\_seed()}
+\begin{verbatim}
+int mldsa_has_seed(const mldsa_key *key);
+\end{verbatim}
+
+Returns 1 if \textit{key} is a private key that still has its generation seed, 0 otherwise
+(a \code{NULL} pointer returns 0). Keys made by \code{mldsa\_make\_key()} or
+\code{mldsa\_make\_key\_from\_seed()} have one, and so do keys imported from the RFC 9881
+\textit{seed} or \textit{both} form. Keys imported from an expanded private key, raw or
+PKCS \#8, do not.
+
+\index{mldsa\_export\_seed()}
+\begin{verbatim}
+int mldsa_export_seed(unsigned char *out, unsigned long *outlen,
+                     const mldsa_key *key);
+\end{verbatim}
+
+Writes the 32-byte generation seed of a private key.
+Returns \code{CRYPT\_PK\_NOT\_PRIVATE} for a public key, \code{CRYPT\_PK\_INVALID\_TYPE} if the key
+has no seed, and \code{CRYPT\_BUFFER\_OVERFLOW} if the buffer is too small, with \textit{*outlen}
+set to the required size.
+The seed is private key material and needs the same protection as the expanded private key.
+\code{mldsa\_free()} wipes the copy inside the key object.
+
+\subsection{Key Validation}
+
+\index{mldsa\_check\_key()}
+\begin{verbatim}
+int mldsa_check_key(const mldsa_key *key);
+\end{verbatim}
+
+Rebuilds the public key from the signing key, compares it with the stored public key, checks the
+encoded $t_0$ and $tr$ against it, and, if the key has a generation seed, checks that expanding the
+seed again gives the same key pair.
+Since the key structure is public, this is how to check a key object that was built or changed
+by hand. The importers run the same checks, so calling it on a freshly imported key adds nothing.
+Returns \code{CRYPT\_OK} if the key is consistent, \code{CRYPT\_PK\_INVALID\_TYPE} if a key field
+is wrong, and \code{CRYPT\_INVALID\_PACKET} if the key material does not match.
+
+\subsection{Key Export and Import}
+
+\index{mldsa\_export()}
+\begin{verbatim}
+int mldsa_export(unsigned char *out, unsigned long *outlen,
+                 int which, const mldsa_key *key);
+\end{verbatim}
+
+To export a key, the function \textit{mldsa\_export} is provided.
+
+It has support for the following output formats:
+
+\begin{figure}[H]
+\begin{center}
+\begin{tabular}{|c|c|}
+\hline \textbf{which} & \textbf{output format} \\
+\hline PK\_PRIVATE & Raw signing key \\
+\hline PK\_PRIVATE \& PK\_STD & PKCS \#8 \\
+\hline PK\_PUBLIC & Raw verification key \\
+\hline PK\_PUBLIC \& PK\_STD & SubjectPublicKeyInfo \\
+\hline
+\end{tabular}
+\end{center}
+\caption{Possible mldsa\_export() output formats}
+\end{figure}
+
+The standard formats are DER encoded.
+For \code{PK\_PRIVATE \& PK\_STD} the PKCS \#8 \textit{privateKey} holds the RFC 9881 CHOICE. It is
+written as the seed if the key has one and as the expanded private key otherwise.
+Use \code{mldsa\_export\_ex()} to choose the form explicitly.
+
+\index{mldsa\_export\_ex()}
+\begin{verbatim}
+int mldsa_export_ex(unsigned char *out, unsigned long *outlen,
+                    int which, enum ltc_pqc_privkey_format format,
+                    const mldsa_key *key);
+\end{verbatim}
+
+Same as \code{mldsa\_export()}, with the private-key representation chosen by \textit{format}:
+
+\begin{figure}[H]
+\begin{center}
+\begin{tabular}{|l|l|}
+\hline \textbf{format} & \textbf{PK\_PRIVATE \& PK\_STD output} \\
+\hline LTC\_PQC\_PRIVKEY\_AUTO     & seed if the key has one, expandedKey otherwise \\
+\hline LTC\_PQC\_PRIVKEY\_SEED     & seed \\
+\hline LTC\_PQC\_PRIVKEY\_EXPANDED & expandedKey \\
+\hline LTC\_PQC\_PRIVKEY\_BOTH     & SEQUENCE \{ seed, expandedKey \} \\
+\hline
+\end{tabular}
+\end{center}
+\caption{Possible mldsa\_export\_ex() private-key representations}
+\end{figure}
+
+\code{LTC\_PQC\_PRIVKEY\_SEED} and \code{LTC\_PQC\_PRIVKEY\_BOTH} return
+\code{CRYPT\_PK\_INVALID\_TYPE} for a key without a seed. Before \code{LTC\_PQC\_PRIVKEY\_BOTH} is
+written, the seed is expanded again and compared with the key, so that the two parts of the
+encoding cannot disagree.
+All other values of \textit{which} need \textit{format} set to \code{LTC\_PQC\_PRIVKEY\_AUTO} and
+return \code{CRYPT\_INVALID\_ARG} otherwise. In particular \code{PK\_PRIVATE} without
+\code{PK\_STD} always writes the raw expanded private key.
+
+\index{mldsa\_export\_raw()}
+\begin{verbatim}
+int mldsa_export_raw(unsigned char *out, unsigned long *outlen,
+                     int which, const mldsa_key *key);
+\end{verbatim}
+
+Exports a key to a raw byte buffer in the format defined by FIPS 204.
+On entry, \textit{*outlen} is the buffer size; on exit it is set to the number of bytes written.
+Set \textit{which} to \code{PK\_PUBLIC} to export the verification (public) key,
+or \code{PK\_PRIVATE} to export the signing (secret) key.
+The required buffer sizes can be obtained from \code{mldsa\_get\_sizes()} or the parameter table above.
+Returns \code{CRYPT\_BUFFER\_OVERFLOW} if the buffer is too small (with \textit{*outlen} set to the required size).
+
+\index{mldsa\_import()}
+\begin{verbatim}
+int mldsa_import(const unsigned char *in, unsigned long inlen,
+                 mldsa_key *key);
+\end{verbatim}
+
+The \textit{mldsa\_import} function can be used to import a public key in DER-encoded
+\textit{SubjectPublicKeyInfo} format.
+
+\index{mldsa\_import\_raw()}
+\begin{verbatim}
+int mldsa_import_raw(const unsigned char *in, unsigned long inlen,
+                     int which, int alg, mldsa_key *key);
+\end{verbatim}
+
+Imports a key from a raw byte buffer.
+The \textit{inlen} must exactly match the expected key size for the given \textit{alg} and \textit{which}.
+Set \textit{which} to \code{PK\_PUBLIC} to import a verification key, or \code{PK\_PRIVATE}
+to import a signing key.  When importing a private key, the corresponding public key is
+reconstructed automatically so the key can also be used for verification.
+The caller must eventually call \code{mldsa\_free()} to release the imported key.
+
+\index{mldsa\_import\_x509()}
+\begin{verbatim}
+int mldsa_import_x509(const unsigned char *in, unsigned long inlen,
+                      mldsa_key *key);
+\end{verbatim}
+
+To import a public key from a DER-encoded \textit{X.509} certificate, one can use the function
+\textit{mldsa\_import\_x509}.
+
+\index{mldsa\_import\_pkcs8()}
+\begin{verbatim}
+int mldsa_import_pkcs8(const unsigned char *in, unsigned long inlen,
+                       const password_ctx *pw_ctx, mldsa_key *key);
+\end{verbatim}
+
+To import a private key in the \textit{OneAsymmetricKey} a.k.a. \textit{PKCS \#8} format,
+either plain or PBES encrypted, one can use the function \textit{mldsa\_import\_pkcs8}.
+The importer accepts the raw expanded private key encoding as well as the RFC 9881 seed-based
+and combined encodings.
+
+\subsection{Signing}
+
+\index{mldsa\_sign()}
+\begin{verbatim}
+int mldsa_sign(const unsigned char *msg,  unsigned long  msglen,
+                     unsigned char *sig,  unsigned long *siglen,
+               const unsigned char *ctx,  unsigned long  ctxlen,
+                     prng_state    *prng, int            wprng,
+               const mldsa_key     *key);
+\end{verbatim}
+
+Signs a message using a private key.
+The signature is written to \textit{sig}; on entry \textit{*siglen} is the buffer size,
+on exit it is set to the actual signature size.
+The \textit{ctx} parameter is an optional context string (up to 255 bytes per FIPS 204)
+that binds the signature to a particular application context; pass \code{NULL} and 0 if not needed.
+The \textit{prng} and \textit{wprng} parameters provide randomness for hedged signing, which helps
+protect against side-channel attacks.
+The \textit{key} must be of type \code{PK\_PRIVATE}.
+Returns \code{CRYPT\_BUFFER\_OVERFLOW} if the signature buffer is too small,
+or \code{CRYPT\_INVALID\_PACKET} if the private key encodes \textit{s1}/\textit{s2}
+coefficients outside $[-\eta, +\eta]$ as required by FIPS 204 \S3.6.3.
+
+\index{mldsa\_sign\_ex()}
+\begin{verbatim}
+int mldsa_sign_ex(const unsigned char *msg,  unsigned long  msglen,
+                        unsigned char *sig,  unsigned long *siglen,
+                  const unsigned char *ctx,  unsigned long  ctxlen,
+                  const unsigned char *rnd,  unsigned long  rndlen,
+                  const mldsa_key     *key);
+\end{verbatim}
+
+Deterministic variant of \code{mldsa\_sign()} corresponding to the
+\textit{ML-DSA.Sign\_internal} routine in FIPS 204 \S5.2.
+Instead of drawing the 32-byte per-signature randomness $\rho'$ from a PRNG,
+the caller supplies it as \textit{rnd} (\textit{rndlen} must equal 32).
+Setting \textit{rnd} to all zeros yields the spec's ``deterministic'' variant;
+setting it from a CSPRNG yields the ``hedged'' variant produced by
+\code{mldsa\_sign()}.
+This is required to verify FIPS 204 known-answer test vectors, which fix \textit{rnd}.
+Returns \code{CRYPT\_INVALID\_ARG} if \textit{rndlen} is not 32, and the same
+status codes as \code{mldsa\_sign()} otherwise.
+
+\index{mldsa\_sign\_ex\_mu()}
+\begin{verbatim}
+int mldsa_sign_ex_mu(const unsigned char *mu,  unsigned long  mulen,
+                           unsigned char *sig, unsigned long *siglen,
+                     const unsigned char *rnd, unsigned long  rndlen,
+                     const mldsa_key     *key);
+\end{verbatim}
+
+Signs using a precomputed message hash, corresponding to the
+\textit{ML-DSA.Sign\_internal} signing path in FIPS 204 \S5.4.1 with
+externally supplied $\mu$.
+The 64-byte \textit{mu} is the message-binding hash $\mu = \mathrm{SHAKE256}(\mathrm{BytesToBits}(tr) \,\|\, M', 64)$;
+\textit{mulen} must equal 64.
+This is the streaming/precomputed-hash signing path used by ACVP test
+vectors and protocols that hash the message in a separate step (e.g. when
+the message is too large to keep in memory or when $\mu$ is computed by a
+different component).  Like \code{mldsa\_sign\_ex()}, the per-signature
+randomness \textit{rnd} (32 bytes) is supplied by the caller.
+Returns \code{CRYPT\_INVALID\_ARG} if \textit{mulen} is not 64 or
+\textit{rndlen} is not 32, and the same status codes as \code{mldsa\_sign\_ex()} otherwise.
+
+\index{mldsa\_compute\_mu()}
+\begin{verbatim}
+int mldsa_compute_mu(      unsigned char *mu,  unsigned long *mulen,
+                     const unsigned char *msg, unsigned long  msglen,
+                     const unsigned char *ctx, unsigned long  ctxlen,
+                     const mldsa_key     *key);
+\end{verbatim}
+
+Computes the $\mu$ that \code{mldsa\_sign\_ex\_mu()} and \code{mldsa\_verify\_mu()} take:
+$\mu = \mathrm{SHAKE256}(tr \,\|\, \mathtt{0x00} \,\|\, \mathit{ctxlen} \,\|\, \mathit{ctx} \,\|\, \mathit{msg}, 64)$
+with $tr = \mathrm{SHAKE256}(pk, 64)$.
+$tr$ is computed from the public key, so \textit{key} may be a public or a private key.
+The output is always 64 bytes. A smaller \textit{*mulen} returns \code{CRYPT\_BUFFER\_OVERFLOW}
+with \textit{*mulen} set to the required size, and a \textit{ctxlen} above 255 returns
+\code{CRYPT\_INVALID\_ARG}.
+
+\subsection{Verification}
+
+\index{mldsa\_verify()}
+\begin{verbatim}
+int mldsa_verify(const unsigned char *sig,  unsigned long  siglen,
+                 const unsigned char *msg,  unsigned long  msglen,
+                 const unsigned char *ctx,  unsigned long  ctxlen,
+                       int           *stat,
+                 const mldsa_key     *key);
+\end{verbatim}
+
+Verifies an ML-DSA signature against a message and public key.
+Sets \textit{*stat} to 1 if the signature is valid, or 0 if it is invalid.
+The \textit{ctx} and \textit{ctxlen} parameters must match the context string used during signing.
+The function returns \code{CRYPT\_OK} even if the signature is invalid --- the caller must
+check \textit{*stat} to determine validity.
+
+\index{mldsa\_verify\_mu()}
+\begin{verbatim}
+int mldsa_verify_mu(const unsigned char *sig, unsigned long  siglen,
+                    const unsigned char *mu,  unsigned long  mulen,
+                          int           *stat,
+                    const mldsa_key     *key);
+\end{verbatim}
+
+Verifies against a $\mu$ from \code{mldsa\_compute\_mu()} instead of against the message. It is the
+counterpart of \code{mldsa\_sign\_ex\_mu()}. \textit{mulen} must equal 64.
+\textit{*stat} and the return value work as in \code{mldsa\_verify()}.
+
+\subsection{Key Cleanup}
+
+\index{mldsa\_free()}
+\begin{verbatim}
+void mldsa_free(mldsa_key *key);
+\end{verbatim}
+
+Frees all memory associated with an ML-DSA key and zeros sensitive data.
+After this call the \textit{key} structure is zeroed and must not be used until re-initialized.
+
+\subsection{Example}
+
+\begin{small}
+\begin{verbatim}
+mldsa_key key;
+unsigned char sig[4627];
+unsigned long siglen;
+int stat, prng_idx = find_prng("yarrow");
+
+mldsa_make_key(&yarrow_prng, prng_idx, LTC_MLDSA_65, &key);
+
+siglen = sizeof(sig);
+mldsa_sign(msg, msglen, sig, &siglen, NULL, 0,
+           &yarrow_prng, prng_idx, &key);
+
+mldsa_verify(sig, siglen, msg, msglen, NULL, 0, &stat, &key);
+/* stat == 1 means valid */
+
+mldsa_free(&key);
+\end{verbatim}
+\end{small}
+
+
+\mysection{SLH-DSA (FIPS 205)}
+
+SLH-DSA is a stateless hash-based digital signature algorithm. Unlike ML-KEM and ML-DSA which are
+lattice-based, SLH-DSA relies only on the security of hash functions. This makes it a conservative
+choice but results in larger signatures.
+
+\subsection{Parameter Sets}
+
+SLH-DSA has 24 parameter sets: 12 Pure SLH-DSA variants and 12 HashSLH-DSA variants.
+Each family contains 6 SHA-2 based parameter sets and 6 SHAKE based parameter sets, with ``small'' (S) and
+``fast'' (F) variants at each security level.
+The S variants produce smaller signatures but are slower; the F variants are faster but produce larger signatures.
+SHA-2 and SHAKE variants at the same security level have identical key and signature sizes but differ in the
+hash function used internally.
+The HashSLH-DSA parameter sets use the same API as the pure variants; the selected algorithm identifier determines
+the pre-hash function used by the signature scheme.
+
+\begin{center}
+\begin{tabular}{|l|c|c|c|}
+\hline
+\textbf{Parameter Set (alg ID)} & \textbf{Public Key} & \textbf{Secret Key} & \textbf{Signature} \\
+\hline
+LTC\_SLHDSA\_SHA2\_128S   &  32 bytes &  64 bytes &   7856 bytes \\
+LTC\_SLHDSA\_SHA2\_128F   &  32 bytes &  64 bytes &  17088 bytes \\
+LTC\_SLHDSA\_SHA2\_192S   &  48 bytes &  96 bytes &  16224 bytes \\
+LTC\_SLHDSA\_SHA2\_192F   &  48 bytes &  96 bytes &  35664 bytes \\
+LTC\_SLHDSA\_SHA2\_256S   &  64 bytes & 128 bytes &  29792 bytes \\
+LTC\_SLHDSA\_SHA2\_256F   &  64 bytes & 128 bytes &  49856 bytes \\
+\hline
+LTC\_SLHDSA\_SHAKE\_128S  &  32 bytes &  64 bytes &   7856 bytes \\
+LTC\_SLHDSA\_SHAKE\_128F  &  32 bytes &  64 bytes &  17088 bytes \\
+LTC\_SLHDSA\_SHAKE\_192S  &  48 bytes &  96 bytes &  16224 bytes \\
+LTC\_SLHDSA\_SHAKE\_192F  &  48 bytes &  96 bytes &  35664 bytes \\
+LTC\_SLHDSA\_SHAKE\_256S  &  64 bytes & 128 bytes &  29792 bytes \\
+LTC\_SLHDSA\_SHAKE\_256F  &  64 bytes & 128 bytes &  49856 bytes \\
+\hline
+\end{tabular}
+\end{center}
+
+The HashSLH-DSA parameter sets use the same public-key, private-key, and signature sizes as the corresponding
+Pure SLH-DSA parameter sets at the same security level and performance profile.
+
+\subsection{Size Query}
+
+\index{slhdsa\_get\_sizes()}
+\begin{verbatim}
+int slhdsa_get_sizes(int alg,
+                     unsigned long *public_key_sz,
+                     unsigned long *secret_key_sz,
+                     unsigned long *signature_sz,
+                     unsigned long *optrand_sz,
+                     unsigned long *keygen_seed_sz);
+\end{verbatim}
+
+Returns the public key, secret key, signature, opt\_rand, and keygen-seed sizes in bytes
+for the parameter set specified by \textit{alg}.
+Any output pointer may be \code{NULL} if the caller does not need that particular size.
+\textit{optrand\_sz} equals the security parameter $n$ (16, 24, or 32 bytes for the
+128-, 192-, and 256-bit security levels respectively) and is the length expected by
+\code{slhdsa\_sign\_ex()}'s \textit{optrand} argument.
+\textit{keygen\_seed\_sz} equals $3n$ and is the length expected by
+\code{slhdsa\_make\_key\_from\_seed()}'s \textit{seed} argument.
+This function works for all 24 parameter sets (Pure SLH-DSA and HashSLH-DSA, both SHA-2 and SHAKE variants).
+Returns \code{CRYPT\_OK} on success, or \code{CRYPT\_INVALID\_ARG} if \textit{alg} is not a valid SLH-DSA parameter set.
+
+\index{slhdsa\_find\_alg()}\index{slhdsa\_alg\_name()}
+\begin{verbatim}
+int slhdsa_find_alg(const char *name_or_oid, int *alg);
+int slhdsa_alg_name(int alg, const char **name);
+\end{verbatim}
+
+\code{slhdsa\_find\_alg()} resolves either a canonical FIPS 205 name (Pure SLH-DSA, e.g.
+\texttt{"SLH-DSA-SHA2-128s"}, or HashSLH-DSA, e.g. \texttt{"HashSLH-DSA-SHA2-128s-with-SHA256"})
+or a dotted-decimal OID string (e.g. \texttt{"2.16.840.1.101.3.4.3.20"})
+to an \code{ltc\_slhdsa\_id} value.  Name comparison is case-insensitive,
+ignores \texttt{'-'} and \texttt{'\_'}, and recognises all 24 parameter sets.
+\code{slhdsa\_alg\_name()} performs the inverse lookup: given an \code{ltc\_slhdsa\_id}, it returns a pointer
+to a static name string (the caller must not free it).
+Both return \code{CRYPT\_OK} on success and \code{CRYPT\_INVALID\_ARG} on miss.
+
+\subsection{Key Generation}
+
+\index{slhdsa\_make\_key()}
+\begin{verbatim}
+int slhdsa_make_key(prng_state *prng, int wprng,
+                    int alg, slhdsa_key *key);
+\end{verbatim}
+
+Generates an SLH-DSA key pair (both signing and verification keys).
+The \textit{prng} and \textit{wprng} parameters specify the PRNG to use for randomness.
+The \textit{alg} parameter selects one of the 24 parameter sets (e.g. \code{LTC\_SLHDSA\_SHAKE\_128F},
+\code{LTC\_SLHDSA\_SHA2\_256S}, \code{LTC\_SLHDSA\_HASH\_SHA2\_128S\_WITH\_SHA256},
+\code{LTC\_SLHDSA\_HASH\_SHAKE\_256F\_WITH\_SHAKE256}, etc.).
+The resulting key is stored in \textit{key} and has type \code{PK\_PRIVATE}.
+Note that SLH-DSA key generation involves computing a Merkle tree root, which can be slow
+for the ``small'' (S) parameter sets.
+The caller must eventually call \code{slhdsa\_free()} to release the key.
+
+\index{slhdsa\_make\_key\_from\_seed()}
+\begin{verbatim}
+int slhdsa_make_key_from_seed(int alg,
+                              const unsigned char *seed,
+                              unsigned long seedlen,
+                              slhdsa_key *key);
+\end{verbatim}
+
+Deterministic variant of \code{slhdsa\_make\_key()} corresponding to the
+\textit{slh\_keygen\_internal} routine in FIPS 205 \S10.1.
+The \textit{seed} input is the concatenation \textit{SK.seed} $\|$ \textit{SK.prf} $\|$ \textit{PK.seed}
+and must be exactly $3n$ bytes long, where $n$ is 16, 24, or 32 for the 128-, 192-, and 256-bit
+security levels respectively.  This is required to verify FIPS 205 known-answer test vectors.
+Returns \code{CRYPT\_INVALID\_ARG} if \textit{seedlen} does not match $3n$.
+
+\subsection{Key Export and Import}
+
+\index{slhdsa\_export()}
+\begin{verbatim}
+int slhdsa_export(unsigned char *out, unsigned long *outlen,
+                  int which, const slhdsa_key *key);
+\end{verbatim}
+
+To export a key, the function \textit{slhdsa\_export} is provided.
+
+It has support for the following output formats:
+
+\begin{figure}[H]
+\begin{center}
+\begin{tabular}{|c|c|}
+\hline \textbf{which} & \textbf{output format} \\
+\hline PK\_PRIVATE & Raw signing key \\
+\hline PK\_PRIVATE \& PK\_STD & PKCS \#8 \\
+\hline PK\_PUBLIC & Raw verification key \\
+\hline PK\_PUBLIC \& PK\_STD & SubjectPublicKeyInfo \\
+\hline
+\end{tabular}
+\end{center}
+\caption{Possible slhdsa\_export() output formats}
+\end{figure}
+
+The standard formats are DER encoded.
+
+\index{slhdsa\_export\_raw()}
+\begin{verbatim}
+int slhdsa_export_raw(unsigned char *out, unsigned long *outlen,
+                      int which, const slhdsa_key *key);
+\end{verbatim}
+
+Exports a key to a raw byte buffer in the format defined by FIPS 205.
+On entry, \textit{*outlen} is the buffer size; on exit it is set to the number of bytes written.
+Set \textit{which} to \code{PK\_PUBLIC} to export the verification (public) key,
+or \code{PK\_PRIVATE} to export the signing (secret) key.
+The required buffer sizes can be obtained from \code{slhdsa\_get\_sizes()} or the parameter table above.
+Returns \code{CRYPT\_BUFFER\_OVERFLOW} if the buffer is too small (with \textit{*outlen} set to the required size).
+
+\index{slhdsa\_import()}
+\begin{verbatim}
+int slhdsa_import(const unsigned char *in, unsigned long inlen,
+                  slhdsa_key *key);
+\end{verbatim}
+
+The \textit{slhdsa\_import} function can be used to import a public key in DER-encoded
+\textit{SubjectPublicKeyInfo} format.
+
+\index{slhdsa\_import\_raw()}
+\begin{verbatim}
+int slhdsa_import_raw(const unsigned char *in, unsigned long inlen,
+                      int which, int alg, slhdsa_key *key);
+\end{verbatim}
+
+Imports a key from a raw byte buffer.
+The \textit{inlen} must exactly match the expected key size for the given \textit{alg} and \textit{which}.
+Set \textit{which} to \code{PK\_PUBLIC} to import a verification key, or \code{PK\_PRIVATE}
+to import a signing key.  When importing a private key, the public key is automatically
+extracted (it is embedded in the secret key format).
+The caller must eventually call \code{slhdsa\_free()} to release the imported key.
+
+\index{slhdsa\_import\_x509()}
+\begin{verbatim}
+int slhdsa_import_x509(const unsigned char *in, unsigned long inlen,
+                       slhdsa_key *key);
+\end{verbatim}
+
+To import a public key from a DER-encoded \textit{X.509} certificate, one can use the function
+\textit{slhdsa\_import\_x509}.
+
+\index{slhdsa\_import\_pkcs8()}
+\begin{verbatim}
+int slhdsa_import_pkcs8(const unsigned char *in, unsigned long inlen,
+                        const password_ctx *pw_ctx, slhdsa_key *key);
+\end{verbatim}
+
+To import a private key in the \textit{OneAsymmetricKey} a.k.a. \textit{PKCS \#8} format,
+either plain or PBES encrypted, one can use the function \textit{slhdsa\_import\_pkcs8}.
+The private key payload uses the raw SLH-DSA private-key octets defined for the selected parameter set.
+
+\subsection{Key Validation}
+
+\index{slhdsa\_check\_key()}
+\begin{verbatim}
+int slhdsa_check_key(const slhdsa_key *key);
+\end{verbatim}
+
+Recomputes PK.root from SK.seed and PK.seed and compares it with the copies stored in the private and
+in the public key. Since the key structure is public, this is how to check a key object that was built
+or changed by hand. Recomputing the root rebuilds the whole top Merkle tree, so it is a separate call
+and not part of every signature.
+Returns \code{CRYPT\_OK} if the key is consistent, \code{CRYPT\_PK\_INVALID\_TYPE} if a key field is
+wrong, and \code{CRYPT\_INVALID\_PACKET} if the key material does not match.
+
+SLH-DSA keys have no separate generation seed. The raw private key already is
+SK.seed $\|$ SK.prf $\|$ PK.seed $\|$ PK.root, so its first $3n$ octets can be passed to
+\code{slhdsa\_make\_key\_from\_seed()} and storing the expanded form loses nothing.
+
+\subsection{Signing}
+
+\index{slhdsa\_sign()}
+\begin{verbatim}
+int slhdsa_sign(const unsigned char *msg,  unsigned long  msglen,
+                      unsigned char *sig,  unsigned long *siglen,
+                const unsigned char *ctx,  unsigned long  ctxlen,
+                      prng_state    *prng, int            wprng,
+                const slhdsa_key    *key);
+\end{verbatim}
+
+Signs a message using a private key.
+The signature is written to \textit{sig}; on entry \textit{*siglen} is the buffer size,
+on exit it is set to the actual signature size. SLH-DSA signatures are large
+(between 7,856 and 49,856 bytes depending on the parameter set), so the buffer should be
+allocated accordingly using the size returned by \code{slhdsa\_get\_sizes()}.
+The \textit{ctx} parameter is an optional context string (up to 255 bytes per FIPS 205);
+pass \code{NULL} and 0 if not needed.
+The \textit{prng} and \textit{wprng} parameters provide randomness for non-deterministic signing.
+The \textit{key} must be of type \code{PK\_PRIVATE}.
+Returns \code{CRYPT\_BUFFER\_OVERFLOW} if the signature buffer is too small.
+
+\index{slhdsa\_sign\_ex()}
+\begin{verbatim}
+int slhdsa_sign_ex(const unsigned char *msg,     unsigned long  msglen,
+                         unsigned char *sig,     unsigned long *siglen,
+                   const unsigned char *ctx,     unsigned long  ctxlen,
+                   const unsigned char *optrand, unsigned long  optrandlen,
+                   const slhdsa_key    *key);
+\end{verbatim}
+
+Deterministic variant of \code{slhdsa\_sign()} corresponding to the
+\textit{slh\_sign\_internal} routine in FIPS 205 \S10.2.
+Instead of drawing the per-signature randomness from a PRNG,
+the caller supplies it as \textit{optrand}.
+Unlike ML-DSA's \textit{rnd}, the SLH-DSA \textit{optrand} length depends on the parameter set
+(16, 24, or 32 bytes for the 128-, 192-, and 256-bit security levels respectively),
+matching the \textit{n} parameter; \textit{optrandlen} must equal that value.
+Setting \textit{optrand} to the public seed (or all zeros) yields the spec's
+``deterministic'' variant; setting it from a CSPRNG yields the ``hedged'' variant
+produced by \code{slhdsa\_sign()}.
+This is required to verify FIPS 205 known-answer test vectors, which fix \textit{optrand}.
+Returns \code{CRYPT\_INVALID\_ARG} if \textit{optrandlen} does not match \textit{n} for
+the key's parameter set, and the same status codes as \code{slhdsa\_sign()} otherwise.
+
+\subsection{Verification}
+
+\index{slhdsa\_verify()}
+\begin{verbatim}
+int slhdsa_verify(const unsigned char *sig,  unsigned long  siglen,
+                  const unsigned char *msg,  unsigned long  msglen,
+                  const unsigned char *ctx,  unsigned long  ctxlen,
+                        int           *stat,
+                  const slhdsa_key    *key);
+\end{verbatim}
+
+Verifies an SLH-DSA signature against a message and public key.
+Sets \textit{*stat} to 1 if the signature is valid, or 0 if it is invalid.
+The \textit{ctx} and \textit{ctxlen} parameters must match the context string used during signing.
+The function returns \code{CRYPT\_OK} even if the signature is invalid --- the caller must
+check \textit{*stat} to determine validity.
+
+\subsection{Key Cleanup}
+
+\index{slhdsa\_free()}
+\begin{verbatim}
+void slhdsa_free(slhdsa_key *key);
+\end{verbatim}
+
+Frees all memory associated with an SLH-DSA key and zeros sensitive data.
+After this call the \textit{key} structure is zeroed and must not be used until re-initialized.
+
+\clearpage
 \chapter{The PKA Union}
 \index{ltc\_pka\_key}
 
@@ -7078,6 +8162,10 @@ enum ltc_pka_id {
    LTC_PKA_DH,
    LTC_PKA_X448,
    LTC_PKA_ED448,
+   LTC_PKA_MLDSA,
+   LTC_PKA_SLHDSA,
+   LTC_PKA_MLKEM,
+   LTC_PKA_NUM
 };
 
 typedef struct {
@@ -7102,6 +8190,37 @@ typedef struct {
 #ifdef LTC_MRSA
       rsa_key rsa;
 #endif
+#ifdef LTC_MLKEM
+      struct {
+         int alg;
+         int type;
+         unsigned char *pk;
+         unsigned long pklen;
+         unsigned char *sk;
+         unsigned long sklen;
+      } mlkem;
+#endif
+#ifdef LTC_MLDSA
+      struct {
+         int alg;
+         int type;
+         unsigned char *pk;
+         unsigned long pklen;
+         unsigned char *sk;
+         unsigned long sklen;
+      } mldsa;
+#endif
+#ifdef LTC_SLHDSA
+      struct {
+         int alg;
+         int type;
+         unsigned char *pk;
+         unsigned long pklen;
+         unsigned char *sk;
+         unsigned long sklen;
+      } slhdsa;
+#endif
+      char dummy;
    } u;
    enum ltc_pka_id id;
 } ltc_pka_key;
@@ -8373,12 +9492,12 @@ The identifiers in the PEM headers recognized are as follows:
 \begin{small}
 \begin{tabular}{|l|l|l|l|p{4.1cm}|}
 \hline \textbf{Identifier}                   & \textbf{Key type} & \textbf{File content} & \textbf{Standard} & \textbf{Algorithm} \\
-\hline \texttt{BEGIN CERTIFICATE}            & Public            & Plain                 & \texttt{X.509}    & DH, DSA, ECC, Ed25519, Ed448, RSA, X25519, X448 \\
+\hline \texttt{BEGIN CERTIFICATE}            & Public            & Plain                 & \texttt{X.509}    & DH, DSA, ECC, Ed25519, Ed448, ML-DSA, ML-KEM, RSA, SLH-DSA, X25519, X448 \\
 \hline \texttt{BEGIN DSA PRIVATE KEY}        & Private           & Maybe encrypted       & \texttt{OpenSSL\footnote{There are two de-facto standard for DSA private key structures, LibTomCrypt implements OpenSSL's}} & DSA \\
 \hline \texttt{BEGIN EC PRIVATE KEY}         & Private           & Maybe encrypted       & \texttt{RFC 5915} & ECC \\
-\hline \texttt{BEGIN ENCRYPTED PRIVATE KEY}  & Private           & Encrypted             & \texttt{PKCS \#8} & DH, DSA, ECC, Ed25519, Ed448, RSA, X25519, X448 \\
-\hline \texttt{BEGIN PRIVATE KEY}            & Private           & Plain                 & \texttt{PKCS \#8} & DH, DSA, ECC, Ed25519, Ed448, RSA, X25519, X448 \\
-\hline \texttt{BEGIN PUBLIC KEY}             & Public            & Plain                 & \texttt{X.509\footnote{Specifically, SubjectPublicKeyInfo}} & DH, DSA, ECC, Ed25519, Ed448, RSA, X25519, X448 \\
+\hline \texttt{BEGIN ENCRYPTED PRIVATE KEY}  & Private           & Encrypted             & \texttt{PKCS \#8} & DH, DSA, ECC, Ed25519, Ed448, ML-DSA, ML-KEM, RSA, SLH-DSA, X25519, X448 \\
+\hline \texttt{BEGIN PRIVATE KEY}            & Private           & Plain                 & \texttt{PKCS \#8} & DH, DSA, ECC, Ed25519, Ed448, ML-DSA, ML-KEM, RSA, SLH-DSA, X25519, X448 \\
+\hline \texttt{BEGIN PUBLIC KEY}             & Public            & Plain                 & \texttt{X.509\footnote{Specifically, SubjectPublicKeyInfo}} & DH, DSA, ECC, Ed25519, Ed448, ML-DSA, ML-KEM, RSA, SLH-DSA, X25519, X448 \\
 \hline \texttt{BEGIN RSA PRIVATE KEY}        & Private           & Maybe encrypted       & \texttt{PKCS \#1} & RSA \\
 \hline \texttt{BEGIN RSA PUBLIC KEY}         & Public            & Plain                 & \texttt{PKCS \#1} & RSA \\
 \hline
@@ -10978,6 +12097,7 @@ int ecc_verify_hash_rfc7518(const unsigned char *sig,
 
 These two ECC verify functions have been deprecated in favor of \code{ecc\_verify\_hash\_v2()}.
 Please check Chapter \ref{ecc-verify} for details.
+
 \subsection{PKCS \#1 Padding}
 PKCS \#1 v1.5 padding is so simple that both signature and encryption padding are performed by the same function.  Note: the
 signature padding does \textbf{not} include the ASN.1 padding required.  That is performed by the rsa\_sign\_hash\_ex() function

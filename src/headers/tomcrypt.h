@@ -87,6 +87,7 @@ enum {
 #include "tomcrypt_hash.h"
 #include "tomcrypt_mac.h"
 #include "tomcrypt_prng.h"
+#include "tomcrypt_pqc.h"
 #include "tomcrypt_pk.h"
 #include "tomcrypt_math.h"
 #include "tomcrypt_misc.h"

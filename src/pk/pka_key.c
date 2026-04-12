@@ -40,6 +40,21 @@ void pka_key_free(ltc_pka_key *key)
          ecc_free(&key->u.ecc);
 #endif
          break;
+      case LTC_PKA_MLDSA:
+#if defined(LTC_MLDSA)
+         mldsa_free((mldsa_key*)&key->u.mldsa);
+#endif
+         break;
+      case LTC_PKA_SLHDSA:
+#if defined(LTC_SLHDSA)
+         slhdsa_free((slhdsa_key*)&key->u.slhdsa);
+#endif
+         break;
+      case LTC_PKA_MLKEM:
+#if defined(LTC_MLKEM)
+         mlkem_free((mlkem_key*)&key->u.mlkem);
+#endif
+         break;
       default:
          break;
    }

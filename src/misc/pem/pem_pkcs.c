@@ -64,6 +64,42 @@ static const struct {
                                                 [LTC_OID_X448] =  { LTC_PKA_X448, (pkcs8_import_fn)x448_import_pkcs8_asn1 },
                                                 [LTC_OID_ED448] = { LTC_PKA_ED448, (pkcs8_import_fn)ed448_import_pkcs8_asn1 },
 #endif
+#ifdef LTC_MLDSA
+                                                [LTC_OID_MLDSA_44] = { LTC_PKA_MLDSA, (pkcs8_import_fn)mldsa_import_pkcs8_asn1 },
+                                                [LTC_OID_MLDSA_65] = { LTC_PKA_MLDSA, (pkcs8_import_fn)mldsa_import_pkcs8_asn1 },
+                                                [LTC_OID_MLDSA_87] = { LTC_PKA_MLDSA, (pkcs8_import_fn)mldsa_import_pkcs8_asn1 },
+#endif
+#ifdef LTC_SLHDSA
+                                                [LTC_OID_SLHDSA_SHA2_128S] =  { LTC_PKA_SLHDSA, (pkcs8_import_fn)slhdsa_import_pkcs8_asn1 },
+                                                [LTC_OID_SLHDSA_SHA2_128F] =  { LTC_PKA_SLHDSA, (pkcs8_import_fn)slhdsa_import_pkcs8_asn1 },
+                                                [LTC_OID_SLHDSA_SHA2_192S] =  { LTC_PKA_SLHDSA, (pkcs8_import_fn)slhdsa_import_pkcs8_asn1 },
+                                                [LTC_OID_SLHDSA_SHA2_192F] =  { LTC_PKA_SLHDSA, (pkcs8_import_fn)slhdsa_import_pkcs8_asn1 },
+                                                [LTC_OID_SLHDSA_SHA2_256S] =  { LTC_PKA_SLHDSA, (pkcs8_import_fn)slhdsa_import_pkcs8_asn1 },
+                                                [LTC_OID_SLHDSA_SHA2_256F] =  { LTC_PKA_SLHDSA, (pkcs8_import_fn)slhdsa_import_pkcs8_asn1 },
+                                                [LTC_OID_SLHDSA_SHAKE_128S] = { LTC_PKA_SLHDSA, (pkcs8_import_fn)slhdsa_import_pkcs8_asn1 },
+                                                [LTC_OID_SLHDSA_SHAKE_128F] = { LTC_PKA_SLHDSA, (pkcs8_import_fn)slhdsa_import_pkcs8_asn1 },
+                                                [LTC_OID_SLHDSA_SHAKE_192S] = { LTC_PKA_SLHDSA, (pkcs8_import_fn)slhdsa_import_pkcs8_asn1 },
+                                                [LTC_OID_SLHDSA_SHAKE_192F] = { LTC_PKA_SLHDSA, (pkcs8_import_fn)slhdsa_import_pkcs8_asn1 },
+                                                [LTC_OID_SLHDSA_SHAKE_256S] = { LTC_PKA_SLHDSA, (pkcs8_import_fn)slhdsa_import_pkcs8_asn1 },
+                                                [LTC_OID_SLHDSA_SHAKE_256F] = { LTC_PKA_SLHDSA, (pkcs8_import_fn)slhdsa_import_pkcs8_asn1 },
+                                                [LTC_OID_HASH_SLHDSA_SHA2_128S_WITH_SHA256] = { LTC_PKA_SLHDSA, (pkcs8_import_fn)slhdsa_import_pkcs8_asn1 },
+                                                [LTC_OID_HASH_SLHDSA_SHA2_128F_WITH_SHA256] = { LTC_PKA_SLHDSA, (pkcs8_import_fn)slhdsa_import_pkcs8_asn1 },
+                                                [LTC_OID_HASH_SLHDSA_SHA2_192S_WITH_SHA512] = { LTC_PKA_SLHDSA, (pkcs8_import_fn)slhdsa_import_pkcs8_asn1 },
+                                                [LTC_OID_HASH_SLHDSA_SHA2_192F_WITH_SHA512] = { LTC_PKA_SLHDSA, (pkcs8_import_fn)slhdsa_import_pkcs8_asn1 },
+                                                [LTC_OID_HASH_SLHDSA_SHA2_256S_WITH_SHA512] = { LTC_PKA_SLHDSA, (pkcs8_import_fn)slhdsa_import_pkcs8_asn1 },
+                                                [LTC_OID_HASH_SLHDSA_SHA2_256F_WITH_SHA512] = { LTC_PKA_SLHDSA, (pkcs8_import_fn)slhdsa_import_pkcs8_asn1 },
+                                                [LTC_OID_HASH_SLHDSA_SHAKE_128S_WITH_SHAKE128] = { LTC_PKA_SLHDSA, (pkcs8_import_fn)slhdsa_import_pkcs8_asn1 },
+                                                [LTC_OID_HASH_SLHDSA_SHAKE_128F_WITH_SHAKE128] = { LTC_PKA_SLHDSA, (pkcs8_import_fn)slhdsa_import_pkcs8_asn1 },
+                                                [LTC_OID_HASH_SLHDSA_SHAKE_192S_WITH_SHAKE256] = { LTC_PKA_SLHDSA, (pkcs8_import_fn)slhdsa_import_pkcs8_asn1 },
+                                                [LTC_OID_HASH_SLHDSA_SHAKE_192F_WITH_SHAKE256] = { LTC_PKA_SLHDSA, (pkcs8_import_fn)slhdsa_import_pkcs8_asn1 },
+                                                [LTC_OID_HASH_SLHDSA_SHAKE_256S_WITH_SHAKE256] = { LTC_PKA_SLHDSA, (pkcs8_import_fn)slhdsa_import_pkcs8_asn1 },
+                                                [LTC_OID_HASH_SLHDSA_SHAKE_256F_WITH_SHAKE256] = { LTC_PKA_SLHDSA, (pkcs8_import_fn)slhdsa_import_pkcs8_asn1 },
+#endif
+#ifdef LTC_MLKEM
+                                                [LTC_OID_MLKEM_512] =  { LTC_PKA_MLKEM, (pkcs8_import_fn)mlkem_import_pkcs8_asn1 },
+                                                [LTC_OID_MLKEM_768] =  { LTC_PKA_MLKEM, (pkcs8_import_fn)mlkem_import_pkcs8_asn1 },
+                                                [LTC_OID_MLKEM_1024] = { LTC_PKA_MLKEM, (pkcs8_import_fn)mlkem_import_pkcs8_asn1 },
+#endif
 };
 
 static int s_import_pkcs8(unsigned char *asn1_cert, unsigned long asn1_len, ltc_pka_key *k, const password_ctx *pw_ctx)
@@ -79,7 +115,7 @@ static int s_import_pkcs8(unsigned char *asn1_cert, unsigned long asn1_len, ltc_
       goto cleanup;
    }
    if (oid_id < 0
-         || oid_id > LTC_ARRAY_SIZE(s_import_pkcs8_map)
+         || oid_id >= LTC_ARRAY_SIZE(s_import_pkcs8_map)
          || s_import_pkcs8_map[oid_id].fn == NULL) {
       err = CRYPT_PK_INVALID_TYPE;
       goto cleanup;
@@ -127,6 +163,15 @@ static const import_fn s_import_openssl_fns[LTC_PKA_NUM] = {
 #ifdef LTC_CURVE448
                                                 [LTC_PKA_X448] = (import_fn)x448_import,
                                                 [LTC_PKA_ED448] = (import_fn)ed448_import,
+#endif
+#ifdef LTC_MLDSA
+                                                [LTC_PKA_MLDSA] = (import_fn)mldsa_import,
+#endif
+#ifdef LTC_SLHDSA
+                                                [LTC_PKA_SLHDSA] = (import_fn)slhdsa_import,
+#endif
+#ifdef LTC_MLKEM
+                                                [LTC_PKA_MLKEM] = (import_fn)mlkem_import,
 #endif
 };
 
@@ -184,7 +229,7 @@ static int s_decode(struct get_char *g, ltc_pka_key *k, const password_ctx *pw_c
    }
 
    if (pka < 0
-         || pka > LTC_ARRAY_SIZE(s_import_openssl_fns)
+         || pka >= LTC_ARRAY_SIZE(s_import_openssl_fns)
          || s_import_openssl_fns[pka] == NULL) {
       err = CRYPT_PK_INVALID_TYPE;
       goto cleanup;
