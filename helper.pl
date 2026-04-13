@@ -108,7 +108,7 @@ sub check_descriptor {
   my @descriptors;
   find({ wanted => sub { push @src, $_ if $_ =~ /\.c$/ }, no_chdir=>1 }, "./src/${which}/");
   for my $f (@src) {
-    my @n = map { my $x = $_; $x =~ s/^.*?ltc_${what}_descriptor\s+(\S+).*$/$1/; $x } grep { $_ =~ /ltc_${what}_descriptor/ } split /\n/, read_file($f);
+    my @n = map { my $x = $_; $x =~ s/^.*?ltc_${what}_descriptor\s+(\S+).*$/$1/; $x } grep { $_ =~ /^[^()]*ltc_${what}_descriptor/ } split /\n/, read_file($f);
     push @descriptors, @n if @n;
   }
   my $fails = 0;
