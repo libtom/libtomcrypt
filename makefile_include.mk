@@ -516,6 +516,9 @@ install_test: $(call print-help,install_test,Installs the self-test binary) test
 install_hooks: $(call print-help,install_hooks,Installs the git hooks)
 	for s in `ls hooks/`; do ln -s ../../hooks/$$s .git/hooks/$$s; done
 
+uninstall_hooks: $(call print-help,uninstall_hooks,Uninstalls the git hooks)
+	for s in `ls hooks/`; do rm .git/hooks/$$s; done
+
 HEADER_FILES=$(notdir $(HEADERS_PUB))
 .common_uninstall:
 	$(UNINSTALL_CMD) $(DESTDIR)$(LIBPATH)/$(LIBNAME)
