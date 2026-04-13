@@ -43,6 +43,7 @@ const struct ltc_hash_descriptor sha256_x86_desc =
 };
 
 /* the K array */
+#define K sha256_x86_K
 #pragma pack(push)
 #pragma pack(16) /* todo #pragma pack might not work */
 static const ulong32 K[64] = {
@@ -253,6 +254,7 @@ static int ltc_attribute_sha256 s_sha256_x86_compress(hash_state * md, const uns
     _mm_store_si128(((__m128i*)(&md->sha256_x86.state[4])), state_1);
     return CRYPT_OK;
 }
+#undef K
 
 #ifdef LTC_CLEAN_STACK
 static int s_sha256_compress(hash_state * md, const unsigned char *buf)

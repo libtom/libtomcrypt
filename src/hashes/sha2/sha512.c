@@ -28,6 +28,7 @@ const struct ltc_hash_descriptor sha512_desc =
 };
 
 /* the K array */
+#define K sha512_K
 static const ulong64 K[80] = {
 CONST64(0x428a2f98d728ae22), CONST64(0x7137449123ef65cd),
 CONST64(0xb5c0fbcfec4d3b2f), CONST64(0xe9b5dba58189dbbc),
@@ -186,6 +187,7 @@ static int  s_sha512_compress(hash_state * md, const unsigned char *buf)
 
     return CRYPT_OK;
 }
+#undef K
 
 /* compress 1024-bits */
 #ifdef LTC_CLEAN_STACK
