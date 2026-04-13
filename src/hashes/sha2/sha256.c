@@ -9,7 +9,7 @@
 
 #ifdef LTC_SHA256
 
-const struct ltc_hash_descriptor sha256_desc =
+const struct ltc_hash_descriptor sha256_c_desc =
 {
     "sha256",
     0,
@@ -20,10 +20,10 @@ const struct ltc_hash_descriptor sha256_desc =
    { 2, 16, 840, 1, 101, 3, 4, 2, 1,  },
    9,
 
-    &sha256_init,
-    &sha256_process,
-    &sha256_done,
-    &sha256_test,
+    &sha256_c_init,
+    &sha256_c_process,
+    &sha256_c_done,
+    &sha256_c_test,
     NULL
 };
 
@@ -85,7 +85,7 @@ static int s_sha256_compress(hash_state * md, const unsigned char *buf)
 
     /* copy state into S */
     for (i = 0; i < 8; i++) {
-        S[i] = md->sha256.state[i];
+        S[i] = md->sha256_c.state[i];
     }
 
     /* copy the state into 512-bits into W[0..15] */
@@ -211,7 +211,7 @@ static int s_sha256_compress(hash_state * md, const unsigned char *buf)
 
     /* feedback */
     for (i = 0; i < 8; i++) {
-        md->sha256.state[i] = md->sha256.state[i] + S[i];
+        md->sha256_c.state[i] = md->sha256_c.state[i] + S[i];
     }
     return CRYPT_OK;
 }
@@ -231,20 +231,20 @@ static int s_sha256_compress(hash_state * md, const unsigned char *buf)
    @param md   The hash state you wish to initialize
    @return CRYPT_OK if successful
 */
-int sha256_init(hash_state * md)
+int sha256_c_init(hash_state * md)
 {
     LTC_ARGCHK(md != NULL);
 
-    md->sha256.curlen = 0;
-    md->sha256.length = 0;
-    md->sha256.state[0] = 0x6A09E667UL;
-    md->sha256.state[1] = 0xBB67AE85UL;
-    md->sha256.state[2] = 0x3C6EF372UL;
-    md->sha256.state[3] = 0xA54FF53AUL;
-    md->sha256.state[4] = 0x510E527FUL;
-    md->sha256.state[5] = 0x9B05688CUL;
-    md->sha256.state[6] = 0x1F83D9ABUL;
-    md->sha256.state[7] = 0x5BE0CD19UL;
+    md->sha256_c.curlen = 0;
+    md->sha256_c.length = 0;
+    md->sha256_c.state[0] = 0x6A09E667UL;
+    md->sha256_c.state[1] = 0xBB67AE85UL;
+    md->sha256_c.state[2] = 0x3C6EF372UL;
+    md->sha256_c.state[3] = 0xA54FF53AUL;
+    md->sha256_c.state[4] = 0x510E527FUL;
+    md->sha256_c.state[5] = 0x9B05688CUL;
+    md->sha256_c.state[6] = 0x1F83D9ABUL;
+    md->sha256_c.state[7] = 0x5BE0CD19UL;
     return CRYPT_OK;
 }
 
@@ -255,7 +255,7 @@ int sha256_init(hash_state * md)
    @param inlen  The length of the data (octets)
    @return CRYPT_OK if successful
 */
-HASH_PROCESS(sha256_process,s_sha256_compress, sha256, 64)
+HASH_PROCESS(sha256_c_process,s_sha256_compress, sha256_c, 64)
 
 /**
    Terminate the hash to get the digest
@@ -263,48 +263,48 @@ HASH_PROCESS(sha256_process,s_sha256_compress, sha256, 64)
    @param out [out] The destination of the hash (32 bytes)
    @return CRYPT_OK if successful
 */
-int sha256_done(hash_state * md, unsigned char *out)
+int sha256_c_done(hash_state * md, unsigned char *out)
 {
     int i;
 
     LTC_ARGCHK(md  != NULL);
     LTC_ARGCHK(out != NULL);
 
-    if (md->sha256.curlen >= sizeof(md->sha256.buf)) {
+    if (md->sha256_c.curlen >= sizeof(md->sha256_c.buf)) {
        return CRYPT_INVALID_ARG;
     }
 
 
     /* increase the length of the message */
-    md->sha256.length += md->sha256.curlen * 8;
+    md->sha256_c.length += md->sha256_c.curlen * 8;
 
     /* append the '1' bit */
-    md->sha256.buf[md->sha256.curlen++] = (unsigned char)0x80;
+    md->sha256_c.buf[md->sha256_c.curlen++] = (unsigned char)0x80;
 
     /* if the length is currently above 56 bytes we append zeros
      * then compress.  Then we can fall back to padding zeros and length
      * encoding like normal.
      */
-    if (md->sha256.curlen > 56) {
-        while (md->sha256.curlen < 64) {
-            md->sha256.buf[md->sha256.curlen++] = (unsigned char)0;
+    if (md->sha256_c.curlen > 56) {
+        while (md->sha256_c.curlen < 64) {
+            md->sha256_c.buf[md->sha256_c.curlen++] = (unsigned char)0;
         }
-        s_sha256_compress(md, md->sha256.buf);
-        md->sha256.curlen = 0;
+        s_sha256_compress(md, md->sha256_c.buf);
+        md->sha256_c.curlen = 0;
     }
 
     /* pad upto 56 bytes of zeroes */
-    while (md->sha256.curlen < 56) {
-        md->sha256.buf[md->sha256.curlen++] = (unsigned char)0;
+    while (md->sha256_c.curlen < 56) {
+        md->sha256_c.buf[md->sha256_c.curlen++] = (unsigned char)0;
     }
 
     /* store length */
-    STORE64H(md->sha256.length, md->sha256.buf+56);
-    s_sha256_compress(md, md->sha256.buf);
+    STORE64H(md->sha256_c.length, md->sha256_c.buf+56);
+    s_sha256_compress(md, md->sha256_c.buf);
 
     /* copy output */
     for (i = 0; i < 8; i++) {
-        STORE32H(md->sha256.state[i], out+(4*i));
+        STORE32H(md->sha256_c.state[i], out+(4*i));
     }
 #ifdef LTC_CLEAN_STACK
     zeromem(md, sizeof(hash_state));
@@ -316,7 +316,7 @@ int sha256_done(hash_state * md, unsigned char *out)
   Self-test the hash
   @return CRYPT_OK if successful, CRYPT_NOP if self-tests have been disabled
 */
-int  sha256_test(void)
+int  sha256_c_test(void)
 {
  #ifndef LTC_TEST
     return CRYPT_NOP;
@@ -344,9 +344,9 @@ int  sha256_test(void)
   hash_state md;
 
   for (i = 0; i < (int)(sizeof(tests) / sizeof(tests[0])); i++) {
-      sha256_init(&md);
-      sha256_process(&md, (unsigned char*)tests[i].msg, (unsigned long)XSTRLEN(tests[i].msg));
-      sha256_done(&md, tmp);
+      sha256_c_init(&md);
+      sha256_c_process(&md, (unsigned char*)tests[i].msg, (unsigned long)XSTRLEN(tests[i].msg));
+      sha256_c_done(&md, tmp);
       if (ltc_compare_testvector(tmp, sizeof(tmp), tests[i].hash, sizeof(tests[i].hash), "SHA256", i)) {
          return CRYPT_FAIL_TESTVECTOR;
       }

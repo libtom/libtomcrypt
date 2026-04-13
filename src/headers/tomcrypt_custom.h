@@ -109,7 +109,13 @@
    #define LTC_SHA512_224
    #define LTC_SHA384
    #define LTC_SHA256
+   #if defined LTC_ARCH_X86 || defined LTC_ARCH_X64
+      #define LTC_SHA256_X86
+   #endif
    #define LTC_SHA224
+   #if defined LTC_ARCH_X86 || defined LTC_ARCH_X64
+      #define LTC_SHA224_X86
+   #endif
    #define LTC_HASH_HELPERS
 
    #define LTC_NO_MACS
@@ -282,7 +288,13 @@
 #define LTC_SHA512_224
 #define LTC_SHA384
 #define LTC_SHA256
+#if defined LTC_ARCH_X86 || defined LTC_ARCH_X64
+   #define LTC_SHA256_X86
+#endif
 #define LTC_SHA224
+#if defined LTC_ARCH_X86 || defined LTC_ARCH_X64
+   #define LTC_SHA224_X86
+#endif
 #define LTC_TIGER
 #define LTC_SHA1
 #if defined LTC_ARCH_X86 || defined LTC_ARCH_X64

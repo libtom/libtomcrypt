@@ -45,6 +45,18 @@ int register_all_hashes(void)
     */
    REGISTER_HASH(&sha1_desc);
 #endif
+#ifdef LTC_SHA224
+   /* `sha224_desc` does the multiplexing into `sha224_x86_desc` resp. `sha224_portable_desc`
+    * depending on the capabilities of the CPU.
+    */
+   REGISTER_HASH(&sha224_desc);
+#endif
+#ifdef LTC_SHA256
+   /* `sha256_desc` does the multiplexing into `sha256_x86_desc` resp. `sha256_portable_desc`
+    * depending on the capabilities of the CPU.
+    */
+   REGISTER_HASH(&sha256_desc);
+#endif
 #ifdef LTC_MD5
    REGISTER_HASH(&md5_desc);
 #endif

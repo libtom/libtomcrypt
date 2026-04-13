@@ -37,7 +37,7 @@ static const crypt_size s_crypt_sizes[] = {
     SZ_STRINGIFY_S(sha512_state),
 #endif
 #ifdef LTC_SHA256
-    SZ_STRINGIFY_S(sha256_state),
+    SZ_STRINGIFY_S(sha256_c_state),
 #endif
 #ifdef LTC_SHA1
     SZ_STRINGIFY_S(sha1_c_state),

@@ -943,7 +943,23 @@
 					>
 				</File>
 				<File
+					RelativePath="src\hashes\sha2\sha224_desc.c"
+					>
+				</File>
+				<File
+					RelativePath="src\hashes\sha2\sha224_x86.c"
+					>
+				</File>
+				<File
 					RelativePath="src\hashes\sha2\sha256.c"
+					>
+				</File>
+				<File
+					RelativePath="src\hashes\sha2\sha256_desc.c"
+					>
+				</File>
+				<File
+					RelativePath="src\hashes\sha2\sha256_x86.c"
 					>
 				</File>
 				<File

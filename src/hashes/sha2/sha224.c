@@ -9,7 +9,7 @@
 
 #if defined(LTC_SHA224) && defined(LTC_SHA256)
 
-const struct ltc_hash_descriptor sha224_desc =
+const struct ltc_hash_descriptor sha224_c_desc =
 {
     "sha224",
     10,
@@ -20,9 +20,9 @@ const struct ltc_hash_descriptor sha224_desc =
    { 2, 16, 840, 1, 101, 3, 4, 2, 4,  },
    9,
 
-    &sha224_init,
+    &sha224_c_init,
     &sha256_process,
-    &sha224_done,
+    &sha224_c_done,
     &sha224_test,
     NULL
 };
@@ -33,20 +33,20 @@ const struct ltc_hash_descriptor sha224_desc =
    @param md   The hash state you wish to initialize
    @return CRYPT_OK if successful
 */
-int sha224_init(hash_state * md)
+int sha224_c_init(hash_state * md)
 {
     LTC_ARGCHK(md != NULL);
 
-    md->sha256.curlen = 0;
-    md->sha256.length = 0;
-    md->sha256.state[0] = 0xc1059ed8UL;
-    md->sha256.state[1] = 0x367cd507UL;
-    md->sha256.state[2] = 0x3070dd17UL;
-    md->sha256.state[3] = 0xf70e5939UL;
-    md->sha256.state[4] = 0xffc00b31UL;
-    md->sha256.state[5] = 0x68581511UL;
-    md->sha256.state[6] = 0x64f98fa7UL;
-    md->sha256.state[7] = 0xbefa4fa4UL;
+    md->sha256_c.curlen = 0;
+    md->sha256_c.length = 0;
+    md->sha256_c.state[0] = 0xc1059ed8UL;
+    md->sha256_c.state[1] = 0x367cd507UL;
+    md->sha256_c.state[2] = 0x3070dd17UL;
+    md->sha256_c.state[3] = 0xf70e5939UL;
+    md->sha256_c.state[4] = 0xffc00b31UL;
+    md->sha256_c.state[5] = 0x68581511UL;
+    md->sha256_c.state[6] = 0x64f98fa7UL;
+    md->sha256_c.state[7] = 0xbefa4fa4UL;
     return CRYPT_OK;
 }
 
@@ -56,7 +56,7 @@ int sha224_init(hash_state * md)
    @param out [out] The destination of the hash (28 bytes)
    @return CRYPT_OK if successful
 */
-int sha224_done(hash_state * md, unsigned char *out)
+int sha224_c_done(hash_state * md, unsigned char *out)
 {
     unsigned char buf[32];
     int err;
@@ -76,7 +76,7 @@ int sha224_done(hash_state * md, unsigned char *out)
   Self-test the hash
   @return CRYPT_OK if successful, CRYPT_NOP if self-tests have been disabled
 */
-int  sha224_test(void)
+int  sha224_c_test(void)
 {
  #ifndef LTC_TEST
     return CRYPT_NOP;
@@ -104,9 +104,9 @@ int  sha224_test(void)
   hash_state md;
 
   for (i = 0; i < (int)(sizeof(tests) / sizeof(tests[0])); i++) {
-      sha224_init(&md);
-      sha224_process(&md, (unsigned char*)tests[i].msg, (unsigned long)XSTRLEN(tests[i].msg));
-      sha224_done(&md, tmp);
+      sha224_c_init(&md);
+      sha224_c_process(&md, (unsigned char*)tests[i].msg, (unsigned long)XSTRLEN(tests[i].msg));
+      sha224_c_done(&md, tmp);
       if (ltc_compare_testvector(tmp, sizeof(tmp), tests[i].hash, sizeof(tests[i].hash), "SHA224", i)) {
          return CRYPT_FAIL_TESTVECTOR;
       }

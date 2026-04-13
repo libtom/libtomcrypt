@@ -35,11 +35,28 @@ struct sha512_state {
 #endif
 
 #ifdef LTC_SHA256
-struct sha256_state {
+struct sha256_c_state {
     ulong64 length;
     ulong32 state[8], curlen;
     unsigned char buf[64];
 };
+#endif
+
+#ifdef LTC_SHA256_X86
+#if defined _MSC_VER
+#define LTC_ALIGN_AS(x) __declspec(align(x))
+#else
+#define LTC_ALIGN_AS(x) __attribute__((aligned(x)))
+#endif
+#pragma pack(push)
+#pragma pack(16) /* todo #pragma pack seems to not work */
+LTC_ALIGN_AS(16) struct sha256_x86_state {
+    ulong32 state[8];
+    unsigned char buf[64];
+    ulong32 curlen;
+    ulong64 length;
+};
+#pragma pack(pop)
 #endif
 
 #ifdef LTC_SHA1
@@ -55,7 +72,7 @@ struct sha1_c_state {
 #pragma pack(16)
 struct sha1_x86_state {
     ulong32 state[5];
-    unsigned curlen;
+    ulong32  curlen;
     ulong64 length;
     unsigned char buf[64];
 };
@@ -183,7 +200,10 @@ typedef union Hash_state {
     struct sha512_state sha512;
 #endif
 #ifdef LTC_SHA256
-    struct sha256_state sha256;
+    struct sha256_c_state sha256_c;
+#endif
+#ifdef LTC_SHA256_X86
+    struct sha256_x86_state sha256_x86;
 #endif
 #ifdef LTC_SHA1
     struct sha1_c_state sha1_c;
@@ -389,6 +409,20 @@ extern const struct ltc_hash_descriptor sha512_224_desc;
 #endif
 
 #ifdef LTC_SHA256
+int sha256_c_init(hash_state * md);
+int sha256_c_process(hash_state * md, const unsigned char *in, unsigned long inlen);
+int sha256_c_done(hash_state * md, unsigned char *out);
+int sha256_c_test(void);
+extern const struct ltc_hash_descriptor sha256_c_desc;
+
+#ifdef LTC_SHA256_X86
+int sha256_x86_init(hash_state * md);
+int sha256_x86_process(hash_state * md, const unsigned char *in, unsigned long inlen);
+int sha256_x86_done(hash_state * md, unsigned char *out);
+int sha256_x86_test(void);
+extern const struct ltc_hash_descriptor sha256_x86_desc;
+#endif
+
 int sha256_init(hash_state * md);
 int sha256_process(hash_state * md, const unsigned char *in, unsigned long inlen);
 int sha256_done(hash_state * md, unsigned char *out);
@@ -399,6 +433,20 @@ extern const struct ltc_hash_descriptor sha256_desc;
 #ifndef LTC_SHA256
    #error LTC_SHA256 is required for LTC_SHA224
 #endif
+int sha224_c_init(hash_state * md);
+#define sha224_c_process sha256_c_process
+int sha224_c_done(hash_state * md, unsigned char *out);
+int sha224_c_test(void);
+extern const struct ltc_hash_descriptor sha224_c_desc;
+
+#ifdef LTC_SHA224_X86
+int sha224_x86_init(hash_state * md);
+#define sha224_x86_process sha256_x86_process
+int sha224_x86_done(hash_state * md, unsigned char *out);
+int sha224_x86_test(void);
+extern const struct ltc_hash_descriptor sha224_x86_desc;
+#endif
+
 int sha224_init(hash_state * md);
 #define sha224_process sha256_process
 int sha224_done(hash_state * md, unsigned char *out);
