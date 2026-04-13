@@ -23,8 +23,17 @@ const struct ltc_hash_descriptor sha1_desc =
 };
 
 #if defined LTC_SHA1_X86
-#if !defined _MSC_VER
-static LTC_INLINE void s_sha1_cpuid(int* regs, int leaf)
+
+#if !defined (LTC_S_X86_CPUID)
+#define LTC_S_X86_CPUID
+
+#if defined _MSC_VER
+static LTC_INLINE void s_x86_cpuid(int* regs, int leaf)
+{
+   __cpuid(regs, leaf);
+}
+#else
+static LTC_INLINE void s_x86_cpuid(int* regs, int leaf)
 {
     int a, b, c, d;
 
@@ -42,49 +51,33 @@ static LTC_INLINE void s_sha1_cpuid(int* regs, int leaf)
     regs[3] = d;
 }
 #endif
-static LTC_INLINE int s_sha1_is_supported(void)
+
+#endif /* LTC_S_X86_CPUID */
+
+static LTC_INLINE int s_sha1_x86_is_supported(void)
 {
     static int initialized = 0;
     static int is_supported = 0;
 
     if (initialized == 0) {
-        #if defined _MSC_VER
         int regs[4];
-        int leafs;
         int sse2, ssse3, sse41, sha;
-        __cpuid(&regs[0], 0); leafs = regs[0];
-        __cpuid(&regs[0], 1);
-        sse2  = ((((unsigned int)(regs[3])) >> 26) & 1u) != 0; /* SSE2,   leaf 1, edx, bit 26 */
-        ssse3 = ((((unsigned int)(regs[2])) >>  9) & 1u) != 0; /* SSES3,  leaf 1, ecx, bit  9 */
-        sse41 = ((((unsigned int)(regs[2])) >> 19) & 1u) != 0; /* SSE4.1, leaf 1, ecx, bit 19 */
-        sha = 0;
-        if(leafs >= 7) {
-            __cpuid(&regs[0], 7);
-            sha = ((((unsigned int)(regs[1])) >> 29) & 1u) != 0; /* SHA, leaf 7, ebx, bit 29 */
+        /* Leaf 0, Reg 0 contains the number of leafs available */
+        s_x86_cpuid(regs, 0);
+        if(regs[0] >= 7) {
+           s_x86_cpuid(regs, 1);
+           sse2  = ((((unsigned int)(regs[3])) >> 26) & 1u) != 0; /* SSE2,   leaf 1, edx, bit 26 */
+           ssse3 = ((((unsigned int)(regs[2])) >>  9) & 1u) != 0; /* SSES3,  leaf 1, ecx, bit  9 */
+           sse41 = ((((unsigned int)(regs[2])) >> 19) & 1u) != 0; /* SSE4.1, leaf 1, ecx, bit 19 */
+           s_x86_cpuid(regs, 7);
+           sha = ((((unsigned int)(regs[1])) >> 29) & 1u) != 0; /* SHA, leaf 7, ebx, bit 29 */
+           is_supported = sse2 && ssse3 && sse41 && sha;
         }
-        is_supported = sse2 && ssse3 && sse41 && sha;
         initialized = 1;
-        #else
-        int regs[4];
-        int leafs;
-        int sse2, ssse3, sse41, sha;
-        s_sha1_cpuid(&regs[0], 0); leafs = regs[0];
-        s_sha1_cpuid(&regs[0], 1);
-        sse2  = ((((unsigned int)(regs[3])) >> 26) & 1u) != 0; /* SSE2,   leaf 1, edx, bit 26 */
-        ssse3 = ((((unsigned int)(regs[2])) >>  9) & 1u) != 0; /* SSES3,  leaf 1, ecx, bit  9 */
-        sse41 = ((((unsigned int)(regs[2])) >> 19) & 1u) != 0; /* SSE4.1, leaf 1, ecx, bit 19 */
-        sha = 0;
-        if(leafs >= 7) {
-            s_sha1_cpuid(&regs[0], 7);
-            sha = ((((unsigned int)(regs[1])) >> 29) & 1u) != 0; /* SHA, leaf 7, ebx, bit 29 */
-        }
-        is_supported = sse2 && ssse3 && sse41 && sha;
-        initialized = 1;
-        #endif
     }
     return is_supported;
-  }
-#endif
+}
+#endif /* LTC_SHA1_X86 */
 
 /**
    Initialize the hash state
@@ -93,18 +86,12 @@ static LTC_INLINE int s_sha1_is_supported(void)
 */
 int sha1_init(hash_state * md)
 {
-    int err;
-
-    #if defined LTC_SHA1_X86
-    if(s_sha1_is_supported()) {
-        err = sha1_x86_init(md); if(err != CRYPT_OK){ return err; }
-    } else {
-        err = sha1_c_init(md); if(err != CRYPT_OK){ return err; }
+#if defined LTC_SHA1_X86
+    if(s_sha1_x86_is_supported()) {
+        return sha1_x86_init(md);
     }
-    #else
-    err = sha1_c_init(md); if(err != CRYPT_OK){ return err; }
-    #endif
-    return CRYPT_OK;
+#endif
+    return sha1_c_init(md);
 }
 
 /**
@@ -116,18 +103,12 @@ int sha1_init(hash_state * md)
 */
 int sha1_process(hash_state * md, const unsigned char *in, unsigned long inlen)
 {
-    int err;
-
-    #if defined LTC_SHA1_X86
-    if(s_sha1_is_supported()) {
-        err = sha1_x86_process(md, in, inlen); if(err != CRYPT_OK){ return err; }
-    } else {
-        err = sha1_c_process(md, in, inlen); if(err != CRYPT_OK){ return err; }
+#if defined LTC_SHA1_X86
+    if(s_sha1_x86_is_supported()) {
+        return sha1_x86_process(md, in, inlen);
     }
-    #else
-    err = sha1_c_process(md, in, inlen); if(err != CRYPT_OK){ return err; }
-    #endif
-    return CRYPT_OK;
+#endif
+    return sha1_c_process(md, in, inlen);
 }
 
 /**
@@ -138,59 +119,64 @@ int sha1_process(hash_state * md, const unsigned char *in, unsigned long inlen)
 */
 int sha1_done(hash_state * md, unsigned char *out)
 {
-    int err;
-
-    #if defined LTC_SHA1_X86
-    if(s_sha1_is_supported()) {
-        err = sha1_x86_done(md, out); if(err != CRYPT_OK){ return err; }
-    } else {
-        err = sha1_c_done(md, out); if(err != CRYPT_OK){ return err; }
+#if defined LTC_SHA1_X86
+    if(s_sha1_x86_is_supported()) {
+        return sha1_x86_done(md, out);
     }
-    #else
-    err = sha1_c_done(md, out); if(err != CRYPT_OK){ return err; }
-    #endif
-    return CRYPT_OK;
+#endif
+    return sha1_c_done(md, out);
 }
 
 /**
   Self-test the hash
   @return CRYPT_OK if successful, CRYPT_NOP if self-tests have been disabled
 */
-int  sha1_test(void)
+int sha1_test(void)
 {
- #ifndef LTC_TEST
-    return CRYPT_NOP;
- #else
-  static const struct {
-      const char *msg;
-      unsigned char hash[20];
-  } tests[] = {
-    { "abc",
-      { 0xa9, 0x99, 0x3e, 0x36, 0x47, 0x06, 0x81, 0x6a,
-        0xba, 0x3e, 0x25, 0x71, 0x78, 0x50, 0xc2, 0x6c,
-        0x9c, 0xd0, 0xd8, 0x9d }
-    },
-    { "abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq",
-      { 0x84, 0x98, 0x3E, 0x44, 0x1C, 0x3B, 0xD2, 0x6E,
-        0xBA, 0xAE, 0x4A, 0xA1, 0xF9, 0x51, 0x29, 0xE5,
-        0xE5, 0x46, 0x70, 0xF1 }
-    }
-  };
+   return sha1_test_desc(&sha1_desc, "SHA1");
+}
 
-  int i;
-  unsigned char tmp[20];
-  hash_state md;
+int sha1_test_desc(const struct ltc_hash_descriptor *desc, const char *name)
+{
+#ifndef LTC_TEST
+   return CRYPT_NOP;
+#else
+   static const struct {
+       const char *msg;
+       unsigned char hash[20];
+   } tests[] = {
+     { "abc",
+       { 0xa9, 0x99, 0x3e, 0x36, 0x47, 0x06, 0x81, 0x6a,
+         0xba, 0x3e, 0x25, 0x71, 0x78, 0x50, 0xc2, 0x6c,
+         0x9c, 0xd0, 0xd8, 0x9d }
+     },
+     { "abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq",
+       { 0x84, 0x98, 0x3E, 0x44, 0x1C, 0x3B, 0xD2, 0x6E,
+         0xBA, 0xAE, 0x4A, 0xA1, 0xF9, 0x51, 0x29, 0xE5,
+         0xE5, 0x46, 0x70, 0xF1 }
+     }
+   };
 
-  for (i = 0; i < (int)(sizeof(tests) / sizeof(tests[0]));  i++) {
-      sha1_init(&md);
-      sha1_process(&md, (unsigned char*)tests[i].msg, (unsigned long)XSTRLEN(tests[i].msg));
-      sha1_done(&md, tmp);
-      if (ltc_compare_testvector(tmp, sizeof(tmp), tests[i].hash, sizeof(tests[i].hash), "SHA1", i)) {
-         return CRYPT_FAIL_TESTVECTOR;
-      }
-  }
-  return CRYPT_OK;
-  #endif
+   int i;
+   unsigned char tmp[20];
+   hash_state md;
+
+   LTC_ARGCHK(desc != NULL);
+   LTC_ARGCHK(desc->init != NULL);
+   LTC_ARGCHK(desc->process != NULL);
+   LTC_ARGCHK(desc->done != NULL);
+   LTC_ARGCHK(name != NULL);
+
+   for (i = 0; i < (int)(sizeof(tests) / sizeof(tests[0]));  i++) {
+       desc->init(&md);
+       desc->process(&md, (unsigned char*)tests[i].msg, (unsigned long)XSTRLEN(tests[i].msg));
+       desc->done(&md, tmp);
+       if (ltc_compare_testvector(tmp, sizeof(tmp), tests[i].hash, sizeof(tests[i].hash), name, i)) {
+          return CRYPT_FAIL_TESTVECTOR;
+       }
+   }
+   return CRYPT_OK;
+#endif
 }
 
 #endif

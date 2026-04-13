@@ -13,6 +13,7 @@
 #if defined __GNUC__
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeclaration-after-statement"
+#pragma GCC diagnostic ignored "-Wunused-function"
 #include <emmintrin.h> /* SSE2 _mm_load_si128 _mm_loadu_si128 _mm_store_si128 _mm_set_epi32 _mm_set_epi64x _mm_setzero_si128 _mm_xor_si128 _mm_add_epi32 _mm_shuffle_epi32 */
 #include <tmmintrin.h> /* SSSE3 _mm_shuffle_epi8 */
 #include <smmintrin.h> /* SSE4.1 _mm_extract_epi32 */
@@ -26,14 +27,14 @@
 
 const struct ltc_hash_descriptor sha1_x86_desc =
 {
-    "sha1_x86",
+    "sha1",
     2,
     20,
     64,
 
     /* OID */
-   { 1, 3, 14, 3, 2, 26,  },
-   6,
+    { 1, 3, 14, 3, 2, 26,  },
+    6,
 
     &sha1_x86_init,
     &sha1_x86_process,
@@ -48,7 +49,7 @@ static int ltc_attribute_sha1 ss_sha1_x86_compress(hash_state *md, const unsigne
 static int ltc_attribute_sha1 s_sha1_x86_compress(hash_state *md, const unsigned char *buf)
 #endif
 {
-    #define k_reverse_32 ((0x0 << (3 * 2)) | (0x1 << (2 * 2)) | (0x2 << (1 * 2)) | (0x3 << (0 * 2)))
+#define k_reverse_32 ((0x0 << (3 * 2)) | (0x1 << (2 * 2)) | (0x2 << (1 * 2)) | (0x3 << (0 * 2)))
 
     __m128i reverse_8;
     __m128i abcdx;
@@ -180,7 +181,7 @@ static int ltc_attribute_sha1 s_sha1_x86_compress(hash_state *md, const unsigned
 
     return CRYPT_OK;
 
-    #undef k_reverse_32
+#undef k_reverse_32
 }
 
 #ifdef LTC_CLEAN_STACK
@@ -280,12 +281,7 @@ int sha1_x86_done(hash_state * md, unsigned char *out)
 */
 int sha1_x86_test(void)
 {
-#ifndef LTC_TEST
-  return CRYPT_NOP;
-#else
-  return CRYPT_OK;
-#endif
+   return sha1_test_desc(&sha1_x86_desc, "SHA1 x86");
 }
-
 
 #endif
