@@ -7,7 +7,7 @@
 
 #include "tomcrypt_private.h"
 
-#if defined(LTC_SHA224) && defined(LTC_SHA256)
+#if defined(LTC_SHA224) && defined(LTC_SHA256) && defined(LTC_SHA224_X86)
 
 const struct ltc_hash_descriptor sha224_x86_desc =
 {

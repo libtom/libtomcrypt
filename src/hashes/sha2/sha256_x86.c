@@ -7,7 +7,7 @@
   SHA256 by Marek Knapek
 */
 
-#ifdef LTC_SHA1_X86
+#if defined(LTC_SHA256) && defined(LTC_SHA256_X86)
 
 #if defined __GNUC__
 #pragma GCC diagnostic push

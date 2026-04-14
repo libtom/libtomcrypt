@@ -314,6 +314,12 @@ typedef unsigned long ltc_mp_digit;
    #if !defined(LTC_NO_SHA1_X86)
       #define LTC_SHA1_X86
    #endif
+   #if !defined(LTC_NO_SHA224_X86)
+      #define LTC_SHA224_X86
+   #endif
+   #if !defined(LTC_NO_SHA256_X86)
+      #define LTC_SHA256_X86
+   #endif
 #endif
 
 #if defined(__GNUC__)

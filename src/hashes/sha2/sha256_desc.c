@@ -67,7 +67,7 @@ static LTC_INLINE int s_sha256_x86_is_supported(void)
         if(regs[0] >= 7) {
            s_x86_cpuid(regs, 1);
            sse2  = ((((unsigned int)(regs[3])) >> 26) & 1u) != 0; /* SSE2,   leaf 1, edx, bit 26 */
-           ssse3 = ((((unsigned int)(regs[2])) >>  9) & 1u) != 0; /* SSES3,  leaf 1, ecx, bit  9 */
+           ssse3 = ((((unsigned int)(regs[2])) >>  9) & 1u) != 0; /* SSSE3,  leaf 1, ecx, bit  9 */
            sse41 = ((((unsigned int)(regs[2])) >> 19) & 1u) != 0; /* SSE4.1, leaf 1, ecx, bit 19 */
            s_x86_cpuid(regs, 7);
            sha = ((((unsigned int)(regs[1])) >> 29) & 1u) != 0; /* SHA, leaf 7, ebx, bit 29 */
