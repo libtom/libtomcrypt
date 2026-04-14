@@ -323,8 +323,13 @@ typedef unsigned long ltc_mp_digit;
 #endif
 
 #if defined(__GNUC__)
+   #define LTC_ALIGN_MSVC(n)
    #define LTC_ALIGN(n) __attribute__((aligned(n)))
+#elif defined(_MSC_VER)
+   #define LTC_ALIGN_MSVC(n) __declspec(align(n))
+   #define LTC_ALIGN(n)
 #else
+   #define LTC_ALIGN_MSVC(n)
    #define LTC_ALIGN(n)
 #endif
 
@@ -386,8 +391,10 @@ typedef unsigned long ltc_mp_digit;
 
 #if defined(__clang__) || defined(__GNUC__)
 #define LTC_GCM_PCLMUL_TARGET __attribute__((target("pclmul,ssse3")))
+#define LTC_SHA_TARGET __attribute__((__target__("sse2,ssse3,sse4.1,sha")))
 #else
 #define LTC_GCM_PCLMUL_TARGET
+#define LTC_SHA_TARGET
 #endif
 
 #if !defined(LTC_NO_GCM_PMULL) && (defined(__aarch64__) || defined(_M_ARM64))

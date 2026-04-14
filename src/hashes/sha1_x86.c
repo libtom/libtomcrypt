@@ -10,20 +10,21 @@
 
 #ifdef LTC_SHA1_X86
 
-#if defined __GNUC__
+#if defined(__GNUC__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeclaration-after-statement"
 #pragma GCC diagnostic ignored "-Wuninitialized"
 #pragma GCC diagnostic ignored "-Wunused-function"
+#elif defined(_MSC_VER)
+#include <intrin.h>
+#endif
 #include <emmintrin.h> /* SSE2 _mm_load_si128 _mm_loadu_si128 _mm_store_si128 _mm_set_epi32 _mm_set_epi64x _mm_setzero_si128 _mm_xor_si128 _mm_add_epi32 _mm_shuffle_epi32 */
 #include <tmmintrin.h> /* SSSE3 _mm_shuffle_epi8 */
 #include <smmintrin.h> /* SSE4.1 _mm_extract_epi32 */
 #include <immintrin.h> /* SHA _mm_sha1msg1_epu32 _mm_sha1msg2_epu32 _mm_sha1rnds4_epu32 _mm_sha1nexte_epu32 */
-#include <stdint.h> /* uintptr_t */
-#define ltc_attribute_sha1 __attribute__((__target__("sse2,ssse3,sse4.1,sha")))
+
+#if defined(__GNUC__)
 #pragma GCC diagnostic pop
-#else
-#define ltc_attribute_sha1
 #endif
 
 const struct ltc_hash_descriptor sha1_x86_desc =
@@ -45,9 +46,9 @@ const struct ltc_hash_descriptor sha1_x86_desc =
 };
 
 #ifdef LTC_CLEAN_STACK
-static int ltc_attribute_sha1 ss_sha1_x86_compress(hash_state *md, const unsigned char *buf)
+static int LTC_SHA_TARGET ss_sha1_x86_compress(hash_state *md, const unsigned char *buf)
 #else
-static int ltc_attribute_sha1 s_sha1_x86_compress(hash_state *md, const unsigned char *buf)
+static int LTC_SHA_TARGET s_sha1_x86_compress(hash_state *md, const unsigned char *buf)
 #endif
 {
 #define k_reverse_32 ((0x0 << (3 * 2)) | (0x1 << (2 * 2)) | (0x2 << (1 * 2)) | (0x3 << (0 * 2)))
@@ -65,7 +66,7 @@ static int ltc_attribute_sha1 s_sha1_x86_compress(hash_state *md, const unsigned
 
     LTC_ARGCHK(md != NULL);
     LTC_ARGCHK(buf != NULL);
-    LTC_ARGCHK(((uintptr_t)(&md->sha1.state[0])) % 16 == 0);
+    LTC_ARGCHK(((ltc_uintptr)(&md->sha1.state[0])) % 16 == 0);
     LTC_ARGCHK(sizeof(int) == 4);
 
     reverse_8 = _mm_set_epi64x(0x0001020304050607ull, 0x08090a0b0c0d0e0full);

@@ -9,20 +9,26 @@
 
 #if defined(LTC_SHA256) && defined(LTC_SHA256_X86)
 
-#if defined __GNUC__
+#if defined(__GNUC__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeclaration-after-statement"
 #pragma GCC diagnostic ignored "-Wuninitialized"
 #pragma GCC diagnostic ignored "-Wunused-function"
+#elif defined(_MSC_VER)
+#include <intrin.h>
+#endif
 #include <emmintrin.h> /* SSE2 _mm_load_si128 _mm_loadu_si128 _mm_store_si128 _mm_set_epi64x _mm_add_epi32 _mm_shuffle_epi32 */
 #include <tmmintrin.h> /* SSSE3 _mm_alignr_epi8 _mm_shuffle_epi8 */
 #include <smmintrin.h> /* SSE4.1 _mm_blend_epi16 */
 #include <immintrin.h> /* SHA _mm_sha256msg1_epu32 _mm_sha256msg2_epu32 _mm_sha256rnds2_epu32 */
-#include <stdint.h> /* uintptr_t */
-#define ltc_attribute_sha256 __attribute__((__target__("sse2,ssse3,sse4.1,sha")))
+#if defined(__GNUC__)
 #pragma GCC diagnostic pop
+#endif
+
+#if defined(__clang__) || defined(__GNUC__)
+#define LTC_SHA_TARGET __attribute__((__target__("sse2,ssse3,sse4.1,sha")))
 #else
-#define ltc_attribute_sha256
+#define LTC_SHA_TARGET
 #endif
 
 const struct ltc_hash_descriptor sha256_x86_desc =
@@ -45,9 +51,8 @@ const struct ltc_hash_descriptor sha256_x86_desc =
 
 /* the K array */
 #define K sha256_x86_K
-#pragma pack(push)
-#pragma pack(16) /* todo #pragma pack might not work */
-static const ulong32 K[64] = {
+LTC_ALIGN_MSVC(16)
+static const ulong32 K[64] LTC_ALIGN(16) = {
     0x428a2f98UL, 0x71374491UL, 0xb5c0fbcfUL, 0xe9b5dba5UL, 0x3956c25bUL,
     0x59f111f1UL, 0x923f82a4UL, 0xab1c5ed5UL, 0xd807aa98UL, 0x12835b01UL,
     0x243185beUL, 0x550c7dc3UL, 0x72be5d74UL, 0x80deb1feUL, 0x9bdc06a7UL,
@@ -62,13 +67,12 @@ static const ulong32 K[64] = {
     0x682e6ff3UL, 0x748f82eeUL, 0x78a5636fUL, 0x84c87814UL, 0x8cc70208UL,
     0x90befffaUL, 0xa4506cebUL, 0xbef9a3f7UL, 0xc67178f2UL
 };
-#pragma pack(pop)
 
 /* compress 512-bits */
 #ifdef LTC_CLEAN_STACK
-static int ltc_attribute_sha256 ss_sha256_x86_compress(hash_state * md, const unsigned char *buf)
+static int LTC_SHA_TARGET ss_sha256_x86_compress(hash_state * md, const unsigned char *buf)
 #else
-static int ltc_attribute_sha256 s_sha256_x86_compress(hash_state * md, const unsigned char *buf)
+static int LTC_SHA_TARGET s_sha256_x86_compress(hash_state * md, const unsigned char *buf)
 #endif
 {
 #define k_blend_epi16(a, b, c, d, e, f, g, h) ((((a) & 0x1) << 7) | (((b) & 0x1) << 6) | (((c) & 0x1) << 5) | (((d) & 0x1) << 4) | (((e) & 0x1) << 3) | (((f) & 0x1) << 2) | (((g) & 0x1) << 1) | (((h) & 0x1) << 0))
@@ -94,8 +98,8 @@ static int ltc_attribute_sha256 s_sha256_x86_compress(hash_state * md, const uns
 
     LTC_ARGCHK(md != NULL);
     LTC_ARGCHK(buf != NULL);
-    LTC_ARGCHK(((uintptr_t)(&md->sha256.state[0])) % 16 == 0);
-    LTC_ARGCHK(((uintptr_t)(&K[0])) % 16 == 0);
+    LTC_ARGCHK(((ltc_uintptr)(&md->sha256.state[0])) % 16 == 0);
+    LTC_ARGCHK(((ltc_uintptr)(&K[0])) % 16 == 0);
     LTC_ARGCHK(sizeof(int) == 4);
 
     reverse = _mm_set_epi64x(0x0c0d0e0f08090a0bull, 0x0405060700010203ull);
