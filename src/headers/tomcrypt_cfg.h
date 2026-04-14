@@ -243,14 +243,22 @@ typedef unsigned long ltc_mp_digit;
    #undef ENDIAN_32BITWORD
    #undef ENDIAN_64BITWORD
    #undef LTC_FAST
-   #define LTC_NO_AES_NI
+   #define LTC_NO_ACCEL
    #define LTC_NO_BSWAP
    #define LTC_NO_CLZL
    #define LTC_NO_CTZL
    #define LTC_NO_ROLC
    #define LTC_NO_ROTATE
+#endif
+
+/* Just portable C implementations */
+#ifdef LTC_NO_ACCEL
+   #define LTC_NO_AES_NI
    #define LTC_NO_GCM_PCLMUL
    #define LTC_NO_GCM_PMULL
+   #define LTC_NO_SHA1_X86
+   #define LTC_NO_SHA224_X86
+   #define LTC_NO_SHA256_X86
 #endif
 
 /* No LTC_FAST if: explicitly disabled OR non-gcc/non-clang compiler OR old gcc OR using -ansi -std=c99 */

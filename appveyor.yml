@@ -31,10 +31,12 @@ build_script:
       cp test.exe test-stock.exe
       cp timing.exe timing-stock.exe
       nmake -f makefile.msvc clean
-      nmake -f makefile.msvc all CFLAGS="/Ox /DUSE_LTM /DLTM_DESC /DLTC_NO_AES_NI /I../libtommath"
+      nmake -f makefile.msvc all CFLAGS="/Ox /DUSE_LTM /DLTM_DESC /DLTC_NO_ACCEL /I../libtommath"
 test_script:
 - cmd: >-
     test-stock.exe
       test.exe
-      timing-stock.exe cipher_ecb
-      timing.exe cipher_ecb
+      timing-stock.exe cipher_ecb aes
+      timing.exe cipher_ecb aes
+      timing-stock.exe hash sha
+      timing.exe hash sha
