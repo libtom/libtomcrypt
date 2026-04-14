@@ -16,6 +16,13 @@ static prng_state yarrow_prng;
 
 static const char *filter_arg;
 
+static LTC_INLINE int should_skip(const char *name)
+{
+   if (name && filter_arg && strstr(name, filter_arg) == NULL)
+      return 1;
+   return 0;
+}
+
 static struct list {
     int id;
     ulong64 spd1, spd2, avg;
@@ -187,6 +194,9 @@ static void time_cipher_ecb(void)
   fprintf(stderr, "\n\nECB Time Trials for the Symmetric Ciphers:\n");
   no_results = 0;
   for (x = 0; cipher_descriptor[x].name != NULL; x++) {
+    if (should_skip(cipher_descriptor[x].name))
+       continue;
+
     ecb_start(x, key, cipher_descriptor[x].min_key_length, 0, &ecb);
 
     /* sanity check on cipher */
@@ -260,6 +270,9 @@ static void time_cipher_cbc(void)
   fprintf(stderr, "\n\nCBC Time Trials for the Symmetric Ciphers:\n");
   no_results = 0;
   for (x = 0; cipher_descriptor[x].name != NULL; x++) {
+    if (should_skip(cipher_descriptor[x].name))
+       continue;
+
     cbc_start(x, pt, key, cipher_descriptor[x].min_key_length, 0, &cbc);
 
     /* sanity check on cipher */
@@ -333,6 +346,9 @@ static void time_cipher_ctr(void)
   fprintf(stderr, "\n\nCTR Time Trials for the Symmetric Ciphers:\n");
   no_results = 0;
   for (x = 0; cipher_descriptor[x].name != NULL; x++) {
+    if (should_skip(cipher_descriptor[x].name))
+       continue;
+
     ctr_start(x, pt, key, cipher_descriptor[x].min_key_length, 0, CTR_COUNTER_LITTLE_ENDIAN, &ctr);
 
     /* sanity check on cipher */
@@ -407,6 +423,9 @@ static void time_cipher_lrw(void)
   no_results = 0;
   for (x = 0; cipher_descriptor[x].name != NULL; x++) {
     if (cipher_descriptor[x].block_length != 16) continue;
+    if (should_skip(cipher_descriptor[x].name))
+       continue;
+
     lrw_start(x, pt, key, cipher_descriptor[x].min_key_length, key, 0, &lrw);
 
     /* sanity check on cipher */
@@ -485,8 +504,7 @@ static void time_hash(void)
   fprintf(stderr, "\n\nHASH Time Trials for:\n");
   no_results = 0;
   for (x = 0; hash_descriptor[x].name != NULL; x++) {
-
-     if (filter_arg && strstr(hash_descriptor[x].name, filter_arg) == NULL)
+     if (should_skip(hash_descriptor[x].name))
         continue;
 
     /* sanity check on hash */
@@ -601,8 +619,10 @@ static void time_prng(void)
    unsigned long x, y;
    int           err;
 
-   fprintf(stderr, "Timing PRNGs (cycles/byte output, cycles add_entropy (32 bytes) :\n");
+   fprintf(stderr, "Timing PRNGs - cycles/byte output, cycles add_entropy (32 bytes) :\n");
    for (x = 0; prng_descriptor[x].name != NULL; x++) {
+      if (should_skip(prng_descriptor[x].name))
+         continue;
 
       /* sanity check on prng */
       if ((err = prng_descriptor[x].test()) != CRYPT_OK) {
@@ -625,7 +645,7 @@ static void time_prng(void)
          t1 = (t_read() - t1)>>1;
          if (t1 < t2) t2 = t1;
       }
-      fprintf(stderr, "%20s: %5"PRI64"u ", prng_descriptor[x].name, t2>>12);
+      fprintf(stderr, "%20s: %5"PRI64"u, ", prng_descriptor[x].name, t2>>12);
 #undef DO2
 #undef DO1
 
@@ -1381,7 +1401,7 @@ static void LTC_NORETURN die(int status)
          "Run timing tests of all built-in algorithms, or only the one given in <alg>.\n\n"
          "\talg\tThe algorithms to test. Use the '-l' option to check for valid values.\n"
          "\tmpi\tThe MPI provider to use.\n"
-         "\tfilter\tFilter within the algorithm class (currently only for 'hash'es).\n"
+         "\tfilter\tFilter within the algorithm class (currently only for 'cipher's, 'hash'es, and 'prng's).\n"
          "\t-l\tList all built-in algorithms that can be timed.\n"
          "\t-h\tThe help you're looking at.\n\n"
          "Examples:\n"
