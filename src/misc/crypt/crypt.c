@@ -190,13 +190,6 @@ const char *crypt_build_settings =
 #if defined(LTC_SHA1)
    "   SHA1\n"
 #endif
-#endif
-#if defined(LTC_SHA224_X86)
-   "   LTC_SHA224_X86\n"
-#endif
-#if defined(LTC_SHA256_X86)
-   "   LTC_SHA256_X86\n"
-#endif
 #if defined(LTC_MD5)
    "   MD5\n"
 #endif
@@ -504,6 +497,12 @@ const char *crypt_build_settings =
 #endif
 #if defined(LTC_SHA1_X86)
    " SHA1-NI "
+#endif
+#if defined(LTC_SHA224_X86)
+   " SHA224-NI "
+#endif
+#if defined(LTC_SHA256_X86)
+   " SHA256-NI "
 #endif
 #if defined(LTC_DEVRANDOM)
     " LTC_DEVRANDOM "

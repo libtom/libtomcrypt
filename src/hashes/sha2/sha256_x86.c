@@ -25,12 +25,6 @@
 #pragma GCC diagnostic pop
 #endif
 
-#if defined(__clang__) || defined(__GNUC__)
-#define LTC_SHA_TARGET __attribute__((__target__("sse2,ssse3,sse4.1,sha")))
-#else
-#define LTC_SHA_TARGET
-#endif
-
 const struct ltc_hash_descriptor sha256_x86_desc =
 {
     "sha256",
@@ -93,14 +87,6 @@ static int LTC_SHA_TARGET s_sha256_x86_compress(hash_state * md, const unsigned 
     __m128i msg_1;
     __m128i msg_2;
     __m128i msg_3;
-
-    /* static_assert(_Alignof(struct sha256_x86_state) >= 16, ""); */ /* todo figure out how to do static_assert in C */
-
-    LTC_ARGCHK(md != NULL);
-    LTC_ARGCHK(buf != NULL);
-    LTC_ARGCHK(((ltc_uintptr)(&md->sha256.state[0])) % 16 == 0);
-    LTC_ARGCHK(((ltc_uintptr)(&K[0])) % 16 == 0);
-    LTC_ARGCHK(sizeof(int) == 4);
 
     reverse = _mm_set_epi64x(0x0c0d0e0f08090a0bull, 0x0405060700010203ull);
     state_0 = _mm_load_si128(((__m128i const*)(&md->sha256.state[0])));

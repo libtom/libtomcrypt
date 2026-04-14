@@ -26,21 +26,15 @@ const struct ltc_hash_descriptor sha256_desc =
 
 #if !defined (LTC_S_X86_CPUID)
 #define LTC_S_X86_CPUID
-
+static LTC_INLINE void s_x86_cpuid(int* regs, int leaf)
+{
 #if defined _MSC_VER
-static LTC_INLINE void s_x86_cpuid(int* regs, int leaf)
-{
    __cpuid(regs, leaf);
-}
 #else
-static LTC_INLINE void s_x86_cpuid(int* regs, int leaf)
-{
     int a, b, c, d;
 
     a = leaf;
-    b = 0;
-    c = 0;
-    d = 0;
+    b = c = d = 0;
     asm volatile ("cpuid"
         :"=a"(a), "=b"(b), "=c"(c), "=d"(d)
         :"a"(a), "c"(c)
@@ -49,9 +43,8 @@ static LTC_INLINE void s_x86_cpuid(int* regs, int leaf)
     regs[1] = b;
     regs[2] = c;
     regs[3] = d;
-}
 #endif
-
+}
 #endif /* LTC_S_X86_CPUID */
 
 static LTC_INLINE int s_sha256_x86_is_supported(void)
