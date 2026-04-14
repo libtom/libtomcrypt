@@ -190,14 +190,6 @@ const char *crypt_build_settings =
 #if defined(LTC_SHA1)
    "   SHA1\n"
 #endif
-#if defined(LTC_ARCH_X86)
-   "   LTC_ARCH_X86\n"
-#endif
-#if defined(LTC_ARCH_X64)
-   "   LTC_ARCH_X64\n"
-#endif
-#if defined(LTC_SHA1_X86)
-   "   LTC_SHA1_X86\n"
 #endif
 #if defined(LTC_SHA224_X86)
    "   LTC_SHA224_X86\n"
@@ -509,6 +501,9 @@ const char *crypt_build_settings =
 #endif
 #if defined(LTC_PEM_SSH)
     " OpenSSH-PEM "
+#endif
+#if defined(LTC_SHA1_X86)
+   " SHA1-NI "
 #endif
 #if defined(LTC_DEVRANDOM)
     " LTC_DEVRANDOM "

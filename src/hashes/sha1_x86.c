@@ -64,11 +64,6 @@ static int LTC_SHA_TARGET s_sha1_x86_compress(hash_state *md, const unsigned cha
     __m128i msg_2;
     __m128i msg_3;
 
-    LTC_ARGCHK(md != NULL);
-    LTC_ARGCHK(buf != NULL);
-    LTC_ARGCHK(((ltc_uintptr)(&md->sha1.state[0])) % 16 == 0);
-    LTC_ARGCHK(sizeof(int) == 4);
-
     reverse_8 = _mm_set_epi64x(0x0001020304050607ull, 0x08090a0b0c0d0e0full);
     abcdx = _mm_load_si128(((__m128i const*)(&md->sha1.state[0])));
     abcdx = _mm_shuffle_epi32(abcdx, k_reverse_32);
