@@ -61,17 +61,6 @@
 #define LTC_NO_PROTOTYPES
 #endif
 
-#if \
-  (defined _MSC_VER && defined _M_X64 && defined _M_AMD64) || \
-  (defined __amd64__)
-#define LTC_ARCH_X64
-#endif
-#if \
-  (defined _MSC_VER && defined _M_IX86 && !defined _M_I86 && !defined M_I86) || \
-  (defined __i386__)
-#define LTC_ARCH_X86
-#endif
-
 /* shortcut to disable automatic inclusion */
 #if defined LTC_NOTHING && !defined LTC_EASY
   #define LTC_NO_CIPHERS
@@ -100,9 +89,6 @@
 
    #define LTC_NO_HASHES
    #define LTC_SHA1
-   #if defined LTC_ARCH_X86 || defined LTC_ARCH_X64
-      #define LTC_SHA1_X86
-   #endif
    #define LTC_SHA3
    #define LTC_SHA512
    #define LTC_SHA512_256
@@ -297,9 +283,6 @@
 #endif
 #define LTC_TIGER
 #define LTC_SHA1
-#if defined LTC_ARCH_X86 || defined LTC_ARCH_X64
-   #define LTC_SHA1_X86
-#endif
 #define LTC_MD5
 #define LTC_MD4
 #define LTC_MD2

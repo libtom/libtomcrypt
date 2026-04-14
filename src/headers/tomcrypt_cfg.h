@@ -307,8 +307,13 @@ typedef unsigned long ltc_mp_digit;
    #define LTC_HAVE_CTZL_BUILTIN
 #endif
 
-#if !defined(LTC_NO_AES_NI) && (defined(__x86_64__) || defined(_M_X64))
-#define LTC_AES_NI
+#if (defined(__x86_64__) || defined(_M_X64))
+   #if !defined(LTC_NO_AES_NI)
+      #define LTC_AES_NI
+   #endif
+   #if !defined(LTC_NO_SHA1_X86)
+      #define LTC_SHA1_X86
+   #endif
 #endif
 
 #if defined(__GNUC__)

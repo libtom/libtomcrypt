@@ -423,18 +423,17 @@ extern const struct ltc_hash_descriptor sha224_desc;
 #endif
 
 #ifdef LTC_SHA1
-int sha1_c_init(hash_state * md);
-int sha1_c_process(hash_state * md, const unsigned char *in, unsigned long inlen);
-int sha1_c_done(hash_state * md, unsigned char *out);
-int sha1_c_test(void);
-extern const struct ltc_hash_descriptor sha1_portable_desc;
-
 int sha1_init(hash_state * md);
 int sha1_process(hash_state * md, const unsigned char *in, unsigned long inlen);
 int sha1_done(hash_state * md, unsigned char *out);
 int sha1_test(void);
 extern const struct ltc_hash_descriptor sha1_desc;
-#endif
+
+int sha1_c_init(hash_state * md);
+int sha1_c_process(hash_state * md, const unsigned char *in, unsigned long inlen);
+int sha1_c_done(hash_state * md, unsigned char *out);
+int sha1_c_test(void);
+extern const struct ltc_hash_descriptor sha1_portable_desc;
 
 #ifdef LTC_SHA1_X86
 int sha1_x86_init(hash_state * md);
@@ -442,7 +441,8 @@ int sha1_x86_process(hash_state * md, const unsigned char *in, unsigned long inl
 int sha1_x86_done(hash_state * md, unsigned char *out);
 int sha1_x86_test(void);
 extern const struct ltc_hash_descriptor sha1_x86_desc;
-#endif
+#endif /* LTC_SHA1_X86 */
+#endif /* LTC_SHA1 */
 
 #ifdef LTC_BLAKE2S
 extern const struct ltc_hash_descriptor blake2s_256_desc;
