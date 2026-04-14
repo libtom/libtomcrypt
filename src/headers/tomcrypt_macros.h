@@ -453,6 +453,11 @@ static inline ulong64 ROR64(ulong64 word, int i)
    #define LTC_UNUSED_PARAM(x) (void)(x)
 #endif
 
+/* Calculates the number of bytes required to hold a buffer that will later on be
+ * aligned by using LTC_ALIGN_BUF().
+ */
+#define LTC_ALIGNED_BUF_SIZE(type, n, align) (((n) + ((align)/sizeof(type))) * sizeof(type))
+
 /* there is no snprintf before Visual C++ 2015 */
 #if defined(_MSC_VER) && _MSC_VER < 1900
 #define snprintf _snprintf
