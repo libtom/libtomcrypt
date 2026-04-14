@@ -63,11 +63,11 @@ static int  s_sha1_c_compress(hash_state *md, const unsigned char *buf)
     }
 
     /* copy state */
-    a = md->sha1_c.state[0];
-    b = md->sha1_c.state[1];
-    c = md->sha1_c.state[2];
-    d = md->sha1_c.state[3];
-    e = md->sha1_c.state[4];
+    a = md->sha1.state[0];
+    b = md->sha1.state[1];
+    c = md->sha1.state[2];
+    d = md->sha1.state[3];
+    e = md->sha1.state[4];
 
 #ifdef LTC_SMALL_STACK_SHA1
     #define Wi(i) do { W[(i) % 16] = ROL(W[((i) - 3) % 16] ^ W[((i) - 8) % 16] ^ W[((i) - 14) % 16] ^ W[((i) - 16) % 16], 1); } while(0)
@@ -160,11 +160,11 @@ static int  s_sha1_c_compress(hash_state *md, const unsigned char *buf)
     #undef Windex
 
     /* store */
-    md->sha1_c.state[0] = md->sha1_c.state[0] + a;
-    md->sha1_c.state[1] = md->sha1_c.state[1] + b;
-    md->sha1_c.state[2] = md->sha1_c.state[2] + c;
-    md->sha1_c.state[3] = md->sha1_c.state[3] + d;
-    md->sha1_c.state[4] = md->sha1_c.state[4] + e;
+    md->sha1.state[0] = md->sha1.state[0] + a;
+    md->sha1.state[1] = md->sha1.state[1] + b;
+    md->sha1.state[2] = md->sha1.state[2] + c;
+    md->sha1.state[3] = md->sha1.state[3] + d;
+    md->sha1.state[4] = md->sha1.state[4] + e;
 
     return CRYPT_OK;
 }
@@ -187,13 +187,16 @@ static int s_sha1_c_compress(hash_state *md, const unsigned char *buf)
 int sha1_c_init(hash_state * md)
 {
    LTC_ARGCHK(md != NULL);
-   md->sha1_c.state[0] = 0x67452301UL;
-   md->sha1_c.state[1] = 0xefcdab89UL;
-   md->sha1_c.state[2] = 0x98badcfeUL;
-   md->sha1_c.state[3] = 0x10325476UL;
-   md->sha1_c.state[4] = 0xc3d2e1f0UL;
-   md->sha1_c.curlen = 0;
-   md->sha1_c.length = 0;
+
+   md->sha1.state = LTC_ALIGN_BUF(md->sha1.state_buf, 16);
+
+   md->sha1.state[0] = 0x67452301UL;
+   md->sha1.state[1] = 0xefcdab89UL;
+   md->sha1.state[2] = 0x98badcfeUL;
+   md->sha1.state[3] = 0x10325476UL;
+   md->sha1.state[4] = 0xc3d2e1f0UL;
+   md->sha1.curlen = 0;
+   md->sha1.length = 0;
    return CRYPT_OK;
 }
 
@@ -204,7 +207,7 @@ int sha1_c_init(hash_state * md)
    @param inlen  The length of the data (octets)
    @return CRYPT_OK if successful
 */
-HASH_PROCESS(sha1_c_process, s_sha1_c_compress, sha1_c, 64)
+HASH_PROCESS(sha1_c_process, s_sha1_c_compress, sha1, 64)
 
 /**
    Terminate the hash to get the digest
@@ -219,40 +222,40 @@ int sha1_c_done(hash_state * md, unsigned char *out)
     LTC_ARGCHK(md  != NULL);
     LTC_ARGCHK(out != NULL);
 
-    if (md->sha1_c.curlen >= sizeof(md->sha1_c.buf)) {
+    if (md->sha1.curlen >= sizeof(md->sha1.buf)) {
        return CRYPT_INVALID_ARG;
     }
 
     /* increase the length of the message */
-    md->sha1_c.length += md->sha1_c.curlen * 8;
+    md->sha1.length += md->sha1.curlen * 8;
 
     /* append the '1' bit */
-    md->sha1_c.buf[md->sha1_c.curlen++] = (unsigned char)0x80;
+    md->sha1.buf[md->sha1.curlen++] = (unsigned char)0x80;
 
     /* if the length is currently above 56 bytes we append zeros
      * then compress.  Then we can fall back to padding zeros and length
      * encoding like normal.
      */
-    if (md->sha1_c.curlen > 56) {
-        while (md->sha1_c.curlen < 64) {
-            md->sha1_c.buf[md->sha1_c.curlen++] = (unsigned char)0;
+    if (md->sha1.curlen > 56) {
+        while (md->sha1.curlen < 64) {
+            md->sha1.buf[md->sha1.curlen++] = (unsigned char)0;
         }
-        s_sha1_c_compress(md, md->sha1_c.buf);
-        md->sha1_c.curlen = 0;
+        s_sha1_c_compress(md, md->sha1.buf);
+        md->sha1.curlen = 0;
     }
 
     /* pad upto 56 bytes of zeroes */
-    while (md->sha1_c.curlen < 56) {
-        md->sha1_c.buf[md->sha1_c.curlen++] = (unsigned char)0;
+    while (md->sha1.curlen < 56) {
+        md->sha1.buf[md->sha1.curlen++] = (unsigned char)0;
     }
 
     /* store length */
-    STORE64H(md->sha1_c.length, md->sha1_c.buf+56);
-    s_sha1_c_compress(md, md->sha1_c.buf);
+    STORE64H(md->sha1.length, md->sha1.buf+56);
+    s_sha1_c_compress(md, md->sha1.buf);
 
     /* copy output */
     for (i = 0; i < 5; i++) {
-        STORE32H(md->sha1_c.state[i], out+(4*i));
+        STORE32H(md->sha1.state[i], out+(4*i));
     }
 #ifdef LTC_CLEAN_STACK
     zeromem(md, sizeof(hash_state));

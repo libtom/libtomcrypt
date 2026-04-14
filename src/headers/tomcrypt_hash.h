@@ -60,23 +60,12 @@ LTC_ALIGN_AS(16) struct sha256_x86_state {
 #endif
 
 #ifdef LTC_SHA1
-struct sha1_c_state {
+struct sha1_state {
     ulong64 length;
-    ulong32 state[5], curlen;
+    ulong32 *state, curlen;
     unsigned char buf[64];
+    unsigned char state_buf[LTC_ALIGNED_BUF_SIZE(ulong32, 5, 16)];
 };
-#endif
-
-#ifdef LTC_SHA1_X86
-#pragma pack(push)
-#pragma pack(16)
-struct sha1_x86_state {
-    ulong32 state[5];
-    ulong32  curlen;
-    ulong64 length;
-    unsigned char buf[64];
-};
-#pragma pack(pop)
 #endif
 
 #ifdef LTC_MD5
@@ -206,10 +195,7 @@ typedef union Hash_state {
     struct sha256_x86_state sha256_x86;
 #endif
 #ifdef LTC_SHA1
-    struct sha1_c_state sha1_c;
-#endif
-#ifdef LTC_SHA1_X86
-    struct sha1_x86_state sha1_x86;
+    struct sha1_state sha1;
 #endif
 #ifdef LTC_MD5
     struct md5_state    md5;
