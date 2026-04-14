@@ -37,16 +37,18 @@ int sha224_c_init(hash_state * md)
 {
     LTC_ARGCHK(md != NULL);
 
-    md->sha256_c.curlen = 0;
-    md->sha256_c.length = 0;
-    md->sha256_c.state[0] = 0xc1059ed8UL;
-    md->sha256_c.state[1] = 0x367cd507UL;
-    md->sha256_c.state[2] = 0x3070dd17UL;
-    md->sha256_c.state[3] = 0xf70e5939UL;
-    md->sha256_c.state[4] = 0xffc00b31UL;
-    md->sha256_c.state[5] = 0x68581511UL;
-    md->sha256_c.state[6] = 0x64f98fa7UL;
-    md->sha256_c.state[7] = 0xbefa4fa4UL;
+    md->sha256.state = LTC_ALIGN_BUF(md->sha256.state_buf, 16);
+
+    md->sha256.curlen = 0;
+    md->sha256.length = 0;
+    md->sha256.state[0] = 0xc1059ed8UL;
+    md->sha256.state[1] = 0x367cd507UL;
+    md->sha256.state[2] = 0x3070dd17UL;
+    md->sha256.state[3] = 0xf70e5939UL;
+    md->sha256.state[4] = 0xffc00b31UL;
+    md->sha256.state[5] = 0x68581511UL;
+    md->sha256.state[6] = 0x64f98fa7UL;
+    md->sha256.state[7] = 0xbefa4fa4UL;
     return CRYPT_OK;
 }
 

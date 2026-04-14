@@ -85,7 +85,7 @@ static int s_sha256_compress(hash_state * md, const unsigned char *buf)
 
     /* copy state into S */
     for (i = 0; i < 8; i++) {
-        S[i] = md->sha256_c.state[i];
+        S[i] = md->sha256.state[i];
     }
 
     /* copy the state into 512-bits into W[0..15] */
@@ -211,7 +211,7 @@ static int s_sha256_compress(hash_state * md, const unsigned char *buf)
 
     /* feedback */
     for (i = 0; i < 8; i++) {
-        md->sha256_c.state[i] = md->sha256_c.state[i] + S[i];
+        md->sha256.state[i] = md->sha256.state[i] + S[i];
     }
     return CRYPT_OK;
 }
@@ -235,16 +235,18 @@ int sha256_c_init(hash_state * md)
 {
     LTC_ARGCHK(md != NULL);
 
-    md->sha256_c.curlen = 0;
-    md->sha256_c.length = 0;
-    md->sha256_c.state[0] = 0x6A09E667UL;
-    md->sha256_c.state[1] = 0xBB67AE85UL;
-    md->sha256_c.state[2] = 0x3C6EF372UL;
-    md->sha256_c.state[3] = 0xA54FF53AUL;
-    md->sha256_c.state[4] = 0x510E527FUL;
-    md->sha256_c.state[5] = 0x9B05688CUL;
-    md->sha256_c.state[6] = 0x1F83D9ABUL;
-    md->sha256_c.state[7] = 0x5BE0CD19UL;
+    md->sha256.state = LTC_ALIGN_BUF(md->sha256.state_buf, 16);
+
+    md->sha256.curlen = 0;
+    md->sha256.length = 0;
+    md->sha256.state[0] = 0x6A09E667UL;
+    md->sha256.state[1] = 0xBB67AE85UL;
+    md->sha256.state[2] = 0x3C6EF372UL;
+    md->sha256.state[3] = 0xA54FF53AUL;
+    md->sha256.state[4] = 0x510E527FUL;
+    md->sha256.state[5] = 0x9B05688CUL;
+    md->sha256.state[6] = 0x1F83D9ABUL;
+    md->sha256.state[7] = 0x5BE0CD19UL;
     return CRYPT_OK;
 }
 
@@ -255,7 +257,7 @@ int sha256_c_init(hash_state * md)
    @param inlen  The length of the data (octets)
    @return CRYPT_OK if successful
 */
-HASH_PROCESS(sha256_c_process,s_sha256_compress, sha256_c, 64)
+HASH_PROCESS(sha256_c_process,s_sha256_compress, sha256, 64)
 
 /**
    Terminate the hash to get the digest
@@ -270,41 +272,41 @@ int sha256_c_done(hash_state * md, unsigned char *out)
     LTC_ARGCHK(md  != NULL);
     LTC_ARGCHK(out != NULL);
 
-    if (md->sha256_c.curlen >= sizeof(md->sha256_c.buf)) {
+    if (md->sha256.curlen >= sizeof(md->sha256.buf)) {
        return CRYPT_INVALID_ARG;
     }
 
 
     /* increase the length of the message */
-    md->sha256_c.length += md->sha256_c.curlen * 8;
+    md->sha256.length += md->sha256.curlen * 8;
 
     /* append the '1' bit */
-    md->sha256_c.buf[md->sha256_c.curlen++] = (unsigned char)0x80;
+    md->sha256.buf[md->sha256.curlen++] = (unsigned char)0x80;
 
     /* if the length is currently above 56 bytes we append zeros
      * then compress.  Then we can fall back to padding zeros and length
      * encoding like normal.
      */
-    if (md->sha256_c.curlen > 56) {
-        while (md->sha256_c.curlen < 64) {
-            md->sha256_c.buf[md->sha256_c.curlen++] = (unsigned char)0;
+    if (md->sha256.curlen > 56) {
+        while (md->sha256.curlen < 64) {
+            md->sha256.buf[md->sha256.curlen++] = (unsigned char)0;
         }
-        s_sha256_compress(md, md->sha256_c.buf);
-        md->sha256_c.curlen = 0;
+        s_sha256_compress(md, md->sha256.buf);
+        md->sha256.curlen = 0;
     }
 
     /* pad upto 56 bytes of zeroes */
-    while (md->sha256_c.curlen < 56) {
-        md->sha256_c.buf[md->sha256_c.curlen++] = (unsigned char)0;
+    while (md->sha256.curlen < 56) {
+        md->sha256.buf[md->sha256.curlen++] = (unsigned char)0;
     }
 
     /* store length */
-    STORE64H(md->sha256_c.length, md->sha256_c.buf+56);
-    s_sha256_compress(md, md->sha256_c.buf);
+    STORE64H(md->sha256.length, md->sha256.buf+56);
+    s_sha256_compress(md, md->sha256.buf);
 
     /* copy output */
     for (i = 0; i < 8; i++) {
-        STORE32H(md->sha256_c.state[i], out+(4*i));
+        STORE32H(md->sha256.state[i], out+(4*i));
     }
 #ifdef LTC_CLEAN_STACK
     zeromem(md, sizeof(hash_state));

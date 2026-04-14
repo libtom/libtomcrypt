@@ -35,28 +35,12 @@ struct sha512_state {
 #endif
 
 #ifdef LTC_SHA256
-struct sha256_c_state {
+struct sha256_state {
     ulong64 length;
-    ulong32 state[8], curlen;
+    ulong32 *state, curlen;
     unsigned char buf[64];
+    unsigned char state_buf[LTC_ALIGNED_BUF_SIZE(ulong32, 8, 16)];
 };
-#endif
-
-#ifdef LTC_SHA256_X86
-#if defined _MSC_VER
-#define LTC_ALIGN_AS(x) __declspec(align(x))
-#else
-#define LTC_ALIGN_AS(x) __attribute__((aligned(x)))
-#endif
-#pragma pack(push)
-#pragma pack(16) /* todo #pragma pack seems to not work */
-LTC_ALIGN_AS(16) struct sha256_x86_state {
-    ulong32 state[8];
-    unsigned char buf[64];
-    ulong32 curlen;
-    ulong64 length;
-};
-#pragma pack(pop)
 #endif
 
 #ifdef LTC_SHA1
@@ -189,10 +173,7 @@ typedef union Hash_state {
     struct sha512_state sha512;
 #endif
 #ifdef LTC_SHA256
-    struct sha256_c_state sha256_c;
-#endif
-#ifdef LTC_SHA256_X86
-    struct sha256_x86_state sha256_x86;
+    struct sha256_state sha256;
 #endif
 #ifdef LTC_SHA1
     struct sha1_state sha1;

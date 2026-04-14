@@ -12,6 +12,7 @@
 #if defined __GNUC__
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeclaration-after-statement"
+#pragma GCC diagnostic ignored "-Wuninitialized"
 #pragma GCC diagnostic ignored "-Wunused-function"
 #include <emmintrin.h> /* SSE2 _mm_load_si128 _mm_loadu_si128 _mm_store_si128 _mm_set_epi64x _mm_add_epi32 _mm_shuffle_epi32 */
 #include <tmmintrin.h> /* SSSE3 _mm_alignr_epi8 _mm_shuffle_epi8 */
@@ -93,13 +94,13 @@ static int ltc_attribute_sha256 s_sha256_x86_compress(hash_state * md, const uns
 
     LTC_ARGCHK(md != NULL);
     LTC_ARGCHK(buf != NULL);
-    LTC_ARGCHK(((uintptr_t)(&md->sha256_x86.state[0])) % 16 == 0);
+    LTC_ARGCHK(((uintptr_t)(&md->sha256.state[0])) % 16 == 0);
     LTC_ARGCHK(((uintptr_t)(&K[0])) % 16 == 0);
     LTC_ARGCHK(sizeof(int) == 4);
 
     reverse = _mm_set_epi64x(0x0c0d0e0f08090a0bull, 0x0405060700010203ull);
-    state_0 = _mm_load_si128(((__m128i const*)(&md->sha256_x86.state[0])));
-    state_1 = _mm_load_si128(((__m128i const*)(&md->sha256_x86.state[4])));
+    state_0 = _mm_load_si128(((__m128i const*)(&md->sha256.state[0])));
+    state_1 = _mm_load_si128(((__m128i const*)(&md->sha256.state[4])));
     tmp = _mm_shuffle_epi32(state_0, k_shuffle_epi32(0x2, 0x3, 0x0, 0x1));
     state_1 = _mm_shuffle_epi32(state_1, k_shuffle_epi32(0x0, 0x1, 0x2, 0x3));
     state_0 = _mm_alignr_epi8(tmp, state_1, k_alignr_epi8(2));
@@ -250,8 +251,8 @@ static int ltc_attribute_sha256 s_sha256_x86_compress(hash_state * md, const uns
     state_1 = _mm_shuffle_epi32(state_1, k_shuffle_epi32(0x2, 0x3, 0x0, 0x1));
     state_0 = ltc_mm_blend_epi32(tmp, state_1, k_blend_epi32(0x1, 0x1, 0x0, 0x0));
     state_1 = _mm_alignr_epi8(state_1, tmp, k_alignr_epi8(2));
-    _mm_store_si128(((__m128i*)(&md->sha256_x86.state[0])), state_0);
-    _mm_store_si128(((__m128i*)(&md->sha256_x86.state[4])), state_1);
+    _mm_store_si128(((__m128i*)(&md->sha256.state[0])), state_0);
+    _mm_store_si128(((__m128i*)(&md->sha256.state[4])), state_1);
     return CRYPT_OK;
 }
 #undef K
@@ -275,16 +276,18 @@ int sha256_x86_init(hash_state * md)
 {
     LTC_ARGCHK(md != NULL);
 
-    md->sha256_x86.curlen = 0;
-    md->sha256_x86.length = 0;
-    md->sha256_x86.state[0] = 0x6A09E667UL;
-    md->sha256_x86.state[1] = 0xBB67AE85UL;
-    md->sha256_x86.state[2] = 0x3C6EF372UL;
-    md->sha256_x86.state[3] = 0xA54FF53AUL;
-    md->sha256_x86.state[4] = 0x510E527FUL;
-    md->sha256_x86.state[5] = 0x9B05688CUL;
-    md->sha256_x86.state[6] = 0x1F83D9ABUL;
-    md->sha256_x86.state[7] = 0x5BE0CD19UL;
+    md->sha256.state = LTC_ALIGN_BUF(md->sha256.state_buf, 16);
+
+    md->sha256.curlen = 0;
+    md->sha256.length = 0;
+    md->sha256.state[0] = 0x6A09E667UL;
+    md->sha256.state[1] = 0xBB67AE85UL;
+    md->sha256.state[2] = 0x3C6EF372UL;
+    md->sha256.state[3] = 0xA54FF53AUL;
+    md->sha256.state[4] = 0x510E527FUL;
+    md->sha256.state[5] = 0x9B05688CUL;
+    md->sha256.state[6] = 0x1F83D9ABUL;
+    md->sha256.state[7] = 0x5BE0CD19UL;
     return CRYPT_OK;
 }
 
@@ -295,7 +298,7 @@ int sha256_x86_init(hash_state * md)
    @param inlen  The length of the data (octets)
    @return CRYPT_OK if successful
 */
-HASH_PROCESS(sha256_x86_process,s_sha256_x86_compress, sha256_x86, 64)
+HASH_PROCESS(sha256_x86_process,s_sha256_x86_compress, sha256, 64)
 
 /**
    Terminate the hash to get the digest
@@ -310,41 +313,41 @@ int sha256_x86_done(hash_state * md, unsigned char *out)
     LTC_ARGCHK(md  != NULL);
     LTC_ARGCHK(out != NULL);
 
-    if (md->sha256_x86.curlen >= sizeof(md->sha256_x86.buf)) {
+    if (md->sha256.curlen >= sizeof(md->sha256.buf)) {
        return CRYPT_INVALID_ARG;
     }
 
 
     /* increase the length of the message */
-    md->sha256_x86.length += md->sha256_x86.curlen * 8;
+    md->sha256.length += md->sha256.curlen * 8;
 
     /* append the '1' bit */
-    md->sha256_x86.buf[md->sha256_x86.curlen++] = (unsigned char)0x80;
+    md->sha256.buf[md->sha256.curlen++] = (unsigned char)0x80;
 
     /* if the length is currently above 56 bytes we append zeros
      * then compress.  Then we can fall back to padding zeros and length
      * encoding like normal.
      */
-    if (md->sha256_x86.curlen > 56) {
-        while (md->sha256_x86.curlen < 64) {
-            md->sha256_x86.buf[md->sha256_x86.curlen++] = (unsigned char)0;
+    if (md->sha256.curlen > 56) {
+        while (md->sha256.curlen < 64) {
+            md->sha256.buf[md->sha256.curlen++] = (unsigned char)0;
         }
-        s_sha256_x86_compress(md, md->sha256_x86.buf);
-        md->sha256_x86.curlen = 0;
+        s_sha256_x86_compress(md, md->sha256.buf);
+        md->sha256.curlen = 0;
     }
 
     /* pad upto 56 bytes of zeroes */
-    while (md->sha256_x86.curlen < 56) {
-        md->sha256_x86.buf[md->sha256_x86.curlen++] = (unsigned char)0;
+    while (md->sha256.curlen < 56) {
+        md->sha256.buf[md->sha256.curlen++] = (unsigned char)0;
     }
 
     /* store length */
-    STORE64H(md->sha256_x86.length, md->sha256_x86.buf+56);
-    s_sha256_x86_compress(md, md->sha256_x86.buf);
+    STORE64H(md->sha256.length, md->sha256.buf+56);
+    s_sha256_x86_compress(md, md->sha256.buf);
 
     /* copy output */
     for (i = 0; i < 8; i++) {
-        STORE32H(md->sha256_x86.state[i], out+(4*i));
+        STORE32H(md->sha256.state[i], out+(4*i));
     }
 #ifdef LTC_CLEAN_STACK
     zeromem(md, sizeof(hash_state));
