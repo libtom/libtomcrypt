@@ -33,7 +33,7 @@ LTC_STATIC_ASSERT(correct_ltc_uintptr_size, sizeof(ltc_uintptr) == sizeof(void*)
 /* Aligns a `unsigned char` buffer `buf` to `n` bytes and returns that aligned address.
  * Make sure that the buffer that is passed is huge enough.
  */
-#define LTC_ALIGN_BUF(buf, n) ((void*)((ltc_uintptr)&((unsigned char*)(buf))[n - 1] & (~(CONSTPTR(n) - CONSTPTR(1)))))
+#define LTC_ALIGN_BUF(buf, align) ((void*)((ltc_uintptr)&((unsigned char*)(buf))[(align) - 1] & (~(CONSTPTR(align) - CONSTPTR(1)))))
 
 #define LTC_OID_MAX_STRLEN 256
 
