@@ -54,18 +54,19 @@ static LTC_INLINE int s_sha1_x86_is_supported(void)
 
     if (initialized == 0) {
         int regs[4];
-        int sse2, ssse3, sse41, sha;
+        int sse2, ssse3, sse41, sha = 0;
         /* Leaf 0, Reg 0 contains the number of leafs available */
         s_x86_cpuid(regs, 0);
         if(regs[0] >= 7) {
-           s_x86_cpuid(regs, 1);
-           sse2  = ((((unsigned int)(regs[3])) >> 26) & 1u) != 0; /* SSE2,   leaf 1, edx, bit 26 */
-           ssse3 = ((((unsigned int)(regs[2])) >>  9) & 1u) != 0; /* SSSE3,  leaf 1, ecx, bit  9 */
-           sse41 = ((((unsigned int)(regs[2])) >> 19) & 1u) != 0; /* SSE4.1, leaf 1, ecx, bit 19 */
            s_x86_cpuid(regs, 7);
            sha = ((((unsigned int)(regs[1])) >> 29) & 1u) != 0; /* SHA, leaf 7, ebx, bit 29 */
-           is_supported = sse2 && ssse3 && sse41 && sha;
         }
+        s_x86_cpuid(regs, 1);
+        sse2  = ((((unsigned int)(regs[3])) >> 26) & 1u) != 0; /* SSE2,   leaf 1, edx, bit 26 */
+        ssse3 = ((((unsigned int)(regs[2])) >>  9) & 1u) != 0; /* SSSE3,  leaf 1, ecx, bit  9 */
+        sse41 = ((((unsigned int)(regs[2])) >> 19) & 1u) != 0; /* SSE4.1, leaf 1, ecx, bit 19 */
+        printf("\nCPU says: %d && %d && %d && %d\n\n", sse2, ssse3, sse41, sha);
+        is_supported = sse2 && ssse3 && sse41 && sha;
         initialized = 1;
     }
     return is_supported;
