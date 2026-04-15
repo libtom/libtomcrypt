@@ -376,6 +376,8 @@ extern const struct ltc_hash_descriptor sha512_224_desc;
 #endif /* LTC_SHA512_224 */
 
 #ifdef LTC_SHA256
+int shani_is_supported(void);
+
 int sha256_init(hash_state * md);
 int sha256_process(hash_state * md, const unsigned char *in, unsigned long inlen);
 int sha256_done(hash_state * md, unsigned char *out);

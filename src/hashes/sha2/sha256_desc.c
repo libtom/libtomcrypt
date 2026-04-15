@@ -72,6 +72,15 @@ static LTC_INLINE int s_sha256_x86_is_supported(void)
 }
 #endif /* LTC_SHA256_X86 */
 
+int shani_is_supported(void)
+{
+#ifdef LTC_SHA256_X86
+   return s_sha256_x86_is_supported();
+#else
+   return 0;
+#endif
+}
+
 /**
    Initialize the hash state
    @param md   The hash state you wish to initialize

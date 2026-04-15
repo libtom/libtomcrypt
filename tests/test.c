@@ -344,6 +344,10 @@ int main(int argc, char **argv)
 
    printf("LTC_VERSION  = %s\n%s\n\n", GIT_VERSION, crypt_build_settings);
 
+#if defined(LTC_SHA256)
+   printf("SHA-NI CPU support = %d\n\n", shani_is_supported());
+#endif
+
 #ifdef USE_LTM
    mpi_provider = "ltm";
 #elif defined(USE_TFM)
