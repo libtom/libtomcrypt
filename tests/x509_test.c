@@ -29,6 +29,48 @@ static int s_x509_decode_bad_f(FILE *f, void *cert)
    return CRYPT_OK;
 }
 
+static int s_x509_test_extension_asn1_access(void)
+{
+   const ltc_x509_certificate *cert;
+   const ltc_x509_extensions *exts;
+   int err;
+   FILE *f;
+
+   f = fopen("tests/x509/LTC_CA.pem", "r");
+   if (f == NULL) return CRYPT_FILE_NOTFOUND;
+   err = x509_import_pem_filehandle(f, &cert);
+   fclose(f);
+   if (err != CRYPT_OK) return err;
+
+   exts = &cert->tbs_certificate.extensions;
+
+   /* Access extension .asn1 pointers after import.
+    * Before the use-after-free fix in s_get_ce_value, these pointers
+    * were dangling (the flexi tree was freed immediately after decoding).
+    * ASan will catch any access to freed memory here. */
+   if (exts->basic_constraints != NULL && exts->basic_constraints->asn1 != NULL) {
+      /* Read from the flexi tree node to trigger ASan on dangling pointer */
+      if (exts->basic_constraints->asn1->type != LTC_ASN1_SEQUENCE)
+         return CRYPT_FAIL_TESTVECTOR;
+      if (exts->basic_constraints->u.basic_constraints.ca != 1)
+         return CRYPT_FAIL_TESTVECTOR;
+      if (exts->basic_constraints->u.basic_constraints.path_len != 2)
+         return CRYPT_FAIL_TESTVECTOR;
+   } else {
+      return CRYPT_FAIL_TESTVECTOR;
+   }
+
+   if (exts->key_usage != NULL) {
+      if (!(exts->key_usage->u.key_usage & LTC_KU_KCS))
+         return CRYPT_FAIL_TESTVECTOR;
+   } else {
+      return CRYPT_FAIL_TESTVECTOR;
+   }
+
+   x509_free(&cert);
+   return CRYPT_OK;
+}
+
 static int s_x509_test_sig_algo_mismatch(void)
 {
    const ltc_x509_certificate *cert;
@@ -52,6 +94,7 @@ int x509_test(void)
 
    if (ltc_mp.name == NULL) return CRYPT_NOP;
 
+   DO(s_x509_test_extension_asn1_access());
    DO(s_x509_test_sig_algo_mismatch());
    DO(test_process_dir("tests/x509", &cert, (dir_iter_cb)s_x509_decode, NULL, (dir_cleanup_cb)x509_free, "x509_test"));
    DO(test_process_dir("tests/x509", &cert, NULL, (dir_fiter_cb)s_x509_decode_f, (dir_cleanup_cb)x509_free, "x509_test_filehandle"));
