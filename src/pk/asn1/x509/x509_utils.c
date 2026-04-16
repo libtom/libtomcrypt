@@ -163,8 +163,8 @@ int x509_cmp_name(const ltc_x509_name *a, const ltc_x509_name *b)
 
   @param name  A X.509 NAME.
   @param type  The type of the component to retrieve.
-  @param str   The result.
-  @return CRYPT_OK if successful.
+  @param str   [out] The result, or NULL if the component is not present.
+  @return CRYPT_OK if successful (even when not found, check *str for NULL).
 */
 int x509_name_detail_get(const ltc_x509_name *name, ltc_x509_details type, const ltc_x509_string **str)
 {
@@ -173,14 +173,14 @@ int x509_name_detail_get(const ltc_x509_name *name, ltc_x509_details type, const
    LTC_ARGCHK(name != NULL);
    LTC_ARGCHK(str != NULL);
 
+   *str = NULL;
    for (n = 0; n < name->names_num; ++n) {
       if (name->names[n].type == type) {
          *str = &name->names[n];
-         return CRYPT_OK;
+         break;
       }
    }
-   *str = NULL;
-   return CRYPT_INVALID_ARG;
+   return CRYPT_OK;
 }
 
 const char *x509_name_detail_desc(ltc_x509_details type)
