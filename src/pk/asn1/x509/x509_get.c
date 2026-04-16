@@ -3,7 +3,7 @@
 #include "tomcrypt_private.h"
 
 /**
-  @file x509_get_pka.c
+  @file x509_get.c
   Extract details from an X.509 cert, Steffen Jaeckel
 */
 
