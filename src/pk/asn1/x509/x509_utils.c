@@ -71,6 +71,8 @@ static LTC_INLINE int s_signature_algorithms_equal(const ltc_x509_signature_algo
    else if (a->u.hash != NULL && b->u.hash != NULL) {
       if (XSTRCMP(a->u.hash, b->u.hash) != 0)
          return 0;
+   } else if (a->u.hash != b->u.hash) {
+      return 0;
    }
    return 1;
 }
