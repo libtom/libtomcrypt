@@ -16,7 +16,7 @@
 int blake2smac_init(blake2smac_state *st, unsigned long outlen, const unsigned char *key, unsigned long keylen)
 {
    LTC_ARGCHK(st  != NULL);
-   LTC_ARGCHK(key != NULL);
+   LTC_ARGCHK(key != NULL || keylen == 0);
    return blake2s_init(st, outlen, key, keylen);
 }
 
