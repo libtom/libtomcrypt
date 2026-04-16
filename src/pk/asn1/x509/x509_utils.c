@@ -144,7 +144,7 @@ int x509_cert_is_signed_by(const ltc_x509_certificate *cert, const ltc_pka_key *
   @param b   A X.509 NAME.
   @return 1 if equal, 0 if unequal.
 */
-int x509_cmp_name(const ltc_x509_name *a, const ltc_x509_name *b)
+int x509_name_eq(const ltc_x509_name *a, const ltc_x509_name *b)
 {
    LTC_ARGCHK(a != NULL);
    LTC_ARGCHK(b != NULL);

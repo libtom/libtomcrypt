@@ -128,7 +128,7 @@ next:
       {
          const ltc_x509_string *subjects[4];
          const ltc_x509_name *subject, *issuer;
-         int issuer_matches_next_subject = x509_cmp_name(&cert[n]->tbs_certificate.issuer, &cert[m]->tbs_certificate.subject);
+         int issuer_matches_next_subject = x509_name_eq(&cert[n]->tbs_certificate.issuer, &cert[m]->tbs_certificate.subject);
          subject = &cert[n]->tbs_certificate.subject;
          if (n != m) {
             issuer = &cert[m]->tbs_certificate.subject;

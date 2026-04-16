@@ -1292,7 +1292,7 @@ int x509_import_pem_filehandle(FILE *f, const ltc_x509_certificate **out);
 #endif /* LTC_NO_FILE */
 #endif /* LTC_PEM */
 int x509_cert_is_signed_by(const ltc_x509_certificate *cert, const ltc_pka_key *key, int *stat);
-int x509_cmp_name(const ltc_x509_name *a, const ltc_x509_name *b);
+int x509_name_eq(const ltc_x509_name *a, const ltc_x509_name *b);
 int x509_name_detail_get(const ltc_x509_name *name, ltc_x509_details type, const ltc_x509_string **str);
 const char *x509_name_detail_desc(ltc_x509_details type);
 void x509_free(const ltc_x509_certificate **cert);
