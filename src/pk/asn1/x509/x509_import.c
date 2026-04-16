@@ -148,7 +148,7 @@ static LTC_INLINE int s_x509_get_name_process(const ltc_asn1_list *set, st_oid_d
    for (; set != NULL; set = set->next) {
       ltc_asn1_list *inner = set->child;
       int err;
-      if (num > name_elements_num) {
+      if (num >= name_elements_num) {
          return CRYPT_BUFFER_OVERFLOW;
       }
       if (set->type != LTC_ASN1_SET
@@ -360,6 +360,10 @@ static int s_x509_get_validity(const ltc_asn1_list *seq, ltc_x509_validity *vali
    validity->not_before.str = NULL;
    validity->not_after.str = NULL;
    for (n = 0; n < 2; ++n) {
+      if (source == NULL) {
+         err = CRYPT_PK_ASN1_ERROR;
+         goto err_out;
+      }
       if (source->type == LTC_ASN1_GENERALIZEDTIME) {
          ltc_generalizedtime *gt = source->data;
          value->utc = 0;
@@ -573,6 +577,10 @@ int x509_import(const unsigned char *asn1_cert, unsigned long asn1_len, const lt
    }
 
    tbs_cert = root->child;
+   if (tbs_cert == NULL || tbs_cert->next == NULL || tbs_cert->next->next == NULL) {
+      err = CRYPT_PK_ASN1_ERROR;
+      goto err_out;
+   }
    sig_alg = tbs_cert->next;
    sig = sig_alg->next;
    cert->signature.asn1 = sig;
@@ -585,7 +593,7 @@ int x509_import(const unsigned char *asn1_cert, unsigned long asn1_len, const lt
    if ((err = s_x509_get_sig_alg(sig_alg, &cert->signature_algorithm)) != CRYPT_OK) {
       goto err_out;
    }
-   if ((err = s_bit_string_to_raw_bit_string(sig, (unsigned char**)&cert->signature.signature, &cert->signature.signature_len))) {
+   if ((err = s_bit_string_to_raw_bit_string(sig, (unsigned char**)&cert->signature.signature, &cert->signature.signature_len)) != CRYPT_OK) {
       goto err_out;
    }
    *out = cert;
