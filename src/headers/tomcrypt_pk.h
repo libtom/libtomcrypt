@@ -1208,21 +1208,21 @@ typedef struct ltc_x509_extension {
    const ltc_asn1_list *oid;
    int critical;
    union {
-      /* .type = LTC_X509_AUTHORITY_KEY_ID */
+      /* .type = LTC_X509_CE_AUTHORITY_KEY_ID */
       struct {
          ltc_x509_string key_identifier;
          ltc_x509_string authority_cert_issuer;
          ltc_x509_string authority_cert_serial_number;
       } authority_key_id;
-      /* .type = LTC_X509_SUBJECT_KEY_ID */
+      /* .type = LTC_X509_CE_SUBJECT_KEY_ID */
       ltc_x509_string subject_key_identifier;
-      /* .type = LTC_X509_KEY_USAGE
+      /* .type = LTC_X509_CE_KEY_USAGE
        * Bitmask of `enum ltc_x509_ce_key_usage`
        */
       ulong32 key_usage;
-      /* .type = LTC_X509_SUBJECT_ALT_NAME */
+      /* .type = LTC_X509_CE_SUBJECT_ALT_NAME */
       ltc_x509_name subject_alt_name;
-      /* .type = LTC_X509_BASIC_CONSTRAINTS */
+      /* .type = LTC_X509_CE_BASIC_CONSTRAINTS */
       struct {
          int ca;
          /* pathLenConstraint is marked as OPTIONAL:
@@ -1231,7 +1231,7 @@ typedef struct ltc_x509_extension {
           */
          int path_len;
       } basic_constraints;
-      /* .type = LTC_X509_EXT_KEY_USAGE
+      /* .type = LTC_X509_CE_EXT_KEY_USAGE
        * Bitmask of `enum ltc_x509_ce_ext_key_usage`
        */
       ulong32 ext_key_usage;
