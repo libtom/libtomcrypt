@@ -1139,7 +1139,7 @@ typedef struct ltc_x509_time {
       ltc_utctime *utc;
       ltc_generalizedtime *generalized;
    } u;
-   int utc;
+   int is_utc;
    const char *str;
    const ltc_asn1_list *asn1;
 } ltc_x509_time;

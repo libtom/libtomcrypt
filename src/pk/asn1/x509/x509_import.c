@@ -366,7 +366,7 @@ static int s_x509_get_validity(const ltc_asn1_list *seq, ltc_x509_validity *vali
       }
       if (source->type == LTC_ASN1_GENERALIZEDTIME) {
          ltc_generalizedtime *gt = source->data;
-         value->utc = 0;
+         value->is_utc = 0;
          value->u.generalized = gt;
          /* RFC5280 Ch. 4.1.2.5.2
           *    GeneralizedTime values MUST be expressed in Greenwich Mean Time [...]
@@ -392,7 +392,7 @@ static int s_x509_get_validity(const ltc_asn1_list *seq, ltc_x509_validity *vali
          }
       } else if (source->type == LTC_ASN1_UTCTIME) {
          ltc_utctime* ut = source->data;
-         value->utc = 1;
+         value->is_utc = 1;
          value->u.utc = ut;
          /* RFC5280 Ch. 4.1.2.5.1
           *    UTCTime values MUST be expressed in Greenwich Mean Time */
