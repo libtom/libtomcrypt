@@ -45,9 +45,9 @@ static const oid_table_entry pka_oids[] = {
                                               { LTC_OID_ECDSA_WITH_SHA3_256,  LTC_PKA_EC,      "sha3-256",   "2.16.840.1.101.3.4.3.10" },
                                               { LTC_OID_ECDSA_WITH_SHA3_384,  LTC_PKA_EC,      "sha3-384",   "2.16.840.1.101.3.4.3.11" },
                                               { LTC_OID_ECDSA_WITH_SHA3_512,  LTC_PKA_EC,      "sha3-512",   "2.16.840.1.101.3.4.3.12" },
-                                              { LTC_OID_RSA_WITH_SHA3_224,    LTC_PKA_RSA,     "sha3-512",   "2.16.840.1.101.3.4.3.13" },
-                                              { LTC_OID_RSA_WITH_SHA3_256,    LTC_PKA_RSA,     "sha3-512",   "2.16.840.1.101.3.4.3.14" },
-                                              { LTC_OID_RSA_WITH_SHA3_384,    LTC_PKA_RSA,     "sha3-512",   "2.16.840.1.101.3.4.3.15" },
+                                              { LTC_OID_RSA_WITH_SHA3_224,    LTC_PKA_RSA,     "sha3-224",   "2.16.840.1.101.3.4.3.13" },
+                                              { LTC_OID_RSA_WITH_SHA3_256,    LTC_PKA_RSA,     "sha3-256",   "2.16.840.1.101.3.4.3.14" },
+                                              { LTC_OID_RSA_WITH_SHA3_384,    LTC_PKA_RSA,     "sha3-384",   "2.16.840.1.101.3.4.3.15" },
                                               { LTC_OID_RSA_WITH_SHA3_512,    LTC_PKA_RSA,     "sha3-512",   "2.16.840.1.101.3.4.3.16" },
 };
 
