@@ -659,7 +659,7 @@ int x509_get_extensions(const ltc_asn1_list *seq, ltc_x509_extensions *extension
    extensions->extensions_num = cur_num;
    return CRYPT_OK;
 error_out:
-   s_free_extensions(extensions_, extensions_num);
+   s_free_extensions(extensions_, cur_num);
    return err;
 }
 
