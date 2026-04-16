@@ -30,7 +30,6 @@ option(BUILD_USABLE_DEMOS "Build usable demos (${USABLE_DEMOS_STR})" FALSE)
 
 if(BUILD_USABLE_DEMOS)
     list(APPEND USABLE_DEMOS_TARGETS ${USABLE_DEMOS})
-        x509_verify
 endif()
 
 # -----------------------------------------------------------------------------
