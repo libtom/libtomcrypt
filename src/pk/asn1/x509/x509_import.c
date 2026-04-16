@@ -571,6 +571,8 @@ int x509_import(const unsigned char *asn1_cert, unsigned long asn1_len, const lt
    ltc_x509_certificate *cert;
    ltc_asn1_list *root, *tbs_cert, *sig_alg, *sig;
    int err;
+   LTC_ARGCHK(asn1_cert != NULL);
+   LTC_ARGCHK(out       != NULL);
    cert = XCALLOC(1, sizeof(*cert));
    if (cert == NULL) {
       return CRYPT_MEM;
