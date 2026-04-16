@@ -433,10 +433,14 @@ static int s_x509_get_validity(const ltc_asn1_list *seq, ltc_x509_validity *vali
    }
    return CRYPT_OK;
 err_out:
-   if (validity->not_after.str)
+   if (validity->not_after.str) {
       s_free(validity->not_after.str);
-   if (validity->not_before.str)
+      validity->not_after.str = NULL;
+   }
+   if (validity->not_before.str) {
       s_free(validity->not_before.str);
+      validity->not_before.str = NULL;
+   }
    return err;
 }
 
