@@ -474,7 +474,7 @@ static int s_get_san(const ltc_asn1_list *seq, ltc_x509_extension *san)
       san->u.subject_alt_name.names = names;
       san->u.subject_alt_name.names_num = num;
    } else {
-      s_free_x509_string_array(names, num);
+      s_free_x509_string_array(names, cur);
    }
    return err;
 }
