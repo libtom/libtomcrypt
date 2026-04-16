@@ -262,14 +262,14 @@ static int s_octet_string_to_hex_string(const ltc_asn1_list *asn1, ltc_x509_stri
  *
  *    KeyIdentifier ::= OCTET STRING
  */
-static int s_get_aki(const ltc_asn1_list *seq, ltc_x509_extension *san)
+static int s_get_aki(const ltc_asn1_list *seq, ltc_x509_extension *aki)
 {
    int err;
    ltc_asn1_list *element = seq->child;
    while(element && s_is_context_specific_primitive(element)) {
       switch (element->tag) {
          case 0:
-            if ((err = s_octet_string_to_hex_string(element, &san->u.authority_key_id.key_identifier)) != CRYPT_OK) {
+            if ((err = s_octet_string_to_hex_string(element, &aki->u.authority_key_id.key_identifier)) != CRYPT_OK) {
                return err;
             }
             break;
@@ -277,12 +277,12 @@ static int s_get_aki(const ltc_asn1_list *seq, ltc_x509_extension *san)
             if ((err = s_looks_like_general_name(element->child)) != CRYPT_OK) {
                return err;
             }
-            if ((err = s_get_general_name(element->child, &san->u.authority_key_id.authority_cert_issuer)) != CRYPT_OK) {
+            if ((err = s_get_general_name(element->child, &aki->u.authority_key_id.authority_cert_issuer)) != CRYPT_OK) {
                return err;
             }
             break;
          case 2:
-            if ((err = x509_get_serial(element->child, &san->u.authority_key_id.authority_cert_serial_number)) != CRYPT_OK) {
+            if ((err = x509_get_serial(element->child, &aki->u.authority_key_id.authority_cert_serial_number)) != CRYPT_OK) {
                return err;
             }
             break;
@@ -299,7 +299,7 @@ static int s_get_aki(const ltc_asn1_list *seq, ltc_x509_extension *san)
  *
  *    KeyIdentifier ::= OCTET STRING
  */
-static int s_get_ski(const ltc_asn1_list *seq, ltc_x509_extension *san)
+static int s_get_ski(const ltc_asn1_list *seq, ltc_x509_extension *ski)
 {
    void *buf;
    unsigned long len, outlen;
@@ -322,9 +322,9 @@ static int s_get_ski(const ltc_asn1_list *seq, ltc_x509_extension *san)
       XFREE(buf);
       return err;
    }
-   san->u.subject_key_identifier.asn1 = seq;
-   san->u.subject_key_identifier.str = buf;
-   san->u.subject_key_identifier.type = LTC_X509_OCTET_STRING;
+   ski->u.subject_key_identifier.asn1 = seq;
+   ski->u.subject_key_identifier.str = buf;
+   ski->u.subject_key_identifier.type = LTC_X509_OCTET_STRING;
    return err;
 }
 
