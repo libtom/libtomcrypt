@@ -149,6 +149,8 @@ int x509_cmp_name(const ltc_x509_name *a, const ltc_x509_name *b)
 
    if (a == b)
       return 1;
+   if (a->asn1 == NULL || b->asn1 == NULL)
+      return 0;
    if (a->asn1->size != b->asn1->size)
       return 0;
    return XMEMCMP(a->asn1->data, b->asn1->data, a->asn1->size) == 0 ? 1 : 0;
