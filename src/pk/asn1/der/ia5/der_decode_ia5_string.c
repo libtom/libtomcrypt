@@ -12,7 +12,7 @@
 int der_decode_ia5_string_data(const unsigned char *in, unsigned long inlen,
                                               char *out, unsigned long *outlen)
 {
-   unsigned long x, y;
+   unsigned long y;
    int           t;
 
    if (inlen > *outlen) {
@@ -21,8 +21,8 @@ int der_decode_ia5_string_data(const unsigned char *in, unsigned long inlen,
    }
 
    /* read the data */
-   for (x = y = 0; y < inlen; y++) {
-       t = der_ia5_value_decode(in[x++]);
+   for (y = 0; y < inlen; y++) {
+       t = der_ia5_value_decode(in[y]);
        if (t == -1) {
            return CRYPT_INVALID_ARG;
        }
