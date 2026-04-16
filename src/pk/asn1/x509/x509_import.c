@@ -334,7 +334,7 @@ static int s_x509_get_name(const ltc_asn1_list *seq, ltc_x509_name *name)
    name->names = names;
    name->names_num = names_num;
 err_out:
-   if (err != CRYPT_OK) {
+   if (err != CRYPT_OK && names != NULL) {
       s_free_x509_string_array(names, names_num);
    }
    XFREE(name_elements);
