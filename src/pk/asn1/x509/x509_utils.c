@@ -68,6 +68,10 @@ static LTC_INLINE int s_signature_algorithms_equal(const ltc_x509_signature_algo
       if (!rsa_params_equal(&a->u.rsa_params, &b->u.rsa_params))
          return 0;
    }
+   else if (a->u.hash != NULL && b->u.hash != NULL) {
+      if (XSTRCMP(a->u.hash, b->u.hash) != 0)
+         return 0;
+   }
    return 1;
 }
 

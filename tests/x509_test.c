@@ -29,12 +29,30 @@ static int s_x509_decode_bad_f(FILE *f, void *cert)
    return CRYPT_OK;
 }
 
+static int s_x509_test_sig_algo_mismatch(void)
+{
+   const ltc_x509_certificate *cert;
+   int err, stat;
+   FILE *f;
+
+   f = fopen("tests/x509/invalid/sig_algo_mismatch.pem", "r");
+   if (f == NULL) return CRYPT_FILE_NOTFOUND;
+   err = x509_import_pem_filehandle(f, &cert);
+   fclose(f);
+   if (err != CRYPT_OK) return err;
+   /* The cert has sha384 in TBS but sha256 in outer signatureAlgorithm, x509_cert_is_signed_by must reject the algorithm mismatch. */
+   SHOULD_FAIL_WITH(x509_cert_is_signed_by(cert, &cert->tbs_certificate.subject_public_key_info, &stat), CRYPT_PK_TYPE_MISMATCH);
+   x509_free(&cert);
+   return CRYPT_OK;
+}
+
 int x509_test(void)
 {
    const ltc_x509_certificate *cert;
 
    if (ltc_mp.name == NULL) return CRYPT_NOP;
 
+   DO(s_x509_test_sig_algo_mismatch());
    DO(test_process_dir("tests/x509", &cert, (dir_iter_cb)s_x509_decode, NULL, (dir_cleanup_cb)x509_free, "x509_test"));
    DO(test_process_dir("tests/x509", &cert, NULL, (dir_fiter_cb)s_x509_decode_f, (dir_cleanup_cb)x509_free, "x509_test_filehandle"));
    DO(test_process_dir("tests/x509/openssl", &cert, (dir_iter_cb)s_x509_decode, NULL, (dir_cleanup_cb)x509_free, "x509_test_openssl"));
