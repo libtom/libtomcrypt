@@ -118,11 +118,7 @@ static LTC_INLINE int s_looks_like_general_name(const ltc_asn1_list *name)
 }
 
 typedef unsigned short int ushort16;
-#if defined(ENDIAN_LITTLE)
 #define LTC_NTOHS(y)  ( ((ushort16)((y)[0] & 255)<<8) | ((ushort16)((y)[1] & 255)) )
-#else
-#define LTC_NTOHS(y)  (*((ushort16*)(y)))
-#endif
 
 /* RFC 5280, Ch. 4.2.1.6.  Subject Alternative Name
  *    [...]
