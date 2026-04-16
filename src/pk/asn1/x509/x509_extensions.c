@@ -644,6 +644,11 @@ int x509_get_extensions(const ltc_asn1_list *seq, ltc_x509_extensions *extension
             extensions->ext_key_usage = &extensions_[cur_num];
             break;
          default:
+            /* TODO: RFC 5280 4.2 requires rejecting certs with unrecognized critical extensions
+               but currently it cannot be rejected here as some critical extensions are not decoded
+               like: Name Constraints, Inhibit Any Policy, No Revocation Available, OCSP No Check,
+                     Proxy Certificate Information, ac-auditEntity
+            */
             break;
       }
    }
