@@ -201,6 +201,7 @@ static int s_get_general_name(const ltc_asn1_list *seq, ltc_x509_string *name)
             break;
          }
          if ((err = pk_oid_num_to_str(oid, oid_len, NULL, &len)) != CRYPT_BUFFER_OVERFLOW) {
+            if (err == CRYPT_OK) err = CRYPT_ERROR;
             break;
          }
          str = XMALLOC(len);
