@@ -604,7 +604,7 @@ int x509_get_extensions(const ltc_asn1_list *seq, ltc_x509_extensions *extension
    while (cur) {
       st_ce_value val = {0};
       der_flexi_check flexi_should[4];
-      if (cur_num > extensions_num) {
+      if (cur_num >= extensions_num) {
          err = CRYPT_ERROR;
          goto error_out;
       }
