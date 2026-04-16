@@ -516,7 +516,6 @@ static int s_x509_get_optionals(const ltc_asn1_list *seq, ltc_x509_tbs_certifica
       default:
          return CRYPT_PK_ASN1_ERROR;
    }
-   return CRYPT_PK_ASN1_ERROR;
 }
 
 /* Decode a TBSCertificate according to RFC 5280
