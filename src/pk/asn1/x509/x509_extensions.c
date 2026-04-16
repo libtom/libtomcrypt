@@ -182,10 +182,10 @@ static int s_get_general_name(const ltc_asn1_list *seq, ltc_x509_string *name)
                err = CRYPT_MEM;
                break;
             }
-            nbytes = snprintf(str, 40, "%x:%x:%x:%x:%x:%x:%x:%x", LTC_NTOHS(&ip[0]),  LTC_NTOHS(&ip[2]),
-                                                                  LTC_NTOHS(&ip[4]),  LTC_NTOHS(&ip[6]),
-                                                                  LTC_NTOHS(&ip[8]),  LTC_NTOHS(&ip[10]),
-                                                                  LTC_NTOHS(&ip[12]), LTC_NTOHS(&ip[14]));
+            nbytes = snprintf(str, 40, "%04x:%04x:%04x:%04x:%04x:%04x:%04x:%04x", LTC_NTOHS(&ip[0]),  LTC_NTOHS(&ip[2]),
+                                                                                  LTC_NTOHS(&ip[4]),  LTC_NTOHS(&ip[6]),
+                                                                                  LTC_NTOHS(&ip[8]),  LTC_NTOHS(&ip[10]),
+                                                                                  LTC_NTOHS(&ip[12]), LTC_NTOHS(&ip[14]));
             if (nbytes < 0) {
                err = CRYPT_ERROR;
             }
