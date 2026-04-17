@@ -515,35 +515,36 @@ static int s_get_ce_element(const ltc_asn1_list *oid, st_ce_value *ce)
 
 static int s_get_ce_value(const ltc_asn1_list *os, st_ce_value *ce)
 {
+   ltc_asn1_list *value = NULL;
    int err = CRYPT_OK;
-   ce->value.asn1 = os;
    if (ce->ce == NULL) {
+      ce->value.asn1 = os;
       ce->value.type = LTC_X509_UNKNOWN;
       return CRYPT_OK;
    }
+   ce->value.type = ce->ce->detail;
    if (ce->ce->u.ce.type == LTC_ASN1_SEQUENCE) {
-      ltc_asn1_list *value;
       unsigned long len = os->size;
       if ((err = der_decode_sequence_flexi_limited(os->data, &len, 2, &value)) != CRYPT_OK) {
          return err;
       }
-      if (value->type != LTC_ASN1_SEQUENCE) {
-         der_free_sequence_flexi(value);
-         return CRYPT_INVALID_PACKET;
-      } else {
+      if (value->type == LTC_ASN1_SEQUENCE) {
          err = ce->ce->u.ce.handler(value, &ce->value);
+      } else {
+         err = CRYPT_INVALID_PACKET;
       }
       if (err != CRYPT_OK) {
          der_free_sequence_flexi(value);
          return err;
       }
-      /* store the flexi tree root so it can be freed in s_free_extension, handlers store pointers into this tree */
-      ce->value.asn1 = value;
    } else {
       err = ce->ce->u.ce.handler(os, &ce->value);
+      value = (ltc_asn1_list*)os;
    }
    if (err == CRYPT_OK) {
-      ce->value.type = ce->ce->detail;
+      ce->value.asn1 = value;
+   } else {
+      ce->value.type = LTC_X509_UNKNOWN;
    }
    return err;
 }
@@ -555,22 +556,23 @@ static LTC_INLINE void s_free_extension(const ltc_x509_extension *ext)
          s_free(ext->u.authority_key_id.key_identifier.str);
          s_free(ext->u.authority_key_id.authority_cert_issuer.str);
          s_free(ext->u.authority_key_id.authority_cert_serial_number.str);
-         der_free_sequence_flexi((void*)ext->asn1);
          break;
       case LTC_X509_CE_SUBJECT_KEY_ID:
          s_free(ext->u.subject_key_identifier.str);
          break;
       case LTC_X509_CE_SUBJECT_ALT_NAME:
          s_free_x509_string_array(ext->u.subject_alt_name.names, ext->u.subject_alt_name.names_num);
-         der_free_sequence_flexi((void*)ext->asn1);
          break;
       case LTC_X509_CE_BASIC_CONSTRAINTS:
       case LTC_X509_CE_EXT_KEY_USAGE:
-         der_free_sequence_flexi((void*)ext->asn1);
-         break;
       case LTC_X509_CE_KEY_USAGE:
       default:
          break;
+   }
+   if (ext->type != LTC_X509_UNKNOWN
+         && ext->asn1
+         && ext->asn1->type == LTC_ASN1_SEQUENCE) {
+      der_free_sequence_flexi((void*)ext->asn1);
    }
 }
 
@@ -588,6 +590,19 @@ void x509_free_extensions(const ltc_x509_extensions *extensions)
    s_free_extensions(extensions->extensions, extensions->extensions_num);
 }
 
+/* RFC 5280, Ch. 4.1.  Basic Certificate Fields
+ *    [...]
+ * Extensions  ::=  SEQUENCE SIZE (1..MAX) OF Extension
+ *
+ * Extension  ::=  SEQUENCE  {
+ *      extnID      OBJECT IDENTIFIER,
+ *      critical    BOOLEAN DEFAULT FALSE,
+ *      extnValue   OCTET STRING
+ *                  -- contains the DER encoding of an ASN.1 value
+ *                  -- corresponding to the extension type identified
+ *                  -- by extnID
+ *      }
+ */
 int x509_get_extensions(const ltc_asn1_list *seq, ltc_x509_extensions *extensions)
 {
    ltc_x509_extension *extensions_;
