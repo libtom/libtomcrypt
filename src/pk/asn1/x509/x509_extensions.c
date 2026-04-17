@@ -272,6 +272,9 @@ static int s_get_aki(const ltc_asn1_list *seq, ltc_x509_extension *aki)
 {
    int err;
    ltc_asn1_list *element = seq->child;
+   if (aki->critical) {
+      return CRYPT_PK_ASN1_ERROR;
+   }
    while(element && s_is_context_specific_primitive(element)) {
       switch (element->tag) {
          case 0:
@@ -310,7 +313,7 @@ static int s_get_ski(const ltc_asn1_list *seq, ltc_x509_extension *ski)
    void *buf;
    unsigned long len, outlen;
    int err;
-   if (seq->type != LTC_ASN1_OCTET_STRING) {
+   if (seq->type != LTC_ASN1_OCTET_STRING || ski->critical) {
       return CRYPT_PK_ASN1_ERROR;
    }
    /* `size` still contains the ASN.1 header and length, so we're safe length-wise */
@@ -445,8 +448,11 @@ static int s_get_eku(const ltc_asn1_list *seq, ltc_x509_extension *eku)
  *    SubjectAltName ::= GeneralNames
  *
  *    GeneralNames ::= SEQUENCE SIZE (1..MAX) OF GeneralName
+ *
+ * RFC 5280, Ch. 4.2.1.7.  Issuer Alternative Name
+ *    IssuerAltName ::= GeneralNames
  */
-static int s_get_san(const ltc_asn1_list *seq, ltc_x509_extension *san)
+static int s_get_xan(const ltc_asn1_list *seq, ltc_x509_extension *san)
 {
    int err = CRYPT_PK_ASN1_ERROR;
    ltc_x509_string *names;
@@ -475,13 +481,32 @@ static int s_get_san(const ltc_asn1_list *seq, ltc_x509_extension *san)
       cur++;
    }
    if (err == CRYPT_OK) {
-      san->u.subject_alt_name.asn1 = seq;
-      san->u.subject_alt_name.names = names;
-      san->u.subject_alt_name.names_num = num;
+      ltc_x509_name *dest = san->type == LTC_X509_CE_SUBJECT_ALT_NAME ?
+            &san->u.subject_alt_name : &san->u.issuer_alt_name;
+      dest->asn1 = seq;
+      dest->names = names;
+      dest->names_num = num;
    } else {
       s_free_x509_string_array(names, cur);
    }
    return err;
+}
+
+/* RFC 5280, Ch. 4.2 Certificate Extensions
+ * All extensions that are known, but not implemented yet.
+ */
+static int s_not_implemented_yet(const ltc_asn1_list *seq, ltc_x509_extension *ext)
+{
+   LTC_UNUSED_PARAM(seq);
+   LTC_UNUSED_PARAM(ext);
+   return CRYPT_OK;
+}
+
+static int s_not_implemented_yet_crit(const ltc_asn1_list *seq, ltc_x509_extension *ext)
+{
+   LTC_UNUSED_PARAM(seq);
+   LTC_UNUSED_PARAM(ext);
+   return ext->critical ? CRYPT_PK_ASN1_ERROR : CRYPT_OK;
 }
 
 #define X509_CE_ELEMENT(detail, oid, type_, hndl) OID_DETAIL_ELEMENT_VA(detail, oid, .u.ce.type = type_, .u.ce.handler = (der_flexi_handler)hndl)
@@ -492,12 +517,21 @@ static int s_get_san(const ltc_asn1_list *seq, ltc_x509_extension *san)
  */
 static const char x509_ce_arc[] = "2.5.29";
 static const st_oid_detail ce_elements_map[] = {
-                       X509_CE_ELEMENT(LTC_X509_CE_AUTHORITY_KEY_ID,  35, LTC_ASN1_SEQUENCE, s_get_aki),
-                       X509_CE_ELEMENT(LTC_X509_CE_SUBJECT_KEY_ID,    14, LTC_ASN1_OCTET_STRING, s_get_ski),
-                       X509_CE_ELEMENT(LTC_X509_CE_KEY_USAGE,         15, LTC_ASN1_BIT_STRING, s_get_ku),
-                       X509_CE_ELEMENT(LTC_X509_CE_SUBJECT_ALT_NAME,  17, LTC_ASN1_SEQUENCE, s_get_san),
-                       X509_CE_ELEMENT(LTC_X509_CE_BASIC_CONSTRAINTS, 19, LTC_ASN1_SEQUENCE, s_get_bc),
-                       X509_CE_ELEMENT(LTC_X509_CE_EXT_KEY_USAGE,     37, LTC_ASN1_SEQUENCE, s_get_eku),
+                       X509_CE_ELEMENT(LTC_X509_CE_AUTHORITY_KEY_ID,             35, LTC_ASN1_SEQUENCE, s_get_aki),
+                       X509_CE_ELEMENT(LTC_X509_CE_SUBJECT_KEY_ID,               14, LTC_ASN1_OCTET_STRING, s_get_ski),
+                       X509_CE_ELEMENT(LTC_X509_CE_KEY_USAGE,                    15, LTC_ASN1_BIT_STRING, s_get_ku),
+                       X509_CE_ELEMENT(LTC_X509_CE_CERTIFICATE_POLICIES,         32, LTC_ASN1_SEQUENCE, s_not_implemented_yet_crit),
+                       X509_CE_ELEMENT(LTC_X509_CE_POLICY_MAPPINGS,              33, LTC_ASN1_SEQUENCE, s_not_implemented_yet),
+                       X509_CE_ELEMENT(LTC_X509_CE_SUBJECT_ALT_NAME,             17, LTC_ASN1_SEQUENCE, s_get_xan),
+                       X509_CE_ELEMENT(LTC_X509_CE_ISSUER_ALT_NAME,              18, LTC_ASN1_SEQUENCE, s_get_xan),
+                       X509_CE_ELEMENT(LTC_X509_CE_SUBJECT_DIRECTORY_ATTRIBUTES,  9, LTC_ASN1_SEQUENCE, s_not_implemented_yet_crit),
+                       X509_CE_ELEMENT(LTC_X509_CE_BASIC_CONSTRAINTS,            19, LTC_ASN1_SEQUENCE, s_get_bc),
+                       X509_CE_ELEMENT(LTC_X509_CE_NAME_CONSTRAINTS,             30, LTC_ASN1_SEQUENCE, s_not_implemented_yet),
+                       X509_CE_ELEMENT(LTC_X509_CE_POLICY_CONSTRAINTS,           36, LTC_ASN1_SEQUENCE, s_not_implemented_yet),
+                       X509_CE_ELEMENT(LTC_X509_CE_EXT_KEY_USAGE,                37, LTC_ASN1_SEQUENCE, s_get_eku),
+                       X509_CE_ELEMENT(LTC_X509_CE_CRL_DISTRIBUTION_POINTS,      31, LTC_ASN1_SEQUENCE, s_not_implemented_yet),
+                       X509_CE_ELEMENT(LTC_X509_CE_INHIBIT_ANY_POLICY,           54, LTC_ASN1_INTEGER, s_not_implemented_yet),
+                       X509_CE_ELEMENT(LTC_X509_CE_FRESHEST_CRL,                 46, LTC_ASN1_INTEGER, s_not_implemented_yet),
 };
 
 typedef struct st_ce_value {
@@ -563,9 +597,9 @@ static LTC_INLINE void s_free_extension(const ltc_x509_extension *ext)
       case LTC_X509_CE_SUBJECT_ALT_NAME:
          s_free_x509_string_array(ext->u.subject_alt_name.names, ext->u.subject_alt_name.names_num);
          break;
-      case LTC_X509_CE_BASIC_CONSTRAINTS:
-      case LTC_X509_CE_EXT_KEY_USAGE:
-      case LTC_X509_CE_KEY_USAGE:
+      case LTC_X509_CE_ISSUER_ALT_NAME:
+         s_free_x509_string_array(ext->u.issuer_alt_name.names, ext->u.issuer_alt_name.names_num);
+         break;
       default:
          break;
    }
@@ -644,24 +678,65 @@ int x509_get_extensions(const ltc_asn1_list *seq, ltc_x509_extensions *extension
       cur = cur->next;
    }
    for (cur_num = 0; cur_num < extensions_num; ++cur_num) {
+
+/* RFC 5280, Ch. 4.2.  Certificate Extensions
+ * [...]
+ * A certificate MUST NOT include more than one instance of a particular extension.
+ * [...]
+ */
+#define set_extension(target, source) do { \
+   if ((target) != NULL) { \
+         err = CRYPT_PK_ASN1_ERROR; \
+         goto error_out; \
+   } \
+   (target) = (source); \
+} while(0)
+
       switch (extensions_[cur_num].type) {
          case LTC_X509_CE_AUTHORITY_KEY_ID:
-            extensions->authority_key_id = &extensions_[cur_num];
+            set_extension(extensions->authority_key_id, &extensions_[cur_num]);
             break;
          case LTC_X509_CE_SUBJECT_KEY_ID:
-            extensions->subject_key_identifier = &extensions_[cur_num];
+            set_extension(extensions->subject_key_identifier, &extensions_[cur_num]);
             break;
          case LTC_X509_CE_KEY_USAGE:
-            extensions->key_usage = &extensions_[cur_num];
+            set_extension(extensions->key_usage, &extensions_[cur_num]);
+            break;
+         case LTC_X509_CE_CERTIFICATE_POLICIES:
+            set_extension(extensions->certificate_policies, &extensions_[cur_num]);
+            break;
+         case LTC_X509_CE_POLICY_MAPPINGS:
+            set_extension(extensions->policy_mappings, &extensions_[cur_num]);
             break;
          case LTC_X509_CE_SUBJECT_ALT_NAME:
-            extensions->subject_alt_name = &extensions_[cur_num];
+            set_extension(extensions->subject_alt_name, &extensions_[cur_num]);
+            break;
+         case LTC_X509_CE_ISSUER_ALT_NAME:
+            set_extension(extensions->issuer_alt_name, &extensions_[cur_num]);
+            break;
+         case LTC_X509_CE_SUBJECT_DIRECTORY_ATTRIBUTES:
+            set_extension(extensions->subject_directory_attributes, &extensions_[cur_num]);
             break;
          case LTC_X509_CE_BASIC_CONSTRAINTS:
-            extensions->basic_constraints = &extensions_[cur_num];
+            set_extension(extensions->basic_constraints, &extensions_[cur_num]);
+            break;
+         case LTC_X509_CE_NAME_CONSTRAINTS:
+            set_extension(extensions->name_constraints, &extensions_[cur_num]);
+            break;
+         case LTC_X509_CE_POLICY_CONSTRAINTS:
+            set_extension(extensions->policy_constraints, &extensions_[cur_num]);
             break;
          case LTC_X509_CE_EXT_KEY_USAGE:
-            extensions->ext_key_usage = &extensions_[cur_num];
+            set_extension(extensions->ext_key_usage, &extensions_[cur_num]);
+            break;
+         case LTC_X509_CE_CRL_DISTRIBUTION_POINTS:
+            set_extension(extensions->crl_distribution_points, &extensions_[cur_num]);
+            break;
+         case LTC_X509_CE_INHIBIT_ANY_POLICY:
+            set_extension(extensions->inhibit_any_policy, &extensions_[cur_num]);
+            break;
+         case LTC_X509_CE_FRESHEST_CRL:
+            set_extension(extensions->freshest_crl, &extensions_[cur_num]);
             break;
          default:
             /* TODO: RFC 5280 4.2 requires rejecting certs with unrecognized critical extensions
@@ -671,13 +746,16 @@ int x509_get_extensions(const ltc_asn1_list *seq, ltc_x509_extensions *extension
             */
             break;
       }
+
+#undef set_extension
+
    }
    extensions->asn1 = seq;
    extensions->extensions = extensions_;
    extensions->extensions_num = cur_num;
    return CRYPT_OK;
 error_out:
-   s_free_extensions(extensions_, cur_num);
+   s_free_extensions(extensions_, extensions_num);
    return err;
 }
 

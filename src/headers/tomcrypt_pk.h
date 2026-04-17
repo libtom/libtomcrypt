@@ -1076,6 +1076,16 @@ typedef enum ltc_x509_details {
    LTC_X509_OU,
    /* EmailAddress */
    LTC_X509_EMAIL,
+   /* Name */
+   LTC_X509_N,
+   /* Surname */
+   LTC_X509_SN,
+   /* GivenName */
+   LTC_X509_GN,
+   /* Initials */
+   LTC_X509_IN,
+   /* GenerationQualifier */
+   LTC_X509_GQ,
 
    /* GeneralName subtypes
     *    GeneralName ::= CHOICE {
@@ -1109,12 +1119,30 @@ typedef enum ltc_x509_details {
    LTC_X509_CE_SUBJECT_KEY_ID,
    /* KeyUsage */
    LTC_X509_CE_KEY_USAGE,
+   /* CertificatePolicies */
+   LTC_X509_CE_CERTIFICATE_POLICIES,
+   /* PolicyMappings */
+   LTC_X509_CE_POLICY_MAPPINGS,
    /* SubjectAltName */
    LTC_X509_CE_SUBJECT_ALT_NAME,
+   /* IssuerAltName */
+   LTC_X509_CE_ISSUER_ALT_NAME,
+   /* SubjectDirectoryAttributes */
+   LTC_X509_CE_SUBJECT_DIRECTORY_ATTRIBUTES,
    /* BasicConstraints */
    LTC_X509_CE_BASIC_CONSTRAINTS,
+   /* NameConstraints */
+   LTC_X509_CE_NAME_CONSTRAINTS,
+   /* PolicyConstraints */
+   LTC_X509_CE_POLICY_CONSTRAINTS,
    /* ExtendedKeyUsage */
    LTC_X509_CE_EXT_KEY_USAGE,
+   /* CRLDistributionPoints */
+   LTC_X509_CE_CRL_DISTRIBUTION_POINTS,
+   /* InhibitAnyPolicy */
+   LTC_X509_CE_INHIBIT_ANY_POLICY,
+   /* FreshestCRL */
+   LTC_X509_CE_FRESHEST_CRL,
 
    /* The rest will not be decoded and has to be treated
     * manually through the `asn1` pointer of the struct.
@@ -1222,6 +1250,8 @@ typedef struct ltc_x509_extension {
       ulong32 key_usage;
       /* .type = LTC_X509_CE_SUBJECT_ALT_NAME */
       ltc_x509_name subject_alt_name;
+      /* .type = LTC_X509_CE_ISSUER_ALT_NAME */
+      ltc_x509_name issuer_alt_name;
       /* .type = LTC_X509_CE_BASIC_CONSTRAINTS */
       struct {
          int ca;
@@ -1247,11 +1277,20 @@ typedef struct ltc_x509_extensions {
    const ltc_x509_extension *authority_key_id;
    const ltc_x509_extension *subject_key_identifier;
    const ltc_x509_extension *key_usage;
+   const ltc_x509_extension *certificate_policies;
+   const ltc_x509_extension *policy_mappings;
    const ltc_x509_extension *subject_alt_name;
+   const ltc_x509_extension *issuer_alt_name;
+   const ltc_x509_extension *subject_directory_attributes;
    const ltc_x509_extension *basic_constraints;
+   const ltc_x509_extension *name_constraints;
+   const ltc_x509_extension *policy_constraints;
    const ltc_x509_extension *ext_key_usage;
+   const ltc_x509_extension *crl_distribution_points;
+   const ltc_x509_extension *inhibit_any_policy;
+   const ltc_x509_extension *freshest_crl;
    /* let's pre-reserve this for future extensions */
-   const ltc_x509_extension *more[7];
+   const ltc_x509_extension *more[10];
 } ltc_x509_extensions;
 
 typedef struct ltc_x509_tbs_certificate {

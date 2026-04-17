@@ -34,12 +34,17 @@ typedef struct st_oid_detail {
 #define X509_NAME_ELEMENT(detail, oid, ub) OID_DETAIL_ELEMENT_5(detail, X509_NAME_ARC, oid, ASN1_STRING, ub)
 
 static const st_oid_detail name_elements_map[] = {
-                       X509_NAME_ELEMENT(LTC_X509_CN, 3,  64),
-                       X509_NAME_ELEMENT(LTC_X509_C,  6,  2),
-                       X509_NAME_ELEMENT(LTC_X509_L,  7,  128),
-                       X509_NAME_ELEMENT(LTC_X509_ST, 8,  128),
+                       X509_NAME_ELEMENT(LTC_X509_CN,  3,  64),
+                       X509_NAME_ELEMENT(LTC_X509_SN,  4,  32768),
+                       X509_NAME_ELEMENT(LTC_X509_C,   6,  2),
+                       X509_NAME_ELEMENT(LTC_X509_L,   7,  128),
+                       X509_NAME_ELEMENT(LTC_X509_ST,  8,  128),
                        X509_NAME_ELEMENT(LTC_X509_O,  10, 64),
                        X509_NAME_ELEMENT(LTC_X509_OU, 11, 64),
+                       X509_NAME_ELEMENT(LTC_X509_N,  41,  32768),
+                       X509_NAME_ELEMENT(LTC_X509_GN, 42,  32768),
+                       X509_NAME_ELEMENT(LTC_X509_IN, 43,  32768),
+                       X509_NAME_ELEMENT(LTC_X509_GQ, 44,  32768),
                        OID_DETAIL_ELEMENT(LTC_X509_EMAIL, "1.2.840.113549.1.9.1", ASN1_IA5_STRING, 255),
 };
 

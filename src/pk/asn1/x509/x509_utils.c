@@ -194,8 +194,13 @@ const char *x509_name_detail_desc(ltc_x509_details type)
                                         "Organisation",
                                         "OrganisationalUnit",
                                         "EmailAddress",
+                                        "Name",
+                                        "Surname",
+                                        "GivenName",
+                                        "Initials",
+                                        "GenerationQualifier",
    };
-   if (type <= LTC_X509_EMAIL) {
+   if (type <= LTC_X509_GQ) {
       return standard_attributes[type];
    }
    return "Unknown";
