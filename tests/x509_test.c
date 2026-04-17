@@ -2,12 +2,6 @@
 /* SPDX-License-Identifier: Unlicense */
 #include <tomcrypt_test.h>
 
-#ifdef CMAKE_SOURCE_DIR
-#define FILE_IN_SOURCE_DIR(f) CMAKE_SOURCE_DIR "/" f
-#else
-#define FILE_IN_SOURCE_DIR(f) f
-#endif
-
 #if defined(LTC_PEM) && defined(LTC_TEST_READDIR) && !defined(LTC_EASY)
 
 static int s_x509_decode(const void *in, unsigned long inlen, void *cert)

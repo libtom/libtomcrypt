@@ -13,11 +13,6 @@ int file_test(void)
                              0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F };
    unsigned char buf[200];
    unsigned long len;
-#ifdef CMAKE_SOURCE_DIR
-#define FILE_IN_SOURCE_DIR(f) CMAKE_SOURCE_DIR "/" f
-#else
-#define FILE_IN_SOURCE_DIR(f) f
-#endif
    const char *fname = FILE_IN_SOURCE_DIR("tests/test.key");
    FILE *in;
    int err, isha256, iaes;
