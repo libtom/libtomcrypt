@@ -62,26 +62,31 @@ static LTC_INLINE int s_get_element_(const st_oid_detail* details, unsigned long
 
 #ifndef S_FREE
 #define S_FREE
-#define s_free(p) s_free_((void*) p)
-static LTC_INLINE void s_free_(void* p)
+#define s_free(p) s_free_((void**) &(p))
+static LTC_INLINE void s_free_(void** p)
 {
-   if (p == NULL) {
+   if (p == NULL || *p == NULL) {
       return;
    }
-   XFREE(p);
+   XFREE(*p);
+   *p = NULL;
 }
 #endif
 
 #ifndef S_FREE_X509_STRING_ARRAY
 #define S_FREE_X509_STRING_ARRAY
-#define s_free_x509_string_array(s, n) s_free_x509_string_array_((ltc_x509_string*)s, n)
-static LTC_INLINE void s_free_x509_string_array_(ltc_x509_string *strings, unsigned long num)
+#define s_free_x509_string_array(s, n) s_free_x509_string_array_((ltc_x509_string**)&(s), n)
+static LTC_INLINE void s_free_x509_string_array_(ltc_x509_string **strings_, unsigned long num)
 {
    unsigned long n;
+   ltc_x509_string *strings;
+   if (strings_ == NULL)
+      return;
+   strings = *strings_;
    for (n = num; n --> 0;) {
       s_free(strings[n].str);
    }
-   s_free(strings);
+   s_free_((void**)strings_);
 }
 #endif
 

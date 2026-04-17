@@ -163,28 +163,34 @@ static LTC_INLINE int s_x509_get_name_process(const ltc_asn1_list *set, st_oid_d
    return CRYPT_OK;
 }
 
+
 #ifndef S_FREE
 #define S_FREE
-#define s_free(p) s_free_((void*) p)
-static LTC_INLINE void s_free_(void* p)
+#define s_free(p) s_free_((void**) &(p))
+static LTC_INLINE void s_free_(void** p)
 {
-   if (p == NULL) {
+   if (p == NULL || *p == NULL) {
       return;
    }
-   XFREE((void*)p);
+   XFREE(*p);
+   *p = NULL;
 }
 #endif
 
 #ifndef S_FREE_X509_STRING_ARRAY
 #define S_FREE_X509_STRING_ARRAY
-#define s_free_x509_string_array(s, n) s_free_x509_string_array_((ltc_x509_string*)s, n)
-static LTC_INLINE void s_free_x509_string_array_(ltc_x509_string *strings, unsigned long num)
+#define s_free_x509_string_array(s, n) s_free_x509_string_array_((ltc_x509_string**)&(s), n)
+static LTC_INLINE void s_free_x509_string_array_(ltc_x509_string **strings_, unsigned long num)
 {
    unsigned long n;
+   ltc_x509_string *strings;
+   if (strings_ == NULL)
+      return;
+   strings = *strings_;
    for (n = num; n --> 0;) {
       s_free(strings[n].str);
    }
-   s_free(strings);
+   s_free_((void**)strings_);
 }
 #endif
 
@@ -333,7 +339,7 @@ static int s_x509_get_name(const ltc_asn1_list *seq, ltc_x509_name *name)
    name->names = names;
    name->names_num = names_num;
 err_out:
-   if (err != CRYPT_OK && names != NULL) {
+   if (err != CRYPT_OK) {
       s_free_x509_string_array(names, names_num);
    }
    XFREE(name_elements);
@@ -432,14 +438,10 @@ static int s_x509_get_validity(const ltc_asn1_list *seq, ltc_x509_validity *vali
    }
    return CRYPT_OK;
 err_out:
-   if (validity->not_after.str) {
+   if (validity->not_after.str)
       s_free(validity->not_after.str);
-      validity->not_after.str = NULL;
-   }
-   if (validity->not_before.str) {
+   if (validity->not_before.str)
       s_free(validity->not_before.str);
-      validity->not_before.str = NULL;
-   }
    return err;
 }
 
@@ -691,8 +693,7 @@ void x509_free(const ltc_x509_certificate **cert)
    s_free(c->signature.signature);
    s_free_x509_tbs_cert(&c->tbs_certificate);
    der_free_sequence_flexi((void*)c->asn1);
-   s_free(c);
-   *cert = NULL;
+   s_free_((void**)cert);
 }
 
 #undef st_oid_detail
