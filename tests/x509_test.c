@@ -2,6 +2,12 @@
 /* SPDX-License-Identifier: Unlicense */
 #include <tomcrypt_test.h>
 
+#ifdef CMAKE_SOURCE_DIR
+#define FILE_IN_SOURCE_DIR(f) CMAKE_SOURCE_DIR "/" f
+#else
+#define FILE_IN_SOURCE_DIR(f) f
+#endif
+
 #if defined(LTC_PEM) && defined(LTC_TEST_READDIR) && !defined(LTC_EASY)
 
 static int s_x509_decode(const void *in, unsigned long inlen, void *cert)
@@ -36,7 +42,7 @@ static int s_x509_test_extension_asn1_access(void)
    int err;
    FILE *f;
 
-   f = fopen("tests/x509/LTC_CA.pem", "r");
+   f = fopen(FILE_IN_SOURCE_DIR("tests/x509/LTC_CA.pem"), "r");
    if (f == NULL) return CRYPT_FILE_NOTFOUND;
    err = x509_import_pem_filehandle(f, &cert);
    fclose(f);
@@ -77,7 +83,7 @@ static int s_x509_test_sig_algo_mismatch(void)
    int err, stat;
    FILE *f;
 
-   f = fopen("tests/x509/invalid/sig_algo_mismatch.pem", "r");
+   f = fopen(FILE_IN_SOURCE_DIR("tests/x509/invalid/sig_algo_mismatch.pem"), "r");
    if (f == NULL) return CRYPT_FILE_NOTFOUND;
    err = x509_import_pem_filehandle(f, &cert);
    fclose(f);
