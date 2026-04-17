@@ -60,6 +60,20 @@ int cipher_hash_test(void)
    }
 
    /* explicit SHA-NI + portable implementations tests */
+   if (sha512ni_is_supported()) {
+#if defined(LTC_SHA512) && defined(LTC_SHA512_X86)
+      DO(sha512_x86_test());
+#endif
+#if defined(LTC_SHA384) && defined(LTC_SHA384_X86)
+      DO(sha384_x86_test());
+#endif
+#if defined(LTC_SHA512_256) && defined(LTC_SHA512_256_X86)
+      DO(sha512_256_x86_test());
+#endif
+#if defined(LTC_SHA512_224) && defined(LTC_SHA512_224_X86)
+      DO(sha512_224_x86_test());
+#endif
+   }
    if (shani_is_supported()) {
 #if defined(LTC_SHA256) && defined(LTC_SHA256_X86)
       DO(sha256_x86_test());

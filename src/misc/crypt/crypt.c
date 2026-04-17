@@ -524,6 +524,18 @@ const char *crypt_build_settings =
 #if defined(LTC_SHA256) && defined(LTC_SHA256_X86)
    " SHA256-NI "
 #endif
+#if defined(LTC_SHA512) && defined(LTC_SHA512_X86)
+   " SHA512-NI "
+#endif
+#if defined(LTC_SHA384) && defined(LTC_SHA384_X86)
+   " SHA384-NI "
+#endif
+#if defined(LTC_SHA512_224) && defined(LTC_SHA512_224_X86)
+   " SHA512_224-NI "
+#endif
+#if defined(LTC_SHA512_256) && defined(LTC_SHA512_256_X86)
+   " SHA512_256-NI "
+#endif
 #if defined(LTC_DEVRANDOM)
     " LTC_DEVRANDOM "
 #endif

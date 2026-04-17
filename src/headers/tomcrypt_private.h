@@ -186,6 +186,7 @@ int func_name (hash_state * md, const unsigned char *in, unsigned long inlen)   
 
 
 #define LTC_SHA_TARGET LTC_ATTRIBUTE((__target__("sse2,ssse3,sse4.1,sha")))
+#define LTC_SHA512_TARGET LTC_ATTRIBUTE((__target__("sse2,avx,avx2,sha512")))
 
 #ifdef LTC_SHA1
 int sha1_test_desc(const struct ltc_hash_descriptor *desc, const char *name);
@@ -195,6 +196,18 @@ int sha224_test_desc(const struct ltc_hash_descriptor *desc, const char *name);
 #endif
 #ifdef LTC_SHA256
 int sha256_test_desc(const struct ltc_hash_descriptor *desc, const char *name);
+#endif
+#ifdef LTC_SHA512
+int sha512_test_desc(const struct ltc_hash_descriptor *desc, const char *name);
+#endif
+#ifdef LTC_SHA384
+int sha384_test_desc(const struct ltc_hash_descriptor *desc, const char *name);
+#endif
+#ifdef LTC_SHA512_224
+int sha512_224_test_desc(const struct ltc_hash_descriptor *desc, const char *name);
+#endif
+#ifdef LTC_SHA512_256
+int sha512_256_test_desc(const struct ltc_hash_descriptor *desc, const char *name);
 #endif
 
 /* tomcrypt_mac.h */

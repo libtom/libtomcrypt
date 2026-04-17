@@ -1,15 +1,15 @@
 /* LibTomCrypt, modular cryptographic library -- Tom St Denis */
 /* SPDX-License-Identifier: Unlicense */
 /**
-   @param sha384.c
-   LTC_SHA384 hash included in sha512.c, Tom St Denis
+   @param sha384_x86.c
+   LTC_SHA384 hash included in sha512_x86.c, Marek Knapek
 */
 
 #include "tomcrypt_private.h"
 
-#if defined(LTC_SHA384) && defined(LTC_SHA512)
+#if defined(LTC_SHA384) && defined(LTC_SHA512) && defined(LTC_SHA384_X86)
 
-const struct ltc_hash_descriptor sha384_portable_desc =
+const struct ltc_hash_descriptor sha384_x86_desc =
 {
     "sha384",
     4,
@@ -20,10 +20,10 @@ const struct ltc_hash_descriptor sha384_portable_desc =
    { 2, 16, 840, 1, 101, 3, 4, 2, 2,  },
    9,
 
-    &sha384_c_init,
-    &sha512_c_process,
-    &sha384_c_done,
-    &sha384_test,
+    &sha384_x86_init,
+    &sha512_x86_process,
+    &sha384_x86_done,
+    &sha384_x86_test,
     NULL
 };
 
@@ -32,7 +32,7 @@ const struct ltc_hash_descriptor sha384_portable_desc =
    @param md   The hash state you wish to initialize
    @return CRYPT_OK if successful
 */
-int sha384_c_init(hash_state * md)
+int sha384_x86_init(hash_state * md)
 {
     LTC_ARGCHK(md != NULL);
 
@@ -56,7 +56,7 @@ int sha384_c_init(hash_state * md)
    @param out [out] The destination of the hash (48 bytes)
    @return CRYPT_OK if successful
 */
-int sha384_c_done(hash_state * md, unsigned char *out)
+int sha384_x86_done(hash_state * md, unsigned char *out)
 {
    unsigned char buf[64];
 
@@ -67,7 +67,7 @@ int sha384_c_done(hash_state * md, unsigned char *out)
        return CRYPT_INVALID_ARG;
     }
 
-   sha512_c_done(md, buf);
+   sha512_x86_done(md, buf);
    XMEMCPY(out, buf, 48);
 #ifdef LTC_CLEAN_STACK
    zeromem(buf, sizeof(buf));
@@ -79,9 +79,9 @@ int sha384_c_done(hash_state * md, unsigned char *out)
   Self-test the hash
   @return CRYPT_OK if successful, CRYPT_NOP if self-tests have been disabled
 */
-int  sha384_c_test(void)
+int sha384_x86_test(void)
 {
-   return sha384_test_desc(&sha384_portable_desc, "SHA384 portable");
+   return sha384_test_desc(&sha384_x86_desc, "SHA384 x86");
 }
 
-#endif /* defined(LTC_SHA384) && defined(LTC_SHA512) */
+#endif /* defined(LTC_SHA384) && defined(LTC_SHA512) && defined(LTC_SHA384_X86) */

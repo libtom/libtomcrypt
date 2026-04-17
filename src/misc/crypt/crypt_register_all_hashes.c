@@ -15,15 +15,6 @@
 
 int register_all_hashes(void)
 {
-#ifdef LTC_SHA512
-   REGISTER_HASH(&sha512_desc);
-#endif
-#ifdef LTC_SHA256
-   /* `sha256_desc` does the multiplexing into `sha256_x86_desc` resp. `sha256_portable_desc`
-    * depending on the capabilities of the CPU.
-    */
-   REGISTER_HASH(&sha256_desc);
-#endif
 #ifdef LTC_SHA3
    REGISTER_HASH(&sha3_512_desc);
    REGISTER_HASH(&sha3_384_desc);
@@ -32,11 +23,17 @@ int register_all_hashes(void)
    REGISTER_HASH(&shake128_desc);
    REGISTER_HASH(&shake256_desc);
 #endif
-#ifdef LTC_SHA512_256
-   REGISTER_HASH(&sha512_256_desc);
+#ifdef LTC_SHA1
+   /* `sha1_desc` does the multiplexing into `sha1_x86_desc` resp. `sha1_portable_desc`
+    * depending on the capabilities of the CPU.
+    */
+   REGISTER_HASH(&sha1_desc);
 #endif
-#ifdef LTC_SHA512_224
-   REGISTER_HASH(&sha512_224_desc);
+#ifdef LTC_SHA256
+   /* `sha256_desc` does the multiplexing into `sha256_x86_desc` resp. `sha256_portable_desc`
+    * depending on the capabilities of the CPU.
+    */
+   REGISTER_HASH(&sha256_desc);
 #endif
 #ifdef LTC_SHA224
    /* `sha224_desc` does the multiplexing into `sha224_x86_desc` resp. `sha224_portable_desc`
@@ -44,14 +41,29 @@ int register_all_hashes(void)
     */
    REGISTER_HASH(&sha224_desc);
 #endif
-#ifdef LTC_SHA384
-   REGISTER_HASH(&sha384_desc);
-#endif
-#ifdef LTC_SHA1
-   /* `sha1_desc` does the multiplexing into `sha1_x86_desc` resp. `sha1_portable_desc`
+#ifdef LTC_SHA512
+   /* `sha512_desc` does the multiplexing into `sha512_x86_desc` resp. `sha512_portable_desc`
     * depending on the capabilities of the CPU.
     */
-   REGISTER_HASH(&sha1_desc);
+   REGISTER_HASH(&sha512_desc);
+#endif
+#ifdef LTC_SHA384
+   /* `sha384_desc` does the multiplexing into `sha384_x86_desc` resp. `sha384_portable_desc`
+    * depending on the capabilities of the CPU.
+    */
+   REGISTER_HASH(&sha384_desc);
+#endif
+#ifdef LTC_SHA512_224
+   /* `sha512_224_desc` does the multiplexing into `sha512_224_x86_desc` resp. `sha512_224_portable_desc`
+    * depending on the capabilities of the CPU.
+    */
+   REGISTER_HASH(&sha512_224_desc);
+#endif
+#ifdef LTC_SHA512_256
+   /* `sha512_256_desc` does the multiplexing into `sha512_256_x86_desc` resp. `sha512_256_portable_desc`
+    * depending on the capabilities of the CPU.
+    */
+   REGISTER_HASH(&sha512_256_desc);
 #endif
 #ifdef LTC_MD5
    REGISTER_HASH(&md5_desc);
