@@ -590,8 +590,6 @@ int x509_get_extensions(const ltc_asn1_list *seq, ltc_x509_extensions *extension
    ltc_asn1_list *cur;
    unsigned long cur_num = 0;
    int err;
-   LTC_ARGCHK(seq        != NULL);
-   LTC_ARGCHK(extensions != NULL);
    if (seq->type != LTC_ASN1_SEQUENCE)
       return CRYPT_INVALID_PACKET;
    cur = seq->child;
