@@ -52,7 +52,7 @@ void s_print_err(const char *errstr, ltc_asn1_list *l, int err, unsigned long id
    @param depth   The depth/level of decoding recursion we've already reached
    @return CRYPT_OK on success.
 */
-static int s_der_decode_sequence_flexi(const unsigned char *in, unsigned long *inlen, ltc_asn1_list **out, unsigned long depth)
+static int s_der_decode_sequence_flexi(const unsigned char *in, unsigned long *inlen, ltc_asn1_list **out, unsigned long depth, long max_depth)
 {
    ltc_asn1_list *l;
    int err;
@@ -433,6 +433,9 @@ static int s_der_decode_sequence_flexi(const unsigned char *in, unsigned long *i
              if (depth > LTC_DER_MAX_RECURSION) {
                 err = CRYPT_PK_ASN1_ERROR;
                 goto error;
+             } else if (max_depth > 0 && (long)depth > max_depth) {
+                totlen = *inlen;
+                goto default_out;
              }
 
              if ((l->data = XMALLOC(len)) == NULL) {
@@ -453,7 +456,7 @@ static int s_der_decode_sequence_flexi(const unsigned char *in, unsigned long *i
              len_len = len;
 
              /* Sequence elements go as child */
-             if ((err = s_der_decode_sequence_flexi(in, &len, &(l->child), depth+1)) != CRYPT_OK) {
+             if ((err = s_der_decode_sequence_flexi(in, &len, &(l->child), depth+1, max_depth)) != CRYPT_OK) {
                 goto error;
              }
              if (len_len != len) {
@@ -489,6 +492,7 @@ static int s_der_decode_sequence_flexi(const unsigned char *in, unsigned long *i
              break;
 
          default:
+default_out:
            /* invalid byte ... this is a soft error */
            /* remove link */
            if (l->prev) {
@@ -540,7 +544,19 @@ error:
 */
 int der_decode_sequence_flexi(const unsigned char *in, unsigned long *inlen, ltc_asn1_list **out)
 {
-   return s_der_decode_sequence_flexi(in, inlen, out, 0);
+   return s_der_decode_sequence_flexi(in, inlen, out, 0, -1);
+}
+
+/**
+   ASN.1 DER Flexi(ble) decoder will decode arbitrary DER packets and create a linked list of the decoded elements.
+   @param in      The input buffer
+   @param inlen   [in/out] The length of the input buffer and on output the amount of decoded data
+   @param out     [out] A pointer to the linked list
+   @return CRYPT_OK on success.
+*/
+int der_decode_sequence_flexi_limited(const unsigned char *in, unsigned long *inlen, long max_depth, ltc_asn1_list **out)
+{
+   return s_der_decode_sequence_flexi(in, inlen, out, 0, max_depth);
 }
 
 #endif

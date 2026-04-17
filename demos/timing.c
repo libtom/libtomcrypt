@@ -132,6 +132,10 @@ static LTC_INLINE ulong64 t_read(void)
 
 static void init_timer(void)
 {
+#if defined(LTC_NO_ASM)
+   skew = 0;
+   fprintf(stderr, "LTC_NO_ASM\nClock Skew: %lu\n", (unsigned long)skew);
+#else
    ulong64 c1, c2, t1, t2;
    unsigned long y1;
 
@@ -146,6 +150,7 @@ static void init_timer(void)
    }
    skew = c2 - c1;
    fprintf(stderr, "Clock Skew: %lu\n", (unsigned long)skew);
+#endif
 }
 
 static void time_keysched(void)
@@ -1400,6 +1405,56 @@ static void time_encmacs(void)
    time_encmacs_(32);
 }
 
+static void time_x509_import_spki(const char *pem)
+{
+   const ltc_x509_certificate *cert;
+   FILE *f;
+   int err, y, n;
+   ltc_pka_key k[8] = {0};
+   ulong64 t1, t2;
+   f = fopen(pem, "r");
+   if ((err = x509_import_pem_filehandle(f, &cert)) != CRYPT_OK) {
+      fprintf(stderr, "\nx509_import_pem_filehandle() error... %s\n", error_to_string(err));
+      exit(EXIT_FAILURE);
+   }
+   if ((err = x509_import_spki(cert->asn1->data, cert->asn1->size, k, NULL)) != CRYPT_OK) {
+      fprintf(stderr, "\nx509_import_spki() error... %s\n", error_to_string(err));
+      exit(EXIT_FAILURE);
+   }
+   pka_key_free(k);
+#define DO1 x509_import_spki(cert->asn1->data, cert->asn1->size, &k[n++], NULL);
+#define DO2 DO1 DO1
+#define DO4 DO2 DO2
+#define DO8 DO4 DO4
+   t2 = -1;
+   for (y = 0; y < 1000; y++) {
+      n = 0;
+      t_start();
+      t1 = t_read();
+      DO8;
+      t1 = (t_read() - t1)>>1;
+      if (t1 < t2) t2 = t1;
+      for (n = LTC_ARRAY_SIZE(k); n --> 0;) {
+         pka_key_free(&k[n]);
+      }
+   }
+   fprintf(stderr, "x509 %-20s: %9"PRI64"u cycles\n", strrchr(pem, '/') + 1, t2/LTC_ARRAY_SIZE(k));
+   x509_free(&cert);
+   fclose(f);
+}
+
+static void time_x509(void)
+{
+   time_x509_import_spki("tests/x509/gnutls/cert-rsa-pss.pem");
+   time_x509_import_spki("tests/x509/LTC_CA.pem");
+   time_x509_import_spki("tests/x509/LTC_S0.pem");
+   time_x509_import_spki("tests/x509/LTC_SS0.pem");
+   time_x509_import_spki("tests/x509/secp384r1.pem");
+   time_x509_import_spki("tests/x509/secp521r1.pem");
+   time_x509_import_spki("tests/x509/invalid/LTC_SSS0.pem");
+   time_x509_import_spki("tests/x509/invalid/secp224r1.pem");
+}
+
 static void LTC_NORETURN die(int status)
 {
    FILE* o = status == EXIT_SUCCESS ? stdout : stderr;
@@ -1442,6 +1497,7 @@ const struct
    LTC_TEST_FN(dsa),
    LTC_TEST_FN(ecc),
    LTC_TEST_FN(dh),
+   LTC_TEST_FN(x509),
 };
 char *single_test = NULL;
 unsigned int i;

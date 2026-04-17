@@ -24,7 +24,7 @@ endif()
 # Demos that are usable but only rarely make sense to be installed
 #
 # -----------------------------------------------------------------------------
-set(USABLE_DEMOS aesgcm constants crypt der_print_flexi latex-tables openssh-privkey openssl-enc sizes timing)
+set(USABLE_DEMOS aesgcm constants crypt der_print_flexi latex-tables openssh-privkey openssl-enc sizes timing x509_verify)
 list(JOIN USABLE_DEMOS " " USABLE_DEMOS_STR)
 option(BUILD_USABLE_DEMOS "Build usable demos (${USABLE_DEMOS_STR})" FALSE)
 

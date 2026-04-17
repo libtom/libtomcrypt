@@ -63,6 +63,33 @@ enum ltc_oid_id {
    LTC_OID_RSA_OAEP,
    LTC_OID_RSA_MGF1,
    LTC_OID_RSA_PSS,
+   LTC_OID_RSA_WITH_MD5,
+   LTC_OID_RSA_WITH_SHA1,
+   LTC_OID_RSA_WITH_SHA224,
+   LTC_OID_RSA_WITH_SHA256,
+   LTC_OID_RSA_WITH_SHA384,
+   LTC_OID_RSA_WITH_SHA512,
+   LTC_OID_RSA_WITH_SHA512_224,
+   LTC_OID_RSA_WITH_SHA512_256,
+   LTC_OID_ECDSA_WITH_SHA1,
+   LTC_OID_ECDSA_WITH_SHA224,
+   LTC_OID_ECDSA_WITH_SHA256,
+   LTC_OID_ECDSA_WITH_SHA384,
+   LTC_OID_ECDSA_WITH_SHA512,
+   LTC_OID_DSA_WITH_SHA1,
+   LTC_OID_DSA_WITH_SHA224,
+   LTC_OID_DSA_WITH_SHA256,
+   LTC_OID_DSA_WITH_SHA384,
+   LTC_OID_DSA_WITH_SHA512,
+   LTC_OID_ECDSA_WITH_SHA3_224,
+   LTC_OID_ECDSA_WITH_SHA3_256,
+   LTC_OID_ECDSA_WITH_SHA3_384,
+   LTC_OID_ECDSA_WITH_SHA3_512,
+   LTC_OID_RSA_WITH_SHA3_224,
+   LTC_OID_RSA_WITH_SHA3_256,
+   LTC_OID_RSA_WITH_SHA3_384,
+   LTC_OID_RSA_WITH_SHA3_512,
+
    LTC_OID_NUM
 };
 
@@ -444,13 +471,14 @@ int rand_bn_upto(void *N, void *limit, prng_state *prng, int wprng);
 
 int pk_get_oid(enum ltc_oid_id id, const char **st);
 int pk_get_pka_id(enum ltc_oid_id id, enum ltc_pka_id *pka);
+int pk_get_sig_alg(enum ltc_oid_id id, ltc_x509_signature_algorithm *sig_alg);
 int pk_get_oid_id(enum ltc_pka_id pka, enum ltc_oid_id *oid);
-#ifdef LTC_DER
-int pk_get_oid_from_asn1(const ltc_asn1_list *oid, enum ltc_oid_id *id);
-#endif
 int pk_oid_str_to_num(const char *OID, unsigned long *oid, unsigned long *oidlen);
 int pk_oid_num_to_str(const unsigned long *oid, unsigned long oidlen, char *OID, unsigned long *outlen);
-
+#ifdef LTC_DER
+int pk_get_oid_from_asn1(const ltc_asn1_list *oid, enum ltc_oid_id *id);
+int pk_oid_cmp_with_asn1(const char *o1, const ltc_asn1_list *o2);
+#endif
 int pk_oid_cmp_with_ulong(const char *o1, const unsigned long *o2, unsigned long o2size);
 
 /* ---- RSA Routines ---- */
@@ -507,6 +535,7 @@ int rsa_import_pkcs1(const unsigned char *in, unsigned long inlen, rsa_key *key)
 int rsa_import_pkcs8_asn1(ltc_asn1_list *alg_id, ltc_asn1_list *priv_key, rsa_key *key);
 int rsa_import_spki(const unsigned char *in, unsigned long inlen, rsa_key *key);
 int rsa_decode_parameters(const ltc_asn1_list *parameters, rsa_key *key);
+int rsa_decode_pss_parameters(const ltc_asn1_list *parameters, ltc_rsa_parameters *rsa_params);
 #endif /* LTC_MRSA */
 
 /* ---- DH Routines ---- */
@@ -715,6 +744,7 @@ int ec25519_crypto_ctx(      unsigned char *out, unsigned long *outlen,
 #define LTC_ASN1_IS_TYPE(e, t) (((e) != NULL) && ((e)->type == (t)))
 
 /* DER handling */
+int der_decode_sequence_flexi_limited(const unsigned char *in, unsigned long *inlen, long max_depth, ltc_asn1_list **out);
 int der_decode_custom_type_ex(const unsigned char *in, unsigned long  inlen,
                            ltc_asn1_list *root,
                            ltc_asn1_list *list,     unsigned long  outlen, unsigned int flags);
@@ -732,6 +762,12 @@ int der_length_sequence_ex(const ltc_asn1_list *list, unsigned long inlen,
 
 int der_length_object_identifier_full(const unsigned long *words,  unsigned long  nwords,
                                             unsigned long *outlen, unsigned long *datalen);
+
+int der_decode_ia5_string_data(const unsigned char *in, unsigned long inlen,
+                                              char *out, unsigned long *outlen);
+int der_decode_object_identifier_data(const unsigned char *in,    unsigned long  inlen,
+                                            unsigned long *words, unsigned long *outlen);
+
 
 int der_ia5_char_encode(int c);
 int der_ia5_value_decode(int v);
@@ -804,9 +840,11 @@ int x509_decode_subject_public_key_info(const unsigned char *in, unsigned long i
         ltc_asn1_type parameters_type, ltc_asn1_list* parameters, unsigned long *parameters_len);
 
 int x509_get_pka(const ltc_asn1_list *pub, enum ltc_pka_id *pka);
-int x509_import_spki(const unsigned char *asn1_cert, unsigned long asn1_len, ltc_pka_key *k, ltc_asn1_list **root);
-
-int pk_oid_cmp_with_asn1(const char *o1, const ltc_asn1_list *o2);
+int x509_get_sig_alg(const ltc_asn1_list *pub, ltc_x509_signature_algorithm *sig_alg);
+int x509_import_spki(const unsigned char *buf, unsigned long len, ltc_pka_key *k, ltc_asn1_list **root);
+int x509_get_extensions(const ltc_asn1_list *seq, ltc_x509_extensions *extensions);
+void x509_free_extensions(const ltc_x509_extensions *extensions);
+int x509_get_serial(const ltc_asn1_list *asn1, ltc_x509_string *serial);
 
 #endif /* LTC_DER */
 

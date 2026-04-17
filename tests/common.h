@@ -40,6 +40,12 @@ int ecc_key_cmp(const int should_type, const ecc_key *should, const ecc_key *is)
 
 #define COMPARE_TESTVECTOR(i, il, s, sl, wa, wi) do { DO(ltc_do_compare_testvector((i), (il), (s), (sl), (wa), (wi))); } while(0)
 
+#ifdef CMAKE_SOURCE_DIR
+#define FILE_IN_SOURCE_DIR(f) CMAKE_SOURCE_DIR "/" f
+#else
+#define FILE_IN_SOURCE_DIR(f) f
+#endif
+
 #if !((defined(_WIN32) || defined(_WIN32_WCE)) && !defined(__GNUC__)) && !defined(LTC_NO_FILE)
 #define LTC_TEST_READDIR
 

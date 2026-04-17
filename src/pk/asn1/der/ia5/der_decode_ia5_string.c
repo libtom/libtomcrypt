@@ -9,6 +9,30 @@
 
 
 #ifdef LTC_DER
+int der_decode_ia5_string_data(const unsigned char *in, unsigned long inlen,
+                                              char *out, unsigned long *outlen)
+{
+   unsigned long y;
+   int           t;
+
+   if (inlen > *outlen) {
+      *outlen = inlen;
+      return CRYPT_BUFFER_OVERFLOW;
+   }
+
+   /* read the data */
+   for (y = 0; y < inlen; y++) {
+       t = der_ia5_value_decode(in[y]);
+       if (t == -1) {
+           return CRYPT_INVALID_ARG;
+       }
+       out[y] = t;
+   }
+
+   *outlen = y;
+
+   return CRYPT_OK;
+}
 
 /**
   Store a IA5 STRING
@@ -22,7 +46,7 @@ int der_decode_ia5_string(const unsigned char *in, unsigned long inlen,
                                 unsigned char *out, unsigned long *outlen)
 {
    unsigned long x, y, len;
-   int           t, err;
+   int           err;
 
    LTC_ARGCHK(in     != NULL);
    LTC_ARGCHK(out    != NULL);
@@ -47,27 +71,11 @@ int der_decode_ia5_string(const unsigned char *in, unsigned long inlen,
    x += y;
 
    /* is it too long? */
-   if (len > *outlen) {
-      *outlen = len;
-      return CRYPT_BUFFER_OVERFLOW;
-   }
-
    if (len > (inlen - x)) {
       return CRYPT_INVALID_PACKET;
    }
 
-   /* read the data */
-   for (y = 0; y < len; y++) {
-       t = der_ia5_value_decode(in[x++]);
-       if (t == -1) {
-           return CRYPT_INVALID_ARG;
-       }
-       out[y] = t;
-   }
-
-   *outlen = y;
-
-   return CRYPT_OK;
+   return der_decode_ia5_string_data(in + x, len, (char*)out, outlen);
 }
 
 #endif

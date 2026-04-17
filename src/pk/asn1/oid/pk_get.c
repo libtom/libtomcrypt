@@ -23,6 +23,32 @@ static const oid_table_entry pka_oids[] = {
                                               { LTC_OID_RSA_OAEP,             LTC_PKA_RSA,     NULL,         "1.2.840.113549.1.1.7" },
                                               { LTC_OID_RSA_MGF1,             LTC_PKA_RSA,     NULL,         "1.2.840.113549.1.1.8" },
                                               { LTC_OID_RSA_PSS,              LTC_PKA_RSA_PSS, NULL,         "1.2.840.113549.1.1.10" },
+                                              { LTC_OID_RSA_WITH_MD5,         LTC_PKA_RSA,     "md5",        "1.2.840.113549.1.1.4" },
+                                              { LTC_OID_RSA_WITH_SHA1,        LTC_PKA_RSA,     "sha1",       "1.2.840.113549.1.1.5" },
+                                              { LTC_OID_RSA_WITH_SHA224,      LTC_PKA_RSA,     "sha224",     "1.2.840.113549.1.1.14" },
+                                              { LTC_OID_RSA_WITH_SHA256,      LTC_PKA_RSA,     "sha256",     "1.2.840.113549.1.1.11" },
+                                              { LTC_OID_RSA_WITH_SHA384,      LTC_PKA_RSA,     "sha384",     "1.2.840.113549.1.1.12" },
+                                              { LTC_OID_RSA_WITH_SHA512,      LTC_PKA_RSA,     "sha512",     "1.2.840.113549.1.1.13" },
+                                              { LTC_OID_RSA_WITH_SHA512_224,  LTC_PKA_RSA,     "sha512-224", "1.2.840.113549.1.1.15" },
+                                              { LTC_OID_RSA_WITH_SHA512_256,  LTC_PKA_RSA,     "sha512-256", "1.2.840.113549.1.1.16" },
+                                              { LTC_OID_ECDSA_WITH_SHA1,      LTC_PKA_EC,      "sha1",       "1.2.840.10045.4.1" },
+                                              { LTC_OID_ECDSA_WITH_SHA224,    LTC_PKA_EC,      "sha224",     "1.2.840.10045.4.3.1" },
+                                              { LTC_OID_ECDSA_WITH_SHA256,    LTC_PKA_EC,      "sha256",     "1.2.840.10045.4.3.2" },
+                                              { LTC_OID_ECDSA_WITH_SHA384,    LTC_PKA_EC,      "sha384",     "1.2.840.10045.4.3.3" },
+                                              { LTC_OID_ECDSA_WITH_SHA512,    LTC_PKA_EC,      "sha512",     "1.2.840.10045.4.3.4" },
+                                              { LTC_OID_DSA_WITH_SHA1,        LTC_PKA_DSA,     "sha1",       "1.2.840.10040.4.3" },
+                                              { LTC_OID_DSA_WITH_SHA224,      LTC_PKA_DSA,     "sha224",     "2.16.840.1.101.3.4.3.1" },
+                                              { LTC_OID_DSA_WITH_SHA256,      LTC_PKA_DSA,     "sha256",     "2.16.840.1.101.3.4.3.2" },
+                                              { LTC_OID_DSA_WITH_SHA384,      LTC_PKA_DSA,     "sha384",     "2.16.840.1.101.3.4.3.3" },
+                                              { LTC_OID_DSA_WITH_SHA512,      LTC_PKA_DSA,     "sha512",     "2.16.840.1.101.3.4.3.4" },
+                                              { LTC_OID_ECDSA_WITH_SHA3_224,  LTC_PKA_EC,      "sha3-224",   "2.16.840.1.101.3.4.3.9" },
+                                              { LTC_OID_ECDSA_WITH_SHA3_256,  LTC_PKA_EC,      "sha3-256",   "2.16.840.1.101.3.4.3.10" },
+                                              { LTC_OID_ECDSA_WITH_SHA3_384,  LTC_PKA_EC,      "sha3-384",   "2.16.840.1.101.3.4.3.11" },
+                                              { LTC_OID_ECDSA_WITH_SHA3_512,  LTC_PKA_EC,      "sha3-512",   "2.16.840.1.101.3.4.3.12" },
+                                              { LTC_OID_RSA_WITH_SHA3_224,    LTC_PKA_RSA,     "sha3-224",   "2.16.840.1.101.3.4.3.13" },
+                                              { LTC_OID_RSA_WITH_SHA3_256,    LTC_PKA_RSA,     "sha3-256",   "2.16.840.1.101.3.4.3.14" },
+                                              { LTC_OID_RSA_WITH_SHA3_384,    LTC_PKA_RSA,     "sha3-384",   "2.16.840.1.101.3.4.3.15" },
+                                              { LTC_OID_RSA_WITH_SHA3_512,    LTC_PKA_RSA,     "sha3-512",   "2.16.840.1.101.3.4.3.16" },
 };
 
 static LTC_INLINE const oid_table_entry* s_get_entry(enum ltc_oid_id id)
@@ -74,6 +100,16 @@ static LTC_INLINE int s_get_values(enum ltc_oid_id id, enum ltc_pka_id *pka, con
 int pk_get_pka_id(enum ltc_oid_id id, enum ltc_pka_id *pka)
 {
    return s_get_values(id, pka, NULL);
+}
+
+/*
+   Returns the Signature Algorithm requested, PKA ID + Hash algorithm.
+   @return CRYPT_OK if valid
+*/
+int pk_get_sig_alg(enum ltc_oid_id id, ltc_x509_signature_algorithm *sig_alg)
+{
+   LTC_ARGCHK(sig_alg != NULL);
+   return s_get_values(id, &sig_alg->pka, &sig_alg->u.hash);
 }
 
 /*
