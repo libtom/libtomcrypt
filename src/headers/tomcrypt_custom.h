@@ -583,6 +583,7 @@
    #define LTC_ECC_SECP224K1
    #define LTC_ECC_SECP224R1
    #define LTC_ECC_SECP256K1
+   #define LTC_ECC_SM2P256V1
    #define LTC_ECC_SECP256R1
    #define LTC_ECC_SECP384R1
    #define LTC_ECC_SECP521R1

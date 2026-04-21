@@ -5524,6 +5524,7 @@ defined by own parameters (the only limitation is that the curve must be based o
 \hline \texttt{secp224k1}       &                                      & 1.3.132.0.32          \\
 \hline \texttt{secp256r1}       & nistp256, prime256v1, ECC-256, P-256 & 1.2.840.10045.3.1.7   \\
 \hline \texttt{secp256k1}       &                                      & 1.3.132.0.10          \\
+\hline \texttt{sm2p256v1}       & sm2                                  & 1.2.156.10197.1.301   \\
 \hline \texttt{secp384r1}       & nistp384, ECC-384, P-384             & 1.3.132.0.34          \\
 \hline \texttt{secp521r1}       & nistp521, ECC-521, P-521             & 1.3.132.0.35          \\
 \hline \texttt{prime239v1}      &                                      & 1.2.840.10045.3.1.4   \\
@@ -6155,6 +6156,47 @@ When using \code{LTC\_ECCSIG\_ETH27} the curve is limited to \textit{secp256k1}.
 the option to use \code{LTC\_ECCSIG\_ANSIX962}. Also it is possible to disable \code{LTC\_SSH} which will disable
 the option to use \code{LTC\_ECCSIG\_RFC5656}.
 
+\mysection{Signatures (SM2)}
+The library also provides helpers for the \textit{SM2} signature scheme. In contrast to the hash-level \textit{ECDSA} API,
+these functions operate on the original message and the signer identifier (application-defined user ID bound into ZA). Internally they compute the SM2 message digest
+\textit{Hash(ZA || M)}, where \textit{ZA} is the SM2 digest of the signer identifier, curve parameters, and public key, and produce or verify a DER-encoded \textit{(r, s)} signature. Standard deployments typically use
+the built-in curve \texttt{sm2p256v1} together with the \textit{SM3} hash. These SM2 functions accept only keys on the built-in
+\texttt{sm2p256v1} curve.
+
+\textbf{NOTE:} These functions require \code{LTC\_DER}.
+
+\subsection{Signature Generation}
+\index{ecc\_sign\_sm2()}
+\begin{verbatim}
+int ecc_sign_sm2(const unsigned char *id, unsigned long idlen,
+                 const unsigned char *msg, unsigned long msglen,
+                 unsigned char *out, unsigned long *outlen,
+                 prng_state *prng, int wprng, int hash_idx,
+                 const ecc_key *key);
+\end{verbatim}
+
+This function signs the message in \code{msg} of length \code{msglen} octets using the signer identifier (application-defined user ID bound into ZA) \code{id} of
+length \code{idlen} octets. The resulting DER-encoded signature is stored in \code{out}. The \code{hash\_idx} parameter
+selects the hash used for both \code{ZA} and the message digest. If \code{hash\_idx} is \code{-1}, the default \textit{SM3}
+hash is used. Other hashes are supported for compatibility and testing, but should only rarely be used in practice. The
+\code{key} must be a private ECC key on the built-in \texttt{sm2p256v1} curve.
+
+\subsection{Signature Verification}
+\index{ecc\_verify\_sm2()}
+\begin{verbatim}
+int ecc_verify_sm2(const unsigned char *id, unsigned long idlen,
+                   const unsigned char *msg, unsigned long msglen,
+                   const unsigned char *sig, unsigned long siglen,
+                   int hash_idx, int *stat, const ecc_key *key);
+\end{verbatim}
+
+This function verifies the DER-encoded signature in \code{sig} against the message in \code{msg} and the signer identifier
+(application-defined user ID bound into ZA) \code{id}. The same identifier and hash must be used as during signature generation. The result is stored in \code{stat},
+which is set to a non-zero value if the signature is valid. If \code{hash\_idx} is \code{-1}, the default \textit{SM3}
+hash is used. Other hashes are supported for compatibility and testing, but should only rarely be used in practice. The
+\code{key} must contain the corresponding public key (or the private key matching that public key) on the built-in
+\texttt{sm2p256v1} curve.
+
 \mysection{Shared Secret (ECDH)}
 To construct a Diffie-Hellman shared secret with a private and public ECC key, use the following function:
 \index{ecc\_shared\_secret()}
@@ -6219,6 +6261,39 @@ ECCEncrypt ::= SEQUENCE {
                                     --"hash of shared secret"
 }
 \end{verbatim}
+
+\mysection{Encrypt and Decrypt (SM2)}
+The library also provides \textit{SM2} public-key encryption. The interface uses the raw SM2 ciphertext layout
+\code{C1 || C3 || C2}, not the ASN.1 wrapper used by \code{ecc\_encrypt\_key()}. These SM2 functions accept only keys on the
+built-in \texttt{sm2p256v1} curve.
+
+\subsection{Encryption}
+\index{ecc\_encrypt\_key\_sm2()}
+\begin{verbatim}
+int ecc_encrypt_key_sm2(const unsigned char *in, unsigned long inlen,
+                        unsigned char *out, unsigned long *outlen,
+                        prng_state *prng, int wprng, int hash_idx,
+                        const ecc_key *key);
+\end{verbatim}
+
+This function encrypts the plaintext in \code{in} using the recipient public key in \code{key}. The \code{hash\_idx}
+parameter selects the hash used by the SM2 KDF and for computing \code{C3}. If \code{hash\_idx} is \code{-1}, the default
+\textit{SM3} hash is used. Other hashes are supported for compatibility and testing, but should only rarely be used in
+practice. The ciphertext is written to \code{out} in \code{C1 || C3 || C2} format, where \code{C1} is the ephemeral public
+point, \code{C3} is the authentication hash, and \code{C2} is the masked plaintext.
+
+\subsection{Decryption}
+\index{ecc\_decrypt\_key\_sm2()}
+\begin{verbatim}
+int ecc_decrypt_key_sm2(const unsigned char *in, unsigned long inlen,
+                        unsigned char *out, unsigned long *outlen,
+                        int hash_idx, const ecc_key *key);
+\end{verbatim}
+
+This function decrypts an SM2 ciphertext in \code{C1 || C3 || C2} format using the recipient private key in \code{key}.
+The \code{hash\_idx} parameter must match the hash used during encryption. If \code{hash\_idx} is \code{-1}, the default
+\textit{SM3} hash is used. Other hashes are supported for compatibility and testing, but should only rarely be used in
+practice. The function verifies \code{C3} before returning the recovered plaintext in \code{out}.
 
 \chapter{Elliptic Curve Cryptography - $Montgomery/Twisted Edwards$}
 \mysection{Introduction}
