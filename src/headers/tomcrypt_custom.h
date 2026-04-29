@@ -153,6 +153,9 @@
 /* clean the stack of functions which put private information on stack */
 /* #define LTC_CLEAN_STACK */
 
+/* enable this in case you want to disable padding elements in structs */
+/* #define LTC_NO_STRUCT_PADDING */
+
 /* disable all file related functions */
 /* #define LTC_NO_FILE */
 

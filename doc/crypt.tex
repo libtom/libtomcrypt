@@ -9454,6 +9454,10 @@ file I/O on embedded platforms.
 When this functions is defined the functions that store key material on the stack will clean up afterwards.
 Assumes that you have no memory paging with the stack.
 
+\subsection{LTC\_NO\_STRUCT\_PADDING}
+Per default the library adds padding to some structs, which are likely to be extended sometime in the future, in order
+to provide ABI compatibility to previous versions. To trim down struct sizes where possible, define this macro.
+
 \subsection{LTC\_TEST}
 When this has been defined the various self--test functions (for ciphers, hashes, prngs, etc) are included in the build.  This is the default configuration.
 If LTC\_NO\_TEST has been defined, the testing routines will be compacted and only return CRYPT\_NOP.
