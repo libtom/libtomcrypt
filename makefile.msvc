@@ -60,21 +60,23 @@ src/hashes/helper/hash_memory_multi.obj src/hashes/md2.obj src/hashes/md4.obj sr
 src/hashes/rmd128.obj src/hashes/rmd160.obj src/hashes/rmd256.obj src/hashes/rmd320.obj src/hashes/sha1.obj \
 src/hashes/sha1_desc.obj src/hashes/sha1_x86.obj src/hashes/sha2/sha224.obj src/hashes/sha2/sha224_desc.obj \
 src/hashes/sha2/sha224_x86.obj src/hashes/sha2/sha256.obj src/hashes/sha2/sha256_desc.obj \
-src/hashes/sha2/sha256_x86.obj src/hashes/sha2/sha384.obj src/hashes/sha2/sha512.obj \
-src/hashes/sha2/sha512_224.obj src/hashes/sha2/sha512_256.obj src/hashes/sha3.obj src/hashes/sha3_test.obj \
-src/hashes/tiger.obj src/hashes/whirl/whirl.obj src/mac/blake2/blake2bmac.obj \
-src/mac/blake2/blake2bmac_file.obj src/mac/blake2/blake2bmac_memory.obj \
-src/mac/blake2/blake2bmac_memory_multi.obj src/mac/blake2/blake2bmac_test.obj src/mac/blake2/blake2smac.obj \
-src/mac/blake2/blake2smac_file.obj src/mac/blake2/blake2smac_memory.obj \
-src/mac/blake2/blake2smac_memory_multi.obj src/mac/blake2/blake2smac_test.obj src/mac/f9/f9_done.obj \
-src/mac/f9/f9_file.obj src/mac/f9/f9_init.obj src/mac/f9/f9_memory.obj src/mac/f9/f9_memory_multi.obj \
-src/mac/f9/f9_process.obj src/mac/f9/f9_test.obj src/mac/hmac/hmac_done.obj src/mac/hmac/hmac_file.obj \
-src/mac/hmac/hmac_init.obj src/mac/hmac/hmac_memory.obj src/mac/hmac/hmac_memory_multi.obj \
-src/mac/hmac/hmac_process.obj src/mac/hmac/hmac_test.obj src/mac/omac/omac_done.obj src/mac/omac/omac_file.obj \
-src/mac/omac/omac_init.obj src/mac/omac/omac_memory.obj src/mac/omac/omac_memory_multi.obj \
-src/mac/omac/omac_process.obj src/mac/omac/omac_test.obj src/mac/pelican/pelican.obj \
-src/mac/pelican/pelican_memory.obj src/mac/pelican/pelican_test.obj src/mac/pmac/pmac_done.obj \
-src/mac/pmac/pmac_file.obj src/mac/pmac/pmac_init.obj src/mac/pmac/pmac_memory.obj \
+src/hashes/sha2/sha256_x86.obj src/hashes/sha2/sha384.obj src/hashes/sha2/sha384_desc.obj \
+src/hashes/sha2/sha384_x86.obj src/hashes/sha2/sha512.obj src/hashes/sha2/sha512_224.obj \
+src/hashes/sha2/sha512_224_desc.obj src/hashes/sha2/sha512_224_x86.obj src/hashes/sha2/sha512_256.obj \
+src/hashes/sha2/sha512_256_desc.obj src/hashes/sha2/sha512_256_x86.obj src/hashes/sha2/sha512_desc.obj \
+src/hashes/sha2/sha512_x86.obj src/hashes/sha3.obj src/hashes/sha3_test.obj src/hashes/tiger.obj \
+src/hashes/whirl/whirl.obj src/mac/blake2/blake2bmac.obj src/mac/blake2/blake2bmac_file.obj \
+src/mac/blake2/blake2bmac_memory.obj src/mac/blake2/blake2bmac_memory_multi.obj \
+src/mac/blake2/blake2bmac_test.obj src/mac/blake2/blake2smac.obj src/mac/blake2/blake2smac_file.obj \
+src/mac/blake2/blake2smac_memory.obj src/mac/blake2/blake2smac_memory_multi.obj \
+src/mac/blake2/blake2smac_test.obj src/mac/f9/f9_done.obj src/mac/f9/f9_file.obj src/mac/f9/f9_init.obj \
+src/mac/f9/f9_memory.obj src/mac/f9/f9_memory_multi.obj src/mac/f9/f9_process.obj src/mac/f9/f9_test.obj \
+src/mac/hmac/hmac_done.obj src/mac/hmac/hmac_file.obj src/mac/hmac/hmac_init.obj src/mac/hmac/hmac_memory.obj \
+src/mac/hmac/hmac_memory_multi.obj src/mac/hmac/hmac_process.obj src/mac/hmac/hmac_test.obj \
+src/mac/omac/omac_done.obj src/mac/omac/omac_file.obj src/mac/omac/omac_init.obj src/mac/omac/omac_memory.obj \
+src/mac/omac/omac_memory_multi.obj src/mac/omac/omac_process.obj src/mac/omac/omac_test.obj \
+src/mac/pelican/pelican.obj src/mac/pelican/pelican_memory.obj src/mac/pelican/pelican_test.obj \
+src/mac/pmac/pmac_done.obj src/mac/pmac/pmac_file.obj src/mac/pmac/pmac_init.obj src/mac/pmac/pmac_memory.obj \
 src/mac/pmac/pmac_memory_multi.obj src/mac/pmac/pmac_ntz.obj src/mac/pmac/pmac_process.obj \
 src/mac/pmac/pmac_shift_xor.obj src/mac/pmac/pmac_test.obj src/mac/poly1305/poly1305.obj \
 src/mac/poly1305/poly1305_file.obj src/mac/poly1305/poly1305_memory.obj \

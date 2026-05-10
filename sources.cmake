@@ -99,9 +99,17 @@ src/hashes/sha2/sha256.c
 src/hashes/sha2/sha256_desc.c
 src/hashes/sha2/sha256_x86.c
 src/hashes/sha2/sha384.c
+src/hashes/sha2/sha384_desc.c
+src/hashes/sha2/sha384_x86.c
 src/hashes/sha2/sha512.c
 src/hashes/sha2/sha512_224.c
+src/hashes/sha2/sha512_224_desc.c
+src/hashes/sha2/sha512_224_x86.c
 src/hashes/sha2/sha512_256.c
+src/hashes/sha2/sha512_256_desc.c
+src/hashes/sha2/sha512_256_x86.c
+src/hashes/sha2/sha512_desc.c
+src/hashes/sha2/sha512_x86.c
 src/hashes/sha3.c
 src/hashes/sha3_test.c
 src/hashes/tiger.c

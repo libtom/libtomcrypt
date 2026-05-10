@@ -919,6 +919,14 @@
 					>
 				</File>
 				<File
+					RelativePath="src\hashes\sha2\sha384_desc.c"
+					>
+				</File>
+				<File
+					RelativePath="src\hashes\sha2\sha384_x86.c"
+					>
+				</File>
+				<File
 					RelativePath="src\hashes\sha2\sha512.c"
 					>
 				</File>
@@ -927,7 +935,31 @@
 					>
 				</File>
 				<File
+					RelativePath="src\hashes\sha2\sha512_224_desc.c"
+					>
+				</File>
+				<File
+					RelativePath="src\hashes\sha2\sha512_224_x86.c"
+					>
+				</File>
+				<File
 					RelativePath="src\hashes\sha2\sha512_256.c"
+					>
+				</File>
+				<File
+					RelativePath="src\hashes\sha2\sha512_256_desc.c"
+					>
+				</File>
+				<File
+					RelativePath="src\hashes\sha2\sha512_256_x86.c"
+					>
+				</File>
+				<File
+					RelativePath="src\hashes\sha2\sha512_desc.c"
+					>
+				</File>
+				<File
+					RelativePath="src\hashes\sha2\sha512_x86.c"
 					>
 				</File>
 			</Filter>
