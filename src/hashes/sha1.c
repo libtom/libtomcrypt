@@ -47,6 +47,8 @@ static int ss_sha1_c_compress(hash_state *md, const unsigned char *buf)
 static int  s_sha1_c_compress(hash_state *md, const unsigned char *buf)
 #endif
 {
+   ulong32* state;
+   int align;
     ulong32 a,b,c,d,e,i;
 #ifdef LTC_SMALL_STACK_SHA1
     ulong32 W[16];
@@ -57,17 +59,24 @@ static int  s_sha1_c_compress(hash_state *md, const unsigned char *buf)
     ulong32 t;
 #endif
 
+    state = LTC_ALIGN_BUF(md->sha1.state_buf, 16);
+    align = (int)((char*)state - (char*)md->sha1.state_buf);
+    if (align != md->sha1.align) {
+      XMEMMOVE(state, &md->sha1.state_buf[align], 5 * sizeof(ulong32));
+      md->sha1.align = align;
+    }
+
     /* copy the state into 512-bits into W[0..15] */
     for (i = 0; i < 16; i++) {
         LOAD32H(W[i], buf + (4*i));
     }
 
     /* copy state */
-    a = md->sha1.state[0];
-    b = md->sha1.state[1];
-    c = md->sha1.state[2];
-    d = md->sha1.state[3];
-    e = md->sha1.state[4];
+    a = state[0];
+    b = state[1];
+    c = state[2];
+    d = state[3];
+    e = state[4];
 
 #ifdef LTC_SMALL_STACK_SHA1
     #define Wi(i) do { W[(i) % 16] = ROL(W[((i) - 3) % 16] ^ W[((i) - 8) % 16] ^ W[((i) - 14) % 16] ^ W[((i) - 16) % 16], 1); } while(0)
@@ -160,11 +169,11 @@ static int  s_sha1_c_compress(hash_state *md, const unsigned char *buf)
     #undef Windex
 
     /* store */
-    md->sha1.state[0] = md->sha1.state[0] + a;
-    md->sha1.state[1] = md->sha1.state[1] + b;
-    md->sha1.state[2] = md->sha1.state[2] + c;
-    md->sha1.state[3] = md->sha1.state[3] + d;
-    md->sha1.state[4] = md->sha1.state[4] + e;
+    state[0] = state[0] + a;
+    state[1] = state[1] + b;
+    state[2] = state[2] + c;
+    state[3] = state[3] + d;
+    state[4] = state[4] + e;
 
     return CRYPT_OK;
 }
@@ -186,15 +195,18 @@ static int s_sha1_c_compress(hash_state *md, const unsigned char *buf)
 */
 int sha1_c_init(hash_state * md)
 {
+   ulong32* state;
+
    LTC_ARGCHK(md != NULL);
 
-   md->sha1.state = LTC_ALIGN_BUF(md->sha1.state_buf, 16);
+   state = LTC_ALIGN_BUF(md->sha1.state_buf, 16);
+   md->sha1.align = (int)((char*)state - (char*)md->sha1.state_buf);
 
-   md->sha1.state[0] = 0x67452301UL;
-   md->sha1.state[1] = 0xefcdab89UL;
-   md->sha1.state[2] = 0x98badcfeUL;
-   md->sha1.state[3] = 0x10325476UL;
-   md->sha1.state[4] = 0xc3d2e1f0UL;
+   state[0] = 0x67452301UL;
+   state[1] = 0xefcdab89UL;
+   state[2] = 0x98badcfeUL;
+   state[3] = 0x10325476UL;
+   state[4] = 0xc3d2e1f0UL;
    md->sha1.curlen = 0;
    md->sha1.length = 0;
    return CRYPT_OK;
@@ -217,6 +229,8 @@ HASH_PROCESS(sha1_c_process, s_sha1_c_compress, sha1, 64)
 */
 int sha1_c_done(hash_state * md, unsigned char *out)
 {
+    ulong32* state;
+    int align;
     int i;
 
     LTC_ARGCHK(md  != NULL);
@@ -224,6 +238,13 @@ int sha1_c_done(hash_state * md, unsigned char *out)
 
     if (md->sha1.curlen >= sizeof(md->sha1.buf)) {
        return CRYPT_INVALID_ARG;
+    }
+
+    state = LTC_ALIGN_BUF(md->sha1.state_buf, 16);
+    align = (int)((char*)state - (char*)md->sha1.state_buf);
+    if (align != md->sha1.align) {
+      XMEMMOVE(state, &md->sha1.state_buf[align], 5 * sizeof(ulong32));
+      md->sha1.align = align;
     }
 
     /* increase the length of the message */
@@ -255,7 +276,7 @@ int sha1_c_done(hash_state * md, unsigned char *out)
 
     /* copy output */
     for (i = 0; i < 5; i++) {
-        STORE32H(md->sha1.state[i], out+(4*i));
+        STORE32H(state[i], out+(4*i));
     }
 #ifdef LTC_CLEAN_STACK
     zeromem(md, sizeof(hash_state));

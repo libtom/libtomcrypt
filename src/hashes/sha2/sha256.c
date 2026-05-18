@@ -72,6 +72,8 @@ static int ss_sha256_compress(hash_state * md, const unsigned char *buf)
 static int s_sha256_compress(hash_state * md, const unsigned char *buf)
 #endif
 {
+    ulong32* state;
+    int align;
     ulong32 S[8], t0, t1;
 #ifdef LTC_SMALL_STACK_SHA256
     ulong32 W[16];
@@ -83,9 +85,16 @@ static int s_sha256_compress(hash_state * md, const unsigned char *buf)
 #endif
     int i;
 
+    state = LTC_ALIGN_BUF(md->sha256.state_buf, 16);
+    align = (int)((char*)state - (char*)md->sha256.state_buf);
+    if (align != md->sha256.align) {
+      XMEMMOVE(state, &md->sha256.state_buf[align], 8 * sizeof(ulong32));
+      md->sha256.align = align;
+    }
+
     /* copy state into S */
     for (i = 0; i < 8; i++) {
-        S[i] = md->sha256.state[i];
+        S[i] = state[i];
     }
 
     /* copy the state into 512-bits into W[0..15] */
@@ -211,7 +220,7 @@ static int s_sha256_compress(hash_state * md, const unsigned char *buf)
 
     /* feedback */
     for (i = 0; i < 8; i++) {
-        md->sha256.state[i] = md->sha256.state[i] + S[i];
+        state[i] = state[i] + S[i];
     }
     return CRYPT_OK;
 }
@@ -233,20 +242,23 @@ static int s_sha256_compress(hash_state * md, const unsigned char *buf)
 */
 int sha256_c_init(hash_state * md)
 {
+    ulong32* state;
+
     LTC_ARGCHK(md != NULL);
 
-    md->sha256.state = LTC_ALIGN_BUF(md->sha256.state_buf, 16);
+    state = LTC_ALIGN_BUF(md->sha256.state_buf, 16);
+    md->sha256.align = (int)((char*)state - (char*)md->sha256.state_buf);
 
     md->sha256.curlen = 0;
     md->sha256.length = 0;
-    md->sha256.state[0] = 0x6A09E667UL;
-    md->sha256.state[1] = 0xBB67AE85UL;
-    md->sha256.state[2] = 0x3C6EF372UL;
-    md->sha256.state[3] = 0xA54FF53AUL;
-    md->sha256.state[4] = 0x510E527FUL;
-    md->sha256.state[5] = 0x9B05688CUL;
-    md->sha256.state[6] = 0x1F83D9ABUL;
-    md->sha256.state[7] = 0x5BE0CD19UL;
+    state[0] = 0x6A09E667UL;
+    state[1] = 0xBB67AE85UL;
+    state[2] = 0x3C6EF372UL;
+    state[3] = 0xA54FF53AUL;
+    state[4] = 0x510E527FUL;
+    state[5] = 0x9B05688CUL;
+    state[6] = 0x1F83D9ABUL;
+    state[7] = 0x5BE0CD19UL;
     return CRYPT_OK;
 }
 
@@ -267,6 +279,8 @@ HASH_PROCESS(sha256_c_process,s_sha256_compress, sha256, 64)
 */
 int sha256_c_done(hash_state * md, unsigned char *out)
 {
+    ulong32* state;
+    int align;
     int i;
 
     LTC_ARGCHK(md  != NULL);
@@ -276,6 +290,12 @@ int sha256_c_done(hash_state * md, unsigned char *out)
        return CRYPT_INVALID_ARG;
     }
 
+    state = LTC_ALIGN_BUF(md->sha256.state_buf, 16);
+    align = (int)((char*)state - (char*)md->sha256.state_buf);
+    if (align != md->sha256.align) {
+      XMEMMOVE(state, &md->sha256.state_buf[align], 8 * sizeof(ulong32));
+      md->sha256.align = align;
+    }
 
     /* increase the length of the message */
     md->sha256.length += md->sha256.curlen * 8;
@@ -306,7 +326,7 @@ int sha256_c_done(hash_state * md, unsigned char *out)
 
     /* copy output */
     for (i = 0; i < 8; i++) {
-        STORE32H(md->sha256.state[i], out+(4*i));
+        STORE32H(state[i], out+(4*i));
     }
 #ifdef LTC_CLEAN_STACK
     zeromem(md, sizeof(hash_state));

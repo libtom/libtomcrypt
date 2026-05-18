@@ -35,20 +35,23 @@ const struct ltc_hash_descriptor sha224_x86_desc =
 */
 int sha224_x86_init(hash_state * md)
 {
+    ulong32* state;
+
     LTC_ARGCHK(md != NULL);
 
-    md->sha256.state = LTC_ALIGN_BUF(md->sha256.state_buf, 16);
+    state = LTC_ALIGN_BUF(md->sha256.state_buf, 16);
+    md->sha256.align = (int)((char*)state - (char*)md->sha256.state_buf);
 
     md->sha256.curlen = 0;
     md->sha256.length = 0;
-    md->sha256.state[0] = 0xc1059ed8UL;
-    md->sha256.state[1] = 0x367cd507UL;
-    md->sha256.state[2] = 0x3070dd17UL;
-    md->sha256.state[3] = 0xf70e5939UL;
-    md->sha256.state[4] = 0xffc00b31UL;
-    md->sha256.state[5] = 0x68581511UL;
-    md->sha256.state[6] = 0x64f98fa7UL;
-    md->sha256.state[7] = 0xbefa4fa4UL;
+    state[0] = 0xc1059ed8UL;
+    state[1] = 0x367cd507UL;
+    state[2] = 0x3070dd17UL;
+    state[3] = 0xf70e5939UL;
+    state[4] = 0xffc00b31UL;
+    state[5] = 0x68581511UL;
+    state[6] = 0x64f98fa7UL;
+    state[7] = 0xbefa4fa4UL;
     return CRYPT_OK;
 }
 
