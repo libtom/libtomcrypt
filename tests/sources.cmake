@@ -14,6 +14,7 @@ ecc_test.c
 ed25519_test.c
 ed448_test.c
 file_test.c
+hash_state_test.c
 mac_test.c
 misc_test.c
 modes_test.c
