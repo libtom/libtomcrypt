@@ -40,6 +40,7 @@ int misc_test(void)
 #ifdef LTC_SSH
    ssh_test();
 #endif
+   DO(hash_state_test());
    pk_oid_test();
    no_null_termination_check_test();
    return 0;

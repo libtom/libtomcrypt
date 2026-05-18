@@ -56,6 +56,7 @@ int no_null_termination_check_test(void);
 int pk_oid_test(void);
 int deprecated_test(void);
 int nop_test(void);
+int hash_state_test(void);
 
 #ifdef LTC_PKCS_1
 struct ltc_prng_descriptor* no_prng_desc_get(void);
