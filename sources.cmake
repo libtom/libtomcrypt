@@ -454,6 +454,7 @@ src/pk/ecc/ecc_sign_hash_rfc5656.c
 src/pk/ecc/ecc_sign_hash_rfc7518.c
 src/pk/ecc/ecc_sign_hash_x962.c
 src/pk/ecc/ecc_sizes.c
+src/pk/ecc/ecc_sm2.c
 src/pk/ecc/ecc_ssh_ecdsa_encode_name.c
 src/pk/ecc/ecc_verify_hash.c
 src/pk/ecc/ecc_verify_hash_eth27.c
