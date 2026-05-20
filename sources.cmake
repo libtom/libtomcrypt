@@ -1,4 +1,10 @@
 set(SOURCES
+src/boxes/ltc_cryptobox_create.c
+src/boxes/ltc_cryptobox_open.c
+src/boxes/ltc_sealedbox_create.c
+src/boxes/ltc_sealedbox_open.c
+src/boxes/ltc_secretbox_create.c
+src/boxes/ltc_secretbox_open.c
 src/ciphers/aes/aes.c
 src/ciphers/aes/aes_desc.c
 src/ciphers/aes/aes_tab.c
