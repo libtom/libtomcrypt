@@ -33,7 +33,7 @@ const struct ltc_hash_descriptor sha224_desc =
 #define LTC_S_X86_CPUID
 static LTC_INLINE void s_x86_cpuid(int* regs, int leaf)
 {
-#if defined _MSC_VER
+#if defined(_MSC_VER) && !defined(__clang__) // MSVC but not ClangCL
    __cpuid(regs, leaf);
 #else
     int a, b, c, d;
