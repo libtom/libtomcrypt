@@ -92,6 +92,22 @@ LTC_EXPORT int   LTC_CALL XSTRCMP(const char *s1, const char *s2);
    #define LTC_FAST
 #endif
 
+/* detect RISC-V.  Do not enable LTC_FAST because unaligned word access is not
+ * guaranteed to be efficient or valid on all RISC-V systems. */
+#if defined(__riscv) || defined(__riscv__)
+   #define LTC_ARCH_RISCV
+   #if defined(__riscv_xlen) && (__riscv_xlen == 64)
+      #define ENDIAN_64BITWORD
+   #else
+      #define ENDIAN_32BITWORD
+   #endif
+   #if defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
+      #define ENDIAN_BIG
+   #elif defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__)
+      #define ENDIAN_LITTLE
+   #endif
+#endif
+
 /* detect PPC32 */
 #if defined(LTC_PPC32)
    #define ENDIAN_BIG
