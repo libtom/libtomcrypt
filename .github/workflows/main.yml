@@ -20,18 +20,21 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 jobs:
   Docs:
     runs-on: ubuntu-24.04
     container: texlive/texlive:latest-medium
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
       - name: generate PDF
         run: |
           make docs
           cp doc/crypt.pdf crypt-${{ github.run_id }}.pdf
       - name: upload PDF
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: crypt-${{ github.run_id }}.pdf
           path: crypt-${{ github.run_id }}.pdf
@@ -52,9 +55,9 @@ jobs:
           - { BUILDNAME: 'STOCK+ARGTYPE=3',         BUILDOPTIONS: '-DARGTYPE=3',                                                          BUILDSCRIPT: '.ci/run.sh' }
           - { BUILDNAME: 'STOCK+ARGTYPE=4',         BUILDOPTIONS: '-DARGTYPE=4',                                                          BUILDSCRIPT: '.ci/run.sh' }
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
       - name: install dependencies
-        uses: nick-fields/retry@v4.0.0
+        uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
         with:
           timeout_minutes: 20
           max_attempts: 3
@@ -92,7 +95,7 @@ jobs:
           tar cJf build-${{ github.run_id }}.tar.xz --exclude ./build-${{ github.run_id }}.tar.xz .
       - name: upload Artifact
         if: ${{ failure() }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: build-${{ github.run_id }}.tar.xz
           path: build-${{ github.run_id }}.tar.xz
@@ -105,9 +108,9 @@ jobs:
         cc: [ gcc, clang ]
         os: [ ubuntu-22.04, ubuntu-24.04 ]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
       - name: install dependencies
-        uses: nick-fields/retry@v4.0.0
+        uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
         with:
           timeout_minutes: 20
           max_attempts: 3
@@ -137,9 +140,9 @@ jobs:
           # Shared library build
           - { CMAKEOPTIONS: '-DBUILD_SHARED_LIBS=On'  }
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
       - name: install dependencies
-        uses: nick-fields/retry@v4.0.0
+        uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
         with:
           timeout_minutes: 20
           max_attempts: 3
