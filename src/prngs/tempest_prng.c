@@ -10,71 +10,64 @@
 #include <tomcrypt.h>
 #include "tempest_v3.h"
 
-/* ── Helpers ── */
-
-/* Ensure `prng_state` has room for our minimal pointer.
- * We store the tx4_state inline (48 bytes) which fits in prng_state's union.
- * prng_state.u is typically large enough (e.g. 256+ bytes in modern LTC). */
-
-#define TEMPEST_MARKER 0x54584D5000000001ULL  /* "TXMP\0\0\0\1" */
+/* Local state wrapper: marker + aligned tx4_state.
+ * prng_state.u.sprng[] uses ulong32 (4-byte alignment); tx4_state
+ * needs 8-byte alignment for uint64_t.  This struct starts with
+ * a uint64_t marker to force natural alignment of the whole block. */
+typedef struct {
+    uint64_t marker;
+    tx4_state state;
+} tempest_local_state;
 
 /* ── Callbacks ── */
 
 static int tempest_start(prng_state *prng)
 {
-    /* Mark state as valid; actual init deferred to ready() */
-    prng->u.sprng[0] = TEMPEST_MARKER;
+    tempest_local_state *ls = (tempest_local_state *)prng->u.sprng;
+    ls->marker = 0x54584D5000000001ULL;  /* "TXMP\0\0\0\1" */
     return CRYPT_OK;
 }
 
 static int tempest_add_entropy(const unsigned char *in, unsigned long inlen,
                                 prng_state *prng)
 {
-    /* Tempest v3 is a CSPRNG — it does not require external entropy
-     * beyond its initial key/nonce seeding. This is a no-op.
-     * If you want to mix in additional entropy, a 256-bit XOR
-     * into the Tempest state can be added here. */
+    tempest_local_state *ls = (tempest_local_state *)prng->u.sprng;
     (void)in; (void)inlen;
-    if (prng->u.sprng[0] != TEMPEST_MARKER)
-        return CRYPT_ERROR;  /* not started */
+    if (ls->marker != 0x54584D5000000001ULL)
+        return CRYPT_ERROR;
     return CRYPT_OK;
 }
 
 static int tempest_ready(prng_state *prng)
 {
-    tx4_state *s = (tx4_state *)&prng->u.sprng[1];
+    tempest_local_state *ls = (tempest_local_state *)prng->u.sprng;
     uint64_t key[4], nonce[2];
 
-    if (prng->u.sprng[0] != TEMPEST_MARKER)
+    if (ls->marker != 0x54584D5000000001ULL)
         return CRYPT_ERROR;
 
-    /* Seed from OS entropy */
     os_get_random((unsigned char *)key, sizeof(key));
     os_get_random((unsigned char *)nonce, sizeof(nonce));
-
-    tx5cmul_init(s, key, nonce);
+    tx5cmul_init(&ls->state, key, nonce);
     return CRYPT_OK;
 }
 
 static unsigned long tempest_read(unsigned char *out, unsigned long outlen,
                                    prng_state *prng)
 {
-    tx4_state *s = (tx4_state *)&prng->u.sprng[1];
-
-    if (prng->u.sprng[0] != TEMPEST_MARKER)
+    tempest_local_state *ls = (tempest_local_state *)prng->u.sprng;
+    if (ls->marker != 0x54584D5000000001ULL)
         return 0;
-
-    tempest_bytes(s, out, outlen);
+    tempest_bytes(&ls->state, out, outlen);
     return outlen;
 }
 
 static int tempest_done(prng_state *prng)
 {
-    if (prng->u.sprng[0] == TEMPEST_MARKER) {
-        /* Secure zeroing of Tempest state */
-        tx4_state *s = (tx4_state *)&prng->u.sprng[1];
-        zeroize(s, sizeof(tx4_state));
-        prng->u.sprng[0] = 0;
+    tempest_local_state *ls = (tempest_local_state *)prng->u.sprng;
+    if (ls->marker == 0x54584D5000000001ULL) {
+        zeroize(&ls->state, sizeof(ls->state));
+        ls->marker = 0;
     }
     return CRYPT_OK;
 }
@@ -82,37 +75,25 @@ static int tempest_done(prng_state *prng)
 static int tempest_export(unsigned char *out, unsigned long *outlen,
                            prng_state *prng)
 {
-    tx4_state *s = (tx4_state *)&prng->u.sprng[1];
-
-    if (prng->u.sprng[0] != TEMPEST_MARKER)
+    tempest_local_state *ls = (tempest_local_state *)prng->u.sprng;
+    if (ls->marker != 0x54584D5000000001ULL)
         return CRYPT_ERROR;
-
-    if (*outlen < sizeof(tx4_state) + 8)
+    if (*outlen < sizeof(tempest_local_state))
         return CRYPT_BUFFER_OVERFLOW;
-
-    /* Store marker + state */
-    memcpy(out, &prng->u.sprng[0], 8);          /* marker */
-    memcpy(out + 8, s, sizeof(tx4_state));
-    *outlen = 8 + sizeof(tx4_state);
+    memcpy(out, ls, sizeof(tempest_local_state));
+    *outlen = sizeof(tempest_local_state);
     return CRYPT_OK;
 }
 
 static int tempest_import(const unsigned char *in, unsigned long inlen,
                            prng_state *prng)
 {
-    if (inlen < 8 + sizeof(tx4_state))
+    if (inlen < sizeof(tempest_local_state))
         return CRYPT_ERROR;
-
-    /* Verify marker */
-    uint64_t marker;
-    memcpy(&marker, in, 8);
-    if (marker != TEMPEST_MARKER)
+    tempest_local_state *ls = (tempest_local_state *)prng->u.sprng;
+    memcpy(ls, in, sizeof(tempest_local_state));
+    if (ls->marker != 0x54584D5000000001ULL)
         return CRYPT_ERROR;
-
-    /* Restore */
-    prng->u.sprng[0] = TEMPEST_MARKER;
-    tx4_state *s = (tx4_state *)&prng->u.sprng[1];
-    memcpy(s, in + 8, sizeof(tx4_state));
     return CRYPT_OK;
 }
 
@@ -150,7 +131,7 @@ static int tempest_test(void)
 
 const struct ltc_prng_descriptor tempest_prng_desc = {
     .name        = "tempest",
-    .export_size = 8 + sizeof(tx4_state),
+    .export_size = sizeof(tempest_local_state),
     .start       = &tempest_start,
     .add_entropy = &tempest_add_entropy,
     .ready       = &tempest_ready,
