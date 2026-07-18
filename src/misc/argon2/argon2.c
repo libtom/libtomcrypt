@@ -14,6 +14,7 @@
 #define ARGON2_PREHASH_DIGEST_LEN  64
 #define ARGON2_PREHASH_SEED_LEN    72
 #define ARGON2_SYNC_POINTS         4
+#define ARGON2_MAX_LANES           0xFFFFFF /* RFC 9106: parallelism p is at most 2^24-1 */
 #define ARGON2_VERSION             0x13
 #define ARGON2_MIN_OUTLEN          4
 #define ARGON2_BLAKE2B_OUTBYTES    64
@@ -497,9 +498,11 @@ int argon2_hash(const unsigned char *pwd,  unsigned long pwdlen,
    LTC_ARGCHK(secret != NULL || secretlen == 0);
    LTC_ARGCHK(ad != NULL || adlen == 0);
    LTC_ARGCHK(t_cost >= 1);
-   LTC_ARGCHK(parallelism >= 1);
-   LTC_ARGCHK(m_cost >= 8 * parallelism);
    LTC_ARGCHK(type == ARGON2_D || type == ARGON2_I || type == ARGON2_ID);
+
+   if (parallelism < 1 || parallelism > ARGON2_MAX_LANES || m_cost < 8 * parallelism) {
+      return CRYPT_INVALID_ARG;
+   }
 
    /* Align memory: ensure memory_blocks is a multiple of 4*parallelism */
    memory_blocks = (ulong32)m_cost;

@@ -72,6 +72,17 @@ int argon2_test(void)
       COMPARE_TESTVECTOR(tag, sizeof(tag), argon_testcase[n].expected, argon_testcase[n].elen, argon_testcase[n].name, n);
    }
 
+   /* RFC 9106: parallelism is limited to 2^24-1 (16777216 == 2^24) */
+   if (argon2_hash(password, sizeof(password),
+                   salt, sizeof(salt),
+                   secret, sizeof(secret),
+                   ad, sizeof(ad),
+                   3, 134217728, 16777216,
+                   ARGON2_ID,
+                   tag, sizeof(tag)) != CRYPT_INVALID_ARG) {
+      return CRYPT_FAIL_TESTVECTOR;
+   }
+
    return CRYPT_OK;
 }
 
