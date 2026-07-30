@@ -1092,6 +1092,10 @@
 				>
 			</File>
 			<File
+				RelativePath="src\headers\tomcrypt_pqc.h"
+				>
+			</File>
+			<File
 				RelativePath="src\headers\tomcrypt_private.h"
 				>
 			</File>
@@ -2956,6 +2960,90 @@
 				</File>
 				<File
 					RelativePath="src\pk\x448\x448_shared_secret.c"
+					>
+				</File>
+			</Filter>
+		</Filter>
+		<Filter
+			Name="pqc"
+			>
+			<File
+				RelativePath="src\pqc\pqc_export_privkey.c"
+				>
+			</File>
+			<File
+				RelativePath="src\pqc\pqc_prehash.c"
+				>
+			</File>
+			<Filter
+				Name="mldsa"
+				>
+				<File
+					RelativePath="src\pqc\mldsa\mldsa.c"
+					>
+				</File>
+				<File
+					RelativePath="src\pqc\mldsa\mldsa_export.c"
+					>
+				</File>
+				<File
+					RelativePath="src\pqc\mldsa\mldsa_import.c"
+					>
+				</File>
+				<File
+					RelativePath="src\pqc\mldsa\mldsa_import_pkcs8.c"
+					>
+				</File>
+				<File
+					RelativePath="src\pqc\mldsa\mldsa_import_x509.c"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="mlkem"
+				>
+				<File
+					RelativePath="src\pqc\mlkem\mlkem.c"
+					>
+				</File>
+				<File
+					RelativePath="src\pqc\mlkem\mlkem_export.c"
+					>
+				</File>
+				<File
+					RelativePath="src\pqc\mlkem\mlkem_import.c"
+					>
+				</File>
+				<File
+					RelativePath="src\pqc\mlkem\mlkem_import_pkcs8.c"
+					>
+				</File>
+				<File
+					RelativePath="src\pqc\mlkem\mlkem_import_x509.c"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="slhdsa"
+				>
+				<File
+					RelativePath="src\pqc\slhdsa\slhdsa.c"
+					>
+				</File>
+				<File
+					RelativePath="src\pqc\slhdsa\slhdsa_export.c"
+					>
+				</File>
+				<File
+					RelativePath="src\pqc\slhdsa\slhdsa_import.c"
+					>
+				</File>
+				<File
+					RelativePath="src\pqc\slhdsa\slhdsa_import_pkcs8.c"
+					>
+				</File>
+				<File
+					RelativePath="src\pqc\slhdsa\slhdsa_import_x509.c"
 					>
 				</File>
 			</Filter>
