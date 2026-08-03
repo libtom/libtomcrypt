@@ -1513,6 +1513,255 @@ static LTC_INLINE int s_serpent_accel_ecb_decrypt_128_bit_sse2(const unsigned ch
 
 #endif
 
+#if defined LTC_SERPENT_ACCEL_256_BIT_X86_AVX2
+
+#include <immintrin.h> /* AVX2 __m256i _mm256_and_si256 _mm256_cmpeq_epi32 _mm256_loadu_si256 _mm256_or_si256 _mm256_set1_epi32 _mm256_slli_epi32 _mm256_srli_epi32 _mm256_storeu_si256 _mm256_unpackhi_epi32 _mm256_unpackhi_epi64 _mm256_unpacklo_epi32 _mm256_unpacklo_epi64 _mm256_xor_si256 */
+
+static LTC_INLINE int s_is_supported_256_bit_avx2(void)
+{
+   static int is_initialized = 0;
+   static int is_supported = 0;
+
+   if (is_initialized == 0) {
+      int regs[4];
+      int osxsave, avx2, ymm;
+      ulong64 xcr0;
+
+      is_initialized = 1;
+      s_x86_cpuid(regs, 0);
+      if (regs[0] >= 7) {
+         s_x86_cpuid(regs, 1);
+         osxsave = ((((unsigned int)(regs[2])) >> 27) & 1u) != 0; /* OSXSAVE, leaf 1, ecx, bit 27 */
+         s_x86_cpuid(regs, 7);
+         avx2 = ((((unsigned int)(regs[1])) >> 5) & 1u) != 0; /* AVX2, leaf 7, ebx, bit 5 */
+         if (osxsave) {
+            xcr0 = s_x86_xgetbv0();
+            ymm = (xcr0 & 0x6) == 0x6; /* 128bit SSE xmm + 256bit AVX ymm */
+            is_supported = osxsave && avx2 && ymm;
+         }
+      }
+   }
+   return is_supported;
+}
+
+static LTC_INLINE void s_serpent_accel_ecb_256_bit_avx2_load_one(__m256i *x, const unsigned char *bytes)
+{
+   *x = _mm256_loadu_si256(((const __m256i*)(bytes)));
+}
+
+static LTC_INLINE void s_serpent_accel_ecb_256_bit_avx2_store_one(const __m256i *x, unsigned char *bytes)
+{
+   _mm256_storeu_si256(((__m256i*)(bytes)), *x);
+}
+
+static LTC_INLINE void s_serpent_accel_256_bit_avx2_load_four(__m256i *pa, __m256i *pb, __m256i *pc, __m256i *pd, const unsigned char *bytes)
+{
+   __m256i ia, ib, ic, id;
+   __m256i ta, tb, tc, td;
+   __m256i ra, rb, rc, rd;
+
+   s_serpent_accel_ecb_256_bit_avx2_load_one(&ia, &bytes[0 * sizeof(__m256i)]);
+   s_serpent_accel_ecb_256_bit_avx2_load_one(&ib, &bytes[1 * sizeof(__m256i)]);
+   s_serpent_accel_ecb_256_bit_avx2_load_one(&ic, &bytes[2 * sizeof(__m256i)]);
+   s_serpent_accel_ecb_256_bit_avx2_load_one(&id, &bytes[3 * sizeof(__m256i)]);
+   ta = _mm256_unpacklo_epi32(ia, ib);
+   tb = _mm256_unpacklo_epi32(ic, id);
+   tc = _mm256_unpackhi_epi32(ia, ib);
+   td = _mm256_unpackhi_epi32(ic, id);
+   ra = _mm256_unpacklo_epi64(ta, tb);
+   rb = _mm256_unpackhi_epi64(ta, tb);
+   rc = _mm256_unpacklo_epi64(tc, td);
+   rd = _mm256_unpackhi_epi64(tc, td);
+   *pa = ra;
+   *pb = rb;
+   *pc = rc;
+   *pd = rd;
+}
+
+static LTC_INLINE void s_serpent_accel_256_bit_avx2_store_four(const __m256i *pa, const __m256i *pb, const __m256i *pc, const __m256i *pd, unsigned char *bytes)
+{
+   __m256i ia, ib, ic, id;
+   __m256i ta, tb, tc, td;
+   __m256i ra, rb, rc, rd;
+
+   ia = *pa;
+   ib = *pb;
+   ic = *pc;
+   id = *pd;
+   ta = _mm256_unpacklo_epi32(ia, ib);
+   tb = _mm256_unpacklo_epi32(ic, id);
+   tc = _mm256_unpackhi_epi32(ia, ib);
+   td = _mm256_unpackhi_epi32(ic, id);
+   ra = _mm256_unpacklo_epi64(ta, tb);
+   rb = _mm256_unpackhi_epi64(ta, tb);
+   rc = _mm256_unpacklo_epi64(tc, td);
+   rd = _mm256_unpackhi_epi64(tc, td);
+   s_serpent_accel_ecb_256_bit_avx2_store_one(&ra, &bytes[0 * sizeof(__m256i)]);
+   s_serpent_accel_ecb_256_bit_avx2_store_one(&rb, &bytes[1 * sizeof(__m256i)]);
+   s_serpent_accel_ecb_256_bit_avx2_store_one(&rc, &bytes[2 * sizeof(__m256i)]);
+   s_serpent_accel_ecb_256_bit_avx2_store_one(&rd, &bytes[3 * sizeof(__m256i)]);
+}
+
+static LTC_INLINE int s_serpent_accel_ecb_encrypt_256_bit_avx2(const unsigned char *pt, unsigned char *ct, unsigned long blocks, const symmetric_key *skey)
+{
+   #define blocks_at_a_time (256 / 32)
+   #define s_do_broadcast(x) _mm256_set1_epi32(*((const int *)(&(x))))
+   #define s_do_asgn(a, b) a = b
+   #define s_do_or(a, b) a = _mm256_or_si256(a, b)
+   #define s_do_xor(a, b) a = _mm256_xor_si256(a, b)
+   #define s_do_and(a, b) a = _mm256_and_si256(a, b)
+   #define s_do_not(a, b) a = _mm256_xor_si256(b, _mm256_cmpeq_epi32(b, b))
+   #define s_do_rol(x, i) x = _mm256_or_si256(_mm256_slli_epi32(x, i), _mm256_srli_epi32(x, 32 - i))
+   #define s_do_ror(x, i) x = _mm256_or_si256(_mm256_srli_epi32(x, i), _mm256_slli_epi32(x, 32 - i))
+   #define s_do_shl(a, b, c) a = _mm256_slli_epi32(b, c)
+
+   const unsigned char *in;
+   unsigned char *out;
+   const ulong32* k;
+   unsigned long iblock;
+   __m256i a, b, c, d, e;
+
+   LTC_ARGCHK(pt);
+   LTC_ARGCHK(ct);
+   LTC_ARGCHK(blocks % blocks_at_a_time == 0);
+
+   in = pt;
+   out = ct;
+   k = &skey->serpent.k[0];
+   for (iblock = 0; iblock != blocks; iblock += blocks_at_a_time) {
+      s_serpent_accel_256_bit_avx2_load_four(&a, &b, &c, &d, in);
+      s_apply_order_enc_00(s_apply_key);
+      s_apply_order_enc_00(s_enc_0); s_apply_order_enc_01(s_apply_lk);
+      s_apply_order_enc_01(s_enc_1); s_apply_order_enc_02(s_apply_lk);
+      s_apply_order_enc_02(s_enc_2); s_apply_order_enc_03(s_apply_lk);
+      s_apply_order_enc_03(s_enc_3); s_apply_order_enc_04(s_apply_lk);
+      s_apply_order_enc_04(s_enc_4); s_apply_order_enc_05(s_apply_lk);
+      s_apply_order_enc_05(s_enc_5); s_apply_order_enc_06(s_apply_lk);
+      s_apply_order_enc_06(s_enc_6); s_apply_order_enc_07(s_apply_lk);
+      s_apply_order_enc_07(s_enc_7); s_apply_order_enc_08(s_apply_lk);
+      s_apply_order_enc_08(s_enc_0); s_apply_order_enc_09(s_apply_lk);
+      s_apply_order_enc_09(s_enc_1); s_apply_order_enc_10(s_apply_lk);
+      s_apply_order_enc_10(s_enc_2); s_apply_order_enc_11(s_apply_lk);
+      s_apply_order_enc_11(s_enc_3); s_apply_order_enc_12(s_apply_lk);
+      s_apply_order_enc_12(s_enc_4); s_apply_order_enc_13(s_apply_lk);
+      s_apply_order_enc_13(s_enc_5); s_apply_order_enc_14(s_apply_lk);
+      s_apply_order_enc_14(s_enc_6); s_apply_order_enc_15(s_apply_lk);
+      s_apply_order_enc_15(s_enc_7); s_apply_order_enc_16(s_apply_lk);
+      s_apply_order_enc_16(s_enc_0); s_apply_order_enc_17(s_apply_lk);
+      s_apply_order_enc_17(s_enc_1); s_apply_order_enc_18(s_apply_lk);
+      s_apply_order_enc_18(s_enc_2); s_apply_order_enc_19(s_apply_lk);
+      s_apply_order_enc_19(s_enc_3); s_apply_order_enc_20(s_apply_lk);
+      s_apply_order_enc_20(s_enc_4); s_apply_order_enc_21(s_apply_lk);
+      s_apply_order_enc_21(s_enc_5); s_apply_order_enc_22(s_apply_lk);
+      s_apply_order_enc_22(s_enc_6); s_apply_order_enc_23(s_apply_lk);
+      s_apply_order_enc_23(s_enc_7); s_apply_order_enc_24(s_apply_lk);
+      s_apply_order_enc_24(s_enc_0); s_apply_order_enc_25(s_apply_lk);
+      s_apply_order_enc_25(s_enc_1); s_apply_order_enc_26(s_apply_lk);
+      s_apply_order_enc_26(s_enc_2); s_apply_order_enc_27(s_apply_lk);
+      s_apply_order_enc_27(s_enc_3); s_apply_order_enc_28(s_apply_lk);
+      s_apply_order_enc_28(s_enc_4); s_apply_order_enc_29(s_apply_lk);
+      s_apply_order_enc_29(s_enc_5); s_apply_order_enc_30(s_apply_lk);
+      s_apply_order_enc_30(s_enc_6); s_apply_order_enc_31(s_apply_lk);
+      s_apply_order_enc_31(s_enc_7); s_apply_order_enc_32(s_apply_key);
+      s_serpent_accel_256_bit_avx2_store_four(&a, &b, &c, &d, out);
+      in += blocks_at_a_time * serpent_block_len;
+      out += blocks_at_a_time * serpent_block_len;
+   }
+   return CRYPT_OK;
+
+   #undef blocks_at_a_time
+   #undef s_do_broadcast
+   #undef s_do_asgn
+   #undef s_do_or
+   #undef s_do_xor
+   #undef s_do_and
+   #undef s_do_not
+   #undef s_do_rol
+   #undef s_do_ror
+   #undef s_do_shl
+}
+
+static LTC_INLINE int s_serpent_accel_ecb_decrypt_256_bit_avx2(const unsigned char *ct, unsigned char *pt, unsigned long blocks, const symmetric_key *skey)
+{
+   #define blocks_at_a_time (256 / 32)
+   #define s_do_broadcast(x) _mm256_set1_epi32(*((const int *)(&(x))))
+   #define s_do_asgn(a, b) a = b
+   #define s_do_or(a, b) a = _mm256_or_si256(a, b)
+   #define s_do_xor(a, b) a = _mm256_xor_si256(a, b)
+   #define s_do_and(a, b) a = _mm256_and_si256(a, b)
+   #define s_do_not(a, b) a = _mm256_xor_si256(b, _mm256_cmpeq_epi32(b, b))
+   #define s_do_rol(x, i) x = _mm256_or_si256(_mm256_slli_epi32(x, i), _mm256_srli_epi32(x, 32 - i))
+   #define s_do_ror(x, i) x = _mm256_or_si256(_mm256_srli_epi32(x, i), _mm256_slli_epi32(x, 32 - i))
+   #define s_do_shl(a, b, c) a = _mm256_slli_epi32(b, c)
+
+   const unsigned char *in;
+   unsigned char *out;
+   const ulong32* k;
+   unsigned long iblock;
+   __m256i a, b, c, d, e;
+
+   LTC_ARGCHK(ct);
+   LTC_ARGCHK(pt);
+   LTC_ARGCHK(blocks % blocks_at_a_time == 0);
+
+   in = ct;
+   out = pt;
+   k = &skey->serpent.k[0];
+   for (iblock = 0; iblock != blocks; iblock += blocks_at_a_time) {
+      s_serpent_accel_256_bit_avx2_load_four(&a, &b, &c, &d, in);
+      s_apply_order_dec_32(s_apply_key);
+      s_apply_order_dec_32(s_dec_7); s_apply_order_dec_31(s_apply_kl);
+      s_apply_order_dec_31(s_dec_6); s_apply_order_dec_30(s_apply_kl);
+      s_apply_order_dec_30(s_dec_5); s_apply_order_dec_29(s_apply_kl);
+      s_apply_order_dec_29(s_dec_4); s_apply_order_dec_28(s_apply_kl);
+      s_apply_order_dec_28(s_dec_3); s_apply_order_dec_27(s_apply_kl);
+      s_apply_order_dec_27(s_dec_2); s_apply_order_dec_26(s_apply_kl);
+      s_apply_order_dec_26(s_dec_1); s_apply_order_dec_25(s_apply_kl);
+      s_apply_order_dec_25(s_dec_0); s_apply_order_dec_24(s_apply_kl);
+      s_apply_order_dec_24(s_dec_7); s_apply_order_dec_23(s_apply_kl);
+      s_apply_order_dec_23(s_dec_6); s_apply_order_dec_22(s_apply_kl);
+      s_apply_order_dec_22(s_dec_5); s_apply_order_dec_21(s_apply_kl);
+      s_apply_order_dec_21(s_dec_4); s_apply_order_dec_20(s_apply_kl);
+      s_apply_order_dec_20(s_dec_3); s_apply_order_dec_19(s_apply_kl);
+      s_apply_order_dec_19(s_dec_2); s_apply_order_dec_18(s_apply_kl);
+      s_apply_order_dec_18(s_dec_1); s_apply_order_dec_17(s_apply_kl);
+      s_apply_order_dec_17(s_dec_0); s_apply_order_dec_16(s_apply_kl);
+      s_apply_order_dec_16(s_dec_7); s_apply_order_dec_15(s_apply_kl);
+      s_apply_order_dec_15(s_dec_6); s_apply_order_dec_14(s_apply_kl);
+      s_apply_order_dec_14(s_dec_5); s_apply_order_dec_13(s_apply_kl);
+      s_apply_order_dec_13(s_dec_4); s_apply_order_dec_12(s_apply_kl);
+      s_apply_order_dec_12(s_dec_3); s_apply_order_dec_11(s_apply_kl);
+      s_apply_order_dec_11(s_dec_2); s_apply_order_dec_10(s_apply_kl);
+      s_apply_order_dec_10(s_dec_1); s_apply_order_dec_09(s_apply_kl);
+      s_apply_order_dec_09(s_dec_0); s_apply_order_dec_08(s_apply_kl);
+      s_apply_order_dec_08(s_dec_7); s_apply_order_dec_07(s_apply_kl);
+      s_apply_order_dec_07(s_dec_6); s_apply_order_dec_06(s_apply_kl);
+      s_apply_order_dec_06(s_dec_5); s_apply_order_dec_05(s_apply_kl);
+      s_apply_order_dec_05(s_dec_4); s_apply_order_dec_04(s_apply_kl);
+      s_apply_order_dec_04(s_dec_3); s_apply_order_dec_03(s_apply_kl);
+      s_apply_order_dec_03(s_dec_2); s_apply_order_dec_02(s_apply_kl);
+      s_apply_order_dec_02(s_dec_1); s_apply_order_dec_01(s_apply_kl);
+      s_apply_order_dec_01(s_dec_0); s_apply_order_dec_00(s_apply_key);
+      s_serpent_accel_256_bit_avx2_store_four(&c, &d, &b, &e, out);
+      in += blocks_at_a_time * serpent_block_len;
+      out += blocks_at_a_time * serpent_block_len;
+   }
+   return CRYPT_OK;
+
+   #undef blocks_at_a_time
+   #undef s_do_broadcast
+   #undef s_do_asgn
+   #undef s_do_or
+   #undef s_do_xor
+   #undef s_do_and
+   #undef s_do_not
+   #undef s_do_rol
+   #undef s_do_ror
+   #undef s_do_shl
+}
+
+#endif
+
 int serpent_ecb_encrypt(const unsigned char *pt, unsigned char *ct, const symmetric_key *skey)
 {
    int err = s_serpent_accel_ecb_encrypt_32_bit(pt, ct, 1, skey);
