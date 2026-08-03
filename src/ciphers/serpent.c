@@ -2302,6 +2302,50 @@ static LTC_INLINE int s_serpent_accel_cbc_decrypt_256_bit_avx2(const unsigned ch
 
 #endif
 
+#if defined LTC_SERPENT_ACCEL_512_BIT_X86_AVX512F
+
+static LTC_INLINE int s_serpent_accel_cbc_decrypt_512_bit_avx512f(const unsigned char *ct, unsigned char *pt, unsigned long blocks, unsigned char *IV, const symmetric_key *skey)
+{
+   #define blocks_at_a_time (512 / 32)
+
+   unsigned long iblock;
+   int err;
+   LTC_ALIGN_MSVC(64) unsigned char pad1[blocks_at_a_time * serpent_block_len] LTC_ALIGN(64);
+   int i;
+   LTC_ALIGN_MSVC(64) unsigned char pad2[blocks_at_a_time * serpent_block_len] LTC_ALIGN(64);
+   int j;
+
+   LTC_ARGCHK(blocks % blocks_at_a_time == 0);
+   LTC_ARGCHK(serpent_block_len % sizeof(LTC_FAST_TYPE) == 0);
+
+   for (iblock = 0; iblock != blocks; iblock += blocks_at_a_time) {
+      if ((err = s_serpent_accel_ecb_decrypt_512_bit_avx512f(ct, pad1, blocks_at_a_time, skey)) != CRYPT_OK) {
+         return err;
+      }
+      for (i = 0; i != serpent_block_len / sizeof(LTC_FAST_TYPE); ++i) {
+         LTC_FAST_XOR3(&pad2[i * sizeof(LTC_FAST_TYPE)], &IV[i * sizeof(LTC_FAST_TYPE)], &pad1[i * sizeof(LTC_FAST_TYPE)]);
+      }
+      for (j = 1; j != blocks_at_a_time; ++j) {
+         for (i = 0; i != serpent_block_len / sizeof(LTC_FAST_TYPE); ++i) {
+            LTC_FAST_XOR3(&pad2[j * serpent_block_len + i * sizeof(LTC_FAST_TYPE)], &ct[(j - 1) * serpent_block_len + i * sizeof(LTC_FAST_TYPE)], &pad1[j * serpent_block_len + i * sizeof(LTC_FAST_TYPE)]);
+         }
+      }
+      for (i = 0; i != serpent_block_len / sizeof(LTC_FAST_TYPE); ++i) {
+         LTC_FAST_STORE(&IV[i * sizeof(LTC_FAST_TYPE)], LTC_FAST_LOAD(&ct[(j - 1) * serpent_block_len + i * sizeof(LTC_FAST_TYPE)]));
+      }
+      for (i = 0; i != blocks_at_a_time * serpent_block_len / sizeof(LTC_FAST_TYPE); ++i) {
+         LTC_FAST_STORE(&pt[i * sizeof(LTC_FAST_TYPE)], LTC_FAST_LOAD(&pad2[i * sizeof(LTC_FAST_TYPE)]));
+      }
+      pt += blocks_at_a_time * serpent_block_len;
+      ct += blocks_at_a_time * serpent_block_len;
+   }
+   return CRYPT_OK;
+
+   #undef blocks_at_a_time
+}
+
+#endif
+
 static LTC_INLINE int s_serpent_accel_ctr_encrypt_32_bit(const unsigned char *pt, unsigned char *ct, unsigned long blocks, unsigned char *IV, int mode, const symmetric_key *skey)
 {
    #define blocks_at_a_time (32 / 32)
@@ -2438,6 +2482,41 @@ static LTC_INLINE int s_serpent_accel_ctr_encrypt_256_bit_avx2(const unsigned ch
 
 #endif
 
+#if defined LTC_SERPENT_ACCEL_512_BIT_X86_AVX512F
+
+static LTC_INLINE int s_serpent_accel_ctr_encrypt_512_bit_avx512f(const unsigned char *pt, unsigned char *ct, unsigned long blocks, unsigned char *IV, int mode, const symmetric_key *skey)
+{
+   #define blocks_at_a_time (512 / 32)
+
+   unsigned long iblock;
+   int i;
+   LTC_ALIGN_MSVC(64) unsigned char pad[blocks_at_a_time * serpent_block_len] LTC_ALIGN(64);
+   int err;
+
+   LTC_ARGCHK(blocks % blocks_at_a_time == 0);
+   LTC_ARGCHK(serpent_block_len % sizeof(LTC_FAST_TYPE) == 0);
+
+   for (iblock = 0; iblock != blocks; iblock += blocks_at_a_time) {
+      for (i = 0; i != blocks_at_a_time; ++i) {
+         s_serpent_accel_ctr_increment_counter_generic(IV, mode);
+         XMEMCPY(&pad[i * serpent_block_len], IV, serpent_block_len);
+      }
+      if ((err = s_serpent_accel_ecb_encrypt_512_bit_avx512f(&pad[0], &pad[0], blocks_at_a_time, skey)) != CRYPT_OK) {
+         return err;
+      }
+      for (i = 0; i != blocks_at_a_time * serpent_block_len / sizeof(LTC_FAST_TYPE); ++i) {
+         LTC_FAST_XOR3(&ct[i * sizeof(LTC_FAST_TYPE)], &pt[i * sizeof(LTC_FAST_TYPE)], &pad[i * sizeof(LTC_FAST_TYPE)]);
+      }
+      pt += blocks_at_a_time * serpent_block_len;
+      ct += blocks_at_a_time * serpent_block_len;
+   }
+   return CRYPT_OK;
+
+   #undef blocks_at_a_time
+}
+
+#endif
+
 int serpent_accel_ecb_encrypt(const unsigned char *pt, unsigned char *ct, unsigned long blocks, const symmetric_key *skey)
 {
    const unsigned char *in;
@@ -2450,9 +2529,25 @@ int serpent_accel_ecb_encrypt(const unsigned char *pt, unsigned char *ct, unsign
    out = ct;
    rem = blocks;
    while (rem != 0) {
+      #if defined LTC_SERPENT_ACCEL_512_BIT_X86_AVX512F
+      if (rem >= (512 / 32) && s_is_supported_512_bit_avx512f()) {
+         n = (rem / (512 / 32)) * (512 / 32);
+         err = s_serpent_accel_ecb_encrypt_512_bit_avx512f(in, out, n, skey);
+         if (err != CRYPT_OK) {
+            return err;
+         }
+         out += n * serpent_block_len;
+         in += n * serpent_block_len;
+         rem -= n;
+      } else
+      #endif
       #if defined LTC_SERPENT_ACCEL_256_BIT_X86_AVX2
       if (rem >= (256 / 32) && s_is_supported_256_bit_avx2()) {
+         #if defined LTC_SERPENT_ACCEL_512_BIT_X86_AVX512F
+         n = 256 / 32;
+         #else
          n = (rem / (256 / 32)) * (256 / 32);
+         #endif
          err = s_serpent_accel_ecb_encrypt_256_bit_avx2(in, out, n, skey);
          if (err != CRYPT_OK) {
             return err;
@@ -2524,9 +2619,25 @@ int serpent_accel_ecb_decrypt(const unsigned char *ct, unsigned char *pt, unsign
    out = pt;
    rem = blocks;
    while (rem != 0) {
+      #if defined LTC_SERPENT_ACCEL_512_BIT_X86_AVX512F
+      if (rem >= (512 / 32) && s_is_supported_512_bit_avx512f()) {
+         n = (rem / (512 / 32)) * (512 / 32);
+         err = s_serpent_accel_ecb_decrypt_512_bit_avx512f(in, out, n, skey);
+         if (err != CRYPT_OK) {
+            return err;
+         }
+         out += n * serpent_block_len;
+         in += n * serpent_block_len;
+         rem -= n;
+      } else
+      #endif
       #if defined LTC_SERPENT_ACCEL_256_BIT_X86_AVX2
       if (rem >= (256 / 32) && s_is_supported_256_bit_avx2()) {
+         #if defined LTC_SERPENT_ACCEL_512_BIT_X86_AVX512F
+         n = 256 / 32;
+         #else
          n = (rem / (256 / 32)) * (256 / 32);
+         #endif
          err = s_serpent_accel_ecb_decrypt_256_bit_avx2(in, out, n, skey);
          if (err != CRYPT_OK) {
             return err;
@@ -2598,9 +2709,25 @@ int serpent_accel_cbc_decrypt(const unsigned char *ct, unsigned char *pt, unsign
    out = pt;
    rem = blocks;
    while (rem != 0) {
+      #if defined LTC_SERPENT_ACCEL_512_BIT_X86_AVX512F
+      if (rem >= (512 / 32) && s_is_supported_512_bit_avx512f()) {
+         n = (rem / (512 / 32)) * (512 / 32);
+         err = s_serpent_accel_cbc_decrypt_512_bit_avx512f(in, out, n, IV, skey);
+         if (err != CRYPT_OK) {
+            return err;
+         }
+         out += n * serpent_block_len;
+         in += n * serpent_block_len;
+         rem -= n;
+      } else
+      #endif
       #if defined LTC_SERPENT_ACCEL_256_BIT_X86_AVX2
       if (rem >= (256 / 32) && s_is_supported_256_bit_avx2()) {
+         #if defined LTC_SERPENT_ACCEL_512_BIT_X86_AVX512F
+         n = 256 / 32;
+         #else
          n = (rem / (256 / 32)) * (256 / 32);
+         #endif
          err = s_serpent_accel_cbc_decrypt_256_bit_avx2(in, out, n, IV, skey);
          if (err != CRYPT_OK) {
             return err;
@@ -2672,9 +2799,25 @@ int serpent_accel_ctr_encrypt(const unsigned char *pt, unsigned char *ct, unsign
    out = ct;
    rem = blocks;
    while (rem != 0) {
+      #if defined LTC_SERPENT_ACCEL_512_BIT_X86_AVX512F
+      if (rem >= (512 / 32) && s_is_supported_512_bit_avx512f()) {
+         n = (rem / (512 / 32)) * (512 / 32);
+         err = s_serpent_accel_ctr_encrypt_512_bit_avx512f(in, out, n, IV, mode, skey);
+         if (err != CRYPT_OK) {
+            return err;
+         }
+         out += n * serpent_block_len;
+         in += n * serpent_block_len;
+         rem -= n;
+      } else
+      #endif
       #if defined LTC_SERPENT_ACCEL_256_BIT_X86_AVX2
       if (rem >= (256 / 32) && s_is_supported_256_bit_avx2()) {
+         #if defined LTC_SERPENT_ACCEL_512_BIT_X86_AVX512F
+         n = 256 / 32;
+         #else
          n = (rem / (256 / 32)) * (256 / 32);
+         #endif
          err = s_serpent_accel_ctr_encrypt_256_bit_avx2(in, out, n, IV, mode, skey);
          if (err != CRYPT_OK) {
             return err;
