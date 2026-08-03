@@ -960,6 +960,7 @@ int cbc_decrypt(const unsigned char *ct, unsigned char *pt, unsigned long len, s
 int cbc_getiv(unsigned char *IV, unsigned long *len, const symmetric_CBC *cbc);
 int cbc_setiv(const unsigned char *IV, unsigned long len, symmetric_CBC *cbc);
 int cbc_done(symmetric_CBC *cbc);
+int cbc_test(void);
 #endif
 
 #ifdef LTC_CTR_MODE

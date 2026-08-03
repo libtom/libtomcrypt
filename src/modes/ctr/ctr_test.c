@@ -9,7 +9,7 @@
 
 #ifdef LTC_CTR_MODE
 
-int ctr_test(void)
+static LTC_INLINE int s_ctr_test_1(void)
 {
 #ifdef LTC_NO_TEST
    return CRYPT_NOP;
@@ -67,7 +67,185 @@ int ctr_test(void)
 #endif
 }
 
+static LTC_INLINE int s_ctr_test_2(void)
+{
+#ifdef LTC_NO_TEST
+   return CRYPT_NOP;
+#else
+  #define LTC_ALIGN_BUF2(buf, align) ((void*)(((((ltc_uintptr)(buf)) + ((align) - 1)) / (align)) * (align)))
+  #define buf_cap (4 * 1024) /* allocate big buffer, for example 4kB */
+  #define buf_alg (1 * 1024) /* align the buffer to ridiculously strict alignment, for example 1kB */
+  #define buf_len (buf_cap - buf_alg) /* in worst case, the buffer will be only 3kB big */
+
+  unsigned char *pt;
+  unsigned char pt_storage[buf_cap];
+  unsigned char *ct1;
+  unsigned char ct1_storage[buf_cap];
+  unsigned char *ct2;
+  unsigned char ct2_storage[buf_cap];
+  int idx;
+  int n;
+  int i;
+  unsigned char iv[MAXBLOCKSIZE];
+  unsigned char key[4 * MAXBLOCKSIZE]; /* todo this is only guesstimate */
+  int block_len;
+  int err;
+  symmetric_CTR ctr;
+
+  pt = (unsigned char*)LTC_ALIGN_BUF2(pt_storage, buf_alg);
+  ct1 = (unsigned char*)LTC_ALIGN_BUF2(ct1_storage, buf_alg);
+  ct2 = (unsigned char*)LTC_ALIGN_BUF2(ct2_storage, buf_alg);
+  idx = 0;
+  for(;;) {
+    if (cipher_is_valid(idx) != CRYPT_OK) {
+      break;
+    }
+    n = buf_len;
+    for (i = 0; i != n; ++i) {
+      pt[i] = rand() & 0xff;
+    }
+    n = buf_len;
+    for (i = 0; i != n; ++i) {
+      ct1[i] = rand() & 0xff;
+    }
+    n = buf_len;
+    for (i = 0; i != n; ++i) {
+      ct2[i] = rand() & 0xff;
+    }
+    n = LTC_ARRAY_SIZE(iv);
+    for (i = 0; i != n; ++i) {
+      iv[i] = rand() & 0xff;
+    }
+    n = LTC_ARRAY_SIZE(key);
+    for (i = 0; i != n; ++i) {
+      key[i] = rand() & 0xff;
+    }
+    block_len = cipher_descriptor[idx].block_length;
+    LTC_ARGCHK(block_len >= 2);
+    LTC_ARGCHK(block_len % 2 == 0);
+    LTC_ARGCHK((int)LTC_ARRAY_SIZE(key) >= cipher_descriptor[idx].max_key_length);
+    LTC_ARGCHK(buf_len % block_len == 0);
+
+    /* encrypt random data by random key, do it piece-wise, so any acceleration might be hindered */
+    if ((err = ctr_start(idx, iv, key, cipher_descriptor[idx].max_key_length, 0, CTR_COUNTER_BIG_ENDIAN | LTC_CTR_RFC3686, &ctr)) != CRYPT_OK) { return err; }
+    n = buf_len / block_len;
+    for (i = 0; i != n; ++i) {
+      if ((err = ctr_encrypt(pt + i * block_len + (block_len / 2) * 0, ct1 + i * block_len + (block_len / 2) * 0, block_len / 2, &ctr)) != CRYPT_OK) { return err; }
+      if ((err = ctr_encrypt(pt + i * block_len + (block_len / 2) * 1, ct1 + i * block_len + (block_len / 2) * 1, block_len / 2, &ctr)) != CRYPT_OK) { return err; }
+    }
+    if ((err = ctr_done(&ctr)) != CRYPT_OK) { return err; }
+
+    /* encrypt random data by random key, do it all at once, so any acceleration might be used */
+    if ((err = ctr_start(idx, iv, key, cipher_descriptor[idx].max_key_length, 0, CTR_COUNTER_BIG_ENDIAN | LTC_CTR_RFC3686, &ctr)) != CRYPT_OK) { return err; }
+    if ((err = ctr_encrypt(pt, ct2, buf_len, &ctr)) != CRYPT_OK) { return err; }
+    if ((err = ctr_done(&ctr)) != CRYPT_OK) { return err; }
+
+    /* compare both non-accelerated and accelerated cipher texts */
+    if (ltc_compare_testvector(ct2, buf_len, ct1, buf_len, "CTR", idx)) { return CRYPT_FAIL_TESTVECTOR; }
+    ++idx;
+  }
+  return CRYPT_OK;
+
+  #undef LTC_ALIGN_BUF2
+  #undef buf_cap
+  #undef buf_alg
+  #undef buf_len
 #endif
+}
+
+static LTC_INLINE int s_ctr_test_3(void)
+{
+#ifdef LTC_NO_TEST
+   return CRYPT_NOP;
+#else
+  #define LTC_ALIGN_BUF2(buf, align) ((void*)(((((ltc_uintptr)(buf)) + ((align) - 1)) / (align)) * (align)))
+  #define buf_cap (4 * 1024) /* allocate big buffer, for example 4kB */
+  #define buf_alg (1 * 1024) /* align the buffer to ridiculously strict alignment, for example 1kB */
+  #define buf_len (buf_cap - buf_alg) /* in worst case, the buffer will be only 3kB big */
+
+  unsigned char *pt1;
+  unsigned char pt1_storage[buf_cap];
+  unsigned char *ct;
+  unsigned char ct_storage[buf_cap];
+  unsigned char *pt2;
+  unsigned char pt2_storage[buf_cap];
+  int idx;
+  int n;
+  int i;
+  unsigned char iv[MAXBLOCKSIZE];
+  unsigned char key[4 * MAXBLOCKSIZE]; /* todo this is only guesstimate */
+  int block_len;
+  int err;
+  symmetric_CTR ctr;
+
+  pt1 = (unsigned char*)LTC_ALIGN_BUF2(pt1_storage, buf_alg);
+  ct = (unsigned char*)LTC_ALIGN_BUF2(ct_storage, buf_alg);
+  pt2 = (unsigned char*)LTC_ALIGN_BUF2(pt2_storage, buf_alg);
+  idx = 0;
+  for(;;) {
+    if (cipher_is_valid(idx) != CRYPT_OK) {
+      break;
+    }
+    n = buf_len;
+    for (i = 0; i != n; ++i) {
+      pt1[i] = rand() & 0xff;
+    }
+    n = buf_len;
+    for (i = 0; i != n; ++i) {
+      ct[i] = rand() & 0xff;
+    }
+    n = buf_len;
+    for (i = 0; i != n; ++i) {
+      pt2[i] = rand() & 0xff;
+    }
+    n = LTC_ARRAY_SIZE(iv);
+    for (i = 0; i != n; ++i) {
+      iv[i] = rand() & 0xff;
+    }
+    n = LTC_ARRAY_SIZE(key);
+    for (i = 0; i != n; ++i) {
+      key[i] = rand() & 0xff;
+    }
+    block_len = cipher_descriptor[idx].block_length;
+    LTC_ARGCHK(block_len >= 2);
+    LTC_ARGCHK(block_len % 2 == 0);
+    LTC_ARGCHK((int)LTC_ARRAY_SIZE(key) >= cipher_descriptor[idx].max_key_length);
+    LTC_ARGCHK(buf_len % block_len == 0);
+
+    if ((err = ctr_start(idx, iv, key, cipher_descriptor[idx].max_key_length, 0, CTR_COUNTER_BIG_ENDIAN | LTC_CTR_RFC3686, &ctr)) != CRYPT_OK) { return err; }
+    n = buf_len / block_len;
+    for (i = 0; i != n; ++i) {
+      if ((err = ctr_encrypt(pt1 + i * block_len + (block_len / 2) * 0, ct + i * block_len + (block_len / 2) * 0, block_len / 2, &ctr)) != CRYPT_OK) { return err; }
+      if ((err = ctr_encrypt(pt1 + i * block_len + (block_len / 2) * 1, ct + i * block_len + (block_len / 2) * 1, block_len / 2, &ctr)) != CRYPT_OK) { return err; }
+    }
+    if ((err = ctr_done(&ctr)) != CRYPT_OK) { return err; }
+
+    if ((err = ctr_start(idx, iv, key, cipher_descriptor[idx].max_key_length, 0, CTR_COUNTER_BIG_ENDIAN | LTC_CTR_RFC3686, &ctr)) != CRYPT_OK) { return err; }
+    if ((err = ctr_decrypt(ct, pt2, buf_len, &ctr)) != CRYPT_OK) { return err; }
+    if ((err = ctr_done(&ctr)) != CRYPT_OK) { return err; }
+
+    /* test (possibly) accelerated decryption */
+    if (ltc_compare_testvector(pt2, buf_len, pt1, buf_len, "CTR", idx)) { return CRYPT_FAIL_TESTVECTOR; }
+    ++idx;
+  }
+  return CRYPT_OK;
+
+  #undef LTC_ALIGN_BUF2
+  #undef buf_cap
+  #undef buf_alg
+  #undef buf_len
+#endif
+}
 
 
+int ctr_test(void)
+{
+  int err;
 
+  err = s_ctr_test_1(); if (err != CRYPT_OK){ return err; }
+  err = s_ctr_test_2(); if (err != CRYPT_OK){ return err; }
+  err = s_ctr_test_3(); if (err != CRYPT_OK){ return err; }
+  return CRYPT_OK;
+}
+
+#endif
