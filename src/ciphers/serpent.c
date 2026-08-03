@@ -1242,9 +1242,58 @@ static LTC_INLINE int s_serpent_accel_ecb_decrypt_64_bit(const unsigned char *ct
 
 #endif
 
+#if defined LTC_ARCH_X86
+#if !defined LTC_S_X86_CPUID
+#define LTC_S_X86_CPUID
+#include <immintrin.h> /* _xgetbv */
+#if defined _MSC_VER
+#include <intrin.h> /* __cpuid */
+#endif /* _MSC_VER */
+static LTC_INLINE ulong64 s_x86_xgetbv0(void)
+{
+   return _xgetbv(0);
+}
+static LTC_INLINE void s_x86_cpuid(int* regs, int leaf)
+{
+#if defined _MSC_VER
+   __cpuid(regs, leaf);
+#else /* _MSC_VER */
+   int a, b, c, d;
+   a = leaf;
+   b = c = d = 0;
+   __asm__ volatile ("cpuid"
+      :"=a"(a), "=b"(b), "=c"(c), "=d"(d)
+      :"a"(a), "c"(c)
+   );
+   regs[0] = a;
+   regs[1] = b;
+   regs[2] = c;
+   regs[3] = d;
+#endif /* _MSC_VER */
+}
+#endif /* LTC_S_X86_CPUID */
+#endif /* LTC_ARCH_X86 */
+
 #if defined LTC_SERPENT_ACCEL_128_BIT_X86_SSE2
 
 #include <emmintrin.h> /* SSE2 __m128i _mm_and_si128 _mm_cmpeq_epi32 _mm_loadu_si128 _mm_or_si128 _mm_set1_epi32 _mm_slli_epi32 _mm_srli_epi32 _mm_storeu_si128 _mm_unpackhi_epi32 _mm_unpackhi_epi64 _mm_unpacklo_epi32 _mm_unpacklo_epi64 _mm_xor_si128 */
+
+static LTC_INLINE int s_x86_sse2_is_supported(void)
+{
+   static int is_initialized = 0;
+   static int is_supported = 0;
+
+   if (is_initialized == 0) {
+      int regs[4];
+      int sse2;
+
+      s_x86_cpuid(regs, 1);
+      sse2 = ((((unsigned int)(regs[3])) >> 26) & 1u) != 0; /* SSE2, leaf 1, edx, bit 26 */
+      is_supported = sse2;
+      is_initialized = 1;
+   }
+   return is_supported;
+}
 
 static LTC_INLINE void s_serpent_accel_ecb_128_bit_sse2_load_one(__m128i *x, const unsigned char *bytes)
 {
@@ -1621,6 +1670,50 @@ static LTC_INLINE int s_serpent_accel_cbc_decrypt_64_bit(const unsigned char *ct
 
 #endif
 
+#if defined LTC_SERPENT_ACCEL_128_BIT_X86_SSE2
+
+static LTC_INLINE int s_serpent_accel_cbc_decrypt_128_bit_sse2(const unsigned char *ct, unsigned char *pt, unsigned long blocks, unsigned char *IV, const symmetric_key *skey)
+{
+   #define blocks_at_a_time (128 / 32)
+
+   unsigned long iblock;
+   int err;
+   LTC_ALIGN_MSVC(16) unsigned char pad1[blocks_at_a_time * serpent_block_len] LTC_ALIGN(16);
+   int i;
+   LTC_ALIGN_MSVC(16) unsigned char pad2[blocks_at_a_time * serpent_block_len] LTC_ALIGN(16);
+   int j;
+
+   LTC_ARGCHK(blocks % blocks_at_a_time == 0);
+   LTC_ARGCHK(serpent_block_len % sizeof(LTC_FAST_TYPE) == 0);
+
+   for (iblock = 0; iblock != blocks; iblock += blocks_at_a_time) {
+      if ((err = s_serpent_accel_ecb_decrypt_128_bit_sse2(ct, pad1, blocks_at_a_time, skey)) != CRYPT_OK) {
+         return err;
+      }
+      for (i = 0; i != serpent_block_len / sizeof(LTC_FAST_TYPE); ++i) {
+         LTC_FAST_XOR3(&pad2[i * sizeof(LTC_FAST_TYPE)], &IV[i * sizeof(LTC_FAST_TYPE)], &pad1[i * sizeof(LTC_FAST_TYPE)]);
+      }
+      for (j = 1; j != blocks_at_a_time; ++j) {
+         for (i = 0; i != serpent_block_len / sizeof(LTC_FAST_TYPE); ++i) {
+            LTC_FAST_XOR3(&pad2[j * serpent_block_len + i * sizeof(LTC_FAST_TYPE)], &ct[(j - 1) * serpent_block_len + i * sizeof(LTC_FAST_TYPE)], &pad1[j * serpent_block_len + i * sizeof(LTC_FAST_TYPE)]);
+         }
+      }
+      for (i = 0; i != serpent_block_len / sizeof(LTC_FAST_TYPE); ++i) {
+         LTC_FAST_STORE(&IV[i * sizeof(LTC_FAST_TYPE)], LTC_FAST_LOAD(&ct[(j - 1) * serpent_block_len + i * sizeof(LTC_FAST_TYPE)]));
+      }
+      for (i = 0; i != blocks_at_a_time * serpent_block_len / sizeof(LTC_FAST_TYPE); ++i) {
+         LTC_FAST_STORE(&pt[i * sizeof(LTC_FAST_TYPE)], LTC_FAST_LOAD(&pad2[i * sizeof(LTC_FAST_TYPE)]));
+      }
+      pt += blocks_at_a_time * serpent_block_len;
+      ct += blocks_at_a_time * serpent_block_len;
+   }
+   return CRYPT_OK;
+
+   #undef blocks_at_a_time
+}
+
+#endif
+
 static LTC_INLINE int s_serpent_accel_ctr_encrypt_32_bit(const unsigned char *pt, unsigned char *ct, unsigned long blocks, unsigned char *IV, int mode, const symmetric_key *skey)
 {
    #define blocks_at_a_time (32 / 32)
@@ -1687,6 +1780,41 @@ static LTC_INLINE int s_serpent_accel_ctr_encrypt_64_bit(const unsigned char *pt
 
 #endif
 
+#if defined LTC_SERPENT_ACCEL_128_BIT_X86_SSE2
+
+static LTC_INLINE int s_serpent_accel_ctr_encrypt_128_bit_sse2(const unsigned char *pt, unsigned char *ct, unsigned long blocks, unsigned char *IV, int mode, const symmetric_key *skey)
+{
+   #define blocks_at_a_time (128 / 32)
+
+   unsigned long iblock;
+   int i;
+   LTC_ALIGN_MSVC(16) unsigned char pad[blocks_at_a_time * serpent_block_len] LTC_ALIGN(16);
+   int err;
+
+   LTC_ARGCHK(blocks % blocks_at_a_time == 0);
+   LTC_ARGCHK(serpent_block_len % sizeof(LTC_FAST_TYPE) == 0);
+
+   for (iblock = 0; iblock != blocks; iblock += blocks_at_a_time) {
+      for (i = 0; i != blocks_at_a_time; ++i) {
+         s_serpent_accel_ctr_increment_counter_generic(IV, mode);
+         XMEMCPY(&pad[i * serpent_block_len], IV, serpent_block_len);
+      }
+      if ((err = s_serpent_accel_ecb_encrypt_128_bit_sse2(&pad[0], &pad[0], blocks_at_a_time, skey)) != CRYPT_OK) {
+         return err;
+      }
+      for (i = 0; i != blocks_at_a_time * serpent_block_len / sizeof(LTC_FAST_TYPE); ++i) {
+         LTC_FAST_XOR3(&ct[i * sizeof(LTC_FAST_TYPE)], &pt[i * sizeof(LTC_FAST_TYPE)], &pad[i * sizeof(LTC_FAST_TYPE)]);
+      }
+      pt += blocks_at_a_time * serpent_block_len;
+      ct += blocks_at_a_time * serpent_block_len;
+   }
+   return CRYPT_OK;
+
+   #undef blocks_at_a_time
+}
+
+#endif
+
 int serpent_accel_ecb_encrypt(const unsigned char *pt, unsigned char *ct, unsigned long blocks, const symmetric_key *skey)
 {
    const unsigned char *in;
@@ -1699,9 +1827,25 @@ int serpent_accel_ecb_encrypt(const unsigned char *pt, unsigned char *ct, unsign
    out = ct;
    rem = blocks;
    while (rem != 0) {
+      #if defined LTC_SERPENT_ACCEL_128_BIT_X86_SSE2
+      if (rem >= (128 / 32) && s_x86_sse2_is_supported()) {
+         n = (rem / (128 / 32)) * (128 / 32);
+         err = s_serpent_accel_ecb_encrypt_128_bit_sse2(in, out, n, skey);
+         if (err != CRYPT_OK) {
+            return err;
+         }
+         out += n * serpent_block_len;
+         in += n * serpent_block_len;
+         rem -= n;
+      } else
+      #endif
       #if defined LTC_SERPENT_ACCEL_64_BIT
       if (rem >= (64 / 32)) {
+         #if defined LTC_SERPENT_ACCEL_128_BIT_X86_SSE2
+         n = 64 / 32;
+         #else
          n = (rem / (64 / 32)) * (64 / 32);
+         #endif
          err = s_serpent_accel_ecb_encrypt_64_bit(in, out, n, skey);
          if (err != CRYPT_OK) {
             return err;
@@ -1741,9 +1885,25 @@ int serpent_accel_ecb_decrypt(const unsigned char *ct, unsigned char *pt, unsign
    out = pt;
    rem = blocks;
    while (rem != 0) {
+      #if defined LTC_SERPENT_ACCEL_128_BIT_X86_SSE2
+      if (rem >= (128 / 32) && s_x86_sse2_is_supported()) {
+         n = (rem / (128 / 32)) * (128 / 32);
+         err = s_serpent_accel_ecb_decrypt_128_bit_sse2(in, out, n, skey);
+         if (err != CRYPT_OK) {
+            return err;
+         }
+         out += n * serpent_block_len;
+         in += n * serpent_block_len;
+         rem -= n;
+      } else
+      #endif
       #if defined LTC_SERPENT_ACCEL_64_BIT
       if (rem >= (64 / 32)) {
+         #if defined LTC_SERPENT_ACCEL_128_BIT_X86_SSE2
+         n = 64 / 32;
+         #else
          n = (rem / (64 / 32)) * (64 / 32);
+         #endif
          err = s_serpent_accel_ecb_decrypt_64_bit(in, out, n, skey);
          if (err != CRYPT_OK) {
             return err;
@@ -1783,9 +1943,25 @@ int serpent_accel_cbc_decrypt(const unsigned char *ct, unsigned char *pt, unsign
    out = pt;
    rem = blocks;
    while (rem != 0) {
+      #if defined LTC_SERPENT_ACCEL_128_BIT_X86_SSE2
+      if (rem >= (128 / 32) && s_x86_sse2_is_supported()) {
+         n = (rem / (128 / 32)) * (128 / 32);
+         err = s_serpent_accel_cbc_decrypt_128_bit_sse2(in, out, n, IV, skey);
+         if (err != CRYPT_OK) {
+            return err;
+         }
+         out += n * serpent_block_len;
+         in += n * serpent_block_len;
+         rem -= n;
+      } else
+      #endif
       #if defined LTC_SERPENT_ACCEL_64_BIT
       if (rem >= (64 / 32)) {
+         #if defined LTC_SERPENT_ACCEL_128_BIT_X86_SSE2
+         n = 64 / 32;
+         #else
          n = (rem / (64 / 32)) * (64 / 32);
+         #endif
          err = s_serpent_accel_cbc_decrypt_64_bit(in, out, n, IV, skey);
          if (err != CRYPT_OK) {
             return err;
@@ -1825,9 +2001,25 @@ int serpent_accel_ctr_encrypt(const unsigned char *pt, unsigned char *ct, unsign
    out = ct;
    rem = blocks;
    while (rem != 0) {
+      #if defined LTC_SERPENT_ACCEL_128_BIT_X86_SSE2
+      if (rem >= (128 / 32) && s_x86_sse2_is_supported()) {
+         n = (rem / (128 / 32)) * (128 / 32);
+         err = s_serpent_accel_ctr_encrypt_128_bit_sse2(in, out, n, IV, mode, skey);
+         if (err != CRYPT_OK) {
+            return err;
+         }
+         out += n * serpent_block_len;
+         in += n * serpent_block_len;
+         rem -= n;
+      } else
+      #endif
       #if defined LTC_SERPENT_ACCEL_64_BIT
       if (rem >= (64 / 32)) {
+         #if defined LTC_SERPENT_ACCEL_128_BIT_X86_SSE2
+         n = 64 / 32;
+         #else
          n = (rem / (64 / 32)) * (64 / 32);
+         #endif
          err = s_serpent_accel_ctr_encrypt_64_bit(in, out, n, IV, mode, skey);
          if (err != CRYPT_OK) {
             return err;
