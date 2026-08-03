@@ -895,6 +895,10 @@ int serpent_ecb_decrypt(const unsigned char *ct, unsigned char *pt, const symmet
 int serpent_test(void);
 void serpent_done(symmetric_key *skey);
 int serpent_keysize(int *keysize);
+int serpent_accel_ecb_encrypt(const unsigned char *pt, unsigned char *ct, unsigned long blocks, const symmetric_key *skey);
+int serpent_accel_ecb_decrypt(const unsigned char *ct, unsigned char *pt, unsigned long blocks, const symmetric_key *skey);
+int serpent_accel_cbc_decrypt(const unsigned char *ct, unsigned char *pt, unsigned long blocks, unsigned char *IV, const symmetric_key *skey);
+int serpent_accel_ctr_encrypt(const unsigned char *pt, unsigned char *ct, unsigned long blocks, unsigned char *IV, int mode, const symmetric_key *skey);
 extern const struct ltc_cipher_descriptor serpent_desc;
 #endif
 

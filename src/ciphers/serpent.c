@@ -17,6 +17,26 @@
 
 #define LTC_SERPENT_ACCEL_64_BIT /* todo move somewhere else */
 
+#if \
+  defined LTC_SERPENT_ACCEL_64_BIT || \
+  0
+#define LTC_SERPENT_ACCEL 1
+#else
+#define LTC_SERPENT_ACCEL 0
+#endif
+
+#if LTC_SERPENT_ACCEL
+#define ltc_serpent_accel_ecb_encrypt &serpent_accel_ecb_encrypt
+#define ltc_serpent_accel_ecb_decrypt &serpent_accel_ecb_decrypt
+#define ltc_serpent_accel_cbc_decrypt &serpent_accel_cbc_decrypt
+#define ltc_serpent_accel_ctr_encrypt &serpent_accel_ctr_encrypt
+#else
+#define ltc_serpent_accel_ecb_encrypt NULL
+#define ltc_serpent_accel_ecb_decrypt NULL
+#define ltc_serpent_accel_cbc_decrypt NULL
+#define ltc_serpent_accel_ctr_encrypt NULL
+#endif
+
 const struct ltc_cipher_descriptor serpent_desc = {
    "serpent",
    25,                  /* cipher_ID */
@@ -27,7 +47,12 @@ const struct ltc_cipher_descriptor serpent_desc = {
    &serpent_test,
    &serpent_done,
    &serpent_keysize,
-   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
+   ltc_serpent_accel_ecb_encrypt,
+   ltc_serpent_accel_ecb_decrypt,
+   NULL,
+   ltc_serpent_accel_cbc_decrypt,
+   ltc_serpent_accel_ctr_encrypt,
+   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
 };
 
 
@@ -1248,6 +1273,365 @@ int serpent_keysize(int *keysize)
    else return CRYPT_INVALID_KEYSIZE;
    return CRYPT_OK;
 }
+
+#if defined LTC_SERPENT_ACCEL
+
+static LTC_INLINE void s_serpent_accel_ctr_increment_counter_be(unsigned char *counter)
+{
+   int i;
+   int idx;
+
+   for (i = 0; i != serpent_block_len; ++i) {
+      idx = (serpent_block_len - 1) - i;
+      ++counter[idx];
+      if (counter[idx] != 0x00) {
+         break;
+      }
+   }
+}
+
+static LTC_INLINE void s_serpent_accel_ctr_increment_counter_le(unsigned char *counter)
+{
+   int i;
+   int idx;
+
+   for (i = 0; i != serpent_block_len; ++i) {
+      idx = i;
+      ++counter[idx];
+      if (counter[idx] != 0x00) {
+         break;
+      }
+   }
+}
+
+static LTC_INLINE void s_serpent_accel_ctr_increment_counter_generic(unsigned char *counter, int mode)
+{
+   if (mode == CTR_COUNTER_LITTLE_ENDIAN) {
+      s_serpent_accel_ctr_increment_counter_le(counter);
+   } else {
+      s_serpent_accel_ctr_increment_counter_be(counter);
+   }
+}
+
+static LTC_INLINE int s_serpent_accel_cbc_decrypt_32_bit(const unsigned char *ct, unsigned char *pt, unsigned long blocks, unsigned char *IV, const symmetric_key *skey)
+{
+   #define blocks_at_a_time (32 / 32)
+
+   unsigned long iblock;
+   int err;
+   LTC_ALIGN_MSVC(4) unsigned char pad1[blocks_at_a_time * serpent_block_len] LTC_ALIGN(4);
+   int i;
+   LTC_ALIGN_MSVC(4) unsigned char pad2[blocks_at_a_time * serpent_block_len] LTC_ALIGN(4);
+   int j;
+
+   LTC_ARGCHK(blocks % blocks_at_a_time == 0);
+   LTC_ARGCHK(serpent_block_len % sizeof(LTC_FAST_TYPE) == 0);
+
+   for (iblock = 0; iblock != blocks; iblock += blocks_at_a_time) {
+      if ((err = s_serpent_accel_ecb_decrypt_32_bit(ct, pad1, blocks_at_a_time, skey)) != CRYPT_OK) {
+         return err;
+      }
+      for (i = 0; i != serpent_block_len / sizeof(LTC_FAST_TYPE); ++i) {
+      LTC_FAST_XOR3(&pad2[i * sizeof(LTC_FAST_TYPE)], &IV[i * sizeof(LTC_FAST_TYPE)], &pad1[i * sizeof(LTC_FAST_TYPE)]);
+      }
+      for (j = 1; j != blocks_at_a_time; ++j) {
+         for (i = 0; i != serpent_block_len / sizeof(LTC_FAST_TYPE); ++i) {
+            LTC_FAST_XOR3(&pad2[j * serpent_block_len + i * sizeof(LTC_FAST_TYPE)], &ct[(j - 1) * serpent_block_len + i * sizeof(LTC_FAST_TYPE)], &pad1[j * serpent_block_len + i * sizeof(LTC_FAST_TYPE)]);
+         }
+      }
+      for (i = 0; i != serpent_block_len / sizeof(LTC_FAST_TYPE); ++i) {
+         LTC_FAST_STORE(&IV[i * sizeof(LTC_FAST_TYPE)], LTC_FAST_LOAD(&ct[(j - 1) * serpent_block_len + i * sizeof(LTC_FAST_TYPE)]));
+      }
+      for (i = 0; i != blocks_at_a_time * serpent_block_len / sizeof(LTC_FAST_TYPE); ++i) {
+         LTC_FAST_STORE(&pt[i * sizeof(LTC_FAST_TYPE)], LTC_FAST_LOAD(&pad2[i * sizeof(LTC_FAST_TYPE)]));
+      }
+      pt += blocks_at_a_time * serpent_block_len;
+      ct += blocks_at_a_time * serpent_block_len;
+   }
+   return CRYPT_OK;
+
+   #undef blocks_at_a_time
+}
+
+#if defined LTC_SERPENT_ACCEL_64_BIT
+
+static LTC_INLINE int s_serpent_accel_cbc_decrypt_64_bit(const unsigned char *ct, unsigned char *pt, unsigned long blocks, unsigned char *IV, const symmetric_key *skey)
+{
+   #define blocks_at_a_time (64 / 32)
+
+   unsigned long iblock;
+   int err;
+   LTC_ALIGN_MSVC(8) unsigned char pad1[blocks_at_a_time * serpent_block_len] LTC_ALIGN(8);
+   int i;
+   LTC_ALIGN_MSVC(8) unsigned char pad2[blocks_at_a_time * serpent_block_len] LTC_ALIGN(8);
+   int j;
+
+   LTC_ARGCHK(blocks % blocks_at_a_time == 0);
+   LTC_ARGCHK(serpent_block_len % sizeof(LTC_FAST_TYPE) == 0);
+
+   for (iblock = 0; iblock != blocks; iblock += blocks_at_a_time) {
+      if ((err = s_serpent_accel_ecb_decrypt_64_bit(ct, pad1, blocks_at_a_time, skey)) != CRYPT_OK) {
+         return err;
+      }
+      for (i = 0; i != serpent_block_len / sizeof(LTC_FAST_TYPE); ++i) {
+         LTC_FAST_XOR3(&pad2[i * sizeof(LTC_FAST_TYPE)], &IV[i * sizeof(LTC_FAST_TYPE)], &pad1[i * sizeof(LTC_FAST_TYPE)]);
+      }
+      for (j = 1; j != blocks_at_a_time; ++j) {
+         for (i = 0; i != serpent_block_len / sizeof(LTC_FAST_TYPE); ++i) {
+            LTC_FAST_XOR3(&pad2[j * serpent_block_len + i * sizeof(LTC_FAST_TYPE)], &ct[(j - 1) * serpent_block_len + i * sizeof(LTC_FAST_TYPE)], &pad1[j * serpent_block_len + i * sizeof(LTC_FAST_TYPE)]);
+         }
+      }
+      for (i = 0; i != serpent_block_len / sizeof(LTC_FAST_TYPE); ++i) {
+         LTC_FAST_STORE(&IV[i * sizeof(LTC_FAST_TYPE)], LTC_FAST_LOAD(&ct[(j - 1) * serpent_block_len + i * sizeof(LTC_FAST_TYPE)]));
+      }
+      for (i = 0; i != blocks_at_a_time * serpent_block_len / sizeof(LTC_FAST_TYPE); ++i) {
+         LTC_FAST_STORE(&pt[i * sizeof(LTC_FAST_TYPE)], LTC_FAST_LOAD(&pad2[i * sizeof(LTC_FAST_TYPE)]));
+      }
+      pt += blocks_at_a_time * serpent_block_len;
+      ct += blocks_at_a_time * serpent_block_len;
+   }
+   return CRYPT_OK;
+
+   #undef blocks_at_a_time
+}
+
+#endif
+
+static LTC_INLINE int s_serpent_accel_ctr_encrypt_32_bit(const unsigned char *pt, unsigned char *ct, unsigned long blocks, unsigned char *IV, int mode, const symmetric_key *skey)
+{
+   #define blocks_at_a_time (32 / 32)
+
+   unsigned long iblock;
+   int i;
+   LTC_ALIGN_MSVC(4) unsigned char pad[blocks_at_a_time * serpent_block_len] LTC_ALIGN(4);
+   int err;
+
+   LTC_ARGCHK(blocks % blocks_at_a_time == 0);
+   LTC_ARGCHK(serpent_block_len % sizeof(LTC_FAST_TYPE) == 0);
+
+   for (iblock = 0; iblock != blocks; iblock += blocks_at_a_time) {
+      for (i = 0; i != blocks_at_a_time; ++i) {
+         s_serpent_accel_ctr_increment_counter_generic(IV, mode);
+         XMEMCPY(&pad[i * serpent_block_len], IV, serpent_block_len);
+      }
+      if ((err = s_serpent_accel_ecb_encrypt_32_bit(&pad[0], &pad[0], blocks_at_a_time, skey)) != CRYPT_OK) {
+         return err;
+      }
+      for (i = 0; i != blocks_at_a_time * serpent_block_len / sizeof(LTC_FAST_TYPE); ++i) {
+         LTC_FAST_XOR3(&ct[i * sizeof(LTC_FAST_TYPE)], &pt[i * sizeof(LTC_FAST_TYPE)], &pad[i * sizeof(LTC_FAST_TYPE)]);
+      }
+      pt += blocks_at_a_time * serpent_block_len;
+      ct += blocks_at_a_time * serpent_block_len;
+   }
+   return CRYPT_OK;
+
+   #undef blocks_at_a_time
+}
+
+#if defined LTC_SERPENT_ACCEL_64_BIT
+
+static LTC_INLINE int s_serpent_accel_ctr_encrypt_64_bit(const unsigned char *pt, unsigned char *ct, unsigned long blocks, unsigned char *IV, int mode, const symmetric_key *skey)
+{
+   #define blocks_at_a_time (64 / 32)
+
+   unsigned long iblock;
+   int i;
+   LTC_ALIGN_MSVC(8) unsigned char pad[blocks_at_a_time * serpent_block_len] LTC_ALIGN(8);
+   int err;
+
+   LTC_ARGCHK(blocks % blocks_at_a_time == 0);
+   LTC_ARGCHK(serpent_block_len % sizeof(LTC_FAST_TYPE) == 0);
+
+   for (iblock = 0; iblock != blocks; iblock += blocks_at_a_time) {
+      for (i = 0; i != blocks_at_a_time; ++i) {
+         s_serpent_accel_ctr_increment_counter_generic(IV, mode);
+         XMEMCPY(&pad[i * serpent_block_len], IV, serpent_block_len);
+      }
+      if ((err = s_serpent_accel_ecb_encrypt_64_bit(&pad[0], &pad[0], blocks_at_a_time, skey)) != CRYPT_OK) {
+         return err;
+      }
+      for (i = 0; i != blocks_at_a_time * serpent_block_len / sizeof(LTC_FAST_TYPE); ++i) {
+         LTC_FAST_XOR3(&ct[i * sizeof(LTC_FAST_TYPE)], &pt[i * sizeof(LTC_FAST_TYPE)], &pad[i * sizeof(LTC_FAST_TYPE)]);
+      }
+      pt += blocks_at_a_time * serpent_block_len;
+      ct += blocks_at_a_time * serpent_block_len;
+   }
+   return CRYPT_OK;
+
+   #undef blocks_at_a_time
+}
+
+#endif
+
+int serpent_accel_ecb_encrypt(const unsigned char *pt, unsigned char *ct, unsigned long blocks, const symmetric_key *skey)
+{
+   const unsigned char *in;
+   unsigned char *out;
+   unsigned long rem;
+   unsigned long n;
+   int err;
+
+   in = pt;
+   out = ct;
+   rem = blocks;
+   while (rem != 0) {
+      #if defined LTC_SERPENT_ACCEL_64_BIT
+      if (rem >= (64 / 32)) {
+         n = (rem / (64 / 32)) * (64 / 32);
+         err = s_serpent_accel_ecb_encrypt_64_bit(in, out, n, skey);
+         if (err != CRYPT_OK) {
+            return err;
+         }
+         out += n * serpent_block_len;
+         in += n * serpent_block_len;
+         rem -= n;
+      } else
+      #endif
+      {
+         #if defined LTC_SERPENT_ACCEL_64_BIT
+         n = 32 / 32;
+         #else
+         n = rem;
+         #endif
+         err = s_serpent_accel_ecb_encrypt_32_bit(in, out, n, skey);
+         if (err != CRYPT_OK) {
+            return err;
+         }
+         out += n * serpent_block_len;
+         in += n * serpent_block_len;
+         rem -= n;
+      }
+   }
+   return CRYPT_OK;
+}
+
+int serpent_accel_ecb_decrypt(const unsigned char *ct, unsigned char *pt, unsigned long blocks, const symmetric_key *skey)
+{
+   const unsigned char *in;
+   unsigned char *out;
+   unsigned long rem;
+   unsigned long n;
+   int err;
+
+   in = ct;
+   out = pt;
+   rem = blocks;
+   while (rem != 0) {
+      #if defined LTC_SERPENT_ACCEL_64_BIT
+      if (rem >= (64 / 32)) {
+         n = (rem / (64 / 32)) * (64 / 32);
+         err = s_serpent_accel_ecb_decrypt_64_bit(in, out, n, skey);
+         if (err != CRYPT_OK) {
+            return err;
+         }
+         out += n * serpent_block_len;
+         in += n * serpent_block_len;
+         rem -= n;
+      } else
+      #endif
+      {
+         #if defined LTC_SERPENT_ACCEL_64_BIT
+         n = 32 / 32;
+         #else
+         n = rem;
+         #endif
+         err = s_serpent_accel_ecb_decrypt_32_bit(in, out, n, skey);
+         if (err != CRYPT_OK) {
+            return err;
+         }
+         out += n * serpent_block_len;
+         in += n * serpent_block_len;
+         rem -= n;
+      }
+   }
+   return CRYPT_OK;
+}
+
+int serpent_accel_cbc_decrypt(const unsigned char *ct, unsigned char *pt, unsigned long blocks, unsigned char *IV, const symmetric_key *skey)
+{
+   const unsigned char *in;
+   unsigned char *out;
+   unsigned long rem;
+   unsigned long n;
+   int err;
+
+   in = ct;
+   out = pt;
+   rem = blocks;
+   while (rem != 0) {
+      #if defined LTC_SERPENT_ACCEL_64_BIT
+      if (rem >= (64 / 32)) {
+         n = (rem / (64 / 32)) * (64 / 32);
+         err = s_serpent_accel_cbc_decrypt_64_bit(in, out, n, IV, skey);
+         if (err != CRYPT_OK) {
+            return err;
+         }
+         out += n * serpent_block_len;
+         in += n * serpent_block_len;
+         rem -= n;
+      } else
+      #endif
+      {
+         #if defined LTC_SERPENT_ACCEL_64_BIT
+         n = 32 / 32;
+         #else
+         n = rem;
+         #endif
+         err = s_serpent_accel_cbc_decrypt_32_bit(in, out, n, IV, skey);
+         if (err != CRYPT_OK) {
+            return err;
+         }
+         out += n * serpent_block_len;
+         in += n * serpent_block_len;
+         rem -= n;
+      }
+   }
+   return CRYPT_OK;
+}
+
+int serpent_accel_ctr_encrypt(const unsigned char *pt, unsigned char *ct, unsigned long blocks, unsigned char *IV, int mode, const symmetric_key *skey)
+{
+   const unsigned char *in;
+   unsigned char *out;
+   unsigned long rem;
+   unsigned long n;
+   int err;
+
+   in = pt;
+   out = ct;
+   rem = blocks;
+   while (rem != 0) {
+      #if defined LTC_SERPENT_ACCEL_64_BIT
+      if (rem >= (64 / 32)) {
+         n = (rem / (64 / 32)) * (64 / 32);
+         err = s_serpent_accel_ctr_encrypt_64_bit(in, out, n, IV, mode, skey);
+         if (err != CRYPT_OK) {
+            return err;
+         }
+         out += n * serpent_block_len;
+         in += n * serpent_block_len;
+         rem -= n;
+      } else
+      #endif
+      {
+         #if defined LTC_SERPENT_ACCEL_64_BIT
+         n = 32 / 32;
+         #else
+         n = rem;
+         #endif
+         err = s_serpent_accel_ctr_encrypt_32_bit(in, out, n, IV, mode, skey);
+         if (err != CRYPT_OK) {
+            return err;
+         }
+         out += n * serpent_block_len;
+         in += n * serpent_block_len;
+         rem -= n;
+      }
+   }
+   return CRYPT_OK;
+}
+
+#endif
 
 int serpent_test(void)
 {
