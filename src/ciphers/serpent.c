@@ -13,10 +13,12 @@
 
 #ifdef LTC_SERPENT
 
+#define serpent_block_len 16
+
 const struct ltc_cipher_descriptor serpent_desc = {
    "serpent",
    25,                  /* cipher_ID */
-   16, 32, 16, 32,      /* min_key_len, max_key_len, block_len, default_rounds */
+   16, 32, serpent_block_len, 32,      /* min_key_len, max_key_len, block_len, default_rounds */
    &serpent_setup,
    &serpent_ecb_encrypt,
    &serpent_ecb_decrypt,
@@ -25,6 +27,243 @@ const struct ltc_cipher_descriptor serpent_desc = {
    &serpent_keysize,
    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
 };
+
+
+#define s_apply_key(i, ra, rb, rc, rd, re) {                                               \
+   s_do_xor(ra, s_do_broadcast(k[i * 4 + 0])); s_do_xor(rb, s_do_broadcast(k[i * 4 + 1])); \
+   s_do_xor(rc, s_do_broadcast(k[i * 4 + 2])); s_do_xor(rd, s_do_broadcast(k[i * 4 + 3])); \
+}
+#define s_apply_lk(i, ra, rb, rc, rd, re) {                                                                                            \
+   s_do_rol(ra, 13);                                                                                                                   \
+   s_do_rol(rc, 3);                            s_do_xor(rb, ra);                           s_do_shl(re, ra, 3);                        \
+   s_do_xor(rd, rc);                           s_do_xor(rb, rc);                                                                       \
+   s_do_rol(rb, 1);                            s_do_xor(rd, re);                                                                       \
+   s_do_rol(rd, 7);                            s_do_asgn(re, rb);                                                                      \
+   s_do_xor(ra, rb);                           s_do_shl(re, re, 7);                        s_do_xor(rc, rd);                           \
+   s_do_xor(ra, rd);                           s_do_xor(rc, re);                           s_do_xor(rd, s_do_broadcast(k[i * 4 + 3])); \
+   s_do_xor(rb, s_do_broadcast(k[i * 4 + 1])); s_do_rol(ra, 5);                            s_do_rol(rc, 22);                           \
+   s_do_xor(ra, s_do_broadcast(k[i * 4 + 0])); s_do_xor(rc, s_do_broadcast(k[i * 4 + 2]));                                             \
+}
+#define s_apply_kl(i, ra, rb, rc, rd, re) {                                                                                            \
+   s_do_xor(ra, s_do_broadcast(k[4 * i + 0])); s_do_xor(rb, s_do_broadcast(k[4 * i + 1])); s_do_xor(rc, s_do_broadcast(k[4 * i + 2])); \
+   s_do_xor(rd, s_do_broadcast(k[4 * i + 3])); s_do_ror(ra, 5);                            s_do_ror(rc, 22);                           \
+   s_do_asgn(re, rb);                          s_do_xor(rc, rd);                           s_do_xor(ra, rd);                           \
+   s_do_shl(re, re, 7);                        s_do_xor(ra, rb);                           s_do_ror(rb, 1);                            \
+   s_do_xor(rc, re);                           s_do_ror(rd, 7);                            s_do_shl(re, ra, 3);                        \
+   s_do_xor(rb, ra);                           s_do_xor(rd, re);                           s_do_ror(ra, 13);                           \
+   s_do_xor(rb, rc);                           s_do_xor(rd, rc);                           s_do_ror(rc, 3);                            \
+}
+#define s_enc_0(i, ra, rb, rc, rd, re) {                  \
+   s_do_asgn(re, rd);                                     \
+   s_do_or  (rd, ra); s_do_xor(ra, re); s_do_xor(re, rc); \
+   s_do_not (re, re); s_do_xor(rd, rb); s_do_and(rb, ra); \
+   s_do_xor (rb, re); s_do_xor(rc, ra); s_do_xor(ra, rd); \
+   s_do_or  (re, ra); s_do_xor(ra, rc); s_do_and(rc, rb); \
+   s_do_xor (rd, rc); s_do_not(rb, rb); s_do_xor(rc, re); \
+   s_do_xor (rb, rc);                                     \
+}
+#define s_enc_1(i, ra, rb, rc, rd, re) {                  \
+   s_do_asgn(re, rb);                                     \
+   s_do_xor (rb, ra); s_do_xor(ra, rd); s_do_not(rd, rd); \
+   s_do_and (re, rb); s_do_or (ra, rb); s_do_xor(rd, rc); \
+   s_do_xor (ra, rd); s_do_xor(rb, rd); s_do_xor(rd, re); \
+   s_do_or  (rb, re); s_do_xor(re, rc); s_do_and(rc, ra); \
+   s_do_xor (rc, rb); s_do_or (rb, ra); s_do_not(ra, ra); \
+   s_do_xor (ra, rc); s_do_xor(re, rb);                   \
+}
+#define s_enc_2(i, ra, rb, rc, rd, re) {                  \
+   s_do_not(rd, rd);                                      \
+   s_do_xor(rb, ra); s_do_asgn(re, ra); s_do_and(ra, rc); \
+   s_do_xor(ra, rd); s_do_or  (rd, re); s_do_xor(rc, rb); \
+   s_do_xor(rd, rb); s_do_and (rb, ra); s_do_xor(ra, rc); \
+   s_do_and(rc, rd); s_do_or  (rd, rb); s_do_not(ra, ra); \
+   s_do_xor(rd, ra); s_do_xor (re, ra); s_do_xor(ra, rc); \
+   s_do_or (rb, rc);                                      \
+}
+#define s_enc_3(i, ra, rb, rc, rd, re) {                  \
+   s_do_asgn(re, rb);                                     \
+   s_do_xor (rb, rd); s_do_or (rd, ra); s_do_and(re, ra); \
+   s_do_xor (ra, rc); s_do_xor(rc, rb); s_do_and(rb, rd); \
+   s_do_xor (rc, rd); s_do_or (ra, re); s_do_xor(re, rd); \
+   s_do_xor (rb, ra); s_do_and(ra, rd); s_do_and(rd, re); \
+   s_do_xor (rd, rc); s_do_or (re, rb); s_do_and(rc, rb); \
+   s_do_xor (re, rd); s_do_xor(ra, rd); s_do_xor(rd, rc); \
+}
+#define s_enc_4(i, ra, rb, rc, rd, re) {                  \
+   s_do_asgn(re, rd);                                     \
+   s_do_and (rd, ra); s_do_xor(ra, re);                   \
+   s_do_xor (rd, rc); s_do_or (rc, re); s_do_xor(ra, rb); \
+   s_do_xor (re, rd); s_do_or (rc, ra);                   \
+   s_do_xor (rc, rb); s_do_and(rb, ra);                   \
+   s_do_xor (rb, re); s_do_and(re, rc); s_do_xor(rc, rd); \
+   s_do_xor (re, ra); s_do_or (rd, rb); s_do_not(rb, rb); \
+   s_do_xor (rd, ra);                                     \
+}
+#define s_enc_5(i, ra, rb, rc, rd, re) {                  \
+   s_do_asgn(re, rb); s_do_or (rb, ra);                   \
+   s_do_xor (rc, rb); s_do_not(rd, rd); s_do_xor(re, ra); \
+   s_do_xor (ra, rc); s_do_and(rb, re); s_do_or (re, rd); \
+   s_do_xor (re, ra); s_do_and(ra, rd); s_do_xor(rb, rd); \
+   s_do_xor (rd, rc); s_do_xor(ra, rb); s_do_and(rc, re); \
+   s_do_xor (rb, rc); s_do_and(rc, ra);                   \
+   s_do_xor (rd, rc);                                     \
+}
+#define s_enc_6(i, ra, rb, rc, rd, re) {                  \
+   s_do_asgn(re, rb);                                     \
+   s_do_xor (rd, ra); s_do_xor(rb, rc); s_do_xor(rc, ra); \
+   s_do_and (ra, rd); s_do_or (rb, rd); s_do_not(re, re); \
+   s_do_xor (ra, rb); s_do_xor(rb, rc);                   \
+   s_do_xor (rd, re); s_do_xor(re, ra); s_do_and(rc, ra); \
+   s_do_xor (re, rb); s_do_xor(rc, rd); s_do_and(rd, rb); \
+   s_do_xor (rd, ra); s_do_xor(rb, rc);                   \
+}
+#define s_enc_7(i, ra, rb, rc, rd, re) {                  \
+   s_do_not (rb, rb);                                     \
+   s_do_asgn(re, rb); s_do_not(ra, ra); s_do_and(rb, rc); \
+   s_do_xor (rb, rd); s_do_or (rd, re); s_do_xor(re, rc); \
+   s_do_xor (rc, rd); s_do_xor(rd, ra); s_do_or (ra, rb); \
+   s_do_and (rc, ra); s_do_xor(ra, re); s_do_xor(re, rd); \
+   s_do_and (rd, ra); s_do_xor(re, rb);                   \
+   s_do_xor (rc, re); s_do_xor(rd, rb); s_do_or (re, ra); \
+   s_do_xor (re, rb);                                     \
+}
+#define s_dec_0(i, ra, rb, rc, rd, re) {                  \
+   s_do_asgn(re, rd); s_do_xor(rb, ra);                   \
+   s_do_or  (rd, rb); s_do_xor(re, rb); s_do_not(ra, ra); \
+   s_do_xor (rc, rd); s_do_xor(rd, ra); s_do_and(ra, rb); \
+   s_do_xor (ra, rc); s_do_and(rc, rd); s_do_xor(rd, re); \
+   s_do_xor (rc, rd); s_do_xor(rb, rd); s_do_and(rd, ra); \
+   s_do_xor (rb, ra); s_do_xor(ra, rc); s_do_xor(re, rd); \
+}
+#define s_dec_1(i, ra, rb, rc, rd, re) {                  \
+   s_do_xor(rb, rd); s_do_asgn(re, ra);                   \
+   s_do_xor(ra, rc); s_do_not (rc, rc); s_do_or (re, rb); \
+   s_do_xor(re, rd); s_do_and (rd, rb); s_do_xor(rb, rc); \
+   s_do_and(rc, re); s_do_xor (re, rb); s_do_or (rb, rd); \
+   s_do_xor(rd, ra); s_do_xor (rc, ra); s_do_or (ra, re); \
+   s_do_xor(rc, re); s_do_xor (rb, ra);                   \
+   s_do_xor(re, rb);                                      \
+}
+#define s_dec_2(i, ra, rb, rc, rd, re) {                  \
+   s_do_xor(rc, rb); s_do_asgn(re, rd); s_do_not(rd, rd); \
+   s_do_or (rd, rc); s_do_xor (rc, re); s_do_xor(re, ra); \
+   s_do_xor(rd, rb); s_do_or  (rb, rc); s_do_xor(rc, ra); \
+   s_do_xor(rb, re); s_do_or  (re, rd); s_do_xor(rc, rd); \
+   s_do_xor(re, rc); s_do_and (rc, rb);                   \
+   s_do_xor(rc, rd); s_do_xor (rd, re); s_do_xor(re, ra); \
+}
+#define s_dec_3(i, ra, rb, rc, rd, re) {                  \
+   s_do_xor (rc, rb);                                     \
+   s_do_asgn(re, rb); s_do_and(rb, rc);                   \
+   s_do_xor (rb, ra); s_do_or (ra, re); s_do_xor(re, rd); \
+   s_do_xor (ra, rd); s_do_or (rd, rb); s_do_xor(rb, rc); \
+   s_do_xor (rb, rd); s_do_xor(ra, rc); s_do_xor(rc, rd); \
+   s_do_and (rd, rb); s_do_xor(rb, ra); s_do_and(ra, rc); \
+   s_do_xor (re, rd); s_do_xor(rd, ra); s_do_xor(ra, rb); \
+}
+#define s_dec_4(i, ra, rb, rc, rd, re) {                  \
+   s_do_xor(rc, rd); s_do_asgn(re, ra); s_do_and(ra, rb); \
+   s_do_xor(ra, rc); s_do_or  (rc, rd); s_do_not(re, re); \
+   s_do_xor(rb, ra); s_do_xor (ra, rc); s_do_and(rc, re); \
+   s_do_xor(rc, ra); s_do_or  (ra, re);                   \
+   s_do_xor(ra, rd); s_do_and (rd, rc);                   \
+   s_do_xor(re, rd); s_do_xor (rd, rb); s_do_and(rb, ra); \
+   s_do_xor(re, rb); s_do_xor (ra, rd);                   \
+}
+#define s_dec_5(i, ra, rb, rc, rd, re) {                  \
+   s_do_asgn(re, rb); s_do_or (rb, rc);                   \
+   s_do_xor (rc, re); s_do_xor(rb, rd); s_do_and(rd, re); \
+   s_do_xor (rc, rd); s_do_or (rd, ra); s_do_not(ra, ra); \
+   s_do_xor (rd, rc); s_do_or (rc, ra); s_do_xor(re, rb); \
+   s_do_xor (rc, re); s_do_and(re, ra); s_do_xor(ra, rb); \
+   s_do_xor (rb, rd); s_do_and(ra, rc); s_do_xor(rc, rd); \
+   s_do_xor (ra, rc); s_do_xor(rc, re); s_do_xor(re, rd); \
+}
+#define s_dec_6(i, ra, rb, rc, rd, re) {                  \
+   s_do_xor (ra, rc);                                     \
+   s_do_asgn(re, ra); s_do_and(ra, rd); s_do_xor(rc, rd); \
+   s_do_xor (ra, rc); s_do_xor(rd, rb); s_do_or (rc, re); \
+   s_do_xor (rc, rd); s_do_and(rd, ra); s_do_not(ra, ra); \
+   s_do_xor (rd, rb); s_do_and(rb, rc); s_do_xor(re, ra); \
+   s_do_xor (rd, re); s_do_xor(re, rc); s_do_xor(ra, rb); \
+   s_do_xor (rc, ra);                                     \
+}
+#define s_dec_7(i, ra, rb, rc, rd, re) {                  \
+   s_do_asgn(re, rd); s_do_and(rd, ra); s_do_xor(ra, rc); \
+   s_do_or  (rc, re); s_do_xor(re, rb); s_do_not(ra, ra); \
+   s_do_or  (rb, rd); s_do_xor(re, ra); s_do_and(ra, rc); \
+   s_do_xor (ra, rb); s_do_and(rb, rc); s_do_xor(rd, rc); \
+   s_do_xor (re, rd); s_do_and(rc, rd); s_do_or (rd, ra); \
+   s_do_xor (rb, re); s_do_xor(rd, re); s_do_and(re, ra); \
+   s_do_xor (re, rc);                                     \
+}
+#define s_apply_order_enc_00(fnc) fnc( 0, a, b, c, d, e)
+#define s_apply_order_enc_01(fnc) fnc( 1, c, b, d, a, e)
+#define s_apply_order_enc_02(fnc) fnc( 2, e, d, a, c, b)
+#define s_apply_order_enc_03(fnc) fnc( 3, b, d, e, c, a)
+#define s_apply_order_enc_04(fnc) fnc( 4, c, a, d, b, e)
+#define s_apply_order_enc_05(fnc) fnc( 5, a, d, b, e, c)
+#define s_apply_order_enc_06(fnc) fnc( 6, c, a, d, e, b)
+#define s_apply_order_enc_07(fnc) fnc( 7, d, b, a, e, c)
+#define s_apply_order_enc_08(fnc) fnc( 8, c, a, e, d, b)
+#define s_apply_order_enc_09(fnc) fnc( 9, e, a, d, c, b)
+#define s_apply_order_enc_10(fnc) fnc(10, b, d, c, e, a)
+#define s_apply_order_enc_11(fnc) fnc(11, a, d, b, e, c)
+#define s_apply_order_enc_12(fnc) fnc(12, e, c, d, a, b)
+#define s_apply_order_enc_13(fnc) fnc(13, c, d, a, b, e)
+#define s_apply_order_enc_14(fnc) fnc(14, e, c, d, b, a)
+#define s_apply_order_enc_15(fnc) fnc(15, d, a, c, b, e)
+#define s_apply_order_enc_16(fnc) fnc(16, e, c, b, d, a)
+#define s_apply_order_enc_17(fnc) fnc(17, b, c, d, e, a)
+#define s_apply_order_enc_18(fnc) fnc(18, a, d, e, b, c)
+#define s_apply_order_enc_19(fnc) fnc(19, c, d, a, b, e)
+#define s_apply_order_enc_20(fnc) fnc(20, b, e, d, c, a)
+#define s_apply_order_enc_21(fnc) fnc(21, e, d, c, a, b)
+#define s_apply_order_enc_22(fnc) fnc(22, b, e, d, a, c)
+#define s_apply_order_enc_23(fnc) fnc(23, d, c, e, a, b)
+#define s_apply_order_enc_24(fnc) fnc(24, b, e, a, d, c)
+#define s_apply_order_enc_25(fnc) fnc(25, a, e, d, b, c)
+#define s_apply_order_enc_26(fnc) fnc(26, c, d, b, a, e)
+#define s_apply_order_enc_27(fnc) fnc(27, e, d, c, a, b)
+#define s_apply_order_enc_28(fnc) fnc(28, a, b, d, e, c)
+#define s_apply_order_enc_29(fnc) fnc(29, b, d, e, c, a)
+#define s_apply_order_enc_30(fnc) fnc(30, a, b, d, c, e)
+#define s_apply_order_enc_31(fnc) fnc(31, d, e, b, c, a)
+#define s_apply_order_enc_32(fnc) fnc(32, a, b, c, d, e)
+#define s_apply_order_dec_32(fnc) fnc(32, a, b, c, d, e)
+#define s_apply_order_dec_31(fnc) fnc(31, b, d, a, e, c)
+#define s_apply_order_dec_30(fnc) fnc(30, a, c, e, b, d)
+#define s_apply_order_dec_29(fnc) fnc(29, c, d, a, e, b)
+#define s_apply_order_dec_28(fnc) fnc(28, c, a, b, e, d)
+#define s_apply_order_dec_27(fnc) fnc(27, b, c, d, e, a)
+#define s_apply_order_dec_26(fnc) fnc(26, c, a, e, d, b)
+#define s_apply_order_dec_25(fnc) fnc(25, b, a, e, d, c)
+#define s_apply_order_dec_24(fnc) fnc(24, e, c, a, b, d)
+#define s_apply_order_dec_23(fnc) fnc(23, c, b, e, d, a)
+#define s_apply_order_dec_22(fnc) fnc(22, e, a, d, c, b)
+#define s_apply_order_dec_21(fnc) fnc(21, a, b, e, d, c)
+#define s_apply_order_dec_20(fnc) fnc(20, a, e, c, d, b)
+#define s_apply_order_dec_19(fnc) fnc(19, c, a, b, d, e)
+#define s_apply_order_dec_18(fnc) fnc(18, a, e, d, b, c)
+#define s_apply_order_dec_17(fnc) fnc(17, c, e, d, b, a)
+#define s_apply_order_dec_16(fnc) fnc(16, d, a, e, c, b)
+#define s_apply_order_dec_15(fnc) fnc(15, a, c, d, b, e)
+#define s_apply_order_dec_14(fnc) fnc(14, d, e, b, a, c)
+#define s_apply_order_dec_13(fnc) fnc(13, e, c, d, b, a)
+#define s_apply_order_dec_12(fnc) fnc(12, e, d, a, b, c)
+#define s_apply_order_dec_11(fnc) fnc(11, a, e, c, b, d)
+#define s_apply_order_dec_10(fnc) fnc(10, e, d, b, c, a)
+#define s_apply_order_dec_09(fnc) fnc( 9, a, d, b, c, e)
+#define s_apply_order_dec_08(fnc) fnc( 8, b, e, d, a, c)
+#define s_apply_order_dec_07(fnc) fnc( 7, e, a, b, c, d)
+#define s_apply_order_dec_06(fnc) fnc( 6, b, d, c, e, a)
+#define s_apply_order_dec_05(fnc) fnc( 5, d, a, b, c, e)
+#define s_apply_order_dec_04(fnc) fnc( 4, d, b, e, c, a)
+#define s_apply_order_dec_03(fnc) fnc( 3, e, d, a, c, b)
+#define s_apply_order_dec_02(fnc) fnc( 2, d, b, c, a, e)
+#define s_apply_order_dec_01(fnc) fnc( 1, e, b, c, a, d)
+#define s_apply_order_dec_00(fnc) fnc( 0, c, d, b, e, a)
+
 
 /* linear transformation */
 #define s_lt(i,a,b,c,d,e)  {                                 \
@@ -483,89 +722,6 @@ static int s_setup_key(const unsigned char *key, int keylen, int rounds, ulong32
    return CRYPT_OK;
 }
 
-static int s_enc_block(const unsigned char *in, unsigned char *out, const ulong32 *k)
-{
-   ulong32 a, b, c, d, e;
-   unsigned int i = 1;
-
-   LOAD32L(a, in + 0);
-   LOAD32L(b, in + 4);
-   LOAD32L(c, in + 8);
-   LOAD32L(d, in + 12);
-
-   do {
-      s_beforeS0(s_kx); s_beforeS0(s_s0); s_afterS0(s_lt);
-       s_afterS0(s_kx);  s_afterS0(s_s1); s_afterS1(s_lt);
-       s_afterS1(s_kx);  s_afterS1(s_s2); s_afterS2(s_lt);
-       s_afterS2(s_kx);  s_afterS2(s_s3); s_afterS3(s_lt);
-       s_afterS3(s_kx);  s_afterS3(s_s4); s_afterS4(s_lt);
-       s_afterS4(s_kx);  s_afterS4(s_s5); s_afterS5(s_lt);
-       s_afterS5(s_kx);  s_afterS5(s_s6); s_afterS6(s_lt);
-       s_afterS6(s_kx);  s_afterS6(s_s7);
-
-      if (i == 4) break;
-
-      ++i;
-      c = b;
-      b = e;
-      e = d;
-      d = a;
-      a = e;
-      k += 32;
-      s_beforeS0(s_lt);
-   } while (1);
-
-   s_afterS7(s_kx);
-
-   STORE32L(d, out + 0);
-   STORE32L(e, out + 4);
-   STORE32L(b, out + 8);
-   STORE32L(a, out + 12);
-
-   return CRYPT_OK;
-}
-
-static int s_dec_block(const unsigned char *in, unsigned char *out, const ulong32 *k)
-{
-   ulong32 a, b, c, d, e;
-   unsigned int i;
-
-   LOAD32L(a, in + 0);
-   LOAD32L(b, in + 4);
-   LOAD32L(c, in + 8);
-   LOAD32L(d, in + 12);
-   e = 0; LTC_UNUSED_PARAM(e); /* avoid scan-build warning */
-   i = 4;
-   k += 96;
-
-   s_beforeI7(s_kx);
-   goto start;
-
-   do {
-      c = b;
-      b = d;
-      d = e;
-      k -= 32;
-      s_beforeI7(s_ilt);
-start:
-                      s_beforeI7(s_i7); s_afterI7(s_kx);
-      s_afterI7(s_ilt); s_afterI7(s_i6); s_afterI6(s_kx);
-      s_afterI6(s_ilt); s_afterI6(s_i5); s_afterI5(s_kx);
-      s_afterI5(s_ilt); s_afterI5(s_i4); s_afterI4(s_kx);
-      s_afterI4(s_ilt); s_afterI4(s_i3); s_afterI3(s_kx);
-      s_afterI3(s_ilt); s_afterI3(s_i2); s_afterI2(s_kx);
-      s_afterI2(s_ilt); s_afterI2(s_i1); s_afterI1(s_kx);
-      s_afterI1(s_ilt); s_afterI1(s_i0); s_afterI0(s_kx);
-   } while (--i != 0);
-
-   STORE32L(a, out + 0);
-   STORE32L(d, out + 4);
-   STORE32L(b, out + 8);
-   STORE32L(e, out + 12);
-
-   return CRYPT_OK;
-}
-
 int serpent_setup(const unsigned char *key, int keylen, int num_rounds, symmetric_key *skey)
 {
    int err;
@@ -583,9 +739,201 @@ int serpent_setup(const unsigned char *key, int keylen, int num_rounds, symmetri
    return err;
 }
 
+static LTC_INLINE void s_serpent_accel_ecb_32_bit_load_one(ulong32 *x, const unsigned char *bytes)
+{
+   *x =
+      ((ulong32)(((ulong32)(bytes[0])) << (0 * CHAR_BIT))) |
+      ((ulong32)(((ulong32)(bytes[1])) << (1 * CHAR_BIT))) |
+      ((ulong32)(((ulong32)(bytes[2])) << (2 * CHAR_BIT))) |
+      ((ulong32)(((ulong32)(bytes[3])) << (3 * CHAR_BIT))) |
+   0;
+}
+
+static LTC_INLINE void s_serpent_accel_ecb_32_bit_store_one(const ulong32 *x, unsigned char *bytes)
+{
+   bytes[0] = ((unsigned char)(((ulong32)((*x)) >> (0 * CHAR_BIT)) & 0xff));
+   bytes[1] = ((unsigned char)(((ulong32)((*x)) >> (1 * CHAR_BIT)) & 0xff));
+   bytes[2] = ((unsigned char)(((ulong32)((*x)) >> (2 * CHAR_BIT)) & 0xff));
+   bytes[3] = ((unsigned char)(((ulong32)((*x)) >> (3 * CHAR_BIT)) & 0xff));
+}
+
+static LTC_INLINE void s_serpent_accel_ecb_32_bit_load_four(ulong32 *pa, ulong32 *pb, ulong32 *pc, ulong32 *pd, const unsigned char *bytes)
+{
+   s_serpent_accel_ecb_32_bit_load_one(pa, &bytes[0 * sizeof(ulong32)]);
+   s_serpent_accel_ecb_32_bit_load_one(pb, &bytes[1 * sizeof(ulong32)]);
+   s_serpent_accel_ecb_32_bit_load_one(pc, &bytes[2 * sizeof(ulong32)]);
+   s_serpent_accel_ecb_32_bit_load_one(pd, &bytes[3 * sizeof(ulong32)]);
+}
+
+static LTC_INLINE void s_serpent_accel_ecb_32_bit_store_four(const ulong32 *pa, const ulong32 *pb, const ulong32 *pc, const ulong32 *pd, unsigned char *bytes)
+{
+   s_serpent_accel_ecb_32_bit_store_one(pa, &bytes[0 * sizeof(ulong32)]);
+   s_serpent_accel_ecb_32_bit_store_one(pb, &bytes[1 * sizeof(ulong32)]);
+   s_serpent_accel_ecb_32_bit_store_one(pc, &bytes[2 * sizeof(ulong32)]);
+   s_serpent_accel_ecb_32_bit_store_one(pd, &bytes[3 * sizeof(ulong32)]);
+}
+
+static LTC_INLINE int s_serpent_accel_ecb_encrypt_32_bit(const unsigned char *pt, unsigned char *ct, unsigned long blocks, const symmetric_key *skey)
+{
+   #define blocks_at_a_time (32 / 32)
+   #define s_do_broadcast(x) x
+   #define s_do_asgn(a, b) a = b
+   #define s_do_or(a, b) a |= b
+   #define s_do_xor(a, b) a ^= b
+   #define s_do_and(a, b) a &= b
+   #define s_do_not(a, b) a =~ b
+   #define s_do_rol(x, i) x = ROL(x, i)
+   #define s_do_shl(a, b, c) a = b << c
+
+   const unsigned char *in;
+   unsigned char *out;
+   const ulong32* k;
+   unsigned long iblock;
+   ulong32 a, b, c, d, e;
+
+   LTC_ARGCHK(pt);
+   LTC_ARGCHK(ct);
+   LTC_ARGCHK(blocks % blocks_at_a_time == 0);
+   LTC_ARGCHK(skey);
+
+   in = pt;
+   out = ct;
+   k = &skey->serpent.k[0];
+   for (iblock = 0; iblock != blocks; iblock += blocks_at_a_time) {
+      s_serpent_accel_ecb_32_bit_load_four(&a, &b, &c, &d, in);
+      s_apply_order_enc_00(s_apply_key);
+      s_apply_order_enc_00(s_enc_0); s_apply_order_enc_01(s_apply_lk);
+      s_apply_order_enc_01(s_enc_1); s_apply_order_enc_02(s_apply_lk);
+      s_apply_order_enc_02(s_enc_2); s_apply_order_enc_03(s_apply_lk);
+      s_apply_order_enc_03(s_enc_3); s_apply_order_enc_04(s_apply_lk);
+      s_apply_order_enc_04(s_enc_4); s_apply_order_enc_05(s_apply_lk);
+      s_apply_order_enc_05(s_enc_5); s_apply_order_enc_06(s_apply_lk);
+      s_apply_order_enc_06(s_enc_6); s_apply_order_enc_07(s_apply_lk);
+      s_apply_order_enc_07(s_enc_7); s_apply_order_enc_08(s_apply_lk);
+      s_apply_order_enc_08(s_enc_0); s_apply_order_enc_09(s_apply_lk);
+      s_apply_order_enc_09(s_enc_1); s_apply_order_enc_10(s_apply_lk);
+      s_apply_order_enc_10(s_enc_2); s_apply_order_enc_11(s_apply_lk);
+      s_apply_order_enc_11(s_enc_3); s_apply_order_enc_12(s_apply_lk);
+      s_apply_order_enc_12(s_enc_4); s_apply_order_enc_13(s_apply_lk);
+      s_apply_order_enc_13(s_enc_5); s_apply_order_enc_14(s_apply_lk);
+      s_apply_order_enc_14(s_enc_6); s_apply_order_enc_15(s_apply_lk);
+      s_apply_order_enc_15(s_enc_7); s_apply_order_enc_16(s_apply_lk);
+      s_apply_order_enc_16(s_enc_0); s_apply_order_enc_17(s_apply_lk);
+      s_apply_order_enc_17(s_enc_1); s_apply_order_enc_18(s_apply_lk);
+      s_apply_order_enc_18(s_enc_2); s_apply_order_enc_19(s_apply_lk);
+      s_apply_order_enc_19(s_enc_3); s_apply_order_enc_20(s_apply_lk);
+      s_apply_order_enc_20(s_enc_4); s_apply_order_enc_21(s_apply_lk);
+      s_apply_order_enc_21(s_enc_5); s_apply_order_enc_22(s_apply_lk);
+      s_apply_order_enc_22(s_enc_6); s_apply_order_enc_23(s_apply_lk);
+      s_apply_order_enc_23(s_enc_7); s_apply_order_enc_24(s_apply_lk);
+      s_apply_order_enc_24(s_enc_0); s_apply_order_enc_25(s_apply_lk);
+      s_apply_order_enc_25(s_enc_1); s_apply_order_enc_26(s_apply_lk);
+      s_apply_order_enc_26(s_enc_2); s_apply_order_enc_27(s_apply_lk);
+      s_apply_order_enc_27(s_enc_3); s_apply_order_enc_28(s_apply_lk);
+      s_apply_order_enc_28(s_enc_4); s_apply_order_enc_29(s_apply_lk);
+      s_apply_order_enc_29(s_enc_5); s_apply_order_enc_30(s_apply_lk);
+      s_apply_order_enc_30(s_enc_6); s_apply_order_enc_31(s_apply_lk);
+      s_apply_order_enc_31(s_enc_7); s_apply_order_enc_32(s_apply_key);
+      s_serpent_accel_ecb_32_bit_store_four(&a, &b, &c, &d, out);
+      in += blocks_at_a_time * serpent_block_len;
+      out += blocks_at_a_time * serpent_block_len;
+   }
+   return CRYPT_OK;
+
+   #undef blocks_at_a_time
+   #undef s_do_broadcast
+   #undef s_do_asgn
+   #undef s_do_or
+   #undef s_do_xor
+   #undef s_do_and
+   #undef s_do_not
+   #undef s_do_rol
+   #undef s_do_shl
+}
+
+static LTC_INLINE int s_serpent_accel_ecb_decrypt_32_bit(const unsigned char *ct, unsigned char *pt, unsigned long blocks, const symmetric_key *skey)
+{
+   #define blocks_at_a_time (32 / 32)
+   #define s_do_broadcast(x) x
+   #define s_do_asgn(a, b) a = b
+   #define s_do_or(a, b) a |= b
+   #define s_do_xor(a, b) a ^= b
+   #define s_do_and(a, b) a &= b
+   #define s_do_not(a, b) a =~ b
+   #define s_do_rol(x, i) x = ROL(x, i)
+   #define s_do_ror(x, i) x = ROR(x, i)
+   #define s_do_shl(a, b, c) a = b << c
+
+   const unsigned char *in;
+   unsigned char *out;
+   const ulong32* k;
+   unsigned long iblock;
+   ulong32 a, b, c, d, e;
+
+   LTC_ARGCHK(ct);
+   LTC_ARGCHK(pt);
+   LTC_ARGCHK(blocks % blocks_at_a_time == 0);
+   LTC_ARGCHK(skey);
+
+   in = ct;
+   out = pt;
+   k = &skey->serpent.k[0];
+   for (iblock = 0; iblock != blocks; iblock += blocks_at_a_time) {
+      s_serpent_accel_ecb_32_bit_load_four(&a, &b, &c, &d, in);
+      s_apply_order_dec_32(s_apply_key);
+      s_apply_order_dec_32(s_dec_7); s_apply_order_dec_31(s_apply_kl);
+      s_apply_order_dec_31(s_dec_6); s_apply_order_dec_30(s_apply_kl);
+      s_apply_order_dec_30(s_dec_5); s_apply_order_dec_29(s_apply_kl);
+      s_apply_order_dec_29(s_dec_4); s_apply_order_dec_28(s_apply_kl);
+      s_apply_order_dec_28(s_dec_3); s_apply_order_dec_27(s_apply_kl);
+      s_apply_order_dec_27(s_dec_2); s_apply_order_dec_26(s_apply_kl);
+      s_apply_order_dec_26(s_dec_1); s_apply_order_dec_25(s_apply_kl);
+      s_apply_order_dec_25(s_dec_0); s_apply_order_dec_24(s_apply_kl);
+      s_apply_order_dec_24(s_dec_7); s_apply_order_dec_23(s_apply_kl);
+      s_apply_order_dec_23(s_dec_6); s_apply_order_dec_22(s_apply_kl);
+      s_apply_order_dec_22(s_dec_5); s_apply_order_dec_21(s_apply_kl);
+      s_apply_order_dec_21(s_dec_4); s_apply_order_dec_20(s_apply_kl);
+      s_apply_order_dec_20(s_dec_3); s_apply_order_dec_19(s_apply_kl);
+      s_apply_order_dec_19(s_dec_2); s_apply_order_dec_18(s_apply_kl);
+      s_apply_order_dec_18(s_dec_1); s_apply_order_dec_17(s_apply_kl);
+      s_apply_order_dec_17(s_dec_0); s_apply_order_dec_16(s_apply_kl);
+      s_apply_order_dec_16(s_dec_7); s_apply_order_dec_15(s_apply_kl);
+      s_apply_order_dec_15(s_dec_6); s_apply_order_dec_14(s_apply_kl);
+      s_apply_order_dec_14(s_dec_5); s_apply_order_dec_13(s_apply_kl);
+      s_apply_order_dec_13(s_dec_4); s_apply_order_dec_12(s_apply_kl);
+      s_apply_order_dec_12(s_dec_3); s_apply_order_dec_11(s_apply_kl);
+      s_apply_order_dec_11(s_dec_2); s_apply_order_dec_10(s_apply_kl);
+      s_apply_order_dec_10(s_dec_1); s_apply_order_dec_09(s_apply_kl);
+      s_apply_order_dec_09(s_dec_0); s_apply_order_dec_08(s_apply_kl);
+      s_apply_order_dec_08(s_dec_7); s_apply_order_dec_07(s_apply_kl);
+      s_apply_order_dec_07(s_dec_6); s_apply_order_dec_06(s_apply_kl);
+      s_apply_order_dec_06(s_dec_5); s_apply_order_dec_05(s_apply_kl);
+      s_apply_order_dec_05(s_dec_4); s_apply_order_dec_04(s_apply_kl);
+      s_apply_order_dec_04(s_dec_3); s_apply_order_dec_03(s_apply_kl);
+      s_apply_order_dec_03(s_dec_2); s_apply_order_dec_02(s_apply_kl);
+      s_apply_order_dec_02(s_dec_1); s_apply_order_dec_01(s_apply_kl);
+      s_apply_order_dec_01(s_dec_0); s_apply_order_dec_00(s_apply_key);
+      s_serpent_accel_ecb_32_bit_store_four(&c, &d, &b, &e, out);
+      in += blocks_at_a_time * serpent_block_len;
+      out += blocks_at_a_time * serpent_block_len;
+   }
+   return CRYPT_OK;
+
+   #undef blocks_at_a_time
+   #undef s_do_broadcast
+   #undef s_do_asgn
+   #undef s_do_or
+   #undef s_do_xor
+   #undef s_do_and
+   #undef s_do_not
+   #undef s_do_rol
+   #undef s_do_ror
+   #undef s_do_shl
+}
+
 int serpent_ecb_encrypt(const unsigned char *pt, unsigned char *ct, const symmetric_key *skey)
 {
-   int err = s_enc_block(pt, ct, skey->serpent.k);
+   int err = s_serpent_accel_ecb_encrypt_32_bit(pt, ct, 1, skey);
 #ifdef LTC_CLEAN_STACK
    burn_stack(sizeof(ulong32) * 5 + sizeof(int));
 #endif
@@ -594,7 +942,7 @@ int serpent_ecb_encrypt(const unsigned char *pt, unsigned char *ct, const symmet
 
 int serpent_ecb_decrypt(const unsigned char *ct, unsigned char *pt, const symmetric_key *skey)
 {
-   int err = s_dec_block(ct, pt, skey->serpent.k);
+   int err = s_serpent_accel_ecb_decrypt_32_bit(ct, pt, 1, skey);
 #ifdef LTC_CLEAN_STACK
    burn_stack(sizeof(ulong32) * 5 + sizeof(int));
 #endif
@@ -755,5 +1103,6 @@ int serpent_test(void)
 #undef s_lk
 #undef s_sk
 #undef s_setup_key
+#undef serpent_block_len
 
 #endif
