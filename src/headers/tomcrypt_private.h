@@ -269,6 +269,8 @@ int func_name (hash_state * md, const unsigned char *in, unsigned long inlen)   
 }
 
 
+#define LTC_XSAVE_TARGET LTC_ATTRIBUTE((__target__("xsave")))
+#define LTC_AVX2_TARGET LTC_ATTRIBUTE((__target__("avx2")))
 #define LTC_SHA_TARGET LTC_ATTRIBUTE((__target__("sse2,ssse3,sse4.1,sha")))
 #define LTC_SHA512_TARGET LTC_ATTRIBUTE((__target__("avx2,sha512")))
 
