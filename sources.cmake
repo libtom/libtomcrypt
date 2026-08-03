@@ -275,6 +275,7 @@ src/modes/cbc/cbc_encrypt.c
 src/modes/cbc/cbc_getiv.c
 src/modes/cbc/cbc_setiv.c
 src/modes/cbc/cbc_start.c
+src/modes/cbc/cbc_test.c
 src/modes/cfb/cfb_decrypt.c
 src/modes/cfb/cfb_done.c
 src/modes/cfb/cfb_encrypt.c
