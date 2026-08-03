@@ -18,11 +18,13 @@
 #define LTC_SERPENT_ACCEL_64_BIT /* todo move somewhere else */
 #define LTC_SERPENT_ACCEL_128_BIT_X86_SSE2 /* todo move somewhere else */
 #define LTC_SERPENT_ACCEL_256_BIT_X86_AVX2 /* todo move somewhere else */
+#define LTC_SERPENT_ACCEL_512_BIT_X86_AVX512F /* todo move somewhere else */
 
 #if \
   defined LTC_SERPENT_ACCEL_64_BIT || \
   defined LTC_SERPENT_ACCEL_128_BIT_X86_SSE2 || \
   defined LTC_SERPENT_ACCEL_256_BIT_X86_AVX2 || \
+  defined LTC_SERPENT_ACCEL_512_BIT_X86_AVX512F || \
   0
 #define LTC_SERPENT_ACCEL 1
 #else
@@ -1773,6 +1775,269 @@ static LTC_INLINE int LTC_AVX2_TARGET s_serpent_accel_ecb_decrypt_256_bit_avx2(c
       s_apply_order_dec_02(s_dec_1); s_apply_order_dec_01(s_apply_kl);
       s_apply_order_dec_01(s_dec_0); s_apply_order_dec_00(s_apply_key);
       s_serpent_accel_256_bit_avx2_store_four(&c, &d, &b, &e, out);
+      in += blocks_at_a_time * serpent_block_len;
+      out += blocks_at_a_time * serpent_block_len;
+   }
+   return CRYPT_OK;
+
+   #undef blocks_at_a_time
+   #undef s_do_broadcast
+   #undef s_do_asgn
+   #undef s_do_or
+   #undef s_do_xor
+   #undef s_do_and
+   #undef s_do_not
+   #undef s_do_rol
+   #undef s_do_ror
+   #undef s_do_shl
+}
+
+#endif
+
+#if defined LTC_SERPENT_ACCEL_512_BIT_X86_AVX512F
+
+#if defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
+#endif
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-function"
+#endif
+#include <immintrin.h> /* AVX512F __m512i _mm512_and_si512 _mm512_cmpeq_epi32 _mm512_loadu_si512 _mm512_or_si512 _mm512_set1_epi32 _mm512_set1_epi8 _mm512_slli_epi32 _mm512_srli_epi32 _mm512_storeu_si512 _mm512_unpackhi_epi32 _mm512_unpackhi_epi64 _mm512_unpacklo_epi32 _mm512_unpacklo_epi64 _mm512_xor_si512 */
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#endif
+#if defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif
+
+static LTC_INLINE int s_is_supported_512_bit_avx512f(void)
+{
+   static int is_initialized = 0;
+   static int is_supported = 0;
+
+   if (is_initialized == 0) {
+      int regs[4];
+      int osxsave, avx512f, zmm;
+      ulong64 xcr0;
+
+      is_initialized = 1;
+      s_x86_cpuid(regs, 0);
+      if (regs[0] >= 7) {
+         s_x86_cpuid(regs, 1);
+         osxsave = ((((unsigned int)(regs[2])) >> 27) & 1u) != 0; /* OSXSAVE, leaf 1, ecx, bit 27 */
+         s_x86_cpuid(regs, 7);
+         avx512f = ((((unsigned int)(regs[1])) >> 16) & 1u) != 0; /* AVX512F, leaf 7, ebx, bit 16 */
+         if (osxsave) {
+            xcr0 = s_x86_xgetbv0();
+            zmm = (xcr0 & 0xe0) == 0xe0; /* 512bit AVX zmm */
+            is_supported = osxsave && avx512f && zmm;
+         }
+      }
+   }
+   return is_supported;
+}
+
+static LTC_INLINE void LTC_AVX512F_TARGET s_serpent_accel_ecb_512_bit_avx512f_load_one(__m512i *x, const unsigned char *bytes)
+{
+   *x = _mm512_loadu_si512(((const __m512i*)(bytes)));
+}
+
+static LTC_INLINE void LTC_AVX512F_TARGET s_serpent_accel_ecb_512_bit_avx512f_store_one(const __m512i *x, unsigned char *bytes)
+{
+   _mm512_storeu_si512(((__m512i*)(bytes)), *x);
+}
+
+static LTC_INLINE void LTC_AVX512F_TARGET s_serpent_accel_512_bit_avx512f_load_four(__m512i *pa, __m512i *pb, __m512i *pc, __m512i *pd, const unsigned char *bytes)
+{
+   __m512i ia, ib, ic, id;
+   __m512i ta, tb, tc, td;
+   __m512i ra, rb, rc, rd;
+
+   s_serpent_accel_ecb_512_bit_avx512f_load_one(&ia, &bytes[0 * sizeof(__m512i)]);
+   s_serpent_accel_ecb_512_bit_avx512f_load_one(&ib, &bytes[1 * sizeof(__m512i)]);
+   s_serpent_accel_ecb_512_bit_avx512f_load_one(&ic, &bytes[2 * sizeof(__m512i)]);
+   s_serpent_accel_ecb_512_bit_avx512f_load_one(&id, &bytes[3 * sizeof(__m512i)]);
+   ta = _mm512_unpacklo_epi32(ia, ib);
+   tb = _mm512_unpacklo_epi32(ic, id);
+   tc = _mm512_unpackhi_epi32(ia, ib);
+   td = _mm512_unpackhi_epi32(ic, id);
+   ra = _mm512_unpacklo_epi64(ta, tb);
+   rb = _mm512_unpackhi_epi64(ta, tb);
+   rc = _mm512_unpacklo_epi64(tc, td);
+   rd = _mm512_unpackhi_epi64(tc, td);
+   *pa = ra;
+   *pb = rb;
+   *pc = rc;
+   *pd = rd;
+}
+
+static LTC_INLINE void LTC_AVX512F_TARGET s_serpent_accel_512_bit_avx512f_store_four(const __m512i *pa, const __m512i *pb, const __m512i *pc, const __m512i *pd, unsigned char *bytes)
+{
+   __m512i ia, ib, ic, id;
+   __m512i ta, tb, tc, td;
+   __m512i ra, rb, rc, rd;
+
+   ia = *pa;
+   ib = *pb;
+   ic = *pc;
+   id = *pd;
+   ta = _mm512_unpacklo_epi32(ia, ib);
+   tb = _mm512_unpacklo_epi32(ic, id);
+   tc = _mm512_unpackhi_epi32(ia, ib);
+   td = _mm512_unpackhi_epi32(ic, id);
+   ra = _mm512_unpacklo_epi64(ta, tb);
+   rb = _mm512_unpackhi_epi64(ta, tb);
+   rc = _mm512_unpacklo_epi64(tc, td);
+   rd = _mm512_unpackhi_epi64(tc, td);
+   s_serpent_accel_ecb_512_bit_avx512f_store_one(&ra, &bytes[0 * sizeof(__m512i)]);
+   s_serpent_accel_ecb_512_bit_avx512f_store_one(&rb, &bytes[1 * sizeof(__m512i)]);
+   s_serpent_accel_ecb_512_bit_avx512f_store_one(&rc, &bytes[2 * sizeof(__m512i)]);
+   s_serpent_accel_ecb_512_bit_avx512f_store_one(&rd, &bytes[3 * sizeof(__m512i)]);
+}
+
+static LTC_INLINE int LTC_AVX512F_TARGET s_serpent_accel_ecb_encrypt_512_bit_avx512f(const unsigned char *pt, unsigned char *ct, unsigned long blocks, const symmetric_key *skey)
+{
+   #define blocks_at_a_time (512 / 32)
+   #define s_do_broadcast(x) _mm512_set1_epi32(*((const int *)(&(x))))
+   #define s_do_asgn(a, b) a = b
+   #define s_do_or(a, b) a = _mm512_or_si512(a, b)
+   #define s_do_xor(a, b) a = _mm512_xor_si512(a, b)
+   #define s_do_and(a, b) a = _mm512_and_si512(a, b)
+   #define s_do_not(a, b) a = _mm512_xor_si512(b, _mm512_set1_epi8('\xff'))
+   #define s_do_rol(x, i) x = _mm512_or_si512(_mm512_slli_epi32(x, i), _mm512_srli_epi32(x, 32 - i))
+   #define s_do_ror(x, i) x = _mm512_or_si512(_mm512_srli_epi32(x, i), _mm512_slli_epi32(x, 32 - i))
+   #define s_do_shl(a, b, c) a = _mm512_slli_epi32(b, c)
+
+   const unsigned char *in;
+   unsigned char *out;
+   const ulong32* k;
+   unsigned long iblock;
+   __m512i a, b, c, d, e;
+
+   LTC_ARGCHK(pt);
+   LTC_ARGCHK(ct);
+   LTC_ARGCHK(blocks % blocks_at_a_time == 0);
+
+   in = pt;
+   out = ct;
+   k = &skey->serpent.k[0];
+   for (iblock = 0; iblock != blocks; iblock += blocks_at_a_time) {
+      s_serpent_accel_512_bit_avx512f_load_four(&a, &b, &c, &d, in);
+      s_apply_order_enc_00(s_apply_key);
+      s_apply_order_enc_00(s_enc_0); s_apply_order_enc_01(s_apply_lk);
+      s_apply_order_enc_01(s_enc_1); s_apply_order_enc_02(s_apply_lk);
+      s_apply_order_enc_02(s_enc_2); s_apply_order_enc_03(s_apply_lk);
+      s_apply_order_enc_03(s_enc_3); s_apply_order_enc_04(s_apply_lk);
+      s_apply_order_enc_04(s_enc_4); s_apply_order_enc_05(s_apply_lk);
+      s_apply_order_enc_05(s_enc_5); s_apply_order_enc_06(s_apply_lk);
+      s_apply_order_enc_06(s_enc_6); s_apply_order_enc_07(s_apply_lk);
+      s_apply_order_enc_07(s_enc_7); s_apply_order_enc_08(s_apply_lk);
+      s_apply_order_enc_08(s_enc_0); s_apply_order_enc_09(s_apply_lk);
+      s_apply_order_enc_09(s_enc_1); s_apply_order_enc_10(s_apply_lk);
+      s_apply_order_enc_10(s_enc_2); s_apply_order_enc_11(s_apply_lk);
+      s_apply_order_enc_11(s_enc_3); s_apply_order_enc_12(s_apply_lk);
+      s_apply_order_enc_12(s_enc_4); s_apply_order_enc_13(s_apply_lk);
+      s_apply_order_enc_13(s_enc_5); s_apply_order_enc_14(s_apply_lk);
+      s_apply_order_enc_14(s_enc_6); s_apply_order_enc_15(s_apply_lk);
+      s_apply_order_enc_15(s_enc_7); s_apply_order_enc_16(s_apply_lk);
+      s_apply_order_enc_16(s_enc_0); s_apply_order_enc_17(s_apply_lk);
+      s_apply_order_enc_17(s_enc_1); s_apply_order_enc_18(s_apply_lk);
+      s_apply_order_enc_18(s_enc_2); s_apply_order_enc_19(s_apply_lk);
+      s_apply_order_enc_19(s_enc_3); s_apply_order_enc_20(s_apply_lk);
+      s_apply_order_enc_20(s_enc_4); s_apply_order_enc_21(s_apply_lk);
+      s_apply_order_enc_21(s_enc_5); s_apply_order_enc_22(s_apply_lk);
+      s_apply_order_enc_22(s_enc_6); s_apply_order_enc_23(s_apply_lk);
+      s_apply_order_enc_23(s_enc_7); s_apply_order_enc_24(s_apply_lk);
+      s_apply_order_enc_24(s_enc_0); s_apply_order_enc_25(s_apply_lk);
+      s_apply_order_enc_25(s_enc_1); s_apply_order_enc_26(s_apply_lk);
+      s_apply_order_enc_26(s_enc_2); s_apply_order_enc_27(s_apply_lk);
+      s_apply_order_enc_27(s_enc_3); s_apply_order_enc_28(s_apply_lk);
+      s_apply_order_enc_28(s_enc_4); s_apply_order_enc_29(s_apply_lk);
+      s_apply_order_enc_29(s_enc_5); s_apply_order_enc_30(s_apply_lk);
+      s_apply_order_enc_30(s_enc_6); s_apply_order_enc_31(s_apply_lk);
+      s_apply_order_enc_31(s_enc_7); s_apply_order_enc_32(s_apply_key);
+      s_serpent_accel_512_bit_avx512f_store_four(&a, &b, &c, &d, out);
+      in += blocks_at_a_time * serpent_block_len;
+      out += blocks_at_a_time * serpent_block_len;
+   }
+   return CRYPT_OK;
+
+   #undef blocks_at_a_time
+   #undef s_do_broadcast
+   #undef s_do_asgn
+   #undef s_do_or
+   #undef s_do_xor
+   #undef s_do_and
+   #undef s_do_not
+   #undef s_do_rol
+   #undef s_do_ror
+   #undef s_do_shl
+}
+
+static LTC_INLINE int LTC_AVX512F_TARGET s_serpent_accel_ecb_decrypt_512_bit_avx512f(const unsigned char *ct, unsigned char *pt, unsigned long blocks, const symmetric_key *skey)
+{
+   #define blocks_at_a_time (512 / 32)
+   #define s_do_broadcast(x) _mm512_set1_epi32(*((const int *)(&(x))))
+   #define s_do_asgn(a, b) a = b
+   #define s_do_or(a, b) a = _mm512_or_si512(a, b)
+   #define s_do_xor(a, b) a = _mm512_xor_si512(a, b)
+   #define s_do_and(a, b) a = _mm512_and_si512(a, b)
+   #define s_do_not(a, b) a = _mm512_xor_si512(b, _mm512_set1_epi8('\xff'))
+   #define s_do_rol(x, i) x = _mm512_or_si512(_mm512_slli_epi32(x, i), _mm512_srli_epi32(x, 32 - i))
+   #define s_do_ror(x, i) x = _mm512_or_si512(_mm512_srli_epi32(x, i), _mm512_slli_epi32(x, 32 - i))
+   #define s_do_shl(a, b, c) a = _mm512_slli_epi32(b, c)
+
+   const unsigned char *in;
+   unsigned char *out;
+   const ulong32* k;
+   unsigned long iblock;
+   __m512i a, b, c, d, e;
+
+   LTC_ARGCHK(ct);
+   LTC_ARGCHK(pt);
+   LTC_ARGCHK(blocks % blocks_at_a_time == 0);
+
+   in = ct;
+   out = pt;
+   k = &skey->serpent.k[0];
+   for (iblock = 0; iblock != blocks; iblock += blocks_at_a_time) {
+      s_serpent_accel_512_bit_avx512f_load_four(&a, &b, &c, &d, in);
+      s_apply_order_dec_32(s_apply_key);
+      s_apply_order_dec_32(s_dec_7); s_apply_order_dec_31(s_apply_kl);
+      s_apply_order_dec_31(s_dec_6); s_apply_order_dec_30(s_apply_kl);
+      s_apply_order_dec_30(s_dec_5); s_apply_order_dec_29(s_apply_kl);
+      s_apply_order_dec_29(s_dec_4); s_apply_order_dec_28(s_apply_kl);
+      s_apply_order_dec_28(s_dec_3); s_apply_order_dec_27(s_apply_kl);
+      s_apply_order_dec_27(s_dec_2); s_apply_order_dec_26(s_apply_kl);
+      s_apply_order_dec_26(s_dec_1); s_apply_order_dec_25(s_apply_kl);
+      s_apply_order_dec_25(s_dec_0); s_apply_order_dec_24(s_apply_kl);
+      s_apply_order_dec_24(s_dec_7); s_apply_order_dec_23(s_apply_kl);
+      s_apply_order_dec_23(s_dec_6); s_apply_order_dec_22(s_apply_kl);
+      s_apply_order_dec_22(s_dec_5); s_apply_order_dec_21(s_apply_kl);
+      s_apply_order_dec_21(s_dec_4); s_apply_order_dec_20(s_apply_kl);
+      s_apply_order_dec_20(s_dec_3); s_apply_order_dec_19(s_apply_kl);
+      s_apply_order_dec_19(s_dec_2); s_apply_order_dec_18(s_apply_kl);
+      s_apply_order_dec_18(s_dec_1); s_apply_order_dec_17(s_apply_kl);
+      s_apply_order_dec_17(s_dec_0); s_apply_order_dec_16(s_apply_kl);
+      s_apply_order_dec_16(s_dec_7); s_apply_order_dec_15(s_apply_kl);
+      s_apply_order_dec_15(s_dec_6); s_apply_order_dec_14(s_apply_kl);
+      s_apply_order_dec_14(s_dec_5); s_apply_order_dec_13(s_apply_kl);
+      s_apply_order_dec_13(s_dec_4); s_apply_order_dec_12(s_apply_kl);
+      s_apply_order_dec_12(s_dec_3); s_apply_order_dec_11(s_apply_kl);
+      s_apply_order_dec_11(s_dec_2); s_apply_order_dec_10(s_apply_kl);
+      s_apply_order_dec_10(s_dec_1); s_apply_order_dec_09(s_apply_kl);
+      s_apply_order_dec_09(s_dec_0); s_apply_order_dec_08(s_apply_kl);
+      s_apply_order_dec_08(s_dec_7); s_apply_order_dec_07(s_apply_kl);
+      s_apply_order_dec_07(s_dec_6); s_apply_order_dec_06(s_apply_kl);
+      s_apply_order_dec_06(s_dec_5); s_apply_order_dec_05(s_apply_kl);
+      s_apply_order_dec_05(s_dec_4); s_apply_order_dec_04(s_apply_kl);
+      s_apply_order_dec_04(s_dec_3); s_apply_order_dec_03(s_apply_kl);
+      s_apply_order_dec_03(s_dec_2); s_apply_order_dec_02(s_apply_kl);
+      s_apply_order_dec_02(s_dec_1); s_apply_order_dec_01(s_apply_kl);
+      s_apply_order_dec_01(s_dec_0); s_apply_order_dec_00(s_apply_key);
+      s_serpent_accel_512_bit_avx512f_store_four(&c, &d, &b, &e, out);
       in += blocks_at_a_time * serpent_block_len;
       out += blocks_at_a_time * serpent_block_len;
    }
