@@ -57,6 +57,9 @@ int no_null_termination_check_test(void);
 int pk_oid_test(void);
 int deprecated_test(void);
 int nop_test(void);
+int pqc_mlkem_test(void);
+int pqc_mldsa_test(void);
+int pqc_slhdsa_test(void);
 
 extern const char ltc_der_tests_cacert_root_cert[];
 extern const unsigned long ltc_der_tests_cacert_root_cert_size;

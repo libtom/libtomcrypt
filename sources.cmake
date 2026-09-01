@@ -132,6 +132,7 @@ src/headers/tomcrypt_math.h
 src/headers/tomcrypt_misc.h
 src/headers/tomcrypt_pk.h
 src/headers/tomcrypt_pkcs.h
+src/headers/tomcrypt_pqc.h
 src/headers/tomcrypt_private.h
 src/headers/tomcrypt_prng.h
 src/mac/blake2/blake2bmac.c
@@ -529,6 +530,23 @@ src/pk/x448/x448_import_raw.c
 src/pk/x448/x448_import_x509.c
 src/pk/x448/x448_make_key.c
 src/pk/x448/x448_shared_secret.c
+src/pqc/mldsa/mldsa.c
+src/pqc/mldsa/mldsa_export.c
+src/pqc/mldsa/mldsa_import.c
+src/pqc/mldsa/mldsa_import_pkcs8.c
+src/pqc/mldsa/mldsa_import_x509.c
+src/pqc/mlkem/mlkem.c
+src/pqc/mlkem/mlkem_export.c
+src/pqc/mlkem/mlkem_import.c
+src/pqc/mlkem/mlkem_import_pkcs8.c
+src/pqc/mlkem/mlkem_import_x509.c
+src/pqc/pqc_export_privkey.c
+src/pqc/pqc_prehash.c
+src/pqc/slhdsa/slhdsa.c
+src/pqc/slhdsa/slhdsa_export.c
+src/pqc/slhdsa/slhdsa_import.c
+src/pqc/slhdsa/slhdsa_import_pkcs8.c
+src/pqc/slhdsa/slhdsa_import_x509.c
 src/prngs/chacha20.c
 src/prngs/fortuna.c
 src/prngs/rc4.c
@@ -585,6 +603,7 @@ src/headers/tomcrypt_math.h
 src/headers/tomcrypt_misc.h
 src/headers/tomcrypt_pk.h
 src/headers/tomcrypt_pkcs.h
+src/headers/tomcrypt_pqc.h
 src/headers/tomcrypt_prng.h
 )
 

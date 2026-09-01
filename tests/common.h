@@ -50,6 +50,13 @@ typedef void (*dir_cleanup_cb)(void* ctx);
 int test_process_dir(const char *path, void *ctx, dir_iter_cb iter, dir_fiter_cb fiter, dir_cleanup_cb cleanup, const char *test);
 #endif
 
+#ifdef LTC_BASE64
+int test_pem_to_der(const void *pem, unsigned long pemlen, const char *label, unsigned char *der, unsigned long *derlen);
+#endif
+int test_x509_split(const unsigned char *der, unsigned long derlen,
+                    const unsigned char **tbs, unsigned long *tbslen,
+                    const unsigned char **sig, unsigned long *siglen);
+
 int ltc_test_nop(void);
 int nop_test(void);
 #define LTC_NOP_TEST(n) int n(void) { return CRYPT_NOP; }
