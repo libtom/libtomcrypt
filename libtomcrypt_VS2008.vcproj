@@ -1786,6 +1786,10 @@
 					RelativePath="src\modes\cbc\cbc_start.c"
 					>
 				</File>
+				<File
+					RelativePath="src\modes\cbc\cbc_test.c"
+					>
+				</File>
 			</Filter>
 			<Filter
 				Name="cfb"
