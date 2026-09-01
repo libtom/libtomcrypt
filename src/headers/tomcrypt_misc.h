@@ -109,6 +109,63 @@ int hkdf(int hash_idx,
 
 #endif  /* LTC_HKDF */
 
+/* ---- libsodium box-compatible helpers ---- */
+#if defined(LTC_XSALSA20) && defined(LTC_POLY1305)
+int ltc_secretbox_create(const unsigned char *msg,   unsigned long msglen,
+                         const unsigned char *nonce, unsigned long noncelen,
+                         const unsigned char *key,   unsigned long keylen,
+                               unsigned char *out,   unsigned long *outlen);
+
+int ltc_secretbox_open(const unsigned char *enc,   unsigned long enclen,
+                       const unsigned char *nonce, unsigned long noncelen,
+                       const unsigned char *key,   unsigned long keylen,
+                             unsigned char *out,   unsigned long *outlen);
+#endif
+
+#if defined(LTC_XSALSA20) && defined(LTC_POLY1305) && defined(LTC_CURVE25519) && defined(LTC_BLAKE2B)
+int ltc_cryptobox_create(const unsigned char *msg,   unsigned long msglen,
+                         const unsigned char *nonce, unsigned long noncelen,
+                         const unsigned char *pk,    unsigned long pklen,
+                         const unsigned char *sk,    unsigned long sklen,
+                               unsigned char *out,   unsigned long *outlen);
+
+int ltc_cryptobox_create_ck(const unsigned char *msg,   unsigned long msglen,
+                            const unsigned char *nonce, unsigned long noncelen,
+                           const curve25519_key *pk,
+                           const curve25519_key *sk,
+                                  unsigned char *out,   unsigned long *outlen);
+
+int ltc_cryptobox_open(const unsigned char *enc,   unsigned long enclen,
+                       const unsigned char *nonce, unsigned long noncelen,
+                       const unsigned char *pk,    unsigned long pklen,
+                       const unsigned char *sk,    unsigned long sklen,
+                             unsigned char *out,   unsigned long *outlen);
+
+int ltc_cryptobox_open_ck(const unsigned char *enc,   unsigned long enclen,
+                          const unsigned char *nonce, unsigned long noncelen,
+                         const curve25519_key *pk,
+                         const curve25519_key *sk,
+                                unsigned char *out,   unsigned long *outlen);
+
+int ltc_sealedbox_create(const unsigned char *msg,  unsigned long msglen,
+                         const unsigned char *pk,   unsigned long pklen,
+                                  prng_state *prng, int wprng,
+                               unsigned char *out,  unsigned long *outlen);
+
+int ltc_sealedbox_create_ck(const unsigned char *msg,  unsigned long msglen,
+                           const curve25519_key *pk,
+                                     prng_state *prng, int wprng,
+                                  unsigned char *out,  unsigned long *outlen);
+
+int ltc_sealedbox_open(const unsigned char *enc, unsigned long enclen,
+                       const unsigned char *sk,  unsigned long sklen,
+                             unsigned char *out, unsigned long *outlen);
+
+int ltc_sealedbox_open_ck(const unsigned char *enc, unsigned long enclen,
+                         const curve25519_key *sk,
+                                unsigned char *out, unsigned long *outlen);
+#endif
+
 /* ---- MEM routines ---- */
 int mem_neq(const void *a, const void *b, size_t len);
 void zeromem(volatile void *out, size_t outlen);

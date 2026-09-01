@@ -1493,11 +1493,30 @@ If you define \textit{LTC\_XSALSA20} to include \textit{XSalsa20} in a minimal
 As always, never ever use the same key + nonce/IV pair more than once.
 \vspace{1mm}
 
+\subsection{HSalsa20}
+
+\textit{HSalsa20} is the key derivation function underlying \textit{XSalsa20}.  It applies the
+Salsa20 core (without the final addition step) to a 256-bit key and a 128-bit input,
+producing a 256-bit derived key.  It is also useful as a standalone KDF, for example in NaCl-style
+\textit{crypto\_box} constructions where it derives a symmetric key from an X25519 shared secret.
+
+\index{xsalsa20\_hsalsa20()}
+\begin{verbatim}
+int xsalsa20_hsalsa20(unsigned char *out,  unsigned long outlen,
+                       const unsigned char *key, unsigned long keylen,
+                       const unsigned char *in,  unsigned long inlen,
+                       int rounds);
+\end{verbatim}
+This derives a 32-byte subkey from a 32-byte \textit{key} and a 16-byte \textit{in} using
+\textit{rounds} Salsa20 rounds (0 = default 20).  The output is stored in \textit{out}
+(\textit{outlen} must be 32, \textit{keylen} must be 32, \textit{inlen} must be 16).
+\vspace{1mm}
+
 For more information about Salsa20 see
 \url{https://en.wikipedia.org/wiki/Salsa20}.
 \vspace{1mm}
 
-For more information about XSalsa20 see
+For more information about XSalsa20 and HSalsa20 see
 \url{https://cr.yp.to/snuffle/xsalsa-20081128.pdf}.
 \vspace{1mm}
 

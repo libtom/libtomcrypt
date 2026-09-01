@@ -40,6 +40,65 @@ static void s_xsalsa20_doubleround(ulong32 *x, int rounds)
 #undef QUARTERROUND
 
 /**
+   HSalsa20: derive a 256-bit subkey from a 256-bit key and 128-bit input.
+   This is the Salsa20 core (double-rounds) without the final addition step,
+   extracting output from state positions {0,5,10,15,6,7,8,9}.
+   @param out       [out] The derived 32-byte subkey
+   @param outlen    The length of the output buffer, must be 32 (octets)
+   @param key       The secret key
+   @param keylen    The length of the secret key, must be 32 (octets)
+   @param in        The 16-byte input (nonce or constant)
+   @param inlen     The length of the input, must be 16 (octets)
+   @param rounds    Number of rounds (must be evenly divisible by 2, default is 20)
+   @return CRYPT_OK if successful
+*/
+int xsalsa20_hsalsa20(unsigned char *out,  unsigned long outlen,
+                       const unsigned char *key, unsigned long keylen,
+                       const unsigned char *in,  unsigned long inlen,
+                       int rounds)
+{
+   const char * const constants = "expand 32-byte k";
+   const int sti[] = {0, 5, 10, 15, 6, 7, 8, 9};
+   ulong32 x[16];
+   int i;
+
+   LTC_ARGCHK(out != NULL);
+   LTC_ARGCHK(outlen == 32);
+   LTC_ARGCHK(key != NULL);
+   LTC_ARGCHK(keylen == 32);
+   LTC_ARGCHK(in  != NULL);
+   LTC_ARGCHK(inlen == 16);
+   if (rounds == 0) rounds = 20;
+   LTC_ARGCHK(rounds % 2 == 0);
+
+   LOAD32L(x[ 0], constants +  0);
+   LOAD32L(x[ 5], constants +  4);
+   LOAD32L(x[10], constants +  8);
+   LOAD32L(x[15], constants + 12);
+   LOAD32L(x[ 1], key +  0);
+   LOAD32L(x[ 2], key +  4);
+   LOAD32L(x[ 3], key +  8);
+   LOAD32L(x[ 4], key + 12);
+   LOAD32L(x[11], key + 16);
+   LOAD32L(x[12], key + 20);
+   LOAD32L(x[13], key + 24);
+   LOAD32L(x[14], key + 28);
+   LOAD32L(x[ 6], in +  0);
+   LOAD32L(x[ 7], in +  4);
+   LOAD32L(x[ 8], in +  8);
+   LOAD32L(x[ 9], in + 12);
+
+   s_xsalsa20_doubleround(x, rounds);
+
+   for (i = 0; i < 8; ++i) {
+      STORE32L(x[sti[i]], out + 4 * i);
+   }
+
+   zeromem(x, sizeof(x));
+   return CRYPT_OK;
+}
+
+/**
    Initialize an XSalsa20 context
    @param st        [out] The destination of the XSalsa20 state
    @param key       The secret key
@@ -54,46 +113,18 @@ int xsalsa20_setup(salsa20_state *st, const unsigned char *key, unsigned long ke
                                       int rounds)
 {
    const char * const constants = "expand 32-byte k";
-   const int sti[] = {0, 5, 10, 15, 6, 7, 8, 9};  /* indices used to build subkey fm x */
-   ulong32       x[64];                           /* input to & output fm doubleround */
    unsigned char subkey[32];
-   int i;
+   int err;
 
-   LTC_ARGCHK(st        != NULL);
-   LTC_ARGCHK(key       != NULL);
-   LTC_ARGCHK(keylen    == 32);
-   LTC_ARGCHK(nonce     != NULL);
-   LTC_ARGCHK(noncelen  == 24);
+   LTC_ARGCHK(st != NULL);
+   LTC_ARGCHK(nonce != NULL);
+   LTC_ARGCHK(noncelen == 24);
    if (rounds == 0) rounds = 20;
-   LTC_ARGCHK(rounds % 2 == 0);     /* number of rounds must be evenly divisible by 2 */
 
-   /* load the state to "hash" the key */
-   LOAD32L(x[ 0], constants +  0);
-   LOAD32L(x[ 5], constants +  4);
-   LOAD32L(x[10], constants +  8);
-   LOAD32L(x[15], constants + 12);
-   LOAD32L(x[ 1], key +  0);
-   LOAD32L(x[ 2], key +  4);
-   LOAD32L(x[ 3], key +  8);
-   LOAD32L(x[ 4], key + 12);
-   LOAD32L(x[11], key + 16);
-   LOAD32L(x[12], key + 20);
-   LOAD32L(x[13], key + 24);
-   LOAD32L(x[14], key + 28);
-   LOAD32L(x[ 6], nonce +  0);
-   LOAD32L(x[ 7], nonce +  4);
-   LOAD32L(x[ 8], nonce +  8);
-   LOAD32L(x[ 9], nonce + 12);
+   /* HSalsa20: derive subkey from key and first 16 bytes of nonce */
+   if ((err = xsalsa20_hsalsa20(subkey, 32, key, keylen, nonce, 16, rounds)) != CRYPT_OK) goto cleanup;
 
-   /* use modified salsa20 doubleround (no final addition) */
-   s_xsalsa20_doubleround(x, rounds);
-
-   /* extract the subkey */
-   for (i = 0; i < 8; ++i) {
-     STORE32L(x[sti[i]], subkey + 4 * i);
-   }
-
-   /* load the final initial state */
+   /* load the final initial state with the derived subkey */
    LOAD32L(st->input[ 0], constants +  0);
    LOAD32L(st->input[ 5], constants +  4);
    LOAD32L(st->input[10], constants +  8);
@@ -114,12 +145,12 @@ int xsalsa20_setup(salsa20_state *st, const unsigned char *key, unsigned long ke
    st->ksleft = 0;
    st->ivlen  = 24;           /* set switch to say nonce/IV has been loaded */
 
+cleanup:
 #ifdef LTC_CLEAN_STACK
-   zeromem(x, sizeof(x));
    zeromem(subkey, sizeof(subkey));
 #endif
 
-   return CRYPT_OK;
+   return err;
 }
 
 
