@@ -2647,6 +2647,10 @@
 					>
 				</File>
 				<File
+					RelativePath="src\pk\ecc\ecc_sm2.c"
+					>
+				</File>
+				<File
 					RelativePath="src\pk\ecc\ecc_ssh_ecdsa_encode_name.c"
 					>
 				</File>

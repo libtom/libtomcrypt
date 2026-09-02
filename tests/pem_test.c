@@ -95,6 +95,48 @@ static int s_key_cmp(ltc_pka_key *key)
    return CRYPT_INVALID_ARG;
 }
 
+static int s_pem_only_decode_pkcs(const void *in, unsigned long inlen, void *key);
+
+#if defined(LTC_MECC)
+static int s_sm2_key_cmp(ltc_pka_key *key)
+{
+   const ltc_ecc_curve *curve;
+   char oid[64];
+   unsigned long oidlen = sizeof(oid);
+   int err;
+
+   LTC_ARGCHK(key != NULL);
+
+   if (key->id != LTC_PKA_EC) return CRYPT_INVALID_ARG;
+   if (key->u.ecc.type != PK_PRIVATE) return CRYPT_INVALID_ARG;
+   if ((err = ecc_find_curve("SM2", &curve)) != CRYPT_OK) return err;
+   if ((err = ecc_get_oid_str(oid, &oidlen, &key->u.ecc)) != CRYPT_OK) return err;
+   if (XSTRCMP(oid, curve->OID) != 0) return CRYPT_ERROR;
+   return CRYPT_OK;
+}
+
+static int s_pem_decode_sm2_pkcs(const void *in, unsigned long inlen, void *key)
+{
+   int err;
+
+   if ((err = s_pem_only_decode_pkcs(in, inlen, key)) != CRYPT_OK) {
+      return err;
+   }
+   return s_sm2_key_cmp(key);
+}
+
+static int s_pem_decode_sm2_pkcs_f(FILE *f, void *key)
+{
+   int err;
+   password_ctx pw_ctx = { .callback = password_get };
+
+   if ((err = pem_decode_pkcs_filehandle(f, key, &pw_ctx)) != CRYPT_OK) {
+      return err;
+   }
+   return s_sm2_key_cmp(key);
+}
+#endif
+
 static int s_pem_decode_invalid_pkcs(const void *in, unsigned long inlen, void *key)
 {
    password_ctx pw_ctx = { .callback = password_get };
@@ -166,6 +208,8 @@ int pem_test(void)
    DO(test_process_dir("tests/pem/pkcs", &key, NULL, s_pem_decode_pkcs_f, (dir_cleanup_cb)pka_key_free, "pem_pkcs_test_filehandle"));
    DO(test_process_dir("tests/pem/pkcs/ecc-pkcs8", &key, s_pem_decode_pkcs, NULL, (dir_cleanup_cb)pka_key_free, "pem_pkcs_test+ecc"));
    DO(test_process_dir("tests/pem/pkcs/ecc-pkcs8", &key, NULL, s_pem_decode_pkcs_f, (dir_cleanup_cb)pka_key_free, "pem_pkcs_test_filehandle+ecc"));
+   DO(test_process_dir("tests/pem/pkcs/sm2-pkcs8", &key, s_pem_decode_sm2_pkcs, NULL, (dir_cleanup_cb)pka_key_free, "pem_pkcs_test+sm2"));
+   DO(test_process_dir("tests/pem/pkcs/sm2-pkcs8", &key, NULL, s_pem_decode_sm2_pkcs_f, (dir_cleanup_cb)pka_key_free, "pem_pkcs_test_filehandle+sm2"));
    DO(test_process_dir("tests/pem/pkcs/extra", &key, s_pem_only_decode_pkcs, NULL, (dir_cleanup_cb)pka_key_free, "pem_pkcs_test+extra"));
    DO(test_process_dir("tests/pem/pkcs/invalid", &key, s_pem_decode_invalid_pkcs, NULL, NULL, "pem_test_invalid"));
    DO(test_process_dir("tests/pem/pkcs/invalid_but_supported", &key, s_pem_only_decode_pkcs, NULL, (dir_cleanup_cb)pka_key_free, "pem_pkcs_invalid_but_supported"));

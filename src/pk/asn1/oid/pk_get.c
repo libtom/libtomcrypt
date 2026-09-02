@@ -17,6 +17,7 @@ static const oid_table_entry pka_oids[] = {
                                               { LTC_OID_DSA,                  LTC_PKA_DSA,     NULL,         "1.2.840.10040.4.1" },
                                               { LTC_OID_EC,                   LTC_PKA_EC,      NULL,         "1.2.840.10045.2.1" },
                                               { LTC_OID_EC_PRIMEF,            LTC_PKA_EC,      NULL,         "1.2.840.10045.1.1" },
+                                              { LTC_OID_SM2SIG_SM3,           LTC_PKA_EC,      "sm3",        "1.2.156.10197.1.501" },
                                               { LTC_OID_X25519,               LTC_PKA_X25519,  NULL,         "1.3.101.110" },
                                               { LTC_OID_ED25519,              LTC_PKA_ED25519, NULL,         "1.3.101.112" },
                                               { LTC_OID_X448,                 LTC_PKA_X448,    NULL,         "1.3.101.111" },
