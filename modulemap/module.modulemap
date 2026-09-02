@@ -1,0 +1,4 @@
+module libtomcrypt [extern_c] {
+    header "../src/headers/tomcrypt.h"
+    export *
+}
