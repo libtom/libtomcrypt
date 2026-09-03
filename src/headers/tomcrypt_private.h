@@ -15,15 +15,6 @@
 
 #define LTC_PAD_MASK       (0xF000U)
 
-/* only real 64bit, not ILP32 */
-#if defined(ENDIAN_64BITWORD) && !defined(ENDIAN_64BITWORD_ILP32)
-   #define CONSTPTR(n) CONST64(n)
-#else
-   #define CONSTPTR(n) n ## uL
-#endif
-
-LTC_STATIC_ASSERT(correct_CONSTPTR_size, sizeof(CONSTPTR(1)) == sizeof(void*))
-
 /* Poor-man's `uintptr_t` since we can't use stdint.h
  * c.f. https://github.com/DCIT/perl-CryptX/issues/95#issuecomment-1745280962 */
 typedef size_t ltc_uintptr;
@@ -33,7 +24,7 @@ LTC_STATIC_ASSERT(correct_ltc_uintptr_size, sizeof(ltc_uintptr) == sizeof(void*)
 /* Aligns a `unsigned char` buffer `buf` to `n` bytes and returns that aligned address.
  * Make sure that the buffer that is passed is huge enough.
  */
-#define LTC_ALIGN_BUF(buf, align) ((void*)((ltc_uintptr)&((unsigned char*)(buf))[(align) - 1] & (~(CONSTPTR(align) - CONSTPTR(1)))))
+#define LTC_ALIGN_BUF(buf, align) ((void*)((ltc_uintptr)&((unsigned char*)(buf))[(align) - 1] & ~((ltc_uintptr)(align) - (ltc_uintptr)1)))
 
 #define LTC_OID_MAX_STRLEN 256
 
