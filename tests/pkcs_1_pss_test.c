@@ -158,7 +158,7 @@ int pkcs_1_pss_test(void)
         rsaData_t* s = &t->data[j];
         unsigned char buf[20], obuf[256];
         unsigned long buflen = sizeof(buf), obuflen = sizeof(obuf);
-        int stat;
+        int stat, err;
         prng_descriptor[rsa_params.wprng].add_entropy(s->o2, s->o2_l, rsa_params.prng);
         DOX(hash_memory(hash_idx, s->o1, s->o1_l, buf, &buflen), s->name);
         rsa_params.params.saltlen = s->o2_l;
@@ -166,6 +166,28 @@ int pkcs_1_pss_test(void)
         COMPARE_TESTVECTOR(obuf, obuflen, s->o3, s->o3_l,s->name, j);
         DOX(rsa_verify_hash_v2(obuf, obuflen, buf, buflen, &rsa_params, &stat, key), s->name);
         ENSUREX(stat == 1, s->name);
+
+        /* pkcs_1_pss_decode() (unlike rsa_verify_hash_v2()) forwards siglen
+         * straight to ltc_pkcs_1_pss_decode_mgf1() with no check that it
+         * matches modulus_len. That function copies modulus_len - 1 bytes
+         * total out of `sig` based on modulus_len alone, so a caller
+         * passing a genuinely truncated buffer used to walk past its end
+         * instead of failing early.
+         */
+        {
+          unsigned long modulus_bitlen = ltc_mp_count_bits(key->N);
+          const unsigned char *em = obuf;
+          unsigned long emlen = obuflen;
+          if (modulus_bitlen % 8 == 1) {
+            em++;
+            emlen--;
+          }
+          stat = 1;
+          err = pkcs_1_pss_decode(buf, buflen, em, emlen - 1, s->o2_l,
+                                   hash_idx, modulus_bitlen, &stat);
+          ENSUREX(err == CRYPT_PK_INVALID_SIZE, s->name);
+          ENSUREX(stat == 0, s->name);
+        }
     } /* for */
 
     ltc_mp_deinit_multi(key->d,  key->e, key->N, key->dQ, key->dP, key->qP, key->p, key->q, LTC_NULL);
