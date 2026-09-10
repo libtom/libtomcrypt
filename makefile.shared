@@ -51,6 +51,11 @@ endif
 ifndef LIBNAME
 	LIBNAME = $(TARGET).$(VERSION_LT)
 endif
+ifndef LIBNAME_S
+	LIBNAME_S = $(NAME).a
+endif
+
+libs: $(TARGET) $(LIBNAME_S)
 
 include makefile_include.mk
 
@@ -89,6 +94,9 @@ src/ciphers/aes/aes_enc_desc.o: src/ciphers/aes/aes_desc.c
 .c.o:
 	$(CC) $(LTC_CFLAGS) $(PIC) $(CPPFLAGS) -o $@ -c $<
 
+$(LIBNAME_S): $(OBJECTS)
+	$(AR) $(ARFLAGS) $@ $(OBJECTS)
+
 $(LIBNAME): $(OBJECTS)
 	$(CC) $(LTC_LDFLAGS) $(OBJECTS) $(EXTRALIBS) $(SHARED) -Wl,-soname,$(TARGET).$(VERSION_MAJOR) $(NO_UNDEFINED) -o $@
 
@@ -112,7 +120,7 @@ endef
 
 $(foreach demo, $(strip $(DEMOS)), $(eval $(call DEMO_template,$(demo))))
 
-install: $(call print-help,install,Installs the library + headers + pkg-config file) .common_install
+install: $(call print-help,install,Installs the library + headers + pkg-config file) .common_install $(LIBNAME_S)
 	ln -sf $(LIBNAME) $(DESTDIR)/$(LIBPATH)/$(TARGET).$(VERSION_MAJOR)
 	ln -sf $(LIBNAME) $(DESTDIR)/$(LIBPATH)/$(TARGET)
 	sed -e 's,^prefix=.*,prefix=$(PREFIX),' -e 's,^Version:.*,Version: $(VERSION_PC),' -e 's,^libdir=.*,libdir=$(LIBPATH),' \
@@ -121,6 +129,7 @@ install: $(call print-help,install,Installs the library + headers + pkg-config f
 		-e 's,@PKG_CONFIG_CFLAGS@,$(LTC_PKG_CONFIG_CFLAGS),' libtomcrypt.pc.in > libtomcrypt.pc
 	$(INSTALL_CMD) -p -d $(DESTDIR)$(LIBPATH)/pkgconfig
 	$(INSTALL_CMD) -p -m 644 libtomcrypt.pc $(DESTDIR)$(LIBPATH)/pkgconfig/
+	$(INSTALL_CMD) -p -m 644 $(LIBNAME_S) $(DESTDIR)$(LIBPATH)/
 
 install_bins: $(call print-help,install_bins,Installs the useful demos ($(USEFUL_DEMOS))) $(USEFUL_DEMOS) $(DESTDIR)$(BINPATH)
 	$(INSTALL_CMD) -p -m 775 $(foreach demo, $(strip $(USEFUL_DEMOS)),.bin/$(demo)) $(DESTDIR)$(BINPATH)
