@@ -49,7 +49,7 @@ int rsa_import_pkcs1(const unsigned char *in, unsigned long inlen, rsa_key *key)
          key->type = PK_PUBLIC;
       }
       goto LBL_OUT;
-   } else if (err != CRYPT_INPUT_TOO_LONG) {
+   } else if (err != CRYPT_OK && err != CRYPT_INPUT_TOO_LONG) {
       /* couldn't decode the version, so error out */
       goto LBL_OUT;
    }
@@ -70,8 +70,9 @@ int rsa_import_pkcs1(const unsigned char *in, unsigned long inlen, rsa_key *key)
          goto LBL_OUT;
       }
       key->type = PK_PRIVATE;
-   } else if (version == 1) {
-      /* we don't support multi-prime RSA */
+   } else {
+      /* version 1 is multi-prime RSA, which we don't support,
+       * any other version is invalid */
       err = CRYPT_PK_INVALID_TYPE;
       goto LBL_OUT;
    }
