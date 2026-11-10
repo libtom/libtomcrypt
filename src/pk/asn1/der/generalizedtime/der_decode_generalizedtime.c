@@ -14,25 +14,15 @@
 #define LTC_DER_CHAR_TO_INT
 static LTC_INLINE int s_char_to_int(unsigned char x)
 {
-   switch (x)  {
-      case '0': return 0;
-      case '1': return 1;
-      case '2': return 2;
-      case '3': return 3;
-      case '4': return 4;
-      case '5': return 5;
-      case '6': return 6;
-      case '7': return 7;
-      case '8': return 8;
-      case '9': return 9;
-      default:  return 100;
-   }
+   if(x < '0' || '9' < x)
+      return 100;
+   return (int) x - '0';
 }
 #endif
 
 #define DECODE_V(y, max) do {\
    if (x + 2 > declen) return CRYPT_INVALID_PACKET; \
-   y  = s_char_to_int(buf[x])*10 + s_char_to_int(buf[x+1]); \
+   y = s_char_to_int(buf[x])*10 + s_char_to_int(buf[x+1]); \
    if (y >= max) return CRYPT_INVALID_PACKET;           \
    x += 2; \
 } while(0)
