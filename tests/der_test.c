@@ -1055,6 +1055,29 @@ static int s_der_decode_sequence_flexi_always_OK(const void *in, unsigned long i
 #endif
 
 
+/* Issue #561: test the UTF8 error itself, not a later flexi parser error. */
+static void s_der_utf8_continuation_lead_test(void)
+{
+   unsigned char encoded[] = { 0x0c, 0x02, 0x80, 0x80 };
+   static const unsigned char issue_507_utf8[] = { 0x0c, 0x02, 0xbf, 0xbf };
+   wchar_t decoded[2];
+   unsigned long outlen;
+   unsigned int lead;
+
+   /* Every continuation byte is invalid as the first byte of a character.
+    * Supply another continuation byte so the pre-#507 decoder accepts the
+    * pair instead of failing an unrelated truncated-input check. */
+   for (lead = 0x80; lead <= 0xbf; ++lead) {
+      encoded[2] = (unsigned char)lead;
+      outlen = LTC_ARRAY_SIZE(decoded);
+      SHOULD_FAIL_WITH(der_decode_utf8_string(encoded, sizeof(encoded), decoded, &outlen), CRYPT_INVALID_PACKET);
+   }
+
+   /* Exercise the malformed UTF8 payload from #507 directly as well. */
+   outlen = LTC_ARRAY_SIZE(decoded);
+   SHOULD_FAIL_WITH(der_decode_utf8_string(issue_507_utf8, sizeof(issue_507_utf8), decoded, &outlen), CRYPT_INVALID_PACKET);
+}
+
 static void s_der_regression_test(void)
 {
    static const unsigned char s_broken_sequence[] = {
@@ -1373,6 +1396,7 @@ int der_test(void)
 
    der_custom_test();
 
+   s_der_utf8_continuation_lead_test();
    s_der_regression_test();
 
    der_toolong_test();
