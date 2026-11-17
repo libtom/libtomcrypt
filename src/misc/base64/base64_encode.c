@@ -68,7 +68,7 @@ static int s_base64_encode_internal(const unsigned char *in,    unsigned long in
        *p++ = codes[(((in[1] & 0xf) << 2) + (in[2] >> 6)) & 0x3F];
        *p++ = codes[in[2] & 0x3F];
        in += 3;
-       if ((p - out) % linelen == 0) {
+       if ((4 * (i / 3 + 1)) % linelen == 0) { /* count the base64 chars only, not the line breaks already written */
           if (mode & cr) *p++ = '\r';
           if (mode & lf) *p++ = '\n';
        }
