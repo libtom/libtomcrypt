@@ -23,6 +23,15 @@ static int s_mldsa_oid_to_alg(enum ltc_oid_id oid_id, int *alg)
       case LTC_OID_MLDSA_87:
          *alg = LTC_MLDSA_87;
          return CRYPT_OK;
+      case LTC_OID_HASH_MLDSA_44_WITH_SHA512:
+         *alg = LTC_MLDSA_HASH_44_WITH_SHA512;
+         return CRYPT_OK;
+      case LTC_OID_HASH_MLDSA_65_WITH_SHA512:
+         *alg = LTC_MLDSA_HASH_65_WITH_SHA512;
+         return CRYPT_OK;
+      case LTC_OID_HASH_MLDSA_87_WITH_SHA512:
+         *alg = LTC_MLDSA_HASH_87_WITH_SHA512;
+         return CRYPT_OK;
       default:
          return CRYPT_PK_INVALID_TYPE;
    }

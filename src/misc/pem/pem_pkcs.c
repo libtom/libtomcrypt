@@ -68,6 +68,9 @@ static const struct {
                                                 [LTC_OID_MLDSA_44] = { LTC_PKA_MLDSA, (pkcs8_import_fn)mldsa_import_pkcs8_asn1 },
                                                 [LTC_OID_MLDSA_65] = { LTC_PKA_MLDSA, (pkcs8_import_fn)mldsa_import_pkcs8_asn1 },
                                                 [LTC_OID_MLDSA_87] = { LTC_PKA_MLDSA, (pkcs8_import_fn)mldsa_import_pkcs8_asn1 },
+                                                [LTC_OID_HASH_MLDSA_44_WITH_SHA512] = { LTC_PKA_MLDSA, (pkcs8_import_fn)mldsa_import_pkcs8_asn1 },
+                                                [LTC_OID_HASH_MLDSA_65_WITH_SHA512] = { LTC_PKA_MLDSA, (pkcs8_import_fn)mldsa_import_pkcs8_asn1 },
+                                                [LTC_OID_HASH_MLDSA_87_WITH_SHA512] = { LTC_PKA_MLDSA, (pkcs8_import_fn)mldsa_import_pkcs8_asn1 },
 #endif
 #ifdef LTC_SLHDSA
                                                 [LTC_OID_SLHDSA_SHA2_128S] =  { LTC_PKA_SLHDSA, (pkcs8_import_fn)slhdsa_import_pkcs8_asn1 },

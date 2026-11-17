@@ -233,6 +233,20 @@ static int s_use_hint(int a, unsigned int hint, int gamma2)
 
 /* Parameter lookup */
 
+/* the pre-hash an alg id pins, one of ltc_pqc_prehash, 0 for the pure parameter sets */
+static int s_mldsa_hash_mode(int alg)
+{
+   switch (alg) {
+      case LTC_MLDSA_HASH_44_WITH_SHA512:
+      case LTC_MLDSA_HASH_65_WITH_SHA512:
+      case LTC_MLDSA_HASH_87_WITH_SHA512:
+         return LTC_PQC_PH_SHA512;
+      default:
+         return 0;
+   }
+}
+
+/* the HashML-DSA ids share the parameters of the pure id they are based on */
 static int s_mldsa_get_params(int alg, mldsa_params *p)
 {
    LTC_ARGCHK(p != NULL);
@@ -241,18 +255,21 @@ static int s_mldsa_get_params(int alg, mldsa_params *p)
 
    switch (alg) {
       case LTC_MLDSA_44:
+      case LTC_MLDSA_HASH_44_WITH_SHA512:
          p->k = 4; p->l = 4; p->eta = 2; p->tau = 39;
          p->beta = 78; p->gamma1 = (1 << 17);
          p->gamma2 = (MLDSA_Q - 1) / 88; p->omega = 80;
          p->ctilde_bytes = 32;
          break;
       case LTC_MLDSA_65:
+      case LTC_MLDSA_HASH_65_WITH_SHA512:
          p->k = 6; p->l = 5; p->eta = 4; p->tau = 49;
          p->beta = 196; p->gamma1 = (1 << 19);
          p->gamma2 = (MLDSA_Q - 1) / 32; p->omega = 55;
          p->ctilde_bytes = 48;
          break;
       case LTC_MLDSA_87:
+      case LTC_MLDSA_HASH_87_WITH_SHA512:
          p->k = 8; p->l = 7; p->eta = 2; p->tau = 60;
          p->beta = 120; p->gamma1 = (1 << 19);
          p->gamma2 = (MLDSA_Q - 1) / 32; p->omega = 75;
@@ -1368,15 +1385,16 @@ typedef struct {
    mldsa_polyveck s2, t0;
 } mldsa_sk_vecs;
 
-/* absorb tr || 0x00 || ctxlen || ctx, everything of mu that comes before the message */
+/* absorb tr || domain || ctxlen || ctx, everything of mu that comes before the message (domain 0, ML-DSA)
+   or before OID || PH(M) (domain 1, HashML-DSA) */
 static int s_mldsa_mu_start(hash_state *state,
-                            const unsigned char tr[MLDSA_TRBYTES],
+                            const unsigned char tr[MLDSA_TRBYTES], int domain,
                             const unsigned char *ctx, unsigned long ctxlen)
 {
    unsigned char pre[2];
    int err;
 
-   pre[0] = 0;
+   pre[0] = (unsigned char)domain;
    pre[1] = (unsigned char)ctxlen;
 
    if ((err = sha3_shake_init(state, 256)) != CRYPT_OK) return err;
@@ -1390,24 +1408,50 @@ static int s_mldsa_mu_start(hash_state *state,
    return CRYPT_OK;
 }
 
-/* mu = SHAKE256(tr || 0x00 || ctxlen || ctx || msg, 64), FIPS 204 5.2 M' framing */
+/* mu = SHAKE256(tr || M', 64). ML-DSA has M' = 0x00 || ctxlen || ctx || msg (FIPS 204 5.2), HashML-DSA has
+   M' = 0x01 || ctxlen || ctx || OID || PH(msg) (FIPS 204 5.4.1). With prehashed set, msg is PH(M) from the caller. */
 static int s_mldsa_compute_mu(unsigned char mu[MLDSA_CRHBYTES],
                               const unsigned char tr[MLDSA_TRBYTES],
                               const unsigned char *msg, unsigned long msglen,
-                              const unsigned char *ctx, unsigned long ctxlen)
+                              const unsigned char *ctx, unsigned long ctxlen,
+                              int alg, int prehashed)
 {
+   unsigned char phm[64]; /* SHA-512 is the largest pre-hash */
+   const unsigned char *oid = NULL;
+   unsigned long oidlen = 0, phmlen;
    hash_state state;
-   int err;
+   int err, ph = s_mldsa_hash_mode(alg);
 
-   if ((err = s_mldsa_mu_start(&state, tr, ctx, ctxlen)) != CRYPT_OK) goto LBL_ERR;
-   /* msg may be NULL when empty, the hashes reject NULL */
-   if (msglen > 0) {
-      if ((err = sha3_shake_process(&state, msg, msglen)) != CRYPT_OK) goto LBL_ERR;
+   if (ph == 0) {
+      /* a pure parameter set has no pre-hash, so there is no digest to take */
+      if (prehashed) { err = CRYPT_PK_INVALID_TYPE; goto LBL_ERR; }
+      if ((err = s_mldsa_mu_start(&state, tr, 0, ctx, ctxlen)) != CRYPT_OK) goto LBL_ERR;
+      /* msg may be NULL when empty, the hashes reject NULL */
+      if (msglen > 0) {
+         if ((err = sha3_shake_process(&state, msg, msglen)) != CRYPT_OK) goto LBL_ERR;
+      }
+   }
+   else {
+      if ((err = pqc_prehash_oid_der(ph, &oid, &oidlen)) != CRYPT_OK) goto LBL_ERR;
+      if (prehashed) {
+         if ((err = pqc_prehash_size(ph, &phmlen)) != CRYPT_OK) goto LBL_ERR;
+         /* PH(M) has one fixed length per pre-hash, a digest of any other length was made with the wrong function */
+         if (msglen != phmlen) { err = CRYPT_INVALID_ARG; goto LBL_ERR; }
+      }
+      else {
+         phmlen = sizeof(phm);
+         if ((err = pqc_prehash(ph, msg, msglen, phm, &phmlen)) != CRYPT_OK) goto LBL_ERR;
+         msg = phm;
+      }
+      if ((err = s_mldsa_mu_start(&state, tr, 1, ctx, ctxlen)) != CRYPT_OK) goto LBL_ERR;
+      if ((err = sha3_shake_process(&state, oid, oidlen)) != CRYPT_OK) goto LBL_ERR;
+      if ((err = sha3_shake_process(&state, msg, phmlen)) != CRYPT_OK) goto LBL_ERR;
    }
    err = sha3_shake_done(&state, mu, MLDSA_CRHBYTES);
 
 LBL_ERR:
    zeromem(&state.sha3, sizeof(state.sha3));
+   zeromem(phm, sizeof(phm));
    return err;
 }
 
@@ -1722,7 +1766,7 @@ cleanup:
 
 /**
    Generate an ML-DSA key pair deterministically from a seed.
-   @param alg      The parameter set (LTC_MLDSA_44, LTC_MLDSA_65, or LTC_MLDSA_87)
+   @param alg      The parameter set (one of ltc_mldsa_id)
    @param seed     The input seed (exactly 32 bytes)
    @param seedlen  Length of the seed in bytes
    @param key      [out] Destination for the newly created key pair
@@ -1745,7 +1789,7 @@ int mldsa_make_key_from_seed(int alg, const unsigned char *seed, unsigned long s
    Generate an ML-DSA key pair.
    @param prng     An active PRNG state
    @param wprng    The index of the desired PRNG
-   @param alg      The parameter set (LTC_MLDSA_44, LTC_MLDSA_65, or LTC_MLDSA_87)
+   @param alg      The parameter set (one of ltc_mldsa_id)
    @param key      [out] Destination for the newly created key pair
    @return CRYPT_OK if successful
 */
@@ -1904,7 +1948,7 @@ static int s_mldsa_rebuild_pk(unsigned char *pk, const unsigned char *sk, const 
    @param in       The buffer to import from
    @param inlen    Length of the buffer
    @param which    PK_PUBLIC for a verification key, PK_PRIVATE for a signing key
-   @param alg      The parameter set (LTC_MLDSA_44, LTC_MLDSA_65, or LTC_MLDSA_87)
+   @param alg      The parameter set (one of ltc_mldsa_id)
    @param key      [out] Destination for the imported key
    @return CRYPT_OK if successful
 */
@@ -2045,8 +2089,64 @@ int mldsa_export_seed(unsigned char *out, unsigned long *outlen, const mldsa_key
    return CRYPT_OK;
 }
 
+static int s_mldsa_sign(const unsigned char *msg,  unsigned long  msglen,
+                              unsigned char *sig,  unsigned long *siglen,
+                        const unsigned char *ctx,  unsigned long  ctxlen,
+                        const unsigned char *rnd,  unsigned long  rndlen,
+                        const mldsa_key     *key,  int            prehashed)
+{
+   mldsa_params p;
+   unsigned char mu[MLDSA_CRHBYTES];
+   int err;
+
+   LTC_ARGCHK(msg    != NULL || msglen == 0);
+   LTC_ARGCHK(ctx    != NULL || ctxlen == 0);
+   LTC_ARGCHK(sig    != NULL);
+   LTC_ARGCHK(siglen != NULL);
+   LTC_ARGCHK(rnd    != NULL);
+   LTC_ARGCHK(key    != NULL);
+
+   if (ctxlen > LTC_PQC_CTX_MAX_BYTES) return CRYPT_INVALID_ARG;
+   if (rndlen != MLDSA_RNDBYTES) return CRYPT_INVALID_ARG;
+
+   if ((err = s_mldsa_key_valid(key, 1, &p)) != CRYPT_OK) return err;
+   if (*siglen < p.sig_bytes) { *siglen = p.sig_bytes; return CRYPT_BUFFER_OVERFLOW; }
+
+   /* tr sits at sk[2*MLDSA_SEEDBYTES] */
+   err = s_mldsa_compute_mu(mu, key->sk + 2 * MLDSA_SEEDBYTES, msg, msglen, ctx, ctxlen, key->alg, prehashed);
+   if (err == CRYPT_OK) {
+      err = s_sign_internal(sig, siglen, mu, rnd, key->sk, &p);
+   }
+
+   zeromem(mu, sizeof(mu));
+   return err;
+}
+
+static int s_mldsa_sign_rng(const unsigned char *msg,  unsigned long  msglen,
+                                  unsigned char *sig,  unsigned long *siglen,
+                            const unsigned char *ctx,  unsigned long  ctxlen,
+                                  prng_state    *prng, int            wprng,
+                            const mldsa_key     *key,  int            prehashed)
+{
+   unsigned char rnd[MLDSA_RNDBYTES];
+   int err;
+
+   if ((err = prng_is_valid(wprng)) != CRYPT_OK) return err;
+   if (prng_descriptor[wprng].read(rnd, MLDSA_RNDBYTES, prng) != MLDSA_RNDBYTES) {
+      zeromem(rnd, sizeof(rnd));
+      return CRYPT_ERROR_READPRNG;
+   }
+
+   err = s_mldsa_sign(msg, msglen, sig, siglen, ctx, ctxlen, rnd, sizeof(rnd), key, prehashed);
+
+   zeromem(rnd, sizeof(rnd));
+   return err;
+}
+
 /**
    Sign a message with ML-DSA.
+
+   A HashML-DSA key signs the pre-hash of the message that its parameter set names (FIPS 204 5.4).
    @param msg      The message to sign
    @param msglen   Length of the message
    @param sig      [out] The signature
@@ -2065,19 +2165,7 @@ int mldsa_sign(const unsigned char *msg,  unsigned long  msglen,
                      prng_state    *prng, int            wprng,
                const mldsa_key    *key)
 {
-   unsigned char rnd[MLDSA_RNDBYTES];
-   int err;
-
-   if ((err = prng_is_valid(wprng)) != CRYPT_OK) return err;
-   if (prng_descriptor[wprng].read(rnd, MLDSA_RNDBYTES, prng) != MLDSA_RNDBYTES) {
-      zeromem(rnd, sizeof(rnd));
-      return CRYPT_ERROR_READPRNG;
-   }
-
-   err = mldsa_sign_ex(msg, msglen, sig, siglen, ctx, ctxlen, rnd, sizeof(rnd), key);
-
-   zeromem(rnd, sizeof(rnd));
-   return err;
+   return s_mldsa_sign_rng(msg, msglen, sig, siglen, ctx, ctxlen, prng, wprng, key, 0);
 }
 
 /**
@@ -2104,31 +2192,59 @@ int mldsa_sign_ex(const unsigned char *msg,  unsigned long  msglen,
                   const unsigned char *rnd,  unsigned long  rndlen,
                   const mldsa_key    *key)
 {
-   mldsa_params p;
-   unsigned char mu[MLDSA_CRHBYTES];
-   int err;
+   return s_mldsa_sign(msg, msglen, sig, siglen, ctx, ctxlen, rnd, rndlen, key, 0);
+}
 
-   LTC_ARGCHK(msg    != NULL || msglen == 0);
-   LTC_ARGCHK(ctx    != NULL || ctxlen == 0);
-   LTC_ARGCHK(sig    != NULL);
-   LTC_ARGCHK(siglen != NULL);
-   LTC_ARGCHK(rnd    != NULL);
-   LTC_ARGCHK(key    != NULL);
+/**
+   Sign a message digest with HashML-DSA (FIPS 204 5.4.1).
 
-   if (ctxlen > LTC_PQC_CTX_MAX_BYTES) return CRYPT_INVALID_ARG;
-   if (rndlen != MLDSA_RNDBYTES) return CRYPT_INVALID_ARG;
+   Like mldsa_sign() with a HashML-DSA key, but takes PH(M) instead of M, so the message can be
+   hashed in pieces or by another component. The signature verifies with mldsa_verify() as well.
+   The digest has to be the full output of the pre-hash the parameter set names, SHA-512 (64 octets).
+   @param hash     PH(M), the digest of the message
+   @param hashlen  Length of the digest
+   @param sig      [out] The signature
+   @param siglen   [in/out] Max size and resulting size of the signature
+   @param ctx      Optional context string (can be NULL if ctxlen is 0)
+   @param ctxlen   Length of the context string (max 255 bytes per FIPS 204)
+   @param prng     An active PRNG state (for hedged signing)
+   @param wprng    The index of the desired PRNG
+   @param key      The private (signing) key, has to be a HashML-DSA parameter set
+   @return CRYPT_OK if successful, CRYPT_PK_INVALID_TYPE for a pure ML-DSA key,
+           CRYPT_INVALID_ARG if hashlen is not the digest length of the pre-hash
+*/
+int mldsa_sign_hash(const unsigned char *hash, unsigned long  hashlen,
+                          unsigned char *sig,  unsigned long *siglen,
+                    const unsigned char *ctx,  unsigned long  ctxlen,
+                          prng_state    *prng, int            wprng,
+                    const mldsa_key     *key)
+{
+   return s_mldsa_sign_rng(hash, hashlen, sig, siglen, ctx, ctxlen, prng, wprng, key, 1);
+}
 
-   if ((err = s_mldsa_key_valid(key, 1, &p)) != CRYPT_OK) return err;
-   if (*siglen < p.sig_bytes) { *siglen = p.sig_bytes; return CRYPT_BUFFER_OVERFLOW; }
+/**
+   HashML-DSA signing of a message digest with caller-supplied rnd.
 
-   /* tr sits at sk[2*MLDSA_SEEDBYTES] */
-   err = s_mldsa_compute_mu(mu, key->sk + 2 * MLDSA_SEEDBYTES, msg, msglen, ctx, ctxlen);
-   if (err == CRYPT_OK) {
-      err = s_sign_internal(sig, siglen, mu, rnd, key->sk, &p);
-   }
-
-   zeromem(mu, sizeof(mu));
-   return err;
+   Like mldsa_sign_hash(), but rnd comes from the caller, see mldsa_sign_ex().
+   @param hash     PH(M), the digest of the message
+   @param hashlen  Length of the digest
+   @param sig      [out] The signature
+   @param siglen   [in/out] Max size and resulting size of the signature
+   @param ctx      Optional context string (can be NULL if ctxlen is 0)
+   @param ctxlen   Length of the context string (max 255 bytes per FIPS 204)
+   @param rnd      The 32-byte per-signature randomness
+   @param rndlen   Length of rnd in bytes; must equal 32
+   @param key      The private (signing) key, has to be a HashML-DSA parameter set
+   @return CRYPT_OK if successful, CRYPT_PK_INVALID_TYPE for a pure ML-DSA key,
+           CRYPT_INVALID_ARG if hashlen is not the digest length of the pre-hash
+*/
+int mldsa_sign_hash_ex(const unsigned char *hash, unsigned long  hashlen,
+                             unsigned char *sig,  unsigned long *siglen,
+                       const unsigned char *ctx,  unsigned long  ctxlen,
+                       const unsigned char *rnd,  unsigned long  rndlen,
+                       const mldsa_key     *key)
+{
+   return s_mldsa_sign(hash, hashlen, sig, siglen, ctx, ctxlen, rnd, rndlen, key, 1);
 }
 
 /**
@@ -2209,6 +2325,7 @@ int mldsa_sign_ex_mu(const unsigned char *mu,  unsigned long  mulen,
    Compute the ML-DSA message representative mu (FIPS 204 6.2, Algorithm 7 line 6).
 
    mu = SHAKE256(tr || 0x00 || ctxlen || ctx || msg, 64), where tr = SHAKE256(pk, 64).
+   For a HashML-DSA key it is mu = SHAKE256(tr || 0x01 || ctxlen || ctx || OID || PH(msg), 64).
    Pass the result to mldsa_sign_mu(), mldsa_sign_ex_mu() or mldsa_verify_mu().
    Use mldsa_init_mu() if the message is not available in one piece.
    @param mu       [out] The message representative
@@ -2242,7 +2359,7 @@ int mldsa_compute_mu(unsigned char *mu,  unsigned long *mulen,
 
    /* tr is computed from pk, so a public key works too */
    if ((err = s_shake256(tr, MLDSA_TRBYTES, key->pk, p.pk_bytes)) != CRYPT_OK) goto LBL_ERR;
-   if ((err = s_mldsa_compute_mu(mu, tr, msg, msglen, ctx, ctxlen)) != CRYPT_OK) goto LBL_ERR;
+   if ((err = s_mldsa_compute_mu(mu, tr, msg, msglen, ctx, ctxlen, key->alg, 0)) != CRYPT_OK) goto LBL_ERR;
 
    *mulen = MLDSA_CRHBYTES;
    err = CRYPT_OK;
@@ -2258,11 +2375,12 @@ LBL_ERR:
    Absorbs tr || 0x00 || ctxlen || ctx, everything of mu that comes before the message. Then feed the
    message with sha3_shake_process(md, ...) in as many pieces as needed and get mu with
    sha3_shake_done(md, mu, LTC_MLDSA_MU_BYTES). The result is the same as from mldsa_compute_mu().
+   A HashML-DSA key hashes the message with its pre-hash and not into mu, use mldsa_sign_hash() for it.
    @param md       [out] The hash state to set up
    @param ctx      Optional context string (can be NULL if ctxlen is 0)
    @param ctxlen   Length of the context string (max 255 bytes per FIPS 204)
    @param key      The key used to sign or verify, public or private
-   @return CRYPT_OK if successful
+   @return CRYPT_OK if successful, CRYPT_PK_INVALID_TYPE for a HashML-DSA key
 */
 int mldsa_init_mu(hash_state *md,
                   const unsigned char *ctx, unsigned long ctxlen,
@@ -2279,10 +2397,12 @@ int mldsa_init_mu(hash_state *md,
    if (ctxlen > LTC_PQC_CTX_MAX_BYTES) return CRYPT_INVALID_ARG;
 
    if ((err = s_mldsa_key_valid(key, 0, &p)) != CRYPT_OK) return err;
+   /* with HashML-DSA the caller would have to feed PH(M) and not the message, too easy to get wrong */
+   if (s_mldsa_hash_mode(key->alg) != 0) return CRYPT_PK_INVALID_TYPE;
 
    /* tr is computed from pk, so a public key works too */
    if ((err = s_shake256(tr, MLDSA_TRBYTES, key->pk, p.pk_bytes)) == CRYPT_OK) {
-      err = s_mldsa_mu_start(md, tr, ctx, ctxlen);
+      err = s_mldsa_mu_start(md, tr, 0, ctx, ctxlen);
    }
 
    zeromem(tr, sizeof(tr));
@@ -2330,23 +2450,11 @@ int mldsa_verify_mu(const unsigned char *sig, unsigned long  siglen,
    return err;
 }
 
-/**
-   Verify a signature with ML-DSA.
-   @param sig      The signature to verify
-   @param siglen   Length of the signature
-   @param msg      The message that was signed
-   @param msglen   Length of the message
-   @param ctx      Optional context string (can be NULL if ctxlen is 0)
-   @param ctxlen   Length of the context string (max 255 bytes per FIPS 204)
-   @param stat     [out] Result of the verification: 1==valid, 0==invalid
-   @param key      The public (verification) key
-   @return CRYPT_OK if successful (even if the signature is invalid)
-*/
-int mldsa_verify(const unsigned char *sig,  unsigned long  siglen,
-                 const unsigned char *msg,  unsigned long  msglen,
-                 const unsigned char *ctx,  unsigned long  ctxlen,
-                       int           *stat,
-                 const mldsa_key    *key)
+static int s_mldsa_verify(const unsigned char *sig,  unsigned long  siglen,
+                          const unsigned char *msg,  unsigned long  msglen,
+                          const unsigned char *ctx,  unsigned long  ctxlen,
+                                int           *stat,
+                          const mldsa_key     *key,  int            prehashed)
 {
    mldsa_params p;
    unsigned char tr[MLDSA_TRBYTES], mu[MLDSA_CRHBYTES];
@@ -2366,7 +2474,7 @@ int mldsa_verify(const unsigned char *sig,  unsigned long  siglen,
    if ((err = s_mldsa_key_valid(key, 0, &p)) != CRYPT_OK) return err;
 
    if ((err = s_shake256(tr, MLDSA_TRBYTES, key->pk, p.pk_bytes)) != CRYPT_OK) goto LBL_ERR;
-   if ((err = s_mldsa_compute_mu(mu, tr, msg, msglen, ctx, ctxlen)) != CRYPT_OK) goto LBL_ERR;
+   if ((err = s_mldsa_compute_mu(mu, tr, msg, msglen, ctx, ctxlen, key->alg, prehashed)) != CRYPT_OK) goto LBL_ERR;
 
    err = s_verify_internal(sig, siglen, mu, key->pk, &p);
    if (err == CRYPT_OK)
@@ -2381,9 +2489,56 @@ LBL_ERR:
 }
 
 /**
+   Verify a signature with ML-DSA.
+
+   A HashML-DSA key verifies against the pre-hash of the message that its parameter set names (FIPS 204 5.4).
+   @param sig      The signature to verify
+   @param siglen   Length of the signature
+   @param msg      The message that was signed
+   @param msglen   Length of the message
+   @param ctx      Optional context string (can be NULL if ctxlen is 0)
+   @param ctxlen   Length of the context string (max 255 bytes per FIPS 204)
+   @param stat     [out] Result of the verification: 1==valid, 0==invalid
+   @param key      The public (verification) key
+   @return CRYPT_OK if successful (even if the signature is invalid)
+*/
+int mldsa_verify(const unsigned char *sig,  unsigned long  siglen,
+                 const unsigned char *msg,  unsigned long  msglen,
+                 const unsigned char *ctx,  unsigned long  ctxlen,
+                       int           *stat,
+                 const mldsa_key    *key)
+{
+   return s_mldsa_verify(sig, siglen, msg, msglen, ctx, ctxlen, stat, key, 0);
+}
+
+/**
+   Verify a HashML-DSA signature against a message digest (FIPS 204 5.4.1).
+
+   Like mldsa_verify() with a HashML-DSA key, but takes PH(M) instead of M, see mldsa_sign_hash().
+   @param sig      The signature to verify
+   @param siglen   Length of the signature
+   @param hash     PH(M), the digest of the message that was signed
+   @param hashlen  Length of the digest
+   @param ctx      Optional context string (can be NULL if ctxlen is 0)
+   @param ctxlen   Length of the context string (max 255 bytes per FIPS 204)
+   @param stat     [out] Result of the verification: 1==valid, 0==invalid
+   @param key      The public (verification) key, has to be a HashML-DSA parameter set
+   @return CRYPT_OK if successful (even if the signature is invalid), CRYPT_PK_INVALID_TYPE for a
+           pure ML-DSA key, CRYPT_INVALID_ARG if hashlen is not the digest length of the pre-hash
+*/
+int mldsa_verify_hash(const unsigned char *sig,  unsigned long  siglen,
+                      const unsigned char *hash, unsigned long  hashlen,
+                      const unsigned char *ctx,  unsigned long  ctxlen,
+                            int           *stat,
+                      const mldsa_key     *key)
+{
+   return s_mldsa_verify(sig, siglen, hash, hashlen, ctx, ctxlen, stat, key, 1);
+}
+
+/**
    Get the sizes for a given ML-DSA parameter set.
    Any output pointer may be NULL if the caller does not need that value.
-   @param alg              The parameter set (LTC_MLDSA_44, LTC_MLDSA_65, or LTC_MLDSA_87)
+   @param alg              The parameter set (one of ltc_mldsa_id)
    @param public_key_sz    [out] Public key size in bytes
    @param secret_key_sz    [out] Secret key size in bytes
    @param signature_sz     [out] Signature size in bytes
@@ -2424,9 +2579,14 @@ typedef struct {
 } mldsa_alg_entry;
 
 static const mldsa_alg_entry s_mldsa_alg_table[] = {
+   /* Pure ML-DSA (FIPS 204) */
    { LTC_MLDSA_44, "ML-DSA-44", "2.16.840.1.101.3.4.3.17" },
    { LTC_MLDSA_65, "ML-DSA-65", "2.16.840.1.101.3.4.3.18" },
    { LTC_MLDSA_87, "ML-DSA-87", "2.16.840.1.101.3.4.3.19" },
+   /* HashML-DSA */
+   { LTC_MLDSA_HASH_44_WITH_SHA512, "HashML-DSA-44-with-SHA512", "2.16.840.1.101.3.4.3.32" },
+   { LTC_MLDSA_HASH_65_WITH_SHA512, "HashML-DSA-65-with-SHA512", "2.16.840.1.101.3.4.3.33" },
+   { LTC_MLDSA_HASH_87_WITH_SHA512, "HashML-DSA-87-with-SHA512", "2.16.840.1.101.3.4.3.34" },
 };
 
 /**

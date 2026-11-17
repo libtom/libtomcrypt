@@ -19,6 +19,7 @@ typedef struct {
    int alg;
 } mldsa_oid_map_x509;
 
+/* RFC 9881 8.3 - HashML-DSA public keys must not be in X.509 certificates, so only the pure OIDs are here */
 static const mldsa_oid_map_x509 s_mldsa_oid_map_x509[] = {
    { LTC_OID_MLDSA_44, LTC_MLDSA_44 },
    { LTC_OID_MLDSA_65, LTC_MLDSA_65 },

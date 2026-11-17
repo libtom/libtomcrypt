@@ -7075,12 +7075,13 @@ These algorithms are designed to be secure against attacks by both classical and
 All three are enabled by defining \code{LTC\_MLKEM}, \code{LTC\_MLDSA}, and \code{LTC\_SLHDSA} respectively
 in \textit{tomcrypt\_custom.h}.
 ML-KEM and ML-DSA require \code{LTC\_SHA3} to be enabled.
+The HashML-DSA parameter sets also need \code{LTC\_SHA512} when the library hashes the message itself.
 SLH-DSA requires \code{LTC\_SHA3} for the SHAKE parameter sets and \code{LTC\_SHA256} plus
 \code{LTC\_SHA512} for the SHA-2 ones.
 
 None of the PQC algorithms uses the hash registry: the parameter set fixes the hash, so ML-KEM, ML-DSA and
-the SLH-DSA SHAKE parameter sets call SHA-3 and SHAKE directly, and the SLH-DSA SHA-2 parameter sets use the
-\code{sha256\_desc} and \code{sha512\_desc} descriptors directly.  No \code{register\_hash()} or
+the SLH-DSA SHAKE parameter sets call SHA-3 and SHAKE directly, and the SLH-DSA SHA-2 parameter sets and the
+HashML-DSA pre-hash use the \code{sha256\_desc} and \code{sha512\_desc} descriptors directly.  No \code{register\_hash()} or
 \code{register\_all\_hashes()} call is needed before a PQC key is generated, imported or used.
 
 In addition to the raw FIPS key formats, the library also provides DER import/export helpers for
@@ -7465,6 +7466,12 @@ ML-DSA is a digital signature algorithm based on module lattices. It supports he
 
 \subsection{Parameter Sets}
 
+ML-DSA has 6 parameter sets: 3 Pure ML-DSA variants and 3 HashML-DSA variants (FIPS 204 \S5.4).
+HashML-DSA signs the SHA-512 digest of the message instead of the message itself.
+Both kinds use the same keys and the same API, the algorithm identifier of the key determines which
+signature is made and verified. They are separate algorithms: a signature of one kind does not verify
+as the other, not even with the same key material.
+
 \begin{center}
 \begin{tabular}{|l|c|c|c|}
 \hline
@@ -7474,8 +7481,18 @@ LTC\_MLDSA\_44 & 1312 bytes & 2560 bytes & 2420 bytes \\
 LTC\_MLDSA\_65 & 1952 bytes & 4032 bytes & 3309 bytes \\
 LTC\_MLDSA\_87 & 2592 bytes & 4896 bytes & 4627 bytes \\
 \hline
+LTC\_MLDSA\_HASH\_44\_WITH\_SHA512 & 1312 bytes & 2560 bytes & 2420 bytes \\
+LTC\_MLDSA\_HASH\_65\_WITH\_SHA512 & 1952 bytes & 4032 bytes & 3309 bytes \\
+LTC\_MLDSA\_HASH\_87\_WITH\_SHA512 & 2592 bytes & 4896 bytes & 4627 bytes \\
+\hline
 \end{tabular}
 \end{center}
+
+A HashML-DSA key has its own OID in \textit{PKCS \#8} and \textit{SubjectPublicKeyInfo}, so the kind of a
+key survives export and import. RFC 9881 \S8.3 does not allow HashML-DSA public keys in \textit{X.509}
+certificates, so \code{mldsa\_import\_x509()} and \code{pem\_decode()} of a certificate reject them.
+To sign a message that is hashed in pieces with a key from a certificate, use Pure ML-DSA with an
+external $\mu$, see \code{mldsa\_init\_mu()}.
 
 \subsection{Size Query}
 
@@ -7516,7 +7533,8 @@ int mldsa_find_alg(const char *name_or_oid, int *alg);
 int mldsa_alg_name(int alg, const char **name);
 \end{verbatim}
 
-\code{mldsa\_find\_alg()} resolves the canonical FIPS 204 name (e.g. \texttt{"ML-DSA-65"})
+\code{mldsa\_find\_alg()} resolves the canonical FIPS 204 name (Pure ML-DSA, e.g. \texttt{"ML-DSA-65"},
+or HashML-DSA, e.g. \texttt{"HashML-DSA-65-with-SHA512"})
 or the dotted-decimal OID string (e.g. \texttt{"2.16.840.1.101.3.4.3.18"})
 to an \code{ltc\_mldsa\_id} value.  Name comparison is case-insensitive and
 ignores \texttt{'-'} and \texttt{'\_'}.
@@ -7534,8 +7552,8 @@ int mldsa_make_key(prng_state *prng, int wprng,
 
 Generates an ML-DSA key pair (both signing and verification keys).
 The \textit{prng} and \textit{wprng} parameters specify the PRNG to use for randomness.
-The \textit{alg} parameter selects the parameter set
-(\code{LTC\_MLDSA\_44}, \code{LTC\_MLDSA\_65}, or \code{LTC\_MLDSA\_87}).
+The \textit{alg} parameter selects one of the 6 parameter sets
+(e.g. \code{LTC\_MLDSA\_65} or \code{LTC\_MLDSA\_HASH\_65\_WITH\_SHA512}).
 The resulting key is stored in \textit{key} and has type \code{PK\_PRIVATE}.
 The caller must eventually call \code{mldsa\_free()} to release the key.
 
@@ -7549,8 +7567,8 @@ int mldsa_make_key_from_seed(int alg,
 Creates an ML-DSA key pair deterministically from a seed.
 The \textit{seedlen} must be exactly 32 bytes; otherwise the function returns
 \code{CRYPT\_INVALID\_ARG}.
-The \textit{alg} parameter selects the parameter set
-(\code{LTC\_MLDSA\_44}, \code{LTC\_MLDSA\_65}, or \code{LTC\_MLDSA\_87}).
+The \textit{alg} parameter selects one of the 6 parameter sets
+(e.g. \code{LTC\_MLDSA\_65} or \code{LTC\_MLDSA\_HASH\_65\_WITH\_SHA512}).
 The resulting key is stored in \textit{key} and has type \code{PK\_PRIVATE}.
 This function is primarily useful for deterministic key reconstruction and for importing RFC 9881 seed-based private keys.
 
@@ -7735,6 +7753,8 @@ that binds the signature to a particular application context; pass \code{NULL} a
 The \textit{prng} and \textit{wprng} parameters provide randomness for hedged signing, which helps
 protect against side-channel attacks.
 The \textit{key} must be of type \code{PK\_PRIVATE}.
+With a HashML-DSA key the message is hashed with SHA-512 first and the digest is signed.
+This needs \code{LTC\_SHA512} and returns \code{CRYPT\_INVALID\_HASH} without it.
 Returns \code{CRYPT\_BUFFER\_OVERFLOW} if the signature buffer is too small,
 or \code{CRYPT\_INVALID\_PACKET} if the private key encodes \textit{s1}/\textit{s2}
 coefficients outside $[-\eta, +\eta]$ as required by FIPS 204 \S3.6.3.
@@ -7807,6 +7827,8 @@ Computes the $\mu$ that \code{mldsa\_sign\_mu()}, \code{mldsa\_sign\_ex\_mu()} a
 $\mu = \mathrm{SHAKE256}(tr \,\|\, \mathtt{0x00} \,\|\, \mathit{ctxlen} \,\|\, \mathit{ctx} \,\|\, \mathit{msg}, 64)$
 with $tr = \mathrm{SHAKE256}(pk, 64)$.
 $tr$ is computed from the public key, so \textit{key} may be a public or a private key.
+For a HashML-DSA key it is
+$\mu = \mathrm{SHAKE256}(tr \,\|\, \mathtt{0x01} \,\|\, \mathit{ctxlen} \,\|\, \mathit{ctx} \,\|\, \mathit{OID} \,\|\, \mathrm{SHA512}(\mathit{msg}), 64)$.
 The output is always 64 bytes. A smaller \textit{*mulen} returns \code{CRYPT\_BUFFER\_OVERFLOW}
 with \textit{*mulen} set to the required size, and a \textit{ctxlen} above 255 returns
 \code{CRYPT\_INVALID\_ARG}.
@@ -7828,6 +7850,8 @@ Since $tr$ and \textit{ctx} are hashed before the message, the key and the conte
 be known before the first byte of the message is processed.
 \textit{key} may be a public or a private key, and a \textit{ctxlen} above 255 returns
 \code{CRYPT\_INVALID\_ARG}.
+A HashML-DSA key returns \code{CRYPT\_PK\_INVALID\_TYPE}: its message goes through the pre-hash and
+not into $\mu$, so hash the message with SHA-512 and call \code{mldsa\_sign\_hash()} instead.
 
 \begin{small}
 \begin{verbatim}
@@ -7860,6 +7884,7 @@ int mldsa_verify(const unsigned char *sig,  unsigned long  siglen,
 Verifies an ML-DSA signature against a message and public key.
 Sets \textit{*stat} to 1 if the signature is valid, or 0 if it is invalid.
 The \textit{ctx} and \textit{ctxlen} parameters must match the context string used during signing.
+With a HashML-DSA key the message is hashed with SHA-512 first, as in \code{mldsa\_sign()}.
 The function returns \code{CRYPT\_OK} even if the signature is invalid --- the caller must
 check \textit{*stat} to determine validity.
 
@@ -7875,6 +7900,62 @@ Verifies against a $\mu$ from \code{mldsa\_compute\_mu()} or \code{mldsa\_init\_
 the message. It is the counterpart of \code{mldsa\_sign\_mu()} and \code{mldsa\_sign\_ex\_mu()}.
 \textit{mulen} must equal 64.
 \textit{*stat} and the return value work as in \code{mldsa\_verify()}.
+
+\subsection{Signing and Verifying a Message Digest}
+
+The HashML-DSA parameter sets sign the SHA-512 digest of the message, and the following functions take
+that digest from the caller. This way the message can be hashed piece by piece, or by another component,
+before it is signed or verified, and unlike with an external $\mu$ the key does not have to be known
+while the message is hashed.
+
+\index{mldsa\_sign\_hash()}\index{mldsa\_sign\_hash\_ex()}\index{mldsa\_verify\_hash()}
+\begin{verbatim}
+int mldsa_sign_hash(const unsigned char *hash, unsigned long  hashlen,
+                          unsigned char *sig,  unsigned long *siglen,
+                    const unsigned char *ctx,  unsigned long  ctxlen,
+                          prng_state    *prng, int            wprng,
+                    const mldsa_key     *key);
+
+int mldsa_sign_hash_ex(const unsigned char *hash, unsigned long  hashlen,
+                             unsigned char *sig,  unsigned long *siglen,
+                       const unsigned char *ctx,  unsigned long  ctxlen,
+                       const unsigned char *rnd,  unsigned long  rndlen,
+                       const mldsa_key     *key);
+
+int mldsa_verify_hash(const unsigned char *sig,  unsigned long  siglen,
+                      const unsigned char *hash, unsigned long  hashlen,
+                      const unsigned char *ctx,  unsigned long  ctxlen,
+                            int           *stat,
+                      const mldsa_key     *key);
+\end{verbatim}
+
+They work like \code{mldsa\_sign()}, \code{mldsa\_sign\_ex()} and \code{mldsa\_verify()} with a
+HashML-DSA key, except that \textit{hash} is the digest $PH(M)$ and not the message $M$.
+Both ways give the same signature, so a signature made from a digest also verifies with
+\code{mldsa\_verify()} over the message, and the other way around.
+
+The digest has to be the full SHA-512 output, so \textit{hashlen} must equal 64 and any other value
+returns \code{CRYPT\_INVALID\_ARG}. A key of a Pure ML-DSA parameter set has no pre-hash and returns
+\code{CRYPT\_PK\_INVALID\_TYPE}. The library cannot tell which function produced the digest, so using
+SHA-512 is up to the caller. These functions do not need \code{LTC\_SHA512}.
+
+\begin{small}
+\begin{verbatim}
+/* key is a LTC_MLDSA_HASH_65_WITH_SHA512 private key */
+hash_state md;
+unsigned char ph[64], sig[3309];
+unsigned long siglen = sizeof(sig);
+
+sha512_init(&md);
+while ((n = read_chunk(buf, sizeof(buf))) > 0) {
+   sha512_process(&md, buf, n);
+}
+sha512_done(&md, ph);
+
+mldsa_sign_hash(ph, sizeof(ph), sig, &siglen, NULL, 0,
+                &yarrow_prng, prng_idx, &key);
+\end{verbatim}
+\end{small}
 
 \subsection{Key Cleanup}
 

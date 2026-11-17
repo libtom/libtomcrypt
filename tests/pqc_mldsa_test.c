@@ -339,6 +339,80 @@ static const char mldsa_44_acvp_msg_hex[] = "c9";
 
 static const char mldsa_44_acvp_sig_sha3_256_hex[] = "ded2bcf3c7978440b44b63d9ef1e569b9a1f3c247995ed7542ccca7bde04d94e";
 
+/* NIST ACVP ML-DSA-sigGen-FIPS204 tcId 206: HashML-DSA-44 with SHA2-512, hedged, external interface. The signature is
+   2420 bytes, so only its SHA3-256 digest is kept here. */
+static const char hash_mldsa_44_acvp_sk_hex[] =
+   "069e10b1689a65135f358c816635ca4a3a3b28e4ef3ad1dbc72f84772dd34c1796a92cf8152de9e97a6404e06501d9f52d499acbecbabc1b0f3719c74f49e18c"
+   "9be93786882ff23d7125ec9bddbd2446ba4d638cad50956ed5b6c7f5547e9c6b3ef1d1df6b44909e8e1da921495bca0cf932e9918259e5efe20c2096f1582fc6"
+   "e1220aa0308ea23209192862043848daa888441248a2904c0aa63158324043186ec4080d64b80da3462963a8054b220a4b968561182101367023853159208cd1"
+   "2692d0102962168224996de140090038609b126ec03092481200c9824d8c1085dca880e02086d4a44101232acbb880140649808090e2c8009ac621029965a340"
+   "6a13a68451440503146509238e80a4705b4864e12231cb164de0389198b890a12846d1b4005020418cb84921981093304099204c24006820316cd30481121310"
+   "1103264c220a9c040220b02c19452862220d14264998424123c22c132150a198054b80699930692206929a180d81120680342962c06003076c08865114a16dd0"
+   "4005e1c06863024619884854a840c8042253c42410a384a0462419468842884963b62d194721c44012db924c08266e89c8611119029b000e41480424c2810218"
+   "8a80260ae39010c0062ed4b4840cb3691ac06ddc9050d0b44112215124894ddcb44c88001219136ec2387003218158366d1b0666a2307191a44114c864410825"
+   "1206225a302d9a145023a54ca2308c59a84412348059c68c024580e4b20812a54d52c48501c344004708628448d8b6848c460821c5495ac2205818690a870dd8"
+   "1091599209d328061c2066c4188a438804843410a4206a92488d0b3886c1388110276a0c117243a4858a1432cbb88951122c9c32061b0292dbb62c1b482dc0c0"
+   "4c020306d12411ca90016222490342459112522304069b400952308563126511216c9c18094c3621d2224883a20544262021240619331164349222b350538061"
+   "240792dc240903894d990610011864a2168913280adc188e19a3900a91440cc4110aa76d1424248348021aa6104b120a91982964882da3b68c9b104248362dc2"
+   "a4258226519c066609304ae3b0649c305219a78822044ee2269204b24d5a4469901209c8008520b4451293600b993001348ce0120e12800919498c09b1484386"
+   "2c98948523c65083c64020120c9124021c02468c8221a1146503b3104b026411c5019a06050aa60d8b144501306e01314a0830850ac0258b2402402426d0368c"
+   "c804d3fcba47b148b3bb504ef4bbf13334e5fe2c6a65124c53ce1fbffa98e207d0ffd743faf09377aeb5ea30f6ec141ff5057fa61a0e0c6fe66abf40dc9adf44"
+   "c78cbe89eb97c9615ab792c38e077cb58da13c0f1d123dd810df9d8405f8c8643fb3043922f40b6ad0dd0b8eaca935bc19a2c5d8f22858c639ec6750e0f4485e"
+   "44340630870633b059225ab1ffeff57d1b32bd22257e5405d3268a0962e9403f566753fe7bcb29d3fbd858ecee4093165f41d0d7494d52f8e3179946d5d77d33"
+   "eb1ce62eb3f4bc1a0941bf95afe7dbd0402ddd3f75b3a9b98cf38be20932278109156d04abeae8f52faad75d50aa97aa107f6630820bacda4655527d6151bca2"
+   "58ab7f6f064eeb267fd66660baca092c3a7030d7b6e4c99bf17968acaba27261b6ebaf45f5129ae15a8dea3dd9c753bb5f9ab6ce385f029915ae06dcab5b8a26"
+   "0ef3760c0d6a1189f06cdcdaa89df4ae6865936f8250e26e3051028a37079d1cd2e4fb426d0e9a66f49a92322040bf676b5b839c29ce92fdd5fd03b6bce661b0"
+   "ba163654e596aea05c06f4a0d09d969c99624b4d418160b8fa6d071aa18e19a103c95af9f49fda8f45abc0c0c64bd4b169274acfce99197fc1dafd623360f7c9"
+   "be078bcb120d0357a7813586272fd294f1584b21fbd3cc449ea25d610108858a1d3a586c277ee38910912024d3cd5158d80f1fc1811818d35b9955db40a8bfae"
+   "bde0809c5174805ed7fcba39514a402e0369ccbfbb09c4d6280ba3b29d1bcf1b1d5b3f4a467a572a0938cce75157dc8bef5bfa523ec9159181f1d1007bdd0029"
+   "139d2cd323ad453dd33219031f449d5975f83e54fbca24924aedbe18d42633dbde57d510f90e39856cf0687e0605289683492083882246d80afe154b100f58c8"
+   "c50280061023e3db2bedad044b776fac1c18101f56f6ae43e0d9447468211be63d55e999ef25c5cc44940462b33579f30e2e4099bb973387a48bb781c2a93451"
+   "3d715c0c55c199c8aeb08752ac8e02489f302efe3fc8c817e6ebf599af1a172bd11ba30cde90729e422d57d8768d43a150d383c3037e74943c06b2cfe3fff05a"
+   "86c2c14510aafaa11e2eb758f02fbe7e3326dd30a01860c6ef847a30702770914ede2611f87bb270b9c535f0e9e75cecd41d176094027bc123d09e511bd2ad33"
+   "fcafc16d7c6490031e2cd7cb81cb0ca4b2a5d6fc6c5fe711c45520f233b22d9ed2ce0d3992efad03f27b56c11e4035b6d231b4802261dc754096ce85044758df"
+   "8a090cb1c392cc8124ef09eb944e29210d6d36f8bb2b5f14cc72383a8007521c53418a572209215daf4d8571731ede019fd66551ef69267b268d15079c325aa7"
+   "75c1c72aa21fe4f061ef4d7bd6d6963343a553463d92403d777cd667b4f9d0565b182a810e98aa6dff1025beeeec6689c48762100ad2607388ffc099f821b534"
+   "26db8ac9cef8b2430ae6d94cf32ea55a131c3721504ac8502eafd4552d18e4b96d64fe9aea83e83c27bce6cde9b1c008f06ae237785113277b2d568d034d5c19"
+   "5fd34d2d300dd97f534febc23413998f74055365464f21b8ab179669cbfde90db7917e8e1fd8ac7d6e438bc497a4f8dd923e495dd9f51d91bc84950239c0903c"
+   "d0da82bafb3c028ccf33065614f528450db5b4cf5a57abbb6156845f31b33de447a2f54c69ee399be461b497eec412318697cbe5730d6eef1cc1d25fc776bd1d"
+   "724b7d92a66bf4f591c451f9ab3c9ea60b5fd0f59f539b51cc1b2c78f12f958ab5144592cd23fb366f907be0300dd95b0fe4c4828c7718f5e2940cd2c0f1b4cc"
+   "2951d2d4a2bac39b55059247078541d23a19e62feff1be3523961ca942bbc42d4e967b2b0ed1c263c3588c0eb5f9a7671866f3565bea8e90131d52f24d771b9c"
+   "9d468184dd651132c96e5e69442dab0240e524b52612b8fd93dc749017922e5ea86879c3950d468cb1fa0e0c0474bc4af7b53e2b7300aca08a54d042a0046958"
+   "8cf0399fc6dfd27b96e83bec5e06673c4b10187714aecde83cd79394c7dc93bbc38de16b9ca3dd09ba662663af19e5a85715373df45a4d1effa7722f05f23afb"
+   "b27fec47806e99aed89d36f28ea2651e657d74c01ee0cd172af748cb06dae6f9f51bd04b2b55eaad401197d22f8f09a2d6cdb2622e52b390718132f0657defca"
+   "733bc604d56bb3c2cbcc32d57262ba9182d6b45723d99a1bd69c0c351b0d02fa6f7235eaf8974a8e0ef87e2bf14d00c37a70dd7f552a9b7104f34fd55afef849"
+   "db37d9a5bfa3ae7b9890818603e4348e43d609b2232c144b9b48d0aad3c4549608266abb1e323fddfe108df31f4dc12fa201a7c22b9c0c8f0133423c7a878a77";
+
+static const char hash_mldsa_44_acvp_msg_hex[] =
+   "94e129f61e686ca0c4f3e55b5a46eb23fbc8771610d94221c97f7091f07b4c5d2bafd8249b4c983837c8b13bc16473384e8f2a3c78ff796d05c543b7a1a46875"
+   "2fa6c0cd7e39b22504ef15894748e70c36113659f17c03ec7d575e4e729c284d51f884a871a94984e81bb87bebf7c46313b653c9f1ba6eb34e3277c7be9a41bc"
+   "6b00800cacfac389db27135f30511ef41f1ce8b459944dd20430a2353324acfc7be8cd09ebe380fb6aad5d3f8d72e4f067aaec6a96bca5380a6cf02cf62d3738"
+   "67a1d21442859e0b867f71ffcc583ff45c98626a5d139d4dfd0f8f8aef067adbac2a98cd674189ca14497d340aa3489af7df337109e363ff6e3955cc4fb35504"
+   "b37ba214f236d490096c4ec0130c8753dbdf3e440b2e574f3f8a033bd19336630a914192f6247935243e9f6133a28a7275275f86165f95f40e99386b6bf8cea9"
+   "cd81629d7ffd7a3b6555a4a12366e878f66f34a03c03e46c2ec090715fdf8ac9dfc3c71b1a80e2aac79c89fbccc4b59e0b984bf6c1ae6c949d7c1e61a842d7ef"
+   "507165d904f4104166f64fa99881e94c2238b437cedb3a459ccc102ac248a11646227db610d7d7bfcf19d1fcf30960ada7e0aa4a591e11ce2776b1dcb3e05b38"
+   "f343b3f82f912dcc820d55e0a962bb4da8c30a1d809459f91bac473ea45acc24f97b5eaf570870b2fe2bdeb3172c7a6fb45536800455b351f20a019f432bf761"
+   "c06c0d24d170a3de430f7334e64c041d4c8a6a9cbb8d91079f2f1ffae7b4c1715fc5ff1c49c7fa1ff2f20d965c53811205e954059d5726c08956ebcb8f95d051"
+   "a6cf87675e0a06a09008f4e24e1a5d8afaae90b8056841e72c5d2650678a27e6d45cb1badd7cc096a15a6dde3f531eafa75355b67ca5ad588965e31fa0a7fafd"
+   "e633356cca04dd50650c5db3c0ca4c0f7dc6f862880e1a0ac87cbebbcc26a2fe0d2ea98c629b759fb5ddc496af76d44820b04542a6082b90bf980840a3932e2a"
+   "a30c2a94136dbfc3099e6ab39ed9a2d0bc624efb50450b37c2bdf9225e7f3d20916370524791ab6fab9688b240ee4db9bb66bfe1b3bf8d135f7126bfdd6a5991"
+   "50aba2ec935e377c4402bade596ba9e97cd68db8118ecb344f03b07e0df0716674e21de9d7ca90481ed1707ff4dd1710f033af4ed0ce746e947ab724a6564db4"
+   "81afbb707b991d2b255e8685fd60ae062857d55ba4f3152f529983f4f6b6a6a4566ddfa2e43f67c58f5342e5fdc707186fadda4dfba42261519fb0e35fac7f67"
+   "44844c05781eb402a4d0ffc65566cf037ce2a1761dea29a27258c098410c968f1a974ccdca84fb1023f838244794ba1238f1eff53b9afe91511689732ed8fadc"
+   "f4465b0f7907f56cd8dd101c7c7ab9fcccef703ce88ad676a6c6d4bff0d3ee3414b49e00918602a82dd8801111a55725d67a471c0c0f919347ed957bb0234459"
+   "ef21c1d3a08f77130c7d4b791e1d633b4284e2352cdd56d6883e9009990e2679529e2f74e099aab8b074fa62e619d2d8f62f8ad69c96f71f96a26d4a48288706"
+   "e03192f0f65a6acc5b7ecc24fced79f589d931211506abe58e26cf4b6605377d98f64f600e5bb22851a0";
+
+static const char hash_mldsa_44_acvp_ctx_hex[] =
+   "3427fb2dace546daa0d8022c939286d5b5986f5e45a9f4d4248e352282394293548c42f80caca95bd37d67571b309409d2e32cd9d572d0761f08d95540195808"
+   "2f1e5c279b59b8e27244d0152014dcfde3763cda4272b2b1b4dd51c58e1b9fa393876cf82e777f0fbe6e4c8723845370cd6771dfbdeb909c168b9f1a687651be"
+   "cbf49a7484aa655456fac6d20ec83d53f8b93cdfda6a982dfbf1a294ccd50984415a5061d74c2a0a474b4a55188c8db9206cf071fb92191b5572c0afb4aca0a0"
+   "4fde5e9b825dbfe82b3771f386ed9fbba057416c7659639ff6d2be97345542b83ed143b8482d1161d866cb5e3110ee1409f404f765de729297a6c9";
+
+static const char hash_mldsa_44_acvp_rnd_hex[] = "d9f7e150dca7996a9028f9b07137f610eb7438bd62470c06d3af60f297411d43";
+
+static const char hash_mldsa_44_acvp_sig_sha3_256_hex[] = "3870aa3d4e81048d004baff2f232dcdbcd53a97402e0959c917ae8dc9ca700a5";
+
 static int s_decode_hex(const char *hex, unsigned char *buf, unsigned long *len)
 {
    return base16_decode(hex, XSTRLEN(hex), buf, len);
@@ -473,6 +547,9 @@ static int s_mldsa_sizes_test(void)
       { LTC_MLDSA_44, 1312, 2560, 2420 },
       { LTC_MLDSA_65, 1952, 4032, 3309 },
       { LTC_MLDSA_87, 2592, 4896, 4627 },
+      { LTC_MLDSA_HASH_44_WITH_SHA512, 1312, 2560, 2420 },
+      { LTC_MLDSA_HASH_65_WITH_SHA512, 1952, 4032, 3309 },
+      { LTC_MLDSA_HASH_87_WITH_SHA512, 2592, 4896, 4627 },
    };
    unsigned long pk, sk, sig, rnd, mu, seed, one;
    unsigned i;
@@ -577,10 +654,13 @@ static int s_mldsa_openssl_verify_test(void)
    signatures come from another implementation, so they detect a verifier that is self-consistent but does not follow FIPS 204. */
 static int s_mldsa_x509_selfsig(const void *in, unsigned long inlen, void *ctx)
 {
-   mldsa_key key;
+   /* the DER of an ML-DSA or HashML-DSA algorithm OID without its last octet */
+   static const unsigned char oid_prefix[] = { 0x06, 0x09, 0x60, 0x86, 0x48, 0x01, 0x65, 0x03, 0x04, 0x03 };
+   mldsa_key key, hkey;
+   ltc_pka_key hpka;
    const unsigned char *tbs, *sig;
    unsigned char *der;
-   unsigned long derlen = inlen, tbslen, siglen;
+   unsigned long derlen = inlen, tbslen, siglen, i, n;
    int stat, err;
 
    der = XMALLOC(inlen);
@@ -619,6 +699,20 @@ static int s_mldsa_x509_selfsig(const void *in, unsigned long inlen, void *ctx)
    stat = 1;
    DO(mldsa_verify(sig, siglen, tbs, tbslen, NULL, 0, &stat, &key));
    ENSURE(stat == 0);
+   der[(tbs - der) + tbslen / 2] ^= 0x01;
+
+   /* RFC 9881 8.3 - a HashML-DSA public key must not be in a certificate. The tbsCertificate has the algorithm OID
+      twice, the signature first and the SubjectPublicKeyInfo second, and the HashML-DSA arc is 15 above the pure one. */
+   for (i = 0, n = 0; i + sizeof(oid_prefix) < tbslen; i++) {
+      if (XMEMCMP(tbs + i, oid_prefix, sizeof(oid_prefix)) == 0 && ++n == 2) {
+         der[(tbs - der) + i + sizeof(oid_prefix)] += 15;
+         break;
+      }
+   }
+   ENSURE(n == 2);
+   SHOULD_FAIL(mldsa_import_x509(der, derlen, &hkey));
+   XMEMSET(&hpka, 0, sizeof(hpka));
+   SHOULD_FAIL_WITH(x509_import_spki(der, derlen, &hpka, NULL), CRYPT_PK_INVALID_TYPE);
 
    (*((int *)ctx))++;
    mldsa_free(&key);
@@ -738,7 +832,9 @@ static int s_mldsa_key_is(const mldsa_key *key,
    computed back from the expanded key, so only a key that has one can write seed and both. */
 static int s_mldsa_privkey_format_test(int alg)
 {
-   static const enum ltc_oid_id oids[] = { LTC_OID_MLDSA_44, LTC_OID_MLDSA_65, LTC_OID_MLDSA_87 };
+   static const enum ltc_oid_id oids[] = { LTC_OID_MLDSA_44, LTC_OID_MLDSA_65, LTC_OID_MLDSA_87,
+                                           LTC_OID_HASH_MLDSA_44_WITH_SHA512, LTC_OID_HASH_MLDSA_65_WITH_SHA512,
+                                           LTC_OID_HASH_MLDSA_87_WITH_SHA512 };
    mldsa_key key, other, imported;
    unsigned char seed[LTC_MLDSA_KEYGEN_SEED_BYTES], buf[LTC_MLDSA_KEYGEN_SEED_BYTES];
    unsigned char sk[5000], other_sk[5000], pk[2600];
@@ -1081,6 +1177,212 @@ static int s_mldsa_acvp_mu_test(void)
 
 
 
+#ifdef LTC_SHA512
+static int s_sha3_256(const unsigned char *in, unsigned long inlen, unsigned char out[32])
+{
+   hash_state md;
+
+   DO(sha3_256_init(&md));
+   DO(sha3_process(&md, in, inlen));
+   DO(sha3_done(&md, out));
+   return CRYPT_OK;
+}
+
+#if defined(LTC_PEM) && defined(LTC_BASE64)
+/* the library only reads PEM, so wrap the DER here */
+static unsigned long s_der_to_pem(const char *label, const unsigned char *der, unsigned long derlen, char *pem, unsigned long pemsize)
+{
+   char b64[4096];
+   unsigned long b64len = sizeof(b64), i, n = 0, chunk, lablen = XSTRLEN(label);
+
+   DO(base64_encode(der, derlen, b64, &b64len));
+   ENSURE(b64len + b64len / 64 + 2 * lablen + 40 < pemsize);
+
+   XMEMCPY(pem + n, "-----BEGIN ", 11); n += 11;
+   XMEMCPY(pem + n, label, lablen);     n += lablen;
+   XMEMCPY(pem + n, "-----\n", 6);      n += 6;
+   for (i = 0; i < b64len; i += chunk) {
+      chunk = b64len - i < 64 ? b64len - i : 64;
+      XMEMCPY(pem + n, b64 + i, chunk);
+      n += chunk;
+      pem[n++] = '\n';
+   }
+   XMEMCPY(pem + n, "-----END ", 9);    n += 9;
+   XMEMCPY(pem + n, label, lablen);     n += lablen;
+   XMEMCPY(pem + n, "-----\n", 6);      n += 6;
+
+   return n;
+}
+#endif
+
+/* HashML-DSA, FIPS 204 5.4. The message path and the digest path both have to give exactly the NIST signature, and a
+   HashML-DSA key has to stay apart from the pure ML-DSA key that has the same key material. */
+static int s_mldsa_hash_test(void)
+{
+   static const struct { int alg; const char *name, *oid; } names[] = {
+      { LTC_MLDSA_HASH_44_WITH_SHA512, "HashML-DSA-44-with-SHA512", "2.16.840.1.101.3.4.3.32" },
+      { LTC_MLDSA_HASH_65_WITH_SHA512, "HashML-DSA-65-with-SHA512", "2.16.840.1.101.3.4.3.33" },
+      { LTC_MLDSA_HASH_87_WITH_SHA512, "HashML-DSA-87-with-SHA512", "2.16.840.1.101.3.4.3.34" },
+   };
+   const int alg = LTC_MLDSA_HASH_44_WITH_SHA512;
+   mldsa_key key, pure, imported;
+   hash_state md;
+   unsigned char sk[2600], msg[1200], ctx[LTC_PQC_CTX_MAX_BYTES], rnd[LTC_MLDSA_RND_BYTES], ph[64], mu[LTC_MLDSA_MU_BYTES];
+   unsigned char sig[2500], sig2[2500], digest[32], expected[32], der[2700];
+   unsigned long sklen, msglen, ctxlen, rndlen, siglen, sig2len, explen, mulen, derlen, n;
+   const char *name;
+   int stat, found, prng_idx = find_prng("yarrow");
+
+   /* names and OIDs */
+   for (n = 0; n < LTC_ARRAY_SIZE(names); n++) {
+      DO(mldsa_alg_name(names[n].alg, &name));
+      ENSURE(XSTRCMP(name, names[n].name) == 0);
+      found = -1;
+      DO(mldsa_find_alg(names[n].name, &found));
+      ENSURE(found == names[n].alg);
+      found = -1;
+      DO(mldsa_find_alg(names[n].oid, &found));
+      ENSURE(found == names[n].alg);
+   }
+
+   sklen = sizeof(sk);
+   DO(s_decode_hex(hash_mldsa_44_acvp_sk_hex, sk, &sklen));
+   msglen = sizeof(msg);
+   DO(s_decode_hex(hash_mldsa_44_acvp_msg_hex, msg, &msglen));
+   ctxlen = sizeof(ctx);
+   DO(s_decode_hex(hash_mldsa_44_acvp_ctx_hex, ctx, &ctxlen));
+   rndlen = sizeof(rnd);
+   DO(s_decode_hex(hash_mldsa_44_acvp_rnd_hex, rnd, &rndlen));
+   explen = sizeof(expected);
+   DO(s_decode_hex(hash_mldsa_44_acvp_sig_sha3_256_hex, expected, &explen));
+
+   DO(mldsa_import_raw(sk, sklen, PK_PRIVATE, alg, &key));
+
+   /* PH(M), computed in two pieces with the public hash API the way an application would do it */
+   DO(sha512_init(&md));
+   DO(sha512_process(&md, msg, 100));
+   DO(sha512_process(&md, msg + 100, msglen - 100));
+   DO(sha512_done(&md, ph));
+
+   /* message in, the library hashes */
+   siglen = sizeof(sig);
+   DO(mldsa_sign_ex(msg, msglen, sig, &siglen, ctx, ctxlen, rnd, rndlen, &key));
+   DO(s_sha3_256(sig, siglen, digest));
+   COMPARE_TESTVECTOR(digest, sizeof(digest), expected, explen, "HashML-DSA ACVP, message", 0);
+
+   /* digest in */
+   XMEMSET(sig, 0, sizeof(sig));
+   siglen = sizeof(sig);
+   DO(mldsa_sign_hash_ex(ph, sizeof(ph), sig, &siglen, ctx, ctxlen, rnd, rndlen, &key));
+   DO(s_sha3_256(sig, siglen, digest));
+   COMPARE_TESTVECTOR(digest, sizeof(digest), expected, explen, "HashML-DSA ACVP, digest", 0);
+
+   stat = 0;
+   DO(mldsa_verify_hash(sig, siglen, ph, sizeof(ph), ctx, ctxlen, &stat, &key));
+   ENSURE(stat == 1);
+   stat = 0;
+   DO(mldsa_verify(sig, siglen, msg, msglen, ctx, ctxlen, &stat, &key));
+   ENSURE(stat == 1);
+
+   /* another digest, another context */
+   ph[0] ^= 0x01;
+   stat = 1;
+   DO(mldsa_verify_hash(sig, siglen, ph, sizeof(ph), ctx, ctxlen, &stat, &key));
+   ENSURE(stat == 0);
+   ph[0] ^= 0x01;
+   stat = 1;
+   DO(mldsa_verify_hash(sig, siglen, ph, sizeof(ph), ctx, ctxlen - 1, &stat, &key));
+   ENSURE(stat == 0);
+
+   /* mu of a HashML-DSA key covers the pre-hash, so the external mu functions work for it too */
+   mulen = sizeof(mu);
+   DO(mldsa_compute_mu(mu, &mulen, msg, msglen, ctx, ctxlen, &key));
+   sig2len = sizeof(sig2);
+   DO(mldsa_sign_ex_mu(mu, mulen, sig2, &sig2len, rnd, rndlen, &key));
+   COMPARE_TESTVECTOR(sig2, sig2len, sig, siglen, "HashML-DSA sign via external mu", 0);
+   stat = 0;
+   DO(mldsa_verify_mu(sig, siglen, mu, mulen, &stat, &key));
+   ENSURE(stat == 1);
+   /* but the incremental mu would need PH(M) and not the message, the digest functions are there for that */
+   SHOULD_FAIL_WITH(mldsa_init_mu(&md, ctx, ctxlen, &key), CRYPT_PK_INVALID_TYPE);
+
+   /* PH(M) has exactly one length */
+   sig2len = sizeof(sig2);
+   SHOULD_FAIL_WITH(mldsa_sign_hash_ex(ph, sizeof(ph) - 1, sig2, &sig2len, ctx, ctxlen, rnd, rndlen, &key), CRYPT_INVALID_ARG);
+   SHOULD_FAIL_WITH(mldsa_sign_hash_ex(ph, 32, sig2, &sig2len, ctx, ctxlen, rnd, rndlen, &key), CRYPT_INVALID_ARG);
+   stat = 1;
+   SHOULD_FAIL_WITH(mldsa_verify_hash(sig, siglen, ph, sizeof(ph) - 1, ctx, ctxlen, &stat, &key), CRYPT_INVALID_ARG);
+   ENSURE(stat == 0);
+
+   /* hedged signing draws rnd from the PRNG, the result verifies against the message as well */
+   sig2len = sizeof(sig2);
+   DO(mldsa_sign_hash(ph, sizeof(ph), sig2, &sig2len, ctx, ctxlen, &yarrow_prng, prng_idx, &key));
+   stat = 0;
+   DO(mldsa_verify(sig2, sig2len, msg, msglen, ctx, ctxlen, &stat, &key));
+   ENSURE(stat == 1);
+
+   /* the same key material as a pure ML-DSA key: it has no pre-hash and takes no digest, and the two kinds of
+      signature do not verify for each other */
+   DO(mldsa_import_raw(sk, sklen, PK_PRIVATE, LTC_MLDSA_44, &pure));
+   sig2len = sizeof(sig2);
+   SHOULD_FAIL_WITH(mldsa_sign_hash_ex(ph, sizeof(ph), sig2, &sig2len, ctx, ctxlen, rnd, rndlen, &pure), CRYPT_PK_INVALID_TYPE);
+   stat = 1;
+   SHOULD_FAIL_WITH(mldsa_verify_hash(sig, siglen, ph, sizeof(ph), ctx, ctxlen, &stat, &pure), CRYPT_PK_INVALID_TYPE);
+   ENSURE(stat == 0);
+   stat = 1;
+   DO(mldsa_verify(sig, siglen, msg, msglen, ctx, ctxlen, &stat, &pure));
+   ENSURE(stat == 0);
+   sig2len = sizeof(sig2);
+   DO(mldsa_sign_ex(msg, msglen, sig2, &sig2len, ctx, ctxlen, rnd, rndlen, &pure));
+   stat = 1;
+   DO(mldsa_verify(sig2, sig2len, msg, msglen, ctx, ctxlen, &stat, &key));
+   ENSURE(stat == 0);
+   mldsa_free(&pure);
+
+   /* PKCS#8 and SubjectPublicKeyInfo carry the HashML-DSA OID and give back a HashML-DSA key */
+   derlen = sizeof(der);
+   DO(mldsa_export(der, &derlen, PK_PRIVATE | PK_STD, &key));
+   DO(mldsa_import_pkcs8(der, derlen, NULL, &imported));
+   ENSURE(imported.alg == alg && imported.type == PK_PRIVATE);
+   mldsa_free(&imported);
+#if defined(LTC_PEM) && defined(LTC_BASE64)
+   {
+      ltc_pka_key pka;
+      char pem[4096];
+      unsigned long pemlen = s_der_to_pem("PRIVATE KEY", der, derlen, pem, sizeof(pem));
+      XMEMSET(&pka, 0, sizeof(pka));
+      DO(pem_decode(pem, pemlen, &pka, NULL));
+      ENSURE(pka.id == LTC_PKA_MLDSA && pka.u.mldsa.alg == alg && pka.u.mldsa.type == PK_PRIVATE);
+      pka_key_free(&pka);
+   }
+#endif
+   derlen = sizeof(der);
+   DO(mldsa_export(der, &derlen, PK_PUBLIC | PK_STD, &key));
+   DO(mldsa_import(der, derlen, &imported));
+   ENSURE(imported.alg == alg && imported.type == PK_PUBLIC);
+   stat = 0;
+   DO(mldsa_verify_hash(sig, siglen, ph, sizeof(ph), ctx, ctxlen, &stat, &imported));
+   ENSURE(stat == 1);
+   mldsa_free(&imported);
+#if defined(LTC_PEM) && defined(LTC_BASE64)
+   {
+      ltc_pka_key pka;
+      char pem[4096];
+      unsigned long pemlen = s_der_to_pem("PUBLIC KEY", der, derlen, pem, sizeof(pem));
+      XMEMSET(&pka, 0, sizeof(pka));
+      DO(pem_decode(pem, pemlen, &pka, NULL));
+      ENSURE(pka.id == LTC_PKA_MLDSA && pka.u.mldsa.alg == alg && pka.u.mldsa.type == PK_PUBLIC);
+      pka_key_free(&pka);
+   }
+#endif
+
+   mldsa_free(&key);
+   return CRYPT_OK;
+}
+#endif /* LTC_SHA512 */
+
+
+
 /* mldsa_check_key() has to detect a key struct that a caller changed */
 static int s_mldsa_check_key_test(int alg)
 {
@@ -1214,6 +1516,7 @@ int pqc_mldsa_test(void)
    DO(s_mldsa_privkey_format_test(LTC_MLDSA_44));
    DO(s_mldsa_privkey_format_test(LTC_MLDSA_65));
    DO(s_mldsa_privkey_format_test(LTC_MLDSA_87));
+   DO(s_mldsa_privkey_format_test(LTC_MLDSA_HASH_65_WITH_SHA512));
 #if defined(LTC_TEST_READDIR) && defined(LTC_BASE64)
    DO(s_mldsa_openssl_pkcs8_test());
 #endif
@@ -1233,11 +1536,19 @@ int pqc_mldsa_test(void)
    DO(s_mldsa_mu_test(LTC_MLDSA_65));
    DO(s_mldsa_mu_test(LTC_MLDSA_87));
    DO(s_mldsa_acvp_mu_test());
+#ifdef LTC_SHA512
+   DO(s_mldsa_hash_test());
+   DO(s_mldsa_sign_verify(LTC_MLDSA_HASH_44_WITH_SHA512));
+   DO(s_mldsa_sign_verify(LTC_MLDSA_HASH_65_WITH_SHA512));
+   DO(s_mldsa_sign_verify(LTC_MLDSA_HASH_87_WITH_SHA512));
+#endif
    DO(s_mldsa_check_key_test(LTC_MLDSA_44));
    DO(s_mldsa_check_key_test(LTC_MLDSA_65));
    DO(s_mldsa_check_key_test(LTC_MLDSA_87));
+   DO(s_mldsa_check_key_test(LTC_MLDSA_HASH_44_WITH_SHA512));
    DO(s_mldsa_import_mutation_test(LTC_MLDSA_44));
    DO(s_mldsa_import_mutation_test(LTC_MLDSA_87));
+   DO(s_mldsa_import_mutation_test(LTC_MLDSA_HASH_65_WITH_SHA512));
    return CRYPT_OK;
 }
 

@@ -105,7 +105,10 @@ int mlkem_alg_name(int alg, const char **name);
 enum ltc_mldsa_id {
    LTC_MLDSA_44 = 0,
    LTC_MLDSA_65 = 1,
-   LTC_MLDSA_87 = 2
+   LTC_MLDSA_87 = 2,
+   LTC_MLDSA_HASH_44_WITH_SHA512 = 3,
+   LTC_MLDSA_HASH_65_WITH_SHA512 = 4,
+   LTC_MLDSA_HASH_87_WITH_SHA512 = 5
 };
 
 /* ML-DSA byte-length constants (fixed across all parameter sets) */
@@ -192,6 +195,25 @@ int mldsa_verify_mu(const unsigned char *sig, unsigned long  siglen,
                     const unsigned char *mu,  unsigned long  mulen,
                           int           *stat,
                     const mldsa_key     *key);
+
+/* HashML-DSA on a digest the caller computed, the key has to be one of the LTC_MLDSA_HASH_ parameter sets */
+int mldsa_sign_hash(const unsigned char *hash, unsigned long  hashlen,
+                          unsigned char *sig,  unsigned long *siglen,
+                    const unsigned char *ctx,  unsigned long  ctxlen,
+                          prng_state    *prng, int            wprng,
+                    const mldsa_key     *key);
+
+int mldsa_sign_hash_ex(const unsigned char *hash, unsigned long  hashlen,
+                             unsigned char *sig,  unsigned long *siglen,
+                       const unsigned char *ctx,  unsigned long  ctxlen,
+                       const unsigned char *rnd,  unsigned long  rndlen,
+                       const mldsa_key     *key);
+
+int mldsa_verify_hash(const unsigned char *sig,  unsigned long  siglen,
+                      const unsigned char *hash, unsigned long  hashlen,
+                      const unsigned char *ctx,  unsigned long  ctxlen,
+                            int           *stat,
+                      const mldsa_key     *key);
 
 int mldsa_get_sizes(int alg,
                     unsigned long *public_key_sz,
