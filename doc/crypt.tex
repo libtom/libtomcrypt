@@ -7062,6 +7062,7 @@ This function generates a private DSA key containing both \textit{x} and \textit
 
 \chapter{The PKA Union}
 \index{ltc\_pka\_key}
+\label{pka-union}
 
 To be able to refer to all the potential public key algorithms via a central API,
 a tagged union \texttt{ltc\_pka\_key} is used.
@@ -7121,6 +7122,19 @@ To free\&destroy a dynamically allocated instance of such a union the following 
 \begin{verbatim}
 void pka_key_destroy(ltc_pka_key **key);
 \end{verbatim}
+
+\index{pka\_key\_export}
+To export the key held by such a union in its standard format the following API function is provided:
+
+\begin{verbatim}
+int pka_key_export(unsigned char *out, unsigned long *outlen, int which, const ltc_pka_key *key);
+\end{verbatim}
+
+The parameter \textit{which} must be \texttt{PK\_PRIVATE | PK\_STD} to get a PKCS \#8 \textit{PrivateKeyInfo}, or
+\texttt{PK\_PUBLIC | PK\_STD} to get an X.509 \textit{SubjectPublicKeyInfo}. Any other value results in \texttt{CRYPT\_INVALID\_ARG}.
+An ECC key is written with the OID of its curve, the explicit curve parameters are only used for a curve without OID.
+\texttt{CRYPT\_PK\_INVALID\_TYPE} is returned for the keys this function cannot export: public DH keys and RSA keys that are restricted to PSS or OAEP.
+If \textit{out} is too small the function returns \texttt{CRYPT\_BUFFER\_OVERFLOW} and stores the required size in \textit{outlen}.
 
 \chapter{Standards Support}
 \mysection{ASN.1 Formats}
@@ -8104,11 +8118,9 @@ The function returns \texttt{CRYPT\_OK} on success or an error code on failure.
 \index{PKCS \#8}
 \label{pkcs8}
 
-The library has built-in support for PKCS \#8 decoding as specified in \href{https://datatracker.ietf.org/doc/html/rfc5208}{\texttt{RFC 5208}}.
+The library has built-in support for PKCS \#8 decoding and encoding as specified in \href{https://datatracker.ietf.org/doc/html/rfc5208}{\texttt{RFC 5208}}.
 
-Encoding of private keys into PKCS \#8 is not supported.
-
-The library supports the following encryption algorithms:
+The library supports the following encryption algorithms when decoding:
 
 \begin{table}[H]
 \begin{center}
@@ -8136,6 +8148,10 @@ The library supports the following encryption algorithms:
 
 The PKCS \#8 import has no direct API endpoints, but it is available either through Public Key Algorithm-specific
 \textit{pkaX\_import\_pkcs8()} functions or the PEM decoding API (c.f. Ch. \ref{pem-files}).
+
+\subsection{Encoding}
+
+An unencrypted PKCS \#8 \textit{PrivateKeyInfo} is created by \textit{pka\_key\_export()} (c.f. Ch. \ref{pka-union}).
 
 
 \mysection{Key Derviation Functions}

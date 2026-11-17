@@ -826,6 +826,9 @@ typedef struct {
 
 void pka_key_free(ltc_pka_key *key);
 void pka_key_destroy(ltc_pka_key **key);
+#ifdef LTC_PKCS_8
+int pka_key_export(unsigned char *out, unsigned long *outlen, int which, const ltc_pka_key *key);
+#endif
 
 #ifdef LTC_DER
 /* DER handling */
