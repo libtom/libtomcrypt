@@ -7759,6 +7759,27 @@ This is required to verify FIPS 204 known-answer test vectors, which fix \textit
 Returns \code{CRYPT\_INVALID\_ARG} if \textit{rndlen} is not 32, and the same
 status codes as \code{mldsa\_sign()} otherwise.
 
+\index{mldsa\_sign\_mu()}
+\begin{verbatim}
+int mldsa_sign_mu(const unsigned char *mu,   unsigned long  mulen,
+                        unsigned char *sig,  unsigned long *siglen,
+                        prng_state    *prng, int            wprng,
+                  const mldsa_key     *key);
+\end{verbatim}
+
+Signs the message representative $\mu$ instead of the message.
+ML-DSA reads the message only once, to hash it into the 64-byte
+$\mu = \mathrm{SHAKE256}(\mathrm{BytesToBits}(tr) \,\|\, M', 64)$, and everything after that works on $\mu$ alone.
+FIPS 204 allows $\mu$ to be computed outside of the signing module (\S6.2, Algorithm 7, line 6), so a
+message that is too large to keep in memory, or that is hashed by a different component, can be
+signed this way.
+$\mu$ comes from \code{mldsa\_compute\_mu()} or \code{mldsa\_init\_mu()}, and \textit{mulen} must equal 64.
+The result is an ordinary signature over the message, it verifies with \code{mldsa\_verify()} as well
+as with \code{mldsa\_verify\_mu()}.
+As in \code{mldsa\_sign()}, \textit{prng} and \textit{wprng} provide the randomness for hedged signing.
+Returns \code{CRYPT\_INVALID\_ARG} if \textit{mulen} is not 64, and the same status codes as
+\code{mldsa\_sign()} otherwise.
+
 \index{mldsa\_sign\_ex\_mu()}
 \begin{verbatim}
 int mldsa_sign_ex_mu(const unsigned char *mu,  unsigned long  mulen,
@@ -7767,16 +7788,10 @@ int mldsa_sign_ex_mu(const unsigned char *mu,  unsigned long  mulen,
                      const mldsa_key     *key);
 \end{verbatim}
 
-Signs using a precomputed message hash, corresponding to the
-\textit{ML-DSA.Sign\_internal} signing path in FIPS 204 \S5.4.1 with
-externally supplied $\mu$.
-The 64-byte \textit{mu} is the message-binding hash $\mu = \mathrm{SHAKE256}(\mathrm{BytesToBits}(tr) \,\|\, M', 64)$;
-\textit{mulen} must equal 64.
-This is the streaming/precomputed-hash signing path used by ACVP test
-vectors and protocols that hash the message in a separate step (e.g. when
-the message is too large to keep in memory or when $\mu$ is computed by a
-different component).  Like \code{mldsa\_sign\_ex()}, the per-signature
-randomness \textit{rnd} (32 bytes) is supplied by the caller.
+Like \code{mldsa\_sign\_mu()}, but the 32-byte per-signature randomness \textit{rnd} is supplied by
+the caller, as in \code{mldsa\_sign\_ex()}.
+This is required to verify the ACVP test vectors that come with an external $\mu$.
+For ordinary use, \code{mldsa\_sign\_mu()} should be preferred.
 Returns \code{CRYPT\_INVALID\_ARG} if \textit{mulen} is not 64 or
 \textit{rndlen} is not 32, and the same status codes as \code{mldsa\_sign\_ex()} otherwise.
 
@@ -7788,13 +7803,48 @@ int mldsa_compute_mu(      unsigned char *mu,  unsigned long *mulen,
                      const mldsa_key     *key);
 \end{verbatim}
 
-Computes the $\mu$ that \code{mldsa\_sign\_ex\_mu()} and \code{mldsa\_verify\_mu()} take:
+Computes the $\mu$ that \code{mldsa\_sign\_mu()}, \code{mldsa\_sign\_ex\_mu()} and \code{mldsa\_verify\_mu()} take:
 $\mu = \mathrm{SHAKE256}(tr \,\|\, \mathtt{0x00} \,\|\, \mathit{ctxlen} \,\|\, \mathit{ctx} \,\|\, \mathit{msg}, 64)$
 with $tr = \mathrm{SHAKE256}(pk, 64)$.
 $tr$ is computed from the public key, so \textit{key} may be a public or a private key.
 The output is always 64 bytes. A smaller \textit{*mulen} returns \code{CRYPT\_BUFFER\_OVERFLOW}
 with \textit{*mulen} set to the required size, and a \textit{ctxlen} above 255 returns
 \code{CRYPT\_INVALID\_ARG}.
+
+\index{mldsa\_init\_mu()}
+\begin{verbatim}
+int mldsa_init_mu(hash_state *md,
+                  const unsigned char *ctx, unsigned long ctxlen,
+                  const mldsa_key     *key);
+\end{verbatim}
+
+Starts the incremental computation of $\mu$, for a message that is not available in one piece.
+It absorbs $tr \,\|\, \mathtt{0x00} \,\|\, \mathit{ctxlen} \,\|\, \mathit{ctx}$ into \textit{md}, which is
+everything of $\mu$ that comes before the message.
+The message is then fed with \code{sha3\_shake\_process()}, in as many pieces as needed, and
+\code{sha3\_shake\_done()} with an output length of \code{LTC\_MLDSA\_MU\_BYTES} gives $\mu$.
+The result is the same as from \code{mldsa\_compute\_mu()}.
+Since $tr$ and \textit{ctx} are hashed before the message, the key and the context string have to
+be known before the first byte of the message is processed.
+\textit{key} may be a public or a private key, and a \textit{ctxlen} above 255 returns
+\code{CRYPT\_INVALID\_ARG}.
+
+\begin{small}
+\begin{verbatim}
+hash_state md;
+unsigned char mu[LTC_MLDSA_MU_BYTES], sig[4627];
+unsigned long siglen = sizeof(sig);
+
+mldsa_init_mu(&md, ctx, ctxlen, &key);
+while ((n = read_chunk(buf, sizeof(buf))) > 0) {
+   sha3_shake_process(&md, buf, n);
+}
+sha3_shake_done(&md, mu, sizeof(mu));
+
+mldsa_sign_mu(mu, sizeof(mu), sig, &siglen,
+              &yarrow_prng, prng_idx, &key);
+\end{verbatim}
+\end{small}
 
 \subsection{Verification}
 
@@ -7821,8 +7871,9 @@ int mldsa_verify_mu(const unsigned char *sig, unsigned long  siglen,
                     const mldsa_key     *key);
 \end{verbatim}
 
-Verifies against a $\mu$ from \code{mldsa\_compute\_mu()} instead of against the message. It is the
-counterpart of \code{mldsa\_sign\_ex\_mu()}. \textit{mulen} must equal 64.
+Verifies against a $\mu$ from \code{mldsa\_compute\_mu()} or \code{mldsa\_init\_mu()} instead of against
+the message. It is the counterpart of \code{mldsa\_sign\_mu()} and \code{mldsa\_sign\_ex\_mu()}.
+\textit{mulen} must equal 64.
 \textit{*stat} and the return value work as in \code{mldsa\_verify()}.
 
 \subsection{Key Cleanup}

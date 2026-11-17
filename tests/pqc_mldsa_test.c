@@ -286,6 +286,59 @@ static const char mldsa_87_sig_hex[] =
    "2f3a969dacced51572bd125870849ce3e55359b2e17eabc3153b5f62868ea0ca1f40738488dbe0020c103f53678b9eb1c1000000000000000000000000000000"
    "0000000000000000000000070a111518202731";
 
+/* NIST ACVP ML-DSA-sigGen-FIPS204 tcId 7: ML-DSA-44, deterministic, external interface, pure. The signature is 2420 bytes,
+   so only its SHA3-256 digest is kept here. */
+static const char mldsa_44_acvp_sk_hex[] =
+   "9914d942189ad1411bed635a9fc704be1b028036fd96f4dd53ea610039b9e6716456e159d6a2ececcaec2e3a38583d92b954918e96c93fcd946e3269ecfa33d0"
+   "6c4dbc021c2c65ef981c8bd0a5318d831483ab300fe3cdee4cf5b888d633f2495a10c207e829d8a5922d24d530a2a139b6c41d7dbc9a71d3a75b551a7c3a07f3"
+   "20475109b40c14a844110446c2a8641c104a4c184484429280206110831080a8445232641c080618a5111810091388041c2012a408701a02511b440da3302601"
+   "359022238c229605a4286688c064e1b6045c424e58242e60946c1001855328104824881003811a30689a98400b24244c484a2447841319249c14661323201494"
+   "8c93346c64806d98a641d4400d0bc310134891e1966124027094944c54900c1c28424c160e1129804ca22882c88c10c290e144821c3029d0364a40404e88a491"
+   "0b4181c0c68501886401304644128189b86d8a2008e0282a23070a090426240908d9902c1b212e02972c480891223100db20218912229c205258108443340c90"
+   "c80988108413c54983206850424e52c0450bc925c904212316519228400ba150104806e212254ab26c50806c101824a280645a108a18462e648240a30872c346"
+   "8c002585143524931064249585e39051e0188004186cc2a62d8c107121980dc2880d92446214334123c71154400d12a5611384910c03820bb21008a891a40672"
+   "a0348ed2302a14906904913152002d40c46d11a260199545981264c0b62da2860449386d48064c00450511900921850d5a348912b48814084a022872584608cb"
+   "a265da300821880ccb468edc082923004e1113045b200161826c4c928d838029c4484c1b47818a829199a651cb08444a168aa13052a2084d53282e0325648100"
+   "81c8b271e406620b192194446624498d81122c93128209c36d4a188ad4b6404896410a096e9ac48d224788e1128d58382ea228251822411382844bb62c5ac820"
+   "d8262042c0880a074659104e18b361d8182ad1864952a46090348c0cb54100058118910400330a982204cb460a0003205a264da1402e019431e3b001d8968460"
+   "146d98a28484321288080913b740001972211824c9022d24152281c02de3906da414619c186801a27118000e18982864082c0c168c19858cc4c801d2c220e220"
+   "29e206461c270ca04210212348c8224924472540a6480b064da1448e1c058c23c845a120660031300b3280c8066622414594246d13a26d4aa08811c30c190860"
+   "514f93e252e3959a6552402b1434d8f61b31136af40c1a8de545b3780da1cd4599128ee29fcdb1b4cea9409111189e64bd279a7d2d41f0642a3296b5b9ad00d4"
+   "a5172570dcfd6a41daf9e06c779354fb7e892c2f58999c33a7811c919be50d8b186e9d03e3cd91172a32a11ec5a3d0fd590fa43feb3686876f2e832cc6ad5b04"
+   "36e4c2d3f5fe6b474ec90f8c2a97d17f2a6289f45e544af7fa6235e75e69c9875b76bace713f0f3737dc19bf1d3d0e1d474497061081a467c19aa7635bd194bd"
+   "e56e2574399aee5e217ad9a26157a1ff72b8cd57021f7cf153a7d44db0c72b4c840fa050785c3b9169ace89c4156803d3c3c90e304a8f41d127d92c0773a5421"
+   "29b969b9bacca82ebb67384a45eb76381d342db2f28cb64f067a7ecc3bb2905b9ac6a4572487b53f72a8a32e4c31505705162f4b87e92d388bc46503a434190d"
+   "75c4cb82f29f6f9e2f71717061f12d9eeac73c287d6cb84124825ef68b48208255f740e23f03a3ea095aad3ac2823d1af2c9c64c7b1f0f1f2c1bf27988c2a42f"
+   "7f1e08e42e76df0f7ee96514629699643256ec44cf7b9709558e91542f0e37f0398624136c0d98ab41f1c4dbafa6315f4a3818d2d046f359902d8495a4f3f38d"
+   "0d6ba58cfa556595acf6b38fd94f4e81e5b2d02c95ecf62839759cc8b614018b0759fd7d39bd1a590f862576692c07a27ccef08c477f2f59e42d4b7a22ae8cc2"
+   "74885eed814fcf56baf51b7fc165aa705cdf8fc6002662e973fec7d8afb457b2dcfe2419d6c0785f8ef458566c43ebec499999350a6356d9e573adea3fea875b"
+   "a08bafe23e4957eabbf0b4ce6dee95d7c1d372c6460fcffcf661690a791b8d2fea419dbfb76e3fd9105694975a712cc18af1a38d2f67c1cdb0f84d39902f84e5"
+   "2c656c76d378a978480725fc16aea8b8ef82c3feea96b0ae8b42748384716a7c5bf08ec6387b48fa88dee887bed22452a0ec18960a5eb1206a4ab66e5ae4327e"
+   "55962cafc8c0b0e4f6e24cbaba02f9558de7e19f27a7df41116d1ec47627821da2230f2fad8393b4cf09cab218146a5058b170c66aed49738393bbef29d77bf5"
+   "bdd9f4486cd3911f7989167ad9f3b65ad28b5a9eb3b16eb5455a2750f100942a011b1fa8a741d4bdc3f3b913cc8c79cbdfb5b6c42bb1e1859d24574493c5d859"
+   "9ea5ebc55ed8110c9a3f41eedf736242c6273612244e311f7e7d326a19b5c09a86a17fa5826d3cfbb9007a219dc10c76d7b4ad94808b7672033b69be17350b96"
+   "cabfc9622a3aeb3e2ad1dbcf39b91ac12c334fadb591257a4f7cb992fa993e2720b1ce3fac8c537362e78f50163dbc13500c5160432a9a4f3fc20d12d21ceff0"
+   "af6b2cb5e736b898f35c06cafe9ed308cb56b441e3027be2827438371ad01bd3a92913017fea48e6dc82893b6d2ea147854bbd97c443b29b2fb30f656834fb3c"
+   "90c3ddc558048680c4bf622889b4ff336fd8b5d2ff4d7c7f971c085a266e74cda51915ecec82bb089b09cdda51d9f7016038af2d11773211e5b5ad092276bbc1"
+   "0bf14634ca4fb1afdbf5fea6ee639751838f47a945e91f47e2cda8d6f25c934dd2af0063d2d4315ef475b6a7e1da373c6ac2306e22d488b070fb511c024b475b"
+   "25f3c741d163bd8165aa8f675046fe5e9d5dc7f4ba701367223b575c32dec4d49614a12fbdc928c9cacfe3af1ae40e12175b54739b94926728dcd3799bea7b01"
+   "08de9f1e71eb9b31ca628f71d178318211f56e2966c3e05475214d5429166dc4857a699f7c23406943601e014bed1de197cac1cf82ea9dc3caf0fb2dcf44fd2c"
+   "cc2ed8b9a999935354465b5278e1d8e80009f2a8958e977f93a28fe8381161f7f06b0082b4c90fbed35505626c733e01dc51a0b88551ef60353fc9823f906ff6"
+   "4d136b3069d26535e947acbcb2efa5367f9361b5f5636cc64c0e5d3e8b592f134eaf364fc7a4349dc711ddf5fd9d35cc53b580cf5f27290b0676e522f45ab40c"
+   "d4ccc1d7bf060befa5d108d925d7202e20c305b208e6b48c8912d72517a8ea9bda3f3a22a16ba803b6156280b047c10ccf65203cd31de218e6648717cda24925"
+   "7cdbd8ffe5d954e1a632d97908cf1ef7c0930667a94a335087a01f98ac7285d1bb1345c1b4058f7bfa876608d6f0c7b735828dc467157b2f356ba8b957e18b65"
+   "056b97892eb08188a866b7c3fcce329c52b1cb649e8b29c3a71d115bb5d3bdc02fd1990a26295dc327c1e16de066df22f881c2f06b0f966b4f62854f02148d6f"
+   "69f383f423ce331495af2b5a0dbcc80bb0e1eceff63190230ec2e2659e57344ef2b6f132aa1730b1602199d395f46a0adbcb0b7836647609bdd9b0c12102c96b";
+
+static const char mldsa_44_acvp_ctx_hex[] =
+   "27e7e36d694636a4a2e78d74e48e4cd84b227178cda9bcf7641b866de0fa75c7b55295b947ffa599079bed1555f9535dc3ec93d563951cbda02b6c0fdf3e408f"
+   "fce26d38eb0fc5dff8d40de9665d23d02b66ab208a72aa238b81c80dde9e6d1584537379ca7ec36e0d1d480db9a73e69394aad4d53c4e3705b38b7af7ed2fc40"
+   "e1c790a4c75d1bd9b3ffe56de2055b423047dfdade4fdc15f83bd6e557776df28b2a1315e96fb118258c9c30dadbab311d0e27ec";
+
+static const char mldsa_44_acvp_msg_hex[] = "c9";
+
+static const char mldsa_44_acvp_sig_sha3_256_hex[] = "ded2bcf3c7978440b44b63d9ef1e569b9a1f3c247995ed7542ccca7bde04d94e";
+
 static int s_decode_hex(const char *hex, unsigned char *buf, unsigned long *len)
 {
    return base16_decode(hex, XSTRLEN(hex), buf, len);
@@ -875,7 +928,7 @@ static int s_mldsa_openssl_pkcs8_test(void)
 #endif
 
 
-/* FIPS 204 5.4.1 - the external mu functions have to give the same result as the normal sign and verify calls. */
+/* FIPS 204 6.2 - the external mu functions have to give the same result as the normal sign and verify calls. */
 static int s_mldsa_mu_test(int alg)
 {
    static const unsigned char msg[] = "external mu test message";
@@ -884,7 +937,8 @@ static int s_mldsa_mu_test(int alg)
    unsigned char mu[LTC_MLDSA_MU_BYTES], mu2[LTC_MLDSA_MU_BYTES];
    unsigned char rnd[LTC_MLDSA_RND_BYTES], pk[2600];
    unsigned char *sig, *sig2;
-   unsigned long mulen, mu2len, pklen, siglen, sig2len, sig_sz;
+   unsigned long mulen, mu2len, pklen, siglen, sig2len, sig_sz, i, n;
+   hash_state md;
    int stat, prng_idx = find_prng("yarrow");
 
    XMEMSET(&key, 0, sizeof(key));
@@ -917,6 +971,16 @@ static int s_mldsa_mu_test(int alg)
    SHOULD_FAIL_WITH(mldsa_compute_mu(mu2, &mu2len, msg, sizeof(msg), ctx, LTC_PQC_CTX_MAX_BYTES + 1uL, &key),
                     CRYPT_INVALID_ARG);
 
+   /* the incremental form gives the same mu however the message is cut, from the public key too */
+   DO(mldsa_init_mu(&md, ctx, sizeof(ctx) - 1, &pub));
+   for (i = 0; i < sizeof(msg); i += n) {
+      n = sizeof(msg) - i < 7 ? sizeof(msg) - i : 7;
+      DO(sha3_shake_process(&md, msg + i, n));
+   }
+   DO(sha3_shake_done(&md, mu2, sizeof(mu2)));
+   COMPARE_TESTVECTOR(mu2, sizeof(mu2), mu, mulen, "ML-DSA incremental mu", alg);
+   SHOULD_FAIL_WITH(mldsa_init_mu(&md, ctx, LTC_PQC_CTX_MAX_BYTES + 1uL, &key), CRYPT_INVALID_ARG);
+
    /* signing through mu is the same operation as signing the message */
    siglen = sig_sz;
    DO(mldsa_sign_ex(msg, sizeof(msg), sig, &siglen, ctx, sizeof(ctx) - 1, rnd, sizeof(rnd), &key));
@@ -938,9 +1002,25 @@ static int s_mldsa_mu_test(int alg)
    SHOULD_FAIL_WITH(mldsa_sign_ex_mu(mu, mulen - 1, sig2, &sig2len, rnd, sizeof(rnd), &key),
                     CRYPT_INVALID_ARG);
 
+   /* hedged signing through mu takes rnd from the PRNG, the signature verifies against the message */
+   sig2len = sig_sz;
+   DO(mldsa_sign_mu(mu, mulen, sig2, &sig2len, &yarrow_prng, prng_idx, &key));
+   stat = 0;
+   DO(mldsa_verify(sig2, sig2len, msg, sizeof(msg), ctx, sizeof(ctx) - 1, &stat, &pub));
+   ENSURE(stat == 1);
+   sig2len = sig_sz;
+   SHOULD_FAIL_WITH(mldsa_sign_mu(mu, mulen - 1, sig2, &sig2len, &yarrow_prng, prng_idx, &key), CRYPT_INVALID_ARG);
+   SHOULD_FAIL_WITH(mldsa_sign_mu(mu, mulen, sig2, &sig2len, &yarrow_prng, prng_idx, &pub), CRYPT_PK_NOT_PRIVATE);
+   sig2len = 1;
+   SHOULD_FAIL_WITH(mldsa_sign_mu(mu, mulen, sig2, &sig2len, &yarrow_prng, prng_idx, &key), CRYPT_BUFFER_OVERFLOW);
+   ENSURE(sig2len == sig_sz);
+
    /* an empty message with no context is allowed and is still bound by mu */
    mulen = sizeof(mu);
    DO(mldsa_compute_mu(mu, &mulen, NULL, 0, NULL, 0, &key));
+   DO(mldsa_init_mu(&md, NULL, 0, &key));
+   DO(sha3_shake_done(&md, mu2, sizeof(mu2)));
+   COMPARE_TESTVECTOR(mu2, sizeof(mu2), mu, mulen, "ML-DSA incremental mu, empty message", alg);
    siglen = sig_sz;
    DO(mldsa_sign_ex_mu(mu, mulen, sig, &siglen, rnd, sizeof(rnd), &key));
    stat = 0;
@@ -953,6 +1033,52 @@ static int s_mldsa_mu_test(int alg)
    XFREE(sig);
    return CRYPT_OK;
 }
+
+
+/* The incremental mu against a NIST vector: mldsa_init_mu(), the message through the SHAKE API and a deterministic signature
+   over the result have to reproduce the ACVP signature, and so does the one-shot mldsa_sign_ex(). */
+static int s_mldsa_acvp_mu_test(void)
+{
+   mldsa_key key;
+   hash_state md;
+   unsigned char sk[2600], ctx[LTC_PQC_CTX_MAX_BYTES], msg[8], rnd[LTC_MLDSA_RND_BYTES], mu[LTC_MLDSA_MU_BYTES];
+   unsigned char sig[2500], digest[32], expected[32];
+   unsigned long sklen, ctxlen, msglen, siglen, explen;
+
+   sklen = sizeof(sk);
+   DO(s_decode_hex(mldsa_44_acvp_sk_hex, sk, &sklen));
+   ctxlen = sizeof(ctx);
+   DO(s_decode_hex(mldsa_44_acvp_ctx_hex, ctx, &ctxlen));
+   msglen = sizeof(msg);
+   DO(s_decode_hex(mldsa_44_acvp_msg_hex, msg, &msglen));
+   explen = sizeof(expected);
+   DO(s_decode_hex(mldsa_44_acvp_sig_sha3_256_hex, expected, &explen));
+   XMEMSET(rnd, 0, sizeof(rnd)); /* the deterministic variant */
+
+   DO(mldsa_import_raw(sk, sklen, PK_PRIVATE, LTC_MLDSA_44, &key));
+
+   DO(mldsa_init_mu(&md, ctx, ctxlen, &key));
+   DO(sha3_shake_process(&md, msg, msglen));
+   DO(sha3_shake_done(&md, mu, sizeof(mu)));
+   siglen = sizeof(sig);
+   DO(mldsa_sign_ex_mu(mu, sizeof(mu), sig, &siglen, rnd, sizeof(rnd), &key));
+   DO(sha3_256_init(&md));
+   DO(sha3_process(&md, sig, siglen));
+   DO(sha3_done(&md, digest));
+   COMPARE_TESTVECTOR(digest, sizeof(digest), expected, explen, "ML-DSA ACVP, incremental mu", 0);
+
+   XMEMSET(sig, 0, sizeof(sig));
+   siglen = sizeof(sig);
+   DO(mldsa_sign_ex(msg, msglen, sig, &siglen, ctx, ctxlen, rnd, sizeof(rnd), &key));
+   DO(sha3_256_init(&md));
+   DO(sha3_process(&md, sig, siglen));
+   DO(sha3_done(&md, digest));
+   COMPARE_TESTVECTOR(digest, sizeof(digest), expected, explen, "ML-DSA ACVP, message", 0);
+
+   mldsa_free(&key);
+   return CRYPT_OK;
+}
+
 
 
 /* mldsa_check_key() has to detect a key struct that a caller changed */
@@ -1106,6 +1232,7 @@ int pqc_mldsa_test(void)
    DO(s_mldsa_mu_test(LTC_MLDSA_44));
    DO(s_mldsa_mu_test(LTC_MLDSA_65));
    DO(s_mldsa_mu_test(LTC_MLDSA_87));
+   DO(s_mldsa_acvp_mu_test());
    DO(s_mldsa_check_key_test(LTC_MLDSA_44));
    DO(s_mldsa_check_key_test(LTC_MLDSA_65));
    DO(s_mldsa_check_key_test(LTC_MLDSA_87));

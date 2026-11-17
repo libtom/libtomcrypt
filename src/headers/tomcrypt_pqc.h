@@ -162,6 +162,11 @@ int mldsa_sign_ex(const unsigned char *msg,  unsigned long  msglen,
                   const unsigned char *rnd,  unsigned long  rndlen,
                   const mldsa_key     *key);
 
+int mldsa_sign_mu(const unsigned char *mu,   unsigned long  mulen,
+                        unsigned char *sig,  unsigned long *siglen,
+                        prng_state    *prng, int            wprng,
+                  const mldsa_key     *key);
+
 int mldsa_sign_ex_mu(const unsigned char *mu,  unsigned long  mulen,
                            unsigned char *sig, unsigned long *siglen,
                      const unsigned char *rnd, unsigned long  rndlen,
@@ -177,6 +182,11 @@ int mldsa_compute_mu(      unsigned char *mu,  unsigned long *mulen,
                      const unsigned char *msg, unsigned long  msglen,
                      const unsigned char *ctx, unsigned long  ctxlen,
                      const mldsa_key     *key);
+
+/* incremental mu: mldsa_init_mu(), then sha3_shake_process() per piece, then sha3_shake_done(md, mu, LTC_MLDSA_MU_BYTES) */
+int mldsa_init_mu(hash_state *md,
+                  const unsigned char *ctx, unsigned long ctxlen,
+                  const mldsa_key     *key);
 
 int mldsa_verify_mu(const unsigned char *sig, unsigned long  siglen,
                     const unsigned char *mu,  unsigned long  mulen,

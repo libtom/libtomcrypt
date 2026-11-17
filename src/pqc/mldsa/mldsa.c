@@ -1368,26 +1368,39 @@ typedef struct {
    mldsa_polyveck s2, t0;
 } mldsa_sk_vecs;
 
+/* absorb tr || 0x00 || ctxlen || ctx, everything of mu that comes before the message */
+static int s_mldsa_mu_start(hash_state *state,
+                            const unsigned char tr[MLDSA_TRBYTES],
+                            const unsigned char *ctx, unsigned long ctxlen)
+{
+   unsigned char pre[2];
+   int err;
+
+   pre[0] = 0;
+   pre[1] = (unsigned char)ctxlen;
+
+   if ((err = sha3_shake_init(state, 256)) != CRYPT_OK) return err;
+   if ((err = sha3_shake_process(state, tr, MLDSA_TRBYTES)) != CRYPT_OK) return err;
+   if ((err = sha3_shake_process(state, pre, sizeof(pre))) != CRYPT_OK) return err;
+   /* ctx may be NULL when empty, the hashes reject NULL */
+   if (ctxlen > 0) {
+      if ((err = sha3_shake_process(state, ctx, ctxlen)) != CRYPT_OK) return err;
+   }
+
+   return CRYPT_OK;
+}
+
 /* mu = SHAKE256(tr || 0x00 || ctxlen || ctx || msg, 64), FIPS 204 5.2 M' framing */
 static int s_mldsa_compute_mu(unsigned char mu[MLDSA_CRHBYTES],
                               const unsigned char tr[MLDSA_TRBYTES],
                               const unsigned char *msg, unsigned long msglen,
                               const unsigned char *ctx, unsigned long ctxlen)
 {
-   unsigned char pre[2];
    hash_state state;
    int err;
 
-   pre[0] = 0;
-   pre[1] = (unsigned char)ctxlen;
-
-   if ((err = sha3_shake_init(&state, 256)) != CRYPT_OK) goto LBL_ERR;
-   if ((err = sha3_shake_process(&state, tr, MLDSA_TRBYTES)) != CRYPT_OK) goto LBL_ERR;
-   if ((err = sha3_shake_process(&state, pre, sizeof(pre))) != CRYPT_OK) goto LBL_ERR;
-   /* ctx and msg may be NULL when empty, the hashes reject NULL */
-   if (ctxlen > 0) {
-      if ((err = sha3_shake_process(&state, ctx, ctxlen)) != CRYPT_OK) goto LBL_ERR;
-   }
+   if ((err = s_mldsa_mu_start(&state, tr, ctx, ctxlen)) != CRYPT_OK) goto LBL_ERR;
+   /* msg may be NULL when empty, the hashes reject NULL */
    if (msglen > 0) {
       if ((err = sha3_shake_process(&state, msg, msglen)) != CRYPT_OK) goto LBL_ERR;
    }
@@ -2119,12 +2132,46 @@ int mldsa_sign_ex(const unsigned char *msg,  unsigned long  msglen,
 }
 
 /**
-   ML-DSA signing with externally precomputed mu (FIPS 204 5.4.1).
+   Sign an externally computed message representative mu with ML-DSA (FIPS 204 6.2, Algorithm 7 line 6).
 
-   Identical to mldsa_sign_ex() but skips the message-binding hash; the caller
+   Like mldsa_sign(), but takes mu from mldsa_compute_mu() or mldsa_init_mu() instead of the message,
+   so the message can be hashed in pieces or by another component.
+   @param mu       The 64-byte message representative
+   @param mulen    Length of mu in bytes; must equal 64
+   @param sig      [out] The signature
+   @param siglen   [in/out] Max size and resulting size of the signature
+   @param prng     An active PRNG state (for hedged signing)
+   @param wprng    The index of the desired PRNG
+   @param key      The private (signing) key
+   @return CRYPT_OK if successful, CRYPT_INVALID_PACKET if the private key
+           encodes s1/s2 coefficients outside [-eta, +eta] (FIPS 204 3.6.3)
+*/
+int mldsa_sign_mu(const unsigned char *mu,   unsigned long  mulen,
+                        unsigned char *sig,  unsigned long *siglen,
+                        prng_state    *prng, int            wprng,
+                  const mldsa_key     *key)
+{
+   unsigned char rnd[MLDSA_RNDBYTES];
+   int err;
+
+   if ((err = prng_is_valid(wprng)) != CRYPT_OK) return err;
+   if (prng_descriptor[wprng].read(rnd, MLDSA_RNDBYTES, prng) != MLDSA_RNDBYTES) {
+      zeromem(rnd, sizeof(rnd));
+      return CRYPT_ERROR_READPRNG;
+   }
+
+   err = mldsa_sign_ex_mu(mu, mulen, sig, siglen, rnd, sizeof(rnd), key);
+
+   zeromem(rnd, sizeof(rnd));
+   return err;
+}
+
+/**
+   ML-DSA signing of an externally computed mu with caller-supplied rnd (FIPS 204 6.2, Algorithm 7 line 6).
+
+   Like mldsa_sign_mu(), but rnd comes from the caller, see mldsa_sign_ex(). The caller
    supplies the 64-byte mu = SHAKE256(BytesToBits(tr) || M', 64) directly.
-   This is the streaming/precomputed-hash signing path used by ACVP test
-   vectors and protocols that hash the message in a separate step.
+   It is meant for KAT and ACVP vectors that fix rnd, applications should call mldsa_sign_mu().
    @param mu       The 64-byte precomputed mu
    @param mulen    Length of mu in bytes; must equal 64
    @param sig      [out] The signature
@@ -2159,10 +2206,11 @@ int mldsa_sign_ex_mu(const unsigned char *mu,  unsigned long  mulen,
 }
 
 /**
-   Compute the ML-DSA message representative mu (FIPS 204 5.4.1).
+   Compute the ML-DSA message representative mu (FIPS 204 6.2, Algorithm 7 line 6).
 
    mu = SHAKE256(tr || 0x00 || ctxlen || ctx || msg, 64), where tr = SHAKE256(pk, 64).
-   Pass the result to mldsa_sign_ex_mu() or mldsa_verify_mu().
+   Pass the result to mldsa_sign_mu(), mldsa_sign_ex_mu() or mldsa_verify_mu().
+   Use mldsa_init_mu() if the message is not available in one piece.
    @param mu       [out] The message representative
    @param mulen    [in/out] Max size and resulting size of mu; must be at least 64
    @param msg      The message
@@ -2205,7 +2253,44 @@ LBL_ERR:
 }
 
 /**
-   Verify a signature against an externally computed mu (FIPS 204 5.4.1).
+   Start the incremental computation of the ML-DSA message representative mu.
+
+   Absorbs tr || 0x00 || ctxlen || ctx, everything of mu that comes before the message. Then feed the
+   message with sha3_shake_process(md, ...) in as many pieces as needed and get mu with
+   sha3_shake_done(md, mu, LTC_MLDSA_MU_BYTES). The result is the same as from mldsa_compute_mu().
+   @param md       [out] The hash state to set up
+   @param ctx      Optional context string (can be NULL if ctxlen is 0)
+   @param ctxlen   Length of the context string (max 255 bytes per FIPS 204)
+   @param key      The key used to sign or verify, public or private
+   @return CRYPT_OK if successful
+*/
+int mldsa_init_mu(hash_state *md,
+                  const unsigned char *ctx, unsigned long ctxlen,
+                  const mldsa_key     *key)
+{
+   mldsa_params p;
+   unsigned char tr[MLDSA_TRBYTES];
+   int err;
+
+   LTC_ARGCHK(md  != NULL);
+   LTC_ARGCHK(ctx != NULL || ctxlen == 0);
+   LTC_ARGCHK(key != NULL);
+
+   if (ctxlen > LTC_PQC_CTX_MAX_BYTES) return CRYPT_INVALID_ARG;
+
+   if ((err = s_mldsa_key_valid(key, 0, &p)) != CRYPT_OK) return err;
+
+   /* tr is computed from pk, so a public key works too */
+   if ((err = s_shake256(tr, MLDSA_TRBYTES, key->pk, p.pk_bytes)) == CRYPT_OK) {
+      err = s_mldsa_mu_start(md, tr, ctx, ctxlen);
+   }
+
+   zeromem(tr, sizeof(tr));
+   return err;
+}
+
+/**
+   Verify a signature against an externally computed mu (FIPS 204 6.3, Algorithm 8 line 7).
 
    Like mldsa_verify(), but takes the 64-byte mu from mldsa_compute_mu() instead of the message.
    @param sig      The signature to verify
