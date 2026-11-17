@@ -362,7 +362,7 @@ int siv_decrypt_memory(                int  cipher,
       return err;
    }
    *ptlen = ctlen - 16;
-   pt_work = XMALLOC(*ptlen ? *ptlen : 1); /* malloc(0) may return NULL */
+   pt_work = XMALLOC(*ptlen ? *ptlen : 1); /* XMALLOC(0) may return NULL */
    if (pt_work == NULL) {
       return CRYPT_MEM;
    }
@@ -450,7 +450,7 @@ int siv_memory(                int  cipher,           int  direction,
    } else {
       buf_len = inlen;
    }
-   buf = XMALLOC(buf_len ? buf_len : 1); /* malloc(0) may return NULL */
+   buf = XMALLOC(buf_len ? buf_len : 1); /* XMALLOC(0) may return NULL */
    if (buf == NULL)
       return CRYPT_MEM;
 
