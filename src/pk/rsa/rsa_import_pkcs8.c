@@ -22,11 +22,17 @@ int rsa_import_pkcs8_asn1(ltc_asn1_list *alg_id, ltc_asn1_list *priv_key, rsa_ke
    }
 
    if ((err = rsa_import_pkcs1(priv_key->data, priv_key->size, key)) != CRYPT_OK) {
-      rsa_free(key);
-      return err;
+      goto LBL_ERR;
    }
-   key->type = PK_PRIVATE;
+   /* PKCS#8 has to contain an RSAPrivateKey */
+   if (key->type != PK_PRIVATE) {
+      err = CRYPT_INVALID_PACKET;
+      goto LBL_ERR;
+   }
+   return CRYPT_OK;
 
+LBL_ERR:
+   rsa_free(key);
    return err;
 }
 
