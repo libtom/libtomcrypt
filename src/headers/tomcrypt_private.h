@@ -894,7 +894,7 @@ int ed448_import_pkcs8_asn1(ltc_asn1_list *alg_id, ltc_asn1_list *priv_key,
 #endif /* LTC_CURVE448 */
 
 #if defined(LTC_SLHDSA) || defined(LTC_MLDSA)
-/* pre-hash functions of HashSLH-DSA (FIPS 205 10.3) and HashML-DSA (FIPS 204 5.4) */
+/* pre-hash functions of HashSLH-DSA (FIPS 205 10.2.2 and 10.3) and HashML-DSA (FIPS 204 5.4) */
 enum ltc_pqc_prehash {
    LTC_PQC_PH_SHA256   = 1,
    LTC_PQC_PH_SHA512   = 2,

@@ -113,7 +113,7 @@ enum ltc_mldsa_id {
 
 /* ML-DSA byte-length constants (fixed across all parameter sets) */
 #define LTC_MLDSA_RND_BYTES         32 /* per-signature rnd (mldsa_sign_ex)         */
-#define LTC_MLDSA_MU_BYTES          64 /* external mu (mldsa_sign_ex_mu)            */
+#define LTC_MLDSA_MU_BYTES          64 /* external mu (the mldsa_*_mu functions)    */
 #define LTC_MLDSA_KEYGEN_SEED_BYTES 32 /* seed for mldsa_make_key_from_seed (xi)    */
 
 /** ML-DSA key */

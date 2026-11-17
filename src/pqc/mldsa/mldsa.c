@@ -598,7 +598,7 @@ static void s_polyeta_pack(unsigned char *r, const mldsa_poly *a, int eta)
    zeromem(t, sizeof(t));
 }
 
-/* FIPS 204 3.6.3: s1, s2 coefficients must lie in [-eta, +eta]. The packed encoding uses bitlen(2*eta) bits per
+/* FIPS 204 7.2 (skDecode): s1, s2 coefficients must lie in [-eta, +eta]. The packed encoding uses bitlen(2*eta) bits per
    coefficient, which is a strict superset of the spec range, so we range-check on unpack and reject malformed keys. */
 static int s_polyeta_unpack(mldsa_poly *r, const unsigned char *a, int eta)
 {
@@ -1882,7 +1882,7 @@ int mldsa_export_raw(unsigned char *out, unsigned long *outlen, int which, const
    return CRYPT_OK;
 }
 
-/* Rebuild pk from sk and check the encoded t0 and tr against it, FIPS 204 3.6.3. pk needs room for p->pk_bytes. */
+/* Rebuild pk from sk and check the encoded t0 and tr against it. pk needs room for p->pk_bytes. */
 static int s_mldsa_rebuild_pk(unsigned char *pk, const unsigned char *sk, const mldsa_params *p)
 {
    unsigned char rho[MLDSA_SEEDBYTES], tr[MLDSA_TRBYTES], kk[MLDSA_SEEDBYTES];
@@ -2157,7 +2157,7 @@ static int s_mldsa_sign_rng(const unsigned char *msg,  unsigned long  msglen,
    @param wprng    The index of the desired PRNG
    @param key      The private (signing) key
    @return CRYPT_OK if successful, CRYPT_INVALID_PACKET if the private key
-           encodes s1/s2 coefficients outside [-eta, +eta] (FIPS 204 3.6.3)
+           encodes s1/s2 coefficients outside [-eta, +eta] (FIPS 204 7.2)
 */
 int mldsa_sign(const unsigned char *msg,  unsigned long  msglen,
                      unsigned char *sig,  unsigned long *siglen,
@@ -2169,7 +2169,7 @@ int mldsa_sign(const unsigned char *msg,  unsigned long  msglen,
 }
 
 /**
-   ML-DSA signing with caller-supplied per-signature randomness (FIPS 204 6.2 ML-DSA.Sign_internal).
+   ML-DSA signing with caller-supplied per-signature randomness (FIPS 204 5.2 ML-DSA.Sign).
 
    Like mldsa_sign(), but rnd comes from the caller. An all-zero rnd gives the deterministic
    variant, an rnd from a CSPRNG the hedged variant that mldsa_sign() uses. It is meant for KAT
@@ -2184,7 +2184,7 @@ int mldsa_sign(const unsigned char *msg,  unsigned long  msglen,
    @param rndlen   Length of rnd in bytes; must equal 32
    @param key      The private (signing) key
    @return CRYPT_OK if successful, CRYPT_INVALID_PACKET if the private key
-           encodes s1/s2 coefficients outside [-eta, +eta] (FIPS 204 3.6.3)
+           encodes s1/s2 coefficients outside [-eta, +eta] (FIPS 204 7.2)
 */
 int mldsa_sign_ex(const unsigned char *msg,  unsigned long  msglen,
                         unsigned char *sig,  unsigned long *siglen,
@@ -2260,7 +2260,7 @@ int mldsa_sign_hash_ex(const unsigned char *hash, unsigned long  hashlen,
    @param wprng    The index of the desired PRNG
    @param key      The private (signing) key
    @return CRYPT_OK if successful, CRYPT_INVALID_PACKET if the private key
-           encodes s1/s2 coefficients outside [-eta, +eta] (FIPS 204 3.6.3)
+           encodes s1/s2 coefficients outside [-eta, +eta] (FIPS 204 7.2)
 */
 int mldsa_sign_mu(const unsigned char *mu,   unsigned long  mulen,
                         unsigned char *sig,  unsigned long *siglen,
@@ -2296,7 +2296,7 @@ int mldsa_sign_mu(const unsigned char *mu,   unsigned long  mulen,
    @param rndlen   Length of rnd in bytes; must equal 32
    @param key      The private (signing) key
    @return CRYPT_OK if successful, CRYPT_INVALID_PACKET if the private key
-           encodes s1/s2 coefficients outside [-eta, +eta] (FIPS 204 3.6.3)
+           encodes s1/s2 coefficients outside [-eta, +eta] (FIPS 204 7.2)
 */
 int mldsa_sign_ex_mu(const unsigned char *mu,  unsigned long  mulen,
                            unsigned char *sig, unsigned long *siglen,
@@ -2543,7 +2543,7 @@ int mldsa_verify_hash(const unsigned char *sig,  unsigned long  siglen,
    @param secret_key_sz    [out] Secret key size in bytes
    @param signature_sz     [out] Signature size in bytes
    @param rnd_sz           [out] Per-signature rnd size in bytes for mldsa_sign_ex (always 32)
-   @param mu_sz            [out] External mu size in bytes for mldsa_sign_ex_mu (always 64)
+   @param mu_sz            [out] External mu size in bytes for the mldsa_*_mu functions (always 64)
    @param keygen_seed_sz   [out] Seed size in bytes for mldsa_make_key_from_seed (always 32)
    @return CRYPT_OK if successful
 */

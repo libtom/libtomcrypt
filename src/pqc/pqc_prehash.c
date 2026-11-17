@@ -4,7 +4,7 @@
 
 /**
   @file pqc_prehash.c
-  Pre-hash functions shared by HashSLH-DSA (FIPS 205 10.3) and HashML-DSA (FIPS 204 5.4)
+  Pre-hash functions shared by HashSLH-DSA (FIPS 205 10.2.2 and 10.3) and HashML-DSA (FIPS 204 5.4)
 */
 
 #if defined(LTC_SLHDSA) || defined(LTC_MLDSA)

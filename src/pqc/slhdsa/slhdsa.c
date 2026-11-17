@@ -1736,7 +1736,7 @@ int slhdsa_make_key(prng_state *prng, int wprng, int alg, slhdsa_key *key)
 }
 
 /**
-   Generate an SLH-DSA key pair deterministically from a seed (FIPS 205 10.1 slh_keygen_internal).
+   Generate an SLH-DSA key pair deterministically from a seed (FIPS 205 9.1 slh_keygen_internal).
    @param alg      The parameter set (one of ltc_slhdsa_id)
    @param seed     The input seed: SK.seed || SK.prf || PK.seed (3*n bytes,
                    where n is 16, 24, or 32 depending on the parameter set)
@@ -2044,7 +2044,7 @@ int slhdsa_sign(const unsigned char *msg,  unsigned long  msglen,
 }
 
 /**
-   SLH-DSA signing with caller-supplied opt_rand (FIPS 205 9.2 slh_sign_internal).
+   SLH-DSA signing with caller-supplied opt_rand (FIPS 205 10.2.1 slh_sign).
 
    Like slhdsa_sign(), but opt_rand comes from the caller. opt_rand set to PK.seed gives the
    deterministic variant, an opt_rand from a CSPRNG the hedged variant that slhdsa_sign() uses.

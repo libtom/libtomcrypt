@@ -7390,9 +7390,9 @@ Deterministic variant of \code{mlkem\_encaps()} corresponding to the
 \textit{ML-KEM.Encaps\_internal} routine in FIPS 203 \S6.2.
 Instead of drawing the 32-byte encapsulation entropy from a PRNG,
 the caller supplies it as \textit{m} (\textit{mlen} must equal 32).
-This is intended for known-answer testing, deterministic protocol variants,
-and rerunning a failed encapsulation against the same input.
-For ordinary use, \code{mlkem\_encaps()} should be preferred.
+It is meant for known-answer, ACVP and interoperability testing.
+ML-KEM is only secure if \textit{m} is secret and unpredictable, so applications should call
+\code{mlkem\_encaps()} and let the PRNG produce it.
 Returns \code{CRYPT\_INVALID\_ARG} if \textit{mlen} is not 32, or
 \code{CRYPT\_BUFFER\_OVERFLOW} if either output buffer is too small.
 
@@ -7468,6 +7468,8 @@ ML-DSA is a digital signature algorithm based on module lattices. It supports he
 
 ML-DSA has 6 parameter sets: 3 Pure ML-DSA variants and 3 HashML-DSA variants (FIPS 204 \S5.4).
 HashML-DSA signs the SHA-512 digest of the message instead of the message itself.
+FIPS 204 allows other pre-hash functions as well, but only SHA-512 is supported, the one that the three
+HashML-DSA OIDs name.
 Both kinds use the same keys and the same API, the algorithm identifier of the key determines which
 signature is made and verified. They are separate algorithms: a signature of one kind does not verify
 as the other, not even with the same key material.
@@ -7489,7 +7491,9 @@ LTC\_MLDSA\_HASH\_87\_WITH\_SHA512 & 2592 bytes & 4896 bytes & 4627 bytes \\
 \end{center}
 
 A HashML-DSA key has its own OID in \textit{PKCS \#8} and \textit{SubjectPublicKeyInfo}, so the kind of a
-key survives export and import. RFC 9881 \S8.3 does not allow HashML-DSA public keys in \textit{X.509}
+key survives export and import. These encodings reuse the structures that RFC 9881 defines for the
+Pure ML-DSA OIDs. RFC 9881 does not define them for HashML-DSA, so other implementations may not read
+such keys. RFC 9881 \S8.3 does not allow HashML-DSA public keys in \textit{X.509}
 certificates, so \code{mldsa\_import\_x509()} and \code{pem\_decode()} of a certificate reject them.
 To sign a message that is hashed in pieces with a key from a certificate, use Pure ML-DSA with an
 external $\mu$, see \code{mldsa\_init\_mu()}.
@@ -7521,7 +7525,7 @@ preprocessor macros in \texttt{tomcrypt\_pqc.h}:
 \textbf{Macro} & \textbf{Value} & \textbf{Meaning} \\
 \hline
 \code{LTC\_MLDSA\_RND\_BYTES}         & 32 & Per-signature \textit{rnd} for \code{mldsa\_sign\_ex()} \\
-\code{LTC\_MLDSA\_MU\_BYTES}          & 64 & External \textit{mu} for \code{mldsa\_sign\_ex\_mu()} \\
+\code{LTC\_MLDSA\_MU\_BYTES}          & 64 & External \textit{mu}, see \code{mldsa\_sign\_mu()} \\
 \code{LTC\_MLDSA\_KEYGEN\_SEED\_BYTES} & 32 & Seed for \code{mldsa\_make\_key\_from\_seed()} ($\xi$) \\
 \hline
 \end{tabular}
@@ -7757,7 +7761,7 @@ With a HashML-DSA key the message is hashed with SHA-512 first and the digest is
 This needs \code{LTC\_SHA512} and returns \code{CRYPT\_INVALID\_HASH} without it.
 Returns \code{CRYPT\_BUFFER\_OVERFLOW} if the signature buffer is too small,
 or \code{CRYPT\_INVALID\_PACKET} if the private key encodes \textit{s1}/\textit{s2}
-coefficients outside $[-\eta, +\eta]$ as required by FIPS 204 \S3.6.3.
+coefficients outside $[-\eta, +\eta]$, which a valid key never has (FIPS 204 \S7.2, \textit{skDecode}).
 
 \index{mldsa\_sign\_ex()}
 \begin{verbatim}
@@ -7768,10 +7772,9 @@ int mldsa_sign_ex(const unsigned char *msg,  unsigned long  msglen,
                   const mldsa_key     *key);
 \end{verbatim}
 
-Deterministic variant of \code{mldsa\_sign()} corresponding to the
-\textit{ML-DSA.Sign\_internal} routine in FIPS 204 \S5.2.
-Instead of drawing the 32-byte per-signature randomness $\rho'$ from a PRNG,
-the caller supplies it as \textit{rnd} (\textit{rndlen} must equal 32).
+Variant of \code{mldsa\_sign()} that takes the per-signature randomness from the caller.
+It is \textit{ML-DSA.Sign} from FIPS 204 \S5.2, except that the 32-byte \textit{rnd} is not drawn
+from a PRNG but supplied by the caller (\textit{rndlen} must equal 32).
 Setting \textit{rnd} to all zeros yields the spec's ``deterministic'' variant;
 setting it from a CSPRNG yields the ``hedged'' variant produced by
 \code{mldsa\_sign()}.
@@ -8006,6 +8009,7 @@ SHA-2 and SHAKE variants at the same security level have identical key and signa
 hash function used internally.
 The HashSLH-DSA parameter sets use the same API as the pure variants; the selected algorithm identifier determines
 the pre-hash function used by the signature scheme.
+FIPS 205 allows other pre-hash functions as well, but only the one that the OID of the parameter set names is supported.
 
 \begin{center}
 \begin{tabular}{|l|c|c|c|}
@@ -8097,7 +8101,7 @@ int slhdsa_make_key_from_seed(int alg,
 \end{verbatim}
 
 Deterministic variant of \code{slhdsa\_make\_key()} corresponding to the
-\textit{slh\_keygen\_internal} routine in FIPS 205 \S10.1.
+\textit{slh\_keygen\_internal} routine in FIPS 205 \S9.1.
 The \textit{seed} input is the concatenation \textit{SK.seed} $\|$ \textit{SK.prf} $\|$ \textit{PK.seed}
 and must be exactly $3n$ bytes long, where $n$ is 16, 24, or 32 for the 128-, 192-, and 256-bit
 security levels respectively.  This is required to verify FIPS 205 known-answer test vectors.
@@ -8162,8 +8166,10 @@ int slhdsa_import_raw(const unsigned char *in, unsigned long inlen,
 Imports a key from a raw byte buffer.
 The \textit{inlen} must exactly match the expected key size for the given \textit{alg} and \textit{which}.
 Set \textit{which} to \code{PK\_PUBLIC} to import a verification key, or \code{PK\_PRIVATE}
-to import a signing key.  When importing a private key, the public key is automatically
-extracted (it is embedded in the secret key format).
+to import a signing key.  When importing a private key, the public key is taken from it, and PK.root
+is recomputed from SK.seed and PK.seed and compared with the stored value. This rebuilds the top Merkle
+tree, so it takes about as long as key generation, which is noticeable for the ``small'' (S) parameter
+sets. \code{slhdsa\_import\_pkcs8()} and \code{pem\_decode()} do the same.
 The caller must eventually call \code{slhdsa\_free()} to release the imported key.
 
 \index{slhdsa\_import\_x509()}
@@ -8183,7 +8189,8 @@ int slhdsa_import_pkcs8(const unsigned char *in, unsigned long inlen,
 
 To import a private key in the \textit{OneAsymmetricKey} a.k.a. \textit{PKCS \#8} format,
 either plain or PBES encrypted, one can use the function \textit{slhdsa\_import\_pkcs8}.
-The private key payload uses the raw SLH-DSA private-key octets defined for the selected parameter set.
+As RFC 9909 specifies, the \textit{privateKey} OCTET STRING holds the raw SLH-DSA private-key octets of the
+selected parameter set. A key that is wrapped in one more OCTET STRING is accepted as well.
 
 \subsection{Key Validation}
 
@@ -8234,14 +8241,13 @@ int slhdsa_sign_ex(const unsigned char *msg,     unsigned long  msglen,
                    const slhdsa_key    *key);
 \end{verbatim}
 
-Deterministic variant of \code{slhdsa\_sign()} corresponding to the
-\textit{slh\_sign\_internal} routine in FIPS 205 \S10.2.
-Instead of drawing the per-signature randomness from a PRNG,
-the caller supplies it as \textit{optrand}.
+Variant of \code{slhdsa\_sign()} that takes the per-signature randomness from the caller.
+It is \textit{slh\_sign} from FIPS 205 \S10.2.1, except that \textit{opt\_rand} is not drawn from a PRNG
+but supplied by the caller as \textit{optrand}.
 Unlike ML-DSA's \textit{rnd}, the SLH-DSA \textit{optrand} length depends on the parameter set
 (16, 24, or 32 bytes for the 128-, 192-, and 256-bit security levels respectively),
 matching the \textit{n} parameter; \textit{optrandlen} must equal that value.
-Setting \textit{optrand} to the public seed (or all zeros) yields the spec's
+Setting \textit{optrand} to PK.seed, the first $n$ bytes of the public key, yields the spec's
 ``deterministic'' variant; setting it from a CSPRNG yields the ``hedged'' variant
 produced by \code{slhdsa\_sign()}.
 This is required to verify FIPS 205 known-answer test vectors, which fix \textit{optrand}.
@@ -8386,6 +8392,7 @@ enum ltc_pka_id {
    LTC_PKA_X25519,
    LTC_PKA_ED25519,
    LTC_PKA_DH,
+   LTC_PKA_RSA_PSS,
    LTC_PKA_X448,
    LTC_PKA_ED448,
    LTC_PKA_MLDSA,
@@ -8417,34 +8424,13 @@ typedef struct {
       rsa_key rsa;
 #endif
 #ifdef LTC_MLKEM
-      struct {
-         int alg;
-         int type;
-         unsigned char *pk;
-         unsigned long pklen;
-         unsigned char *sk;
-         unsigned long sklen;
-      } mlkem;
+      mlkem_key mlkem;
 #endif
 #ifdef LTC_MLDSA
-      struct {
-         int alg;
-         int type;
-         unsigned char *pk;
-         unsigned long pklen;
-         unsigned char *sk;
-         unsigned long sklen;
-      } mldsa;
+      mldsa_key mldsa;
 #endif
 #ifdef LTC_SLHDSA
-      struct {
-         int alg;
-         int type;
-         unsigned char *pk;
-         unsigned long pklen;
-         unsigned char *sk;
-         unsigned long sklen;
-      } slhdsa;
+      slhdsa_key slhdsa;
 #endif
       char dummy;
    } u;
@@ -10211,8 +10197,12 @@ static const char *pka_algos[] = {
    "X25519",
    "Ed25519",
    "DH",
+   "RSA-PSS",
    "X448",
    "Ed448",
+   "ML-DSA",
+   "SLH-DSA",
+   "ML-KEM",
 };
 
 static int password_get(void **p, unsigned long *l, void *u)
