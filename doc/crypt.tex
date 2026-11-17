@@ -8153,6 +8153,54 @@ The PKCS \#8 import has no direct API endpoints, but it is available either thro
 
 An unencrypted PKCS \#8 \textit{PrivateKeyInfo} is created by \textit{pka\_key\_export()} (c.f. Ch. \ref{pka-union}).
 
+\index{pbes2\_encrypt}
+To protect it with a password the following API function is provided:
+
+\begin{verbatim}
+typedef struct {
+   const char   *cipher;
+   unsigned long keylen;
+   const char   *prf;
+   unsigned long iterations;
+   unsigned long saltlen;
+} pbes2_enc_params;
+
+int pbes2_encrypt(      unsigned char *out, unsigned long *outlen,
+                  const unsigned char *in,  unsigned long  inlen,
+                  const unsigned char *pw,  unsigned long  pwlen,
+                  const pbes2_enc_params *params,
+                        prng_state *prng, int wprng);
+\end{verbatim}
+
+This encrypts the \textit{PrivateKeyInfo} of length \textit{inlen} in \textit{in} with the password \textit{pw} and
+stores the resulting \textit{EncryptedPrivateKeyInfo} in \textit{out}.
+The scheme is always PBES2 with PBKDF2 and a cipher in CBC mode. The salt and the IV are read from the PRNG, so they are different for every call.
+The cipher and the hash must be registered.
+The buffers \textit{in} and \textit{out} must not overlap.
+
+\textit{params} may be \texttt{NULL}. A field that is \texttt{0} or \texttt{NULL} selects its default:
+
+\begin{table}[H]
+\begin{small}
+\begin{tabular}{|l|l|l|}
+\hline \textbf{Field}       & \textbf{Default}                         & \textbf{Accepted values} \\
+\hline \texttt{cipher}      & \texttt{"aes"}                           & \texttt{"aes"}, \texttt{"3des"} \\
+\hline \texttt{keylen}      & the longest key of the cipher            & 16, 24 or 32 bytes for AES, 24 bytes for 3DES \\
+\hline \texttt{prf}         & \texttt{"sha256"}                        & the SHA-1, SHA-2 and SHA-3 hashes \\
+\hline \texttt{iterations}  & \texttt{LTC\_PBES2\_DEFAULT\_ITERATIONS} & 1 to \texttt{LTC\_PBES\_MAX\_ITERATIONS} \\
+\hline \texttt{saltlen}     & 16                                       & 8 to 64 bytes \\
+\hline
+\end{tabular}
+\end{small}
+\caption{Parameters of \textit{pbes2\_encrypt()}}
+\label{pbes2-enc-params}
+\end{table}
+
+DES and RC2 are only supported when decoding. An empty password is refused with \texttt{CRYPT\_INVALID\_ARG}.
+
+If \textit{out} is too small the function returns \texttt{CRYPT\_BUFFER\_OVERFLOW} and stores the required size in \textit{outlen}.
+Such a call reads nothing from the PRNG and does not run the key derivation.
+
 
 \mysection{Key Derviation Functions}
 \subsection{HKDF}

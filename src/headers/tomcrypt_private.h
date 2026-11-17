@@ -204,6 +204,14 @@ typedef struct {
    const pbes_properties *data;
    const char *oid;
 } oid_to_pbes;
+
+enum pbes2_oid {
+   PBES2_OID_PBES2,
+   PBES2_OID_PBKDF2,
+   PBES2_OID_PRF,
+   PBES2_OID_CIPHER,
+   PBES2_OID_NUM
+};
 #endif
 
 /*
@@ -530,6 +538,7 @@ int pbes_decrypt(const pbes_arg  *arg, unsigned char *dec_data, unsigned long *d
 
 int pbes1_extract(const ltc_asn1_list *s, pbes_arg *res);
 int pbes2_extract(const ltc_asn1_list *s, pbes_arg *res);
+int pbes2_find_oids(const char *cipher, unsigned long *keylen, const char *prf, const char *oids[PBES2_OID_NUM]);
 #endif
 
 #ifdef LTC_PEM

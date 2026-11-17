@@ -30,6 +30,28 @@ typedef struct password_ctx {
    void *userdata;
 } password_ctx;
 
+#ifdef LTC_PBES
+/** Parameters of pbes2_encrypt(), a field that is 0 or NULL selects its default */
+typedef struct {
+   /** Name of the cipher, "aes" (default) or "3des" */
+   const char   *cipher;
+   /** Key length in bytes, by default the longest key of the cipher */
+   unsigned long keylen;
+   /** Name of the hash used as PBKDF2 PRF, "sha256" by default */
+   const char   *prf;
+   /** PBKDF2 iteration count, LTC_PBES2_DEFAULT_ITERATIONS by default */
+   unsigned long iterations;
+   /** Salt length in bytes, 8 to 64, 16 by default */
+   unsigned long saltlen;
+} pbes2_enc_params;
+
+int pbes2_encrypt(      unsigned char *out, unsigned long *outlen,
+                  const unsigned char *in,  unsigned long  inlen,
+                  const unsigned char *pw,  unsigned long  pwlen,
+                  const pbes2_enc_params *params,
+                        prng_state *prng, int wprng);
+#endif /* LTC_PBES */
+
 /* ---- NUMBER THEORY ---- */
 
 enum ltc_pka_id {

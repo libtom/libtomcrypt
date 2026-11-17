@@ -74,6 +74,48 @@ static int s_pbes2_from_oid(const ltc_asn1_list *cipher_oid, const ltc_asn1_list
    return CRYPT_OK;
 }
 
+/**
+   Find the OIDs of the PBES2 AlgorithmIdentifier that pbes2_extract() maps to the given cipher and PRF
+
+   @param cipher   The name of the cipher
+   @param keylen   [in/out] The key length in bytes, 0 selects the longest key of the cipher
+   @param prf      The name of the hash used by the PBKDF2 PRF
+   @param oids     [out] The OIDs, indexed by enum pbes2_oid
+   @return CRYPT_OK on success
+*/
+int pbes2_find_oids(const char *cipher, unsigned long *keylen, const char *prf, const char *oids[PBES2_OID_NUM])
+{
+   unsigned int i;
+   unsigned long klen = 0;
+   int err = CRYPT_INVALID_CIPHER;
+
+   LTC_ARGCHK(cipher != NULL);
+   LTC_ARGCHK(keylen != NULL);
+   LTC_ARGCHK(prf    != NULL);
+   LTC_ARGCHK(oids   != NULL);
+
+   oids[PBES2_OID_PBES2] = s_oid_pbes2;
+   oids[PBES2_OID_PBKDF2] = s_oid_pbkdf2;
+   for (i = 0; i < LTC_ARRAY_SIZE(s_pbes2_list); ++i) {
+      const pbes_properties *p = s_pbes2_list[i].data;
+      /* des and rc2 have keys below 128 bits, they are only read */
+      if (p->keylen < 16 || XSTRCMP(p->c, cipher) != 0) continue;
+      err = CRYPT_INVALID_KEYSIZE;
+      if ((*keylen == 0 && p->keylen > klen) || *keylen == p->keylen) {
+         klen = p->keylen;
+         oids[PBES2_OID_CIPHER] = s_pbes2_list[i].oid;
+      }
+   }
+   if (klen == 0) return err;
+   *keylen = klen;
+   for (i = 0; i < LTC_ARRAY_SIZE(s_hmac_oid_names); ++i) {
+      if (XSTRCMP(s_hmac_oid_names[i].id, prf) == 0) {
+         oids[PBES2_OID_PRF] = s_hmac_oid_names[i].oid;
+         return CRYPT_OK;
+      }
+   }
+   return CRYPT_INVALID_HASH;
+}
 
 /**
    Extract PBES2 parameters
