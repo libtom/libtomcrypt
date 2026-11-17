@@ -108,17 +108,23 @@ static int s_mldsa_import_pkcs8_asn1(ltc_asn1_list *alg_id, ltc_asn1_list *priv_
    if (err != CRYPT_OK) {
       return err;
    }
+   /* the both form is one SEQUENCE, nothing may follow it */
+   if (inlen != priv_key->size || decoded->next != NULL) {
+      err = CRYPT_INVALID_PACKET;
+      goto cleanup;
+   }
 
    n = 0;
    LTC_SET_DER_FLEXI_CHECK(flexi_should, n++, LTC_ASN1_OCTET_STRING, &seed);
    LTC_SET_DER_FLEXI_CHECK(flexi_should, n++, LTC_ASN1_OCTET_STRING, &raw_key);
    LTC_SET_DER_FLEXI_CHECK(flexi_should, n, LTC_ASN1_EOL, NULL);
    err = der_flexi_sequence_cmp(decoded, flexi_should);
-   if (err != CRYPT_OK && err != CRYPT_INPUT_TOO_LONG) {
+   if (err != CRYPT_OK) {
       goto cleanup;
    }
 
-   if (seed == NULL || raw_key == NULL) {
+   /* der_flexi_sequence_cmp() does not look past its last check, but expandedKey is the last element */
+   if (seed == NULL || raw_key == NULL || raw_key->next != NULL) {
       err = CRYPT_INVALID_PACKET;
       goto cleanup;
    }

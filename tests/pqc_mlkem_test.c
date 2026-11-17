@@ -370,6 +370,24 @@ static int s_mlkem_key_is(const mlkem_key *key,
    return CRYPT_OK;
 }
 
+/* PKCS#8 around any privateKey content, to see what the importer does with a malformed private-key CHOICE */
+static int s_mlkem_wrap_pkcs8(unsigned char *out, unsigned long *outlen, enum ltc_oid_id oid_id,
+                              const unsigned char *inner, unsigned long innerlen)
+{
+   const char *OID;
+   unsigned long version = 0, oid[16], oidlen = LTC_ARRAY_SIZE(oid);
+   ltc_asn1_list alg_id[1];
+
+   DO(pk_get_oid(oid_id, &OID));
+   DO(pk_oid_str_to_num(OID, oid, &oidlen));
+   LTC_SET_ASN1(alg_id, 0, LTC_ASN1_OBJECT_IDENTIFIER, oid, oidlen);
+   return der_encode_sequence_multi(out, outlen,
+                                    LTC_ASN1_SHORT_INTEGER, 1uL, &version,
+                                    LTC_ASN1_SEQUENCE,      1uL, alg_id,
+                                    LTC_ASN1_OCTET_STRING,  innerlen, inner,
+                                    LTC_ASN1_EOL,           0uL, NULL);
+}
+
 /* RFC 9935 - the PKCS#8 private key is a CHOICE of seed, expandedKey or both. A seed cannot be
    computed back from the expanded key, so only a key that has one can write seed and both. */
 static int s_mlkem_privkey_format_test(int alg)
@@ -487,6 +505,42 @@ static int s_mlkem_privkey_format_test(int alg)
 
    der2len = sizeof(der2);
    DO(pqc_export_privkey(der2, &der2len, oids[alg], buf, buflen, sk, sklen));
+   SHOULD_FAIL_WITH(mlkem_import_pkcs8(der2, der2len, NULL, &imported), CRYPT_INVALID_PACKET);
+
+   /* the both form is exactly SEQUENCE { seed, expandedKey }, hand-made here to have a starting point */
+   derlen = sizeof(der);
+   DO(der_encode_sequence_multi(der, &derlen,
+                                LTC_ASN1_OCTET_STRING, seedlen, seed,
+                                LTC_ASN1_OCTET_STRING, sklen,   sk,
+                                LTC_ASN1_EOL,          0uL,     NULL));
+   der2len = sizeof(der2);
+   DO(s_mlkem_wrap_pkcs8(der2, &der2len, oids[alg], der, derlen));
+   DO(mlkem_import_pkcs8(der2, der2len, NULL, &imported));
+   ENSURE(mlkem_has_seed(&imported) == 1);
+   mlkem_free(&imported);
+
+   /* nothing may follow the SEQUENCE, neither stray octets nor one more element */
+   der[derlen] = 0x00;
+   der[derlen + 1] = 0x00;
+   der2len = sizeof(der2);
+   DO(s_mlkem_wrap_pkcs8(der2, &der2len, oids[alg], der, derlen + 2));
+   SHOULD_FAIL_WITH(mlkem_import_pkcs8(der2, der2len, NULL, &imported), CRYPT_INVALID_PACKET);
+   der[derlen] = 0x04;
+   der[derlen + 1] = 0x01;
+   der[derlen + 2] = 0x00;
+   der2len = sizeof(der2);
+   DO(s_mlkem_wrap_pkcs8(der2, &der2len, oids[alg], der, derlen + 3));
+   SHOULD_FAIL_WITH(mlkem_import_pkcs8(der2, der2len, NULL, &imported), CRYPT_INVALID_PACKET);
+
+   /* and nothing may follow expandedKey inside the SEQUENCE */
+   derlen = sizeof(der);
+   DO(der_encode_sequence_multi(der, &derlen,
+                                LTC_ASN1_OCTET_STRING, seedlen, seed,
+                                LTC_ASN1_OCTET_STRING, sklen,   sk,
+                                LTC_ASN1_OCTET_STRING, 1uL,     sk,
+                                LTC_ASN1_EOL,          0uL,     NULL));
+   der2len = sizeof(der2);
+   DO(s_mlkem_wrap_pkcs8(der2, &der2len, oids[alg], der, derlen));
    SHOULD_FAIL_WITH(mlkem_import_pkcs8(der2, der2len, NULL, &imported), CRYPT_INVALID_PACKET);
 
    mlkem_free(&other);
