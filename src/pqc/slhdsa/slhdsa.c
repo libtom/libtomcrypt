@@ -143,13 +143,14 @@ static int s_slhdsa_base_alg(int alg)
    }
 }
 
+/* with prehashed set, msg is PH(M) from the caller and is not hashed again */
 static int s_slhdsa_prepare_message(slhdsa_message_view *m,
                                     unsigned char prefix[SPX_MSG_PREFIX_MAX],
                                     const unsigned char *msg, unsigned long msglen,
                                     const unsigned char *ctx, unsigned long ctxlen,
-                                    int alg)
+                                    int alg, int prehashed)
 {
-   unsigned long oidlen = 0, phm_len;
+   unsigned long oidlen = 0, phm_len, phm_max;
    const unsigned char *oid = NULL;
    int err;
 
@@ -167,6 +168,8 @@ static int s_slhdsa_prepare_message(slhdsa_message_view *m,
    }
 
    if (!s_slhdsa_is_hash_alg(alg)) {
+      /* a pure parameter set has no pre-hash, so there is no digest to take */
+      if (prehashed) return CRYPT_PK_INVALID_TYPE;
       prefix[0] = 0x00;
       m->part1 = prefix;
       m->part1_len = 2 + ctxlen;
@@ -183,10 +186,19 @@ static int s_slhdsa_prepare_message(slhdsa_message_view *m,
    if (2 + ctxlen + oidlen > SPX_MSG_PREFIX_MAX) return CRYPT_INVALID_ARG;
    XMEMCPY(prefix + 2 + ctxlen, oid, oidlen);
 
-   phm_len = SPX_MSG_PREFIX_MAX - (2 + ctxlen + oidlen);
-   if ((err = pqc_prehash(s_slhdsa_hash_mode(alg), msg, msglen,
-                          prefix + 2 + ctxlen + oidlen, &phm_len)) != CRYPT_OK) {
-      return err;
+   phm_max = SPX_MSG_PREFIX_MAX - (2 + ctxlen + oidlen);
+   if (prehashed) {
+      if ((err = pqc_prehash_size(s_slhdsa_hash_mode(alg), &phm_len)) != CRYPT_OK) return err;
+      /* PH(M) has one fixed length per pre-hash, a digest of any other length was made with the wrong function */
+      if (msglen != phm_len || phm_len > phm_max) return CRYPT_INVALID_ARG;
+      XMEMCPY(prefix + 2 + ctxlen + oidlen, msg, phm_len);
+   }
+   else {
+      phm_len = phm_max;
+      if ((err = pqc_prehash(s_slhdsa_hash_mode(alg), msg, msglen,
+                             prefix + 2 + ctxlen + oidlen, &phm_len)) != CRYPT_OK) {
+         return err;
+      }
    }
 
    m->part1 = prefix;
@@ -1951,6 +1963,64 @@ int slhdsa_check_key(const slhdsa_key *key)
    return err;
 }
 
+static int s_slhdsa_sign(const unsigned char *msg,     unsigned long  msglen,
+                               unsigned char *sig,     unsigned long *siglen,
+                         const unsigned char *ctx,     unsigned long  ctxlen,
+                         const unsigned char *optrand, unsigned long  optrandlen,
+                         const slhdsa_key    *key,     int            prehashed)
+{
+   slhdsa_params p;
+   slhdsa_message_view m_prime;
+   unsigned char prefix[SPX_MSG_PREFIX_MAX];
+   int err;
+
+   LTC_ARGCHK(msg     != NULL || msglen == 0);
+   LTC_ARGCHK(ctx     != NULL || ctxlen == 0);
+   LTC_ARGCHK(sig     != NULL);
+   LTC_ARGCHK(siglen  != NULL);
+   LTC_ARGCHK(optrand != NULL);
+   LTC_ARGCHK(key     != NULL);
+
+   if ((err = s_slhdsa_key_valid(key, 1, &p)) != CRYPT_OK) return err;
+   if (optrandlen != (unsigned long)p.n) return CRYPT_INVALID_ARG;
+   if (*siglen < p.sig_bytes) { *siglen = p.sig_bytes; return CRYPT_BUFFER_OVERFLOW; }
+
+   err = s_slhdsa_prepare_message(&m_prime, prefix,
+                                  msg, msglen, ctx, ctxlen, key->alg, prehashed);
+   if (err == CRYPT_OK) {
+      err = s_sign_core(sig, siglen, &m_prime, key->sk, optrand, &p);
+   }
+
+   zeromem(prefix, sizeof(prefix));
+   zeromem(&m_prime, sizeof(m_prime));
+   return err;
+}
+
+static int s_slhdsa_sign_rng(const unsigned char *msg,  unsigned long  msglen,
+                                   unsigned char *sig,  unsigned long *siglen,
+                             const unsigned char *ctx,  unsigned long  ctxlen,
+                                   prng_state    *prng, int            wprng,
+                             const slhdsa_key    *key,  int            prehashed)
+{
+   slhdsa_params p;
+   unsigned char optrand[SPX_N_MAX];
+   int err;
+
+   LTC_ARGCHK(key != NULL);
+
+   if ((err = s_slhdsa_key_valid(key, 1, &p)) != CRYPT_OK) return err;
+   if ((err = prng_is_valid(wprng)) != CRYPT_OK) return err;
+   if (prng_descriptor[wprng].read(optrand, p.n, prng) != p.n) {
+      zeromem(optrand, sizeof(optrand));
+      return CRYPT_ERROR_READPRNG;
+   }
+
+   err = s_slhdsa_sign(msg, msglen, sig, siglen, ctx, ctxlen, optrand, p.n, key, prehashed);
+
+   zeromem(optrand, sizeof(optrand));
+   return err;
+}
+
 /**
    Sign a message with SLH-DSA.
    @param msg      The message to sign
@@ -1970,23 +2040,7 @@ int slhdsa_sign(const unsigned char *msg,  unsigned long  msglen,
                       prng_state    *prng, int            wprng,
                 const slhdsa_key   *key)
 {
-   slhdsa_params p;
-   unsigned char optrand[SPX_N_MAX];
-   int err;
-
-   LTC_ARGCHK(key != NULL);
-
-   if ((err = s_slhdsa_key_valid(key, 1, &p)) != CRYPT_OK) return err;
-   if ((err = prng_is_valid(wprng)) != CRYPT_OK) return err;
-   if (prng_descriptor[wprng].read(optrand, p.n, prng) != p.n) {
-      zeromem(optrand, sizeof(optrand));
-      return CRYPT_ERROR_READPRNG;
-   }
-
-   err = slhdsa_sign_ex(msg, msglen, sig, siglen, ctx, ctxlen, optrand, p.n, key);
-
-   zeromem(optrand, sizeof(optrand));
-   return err;
+   return s_slhdsa_sign_rng(msg, msglen, sig, siglen, ctx, ctxlen, prng, wprng, key, 0);
 }
 
 /**
@@ -2014,30 +2068,101 @@ int slhdsa_sign_ex(const unsigned char *msg,     unsigned long  msglen,
                    const unsigned char *optrand, unsigned long  optrandlen,
                    const slhdsa_key   *key)
 {
+   return s_slhdsa_sign(msg, msglen, sig, siglen, ctx, ctxlen, optrand, optrandlen, key, 0);
+}
+
+/**
+   Sign a message digest with HashSLH-DSA (FIPS 205 10.2.2).
+
+   Like slhdsa_sign() with a HashSLH-DSA key, but takes PH(M) instead of M, so the message can be
+   hashed in pieces or by another component. The signature verifies with slhdsa_verify() as well.
+   The digest has to be the full output of the pre-hash the parameter set names: SHA-256 (32 octets),
+   SHA-512 (64), SHAKE128 (32) or SHAKE256 (64).
+   @param hash     PH(M), the digest of the message
+   @param hashlen  Length of the digest
+   @param sig      [out] The signature
+   @param siglen   [in/out] Max size and resulting size of the signature
+   @param ctx      Optional context string (can be NULL if ctxlen is 0)
+   @param ctxlen   Length of the context string (max 255 bytes per FIPS 205)
+   @param prng     An active PRNG state (for hedged signing)
+   @param wprng    The index of the desired PRNG
+   @param key      The private (signing) key, has to be a HashSLH-DSA parameter set
+   @return CRYPT_OK if successful, CRYPT_PK_INVALID_TYPE for a pure SLH-DSA key,
+           CRYPT_INVALID_ARG if hashlen is not the digest length of the pre-hash
+*/
+int slhdsa_sign_hash(const unsigned char *hash, unsigned long  hashlen,
+                           unsigned char *sig,  unsigned long *siglen,
+                     const unsigned char *ctx,  unsigned long  ctxlen,
+                           prng_state    *prng, int            wprng,
+                     const slhdsa_key    *key)
+{
+   return s_slhdsa_sign_rng(hash, hashlen, sig, siglen, ctx, ctxlen, prng, wprng, key, 1);
+}
+
+/**
+   HashSLH-DSA signing of a message digest with caller-supplied opt_rand.
+
+   Like slhdsa_sign_hash(), but opt_rand comes from the caller, see slhdsa_sign_ex().
+   @param hash        PH(M), the digest of the message
+   @param hashlen     Length of the digest
+   @param sig         [out] The signature
+   @param siglen      [in/out] Max size and resulting size of the signature
+   @param ctx         Optional context string (can be NULL if ctxlen is 0)
+   @param ctxlen      Length of the context string (max 255 bytes per FIPS 205)
+   @param optrand     The per-signature randomness (n bytes)
+   @param optrandlen  Length of optrand in bytes; must equal n for the key's parameter set
+   @param key         The private (signing) key, has to be a HashSLH-DSA parameter set
+   @return CRYPT_OK if successful, CRYPT_PK_INVALID_TYPE for a pure SLH-DSA key,
+           CRYPT_INVALID_ARG if hashlen is not the digest length of the pre-hash
+*/
+int slhdsa_sign_hash_ex(const unsigned char *hash,    unsigned long  hashlen,
+                              unsigned char *sig,     unsigned long *siglen,
+                        const unsigned char *ctx,     unsigned long  ctxlen,
+                        const unsigned char *optrand, unsigned long  optrandlen,
+                        const slhdsa_key    *key)
+{
+   return s_slhdsa_sign(hash, hashlen, sig, siglen, ctx, ctxlen, optrand, optrandlen, key, 1);
+}
+
+static int s_slhdsa_verify(const unsigned char *sig,  unsigned long  siglen,
+                           const unsigned char *msg,  unsigned long  msglen,
+                           const unsigned char *ctx,  unsigned long  ctxlen,
+                                 int           *stat,
+                           const slhdsa_key    *key,  int            prehashed)
+{
    slhdsa_params p;
    slhdsa_message_view m_prime;
    unsigned char prefix[SPX_MSG_PREFIX_MAX];
    int err;
 
-   LTC_ARGCHK(msg     != NULL || msglen == 0);
-   LTC_ARGCHK(ctx     != NULL || ctxlen == 0);
-   LTC_ARGCHK(sig     != NULL);
-   LTC_ARGCHK(siglen  != NULL);
-   LTC_ARGCHK(optrand != NULL);
-   LTC_ARGCHK(key     != NULL);
+   /* stat is cleared before anything else can return, it stays 0 unless the signature is good */
+   LTC_ARGCHK(stat != NULL);
+   *stat = 0;
 
-   if ((err = s_slhdsa_key_valid(key, 1, &p)) != CRYPT_OK) return err;
-   if (optrandlen != (unsigned long)p.n) return CRYPT_INVALID_ARG;
-   if (*siglen < p.sig_bytes) { *siglen = p.sig_bytes; return CRYPT_BUFFER_OVERFLOW; }
+   LTC_ARGCHK(sig  != NULL);
+   LTC_ARGCHK(msg  != NULL || msglen == 0);
+   LTC_ARGCHK(ctx  != NULL || ctxlen == 0);
+   LTC_ARGCHK(key  != NULL);
+
+   if ((err = s_slhdsa_key_valid(key, 0, &p)) != CRYPT_OK) return err;
 
    err = s_slhdsa_prepare_message(&m_prime, prefix,
-                                  msg, msglen, ctx, ctxlen, key->alg);
-   if (err == CRYPT_OK) {
-      err = s_sign_core(sig, siglen, &m_prime, key->sk, optrand, &p);
+                                  msg, msglen, ctx, ctxlen, key->alg, prehashed);
+   if (err != CRYPT_OK) {
+      zeromem(prefix, sizeof(prefix));
+      zeromem(&m_prime, sizeof(m_prime));
+      return err;
    }
 
+   err = s_verify_core(sig, siglen, &m_prime, key->pk, &p);
    zeromem(prefix, sizeof(prefix));
    zeromem(&m_prime, sizeof(m_prime));
+
+   if (err == CRYPT_OK)
+      *stat = 1;
+   else if (err == CRYPT_INVALID_PACKET)
+      err = CRYPT_OK; /* Verification failed but no internal error */
+
    return err;
 }
 
@@ -2059,40 +2184,31 @@ int slhdsa_verify(const unsigned char *sig,  unsigned long  siglen,
                         int           *stat,
                   const slhdsa_key   *key)
 {
-   slhdsa_params p;
-   slhdsa_message_view m_prime;
-   unsigned char prefix[SPX_MSG_PREFIX_MAX];
-   int err;
+   return s_slhdsa_verify(sig, siglen, msg, msglen, ctx, ctxlen, stat, key, 0);
+}
 
-   /* stat is cleared before anything else can return, it stays 0 unless the signature is good */
-   LTC_ARGCHK(stat != NULL);
-   *stat = 0;
+/**
+   Verify a HashSLH-DSA signature against a message digest (FIPS 205 10.3).
 
-   LTC_ARGCHK(sig  != NULL);
-   LTC_ARGCHK(msg  != NULL || msglen == 0);
-   LTC_ARGCHK(ctx  != NULL || ctxlen == 0);
-   LTC_ARGCHK(key  != NULL);
-
-   if ((err = s_slhdsa_key_valid(key, 0, &p)) != CRYPT_OK) return err;
-
-   err = s_slhdsa_prepare_message(&m_prime, prefix,
-                                  msg, msglen, ctx, ctxlen, key->alg);
-   if (err != CRYPT_OK) {
-      zeromem(prefix, sizeof(prefix));
-      zeromem(&m_prime, sizeof(m_prime));
-      return err;
-   }
-
-   err = s_verify_core(sig, siglen, &m_prime, key->pk, &p);
-   zeromem(prefix, sizeof(prefix));
-   zeromem(&m_prime, sizeof(m_prime));
-
-   if (err == CRYPT_OK)
-      *stat = 1;
-   else if (err == CRYPT_INVALID_PACKET)
-      err = CRYPT_OK; /* Verification failed but no internal error */
-
-   return err;
+   Like slhdsa_verify() with a HashSLH-DSA key, but takes PH(M) instead of M, see slhdsa_sign_hash().
+   @param sig      The signature to verify
+   @param siglen   Length of the signature
+   @param hash     PH(M), the digest of the message that was signed
+   @param hashlen  Length of the digest
+   @param ctx      Optional context string (can be NULL if ctxlen is 0)
+   @param ctxlen   Length of the context string (max 255 bytes per FIPS 205)
+   @param stat     [out] Result of the verification: 1==valid, 0==invalid
+   @param key      The public (verification) key, has to be a HashSLH-DSA parameter set
+   @return CRYPT_OK if successful (even if the signature is invalid), CRYPT_PK_INVALID_TYPE for a
+           pure SLH-DSA key, CRYPT_INVALID_ARG if hashlen is not the digest length of the pre-hash
+*/
+int slhdsa_verify_hash(const unsigned char *sig,  unsigned long  siglen,
+                       const unsigned char *hash, unsigned long  hashlen,
+                       const unsigned char *ctx,  unsigned long  ctxlen,
+                             int           *stat,
+                       const slhdsa_key    *key)
+{
+   return s_slhdsa_verify(sig, siglen, hash, hashlen, ctx, ctxlen, stat, key, 1);
 }
 
 /**

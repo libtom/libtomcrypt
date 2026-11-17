@@ -543,6 +543,132 @@ static int s_slhdsa_import_mutation_test(int alg)
 }
 
 
+/* HashSLH-DSA on a digest the caller computed. The vectors are NIST ACVP SLH-DSA-sigGen-FIPS205 tcId 87 (deterministic, opt_rand
+   is PK.seed) and tcId 340 (hedged), so the message path and the digest path both have to give exactly the NIST signature. */
+static int s_slhdsa_sign_hash_test(void)
+{
+   static const struct {
+      int alg, pure_alg;
+      int shake; /* the pre-hash: 1 = SHAKE256 with 64 octets of output, 0 = SHA-512 */
+      const char *sk, *msg, *ctx, *optrand, *sig_sha256;
+   } vectors[] = {
+      { LTC_SLHDSA_HASH_SHAKE_192F_WITH_SHAKE256, LTC_SLHDSA_SHAKE_192F, 1,
+        "167b0f178691f4492940d934c384e3da62f1977344467b771186a833109dc237469ca435751e781766f98228629aaab6"
+        "a4f4cabbbcab1dea583a8efcc88e2fff6798e78287c20a1884e8b3ac22df43ae614d2296b00b84f6e258150b307e7262",
+        "b9",
+        "06976d51bc0e9a3f3c37afb19416a30d659b545aa649cd88078b6f5cc631c701fd91abf3cbcdf59bfebf7f8ba4ceb5d9afe0ea23b38f68b18a381eb2aa"
+        "99ffbbc2547f49f052ee4fbe07ea0ffb58c1263d19f6c5ed8a567ddb9b46",
+        "a4f4cabbbcab1dea583a8efcc88e2fff6798e78287c20a18",
+        "2d484d88048cbb411ee5888a0ebe87c0f92cd8f46d5ef108d12d186300a53cff" },
+      { LTC_SLHDSA_HASH_SHA2_192F_WITH_SHA512, LTC_SLHDSA_SHA2_192F, 0,
+        "70318d0e3dd4a17d5ff7b00670eb64084b5257f6623b7a59ca688bc65733f4b5c1a3acda2bdb63cd20a60c818575978a"
+        "d185cbd4a2a3cabefbc9cde15ed7ca48cbff015fe9e04edcb543de4164d4848e7eb392a991986642d07c51b16a3769c9",
+        "bb",
+        "98bf3e9a34b4054683ecaa58649ee5d2812ed0d3746ab7db5dbc7a49c2eccd43303d724d5368d18a3cb2c79a0a5778a47a3fb902",
+        "98d8d9d36781e7a2b9683d5de22efabc29317dcc347847cc",
+        "b61a7a5225e71bcab2005eb524fe54db8353b3d529eede07845d1f2109a25e6b" },
+   };
+   slhdsa_key key, pure;
+   unsigned char sk[4 * SPX_TEST_N_MAX], msg[8], ctx[LTC_PQC_CTX_MAX_BYTES], optrand[SPX_TEST_N_MAX], ph[64], md[32], expected[32];
+   unsigned char *sig;
+   unsigned long n, sklen, msglen, ctxlen, orr, phlen, siglen, sig_sz, mdlen, explen;
+   int stat, sha256_idx, sha512_idx, prng_idx;
+
+   sha256_idx = find_hash("sha256");
+   sha512_idx = find_hash("sha512");
+   prng_idx = find_prng("yarrow");
+   ENSURE(sha256_idx != -1 && sha512_idx != -1);
+
+   for (n = 0; n < LTC_ARRAY_SIZE(vectors); n++) {
+      sklen = sizeof(sk);
+      DO(s_decode_hex(vectors[n].sk, sk, &sklen));
+      msglen = sizeof(msg);
+      DO(s_decode_hex(vectors[n].msg, msg, &msglen));
+      ctxlen = sizeof(ctx);
+      DO(s_decode_hex(vectors[n].ctx, ctx, &ctxlen));
+      orr = sizeof(optrand);
+      DO(s_decode_hex(vectors[n].optrand, optrand, &orr));
+      explen = sizeof(expected);
+      DO(s_decode_hex(vectors[n].sig_sha256, expected, &explen));
+
+      DO(slhdsa_import_raw(sk, sklen, PK_PRIVATE, vectors[n].alg, &key));
+      DO(slhdsa_get_sizes(vectors[n].alg, NULL, NULL, &sig_sz, NULL, NULL));
+      sig = XMALLOC(sig_sz);
+      ENSURE(sig != NULL);
+
+      /* PH(M), computed with the public hash API the way an application would do it */
+      phlen = sizeof(ph);
+      if (vectors[n].shake) {
+         DO(sha3_shake_memory(256, msg, msglen, ph, &phlen));
+      } else {
+         DO(hash_memory(sha512_idx, msg, msglen, ph, &phlen));
+      }
+      ENSURE(phlen == 64);
+
+      /* message in, the library hashes */
+      siglen = sig_sz;
+      DO(slhdsa_sign_ex(msg, msglen, sig, &siglen, ctx, ctxlen, optrand, orr, &key));
+      mdlen = sizeof(md);
+      DO(hash_memory(sha256_idx, sig, siglen, md, &mdlen));
+      COMPARE_TESTVECTOR(md, mdlen, expected, explen, "HashSLH-DSA ACVP, message", (int)n);
+
+      /* digest in */
+      XMEMSET(sig, 0, sig_sz);
+      siglen = sig_sz;
+      DO(slhdsa_sign_hash_ex(ph, phlen, sig, &siglen, ctx, ctxlen, optrand, orr, &key));
+      mdlen = sizeof(md);
+      DO(hash_memory(sha256_idx, sig, siglen, md, &mdlen));
+      COMPARE_TESTVECTOR(md, mdlen, expected, explen, "HashSLH-DSA ACVP, digest", (int)n);
+
+      stat = 0;
+      DO(slhdsa_verify_hash(sig, siglen, ph, phlen, ctx, ctxlen, &stat, &key));
+      ENSURE(stat == 1);
+      stat = 0;
+      DO(slhdsa_verify(sig, siglen, msg, msglen, ctx, ctxlen, &stat, &key));
+      ENSURE(stat == 1);
+
+      /* another digest, another context */
+      ph[0] ^= 0x01;
+      stat = 1;
+      DO(slhdsa_verify_hash(sig, siglen, ph, phlen, ctx, ctxlen, &stat, &key));
+      ENSURE(stat == 0);
+      ph[0] ^= 0x01;
+      stat = 1;
+      DO(slhdsa_verify_hash(sig, siglen, ph, phlen, ctx, ctxlen - 1, &stat, &key));
+      ENSURE(stat == 0);
+
+      /* PH(M) has exactly one length per pre-hash */
+      siglen = sig_sz;
+      SHOULD_FAIL_WITH(slhdsa_sign_hash_ex(ph, phlen - 1, sig, &siglen, ctx, ctxlen, optrand, orr, &key), CRYPT_INVALID_ARG);
+      SHOULD_FAIL_WITH(slhdsa_sign_hash_ex(ph, 32, sig, &siglen, ctx, ctxlen, optrand, orr, &key), CRYPT_INVALID_ARG);
+      stat = 1;
+      SHOULD_FAIL_WITH(slhdsa_verify_hash(sig, siglen, ph, phlen - 1, ctx, ctxlen, &stat, &key), CRYPT_INVALID_ARG);
+      ENSURE(stat == 0);
+
+      /* hedged signing draws opt_rand from the PRNG, the result verifies against the message as well */
+      siglen = sig_sz;
+      DO(slhdsa_sign_hash(ph, phlen, sig, &siglen, ctx, ctxlen, &yarrow_prng, prng_idx, &key));
+      stat = 0;
+      DO(slhdsa_verify(sig, siglen, msg, msglen, ctx, ctxlen, &stat, &key));
+      ENSURE(stat == 1);
+
+      /* the same key under its pure parameter set has no pre-hash, so it takes no digest */
+      DO(slhdsa_import_raw(sk, sklen, PK_PRIVATE, vectors[n].pure_alg, &pure));
+      siglen = sig_sz;
+      SHOULD_FAIL_WITH(slhdsa_sign_hash_ex(ph, phlen, sig, &siglen, ctx, ctxlen, optrand, orr, &pure), CRYPT_PK_INVALID_TYPE);
+      stat = 1;
+      SHOULD_FAIL_WITH(slhdsa_verify_hash(sig, siglen, ph, phlen, ctx, ctxlen, &stat, &pure), CRYPT_PK_INVALID_TYPE);
+      ENSURE(stat == 0);
+      slhdsa_free(&pure);
+
+      slhdsa_free(&key);
+      XFREE(sig);
+   }
+
+   return CRYPT_OK;
+}
+
+
 #if defined(LTC_SHA256) && defined(LTC_SHA512) && !defined(LTC_PTHREAD)
 /* The SHA-2 parameter sets use the sha256 and sha512 descriptors directly, so they have to
    keep working with no hash registered. Unregistering is not thread safe, hence the guard. */
@@ -591,6 +717,7 @@ int pqc_slhdsa_test(void)
    DO(s_slhdsa_sizes_test());
    DO(s_slhdsa_openssl_keygen_test());
    DO(s_slhdsa_message_framing_test());
+   DO(s_slhdsa_sign_hash_test());
    DO(s_slhdsa_check_key_test());
    DO(s_slhdsa_import_mutation_test(LTC_SLHDSA_SHAKE_128F));
    DO(s_slhdsa_import_mutation_test(LTC_SLHDSA_SHA2_128F));

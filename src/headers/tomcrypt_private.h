@@ -899,6 +899,7 @@ enum ltc_pqc_prehash {
    LTC_PQC_PH_SHAKE256 = 4
 };
 int pqc_prehash_oid_der(int ph, const unsigned char **oid, unsigned long *oidlen);
+int pqc_prehash_size(int ph, unsigned long *outlen);
 int pqc_prehash(int ph, const unsigned char *msg, unsigned long msglen,
                 unsigned char *out, unsigned long *outlen);
 #endif

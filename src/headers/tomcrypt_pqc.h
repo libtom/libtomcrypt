@@ -277,6 +277,25 @@ int slhdsa_verify(const unsigned char *sig,  unsigned long  siglen,
                         int           *stat,
                   const slhdsa_key    *key);
 
+/* HashSLH-DSA on a digest the caller computed, the key has to be one of the LTC_SLHDSA_HASH_ parameter sets */
+int slhdsa_sign_hash(const unsigned char *hash, unsigned long  hashlen,
+                           unsigned char *sig,  unsigned long *siglen,
+                     const unsigned char *ctx,  unsigned long  ctxlen,
+                           prng_state    *prng, int            wprng,
+                     const slhdsa_key    *key);
+
+int slhdsa_sign_hash_ex(const unsigned char *hash,    unsigned long  hashlen,
+                              unsigned char *sig,     unsigned long *siglen,
+                        const unsigned char *ctx,     unsigned long  ctxlen,
+                        const unsigned char *optrand, unsigned long  optrandlen,
+                        const slhdsa_key    *key);
+
+int slhdsa_verify_hash(const unsigned char *sig,  unsigned long  siglen,
+                       const unsigned char *hash, unsigned long  hashlen,
+                       const unsigned char *ctx,  unsigned long  ctxlen,
+                             int           *stat,
+                       const slhdsa_key    *key);
+
 int slhdsa_get_sizes(int alg,
                      unsigned long *public_key_sz,
                      unsigned long *secret_key_sz,

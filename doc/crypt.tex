@@ -8133,6 +8133,78 @@ The \textit{ctx} and \textit{ctxlen} parameters must match the context string us
 The function returns \code{CRYPT\_OK} even if the signature is invalid --- the caller must
 check \textit{*stat} to determine validity.
 
+\subsection{Signing and Verifying a Message Digest}
+
+Pure SLH-DSA reads the message twice, so it needs the whole message in one buffer. The HashSLH-DSA
+parameter sets sign a digest of the message instead, and the following functions take that digest from
+the caller. This way a message of any size can be hashed piece by piece, or by another component,
+before it is signed or verified.
+
+\index{slhdsa\_sign\_hash()}\index{slhdsa\_sign\_hash\_ex()}\index{slhdsa\_verify\_hash()}
+\begin{verbatim}
+int slhdsa_sign_hash(const unsigned char *hash, unsigned long  hashlen,
+                           unsigned char *sig,  unsigned long *siglen,
+                     const unsigned char *ctx,  unsigned long  ctxlen,
+                           prng_state    *prng, int            wprng,
+                     const slhdsa_key    *key);
+
+int slhdsa_sign_hash_ex(const unsigned char *hash,    unsigned long  hashlen,
+                              unsigned char *sig,     unsigned long *siglen,
+                        const unsigned char *ctx,     unsigned long  ctxlen,
+                        const unsigned char *optrand, unsigned long  optrandlen,
+                        const slhdsa_key    *key);
+
+int slhdsa_verify_hash(const unsigned char *sig,  unsigned long  siglen,
+                       const unsigned char *hash, unsigned long  hashlen,
+                       const unsigned char *ctx,  unsigned long  ctxlen,
+                             int           *stat,
+                       const slhdsa_key    *key);
+\end{verbatim}
+
+They work like \code{slhdsa\_sign()}, \code{slhdsa\_sign\_ex()} and \code{slhdsa\_verify()} with a
+HashSLH-DSA key, except that \textit{hash} is the digest $PH(M)$ and not the message $M$.
+Both ways give the same signature, so a signature made from a digest also verifies with
+\code{slhdsa\_verify()} over the message, and the other way around.
+
+The digest has to be the full output of the pre-hash that the parameter set of the key names:
+
+\begin{center}
+\begin{tabular}{|l|l|c|}
+\hline
+\textbf{Parameter Set (alg ID)} & \textbf{Pre-hash} & \textbf{hashlen} \\
+\hline
+LTC\_SLHDSA\_HASH\_SHA2\_128S/F\_WITH\_SHA256      & SHA-256                    & 32 \\
+LTC\_SLHDSA\_HASH\_SHA2\_192S/F\_WITH\_SHA512      & SHA-512                    & 64 \\
+LTC\_SLHDSA\_HASH\_SHA2\_256S/F\_WITH\_SHA512      & SHA-512                    & 64 \\
+LTC\_SLHDSA\_HASH\_SHAKE\_128S/F\_WITH\_SHAKE128   & SHAKE128, 32 output octets & 32 \\
+LTC\_SLHDSA\_HASH\_SHAKE\_192S/F\_WITH\_SHAKE256   & SHAKE256, 64 output octets & 64 \\
+LTC\_SLHDSA\_HASH\_SHAKE\_256S/F\_WITH\_SHAKE256   & SHAKE256, 64 output octets & 64 \\
+\hline
+\end{tabular}
+\end{center}
+
+Any other \textit{hashlen} returns \code{CRYPT\_INVALID\_ARG}. A key of a Pure SLH-DSA parameter set has
+no pre-hash and returns \code{CRYPT\_PK\_INVALID\_TYPE}. The library cannot tell which function produced
+the digest, so using the right one is up to the caller.
+
+\begin{small}
+\begin{verbatim}
+/* key is a LTC_SLHDSA_HASH_SHA2_128F_WITH_SHA256 private key */
+hash_state md;
+unsigned char ph[32], sig[17088];
+unsigned long siglen = sizeof(sig);
+
+sha256_init(&md);
+while ((n = read_chunk(buf, sizeof(buf))) > 0) {
+   sha256_process(&md, buf, n);
+}
+sha256_done(&md, ph);
+
+slhdsa_sign_hash(ph, sizeof(ph), sig, &siglen, NULL, 0,
+                 &yarrow_prng, prng_idx, &key);
+\end{verbatim}
+\end{small}
+
 \subsection{Key Cleanup}
 
 \index{slhdsa\_free()}

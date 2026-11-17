@@ -67,6 +67,32 @@ int pqc_prehash_oid_der(int ph, const unsigned char **oid, unsigned long *oidlen
 /**
    INTERNAL ONLY, declared in tomcrypt_private.h
 
+   Return the length of PH(M), the same value pqc_prehash() writes.
+   @param ph       The pre-hash function (one of ltc_pqc_prehash)
+   @param outlen   [out] Length of PH(M) in octets
+   @return CRYPT_OK if successful
+*/
+int pqc_prehash_size(int ph, unsigned long *outlen)
+{
+   LTC_ARGCHK(outlen != NULL);
+
+   switch (ph) {
+      case LTC_PQC_PH_SHA256:
+      case LTC_PQC_PH_SHAKE128:
+         *outlen = 32;
+         return CRYPT_OK;
+      case LTC_PQC_PH_SHA512:
+      case LTC_PQC_PH_SHAKE256:
+         *outlen = 64;
+         return CRYPT_OK;
+      default:
+         return CRYPT_INVALID_ARG;
+   }
+}
+
+/**
+   INTERNAL ONLY, declared in tomcrypt_private.h
+
    Compute PH(M), the pre-hash of the message that goes into M'.
    The XOF output lengths are fixed by the standards, SHAKE128 gives 32 octets and SHAKE256 64.
    @param ph       The pre-hash function (one of ltc_pqc_prehash)
