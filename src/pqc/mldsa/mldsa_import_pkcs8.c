@@ -97,7 +97,10 @@ static int s_mldsa_import_pkcs8_asn1(ltc_asn1_list *alg_id, ltc_asn1_list *priv_
                                  LTC_ASN1_OCTET_STRING, seed_buf, sizeof(seed_buf));
    err = der_decode_custom_type(priv_key->data, priv_key->size, seed_custom);
    if (err == CRYPT_OK) {
-      err = mldsa_make_key_from_seed(alg, seed_buf, seed_custom[0].size, key);
+      /* a seed of another length is a malformed key, not a bad argument */
+      err = (seed_custom[0].size == sizeof(seed_buf))
+          ? mldsa_make_key_from_seed(alg, seed_buf, sizeof(seed_buf), key)
+          : CRYPT_INVALID_PACKET;
       zeromem(seed_buf, sizeof(seed_buf));
       return err;
    }
@@ -124,7 +127,7 @@ static int s_mldsa_import_pkcs8_asn1(ltc_asn1_list *alg_id, ltc_asn1_list *priv_
    }
 
    /* der_flexi_sequence_cmp() does not look past its last check, but expandedKey is the last element */
-   if (seed == NULL || raw_key == NULL || raw_key->next != NULL) {
+   if (seed == NULL || raw_key == NULL || raw_key->next != NULL || seed->size != LTC_MLDSA_KEYGEN_SEED_BYTES) {
       err = CRYPT_INVALID_PACKET;
       goto cleanup;
    }

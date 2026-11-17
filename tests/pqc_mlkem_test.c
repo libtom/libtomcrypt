@@ -543,6 +543,44 @@ static int s_mlkem_privkey_format_test(int alg)
    DO(s_mlkem_wrap_pkcs8(der2, &der2len, oids[alg], der, derlen));
    SHOULD_FAIL_WITH(mlkem_import_pkcs8(der2, der2len, NULL, &imported), CRYPT_INVALID_PACKET);
 
+   /* a seed of the wrong length is a malformed key and not a bad argument, in the both form ... */
+   derlen = sizeof(der);
+   DO(der_encode_sequence_multi(der, &derlen,
+                                LTC_ASN1_OCTET_STRING, seedlen - 1, seed,
+                                LTC_ASN1_OCTET_STRING, sklen,       sk,
+                                LTC_ASN1_EOL,          0uL,         NULL));
+   der2len = sizeof(der2);
+   DO(s_mlkem_wrap_pkcs8(der2, &der2len, oids[alg], der, derlen));
+   SHOULD_FAIL_WITH(mlkem_import_pkcs8(der2, der2len, NULL, &imported), CRYPT_INVALID_PACKET);
+
+   /* ... and in the seed form, [0] IMPLICIT OCTET STRING, one octet short, empty and one octet long */
+   der[0] = 0x80;
+   der[1] = (unsigned char)(seedlen - 1);
+   XMEMCPY(der + 2, seed, seedlen - 1);
+   der2len = sizeof(der2);
+   DO(s_mlkem_wrap_pkcs8(der2, &der2len, oids[alg], der, seedlen + 1));
+   SHOULD_FAIL_WITH(mlkem_import_pkcs8(der2, der2len, NULL, &imported), CRYPT_INVALID_PACKET);
+   der[1] = 0x00;
+   der2len = sizeof(der2);
+   DO(s_mlkem_wrap_pkcs8(der2, &der2len, oids[alg], der, 2));
+   SHOULD_FAIL_WITH(mlkem_import_pkcs8(der2, der2len, NULL, &imported), CRYPT_INVALID_PACKET);
+   der[1] = (unsigned char)(seedlen + 1);
+   XMEMCPY(der + 2, seed, seedlen);
+   der[2 + seedlen] = 0x00;
+   der2len = sizeof(der2);
+   DO(s_mlkem_wrap_pkcs8(der2, &der2len, oids[alg], der, seedlen + 3));
+   SHOULD_FAIL_WITH(mlkem_import_pkcs8(der2, der2len, NULL, &imported), CRYPT_INVALID_PACKET);
+
+   /* the right length under the same OID imports, under the OID of another algorithm it is not our kind of key */
+   der[1] = (unsigned char)seedlen;
+   der2len = sizeof(der2);
+   DO(s_mlkem_wrap_pkcs8(der2, &der2len, oids[alg], der, seedlen + 2));
+   DO(mlkem_import_pkcs8(der2, der2len, NULL, &imported));
+   mlkem_free(&imported);
+   der2len = sizeof(der2);
+   DO(s_mlkem_wrap_pkcs8(der2, &der2len, LTC_OID_MLDSA_44, der, seedlen + 2));
+   SHOULD_FAIL_WITH(mlkem_import_pkcs8(der2, der2len, NULL, &imported), CRYPT_INVALID_PACKET);
+
    mlkem_free(&other);
 
    mlkem_free(&key);

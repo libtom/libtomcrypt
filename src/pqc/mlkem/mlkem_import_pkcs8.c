@@ -88,7 +88,10 @@ static int s_mlkem_import_pkcs8_asn1(ltc_asn1_list *alg_id, ltc_asn1_list *priv_
                                  LTC_ASN1_OCTET_STRING, seed_buf, sizeof(seed_buf));
    err = der_decode_custom_type(priv_key->data, priv_key->size, seed_custom);
    if (err == CRYPT_OK) {
-      err = mlkem_make_key_from_seed(alg, seed_buf, seed_custom[0].size, key);
+      /* a seed of another length is a malformed key, not a bad argument */
+      err = (seed_custom[0].size == sizeof(seed_buf))
+          ? mlkem_make_key_from_seed(alg, seed_buf, sizeof(seed_buf), key)
+          : CRYPT_INVALID_PACKET;
       zeromem(seed_buf, sizeof(seed_buf));
       return err;
    }
@@ -115,7 +118,7 @@ static int s_mlkem_import_pkcs8_asn1(ltc_asn1_list *alg_id, ltc_asn1_list *priv_
    }
 
    /* der_flexi_sequence_cmp() does not look past its last check, but expandedKey is the last element */
-   if (seed == NULL || raw_key == NULL || raw_key->next != NULL) {
+   if (seed == NULL || raw_key == NULL || raw_key->next != NULL || seed->size != LTC_MLKEM_KEYGEN_SEED_BYTES) {
       err = CRYPT_INVALID_PACKET;
       goto cleanup;
    }
@@ -192,7 +195,9 @@ int mlkem_import_pkcs8(const unsigned char *in, unsigned long inlen, const passw
    if ((err = pkcs8_get_children(l, &oid_id, &alg_id, &priv_key)) != CRYPT_OK) {
       goto cleanup;
    }
-   if ((err = s_mlkem_oid_to_alg(oid_id, &alg)) != CRYPT_OK) {
+   err = s_mlkem_oid_to_alg(oid_id, &alg);
+   if (err != CRYPT_OK) {
+      err = CRYPT_INVALID_PACKET;
       goto cleanup;
    }
    LTC_UNUSED_PARAM(alg);

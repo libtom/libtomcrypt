@@ -823,6 +823,10 @@ static int s_slhdsa_pkcs8_params_test(void)
    ENSURE(key.alg == LTC_SLHDSA_SHA2_128S);
    slhdsa_free(&key);
 
+   /* under the OID of another algorithm, ML-DSA-44 with the last arc 17, it is not our kind of key */
+   buf[17] = 0x11;
+   SHOULD_FAIL_WITH(slhdsa_import_pkcs8(buf, buflen, NULL, &key), CRYPT_INVALID_PACKET);
+
    return CRYPT_OK;
 }
 
