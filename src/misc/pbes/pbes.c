@@ -25,6 +25,11 @@ int pbes_decrypt(const pbes_arg  *arg, unsigned char *dec_data, unsigned long *d
    LTC_ARGCHK(dec_data      != NULL);
    LTC_ARGCHK(dec_size      != NULL);
 
+   /* iterations comes verbatim from the input, so cap it before paying the KDF cost */
+   if (arg->iterations > LTC_PBES_MAX_ITERATIONS) {
+      return CRYPT_INVALID_ARG;
+   }
+
    hid = find_hash(arg->type.h);
    if (hid == -1) return CRYPT_INVALID_HASH;
    cid = find_cipher(arg->type.c);

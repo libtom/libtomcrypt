@@ -654,6 +654,13 @@
    #undef LTC_PKCS_8
 #endif
 
+#if defined(LTC_PBES)
+   #ifndef LTC_PBES_MAX_ITERATIONS
+      /* Max KDF iterations accepted when importing an encrypted PKCS#8 object (PBES1/PBES2); attacker-controlled. */
+      #define LTC_PBES_MAX_ITERATIONS 20000000
+   #endif
+#endif
+
 #if defined(LTC_CLEAN_STACK)
 /* if you're sure that you want to use it, remove the line below */
    #error LTC_CLEAN_STACK is considered as broken
