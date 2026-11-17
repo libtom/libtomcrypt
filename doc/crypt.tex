@@ -8201,6 +8201,8 @@ DES and RC2 are only supported when decoding. An empty password is refused with 
 If \textit{out} is too small the function returns \texttt{CRYPT\_BUFFER\_OVERFLOW} and stores the required size in \textit{outlen}.
 Such a call reads nothing from the PRNG and does not run the key derivation.
 
+The PEM encoding API (c.f. Ch. \ref{pem-encode}) combines both steps.
+
 
 \mysection{Key Derviation Functions}
 \subsection{HKDF}
@@ -8387,6 +8389,7 @@ typedef int (*ssh_authorized_key_cb)(ltc_pka_key *k, const char *comment, void *
 \subsection{Introduction}
 LibTomCrypt supports reading of asymmetric cryptography keys out of
 PEM files in multiple formats.
+Writing is supported for the PKCS \#8 and the SubjectPublicKeyInfo format (c.f. Ch. \ref{pem-encode}).
 
 The library provides support for these PEM content structures:
 \begin{itemize}
@@ -8563,6 +8566,61 @@ The API functions provided to decode a PEM file into the \texttt{ltc\_pka\_key} 
 int pem_decode_pkcs_filehandle(FILE *f, ltc_pka_key *k, const password_ctx *pw_ctx);
 int pem_decode_pkcs(const void *buf, unsigned long len, ltc_pka_key *k, const password_ctx *pw_ctx);
 \end{verbatim}
+
+\subsection{Encoding PKCS PEM files}
+\label{pem-encode}
+
+\index{pem\_encode\_pkcs\_filehandle}
+\index{pem\_encode\_pkcs}
+The API functions provided to encode a key held by the \texttt{ltc\_pka\_key} union as PEM file
+according to \href{https://datatracker.ietf.org/doc/html/rfc7468}{\texttt{RFC 7468}} are:
+
+\begin{verbatim}
+typedef struct {
+   const unsigned char    *pw;
+   unsigned long           pwlen;
+   const pbes2_enc_params *enc;
+   unsigned int            flags;
+} pem_encode_opts;
+
+int pem_encode_pkcs_filehandle(FILE *f, int which, const ltc_pka_key *key,
+                               const pem_encode_opts *opts,
+                               prng_state *prng, int wprng);
+int pem_encode_pkcs(      unsigned char *out, unsigned long *outlen,
+                          int which, const ltc_pka_key *key,
+                    const pem_encode_opts *opts,
+                          prng_state *prng, int wprng);
+\end{verbatim}
+
+The label of the PEM file is not chosen by the caller. It follows from \textit{which} and from the password in \textit{opts}:
+
+\begin{table}[H]
+\begin{small}
+\begin{tabular}{|l|l|l|l|}
+\hline \textbf{which}                   & \textbf{Password} & \textbf{Identifier}                  & \textbf{File content} \\
+\hline \texttt{PK\_PRIVATE | PK\_STD}   & no                & \texttt{BEGIN PRIVATE KEY}           & PKCS \#8 \textit{PrivateKeyInfo} \\
+\hline \texttt{PK\_PRIVATE | PK\_STD}   & yes               & \texttt{BEGIN ENCRYPTED PRIVATE KEY} & PKCS \#8 \textit{EncryptedPrivateKeyInfo} \\
+\hline \texttt{PK\_PUBLIC | PK\_STD}    & no                & \texttt{BEGIN PUBLIC KEY}            & X.509 \textit{SubjectPublicKeyInfo} \\
+\hline
+\end{tabular}
+\end{small}
+\caption{PEM headers written by \textit{pem\_encode\_pkcs()}}
+\label{written-PEM-headers}
+\end{table}
+
+All other combinations return \texttt{CRYPT\_INVALID\_ARG}, including a password for a public key.
+The headers \texttt{Proc-Type} and \texttt{DEK-Info} of the older PEM encryption are never written.
+
+\textit{opts} may be \texttt{NULL}, which means an unencrypted key and \texttt{\textbackslash n} as line separator.
+The key gets encrypted if \textit{opts->pw} is not \texttt{NULL}. This is done by \textit{pbes2\_encrypt()} with the parameters in \textit{opts->enc},
+c.f. Ch. \ref{pkcs8} for the parameters and the limitations. An empty password is refused with \texttt{CRYPT\_INVALID\_ARG}, it never leads to an unencrypted key.
+Setting \texttt{LTC\_PEM\_CRLF} in \textit{opts->flags} selects \texttt{\textbackslash r\textbackslash n} as line separator.
+The PRNG is only used for an encrypted key.
+
+The supported keys are those of \textit{pka\_key\_export()} (c.f. Ch. \ref{pka-union}). Everything this API writes can be read back with \textit{pem\_decode\_pkcs()}.
+
+The output of \textit{pem\_encode\_pkcs()} is NUL terminated and \textit{outlen} does not count the NUL.
+If \textit{out} is too small the function returns \texttt{CRYPT\_BUFFER\_OVERFLOW} and stores the required size, including the NUL, in \textit{outlen}.
 
 \subsection{OpenSSH PEM files}
 

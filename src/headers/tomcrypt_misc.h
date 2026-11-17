@@ -208,6 +208,34 @@ int ssh_read_authorized_keys_filehandle(FILE *f, ssh_authorized_key_cb cb, void 
 #endif /* LTC_SSH */
 #endif /* LTC_NO_FILE */
 
+/* PEM encoding, RFC 7468 */
+enum pem_encode_flags {
+   /** Use `\r\n` as line separator */
+   LTC_PEM_CRLF = 1,
+};
+
+/** Options of pem_encode_pkcs(), NULL means an unencrypted key and `\n` as line separator */
+typedef struct {
+   /** Password, NULL writes the key unencrypted */
+   const unsigned char    *pw;
+   /** Length of the password, an empty password is refused */
+   unsigned long           pwlen;
+   /** PBES2 parameters, NULL for the defaults */
+   const pbes2_enc_params *enc;
+   /** A combination of enum pem_encode_flags */
+   unsigned int            flags;
+} pem_encode_opts;
+
+int pem_encode_pkcs(      unsigned char *out, unsigned long *outlen,
+                          int which, const ltc_pka_key *key,
+                    const pem_encode_opts *opts,
+                          prng_state *prng, int wprng);
+#ifndef LTC_NO_FILE
+int pem_encode_pkcs_filehandle(FILE *f, int which, const ltc_pka_key *key,
+                               const pem_encode_opts *opts,
+                               prng_state *prng, int wprng);
+#endif /* LTC_NO_FILE */
+
 #endif /* LTC_PEM */
 
 #ifdef LTC_SSH
