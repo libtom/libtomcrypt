@@ -1508,6 +1508,41 @@ static int s_mldsa_import_mutation_test(int alg)
    return CRYPT_OK;
 }
 
+/* RFC 9881 requires the parameters field of the AlgorithmIdentifier to be absent */
+static int s_mldsa_pkcs8_params_test(void)
+{
+   /* the ML-DSA-44 seed example of RFC 9881 (tests/pem/pkcs/rfc9881_ML-DSA-44_seed.pk8), with a NULL parameters element added */
+   static const char hex[] =
+      "3036" "020100"
+      "300d" "0609608648016503040311" "0500"
+      "0422"
+      "8020000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f";
+   mldsa_key key;
+   unsigned char buf[128];
+   unsigned long buflen = sizeof(buf);
+
+   DO(s_decode_hex(hex, buf, &buflen));
+   SHOULD_FAIL_WITH(mldsa_import_pkcs8(buf, buflen, NULL, &key), CRYPT_INVALID_PACKET);
+   /* the same for the HashML-DSA-44 OID, its last arc is 32 */
+   buf[17] = 0x20;
+   SHOULD_FAIL_WITH(mldsa_import_pkcs8(buf, buflen, NULL, &key), CRYPT_INVALID_PACKET);
+
+   /* without the NULL both import, so it is the parameters element that gets them rejected */
+   XMEMMOVE(buf + 18, buf + 20, buflen - 20);
+   buflen -= 2;
+   buf[1] -= 2;
+   buf[6] -= 2;
+   DO(mldsa_import_pkcs8(buf, buflen, NULL, &key));
+   ENSURE(key.alg == LTC_MLDSA_HASH_44_WITH_SHA512);
+   mldsa_free(&key);
+   buf[17] = 0x11;
+   DO(mldsa_import_pkcs8(buf, buflen, NULL, &key));
+   ENSURE(key.alg == LTC_MLDSA_44);
+   mldsa_free(&key);
+
+   return CRYPT_OK;
+}
+
 int pqc_mldsa_test(void)
 {
    if (ltc_mp.name == NULL) return CRYPT_NOP;
@@ -1523,6 +1558,7 @@ int pqc_mldsa_test(void)
    DO(s_mldsa_from_seed_test());
    DO(s_mldsa_openssl_verify_test());
    DO(s_mldsa_pkcs8_publickey_test());
+   DO(s_mldsa_pkcs8_params_test());
 #if ARGTYPE == 4
    DO(s_mldsa_ctx_argchk_test());
 #endif

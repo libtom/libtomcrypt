@@ -691,6 +691,35 @@ static int s_mlkem_import_mutation_test(int alg)
    return CRYPT_OK;
 }
 
+/* RFC 9935 requires the parameters field of the AlgorithmIdentifier to be absent */
+static int s_mlkem_pkcs8_params_test(void)
+{
+   /* the ML-KEM-512 seed example of RFC 9935 (tests/pem/pkcs/rfc9935_ML-KEM-512_seed.pk8), with a NULL parameters element added */
+   static const char hex[] =
+      "3056" "020100"
+      "300d" "0609608648016503040401" "0500"
+      "0442"
+      "8040000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d"
+      "2e2f303132333435363738393a3b3c3d3e3f";
+   mlkem_key key;
+   unsigned char buf[128];
+   unsigned long buflen = sizeof(buf);
+
+   DO(s_decode_hex(hex, buf, &buflen));
+   SHOULD_FAIL_WITH(mlkem_import_pkcs8(buf, buflen, NULL, &key), CRYPT_INVALID_PACKET);
+
+   /* without the NULL it imports, so it is the parameters element that gets it rejected */
+   XMEMMOVE(buf + 18, buf + 20, buflen - 20);
+   buflen -= 2;
+   buf[1] -= 2;
+   buf[6] -= 2;
+   DO(mlkem_import_pkcs8(buf, buflen, NULL, &key));
+   ENSURE(key.alg == LTC_MLKEM_512);
+   mlkem_free(&key);
+
+   return CRYPT_OK;
+}
+
 int pqc_mlkem_test(void)
 {
    if (ltc_mp.name == NULL) return CRYPT_NOP;
@@ -711,6 +740,7 @@ int pqc_mlkem_test(void)
    DO(s_mlkem_openssl_seed_test());
    DO(s_mlkem_error_test());
    DO(s_mlkem_modulus_check_test());
+   DO(s_mlkem_pkcs8_params_test());
    DO(s_mlkem_keygen_encaps_decaps(LTC_MLKEM_512));
    DO(s_mlkem_keygen_encaps_decaps(LTC_MLKEM_768));
    DO(s_mlkem_keygen_encaps_decaps(LTC_MLKEM_1024));

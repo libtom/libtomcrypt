@@ -790,6 +790,42 @@ static int s_slhdsa_no_registration_test(void)
 }
 #endif
 
+/* RFC 9909 requires the parameters field of the AlgorithmIdentifier to be absent */
+static int s_slhdsa_pkcs8_params_test(void)
+{
+   /* the SLH-DSA-SHA2-128s example of RFC 9909 (tests/pem/pkcs/rfc9909_SLH-DSA-SHA2-128s_sk.pk8), with a NULL parameters element added */
+   static const char hex[] =
+      "3054" "020100"
+      "300d" "0609608648016503040314" "0500"
+      "0440"
+      "a2263bca45860836523160049523d621677fad90d51eb6067a327e0d1e64a5012b8109ec777caa4e1f024ccfcf9497d9"
+      "9180509280f4256af2b07af80289b494";
+   slhdsa_key key;
+   unsigned char buf[128];
+   unsigned long buflen = sizeof(buf);
+
+   DO(s_decode_hex(hex, buf, &buflen));
+   SHOULD_FAIL_WITH(slhdsa_import_pkcs8(buf, buflen, NULL, &key), CRYPT_INVALID_PACKET);
+   /* the same for the HashSLH-DSA-SHA2-128s-with-SHA256 OID, its last arc is 35 */
+   buf[17] = 0x23;
+   SHOULD_FAIL_WITH(slhdsa_import_pkcs8(buf, buflen, NULL, &key), CRYPT_INVALID_PACKET);
+
+   /* without the NULL both import, so it is the parameters element that gets them rejected */
+   XMEMMOVE(buf + 18, buf + 20, buflen - 20);
+   buflen -= 2;
+   buf[1] -= 2;
+   buf[6] -= 2;
+   DO(slhdsa_import_pkcs8(buf, buflen, NULL, &key));
+   ENSURE(key.alg == LTC_SLHDSA_HASH_SHA2_128S_WITH_SHA256);
+   slhdsa_free(&key);
+   buf[17] = 0x14;
+   DO(slhdsa_import_pkcs8(buf, buflen, NULL, &key));
+   ENSURE(key.alg == LTC_SLHDSA_SHA2_128S);
+   slhdsa_free(&key);
+
+   return CRYPT_OK;
+}
+
 int pqc_slhdsa_test(void)
 {
    if (ltc_mp.name == NULL) return CRYPT_NOP;
@@ -803,6 +839,7 @@ int pqc_slhdsa_test(void)
    DO(s_slhdsa_sign_hash_test());
    DO(s_slhdsa_prehash_test());
    DO(s_slhdsa_check_key_test());
+   DO(s_slhdsa_pkcs8_params_test());
    DO(s_slhdsa_import_mutation_test(LTC_SLHDSA_SHAKE_128F));
    DO(s_slhdsa_import_mutation_test(LTC_SLHDSA_SHA2_128F));
 #if defined(LTC_SHA256) && defined(LTC_SHA512) && !defined(LTC_PTHREAD)

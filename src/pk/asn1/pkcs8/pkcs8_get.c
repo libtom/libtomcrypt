@@ -13,6 +13,7 @@ int pkcs8_get_children(const ltc_asn1_list *decoded_list, enum ltc_oid_id *pka, 
 {
    int err;
    unsigned long n;
+   enum ltc_pka_id pka_id;
    der_flexi_check flexi_should[4];
    ltc_asn1_list *seq_l = NULL, *priv_l = NULL, *version = NULL;
 
@@ -57,12 +58,19 @@ int pkcs8_get_children(const ltc_asn1_list *decoded_list, enum ltc_oid_id *pka, 
       return err;
    }
 
-   switch (*pka) {
-      /* RFC 8410 requires the parameters field of the AlgorithmIdentifier to be absent */
-      case LTC_OID_X25519:
-      case LTC_OID_ED25519:
-      case LTC_OID_X448:
-      case LTC_OID_ED448:
+   /* RFC 8410 (X25519, Ed25519, X448, Ed448), RFC 9881 (ML-DSA), RFC 9909 (SLH-DSA) and RFC 9935 (ML-KEM) require the
+      parameters field of the AlgorithmIdentifier to be absent. Going by the algorithm covers all of its OIDs. */
+   if ((err = pk_get_pka_id(*pka, &pka_id)) != CRYPT_OK) {
+      return err;
+   }
+   switch (pka_id) {
+      case LTC_PKA_X25519:
+      case LTC_PKA_ED25519:
+      case LTC_PKA_X448:
+      case LTC_PKA_ED448:
+      case LTC_PKA_MLDSA:
+      case LTC_PKA_SLHDSA:
+      case LTC_PKA_MLKEM:
          if ((*alg_id)->child->next != NULL) {
             return CRYPT_INVALID_PACKET;
          }
