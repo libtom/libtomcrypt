@@ -160,6 +160,11 @@ static int s_dsa_compat_test(void)
                          "DSA public export from dsa_import(priv_key)\n", __LINE__);
   dsa_free(&key);
 
+  /* the DSAPrivateKey version has to be 0 */
+  XMEMCPY(tmp, ltc_dsa_private_test_key, sizeof(ltc_dsa_private_test_key));
+  tmp[6] = 0x01;
+  SHOULD_FAIL(dsa_import(tmp, sizeof(ltc_dsa_private_test_key), &key));
+
   DO(dsa_import(openssl_pub_dsa, sizeof(openssl_pub_dsa), &key));
 
   x = sizeof(tmp);

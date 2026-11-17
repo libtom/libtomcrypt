@@ -2237,6 +2237,13 @@ static int s_ecc_import_export(void) {
    DO(ecc_import_openssl(long_pric, sizeof(long_pric),  &key));
    DO(ecc_key_cmp(PK_PRIVATE, &pri, &key));
    ecc_free(&key);
+   /* the ECPrivateKey version has to be 1 */
+   XMEMCPY(out, short_pri, sizeof(short_pri));
+   out[4] = 0x02;
+   SHOULD_FAIL(ecc_import_openssl(out, sizeof(short_pri), &key));
+   XMEMCPY(out, ltc_ecc_long_pri_test_key, sizeof(ltc_ecc_long_pri_test_key));
+   out[6] = 0x02;
+   SHOULD_FAIL(ecc_import_openssl(out, sizeof(ltc_ecc_long_pri_test_key), &key));
    DO(ecc_import_openssl(long_pub, sizeof(long_pub),   &key));
    DO(ecc_key_cmp(PK_PUBLIC, &pub, &key));
    ecc_free(&key);

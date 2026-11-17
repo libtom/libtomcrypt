@@ -25,6 +25,7 @@ static int s_ecc_import_private_with_oid(const unsigned char *in, unsigned long 
    /* try to load private key */
    err = der_decode_sequence(in, inlen, seq_priv, 4);
    if (err != CRYPT_OK) { goto error; }
+   if (pkver != 1) { err = CRYPT_INVALID_PACKET; goto error; }
    err = ecc_import_with_oid(bin_k, seq_priv[1].size, curveoid, custom[0].size, PK_PRIVATE, key);
 error:
    return err;
@@ -88,6 +89,7 @@ int ecc_import_with_curve(const unsigned char *in, unsigned long inlen, int type
       LTC_SET_ASN1_CUSTOM_CONSTRUCTED(seq_priv, 3, LTC_ASN1_CL_CONTEXT_SPECIFIC, 1, custom + 1); /* context specific 1 */
       /* try to load private key */
       err = der_decode_sequence(in, inlen, seq_priv, 4);
+      if (err == CRYPT_OK && pkver != 1) err = CRYPT_INVALID_PACKET;
    } else if (type == PK_PUBLIC) {
       /* try to load public key */
       len_xy = sizeof(bin_xy);
