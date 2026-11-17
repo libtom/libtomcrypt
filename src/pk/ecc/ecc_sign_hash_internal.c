@@ -44,7 +44,7 @@ int ecc_sign_hash_internal(const unsigned char *in,  unsigned long inlen,
    else {
       if (pbytes >= MAXBLOCKSIZE) {
          err = CRYPT_BUFFER_OVERFLOW;
-         goto error;
+         goto errnokey;
       }
       shift_right = 8 - pbits % 8;
       for (i=0, ch=0; i<pbytes; i++) {
