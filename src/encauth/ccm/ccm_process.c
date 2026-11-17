@@ -24,6 +24,10 @@ int ccm_process(ccm_state *ccm,
 
    LTC_ARGCHK(ccm != NULL);
 
+   if (direction != CCM_ENCRYPT && direction != CCM_DECRYPT) {
+      return CRYPT_INVALID_ARG;
+   }
+
    /* Check aad has been correctly added */
    if (ccm->aadlen != ccm->current_aadlen) {
       return CRYPT_ERROR;

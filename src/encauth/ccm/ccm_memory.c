@@ -58,6 +58,10 @@ int ccm_memory(int cipher,
    LTC_ARGCHK(tag    != NULL);
    LTC_ARGCHK(taglen != NULL);
 
+   if (direction != CCM_ENCRYPT && direction != CCM_DECRYPT) {
+      return CRYPT_INVALID_ARG;
+   }
+
    pt_real = pt;
 
 #ifdef LTC_FAST
@@ -87,7 +91,7 @@ int ccm_memory(int cipher,
    if (cipher_descriptor[cipher].accel_ccm_memory != NULL) {
        return cipher_descriptor[cipher].accel_ccm_memory(
            key,    keylen,
-           &uskey->key,
+           (uskey == NULL) ? NULL : &uskey->key,
            nonce,  noncelen,
            header, headerlen,
            pt,     ptlen,
@@ -140,6 +144,7 @@ int ccm_memory(int cipher,
    if (direction == CCM_DECRYPT && ptlen > 0) {
       pt_work = XMALLOC(ptlen);
       if (pt_work == NULL) {
+         err = CRYPT_MEM;
          goto error;
       }
       pt = pt_work;
@@ -330,13 +335,6 @@ int ccm_memory(int cipher,
       goto error;
    }
 
-   if (skey != uskey) {
-      ecb_done(skey);
-#ifdef LTC_CLEAN_STACK
-      zeromem(skey,   sizeof(*skey));
-#endif
-   }
-
    if (direction == CCM_ENCRYPT) {
       /* store the TAG */
       for (x = 0; x < 16 && x < *taglen; x++) {
@@ -363,6 +361,7 @@ int ccm_memory(int cipher,
       }
    }
 
+error:
 #ifdef LTC_CLEAN_STACK
    zeromem(PAD,    sizeof(PAD));
    zeromem(CTRPAD, sizeof(CTRPAD));
@@ -370,11 +369,14 @@ int ccm_memory(int cipher,
      zeromem(pt_work, ptlen);
    }
 #endif
-error:
    if (pt_work) {
       XFREE(pt_work);
    }
    if (skey != uskey) {
+      ecb_done(skey);
+#ifdef LTC_CLEAN_STACK
+      zeromem(skey, sizeof(*skey));
+#endif
       XFREE(skey);
    }
 
