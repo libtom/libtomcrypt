@@ -158,6 +158,10 @@ int ecc_recover_key(const unsigned char *sig,  unsigned long siglen,
       if ((err = ltc_mp_read_unsigned_bin(e, hash, pbytes)) != CRYPT_OK)                                    { goto error; }
    }
    else {
+      if (pbytes >= MAXBLOCKSIZE) {
+         err = CRYPT_BUFFER_OVERFLOW;
+         goto error;
+      }
       shift_right = 8 - pbits % 8;
       for (i=0, ch=0; i<pbytes; i++) {
         buf[i] = ch;
