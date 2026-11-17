@@ -1,8 +1,8 @@
 /* LibTomCrypt, modular cryptographic library -- Tom St Denis */
 /* SPDX-License-Identifier: Unlicense */
 
-/* Forward declare */
-typedef struct password_ctx password_ctx;
+/* password_ctx is defined in tomcrypt_pk.h, a second typedef of it here is not valid C before C11 */
+struct password_ctx;
 
 /* ---- Post-Quantum Cryptography ---- */
 
@@ -67,7 +67,7 @@ int mlkem_import(const unsigned char *in, unsigned long inlen, mlkem_key *key);
 int mlkem_import_x509(const unsigned char *in, unsigned long inlen, mlkem_key *key);
 #endif
 #ifdef LTC_PKCS_8
-int mlkem_import_pkcs8(const unsigned char *in, unsigned long inlen, const password_ctx *pw_ctx, mlkem_key *key);
+int mlkem_import_pkcs8(const unsigned char *in, unsigned long inlen, const struct password_ctx *pw_ctx, mlkem_key *key);
 #endif
 
 int mlkem_encaps(unsigned char   *ct,            unsigned long *ctlen,
@@ -150,7 +150,7 @@ int mldsa_import(const unsigned char *in, unsigned long inlen, mldsa_key *key);
 int mldsa_import_x509(const unsigned char *in, unsigned long inlen, mldsa_key *key);
 #endif
 #ifdef LTC_PKCS_8
-int mldsa_import_pkcs8(const unsigned char *in, unsigned long inlen, const password_ctx *pw_ctx, mldsa_key *key);
+int mldsa_import_pkcs8(const unsigned char *in, unsigned long inlen, const struct password_ctx *pw_ctx, mldsa_key *key);
 #endif
 
 int mldsa_sign(const unsigned char *msg,  unsigned long  msglen,
@@ -288,7 +288,7 @@ int slhdsa_import(const unsigned char *in, unsigned long inlen, slhdsa_key *key)
 int slhdsa_import_x509(const unsigned char *in, unsigned long inlen, slhdsa_key *key);
 #endif
 #ifdef LTC_PKCS_8
-int slhdsa_import_pkcs8(const unsigned char *in, unsigned long inlen, const password_ctx *pw_ctx, slhdsa_key *key);
+int slhdsa_import_pkcs8(const unsigned char *in, unsigned long inlen, const struct password_ctx *pw_ctx, slhdsa_key *key);
 #endif
 
 int slhdsa_sign(const unsigned char *msg,  unsigned long  msglen,
