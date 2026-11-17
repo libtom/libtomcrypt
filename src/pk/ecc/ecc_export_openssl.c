@@ -10,7 +10,7 @@ static int s_ecc_export(unsigned char *out, unsigned long *outlen, int type, con
    int           err;
    void *prime, *order, *a, *b, *gx, *gy;
    unsigned char bin_a[256], bin_b[256], bin_k[256], bin_g[512], bin_xy[512], bin_p8[1024];
-   unsigned long len_a, len_b, len_k, len_g, len_xy, len_p8;
+   unsigned long len_a, len_b, len_k, len_g, len_xy, len_p8, pad_k;
    unsigned long cofactor, one = 1;
    const char *OID;
    unsigned long oid[16], oidlen;
@@ -124,10 +124,14 @@ static int s_ecc_export(unsigned char *out, unsigned long *outlen, int type, con
          }
       */
 
-      /* private key */
-      len_k = ltc_mp_unsigned_bin_size(key->k);
+      /* private key - RFC 5915: an octet string as long as the order of the curve, so a short k gets leading zeros */
+      len_k = ltc_mp_unsigned_bin_size(key->dp.order);
+      pad_k = ltc_mp_unsigned_bin_size(key->k);
       if (len_k > sizeof(bin_k))                                        { err = CRYPT_BUFFER_OVERFLOW; goto error; }
-      if ((err = ltc_mp_to_unsigned_bin(key->k, bin_k)) != CRYPT_OK)        { goto error; }
+      if (pad_k > len_k)                                                { err = CRYPT_PK_INVALID_SIZE; goto error; }
+      pad_k = len_k - pad_k;
+      zeromem(bin_k, pad_k);
+      if ((err = ltc_mp_to_unsigned_bin(key->k, bin_k + pad_k)) != CRYPT_OK) { goto error; }
 
       LTC_SET_ASN1(&pub_xy,  0, LTC_ASN1_RAW_BIT_STRING, bin_xy, 8*len_xy);
       LTC_SET_ASN1(seq_priv, 0, LTC_ASN1_SHORT_INTEGER,  &one,   1);
