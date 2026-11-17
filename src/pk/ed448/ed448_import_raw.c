@@ -24,11 +24,11 @@ int ed448_import_raw(const unsigned char *in, unsigned long inlen, int which, cu
    LTC_ARGCHK(key  != NULL);
 
    if (which == PK_PRIVATE) {
-      LTC_ARGCHK(inlen == 57uL);
+      if (inlen != 57uL) return CRYPT_PK_INVALID_SIZE;
       XMEMCPY(key->priv, in, sizeof(key->priv));
       ec448_sk_to_pk_internal(key->pub, key->priv);
    } else if (which == PK_PUBLIC) {
-      LTC_ARGCHK(inlen == 57uL);
+      if (inlen != 57uL) return CRYPT_PK_INVALID_SIZE;
       XMEMCPY(key->pub, in, sizeof(key->pub));
    } else {
       return CRYPT_INVALID_ARG;

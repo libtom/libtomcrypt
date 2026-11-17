@@ -16,7 +16,7 @@ int ec448_import_pkcs8_asn1(ltc_asn1_list *alg_id, ltc_asn1_list *priv_key,
                             curve448_key *key)
 {
    int err;
-   unsigned long key_len;
+   unsigned long key_len, priv_len;
    sk_to_pk fp;
 
    LTC_ARGCHK(key         != NULL);
@@ -27,16 +27,21 @@ int ec448_import_pkcs8_asn1(ltc_asn1_list *alg_id, ltc_asn1_list *priv_key,
    switch (id) {
       case LTC_OID_X448:
          fp = ec448_scalarmult_base_internal;
+         priv_len = 56uL;
          break;
       case LTC_OID_ED448:
          fp = ec448_sk_to_pk_internal;
+         priv_len = 57uL;
          break;
       default:
          return CRYPT_PK_INVALID_TYPE;
    }
 
    key_len = sizeof(key->priv);
-   if ((err = der_decode_octet_string(priv_key->data, priv_key->size, key->priv, &key_len)) == CRYPT_OK) {
+   if ((err = der_decode_octet_string(priv_key->data, priv_key->size, key->priv, &key_len)) == CRYPT_OK && key_len != priv_len) {
+      err = CRYPT_PK_INVALID_SIZE;
+   }
+   if (err == CRYPT_OK) {
       fp(key->pub, key->priv);
       key->type = PK_PRIVATE;
       err = pk_get_pka_id(id, &key->pka);
