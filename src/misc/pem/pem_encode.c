@@ -159,7 +159,10 @@ int pem_encode_pkcs_filehandle(FILE *f, int which, const ltc_pka_key *key,
    LTC_ARGCHK(f   != NULL);
    LTC_ARGCHK(key != NULL);
 
-   if ((err = pem_encode_pkcs(dummy, &len, which, key, opts, prng, wprng)) != CRYPT_BUFFER_OVERFLOW) return err == CRYPT_OK ? CRYPT_ERROR : err;
+   /* a too small buffer makes pem_encode_pkcs() report the size; without a size there is nothing to allocate */
+   err = pem_encode_pkcs(dummy, &len, which, key, opts, prng, wprng);
+   if (err == CRYPT_OK || (err == CRYPT_BUFFER_OVERFLOW && len == 0)) return CRYPT_ERROR;
+   if (err != CRYPT_BUFFER_OVERFLOW) return err;
    if ((buf = XMALLOC(len)) == NULL) return CRYPT_MEM;
    pemlen = len;
    if ((err = pem_encode_pkcs(buf, &pemlen, which, key, opts, prng, wprng)) == CRYPT_OK && fwrite(buf, 1, pemlen, f) != pemlen) {
