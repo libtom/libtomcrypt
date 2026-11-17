@@ -41,8 +41,10 @@ static int s_ed25519_sign(const unsigned char  *msg, unsigned long  msglen,
                                private_key->priv, private_key->pub,
                                ctx, ctxlen);
 
-   XMEMCPY(sig, s, 64uL);
-   *siglen = 64uL;
+   if (err == CRYPT_OK) {
+      XMEMCPY(sig, s, 64uL);
+      *siglen = 64uL;
+   }
 
 #ifdef LTC_CLEAN_STACK
    zeromem(s, smlen);

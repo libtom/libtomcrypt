@@ -135,7 +135,7 @@ int ecc_rfc6979_key(const ecc_key *priv, const unsigned char *in, unsigned long 
          /* K = HMAC_K(V::0x00) */
          buffer[0] = 0x0;
          outlen = sizeof(k);
-         if((err = hmac_memory_multi(hash, k, klen, k, &klen, v, hashsize, buffer, 1, LTC_NULL)) != CRYPT_OK)  { goto error; }
+         if((err = hmac_memory_multi(hash, k, klen, k, &klen, v, hashsize, buffer, 1uL, LTC_NULL)) != CRYPT_OK)  { goto error; }
 
          /* V = HMAC_K(V) */
          outlen = sizeof(v);

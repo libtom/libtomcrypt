@@ -823,7 +823,7 @@ int ssh_read_authorized_keys_filehandle(FILE *f, ssh_authorized_key_cb cb, void 
    tot_data = ftell(f);
    if (fseek(f, 0, SEEK_SET) == -1)
       return CRYPT_ERROR;
-   buf = XMALLOC(tot_data);
+   buf = XMALLOC(tot_data ? tot_data : 1); /* malloc(0) may return NULL */
    if (buf == NULL) {
       return CRYPT_MEM;
    }
