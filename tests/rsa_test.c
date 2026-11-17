@@ -376,6 +376,19 @@ static int s_rsa_issue_301(int prng_idx)
    return CRYPT_OK;
 }
 
+static int s_rsa_issue_803(void)
+{
+   rsa_key       key;
+   /* SEQUENCE { INTEGER 2, INTEGER 0 }, an unknown RSAPrivateKey version */
+   const unsigned char v2[] = { 0x30, 0x06, 0x02, 0x01, 0x02, 0x02, 0x01, 0x00 };
+   /* SEQUENCE { INTEGER 0 }, a version without any key components */
+   const unsigned char v0[] = { 0x30, 0x03, 0x02, 0x01, 0x00 };
+
+   SHOULD_FAIL(rsa_import(v2, sizeof(v2), &key));
+   SHOULD_FAIL(rsa_import(v0, sizeof(v0), &key));
+   return CRYPT_OK;
+}
+
 static int s_rsa_public_ubin_e(int prng_idx)
 {
    rsa_key       key;
@@ -605,6 +618,7 @@ int rsa_test(void)
    DO(s_rsa_macros_test());
    DO(s_rsa_cryptx_issue_69());
    DO(s_rsa_issue_301(prng_idx));
+   DO(s_rsa_issue_803());
    DO(s_rsa_public_ubin_e(prng_idx));
    DO(s_rsa_oaep_small_ciphertext_test(prng_idx));
 
