@@ -18,8 +18,6 @@
 #define SPX_ADDR_BYTES      32   /* max address bytes (SHAKE uses 32, SHA-2 uses 22) */
 #define SPX_WOTS_W          16
 #define SPX_WOTS_LOGW        4
-#define SPX_FULL_HEIGHT_MAX 68
-#define SPX_D_MAX           22
 #define SPX_TREE_HEIGHT_MAX 10   /* max(full_height/d) across all param sets */
 #define SPX_FORS_HEIGHT_MAX 14
 #define SPX_FORS_TREES_MAX  35
