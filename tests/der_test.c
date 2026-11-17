@@ -1296,6 +1296,69 @@ static void s_der_recursion_limit(void)
    }
 }
 
+#if defined(LTC_PBES)
+static int s_pbes_pw_cb(void **pw, unsigned long *pwlen, void *u)
+{
+   LTC_UNUSED_PARAM(u);
+   *pwlen = 4;
+   *pw = XMALLOC(4);
+   XMEMCPY(*pw, "test", 4);
+   return CRYPT_OK;
+}
+
+static void s_der_pbes_iteration_limit(void)
+{
+   /* PBES2 EncryptedPrivateKeyInfo (PBKDF2-HMAC-SHA1 + des-ede3-cbc), password "test".
+    * The ciphertext decrypts to a minimal Ed25519 PrivateKeyInfo. iterationCount = 2048 (< cap) */
+   static const unsigned char under_cap[] = {
+      0x30, 0x5C,                                                       /* EncryptedPrivateKeyInfo */
+      0x30, 0x40,                                                       /* AlgorithmIdentifier */
+      0x06, 0x09, 0x2A, 0x86, 0x48, 0x86, 0xF7, 0x0D, 0x01, 0x05, 0x0D, /* OID PBES2 */
+      0x30, 0x33,                                                       /* PBES2-params */
+      0x30, 0x1B,                                                       /* key derivation func */
+      0x06, 0x09, 0x2A, 0x86, 0x48, 0x86, 0xF7, 0x0D, 0x01, 0x05, 0x0C, /* OID PBKDF2 */
+      0x30, 0x0E,                                                       /* PBKDF2-params */
+      0x04, 0x08, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,       /* salt */
+      0x02, 0x02, 0x08, 0x00,                                           /* iterationCount = 2048 */
+      0x30, 0x14,                                                       /* encryption scheme */
+      0x06, 0x08, 0x2A, 0x86, 0x48, 0x86, 0xF7, 0x0D, 0x03, 0x07,       /* OID des-ede3-cbc */
+      0x04, 0x08, 0x09, 0x09, 0x09, 0x09, 0x09, 0x09, 0x09, 0x09,       /* iv */
+      0x04, 0x18,                                                       /* encrypted data (real ciphertext) */
+      0xD3, 0x3D, 0x95, 0x45, 0x73, 0x43, 0x39, 0xF7, 0x6E, 0x23, 0xBD, 0x63,
+      0xDF, 0x35, 0xAC, 0x2F, 0xDE, 0xFD, 0x3F, 0x81, 0x95, 0x18, 0x72, 0x78
+   };
+   /* same ciphertext, but iterationCount = 100000000 (> cap) */
+   static const unsigned char over_cap[] = {
+      0x30, 0x5E,                                                       /* EncryptedPrivateKeyInfo */
+      0x30, 0x42,                                                       /* AlgorithmIdentifier */
+      0x06, 0x09, 0x2A, 0x86, 0x48, 0x86, 0xF7, 0x0D, 0x01, 0x05, 0x0D, /* OID PBES2 */
+      0x30, 0x35,                                                       /* PBES2-params */
+      0x30, 0x1D,                                                       /* key derivation func */
+      0x06, 0x09, 0x2A, 0x86, 0x48, 0x86, 0xF7, 0x0D, 0x01, 0x05, 0x0C, /* OID PBKDF2 */
+      0x30, 0x10,                                                       /* PBKDF2-params */
+      0x04, 0x08, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,       /* salt */
+      0x02, 0x04, 0x05, 0xF5, 0xE1, 0x00,                               /* iterationCount = 100000000 */
+      0x30, 0x14,                                                       /* encryption scheme */
+      0x06, 0x08, 0x2A, 0x86, 0x48, 0x86, 0xF7, 0x0D, 0x03, 0x07,       /* OID des-ede3-cbc */
+      0x04, 0x08, 0x09, 0x09, 0x09, 0x09, 0x09, 0x09, 0x09, 0x09,       /* iv */
+      0x04, 0x18,                                                       /* encrypted data (real ciphertext) */
+      0xD3, 0x3D, 0x95, 0x45, 0x73, 0x43, 0x39, 0xF7, 0x6E, 0x23, 0xBD, 0x63,
+      0xDF, 0x35, 0xAC, 0x2F, 0xDE, 0xFD, 0x3F, 0x81, 0x95, 0x18, 0x72, 0x78
+   };
+   password_ctx pw_ctx = { s_pbes_pw_cb, NULL, NULL };
+   ltc_asn1_list *decoded = NULL;
+
+   /* under the cap: the KDF runs and the key is decrypted */
+   DO(pkcs8_decode_flexi(under_cap, sizeof(under_cap), &pw_ctx, &decoded));
+   der_free_sequence_flexi(decoded);
+   decoded = NULL;
+
+   /* over the cap: rejected before the KDF runs */
+   SHOULD_FAIL_WITH(pkcs8_decode_flexi(over_cap, sizeof(over_cap), &pw_ctx, &decoded), CRYPT_INVALID_ARG);
+   ENSURE(decoded == NULL);
+}
+#endif
+
 static void s_der_issue743(void)
 {
    const unsigned char tests_asn1_0x028101FF_der[] = {
@@ -1364,6 +1427,10 @@ int der_test(void)
    s_der_issue743();
 
    s_der_recursion_limit();
+
+#if defined(LTC_PBES)
+   s_der_pbes_iteration_limit();
+#endif
 
    der_Xcode_test();
 
