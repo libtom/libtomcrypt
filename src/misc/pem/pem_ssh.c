@@ -443,38 +443,31 @@ static int s_decode_key(const unsigned char *in, unsigned long *inlen, ltc_pka_k
    return remaining ? padding_depad(p, &remaining, LTC_PAD_SSH) : CRYPT_OK;
 }
 
-static LTC_INLINE void skip_spaces(char **r, unsigned long *l)
+static LTC_INLINE void skip_spaces(char **r, const char *end)
 {
-   while(*l && (**r == ' ' || **r == '\t')) {
+   while (*r < end && (**r == ' ' || **r == '\t')) {
       (*r)++;
-      (*l)--;
    }
 }
 
-static LTC_INLINE void skip_chars(char **r, unsigned long *l)
+static LTC_INLINE void skip_to_space_or_eol(char **r, const char *end)
 {
-   while(*l && (**r != ' ' && **r != '\t')) {
-      (*l)--;
-      if (**r == '\n' || **r == '\r') {
-         *l = 0;
-      } else {
-         (*r)++;
-      }
+   while (*r < end && **r != ' ' && **r != '\t' && **r != '\n' && **r != '\r') {
+      (*r)++;
    }
 }
 
-static LTC_INLINE void skip_to_eol(char **r, unsigned long *l)
+static LTC_INLINE void skip_to_eol(char **r, const char *end)
 {
-   while(*l && (**r != '\n' && **r != '\r')) {
-      (*l)--;
+   while (*r < end && **r != '\n' && **r != '\r') {
       (*r)++;
    }
 }
 
 static int s_parse_line(char *line, unsigned long *len, ltc_pka_key *key, char **comment)
 {
-   int err;
-   unsigned long n, rlen, olen;
+   int err, eol;
+   unsigned long n, olen;
    enum authorized_keys_elements {
       ake_algo_name = 0,
       ake_b64_encoded_key = 1,
@@ -482,21 +475,25 @@ static int s_parse_line(char *line, unsigned long *len, ltc_pka_key *key, char *
    };
    struct str elements[3] = { 0 };
    char *r = line;
+   const char *end = line + *len;
    unsigned char *buf = NULL;
 
-   rlen = *len;
    /* Chop up string into the three authorized_keys_elements */
-   for (n = 0; n < LTC_ARRAY_SIZE(elements) && rlen; ++n) {
-      skip_spaces(&r, &rlen);
+   for (n = 0; n < LTC_ARRAY_SIZE(elements) && r < end; ++n) {
+      skip_spaces(&r, end);
       elements[n].p = r;
       if (n != 2)
-         skip_chars(&r, &rlen);
+         skip_to_space_or_eol(&r, end);
       else
-         skip_to_eol(&r, &rlen);
+         skip_to_eol(&r, end);
       elements[n].len = r - elements[n].p;
+      if (r == end) break;
+      eol = (*r == '\n' || *r == '\r');
       *r = '\0';
       r++;
+      if (eol) break; /* don't pull the next line into this entry */
    }
+   if (elements[ake_algo_name].len == 0 || elements[ake_b64_encoded_key].len == 0) return CRYPT_PK_INVALID_TYPE;
 
    for (n = 0; n < LTC_ARRAY_SIZE(ssh_pkas); ++n) {
       if (ssh_pkas[n].name.p != NULL) {
@@ -561,7 +558,11 @@ static int s_read_authorized_keys(const void *buf, unsigned long len, ssh_author
    s = cpy;
    err = CRYPT_ERROR;
    while (clen && (err = s_parse_line(s, &clen, key, &comment)) == CRYPT_OK) {
-      if (cb(key, comment, ctx)) {
+      int stop = cb(key, comment, ctx);
+      key = NULL; /* freed by cb(), don't free it again */
+      if (stop) break;
+      if (clen == 0 || clen > len) { /* s_parse_line() must consume something */
+         err = CRYPT_ERROR;
          break;
       }
       s += clen;

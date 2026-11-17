@@ -45,6 +45,98 @@ static int s_read_invalid_authorized_keys(const void *in, unsigned long inlen, v
    return CRYPT_OK;
 }
 
+/* An entry whose last element isn't followed by a space, tab, CR or LF used to run the parser past the end of its input copy.
+ * All fixtures under tests/pem/ end with a newline, so these inputs are built in-code with explicit lengths and no trailing newline. */
+struct authorized_key_expect {
+   const char *comment;    /* comment the callback should get */
+   int         stop;       /* what the callback returns */
+   unsigned    seen;       /* keys passed to the callback */
+   unsigned    bad;        /* keys with an unexpected comment */
+};
+
+static int s_authorized_key_expect_cb(ltc_pka_key *k, const char *comment, void *ctx)
+{
+   struct authorized_key_expect *e = ctx;
+   e->seen++;
+   if (e->comment == NULL ? comment != NULL : (comment == NULL || XSTRCMP(comment, e->comment) != 0)) {
+      e->bad++;
+   }
+   pka_key_destroy(&k);
+   return e->stop;
+}
+
+#define AK_STR(s) s, (sizeof(s) - 1)
+
+static int s_test_authorized_keys_no_eol(void)
+{
+   /* chopping runs before the algorithm is matched, so these fail regardless of the PKAs compiled in */
+   static const struct {
+      const char   *in;
+      unsigned long inlen;
+   } malformed[] = {
+      { AK_STR("ssh-ed25519") },           /* algorithm name only, no delimiter */
+      { AK_STR("ecdsa-sha2-nistp256") },   /* ditto, and reaches strstr()       */
+      { AK_STR("x") },                     /* single byte, no delimiter         */
+      { AK_STR(" ") },                     /* nothing but a space               */
+      { AK_STR("\n") },                    /* nothing but a newline             */
+      { AK_STR("ssh-ed25519 ") },          /* empty key blob                    */
+      { AK_STR("ssh-ed25519 AAAA") },      /* key blob runs to the end          */
+   };
+   unsigned long n;
+   struct authorized_key_expect e;
+
+   for (n = 0; n < sizeof(malformed)/sizeof(malformed[0]); ++n) {
+      XMEMSET(&e, 0, sizeof(e));
+      SHOULD_FAIL(ssh_read_authorized_keys(malformed[n].in, malformed[n].inlen, s_authorized_key_expect_cb, &e));
+      ENSUREX(e.seen == 0, malformed[n].in);
+   }
+
+#ifdef LTC_CURVE25519
+   {
+      /* a valid entry must parse identically with and without the trailing newline, comment included */
+      static const char ed25519[] = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIL0XsiFcRDp6Hpsoak8OdiiBMJhM2UKszNTxoGS7dJ++ This is a test key!";
+      static const char ed25519_eol[] = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIL0XsiFcRDp6Hpsoak8OdiiBMJhM2UKszNTxoGS7dJ++ This is a test key!\n";
+      static const char ed25519_no_comment[] = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIL0XsiFcRDp6Hpsoak8OdiiBMJhM2UKszNTxoGS7dJ++";
+      static const char ed25519_twice[] =
+         "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIL0XsiFcRDp6Hpsoak8OdiiBMJhM2UKszNTxoGS7dJ++ This is a test key!\n"
+         "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIL0XsiFcRDp6Hpsoak8OdiiBMJhM2UKszNTxoGS7dJ++ This is a test key!";
+
+      XMEMSET(&e, 0, sizeof(e));
+      e.comment = "This is a test key!";
+      DO(ssh_read_authorized_keys(AK_STR(ed25519), s_authorized_key_expect_cb, &e));
+      ENSURE(e.seen == 1 && e.bad == 0);
+
+      XMEMSET(&e, 0, sizeof(e));
+      e.comment = "This is a test key!";
+      DO(ssh_read_authorized_keys(AK_STR(ed25519_eol), s_authorized_key_expect_cb, &e));
+      ENSURE(e.seen == 1 && e.bad == 0);
+
+      /* the unterminated entry must not swallow the one before it */
+      XMEMSET(&e, 0, sizeof(e));
+      e.comment = "This is a test key!";
+      DO(ssh_read_authorized_keys(AK_STR(ed25519_twice), s_authorized_key_expect_cb, &e));
+      ENSURE(e.seen == 2 && e.bad == 0);
+
+      /* key blob runs to the end of the buffer, no comment to pick up */
+      XMEMSET(&e, 0, sizeof(e));
+      e.comment = NULL;
+      DO(ssh_read_authorized_keys(AK_STR(ed25519_no_comment), s_authorized_key_expect_cb, &e));
+      ENSURE(e.seen == 1 && e.bad == 0);
+
+      /* cb() owns the key after asking to stop, it must not be freed twice */
+      XMEMSET(&e, 0, sizeof(e));
+      e.comment = "This is a test key!";
+      e.stop = 1;
+      DO(ssh_read_authorized_keys(AK_STR(ed25519_twice), s_authorized_key_expect_cb, &e));
+      ENSURE(e.seen == 1 && e.bad == 0);
+   }
+#endif
+
+   return CRYPT_OK;
+}
+
+#undef AK_STR
+
 #endif
 
 static int password_get(void **p, unsigned long *l, void *u)
@@ -175,6 +267,7 @@ int pem_test(void)
    DO(test_process_dir("tests/pem/ssh/authorized_keys", &key, s_read_authorized_keys, NULL, (dir_cleanup_cb)pka_key_free, "pem_ssh_authorized_keys_test"));
    DO(test_process_dir("tests/pem/ssh/authorized_keys", &key, NULL, s_read_authorized_keys_f, (dir_cleanup_cb)pka_key_free, "pem_ssh_authorized_keys_test"));
    DO(test_process_dir("tests/pem/ssh/authorized_keys-invalid", &key, s_read_invalid_authorized_keys, NULL, NULL, "pem_ssh_authorized_keys_invalid_test"));
+   DO(s_test_authorized_keys_no_eol());
    DO(test_process_dir("tests/pem/ssh/extra", &key, s_pem_decode_ssh, NULL, (dir_cleanup_cb)pka_key_free, "pem_ssh_test+extra"));
    DO(test_process_dir("tests/pem/pubkeys", &key, s_pem_only_decode, NULL, (dir_cleanup_cb)pka_key_free, "pem_pubkeys_test"));
    DO(test_process_dir("tests/pem/pubkeys", &key, NULL, s_pem_only_decode_f, (dir_cleanup_cb)pka_key_free, "pem_pubkeys_test_filehandle"));
