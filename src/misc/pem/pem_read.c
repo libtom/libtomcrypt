@@ -46,21 +46,15 @@ static LTC_INLINE int s_bufp_grow(struct bufp *buf)
 
 static LTC_INLINE int s_bufp_fits(struct bufp *buf, unsigned long to_write)
 {
-   char *d = buf->work;
-   char *e = buf->end;
-   char *w;
-   if (d == NULL || e == NULL)
-      return 0;
-   w = d + to_write;
-   if (w < d || w > e)
-      return 0;
+   if (buf->start == NULL || buf->work == NULL || buf->end == NULL) return 0;
+   if ((unsigned long)(buf->end - buf->work) < to_write) return 0;
    return 1;
 }
 
 static LTC_INLINE int s_bufp_add(struct bufp *buf, const void *src, unsigned long len)
 {
    int err;
-   if (!s_bufp_fits(buf, len)) {
+   while (!s_bufp_fits(buf, len)) {
       if ((err = s_bufp_grow(buf)) != CRYPT_OK) {
          return err;
       }
