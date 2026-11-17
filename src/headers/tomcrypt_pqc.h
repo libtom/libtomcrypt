@@ -328,6 +328,11 @@ int slhdsa_verify_hash(const unsigned char *sig,  unsigned long  siglen,
                              int           *stat,
                        const slhdsa_key    *key);
 
+/* computes the digest for the functions above with the pre-hash that alg, one of the LTC_SLHDSA_HASH_ parameter sets, names */
+int slhdsa_prehash_init(hash_state *md, int alg);
+int slhdsa_prehash_process(hash_state *md, int alg, const unsigned char *in, unsigned long inlen);
+int slhdsa_prehash_done(hash_state *md, int alg, unsigned char *out, unsigned long *outlen);
+
 int slhdsa_get_sizes(int alg,
                      unsigned long *public_key_sz,
                      unsigned long *secret_key_sz,

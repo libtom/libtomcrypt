@@ -905,6 +905,9 @@ int pqc_prehash_oid_der(int ph, const unsigned char **oid, unsigned long *oidlen
 int pqc_prehash_size(int ph, unsigned long *outlen);
 int pqc_prehash(int ph, const unsigned char *msg, unsigned long msglen,
                 unsigned char *out, unsigned long *outlen);
+int pqc_prehash_init(int ph, hash_state *md);
+int pqc_prehash_process(int ph, hash_state *md, const unsigned char *in, unsigned long inlen);
+int pqc_prehash_done(int ph, hash_state *md, unsigned char *out, unsigned long *outlen);
 #endif
 #if (defined(LTC_MLKEM) || defined(LTC_MLDSA)) && defined(LTC_DER)
 int pqc_export_privkey(unsigned char *out, unsigned long *outlen,

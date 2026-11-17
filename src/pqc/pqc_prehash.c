@@ -93,8 +93,7 @@ int pqc_prehash_size(int ph, unsigned long *outlen)
 /**
    INTERNAL ONLY, declared in tomcrypt_private.h
 
-   Compute PH(M), the pre-hash of the message that goes into M'.
-   The XOF output lengths are fixed by the standards, SHAKE128 gives 32 octets and SHAKE256 64.
+   Compute PH(M), the pre-hash of the message that goes into M', in one call.
    @param ph       The pre-hash function (one of ltc_pqc_prehash)
    @param msg      The message, may be NULL when msglen is 0
    @param msglen   Length of the message
@@ -105,41 +104,116 @@ int pqc_prehash_size(int ph, unsigned long *outlen)
 int pqc_prehash(int ph, const unsigned char *msg, unsigned long msglen,
                 unsigned char *out, unsigned long *outlen)
 {
-   static const unsigned char empty_msg = 0;
-   const struct ltc_hash_descriptor *desc;
    hash_state md;
+   unsigned long len;
    int err;
 
    LTC_ARGCHK(msg    != NULL || msglen == 0);
    LTC_ARGCHK(out    != NULL);
    LTC_ARGCHK(outlen != NULL);
 
-   /* the hashes reject a NULL pointer even for an empty input */
-   if (msg == NULL) msg = &empty_msg;
+   /* check the room before the message is hashed */
+   if ((err = pqc_prehash_size(ph, &len)) != CRYPT_OK) return err;
+   if (*outlen < len) { *outlen = len; return CRYPT_BUFFER_OVERFLOW; }
+
+   if ((err = pqc_prehash_init(ph, &md)) != CRYPT_OK) return err;
+   if ((err = pqc_prehash_process(ph, &md, msg, msglen)) != CRYPT_OK) return err;
+   return pqc_prehash_done(ph, &md, out, outlen);
+}
+
+/**
+   INTERNAL ONLY, declared in tomcrypt_private.h
+
+   Start the incremental computation of PH(M).
+   @param ph       The pre-hash function (one of ltc_pqc_prehash)
+   @param md       [out] The hash state to set up
+   @return CRYPT_OK if successful, CRYPT_INVALID_HASH if the pre-hash was not compiled in
+*/
+int pqc_prehash_init(int ph, hash_state *md)
+{
+   const struct ltc_hash_descriptor *desc;
+
+   LTC_ARGCHK(md != NULL);
 
    switch (ph) {
       case LTC_PQC_PH_SHA256:
       case LTC_PQC_PH_SHA512:
-         desc = s_pqc_prehash_desc(ph);
-         if (desc == NULL) return CRYPT_INVALID_HASH;
-         if (*outlen < desc->hashsize) { *outlen = desc->hashsize; return CRYPT_BUFFER_OVERFLOW; }
-         if ((err = desc->init(&md)) != CRYPT_OK) return err;
-         if ((err = desc->process(&md, msg, msglen)) != CRYPT_OK) return err;
-         if ((err = desc->done(&md, out)) != CRYPT_OK) return err;
-         *outlen = desc->hashsize;
-         return CRYPT_OK;
+         if ((desc = s_pqc_prehash_desc(ph)) == NULL) return CRYPT_INVALID_HASH;
+         return desc->init(md);
       case LTC_PQC_PH_SHAKE128:
-         /* sha3_shake_memory() takes outlen as input only */
-         if (*outlen < 32) return CRYPT_BUFFER_OVERFLOW;
-         *outlen = 32;
-         return sha3_shake_memory(128, msg, msglen, out, outlen);
+         return sha3_shake_init(md, 128);
       case LTC_PQC_PH_SHAKE256:
-         if (*outlen < 64) return CRYPT_BUFFER_OVERFLOW;
-         *outlen = 64;
-         return sha3_shake_memory(256, msg, msglen, out, outlen);
+         return sha3_shake_init(md, 256);
       default:
          return CRYPT_INVALID_ARG;
    }
+}
+
+/**
+   INTERNAL ONLY, declared in tomcrypt_private.h
+
+   Add a piece of the message to PH(M).
+   @param ph       The pre-hash function pqc_prehash_init() was called with
+   @param md       The hash state
+   @param in       The piece of the message, may be NULL when inlen is 0
+   @param inlen    Length of the piece
+   @return CRYPT_OK if successful
+*/
+int pqc_prehash_process(int ph, hash_state *md, const unsigned char *in, unsigned long inlen)
+{
+   const struct ltc_hash_descriptor *desc;
+
+   LTC_ARGCHK(md != NULL);
+   LTC_ARGCHK(in != NULL || inlen == 0);
+
+   switch (ph) {
+      case LTC_PQC_PH_SHA256:
+      case LTC_PQC_PH_SHA512:
+         if ((desc = s_pqc_prehash_desc(ph)) == NULL) return CRYPT_INVALID_HASH;
+         /* the hashes reject a NULL pointer even for an empty input */
+         return inlen == 0 ? CRYPT_OK : desc->process(md, in, inlen);
+      case LTC_PQC_PH_SHAKE128:
+      case LTC_PQC_PH_SHAKE256:
+         return inlen == 0 ? CRYPT_OK : sha3_shake_process(md, in, inlen);
+      default:
+         return CRYPT_INVALID_ARG;
+   }
+}
+
+/**
+   INTERNAL ONLY, declared in tomcrypt_private.h
+
+   Finish PH(M).
+   The XOF output lengths are fixed by the standards, SHAKE128 gives 32 octets and SHAKE256 64.
+   @param ph       The pre-hash function pqc_prehash_init() was called with
+   @param md       The hash state
+   @param out      [out] Destination for PH(M)
+   @param outlen   [in/out] Max size and resulting size of PH(M)
+   @return CRYPT_OK if successful
+*/
+int pqc_prehash_done(int ph, hash_state *md, unsigned char *out, unsigned long *outlen)
+{
+   const struct ltc_hash_descriptor *desc;
+   unsigned long len;
+   int err;
+
+   LTC_ARGCHK(md     != NULL);
+   LTC_ARGCHK(out    != NULL);
+   LTC_ARGCHK(outlen != NULL);
+
+   if ((err = pqc_prehash_size(ph, &len)) != CRYPT_OK) return err;
+   if (*outlen < len) { *outlen = len; return CRYPT_BUFFER_OVERFLOW; }
+
+   if (ph == LTC_PQC_PH_SHAKE128 || ph == LTC_PQC_PH_SHAKE256) {
+      err = sha3_shake_done(md, out, len);
+   }
+   else {
+      if ((desc = s_pqc_prehash_desc(ph)) == NULL) return CRYPT_INVALID_HASH;
+      err = desc->done(md, out);
+   }
+   if (err == CRYPT_OK) *outlen = len;
+
+   return err;
 }
 
 #endif

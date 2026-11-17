@@ -8317,22 +8317,44 @@ LTC\_SLHDSA\_HASH\_SHAKE\_256S/F\_WITH\_SHAKE256   & SHAKE256, 64 output octets 
 
 Any other \textit{hashlen} returns \code{CRYPT\_INVALID\_ARG}. A key of a Pure SLH-DSA parameter set has
 no pre-hash and returns \code{CRYPT\_PK\_INVALID\_TYPE}. The library cannot tell which function produced
-the digest, so using the right one is up to the caller.
+the digest: one of the right length from the wrong function gives a signature that does not verify
+anywhere else.
+
+\index{slhdsa\_prehash\_init()}\index{slhdsa\_prehash\_process()}\index{slhdsa\_prehash\_done()}
+\begin{verbatim}
+int slhdsa_prehash_init(hash_state *md, int alg);
+int slhdsa_prehash_process(hash_state *md, int alg,
+                           const unsigned char *in, unsigned long inlen);
+int slhdsa_prehash_done(hash_state *md, int alg,
+                        unsigned char *out, unsigned long *outlen);
+\end{verbatim}
+
+These functions compute the digest with the pre-hash from the table above, chosen by \textit{alg}, so
+the caller needs neither the table nor the output lengths of the two XOFs.
+\textit{alg} is the HashSLH-DSA parameter set, usually the \textit{alg} member of the key. It has to be
+the same in all three calls, because the hash state does not record which hash it holds.
+Only the parameter set is needed and not the key, so the message can be hashed before the key is loaded.
+\code{slhdsa\_prehash\_process()} can be called any number of times.
+On entry \textit{*outlen} is the size of \textit{out}, on exit it is the length of the digest (32 or 64),
+which is the \textit{hashlen} that \code{slhdsa\_sign\_hash()} and \code{slhdsa\_verify\_hash()} take.
+A Pure SLH-DSA parameter set returns \code{CRYPT\_INVALID\_ARG}, and a too small \textit{out} returns
+\code{CRYPT\_BUFFER\_OVERFLOW} with \textit{*outlen} set to the required size.
+A component that hashes the message without these functions has to use the function from the table.
 
 \begin{small}
 \begin{verbatim}
-/* key is a LTC_SLHDSA_HASH_SHA2_128F_WITH_SHA256 private key */
+/* key is a private key of any HashSLH-DSA parameter set */
 hash_state md;
-unsigned char ph[32], sig[17088];
-unsigned long siglen = sizeof(sig);
+unsigned char ph[64], sig[49856];
+unsigned long phlen = sizeof(ph), siglen = sizeof(sig);
 
-sha256_init(&md);
+slhdsa_prehash_init(&md, key.alg);
 while ((n = read_chunk(buf, sizeof(buf))) > 0) {
-   sha256_process(&md, buf, n);
+   slhdsa_prehash_process(&md, key.alg, buf, n);
 }
-sha256_done(&md, ph);
+slhdsa_prehash_done(&md, key.alg, ph, &phlen);
 
-slhdsa_sign_hash(ph, sizeof(ph), sig, &siglen, NULL, 0,
+slhdsa_sign_hash(ph, phlen, sig, &siglen, NULL, 0,
                  &yarrow_prng, prng_idx, &key);
 \end{verbatim}
 \end{small}

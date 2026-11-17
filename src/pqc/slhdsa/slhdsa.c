@@ -2078,6 +2078,7 @@ int slhdsa_sign_ex(const unsigned char *msg,     unsigned long  msglen,
    hashed in pieces or by another component. The signature verifies with slhdsa_verify() as well.
    The digest has to be the full output of the pre-hash the parameter set names: SHA-256 (32 octets),
    SHA-512 (64), SHAKE128 (32) or SHAKE256 (64).
+   slhdsa_prehash_init(), slhdsa_prehash_process() and slhdsa_prehash_done() compute it.
    @param hash     PH(M), the digest of the message
    @param hashlen  Length of the digest
    @param sig      [out] The signature
@@ -2209,6 +2210,61 @@ int slhdsa_verify_hash(const unsigned char *sig,  unsigned long  siglen,
                        const slhdsa_key    *key)
 {
    return s_slhdsa_verify(sig, siglen, hash, hashlen, ctx, ctxlen, stat, key, 1);
+}
+
+/**
+   Start hashing a message for slhdsa_sign_hash() or slhdsa_verify_hash().
+
+   The three slhdsa_prehash functions compute PH(M) with the pre-hash that the HashSLH-DSA
+   parameter set names, so the caller does not have to know which hash and which output length
+   that is. The key is not needed, only its parameter set.
+   @param md       [out] The hash state to set up
+   @param alg      The parameter set, has to be one of the LTC_SLHDSA_HASH_ ids
+   @return CRYPT_OK if successful, CRYPT_INVALID_ARG if alg is not a HashSLH-DSA parameter set
+*/
+int slhdsa_prehash_init(hash_state *md, int alg)
+{
+   int ph = s_slhdsa_hash_mode(alg);
+
+   /* a pure parameter set has no pre-hash */
+   if (ph == 0) return CRYPT_INVALID_ARG;
+
+   return pqc_prehash_init(ph, md);
+}
+
+/**
+   Add a piece of the message to the digest started by slhdsa_prehash_init().
+   @param md       The hash state
+   @param alg      The parameter set slhdsa_prehash_init() was called with
+   @param in       The piece of the message (can be NULL if inlen is 0)
+   @param inlen    Length of the piece
+   @return CRYPT_OK if successful, CRYPT_INVALID_ARG if alg is not a HashSLH-DSA parameter set
+*/
+int slhdsa_prehash_process(hash_state *md, int alg, const unsigned char *in, unsigned long inlen)
+{
+   int ph = s_slhdsa_hash_mode(alg);
+
+   if (ph == 0) return CRYPT_INVALID_ARG;
+
+   return pqc_prehash_process(ph, md, in, inlen);
+}
+
+/**
+   Finish the digest started by slhdsa_prehash_init().
+   @param md       The hash state
+   @param alg      The parameter set slhdsa_prehash_init() was called with
+   @param out      [out] The digest, pass it to slhdsa_sign_hash() or slhdsa_verify_hash()
+   @param outlen   [in/out] Max size and resulting size of the digest (32 or 64)
+   @return CRYPT_OK if successful, CRYPT_INVALID_ARG if alg is not a HashSLH-DSA parameter set,
+           CRYPT_BUFFER_OVERFLOW if out is too small
+*/
+int slhdsa_prehash_done(hash_state *md, int alg, unsigned char *out, unsigned long *outlen)
+{
+   int ph = s_slhdsa_hash_mode(alg);
+
+   if (ph == 0) return CRYPT_INVALID_ARG;
+
+   return pqc_prehash_done(ph, md, out, outlen);
 }
 
 /**

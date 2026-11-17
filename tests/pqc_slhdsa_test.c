@@ -669,6 +669,89 @@ static int s_slhdsa_sign_hash_test(void)
 }
 
 
+/* The slhdsa_prehash functions have to pick the pre-hash and the digest length that the parameter set names. The expected
+   digests come from the plain hash API, so a wrong entry in the alg id mapping shows up here. */
+static int s_slhdsa_prehash_test(void)
+{
+   static const struct {
+      int alg;
+      int kind; /* 0 = SHA-256, 1 = SHA-512, 2 = SHAKE128 with 32 octets, 3 = SHAKE256 with 64 octets */
+   } algs[] = {
+      { LTC_SLHDSA_HASH_SHA2_128S_WITH_SHA256,    0 }, { LTC_SLHDSA_HASH_SHA2_128F_WITH_SHA256,    0 },
+      { LTC_SLHDSA_HASH_SHA2_192S_WITH_SHA512,    1 }, { LTC_SLHDSA_HASH_SHA2_192F_WITH_SHA512,    1 },
+      { LTC_SLHDSA_HASH_SHA2_256S_WITH_SHA512,    1 }, { LTC_SLHDSA_HASH_SHA2_256F_WITH_SHA512,    1 },
+      { LTC_SLHDSA_HASH_SHAKE_128S_WITH_SHAKE128, 2 }, { LTC_SLHDSA_HASH_SHAKE_128F_WITH_SHAKE128, 2 },
+      { LTC_SLHDSA_HASH_SHAKE_192S_WITH_SHAKE256, 3 }, { LTC_SLHDSA_HASH_SHAKE_192F_WITH_SHAKE256, 3 },
+      { LTC_SLHDSA_HASH_SHAKE_256S_WITH_SHAKE256, 3 }, { LTC_SLHDSA_HASH_SHAKE_256F_WITH_SHAKE256, 3 },
+   };
+   /* SHAKE128 of the empty message, first 32 octets */
+   static const char shake128_empty[] = "7f9c2ba4e88f827d616045507605853ed73b8093f6efbc88eb1a6eacfa66ef26";
+   unsigned char msg[300], ph[64], expected[64];
+   unsigned long n, i, chunk, phlen, explen;
+   hash_state md;
+   int sha256_idx, sha512_idx;
+
+   sha256_idx = find_hash("sha256");
+   sha512_idx = find_hash("sha512");
+   ENSURE(sha256_idx != -1 && sha512_idx != -1);
+   for (i = 0; i < sizeof(msg); i++) msg[i] = (unsigned char)(i * 3 + 1);
+
+   for (n = 0; n < LTC_ARRAY_SIZE(algs); n++) {
+      explen = sizeof(expected);
+      switch (algs[n].kind) {
+         case 0:
+            DO(hash_memory(sha256_idx, msg, sizeof(msg), expected, &explen));
+            break;
+         case 1:
+            DO(hash_memory(sha512_idx, msg, sizeof(msg), expected, &explen));
+            break;
+         case 2:
+            explen = 32;
+            DO(sha3_shake_memory(128, msg, sizeof(msg), expected, &explen));
+            break;
+         default:
+            explen = 64;
+            DO(sha3_shake_memory(256, msg, sizeof(msg), expected, &explen));
+            break;
+      }
+
+      /* the message in pieces of different sizes, with empty ones in between */
+      DO(slhdsa_prehash_init(&md, algs[n].alg));
+      for (i = 0; i < sizeof(msg); i += chunk) {
+         chunk = (i == 0) ? 1 : (sizeof(msg) - i < 77 ? sizeof(msg) - i : 77);
+         DO(slhdsa_prehash_process(&md, algs[n].alg, msg + i, chunk));
+         DO(slhdsa_prehash_process(&md, algs[n].alg, NULL, 0));
+      }
+      phlen = sizeof(ph);
+      DO(slhdsa_prehash_done(&md, algs[n].alg, ph, &phlen));
+      COMPARE_TESTVECTOR(ph, phlen, expected, explen, "SLH-DSA prehash", algs[n].alg);
+
+      /* a buffer that is too small gets the size that is needed */
+      DO(slhdsa_prehash_init(&md, algs[n].alg));
+      phlen = explen - 1;
+      SHOULD_FAIL_WITH(slhdsa_prehash_done(&md, algs[n].alg, ph, &phlen), CRYPT_BUFFER_OVERFLOW);
+      ENSURE(phlen == explen);
+   }
+
+   /* an empty message needs no call in the middle */
+   DO(slhdsa_prehash_init(&md, LTC_SLHDSA_HASH_SHAKE_128F_WITH_SHAKE128));
+   phlen = sizeof(ph);
+   DO(slhdsa_prehash_done(&md, LTC_SLHDSA_HASH_SHAKE_128F_WITH_SHAKE128, ph, &phlen));
+   explen = sizeof(expected);
+   DO(s_decode_hex(shake128_empty, expected, &explen));
+   COMPARE_TESTVECTOR(ph, phlen, expected, explen, "SLH-DSA prehash of an empty message", 0);
+
+   /* the pure parameter sets have no pre-hash */
+   SHOULD_FAIL_WITH(slhdsa_prehash_init(&md, LTC_SLHDSA_SHA2_128F), CRYPT_INVALID_ARG);
+   SHOULD_FAIL_WITH(slhdsa_prehash_process(&md, LTC_SLHDSA_SHA2_128F, msg, 1), CRYPT_INVALID_ARG);
+   phlen = sizeof(ph);
+   SHOULD_FAIL_WITH(slhdsa_prehash_done(&md, LTC_SLHDSA_SHAKE_256S, ph, &phlen), CRYPT_INVALID_ARG);
+   SHOULD_FAIL_WITH(slhdsa_prehash_init(&md, 99), CRYPT_INVALID_ARG);
+
+   return CRYPT_OK;
+}
+
+
 #if defined(LTC_SHA256) && defined(LTC_SHA512) && !defined(LTC_PTHREAD)
 /* The SHA-2 parameter sets use the sha256 and sha512 descriptors directly, so they have to
    keep working with no hash registered. Unregistering is not thread safe, hence the guard. */
@@ -718,6 +801,7 @@ int pqc_slhdsa_test(void)
    DO(s_slhdsa_openssl_keygen_test());
    DO(s_slhdsa_message_framing_test());
    DO(s_slhdsa_sign_hash_test());
+   DO(s_slhdsa_prehash_test());
    DO(s_slhdsa_check_key_test());
    DO(s_slhdsa_import_mutation_test(LTC_SLHDSA_SHAKE_128F));
    DO(s_slhdsa_import_mutation_test(LTC_SLHDSA_SHA2_128F));
