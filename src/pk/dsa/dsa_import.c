@@ -22,7 +22,7 @@ static int s_dsa_import_pkcs1(const unsigned char *in, unsigned long inlen, dsa_
                           LTC_ASN1_INTEGER,      1UL, key->y,
                           LTC_ASN1_INTEGER,      1UL, key->x,
                           LTC_ASN1_EOL,          0UL, NULL)) == CRYPT_OK) {
-
+       if (zero != 0) return CRYPT_INVALID_PACKET;
        key->type = PK_PRIVATE;
    }
    return err;
