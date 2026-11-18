@@ -69,6 +69,7 @@ int ecc_import_pkcs8_asn1(ltc_asn1_list *alg_id, ltc_asn1_list *priv_key, ecc_ke
        */
 
       if (ltc_mp_cmp_d(version->data, 1) != LTC_MP_EQ) {
+         err = CRYPT_INVALID_PACKET;
          goto LBL_DONE;
       }
       cofactor = ltc_mp_get_int(p_cofactor->data);
@@ -91,6 +92,9 @@ int ecc_import_pkcs8_asn1(ltc_asn1_list *alg_id, ltc_asn1_list *priv_key, ecc_ke
          if ((err = ecc_set_curve_from_mpis(a, b, prime->data, order->data, gx, gy, cofactor, key)) != CRYPT_OK) {
             goto LBL_DONE;
          }
+      } else {
+         err = CRYPT_INVALID_PACKET;
+         goto LBL_DONE;
       }
    } else {
       err = CRYPT_INVALID_PACKET;
@@ -115,7 +119,6 @@ int ecc_import_pkcs8_asn1(ltc_asn1_list *alg_id, ltc_asn1_list *priv_key, ecc_ke
       }
    }
    err = CRYPT_INVALID_PACKET;
-   goto LBL_DONE;
 
 LBL_ECCFREE:
    ecc_free(key);

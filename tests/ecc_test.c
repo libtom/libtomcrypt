@@ -2277,6 +2277,17 @@ static int s_ecc_import_export(void) {
    DO(ecc_key_cmp(PK_PRIVATE, &pri, &key));
    ecc_free(&key);
 
+   /* import - private PKCS8 format - malformed explicit curve parameters or private key */
+   XMEMCPY(out, long_pri_pkcs8, sizeof(long_pri_pkcs8));
+   out[24] = 0x02; /* ECParameters version 2 */
+   SHOULD_FAIL(ecc_import_pkcs8(out, sizeof(long_pri_pkcs8), NULL, &key));
+   XMEMCPY(out, long_pri_pkcs8, sizeof(long_pri_pkcs8));
+   out[73] = 0x02; /* curve A as INTEGER instead of OCTET STRING */
+   SHOULD_FAIL(ecc_import_pkcs8(out, sizeof(long_pri_pkcs8), NULL, &key));
+   XMEMCPY(out, long_pri_pkcs8, sizeof(long_pri_pkcs8));
+   out[186] = 0x31; /* ECPrivateKey as SET instead of SEQUENCE, the already set curve has to be freed */
+   SHOULD_FAIL(ecc_import_pkcs8(out, sizeof(long_pri_pkcs8), NULL, &key));
+
    /* import - private PKCS8 format - password protected (PBES1 algorithms) */
 #ifdef LTC_MD2
    DO(ecc_import_pkcs8(long_pri_pkcs8_pbe_md2_des, sizeof(long_pri_pkcs8_pbe_md2_des), &pw_ctx, &key));
