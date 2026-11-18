@@ -75,6 +75,10 @@ int pkcs_1_test(void)
          return 1;
       }
    }
+
+   /* the PSS encoded message has to be exactly as long as the decoder expects */
+   SHOULD_FAIL_WITH(ltc_pkcs_1_pss_decode_mgf1(buf[0], l3, buf[1], l1 - 1, &rsa_params, modlen, &res1), CRYPT_PK_INVALID_SIZE);
+   SHOULD_FAIL_WITH(ltc_pkcs_1_pss_decode_mgf1(buf[0], l3, buf[1], 0, &rsa_params, modlen, &res1), CRYPT_PK_INVALID_SIZE);
    return 0;
 }
 

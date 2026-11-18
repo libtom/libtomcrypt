@@ -50,7 +50,8 @@ int ltc_pkcs_1_pss_decode_mgf1(const unsigned char *msghash, unsigned long  msgh
 
    /* check sizes */
    if ((saltlen > modulus_len) ||
-       (modulus_len < hLen + saltlen + 2)) {
+       (modulus_len < hLen + saltlen + 2) ||
+       (siglen != modulus_len)) {
       return CRYPT_PK_INVALID_SIZE;
    }
 
