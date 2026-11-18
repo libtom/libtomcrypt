@@ -44,7 +44,7 @@ int x509_process_public_key_from_spki(const unsigned char *in, unsigned long inl
       }
 
       err = x509_decode_subject_public_key_info(in, inlen,
-                                                algorithm, tmpbuf, &tmpbuf_len,
+                                                algorithm, tmpbuf, &tmpbuf_len, 0,
                                                 param_type, parameters, parameters_len);
       if (err == CRYPT_OK) {
          err = callback(tmpbuf, tmpbuf_len, key);

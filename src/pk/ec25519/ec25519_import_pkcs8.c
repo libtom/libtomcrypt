@@ -36,14 +36,17 @@ int ec25519_import_pkcs8_asn1(ltc_asn1_list *alg_id, ltc_asn1_list *priv_key,
    }
 
    key_len = sizeof(key->priv);
-   if ((err = der_decode_octet_string(priv_key->data, priv_key->size, key->priv, &key_len)) == CRYPT_OK && key_len != sizeof(key->priv)) {
+   if ((err = der_decode_octet_string(priv_key->data, priv_key->size, key->priv, &key_len)) != CRYPT_OK) {
+      goto LBL_ERR;
+   }
+   if (key_len != sizeof(key->priv)) {
       err = CRYPT_PK_INVALID_SIZE;
+      goto LBL_ERR;
    }
-   if (err == CRYPT_OK) {
-      fp(key->pub, key->priv);
-      key->type = PK_PRIVATE;
-      err = pk_get_pka_id(id, &key->pka);
-   }
+   fp(key->pub, key->priv);
+   key->type = PK_PRIVATE;
+   err = pk_get_pka_id(id, &key->pka);
+LBL_ERR:
    return err;
 }
 

@@ -26,13 +26,14 @@
    @param algorithm             One out of the enum #public_key_algorithms
    @param public_key            The buffer for the public key
    @param public_key_len        [in/out] The length of the public key buffer and the written length
+   @param public_key_len_should The expected length of the public key, 0 means don't check
    @param parameters_type       The parameters' type out of the enum ltc_asn1_type
    @param parameters            The parameters to include
    @param parameters_len        [in/out] The number of parameters to include
    @return CRYPT_OK on success
 */
 int x509_decode_subject_public_key_info(const unsigned char *in, unsigned long inlen,
-        enum ltc_oid_id algorithm, void *public_key, unsigned long *public_key_len,
+        enum ltc_oid_id algorithm, void *public_key, unsigned long *public_key_len, unsigned long public_key_len_should,
         ltc_asn1_type parameters_type, ltc_asn1_list* parameters, unsigned long *parameters_len)
 {
    int err;
@@ -100,6 +101,10 @@ int x509_decode_subject_public_key_info(const unsigned char *in, unsigned long i
    }
 
    len = subject_pubkey[1].size/8;
+   if (public_key_len_should != 0 && len != public_key_len_should) {
+      err = CRYPT_PK_INVALID_SIZE;
+      goto LBL_ERR;
+   }
    if (*public_key_len >= len) {
        XMEMCPY(public_key, subject_pubkey[1].data, len);
        *public_key_len = len;

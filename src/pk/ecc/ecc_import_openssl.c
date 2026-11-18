@@ -92,7 +92,7 @@ int ecc_import_with_curve(const unsigned char *in, unsigned long inlen, int type
       /* try to load public key */
       len_xy = sizeof(bin_xy);
       len = 6;
-      err = x509_decode_subject_public_key_info(in, inlen, LTC_OID_EC, bin_xy, &len_xy, LTC_ASN1_SEQUENCE, seq_ecparams, &len);
+      err = x509_decode_subject_public_key_info(in, inlen, LTC_OID_EC, bin_xy, &len_xy, 0, LTC_ASN1_SEQUENCE, seq_ecparams, &len);
    } else {
       err = CRYPT_PK_INVALID_TYPE;
    }
