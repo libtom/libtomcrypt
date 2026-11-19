@@ -1078,6 +1078,30 @@ static void s_der_utf8_continuation_lead_test(void)
    SHOULD_FAIL_WITH(der_decode_utf8_string(issue_507_utf8, sizeof(issue_507_utf8), decoded, &outlen), CRYPT_INVALID_PACKET);
 }
 
+/* flexi has to advance by the length from the header, an element that re-encodes to a different length is not DER */
+static void s_der_flexi_reencoded_length_test(void)
+{
+   /* UTCTime with and without seconds, each followed by a NULL */
+   static const unsigned char utctime[]       = { 0x17, 0x0d, '2', '6', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', 'Z', 0x05, 0x00 };
+   static const unsigned char utctime_no_ss[] = { 0x17, 0x0b, '2', '6', '0', '1', '0', '1', '0', '0', '0', '0', 'Z', 0x05, 0x00 };
+   /* SEQUENCE { UTF8String } where U+0000 is encoded twice in the overlong form c0 80 */
+   static const unsigned char utf8_overlong[] = { 0x30, 0x08, 0x0c, 0x06, 0xc0, 0x80, 0xc0, 0x80, 0x05, 0x00 };
+   ltc_asn1_list *l;
+   unsigned long len;
+
+   len = sizeof(utctime);
+   DO(der_decode_sequence_flexi(utctime, &len, &l));
+   ENSURE(len == sizeof(utctime));
+   ENSURE(l->type == LTC_ASN1_UTCTIME && l->next != NULL && l->next->type == LTC_ASN1_NULL);
+   der_sequence_free(l);
+
+   len = sizeof(utctime_no_ss);
+   SHOULD_FAIL_WITH(der_decode_sequence_flexi(utctime_no_ss, &len, &l), CRYPT_INVALID_PACKET);
+
+   len = sizeof(utf8_overlong);
+   SHOULD_FAIL_WITH(der_decode_sequence_flexi(utf8_overlong, &len, &l), CRYPT_INVALID_PACKET);
+}
+
 static void s_der_regression_test(void)
 {
    static const unsigned char s_broken_sequence[] = {
@@ -1464,6 +1488,7 @@ int der_test(void)
    der_custom_test();
 
    s_der_utf8_continuation_lead_test();
+   s_der_flexi_reencoded_length_test();
    s_der_regression_test();
 
    der_toolong_test();
