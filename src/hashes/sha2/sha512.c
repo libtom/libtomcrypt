@@ -245,7 +245,7 @@ int sha512_c_done(hash_state * md, unsigned char *out)
     }
 
     /* pad upto 120 bytes of zeroes
-     * note: that from 112 to 120 is the 64 MSB of the length.  We assume that you won't hash
+     * note: that from 112 to 120 is the 64 MSB of the length. We assume that you won't hash
      * > 2^64 bits of data... :-)
      */
     while (md->sha512.curlen < 120) {

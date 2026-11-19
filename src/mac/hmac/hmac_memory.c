@@ -62,14 +62,14 @@ int hmac_memory(int hash,
        goto LBL_ERR;
     }
 
-   err = CRYPT_OK;
+    err = CRYPT_OK;
 LBL_ERR:
 #ifdef LTC_CLEAN_STACK
-   zeromem(hmac, sizeof(hmac_state));
+    zeromem(hmac, sizeof(hmac_state));
 #endif
 
-   XFREE(hmac);
-   return err;
+    XFREE(hmac);
+    return err;
 }
 
 #endif
