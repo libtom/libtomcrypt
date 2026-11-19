@@ -37,7 +37,7 @@ int ocb3_decrypt_verify_memory(int cipher,
 {
    int            err;
    ocb3_state     *ocb;
-   unsigned char *buf;
+   unsigned char  buf[MAXBLOCKSIZE];
    unsigned long  buflen;
 
    /* stat is cleared before anything else can return, it stays 0 unless the tag is good */
@@ -48,15 +48,8 @@ int ocb3_decrypt_verify_memory(int cipher,
    taglen = MIN(taglen, MAXBLOCKSIZE);
 
    /* allocate memory */
-   buf = XMALLOC(taglen);
    ocb = XMALLOC(sizeof(ocb3_state));
-   if (ocb == NULL || buf == NULL) {
-      if (ocb != NULL) {
-         XFREE(ocb);
-      }
-      if (buf != NULL) {
-         XFREE(buf);
-      }
+   if (ocb == NULL) {
       return CRYPT_MEM;
    }
 
@@ -92,7 +85,6 @@ LBL_ERR:
 #endif
 
    XFREE(ocb);
-   XFREE(buf);
    return err;
 }
 
