@@ -97,7 +97,7 @@ int x509_import_spki(const unsigned char *asn1_cert, unsigned long asn1_len, ltc
       goto err_out;
    }
    if (pka < 0
-         || pka > LTC_ARRAY_SIZE(s_import_spki_fns)
+         || pka >= LTC_ARRAY_SIZE(s_import_spki_fns)
          || s_import_spki_fns[pka] == NULL) {
       err = CRYPT_PK_INVALID_TYPE;
       goto err_out;
