@@ -389,6 +389,24 @@ static int s_rsa_issue_803(void)
    return CRYPT_OK;
 }
 
+static int s_rsa_pkcs8_public_key(void)
+{
+   rsa_key       key;
+   /* PrivateKeyInfo { 0, { rsaEncryption, NULL }, OCTET STRING { RSAPublicKey { N, e } } } */
+   const unsigned char p8[] = { 0x30, 0x26, 0x02, 0x01, 0x00,
+                                0x30, 0x0d, 0x06, 0x09, 0x2a, 0x86, 0x48, 0x86, 0xf7, 0x0d, 0x01, 0x01, 0x01, 0x05, 0x00,
+                                0x04, 0x12, 0x30, 0x10, 0x02, 0x09, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01,
+                                0x02, 0x03, 0x01, 0x00, 0x01 };
+
+   /* the embedded RSAPublicKey on its own is a valid public key */
+   DO(rsa_import(p8 + 22, sizeof(p8) - 22, &key));
+   ENSURE(key.type == PK_PUBLIC);
+   rsa_free(&key);
+
+   SHOULD_FAIL(rsa_import_pkcs8(p8, sizeof(p8), NULL, &key));
+   return CRYPT_OK;
+}
+
 static int s_rsa_public_ubin_e(int prng_idx)
 {
    rsa_key       key;
@@ -619,6 +637,7 @@ int rsa_test(void)
    DO(s_rsa_cryptx_issue_69());
    DO(s_rsa_issue_301(prng_idx));
    DO(s_rsa_issue_803());
+   DO(s_rsa_pkcs8_public_key());
    DO(s_rsa_public_ubin_e(prng_idx));
    DO(s_rsa_oaep_small_ciphertext_test(prng_idx));
 
