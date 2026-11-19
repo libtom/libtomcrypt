@@ -1686,12 +1686,20 @@
 					RelativePath="src\misc\pbes\pbes2.c"
 					>
 				</File>
+				<File
+					RelativePath="src\misc\pbes\pbes2_encrypt.c"
+					>
+				</File>
 			</Filter>
 			<Filter
 				Name="pem"
 				>
 				<File
 					RelativePath="src\misc\pem\pem.c"
+					>
+				</File>
+				<File
+					RelativePath="src\misc\pem\pem_encode.c"
 					>
 				</File>
 				<File
@@ -2331,6 +2339,10 @@
 					>
 					<File
 						RelativePath="src\pk\asn1\pkcs8\pkcs8_decode_flexi.c"
+						>
+					</File>
+					<File
+						RelativePath="src\pk\asn1\pkcs8\pkcs8_encode.c"
 						>
 					</File>
 					<File

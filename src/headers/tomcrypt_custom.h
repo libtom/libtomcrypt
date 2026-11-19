@@ -659,6 +659,10 @@
       /* Max KDF iterations accepted when importing an encrypted PKCS#8 object (PBES1/PBES2); attacker-controlled. */
       #define LTC_PBES_MAX_ITERATIONS 20000000
    #endif
+   #ifndef LTC_PBES2_DEFAULT_ITERATIONS
+      /* PBKDF2 iterations pbes2_encrypt() uses when the caller sets none. */
+      #define LTC_PBES2_DEFAULT_ITERATIONS 100000
+   #endif
 #endif
 
 #if defined(LTC_CLEAN_STACK)

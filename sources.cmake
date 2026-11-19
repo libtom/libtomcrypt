@@ -258,7 +258,9 @@ src/misc/password_free.c
 src/misc/pbes/pbes.c
 src/misc/pbes/pbes1.c
 src/misc/pbes/pbes2.c
+src/misc/pbes/pbes2_encrypt.c
 src/misc/pem/pem.c
+src/misc/pem/pem_encode.c
 src/misc/pem/pem_pkcs.c
 src/misc/pem/pem_read.c
 src/misc/pem/pem_ssh.c
@@ -384,6 +386,7 @@ src/pk/asn1/oid/pk_get.c
 src/pk/asn1/oid/pk_oid_cmp.c
 src/pk/asn1/oid/pk_oid_str.c
 src/pk/asn1/pkcs8/pkcs8_decode_flexi.c
+src/pk/asn1/pkcs8/pkcs8_encode.c
 src/pk/asn1/pkcs8/pkcs8_get.c
 src/pk/asn1/x509/x509_decode_public_key_from_certificate.c
 src/pk/asn1/x509/x509_decode_spki.c
