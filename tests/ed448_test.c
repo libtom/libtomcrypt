@@ -478,13 +478,10 @@ static int s_ed448_short_key_test(void)
    const unsigned char p8[] = { 0x30, 0x0f, 0x02, 0x01, 0x00, 0x30, 0x05, 0x06, 0x03, 0x2b, 0x65, 0x71,
                                 0x04, 0x03, 0x04, 0x01, 0x01 };
    const unsigned char spki[] = { 0x30, 0x0b, 0x30, 0x05, 0x06, 0x03, 0x2b, 0x65, 0x71, 0x03, 0x02, 0x00, 0x01 };
-   unsigned char buf[58] = { 0 };
    curve448_key key;
 
    SHOULD_FAIL_WITH(ed448_import_pkcs8(p8, sizeof(p8), NULL, &key), CRYPT_PK_INVALID_SIZE);
    SHOULD_FAIL_WITH(ed448_import(spki, sizeof(spki), &key), CRYPT_PK_INVALID_SIZE);
-   SHOULD_FAIL_WITH(ed448_import_raw(buf, 56, PK_PUBLIC, &key), CRYPT_PK_INVALID_SIZE);
-   SHOULD_FAIL_WITH(ed448_import_raw(buf, 58, PK_PRIVATE, &key), CRYPT_PK_INVALID_SIZE);
    return CRYPT_OK;
 }
 

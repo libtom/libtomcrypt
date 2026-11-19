@@ -24,7 +24,7 @@ int ed25519_import_raw(const unsigned char *in, unsigned long inlen, int which, 
    LTC_ARGCHK(key  != NULL);
 
    if (which == PK_PRIVATE) {
-      if (inlen != 32uL && inlen != 64uL) return CRYPT_PK_INVALID_SIZE;
+      LTC_ARGCHK(inlen == 32uL || inlen == 64uL);
       XMEMCPY(key->priv, in, sizeof(key->priv));
       if (inlen == 32) {
          tweetnacl_crypto_sk_to_pk(key->pub, key->priv);
@@ -32,7 +32,7 @@ int ed25519_import_raw(const unsigned char *in, unsigned long inlen, int which, 
          XMEMCPY(key->pub, in + 32, sizeof(key->pub));
       }
    } else if (which == PK_PUBLIC) {
-      if (inlen != 32uL) return CRYPT_PK_INVALID_SIZE;
+      LTC_ARGCHK(inlen == 32uL);
       XMEMCPY(key->pub, in, sizeof(key->pub));
    } else {
       return CRYPT_INVALID_ARG;

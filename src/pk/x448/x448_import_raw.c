@@ -21,9 +21,8 @@
 int x448_import_raw(const unsigned char *in, unsigned long inlen, int which, curve448_key *key)
 {
    LTC_ARGCHK(in   != NULL);
+   LTC_ARGCHK(inlen == 56uL);
    LTC_ARGCHK(key  != NULL);
-
-   if (inlen != 56uL) return CRYPT_PK_INVALID_SIZE;
 
    if (which == PK_PRIVATE) {
       XMEMCPY(key->priv, in, 56uL);
