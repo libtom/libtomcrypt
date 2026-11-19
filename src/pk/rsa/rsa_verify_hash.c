@@ -19,8 +19,8 @@
   @param key              The public RSA key corresponding to the key that performed the signature
   @return CRYPT_OK on success (even if the signature is invalid)
 */
-int rsa_verify_hash_v2(const unsigned char   *sig,    unsigned long  siglen,
-                       const unsigned char   *hash,   unsigned long  hashlen,
+int rsa_verify_hash_v2(const unsigned char   *sig,    unsigned long siglen,
+                       const unsigned char   *hash,   unsigned long hashlen,
                        ltc_rsa_op_parameters *params,
                              int             *stat,
                        const rsa_key         *key)
@@ -43,10 +43,10 @@ int rsa_verify_hash_v2(const unsigned char   *sig,    unsigned long  siglen,
   }
 
   /* get modulus len in bits */
-  modulus_bitlen = ltc_mp_count_bits( (key->N));
+  modulus_bitlen = ltc_mp_count_bits(key->N);
 
   /* outlen must be at least the size of the modulus */
-  modulus_bytelen = ltc_mp_unsigned_bin_size( (key->N));
+  modulus_bytelen = ltc_mp_unsigned_bin_size(key->N);
   if (modulus_bytelen != siglen) {
      return CRYPT_INVALID_PACKET;
   }
