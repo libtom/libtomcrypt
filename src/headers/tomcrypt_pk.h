@@ -125,8 +125,10 @@ typedef struct ltc_rsa_op_parameters {
          const unsigned char *lparam;
                unsigned long  lparamlen;
       } crypt;
+#ifndef LTC_NO_STRUCT_PADDING
       /* let's make space for potential future extensions */
-      ulong64 dummy[8];
+      void* padding[8];
+#endif
    } u;
 } ltc_rsa_op_parameters;
 
