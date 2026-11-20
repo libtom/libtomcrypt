@@ -37,6 +37,15 @@ LTC_STATIC_ASSERT(correct_ltc_uintptr_size, sizeof(ltc_uintptr) == sizeof(void*)
 
 #define LTC_OID_MAX_STRLEN 256
 
+#if defined(LTC_XSALSA20) && defined(LTC_POLY1305) && defined(LTC_CURVE25519) && defined(LTC_BLAKE2B)
+#define LTC_SECRETBOX_NONCELEN 24uL
+#define LTC_SECRETBOX_KEYLEN   32uL
+#define LTC_BOX_KEYLEN         32uL
+#define LTC_SECRETBOX_TAGLEN   16uL
+#define LTC_SEALBOX_PREAMBLE   32uL
+#define LTC_SEALBOX_OVERHEAD   (LTC_SEALBOX_PREAMBLE + LTC_SECRETBOX_TAGLEN)
+#endif
+
 /* `NULL` as defined by the standard is not guaranteed to be of a pointer
  * type. In order to make sure that in vararg API's a pointer type is used,
  * define our own version and use that one internally.

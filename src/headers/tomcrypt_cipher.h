@@ -1116,6 +1116,10 @@ int salsa20_memory(const unsigned char *key,    unsigned long keylen,  unsigned 
 
 #ifdef LTC_XSALSA20
 
+int xsalsa20_hsalsa20(unsigned char *out,  unsigned long outlen,
+                       const unsigned char *key, unsigned long keylen,
+                       const unsigned char *in,  unsigned long inlen,
+                       int rounds);
 int xsalsa20_setup(salsa20_state *st, const unsigned char *key,   unsigned long keylen,
                                       const unsigned char *nonce, unsigned long noncelen,
                                       int rounds);

@@ -329,6 +329,34 @@
 	</References>
 	<Files>
 		<Filter
+			Name="boxes"
+			>
+			<File
+				RelativePath="src\boxes\ltc_cryptobox_create.c"
+				>
+			</File>
+			<File
+				RelativePath="src\boxes\ltc_cryptobox_open.c"
+				>
+			</File>
+			<File
+				RelativePath="src\boxes\ltc_sealedbox_create.c"
+				>
+			</File>
+			<File
+				RelativePath="src\boxes\ltc_sealedbox_open.c"
+				>
+			</File>
+			<File
+				RelativePath="src\boxes\ltc_secretbox_create.c"
+				>
+			</File>
+			<File
+				RelativePath="src\boxes\ltc_secretbox_open.c"
+				>
+			</File>
+		</Filter>
+		<Filter
 			Name="ciphers"
 			>
 			<File
