@@ -123,6 +123,24 @@ jobs:
           make pre_gen
           make CFLAGS="-DLTM_DESC -DUSE_LTM" EXTRALIBS="-ltommath" AMALGAM=1 -j$(nproc) check
 
+  CMake-Windows:
+    name: CMake-Windows (${{ matrix.name }})
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { name: 'stock',      ltc_cflags: '' }
+          - { name: 'LTC_NO_ASM', ltc_cflags: '-DLTC_NO_ASM' }
+    steps:
+      - uses: actions/checkout@v4
+      # WITH_LTM is off because libtommath is not packaged on the Windows
+      # runner; none of the code under test here needs the MPI provider.
+      - name: configure
+        run: cmake -B build -DWITH_LTM=FALSE "-DLTC_CFLAGS=${{ matrix.ltc_cflags }}"
+      - name: build
+        run: cmake --build build --config Release
+
   CMake:
     runs-on: ${{ matrix.os }}
     strategy:
