@@ -29,6 +29,9 @@ pkcs_1_emsa_test.c
 pkcs_1_oaep_test.c
 pkcs_1_pss_test.c
 pkcs_1_test.c
+pqc_mldsa_test.c
+pqc_mlkem_test.c
+pqc_slhdsa_test.c
 prng_test.c
 rotate_test.c
 rsa_test.c
