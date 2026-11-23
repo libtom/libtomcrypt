@@ -131,8 +131,12 @@ int modes_test(void)
    COMPARE_TESTVECTOR(tmp, 64, pt, 64, "OFB", 0);
 #endif
 
-#if defined(LTC_CTR_MODE) && defined(LTC_RIJNDAEL)
+#if defined(LTC_CTR_MODE)
    DO(ctr_test());
+#endif
+
+#if defined(LTC_CBC_MODE)
+   DO(cbc_test());
 #endif
 
 #ifdef LTC_XTS_MODE

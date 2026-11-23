@@ -115,11 +115,11 @@ src/misc/pkcs5/pkcs_5_1.obj src/misc/pkcs5/pkcs_5_2.obj src/misc/pkcs5/pkcs_5_te
 src/misc/scrypt/scrypt.obj src/misc/ssh/ssh_decode_sequence_multi.obj \
 src/misc/ssh/ssh_encode_sequence_multi.obj src/misc/zeromem.obj src/modes/cbc/cbc_decrypt.obj \
 src/modes/cbc/cbc_done.obj src/modes/cbc/cbc_encrypt.obj src/modes/cbc/cbc_getiv.obj \
-src/modes/cbc/cbc_setiv.obj src/modes/cbc/cbc_start.obj src/modes/cfb/cfb_decrypt.obj \
-src/modes/cfb/cfb_done.obj src/modes/cfb/cfb_encrypt.obj src/modes/cfb/cfb_getiv.obj \
-src/modes/cfb/cfb_setiv.obj src/modes/cfb/cfb_start.obj src/modes/ctr/ctr_decrypt.obj \
-src/modes/ctr/ctr_done.obj src/modes/ctr/ctr_encrypt.obj src/modes/ctr/ctr_getiv.obj \
-src/modes/ctr/ctr_setiv.obj src/modes/ctr/ctr_start.obj src/modes/ctr/ctr_test.obj \
+src/modes/cbc/cbc_setiv.obj src/modes/cbc/cbc_start.obj src/modes/cbc/cbc_test.obj \
+src/modes/cfb/cfb_decrypt.obj src/modes/cfb/cfb_done.obj src/modes/cfb/cfb_encrypt.obj \
+src/modes/cfb/cfb_getiv.obj src/modes/cfb/cfb_setiv.obj src/modes/cfb/cfb_start.obj \
+src/modes/ctr/ctr_decrypt.obj src/modes/ctr/ctr_done.obj src/modes/ctr/ctr_encrypt.obj \
+src/modes/ctr/ctr_getiv.obj src/modes/ctr/ctr_setiv.obj src/modes/ctr/ctr_start.obj src/modes/ctr/ctr_test.obj \
 src/modes/ecb/ecb_decrypt.obj src/modes/ecb/ecb_done.obj src/modes/ecb/ecb_encrypt.obj \
 src/modes/ecb/ecb_start.obj src/modes/f8/f8_decrypt.obj src/modes/f8/f8_done.obj src/modes/f8/f8_encrypt.obj \
 src/modes/f8/f8_getiv.obj src/modes/f8/f8_setiv.obj src/modes/f8/f8_start.obj src/modes/f8/f8_test_mode.obj \
