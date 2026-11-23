@@ -84,6 +84,11 @@ static const struct {
       "1.3.132.0.10", { "SECP256K1", NULL }
    },
 #endif
+#ifdef LTC_ECC_SM2P256V1
+   {
+      "1.2.156.10197.1.301", { "SM2P256V1", "SM2", NULL }
+   },
+#endif
 #ifdef LTC_ECC_SECP384R1
    {
       "1.3.132.0.34", { "SECP384R1", "NISTP384", "ECC-384", "P-384", NULL }

@@ -474,10 +474,30 @@ int  ecc_encrypt_key(const unsigned char *in,   unsigned long inlen,
                            prng_state *prng, int wprng, int hash,
                            const ecc_key *key);
 
+int  ecc_sign_sm2(const unsigned char *id, unsigned long idlen,
+                  const unsigned char *msg, unsigned long msglen,
+                  unsigned char *out, unsigned long *outlen,
+                  prng_state *prng, int wprng, int hash_idx,
+                  const ecc_key *key);
+
+int  ecc_verify_sm2(const unsigned char *id, unsigned long idlen,
+                    const unsigned char *msg, unsigned long msglen,
+                    const unsigned char *sig, unsigned long siglen,
+                    int hash_idx, int *stat, const ecc_key *key);
+
 int  ecc_decrypt_key(const unsigned char *in,  unsigned long  inlen,
                            unsigned char *out, unsigned long *outlen,
                            const ecc_key *key);
 #endif /* LTC_DER */
+
+int  ecc_encrypt_key_sm2(const unsigned char *in, unsigned long inlen,
+                         unsigned char *out, unsigned long *outlen,
+                         prng_state *prng, int wprng, int hash_idx,
+                         const ecc_key *key);
+
+int  ecc_decrypt_key_sm2(const unsigned char *in, unsigned long inlen,
+                         unsigned char *out, unsigned long *outlen,
+                         int hash_idx, const ecc_key *key);
 
 #define ltc_ecc_sign_hash(i, il, o, ol, p, wp, k)         \
       ecc_sign_hash_v2(i, il, o, ol,                      \

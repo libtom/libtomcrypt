@@ -119,6 +119,9 @@ static const char* curvenames[] = {
 #ifdef LTC_ECC_SECP256K1
    "SECP256K1",
 #endif
+#ifdef LTC_ECC_SM2P256V1
+   "SM2P256V1", "SM2",
+#endif
 #ifdef LTC_ECC_BRAINPOOLP256R1
    "BRAINPOOLP256R1",
 #endif

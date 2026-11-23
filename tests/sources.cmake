@@ -10,6 +10,7 @@ deprecated_test.c
 der_test.c
 dh_test.c
 dsa_test.c
+ecc_sm2_test.c
 ecc_test.c
 ed25519_test.c
 ed448_test.c
