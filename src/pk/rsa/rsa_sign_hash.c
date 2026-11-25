@@ -23,7 +23,7 @@ int rsa_sign_hash_v2(const unsigned char   *hash,   unsigned long  hashlen,
                      ltc_rsa_op_parameters *params,
                      const rsa_key         *key)
 {
-   unsigned long modulus_bitlen, modulus_bytelen, x, y;
+   unsigned long modulus_bitlen, modulus_bytelen, x;
    int           err;
    ltc_rsa_op_checked op_checked = ltc_rsa_op_checked_init(key, params);
 
@@ -37,10 +37,10 @@ int rsa_sign_hash_v2(const unsigned char   *hash,   unsigned long  hashlen,
    }
 
    /* get modulus len in bits */
-   modulus_bitlen = ltc_mp_count_bits((key->N));
+   modulus_bitlen = ltc_mp_count_bits(key->N);
 
   /* siglen must be at least the size of the modulus */
-  modulus_bytelen = ltc_mp_unsigned_bin_size((key->N));
+  modulus_bytelen = ltc_mp_unsigned_bin_size(key->N);
   if (modulus_bytelen > *siglen) {
      *siglen = modulus_bytelen;
      return CRYPT_BUFFER_OVERFLOW;
@@ -54,6 +54,7 @@ int rsa_sign_hash_v2(const unsigned char   *hash,   unsigned long  hashlen,
     }
   } else {
     /* PKCS #1 v1.5 pad the hash */
+    unsigned long y;
     unsigned char *tmpin = NULL;
     const unsigned char *tmpin_ro;
 

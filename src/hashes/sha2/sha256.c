@@ -252,7 +252,6 @@ int sha256_c_done(hash_state * md, unsigned char *out)
        return CRYPT_INVALID_ARG;
     }
 
-
     /* increase the length of the message */
     md->sha256.length += md->sha256.curlen * 8;
 

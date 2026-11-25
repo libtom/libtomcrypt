@@ -20,8 +20,8 @@
    @param key        The RSA key to use
    @return CRYPT_OK if successful
 */
-int rsa_exptmod(const unsigned char *in,   unsigned long inlen,
-                      unsigned char *out,  unsigned long *outlen, int which,
+int rsa_exptmod(const unsigned char *in,  unsigned long inlen,
+                      unsigned char *out, unsigned long *outlen, int which,
                 const rsa_key *key)
 {
    void        *tmp, *tmpa, *tmpb;
@@ -79,13 +79,13 @@ int rsa_exptmod(const unsigned char *in,   unsigned long inlen,
       }
 
       /* rnd = rnd^e */
-      err = ltc_mp_exptmod( rnd, key->e, key->N, rnd);
+      err = ltc_mp_exptmod(rnd, key->e, key->N, rnd);
       if (err != CRYPT_OK) {
              goto error;
       }
 
       /* tmp = tmp*rnd mod N */
-      err = ltc_mp_mulmod( tmp, rnd, key->N, tmp);
+      err = ltc_mp_mulmod(tmp, rnd, key->N, tmp);
       if (err != CRYPT_OK) {
              goto error;
       }
@@ -121,7 +121,7 @@ int rsa_exptmod(const unsigned char *in,   unsigned long inlen,
 
       #ifdef LTC_RSA_BLINDING
       /* unblind */
-      err = ltc_mp_mulmod( tmp, rndi, key->N, tmp);
+      err = ltc_mp_mulmod(tmp, rndi, key->N, tmp);
       if (err != CRYPT_OK) {
              goto error;
       }

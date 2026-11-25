@@ -29,7 +29,7 @@ int hmac_done(hmac_state *hmac, unsigned char *out, unsigned long *outlen)
 
     /* test hash */
     hash = hmac->hash;
-    if((err = hash_is_valid(hash)) != CRYPT_OK) {
+    if ((err = hash_is_valid(hash)) != CRYPT_OK) {
         return err;
     }
 
