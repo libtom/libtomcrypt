@@ -56,7 +56,7 @@ static int s_der_decode_sequence_flexi(const unsigned char *in, unsigned long *i
 {
    ltc_asn1_list *l;
    int err;
-   unsigned long identifier, len, totlen, data_offset, id_len, len_len;
+   unsigned long identifier, len, totlen, data_offset, id_len, len_len, tlv_len;
    void          *realloc_tmp;
 
    LTC_ARGCHK(in    != NULL);
@@ -104,6 +104,7 @@ static int s_der_decode_sequence_flexi(const unsigned char *in, unsigned long *i
          data_offset = id_len + len_len;
          s_print_err("OK", l, err, identifier, data_offset, len);
          len += data_offset;
+         tlv_len = len; /* length of the whole element according to its header */
 
          if (l->type == LTC_ASN1_CUSTOM_TYPE) {
             /* Custom type, use the 'used' field to store the original identifier */
@@ -124,6 +125,7 @@ static int s_der_decode_sequence_flexi(const unsigned char *in, unsigned long *i
           */
          data_offset = 0;
          len = 0;
+         tlv_len = 0;
       }
 
      /* now switch on type */
@@ -138,7 +140,7 @@ static int s_der_decode_sequence_flexi(const unsigned char *in, unsigned long *i
             l->size = 1;
             l->data = XCALLOC(1, sizeof(int));
 
-            if ((err = der_decode_boolean(in, *inlen, l->data)) != CRYPT_OK) {
+            if ((err = der_decode_boolean(in, tlv_len, l->data)) != CRYPT_OK) {
                goto error;
             }
 
@@ -166,7 +168,7 @@ static int s_der_decode_sequence_flexi(const unsigned char *in, unsigned long *i
              }
 
              /* decode field */
-             if ((err = der_decode_integer(in, *inlen, l->data)) != CRYPT_OK) {
+             if ((err = der_decode_integer(in, tlv_len, l->data)) != CRYPT_OK) {
                  goto error;
              }
 
@@ -190,7 +192,7 @@ static int s_der_decode_sequence_flexi(const unsigned char *in, unsigned long *i
                goto error;
             }
 
-            if ((err = der_decode_bit_string(in, *inlen, l->data, &l->size)) != CRYPT_OK) {
+            if ((err = der_decode_bit_string(in, tlv_len, l->data, &l->size)) != CRYPT_OK) {
                goto error;
             }
 
@@ -213,7 +215,7 @@ static int s_der_decode_sequence_flexi(const unsigned char *in, unsigned long *i
                goto error;
             }
 
-            if ((err = der_decode_octet_string(in, *inlen, l->data, &l->size)) != CRYPT_OK) {
+            if ((err = der_decode_octet_string(in, tlv_len, l->data, &l->size)) != CRYPT_OK) {
                goto error;
             }
 
@@ -255,7 +257,7 @@ static int s_der_decode_sequence_flexi(const unsigned char *in, unsigned long *i
                goto error;
             }
 
-            if ((err = der_decode_object_identifier(in, *inlen, l->data, &l->size)) != CRYPT_OK) {
+            if ((err = der_decode_object_identifier(in, tlv_len, l->data, &l->size)) != CRYPT_OK) {
                goto error;
             }
 
@@ -285,7 +287,7 @@ static int s_der_decode_sequence_flexi(const unsigned char *in, unsigned long *i
                goto error;
             }
 
-            if ((err = der_decode_utf8_string(in, *inlen, l->data, &l->size)) != CRYPT_OK) {
+            if ((err = der_decode_utf8_string(in, tlv_len, l->data, &l->size)) != CRYPT_OK) {
                goto error;
             }
 
@@ -308,7 +310,7 @@ static int s_der_decode_sequence_flexi(const unsigned char *in, unsigned long *i
                goto error;
             }
 
-            if ((err = der_decode_printable_string(in, *inlen, l->data, &l->size)) != CRYPT_OK) {
+            if ((err = der_decode_printable_string(in, tlv_len, l->data, &l->size)) != CRYPT_OK) {
                goto error;
             }
 
@@ -331,7 +333,7 @@ static int s_der_decode_sequence_flexi(const unsigned char *in, unsigned long *i
                goto error;
             }
 
-            if ((err = der_decode_teletex_string(in, *inlen, l->data, &l->size)) != CRYPT_OK) {
+            if ((err = der_decode_teletex_string(in, tlv_len, l->data, &l->size)) != CRYPT_OK) {
                goto error;
             }
 
@@ -354,7 +356,7 @@ static int s_der_decode_sequence_flexi(const unsigned char *in, unsigned long *i
                goto error;
             }
 
-            if ((err = der_decode_ia5_string(in, *inlen, l->data, &l->size)) != CRYPT_OK) {
+            if ((err = der_decode_ia5_string(in, tlv_len, l->data, &l->size)) != CRYPT_OK) {
                goto error;
             }
 
@@ -377,7 +379,7 @@ static int s_der_decode_sequence_flexi(const unsigned char *in, unsigned long *i
                goto error;
             }
 
-            len = *inlen;
+            len = tlv_len;
             if ((err = der_decode_utctime(in, &len, l->data)) != CRYPT_OK) {
                goto error;
             }
@@ -454,6 +456,7 @@ static int s_der_decode_sequence_flexi(const unsigned char *in, unsigned long *i
              in     += data_offset;
              *inlen -= data_offset;
              len    -= data_offset;
+             tlv_len -= data_offset;
 
              /* save the decoded ASN.1 len */
              len_len = len;
@@ -503,6 +506,12 @@ static int s_der_decode_sequence_flexi(const unsigned char *in, unsigned long *i
               l->next = NULL;
            }
            goto outside;
+      }
+
+      /* the re-encoded length has to match the header, otherwise it's not DER and we would advance by the wrong amount */
+      if (len != tlv_len) {
+         err = CRYPT_INVALID_PACKET;
+         goto error;
       }
 
       /* advance pointers */
