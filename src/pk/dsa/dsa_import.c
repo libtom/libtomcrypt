@@ -74,7 +74,7 @@ static int s_dsa_import_spki(const unsigned char *in, unsigned long inlen, dsa_k
    }
 
    err = x509_decode_subject_public_key_info(in, inlen,
-                                             LTC_OID_DSA,       tmpbuf, &tmpbuf_len,
+                                             LTC_OID_DSA,       tmpbuf, &tmpbuf_len, 0,
                                              LTC_ASN1_SEQUENCE, params, &len);
    if (err != CRYPT_OK) {
       goto LBL_ERR;

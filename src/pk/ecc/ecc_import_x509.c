@@ -13,7 +13,7 @@ static int s_ecc_import_x509_with_oid(const unsigned char *in, unsigned long inl
 
    len_xy = sizeof(bin_xy);
    len_oid = 16;
-   err = x509_decode_subject_public_key_info(in, inlen, LTC_OID_EC, bin_xy, &len_xy,
+   err = x509_decode_subject_public_key_info(in, inlen, LTC_OID_EC, bin_xy, &len_xy, 0,
                                              LTC_ASN1_OBJECT_IDENTIFIER, (void *)curveoid, &len_oid);
    if (err != CRYPT_OK) { goto error; }
    err = ecc_import_with_oid(bin_xy, len_xy, curveoid, len_oid, PK_PUBLIC, key);

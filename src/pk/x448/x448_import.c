@@ -25,7 +25,7 @@ int x448_import(const unsigned char *in, unsigned long inlen, curve448_key *key)
    LTC_ARGCHK(key != NULL);
 
    key_len = 56uL;
-   if ((err = x509_decode_subject_public_key_info(in, inlen, LTC_OID_X448, key->pub, &key_len, LTC_ASN1_EOL, NULL, 0uL)) == CRYPT_OK) {
+   if ((err = x509_decode_subject_public_key_info(in, inlen, LTC_OID_X448, key->pub, &key_len, 56uL, LTC_ASN1_EOL, NULL, 0uL)) == CRYPT_OK) {
       key->type = PK_PUBLIC;
       key->pka = LTC_PKA_X448;
    }
