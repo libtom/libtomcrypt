@@ -63,6 +63,23 @@ static int s_ed448_import_spki(const unsigned char *in, unsigned long inlen, voi
 }
 #endif
 
+#ifdef LTC_MLDSA
+/* RFC 9881 8.3 - HashML-DSA public keys must not be in X.509 certificates */
+static int s_mldsa_import_spki(const unsigned char *in, unsigned long inlen, void *key)
+{
+   mldsa_key *k = key;
+   int err;
+
+   if ((err = mldsa_import(in, inlen, k)) != CRYPT_OK) return err;
+   if (k->alg != LTC_MLDSA_44 && k->alg != LTC_MLDSA_65 && k->alg != LTC_MLDSA_87) {
+      mldsa_free(k);
+      return CRYPT_PK_INVALID_TYPE;
+   }
+
+   return CRYPT_OK;
+}
+#endif
+
 static const import_fn s_import_spki_fns[LTC_PKA_NUM] = {
 #ifdef LTC_MRSA
                                                 [LTC_PKA_RSA] = (import_fn)rsa_import_spki,
@@ -81,6 +98,15 @@ static const import_fn s_import_spki_fns[LTC_PKA_NUM] = {
 #ifdef LTC_CURVE448
                                                 [LTC_PKA_X448] = (import_fn)s_x448_import_spki,
                                                 [LTC_PKA_ED448] = (import_fn)s_ed448_import_spki,
+#endif
+#ifdef LTC_MLKEM
+                                                [LTC_PKA_MLKEM] = (import_fn)mlkem_import,
+#endif
+#ifdef LTC_MLDSA
+                                                [LTC_PKA_MLDSA] = (import_fn)s_mldsa_import_spki,
+#endif
+#ifdef LTC_SLHDSA
+                                                [LTC_PKA_SLHDSA] = (import_fn)slhdsa_import,
 #endif
 };
 

@@ -13,6 +13,7 @@ int pkcs8_get_children(const ltc_asn1_list *decoded_list, enum ltc_oid_id *pka, 
 {
    int err;
    unsigned long n;
+   enum ltc_pka_id pka_id;
    der_flexi_check flexi_should[4];
    ltc_asn1_list *seq_l = NULL, *priv_l = NULL, *version = NULL;
 
@@ -57,18 +58,59 @@ int pkcs8_get_children(const ltc_asn1_list *decoded_list, enum ltc_oid_id *pka, 
       return err;
    }
 
-   switch (*pka) {
-      /* RFC 8410 requires the parameters field of the AlgorithmIdentifier to be absent */
-      case LTC_OID_X25519:
-      case LTC_OID_ED25519:
-      case LTC_OID_X448:
-      case LTC_OID_ED448:
+   /* RFC 8410 (X25519, Ed25519, X448, Ed448), RFC 9881 (ML-DSA), RFC 9909 (SLH-DSA) and RFC 9935 (ML-KEM) require the
+      parameters field of the AlgorithmIdentifier to be absent. Going by the algorithm covers all of its OIDs. */
+   if ((err = pk_get_pka_id(*pka, &pka_id)) != CRYPT_OK) {
+      return err;
+   }
+   switch (pka_id) {
+      case LTC_PKA_X25519:
+      case LTC_PKA_ED25519:
+      case LTC_PKA_X448:
+      case LTC_PKA_ED448:
+      case LTC_PKA_MLDSA:
+      case LTC_PKA_SLHDSA:
+      case LTC_PKA_MLKEM:
          if ((*alg_id)->child->next != NULL) {
             return CRYPT_INVALID_PACKET;
          }
          break;
       default:
          break;
+   }
+
+   return CRYPT_OK;
+}
+
+/**
+   Cross-check the optional publicKey of a OneAsymmetricKey against the imported key
+
+   RFC 5958 4. requires publicKey, when present, to belong to the privateKey next to it.
+   It is encoded as [1] IMPLICIT BIT STRING, so the content is a zero unused-bits octet
+   followed by the key itself.
+
+   @param priv_key   The privateKey element, the optional fields follow it
+   @param pk         The public key derived from the privateKey
+   @param pklen      The length of the derived public key
+   @return CRYPT_OK if publicKey is absent or matches, CRYPT_INVALID_PACKET if it does not
+*/
+int pkcs8_check_public_key(const ltc_asn1_list *priv_key, const unsigned char *pk, unsigned long pklen)
+{
+   const ltc_asn1_list *l;
+   const unsigned char *p;
+
+   LTC_ARGCHK(priv_key != NULL);
+   LTC_ARGCHK(pk       != NULL);
+
+   for (l = priv_key->next; l != NULL; l = l->next) {
+      if ((l->type != LTC_ASN1_CUSTOM_TYPE) || (l->klass != LTC_ASN1_CL_CONTEXT_SPECIFIC) || (l->tag != 1)) {
+         continue;
+      }
+      p = l->data;
+      if ((p == NULL) || (l->size != pklen + 1) || (p[0] != 0) || (XMEMCMP(p + 1, pk, pklen) != 0)) {
+         return CRYPT_INVALID_PACKET;
+      }
+      break;
    }
 
    return CRYPT_OK;
