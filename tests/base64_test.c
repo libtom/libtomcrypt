@@ -171,6 +171,30 @@ int base64_test(void)
    l1 = strlen(As_ssh_crlf) + 1;
    DO(base64_encode_pem(in, 57, out, &l1, BASE64_PEM_SSH | BASE64_PEM_CRLF));
    COMPARE_TESTVECTOR(out, l1, As_ssh_crlf, strlen(As_ssh_crlf), "PEM SSH-style output with \\r\\n", 0);
+
+   /* 150 bytes are 200 base64 chars, so every variant has to break more than one line */
+   for (x = 0; x < 4; x++) {
+      unsigned char big[150];
+      char plain[201], stripped[201];
+      unsigned long n, col = 0, linelen = (x & 2) ? 72 : 64, eol = (x & 1) ? 2 : 1;
+
+      memset(big, 'A', sizeof(big));
+      l2 = sizeof(plain);
+      DO(base64_encode(big, sizeof(big), plain, &l2));
+      l1 = sizeof(out);
+      DO(base64_encode_pem(big, sizeof(big), out, &l1, ((x & 1) ? BASE64_PEM_CRLF : 0) | ((x & 2) ? BASE64_PEM_SSH : 0)));
+      ENSURE(l1 == l2 + (l2 / linelen) * eol);
+      for (n = 0, slen1 = 0; n < l1; n++) {
+         if (out[n] == '\n') {
+            ENSURE(col == linelen);
+            col = 0;
+         } else if (out[n] != '\r') {
+            stripped[slen1++] = out[n];
+            col++;
+         }
+      }
+      COMPARE_TESTVECTOR(stripped, slen1, plain, l2, "PEM output with several lines", x);
+   }
 #endif
 
    return 0;

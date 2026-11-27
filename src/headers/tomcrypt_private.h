@@ -204,6 +204,14 @@ typedef struct {
    const pbes_properties *data;
    const char *oid;
 } oid_to_pbes;
+
+enum pbes2_oid {
+   PBES2_OID_PBES2,
+   PBES2_OID_PBKDF2,
+   PBES2_OID_PRF,
+   PBES2_OID_CIPHER,
+   PBES2_OID_NUM
+};
 #endif
 
 /*
@@ -530,6 +538,7 @@ int pbes_decrypt(const pbes_arg  *arg, unsigned char *dec_data, unsigned long *d
 
 int pbes1_extract(const ltc_asn1_list *s, pbes_arg *res);
 int pbes2_extract(const ltc_asn1_list *s, pbes_arg *res);
+int pbes2_find_oids(const char *cipher, unsigned long *keylen, const char *prf, const char *oids[PBES2_OID_NUM]);
 #endif
 
 #ifdef LTC_PEM
@@ -650,6 +659,7 @@ int ecc_get_curve_names(const char *oid, const char * const **names);
 int ecc_import_subject_public_key_info(const unsigned char *in, unsigned long inlen, ecc_key *key);
 #ifdef LTC_DER
 int ecc_import_pkcs8_asn1(ltc_asn1_list *alg_id, ltc_asn1_list *priv_key, ecc_key *key);
+int ecc_export_pkcs8(unsigned char *out, unsigned long *outlen, int type, const ecc_key *key);
 #endif
 int ecc_import_with_curve(const unsigned char *in, unsigned long inlen, int type, ecc_key *key);
 int ecc_import_with_oid(const unsigned char *in, unsigned long inlen, unsigned long *oid, unsigned long oid_len, int type, ecc_key *key);
@@ -1037,6 +1047,10 @@ int pkcs8_decode_flexi(const unsigned char  *in,  unsigned long inlen,
 
 int pkcs8_get_children(const ltc_asn1_list *decoded_list, enum ltc_oid_id *pka,
                         ltc_asn1_list **alg_id, ltc_asn1_list **priv_key);
+
+int pkcs8_encode(unsigned char *out, unsigned long *outlen, enum ltc_oid_id algorithm,
+                 ltc_asn1_type parameters_type, const void *parameters, unsigned long parameters_len,
+                 const unsigned char *private_key, unsigned long private_key_len);
 
 #endif  /* LTC_PKCS_8 */
 

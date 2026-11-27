@@ -116,10 +116,10 @@ src/misc/crypt/crypt_unregister_cipher.o src/misc/crypt/crypt_unregister_hash.o 
 src/misc/crypt/crypt_unregister_prng.o src/misc/deprecated.o src/misc/error_to_string.o \
 src/misc/hkdf/hkdf.o src/misc/hkdf/hkdf_test.o src/misc/mem_neq.o src/misc/padding/padding_depad.o \
 src/misc/padding/padding_pad.o src/misc/password_free.o src/misc/pbes/pbes.o src/misc/pbes/pbes1.o \
-src/misc/pbes/pbes2.o src/misc/pem/pem.o src/misc/pem/pem_pkcs.o src/misc/pem/pem_read.o \
-src/misc/pem/pem_ssh.o src/misc/pkcs12/pkcs12_kdf.o src/misc/pkcs12/pkcs12_utf8_to_utf16.o \
-src/misc/pkcs5/pkcs_5_1.o src/misc/pkcs5/pkcs_5_2.o src/misc/pkcs5/pkcs_5_test.o \
-src/misc/scrypt/scrypt.o src/misc/ssh/ssh_decode_sequence_multi.o \
+src/misc/pbes/pbes2.o src/misc/pbes/pbes2_encrypt.o src/misc/pem/pem.o src/misc/pem/pem_encode.o \
+src/misc/pem/pem_pkcs.o src/misc/pem/pem_read.o src/misc/pem/pem_ssh.o src/misc/pkcs12/pkcs12_kdf.o \
+src/misc/pkcs12/pkcs12_utf8_to_utf16.o src/misc/pkcs5/pkcs_5_1.o src/misc/pkcs5/pkcs_5_2.o \
+src/misc/pkcs5/pkcs_5_test.o src/misc/scrypt/scrypt.o src/misc/ssh/ssh_decode_sequence_multi.o \
 src/misc/ssh/ssh_encode_sequence_multi.o src/misc/zeromem.o src/modes/cbc/cbc_decrypt.o \
 src/modes/cbc/cbc_done.o src/modes/cbc/cbc_encrypt.o src/modes/cbc/cbc_getiv.o \
 src/modes/cbc/cbc_setiv.o src/modes/cbc/cbc_start.o src/modes/cfb/cfb_decrypt.o \
@@ -178,7 +178,7 @@ src/pk/asn1/der/utctime/der_decode_utctime.o src/pk/asn1/der/utctime/der_encode_
 src/pk/asn1/der/utctime/der_length_utctime.o src/pk/asn1/der/utf8/der_decode_utf8_string.o \
 src/pk/asn1/der/utf8/der_encode_utf8_string.o src/pk/asn1/der/utf8/der_length_utf8_string.o \
 src/pk/asn1/oid/pk_get.o src/pk/asn1/oid/pk_oid_cmp.o src/pk/asn1/oid/pk_oid_str.o \
-src/pk/asn1/pkcs8/pkcs8_decode_flexi.o src/pk/asn1/pkcs8/pkcs8_get.o \
+src/pk/asn1/pkcs8/pkcs8_decode_flexi.o src/pk/asn1/pkcs8/pkcs8_encode.o src/pk/asn1/pkcs8/pkcs8_get.o \
 src/pk/asn1/x509/x509_decode_public_key_from_certificate.o src/pk/asn1/x509/x509_decode_spki.o \
 src/pk/asn1/x509/x509_decode_subject_public_key_info.o \
 src/pk/asn1/x509/x509_encode_subject_public_key_info.o src/pk/asn1/x509/x509_get_pka.o \

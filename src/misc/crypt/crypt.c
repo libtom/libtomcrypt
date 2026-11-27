@@ -519,6 +519,7 @@ const char *crypt_build_settings =
     " PBES1 "
     " PBES2 "
     " " NAME_VALUE(LTC_PBES_MAX_ITERATIONS) " "
+    " " NAME_VALUE(LTC_PBES2_DEFAULT_ITERATIONS) " "
 #endif
 #if defined(LTC_PEM)
     " PEM "
