@@ -37,7 +37,7 @@ int eax_decrypt_verify_memory(int cipher,
 {
    int            err;
    eax_state     *eax;
-   unsigned char *buf;
+   unsigned char  buf[MAXBLOCKSIZE];
    unsigned long  buflen;
 
    /* stat is cleared before anything else can return, it stays 0 unless the tag is good */
@@ -57,16 +57,8 @@ int eax_decrypt_verify_memory(int cipher,
       return CRYPT_INVALID_ARG;
    }
 
-   /* allocate ram */
-   buf = XMALLOC(taglen);
    eax = XMALLOC(sizeof(*eax));
-   if (eax == NULL || buf == NULL) {
-      if (eax != NULL) {
-         XFREE(eax);
-      }
-      if (buf != NULL) {
-         XFREE(buf);
-      }
+   if (eax == NULL) {
       return CRYPT_MEM;
    }
 
@@ -91,12 +83,11 @@ int eax_decrypt_verify_memory(int cipher,
    err = CRYPT_OK;
 LBL_ERR:
 #ifdef LTC_CLEAN_STACK
-   zeromem(buf, taglen);
+   zeromem(buf, sizeof(buf));
    zeromem(eax, sizeof(*eax));
 #endif
 
    XFREE(eax);
-   XFREE(buf);
 
    return err;
 }

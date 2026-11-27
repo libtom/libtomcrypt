@@ -20,6 +20,8 @@
 */
 int ed25519_import_raw(const unsigned char *in, unsigned long inlen, int which, curve25519_key *key)
 {
+   int err;
+
    LTC_ARGCHK(in   != NULL);
    LTC_ARGCHK(key  != NULL);
 
@@ -27,7 +29,9 @@ int ed25519_import_raw(const unsigned char *in, unsigned long inlen, int which, 
       LTC_ARGCHK(inlen == 32uL || inlen == 64uL);
       XMEMCPY(key->priv, in, sizeof(key->priv));
       if (inlen == 32) {
-         tweetnacl_crypto_sk_to_pk(key->pub, key->priv);
+         if ((err = tweetnacl_crypto_sk_to_pk(key->pub, key->priv)) != CRYPT_OK) {
+            return err;
+         }
       } else {
          XMEMCPY(key->pub, in + 32, sizeof(key->pub));
       }

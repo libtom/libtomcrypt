@@ -36,8 +36,8 @@ int ec25519_import_pkcs8_asn1(ltc_asn1_list *alg_id, ltc_asn1_list *priv_key,
    }
 
    key_len = sizeof(key->priv);
-   if ((err = der_decode_octet_string(priv_key->data, priv_key->size, key->priv, &key_len)) == CRYPT_OK) {
-      fp(key->pub, key->priv);
+   if ((err = der_decode_octet_string(priv_key->data, priv_key->size, key->priv, &key_len)) == CRYPT_OK
+       && (err = fp(key->pub, key->priv)) == CRYPT_OK) {
       key->type = PK_PRIVATE;
       err = pk_get_pka_id(id, &key->pka);
    }

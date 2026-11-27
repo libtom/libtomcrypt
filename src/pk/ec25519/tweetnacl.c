@@ -235,7 +235,8 @@ static LTC_INLINE int tweetnacl_crypto_hash_ctx(u8 *out,const u8 *m,u64 n,const 
   if(cs == 0)
     return hash_memory(hash_idx, m, n, out, &len);
 
-  return hash_memory_multi(hash_idx, out, &len, ctx, cs, m, n, LTC_NULL);
+  /* varargs lengths are read as unsigned long, a u64 breaks on 32-bit big-endian */
+  return hash_memory_multi(hash_idx, out, &len, ctx, cs, m, (unsigned long)n, LTC_NULL);
 }
 
 static LTC_INLINE int tweetnacl_crypto_hash(u8 *out,const u8 *m,u64 n)
@@ -315,8 +316,9 @@ int tweetnacl_crypto_sk_to_pk(u8 *pk, const u8 *sk)
 {
   u8 d[64];
   gf p[4];
+  int err;
   if (find_hash("sha512") == -1) return CRYPT_INVALID_HASH;
-  tweetnacl_crypto_hash(d, sk, 32);
+  if ((err = tweetnacl_crypto_hash(d, sk, 32)) != CRYPT_OK) return err;
   d[0] &= 248;
   d[31] &= 127;
   d[31] |= 64;
@@ -400,10 +402,11 @@ int tweetnacl_crypto_sign(u8 *sm,u64 *smlen,const u8 *m,u64 mlen,const u8 *sk,co
   u8 d[64],h[64],r[64];
   i64 i,j,x[64];
   gf p[4];
+  int err;
 
   if (find_hash("sha512") == -1) return CRYPT_INVALID_HASH;
 
-  tweetnacl_crypto_hash(d, sk, 32);
+  if ((err = tweetnacl_crypto_hash(d, sk, 32)) != CRYPT_OK) return err;
   d[0] &= 248;
   d[31] &= 127;
   d[31] |= 64;
@@ -412,13 +415,14 @@ int tweetnacl_crypto_sign(u8 *sm,u64 *smlen,const u8 *m,u64 mlen,const u8 *sk,co
   FOR(i,(i64)mlen) sm[64 + i] = m[i];
   FOR(i,32) sm[32 + i] = d[32 + i];
 
-  tweetnacl_crypto_hash_ctx(r, sm+32, mlen+32,ctx,cs);
+  err = tweetnacl_crypto_hash_ctx(r, sm+32, mlen+32,ctx,cs);
+  FOR(i,32) sm[i+32] = pk[i]; /* overwrite the secret prefix before any return */
+  if (err != CRYPT_OK) return err;
   reduce(r);
   scalarbase(p,r);
   pack(sm,p);
 
-  FOR(i,32) sm[i+32] = pk[i];
-  tweetnacl_crypto_hash_ctx(h,sm,mlen + 64,ctx,cs);
+  if ((err = tweetnacl_crypto_hash_ctx(h,sm,mlen + 64,ctx,cs)) != CRYPT_OK) return err;
   reduce(h);
 
   FOR(i,64) x[i] = 0;
@@ -470,6 +474,7 @@ int tweetnacl_crypto_sign_open(int *stat, u8 *m,u64 *mlen,const u8 *sm,u64 smlen
   u64 i;
   u8 s[32],t[32],h[64];
   gf p[4],q[4];
+  int err;
 
   *stat = 0;
   if (find_hash("sha512") == -1) return CRYPT_INVALID_HASH;
@@ -483,7 +488,10 @@ int tweetnacl_crypto_sign_open(int *stat, u8 *m,u64 *mlen,const u8 *sm,u64 smlen
   XMEMMOVE(m,sm,smlen);
   XMEMMOVE(s,m + 32,32);
   XMEMMOVE(m + 32,pk,32);
-  tweetnacl_crypto_hash_ctx(h,m,smlen,ctx,cs);
+  if ((err = tweetnacl_crypto_hash_ctx(h,m,smlen,ctx,cs)) != CRYPT_OK) {
+    zeromem(m, smlen);
+    return err;
+  }
   reduce(h);
   scalarmult(p,q,h);
 
